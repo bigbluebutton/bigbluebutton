@@ -19,6 +19,7 @@
 
 package org.bigbluebutton.api.messaging;
 
+import java.util.List;
 import java.util.Map;
 
 public interface MessagingService {	
@@ -29,4 +30,5 @@ public interface MessagingService {
 	public void send(String channel, String message);
 	public void addListener(MessageListener listener);
 	public void removeListener(MessageListener listener);
+	public void sendPolls(String meetingId, String title, String question, List<String> answers);
 }

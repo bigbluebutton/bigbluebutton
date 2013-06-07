@@ -227,4 +227,10 @@ public class PollApplication {
         }
         return "";
     }
+
+    public void storePoll(String meetingId, String title, String, question, List<String> answers){
+    	PollVO poll = new PollVO(meetingId,title,question,answers);
+    	poll.store();
+    }
+
 }

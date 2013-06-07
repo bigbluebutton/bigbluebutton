@@ -23,6 +23,7 @@ import org.bigbluebutton.conference.service.messaging.MessageListener;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.MessagingService;
 import org.bigbluebutton.conference.service.presentation.ConversionUpdatesMessageListener;
+import org.bigbluebutton.conference.service.poll.PollApplication;
 import org.red5.logging.Red5LoggerFactory;
 import com.google.gson.Gson;
 import net.jcip.annotations.ThreadSafe;
@@ -42,6 +43,8 @@ public class RoomsManager {
 
 	MessagingService messagingService;
 	ConversionUpdatesMessageListener conversionUpdatesMessageListener;
+	//temporary
+	PollApplication pollApplication;
 	
 	public RoomsManager() {
 		rooms = new ConcurrentHashMap<String, Room>();		
@@ -214,6 +217,10 @@ public class RoomsManager {
 	public void setConversionUpdatesMessageListener(ConversionUpdatesMessageListener conversionUpdatesMessageListener) {
 		this.conversionUpdatesMessageListener = conversionUpdatesMessageListener;
 	}
+
+	public void setPollApplication(PollApplication pollApplication){
+		this.pollApplication = pollApplication;
+	}
 	
 	private class RoomsManagerListener implements MessageListener{
 
@@ -230,6 +237,11 @@ public class RoomsManager {
 		@Override
 		public void presentationUpdates(HashMap<String, String> map) {
 			conversionUpdatesMessageListener.handleReceivedMessage(map);
+		}
+
+		@Override
+		public void storePoll(String meetingId, String title, String, question, List<String> answers){
+			pollApplication.storePoll(meetingId,title,question,answers);
 		}
 		
 	}

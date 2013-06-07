@@ -16,13 +16,15 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.conference.service.messaging;
 
-import java.util.HashMap;
-import java.util.List;
+package org.bigbluebutton.web.services;
 
-public interface MessageListener {
-	void endMeetingRequest(String meetingId);
-	void presentationUpdates(HashMap<String,String> map);
-	void storePoll(String meetingId, String title, String, question, List<String> answers);
+import org.bigbluebutton.api.domain.Poll;
+import java.util.Map;
+
+public interface IStorageService{
+	public String generatePollID(String meetingID);
+	public String generatePollAnswerID(String meetingID);
+	public void storePoll(Poll p);
+	public void storePollAnswers(String meetingID, String pollID, Map<String,String> answers);
 }

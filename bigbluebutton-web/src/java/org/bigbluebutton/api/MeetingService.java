@@ -211,6 +211,10 @@ public class MeetingService {
 	public void send(String channel, String message) {
 		messagingService.send(channel, message);
 	}
+
+	public void createdPolls(String meetingId, String title, String question, ArrayList<String> answers){
+		messagingService.sendPolls(meetingId,title,question,answers);
+	}
 	
 	public void endMeeting(String meetingId) {		
 		messagingService.endMeeting(meetingId);
