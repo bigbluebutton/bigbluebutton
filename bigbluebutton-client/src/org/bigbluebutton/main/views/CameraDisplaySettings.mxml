@@ -305,11 +305,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:HBox width="100%" height="10%" horizontalAlign="center"> 	
 			<mx:Button id="changeCamera" styleName="cameraDisplaySettingsWindowChangeCamBtn" 
 					   label="{ResourceUtil.getInstance().getString('bbb.publishVideo.changeCameraBtn.labelText')}" 
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.changeCamera.toolTip')}" 
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.changeCameraBtn.toolTip')}" 
 					   click="showCameraSettings()"/>
       <mx:Spacer width="5"/>
 			<mx:ComboBox id="cmbResolution" styleName="cameraDisplaySettingsWindowChangeResolutionCombo" 
-						 dataProvider="{resolutions}" visible="false" change="updateCamera()"/>
+						 dataProvider="{resolutions}" visible="false" change="updateCamera()"
+                         toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.cmbResolution.tooltip')}" />
 			<mx:Spacer width="5"/>
     </mx:HBox>
     

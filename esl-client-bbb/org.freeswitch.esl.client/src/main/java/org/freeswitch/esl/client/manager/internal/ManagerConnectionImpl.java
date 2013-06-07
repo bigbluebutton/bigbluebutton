@@ -18,55 +18,43 @@ public class ManagerConnectionImpl implements ManagerConnection
     private int timeoutSeconds = DEFAULT_TIMEOUT;
     protected String password;
 
-    public ManagerConnectionImpl()
-    {
+    public ManagerConnectionImpl() {
         esl_client = new Client();
     }
 
-    public void setHostname(String hostname)
-    {
+    public void setHostname(String hostname) {
         this.hostname = hostname;
     }
 
-    public void setPort(int port)
-    {
-        if (port <= 0)
-        {
+    public void setPort(int port) {
+        if (port <= 0) {
             this.port = DEFAULT_PORT;
-        }
-        else
-        {
+        } else {
             this.port = port;
         }
     }
 
-    public void setPassword(String password)
-    {
+    public void setPassword(String password) {
         this.password = password;
     }
 
-    public void setTimeout(int timeout)
-    {
+    public void setTimeout(int timeout) {
         this.timeoutSeconds = timeout;
     }
 
-    public String getHostname()
-    {
+    public String getHostname() {
         return hostname;
     }
 
-    public int getPort()
-    {
+    public int getPort() {
         return port;
     }
 
-    public String getPassword()
-    {
+    public String getPassword() {
         return password;
     }
 
-    public Client getESLClient()
-    {
+    public Client getESLClient() {
         return esl_client;
     }
 
@@ -76,6 +64,7 @@ public class ManagerConnectionImpl implements ManagerConnection
         esl_client.addEventFilter( "Event-Name", "heartbeat" );
         esl_client.addEventFilter( "Event-Name", "custom" );
         esl_client.addEventFilter( "Event-Name", "background_job" );
+        
         try {
             Thread.sleep(5000);
         } catch (InterruptedException ex) {

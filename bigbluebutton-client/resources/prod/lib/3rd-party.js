@@ -3,7 +3,10 @@ var presenterUserID = "";
 
 var registerListeners = function() {
   console.log("Listening for events.");
-    BBB.listen("UserKickedOutEvent", function(bbbEvent) {
+  BBB.listen("OpenExternalFileUploadWindowEvent", function(bbbEvent) {
+    console.log("Open file upload dialog. Max file size is [" + bbbEvent.maxFileSize + "].");
+  });
+  BBB.listen("UserKickedOutEvent", function(bbbEvent) {
     console.log("User has been kicked [" + bbbEvent.userID + "].");
   });
   BBB.listen("SwitchedLayoutEvent", function(bbbEvent) {

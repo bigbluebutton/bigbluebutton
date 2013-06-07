@@ -195,7 +195,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					 styleName="micSettingsWindowHearFromHeadsetLabelStyle"/>
 			<mx:Button id="playButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound')}" 
 					   click="playButtonClickHandler()" toggle="true" styleName="micSettingsWindowPlaySoundButtonStyle"
-					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound')}"/>		
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound.toolTip')}"/>		
 		</mx:HBox>
     
 		<mx:HBox width="100%">
@@ -214,7 +214,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   				<mx:Button id="settingBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.changeMic')}" 
   						   styleName="micSettingsWindowChangeMicButtonStyle" toggle="true"
   						   click="showMicSettingsPanel()"
-						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.changeMic')}"/>		
+						   toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.changeMic.toolTip')}"/>		
         </mx:HBox>	
 			</mx:VBox>
 		</mx:HBox>	
@@ -224,13 +224,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:Spacer width="80%"/>
 			<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.join')}" 
 					   styleName="micSettingsWindowJoinButtonStyle"
-					   click="onJoinClicked()"
-					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.join')}"/>
+					   click="onJoinClicked()" />
 			<mx:Spacer width="10"/>
 			<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel')}" 
 					   styleName="micSettingsWindowCancelButtonStyle"
 					   click="onCancelClicked()"
-					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel')}"/>
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel.toolTip')}"/>
 		</mx:HBox>
 		
 	</mx:VBox>		
