@@ -39,7 +39,7 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 	
 	public ParticipantUpdatingRoomListener(Room room, MessagingService messagingService) {
 		this.room = room;
-		this.messagingService=messagingService;
+		this.messagingService = messagingService;
 	}
 	
 	public String getName() {

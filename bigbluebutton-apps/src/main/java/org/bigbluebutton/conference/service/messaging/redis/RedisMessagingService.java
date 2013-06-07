@@ -16,26 +16,21 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.conference.service.messaging;
+package org.bigbluebutton.conference.service.messaging.redis;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.bigbluebutton.conference.service.messaging.MessagingConstants;
+import org.bigbluebutton.conference.service.messaging.MessagingService;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
 
-public class RedisMessagingService implements MessagingService{
+public class RedisMessagingService implements MessagingService {
 
 	private static Logger log = Red5LoggerFactory.getLogger(RedisMessagingService.class, "bigbluebutton");
 	
@@ -43,13 +38,8 @@ public class RedisMessagingService implements MessagingService{
 	private final Executor exec = Executors.newSingleThreadExecutor();
 	private Runnable pubsubListener;
 	
-	private final Set<MessageListener> listeners = new HashSet<MessageListener>();
-
-	public RedisMessagingService(){
-		
-	}
+	private PubSubMessageReceiver listener;
 	
-	@Override
 	public void start() {
 		log.debug("Starting redis pubsub...");		
 		final Jedis jedis = redisPool.getResource();
@@ -65,7 +55,6 @@ public class RedisMessagingService implements MessagingService{
 		}
 	}
 
-	@Override
 	public void stop() {
 		try {
 			redisPool.destroy();
@@ -85,19 +74,9 @@ public class RedisMessagingService implements MessagingService{
 			redisPool.returnResource(jedis);
 		}
 	}
-
-	@Override
-	public void addListener(MessageListener listener) {
-		listeners.add(listener);
-	}
-
-	@Override
-	public void removeListener(MessageListener listener) {
-		listeners.remove(listener);
-	}
 	
 	public void setRedisPool(JedisPool redisPool){
-		this.redisPool=redisPool;
+		this.redisPool = redisPool;
 	}
 
 	private class PubSubListener extends JedisPubSub {
@@ -113,40 +92,7 @@ public class RedisMessagingService implements MessagingService{
 
 		@Override
 		public void onPMessage(String pattern, String channel, String message) {
-			log.debug("Message Received in channel: " + channel);
-			Gson gson = new Gson();
-			HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
-			
-			if(channel.equalsIgnoreCase(MessagingConstants.SYSTEM_CHANNEL)){
-				String meetingId = map.get("meetingId");
-				String messageId = map.get("messageId");
-				if(messageId != null){
-					if(MessagingConstants.END_MEETING_REQUEST_EVENT.equalsIgnoreCase(messageId)){
-						for (MessageListener listener : listeners) {
-							listener.endMeetingRequest(meetingId);
-						}
-					}
-				}
-			}
-			else if(channel.equalsIgnoreCase(MessagingConstants.PRESENTATION_CHANNEL)){
-				for (MessageListener listener : listeners) {
-					listener.presentationUpdates(map);
-				}
-			}
-			else if(channel.equalsIgnoreCase(MessagingConstants.POLLING_CHANNEL)){
-				String meetingId = map.get("meetingId");
-				String messageId = map.get("messageId");
-				if(messageId != null){
-					if(messageId.equalsIgnoreCase(MessagingConstants.SEND_POLLS_EVENT)){
-						String title = map.get("title");
-						String question = map.get("question");
-						List<String> answers = gson.fromJson((String)map.get("answers"),new TypeToken<List<String>>() {}.getType());
-						for (MessageListener listener: listeners)
-							listener.storePoll(meetingId,title,question,answers);
-					}
-				}
-			}
-			
+			if (listener != null) listener.notifyListeners(pattern, channel, message);
 		}
 
 		@Override

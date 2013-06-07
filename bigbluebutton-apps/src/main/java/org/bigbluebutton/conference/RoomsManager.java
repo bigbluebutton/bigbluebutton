@@ -19,30 +19,26 @@
 package org.bigbluebutton.conference;
 
 import org.slf4j.Logger;
-import org.bigbluebutton.conference.service.messaging.MessageListener;
-import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.MessagingService;
-import org.bigbluebutton.conference.service.presentation.ConversionUpdatesMessageListener;
+import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 import org.bigbluebutton.conference.service.poll.PollApplication;
+import org.bigbluebutton.conference.service.presentation.ConversionUpdatesMessageListener;
 import org.red5.logging.Red5LoggerFactory;
 import com.google.gson.Gson;
 import net.jcip.annotations.ThreadSafe;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * This encapsulates access to Room and Participant. This class must be threadsafe.
- */
-@ThreadSafe
 public class RoomsManager {
 	private static Logger log = Red5LoggerFactory.getLogger(RoomsManager.class, "bigbluebutton");
 	
 	private final Map <String, Room> rooms;
 
-	MessagingService messagingService;
-	ConversionUpdatesMessageListener conversionUpdatesMessageListener;
+	private MessagingService messagingService;
+	private ConversionUpdatesMessageListener conversionUpdatesMessageListener;
 	//temporary
 	PollApplication pollApplication;
 	
@@ -52,7 +48,7 @@ public class RoomsManager {
 	
 	public void addRoom(Room room) {
 		log.debug("Adding room " + room.getName());
-		room.addRoomListener(new ParticipantUpdatingRoomListener(room,messagingService)); 	
+		room.addRoomListener(new ParticipantUpdatingRoomListener(room, messagingService)); 	
 		
 		if (checkPublisher()) {
 			HashMap<String,String> map = new HashMap<String,String>();
@@ -84,7 +80,7 @@ public class RoomsManager {
 	}
 
 	public void destroyAllRooms() {
-		for (Map.Entry<String,Room> entry : rooms.entrySet()) {
+		for (Map.Entry<String, Room> entry : rooms.entrySet()) {
 		    Room room = entry.getValue();
 		    room.endAndKickAll();
 		}
@@ -130,17 +126,6 @@ public class RoomsManager {
 		log.warn("Adding listener to a non-existing room " + roomName);
 	}
 	
-	// TODO: this must be broken, right?  where is roomName? (JRT: 9/25/2009)
-//	public void removeRoomListener(IRoomListener listener) {
-//		
-//		Room r = getRoom(roomName);
-//		if (r != null) {
-//			r.removeRoomListener(listener)
-//			return
-//		}	
-//		log.warn("Removing listener from a non-existing room ${roomName}")
-//	}
-
 	public void addParticipant(String roomName, User participant) {
 		log.debug("Add participant " + participant.getName());
 		Room r = getRoom(roomName);
@@ -181,19 +166,11 @@ public class RoomsManager {
 	}
 	
 	public void changeParticipantStatus(String roomName, String userid, String status, Object value) {
-		log.debug("Change participant status " + userid + " - " + status + " [" + value + "]");
 		Room r = getRoom(roomName);
 		if (r != null) {
 			r.changeParticipantStatus(userid, status, value);
 			return;
 		}		
-		log.warn("Changing participant status on a non-existing room " + roomName);
-	}
-
-	public void setMessagingService(MessagingService messagingService) {
-		this.messagingService = messagingService;
-		this.messagingService.addListener(new RoomsManagerListener());
-		this.messagingService.start();
 	}
 	
 	public ArrayList<String> getCurrentPresenter( String room){
@@ -201,49 +178,22 @@ public class RoomsManager {
 		if (r != null) {
 			return r.getCurrentPresenter();		
 		}	
-		log.warn("Getting presenter from a non-existing room " + room);
+		
 		return null;
 	}
 	
-	public void assignPresenter(String room, ArrayList presenter){
+	public void assignPresenter(String room, ArrayList<String> presenter){
 		Room r = getRoom(room);
 		if (r != null) {
 			r.assignPresenter(presenter);
 			return;
 		}	
-		log.warn("Assigning presenter to a non-existing room " + room);	
 	}
 	
-	public void setConversionUpdatesMessageListener(ConversionUpdatesMessageListener conversionUpdatesMessageListener) {
-		this.conversionUpdatesMessageListener = conversionUpdatesMessageListener;
-	}
-
-	public void setPollApplication(PollApplication pollApplication){
-		this.pollApplication = pollApplication;
-	}
-	
-	private class RoomsManagerListener implements MessageListener{
-
-		@Override
-		public void endMeetingRequest(String meetingId) {
-			log.debug("End meeting request for room: " + meetingId);
-			Room room = getRoom(meetingId); // must do this because the room coming in is serialized (no transient values are present)
-			if (room != null)
-				room.endAndKickAll();
-			else
-				log.debug("Could not find room " + meetingId);
-		}
-		
-		@Override
-		public void presentationUpdates(HashMap<String, String> map) {
-			conversionUpdatesMessageListener.handleReceivedMessage(map);
-		}
-
-		@Override
-		public void storePoll(String meetingId, String title, String, question, List<String> answers){
-			pollApplication.storePoll(meetingId,title,question,answers);
-		}
-		
-	}
-	
+	public void endMeeting(String meetingID) {
+		Room room = getRoom(meetingID); 
+		if (room != null) {
+			room.endAndKickAll();
+		} 		
+	}		
 }

@@ -19,22 +19,23 @@
 
 package org.bigbluebutton.conference.service.poll;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class PollVO{
-	private String pollId;
+	private String pollID;
 	private String meetingID;
 	private String title;
 	private String question;
 	private String datetime;
 	private List<AnswerVO> answers;
 
-	public Poll(String meetingID, String title, String question, List<String> answers){
+	public Poll(String meetingID, String title, String question, List<AnswerVO> answers) {
 		this.meetingID = meetingID;
 		this.title = title;
 		this.question = question;
 		this.datetime = Long.toString(System.currentTimeMillis()); 
-		this.answers = AnswerVO.toAnswerVOList(meetingId,null,answers);
+		this.answers = AnswerVO.toAnswerVOList(meetingID, null, answers);
 	}
 
 	public void addAnswer(String answer){
@@ -87,7 +88,7 @@ public class PollVO{
 			this.answer = answer;
 		}
 
-		public static List<AnswerVO> toAnswerVOList(String meetingId, String pollId, List<String> answers){
+		public static List<AnswerVO> toAnswerVOList(String meetingId, String pollId, List<AnswerVO> answers){
 			List<AnswerVO> list = ArrayList<AnswerVO>();
 			for(String ans:answers){
 				AnswerVO ansvo = new AnswerVO(meetingId,pollId,ans);

@@ -16,13 +16,8 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.conference.service.messaging;
+package org.bigbluebutton.conference.service.messaging.redis;
 
-import java.util.HashMap;
-import java.util.List;
-
-public interface MessageListener {
-	void endMeetingRequest(String meetingId);
-	void presentationUpdates(HashMap<String,String> map);
-	void storePoll(String meetingId, String title, String, question, List<String> answers);
+public interface MessageHandler {
+	void handleMessage(String pattern, String channel, String message);
 }
