@@ -29,7 +29,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
   	<bean id="chatHandler" class="org.bigbluebutton.conference.service.chat.ChatHandler">
 		<property name="chatApplication"> <ref local="chatApplication"/></property>
-		<property name="recorderApplication"> <ref local="recorderApplication"/></property>
+		<property name="recorderApplication"> <ref bean="recorderApplication"/></property>
 	</bean>
 	
 	<bean id="chatApplication" class="org.bigbluebutton.conference.service.chat.ChatApplication">

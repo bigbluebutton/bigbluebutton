@@ -33,7 +33,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<ref local="pollApplication"/>
 		</property>
 		<property name="recorderApplication"> 
-			<ref local="recorderApplication"/>
+			<ref bean="recorderApplication"/>
 		</property>
 	</bean>
 	
@@ -56,7 +56,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<bean id="pollRecorder"
 	      class="org.bigbluebutton.conference.service.recorder.polling.PollRecorder">
 		<property name="redisPool">
-			<ref local="redisPool" /> 
+			<ref bean="redisPool" /> 
 		</property>   
 	</bean>
 </beans>

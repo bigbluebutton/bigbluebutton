@@ -29,10 +29,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	
 	<bean id="recorderApplication" class="org.bigbluebutton.conference.service.recorder.RecorderApplication">
-		<property name="recorder"><ref local="redisRecorder" /> </property>
+		<property name="recorder"><ref bean="redisRecorder" /> </property>
 	</bean>
 	
 	<bean id="redisRecorder" class="org.bigbluebutton.conference.service.recorder.RedisDispatcher">
-        <property name="redisPool"><ref local="redisPool" /> </property>
+        <property name="redisPool"><ref bean="redisPool" /> </property>
     </bean> 
 </beans>

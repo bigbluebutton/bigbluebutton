@@ -266,7 +266,7 @@ public class WhiteboardApplication extends ApplicationAdapter implements IApplic
 		recordingService = recService;
 	}
 
-	public void setConnInvokerService(ClientMessageSender connInvokerService) {
-		this.clientSender = connInvokerService;
+	public void setClientMessageSender(ClientMessageSender clientSender) {
+		this.clientSender = clientSender;
 	}
 }

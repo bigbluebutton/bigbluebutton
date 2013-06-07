@@ -28,7 +28,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			">
 	
 	<bean id="roomsManager" class="org.bigbluebutton.conference.RoomsManager">
-		<property name="messagingService" ref="messagingService"></property>
+		<property name="messagingService"> <ref bean="messagingService"/></property>
 		<property name="conversionUpdatesMessageListener" ref="conversionUpdatesMessageListener"></property>
 	</bean>
 	
@@ -38,7 +38,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   		
 	<bean id="participantsHandler" class="org.bigbluebutton.conference.service.participants.ParticipantsHandler">
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
-		<property name="recorderApplication"> <ref local="recorderApplication"/></property>
+		<property name="recorderApplication"> <ref bean="recorderApplication"/></property>
 	</bean>
 	
 	<bean id="participantsApplication" class="org.bigbluebutton.conference.service.participants.ParticipantsApplication">

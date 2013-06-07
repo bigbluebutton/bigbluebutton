@@ -35,7 +35,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<ref local="presentationApplication"/>
 		</property>
 		<property name="recorderApplication"> 
-			<ref local="recorderApplication"/>
+			<ref bean="recorderApplication"/>
 		</property>
 		<property name="conversionUpdatesMessageListener"> 
 			<ref local="conversionUpdatesMessageListener" />
@@ -48,7 +48,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</bean>
 	
 	<bean id="presentation.service" class="org.bigbluebutton.conference.service.presentation.PresentationService">
-		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
+		<property name="participantsApplication"> <ref bean="participantsApplication"/></property>
 		<property name="presentationApplication"> <ref local="presentationApplication"/></property>
 	</bean>
 

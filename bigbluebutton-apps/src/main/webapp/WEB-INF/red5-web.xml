@@ -63,6 +63,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<bean id="connInvokerService" class="org.bigbluebutton.conference.ConnectionInvokerService" init-method="start" destroy-method="stop"/>
 	
+	<import resource="bbb-redis-pool.xml"/>
+	<import resource="bbb-redis-recorder.xml"/>
 	<import resource="bbb-app-chat.xml" />
 	<import resource="bbb-app-layout.xml" />
 	<import resource="bbb-app-poll.xml" />
@@ -71,7 +73,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<import resource="bbb-app-users.xml" />
 	<import resource="bbb-voice-app.xml" />
   	<import resource="bbb-voice-freeswitch.xml" />
-  	<import resource="bbb-redis-recorder.xml"/>
+  	
   	<import resource="bbb-redis-messaging.xml"/>
-  	<import resource="bbb-redis-pool.xml"/>
+  	
 </beans>

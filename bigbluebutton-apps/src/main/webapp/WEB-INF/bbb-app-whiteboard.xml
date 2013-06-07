@@ -27,17 +27,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			http://www.springframework.org/schema/util/spring-util-2.0.xsd
 			">
 	
-	<bean id="whiteboardApplication" 
-	    class="org.bigbluebutton.conference.service.whiteboard.WhiteboardApplication">
-	    <property name="roomManager"> <ref local="whiteboardRoomManager"/></property>
+	<bean id="whiteboardApplication" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardApplication">
 	    <property name="recorderApplication"> <ref local="recorderApplication"/></property>
-	    <property name="connInvokerService"> <ref bean="connInvokerService"/></property>
+	    <property name="clientSender"> <ref bean="connInvokerService"/></property>
 	</bean>
-	
+
+	<bean id="whiteboardClientSender" class="org.bigbluebutton.conference.service.whiteboard.ClientMessageSender">
+		<property name="vonnectionInvokerService"> <ref local="connInvokerService"/></property>
+	</bean>
+		
 	<bean id="whiteboard.service" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardService">
 		<property name="whiteboardApplication"> <ref local="whiteboardApplication"/></property>
 	</bean>
 	
 	<bean id="whiteboardRoomManager" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardRoomManager"/>
 
+	<bean id="whiteboardRecordingService" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardRecordingService">
+		<property name="recorderApplication"> <ref bean="recorderApplication"/></property>
+	</bean>
 </beans>
