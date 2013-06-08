@@ -164,10 +164,20 @@ class ToolController {
             log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
             render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
         } else {
-            //String destinationURL = createLink(controller:"tool", action:"view", params:"[foo: 'bar', boo: 'far']") 
-            String destinationURL = createLink(controller:"tool", action:"view") 
-            log.debug "destinationURL=[" + destinationURL + "]"
-            redirect(url:destinationURL)
+            List<Object> recordings = bigbluebuttonService.getRecordings(sessionParams)
+            for(Map<String, Object> recording: recordings){
+                /// Calculate duration
+                long endTime = Long.parseLong((String)recording.get("endTime"))
+                endTime -= (endTime % 1000)
+                long startTime = Long.parseLong((String)recording.get("startTime"))
+                startTime -= (startTime % 1000)
+                int duration = (endTime - startTime) / 60000
+                /// Add duration
+                recording.put("duration", duration )
+            }
+            
+            render(view: "index", model: ['params': sessionParams, 'recordingList': recordings, 'ismoderator': bigbluebuttonService.isModerator(sessionParams)])
+            
         }
 
     }
@@ -198,10 +208,19 @@ class ToolController {
             log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
             render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
         } else {
-            //String destinationURL = createLink(controller:"tool", action:"view", params:"[foo: 'bar', boo: 'far']")
-            String destinationURL = createLink(controller:"tool", action:"view")
-            log.debug "destinationURL=[" + destinationURL + "]"
-            redirect(url:destinationURL)
+            List<Object> recordings = bigbluebuttonService.getRecordings(sessionParams)
+            for(Map<String, Object> recording: recordings){
+                /// Calculate duration
+                long endTime = Long.parseLong((String)recording.get("endTime"))
+                endTime -= (endTime % 1000)
+                long startTime = Long.parseLong((String)recording.get("startTime"))
+                startTime -= (startTime % 1000)
+                int duration = (endTime - startTime) / 60000
+                /// Add duration
+                recording.put("duration", duration )
+            }
+            
+            render(view: "index", model: ['params': sessionParams, 'recordingList': recordings, 'ismoderator': bigbluebuttonService.isModerator(sessionParams)])
         }
 
     }
