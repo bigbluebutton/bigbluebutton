@@ -144,6 +144,8 @@ setEventsOnThumbnail = function($thumb) {
       $parent = $("#thumbnail-" + options.start).parent();
       $parent.addClass("active");
       $(".thumbnail-label", $parent).show();
+
+      animateToCurrentSlide();
     },
     onEnd: function( options ) {
       $parent = $("#thumbnail-" + options.start).parent();
@@ -168,6 +170,33 @@ setEventsOnThumbnail = function($thumb) {
       $(".thumbnail-label", $(this)).hide();
     }
   });
+}
+
+$("input[name='autoscrollEnabled']").live('change', function() {
+  animateToCurrentSlide();
+});
+
+animateToCurrentSlide = function(force) {
+  force = typeof force !== 'undefined' ? force : false;
+
+  if (force || isAutoscrollEnabled()) {
+    var currentSlide = getCurrentSlide();
+    // animate the scroll of thumbnails to center the current slide
+    var thumbnailOffset = currentSlide.prop('offsetTop') - $("#thumbnails").prop('offsetTop') + (currentSlide.prop('offsetHeight') - $("#thumbnails").prop('offsetHeight')) / 2;
+    $("#thumbnails").animate({ scrollTop: thumbnailOffset }, 'slow');
+  }
+}
+
+isAutoscrollEnabled = function() {
+  return $("input[name='autoscrollEnabled']").is(':checked');
+}
+
+setAutoscrollEnabled = function(value) {
+  $('input[name=autoscrollEnabled]').attr('checked', value);
+}
+
+getCurrentSlide = function() {
+  return $(".thumbnail-wrapper.active");
 }
 
 /*
@@ -240,7 +269,6 @@ generateThumbnails = function() {
         div.append(label);
         div.append(hiddenDesc);
 
-//        $("#thumbnails").append(div);
         imagesList.push(timeIn);
         elementsMap[timeIn] = div;
 	
