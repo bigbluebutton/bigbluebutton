@@ -32,6 +32,28 @@ getUrlParameters = function() {
 }
 
 /*
+ * From: http://stackoverflow.com/questions/1634748/how-can-i-delete-a-query-string-parameter-in-javascript/4827730#4827730
+ */
+removeUrlParameter = function(url, param) {
+  var urlparts= url.split('?');
+  if (urlparts.length>=2) {
+    var prefix= encodeURIComponent(param)+'=';
+    var pars= urlparts[1].split(/[&;]/g);
+    for (var i=pars.length; i-- > 0;) {
+      if (pars[i].indexOf(prefix, 0)==0)
+        pars.splice(i, 1);
+    }
+    if (pars.length > 0) {
+      return urlparts[0]+'?'+pars.join('&');
+    } else {
+      return urlparts[0];
+    }
+  } else {
+    return url;
+  }
+}
+
+/*
  * Converts seconds to HH:MM:SS
  * From: http://stackoverflow.com/questions/6312993/javascript-seconds-to-time-with-format-hhmmss#6313008
  */
@@ -44,6 +66,19 @@ secondsToHHMMSS = function(secs) {
   if (minutes < 10) {minutes = "0"+minutes;}
   if (seconds < 10) {seconds = "0"+seconds;}
   var time    = hours+':'+minutes+':'+seconds;
+  return time;
+}
+
+secondsToYouTubeFormat = function(secs) {
+  var hours   = Math.floor(secs / 3600);
+  var minutes = Math.floor((secs - (hours * 3600)) / 60);
+  var seconds = secs - (hours * 3600) - (minutes * 60);
+
+  var time = "";
+  if (hours > 0)   {time += hours+"h";}
+  if (minutes > 0) {time += minutes+"m";}
+  if (seconds > 0) {time += seconds+"s";}
+
   return time;
 }
 
@@ -64,6 +99,11 @@ secondsToHHMMSSText = function(secs) {
   else if (seconds == 1) {time += seconds + " second ";}
 
   return time;
+}
+
+replaceTimeOnUrl = function(secs) {
+  var newUrl = removeUrlParameter(document.URL, "t") + "&t=" + secondsToYouTubeFormat(secs);
+  window.history.replaceState({}, "", newUrl);
 }
 
 var params = getUrlParameters();
@@ -115,8 +155,8 @@ setEventsOnThumbnail = function($thumb) {
   // Click on thumbnail changes the slide in popcorn
   $thumb.parent().on("click", function() {
     goToSlide($thumb.attr("data-in"));
+    replaceTimeOnUrl($thumb.attr("data-in"));
   });
-
 
   // Mouse over/out to show/hide the label over the thumbnail
   $wrapper = $thumb.parent();
