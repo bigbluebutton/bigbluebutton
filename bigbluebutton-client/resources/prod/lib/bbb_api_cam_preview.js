@@ -18,22 +18,22 @@
      */    
     CAM_PREVIEW.previewCamera = function(camIndex, camWidth, camHeight, 
                                           camKeyFrameInterval, camModeFps, 
-                                          camQualityBandwidth, camQualityPicture) {
+                                          camQualityBandwidth, camQualityPicture, avatarURL) {
       console.log("CAM_PREVIEW::previewCamera [" + camIndex + "]");
       var swfObj = getSwfObj();
       if (swfObj) {
           swfObj.startPreviewCamera(camIndex, camWidth, camHeight, camKeyFrameInterval, camModeFps, 
-                               camQualityBandwidth, camQualityPicture);    
+                               camQualityBandwidth, camQualityPicture, avatarURL);    
       }
     }
 
     /**
      * Stop previewing user's webcam.
      */ 
-    CAM_PREVIEW.stopPreviewCamera = function() {
+    CAM_PREVIEW.stopPreviewCamera = function(avatarURL) {
       var swfObj = getSwfObj();
       if (swfObj) {
-          swfObj.stopPreviewCamera();    
+          swfObj.stopPreviewCamera(avatarURL);    
       }
     }
     

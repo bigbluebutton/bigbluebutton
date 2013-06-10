@@ -104,7 +104,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.managers.Slide;
 			import org.bigbluebutton.modules.present.managers.SlideManager;
 			import org.bigbluebutton.modules.present.ui.views.PresentOptions;
-            import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
              			
       public static const TITLE:String = "Presentation";
@@ -613,9 +613,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function openUploadWindow():void {
-				var event:UploadEvent = new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW);
-				event.maxFileSize = presentOptions.maxFileSize;
-				dispatchEvent(event);
+        if (presentOptions.openExternalFileUploadDialog) {
+          var fileEvent:UploadEvent = new UploadEvent(UploadEvent.OPEN_EXTERNAL_UPLOAD_WINDOW);
+          fileEvent.maxFileSize = presentOptions.maxFileSize;
+          var gDispatcher:Dispatcher = new Dispatcher();
+          gDispatcher.dispatchEvent(fileEvent);         
+        } else {
+          var event:UploadEvent = new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW);
+          event.maxFileSize = presentOptions.maxFileSize;
+          dispatchEvent(event);
+        }
+
 			}
 
 		]]>
@@ -629,15 +637,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:ControlBar id="presCtrlBar" name="presCtrlBar" width="100%" height="{CONTROL_BAR_HEIGHT}" styleName="presentationWindowControlsStyle" >
 		<mx:Button id="uploadPres" visible="false" height="30" styleName="presentationUploadButtonStyle"
     		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
-    	   	click="onUploadButtonClicked()"
-    	   	tabIndex="{baseIndex+5}"/>        	  
+    	   	click="onUploadButtonClicked()" tabIndex="{baseIndex+5}"/>        	  
     	<mx:Spacer width="100%" id="spacer1"/>
     	<mx:Button id="backButton" visible="false" width="45" height="30" styleName="presentationBackButtonStyle"
     		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip')}" click="gotoPreviousSlide()"
     		tabIndex="{baseIndex+6}"/>
     	<mx:Button id="btnSlideNum" visible="false" label="" click="showThumbnails()" doubleClick="showPageDialog()" 
-			toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.slideNumLbl.toolTip')}"
-			tabIndex="{baseIndex+7}" accessibilityName="{ResourceUtil.getInstance().getString('bbb.presentation.slideNumberButton')}"/>
+			toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.btnSlideNum.toolTip')}"
+			tabIndex="{baseIndex+7}"/>
     	<mx:Button id="forwardButton" visible="false" width="45" height="30" styleName="presentationForwardButtonStyle"
     		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.forwardBtn.toolTip')}" click="gotoNextSlide()"
     		tabIndex="{baseIndex+8}"/>    				

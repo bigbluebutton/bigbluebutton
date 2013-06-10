@@ -262,7 +262,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
         var message:ChatMessageVO = event.message;
         
-        if (!publicChat && (message.fromUserID == chatWithUserID || UsersUtil.isMe(message.fromUserID))) {
+        if (!publicChat && 
+          ( (message.fromUserID == chatWithUserID && UsersUtil.isMe(message.toUserID)) ||
+            (message.toUserID == chatWithUserID && UsersUtil.isMe(message.fromUserID)) )) {
           chatMessages.newChatMessage(event.message);
           scrollToEndOfMessage();
         }        
@@ -607,7 +609,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                  toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" 
                  click="sendMessages()"
                  tabIndex="{baseIndex+2}"
-                 accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.name')}"/>  
+                 accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.accessibilityName')}"/>  
       <!--mx:ColorPicker id="cmpColorPicker" showTextField="false" 
                  toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
                  selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"

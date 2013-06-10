@@ -49,10 +49,11 @@ public class Parameter {
     public static final String CUSTOM_USER_ID = "custom_lis_person_sourcedid";
     
     //BigBlueButton custom parameters
-    public static final String CUSTOM_BBB_RECORD = "custom_bbb_recording";
-    public static final String CUSTOM_BBB_VOICEBRIDGE = "custom_bbb_voicebridge";
-    public static final String CUSTOM_BBB_DURATION = "custom_bbb_duration";
-    public static final String CUSTOM_BBB_WELCOME = "custom_bbb_welcome";
+    public static final String CUSTOM_RECORD = "custom_record";
+    public static final String CUSTOM_VOICEBRIDGE = "custom_voicebridge";
+    public static final String CUSTOM_DURATION = "custom_duration";
+    public static final String CUSTOM_WELCOME = "custom_welcome";
+    public static final String CUSTOM_MODE = "custom_mode";
     
     ///BigBlueButton internal parameters
     public static final String BBB_RECORDING_ID = "bbb_recording_id";
