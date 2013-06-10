@@ -105,6 +105,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} else {
 					showHelpBtn = false;
 				}
+                
+                meetingNameLbl.text = BBB.initUserConfigManager().getMeetingTitle();
 			}
 			
 			public function addButton(name:String):Button{
@@ -236,7 +238,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:HBox id="addedBtns"/>
 	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}"/>
 	<views:MuteMeButton id="muteMeBtn"  height="20" />
-	<mx:Spacer width="100%"/>
+	<mx:Spacer width="50%"/>
+    <mx:Label id="meetingNameLbl" />
+    <mx:Spacer width="50%"/>
 	<views:LanguageSelector id="langSelector" 
 							visible="false" 
 							tabIndex="{baseIndex+numButtons+5}"
