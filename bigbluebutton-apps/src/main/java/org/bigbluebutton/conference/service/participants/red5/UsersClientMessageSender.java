@@ -6,44 +6,55 @@ import java.util.Map;
 
 import org.bigbluebutton.conference.User;
 import org.bigbluebutton.conference.meeting.messaging.red5.ClientMessage;
+import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
+import org.bigbluebutton.conference.meeting.messaging.red5.SharedObjectClientMessage;
 
 public class UsersClientMessageSender {
-
-	public void endAndKickAll() {
-		so.sendMessage("logout", new ArrayList());
-		
-		Map<String, Object> message = new HashMap<String, Object>();
-		message.put("enabled", enabled);
-		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, meetingID, "WhiteboardEnableWhiteboardCommand", message);
+	private static final String USERS_SO = "participantsSO";   
+	
+	private ConnectionInvokerService service;
+	
+	public void setConnectionInvokerService(ConnectionInvokerService service) {
+		this.service = service;
+	}
+	
+	public void endAndKickAll(String meetingID) {
+		SharedObjectClientMessage m = new SharedObjectClientMessage(meetingID, USERS_SO, "logout", new ArrayList<Object>());
 		service.sendMessage(m);
 	}
 
 
-	public void assignPresenter(ArrayList<String> presenter) {
-		so.sendMessage("assignPresenterCallback", presenter);
+	public void assignPresenter(String meetingID, ArrayList<Object> presenter) {
+		SharedObjectClientMessage m = new SharedObjectClientMessage(meetingID, USERS_SO, "assignPresenterCallback", presenter);
+		service.sendMessage(m);		
 	}
 	
 
-	public void participantJoined(User p) {
-		ArrayList args = new ArrayList();
+	public void participantJoined(String meetingID, User p) {
+		ArrayList args = new ArrayList<Object>();
 		args.add(p.toMap());
-		log.debug("Sending participantJoined " + p.getExternalUserID() + " to client.");
-		so.sendMessage("participantJoined", args);
+
+		SharedObjectClientMessage m = new SharedObjectClientMessage(meetingID, USERS_SO, "participantJoined", args);
+		service.sendMessage(m);
 	}
 
 
-	public void participantLeft(User p) {
-		ArrayList args = new ArrayList();
+	public void participantLeft(String meetingID, User p) {
+		ArrayList<Object> args = new ArrayList<Object>();
 		args.add(p.getInternalUserID());
-		so.sendMessage("participantLeft", args);
+
+		SharedObjectClientMessage m = new SharedObjectClientMessage(meetingID, USERS_SO, "participantLeft", args);
+		service.sendMessage(m);
 	}
 
-	public void participantStatusChange(User p, String status, Object value) {
-		ArrayList args = new ArrayList();
+	public void participantStatusChange(String meetingID, User p, String status, Object value) {
+		ArrayList<Object> args = new ArrayList<Object>();
 		args.add(p.getInternalUserID());
 		args.add(status);
-		args.add(value);
-		so.sendMessage("participantStatusChange", args);
+		args.add(value);;
+		
+		SharedObjectClientMessage m = new SharedObjectClientMessage(meetingID, USERS_SO, "participantStatusChange", args);
+		service.sendMessage(m);
 	}
 
 }

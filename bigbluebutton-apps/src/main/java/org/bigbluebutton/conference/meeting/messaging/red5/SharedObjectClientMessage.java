@@ -18,19 +18,19 @@
 */
 package org.bigbluebutton.conference.meeting.messaging.red5;
 
-import java.util.Map;
+import java.util.ArrayList;
 
-public class SharedObjectClientMessage {
+public class SharedObjectClientMessage implements ClientMessage {
 	public static final String BROADCAST = "broadcast";
 	public static final String DIRECT = "direct";
 	public static final String SHAREDOBJECT = "sharedobject";
 	
 	private String meetingID;
 	private String sharedObjectName;
-	private Map<String, Object> message;
+	private ArrayList<Object> message;
 	private String messageName;
 	
-	public SharedObjectClientMessage(String meetingID, String sharedObjectName, String messageName, Map<String, Object> message) {
+	public SharedObjectClientMessage(String meetingID, String sharedObjectName, String messageName, ArrayList<Object> message) {
 		this.meetingID = meetingID;
 		this.message = message;
 		this.messageName = messageName;
@@ -52,7 +52,7 @@ public class SharedObjectClientMessage {
 		return messageName;
 	}
 	
-	public Map<String, Object> getMessage() {
+	public ArrayList<Object> getMessage() {
 		return message;
 	}
 }

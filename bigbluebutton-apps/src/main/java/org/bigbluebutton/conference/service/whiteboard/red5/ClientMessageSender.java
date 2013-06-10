@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.bigbluebutton.conference.meeting.messaging.red5.ClientMessage;
+import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage;
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
+import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage;
 import org.bigbluebutton.conference.service.whiteboard.shapes.Annotation;
 
 public class ClientMessageSender {
@@ -21,21 +21,21 @@ public class ClientMessageSender {
 		Map<String, Object> message = new HashMap<String, Object>();
 		message.put("presentationID", presentationID);
 		message.put("numberOfPages", numPages);
-		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, meetingID, "WhiteboardChangePresentationCommand", message);
+		BroadcastClientMessage m = new BroadcastClientMessage(meetingID, "WhiteboardChangePresentationCommand", message);
 		service.sendMessage(m);	
 	}
 	
 	public void enableWhiteboard(String meetingID, boolean enabled) {
 		Map<String, Object> message = new HashMap<String, Object>();
 		message.put("enabled", enabled);
-		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, meetingID, "WhiteboardEnableWhiteboardCommand", message);
+		BroadcastClientMessage m = new BroadcastClientMessage(meetingID, "WhiteboardEnableWhiteboardCommand", message);
 		service.sendMessage(m);
 	}
 	
 	public void isWhiteboardEnabled(String meetingID, String userID, boolean enabled) {
 		Map<String, Object> message = new HashMap<String, Object>();
 		message.put("enabled", enabled);
-		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, userID, "WhiteboardIsWhiteboardEnabledReply", message);
+		DirectClientMessage m = new DirectClientMessage(meetingID, userID, "WhiteboardIsWhiteboardEnabledReply", message);
 		service.sendMessage(m);
 	}
 	
@@ -53,12 +53,12 @@ public class ClientMessageSender {
 		message.put("presentationID", presentationID);
 		message.put("pageNumber", pageNumber);
 		message.put("annotations", a);
-		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, userID, "WhiteboardRequestAnnotationHistoryReply", message);
+		DirectClientMessage m = new DirectClientMessage(meetingID, userID, "WhiteboardRequestAnnotationHistoryReply", message);
 		service.sendMessage(m);		
 	}
 	
 	public void sendAnnotation(String meetingID, Map<String, Object> annotation) {
-		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, meetingID, "WhiteboardNewAnnotationCommand", annotation);
+		BroadcastClientMessage m = new BroadcastClientMessage(meetingID, "WhiteboardNewAnnotationCommand", annotation);
 		service.sendMessage(m);
 	}
 	
@@ -66,19 +66,19 @@ public class ClientMessageSender {
 		Map<String, Object> message = new HashMap<String, Object>();		
 		message.put("pageNum", pageNum);
 		message.put("numAnnotations", numAnnotations);
-		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, meetingID, "WhiteboardChangePageCommand", message);
+		BroadcastClientMessage m = new BroadcastClientMessage(meetingID, "WhiteboardChangePageCommand", message);
 		service.sendMessage(m);		
 	}
 	
 	public void clear(String meetingID) {
 		Map<String, Object> message = new HashMap<String, Object>();		
-		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, meetingID, "WhiteboardClearCommand", message);
+		BroadcastClientMessage m = new BroadcastClientMessage(meetingID, "WhiteboardClearCommand", message);
 		service.sendMessage(m);	
 	}
 	
 	public void undo(String meetingID) {
 		Map<String, Object> message = new HashMap<String, Object>();		
-		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, meetingID, "WhiteboardUndoCommand", message);
+		BroadcastClientMessage m = new BroadcastClientMessage(meetingID, "WhiteboardUndoCommand", message);
 		service.sendMessage(m);
 	}
 }

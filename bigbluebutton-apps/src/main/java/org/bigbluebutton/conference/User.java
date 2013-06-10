@@ -102,8 +102,8 @@ public class User implements Serializable {
 		}
 	}
 	
-	public Map toMap() {
-		Map m = new HashMap();
+	public Map<String, Object> toMap() {
+		Map<String, Object> m = new HashMap<String, Object>();
 		m.put("userid", internalUserID);
 		m.put("externUserID", externalUserID);
 		m.put("name", name);
