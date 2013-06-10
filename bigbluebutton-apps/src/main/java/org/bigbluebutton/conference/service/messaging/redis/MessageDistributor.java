@@ -10,12 +10,17 @@ import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-public class PubSubMessageReceiver {
-
+public class MessageDistributor {
+	private ReceivedMessageHandler handler;
 	private Set<MessageHandler> listeners;
 	
 	public void setApplicationListeners(Set<MessageHandler> listeners) {
 		this.listeners = listeners;
+	}
+	
+	public void setMessageHandler(ReceivedMessageHandler handler) {
+		this.handler = handler;
+		handler.setMessageDistributor(this);
 	}
 	
 	public void notifyListeners(String pattern, String channel, String message) {

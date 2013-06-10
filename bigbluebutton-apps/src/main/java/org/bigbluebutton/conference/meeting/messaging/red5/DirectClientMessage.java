@@ -16,33 +16,39 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.conference;
+package org.bigbluebutton.conference.meeting.messaging.red5;
 
 import java.util.Map;
 
-public class ClientMessage {
-	public static final String BROADCAST = "broadcast";
-	public static final String DIRECT = "direct";
-	public static final String SHAREDOBJECT = "sharedobject";
+public class DirectClientMessage implements ClientMessage {
 	
-	private String type;
-	private String dest;
+	private String meetingID;
+	private String userID;
 	private Map<String, Object> message;
 	private String messageName;
+	private String sharedObjectName;
 	
-	public ClientMessage(String type, String dest, String messageName, Map<String, Object> message) {
-		this.type = type;
-		this.dest = dest;
+	public DirectClientMessage(String meetingID, String userID, String messageName, Map<String, Object> message) {
+		this.meetingID = meetingID;
+		this.userID = userID;
 		this.message = message;
 		this.messageName = messageName;
 	}
 	
-	public String getType() {
-		return type;
+	public void setSharedObjectName(String name) {
+		sharedObjectName = name;
 	}
 	
-	public String getDest() {
-		return dest;
+	public String getSharedObjectName() {
+		return sharedObjectName;
+	}
+	
+	public String getMeetingID() {
+		return meetingID;
+	}
+	
+	public String getUserID() {
+		return userID;
 	}
 	
 	public String getMessageName() {

@@ -20,6 +20,8 @@
 package org.bigbluebutton.conference;
 
 import org.slf4j.Logger;
+import org.bigbluebutton.conference.service.participants.messaging.redis.UsersMessagePublisher;
+import org.bigbluebutton.conference.service.participants.recorder.redis.UsersEventRecorder;
 import org.red5.logging.Red5LoggerFactory;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.ArrayList;
@@ -33,29 +35,21 @@ public class Meeting {
 	private String name;
 	private Map <String, User> users;
 
-	private transient final Map<String, IRoomListener> listeners;
-
-	public Meeting(String name) {
-		this.name = name;
+	private UsersEventRecorder usersEventRecorder;
+	private UsersMessagePublisher usersMessagePublisher;
+	
+	public void setUsersEventRecorder(UsersEventRecorder recorder) {
+		usersEventRecorder = recorder;
+	}
+	
+	public void setUsersMessagePublisher(UsersMessagePublisher usersMessagePublisher) {
+		this.usersMessagePublisher = usersMessagePublisher;
+	}
+	
+	public Meeting(UsersEventRecorder recorder, UsersMessagePublisher usersMessagePublisher) {
+		usersEventRecorder = recorder;
+		this.usersMessagePublisher = usersMessagePublisher;
 		users = new ConcurrentHashMap<String, User>();
-
-		listeners   = new ConcurrentHashMap<String, IRoomListener>();
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void addRoomListener(IRoomListener listener) {
-		if (! listeners.containsKey(listener.getName())) {
-			log.debug("adding room listener");
-			listeners.put(listener.getName(), listener);			
-		}
-	}
-
-	public void removeRoomListener(IRoomListener listener) {
-		log.debug("removing room listener");
-		listeners.remove(listener);		
 	}
 
 	public void addParticipant(User participant) {

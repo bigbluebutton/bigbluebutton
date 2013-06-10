@@ -28,16 +28,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			">
 	
 	
-    <bean id="redisMessageSender" class="org.bigbluebutton.conference.service.messaging.RedisMessagingService">
+    <bean id="redisMessageSender" class="org.bigbluebutton.conference.service.messaging.redis.MessageSender">
     	<property name="redisPool"> <ref bean="redisPool"/></property>
   	</bean>
 
     <bean id="redisMessageReceiver" class="org.bigbluebutton.conference.service.messaging.redis.MessageReceiver">
     	<property name="redisPool"> <ref bean="redisPool"/></property>
-    	<property name="redisMessageHandler"> <ref local="messageHandler"/> </property>
+    	<property name="redisMessageHandler"> <ref local="redisMessageHandler"/> </property>
   	</bean>
 
     <bean id="redisMessageHandler" class="org.bigbluebutton.conference.service.messaging.ReceivedMessageHandler"/>
-  		  	
+  	
+  	<bean id="redisMessageDistributor" class="org.bigbluebutton.conference.service.messaging.MessageDistributor">
+  	     <property name="redisMessageHandler"> <ref local="redisMessageHandler"/> </property>
+  	</bean>	  	
  
 </beans>

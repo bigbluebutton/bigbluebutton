@@ -16,9 +16,8 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.conference;
+package org.bigbluebutton.conference.meeting.messaging.red5;
 
-import java.util.Iterator;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,14 +26,20 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-
+import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.scope.IScope;
 import org.red5.server.api.scope.ScopeType;
 import org.red5.server.api.service.ServiceUtils;
+import org.red5.server.api.so.ISharedObject;
+import org.red5.server.api.so.ISharedObjectService;
+import org.red5.server.so.SharedObjectService;
+import org.red5.server.util.ScopeUtils;
+import org.slf4j.Logger;
 
 public class ConnectionInvokerService {
-
+	private static Logger log = Red5LoggerFactory.getLogger(ConnectionInvokerService.class, "bigbluebutton");
+	
 	private static final int NTHREADS = 1;
 	private static final Executor exec = Executors.newFixedThreadPool(NTHREADS);
 			
@@ -113,46 +118,79 @@ public class ConnectionInvokerService {
 	}
 	
 	private void sendMessageToClient(ClientMessage message) {
-	
-		if (message.getType().equals(ClientMessage.BROADCAST)) {
-			
-			IScope meetingScope = bbbAppScope.getContext().resolveScope("bigbluebutton/" + message.getDest());
-			if (meetingScope != null) {
-				System.out.println("***** Found scope [" + meetingScope.getName() + "] meetingID=[" + message.getDest() + "]");
-				
-				getConnections(meetingScope);
-				
-				if (meetingScope.hasChildScope(ScopeType.SHARED_OBJECT, "presentationSO")) {
-					System.out.println("**** Meeting has Presentation shared object.");
-				}
-			}
-			
-			IScope scope = scopes.get(message.getDest());
-			if (scope != null) {
-				List<Object> params = new ArrayList<Object>();
-				params.add(message.getMessageName());
-				params.add(message.getMessage());
-				ServiceUtils.invokeOnAllScopeConnections(scope, "onMessageFromServer", params.toArray(), null);				
-			}
-		} else if (message.getType().equals(ClientMessage.DIRECT)) {
-			IConnection conn = connections.get(message.getDest());
-			if (conn != null) {
-				if (conn.isConnected()) {
-					List<Object> params = new ArrayList<Object>();
-					params.add(message.getMessageName());
-					params.add(message.getMessage());
-					ServiceUtils.invokeOnConnection(conn, "onMessageFromServer", params.toArray());
-				}
-			}
+		if (message instanceof BroadcastClientMessage) {
+			sendBroadcastMessage((BroadcastClientMessage) message);
+		} else if (message instanceof DirectClientMessage) {
+			sendDirectMessage((DirectClientMessage) message);
+		} else if (message instanceof SharedObjectClientMessage) {
+			sendSharedObjectMessage((SharedObjectClientMessage) message);
 		}
 	}	
 
-	private void getConnections(IScope scope) {
+	private void sendSharedObjectMessage(SharedObjectClientMessage msg) {
+		IScope meetingScope = getScope(msg.getMeetingID());
+		if (meetingScope != null) {
+			if (meetingScope.hasChildScope(ScopeType.SHARED_OBJECT, msg.getSharedObjectName())) {
+				System.out.println("**** Meeting has Presentation shared object.");
+				ISharedObject so = getSharedObject(meetingScope, msg.getSharedObjectName());
+				if (so != null) {
+					
+				}
+			}			
+		}
+	}
+	
+	private void sendDirectMessage(DirectClientMessage msg) {
+		IScope meetingScope = getScope(msg.getMeetingID());
+		if (meetingScope != null) {
+			IConnection conn = getConnection(meetingScope, msg.getUserID());
+			if (conn != null) {
+				if (conn.isConnected()) {
+					List<Object> params = new ArrayList<Object>();
+					params.add(msg.getMessageName());
+					params.add(msg.getMessage());
+					ServiceUtils.invokeOnConnection(conn, "onMessageFromServer", params.toArray());
+				}
+			}			
+		}
+		
+	}
+	
+	private void sendBroadcastMessage(BroadcastClientMessage msg) {
+		IScope meetingScope = getScope(msg.getMeetingID());
+		if (meetingScope != null) {
+			List<Object> params = new ArrayList<Object>();
+			params.add(msg.getMessageName());
+			params.add(msg.getMessage());
+			ServiceUtils.invokeOnAllScopeConnections(meetingScope, "onMessageFromServer", params.toArray(), null);
+		}
+	}
+	
+	private IConnection getConnection(IScope scope, String userID) {
 		Set<IConnection> conns = scope.getClientConnections();
 
 		for (IConnection conn : conns) {
 			String connID = (String) conn.getAttribute("INTERNAL_USER_ID");
-			System.out.println("**** ConnID=[" + connID + "]");
+			if (connID.equals(userID)) {
+				return conn;
+			}
 		}
+		
+		return null;		
+	}
+	
+	public IScope getScope(String meetingID) {
+		if (bbbAppScope != null) {
+			return bbbAppScope.getContext().resolveScope("bigbluebutton/" + meetingID);
+		} else {
+			log.error("BigBlueButton Scope not initialized. No messages are going to the Flash client!");
+		}
+		
+		return null;
+	}
+	
+	private ISharedObject getSharedObject(IScope scope, String name) {
+		ISharedObjectService service = (ISharedObjectService) ScopeUtils.getScopeService(scope, ISharedObjectService.class, SharedObjectService.class, false);
+		return service.getSharedObject(scope, name);
 	}
 }

@@ -18,7 +18,7 @@ public class ReceivedMessageHandler {
 	private final Executor msgProcessorExec = Executors.newSingleThreadExecutor();
 	private BlockingQueue<ReceivedMessage> messages = new LinkedBlockingQueue<ReceivedMessage>();
 	
-	private PubSubMessageReceiver handler;
+	private MessageDistributor handler;
 	
 	public void stop() {
 		processMessage = false;
@@ -57,7 +57,7 @@ public class ReceivedMessageHandler {
 		receivedMessages.add(rm);
 	}
 	
-	public void setMessageHandler(PubSubMessageReceiver h) {
+	public void setMessageDistributor(MessageDistributor h) {
 		this.handler = h;
 	}
 }

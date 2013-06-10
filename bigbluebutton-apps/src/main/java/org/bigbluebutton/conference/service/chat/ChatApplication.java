@@ -26,9 +26,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;import org.bigbluebutton.conference.BigBlueButtonSession;
-import org.bigbluebutton.conference.ClientMessage;
-import org.bigbluebutton.conference.ConnectionInvokerService;
 import org.bigbluebutton.conference.Constants;
+import org.bigbluebutton.conference.meeting.messaging.red5.ClientMessage;
+import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
 import org.bigbluebutton.conference.service.chat.ChatRoomsManager;
 import org.bigbluebutton.conference.service.chat.ChatRoom;import org.bigbluebutton.conference.service.chat.IChatRoomListener;
 

@@ -22,9 +22,9 @@ import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;import java.util.ArrayList;
 import java.util.Map;
-import org.bigbluebutton.conference.ConnectionInvokerService;
 import org.bigbluebutton.conference.MeetingsManager;
 import org.bigbluebutton.conference.Meeting;import org.bigbluebutton.conference.User;import org.bigbluebutton.conference.IRoomListener;
+import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
 
 public class ParticipantsApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsApplication.class, "bigbluebutton" );	

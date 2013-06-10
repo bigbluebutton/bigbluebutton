@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.bigbluebutton.conference.ClientMessage;
-import org.bigbluebutton.conference.ConnectionInvokerService;
+
+import org.bigbluebutton.conference.meeting.messaging.red5.ClientMessage;
+import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
 import org.bigbluebutton.conference.service.whiteboard.shapes.Annotation;
 
 public class ClientMessageSender {
