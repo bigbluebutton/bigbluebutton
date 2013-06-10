@@ -19,6 +19,7 @@
 package org.bigbluebutton.conference.service.presentation;
 
 import org.slf4j.Logger;
+import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage;
 import org.bigbluebutton.conference.meeting.messaging.red5.ClientMessage;
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
 import org.red5.logging.Red5LoggerFactory;
@@ -124,7 +125,7 @@ public class PresentationApplication {
 			Map<String, Object> message = new HashMap<String, Object>();	
 			message.put("xPercent", xPercent);
 			message.put("yPercent", yPercent);
-			ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), "PresentationCursorUpdateCommand", message);
+			BroadcastClientMessage m = new BroadcastClientMessage(getMeetingId(), "PresentationCursorUpdateCommand", message);
 			connInvokerService.sendMessage(m);
 			
 			return;

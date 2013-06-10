@@ -22,8 +22,7 @@ package org.bigbluebutton.conference;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.bigbluebutton.conference.meeting.messaging.red5.ClientMessage;
+import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage;
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
 import org.red5.server.api.Red5;
 
@@ -39,7 +38,7 @@ public class BigBlueButtonService {
 	        messageToSend.put(key, params.get(key));
 	    }
 	    		
-		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), (String) params.get("messageID"), messageToSend);
+		BroadcastClientMessage m = new BroadcastClientMessage(getMeetingId(), (String) params.get("messageID"), messageToSend);
 		connInvokerService.sendMessage(m);
 	}
 	

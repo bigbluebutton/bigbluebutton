@@ -148,7 +148,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         String debugInfo = "internalUserID=" + internalUserID + ",username=" + username + ",role=" +  role + "," + 
         					",voiceConf=" + voiceBridge + ",room=" + room + ",externalUserid=" + externalUserID;
 		log.debug("User [{}] connected to room [{}]", debugInfo, room); 
-		participantsApplication.createRoom(room);
+		participantsApplication.createRoom(room, record);
 		
         connInvokerService.addConnection(bbbSession.getInternalUserID(), connection);
         

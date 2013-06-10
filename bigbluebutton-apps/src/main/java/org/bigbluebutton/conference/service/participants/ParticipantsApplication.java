@@ -19,23 +19,19 @@
 package org.bigbluebutton.conference.service.participants;
 
 import org.slf4j.Logger;
-import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.Red5;import java.util.ArrayList;
+import org.red5.logging.Red5LoggerFactory;import java.util.ArrayList;
 import java.util.Map;
 import org.bigbluebutton.conference.MeetingsManager;
 import org.bigbluebutton.conference.Meeting;import org.bigbluebutton.conference.User;import org.bigbluebutton.conference.IRoomListener;
-import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
 
 public class ParticipantsApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsApplication.class, "bigbluebutton" );	
-	private ConnectionInvokerService connInvokerService;
-	
+
 	private MeetingsManager roomsManager;
 	
-	public boolean createRoom(String name) {
-		if(!roomsManager.hasRoom(name)){
-			log.info("Creating room " + name);
-			roomsManager.addRoom(new Meeting(name));
+	public boolean createRoom(String meetingID, Boolean recorded) {
+		if(!roomsManager.hasRoom(meetingID)){
+			roomsManager.createMeeting(meetingID, recorded);
 			return true;
 		}
 		return false;
@@ -61,7 +57,6 @@ public class ParticipantsApplication {
 	
 	public boolean addRoomListener(String room, IRoomListener listener) {
 		if (roomsManager.hasRoom(room)){
-			roomsManager.addRoomListener(room, listener);
 			return true;
 		}
 		log.warn("Adding listener to a non-existant room " + room);
@@ -116,9 +111,9 @@ public class ParticipantsApplication {
 		return null;
 	}
 	
-	public void assignPresenter(String room, ArrayList presenter){
+	public void assignPresenter(String room, String newPresenterID, String newPresenterName, String assignedBy){
 		if (roomsManager.hasRoom(room)){
-			roomsManager.assignPresenter(room, presenter);
+			roomsManager.assignPresenter(room, newPresenterID, newPresenterName, assignedBy);
 			return;
 		}
 		log.warn("Assigning presenter on a non-existant room " + room);	
@@ -128,12 +123,5 @@ public class ParticipantsApplication {
 		log.debug("Setting room manager");
 		roomsManager = r;
 	}
-	
-	private String getMeetingId(){
-		return Red5.getConnectionLocal().getScope().getName();
-	}
-		
-	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
-		this.connInvokerService = connInvokerService;
-	}
+			
 }

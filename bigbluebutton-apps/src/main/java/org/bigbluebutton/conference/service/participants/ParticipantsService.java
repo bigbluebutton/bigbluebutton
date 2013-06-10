@@ -56,7 +56,7 @@ public class ParticipantsService {
 		} else {
 			log.info("No current presenter. So do nothing.");
 		}
-		application.assignPresenter(scope.getName(), presenter);
+		application.assignPresenter(scope.getName(), userid, name, assignedBy.toString());
 	}
 	
 	@SuppressWarnings("unchecked")

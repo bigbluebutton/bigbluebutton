@@ -1,7 +1,5 @@
 package org.bigbluebutton.conference.service.participants.recorder.redis;
 
-import java.util.ArrayList;
-
 import org.bigbluebutton.conference.User;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.bigbluebutton.conference.service.recorder.participants.AssignPresenterRecordEvent;

@@ -22,6 +22,7 @@ package org.bigbluebutton.conference;
 import org.slf4j.Logger;
 import org.bigbluebutton.conference.service.participants.messaging.redis.UsersMessagePublisher;
 import org.bigbluebutton.conference.service.participants.recorder.redis.UsersEventRecorder;
+import org.bigbluebutton.conference.service.participants.red5.UsersClientMessageSender;
 import org.red5.logging.Red5LoggerFactory;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.ArrayList;
@@ -32,55 +33,57 @@ import java.util.Map;
 public class Meeting {
 	private static Logger log = Red5LoggerFactory.getLogger( Meeting.class, "bigbluebutton" );	
 	ArrayList<String> currentPresenter = null;
-	private String name;
+	private String meetingID;
+	private Boolean recorded = false;
+	
 	private Map <String, User> users;
 
 	private UsersEventRecorder usersEventRecorder;
 	private UsersMessagePublisher usersMessagePublisher;
-	
-	public void setUsersEventRecorder(UsersEventRecorder recorder) {
-		usersEventRecorder = recorder;
-	}
-	
-	public void setUsersMessagePublisher(UsersMessagePublisher usersMessagePublisher) {
-		this.usersMessagePublisher = usersMessagePublisher;
-	}
-	
-	public Meeting(UsersEventRecorder recorder, UsersMessagePublisher usersMessagePublisher) {
+	private UsersClientMessageSender usersClientMessageSender;
+		
+	public Meeting(String meetingID, Boolean recorded, UsersEventRecorder recorder, UsersMessagePublisher usersMessagePublisher, UsersClientMessageSender usersClientMessageSender) {
+		this.meetingID = meetingID;
+		this.recorded = recorded;
 		usersEventRecorder = recorder;
 		this.usersMessagePublisher = usersMessagePublisher;
 		users = new ConcurrentHashMap<String, User>();
 	}
 
-	public void addParticipant(User participant) {
+	public String getMeetingID() {
+		return meetingID;
+	}
+	
+	public void addParticipant(User user) {
 		synchronized (this) {
-			log.debug("adding participant " + participant.getInternalUserID());
-			users.put(participant.getInternalUserID(), participant);
+			users.put(user.getInternalUserID(), user);
 		}
-		log.debug("Informing roomlisteners " + listeners.size());
-		for (Iterator it = listeners.values().iterator(); it.hasNext();) {
-			IRoomListener listener = (IRoomListener) it.next();
-			log.debug("calling participantJoined on listener " + listener.getName());
-			listener.participantJoined(participant);
+		
+		if (recorded) {
+			usersEventRecorder.userJoined(meetingID, user);
 		}
+		
+		usersMessagePublisher.participantJoined(meetingID, user);
+		usersClientMessageSender.participantJoined(meetingID, user);
+		
 	}
 
 	public void removeParticipant(String userid) {
 		boolean present = false;
-		User p = null;
+		User user = null;
 		synchronized (this) {
 			present = users.containsKey(userid);
 			if (present) {
-				log.debug("removing participant");
-				p = users.remove(userid);
+				user = users.remove(userid);
 			}
 		}
 		if (present) {
-			for (Iterator it = listeners.values().iterator(); it.hasNext();) {
-				IRoomListener listener = (IRoomListener) it.next();
-				log.debug("calling participantLeft on listener " + listener.getName());
-				listener.participantLeft(p);
+			if (recorded) {
+				usersEventRecorder.userLeft(meetingID, user);
 			}
+			
+			usersMessagePublisher.participantLeft(meetingID, user);
+			usersClientMessageSender.participantLeft(meetingID, user);
 		}
 	}
 
@@ -90,28 +93,26 @@ public class Meeting {
 		synchronized (this) {
 			present = users.containsKey(userid);
 			if (present) {
-				log.debug("change participant status");
 				p = users.get(userid);
 				p.setStatus(status, value);
-				//participants.put(userid, p);
-				//unmodifiableMap = Collections.unmodifiableMap(participants);
 			}
 		}
 		if (present) {
-			for (Iterator it = listeners.values().iterator(); it.hasNext();) {
-				IRoomListener listener = (IRoomListener) it.next();
-				log.debug("calling participantStatusChange on listener " + listener.getName());
-				listener.participantStatusChange(p, status, value);
+			if (recorded) {
+				usersEventRecorder.userStatusChange(meetingID, p, status, value);
 			}
+			
+			usersMessagePublisher.participantStatusChange(meetingID, p, status, value);
+			usersClientMessageSender.participantStatusChange(meetingID, p, status, value);
 		}		
 	}
 
 	public void endAndKickAll() {
-		for (Iterator it = listeners.values().iterator(); it.hasNext();) {
-			IRoomListener listener = (IRoomListener) it.next();
-			log.debug("calling endAndKickAll on listener " + listener.getName());
-			listener.endAndKickAll();
+		if (recorded) {
+			usersEventRecorder.endAndKickAll(meetingID);
 		}
+		
+		usersClientMessageSender.endAndKickAll(meetingID);
 	}
 
 	public Map getParticipants() {
@@ -123,7 +124,6 @@ public class Meeting {
 	}
 
 	public int getNumberOfParticipants() {
-		log.debug("Returning number of participants: " + users.size());
 		return users.size();
 	}
 
@@ -143,13 +143,14 @@ public class Meeting {
 		return currentPresenter;
 	}
 	
-	public void assignPresenter(ArrayList<String> presenter){
+	public void assignPresenter(String newPresenterID, String newPresenterName, String assignedBy){
+		ArrayList<String> presenter = new ArrayList<String>();
+		presenter.add(newPresenterID);
+		presenter.add(newPresenterName);
+		presenter.add(assignedBy);
+		
 		currentPresenter = presenter;
-		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
-			log.debug("calling on listener");
-			IRoomListener listener = (IRoomListener) iter.next();
-			log.debug("calling sendUpdateMessage on listener " + listener.getName());
-			listener.assignPresenter(presenter);
-		}	
+		usersEventRecorder.assignPresenter(meetingID, newPresenterID, newPresenterName, assignedBy);
+		usersClientMessageSender.assignPresenter(meetingID, newPresenterID, newPresenterName, assignedBy);	
 	}
 }

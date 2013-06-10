@@ -1,11 +1,7 @@
 package org.bigbluebutton.conference.service.participants.red5;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.bigbluebutton.conference.User;
-import org.bigbluebutton.conference.meeting.messaging.red5.ClientMessage;
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
 import org.bigbluebutton.conference.meeting.messaging.red5.SharedObjectClientMessage;
 
@@ -24,7 +20,12 @@ public class UsersClientMessageSender {
 	}
 
 
-	public void assignPresenter(String meetingID, ArrayList<Object> presenter) {
+	public void assignPresenter(String meetingID, String newPresenterID, String newPresenterName, String assignedBy) {
+		ArrayList<Object> presenter = new ArrayList<Object>();
+		presenter.add(newPresenterID);
+		presenter.add(newPresenterName);
+		presenter.add(assignedBy);
+		
 		SharedObjectClientMessage m = new SharedObjectClientMessage(meetingID, USERS_SO, "assignPresenterCallback", presenter);
 		service.sendMessage(m);		
 	}

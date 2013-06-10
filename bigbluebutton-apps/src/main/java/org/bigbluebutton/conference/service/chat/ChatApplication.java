@@ -27,8 +27,10 @@ import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;import org.bigbluebutton.conference.BigBlueButtonSession;
 import org.bigbluebutton.conference.Constants;
+import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage;
 import org.bigbluebutton.conference.meeting.messaging.red5.ClientMessage;
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
+import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage;
 import org.bigbluebutton.conference.service.chat.ChatRoomsManager;
 import org.bigbluebutton.conference.service.chat.ChatRoom;import org.bigbluebutton.conference.service.chat.IChatRoomListener;
 
@@ -78,22 +80,22 @@ public class ChatApplication {
 		messageToSend.put("count", new Integer(msgs.size()));
 		messageToSend.put("messages", msgs);
 		
-		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, getBbbSession().getInternalUserID(), "ChatRequestMessageHistoryReply", messageToSend);
+		DirectClientMessage m = new DirectClientMessage(getMeetingId(), getBbbSession().getInternalUserID(), "ChatRequestMessageHistoryReply", messageToSend);
 		connInvokerService.sendMessage(m);
 	}
 	
 	public void sendPublicMessage(String room, ChatMessageVO chatobj) {
 		roomsManager.sendMessage(room, chatobj);
 		
-		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), "ChatReceivePublicMessageCommand", chatobj.toMap());
+		BroadcastClientMessage m = new BroadcastClientMessage(getMeetingId(), "ChatReceivePublicMessageCommand", chatobj.toMap());
 		connInvokerService.sendMessage(m);
 	}
 
 	public void sendPrivateMessage(ChatMessageVO chatobj) {
-		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, chatobj.toUserID, "ChatReceivePrivateMessageCommand", chatobj.toMap());
+		DirectClientMessage m = new DirectClientMessage(getMeetingId(), chatobj.toUserID, "ChatReceivePrivateMessageCommand", chatobj.toMap());
 		connInvokerService.sendMessage(m);
 		
-		ClientMessage m2 = new ClientMessage(ClientMessage.DIRECT, chatobj.fromUserID, "ChatReceivePrivateMessageCommand", chatobj.toMap());
+		DirectClientMessage m2 = new DirectClientMessage(getMeetingId(), chatobj.fromUserID, "ChatReceivePrivateMessageCommand", chatobj.toMap());
 		connInvokerService.sendMessage(m2);
 	}
 	

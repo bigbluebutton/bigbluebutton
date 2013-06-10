@@ -20,15 +20,11 @@ package org.bigbluebutton.conference;
 
 import org.slf4j.Logger;
 import org.bigbluebutton.conference.meeting.messaging.MessagePublisher;
-import org.bigbluebutton.conference.service.messaging.MessagingService;
-import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
-import org.bigbluebutton.conference.service.poll.PollApplication;
-import org.bigbluebutton.conference.service.presentation.ConversionUpdatesMessageListener;
+import org.bigbluebutton.conference.service.participants.messaging.redis.UsersMessagePublisher;
+import org.bigbluebutton.conference.service.participants.recorder.redis.UsersEventRecorder;
+import org.bigbluebutton.conference.service.participants.red5.UsersClientMessageSender;
 import org.red5.logging.Red5LoggerFactory;
-import com.google.gson.Gson;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -38,17 +34,18 @@ public class MeetingsManager {
 	private final Map <String, Meeting> meetings;
 
 	private MessagePublisher publisher;
+	private UsersEventRecorder usersEventRecorder;
+	private UsersMessagePublisher usersMessagePublisher;
+	private UsersClientMessageSender usersClientMessageSender;
 	
 	public MeetingsManager() {
 		meetings = new ConcurrentHashMap<String, Meeting>();		
 	}
 	
-	public void addRoom(Meeting room) {
-//		room.addRoomListener(new ParticipantUpdatingRoomListener(room, messagingService)); 	
-		
-		publisher.meetingStarted(room.getName());
-		
-		meetings.put(room.getName(), room);
+	public void createMeeting(String meetingID, Boolean recorded) {
+		Meeting room = new Meeting(meetingID, recorded, usersEventRecorder, usersMessagePublisher, usersClientMessageSender);
+		meetings.put(meetingID, room);		
+		publisher.meetingStarted(meetingID);		
 	}
 	
 	public void removeRoom(String name) {
@@ -92,16 +89,7 @@ public class MeetingsManager {
 		log.warn("Getting participants from a non-existing room " + roomName);
 		return null;
 	}
-	
-	public void addRoomListener(String roomName, IRoomListener listener) {
-		Meeting r = getRoom(roomName);
-		if (r != null) {
-			r.addRoomListener(listener);
-			return;
-		}
-		log.warn("Adding listener to a non-existing room " + roomName);
-	}
-	
+		
 	public void addParticipant(String roomName, User participant) {
 		log.debug("Add participant " + participant.getName());
 		Meeting r = getRoom(roomName);
@@ -139,10 +127,10 @@ public class MeetingsManager {
 		return null;
 	}
 	
-	public void assignPresenter(String room, ArrayList<String> presenter){
+	public void assignPresenter(String room, String newPresenterID, String newPresenterName, String assignedBy){
 		Meeting r = getRoom(room);
 		if (r != null) {
-			r.assignPresenter(presenter);
+			r.assignPresenter(newPresenterID, newPresenterName, assignedBy);
 			return;
 		}	
 	}
@@ -156,5 +144,18 @@ public class MeetingsManager {
 	
 	public void setPublisher(MessagePublisher publisher) {
 		this.publisher = publisher;
+	}
+
+	public void setUsersEventRecorder(UsersEventRecorder usersEventRecorder) {
+		this.usersEventRecorder = usersEventRecorder;
+	}
+
+	public void setUsersMessagePublisher(UsersMessagePublisher usersMessagePublisher) {
+		this.usersMessagePublisher = usersMessagePublisher;
+	}
+
+	public void setUsersClientMessageSender(
+			UsersClientMessageSender usersClientMessageSender) {
+		this.usersClientMessageSender = usersClientMessageSender;
 	}
 }
