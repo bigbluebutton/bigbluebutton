@@ -106,9 +106,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					showHelpBtn = false;
 				}
                 
-                meetingNameLbl.text = BBB.initUserConfigManager().getMeetingTitle();
+                // Need to wait to allow time for the conference parameters to be loaded
+                var timer:Timer = new Timer(2000, 1);
+                timer.addEventListener(TimerEvent.TIMER, retrieveMeetingName);
+                timer.start();
 			}
 			
+            private function retrieveMeetingName(e:TimerEvent):void {
+                    var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();
+                    
+                    if (meetingTitle != null) {
+                        meetingNameLbl.text = meetingTitle;
+                    } else { // if the meeting title isn't loaded, wait and check again.
+                        /* This is an awful implementation, but it works.
+                         *                 Chad
+                         */
+                        var timer:Timer = new Timer(2000, 1);
+                        timer.addEventListener(TimerEvent.TIMER, retrieveMeetingName);
+                        timer.start();
+                    }
+            }
+            
 			public function addButton(name:String):Button{
 				var btn:Button = new Button();
 				btn.id = name;
@@ -239,7 +257,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}"/>
 	<views:MuteMeButton id="muteMeBtn"  height="20" />
 	<mx:Spacer width="50%"/>
-    <mx:Label id="meetingNameLbl" />
+    <mx:Label id="meetingNameLbl" styleName="meetingNameLabelStyle" />
     <mx:Spacer width="50%"/>
 	<views:LanguageSelector id="langSelector" 
 							visible="false" 

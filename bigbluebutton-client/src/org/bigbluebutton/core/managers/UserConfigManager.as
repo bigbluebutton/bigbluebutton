@@ -38,9 +38,9 @@ package org.bigbluebutton.core.managers
         
         public function getMeetingTitle():String {
             if (conferenceParameters)
-                return conferenceParameters.conference;
+                return conferenceParameters.externMeetingID;
             else
-                return "null";
+                return null;
         }
 	}
 }
