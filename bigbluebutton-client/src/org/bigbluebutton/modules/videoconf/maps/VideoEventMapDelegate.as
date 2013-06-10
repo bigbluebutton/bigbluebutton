@@ -85,11 +85,7 @@ package org.bigbluebutton.modules.videoconf.maps
       trace("VideoEventMapDelegate:: [" + me + "] Video Module Started.");
       this.uri = uri;
     }
-    
-    public function stop():void {
-      
-    }
-    
+        
     public function viewCamera(userID:String, stream:String, name:String, mock:Boolean = false):void {
       trace("VideoEventMapDelegate:: [" + me + "] viewCamera. ready = [" + _ready + "]");
       
@@ -293,6 +289,8 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     private function stopBroadcasting():void {
+      trace("Stopping broadcast of webcam");
+      
       proxy.stopBroadcasting();
       
       _isPublishing = false;
@@ -300,6 +298,7 @@ package org.bigbluebutton.modules.videoconf.maps
       var broadcastEvent:BroadcastStoppedEvent = new BroadcastStoppedEvent();
       broadcastEvent.stream = streamName;
       broadcastEvent.userid = UsersUtil.getMyUserID();
+      broadcastEvent.avatarURL = UsersUtil.getAvatarURL();
       _dispatcher.dispatchEvent(broadcastEvent);
       
       
@@ -344,11 +343,13 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function stopModule():void {
+      trace("VideoEventMapDelegate:: stopping video module");
       closeAllWindows();
       proxy.disconnect();
     }
     
     public function closeAllWindows():void{
+      trace("VideoEventMapDelegate:: closing all windows");
       if (_isPublishing) {
         stopBroadcasting();
       }
@@ -403,10 +404,12 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function handleStoppedViewingWebcamEvent(event:StoppedViewingWebcamEvent):void {
+      trace("VideoEventMapDelegate::handleStoppedViewingWebcamEvent [" + me + "] received StoppedViewingWebcamEvent for user [" + event.webcamUserID + "]");
+      
       closeWindow(event.webcamUserID);
             
-      if (options.displayAvatar && UsersUtil.hasUser(event.webcamUserID)) {
-        trace("VideoEventMapDelegate:: [" + me + "] Opening avatar for user [" + event.webcamUserID + "]");
+      if (options.displayAvatar && UsersUtil.hasUser(event.webcamUserID) && ! UsersUtil.isUserLeaving(event.webcamUserID)) {
+        trace("VideoEventMapDelegate::handleStoppedViewingWebcamEvent [" + me + "] Opening avatar for user [" + event.webcamUserID + "]");
         openAvatarWindowFor(event.webcamUserID);              
       }        
     }

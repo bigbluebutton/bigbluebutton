@@ -81,9 +81,9 @@ package org.bigbluebutton.main.model.users {
 			 * is the same then use userID which should be unique making the order the same 
 			 * across all clients.
 			 */
-			if (a.name.toLowerCase() > b.name.toLowerCase())
+			if (a.name.toLowerCase() < b.name.toLowerCase())
 				return -1;
-			else if (a.name.toLowerCase() < b.name.toLowerCase())
+			else if (a.name.toLowerCase() > b.name.toLowerCase())
 				return 1;
 			else if (a.userID.toLowerCase() > b.userID.toLowerCase())
 				return -1;
@@ -257,7 +257,16 @@ package org.bigbluebutton.main.model.users {
 		public function set amIPresenter(presenter:Boolean):void {
 			me.presenter = presenter;
 		}
-				
+		
+        [Bindable]
+        public function get isMyHandRaised():Boolean {
+            return me.raiseHand;
+        }
+        
+        public function set isMyHandRaised(raiseHand:Boolean):void {
+            me.raiseHand = raiseHand;
+        }
+        
 		public function amIThisUser(userID:String):Boolean {
 			return me.userID == userID;
 		}

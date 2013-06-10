@@ -132,17 +132,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     
     private function displaySwitchPresenterButton(controlsForPresenter:Boolean):void {
       /**
-      * Display button if:
-      * 1. If I am moderator and this window is not me and I am NOT the presenter.
-      * 2. If I am the presenter and display controls for presenter and this window is not me.
-      */
+       * Display button if:
+       * 1. If I am moderator and this user is NOT presenter.
+       * 2. If I am the presenter and display controls for presenter and this window is not me.
+       */
       if (switchPresenter != null) {
-        if (UsersUtil.amIModerator() && ! UsersUtil.amIPresenter() && ! UsersUtil.isMe(sharerUserID)) { /** 1. **/ 
-            switchPresenter.visible = true;
-            switchPresenter.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.switchPresenter.toolTip', [UsersUtil.getUserName(sharerUserID)]);
-            return;
-        } 
-        
+        if (UsersUtil.amIModerator() && (sharerUserID != UsersUtil.getPresenterUserID())) { /** 1. **/ 
+          switchPresenter.visible = true;
+          switchPresenter.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.switchPresenter.toolTip', [UsersUtil.getUserName(sharerUserID)]);
+          return;
+        }
+    
         if (controlsForPresenter && UsersUtil.amIPresenter() && ! UsersUtil.isMe(sharerUserID)) { /** 2 **/
           switchPresenter.visible = true;
           switchPresenter.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.switchPresenter.toolTip', [UsersUtil.getUserName(sharerUserID)]);  

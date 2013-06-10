@@ -40,7 +40,7 @@ public class RoomImp implements Room {
 	private String meetingid;
 	private boolean recording = false;
 	
-	public RoomImp(String name,boolean record, String meetingid) {
+	public RoomImp(String name, boolean record, String meetingid) {
 		this.name = name;
 		this.record = record;
 		this.meetingid = meetingid;
@@ -65,6 +65,17 @@ public class RoomImp implements Room {
 	
 	public boolean hasParticipant(Integer id) {
 		return participants.containsKey(id);
+	}
+	
+	public int getUserWithID(String userID) {
+		for (Map.Entry<Integer, Participant> entry : participants.entrySet()) {
+		    Participant u = entry.getValue();
+		    if (userID.equals(u.getUserID())) {
+		    	return u.getId();
+		    }
+		}
+		
+		return -1;
 	}
 	
 	public void remove(Integer id) {

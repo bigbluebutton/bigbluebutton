@@ -5,6 +5,7 @@
 	<locale code="eu_EU" name="Basque" />
 	<locale code="bn_BN" name="Bengali" />
 	<locale code="bg_BG" name="Bulgarian" />
+	<locale code="ca_ES" name="Catalan" />
 	<locale code="zh_CN" name="Chinese (Simplified)"/>
 	<locale code="zh_TW" name="Chinese (Traditional)"/>
 	<locale code="hr_HR" name="Croatian" />
@@ -12,10 +13,12 @@
 	<locale code="da_DK" name="Danish" />
 	<locale code="nl_NL" name="Dutch" />
 	<locale code="en_US" name="English"/>
+	<locale code="et_EE" name="Estonian"/>
 	<locale code="fa_IR" name="Farsi" />
 	<locale code="fi_FI" name="Finnish"/>
 	<locale code="fr_FR" name="French"/>
 	<locale code="fr_CA" name="French (Canadian)"/>
+	<locale code="ff_SN" name="Fulah"/>
 	<locale code="de_DE" name="German"/>
 	<locale code="el_GR" name="Greek"/>
 	<locale code="he_IL" name="Hebrew"/>  
@@ -36,6 +39,8 @@
 	<locale code="ru_RU" name="Russian"/>
 	<locale code="sr_SR" name="Serbian (Cyrillic)"/>
 	<locale code="sr_RS" name="Serbian (Latin)"/>
+	<locale code="si_LK" name="Sinhala"/>
+	<locale code="sk_SK" name="Slovak"/>
 	<locale code="sl_SL" name="Slovenian"/>
 	<locale code="es_ES" name="Spanish"/>
 	<locale code="es_LA" name="Spanish (Latin American)"/>		

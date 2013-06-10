@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.present.events
 	import flash.net.FileReference;
 	
 	public class UploadEvent extends Event {
+    public static const OPEN_EXTERNAL_UPLOAD_WINDOW:String = "OPEN_EXTERNAL_UPLOAD_WINDOW";
 		public static const OPEN_UPLOAD_WINDOW:String = "OPEN_UPLOAD_WINDOW";
 		public static const CLOSE_UPLOAD_WINDOW:String = "CLOSE_UPLOAD_WINDOW";
 		public static const CLEAR_PRESENTATION:String = "CLEAR_PRESENTATION";

@@ -33,6 +33,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
+  import org.bigbluebutton.main.events.LogoutEvent;
   import org.bigbluebutton.main.events.SwitchedPresenterEvent;
   import org.bigbluebutton.main.events.UserJoinedEvent;
   import org.bigbluebutton.main.events.UserLeftEvent;
@@ -40,10 +41,25 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
   import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
-  import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
   import org.bigbluebutton.modules.present.events.UploadEvent;
+  import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 
   public class ExternalApiCalls { 
+    
+    public function handleOpenExternalUploadWindow(event:UploadEvent):void {
+      var payload:Object = new Object();
+      payload.maxFileSize = event.maxFileSize;
+      payload.eventName = EventConstants.OPEN_EXTERNAL_UPLOAD_WINDOW;
+      broadcastEvent(payload);      
+    }
+    
+    
+    public function handleUserKickedOutEvent(event:LogoutEvent):void {
+      var payload:Object = new Object();
+      payload.userID = UsersUtil.internalUserIDToExternalUserID(event.userID);
+      payload.eventName = EventConstants.USER_KICKED_OUT;
+      broadcastEvent(payload);
+    }
     
     public function handleIsUserPublishingCamRequest(event:IsUserPublishingCamRequest):void {
       var payload:Object = new Object();
@@ -60,7 +76,7 @@ package org.bigbluebutton.main.api
       
       var vidConf:VideoConfOptions = new VideoConfOptions();
       payload.uri = vidConf.uri + "/" + UsersUtil.getInternalMeetingID();
-      
+      payload.avatarURL = UsersUtil.getAvatarURL();
       payload.streamName = streamName; 
       broadcastEvent(payload);
     }
@@ -73,9 +89,9 @@ package org.bigbluebutton.main.api
       payload.myAvatarURL = UsersUtil.getAvatarURL();
       payload.myRole = UsersUtil.getMyRole();
       payload.amIPresenter = UsersUtil.amIPresenter();
-	  payload.dialNumber = UsersUtil.getDialNumber();
-	  payload.voiceBridge = UsersUtil.getVoiceBridge();
-	  payload.customdata = UsersUtil.getCustomData();
+	    payload.dialNumber = UsersUtil.getDialNumber();
+	    payload.voiceBridge = UsersUtil.getVoiceBridge();
+	    payload.customdata = UsersUtil.getCustomData();
       
       broadcastEvent(payload);
     } 
@@ -96,6 +112,7 @@ package org.bigbluebutton.main.api
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.userID);
       payload.uri = vidConf.uri + "/" + UsersUtil.getInternalMeetingID();
       payload.streamName = event.stream;
+      payload.avatarURL = UsersUtil.getAvatarURL();
       
       broadcastEvent(payload);
     }
@@ -103,6 +120,8 @@ package org.bigbluebutton.main.api
     public function handleBroadcastStoppedEvent(event:BroadcastStoppedEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.BROADCASTING_CAM_STOPPED;
+      payload.avatarURL = event.avatarURL;
+      payload.stream = event.stream;
       broadcastEvent(payload);  
     }
     
@@ -121,6 +140,7 @@ package org.bigbluebutton.main.api
       payload.camModeFps = vidConf.camModeFps;
       payload.camQualityBandwidth = vidConf.camQualityBandwidth;
       payload.camQualityPicture = vidConf.camQualityPicture;
+      payload.avatarURL = UsersUtil.getAvatarURL();
       
       broadcastEvent(payload);         
     }
@@ -139,6 +159,7 @@ package org.bigbluebutton.main.api
       payload.camModeFps = vidConf.camModeFps;
       payload.camQualityBandwidth = vidConf.camQualityBandwidth;
       payload.camQualityPicture = vidConf.camQualityPicture;
+      payload.avatarURL = UsersUtil.getAvatarURL();
       
       broadcastEvent(payload);        
     }
@@ -158,12 +179,14 @@ package org.bigbluebutton.main.api
       payload.amIPresenter = event.amIPresenter;
       payload.role = event.amIPresenter ? Role.PRESENTER : Role.VIEWER;
       payload.newPresenterUserID = UsersUtil.internalUserIDToExternalUserID(event.newPresenterUserID);
+      payload.avatarURL = UsersUtil.getAvatarURL();
       broadcastEvent(payload);
       
       payload.eventName = EventConstants.NEW_ROLE;
       payload.amIPresenter = event.amIPresenter;
       payload.newPresenterUserID = UsersUtil.internalUserIDToExternalUserID(event.newPresenterUserID);
       payload.role = event.amIPresenter ? Role.PRESENTER : Role.VIEWER;
+      payload.avatarURL = UsersUtil.getAvatarURL();
       broadcastEvent(payload);      
     }
 

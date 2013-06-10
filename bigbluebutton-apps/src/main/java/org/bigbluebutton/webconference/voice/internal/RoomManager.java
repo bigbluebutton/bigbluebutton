@@ -46,9 +46,18 @@ public class RoomManager {
 		rooms = new ConcurrentHashMap<String, RoomImp>();
 	}
 	
+	public int getVoiceUserIDFromRoom(String room, String userID) {
+		RoomImp rm = rooms.get(room);
+		if (rm != null) {
+			return rm.getUserWithID(userID);
+		}
+		
+		return -1;
+	}
+	
 	public void createRoom(String name, boolean record, String meetingid) {
 		log.debug("Creating room: " + name);
-		RoomImp r = new RoomImp(name,record,meetingid);
+		RoomImp r = new RoomImp(name, record, meetingid);
 		rooms.putIfAbsent(name, r);
 	}
 	

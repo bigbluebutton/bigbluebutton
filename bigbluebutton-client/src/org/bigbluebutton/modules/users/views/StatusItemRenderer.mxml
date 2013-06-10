@@ -41,6 +41,7 @@
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.managers.UserManager;
+            import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -96,11 +97,16 @@
 	  					roleBtn.visible = false;
 	  					roleBtn.enabled = false;
 	  				} else if (rolledOver) {
-	  					roleBtn.setStyle("icon", images.presenter_new);
-	  					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.changePresenter');
 	  					roleImg.visible = false;
 	  					roleBtn.visible = true;
 	  					roleBtn.enabled = true;
+                        if (data.raiseHand) {
+                            roleBtn.setStyle("icon", images.hand_new);
+                            roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.lowerHand');
+                        } else {
+                            roleBtn.setStyle("icon", images.presenter_new);
+                            roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.changePresenter');
+                        }
 	  				} else if (data.role == Role.MODERATOR) {
 	  					roleImg.source = images.moderator;
 	  					roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.moderator');
@@ -137,14 +143,18 @@
 				}
 			}
   			
-  			private function assignPresenterClicked():void {
+  			private function roleBtnClicked():void {
         		// Ignore if the selected user is already the presenter.
         		if (data.presenter) return;
         		
-				var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
-				e.userid = data.userID;
-				e.username = data.name;
-				dispatchEvent(e);
+                if (data.raiseHand) {
+                    dispatchEvent(new LowerHandEvent(data.userID));
+                } else {
+    				var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
+    				e.userid = data.userID;
+    				e.username = data.name;
+    				dispatchEvent(e);
+                }
         	}
 			
 			// Need to refresh the roleBtn toolTip text on locale change
@@ -154,7 +164,7 @@
 		]]>
 	</mx:Script>
 	<mx:Image id="roleImg" visible="true" width="16" height="16" includeInLayout="{roleImg.visible}" />
-	<mx:Button id="roleBtn" visible="false" enabled="false" width="20" height="20" click="assignPresenterClicked()" includeInLayout="{roleBtn.visible}" />
+	<mx:Button id="roleBtn" visible="false" enabled="false" width="20" height="20" click="roleBtnClicked()" includeInLayout="{roleBtn.visible}" />
 	
 	<!-- Helper objects because direct bindings to data break when the itemRenderer is recycled -->
 	<mx:Image id="presenterInd" includeInLayout="false" visible="{data.presenter}" />

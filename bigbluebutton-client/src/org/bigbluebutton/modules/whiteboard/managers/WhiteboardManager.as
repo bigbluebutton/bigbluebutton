@@ -28,7 +28,6 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.modules.present.api.PresentationAPI;
-	import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
 	import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
@@ -37,7 +36,6 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
 	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
-	import org.bigbluebutton.modules.whiteboard.views.WhiteboardButton;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardTextToolbar;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardToolbar;
@@ -51,7 +49,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 		private var highlighterCanvas:WhiteboardCanvas;
 		private var highlighterToolbar:WhiteboardToolbar;
 		private var textToolbar:WhiteboardTextToolbar;
-		private var whiteboardButton:WhiteboardButton;
+
 		private var model:WhiteboardCanvasModel = new WhiteboardCanvasModel();
 		private var displayModel:WhiteboardCanvasDisplayModel = new WhiteboardCanvasDisplayModel();
         
@@ -83,27 +81,15 @@ package org.bigbluebutton.modules.whiteboard.managers
 			textToolbar.init();
 			highlighterCanvas.textToolbar = textToolbar;
             
-			if (whiteboardButton != null) return;
-			whiteboardButton = new WhiteboardButton();
-            
 			//Necessary now because of module loading race conditions
 			var t:Timer = new Timer(1000, 1);
 			t.addEventListener(TimerEvent.TIMER, addHighlighterCanvas);
-			t.addEventListener(TimerEvent.TIMER, addHighlighterToolbar);
 			t.start();
 		}
 		
 		private function addHighlighterCanvas(e:TimerEvent):void {
 			PresentationAPI.getInstance().addOverlayCanvas(highlighterCanvas);
-		}
-		
-		private function addHighlighterToolbar(e:TimerEvent):void {
-			if (UserManager.getInstance().getConference().amIPresenter) {
-//				whiteboardButton.setVisible(true);
-			}
-			PresentationAPI.getInstance().addButtonToToolbar(whiteboardButton);
-		}
-			
+		}	
 
 		public function positionToolbar(e:WhiteboardButtonEvent):void {
 			// add text toolbar for allowing customization of text	

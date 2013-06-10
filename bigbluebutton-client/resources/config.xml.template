@@ -83,6 +83,7 @@
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="PresentModule"
 			baseTabIndex="601"
+			whiteboardAccess="presenter"
 		/>
 
 <!--
@@ -97,6 +98,7 @@
 			host="http://HOST" 
 			showPresentWindow="true"
 			showWindowControls="true"
+			openExternalFileUploadDialog="false"
 			dependsOn="UsersModule"
 			baseTabIndex="501"
 			maxFileSize="30"

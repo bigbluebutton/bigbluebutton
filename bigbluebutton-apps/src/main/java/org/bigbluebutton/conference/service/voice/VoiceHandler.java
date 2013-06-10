@@ -85,6 +85,14 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 	@Override
 	public void roomLeave(IClient client, IScope scope) {
 		log.debug("***** " + APP + " [ " + " roomLeave [ " + scope.getName() + "] *********");
+		
+		System.out.println("********************* DISCONNECTING FROM VOICE ROOM **************************** ");
+		if (scope.hasAttribute(VOICE_BRIDGE)) {
+			String voiceBridge = (String) scope.getAttribute(VOICE_BRIDGE);
+			String userID = getBbbSession().getExternUserID();
+			log.info("User has left the meeting. Try to hangup user=[" + userID + "] from [" + voiceBridge + "] ");
+			conferenceService.hangupUser(userID, voiceBridge);
+		}
 	}
 	
 	@Override
