@@ -109,7 +109,7 @@ package org.bigbluebutton.modules.users.business
 			trace("***************** Voice user joining [" + cidName + "]");
 
 			if (cidName) {
-				var pattern:RegExp = /(.*)-([^\-]*)$/;
+				var pattern:RegExp = /(.*)-bbbID-(.*)$/;
 				var result:Object = pattern.exec(cidName);
 				
 				if (result != null) {
