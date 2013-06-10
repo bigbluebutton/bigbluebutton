@@ -106,10 +106,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					showHelpBtn = false;
 				}
                 
-                // Need to wait to allow time for the conference parameters to be loaded
-                var timer:Timer = new Timer(2000, 1);
-                timer.addEventListener(TimerEvent.TIMER, retrieveMeetingName);
-                timer.start();
+                if (toolbarOptions.showMeetingName) {
+                    // Need to wait to allow time for the conference parameters to be loaded
+                    var timer:Timer = new Timer(2000, 1);
+                    timer.addEventListener(TimerEvent.TIMER, retrieveMeetingName);
+                    timer.start();
+                }
 			}
 			
             private function retrieveMeetingName(e:TimerEvent):void {
