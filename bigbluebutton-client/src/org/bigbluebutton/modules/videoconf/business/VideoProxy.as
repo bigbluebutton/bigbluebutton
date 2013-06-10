@@ -162,9 +162,9 @@ package org.bigbluebutton.modules.videoconf.business
 			ns.publish(e.stream);
 		}
 		
-		
-		
 		public function stopBroadcasting():void{
+      trace("Closing netstream for webcam publishing");
+      
 			if (ns != null) {
 				ns.attachCamera(null);
 				ns.close();
@@ -174,6 +174,8 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 		public function disconnect():void {
+      trace("VideoProxy:: disconnecting from Video application");
+      stopBroadcasting();
 			if (nc != null) nc.close();
 		}
 		

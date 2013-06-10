@@ -91,9 +91,9 @@ class BigbluebuttonService {
         String record = false
         Integer duration = 0
         if( "extended".equals(mode) ){
-            voiceBridge = getValidatedBBBVoiceBridge(params.get(Parameter.CUSTOM_BBB_VOICEBRIDGE))
-            record = getValidatedBBBRecord(params.get(Parameter.CUSTOM_BBB_RECORD))
-            duration = getValidatedBBBDuration(params.get(Parameter.CUSTOM_BBB_DURATION))
+            voiceBridge = getValidatedBBBVoiceBridge(params.get(Parameter.CUSTOM_VOICEBRIDGE))
+            record = getValidatedBBBRecord(params.get(Parameter.CUSTOM_RECORD))
+            duration = getValidatedBBBDuration(params.get(Parameter.CUSTOM_DURATION))
         }
         
         String[] values = [meetingName, courseTitle]
@@ -219,7 +219,7 @@ class BigbluebuttonService {
                 userFullName = userFirstName
             }
             if( userLastName != null && userLastName != "" ){
-                userFullName = userFullName.length() > 0? " ": ""
+                userFullName += userFullName.length() > 0? " ": ""
                 userFullName += userLastName
             }
             if( userFullName == null || userFullName == "" ){

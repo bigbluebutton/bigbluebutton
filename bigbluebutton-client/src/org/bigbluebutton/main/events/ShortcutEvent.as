@@ -72,6 +72,7 @@ package org.bigbluebutton.main.events {
 		public static const SEND_MESSAGE:String = 'SEND_MESSAGE';
 		
 		public static const FOCUS_SHORTCUT_BUTTON:String = 'FOCUS_SHORTCUT_BUTTON';
+		public static const MUTE_ALL_BUT_PRES:String = 'MUTE_ALL_BUT_PRES';
 		
 		// Temporary string to help fix chat message navigation for screen readers
 		public static const CHAT_DEBUG:String = 'CHAT_DEBUG';

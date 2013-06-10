@@ -168,7 +168,7 @@
 						}
 					}
 					
-					if ((data.role == Role.MODERATOR) || !data.voiceJoined) {
+					if (!data.voiceJoined) {
 						lockImg.visible = false;
 						lockImg.includeInLayout = false;
 						lockBtn.visible = false;
@@ -207,8 +207,8 @@
 						
 						if (data.voiceLocked)
 							lockImg.source = images.locked_20;
-						else if (moderator)
-							lockImg.source = images.unlocked_20;
+						//else if (moderator)
+						//	lockImg.source = images.unlocked_20;
 						else
 							lockImg.source = null;
 					} else {

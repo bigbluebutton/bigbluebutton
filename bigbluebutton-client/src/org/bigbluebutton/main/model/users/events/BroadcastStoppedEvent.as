@@ -26,7 +26,8 @@ package org.bigbluebutton.main.model.users.events
 		
 		public var stream:String;
 		public var userid:String;
-		
+		public var avatarURL:String;
+    
 		public function BroadcastStoppedEvent(type:String = BROADCAST_STOPPED)
 		{
 			super(type, true, false);
