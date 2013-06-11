@@ -123,10 +123,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				openChatBoxFor(PUBLIC_CHAT_USERID, true);
 		        makePublicChatUncloseable();
 		        
-		        if (chatOptions.privateEnabled) {
-		          createAddTabBox();
-		          makeAddPrivateChatUncloseable();
-		        }
+                // you have to always create the AddTabBox because we always need to give people access to the dropdown to change font size
+		        createAddTabBox();
+		        makeAddPrivateChatUncloseable();
 				
 				
 				addEventListener(SuperTabEvent.TAB_CLOSE, onUserClosedTab);
