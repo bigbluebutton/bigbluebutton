@@ -19,10 +19,10 @@ class BigBlueButtonActor(outGW: BigBlueButtonOutGateway) extends Actor {
 	}
   }
   
-  private def handleCreateMeeting(message: CreateMeeting):Unit = {
-    meetings.get(message.id) match {
+  private def handleCreateMeeting(msg: CreateMeeting):Unit = {
+    meetings.get(msg.id) match {
       case None => {
-        var m = new Meeting()
+        var m = new Meeting(msg.id, msg.recorded, outGW)
       }
     }
   }

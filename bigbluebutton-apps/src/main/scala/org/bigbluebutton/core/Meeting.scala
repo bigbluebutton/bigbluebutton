@@ -13,7 +13,7 @@ class Meeting(id: String, recorded: Boolean, outGW: BigBlueButtonOutGateway) ext
   import org.bigbluebutton.core.apps.poll.messages._
   
   val users = new HashMap[String, User]
-  val polls = new PollApp()
+  val polls = new PollApp(outGW)
   
   	def act() = {
 	  loop {
@@ -22,7 +22,7 @@ class Meeting(id: String, recorded: Boolean, outGW: BigBlueButtonOutGateway) ext
 	        handleUserJoin(userJoin)
 	      }
 	      case createPoll: CreatePoll => {
-	        polls.createPoll(createPoll)
+	        polls.handleMessage(createPoll)
 	      }
 	    }
 	  }

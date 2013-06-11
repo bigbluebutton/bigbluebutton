@@ -26,8 +26,6 @@ import org.bigbluebutton.conference.service.participants.messaging.messages.Assi
 import org.bigbluebutton.conference.service.participants.messaging.messages.UserJoinedMessage;
 import org.bigbluebutton.conference.service.participants.messaging.messages.UserLeftMessage;
 import org.bigbluebutton.conference.service.participants.messaging.messages.UserStatusChangeMessage;
-import org.bigbluebutton.conference.service.participants.messaging.redis.UsersMessagePublisher;
-import org.bigbluebutton.conference.service.participants.red5.UsersClientMessageSender;
 import org.red5.logging.Red5LoggerFactory;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.ArrayList;

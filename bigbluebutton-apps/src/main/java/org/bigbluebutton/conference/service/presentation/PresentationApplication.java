@@ -20,7 +20,6 @@ package org.bigbluebutton.conference.service.presentation;
 
 import org.slf4j.Logger;
 import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage;
-import org.bigbluebutton.conference.meeting.messaging.red5.ClientMessage;
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;import java.util.ArrayList;
