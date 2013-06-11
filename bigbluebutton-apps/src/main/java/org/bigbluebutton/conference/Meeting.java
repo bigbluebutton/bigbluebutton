@@ -20,8 +20,13 @@
 package org.bigbluebutton.conference;
 
 import org.slf4j.Logger;
+import org.bigbluebutton.conference.meeting.messaging.OutMessageGateway;
+import org.bigbluebutton.conference.meeting.messaging.messages.EndAndKickAllMessage;
+import org.bigbluebutton.conference.service.participants.messaging.messages.AssignPresenterMessage;
+import org.bigbluebutton.conference.service.participants.messaging.messages.UserJoinedMessage;
+import org.bigbluebutton.conference.service.participants.messaging.messages.UserLeftMessage;
+import org.bigbluebutton.conference.service.participants.messaging.messages.UserStatusChangeMessage;
 import org.bigbluebutton.conference.service.participants.messaging.redis.UsersMessagePublisher;
-import org.bigbluebutton.conference.service.participants.recorder.redis.UsersEventRecorder;
 import org.bigbluebutton.conference.service.participants.red5.UsersClientMessageSender;
 import org.red5.logging.Red5LoggerFactory;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,15 +43,13 @@ public class Meeting {
 	
 	private Map <String, User> users;
 
-	private UsersEventRecorder usersEventRecorder;
-	private UsersMessagePublisher usersMessagePublisher;
-	private UsersClientMessageSender usersClientMessageSender;
+	private OutMessageGateway outMessageGateway;
 		
-	public Meeting(String meetingID, Boolean recorded, UsersEventRecorder recorder, UsersMessagePublisher usersMessagePublisher, UsersClientMessageSender usersClientMessageSender) {
+	public Meeting(String meetingID, Boolean recorded, OutMessageGateway outMessageGateway) {
 		this.meetingID = meetingID;
 		this.recorded = recorded;
-		usersEventRecorder = recorder;
-		this.usersMessagePublisher = usersMessagePublisher;
+		this.outMessageGateway = outMessageGateway;
+
 		users = new ConcurrentHashMap<String, User>();
 	}
 
@@ -54,18 +57,19 @@ public class Meeting {
 		return meetingID;
 	}
 	
+	public Boolean isRecorded() {
+		return recorded;
+	}
+	
 	public void addParticipant(User user) {
 		synchronized (this) {
 			users.put(user.getInternalUserID(), user);
 		}
 		
-		if (recorded) {
-			usersEventRecorder.userJoined(meetingID, user);
-		}
-		
-		usersMessagePublisher.participantJoined(meetingID, user);
-		usersClientMessageSender.participantJoined(meetingID, user);
-		
+		UserJoinedMessage msg = new UserJoinedMessage(meetingID, recorded, user.getInternalUserID(), 
+				user.getExternalUserID(), user.getName(), user.getRole(), user.getStatus());
+		outMessageGateway.send(msg);
+				
 	}
 
 	public void removeParticipant(String userid) {
@@ -78,12 +82,8 @@ public class Meeting {
 			}
 		}
 		if (present) {
-			if (recorded) {
-				usersEventRecorder.userLeft(meetingID, user);
-			}
-			
-			usersMessagePublisher.participantLeft(meetingID, user);
-			usersClientMessageSender.participantLeft(meetingID, user);
+			UserLeftMessage msg = new UserLeftMessage(meetingID, recorded, userid);
+			outMessageGateway.send(msg);
 		}
 	}
 
@@ -98,21 +98,14 @@ public class Meeting {
 			}
 		}
 		if (present) {
-			if (recorded) {
-				usersEventRecorder.userStatusChange(meetingID, p, status, value);
-			}
-			
-			usersMessagePublisher.participantStatusChange(meetingID, p, status, value);
-			usersClientMessageSender.participantStatusChange(meetingID, p, status, value);
+			UserStatusChangeMessage msg = new UserStatusChangeMessage(meetingID, recorded, userid, status, value);
+			outMessageGateway.send(msg);
 		}		
 	}
 
 	public void endAndKickAll() {
-		if (recorded) {
-			usersEventRecorder.endAndKickAll(meetingID);
-		}
-		
-		usersClientMessageSender.endAndKickAll(meetingID);
+		EndAndKickAllMessage msg = new EndAndKickAllMessage(meetingID, recorded);
+		outMessageGateway.send(msg);
 	}
 
 	public Map getParticipants() {
@@ -150,7 +143,8 @@ public class Meeting {
 		presenter.add(assignedBy);
 		
 		currentPresenter = presenter;
-		usersEventRecorder.assignPresenter(meetingID, newPresenterID, newPresenterName, assignedBy);
-		usersClientMessageSender.assignPresenter(meetingID, newPresenterID, newPresenterName, assignedBy);	
+		
+		AssignPresenterMessage msg = new AssignPresenterMessage(meetingID, recorded, newPresenterID, newPresenterName, assignedBy);
+		outMessageGateway.send(msg);
 	}
 }

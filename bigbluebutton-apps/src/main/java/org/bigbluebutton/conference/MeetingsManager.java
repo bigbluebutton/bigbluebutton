@@ -19,10 +19,9 @@
 package org.bigbluebutton.conference;
 
 import org.slf4j.Logger;
-import org.bigbluebutton.conference.meeting.messaging.MessagePublisher;
-import org.bigbluebutton.conference.service.participants.messaging.redis.UsersMessagePublisher;
-import org.bigbluebutton.conference.service.participants.recorder.redis.UsersEventRecorder;
-import org.bigbluebutton.conference.service.participants.red5.UsersClientMessageSender;
+import org.bigbluebutton.conference.meeting.messaging.OutMessageGateway;
+import org.bigbluebutton.conference.meeting.messaging.messages.MeetingEndedMessage;
+import org.bigbluebutton.conference.meeting.messaging.messages.MeetingStartedMessage;
 import org.red5.logging.Red5LoggerFactory;
 import java.util.ArrayList;
 import java.util.Map;
@@ -33,19 +32,19 @@ public class MeetingsManager {
 	
 	private final Map <String, Meeting> meetings;
 
-	private MessagePublisher publisher;
-	private UsersEventRecorder usersEventRecorder;
-	private UsersMessagePublisher usersMessagePublisher;
-	private UsersClientMessageSender usersClientMessageSender;
+	private OutMessageGateway outMessageGateway;
 	
 	public MeetingsManager() {
 		meetings = new ConcurrentHashMap<String, Meeting>();		
 	}
 	
 	public void createMeeting(String meetingID, Boolean recorded) {
-		Meeting room = new Meeting(meetingID, recorded, usersEventRecorder, usersMessagePublisher, usersClientMessageSender);
-		meetings.put(meetingID, room);		
-		publisher.meetingStarted(meetingID);		
+		Meeting room = new Meeting(meetingID, recorded, outMessageGateway);
+		meetings.put(meetingID, room);	
+		
+		MeetingStartedMessage msg = new MeetingStartedMessage(meetingID, recorded);
+		
+		outMessageGateway.send(msg);		
 	}
 	
 	public void removeRoom(String name) {
@@ -53,7 +52,8 @@ public class MeetingsManager {
 		Meeting room = meetings.remove(name);
 		if (room != null) {
 			room.endAndKickAll();
-			publisher.meetingEnded(name);
+			MeetingEndedMessage msg = new MeetingEndedMessage(room.getMeetingID(), room.isRecorded());
+			outMessageGateway.send(msg);		
 		}
 	}
 
@@ -142,20 +142,7 @@ public class MeetingsManager {
 		} 		
 	}	
 	
-	public void setPublisher(MessagePublisher publisher) {
-		this.publisher = publisher;
-	}
-
-	public void setUsersEventRecorder(UsersEventRecorder usersEventRecorder) {
-		this.usersEventRecorder = usersEventRecorder;
-	}
-
-	public void setUsersMessagePublisher(UsersMessagePublisher usersMessagePublisher) {
-		this.usersMessagePublisher = usersMessagePublisher;
-	}
-
-	public void setUsersClientMessageSender(
-			UsersClientMessageSender usersClientMessageSender) {
-		this.usersClientMessageSender = usersClientMessageSender;
+	public void setOutMessageGateway(OutMessageGateway outMessageGateway) {
+		this.outMessageGateway = outMessageGateway;
 	}
 }
