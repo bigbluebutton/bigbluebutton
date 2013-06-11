@@ -37,7 +37,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="graphicObjSelected" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="graphicObjDeselected" />
 	<mate:Listener type="{WhiteboardButtonEvent.WHITEBOARD_BUTTON_PRESSED}" method="handleWhiteboardButtonPressed"/>
-	
+    
 	<mx:Style>
 		.colorPickerStyle {
 	      backgroundColor:#E5E6E7;
@@ -203,7 +203,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function viewerMode(e:MadePresenterEvent):void {
 				canvas.makeTextObjectsUneditable(e);
-				if (!toolbarAllowed()) hideToolbar();
+				if (!toolbarAllowed()) {
+                    hideToolbar();
+                    if (panzoomBtn) {
+                        panzoomBtn.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+                    }
+                }
 			}
 			
 			private function undoShortcut(e:ShortcutEvent):void{
