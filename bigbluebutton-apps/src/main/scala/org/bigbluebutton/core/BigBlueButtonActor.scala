@@ -2,12 +2,12 @@ package org.bigbluebutton.core
 
 import scala.actors.Actor
 import scala.actors.Actor._
-import scala.collection.immutable.HashMap
+import scala.collection.mutable.HashMap
 
-class BigBlueButtonActor extends Actor {
+class BigBlueButtonActor(outGW: BigBlueButtonOutGateway) extends Actor {
   import org.bigbluebutton.core.messages._
   
-  var meetings = new HashMap[String, Meeting]
+  private var meetings = new HashMap[String, Meeting]
 	
   def act() = {
 	loop {
@@ -20,6 +20,10 @@ class BigBlueButtonActor extends Actor {
   }
   
   private def handleCreateMeeting(message: CreateMeeting):Unit = {
-    
+    meetings.get(message.id) match {
+      case None => {
+        var m = new Meeting()
+      }
+    }
   }
 }

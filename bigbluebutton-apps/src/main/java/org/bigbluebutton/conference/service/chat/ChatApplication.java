@@ -28,7 +28,6 @@ import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;import org.bigbluebutton.conference.BigBlueButtonSession;
 import org.bigbluebutton.conference.Constants;
 import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage;
-import org.bigbluebutton.conference.meeting.messaging.red5.ClientMessage;
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
 import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage;
 import org.bigbluebutton.conference.service.chat.ChatRoomsManager;

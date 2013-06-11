@@ -7,7 +7,7 @@ import org.bigbluebutton.core.apps.poll.PollApp
 import org.bigbluebutton.core.apps.poll.Poll
 import org.bigbluebutton.core.apps.poll.PollApp
 
-class Meeting extends Actor {
+class Meeting(id: String, recorded: Boolean, outGW: BigBlueButtonOutGateway) extends Actor {
 
   import org.bigbluebutton.core.messages._
   import org.bigbluebutton.core.apps.poll.messages._

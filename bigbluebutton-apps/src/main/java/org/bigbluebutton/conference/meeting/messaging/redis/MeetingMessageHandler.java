@@ -14,9 +14,9 @@ public class MeetingMessageHandler implements MessageHandler {
 	
 	@Override
 	public void handleMessage(String pattern, String channel, String message) {
-		Gson gson = new Gson();
-		HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
 		if (channel.equalsIgnoreCase(MessagingConstants.SYSTEM_CHANNEL)){
+			Gson gson = new Gson();
+			HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
 			String meetingId = map.get("meetingId");
 			String messageId = map.get("messageId");
 			if (messageId != null){
