@@ -736,7 +736,9 @@ if ($playback == "presentation")
 		  FileUtils.mkdir_p audio_dir
 		  BigBlueButton.logger.info("Made audio dir - copying: #{$process_dir}/audio.ogg to -> #{audio_dir}")
 		  FileUtils.cp("#{$process_dir}/audio.ogg", audio_dir)
-		  BigBlueButton.logger.info("Copied .ogg file to -> #{audio_dir}")
+		  BigBlueButton.logger.info("Copied .ogg file - copying: #{$process_dir}/audio.webm to -> #{audio_dir}")
+		  FileUtils.cp("#{$process_dir}/audio.webm", audio_dir)
+		  BigBlueButton.logger.info("Copied audio.webm file")	
 		end
 
 		BigBlueButton.logger.info("Copying files to package dir")

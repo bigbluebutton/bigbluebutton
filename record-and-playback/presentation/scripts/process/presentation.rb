@@ -55,6 +55,7 @@ if not FileTest.directory?(target_dir)
   FileUtils.cp_r(raw_archive_dir, temp_dir)
   
   BigBlueButton::AudioProcessor.process("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio.ogg")
+
   events_xml = "#{temp_dir}/#{meeting_id}/events.xml"
   FileUtils.cp(events_xml, target_dir)
   
@@ -103,6 +104,10 @@ if not FileTest.directory?(target_dir)
   
   if !Dir["#{raw_archive_dir}/video/*"].empty?    
     BigBlueButton.process_multiple_videos(target_dir, temp_dir, meeting_id, presentation_props['video_output_width'], presentation_props['video_output_height'])
+  else
+    #Convert the audio file to webm to play it in IE
+    command = "ffmpeg -i #{target_dir}/audio.ogg  #{target_dir}/audio.webm"
+    BigBlueButton.execute(command)
   end
 
   process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-presentation.done", "w")
