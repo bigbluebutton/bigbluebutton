@@ -17,6 +17,10 @@ import org.bigbluebutton.conference.service.recorder.participants.ParticipantSta
 public class UsersEventRecorder implements OutMessageListener {
 	private RecorderApplication recorder;
 
+	public void setRecorderApplication(RecorderApplication recorder) {
+		this.recorder = recorder;
+	}
+	
 	@Override
 	public void send(OutMessage msg) {
 		if (msg instanceof EndAndKickAllMessage) {

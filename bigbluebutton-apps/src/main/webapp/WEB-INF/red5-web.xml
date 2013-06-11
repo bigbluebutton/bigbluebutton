@@ -68,6 +68,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             <set>
                 <ref bean="meetingMessagePublisher" />
                 <ref bean="usersMessagePublisher" />
+                <ref bean="usersEventRecorder" />
+                <ref bean="usersClientSender" />
             </set>
         </property>  	
 	</bean>
@@ -79,6 +81,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="usersMessagePublisher" class="org.bigbluebutton.conference.service.participants.messaging.redis.UsersMessagePublisher">
       <property name="messageService"> <ref bean="redisMessageSender"/></property>
     </bean>
+
+    <bean id="usersEventRecorder" class="org.bigbluebutton.conference.service.participants.recorder.redis.UsersEventRecorder">
+      <property name="recorderApplication"> <ref bean="recorderApplication"/></property>
+    </bean>
+            
+    <bean id="bbbActor" class="org.bigbluebutton.core.BigBlueButtonActor" init-method="startBigBlueButtonActor"/>
         
 	<import resource="bbb-redis-pool.xml"/>
 	<import resource="bbb-redis-recorder.xml"/>

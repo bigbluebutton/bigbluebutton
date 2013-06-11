@@ -90,14 +90,6 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
 		 
 		ISharedObject so = getSharedObject(connection.getScope(), PARTICIPANTS_SO, false);
-    	ParticipantsEventSender sender = new ParticipantsEventSender(so);
-    	ParticipantsEventRecorder recorder = new ParticipantsEventRecorder(connection.getScope().getName(), recorderApplication);
-    			
-    	log.debug("Adding room listener " + connection.getScope().getName());
-    	participantsApplication.addRoomListener(connection.getScope().getName(), recorder);
-    	participantsApplication.addRoomListener(connection.getScope().getName(), sender);
-    	log.debug("Done setting up recorder and listener");	
-	
 		return true;
 	}
 

@@ -34,7 +34,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<bean id="bigbluebutton.service" class="org.bigbluebutton.conference.BigBlueButtonService">
       <property name="connInvokerService"> <ref bean="connInvokerService"/></property>
     </bean>
-  		
+
+    <bean id="usersClientSender" class="org.bigbluebutton.conference.service.participants.red5.UsersClientMessageSender">
+      <property name="connectionInvokerService"> <ref bean="connInvokerService"/></property>
+    </bean>
+      		
 	<bean id="participantsHandler" class="org.bigbluebutton.conference.service.participants.ParticipantsHandler">
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
 		<property name="recorderApplication"> <ref bean="recorderApplication"/></property>

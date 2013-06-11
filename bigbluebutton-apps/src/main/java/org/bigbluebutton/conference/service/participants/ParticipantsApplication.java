@@ -54,15 +54,7 @@ public class ParticipantsApplication {
 	public boolean hasRoom(String name) {
 		return roomsManager.hasRoom(name);
 	}
-	
-	public boolean addRoomListener(String room, IRoomListener listener) {
-		if (roomsManager.hasRoom(room)){
-			return true;
-		}
-		log.warn("Adding listener to a non-existant room " + room);
-		return false;
-	}
-	
+		
 	public void setParticipantStatus(String room, String userid, String status, Object value) {
 		roomsManager.changeParticipantStatus(room, userid, status, value);
 	}
