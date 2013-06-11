@@ -723,10 +723,6 @@ if ($playback == "presentation")
 
 		begin	
 		
-		BigBlueButton.logger.info("Copying #{$process_dir}/events.xml to -> #{package_dir}")
-		FileUtils.cp("#{$process_dir}/events.xml", package_dir)
-		BigBlueButton.logger.info("Copied events.xml file")
-		
 		if File.exist?("#{$process_dir}/webcams.webm")
   		  BigBlueButton.logger.info("Making video dir")
   		  video_dir = "#{package_dir}/video"
