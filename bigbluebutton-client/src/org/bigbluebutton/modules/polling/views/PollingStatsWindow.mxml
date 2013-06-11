@@ -70,12 +70,15 @@
       import org.bigbluebutton.modules.polling.model.PollObject;
       import org.bigbluebutton.modules.polling.model.PollStatLineObject;
       import org.bigbluebutton.util.i18n.ResourceUtil;
+	  import org.bigbluebutton.modules.polling.model.PollOptions;
 
 	   	public static const LOGNAME:String = "[PollingStatsWindow] ";
 		[Bindable] public var question:String;
 		[Bindable] public var answers:Array;
 		
 		[Bindable] public var trackingPoll:PollObject;
+		[Bindable] public var pollOptions:PollOptions;
+		[Bindable] private var baseIndex:int;
 		
 		[Bindable] public var webPollUrl:String;
 		public var viewingClosedPoll:Boolean = false;
@@ -91,7 +94,8 @@
 		[Bindable] private var answerCollection:ArrayCollection = new ArrayCollection();
 		
 		private function init():void{			
-			
+			pollOptions = new PollOptions();
+			baseIndex = pollOptions.baseTabIndex; 
 			answerCollection = trackingPoll.generateStats();
 			
 			conference = UserManager.getInstance().getConference();
@@ -115,8 +119,11 @@
 		
 
 		private function onCreationComplete():void{
-			
-			//conference.amIPresenter()
+			titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.polling.stats.accessTitle', [trackingPoll.title]);
+			titleBarOverlay.tabIndex = baseIndex;
+			minimizeBtn.tabIndex = baseIndex+1;
+			maximizeRestoreBtn.tabIndex = baseIndex+2;
+			closeBtn.tabIndex = baseIndex+3;
 			
 			// If the statistics window is being opened to view a poll that has been published and closed, the interface will 
 			// immediately appear with only the option to close the window. 
@@ -147,6 +154,7 @@
 			}				 	            	
 			height = height + ((lines+1) * 45);
 			createResultsTable(answers.length, answers);
+			focusManager.setFocus(titleBarOverlay); 
 		}			
 
 		public function setUrlBoxText():void{
@@ -285,9 +293,9 @@
 						 editable="false" 
 						 text="" 
 						 height="25"
-						 width="95%"						 
+						 width="95%"
+						 tabIndex="{baseIndex+4}"
 						 />         
-			<!-- tabIndex="{baseIndex+4}" -->
 		</mx:HBox>
 		<mx:Text width="200"
 				 paddingTop="15" paddingBottom="10"
@@ -298,8 +306,7 @@
 					 rowCount="{answerCollection.length}" 
 					 width="90%" 
 					 accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.stats.question', [trackingPoll.question])}"
-					 >
-			<!-- tabIndex="{baseIndex+5}" -->
+					 tabIndex="{baseIndex+5}">
 			<mx:columns>
 				<mx:DataGridColumn id="answerColumn"
 								   dataField="answer"
@@ -328,13 +335,16 @@
        			   width="100" 
        			   height="30"
        			   visible = "true"
+				   tabIndex="{baseIndex+6}"
        			   />
        	<mx:Button id="btnClosePoll" 
        			   label="{ResourceUtil.getInstance().getString('bbb.polling.stats.stopPoll')}" 
        			   click="stopPoll()" 
        			   width="100" 
        			   height="30"
-       			   visible = "true"/>
+       			   visible = "true"
+				   tabIndex="{baseIndex+7}"
+				   />
 		<mx:Spacer width="100%"/>
  	 </mx:ControlBar>
 </MDIWindow>
