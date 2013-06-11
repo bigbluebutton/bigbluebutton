@@ -929,10 +929,8 @@ class ApiController {
      respondWithErrors(errors)
      return;
     }
-  
-    Map<String, String[]> reqParams = getParameters(request)
     
-    if (! paramsProcessorUtil.isPostChecksumSame(API_CALL, reqParams)) {     
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {     
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
@@ -949,7 +947,7 @@ class ApiController {
       //println "**************** CHECKSUM PASSED **************************"
       String sid = meetingService.addSubscription(internalMeetingId, params.event,params.callbackURL);
 
-      if(sid.isEmpty){
+      if(sid.isEmpty()){
         response.addHeader("Cache-Control", "no-cache")
         withFormat {
           xml {
@@ -1013,9 +1011,8 @@ class ApiController {
      return;
     }
   
-    Map<String, String[]> reqParams = getParameters(request)
     
-    if (! paramsProcessorUtil.isPostChecksumSame(API_CALL, reqParams)) {     
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {     
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
@@ -1030,7 +1027,7 @@ class ApiController {
       }     
     } else {
       //println "**************** CHECKSUM PASSED **************************"
-      boolean unsubscribed = meetingService.removeSubscription(internalMeetingId, params.subscriptionID);
+      boolean unsubscribedV = meetingService.removeSubscription(internalMeetingId, params.subscriptionID);
 
       if(!unsubscribed){
         response.addHeader("Cache-Control", "no-cache")
@@ -1055,7 +1052,7 @@ class ApiController {
             render(contentType:"text/xml") {
               response() {
                 returncode("SUCCESS")
-                unsubscribed(unsubscribed)
+                unsubscribed(Boolean.toString(unsubscribedV))
               }
             }
           }
@@ -1090,10 +1087,8 @@ class ApiController {
      respondWithErrors(errors)
      return;
     }
-  
-    Map<String, String[]> reqParams = getParameters(request)
     
-    if (! paramsProcessorUtil.isPostChecksumSame(API_CALL, reqParams)) {     
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {     
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
@@ -1108,7 +1103,7 @@ class ApiController {
       }     
     } else {
       //println "**************** CHECKSUM PASSED **************************"
-      List<Map<String,String>> subscriptions = meetingService.listSubscriptions(internalMeetingId);
+      List<Map<String,String>> subscriptionsList = meetingService.listSubscriptions(internalMeetingId);
 
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
@@ -1117,9 +1112,9 @@ class ApiController {
           render(contentType:"text/xml") {
             response() {
               returncode("SUCCESS")
-              subscriptions{
-                subscriptions.each{ item ->
-                  subscription{
+              subscriptions(){
+                subscriptionsList.each{ item ->
+                  subscription(){
                     subscriptionID(item.get("subscriptionID"))
                     event(item.get("event"))
                     callbackURL(item.get("callbackURL"))
