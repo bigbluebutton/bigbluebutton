@@ -28,8 +28,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			">
 	
 	<bean id="roomsManager" class="org.bigbluebutton.conference.MeetingsManager">
-		<property name="messagingService"> <ref bean="messagingService"/></property>
-		<property name="conversionUpdatesMessageListener" ref="conversionUpdatesMessageListener"></property>
+		<property name="outMessageGateway"> <ref bean="outMessageGateway"/></property>
 	</bean>
 	
 	<bean id="bigbluebutton.service" class="org.bigbluebutton.conference.BigBlueButtonService">
@@ -43,7 +42,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<bean id="participantsApplication" class="org.bigbluebutton.conference.service.participants.ParticipantsApplication">
 		<property name="roomsManager"> <ref local="roomsManager"/></property>
-		<property name="connInvokerService"> <ref bean="connInvokerService"/></property>
 	</bean>
 	
 	<bean id="participants.service" class="org.bigbluebutton.conference.service.participants.ParticipantsService">

@@ -28,20 +28,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			">
 	
 	<bean id="whiteboardApplication" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardApplication">
-	    <property name="recorderApplication"> <ref local="recorderApplication"/></property>
-	    <property name="clientSender"> <ref bean="connInvokerService"/></property>
+	   <property name="whiteboardRecordingService"> <ref local="whiteboardRecordingService"/></property>
+	    <property name="clientMessageSender"> <ref local="whiteboardClientSender"/></property>
 	</bean>
 
-	<bean id="whiteboardClientSender" class="org.bigbluebutton.conference.service.whiteboard.ClientMessageSender">
-		<property name="vonnectionInvokerService"> <ref local="connInvokerService"/></property>
+	<bean id="whiteboardClientSender" class="org.bigbluebutton.conference.service.whiteboard.red5.ClientMessageSender">
+		<property name="connectionInvokerService"> <ref bean="connInvokerService"/></property>
 	</bean>
 		
 	<bean id="whiteboard.service" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardService">
 		<property name="whiteboardApplication"> <ref local="whiteboardApplication"/></property>
 	</bean>
 	
-	<bean id="whiteboardRoomManager" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardRoomManager"/>
-
 	<bean id="whiteboardRecordingService" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardRecordingService">
 		<property name="recorderApplication"> <ref bean="recorderApplication"/></property>
 	</bean>

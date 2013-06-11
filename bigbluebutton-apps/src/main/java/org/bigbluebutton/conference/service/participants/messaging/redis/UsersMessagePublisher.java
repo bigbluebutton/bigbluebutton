@@ -1,8 +1,6 @@
 package org.bigbluebutton.conference.service.participants.messaging.redis;
 
 import java.util.HashMap;
-
-import org.bigbluebutton.conference.User;
 import org.bigbluebutton.conference.meeting.messaging.OutMessage;
 import org.bigbluebutton.conference.meeting.messaging.OutMessageListener;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;

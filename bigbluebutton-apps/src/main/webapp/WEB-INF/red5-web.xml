@@ -61,8 +61,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   		<property name="connInvokerService"> <ref bean="connInvokerService"/></property>		
 	</bean>
 	
-	<bean id="connInvokerService" class="org.bigbluebutton.conference.ConnectionInvokerService" init-method="start" destroy-method="stop"/>
+	<bean id="connInvokerService" class="org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService" init-method="start" destroy-method="stop"/>
 	
+	<bean id="outMessageGateway" class="org.bigbluebutton.conference.meeting.messaging.OutMessageGateway">
+        <property name="outMessageListeners">
+            <set>
+                <ref bean="meetingMessagePublisher" />
+                <ref bean="usersMessagePublisher" />
+            </set>
+        </property>  	
+	</bean>
+	
+	<bean id="meetingMessagePublisher" class="org.bigbluebutton.conference.meeting.messaging.redis.MeetingMessagePublisher">
+      <property name="messageService"> <ref bean="redisMessageSender"/></property>
+    </bean>
+
+    <bean id="usersMessagePublisher" class="org.bigbluebutton.conference.service.participants.messaging.redis.UsersMessagePublisher">
+      <property name="messageService"> <ref bean="redisMessageSender"/></property>
+    </bean>
+        
 	<import resource="bbb-redis-pool.xml"/>
 	<import resource="bbb-redis-recorder.xml"/>
 	<import resource="bbb-app-chat.xml" />

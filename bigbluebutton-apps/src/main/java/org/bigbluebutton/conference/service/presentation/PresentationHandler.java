@@ -41,7 +41,6 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 
 	private RecorderApplication recorderApplication;
 	private PresentationApplication presentationApplication;
-	private ConversionUpdatesMessageListener conversionUpdatesMessageListener;
 	
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
@@ -68,14 +67,12 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 	@Override
 	public boolean appStart(IScope scope) {
 		log.debug("***** " + APP + " [ " + " appStart [ " + scope.getName() + "] *********");
-		conversionUpdatesMessageListener.start();
 		return true;
 	}
 
 	@Override
 	public void appStop(IScope scope) {
 		log.debug("***** " + APP + " [ " + " appStop [ " + scope.getName() + "] *********");
-		conversionUpdatesMessageListener.stop();
 	}
 
 	@Override
@@ -154,11 +151,6 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 	public void setRecorderApplication(RecorderApplication a) {
 		log.debug("Setting archive application");
 		recorderApplication = a;
-	}
-	
-	public void setConversionUpdatesMessageListener(ConversionUpdatesMessageListener service) {
-		log.debug("Setting conversionUpdatesMessageListener");
-		conversionUpdatesMessageListener = service;
 	}
 	
 }
