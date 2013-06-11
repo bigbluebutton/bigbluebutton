@@ -548,7 +548,8 @@ Notes.mxml is the main view of the SharedNotes application
 							 width="90%"
 							 text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.hereIsYourPoll')}"
 							 editable="false"
-							 borderSkin="{null}"/>
+							 borderSkin="{null}"
+							 tabIndex="{baseIndex+4}"/>
 				<mx:TextArea text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.pollWillPublishOnline')}" 
 							 fontSize="11"
 							 editable="false"
@@ -559,7 +560,8 @@ Notes.mxml is the main view of the SharedNotes application
 							 paddingTop="10"
 							 paddingLeft="20"
 							 paddingBottom="15"
-							 visible="{_publishToWeb}"/>
+							 visible="{_publishToWeb}"
+							 tabIndex="{baseIndex+4}"/>
 				<mx:Panel id="titleShow" 
 						  title="{_title}" 
 						  width="90%" >
@@ -574,6 +576,7 @@ Notes.mxml is the main view of the SharedNotes application
 									 textAlign="center"
 									 editable="false"
 									 borderSkin="{null}"
+									 tabIndex="{baseIndex+4}"
 									 />
 						<mx:Box id="options" />   
 					</mx:VBox>
@@ -592,14 +595,14 @@ Notes.mxml is the main view of the SharedNotes application
 				   width="100" 
 				   height="30" 
 				   visible="false"
-				   tabIndex="{baseIndex+4}"/>
+				   tabIndex="{baseIndex+5}"/>
 		<mx:Button id="publishButton"
 				   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.publish')}"
 				   click="publish();"
 				   width="100"
 				   height="30"
 				   visible="false"
-				   tabIndex="{baseIndex+4}"/>
+				   tabIndex="{baseIndex+5}"/>
 		<mx:ViewStack id="buttons">
 			<!--buttons that appear when Instructions is displayed -->
 			<mx:Canvas id="instrButtons">
@@ -608,7 +611,7 @@ Notes.mxml is the main view of the SharedNotes application
 						   click="validateAndSubmit()" 
 						   width="100" 
 						   height="30"
-						   tabIndex="{baseIndex+4}"/>
+						   tabIndex="{baseIndex+5}"/>
 			</mx:Canvas>
 			<!-- buttons that appear on Review -->
 			<mx:Canvas id="reviewButtons">
@@ -617,7 +620,7 @@ Notes.mxml is the main view of the SharedNotes application
 						   click="savePoll()" 
 						   width="100" 
 						   height="30"
-						   tabIndex="{baseIndex+4}"/>
+						   tabIndex="{baseIndex+5}"/>
 			</mx:Canvas>
 		</mx:ViewStack>
 		<!-- Cancel button appear everywhere -->
@@ -626,6 +629,6 @@ Notes.mxml is the main view of the SharedNotes application
 				   click="closeInstructionsWindow()" 
 				   width="100" 
 				   height="30"
-				   tabIndex="{baseIndex+4}"/>
+				   tabIndex="{baseIndex+5}"/>
 	</mx:ControlBar>
 </MDIWindow>
