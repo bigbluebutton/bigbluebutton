@@ -39,6 +39,9 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.main.model.users.events.KickUserEvent;
   import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+  import org.bigbluebutton.modules.present.events.QueryPresentationsListEvent;
+  import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+  import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
   import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
   import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
@@ -84,6 +87,9 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("sendPublicChatRequest", handleSendPublicChatRequest);  
         ExternalInterface.addCallback("sendPrivateChatRequest", handleSendPrivateChatRequest); 
         ExternalInterface.addCallback("lockLayout", handleSendLockLayoutRequest);
+        ExternalInterface.addCallback("displayPresentationRequest", handleDisplayPresentationRequest);
+        ExternalInterface.addCallback("deletePresentationRequest", handleDeletePresentationRequest);
+        ExternalInterface.addCallback("queryListsOfPresentationsRequest", handleQueryListsOfPresentationsRequest);
       }
       
       // Tell out JS counterpart that we are ready.
@@ -93,6 +99,23 @@ package org.bigbluebutton.main.api
       
     }
 
+    private function handleQueryListsOfPresentationsRequest():void {
+      _dispatcher.dispatchEvent(new QueryPresentationsListEvent());
+    }
+    
+    
+    private function handleDisplayPresentationRequest(presentationID:String):void {
+      var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
+      readyEvent.presentationName = presentationID;
+      _dispatcher.dispatchEvent(readyEvent);
+    }
+    
+    private function handleDeletePresentationRequest(presentationID:String) {
+      var rEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.REMOVE_PRESENTATION_EVENT);
+      rEvent.presentationName = presentationID;
+      _dispatcher.dispatchEvent(rEvent);
+    }
+    
     private function handleIsUserPublishingCamRequestAsync(userID:String):void {
       var event:IsUserPublishingCamRequest = new IsUserPublishingCamRequest();
       event.userID = UsersUtil.externalUserIDToInternalUserID(userID);
