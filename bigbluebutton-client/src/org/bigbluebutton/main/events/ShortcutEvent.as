@@ -71,6 +71,7 @@ package org.bigbluebutton.main.events {
 		public static const CHANGE_FONT_COLOUR:String = 'CHANGE_FONT_COLOUR';
 		public static const SEND_MESSAGE:String = 'SEND_MESSAGE';
 		
+		public static const FOCUS_LOOP_END:String = 'FOCUS_LOOP_END';
 		public static const MUTE_ALL_BUT_PRES:String = 'MUTE_ALL_BUT_PRES';
 		
 		// Temporary string to help fix chat message navigation for screen readers
