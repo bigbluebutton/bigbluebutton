@@ -28,19 +28,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			">
 	
 	
-    <bean id="redisMessageSender" class="org.bigbluebutton.conference.service.messaging.redis.MessageSender">
+    <bean id="redisMessageSender" class="org.bigbluebutton.conference.service.messaging.redis.MessageSender" init-method="start" destroy-method="stop">
     	<property name="redisPool"> <ref bean="redisPool"/></property>
   	</bean>
 
-    <bean id="redisMessageReceiver" class="org.bigbluebutton.conference.service.messaging.redis.MessageReceiver">
+    <bean id="redisMessageReceiver" class="org.bigbluebutton.conference.service.messaging.redis.MessageReceiver" init-method="start" destroy-method="stop">
     	<property name="redisPool"> <ref bean="redisPool"/></property>
     	<property name="messageHandler"> <ref local="redisMessageHandler"/> </property>
   	</bean>
 
-    <bean id="redisMessageHandler" class="org.bigbluebutton.conference.service.messaging.redis.ReceivedMessageHandler"/>
+    <bean id="redisMessageHandler" class="org.bigbluebutton.conference.service.messaging.redis.ReceivedMessageHandler" init-method="start" destroy-method="stop"/>
   	
   	<bean id="redisMessageDistributor" class="org.bigbluebutton.conference.service.messaging.redis.MessageDistributor">
   	     <property name="messageHandler"> <ref local="redisMessageHandler"/> </property>
+  	     <property name="messageListeners">
+            <set>
+                <ref bean="presentationMessageListener" />
+                <ref bean="meetingMessageHandler" />
+            </set>
+        </property> 
   	</bean>	  	
  
 </beans>

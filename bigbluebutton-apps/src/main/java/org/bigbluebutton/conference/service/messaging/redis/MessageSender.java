@@ -23,6 +23,7 @@ public class MessageSender {
 	}
 	
 	public void start() {	
+		log.info("Redis message publisher starting!");
 		try {
 			sendMessage = true;
 			

@@ -14,7 +14,7 @@ public class MessageDistributor {
 	private ReceivedMessageHandler handler;
 	private Set<MessageHandler> listeners;
 	
-	public void setApplicationListeners(Set<MessageHandler> listeners) {
+	public void setMessageListeners(Set<MessageHandler> listeners) {
 		this.listeners = listeners;
 	}
 	

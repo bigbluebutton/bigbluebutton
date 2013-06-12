@@ -16,7 +16,7 @@ public class ReceivedMessageHandler {
 	private volatile boolean processMessage = false;
 	
 	private final Executor msgProcessorExec = Executors.newSingleThreadExecutor();
-	private BlockingQueue<ReceivedMessage> messages = new LinkedBlockingQueue<ReceivedMessage>();
+	
 	
 	private MessageDistributor handler;
 	
@@ -25,6 +25,7 @@ public class ReceivedMessageHandler {
 	}
 	
 	public void start() {	
+		log.info("Ready to handle messages from Redis pubsub!");
 		try {
 			processMessage = true;
 			
@@ -32,7 +33,7 @@ public class ReceivedMessageHandler {
 			    public void run() {
 			    	while (processMessage) {
 			    		try {
-							ReceivedMessage msg = messages.take();
+							ReceivedMessage msg = receivedMessages.take();
 							processMessage(msg);
 						} catch (InterruptedException e) {
 							log.warn("Error while taking received message from queue.");
@@ -49,6 +50,8 @@ public class ReceivedMessageHandler {
 	private void processMessage(ReceivedMessage msg) {
 		if (handler != null) {
 			handler.notifyListeners(msg.getPattern(), msg.getChannel(), msg.getMessage());
+		} else {
+			log.warn("No listeners interested in messages from Redis!");
 		}
 	}
 	

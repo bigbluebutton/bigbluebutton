@@ -23,7 +23,8 @@ public class MessageReceiver {
 		receiveMessage = false;
 	}
 	
-	public void start() {	
+	public void start() {
+		log.info("Ready to receive messages from Redis pubsub.");
 		try {
 			receiveMessage = true;
 			final Jedis jedis = redisPool.getResource();

@@ -2,7 +2,6 @@ package org.bigbluebutton.conference.service.presentation;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
@@ -32,6 +31,7 @@ public class PresentationMessageListener implements MessageHandler {
 	@Override
 	public void handleMessage(String pattern, String channel, String message) {
 		if (channel.equalsIgnoreCase(MessagingConstants.PRESENTATION_CHANNEL)) {
+			
 			Gson gson = new Gson();
 			HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
 

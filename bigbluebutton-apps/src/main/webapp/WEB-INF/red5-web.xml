@@ -87,6 +87,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </bean>
             
     <bean id="bbbActor" class="org.bigbluebutton.core.BigBlueButtonActor" init-method="startBigBlueButtonActor"/>
+    
+    <bean id="meetingMessageHandler" class="org.bigbluebutton.conference.meeting.messaging.redis.MeetingMessageHandler">
+        <property name="meetingManager"> <ref bean="roomsManager"/></property>
+    </bean>
         
 	<import resource="bbb-redis-pool.xml"/>
 	<import resource="bbb-redis-recorder.xml"/>
