@@ -945,7 +945,7 @@ class ApiController {
       }     
     } else {
       //println "**************** CHECKSUM PASSED **************************"
-      String sid = meetingService.addSubscription(internalMeetingId, params.event,params.callbackURL);
+      String sid = meetingService.addSubscription(meeting.getInternalId(), params.event,params.callbackURL);
 
       if(sid.isEmpty()){
         response.addHeader("Cache-Control", "no-cache")
@@ -1027,7 +1027,7 @@ class ApiController {
       }     
     } else {
       //println "**************** CHECKSUM PASSED **************************"
-      boolean status = meetingService.removeSubscription(internalMeetingId, params.subscriptionID);
+      boolean status = meetingService.removeSubscription(meeting.getInternalId(), params.subscriptionID);
 
       if(!status){
         response.addHeader("Cache-Control", "no-cache")
@@ -1103,7 +1103,7 @@ class ApiController {
       }     
     } else {
       //println "**************** CHECKSUM PASSED **************************"
-      List<Map<String,String>> list = meetingService.listSubscriptions(internalMeetingId);
+      List<Map<String,String>> list = meetingService.listSubscriptions(meeting.getInternalId());
 
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
