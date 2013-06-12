@@ -18,57 +18,70 @@
 */
 package org.bigbluebutton.conference.service.layout;
 
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.bigbluebutton.conference.service.layout.red5.LayoutClientSender;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
 public class LayoutApplication {
-
 	private static Logger log = Red5LoggerFactory.getLogger( LayoutApplication.class, "bigbluebutton" );	
 		
-	private LayoutRoomsManager roomsManager;
-	public LayoutHandler handler;
+	private final Map <String, LayoutRoom> rooms = new ConcurrentHashMap<String, LayoutRoom>();
+
+	private LayoutClientSender sender;
 	
-	public boolean createRoom(String name) {
-		roomsManager.addRoom(new LayoutRoom(name));
+	public void setLayoutClientSender(LayoutClientSender sender) {
+		this.sender = sender;
+	}
+	
+	public boolean createRoom(String meetingID) {
+		LayoutRoom room = new LayoutRoom(meetingID);
+		rooms.put(room.getMeetingID(), room);
+		
 		return true;
 	}
 	
-	public boolean destroyRoom(String name) {
-		if (roomsManager.hasRoom(name)) {
-			roomsManager.removeRoom(name);
+	public boolean destroyRoom(String meetingID) {
+		if (hasRoom(meetingID)) {
+			removeRoom(meetingID);
 		}
 		return true;
 	}
 	
-	public boolean hasRoom(String name) {
-		return roomsManager.hasRoom(name);
+	private void removeRoom(String meetingID) {
+		rooms.remove(meetingID);
 	}
 	
-	public boolean addRoomListener(String room, ILayoutRoomListener listener) {
-		if (roomsManager.hasRoom(room)){
-			roomsManager.addRoomListener(room, listener);
-			return true;
+	public boolean hasRoom(String meetingID) {
+		return rooms.containsKey(meetingID);
+	}
+		
+	private LayoutRoom getRoom(String meetingID) {
+		return rooms.get(meetingID);
+	}
+	
+	public void lockLayout(String meetingID, String userId, String layout) {
+		LayoutRoom r = getRoom(meetingID);
+		if (r != null) {
+			r.lockLayout(userId, layout);
+			sender.updateLayout(r.getMeetingID(), r.isLocked(), r.getSetByUserID(), r.getCurrentLayout());
+		} 
+	}
+
+	public void unlockLayout(String meetingID) {
+		LayoutRoom r = getRoom(meetingID);
+		if (r != null) {
+			r.unlockLayout();
+			sender.updateLayout(r.getMeetingID(), r.isLocked(), r.getSetByUserID(), r.getCurrentLayout());
+		} 
+	}
+
+	public void getCurrentLayout(String meetingID, String requesterID) {
+		LayoutRoom r = getRoom(meetingID);
+		if (r != null) {
+			sender.sendGetCurrentLayoutResponse(r.getMeetingID(), requesterID, r.isLocked(), r.getSetByUserID(), r.getCurrentLayout());
 		}
-		log.warn("Adding listener to a non-existant room " + room);
-		return false;
-	}
-	
-	public void setRoomsManager(LayoutRoomsManager r) {
-		log.debug("Setting room manager");
-		roomsManager = r;
-	}
-
-	public void lockLayout(String room, String userId, String layout) {
-		roomsManager.lockLayout(room, userId, layout);
-	}
-
-	public void unlockLayout(String room) {
-		roomsManager.unlockLayout(room);
-	}
-
-	public List<Object> currentLayout(String roomName) {
-		return roomsManager.currentLayout(roomName);
 	}
 }

@@ -17,8 +17,11 @@
 * Author: Felipe Cecagno <felipe@mconf.org>
 */
 package org.bigbluebutton.conference.service.layout;
-import java.util.List;
 
+import java.util.Map;
+
+import org.bigbluebutton.conference.BigBlueButtonSession;
+import org.bigbluebutton.conference.Constants;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.slf4j.Logger;
@@ -29,26 +32,27 @@ public class LayoutService {
 	
 	private LayoutApplication application;
 
-	public List<Object> init() {
-		log.debug("Initializing layout");
-		String roomName = Red5.getConnectionLocal().getScope().getName();
-		return application.currentLayout(roomName);
+	public void getCurrentLayout() {
+		String meetingID = Red5.getConnectionLocal().getScope().getName();
+		application.getCurrentLayout(meetingID, getBbbSession().getInternalUserID());
 	}
 	
-	public void lock(String userId, String layout) {
-		log.debug("Layout locked");
-		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.lockLayout(roomName, userId, layout);
+	public void lock(Map<String, Object> message) {
+		String meetingID = Red5.getConnectionLocal().getScope().getName();
+		application.lockLayout(meetingID, (String) message.get("setByUserID"), (String) message.get("layout"));
 	}
 	
 	public void unlock() {
-		log.debug("Layout unlocked");
-		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.unlockLayout(roomName);
+		String meetingID = Red5.getConnectionLocal().getScope().getName();
+		application.unlockLayout(meetingID);
 	}
 	
 	public void setLayoutApplication(LayoutApplication a) {
 		log.debug("Setting layout application");
 		application = a;
+	}
+	
+	private BigBlueButtonSession getBbbSession() {
+		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}
 }

@@ -24,7 +24,6 @@ import org.red5.server.adapter.IApplication;
 import org.red5.server.api.IClient;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.scope.IScope;
-import org.red5.server.api.so.ISharedObject;
 import org.slf4j.Logger;
 
 public class LayoutHandler extends ApplicationAdapter implements IApplication {
@@ -88,14 +87,6 @@ public class LayoutHandler extends ApplicationAdapter implements IApplication {
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
 		
-		ISharedObject so = getSharedObject(connection.getScope(), LAYOUT_SO, false);
-    	log.debug("Setting up Listener");
-    	LayoutSender sender = new LayoutSender(so);
-    	String room = connection.getScope().getName();
-    	log.debug("Adding event listener to " + room);
-    	log.debug("Adding room listener");
-    	layoutApplication.addRoomListener(room, sender);
-    	log.debug("Done setting up listener");
     	return true;
 	}
 	
@@ -111,9 +102,6 @@ public class LayoutHandler extends ApplicationAdapter implements IApplication {
 	public void roomStop(IScope scope) {
 		log.debug("***** " + APP + " [ " + " roomStop [ " + scope.getName() + "] *********");
 		layoutApplication.destroyRoom(scope.getName());
-		if (hasSharedObject(scope, LAYOUT_SO)) {
-    		clearSharedObjects(scope, LAYOUT_SO);
-    	}
 	}
 	
 	public void setLayoutApplication(LayoutApplication a) {
@@ -121,7 +109,6 @@ public class LayoutHandler extends ApplicationAdapter implements IApplication {
 		
 		log.debug("Setting layout application");
 		layoutApplication = a;
-		layoutApplication.handler = this;
 	}
 	
 }

@@ -18,78 +18,42 @@
 */
 package org.bigbluebutton.conference.service.layout;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import net.jcip.annotations.ThreadSafe;
-
-import org.red5.logging.Red5LoggerFactory;
-import org.slf4j.Logger;
-/**
- * Contains information about a LayoutRoom. 
- */
-@ThreadSafe
 public class LayoutRoom {
-	private static Logger log = Red5LoggerFactory.getLogger( LayoutRoom.class, "bigbluebutton" );
-	
-	private final String name;
-	private final Map<String, ILayoutRoomListener> listeners;
+
+	private final String meetingID;
 	private boolean locked = false;
-	private String modifierId = "-1";
+	private String setByUserID = "-1";
 	private String currentLayout = "";
 	
-	public LayoutRoom(String name) {
-		this.name = name;
-		this.listeners = new ConcurrentHashMap<String, ILayoutRoomListener>();
+	public LayoutRoom(String meetingID) {
+		this.meetingID = meetingID;
 	}
 	
-	public String getName() {
-		return name;
+	public String getMeetingID() {
+		return meetingID;
 	}
-	
-	public void addRoomListener(ILayoutRoomListener listener) {
-		if (! listeners.containsKey(listener.getName())) {
-			log.debug("adding room listener");
-			listeners.put(listener.getName(), listener);			
-		}
-	}
-	
-	public void removeRoomListener(ILayoutRoomListener listener) {
-		log.debug("removing room listener");
-		listeners.remove(listener);		
-	}
-	
-	private void updateLayout() {
-		for (Iterator<ILayoutRoomListener> iter = listeners.values().iterator(); iter.hasNext();) {
-			log.debug("calling on listener");
-			ILayoutRoomListener listener = (ILayoutRoomListener) iter.next();
-			log.debug("calling updateLayout on listener " + listener.getName());
-			listener.updateLayout(currentLayout());
-		}
-	}
-		
-	public void lockLayout(String userId, String layout) {
+				
+	public void lockLayout(String setByUserID, String layout) {
 		locked = true;
-		modifierId = userId;
+		this.setByUserID = setByUserID;
 		currentLayout = layout;
-		updateLayout();
 	}
 
 	public void unlockLayout() {
 		locked = false;
-		modifierId = "-1";
+		setByUserID = "-1";
 		currentLayout = "";
-		updateLayout();
+	}
+	
+	public boolean isLocked() {
+		return locked;
 	}
 
-	public List<Object> currentLayout() {
-		List<Object> args = new ArrayList<Object>();
-		args.add(locked);
-		args.add(modifierId);
-		args.add(currentLayout);
-		return args;
+	public String getSetByUserID() {
+		return setByUserID;
+	}
+
+	public String getCurrentLayout() {
+		return currentLayout;
 	}
 }

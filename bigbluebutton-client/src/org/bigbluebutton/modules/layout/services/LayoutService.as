@@ -25,34 +25,19 @@ package org.bigbluebutton.modules.layout.services
 	
 	public class LayoutService
 	{
-		private var _attributes:Object;
-		private var _layoutSOService:LayoutSharedObjectService;
-		
-		public function LayoutService(attributes:Object) {
-			_attributes = attributes;
-		}
-		
-		public function join():void {
-			_layoutSOService = new LayoutSharedObjectService(_attributes.connection);
-			_layoutSOService.join(_attributes.uri + "/" + _attributes.room);
-		}
-		
-		public function leave():void {
-			_layoutSOService.leave();
-		}
-		
-		public function initLayout(success:Boolean):void {
-			if (success)
-				_layoutSOService.initLayout();
+    public var sender:MessageSender;
+    public var receiver:MessageReceiver;
+    		
+		public function getCurrentLayout():void {
+      sender.getCurrentLayout();
 		}
 		
 		public function lockLayout(layout:LayoutDefinition):void {
-      LogUtil.debug("Locking the layout [" + layout.name + "]");
-			_layoutSOService.lockLayout(layout);
+      sender.lockLayout(layout);
 		}
 		
 		public function unlockLayout():void {
-			_layoutSOService.unlockLayout();
+			sender.unlockLayout();
 		}
 	}
 }

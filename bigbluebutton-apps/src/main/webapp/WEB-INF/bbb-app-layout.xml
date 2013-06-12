@@ -28,16 +28,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			">
 	
 	
-	<bean id="layoutRoomsManager" class="org.bigbluebutton.conference.service.layout.LayoutRoomsManager"/>
-	
 	<bean id="layoutHandler" class="org.bigbluebutton.conference.service.layout.LayoutHandler">
 	    <property name="layoutApplication"><ref local="layoutApplication"/></property>
 	</bean>
 
 	<bean id="layoutApplication" class="org.bigbluebutton.conference.service.layout.LayoutApplication">
-		<property name="roomsManager"><ref local="layoutRoomsManager"/></property>
+		<property name="layoutClientSender"><ref local="layoutClientSender"/></property>
 	</bean>
 	
+	<bean id="layoutClientSender" class="org.bigbluebutton.conference.service.layout.red5.LayoutClientSender">
+       <property name="connectionInvokerService"> <ref bean="connInvokerService"/></property>
+    </bean>
+    
 	<bean id="layout.service" class="org.bigbluebutton.conference.service.layout.LayoutService">
 	    <property name="layoutApplication"><ref local="layoutApplication"/></property>
    	</bean>	
