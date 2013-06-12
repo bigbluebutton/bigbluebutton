@@ -258,17 +258,20 @@ load_video = function(){
    document.getElementById("videoRecordingWrapper").appendChild(video);
 }  
 
-load_audio = function() { 
-   console.log("Loading audio")        
-   var audio = document.createElement("audio") ;    
-   audio.setAttribute('src', RECORDINGS + '/audio/audio.ogg');
-   audio.setAttribute('type','audio/ogg');
+load_audio = function() {
+   console.log("Loading audio")
+   var audio = document.createElement("audio") ;
+   if (navigator.appName === "Microsoft Internet Explorer"){
+     audio.setAttribute('src', RECORDINGS + '/audio/audio.webm'); //hack for IE
+     audio.setAttribute('type','audio/ogg');
+   }else{
+     audio.setAttribute('src', RECORDINGS + '/audio/audio.ogg');
+     audio.setAttribute('type','audio/ogg');
+   }
    audio.setAttribute('id', 'video');
-
-   audio.setAttribute('data-timeline-sources', SLIDES_XML);    
+   audio.setAttribute('data-timeline-sources', SLIDES_XML);
    //audio.setAttribute('controls','');
    audio.setAttribute('autoplay','autoplay');
-
    document.getElementById("audioRecordingWrapper").appendChild(audio);
 }
 
