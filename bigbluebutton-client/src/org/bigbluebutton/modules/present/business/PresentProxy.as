@@ -38,6 +38,7 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.events.SlideEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
+	import org.bigbluebutton.modules.present.services.MessageSender;
 	
 	public class PresentProxy
 	{
@@ -50,15 +51,18 @@ package org.bigbluebutton.modules.present.business
 		private var soService:PresentSOService;
 		private var uploadService:FileUploadService;
 		private var slides:PresentationSlides;
-		
+		private var sender:MessageSender;
+    
 		public function PresentProxy(){
 			slides = new PresentationSlides();
+      sender = new MessageSender();
 		}
 		
 		public function connect(e:PresentModuleEvent):void{
 			extractAttributes(e.data);
 			soService = new PresentSOService(connection, url, userid);
 			soService.connect();
+      sender.getPresentationInfo();
 		}
 		
 		private function extractAttributes(a:Object):void{
@@ -86,8 +90,7 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */		
 		public function gotoSlide(e:PresenterCommands):void{
-			if (soService == null) return;
-			soService.gotoSlide(e.slideNumber);
+      sender.gotoSlide(e.slideNumber);
 		}
 		
 		/**
@@ -133,21 +136,20 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */		
 		public function sharePresentation(e:PresenterCommands):void{
-			if (soService == null) return;
-			soService.sharePresentation(e.share, e.presentationName);
+
+      sender.sharePresentation(e.share, e.presentationName);
+      
 			var timer:Timer = new Timer(3000, 1);
 			timer.addEventListener(TimerEvent.TIMER, sendViewerNotify);
 			timer.start();
 		}
 		
 		public function removePresentation(e:RemovePresentationEvent):void {
-			if (soService == null) return;
-			soService.removePresentation(e.presentationName);
+			sender.removePresentation(e.presentationName);
 		}
 		
 		private function sendViewerNotify(e:TimerEvent):void{
-			if (soService == null) return;
-			soService.gotoSlide(0);
+			sender.gotoSlide(0);
 		}
 			
 		/**
@@ -156,7 +158,7 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */		
 		public function moveSlide(e:PresenterCommands):void{
-			soService.move(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
+			sender.move(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
 		}
 		
 		/**
@@ -165,7 +167,7 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */		
 		public function zoomSlide(e:PresenterCommands):void{
-			soService.zoom(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
+      sender.move(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
 		}
 		
 		/**
@@ -174,7 +176,7 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */		
 		public function sendCursorUpdate(e:PresenterCommands):void{
-			soService.sendCursorUpdate(e.xPercent, e.yPercent);
+			sender.sendCursorUpdate(e.xPercent, e.yPercent);
 		}
 		
 		public function resizeSlide(e:PresenterCommands):void{

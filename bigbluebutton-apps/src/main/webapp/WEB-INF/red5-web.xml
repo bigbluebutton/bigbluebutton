@@ -70,7 +70,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 <ref bean="usersMessagePublisher" />
                 <ref bean="usersEventRecorder" />
                 <ref bean="usersClientSender" />
-                <ref bean="layoutClientSender" />               
+                <ref bean="layoutClientSender" /> 
+                <ref bean="presentationClientSender" />
+                <ref bean="presentationEventRecorder" />               
             </set>
         </property>  	
 	</bean>

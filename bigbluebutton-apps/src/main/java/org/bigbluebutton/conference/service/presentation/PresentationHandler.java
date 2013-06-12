@@ -79,7 +79,7 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
 		
-		presentationApplication.createRoom(scope.getName(), getBbbSession().getRecord());
+		presentationApplication.createRoom(connection.getScope().getName(), getBbbSession().getRecord());
     	
     	return true;
 	}

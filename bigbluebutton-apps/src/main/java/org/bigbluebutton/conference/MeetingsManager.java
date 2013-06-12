@@ -118,7 +118,7 @@ public class MeetingsManager {
 		}		
 	}
 	
-	public ArrayList<String> getCurrentPresenter( String room){
+	public ArrayList<String> getCurrentPresenter(String room){
 		Meeting r = getRoom(room);
 		if (r != null) {
 			return r.getCurrentPresenter();		

@@ -87,7 +87,7 @@ public class LayoutHandler extends ApplicationAdapter implements IApplication {
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
-		layoutApplication.createRoom(scope.getName(), getBbbSession().getRecord());
+		layoutApplication.createRoom(connection.getScope().getName(), getBbbSession().getRecord());
     	return true;
 	}
 	

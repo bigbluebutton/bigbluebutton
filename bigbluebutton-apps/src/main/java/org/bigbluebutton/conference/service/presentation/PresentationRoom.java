@@ -19,14 +19,15 @@
 package org.bigbluebutton.conference.service.presentation;
 
 import org.slf4j.Logger;
-import org.red5.logging.Red5LoggerFactory;import java.util.ArrayList;import java.util.Iterator;
+import org.red5.logging.Red5LoggerFactory;import java.util.ArrayList;
 import java.util.Map;
 
 public class PresentationRoom {
 	private static Logger log = Red5LoggerFactory.getLogger( PresentationRoom.class, "bigbluebutton" );
 	
-	private final String name;
-
+	private final String meetingID;
+	private final Boolean recorded;
+	
 	int currentSlide = 0;
 	Boolean sharing = false;
 	String currentPresentation = "";
@@ -41,12 +42,17 @@ public class PresentationRoom {
 	
 	ArrayList<String> presentationNames = new ArrayList<String>();
 	
-	public PresentationRoom(String name) {
-		this.name = name;
+	public PresentationRoom(String meetingID, Boolean recorded) {
+		this.meetingID = meetingID;
+		this.recorded = recorded;
 	}
 	
-	public String getName() {
-		return name;
+	public String getMetingID() {
+		return meetingID;
+	}
+	
+	public Boolean isRecorded() {
+		return recorded;
 	}
 	
 	public void storePresentationNames(Map<String, Object> message){
@@ -54,7 +60,6 @@ public class PresentationRoom {
         String messageKey = (String) message.get("messageKey");
              
         if (messageKey.equalsIgnoreCase("CONVERSION_COMPLETED")) {            
-            log.debug(messageKey + "[" + presentationName + "]");
             presentationNames.add(presentationName);                                
         }           
     }
@@ -73,12 +78,10 @@ public class PresentationRoom {
 	}
 		
 	public void gotoSlide(int curslide){
-		log.debug("Request to go to slide " + curslide + "for room " + name);
 		currentSlide = curslide;		
 	}	
 	
 	public void sharePresentation(String presentationName, Boolean share){
-		log.debug("Request share presentation " + presentationName + " " + share + " for room " + name);
 		sharing = share;
 		if (share) {
 		  currentPresentation = presentationName;
@@ -89,17 +92,14 @@ public class PresentationRoom {
 	}
 	    
     public void removePresentation(String presentationName){
-        log.debug("Request remove presentation " + presentationName);
         int index = presentationNames.indexOf(presentationName);
         
         if (index < 0) {
-            log.warn("Request remove presentation " + presentationName + ". Presentation not found.");
             return;
         }
         
         presentationNames.remove(index);
-        
-        
+               
         if (currentPresentation == presentationName) {
             sharePresentation(presentationName, false);
         }        

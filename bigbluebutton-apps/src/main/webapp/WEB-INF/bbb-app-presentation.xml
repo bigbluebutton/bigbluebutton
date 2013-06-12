@@ -26,10 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			http://www.springframework.org/schema/util 
 			http://www.springframework.org/schema/util/spring-util-2.0.xsd
 			">
-	
-
-	<bean id="presentationRoomsManager" class="org.bigbluebutton.conference.service.presentation.PresentationRoomsManager"/>
-			
+				
 	<bean id="presentationHandler" class="org.bigbluebutton.conference.service.presentation.PresentationHandler">
 		<property name="presentationApplication"> 
 			<ref local="presentationApplication"/>
@@ -40,12 +37,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</bean>
 	
 	<bean id="presentationApplication" class="org.bigbluebutton.conference.service.presentation.PresentationApplication">
-		<property name="roomsManager"> <ref local="presentationRoomsManager"/></property>
-		<property name="connInvokerService"> <ref bean="connInvokerService"/></property>
+		<property name="roomsManager"> <ref bean="roomsManager"/></property>
+		<property name="outMessageGateway"> <ref bean="outMessageGateway"/></property>
 	</bean>
 	
 	<bean id="presentation.service" class="org.bigbluebutton.conference.service.presentation.PresentationService">
-		<property name="participantsApplication"> <ref bean="participantsApplication"/></property>
 		<property name="presentationApplication"> <ref local="presentationApplication"/></property>
 	</bean>
 
@@ -56,5 +52,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<bean id="presentationMessageListener" class="org.bigbluebutton.conference.service.presentation.PresentationMessageListener">
 		<property name="conversionUpdatesProcessor" ref="conversionUpdatesProcessor" />
 	</bean>
+	
+	<bean id="presentationClientSender" class="org.bigbluebutton.conference.service.presentation.messaging.red5.PresentationClientSender">
+      <property name="connectionInvokerService"> <ref bean="connInvokerService"/></property>
+    </bean>
 
+    <bean id="presentationEventRecorder" class="org.bigbluebutton.conference.service.presentation.recorder.redis.PresentationEventRecorder">
+      <property name="recorderApplication"> <ref bean="recorderApplication"/></property>
+    </bean>
 </beans>

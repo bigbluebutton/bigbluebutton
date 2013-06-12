@@ -1,11 +1,20 @@
 package org.bigbluebutton.conference.service.presentation.messaging.red5;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.bigbluebutton.conference.meeting.messaging.OutMessage;
 import org.bigbluebutton.conference.meeting.messaging.OutMessageListener;
+import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage;
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
+import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage;
+import org.bigbluebutton.conference.service.presentation.messaging.messages.ConversionUpdateMessage;
+import org.bigbluebutton.conference.service.presentation.messaging.messages.GetPresentationInforReplyMessage;
+import org.bigbluebutton.conference.service.presentation.messaging.messages.GotoSlideMessage;
+import org.bigbluebutton.conference.service.presentation.messaging.messages.PresentationCursorUpdateMessage;
+import org.bigbluebutton.conference.service.presentation.messaging.messages.RemovePresentationMessage;
+import org.bigbluebutton.conference.service.presentation.messaging.messages.ResizeAndMoveSlideMessage;
+import org.bigbluebutton.conference.service.presentation.messaging.messages.SharePresentationMessage;
 
 public class PresentationClientSender implements OutMessageListener {
 	private static final String OFFICE_DOC_CONVERSION_SUCCESS_KEY = "OFFICE_DOC_CONVERSION_SUCCESS";
@@ -27,29 +36,53 @@ public class PresentationClientSender implements OutMessageListener {
 	
 	@Override
 	public void send(OutMessage msg) {
-		
+		if (msg instanceof ConversionUpdateMessage) {
+			sendUpdateMessage((ConversionUpdateMessage) msg);
+		} else if (msg instanceof GetPresentationInforReplyMessage) {
+			sendGetPresentationInfoReplyMessage((GetPresentationInforReplyMessage) msg);
+		} else if (msg instanceof GotoSlideMessage) {
+			sendGotoSlideMessage((GotoSlideMessage) msg);
+		} else if (msg instanceof PresentationCursorUpdateMessage) {
+			sendPresentationCursorUpdateMessage((PresentationCursorUpdateMessage) msg);
+		} else if (msg instanceof RemovePresentationMessage) {
+			sendRemovePresentationMessage((RemovePresentationMessage) msg);
+		} else if (msg instanceof ResizeAndMoveSlideMessage) {
+			sendResizeAndMoveSlideMessage((ResizeAndMoveSlideMessage) msg);
+		} else if (msg instanceof SharePresentationMessage) {
+			sendSharePresentationMessage((SharePresentationMessage) msg);
+		}
 	}
 	
-	public void sendUpdateMessage(Map message){
-		handleReceivedMessage(message);
-	}
+	private void sendPresentationCursorUpdateMessage(PresentationCursorUpdateMessage msg) {
+		 Map<String, Object> args = new HashMap<String, Object>();
+		 args.put("xPercent", msg.getxPercent());
+		 args.put("yPercent", msg.getyPercent());
 
-	@SuppressWarnings("unchecked")
-	private void handleReceivedMessage(Map message){
+		BroadcastClientMessage m = new BroadcastClientMessage(msg.getMeetingID(), "PresentationCursorUpdateCommand", args);
+		service.sendMessage(m);	
+	}
+	
+	private void sendGetPresentationInfoReplyMessage(GetPresentationInforReplyMessage msg) {
+		
+		DirectClientMessage m = new DirectClientMessage(msg.getMeetingID(), msg.getRequesterID(), "getPresentationInfoReply", msg.getInfo());
+		service.sendMessage(m);		
+	}
+	
+	private void sendUpdateMessage(ConversionUpdateMessage msg){
+
+		Map<String, Object> message = msg.getMessage();
     	String code = (String) message.get("returnCode");
-    	String room = (String) message.get("room");
     	String presentationName = (String) message.get("presentationName");
     	String conference = (String) message.get("conference");
     	String messageKey = (String) message.get("messageKey");
     	
-    	ArrayList<Object> list = new ArrayList<Object>();
-		list.add(conference);
-		list.add(room);
-		list.add(code);
-		list.add(presentationName);
-		list.add(messageKey);
+    	Map<String, Object> args = new HashMap<String, Object>();
+		args.put("meetingID", conference);
+		args.put("code", code);
+		args.put("presentationID", presentationName);
+		args.put("messageKey", messageKey);
 		
-		if(messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_SUCCESS_KEY)||
+		if (messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_SUCCESS_KEY)||
 				messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_FAILED_KEY)||
 				messageKey.equalsIgnoreCase(SUPPORTED_DOCUMENT_KEY)||
 				messageKey.equalsIgnoreCase(UNSUPPORTED_DOCUMENT_KEY)||
@@ -57,70 +90,66 @@ public class PresentationClientSender implements OutMessageListener {
 				messageKey.equalsIgnoreCase(GENERATED_THUMBNAIL_KEY)||
 				messageKey.equalsIgnoreCase(PAGE_COUNT_FAILED_KEY)){
 			
-			// no extra data to send
-			so.sendMessage("conversionUpdateMessageCallback", list);
-		}
-		else if(messageKey.equalsIgnoreCase(PAGE_COUNT_EXCEEDED_KEY)){
-			list.add(message.get("numberOfPages"));
-			list.add(message.get("maxNumberPages"));
-			so.sendMessage("pageCountExceededUpdateMessageCallback", list);
-		}
-		else if(messageKey.equalsIgnoreCase(GENERATED_SLIDE_KEY)){
-			list.add(message.get("numberOfPages"));
-			list.add(message.get("pagesCompleted"));
-			so.sendMessage("generatedSlideUpdateMessageCallback", list);
-		}
-		else if(messageKey.equalsIgnoreCase(CONVERSION_COMPLETED_KEY)){
-			list.add(message.get("slidesInfo"));								
-			so.sendMessage("conversionCompletedUpdateMessageCallback", list);
-		}
-		else{
-			log.error("Cannot handle recieved message.");
-		}			
-	}
-	
-	
-	public void removePresentation(String name){
-	   log.debug("calling removePresentationCallback " + name);
-	   ArrayList list=new ArrayList();
-	   list.add(name);
-	   so.sendMessage("removePresentationCallback", list);
-	}
-	
-	public void gotoSlide(int slide){
-		log.debug("calling gotoSlideCallback " + slide);
-		ArrayList list=new ArrayList();
-		list.add(slide);
-		so.sendMessage("gotoSlideCallback", list);	
-	}
-	
-	public void sharePresentation(String presentationName, Boolean share){
-		log.debug("calling sharePresentationCallback " + presentationName + " " + share);
-		ArrayList list=new ArrayList();
-		list.add(presentationName);
-		list.add(share);
-		so.sendMessage("sharePresentationCallback", list);
-	}
-	
+			BroadcastClientMessage m = new BroadcastClientMessage(msg.getMeetingID(), "conversionUpdateMessageCallback", args);
+			service.sendMessage(m);
+		} else if(messageKey.equalsIgnoreCase(PAGE_COUNT_EXCEEDED_KEY)){
+			args.put("numberOfPages", message.get("numberOfPages"));
+			args.put("maxNumberPages", message.get("maxNumberPages"));
+			
+			BroadcastClientMessage m = new BroadcastClientMessage(msg.getMeetingID(), "pageCountExceededUpdateMessageCallback", args);
+			service.sendMessage(m);
+			
+		} else if(messageKey.equalsIgnoreCase(GENERATED_SLIDE_KEY)){
+			args.put("numberOfPages", message.get("numberOfPages"));
+			args.put("pagesCompleted", message.get("pagesCompleted"));
+			
+			BroadcastClientMessage m = new BroadcastClientMessage(msg.getMeetingID(), "generatedSlideUpdateMessageCallback", args);
+			service.sendMessage(m);			
 
-	public void sendCursorUpdate(Double xPercent, Double yPercent) {
-		// Disable. We are using connection invoke now. (ralam Oct 1, 2012).
-		// We'll have to convert all other messages to use conn invoke soon.
+		} else if(messageKey.equalsIgnoreCase(CONVERSION_COMPLETED_KEY)){
+			args.put("slidesInfo", message.get("slidesInfo"));		
+			
+			BroadcastClientMessage m = new BroadcastClientMessage(msg.getMeetingID(), "conversionCompletedUpdateMessageCallback", args);
+			service.sendMessage(m);	
+			
+		} 			
+	}
 		
-//		log.debug("calling updateCursorCallback[" + xPercent + "," + yPercent + "]");
-//		ArrayList list=new ArrayList();
-//		list.add(xPercent);
-//		list.add(yPercent);
-//		so.sendMessage("updateCursorCallback", list);
-	}
+	private void sendRemovePresentationMessage(RemovePresentationMessage msg){
+		Map<String, Object> args = new HashMap<String, Object>();
+		args.put("presentationID", msg.getPresentationID());
 
-	public void resizeAndMoveSlide(Double xOffset, Double yOffset, Double widthRatio, Double heightRatio) {
-		log.debug("calling moveCallback[" + xOffset + "," + yOffset + "," + widthRatio + "," + heightRatio + "]");
-		ArrayList list=new ArrayList();
-		list.add(xOffset);
-		list.add(yOffset);
-		list.add(widthRatio);
-		list.add(heightRatio);
-		so.sendMessage("moveCallback", list);
+
+		BroadcastClientMessage m = new BroadcastClientMessage(msg.getMeetingID(), "removePresentationCallback", args);
+		service.sendMessage(m);
+	}
+	
+	private void sendGotoSlideMessage(GotoSlideMessage msg){
+		Map<String, Object> args = new HashMap<String, Object>();
+		args.put("pageNum", msg.getNum());
+		
+		BroadcastClientMessage m = new BroadcastClientMessage(msg.getMeetingID(), "gotoSlideCallback", args);
+		service.sendMessage(m);		
+	}
+	
+	private void sendSharePresentationMessage(SharePresentationMessage msg){
+		Map<String, Object> args = new HashMap<String, Object>();
+		args.put("presentationID", msg.getPresentationID());
+		args.put("share", msg.getShare());
+		
+		BroadcastClientMessage m = new BroadcastClientMessage(msg.getMeetingID(), "sharePresentationCallback", args);
+		service.sendMessage(m);			
+	}
+	
+
+	private void sendResizeAndMoveSlideMessage(ResizeAndMoveSlideMessage msg) {
+		Map<String, Object> args = new HashMap<String, Object>();
+		args.put("xOffset", msg.getxOffset());
+		args.put("yOffest", msg.getyOffset());
+		args.put("widthRatio", msg.getWidthRatio());
+		args.put("heightRatio", msg.getHeightRatio());
+		
+		BroadcastClientMessage m = new BroadcastClientMessage(msg.getMeetingID(), "moveCallback", args);
+		service.sendMessage(m);			
 	}
 }

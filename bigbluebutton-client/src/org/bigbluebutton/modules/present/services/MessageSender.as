@@ -20,15 +20,119 @@ package org.bigbluebutton.modules.present.services
 {
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
+  import org.bigbluebutton.core.managers.ConnectionManager;
   import org.bigbluebutton.main.model.users.IMessageListener;
   
   public class MessageSender 
   {
-    public function MessageSender()
-    {
+    /**
+     * Send an event to the server to update the presenter's cursor view on the client 
+     * @param xPercent
+     * @param yPercent
+     * 
+     */		
+    public function sendCursorUpdate(xPercent:Number, yPercent:Number):void{
+      var message:Object = new Object();
+      message["xPercent"] = xPercent;
+      message["yPercent"] = yPercent;
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("presentation.sendCursorUpdate", 
+        function(result:String):void { // On successful result
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void { // status - On error occurred
+          LogUtil.error(status); 
+        },
+        message
+      );		      
+    }
+    
+    /**
+     * Sends an event to the server to update the clients with the new slide position 
+     * @param slideXPosition
+     * @param slideYPosition
+     * 
+     */		
+    public function move(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
+      var message:Object = new Object();
+      message["xOffset"] = xOffset;
+      message["yOffset"] = yOffset;
+      message["widthRatio"] = widthRatio;
+      message["heightRatio"] = heightRatio;
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("presentation.resizeAndMoveSlide", 
+        function(result:String):void { // On successful result
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void { // status - On error occurred
+          LogUtil.error(status); 
+        },
+        message
+      );	
+    }
+    
+    public function sharePresentation(share:Boolean, presentationID:String):void {
+      var message:Object = new Object();
+      message["presentationID"] = presentationID;
+      message["share"] = share;
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("presentation.sharePresentation", 
+        function(result:String):void { // On successful result
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void { // status - On error occurred
+          LogUtil.error(status); 
+        },
+        message
+      );
+    }
+    
+    public function gotoSlide(num:int) : void {
+      var message:Object = new Object();
+      message["pageNumber"] = num;      
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("presentation.gotoSlide", 
+        function(result:String):void { // On successful result
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void { // status - On error occurred
+          LogUtil.error(status); 
+        },
+        message
+      );
+    }
+    
+    public function getPresentationInfo():void {
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("presentation.getPresentationInfo", 
+        function(result:String):void { // On successful result
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void { // status - On error occurred
+          LogUtil.error(status); 
+        }
+      );
       
     }
     
- 
+    public function removePresentation(name:String):void {
+      var message:Object = new Object();
+      message["presentationID"] = name;          
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("presentation.removePresentation", 
+        function(result:String):void { // On successful result
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void { // status - On error occurred
+          LogUtil.error(status); 
+        },
+        message
+      );
+    }
   }
 }
