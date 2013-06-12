@@ -33,6 +33,7 @@ public class SharedObjectClientMessage implements ClientMessage {
 	public SharedObjectClientMessage(String meetingID, String sharedObjectName, String messageName, ArrayList<Object> message) {
 		this.meetingID = meetingID;
 		this.message = message;
+		this.sharedObjectName = sharedObjectName;
 		this.messageName = messageName;
 	}
 	

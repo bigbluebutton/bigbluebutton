@@ -128,15 +128,23 @@ public class ConnectionInvokerService {
 	}	
 
 	private void sendSharedObjectMessage(SharedObjectClientMessage msg) {
+		System.out.println("*********** Request to send [" + msg.getMessageName() + "] using shared object.");
+		
 		IScope meetingScope = getScope(msg.getMeetingID());
 		if (meetingScope != null) {
 			if (meetingScope.hasChildScope(ScopeType.SHARED_OBJECT, msg.getSharedObjectName())) {
-				System.out.println("**** Meeting has Presentation shared object.");
 				ISharedObject so = getSharedObject(meetingScope, msg.getSharedObjectName());
 				if (so != null) {
-					
+					System.out.println("*********** Sending [" + msg.getMessageName() + "] using shared object.");
+					so.sendMessage(msg.getMessageName(), msg.getMessage());
+				} else {
+					System.out.println("**** Cannot get SO for [" + msg.getSharedObjectName() + "]");
 				}
-			}			
+			} else {
+				System.out.println("**** No SO scope for [" + msg.getSharedObjectName() + "]");
+			}
+		} else {
+			System.out.println("**** No Meeting scope for [" + msg.getMeetingID() + "]");
 		}
 	}
 	

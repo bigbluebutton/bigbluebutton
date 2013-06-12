@@ -29,7 +29,7 @@ import org.red5.server.api.so.ISharedObject;
 import org.red5.server.adapter.ApplicationAdapter;
 import org.red5.server.api.Red5;
 import java.util.HashMap;
-import java.util.Map;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;import org.bigbluebutton.conference.service.recorder.RecorderApplication;
+import java.util.Map;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;
 
 public class ParticipantsHandler extends ApplicationAdapter implements IApplication{
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsHandler.class, "bigbluebutton" );

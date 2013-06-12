@@ -41,7 +41,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       		
 	<bean id="participantsHandler" class="org.bigbluebutton.conference.service.participants.ParticipantsHandler">
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
-		<property name="recorderApplication"> <ref bean="recorderApplication"/></property>
 	</bean>
 	
 	<bean id="participantsApplication" class="org.bigbluebutton.conference.service.participants.ParticipantsApplication">
