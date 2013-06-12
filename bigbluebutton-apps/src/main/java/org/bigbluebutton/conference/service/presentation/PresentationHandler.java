@@ -26,11 +26,11 @@ import org.red5.server.api.IConnection;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.scope.IScope;
-import org.red5.server.api.so.ISharedObject;
 import org.red5.server.adapter.ApplicationAdapter;
 import org.red5.server.api.Red5;
+import org.bigbluebutton.conference.BigBlueButtonSession;
+import org.bigbluebutton.conference.Constants;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
-import org.bigbluebutton.conference.service.recorder.presentation.PresentationEventRecorder;
 
 public class PresentationHandler extends ApplicationAdapter implements IApplication{
 	private static Logger log = Red5LoggerFactory.getLogger( PresentationHandler.class, "bigbluebutton" );
@@ -79,11 +79,7 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
 		
-		ISharedObject so = getSharedObject(connection.getScope(), PRESENTATION_SO, false);
-		PresentationEventSender sender = new PresentationEventSender(so);
-		PresentationEventRecorder recorder = new PresentationEventRecorder(connection.getScope().getName(), recorderApplication);
-    	presentationApplication.addRoomListener(connection.getScope().getName(), recorder);
-    	presentationApplication.addRoomListener(connection.getScope().getName(), sender);
+		presentationApplication.createRoom(scope.getName(), getBbbSession().getRecord());
     	
     	return true;
 	}
@@ -108,7 +104,7 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 	public boolean roomStart(IScope scope) {
 		log.debug("***** " + APP + " [ " + " roomStart [ " + scope.getName() + "] *********");
 		
-		presentationApplication.createRoom(scope.getName());
+		
  			
 		log.debug(APP + " - scanning for presentations - " + scope.getName());
 		try {
@@ -153,4 +149,7 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 		recorderApplication = a;
 	}
 	
+	private BigBlueButtonSession getBbbSession() {
+		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
+	}
 }

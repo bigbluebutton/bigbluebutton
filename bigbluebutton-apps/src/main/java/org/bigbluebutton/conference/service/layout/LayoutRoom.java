@@ -21,16 +21,23 @@ package org.bigbluebutton.conference.service.layout;
 public class LayoutRoom {
 
 	private final String meetingID;
+	private final Boolean recorded;
+	
 	private boolean locked = false;
 	private String setByUserID = "-1";
 	private String currentLayout = "";
 	
-	public LayoutRoom(String meetingID) {
+	public LayoutRoom(String meetingID, Boolean recorded) {
 		this.meetingID = meetingID;
+		this.recorded = recorded;
 	}
 	
 	public String getMeetingID() {
 		return meetingID;
+	}
+	
+	public Boolean isRecorded() {
+		return recorded;
 	}
 				
 	public void lockLayout(String setByUserID, String layout) {

@@ -19,23 +19,14 @@
 package org.bigbluebutton.conference.service.presentation;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.red5.logging.Red5LoggerFactory;
-
-import net.jcip.annotations.ThreadSafe;import java.util.concurrent.ConcurrentHashMap;import java.util.concurrent.CopyOnWriteArrayList;import java.util.ArrayList;
-import java.util.Collections;import java.util.Iterator;
-import java.util.List;
+import org.red5.logging.Red5LoggerFactory;import java.util.ArrayList;import java.util.Iterator;
 import java.util.Map;
-/**
- * Contains information about a PresentationRoom. 
- */
-@ThreadSafe
+
 public class PresentationRoom {
 	private static Logger log = Red5LoggerFactory.getLogger( PresentationRoom.class, "bigbluebutton" );
 	
 	private final String name;
-	private final Map<String, IPresentationRoomListener> listeners;
-	
+
 	int currentSlide = 0;
 	Boolean sharing = false;
 	String currentPresentation = "";
@@ -52,39 +43,13 @@ public class PresentationRoom {
 	
 	public PresentationRoom(String name) {
 		this.name = name;
-		listeners   = new ConcurrentHashMap<String, IPresentationRoomListener>();
 	}
 	
 	public String getName() {
 		return name;
 	}
 	
-	public void addRoomListener(IPresentationRoomListener listener) {
-		if (! listeners.containsKey(listener.getName())) {
-			log.debug("adding room listener");
-			listeners.put(listener.getName(), listener);			
-		}
-	}
-	
-	public void removeRoomListener(IPresentationRoomListener listener) {
-		log.debug("removing room listener");
-		listeners.remove(listener);		
-	}
-	
-	@SuppressWarnings("unchecked")
-	public void sendUpdateMessage(Map message){
-		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
-			log.debug("calling on listener");
-			IPresentationRoomListener listener = (IPresentationRoomListener) iter.next();
-			log.debug("calling sendUpdateMessage on listener " + listener.getName());
-			listener.sendUpdateMessage(message);
-		}	
-		
-		storePresentationNames(message);
-	}
-
-	@SuppressWarnings("unchecked")
-	private void storePresentationNames(Map message){
+	public void storePresentationNames(Map<String, Object> message){
         String presentationName = (String) message.get("presentationName");
         String messageKey = (String) message.get("messageKey");
              
@@ -97,13 +62,6 @@ public class PresentationRoom {
 	public void sendCursorUpdate(Double xPercent, Double yPercent) {
 		this.xPercent = xPercent;
 		this.yPercent = yPercent;
-		
-		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
-			log.debug("calling on listener");
-			IPresentationRoomListener listener = (IPresentationRoomListener) iter.next();
-			log.debug("calling sendCursorUpdate on listener " + listener.getName());
-			listener.sendCursorUpdate(xPercent,yPercent);
-		}
 	}
 	
 	public void resizeAndMoveSlide(Double xOffset, Double yOffset, Double widthRatio, Double heightRatio) {
@@ -111,28 +69,14 @@ public class PresentationRoom {
 		this.yOffset = yOffset;
 		this.widthRatio = widthRatio;
 		this.heightRatio = heightRatio;
-		
-		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
-			log.debug("calling on listener");
-			IPresentationRoomListener listener = (IPresentationRoomListener) iter.next();
-			log.debug("calling sendUpdateMessage on listener " + listener.getName());
-			listener.resizeAndMoveSlide(xOffset, yOffset, widthRatio, heightRatio);
-		}		
+				
 	}
 		
-	@SuppressWarnings("unchecked")
 	public void gotoSlide(int curslide){
 		log.debug("Request to go to slide " + curslide + "for room " + name);
-		currentSlide = curslide;
-		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
-			log.debug("calling on listener");
-			IPresentationRoomListener listener = (IPresentationRoomListener) iter.next();
-			log.debug("calling sendUpdateMessage on listener " + listener.getName());
-			listener.gotoSlide(curslide);
-		}			
+		currentSlide = curslide;		
 	}	
 	
-	@SuppressWarnings("unchecked")
 	public void sharePresentation(String presentationName, Boolean share){
 		log.debug("Request share presentation " + presentationName + " " + share + " for room " + name);
 		sharing = share;
@@ -141,14 +85,7 @@ public class PresentationRoom {
 		  presentationNames.add(presentationName);   
 		} else {
 		  currentPresentation = "";
-		}
-		 
-		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
-			log.debug("calling on listener");
-			IPresentationRoomListener listener = (IPresentationRoomListener) iter.next();
-			log.debug("calling sharePresentation on listener " + listener.getName());
-			listener.sharePresentation(presentationName, share);
-		}			
+		}		
 	}
 	    
     public void removePresentation(String presentationName){
@@ -162,12 +99,6 @@ public class PresentationRoom {
         
         presentationNames.remove(index);
         
-        for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
-            log.debug("calling on listener");
-            IPresentationRoomListener listener = (IPresentationRoomListener) iter.next();
-            log.debug("calling removePresentation on listener " + listener.getName());
-            listener.removePresentation(presentationName);
-        }   
         
         if (currentPresentation == presentationName) {
             sharePresentation(presentationName, false);

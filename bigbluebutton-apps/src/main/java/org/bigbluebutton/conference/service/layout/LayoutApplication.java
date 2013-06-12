@@ -20,26 +20,24 @@ package org.bigbluebutton.conference.service.layout;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.bigbluebutton.conference.meeting.messaging.OutMessageGateway;
+import org.bigbluebutton.conference.service.layout.messaging.messages.GetCurrentLayoutResponseMessage;
+import org.bigbluebutton.conference.service.layout.messaging.messages.UpdateLayoutMessage;
 
-import org.bigbluebutton.conference.service.layout.red5.LayoutClientSender;
-import org.red5.logging.Red5LoggerFactory;
-import org.slf4j.Logger;
-
-public class LayoutApplication {
-	private static Logger log = Red5LoggerFactory.getLogger( LayoutApplication.class, "bigbluebutton" );	
-		
+public class LayoutApplication {	
 	private final Map <String, LayoutRoom> rooms = new ConcurrentHashMap<String, LayoutRoom>();
 
-	private LayoutClientSender sender;
+	private OutMessageGateway outMessageGateway;
 	
-	public void setLayoutClientSender(LayoutClientSender sender) {
-		this.sender = sender;
+	public void setOutMessageGateway(OutMessageGateway outMessageGateway) {
+		this.outMessageGateway = outMessageGateway;
 	}
 	
-	public boolean createRoom(String meetingID) {
-		LayoutRoom room = new LayoutRoom(meetingID);
-		rooms.put(room.getMeetingID(), room);
-		
+	public boolean createRoom(String meetingID, Boolean recorded) {
+		if (!hasRoom(meetingID)) {
+			LayoutRoom room = new LayoutRoom(meetingID, recorded);
+			rooms.put(room.getMeetingID(), room);			
+		}		
 		return true;
 	}
 	
@@ -66,7 +64,8 @@ public class LayoutApplication {
 		LayoutRoom r = getRoom(meetingID);
 		if (r != null) {
 			r.lockLayout(userId, layout);
-			sender.updateLayout(r.getMeetingID(), r.isLocked(), r.getSetByUserID(), r.getCurrentLayout());
+			UpdateLayoutMessage msg = new UpdateLayoutMessage(r.getMeetingID(), r.isRecorded(), r.isLocked(), r.getSetByUserID(), r.getCurrentLayout());
+			outMessageGateway.send(msg);
 		} 
 	}
 
@@ -74,14 +73,16 @@ public class LayoutApplication {
 		LayoutRoom r = getRoom(meetingID);
 		if (r != null) {
 			r.unlockLayout();
-			sender.updateLayout(r.getMeetingID(), r.isLocked(), r.getSetByUserID(), r.getCurrentLayout());
+			UpdateLayoutMessage msg = new UpdateLayoutMessage(r.getMeetingID(), r.isRecorded(), r.isLocked(), r.getSetByUserID(), r.getCurrentLayout());
+			outMessageGateway.send(msg);			
 		} 
 	}
 
 	public void getCurrentLayout(String meetingID, String requesterID) {
 		LayoutRoom r = getRoom(meetingID);
 		if (r != null) {
-			sender.sendGetCurrentLayoutResponse(r.getMeetingID(), requesterID, r.isLocked(), r.getSetByUserID(), r.getCurrentLayout());
+			GetCurrentLayoutResponseMessage msg = new GetCurrentLayoutResponseMessage(meetingID, r.isRecorded(), requesterID, r.isLocked(), r.getSetByUserID(), r.getCurrentLayout());
+			outMessageGateway.send(msg);
 		}
 	}
 }

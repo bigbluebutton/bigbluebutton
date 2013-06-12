@@ -19,70 +19,82 @@
 package org.bigbluebutton.conference.service.presentation;
 
 import org.slf4j.Logger;
+import org.bigbluebutton.conference.meeting.messaging.OutMessageGateway;
 import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage;
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
+import org.bigbluebutton.conference.service.presentation.messaging.red5.PresentationClientSender;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PresentationApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( PresentationApplication.class, "bigbluebutton" );	
 		
-	private PresentationRoomsManager roomsManager;
-	private ConnectionInvokerService connInvokerService;
+	private final Map <String, PresentationRoom> rooms = new ConcurrentHashMap<String, PresentationRoom>();
 	
-	public boolean createRoom(String name) {
-		roomsManager.addRoom(new PresentationRoom(name));
+	private OutMessageGateway outMessageGateway;
+	
+	public void setOutMessageGateway(OutMessageGateway outMessageGateway) {
+		this.outMessageGateway = outMessageGateway;
+	}
+	
+	public boolean createRoom(String name, Boolean recorded) {
+		PresentationRoom room = new PresentationRoom(name);
+		rooms.put(room.getName(), room);
 		return true;
 	}
 	
 	public boolean destroyRoom(String name) {
-		if (roomsManager.hasRoom(name)) {
-			roomsManager.removeRoom(name);
+		if (hasRoom(name)) {
+			rooms.remove(name);
 		}
 		return true;
 	}
 	
 	public boolean hasRoom(String name) {
-		return roomsManager.hasRoom(name);
+		return rooms.containsKey(name);
 	}
 	
-	public boolean addRoomListener(String room, IPresentationRoomListener listener) {
-		if (roomsManager.hasRoom(room)){
-			roomsManager.addRoomListener(room, listener);
-			return true;
-		}
-		log.warn("Adding listener to a non-existant room " + room);
-		return false;
+	private PresentationRoom getRoom(String name) {
+		return rooms.get(name);
 	}
-	
+		
 	@SuppressWarnings("unchecked")
-	public void sendUpdateMessage(Map message){
+	public void sendUpdateMessage(Map<String, Object> message){
 	
 		String room = (String) message.get("room");
-		if (roomsManager.hasRoom(room)){
-			roomsManager.sendUpdateMessage(message);
+		if (hasRoom(room)){
+			PresentationRoom r = getRoom(room);
+			r.storePresentationNames(message);
 			return;
 		}
 		log.warn("Sending update message to a non-existant room " + room);	
 	}
 		
-	public ArrayList<String> getPresentations(String room){
-	   if (roomsManager.hasRoom(room)){
-            return roomsManager.getPresentations(room);           
+	public void getPresentations(String room){
+	   if (hasRoom(room)){
+	        PresentationRoom r = getRoom(room);
+	        if (r != null) {
+	        	ArrayList<String> pres = r.getPresentationNames();
+	        	
+	        }            
         }
-        log.warn("Getting presentations on a non-existant room " + room);
-        return null;
 	}
 	
 	public void removePresentation(String room, String name){
-       if (roomsManager.hasRoom(room)){
-            roomsManager.removePresentation(room, name);           
-        } else {
-        	log.warn("Removing presentation from a non-existant room " + room);
+       if (hasRoom(room)){
+	        PresentationRoom r = getRoom(room);
+	        if (r != null) {
+	     	   r.removePresentation(name); 	        	
+	        }       
         }
     }
+	
+	public void getPresentationInfo(String meetingID, String requesterID) {
+		
+	}
 	
 	public int getCurrentSlide(String room){
 		if (roomsManager.hasRoom(room)){
@@ -171,7 +183,7 @@ public class PresentationApplication {
 	}
 	
 	
-	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
-		this.connInvokerService = connInvokerService;
+	public void setPresentationClientSender(PresentationClientSender sender) {
+		this.sender = sender;
 	}	
 }

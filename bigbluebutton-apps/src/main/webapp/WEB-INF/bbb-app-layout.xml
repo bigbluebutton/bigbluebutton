@@ -33,7 +33,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</bean>
 
 	<bean id="layoutApplication" class="org.bigbluebutton.conference.service.layout.LayoutApplication">
-		<property name="layoutClientSender"><ref local="layoutClientSender"/></property>
+		<property name="outMessageGateway"> <ref bean="outMessageGateway"/></property>
 	</bean>
 	
 	<bean id="layoutClientSender" class="org.bigbluebutton.conference.service.layout.red5.LayoutClientSender">

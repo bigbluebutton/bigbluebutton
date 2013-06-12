@@ -18,11 +18,14 @@
 */
 package org.bigbluebutton.conference.service.layout;
 
+import org.bigbluebutton.conference.BigBlueButtonSession;
+import org.bigbluebutton.conference.Constants;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.ApplicationAdapter;
 import org.red5.server.adapter.IApplication;
 import org.red5.server.api.IClient;
 import org.red5.server.api.IConnection;
+import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
 import org.slf4j.Logger;
 
@@ -30,8 +33,6 @@ public class LayoutHandler extends ApplicationAdapter implements IApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( LayoutHandler.class, "bigbluebutton" );
 
 	private static final String APP = "LAYOUT";
-	private static final String LAYOUT_SO = "layoutSO";   
-
 	private LayoutApplication layoutApplication;
 
 	@Override
@@ -86,14 +87,14 @@ public class LayoutHandler extends ApplicationAdapter implements IApplication {
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
-		
+		layoutApplication.createRoom(scope.getName(), getBbbSession().getRecord());
     	return true;
 	}
 	
 	@Override
 	public boolean roomStart(IScope scope) {
 		log.debug("***** " + APP + " [ " + " roomStart [ " + scope.getName() + "] *********");
-		layoutApplication.createRoom(scope.getName());
+		
 
     	return true;
 	}
@@ -109,6 +110,10 @@ public class LayoutHandler extends ApplicationAdapter implements IApplication {
 		
 		log.debug("Setting layout application");
 		layoutApplication = a;
+	}
+	
+	private BigBlueButtonSession getBbbSession() {
+		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}
 	
 }
