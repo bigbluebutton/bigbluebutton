@@ -112,14 +112,15 @@ public class RedisMessagingService implements MessagingService {
 			sid = Long.toString(jedis.incr("meeting:" + meetingId + ":nextSubscription"));
 
 			HashMap<String,String> props = new HashMap<String,String>();
-			props.put("subscriptionId", sid);
+			props.put("subscriptionID", sid);
 			props.put("meetingId", meetingId);
 			props.put("event", event);
 			props.put("callbackURL", callbackURL);
 			props.put("active", "true");
 
 			jedis.hmset("meeting:" + meetingId + ":subscription:" + sid, props);
-			jedis.rpush("meeting:" + meetingId + ":subscriptions", sid); 
+			jedis.rpush("meeting:" + meetingId + ":subscriptions", sid);
+			jedis.rpush("meeting:" + meetingId + ":subscriptions:" + event, sid); 
 			
 		} catch (Exception e){
 			log.warn("Cannot store subscription:" + meetingId, e);

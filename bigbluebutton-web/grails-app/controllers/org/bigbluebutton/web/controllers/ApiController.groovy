@@ -1027,9 +1027,9 @@ class ApiController {
       }     
     } else {
       //println "**************** CHECKSUM PASSED **************************"
-      boolean unsubscribedV = meetingService.removeSubscription(internalMeetingId, params.subscriptionID);
+      boolean status = meetingService.removeSubscription(internalMeetingId, params.subscriptionID);
 
-      if(!unsubscribed){
+      if(!status){
         response.addHeader("Cache-Control", "no-cache")
         withFormat {
           xml {
@@ -1052,7 +1052,7 @@ class ApiController {
             render(contentType:"text/xml") {
               response() {
                 returncode("SUCCESS")
-                unsubscribed(Boolean.toString(unsubscribedV))
+                unsubscribed(status)
               }
             }
           }
@@ -1103,7 +1103,7 @@ class ApiController {
       }     
     } else {
       //println "**************** CHECKSUM PASSED **************************"
-      List<Map<String,String>> subscriptionsList = meetingService.listSubscriptions(internalMeetingId);
+      List<Map<String,String>> list = meetingService.listSubscriptions(internalMeetingId);
 
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
@@ -1112,8 +1112,8 @@ class ApiController {
           render(contentType:"text/xml") {
             response() {
               returncode("SUCCESS")
-              subscriptions(){
-                subscriptionsList.each{ item ->
+              subscriptions() {
+                list.each{ item ->
                   subscription(){
                     subscriptionID(item.get("subscriptionID"))
                     event(item.get("event"))
