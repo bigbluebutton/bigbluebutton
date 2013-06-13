@@ -47,7 +47,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.views.MainApplicationShell;
       import org.bigbluebutton.util.i18n.ResourceUtil;
-      private var langResources:ResourceUtil = null; //ResourceUtil.getInstance();
+      private var langResources:ResourceUtil = null;
 
 	private var globalModifier:String;
     /**
@@ -115,6 +115,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	    keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.flash.exit') as String)] = ShortcutEvent.FOCUS_AWAY_EVENT;
 		keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.users.muteme') as String)] = ShortcutEvent.MUTE_ME_EVENT;
 		keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatinput') as String)] = ShortcutEvent.FOCUS_CHAT_INPUT;
+		keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.voting') as String)] = ShortcutEvent.FOCUS_VOTING_WINDOW;
+		keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.pollingCreate') as String)] = ShortcutEvent.FOCUS_POLLING_WINDOW_CREATE;
+		keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.pollingStats') as String)] = ShortcutEvent.FOCUS_POLLING_WINDOW_STATS;
 			    
 		// General hotKeys (usable from anywhere in the application)
 		keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.users') as String)] = ShortcutEvent.FOCUS_USERS_WINDOW;
@@ -130,6 +133,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.logout') as String)] = ShortcutEvent.LOGOUT;
 		keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.raiseHand') as String)] = ShortcutEvent.RAISE_HAND;
 		keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.users.muteAllButPres') as String)] = ShortcutEvent.MUTE_ALL_BUT_PRES;
+	
+		keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.buttonClick') as String)] = ShortcutEvent.POLL_BUTTON_CLICK;
 	}
 	
     public function hotkeyCapture():void{
