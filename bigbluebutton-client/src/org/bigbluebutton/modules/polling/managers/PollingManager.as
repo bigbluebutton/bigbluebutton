@@ -20,6 +20,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.main.model.users.Conference 
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.common.Role;
+	import org.bigbluebutton.main.events.ShortcutEvent;
 
 			
 	public class PollingManager
@@ -250,5 +251,9 @@ package org.bigbluebutton.modules.polling.managers
 			  viewWindowManager.handleReviewResultsEvent(e);
 		  }
 		//##################################################################################
+		  public function handleGlobalPollHotkey(e:ShortcutEvent):void{
+			  if (conference.amIPresenter)
+				  toolbarButtonManager.openMenuRemotely();
+		  }
    }
 }
