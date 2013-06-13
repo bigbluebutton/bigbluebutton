@@ -27,6 +27,19 @@ Notes.mxml is the main view of the SharedNotes application
 		creationComplete="onCreationComplete()"
 		label="Create Poll" layout="absolute"
 		title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
+	
+	<mate:Listener type="{ShortcutEvent.FOCUS_POLL_TITLE}" method="focusTitle" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_POLL_QUESTION}" method="focusQuestion" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_POLL_ANSWERS}" method="focusAnswers" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_MULT_CHECK}" method="focusMultiple" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_WEBPOLL_CHECK}" method="focusWebpoll" />
+	
+	<mate:Listener type="{ShortcutEvent.POLL_PREVIEW}" method="previewClick" />
+	<mate:Listener type="{ShortcutEvent.POLL_CANCEL}" method="cancelClick" />
+	
+	<mate:Listener type="{ShortcutEvent.POLL_MODIFY}" method="modifyClick" />
+	<mate:Listener type="{ShortcutEvent.POLL_PUBLISH}" method="publishClick" />
+	<mate:Listener type="{ShortcutEvent.POLL_SAVE}" method="saveClick" />
 
 <!-- Pre Defined Validation -->
 	<mx:Script>
@@ -445,9 +458,54 @@ Notes.mxml is the main view of the SharedNotes application
 		}
 			
 		private function focusTitle(e:ShortcutEvent = null):void{
-			LogUtil.debug("Focusing Title");
 			if (pollTitle.enabled && pollTitle.visible){
 				focusManager.setFocus(pollTitle);
+			}
+		}
+		private function focusQuestion(e:ShortcutEvent):void{
+			if (pollQuestion.enabled && pollQuestion.visible){
+				focusManager.setFocus(pollQuestion);
+			}
+		}
+		private function focusAnswers(e:ShortcutEvent):void{
+			if (pollAnswers.enabled && pollAnswers.visible){
+				focusManager.setFocus(pollAnswers);
+			}
+		}
+		private function focusMultiple(e:ShortcutEvent):void{
+			if (multiple_response.enabled && multiple_response.visible){
+				focusManager.setFocus(multiple_response);
+			}
+		}
+		private function focusWebpoll(e:ShortcutEvent):void{
+			if (publishToWeb_response.enabled && publishToWeb_response.visible){
+				focusManager.setFocus(publishToWeb_response);
+			}
+		}
+		private function previewClick(e:ShortcutEvent):void{
+			if (next.enabled && next.visible){
+				validateAndSubmit();
+			}
+		}
+		private function cancelClick(e:ShortcutEvent):void{
+			if (Cancel.enabled && Cancel.visible){
+				closeInstructionsWindow();
+			}
+		}
+		
+		private function modifyClick(e:ShortcutEvent):void{
+			if (back.enabled && back.visible){
+				goBack();
+			}
+		}
+		private function publishClick(e:ShortcutEvent):void{
+			if (publishButton.enabled && publishButton.visible){
+				publish();
+			}
+		}
+		private function saveClick(e:ShortcutEvent):void{
+			if (SavePoll.enabled && SavePoll.visible){
+				savePoll();
 			}
 		}
 		]]>
