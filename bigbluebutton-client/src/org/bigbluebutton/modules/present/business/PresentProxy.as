@@ -32,12 +32,14 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+	import org.bigbluebutton.modules.present.events.NavigationEvent;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.PresenterCommands;
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.SlideEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
+	import org.bigbluebutton.modules.present.model.PresentationModel;
 	import org.bigbluebutton.modules.present.services.MessageReceiver;
 	import org.bigbluebutton.modules.present.services.MessageSender;
 	
@@ -55,9 +57,13 @@ package org.bigbluebutton.modules.present.business
 		private var sender:MessageSender;
     private var _messageReceiver:MessageReceiver;
     
+    private var presentationModel:PresentationModel;
+    
 		public function PresentProxy(){
+      presentationModel = new PresentationModel();
+      
 			slides = new PresentationSlides();
-      _messageReceiver = new MessageReceiver();
+      _messageReceiver = new MessageReceiver(presentationModel);
       sender = new MessageSender();
 		}
 		
@@ -103,8 +109,17 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */		
 		public function loadCurrentSlideLocally(e:SlideEvent):void{
-			soService.getCurrentSlideNumber();
+			getCurrentSlideNumber();
 		}
+    
+    public function getCurrentSlideNumber():void {
+      if (presentationModel.curSlideNum >= 0) {
+        var e:NavigationEvent = new NavigationEvent(NavigationEvent.GOTO_PAGE)
+        e.pageNumber = presentationModel.curSlideNum;
+        var dispatcher:Dispatcher = new Dispatcher();
+        dispatcher.dispatchEvent(e);
+      }
+    }
 		
 		/**
 		 * Reset the zoom level of the current slide to the default value 

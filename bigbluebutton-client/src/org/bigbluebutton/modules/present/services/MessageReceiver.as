@@ -33,6 +33,7 @@ package org.bigbluebutton.modules.present.services
   import org.bigbluebutton.modules.present.events.NavigationEvent;
   import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
+  import org.bigbluebutton.modules.present.model.PresentationModel;
   
   public class MessageReceiver implements IMessageListener
   {
@@ -51,8 +52,10 @@ package org.bigbluebutton.modules.present.services
     
     private var dispatcher:Dispatcher;
     
-    public function MessageReceiver()
-    {
+    private var presModel:PresentationModel;
+    
+    public function MessageReceiver(presModel: PresentationModel) {
+      this.presModel = presModel;
       BBB.initConnectionManager().addMessageListener(this);
       this.dispatcher = new Dispatcher();
     }
@@ -115,6 +118,8 @@ package org.bigbluebutton.modules.present.services
     }
     
     private function handleGotoSlideCallback(msg:Object) : void {
+      presModel.curSlideNum = msg.pageNum;
+      
       var e:NavigationEvent = new NavigationEvent(NavigationEvent.GOTO_PAGE)
       e.pageNumber = msg.pageNum;
       dispatcher.dispatchEvent(e);
@@ -284,7 +289,6 @@ package org.bigbluebutton.modules.present.services
         
         var p:BBBUser = meeting.getPresenter();
         if (p != null) {
-          LogUtil.debug(LOG + "trigger Switch to Viewer mode ");
           trace(LOG + " trigger Switch to Presenter mode ");
           var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
           viewerEvent.userID = p.userID;
