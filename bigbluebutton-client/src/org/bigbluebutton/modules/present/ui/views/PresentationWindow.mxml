@@ -448,16 +448,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function loadPage(pageNumber:int):void{
-				slideView.selectedSlide = pageNumber;
-				
-				if (validPageNumber(pageNumber)) {
-					loadSlide(pageNumber);
-					disableSlideNavigationButtons(pageNumber);
-					displaySlideNumber(pageNumber + 1);
-                    
-                    //change the thumbnail to match
-                    slideView.thumbnailView.selectedIndex = pageNumber;
-				}	
+        slideView.selectedSlide = pageNumber;
+        
+        if (validPageNumber(pageNumber)) {
+          loadSlide(pageNumber);
+          disableSlideNavigationButtons(pageNumber);
+          displaySlideNumber(pageNumber + 1);
+          
+          //change the thumbnail to match
+          slideView.thumbnailView.selectedIndex = pageNumber;
+        }	
 			}
 			
 			private function loadSlide(page:int):void {
@@ -511,19 +511,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide + 1));
 			}
 			
-			private function removeDecimalFromDataTip(val:String):String {			
-                return val; 
-            }
-            
-            private function showThumbnails():void{
-            	slideView.thumbnailView.visible = !slideView.thumbnailView.visible;
-            }
-            
-            private function addOverlayCanvas(e:AddOverlayCanvasEvent):void{
-				LogUtil.debug("OVERLAYING WHITEBOARD CANVAS");
-				e.canvas.acceptOverlayCanvas(slideView);
-            	slideView.acceptOverlayCanvas(e.canvas);
-            }
+      private function removeDecimalFromDataTip(val:String):String {			
+        return val; 
+      }
+      
+      private function showThumbnails():void{
+        slideView.thumbnailView.visible = !slideView.thumbnailView.visible;
+      }
+      
+      private function addOverlayCanvas(e:AddOverlayCanvasEvent):void{
+        LogUtil.debug("OVERLAYING WHITEBOARD CANVAS");
+        e.canvas.acceptOverlayCanvas(slideView);
+        slideView.acceptOverlayCanvas(e.canvas);
+      }
 					
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();

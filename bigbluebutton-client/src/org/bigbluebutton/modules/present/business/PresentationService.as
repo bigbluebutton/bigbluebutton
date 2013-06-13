@@ -48,12 +48,12 @@ package org.bigbluebutton.modules.present.business
 		private var urlLoader:URLLoader;
 		private var slideUri:String;
 		private var dispatcher:Dispatcher;
-    private var _messageReceiver:MessageReceiver;
+    
     
 		public function PresentationService()
 		{
 			service = new HTTPService();
-      _messageReceiver = new MessageReceiver();
+      
 			dispatcher = new Dispatcher();
 		}
 		

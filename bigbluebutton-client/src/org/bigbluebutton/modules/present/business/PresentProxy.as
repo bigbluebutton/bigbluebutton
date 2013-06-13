@@ -38,6 +38,7 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.events.SlideEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
+	import org.bigbluebutton.modules.present.services.MessageReceiver;
 	import org.bigbluebutton.modules.present.services.MessageSender;
 	
 	public class PresentProxy
@@ -52,17 +53,23 @@ package org.bigbluebutton.modules.present.business
 		private var uploadService:FileUploadService;
 		private var slides:PresentationSlides;
 		private var sender:MessageSender;
+    private var _messageReceiver:MessageReceiver;
     
 		public function PresentProxy(){
 			slides = new PresentationSlides();
+      _messageReceiver = new MessageReceiver();
       sender = new MessageSender();
 		}
 		
+    public function getCurrentPresentationInfo():void {
+      sender.getPresentationInfo();
+    }
+    
 		public function connect(e:PresentModuleEvent):void{
 			extractAttributes(e.data);
 			soService = new PresentSOService(connection, url, userid);
 			soService.connect();
-      sender.getPresentationInfo();
+      
 		}
 		
 		private function extractAttributes(a:Object):void{

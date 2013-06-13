@@ -22,20 +22,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.events.FlexEvent;
-			
-			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-			import org.bigbluebutton.modules.present.api.PresentationAPI;
-			import org.bigbluebutton.modules.present.business.PresentProxy;
-			import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
-			import org.bigbluebutton.modules.present.events.PresentModuleEvent;
-			import org.bigbluebutton.modules.present.events.PresentationEvent;
-			import org.bigbluebutton.modules.present.events.PresenterCommands;
-			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
-			import org.bigbluebutton.modules.present.events.SlideEvent;
-			import org.bigbluebutton.modules.present.events.UploadEvent;
-			import org.bigbluebutton.modules.present.managers.PresentManager;
-			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
+      import mx.events.FlexEvent;
+      
+      import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+      import org.bigbluebutton.modules.present.api.PresentationAPI;
+      import org.bigbluebutton.modules.present.business.PresentProxy;
+      import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
+      import org.bigbluebutton.modules.present.events.PresentModuleEvent;
+      import org.bigbluebutton.modules.present.events.PresentationEvent;
+      import org.bigbluebutton.modules.present.events.PresenterCommands;
+      import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+      import org.bigbluebutton.modules.present.events.SlideEvent;
+      import org.bigbluebutton.modules.present.events.UploadEvent;
+      import org.bigbluebutton.modules.present.managers.PresentManager;
+      import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
+      import org.bigbluebutton.modules.whiteboard.events.GetCurrentPresentationInfo;
 
 			private var apiInstance:PresentationAPI;
 			
@@ -91,7 +92,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{PresenterCommands.ZOOM}" >
 		<MethodInvoker generator="{PresentProxy}" method="zoomSlide" arguments="{event}" />
 	</EventHandlers>
-	
+
+  <EventHandlers type="{GetCurrentPresentationInfo.GET_CURRENT_PRESENTATION_INFO}" >
+    <MethodInvoker generator="{PresentProxy}" method="getCurrentPresentationInfo" />
+  </EventHandlers>
+  
 	<EventHandlers type="{PresenterCommands.SEND_CURSOR_UPDATE}" >
 		<MethodInvoker generator="{PresentProxy}" method="sendCursorUpdate" arguments="{event}" />
 	</EventHandlers>

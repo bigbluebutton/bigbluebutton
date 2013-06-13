@@ -103,9 +103,7 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 	@Override
 	public boolean roomStart(IScope scope) {
 		log.debug("***** " + APP + " [ " + " roomStart [ " + scope.getName() + "] *********");
-		
-		
- 			
+					
 		log.debug(APP + " - scanning for presentations - " + scope.getName());
 		try {
 			// TODO: this is hard-coded, and not really a great abstraction.  need to fix this up later

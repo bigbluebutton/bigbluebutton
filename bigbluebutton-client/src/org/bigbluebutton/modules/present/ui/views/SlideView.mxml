@@ -43,35 +43,36 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.events.Event;
-			
-			import mx.binding.utils.BindingUtils;
-			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
-			import mx.controls.Button;
-			import mx.events.FlexEvent;
-			import mx.events.ListEvent;
-			
-			import org.bigbluebutton.common.IBbbCanvas;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.model.FocusableImage;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.modules.present.events.CursorEvent;
-			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
-			import org.bigbluebutton.modules.present.events.MoveEvent;
-			import org.bigbluebutton.modules.present.events.PresenterCommands;
-			import org.bigbluebutton.modules.present.events.SlideEvent;
-			import org.bigbluebutton.modules.present.events.SlideResizedEvent;
-			import org.bigbluebutton.modules.present.events.UploadEvent;
-			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
-			import org.bigbluebutton.modules.present.events.ZoomEvent;
-			import org.bigbluebutton.modules.present.managers.Slide;
-			import org.bigbluebutton.modules.present.ui.views.models.SlideCalcUtil;
-			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import flash.events.Event;
+      
+      import mx.binding.utils.BindingUtils;
+      import mx.collections.ArrayCollection;
+      import mx.controls.Alert;
+      import mx.controls.Button;
+      import mx.events.FlexEvent;
+      import mx.events.ListEvent;
+      
+      import org.bigbluebutton.common.IBbbCanvas;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.model.FocusableImage;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.modules.present.events.CursorEvent;
+      import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
+      import org.bigbluebutton.modules.present.events.MoveEvent;
+      import org.bigbluebutton.modules.present.events.PresenterCommands;
+      import org.bigbluebutton.modules.present.events.SlideEvent;
+      import org.bigbluebutton.modules.present.events.SlideResizedEvent;
+      import org.bigbluebutton.modules.present.events.UploadEvent;
+      import org.bigbluebutton.modules.present.events.WindowResizedEvent;
+      import org.bigbluebutton.modules.present.events.ZoomEvent;
+      import org.bigbluebutton.modules.present.managers.Slide;
+      import org.bigbluebutton.modules.present.ui.views.models.SlideCalcUtil;
+      import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
+      import org.bigbluebutton.modules.whiteboard.events.GetCurrentPresentationInfo;
 			
 			[Bindable] public var zoomPercentage:Number = 100;
 			public static const ZOOM_STEP:int = 5;
@@ -123,6 +124,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				whiteboardCanvasHolder.y = 0;
 				
 				this.setChildIndex(thumbnailView, this.numChildren - 1);
+        
+        dispatcher.dispatchEvent(new GetCurrentPresentationInfo());
 			}
 						
 			public function setSlides(slides:ArrayCollection):void {
