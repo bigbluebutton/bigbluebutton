@@ -2,4 +2,6 @@
 publish_dir: /var/bigbluebutton/published/presentation
 video_output_width: 640
 video_output_height: 480
-
+# offset applied to audio in the output video file
+# audio_offset = 1000 means that the audio will be delayed by 1000ms
+#audio_offset: 1200
