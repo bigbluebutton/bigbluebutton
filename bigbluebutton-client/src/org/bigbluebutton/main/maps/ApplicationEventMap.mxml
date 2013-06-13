@@ -31,7 +31,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<ObjectBuilder generator="{ModulesProxy}" cache="global" />
 		<ObjectBuilder generator="{UserService}" cache="global" />
 		<ObjectBuilder generator="{ConfigManager}" cache="global" />
-		<ObjectBuilder generator="{StreamMonitor}" cache="global" />
+		<!--
+		Disabling temporarily the stream monitor
+		-->
+		<!--ObjectBuilder generator="{StreamMonitor}" cache="global" /-->
 	</EventHandlers>
 	
 	<EventHandlers type="{PortTestEvent.TEST_RTMP}" >
