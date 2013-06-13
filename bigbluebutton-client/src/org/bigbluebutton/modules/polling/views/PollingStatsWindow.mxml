@@ -31,6 +31,14 @@
 		   title="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"
 		   layout="absolute"
 		   >
+	
+	<mate:Listener type="{ShortcutEvent.FOCUS_WEBPOLL_ADDRESS}" method="focusWebPollBox" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_POLL_DATA}" method="focusDataGrid" />
+	<mate:Listener type="{ShortcutEvent.SC_REFRESH_POLL}" method="remoteRefresh" />
+	<mate:Listener type="{ShortcutEvent.SC_STOP_POLL}" method="remoteStop" />
+	
+	<mate:Listener type="{ShortcutEvent.SC_REPOST_POLL}" method="remoteRepost" />
+	<mate:Listener type="{ShortcutEvent.CLOSE_POLL_STATS}" method="remoteClose" />
 
 	<mx:Script>
 		<![CDATA[
@@ -56,6 +64,7 @@
       import org.bigbluebutton.main.model.users.BBBUser;
       import org.bigbluebutton.main.model.users.Conference;
       import org.bigbluebutton.main.views.MainCanvas;
+	  import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
       import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
       import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
@@ -268,6 +277,48 @@
 				pso.votes = trackingPoll.didNotVote.toString();
 				pso.percentage = "";
 				return pso;
+			}
+			
+			private function focusWebPollBox(e:ShortcutEvent):void{
+				if (webPollURLBox.visible)
+					focusManager.setFocus(webPollURLBox);
+			}
+			
+			private function focusDataGrid(e:ShortcutEvent):void{
+				focusManager.setFocus(resultsGrid);
+			}
+			
+			// addAlert
+			private function remoteRefresh(e:ShortcutEvent):void{
+				if (btnRefreshResults.label == ResourceUtil.getInstance().getString('bbb.polling.stats.refresh')){
+					var message:String = ResourceUtil.getInstance().getString('bbb.polling.stats.alerts.refresh');
+					ExternalInterface.call("addAlert", message);
+					refreshPoll();
+				}
+			}
+			
+			private function remoteStop(e:ShortcutEvent):void{
+				if (btnClosePoll.label == ResourceUtil.getInstance().getString('bbb.polling.stats.stopPoll')){
+					var message:String = ResourceUtil.getInstance().getString('bbb.polling.stats.alerts.stopPoll');
+					ExternalInterface.call("addAlert", message);
+					stopPoll();
+				}
+			}
+			
+			private function remoteRepost(e:ShortcutEvent):void{
+				if (btnRefreshResults.label == ResourceUtil.getInstance().getString('bbb.polling.stats.repost')){
+					var message:String = ResourceUtil.getInstance().getString('bbb.polling.stats.alerts.repost');
+					ExternalInterface.call("addAlert", message);
+					publishPollAgain(e);
+				}
+			}
+			
+			private function remoteClose(e:ShortcutEvent):void{
+				if (btnClosePoll.label == ResourceUtil.getInstance().getString('bbb.polling.stats.close')){
+					var message:String = ResourceUtil.getInstance().getString('bbb.polling.stats.alerts.close');
+					ExternalInterface.call("addAlert", message);
+					closeButtonClick(e);
+				}
 			}
 	]]>
 	</mx:Script>
