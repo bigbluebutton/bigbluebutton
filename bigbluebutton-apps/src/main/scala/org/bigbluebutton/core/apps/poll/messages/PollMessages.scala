@@ -1,7 +1,8 @@
 package org.bigbluebutton.core.apps.poll.messages
 
-import org.bigbluebutton.core.messages.InMessage
+
 import org.bigbluebutton.core.apps.poll.QuestionType._
+import org.bigbluebutton.core.api.InMessage
 
 // Poll Messages
 case class CreatePoll(poll: PollVO) extends InMessage

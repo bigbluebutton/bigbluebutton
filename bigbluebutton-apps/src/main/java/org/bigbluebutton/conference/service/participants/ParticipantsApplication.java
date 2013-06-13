@@ -22,12 +22,12 @@ import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;import java.util.ArrayList;
 import java.util.Map;
 import org.bigbluebutton.conference.MeetingsManager;
-import org.bigbluebutton.conference.Meeting;import org.bigbluebutton.conference.User;import org.bigbluebutton.conference.IRoomListener;
-
+import org.bigbluebutton.conference.Meeting;import org.bigbluebutton.conference.User;
 public class ParticipantsApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsApplication.class, "bigbluebutton" );	
 
 	private MeetingsManager roomsManager;
+	private IUsersInGW usersInGW;
 	
 	public boolean createRoom(String meetingID, Boolean recorded) {
 		if(!roomsManager.hasRoom(meetingID)){
@@ -57,6 +57,8 @@ public class ParticipantsApplication {
 		
 	public void setParticipantStatus(String room, String userid, String status, Object value) {
 		roomsManager.changeParticipantStatus(room, userid, status, value);
+		
+		usersInGW.setUserStatus(room, userid, status, value);
 	}
 	
 	public Map getParticipants(String roomName) {
@@ -66,6 +68,8 @@ public class ParticipantsApplication {
 			return null;
 		}
 
+		usersInGW.getUsers(roomName, roomName);
+		
 		return roomsManager.getParticipants(roomName);
 	}
 	
@@ -74,6 +78,9 @@ public class ParticipantsApplication {
 		if (roomsManager.hasRoom(roomName)) {
 			Meeting room = roomsManager.getRoom(roomName);
 			log.debug("Removing " + userid + " from room " + roomName);
+			
+			usersInGW.userLeft(userid, userid);
+			
 			room.removeParticipant(userid);
 			return true;
 		}
@@ -88,6 +95,9 @@ public class ParticipantsApplication {
 			User p = new User(userid, username, role, externUserID, status);			
 			Meeting room = roomsManager.getRoom(roomName);
 			room.addParticipant(p);
+			
+			usersInGW.userJoin(roomName, roomName, username, role, externUserID);
+			
 			log.debug("participant joined room " + roomName);
 			return true;
 		}
@@ -114,6 +124,10 @@ public class ParticipantsApplication {
 	public void setRoomsManager(MeetingsManager r) {
 		log.debug("Setting room manager");
 		roomsManager = r;
+	}
+	
+	public void setUsersInGW(IUsersInGW inGW) {
+		usersInGW = inGW;
 	}
 			
 }

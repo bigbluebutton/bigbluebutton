@@ -3,6 +3,7 @@ package org.bigbluebutton.core
 import scala.actors.Actor
 import scala.actors.Actor._
 import scala.collection.mutable.HashMap
+import org.bigbluebutton.core.api.CreateMeeting
 
 class BigBlueButtonActor() extends Actor {
   import org.bigbluebutton.core.messages._

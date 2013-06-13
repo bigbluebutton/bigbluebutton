@@ -45,10 +45,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<bean id="participantsApplication" class="org.bigbluebutton.conference.service.participants.ParticipantsApplication">
 		<property name="roomsManager"> <ref local="roomsManager"/></property>
+		<property name="usersInGW"> <ref local="usersInGW"/></property>
 	</bean>
 	
 	<bean id="participants.service" class="org.bigbluebutton.conference.service.participants.ParticipantsService">
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
 	</bean>
-	  			 
+
+    <bean id="usersInGW" class="org.bigbluebutton.core.apps.users.UsersInGateway">
+        <constructor-arg index="0" ref="inMsgGW"/>
+    </bean>
+    
+    <bean id="inMsgGW" class="org.bigbluebutton.core.api.InMessageGateway"/>
+  			 
 </beans>
