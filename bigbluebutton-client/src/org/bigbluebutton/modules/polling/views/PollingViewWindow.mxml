@@ -30,6 +30,10 @@
 	title="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"
 	layout="absolute">
 
+	<mate:Listener type="{ShortcutEvent.FOCUS_VOTING_WINDOW}" method="focusWindow" />
+	<mate:Listener type="{ShortcutEvent.REMOTE_CAST_VOTE}" method="remoteVote" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_VOTE_QUESTION}" method="focusQuestion" />
+	
 	<mx:Script>
 		<![CDATA[
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -42,6 +46,7 @@
 			import org.bigbluebutton.modules.polling.managers.PollingManager;
 			import org.bigbluebutton.modules.polling.events.VoteEvent;
 			import org.bigbluebutton.modules.polling.model.PollOptions;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			
 			import org.bigbluebutton.main.model.users.Conference;
 			
@@ -207,6 +212,21 @@
 
 			public function radioClick(e:Event):void{
 				submissionAllowed = true;
+			}
+			
+			private function focusWindow(e:Event):void{
+				LogUtil.debug("Received Vote Window Focus");
+				focusManager.setFocus(titleBarOverlay);
+			}
+			
+			private function focusQuestion(e:ShortcutEvent):void{
+				LogUtil.debug("Received Vote Question Focus");
+				focusManager.setFocus(questionText);
+			}
+			
+			private function remoteVote(e:ShortcutEvent):void{
+				LogUtil.debug("Received Vote Command");
+				Vote();
 			}
 		]]>
 	</mx:Script>
