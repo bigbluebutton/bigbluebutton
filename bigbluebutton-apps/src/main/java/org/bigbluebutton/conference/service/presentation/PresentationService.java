@@ -64,10 +64,39 @@ public class PresentationService {
 	}
 	
 	public void resizeAndMoveSlide(Map<String, Object> msg) {
-		Double xOffset = (Double) msg.get("xOffset");
-		Double yOffset = (Double) msg.get("yOffset");
-		Double widthRatio = (Double) msg.get("widthRatio");
-		Double heightRatio = (Double) msg.get("heightRatio");
+		Double xOffset;
+		if (msg.get("xOffset") instanceof Integer) {
+			Integer tempXOffset = (Integer) msg.get("xOffset");
+			xOffset = tempXOffset.doubleValue();
+		} else {
+			xOffset = (Double) msg.get("xOffset");
+		}
+
+		Double yOffset;
+		
+		if (msg.get("yOffset") instanceof Integer) {
+			Integer tempYOffset = (Integer) msg.get("yOffset");
+			yOffset = tempYOffset.doubleValue();
+		} else {
+			yOffset = (Double) msg.get("yOffset");
+		}
+		 
+		Double widthRatio;
+		if (msg.get("widthRatio") instanceof Integer) {
+			Integer tempWRatio = (Integer) msg.get("widthRatio");
+			widthRatio = tempWRatio.doubleValue();
+		} else {
+			widthRatio = (Double) msg.get("widthRatio");
+		}
+				
+		
+		Double heightRatio;
+		if (msg.get("heightRatio") instanceof Integer) {
+			Integer tempHRatio = (Integer) msg.get("heightRatio");
+			heightRatio = tempHRatio.doubleValue();
+		} else {
+			heightRatio = (Double) msg.get("heightRatio");
+		}
 		
 		log.debug("Request to resize and move slide[" + xOffset + "," + yOffset + "," + widthRatio + "," + heightRatio);
 		IScope scope = Red5.getConnectionLocal().getScope();
