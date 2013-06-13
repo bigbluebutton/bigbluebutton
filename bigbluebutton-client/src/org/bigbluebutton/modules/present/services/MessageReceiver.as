@@ -36,6 +36,8 @@ package org.bigbluebutton.modules.present.services
   
   public class MessageReceiver implements IMessageListener
   {
+    private static const LOG:String = "Present::MessageReceiver - ";
+    
     private static const OFFICE_DOC_CONVERSION_SUCCESS_KEY:String = "OFFICE_DOC_CONVERSION_SUCCESS";
     private static const OFFICE_DOC_CONVERSION_FAILED_KEY:String = "OFFICE_DOC_CONVERSION_FAILED";
     private static const SUPPORTED_DOCUMENT_KEY:String = "SUPPORTED_DOCUMENT";
@@ -56,7 +58,6 @@ package org.bigbluebutton.modules.present.services
     }
     
     public function onMessage(messageName:String, message:Object):void {
-//      LogUtil.debug("Presentation: received message " + messageName);
       trace("Presentation: received message " + messageName);
       
       switch (messageName) {
@@ -90,8 +91,20 @@ package org.bigbluebutton.modules.present.services
         case "getPresentationInfoReply":
           handleGetPresentationInfoReply(message);
           break;
+        case "getSlideInfoReply":
+          handleGetSlideInfoReply(message);
+          break;
       }
     }  
+    
+    private function handleGetSlideInfoReply(msg:Object):void {
+      var e:MoveEvent = new MoveEvent(MoveEvent.CUR_SLIDE_SETTING);
+      e.xOffset = msg.xOffset;
+      e.yOffset = msg.yOffset;
+      e.slideToCanvasWidthRatio = msg.widthRatio;
+      e.slideToCanvasHeightRatio = msg.heightRatio;
+      dispatcher.dispatchEvent(e);	  
+    }
     
     private function handlePresentationCursorUpdateCommand(message:Object):void {    
       var e:CursorEvent = new CursorEvent(CursorEvent.UPDATE_CURSOR);
@@ -199,11 +212,13 @@ package org.bigbluebutton.modules.present.services
     private var currentSlide:Number = -1;
     
     private function handleGetPresentationInfoReply(msg:Object) : void {
-      trace("has-presenter=[" + msg.presenter.hasPresenter + "]");
+      trace(LOG + "has-presenter=[" + msg.presenter.hasPresenter + "]");
       
       if (msg.presenter.hasPresenter) {
         dispatcher.dispatchEvent(new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE));						
       }	
+      
+      trace(LOG + " ************** msg.presentation.xOffset [" + msg.presentation.xOffset +"] ***********");
       
       if (msg.presentation.xOffset) {
         var e:MoveEvent = new MoveEvent(MoveEvent.CUR_SLIDE_SETTING);
@@ -211,12 +226,13 @@ package org.bigbluebutton.modules.present.services
         e.yOffset = Number(msg.presentation.yOffset);
         e.slideToCanvasWidthRatio = Number(msg.presentation.widthRatio);
         e.slideToCanvasHeightRatio = Number(msg.presentation.heightRatio);
-        trace("Dispatching current slide setting");
         
+        trace(LOG + " **************Dispatching MoveEvent.CUR_SLIDE_SETTING ***********");
         dispatcher.dispatchEvent(e);
       }
       
       if (msg.presentations) {
+        trace(LOG + " ************ Getting list of presentations *************");
         for(var p:Object in msg.presentations) {
           var u:Object = msg.presentations[p]
           sendPresentationName(u as String);
@@ -228,7 +244,7 @@ package org.bigbluebutton.modules.present.services
       
       if (msg.presentation.sharing) {							
         currentSlide = Number(msg.presentation.slide);
-        trace("**** Trigger sharing presentation of [" + msg.presentation.currentPresentation + "]");
+        trace(LOG + "**** Trigger sharing presentation of [" + msg.presentation.currentPresentation + "]");
         
         var shareEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
         shareEvent.presentationName = String(msg.presentation.currentPresentation);
@@ -237,7 +253,7 @@ package org.bigbluebutton.modules.present.services
     }
     
     private function sendPresentationName(presentationName:String):void {
-      trace("Sending presentation names");
+      trace(LOG + " **************** Sending presentation names");
       var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
       uploadEvent.presentationName = presentationName;
       dispatcher.dispatchEvent(uploadEvent)
@@ -252,12 +268,12 @@ package org.bigbluebutton.modules.present.services
      * (ralam dec 8, 2011).
      */
     public function triggerSwitchPresenter():void {
-      trace("****** triggerSwitchPresenter ***** ");
+      trace(LOG + "****** triggerSwitchPresenter ***** ");
       
       var dispatcher:Dispatcher = new Dispatcher();
       var meeting:Conference = UserManager.getInstance().getConference();
       if (meeting.amIPresenter) {		
-        trace("PresentSOService:: trigger Switch to Presenter mode ");
+        trace(LOG + "PresentSOService:: trigger Switch to Presenter mode ");
         var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
         e.userID = meeting.getMyUserId();
         e.presenterName = meeting.getMyName();
@@ -268,8 +284,8 @@ package org.bigbluebutton.modules.present.services
         
         var p:BBBUser = meeting.getPresenter();
         if (p != null) {
-          LogUtil.debug("trigger Switch to Viewer mode ");
-          trace("PresentSOService:: trigger Switch to Presenter mode ");
+          LogUtil.debug(LOG + "trigger Switch to Viewer mode ");
+          trace(LOG + " trigger Switch to Presenter mode ");
           var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
           viewerEvent.userID = p.userID;
           viewerEvent.presenterName = p.name;

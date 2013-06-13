@@ -78,7 +78,7 @@ package org.bigbluebutton.core.services
       {
         case "NetConnection.Connect.Success":
           LogUtil.debug("Starting to monitor bandwidth between client and server");
-          monitor();
+ //         monitor();
           break;
         default:
           LogUtil.debug("Cannot establish the connection to measure bandwidth");

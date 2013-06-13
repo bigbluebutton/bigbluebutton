@@ -10,6 +10,7 @@ import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerServ
 import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage;
 import org.bigbluebutton.conference.service.presentation.messaging.messages.ConversionUpdateMessage;
 import org.bigbluebutton.conference.service.presentation.messaging.messages.GetPresentationInforReplyMessage;
+import org.bigbluebutton.conference.service.presentation.messaging.messages.GetSlideInfoReply;
 import org.bigbluebutton.conference.service.presentation.messaging.messages.GotoSlideMessage;
 import org.bigbluebutton.conference.service.presentation.messaging.messages.PresentationCursorUpdateMessage;
 import org.bigbluebutton.conference.service.presentation.messaging.messages.RemovePresentationMessage;
@@ -50,7 +51,20 @@ public class PresentationClientSender implements OutMessageListener {
 			sendResizeAndMoveSlideMessage((ResizeAndMoveSlideMessage) msg);
 		} else if (msg instanceof SharePresentationMessage) {
 			sendSharePresentationMessage((SharePresentationMessage) msg);
+		} else if (msg instanceof GetSlideInfoReply) {
+			sendGetSlideInfoReply((GetSlideInfoReply) msg);
 		}
+	}
+	
+	private void sendGetSlideInfoReply(GetSlideInfoReply msg) {
+		Map<String, Object> args = new HashMap<String, Object>();
+		args.put("xOffset", msg.getxOffset());
+		args.put("yOffest", msg.getyOffset());
+		args.put("widthRatio", msg.getWidthRatio());
+		args.put("heightRatio", msg.getHeightRatio());		
+		
+		DirectClientMessage m = new DirectClientMessage(msg.getMeetingID(), msg.getRequesterID(), "getPresentationInfoReply", args);
+		service.sendMessage(m);
 	}
 	
 	private void sendPresentationCursorUpdateMessage(PresentationCursorUpdateMessage msg) {

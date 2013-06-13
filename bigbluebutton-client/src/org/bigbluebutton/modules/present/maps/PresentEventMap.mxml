@@ -54,7 +54,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<EventHandlers type="{PresentModuleEvent.START_MODULE}" >
 		<MethodInvoker generator="{PresentManager}" method="handleStartModuleEvent" arguments="{event}"/>
-		<MethodInvoker generator="{PresentProxy}" method="connect" arguments="{event}" />
+    <MethodInvoker generator="{PresentProxy}" method="connect" arguments="{event}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{PresentModuleEvent.STOP_MODULE}" >

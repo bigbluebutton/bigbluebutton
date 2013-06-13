@@ -66,10 +66,7 @@ package org.bigbluebutton.modules.present.business
     }
     
 		public function connect(e:PresentModuleEvent):void{
-			extractAttributes(e.data);
-			soService = new PresentSOService(connection, url, userid);
-			soService.connect();
-      
+			extractAttributes(e.data);      
 		}
 		
 		private function extractAttributes(a:Object):void{
@@ -116,7 +113,7 @@ package org.bigbluebutton.modules.present.business
 		 */		
 		public function resetZoom(e:PresenterCommands):void{
 			if (soService == null) return;
-			soService.restore();
+//			soService.restore();
 		}
 		
 		/**
@@ -187,7 +184,7 @@ package org.bigbluebutton.modules.present.business
 		}
 		
 		public function resizeSlide(e:PresenterCommands):void{
-			soService.resizeSlide(e.newSizeInPercent);
+//			soService.resizeSlide(e.newSizeInPercent);
 		}
 
 	}

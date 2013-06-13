@@ -37,6 +37,16 @@ public class PresentationService {
 		presentationApplication.removePresentation(scope.getName(), presentationID);
 	}
 	
+	public void getSlideInfo() {
+		IScope scope = Red5.getConnectionLocal().getScope();
+		presentationApplication.getSlideInfo(scope.getName(), getBbbSession().getInternalUserID());		
+	}
+	
+	public void clear() {
+		IScope scope = Red5.getConnectionLocal().getScope();
+		presentationApplication.clear(scope.getName());
+	}
+	
 	public void getPresentationInfo() {
 		IScope scope = Red5.getConnectionLocal().getScope();
 		presentationApplication.getPresentationInfo(scope.getName(), getBbbSession().getInternalUserID());

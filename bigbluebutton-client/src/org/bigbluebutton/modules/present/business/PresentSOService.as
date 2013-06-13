@@ -75,12 +75,7 @@ package org.bigbluebutton.modules.present.business {
 			this.userid = userid;
 			this.dispatcher = new Dispatcher();
 		}
-		
-		public function connect():void {
-			join();
-			notifyConnectionStatusListener(true);
-		}
-			
+					
 		public function disconnect():void {
 			leave();
 			notifyConnectionStatusListener(false, ["Disconnected from presentation application"]);
@@ -115,54 +110,6 @@ package org.bigbluebutton.modules.present.business {
 			_connectionListener = connectionListener;
 		}
 		
-		public function addMessageSender(msgSender:Function):void {
-			_messageSender = msgSender;
-		}
-		
-		private function sendMessage(msg:String, body:Object=null):void {
-			if (_messageSender != null) _messageSender(msg, body);
-		}
-				
-		/**
-		 * A callback method for zooming in a slide. Called when preseter zooms the slide
-		 * @param slideHeight
-		 * @param slideWidth
-		 * 
-		 */		
-		public function zoomCallback(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
-			var e:ZoomEvent = new ZoomEvent(ZoomEvent.ZOOM);
-			e.xOffset = xOffset;
-			e.yOffset = yOffset;
-			e.slideToCanvasWidthRatio = widthRatio;
-			e.slideToCanvasHeightRatio = heightRatio;
-			dispatcher.dispatchEvent(e);
-		}
-		
-	
-		/**
-		 * Send an event to the server to update the size of the slide shows, as a percentage of the default value 
-		 * @param newSizeInPercent
-		 * 
-		 */		
-		public function resizeSlide(newSizeInPercent:Number):void{
-			_presentationSO.send("resizeSlideCallback", newSizeInPercent);
-		}
-		
-		public function resizeSlideCallback(newSizeInPercent:Number):void{
-			var e:ZoomEvent = new ZoomEvent(ZoomEvent.RESIZE);
-			e.zoomPercentage = newSizeInPercent;
-			dispatcher.dispatchEvent(e);
-		}
-		
-
-		
-		/**
-		 * A callback method from the server to update the slide position 
-		 * @param slideXPosition
-		 * @param slideYPosition
-		 * 
-		 */		
-
 		
 		/***
 		 * A hack for the viewer to sync with the presenter. Have the viewer query the presenter for it's x,y,width and height info.
@@ -199,41 +146,7 @@ package org.bigbluebutton.modules.present.business {
 
 		}
 		
-		
-		/**
-		 * Sends an event out for the clients to maximize the presentation module 
-		 * 
-		 */		
-		public function maximize():void{
-			_presentationSO.send("maximizeCallback");
-		}
-		
-		/**
-		 * A callback method from the server to maximize the presentation 
-		 * 
-		 */		
-		public function maximizeCallback():void{
-			dispatcher.dispatchEvent(new ZoomEvent(ZoomEvent.MAXIMIZE));
-		}
-		
-		public function restore():void{
-			_presentationSO.send("restoreCallback");
-		}
-		
-		public function restoreCallback():void{
-			dispatcher.dispatchEvent(new ZoomEvent(ZoomEvent.RESTORE));
-		}
-		
-		/**
-		 * Send an event to the server to clear the presentation 
-		 * 
-		 */		
-		public function clearPresentation() : void {
-			_presentationSO.send("clearCallback");			
-		}
-		
-
-		
+				
 		/**
 		 * A call-back method for the clear method. This method is called when the clear method has
 		 * successfuly called the server.
@@ -247,11 +160,7 @@ package org.bigbluebutton.modules.present.business {
 		public function setPresenterName(presenterName:String):void {
 			_presentationSO.setProperty(PRESENTER, presenterName);
 		}
-		
-
-		
-
-		
+			
 		private function sendPresentationName(presentationName:String):void {
 			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
 			uploadEvent.presentationName = presentationName;
@@ -266,7 +175,6 @@ package org.bigbluebutton.modules.present.business {
 			}
 		}
 		
-
 		
 		private function notifyConnectionStatusListener(connected:Boolean, errors:Array=null):void {
 			if (_connectionListener != null) {

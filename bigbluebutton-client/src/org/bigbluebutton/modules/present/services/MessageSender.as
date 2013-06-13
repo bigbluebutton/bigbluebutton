@@ -23,8 +23,7 @@ package org.bigbluebutton.modules.present.services
   import org.bigbluebutton.core.managers.ConnectionManager;
   import org.bigbluebutton.main.model.users.IMessageListener;
   
-  public class MessageSender 
-  {
+  public class MessageSender {
     /**
      * Send an event to the server to update the presenter's cursor view on the client 
      * @param xPercent
@@ -132,6 +131,30 @@ package org.bigbluebutton.modules.present.services
           LogUtil.error(status); 
         },
         message
+      );
+    }
+    
+    public function clearPresentation() : void {
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("presentation.clear", 
+        function(result:String):void { // On successful result
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void { // status - On error occurred
+          LogUtil.error(status); 
+        }
+      );		
+    }
+    
+    private function queryPresenterForSlideInfo():void {
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("presentation.getSlideInfo", 
+        function(result:String):void { // On successful result
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void { // status - On error occurred
+          LogUtil.error(status); 
+        }
       );
     }
   }

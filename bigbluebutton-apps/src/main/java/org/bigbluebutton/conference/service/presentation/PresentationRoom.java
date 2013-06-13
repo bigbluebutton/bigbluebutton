@@ -33,8 +33,8 @@ public class PresentationRoom {
 	String currentPresentation = "";
 	Double xOffset = 0D;
 	Double yOffset = 0D;
-	Double widthRatio = 0D;
-	Double heightRatio = 0D;
+	Double widthRatio = 1D;
+	Double heightRatio = 1D;
 	
 	/* cursor location */
 	Double xPercent = 0D;
