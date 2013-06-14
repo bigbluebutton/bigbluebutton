@@ -25,6 +25,9 @@ require 'streamio-ffmpeg'
 require 'pp'
 
 module BigBlueButton
+  # use "info" or "debug" for development
+  FFMPEG_LOG_LEVEL = "fatal"
+
   # Strips the audio stream from the video file
   #   video_in - the FLV file that needs to be stripped of audio
   #   video_out - the resulting FLV with the audio stripped
@@ -32,7 +35,7 @@ module BigBlueButton
   #    strip_audio_from_video(orig-video.flv, video2.flv)
   def self.strip_audio_from_video(video_in, video_out)
     BigBlueButton.logger.info("Task: Stripping audio from video")      
-    command = "ffmpeg -i #{video_in} -loglevel fatal -an -vcodec copy -sameq #{video_out}"
+    command = "ffmpeg -y -i #{video_in} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -an -vcodec copy -sameq #{video_out}"
     BigBlueButton.execute(command)
     # TODO: check for result, raise an exception when there is an error
   end
@@ -45,7 +48,7 @@ module BigBlueButton
   def self.trim_video(start, duration, video_in, video_out)
     BigBlueButton.logger.info("Task: Trimming video")
     # -ss coming before AND after the -i option improves the precision ==> http://ffmpeg.org/pipermail/ffmpeg-user/2012-August/008767.html
-    command = "ffmpeg -ss #{BigBlueButton.ms_to_strtime(start)} -i #{video_in} -loglevel fatal -vcodec copy -acodec copy -ss 0 -t #{BigBlueButton.ms_to_strtime(duration)} -sameq #{video_out}"
+      command = "ffmpeg -y -ss #{BigBlueButton.ms_to_strtime(start)} -i #{video_in} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -vcodec copy -acodec copy -ss 0 -t #{BigBlueButton.ms_to_strtime(duration)} -sameq #{video_out}"
     BigBlueButton.execute(command)  
     # TODO: check for result, raise an exception when there is an error
   end
@@ -60,7 +63,7 @@ module BigBlueButton
   def self.create_blank_deskshare_video(length, rate, blank_canvas, video_out)
     BigBlueButton.logger.info("Task: Creating blank deskshare video")      
     loop_param = (`ffmpeg -version | grep ffmpeg | cut -d ' ' -f3`).chomp.eql?("0.11.2") ? "-loop 1" : "-loop_input"
-    command = "ffmpeg #{loop_param} -t #{length} -i #{blank_canvas} -loglevel fatal -v -10 -r #{rate} -vcodec flashsv #{video_out}"
+    command = "ffmpeg -y #{loop_param} -t #{length} -i #{blank_canvas} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -v -10 -r #{rate} -vcodec flashsv #{video_out}"
     BigBlueButton.execute(command)
     # TODO: check for result, raise exception when there is an error
   end
@@ -75,7 +78,7 @@ module BigBlueButton
   def self.create_blank_video(length, rate, blank_canvas, video_out)
     BigBlueButton.logger.info("Task: Creating blank video")      
     loop_param = (`ffmpeg -version | grep ffmpeg | cut -d ' ' -f3`).chomp.eql?("0.11.2") ? "-loop 1" : "-loop_input"
-    command = "ffmpeg -y #{loop_param} -t #{length} -i #{blank_canvas} -loglevel fatal -v -10 -r #{rate} #{video_out}"
+    command = "ffmpeg -y #{loop_param} -t #{length} -i #{blank_canvas} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -v -10 -r #{rate} #{video_out}"
     BigBlueButton.execute(command)
     # TODO: check for result, raise exception when there is an error
   end
@@ -137,7 +140,7 @@ module BigBlueButton
 
   #Converts flv to mpg
   def self.convert_flv_to_mpg(flv_video, mpg_video_out)
-        command = "ffmpeg -y -i #{flv_video} -loglevel fatal -v -10 -sameq -f mpegts -r 29.97 #{mpg_video_out}"
+        command = "ffmpeg -y -i #{flv_video} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -v -10 -sameq -f mpegts -r 29.97 #{mpg_video_out}"
         BigBlueButton.logger.info("Task: Converting .flv to .mpg")    
         BigBlueButton.execute(command)
   end
@@ -151,7 +154,7 @@ module BigBlueButton
 
   #Converts .mpg to .flv
   def self.convert_mpg_to_flv(mpg_video,flv_video_out)
-        command = "ffmpeg -y -i  #{mpg_video} -loglevel fatal -v -10 -sameq  #{flv_video_out}"
+        command = "ffmpeg -y -i  #{mpg_video} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -v -10 -sameq  #{flv_video_out}"
         BigBlueButton.logger.info("Task: Converting .mpg to .flv")
         BigBlueButton.execute(command);
   end
@@ -162,7 +165,7 @@ module BigBlueButton
   #  video - the video file. Must not contain an audio stream. 
   def self.multiplex_audio_and_video(audio, video, video_out)
     BigBlueButton.logger.info("Task: Multiplexing audio and video")      
-    command = "ffmpeg -i #{audio} -i #{video} -loglevel fatal -v -10 -map 1:0 -map 0:0 -ar 22050 #{video_out}"
+    command = "ffmpeg -y -i #{audio} -i #{video} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -v -10 -map 1:0 -map 0:0 -ar 22050 #{video_out}"
     BigBlueButton.execute(command)
     # TODO: check result, raise an exception when there is an error
   end
@@ -402,7 +405,7 @@ module BigBlueButton
  
    			# Use for newer version of FFMPEG
     		padding = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{side_padding}:#{top_bottom_padding}:FFFFFF"       
-		    command = "ffmpeg -i #{stripped_webcam} -loglevel fatal -v -10 -aspect 4:3 -r 1000 -sameq #{frame_size} #{padding} #{scaled_flv}" 
+		    command = "ffmpeg -y -i #{stripped_webcam} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -v -10 -aspect 4:3 -r 1000 -sameq #{frame_size} #{padding} #{scaled_flv}" 
 		    #BigBlueButton.logger.info(command)
 		    #IO.popen(command)
 		    #Process.wait                
@@ -451,7 +454,7 @@ module BigBlueButton
  
    			# Use for newer version of FFMPEG
     		padding = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{side_padding}:#{top_bottom_padding}:FFFFFF"       
-		    command = "ffmpeg -i #{flv_in} -loglevel fatal -v -10 -aspect 4:3 -r 1000 -sameq #{frame_size} #{padding} -vcodec flashsv #{scaled_flv}" 
+		    command = "ffmpeg -y -i #{flv_in} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -v -10 -aspect 4:3 -r 1000 -sameq #{frame_size} #{padding} -vcodec flashsv #{scaled_flv}" 
 		    BigBlueButton.execute(command)
 		    #BigBlueButton.logger.info(command)
 		    #IO.popen(command)
@@ -685,7 +688,7 @@ module BigBlueButton
       filter = "-filter_complex \"#{filter}\"" unless filter.empty?
 
       patch_video = "#{temp_dir}/#{meeting_id}/patch_video_#{event[:timestamp]}.flv"
-      command = "ffmpeg -y -i #{blank_video} -loglevel fatal -v -10 #{filter} #{patch_video}"
+      command = "ffmpeg -y -i #{blank_video} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -v -10 #{filter} -sameq #{patch_video}"
       BigBlueButton.execute(command)
 
       concat << patch_video
@@ -702,13 +705,13 @@ module BigBlueButton
 #      filter_input << "[#{index}:0]"
     end
 #    command = "ffmpeg #{input.join(' ')} -vcodec copy -sameq -filter_complex \"#{filter_input.join()} concat=n=#{input.length}:v=#{input.length}:a=0\" #{output}"
-    command = "ffmpeg -f concat #{input.join(' ')} -vcodec copy -sameq #{output}"
+    command = "ffmpeg -y -f concat #{input.join(' ')} -vcodec copy -sameq #{output}"
     BigBlueButton.execute(command)
 =end
     BigBlueButton.concatenate_videos(concat, output)
 
     # create webm video and mux audio
-    command = "ffmpeg -itsoffset #{BigBlueButton.ms_to_strtime(audio_offset)} -i #{target_dir}/audio.ogg -i #{output} -loglevel fatal -v -10 -vcodec libvpx -b 1000k -threads 0 -map 1:0 -map 0:0 -ar 22050 #{target_dir}/webcams.webm"
+    command = "ffmpeg -itsoffset #{BigBlueButton.ms_to_strtime(audio_offset)} -i #{target_dir}/audio.ogg -i #{output} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -v -10 -vcodec libvpx -b 1000k -threads 0 -map 1:0 -map 0:0 -ar 22050 #{target_dir}/webcams.webm"
     BigBlueButton.execute(command)
 
     recording_duration = last_timestamp - first_timestamp
@@ -727,7 +730,7 @@ module BigBlueButton
  # deskshare_file : Video of shared desktop of the recording
 
  def self.mux_audio_deskshare(target_dir, audio_file, deskshare_file)
-  command = "ffmpeg -i #{audio_file} -i #{deskshare_file} -loglevel fatal -v -10 -vcodec flv -b 1000k -threads 0  -map 1:0 -map 0:0 -ar 22050 #{target_dir}/muxed_audio_deskshare.flv"
+  command = "ffmpeg -y -i #{audio_file} -i #{deskshare_file} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -v -10 -vcodec flv -b 1000k -threads 0  -map 1:0 -map 0:0 -ar 22050 #{target_dir}/muxed_audio_deskshare.flv"
   BigBlueButton.execute(command)
   FileUtils.mv("#{target_dir}/muxed_audio_deskshare.flv","#{target_dir}/deskshare.flv")
  end
