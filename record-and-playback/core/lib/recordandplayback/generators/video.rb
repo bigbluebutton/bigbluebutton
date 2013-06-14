@@ -47,8 +47,14 @@ module BigBlueButton
   #   video_out - the resulting new video
   def self.trim_video(start, duration, video_in, video_out)
     BigBlueButton.logger.info("Task: Trimming video")
-    # -ss coming before AND after the -i option improves the precision ==> http://ffmpeg.org/pipermail/ffmpeg-user/2012-August/008767.html
+    command = ""
+    if duration != (BigBlueButton.get_video_duration(video_in) * 1000).to_i
+      # -ss coming before AND after the -i option improves the precision ==> http://ffmpeg.org/pipermail/ffmpeg-user/2012-August/008767.html
       command = "ffmpeg -y -ss #{BigBlueButton.ms_to_strtime(start)} -i #{video_in} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -vcodec copy -acodec copy -ss 0 -t #{BigBlueButton.ms_to_strtime(duration)} -sameq #{video_out}"
+    else
+      BigBlueButton.logger.info("The video has exactly the same duration as requested, so it will be just copied")
+      command = "ffmpeg -y -i #{video_in} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -vcodec copy -acodec copy -sameq #{video_out}"
+    end
     BigBlueButton.execute(command)  
     # TODO: check for result, raise an exception when there is an error
   end
@@ -538,37 +544,63 @@ module BigBlueButton
     return transformation
   end
 
-  def BigBlueButton.process_multiple_videos(target_dir, temp_dir, meeting_id, output_width, output_height, audio_offset)
+  def self.get_video_dir(temp_dir, meeting_id, type="video")
+    dir = nil
+    if type == "video"
+      dir = "#{temp_dir}/#{meeting_id}/video/#{meeting_id}"
+    elsif type == "deskshare"
+      dir = "#{temp_dir}/#{meeting_id}/deskshare"
+    end
+    return dir
+  end
+
+  def BigBlueButton.process_multiple_videos(target_dir, temp_dir, meeting_id, output_width, output_height, audio_offset, include_deskshare=false)
     BigBlueButton.logger.info("Processing webcam videos")
 
     # Process audio
     BigBlueButton::AudioProcessor.process("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio.ogg")
 
     # Process video
-    blank_color = "000000"
-    video_dir = "#{temp_dir}/#{meeting_id}/video/#{meeting_id}"
-    blank_canvas = "#{temp_dir}/canvas.jpg"
-    BigBlueButton.create_blank_canvas(output_width, output_height, "##{blank_color}", blank_canvas)
-            
     events_xml = "#{temp_dir}/#{meeting_id}/events.xml"
     first_timestamp = BigBlueButton::Events.first_event_timestamp(events_xml)
     last_timestamp = BigBlueButton::Events.last_event_timestamp(events_xml)        
     start_evt = BigBlueButton::Events.get_start_video_events(events_xml)
-    stop_evt = BigBlueButton::Events.get_stop_video_events(events_xml)               
+    stop_evt = BigBlueButton::Events.get_stop_video_events(events_xml)
+
+    start_evt.each {|evt| evt[:stream_type] = "video"}
+    stop_evt.each {|evt| evt[:stream_type] = "video"}
+    if include_deskshare
+      start_deskshare_evt = BigBlueButton::Events.get_start_deskshare_events(events_xml)
+      stop_deskshare_evt = BigBlueButton::Events.get_stop_deskshare_events(events_xml)
+      start_deskshare_evt.each {|evt| evt[:stream_type] = "deskshare"}
+      stop_deskshare_evt.each {|evt| evt[:stream_type] = "deskshare"}
+      start_evt = start_evt + start_deskshare_evt
+      stop_evt = stop_evt + stop_deskshare_evt
+    end
+
+    (start_evt + stop_evt).each do |evt|
+      ext = File.extname(evt[:stream])
+      ext = ".flv" if ext.empty?
+      evt[:file_extension] = ext
+      # removes the file extension from :stream
+      evt[:stream].chomp!(File.extname(evt[:stream]))
+      evt[:stream_file_name] = evt[:stream] + evt[:file_extension]
+    end
 
     # fix the stop events list so the matched events will be consistent
     start_evt.each do |evt|
+      video_dir = get_video_dir(temp_dir, meeting_id, evt[:stream_type])
       if stop_evt.select{ |s| s[:stream] == evt[:stream] }.empty?
         new_event = { 
           :stream => evt[:stream],
-          :stop_timestamp => evt[:start_timestamp] + (BigBlueButton.get_video_duration("#{video_dir}/#{evt[:stream]}.flv") * 1000).to_i
+          :stop_timestamp => evt[:start_timestamp] + (BigBlueButton.get_video_duration("#{video_dir}/#{evt[:stream_file_name]}") * 1000).to_i
         }
         BigBlueButton.logger.debug("Adding stop event: #{new_event}")
         stop_evt << new_event
       end
     end
 
-    matched_evts = BigBlueButton::Events.match_start_and_stop_video_events(start_evt, stop_evt)        
+    matched_evts = BigBlueButton::Events.match_start_and_stop_video_events(start_evt, stop_evt)
 
     BigBlueButton.logger.debug("First timestamp: #{first_timestamp}")
     BigBlueButton.logger.debug("Last timestamp: #{last_timestamp}")
@@ -578,9 +610,20 @@ module BigBlueButton
     video_streams = Hash.new
 
     matched_evts.each do |evt|
+      video_dir = BigBlueButton.get_video_dir(temp_dir, meeting_id, evt[:stream_type])
       # removes audio stream
       stripped_webcam = "#{temp_dir}/#{meeting_id}/stripped-#{evt[:stream]}.flv"
-      BigBlueButton.strip_audio_from_video("#{video_dir}/#{evt[:stream]}.flv", stripped_webcam)
+      BigBlueButton.strip_audio_from_video("#{video_dir}/#{evt[:stream_file_name]}", stripped_webcam)
+
+      # the encoder for Flash Screen Codec v2 doesn't work on the current version of FFmpeg, so trim doesn't work at all
+      # in this step the desktop sharing file is re-encoded with Flash Screen Codec v1 so everything works fine
+      if evt[:stream_type] == "deskshare"
+        processed_deskshare = "#{temp_dir}/#{meeting_id}/stripped-#{evt[:stream]}_processed.flv"
+        command = "ffmpeg -y -i #{stripped_webcam} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -v -10 -vcodec flashsv -sameq #{processed_deskshare}"
+        BigBlueButton.execute(command)
+        stripped_webcam = processed_deskshare
+      end
+
       video_stream = {
         :name => evt[:stream],
         :file => stripped_webcam,
@@ -588,7 +631,8 @@ module BigBlueButton
         :width => BigBlueButton.get_video_width(stripped_webcam),
         :height => BigBlueButton.get_video_height(stripped_webcam),
         :start => evt[:start_timestamp] - first_timestamp,
-        :stop => evt[:stop_timestamp] - first_timestamp
+        :stop => evt[:stop_timestamp] - first_timestamp,
+        :stream_type => evt[:stream_type]
       }
       video_stream[:start_error] = video_stream[:stop] - (video_stream[:start] + video_stream[:duration])
       # adjust the start_timestamp based on the video duration
@@ -598,7 +642,20 @@ module BigBlueButton
 
     BigBlueButton.logger.debug("Video streams:")
     BigBlueButton.logger.debug(hash_to_str(video_streams))
-    
+
+    # if we include desktop sharing streams to the video, we will use the highest resolution as the output video resolution in order to preserve the quality of the desktop sharing
+    deskshare_streams = video_streams.select{ |stream_name, stream_details| stream_details[:stream_type] == "deskshare" }
+    if not deskshare_streams.empty?
+      max = deskshare_streams.values().max_by {|stream| stream[:width] * stream[:height]}
+      output_width = max[:width]
+      output_height = max[:height]
+      BigBlueButton.logger.debug("Modifying the output video resolution to #{output_width}x#{output_height}")
+    end
+
+    blank_color = "000000"
+    blank_canvas = "#{temp_dir}/canvas.jpg"
+    BigBlueButton.create_blank_canvas(output_width, output_height, "##{blank_color}", blank_canvas)
+
     # put all events in a single list in ascendent timestamp order
     all_events = []
     video_streams.each do |name, video_stream|
@@ -615,6 +672,7 @@ module BigBlueButton
     BigBlueButton.logger.debug("All events:")
     BigBlueButton.logger.debug(hash_to_str(all_events))
 
+    # create a single timeline of events, keeping for each interval which video streams are enabled
     timeline = [ { :timestamp => 0, :streams => [] } ]
     all_events.each do |event|
       new_event = { :timestamp => event[:timestamp], :streams => timeline.last[:streams].clone }
@@ -628,6 +686,29 @@ module BigBlueButton
     timeline << { :timestamp => last_timestamp - first_timestamp, :streams => [] }
 
     BigBlueButton.logger.debug("Current timeline:")
+    BigBlueButton.logger.debug(hash_to_str(timeline))
+
+    # isolate the desktop sharing stream so while the presenter is sharing his screen, it will be the only video in the playback
+    timeline.each do |evt|
+      deskshare_streams = evt[:streams].select{ |stream_name| video_streams[stream_name][:stream_type] == "deskshare" }
+      if not deskshare_streams.empty?
+        evt[:streams] = deskshare_streams
+      end
+    end
+
+    BigBlueButton.logger.debug("Timeline keeping desktop sharing isolated:")
+    BigBlueButton.logger.debug(hash_to_str(timeline))
+
+    # remove the consecutive events with the same streams list
+    timeline_no_duplicates = []
+    timeline.each do |evt|
+      if timeline_no_duplicates.empty? or timeline_no_duplicates.last()[:streams].uniq.sort != evt[:streams].uniq.sort
+        timeline_no_duplicates << evt
+      end
+    end
+    timeline = timeline_no_duplicates
+
+    BigBlueButton.logger.debug("Timeline with no duplicates:")
     BigBlueButton.logger.debug(hash_to_str(timeline))
 
     for i in 1..(timeline.length-1)
