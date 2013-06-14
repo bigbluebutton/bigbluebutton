@@ -20,6 +20,7 @@ public class UsersClientMessageSender implements OutMessageListener {
 	
 	@Override
 	public void send(OutMessage msg) {
+		/*
 		if (msg instanceof EndAndKickAllMessage) {
 			endAndKickAll((EndAndKickAllMessage) msg);
 		} else if (msg instanceof AssignPresenterMessage) {
@@ -31,7 +32,7 @@ public class UsersClientMessageSender implements OutMessageListener {
 		} else if (msg instanceof UserStatusChangeMessage) {
 			userStatusChange((UserStatusChangeMessage) msg);
 		}
-		
+		*/
 	}
 	
 	public void setConnectionInvokerService(ConnectionInvokerService service) {

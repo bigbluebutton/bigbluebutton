@@ -4,7 +4,6 @@ import scala.actors.Actor
 import scala.actors.Actor._
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.api.CreateMeeting
-import org.bigbluebutton.core.api.OutMessageGateway
 import org.bigbluebutton.core.api.MeetingCreated
 import org.bigbluebutton.core.api.MessageOutGateway
 

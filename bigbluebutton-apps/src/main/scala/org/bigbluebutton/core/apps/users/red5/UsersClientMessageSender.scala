@@ -1,6 +1,5 @@
 package org.bigbluebutton.core.apps.users.red5
 
-import org.bigbluebutton.core.api.IOutMessageListener
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService
 import org.bigbluebutton.core.api.OutMessage
 import org.bigbluebutton.core.apps.users.messages._

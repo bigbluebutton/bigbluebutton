@@ -7,7 +7,6 @@ import org.bigbluebutton.core.apps.poll.Poll
 import org.bigbluebutton.core.apps.poll.PollApp
 import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.api.InMessage
-import org.bigbluebutton.core.api.OutMessageGateway
 import org.bigbluebutton.core.api.MessageOutGateway
 
 

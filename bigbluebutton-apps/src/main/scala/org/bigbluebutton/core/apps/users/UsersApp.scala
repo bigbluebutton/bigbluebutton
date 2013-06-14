@@ -1,13 +1,11 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.core.api.InMessage
-import org.bigbluebutton.core.api.OutMessageGateway
 import org.bigbluebutton.core.api.Presenter
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.api.UserJoining
 import org.bigbluebutton.core.api.UserLeaving
 import org.bigbluebutton.core.api.UserLeft
-import org.bigbluebutton.core.api.OutMessageGateway
 import org.bigbluebutton.core.api.AssignPresenter
 import org.bigbluebutton.core.api.PresenterAssigned
 import org.bigbluebutton.core.User
