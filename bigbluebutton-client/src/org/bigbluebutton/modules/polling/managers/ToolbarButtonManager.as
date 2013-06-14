@@ -75,6 +75,17 @@ package org.bigbluebutton.modules.polling.managers
 			appFM.setFocus(button.focusManager.getNextFocusManagerComponent());
 			button.enabled = false;
 		}
+		
+		public function openMenuRemotely():Boolean{
+			var rValue:Boolean = true;
+			if (button.enabled){
+				button.updateMenuByShortcut();
+			}
+			else{
+				rValue = false;
+			}
+			return rValue;
+		}
 		// _Button
 	}
 }

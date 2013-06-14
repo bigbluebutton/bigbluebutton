@@ -37,8 +37,9 @@
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.views.MainToolbar;
+			import org.bigbluebutton.main.events.ShortcutEvent ;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-	    import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
+	    	import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
 			import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
 			import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
 			import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
@@ -46,6 +47,8 @@
 			
 			import org.bigbluebutton.modules.polling.model.ValueObject;
 			import org.bigbluebutton.modules.polling.model.PollObject;
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.model.users.Conference;
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
@@ -63,6 +66,7 @@
 			public var pollIcon:Class;			
 						
 			public static const LOGNAME:String = "[Polling (views) : ToolbarButton] ";
+			private var conference:Conference;
 			
 			[Bindable] public var roomID:String;
 			[Bindable] public var titleList:Array;
@@ -88,17 +92,28 @@
 			}
 			// #################################################################
 
-			public function listInitialize():void{
+			public function listInitialize(calledFromShortcut:Boolean = false):void{
+				//LogUtil.debug("Entering listInitialize [listInitialize()]");
 				titleList = new Array();
-				myMenuData.removeAll();
-				pollList.removeAll();
-				var pevent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.INIT);
+				if (myMenuData != null)
+					myMenuData.removeAll();
+				if (pollList != null)
+					pollList.removeAll();
+				
+				var pevent:PollGetTitlesEvent;
+				if (calledFromShortcut){
+					pevent = new PollGetTitlesEvent(PollGetTitlesEvent.REMOTE_CHECK);
+				}
+				else{
+					pevent = new PollGetTitlesEvent(PollGetTitlesEvent.INIT);
+				}
+				
 				try{
 					dispatchEvent(pevent);
+					//LogUtil.debug("GetTitlesEvent dispatched");
 				}
-				catch (e:*){
-					LogUtil.debug("Bleh.");
-				}
+				catch (e:*){LogUtil.debug("GetTitlesEvent failed");}
+				//LogUtil.debug("Leaving listInitialize [/listInitialize()]");
 			}
 						
 			private function renderMenu():void{
@@ -123,8 +138,16 @@
 				updateMenu();
 			}
 			
-			private function updateMenu():void{
-				listInitialize();
+			public function updateMenuByShortcut(e:ShortcutEvent = null):void{
+				conference = UserManager.getInstance().getConference();
+				if (conference.amIPresenter){
+					var message:String = ResourceUtil.getInstance().getString('bbb.polling.buttonNameShortcut');
+					ExternalInterface.call("addAlert", message);
+					updateMenu(true);
+				}
+			}
+			private function updateMenu(calledFromShortcut:Boolean = false):void{
+				listInitialize(calledFromShortcut);
 			}
 			
       private function menuClick(event:MenuEvent):void {            	

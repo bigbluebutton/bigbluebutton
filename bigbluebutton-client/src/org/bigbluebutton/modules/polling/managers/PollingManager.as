@@ -17,7 +17,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.service.PollingService;
 	
 	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.main.model.users.Conference 
+	import org.bigbluebutton.main.model.users.Conference; 
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.events.ShortcutEvent;
