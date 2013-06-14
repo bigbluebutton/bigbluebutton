@@ -11,6 +11,7 @@ import org.bigbluebutton.core.api.OutMessageListener2
 import org.bigbluebutton.core.api.IOutMessage
 import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage
 import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage
+import org.bigbluebutton.core.api.PresenterAssigned
 
 class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMessageListener2 {
 	private val USERS_SO: String = "participantsSO"; 
@@ -18,7 +19,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	def handleMessage(msg: IOutMessage) {
 	  msg match {
 	    case endMsg: EndAndKickAll => handleEndAndKickAll(endMsg)
-	    case assignPres: AssignPresenter => handleUssignPresenter(assignPres)
+	    case assignPres: PresenterAssigned => handleAssignPresenter(assignPres)
 	    case userJoin: UserJoined => handleUserJoined(userJoin)
 	    case userLeft: UserLeft => handleUserLeft(userLeft)
 	    case statusChange: UserStatusChange => handleUserStatusChange(statusChange)
@@ -64,11 +65,11 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	}
 
 
-	private def handleUssignPresenter(msg:AssignPresenter):Unit = {
+	private def handleAssignPresenter(msg:PresenterAssigned):Unit = {
 	  	var message = new HashMap[String, Object]();
-		message.put("newPresenterID", msg.newPresenterID);
-		message.put("newPresenterName", msg.newPresenterID);
-		message.put("assignedBy", msg.newPresenterID);
+		message.put("newPresenterID", msg.presenter.presenterID);
+		message.put("newPresenterName", msg.presenter.presenterName);
+		message.put("assignedBy", msg.presenter.assignedBy);
 		
 		var m = new BroadcastClientMessage(msg.meetingID, "assignPresenterCallback", message);
 		service.sendMessage(m);
