@@ -1,6 +1,4 @@
-var querystring = require('querystring'),
-    http = require('http'),
-    url = require('url'),
+var request = require('request'),
     redis = require("redis"),
     subscriber = redis.createClient(),
     client = redis.createClient();
@@ -10,50 +8,37 @@ subscriber.on("subscribe", function (channel, count) {
 });
 
 subscriber.on("message", function (channel, message) {
-  console.log(message);
-  properties = JSON.parse(message);
+  var properties;
 
-  console.log(properties.event)
-  console.log(properties.meetingID)
-  client.lrange("meeting:" + properties.meetingID + ":subscriptions:" + properties.event, 0, -1, function(error,reply){
-    
-    reply.forEach(function (sid, index) {
-      console.log(sid);
-      client.hgetall("meeting:" + properties.meetingID + ":subscription:" + sid, function(err,rep){
-        console.log(rep); 
-        var post_data = querystring.stringify(properties);
-        var url_parts = url.parse(rep.callbackURL, true);
-        
-        var post_options = {
-          host: url_parts.hostname,
-          port: (url_parts.port == undefined) ? '80' : url_parts.port,
-          path: url_parts.path,
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Content-Length': post_data.length
+  try {
+    properties = JSON.parse(message);
+  } catch (e) {
+    // An error has occured, handle it, by e.g. logging it
+    console.log(e);
+  }
+
+  if(properties != undefined){
+    client.lrange("meeting:" + properties.meetingID + ":subscriptions:" + properties.event, 0, -1, function(error,reply){
+      reply.forEach(function (sid, index) {
+        console.log(sid);
+        client.hgetall("meeting:" + properties.meetingID + ":subscription:" + sid, function(err,rep){
+          if(rep.active == "true"){
+            var post_options = {
+              uri: rep.callbackURL,
+              method: 'POST',
+              json: properties
+            };
+
+            request(post_options, function (error, response, body) {
+              if (!error && response.statusCode == 200) {
+                console.log(body.id) // Print the shortened url.
+              }
+            });
           }
-        };
-
-        console.log(post_options);
-        var post_req = http.request(post_options, function(res) {
-          res.setEncoding('utf8');
-          res.on('data', function (chunk) {
-            console.log('Response: ' + chunk);
-          });
         });
-
-        post_req.on('error',function(badreq){
-          console.log(badreq);
-        });
-
-        // write parameters to post body
-        post_req.write(post_data);
-        post_req.end();
       });
     });
-    
-  });
+  }
 
 });
 
