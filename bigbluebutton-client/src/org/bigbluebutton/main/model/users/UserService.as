@@ -18,9 +18,12 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;	
-	import flash.net.NetConnection;	
-	import mx.collections.ArrayCollection;	
+	import com.asfusion.mate.events.Dispatcher;
+	
+	import flash.net.NetConnection;
+	
+	import mx.collections.ArrayCollection;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.UserConfigManager;
@@ -36,6 +39,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
+	import org.bigbluebutton.modules.users.services.MessageReceiver;
 
 	public class UserService {
 		private var joinService:JoinService;
@@ -46,6 +50,8 @@ package org.bigbluebutton.main.model.users
 		private var connection:NetConnection;
 		private var dispatcher:Dispatcher;
 		
+    private var msgReceiver:MessageReceiver = new MessageReceiver();
+    
 		public function UserService() {
 			dispatcher = new Dispatcher();
 		}

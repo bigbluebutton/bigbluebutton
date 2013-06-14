@@ -122,6 +122,10 @@ public class ParticipantsApplication {
 		log.warn("Assigning presenter on a non-existant room " + room);	
 	}
 	
+	public void getUsers(String meetingID, String requesterID) {
+		bbbInGW.getUsers(meetingID, requesterID);
+	}
+	
 	public void setRoomsManager(MeetingsManager r) {
 		log.debug("Setting room manager");
 		roomsManager = r;

@@ -1,8 +1,8 @@
 package org.bigbluebutton.core.api
 
-import org.bigbluebutton.core.Role._
+import org.bigbluebutton.core.api.Role._
 
-abstract class InMessage
+trait InMessage {val meetingID: String}
 
 case class CreateMeeting(meetingID: String, recorded: Boolean, voiceBridge: String) extends InMessage
 case class DestroyMeeting(meetingID: String) extends InMessage

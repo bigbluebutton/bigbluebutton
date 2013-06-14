@@ -5,14 +5,14 @@ import org.bigbluebutton.core.apps.poll.QuestionType._
 import org.bigbluebutton.core.api.InMessage
 
 // Poll Messages
-case class CreatePoll(poll: PollVO) extends InMessage
-case class StopPoll(id: String) extends InMessage
-case class StartPoll(id: String) extends InMessage
-case class AddQuestion(pollID: String, question: QuestionVO)
-case class DeleteQuestion(pollID: String, questionID: Int)
-case class AddResponse(pollID: String, questionID: Int, responseVO: ResponseVO)
-case class DeleteResponse(pollID: String, questionID: Int, responseID: Int)
+case class CreatePoll(meetingID:String, poll: PollVO) extends InMessage
+case class StopPoll(meetingID:String, id: String) extends InMessage
+case class StartPoll(meetingID:String, id: String) extends InMessage
+case class AddQuestion(meetingID:String, pollID: String, question: QuestionVO)
+case class DeleteQuestion(meetingID:String, pollID: String, questionID: Int)
+case class AddResponse(meetingID:String, pollID: String, questionID: Int, responseVO: ResponseVO)
+case class DeleteResponse(meetingID:String, pollID: String, questionID: Int, responseID: Int)
 
-case class ResponseVO(id: Int, text: String)
-case class QuestionVO(id: Int, questionType: QuestionType, question: String, responses: Array[ResponseVO])
-case class PollVO(id: String, title: String, questions: Array[QuestionVO])
+case class ResponseVO(meetingID:String, id: Int, text: String)
+case class QuestionVO(meetingID:String, id: Int, questionType: QuestionType, question: String, responses: Array[ResponseVO])
+case class PollVO(meetingID:String, id: String, title: String, questions: Array[QuestionVO])

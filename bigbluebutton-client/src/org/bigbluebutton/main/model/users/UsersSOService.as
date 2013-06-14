@@ -96,13 +96,13 @@ package org.bigbluebutton.main.model.users {
 				new Responder(
 	        		// participants - On successful result
 					function(result:Object):void { 
-						LogUtil.debug("Successfully queried participants: " + result.count); 
-						if (result.count > 0) {
-							for(var p:Object in result.participants) {
-								participantJoined(result.participants[p]);
-							}
-						}	
-						becomePresenterIfLoneModerator();
+//						LogUtil.debug("Successfully queried participants: " + result.count); 
+//						if (result.count > 0) {
+//							for(var p:Object in result.participants) {
+//								participantJoined(result.participants[p]);
+//							}
+//						}	
+//						becomePresenterIfLoneModerator();
 					},	
 					// status - On error occurred
 					function(status:Object):void { 
@@ -110,7 +110,7 @@ package org.bigbluebutton.main.model.users {
 						for (var x:Object in status) { 
 							LogUtil.error(x + " : " + status[x]); 
 						} 
-						sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
+				//		sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 					}
 				)//new Responder
 			); //_netConnection.call
@@ -246,9 +246,9 @@ package org.bigbluebutton.main.model.users {
 
 			LogUtil.info("Joined as [" + user.userID + "," + user.name + "," + user.role + "]");
 			UserManager.getInstance().getConference().addUser(user);
-			participantStatusChange(user.userID, "hasStream", joinedUser.status.hasStream);
-			participantStatusChange(user.userID, "presenter", joinedUser.status.presenter);
-			participantStatusChange(user.userID, "raiseHand", joinedUser.status.raiseHand);
+			participantStatusChange(user.userID, "hasStream", joinedUser.hasStream);
+			participantStatusChange(user.userID, "presenter", joinedUser.presenter);
+			participantStatusChange(user.userID, "raiseHand", joinedUser.raiseHand);
 			
 
 			var joinEvent:UserJoinedEvent = new UserJoinedEvent(UserJoinedEvent.JOINED);

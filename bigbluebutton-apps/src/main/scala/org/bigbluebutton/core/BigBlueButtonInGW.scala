@@ -6,7 +6,7 @@ import org.bigbluebutton.core.api.UserJoining
 import org.bigbluebutton.core.api.UserJoining
 import org.bigbluebutton.core.api.GetUsers
 import org.bigbluebutton.core.api.AssignPresenter
-import org.bigbluebutton.core.Role._
+import org.bigbluebutton.core.api.Role._
 import org.bigbluebutton.core.api.IBigBlueButtonInGW
 import org.bigbluebutton.core.api.CreateMeeting
 

@@ -10,6 +10,13 @@ import org.bigbluebutton.core.api.AssignPresenter
 import org.bigbluebutton.core.api.PresenterAssigned
 import org.bigbluebutton.core.User
 import org.bigbluebutton.core.api.MessageOutGateway
+import org.bigbluebutton.core.api.GetUsers
+import org.bigbluebutton.core.apps.users.messages.UserJoined
+import org.bigbluebutton.core.api.Role
+import org.bigbluebutton.core.api.UserVO
+import java.util.ArrayList
+import org.bigbluebutton.core.apps.users.messages.GetUsersReply
+import org.bigbluebutton.core.api.ChangeUserStatus
 
 class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   
@@ -21,12 +28,25 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
       	  case userJoin: UserJoining => handleUserJoin(userJoin)
 	      case userLeft: UserLeaving => handleUserLeft(userLeft)
 	      case assignPresenter: AssignPresenter => handleAssignPresenter(assignPresenter)
+	      case getUsers: GetUsers => handleGetUsers(getUsers)
+	      case changeStatus: ChangeUserStatus => // do nothing for now
+	      case _ => // do nothing
     }
+  }
+  
+  private def handleGetUsers(msg: GetUsers):Unit = {
+	  var u = new ArrayList[UserVO]()
+	  users.values.foreach(kv => u.add(kv.toUserVO))
+ 
+	  outGW.send(new GetUsersReply(msg.meetingID, msg.requesterID, u))
   }
   
 	private def handleUserJoin(msg: UserJoining):Unit = {
 		var newUser = new User(msg.userID, msg.extUserID, msg.name, msg.role)
 		users += newUser.intUserID -> newUser
+					
+		outGW.send(new UserJoined(meetingID, recorded, msg.userID, 
+			msg.extUserID, msg.name, msg.role.toString(), false, false, false))
 	}
 	
 	private def handleUserLeft(msg: UserLeaving):Unit = {

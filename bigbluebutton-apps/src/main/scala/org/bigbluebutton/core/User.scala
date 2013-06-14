@@ -1,15 +1,13 @@
 package org.bigbluebutton.core
 
-object Role extends Enumeration {
-	type Role = Value
-	val MODERATOR, VIEWER = Value
-}
+import org.bigbluebutton.core.api.UserVO
+import org.bigbluebutton.core.api.Role._
 
-import Role._
 class User(val intUserID: String, val extUserID: String, val name: String, role: Role) {
      
   private var _presenter:Boolean = false;
-  
+  var raiseHand:Boolean = false;
+  var hasStream:Boolean = false;
 
   def isPresenter():Boolean = {
     return _presenter;
@@ -21,5 +19,9 @@ class User(val intUserID: String, val extUserID: String, val name: String, role:
   
   def unbecomePresenter():Unit = {
     _presenter = false;
+  }
+  
+  def toUserVO():UserVO = {
+    new UserVO(intUserID, extUserID, name, role.toString, raiseHand, isPresenter, hasStream)
   }
 }
