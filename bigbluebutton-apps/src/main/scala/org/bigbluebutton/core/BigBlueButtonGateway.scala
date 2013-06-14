@@ -1,8 +1,15 @@
 package org.bigbluebutton.core
 
-import org.bigbluebutton.core.api.IBigBlueButtonGateway
+import org.bigbluebutton.core.api.OutMessageGateway
+import org.bigbluebutton.core.api.InMessage
+import org.bigbluebutton.core.api.MessageOutGateway
 
-class BigBlueButtonGateway(service:String) extends IBigBlueButtonGateway {
+class BigBlueButtonGateway(outGW: MessageOutGateway) {
 
-  def setFoo(foo:String):Unit = {}
+  private val bbbActor = new BigBlueButtonActor(outGW)
+  bbbActor.start
+  
+  def accept(msg: InMessage):Unit = {
+    bbbActor ! msg
+  }
 }

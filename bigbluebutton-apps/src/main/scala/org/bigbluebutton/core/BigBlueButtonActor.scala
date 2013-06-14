@@ -4,13 +4,15 @@ import scala.actors.Actor
 import scala.actors.Actor._
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.api.CreateMeeting
+import org.bigbluebutton.core.api.OutMessageGateway
+import org.bigbluebutton.core.api.MeetingCreated
+import org.bigbluebutton.core.api.MessageOutGateway
 
-class BigBlueButtonActor() extends Actor {
+class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
   import org.bigbluebutton.core.messages._
   
   private var meetings = new HashMap[String, Meeting]
- // var outGW: BigBlueButtonOutGateway
-  
+
   def scheduleGenerateKeyFrame():Unit = {
 	  val mainActor = self
 	  actor {
@@ -34,16 +36,16 @@ class BigBlueButtonActor() extends Actor {
   }
   
   private def handleCreateMeeting(msg: CreateMeeting):Unit = {
-    meetings.get(msg.id) match {
+    meetings.get(msg.meetingID) match {
       case None => {
-       // var m = new Meeting(msg.id, msg.recorded, outGW)
+    	  println("****** Creating meeting [" + msg.meetingID + "] *****")
+    	  
+    	  var m = new Meeting(msg.meetingID, msg.recorded, msg.voiceBridge, outGW)
+    	  m.start
+    	  meetings += m.meetingID -> m
+    	  outGW.send(new MeetingCreated(m.meetingID, m.recorded))
       }
     }
   }
   
-  def startBigBlueButtonActor():Unit = {
-    System.out.println("************* BigBlueButtonActor is Starting!!!!!")
-    start
-    scheduleGenerateKeyFrame
-  }
 }

@@ -24,6 +24,7 @@ import org.red5.server.api.Red5;
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
 import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
+import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.IApplication;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
@@ -43,6 +44,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	private RecorderApplication recorderApplication;
 	private AbstractApplicationContext appCtx;
 	private ConnectionInvokerService connInvokerService;
+	private IBigBlueButtonInGW bbbGW;
 	
 	private static final String APP = "BBB";
 	
@@ -148,6 +150,9 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         String debugInfo = "internalUserID=" + internalUserID + ",username=" + username + ",role=" +  role + "," + 
         					",voiceConf=" + voiceBridge + ",room=" + room + ",externalUserid=" + externalUserID;
 		log.debug("User [{}] connected to room [{}]", debugInfo, room); 
+		
+		bbbGW.createMeeting2(room, record, voiceBridge);
+		
 		participantsApplication.createRoom(room, record);
 		
         connInvokerService.addConnection(bbbSession.getInternalUserID(), connection);
@@ -199,6 +204,10 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 
 	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
 		this.connInvokerService = connInvokerService;
+	}
+	
+	public void setBigBlueButtonInGW(IBigBlueButtonInGW bbbGW) {
+		this.bbbGW = bbbGW;
 	}
 	
 	private class ShutdownHookListener implements ApplicationListener<ApplicationEvent> {

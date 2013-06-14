@@ -2,10 +2,9 @@ package org.bigbluebutton.core.apps.poll
 
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.User
-import org.bigbluebutton.core.BigBlueButtonOutGateway
 import org.bigbluebutton.core.api.InMessage
 
-class PollApp(outGW: BigBlueButtonOutGateway) {
+class PollApp() {
   import org.bigbluebutton.core.messages._
   import org.bigbluebutton.core.apps.poll.messages._
   

@@ -4,10 +4,10 @@ import org.bigbluebutton.core.Role._
 
 abstract class InMessage
 
-case class CreateMeeting(id: String, recorded: Boolean) extends InMessage
-case class DestroyMeeting(id: String) extends InMessage
-case class StartMeeting(id: String) extends InMessage
-case class EndMeeting(id: String) extends InMessage
+case class CreateMeeting(meetingID: String, recorded: Boolean, voiceBridge: String) extends InMessage
+case class DestroyMeeting(meetingID: String) extends InMessage
+case class StartMeeting(meetingID: String) extends InMessage
+case class EndMeeting(meetingID: String) extends InMessage
 
 case class UserJoining(meetingID: String, userID: String, name: String, role: Role, extUserID: String) extends InMessage
 case class UserLeaving(meetingID: String, userID: String) extends InMessage

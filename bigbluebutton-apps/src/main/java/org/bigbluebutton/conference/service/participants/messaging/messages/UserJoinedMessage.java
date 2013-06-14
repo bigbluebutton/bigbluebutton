@@ -1,7 +1,7 @@
 package org.bigbluebutton.conference.service.participants.messaging.messages;
 
 
-
+import java.util.Map;
 import org.bigbluebutton.conference.meeting.messaging.OutMessage;
 
 public class UserJoinedMessage extends OutMessage {

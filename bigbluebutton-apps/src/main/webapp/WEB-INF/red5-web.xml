@@ -59,6 +59,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   		</property>	  
   		<property name="recorderApplication"> <ref bean="recorderApplication"/></property>	
   		<property name="connInvokerService"> <ref bean="connInvokerService"/></property>		
+  		<property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
 	</bean>
 	
 	<bean id="connInvokerService" class="org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService" init-method="start" destroy-method="stop"/>
@@ -88,8 +89,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="usersEventRecorder" class="org.bigbluebutton.conference.service.participants.recorder.redis.UsersEventRecorder">
       <property name="recorderApplication"> <ref bean="recorderApplication"/></property>
     </bean>
-            
-    <bean id="bbbActor" class="org.bigbluebutton.core.BigBlueButtonActor" init-method="startBigBlueButtonActor"/>
+  
+    <bean id="bbbInGW" class="org.bigbluebutton.core.BigBlueButtonInGW">
+        <constructor-arg index="0" ref="bbbGW"/>
+    </bean>
+              
+    <bean id="bbbGW" class="org.bigbluebutton.core.BigBlueButtonGateway">
+        <constructor-arg index="0" ref="outMsgGW"/>
+    </bean>
+    
+    <bean id="outMsgGW" class="org.bigbluebutton.core.api.MessageOutGateway">
+        <property name="listeners">
+            <set>
+                <ref bean="noopOutMsgListener" />              
+            </set>        
+         </property> 
+    </bean>
+    
+    <bean id="noopOutMsgListener" class="org.bigbluebutton.core.api.NoopOutMessageListener"/>
     
     <bean id="meetingMessageHandler" class="org.bigbluebutton.conference.meeting.messaging.redis.MeetingMessageHandler">
         <property name="meetingManager"> <ref bean="roomsManager"/></property>
