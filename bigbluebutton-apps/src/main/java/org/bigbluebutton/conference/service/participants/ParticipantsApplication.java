@@ -97,7 +97,7 @@ public class ParticipantsApplication {
 			Meeting room = roomsManager.getRoom(roomName);
 			room.addParticipant(p);
 			
-			bbbInGW.userJoin(roomName, roomName, username, role, externUserID);
+			bbbInGW.userJoin(roomName, userid, username, role, externUserID);
 			
 			log.debug("participant joined room " + roomName);
 			return true;
@@ -117,6 +117,9 @@ public class ParticipantsApplication {
 	public void assignPresenter(String room, String newPresenterID, String newPresenterName, String assignedBy){
 		if (roomsManager.hasRoom(room)){
 			roomsManager.assignPresenter(room, newPresenterID, newPresenterName, assignedBy);
+			
+			bbbInGW.assignPresenter(room, newPresenterID, newPresenterName, assignedBy);
+			
 			return;
 		}
 		log.warn("Assigning presenter on a non-existant room " + room);	

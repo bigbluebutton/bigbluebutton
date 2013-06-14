@@ -25,85 +25,13 @@ package org.bigbluebutton.modules.users.services
   
   public class MessageSender {
     private static const LOG:String = "Users::MessageSender - ";
-    
-    public function sendCursorUpdate(xPercent:Number, yPercent:Number):void{
+
+    public function kickUser(userID:String):void {
       var message:Object = new Object();
-      message["xPercent"] = xPercent;
-      message["yPercent"] = yPercent;
+      message["userID"] = userID;
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("presentation.sendCursorUpdate", 
-        function(result:String):void { // On successful result
-          LogUtil.debug(result); 
-        },	                   
-        function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
-        },
-        message
-      );		      
-    }
-    
-    /**
-     * Sends an event to the server to update the clients with the new slide position 
-     * @param slideXPosition
-     * @param slideYPosition
-     * 
-     */		
-    public function move(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
-      var message:Object = new Object();
-      message["xOffset"] = xOffset;
-      message["yOffset"] = yOffset;
-      message["widthRatio"] = widthRatio;
-      message["heightRatio"] = heightRatio;
-      
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("presentation.resizeAndMoveSlide", 
-        function(result:String):void { // On successful result
-          LogUtil.debug(result); 
-        },	                   
-        function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
-        },
-        message
-      );	
-    }
-    
-    public function sharePresentation(share:Boolean, presentationID:String):void {
-      var message:Object = new Object();
-      message["presentationID"] = presentationID;
-      message["share"] = share;
-
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("presentation.sharePresentation", 
-        function(result:String):void { // On successful result
-          LogUtil.debug(result); 
-        },	                   
-        function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
-        },
-        message
-      );
-    }
-    
-    public function gotoSlide(num:int) : void {
-      var message:Object = new Object();
-      message["pageNumber"] = num;      
-
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("presentation.gotoSlide", 
-        function(result:String):void { // On successful result
-          LogUtil.debug(result); 
-        },	                   
-        function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
-        },
-        message
-      );
-    }
-    
-    public function getPresentationInfo():void {
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("presentation.getPresentationInfo", 
+      _nc.sendMessage("participants.kickUser", 
         function(result:String):void { // On successful result
           LogUtil.debug(result); 
         },	                   
@@ -111,15 +39,28 @@ package org.bigbluebutton.modules.users.services
           LogUtil.error(status); 
         }
       );
-      
     }
     
-    public function removePresentation(name:String):void {
-      var message:Object = new Object();
-      message["presentationID"] = name;          
-
+    public function queryForParticipants():void {
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("presentation.removePresentation", 
+      _nc.sendMessage("participants.getParticipants", 
+        function(result:String):void { // On successful result
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void { // status - On error occurred
+          LogUtil.error(status); 
+        }
+      );
+    }
+    
+    public function assignPresenter(userid:String, name:String, assignedBy:Number):void {
+      var message:Object = new Object();
+      message["newPresenterID"] = userid;
+      message["newPresenterName"] = name;
+      message["assignedBy"] = assignedBy.toString();
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("participants.assignPresenter", 
         function(result:String):void { // On successful result
           LogUtil.debug(result); 
         },	                   
@@ -130,27 +71,58 @@ package org.bigbluebutton.modules.users.services
       );
     }
     
-    public function clearPresentation() : void {
+    public function raiseHand(userID:String, raise:Boolean):void {
+      var message:Object = new Object();
+      message["userID"] = userID;
+      message["status"] = "hasStream";
+      message["value"] = raise;
+      
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("presentation.clear", 
+      _nc.sendMessage("participants.setParticipantStatus", 
         function(result:String):void { // On successful result
           LogUtil.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
           LogUtil.error(status); 
-        }
-      );		
+        },
+        message
+      );
+      
     }
     
-    private function queryPresenterForSlideInfo():void {
+    public function addStream(userID:String, streamName:String):void {
+      var message:Object = new Object();
+      message["userID"] = userID;
+      message["status"] = "raiseHand";
+      message["value"] = "true,stream=" + streamName;
+
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("presentation.getSlideInfo", 
+      _nc.sendMessage("participants.setParticipantStatus", 
         function(result:String):void { // On successful result
           LogUtil.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
           LogUtil.error(status); 
-        }
+        },
+        message
+      );
+    }
+    
+    public function removeStream(userID:String, streamName:String):void {
+      var message:Object = new Object();
+      message["userID"] = userID;
+      message["status"] = "raiseHand";
+      message["value"] = "false,stream=" + streamName;
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("participants.setParticipantStatus", 
+        function(result:String):void { // On successful result
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void { // status - On error occurred
+          LogUtil.error(status); 
+        },
+        message
       );
     }
   }

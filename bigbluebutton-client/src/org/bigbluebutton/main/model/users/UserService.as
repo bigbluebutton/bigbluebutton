@@ -40,6 +40,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
 	import org.bigbluebutton.modules.users.services.MessageReceiver;
+	import org.bigbluebutton.modules.users.services.MessageSender;
 
 	public class UserService {
 		private var joinService:JoinService;
@@ -51,6 +52,7 @@ package org.bigbluebutton.main.model.users
 		private var dispatcher:Dispatcher;
 		
     private var msgReceiver:MessageReceiver = new MessageReceiver();
+    private var sender:MessageSender = new MessageSender();
     
 		public function UserService() {
 			dispatcher = new Dispatcher();
@@ -128,8 +130,11 @@ package org.bigbluebutton.main.model.users
 			_conferenceParameters.connection = e.connection;
 			_conferenceParameters.userid = e.userid;
 			
-			_userSOService.join(e.userid, _conferenceParameters.room);
+      sender.queryForParticipants();
+      
+	//		_userSOService.join(e.userid, _conferenceParameters.room);
 			
+
 			var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
 			loadCommand.conferenceParameters = _conferenceParameters;
 			dispatcher.dispatchEvent(loadCommand);		
@@ -152,23 +157,23 @@ package org.bigbluebutton.main.model.users
 		}
 				
 		public function addStream(e:BroadcastStartedEvent):void {
-			_userSOService.addStream(e.userid, e.stream);
+      sender.addStream(e.userid, e.stream);
 		}
 		
 		public function removeStream(e:BroadcastStoppedEvent):void {			
-			_userSOService.removeStream(e.userid, e.stream);
+      sender.removeStream(e.userid, e.stream);
 		}
 		
 		public function raiseHand(e:RaiseHandEvent):void {
-			_userSOService.raiseHand(UserManager.getInstance().getConference().getMyUserId(), e.raised);
+      sender.raiseHand(UserManager.getInstance().getConference().getMyUserId(), e.raised);
 		}
 		
 		public function lowerHand(e:LowerHandEvent):void {
-			if (this.isModerator()) _userSOService.raiseHand(e.userid, false);
+			if (this.isModerator()) sender.raiseHand(e.userid, false);
 		}
 		
 		public function kickUser(e:KickUserEvent):void{
-			if (this.isModerator()) _userSOService.kickUser(e.userid);
+			if (this.isModerator()) sender.kickUser(e.userid);
 		}
 		
 		/**
@@ -179,7 +184,7 @@ package org.bigbluebutton.main.model.users
 		public function assignPresenter(e:RoleChangeEvent):void{
 			var assignTo:String = e.userid;
 			var name:String = e.username;
-			_userSOService.assignPresenter(assignTo, name, 1);
+      sender.assignPresenter(assignTo, name, 1);
 		}
 	}
 }

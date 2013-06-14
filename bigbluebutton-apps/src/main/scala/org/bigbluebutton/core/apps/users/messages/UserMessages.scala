@@ -11,5 +11,5 @@ case class GetUsersReply(meetingID: String, requesterID: String, users: ArrayLis
 case class AssignPresenter(meetingID: String, recorded: Boolean, newPresenterID: String, newPresenterName: String, assignedBy: String) extends IOutMessage
 case class UserJoined(meetingID: String, recorded: Boolean, internalUserID: String, 
 			externalUserID: String, name: String, role: String, raiseHand: Boolean, presenter: Boolean, hasStream: Boolean) extends IOutMessage
-case class UserLeft(meetingID: String, userID: String) extends IOutMessage
-case class UserStatusChange(meetingID: String, userID: String, status: String, value: Object) extends IOutMessage
+case class UserLeft(meetingID: String, recorded: Boolean, userID: String) extends IOutMessage
+case class UserStatusChange(meetingID: String, recorded: Boolean, userID: String, status: String, value: Object) extends IOutMessage

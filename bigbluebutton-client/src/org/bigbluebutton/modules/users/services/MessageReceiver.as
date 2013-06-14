@@ -26,7 +26,9 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
   import org.bigbluebutton.main.events.PresenterStatusEvent;
+  import org.bigbluebutton.main.events.SwitchedPresenterEvent;
   import org.bigbluebutton.main.events.UserJoinedEvent;
+  import org.bigbluebutton.main.events.UserLeftEvent;
   import org.bigbluebutton.main.model.users.BBBUser;
   import org.bigbluebutton.main.model.users.Conference;
   import org.bigbluebutton.main.model.users.IMessageListener;
@@ -55,9 +57,52 @@ package org.bigbluebutton.modules.users.services
       switch (messageName) {
         case "getUsersReply":
           handleGetUsersReply(message);
-          break;			
+          break;		
+        case "assignPresenterCallback":
+          handleAssignPresenterCallback(message);
+          break;
+        case "logout":
+          handleLogout(message);
+          break;
+        case "participantJoined":
+          handleParticipantJoined(message);
+          break;
+        case "participantLeft":
+          handleParticipantLeft(message);
+          break;
+        case "participantStatusChange":
+          handleParticipantStatusChange(message);
+          break;
       }
     }  
+    
+    public function handleParticipantLeft(msg:Object):void {
+      var user:BBBUser = UserManager.getInstance().getConference().getUser(msg.userID);
+      
+      trace(LOG + "Notify others that user [" + user.userID + ", " + user.name + "] is leaving!!!!");
+      
+      // Flag that the user is leaving the meeting so that apps (such as avatar) doesn't hang
+      // around when the user already left.
+      user.isLeavingFlag = true;
+      
+      var joinEvent:UserLeftEvent = new UserLeftEvent(UserLeftEvent.LEFT);
+      joinEvent.userID = user.userID;
+      dispatcher.dispatchEvent(joinEvent);	
+      
+      UserManager.getInstance().getConference().removeUser(msg.userID);	        
+    }
+    
+    public function handleParticipantJoined(msg:Object):void {
+      participantJoined(msg);
+    }
+    
+    /**
+     * Called by the server to tell the client that the meeting has ended.
+     */
+    public function handleLogout(msg:Object):void {     
+      var endMeetingEvent:BBBEvent = new BBBEvent(BBBEvent.END_MEETING_EVENT);
+      dispatcher.dispatchEvent(endMeetingEvent);
+    }
     
     private function handleGetUsersReply(msg:Object):void {
       trace(LOG + "number of users = [" + msg.count + "]");
@@ -77,22 +122,65 @@ package org.bigbluebutton.modules.users.services
         trace(LOG + "There is only one moderator in the meeting. Is it me? ");
         var user:BBBUser = participants.getTheOnlyModerator();
         if (user.me) {
-          LogUtil.debug(LOG + "Setting me as presenter because I'm the only moderator. My userid is [" + user.userID + "]");
+          trace(LOG + "Setting me as presenter because I'm the only moderator. My userid is [" + user.userID + "]");
           var presenterEvent:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
           presenterEvent.userid = user.userID;
           presenterEvent.username = user.name;
           var dispatcher:Dispatcher = new Dispatcher();
           dispatcher.dispatchEvent(presenterEvent);
         } else {
-          LogUtil.debug(LOG + "No. It is not me. It is [" + user.userID + ", " + user.name + "]");
+          trace(LOG + "No. It is not me. It is [" + user.userID + ", " + user.name + "]");
         }
       } else {
-        LogUtil.debug("No. There are more than one moderator.");
+        trace(LOG + "No. There are more than one moderator.");
       }
     }
     
+    public function handleAssignPresenterCallback(msg:Object):void {
+      var newPresenterID:String = msg.newPresenterID;
+      var newPresenterName:String = msg.newPresenterName;
+      var assignedBy:String = msg.assignedBy;
+      
+      trace(LOG + "**** assignPresenterCallback [" + newPresenterID + "," + newPresenterName + "," + assignedBy + "]");
+      
+      var meeting:Conference = UserManager.getInstance().getConference();
+      
+      if (meeting.amIThisUser(newPresenterID)) {
+        trace(LOG + "**** Switching [" + newPresenterName + "] to presenter");
+        sendSwitchedPresenterEvent(true, newPresenterID);
+        
+        meeting.amIPresenter = true;				
+        var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
+        e.userID = newPresenterID;
+        e.presenterName = newPresenterName;
+        e.assignerBy = assignedBy;
+        
+        dispatcher.dispatchEvent(e);	
+        
+      } else {	
+        trace(LOG + "**** Switching [" + newPresenterName + "] to presenter. I am viewer.");
+        sendSwitchedPresenterEvent(false, newPresenterID);
+        
+        meeting.amIPresenter = false;
+        var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
+        viewerEvent.userID = newPresenterID;
+        viewerEvent.presenterName = newPresenterName;
+        viewerEvent.assignerBy = assignedBy;
+        
+        dispatcher.dispatchEvent(viewerEvent);
+      }
+    }
+    
+    private function sendSwitchedPresenterEvent(amIPresenter:Boolean, newPresenterUserID:String):void {
+      
+      var roleEvent:SwitchedPresenterEvent = new SwitchedPresenterEvent();
+      roleEvent.amIPresenter = amIPresenter;
+      roleEvent.newPresenterUserID = newPresenterUserID;
+      dispatcher.dispatchEvent(roleEvent);   
+    }
+    
     public function participantStatusChange(userID:String, status:String, value:Object):void {
-      LogUtil.debug("Received status change [" + userID + "," + status + "," + value + "]")			
+      trace(LOG + "Received status change [" + userID + "," + status + "," + value + "]")			
       UserManager.getInstance().getConference().newUserStatus(userID, status, value);
       
       if (status == "presenter"){
@@ -111,7 +199,7 @@ package org.bigbluebutton.modules.users.services
       user.externUserID = joinedUser.externUserID;
       user.isLeavingFlag = false;
       
-      trace(LOG + "User status: " + joinedUser.hasStream);
+      trace(LOG + "User status: hasStream " + joinedUser.hasStream);
       
       trace(LOG + "Joined as [" + user.userID + "," + user.name + "," + user.role + "," + joinedUser.hasStream + "]");
       UserManager.getInstance().getConference().addUser(user);
@@ -124,6 +212,22 @@ package org.bigbluebutton.modules.users.services
       joinEvent.userID = user.userID;
       dispatcher.dispatchEvent(joinEvent);	
       
+    }
+    
+    /**
+     * Callback from the server from many of the bellow nc.call methods
+     */
+    public function handleParticipantStatusChange(msg:Object):void {
+
+      trace(LOG + "Received status change [" + msg.userID + "," + msg.status + "," + msg.value + "]")			
+      UserManager.getInstance().getConference().newUserStatus(msg.userID, msg.status, msg.value);
+      
+      if (msg.status == "presenter"){
+        var e:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.PRESENTER_NAME_CHANGE);
+        e.userID = msg.userID;
+        
+        dispatcher.dispatchEvent(e);
+      }		
     }
   }
 }

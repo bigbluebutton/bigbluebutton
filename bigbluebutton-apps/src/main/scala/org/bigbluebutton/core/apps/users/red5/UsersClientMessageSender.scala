@@ -10,6 +10,7 @@ import java.util.HashMap
 import org.bigbluebutton.core.api.OutMessageListener2
 import org.bigbluebutton.core.api.IOutMessage
 import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage
+import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage
 
 class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMessageListener2 {
 	private val USERS_SO: String = "participantsSO"; 
@@ -57,61 +58,59 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	}
 		
 	private def handleEndAndKickAll(msg: EndAndKickAll):Unit = {
-		var m  = new SharedObjectClientMessage(msg.meetingID, USERS_SO, "logout", new ArrayList[Object]());
-		service.sendMessage(m);
+	  var message = new HashMap[String, Object]();
+	  var m = new BroadcastClientMessage(msg.meetingID, "logout", message);
+	  service.sendMessage(m);
 	}
 
 
 	private def handleUssignPresenter(msg:AssignPresenter):Unit = {
-		var presenter = new ArrayList[Object]();
-		presenter.add(msg.newPresenterID);
-		presenter.add(msg.newPresenterName);
-		presenter.add(msg.assignedBy);
+	  	var message = new HashMap[String, Object]();
+		message.put("newPresenterID", msg.newPresenterID);
+		message.put("newPresenterName", msg.newPresenterID);
+		message.put("assignedBy", msg.newPresenterID);
 		
-		var m = new SharedObjectClientMessage(msg.meetingID, USERS_SO, "assignPresenterCallback", presenter);
-		service.sendMessage(m);		
+		var m = new BroadcastClientMessage(msg.meetingID, "assignPresenterCallback", message);
+		service.sendMessage(m);
+			
 	}
 	
 
 	private def handleUserJoined(msg: UserJoined):Unit = {
-		var m = new HashMap[String, Object]();
-		m.put("userid", msg.internalUserID);
-		m.put("externUserID", msg.externalUserID);
-		m.put("name", msg.name);
-		m.put("role", msg.role);
-		m.put("raiseHand", msg.raiseHand:java.lang.Boolean)
-		m.put("presenter", msg.presenter:java.lang.Boolean)
-		m.put("hasStream", msg.hasStream:java.lang.Boolean)
+		var message = new HashMap[String, Object]();
+		message.put("userID", msg.internalUserID);
+		message.put("externUserID", msg.externalUserID);
+		message.put("name", msg.name);
+		message.put("role", msg.role);
+		message.put("raiseHand", msg.raiseHand:java.lang.Boolean)
+		message.put("presenter", msg.presenter:java.lang.Boolean)
+		message.put("hasStream", msg.hasStream:java.lang.Boolean)
 		
-		var args = new ArrayList[Object]();
-		args.add(m);
+		var m = new BroadcastClientMessage(msg.meetingID, "participantJoined", message);
+		service.sendMessage(m);
 
 		println("Sending participantJoined message")
 		
-		var som = new SharedObjectClientMessage(msg.meetingID, USERS_SO, "participantJoined", args);
-		service.sendMessage(som);
 	}
 
 
 	private def handleUserLeft(msg: UserLeft):Unit = {
-		var args = new ArrayList[Object]();
-		args.add(msg.meetingID);
-
-		println("Sending participantLeft message")
+		var message = new HashMap[String, Object]();
+		message.put("userID", msg.userID);
 		
-		var m = new SharedObjectClientMessage(msg.meetingID, USERS_SO, "participantLeft", args);
+		println("Sending participantLeft message")
+		var m = new BroadcastClientMessage(msg.meetingID, "participantLeft", message);
 		service.sendMessage(m);
 	}
 
 	private def handleUserStatusChange(msg: UserStatusChange):Unit = {
-		var args = new ArrayList[Object]();
-		args.add(msg.userID);
-		args.add(msg.status);
-		args.add(msg.value);
+		var message = new HashMap[String, Object]();
+		message.put("userID", msg.userID);
+		message.put("status", msg.status);
+		message.put("value", msg.value);
 		
 		println("Sending participantStatusChange message")
-		
-		var m = new SharedObjectClientMessage(msg.meetingID, USERS_SO, "participantStatusChange", args);
+		var m = new BroadcastClientMessage(msg.meetingID, "participantStatusChange", message);
 		service.sendMessage(m);
 	}
 }

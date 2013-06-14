@@ -20,46 +20,24 @@
 package org.bigbluebutton.conference.service.participants;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import org.bigbluebutton.conference.BigBlueButtonSession;
 import org.bigbluebutton.conference.Constants;
-import org.bigbluebutton.conference.User;
+
 
 public class ParticipantsService {
 
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsService.class, "bigbluebutton" );	
 	private ParticipantsApplication application;
 
-	@SuppressWarnings("unchecked")
-	public void assignPresenter(String userid, String name, Long assignedBy) {
-		log.info("Receive assignPresenter request from client [" + userid + "," + name + "," + assignedBy + "]");
+	public void assignPresenter(Map<String, String> msg) {
+
 		IScope scope = Red5.getConnectionLocal().getScope();
-		ArrayList<String> presenter = new ArrayList<String>();
-		presenter.add(userid);
-		presenter.add(name);
-		presenter.add(assignedBy.toString());
-		ArrayList<String> curPresenter = application.getCurrentPresenter(scope.getName());
-		application.setParticipantStatus(scope.getName(), userid, "presenter", true);
-		
-		if (curPresenter != null){ 
-			String curUserid = (String) curPresenter.get(0);
-			if (! curUserid.equals(userid)){
-				log.info("Changing the current presenter [" + curPresenter.get(0) + "] to viewer.");
-				application.setParticipantStatus(scope.getName(), curPresenter.get(0), "presenter", false);
-			}
-		} else {
-			log.info("No current presenter. So do nothing.");
-		}
-		application.assignPresenter(scope.getName(), userid, name, assignedBy.toString());
+
+		application.assignPresenter(scope.getName(), (String) msg.get("newPresenterID"), (String) msg.get("newPresenterName"), (String) msg.get("assignedBy"));
 	}
 	
 	public void getParticipants() {
@@ -67,42 +45,11 @@ public class ParticipantsService {
 		application.getUsers(scope.getName(), getBbbSession().getInternalUserID());
 	}
 	
-	
-	@SuppressWarnings("unchecked")
-	public Map getParticipants1() {
+		
+	public void setParticipantStatus(Map<String, Object> msg) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		log.info("Client is requesting for list of participants in [" + roomName + "].");
-		Map p = application.getParticipants(roomName);
-		Map participants = new HashMap();
-		if (p == null) {
-			participants.put("count", 0);
-			log.debug("partipants of " + roomName + " is null");
-		} else {		
-			
-			participants.put("count", p.size());
-			log.debug("number of partipants is " + p.size());
-			if (p.size() > 0) {
-				/**
-				 * Somehow we need to convert to Map so the client will be
-				 * able to decode it. Need to figure out if we can send Participant
-				 * directly. (ralam - 2/20/2009)
-				 */
-				Collection pc = p.values();
-	    		Map pm = new HashMap();
-	    		for (Iterator it = pc.iterator(); it.hasNext();) {
-	    			User ap = (User) it.next();
-	    			pm.put(ap.getInternalUserID(), ap.toMap()); 
-	    		}  
-				participants.put("participants", pm);
-			}			
-		}
-		return participants;
-	}
-	
-	public void setParticipantStatus(String userid, String status, Object value) {
-		String roomName = Red5.getConnectionLocal().getScope().getName();
-		log.debug("Setting participant status " + roomName + " " + userid + " " + status + " " + value);
-		application.setParticipantStatus(roomName, userid, status, value);
+
+		application.setParticipantStatus(roomName, (String) msg.get("userID"), (String) msg.get("status"), (Object) msg.get("value"));
 	}
 	
 	public void setParticipantsApplication(ParticipantsApplication a) {

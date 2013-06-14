@@ -17,6 +17,7 @@ import org.bigbluebutton.core.api.UserVO
 import java.util.ArrayList
 import org.bigbluebutton.core.apps.users.messages.GetUsersReply
 import org.bigbluebutton.core.api.ChangeUserStatus
+import org.bigbluebutton.core.apps.users.messages.UserStatusChange
 
 class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   
@@ -29,9 +30,19 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
 	      case userLeft: UserLeaving => handleUserLeft(userLeft)
 	      case assignPresenter: AssignPresenter => handleAssignPresenter(assignPresenter)
 	      case getUsers: GetUsers => handleGetUsers(getUsers)
-	      case changeStatus: ChangeUserStatus => // do nothing for now
+	      case changeStatus: ChangeUserStatus => handleChangeUserStatus(changeStatus)
 	      case _ => // do nothing
     }
+  }
+  
+  private def handleChangeUserStatus(msg: ChangeUserStatus):Unit = {
+		users.get(msg.userID) match {
+			case Some(u) => {
+			  outGW.send(new UserStatusChange(meetingID, recorded, msg.userID, msg.status, msg.value))
+			}
+			case None => // do nothing
+			
+		}    
   }
   
   private def handleGetUsers(msg: GetUsers):Unit = {
@@ -61,7 +72,23 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
 	}
 	
 	private def handleAssignPresenter(msg: AssignPresenter):Unit = {
-		currentPresenter = new Presenter(msg.newPresenterID, msg.newPresenterName, msg.assignedBy)
-		outGW.send(new PresenterAssigned(meetingID, recorded, new Presenter(msg.newPresenterID, msg.newPresenterName, msg.assignedBy)))
+	  	users.get(msg.newPresenterID) match {
+			case Some(u) => {
+			  users.get(currentPresenter.presenterID) match {
+			    case Some(oldPresenter) => {
+			      oldPresenter.unbecomePresenter
+			      outGW.send(new UserStatusChange(meetingID, recorded, oldPresenter.intUserID, "presenter", false:java.lang.Boolean))
+			    }
+			    case None => // do nothing
+			  }
+			  u.becomePresenter
+			  currentPresenter = new Presenter(msg.newPresenterID, msg.newPresenterName, msg.assignedBy)		
+			  outGW.send(new PresenterAssigned(meetingID, recorded, new Presenter(msg.newPresenterID, msg.newPresenterName, msg.assignedBy)))
+			}
+			case None => // do nothing
+			
+		}
+	  		
+
 	} 
 }
