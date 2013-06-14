@@ -1,7 +1,6 @@
 package org.bigbluebutton.core.apps.users.red5
 
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService
-import org.bigbluebutton.core.api.OutMessage
 import org.bigbluebutton.core.apps.users.messages._
 import org.bigbluebutton.conference.meeting.messaging.red5.SharedObjectClientMessage
 import java.util.ArrayList
