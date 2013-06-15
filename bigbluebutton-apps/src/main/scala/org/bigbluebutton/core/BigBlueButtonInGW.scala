@@ -9,6 +9,15 @@ import org.bigbluebutton.core.api.AssignPresenter
 import org.bigbluebutton.core.api.Role._
 import org.bigbluebutton.core.api.IBigBlueButtonInGW
 import org.bigbluebutton.core.api.CreateMeeting
+import org.bigbluebutton.core.api.ClearPresentation
+import org.bigbluebutton.core.api.SendCursorUpdate
+import org.bigbluebutton.core.api.PresentationConversionUpdate
+import org.bigbluebutton.core.api.RemovePresentation
+import org.bigbluebutton.core.api.GetPresentationInfo
+import org.bigbluebutton.core.api.ResizeAndMoveSlide
+import org.bigbluebutton.core.api.GotoSlide
+import org.bigbluebutton.core.api.SharePresentation
+import org.bigbluebutton.core.api.GetSlideInfo
 
 class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW {
 
@@ -42,7 +51,45 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 		// do nothing
 	}
 	
-	def createMeeting2(meetingID: String, record: Boolean, voiceBridge: String) = {
+	def createMeeting2(meetingID: String, record: Boolean, voiceBridge: String) {
 		bbbGW.accept(new CreateMeeting(meetingID, record, voiceBridge))
 	}
+	
+	// Presentation
+	def clear(meetingID: String) {
+	  bbbGW.accept(new ClearPresentation(meetingID))
+	}
+	
+	def sendUpdateMessage(meetingID: String, message: java.util.Map[String, Object]) {
+	  bbbGW.accept(new PresentationConversionUpdate(meetingID, message))
+	}
+	
+	def removePresentation(meetingID: String, presentationID: String) {
+	  bbbGW.accept(new RemovePresentation(meetingID, presentationID))
+	}
+	
+	def getPresentationInfo(meetingID: String, requesterID: String) {
+	  bbbGW.accept(new GetPresentationInfo(meetingID, requesterID))
+	}
+	
+	def sendCursorUpdate(meetingID: String, xPercent: Double, yPercent: Double) {
+	  bbbGW.accept(new SendCursorUpdate(meetingID, xPercent, yPercent))
+	}
+	
+	def resizeAndMoveSlide(meetingID: String, xOffset: Double, yOffset: Double, widthRatio: Double, heightRatio: Double) {
+	  bbbGW.accept(new ResizeAndMoveSlide(meetingID, xOffset, yOffset, widthRatio, heightRatio))
+	}
+	
+	def gotoSlide(meetingID: String, slide: Int) {
+	  bbbGW.accept(new GotoSlide(meetingID, slide))
+	}
+	
+	def sharePresentation(meetingID: String, presentationID: String, share: Boolean) {
+	  bbbGW.accept(new SharePresentation(meetingID, presentationID, share))
+	}
+	
+	def getSlideInfo(meetingID: String, requesterID: String) {
+	  bbbGW.accept(new GetSlideInfo(meetingID, requesterID))
+	}
+	
 }
