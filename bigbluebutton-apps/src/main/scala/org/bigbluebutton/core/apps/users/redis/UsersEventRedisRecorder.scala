@@ -26,7 +26,7 @@ class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageL
   	
   	def handleEndAndKickAll(msg: EndAndKickAll):Unit = {
 		if (msg.recorded) {
-			var ev = new ParticipantEndAndKickAllRecordEvent();
+			val ev = new ParticipantEndAndKickAllRecordEvent();
 			ev.setTimestamp(System.currentTimeMillis());
 			ev.setMeetingId(msg.meetingID);
 			recorder.record(msg.meetingID, ev);					
@@ -35,7 +35,7 @@ class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageL
 
 	private def handleUserJoined(msg: UserJoined):Unit = {
 		if (msg.recorded) {
-			var ev = new ParticipantJoinRecordEvent();
+			val ev = new ParticipantJoinRecordEvent();
 			ev.setTimestamp(System.currentTimeMillis());
 			ev.setUserId(msg.internalUserID);
 			ev.setName(msg.name);
@@ -48,7 +48,7 @@ class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageL
 
 	private def handleUserLeft(msg: UserLeft):Unit = {
 		if (msg.recorded) {
-			var ev = new ParticipantLeftRecordEvent();
+			val ev = new ParticipantLeftRecordEvent();
 			ev.setTimestamp(System.currentTimeMillis());
 			ev.setUserId(msg.userID);
 			ev.setMeetingId(msg.meetingID);
@@ -60,7 +60,7 @@ class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageL
 
 	private def handleUserStatusChange(msg: UserStatusChange):Unit = {
 		if (msg.recorded) {
-			var ev = new ParticipantStatusChangeRecordEvent();
+			val ev = new ParticipantStatusChangeRecordEvent();
 			ev.setTimestamp(System.currentTimeMillis());
 			ev.setUserId(msg.userID);
 			ev.setMeetingId(msg.meetingID);
@@ -73,7 +73,7 @@ class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageL
 
 	private def handleAssignPresenter(msg:PresenterAssigned):Unit = {
 		if (msg.recorded) {
-			var event = new AssignPresenterRecordEvent();
+			val event = new AssignPresenterRecordEvent();
 			event.setMeetingId(msg.meetingID);
 			event.setTimestamp(System.currentTimeMillis());
 			event.setUserId(msg.presenter.presenterID);
