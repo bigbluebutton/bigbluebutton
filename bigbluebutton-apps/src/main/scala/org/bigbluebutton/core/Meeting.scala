@@ -12,7 +12,6 @@ import org.bigbluebutton.core.api.MessageOutGateway
 
 class Meeting(val meetingID: String, val recorded: Boolean, val voiceBridge: String, outGW: MessageOutGateway) extends Actor {
 
-  import org.bigbluebutton.core.messages._
   import org.bigbluebutton.core.apps.poll.messages._
   import org.bigbluebutton.core.api.Presenter
    

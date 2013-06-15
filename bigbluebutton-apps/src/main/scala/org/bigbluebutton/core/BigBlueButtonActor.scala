@@ -9,7 +9,6 @@ import org.bigbluebutton.core.api.MessageOutGateway
 import org.bigbluebutton.core.api.InMessage
 
 class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
-  import org.bigbluebutton.core.messages._
   
   private var meetings = new HashMap[String, Meeting]
  

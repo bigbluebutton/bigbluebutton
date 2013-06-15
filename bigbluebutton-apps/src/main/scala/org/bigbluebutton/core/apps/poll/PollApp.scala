@@ -5,7 +5,6 @@ import org.bigbluebutton.core.User
 import org.bigbluebutton.core.api.InMessage
 
 class PollApp() {
-  import org.bigbluebutton.core.messages._
   import org.bigbluebutton.core.apps.poll.messages._
   
   private val polls = new HashMap[String, Poll]()
