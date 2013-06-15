@@ -7,4 +7,4 @@ video_output_height: 480
 # recommended value for Sorenson: 800
 # recommended value for h.264: 1200
 audio_offset: 1200
-include_deskshare: false
+include_deskshare: true
