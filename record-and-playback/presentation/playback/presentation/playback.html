@@ -61,12 +61,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			  This playback requires modern browser, please use FF, Safari, Chrome</video>
 -->			  
 		  	</div>
-		  	<div id="audioRecordingWrapper" role="region" aria-label="Audio">
+	  	</div>
+	  	<div id="audioRecordingWrapper" role="region" aria-label="Audio">
 <!--
 		  	  <audio id="video">You must use an HTML5 capable browser to view this page.
 			  This playback requires modern browser, please use FF, Safari, Chrome</audio>	
 -->
-		  	</div>
+		<div id="autoscrollWrapper">
+			<input id="autoscrollEnabled" type="checkbox" name="autoscrollEnabled" checked="true" aria-label="Toggle autoscroll"/>
+			<label for="autoscrollEnabled">Auto scroll</label>
 		</div>
 	</div>
 
@@ -78,9 +81,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</div>
 	-->
 	<p id="footer">Recorded with <a href="http://bigbluebutton.org/">BigBlueButton</a></p>
-	<label><input id="autoscrollEnabled" type="checkbox" name="autoscrollEnabled" checked="true"/>Auto scroll</label>
 <!--	<script src='lib/writing.js'></script> -->
 </body>
 </html>
-
-
