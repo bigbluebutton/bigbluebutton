@@ -39,6 +39,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<bean id="presentationApplication" class="org.bigbluebutton.conference.service.presentation.PresentationApplication">
 		<property name="roomsManager"> <ref bean="roomsManager"/></property>
 		<property name="outMessageGateway"> <ref bean="outMessageGateway"/></property>
+		<property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
 	</bean>
 	
 	<bean id="presentation.service" class="org.bigbluebutton.conference.service.presentation.PresentationService">

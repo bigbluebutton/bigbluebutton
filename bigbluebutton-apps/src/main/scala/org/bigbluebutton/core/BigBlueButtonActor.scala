@@ -7,6 +7,7 @@ import org.bigbluebutton.core.api.CreateMeeting
 import org.bigbluebutton.core.api.MeetingCreated
 import org.bigbluebutton.core.api.MessageOutGateway
 import org.bigbluebutton.core.api.InMessage
+import org.bigbluebutton.core.api.InitializeMeeting
 
 class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
   
@@ -40,6 +41,8 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
     	  m.start
     	  meetings += m.meetingID -> m
     	  outGW.send(new MeetingCreated(m.meetingID, m.recorded))
+    	  
+    	  m ! new InitializeMeeting(m.meetingID, m.recorded)
       }
       case Some(m) => // do nothing
     }

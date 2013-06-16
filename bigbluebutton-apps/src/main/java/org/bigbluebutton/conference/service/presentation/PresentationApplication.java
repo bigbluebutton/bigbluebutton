@@ -29,6 +29,7 @@ import org.bigbluebutton.conference.service.presentation.messaging.messages.Pres
 import org.bigbluebutton.conference.service.presentation.messaging.messages.RemovePresentationMessage;
 import org.bigbluebutton.conference.service.presentation.messaging.messages.ResizeAndMoveSlideMessage;
 import org.bigbluebutton.conference.service.presentation.messaging.messages.SharePresentationMessage;
+import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.red5.logging.Red5LoggerFactory;
 import java.io.File;
 import java.util.ArrayList;
@@ -43,8 +44,13 @@ public class PresentationApplication {
 	
 	private MeetingsManager roomsManager;
 	private OutMessageGateway outMessageGateway;
+	private IBigBlueButtonInGW bbbInGW;
 	
 	private PreuploadedPresentationsUtil presUtil = new PreuploadedPresentationsUtil();
+	
+	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
+		bbbInGW = inGW;
+	}
 	
 	public void setOutMessageGateway(OutMessageGateway outMessageGateway) {
 		this.outMessageGateway = outMessageGateway;
@@ -59,12 +65,12 @@ public class PresentationApplication {
 		if (!hasRoom(meetingID)) {
 			PresentationRoom room = new PresentationRoom(meetingID, recorded);
 			rooms.put(room.getMetingID(), room);
-			ArrayList<String> pres = presUtil.getPreuploadedPresentations(meetingID);
-			if (!pres.isEmpty()) {
-				for (String presFile : pres) {
-					sharePresentation(meetingID, presFile, true);
-				}
-			}
+//			ArrayList<String> pres = presUtil.getPreuploadedPresentations(meetingID);
+//			if (!pres.isEmpty()) {
+//				for (String presFile : pres) {
+//					sharePresentation(meetingID, presFile, true);
+//				}
+//			}
 		}
 
 		return true;
@@ -90,33 +96,37 @@ public class PresentationApplication {
 		        PresentationRoom r = getRoom(meetingID);
 		        if (r != null) {
 		        	// Unshare the presentation.
-		        	sharePresentation(meetingID, r.currentPresentation, false);
+//		        	sharePresentation(meetingID, r.currentPresentation, false);
 		        }       
 	        }		
 	}
 	
 	public void sendUpdateMessage(Map<String, Object> message){	
-		String room = (String) message.get("room");
-		if (hasRoom(room)){
-			PresentationRoom r = getRoom(room);
-			r.storePresentationNames(message);
-			ConversionUpdateMessage msg = new ConversionUpdateMessage(r.getMetingID(), r.isRecorded(), message);
-			outMessageGateway.send(msg);
-		}	
+		String meetingID = (String) message.get("room");
+//		if (hasRoom(room)){
+//			PresentationRoom r = getRoom(room);
+//			r.storePresentationNames(message);
+//			ConversionUpdateMessage msg = new ConversionUpdateMessage(r.getMetingID(), r.isRecorded(), message);
+//			outMessageGateway.send(msg);
+//		}	
+		
+		bbbInGW.sendUpdateMessage(meetingID, message);
 	}
 			
-	public void removePresentation(String room, String presentationID){
-       if (hasRoom(room)){
-	        PresentationRoom r = getRoom(room);
-	        if (r != null) {
-	     	   r.removePresentation(presentationID); 	  
-	     	   RemovePresentationMessage msg = new RemovePresentationMessage(r.getMetingID(), r.isRecorded(), presentationID);
-	     	  outMessageGateway.send(msg);
-	        }       
-        }
+	public void removePresentation(String meetingID, String presentationID){
+		bbbInGW.removePresentation(meetingID, presentationID);
+//       if (hasRoom(room)){
+//	        PresentationRoom r = getRoom(room);
+//	        if (r != null) {
+//	     	   r.removePresentation(presentationID); 	  
+//	     	   RemovePresentationMessage msg = new RemovePresentationMessage(r.getMetingID(), r.isRecorded(), presentationID);
+//	     	  outMessageGateway.send(msg);
+//	        }       
+ //       }
     }
 	
 	public void getPresentationInfo(String meetingID, String requesterID) {
+/*
 		ArrayList<String> curPresenter = roomsManager.getCurrentPresenter(meetingID);
 		
 		int curSlide = getCurrentSlide(meetingID);
@@ -165,6 +175,8 @@ public class PresentationApplication {
 				outMessageGateway.send(msg);
 			}            
 		}
+	*/
+		bbbInGW.getPresentationInfo(meetingID, requesterID);
 	}
 	
 	private ArrayList<String> getPresentations(String room){
@@ -227,8 +239,8 @@ public class PresentationApplication {
 		return null;
 	}
 	
-	public void sendCursorUpdate(String room, Double xPercent, Double yPercent) {	
-		if (hasRoom(room)){
+	public void sendCursorUpdate(String meetingID, Double xPercent, Double yPercent) {	
+/*		if (hasRoom(room)){
 			PresentationRoom r = getRoom(room);
 			if (r != null){
 				r.sendCursorUpdate(xPercent, yPercent);
@@ -236,9 +248,12 @@ public class PresentationApplication {
 				outMessageGateway.send(msg);
 			}
 		}
+*/
+		bbbInGW.sendCursorUpdate(meetingID, xPercent, yPercent);
 	}
 	
-	public void resizeAndMoveSlide(String room, Double xOffset, Double yOffset, Double widthRatio, Double heightRatio) {
+	public void resizeAndMoveSlide(String meetingID, Double xOffset, Double yOffset, Double widthRatio, Double heightRatio) {
+/*
 		if (hasRoom(room)){
 			PresentationRoom r = getRoom(room);
 			if (r != null){
@@ -248,9 +263,12 @@ public class PresentationApplication {
 				outMessageGateway.send(msg);
 			}
 		}	
+*/
+		bbbInGW.resizeAndMoveSlide(meetingID, xOffset, yOffset, widthRatio, heightRatio);
 	}
 		
-	public void gotoSlide(String room, int slide){
+	public void gotoSlide(String meetingID, int slide){
+		/*
 		if (hasRoom(room)){
 			PresentationRoom r = getRoom(room);
 			if (r != null){
@@ -259,9 +277,13 @@ public class PresentationApplication {
 				outMessageGateway.send(msg);
 			}
 		}	
+		*/
+		
+		bbbInGW.gotoSlide(meetingID, slide);
 	}
 	
-	public void sharePresentation(String room, String presentationID, Boolean share){
+	public void sharePresentation(String meetingID, String presentationID, Boolean share){
+		/*
 		if (hasRoom(room)){
 			PresentationRoom r = getRoom(room);
 			if (r != null){
@@ -270,9 +292,13 @@ public class PresentationApplication {
 				outMessageGateway.send(msg);
 			}
 		}
+		*/
+		
+		bbbInGW.sharePresentation(meetingID, presentationID, share);
 	}
 	
 	public void getSlideInfo(String meetingID, String requesterID) {
+		/*
 		if (hasRoom(meetingID)){
 			PresentationRoom r = getRoom(meetingID);
 			if (r != null){
@@ -283,6 +309,10 @@ public class PresentationApplication {
 				}				
 			}
 		}
+		*/
+		
+		bbbInGW.getSlideInfo(meetingID, requesterID);
+		
 	}
 		
 }

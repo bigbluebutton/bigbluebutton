@@ -18,9 +18,13 @@ import org.bigbluebutton.core.api.ResizeAndMoveSlide
 import org.bigbluebutton.core.api.GotoSlide
 import org.bigbluebutton.core.api.SharePresentation
 import org.bigbluebutton.core.api.GetSlideInfo
+import org.bigbluebutton.conference.service.presentation.PreuploadedPresentationsUtil
+import org.bigbluebutton.core.api.PreuploadedPresentetations
 
 class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW {
 
+  val presUtil = new PreuploadedPresentationsUtil()
+  
 	def setUserStatus(meetingID: String, userID: String, status: String, value: Object):Unit = {
 		bbbGW.accept(new ChangeUserStatus(meetingID, userID, status, value));
 	}
@@ -53,6 +57,11 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	
 	def createMeeting2(meetingID: String, record: Boolean, voiceBridge: String) {
 		bbbGW.accept(new CreateMeeting(meetingID, record, voiceBridge))
+		
+		val pres = presUtil.getPreuploadedPresentations(meetingID);
+		if (!pres.isEmpty()) {
+			bbbGW.accept(new PreuploadedPresentetations(meetingID, pres))
+		}
 	}
 	
 	// Presentation

@@ -35,6 +35,10 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
     }
   }
   
+  def getCurrentPresenter():Presenter = {
+    currentPresenter
+  }
+  
   private def handleChangeUserStatus(msg: ChangeUserStatus):Unit = {
 		users.get(msg.userID) match {
 			case Some(u) => {

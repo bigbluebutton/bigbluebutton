@@ -101,7 +101,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="outMsgGW" class="org.bigbluebutton.core.api.MessageOutGateway">
         <property name="listeners">
             <set>
-                <ref bean="noopOutMsgListener" />  
+                <ref bean="presentationRed5ClientSender" />  
                 <ref bean="usersRed5ClientSender" />            
             </set>        
          </property> 
@@ -112,7 +112,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="usersRed5ClientSender" class="org.bigbluebutton.core.apps.users.red5.UsersClientMessageSender">
       <constructor-arg index="0" ref="connInvokerService"/>
     </bean>
-    
+
+    <bean id="presentationRed5ClientSender" class="org.bigbluebutton.core.apps.users.red5.UsersClientMessageSender">
+      <constructor-arg index="0" ref="connInvokerService"/>
+    </bean>
+        
     <bean id="meetingMessageHandler" class="org.bigbluebutton.conference.meeting.messaging.redis.MeetingMessageHandler">
         <property name="meetingManager"> <ref bean="roomsManager"/></property>
     </bean>
