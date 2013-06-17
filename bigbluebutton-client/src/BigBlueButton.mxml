@@ -155,6 +155,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
 		
 		if (keyCombos[keyPress]) {
+			//LogUtil.debug("Caught shortcut: " + keyCombos[keyPress]);
 			globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
 		}
     }

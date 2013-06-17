@@ -40,7 +40,7 @@ package org.bigbluebutton.modules.polling.managers
 		public static const LOGNAME:String = "[Polling :: ToolBarButtonManager] ";	
 		
 		public function ToolbarButtonManager() {
-			LogUtil.debug(LOGNAME + " initialized ***************************************************************** ")
+			//LogUtil.debug(LOGNAME + " initialized ***************************************************************** ")
 			globalDispatcher = new Dispatcher();
 			button = new ToolbarButton();
 		}
@@ -54,6 +54,7 @@ package org.bigbluebutton.modules.polling.managers
 				globalDispatcher.dispatchEvent(event);	
 				buttonShownOnToolbar = true;	
 				button.enabled = true;	
+				button.id = "pollButton";
 				appFM = button.focusManager;
 			}
 		}
@@ -69,6 +70,11 @@ package org.bigbluebutton.modules.polling.managers
 		
 		public function enableToolbarButton():void {
 			button.enabled = true;
+		}
+
+		public function focusToolbarButton():void {
+			appFM.setFocus(button);
+			button.notifyPosition();
 		}
 		
 		public function disableToolbarButton():void {
