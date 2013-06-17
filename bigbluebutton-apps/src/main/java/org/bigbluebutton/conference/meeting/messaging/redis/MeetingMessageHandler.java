@@ -2,7 +2,6 @@ package org.bigbluebutton.conference.meeting.messaging.redis;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.bigbluebutton.conference.MeetingsManager;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
@@ -11,6 +10,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 public class MeetingMessageHandler implements MessageHandler {
+	
+	private static final String KEEP_ALIVE_REQUEST = "KEEP ALIVE REQUEST";
 	
 	private IBigBlueButtonInGW bbbGW;
 	
