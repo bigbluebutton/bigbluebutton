@@ -377,13 +377,6 @@ document.addEventListener( "DOMContentLoaded", function() {
     theme: 'darkglass',
     volumeSlider: 'vertical'
   });
-  $('.acorn-controls').width('500');
-  $('.acorn-controls').position({
-    "my": "center top",
-    "at": "center bottom",
-    "of": '#playbackArea',
-    "collision": "none none"
-  });
 }, false);
 
 var secondsToWait = 0;

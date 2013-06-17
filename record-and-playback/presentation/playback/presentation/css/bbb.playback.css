@@ -52,11 +52,30 @@ br{
 	margin: 0 auto;
 }
 
+#audioRecordingWrapper{
+	float: left;
+	width: 100%;
+}
+
 #audioRecording{
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
 	width: 100%;
+}
+
+#audioRecordingWrapper .acorn-controls{
+	position: relative;
+	margin-top: -5px;
+	margin-left: 5px;
+	width: 750px;
+}
+
+#autoscrollWrapper{
+	float: left;
+	margin-left: 10px;
+	width: 130px;
+	font-size: 14px;
 }
 
 .webcam{
