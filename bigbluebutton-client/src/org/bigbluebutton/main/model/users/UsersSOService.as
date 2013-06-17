@@ -43,6 +43,9 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.modules.users.services.MessageSender;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
+	import flash.external.ExternalInterface;
+	import org.bigbluebutton.main.model.users.BBBUser;
 
 	public class UsersSOService {
 		public static const NAME:String = "ViewersSOService";
@@ -128,6 +131,11 @@ package org.bigbluebutton.main.model.users {
       
 			var meeting:Conference = UserManager.getInstance().getConference();
 
+			if (meeting.amIPresenter){
+				// Give the former presenter an audio alert IF he or she is using a screen reader
+				ExternalInterface.call("addAlert", ResourceUtil.getInstance().getString("bbb.accessibility.alerts.madeViewer"));
+			}
+			
 			if (meeting.amIThisUser(userid)) {
         trace("**** Switching [" + name + "] to presenter");
         sendSwitchedPresenterEvent(true, userid);
@@ -138,8 +146,11 @@ package org.bigbluebutton.main.model.users {
 				e.presenterName = name;
 				e.assignerBy = assignedBy;
 				
-				dispatcher.dispatchEvent(e);	
-              
+				dispatcher.dispatchEvent(e);
+				
+				// Give the new presenter an audio alert IF he or she is using a screen reader
+				ExternalInterface.call("addAlert", ResourceUtil.getInstance().getString("bbb.accessibility.alerts.madePresenter"));
+				
 			} else {	
         trace("**** Switching [" + name + "] to presenter. I am viewer.");
         sendSwitchedPresenterEvent(false, userid);
@@ -153,6 +164,7 @@ package org.bigbluebutton.main.model.users {
 				dispatcher.dispatchEvent(viewerEvent);
 			}
 		}
+		
 		
     private function sendSwitchedPresenterEvent(amIPresenter:Boolean, newPresenterUserID:String):void {
 

@@ -31,6 +31,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.present.events.PresentModuleEvent;
       import org.bigbluebutton.modules.present.events.PresentationEvent;
       import org.bigbluebutton.modules.present.events.PresenterCommands;
+      import org.bigbluebutton.modules.present.events.QueryPresentationsListEvent;
       import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
       import org.bigbluebutton.modules.present.events.SlideEvent;
       import org.bigbluebutton.modules.present.events.UploadEvent;
@@ -112,7 +113,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{RemovePresentationEvent.REMOVE_PRESENTATION_EVENT}">
 		<MethodInvoker generator="{PresentProxy}" method="removePresentation" arguments="{event}" />
 	</EventHandlers>
-	
+
+  <EventHandlers type="{QueryPresentationsListEvent.QUERY_PRESENTATIONS_LIST}">
+    <MethodInvoker generator="{PresentManager}" method="queryPresentations"/>
+  </EventHandlers>
+  
 	<EventHandlers type="{RemovePresentationEvent.PRESENTATION_REMOVED_EVENT}">
 		<MethodInvoker generator="{PresentManager}" method="removePresentation" arguments="{event}" />
 	</EventHandlers>

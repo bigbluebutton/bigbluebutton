@@ -173,13 +173,13 @@ usage() {
         echo "Configuration:"
         echo "   --version                        Display BigBlueButton version (packages)"
         echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
-	echo "   --setsalt <salt>                 Change the security salt in bigbluebutton.properties"
+	echo "   --setsecret <secret>             Change the shared secret in bigbluebutton.properties"
         echo
         echo "Monitoring:"
         echo "   --check                          Check configuration files and processes for problems"
         echo "   --debug                          Scan the log files for error messages"
         echo "   --watch                          Scan the log files for error messages every 2 seconds"
-        echo "   --salt                           View the URL and salt (shared secret) for the server"
+        echo "   --secret                         View the URL and shared secret for the server"
         echo "   --lti                            View the URL and secret for LTI (if installed)"
         echo
         echo "Administration:"
@@ -493,6 +493,21 @@ while [ $# -gt 0 ]; do
 		continue
 	fi
 
+	if [ "$1" = "--secret" -o "$1" = "-secret"  -o "$1" = "--setsecret" ]; then
+		SALT="${2}"
+		if [ -z "$SALT" ]; then
+			BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+			SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep securitySalt | cut -d= -f2);
+			echo
+			echo "       URL: http://$BBB_WEB/bigbluebutton/"
+			echo "    Secret: $SALT"
+			echo
+			exit 0
+		fi
+		shift; shift
+		continue
+	fi
+
 	if [ "$1" = "--lti" -o "$1" = "-lti" ]; then
 		if [ -z "$SALT" ]; then
 			if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
@@ -540,7 +555,7 @@ fi
 if [ $SALT ]; then
 	need_root
 	change_var_salt ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties securitySalt $SALT
-	echo "Changed BigBlueButton's security salt to $SALT"
+	echo "Changed BigBlueButton's shared secret to $SALT"
 	echo
 fi
 

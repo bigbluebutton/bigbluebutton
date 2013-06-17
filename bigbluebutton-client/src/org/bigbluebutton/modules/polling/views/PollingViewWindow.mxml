@@ -24,6 +24,7 @@
 	width="410" height="150" 
 	xmlns:mate="http://mate.asfusion.com/" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
+	initialize="init()"
 	creationComplete="onCreationComplete()"
 	label="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"  
 	title="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"
@@ -40,6 +41,7 @@
 			import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
 			import org.bigbluebutton.modules.polling.managers.PollingManager;
 			import org.bigbluebutton.modules.polling.events.VoteEvent;
+			import org.bigbluebutton.modules.polling.model.PollOptions;
 			
 			import org.bigbluebutton.main.model.users.Conference;
 			
@@ -66,6 +68,8 @@
 			private var window:PollingViewWindow;	
 			private var submissionAllowed:Boolean=false;		
 			public var cbSelected:Array = new Array(); // variable that receives either CheckBox or RadioButton info and sends it to VoteEvent
+			[Bindable] public var pollOptions:PollOptions;
+			[Bindable] private var baseIndex:int;
 			
 			public function getPrefferedPosition():String{
 				return MainCanvas.POPUP;
@@ -74,8 +78,22 @@
 			private function closeWindow():void{
 				dispatchEvent(new PollingViewWindowEvent(PollingViewWindowEvent.CLOSE));
 			}
+			
+			private function init():void{
+				pollOptions = new PollOptions();
+				baseIndex = pollOptions.baseTabIndex;
+			} 
  			 
 			private function onCreationComplete():void{
+				titleBarOverlay.tabIndex = baseIndex;
+				minimizeBtn.tabIndex = baseIndex+1;
+				maximizeRestoreBtn.tabIndex = baseIndex+2;
+				closeBtn.tabIndex = baseIndex+3;
+				questionText.tabIndex = baseIndex+4
+				// Gap in indexes provided to account for dynamically-generated items, and baseIndex reset to +5 for the same reason.
+				btnAcceptPoll.tabIndex = baseIndex+16;
+				baseIndex = baseIndex+5;
+				
 				questionText.text = question;
 				if (isMultiple)
 					questionText.text += " " + ResourceUtil.getInstance().getString('bbb.polling.pollPreview.checkAll');
@@ -85,7 +103,7 @@
 				else
 					errorMessage.text = ResourceUtil.getInstance().getString('bbb.polling.vote.error.radio');
 				ExternalInterface.call("addAlert", errorMessage.text);
-				//checkInstructions.visible = isMultiple;
+				
 				createButtons(answers.length,answers);
 				invalidateDisplayList();
 				validateNow(); 
@@ -94,6 +112,7 @@
 					lines = lines + ((s.length / 28) + 1);	
 				}				 	            	
 				height = height + ((lines+1) * 45);
+				// We won't automatically focus to the Vote window when it is created, for a couple of reasons.
 			}
 						
 			// This function will receive information and generate radiobuttons on fly
@@ -125,7 +144,7 @@
 						_cb.addEventListener(MouseEvent.CLICK, checkBoxClick);
 						// gap between the buttons
 						_cb.y=i*20;
-						//_cb.tabIndex = baseIndex++;
+						_cb.tabIndex = baseIndex++;
 						// adding buttons to the Horizontal Box
 						_hb.addChild(_cb);
 					}else{
@@ -135,7 +154,7 @@
 						_rb.id = "answers"+i;
 						_rb.addEventListener(MouseEvent.CLICK, radioClick);
 						_rb.accessibilityName = indicator + content[i].toString();
-						//_rb.tabIndex = baseIndex++;
+						_rb.tabIndex = baseIndex++;
 						_hb.addChild(_rb);
 					}    
 					_hb.addChild(_tx); // adding text near button			 
