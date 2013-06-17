@@ -889,6 +889,246 @@ class ApiController {
 		  }
 		}
   }
+
+  /***********************************************
+  * CALLBACK API
+  ***********************************************/
+  def subscribeEvent = {
+    String API_CALL = "subscribeEvent"
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    if (StringUtils.isEmpty(params.checksum)) {
+      invalid("checksumError", "You did not pass the checksum security check")
+      return
+    }
+    
+    if (StringUtils.isEmpty(params.event)) {
+      invalid("missingParamEvent", "You must pass an event for subscribing")
+      return
+    }
+
+    if (StringUtils.isEmpty(params.callbackURL)) {
+      invalid("missingParamCallbackURL", "You must specify a callbackURL for subscribing");
+      return
+    }
+
+    if (StringUtils.isEmpty(params.meetingID)) {
+      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+      return
+    }
+
+    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
+    Meeting meeting = meetingService.getMeeting(internalMeetingId);
+    if (meeting == null) {
+      // BEGIN - backward compatibility
+      invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
+      return;
+      // END - backward compatibility
+    
+     errors.invalidMeetingIdError();
+     respondWithErrors(errors)
+     return;
+    }
+    
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {     
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        xml {
+          render(contentType:"text/xml") {
+            response() {
+              returncode("FAILED")
+              messageKey("subscribeEventChecksumError")
+              message("subscribeEventChecksumError: request did not pass the checksum security check.")
+            }
+          }
+        }
+      }     
+    } else {
+      //println "**************** CHECKSUM PASSED **************************"
+      String sid = meetingService.addSubscription(meeting.getInternalId(), params.event,params.callbackURL);
+
+      if(sid.isEmpty()){
+        response.addHeader("Cache-Control", "no-cache")
+        withFormat {
+          xml {
+            //println "**************** CHECKSUM PASSED - XML RESPONSE **************************"
+            render(contentType:"text/xml") {
+              response() {
+                returncode("FAILED")
+                messageKey("subscribeEventError")
+                message("subscribeEventError: An error happen while storing your subscription. Check the logs.")
+              }
+            }
+          }
+        }
+
+      }else{
+        response.addHeader("Cache-Control", "no-cache")
+        withFormat {
+          xml {
+            //println "**************** CHECKSUM PASSED - XML RESPONSE **************************"
+            render(contentType:"text/xml") {
+              response() {
+                returncode("SUCCESS")
+                subscriptionID(sid)
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  def unsubscribeEvent = {
+    String API_CALL = "unsubscribeEvent"
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    if (StringUtils.isEmpty(params.checksum)) {
+      invalid("checksumError", "You did not pass the checksum security check")
+      return
+    }
+    
+    if (StringUtils.isEmpty(params.subscriptionID)) {
+      invalid("missingParamSubscriptionID", "You must pass a subscriptionID for unsubscribing")
+      return
+    }
+
+    if (StringUtils.isEmpty(params.meetingID)) {
+      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+      return
+    }
+
+    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
+    Meeting meeting = meetingService.getMeeting(internalMeetingId);
+    if (meeting == null) {
+      // BEGIN - backward compatibility
+      invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
+      return;
+      // END - backward compatibility
+    
+     errors.invalidMeetingIdError();
+     respondWithErrors(errors)
+     return;
+    }
+  
+    
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {     
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        xml {
+          render(contentType:"text/xml") {
+            response() {
+              returncode("FAILED")
+              messageKey("unsubscribeEventChecksumError")
+              message("unsubscribeEventChecksumError: request did not pass the checksum security check.")
+            }
+          }
+        }
+      }     
+    } else {
+      //println "**************** CHECKSUM PASSED **************************"
+      boolean status = meetingService.removeSubscription(meeting.getInternalId(), params.subscriptionID);
+
+      if(!status){
+        response.addHeader("Cache-Control", "no-cache")
+        withFormat {
+          xml {
+            //println "**************** CHECKSUM PASSED - XML RESPONSE **************************"
+            render(contentType:"text/xml") {
+              response() {
+                returncode("FAILED")
+                messageKey("unsubscribeEventError")
+                message("unsubscribeEventError: An error happen while unsubscribing. Check the logs.")
+              }
+            }
+          }
+        }
+
+      }else{
+        response.addHeader("Cache-Control", "no-cache")
+        withFormat {
+          xml {
+            //println "**************** CHECKSUM PASSED - XML RESPONSE **************************"
+            render(contentType:"text/xml") {
+              response() {
+                returncode("SUCCESS")
+                unsubscribed(status)
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  def listSubscriptions = {
+    String API_CALL = "listSubscriptions"
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    if (StringUtils.isEmpty(params.checksum)) {
+      invalid("checksumError", "You did not pass the checksum security check")
+      return
+    }
+
+    if (StringUtils.isEmpty(params.meetingID)) {
+      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+      return
+    }
+
+    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
+    Meeting meeting = meetingService.getMeeting(internalMeetingId);
+    if (meeting == null) {
+      // BEGIN - backward compatibility
+      invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
+      return;
+      // END - backward compatibility
+    
+     errors.invalidMeetingIdError();
+     respondWithErrors(errors)
+     return;
+    }
+    
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {     
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        xml {
+          render(contentType:"text/xml") {
+            response() {
+              returncode("FAILED")
+              messageKey("listSubscriptionsChecksumError")
+              message("listSubscriptionsChecksumError: request did not pass the checksum security check.")
+            }
+          }
+        }
+      }     
+    } else {
+      //println "**************** CHECKSUM PASSED **************************"
+      List<Map<String,String>> list = meetingService.listSubscriptions(meeting.getInternalId());
+
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        xml {
+          //println "**************** CHECKSUM PASSED - XML RESPONSE **************************"
+          render(contentType:"text/xml") {
+            response() {
+              returncode("SUCCESS")
+              subscriptions() {
+                list.each{ item ->
+                  subscription(){
+                    subscriptionID(item.get("subscriptionID"))
+                    event(item.get("event"))
+                    callbackURL(item.get("callbackURL"))
+                    active(item.get("active"))  
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      
+    }
+  }
   
   /***********************************************
   * CONFIG API
@@ -1361,28 +1601,8 @@ class ApiController {
            }
           }
 		    }
-        else if("polling".equals(module.@name.toString())){
-          module.children().each{ poll ->
-            if("poll".equals(poll.name().toString())){
-              String title = poll.title.text();
-              String question = poll.question.text();
-              ArrayList<String> answers = new ArrayList<String>();
-              poll.answers.children().each{ answer ->
-                answers.add(answer.text());
-              }
-              //send poll to BigBlueButton Apps
-              meetingService.createdPolls(conf.getInternalId(),title,question,answers);
-            }
-
-
-          }
-        }
-
-
-
-		}
-	}
-
+		  }
+	  }
   }
   def cleanFilename(filename) {
     String fname = URLDecoder.decode(filename).trim()
