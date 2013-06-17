@@ -22,7 +22,6 @@
 
 require 'rubygems'
 require 'streamio-ffmpeg'
-require 'pp'
 
 module BigBlueButton
   # use "info" or "debug" for development
@@ -480,10 +479,6 @@ module BigBlueButton
   def self.ms_to_strtime(ms)
     t = Time.at(ms / 1000, (ms % 1000) * 1000)
     return t.getutc.strftime("%H:%M:%S.%L")
-  end
-
-  def self.hash_to_str(hash)
-    return PP.pp(hash, "")
   end
 
   def self.calculate_videos_grid(videos_list, details, output_video)

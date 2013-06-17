@@ -19,7 +19,6 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
 
-
 require 'rubygems'
 require 'nokogiri'
 
@@ -51,7 +50,53 @@ module BigBlueButton
       BigBlueButton.logger.info("Task: Getting the timestamp of the last event")
       doc = Nokogiri::XML(File.open(events_xml))
       doc.xpath("recording/event").last["timestamp"].to_i
-    end  
+    end
+
+    # Get events when the moderator wants the recording to start or stop
+    def self.get_start_and_stop_rec_events(events_xml)
+      BigBlueButton.logger.info "Getting start and stop rec button events"
+      doc = Nokogiri::XML(File.open(events_xml))
+
+      #######################################################################################
+      # THE CODE BELOW IS FOR DEVELOPMENT PURPOSES ONLY AND SHOULD BE REMOVED WHEN FINISHED #
+      #######################################################################################
+      a = doc.xpath("//event[@eventname='PublicChatEvent']")
+      BigBlueButton.logger.info "Extracting PublicChatEvent events"
+      a.each do |event|
+        if not event.xpath("message[text()='START' or text()='STOP']").empty?
+            event.attributes["eventname"].value = 'RecordStatusEvent'
+            BigBlueButton.logger.info event.to_xml(:indent => 2)
+        end
+      end
+      #######################################################################################
+      # THE CODE ABOVE IS FOR DEVELOPMENT PURPOSES ONLY AND SHOULD BE REMOVED WHEN FINISHED #
+      #######################################################################################
+
+      rec_events = []
+      doc.xpath("//event[@eventname='RecordStatusEvent']").each do |event|
+        s = { :timestamp => event['timestamp'].to_i }
+        rec_events << s
+      end
+      if rec_events.size.odd?
+        # user didn't click the Record Button to stop the recording
+        rec_events << { :timestamp => BigBlueButton::Events.last_event_timestamp(events_xml) }
+      end      
+      rec_events.sort {|a, b| a[:timestamp] <=> b[:timestamp]}  
+    end
+    
+    # Match recording start and stop events
+    def self.match_start_and_stop_rec_events(rec_events)
+      matched_rec_events = []
+      rec_events.each_with_index do |evt,i|
+        if i.even?
+          matched_rec_events << {
+            :start_timestamp => evt[:timestamp],
+            :stop_timestamp => rec_events[i + 1][:timestamp]
+          }
+        end
+      end
+      matched_rec_events
+    end
     
     # Determine if the start and stop event matched.
     def self.find_video_event_matched(start_events, stop)      
@@ -152,14 +197,14 @@ module BigBlueButton
       stop_events.sort {|a, b| a[:stop_timestamp] <=> b[:stop_timestamp]}
     end
 
-	def self.linkify( text )
-	  generic_URL_regexp = Regexp.new( '(^|[\n ])([\w]+?://[\w]+[^ \"\n\r\t<]*)', Regexp::MULTILINE | Regexp::IGNORECASE )
-	  starts_with_www_regexp = Regexp.new( '(^|[\n ])((www)\.[^ \"\t\n\r<]*)', Regexp::MULTILINE | Regexp::IGNORECASE )
-	  
-	  s = text.to_s
-	  s.gsub!( generic_URL_regexp, '\1<a href="\2">\2</a>' )
-	  s.gsub!( starts_with_www_regexp, '\1<a href="http://\2">\2</a>' )
-	  s
-	end
+    def self.linkify( text )
+      generic_URL_regexp = Regexp.new( '(^|[\n ])([\w]+?://[\w]+[^ \"\n\r\t<]*)', Regexp::MULTILINE | Regexp::IGNORECASE )
+      starts_with_www_regexp = Regexp.new( '(^|[\n ])((www)\.[^ \"\t\n\r<]*)', Regexp::MULTILINE | Regexp::IGNORECASE )
+      
+      s = text.to_s
+      s.gsub!( generic_URL_regexp, '\1<a href="\2">\2</a>' )
+      s.gsub!( starts_with_www_regexp, '\1<a href="http://\2">\2</a>' )
+      s
+    end
   end
 end
