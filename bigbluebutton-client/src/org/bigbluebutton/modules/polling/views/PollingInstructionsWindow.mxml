@@ -103,6 +103,8 @@ Notes.mxml is the main view of the SharedNotes application
 		[Bindable] public var editing:Boolean;
 		[Bindable] public var pollOptions:PollOptions;
 		[Bindable] private var baseIndex:int;
+			
+		private var keyCombos:Object;
 		
 		// LENGTH CONSTRAINTS ( CHANGE IF YOU NEED)
 		//################################################
@@ -124,6 +126,8 @@ Notes.mxml is the main view of the SharedNotes application
 		
 		private function onCreationComplete():void{
 			published = false;
+			
+			hotkeyCapture();
 			
 			titleBarOverlay.tabIndex = baseIndex;
 			minimizeBtn.tabIndex = baseIndex+1;
@@ -153,6 +157,38 @@ Notes.mxml is the main view of the SharedNotes application
 			
 			this.module = module;
 			focusManager.setFocus(titleBarOverlay); 
+		}
+			
+		private function hotkeyCapture():void{
+			this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+			//ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
+		}
+			
+		private function handleKeyDown(e:KeyboardEvent) :void {
+			var modifier:String = ExternalInterface.call("determineModifier");
+			loadKeyCombos(modifier);
+			var keyPress:String = (e.ctrlKey ? "control+" : "") +
+				(e.shiftKey ? "shift+" : "") +
+				(e.altKey ? "alt+" : "") + e.keyCode;
+			LogUtil.debug("Polling Instructions: modifier is " + modifier);
+			if (keyCombos[keyPress]) {
+				LogUtil.debug("Dispatching event " + keyCombos[keyPress]);
+				dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+			}
+		}
+		
+		private function loadKeyCombos(modifier:String):void {
+			keyCombos = new Object(); // always start with a fresh array
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusTitle') as String)] = ShortcutEvent.FOCUS_POLL_TITLE;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusQuestion') as String)] = ShortcutEvent.FOCUS_POLL_QUESTION;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusAnswers') as String)] = ShortcutEvent.FOCUS_POLL_ANSWERS;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusMultipleCB') as String)] = ShortcutEvent.FOCUS_MULT_CHECK;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusWebPollCB') as String)] = ShortcutEvent.FOCUS_WEBPOLL_CHECK;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.previewClick') as String)] = ShortcutEvent.POLL_PREVIEW;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.cancelClick') as String)] = ShortcutEvent.POLL_CANCEL;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.modify') as String)] = ShortcutEvent.POLL_MODIFY;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.publish') as String)] = ShortcutEvent.POLL_PUBLISH;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.save') as String)] = ShortcutEvent.POLL_SAVE;
 		}
 		
 		// Overwritting close to use custom function
