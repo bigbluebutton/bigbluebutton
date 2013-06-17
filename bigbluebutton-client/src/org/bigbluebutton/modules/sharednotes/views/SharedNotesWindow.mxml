@@ -311,12 +311,11 @@
 	<mx:Button x="10" y="425" label="Playback" id="btnPlayback" click="btnPlayback_clickHandler(event)" icon="@Embed(source='images/play-icon.png')" visible="false"/>
 	<mx:HSlider x="79" y="395" width="413" id="playbackSlider" liveDragging="true" snapInterval="1" change="playbackSlider_changeHandler(event)" maximum="0"/>
 	<mx:TextArea x="10" y="10" width="482" height="387" id="txtPlayback"/>
-	<mx:Image x="476" y="431" source="@Embed(source='images/tick.png')" id="icoSynced" visible="false" toolTip="Document up to date."/>	
-	<mx:Image x="476" y="431" source="@Embed(source='images/action_refresh.gif')" id="icoSyncing" visible="false" toolTip="Updating document..."/>
+	<mx:Image x="476" y="431" source="@Embed(source='images/tick.png')" id="icoSynced" visible="false" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.upToDate.toolTip')}"/>	
+	<mx:Image x="476" y="431" source="@Embed(source='images/action_refresh.gif')" id="icoSyncing" visible="false" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.refreshing.toolTip')}"/>
 	<mx:Button x="10" y="425" icon="@Embed(source='images/arrow_left.png')" id="btnBackPlayback" click="btnBackPlayback_clickHandler(event)" visible="false"/>
 	<mx:Label id="lblPlaybackVersion" x="10" y="399" text="Version 0:"/>
 	<components:PatchableTextArea x="10" y="10" id="textArea" hideEffect="{dissolveOut}" showEffect="{dissolveIn}" creationComplete="addBlur()" width="482" height="407" editable="true" verticalScrollPolicy = "auto"/>
-	<mx:Button  x="476" y="431" id="btnSave" click="btnSave_clickHandler(event)" visible="true" icon="@Embed(source='images/disk.png')"/> 
-	<!--<mx:Button  x="476" y="431" id="btnSave" click="undoLastChange()" visible="true" icon="@Embed(source='images/disk.png')"/> -->
+	<mx:Button  x="476" y="431" id="btnSave" width="24" height="24" click="btnSave_clickHandler(event)" visible="true" icon="@Embed(source='images/disk.png')" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.save.toolTip')}"/>
 	<mx:Button x="0" y="0" label="Start" id="btnPlay" click="btnPlay_clickHandler(event)" visible="false"/>
 </containers:MDIWindow>

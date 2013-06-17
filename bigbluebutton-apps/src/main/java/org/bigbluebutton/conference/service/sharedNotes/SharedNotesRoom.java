@@ -44,7 +44,7 @@ public class SharedNotesRoom {
 	private final String name;
 	private final Map<String, ISharedNotesRoomListener> listeners;
 	private final Map<Long, ClientSharedNotes> clients;
-	private String _document = "Initial Document";
+	private String _document = "";
 	private static final Object syncObject = new Object();
 	private diff_match_patch diffPatch = new diff_match_patch();
 
