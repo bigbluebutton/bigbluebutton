@@ -27,24 +27,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			http://www.springframework.org/schema/util/spring-util-2.0.xsd
 			">
 	
-	<bean id="roomsManager" class="org.bigbluebutton.conference.MeetingsManager">
-		<property name="outMessageGateway"> <ref bean="outMessageGateway"/></property>
-	</bean>
-	
 	<bean id="bigbluebutton.service" class="org.bigbluebutton.conference.BigBlueButtonService">
       <property name="connInvokerService"> <ref bean="connInvokerService"/></property>
     </bean>
-
-    <bean id="usersClientSender" class="org.bigbluebutton.conference.service.participants.red5.UsersClientMessageSender">
-      <property name="connectionInvokerService"> <ref bean="connInvokerService"/></property>
-    </bean>
-      		
+     		
 	<bean id="participantsHandler" class="org.bigbluebutton.conference.service.participants.ParticipantsHandler">
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
 	</bean>
 	
 	<bean id="participantsApplication" class="org.bigbluebutton.conference.service.participants.ParticipantsApplication">
-		<property name="roomsManager"> <ref local="roomsManager"/></property>
 		<property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
 	</bean>
 	

@@ -79,8 +79,6 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
 		
-		presentationApplication.createRoom(connection.getScope().getName(), getBbbSession().getRecord());
-    	
     	return true;
 	}
 
@@ -110,10 +108,6 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 	@Override
 	public void roomStop(IScope scope) {
 		log.debug("***** " + APP + " [ " + " roomStop [ " + scope.getName() + "] *********");
-		presentationApplication.destroyRoom(scope.getName());
-		if (hasSharedObject(scope, PRESENTATION_SO)) {
-    		clearSharedObjects(scope, PRESENTATION_SO);
-    	}
 	}
 	
 	public void setPresentationApplication(PresentationApplication a) {

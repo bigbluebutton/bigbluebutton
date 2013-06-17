@@ -116,7 +116,8 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
     public void roomStop(IScope room) {
 		log.debug("***** " + APP + " [ " + " roomStop [ " + scope.getName() + "] *********");
 		
-    	participantsApplication.destroyRoom(room.getName());
+    	bbbGW.destroyMeeting(room.getName());
+    	
 		recorderApplication.destroyRecordSession(room.getName());
 		connInvokerService.removeScope(room.getName());
 		
@@ -152,8 +153,6 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		log.debug("User [{}] connected to room [{}]", debugInfo, room); 
 		
 		bbbGW.createMeeting2(room, record, voiceBridge);
-		
-		participantsApplication.createRoom(room, record);
 		
         connInvokerService.addConnection(bbbSession.getInternalUserID(), connection);
         
@@ -216,7 +215,6 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		public void onApplicationEvent(ApplicationEvent event) {
 			if (event instanceof org.springframework.context.event.ContextStoppedEvent) {
 				log.info("Received shutdown event. Red5 is shutting down. Destroying all rooms.");
-				participantsApplication.destroyAllRooms();
 			}			
 		}
 		

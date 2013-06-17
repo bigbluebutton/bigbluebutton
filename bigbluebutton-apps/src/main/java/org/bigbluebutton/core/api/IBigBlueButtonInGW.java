@@ -5,6 +5,7 @@ import java.util.Map;
 public interface IBigBlueButtonInGW {
 
 	void createMeeting2(String meetingID, boolean recorded, String voiceBridge);
+	void destroyMeeting(String meetingID);
 	
 	// Users
   	void setUserStatus(String meetingID, String userID, String status, Object value);

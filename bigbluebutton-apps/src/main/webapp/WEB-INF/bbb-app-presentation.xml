@@ -37,8 +37,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</bean>
 	
 	<bean id="presentationApplication" class="org.bigbluebutton.conference.service.presentation.PresentationApplication">
-		<property name="roomsManager"> <ref bean="roomsManager"/></property>
-		<property name="outMessageGateway"> <ref bean="outMessageGateway"/></property>
 		<property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
 	</bean>
 	
@@ -54,11 +52,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="conversionUpdatesProcessor" ref="conversionUpdatesProcessor" />
 	</bean>
 	
-	<bean id="presentationClientSender" class="org.bigbluebutton.conference.service.presentation.messaging.red5.PresentationClientSender">
-      <property name="connectionInvokerService"> <ref bean="connInvokerService"/></property>
-    </bean>
-
-    <bean id="presentationEventRecorder" class="org.bigbluebutton.conference.service.presentation.recorder.redis.PresentationEventRecorder">
-      <property name="recorderApplication"> <ref bean="recorderApplication"/></property>
-    </bean>
 </beans>

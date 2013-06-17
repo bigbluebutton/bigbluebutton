@@ -68,12 +68,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="outMessageListeners">
             <set>
                 <ref bean="meetingMessagePublisher" />
-                <ref bean="usersMessagePublisher" />
-                <ref bean="usersEventRecorder" />
-                <ref bean="usersClientSender" />
-                <ref bean="layoutClientSender" /> 
-                <ref bean="presentationClientSender" />
-                <ref bean="presentationEventRecorder" />               
+                <ref bean="layoutClientSender" />            
             </set>
         </property>  	
 	</bean>
@@ -82,14 +77,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <property name="messageService"> <ref bean="redisMessageSender"/></property>
     </bean>
 
-    <bean id="usersMessagePublisher" class="org.bigbluebutton.conference.service.participants.messaging.redis.UsersMessagePublisher">
-      <property name="messageService"> <ref bean="redisMessageSender"/></property>
-    </bean>
-
-    <bean id="usersEventRecorder" class="org.bigbluebutton.conference.service.participants.recorder.redis.UsersEventRecorder">
-      <property name="recorderApplication"> <ref bean="recorderApplication"/></property>
-    </bean>
-  
     <bean id="bbbInGW" class="org.bigbluebutton.core.BigBlueButtonInGW">
         <constructor-arg index="0" ref="bbbGW"/>
     </bean>
@@ -102,13 +89,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="listeners">
             <set>
                 <ref bean="presentationRed5ClientSender" />  
-                <ref bean="usersRed5ClientSender" />            
+                <ref bean="usersRed5ClientSender" />   
+                <ref bean="presentationRedisRecorder" /> 
+                <ref bean="usersRedisRecorder" />          
             </set>        
          </property> 
     </bean>
     
-    <bean id="noopOutMsgListener" class="org.bigbluebutton.core.api.NoopOutMessageListener"/>
-    
+    <bean id="presentationRedisRecorder" class="org.bigbluebutton.core.apps.presentation.redis.PresentationEventRedisRecorder">
+        <constructor-arg index="0" ref="recorderApplication"/>
+    </bean>
+
+    <bean id="usersRedisRecorder" class="org.bigbluebutton.core.apps.users.redis.UsersEventRedisRecorder">
+        <constructor-arg index="0" ref="recorderApplication"/>
+    </bean>
+        
     <bean id="usersRed5ClientSender" class="org.bigbluebutton.core.apps.users.red5.UsersClientMessageSender">
       <constructor-arg index="0" ref="connInvokerService"/>
     </bean>
@@ -118,7 +113,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </bean>
         
     <bean id="meetingMessageHandler" class="org.bigbluebutton.conference.meeting.messaging.redis.MeetingMessageHandler">
-        <property name="meetingManager"> <ref bean="roomsManager"/></property>
+
     </bean>
         
 	<import resource="bbb-redis-pool.xml"/>

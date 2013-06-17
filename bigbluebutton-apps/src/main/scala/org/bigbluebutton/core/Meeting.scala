@@ -10,6 +10,7 @@ import org.bigbluebutton.core.api.InMessage
 import org.bigbluebutton.core.api.MessageOutGateway
 import org.bigbluebutton.core.apps.presentation.PresentationApp
 
+case object StopMeetingActor
 
 class Meeting(val meetingID: String, val recorded: Boolean, val voiceBridge: String, outGW: MessageOutGateway) extends Actor {
 
@@ -28,6 +29,7 @@ class Meeting(val meetingID: String, val recorded: Boolean, val voiceBridge: Str
 	        usersApp.handleMessage(msg)
 	        presentationApp.handleMessage(msg)
 	      }
+	      case StopMeetingActor => exit
 	    }
 	  }
   	}
