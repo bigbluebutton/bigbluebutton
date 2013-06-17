@@ -130,11 +130,16 @@
 	 <EventHandlers type="{PollGetTitlesEvent.UPDATE}">
 		<MethodInvoker generator="{PollingManager}"  method="handleUpdateTitlesEvent" arguments="{event}"/>
 	 </EventHandlers>
+	<EventHandlers type="{PollGetTitlesEvent.REMOTE_CHECK}">
+		<MethodInvoker generator="{PollingManager}" method="handleRemoteInitializePollMenuEvent" arguments="{event}"/>
+	</EventHandlers>
 
 	 <EventHandlers type="{PollReturnTitlesEvent.UPDATE}">
 		<MethodInvoker generator="{PollingManager}"  method="handleReturnTitlesEvent" arguments="{event}"/>
 	 </EventHandlers>
-
+	<EventHandlers type="{PollReturnTitlesEvent.REMOTE_RETURN}">
+		<MethodInvoker generator="{PollingManager}" method="handleRemoteReturnTitlesEvent" arguments="{event}"/>
+	</EventHandlers>
 	 
 	 <EventHandlers type="{PollGetPollEvent.INIT}">
 		<MethodInvoker generator="{PollingManager}"  method="handlePopulateMenuEvent" arguments="{event}"/>
