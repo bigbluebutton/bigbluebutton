@@ -3,16 +3,22 @@ package org.bigbluebutton.core.apps.poll.messages
 
 import org.bigbluebutton.core.apps.poll.QuestionType._
 import org.bigbluebutton.core.api.InMessage
+import org.bigbluebutton.core.api.IOutMessage
 
 // Poll Messages
-case class CreatePoll(meetingID:String, poll: PollVO) extends InMessage
-case class StopPoll(meetingID:String, id: String) extends InMessage
-case class StartPoll(meetingID:String, id: String) extends InMessage
-case class AddQuestion(meetingID:String, pollID: String, question: QuestionVO)
-case class DeleteQuestion(meetingID:String, pollID: String, questionID: Int)
-case class AddResponse(meetingID:String, pollID: String, questionID: Int, responseVO: ResponseVO)
-case class DeleteResponse(meetingID:String, pollID: String, questionID: Int, responseID: Int)
+case class CreatePoll(meetingID:String, poll: PollVO, requesterID: String) extends InMessage
+case class UpdatePoll(meetingID: String, poll: PollVO) extends InMessage
+case class DestroyPoll(meetingID: String, pollID: String) extends InMessage
+case class RemovePoll(meetingID: String, pollID: String) extends InMessage
+case class SharePoll(meetingID: String, pollID: String) extends InMessage
+case class StopPoll(meetingID:String, pollID: String) extends InMessage
+case class StartPoll(meetingID:String, pollID: String) extends InMessage
+case class ClearPoll(meetingID: String, pollID: String, requesterID: String, force: Boolean=false) extends InMessage
 
-case class ResponseVO(meetingID:String, id: Int, text: String)
-case class QuestionVO(meetingID:String, id: Int, questionType: QuestionType, question: String, responses: Array[ResponseVO])
-case class PollVO(meetingID:String, id: String, title: String, questions: Array[QuestionVO])
+case class ResponseVO(meetingID:String, id: String, order: Int, text: String)
+case class QuestionVO(meetingID:String, id: String, order: Int, questionType: QuestionType, question: String, responses: Array[ResponseVO])
+case class PollVO(meetingID:String, id: String, title: String, questions: Array[QuestionVO], preCreated: Boolean=false)
+
+
+// Out Messages
+case class ClearPollFailed(meetingID: String, pollID: String, requesterID: String, reason: String) extends IOutMessage

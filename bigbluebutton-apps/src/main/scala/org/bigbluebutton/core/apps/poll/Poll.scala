@@ -3,10 +3,8 @@ package org.bigbluebutton.core.apps.poll
 import scala.collection.mutable.HashMap
 import QuestionType._
 
-class Poll(val id: String, val title: String) {						
+class Poll(val id: String, val title: String, questions: Array[Question]) {						
 	private var _active: Boolean = false
-	private var questions = new HashMap[Int, Question]()
-	
 	
 	def active = _active
 	
@@ -18,32 +16,23 @@ class Poll(val id: String, val title: String) {
 	  _active = false;
 	}
 	
-	def addQuestion(id: Int, questionType: QuestionType, question: String) {
-	  questions += id -> new Question(id, questionType, question)
+	def clear() {
+	  
 	}
 	
-	def deleteQuestion(id: Int) {
-	  questions -= id
+	def hasResponses():Boolean = {
+	  questions.foreach(q => {
+	    if (q.hasResponders) return true
+	  })
+	  
+	  return false
 	}
 	
-	def addResponse(questionID: Int, responseID: Int, responseText: String) {
-		questions.get(questionID) match {
-		  case Some(q) => q.addResponse(new Response(responseID, responseText))
-		  case None => // do nothing
-		}
-	}
-	
-	def deleteResponse(questionID: Int, responseID: Int) {
-	  questions.get(questionID) match {
-		case Some(q) => q.deleteResponse(responseID)
-		case None => // do nothing
-	  }
-	}
-	
-	def respondToQuestion(questionID: Int, responseID: Int, userID: String, username: String):Unit = {
-	  questions.get(questionID) match {
-		case Some(q) => q.respondToQuestion(responseID, new Responder(userID, username))
-		case None => // do nothing
-	  }	  
+	def respondToQuestion(questionID: String, responseID: String, userID: String, username: String) {
+	  questions.foreach(q => {
+	    if (q.id.equals(questionID)) {
+	      q.respondToQuestion(responseID, new Responder(userID, username))
+	    }
+	  })  
 	}
 }

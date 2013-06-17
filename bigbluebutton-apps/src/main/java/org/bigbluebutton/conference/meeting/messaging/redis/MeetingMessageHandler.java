@@ -5,12 +5,14 @@ import java.util.Map;
 import org.bigbluebutton.conference.MeetingsManager;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
+import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 public class MeetingMessageHandler implements MessageHandler {
 	
-	private MeetingsManager meetingManager;
+	private IBigBlueButtonInGW bbbGW;
 	
 	@Override
 	public void handleMessage(String pattern, String channel, String message) {
@@ -21,14 +23,14 @@ public class MeetingMessageHandler implements MessageHandler {
 			String messageId = map.get("messageId");
 			if (messageId != null){
 				if (MessagingConstants.END_MEETING_REQUEST_EVENT.equalsIgnoreCase(messageId)){
-					meetingManager.endMeeting(meetingId);
+					bbbGW.endMeeting(meetingId);
 				}
 			}
 		}
 	}
 	
-	public void setMeetingManager(MeetingsManager manager) {
-		meetingManager = manager;
+	public void setBigBlueButtonInGW(IBigBlueButtonInGW bbbGW) {
+		this.bbbGW = bbbGW;
 	}
 	
 }

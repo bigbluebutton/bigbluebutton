@@ -4,6 +4,10 @@ import java.util.Map;
 
 public interface IBigBlueButtonInGW {
 
+	void isAliveAudit();
+	void statusMeetingAudit(String meetingID);
+	void endMeeting(String meetingID);
+	void endAllMeetings();
 	void createMeeting2(String meetingID, boolean recorded, String voiceBridge);
 	void destroyMeeting(String meetingID);
 	
