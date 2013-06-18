@@ -19,7 +19,7 @@ class Meeting(val meetingID: String, val recorded: Boolean, val voiceBridge: Str
    
   val usersApp = new UsersApp(meetingID, recorded, outGW)
   val presentationApp = new PresentationApp(meetingID, recorded, outGW, usersApp)
-  val pollApp = new PollApp(outGW)
+  val pollApp = new PollApp(meetingID, recorded, outGW)
   
   	def act() = {
 	  loop {

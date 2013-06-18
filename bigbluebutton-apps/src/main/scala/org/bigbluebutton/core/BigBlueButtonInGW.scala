@@ -40,6 +40,22 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
     bbbGW.accept(new DestroyMeeting(meetingID))
   }
   
+  def isAliveAudit() {
+    
+  }
+
+  def statusMeetingAudit(meetingID: String) {
+    
+  }
+	
+  def endMeeting(meetingID: String) {
+    
+  }
+	
+  def endAllMeetings() {
+    
+  }
+  
   // Users
 	def setUserStatus(meetingID: String, userID: String, status: String, value: Object):Unit = {
 		bbbGW.accept(new ChangeUserStatus(meetingID, userID, status, value));
