@@ -20,7 +20,35 @@ class PollApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
       case stopPoll: StopPoll => handleStopPoll(stopPoll)
       case startPoll: StartPoll => handleStartPoll(startPoll)
       case clearPoll: ClearPoll => handleClearPoll(clearPoll)
+      case getPolls: GetPolls => handleGetPolls(getPolls)
     }    
+  }
+  
+  private def handleGetPolls(msg: GetPolls) {
+    val poll = new ArrayBuffer[PollVO]
+    
+    polls.values.foreach(p => {
+      val questions = new ArrayBuffer[QuestionVO]
+      p.questions.foreach(q => {
+        val responses = new ArrayBuffer[ResponseVO]
+        q.responses.foreach(response => {
+          val r = new ResponseVO(response.id, response.response)
+          responses += r
+        })
+        val rArray = new Array[ResponseVO](responses.length)
+        responses.copyToArray(rArray)
+        val quest = new QuestionVO(q.id, q.questionType, q.question, rArray)
+        questions += quest
+      })
+      val qArray = new Array[QuestionVO](questions.length)
+      questions.copyToArray(qArray)
+      
+      poll += new PollVO(p.id, p.title, qArray)
+    })
+    
+    val pArray = new Array[PollVO](poll.length)
+    poll.copyToArray(pArray)
+    outGW.send(new GetPollsReplyOutMsg(meetingID, recorded, msg.requesterID, pArray))
   }
   
   private def handleClearPoll(msg: ClearPoll) {
@@ -133,6 +161,4 @@ class PollApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
     
     outGW.send(new PollCreatedOutMsg(meetingID, recorded, poll.id, pollVO))
   }
-  
-  
 }

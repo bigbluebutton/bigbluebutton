@@ -15,14 +15,16 @@ case class SharePoll(meetingID: String, pollID: String) extends InMessage
 case class StopPoll(meetingID:String, pollID: String) extends InMessage
 case class StartPoll(meetingID:String, pollID: String) extends InMessage
 case class ClearPoll(meetingID: String, pollID: String, requesterID: String, force: Boolean=false) extends InMessage
+case class GetPollResult(meetingID:String, pollID: String, requesterID: String) extends InMessage
 
-case class ResponseVO(meetingID:String, id: String, order: Int, text: String)
-case class QuestionVO(meetingID:String, id: String, order: Int, questionType: QuestionType, question: String, responses: Array[ResponseVO])
-case class PollVO(meetingID:String, id: String, title: String, questions: Array[QuestionVO], preCreated: Boolean=false)
+case class ResponseVO(id: String, text: String)
+case class QuestionVO(id: String, questionType: QuestionType, question: String, responses: Array[ResponseVO])
+case class PollVO(id: String, title: String, questions: Array[QuestionVO], preCreated: Boolean=false)
 
 
 // Out Messages
-case class GetPollsReplyOutMsg(meetingID: String, recorded: String, requestedID: String, polls: Array[PollVO]) extends IOutMessage
+case class GetPollResultReply(meetingID: String, recorded: Boolean, requesterID: String, pollVO: PollVO) extends IOutMessage
+case class GetPollsReplyOutMsg(meetingID: String, recorded: Boolean, requesterID: String, polls: Array[PollVO]) extends IOutMessage
 case class ClearPollFailed(meetingID: String, pollID: String, requesterID: String, reason: String) extends IOutMessage
 case class PollClearedOutMsg(meetingID: String, recorded: Boolean, pollID: String) extends IOutMessage
 case class PollStartedOutMsg(meetingID: String, recorded: Boolean, pollID: String) extends IOutMessage

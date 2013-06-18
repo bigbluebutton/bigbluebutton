@@ -10,6 +10,7 @@ import org.bigbluebutton.core.apps.poll.messages.PollStoppedOutMsg
 import org.bigbluebutton.core.apps.poll.messages.PollRemovedOutMsg
 import org.bigbluebutton.core.apps.poll.messages.PollUpdatedOutMsg
 import org.bigbluebutton.core.apps.poll.messages.PollCreatedOutMsg
+import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage
 
 class PollClientMessageSender(service: ConnectionInvokerService) extends OutMessageListener2 {
 
@@ -27,8 +28,12 @@ class PollClientMessageSender(service: ConnectionInvokerService) extends OutMess
   	}
   	
   	private def handleGetPollsReplyOutMsg(msg: GetPollsReplyOutMsg) {
-  	  var message = new java.util.HashMap[String, Object]();
+  	  val message = new java.util.HashMap[String, Object]();
   	  
+  	  message.put("polls", msg.polls)
+  	  
+  	  var m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getPollsReply", message);
+  	  service.sendMessage(m);	
   	  
   	}
   	
