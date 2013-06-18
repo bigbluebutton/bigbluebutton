@@ -8,7 +8,7 @@ import org.bigbluebutton.core.api.MeetingCreated
 import org.bigbluebutton.core.api.MessageOutGateway
 import org.bigbluebutton.core.api.InMessage
 import org.bigbluebutton.core.api.InitializeMeeting
-import org.bigbluebutton.core.StopMeetingActor$
+import org.bigbluebutton.core.StopMeetingActor
 import org.bigbluebutton.core.api.DestroyMeeting
 
 class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {

@@ -28,4 +28,5 @@ case class PollClearedOutMsg(meetingID: String, recorded: Boolean, pollID: Strin
 case class PollStartedOutMsg(meetingID: String, recorded: Boolean, pollID: String) extends IOutMessage
 case class PollStoppedOutMsg(meetingID: String, recorded: Boolean, pollID: String) extends IOutMessage
 case class PollRemovedOutMsg(meetingID: String, recorded: Boolean, pollID: String) extends IOutMessage
-
+case class PollUpdatedOutMsg(meetingID: String, recorded: Boolean, pollID: String, pollVO: PollVO) extends IOutMessage
+case class PollCreatedOutMsg(meetingID: String, recorded: Boolean, pollID: String, pollVO: PollVO) extends IOutMessage
