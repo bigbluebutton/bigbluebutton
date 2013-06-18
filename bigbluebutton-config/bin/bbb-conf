@@ -757,7 +757,7 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
                 BBB_SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
 
 		if [ "$LTI_SALT" != "$BBB_SALT" ]; then
-			echo "# Warning: LTI Salt mismatch:"
+			echo "# Warning: LTI shared secret (salt) mismatch:"
 			echo "#  ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties                      = $LTI_SALT"
 			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties  = $BBB_SALT"
 			echo 
