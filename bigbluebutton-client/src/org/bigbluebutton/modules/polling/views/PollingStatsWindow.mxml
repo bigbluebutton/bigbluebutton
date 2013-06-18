@@ -101,6 +101,7 @@
 		private var notified:Boolean;
 		private var refreshTimer:Timer = new Timer(1000);
 		[Bindable] private var answerCollection:ArrayCollection = new ArrayCollection();
+		private var keyCombos:Object;
 		
 		private function init():void{			
 			pollOptions = new PollOptions();
@@ -128,6 +129,8 @@
 		
 
 		private function onCreationComplete():void{
+			hotkeyCapture();
+			
 			titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.polling.stats.accessTitle', [trackingPoll.title]);
 			titleBarOverlay.tabIndex = baseIndex;
 			minimizeBtn.tabIndex = baseIndex+1;
@@ -164,8 +167,35 @@
 			height = height + ((lines+1) * 45);
 			createResultsTable(answers.length, answers);
 			focusManager.setFocus(titleBarOverlay); 
-		}			
-
+		}
+			
+			private function hotkeyCapture():void{
+				this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+				//ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
+			}
+			
+			private function handleKeyDown(e:KeyboardEvent) :void {
+				var modifier:String = ExternalInterface.call("determineModifier");
+				loadKeyCombos(modifier);             
+				var keyPress:String = (e.ctrlKey  ? "control+" : "") +
+					(e.shiftKey ? "shift+"   : "") +
+					(e.altKey   ? "alt+"     : "") + e.keyCode;                                     
+				if (keyCombos[keyPress]) {
+					dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+				}
+			}
+			
+			
+			private function loadKeyCombos(modifier:String):void {
+				keyCombos = new Object(); // always start with a fresh array
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusData') as String)] = ShortcutEvent.FOCUS_POLL_DATA;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.refresh') as String)] = ShortcutEvent.SC_REFRESH_POLL;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusWebPoll') as String)] = ShortcutEvent.FOCUS_WEBPOLL_ADDRESS;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.stopPoll') as String)] = ShortcutEvent.SC_STOP_POLL;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.closeStatsWindow') as String)] = ShortcutEvent.CLOSE_POLL_STATS;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.repostPoll') as String)] = ShortcutEvent.SC_REPOST_POLL;
+			}
+			
 		public function setUrlBoxText():void{
 			webPollURLBox.text = webPollUrl;
 			webPollURLBox.accessibilityName = ResourceUtil.getInstance().getString('bbb.polling.stats.webPollBoxAccessName', [webPollUrl]);
