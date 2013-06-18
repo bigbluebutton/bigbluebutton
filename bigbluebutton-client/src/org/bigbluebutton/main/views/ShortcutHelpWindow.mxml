@@ -51,12 +51,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var chatKeys:ArrayList;
 			private var userKeys:ArrayList;
 			
-			private var genResource:Array = ['bbb.shortcutkey.general.minimize', 'bbb.shortcutkey.general.maximize', 'bbb.shortcutkey.flash.exit', 
-											 'bbb.shortcutkey.focus.users', 'bbb.shortcutkey.focus.video', 'bbb.shortcutkey.focus.presentation',  
-											 'bbb.shortcutkey.focus.chat', 'bbb.shortcutkey.chat.chatinput', 'bbb.shortcutkey.share.desktop', 
-											 'bbb.shortcutkey.share.microphone', 'bbb.shortcutkey.share.webcam', 'bbb.shortcutkey.shortcutWindow', 
-											 'bbb.shortcutkey.logout', 'bbb.shortcutkey.raiseHand', 'bbb.shortcutkey.users.muteme',
-											 'bbb.shortcutkey.users.muteAllButPres'];
+			// genResource is populated dynamically in populategenResource()
+			private var genResource:Array;
 											 
 			private var presResource:Array = ['bbb.shortcutkey.present.focusslide', /*'bbb.shortcutkey.whiteboard.undo',*/ 'bbb.shortcutkey.present.upload',  
 											  'bbb.shortcutkey.present.previous', 'bbb.shortcutkey.present.select', 'bbb.shortcutkey.present.next', 	
@@ -82,18 +78,56 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function init():void {
 				modifier = ExternalInterface.call("determineModifier");
 				globalModifier = ExternalInterface.call("determineGlobalModifier");
-				LogUtil.debug("Testing static Options -> " + ShortcutOptions.debugString()); 
+				populategenResource()
 			}
 			
 			private function onCreationComplete():void {
-				//options = new ShortcutOptions();
-				
 				localeChanged();
 				titleBarOverlay.tabIndex = baseIndex;
 				
 				minimizeBtn.tabIndex = baseIndex + 1;
 				maximizeRestoreBtn.tabIndex = baseIndex + 2;
 				closeBtn.tabIndex = baseIndex + 3;
+			}
+			
+			private function populategenResource():void{
+				genResource = new Array();
+				
+				// Module-independent keys
+				genResource.push('bbb.shortcutkey.general.minimize');
+				genResource.push('bbb.shortcutkey.general.maximize');
+				genResource.push('bbb.shortcutkey.flash.exit');
+				genResource.push('bbb.shortcutkey.shortcutWindow');
+				genResource.push('bbb.shortcutkey.logout');
+				
+				if ShortcutOptions.usersActive{
+					genResource.push('bbb.shortcutkey.focus.users');
+					genResource.push('bbb.shortcutkey.raiseHand');
+					genResource.push('bbb.shortcutkey.users.muteme');
+					genResource.push('bbb.shortcutkey.users.muteAllButPres');
+				}
+				if ShortcutOptions.videoDockActive{
+					genResource.push('bbb.shortcutkey.focus.video');
+				}
+				if ShortcutOptions.presentationActive{
+					genResource.push('bbb.shortcutkey.focus.presentation');
+				}
+				if ShortcutOptions.chatActive{
+					genResource.push('bbb.shortcutkey.focus.chat');
+					genResource.push('bbb.shortcutkey.chat.chatinput');
+				}
+				if ShortcutOptions.pollingActive{
+					genResource.push();
+				}
+				if ShortcutOptions.webcamActive{
+					genResource.push('bbb.shortcutkey.share.webcam');
+				}
+				if ShortcutOptions.deskshareActive{
+					genResource.push('bbb.shortcutkey.share.desktop');
+				}
+				if ShortcutOptions.audioActive{
+					genResource.push('bbb.shortcutkey.share.microphone');
+				}
 			}
 			
 			private function reloadKeys():void {
