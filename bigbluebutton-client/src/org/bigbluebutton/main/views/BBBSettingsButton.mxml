@@ -22,7 +22,7 @@
 
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:mate="http://mate.asfusion.com/"
 	icon="{wrenchIcon}" click="start()"
-	toolTip="{ResourceUtil.getInstance().getString('bbb.guests.settingButton')}"
+	toolTip="{ResourceUtil.getInstance().getString('bbb.settings.btn.toolTip')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent"
 	
 	
@@ -51,7 +51,7 @@
 			
 			//For whatever reason the tooltip does not update when localization is changed dynamically. Overrideing it here
 			override protected function resourcesChanged():void{
-				this.toolTip = ResourceUtil.getInstance().getString('bbb.guests.settingButton');
+				this.toolTip = ResourceUtil.getInstance().getString('bbb.settings.btn.toolTip');
 			}
 			
 			public function getAlignment():String{

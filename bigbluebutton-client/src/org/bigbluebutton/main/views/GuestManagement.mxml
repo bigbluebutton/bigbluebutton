@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
 		xmlns:mate="http://mate.asfusion.com/"
-		height="200" width="220" 
-		
-		>
+		width="400" >
 		
 		
 		<mate:Listener type="GET_GUEST_POLICY" method="refreshGuestPolicy"/>
@@ -95,10 +93,12 @@
 			
 		]]>
 	</mx:Script>
-				<mx:VBox>
+				<mx:VBox width="30%">
 					 <mx:Label text="{ResourceUtil.getInstance().getString('bbb.guests.Management')}"/>
+				</mx:VBox>
+				<mx:Spacer width="30" />
+				<mx:VBox width="70%">
 					 <mx:RadioButtonGroup id="guestManagement" itemClick="handleGuestClick(event);"/>
-					 <mx:Spacer width="40"/>
 					 <mx:RadioButton groupName="guestManagement" 
 						id="askModerator"
 						label="{ResourceUtil.getInstance().getString('bbb.guests.askModerator')}" 
@@ -115,4 +115,4 @@
 						value="2"
 						/>
 				</mx:VBox>
-	</mx:VBox>
+</mx:HBox>

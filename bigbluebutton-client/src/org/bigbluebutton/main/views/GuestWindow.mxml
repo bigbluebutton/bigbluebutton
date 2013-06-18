@@ -21,15 +21,14 @@
 -->
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-    title="{ResourceUtil.getInstance().getString('bbb.guests.title')}" showCloseButton="false" creationComplete="init()"
-    x="0" y="0" layout="vertical" width="320" height="200" horizontalAlign="center"
-    xmlns:mate="http://mate.asfusion.com/"
-    
-    >
-    
-    <mate:Listener type="ACCEPT_ALL_WAITING_GUESTS" method="acceptAllWaitingGuests"/>
-    <mate:Listener type="DENY_ALL_WAITING_GUESTS" method="denyAllWaitingGuests"/>
-    
+	title="{ResourceUtil.getInstance().getString('bbb.guests.title')}" showCloseButton="false" creationComplete="init()"
+	x="0" y="0" layout="vertical" width="320" horizontalAlign="center"
+	xmlns:mate="http://mate.asfusion.com/" >
+
+	<mate:Listener type="ACCEPT_ALL_WAITING_GUESTS" method="acceptAllWaitingGuests"/>
+	<mate:Listener type="DENY_ALL_WAITING_GUESTS" method="denyAllWaitingGuests"/>
+	<mate:Listener type="ResponseModeratorEvent.RESPONSE" method="onModeratorResponse" />
+
 	<mx:Script>
 		<![CDATA[
 			import mx.core.FlexGlobals;
@@ -43,72 +42,33 @@
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import mx.containers.HBox;
 			import mx.controls.Button;
+			import mx.controls.Spacer;
 			import org.bigbluebutton.main.events.BBBEvent;
 			
 			private var urlLoader:URLLoader;
 			private var guestWindowMap:Object = new Object();
 			private var guestButtons:Object = new Object();
-			private var images:Images = new Images();
 			[Bindable] private var numberOfGuests:Number = 0;
 			private var dispatcher:Dispatcher = new Dispatcher();
-			[Bindable] public var acceptUserIcon:Class = images.accept_user;
-			[Bindable] public var rejectUserIcon:Class = images.cancel_user;
 
 			public function init():void {
 				//Uncomment this line to make titlewindow undraggable			
 				//this.isPopUp = false;
 			}
 
-			public function createAcceptButton(userid:Number):Button {
-				var acceptBtn:Button = new Button();
-				acceptBtn.addEventListener("click", function():void {handleClick(userid, true);},false);	
-				acceptBtn.setStyle("icon", acceptUserIcon);
-				acceptBtn.toolTip = ResourceUtil.getInstance().getString('bbb.guests.allowBtn.toolTip');
-				return acceptBtn;
-			}
-
-			public function createRejectButton(userid:Number):Button {
-				var rejectBtn:Button = new Button();
-				rejectBtn.addEventListener("click", function():void {handleClick(userid, false);},false);
-				rejectBtn.setStyle("icon", rejectUserIcon);
-				rejectBtn.toolTip = ResourceUtil.getInstance().getString('bbb.guests.denyBtn.toolTip');
-				return rejectBtn;
-			}
-
-  		public function addGuest(userid:Number, username:String):void {
+			public function addGuest(userid:Number, username:String):void {
+//		for (var i:int = 0; i < 30; ++i) {
+//		username += i;
 				numberOfGuests++;
-				guestWindowMap[userid] = name;
-				var box:HBox = new HBox();
-				box.setStyle("verticalAlign", "middle");
-				var label:Label = new Label();
-				label.setStyle("horizontalAlign", "left");
-				label.width = 100;
-				label.text = username;
-				box.addChild(label);
-			
-				var acceptBtn:Button = createAcceptButton(userid);	
-				var rejectBtn:Button = createRejectButton(userid);
-	
-				box.addChild(acceptBtn);
-				box.addChild(rejectBtn);
-				
-				this.addChild(box);
-				guestButtons[userid] = box;
+				guestWindowMap[userid] = username;
+
+				var guestItem:GuestItem = new GuestItem();
+				guestItem.setUser(username, userid);
+				guestListBox.addChild(guestItem);
+				guestButtons[userid] = guestItem;
+
 				this.visible = true;
-				if(numberOfGuests > 1 && numberOfGuests < 11)				
-					this.height+=28;
-			}
-
-			private function handleClick(userid:Number, resp:Boolean):void {
-				sendToServer(resp, userid);
-				remove(userid);	
-			}
-
-			public function sendToServer(acc:Boolean, userid:Number):void {
-				var respCommand:ResponseModeratorEvent = new ResponseModeratorEvent(ResponseModeratorEvent.RESPONSE);
-				respCommand.userid = userid;
-				respCommand.resp = acc;
-				dispatcher.dispatchEvent(respCommand);
+//		}
 			}
 
 			public function sendResponseToAllGuests(resp:Boolean):void {
@@ -116,12 +76,9 @@
 				var respCommand:ResponseModeratorEvent = new ResponseModeratorEvent(ResponseModeratorEvent.RESPONSE_ALL);
 				respCommand.resp = resp;
 				dispatcher.dispatchEvent(respCommand);
-				
 			}
 			
-			
 			public function sendResponseToAllGuestsCheckBox(resp:Boolean):void {
-			
 				if(checkBoxR.selected) {
 					var event:BBBEvent = new BBBEvent("GUEST_POLICY");
 					if(resp) {
@@ -142,18 +99,13 @@
 			public function denyAllWaitingGuests(event:BBBEvent):void {
 				sendResponseToAllGuests(false);
 			}
-			
-			
 	
 			public function removeAllGuests():void {
-				if (numberOfGuests < 11 && numberOfGuests > 0) {
-					this.height-=(28*(numberOfGuests-1))
-				}
 				numberOfGuests = 0;
 
 				for (var key:String in guestWindowMap) {
 				    var userid:Number = new Number(key);
-				    this.removeChild(guestButtons[userid]);
+				    guestListBox.removeChild(guestButtons[userid]);
 				}
 				guestWindowMap = new Object();
 				guestButtons = new Object();
@@ -161,14 +113,11 @@
 			}
 		
 			public function remove(userid:Number):void {
-
 				if (guestWindowMap[userid] != null) {
-					if(numberOfGuests > 1 && numberOfGuests < 11)				
-						this.height-=28;
 					numberOfGuests--;
 				
 					delete guestWindowMap[userid];
-					this.removeChild(guestButtons[userid]);
+					guestListBox.removeChild(guestButtons[userid]);
 					delete guestButtons[userid];
 					if(this.hasGuest() == false) {
 						this.visible = false;
@@ -185,16 +134,20 @@
 
 			public function removeAll():void {
 				PopUpManager.removePopUp(this);
-				
 			}
 			
+			private function onModeratorResponse(event:ResponseModeratorEvent):void {
+				remove(event.userid);
+			}
+
 		]]>
 	</mx:Script>
-	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.guests.message', [String(numberOfGuests)])}"/>
+	<mx:Label text="{numberOfGuests > 1? ResourceUtil.getInstance().getString('bbb.guests.message.plural', [String(numberOfGuests)]): ResourceUtil.getInstance().getString('bbb.guests.message.singular', [String(numberOfGuests)])}"/>
 	<mx:HRule width="100%"/>
 	<mx:Button id="allowEveryoneBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.allowEveryoneBtn.text')}" width="70%" click="sendResponseToAllGuestsCheckBox(true)" toolTip="{allowEveryoneBtn.label}"/>
 	<mx:Button id="denyEveryoneBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.denyEveryoneBtn.text')}" width="70%" click="sendResponseToAllGuestsCheckBox(false)" toolTip="{denyEveryoneBtn.label}"/>
 	<mx:CheckBox id="checkBoxR" label="{ResourceUtil.getInstance().getString('bbb.guests.rememberAction.text')}"/>
-	<mx:HRule width="100%"/>		
+	<mx:HRule width="100%"/>
+	<mx:VBox id="guestListBox" width="100%" height="100%" maxHeight="200" paddingLeft="10" paddingRight="10" paddingBottom="2" />
 	
 </mx:TitleWindow> 

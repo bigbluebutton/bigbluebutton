@@ -1,18 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
-		 showCloseButton="true" close="onCancelClicked()"
-		
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
+		showCloseButton="true" close="onCancelClicked()"
 		xmlns:mate="http://mate.asfusion.com/"
-		width =  "250"
-		height = "80"
+		minWidth="250"
 		creationComplete="onCancelClicked()"
-		title="{ResourceUtil.getInstance().getString('bbb.settings.titleWindow')}"
-		>
-		
+		title="{ResourceUtil.getInstance().getString('bbb.settings.title')}" >
 		
 	<mate:Listener type="{SettingsComponentEvent.ADD}" method="handleAddComponent" />	
 	<mate:Listener type="{SettingsComponentEvent.REMOVE}" method="handleRemoveComponent"/>
-	
 	
 	<mx:Script>
 		<![CDATA[
@@ -27,15 +22,7 @@
 			import org.bigbluebutton.common.events.SettingsComponentEvent;
 			
 			private function handleAddComponent(event:SettingsComponentEvent):void {
-			
-				this.height = this.height + event.component.height;
-				if(this.width < event.component.width)
-					this.width = event.component.width + 60;
-				
 				addedComponents.addChildAt(event.component as UIComponent, 0);
-				
-				
-				
 			}
 			
 			private function handleRemoveComponent(event:SettingsComponentEvent):void {
@@ -46,8 +33,6 @@
 				var event:BBBEvent = new BBBEvent("CANCEL_CLICKED_EVENT");
 				dispatchEvent(event);
 				this.visible = false;
-				
-				
 			}
 		
 			private function onOkClicked():void {
@@ -55,17 +40,14 @@
 				dispatchEvent(event);				
 				this.visible = false;
 			}
-
 			
 		]]>
 	</mx:Script>
-	<mx:VBox id="addedComponents">
+	<mx:VBox id="addedComponents" height="100%" />
 	
-	<mx:HBox width="100%">
-	<mx:Spacer width="2%"/>
-	<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.Ok')}" width="100" click="onOkClicked()"/>
-	<mx:Spacer width="2%"/>
-	<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.Cancel')}" width="100" click="onCancelClicked()"/>
-	</mx:HBox>	
-	</mx:VBox>
+	<mx:ControlBar width="100%" horizontalAlign="center">
+		<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.settings.ok')}" width="100" click="onOkClicked()"/>
+		<mx:Spacer width="10"/>
+		<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.settings.cancel')}" width="100" click="onCancelClicked()"/>
+	</mx:ControlBar>	
 </mx:TitleWindow>
