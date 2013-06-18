@@ -50,6 +50,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var presKeys:ArrayList;
 			private var chatKeys:ArrayList;
 			private var userKeys:ArrayList;
+			private var pollKeys:ArrayList;
+			private var pollVoteKeys:ArrayList;
 			
 			// genResource is populated dynamically in populategenResource()
 			private var genResource:Array;
@@ -65,6 +67,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var userResource:Array = ['bbb.shortcutkey.users.focusUsers', 'bbb.shortcutkey.users.makePresenter', 'bbb.shortcutkey.users.mute', 
 											  /*'bbb.shortcutkey.users.kick',*/ 'bbb.shortcutkey.users.muteall'];
+			
+			private var pollResource:Array = ['bbb.shortcutkey.polling.focusTitle', 'bbb.shortcutkey.polling.focusQuestion', 'bbb.shortcutkey.polling.focusAnswers', 
+											  'bbb.shortcutkey.polling.focusMultipleCB', 'bbb.shortcutkey.polling.focusWebPollCB', 'bbb.shortcutkey.polling.previewClick', 
+											  'bbb.shortcutkey.polling.cancelClick', 'bbb.shortcutkey.polling.modify', 'bbb.shortcutkey.polling.publish', 
+											  'bbb.shortcutkey.polling.save', 'bbb.shortcutkey.pollStats.explanation', 'bbb.shortcutkey.polling.focusWebPoll', 
+											  'bbb.shortcutkey.polling.focusData', 'bbb.shortcutkey.polling.refresh', 'bbb.shortcutkey.polling.stopPoll', 
+											  'bbb.shortcutkey.polling.repostPoll', 'bbb.shortcutkey.polling.closeStatsWindow'];
+			
+			private var pollVoteResource:Array = ['bbb.shortcutkey.polling.focusVoteQuestion', 'bbb.shortcutkey.polling.vote'];
 			
 			[Bindable]
 			private var shownKeys:ArrayCollection;
@@ -93,6 +104,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function populategenResource():void{
 				genResource = new Array();
 				
+				/*
+					'bbb.shortcutkey.focus.pollingCreate', 'bbb.shortcutkey.focus.pollingStats', 
+					'bbb.shortcutkey.focus.voting', '
+					'bbb.shortcutkey.polling.buttonClick',  
+				*/
+				
 				// Module-independent keys
 				genResource.push('bbb.shortcutkey.general.minimize');
 				genResource.push('bbb.shortcutkey.general.maximize');
@@ -117,7 +134,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					genResource.push('bbb.shortcutkey.chat.chatinput');
 				}
 				if ShortcutOptions.pollingActive{
-					genResource.push();
+					genResource.push('bbb.shortcutkey.focus.pollingCreate'); 
+					genResource.push('bbb.shortcutkey.focus.pollingStats'); 
+					genResource.push('bbb.shortcutkey.focus.voting');
+					genResource.push('bbb.shortcutkey.polling.buttonClick');
 				}
 				if ShortcutOptions.webcamActive{
 					genResource.push('bbb.shortcutkey.share.webcam');
@@ -135,6 +155,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				presKeys = loadKeys(presResource);
 				chatKeys = loadKeys(chatResource);
 				userKeys = loadKeys(userResource);
+				pollKeys = loadKeys(pollResource);
+				pollVoteKeys = loadKeys(pollVoteResource);
 				
 				changeArray();
 			}
@@ -153,6 +175,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					break;
 				case 3: //Users
 					shownKeys.addAll(userKeys);
+					break;
+				case 4: //Polling, Presenter
+					shownKeys.addAll(pollKeys);
+					break;
+				case 5: //Polling, Viewer
+					shownKeys.addAll(pollVoteKeys);
 					break;
 				}
 			}
@@ -239,6 +267,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
          	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.presentation")}</mx:String>
          	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.chat")}</mx:String>
          	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.users")}</mx:String>
+			<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.polling")}</mx:String>
+			<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.polling2")}</mx:String>
       	</mx:ArrayCollection>
 	</mx:ComboBox>
 	<mx:DataGrid id="keyList" draggableColumns="false" dataProvider="{shownKeys}" width="100%" height="100%" tabIndex="{baseIndex + 15}" >

@@ -27,6 +27,19 @@ Notes.mxml is the main view of the SharedNotes application
 		creationComplete="onCreationComplete()"
 		label="Create Poll" layout="absolute"
 		title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
+	
+	<mate:Listener type="{ShortcutEvent.FOCUS_POLL_TITLE}" method="focusTitle" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_POLL_QUESTION}" method="focusQuestion" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_POLL_ANSWERS}" method="focusAnswers" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_MULT_CHECK}" method="focusMultiple" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_WEBPOLL_CHECK}" method="focusWebpoll" />
+	
+	<mate:Listener type="{ShortcutEvent.POLL_PREVIEW}" method="previewClick" />
+	<mate:Listener type="{ShortcutEvent.POLL_CANCEL}" method="cancelClick" />
+	
+	<mate:Listener type="{ShortcutEvent.POLL_MODIFY}" method="modifyClick" />
+	<mate:Listener type="{ShortcutEvent.POLL_PUBLISH}" method="publishClick" />
+	<mate:Listener type="{ShortcutEvent.POLL_SAVE}" method="saveClick" />
 
 <!-- Pre Defined Validation -->
 	<mx:Script>
@@ -90,6 +103,8 @@ Notes.mxml is the main view of the SharedNotes application
 		[Bindable] public var editing:Boolean;
 		[Bindable] public var pollOptions:PollOptions;
 		[Bindable] private var baseIndex:int;
+			
+		private var keyCombos:Object;
 		
 		// LENGTH CONSTRAINTS ( CHANGE IF YOU NEED)
 		//################################################
@@ -111,6 +126,8 @@ Notes.mxml is the main view of the SharedNotes application
 		
 		private function onCreationComplete():void{
 			published = false;
+			
+			hotkeyCapture();
 			
 			titleBarOverlay.tabIndex = baseIndex;
 			minimizeBtn.tabIndex = baseIndex+1;
@@ -140,6 +157,38 @@ Notes.mxml is the main view of the SharedNotes application
 			
 			this.module = module;
 			focusManager.setFocus(titleBarOverlay); 
+		}
+			
+		private function hotkeyCapture():void{
+			this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+			//ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
+		}
+			
+		private function handleKeyDown(e:KeyboardEvent) :void {
+			var modifier:String = ExternalInterface.call("determineModifier");
+			loadKeyCombos(modifier);
+			var keyPress:String = (e.ctrlKey ? "control+" : "") +
+				(e.shiftKey ? "shift+" : "") +
+				(e.altKey ? "alt+" : "") + e.keyCode;
+			LogUtil.debug("Polling Instructions: modifier is " + modifier);
+			if (keyCombos[keyPress]) {
+				LogUtil.debug("Dispatching event " + keyCombos[keyPress]);
+				dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+			}
+		}
+		
+		private function loadKeyCombos(modifier:String):void {
+			keyCombos = new Object(); // always start with a fresh array
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusTitle') as String)] = ShortcutEvent.FOCUS_POLL_TITLE;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusQuestion') as String)] = ShortcutEvent.FOCUS_POLL_QUESTION;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusAnswers') as String)] = ShortcutEvent.FOCUS_POLL_ANSWERS;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusMultipleCB') as String)] = ShortcutEvent.FOCUS_MULT_CHECK;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusWebPollCB') as String)] = ShortcutEvent.FOCUS_WEBPOLL_CHECK;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.previewClick') as String)] = ShortcutEvent.POLL_PREVIEW;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.cancelClick') as String)] = ShortcutEvent.POLL_CANCEL;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.modify') as String)] = ShortcutEvent.POLL_MODIFY;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.publish') as String)] = ShortcutEvent.POLL_PUBLISH;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.save') as String)] = ShortcutEvent.POLL_SAVE;
 		}
 		
 		// Overwritting close to use custom function
@@ -445,9 +494,54 @@ Notes.mxml is the main view of the SharedNotes application
 		}
 			
 		private function focusTitle(e:ShortcutEvent = null):void{
-			LogUtil.debug("Focusing Title");
 			if (pollTitle.enabled && pollTitle.visible){
 				focusManager.setFocus(pollTitle);
+			}
+		}
+		private function focusQuestion(e:ShortcutEvent):void{
+			if (pollQuestion.enabled && pollQuestion.visible){
+				focusManager.setFocus(pollQuestion);
+			}
+		}
+		private function focusAnswers(e:ShortcutEvent):void{
+			if (pollAnswers.enabled && pollAnswers.visible){
+				focusManager.setFocus(pollAnswers);
+			}
+		}
+		private function focusMultiple(e:ShortcutEvent):void{
+			if (multiple_response.enabled && multiple_response.visible){
+				focusManager.setFocus(multiple_response);
+			}
+		}
+		private function focusWebpoll(e:ShortcutEvent):void{
+			if (publishToWeb_response.enabled && publishToWeb_response.visible){
+				focusManager.setFocus(publishToWeb_response);
+			}
+		}
+		private function previewClick(e:ShortcutEvent):void{
+			if (next.enabled && next.visible){
+				validateAndSubmit();
+			}
+		}
+		private function cancelClick(e:ShortcutEvent):void{
+			if (Cancel.enabled && Cancel.visible){
+				closeInstructionsWindow();
+			}
+		}
+		
+		private function modifyClick(e:ShortcutEvent):void{
+			if (back.enabled && back.visible){
+				goBack();
+			}
+		}
+		private function publishClick(e:ShortcutEvent):void{
+			if (publishButton.enabled && publishButton.visible){
+				publish();
+			}
+		}
+		private function saveClick(e:ShortcutEvent):void{
+			if (SavePoll.enabled && SavePoll.visible){
+				savePoll();
 			}
 		}
 		]]>
