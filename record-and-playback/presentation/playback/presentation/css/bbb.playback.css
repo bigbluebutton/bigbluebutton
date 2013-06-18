@@ -54,7 +54,7 @@ br{
 
 #audioRecordingWrapper{
 	float: left;
-	width: 100%;
+	width: 800px;
 }
 
 #audioRecording{
@@ -64,17 +64,21 @@ br{
 	width: 100%;
 }
 
-#audioRecordingWrapper .acorn-controls{
+#audioRecordingWrapper .acorn-controls, #videoRecordingWrapper .acorn-controls{
 	position: relative;
-	margin-top: -5px;
-	margin-left: 5px;
-	width: 750px;
+	top: 5px;
+	left: -810px;
+	width: 730px;
+}
+
+#playbackControls{
+	width: 1360px;
+	margin: 0 auto;
 }
 
 #autoscrollWrapper{
 	float: left;
 	margin-left: 10px;
-	width: 130px;
 	font-size: 14px;
 }
 
@@ -130,10 +134,16 @@ br{
 	overflow: hidden;
 }
 
-.chatcontainer{
+#mediaArea {
 	float: right;
 	background: white;
-	height: 300px; 
+	width: 402px;
+}
+
+#chatAndMediaArea{
+	float: right;
+	background: white;
+	height: 600px;
 	width: 402px;
 }
 #chat{
