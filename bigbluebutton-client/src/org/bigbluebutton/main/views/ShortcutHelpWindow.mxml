@@ -42,8 +42,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.model.ShortcutOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
+			private var options:ShortcutOptions;			
 			private var genKeys:ArrayList;
 			private var presKeys:ArrayList;
 			private var chatKeys:ArrayList;
