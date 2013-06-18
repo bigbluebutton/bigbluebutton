@@ -117,35 +117,35 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				genResource.push('bbb.shortcutkey.shortcutWindow');
 				genResource.push('bbb.shortcutkey.logout');
 				
-				if ShortcutOptions.usersActive{
+				if (ShortcutOptions.usersActive){
 					genResource.push('bbb.shortcutkey.focus.users');
 					genResource.push('bbb.shortcutkey.raiseHand');
 					genResource.push('bbb.shortcutkey.users.muteme');
 					genResource.push('bbb.shortcutkey.users.muteAllButPres');
 				}
-				if ShortcutOptions.videoDockActive{
+				if (ShortcutOptions.videoDockActive){
 					genResource.push('bbb.shortcutkey.focus.video');
 				}
-				if ShortcutOptions.presentationActive{
+				if (ShortcutOptions.presentationActive){
 					genResource.push('bbb.shortcutkey.focus.presentation');
 				}
-				if ShortcutOptions.chatActive{
+				if (ShortcutOptions.chatActive){
 					genResource.push('bbb.shortcutkey.focus.chat');
 					genResource.push('bbb.shortcutkey.chat.chatinput');
 				}
-				if ShortcutOptions.pollingActive{
+				if (ShortcutOptions.pollingActive){
 					genResource.push('bbb.shortcutkey.focus.pollingCreate'); 
 					genResource.push('bbb.shortcutkey.focus.pollingStats'); 
 					genResource.push('bbb.shortcutkey.focus.voting');
 					genResource.push('bbb.shortcutkey.polling.buttonClick');
 				}
-				if ShortcutOptions.webcamActive{
+				if (ShortcutOptions.webcamActive){
 					genResource.push('bbb.shortcutkey.share.webcam');
 				}
-				if ShortcutOptions.deskshareActive{
+				if (ShortcutOptions.deskshareActive){
 					genResource.push('bbb.shortcutkey.share.desktop');
 				}
-				if ShortcutOptions.audioActive{
+				if (ShortcutOptions.audioActive){
 					genResource.push('bbb.shortcutkey.share.microphone');
 				}
 			}
