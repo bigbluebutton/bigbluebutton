@@ -4,16 +4,16 @@ package org.bigbluebutton.main.model
 	import org.bigbluebutton.common.LogUtil;
 	public class ShortcutOptions
 	{
-		private var users:Boolean = true;
-		private var videoDock:Boolean = true;
-		private var presentation:Boolean = true;
-		private var chat:Boolean = true;
-		private var polling:Boolean = true;
-		private var webcam:Boolean = true;
-		private var deskshare:Boolean = true;
-		private var audio:Boolean = true;
+		private static var users:Boolean = true;
+		private static var videoDock:Boolean = true;
+		private static var presentation:Boolean = true;
+		private static var chat:Boolean = true;
+		private static var polling:Boolean = true;
+		private static var webcam:Boolean = true;
+		private static var deskshare:Boolean = true;
+		private static var audio:Boolean = true;
 		
-		public function ShortcutOptions() {
+		public static function initialize() {
 			var vxml:XML;
 			
 			vxml = BBB.getConfigForModule("UsersModule");
@@ -57,16 +57,16 @@ package org.bigbluebutton.main.model
 			}
 		}
 		
-		public function get usersActive():Boolean{return users;}
-		public function get videoDockActive():Boolean{return videoDock;}
-		public function get presentationActive():Boolean{return presentation;}
-		public function get chatActive():Boolean{return chat;}
-		public function get pollingActive():Boolean{return polling;}
-		public function get webcamActive():Boolean{return webcam;}		
-		public function get deskshareActive():Boolean{return deskshare;}
-		public function get audioActive():Boolean{return audio;}
+		public static function get usersActive():Boolean{return users;}
+		public static function get videoDockActive():Boolean{return videoDock;}
+		public static function get presentationActive():Boolean{return presentation;}
+		public static function get chatActive():Boolean{return chat;}
+		public static function get pollingActive():Boolean{return polling;}
+		public static function get webcamActive():Boolean{return webcam;}		
+		public static function get deskshareActive():Boolean{return deskshare;}
+		public static function get audioActive():Boolean{return audio;}
 		
-		public function debugString():String{
+		public static function debugString():String{
 			return "USERS: " + users + " VIDEODOCK: " + videoDock + " PRESENTATION: " + presentation + " CHAT: " + chat + " POLLING: " + polling + " WEBCAM: " + webcam + " DESKSHARE: " + deskshare + " AUDIO: " + audio;
 		}
 	}

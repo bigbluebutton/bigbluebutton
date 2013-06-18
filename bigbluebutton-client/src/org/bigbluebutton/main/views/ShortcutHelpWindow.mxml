@@ -45,7 +45,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.ShortcutOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			private var options:ShortcutOptions;			
+			//private var options:ShortcutOptions;			
 			private var genKeys:ArrayList;
 			private var presKeys:ArrayList;
 			private var chatKeys:ArrayList;
@@ -82,11 +82,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function init():void {
 				modifier = ExternalInterface.call("determineModifier");
 				globalModifier = ExternalInterface.call("determineGlobalModifier");
+				LogUtil.debug("Testing static Options -> " + ShortcutOptions.debugString()); 
 			}
 			
 			private function onCreationComplete():void {
-				options = new ShortcutOptions();
-				LogUtil.debug("WATERFALL: Options debug is -> " + options.debugString());
+				//options = new ShortcutOptions();
 				
 				localeChanged();
 				titleBarOverlay.tabIndex = baseIndex;

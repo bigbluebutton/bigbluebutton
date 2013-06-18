@@ -28,7 +28,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   pageTitle="BigBlueButton" 
   layout="absolute" preinitialize="init()"
   preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader"
-  applicationComplete="hotkeyCapture()">
+  applicationComplete="appComplete()">
  
   <mx:Script>
     <![CDATA[
@@ -45,6 +45,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.api.ExternalApiCallbacks;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
+	  import org.bigbluebutton.main.model.ShortcutOptions;
       import org.bigbluebutton.main.views.MainApplicationShell;
       import org.bigbluebutton.util.i18n.ResourceUtil;
       private var langResources:ResourceUtil = null; //ResourceUtil.getInstance();
@@ -74,6 +75,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       LogUtil.debug("***** Config Loaded ****");
       mainShell.initOptions(null);
     }
+	
+	private function appComplete():void{
+		ShortcutOptions.initialize();
+		hotkeyCapture();
+	}
       
     private var api:ExternalApiCallbacks;
       
