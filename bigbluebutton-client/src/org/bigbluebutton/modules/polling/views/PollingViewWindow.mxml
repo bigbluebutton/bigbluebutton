@@ -75,6 +75,7 @@
 			public var cbSelected:Array = new Array(); // variable that receives either CheckBox or RadioButton info and sends it to VoteEvent
 			[Bindable] public var pollOptions:PollOptions;
 			[Bindable] private var baseIndex:int;
+			private var keyCombos:Object;
 			
 			public function getPrefferedPosition():String{
 				return MainCanvas.POPUP;
@@ -90,6 +91,7 @@
 			} 
  			 
 			private function onCreationComplete():void{
+				hotkeyCapture();				
 				titleBarOverlay.tabIndex = baseIndex;
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
@@ -118,6 +120,27 @@
 				}				 	            	
 				height = height + ((lines+1) * 45);
 				// We won't automatically focus to the Vote window when it is created, for a couple of reasons.
+			}
+			
+			private function hotkeyCapture():void{
+				this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+			}
+			
+			private function handleKeyDown(e:KeyboardEvent) :void {
+				var modifier:String = ExternalInterface.call("determineModifier");
+				loadKeyCombos(modifier);             
+				var keyPress:String = (e.ctrlKey  ? "control+" : "") +
+					(e.shiftKey ? "shift+"   : "") +
+					(e.altKey   ? "alt+"     : "") + e.keyCode;                                     
+				if (keyCombos[keyPress]) {
+					dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+				}
+			}
+			
+			private function loadKeyCombos(modifier:String):void {
+				keyCombos = new Object(); // always start with a fresh array
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.vote') as String)] = ShortcutEvent.REMOTE_CAST_VOTE;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusVoteQuestion') as String)] = ShortcutEvent.FOCUS_VOTE_QUESTION;
 			}
 						
 			// This function will receive information and generate radiobuttons on fly
