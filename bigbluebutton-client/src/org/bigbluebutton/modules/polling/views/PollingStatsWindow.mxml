@@ -31,6 +31,14 @@
 		   title="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"
 		   layout="absolute"
 		   >
+	
+	<mate:Listener type="{ShortcutEvent.FOCUS_WEBPOLL_ADDRESS}" method="focusWebPollBox" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_POLL_DATA}" method="focusDataGrid" />
+	<mate:Listener type="{ShortcutEvent.SC_REFRESH_POLL}" method="remoteRefresh" />
+	<mate:Listener type="{ShortcutEvent.SC_STOP_POLL}" method="remoteStop" />
+	
+	<mate:Listener type="{ShortcutEvent.SC_REPOST_POLL}" method="remoteRepost" />
+	<mate:Listener type="{ShortcutEvent.CLOSE_POLL_STATS}" method="remoteClose" />
 
 	<mx:Script>
 		<![CDATA[
@@ -56,6 +64,7 @@
       import org.bigbluebutton.main.model.users.BBBUser;
       import org.bigbluebutton.main.model.users.Conference;
       import org.bigbluebutton.main.views.MainCanvas;
+	  import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
       import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
       import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
@@ -92,6 +101,7 @@
 		private var notified:Boolean;
 		private var refreshTimer:Timer = new Timer(1000);
 		[Bindable] private var answerCollection:ArrayCollection = new ArrayCollection();
+		private var keyCombos:Object;
 		
 		private function init():void{			
 			pollOptions = new PollOptions();
@@ -119,6 +129,8 @@
 		
 
 		private function onCreationComplete():void{
+			hotkeyCapture();
+			
 			titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.polling.stats.accessTitle', [trackingPoll.title]);
 			titleBarOverlay.tabIndex = baseIndex;
 			minimizeBtn.tabIndex = baseIndex+1;
@@ -155,8 +167,35 @@
 			height = height + ((lines+1) * 45);
 			createResultsTable(answers.length, answers);
 			focusManager.setFocus(titleBarOverlay); 
-		}			
-
+		}
+			
+			private function hotkeyCapture():void{
+				this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+				//ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
+			}
+			
+			private function handleKeyDown(e:KeyboardEvent) :void {
+				var modifier:String = ExternalInterface.call("determineModifier");
+				loadKeyCombos(modifier);             
+				var keyPress:String = (e.ctrlKey  ? "control+" : "") +
+					(e.shiftKey ? "shift+"   : "") +
+					(e.altKey   ? "alt+"     : "") + e.keyCode;                                     
+				if (keyCombos[keyPress]) {
+					dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+				}
+			}
+			
+			
+			private function loadKeyCombos(modifier:String):void {
+				keyCombos = new Object(); // always start with a fresh array
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusData') as String)] = ShortcutEvent.FOCUS_POLL_DATA;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.refresh') as String)] = ShortcutEvent.SC_REFRESH_POLL;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusWebPoll') as String)] = ShortcutEvent.FOCUS_WEBPOLL_ADDRESS;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.stopPoll') as String)] = ShortcutEvent.SC_STOP_POLL;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.closeStatsWindow') as String)] = ShortcutEvent.CLOSE_POLL_STATS;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.repostPoll') as String)] = ShortcutEvent.SC_REPOST_POLL;
+			}
+			
 		public function setUrlBoxText():void{
 			webPollURLBox.text = webPollUrl;
 			webPollURLBox.accessibilityName = ResourceUtil.getInstance().getString('bbb.polling.stats.webPollBoxAccessName', [webPollUrl]);
@@ -268,6 +307,48 @@
 				pso.votes = trackingPoll.didNotVote.toString();
 				pso.percentage = "";
 				return pso;
+			}
+			
+			private function focusWebPollBox(e:ShortcutEvent):void{
+				if (webPollURLBox.visible)
+					focusManager.setFocus(webPollURLBox);
+			}
+			
+			private function focusDataGrid(e:ShortcutEvent):void{
+				focusManager.setFocus(resultsGrid);
+			}
+			
+			// addAlert
+			private function remoteRefresh(e:ShortcutEvent):void{
+				if (btnRefreshResults.label == ResourceUtil.getInstance().getString('bbb.polling.stats.refresh')){
+					var message:String = ResourceUtil.getInstance().getString('bbb.polling.stats.alerts.refresh');
+					ExternalInterface.call("addAlert", message);
+					refreshPoll();
+				}
+			}
+			
+			private function remoteStop(e:ShortcutEvent):void{
+				if (btnClosePoll.label == ResourceUtil.getInstance().getString('bbb.polling.stats.stopPoll')){
+					var message:String = ResourceUtil.getInstance().getString('bbb.polling.stats.alerts.stopPoll');
+					ExternalInterface.call("addAlert", message);
+					stopPoll();
+				}
+			}
+			
+			private function remoteRepost(e:ShortcutEvent):void{
+				if (btnRefreshResults.label == ResourceUtil.getInstance().getString('bbb.polling.stats.repost')){
+					var message:String = ResourceUtil.getInstance().getString('bbb.polling.stats.alerts.repost');
+					ExternalInterface.call("addAlert", message);
+					publishPollAgain(e);
+				}
+			}
+			
+			private function remoteClose(e:ShortcutEvent):void{
+				if (btnClosePoll.label == ResourceUtil.getInstance().getString('bbb.polling.stats.close')){
+					var message:String = ResourceUtil.getInstance().getString('bbb.polling.stats.alerts.close');
+					ExternalInterface.call("addAlert", message);
+					closeButtonClick(e);
+				}
 			}
 	]]>
 	</mx:Script>
