@@ -85,8 +85,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onCreationComplete():void {
-				localeChanged();
+				options = new ShortcutOptions();
+				LogUtil.debug("WATERFALL: Options debug is -> " + options.debugString());
 				
+				localeChanged();
 				titleBarOverlay.tabIndex = baseIndex;
 				
 				minimizeBtn.tabIndex = baseIndex + 1;
