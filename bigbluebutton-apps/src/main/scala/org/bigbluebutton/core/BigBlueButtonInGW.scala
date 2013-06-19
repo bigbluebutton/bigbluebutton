@@ -21,6 +21,7 @@ import org.bigbluebutton.core.api.GetSlideInfo
 import org.bigbluebutton.conference.service.presentation.PreuploadedPresentationsUtil
 import org.bigbluebutton.core.api.PreuploadedPresentetations
 import org.bigbluebutton.core.api.DestroyMeeting
+import org.bigbluebutton.core.api.KeepAliveMessage
 
 class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW {
 
@@ -41,7 +42,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
   }
   
   def isAliveAudit() {
-    
+    bbbGW.accept(new KeepAliveMessage(null)); 
   }
 
   def statusMeetingAudit(meetingID: String) {

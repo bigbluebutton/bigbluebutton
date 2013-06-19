@@ -10,6 +10,8 @@ import org.bigbluebutton.core.api.InMessage
 import org.bigbluebutton.core.api.InitializeMeeting
 import org.bigbluebutton.core.StopMeetingActor
 import org.bigbluebutton.core.api.DestroyMeeting
+import org.bigbluebutton.core.api.KeepAliveMessage
+import org.bigbluebutton.core.api.KeepAliveMessageReply
 
 class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
   
@@ -20,6 +22,7 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
 		react {
 	      case createMeeting: CreateMeeting => handleCreateMeeting(createMeeting)
 	      case destroyMeeting: DestroyMeeting => handleDestroyMeeting(destroyMeeting)
+        case keepAliveMessage: KeepAliveMessage => handleKeepAliveMessage(keepAliveMessage)
 	      case msg:InMessage => handleMeetingMessage(msg)
 	      case _ => // do nothing
 	    }
@@ -31,6 +34,10 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
       case None => // do nothing
       case Some(m) => m ! msg
     }
+  }
+
+  private def handleKeepAliveMessage(msg: KeepAliveMessage):Unit = {
+    outGW.send(new KeepAliveMessageReply())
   }
   
   private def handleDestroyMeeting(msg: DestroyMeeting) {
