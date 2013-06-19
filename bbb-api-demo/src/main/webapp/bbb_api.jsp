@@ -230,7 +230,7 @@ public String getJoinURL(String username, String meetingID, String record, Strin
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
-public String getJoinURLwithDynamicConfigXML(String username, String meetingID, String xml) {
+public String getJoinURLwithDynamicConfigXML(String username, String meetingID, String configXML) {
     
     String base_url_create = BigBlueButtonURL + "api/create?";
     String base_url_join = BigBlueButtonURL + "api/join?";
@@ -288,8 +288,8 @@ public String getJoinURLwithDynamicConfigXML(String username, String meetingID, 
     //  
     
     String xml_param = "";
-    if ((xml != null) && !xml.equals("")) {
-        xml_param = xml;
+    if ((configXML != null) && !configXML.equals("")) {
+        xml_param = configXML;
         xml_param = xml_param.replace("\n", "");
         xml_param = xml_param.replace("\t", "");
         xml_param = xml_param.replace(">  <", "><");

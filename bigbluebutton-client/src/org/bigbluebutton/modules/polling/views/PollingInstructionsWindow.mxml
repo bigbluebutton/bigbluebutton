@@ -20,12 +20,26 @@ Notes.mxml is the main view of the SharedNotes application
 -->
 <MDIWindow xmlns="flexlib.mdi.containers.*"
         xmlns:mx="http://www.adobe.com/2006/mxml"
-width="510" height="600"
-xmlns:mate="http://mate.asfusion.com/"
-implements="org.bigbluebutton.common.IBbbModuleWindow"
-creationComplete="onCreationComplete()"
-label="Create Poll" layout="absolute"
-title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
+		width="510" height="600"
+		xmlns:mate="http://mate.asfusion.com/"
+		implements="org.bigbluebutton.common.IBbbModuleWindow"
+		initialize="init()"
+		creationComplete="onCreationComplete()"
+		label="Create Poll" layout="absolute"
+		title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
+	
+	<mate:Listener type="{ShortcutEvent.FOCUS_POLL_TITLE}" method="focusTitle" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_POLL_QUESTION}" method="focusQuestion" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_POLL_ANSWERS}" method="focusAnswers" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_MULT_CHECK}" method="focusMultiple" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_WEBPOLL_CHECK}" method="focusWebpoll" />
+	
+	<mate:Listener type="{ShortcutEvent.POLL_PREVIEW}" method="previewClick" />
+	<mate:Listener type="{ShortcutEvent.POLL_CANCEL}" method="cancelClick" />
+	
+	<mate:Listener type="{ShortcutEvent.POLL_MODIFY}" method="modifyClick" />
+	<mate:Listener type="{ShortcutEvent.POLL_PUBLISH}" method="publishClick" />
+	<mate:Listener type="{ShortcutEvent.POLL_SAVE}" method="saveClick" />
 
 <!-- Pre Defined Validation -->
 	<mx:Script>
@@ -41,6 +55,7 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		import mx.collections.ArrayCollection;
 		import mx.core.IUIComponent;
 		import mx.containers.HBox;
+		import mx.controls.Text;
 		import mx.controls.CheckBox;
 		import mx.controls.RadioButton;
 		import org.bigbluebutton.modules.polling.events.SavePollEvent;
@@ -51,8 +66,10 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
 		import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
 		import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
+		import org.bigbluebutton.main.events.ShortcutEvent;
 		
 		import org.bigbluebutton.modules.polling.model.PollObject;
+		import org.bigbluebutton.modules.polling.model.PollOptions;
 		
 		import org.bigbluebutton.core.managers.UserManager;
 		import org.bigbluebutton.main.model.users.Conference 
@@ -84,6 +101,10 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		[Bindable] public var invalidTitles:Array;
 		[Bindable] public var incomingPoll:PollObject;
 		[Bindable] public var editing:Boolean;
+		[Bindable] public var pollOptions:PollOptions;
+		[Bindable] private var baseIndex:int;
+			
+		private var keyCombos:Object;
 		
 		// LENGTH CONSTRAINTS ( CHANGE IF YOU NEED)
 		//################################################
@@ -97,14 +118,22 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		public function getPrefferedPosition():String{
 			return MainCanvas.POPUP;
 		}
+			
+		private function init():void{
+			pollOptions = new PollOptions();
+			baseIndex = pollOptions.baseTabIndex;
+		}
 		
 		private function onCreationComplete():void{
 			published = false;
 			
-			/*pollTitle.editable = false;
-			focusManager.setFocus(pollTitle);
-			pollTitle.editable = true;
-			focusManager.setFocus(pollTitle);*/
+			hotkeyCapture();
+			
+			titleBarOverlay.tabIndex = baseIndex;
+			minimizeBtn.tabIndex = baseIndex+1;
+			maximizeRestoreBtn.tabIndex = baseIndex+2;
+			closeBtn.tabIndex = baseIndex+3;
+			titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.polling.createPoll.accessTitle');
 			
 			if (incomingPoll != null){
 				LogUtil.debug("EDITING POLL");
@@ -127,6 +156,39 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 			userName = moduleAttributes.username;
 			
 			this.module = module;
+			focusManager.setFocus(titleBarOverlay); 
+		}
+			
+		private function hotkeyCapture():void{
+			this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+			//ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
+		}
+			
+		private function handleKeyDown(e:KeyboardEvent) :void {
+			var modifier:String = ExternalInterface.call("determineModifier");
+			loadKeyCombos(modifier);
+			var keyPress:String = (e.ctrlKey ? "control+" : "") +
+				(e.shiftKey ? "shift+" : "") +
+				(e.altKey ? "alt+" : "") + e.keyCode;
+			LogUtil.debug("Polling Instructions: modifier is " + modifier);
+			if (keyCombos[keyPress]) {
+				LogUtil.debug("Dispatching event " + keyCombos[keyPress]);
+				dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+			}
+		}
+		
+		private function loadKeyCombos(modifier:String):void {
+			keyCombos = new Object(); // always start with a fresh array
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusTitle') as String)] = ShortcutEvent.FOCUS_POLL_TITLE;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusQuestion') as String)] = ShortcutEvent.FOCUS_POLL_QUESTION;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusAnswers') as String)] = ShortcutEvent.FOCUS_POLL_ANSWERS;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusMultipleCB') as String)] = ShortcutEvent.FOCUS_MULT_CHECK;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusWebPollCB') as String)] = ShortcutEvent.FOCUS_WEBPOLL_CHECK;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.previewClick') as String)] = ShortcutEvent.POLL_PREVIEW;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.cancelClick') as String)] = ShortcutEvent.POLL_CANCEL;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.modify') as String)] = ShortcutEvent.POLL_MODIFY;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.publish') as String)] = ShortcutEvent.POLL_PUBLISH;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.save') as String)] = ShortcutEvent.POLL_SAVE;
 		}
 		
 		// Overwritting close to use custom function
@@ -282,9 +344,12 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		//#####################################################################################################
 		
 		public function goBack():void{
+			mainArea.selectedChild=instrMain; 
+			buttons.selectedChild=instrButtons;
 			back.visible=false;
 			publishButton.visible=false;
 			options.removeAllChildren();
+			focusTitle();
 		}
 		
 		private function isDuplicateAnswers(arr:Array):Boolean{
@@ -322,12 +387,15 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 			// Make Back button visible
 			back.visible=true;
 			publishButton.visible=true;
-			checkInstructions.visible = _isMultiple;
 			// Make Title and Question string first letter Upper case
 			_title = upperFirstLetter(_title);
 			_question = upperFirstLetter(_question);
 			createButtons(_answers.length,_answers);
-			focusManager.setFocus(back);
+			questionText.text = _question;
+			if (_isMultiple)
+				questionText.text += " " + ResourceUtil.getInstance().getString('bbb.polling.pollPreview.checkAll');
+			      
+			focusManager.setFocus(previewExplanation);
 		}
 		
 		private function upperFirstLetter(str:String) : String {
@@ -340,8 +408,10 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 			var _rb:RadioButton;
 			var _tx: Text;
 			var _hb: HBox;
+			var totalOptions:int = content.length; 
 			// creating buttons one by one
 			for (var i:int = 0; i < amount; i++) {
+				var indicator:String = ResourceUtil.getInstance().getString('bbb.polling.vote.indicator', [i+1, totalOptions]);
 				_tx = new Text();
 				_hb = new HBox();
 				_tx.name = "option" +i;
@@ -355,6 +425,8 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 					_cb= new CheckBox();
 					// giving button a name of array elelment to process it easier later
 					_cb.name=content.getItemAt(i).toString();
+					_cb.accessibilityName = indicator + content.getItemAt(i).toString();
+					_cb.tabIndex = baseIndex + 5 + i
 					// gap between the buttons
 					_cb.y=i*20;
 					// adding buttons to the Horizontal Box
@@ -364,6 +436,7 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 					_rb.name = content.getItemAt(i).toString(); // giving button a name of array elelment to process it easier later
 					_rb.groupName = "answers";
 					_rb.label =" ";
+					_rb.tabIndex = baseIndex + 5;
 					_hb.addChild(_rb);
 				}
 			_hb.addChild(_tx); // adding text near button
@@ -419,6 +492,58 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		private function allowPublishing():void {
 			dispatchEvent(new PollingStatusCheckEvent(PollingStatusCheckEvent.CHECK));
 		}
+			
+		private function focusTitle(e:ShortcutEvent = null):void{
+			if (pollTitle.enabled && pollTitle.visible){
+				focusManager.setFocus(pollTitle);
+			}
+		}
+		private function focusQuestion(e:ShortcutEvent):void{
+			if (pollQuestion.enabled && pollQuestion.visible){
+				focusManager.setFocus(pollQuestion);
+			}
+		}
+		private function focusAnswers(e:ShortcutEvent):void{
+			if (pollAnswers.enabled && pollAnswers.visible){
+				focusManager.setFocus(pollAnswers);
+			}
+		}
+		private function focusMultiple(e:ShortcutEvent):void{
+			if (multiple_response.enabled && multiple_response.visible){
+				focusManager.setFocus(multiple_response);
+			}
+		}
+		private function focusWebpoll(e:ShortcutEvent):void{
+			if (publishToWeb_response.enabled && publishToWeb_response.visible){
+				focusManager.setFocus(publishToWeb_response);
+			}
+		}
+		private function previewClick(e:ShortcutEvent):void{
+			if (next.enabled && next.visible){
+				validateAndSubmit();
+			}
+		}
+		private function cancelClick(e:ShortcutEvent):void{
+			if (Cancel.enabled && Cancel.visible){
+				closeInstructionsWindow();
+			}
+		}
+		
+		private function modifyClick(e:ShortcutEvent):void{
+			if (back.enabled && back.visible){
+				goBack();
+			}
+		}
+		private function publishClick(e:ShortcutEvent):void{
+			if (publishButton.enabled && publishButton.visible){
+				publish();
+			}
+		}
+		private function saveClick(e:ShortcutEvent):void{
+			if (SavePoll.enabled && SavePoll.visible){
+				savePoll();
+			}
+		}
 		]]>
 	</mx:Script>
 	
@@ -433,7 +558,10 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 								 paddingLeft="35" 
 								 id="titleFormItem"
 								 focusEnabled="true">
-						<mx:TextInput id="pollTitle" focusEnabled="true" accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.title')}"/>
+						<mx:TextInput id="pollTitle" 
+									  focusEnabled="true" 
+									  accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.title')}"
+									  tabIndex="{baseIndex+4}"/>
 						<mx:Label id="titleErrMsg" 
 								  text="" 
 								  visible="false" 
@@ -450,7 +578,8 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 						<mx:TextArea id="pollQuestion" 
 									 width="200" 
 									 height="100" 
-									 accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.question')}"/>
+									 accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.question')}"
+									 tabIndex="{baseIndex+4}"/>
 						<mx:Label id="qErrMsg" 
 								  text="" 
 								  visible="false" 
@@ -467,7 +596,8 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 						<mx:TextArea id="pollAnswers" 
 									 width="200" 
 									 height="100" 
-									 accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.answers')}"/>
+									 accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.answers')}"
+									 tabIndex="{baseIndex+4}"/>
 						<mx:Label id="answerHint" 
 								  text="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.hint')}" 
 								  visible="true" 
@@ -492,10 +622,12 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 								 paddingTop="5" >
 						<mx:CheckBox id="multiple_response" 
 									 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.moreThanOneResponse')}" 
-									 click="isMultiple()" />
+									 click="isMultiple()"
+									 tabIndex="{baseIndex+4}"/>
 						<mx:CheckBox id="publishToWeb_response" 
 									 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.publishToWeb')}" 
-									 click="publishToWeb()" />
+									 click="publishToWeb()"
+									 tabIndex="{baseIndex+4}"/>
 					</mx:FormItem>
 				</mx:Form>
 			</mx:VBox>
@@ -503,46 +635,46 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 
 		<!-- Review Window that is invoked when Next button is clicked -->
 		<mx:Canvas id="review">
-			<mx:VBox width="90%" height="90%" paddingLeft="40">
-           		<mx:Label text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.hereIsYourPoll')}" 
-           				  fontSize="11" 
-           				  fontWeight="bold" 
-	           			  width ="100%" 
-    	       			  paddingTop="30" 
-        	   			  paddingLeft="20" 
-           				  paddingBottom="5"/>
-           		<mx:Label text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.pollWillPublishOnline')}" 
-           				  fontSize="11" 
-           				  fontWeight="bold" 
-	           			  width ="100%" 
-    	       			  color="red" 
-        	   			  paddingTop="10" 
-           				  paddingLeft="20" 
-           				  paddingBottom="15" 
-           				  visible="{_publishToWeb}"/>
-	           	<mx:Panel id="titleShow" 
-	           			  title="{_title}" 
-	           			  width="90%" >
-					<mx:VBox paddingLeft="40" 
-							 paddingBottom="40">
-           				<mx:Text text="{_question}" 
-           					 fontSize="10" 
-           					 fontWeight="bold" 
-	           				 paddingBottom="5" 
-    	       				 paddingTop="20" 
-        	   				 width="{_MAX_QUESTION_LENGTH}"/>
-           				<mx:Text id="checkInstructions" 
-           						 text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.checkAll')}"/>
-                		<mx:Box id="options" />   
-           			</mx:VBox>
-           		</mx:Panel>
-                <mx:Label text=" {ResourceUtil.getInstance().getString('bbb.polling.pollPreview.ifYouWantChanges')}"
-          	 			  fontSize="11"
-           				  fontWeight="normal" 
-           				  width ="100%"
-           				  paddingLeft="20" 
-           			 	  paddingBottom="20" 
-	           			  paddingTop="20"/>
+			<mx:VBox id="previewBox"
+					 width="90%" height="90%" 
+					 paddingLeft="40">
+				<mx:TextArea id="previewExplanation"
+							 width="90%"
+							 text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.hereIsYourPoll')}"
+							 editable="false"
+							 borderSkin="{null}"
+							 tabIndex="{baseIndex+4}"/>
+				<mx:TextArea text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.pollWillPublishOnline')}" 
+							 fontSize="11"
+							 editable="false"
+							 borderSkin="{null}"
+							 fontWeight="bold"
+							 width="90%"
+							 color="red"
+							 paddingTop="10"
+							 paddingLeft="20"
+							 paddingBottom="15"
+							 visible="{_publishToWeb}"
+							 tabIndex="{baseIndex+4}"/>
+				<mx:Panel id="titleShow" 
+						  title="{_title}" 
+						  width="90%" >
+					<mx:VBox paddingTop="10"
+							 paddingLeft="40" 
+							 paddingBottom="40"
+							 horizontalAlign="center"
+							 >
+						<mx:TextArea id="questionText"
+									 width="200" 
+									 fontWeight="bold" 
+									 textAlign="center"
+									 editable="false"
+									 borderSkin="{null}"
+									 tabIndex="{baseIndex+4}"
+									 />
+						<mx:Box id="options" />   
+					</mx:VBox>
+				</mx:Panel>
 			</mx:VBox>
 		</mx:Canvas>
 	</mx:ViewStack>
@@ -556,13 +688,15 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 				   click="{mainArea.selectedChild=instrMain} {buttons.selectedChild=instrButtons} goBack()" 
 				   width="100" 
 				   height="30" 
-				   visible="false"/>
+				   visible="false"
+				   tabIndex="{baseIndex+5}"/>
 		<mx:Button id="publishButton"
 				   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.publish')}"
 				   click="publish();"
 				   width="100"
 				   height="30"
-				   visible="false"/>
+				   visible="false"
+				   tabIndex="{baseIndex+5}"/>
 		<mx:ViewStack id="buttons">
 			<!--buttons that appear when Instructions is displayed -->
 			<mx:Canvas id="instrButtons">
@@ -570,7 +704,8 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 						   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.preview')}" 
 						   click="validateAndSubmit()" 
 						   width="100" 
-						   height="30"/>
+						   height="30"
+						   tabIndex="{baseIndex+5}"/>
 			</mx:Canvas>
 			<!-- buttons that appear on Review -->
 			<mx:Canvas id="reviewButtons">
@@ -578,7 +713,8 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 						   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.save')}" 
 						   click="savePoll()" 
 						   width="100" 
-						   height="30"/>
+						   height="30"
+						   tabIndex="{baseIndex+5}"/>
 			</mx:Canvas>
 		</mx:ViewStack>
 		<!-- Cancel button appear everywhere -->
@@ -586,6 +722,7 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 				   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.cancel')}" 
 				   click="closeInstructionsWindow()" 
 				   width="100" 
-				   height="30"/>
+				   height="30"
+				   tabIndex="{baseIndex+5}"/>
 	</mx:ControlBar>
 </MDIWindow>

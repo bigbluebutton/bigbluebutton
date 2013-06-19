@@ -721,17 +721,7 @@ if ($playback == "presentation")
 		BigBlueButton.logger.info("Making dir package_dir")
 		FileUtils.mkdir_p package_dir
 
-		begin
-		audio_dir = "#{package_dir}/audio"
-		BigBlueButton.logger.info("Making audio dir")
-		FileUtils.mkdir_p audio_dir
-		BigBlueButton.logger.info("Made audio dir - copying: #{$process_dir}/audio.ogg to -> #{audio_dir}")
-		FileUtils.cp("#{$process_dir}/audio.ogg", audio_dir)
-		BigBlueButton.logger.info("Copied .ogg file - copying: #{$process_dir}/temp/#{$meeting_id}/audio/recording.wav to -> #{audio_dir}")
-		FileUtils.cp("#{$process_dir}/temp/#{$meeting_id}/audio/recording.wav", audio_dir)
-		BigBlueButton.logger.info("Copied .wav file - copying #{$process_dir}/events.xml to -> #{package_dir}")
-		FileUtils.cp("#{$process_dir}/events.xml", package_dir)
-		BigBlueButton.logger.info("Copied events.xml file")
+		begin	
 		
 		if File.exist?("#{$process_dir}/webcams.webm")
   		  BigBlueButton.logger.info("Making video dir")
@@ -740,6 +730,15 @@ if ($playback == "presentation")
 		  BigBlueButton.logger.info("Made video dir - copying: #{$process_dir}/webcams.webm to -> #{video_dir}")
 		  FileUtils.cp("#{$process_dir}/webcams.webm", video_dir)
 		  BigBlueButton.logger.info("Copied .webm file")
+		else
+		  audio_dir = "#{package_dir}/audio"
+   		  BigBlueButton.logger.info("Making audio dir")
+		  FileUtils.mkdir_p audio_dir
+		  BigBlueButton.logger.info("Made audio dir - copying: #{$process_dir}/audio.ogg to -> #{audio_dir}")
+		  FileUtils.cp("#{$process_dir}/audio.ogg", audio_dir)
+		  BigBlueButton.logger.info("Copied .ogg file - copying: #{$process_dir}/audio.webm to -> #{audio_dir}")
+		  FileUtils.cp("#{$process_dir}/audio.webm", audio_dir)
+		  BigBlueButton.logger.info("Copied audio.webm file")	
 		end
 
 		BigBlueButton.logger.info("Copying files to package dir")
