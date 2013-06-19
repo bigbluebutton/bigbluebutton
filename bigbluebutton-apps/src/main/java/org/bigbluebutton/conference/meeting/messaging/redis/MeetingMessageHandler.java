@@ -11,7 +11,7 @@ import com.google.gson.reflect.TypeToken;
 
 public class MeetingMessageHandler implements MessageHandler {
 	
-	private static final String KEEP_ALIVE_REQUEST = "KEEP ALIVE REQUEST";
+	private static final String KEEP_ALIVE_REQUEST = "KEEP_ALIVE_REQUEST";
 	
 	private IBigBlueButtonInGW bbbGW;
 	
@@ -25,6 +25,9 @@ public class MeetingMessageHandler implements MessageHandler {
 			if (messageId != null){
 				if (MessagingConstants.END_MEETING_REQUEST_EVENT.equalsIgnoreCase(messageId)){
 					bbbGW.endMeeting(meetingId);
+				}
+				if(messageId.equalsIgnoreCase(KEEP_ALIVE_REQUEST)){
+					bbbGW.isAliveAudit();
 				}
 			}
 		}
