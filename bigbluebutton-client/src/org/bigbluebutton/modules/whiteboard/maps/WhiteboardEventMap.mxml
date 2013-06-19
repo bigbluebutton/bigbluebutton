@@ -93,24 +93,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <EventHandlers type="{WhiteboardUpdate.RECEIVED_ANNOTATION_HISTORY}" >
         <MethodInvoker generator="{WhiteboardManager}" method="receivedAnnotationsHistory"/>
     </EventHandlers>
+  
 	<EventHandlers type="{WhiteboardUpdate.CLEAR_ANNOTATIONS}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="clearAnnotations"/>
 	</EventHandlers>
+  
 	<EventHandlers type="{WhiteboardUpdate.BOARD_UPDATED}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="drawGraphic" arguments="{event}"/>
 	</EventHandlers>
+  
 	<EventHandlers type="{WhiteboardUpdate.UNDO_ANNOTATION}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="undoAnnotation" arguments="{event}" />
 	</EventHandlers>
+  
 	<EventHandlers type="{ToggleGridEvent.GRID_TOGGLED}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="toggleGrid"  arguments="{event}" />
 	</EventHandlers>
+  
 	<EventHandlers type="{WhiteboardUpdate.CHANGE_PAGE}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="changePage"/>
 	</EventHandlers>
 	<EventHandlers type="{WhiteboardButtonEvent.ENABLE_WHITEBOARD}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="enableWhiteboard" arguments="{event}" />
 	</EventHandlers>
+  
 	<EventHandlers type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="disableWhiteboard" arguments="{event}" />
 	</EventHandlers>
