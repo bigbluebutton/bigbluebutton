@@ -25,9 +25,9 @@
 	x="0" y="0" layout="vertical" width="320" horizontalAlign="center"
 	xmlns:mate="http://mate.asfusion.com/" >
 
-	<mate:Listener type="ACCEPT_ALL_WAITING_GUESTS" method="acceptAllWaitingGuests"/>
-	<mate:Listener type="DENY_ALL_WAITING_GUESTS" method="denyAllWaitingGuests"/>
-	<mate:Listener type="ResponseModeratorEvent.RESPONSE" method="onModeratorResponse" />
+	<mate:Listener type="{BBBEvent.ACCEPT_ALL_WAITING_GUESTS}" method="acceptAllWaitingGuests" />
+	<mate:Listener type="{BBBEvent.DENY_ALL_WAITING_GUESTS}" method="denyAllWaitingGuests" />
+	<mate:Listener type="{ResponseModeratorEvent.RESPONSE}" method="onModeratorResponse" />
 
 	<mx:Script>
 		<![CDATA[
@@ -57,8 +57,6 @@
 			}
 
 			public function addGuest(userid:Number, username:String):void {
-//		for (var i:int = 0; i < 30; ++i) {
-//		username += i;
 				numberOfGuests++;
 				guestWindowMap[userid] = username;
 
@@ -67,8 +65,8 @@
 				guestListBox.addChild(guestItem);
 				guestButtons[userid] = guestItem;
 
+				// ideally we would like to control if the view is displayed or not adding or removing the popup, not using the visible property
 				this.visible = true;
-//		}
 			}
 
 			public function sendResponseToAllGuests(resp:Boolean):void {
@@ -79,12 +77,11 @@
 			}
 			
 			public function sendResponseToAllGuestsCheckBox(resp:Boolean):void {
-				if(checkBoxR.selected) {
-					var event:BBBEvent = new BBBEvent("GUEST_POLICY");
-					if(resp) {
+				if(rememberCheckBox.selected) {
+					var event:BBBEvent = new BBBEvent(BBBEvent.BROADCAST_GUEST_POLICY);
+					if (resp) {
 						event.payload['guestPolicy'] = "ALWAYS_ACCEPT";
-					}
-					else {
+					} else {
 						event.payload['guestPolicy'] = "ALWAYS_DENY";
 					}
 					dispatchEvent(event);
@@ -109,7 +106,7 @@
 				}
 				guestWindowMap = new Object();
 				guestButtons = new Object();
-				this.visible = false;
+				close();
 			}
 		
 			public function remove(userid:Number):void {
@@ -119,21 +116,25 @@
 					delete guestWindowMap[userid];
 					guestListBox.removeChild(guestButtons[userid]);
 					delete guestButtons[userid];
-					if(this.hasGuest() == false) {
-						this.visible = false;
+
+					if (!hasGuest()) {
+						close();
 					}
 				}
 			}
 
 			public function hasGuest():Boolean {
-				if(numberOfGuests > 0)
-					return true;
-				else
-					return false;			
+				return numberOfGuests > 0;
 			}
 
 			public function removeAll():void {
+				close();
 				PopUpManager.removePopUp(this);
+			}
+
+			public function close():void {
+				rememberCheckBox.selected = false;
+				this.visible = false;
 			}
 			
 			private function onModeratorResponse(event:ResponseModeratorEvent):void {
@@ -146,7 +147,7 @@
 	<mx:HRule width="100%"/>
 	<mx:Button id="allowEveryoneBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.allowEveryoneBtn.text')}" width="70%" click="sendResponseToAllGuestsCheckBox(true)" toolTip="{allowEveryoneBtn.label}"/>
 	<mx:Button id="denyEveryoneBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.denyEveryoneBtn.text')}" width="70%" click="sendResponseToAllGuestsCheckBox(false)" toolTip="{denyEveryoneBtn.label}"/>
-	<mx:CheckBox id="checkBoxR" label="{ResourceUtil.getInstance().getString('bbb.guests.rememberAction.text')}"/>
+	<mx:CheckBox id="rememberCheckBox" label="{ResourceUtil.getInstance().getString('bbb.guests.rememberAction.text')}"/>
 	<mx:HRule width="100%"/>
 	<mx:VBox id="guestListBox" width="100%" height="100%" maxHeight="200" paddingLeft="10" paddingRight="10" paddingBottom="2" />
 	

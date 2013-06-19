@@ -47,7 +47,7 @@
 	<mate:Listener type="SHOW_BBB_SETTINGS" method="showBBBSettings"  />
 	<mate:Listener type="{NewGuestEvent.NEW_GUEST_EVENT}" method="newGuestWindow" />
 	<mate:Listener type="{ModeratorRespEvent.GUEST_ALLOWED}" method="guestAllowed" />
-	<mate:Listener type="GET_GUEST_POLICY" method="setGuestPolicy"/>
+	<mate:Listener type="{BBBEvent.RETRIEVE_GUEST_POLICY}" method="setGuestPolicy"/>
 	
 	<mx:Script>
 		<![CDATA[

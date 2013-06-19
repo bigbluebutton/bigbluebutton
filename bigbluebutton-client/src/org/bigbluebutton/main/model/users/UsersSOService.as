@@ -363,7 +363,7 @@ package org.bigbluebutton.main.model.users {
 		}
 
 		public function guestPolicyChanged(guestPolicy:String):void {
-		    var policy:BBBEvent = new BBBEvent("GET_GUEST_POLICY");
+		    var policy:BBBEvent = new BBBEvent(BBBEvent.RETRIEVE_GUEST_POLICY);
 		    policy.payload['guestPolicy'] = guestPolicy;
 		    dispatcher.dispatchEvent(policy);
 		    
@@ -378,15 +378,15 @@ package org.bigbluebutton.main.model.users {
 				"participants.getGuestPolicy",// Remote function name
 				new Responder(
 	        			function(result:Object):void { 
-							var policy:BBBEvent = new BBBEvent("GET_GUEST_POLICY");
+							var policy:BBBEvent = new BBBEvent(BBBEvent.RETRIEVE_GUEST_POLICY);
 							policy.payload['guestPolicy'] = result;
 							if(UserManager.getInstance().getConference().isGuest()) {
 								if(result == "ALWAYS_DENY")
-									dispatcher.dispatchEvent(new BBBEvent("DENY_GUEST"));
+									dispatcher.dispatchEvent(new BBBEvent(BBBEvent.DENY_GUEST));
 								else if(result == "ALWAYS_ACCEPT")
-									dispatcher.dispatchEvent(new BBBEvent("ACCEPT_GUEST"));
+									dispatcher.dispatchEvent(new BBBEvent(BBBEvent.ACCEPT_GUEST));
 								else
-								     dispatcher.dispatchEvent(new BBBEvent("ASK_TO_ACCEPT_GUEST"));
+								     dispatcher.dispatchEvent(new BBBEvent(BBBEvent.ASK_TO_ACCEPT_GUEST));
 							}
 							dispatcher.dispatchEvent(policy);
 					},	

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
-		showCloseButton="true" close="onCancelClicked()"
+		showCloseButton="false"
 		xmlns:mate="http://mate.asfusion.com/"
 		minWidth="250"
 		creationComplete="onCancelClicked()"
@@ -30,14 +30,20 @@
 			}
 			
 			private function onCancelClicked():void {
-				var event:BBBEvent = new BBBEvent("CANCEL_CLICKED_EVENT");
+				var event:BBBEvent = new BBBEvent(BBBEvent.SETTINGS_CANCELLED);
 				dispatchEvent(event);
-				this.visible = false;
+				close();
 			}
 		
 			private function onOkClicked():void {
-				var event:BBBEvent = new BBBEvent("OK_CLICKED_EVENT");
-				dispatchEvent(event);				
+				var event:BBBEvent = new BBBEvent(BBBEvent.SETTINGS_CONFIRMED);
+				dispatchEvent(event);
+				close();
+			}
+
+			private function close():void {
+				// ideally we would like to remove the popup instead of just make it invisible
+				//PopUpManager.removePopUp(this);
 				this.visible = false;
 			}
 			

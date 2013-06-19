@@ -93,19 +93,19 @@
 		<MethodInvoker generator="{UserService}" method="responseToAllGuests" arguments="{event}" />
 	</EventHandlers>
 
-	<EventHandlers type="ASK_TO_ACCEPT_GUEST" >
+	<EventHandlers type="{BBBEvent.ASK_TO_ACCEPT_GUEST}" >
 		<MethodInvoker generator="{UserService}" method="askToAccept" />
 	</EventHandlers>
 
-	<EventHandlers type="ACCEPT_GUEST" >
+	<EventHandlers type="{BBBEvent.ACCEPT_GUEST}" >
 		<MethodInvoker generator="{UserService}" method="acceptGuest" />
 	</EventHandlers>
 
-	<EventHandlers type="DENY_GUEST" >
+	<EventHandlers type="{BBBEvent.DENY_GUEST}" >
 		<MethodInvoker generator="{UserService}" method="denyGuest" />
 	</EventHandlers>
 
-	<EventHandlers type="GUEST_POLICY" >
+	<EventHandlers type="{BBBEvent.BROADCAST_GUEST_POLICY}" >
 		<MethodInvoker generator="{UserService}" method="newGuestPolicy" arguments="{event}" />
 	</EventHandlers>
 
@@ -153,6 +153,7 @@
 		
 		import org.bigbluebutton.core.managers.ConfigManager;
 		import org.bigbluebutton.core.services.SkinningService;
+		import org.bigbluebutton.main.events.BBBEvent;
 		import org.bigbluebutton.main.events.ConfigEvent;
 		import org.bigbluebutton.main.events.LogoutEvent;
 		import org.bigbluebutton.main.events.ModuleLoadEvent;
