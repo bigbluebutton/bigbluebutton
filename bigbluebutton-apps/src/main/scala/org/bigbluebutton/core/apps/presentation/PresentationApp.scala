@@ -18,6 +18,8 @@ import org.bigbluebutton.core.api.ResizeAndMoveSlideOutMsg
 import org.bigbluebutton.core.api.GotoSlideOutMsg
 import org.bigbluebutton.core.api.GetSlideInfoOutMsg
 import org.bigbluebutton.core.api.GetPresentationInfoOutMsg
+import org.bigbluebutton.core.api.InitializeMeeting
+import org.bigbluebutton.core.api.PreuploadedPresentations
 
 class PresentationApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway, usersApp: UsersApp) {
 
@@ -37,6 +39,7 @@ class PresentationApp(meetingID: String, recorded: Boolean, outGW: MessageOutGat
 	
     def handleMessage(msg: InMessage):Unit = {
     	msg match {
+    	  case initializeMeeting: InitializeMeeting => handleInitializeMeeting(initializeMeeting)
     	  case clearPresentation: ClearPresentation => handleClearPresentation(clearPresentation)
     	  case presentationConversionUpdate: PresentationConversionUpdate => handlePresentationConversionUpdate(presentationConversionUpdate)
     	  case removePresentation: RemovePresentation => handleRemovePresentation(removePresentation)
@@ -46,8 +49,20 @@ class PresentationApp(meetingID: String, recorded: Boolean, outGW: MessageOutGat
     	  case gotoSlide: GotoSlide => handleGotoSlide(gotoSlide)
     	  case sharePresentation: SharePresentation => handleSharePresentation(sharePresentation)
     	  case getSlideInfo: GetSlideInfo => handleGetSlideInfo(getSlideInfo)
+    	  case preuploadedPresentetations: PreuploadedPresentations => handlePreuploadedPresentetations(preuploadedPresentetations)
     	  case _ => // do nothing
     	}
+    }
+    
+    private def handlePreuploadedPresentetations(msg: PreuploadedPresentations) {
+      msg.presentations.foreach(presentationID => {
+    	  sharePresentation(presentationID, true)       
+      })
+
+    }
+    
+    private def handleInitializeMeeting(msg: InitializeMeeting) {
+      
     }
     
     private def handleClearPresentation(msg: ClearPresentation) {

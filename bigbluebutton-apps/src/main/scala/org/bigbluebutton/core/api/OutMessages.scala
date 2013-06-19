@@ -19,6 +19,7 @@ case class ResizeAndMoveSlideOutMsg(meetingID: String, recorded: Boolean, xOffse
 case class GotoSlideOutMsg(meetingID: String, recorded: Boolean, slide: Int) extends IOutMessage
 case class SharePresentationOutMsg(meetingID: String, recorded: Boolean, presentationID: String, share: Boolean) extends IOutMessage
 case class GetSlideInfoOutMsg(meetingID: String, recorded: Boolean, requesterID: String, xOffset: Double, yOffset: Double, widthRatio: Double, heightRatio: Double) extends IOutMessage
+case class GetPreuploadedPresentationsOutMsg(meetingID:String, recorded: Boolean) extends IOutMessage
 
 // Value Objects
 case class MeetingVO(id: String, recorded: Boolean)

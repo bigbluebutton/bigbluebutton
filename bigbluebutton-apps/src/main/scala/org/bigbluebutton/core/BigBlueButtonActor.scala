@@ -8,13 +8,12 @@ import org.bigbluebutton.core.api.MeetingCreated
 import org.bigbluebutton.core.api.MessageOutGateway
 import org.bigbluebutton.core.api.InMessage
 import org.bigbluebutton.core.api.InitializeMeeting
-import org.bigbluebutton.core.StopMeetingActor
 import org.bigbluebutton.core.api.DestroyMeeting
 import org.bigbluebutton.core.api.KeepAliveMessage
 import org.bigbluebutton.core.api.KeepAliveMessageReply
 
 class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
-  
+
   private var meetings = new HashMap[String, Meeting]
  
   def act() = {
@@ -22,7 +21,7 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
 		react {
 	      case createMeeting: CreateMeeting => handleCreateMeeting(createMeeting)
 	      case destroyMeeting: DestroyMeeting => handleDestroyMeeting(destroyMeeting)
-        case keepAliveMessage: KeepAliveMessage => handleKeepAliveMessage(keepAliveMessage)
+	      case keepAliveMessage: KeepAliveMessage => handleKeepAliveMessage(keepAliveMessage)
 	      case msg:InMessage => handleMeetingMessage(msg)
 	      case _ => // do nothing
 	    }
