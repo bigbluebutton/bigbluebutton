@@ -49,7 +49,9 @@ br{
 
 #playbackArea {
 	width: 1360px; /* #slide.width + #chat.width + #audioRecording.width */
+	height: 650px;
 	margin: 0 auto;
+	overflow: hidden;
 }
 
 #audioRecordingWrapper{
@@ -74,6 +76,7 @@ br{
 #playbackControls{
 	width: 1360px;
 	margin: 0 auto;
+	margin-top: -50px;
 }
 
 #autoscrollWrapper{
