@@ -8,11 +8,16 @@ package org.bigbluebutton.modules.polling.events
   {
     public static const CREATE_POLL:String = "create poll event";
     
-    public var poll:CreatePollVO;
+    private var _poll:CreatePollVO;
     
-    public function CreatePollEvent()
+    public function CreatePollEvent(poll:CreatePollVO)
     {
       super(CREATE_POLL, true, false);
+      _poll = poll;
+    }
+    
+    public function get poll():CreatePollVO {
+      return _poll;
     }
   }
 }

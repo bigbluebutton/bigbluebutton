@@ -42,7 +42,7 @@
 		
 
   <Injectors target="{PollManager}">
-    <ObjectBuilder generator="{PollingModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
+    <ObjectBuilder generator="{PollingModel}" cache="global"/>
     <PropertyInjector targetKey="model" source="{PollingModel}"/>
   </Injectors>	
   
