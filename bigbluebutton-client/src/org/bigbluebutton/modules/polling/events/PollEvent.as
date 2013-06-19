@@ -9,6 +9,7 @@ package org.bigbluebutton.modules.polling.events
     public static const POLL_STARTED:String = "poll started event";
     public static const POLL_STOPPED:String = "poll stopped event";
     public static const POLL_DESTROYED:String = "poll destroyed event";
+    public static const POLL_RESULTS_UPDATED:String = "poll results updated";
     
     private var _pollID:String;
     

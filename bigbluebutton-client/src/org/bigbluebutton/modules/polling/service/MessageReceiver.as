@@ -64,8 +64,14 @@ package org.bigbluebutton.modules.polling.service
       }
     }
 
-    private function handlePollResultUpdatedMesage(message):void {
+    private function handlePollResultUpdatedMesage(msg):void {
+      var pollResult:Object = JSON.parse(msg.mesage);
+      
+      if (! model.hasPoll(pollResult.id)) {
         
+        model.updateResults(msg.results);
+        dispatcher.dispatchEvent(new PollEvent(PollEvent.POLL_RESULTS_UPDATED, msg.id));
+      }
     }
     
     private function handlePollCreatedMesage(msg:Object):void {

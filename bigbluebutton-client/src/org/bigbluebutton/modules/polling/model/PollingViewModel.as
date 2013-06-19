@@ -1,6 +1,5 @@
-package org.bigbluebutton.modules.polling.views.model
+package org.bigbluebutton.modules.polling.model
 {
-  import org.bigbluebutton.modules.polling.model.PollingModel;
 
   public class PollingViewModel
   {
