@@ -291,8 +291,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var camSettings:CameraDisplaySettings = CameraDisplaySettings(PopUpManager.createPopUp(mdiCanvas, CameraDisplaySettings, true));		
         camSettings.resolutions = (event.payload.resolutions as String).split(",");
         camSettings.publishInClient = event.payload.publishInClient;
-        
-        var point1:Point = new Point();
+        camSettings.defaultCamera = event.payload.defaultCamera;
+	camSettings.camerasArray = event.payload.camerasArray;
+	var point1:Point = new Point();
         // Calculate position of TitleWindow in Application's coordinates. 
         point1.x = width/2;
         point1.y = height/2;                

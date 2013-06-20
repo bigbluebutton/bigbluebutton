@@ -51,7 +51,7 @@ package org.bigbluebutton.modules.videoconf.maps
   import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
   import org.bigbluebutton.modules.videoconf.views.AvatarWindow;
   import org.bigbluebutton.modules.videoconf.views.PublishWindow;
-  import org.bigbluebutton.modules.videoconf.views.ToolbarButton;
+  import org.bigbluebutton.modules.videoconf.views.ToolbarPopupButton;
   import org.bigbluebutton.modules.videoconf.views.VideoWindow;
   import org.flexunit.runner.manipulation.filters.IncludeAllFilter;
 
@@ -62,7 +62,7 @@ package org.bigbluebutton.modules.videoconf.maps
     
     private var webcamWindows:WindowManager = new WindowManager();
     
-    private var button:ToolbarButton;
+    private var button:ToolbarPopupButton;
     private var proxy:VideoProxy;
     private var streamName:String;
     
@@ -116,7 +116,7 @@ package org.bigbluebutton.modules.videoconf.maps
     
     private function addToolbarButton():void{
       if (proxy.videoOptions.showButton) {
-        button = new ToolbarButton();	  
+        button = new ToolbarPopupButton();	  
         button.isPresenter = !options.presenterShareOnly;
         var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
         event.button = button;
@@ -325,17 +325,19 @@ package org.bigbluebutton.modules.videoconf.maps
     public function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
 	  LogUtil.debug("Webcam: "+_isPublishing + " " + _isPreviewWebcamOpen);
 	  if (!_isPublishing && !_isPreviewWebcamOpen && !_isWaitingActivation)
-		openWebcamPreview(event.publishInClient);
+		openWebcamPreview(event.publishInClient, event.defaultCamera, event.camerasArray);
     }
 	
 	public function handleCamSettingsClosedEvent(event:BBBEvent):void{
 		_isPreviewWebcamOpen = false;
 	}
     
-    private function openWebcamPreview(publishInClient:Boolean):void {
+    private function openWebcamPreview(publishInClient:Boolean, defaultCamera:String, camerasArray:Object):void {
       var openEvent:BBBEvent = new BBBEvent(BBBEvent.OPEN_WEBCAM_PREVIEW);
       openEvent.payload.publishInClient = publishInClient;
       openEvent.payload.resolutions = options.resolutions;
+      openEvent.payload.defaultCamera = defaultCamera;
+      openEvent.payload.camerasArray = camerasArray;
       
 	  _isPreviewWebcamOpen = true;
 	  
@@ -400,6 +402,7 @@ package org.bigbluebutton.modules.videoconf.maps
       UsersUtil.setCameraSettings(camSettings);
       
 	  _isWaitingActivation = true;
+	button.setCamAsActive(cameraIndex);
       openPublishWindowFor(UsersUtil.getMyUserID(), cameraIndex, camWidth, camHeight);       
     }
     

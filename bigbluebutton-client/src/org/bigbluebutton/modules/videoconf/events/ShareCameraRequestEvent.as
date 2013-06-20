@@ -25,6 +25,9 @@ package org.bigbluebutton.modules.videoconf.events
 		public static const SHARE_CAMERA_REQUEST:String = "ShareCameraRequestEvent";
 		
     public var publishInClient:Boolean = true;
+
+		public var defaultCamera:String = null;
+		public var camerasArray:Object = null;
     
 		public function ShareCameraRequestEvent(type:String = SHARE_CAMERA_REQUEST)
 		{

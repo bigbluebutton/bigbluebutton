@@ -20,7 +20,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{camIcon}" 
+<mx:PopUpButton xmlns:mx="http://www.adobe.com/2006/mxml" icon="{camIcon}" 
 		   xmlns:mate="http://mate.asfusion.com/"
 		   click="openPublishWindow()" creationComplete="init()" 
 		   mouseOver = "mouseOverHandler(event)"
@@ -31,7 +31,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<mate:Listener type="{ShortcutEvent.SHARE_WEBCAM}" method="remoteClick" />
 	<mate:Listener type="{BBBEvent.CAM_SETTINGS_CLOSED}" method="handleCamSettingsClosedEvent"/>
-	<mate:Listener type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}" receive="enabled=false" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -44,6 +43,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import mx.controls.Menu;
+			import mx.events.MenuEvent;
+			import mx.collections.ArrayList;
 			
 			[Bindable] public var isPresenter:Boolean;
 			
@@ -60,8 +62,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			
 			private var dispatcher:Dispatcher;
+
+			private var dp:Object = [];
+			private var dataMenu:Menu;
+			public var numberOfCamerasOff:int = 0;
+			public var cameraIsOff:Object = new Object();
 			
 			private function init():void{
+				numberOfCamerasOff = Camera.names.length;
+				for(var i:int = 0; i < numberOfCamerasOff; i++) {
+					cameraIsOff[String(i)] = true;	
+					dp.push({label: Camera.names[i], icon: images.webcam, status: OFF_STATE});		
+				}
+	
+				dataMenu = Menu.createMenu(this, dp, false);
+				dataMenu.addEventListener("itemClick", changeHandler);
+				dataMenu.addEventListener("mouseOver", mouseOverHandler);
+				dataMenu.addEventListener("mouseOut", mouseOutHandler);
+				
+				this.popUp = dataMenu;
 				dispatcher = new Dispatcher();
 				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
 				camIcon = images.webcam;
@@ -80,16 +99,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					_currentState = ON_STATE;
 					//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop');
 					camIcon = images.webcamOn;
-					this.enabled = true;
 					this.selected = true;
+					//cameraIsOff[cameraId] = false;
+					//dp[cameraId].icon = images.webcamOn;
+					//dp[cameraId].status = ON_STATE;
+					//dp[cameraId].publishWindowIndex = publishWindowIndex;
+					numberOfCamerasOff = numberOfCamerasOff - 1;
 				}
 				else {
-					_currentState = OFF_STATE;
-					//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
-					camIcon = images.webcam;
-					this.enabled = true;
-					this.selected = false;
+					//if(cameraId != null) {
+					//	dp[cameraId].icon = images.webcam;
+					//	dp[cameraId].status = OFF_STATE;
+					//	if(cameraIsOff[cameraId] == false) {
+					//		cameraIsOff[cameraId] = true;
+					//		numberOfCamerasOff = numberOfCamerasOff + 1;
+					//	}
+					//}
+					if(numberOfCamerasOff == Camera.names.length) {
+						_currentState = OFF_STATE;
+						//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
+						camIcon = images.webcam;
+						this.selected = false;
+					}
 				}
+				var evt:BBBEvent = new BBBEvent("EnableToolbarPopupButton");
+				dispatchEvent(evt);
+						
+				dataMenu.dataProvider = dp;
 			}
 
 
@@ -106,7 +142,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop');
 					camIcon = images.webcamOn;
 					this.selected = true;
-					dispatchEvent(new ShareCameraRequestEvent());
+					var shareCameraRequestEvent:ShareCameraRequestEvent = new ShareCameraRequestEvent();
+					dispatchEvent(shareCameraRequestEvent);
 				}			
 			}
 			
@@ -141,6 +178,35 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function theory():String{
 				return "Webcam button";
 			}
+
+			private function changeHandler(event:MenuEvent):void {
+					if(dp[event.index].status == ON_STATE) {
+						/*var close_evt:ClosePublishWindowEvent = new ClosePublishWindowEvent();
+						close_evt.cameraId = String(event.index);
+						close_evt.publishWindowIndex = dp[event.index].publishWindowIndex;
+						dispatchEvent(close_evt);
+						dp[event.index].icon = images.webcam;
+						dp[event.index].waitingToStart = false;*/
+					}
+					else {
+						/*var evt:OpenPublishWindowEvent = new OpenPublishWindowEvent();
+						evt.defaultCamera = String(event.index);
+						dispatchEvent(evt);
+						this.enabled = false;*/
+
+						var shareCameraRequestEvent:ShareCameraRequestEvent = new ShareCameraRequestEvent();
+						shareCameraRequestEvent.defaultCamera = String(event.index);
+						shareCameraRequestEvent.camerasArray = dp;
+						dispatchEvent(shareCameraRequestEvent);
+					}
+					
+			}
+
+			public function setCamAsActive(camIndex:int):void {
+				dp[camIndex].icon = images.webcamOn;
+				dp[camIndex].status = ON_STATE;
+				dataMenu.dataProvider = dp;
+			}
 		]]>
 	</mx:Script>
-</mx:Button>
+</mx:PopUpButton>
