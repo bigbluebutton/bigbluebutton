@@ -27,7 +27,8 @@
 	  creationComplete="onCreationComplete()">
 	  
 	  <maps:PollingEventMap id="eventMap"/>
-	  
+    <maps:PollEventMap id="pollEventMap"/>
+  
 	<mx:Script>
 		<![CDATA[
 		

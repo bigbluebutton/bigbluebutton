@@ -53,7 +53,7 @@ package org.bigbluebutton.modules.polling.managers
 		public function handleStartModuleEvent(module:PollingModule):void {
 			LogUtil.debug(LOGNAME + "Polling Module starting");
 			this.module = module;			
-//			service.handleStartModuleEvent(module);
+			service.handleStartModuleEvent(module);
 		}
 
 	

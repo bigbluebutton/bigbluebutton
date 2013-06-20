@@ -11,6 +11,7 @@ import org.bigbluebutton.core.api.IOutMessage
 import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage
 import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage
 import org.bigbluebutton.core.api.PresenterAssigned
+import com.google.gson.Gson
 
 class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMessageListener2 {
 	private val USERS_SO: String = "participantsSO"; 
@@ -29,9 +30,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	
 	private def handleGetUsersReply(msg: GetUsersReply):Unit = {
 		var message = new HashMap[String, Object]();
-		
-		println("Sending getUsersReply message. num users = [" + msg.users.size() + "]")
-		
+			
 		message.put("count", msg.users.size():java.lang.Integer)
 		
 		var users = new HashMap[String, Object]();
@@ -52,6 +51,11 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 		}	
 		
 		message.put("users", users);
+		
+		val gson = new Gson()
+		val msgString = gson.toJson(message)
+		
+	//	println("JSON = \n" + msgString)
 			
 		var m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getUsersReply", message);
 		service.sendMessage(m);	  
@@ -69,6 +73,11 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 		message.put("newPresenterID", msg.presenter.presenterID);
 		message.put("newPresenterName", msg.presenter.presenterName);
 		message.put("assignedBy", msg.presenter.assignedBy);
+
+		val gson = new Gson()
+		val msgString = gson.toJson(message)
+		
+	//	println("JSON = \n" + msgString)
 		
 		var m = new BroadcastClientMessage(msg.meetingID, "assignPresenterCallback", message);
 		service.sendMessage(m);
@@ -86,11 +95,13 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 		message.put("presenter", msg.presenter:java.lang.Boolean)
 		message.put("hasStream", msg.hasStream:java.lang.Boolean)
 		
-		var m = new BroadcastClientMessage(msg.meetingID, "participantJoined", message);
-		service.sendMessage(m);
-
-		println("Sending participantJoined message")
+		val gson = new Gson()
+		val msgString = gson.toJson(message)
 		
+		println("JSON = \n" + msgString)
+		
+		var m = new BroadcastClientMessage(msg.meetingID, "participantJoined", message);
+		service.sendMessage(m);		
 	}
 
 
@@ -98,7 +109,11 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 		var message = new HashMap[String, Object]();
 		message.put("userID", msg.userID);
 		
-		println("Sending participantLeft message")
+		val gson = new Gson()
+		val msgString = gson.toJson(message)
+		
+	//	println("JSON = \n" + msgString)
+		
 		var m = new BroadcastClientMessage(msg.meetingID, "participantLeft", message);
 		service.sendMessage(m);
 	}
@@ -109,7 +124,11 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 		message.put("status", msg.status);
 		message.put("value", msg.value);
 		
-		println("Sending participantStatusChange message")
+		val gson = new Gson()
+		val msgString = gson.toJson(message)
+		
+	//	println("JSON = \n" + msgString)
+		
 		var m = new BroadcastClientMessage(msg.meetingID, "participantStatusChange", message);
 		service.sendMessage(m);
 	}
