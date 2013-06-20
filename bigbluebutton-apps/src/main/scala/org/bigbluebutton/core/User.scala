@@ -3,11 +3,11 @@ package org.bigbluebutton.core
 import org.bigbluebutton.core.api.UserVO
 import org.bigbluebutton.core.api.Role._
 
-class User(val intUserID: String, val extUserID: String, val name: String, role: Role) {
+class User(val intUserID: String, val extUserID: String, val name: String, val role: Role) {
      
   private var _presenter:Boolean = false;
-  var raiseHand:Boolean = false;
-  var hasStream:Boolean = false;
+  private var _raiseHand:Boolean = false;
+  private var _hasStream:Boolean = false;
 
   def isPresenter():Boolean = {
     return _presenter;
@@ -22,6 +22,6 @@ class User(val intUserID: String, val extUserID: String, val name: String, role:
   }
   
   def toUserVO():UserVO = {
-    new UserVO(intUserID, extUserID, name, role.toString, raiseHand, isPresenter, hasStream)
+    new UserVO(intUserID, extUserID, name, role.toString, _raiseHand, isPresenter, _hasStream)
   }
 }

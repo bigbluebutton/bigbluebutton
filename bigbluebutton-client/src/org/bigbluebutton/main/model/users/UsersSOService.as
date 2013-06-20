@@ -89,7 +89,7 @@ package org.bigbluebutton.main.model.users {
 			_participantsSO.client = this;
 			_participantsSO.connect(_connectionManager.connection);
       LogUtil.debug("In UserSOService:join - Setting my userid to [" + userid + "]");
-      UserManager.getInstance().getConference().setMyUserid(userid);
+      
 			queryForParticipants();					
 			
 		}

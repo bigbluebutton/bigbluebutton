@@ -28,6 +28,7 @@
       import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.modules.polling.events.*;
       import org.bigbluebutton.modules.polling.managers.PollManager;
+      import org.bigbluebutton.modules.polling.model.PollingModel;
 			
 				]]>
 				

@@ -40,13 +40,13 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   }
   
   private def handleChangeUserStatus(msg: ChangeUserStatus):Unit = {
-		users.get(msg.userID) match {
-			case Some(u) => {
-			  outGW.send(new UserStatusChange(meetingID, recorded, msg.userID, msg.status, msg.value))
-			}
-			case None => // do nothing
-			
-		}    
+	users.get(msg.userID) match {
+	  case Some(u) => {
+		  outGW.send(new UserStatusChange(meetingID, recorded, msg.userID, msg.status, msg.value))
+	  }
+	  case None => // do nothing
+
+	  }    
   }
   
   private def handleGetUsers(msg: GetUsers):Unit = {
@@ -62,6 +62,31 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
 					
 		outGW.send(new UserJoined(meetingID, recorded, msg.userID, 
 			msg.extUserID, msg.name, msg.role.toString(), false, false, false))
+		
+		if (howManyModerators > 0) {
+		  getLoneModerator match {
+		    case Some(m) => assignNewPresenter(m.intUserID, m.name, m.intUserID)
+		    case None => // do nothing
+		  }		  
+		}	
+	}
+	
+	private def howManyModerators():Int = {
+	  var modCount = 0;
+	  
+	  users.values.foreach(kv => {
+		  if (kv.role == Role.MODERATOR) modCount += 1
+	  })
+	  
+	  return modCount
+	}
+	
+	private def getLoneModerator():Option[User] = {
+	  users.values.foreach(kv => {
+		  if (kv.role == Role.MODERATOR) return Some(kv)
+	  })
+	  
+	  return None
 	}
 	
 	private def handleUserLeft(msg: UserLeaving):Unit = {
@@ -76,7 +101,11 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
 	}
 	
 	private def handleAssignPresenter(msg: AssignPresenter):Unit = {
-	  	users.get(msg.newPresenterID) match {
+		assignNewPresenter(msg.newPresenterID, msg.newPresenterName, msg.assignedBy)
+	} 
+	
+	private def assignNewPresenter(newPresenterID:String, newPresenterName: String, assignedBy: String) {
+	  	users.get(newPresenterID) match {
 			case Some(u) => {
 			  users.get(currentPresenter.presenterID) match {
 			    case Some(oldPresenter) => {
@@ -86,13 +115,10 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
 			    case None => // do nothing
 			  }
 			  u.becomePresenter
-			  currentPresenter = new Presenter(msg.newPresenterID, msg.newPresenterName, msg.assignedBy)		
-			  outGW.send(new PresenterAssigned(meetingID, recorded, new Presenter(msg.newPresenterID, msg.newPresenterName, msg.assignedBy)))
+			  currentPresenter = new Presenter(newPresenterID, newPresenterName, assignedBy)		
+			  outGW.send(new PresenterAssigned(meetingID, recorded, new Presenter(newPresenterID, newPresenterName, assignedBy)))
 			}
-			case None => // do nothing
-			
-		}
-	  		
-
-	} 
+			case None => // do nothing			
+		}	  
+	}
 }
