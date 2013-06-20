@@ -113,22 +113,22 @@ package org.bigbluebutton.modules.polling.managers
 			  service.cutOffWebPoll(e.poll);
 		  }
 		  viewWindowManager.handleStopPolling(e);
-		  service.closeAllPollingWindows();
+//		  service.closeAllPollingWindows();
 	  } 
 	//##################################################################################
 	   public function handleSavePollEvent(e:SavePollEvent):void
 		{
 			e.poll.room = module.getRoom();
-			service.savePoll(e.poll);
+//			service.savePoll(e.poll);
 		}	
 		
 	
 		public function handlePublishPollEvent(e:PublishPollEvent):void
 		{
-			if (!service.getPollingStatus() && (e.poll.title != null)){
-				e.poll.room = module.getRoom();
-				service.publish(e.poll);
-			}
+//			if (!service.getPollingStatus() && (e.poll.title != null)){
+//				e.poll.room = module.getRoom();
+//				service.publish(e.poll);
+//			}
 		}	
 		
 		public function handleRepostPollEvent(e:PublishPollEvent):void
@@ -233,12 +233,12 @@ package org.bigbluebutton.modules.polling.managers
 		  }
 		
 		  public function handleCheckTitlesEvent(e:PollGetTitlesEvent):void{
-			  if (e.type == PollGetTitlesEvent.CHECK){
-				  service.checkTitles();
-			  }
-			  else if (e.type == PollGetTitlesEvent.RETURN){
-				  viewWindowManager.handleCheckTitlesInInstructions(e);
-			  }
+//			  if (e.type == PollGetTitlesEvent.CHECK){
+//				  service.checkTitles();
+//			  }
+//			  else if (e.type == PollGetTitlesEvent.RETURN){
+//				  viewWindowManager.handleCheckTitlesInInstructions(e);
+//			  }
 		  }
 		//##################################################################################
 		  

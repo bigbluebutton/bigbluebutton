@@ -34,6 +34,7 @@ package org.bigbluebutton.modules.polling.service
 
 	public class MessageSender
 	{	
+    private static const LOG:String = "Poll::MessageSender - ";
     
     public function createPoll(poll:CreatePollVO):void
     {
@@ -41,6 +42,7 @@ package org.bigbluebutton.modules.polling.service
       
       var message:Object = new Object();
       message["message"] = jsonMsg;
+      trace(LOG + "createPoll [" + jsonMsg + "]");
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("poll.createPoll", 

@@ -31,7 +31,7 @@ package org.bigbluebutton.modules.polling.service
   {
     private static const LOG:String = "Poll::MessageReceiver - ";
     
-        /* Injected by Mate */
+    /* Injected by Mate */
     public var model:PollingModel;
     public var dispatcher:Dispatcher;
     
@@ -64,12 +64,12 @@ package org.bigbluebutton.modules.polling.service
       }
     }
 
-    private function handlePollResultUpdatedMesage(msg):void {
+    private function handlePollResultUpdatedMesage(msg:Object):void {
       var pollResult:Object = JSON.parse(msg.mesage);
       
       if (! model.hasPoll(pollResult.id)) {
         
-        model.updateResults(msg.results);
+        model.updateResults(pollResult.id, msg.results);
         dispatcher.dispatchEvent(new PollEvent(PollEvent.POLL_RESULTS_UPDATED, msg.id));
       }
     }

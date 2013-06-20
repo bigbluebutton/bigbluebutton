@@ -63,7 +63,7 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
 		outGW.send(new UserJoined(meetingID, recorded, msg.userID, 
 			msg.extUserID, msg.name, msg.role.toString(), false, false, false))
 		
-		if (howManyModerators > 0) {
+		if (howManyModerators == 0) {
 		  getLoneModerator match {
 		    case Some(m) => assignNewPresenter(m.intUserID, m.name, m.intUserID)
 		    case None => // do nothing

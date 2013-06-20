@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+BigBlueButton is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 2.1 of the License, or (at your option) any later
+version.
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+$Id: $
+-->
+
+<!--
+Notes.mxml is the main view of the SharedNotes application
+-->
+<MDIWindow xmlns="flexlib.mdi.containers.*"
+           xmlns:mx="http://www.adobe.com/2006/mxml"
+           width="510" height="600"
+           xmlns:mate="http://mate.asfusion.com/"
+           implements="org.bigbluebutton.common.IBbbModuleWindow"
+           initialize="init()"
+           creationComplete="onCreationComplete()"
+           label="Create Poll" layout="absolute"
+           title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
+  
+  <mx:Script>
+    <![CDATA[
+      import flexlib.mdi.events.MDIWindowEvent;
+      
+      import mx.collections.ArrayCollection;
+      import mx.containers.HBox;
+      import mx.controls.Alert;
+      import mx.controls.CheckBox;
+      import mx.controls.RadioButton;
+      import mx.controls.Text;
+      import mx.core.IUIComponent;
+      import mx.utils.ObjectUtil;
+      import mx.utils.StringUtil;
+      import mx.validators.Validator;
+      
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.Role;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.model.users.BBBUser;
+      import org.bigbluebutton.main.model.users.Conference;
+      import org.bigbluebutton.main.views.MainCanvas;
+      import org.bigbluebutton.modules.polling.events.CreatePollEvent;
+      import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
+      import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
+      import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
+      import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
+      import org.bigbluebutton.modules.polling.events.PublishPollEvent;
+      import org.bigbluebutton.modules.polling.events.SavePollEvent;
+      import org.bigbluebutton.modules.polling.events.StartPollingEvent;
+      import org.bigbluebutton.modules.polling.managers.PollingManager;
+      import org.bigbluebutton.modules.polling.model.PollObject;
+      import org.bigbluebutton.modules.polling.model.PollOptions;
+      import org.bigbluebutton.modules.polling.vo.CreatePollVO;
+      import org.bigbluebutton.modules.polling.vo.CreateQuestionVO;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
+      
+      public static const LOGNAME:String = "[PollingInstructionsWindow] ";
+
+      [Bindable] public var invalidTitles:Array;
+      [Bindable] public var incomingPoll:PollObject;
+      [Bindable] public var editing:Boolean;
+      [Bindable] public var pollOptions:PollOptions;
+      [Bindable] private var baseIndex:int;
+          
+      public function getPrefferedPosition():String{
+        return MainCanvas.POPUP;
+      }
+      
+      private function init():void{
+        pollOptions = new PollOptions();
+        baseIndex = pollOptions.baseTabIndex;
+      }
+      
+      private function onCreationComplete():void{
+        titleBarOverlay.tabIndex = baseIndex;
+        minimizeBtn.tabIndex = baseIndex+1;
+        maximizeRestoreBtn.tabIndex = baseIndex+2;
+        closeBtn.tabIndex = baseIndex+3;
+        titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.polling.createPoll.accessTitle');
+                
+        focusManager.setFocus(titleBarOverlay); 
+      }
+      
+      // Overwritting close to use custom function
+      override public function close(event:MouseEvent = null):void {
+        closeInstructionsWindow();
+      }
+      
+      // function invoked when close window
+      private function closeInstructionsWindow():void {
+        dispatchEvent(new PollingInstructionsWindowEvent(PollingInstructionsWindowEvent.CLOSE));
+      }
+            
+      public function createPoll():void{
+        var answersArray:Array;
+        var valid:Boolean=true;
+        answersArray = pollAnswers.text.split("\r"); 
+        // splitting by '*' and new line, thus user can type '*' anywhere except the newline
+        //answersArray[0] = answersArray[0].split('*').join(''); 
+        // As after split '*' is not displayed we need to take off from first element which is not splitted
+        answersArray = makeAnswersPretty(answersArray);
+        
+        var createPollVO:CreatePollVO = new CreatePollVO(pollTitle.text);
+        var questionType:String = "MULTI_CHOICE";
+        if ( multiple_response.selected) {
+          questionType = "MULTI_RESPONSE";
+        }
+        var question:CreateQuestionVO = new CreateQuestionVO(questionType, pollQuestion.text);
+        for (var i:int = 0; i < answersArray.length; i++) {
+          question.addResponse(answersArray[i] as String);
+        }
+        
+        createPollVO.addQuestion(question);
+        
+        dispatchEvent(new CreatePollEvent(createPollVO));
+      }
+      
+      private function isDuplicateAnswers(arr:Array):Boolean{
+        var x:uint;
+        var y:uint;
+        for (x = 0; x < arr.length ; x++){
+          for (y = x + 1; y < arr.length; y++){
+            if (arr[x] === arr[y]){
+              return true;
+            }
+          }
+        }
+        return false;
+      }
+      
+      //trimming return and whitespaces at the end of each array element
+      private function makeAnswersPretty(arr:Array):Array{
+        var i:uint;
+        var trim:RegExp = /^\s+|\s+$/g;
+        for (i = 0; i < arr.length; i++){
+          arr[i] = arr[i].replace(trim, "");
+          if(!arr[i]) //if user puts just return or space and return - this array elements will be deleted
+            arr.splice(i,1);
+        }
+        return arr;
+      }
+          
+    ]]>
+  </mx:Script>
+  <mx:VBox width="100%" height="100%">
+    <mx:VBox width="100%" height="90%" focusEnabled="true">
+      <mx:Form width="100%" id="instructionsForm" paddingTop="30" paddingBottom="10" paddingLeft="30" focusEnabled="true">
+        <mx:FormItem fontWeight="bold" paddingLeft="35" id="titleFormItem" focusEnabled="true"
+                     label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.title')}" >
+          <mx:TextInput id="pollTitle" focusEnabled="true" tabIndex="{baseIndex+4}" maxChars="75"
+                        accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.title')}"/>
+        </mx:FormItem>
+        
+        <mx:FormItem fontWeight="bold" 
+                     label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.question')}" 
+                     paddingLeft="35" 
+                     paddingTop="20" >
+          <mx:TextArea id="pollQuestion" maxChars="200"
+                       width="200" height="100" 
+                       accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.question')}"
+                       tabIndex="{baseIndex+4}"/>
+        </mx:FormItem>
+        
+        <mx:FormItem fontWeight="bold" paddingLeft="35" paddingTop="30"
+                     label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.answers')}" >
+          <mx:Label id="answerHint" visible="true" width="100%" fontSize="9" fontWeight="normal"
+                    text="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.hint')}" />
+          <mx:TextArea id="pollAnswers" width="200" height="100" tabIndex="{baseIndex+4}"
+                       accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.answers')}"/>
+        </mx:FormItem>
+        
+        <mx:FormItem paddingLeft="10" paddingTop="5" >
+          <mx:CheckBox id="multiple_response" 
+                       label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.moreThanOneResponse')}" 
+                       tabIndex="{baseIndex+4}"/>
+        </mx:FormItem>
+      </mx:Form>
+    </mx:VBox>
+    
+    <mx:ControlBar>
+      <mx:Button id="back" click="createPoll()" width="100" height="30" visible="true" tabIndex="{baseIndex+5}"
+                 label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.modify')}" />
+      <mx:Button id="Cancel" click="closeInstructionsWindow()" width="100" height="30" tabIndex="{baseIndex+5}"
+                 label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.cancel')}" />
+    </mx:ControlBar>    
+  </mx:VBox>	
+  
+</MDIWindow>

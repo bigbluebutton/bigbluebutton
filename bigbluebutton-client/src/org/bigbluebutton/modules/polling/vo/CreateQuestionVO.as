@@ -33,6 +33,8 @@ package org.bigbluebutton.modules.polling.vo
       map.question = _question;
       map.type = _questionType;
       map.responses = _responses;
+      
+      return map;
     }
   }
 }
