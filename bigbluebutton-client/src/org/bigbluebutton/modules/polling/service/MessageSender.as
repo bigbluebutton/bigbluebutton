@@ -40,8 +40,6 @@ package org.bigbluebutton.modules.polling.service
     {
       var jsonMsg:String = JSON.stringify(poll.toMap());
       
-      var message:Object = new Object();
-      message["message"] = jsonMsg;
       trace(LOG + "createPoll [" + jsonMsg + "]");
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
@@ -52,7 +50,7 @@ package org.bigbluebutton.modules.polling.service
         function(status:String):void {
           LogUtil.error(status); 
         },
-        message
+        jsonMsg
       );
     }				
 	}
