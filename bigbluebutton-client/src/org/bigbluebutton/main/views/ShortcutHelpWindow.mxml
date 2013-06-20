@@ -53,7 +53,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var pollKeys:ArrayList;
 			private var pollVoteKeys:ArrayList;
 			
-			// genResource is populated dynamically in populategenResource()
+			[Bindable] private var presentationString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.presentation");
+			[Bindable] private var chatString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.chat");
+			[Bindable] private var userString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.users");
+			[Bindable] private var pollString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.polling");
+			[Bindable] private var pollVoteString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.polling2");
+						
+			// genResource is populated dynamically in populateModules()
 			private var genResource:Array;
 											 
 			private var presResource:Array = ['bbb.shortcutkey.present.focusslide', /*'bbb.shortcutkey.whiteboard.undo',*/ 'bbb.shortcutkey.present.upload',  
@@ -89,7 +95,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function init():void {
 				modifier = ExternalInterface.call("determineModifier");
 				globalModifier = ExternalInterface.call("determineGlobalModifier");
-				populategenResource()
+				populateModules()
 			}
 			
 			private function onCreationComplete():void {
@@ -101,14 +107,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				closeBtn.tabIndex = baseIndex + 3;
 			}
 			
-			private function populategenResource():void{
+			private function populateModules():void{
 				genResource = new Array();
 				
 				/*
-					'bbb.shortcutkey.focus.pollingCreate', 'bbb.shortcutkey.focus.pollingStats', 
-					'bbb.shortcutkey.focus.voting', '
-					'bbb.shortcutkey.polling.buttonClick',  
+					presentationString
+					chatString
+					userString
+					pollString
+					pollVoteString
 				*/
+				LogUtil.debug("WATERFALL: testing getItemIndex, index of user string is: " + categoryAC.getItemIndex(userString));
+				
 				
 				// Module-independent keys
 				genResource.push('bbb.shortcutkey.general.minimize');
@@ -262,7 +272,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				 editable="false" 
 				 change="changeArray()"
 				 tabIndex="{baseIndex + 10}">
-		<mx:ArrayCollection>
+		<mx:ArrayCollection id="categoryAC">
         	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.general")}</mx:String>
          	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.presentation")}</mx:String>
          	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.chat")}</mx:String>
