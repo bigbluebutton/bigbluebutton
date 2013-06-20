@@ -29,8 +29,6 @@ public class PresentationApplication {
 		
 	private IBigBlueButtonInGW bbbInGW;
 	
-	private PreuploadedPresentationsUtil presUtil = new PreuploadedPresentationsUtil();
-	
 	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
 		bbbInGW = inGW;
 	}

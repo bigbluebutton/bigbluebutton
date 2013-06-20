@@ -48,46 +48,50 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
   }
   
   private def handlePresentationConversionUpdateOutMsg(msg: PresentationConversionUpdateOutMsg) {
-    val message = msg.msg;
-    
-		val messageKey:String = message.get("messageKey").asInstanceOf[String]
-		
-    	val args = new java.util.HashMap[String, Object]();
-		args.put("meetingID", message.get("conference"));
-		args.put("code", message.get("returnCode"));
-		args.put("presentationID", message.get("presentationName"));
-		args.put("messageKey", messageKey);
-		
-		if (messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_SUCCESS_KEY) ||
-				messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_FAILED_KEY) ||
-				messageKey.equalsIgnoreCase(SUPPORTED_DOCUMENT_KEY) ||
-				messageKey.equalsIgnoreCase(UNSUPPORTED_DOCUMENT_KEY) ||
-				messageKey.equalsIgnoreCase(GENERATING_THUMBNAIL_KEY) ||
-				messageKey.equalsIgnoreCase(GENERATED_THUMBNAIL_KEY) ||
-				messageKey.equalsIgnoreCase(PAGE_COUNT_FAILED_KEY)){
-			
-			val m = new BroadcastClientMessage(msg.meetingID, "conversionUpdateMessageCallback", args);
-			service.sendMessage(m);
-		} else if(messageKey.equalsIgnoreCase(PAGE_COUNT_EXCEEDED_KEY)){
-			args.put("numberOfPages", message.get("numberOfPages"));
-			args.put("maxNumberPages", message.get("maxNumberPages"));
-			
-			val m = new BroadcastClientMessage(msg.meetingID, "pageCountExceededUpdateMessageCallback", args);
-			service.sendMessage(m);
-			
-		} else if(messageKey.equalsIgnoreCase(GENERATED_SLIDE_KEY)){
-			args.put("numberOfPages", message.get("numberOfPages"));
-			args.put("pagesCompleted", message.get("pagesCompleted"));
-			
-			val m = new BroadcastClientMessage(msg.meetingID, "generatedSlideUpdateMessageCallback", args);
-			service.sendMessage(m);			
+	  val message = msg.msg;
 
-		} else if(messageKey.equalsIgnoreCase(CONVERSION_COMPLETED_KEY)){
-			args.put("slidesInfo", message.get("slidesInfo"));		
-			
-			val m = new BroadcastClientMessage(msg.meetingID, "conversionCompletedUpdateMessageCallback", args);
-			service.sendMessage(m);			
-		}        
+	  val messageKey:String = message.get("messageKey").asInstanceOf[String]
+
+			  val args = new java.util.HashMap[String, Object]();
+	  args.put("meetingID", message.get("conference"));
+	  args.put("code", message.get("returnCode"));
+	  args.put("presentationID", message.get("presentationName"));
+	  args.put("messageKey", messageKey);
+
+	  if (messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_SUCCESS_KEY) ||
+			  messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_FAILED_KEY) ||
+			  messageKey.equalsIgnoreCase(SUPPORTED_DOCUMENT_KEY) ||
+			  messageKey.equalsIgnoreCase(UNSUPPORTED_DOCUMENT_KEY) ||
+			  messageKey.equalsIgnoreCase(GENERATING_THUMBNAIL_KEY) ||
+			  messageKey.equalsIgnoreCase(GENERATED_THUMBNAIL_KEY) ||
+			  messageKey.equalsIgnoreCase(PAGE_COUNT_FAILED_KEY)){
+
+		  val m = new BroadcastClientMessage(msg.meetingID, "conversionUpdateMessageCallback", args);
+
+		  service.sendMessage(m);
+	  } else if(messageKey.equalsIgnoreCase(PAGE_COUNT_EXCEEDED_KEY)){
+		  args.put("numberOfPages", message.get("numberOfPages"));
+		  args.put("maxNumberPages", message.get("maxNumberPages"));
+
+		  val m = new BroadcastClientMessage(msg.meetingID, "pageCountExceededUpdateMessageCallback", args);
+
+		  service.sendMessage(m);
+
+	  } else if(messageKey.equalsIgnoreCase(GENERATED_SLIDE_KEY)){
+		  args.put("numberOfPages", message.get("numberOfPages"));
+		  args.put("pagesCompleted", message.get("pagesCompleted"));
+
+		  val m = new BroadcastClientMessage(msg.meetingID, "generatedSlideUpdateMessageCallback", args);
+
+		  service.sendMessage(m);			
+
+	  } else if(messageKey.equalsIgnoreCase(CONVERSION_COMPLETED_KEY)){
+		  args.put("slidesInfo", message.get("slidesInfo"));		
+
+		  val m = new BroadcastClientMessage(msg.meetingID, "conversionCompletedUpdateMessageCallback", args);
+
+		  service.sendMessage(m);			
+	  }        
   }
   
   private def handleRemovePresentationOutMsg(msg: RemovePresentationOutMsg) {
@@ -102,7 +106,6 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
 		val message = msg.info;
 		val m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getPresentationInfoReply", msg.info);
 		service.sendMessage(m);	
- 
   }
   
   private def handleSendCursorUpdateOutMsg(msg: SendCursorUpdateOutMsg) {

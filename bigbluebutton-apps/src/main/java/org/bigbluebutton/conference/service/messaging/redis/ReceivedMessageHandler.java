@@ -26,6 +26,7 @@ public class ReceivedMessageHandler {
 	
 	public void start() {	
 		log.info("Ready to handle messages from Redis pubsub!");
+
 		try {
 			processMessage = true;
 			
@@ -50,6 +51,7 @@ public class ReceivedMessageHandler {
 	private void processMessage(ReceivedMessage msg) {
 		if (handler != null) {
 			log.debug("Let's process this message: " + msg.getMessage());
+
 			handler.notifyListeners(msg.getPattern(), msg.getChannel(), msg.getMessage());
 		} else {
 			log.warn("No listeners interested in messages from Redis!");
