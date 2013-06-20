@@ -91,7 +91,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 <ref bean="presentationRed5ClientSender" />  
                 <ref bean="usersRed5ClientSender" />   
                 <ref bean="presentationRedisRecorder" /> 
-                <ref bean="usersRedisRecorder" />          
+                <ref bean="usersRedisRecorder" />
+                <ref bean="meetingEventRedisPublisher" />          
             </set>        
          </property> 
     </bean>

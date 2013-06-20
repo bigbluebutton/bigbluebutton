@@ -13,11 +13,17 @@ import org.bigbluebutton.core.api.DestroyMeeting
 import org.bigbluebutton.core.api.KeepAliveMessage
 import org.bigbluebutton.core.api.KeepAliveMessageReply
 
+import org.red5.logging.Red5LoggerFactory
+import org.slf4j.Logger
+
 class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
   
+  private var log = Red5LoggerFactory.getLogger(classOf[BigBlueButtonActor], "bigbluebutton")
+
   private var meetings = new HashMap[String, Meeting]
  
   def act() = {
+
 	loop {
 		react {
 	      case createMeeting: CreateMeeting => handleCreateMeeting(createMeeting)
@@ -30,6 +36,7 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
   }
   
   private def handleMeetingMessage(msg: InMessage):Unit = {
+    log.debug("receiving:" + msg)
     meetings.get(msg.meetingID) match {
       case None => // do nothing
       case Some(m) => m ! msg

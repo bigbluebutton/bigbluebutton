@@ -4,8 +4,12 @@ import org.bigbluebutton.conference.service.messaging.redis.MessageSender
 import org.bigbluebutton.core.api.OutMessageListener2
 import org.bigbluebutton.core.api.IOutMessage
 import org.bigbluebutton.core.api.KeepAliveMessageReply
+import scala.collection.immutable.HashMap
+import com.google.gson.Gson
 
 class MeetingEventRedisPublisher(service: MessageSender) extends OutMessageListener2 {
+
+	private val KEEP_ALIVE_REPLY = "KEEP_ALIVE_REPLY"
 
 	def handleMessage(msg: IOutMessage) {
 	  msg match {
@@ -15,6 +19,9 @@ class MeetingEventRedisPublisher(service: MessageSender) extends OutMessageListe
     }
 
     private def handleKeepAliveMessageReply(msg: KeepAliveMessageReply):Unit = {
-    	service.send("test:channel", "pong")
+    	val gson = new Gson();
+    	val map = Map("meetingId" -> "null", "messageId" -> KEEP_ALIVE_REPLY)
+
+    	service.send("test:channel", gson.toJson(map))
 	}
 }
