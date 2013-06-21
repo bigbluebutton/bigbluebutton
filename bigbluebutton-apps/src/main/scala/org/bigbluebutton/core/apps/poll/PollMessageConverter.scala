@@ -88,7 +88,7 @@ class PollMessageConverter {
 				j += 1
 			}		
 
-			val qType = gson.fromJson(aquestion.get("type"), classOf[String])
+			val qType = gson.fromJson(aquestion.get("questionType"), classOf[String])
 			val qID = gson.fromJson(aquestion.get("id"), classOf[String])
 			val questionType = if (qType.equalsIgnoreCase(QuestionType.MULTI_CHOICE.toString())) true else false
 
