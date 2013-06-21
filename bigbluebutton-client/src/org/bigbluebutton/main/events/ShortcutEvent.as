@@ -71,6 +71,7 @@ package org.bigbluebutton.main.events {
 		public static const CHANGE_FONT_COLOUR:String = 'CHANGE_FONT_COLOUR';
 		public static const SEND_MESSAGE:String = 'SEND_MESSAGE';
 		
+		public static const FOCUS_SHORTCUT_BUTTON:String = 'FOCUS_SHORTCUT_BUTTON';
 		public static const MUTE_ALL_BUT_PRES:String = 'MUTE_ALL_BUT_PRES';
 		
 		public static const CLOSE_POLL_STATS:String = 'CLOSE_POLL_STATS';
