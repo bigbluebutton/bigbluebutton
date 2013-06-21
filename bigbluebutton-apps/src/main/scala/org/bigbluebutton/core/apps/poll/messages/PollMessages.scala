@@ -6,7 +6,7 @@ import org.bigbluebutton.core.api.InMessage
 import org.bigbluebutton.core.api.IOutMessage
 
 // Poll Messages
-case class CreatePoll(meetingID:String, poll: PollVO, requesterID: String) extends InMessage
+case class CreatePoll(meetingID: String, poll: PollVO, requesterID: String) extends InMessage
 case class UpdatePoll(meetingID: String, poll: PollVO) extends InMessage
 case class GetPolls(meetingID: String, requesterID: String) extends InMessage
 case class DestroyPoll(meetingID: String, pollID: String) extends InMessage
@@ -21,10 +21,13 @@ case class ResponseVO(id: String, text: String)
 case class QuestionVO(id: String, questionType: QuestionType, question: String, responses: Array[ResponseVO])
 case class PollVO(id: String, title: String, questions: Array[QuestionVO], preCreated: Boolean=false)
 
+case class ResponseVOOut(id: String, text: String)
+case class QuestionVOOut(id: String, questionType: QuestionType, question: String, responses: Array[ResponseVOOut])
+case class PollVOOut(id: String, title: String, questions: Array[QuestionVOOut], preCreated: Boolean=false)
 
 // Out Messages
-case class GetPollResultReply(meetingID: String, recorded: Boolean, requesterID: String, pollVO: PollVO) extends IOutMessage
-case class GetPollsReplyOutMsg(meetingID: String, recorded: Boolean, requesterID: String, polls: Array[PollVO]) extends IOutMessage
+case class GetPollResultReply(meetingID: String, recorded: Boolean, requesterID: String, pollVO: PollVOOut) extends IOutMessage
+case class GetPollsReplyOutMsg(meetingID: String, recorded: Boolean, requesterID: String, polls: Array[PollVOOut]) extends IOutMessage
 case class ClearPollFailed(meetingID: String, pollID: String, requesterID: String, reason: String) extends IOutMessage
 case class PollClearedOutMsg(meetingID: String, recorded: Boolean, pollID: String) extends IOutMessage
 case class PollStartedOutMsg(meetingID: String, recorded: Boolean, pollID: String) extends IOutMessage
