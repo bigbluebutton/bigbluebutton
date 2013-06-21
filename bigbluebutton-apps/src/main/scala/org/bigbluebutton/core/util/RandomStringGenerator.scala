@@ -1,7 +1,8 @@
 package org.bigbluebutton.core.util
 
 object RandomStringGenerator {
-
+// From: http://www.bindschaedler.com/2012/04/07/elegant-random-string-generation-in-scala/
+  
   	  // Random generator
 	val random = new scala.util.Random
 	
