@@ -37,12 +37,14 @@ package org.bigbluebutton.modules.polling.service
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.modules.polling.events.CreatePollEvent;
 	import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
+	import org.bigbluebutton.modules.polling.events.PollEvent;
 	import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
 	import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
 	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
 	import org.bigbluebutton.modules.polling.events.PollReturnTitlesEvent;
 	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
+	import org.bigbluebutton.modules.polling.events.UpdatePollEvent;
 	import org.bigbluebutton.modules.polling.managers.PollingWindowManager;
 	import org.bigbluebutton.modules.polling.model.PollObject;
 	import org.bigbluebutton.modules.polling.views.PollingInstructionsWindow;
@@ -63,7 +65,23 @@ package org.bigbluebutton.modules.polling.service
 		public function handleCreatePollEvent(event:CreatePollEvent):void {
       sender.createPoll(event.poll);
 		}
-				
+		
+    public function handleUpdatePollEvent(event:UpdatePollEvent):void {
+      sender.updatePoll(event.poll);
+    }
+
+    public function handleStartPollEvent(event:PollEvent):void {
+      sender.startPoll(event.pollID);
+    }
+    
+    public function handleStopPollEvent(event:PollEvent):void {
+      sender.stopPoll(event.pollID);
+    }
+    
+    public function handleRemovePollEvent(event:PollEvent):void {
+      sender.removePoll(event.pollID);
+    }
+    
 	  public function  getPoll(pollKey:String, option:String):void{	
 
 	   	}  

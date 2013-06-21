@@ -31,7 +31,7 @@ package org.bigbluebutton.modules.polling.vo
     public function toMap():Object {
       var map:Object = new Object();
       map.question = _question;
-      map.type = _questionType;
+      map.questionType = _questionType;
       map.responses = _responses;
       
       return map;

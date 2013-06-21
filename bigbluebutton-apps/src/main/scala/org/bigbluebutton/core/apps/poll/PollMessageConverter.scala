@@ -17,9 +17,6 @@ class PollMessageConverter {
 		val title = gson.fromJson(obj.get("title"), classOf[String]);
 
 		val questions = obj.get("questions").getAsJsonArray();
-
-		assert(questions.size() == 1, "Number of questions = [" + questions.size() + "]")
-		
 		val cvoArray = ArrayBuffer[QuestionVO]()
 
 		val iter = questions.iterator()
@@ -28,7 +25,7 @@ class PollMessageConverter {
 			val aquestion = iter.next().getAsJsonObject();
 			val questionText = gson.fromJson(aquestion.get("question"), classOf[String])
 					
-			val qType = gson.fromJson(aquestion.get("type"), classOf[String])
+			val qType = gson.fromJson(aquestion.get("questionType"), classOf[String])
 
 			val responses = aquestion.get("responses").getAsJsonArray();
 			
@@ -81,7 +78,7 @@ class PollMessageConverter {
 				val response = respIter.next().getAsJsonObject()
 				
 				val respID = gson.fromJson(response.get("id"), classOf[String])
-				val respText = gson.fromJson(response.get("text"), classOf[String])
+				val respText = gson.fromJson(response.get("response"), classOf[String])
 				
 				rvoArray += new ResponseVO(respID, respText)
 

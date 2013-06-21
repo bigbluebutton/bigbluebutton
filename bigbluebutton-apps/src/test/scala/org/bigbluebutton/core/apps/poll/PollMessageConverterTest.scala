@@ -32,7 +32,7 @@ class PollMessageConverterTest {
 	 
 	 @Test(groups = Array[String]( "unit" ))
 	 def convertCreatePollMessageTest(){
-		val msg = "{\"title\":\"My sample poll\",\"questions\":[{\"type\":\"MULTI_CHOICE\",\"responses\":[\"Answer 1\",\"Answer 2\",\"Answer 3\"],\"question\":\"What is my name?\"}]}";
+		val msg = "{\"title\":\"My sample poll\",\"questions\":[{\"questionType\":\"MULTI_CHOICE\",\"responses\":[\"Answer 1\",\"Answer 2\",\"Answer 3\"],\"question\":\"What is my name?\"}]}";
 
 		val cut = new PollMessageConverter
 		val pvp = cut.convertCreatePollMessage(msg)

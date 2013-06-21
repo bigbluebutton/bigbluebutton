@@ -39,23 +39,26 @@ public class PollService {
 	
 	public void createPoll(String msg){
 		System.out.println("*** PollService:: create poll \n" + msg + "\n");
-		//{"title":"My sample poll","questions":[{"type":"MULTI_CHOICE","responses":["Answer 1","Answer 2","Answer 3"],"question":"What is my name?"}]}
 
-		Gson gson = new Gson();
-		
-		JsonParser parser = new JsonParser();
-		JsonObject obj = parser.parse(msg).getAsJsonObject();
-		String title = gson.fromJson(obj.get("title"), String.class);
+	}
 
-		JsonArray questions = obj.get("questions").getAsJsonArray();
-		//you can do a loop
-		JsonObject aquestion = questions.get(0).getAsJsonObject();
-		String type = gson.fromJson(aquestion.get("type"), String.class);
-		
-		JsonArray responses = aquestion.get("responses").getAsJsonArray();
-		String response = gson.fromJson(responses.get(0), String.class);
-		
-		System.out.println(title + ": " + type + " :" + response);
+	public void updatePoll(String msg){
+		System.out.println("*** PollService:: update poll \n" + msg + "\n");
+
 	}
 	
+	public void startPoll(String msg){
+		System.out.println("*** PollService:: start poll \n" + msg + "\n");
+
+	}
+	
+	public void stopPoll(String msg){
+		System.out.println("*** PollService:: stop poll \n" + msg + "\n");
+
+	}
+	
+	public void removePoll(String msg){
+		System.out.println("*** PollService:: remove poll \n" + msg + "\n");
+
+	}
 }

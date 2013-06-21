@@ -21,7 +21,7 @@ case class ResponseVO(id: String, text: String)
 case class QuestionVO(id: String, multiResponse: Boolean, question: String, responses: Array[ResponseVO])
 case class PollVO(id: String, title: String, questions: Array[QuestionVO])
 
-case class R(id: String, text: String)
+case class R(id: String, response: String)
 case class Q(id: String, questionType: String, question: String, responses: Array[R])
 case class P(id: String, title: String, questions: Array[Q], preCreated: Boolean=false)
 
