@@ -1,9 +1,7 @@
 package org.bigbluebutton.core.apps.poll
 
-import scala.collection.mutable.HashMap
-import QuestionType._
 
-class Question(val id: String, val questionType: QuestionType, val question: String, val responses: Array[Response]) {
+class Question(val id: String, val multiResponse: Boolean, val question: String, val responses: Array[Response]) {
   
   def clear() {
 	  responses.foreach(r => r.clear)

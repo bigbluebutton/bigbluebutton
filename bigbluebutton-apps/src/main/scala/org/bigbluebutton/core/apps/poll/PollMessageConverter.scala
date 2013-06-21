@@ -27,14 +27,11 @@ class PollMessageConverter {
 		while(iter.hasNext()) {
 			val aquestion = iter.next().getAsJsonObject();
 			val questionText = gson.fromJson(aquestion.get("question"), classOf[String])
-			
-			assert(questionText.equals("What is my name?"), "Questions text is = [" + questionText + "]")
-			
+					
 			val qType = gson.fromJson(aquestion.get("type"), classOf[String])
 
 			val responses = aquestion.get("responses").getAsJsonArray();
 			
-			assert(responses.size() == 3, "Number of responses = [" + responses.size() + "]")
 			val rvoArray = ArrayBuffer[ResponseVO]()
 
 			var j = 0
@@ -47,17 +44,59 @@ class PollMessageConverter {
 				j += 1
 			}		
 
-			val questionType = if (qType.equalsIgnoreCase(QuestionType.MULTI_CHOICE.toString())) QuestionType.MULTI_CHOICE else QuestionType.MULTI_REPONSE
+			val questionType = if (qType.equalsIgnoreCase(QuestionType.MULTI_CHOICE.toString())) true else false
 
 			cvoArray += new QuestionVO(i.toString, questionType, questionText, rvoArray.toArray)
 
 			i += 1
 		}
-
-		assert(cvoArray.length == 1, "Number of questions = [" + cvoArray.length + "]")
 		
 		new PollVO(randomAlphanumericString(12), title, cvoArray.toArray)
   }
   
+  def convertUpdatePollMessage(msg:String):PollVO = {
+   		val gson = new Gson();
+		val parser = new JsonParser();
+		val obj = parser.parse(msg).getAsJsonObject();
+		val title = gson.fromJson(obj.get("title"), classOf[String]);
+		val pollID = gson.fromJson(obj.get("id"), classOf[String]);
+		
+		val questions = obj.get("questions").getAsJsonArray();
+		
+		val cvoArray = ArrayBuffer[QuestionVO]()
 
+		val iter = questions.iterator()
+		var i = 0
+		while(iter.hasNext()) {
+			val aquestion = iter.next().getAsJsonObject();
+			val questionText = gson.fromJson(aquestion.get("question"), classOf[String])
+									
+			val responses = aquestion.get("responses").getAsJsonArray();
+			
+			val rvoArray = ArrayBuffer[ResponseVO]()
+
+			var j = 0
+			val respIter = responses.iterator()
+			while(respIter.hasNext()) {
+				val response = respIter.next().getAsJsonObject()
+				
+				val respID = gson.fromJson(response.get("id"), classOf[String])
+				val respText = gson.fromJson(response.get("text"), classOf[String])
+				
+				rvoArray += new ResponseVO(respID, respText)
+
+				j += 1
+			}		
+
+			val qType = gson.fromJson(aquestion.get("type"), classOf[String])
+			val qID = gson.fromJson(aquestion.get("id"), classOf[String])
+			val questionType = if (qType.equalsIgnoreCase(QuestionType.MULTI_CHOICE.toString())) true else false
+
+			cvoArray += new QuestionVO(qID, questionType, questionText, rvoArray.toArray)
+
+			i += 1
+		}
+	
+		new PollVO(pollID, title, cvoArray.toArray)
+  }
 }

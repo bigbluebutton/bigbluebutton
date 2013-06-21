@@ -87,6 +87,7 @@ package org.bigbluebutton.modules.polling.service
 		 }
 		
 		public function initializePollingMenuRemotely(roomID:String):void{
+/*      
 			nc.call("poll.titleList", new Responder(titleSuccess, titleFailure));
 			//--------------------------------------//
 			// Responder functions
@@ -107,7 +108,7 @@ package org.bigbluebutton.modules.polling.service
 				LogUtil.error(LOGNAME+"Responder object failure in INITALIZE POLLING MENU NC.CALL");
 				LogUtil.error("Failure object tostring is: " + obj.toString());
 			}
-			//--------------------------------------//
+*/
 		}
 		 
 		 public function updateTitles():void{

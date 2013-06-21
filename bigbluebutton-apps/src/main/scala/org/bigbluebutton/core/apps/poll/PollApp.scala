@@ -25,30 +25,25 @@ class PollApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   }
   
   private def handleGetPolls(msg: GetPolls) {
-    val poll = new ArrayBuffer[PollVOOut]
+    val poll = new ArrayBuffer[PollVO]
     
     polls.values.foreach(p => {
-      val questions = new ArrayBuffer[QuestionVOOut]
+      val questions = new ArrayBuffer[QuestionVO]
       p.questions.foreach(q => {
-        val responses = new ArrayBuffer[ResponseVOOut]
+        val responses = new ArrayBuffer[ResponseVO]
         q.responses.foreach(response => {
-          val r = new ResponseVOOut(response.id, response.response)
+          val r = new ResponseVO(response.id, response.response)
           responses += r
         })
-        val rArray = new Array[ResponseVOOut](responses.length)
-        responses.copyToArray(rArray)
-        val quest = new QuestionVOOut(q.id, q.questionType, q.question, rArray)
+
+        val quest = new QuestionVO(q.id, q.multiResponse, q.question, responses.toArray)
         questions += quest
       })
-      val qArray = new Array[QuestionVOOut](questions.length)
-      questions.copyToArray(qArray)
-      
-      poll += new PollVOOut(p.id, p.title, qArray)
+     
+      poll += new PollVO(p.id, p.title, questions.toArray)
     })
     
-    val pArray = new Array[PollVOOut](poll.length)
-    poll.copyToArray(pArray)
-    outGW.send(new GetPollsReplyOutMsg(meetingID, recorded, msg.requesterID, pArray))
+    outGW.send(new GetPollsReplyOutMsg(meetingID, recorded, msg.requesterID, poll.toArray))
   }
   
   private def handleClearPoll(msg: ClearPoll) {
@@ -116,15 +111,10 @@ class PollApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
 	    	  responses += response
 	      })
 	      
-	      val rArray = new Array[Response](responses.length)
-	      responses.copyToArray(rArray)
-	      questions += new Question(qv.id, qv.questionType, qv.question, rArray)
+	      questions += new Question(qv.id, qv.multiResponse, qv.question, responses.toArray)
 	    })
-	    
-	    val qArray = new Array[Question](questions.length)
-	    questions.copyToArray(qArray)
-	    
-	    val poll = new Poll(msg.poll.id, msg.poll.title, qArray)
+	        
+	    val poll = new Poll(msg.poll.id, msg.poll.title, questions.toArray)
 	    
 	    polls += poll.id -> poll    
 	    
@@ -147,15 +137,10 @@ class PollApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
     	  responses += response
       })
       
-      val rArray = new Array[Response](responses.length)
-      responses.copyToArray(rArray)
-      questions += new Question(qv.id, qv.questionType, qv.question, rArray)
+      questions += new Question(qv.id, qv.multiResponse, qv.question, responses.toArray)
     })
-    
-    val qArray = new Array[Question](questions.length)
-    questions.copyToArray(qArray)
-    
-    val poll = new Poll(msg.poll.id, msg.poll.title, qArray)
+       
+    val poll = new Poll(msg.poll.id, msg.poll.title, questions.toArray)
     
     polls += poll.id -> poll
     
