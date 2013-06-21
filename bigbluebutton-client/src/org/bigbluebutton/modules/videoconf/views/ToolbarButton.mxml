@@ -111,6 +111,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function handleCamSettingsClosedEvent(e:BBBEvent):void {
+				this.setFocus();
 				if(e.payload['clicked'] == "cancel"){
 					this.enabled = true;
 					this.selected = false;

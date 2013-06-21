@@ -17,10 +17,12 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.service.PollingService;
 	
 	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.main.model.users.Conference 
+	import org.bigbluebutton.main.model.users.Conference; 
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.common.Role;
-
+	import org.bigbluebutton.main.events.ShortcutEvent;
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
 			
 	public class PollingManager
 	{	
@@ -36,7 +38,7 @@ package org.bigbluebutton.modules.polling.managers
 		public var pollKey:String;
 		public var participants:int;
 		private var conference:Conference;
-
+		private var synchTimer:Timer;
 		
 		
 		public function PollingManager()
@@ -82,7 +84,9 @@ package org.bigbluebutton.modules.polling.managers
 	   public function  handleClosePollingInstructionsWindowEvent(e:PollingInstructionsWindowEvent):void {
 		   viewWindowManager.handleClosePollingInstructionsWindow(e);
 		   toolbarButtonManager.enableToolbarButton();
+		   toolbarButtonManager.focusToolbarButton();
 	   }		
+	   
 		//Opening Instructions Window    
 	  	public function handleOpenPollingInstructionsWindowEvent(e:PollingInstructionsWindowEvent):void {
 			viewWindowManager.appFM = toolbarButtonManager.appFM;
@@ -194,8 +198,17 @@ package org.bigbluebutton.modules.polling.managers
 
 		  // Make a call to the service to update the list of titles and statuses for the Polling Menu
 		  public function handleInitializePollMenuEvent(e:PollGetTitlesEvent):void{
-			  toolbarButtonManager.button.roomID = module.getRoom();
-			  service.initializePollingMenu(module.getRoom());
+			  if (module != null && module.getRoom() != null){
+				  toolbarButtonManager.button.roomID = module.getRoom();
+				  service.initializePollingMenu(module.getRoom());
+			  }
+		  }
+		  
+		  public function handleRemoteInitializePollMenuEvent(e:PollGetTitlesEvent):void{
+			  if (module != null && module.getRoom() != null){
+				  toolbarButtonManager.button.roomID = module.getRoom();
+				  service.initializePollingMenuRemotely(module.getRoom());
+			  }
 		  }
 		  
 		  public function handleUpdateTitlesEvent(e:PollGetTitlesEvent):void{
@@ -205,6 +218,22 @@ package org.bigbluebutton.modules.polling.managers
 
 		  public function handleReturnTitlesEvent(e:PollReturnTitlesEvent):void{
 			  toolbarButtonManager.button.titleList = e.titleList;
+		  }
+		  
+		  public function handleRemoteReturnTitlesEvent(e:PollReturnTitlesEvent):void{
+			  toolbarButtonManager.button.titleList = e.titleList;
+			  // This timer gives the earlier NetConnection.call time to finish and deliver what it was sent out to get.
+			  synchTimer = new Timer((1000*0.01));
+			  synchTimer.addEventListener(TimerEvent.TIMER, remoteOpen);
+			  synchTimer.start();
+		  }
+		  
+		  private function remoteOpen(e:TimerEvent):void{
+			  if (synchTimer != null){
+				  synchTimer.removeEventListener(TimerEvent.TIMER, remoteOpen);
+				  synchTimer = null;
+				  toolbarButtonManager.button.remoteOpenPollingMenu();
+			  }
 		  }
 
 		  public function handleGetPollEvent(e:PollGetPollEvent):void{
@@ -250,5 +279,11 @@ package org.bigbluebutton.modules.polling.managers
 			  viewWindowManager.handleReviewResultsEvent(e);
 		  }
 		//##################################################################################
+		  public function handleGlobalPollHotkey(e:ShortcutEvent):void{
+			  conference = UserManager.getInstance().getConference();
+			  if (conference.amIPresenter){
+				  toolbarButtonManager.openMenuRemotely();
+			  }
+		  }
    }
 }
