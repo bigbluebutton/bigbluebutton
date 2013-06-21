@@ -63,6 +63,10 @@
   <EventHandlers type="{PollEvent.REMOVE_POLL}">
     <MethodInvoker generator="{PollingService}" method="handleRemovePollEvent" arguments="{event}"/>
   </EventHandlers>
+
+  <EventHandlers type="{RespondEvent.RESPOND_EVENT}">
+    <MethodInvoker generator="{PollingService}" method="handleRespondPollEvent" arguments="{event}"/>
+  </EventHandlers>
   
   <Injectors target="{PollManager}">
     <ObjectBuilder generator="{PollingModel}" cache="global"/>

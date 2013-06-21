@@ -61,4 +61,9 @@ public class PollService {
 		System.out.println("*** PollService:: remove poll \n" + msg + "\n");
 
 	}
+	
+	public void respondPoll(String msg){
+		System.out.println("*** PollService:: respond poll \n" + msg + "\n");
+
+	}
 }

@@ -57,6 +57,7 @@ Notes.mxml is the main view of the SharedNotes application
       import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
       import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
       import org.bigbluebutton.modules.polling.events.PublishPollEvent;
+      import org.bigbluebutton.modules.polling.events.RespondEvent;
       import org.bigbluebutton.modules.polling.events.SavePollEvent;
       import org.bigbluebutton.modules.polling.events.StartPollingEvent;
       import org.bigbluebutton.modules.polling.events.UpdatePollEvent;
@@ -65,6 +66,8 @@ Notes.mxml is the main view of the SharedNotes application
       import org.bigbluebutton.modules.polling.model.PollOptions;
       import org.bigbluebutton.modules.polling.vo.CreatePollVO;
       import org.bigbluebutton.modules.polling.vo.CreateQuestionVO;
+      import org.bigbluebutton.modules.polling.vo.PollResponseVO;
+      import org.bigbluebutton.modules.polling.vo.QuestionResponseVO;
       import org.bigbluebutton.modules.polling.vo.UpdatePollVO;
       import org.bigbluebutton.modules.polling.vo.UpdateQuestionVO;
       import org.bigbluebutton.modules.polling.vo.UpdateResponseVO;
@@ -196,7 +199,14 @@ Notes.mxml is the main view of the SharedNotes application
       private function remPollTest():void {
         dispatchEvent(new PollEvent(PollEvent.REMOVE_POLL, "pollID"));
       }
-      
+
+      private function respondToPollTest():void {
+        var r:PollResponseVO = new PollResponseVO("pollID");
+        r.addResponse(new QuestionResponseVO("0", ["0", "1"]));
+         
+        dispatchEvent(new RespondEvent(r));
+      }
+           
     ]]>
   </mx:Script>
   <mx:VBox width="100%" height="100%">
@@ -245,6 +255,8 @@ Notes.mxml is the main view of the SharedNotes application
                  label="stop" />
       <mx:Button id="remBtn" click="remPollTest()" width="100" height="30" visible="true" tabIndex="{baseIndex+5}"
                  label="remove" />
+      <mx:Button id="respondBtn" click="respondToPollTest()" width="100" height="30" visible="true" tabIndex="{baseIndex+5}"
+                 label="Respond" />
       <mx:Button id="back" click="createPoll()" width="100" height="30" visible="true" tabIndex="{baseIndex+5}"
                  label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.modify')}" />
       <mx:Button id="Cancel" click="closeInstructionsWindow()" width="100" height="30" tabIndex="{baseIndex+5}"

@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.polling.service
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.modules.polling.vo.CreatePollVO;
+	import org.bigbluebutton.modules.polling.vo.PollResponseVO;
 	import org.bigbluebutton.modules.polling.vo.UpdatePollVO;
 	import org.bigbluebutton.modules.present.events.PresentationEvent;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
@@ -125,6 +126,23 @@ package org.bigbluebutton.modules.polling.service
         },
         jsonMsg
       );
+    }
+    
+    public function respondPoll(resp:PollResponseVO):void {
+      var jsonMsg:String = JSON.stringify(resp.toMap());
+      
+      trace(LOG + "respondPoll [" + jsonMsg + "]");
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("poll.respondPoll", 
+        function(result:String):void { 
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void {
+          LogUtil.error(status); 
+        },
+        jsonMsg
+      );      
     }
 	}
 }

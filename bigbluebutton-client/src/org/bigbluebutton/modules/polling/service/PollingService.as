@@ -44,6 +44,7 @@ package org.bigbluebutton.modules.polling.service
 	import org.bigbluebutton.modules.polling.events.PollReturnTitlesEvent;
 	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
+	import org.bigbluebutton.modules.polling.events.RespondEvent;
 	import org.bigbluebutton.modules.polling.events.UpdatePollEvent;
 	import org.bigbluebutton.modules.polling.managers.PollingWindowManager;
 	import org.bigbluebutton.modules.polling.model.PollObject;
@@ -80,6 +81,10 @@ package org.bigbluebutton.modules.polling.service
     
     public function handleRemovePollEvent(event:PollEvent):void {
       sender.removePoll(event.pollID);
+    }
+    
+    public function handleRespondPollEvent(event:RespondEvent):void {
+      sender.respondPoll(event.response);
     }
     
 	  public function  getPoll(pollKey:String, option:String):void{	
