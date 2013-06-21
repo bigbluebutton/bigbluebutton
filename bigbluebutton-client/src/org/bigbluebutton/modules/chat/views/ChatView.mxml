@@ -118,7 +118,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onCreationComplete():void{
 				// Start the timer for screen-reader-friendly chat notifications
 				notificationTimer.addEventListener(TimerEvent.TIMER, checkNotifications);
-				notificationTimer.start();
+				// Timer removed. Better method must be found for accessible notifications.
+				// notificationTimer.start();
 				
 				openChatBoxFor(PUBLIC_CHAT_USERID, true);
 		        makePublicChatUncloseable();
