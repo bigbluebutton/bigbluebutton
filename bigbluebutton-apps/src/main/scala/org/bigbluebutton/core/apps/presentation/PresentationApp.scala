@@ -20,6 +20,7 @@ import org.bigbluebutton.core.api.GetSlideInfoOutMsg
 import org.bigbluebutton.core.api.GetPresentationInfoOutMsg
 import org.bigbluebutton.core.api.InitializeMeeting
 import org.bigbluebutton.core.api.PreuploadedPresentations
+import org.bigbluebutton.core.api.PresentationConversionUpdateOutMsg
 
 class PresentationApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway, usersApp: UsersApp) {
 
@@ -49,16 +50,17 @@ class PresentationApp(meetingID: String, recorded: Boolean, outGW: MessageOutGat
     	  case gotoSlide: GotoSlide => handleGotoSlide(gotoSlide)
     	  case sharePresentation: SharePresentation => handleSharePresentation(sharePresentation)
     	  case getSlideInfo: GetSlideInfo => handleGetSlideInfo(getSlideInfo)
-    	  case preuploadedPresentetations: PreuploadedPresentations => handlePreuploadedPresentetations(preuploadedPresentetations)
+    	  case preuploadedPresentetations: PreuploadedPresentations => handlePreuploadedPresentations(preuploadedPresentetations)
     	  case _ => // do nothing
     	}
     }
     
-    private def handlePreuploadedPresentetations(msg: PreuploadedPresentations) {
+    private def handlePreuploadedPresentations(msg: PreuploadedPresentations) {
+      val pres = msg.presentations
+      
       msg.presentations.foreach(presentationID => {
-    	  sharePresentation(presentationID, true)       
+    	  sharePresentation(presentationID.asInstanceOf[String], true)       
       })
-
     }
     
     private def handleInitializeMeeting(msg: InitializeMeeting) {
@@ -72,12 +74,15 @@ class PresentationApp(meetingID: String, recorded: Boolean, outGW: MessageOutGat
     }
     
     private def handlePresentationConversionUpdate(msg: PresentationConversionUpdate) {
+
     	val presentationID = msg.msg.get("presentationName")
         val messageKey = msg.msg.get("messageKey").asInstanceOf[String]
              
         if (messageKey.equalsIgnoreCase("CONVERSION_COMPLETED")) {            
             presentationIDs.add(presentationID.asInstanceOf[String]);                                
         }
+    	
+    	outGW.send(new PresentationConversionUpdateOutMsg(meetingID, recorded, msg.msg))
     }
     
     private def handleRemovePresentation(msg: RemovePresentation) {
@@ -89,7 +94,7 @@ class PresentationApp(meetingID: String, recorded: Boolean, outGW: MessageOutGat
         
         presentationIDs.remove(index);
                
-        if (currentPresentation == msg.presentationID) {
+        if (currentPresentation.equalsIgnoreCase(msg.presentationID)) {
             sharePresentation(msg.presentationID, false);
         }      
     }

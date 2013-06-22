@@ -17,6 +17,5 @@ package org.bigbluebutton.modules.polling.managers
 
 		}
 		
-
    }
 }

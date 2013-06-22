@@ -8,11 +8,16 @@ package org.bigbluebutton.modules.polling.events
   {
     public static const UPDATE_POLL:String = "update poll event";
     
-    public var poll:UpdatePollVO;
+    private var _poll:UpdatePollVO;
     
-    public function UpdatePollEvent()
+    public function UpdatePollEvent(poll:UpdatePollVO)
     {
       super(UPDATE_POLL, true, false);
+      _poll = poll;
+    }
+    
+    public function get poll():UpdatePollVO {
+      return _poll;
     }
   }
 }

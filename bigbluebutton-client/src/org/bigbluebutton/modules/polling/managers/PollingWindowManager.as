@@ -19,43 +19,38 @@
 
 package org.bigbluebutton.modules.polling.managers
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
+	import flash.events.FocusEvent;
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;	
 	import mx.collections.ArrayCollection;
+	import mx.managers.IFocusManager;	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
-	
-	import org.bigbluebutton.modules.polling.service.PollingService;
-	
-	import org.bigbluebutton.modules.polling.views.PollingViewWindow;
-	import org.bigbluebutton.modules.polling.views.PollingStatsWindow;
-	import org.bigbluebutton.modules.polling.views.PollingInstructionsWindow;
-	
-	import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
+	import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
+	import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
+	import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
+	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
 	import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
-	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
-	import org.bigbluebutton.modules.polling.events.StopPollEvent;
 	import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
-	import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
-	import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
+	import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
 	import org.bigbluebutton.modules.polling.events.ReviewResultsEvent;
-	import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
-	
-	import mx.managers.IFocusManager;
-	import flash.utils.Timer;
-	import flash.events.TimerEvent;
-	import flash.events.FocusEvent;
-	
+	import org.bigbluebutton.modules.polling.events.StopPollEvent;
 	import org.bigbluebutton.modules.polling.model.PollObject;
+	import org.bigbluebutton.modules.polling.service.PollingService;
+	import org.bigbluebutton.modules.polling.views.CreatePollWindow;
+	import org.bigbluebutton.modules.polling.views.PollingInstructionsWindow;
+	import org.bigbluebutton.modules.polling.views.PollingStatsWindow;
+	import org.bigbluebutton.modules.polling.views.PollingViewWindow;
 			
 	public class PollingWindowManager {	
 			
 		private var pollingWindow:PollingViewWindow;
 		private var statsWindow:PollingStatsWindow;
-		private var instructionsWindow:PollingInstructionsWindow;
+		private var instructionsWindow:CreatePollWindow;
 		private var service:PollingService;
 		private var isViewing:Boolean = false;
 		private var globalDispatcher:Dispatcher;
@@ -75,10 +70,8 @@ package org.bigbluebutton.modules.polling.managers
 		  globalDispatcher = new Dispatcher();
 		}
 				
-		//PollingInstructionsWindow.mxml Window Event Handlerscx 
-		//##########################################################################
 		public function handleOpenPollingInstructionsWindow(e:PollingInstructionsWindowEvent):void{
-			instructionsWindow = new PollingInstructionsWindow();
+			instructionsWindow = new CreatePollWindow();
 			// Use the PollGetTitlesEvent to fetch a list of already-used titles
 			var getTitlesEvent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.CHECK);
 			globalDispatcher.dispatchEvent(getTitlesEvent);
@@ -94,14 +87,14 @@ package org.bigbluebutton.modules.polling.managers
 		}
 		
 		public function handleOpenPollingInstructionsWindowWithExistingPoll(e:OpenSavedPollEvent):void{
-			instructionsWindow = new PollingInstructionsWindow();
+			instructionsWindow = new CreatePollWindow();
 			// Use the PollGetTitlesEvent to fetch a list of already-used titles
 			var getTitlesEvent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.CHECK);
 			globalDispatcher.dispatchEvent(getTitlesEvent);
 			if (e.poll != null){
-				instructionsWindow.incomingPoll = new PollObject();
-				instructionsWindow.incomingPoll = e.poll;
-				instructionsWindow.editing = true;
+//				instructionsWindow.incomingPoll = new PollObject();
+//				instructionsWindow.incomingPoll = e.poll;
+//				instructionsWindow.editing = true;
 			}		
 			openWindow(instructionsWindow);
 			
@@ -115,8 +108,7 @@ package org.bigbluebutton.modules.polling.managers
 		
 		// Checking the polling status to prevent a presenter from publishing two polls at a time
 		  public function handleCheckStatusEvent(e:PollingStatusCheckEvent):void{
-			  e.allowed = !service.getPollingStatus();
-			  instructionsWindow.publishingAllowed = e.allowed;
+
 		  }
 		  
 		  public function handleCheckTitlesInInstructions(e:PollGetTitlesEvent):void{
@@ -131,11 +123,7 @@ package org.bigbluebutton.modules.polling.managers
 
 			  statsWindow.setUrlBoxText();
 
-			  if (!e.repost){
-				  instructionsWindow._webKey = e.poll.webKey;
-			  } else{
-				  statsWindow.trackingPoll.webKey = e.poll.webKey;
-			  }
+
 		  }
 
 		// Action makers (function that actually act on the windows )
@@ -175,7 +163,7 @@ package org.bigbluebutton.modules.polling.managers
 		}
 		
 		public function handleStopPolling(e:StopPollEvent):void{
-			service.setPolling(false);
+
 		}
 		//##########################################################################
 		
@@ -186,7 +174,7 @@ package org.bigbluebutton.modules.polling.managers
 			statsWindow = new PollingStatsWindow();
 			statsWindow.trackingPoll = e.poll;
 			openWindow(statsWindow);
-			service.setPolling(true);
+
 			
 			statsFocusTimer.addEventListener(TimerEvent.TIMER, focusStatsWindow);
 			statsFocusTimer.start();

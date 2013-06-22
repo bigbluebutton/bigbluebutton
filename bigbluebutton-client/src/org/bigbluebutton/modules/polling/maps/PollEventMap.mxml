@@ -28,6 +28,10 @@
       import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.modules.polling.events.*;
       import org.bigbluebutton.modules.polling.managers.PollManager;
+      import org.bigbluebutton.modules.polling.model.PollingModel;
+      import org.bigbluebutton.modules.polling.service.MessageReceiver;
+      import org.bigbluebutton.modules.polling.service.MessageSender;
+      import org.bigbluebutton.modules.polling.service.PollingService;
 			
 				]]>
 				
@@ -40,10 +44,44 @@
 	<EventHandlers type="{ModuleEvent.STOP}">
 	</EventHandlers>	
 		
+  <EventHandlers type="{CreatePollEvent.CREATE_POLL}">
+    <MethodInvoker generator="{PollingService}" method="handleCreatePollEvent" arguments="{event}"/>
+  </EventHandlers>
 
+  <EventHandlers type="{UpdatePollEvent.UPDATE_POLL}">
+    <MethodInvoker generator="{PollingService}" method="handleUpdatePollEvent" arguments="{event}"/>
+  </EventHandlers>
+
+  <EventHandlers type="{PollEvent.START_POLL}">
+    <MethodInvoker generator="{PollingService}" method="handleStartPollEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{PollEvent.STOP_POLL}">
+    <MethodInvoker generator="{PollingService}" method="handleStopPollEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{PollEvent.REMOVE_POLL}">
+    <MethodInvoker generator="{PollingService}" method="handleRemovePollEvent" arguments="{event}"/>
+  </EventHandlers>
+
+  <EventHandlers type="{RespondEvent.RESPOND_EVENT}">
+    <MethodInvoker generator="{PollingService}" method="handleRespondPollEvent" arguments="{event}"/>
+  </EventHandlers>
+  
   <Injectors target="{PollManager}">
     <ObjectBuilder generator="{PollingModel}" cache="global"/>
     <PropertyInjector targetKey="model" source="{PollingModel}"/>
+  </Injectors>	
+
+  <Injectors target="{PollingService}">
+    <PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
+    <PropertyInjector targetKey="sender" source="{MessageSender}"/>
+  </Injectors>
+
+  <Injectors target="{MessageReceiver}">
+    <ObjectBuilder generator="{PollingModel}" cache="global"/>
+    <PropertyInjector targetKey="model" source="{PollingModel}"/>
+    <PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
   </Injectors>	
   
 </EventMap>

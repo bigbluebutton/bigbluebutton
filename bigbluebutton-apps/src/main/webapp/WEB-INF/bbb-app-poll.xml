@@ -43,11 +43,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</property>
 	</bean>
 	
-	<bean id="poll.service" 
-	      class="org.bigbluebutton.conference.service.poll.PollService">
-		<property name="pollApplication"> 
-			<ref local="pollApplication"/>
-		</property>
+	<bean id="poll.service" class="org.bigbluebutton.conference.service.poll.PollService">
 	</bean>
 	
 	<bean id="pollRoomsManager"

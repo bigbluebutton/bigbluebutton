@@ -11,6 +11,10 @@ package org.bigbluebutton.modules.polling.events
     public static const POLL_DESTROYED:String = "poll destroyed event";
     public static const POLL_RESULTS_UPDATED:String = "poll results updated";
     
+    public static const START_POLL:String = "start poll event";
+    public static const STOP_POLL:String = "stop poll event";
+    public static const REMOVE_POLL:String = "remove poll event";
+    
     private var _pollID:String;
     
     public function PollEvent(type:String, pollID:String)
@@ -19,7 +23,7 @@ package org.bigbluebutton.modules.polling.events
       _pollID = pollID;
     }
     
-    private function get pollID():String {
+    public function get pollID():String {
       return _pollID;
     }
   }

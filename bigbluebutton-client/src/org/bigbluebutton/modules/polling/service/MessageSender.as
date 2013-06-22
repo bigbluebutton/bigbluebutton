@@ -25,6 +25,8 @@ package org.bigbluebutton.modules.polling.service
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.modules.polling.vo.CreatePollVO;
+	import org.bigbluebutton.modules.polling.vo.PollResponseVO;
+	import org.bigbluebutton.modules.polling.vo.UpdatePollVO;
 	import org.bigbluebutton.modules.present.events.PresentationEvent;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
@@ -34,13 +36,13 @@ package org.bigbluebutton.modules.polling.service
 
 	public class MessageSender
 	{	
+    private static const LOG:String = "Poll::MessageSender - ";
     
     public function createPoll(poll:CreatePollVO):void
     {
       var jsonMsg:String = JSON.stringify(poll.toMap());
       
-      var message:Object = new Object();
-      message["message"] = jsonMsg;
+      trace(LOG + "createPoll [" + jsonMsg + "]");
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("poll.createPoll", 
@@ -50,8 +52,97 @@ package org.bigbluebutton.modules.polling.service
         function(status:String):void {
           LogUtil.error(status); 
         },
-        message
+        jsonMsg
       );
-    }				
+    }	
+    
+    public function updatePoll(poll:UpdatePollVO):void
+    {
+      var jsonMsg:String = JSON.stringify(poll.toMap());
+      
+      trace(LOG + "updatePoll [" + jsonMsg + "]");
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("poll.updatePoll", 
+        function(result:String):void { 
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void {
+          LogUtil.error(status); 
+        },
+        jsonMsg
+      );
+    }	
+    
+    public function startPoll(pollID:String):void
+    {
+      var jsonMsg:String = JSON.stringify(pollID);
+      
+      trace(LOG + "startPoll [" + jsonMsg + "]");
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("poll.startPoll", 
+        function(result:String):void { 
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void {
+          LogUtil.error(status); 
+        },
+        jsonMsg
+      );
+    }
+    
+    public function stopPoll(pollID:String):void
+    {
+      var jsonMsg:String = JSON.stringify(pollID);
+      
+      trace(LOG + "stopPoll [" + jsonMsg + "]");
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("poll.stopPoll", 
+        function(result:String):void { 
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void {
+          LogUtil.error(status); 
+        },
+        jsonMsg
+      );
+    }
+    
+    public function removePoll(pollID:String):void
+    {
+      var jsonMsg:String = JSON.stringify(pollID);
+      
+      trace(LOG + "removePoll [" + jsonMsg + "]");
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("poll.removePoll", 
+        function(result:String):void { 
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void {
+          LogUtil.error(status); 
+        },
+        jsonMsg
+      );
+    }
+    
+    public function respondPoll(resp:PollResponseVO):void {
+      var jsonMsg:String = JSON.stringify(resp.toMap());
+      
+      trace(LOG + "respondPoll [" + jsonMsg + "]");
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("poll.respondPoll", 
+        function(result:String):void { 
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void {
+          LogUtil.error(status); 
+        },
+        jsonMsg
+      );      
+    }
 	}
 }

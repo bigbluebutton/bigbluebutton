@@ -109,7 +109,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <constructor-arg index="0" ref="connInvokerService"/>
     </bean>
 
-    <bean id="presentationRed5ClientSender" class="org.bigbluebutton.core.apps.users.red5.UsersClientMessageSender">
+    <bean id="presentationRed5ClientSender" class="org.bigbluebutton.core.apps.presentation.red5.PresentationClientMessageSender">
       <constructor-arg index="0" ref="connInvokerService"/>
     </bean>
         

@@ -23,7 +23,6 @@ import org.bigbluebutton.core.api.DestroyMeeting
 import org.bigbluebutton.core.api.KeepAliveMessage
 import org.bigbluebutton.core.api.PreuploadedPresentations
 import scala.collection.JavaConversions._
-import scala.collection.mutable.ArrayBuffer
 
 class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW {
 
@@ -35,11 +34,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 		
 		val pres = presUtil.getPreuploadedPresentations(meetingID);
 		if (!pres.isEmpty()) {
-		  
-		  val presIDs = Array[String]()
-		  pres.copyToArray(presIDs)
-		  
-		  bbbGW.accept(new PreuploadedPresentations(meetingID, presIDs))
+		  bbbGW.accept(new PreuploadedPresentations(meetingID, pres.toArray()))
 		}
 	}
   

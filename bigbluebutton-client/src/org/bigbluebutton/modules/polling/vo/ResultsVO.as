@@ -6,7 +6,7 @@ package org.bigbluebutton.modules.polling.vo
   {
     private var _results:Array = new Array();
     
-    public function addResult(result:ResultVO)
+    public function addResult(result:ResultVO):void
     {
       _results.push(result);
     }

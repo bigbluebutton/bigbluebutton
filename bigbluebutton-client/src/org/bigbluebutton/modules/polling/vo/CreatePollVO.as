@@ -4,13 +4,13 @@ package org.bigbluebutton.modules.polling.vo
   {
     private var _title:String;
     private var _questions:Array = new Array();
-    
+
     public function CreatePollVO(title:String)
     {
       this._title = title;
     }
     
-    public function get title():void {
+    public function get title():String {
       return _title;
     }
     

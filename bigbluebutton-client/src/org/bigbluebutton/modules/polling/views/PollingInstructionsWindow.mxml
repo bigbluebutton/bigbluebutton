@@ -27,8 +27,20 @@ Notes.mxml is the main view of the SharedNotes application
 		creationComplete="onCreationComplete()"
 		label="Create Poll" layout="absolute"
 		title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
+	
+	<mate:Listener type="{ShortcutEvent.FOCUS_POLL_TITLE}" method="focusTitle" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_POLL_QUESTION}" method="focusQuestion" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_POLL_ANSWERS}" method="focusAnswers" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_MULT_CHECK}" method="focusMultiple" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_WEBPOLL_CHECK}" method="focusWebpoll" />
+	
+	<mate:Listener type="{ShortcutEvent.POLL_PREVIEW}" method="previewClick" />
+	<mate:Listener type="{ShortcutEvent.POLL_CANCEL}" method="cancelClick" />
+	
+	<mate:Listener type="{ShortcutEvent.POLL_MODIFY}" method="modifyClick" />
+	<mate:Listener type="{ShortcutEvent.POLL_PUBLISH}" method="publishClick" />
+	<mate:Listener type="{ShortcutEvent.POLL_SAVE}" method="saveClick" />
 
-<!-- Pre Defined Validation -->
 	<mx:Script>
 		<![CDATA[
 		import flexlib.mdi.events.MDIWindowEvent;
@@ -37,8 +49,7 @@ Notes.mxml is the main view of the SharedNotes application
 		import org.bigbluebutton.common.LogUtil;
 		import mx.validators.Validator;
 		import mx.utils.ObjectUtil;
-		import mx.utils.StringUtil;
-		
+		import mx.utils.StringUtil;	
 		import mx.collections.ArrayCollection;
 		import mx.core.IUIComponent;
 		import mx.containers.HBox;
@@ -90,6 +101,8 @@ Notes.mxml is the main view of the SharedNotes application
 		[Bindable] public var editing:Boolean;
 		[Bindable] public var pollOptions:PollOptions;
 		[Bindable] private var baseIndex:int;
+			
+		private var keyCombos:Object;
 		
 		// LENGTH CONSTRAINTS ( CHANGE IF YOU NEED)
 		//################################################
@@ -112,6 +125,8 @@ Notes.mxml is the main view of the SharedNotes application
 		private function onCreationComplete():void{
 			published = false;
 			
+			hotkeyCapture();
+			
 			titleBarOverlay.tabIndex = baseIndex;
 			minimizeBtn.tabIndex = baseIndex+1;
 			maximizeRestoreBtn.tabIndex = baseIndex+2;
@@ -129,9 +144,7 @@ Notes.mxml is the main view of the SharedNotes application
 					}
 				}  
 				multiple_response.selected = incomingPoll.isMultiple;
-				publishToWeb_response.selected = incomingPoll.publishToWeb;
 				isMultiple();
-				publishToWeb();
 			}else{
 				editing = false;
 			}
@@ -140,6 +153,38 @@ Notes.mxml is the main view of the SharedNotes application
 			
 			this.module = module;
 			focusManager.setFocus(titleBarOverlay); 
+		}
+			
+		private function hotkeyCapture():void{
+			this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+			//ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
+		}
+			
+		private function handleKeyDown(e:KeyboardEvent) :void {
+			var modifier:String = ExternalInterface.call("determineModifier");
+			loadKeyCombos(modifier);
+			var keyPress:String = (e.ctrlKey ? "control+" : "") +
+				(e.shiftKey ? "shift+" : "") +
+				(e.altKey ? "alt+" : "") + e.keyCode;
+			LogUtil.debug("Polling Instructions: modifier is " + modifier);
+			if (keyCombos[keyPress]) {
+				LogUtil.debug("Dispatching event " + keyCombos[keyPress]);
+				dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+			}
+		}
+		
+		private function loadKeyCombos(modifier:String):void {
+			keyCombos = new Object(); // always start with a fresh array
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusTitle') as String)] = ShortcutEvent.FOCUS_POLL_TITLE;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusQuestion') as String)] = ShortcutEvent.FOCUS_POLL_QUESTION;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusAnswers') as String)] = ShortcutEvent.FOCUS_POLL_ANSWERS;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusMultipleCB') as String)] = ShortcutEvent.FOCUS_MULT_CHECK;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusWebPollCB') as String)] = ShortcutEvent.FOCUS_WEBPOLL_CHECK;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.previewClick') as String)] = ShortcutEvent.POLL_PREVIEW;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.cancelClick') as String)] = ShortcutEvent.POLL_CANCEL;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.modify') as String)] = ShortcutEvent.POLL_MODIFY;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.publish') as String)] = ShortcutEvent.POLL_PUBLISH;
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.save') as String)] = ShortcutEvent.POLL_SAVE;
 		}
 		
 		// Overwritting close to use custom function
@@ -159,101 +204,14 @@ Notes.mxml is the main view of the SharedNotes application
 			else
 				_isMultiple= false;
 		}
-		
-		private function publishToWeb():void{
-			if(publishToWeb_response.selected == true)
-				_publishToWeb= true;
-			else
-				_publishToWeb= false;
-		}
-		
-		//TESTING
-		private function reviewChanges():void{
-			LogUtil.debug(LOGNAME + "WHAT WE HAVE:");
-			LogUtil.debug(LOGNAME + "Title: "+_title);
-			LogUtil.debug(LOGNAME + "Question: "+_question);
-			LogUtil.debug(LOGNAME + "Answers: "+_answers);
-			if(_isMultiple) LogUtil.debug(LOGNAME + "Multiple answers allowed");
-		}
-		// END TESTING
-		
+			
 		// DATA VALIDATION
 		//##################################################################################
 		private function validateAndSubmit():void {
 			var valid:Boolean = true;
-			// Gathering Error Messages
-			titleErrMsg.text = titleError();
-			qErrMsg.text = questionError();
-			aErrMsg.text = answerError();
-			// Making Error messages Visible if there is an Error
-			if (titleErrMsg.text != "VALID"){ // checking if function returned any error string
-				titleErrMsg.visible=true;
-				valid = false; // setting flag to false in case of error
-			}else
-				titleErrMsg.visible=false;
-			if(qErrMsg.text != "VALID"){
-				qErrMsg.visible=true;
-				valid = false;
-			} else
-				qErrMsg.visible=false;
-			if (aErrMsg.text != "VALID") {
-				aErrMsg.visible=true;
-				valid = false;
-			}else
-				aErrMsg.visible=false;
-			if(valid){
-				formatAndReview();
-			}else{
-				LogUtil.error(LOGNAME + "Error occurred in poll validation");
-			}
 			allowPublishing();
-			publishButton.enabled = publishingAllowed;
 		}
-		
-		// GENERATING ERROR MESSAGES
-		//################################
-		
-		//TITLE VALIDATION
-		private function titleError():String{
-			var errMsg:String = "VALID";
-			// If the presenter is creating a new poll, the module will not permit duplicate titles.
-			// If the presenter is editing an existing poll, the module will ignore duplicate titles long enough to save it again.
-			if (!editing){
-				for (var i:int = 0; i < invalidTitles.length; i++){
-					if (invalidTitles[i] != null){
-						var checkTitle:String = invalidTitles[i];
-						if (StringUtil.trim(pollTitle.text.toUpperCase()) == StringUtil.trim(checkTitle.toUpperCase())){
-							errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.duplicateTitle');
-						}
-					}
-				}
-			}
 			
-			if (pollTitle.length == 0 ){
-				errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.noTitle');
-			}
-			else if (pollTitle.length > _MAX_TITLE_LENGTH ){
-				errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.toolongTitle')+" " +_MAX_TITLE_LENGTH;
-			}
-			else{	
-				_title = StringUtil.trim(pollTitle.text);
-			}
-			
-			return errMsg;
-		} // _TITLE VALIDATION
-		
-		//QUESTION VALIDATION
-		private function questionError():String{
-			var errMsg:String = "VALID";
-			if (pollQuestion.length == 0 )
-				errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.noQuestion');
-			else if (pollQuestion.length > _MAX_QUESTION_LENGTH )
-				errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.toolongQuestion') + " "+ _MAX_QUESTION_LENGTH;
-			else
-				_question=pollQuestion.text;
-			return errMsg;
-		}
-		
 		// ANSWER VALIDATION
 		private function answerError():String{
 			var errMsg:String = "VALID";
@@ -295,11 +253,7 @@ Notes.mxml is the main view of the SharedNotes application
 		//#####################################################################################################
 		
 		public function goBack():void{
-			mainArea.selectedChild=instrMain; 
-			buttons.selectedChild=instrButtons;
 			back.visible=false;
-			publishButton.visible=false;
-			options.removeAllChildren();
 			focusTitle();
 		}
 		
@@ -329,24 +283,7 @@ Notes.mxml is the main view of the SharedNotes application
 		}
 		
 		private function formatAndReview():void{
-			// Change maind window and buttons to Review
-			mainArea.selectedChild=review;
-			buttons.selectedChild=reviewButtons;
-			//REFRESHING CANVAS
-			invalidateDisplayList();
-			validateNow();
-			// Make Back button visible
-			back.visible=true;
-			publishButton.visible=true;
-			// Make Title and Question string first letter Upper case
-			_title = upperFirstLetter(_title);
-			_question = upperFirstLetter(_question);
-			createButtons(_answers.length,_answers);
-			questionText.text = _question;
-			if (_isMultiple)
-				questionText.text += " " + ResourceUtil.getInstance().getString('bbb.polling.pollPreview.checkAll');
-			      
-			focusManager.setFocus(previewExplanation);
+
 		}
 		
 		private function upperFirstLetter(str:String) : String {
@@ -369,7 +306,7 @@ Notes.mxml is the main view of the SharedNotes application
 				_tx.width = 200;
 				// assigning array element to text field
 				_tx.text =content.getItemAt(i).toString();
-				options.addChild(_hb);
+
 				// if global var _isMultiple is true it means user wants checkboxes,
 				//otherwise radiobutton (if multiple choices are allowed)
 				if(_isMultiple){
@@ -445,190 +382,100 @@ Notes.mxml is the main view of the SharedNotes application
 		}
 			
 		private function focusTitle(e:ShortcutEvent = null):void{
-			LogUtil.debug("Focusing Title");
 			if (pollTitle.enabled && pollTitle.visible){
 				focusManager.setFocus(pollTitle);
 			}
 		}
+		private function focusQuestion(e:ShortcutEvent):void{
+			if (pollQuestion.enabled && pollQuestion.visible){
+				focusManager.setFocus(pollQuestion);
+			}
+		}
+		private function focusAnswers(e:ShortcutEvent):void{
+			if (pollAnswers.enabled && pollAnswers.visible){
+				focusManager.setFocus(pollAnswers);
+			}
+		}
+		private function focusMultiple(e:ShortcutEvent):void{
+			if (multiple_response.enabled && multiple_response.visible){
+				focusManager.setFocus(multiple_response);
+			}
+		}
+		private function focusWebpoll(e:ShortcutEvent):void{
+			if (publishToWeb_response.enabled && publishToWeb_response.visible){
+				focusManager.setFocus(publishToWeb_response);
+			}
+		}
+		private function previewClick(e:ShortcutEvent):void{
+			if (next.enabled && next.visible){
+				validateAndSubmit();
+			}
+		}
+		private function cancelClick(e:ShortcutEvent):void{
+			if (Cancel.enabled && Cancel.visible){
+				closeInstructionsWindow();
+			}
+		}
+		
+		private function modifyClick(e:ShortcutEvent):void{
+			if (back.enabled && back.visible){
+				goBack();
+			}
+		}
+		private function publishClick(e:ShortcutEvent):void{
+			if (publishButton.enabled && publishButton.visible){
+				publish();
+			}
+		}
+		private function saveClick(e:ShortcutEvent):void{
+			if (SavePoll.enabled && SavePoll.visible){
+				savePoll();
+			}
+		}
 		]]>
 	</mx:Script>
-	
-    <mx:ViewStack id="mainArea" width="100%">
-    <!-- ################### MAIN AREA ##############-->
-    <!-- Instructions Window with Form-->
-	    <mx:Canvas id="instrMain" width="90%" height="90%" focusEnabled="true">
-        	<mx:VBox width="90%" height="90%" focusEnabled="true">
-           		<mx:Form width="100%" id="instructionsForm" paddingTop="30" paddingBottom="10" paddingLeft="30" focusEnabled="true">
-					<mx:FormItem fontWeight="bold" 
-								 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.title')}" 
-								 paddingLeft="35" 
-								 id="titleFormItem"
-								 focusEnabled="true">
-						<mx:TextInput id="pollTitle" 
-									  focusEnabled="true" 
-									  accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.title')}"
-									  tabIndex="{baseIndex+4}"/>
-						<mx:Label id="titleErrMsg" 
-								  text="" 
-								  visible="false" 
-								  width="100%" 
-								  color="red" 
-								  fontSize="9" 
-								  fontWeight="normal"/>
-   					</mx:FormItem>
+  <mx:VBox width="100%" height="100%">
+      <mx:VBox width="100%" height="90%" focusEnabled="true">
+        <mx:Form width="100%" id="instructionsForm" paddingTop="30" paddingBottom="10" paddingLeft="30" focusEnabled="true">
+          <mx:FormItem fontWeight="bold" paddingLeft="35" id="titleFormItem" focusEnabled="true"
+                       label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.title')}" >
+            <mx:TextInput id="pollTitle" focusEnabled="true" tabIndex="{baseIndex+4}" maxChars="75"
+                          accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.title')}"
+                          />
+          </mx:FormItem>
+          
+          <mx:FormItem fontWeight="bold" 
+                       label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.question')}" 
+                       paddingLeft="35" 
+                       paddingTop="20" >
+            <mx:TextArea id="pollQuestion" maxChars="200"
+                         width="200" height="100" 
+                         accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.question')}"
+                         tabIndex="{baseIndex+4}"/>
+          </mx:FormItem>
+          
+          <mx:FormItem fontWeight="bold" paddingLeft="35" paddingTop="30"
+                       label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.answers')}" >
+            <mx:TextArea id="pollAnswers" width="200" height="100" tabIndex="{baseIndex+4}"
+                        accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.answers')}"/>
+            <mx:Label id="answerHint" visible="true" width="100%" fontSize="9" fontWeight="normal"
+                      text="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.hint')}" />
+          </mx:FormItem>
+                    
+          <mx:FormItem paddingLeft="10" paddingTop="5" >
+            <mx:CheckBox id="multiple_response" 
+                         label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.moreThanOneResponse')}" 
+                         click="isMultiple()" tabIndex="{baseIndex+4}"/>
+          </mx:FormItem>
+        </mx:Form>
+      </mx:VBox>
+    
+    <mx:ControlBar>
+      <mx:Button id="back" click="goBack()" width="100" height="30" visible="true" tabIndex="{baseIndex+5}"
+                 label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.modify')}" />
+      <mx:Button id="Cancel" click="closeInstructionsWindow()" width="100" height="30" tabIndex="{baseIndex+5}"
+                 label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.cancel')}" />
+    </mx:ControlBar>    
+  </mx:VBox>	
 
-					<mx:FormItem fontWeight="bold" 
-								 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.question')}" 
-								 paddingLeft="35" 
-								 paddingTop="20" >
-						<mx:TextArea id="pollQuestion" 
-									 width="200" 
-									 height="100" 
-									 accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.question')}"
-									 tabIndex="{baseIndex+4}"/>
-						<mx:Label id="qErrMsg" 
-								  text="" 
-								  visible="false" 
-								  width="100%" 
-								  color="red" 
-								  fontSize="9" 
-								  fontWeight="normal" />
-					</mx:FormItem>
-
-					<mx:FormItem fontWeight="bold" 
-								 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.answers')}" 
-								 paddingLeft="35" 
-								 paddingTop="30" >
-						<mx:TextArea id="pollAnswers" 
-									 width="200" 
-									 height="100" 
-									 accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.answers')}"
-									 tabIndex="{baseIndex+4}"/>
-						<mx:Label id="answerHint" 
-								  text="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.hint')}" 
-								  visible="true" 
-								  width="100%" 
-								  fontSize="9" 
-								  fontWeight="normal" />
-					</mx:FormItem>
-
-					<mx:FormItem fontWeight="bold" 
-								 paddingLeft="20" 
-								 paddingTop="5" >
-						<mx:Label id="aErrMsg" 
-								  text="" 
-								  visible="false" 
-								  width="100%" 
-								  color="red" 
-								  fontSize="9" 
-								  fontWeight="normal" />
-					</mx:FormItem>
-
-					<mx:FormItem paddingLeft="10" 
-								 paddingTop="5" >
-						<mx:CheckBox id="multiple_response" 
-									 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.moreThanOneResponse')}" 
-									 click="isMultiple()"
-									 tabIndex="{baseIndex+4}"/>
-						<mx:CheckBox id="publishToWeb_response" 
-									 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.publishToWeb')}" 
-									 click="publishToWeb()"
-									 tabIndex="{baseIndex+4}"/>
-					</mx:FormItem>
-				</mx:Form>
-			</mx:VBox>
-		</mx:Canvas>
-
-		<!-- Review Window that is invoked when Next button is clicked -->
-		<mx:Canvas id="review">
-			<mx:VBox id="previewBox"
-					 width="90%" height="90%" 
-					 paddingLeft="40">
-				<mx:TextArea id="previewExplanation"
-							 width="90%"
-							 text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.hereIsYourPoll')}"
-							 editable="false"
-							 borderSkin="{null}"
-							 tabIndex="{baseIndex+4}"/>
-				<mx:TextArea text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.pollWillPublishOnline')}" 
-							 fontSize="11"
-							 editable="false"
-							 borderSkin="{null}"
-							 fontWeight="bold"
-							 width="90%"
-							 color="red"
-							 paddingTop="10"
-							 paddingLeft="20"
-							 paddingBottom="15"
-							 visible="{_publishToWeb}"
-							 tabIndex="{baseIndex+4}"/>
-				<mx:Panel id="titleShow" 
-						  title="{_title}" 
-						  width="90%" >
-					<mx:VBox paddingTop="10"
-							 paddingLeft="40" 
-							 paddingBottom="40"
-							 horizontalAlign="center"
-							 >
-						<mx:TextArea id="questionText"
-									 width="200" 
-									 fontWeight="bold" 
-									 textAlign="center"
-									 editable="false"
-									 borderSkin="{null}"
-									 tabIndex="{baseIndex+4}"
-									 />
-						<mx:Box id="options" />   
-					</mx:VBox>
-				</mx:Panel>
-			</mx:VBox>
-		</mx:Canvas>
-	</mx:ViewStack>
-
-	<!-- ###################BUTTONS##############-->
-	<!-- area where buttons are located -->
-	<mx:ControlBar>
-		<!-- Back Button is not visible while instructions and visible while preView -->
-		<mx:Button id="back" 
-				   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.modify')}" 
-				   click="{mainArea.selectedChild=instrMain} {buttons.selectedChild=instrButtons} goBack()" 
-				   width="100" 
-				   height="30" 
-				   visible="false"
-				   tabIndex="{baseIndex+5}"/>
-		<mx:Button id="publishButton"
-				   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.publish')}"
-				   click="publish();"
-				   width="100"
-				   height="30"
-				   visible="false"
-				   tabIndex="{baseIndex+5}"/>
-		<mx:ViewStack id="buttons">
-			<!--buttons that appear when Instructions is displayed -->
-			<mx:Canvas id="instrButtons">
-				<mx:Button id="next" 
-						   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.preview')}" 
-						   click="validateAndSubmit()" 
-						   width="100" 
-						   height="30"
-						   tabIndex="{baseIndex+5}"/>
-			</mx:Canvas>
-			<!-- buttons that appear on Review -->
-			<mx:Canvas id="reviewButtons">
-				<mx:Button id="SavePoll"
-						   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.save')}" 
-						   click="savePoll()" 
-						   width="100" 
-						   height="30"
-						   tabIndex="{baseIndex+5}"/>
-			</mx:Canvas>
-		</mx:ViewStack>
-		<!-- Cancel button appear everywhere -->
-		<mx:Button id="Cancel" 
-				   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.cancel')}" 
-				   click="closeInstructionsWindow()" 
-				   width="100" 
-				   height="30"
-				   tabIndex="{baseIndex+5}"/>
-	</mx:ControlBar>
 </MDIWindow>

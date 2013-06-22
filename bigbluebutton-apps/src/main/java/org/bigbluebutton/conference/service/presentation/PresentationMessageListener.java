@@ -21,17 +21,15 @@ public class PresentationMessageListener implements MessageHandler {
 	public static final String CONVERSION_COMPLETED_KEY = "CONVERSION_COMPLETED";
 	
 	private ConversionUpdatesProcessor conversionUpdatesProcessor;
-	
-	
+		
 	public void setConversionUpdatesProcessor(ConversionUpdatesProcessor p) {
 		conversionUpdatesProcessor = p;
 	}	
 
-
 	@Override
 	public void handleMessage(String pattern, String channel, String message) {
 		if (channel.equalsIgnoreCase(MessagingConstants.PRESENTATION_CHANNEL)) {
-			
+
 			Gson gson = new Gson();
 			HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
 
@@ -47,9 +45,8 @@ public class PresentationMessageListener implements MessageHandler {
 			msg.put("code", code);
 			msg.put("presentationName", presentationName);
 			msg.put("messageKey", messageKey);
-			
-			
-			if(messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_SUCCESS_KEY)||
+						
+			if (messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_SUCCESS_KEY)||
 					messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_FAILED_KEY)||
 					messageKey.equalsIgnoreCase(SUPPORTED_DOCUMENT_KEY)||
 					messageKey.equalsIgnoreCase(UNSUPPORTED_DOCUMENT_KEY)||
@@ -75,7 +72,7 @@ public class PresentationMessageListener implements MessageHandler {
 				String slidesInfo = (String) map.get("slidesInfo");
 				msg.put("slidesInfo", StringEscapeUtils.unescapeXml(slidesInfo));				
 				conversionUpdatesProcessor.process(msg);
-			}
+			} 
 		}
 	}
 }

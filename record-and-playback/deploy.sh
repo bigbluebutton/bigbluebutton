@@ -17,17 +17,49 @@
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
-sudo cp -r core/lib/* /usr/local/bigbluebutton/core/lib/
-sudo cp -r core/scripts/* /usr/local/bigbluebutton/core/scripts/
 
-PLAYBACK_LIST="slides presentation"
+set -e
+
+sudo cp core/Gemfile /usr/local/bigbluebutton/core/Gemfile
+sudo rm -rf /usr/local/bigbluebutton/core/lib
+sudo cp -r core/lib /usr/local/bigbluebutton/core/
+sudo rm -rf /usr/local/bigbluebutton/core/scripts
+sudo cp -r core/scripts /usr/local/bigbluebutton/core/
+sudo rm -rf /etc/bigbluebutton/god
+sudo cp -r core/god/god /etc/bigbluebutton/
+sudo rm -f /etc/init.d/bbb-record-core
+sudo cp core/god/initd.god /etc/init.d/bbb-record-core
+sudo chmod 0755 /etc/init.d/bbb-record-core
+sudo rm -rf /var/bigbluebutton/playback/*
+
+function deploy_format() {
+    local formats=$1
+    for format in $formats
+    do
+        playback_dir="$format/playback/$format"
+        scripts_dir="$format/scripts"
+        if [ -d $playback_dir ]; then sudo cp -r $playback_dir /var/bigbluebutton/playback/; fi
+        if [ -d $scripts_dir ]; then sudo cp -r $scripts_dir/* /usr/local/bigbluebutton/core/scripts/; fi
+        sudo mkdir -p /var/log/bigbluebutton/$format
+    done
+}
+
+# deploy_format "slides"
+deploy_format "presentation"
 
 sudo mkdir -p /var/bigbluebutton/playback/
-for PLAYBACK in $PLAYBACK_LIST
-do
-  sudo cp -r $PLAYBACK/playback/* /var/bigbluebutton/playback/
-  sudo cp -r $PLAYBACK/scripts/* /usr/local/bigbluebutton/core/scripts/
-done
+sudo mkdir -p /var/bigbluebutton/recording/raw/
+sudo mkdir -p /var/bigbluebutton/recording/process/
+sudo mkdir -p /var/bigbluebutton/recording/publish/
+sudo mkdir -p /var/bigbluebutton/recording/status/recorded/
+sudo mkdir -p /var/bigbluebutton/recording/status/archived/
+sudo mkdir -p /var/bigbluebutton/recording/status/processed/
+sudo mkdir -p /var/bigbluebutton/recording/status/sanity/
 
-sudo chown -R tomcat6:tomcat6 /var/bigbluebutton/playback/
-sudo cp /usr/local/bigbluebutton/core/scripts/*.nginx /etc/bigbluebutton/nginx/
+sudo mv /usr/local/bigbluebutton/core/scripts/*.nginx /etc/bigbluebutton/nginx/
+sudo chown -R tomcat6:tomcat6 /var/bigbluebutton/ /var/log/bigbluebutton/
+sudo chown -R red5:red5 /var/bigbluebutton/deskshare/
+sudo chown -R freeswitch:daemon /var/bigbluebutton/meetings/
+
+cd /usr/local/bigbluebutton/core/
+sudo bundle install

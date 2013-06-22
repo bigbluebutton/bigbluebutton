@@ -40,7 +40,7 @@ package org.bigbluebutton.modules.polling.model
       }
     }
     
-    private function getQuestion(questionID:String):void {
+    private function getQuestion(questionID:String):Question {
       for (var i:int = 0; i < _questions.length; i++) {
         var q:Question = _questions[i] as Question;
         if (q.id == questionID) return q;
