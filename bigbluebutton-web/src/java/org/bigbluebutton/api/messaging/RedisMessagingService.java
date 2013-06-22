@@ -217,15 +217,18 @@ public class RedisMessagingService implements MessagingService {
 //			}
 			
 			if(channel.equalsIgnoreCase(MessagingConstants.SYSTEM_CHANNEL)){
-				String meetingId = map.get("meetingId");
 				String messageId = map.get("messageId");
 				log.debug("*** Meeting {} Message {}", meetingId, messageId);
-				
+
 				for (MessageListener listener : listeners) {
 					if(MessagingConstants.MEETING_STARTED_EVENT.equalsIgnoreCase(messageId)) {
+						String meetingId = map.get("meetingId");
 						listener.meetingStarted(meetingId);
 					} else if(MessagingConstants.MEETING_ENDED_EVENT.equalsIgnoreCase(messageId)) {
+						String meetingId = map.get("meetingId");
 						listener.meetingEnded(meetingId);
+					} else if(MessagingConstants.KEEP_ALIVE_REPLY_EVENT.equalsIgnoreCase(messageId)){
+						listener.keepAliveReply();
 					}
 				}
 			}

@@ -114,7 +114,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </bean>
         
     <bean id="meetingMessageHandler" class="org.bigbluebutton.conference.meeting.messaging.redis.MeetingMessageHandler">
-
+      <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
     </bean>
         
 	<import resource="bbb-redis-pool.xml"/>

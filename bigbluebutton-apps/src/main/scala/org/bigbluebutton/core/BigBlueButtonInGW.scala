@@ -48,7 +48,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
   }
   
   def isAliveAudit() {
-    bbbGW.accept(new KeepAliveMessage(null)); 
+    bbbGW.acceptKeepAlive; 
   }
 
   def statusMeetingAudit(meetingID: String) {

@@ -5,12 +5,13 @@ import java.util.Map
 
 trait InMessage {val meetingID: String}
 
+case object KeepAliveMessage
+
 case class CreateMeeting(meetingID: String, recorded: Boolean, voiceBridge: String) extends InMessage
 case class InitializeMeeting(meetingID: String, recorded: Boolean) extends InMessage
 case class DestroyMeeting(meetingID: String) extends InMessage
 case class StartMeeting(meetingID: String) extends InMessage
 case class EndMeeting(meetingID: String) extends InMessage
-case class KeepAliveMessage(meetingID:String) extends InMessage
 
 // Users
 case class UserJoining(meetingID: String, userID: String, name: String, role: Role, extUserID: String) extends InMessage

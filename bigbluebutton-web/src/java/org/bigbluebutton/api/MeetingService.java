@@ -355,6 +355,11 @@ public class MeetingService {
 			}
 			log.warn("The meeting " + meetingId + " doesn't exist");
 		}
+
+		@Override
+		public void keepAliveReply(){
+			
+		}
 	}
 	
 }
