@@ -53,6 +53,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var pollKeys:ArrayList;
 			private var pollVoteKeys:ArrayList;
 			
+			[Bindable] private var generalString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.general");
 			[Bindable] private var presentationString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.presentation");
 			[Bindable] private var chatString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.chat");
 			[Bindable] private var userString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.users");
@@ -109,26 +110,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function populateModules():void{
 				genResource = new Array();
-				
-				/*
-					presentationString
-					chatString
-					userString
-					pollString
-					pollVoteString
-				*/
-				
-				//LogUtil.debug("WATERFALL: testing getItemIndex, index of user string is: " + categoryAC.getItemIndex(userString));
-				//LogUtil.debug("(Should be 3)");
-				// Good, we should be able to use this just as intended.
-				
-				
+								
 				// Module-independent keys
 				genResource.push('bbb.shortcutkey.general.minimize');
 				genResource.push('bbb.shortcutkey.general.maximize');
 				genResource.push('bbb.shortcutkey.flash.exit');
 				genResource.push('bbb.shortcutkey.shortcutWindow');
 				genResource.push('bbb.shortcutkey.logout');
+				categoryAC.addItem(generalString);
 				
 				if (ShortcutOptions.usersActive){
 					genResource.push('bbb.shortcutkey.focus.users');
@@ -181,26 +170,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function changeArray():void {
 				shownKeys = new ArrayCollection();
-				/*switch(categories.selectedIndex) {
-				case 0: //General
+				
+				switch(categories.selectedIndex) {
+					case 0: //General
 					shownKeys.addAll(genKeys);
 					break;
-				case 1: //Presentation
+					case categoryAC.getItemIndex(presentationString): //Presentation
 					shownKeys.addAll(presKeys);
 					break;
-				case 2: //Chat
+					case categoryAC.getItemIndex(chatString): //Chat
 					shownKeys.addAll(chatKeys);
 					break;
-				case 3: //Users
+					case categoryAC.getItemIndex(userString): //Users
 					shownKeys.addAll(userKeys);
 					break;
-				case 4: //Polling, Presenter
+					case categoryAC.getItemIndex(pollString): //Polling, Presenter
 					shownKeys.addAll(pollKeys);
 					break;
-				case 5: //Polling, Viewer
+					case categoryAC.getItemIndex(pollVoteString): //Polling, Viewer
 					shownKeys.addAll(pollVoteKeys);
 					break;
-				}*/
+				}
 			}
 			
 			private function loadKeys(resource:Array, global:Boolean=false):ArrayList {
