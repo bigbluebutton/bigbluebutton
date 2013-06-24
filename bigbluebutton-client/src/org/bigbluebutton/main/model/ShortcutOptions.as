@@ -12,6 +12,7 @@ package org.bigbluebutton.main.model
 		private static var webcam:Boolean = true;
 		private static var deskshare:Boolean = true;
 		private static var audio:Boolean = true;
+		private static var generalResource:Array;
 		
 		public static function initialize() {
 			var vxml:XML;
@@ -55,6 +56,9 @@ package org.bigbluebutton.main.model
 			if (vxml == null) {
 				audio = false;
 			}
+			
+			generalResource = new Array();
+			generateGlobalKeys();
 		}
 		
 		public static function get usersActive():Boolean{return users;}
@@ -65,6 +69,37 @@ package org.bigbluebutton.main.model
 		public static function get webcamActive():Boolean{return webcam;}		
 		public static function get deskshareActive():Boolean{return deskshare;}
 		public static function get audioActive():Boolean{return audio;}
+		public static function get genResource():Array{return generalResource;}
+		
+		private static function generateGlobalKeys():void{
+			generalResource = new Array();
+			
+			generalResource.push('bbb.shortcutkey.general.minimize');
+			generalResource.push('bbb.shortcutkey.general.maximize');
+			generalResource.push('bbb.shortcutkey.flash.exit');
+			
+			if (users){generalResource.push('bbb.shortcutkey.focus.users');}
+			if (videoDock){generalResource.push('bbb.shortcutkey.focus.video');}
+			if (presentation){generalResource.push('bbb.shortcutkey.focus.presentation');}
+			if (chat){generalResource.push('bbb.shortcutkey.focus.chat');}
+			if (polling){
+				generalResource.push('bbb.shortcutkey.focus.pollingCreate'); 
+				generalResource.push('bbb.shortcutkey.focus.pollingStats'); 
+				generalResource.push('bbb.shortcutkey.focus.voting');
+			}
+			
+			if (audio){generalResource.push('bbb.shortcutkey.share.microphone');}
+			if (deskshare){generalResource.push('bbb.shortcutkey.share.desktop');}
+			if (webcam){generalResource.push('bbb.shortcutkey.share.webcam');}
+			if (polling){generalResource.push('bbb.shortcutkey.polling.buttonClick');}
+			generalResource.push('bbb.shortcutkey.shortcutWindow');
+			generalResource.push('bbb.shortcutkey.logout');
+			
+			if (users){generalResource.push('bbb.shortcutkey.raiseHand');}
+			if (audio){generalResource.push('bbb.shortcutkey.users.muteme');}
+			if (audio){generalResource.push('bbb.shortcutkey.users.muteAllButPres');}
+			if (chat){generalResource.push('bbb.shortcutkey.chat.chatinput');}
+		}
 		
 		public static function debugString():String{
 			return "USERS: " + users + " VIDEODOCK: " + videoDock + " PRESENTATION: " + presentation + " CHAT: " + chat + " POLLING: " + polling + " WEBCAM: " + webcam + " DESKSHARE: " + deskshare + " AUDIO: " + audio;

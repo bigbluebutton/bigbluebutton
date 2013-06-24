@@ -45,7 +45,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.ShortcutOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			//private var options:ShortcutOptions;			
 			private var genKeys:ArrayList;
 			private var presKeys:ArrayList;
 			private var chatKeys:ArrayList;
@@ -60,9 +59,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var pollString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.polling");
 			[Bindable] private var pollVoteString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.polling2");
 						
-			// genResource is populated dynamically in populateModules()
-			private var genResource:Array;
-											 
 			private var presResource:Array = ['bbb.shortcutkey.present.focusslide', /*'bbb.shortcutkey.whiteboard.undo',*/ 'bbb.shortcutkey.present.upload',  
 											  'bbb.shortcutkey.present.previous', 'bbb.shortcutkey.present.select', 'bbb.shortcutkey.present.next', 	
 											  'bbb.shortcutkey.present.fitWidth', 'bbb.shortcutkey.present.fitPage'];
@@ -96,7 +92,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function init():void {
 				modifier = ExternalInterface.call("determineModifier");
 				globalModifier = ExternalInterface.call("determineGlobalModifier");
-				populateModules()
+				populateModules();
 			}
 			
 			private function onCreationComplete():void {
@@ -109,56 +105,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function populateModules():void{
-				genResource = new Array();
-								
-				// Module-independent keys
-				genResource.push('bbb.shortcutkey.general.minimize');
-				genResource.push('bbb.shortcutkey.general.maximize');
-				genResource.push('bbb.shortcutkey.flash.exit');
-				genResource.push('bbb.shortcutkey.shortcutWindow');
-				genResource.push('bbb.shortcutkey.logout');
 				categoryAC.addItem(generalString);
-				
-				if (ShortcutOptions.usersActive){
-					genResource.push('bbb.shortcutkey.focus.users');
-					genResource.push('bbb.shortcutkey.raiseHand');
-					genResource.push('bbb.shortcutkey.users.muteme');
-					genResource.push('bbb.shortcutkey.users.muteAllButPres');
+				if (ShortcutOptions.usersActive)
 					categoryAC.addItem(userString);
-				}
-				if (ShortcutOptions.videoDockActive){
-					genResource.push('bbb.shortcutkey.focus.video');
-				}
-				if (ShortcutOptions.presentationActive){
-					genResource.push('bbb.shortcutkey.focus.presentation');
+				
+				if (ShortcutOptions.presentationActive)
 					categoryAC.addItem(presentationString);
-				}
-				if (ShortcutOptions.chatActive){
-					genResource.push('bbb.shortcutkey.focus.chat');
-					genResource.push('bbb.shortcutkey.chat.chatinput');
+				
+				if (ShortcutOptions.chatActive)
 					categoryAC.addItem(chatString);
-				}
+				
 				if (ShortcutOptions.pollingActive){
-					genResource.push('bbb.shortcutkey.focus.pollingCreate'); 
-					genResource.push('bbb.shortcutkey.focus.pollingStats'); 
-					genResource.push('bbb.shortcutkey.focus.voting');
-					genResource.push('bbb.shortcutkey.polling.buttonClick');
 					categoryAC.addItem(pollString);
 					categoryAC.addItem(pollVoteString);
-				}
-				if (ShortcutOptions.webcamActive){
-					genResource.push('bbb.shortcutkey.share.webcam');
-				}
-				if (ShortcutOptions.deskshareActive){
-					genResource.push('bbb.shortcutkey.share.desktop');
-				}
-				if (ShortcutOptions.audioActive){
-					genResource.push('bbb.shortcutkey.share.microphone');
 				}
 			}
 			
 			private function reloadKeys():void {
-				genKeys = loadKeys(genResource, true);
+				genKeys = loadKeys(ShortcutOptions.genResource, true);
 				presKeys = loadKeys(presResource);
 				chatKeys = loadKeys(chatResource);
 				userKeys = loadKeys(userResource);
