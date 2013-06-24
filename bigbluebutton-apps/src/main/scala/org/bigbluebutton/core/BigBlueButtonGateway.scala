@@ -13,7 +13,7 @@ class BigBlueButtonGateway(outGW: MessageOutGateway) {
     bbbActor ! msg
   }
 
-  def acceptKeepAlive = {
-  	bbbActor ! KeepAliveMessage
+  def acceptKeepAlive(msg: KeepAliveMessage):Unit = {
+  	bbbActor ! msg
   }
 }

@@ -25,15 +25,17 @@ public class MeetingMessageHandler implements MessageHandler {
 		if (channel.equalsIgnoreCase(MessagingConstants.SYSTEM_CHANNEL)){
 			Gson gson = new Gson();
 			HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
-			String meetingId = map.get("meetingId");
+			
 			String messageId = map.get("messageId");
 			if (messageId != null){
 				if (MessagingConstants.END_MEETING_REQUEST_EVENT.equalsIgnoreCase(messageId)){
+					String meetingId = map.get("meetingId");
 					bbbGW.endMeeting(meetingId);
 				}
 				if(messageId.equalsIgnoreCase(KEEP_ALIVE_REQUEST)){
+					String keepAliveId = map.get("aliveId");
 					log.debug("Sending keep alive request");
-					bbbGW.isAliveAudit();
+					bbbGW.isAliveAudit(keepAliveId);
 				}
 			}
 		}

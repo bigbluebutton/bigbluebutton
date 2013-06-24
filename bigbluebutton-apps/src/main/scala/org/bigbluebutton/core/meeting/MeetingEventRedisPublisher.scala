@@ -22,7 +22,7 @@ class MeetingEventRedisPublisher(service: MessageSender) extends OutMessageListe
 
     private def handleKeepAliveMessageReply(msg: KeepAliveMessageReply):Unit = {
     	val gson = new Gson;
-    	var map = Map("messageId" -> KEEP_ALIVE_REPLY)
+    	var map = Map("messageId" -> KEEP_ALIVE_REPLY, "aliveId" -> msg.aliveID)
 
     	println("check map:" + map.asJava)
     	service.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map.asJava))

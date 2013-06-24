@@ -4,7 +4,7 @@ import java.util.Map;
 
 public interface IBigBlueButtonInGW {
 
-	void isAliveAudit();
+	void isAliveAudit(String aliveID);
 	void statusMeetingAudit(String meetingID);
 	void endMeeting(String meetingID);
 	void endAllMeetings();
