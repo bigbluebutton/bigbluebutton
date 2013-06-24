@@ -16,7 +16,7 @@ class MeetingEventRedisPublisher(service: MessageSender) extends OutMessageListe
 	def handleMessage(msg: IOutMessage) {
 	  msg match {
 	    case keepAliveMessageReply: KeepAliveMessageReply => handleKeepAliveMessageReply(keepAliveMessageReply)
-	    case _ => println("Unhandled message in MeetingEventRedisPublisher")
+	    case _ => //println("Unhandled message in MeetingEventRedisPublisher")
 	  }
     }
 

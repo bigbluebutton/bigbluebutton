@@ -21,6 +21,7 @@ class PollApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
       case startPoll: StartPoll => handleStartPoll(startPoll)
       case clearPoll: ClearPoll => handleClearPoll(clearPoll)
       case getPolls: GetPolls => handleGetPolls(getPolls)
+      case _ => // do nothing
     }    
   }
   
@@ -30,20 +31,28 @@ class PollApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   }
   
   private def handleClearPoll(msg: ClearPoll) {
-    if (model.clearPoll(msg.pollID))  outGW.send(new PollClearedOutMsg(meetingID, recorded, msg.pollID))
+    if (model.clearPoll(msg.pollID))  {
+      outGW.send(new PollClearedOutMsg(meetingID, recorded, msg.pollID))
+    } else {
+	  print("PollApp:: handleClearPoll - " + msg.pollID + " not found" )
+	}
   }
   
   private def handleStartPoll(msg: StartPoll) {
 	if (model.hasPoll(msg.pollID)) {
 	  model.startPoll(msg.pollID)
 	  outGW.send(new PollStartedOutMsg(meetingID, recorded, msg.pollID))
-	}   
+	} else {
+	  print("PollApp:: handleStartPoll - " + msg.pollID + " not found" )
+	}
   }
   
   private def handleStopPoll(msg: StopPoll) {
 	if (model.hasPoll(msg.pollID)) {
 	  model.stopPoll(msg.pollID)
 	  outGW.send(new PollStoppedOutMsg(meetingID, recorded, msg.pollID))	  
+	} else {
+	  print("PollApp:: handleStopPoll - " + msg.pollID + " not found" )
 	}
   }
   
@@ -55,7 +64,9 @@ class PollApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
     if (model.hasPoll(msg.pollID)) {
       model.removePoll(msg.pollID)
       outGW.send(new PollRemovedOutMsg(meetingID, recorded, msg.pollID))
-    }       
+    } else {
+	  print("PollApp:: handleRemovePoll - " + msg.pollID + " not found" )
+	}        
   }
   
   private def handleDestroyPoll(msg: DestroyPoll) {
@@ -65,10 +76,13 @@ class PollApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   private def handleUpdatePoll(msg: UpdatePoll) {
 	if (model.updatePoll(msg.poll)) {
 		outGW.send(new PollUpdatedOutMsg(meetingID, recorded, msg.poll.id, msg.poll))	  
+	} else {
+	  print("PollApp:: handleUpdatePoll - " + msg.poll.id + " not found" )
 	}
   }
   
   private def handleCreatePoll(msg: CreatePoll) {
+    model.createPoll(msg.poll)
 	outGW.send(new PollCreatedOutMsg(meetingID, recorded, msg.poll.id, msg.poll)) 
   }
 }

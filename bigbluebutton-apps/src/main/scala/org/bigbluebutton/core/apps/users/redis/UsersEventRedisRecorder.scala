@@ -20,7 +20,7 @@ class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageL
 	    case userJoin: UserJoined => handleUserJoined(userJoin)
 	    case userLeft: UserLeft => handleUserLeft(userLeft)
 	    case statusChange: UserStatusChange => handleUserStatusChange(statusChange)
-	    case _ => println("Unhandled message in UsersClientMessageSender")
+	    case _ => //println("Unhandled message in UsersClientMessageSender")
 	  }
 	}
   	

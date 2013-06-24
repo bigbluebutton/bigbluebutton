@@ -76,7 +76,10 @@ package org.bigbluebutton.modules.polling.service
     
     public function startPoll(pollID:String):void
     {
-      var jsonMsg:String = JSON.stringify(pollID);
+      var map:Object = new Object();
+      map.pollID = pollID;
+      
+      var jsonMsg:String = JSON.stringify(map);
       
       trace(LOG + "startPoll [" + jsonMsg + "]");
       
@@ -94,7 +97,10 @@ package org.bigbluebutton.modules.polling.service
     
     public function stopPoll(pollID:String):void
     {
-      var jsonMsg:String = JSON.stringify(pollID);
+      var map:Object = new Object();
+      map.pollID = pollID;
+      
+      var jsonMsg:String = JSON.stringify(map);
       
       trace(LOG + "stopPoll [" + jsonMsg + "]");
       
@@ -112,7 +118,10 @@ package org.bigbluebutton.modules.polling.service
     
     public function removePoll(pollID:String):void
     {
-      var jsonMsg:String = JSON.stringify(pollID);
+      var map:Object = new Object();
+      map.pollID = pollID;
+      
+      var jsonMsg:String = JSON.stringify(map);
       
       trace(LOG + "removePoll [" + jsonMsg + "]");
       

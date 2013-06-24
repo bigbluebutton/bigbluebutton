@@ -92,7 +92,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 <ref bean="usersRed5ClientSender" />   
                 <ref bean="presentationRedisRecorder" /> 
                 <ref bean="usersRedisRecorder" />
-                <ref bean="meetingEventRedisPublisher" />          
+                <ref bean="meetingEventRedisPublisher" />   
+                <ref bean="pollRed5ClientSender" />                          
             </set>        
          </property> 
     </bean>
@@ -112,7 +113,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="presentationRed5ClientSender" class="org.bigbluebutton.core.apps.presentation.red5.PresentationClientMessageSender">
       <constructor-arg index="0" ref="connInvokerService"/>
     </bean>
-        
+
+    <bean id="pollRed5ClientSender" class="org.bigbluebutton.core.apps.poll.red5.PollClientMessageSender">
+      <constructor-arg index="0" ref="connInvokerService"/>
+    </bean>
+            
     <bean id="meetingMessageHandler" class="org.bigbluebutton.conference.meeting.messaging.redis.MeetingMessageHandler">
       <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
     </bean>

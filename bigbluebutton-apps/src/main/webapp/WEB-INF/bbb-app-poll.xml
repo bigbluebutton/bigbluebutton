@@ -44,6 +44,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</bean>
 	
 	<bean id="poll.service" class="org.bigbluebutton.conference.service.poll.PollService">
+	   <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
 	</bean>
 	
 	<bean id="pollRoomsManager"

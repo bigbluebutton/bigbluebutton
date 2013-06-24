@@ -19,14 +19,12 @@
 package org.bigbluebutton.conference.service.poll;
 
 import org.slf4j.Logger;
+import org.bigbluebutton.conference.BigBlueButtonSession;
+import org.bigbluebutton.conference.Constants;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.red5.logging.Red5LoggerFactory;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
+import org.red5.server.api.Red5;
+import org.red5.server.api.scope.IScope;
 
 public class PollService {	
 	private static Logger log = Red5LoggerFactory.getLogger( PollService.class, "bigbluebutton" );
@@ -39,31 +37,45 @@ public class PollService {
 	
 	public void createPoll(String msg){
 		System.out.println("*** PollService:: create poll \n" + msg + "\n");
-
+		
+		bbbInGW.createPoll(getMeetingID(), getRequestedID(), msg);
 	}
 
 	public void updatePoll(String msg){
 		System.out.println("*** PollService:: update poll \n" + msg + "\n");
-
+		bbbInGW.updatePoll(getMeetingID(), getRequestedID(), msg);
 	}
 	
 	public void startPoll(String msg){
 		System.out.println("*** PollService:: start poll \n" + msg + "\n");
-
+		bbbInGW.startPoll(getMeetingID(), getRequestedID(), msg);
 	}
 	
 	public void stopPoll(String msg){
 		System.out.println("*** PollService:: stop poll \n" + msg + "\n");
-
+		bbbInGW.stopPoll(getMeetingID(), getRequestedID(), msg);
 	}
 	
 	public void removePoll(String msg){
 		System.out.println("*** PollService:: remove poll \n" + msg + "\n");
-
+		bbbInGW.removePoll(getMeetingID(), getRequestedID(), msg);
 	}
 	
 	public void respondPoll(String msg){
 		System.out.println("*** PollService:: respond poll \n" + msg + "\n");
-
+		bbbInGW.respondPoll(getMeetingID(), getRequestedID(), msg);
+	}
+	
+	private String getMeetingID() {
+		IScope scope = Red5.getConnectionLocal().getScope();
+		return scope.getName();
+	}
+	
+	private String getRequestedID() {
+		return getBbbSession().getInternalUserID();
+	}
+	
+	private BigBlueButtonSession getBbbSession() {
+		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}
 }

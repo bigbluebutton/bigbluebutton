@@ -23,6 +23,7 @@ import org.bigbluebutton.core.api.DestroyMeeting
 import org.bigbluebutton.core.api.KeepAliveMessage
 import org.bigbluebutton.core.api.PreuploadedPresentations
 import scala.collection.JavaConversions._
+import org.bigbluebutton.core.apps.poll.PollInGateway
 
 class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW {
 
@@ -128,4 +129,30 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	  bbbGW.accept(new GetSlideInfo(meetingID, requesterID))
 	}
 	
+	// Polling
+	val pollGW = new PollInGateway(bbbGW)
+	
+	def createPoll(meetingID: String, requesterID: String, msg: String) {
+	  pollGW.createPoll(meetingID, requesterID, msg)
+	}
+	
+	def updatePoll(meetingID: String, requesterID: String, msg: String) {
+	  pollGW.updatePoll(meetingID, requesterID, msg)
+	}
+	
+	def startPoll(meetingID: String, requesterID: String, msg: String) {
+	  pollGW.startPoll(meetingID, requesterID, msg)
+	}
+	
+	def stopPoll(meetingID: String, requesterID: String, msg: String) {
+	  pollGW.stopPoll(meetingID, requesterID, msg)
+	}
+	
+	def removePoll(meetingID: String, requesterID: String, msg: String) {
+	  pollGW.removePoll(meetingID, requesterID, msg)
+	}
+	
+	def respondPoll(meetingID: String, requesterID: String, msg: String) {
+	  
+	}
 }

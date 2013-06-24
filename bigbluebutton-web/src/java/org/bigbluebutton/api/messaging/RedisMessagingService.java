@@ -218,7 +218,6 @@ public class RedisMessagingService implements MessagingService {
 			
 			if(channel.equalsIgnoreCase(MessagingConstants.SYSTEM_CHANNEL)){
 				String messageId = map.get("messageId");
-				log.debug("*** Meeting {} Message {}", meetingId, messageId);
 
 				for (MessageListener listener : listeners) {
 					if(MessagingConstants.MEETING_STARTED_EVENT.equalsIgnoreCase(messageId)) {
