@@ -38,26 +38,26 @@ class PollClientMessageSender(service: ConnectionInvokerService) extends OutMess
   	}
   	
   	private def handlePollClearedOutMsg(msg: PollClearedOutMsg) {
-  	  
+  	  println("PollClientMessageSender - Handling PollClearedOutMsg")
   	}
   	
   	private def handlePollStartedOutMsg(msg: PollStartedOutMsg) {
-  	  
+  	  println("PollClientMessageSender - Handling PollStartedOutMsg")
   	}
   	
   	private def handlePollStoppedOutMsg(msg: PollStoppedOutMsg) {
-  	  
+  	  println("PollClientMessageSender - Handling PollStoppedOutMsg")
   	}
   	
   	private def handlePollRemovedOutMsg(msg: PollRemovedOutMsg) {
-  	  
+  	  println("PollClientMessageSender - Handling PollRemovedOutMsg")
   	}
   	
   	private def handlePollUpdatedOutMsg(msg: PollUpdatedOutMsg) {
-  	  
+  	  println("PollClientMessageSender - Handling PollUpdatedOutMsg")
   	}
   	
   	private def handlePollCreatedOutMsg(msg: PollCreatedOutMsg) {
-  	  
+  	  println("PollClientMessageSender - Handling PollCreatedOutMsg")
   	}
 }

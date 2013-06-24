@@ -27,6 +27,7 @@ class Meeting(val meetingID: String, val recorded: Boolean, val voiceBridge: Str
 	      case msg: InMessage => {
 	        usersApp.handleMessage(msg)
 	        presentationApp.handleMessage(msg)
+	        pollApp.handleMessage(msg)
 	      }
 	      case StopMeetingActor => exit
 	    }

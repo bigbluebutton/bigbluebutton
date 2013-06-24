@@ -1,29 +1,30 @@
 package org.bigbluebutton.core.apps.poll.messages
 
 
-import org.bigbluebutton.core.apps.poll.QuestionType._
+import org.bigbluebutton.core.apps.poll._
 import org.bigbluebutton.core.api.InMessage
 import org.bigbluebutton.core.api.IOutMessage
+import org.bigbluebutton.core.apps.poll.Responder
 
 // Poll Messages
-case class CreatePoll(meetingID: String, poll: PollVO, requesterID: String) extends InMessage
-case class UpdatePoll(meetingID: String, poll: PollVO) extends InMessage
+case class CreatePoll(meetingID: String, requesterID: String, poll: PollVO) extends InMessage
+case class UpdatePoll(meetingID: String, requesterID: String, poll: PollVO) extends InMessage
 case class GetPolls(meetingID: String, requesterID: String) extends InMessage
-case class DestroyPoll(meetingID: String, pollID: String) extends InMessage
-case class RemovePoll(meetingID: String, pollID: String) extends InMessage
-case class SharePoll(meetingID: String, pollID: String) extends InMessage
-case class StopPoll(meetingID:String, pollID: String) extends InMessage
-case class StartPoll(meetingID:String, pollID: String) extends InMessage
-case class ClearPoll(meetingID: String, pollID: String, requesterID: String, force: Boolean=false) extends InMessage
-case class GetPollResult(meetingID:String, pollID: String, requesterID: String) extends InMessage
+case class DestroyPoll(meetingID: String, requesterID: String, pollID: String) extends InMessage
+case class RemovePoll(meetingID: String, requesterID: String, pollID: String) extends InMessage
+case class SharePoll(meetingID: String, requesterID: String, pollID: String) extends InMessage
+case class StopPoll(meetingID:String, requesterID: String, pollID: String) extends InMessage
+case class StartPoll(meetingID:String, requesterID: String, pollID: String) extends InMessage
+case class ClearPoll(meetingID: String, requesterID: String, pollID: String, force: Boolean=false) extends InMessage
+case class GetPollResult(meetingID:String, requesterID: String, pollID: String) extends InMessage
+case class RespondToPoll(meetingID: String, requesterID: String, pollID: String, responses : Array[PollResponseVO])
 
-case class ResponseVO(id: String, text: String)
-case class QuestionVO(id: String, multiResponse: Boolean, question: String, responses: Array[ResponseVO])
-case class PollVO(id: String, title: String, questions: Array[QuestionVO])
+case class PollResponseVO(questionID: String, responses: Array[ResponderVO])
+case class ResponderVO(responseID: String, user: Responder)
 
 case class R(id: String, response: String)
 case class Q(id: String, questionType: String, question: String, responses: Array[R])
-case class P(id: String, title: String, questions: Array[Q], preCreated: Boolean=false)
+case class P(id: String, title: String, questions: Array[Q])
 
 // Out Messages
 case class GetPollResultReply(meetingID: String, recorded: Boolean, requesterID: String, pollVO: PollVO) extends IOutMessage

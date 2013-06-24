@@ -30,4 +30,11 @@ public interface IBigBlueButtonInGW {
 	void sharePresentation(String meetingID, String presentationID, boolean share);
 	void getSlideInfo(String meetingID, String requesterID);
 	
+	// Polling
+	void createPoll(String meetingID, String requesterID, String msg);
+	void updatePoll(String meetingID, String requesterID, String msg);	
+	void startPoll(String meetingID, String requesterID, String msg);
+	void stopPoll(String meetingID, String requesterID, String msg);
+	void removePoll(String meetingID, String requesterID, String msg);
+	void respondPoll(String meetingID, String requesterID, String msg);
 }

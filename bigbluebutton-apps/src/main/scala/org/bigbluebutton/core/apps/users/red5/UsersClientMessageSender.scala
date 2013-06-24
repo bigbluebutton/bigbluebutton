@@ -24,7 +24,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    case userLeft: UserLeft => handleUserLeft(userLeft)
 	    case statusChange: UserStatusChange => handleUserStatusChange(statusChange)
 	    case getUsersReply: GetUsersReply => handleGetUsersReply(getUsersReply)
-	    case _ => println("Unhandled message in UsersClientMessageSender")
+	    case _ => // println("Unhandled message in UsersClientMessageSender")
 	  }
 	}
 	
