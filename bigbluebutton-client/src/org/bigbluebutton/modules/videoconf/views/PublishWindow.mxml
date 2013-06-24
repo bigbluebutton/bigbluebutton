@@ -160,7 +160,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				focusManager.setFocus(closeBtn);
 			}
 
-			private function autopublishTimerHandler(event:TimerEvent):void {				
+			private function autopublishTimerHandler(event:TimerEvent):void {
 				startPublishing();
 				autoPublishTimer.stop();
 			}

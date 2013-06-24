@@ -49,6 +49,8 @@ package org.bigbluebutton.modules.videoconf.business
 		private var nc:NetConnection;
 		private var ns:NetStream;
 		private var _url:String;
+		private var camerasPublishing:Object = new Object();
+		private var connected:Boolean = false;
     
 		private function parseOptions():void {
 			videoOptions = new VideoConfOptions();
@@ -86,11 +88,13 @@ package org.bigbluebutton.modules.videoconf.business
 		private function onNetStatus(event:NetStatusEvent):void{
 			switch(event.info.code){
 				case "NetConnection.Connect.Success":
-					ns = new NetStream(nc);
+					connected = true;
+					//ns = new NetStream(nc);
           onConnectedToVideoApp();
 					break;
         default:
 					LogUtil.debug("[" + event.info.code + "] for [" + _url + "]");
+					connected = false;
 					break;
 			}
 		}
@@ -103,6 +107,7 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 		public function startPublishing(e:StartBroadcastEvent):void{
+			var ns:NetStream = new NetStream(nc);
 			ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
 			ns.addEventListener( IOErrorEvent.IO_ERROR, onIOError );
 			ns.addEventListener( AsyncErrorEvent.ASYNC_ERROR, onAsyncError );
@@ -160,22 +165,33 @@ package org.bigbluebutton.modules.videoconf.business
 			}
 			
 			ns.publish(e.stream);
+			camerasPublishing[e.stream] = ns;
 		}
 		
-		public function stopBroadcasting():void{
+		public function stopBroadcasting(stream:String):void{
       trace("Closing netstream for webcam publishing");
-      
-			if (ns != null) {
+      			if (camerasPublishing[stream] != null) {
+	      			var ns:NetStream = camerasPublishing[stream];
 				ns.attachCamera(null);
 				ns.close();
 				ns = null;
-				ns = new NetStream(nc);
-			}			
+				delete camerasPublishing[stream];
+			}	
 		}
-		
+
+		public function stopAllBroadcasting():void {
+			for each (var ns:NetStream in camerasPublishing)
+			{
+				ns.attachCamera(null);
+				ns.close();
+				ns = null;
+			}
+			camerasPublishing = new Object();
+		}
+
 		public function disconnect():void {
       trace("VideoProxy:: disconnecting from Video application");
-      stopBroadcasting();
+      stopAllBroadcasting();
 			if (nc != null) nc.close();
 		}
 		

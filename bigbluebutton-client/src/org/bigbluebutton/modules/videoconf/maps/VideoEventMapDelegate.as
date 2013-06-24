@@ -54,6 +54,7 @@ package org.bigbluebutton.modules.videoconf.maps
   import org.bigbluebutton.modules.videoconf.views.ToolbarPopupButton;
   import org.bigbluebutton.modules.videoconf.views.VideoWindow;
   import org.flexunit.runner.manipulation.filters.IncludeAllFilter;
+  import mx.collections.ArrayList;
 
   public class VideoEventMapDelegate
   {
@@ -71,6 +72,8 @@ package org.bigbluebutton.modules.videoconf.maps
     private var _isPublishing:Boolean = false;
 	private var _isPreviewWebcamOpen:Boolean = false;
 	private var _isWaitingActivation:Boolean = false;
+    private var streamList:ArrayList = new ArrayList();
+    private var numberOfWindows:Object = new Object();
     
     public function VideoEventMapDelegate(dispatcher:IEventDispatcher)
     {
@@ -187,17 +190,28 @@ package org.bigbluebutton.modules.videoconf.maps
     
     private function openPublishWindowFor(userID:String, camIndex:int, camWidth:int, camHeight:int):void {
       var publishWindow:PublishWindow = new PublishWindow();
-      publishWindow.userID = userID;
+      if(numberOfWindows[userID] == null)
+	numberOfWindows[userID] = 0;
+
+      publishWindow.userID = userID + "-" + String(numberOfWindows[userID]);
+      numberOfWindows[userID] = numberOfWindows[userID] + 1;
       publishWindow.title = UsersUtil.getUserName(userID);
       publishWindow.camIndex = camIndex;
       publishWindow.setResolution(camWidth, camHeight);
       publishWindow.videoOptions = options;
       publishWindow.quality = options.videoQuality;
       publishWindow.resolutions = options.resolutions.split(",");
-      
+      for(var i:int = 0; i < numberOfWindows[userID] - 1; i++) {
+		if(PublishWindow(webcamWindows.getWindow(userID + "-" + String(i))).camIndex == camIndex) {
+			closeWindow(userID + "-" + String(i));
+			numberOfWindows[userID] = numberOfWindows[userID] - 1;
+			publishWindow.userID = userID + "-" + String(i);
+			break;
+		}
+      }
 
       trace("VideoEventMapDelegate:: [" + me + "] openPublishWindowFor:: Closing window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
-      closeWindow(userID);
+      //closeWindow(userID);
 
       webcamWindows.addWindow(publishWindow);
       
@@ -227,14 +241,18 @@ package org.bigbluebutton.modules.videoconf.maps
     
     private function openViewWindowFor(userID:String):void {
       trace("VideoEventMapDelegate:: [" + me + "] openViewWindowFor:: Opening VIEW window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
+      if(numberOfWindows[userID] != null) {
+	    for(var i:int = 0; i < numberOfWindows[userID]; i++) {
+		closeWindow(userID + "-" + String(i));
+            }
+      }
+            var window:VideoWindow = new VideoWindow();
+            window.userID = userID;
+            window.videoOptions = options;       
+            window.resolutions = options.resolutions.split(",");
+            window.title = UsersUtil.getUserName(userID);
       
-      var window:VideoWindow = new VideoWindow();
-      window.userID = userID;
-      window.videoOptions = options;       
-      window.resolutions = options.resolutions.split(",");
-      window.title = UsersUtil.getUserName(userID);
       
-      closeWindow(userID);
             
       var bbbUser:BBBUser = UsersUtil.getUser(userID);      
       window.startVideo(proxy.connection, bbbUser.streamName);
@@ -263,8 +281,10 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function startPublishing(e:StartBroadcastEvent):void{
+	
 	  LogUtil.debug("VideoEventMapDelegate:: [" + me + "] startPublishing:: Publishing stream to: " + proxy.connection.uri + "/" + e.stream);
       streamName = e.stream;
+	LogUtil.debug("ESTOU AQUI");
       proxy.startPublishing(e);
       
 	  _isWaitingActivation = false;
@@ -272,7 +292,16 @@ package org.bigbluebutton.modules.videoconf.maps
       UsersUtil.setIAmPublishing(true);
       
       var broadcastEvent:BroadcastStartedEvent = new BroadcastStartedEvent();
-      broadcastEvent.stream = e.stream;
+      //broadcastEvent.stream = e.stream;
+      if(streamList.length == 0) {
+            streamList.addItem(e.stream);
+            broadcastEvent.stream = e.stream;
+      }
+      else {
+            streamList.addItem(e.stream);
+            var myPattern:RegExp = /,/g;
+            broadcastEvent.stream = streamList.toString().replace(myPattern, "|");
+      }
       broadcastEvent.userid = UsersUtil.getMyUserID();
       broadcastEvent.isPresenter = UsersUtil.amIPresenter();
       broadcastEvent.camSettings = UsersUtil.amIPublishing();
@@ -285,13 +314,28 @@ package org.bigbluebutton.modules.videoconf.maps
        
     public function stopPublishing(e:StopBroadcastEvent):void{
       trace("VideoEventMapDelegate:: [" + me + "] Stop publishing. ready = [" + _ready + "]"); 
-      stopBroadcasting();    
+      stopBroadcasting(e.stream);    
+      if(streamList.length <= 1) {
+            streamList.removeItem(e.stream);
+            var broadcastEvent:BroadcastStoppedEvent = new BroadcastStoppedEvent();
+            broadcastEvent.stream = e.stream;
+            broadcastEvent.userid = UsersUtil.getMyUserID();
+            _dispatcher.dispatchEvent(broadcastEvent);
+      }
+      else {
+            streamList.removeItem(e.stream);
+            var broadcastStartEvent:BroadcastStartedEvent = new BroadcastStartedEvent();
+            var myPattern:RegExp = /,/g;
+            broadcastStartEvent.stream = streamList.toString().replace(myPattern, "|");
+            broadcastStartEvent.userid = UsersUtil.getMyUserID();
+            _dispatcher.dispatchEvent(broadcastStartEvent);
+      }
     }
     
-    private function stopBroadcasting():void {
+    private function stopBroadcasting(stream:String):void {
       trace("Stopping broadcast of webcam");
       
-      proxy.stopBroadcasting();
+      proxy.stopBroadcasting(stream);
       
       _isPublishing = false;
       UsersUtil.setIAmPublishing(false);
@@ -317,14 +361,15 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function handleClosePublishWindowEvent(event:ClosePublishWindowEvent):void {
-      if (_isPublishing) {
-        stopBroadcasting();
-      }
+      //if (_isPublishing) {
+      //  stopBroadcasting();
+      //}
     }
     
     public function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
 	  LogUtil.debug("Webcam: "+_isPublishing + " " + _isPreviewWebcamOpen);
-	  if (!_isPublishing && !_isPreviewWebcamOpen && !_isWaitingActivation)
+	  //if (!_isPublishing && !_isPreviewWebcamOpen && !_isWaitingActivation)
+	   if (!_isPreviewWebcamOpen && !_isWaitingActivation)
 		openWebcamPreview(event.publishInClient, event.defaultCamera, event.camerasArray);
     }
 	
@@ -352,9 +397,9 @@ package org.bigbluebutton.modules.videoconf.maps
     
     public function closeAllWindows():void{
       trace("VideoEventMapDelegate:: closing all windows");
-      if (_isPublishing) {
-        stopBroadcasting();
-      }
+      //if (_isPublishing) {
+      //  stopBroadcasting();
+      //}
       
       _dispatcher.dispatchEvent(new CloseAllWindowsEvent());
     }
@@ -376,9 +421,9 @@ package org.bigbluebutton.modules.videoconf.maps
             
       if (options.presenterShareOnly){
         button.isPresenter = false;
-        if (_isPublishing) {
-          stopBroadcasting();
-        }
+        //if (_isPublishing) {
+        //  stopBroadcasting();
+        //}
       }
     }
     
