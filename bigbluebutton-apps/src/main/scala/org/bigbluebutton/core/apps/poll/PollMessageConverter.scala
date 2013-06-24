@@ -1,10 +1,7 @@
 package org.bigbluebutton.core.apps.poll
 
-import org.bigbluebutton.core.apps.poll.messages.PollVO
 import com.google.gson.Gson
 import com.google.gson.JsonParser
-import org.bigbluebutton.core.apps.poll.messages.QuestionVO
-import org.bigbluebutton.core.apps.poll.messages.ResponseVO
 import org.bigbluebutton.core.util.RandomStringGenerator._
 import scala.collection.mutable.ArrayBuffer
 

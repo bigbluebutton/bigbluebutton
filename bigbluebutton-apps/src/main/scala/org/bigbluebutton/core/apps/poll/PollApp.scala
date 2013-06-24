@@ -34,25 +34,28 @@ class PollApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   }
   
   private def handleStartPoll(msg: StartPoll) {
-
-    
-    outGW.send(new PollStartedOutMsg(meetingID, recorded, msg.pollID))
+	if (model.hasPoll(msg.pollID)) {
+	  model.startPoll(msg.pollID)
+	  outGW.send(new PollStartedOutMsg(meetingID, recorded, msg.pollID))
+	}   
   }
   
   private def handleStopPoll(msg: StopPoll) {
-  
-    
-    outGW.send(new PollStoppedOutMsg(meetingID, recorded, msg.pollID))
+	if (model.hasPoll(msg.pollID)) {
+	  model.stopPoll(msg.pollID)
+	  outGW.send(new PollStoppedOutMsg(meetingID, recorded, msg.pollID))	  
+	}
   }
   
   private def handleSharePoll(msg: SharePoll) {
-    
+
   }
   
   private def handleRemovePoll(msg: RemovePoll) {
-     
-    
-    outGW.send(new PollRemovedOutMsg(meetingID, recorded, msg.pollID))
+    if (model.hasPoll(msg.pollID)) {
+      model.removePoll(msg.pollID)
+      outGW.send(new PollRemovedOutMsg(meetingID, recorded, msg.pollID))
+    }       
   }
   
   private def handleDestroyPoll(msg: DestroyPoll) {

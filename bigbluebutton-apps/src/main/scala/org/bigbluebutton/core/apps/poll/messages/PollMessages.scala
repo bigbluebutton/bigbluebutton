@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.poll.messages
 
 
-import org.bigbluebutton.core.apps.poll.QuestionType._
+import org.bigbluebutton.core.apps.poll._
 import org.bigbluebutton.core.api.InMessage
 import org.bigbluebutton.core.api.IOutMessage
 import org.bigbluebutton.core.apps.poll.Responder
@@ -22,13 +22,11 @@ case class RespondToPoll(meetingID: String, pollID: String, responses : Array[Po
 case class PollResponseVO(questionID: String, responses: Array[ResponderVO])
 case class ResponderVO(responseID: String, user: Responder)
 
-case class ResponseVO(id: String, text: String)
-case class QuestionVO(id: String, multiResponse: Boolean, question: String, responses: Array[ResponseVO])
-case class PollVO(id: String, title: String, questions: Array[QuestionVO])
+
 
 case class R(id: String, response: String)
 case class Q(id: String, questionType: String, question: String, responses: Array[R])
-case class P(id: String, title: String, questions: Array[Q], preCreated: Boolean=false)
+case class P(id: String, title: String, questions: Array[Q])
 
 // Out Messages
 case class GetPollResultReply(meetingID: String, recorded: Boolean, requesterID: String, pollVO: PollVO) extends IOutMessage

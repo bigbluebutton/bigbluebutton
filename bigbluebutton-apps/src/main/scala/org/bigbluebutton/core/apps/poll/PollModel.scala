@@ -1,10 +1,7 @@
 package org.bigbluebutton.core.apps.poll
 
-import org.bigbluebutton.core.apps.poll.messages.PollVO
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
-import org.bigbluebutton.core.apps.poll.messages.QuestionVO
-import org.bigbluebutton.core.apps.poll.messages.ResponseVO
 
 class PollModel {
 
@@ -56,20 +53,8 @@ class PollModel {
   
   def getPolls():Array[PollVO] = {
     val poll = new ArrayBuffer[PollVO]   
-    polls.values.foreach(p => {
-      val questions = new ArrayBuffer[QuestionVO]
-      p.questions.foreach(q => {
-        val responses = new ArrayBuffer[ResponseVO]
-        q.responses.foreach(response => {
-          val r = new ResponseVO(response.id, response.response)
-          responses += r
-        })
-
-        val quest = new QuestionVO(q.id, q.multiResponse, q.question, responses.toArray)
-        questions += quest
-      })
-     
-      poll += new PollVO(p.id, p.title, questions.toArray)
+    polls.values.foreach(p => {     
+      poll += p.toPollVO
     })
     
     poll.toArray
@@ -148,7 +133,7 @@ class PollModel {
     	  p.questions.foreach(q => {
     		val responses = new ArrayBuffer[ResponseVO]
     		 q.responses.foreach(response => {
-    			 val r = new ResponseVO(response.id, response.response)
+    			 val r = new ResponseVO(response.id, response.response, response.getResponders)
     			 responses += r
     		 })
 
@@ -164,6 +149,11 @@ class PollModel {
   }
   
   def respondToQuestion(pollID: String, questionID: String, responseID: String, responder: Responder) {
-    
+     polls.get(pollID) match {
+      case Some(p) => {
+    	  p.respondToQuestion(questionID, responseID, responder)
+      }
+      case None =>
+    }  
   }
 }

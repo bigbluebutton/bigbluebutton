@@ -1,7 +1,12 @@
 package org.bigbluebutton.core.apps.poll
 
 import scala.collection.mutable.HashMap
-import QuestionType._
+import scala.collection.mutable.ArrayBuffer
+
+case class ResponseVO(id: String, text: String, responders: Array[Responder] = Array[Responder]())
+case class QuestionVO(id: String, multiResponse: Boolean, question: String, responses: Array[ResponseVO])
+case class PollVO(id: String, title: String, questions: Array[QuestionVO])
+case class Responder(val userID: String, val name: String)
 
 class Poll(val id: String, val title: String, val questions: Array[Question]) {						
 	private var started: Boolean = false
@@ -40,11 +45,73 @@ class Poll(val id: String, val title: String, val questions: Array[Question]) {
 	  return false
 	}
 	
-	def respondToQuestion(questionID: String, responseID: String, userID: String, username: String) {
+	def respondToQuestion(questionID: String, responseID: String, responder: Responder) {
 	  questions.foreach(q => {
 	    if (q.id.equals(questionID)) {
-	      q.respondToQuestion(responseID, new Responder(userID, username))
+	      q.respondToQuestion(responseID, responder)
 	    }
 	  })  
 	}
+	
+	def toPollVO():PollVO = {
+      val qvos = new ArrayBuffer[QuestionVO]
+      questions.foreach(q => {
+        qvos += q.toQuestionVO
+      })
+     
+      new PollVO(id, title, qvos.toArray)	  
+	}
+}
+
+class Question(val id: String, val multiResponse: Boolean, val question: String, val responses: Array[Response]) {
+  
+  def clear() {
+	  responses.foreach(r => r.clear)
+  }
+  
+  def hasResponders():Boolean = {
+	responses.foreach(r => {
+	  if (r.numResponders > 0) return true
+	})
+	
+	return false
+  }
+  
+  def respondToQuestion(id: String, responder: Responder) {
+	responses.foreach(r => {
+	  if (r.id == id) r.addResponder(responder)
+	})	  
+  }
+  
+  def toQuestionVO():QuestionVO = {
+	val rvos = new ArrayBuffer[ResponseVO]
+    responses.foreach(response => {
+          val r = new ResponseVO(response.id, response.response, response.getResponders)
+          rvos += r
+    })
+
+    new QuestionVO(id, multiResponse, question, rvos.toArray)    
+  }
+}
+
+class Response(val id: String, val response: String) {
+
+  val responders = new ArrayBuffer[Responder]()
+  
+  def clear() {
+    responders.clear
+  }
+  def addResponder(responder: Responder) {
+	responders += responder
+  }
+  
+  def numResponders():Int = {
+    responders.length;
+  }
+  
+  def getResponders():Array[Responder] = {
+    var r = new Array[Responder](responders.length)
+    responders.copyToArray(r)
+    return r
+  }
 }

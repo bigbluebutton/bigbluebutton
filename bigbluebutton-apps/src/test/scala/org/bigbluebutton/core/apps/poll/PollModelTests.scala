@@ -2,11 +2,8 @@ package org.bigbluebutton.core.apps.poll
 
 import org.testng.annotations.BeforeClass
 import org.testng.annotations.Test
-import org.bigbluebutton.core.apps.poll.messages.PollVO
-import org.bigbluebutton.core.apps.poll.messages.ResponseVO
-import org.bigbluebutton.core.apps.poll.messages.QuestionVO
 import org.testng.annotations.BeforeMethod
-import org.bigbluebutton.core.apps.poll.messages.PollVO
+
 
 class PollModelTests {
     val r1 = new ResponseVO("0", "Answer 1")
@@ -109,7 +106,15 @@ class PollModelTests {
 	assert(model.hasPoll("pollID"), "No poll with id=pollID")
 	   
 	model.respondToQuestion("pollID", "q1", "1", new Responder("user1", "Juan Tamad"))
+	model.respondToQuestion("pollID", "q1", "0", new Responder("user2", "Asyong Aksaya"))
 	
-//	assert(model.getPoll("pollID").)
+	model.getPoll("pollID") match {
+      case Some(spvo) => {
+        assert(spvo.questions(0).responses(1).responders.length == 1, "Question has responders")
+        assert(spvo.questions(0).responses(0).responders.length == 1, "Question has responders")
+      }
+      case None => 
+    }
+	
   }
 }
