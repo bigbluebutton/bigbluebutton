@@ -8,7 +8,7 @@ import scala.collection.mutable.ArrayBuffer
 class PollApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   import org.bigbluebutton.core.apps.poll.messages._
   
-  private val polls = new HashMap[String, Poll]()
+  val model = new PollModel
 	
   def handleMessage(msg: InMessage):Unit = {
     msg match {
@@ -25,55 +25,24 @@ class PollApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   }
   
   private def handleGetPolls(msg: GetPolls) {
-    val poll = new ArrayBuffer[PollVO]
-    
-    polls.values.foreach(p => {
-      val questions = new ArrayBuffer[QuestionVO]
-      p.questions.foreach(q => {
-        val responses = new ArrayBuffer[ResponseVO]
-        q.responses.foreach(response => {
-          val r = new ResponseVO(response.id, response.response)
-          responses += r
-        })
-
-        val quest = new QuestionVO(q.id, q.multiResponse, q.question, responses.toArray)
-        questions += quest
-      })
-     
-      poll += new PollVO(p.id, p.title, questions.toArray)
-    })
-    
-    outGW.send(new GetPollsReplyOutMsg(meetingID, recorded, msg.requesterID, poll.toArray))
+    var polls = model.getPolls
+    outGW.send(new GetPollsReplyOutMsg(meetingID, recorded, msg.requesterID, polls))
   }
   
   private def handleClearPoll(msg: ClearPoll) {
-    polls.get(msg.pollID) match {
-      case None => // send poll not found message
-      case Some(p) => {
-        p.clear
-        outGW.send(new PollClearedOutMsg(meetingID, recorded, msg.pollID))
-      }
-    }
+    if (model.clearPoll(msg.pollID))  outGW.send(new PollClearedOutMsg(meetingID, recorded, msg.pollID))
   }
   
   private def handleStartPoll(msg: StartPoll) {
-    polls.get(msg.pollID) match {
-      case None => // send poll not found message
-      case Some(p) => {
-        p.activate
-        outGW.send(new PollStartedOutMsg(meetingID, recorded, msg.pollID))
-      }
-    }    
+
+    
+    outGW.send(new PollStartedOutMsg(meetingID, recorded, msg.pollID))
   }
   
   private def handleStopPoll(msg: StopPoll) {
-    polls.get(msg.pollID) match {
-      case None => // send poll not found message
-      case Some(p) => {
-        p.deactivate
-        outGW.send(new PollStoppedOutMsg(meetingID, recorded, msg.pollID))
-      }
-    }     
+  
+    
+    outGW.send(new PollStoppedOutMsg(meetingID, recorded, msg.pollID))
   }
   
   private def handleSharePoll(msg: SharePoll) {
@@ -81,13 +50,9 @@ class PollApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   }
   
   private def handleRemovePoll(msg: RemovePoll) {
-    polls.get(msg.pollID) match {
-      case None => // send poll not found message
-      case Some(p) => {
-        polls -= p.id
-        outGW.send(new PollRemovedOutMsg(meetingID, recorded, msg.pollID))
-      }
-    }     
+     
+    
+    outGW.send(new PollRemovedOutMsg(meetingID, recorded, msg.pollID))
   }
   
   private def handleDestroyPoll(msg: DestroyPoll) {
@@ -95,55 +60,12 @@ class PollApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   }
   
   private def handleUpdatePoll(msg: UpdatePoll) {
-	polls.get(msg.poll.id) match {
-      case None => // send poll not found message
-      case Some(p) => {
-	    val pollVO = msg.poll
-	    
-	    val questions = new ArrayBuffer[Question]
-	    
-	    pollVO.questions.foreach(qv => {
-	           
-	      val responses = new ArrayBuffer[Response]
-	      
-	      qv.responses.foreach(rv => {
-	    	  val response = new Response(rv.id, rv.text)
-	    	  responses += response
-	      })
-	      
-	      questions += new Question(qv.id, qv.multiResponse, qv.question, responses.toArray)
-	    })
-	        
-	    val poll = new Poll(msg.poll.id, msg.poll.title, questions.toArray)
-	    
-	    polls += poll.id -> poll    
-	    
-	    outGW.send(new PollUpdatedOutMsg(meetingID, recorded, poll.id, pollVO))
-      }
-    } 
+	if (model.updatePoll(msg.poll)) {
+		outGW.send(new PollUpdatedOutMsg(meetingID, recorded, msg.poll.id, msg.poll))	  
+	}
   }
   
   private def handleCreatePoll(msg: CreatePoll) {
-    val pollVO = msg.poll
-    
-    val questions = new ArrayBuffer[Question]
-    
-    pollVO.questions.foreach(qv => {
-           
-      val responses = new ArrayBuffer[Response]
-      
-      qv.responses.foreach(rv => {
-    	  val response = new Response(rv.id, rv.text)
-    	  responses += response
-      })
-      
-      questions += new Question(qv.id, qv.multiResponse, qv.question, responses.toArray)
-    })
-       
-    val poll = new Poll(msg.poll.id, msg.poll.title, questions.toArray)
-    
-    polls += poll.id -> poll
-    
-    outGW.send(new PollCreatedOutMsg(meetingID, recorded, poll.id, pollVO))
+	outGW.send(new PollCreatedOutMsg(meetingID, recorded, msg.poll.id, msg.poll)) 
   }
 }

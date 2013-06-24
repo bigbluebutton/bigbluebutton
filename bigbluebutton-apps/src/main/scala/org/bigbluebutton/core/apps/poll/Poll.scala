@@ -4,20 +4,32 @@ import scala.collection.mutable.HashMap
 import QuestionType._
 
 class Poll(val id: String, val title: String, val questions: Array[Question]) {						
-	private var _active: Boolean = false
+	private var started: Boolean = false
+	private var stopped: Boolean = false
 	
-	def active = _active
-	
-	def activate():Unit = {
-		_active = true;
+	def start() {
+		started = true;
 	}
 
-	def deactivate():Unit = {
-	  _active = false;
+	def stop() {
+	  stopped = true;
+	}
+	
+	def isStarted():Boolean = {
+	  return started
+	}
+	
+	def isStopped():Boolean = {
+	  return stopped
 	}
 	
 	def clear() {
+	  questions.foreach(q => {
+	    q.clear
+	  })	
 	  
+	  started = false
+	  stopped = false
 	}
 	
 	def hasResponses():Boolean = {

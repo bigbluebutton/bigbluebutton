@@ -4,6 +4,7 @@ package org.bigbluebutton.core.apps.poll.messages
 import org.bigbluebutton.core.apps.poll.QuestionType._
 import org.bigbluebutton.core.api.InMessage
 import org.bigbluebutton.core.api.IOutMessage
+import org.bigbluebutton.core.apps.poll.Responder
 
 // Poll Messages
 case class CreatePoll(meetingID: String, poll: PollVO, requesterID: String) extends InMessage
@@ -16,6 +17,10 @@ case class StopPoll(meetingID:String, pollID: String) extends InMessage
 case class StartPoll(meetingID:String, pollID: String) extends InMessage
 case class ClearPoll(meetingID: String, pollID: String, requesterID: String, force: Boolean=false) extends InMessage
 case class GetPollResult(meetingID:String, pollID: String, requesterID: String) extends InMessage
+case class RespondToPoll(meetingID: String, pollID: String, responses : Array[PollResponseVO])
+
+case class PollResponseVO(questionID: String, responses: Array[ResponderVO])
+case class ResponderVO(responseID: String, user: Responder)
 
 case class ResponseVO(id: String, text: String)
 case class QuestionVO(id: String, multiResponse: Boolean, question: String, responses: Array[ResponseVO])
