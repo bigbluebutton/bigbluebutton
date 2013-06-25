@@ -44,7 +44,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import flash.external.ExternalInterface;
       import flash.media.Sound;
       import flash.media.SoundChannel;
-      import flash.utils.Timer;
+      //import flash.utils.Timer;
       
       import flexlib.controls.tabBarClasses.SuperTab;
       import flexlib.controls.textClasses.StringBoundaries;
@@ -96,8 +96,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		private var privateWaiting:ArrayCollection = new ArrayCollection();
 		private var publicFocus:Boolean = false;
 		private var privateFocus:Boolean = false;
-		private var timerInterval:int = 10; // How many seconds you want the timer to wait between chat notifications
-		private var notificationTimer:Timer = new Timer(timerInterval * 1000);
 			
 			[Embed(source="../sounds/publicSound.mp3")] 
       private var publicSoundClass:Class;
@@ -115,12 +113,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				baseIndex = chatOptions.getBaseIndex() + 4;
 			}
 			
-			private function onCreationComplete():void{
-				// Start the timer for screen-reader-friendly chat notifications
-				notificationTimer.addEventListener(TimerEvent.TIMER, checkNotifications);
-				// Timer removed. Better method must be found for accessible notifications.
-				// notificationTimer.start();
-				
+			private function onCreationComplete():void{				
 				openChatBoxFor(PUBLIC_CHAT_USERID, true);
 		        makePublicChatUncloseable();
 		        
@@ -408,13 +401,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						}
 					}
 					
+					/* // Old logic for notifications. Replace with new method.
 					if (playSoundClip == false){
 						if (message == ""){
 						}
 						else{
 							ExternalInterface.call("addAlert", message);
 						}
-					}				
+					}
+					*/
 				}
 			}
 			
