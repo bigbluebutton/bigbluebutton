@@ -38,6 +38,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
 		import mx.collections.ArrayList;
+                import org.bigbluebutton.common.LogUtil;
+			
 		
 		static public var PADDING_HORIZONTAL:Number = 6;
 		static public var PADDING_VERTICAL:Number = 29;
@@ -81,17 +83,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			changeDefaultCamForMac();
 			if(defaultCamera != null) {
+				var indexDefault:int = 0;
 				for (var i:int = 0; i < Camera.names.length; i++){
 					if(camerasArray[i].status == OFF_STATE) {
 						var myObj:Object = {}
 						myObj.label = camerasArray[i].label;
 						myObj.index = String(i);
-						camerasAvaiable.addItem(myObj);			
+						camerasAvaiable.addItem(myObj);	
+						if(myObj.index == defaultCamera)
+							indexDefault = camerasAvaiable.length-1;		
 					}
 				}
-				cmbCameraSelector.selectedIndex = int(defaultCamera);
+				cmbCameraSelector.selectedIndex = indexDefault;
 				defaultCamera = null;
 			}
+			else
+				cmbCameraSelector.selectedIndex = 0;
 
 			
 			
@@ -131,7 +138,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		private function updateCamera():void {
 			
 			_camera = null;
-			_camera = Camera.getCamera(String(cmbCameraSelector.selectedIndex)); 
+			_camera = Camera.getCamera(camerasAvaiable.getItemAt(cmbCameraSelector.selectedIndex).index); 
 			
 			if (_camera == null) {
 				_videoHolder.showWarning('bbb.video.publish.hint.cantOpenCamera');

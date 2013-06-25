@@ -206,7 +206,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					return;
 				}
 				
-        _camera = Camera.getCamera();
+        _camera = Camera.getCamera(String(camIndex));
 				if (_camera == null) {
 					showWarning('bbb.video.publish.hint.cantOpenCamera');
 					return;
