@@ -10,10 +10,9 @@ import org.bigbluebutton.core.api.InMessage
 import org.bigbluebutton.core.api.InitializeMeeting
 import org.bigbluebutton.core.api.DestroyMeeting
 import org.bigbluebutton.core.api.KeepAliveMessage
-import org.bigbluebutton.core.api.KeepAliveMessageReply
-
 import org.red5.logging.Red5LoggerFactory
 import org.slf4j.Logger
+import org.bigbluebutton.core.api.KeepAliveMessageReply
 
 class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
   private var log = Red5LoggerFactory.getLogger(classOf[BigBlueButtonActor], "bigbluebutton")
@@ -34,7 +33,6 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
   }
   
   private def handleMeetingMessage(msg: InMessage):Unit = {
-    println("receiving:" + msg)
     meetings.get(msg.meetingID) match {
       case None => // do nothing
       case Some(m) => m ! msg
@@ -42,7 +40,6 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
   }
 
   private def handleKeepAliveMessage(msg: KeepAliveMessage):Unit = {
-    println("receiving keep alive message")
     outGW.send(new KeepAliveMessageReply(msg.aliveID))
   }
   

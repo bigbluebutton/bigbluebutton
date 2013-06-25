@@ -31,6 +31,7 @@ public interface IBigBlueButtonInGW {
 	void getSlideInfo(String meetingID, String requesterID);
 	
 	// Polling
+	void getPolls(String meetingID, String requesterID);
 	void createPoll(String meetingID, String requesterID, String msg);
 	void updatePoll(String meetingID, String requesterID, String msg);	
 	void startPoll(String meetingID, String requesterID, String msg);

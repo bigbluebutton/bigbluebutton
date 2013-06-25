@@ -38,6 +38,21 @@ package org.bigbluebutton.modules.polling.service
 	{	
     private static const LOG:String = "Poll::MessageSender - ";
     
+    public function getPolls():void
+    {     
+      trace(LOG + "getPolls ");
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("poll.getPolls", 
+        function(result:String):void { 
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void {
+          LogUtil.error(status); 
+        }
+      );      
+    }
+    
     public function createPoll(poll:CreatePollVO):void
     {
       var jsonMsg:String = JSON.stringify(poll.toMap());

@@ -32,8 +32,7 @@ package org.bigbluebutton.modules.polling.service
     private static const LOG:String = "Poll::MessageReceiver - ";
     
     /* Injected by Mate */
-    public var model:PollingModel;
-    public var dispatcher:Dispatcher;
+    public var processor:PollDataProcessor;
     
     public function MessageReceiver() {
       BBB.initConnectionManager().addMessageListener(this);
@@ -43,81 +42,31 @@ package org.bigbluebutton.modules.polling.service
       trace(LOG + "received message " + messageName);
 
       switch (messageName) {
+        case "pollGetPollsReply":
+          processor.handleGetPollsReply(message);
+          break;
         case "pollCreatedMessage":
-          handlePollCreatedMesage(message);
+          processor.handlePollCreatedMesage(message);
           break;			
         case "pollUpdatedMessage":
-          handlePollCreatedMesage(message);
+          processor.handlePollCreatedMesage(message);
           break;
         case "pollDestroyedMessage":
-          handlePollCreatedMesage(message);
+          processor.handlePollDestroyedMesage(message);
           break;
         case "pollStartedMessage":
-          handlePollStartedMesage(message);
+          processor.handlePollStartedMesage(message);
           break;
         case "pollStoppedMessage":
-          handlePollStoppedMesage(message);
+          processor.handlePollStoppedMesage(message);
           break;
         case "pollResultUpdatedMessage":
-          handlePollResultUpdatedMesage(message);
+          processor.handlePollResultUpdatedMesage(message);
           break;
       }
     }
 
-    private function handlePollResultUpdatedMesage(msg:Object):void {
-      var pollResult:Object = JSON.parse(msg.mesage);
-      
-      if (! model.hasPoll(pollResult.id)) {
-        
-        model.updateResults(pollResult.id, msg.results);
-        dispatcher.dispatchEvent(new PollEvent(PollEvent.POLL_RESULTS_UPDATED, msg.id));
-      }
-    }
-    
-    private function handlePollCreatedMesage(msg:Object):void {
-      if (! model.hasPoll(msg.id)) {
-        var id:String = msg.id;
-        var title:String = msg.title;
-        var poll:Poll = new Poll(msg.id, msg.title, msg.questions);
-        model.createPoll(poll);
-        
-        dispatcher.dispatchEvent(new PollEvent(PollEvent.POLL_CREATED, poll.id));        
-      }
-    }
-    
-    private function handlePollUpdatedMesage(msg:Object):void {
-      if (model.hasPoll(msg.id)) {
-        var id:String = msg.id;
-        var title:String = msg.title;
-        var poll:Poll = new Poll(msg.id, msg.title, msg.questions);
-        model.updatePoll(poll);
-        
-        dispatcher.dispatchEvent(new PollEvent(PollEvent.POLL_UPDATED, poll.id));        
-      }
-    }    
 
-    private function handlePollDestroyedMesage(msg:Object):void {
-      if (model.hasPoll(msg.id)) {
-        model.destroyPoll(msg.id);
-        
-        dispatcher.dispatchEvent(new PollEvent(PollEvent.POLL_DESTROYED, msg.id));        
-      }
-    } 
-    
-    private function handlePollStartedMesage(msg:Object):void {
-      if (model.hasPoll(msg.id)) {
-        model.startPoll(msg.id);
-        
-        dispatcher.dispatchEvent(new PollEvent(PollEvent.POLL_STARTED, msg.id));        
-      }
-    }
-    
-    private function handlePollStoppedMesage(msg:Object):void {
-      if (model.hasPoll(msg.id)) {
-        model.stopPoll(msg.id);
-        
-        dispatcher.dispatchEvent(new PollEvent(PollEvent.POLL_STOPPED, msg.id));        
-      }
-    }
+   
   }
 }

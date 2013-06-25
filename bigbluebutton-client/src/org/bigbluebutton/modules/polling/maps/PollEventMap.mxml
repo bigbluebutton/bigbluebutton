@@ -31,7 +31,10 @@
       import org.bigbluebutton.modules.polling.model.PollingModel;
       import org.bigbluebutton.modules.polling.service.MessageReceiver;
       import org.bigbluebutton.modules.polling.service.MessageSender;
+      import org.bigbluebutton.modules.polling.service.NetworkPollDataService;
+      import org.bigbluebutton.modules.polling.service.PollDataProcessor;
       import org.bigbluebutton.modules.polling.service.PollingService;
+      import org.bigbluebutton.modules.polling.service.ShortCircuitPollDataService;
 			
 				]]>
 				
@@ -67,6 +70,10 @@
   <EventHandlers type="{RespondEvent.RESPOND_EVENT}">
     <MethodInvoker generator="{PollingService}" method="handleRespondPollEvent" arguments="{event}"/>
   </EventHandlers>
+
+  <EventHandlers type="{GetPollsEvent.GET_POLLS}">
+    <MethodInvoker generator="{PollingService}" method="handleGetPollsEvent" arguments="{event}"/>
+  </EventHandlers>
   
   <Injectors target="{PollManager}">
     <ObjectBuilder generator="{PollingModel}" cache="global"/>
@@ -74,14 +81,27 @@
   </Injectors>	
 
   <Injectors target="{PollingService}">
+    <ObjectBuilder generator="{PollDataProcessor}" cache="global"/>
+    <PropertyInjector targetKey="dataService" source="{ShortCircuitPollDataService}"/>
+  </Injectors>
+
+  <Injectors target="{NetworkPollDataService}">
     <PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
     <PropertyInjector targetKey="sender" source="{MessageSender}"/>
   </Injectors>
+  
+  <Injectors target="{ShortCircuitPollDataService}">
+    <PropertyInjector targetKey="processor" source="{PollDataProcessor}"/>
+  </Injectors>	
 
-  <Injectors target="{MessageReceiver}">
-    <ObjectBuilder generator="{PollingModel}" cache="global"/>
+  <Injectors target="{PollDataProcessor}">
     <PropertyInjector targetKey="model" source="{PollingModel}"/>
     <PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
-  </Injectors>	
+  </Injectors>
   
+  <Injectors target="{MessageReceiver}">
+    <PropertyInjector targetKey="processor" source="{PollDataProcessor}"/>
+  </Injectors>
+  
+  <Debugger level="{Debugger.ALL}" />
 </EventMap>

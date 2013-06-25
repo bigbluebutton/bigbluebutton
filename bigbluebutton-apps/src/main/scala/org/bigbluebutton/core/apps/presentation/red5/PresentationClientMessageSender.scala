@@ -120,7 +120,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
   private def handleResizeAndMoveSlideOutMsg(msg: ResizeAndMoveSlideOutMsg) {
 		val args = new java.util.HashMap[String, Object]();
 		args.put("xOffset", msg.xOffset:java.lang.Double);
-		args.put("yOffest", msg.yOffset:java.lang.Double);
+		args.put("yOffset", msg.yOffset:java.lang.Double);
 		args.put("widthRatio", msg.widthRatio:java.lang.Double);
 		args.put("heightRatio", msg.heightRatio:java.lang.Double);
 		

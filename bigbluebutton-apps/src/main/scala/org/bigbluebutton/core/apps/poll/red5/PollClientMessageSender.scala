@@ -11,6 +11,8 @@ import org.bigbluebutton.core.apps.poll.messages.PollRemovedOutMsg
 import org.bigbluebutton.core.apps.poll.messages.PollUpdatedOutMsg
 import org.bigbluebutton.core.apps.poll.messages.PollCreatedOutMsg
 import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage
+import com.google.gson.Gson
+import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage
 
 class PollClientMessageSender(service: ConnectionInvokerService) extends OutMessageListener2 {
 
@@ -28,13 +30,12 @@ class PollClientMessageSender(service: ConnectionInvokerService) extends OutMess
   	}
   	
   	private def handleGetPollsReplyOutMsg(msg: GetPollsReplyOutMsg) {
-  	  val message = new java.util.HashMap[String, Object]();
+  	  val gson = new Gson();
+  	  val message = new java.util.HashMap[String, Object]()
+	  message.put("msg", gson.toJson(msg.polls))
   	  
-  	  message.put("polls", msg.polls)
-  	  
-  	  var m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getPollsReply", message);
-  	  service.sendMessage(m);	
-  	  
+  	  var m = new DirectClientMessage(msg.meetingID, msg.requesterID, "pollGetPollsReply", message);
+  	  service.sendMessage(m);		  
   	}
   	
   	private def handlePollClearedOutMsg(msg: PollClearedOutMsg) {
@@ -43,21 +44,52 @@ class PollClientMessageSender(service: ConnectionInvokerService) extends OutMess
   	
   	private def handlePollStartedOutMsg(msg: PollStartedOutMsg) {
   	  println("PollClientMessageSender - Handling PollStartedOutMsg")
+  	  val gson = new Gson();
+  	  val message = new java.util.HashMap[String, Object]()
+	  message.put("msg", gson.toJson(msg.pollID))
+
+	  var m = new BroadcastClientMessage(msg.meetingID, "pollStartedMessage", message);
+	  service.sendMessage(m);
   	}
   	
   	private def handlePollStoppedOutMsg(msg: PollStoppedOutMsg) {
   	  println("PollClientMessageSender - Handling PollStoppedOutMsg")
+  	  val gson = new Gson();
+  	  val message = new java.util.HashMap[String, Object]()
+	  message.put("msg", gson.toJson(msg.pollID))
+
+	  var m = new BroadcastClientMessage(msg.meetingID, "pollStoppedMessage", message);
+	  service.sendMessage(m);
   	}
   	
   	private def handlePollRemovedOutMsg(msg: PollRemovedOutMsg) {
   	  println("PollClientMessageSender - Handling PollRemovedOutMsg")
+  	  val gson = new Gson();
+  	  val message = new java.util.HashMap[String, Object]()
+	  message.put("msg", gson.toJson(msg.pollID))
+
+	  var m = new BroadcastClientMessage(msg.meetingID, "pollDestroyedMessage", message);
+	  service.sendMessage(m);
   	}
   	
   	private def handlePollUpdatedOutMsg(msg: PollUpdatedOutMsg) {
   	  println("PollClientMessageSender - Handling PollUpdatedOutMsg")
+  	  val gson= new Gson();
+  	  val message = new java.util.HashMap[String, Object]()
+	  message.put("msg", gson.toJson(msg.pollVO))
+
+	  var m = new BroadcastClientMessage(msg.meetingID, "pollUpdatedMessage", message);
+	  service.sendMessage(m);
   	}
   	
   	private def handlePollCreatedOutMsg(msg: PollCreatedOutMsg) {
   	  println("PollClientMessageSender - Handling PollCreatedOutMsg")
+  	  val gson= new Gson();
+  	  
+	  val message = new java.util.HashMap[String, Object]()
+	  message.put("msg", gson.toJson(msg.pollVO))
+
+	  var m = new BroadcastClientMessage(msg.meetingID, "pollCreatedMessage", message);
+	  service.sendMessage(m);	  
   	}
 }

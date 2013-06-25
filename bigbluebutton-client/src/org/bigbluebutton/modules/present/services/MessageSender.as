@@ -24,6 +24,9 @@ package org.bigbluebutton.modules.present.services
   import org.bigbluebutton.main.model.users.IMessageListener;
   
   public class MessageSender {
+    
+    private static const LOG:String = "Present::MessageReceiver - ";
+    
     /**
      * Send an event to the server to update the presenter's cursor view on the client 
      * @param xPercent
@@ -54,6 +57,8 @@ package org.bigbluebutton.modules.present.services
      * 
      */		
     public function move(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
+      trace(LOG + "move [" + xOffset + "," +  yOffset + "][" +  widthRatio + "," + heightRatio + "]");
+      
       var message:Object = new Object();
       message["xOffset"] = xOffset;
       message["yOffset"] = yOffset;
