@@ -33,6 +33,7 @@ import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.messaging.MessageListener;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask;
+import org.bigbluebutton.web.services.KeepAliveService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +50,7 @@ public class MeetingService {
 	private MessagingService messagingService;
 	private ExpiredMeetingCleanupTimerTask cleaner;
 	private boolean removeMeetingWhenEnded = false;
+	private KeepAliveService keepAliveService;
 	
 	public MeetingService() {
 		meetings = new ConcurrentHashMap<String, Meeting>();	
@@ -279,6 +281,10 @@ public class MeetingService {
 		cleaner.setMeetingService(this);
 		cleaner.start();
 	}
+
+	public void setKeepAliveService(KeepAliveService keepAlive){
+		this.keepAliveService = keepAlive;
+	}
 	
 	/**
 	 * Class that listens for messages from bbb-apps.
@@ -357,8 +363,8 @@ public class MeetingService {
 		}
 
 		@Override
-		public void keepAliveReply(){
-			
+		public void keepAliveReply(String aliveId){
+			keepAliveService.keepAliveReply(aliveId);
 		}
 	}
 	

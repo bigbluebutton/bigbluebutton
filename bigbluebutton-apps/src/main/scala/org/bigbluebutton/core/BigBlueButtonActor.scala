@@ -26,7 +26,7 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
 		react {
 	      case createMeeting: CreateMeeting => handleCreateMeeting(createMeeting)
 	      case destroyMeeting: DestroyMeeting => handleDestroyMeeting(destroyMeeting)
-	      case KeepAliveMessage => handleKeepAliveMessage()
+	      case keepAliveMessage: KeepAliveMessage => handleKeepAliveMessage(keepAliveMessage)
 	      case msg:InMessage => handleMeetingMessage(msg)
 	      case _ => // do nothing
 	    }
@@ -41,9 +41,9 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
     }
   }
 
-  private def handleKeepAliveMessage():Unit = {
+  private def handleKeepAliveMessage(msg: KeepAliveMessage):Unit = {
     println("receiving keep alive message")
-    outGW.send(new KeepAliveMessageReply())
+    outGW.send(new KeepAliveMessageReply(msg.aliveID))
   }
   
   private def handleDestroyMeeting(msg: DestroyMeeting) {

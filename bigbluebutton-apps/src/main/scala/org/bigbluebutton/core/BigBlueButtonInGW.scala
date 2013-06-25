@@ -43,8 +43,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
     bbbGW.accept(new DestroyMeeting(meetingID))
   }
   
-  def isAliveAudit() {
-    bbbGW.acceptKeepAlive; 
+  def isAliveAudit(aliveId:String) {
+    bbbGW.acceptKeepAlive(new KeepAliveMessage(aliveId)); 
   }
 
   def statusMeetingAudit(meetingID: String) {

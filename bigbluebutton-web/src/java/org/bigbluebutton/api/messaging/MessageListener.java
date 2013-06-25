@@ -25,5 +25,5 @@ public interface MessageListener {
 	void userJoined(String meetingId, String internalUserId, String externalUserId, String name, String role);
 	void userLeft(String meetingId, String internalUserId);
 	void updatedStatus(String meetingId, String internalUserId, String status, String value);
-	void keepAliveReply();
+	void keepAliveReply(String aliveId);
 }

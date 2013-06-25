@@ -218,6 +218,7 @@ public class RedisMessagingService implements MessagingService {
 			
 			if(channel.equalsIgnoreCase(MessagingConstants.SYSTEM_CHANNEL)){
 				String messageId = map.get("messageId");
+				log.debug("*** Message {}", messageId);
 
 				for (MessageListener listener : listeners) {
 					if(MessagingConstants.MEETING_STARTED_EVENT.equalsIgnoreCase(messageId)) {
@@ -227,7 +228,8 @@ public class RedisMessagingService implements MessagingService {
 						String meetingId = map.get("meetingId");
 						listener.meetingEnded(meetingId);
 					} else if(MessagingConstants.KEEP_ALIVE_REPLY_EVENT.equalsIgnoreCase(messageId)){
-						listener.keepAliveReply();
+						String aliveId = map.get("aliveId");
+						listener.keepAliveReply(aliveId);
 					}
 				}
 			}

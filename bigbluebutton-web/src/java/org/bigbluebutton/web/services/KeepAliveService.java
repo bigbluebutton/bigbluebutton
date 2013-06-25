@@ -31,16 +31,12 @@ import com.google.gson.Gson;
 
 public class KeepAliveService {
 
-	private final String KEEP_ALIVE_MESSAGE = "KEEP_ALIVE_MESSAGE";
+	private final String KEEP_ALIVE_REQUEST = "KEEP_ALIVE_REQUEST";
 	private MessagingService service;
 	private Timer cleanupTimer;
-	private long runEvery = 5000;
+	private long runEvery = 10000;
 	private int maxLives = 5;
 	private KeepAliveTask task = null;
-
-	/*public void setMeetingService(MeetingService svc) {
-		this.service = svc;
-	}*/
 	
 	public void start() {
 		cleanupTimer = new Timer("keep-alive-task", true);
@@ -52,6 +48,10 @@ public class KeepAliveService {
 	public void setRunEvery(long v) {
 		runEvery = v;
 	}
+
+	public void setMessagingService(MessagingService service){
+		this.service = service;
+	}
 	
 	class KeepAliveTask extends TimerTask {
 
@@ -62,33 +62,47 @@ public class KeepAliveService {
 		}
 
         public void run() {
-        	String aliveId = Long.toString(System.currentTimeMillis());
+        	if(liveMsgs.size() < maxLives){
+        		String aliveId = Long.toString(System.currentTimeMillis());
 
-        	HashMap<String,String> map = new HashMap<String,String>();
-        	map.put("messageId", KEEP_ALIVE_MESSAGE);
-        	map.put("aliveId", aliveId);
+	        	HashMap<String,String> map = new HashMap<String,String>();
+	        	map.put("messageId", KEEP_ALIVE_REQUEST);
+	        	map.put("aliveId", aliveId);
 
-        	Gson gson = new Gson();
+	        	Gson gson = new Gson();
 
-        	service.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
+	        	liveMsgs.add(aliveId);
+	        	service.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
+        	}else{
+        		System.out.println("bbb-apps is down");
+        	}
 
-        	liveMsgs.add(aliveId);
+        	
         }
 
         public void checkAliveId(String id){
         	int count = 0;
-        	while(count < liveMsgs.size()){
-        		if(liveMsgs.get(count) == id)
+        	boolean found = false;
+
+        	while(count < liveMsgs.size() || !found){
+        		if(liveMsgs.get(count).equals(id)){
         			liveMsgs.remove(count);
+        			found = true;
+        		}
         		count++;
+        	}
+        	if(!found){
+        		System.out.println("AliveID was not found:" + id);
         	}
         }
 
 
     }
 
-    public void handleMessage(String aliveId){
+    public void keepAliveReply(String aliveId){
+    	System.out.println("Message received: " + aliveId);
     	if(task != null){
+    		System.out.println("let's check aliveId:" + aliveId);
     		task.checkAliveId(aliveId);		
     	}
     }
