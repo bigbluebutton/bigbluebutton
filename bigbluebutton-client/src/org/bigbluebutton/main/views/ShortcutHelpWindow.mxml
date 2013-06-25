@@ -166,13 +166,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					// Special cases where the keycodes don't render a sensible character
 					switch (key) {
 						case 32 :
-							convKey = "Space";
+							convKey = ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.space');
 						  	break;
+						case 37 :
+							convKey = ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.left');
+							break;
+						case 38 :
+							convKey = ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.up');
+							break;
+						case 39 :
+							convKey = ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.right');
+							break;
+						case 40 :
+							convKey = ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.down');
+							break;
 						case 189 :
-						  	convKey = "Minus";
+							convKey = ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.minus');
 						  	break;
 						case 187 :
-						  	convKey = "Plus";
+							convKey = ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.plus');
 						  	break;
 						default:
 							convKey = String.fromCharCode(key);
@@ -181,7 +193,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					
 					if (keyCombo == "----"){
 						keyList.addItem({shortcut:(ResourceUtil.getInstance().getString(resource[i] + '.function')), func:""});
-					} else{
+					//} else if (convKey == "Left" || convKey == "Up" || convKey == "Right" || convKey == "Down"){
+					} else if (convKey == ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.left') 
+								|| convKey == ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.up') 
+								|| convKey == ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.right') 
+								|| convKey == ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.down')){
+						keyList.addItem({shortcut:convKey, func:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
+					}
+					else{
 						keyList.addItem({shortcut:mod + convKey, func:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
 					}
 				}
