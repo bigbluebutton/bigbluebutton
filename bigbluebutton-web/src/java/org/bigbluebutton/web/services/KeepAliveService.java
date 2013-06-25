@@ -46,7 +46,7 @@ public class KeepAliveService {
 	}
 	
 	public void setRunEvery(long v) {
-		runEvery = v;
+		runEvery = v * 1000;
 	}
 
 	public void setMessagingService(MessagingService service){
@@ -56,6 +56,7 @@ public class KeepAliveService {
 	class KeepAliveTask extends TimerTask {
 
 		ArrayList liveMsgs;
+		boolean available = true;
 
 		KeepAliveTask(){
 			liveMsgs = new ArrayList();
@@ -74,6 +75,7 @@ public class KeepAliveService {
 	        	liveMsgs.add(aliveId);
 	        	service.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
         	}else{
+        		available = false;
         		System.out.println("bbb-apps is down");
         	}
 
@@ -96,6 +98,10 @@ public class KeepAliveService {
         	}
         }
 
+        public boolean isDown(){
+        	return !available;
+        }
+
 
     }
 
@@ -105,5 +111,9 @@ public class KeepAliveService {
     		System.out.println("let's check aliveId:" + aliveId);
     		task.checkAliveId(aliveId);		
     	}
+    }
+
+    public boolean isDown(){
+    	return task.isDown();
     }
 }

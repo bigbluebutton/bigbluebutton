@@ -70,6 +70,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <bean id="expiredMeetingCleanupTimerTask" class="org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask"/>
 
   <bean id="keepAliveService" class="org.bigbluebutton.web.services.KeepAliveService" init-method="start">
+    <property name="runEvery" value="${checkBBBServerEvery}"/>
     <property name="messagingService" ref="messagingService" />
   </bean>
   		

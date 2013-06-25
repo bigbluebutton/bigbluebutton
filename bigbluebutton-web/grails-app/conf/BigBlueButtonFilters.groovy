@@ -19,11 +19,20 @@
 
 class BigBlueButtonFilters {
 
+	def keepAliveService
+
   def filters = {
     corsFilter(uri:'/presentation/upload') {
   	  before = {
   	  	response.setHeader("Access-Control-Allow-Origin", "${grailsApplication.config.accessControlAllowOrigin}")
   	  }
+  	}
+  	serviceUnavailable(controller:'api',action:'(create|join|isMeetingRunning|end|getMeetingInfo|getMeetings|enter|signOut)') {
+  		before = {
+        System.out.println("enter filter")
+  			if(keepAliveService.isDown())
+  				response.sendError(503, "BigBlueButton")
+  		}
   	}
   }
 }
