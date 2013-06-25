@@ -35,35 +35,39 @@ public class PollService {
 		bbbInGW = inGW;
 	}
 	
+	public void getPolls() {
+		bbbInGW.getPolls(getMeetingID(), getRequesterID());
+	}
+	
 	public void createPoll(String msg){
 		System.out.println("*** PollService:: create poll \n" + msg + "\n");
 		
-		bbbInGW.createPoll(getMeetingID(), getRequestedID(), msg);
+		bbbInGW.createPoll(getMeetingID(), getRequesterID(), msg);
 	}
 
 	public void updatePoll(String msg){
 		System.out.println("*** PollService:: update poll \n" + msg + "\n");
-		bbbInGW.updatePoll(getMeetingID(), getRequestedID(), msg);
+		bbbInGW.updatePoll(getMeetingID(), getRequesterID(), msg);
 	}
 	
 	public void startPoll(String msg){
 		System.out.println("*** PollService:: start poll \n" + msg + "\n");
-		bbbInGW.startPoll(getMeetingID(), getRequestedID(), msg);
+		bbbInGW.startPoll(getMeetingID(), getRequesterID(), msg);
 	}
 	
 	public void stopPoll(String msg){
 		System.out.println("*** PollService:: stop poll \n" + msg + "\n");
-		bbbInGW.stopPoll(getMeetingID(), getRequestedID(), msg);
+		bbbInGW.stopPoll(getMeetingID(), getRequesterID(), msg);
 	}
 	
 	public void removePoll(String msg){
 		System.out.println("*** PollService:: remove poll \n" + msg + "\n");
-		bbbInGW.removePoll(getMeetingID(), getRequestedID(), msg);
+		bbbInGW.removePoll(getMeetingID(), getRequesterID(), msg);
 	}
 	
 	public void respondPoll(String msg){
 		System.out.println("*** PollService:: respond poll \n" + msg + "\n");
-		bbbInGW.respondPoll(getMeetingID(), getRequestedID(), msg);
+		bbbInGW.respondPoll(getMeetingID(), getRequesterID(), msg);
 	}
 	
 	private String getMeetingID() {
@@ -71,7 +75,7 @@ public class PollService {
 		return scope.getName();
 	}
 	
-	private String getRequestedID() {
+	private String getRequesterID() {
 		return getBbbSession().getInternalUserID();
 	}
 	

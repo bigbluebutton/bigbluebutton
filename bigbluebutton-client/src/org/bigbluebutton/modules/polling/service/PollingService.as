@@ -37,6 +37,7 @@ package org.bigbluebutton.modules.polling.service
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.modules.polling.events.CreatePollEvent;
 	import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
+	import org.bigbluebutton.modules.polling.events.GetPollsEvent;
 	import org.bigbluebutton.modules.polling.events.PollEvent;
 	import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
 	import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
@@ -62,7 +63,10 @@ package org.bigbluebutton.modules.polling.service
 
 		}
 		
-
+    public function handleGetPollsEvent(event:GetPollsEvent):void {
+      sender.getPolls();
+    }
+    
 		public function handleCreatePollEvent(event:CreatePollEvent):void {
       sender.createPoll(event.poll);
 		}

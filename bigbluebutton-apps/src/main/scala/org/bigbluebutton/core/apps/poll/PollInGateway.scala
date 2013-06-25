@@ -7,10 +7,15 @@ import org.bigbluebutton.core.apps.poll.messages.UpdatePoll
 import org.bigbluebutton.core.apps.poll.messages.StartPoll
 import org.bigbluebutton.core.apps.poll.messages.StopPoll
 import org.bigbluebutton.core.apps.poll.messages.RemovePoll
+import org.bigbluebutton.core.apps.poll.messages.GetPolls
 
 class PollInGateway(bbbGW: BigBlueButtonGateway) {
 
   val msgConverter = new PollMessageConverter
+  
+  def createPoll(meetingID: String, requesterID: String) {
+    bbbGW.accept(new GetPolls(meetingID, requesterID))
+  }
   
   def createPoll(meetingID: String, requesterID: String, msg: String) {
 	val pvo = msgConverter.convertCreatePollMessage(msg)

@@ -52,6 +52,7 @@ Notes.mxml is the main view of the SharedNotes application
       import org.bigbluebutton.main.views.MainCanvas;
       import org.bigbluebutton.modules.polling.events.CreatePollEvent;
       import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
+      import org.bigbluebutton.modules.polling.events.GetPollsEvent;
       import org.bigbluebutton.modules.polling.events.PollEvent;
       import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
       import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
@@ -200,6 +201,10 @@ Notes.mxml is the main view of the SharedNotes application
         dispatchEvent(new PollEvent(PollEvent.REMOVE_POLL, "pollID"));
       }
 
+      private function getPollsTest():void {
+        dispatchEvent(new GetPollsEvent());
+      }
+      
       private function respondToPollTest():void {
         var r:PollResponseVO = new PollResponseVO("pollID");
         r.addResponse(new QuestionResponseVO("0", ["0", "1"]));
@@ -257,8 +262,8 @@ Notes.mxml is the main view of the SharedNotes application
                  label="remove" />
       <mx:Button id="respondBtn" click="respondToPollTest()" width="100" height="30" visible="true" tabIndex="{baseIndex+5}"
                  label="Respond" />
-      <mx:Button id="back" click="createPoll()" width="100" height="30" visible="true" tabIndex="{baseIndex+5}"
-                 label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.modify')}" />
+      <mx:Button id="back" click="getPollsTest()" width="100" height="30" visible="true" tabIndex="{baseIndex+5}"
+                 label="Get Polls" />
       <mx:Button id="Cancel" click="closeInstructionsWindow()" width="100" height="30" tabIndex="{baseIndex+5}"
                  label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.cancel')}" />
     </mx:ControlBar>    
