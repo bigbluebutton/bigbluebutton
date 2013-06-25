@@ -27,12 +27,10 @@ public class ConversionUpdatesProcessor {
 	private PresentationApplication presentationApplication;
 	
 	public void process(Map<String, Object> message) {
-		log.debug("Received conversion message from REDIS");
 		presentationApplication.sendUpdateMessage(message);
 	}
 	
 	public void setPresentationApplication(PresentationApplication a) {
-		log.debug("Setting presentation application");
 		presentationApplication = a;
 	}	
 }

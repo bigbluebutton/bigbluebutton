@@ -55,7 +55,6 @@ public class PresentationService {
 	public void gotoSlide(Map<String, Object> msg) {
 		Integer slideNum = (Integer) msg.get("pageNumber");
 		
-		log.debug("Request to go to slide " + slideNum);
 		IScope scope = Red5.getConnectionLocal().getScope();
 		presentationApplication.gotoSlide(scope.getName(), slideNum);
 	}
@@ -70,7 +69,25 @@ public class PresentationService {
 	
 	public void sendCursorUpdate(Map<String, Object> msg) {
 		IScope scope = Red5.getConnectionLocal().getScope();
-		presentationApplication.sendCursorUpdate(scope.getName(), (Double) msg.get("xPercent"), (Double) msg.get("yPercent"));
+		
+		Double xPercent;
+		if (msg.get("xPercent") instanceof Integer) {
+			Integer tempXOffset = (Integer) msg.get("xPercent");
+			xPercent = tempXOffset.doubleValue();
+		} else {
+			xPercent = (Double) msg.get("xPercent");
+		}
+
+		Double yPercent;
+		
+		if (msg.get("yPercent") instanceof Integer) {
+			Integer tempYOffset = (Integer) msg.get("yPercent");
+			yPercent = tempYOffset.doubleValue();
+		} else {
+			yPercent = (Double) msg.get("yPercent");
+		}
+		
+		presentationApplication.sendCursorUpdate(scope.getName(), xPercent, yPercent);
 	}
 	
 	public void resizeAndMoveSlide(Map<String, Object> msg) {
@@ -108,13 +125,11 @@ public class PresentationService {
 			heightRatio = (Double) msg.get("heightRatio");
 		}
 		
-		log.debug("Request to resize and move slide[" + xOffset + "," + yOffset + "," + widthRatio + "," + heightRatio);
 		IScope scope = Red5.getConnectionLocal().getScope();
 		presentationApplication.resizeAndMoveSlide(scope.getName(), xOffset, yOffset, widthRatio, heightRatio);
 	}
 
 	public void setPresentationApplication(PresentationApplication a) {
-		log.debug("Setting Presentation Applications");
 		presentationApplication = a;
 	}
 	

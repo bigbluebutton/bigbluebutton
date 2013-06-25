@@ -126,6 +126,7 @@ package org.bigbluebutton.modules.present.services
     }
     
     private function handleMoveCallback(msg:Object):void{
+      trace(LOG + "handleMoveCallback [" + msg.xOffset + "," +  msg.yOffset + "][" +  msg.widthRatio + "," + msg.heightRatio + "]");
       var e:MoveEvent = new MoveEvent(MoveEvent.MOVE);
       e.xOffset = msg.xOffset;
       e.yOffset = msg.yOffset;
