@@ -35,6 +35,33 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
     }
   }
   
+  def isUserModerator(userID: String):Boolean = {
+    var moderator = false
+    
+	users.get(userID) match {
+	  case Some(u) => {
+		  moderator = (u.role == Role.MODERATOR)
+	  }
+	  case None => 	moderator = false
+	}    
+    
+    moderator
+  }
+  
+  def isUserPresenter(userID: String):Boolean = {
+    var presenter = false
+    
+	users.get(userID) match {
+	  case Some(u) => {
+		 presenter = u.isPresenter
+	  }
+	  case None => presenter = false
+
+	}
+    
+    presenter
+  }
+  
   def getCurrentPresenter():Presenter = {
     currentPresenter
   }

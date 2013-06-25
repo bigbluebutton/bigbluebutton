@@ -19,12 +19,15 @@
 
 package org.bigbluebutton.modules.polling.managers
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.FocusEvent;
 	import flash.events.TimerEvent;
-	import flash.utils.Timer;	
+	import flash.utils.Timer;
+	
 	import mx.collections.ArrayCollection;
-	import mx.managers.IFocusManager;	
+	import mx.managers.IFocusManager;
+	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
@@ -42,6 +45,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.model.PollObject;
 	import org.bigbluebutton.modules.polling.service.PollingService;
 	import org.bigbluebutton.modules.polling.views.CreatePollWindow;
+	import org.bigbluebutton.modules.polling.views.PollCreateWindow;
 	import org.bigbluebutton.modules.polling.views.PollingInstructionsWindow;
 	import org.bigbluebutton.modules.polling.views.PollingStatsWindow;
 	import org.bigbluebutton.modules.polling.views.PollingViewWindow;
@@ -51,6 +55,7 @@ package org.bigbluebutton.modules.polling.managers
 		private var pollingWindow:PollingViewWindow;
 		private var statsWindow:PollingStatsWindow;
 		private var instructionsWindow:CreatePollWindow;
+    private var testCreateWindow:PollCreateWindow;
 		private var service:PollingService;
 		private var isViewing:Boolean = false;
 		private var globalDispatcher:Dispatcher;
@@ -72,11 +77,13 @@ package org.bigbluebutton.modules.polling.managers
 				
 		public function handleOpenPollingInstructionsWindow(e:PollingInstructionsWindowEvent):void{
 			instructionsWindow = new CreatePollWindow();
+      testCreateWindow = new PollCreateWindow();
+      
 			// Use the PollGetTitlesEvent to fetch a list of already-used titles
 			var getTitlesEvent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.CHECK);
 			globalDispatcher.dispatchEvent(getTitlesEvent);
 			openWindow(instructionsWindow);
-			
+      openWindow(testCreateWindow);
 			instructionsFocusTimer.addEventListener(TimerEvent.TIMER, moveInstructionsFocus);
 			instructionsFocusTimer.start();
 		}
@@ -112,7 +119,7 @@ package org.bigbluebutton.modules.polling.managers
 		  }
 		  
 		  public function handleCheckTitlesInInstructions(e:PollGetTitlesEvent):void{
-			  instructionsWindow.invalidTitles = e.titleList;
+//			  instructionsWindow.invalidTitles = e.titleList;
 		  }
 		  
 		  public function handleReturnWebKeyEvent(e:GenerateWebKeyEvent):void

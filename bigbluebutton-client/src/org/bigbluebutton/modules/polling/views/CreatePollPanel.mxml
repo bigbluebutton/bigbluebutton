@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml">
+  <mx:Script>
+    <![CDATA[
+      import org.bigbluebutton.modules.polling.events.CreatePollEvent;
+      import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
+      import org.bigbluebutton.modules.polling.vo.CreatePollVO;
+      import org.bigbluebutton.modules.polling.vo.CreateQuestionVO;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
+      
+      [Bindable] private var baseIndex:int;
+    ]]>
+  </mx:Script>
+  
+  <mx:VBox width="100%" height="100%">
+    <mx:VBox width="100%" height="90%" focusEnabled="true">
+      <mx:Form width="100%" id="instructionsForm" paddingTop="30" paddingBottom="10" paddingLeft="30" focusEnabled="true">
+        <mx:FormItem fontWeight="bold" paddingLeft="35" id="titleFormItem" focusEnabled="true"
+                     label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.title')}" >
+          <mx:TextInput id="pollTitle" focusEnabled="true" tabIndex="{baseIndex+4}" maxChars="75"
+                        accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.title')}"/>
+        </mx:FormItem>
+        
+        <mx:FormItem fontWeight="bold" 
+                     label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.question')}" 
+                     paddingLeft="35" 
+                     paddingTop="20" >
+          <mx:TextArea id="pollQuestion" maxChars="200"
+                       width="200" height="100" 
+                       accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.question')}"
+                       tabIndex="{baseIndex+4}"/>
+        </mx:FormItem>
+        
+        <mx:FormItem fontWeight="bold" paddingLeft="35" paddingTop="30"
+                     label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.answers')}" >
+          <mx:Label id="answerHint" visible="true" width="100%" fontSize="9" fontWeight="normal"
+                    text="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.hint')}" />
+          <mx:TextArea id="pollAnswers" width="200" height="100" tabIndex="{baseIndex+4}"
+                       accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.answers')}"/>
+        </mx:FormItem>
+        
+        <mx:FormItem paddingLeft="10" paddingTop="5" >
+          <mx:CheckBox id="multiple_response" 
+                       label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.moreThanOneResponse')}" 
+                       tabIndex="{baseIndex+4}"/>
+        </mx:FormItem>
+      </mx:Form>
+    </mx:VBox>
+    
+    <mx:ControlBar>
+
+      <mx:Button id="Cancel" click="" width="100" height="30" tabIndex="{baseIndex+5}"
+                 label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.cancel')}" />
+    </mx:ControlBar>    
+  </mx:VBox>
+</mx:Panel>

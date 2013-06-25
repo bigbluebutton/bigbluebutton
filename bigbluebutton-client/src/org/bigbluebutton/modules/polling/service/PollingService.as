@@ -54,41 +54,41 @@ package org.bigbluebutton.modules.polling.service
 
 	public class PollingService
 	{	
-		private static const LOG:String = "PollingService - ";
+		private static const LOG:String = "Poll::PollingService - ";
 
-    public var receiver:MessageReceiver;
-    public var sender:MessageSender;
-		
+    /* Injected by Mate */
+    public var dataService:IPollDataService;
+
 		public function handleStartModuleEvent(module:PollingModule):void {
 
 		}
 		
     public function handleGetPollsEvent(event:GetPollsEvent):void {
-      sender.getPolls();
+      dataService.getPolls();
     }
     
 		public function handleCreatePollEvent(event:CreatePollEvent):void {
-      sender.createPoll(event.poll);
+      dataService.createPoll(event.poll);
 		}
 		
     public function handleUpdatePollEvent(event:UpdatePollEvent):void {
-      sender.updatePoll(event.poll);
+      dataService.updatePoll(event.poll);
     }
 
     public function handleStartPollEvent(event:PollEvent):void {
-      sender.startPoll(event.pollID);
+      dataService.startPoll(event.pollID);
     }
     
     public function handleStopPollEvent(event:PollEvent):void {
-      sender.stopPoll(event.pollID);
+      dataService.stopPoll(event.pollID);
     }
     
     public function handleRemovePollEvent(event:PollEvent):void {
-      sender.removePoll(event.pollID);
+      dataService.removePoll(event.pollID);
     }
     
     public function handleRespondPollEvent(event:RespondEvent):void {
-      sender.respondPoll(event.response);
+      dataService.respondPoll(event.response);
     }
     
 	  public function  getPoll(pollKey:String, option:String):void{	
@@ -114,28 +114,7 @@ package org.bigbluebutton.modules.polling.service
 		 }
 		
 		public function initializePollingMenuRemotely(roomID:String):void{
-/*      
-			nc.call("poll.titleList", new Responder(titleSuccess, titleFailure));
-			//--------------------------------------//
-			// Responder functions
-			function titleSuccess(obj:Object):void{
-				LogUtil.debug("REMOTE_POLL_MENU_INIT: Entering NC CALL SUCCESS section");
-				var event:PollReturnTitlesEvent = new PollReturnTitlesEvent(PollReturnTitlesEvent.REMOTE_RETURN);
-				event.titleList = obj as Array;
-				// Append roomID to each item in titleList, call getPoll on that key, add the result to pollList back in ToolBarButton
-				for (var i:int = 0; i < event.titleList.length; i++){
-					var pollKey:String = roomID +"-"+ event.titleList[i];
-					getPoll(pollKey, "initialize");
-				}
-				// This dispatch populates the titleList back in the Menu; the pollList is populated one item at a time in the for-loop
-				LogUtil.debug("PollingService.initializePollingMenuRemotely, dispatching PollReturnTitlesEvent.REMOTE_RETURN");
-				dispatcher.dispatchEvent(event);
-			}
-			function titleFailure(obj:Object):void{
-				LogUtil.error(LOGNAME+"Responder object failure in INITALIZE POLLING MENU NC.CALL");
-				LogUtil.error("Failure object tostring is: " + obj.toString());
-			}
-*/
+
 		}
 		 
 		 public function updateTitles():void{

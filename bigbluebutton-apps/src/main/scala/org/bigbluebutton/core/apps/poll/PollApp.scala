@@ -4,8 +4,9 @@ import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.api.InMessage
 import org.bigbluebutton.core.api.MessageOutGateway
 import scala.collection.mutable.ArrayBuffer
+import org.bigbluebutton.core.apps.users.UsersApp
 
-class PollApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
+class PollApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway, usersApp: UsersApp) {
   import org.bigbluebutton.core.apps.poll.messages._
   
   val model = new PollModel

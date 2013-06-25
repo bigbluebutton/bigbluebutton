@@ -19,8 +19,7 @@ case class ClearPoll(meetingID: String, requesterID: String, pollID: String, for
 case class GetPollResult(meetingID:String, requesterID: String, pollID: String) extends InMessage
 case class RespondToPoll(meetingID: String, requesterID: String, pollID: String, responses : Array[PollResponseVO])
 
-case class PollResponseVO(questionID: String, responses: Array[ResponderVO])
-case class ResponderVO(responseID: String, user: Responder)
+
 
 case class R(id: String, response: String)
 case class Q(id: String, questionType: String, question: String, responses: Array[R])
