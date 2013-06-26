@@ -45,6 +45,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.model.ShortcutOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var genKeys:ArrayList;
@@ -54,14 +55,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var pollKeys:ArrayList;
 			private var pollVoteKeys:ArrayList;
 			
-			private var genResource:Array = ['bbb.shortcutkey.general.minimize', 'bbb.shortcutkey.general.maximize', 'bbb.shortcutkey.flash.exit', 
-											 'bbb.shortcutkey.focus.users', 'bbb.shortcutkey.focus.video', 'bbb.shortcutkey.focus.presentation',  
-											 'bbb.shortcutkey.focus.chat', 'bbb.shortcutkey.focus.pollingCreate', 'bbb.shortcutkey.focus.pollingStats', 
-											 'bbb.shortcutkey.focus.voting', 'bbb.shortcutkey.share.microphone', 'bbb.shortcutkey.share.desktop',
-											 'bbb.shortcutkey.share.webcam', 'bbb.shortcutkey.polling.buttonClick', 'bbb.shortcutkey.shortcutWindow', 
-											 'bbb.shortcutkey.logout', 'bbb.shortcutkey.raiseHand', 'bbb.shortcutkey.users.muteme',
-											 'bbb.shortcutkey.users.muteAllButPres', 'bbb.shortcutkey.chat.chatinput'];
-											 
+			[Bindable] private var generalString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.general");
+			[Bindable] private var presentationString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.presentation");
+			[Bindable] private var chatString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.chat");
+			[Bindable] private var userString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.users");
+			[Bindable] private var pollString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.polling");
+			[Bindable] private var pollVoteString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.polling2");
+						
 			private var presResource:Array = ['bbb.shortcutkey.present.focusslide', /*'bbb.shortcutkey.whiteboard.undo',*/ 'bbb.shortcutkey.present.upload',  
 											  'bbb.shortcutkey.present.previous', 'bbb.shortcutkey.present.select', 'bbb.shortcutkey.present.next', 	
 											  'bbb.shortcutkey.present.fitWidth', 'bbb.shortcutkey.present.fitPage'];
@@ -95,11 +95,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function init():void {
 				modifier = ExternalInterface.call("determineModifier");
 				globalModifier = ExternalInterface.call("determineGlobalModifier");
+				populateModules();
 			}
 			
 			private function onCreationComplete():void {
 				localeChanged();
-				
 				titleBarOverlay.tabIndex = baseIndex;
 				
 				minimizeBtn.tabIndex = baseIndex + 1;
@@ -107,8 +107,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				closeBtn.tabIndex = baseIndex + 3;
 			}
 			
+			private function populateModules():void{
+				categoryAC.addItem(generalString);
+				if (ShortcutOptions.usersActive)
+					categoryAC.addItem(userString);
+				
+				if (ShortcutOptions.presentationActive)
+					categoryAC.addItem(presentationString);
+				
+				if (ShortcutOptions.chatActive)
+					categoryAC.addItem(chatString);
+				
+				if (ShortcutOptions.pollingActive){
+					categoryAC.addItem(pollString);
+					categoryAC.addItem(pollVoteString);
+				}
+			}
+			
 			private function reloadKeys():void {
-				genKeys = loadKeys(genResource, true);
+				genKeys = loadKeys(ShortcutOptions.genResource, true);
 				presKeys = loadKeys(presResource);
 				chatKeys = loadKeys(chatResource);
 				userKeys = loadKeys(userResource);
@@ -126,23 +143,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function changeArray():void {
 				shownKeys = new ArrayCollection();
+				
 				switch(categories.selectedIndex) {
-				case 0: //General
+					case 0: //General
 					shownKeys.addAll(genKeys);
 					break;
-				case 1: //Presentation
+					case categoryAC.getItemIndex(presentationString): //Presentation
 					shownKeys.addAll(presKeys);
 					break;
-				case 2: //Chat
+					case categoryAC.getItemIndex(chatString): //Chat
 					shownKeys.addAll(chatKeys);
 					break;
-				case 3: //Users
+					case categoryAC.getItemIndex(userString): //Users
 					shownKeys.addAll(userKeys);
 					break;
-				case 4: //Polling, Presenter
+					case categoryAC.getItemIndex(pollString): //Polling, Presenter
 					shownKeys.addAll(pollKeys);
 					break;
-				case 5: //Polling, Viewer
+					case categoryAC.getItemIndex(pollVoteString): //Polling, Viewer
 					shownKeys.addAll(pollVoteKeys);
 					break;
 				}
@@ -235,13 +253,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				 editable="false" 
 				 change="changeArray()"
 				 tabIndex="{baseIndex + 10}">
-		<mx:ArrayCollection>
-        	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.general")}</mx:String>
+		<mx:ArrayCollection id="categoryAC">
+        	<!--
+			<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.general")}</mx:String>
          	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.presentation")}</mx:String>
          	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.chat")}</mx:String>
          	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.users")}</mx:String>
 			<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.polling")}</mx:String>
 			<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.polling2")}</mx:String>
+			-->
       	</mx:ArrayCollection>
 	</mx:ComboBox>
 	<mx:DataGrid id="keyList" draggableColumns="false" dataProvider="{shownKeys}" width="100%" height="100%" tabIndex="{baseIndex + 15}" >
