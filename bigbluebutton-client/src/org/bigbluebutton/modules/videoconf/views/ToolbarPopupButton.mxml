@@ -94,8 +94,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatchEvent(new ShortcutEvent(ShortcutEvent.REMOTE_FOCUS_WEBCAM));
 			}
 			
-			public function publishingStatus(status:Number):void {
-				if(status == START_PUBLISHING) {
+			public function publishingStatus(status:Number, camID:Number = -1):void {
+                                if(status == START_PUBLISHING) {
+					this.enabled = true;
 					_currentState = ON_STATE;
 					//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop');
 					camIcon = images.webcamOn;
@@ -104,17 +105,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					//dp[cameraId].icon = images.webcamOn;
 					//dp[cameraId].status = ON_STATE;
 					//dp[cameraId].publishWindowIndex = publishWindowIndex;
-					numberOfCamerasOff = numberOfCamerasOff - 1;
+					numberOfCamerasOff--;
 				}
 				else {
-					//if(cameraId != null) {
-					//	dp[cameraId].icon = images.webcam;
-					//	dp[cameraId].status = OFF_STATE;
-					//	if(cameraIsOff[cameraId] == false) {
-					//		cameraIsOff[cameraId] = true;
-					//		numberOfCamerasOff = numberOfCamerasOff + 1;
-					//	}
-					//}
+					if(camID != -1) {
+						dp[camID].icon = images.webcam;
+						dp[camID].status = OFF_STATE;
+                                                numberOfCamerasOff++;
+					}					
 					if(numberOfCamerasOff == Camera.names.length) {
 						_currentState = OFF_STATE;
 						//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
@@ -142,6 +140,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop');
 					camIcon = images.webcamOn;
 					this.selected = true;
+					this.enabled = false;
 					var shareCameraRequestEvent:ShareCameraRequestEvent = new ShareCameraRequestEvent();
 					dispatchEvent(shareCameraRequestEvent);
 				}			
@@ -180,6 +179,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function changeHandler(event:MenuEvent):void {
+					this.enabled = false;
 					if(dp[event.index].status == ON_STATE) {
 						/*var close_evt:ClosePublishWindowEvent = new ClosePublishWindowEvent();
 						close_evt.cameraId = String(event.index);
@@ -193,7 +193,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						evt.defaultCamera = String(event.index);
 						dispatchEvent(evt);
 						this.enabled = false;*/
-
+						
 						var shareCameraRequestEvent:ShareCameraRequestEvent = new ShareCameraRequestEvent();
 						shareCameraRequestEvent.defaultCamera = String(event.index);
 						shareCameraRequestEvent.camerasArray = dp;
