@@ -16,9 +16,6 @@ package org.bigbluebutton.modules.polling.service
     /* Injected by Mate */
     public var processor:PollDataProcessor;
     
-    public function ShortCircuitPollDataService()
-    {
-    }
     
     public function getPolls():void
     {

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="90%">
+  <mx:Script>
+    <![CDATA[
+      import com.asfusion.mate.events.Dispatcher;      
+      import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+      import org.bigbluebutton.modules.present.events.UploadEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
+      
+      private static const LOG:String = "CreatedPollsRenderer - ";
+      
+      private var globalDispatch:Dispatcher = new Dispatcher();
+      
+      private function startPoll():void {
+        trace(LOG + "::startPoll() " + data);   
+        var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
+        readyEvent.presentationName = data as String;
+        globalDispatch.dispatchEvent(readyEvent);
+        
+        globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+      }
+      
+      private function deletePoll():void {
+        trace(LOG + "::deletePoll() " + data);
+      }
+    ]]>
+  </mx:Script>
+  <mx:Label id="pollTitleLabel" text="{data as String}" styleName="presentationNameLabelStyle" width="80%"/>
+  <mx:Button id="showBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn')}" 
+             toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn.toolTip')}" 
+             styleName="presentationUploadShowButtonStyle"
+             click="startPoll()" enabled="true"/>
+  <mx:Button id="deleteBtn" label="" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.deleteBtn.toolTip')}" 
+             styleName="presentationUploadDeleteButtonStyle"
+             click="deletePoll()" enabled="true"/>
+  
+</mx:HBox>

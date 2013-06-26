@@ -46,6 +46,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.service.PollingService;
 	import org.bigbluebutton.modules.polling.views.CreatePollWindow;
 	import org.bigbluebutton.modules.polling.views.PollCreateWindow;
+	import org.bigbluebutton.modules.polling.views.PollMainWindow;
 	import org.bigbluebutton.modules.polling.views.PollingInstructionsWindow;
 	import org.bigbluebutton.modules.polling.views.PollingStatsWindow;
 	import org.bigbluebutton.modules.polling.views.PollingViewWindow;
@@ -54,7 +55,7 @@ package org.bigbluebutton.modules.polling.managers
 			
 		private var pollingWindow:PollingViewWindow;
 		private var statsWindow:PollingStatsWindow;
-		private var instructionsWindow:CreatePollWindow;
+		private var instructionsWindow:PollMainWindow;
     private var testCreateWindow:PollCreateWindow;
 		private var service:PollingService;
 		private var isViewing:Boolean = false;
@@ -76,7 +77,7 @@ package org.bigbluebutton.modules.polling.managers
 		}
 				
 		public function handleOpenPollingInstructionsWindow(e:PollingInstructionsWindowEvent):void{
-			instructionsWindow = new CreatePollWindow();
+			instructionsWindow = new PollMainWindow();
       testCreateWindow = new PollCreateWindow();
       
 			// Use the PollGetTitlesEvent to fetch a list of already-used titles
@@ -94,7 +95,7 @@ package org.bigbluebutton.modules.polling.managers
 		}
 		
 		public function handleOpenPollingInstructionsWindowWithExistingPoll(e:OpenSavedPollEvent):void{
-			instructionsWindow = new CreatePollWindow();
+			instructionsWindow = new PollMainWindow();
 			// Use the PollGetTitlesEvent to fetch a list of already-used titles
 			var getTitlesEvent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.CHECK);
 			globalDispatcher.dispatchEvent(getTitlesEvent);
