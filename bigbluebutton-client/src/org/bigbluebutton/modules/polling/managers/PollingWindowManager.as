@@ -55,7 +55,8 @@ package org.bigbluebutton.modules.polling.managers
 			
 		private var pollingWindow:PollingViewWindow;
 		private var statsWindow:PollingStatsWindow;
-		private var instructionsWindow:PollMainWindow;
+		//private var instructionsWindow:PollMainWindow;
+    private var instructionsWindow:CreatePollWindow;
     private var testCreateWindow:PollCreateWindow;
 		private var service:PollingService;
 		private var isViewing:Boolean = false;
@@ -77,7 +78,8 @@ package org.bigbluebutton.modules.polling.managers
 		}
 				
 		public function handleOpenPollingInstructionsWindow(e:PollingInstructionsWindowEvent):void{
-			instructionsWindow = new PollMainWindow();
+			//instructionsWindow = new PollMainWindow();
+      instructionsWindow = new CreatePollWindow();
       testCreateWindow = new PollCreateWindow();
       
 			// Use the PollGetTitlesEvent to fetch a list of already-used titles
@@ -95,7 +97,9 @@ package org.bigbluebutton.modules.polling.managers
 		}
 		
 		public function handleOpenPollingInstructionsWindowWithExistingPoll(e:OpenSavedPollEvent):void{
-			instructionsWindow = new PollMainWindow();
+			//instructionsWindow = new PollMainWindow();
+      instructionsWindow = new CreatePollWindow();
+      
 			// Use the PollGetTitlesEvent to fetch a list of already-used titles
 			var getTitlesEvent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.CHECK);
 			globalDispatcher.dispatchEvent(getTitlesEvent);

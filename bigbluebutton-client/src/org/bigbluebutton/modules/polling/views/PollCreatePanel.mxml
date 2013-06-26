@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml">
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" borderStyle="none" horizontalAlign="center"
+          headerHeight="0" borderThicknessBottom="0" borderThicknessLeft="0"
+          borderThicknessRight="0" borderThicknessTop="0">
   <mx:Script>
       <![CDATA[
         import org.bigbluebutton.modules.polling.events.CreatePollEvent;
@@ -60,47 +62,63 @@
         
       ]]>    
   </mx:Script>
+  <mx:HBox width="100%" height="25" horizontalAlign="left">
+    <mx:Spacer width="3"/>
+    <mx:Label text="Create New Poll" styleName="micSettingsWindowTitleStyle"/>
+  </mx:HBox>
   
-  <mx:VBox width="100%" height="100%">
-    <mx:VBox width="100%" height="90%" focusEnabled="true">
-      <mx:Form width="100%" id="instructionsForm" paddingTop="30" paddingBottom="10" paddingLeft="30" focusEnabled="true">
-        <mx:FormItem fontWeight="bold" paddingLeft="35" id="titleFormItem" focusEnabled="true"
-                     label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.title')}" >
-          <mx:TextInput id="pollTitle" focusEnabled="true" tabIndex="{baseIndex+4}" maxChars="75"
-                        accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.title')}"/>
-        </mx:FormItem>
-        
-        <mx:FormItem fontWeight="bold" 
-                     label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.question')}" 
-                     paddingLeft="35" 
-                     paddingTop="20" >
-          <mx:TextArea id="pollQuestion" maxChars="200"
-                       width="200" height="100" 
-                       accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.question')}"
-                       tabIndex="{baseIndex+4}"/>
-        </mx:FormItem>
-        
-        <mx:FormItem fontWeight="bold" paddingLeft="35" paddingTop="30"
-                     label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.answers')}" >
-          <mx:Label id="answerHint" visible="true" width="100%" fontSize="9" fontWeight="normal"
-                    text="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.hint')}" />
-          <mx:TextArea id="pollAnswers" width="200" height="100" tabIndex="{baseIndex+4}"
-                       accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.answers')}"/>
-        </mx:FormItem>
-        
-        <mx:FormItem paddingLeft="10" paddingTop="5" >
-          <mx:CheckBox id="multiple_response" 
-                       label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.moreThanOneResponse')}" 
-                       tabIndex="{baseIndex+4}"/>
-        </mx:FormItem>
-      </mx:Form>
-    </mx:VBox>
+  <mx:VBox width="90%" height="90%" horizontalAlign="center" borderStyle="solid" borderThickness="1">
+
+    <mx:HBox width="100%" height="20" horizontalAlign="left">
+      <mx:Spacer width="3"/>
+      <mx:Label id="titleLabel" text="Title" styleName="presentationNamesLabelStyle"/>
+    </mx:HBox>  
+    <mx:Spacer height="5"/>
+    <mx:HBox width="96%" height="25">
+      <mx:Spacer width="10"/>
+      <mx:TextInput id="pollTitle" width="100%" text="Type in your title" editable="true" maxChars="250"/>
+    </mx:HBox>
+    <mx:Spacer height="3"/>
     
-    <mx:ControlBar>
-      <mx:Button id="createBtn" click="" width="100" height="30" tabIndex="{baseIndex+5}"
-                 label="Create" />
-      <mx:Button id="Cancel" click="" width="100" height="30" tabIndex="{baseIndex+5}"
-                 label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.cancel')}" />
-    </mx:ControlBar>    
+    <mx:HBox width="100%" height="20" horizontalAlign="left">
+      <mx:Spacer width="3"/>
+      <mx:Label id="questionLabel" text="Question" styleName="presentationNamesLabelStyle"/>
+    </mx:HBox>  
+    <mx:Spacer height="5"/>
+    <mx:HBox width="96%" height="75">
+      <mx:Spacer width="10"/>
+      <mx:TextArea id="pollQuestion" width="100%" height="100%" wordWrap="true" text="Type in your questions" editable="true" maxChars="1000"/>
+    </mx:HBox>
+    <mx:Spacer height="3"/>
+
+    <mx:HBox width="100%" height="20" horizontalAlign="left">
+      <mx:Spacer width="3"/>
+      <mx:Label id="answersLabel" text="Answers" styleName="presentationNamesLabelStyle"/>
+    </mx:HBox> 
+    <mx:HBox width="100%" height="20" horizontalAlign="left">
+      <mx:Spacer width="10"/>
+      <mx:Label id="hintAnswersLabel" text="Start every answer with a new line" fontSize="12" styleName="presentationNamesLabelStyle"/>
+    </mx:HBox>
+    <mx:Spacer height="5"/>
+    <mx:HBox width="96%" height="150">
+      <mx:Spacer width="10"/>
+      <mx:TextArea id="pollAnswers" width="100%" height="100%" wordWrap="true" text="Answers" maxChars="2000"/>
+    </mx:HBox>
+    <mx:Spacer height="3"/>
+    <mx:CheckBox id="multiple_response"
+                 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.moreThanOneResponse')}"
+                 tabIndex="{baseIndex+4}"/>
+ 
+    <mx:Spacer height="5"/>
+    
   </mx:VBox>
+  
+  <mx:HBox width="100%" height="35" horizontalAlign="right">
+    <mx:Button label="Create" styleName="presentationUploadShowButtonStyle"/>
+    <mx:Spacer width="5"/>
+    <mx:Button label="Cancel" styleName="presentationUploadShowButtonStyle"/>
+    <mx:Spacer width="5"/>
+  </mx:HBox>  
+  
+  <mx:Spacer height="5"/>
 </mx:Panel>
