@@ -70,24 +70,18 @@
           return arr;
         }
         
-
-        
-        // This event handler adds and deletes items from the shopping cart.
-        private function modifyCart():void 
+        private function onSubmit():void 
         {
-      //    cartItems.text = "";
-          
-      //    if(milkCB.selected == true) {              
-        //    cartItems.text += "milk" + '\n' ;
-       //   }
-          
-       //   if(eggsCB.selected == true) {
-         //   cartItems.text += "eggs" + '\n';
-      //    }
-          
-      //    if(breadCB.selected == true) { 
-         //   cartItems.text +="bread" + '\n';
-      //    }
+          trace("********************** RESPONSES ******************** \n");
+          var resps:Array = responseCollector.responses;
+          for (var i:int = 0; i < resps.length; i++) {
+            var r:Responses = resps[i] as Responses;
+            trace("QuestionID = [" + r.questionID + "]");
+            var rs:Array = r.responses;
+            for (var j:int = 0; j < rs.length; j++) {
+              trace("Selected = [" + rs[j] + "]");
+            }
+          }
         }
       ]]>    
   </mx:Script>
@@ -116,7 +110,7 @@
   </mx:VBox>
   
   <mx:HBox width="100%" height="35" horizontalAlign="right">
-    <mx:Button label="Submit" styleName="presentationUploadShowButtonStyle"/>
+    <mx:Button label="Submit" styleName="presentationUploadShowButtonStyle" click="onSubmit()"/>
     <mx:Spacer width="5"/>
     <mx:Button label="Don't Submit" styleName="presentationUploadShowButtonStyle"/>
     <mx:Spacer width="5"/>

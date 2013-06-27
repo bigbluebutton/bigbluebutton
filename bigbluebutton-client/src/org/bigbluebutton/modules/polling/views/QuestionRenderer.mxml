@@ -67,14 +67,14 @@
           }
         }        
         
-        responseCollector.addResponse(new Responses(qvo.id, sr);
+        responseCollector.addResponse(new Responses(qvo.id, sr));
       }
       
       private function handleCard(event:ItemClickEvent):void {
         trace("Chose [" + event.index + "] + value = [" + rbGroup.selection.id + "]");
         var sr:Array = new Array();
         sr.push(rbGroup.selection.id);
-        responseCollector.addResponse(new Responses(qvo.id, sr);
+        responseCollector.addResponse(new Responses(qvo.id, sr));
       }
     ]]>
     

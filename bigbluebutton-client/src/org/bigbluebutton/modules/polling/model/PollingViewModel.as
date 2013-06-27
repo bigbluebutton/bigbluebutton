@@ -44,7 +44,7 @@ package org.bigbluebutton.modules.polling.model
       _resps1.push(new Response("2", "Answer 2"));
       _resps1.push(new Response("3", "Answer 3"));
       
-      var _q1:Question = new Question("qID", true, "What is my name?", _resps1);
+      var _q1:Question = new Question("qID", false, "What is my name?", _resps1);
       
       _questions.push(_q1);
       
