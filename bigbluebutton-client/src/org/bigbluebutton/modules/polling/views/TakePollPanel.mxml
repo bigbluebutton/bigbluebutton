@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
           xmlns:poll="org.bigbluebutton.modules.polling.views.*"
-          borderStyle="none" horizontalAlign="center" creationComplete="onCreationComplete()"
+          borderStyle="none" horizontalAlign="center"
           headerHeight="0" borderThicknessBottom="0" borderThicknessLeft="0"
           borderThicknessRight="0" borderThicknessTop="0" preinitialize="preInit()">
   <mx:Script>
@@ -36,11 +36,7 @@
             
           responseCollector = new ResponseCollector(_pollID);
         }
-        
-        private function onCreationComplete():void {
-                  
-        }
-        
+              
         public function updatePoll():void {
 
         }

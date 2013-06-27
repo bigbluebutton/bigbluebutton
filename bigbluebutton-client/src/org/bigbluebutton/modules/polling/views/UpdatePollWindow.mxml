@@ -25,7 +25,7 @@ Notes.mxml is the main view of the SharedNotes application
            xmlns:poll="org.bigbluebutton.modules.polling.views.*"
            implements="org.bigbluebutton.common.IBbbModuleWindow"
            label="Update Poll" layout="absolute"
-           title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
+           title="Update Poll">
   
   <mx:Script>
     <![CDATA[

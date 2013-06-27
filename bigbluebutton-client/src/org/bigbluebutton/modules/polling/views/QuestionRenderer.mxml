@@ -94,8 +94,12 @@
     <mx:Spacer width="3"/>
     <mx:Label id="answersLabel" text="Answers" styleName="presentationNamesLabelStyle"/>
   </mx:HBox> 
-  <mx:VBox id="answersBox">
-    <mx:RadioButtonGroup id="rbGroup" itemClick="handleCard(event);"/>
-    <!--  Placeholder for the responses   -->
-  </mx:VBox>  
+  <mx:HBox>
+    <mx:Spacer width="10"/>
+    <mx:VBox id="answersBox">
+      <mx:RadioButtonGroup id="rbGroup" itemClick="handleCard(event);"/>
+      <!--  Placeholder for the responses   -->
+    </mx:VBox>    
+  </mx:HBox>
+  
 </mx:VBox>
