@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" borderStyle="none" horizontalAlign="center"
+          headerHeight="0" borderThicknessBottom="0" borderThicknessLeft="0"
+          borderThicknessRight="0" borderThicknessTop="0" preinitialize="preInit()">
+  <mx:Script>
+      <![CDATA[
+        import mx.events.ItemClickEvent;
+        
+        import org.bigbluebutton.modules.polling.events.CreatePollEvent;
+        import org.bigbluebutton.modules.polling.model.Poll;
+        import org.bigbluebutton.modules.polling.model.PollVO;
+        import org.bigbluebutton.modules.polling.model.PollingViewModel;
+        import org.bigbluebutton.modules.polling.vo.CreatePollVO;
+        import org.bigbluebutton.modules.polling.vo.CreateQuestionVO;
+        import org.bigbluebutton.util.i18n.ResourceUtil;
+        
+        [Bindable] private var baseIndex:int;
+        
+        public var viewModel:PollingViewModel = new PollingViewModel(null);
+        [Bindable] private var poll:PollVO;
+        
+        private function preInit():void {
+          poll = viewModel.getSamplePoll();
+        }
+             
+        public function updatePoll():void {
+
+        }
+        
+        private function isDuplicateAnswers(arr:Array):Boolean{
+          var x:uint;
+          var y:uint;
+          for (x = 0; x < arr.length ; x++){
+            for (y = x + 1; y < arr.length; y++){
+              if (arr[x] === arr[y]){
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+        
+        //trimming return and whitespaces at the end of each array element
+        private function makeAnswersPretty(arr:Array):Array{
+          var i:uint;
+          var trim:RegExp = /^\s+|\s+$/g;
+          for (i = 0; i < arr.length; i++){
+            arr[i] = arr[i].replace(trim, "");
+            if(!arr[i]) //if user puts just return or space and return - this array elements will be deleted
+              arr.splice(i,1);
+          }
+          return arr;
+        }
+        
+        private function handleCard(event:ItemClickEvent):void {
+          //Handle event.
+        }
+        
+        // This event handler adds and deletes items from the shopping cart.
+        private function modifyCart():void 
+        {
+      //    cartItems.text = "";
+          
+      //    if(milkCB.selected == true) {              
+        //    cartItems.text += "milk" + '\n' ;
+       //   }
+          
+       //   if(eggsCB.selected == true) {
+         //   cartItems.text += "eggs" + '\n';
+      //    }
+          
+      //    if(breadCB.selected == true) { 
+         //   cartItems.text +="bread" + '\n';
+      //    }
+        }
+      ]]>    
+  </mx:Script>
+  <mx:HBox width="100%" height="25" horizontalAlign="left">
+    <mx:Spacer width="3"/>
+    <mx:Label text="Take Poll" styleName="micSettingsWindowTitleStyle"/>
+  </mx:HBox>
+  
+  <mx:VBox width="90%" height="90%" horizontalAlign="left" borderStyle="solid" borderThickness="1">
+
+    <mx:HBox width="100%" height="20" horizontalAlign="left">
+      <mx:Spacer width="3"/>
+      <mx:Label id="titleLabel" text="Title" styleName="presentationNamesLabelStyle"/>
+    </mx:HBox>  
+    <mx:Spacer height="5"/>
+    <mx:HBox width="96%" height="25">
+      <mx:Spacer width="10"/>
+      <mx:Label id="titleTextLabel" text="{poll.title}" fontSize="12" styleName="presentationNamesLabelStyle"/>
+    </mx:HBox>
+    <mx:Spacer height="3"/>
+    
+    <mx:HBox width="100%" height="20" horizontalAlign="left">
+      <mx:Spacer width="3"/>
+      <mx:Label id="questionLabel" text="Question" styleName="presentationNamesLabelStyle"/>
+    </mx:HBox>  
+    <mx:Spacer height="5"/>
+    <mx:HBox width="96%" height="30">
+      <mx:Spacer width="10"/>
+      <mx:Label id="questionTextLabel" text="Foo" fontSize="12" styleName="presentationNamesLabelStyle"/>
+    </mx:HBox>
+    <mx:Spacer height="3"/>
+
+    <mx:HBox width="100%" height="20" horizontalAlign="left">
+      <mx:Spacer width="3"/>
+      <mx:Label id="answersLabel" text="Answers" styleName="presentationNamesLabelStyle"/>
+    </mx:HBox> 
+    <mx:VBox id="answersBox">
+      <mx:HBox>
+        <mx:Spacer width="10"/>
+        <mx:RadioButtonGroup id="cardtype" itemClick="handleCard(event);"/>
+        <mx:RadioButton groupName="cardtype" 
+                        id="americanExpress" 
+                        value="AmEx" 
+                        label="American Express" 
+                        width="150"/>
+        <mx:RadioButton groupName="cardtype" 
+                        id="masterCard" 
+                        value="MC" 
+                        label="MasterCard" 
+                        width="150"/>
+        <mx:RadioButton groupName="cardtype" 
+                        id="visa" 
+                        value="Visa" 
+                        label="Visa" 
+                        width="150"/>
+        <!--mx:VBox color="0x000000">
+          <mx:CheckBox id="milkCB" label="milk" click="modifyCart()"/>
+          <mx:CheckBox id="eggsCB" label="eggs" click="modifyCart()"/>
+          <mx:CheckBox id="breadCB" label="bread" click="modifyCart()"/>
+        </mx:VBox-->        
+      </mx:HBox>
+
+    </mx:VBox>
+    <mx:Spacer height="5"/>
+    
+  </mx:VBox>
+  
+  <mx:HBox width="100%" height="35" horizontalAlign="right">
+    <mx:Button label="Submit" styleName="presentationUploadShowButtonStyle"/>
+    <mx:Spacer width="5"/>
+    <mx:Button label="Don't Submit" styleName="presentationUploadShowButtonStyle"/>
+    <mx:Spacer width="5"/>
+  </mx:HBox>  
+  
+  <mx:Spacer height="5"/>
+</mx:Panel>

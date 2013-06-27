@@ -14,6 +14,10 @@ package org.bigbluebutton.modules.polling.model
       _polls = new ArrayCollection();
     }
     
+    public function getPolls():Array {
+      return _polls.toArray();
+    }
+    
     public function updateResults(pollID:String, results:ResultsVO):void {
       if (hasPoll(pollID)) {
         var poll:Poll = getPoll(pollID);
@@ -24,14 +28,14 @@ package org.bigbluebutton.modules.polling.model
     public function startPoll(pollID:String):void {
       if (hasPoll(pollID)) {
         var poll:Poll = getPoll(pollID);
-        poll.started = true;
+        poll.start();
       }
     }
 
     public function stopPoll(pollID:String):void {
       if (hasPoll(pollID)) {
         var poll:Poll = getPoll(pollID);
-        poll.stopped = true;
+        poll.stop();
       }
     }
     
@@ -71,7 +75,7 @@ package org.bigbluebutton.modules.polling.model
       }
     }
     
-    private function getPoll(pollID:String):Poll {
+    public function getPoll(pollID:String):Poll {
       if (hasPoll(pollID)) {
         return _polls.getItemAt(getPollIndex(pollID)) as Poll;
       }
