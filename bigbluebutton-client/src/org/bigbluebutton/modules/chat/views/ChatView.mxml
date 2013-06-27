@@ -97,14 +97,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		private var publicFocus:Boolean = false;
 		private var privateFocus:Boolean = false;
 			
-			[Embed(source="../sounds/publicSound.mp3")] 
-      private var publicSoundClass:Class;
-      
-			[Embed(source="../sounds/privateSound.mp3")] 
-      private var privateSoundClass:Class;
+		[Embed(source="../sounds/notice.mp3")] 
+		private var noticeSoundClass:Class;
+		private var noticeSound:Sound = new noticeSoundClass() as Sound; 
+		// All author and license information for the use of this sound can be found in:
+		// src/org/bigbluebutton/modules/chat/sounds/license.txt
 			
-      private var publicSound:Sound = new publicSoundClass() as Sound;
-			private var privateSound:Sound = new privateSoundClass() as Sound;		
+			
+			/*[Embed(source="../sounds/publicSound.mp3")] 
+      private var publicSoundClass:Class;*/
+      
+			/*[Embed(source="../sounds/privateSound.mp3")] 
+      private var privateSoundClass:Class;*/
+			
+      //private var publicSound:Sound = new publicSoundClass() as Sound;
+	  //private var privateSound:Sound = new privateSoundClass() as Sound;		
 			
 			// Initialization
 			private function init():void{
@@ -373,7 +380,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				privateFocus = false;
 			}
 			
+			/*
 			// Listens to the notification timer, and checks if there are messages waiting
+			// Deprecated, since we no longer use timed notifications
 			private function checkNotifications(event:TimerEvent):void {
 				if (Accessibility.active) {
 					var message:String = "";
@@ -409,9 +418,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							ExternalInterface.call("addAlert", message);
 						}
 					}
-					*/
+					////
 				}
 			}
+			*/
 			
 			// Determine whether audio chat message notificiations are to be handled by the screen reader or by an audio sound clip
 			private function useSoundClip():Boolean {
