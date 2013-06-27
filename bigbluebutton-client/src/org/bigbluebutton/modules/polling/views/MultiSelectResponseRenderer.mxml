@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml">
+  <mx:Script>
+    <![CDATA[
+      
+      
+      // This event handler adds and deletes items from the shopping cart.
+      private function modifyCart():void 
+      {
+
+        
+        if(milkCB.selected == true) {              
+
+        }
+        
+        if(eggsCB.selected == true) {
+
+        }
+        
+        if(breadCB.selected == true) { 
+
+        }
+      }
+    ]]>
+  </mx:Script>
+  <mx:VBox color="0x000000">
+    <mx:CheckBox id="milkCB" label="milk" click="modifyCart()"/>
+    <mx:CheckBox id="eggsCB" label="eggs" click="modifyCart()"/>
+    <mx:CheckBox id="breadCB" label="bread" click="modifyCart()"/>
+  </mx:VBox>
+</mx:VBox>

@@ -21,7 +21,14 @@ package org.bigbluebutton.modules.polling.model
     }
     
     public function get questions():Array {
-      return _poll.questions();
+      var qs:Array = new Array();
+      var questions:Array = _poll.questions();
+      
+      for (var i:int = 0; i < questions.length; i++) {
+        qs.push(new QuestionVO(questions[i]));
+      }
+      
+      return qs;
     }
     
     public function get started():Boolean {
