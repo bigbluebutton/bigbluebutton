@@ -9,6 +9,7 @@
       import org.bigbluebutton.modules.polling.model.PollingViewModel;
       
       public var viewModel:PollingViewModel;
+      public var pollID:String;
       
       [Bindable] public var sampleData:ArrayCollection = new ArrayCollection([
                             {Answer:"Chicken", Votes:4},
@@ -24,8 +25,8 @@
 	                width="100%">
         <mx:series>
             <mx:PieSeries id="pieSeries"
-                    field="Votes"
-                    nameField="Answer"
+                    field="numResponses"
+                    nameField="Responses"
                     filters="[]"
                     labelPosition="callout" />
         </mx:series>

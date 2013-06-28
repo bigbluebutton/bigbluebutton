@@ -48,6 +48,7 @@ package org.bigbluebutton.modules.polling.model
     public function addSamplePolls():void {
       addSample1();
       addSample2();
+      addSample3();
     }
     
     private function addSample1():void {
@@ -79,6 +80,29 @@ package org.bigbluebutton.modules.polling.model
       _questions.push(_q1);
       
       var _poll:Poll = new Poll("chicken-poll", "Chicken and Egg", _questions);    
+      
+      _model.createPoll(_poll);
+    }
+    
+    private function addSample3():void {
+      var _questions:Array = new Array();
+      
+      var _resps1:Array = new Array();
+      _resps1.push(new Response("1", "Dumaguete"));
+      _resps1.push(new Response("2", "Cebu"));
+      _resps1.push(new Response("3", "Zamboanga"));
+      _resps1.push(new Response("4", "None of the above"));
+      
+      var _q1:Question = new Question("qID", false, "What is the capital of the Philippines?", _resps1);
+      
+      _q1.updateResult("1", 667);
+      _q1.updateResult("2", 367);
+      _q1.updateResult("3", 467);
+      _q1.updateResult("4", 567);
+      
+      _questions.push(_q1);
+      
+      var _poll:Poll = new Poll("philcap", "Philippine Capital", _questions);    
       
       _model.createPoll(_poll);
     }
