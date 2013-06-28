@@ -49,7 +49,11 @@
 	 <EventHandlers type="{OpenPollMainWindowEvent.OPEN_POLL_MAIN_WINDOW}">
 		<MethodInvoker generator="{PollingWindowManager}"   method="handleOpenPollMainWindowEvent" />
 	 </EventHandlers>
-	  
+
+  <EventHandlers type="{OpenPollResultWindow.OPEN_RESULT_WINDOW}">
+    <MethodInvoker generator="{PollingWindowManager}"   method="handleOpenPollResultWindowEvent" arguments="{event}"/>
+  </EventHandlers>
+  
 	  <EventHandlers type="{PollingInstructionsWindowEvent.CLOSE}">
 		<MethodInvoker generator="{PollingManager}" method="handleClosePollingInstructionsWindowEvent"  arguments="{event}"/>
 	 </EventHandlers>

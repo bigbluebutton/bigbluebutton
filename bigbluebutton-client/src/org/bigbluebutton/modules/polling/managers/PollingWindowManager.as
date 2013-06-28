@@ -35,6 +35,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
 	import org.bigbluebutton.modules.polling.events.OpenPollMainWindowEvent;
+	import org.bigbluebutton.modules.polling.events.OpenPollResultWindow;
 	import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
 	import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
 	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
@@ -49,10 +50,10 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.model.PollingViewModel;
 	import org.bigbluebutton.modules.polling.service.PollingService;
 	import org.bigbluebutton.modules.polling.views.CreatePollWindow;
+	import org.bigbluebutton.modules.polling.views.DisplayResultWindow;
 	import org.bigbluebutton.modules.polling.views.PollCreateWindow;
 	import org.bigbluebutton.modules.polling.views.PollMainWindow;
 	import org.bigbluebutton.modules.polling.views.PollingInstructionsWindow;
-	import org.bigbluebutton.modules.polling.views.DisplayResultWindow;
 	import org.bigbluebutton.modules.polling.views.PollingStatsWindow;
 	import org.bigbluebutton.modules.polling.views.PollingViewWindow;
 	import org.bigbluebutton.modules.polling.views.TakePollWindow;
@@ -72,7 +73,8 @@ package org.bigbluebutton.modules.polling.managers
     private var takePollWindow:TakePollWindow;
 		private var pollMainWindow:PollMainWindow = new PollMainWindow();
     private var createPollWindow:CreatePollWindow;
-
+    private var resultsWindow:DisplayResultWindow = new DisplayResultWindow();
+    
 		private var displayResultWindow:DisplayResultWindow;
 
     private var testCreateWindow:PollCreateWindow;
@@ -93,10 +95,16 @@ package org.bigbluebutton.modules.polling.managers
 		}
 				
 		public function handleOpenPollMainWindowEvent():void{
-      if (_viewModel == null) trace("***************** PollingWindowManager::handleOpenPollMainWindowEvent - viewModel is NULL!!!!!"); 
       pollMainWindow.viewModel = _viewModel;      
 			openWindow(pollMainWindow);     
 		}
+    
+    public function handleOpenPollResultWindowEvent(event:OpenPollResultWindow):void {
+      resultsWindow.viewModel = _viewModel;
+      resultsWindow.pollID = event.pollID;
+      
+      openWindow(resultsWindow);
+    }
 		
 		private function moveInstructionsFocus(event:TimerEvent):void{
 			appFM.setFocus(updatePollWindow.titleBarOverlay);

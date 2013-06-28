@@ -39,6 +39,7 @@
       import org.bigbluebutton.util.i18n.ResourceUtil;
 
       [Bindable] public var viewModel:PollingViewModel;
+      [Bindable] public var pollID:String;
       
       public function getPrefferedPosition():String{
         return MainCanvas.POPUP;

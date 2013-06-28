@@ -49,6 +49,7 @@
       import org.bigbluebutton.main.model.users.Conference;
       import org.bigbluebutton.main.views.MainToolbar;
       import org.bigbluebutton.modules.polling.events.OpenPollMainWindowEvent;
+      import org.bigbluebutton.modules.polling.events.OpenPollResultWindow;
       import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
       import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
       import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
@@ -132,7 +133,7 @@
 			private function renderMenu():void{
 				myMenuData.removeAll();
 				myMenuData.addItem(new ValueObject("create", ResourceUtil.getInstance().getString('bbb.polling.createPoll')));
-        myMenuData.addItem(new ValueObject("show", "Show Polls"));
+        myMenuData.addItem(new ValueObject("show", "Show Result"));
 				for (var i:int = 0; i < pollList.length; i++){
 					if (pollList[i] != null){
 						var keyString:String = pollList[i].room +"-"+ pollList[i].title;
@@ -172,36 +173,44 @@
 			}
 			
       private function menuClick(event:MenuEvent):void {            	
-				if(event.index == 0){
-            	  	openMainPollingWindow();
-            	}else{
-            		var poll:PollObject = myMenuData.getItemAt(event.index).poll;
-            		if (poll.status){
-            			// Poll has not been used yet, open instructions window
-            			var openPollEvent:OpenSavedPollEvent = new OpenSavedPollEvent(OpenSavedPollEvent.OPEN);
-            			openPollEvent.poll = poll;
-            			dispatchEvent(openPollEvent);
-            		}else{
-            			// Poll has been closed, show results
-            			var reviewEvent:ReviewResultsEvent = new ReviewResultsEvent(ReviewResultsEvent.REVIEW);
-            			reviewEvent.poll = poll;
-            			dispatchEvent(reviewEvent);
-            		}
-            	}
-				stage.dispatchEvent(new MenuEvent(MenuEvent.MENU_HIDE));
-        	}
-						
+        if(event.index == 0){
+          openMainPollingWindow();
+        } else if (event.index == 1) {
+          openResultWindow(); 
+        }
+        
+        else{
+          var poll:PollObject = myMenuData.getItemAt(event.index).poll;
+          if (poll.status){
+            // Poll has not been used yet, open instructions window
+            var openPollEvent:OpenSavedPollEvent = new OpenSavedPollEvent(OpenSavedPollEvent.OPEN);
+            openPollEvent.poll = poll;
+            dispatchEvent(openPollEvent);
+          }else{
+            // Poll has been closed, show results
+            var reviewEvent:ReviewResultsEvent = new ReviewResultsEvent(ReviewResultsEvent.REVIEW);
+            reviewEvent.poll = poll;
+            dispatchEvent(reviewEvent);
+          }
+        }
+        stage.dispatchEvent(new MenuEvent(MenuEvent.MENU_HIDE));
+      }
+      
 								
 			public function getAlignment():String{
 				return MainToolbar.ALIGN_RIGHT;
 			}
 			
-			
 			private function openMainPollingWindow():void {
 				dispatchEvent(new OpenPollMainWindowEvent());
 				this.enabled = false;
 			}
-			
+
+      private function openResultWindow():void {
+        dispatchEvent(new OpenPollResultWindow("pollID"));
+        this.enabled = false;
+      }
+      
 			private function remoteSwitch(e:ShortcutEvent):void{
 				if (this.toString() != REAL_BUTTON_ID){
 					updateMenuByShortcut(e);
