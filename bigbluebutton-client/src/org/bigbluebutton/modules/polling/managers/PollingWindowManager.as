@@ -56,6 +56,9 @@ package org.bigbluebutton.modules.polling.managers
 			
 		private var pollingWindow:PollingViewWindow;
 		private var statsWindow:PollingStatsWindow;
+
+		private var displayResultWindow:DisplayResultWindow;
+
     private var instructionsWindow:TakePollWindow;
 		//private var instructionsWindow:PollMainWindow;
     //private var instructionsWindow:CreatePollWindow;
@@ -187,13 +190,15 @@ package org.bigbluebutton.modules.polling.managers
 		// PollingStatsWindow.mxml Window Handlers 
 		//#########################################################################
 		public function handleOpenPollingStatsWindow(e:PollingStatsWindowEvent):void{
-			statsWindow = new PollingStatsWindow();
-			statsWindow.trackingPoll = e.poll;
-			openWindow(statsWindow);
+			//statsWindow = new PollingStatsWindow();
+			//statsWindow.trackingPoll = e.poll;
+
+			displayResultWindow = new DisplayResultWindow();
+			openWindow(displayResultWindow);
 
 			
-			statsFocusTimer.addEventListener(TimerEvent.TIMER, focusStatsWindow);
-			statsFocusTimer.start();
+			//statsFocusTimer.addEventListener(TimerEvent.TIMER, focusStatsWindow);
+			//statsFocusTimer.start();
 		}
 		
 		private function focusStatsWindow(event:TimerEvent):void{
