@@ -57,10 +57,10 @@ fi
 # http://192.168.0.104/bigbluebutton/demo/demo1.jsp?username=Fred2&action=create
 
 # HOST="http://$HOST/bigbluebutton/demo/demo1.jsp?action=create&username=user"
-HOST="http://$HOST/bigbluebutton"
+HOST="http://$HOST"
 
 
-if ! wget $HOST/api -O - --quiet | grep -q SUCCESS; then
+if ! wget $HOST/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
 	echo "Startup unsuccessful: could not connect to $HOST/api"
         exit 1
 fi
