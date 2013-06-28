@@ -25,7 +25,7 @@
       }
     ]]>
   </mx:Script>
-  <mx:Label id="pollTitleLabel" text="{data as String}" styleName="presentationNameLabelStyle" width="80%"/>
+  <mx:Label id="pollTitleLabel" text="{data.title}" styleName="presentationNameLabelStyle" width="80%"/>
   <mx:Button id="showBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn')}" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn.toolTip')}" 
              styleName="presentationUploadShowButtonStyle"

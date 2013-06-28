@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" borderStyle="none" horizontalAlign="center"
           headerHeight="0" borderThicknessBottom="0" borderThicknessLeft="0"
-          borderThicknessRight="0" borderThicknessTop="0">
+          borderThicknessRight="0" borderThicknessTop="0" creationComplete="onPreInit()" >
   <mx:Script>
       <![CDATA[
+        import org.bigbluebutton.modules.polling.model.PollingViewModel;
         import org.bigbluebutton.util.i18n.ResourceUtil;
 
+        public var viewModel:PollingViewModel;
+        
         [Bindable] private var baseIndex:int;
+        [Bindable] private var _polls:Array = new Array();
+        
+        private function onPreInit():void {
+          if (viewModel == null) trace("********** PollMainPanel viewModel is NULL!!!!!!");
+          _polls = viewModel.polls;
+        }
         
         private function isDuplicateAnswers(arr:Array):Boolean{
           var x:uint;
@@ -21,7 +30,7 @@
           return false;
         }
         
-        [Bindable] private var polls:Array = ["one", "two", "three"];
+        
         
         private function updateCamera():void {
           
@@ -44,7 +53,7 @@
         <mx:Spacer width="10"/>
         <mx:List id="pollsList" width="100%" height="100%" alternatingItemColors="[#EFEFEF, #FEFEFE]" allowMultipleSelection="false"
                  itemRenderer="org.bigbluebutton.modules.polling.views.CreatedPollsRenderer"
-                 dragEnabled="false" dataProvider="{polls}">
+                 dragEnabled="false" dataProvider="{_polls}">
         </mx:List>
       </mx:HBox>
       <mx:Spacer height="3"/>

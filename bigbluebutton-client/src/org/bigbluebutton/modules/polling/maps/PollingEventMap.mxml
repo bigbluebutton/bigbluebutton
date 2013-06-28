@@ -22,42 +22,38 @@
 
 	<mx:Script>
 		<![CDATA[
-
-			import mx.events.FlexEvent;		
-			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			
-			import org.bigbluebutton.modules.polling.managers.PollingManager;
-			
-			import org.bigbluebutton.modules.polling.events.*;
+      import mx.events.FlexEvent;
+      
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.modules.polling.events.*;
+      import org.bigbluebutton.modules.polling.managers.PollingManager;
+      import org.bigbluebutton.modules.polling.managers.PollingWindowManager;
+      import org.bigbluebutton.modules.polling.model.PollingModel;
+      import org.bigbluebutton.modules.polling.model.PollingViewModel;
 			
 				]]>
 				
 	</mx:Script>
-
-	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
-		<ObjectBuilder generator="{PollingManager}"/>		
-	</EventHandlers>	
 	
-	<!-- Module Events -->
 	<EventHandlers type="{ModuleEvent.START}">
+    <ObjectBuilder generator="{PollingWindowManager}"/>	
+    <MethodInvoker generator="{PollingWindowManager}" method="initialize"/>
 		<MethodInvoker generator="{PollingManager}" method="handleStartModuleEvent" arguments="{event.module}"/>
 	</EventHandlers>	
 	
 	<EventHandlers type="{ModuleEvent.STOP}">
 	</EventHandlers>	
 		
-    <!-- PollingInstructionsWindow Events -->
-	 <EventHandlers type="{PollingInstructionsWindowEvent.OPEN}">
-		<MethodInvoker generator="{PollingManager}"   method="handleOpenPollingInstructionsWindowEvent" arguments="{event}" />
+	 <EventHandlers type="{OpenPollMainWindowEvent.OPEN_POLL_MAIN_WINDOW}">
+		<MethodInvoker generator="{PollingWindowManager}"   method="handleOpenPollMainWindowEvent" />
 	 </EventHandlers>
 	  
 	  <EventHandlers type="{PollingInstructionsWindowEvent.CLOSE}">
 		<MethodInvoker generator="{PollingManager}" method="handleClosePollingInstructionsWindowEvent"  arguments="{event}"/>
 	 </EventHandlers>
 		
-	<!-- PollingViewWindow Events -->
 	<EventHandlers type="{PollingViewWindowEvent.OPEN}">
 		<MethodInvoker generator="{PollingManager}"  method="handleOpenPollingViewWindow" arguments="{event}"/>
 	 </EventHandlers>
@@ -66,12 +62,10 @@
 		<MethodInvoker generator="{PollingManager}"  method="handleClosePollingViewWindow" arguments="{event}"/>
 	 </EventHandlers>
 	
-	 <!-- Start Polling Event - Sharing Polling View Window -->	  
 	 <EventHandlers type="{StartPollingEvent.START}">
 		<MethodInvoker generator="{PollingManager}"  method="handleStartPollingEvent" arguments="{event}"/>
 	 </EventHandlers>
 	 
-	  <!-- Events on the switch between Presenter and Viewer -->
 	 <EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">
 			<MethodInvoker generator="{PollingManager}" method="handleMadePresenterEvent" arguments="{event}"/>
   	   </EventHandlers>
@@ -174,4 +168,11 @@
 	<EventHandlers type="{ShortcutEvent.POLL_BUTTON_CLICK}">
 		<MethodInvoker generator="{PollingManager}" method="handleGlobalPollHotkey" arguments="{event}"/>
 	</EventHandlers>
+  
+  <Injectors target="{PollingWindowManager}">
+    <PropertyInjector targetKey="model" source="{PollingModel}" />
+    <PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
+  </Injectors>
+    
+  <Debugger level="{Debugger.ALL}" />
 </EventMap>

@@ -27,8 +27,7 @@ package org.bigbluebutton.modules.polling.managers
 	public class PollingManager
 	{	
 		
-		public static const LOGNAME:String = "[PollingManager] ";	
-		
+		public static const LOGNAME:String = "[PollingManager] ";			
 		public var toolbarButtonManager:ToolbarButtonManager;
 		private var module:PollingModule;
 		private var globalDispatcher:Dispatcher;
@@ -47,7 +46,7 @@ package org.bigbluebutton.modules.polling.managers
 				service = new PollingService();
 			    toolbarButtonManager = new ToolbarButtonManager();
 			    globalDispatcher = new Dispatcher();
-			    viewWindowManager = new PollingWindowManager(service);
+			    viewWindowManager = new PollingWindowManager();
 		}
 		
 		
@@ -90,7 +89,7 @@ package org.bigbluebutton.modules.polling.managers
 		//Opening Instructions Window    
 	  	public function handleOpenPollingInstructionsWindowEvent(e:PollingInstructionsWindowEvent):void {
 			viewWindowManager.appFM = toolbarButtonManager.appFM;
-		    viewWindowManager.handleOpenPollingInstructionsWindow(e);
+	//	    viewWindowManager.handleOpenPollingInstructionsWindow(e);
 		}
 				
 	  // Checking the polling status to prevent a presenter from publishing two polls at a time

@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.polling.managers
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import flash.events.FocusEvent;
+	import flash.events.IEventDispatcher;
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
@@ -33,6 +34,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
+	import org.bigbluebutton.modules.polling.events.OpenPollMainWindowEvent;
 	import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
 	import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
 	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
@@ -43,6 +45,8 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.events.ReviewResultsEvent;
 	import org.bigbluebutton.modules.polling.events.StopPollEvent;
 	import org.bigbluebutton.modules.polling.model.PollObject;
+	import org.bigbluebutton.modules.polling.model.PollingModel;
+	import org.bigbluebutton.modules.polling.model.PollingViewModel;
 	import org.bigbluebutton.modules.polling.service.PollingService;
 	import org.bigbluebutton.modules.polling.views.CreatePollWindow;
 	import org.bigbluebutton.modules.polling.views.PollCreateWindow;
@@ -54,17 +58,22 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.views.UpdatePollWindow;
 			
 	public class PollingWindowManager {	
-			
+		
+    // Injected by Mate
+    public var model:PollingModel;
+    public var dispatcher:IEventDispatcher;
+    
+    private var _viewModel:PollingViewModel;
+    
 		private var pollingWindow:PollingViewWindow;
 		private var statsWindow:PollingStatsWindow;
-    private var instructionsWindow:UpdatePollWindow;
-    //private var instructionsWindow:TakePollWindow;
-		//private var instructionsWindow:PollMainWindow;
-    //private var instructionsWindow:CreatePollWindow;
+    private var updatePollWindow:UpdatePollWindow;
+    private var takePollWindow:TakePollWindow;
+		private var pollMainWindow:PollMainWindow = new PollMainWindow();
+    private var createPollWindow:CreatePollWindow;
     private var testCreateWindow:PollCreateWindow;
 		private var service:PollingService;
 		private var isViewing:Boolean = false;
-		private var globalDispatcher:Dispatcher;
 		
 		private var votingOpen:Boolean = false;
 		
@@ -73,58 +82,35 @@ package org.bigbluebutton.modules.polling.managers
 		private var instructionsFocusTimer:Timer = new Timer(250);
 		private var statsFocusTimer:Timer = new Timer(250);
 		
-		public static const LOGNAME:String = "[Polling::PollingWindowManager] ";
+		public static const LOG:String = "[Polling::PollingWindowManager] ";
 		
-		public function PollingWindowManager(service:PollingService) {
-		  LogUtil.debug(LOGNAME +" Built PollingWindowManager");	
-		  this.service = service;
-		  globalDispatcher = new Dispatcher();
+		public function initialize():void {
+      _viewModel = new PollingViewModel(model);
 		}
 				
-		public function handleOpenPollingInstructionsWindow(e:PollingInstructionsWindowEvent):void{
-			//instructionsWindow = new PollMainWindow();
-      //instructionsWindow = new CreatePollWindow();
-      //instructionsWindow = new TakePollWindow();
-      instructionsWindow = new UpdatePollWindow();
-      
-      testCreateWindow = new PollCreateWindow();
-      
-			// Use the PollGetTitlesEvent to fetch a list of already-used titles
-			var getTitlesEvent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.CHECK);
-			globalDispatcher.dispatchEvent(getTitlesEvent);
-			openWindow(instructionsWindow);
-      openWindow(testCreateWindow);
-			instructionsFocusTimer.addEventListener(TimerEvent.TIMER, moveInstructionsFocus);
-			instructionsFocusTimer.start();
+		public function handleOpenPollMainWindowEvent():void{
+      if (_viewModel == null) trace("***************** PollingWindowManager::handleOpenPollMainWindowEvent - viewModel is NULL!!!!!"); 
+      pollMainWindow.viewModel = _viewModel;      
+			openWindow(pollMainWindow);     
 		}
 		
 		private function moveInstructionsFocus(event:TimerEvent):void{
-			appFM.setFocus(instructionsWindow.titleBarOverlay);
+			appFM.setFocus(updatePollWindow.titleBarOverlay);
 			instructionsFocusTimer.stop();
 		}
 		
 		public function handleOpenPollingInstructionsWindowWithExistingPoll(e:OpenSavedPollEvent):void{
-			//instructionsWindow = new PollMainWindow();
-      //instructionsWindow = new CreatePollWindow();
-      //instructionsWindow = new TakePollWindow();
-      instructionsWindow = new UpdatePollWindow();
-      
-			// Use the PollGetTitlesEvent to fetch a list of already-used titles
-			var getTitlesEvent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.CHECK);
-			globalDispatcher.dispatchEvent(getTitlesEvent);
-			if (e.poll != null){
-//				instructionsWindow.incomingPoll = new PollObject();
-//				instructionsWindow.incomingPoll = e.poll;
-//				instructionsWindow.editing = true;
-			}		
-			openWindow(instructionsWindow);
+
+      updatePollWindow = new UpdatePollWindow();
+      	
+			openWindow(updatePollWindow);
 			
 			instructionsFocusTimer.addEventListener(TimerEvent.TIMER, moveInstructionsFocus);
 			instructionsFocusTimer.start();
 		}
 		
 		public function handleClosePollingInstructionsWindow(e:PollingInstructionsWindowEvent):void{
-			closeWindow(instructionsWindow);
+			closeWindow(updatePollWindow);
 		}
 		
 		// Checking the polling status to prevent a presenter from publishing two polls at a time
@@ -153,13 +139,13 @@ package org.bigbluebutton.modules.polling.managers
 			var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 			windowEvent.window = window;
 			if (windowEvent.window != null)
-				globalDispatcher.dispatchEvent(windowEvent);
+				dispatcher.dispatchEvent(windowEvent);
 		}
 		
 		private function closeWindow(window:IBbbModuleWindow):void{
 			var windowEvent:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
 			windowEvent.window = window;
-			globalDispatcher.dispatchEvent(windowEvent);
+      dispatcher.dispatchEvent(windowEvent);
 		}
 		//#################################################################################
 

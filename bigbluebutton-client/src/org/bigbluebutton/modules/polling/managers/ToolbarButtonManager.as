@@ -25,9 +25,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.common.events.ToolbarButtonEvent;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.polling.views.ToolbarButton;
-
-	import mx.managers.IFocusManager;
-	
+	import mx.managers.IFocusManager;	
 	import flash.display.DisplayObjectContainer;
 		
 	public class ToolbarButtonManager {		

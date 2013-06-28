@@ -86,7 +86,7 @@ package org.bigbluebutton.modules.polling.managers
 		//Opening Instructions Window    
 	  	public function handleOpenPollingInstructionsWindowEvent(e:PollingInstructionsWindowEvent):void {
 			viewWindowManager.appFM = toolbarButtonManager.appFM;
-		    viewWindowManager.handleOpenPollingInstructionsWindow(e);
+//		    viewWindowManager.handleOpenPollingInstructionsWindow(e);
 		}
 				
 	  // Checking the polling status to prevent a presenter from publishing two polls at a time

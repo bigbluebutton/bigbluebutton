@@ -17,5 +17,8 @@ package org.bigbluebutton.modules.polling.managers
 
 		}
 		
+    public function handleStartModuleEvent(module:PollingModule):void {
+      
+    }
    }
 }
