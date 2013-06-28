@@ -1,0 +1,19 @@
+These instructions help for determine which localization strings are used in the bigbluebutton-client
+
+1) Get the keys from the properties file, execute:
+
+awk 'match($0,"="){ print substr($0,1,RSTART-1) }' /home/firstuser/dev/bigbluebutton/bigbluebutton-client/locale/en_US/bbbResources.properties &> keys.properties
+
+2) Copy the following text to a file called routine.sh:
+
+for i in $(cat keys.properties)
+do
+  if grep -nr --exclude-dir="locale" $i /home/firstuser/dev/bigbluebutton/bigbluebutton-client/
+  then
+    echo "$i" >> keys-used.properties
+  else
+    echo "$i" >> keys-not-used.properties
+  fi
+done
+
+Then run: sh routine.sh

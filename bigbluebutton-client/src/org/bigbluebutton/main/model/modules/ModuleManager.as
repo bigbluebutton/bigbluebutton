@@ -103,6 +103,8 @@ package org.bigbluebutton.main.model.modules
 
 		private function stopModule(name:String):void {
 			LogUtil.debug('Stopping module ' + name);
+      trace('Stopping module ' + name);
+      
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
 				LogUtil.debug('Stopping ' + name);

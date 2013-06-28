@@ -33,18 +33,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{SettingsEvent.SETTINGS_MODULE_LOADED}" method="showSettingsButton" />
 	<mate:Listener type="{ShortcutEvent.REMOTE_OPEN_SHORTCUT_WIN}" method="remoteShortcutClick" />
 	<mate:Listener type="{ShortcutEvent.LOGOUT}" method="remoteLogout" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_SHORTCUT_BUTTON}" method="focusShortcutButton" />
 	
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;		
+			import com.asfusion.mate.events.Dispatcher;
+			
 			import mx.core.UIComponent;
+			
 			import org.bigbluebutton.common.IBbbToolbarComponent;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.services.BandwidthMonitor;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ConfigEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
@@ -54,7 +58,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.core.services.BandwidthMonitor;
 
 
 			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
@@ -103,8 +106,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} else {
 					showHelpBtn = false;
 				}
+                
+                if (toolbarOptions.showMeetingName) {
+                    // Need to wait to allow time for the conference parameters to be loaded
+                    var timer:Timer = new Timer(2000, 1);
+                    timer.addEventListener(TimerEvent.TIMER, retrieveMeetingName);
+                    timer.start();
+                }
 			}
 			
+            private function retrieveMeetingName(e:TimerEvent):void {
+                    var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();
+                    
+                    if (meetingTitle != null) {
+                        meetingNameLbl.text = meetingTitle;
+                    } else { // if the meeting title isn't loaded, wait and check again.
+                        /* This is an awful implementation, but it works.
+                         *                 Chad
+                         */
+                        var timer:Timer = new Timer(2000, 1);
+                        timer.addEventListener(TimerEvent.TIMER, retrieveMeetingName);
+                        timer.start();
+                    }
+            }
+            
 			public function addButton(name:String):Button{
 				var btn:Button = new Button();
 				btn.id = name;
@@ -117,6 +142,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onHelpButtonClicked():void {
+        DEFAULT_HELP_URL = BBB.initConfigManager().config.help.url;        
 				navigateToURL(new URLRequest(DEFAULT_HELP_URL))
 			}
 			
@@ -227,13 +253,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var d:Dispatcher = new Dispatcher();
 				d.dispatchEvent(new ShortcutEvent(ShortcutEvent.OPEN_SHORTCUT_WIN));
 			}
+			
+			private function focusShortcutButton(e:ShortcutEvent):void{
+				shortcutKeysBtn.setFocus();
+			}
 
 		]]>
 	</mx:Script>	
 	<mx:HBox id="addedBtns"/>
 	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}"/>
 	<views:MuteMeButton id="muteMeBtn"  height="20" />
-	<mx:Spacer width="100%"/>
+	<mx:Spacer width="50%"/>
+    <mx:Label id="meetingNameLbl" styleName="meetingNameLabelStyle" />
+    <mx:Spacer width="50%"/>
 	<views:LanguageSelector id="langSelector" 
 							visible="false" 
 							tabIndex="{baseIndex+numButtons+5}"
@@ -245,10 +277,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
              click="onShortcutButtonClick()" height="22" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}" 
              tabIndex="{baseIndex+numButtons+6}" />
-	<mx:LinkButton id="helpBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" 
-                 visible="{showHelpBtn}" click="onHelpButtonClicked()" height="22" styleName="helpLinkButtonStyle"
-                 tabIndex="{baseIndex+numButtons+7}" />
-	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" styleName="logoutButtonStyle"
+	<mx:LinkButton id="helpBtn" visible="{showHelpBtn}" label="?" click="onHelpButtonClicked()" height="22" 
+                   styleName="helpLinkButtonStyle" tabIndex="{baseIndex+numButtons+7}" 
+                   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"/>
+	<mx:Button label="" id="btnLogout" styleName="logoutButtonStyle"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()" height="22"
                  tabIndex="{baseIndex+numButtons+8}" />
 </mx:ApplicationControlBar>

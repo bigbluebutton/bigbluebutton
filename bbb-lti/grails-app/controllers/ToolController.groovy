@@ -66,7 +66,7 @@ class ToolController {
                         result = doJoinMeeting(params)
                     } else {
                         log.debug  "LTI service running in extended mode."
-                        if ( !Boolean.parseBoolean(params.get(Parameter.CUSTOM_BBB_RECORD)) ) {
+                        if ( !Boolean.parseBoolean(params.get(Parameter.CUSTOM_RECORD)) ) {
                             log.debug  "No bbb_record parameter was sent; immediately redirecting to BBB session!"
                             result = doJoinMeeting(params)
                         }
@@ -164,10 +164,20 @@ class ToolController {
             log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
             render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
         } else {
-            //String destinationURL = createLink(controller:"tool", action:"view", params:"[foo: 'bar', boo: 'far']") 
-            String destinationURL = createLink(controller:"tool", action:"view") 
-            log.debug "destinationURL=[" + destinationURL + "]"
-            redirect(url:destinationURL)
+            List<Object> recordings = bigbluebuttonService.getRecordings(sessionParams)
+            for(Map<String, Object> recording: recordings){
+                /// Calculate duration
+                long endTime = Long.parseLong((String)recording.get("endTime"))
+                endTime -= (endTime % 1000)
+                long startTime = Long.parseLong((String)recording.get("startTime"))
+                startTime -= (startTime % 1000)
+                int duration = (endTime - startTime) / 60000
+                /// Add duration
+                recording.put("duration", duration )
+            }
+            
+            render(view: "index", model: ['params': sessionParams, 'recordingList': recordings, 'ismoderator': bigbluebuttonService.isModerator(sessionParams)])
+            
         }
 
     }
@@ -198,10 +208,19 @@ class ToolController {
             log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
             render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
         } else {
-            //String destinationURL = createLink(controller:"tool", action:"view", params:"[foo: 'bar', boo: 'far']")
-            String destinationURL = createLink(controller:"tool", action:"view")
-            log.debug "destinationURL=[" + destinationURL + "]"
-            redirect(url:destinationURL)
+            List<Object> recordings = bigbluebuttonService.getRecordings(sessionParams)
+            for(Map<String, Object> recording: recordings){
+                /// Calculate duration
+                long endTime = Long.parseLong((String)recording.get("endTime"))
+                endTime -= (endTime % 1000)
+                long startTime = Long.parseLong((String)recording.get("startTime"))
+                startTime -= (startTime % 1000)
+                int duration = (endTime - startTime) / 60000
+                /// Add duration
+                recording.put("duration", duration )
+            }
+            
+            render(view: "index", model: ['params': sessionParams, 'recordingList': recordings, 'ismoderator': bigbluebuttonService.isModerator(sessionParams)])
         }
 
     }
@@ -230,8 +249,8 @@ class ToolController {
         log.debug "Localized default welcome message: [" + welcome + "]"
 
 		// Check for [custom_]welcome parameter being passed from the LTI
-		if (params.get(Parameter.CUSTOM_BBB_WELCOME) != null) {
-			welcome = params.get(Parameter.CUSTOM_BBB_WELCOME)
+		if (params.get(Parameter.CUSTOM_WELCOME) != null) {
+			welcome = params.get(Parameter.CUSTOM_WELCOME)
 			log.debug "Overriding default welcome message with: [" + welcome + "]"
 		}
            

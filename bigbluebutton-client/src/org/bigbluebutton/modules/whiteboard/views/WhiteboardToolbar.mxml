@@ -37,7 +37,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="graphicObjSelected" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="graphicObjDeselected" />
 	<mate:Listener type="{WhiteboardButtonEvent.WHITEBOARD_BUTTON_PRESSED}" method="handleWhiteboardButtonPressed"/>
-	
+    
 	<mx:Style>
 		.colorPickerStyle {
 	      backgroundColor:#E5E6E7;
@@ -131,53 +131,51 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 setToolType(WhiteboardConstants.TYPE_ZOOM, null);
             }
                        
-			private function handleWhiteboardButtonPressed(e:WhiteboardButtonEvent):void {
-        setToolType(e.graphicType, e.toolType);
-      }
+            private function handleWhiteboardButtonPressed(e:WhiteboardButtonEvent):void {
+                setToolType(e.graphicType, e.toolType);
+            }
             
-      private function setToolType(graphicType:String, toolType:String):void {                
-        canvas.setGraphicType(graphicType);
-        canvas.setTool(toolType);
-                
-        if (panzoomBtn != null) {
-          panzoomBtn.setTool(graphicType, toolType);
-        }
-                
-        if (scribbleBtn != null) {
-          scribbleBtn.setTool(graphicType, toolType); 
-        }
-                                
-        if (rectangleBtn != null) {
-          rectangleBtn.setTool(graphicType, toolType); 
-        }
-                
-        if (circleBtn != null) {
-          circleBtn.setTool(graphicType, toolType);
-        }
-                
-        if (triangleBtn != null) {
-          triangleBtn.setTool(graphicType, toolType);
-        }
-                                
-        if (lineBtn != null) {
-          lineBtn.setTool(graphicType, toolType);
-        }
-                
-        if (textBtn != null) {
-          textBtn.setTool(graphicType, toolType);
-        }
-                                
-        if(graphicType == WhiteboardConstants.TYPE_CLEAR) {
-          dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR));
-        }
-                
-        if (graphicType == WhiteboardConstants.TYPE_UNDO) {
-          sendUndoCommand();
-        }
-			}
-						
-			protected function changeColor(e:Event):void {
-				canvas.changeColor(e);
+            private function setToolType(graphicType:String, toolType:String):void {                
+                if (graphicType == WhiteboardConstants.TYPE_CLEAR) {
+                    dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR));
+                } else if (graphicType == WhiteboardConstants.TYPE_UNDO) {
+                    sendUndoCommand();
+                } else {
+                    canvas.setGraphicType(graphicType);
+                    canvas.setTool(toolType);
+                    
+                    if (panzoomBtn != null) {
+                        panzoomBtn.setTool(graphicType, toolType);
+                    }
+                    
+                    if (scribbleBtn != null) {
+                        scribbleBtn.setTool(graphicType, toolType); 
+                    }
+                    
+                    if (rectangleBtn != null) {
+                        rectangleBtn.setTool(graphicType, toolType); 
+                    }
+                    
+                    if (circleBtn != null) {
+                        circleBtn.setTool(graphicType, toolType);
+                    }
+                    
+                    if (triangleBtn != null) {
+                        triangleBtn.setTool(graphicType, toolType);
+                    }
+                    
+                    if (lineBtn != null) {
+                        lineBtn.setTool(graphicType, toolType);
+                    }
+                    
+                    if (textBtn != null) {
+                        textBtn.setTool(graphicType, toolType);
+                    }
+                }
+            }
+            
+            protected function changeColor(e:Event):void {
+                canvas.changeColor(e);
 			}
 			
 			protected function changeFillColor(e:Event):void {
@@ -205,7 +203,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function viewerMode(e:MadePresenterEvent):void {
 				canvas.makeTextObjectsUneditable(e);
-				if (!toolbarAllowed()) hideToolbar();
+				if (!toolbarAllowed()) {
+                    hideToolbar();
+                    if (panzoomBtn) {
+                        panzoomBtn.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+                    }
+                }
 			}
 			
 			private function undoShortcut(e:ShortcutEvent):void{
@@ -347,16 +350,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                   selectedColor="0x000000" width="30" dataProvider="{colorPickerColours}" swatchPanelStyleName="colorPickerStyle"
                   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"
                   tabIndex="{baseIndex+9}"
-				  accessibilityName="{ResourceUtil.getInstance().getString('bbb.whiteboard.chooseColour')}"/>
+				  accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"/>
    
 	<mx:Spacer height="3" visible="{showWhiteboardToolbar}"/>
 	<mx:Image source="{thick_icon}" horizontalAlign="center" width="30" visible="{showWhiteboardToolbar}"/>
 	<mx:VSlider height="50" id="sld" change="changeThickness(event)" visible="{showWhiteboardToolbar}"
-				toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness')}" 
+				toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness.accessibilityName')}" 
 				minimum="1" maximum="30" 
 				useHandCursor="true" value="2" showDataTip="true" snapInterval="1" dataTipOffset="0" labelOffset="0" 
 				tabIndex="{baseIndex+10}"
-				accessibilityName="{ResourceUtil.getInstance().getString('bbb.whiteboard.slider')}" />
+				accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness.accessibilityName')}" />
 	<mx:Image source="{thin_icon}" horizontalAlign="center" width="30" visible="{showWhiteboardToolbar}"/>
 	
 </mx:VBox>

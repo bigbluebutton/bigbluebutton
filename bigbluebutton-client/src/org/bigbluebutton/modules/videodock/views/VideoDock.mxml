@@ -22,7 +22,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 		   xmlns:mx="http://www.adobe.com/2006/mxml" 
-		   initialize="init()"
+		   initialize="init()" 
+       horizontalScrollPolicy="off"
+       verticalScrollPolicy="off"
 		   creationComplete="onCreationComplete()" 
 		   implements="org.bigbluebutton.common.IBbbModuleWindow"
 		   title="{ResourceUtil.getInstance().getString('bbb.videodock.title')}"
@@ -162,7 +164,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				focusManager.setFocus(titleBarOverlay);
 			}
 		
-			private function localeChanged(e:LocaleChangeEvent):void{
+			private function localeChanged(e:Event):void{
 				resourcesChanged();
 			}
 			
@@ -277,6 +279,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			override public function close(event:MouseEvent = null):void {
+        for each(var windowItf:VideoWindowItf in mutableChildrenArray) {
+          windowItf.close();
+        }
+        
 				removeAllChildren();
 				super.close(event);
 			}
@@ -413,7 +419,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						|| options.layout == DockOptions.LAYOUT_NONE)
 					return;
 				
-				if (window == priorityWindow && !options.oneAlwaysBigger) {
+				if (_prioritizeWindow && window == priorityWindow && !options.oneAlwaysBigger) {
 					deprioritizeWindow();
 				} else {
 					var index:int = mutableChildrenArray.indexOf(window);

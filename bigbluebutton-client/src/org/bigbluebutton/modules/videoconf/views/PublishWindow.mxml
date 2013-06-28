@@ -37,10 +37,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
   <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserVoiceMutedEvent" />
   <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
-  <mate:Listener type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" method="handleNewRoleEvent" />
+  <mate:Listener type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" method="handleSwitchedPresenterEvent" />
+  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleMadePresenterEvent" /> 
+  <mate:Listener type="{BBBEvent.USER_VOICE_JOINED}" method="handleNewRoleEvent" />
+  <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleNewRoleEvent" />
   <mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
   <mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_WEBCAM}" method="remoteFocus" />
-  
+   
 	<mx:Script>
 		<![CDATA[
       import flexlib.mdi.events.MDIWindowEvent;
@@ -60,6 +63,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.core.model.VideoProfile;
       import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.events.SwitchedPresenterEvent;
       import org.bigbluebutton.main.views.MainCanvas;
       import org.bigbluebutton.modules.videoconf.business.TalkingButtonOverlay;
@@ -69,11 +74,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
       import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
-	  import org.bigbluebutton.main.events.ShortcutEvent;
       
-			[Bindable] private var defaultWidth:Number = 320;
-			[Bindable] private var defaultHeight:Number = 240;
-			
+      [Bindable] private var defaultWidth:Number = 320;
+      [Bindable] private var defaultHeight:Number = 240;
+
+      
       public var camIndex:int = 0;
       public var selectedVideoProfile:VideoProfile;
 			private var _camera:Camera = null;
@@ -124,7 +129,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.resizable = false;
 							
 				this.visible = videoOptions.publishWindowVisible;
-				
+        this.showCloseButton = videoOptions.showCloseButton;
+        
 				if (videoOptions.autoStart) {
 					/*
 					 * Need to have a timer to trigger auto-publishing of webcam.
@@ -137,10 +143,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				titleBarOverlay.tabIndex = baseIndex;
 				titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.publish.titleBar');
-				minimizeBtn.tabIndex = baseIndex+1;
-				minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.publish.minimizeBtn');
-				maximizeRestoreBtn.tabIndex = baseIndex+2;
-				maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.publish.maximizeRestoreBtn');
 				closeBtn.focusEnabled = true;
 				closeBtn.tabIndex = baseIndex+3;
 				
@@ -163,10 +165,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				autoPublishTimer.stop();
 			}
 			
-      private function handleNewRoleEvent(event:SwitchedPresenterEvent):void {
-        switchRole(event.amIPresenter)
+      private function handleMadePresenterEvent(event:MadePresenterEvent):void {
+        trace("******** PublishWindow: HandleMadePresenter event *********");
+        updateControlButtons();
       }
       
+      private function handleSwitchedPresenterEvent(event:SwitchedPresenterEvent):void {
+        trace("******** PublishWindow: handleSwitchedPresenterEvent event *********");
+        updateControlButtons();
+      }
+      
+      private function handleNewRoleEvent(event:Event):void {
+        updateControlButtons();
+      }
+            
       private function handleUserVoiceMutedEvent(event:BBBEvent):void {
         if (event.payload.userID ==  userID) {
           userMuted(event.payload.muted);
@@ -223,10 +235,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 _camera.setQuality(selectedVideoProfile.qualityBandwidth, selectedVideoProfile.qualityPicture);
                 
                 setResolution();
-
-				_video = new Video;
+				
+				_video = new Video();
 				_video.attachCamera(_camera);
-
+        _video.smoothing = true;
+        
 				if (aspectRatio > _videoHolder.width / _videoHolder.height) {
 					_video.width = _videoHolder.width;
 					_video.height = _videoHolder.width / aspectRatio;
@@ -308,25 +321,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 e.videoProfile = selectedVideoProfile;
 				dispatchEvent(e);
 				
-				maximizeRestoreBtn.visible = true;
-				
-				onResize();
-				
-
-				
         // Store the userid for the publisher. This allows us to control
         // the user's status from the video window
         userID = UsersUtil.getMyUserID();
 				
         createButtons();
         addControlButtons();
-        			
+                	
 			}
 			
       private var _isClosing:Boolean = false;
       
 			override public function close(event:MouseEvent=null):void{
-        trace("PublishWindow::close");
+        trace("PublishWindow:: closing");
+        
 			  if (!_isClosing) {
           _isClosing = true;
           stopPublishing();
@@ -334,9 +342,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function stopCamera():void {
+        trace("PublishWindow:: stopping camera");
+        
         _camera = null;
 				if (_video != null) {
+          trace("PublishWindow:: removing video from display");
 					_videoHolder.removeChild(_video);
+          
 					_video.attachCamera(null);
 					_video.clear();
 					_video = null;
@@ -352,6 +364,47 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatchEvent(e);
 			}
 			
+      override protected function onResize():void {
+        
+        super.onResize();
+        
+        if (_videoHolder != null) {
+
+            fitVideoToWindow();
+
+          _video.x = (this.width - PADDING_HORIZONTAL - _video.width) / 2;
+          _video.y = (this.height - PADDING_VERTICAL - _video.height) / 2;    
+        }
+                     
+      }
+      
+      private function fitVideoToWindow():void {
+        if (_videoHolder.width - PADDING_HORIZONTAL < _videoHolder.height - PADDING_VERTICAL) {
+          fitToHeightAndAdjustWidthToMaintainAspectRatio();         			
+        } else {
+          fitToWidthAndAdjustHeightToMaintainAspectRatio();	
+        }				
+      }
+      
+      private function videoIsSmallerThanWindow():Boolean {
+        return (selectedVideoProfile.width < _videoHolder.width - PADDING_HORIZONTAL) && (selectedVideoProfile.height < _videoHolder.height - PADDING_VERTICAL);
+      }
+      
+      private function fitToWidthAndAdjustHeightToMaintainAspectRatio():void {
+        var aspect:Number = selectedVideoProfile.height / selectedVideoProfile.width;
+        _video.width = _videoHolder.width - PADDING_HORIZONTAL;
+        
+        // Maintain aspect-ratio
+        _video.height = _video.width * aspect;			
+      }
+      
+      private function fitToHeightAndAdjustWidthToMaintainAspectRatio():void {
+        var aspect:Number = selectedVideoProfile.width / selectedVideoProfile.height;
+        _video.height = _videoHolder.height - PADDING_VERTICAL;
+        
+        // Maintain aspect-ratio
+        _video.width = _video.height * aspect;				
+      }
 		
 			public function setResolution():void {
 				originalWidth = selectedVideoProfile.width;
@@ -366,7 +419,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var uid:String = UserManager.getInstance().getConference().getMyUserId();
         this.streamName = selectedVideoProfile.id + "-" + uid + "-" + curTime;
         trace("Using as streamName " + this.streamName);
-
 			}
 						
 			private function isPresenter():Boolean{

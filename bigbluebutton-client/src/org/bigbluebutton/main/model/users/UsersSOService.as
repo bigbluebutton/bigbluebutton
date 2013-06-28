@@ -17,12 +17,14 @@
 *
 */
 package org.bigbluebutton.main.model.users {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-	import flash.net.SharedObject;	
+	import flash.net.SharedObject;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.BBB;
@@ -40,6 +42,9 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
+	import flash.external.ExternalInterface;
+	import org.bigbluebutton.main.model.users.BBBUser;
 
 	public class UsersSOService {
 		public static const NAME:String = "ViewersSOService";
@@ -168,6 +173,11 @@ package org.bigbluebutton.main.model.users {
       
 			var meeting:Conference = UserManager.getInstance().getConference();
 
+			if (meeting.amIPresenter){
+				// Give the former presenter an audio alert IF he or she is using a screen reader
+				ExternalInterface.call("addAlert", ResourceUtil.getInstance().getString("bbb.accessibility.alerts.madeViewer"));
+			}
+			
 			if (meeting.amIThisUser(userid)) {
         trace("**** Switching [" + name + "] to presenter");
         sendSwitchedPresenterEvent(true, userid);
@@ -178,8 +188,11 @@ package org.bigbluebutton.main.model.users {
 				e.presenterName = name;
 				e.assignerBy = assignedBy;
 				
-				dispatcher.dispatchEvent(e);	
-              
+				dispatcher.dispatchEvent(e);
+				
+				// Give the new presenter an audio alert IF he or she is using a screen reader
+				ExternalInterface.call("addAlert", ResourceUtil.getInstance().getString("bbb.accessibility.alerts.madePresenter"));
+				
 			} else {	
         trace("**** Switching [" + name + "] to presenter. I am viewer.");
         sendSwitchedPresenterEvent(false, userid);
@@ -194,6 +207,7 @@ package org.bigbluebutton.main.model.users {
 			}
 		}
 		
+		
     private function sendSwitchedPresenterEvent(amIPresenter:Boolean, newPresenterUserID:String):void {
 
       var roleEvent:SwitchedPresenterEvent = new SwitchedPresenterEvent();
@@ -206,8 +220,12 @@ package org.bigbluebutton.main.model.users {
 			_participantsSO.send("kickUserCallback", userid);
 		}
 		
-		public function kickUserCallback(userid:String):void{
-			if (UserManager.getInstance().getConference().amIThisUser(userid)){
+		public function kickUserCallback(userid:String):void {
+      var kickedEvent:LogoutEvent = new LogoutEvent(LogoutEvent.USER_KICKED_OUT);
+      kickedEvent.userID = userid;
+      dispatcher.dispatchEvent(kickedEvent);
+      
+			if (UserManager.getInstance().getConference().amIThisUser(userid)) {
 				dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
 			}
 		}
@@ -215,12 +233,17 @@ package org.bigbluebutton.main.model.users {
 		public function participantLeft(userID:String):void { 			
 			var user:BBBUser = UserManager.getInstance().getConference().getUser(userID);
 			
-			UserManager.getInstance().getConference().removeUser(userID);	
-			
-
+      trace("Notify others that user [" + user.userID + ", " + user.name + "] is leaving!!!!");
+      
+      // Flag that the user is leaving the meeting so that apps (such as avatar) doesn't hang
+      // around when the user already left.
+      user.isLeavingFlag = true;
+      
 			var joinEvent:UserLeftEvent = new UserLeftEvent(UserLeftEvent.LEFT);
 			joinEvent.userID = user.userID;
 			dispatcher.dispatchEvent(joinEvent);	
+      
+      UserManager.getInstance().getConference().removeUser(userID);	      
 		}
 		
 		public function participantJoined(joinedUser:Object):void { 
@@ -229,6 +252,7 @@ package org.bigbluebutton.main.model.users {
 			user.name = joinedUser.name;
 			user.role = joinedUser.role;
       user.externUserID = joinedUser.externUserID;
+      user.isLeavingFlag = false;
       
 			LogUtil.debug("User status: " + joinedUser.status.hasStream);
 

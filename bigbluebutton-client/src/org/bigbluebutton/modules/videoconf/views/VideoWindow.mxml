@@ -35,30 +35,35 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserVoiceMutedEvent" />
 	<mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
-	<mate:Listener type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" method="handleNewRoleEvent" />
+  <mate:Listener type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" method="handleSwitchedPresenterEvent" />
+  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleMadePresenterEvent" /> 
+  <mate:Listener type="{BBBEvent.USER_VOICE_JOINED}" method="handleNewRoleEvent" />
+  <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleNewRoleEvent" />
 	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flexlib.mdi.events.MDIWindowEvent;
-			
-			import mx.core.UIComponent;
-			
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.Role;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.core.EventConstants;
-			import org.bigbluebutton.core.events.CoreEvent;
-			import org.bigbluebutton.core.model.VideoProfile;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
-			import org.bigbluebutton.main.events.SwitchedPresenterEvent;
-			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.videoconf.business.TalkingButtonOverlay;
-			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
-			import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import flexlib.mdi.events.MDIWindowEvent;
+      
+      import mx.core.UIComponent;
+      
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.Role;
+      import org.bigbluebutton.common.events.CloseWindowEvent;
+      import org.bigbluebutton.core.EventConstants;
+      import org.bigbluebutton.core.events.CoreEvent;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.core.model.VideoProfile;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
+      import org.bigbluebutton.main.events.SwitchedPresenterEvent;
+      import org.bigbluebutton.main.views.MainCanvas;
+      import org.bigbluebutton.modules.videoconf.business.TalkingButtonOverlay;
+      import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+      import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 			
 			private var ns:NetStream;			
 			private var globalDispatcher:Dispatcher;
@@ -100,7 +105,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				this.minWidth = _minWidth;
 				this.minHeight = _minHeight;
-				maximizeRestoreBtn.visible = true;
+				maximizeRestoreBtn.visible = false;
 				this.resizable = true;
 				
 				/**
@@ -118,9 +123,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.showCloseButton = videoOptions.showCloseButton;
 			}
 			
-			private function handleNewRoleEvent(event:SwitchedPresenterEvent):void {
-				switchRole(event.amIPresenter)
-			}
+      private function handleMadePresenterEvent(event:MadePresenterEvent):void {
+        trace("******** VideoWindow: HandleMadePresenter event *********");
+        updateControlButtons();
+      }
+      
+      private function handleSwitchedPresenterEvent(event:SwitchedPresenterEvent):void {
+        trace("******** VideoWindow: handleSwitchedPresenterEvent event *********");
+        updateControlButtons();
+      }
+      
+      private function handleNewRoleEvent(event:Event):void {
+        updateControlButtons();
+      }
 			
 			private function handleUserVoiceMutedEvent(event:BBBEvent):void {
 				if (event.payload.userID ==  userID) {
@@ -136,7 +151,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					_closing = true;
 					var stopEvent:StoppedViewingWebcamEvent = new StoppedViewingWebcamEvent();
 					stopEvent.webcamUserID = userID;
-					globalDispatcher.dispatchEvent(stopEvent);          
+					globalDispatcher.dispatchEvent(stopEvent); 
+                    
+                    if (UserManager.getInstance().getConference().hasUser(userID)) {
+                        UserManager.getInstance().getConference().getUser(userID).viewingStream = false;
+                    }
 				}
 				
 			}
@@ -171,6 +190,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_video = new Video(pro.width, pro.height);
 				_video.width = originalWidth = pro.width;
 				_video.height = originalHeight = pro.height;
+				_video.smoothing = true;
 				setAspectRatio(pro.width, pro.height); 
 				_video.attachNetStream(ns);
 				
@@ -195,7 +215,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.streamName = stream;
 				
 				this.width = _video.width + paddingHorizontal;
-				this.height = _video.height + paddingVertical;	
+				this.height = _video.height + paddingVertical;
+                
+                if (UserManager.getInstance().getConference().hasUser(userID)) {
+                    UserManager.getInstance().getConference().getUser(userID).viewingStream = true;
+                }
 			}
 			
 			private function onAsyncError(e:AsyncErrorEvent):void{
@@ -211,7 +235,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onNetStatus(e:NetStatusEvent):void{
-				trace("VideoWindow::onNetStatus get on the stream " + streamName + " the event code " + e.info.code);
 				switch(e.info.code){
 					case "NetStream.Publish.Start":
 						LogUtil.debug("NetStream.Publish.Start for broadcast stream " + streamName);

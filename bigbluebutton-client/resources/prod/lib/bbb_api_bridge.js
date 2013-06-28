@@ -72,7 +72,22 @@
         }
       }
     }
-    
+
+    /**
+     * Raise user's hand.
+     *
+     * Param:
+     *   raiseHand - [true/false]
+     * 
+     */
+    BBB.raiseHand = function(raiseHand) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        console.log("Request to raise hand [" + raiseHand + "]");
+        swfObj.raiseHandRequest(raiseHand);
+      }    
+    }
+        
     /**
      * Issue a switch presenter command.
      *
@@ -205,6 +220,16 @@
         console.log("Getting external meetingID");
         if (typeof callback === 'function') {
           callback(swfObj.getExternalMeetingID());
+        }
+      }
+    }
+
+    BBB.getInternalMeetingID = function(callback) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        console.log("Getting internal meetingID");
+        if (typeof callback === 'function') {
+          callback(swfObj.getInternalMeetingID());
         }
       }
     }
@@ -358,7 +383,39 @@
         swfObj.sendPrivateChatRequest(fontColor, localeLang, message, toUserID);
       }    
     }
-        
+
+    /**
+    * Request to display a presentation.
+    *  presentationID - the presentation to display
+    */     
+    BBB.displayPresentation = function(presentationID) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.displayPresentationRequest(presentationID);
+      }     
+    }
+    
+   /**
+    * Query the list of uploaded presentations.
+    */     
+    BBB.queryListOfPresentations = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.queryListsOfPresentationsRequest();
+      }     
+    }
+
+    /**
+    * Request to delete a presentation.
+    *  presentationID - the presentation to delete
+    */      
+    BBB.deletePresentation = function(presentationID) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.deletePresentationRequest(presentationID);
+      }     
+    }
+            
     // Third-party JS apps should use this to query if the BBB SWF file is ready to handle calls.
     BBB.isSwfClientReady = function() {
       return swfReady;
@@ -490,13 +547,25 @@
     var REMOTE_UNLOCKED_LAYOUT      = 'RemoteUnlockedLayoutEvent';
     var USER_JOINED_VOICE           = 'UserJoinedVoiceEvent';
     var USER_LEFT_VOICE             = 'UserLeftVoiceEvent';
+    var USER_KICKED_OUT             = 'UserKickedOutEvent';
     var USER_MUTED_VOICE            = 'UserVoiceMutedEvent';
     var USER_TALKING                = 'UserTalkingEvent';
     var USER_LOCKED_VOICE           = 'UserLockedVoiceEvent';
     var START_PRIVATE_CHAT          = "StartPrivateChatEvent";
     var GET_MY_USER_INFO_REP        = "GetMyUserInfoResponse";
     var IS_USER_PUBLISHING_CAM_RESP  = "IsUserPublishingCamResponse";
-           
+    
+    /*conversion events*/
+    var OFFICE_DOC_CONVERSION_SUCCESS = "OfficeDocConversionSuccess";
+    var OFFICE_DOC_CONVERSION_FAILED = "OfficeDocConversionFailed";
+    var SUPPORTED_DOCUMENT = "SupportedDocument";
+    var UNSUPPORTED_DOCUMENT = "UnsupportedDocument";    
+    var PAGE_COUNT_FAILED = "PageCountFailed";
+    var THUMBNAILS_UPDATE = "ThumbnailsUpdate";
+    var PAGE_COUNT_EXCEEDED = "PageCountExceeded";
+    var CONVERT_SUCCESS = "ConvertSuccess";
+    var CONVERT_UPDATE = "ConvertUpdate";
+
     window.BBB = BBB;
 })(this);
 
