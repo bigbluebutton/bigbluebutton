@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" borderStyle="none" horizontalAlign="center"
+          headerHeight="0" borderThicknessBottom="0" borderThicknessLeft="0"
+          borderThicknessRight="0" borderThicknessTop="0">
+  <mx:Script>
+    <![CDATA[
+      import mx.collections.ArrayCollection;
+      
+      import org.bigbluebutton.modules.polling.model.PollingViewModel;
+      
+      public var viewModel:PollingViewModel;
+      
+      [Bindable] public var sampleData:ArrayCollection = new ArrayCollection([
+                            {Answer:"Chicken", Votes:4},
+                            {Answer:"Hen", Votes:3},
+                            {Answer:"egg", Votes:6}]);
+
+    ]]>
+  </mx:Script>
+    <mx:PieChart id="pieChart"
+	                dataProvider="{sampleData}"
+	                showDataTips="true"
+	                height="100%"
+	                width="100%">
+        <mx:series>
+            <mx:PieSeries id="pieSeries"
+                    field="Votes"
+                    nameField="Answer"
+                    filters="[]"
+                    labelPosition="callout" />
+        </mx:series>
+    </mx:PieChart>
+    <mx:ControlBar width="100%">
+        <mx:Legend dataProvider="{pieChart}"
+                direction="horizontal"
+                labelPlacement="right"
+                horizontalGap="100"
+                width="100%" />
+    </mx:ControlBar>
+</mx:Panel>

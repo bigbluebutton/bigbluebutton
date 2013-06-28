@@ -80,6 +80,7 @@
       import org.bigbluebutton.modules.polling.model.PollStatLineObject;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 	  import org.bigbluebutton.modules.polling.model.PollOptions;
+	  import mx.charts.events.ChartItemEvent;
 
 	   	public static const LOGNAME:String = "[PollingStatsWindow] ";
 		[Bindable] public var question:String;
@@ -102,7 +103,14 @@
 		private var refreshTimer:Timer = new Timer(1000);
 		[Bindable] private var answerCollection:ArrayCollection = new ArrayCollection();
 		private var keyCombos:Object;
-		
+
+		[Bindable]
+	    public var sampleData:ArrayCollection = new ArrayCollection([
+	        {Answer:"Chicken", Votes:4},
+	        {Answer:"Hen", Votes:3},
+	        {Answer:"egg", Votes:6}
+	     ]);
+
 		private function init():void{			
 			pollOptions = new PollOptions();
 			baseIndex = pollOptions.baseTabIndex; 
@@ -355,7 +363,7 @@
 	
 	<!-- Accessible statistics view -->
 	<mx:VBox width="100%" 
-			 height="75%" 
+			 height="90%" 
 			 horizontalAlign="center" 
 			 paddingLeft="10" 
 			 paddingRight="10"
@@ -406,6 +414,29 @@
 								   />
 			</mx:columns>
 		</mx:DataGrid>
+
+		<mx:Panel width="90%" height="90%">
+	        <mx:PieChart id="pieChart"
+	                dataProvider="{sampleData}"
+	                showDataTips="true"
+	                height="100%"
+	                width="100%">
+	            <mx:series>
+	                <mx:PieSeries id="pieSeries"
+	                        field="Votes"
+	                        nameField="Answer"
+	                        filters="[]"
+	                        labelPosition="callout" />
+	            </mx:series>
+	        </mx:PieChart>
+	        <mx:ControlBar width="100%">
+	            <mx:Legend dataProvider="{pieChart}"
+	                    direction="horizontal"
+	                    labelPlacement="right"
+	                    horizontalGap="100"
+	                    width="100%" />
+	        </mx:ControlBar>
+	    </mx:Panel>
 	</mx:VBox>
 	
 	<mx:ControlBar width="100%" height="10%">

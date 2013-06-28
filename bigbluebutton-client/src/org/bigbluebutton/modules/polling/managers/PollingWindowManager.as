@@ -52,11 +52,12 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.views.PollCreateWindow;
 	import org.bigbluebutton.modules.polling.views.PollMainWindow;
 	import org.bigbluebutton.modules.polling.views.PollingInstructionsWindow;
+	import org.bigbluebutton.modules.polling.views.DisplayResultWindow;
 	import org.bigbluebutton.modules.polling.views.PollingStatsWindow;
 	import org.bigbluebutton.modules.polling.views.PollingViewWindow;
 	import org.bigbluebutton.modules.polling.views.TakePollWindow;
 	import org.bigbluebutton.modules.polling.views.UpdatePollWindow;
-			
+
 	public class PollingWindowManager {	
 		
     // Injected by Mate
@@ -71,6 +72,9 @@ package org.bigbluebutton.modules.polling.managers
     private var takePollWindow:TakePollWindow;
 		private var pollMainWindow:PollMainWindow = new PollMainWindow();
     private var createPollWindow:CreatePollWindow;
+
+		private var displayResultWindow:DisplayResultWindow;
+
     private var testCreateWindow:PollCreateWindow;
 		private var service:PollingService;
 		private var isViewing:Boolean = false;
@@ -178,13 +182,15 @@ package org.bigbluebutton.modules.polling.managers
 		// PollingStatsWindow.mxml Window Handlers 
 		//#########################################################################
 		public function handleOpenPollingStatsWindow(e:PollingStatsWindowEvent):void{
-			statsWindow = new PollingStatsWindow();
-			statsWindow.trackingPoll = e.poll;
-			openWindow(statsWindow);
+			//statsWindow = new PollingStatsWindow();
+			//statsWindow.trackingPoll = e.poll;
+
+			displayResultWindow = new DisplayResultWindow();
+			openWindow(displayResultWindow);
 
 			
-			statsFocusTimer.addEventListener(TimerEvent.TIMER, focusStatsWindow);
-			statsFocusTimer.start();
+			//statsFocusTimer.addEventListener(TimerEvent.TIMER, focusStatsWindow);
+			//statsFocusTimer.start();
 		}
 		
 		private function focusStatsWindow(event:TimerEvent):void{
