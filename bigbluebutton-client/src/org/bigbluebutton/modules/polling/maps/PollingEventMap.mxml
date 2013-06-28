@@ -50,8 +50,12 @@
 		<MethodInvoker generator="{PollingWindowManager}"   method="handleOpenPollMainWindowEvent" />
 	 </EventHandlers>
 
-  <EventHandlers type="{OpenPollResultWindow.OPEN_RESULT_WINDOW}">
+  <EventHandlers type="{OpenPollResultWindowEvent.OPEN_RESULT_WINDOW}">
     <MethodInvoker generator="{PollingWindowManager}"   method="handleOpenPollResultWindowEvent" arguments="{event}"/>
+  </EventHandlers>
+
+  <EventHandlers type="{OpenPollUpdateWindowEvent.OPEN_UPDATE_WINDOW}">
+    <MethodInvoker generator="{PollingWindowManager}"   method="handleOpenPollUpdateWindowEvent" arguments="{event}"/>
   </EventHandlers>
   
 	  <EventHandlers type="{PollingInstructionsWindowEvent.CLOSE}">

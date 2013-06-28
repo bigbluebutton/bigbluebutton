@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
-          borderStyle="none" horizontalAlign="center" preinitialize="preInit()"
+          borderStyle="none" horizontalAlign="center" creationComplete="preInit()"
           headerHeight="0" borderThicknessBottom="0" borderThicknessLeft="0"
           borderThicknessRight="0" borderThicknessTop="0">
   <mx:Script>
@@ -17,7 +17,9 @@
         
         [Bindable] private var baseIndex:int;
 
-        public var viewModel:PollingViewModel = new PollingViewModel(null);
+        public var viewModel:PollingViewModel;
+        public var pollID:String;
+        
         private var poll:PollVO;
         
         [Bindable] private var _answersText:String = "";
@@ -27,7 +29,7 @@
         private var _pollID:String;
                
         private function preInit():void {
-          poll = viewModel.getSamplePoll();
+          poll = viewModel.getPoll(pollID);
           _title = poll.title;
           _pollID = poll.id;
           qvo = poll.questions[0] as QuestionVO;

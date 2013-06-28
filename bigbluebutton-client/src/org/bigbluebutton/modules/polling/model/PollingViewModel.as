@@ -37,6 +37,20 @@ package org.bigbluebutton.modules.polling.model
     }
     
     public function getSamplePoll():PollVO {
+
+      var _poll:Poll = _model.getPoll("pollID");
+      
+      var _pollVO:PollVO = new PollVO(_poll);
+      
+      return _pollVO;
+    }
+    
+    public function addSamplePolls():void {
+      addSample1();
+      addSample2();
+    }
+    
+    private function addSample1():void {
       var _questions:Array = new Array();
       
       var _resps1:Array = new Array();
@@ -48,11 +62,25 @@ package org.bigbluebutton.modules.polling.model
       
       _questions.push(_q1);
       
-      var _poll:Poll = new Poll("pollID", "Sample Poll", _questions);
+      var _poll:Poll = new Poll("pollID", "Sample Poll", _questions);    
       
-      var _pollVO:PollVO = new PollVO(_poll);
+      _model.createPoll(_poll);
+    }
+    
+    private function addSample2():void {
+      var _questions:Array = new Array();
       
-      return _pollVO;
+      var _resps1:Array = new Array();
+      _resps1.push(new Response("1", "Chicken"));
+      _resps1.push(new Response("2", "Egg"));
+      
+      var _q1:Question = new Question("qID", false, "Which came first?", _resps1);
+      
+      _questions.push(_q1);
+      
+      var _poll:Poll = new Poll("chicken-poll", "Chicken and Egg", _questions);    
+      
+      _model.createPoll(_poll);
     }
   }
 }

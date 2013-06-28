@@ -49,7 +49,8 @@
       import org.bigbluebutton.main.model.users.Conference;
       import org.bigbluebutton.main.views.MainToolbar;
       import org.bigbluebutton.modules.polling.events.OpenPollMainWindowEvent;
-      import org.bigbluebutton.modules.polling.events.OpenPollResultWindow;
+      import org.bigbluebutton.modules.polling.events.OpenPollResultWindowEvent;
+      import org.bigbluebutton.modules.polling.events.OpenPollUpdateWindowEvent;
       import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
       import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
       import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
@@ -133,7 +134,8 @@
 			private function renderMenu():void{
 				myMenuData.removeAll();
 				myMenuData.addItem(new ValueObject("create", ResourceUtil.getInstance().getString('bbb.polling.createPoll')));
-        myMenuData.addItem(new ValueObject("show", "Show Result"));
+        myMenuData.addItem(new ValueObject("result", "Show Result"));
+        myMenuData.addItem(new ValueObject("update", "Update Poll"));
 				for (var i:int = 0; i < pollList.length; i++){
 					if (pollList[i] != null){
 						var keyString:String = pollList[i].room +"-"+ pollList[i].title;
@@ -177,6 +179,8 @@
           openMainPollingWindow();
         } else if (event.index == 1) {
           openResultWindow(); 
+        } else if (event.index == 2) {
+          openUpdateWindow();
         }
         
         else{
@@ -207,7 +211,12 @@
 			}
 
       private function openResultWindow():void {
-        dispatchEvent(new OpenPollResultWindow("pollID"));
+        dispatchEvent(new OpenPollResultWindowEvent("pollID"));
+        this.enabled = false;
+      }
+      
+      private function openUpdateWindow():void {
+        dispatchEvent(new OpenPollUpdateWindowEvent("chicken-poll"));
         this.enabled = false;
       }
       

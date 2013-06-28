@@ -35,7 +35,8 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
 	import org.bigbluebutton.modules.polling.events.OpenPollMainWindowEvent;
-	import org.bigbluebutton.modules.polling.events.OpenPollResultWindow;
+	import org.bigbluebutton.modules.polling.events.OpenPollResultWindowEvent;
+	import org.bigbluebutton.modules.polling.events.OpenPollUpdateWindowEvent;
 	import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
 	import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
 	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
@@ -69,14 +70,12 @@ package org.bigbluebutton.modules.polling.managers
     
 		private var pollingWindow:PollingViewWindow;
 		private var statsWindow:PollingStatsWindow;
-    private var updatePollWindow:UpdatePollWindow;
-    private var takePollWindow:TakePollWindow;
+    private var updatePollWindow:UpdatePollWindow = new UpdatePollWindow();
+    private var takePollWindow:TakePollWindow = new TakePollWindow();
 		private var pollMainWindow:PollMainWindow = new PollMainWindow();
     private var createPollWindow:CreatePollWindow;
     private var resultsWindow:DisplayResultWindow = new DisplayResultWindow();
     
-		private var displayResultWindow:DisplayResultWindow;
-
     private var testCreateWindow:PollCreateWindow;
 		private var service:PollingService;
 		private var isViewing:Boolean = false;
@@ -92,6 +91,7 @@ package org.bigbluebutton.modules.polling.managers
 		
 		public function initialize():void {
       _viewModel = new PollingViewModel(model);
+      _viewModel.addSamplePolls();
 		}
 				
 		public function handleOpenPollMainWindowEvent():void{
@@ -99,13 +99,20 @@ package org.bigbluebutton.modules.polling.managers
 			openWindow(pollMainWindow);     
 		}
     
-    public function handleOpenPollResultWindowEvent(event:OpenPollResultWindow):void {
+    public function handleOpenPollResultWindowEvent(event:OpenPollResultWindowEvent):void {
       resultsWindow.viewModel = _viewModel;
       resultsWindow.pollID = event.pollID;
       
       openWindow(resultsWindow);
     }
 		
+    public function handleOpenPollUpdateWindowEvent(event:OpenPollUpdateWindowEvent):void {
+      updatePollWindow.viewModel = _viewModel;
+      updatePollWindow.pollID = event.pollID;
+      
+      openWindow(updatePollWindow);
+    }
+    
 		private function moveInstructionsFocus(event:TimerEvent):void{
 			appFM.setFocus(updatePollWindow.titleBarOverlay);
 			instructionsFocusTimer.stop();
@@ -186,21 +193,7 @@ package org.bigbluebutton.modules.polling.managers
 		}
 		//##########################################################################
 		
-		
-		// PollingStatsWindow.mxml Window Handlers 
-		//#########################################################################
-		public function handleOpenPollingStatsWindow(e:PollingStatsWindowEvent):void{
-			//statsWindow = new PollingStatsWindow();
-			//statsWindow.trackingPoll = e.poll;
-
-			displayResultWindow = new DisplayResultWindow();
-			openWindow(displayResultWindow);
-
-			
-			//statsFocusTimer.addEventListener(TimerEvent.TIMER, focusStatsWindow);
-			//statsFocusTimer.start();
-		}
-		
+				
 		private function focusStatsWindow(event:TimerEvent):void{
 			statsWindow.focusManager.setFocus(statsWindow.titleBarOverlay);
 			statsFocusTimer.stop();

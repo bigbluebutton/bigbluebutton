@@ -176,7 +176,6 @@ package org.bigbluebutton.modules.polling.managers
 		  // Opening PollingStatsWindow
 		  public function handleOpenPollingStatsWindow(e:PollingStatsWindowEvent):void{
 			      e.poll.room = module.getRoom();
-			      viewWindowManager.handleOpenPollingStatsWindow(e);
 			}  	
 		  // Closing PollingStatsWindow	
 		  public function handleClosePollingStatsWindow(e:PollingStatsWindowEvent):void{
