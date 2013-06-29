@@ -34,14 +34,10 @@
 	>
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import flash.events.FocusEvent;
-      
+      import flash.events.FocusEvent;      
       import mx.collections.ArrayCollection;
       import mx.controls.Menu;
-      import mx.events.MenuEvent;
-      
+      import mx.events.MenuEvent;      
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.managers.UserManager;
@@ -52,9 +48,7 @@
       import org.bigbluebutton.modules.polling.events.OpenPollResultWindowEvent;
       import org.bigbluebutton.modules.polling.events.OpenPollUpdateWindowEvent;
       import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
-      import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
       import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
-      import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
       import org.bigbluebutton.modules.polling.events.ReviewResultsEvent;
       import org.bigbluebutton.modules.polling.model.PollObject;
       import org.bigbluebutton.modules.polling.model.ValueObject;
@@ -207,17 +201,14 @@
 			
 			private function openMainPollingWindow():void {
 				dispatchEvent(new OpenPollMainWindowEvent());
-				this.enabled = false;
 			}
 
       private function openResultWindow():void {
         dispatchEvent(new OpenPollResultWindowEvent("pollID"));
-        this.enabled = false;
       }
       
       private function openUpdateWindow():void {
         dispatchEvent(new OpenPollUpdateWindowEvent("chicken-poll"));
-        this.enabled = false;
       }
       
 			private function remoteSwitch(e:ShortcutEvent):void{

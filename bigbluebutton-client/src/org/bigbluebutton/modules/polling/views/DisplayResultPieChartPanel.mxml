@@ -1,32 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" borderStyle="none" horizontalAlign="center"
           headerHeight="0" borderThicknessBottom="0" borderThicknessLeft="0"
-          borderThicknessRight="0" borderThicknessTop="0">
+          borderThicknessRight="0" borderThicknessTop="0" creationComplete="preInit()">
   <mx:Script>
     <![CDATA[
-      import mx.collections.ArrayCollection;
-      
-      import org.bigbluebutton.modules.polling.model.PollingViewModel;
+		import mx.collections.ArrayCollection;
+		
+		import org.bigbluebutton.modules.polling.model.PollingViewModel;
+		import org.bigbluebutton.modules.polling.model.QuestionVO;
       
       public var viewModel:PollingViewModel;
       public var pollID:String;
       
+	  [Bindable] private var _responses:Array;
+		
       [Bindable] public var sampleData:ArrayCollection = new ArrayCollection([
                             {Answer:"Chicken", Votes:4},
                             {Answer:"Hen", Votes:3},
                             {Answer:"egg", Votes:6}]);
+		
+		private function preInit():void {
+			var q1:QuestionVO = viewModel.getPoll("philcap").questions[0] as QuestionVO;
+			_responses = q1.answers;
+		}
 
     ]]>
   </mx:Script>
     <mx:PieChart id="pieChart"
-	                dataProvider="{sampleData}"
+	                dataProvider="{_responses}"
 	                showDataTips="true"
 	                height="100%"
 	                width="100%">
         <mx:series>
             <mx:PieSeries id="pieSeries"
                     field="numResponses"
-                    nameField="Responses"
+                    nameField="response"
                     filters="[]"
                     labelPosition="callout" />
         </mx:series>
