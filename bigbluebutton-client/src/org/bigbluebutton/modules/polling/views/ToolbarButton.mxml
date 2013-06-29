@@ -204,7 +204,7 @@
 			}
 
       private function openResultWindow():void {
-        dispatchEvent(new OpenPollResultWindowEvent("pollID"));
+        dispatchEvent(new OpenPollResultWindowEvent("philcap"));
       }
       
       private function openUpdateWindow():void {

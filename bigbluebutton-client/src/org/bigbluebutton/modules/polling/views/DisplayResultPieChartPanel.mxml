@@ -13,14 +13,9 @@
       public var pollID:String;
       
 	  [Bindable] private var _responses:Array;
-		
-      [Bindable] public var sampleData:ArrayCollection = new ArrayCollection([
-                            {Answer:"Chicken", Votes:4},
-                            {Answer:"Hen", Votes:3},
-                            {Answer:"egg", Votes:6}]);
-		
+			
 		private function preInit():void {
-			var q1:QuestionVO = viewModel.getPoll("philcap").questions[0] as QuestionVO;
+			var q1:QuestionVO = viewModel.getPoll(pollID).questions[0] as QuestionVO;
 			_responses = q1.answers;
 		}
 
