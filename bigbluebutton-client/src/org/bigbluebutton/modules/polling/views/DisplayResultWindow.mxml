@@ -23,29 +23,64 @@
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
            xmlns:mx="http://www.adobe.com/2006/mxml" 
            xmlns:poll="org.bigbluebutton.modules.polling.views.*"
-		   height="150"
-		   width="410"  
+		   height="510"
+		   width="460"  
 		   xmlns:mate="http://mate.asfusion.com/"
 		   implements="org.bigbluebutton.common.IBbbModuleWindow"
 		   label="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"
 		   title="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"
 		   layout="absolute"
+		   creationComplete="onCreationComplete()"
 		   >
 	
 	<mx:Script>
 		<![CDATA[
-      import org.bigbluebutton.main.views.MainCanvas;
-      import org.bigbluebutton.modules.polling.model.PollingViewModel;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+		import org.bigbluebutton.main.views.MainCanvas;
+		import org.bigbluebutton.modules.polling.model.PollingViewModel;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
+		import mx.events.ItemClickEvent;
 
-      [Bindable] public var viewModel:PollingViewModel;
-      [Bindable] public var pollID:String;
-      
-      public function getPrefferedPosition():String{
-        return MainCanvas.POPUP;
-      }
+		[Bindable] public var viewModel:PollingViewModel;
+		[Bindable] public var pollID:String;
+
+		public function getPrefferedPosition():String{
+			return MainCanvas.POPUP;
+		}
+		public function onCreationComplete():void{
+			setCurrentState("PieChart");
+		}
+
+
+
+		private function switchChart(event:ItemClickEvent):void {
+	        if (event.currentTarget.selectedValue == "piechart") {
+	        	setCurrentState("PieChart");     
+	        } else if (event.currentTarget.selectedValue == "barchart") {
+	            setCurrentState("BarChart");
+	        } else {
+	            //LogUtil.debug("That option doesn't exists");
+	        } 
+	    }
+
 	]]>
 	</mx:Script>
-	
-  <poll:DisplayResultPieChartPanel width="100%" height="100%" viewModel="{viewModel}" pollID="{pollID}"/>
+	<mx:VBox>
+	  	<mx:HBox height="10%" id="chartbox">
+			<mx:RadioButtonGroup id="charttype" selectedValue="piechart" itemClick="switchChart(event);" />  
+			<mx:RadioButton groupName="charttype" id="pieChart" label="Pie Chart" value="piechart" width="100" />
+			<mx:RadioButton groupName="charttype" id="barChart" label="Bar Chart" value="barchart" width="100" />
+		</mx:HBox>
+	</mx:VBox>
+  	<states>
+		 <mx:State name="PieChart">
+            <mx:AddChild relativeTo="{chartbox}" position="after">
+            	<poll:DisplayResultPieChartPanel width="100%" height="100%" viewModel="{viewModel}" pollID="{pollID}"/>
+            </mx:AddChild>
+        </mx:State>
+        <mx:State name="BarChart">
+        	<mx:AddChild relativeTo="{chartbox}" position="after">
+            	<poll:DisplayResultBarChartPanel width="100%" height="100%" viewModel="{viewModel}" pollID="{pollID}"/>
+            </mx:AddChild>
+        </mx:State>
+	</states>
 </MDIWindow>

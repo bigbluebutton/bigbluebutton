@@ -2,7 +2,7 @@
 <mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" borderStyle="none" horizontalAlign="center"
           headerHeight="0" borderThicknessBottom="0" borderThicknessLeft="0"
           borderThicknessRight="0" borderThicknessTop="0">
-  <mx:Script>
+    <mx:Script>
     <![CDATA[
       import mx.collections.ArrayCollection;
       
@@ -17,8 +17,8 @@
                             {Response:"egg", numResponses:6}]);
 
     ]]>
-  </mx:Script>
-    <mx:PieChart id="pieChart"
+    </mx:Script>
+    <!--mx:PieChart id="pieChart"
 	                dataProvider="{sampleData}"
 	                showDataTips="true"
 	                width="100%"
@@ -37,5 +37,22 @@
                 labelPlacement="right"
                 horizontalGap="100"
                 width="100%" />
-    </mx:ControlBar>
+    </mx:ControlBar-->
+
+    <mx:ColumnChart id="barChart" dataProvider="{sampleData}" showDataTips="true">
+        <mx:horizontalAxis>
+            <mx:CategoryAxis 
+                dataProvider="{sampleData}" 
+                categoryField="Response"
+            />
+        </mx:horizontalAxis>
+        <mx:series>
+            <mx:ColumnSeries 
+                xField="Response" 
+                yField="numResponses"
+                displayName="Number of responses"
+            />
+        </mx:series>
+    </mx:ColumnChart>
+    <mx:Legend dataProvider="{barChart}"/>
 </mx:Panel>
