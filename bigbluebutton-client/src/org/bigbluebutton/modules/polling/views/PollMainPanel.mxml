@@ -13,7 +13,7 @@
         [Bindable] private var _polls:Array = new Array();
         
         private function onPreInit():void {
-          if (viewModel == null) trace("********** PollMainPanel viewModel is NULL!!!!!!");
+
           _polls = viewModel.polls;
         }
         

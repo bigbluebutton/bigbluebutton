@@ -2,26 +2,22 @@
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="90%">
   <mx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;      
-      import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
-      import org.bigbluebutton.modules.present.events.UploadEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+		import com.asfusion.mate.events.Dispatcher;
+		import org.bigbluebutton.modules.polling.events.OpenTakePollWindowEvent;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
       
       private static const LOG:String = "CreatedPollsRenderer - ";
       
       private var globalDispatch:Dispatcher = new Dispatcher();
       
       private function startPoll():void {
-        trace(LOG + "::startPoll() " + data);   
-        var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
-        readyEvent.presentationName = data as String;
-        globalDispatch.dispatchEvent(readyEvent);
-        
-        globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
+        trace(LOG + "::startPoll() " + data.id);   
+        var event:OpenTakePollWindowEvent = new OpenTakePollWindowEvent(data.id);
+		globalDispatch.dispatchEvent(event);
       }
       
       private function deletePoll():void {
-        trace(LOG + "::deletePoll() " + data);
+        trace(LOG + "::deletePoll() " + data.id);
       }
     ]]>
   </mx:Script>

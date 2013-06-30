@@ -37,7 +37,6 @@ package org.bigbluebutton.modules.polling.model
     }
     
     public function getSamplePoll():PollVO {
-
       var _poll:Poll = _model.getPoll("pollID");
       
       var _pollVO:PollVO = new PollVO(_poll);

@@ -22,165 +22,73 @@
 
 	<mx:Script>
 		<![CDATA[
-      import mx.events.FlexEvent;
-      
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.MadePresenterEvent;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.modules.polling.events.*;
-      import org.bigbluebutton.modules.polling.managers.PollingManager;
-      import org.bigbluebutton.modules.polling.managers.PollingWindowManager;
-      import org.bigbluebutton.modules.polling.model.PollingModel;
-      import org.bigbluebutton.modules.polling.model.PollingViewModel;
-			
-				]]>
+			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
+			import org.bigbluebutton.modules.polling.events.ModuleEvent;
+			import org.bigbluebutton.modules.polling.events.OpenPollMainWindowEvent;
+			import org.bigbluebutton.modules.polling.events.OpenPollResultWindowEvent;
+			import org.bigbluebutton.modules.polling.events.OpenPollUpdateWindowEvent;
+			import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
+			import org.bigbluebutton.modules.polling.events.OpenTakePollWindowEvent;
+			import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
+			import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
+			import org.bigbluebutton.modules.polling.events.PollReturnTitlesEvent;
+			import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
+			import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
+			import org.bigbluebutton.modules.polling.events.ReviewResultsEvent;
+			import org.bigbluebutton.modules.polling.managers.PollingManager;
+			import org.bigbluebutton.modules.polling.managers.PollingWindowManager;
+			import org.bigbluebutton.modules.polling.model.PollingModel;
+		]]>
 				
 	</mx:Script>
 	
 	<EventHandlers type="{ModuleEvent.START}">
-    <ObjectBuilder generator="{PollingWindowManager}"/>	
-    <MethodInvoker generator="{PollingWindowManager}" method="initialize"/>
+		<ObjectBuilder generator="{PollingWindowManager}"/>	
+		<MethodInvoker generator="{PollingWindowManager}" method="initialize"/>
 		<MethodInvoker generator="{PollingManager}" method="handleStartModuleEvent" arguments="{event.module}"/>
 	</EventHandlers>	
 	
 	<EventHandlers type="{ModuleEvent.STOP}">
 	</EventHandlers>	
-		
-	 <EventHandlers type="{OpenPollMainWindowEvent.OPEN_POLL_MAIN_WINDOW}">
-		<MethodInvoker generator="{PollingWindowManager}"   method="handleOpenPollMainWindowEvent" />
-	 </EventHandlers>
-
-  <EventHandlers type="{OpenPollResultWindowEvent.OPEN_RESULT_WINDOW}">
-    <MethodInvoker generator="{PollingWindowManager}"   method="handleOpenPollResultWindowEvent" arguments="{event}"/>
-  </EventHandlers>
-
-  <EventHandlers type="{OpenPollUpdateWindowEvent.OPEN_UPDATE_WINDOW}">
-    <MethodInvoker generator="{PollingWindowManager}"   method="handleOpenPollUpdateWindowEvent" arguments="{event}"/>
-  </EventHandlers>
-  
-	  <EventHandlers type="{PollingInstructionsWindowEvent.CLOSE}">
-		<MethodInvoker generator="{PollingManager}" method="handleClosePollingInstructionsWindowEvent"  arguments="{event}"/>
-	 </EventHandlers>
-		
-	<EventHandlers type="{PollingViewWindowEvent.OPEN}">
-		<MethodInvoker generator="{PollingManager}"  method="handleOpenPollingViewWindow" arguments="{event}"/>
-	 </EventHandlers>
-	 
-	 <EventHandlers type="{PollingViewWindowEvent.CLOSE}">
-		<MethodInvoker generator="{PollingManager}"  method="handleClosePollingViewWindow" arguments="{event}"/>
-	 </EventHandlers>
 	
-	 <EventHandlers type="{StartPollingEvent.START}">
-		<MethodInvoker generator="{PollingManager}"  method="handleStartPollingEvent" arguments="{event}"/>
-	 </EventHandlers>
-	 
-	 <EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">
-			<MethodInvoker generator="{PollingManager}" method="handleMadePresenterEvent" arguments="{event}"/>
-  	   </EventHandlers>
+	<EventHandlers type="{OpenPollMainWindowEvent.OPEN_POLL_MAIN_WINDOW}">
+		<MethodInvoker generator="{PollingWindowManager}"   method="handleOpenPollMainWindowEvent" />
+	</EventHandlers>
+	
+	<EventHandlers type="{OpenPollResultWindowEvent.OPEN_RESULT_WINDOW}">
+		<MethodInvoker generator="{PollingWindowManager}"   method="handleOpenPollResultWindowEvent" arguments="{event}"/>
+	</EventHandlers>
+	
+	<EventHandlers type="{OpenPollUpdateWindowEvent.OPEN_UPDATE_WINDOW}">
+		<MethodInvoker generator="{PollingWindowManager}"   method="handleOpenPollUpdateWindowEvent" arguments="{event}"/>
+	</EventHandlers>
+	
+	<EventHandlers type="{PollingInstructionsWindowEvent.CLOSE}">
+		<MethodInvoker generator="{PollingManager}" method="handleClosePollingInstructionsWindowEvent"  arguments="{event}"/>
+	</EventHandlers>
+	
+	<EventHandlers type="{OpenTakePollWindowEvent.OPEN_TAKE_POLL_WINDOW}">
+		<MethodInvoker generator="{PollingWindowManager}"  method="handleOpenTakePollWindowEvent" arguments="{event}"/>
+	</EventHandlers>
+	
+	<EventHandlers type="{PollingViewWindowEvent.CLOSE}">
+		<MethodInvoker generator="{PollingManager}"  method="handleClosePollingViewWindow" arguments="{event}"/>
+	</EventHandlers>
+	
+	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">
+		<MethodInvoker generator="{PollingManager}" method="handleMadePresenterEvent" arguments="{event}"/>
+	</EventHandlers>
 	
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
 		<MethodInvoker generator="{PollingManager}" method="handleMadeViewerEvent" arguments="{event}"/>
 	</EventHandlers>	
 	
-	<!-- Event to save Poll to db -->
-	 <EventHandlers type="{SavePollEvent.SAVE}">
-		<MethodInvoker generator="{PollingManager}" method="handleSavePollEvent" arguments="{event}"/>
-	</EventHandlers>
-	
-	 <EventHandlers type="{PublishPollEvent.PUBLISH}">
-		<MethodInvoker generator="{PollingManager}" method="handlePublishPollEvent" arguments="{event}"/>
-	</EventHandlers>
-	
-	 <EventHandlers type="{PublishPollEvent.REPOST}">
-		<MethodInvoker generator="{PollingManager}" method="handleRepostPollEvent" arguments="{event}"/>
-	</EventHandlers>
-	
-	<EventHandlers type="{VoteEvent.START}">
-		<MethodInvoker generator="{PollingManager}" method="handleVoteEvent" arguments="{event}"/>
-	</EventHandlers>	
-
-	<!-- PollingStatsWindow Events -->
-	<EventHandlers type="{PollingStatsWindowEvent.OPEN}">
-		<MethodInvoker generator="{PollingManager}"  method="handleOpenPollingStatsWindow" arguments="{event}"/>
-	 </EventHandlers>
-	 
-	<EventHandlers type="{PollingStatsWindowEvent.CLOSE}">
-		<MethodInvoker generator="{PollingManager}"  method="handleClosePollingStatsWindow" arguments="{event}"/>
-	 </EventHandlers>
-	 
-	 <EventHandlers type="{PollRefreshEvent.REFRESH}">
-		<MethodInvoker generator="{PollingManager}"  method="handleRefreshPollingStatsWindow" arguments="{event}"/>
-	 </EventHandlers>
-	 
-	 <EventHandlers type="{PollRefreshEvent.GET}">
-		<MethodInvoker generator="{PollingManager}"  method="handleGetPollingStats" arguments="{event}"/>
-	 </EventHandlers>
-	 
-	 <EventHandlers type="{StopPollEvent.STOP_POLL}">
-		<MethodInvoker generator="{PollingManager}"  method="handleStopPolling" arguments="{event}"/>
-	 </EventHandlers>
-	 
-	 <!-- Event to check if a poll is already open before allowing presenter to publish a second poll -->
-	 <EventHandlers type="{PollingStatusCheckEvent.CHECK}">
-		<MethodInvoker generator="{PollingManager}"  method="handleCheckStatusEvent" arguments="{event}"/>
-	 </EventHandlers>
-	 
-	 <!-- Events to update the list of poll titles and statuses to display in the Polling Menu -->
-	 <EventHandlers type="{PollGetTitlesEvent.INIT}">
-		<MethodInvoker generator="{PollingManager}"  method="handleInitializePollMenuEvent" arguments="{event}"/>
-	 </EventHandlers>
-	 <EventHandlers type="{PollGetTitlesEvent.UPDATE}">
-		<MethodInvoker generator="{PollingManager}"  method="handleUpdateTitlesEvent" arguments="{event}"/>
-	 </EventHandlers>
-	<EventHandlers type="{PollGetTitlesEvent.REMOTE_CHECK}">
-		<MethodInvoker generator="{PollingManager}" method="handleRemoteInitializePollMenuEvent" arguments="{event}"/>
-	</EventHandlers>
-
-	 <EventHandlers type="{PollReturnTitlesEvent.UPDATE}">
-		<MethodInvoker generator="{PollingManager}"  method="handleReturnTitlesEvent" arguments="{event}"/>
-	 </EventHandlers>
-	<EventHandlers type="{PollReturnTitlesEvent.REMOTE_RETURN}">
-		<MethodInvoker generator="{PollingManager}" method="handleRemoteReturnTitlesEvent" arguments="{event}"/>
-	</EventHandlers>
-	 
-	 <EventHandlers type="{PollGetPollEvent.INIT}">
-		<MethodInvoker generator="{PollingManager}"  method="handlePopulateMenuEvent" arguments="{event}"/>
-	 </EventHandlers>
-
-	 <EventHandlers type="{PollGetPollEvent.RETURN}">
-		<MethodInvoker generator="{PollingManager}"  method="handleReturnPollEvent" arguments="{event}"/>
-	 </EventHandlers>
-	 
-	 <EventHandlers type="{PollGetTitlesEvent.CHECK}">
-		<MethodInvoker generator="{PollingManager}"  method="handleCheckTitlesEvent" arguments="{event}"/>
-	 </EventHandlers>
-	 <EventHandlers type="{PollGetTitlesEvent.RETURN}">
-		<MethodInvoker generator="{PollingManager}"  method="handleCheckTitlesEvent" arguments="{event}"/>
-	 </EventHandlers>
-	 
-	 <EventHandlers type="{OpenSavedPollEvent.OPEN}">
-		<MethodInvoker generator="{PollingManager}"  method="handleOpenSavedPollEvent" arguments="{event}"/>
-	 </EventHandlers>
-	 
-	 <EventHandlers type="{ReviewResultsEvent.REVIEW}">
-		<MethodInvoker generator="{PollingManager}"  method="handleReviewResultsEvent" arguments="{event}"/>
-	 </EventHandlers>
-	 
-	 <EventHandlers type="{GenerateWebKeyEvent.GENERATE}">
-		<MethodInvoker generator="{PollingManager}"  method="handleGenerateWebKeyEvent" arguments="{event}"/>
-	 </EventHandlers>
-	 <EventHandlers type="{GenerateWebKeyEvent.RETURN}">
-		<MethodInvoker generator="{PollingManager}"  method="handleReturnWebKeyEvent" arguments="{event}"/>
-	 </EventHandlers>
-	
-	<EventHandlers type="{ShortcutEvent.POLL_BUTTON_CLICK}">
-		<MethodInvoker generator="{PollingManager}" method="handleGlobalPollHotkey" arguments="{event}"/>
-	</EventHandlers>
-  
-  <Injectors target="{PollingWindowManager}">
-    <PropertyInjector targetKey="model" source="{PollingModel}" />
-    <PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
-  </Injectors>
+	<Injectors target="{PollingWindowManager}">
+		<PropertyInjector targetKey="model" source="{PollingModel}" />
+		<PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
+	</Injectors>
     
   <Debugger level="{Debugger.ALL}" />
 </EventMap>

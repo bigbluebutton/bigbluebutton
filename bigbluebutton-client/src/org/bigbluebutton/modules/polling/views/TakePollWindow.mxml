@@ -29,9 +29,12 @@ Notes.mxml is the main view of the SharedNotes application
   
   <mx:Script>
     <![CDATA[
-      import org.bigbluebutton.main.views.MainCanvas;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
-          
+		import org.bigbluebutton.main.views.MainCanvas;
+		import org.bigbluebutton.modules.polling.model.PollingViewModel;
+		
+		[Bindable] public var viewModel:PollingViewModel;
+		[Bindable] public var pollID:String;
+		
       public function getPrefferedPosition():String{
         return MainCanvas.POPUP;
       }
@@ -40,5 +43,5 @@ Notes.mxml is the main view of the SharedNotes application
   </mx:Script>
 
   
-  <poll:TakePollPanel width="100%" height="100%"/>  
+  <poll:TakePollPanel width="100%" height="100%" viewModel="{viewModel}" pollID="{pollID}"/>  
 </MDIWindow>

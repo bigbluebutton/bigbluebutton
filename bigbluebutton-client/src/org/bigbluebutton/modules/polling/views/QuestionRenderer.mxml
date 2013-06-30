@@ -5,12 +5,10 @@
       import mx.controls.CheckBox;
       import mx.controls.RadioButton;
       import mx.controls.RadioButtonGroup;
-      import mx.events.ItemClickEvent;
-      
+      import mx.events.ItemClickEvent;     
       import org.bigbluebutton.modules.polling.model.QuestionVO;
       import org.bigbluebutton.modules.polling.model.Response;
-      import org.bigbluebutton.modules.polling.vo.QuestionsVO;
-
+		
       public var qvo:QuestionVO;
       public var responseCollector:ResponseCollector;
       

@@ -19,14 +19,10 @@
 
 package org.bigbluebutton.modules.polling.managers
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
-	import flash.events.FocusEvent;
 	import flash.events.IEventDispatcher;
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
-	import mx.collections.ArrayCollection;
 	import mx.managers.IFocusManager;
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
@@ -38,6 +34,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.events.OpenPollResultWindowEvent;
 	import org.bigbluebutton.modules.polling.events.OpenPollUpdateWindowEvent;
 	import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
+	import org.bigbluebutton.modules.polling.events.OpenTakePollWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
 	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
 	import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
@@ -62,19 +59,19 @@ package org.bigbluebutton.modules.polling.managers
 
 	public class PollingWindowManager {	
 		
-    // Injected by Mate
-    public var model:PollingModel;
-    public var dispatcher:IEventDispatcher;
-    
-    private var _viewModel:PollingViewModel;
-    
+		// Injected by Mate
+		public var model:PollingModel;
+		public var dispatcher:IEventDispatcher;
+		
+		private var _viewModel:PollingViewModel;
+		
 		private var pollingWindow:PollingViewWindow;
 		private var statsWindow:PollingStatsWindow;
-    private var updatePollWindow:UpdatePollWindow = new UpdatePollWindow();
-    private var takePollWindow:TakePollWindow = new TakePollWindow();
+		private var updatePollWindow:UpdatePollWindow = new UpdatePollWindow();
+		private var takePollWindow:TakePollWindow = new TakePollWindow();
 		private var pollMainWindow:PollMainWindow = new PollMainWindow();
-    private var createPollWindow:CreatePollWindow;
-    private var resultsWindow:DisplayResultWindow = new DisplayResultWindow();
+		private var createPollWindow:CreatePollWindow;
+		private var resultsWindow:DisplayResultWindow = new DisplayResultWindow();
     
     private var testCreateWindow:PollCreateWindow;
 		private var service:PollingService;
@@ -90,15 +87,22 @@ package org.bigbluebutton.modules.polling.managers
 		public static const LOG:String = "[Polling::PollingWindowManager] ";
 		
 		public function initialize():void {
-      _viewModel = new PollingViewModel(model);
-      _viewModel.addSamplePolls();
+			_viewModel = new PollingViewModel(model);
+			_viewModel.addSamplePolls();
 		}
 				
 		public function handleOpenPollMainWindowEvent():void{
-      pollMainWindow.viewModel = _viewModel;      
+			pollMainWindow.viewModel = _viewModel;      
 			openWindow(pollMainWindow);     
 		}
-    
+
+		public function handleOpenTakePollWindowEvent(event:OpenTakePollWindowEvent):void {
+			takePollWindow.viewModel = _viewModel;
+			takePollWindow.pollID = event.pollID;
+			
+			openWindow(takePollWindow);
+		}
+		
     public function handleOpenPollResultWindowEvent(event:OpenPollResultWindowEvent):void {
       resultsWindow.viewModel = _viewModel;
       resultsWindow.pollID = event.pollID;
