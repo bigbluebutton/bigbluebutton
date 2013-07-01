@@ -110,7 +110,7 @@ package org.bigbluebutton.main.api
       _dispatcher.dispatchEvent(readyEvent);
     }
     
-    private function handleDeletePresentationRequest(presentationID:String) {
+    private function handleDeletePresentationRequest(presentationID:String):void {
       var rEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.REMOVE_PRESENTATION_EVENT);
       rEvent.presentationName = presentationID;
       _dispatcher.dispatchEvent(rEvent);
