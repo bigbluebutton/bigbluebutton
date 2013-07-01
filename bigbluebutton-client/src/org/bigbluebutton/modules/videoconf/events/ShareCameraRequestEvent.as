@@ -26,7 +26,7 @@ package org.bigbluebutton.modules.videoconf.events
 		
     public var publishInClient:Boolean = true;
 
-		public var defaultCamera:String = null;
+		public var defaultCamera:String = "0";
 		public var camerasArray:Object = null;
     
 		public function ShareCameraRequestEvent(type:String = SHARE_CAMERA_REQUEST)

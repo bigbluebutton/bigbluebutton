@@ -77,7 +77,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       [Bindable] private var defaultHeight:Number = 240;
 
       
-      public var camIndex:int = -5;
+      public var camIndex:int = -1;
 			private var camWidth:Number = 320;
       private var camHeight:Number = 240;
 			private var _camera:Camera = null;
@@ -336,6 +336,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var _isClosing:Boolean = false;
       
 			override public function close(event:MouseEvent=null):void{
+			LogUtil.debug("JANEAL COM STREAM " + streamName + " FECHAND");
         trace("PublishWindow:: closing");
         
 			  if (!_isClosing) {
@@ -361,9 +362,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function stopPublishing():void{
         trace("PublishWindow::stopPublishing");
+				LogUtil.debug("PARANDO A CAMERA");
 				stopCamera();
-				var e:StopBroadcastEvent = new StopBroadcastEvent()
+				var e:StopBroadcastEvent = new StopBroadcastEvent();
 				e.stream = streamName;
+				e.camId = camIndex;
 				dispatchEvent(e);
 			}
 			
@@ -449,7 +452,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					hideWarningTimer.addEventListener(TimerEvent.TIMER, hideWarning);
 					hideWarningTimer.start();
 				}
-				// bring the label to front
+				// bring the label to frontsto
 				setChildIndex(lblWarning, getChildren().length - 1);
 				lblWarning.text = text;
 				lblWarning.setStyle("color", color);
