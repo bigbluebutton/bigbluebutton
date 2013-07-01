@@ -726,7 +726,9 @@ module BigBlueButton
       current_event[:grid] = calculate_videos_grid(current_event[:streams], video_streams, { :width => output_width, :height => output_height })
       current_event[:transformation] = calculate_video_position_and_size(current_event[:streams], video_streams, { :width => output_width, :height => output_height }, current_event[:grid])
     end
-    timeline.pop()
+    # last_timestamp - first_timestamp is the actual duration of the entire meeting
+    timeline.last()[:duration] = (last_timestamp - first_timestamp) - timeline.last()[:timestamp]
+    timeline.pop() if timeline.last()[:duration] == 0
 
     BigBlueButton.logger.debug("Current timeline with details on streams:")
     BigBlueButton.logger.debug(hash_to_str(timeline))
