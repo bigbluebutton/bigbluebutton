@@ -70,7 +70,7 @@ package org.bigbluebutton.modules.polling.managers
 		private var updatePollWindow:UpdatePollWindow = new UpdatePollWindow();
 		private var takePollWindow:TakePollWindow;
 		private var pollMainWindow:PollMainWindow = new PollMainWindow();
-		private var createPollWindow:CreatePollWindow;
+		private var createPollWindow:CreatePollWindow = new CreatePollWindow();
 		private var resultsWindow:DisplayResultWindow = new DisplayResultWindow();
     
     private var testCreateWindow:PollCreateWindow;
@@ -96,6 +96,10 @@ package org.bigbluebutton.modules.polling.managers
 			openWindow(pollMainWindow);     
 		}
 
+    public function handleOpenCreatePollWindowEvent():void {
+      openWindow(createPollWindow);  
+    }
+    
 		public function handleOpenTakePollWindowEvent(event:OpenTakePollWindowEvent):void {
       takePollWindow =  new TakePollWindow();
 			takePollWindow.viewModel = _viewModel;

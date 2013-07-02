@@ -22,24 +22,25 @@
 
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
-			import org.bigbluebutton.modules.polling.events.ModuleEvent;
-			import org.bigbluebutton.modules.polling.events.OpenPollMainWindowEvent;
-			import org.bigbluebutton.modules.polling.events.OpenPollResultWindowEvent;
-			import org.bigbluebutton.modules.polling.events.OpenPollUpdateWindowEvent;
-			import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
-			import org.bigbluebutton.modules.polling.events.OpenTakePollWindowEvent;
-			import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
-			import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
-			import org.bigbluebutton.modules.polling.events.PollReturnTitlesEvent;
-			import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
-			import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
-			import org.bigbluebutton.modules.polling.events.ReviewResultsEvent;
-			import org.bigbluebutton.modules.polling.managers.PollingManager;
-			import org.bigbluebutton.modules.polling.managers.PollingWindowManager;
-			import org.bigbluebutton.modules.polling.model.PollingModel;
+      import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
+      import org.bigbluebutton.modules.polling.events.ModuleEvent;
+      import org.bigbluebutton.modules.polling.events.OpenCreatePollWindowEvent;
+      import org.bigbluebutton.modules.polling.events.OpenPollMainWindowEvent;
+      import org.bigbluebutton.modules.polling.events.OpenPollResultWindowEvent;
+      import org.bigbluebutton.modules.polling.events.OpenPollUpdateWindowEvent;
+      import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
+      import org.bigbluebutton.modules.polling.events.OpenTakePollWindowEvent;
+      import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
+      import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
+      import org.bigbluebutton.modules.polling.events.PollReturnTitlesEvent;
+      import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
+      import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
+      import org.bigbluebutton.modules.polling.events.ReviewResultsEvent;
+      import org.bigbluebutton.modules.polling.managers.PollingManager;
+      import org.bigbluebutton.modules.polling.managers.PollingWindowManager;
+      import org.bigbluebutton.modules.polling.model.PollingModel;
 		]]>
 				
 	</mx:Script>
@@ -52,7 +53,11 @@
 	
 	<EventHandlers type="{ModuleEvent.STOP}">
 	</EventHandlers>	
-	
+
+  <EventHandlers type="{OpenCreatePollWindowEvent.OPEN_CREATE_POLL_WINDOW}">
+    <MethodInvoker generator="{PollingWindowManager}"   method="handleOpenCreatePollWindowEvent" />
+  </EventHandlers>
+  
 	<EventHandlers type="{OpenPollMainWindowEvent.OPEN_POLL_MAIN_WINDOW}">
 		<MethodInvoker generator="{PollingWindowManager}"   method="handleOpenPollMainWindowEvent" />
 	</EventHandlers>
