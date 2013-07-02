@@ -13,7 +13,7 @@
       private function startPoll():void {
         trace(LOG + "::startPoll() " + data.id);   
         var event:OpenTakePollWindowEvent = new OpenTakePollWindowEvent(data.id);
-		globalDispatch.dispatchEvent(event);
+		    globalDispatch.dispatchEvent(event);
       }
       
       private function deletePoll():void {
@@ -22,7 +22,7 @@
     ]]>
   </mx:Script>
   <mx:Label id="pollTitleLabel" text="{data.title}" styleName="presentationNameLabelStyle" width="80%"/>
-  <mx:Button id="showBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn')}" 
+  <mx:Button id="showBtn" label="Start" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn.toolTip')}" 
              styleName="presentationUploadShowButtonStyle"
              click="startPoll()" enabled="true"/>

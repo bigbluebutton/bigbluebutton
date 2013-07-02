@@ -114,7 +114,7 @@
   </mx:VBox>
   
   <mx:HBox width="100%" height="35" horizontalAlign="right">
-    <mx:Button label="Create" styleName="presentationUploadShowButtonStyle"/>
+    <mx:Button label="Create" styleName="presentationUploadShowButtonStyle" click="createPoll()"/>
     <mx:Spacer width="5"/>
     <mx:Button label="Cancel" styleName="presentationUploadShowButtonStyle"/>
     <mx:Spacer width="5"/>

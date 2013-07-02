@@ -82,7 +82,7 @@
 
   <Injectors target="{PollingService}">
     <ObjectBuilder generator="{PollDataProcessor}" cache="global"/>
-    <PropertyInjector targetKey="dataService" source="{ShortCircuitPollDataService}"/>
+    <PropertyInjector targetKey="dataService" source="{NetworkPollDataService}"/>
   </Injectors>
 
   <Injectors target="{NetworkPollDataService}">
