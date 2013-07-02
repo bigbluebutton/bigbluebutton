@@ -1,16 +1,18 @@
 package org.bigbluebutton.modules.polling.vo
 {
+  import org.bigbluebutton.modules.polling.model.Responder;
+
   public class ResultVO
   {
     private var _questionID:String;
     private var _responseID:String;
-    private var _responseCount:int;
+    private var _responder:Responder;
     
-    public function ResultVO(questionID:String, responseID:String, responseCount:int)
+    public function ResultVO(questionID:String, responseID:String, responder:Responder)
     {
       _questionID = questionID;
       _responseID = responseID;
-      _responseCount = responseCount;
+      _responder = responder;
     }
     
     public function get questionID():String {
@@ -21,8 +23,8 @@ package org.bigbluebutton.modules.polling.vo
       return _responseID;
     }
     
-    public function get responseCount():int {
-      return _responseCount;
+    public function get responder():Responder {
+      return _responder;
     }
   }
 }

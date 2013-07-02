@@ -30,10 +30,10 @@ package org.bigbluebutton.modules.polling.model
       return _question;
     }
     
-    public function updateResult(responseID:String, count:int):void {
+    public function updateResult(responseID:String, responder:Responder):void {
       for (var i:int = 0; i < _responses.length; i++) {
         var r:Response = _responses[i] as Response;
-        if (r.id == responseID) r.updateResult(count);
+        if (r.id == responseID) r.addResponder(responder);
       }
     }
     

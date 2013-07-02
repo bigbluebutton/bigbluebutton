@@ -76,7 +76,7 @@ package org.bigbluebutton.modules.polling.model
         var r:ResultVO = results.results[i] as ResultVO;
         var q:Question = getQuestion(r.questionID);
         if (q != null) {
-          q.updateResult(r.responseID, r.responseCount);
+          q.updateResult(r.responseID, r.responder);
         }
       }
     }

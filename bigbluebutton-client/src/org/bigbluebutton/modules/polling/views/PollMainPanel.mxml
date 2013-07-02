@@ -18,6 +18,8 @@
         private function onPreInit():void {
 
           _polls = viewModel.polls;
+          
+          trace("************** PollMainPanel num polls = [" + _polls.length + "]");
         }
         
         private function isDuplicateAnswers(arr:Array):Boolean{

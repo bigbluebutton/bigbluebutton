@@ -7,6 +7,23 @@ class PollModel {
 
   private val polls = new HashMap[String, Poll]()
   
+  createSamplePoll
+  
+  def createSamplePoll() {
+    val r1 = new ResponseVO("0", "Answer 1")
+    val r2 = new ResponseVO("1", "Answer 2")
+    val r3 = new ResponseVO("2", "Answer 3")
+    val r4 = new ResponseVO("3", "Answer 4")
+    
+    var q = new QuestionVO("q1", true, "What is my name?", Array(r1, r2, r3))
+	val pvo = new PollVO("pollID-100", "sample poll", Array(q))
+    
+    createPoll(pvo)
+		   
+	respondToQuestion("pollID-100", "q1", "1", new Responder("user1", "Juan Tamad"))
+	respondToQuestion("pollID-100", "q1", "0", new Responder("user2", "Asyong Aksaya"))
+  }
+  
   def numPolls():Int = {
     polls.size
   }

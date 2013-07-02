@@ -45,10 +45,10 @@ class PollMessageConverter {
 			i += 1
 		}
 		
-		//new PollVO(randomAlphanumericString(12), title, cvoArray.toArray)
+		new PollVO(randomAlphanumericString(12), title, cvoArray.toArray)
 		
 		// Hardocde for now for testing
-		new PollVO("pollID", title, cvoArray.toArray)
+		//new PollVO("pollID", title, cvoArray.toArray)
   }
   
   def convertUpdatePollMessage(msg:String):PollVO = {

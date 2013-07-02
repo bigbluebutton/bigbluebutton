@@ -5,16 +5,17 @@ package org.bigbluebutton.modules.polling.model
     private var _id:String;
     private var _response:String;
     
-    private var _responseCount:int = 0;
+    private var _responders:Array;
     
-    public function Response(id:String, response:String)
+    public function Response(id:String, response:String, responders:Array)
     {
       _id = id;
       _response = response;
+      _responders = responders;
     }
     
-    public function updateResult(count:int):void {
-      _responseCount = count;
+    public function addResponder(r:Responder):void {
+      _responders.push(r);
     }
     
     public function get id():String {
@@ -26,7 +27,7 @@ package org.bigbluebutton.modules.polling.model
     }
     
     public function get numResponses():int {
-      return _responseCount;
+      return _responders.length;
     }
   }
 }
