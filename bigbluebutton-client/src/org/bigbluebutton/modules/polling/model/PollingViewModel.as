@@ -12,6 +12,7 @@ package org.bigbluebutton.modules.polling.model
     
     public function PollingViewModel(model: PollingModel)
     {
+      trace("************** Initing PollingViewModel ***************************");
       _model = model;
     }
     
@@ -48,15 +49,16 @@ package org.bigbluebutton.modules.polling.model
       addSample1();
       addSample2();
       addSample3();
+      trace("*** PollingViewModel num polls = [" + _model.getPolls().length + "] **** \n");
     }
     
     private function addSample1():void {
       var _questions:Array = new Array();
       
       var _resps1:Array = new Array();
-      _resps1.push(new Response("1", "Answer 1"));
-      _resps1.push(new Response("2", "Answer 2"));
-      _resps1.push(new Response("3", "Answer 3"));
+      _resps1.push(new Response("1", "Answer 1", new Array()));
+      _resps1.push(new Response("2", "Answer 2", new Array()));
+      _resps1.push(new Response("3", "Answer 3", new Array()));
       
       var _q1:Question = new Question("qID", true, "What is my name?", _resps1);
       
@@ -71,8 +73,8 @@ package org.bigbluebutton.modules.polling.model
       var _questions:Array = new Array();
       
       var _resps1:Array = new Array();
-      _resps1.push(new Response("1", "Chicken"));
-      _resps1.push(new Response("2", "Egg"));
+      _resps1.push(new Response("1", "Chicken", new Array()));
+      _resps1.push(new Response("2", "Egg", new Array()));
       
       var _q1:Question = new Question("qID", false, "Which came first?", _resps1);
       
@@ -87,17 +89,17 @@ package org.bigbluebutton.modules.polling.model
       var _questions:Array = new Array();
       
       var _resps1:Array = new Array();
-      _resps1.push(new Response("1", "Dumaguete"));
-      _resps1.push(new Response("2", "Cebu"));
-      _resps1.push(new Response("3", "Zamboanga"));
-      _resps1.push(new Response("4", "None of the above"));
+      _resps1.push(new Response("1", "Dumaguete", new Array()));
+      _resps1.push(new Response("2", "Cebu", new Array()));
+      _resps1.push(new Response("3", "Zamboanga", new Array()));
+      _resps1.push(new Response("4", "None of the above", new Array()));
       
       var _q1:Question = new Question("qID", false, "What is the capital of the Philippines?", _resps1);
       
-      _q1.updateResult("1", 667);
-      _q1.updateResult("2", 367);
-      _q1.updateResult("3", 467);
-      _q1.updateResult("4", 567);
+      _q1.updateResult("1", new Responder("user1", "Asyong"));
+      _q1.updateResult("2", new Responder("user2", "Pedro"));
+      _q1.updateResult("3", new Responder("user3", "Bardagol"));
+      _q1.updateResult("4", new Responder("user4", "Juan"));
       
       _questions.push(_q1);
       

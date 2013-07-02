@@ -1,10 +1,14 @@
 package org.bigbluebutton.modules.polling.service
 {
 
-  import flash.events.IEventDispatcher; 
+  import flash.events.IEventDispatcher;
+  
   import org.bigbluebutton.modules.polling.events.PollEvent;
   import org.bigbluebutton.modules.polling.model.Poll;
   import org.bigbluebutton.modules.polling.model.PollingModel;
+  import org.bigbluebutton.modules.polling.model.Question;
+  import org.bigbluebutton.modules.polling.model.Responder;
+  import org.bigbluebutton.modules.polling.model.Response;
 
   public class PollDataProcessor
   {
@@ -15,7 +19,67 @@ package org.bigbluebutton.modules.polling.service
     public var dispatcher:IEventDispatcher;
         
     public function handleGetPollsReply(msg:Object):void {
-      trace("*** Poll getPollsReply " + msg.msg + " **** \n");
+      trace(LOG + "*** getPollsReply " + msg.msg + " **** \n");
+      var polls:Array = JSON.parse(msg.msg) as Array;
+      
+      trace(LOG + "*** getPollsReply " + polls.length + " **** \n");
+      
+      for (var i:int = 0; i < polls.length; i++) {
+        var map:Object = polls[i];
+        var id:String = map.id;
+        var title:String = map.title;
+        var questions:Array = map.questions as Array;
+        
+        var qs:Array = new Array();
+        
+        for (var j:int = 0; j < questions.length; j++) {
+          qs.push(buildQuestion(questions[j]));
+        }
+        
+        var poll:Poll = new Poll(id, title, qs);
+        
+        model.createPoll(poll);        
+      }
+      
+      trace(LOG + "*** getPollsReply num polls = [" + model.getPolls().length + "] **** \n")
+    }
+    
+    private function buildQuestion(question:Object):Question {
+      var resps:Array = question.responses as Array;
+
+      var _resps1:Array = buildResponses(resps);
+      
+      trace(LOG + "*** buildQuestion [" + question.id + "," + question.multiResponse + "," + question.question + "] **** \n")
+      
+      var _q1:Question = new Question(question.id, question.multiResponse, question.question, _resps1);
+                 
+      return _q1;
+    }
+    
+    private function buildResponses(resps:Array):Array {
+      
+      var _resps1:Array = new Array();
+      
+      for (var i:int = 0; i < resps.length; i++) {
+        var r:Object = resps[1];
+        
+        var responders:Array = buildResponders(r);
+        
+        _resps1.push(new Response(r.id, r.text, responders));
+      }
+      
+      return _resps1;
+    }
+    
+    private function buildResponders(response:Object):Array {
+      var responders:Array = new Array();
+      
+      var users:Array = response.responders as Array;
+      for (var k:int = 0; k < users.length; k++) {
+        responders.push(new Responder(users[k].userID, users[k].name));
+      }
+      
+      return responders;
     }
     
     public function handlePollResultUpdatedMesage(msg:Object):void {
@@ -29,7 +93,7 @@ package org.bigbluebutton.modules.polling.service
     }
     
     public function handlePollCreatedMesage(msg:Object):void {
-      trace("*** Poll Created " + msg.msg + " **** \n");
+      trace(LOG + "*** Poll Created " + msg.msg + " **** \n");
       
       var map:Object = JSON.parse(msg.msg);
       
@@ -40,13 +104,13 @@ package org.bigbluebutton.modules.polling.service
         var poll:Poll = new Poll(id, title, questions);
         model.createPoll(poll);
         
-        trace("*** Poll Created id=[" + map.id + "] title=[" + map.title + "] questions = [" + questions.length + "] **** \n");
+        trace(LOG + "*** Poll Created id=[" + map.id + "] title=[" + map.title + "] questions = [" + questions.length + "] **** \n");
         dispatcher.dispatchEvent(new PollEvent(PollEvent.POLL_CREATED, poll.id));        
       }
     }
     
     public function handlePollUpdatedMesage(msg:Object):void {
-      trace("*** Poll updated " + msg.msg + " **** \n");
+      trace(LOG + "*** Poll updated " + msg.msg + " **** \n");
       /*      
       if (model.hasPoll(msg.id)) {
       var id:String = msg.id;
@@ -60,7 +124,7 @@ package org.bigbluebutton.modules.polling.service
     }    
     
     public function handlePollDestroyedMesage(msg:Object):void {
-      trace("*** Poll destroyed " + msg.msg + " **** \n");
+      trace(LOG + "*** Poll destroyed " + msg.msg + " **** \n");
       /*      
       if (model.hasPoll(msg.id)) {
       model.destroyPoll(msg.id);
@@ -71,7 +135,7 @@ package org.bigbluebutton.modules.polling.service
     } 
     
     public function handlePollStartedMesage(msg:Object):void {
-      trace("*** Poll started " + msg.msg + " **** \n");
+      trace(LOG + "*** Poll started " + msg.msg + " **** \n");
       /*      
       if (model.hasPoll(msg.id)) {
       model.startPoll(msg.id);
@@ -82,7 +146,7 @@ package org.bigbluebutton.modules.polling.service
     }
     
     public function handlePollStoppedMesage(msg:Object):void {
-      trace("*** Poll stopped " + msg.msg + " **** \n");
+      trace(LOG + "*** Poll stopped " + msg.msg + " **** \n");
       /*      
       if (model.hasPoll(msg.id)) {
       model.stopPoll(msg.id);

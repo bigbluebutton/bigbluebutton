@@ -13,6 +13,8 @@ import org.bigbluebutton.core.apps.poll.messages.PollCreatedOutMsg
 import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage
 import com.google.gson.Gson
 import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage
+import java.util.ArrayList
+import org.bigbluebutton.core.apps.poll.PollVO
 
 class PollClientMessageSender(service: ConnectionInvokerService) extends OutMessageListener2 {
 
@@ -32,8 +34,17 @@ class PollClientMessageSender(service: ConnectionInvokerService) extends OutMess
   	private def handleGetPollsReplyOutMsg(msg: GetPollsReplyOutMsg) {
   	  val gson = new Gson();
   	  val message = new java.util.HashMap[String, Object]()
-	  message.put("msg", gson.toJson(msg.polls))
   	  
+  	  val collection = new ArrayList[PollVO]();
+  	  
+  	  msg.polls.foreach(p => {
+  	    collection.add(p)
+  	  })
+  	  
+	  message.put("msg", gson.toJson(collection))
+  	  
+//	  println("PollClientMessageSender - Handling GetPollsReplyOutMsg \n" + message.get("msg") + "\n")
+	  
   	  var m = new DirectClientMessage(msg.meetingID, msg.requesterID, "pollGetPollsReply", message);
   	  service.sendMessage(m);		  
   	}

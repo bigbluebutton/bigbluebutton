@@ -4,6 +4,9 @@
           borderThicknessRight="0" borderThicknessTop="0" creationComplete="onPreInit()" >
   <mx:Script>
       <![CDATA[
+        import com.asfusion.mate.events.Dispatcher;
+        
+        import org.bigbluebutton.modules.polling.events.OpenCreatePollWindowEvent;
         import org.bigbluebutton.modules.polling.model.PollingViewModel;
         import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -15,6 +18,8 @@
         private function onPreInit():void {
 
           _polls = viewModel.polls;
+          
+          trace("************** PollMainPanel num polls = [" + _polls.length + "]");
         }
         
         private function isDuplicateAnswers(arr:Array):Boolean{
@@ -32,8 +37,9 @@
         
         
         
-        private function updateCamera():void {
-          
+        private function createPoll():void {
+          var dispatcher:Dispatcher = new Dispatcher();
+          dispatcher.dispatchEvent(new OpenCreatePollWindowEvent());
         }
       ]]>    
   </mx:Script>
@@ -71,7 +77,7 @@
         <mx:Label id="customPollsLabel" text="Create a custom poll" styleName="presentationNamesLabelStyle"/>
       </mx:HBox>  
       <mx:HBox width="100%" height="30" horizontalAlign="center">
-        <mx:Button label="Create Custom Poll" height="25"/>
+        <mx:Button label="Create Custom Poll" height="25" click="createPoll()"/>
       </mx:HBox> 
       <mx:Spacer height="3"/>
     </mx:VBox>

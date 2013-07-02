@@ -27,23 +27,26 @@
 	xmlns:mate="http://mate.asfusion.com/"	
 	toolTip="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent"
-	initialize="init();" 
+	initialize="init();" creationComplete="onCreationComplete()"
 	click="createAndShow();"
 	icon="{pollIcon}"
 	accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.buttonName')}"
 	>
 	<mx:Script>
 		<![CDATA[
-      import flash.events.FocusEvent;      
+      import flash.events.FocusEvent;
+      
       import mx.collections.ArrayCollection;
       import mx.controls.Menu;
-      import mx.events.MenuEvent;      
+      import mx.events.MenuEvent;
+      
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.model.users.Conference;
       import org.bigbluebutton.main.views.MainToolbar;
+      import org.bigbluebutton.modules.polling.events.InitPollModuleEvent;
       import org.bigbluebutton.modules.polling.events.OpenPollMainWindowEvent;
       import org.bigbluebutton.modules.polling.events.OpenPollResultWindowEvent;
       import org.bigbluebutton.modules.polling.events.OpenPollUpdateWindowEvent;
@@ -71,6 +74,10 @@
 			[Bindable] public var titleList:Array;
 			[Bindable] public var pollList:ArrayCollection;
 			
+      public function onCreationComplete():void {
+        dispatchEvent(new InitPollModuleEvent());  
+      }
+      
       public function init():void {	
         LogUtil.debug("Initializing Polling toolbar button.");
         myMenuData = new ArrayCollection();
