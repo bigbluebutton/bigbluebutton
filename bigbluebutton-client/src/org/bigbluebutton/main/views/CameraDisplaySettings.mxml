@@ -80,8 +80,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     }
       
 		private function onCreationComplete():void {  
-
-			changeDefaultCamForMac();
 			if(defaultCamera != null) {
 				var indexDefault:int = 0;
 				for (var i:int = 0; i < Camera.names.length; i++){
@@ -139,7 +137,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			_camera = null;
 			_camera = Camera.getCamera(camerasAvaiable.getItemAt(cmbCameraSelector.selectedIndex).index); 
-			
+			changeDefaultCamForMac();
 			if (_camera == null) {
 				_videoHolder.showWarning('bbb.video.publish.hint.cantOpenCamera');
 				return;

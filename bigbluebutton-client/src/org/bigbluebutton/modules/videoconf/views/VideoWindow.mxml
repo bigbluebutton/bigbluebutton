@@ -131,6 +131,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         trace("******** VideoWindow: handleSwitchedPresenterEvent event *********");
         updateControlButtons();
       }
+
+      public function getStreamName():String {
+	return this.streamName;
+      }
       
       private function handleNewRoleEvent(event:Event):void {
         updateControlButtons();
@@ -150,6 +154,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					_closing = true;
 					var stopEvent:StoppedViewingWebcamEvent = new StoppedViewingWebcamEvent();
 					stopEvent.webcamUserID = userID;
+					stopEvent.streamName = streamName;
 					globalDispatcher.dispatchEvent(stopEvent); 
                     
                     if (UserManager.getInstance().getConference().hasUser(userID)) {
