@@ -119,7 +119,7 @@
 				if (_document != clientText) {
 					textArea.editable = false;
 					onSyncing();
-					LogUtil.debug("ADD LOCAL");
+					trace("ADD LOCAL");
 					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
 					sendPatchEvent.patch = DiffPatch.diff(_document, clientText);
 					sendPatchEvent.beginIndex = textArea.selectionBeginIndex;
@@ -140,7 +140,7 @@
 					var result:String = DiffPatch.patch(e.patch, _document);
 					_document = result;
 					textArea.patchClientText(e.patch, e.beginIndex, e.endIndex);
-					LogUtil.debug("ADD PATCH SERVER");
+					trace("ADD PATCH SERVER");
 					//_undoHistory.addItem([1,e.patch]);
 				}
 			}

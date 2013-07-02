@@ -18,8 +18,7 @@
 	
 	Author: Islam El-Ashi <ielashi@gmail.com>, <http://www.ielashi.com>
 */
-package org.bigbluebutton.modules.sharednotes.views.components
-{
+package org.bigbluebutton.modules.sharednotes.views.components {
 	import com.asfusion.mate.events.Dispatcher;
 
 	import mx.controls.TextArea;
@@ -40,21 +39,21 @@ package org.bigbluebutton.modules.sharednotes.views.components
 	import flash.display.InteractiveObject;
 
 
-	public class PatchableTextArea extends TextArea
-	{
+	public class PatchableTextArea extends TextArea {
 		private var _patch : String = "";
 		private var _patchChanged : Boolean = false;
 		private var _canvas:MDICanvas = null;
 		private var lastBegin:int = 0;
 		private var lastEnd:int = 0;
 		
-		
+		public function PatchableTextArea() {
+		}
+
 		public function init():void {
 			this.textField.alwaysShowSelection = true;
 		}
 
-		public function set patch(value:String):void
-		{
+		public function set patch(value:String):void {
 			_patch = value;
 			_patchChanged = true;
 			invalidateProperties();
@@ -70,8 +69,6 @@ package org.bigbluebutton.modules.sharednotes.views.components
 		}	
 
 		public function get textFieldText():String {
-
-			
 			return textField.text;
 		}
 
@@ -81,7 +78,18 @@ package org.bigbluebutton.modules.sharednotes.views.components
 			_fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
 				Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK, _canvas);
 			});
-			_fileRef.save(this.textFieldText, filename+".txt");
+
+			var cr:String = String.fromCharCode(13);
+			var lf:String = String.fromCharCode(10);
+			var crlf:String = String.fromCharCode(13, 10);
+
+			var textToExport:String = this.textFieldText;
+			textToExport = textToExport.replace(new RegExp(crlf, "g"), '\n');
+			textToExport = textToExport.replace(new RegExp(cr, "g"), '\n');
+			textToExport = textToExport.replace(new RegExp(lf, "g"), '\n');
+			textToExport = textToExport.replace(new RegExp('\n', "g"), crlf);
+
+			_fileRef.save(textToExport, filename+".txt");
 			
 			//Future code to add zoom and font format
 			//var format:TextFormat = new TextFormat();
@@ -106,7 +114,6 @@ package org.bigbluebutton.modules.sharednotes.views.components
 		}
 
 		public function restoreCursor(endIndex:Number, oldPosition:Number, oldVerticalPosition:Number):void {
-
 			var cursorLine:Number = 0;
 			if(endIndex == 0 && this.text.length == 0) {
 				cursorLine = 0;
@@ -122,10 +129,9 @@ package org.bigbluebutton.modules.sharednotes.views.components
 			var desloc:Number = relativePositon - oldPosition;
 			this.verticalScrollPosition+=desloc;
 			
-			LogUtil.debug("relative: " +  relativePositon);
-			LogUtil.debug("old: " + oldPosition);
-			LogUtil.debug("vertical: " + this.verticalScrollPosition);
-
+			trace("relative: " +  relativePositon);
+			trace("old: " + oldPosition);
+			trace("vertical: " + this.verticalScrollPosition);
 		}
 
 		
@@ -137,7 +143,7 @@ package org.bigbluebutton.modules.sharednotes.views.components
 			var oldPosition:Number = getOldPosition();
 			var oldVerticalPosition:Number = this.verticalScrollPosition;
 
-			LogUtil.debug("Initial Position: " + lastBegin + " " + lastEnd);
+			trace("Initial Position: " + lastBegin + " " + lastEnd);
 			results = DiffPatch.patchClientText(patch, textField.text, selectionBeginIndex, selectionEndIndex);
 
 			if(results[0][0] == lastBegin && results[0][1] > lastEnd) {
@@ -157,17 +163,15 @@ package org.bigbluebutton.modules.sharednotes.views.components
 			this.text = results[1];
 			this.validateNow();
 			
-			LogUtil.debug("Final Position: " + results[0][0] + " " + results[0][1]);
+			trace("Final Position: " + results[0][0] + " " + results[0][1]);
 			
-			LogUtil.debug("Length: " + this.text.length); 
+			trace("Length: " + this.text.length); 
 			restoreCursor(lastEnd, oldPosition, oldVerticalPosition);
 			this.validateNow();
 			textField.selectable = true;
 			textField.stage.focus = InteractiveObject(textField);
 			textField.setSelection(lastBegin, lastEnd);	
 			this.validateNow();
-			
-			
 		}
 	}
 }
