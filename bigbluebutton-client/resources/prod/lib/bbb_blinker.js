@@ -1,5 +1,6 @@
 var blinkTimer = false;
 var blinking = false;
+var originalTitle = document.title;
 
 var startblink = function(message1, message2)
 {
@@ -24,6 +25,6 @@ var clearblink = function()
         {
                 window.clearTimeout(blinkTimer);
         }
-        document.title = 'MconfLive';
+        document.title = originalTitle;
 }
 
