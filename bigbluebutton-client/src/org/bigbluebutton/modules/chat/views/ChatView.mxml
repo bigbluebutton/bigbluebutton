@@ -96,6 +96,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		private var privateWaiting:ArrayCollection = new ArrayCollection();
 		private var publicFocus:Boolean = false;
 		private var privateFocus:Boolean = false;
+		private var noticeLabel:String; 
 			
 		[Embed(source="../sounds/notice.mp3")] 
 		private var noticeSoundClass:Class;
@@ -106,6 +107,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			// Initialization
 			private function init():void{
 				chatOptions = new ChatOptions();
+				noticeLabel = ResourceUtil.getInstance().getString('bbb.chat.chatTabs.accessibleNotice');
 				// Get the base tab index from config, and add four to make up for the min/max/close buttons and title overlay
 				baseIndex = chatOptions.getBaseIndex() + 4;
 			}
@@ -117,7 +119,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 // you have to always create the AddTabBox because we always need to give people access to the dropdown to change font size
 		        createAddTabBox();
 		        makeAddPrivateChatUncloseable();
-				
 				
 				addEventListener(SuperTabEvent.TAB_CLOSE, onUserClosedTab);
         
@@ -208,6 +209,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var tab:Button = chatTabs.getTabAt(tabIndex);
 				tab.setStyle("fillColors", new Array(0xFFAE00, 0xD3800A));
 				tab.setStyle("fillAlphas", new Array(1.0, 0.8));
+				
+				tab.accessibilityDescription = tab.label + " " + noticeLabel;
 			}
 			
 			private function getTabIndexFor(chatBox:ChatBox):int {
@@ -217,6 +220,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onTabNavChange():void{
 				var tab:Button = chatTabs.getTabAt(chatTabs.selectedIndex);
 				tab.setStyle("fillColors", new Array(0xFFFFFF, 0xCCCCCC));
+				tab.accessibilityDescription = tab.label;
+				
 		        var chatBox:IChatTab = chatTabs.getChildAt(chatTabs.selectedIndex) as IChatTab;
 		        chatBox.focusToTextMessageArea();
 			}
@@ -288,7 +293,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				tabBox.chatOptions = chatOptions;
 				
 				tabBox.addEventListener(KeyboardEvent.KEY_DOWN, tabBox.accessibleClick);
-				
 				chatTabs.addChild(tabBox);
 				
 				return tabBox;
@@ -298,8 +302,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			// Activates an audio alert for screen-reader users on public message reception
 			private function publicNotification():void {
 				publicWaiting = true;
-				if (Accessibility.active)
+				if (Accessibility.active){
 					noticeSound.play();
+				}
 				chatTabs.getChildByName(PUBLIC_CHAT_USERID).addEventListener(FocusEvent.FOCUS_IN, publicChatFocus);
 				chatTabs.getChildByName(PUBLIC_CHAT_USERID).addEventListener(FocusEvent.FOCUS_OUT, publicChatUnfocus);
 			}
@@ -308,8 +313,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function privateNotification(event:PrivateChatMessageEvent):void{
 				if (! UsersUtil.isMe(event.message.fromUserID)) {
 					privateWaiting.addItem(event);
-					if (Accessibility.active)
+					if (Accessibility.active){
 						noticeSound.play();
+					}
 					chatTabs.getChildByName(event.message.fromUserID).addEventListener(FocusEvent.FOCUS_IN, privateChatFocus);
 					chatTabs.getChildByName(event.message.fromUserID).addEventListener(FocusEvent.FOCUS_OUT, privateChatUnfocus);
 				}
