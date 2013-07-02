@@ -336,7 +336,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var _isClosing:Boolean = false;
       
 			override public function close(event:MouseEvent=null):void{
-			LogUtil.debug("JANEAL COM STREAM " + streamName + " FECHAND");
+			
         trace("PublishWindow:: closing");
         
 			  if (!_isClosing) {
@@ -362,7 +362,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function stopPublishing():void{
         trace("PublishWindow::stopPublishing");
-				LogUtil.debug("PARANDO A CAMERA");
+				
 				stopCamera();
 				var e:StopBroadcastEvent = new StopBroadcastEvent();
 				e.stream = streamName;

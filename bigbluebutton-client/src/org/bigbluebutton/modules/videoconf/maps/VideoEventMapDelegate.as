@@ -220,7 +220,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     private function closeWindow(userID:String):void {
-	LogUtil.debug("FECHANDO AQUI");
+	
       if (! webcamWindows.hasWindow(userID)) {
         trace("VideoEventMapDelegate:: [" + me + "] closeWindow:: No window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
         return;
@@ -249,7 +249,7 @@ package org.bigbluebutton.modules.videoconf.maps
             var win:VideoWindowItf = VideoWindowItf(listOfWindows.getItemAt(i));
             if(win != null) {
                  if(PublishWindow(win).getStreamName() == stream) {
-			LogUtil.debug("TO NA CLOSE COM STREAM");
+			
                         camIndex = PublishWindow(win).camIndex;
                         webcamWindows.removeWin(win);      
                         trace("VideoEventMapDelegate:: [" + me + "] closeWindow:: Closing [" + win.getWindowType() + "] for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
@@ -266,7 +266,6 @@ package org.bigbluebutton.modules.videoconf.maps
     private function openViewWindowFor(userID:String):void {
       trace("VideoEventMapDelegate:: [" + me + "] openViewWindowFor:: Opening VIEW window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
       	    var bbbUser:BBBUser = UsersUtil.getUser(userID);
-	    LogUtil.debug("REMOTE Userid: " + userID + " streamName: " + bbbUser.streamName);
             var streamNames:Array = bbbUser.streamName.split("|");
 	    var listOfWindows:ArrayList = webcamWindows.getAllWindow(userID);
 	    for (var i:int = 0; i < listOfWindows.length; i++)
@@ -276,11 +275,9 @@ package org.bigbluebutton.modules.videoconf.maps
 				var stream:String = VideoWindow(win).streamName;
 				var index:int = int(streamNames.indexOf(stream));
 				if(index != -1) {
-					LogUtil.debug("JA EXISTEM - remove - " + index + " " + streamNames[i]);
 					streamNames.splice(index, 1);
 				}
 				else {
-					 LogUtil.debug("FECHA A JANELA REMOTA");
 		 			 webcamWindows.removeWin(win);      
  		                         win.close();
                         		 var cwe:CloseWindowEvent = new CloseWindowEvent();
@@ -291,7 +288,6 @@ package org.bigbluebutton.modules.videoconf.maps
             }
 	    for (var j:int = 0; j < streamNames.length; j++)
             {
-		 LogUtil.debug("ABRE A JANELA REMOTA: " + streamNames[j]);
 		 var window:VideoWindow = new VideoWindow();
 		 window.userID = userID;
         	 window.videoOptions = options;       
@@ -324,8 +320,7 @@ package org.bigbluebutton.modules.videoconf.maps
     
     public function startPublishing(e:StartBroadcastEvent):void{
 	
-	  LogUtil.debug("VideoEventMapDelegate:: [" + me + "] startPublishing:: Publishing stream to: " + proxy.connection.uri + "/" + e.stream);
-      streamName = e.stream;
+	   streamName = e.stream;
       proxy.startPublishing(e);
       
 	  _isWaitingActivation = false;
@@ -353,17 +348,16 @@ package org.bigbluebutton.modules.videoconf.maps
     }
        
     public function stopPublishing(e:StopBroadcastEvent):void{
-      LogUtil.debug("FECHANDO UMA PUBLISH WINDOW 2 - " + e.stream);
       trace("VideoEventMapDelegate:: [" + me + "] Stop publishing. ready = [" + _ready + "]"); 
           
       if(streamList.length <= 1) {
             streamList.removeItem(e.stream);
             setStopLastBroadcasting();
             stopBroadcasting(e.stream);
-            LogUtil.debug("PARANDO TODAS AS WEBCAM");
+           
       }
       else {
-	    LogUtil.debug("PARANDO UMA WEBCAM");
+	   
             stopOneStreamBroadCasting(e.stream);
             streamList.removeItem(e.stream);
             var broadcastStartEvent:BroadcastStartedEvent = new BroadcastStartedEvent();
@@ -466,7 +460,7 @@ package org.bigbluebutton.modules.videoconf.maps
         if (_isPublishing) {
       	   stopAllBroadcasting();
         }
-	LogUtil.debug("FECHANDO UMA PUBLISH WINDOW LOLOLOLO");
+	
     }
     
     public function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
