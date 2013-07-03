@@ -21,10 +21,8 @@ package org.bigbluebutton.modules.polling.managers
 {
 	import flash.events.IEventDispatcher;
 	import flash.events.TimerEvent;
-	import flash.utils.Timer;
-	
-	import mx.managers.IFocusManager;
-	
+	import flash.utils.Timer;	
+	import mx.managers.IFocusManager;	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
@@ -72,7 +70,7 @@ package org.bigbluebutton.modules.polling.managers
 		private var takePollWindow:TakePollWindow;
 		private var pollMainWindow:PollMainWindow;
 		private var createPollWindow:CreatePollWindow = new CreatePollWindow();
-		private var resultsWindow:DisplayResultWindow = new DisplayResultWindow();
+		private var resultsWindow:DisplayResultWindow;
     
     private var testCreateWindow:PollCreateWindow;
 		private var service:PollingService;
@@ -89,7 +87,6 @@ package org.bigbluebutton.modules.polling.managers
 		
 		public function initialize():void {
 			_viewModel = new PollingViewModel(model);
-//			_viewModel.addSamplePolls();
 		}
 				
 		public function handleOpenPollMainWindowEvent():void {
@@ -111,6 +108,7 @@ package org.bigbluebutton.modules.polling.managers
 		}
 		
     public function handleOpenPollResultWindowEvent(event:PollEvent):void {
+      resultsWindow  = new DisplayResultWindow();
       resultsWindow.viewModel = _viewModel;
       resultsWindow.pollID = event.pollID;
       
