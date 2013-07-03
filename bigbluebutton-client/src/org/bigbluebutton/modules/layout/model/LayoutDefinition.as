@@ -345,7 +345,6 @@ package org.bigbluebutton.modules.layout.model {
 		}
 		
 		static public function getLayout(canvas:MDICanvas, name:String):LayoutDefinition {
-			//LogUtil.debug("CHAD: Canvas is " + (canvas == null ? "null" : "not null") + ", Name is " + (name == null ? "null" : "not null"));
 			var layoutDefinition:LayoutDefinition = new LayoutDefinition();
 			layoutDefinition.name = name;
 			layoutDefinition._layoutsPerRole[Role.VIEWER] = new Dictionary();
