@@ -75,9 +75,12 @@ class PollClientMessageSender(service: ConnectionInvokerService) extends OutMess
   	
   	private def handlePollRemovedOutMsg(msg: PollRemovedOutMsg) {
   	  println("PollClientMessageSender - Handling PollRemovedOutMsg")
+  	  val map = new java.util.HashMap[String, Object]()
+  	  map.put("pollID", msg.pollID)
+  	  
   	  val gson = new Gson();
   	  val message = new java.util.HashMap[String, Object]()
-	  message.put("msg", gson.toJson(msg.pollID))
+	  message.put("msg", gson.toJson(map))
 
 	  var m = new BroadcastClientMessage(msg.meetingID, "pollDestroyedMessage", message);
 	  service.sendMessage(m);

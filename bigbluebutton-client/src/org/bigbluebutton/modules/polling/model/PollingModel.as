@@ -45,9 +45,9 @@ package org.bigbluebutton.modules.polling.model
       }
     }
 
-    public function destroyPoll(poll:Poll):void {
-      if (! hasPoll(poll.id)) {
-        _polls.removeItemAt(getPollIndex(poll.id));
+    public function destroyPoll(pollID:String):void {
+      if (hasPoll(pollID)) {
+        _polls.removeItemAt(getPollIndex(pollID));
       }
     }
     

@@ -101,16 +101,27 @@ package org.bigbluebutton.modules.polling.service
         var id:String = map.id;
         var title:String = map.title;
         var questions:Array = map.questions as Array;
-        var poll:Poll = new Poll(id, title, questions);
+        
+        var qs:Array = new Array();
+        
+        for (var j:int = 0; j < questions.length; j++) {
+          qs.push(buildQuestion(questions[j]));
+        }
+        
+        var poll:Poll = new Poll(id, title, qs);
+        
         model.createPoll(poll);
         
         trace(LOG + "*** Poll Created id=[" + map.id + "] title=[" + map.title + "] questions = [" + questions.length + "] **** \n");
+        trace(LOG + "*** handlePollCreatedMesage num polls = [" + model.getPolls().length + "] **** \n")
         dispatcher.dispatchEvent(new PollEvent(PollEvent.POLL_CREATED, poll.id));        
       }
     }
     
     public function handlePollUpdatedMesage(msg:Object):void {
       trace(LOG + "*** Poll updated " + msg.msg + " **** \n");
+      
+      
       /*      
       if (model.hasPoll(msg.id)) {
       var id:String = msg.id;
@@ -125,13 +136,17 @@ package org.bigbluebutton.modules.polling.service
     
     public function handlePollDestroyedMesage(msg:Object):void {
       trace(LOG + "*** Poll destroyed " + msg.msg + " **** \n");
-      /*      
-      if (model.hasPoll(msg.id)) {
-      model.destroyPoll(msg.id);
+   
+      var map:Object = JSON.parse(msg.msg);
+      var pollID:String = map.pollID;
       
-      dispatcher.dispatchEvent(new PollEvent(PollEvent.POLL_DESTROYED, msg.id));        
+      trace(LOG + "*** Destroying " + pollID + " **** \n");
+      if (model.hasPoll(pollID)) {
+        model.destroyPoll(pollID);
+        
+        dispatcher.dispatchEvent(new PollEvent(PollEvent.POLL_DESTROYED, pollID));        
       }
-      */
+
     } 
     
     public function handlePollStartedMesage(msg:Object):void {

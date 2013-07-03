@@ -2,9 +2,11 @@
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="90%">
   <mx:Script>
     <![CDATA[
-		import com.asfusion.mate.events.Dispatcher;
-		import org.bigbluebutton.modules.polling.events.OpenTakePollWindowEvent;
-		import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import org.bigbluebutton.modules.polling.events.OpenTakePollWindowEvent;
+      import org.bigbluebutton.modules.polling.events.PollEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
       
       private static const LOG:String = "CreatedPollsRenderer - ";
       
@@ -18,6 +20,9 @@
       
       private function deletePoll():void {
         trace(LOG + "::deletePoll() " + data.id);
+        var event:PollEvent = new PollEvent(PollEvent.REMOVE_POLL, data.id);
+        globalDispatch.dispatchEvent(event);        
+        
       }
     ]]>
   </mx:Script>
