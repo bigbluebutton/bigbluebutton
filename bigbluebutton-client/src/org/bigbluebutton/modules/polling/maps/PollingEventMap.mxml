@@ -63,7 +63,7 @@
 		<MethodInvoker generator="{PollingWindowManager}"   method="handleOpenPollMainWindowEvent" />
 	</EventHandlers>
 	
-	<EventHandlers type="{OpenPollResultWindowEvent.OPEN_RESULT_WINDOW}">
+	<EventHandlers type="{PollEvent.SHOW_POLL_RESULT}">
 		<MethodInvoker generator="{PollingWindowManager}"   method="handleOpenPollResultWindowEvent" arguments="{event}"/>
 	</EventHandlers>
 	

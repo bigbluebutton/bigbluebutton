@@ -110,7 +110,7 @@ package org.bigbluebutton.modules.polling.managers
 			openWindow(takePollWindow);
 		}
 		
-    public function handleOpenPollResultWindowEvent(event:OpenPollResultWindowEvent):void {
+    public function handleOpenPollResultWindowEvent(event:PollEvent):void {
       resultsWindow.viewModel = _viewModel;
       resultsWindow.pollID = event.pollID;
       

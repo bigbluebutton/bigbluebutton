@@ -29,9 +29,19 @@
         globalDispatch.dispatchEvent(event);        
         
       }
+      
+      private function showPollResult():void {
+        var event:PollEvent = new PollEvent(PollEvent.SHOW_POLL_RESULT, data.id);
+        globalDispatch.dispatchEvent(event);        
+        
+      }
     ]]>
   </mx:Script>
   <mx:Label id="pollTitleLabel" text="{data.title}" styleName="presentationNameLabelStyle" width="80%"/>
+  <mx:Button id="resultBtn" label="Result" 
+             toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn.toolTip')}" 
+             styleName="presentationUploadShowButtonStyle"
+             click="showPollResult()" enabled="true"/>
   <mx:Button id="startBtn" label="Start" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn.toolTip')}" 
              styleName="presentationUploadShowButtonStyle"
