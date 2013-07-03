@@ -35,6 +35,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.events.OpenPollUpdateWindowEvent;
 	import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
 	import org.bigbluebutton.modules.polling.events.OpenTakePollWindowEvent;
+	import org.bigbluebutton.modules.polling.events.PollEvent;
 	import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
 	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
 	import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
@@ -67,7 +68,7 @@ package org.bigbluebutton.modules.polling.managers
 		
 		private var pollingWindow:PollingViewWindow;
 		private var statsWindow:PollingStatsWindow;
-		private var updatePollWindow:UpdatePollWindow = new UpdatePollWindow();
+		private var updatePollWindow:UpdatePollWindow;
 		private var takePollWindow:TakePollWindow;
 		private var pollMainWindow:PollMainWindow;
 		private var createPollWindow:CreatePollWindow = new CreatePollWindow();
@@ -88,7 +89,7 @@ package org.bigbluebutton.modules.polling.managers
 		
 		public function initialize():void {
 			_viewModel = new PollingViewModel(model);
-			_viewModel.addSamplePolls();
+//			_viewModel.addSamplePolls();
 		}
 				
 		public function handleOpenPollMainWindowEvent():void {
@@ -116,7 +117,8 @@ package org.bigbluebutton.modules.polling.managers
       openWindow(resultsWindow);
     }
 		
-    public function handleOpenPollUpdateWindowEvent(event:OpenPollUpdateWindowEvent):void {
+    public function handleEditPollRequestEvent(event:PollEvent):void {
+      updatePollWindow = new UpdatePollWindow();
       updatePollWindow.viewModel = _viewModel;
       updatePollWindow.pollID = event.pollID;
       

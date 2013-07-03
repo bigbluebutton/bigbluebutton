@@ -32,6 +32,7 @@
       import org.bigbluebutton.modules.polling.events.OpenPollUpdateWindowEvent;
       import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
       import org.bigbluebutton.modules.polling.events.OpenTakePollWindowEvent;
+      import org.bigbluebutton.modules.polling.events.PollEvent;
       import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
       import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
       import org.bigbluebutton.modules.polling.events.PollReturnTitlesEvent;
@@ -66,12 +67,8 @@
 		<MethodInvoker generator="{PollingWindowManager}"   method="handleOpenPollResultWindowEvent" arguments="{event}"/>
 	</EventHandlers>
 	
-	<EventHandlers type="{OpenPollUpdateWindowEvent.OPEN_UPDATE_WINDOW}">
-		<MethodInvoker generator="{PollingWindowManager}"   method="handleOpenPollUpdateWindowEvent" arguments="{event}"/>
-	</EventHandlers>
-	
-	<EventHandlers type="{PollingInstructionsWindowEvent.CLOSE}">
-		<MethodInvoker generator="{PollingManager}" method="handleClosePollingInstructionsWindowEvent"  arguments="{event}"/>
+	<EventHandlers type="{PollEvent.EDIT_POLL_REQUEST}">
+		<MethodInvoker generator="{PollingWindowManager}"   method="handleEditPollRequestEvent" arguments="{event}"/>
 	</EventHandlers>
 	
 	<EventHandlers type="{OpenTakePollWindowEvent.OPEN_TAKE_POLL_WINDOW}">

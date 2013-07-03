@@ -19,6 +19,7 @@
           //answersArray[0] = answersArray[0].split('*').join(''); 
           // As after split '*' is not displayed we need to take off from first element which is not splitted
           answersArray = makeAnswersPretty(answersArray);
+          answersArray = sanitize(answersArray);
           
           var createPollVO:CreatePollVO = new CreatePollVO(pollTitle.text);
           var questionType:String = "MULTI_CHOICE";
@@ -58,6 +59,16 @@
               arr.splice(i,1);
           }
           return arr;
+        }
+        
+        private function sanitize(answersArray:Array):Array {
+          for (var i:int=0; i< answersArray.length; i++){
+            if(i != 0 && (answersArray[i] == null || answersArray[i] == "")){
+              answersArray.splice(i,1);
+            }
+          }
+          
+          return answersArray;
         }
         
       ]]>    

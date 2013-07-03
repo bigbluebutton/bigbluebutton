@@ -4,8 +4,7 @@
           borderThicknessRight="0" borderThicknessTop="0" creationComplete="onPreInit()" >
   <mx:Script>
       <![CDATA[
-        import com.asfusion.mate.events.Dispatcher;
-        
+        import com.asfusion.mate.events.Dispatcher;        
         import org.bigbluebutton.modules.polling.events.OpenCreatePollWindowEvent;
         import org.bigbluebutton.modules.polling.model.PollingViewModel;
         import org.bigbluebutton.util.i18n.ResourceUtil;

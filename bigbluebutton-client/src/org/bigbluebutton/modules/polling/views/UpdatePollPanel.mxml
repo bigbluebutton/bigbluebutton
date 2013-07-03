@@ -5,14 +5,19 @@
           borderThicknessRight="0" borderThicknessTop="0">
   <mx:Script>
       <![CDATA[
-        import com.adobe.utils.StringUtil;       
+        import com.adobe.utils.StringUtil;
+        
         import org.bigbluebutton.modules.polling.events.CreatePollEvent;
+        import org.bigbluebutton.modules.polling.events.UpdatePollEvent;
         import org.bigbluebutton.modules.polling.model.PollVO;
         import org.bigbluebutton.modules.polling.model.PollingViewModel;
         import org.bigbluebutton.modules.polling.model.QuestionVO;
         import org.bigbluebutton.modules.polling.model.Response;
         import org.bigbluebutton.modules.polling.vo.CreatePollVO;
         import org.bigbluebutton.modules.polling.vo.CreateQuestionVO;
+        import org.bigbluebutton.modules.polling.vo.UpdatePollVO;
+        import org.bigbluebutton.modules.polling.vo.UpdateQuestionVO;
+        import org.bigbluebutton.modules.polling.vo.UpdateResponseVO;
         import org.bigbluebutton.util.i18n.ResourceUtil;
         
         [Bindable] private var baseIndex:int;
@@ -26,6 +31,8 @@
         
         [Bindable] private var _title:String;
         [Bindable] private var qvo:QuestionVO;
+        private var  responses:Array;
+        
         private var _pollID:String;
                
         private function preInit():void {
@@ -34,9 +41,9 @@
           _pollID = poll.id;
           qvo = poll.questions[0] as QuestionVO;
           
-          var resps:Array = qvo.answers;
-          for (var i:int = 0; i < resps.length; i++) {
-            var r:Response = resps[i] as Response;
+          responses = qvo.answers;
+          for (var i:int = 0; i < responses.length; i++) {
+            var r:Response = responses[i] as Response;
             _answersText += r.response + "\n";
           }
           
@@ -44,27 +51,37 @@
         }
         
         public function updatePoll():void {
+          StringUtil.trim(_answersText);
+            
           var answersArray:Array;
-          var valid:Boolean=true;
+          var valid:Boolean = true;
           answersArray = pollAnswers.text.split("\r"); 
           // splitting by '*' and new line, thus user can type '*' anywhere except the newline
           //answersArray[0] = answersArray[0].split('*').join(''); 
           // As after split '*' is not displayed we need to take off from first element which is not splitted
           answersArray = makeAnswersPretty(answersArray);
+          answersArray = sanitize(answersArray);
           
-          var createPollVO:CreatePollVO = new CreatePollVO(pollTitle.text);
+          var updatePollVO:UpdatePollVO = new UpdatePollVO(pollID, pollTitle.text);
           var questionType:String = "MULTI_CHOICE";
           if ( multiple_response.selected) {
             questionType = "MULTI_RESPONSE";
           }
-          var question:CreateQuestionVO = new CreateQuestionVO(questionType, pollQuestion.text);
+          var question:UpdateQuestionVO = new UpdateQuestionVO(qvo.id, questionType, pollQuestion.text);
+          
           for (var i:int = 0; i < answersArray.length; i++) {
-            question.addResponse(answersArray[i] as String);
+            var respID:String = "";
+            if (i < responses.length) {
+              var r:Response = responses[i] as Response;
+              respID = r.id;
+            }
+            
+            question.addResponse(new UpdateResponseVO(respID, answersArray[i] as String));
           }
           
-          createPollVO.addQuestion(question);
+          updatePollVO.addQuestion(question);
           
-          dispatchEvent(new CreatePollEvent(createPollVO));
+          dispatchEvent(new UpdatePollEvent(updatePollVO));
         }
         
         private function isDuplicateAnswers(arr:Array):Boolean{
@@ -92,8 +109,18 @@
           return arr;
         }
         
-        private function onUpdate():void {
+        private function sanitize(answersArray:Array):Array {
+          for (var i:int=0; i< answersArray.length; i++){
+            if(i != 0 && (answersArray[i] == null || answersArray[i] == "")){
+              answersArray.splice(i,1);
+            }
+          }
           
+          return answersArray;
+        }
+        
+        private function onUpdate():void {
+          updatePoll();
         }
         
       ]]>    

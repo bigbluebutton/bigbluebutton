@@ -77,7 +77,10 @@ class PollMessageConverter {
 			while(respIter.hasNext()) {
 				val response = respIter.next().getAsJsonObject()
 				
-				val respID = gson.fromJson(response.get("id"), classOf[String])
+				// Get the old response id
+				val oldRespID = gson.fromJson(response.get("id"), classOf[String])
+				// if the old response id is empty, then this is a new answer, create a new id
+				val respID = if (oldRespID == "") j.toString() else oldRespID
 				val respText = gson.fromJson(response.get("response"), classOf[String])
 				
 				rvoArray += new ResponseVO(respID, respText)

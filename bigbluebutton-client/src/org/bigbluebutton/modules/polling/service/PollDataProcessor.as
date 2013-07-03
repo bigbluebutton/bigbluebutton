@@ -61,7 +61,7 @@ package org.bigbluebutton.modules.polling.service
       var _resps1:Array = new Array();
       
       for (var i:int = 0; i < resps.length; i++) {
-        var r:Object = resps[1];
+        var r:Object = resps[i];
         
         var responders:Array = buildResponders(r);
         
@@ -120,18 +120,28 @@ package org.bigbluebutton.modules.polling.service
     
     public function handlePollUpdatedMesage(msg:Object):void {
       trace(LOG + "*** Poll updated " + msg.msg + " **** \n");
+
+      var map:Object = JSON.parse(msg.msg);
       
-      
-      /*      
-      if (model.hasPoll(msg.id)) {
-      var id:String = msg.id;
-      var title:String = msg.title;
-      var poll:Poll = new Poll(msg.id, msg.title, msg.questions);
-      model.updatePoll(poll);
-      
-      dispatcher.dispatchEvent(new PollEvent(PollEvent.POLL_UPDATED, poll.id));        
+      if (model.hasPoll(map.id)) {        
+        var id:String = map.id;
+        var title:String = map.title;
+        var questions:Array = map.questions as Array;
+        
+        var qs:Array = new Array();
+        
+        for (var j:int = 0; j < questions.length; j++) {
+          qs.push(buildQuestion(questions[j]));
+        }
+        
+        var poll:Poll = new Poll(id, title, qs);
+        
+        model.updatePoll(poll);
+        
+        trace(LOG + "*** Poll updated id=[" + map.id + "] title=[" + map.title + "] questions = [" + questions.length + "] **** \n");
+
+        dispatcher.dispatchEvent(new PollEvent(PollEvent.POLL_UPDATED, poll.id));        
       }
-      */
     }    
     
     public function handlePollDestroyedMesage(msg:Object):void {

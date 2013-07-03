@@ -19,8 +19,7 @@
 package org.bigbluebutton.modules.polling.service
 {
 	import flash.net.NetConnection;
-	import flash.net.Responder;
-	
+	import flash.net.Responder;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.ConnectionManager;

@@ -49,7 +49,7 @@ package org.bigbluebutton.modules.polling.service
           processor.handlePollCreatedMesage(message);
           break;			
         case "pollUpdatedMessage":
-          processor.handlePollCreatedMesage(message);
+          processor.handlePollUpdatedMesage(message);
           break;
         case "pollDestroyedMessage":
           processor.handlePollDestroyedMesage(message);
