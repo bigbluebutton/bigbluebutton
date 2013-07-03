@@ -6,9 +6,11 @@
           borderThicknessRight="0" borderThicknessTop="0" creationComplete="preInit()">
   <mx:Script>
       <![CDATA[
+        import org.bigbluebutton.modules.polling.events.RespondEvent;
         import org.bigbluebutton.modules.polling.model.PollVO;
         import org.bigbluebutton.modules.polling.model.PollingViewModel;
         import org.bigbluebutton.modules.polling.model.QuestionVO;
+        import org.bigbluebutton.modules.polling.vo.PollResponseVO;
        
         [Bindable] private var baseIndex:int;
         
@@ -28,11 +30,7 @@
 		  
           responseCollector = new ResponseCollector(pollID);
         }
-              
-        public function updatePoll():void {
-
-        }
-        
+                   
         private function isDuplicateAnswers(arr:Array):Boolean{
           var x:uint;
           var y:uint;
@@ -61,15 +59,17 @@
         private function onSubmit():void 
         {
           trace("********************** RESPONSES ******************** \n");
+          
+          var respVO:PollResponseVO = new PollResponseVO(pollID);
+          
           var resps:Array = responseCollector.responses;
           for (var i:int = 0; i < resps.length; i++) {
             var r:Responses = resps[i] as Responses;
-            trace("QuestionID = [" + r.questionID + "]");
-            var rs:Array = r.responses;
-            for (var j:int = 0; j < rs.length; j++) {
-              trace("Selected = [" + rs[j] + "]");
-            }
+            respVO.addResponse(r);
           }
+          
+          var event:RespondEvent = new RespondEvent(respVO);
+          dispatchEvent(event);
         }
         
         public function onClose():void {

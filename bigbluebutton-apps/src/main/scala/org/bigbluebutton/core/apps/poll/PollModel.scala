@@ -7,7 +7,7 @@ class PollModel {
 
   private val polls = new HashMap[String, Poll]()
   
-  createSamplePoll
+//  createSamplePoll
   
   def createSamplePoll() {
 	  addSamplePoll1()

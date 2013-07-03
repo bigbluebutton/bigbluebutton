@@ -47,8 +47,6 @@ class PollMessageConverter {
 		
 		new PollVO(randomAlphanumericString(12), title, cvoArray.toArray)
 		
-		// Hardocde for now for testing
-		//new PollVO("pollID", title, cvoArray.toArray)
   }
   
   def convertUpdatePollMessage(msg:String):PollVO = {
@@ -125,5 +123,35 @@ class PollMessageConverter {
 		val pollID = gson.fromJson(obj.get("pollID"), classOf[String]);   
 		
 		pollID
+  }
+  
+  def convertTakePollMessage(msg: String):PollResponseVO = {
+   		val gson = new Gson();
+		val parser = new JsonParser();
+		val obj = parser.parse(msg).getAsJsonObject();
+		val pollID = gson.fromJson(obj.get("pollID"), classOf[String]);   
+		val questions = obj.get("questions").getAsJsonArray();
+		
+		val qVO = ArrayBuffer[QuestionResponsesVO]();
+		
+		val iter = questions.iterator()
+		while(iter.hasNext()) {
+			val aquestion = iter.next().getAsJsonObject();
+			val questionID = gson.fromJson(aquestion.get("questionID"), classOf[String])
+					
+			val responses = aquestion.get("responses").getAsJsonArray();
+			
+			val rvoArray = ArrayBuffer[String]()
+
+			val respIter = responses.iterator()
+			while(respIter.hasNext()) {
+				val response = gson.fromJson(respIter.next(), classOf[String]);
+				rvoArray += response
+			}
+			
+			qVO += new QuestionResponsesVO(questionID, rvoArray.toArray)
+		}	
+		
+		new PollResponseVO(qVO.toArray)
   }
 }

@@ -50,5 +50,20 @@ class PollMessageConverterTest {
 		assert(pvp.questions.length == samplePoll.questions.length, "Number of questions is wrong. Must be [" + pvp.questions.length + "]")
 		assert(pvp.questions(0).question.equals("What is my name?"), "First questions is [" + pvp.questions(0).question + "]")
 	}
-	 	 
+
+	 @Test(groups = Array[String]( "unit" ))
+	 def convertTakePollMessageTest() { 
+	//   msg = "{"id":"pollID-102","questions":[{"questionID":"q1","responses":["0","1"]}]}"
+	   val r1 = new QuestionResponsesVO("q1", Array("1", "2", "3"))
+	   
+	   val pollResponse = new java.util.HashMap[String, Object]()
+	   pollResponse.put("pollID", "pollID")
+	   pollResponse.put("questions", Array(r1))
+	   
+	   val gson = new Gson()
+	   val cut = new PollMessageConverter
+	   val pvp = cut.convertTakePollMessage(gson.toJson(pollResponse))
+		
+	   assert(pvp.responses.length == 1, "Number of responses is 1")
+	} 
 }

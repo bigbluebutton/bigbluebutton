@@ -160,7 +160,7 @@ Notes.mxml is the main view of the SharedNotes application
       
       private function respondToPollTest():void {
         var r:PollResponseVO = new PollResponseVO("pollID");
-        r.addResponse(new QuestionResponseVO("0", ["0", "1"]));
+//        r.addResponse(new QuestionResponseVO("0", ["0", "1"]));
          
         dispatcher.dispatchEvent(new RespondEvent(r));
       }

@@ -3,14 +3,15 @@ package org.bigbluebutton.core.apps.poll
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.ArrayBuffer
 
-case class PollResponseVO(questionID: String, responses: Array[ResponderVO])
+case class QuestionResponsesVO(val questionID:String, val responses:Array[String])
+case class PollResponseVO(val responses: Array[QuestionResponsesVO])
 case class ResponderVO(responseID: String, user: Responder)
 
 case class ResponseVO(id: String, text: String, responders: Array[Responder] = Array[Responder]())
 case class QuestionVO(id: String, multiResponse: Boolean, question: String, responses: Array[ResponseVO])
 case class PollVO(id: String, title: String, questions: Array[QuestionVO])
 
-case class Responder(val userID: String, val name: String)
+case class Responder(val userID: String, name: String)
 
 case class ResponseOutVO(id: String, text: String, responders: Array[Responder] = Array[Responder]())
 case class QuestionOutVO(id: String, multiResponse: Boolean, question: String, responses: Array[ResponseOutVO])

@@ -72,7 +72,7 @@
           var r:Response = _responses[i] as Response;
           var cb:CheckBox = _checkboxes[i] as CheckBox;
           if (cb.selected) {
-            trace("Selected [" + cb.id + "]");
+//            trace("Selected [" + cb.id + "]");
             sr.push(cb.id);
           }
         }        
@@ -81,7 +81,7 @@
       }
       
       private function handleCard(event:ItemClickEvent):void {
-        trace("Chose [" + event.index + "] + value = [" + rbGroup.selection.id + "]");
+//        trace("Chose [" + event.index + "] + value = [" + rbGroup.selection.id + "]");
         var sr:Array = new Array();
         sr.push(rbGroup.selection.id);
         responseCollector.addResponse(new Responses(_qvo.id, sr));
