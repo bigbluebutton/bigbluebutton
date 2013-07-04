@@ -67,7 +67,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					if (mic.muted) {
 						// user has disallowed access to the mic
 						mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
-						Security.showSettings(SecurityPanel.PRIVACY);
+                        // when we open the window show the default acceptor first and then the custom one every other time
+						mic.setLoopBack(true);
+                        mic.setLoopBack(false);
 					} else {
 						// user has allowed access to the mic
 						mic.setLoopBack(false);
@@ -78,7 +80,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 				timer = new Timer(100);
 				timer.addEventListener(TimerEvent.TIMER, updateMicLevel);
-				timer.start();	
+				//timer.start(); Commenting this out because the mic level has been removed
 			}
 			
 			// Added by Chad to enable closing the window without clicking the X
@@ -122,22 +124,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			
-			private function showMicSettingsPanel():void {
-        if (settingBtn.selected) {
-          if (mic != null) {
-            mic.setLoopBack(true);
-            mic.setUseEchoSuppression(true);
-          }
-          
-          Security.showSettings(SecurityPanel.MICROPHONE);
-        } else {
-          mic.setLoopBack(false);
-        }
-				
+            private function showMicSettingsPanel():void {
+                if (settingBtn.selected) {
+                    if (mic != null) {
+                        if (mic.muted) {
+                            Security.showSettings(SecurityPanel.PRIVACY);
+                            settingBtn.selected = false;
+                            return;
+                        } else {
+                            mic.setLoopBack(true);
+                            mic.setUseEchoSuppression(true);
+                            Security.showSettings(SecurityPanel.MICROPHONE);
+                        }
+                    }
+                } else {
+                    mic.setLoopBack(false);
+                }	
 			}
 			
 			private function onJoinClicked():void {
-				cleanUp();
+                // Do one last check for if the mic has been allowed.
+                // This must come first because cleanUp() will destroy mic 
+                if (mic != null && mic.muted) {
+                    Security.showSettings(SecurityPanel.PRIVACY);
+                }
+                
+				cleanUp();      
 				var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
 				joinEvent.payload['useMicrophone'] = true;
 				dispatchEvent(joinEvent);
