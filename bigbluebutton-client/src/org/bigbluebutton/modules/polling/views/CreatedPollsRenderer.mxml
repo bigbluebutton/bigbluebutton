@@ -14,8 +14,8 @@
       
       private function startPoll():void {
         trace(LOG + "::startPoll() " + data.id);   
-        var event:OpenTakePollWindowEvent = new OpenTakePollWindowEvent(data.id);
-		    globalDispatch.dispatchEvent(event);
+        var event:PollEvent = new PollEvent(PollEvent.START_POLL, data.id);
+        globalDispatch.dispatchEvent(event);         
       }
       
       private function deletePoll():void {
