@@ -19,8 +19,7 @@
 package org.bigbluebutton.conference.service.recorder.polling;
 
 
-public class PollCreatedRecordEvent extends AbstractPollRecordEvent {
-
+public class PollUpdatedRecordEvent extends AbstractPollRecordEvent {
 	private static final String POLL_ID = "pollID";
 	private static final String TITLE = "title";
 
@@ -36,12 +35,11 @@ public class PollCreatedRecordEvent extends AbstractPollRecordEvent {
 
 	private static final String SEPARATOR = "-";
 
-	
-	public PollCreatedRecordEvent() {
+	public PollUpdatedRecordEvent(){
 		super();
-		setEvent("PollCreatedEvent");
+		setEvent("PollUpdatedEvent");
 	}
-		
+
 	public void setPollID(String pollID) {
 		eventMap.put(POLL_ID, pollID);
 	}
@@ -58,9 +56,5 @@ public class PollCreatedRecordEvent extends AbstractPollRecordEvent {
 	public void addResponse(String questionID, String responseID, String response) {
 		eventMap.put(QUESTION_PATTERN + SEPARATOR + questionID + SEPARATOR + RESPONSE_PATTERN + SEPARATOR + responseID + RESPONSE_TEXT, response);
 	}
-
-	/*public void addResponder(String questionID, String responseID, String responderID, String userID) {
-		eventMap.put(QUESTION_PATTERN + SEPARATOR + questionID + SEPARATOR + RESPONSE_PATTERN + SEPARATOR + responseID + RESPONSE_TEXT, response);
-	}*/
 
 }
