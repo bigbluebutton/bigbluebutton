@@ -17,7 +17,7 @@ PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-
+fOF
 -->
 
 <mx:PopUpButton xmlns:mx="http://www.adobe.com/2006/mxml" icon="{camIcon}" 
@@ -43,7 +43,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.modules.videoconf.events.StopShareCameraRequestEvent;
-                        import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
+            import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import mx.controls.Menu;
 			import mx.events.MenuEvent;
@@ -97,19 +97,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function publishingStatus(status:Number, camID:Number = -1):void {
-                                if(status == START_PUBLISHING) {
+                if(status == START_PUBLISHING) {
 					this.enabled = true;
 					_currentState = ON_STATE;
 					camIcon = images.webcamOn;
 					this.selected = true;
-					numberOfCamerasOff--;
 				}
 				else {
 					if(camID != -1) {
 						dp[camID].icon = images.webcam;
 						dp[camID].status = OFF_STATE;
-                                                numberOfCamerasOff++;
-					}					
+						if(numberOfCamerasOff < Camera.names.length)
+							numberOfCamerasOff++;
+						
+                    }					
 					if(numberOfCamerasOff == Camera.names.length) {
 						_currentState = OFF_STATE;
 						camIcon = images.webcam;
@@ -124,14 +125,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 
 			private function openPublishWindow():void{
+				this.enabled = false;
 				if(_currentState == ON_STATE) {
+
 					_currentState = OFF_STATE;
 					camIcon = images.webcam;
 					this.selected = false;
 					var stopShareCameraRequestEvent:StopShareCameraRequestEvent = new StopShareCameraRequestEvent(StopShareCameraRequestEvent.STOP_SHARE_ALL_CAMERA_REQUEST);
-					dispatchEvent(stopShareCameraRequestEvent);			
+					dispatchEvent(stopShareCameraRequestEvent);
+					this.enabled = true;		
 				}
 				else {
+					if(numberOfCamerasOff > 0)
+							numberOfCamerasOff--;
 					_currentState = ON_STATE;
 					camIcon = images.webcamOn;
 					this.selected = true;
@@ -142,11 +148,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function handleCamSettingsClosedEvent(e:BBBEvent):void {
-				if(e.payload['clicked'] == "cancel"){
-					this.enabled = true;
-					this.selected = false;
-					_currentState = OFF_STATE;
-					camIcon = images.webcam;
+				this.setFocus();
+				this.enabled = true;
+				if(e.payload['clicked'] == "cancel") {
+						if(numberOfCamerasOff < Camera.names.length)
+							numberOfCamerasOff++;
+						
+						if(numberOfCamerasOff == Camera.names.length) {
+							this.selected = false;
+							_currentState = OFF_STATE;
+							camIcon = images.webcam;
+						}
 				}
 			}
 
@@ -174,13 +186,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function changeHandler(event:MenuEvent):void {
-					//this.enabled = false;
 					if(dp[event.index].status == ON_STATE) {
 						var stopShareCameraRequestEvent:StopShareCameraRequestEvent = new StopShareCameraRequestEvent();
 						stopShareCameraRequestEvent.camId = event.index;
 						dispatchEvent(stopShareCameraRequestEvent);
 					}
 					else {
+						this.enabled = false;
+						if(numberOfCamerasOff > 0)
+							numberOfCamerasOff--;
 						var shareCameraRequestEvent:ShareCameraRequestEvent = new ShareCameraRequestEvent();
 						shareCameraRequestEvent.defaultCamera = String(event.index);
 						shareCameraRequestEvent.camerasArray = dp;

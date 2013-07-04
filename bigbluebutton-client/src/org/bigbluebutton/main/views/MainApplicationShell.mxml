@@ -222,7 +222,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				mdiCanvas.windowManager.add(scWindow);
 				mdiCanvas.windowManager.absPos(scWindow, mdiCanvas.width/2 - 150, mdiCanvas.height/2 - 150);
 				
-				scWindow.focusCategories();
+				scWindow.focusHead();
 			}
 			
 			private function toggleFullScreen():void{
