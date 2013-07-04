@@ -152,6 +152,6 @@ class PollMessageConverter {
 			qVO += new QuestionResponsesVO(questionID, rvoArray.toArray)
 		}	
 		
-		new PollResponseVO(qVO.toArray)
+		new PollResponseVO(pollID, qVO.toArray)
   }
 }

@@ -48,6 +48,10 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
     currentPresenter
   }
   
+  def hasUser(userID: String):Boolean = {
+    users.hasUser(userID)
+  }
+  
   def getUser(userID:String):UserVO = {
     users.getUser(userID)
   }

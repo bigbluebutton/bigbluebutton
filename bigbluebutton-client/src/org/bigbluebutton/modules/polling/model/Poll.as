@@ -71,13 +71,10 @@ package org.bigbluebutton.modules.polling.model
       return _questions;
     }
     
-    public function updateResults(results:ResultsVO):void {
-      for (var i:int = 0; i < results.results.length; i++) {
-        var r:ResultVO = results.results[i] as ResultVO;
-        var q:Question = getQuestion(r.questionID);
-        if (q != null) {
-          q.updateResult(r.responseID, r.responder);
-        }
+    public function updateResults(questionID:String, responseID:String, responder:Responder):void {
+      var q:Question = getQuestion(questionID);
+      if (q != null) {
+        q.updateResult(responseID, responder);
       }
     }
     

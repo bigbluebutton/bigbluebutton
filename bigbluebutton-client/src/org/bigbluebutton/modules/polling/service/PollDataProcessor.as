@@ -83,13 +83,67 @@ package org.bigbluebutton.modules.polling.service
     }
     
     public function handlePollResultUpdatedMesage(msg:Object):void {
-      var pollResult:Object = JSON.parse(msg.mesage);
+      /*** Incoming message
+       * {"response":{"pollID":"pollID-103","responses":[{"questionID":"q1","responseIDs":["0","1"]}]},"responder":{"userID":"enfjadjc5xnn","name":"RED"}}
+       */
       
-      if (! model.hasPoll(pollResult.id)) {
-        
-        model.updateResults(pollResult.id, msg.results);
-        dispatcher.dispatchEvent(new PollEvent(PollEvent.POLL_RESULTS_UPDATED, msg.id));
+      trace(LOG + "*** Poll Result Update " + msg + " **** \n");
+
+      if (msg.foo == undefined) {
+        trace(LOG + "handlePollResultUpdatedMesage - No [foo] parameter.");
       }
+      
+      if (msg.msg == undefined) {
+        trace(LOG + "handlePollResultUpdatedMesage - No [msg] parameter.");
+        return;
+      }
+      
+      trace(LOG + "*** Poll Result Update " + msg.msg + " **** \n");
+      var map:Object = JSON.parse(msg.msg);
+      
+      if (map.response == undefined) {
+        trace(LOG + "handlePollResultUpdatedMesage - No [response] parameter.");
+        return;
+      }
+      
+      var response:Object = map.response;
+      
+      if (response.pollID == undefined) {
+        trace(LOG + "handlePollResultUpdatedMesage - No [response.pollID] parameter.");
+        return;
+      }
+      
+      if (map.responder == undefined || map.responder.userID == undefined || map.responder.name == undefined) {
+        trace(LOG + "handlePollResultUpdatedMesage - No [responder] parameter.");
+        return;
+      }
+      
+      var responder:Responder = new Responder(map.responder.userID, map.responder.name);
+      
+      if (model.hasPoll(response.pollID)) {        
+        if (response.responses == undefined) {
+          trace(LOG + "handlePollResultUpdatedMesage - No [response.responses] parameter.");
+          return;          
+        }
+        var responses:Array = response.responses as Array;
+                    
+        for (var j:int = 0; j < responses.length; j++) {
+          var resp:Object = responses[j];
+          if (resp.questionID == undefined || resp.responseIDs == undefined) {
+            trace(LOG + "handlePollResultUpdatedMesage - No [response.questionID or response.responseIDs] parameter.");
+            return;              
+          }
+          var questionID:String = resp.questionID;
+          
+          var responseIDs:Array = resp.responseIDs as Array;
+          for (var i:int = 0; i < responseIDs.length; i++) {
+            var respID:String = responseIDs[i] as String
+            model.updateResults(response.pollID, questionID, respID, responder);
+          }
+        }
+        trace(LOG + "*** handlePollResultUpdatedMesage pollID = [" + response.pollID + "] **** \n")
+        dispatcher.dispatchEvent(new PollEvent(PollEvent.POLL_RESULTS_UPDATED, response.pollID));
+      }      
     }
     
     public function handlePollCreatedMesage(msg:Object):void {

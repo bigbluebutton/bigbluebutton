@@ -15,6 +15,7 @@ import com.google.gson.Gson
 import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage
 import java.util.ArrayList
 import org.bigbluebutton.core.apps.poll.PollVO
+import org.bigbluebutton.core.apps.poll.messages.PollResponseOutMsg
 
 class PollClientMessageSender(service: ConnectionInvokerService) extends OutMessageListener2 {
 
@@ -27,8 +28,24 @@ class PollClientMessageSender(service: ConnectionInvokerService) extends OutMess
 	    case pollRemovedOutMsg: PollRemovedOutMsg => handlePollRemovedOutMsg(pollRemovedOutMsg)
 	    case pollUpdatedOutMsg: PollUpdatedOutMsg => handlePollUpdatedOutMsg(pollUpdatedOutMsg)
 	    case pollCreatedOutMsg: PollCreatedOutMsg => handlePollCreatedOutMsg(pollCreatedOutMsg)
+	    case pollResponseOutMsg: PollResponseOutMsg => handlePollResponseOutMsg(pollResponseOutMsg)
 	    case _ => // do nothing
 	  }
+  	}
+  	
+  	private def handlePollResponseOutMsg(msg: PollResponseOutMsg) {
+  	  val gson = new Gson();
+  	  val map = new java.util.HashMap[String, Object]() 
+  	  map.put("responder", msg.responder)
+  	  map.put("response", msg.response)
+  	  
+  	  val message = new java.util.HashMap[String, Object]()  	
+  	  message.put("msg", gson.toJson(map))
+  	  
+	  println("PollClientMessageSender - Handling PollResponseOutMsg \n" + message.get("msg") + "\n")
+	  
+  	  var m = new BroadcastClientMessage(msg.meetingID, "pollResultUpdatedMessage", message);
+  	  service.sendMessage(m);	
   	}
   	
   	private def handleGetPollsReplyOutMsg(msg: GetPollsReplyOutMsg) {

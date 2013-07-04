@@ -22,7 +22,7 @@ package org.bigbluebutton.modules.polling.vo
     
     public function toMap():Object {
       var map:Object = new Object();
-      map.id = _id;
+      map.pollID = _id;
       map.questions = _questions;
       
       return map;
