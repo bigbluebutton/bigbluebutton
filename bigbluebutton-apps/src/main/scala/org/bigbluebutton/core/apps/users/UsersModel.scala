@@ -61,8 +61,8 @@ class UsersModel {
   }
   
   def getUsers():Array[UserVO] = {
-	var u = new ArrayBuffer[UserVO]()
-	users.values.foreach(kv => u :+ kv.toUserVO)	
+	val u = new ArrayBuffer[UserVO]()
+	users.values.foreach(kv => u += kv.toUserVO)	
 	u.toArray
   }
   
