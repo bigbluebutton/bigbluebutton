@@ -31,14 +31,15 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	private def handleGetUsersReply(msg: GetUsersReply):Unit = {
 		var message = new HashMap[String, Object]();
 			
-		message.put("count", msg.users.size():java.lang.Integer)
+		message.put("count", msg.users.length:java.lang.Integer)
 		
 		var users = new HashMap[String, Object]();
 		
-		val it = msg.users.iterator
-		while(it.hasNext() ) {
-		  var pm = new HashMap[String, Object]();
-		  var uvo = it.next()
+		println("*************** Users lenght=[" + msg.users.length + "]")
+		
+		msg.users.foreach(uvo => {
+  		  var pm = new HashMap[String, Object]();
+
 		  pm.put("userID", uvo.userID)
 		  pm.put("externUserID", uvo.externUserID)
 		  pm.put("name", uvo.name)
@@ -48,7 +49,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 		  pm.put("raiseHand", uvo.raiseHand:java.lang.Boolean)
 		  
 		  users.put(uvo.userID, pm)
-		}	
+		})
 		
 		message.put("users", users);
 		
