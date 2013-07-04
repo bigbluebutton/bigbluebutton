@@ -4,6 +4,8 @@ import org.bigbluebutton.conference.service.messaging.redis.MessageSender
 import org.bigbluebutton.core.api.OutMessageListener2
 import org.bigbluebutton.core.api.IOutMessage
 import org.bigbluebutton.core.api.KeepAliveMessageReply
+import org.bigbluebutton.core.api.MeetingCreated
+import org.bigbluebutton.core.api.MeetingEnded
 import scala.collection.immutable.HashMap
 import com.google.gson.Gson
 import scala.collection.JavaConverters._
@@ -15,16 +17,28 @@ class MeetingEventRedisPublisher(service: MessageSender) extends OutMessageListe
 
 	def handleMessage(msg: IOutMessage) {
 	  msg match {
+	  	case meetingCreated: MeetingCreated => handleMeetingCreated(meetingCreated)
+	  	case meetingEnded: MeetingEnded => handleMeetingEnded(meetingEnded)
 	    case keepAliveMessageReply: KeepAliveMessageReply => handleKeepAliveMessageReply(keepAliveMessageReply)
 	    case _ => //println("Unhandled message in MeetingEventRedisPublisher")
 	  }
     }
 
     private def handleKeepAliveMessageReply(msg: KeepAliveMessageReply):Unit = {
-    	val gson = new Gson;
+    	val gson = new Gson
     	var map = Map("messageId" -> KEEP_ALIVE_REPLY, "aliveId" -> msg.aliveID)
-
-    	println("check map:" + map.asJava)
     	service.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map.asJava))
+	}
+
+	private def handleMeetingCreated(msg:MeetingCreated):Unit = {
+		val gson = new Gson
+    	var map = Map("messageId" -> MessagingConstants.MEETING_STARTED_EVENT, "meetingId" -> msg.meetingID)
+    	service.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map.asJava))	
+	}
+
+	private def handleMeetingEnded(msg:MeetingEnded):Unit = {
+		val gson = new Gson
+    	var map = Map("messageId" -> MessagingConstants.MEETING_ENDED_EVENT, "meetingId" -> msg.meetingID)
+    	service.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map.asJava))	
 	}
 }

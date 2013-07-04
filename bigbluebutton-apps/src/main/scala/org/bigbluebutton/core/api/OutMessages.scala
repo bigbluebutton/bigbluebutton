@@ -1,7 +1,8 @@
 package org.bigbluebutton.core.api
 
 abstract class OutMessage
-case class MeetingCreated(meetingID: String, recorded: Boolean) extends IOutMessage
+case class MeetingCreated(meetingID: String) extends IOutMessage
+case class MeetingEnded(meetingID: String) extends IOutMessage
 case class MeetingDestroyed(meetingID: String) extends IOutMessage
 case class KeepAliveMessageReply(aliveID:String) extends IOutMessage
 case object IsAliveMessage extends IOutMessage

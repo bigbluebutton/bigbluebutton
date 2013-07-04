@@ -5,6 +5,7 @@ import scala.actors.Actor._
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.api.CreateMeeting
 import org.bigbluebutton.core.api.MeetingCreated
+import org.bigbluebutton.core.api.MeetingEnded
 import org.bigbluebutton.core.api.MessageOutGateway
 import org.bigbluebutton.core.api.InMessage
 import org.bigbluebutton.core.api.InitializeMeeting
@@ -47,6 +48,7 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
     meetings.get(msg.meetingID) match {
       case None => // do nothing
       case Some(m) => {
+        outGW.send(new MeetingEnded(m.meetingID))
         m ! StopMeetingActor
         meetings -= msg.meetingID
       }
@@ -59,7 +61,7 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
     	  var m = new Meeting(msg.meetingID, msg.recorded, msg.voiceBridge, outGW)
     	  m.start
     	  meetings += m.meetingID -> m
-    	  outGW.send(new MeetingCreated(m.meetingID, m.recorded))
+    	  outGW.send(new MeetingCreated(m.meetingID))
     	  
     	  m ! new InitializeMeeting(m.meetingID, m.recorded)
       }

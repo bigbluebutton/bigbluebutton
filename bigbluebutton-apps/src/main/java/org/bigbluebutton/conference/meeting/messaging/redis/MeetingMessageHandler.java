@@ -34,7 +34,6 @@ public class MeetingMessageHandler implements MessageHandler {
 				}
 				if(messageId.equalsIgnoreCase(KEEP_ALIVE_REQUEST)){
 					String keepAliveId = map.get("aliveId");
-					log.debug("Sending keep alive request");
 					bbbGW.isAliveAudit(keepAliveId);
 				}
 			}

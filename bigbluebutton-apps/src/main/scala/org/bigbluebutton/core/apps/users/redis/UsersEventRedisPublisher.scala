@@ -34,6 +34,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
 	}
 	
 	private def handleUserJoined(msg: UserJoined) {
+		println("UsersEventRedisPublisher: init handleUserJoined")
 		val map= new java.util.HashMap[String, String]();
 		map.put("meetingId", msg.meetingID);
 		map.put("messageId", MessagingConstants.USER_JOINED_EVENT);
@@ -44,6 +45,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
 			
 		val gson= new Gson();
 		service.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(map));
+		println("UsersEventRedisPublisher: end handleUserJoined")
 	}
 	
 	private def handleUserLeft(msg: UserLeft) {		

@@ -63,7 +63,7 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   }
   
   private def handleUserJoin(msg: UserJoining):Unit = {
-
+  	println("UsersApp: init handleUserJoin")
 	users.addUser(msg.userID, msg.extUserID, msg.name, msg.role)
 					
 	outGW.send(new UserJoined(meetingID, recorded, msg.userID, 
@@ -74,7 +74,8 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
 	  if (users.isModerator(msg.userID)) {
 		assignNewPresenter(msg.userID, msg.name, msg.userID)
 	  }	  
-	}	
+	}
+	println("UsersApp: end handleUserJoin")	
   }
 			
   private def handleUserLeft(msg: UserLeaving):Unit = {
