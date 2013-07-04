@@ -156,6 +156,6 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	}
 	
 	def respondPoll(meetingID: String, requesterID: String, msg: String) {
-	  
+	  pollGW.respondPoll(meetingID, requesterID, msg)
 	}
 }

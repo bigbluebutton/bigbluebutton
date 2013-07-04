@@ -15,10 +15,7 @@ class UsersModel {
   }
   
   def removeUser(userID: String):Unit = {
-    users.get(userID) match {
-	  case Some(u) => users -= userID;
-	  case None => // do nothing	
-	}
+    if (hasUser(userID)) users -= userID
   }
   
   def hasUser(userID: String):Boolean = {
@@ -30,24 +27,20 @@ class UsersModel {
   }
   
   def isModerator(userID: String):Boolean = {
-    var moderator = false    
-	users.get(userID) match {
-	  case Some(u) => {
-		  moderator = (u.role == MODERATOR)
-	  }
-	  case None => 	moderator = false
-	}        
+    var moderator = false 
+    if (hasUser(userID)) {
+      val u = getUser(userID)
+      moderator = if (u.role == MODERATOR.toString()) true else false
+    }             
     moderator
   }
   
   def isPresenter(userID: String):Boolean = {
     var presenter = false    
-	users.get(userID) match {
-	  case Some(u) => {
-		 presenter = u.isPresenter
-	  }
-	  case None => presenter = false
-	}    
+    if (hasUser(userID)) {
+      val u = getUser(userID)
+      presenter = u.presenter
+    }   
     presenter
   }
   
@@ -120,5 +113,21 @@ class UsersModel {
 		case Some(u) => u.becomePresenter
 		case None => // do nothing	
 	}       
+  }
+  
+  def getModerators():Array[UserVO] = {
+    val mods = new ArrayBuffer[UserVO]()
+    users.values.foreach(u => {
+      if (u.role == MODERATOR) mods += u.toUserVO
+    })
+    mods.toArray
+  }
+  
+  def getViewers():Array[UserVO] = {
+    val viewers = new ArrayBuffer[UserVO]()
+    users.values.foreach(u => {
+      if (u.role != MODERATOR) viewers += u.toUserVO
+    })
+    viewers.toArray    
   }
 }

@@ -18,10 +18,10 @@ package org.bigbluebutton.modules.polling.model
       return _polls.toArray();
     }
     
-    public function updateResults(pollID:String, results:ResultsVO):void {
+    public function updateResults(pollID:String, questionID:String, responseID:String, responder:Responder):void {
       if (hasPoll(pollID)) {
         var poll:Poll = getPoll(pollID);
-        poll.updateResults(results);
+        poll.updateResults(questionID, responseID, responder);
       }      
     }
     

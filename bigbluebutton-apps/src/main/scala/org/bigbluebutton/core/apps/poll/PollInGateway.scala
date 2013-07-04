@@ -8,6 +8,7 @@ import org.bigbluebutton.core.apps.poll.messages.StartPoll
 import org.bigbluebutton.core.apps.poll.messages.StopPoll
 import org.bigbluebutton.core.apps.poll.messages.RemovePoll
 import org.bigbluebutton.core.apps.poll.messages.GetPolls
+import org.bigbluebutton.core.apps.poll.messages.RespondToPoll
 
 class PollInGateway(bbbGW: BigBlueButtonGateway) {
 
@@ -43,6 +44,7 @@ class PollInGateway(bbbGW: BigBlueButtonGateway) {
   }
 
   def respondPoll(meetingID: String, requesterID: String, msg: String) {
-
+	val pollResponse = msgConverter.convertTakePollMessage(msg)
+	bbbGW.accept(new RespondToPoll(meetingID, requesterID, pollResponse))
   }
 }

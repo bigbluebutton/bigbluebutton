@@ -17,7 +17,7 @@ case class StopPoll(meetingID:String, requesterID: String, pollID: String) exten
 case class StartPoll(meetingID:String, requesterID: String, pollID: String) extends InMessage
 case class ClearPoll(meetingID: String, requesterID: String, pollID: String, force: Boolean=false) extends InMessage
 case class GetPollResult(meetingID:String, requesterID: String, pollID: String) extends InMessage
-case class RespondToPoll(meetingID: String, requesterID: String, pollID: String, responses : Array[PollResponseVO])
+case class RespondToPoll(meetingID: String, requesterID: String, response: PollResponseVO) extends InMessage
 
 
 
@@ -35,3 +35,4 @@ case class PollStoppedOutMsg(meetingID: String, recorded: Boolean, pollID: Strin
 case class PollRemovedOutMsg(meetingID: String, recorded: Boolean, pollID: String) extends IOutMessage
 case class PollUpdatedOutMsg(meetingID: String, recorded: Boolean, pollID: String, pollVO: PollVO) extends IOutMessage
 case class PollCreatedOutMsg(meetingID: String, recorded: Boolean, pollID: String, pollVO: PollVO) extends IOutMessage
+case class PollResponseOutMsg(meetingID: String, recorded: Boolean, responder: Responder, response: PollResponseVO) extends IOutMessage
