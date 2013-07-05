@@ -40,14 +40,14 @@
 	</mx:Script>
 
 	<EventHandlers type="{ModuleEvent.START}">
-		<MethodInvoker generator="{PollManager}" method="handleStartModuleEvent" arguments="{event.module}"/>
+		
 	</EventHandlers>	
 	
 	<EventHandlers type="{ModuleEvent.STOP}">
 	</EventHandlers>	
 
   <EventHandlers type="{InitPollModuleEvent.INITIALIZE_POLL_MODULE}">
-    <MethodInvoker generator="{PollManager}" method="handleInitPollModuleEvent"/>
+    
   </EventHandlers>
   
   <EventHandlers type="{CreatePollEvent.CREATE_POLL}">
@@ -78,12 +78,6 @@
     <MethodInvoker generator="{PollingService}" method="handleGetPollsEvent" arguments="{event}"/>
   </EventHandlers>
   
-  <Injectors target="{PollManager}">
-    <ObjectBuilder generator="{PollingModel}" cache="global"/>
-    <PropertyInjector targetKey="model" source="{PollingModel}"/>
-    <PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
-  </Injectors>	
-
   <Injectors target="{PollingService}">
     <ObjectBuilder generator="{PollDataProcessor}" cache="global"/>
     <PropertyInjector targetKey="dataService" source="{NetworkPollDataService}"/>

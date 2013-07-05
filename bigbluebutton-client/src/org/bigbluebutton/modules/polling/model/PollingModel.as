@@ -9,9 +9,15 @@ package org.bigbluebutton.modules.polling.model
   {
     private var _polls:ArrayCollection
     
+    private var _initialized:Boolean = false;
+    
     public function PollingModel()
     {
       _polls = new ArrayCollection();
+    }
+    
+    public function initialized():Boolean {
+      return _initialized;
     }
     
     public function getPolls():Array {

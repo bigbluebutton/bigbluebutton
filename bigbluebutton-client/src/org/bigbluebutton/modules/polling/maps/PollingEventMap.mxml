@@ -39,7 +39,6 @@
       import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
       import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
       import org.bigbluebutton.modules.polling.events.ReviewResultsEvent;
-      import org.bigbluebutton.modules.polling.managers.PollingManager;
       import org.bigbluebutton.modules.polling.managers.PollingWindowManager;
       import org.bigbluebutton.modules.polling.model.PollingModel;
 		]]>
@@ -49,7 +48,6 @@
 	<EventHandlers type="{ModuleEvent.START}">
 		<ObjectBuilder generator="{PollingWindowManager}"/>	
 		<MethodInvoker generator="{PollingWindowManager}" method="initialize"/>
-		<MethodInvoker generator="{PollingManager}" method="handleStartModuleEvent" arguments="{event.module}"/>
 	</EventHandlers>	
 	
 	<EventHandlers type="{ModuleEvent.STOP}">
@@ -82,17 +80,13 @@
 	<EventHandlers type="{OpenTakePollWindowEvent.OPEN_TAKE_POLL_WINDOW}">
 		<MethodInvoker generator="{PollingWindowManager}"  method="handleOpenTakePollWindowEvent" arguments="{event}"/>
 	</EventHandlers>
-	
-	<EventHandlers type="{PollingViewWindowEvent.CLOSE}">
-		<MethodInvoker generator="{PollingManager}"  method="handleClosePollingViewWindow" arguments="{event}"/>
-	</EventHandlers>
-	
+		
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">
-		<MethodInvoker generator="{PollingManager}" method="handleMadePresenterEvent" arguments="{event}"/>
+		<MethodInvoker generator="{PollingWindowManager}" method="handleMadePresenterEvent" arguments="{event}"/>
 	</EventHandlers>
 	
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
-		<MethodInvoker generator="{PollingManager}" method="handleMadeViewerEvent" arguments="{event}"/>
+		<MethodInvoker generator="{PollingWindowManager}" method="handleMadeViewerEvent" arguments="{event}"/>
 	</EventHandlers>	
 	
 	<Injectors target="{PollingWindowManager}">

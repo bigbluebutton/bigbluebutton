@@ -32,24 +32,14 @@
 	<mx:Script>
 		<![CDATA[
 		
-		  
-		    import mx.controls.Alert;
-			import com.asfusion.mate.events.Dispatcher;
-			import org.bigbluebutton.common.LogUtil;
+      import mx.controls.Alert;
+      import com.asfusion.mate.events.Dispatcher;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.events.OpenWindowEvent;
+      import org.bigbluebutton.common.events.CloseWindowEvent;
+      import org.bigbluebutton.modules.polling.events.ModuleEvent;		
+      import org.bigbluebutton.modules.polling.maps.PollingEventMap;
 			
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-	
-		    import org.bigbluebutton.modules.polling.events.ModuleEvent;
-		    
-			import org.bigbluebutton.modules.polling.views.PollingViewWindow;			
-			import org.bigbluebutton.modules.polling.managers.PollingManager;
-			import org.bigbluebutton.modules.polling.maps.PollingEventMap;
-		
-			
-			
-			
-						
 			private var _moduleName:String = "Polling";			
 			private var _attributes:Object;
 			

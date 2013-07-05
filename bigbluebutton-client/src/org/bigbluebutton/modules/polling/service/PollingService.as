@@ -18,18 +18,6 @@
 */
 package org.bigbluebutton.modules.polling.service
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
-	import flash.events.AsyncErrorEvent;
-	import flash.events.IEventDispatcher;
-	import flash.events.NetStatusEvent;
-	import flash.events.SyncEvent;
-	import flash.net.NetConnection;
-	import flash.net.Responder;
-	import flash.net.SharedObject;
-	
-	import mx.collections.ArrayCollection;
-	import mx.controls.Alert;
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
@@ -50,7 +38,6 @@ package org.bigbluebutton.modules.polling.service
 	import org.bigbluebutton.modules.polling.managers.PollingWindowManager;
 	import org.bigbluebutton.modules.polling.model.PollObject;
 	import org.bigbluebutton.modules.polling.views.PollingInstructionsWindow;
-	import org.bigbluebutton.modules.polling.views.PollingViewWindow;
 
 	public class PollingService
 	{	

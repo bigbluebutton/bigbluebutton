@@ -27,7 +27,6 @@
 	xmlns:mate="http://mate.asfusion.com/"	
 	toolTip="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent"
-	creationComplete="onCreationComplete()"
 	click="openMainPollingWindow();"
 	icon="{pollIcon}"
 	accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.buttonName')}"
@@ -41,7 +40,6 @@
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.model.users.Conference;
       import org.bigbluebutton.main.views.MainToolbar;
-      import org.bigbluebutton.modules.polling.events.InitPollModuleEvent;
       import org.bigbluebutton.modules.polling.events.OpenPollMainWindowEvent;
       import org.bigbluebutton.modules.polling.events.OpenPollResultWindowEvent;
       import org.bigbluebutton.modules.polling.events.OpenPollUpdateWindowEvent;
@@ -58,10 +56,7 @@
 			[Embed(source="../../../common/assets/images/poll_icon.png")]  
 			public var pollIcon:Class;			
 								
-      public function onCreationComplete():void {
-        dispatchEvent(new InitPollModuleEvent());  
-      }
-      								
+    								
 			public function getAlignment():String{
 				return MainToolbar.ALIGN_RIGHT;
 			}

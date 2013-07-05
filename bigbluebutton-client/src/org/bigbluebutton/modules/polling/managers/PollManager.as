@@ -32,8 +32,7 @@ package org.bigbluebutton.modules.polling.managers
     }
     
     public function handleInitPollModuleEvent():void {
-      dispatcher.dispatchEvent(new GetPollsEvent());
-      
+
     //  createSamplePolls();
     }
     
