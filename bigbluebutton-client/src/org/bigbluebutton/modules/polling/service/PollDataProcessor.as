@@ -3,6 +3,7 @@ package org.bigbluebutton.modules.polling.service
 
   import flash.events.IEventDispatcher;
   
+  import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.modules.polling.events.PollEvent;
   import org.bigbluebutton.modules.polling.model.Poll;
   import org.bigbluebutton.modules.polling.model.PollingModel;
@@ -141,6 +142,11 @@ package org.bigbluebutton.modules.polling.service
             model.updateResults(response.pollID, questionID, respID, responder);
           }
         }
+        
+        if (UsersUtil.isMe(responder.userID)) {
+          model.userHasResponded(response.pollID);
+        }
+        
         trace(LOG + "*** handlePollResultUpdatedMesage pollID = [" + response.pollID + "] **** \n")
         dispatcher.dispatchEvent(new PollEvent(PollEvent.POLL_RESULTS_UPDATED, response.pollID));
       }      
@@ -215,24 +221,28 @@ package org.bigbluebutton.modules.polling.service
     
     public function handlePollStartedMesage(msg:Object):void {
       trace(LOG + "*** Poll started " + msg.msg + " **** \n");
-      /*      
-      if (model.hasPoll(msg.id)) {
-      model.startPoll(msg.id);
       
-      dispatcher.dispatchEvent(new PollEvent(PollEvent.POLL_STARTED, msg.id));        
+      var map:Object = JSON.parse(msg.msg);
+      var pollID:String = map.pollID;
+      
+      if (model.hasPoll(pollID)) {
+        model.startPoll(pollID);
+      
+        dispatcher.dispatchEvent(new PollEvent(PollEvent.POLL_STARTED, pollID));        
       }
-      */
+      
     }
     
     public function handlePollStoppedMesage(msg:Object):void {
       trace(LOG + "*** Poll stopped " + msg.msg + " **** \n");
-      /*      
-      if (model.hasPoll(msg.id)) {
-      model.stopPoll(msg.id);
+      var map:Object = JSON.parse(msg.msg);
+      var pollID:String = map.pollID;
       
-      dispatcher.dispatchEvent(new PollEvent(PollEvent.POLL_STOPPED, msg.id));        
+      if (model.hasPoll(pollID)) {
+        model.stopPoll(pollID);
+      
+        dispatcher.dispatchEvent(new PollEvent(PollEvent.POLL_STOPPED, pollID));        
       }
-      */
     }
   }
 }

@@ -66,7 +66,15 @@
 	<EventHandlers type="{PollEvent.SHOW_POLL_RESULT}">
 		<MethodInvoker generator="{PollingWindowManager}"   method="handleOpenPollResultWindowEvent" arguments="{event}"/>
 	</EventHandlers>
-	
+
+  <EventHandlers type="{PollEvent.POLL_STARTED}">
+    <MethodInvoker generator="{PollingWindowManager}"   method="handlePollStartedEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{PollEvent.POLL_STOPPED}">
+    <MethodInvoker generator="{PollingWindowManager}"   method="handlePollStoppedEvent" arguments="{event}"/>
+  </EventHandlers>
+  
 	<EventHandlers type="{PollEvent.EDIT_POLL_REQUEST}">
 		<MethodInvoker generator="{PollingWindowManager}"   method="handleEditPollRequestEvent" arguments="{event}"/>
 	</EventHandlers>

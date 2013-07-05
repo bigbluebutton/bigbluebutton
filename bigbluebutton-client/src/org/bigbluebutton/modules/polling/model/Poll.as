@@ -19,6 +19,8 @@ package org.bigbluebutton.modules.polling.model
     private var _stoppedOn:Date;
     private var _durationInMinutes:int = 5;
     
+    private var _hasResponded:Boolean = false;
+    
     public function Poll(id:String, title:String, questions:Array)
     {
       _id = id;
@@ -85,6 +87,14 @@ package org.bigbluebutton.modules.polling.model
       }
       
       return null;
+    }
+    
+    public function userResponded():void {
+      _hasResponded = true;
+    }
+    
+    public function hasResponded():Boolean {
+      return _hasResponded;
     }
   }
 }

@@ -21,12 +21,15 @@ package org.bigbluebutton.modules.polling.managers
 {
 	import flash.events.IEventDispatcher;
 	import flash.events.TimerEvent;
-	import flash.utils.Timer;	
-	import mx.managers.IFocusManager;	
+	import flash.utils.Timer;
+	
+	import mx.managers.IFocusManager;
+	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
 	import org.bigbluebutton.modules.polling.events.OpenPollMainWindowEvent;
 	import org.bigbluebutton.modules.polling.events.OpenPollResultWindowEvent;
@@ -99,20 +102,40 @@ package org.bigbluebutton.modules.polling.managers
       openWindow(createPollWindow);  
     }
     
+    public function handlePollStartedEvent(event:PollEvent):void {
+      if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) {
+        openPollResultsWindow(event.pollID);
+      } else {
+        openTakePollWindow(event.pollID);
+      }
+    }
+    
+    public function handlePollStoppedEvent(event:PollEvent):void {
+      
+    }
+    
 		public function handleOpenTakePollWindowEvent(event:OpenTakePollWindowEvent):void {
-      takePollWindow =  new TakePollWindow();
-			takePollWindow.viewModel = _viewModel;
-			takePollWindow.pollID = event.pollID;
-			
-			openWindow(takePollWindow);
+
 		}
 		
-    public function handleOpenPollResultWindowEvent(event:PollEvent):void {
+    private function openTakePollWindow(pollID:String):void {
+      takePollWindow =  new TakePollWindow();
+      takePollWindow.viewModel = _viewModel;
+      takePollWindow.pollID = pollID;
+      
+      openWindow(takePollWindow);      
+    }
+    
+    private function openPollResultsWindow(pollID:String):void {
       resultsWindow  = new DisplayResultWindow();
       resultsWindow.viewModel = _viewModel;
-      resultsWindow.pollID = event.pollID;
+      resultsWindow.pollID = pollID;
       
-      openWindow(resultsWindow);
+      openWindow(resultsWindow);      
+    }
+    
+    public function handleOpenPollResultWindowEvent(event:PollEvent):void {
+
     }
 		
     public function handleEditPollRequestEvent(event:PollEvent):void {

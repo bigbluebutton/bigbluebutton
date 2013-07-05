@@ -82,5 +82,12 @@ package org.bigbluebutton.modules.polling.model
        
       return null;
     }
+    
+    public function userHasResponded(pollID:String):void {
+      for (var i:int = 0; i < _polls.length; i++) {
+        var p:Poll = _polls.getItemAt(i) as Poll;
+        if (p.id == pollID) p.userResponded();
+      }       
+    }
   }
 }
