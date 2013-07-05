@@ -173,6 +173,9 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
     	
 		BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 		log.info("User [" + bbbSession.getUsername() + "] disconnected from room [" + bbbSession.getRoom() +"]");
+		
+		bbbGW.userLeft(bbbSession.getRoom(), getBbbSession().getInternalUserID());
+		
 		super.roomDisconnect(conn);
 	}
 	
