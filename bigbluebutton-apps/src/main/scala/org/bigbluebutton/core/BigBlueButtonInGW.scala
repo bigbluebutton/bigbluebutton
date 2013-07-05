@@ -30,14 +30,14 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
   val presUtil = new PreuploadedPresentationsUtil()
     
   // Meeting
-  	def createMeeting2(meetingID: String, record: Boolean, voiceBridge: String) {
-		bbbGW.accept(new CreateMeeting(meetingID, record, voiceBridge))
+  def createMeeting2(meetingID: String, record: Boolean, voiceBridge: String) {
+	bbbGW.accept(new CreateMeeting(meetingID, record, voiceBridge))
 		
-		val pres = presUtil.getPreuploadedPresentations(meetingID);
-		if (!pres.isEmpty()) {
-		  bbbGW.accept(new PreuploadedPresentations(meetingID, pres.toArray()))
-		}
+	val pres = presUtil.getPreuploadedPresentations(meetingID);
+	if (!pres.isEmpty()) {
+	  bbbGW.accept(new PreuploadedPresentations(meetingID, pres.toArray()))
 	}
+  }
   
   def destroyMeeting(meetingID: String) {
     bbbGW.accept(new DestroyMeeting(meetingID))
@@ -89,9 +89,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	def getCurrentPresenter(meetingID: String, requesterID: String):Unit = {
 		// do nothing
 	}
-	
-
-	
+		
 	// Presentation
 	def clear(meetingID: String) {
 	  bbbGW.accept(new ClearPresentation(meetingID))
