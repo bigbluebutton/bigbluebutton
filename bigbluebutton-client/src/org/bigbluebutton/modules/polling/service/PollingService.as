@@ -78,51 +78,6 @@ package org.bigbluebutton.modules.polling.service
       dataService.respondPoll(event.response);
     }
     
-	  public function  getPoll(pollKey:String, option:String):void{	
 
-	   	}  
-	  
-		public function publish(poll:PollObject):void{
-
-		}
-		 
-		public function vote(pollKey:String, answerIDs:Array, webVote:Boolean = false):void{
-
-		}
-			
-		public function cutOffWebPoll(poll:PollObject):void{
-
-		}
-	  	
-
-		
-		public function initializePollingMenu(roomID:String):void{
- 		
-		 }
-		
-		public function initializePollingMenuRemotely(roomID:String):void{
-
-		}
-		 
-		 public function updateTitles():void{
-
-		 }
-		 
-		 
-		 public function checkTitles():void{
-
-		 }
-		 
-		 public function openPoll(pollKey:String):void{
-
-		 }
-		 
-		 public function closePoll(pollKey:String):void{
-
-		 }
-		 
-		 public function generate(generateEvent:GenerateWebKeyEvent):void{
-
-		}
 	}
 }
