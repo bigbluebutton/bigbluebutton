@@ -7,7 +7,7 @@ import org.bigbluebutton.core.apps.users.messages.UserStatusChange
 import org.bigbluebutton.conference.service.messaging.MessagingConstants
 import com.google.gson.Gson
 import org.bigbluebutton.core.apps.users.messages.UserJoined
-import org.bigbluebutton.core.api.UserLeft
+import org.bigbluebutton.core.apps.users.messages.UserLeft
 
 class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListener2 {
 
@@ -48,7 +48,8 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
 		println("UsersEventRedisPublisher: end handleUserJoined")
 	}
 	
-	private def handleUserLeft(msg: UserLeft) {		
+	private def handleUserLeft(msg: UserLeft) {
+		println("UsersEventRedisPublisher: init handleUserLeft")		
 		val map= new java.util.HashMap[String, String]();
 		map.put("meetingId", msg.meetingID);
 		map.put("messageId", MessagingConstants.USER_LEFT_EVENT);
@@ -56,5 +57,6 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
 			
 		val gson= new Gson();
 		service.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(map));
+		println("UsersEventRedisPublisher: end handleUserLeft")
 	}
 }

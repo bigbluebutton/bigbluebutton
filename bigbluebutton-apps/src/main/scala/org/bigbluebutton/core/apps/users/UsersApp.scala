@@ -5,13 +5,13 @@ import org.bigbluebutton.core.api.Presenter
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.api.UserJoining
 import org.bigbluebutton.core.api.UserLeaving
-import org.bigbluebutton.core.api.UserLeft
 import org.bigbluebutton.core.api.AssignPresenter
 import org.bigbluebutton.core.api.PresenterAssigned
 import org.bigbluebutton.core.User
 import org.bigbluebutton.core.api.MessageOutGateway
 import org.bigbluebutton.core.api.GetUsers
 import org.bigbluebutton.core.apps.users.messages.UserJoined
+import org.bigbluebutton.core.apps.users.messages.UserLeft
 import org.bigbluebutton.core.api.Role
 import org.bigbluebutton.core.api.UserVO
 import java.util.ArrayList
@@ -83,10 +83,13 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   }
 			
   private def handleUserLeft(msg: UserLeaving):Unit = {
-	if (users.hasUser(msg.userID)) {
+	 if (users.hasUser(msg.userID)) {
 	  users.removeUser(msg.userID)
 	  outGW.send(new UserLeft(msg.meetingID, recorded, msg.userID))
-	}
+	 }
+   else{
+    println("This user is not here:" + msg.userID)
+   }
   }
 	
   private def handleAssignPresenter(msg: AssignPresenter):Unit = {
