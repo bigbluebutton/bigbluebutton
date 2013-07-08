@@ -27,24 +27,32 @@
       
     ]]>
   </mx:Script>
-  
-  <mx:VBox id="resultsBox" horizontalAlign="center">
-    <mx:HBox height="10%" id="chartbox" horizontalAlign="center">
-      <mx:RadioButtonGroup id="charttype" selectedValue="piechart" itemClick="switchChart(event);" />  
+
+  <mx:VBox id="resultsBox" horizontalAlign="center" width="100%" height="100%">
+    <mx:HBox height="5%" width="100%" id="chartbox" horizontalAlign="center" borderThickness="1" borderStyle="solid">
+      <mx:RadioButtonGroup id="charttype" selectedValue="piechart" itemClick="switchChart(event);"/>  
       <mx:RadioButton groupName="charttype" id="pieChart" label="Pie Chart" value="piechart" width="100" />
       <mx:RadioButton groupName="charttype" id="barChart" label="Bar Chart" value="barchart" width="100" />
     </mx:HBox>
+    <mx:Spacer height="5"/>
+    <mx:HBox height="5%" width="100%" horizontalAlign="right">
+      <mx:Spacer width="5"/>
+      <mx:Label text="Time remaining:" fontSize="12" styleName="micSettingsWindowTitleStyle"/>
+      <mx:Spacer width="100%"/>
+      <mx:Button label="Stop"/>
+      <mx:Spacer width="5"/>
+    </mx:HBox>  
   </mx:VBox>
   
   <mx:states>
     <mx:State name="PieChart"  >
-      <mx:AddChild relativeTo="{chartbox}" position="after" >
-        <poll:DisplayResultPieChartPanel width="100%" height="100%" viewModel="{viewModel}" pollID="{pollID}" horizontalAlign="center"/>
+      <mx:AddChild relativeTo="{chartbox}" position="before" >
+        <poll:DisplayResultPieChartPanel width="100%" height="80%" viewModel="{viewModel}" pollID="{pollID}" horizontalAlign="center"/>
       </mx:AddChild>
     </mx:State>
     <mx:State name="BarChart">
-      <mx:AddChild relativeTo="{chartbox}" position="after">
-        <poll:DisplayResultBarChartPanel width="100%" height="100%" viewModel="{viewModel}" pollID="{pollID}" horizontalAlign="center"/>
+      <mx:AddChild relativeTo="{chartbox}" position="before">
+        <poll:DisplayResultBarChartPanel width="100%" height="80%" viewModel="{viewModel}" pollID="{pollID}" horizontalAlign="center"/>
       </mx:AddChild>
     </mx:State>
   </mx:states>
