@@ -137,19 +137,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onJoinClicked():void {
+				var e:BBBEvent = new BBBEvent("RESTORE_TO_ADJUST");
+				dispatchEvent(e);
 				cleanUp();
-				var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
-				joinEvent.payload['useMicrophone'] = true;
-				dispatchEvent(joinEvent);
+				var askToChangeEvent:BBBEvent = new BBBEvent("ASK_TO_CHANGE_VOICE_CONFERENCE_EVENT");
+				askToChangeEvent.payload["global"] = false;
+				dispatchEvent(askToChangeEvent);
 				PopUpManager.removePopUp(this);
 			}	
 			
 			private function onCancelClicked():void {
+				var e:BBBEvent = new BBBEvent("RESTORE_TO_ADJUST");
+				dispatchEvent(e);
+				e = new BBBEvent("ENABLE_JOIN_BUTTON");
+				dispatchEvent(e);
 				cleanUp();
-				var event:BBBEvent = new BBBEvent(BBBEvent.MIC_SETTINGS_CLOSED);
-				event.payload['clicked'] = "cancel";
-				dispatchEvent(event);
 				PopUpManager.removePopUp(this);
+				//cleanUp();
+				//var event:BBBEvent = new BBBEvent(BBBEvent.MIC_SETTINGS_CLOSED);
+				//event.payload['clicked'] = "cancel";
+				//dispatchEvent(event);
+				//PopUpManager.removePopUp(this);
 			}
 			
 			private function cleanUp():void {

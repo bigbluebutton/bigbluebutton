@@ -127,8 +127,8 @@ package org.bigbluebutton.modules.phone.managers {
 			userHangup = false;
 			globalCall = true;
 			var uid:String = String(Math.floor(new Date().getTime()));
-			var uname:String = encodeURIComponent(UserManager.getInstance().getConference().getMyUserId() + "-" + attributes.username);
-			connectionManager.connect(uid, attributes.externUserID, uname , attributes.room, attributes.uri);
+			var uname:String = encodeURIComponent(UsersUtil.getMyExternalUserID() + "-bbbID-" + attributes.username);
+      		connectionManager.connect(uid, attributes.internalUserID, uname , attributes.room, attributes.uri); 
 		}
 		
 
@@ -138,8 +138,8 @@ package org.bigbluebutton.modules.phone.managers {
 			globalCall = false;
 			setupMic(autoJoin);
 			var uid:String = String(Math.floor(new Date().getTime()));
-			var uname:String = encodeURIComponent(UserManager.getInstance().getConference().getMyUserId() + "-" + attributes.username);
-			connectionManager.connect(uid, attributes.externUserID, uname , attributes.room, attributes.uri);
+			var uname:String = encodeURIComponent(UsersUtil.getMyExternalUserID() + "-bbbID-" + attributes.username);
+      		connectionManager.connect(uid, attributes.internalUserID, uname , attributes.room, attributes.uri); 
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(new BBBEvent(BBBEvent.JOIN_VOICE_FOCUS_HEAD));		
 		}		
