@@ -26,7 +26,7 @@
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.modules.polling.events.ModuleEvent;
       import org.bigbluebutton.modules.polling.events.OpenCreatePollWindowEvent;
-      import org.bigbluebutton.modules.polling.events.OpenPollMainWindowEvent;
+      import org.bigbluebutton.modules.polling.events.PollMainWindowEvent;
       import org.bigbluebutton.modules.polling.events.OpenPollResultWindowEvent;
       import org.bigbluebutton.modules.polling.events.OpenPollUpdateWindowEvent;
       import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
@@ -50,10 +50,14 @@
     <MethodInvoker generator="{PollingWindowManager}"   method="handleOpenCreatePollWindowEvent" />
   </EventHandlers>
   
-	<EventHandlers type="{OpenPollMainWindowEvent.OPEN_POLL_MAIN_WINDOW}">
+	<EventHandlers type="{PollMainWindowEvent.OPEN_WINDOW}">
 		<MethodInvoker generator="{PollingWindowManager}"   method="handleOpenPollMainWindowEvent" />
 	</EventHandlers>
-	
+
+  <EventHandlers type="{PollMainWindowEvent.CLOSE_WINDOW}">
+    <MethodInvoker generator="{PollingWindowManager}"   method="handleClosePollMainWindowEvent" />
+  </EventHandlers>
+  
 	<EventHandlers type="{PollEvent.SHOW_POLL_RESULT}">
 		<MethodInvoker generator="{PollingWindowManager}"   method="handleOpenPollResultWindowEvent" arguments="{event}"/>
 	</EventHandlers>

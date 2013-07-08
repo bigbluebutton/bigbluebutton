@@ -27,7 +27,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.polling.events.GetPollsEvent;
-	import org.bigbluebutton.modules.polling.events.OpenPollMainWindowEvent;
+	import org.bigbluebutton.modules.polling.events.PollMainWindowEvent;
 	import org.bigbluebutton.modules.polling.events.OpenPollResultWindowEvent;
 	import org.bigbluebutton.modules.polling.events.OpenPollUpdateWindowEvent;
 	import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
@@ -81,10 +81,16 @@ package org.bigbluebutton.modules.polling.managers
     }
     
 		public function handleOpenPollMainWindowEvent():void {
+      toolbarButtonManager.disableToolbarButton();
       pollMainWindow = new PollMainWindow();
 			pollMainWindow.viewModel = _viewModel;      
 			openWindow(pollMainWindow);     
 		}
+    
+    public function handleClosePollMainWindowEvent():void {
+      toolbarButtonManager.enableToolbarButton();
+      closeWindow(pollMainWindow);
+    }
 
     public function handleOpenCreatePollWindowEvent():void {
       openWindow(createPollWindow);  
