@@ -34,7 +34,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShortcutEvent.REMOTE_OPEN_SHORTCUT_WIN}" method="remoteShortcutClick" />
 	<mate:Listener type="{ShortcutEvent.LOGOUT}" method="remoteLogout" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_SHORTCUT_BUTTON}" method="focusShortcutButton" />
-	
+	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="retrieveMeetingName" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -56,6 +56,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
+            import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -106,28 +107,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} else {
 					showHelpBtn = false;
 				}
-                
-                if (toolbarOptions.showMeetingName) {
-                    // Need to wait to allow time for the conference parameters to be loaded
-                    var timer:Timer = new Timer(2000, 1);
-                    timer.addEventListener(TimerEvent.TIMER, retrieveMeetingName);
-                    timer.start();
-                }
 			}
 			
-            private function retrieveMeetingName(e:TimerEvent):void {
+            private function retrieveMeetingName(e:ConferenceCreatedEvent):void {
+                if (toolbarOptions.showMeetingName) {
                     var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();
                     
                     if (meetingTitle != null) {
                         meetingNameLbl.text = meetingTitle;
-                    } else { // if the meeting title isn't loaded, wait and check again.
-                        /* This is an awful implementation, but it works.
-                         *                 Chad
-                         */
-                        var timer:Timer = new Timer(2000, 1);
-                        timer.addEventListener(TimerEvent.TIMER, retrieveMeetingName);
-                        timer.start();
-                    }
+                    } 
+                }
             }
             
 			public function addButton(name:String):Button{
