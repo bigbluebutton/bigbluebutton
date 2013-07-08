@@ -47,8 +47,6 @@
 			return MainCanvas.POPUP;
 		}
       
-
-
     override public function close(event:MouseEvent = null):void {
       dispatchEvent(new PollResultWindowEvent());	
     }

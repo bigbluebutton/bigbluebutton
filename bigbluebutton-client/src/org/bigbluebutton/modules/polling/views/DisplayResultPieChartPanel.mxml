@@ -25,9 +25,6 @@
 		}
       
     private function onPollResultsUpdatedEvent(event:PollEvent):void {
-      
-      
-      trace("**** Displaying results ***************");
       updateResults();
     }
       

@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" borderStyle="none" horizontalAlign="center"
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
+          xmlns:mate="http://mate.asfusion.com/"
+          borderStyle="none" horizontalAlign="center"
           headerHeight="0" borderThicknessBottom="0" borderThicknessLeft="0"
-          borderThicknessRight="0" borderThicknessTop="0" creationComplete="preInit()">
-    <mx:Script>
+          borderThicknessRight="0" borderThicknessTop="0" creationComplete="onCreationComplete()">
+  
+  <mate:Listener type="{PollEvent.POLL_RESULTS_UPDATED}" method="onPollResultsUpdatedEvent" />
+  
+  <mx:Script>
     <![CDATA[
       import mx.collections.ArrayCollection;
       
+      import org.bigbluebutton.modules.polling.events.PollEvent;
       import org.bigbluebutton.modules.polling.model.PollingViewModel;
       import org.bigbluebutton.modules.polling.model.QuestionVO;
       
@@ -14,9 +20,19 @@
       
       [Bindable] private var _responses:Array;
       
-      private function preInit():void {
+      private function onCreationComplete():void {
+        updateResults();
+      }
+      
+      private function onPollResultsUpdatedEvent(event:PollEvent):void {        
+        trace("**** Displaying bar chart results ***************");
+        updateResults();
+      }
+      
+      private function updateResults():void {
         var q1:QuestionVO = viewModel.getPoll(pollID).questions[0] as QuestionVO;
-        _responses = q1.answers;
+        _responses = q1.answers;      
+        barChart.dataProvider = _responses;
       }
 
     ]]>
@@ -24,12 +40,10 @@
 
     <mx:ColumnChart id="barChart" dataProvider="{_responses}" showDataTips="true">
         <mx:horizontalAxis>
-            <mx:CategoryAxis dataProvider="{_responses}" categoryField="response"
-            />
+            <mx:CategoryAxis dataProvider="{_responses}" categoryField="response" />
         </mx:horizontalAxis>
         <mx:series>
-            <mx:ColumnSeries xField="response" yField="numResponses" displayName="Number of responses"
-            />
+            <mx:ColumnSeries xField="response" yField="numResponses" displayName="Number of responses"/>
         </mx:series>
     </mx:ColumnChart>
     <mx:Legend dataProvider="{barChart}"/>
