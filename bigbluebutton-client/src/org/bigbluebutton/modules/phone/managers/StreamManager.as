@@ -47,6 +47,8 @@ package org.bigbluebutton.modules.phone.managers {
 		private var muted:Boolean			    = false;
 		private var audioCodec:String = "SPEEX";
 		private var dispatcher:Dispatcher;
+		private var listeningOnGlobal:Boolean;
+		private var savedAudio:Boolean = false;
 					
 		public function StreamManager() {			
 			dispatcher = new Dispatcher();
@@ -76,31 +78,34 @@ package org.bigbluebutton.modules.phone.managers {
 			if ((BBB.getFlashPlayerVersion() >= 10.3) && (phoneOptions.enabledEchoCancel)) {
 				LogUtil.debug("Using acoustic echo cancellation.");
 				mic = Microphone(Microphone["getEnhancedMicrophone"]());
-				var options:MicrophoneEnhancedOptions = new MicrophoneEnhancedOptions();
-				options.mode = MicrophoneEnhancedMode.FULL_DUPLEX;
-				options.autoGain = false;
-				options.echoPath = 128;
-				options.nonLinearProcessing = true;
-				mic['enhancedOptions'] = options;
+				if(mic != null) {
+					var options:MicrophoneEnhancedOptions = new MicrophoneEnhancedOptions();
+					options.mode = MicrophoneEnhancedMode.FULL_DUPLEX;
+					options.autoGain = false;
+					options.echoPath = 128;
+					options.nonLinearProcessing = true;
+					mic['enhancedOptions'] = options;
+				}
 			} else {
 				
 			}
-			
-			mic.setUseEchoSuppression(true);
-			mic.setLoopBack(false);
-			mic.setSilenceLevel(0,20000);
-			if (audioCodec == "SPEEX") {
-				mic.encodeQuality = 6;
-				mic.codec = SoundCodec.SPEEX;
-				mic.framesPerPacket = 1;
-				mic.rate = 16; 
-				LogUtil.debug("Using SPEEX whideband codec.");
-			} else {
-				mic.codec = SoundCodec.NELLYMOSER;
-				mic.rate = 8;
-				LogUtil.debug("Using Nellymoser codec.");
-			}			
-			mic.gain = 60;			
+			if(mic != null) {
+				mic.setUseEchoSuppression(true);
+				mic.setLoopBack(false);
+				mic.setSilenceLevel(0,20000);
+				if (audioCodec == "SPEEX") {
+					mic.encodeQuality = 6;
+					mic.codec = SoundCodec.SPEEX;
+					mic.framesPerPacket = 1;
+					mic.rate = 16; 
+					LogUtil.debug("Using SPEEX whideband codec.");
+				} else {
+					mic.codec = SoundCodec.NELLYMOSER;
+					mic.rate = 8;
+					LogUtil.debug("Using Nellymoser codec.");
+				}			
+				mic.gain = 60;		
+			}	
 		}
 		
 		public function initWithNoMicrophone(): void {
@@ -122,17 +127,37 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 										
 		public function callConnected(playStreamName:String, publishStreamName:String, codec:String):void {
+			setupMicrophone();
+			
+			
+			if(codec != "")
+				audioCodec = codec;
+			
 			isCallConnected = true;
-			audioCodec = codec;
+			
 			setupIncomingStream();
-
-			if (mic != null) {
-				setupOutgoingStream();
+			
+			if (publishStreamName != "") {
+				listeningOnGlobal = false;
+				if (mic != null) {
+					setupOutgoingStream();
+				}
 			}
-
+			else {
+				listeningOnGlobal = true;
+			}
 			setupPlayStatusHandler();
 			play(playStreamName);
-			publish(publishStreamName);
+			if (listeningOnGlobal == false && publishStreamName != null) {			
+				publish(publishStreamName);
+			}	
+
+			// Restore mute state when changing between global and normal
+			if(muted == true) {
+				muted = false;
+				muteAudio(); 
+			}
+					
 		}
 		
 		private function play(playStreamName:String):void {		
@@ -140,7 +165,7 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 		
 		private function publish(publishStreamName:String):void {
-			if (mic != null)
+			if (listeningOnGlobal == false && mic != null)
 				outgoingStream.publish(publishStreamName, "live");
 			else
 				LogUtil.debug("SM publish: No Microphone to publish");
@@ -162,12 +187,47 @@ package org.bigbluebutton.modules.phone.managers {
 			incomingStream.receiveAudio(true);
 			incomingStream.receiveVideo(false);
 		}
+
+		public function muteAudio():void {
+			if(incomingStream != null && muted == false) {
+				incomingStream.togglePause();	
+				muted = true;
+			}
+			dispatcher.dispatchEvent(new BBBEvent("MUTE_AUDIO_VOICE_CONFERENCE_COMPLETE"));	
+		}
+
+		public function unmuteAudio():void {
+			if(incomingStream != null && muted == true) {
+				incomingStream.togglePause();
+				muted = false;
+			}
+			dispatcher.dispatchEvent(new BBBEvent("UNMUTE_AUDIO_VOICE_CONFERENCE_COMPLETE"));	
+		}
+
+		public function saveAudio():void {
+			if(incomingStream != null && muted == false) {	
+				savedAudio = true;
+				incomingStream.togglePause();
+				LogUtil.debug("SAVED");
+			}	
+			else {
+				savedAudio = false;
+			}	
+		}
 		
+
+		public function restoreAudio():void {
+			setupMicrophone();
+			if(savedAudio) {	
+				LogUtil.debug("RESTORED");
+				incomingStream.togglePause();
+			}	
+		}
+
 		private function setupOutgoingStream():void {
 			outgoingStream = new NetStream(connection);
 			outgoingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
-			outgoingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);		
-			setupMicrophone();
+			outgoingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
 			outgoingStream.attachAudio(mic);
 		}
 		
@@ -176,7 +236,7 @@ package org.bigbluebutton.modules.phone.managers {
 			custom_obj.onPlayStatus = playStatus;
 			custom_obj.onMetadata = onMetadata;
 			incomingStream.client = custom_obj;
-			if (mic != null)
+			if (listeningOnGlobal == false && mic != null)
 				outgoingStream.client = custom_obj;			
 		}
 			
@@ -196,7 +256,8 @@ package org.bigbluebutton.modules.phone.managers {
 			} else {
 				LogUtil.debug("--Outgoing Stream Null");
 			}
-				
+			incomingStream = null;
+			outgoingStream = null;
 			isCallConnected = false;
 			LogUtil.debug("Stopped Stream(s)");
 		}

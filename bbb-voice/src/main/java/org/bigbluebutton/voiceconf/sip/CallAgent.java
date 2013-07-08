@@ -55,7 +55,12 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     private ClientConnectionManager clientConnManager; 
     private final String clientId;
     private final AudioConferenceProvider portProvider;
-    private DatagramSocket localSocket;
+    private DatagramSocket localSocket = null; 
+    public String _callerName;
+    private String _destination;
+    private CallAgent caToInit = null;
+    private Boolean talking = false;
+    private Boolean socketGlobal = false;
     
     private enum CallState {
     	UA_IDLE(0), UA_INCOMING_CALL(1), UA_OUTGOING_CALL(2), UA_ONCALL(3);    	
@@ -65,6 +70,16 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     }
 
     private CallState callState;
+
+	public void setLocalSocketRelatedToGlobal() {
+		this.socketGlobal = true;
+    }
+
+
+    public String getDestination() {
+	return _destination;
+    }
+
 
     public CallAgent(String sipClientRtpIp, SipProvider sipProvider, SipPeerProfile userProfile, AudioConferenceProvider portProvider, String clientId) {
         this.sipProvider = sipProvider;
@@ -87,8 +102,15 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
         log.debug("localSession Descriptor = " + localSession );
     }
 
-    public void call(String callerName, String destination) {
-    	log.debug("{} making a call to {}", callerName, destination);  
+    public Boolean isTalking() {
+	return talking;
+    }
+
+    public void callGlobal(String callerName, String destination, CallAgent ca) {
+	caToInit = ca;
+	_callerName = callerName;
+	_destination = destination;
+	log.debug("{} making a call to {}", callerName, destination);  
     	try {
 			localSocket = getLocalAudioSocket();
 			userProfile.audioPort = localSocket.getLocalPort();	    	
@@ -117,6 +139,50 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
         } else {
             call.call(destination, localSession);
         }
+
+	
+	
+    }
+
+    public void call(String callerName, String destination) {   
+	_callerName = callerName;
+	_destination = destination;
+	log.debug("{} making a call to {}", callerName, destination);  
+    	try {
+			localSocket = getLocalAudioSocket();
+			userProfile.audioPort = localSocket.getLocalPort();	    	
+		} catch (Exception e) {
+			log.debug("{} failed to allocate local port for call to {}. Notifying client that call failed.", callerName, destination); 
+			notifyListenersOnOutgoingCallFailed();
+			return;
+		}    	
+    	
+	setupCallerDisplayName(callerName, destination);	
+    	userProfile.initContactAddress(sipProvider);        
+        initSessionDescriptor();
+        
+    	callState = CallState.UA_OUTGOING_CALL;
+    	
+        call = new ExtendedCall(sipProvider, userProfile.fromUrl, 
+                userProfile.contactUrl, userProfile.username,
+                userProfile.realm, userProfile.passwd, this);  
+        
+        // In case of incomplete url (e.g. only 'user' is present), 
+        // try to complete it.       
+        destination = sipProvider.completeNameAddress(destination).toString();
+
+
+	log.debug("call {}", destination);  
+        if (userProfile.noOffer) {
+            call.call(destination);
+        } else {
+            call.call(destination, localSession);
+        }
+
+	
+
+	
+
     }
 
     private void setupCallerDisplayName(String callerName, String destination) {
@@ -132,11 +198,16 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     /** Closes an ongoing, incoming, or pending call */
     public void hangup() {
     	log.debug("hangup");
-    	
-    	if (callState == CallState.UA_IDLE) return;    	
-    	closeVoiceStreams();        
-    	if (call != null) call.hangup();    
-    	callState = CallState.UA_IDLE; 
+    	if(talking) {
+    		if (callState == CallState.UA_IDLE) return;    	
+    		closeVoiceStreams();        
+    		if (call != null) call.hangup();
+    		callState = CallState.UA_IDLE; 
+	}
+	else {
+		callState = CallState.UA_IDLE; 
+		clientConnManager.leaveConference(clientId);
+	}
     }
 
     private DatagramSocket getLocalAudioSocket() throws Exception {
@@ -187,7 +258,17 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 						callStream = callStreamFactory.createCallStream(sipCodec, connInfo);
 						callStream.addCallStreamObserver(this);
 						callStream.start();
-						notifyListenersOnCallConnected(callStream.getTalkStreamName(), callStream.getListenStreamName());
+						if(_callerName.contains("GLOBAL_AUDIO") == true) {
+							KeepGlobalAudioAlive globalAudioKeepAlive = new KeepGlobalAudioAlive(connInfo.getSocket(), connInfo, sipCodec.getCodecId());
+							GlobalCall.addGlobalAudioStream(_destination, callStream.getListenStreamName(), sipCodec.getCodecName(), globalAudioKeepAlive);							
+							caToInit.returnGlobalStreamName(caToInit.getCallId(), _destination); 
+							talking = true;
+						}
+						else {
+							talking = true;
+							notifyListenersOnCallConnected(callStream.getTalkStreamName(), callStream.getListenStreamName());
+						}
+						
 					} catch (Exception e) {
 						log.error("Failed to create Call Stream.");
 						System.out.println(StackTraceUtil.getStackTrace(e));
@@ -214,6 +295,24 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     		callStream.stopTalkStream(broadcastStream, scope);   	
     	}
     }
+
+    public void returnGlobalStreamName(String clientId, String destination) {
+	talking = false;
+	_destination = destination;
+	String globalAudioStreamName = GlobalCall.getGlobalAudioStream(destination);
+	while(globalAudioStreamName.equals("reserved")) {
+		try {
+			Thread.sleep(100);
+		}
+		catch (Exception e) {
+			
+		}
+		globalAudioStreamName = GlobalCall.getGlobalAudioStream(destination);
+	}
+	GlobalCall.addUser(_destination);
+	clientConnManager.joinConferenceSuccessNew(clientId, globalAudioStreamName, GlobalCall.getRoomCodec(destination));
+
+   }
     
     private void closeVoiceStreams() {        
     	log.debug("Shutting down the voice streams.");         
@@ -336,9 +435,10 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     }
     
     private void cleanup() {
-    	log.debug("Closing local audio port {}", localSocket.getLocalPort());
-    	if (localSocket != null) {
-    		localSocket.close();
+	if (localSocket != null) {
+		if(talking == true) {
+	    		localSocket.close();
+		}
     	} else {
     		log.debug("Trying to close un-allocated port {}", localSocket.getLocalPort());
     	}

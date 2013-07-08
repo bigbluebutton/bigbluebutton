@@ -43,6 +43,15 @@ public class ClientConnectionManager {
 			log.debug("Removed client {} from ConnectionManager.", id);
 		}
 	}
+
+	public void joinConferenceSuccessNew(String clientId, String listen, String codec) {
+		ClientConnection cc = clients.get(clientId);
+		if (cc != null) {
+			System.out.println("String Global");
+			cc.onJoinConferenceSuccess("", listen, codec);
+		}
+
+	}
 	
 	public void joinConferenceSuccess(String clientId, String usertalkStream, String userListenStream, String codec) {
 		ClientConnection cc = clients.get(clientId);

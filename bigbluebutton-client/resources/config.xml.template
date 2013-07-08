@@ -41,7 +41,9 @@
 		
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 
-			autoJoin="true"
+			autoJoin="false"
+			joinGlobal="true"
+			presenterShareOnly="false"
 			skipCheck="false"
 			showButton="true"
 			enabledEchoCancel="true"

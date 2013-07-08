@@ -35,7 +35,7 @@ public class VoiceService {
 		
     	log.debug("GetMeetmeUsers request for room[" + voiceBridge + "]");
     	ArrayList<Participant> p = conferenceService.getParticipants(voiceBridge);
-
+		Boolean hasGlobal = false;
 		Map participants = new HashMap();
 		if (p == null) {
 			participants.put("count", 0);
@@ -45,7 +45,10 @@ public class VoiceService {
 				participants.put("participants", arrayListToMap(p));
 			}			
 		}
-		log.info("MeetMe::service - Sending " + p.size() + " current users...");
+		if(hasGlobal)
+			log.info("MeetMe::service - Sending " + (p.size()-1) + " current users...");
+		else
+			log.info("MeetMe::service - Sending " + p.size() + " current users...");
 		return participants;
 	}
 	
@@ -61,7 +64,8 @@ public class VoiceService {
 			pmap.put("talking", p.isTalking());
 			pmap.put("locked", p.isMuteLocked());
 			log.debug("[" + p.getId() + "," + p.getName() + "," + p.isMuted() + "," + p.isTalking() + "]");
-			result.put(p.getId(), pmap);
+			if(p.getName().contains("GLOBAL_AUDIO") == false)
+				result.put(p.getId(), pmap);
 		}
 		
 		return result;

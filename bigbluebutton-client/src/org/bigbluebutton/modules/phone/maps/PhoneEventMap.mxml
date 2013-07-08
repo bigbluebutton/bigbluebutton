@@ -25,6 +25,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:mx="http://www.adobe.com/2006/mxml">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;
 			import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
 			import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
@@ -63,10 +64,48 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <EventHandlers type="LEAVE_VOICE_CONFERENCE_EVENT">        
 		<MethodInvoker generator="{PhoneManager}" method="userRequestedHangup"/>
     </EventHandlers>
+
+	<EventHandlers type="ASK_TO_CHANGE_VOICE_CONFERENCE_EVENT">        
+		<MethodInvoker generator="{PhoneManager}" method="userRequestedHangupToChange" arguments="{event}"/>
+   	 </EventHandlers>
+
     
 	<EventHandlers type="JOIN_VOICE_CONFERENCE_EVENT">        
 		<MethodInvoker generator="{PhoneManager}" method="joinVoice" arguments="{event.payload.useMicrophone}"/>
 	</EventHandlers>
+
+
+	
+
+
+	<EventHandlers type="JOIN_VOICE_CONFERENCE_EVENT_GLOBAL">        
+		<MethodInvoker generator="{PhoneManager}" method="joinVoiceGlobal" arguments="{event.payload.useMicrophone}"/>
+	</EventHandlers>
+
+
+
+	<EventHandlers type="MUTE_AUDIO_VOICE_CONFERENCE">        
+		<MethodInvoker generator="{PhoneManager}" method="muteAudio"/>
+	</EventHandlers>
+
+	<EventHandlers type="UNMUTE_AUDIO_VOICE_CONFERENCE">        
+		<MethodInvoker generator="{PhoneManager}" method="unmuteAudio"/>
+	</EventHandlers>
+
+
+	<EventHandlers type="SHOW_MIC_SETTINGS">        
+		<MethodInvoker generator="{PhoneManager}" method="saveAudio"/>
+	</EventHandlers>
+
+	<EventHandlers type="SAVE_TO_ADJUST">        
+		<MethodInvoker generator="{PhoneManager}" method="saveAudio"/>
+	</EventHandlers>
+
+	<EventHandlers type="RESTORE_TO_ADJUST">        
+		<MethodInvoker generator="{PhoneManager}" method="restoreAudio"/>
+	</EventHandlers>
+
+
 	
 	<EventHandlers type="{CallConnectedEvent.CALL_CONNECTED_EVENT}">     
 		<MethodInvoker generator="{PhoneEventMapDelegate}" method="disableToolbarButton"/>
@@ -75,16 +114,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     
     <EventHandlers type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}">   
     	<MethodInvoker generator="{PhoneManager}" method="hangup" /> 
-		<MethodInvoker generator="{PhoneEventMapDelegate}" method="enableToolbarButton" /> 
-		<MethodInvoker generator="{PhoneManager}" method="rejoin" />
+	<MethodInvoker generator="{PhoneManager}" method="rejoin" />
     </EventHandlers>
         
     <EventHandlers type="{ConnectionStatusEvent.CONNECTION_STATUS_EVENT}">        
 		<MethodInvoker generator="{PhoneManager}" method="dialConference"/>
     </EventHandlers>
+
+	<EventHandlers type="MUTE_AUDIO_VOICE_CONFERENCE_COMPLETE">        
+		<MethodInvoker generator="{PhoneEventMapDelegate}" method="enableMuteButton"/> 
+    </EventHandlers>
 	
-	<EventHandlers type="{ConnectionStatusEvent.SUCCESS}">        
-		<MethodInvoker generator="{PhoneManager}" method="calledFromGlobal" arguments="ConnectionStatusEvent.SUCCESS"/>
-	</EventHandlers>
+	<EventHandlers type="UNMUTE_AUDIO_VOICE_CONFERENCE_COMPLETE">        
+		<MethodInvoker generator="{PhoneEventMapDelegate}" method="enableMuteButton"/> 
+    </EventHandlers>
+
+
+	<EventHandlers type="ENABLE_JOIN_BUTTON">        
+		<MethodInvoker generator="{PhoneEventMapDelegate}" method="enableToolbarButton"/> 
+    </EventHandlers>
+
+    <EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" >
+        <MethodInvoker generator="{PhoneEventMapDelegate}" method="switchToPresenter" />
+    </EventHandlers>
+
+    <EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
+        <MethodInvoker generator="{PhoneEventMapDelegate}" method="switchToViewer" />
+    </EventHandlers>
     
 </EventMap>
