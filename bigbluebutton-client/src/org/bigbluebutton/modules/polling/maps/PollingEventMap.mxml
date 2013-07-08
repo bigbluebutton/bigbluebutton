@@ -24,7 +24,6 @@
 		<![CDATA[
       import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
       import org.bigbluebutton.modules.polling.events.ModuleEvent;
       import org.bigbluebutton.modules.polling.events.OpenCreatePollWindowEvent;
       import org.bigbluebutton.modules.polling.events.OpenPollMainWindowEvent;
@@ -33,12 +32,6 @@
       import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
       import org.bigbluebutton.modules.polling.events.OpenTakePollWindowEvent;
       import org.bigbluebutton.modules.polling.events.PollEvent;
-      import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
-      import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
-      import org.bigbluebutton.modules.polling.events.PollReturnTitlesEvent;
-      import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
-      import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
-      import org.bigbluebutton.modules.polling.events.ReviewResultsEvent;
       import org.bigbluebutton.modules.polling.managers.PollingWindowManager;
       import org.bigbluebutton.modules.polling.model.PollingModel;
 		]]>

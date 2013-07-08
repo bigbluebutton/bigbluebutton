@@ -35,19 +35,8 @@
 		<![CDATA[
     
       import org.bigbluebutton.common.Images;
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.core.managers.UserManager;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.model.users.Conference;
       import org.bigbluebutton.main.views.MainToolbar;
       import org.bigbluebutton.modules.polling.events.OpenPollMainWindowEvent;
-      import org.bigbluebutton.modules.polling.events.OpenPollResultWindowEvent;
-      import org.bigbluebutton.modules.polling.events.OpenPollUpdateWindowEvent;
-      import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
-      import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
-      import org.bigbluebutton.modules.polling.events.ReviewResultsEvent;
-      import org.bigbluebutton.modules.polling.model.PollObject;
-      import org.bigbluebutton.modules.polling.model.ValueObject;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();

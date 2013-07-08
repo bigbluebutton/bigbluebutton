@@ -26,7 +26,6 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
-	import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
 	import org.bigbluebutton.modules.polling.events.GetPollsEvent;
 	import org.bigbluebutton.modules.polling.events.OpenPollMainWindowEvent;
 	import org.bigbluebutton.modules.polling.events.OpenPollResultWindowEvent;
@@ -34,15 +33,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
 	import org.bigbluebutton.modules.polling.events.OpenTakePollWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollEvent;
-	import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
-	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
-	import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
-	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
-	import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
-	import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
-	import org.bigbluebutton.modules.polling.events.ReviewResultsEvent;
 	import org.bigbluebutton.modules.polling.events.StopPollEvent;
-	import org.bigbluebutton.modules.polling.model.PollObject;
 	import org.bigbluebutton.modules.polling.model.PollingModel;
 	import org.bigbluebutton.modules.polling.model.PollingViewModel;
 	import org.bigbluebutton.modules.polling.service.PollingService;
@@ -50,7 +41,6 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.views.DisplayResultWindow;
 	import org.bigbluebutton.modules.polling.views.PollCreateWindow;
 	import org.bigbluebutton.modules.polling.views.PollMainWindow;
-	import org.bigbluebutton.modules.polling.views.PollingInstructionsWindow;
 	import org.bigbluebutton.modules.polling.views.TakePollWindow;
 	import org.bigbluebutton.modules.polling.views.UpdatePollWindow;
 

@@ -24,20 +24,11 @@ package org.bigbluebutton.modules.polling.service
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.modules.polling.events.CreatePollEvent;
-	import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
 	import org.bigbluebutton.modules.polling.events.GetPollsEvent;
 	import org.bigbluebutton.modules.polling.events.PollEvent;
-	import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
-	import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
-	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
-	import org.bigbluebutton.modules.polling.events.PollReturnTitlesEvent;
-	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
-	import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
 	import org.bigbluebutton.modules.polling.events.RespondEvent;
 	import org.bigbluebutton.modules.polling.events.UpdatePollEvent;
 	import org.bigbluebutton.modules.polling.managers.PollingWindowManager;
-	import org.bigbluebutton.modules.polling.model.PollObject;
-	import org.bigbluebutton.modules.polling.views.PollingInstructionsWindow;
 
 	public class PollingService
 	{	
