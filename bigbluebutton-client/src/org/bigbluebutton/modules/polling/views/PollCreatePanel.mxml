@@ -5,6 +5,7 @@
   <mx:Script>
       <![CDATA[
         import org.bigbluebutton.modules.polling.events.CreatePollEvent;
+        import org.bigbluebutton.modules.polling.events.CreatePollWindowEvent;
         import org.bigbluebutton.modules.polling.vo.CreatePollVO;
         import org.bigbluebutton.modules.polling.vo.CreateQuestionVO;
         import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -34,6 +35,8 @@
           createPollVO.addQuestion(question);
           
           dispatchEvent(new CreatePollEvent(createPollVO));
+          
+          close();
         }
         
         private function isDuplicateAnswers(arr:Array):Boolean{
@@ -69,6 +72,10 @@
           }
           
           return answersArray;
+        }
+        
+        private function close():void {
+          dispatchEvent(new CreatePollWindowEvent(CreatePollWindowEvent.CLOSE_WINDOW));		
         }
         
       ]]>    
@@ -127,7 +134,7 @@
   <mx:HBox width="100%" height="35" horizontalAlign="right">
     <mx:Button label="Create" styleName="presentationUploadShowButtonStyle" click="createPoll()"/>
     <mx:Spacer width="5"/>
-    <mx:Button label="Cancel" styleName="presentationUploadShowButtonStyle"/>
+    <mx:Button label="Cancel" styleName="presentationUploadShowButtonStyle" click="close()"/>
     <mx:Spacer width="5"/>
   </mx:HBox>  
   

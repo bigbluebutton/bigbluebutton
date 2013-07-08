@@ -96,6 +96,10 @@ package org.bigbluebutton.modules.polling.managers
       openWindow(createPollWindow);  
     }
     
+    public function handleCloseCreatePollWindowEvent():void {
+      closeWindow(createPollWindow);
+    }
+    
     public function handlePollStartedEvent(event:PollEvent):void {
       if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) {
         openPollResultsWindow(event.pollID);

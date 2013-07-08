@@ -6,7 +6,7 @@
       <![CDATA[
         import com.asfusion.mate.events.Dispatcher;
         
-        import org.bigbluebutton.modules.polling.events.OpenCreatePollWindowEvent;
+        import org.bigbluebutton.modules.polling.events.CreatePollWindowEvent;
         import org.bigbluebutton.modules.polling.events.PollMainWindowEvent;
         import org.bigbluebutton.modules.polling.model.PollingViewModel;
         import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -22,7 +22,7 @@
      
         private function createPoll():void {
           var dispatcher:Dispatcher = new Dispatcher();
-          dispatcher.dispatchEvent(new OpenCreatePollWindowEvent());
+          dispatcher.dispatchEvent(new CreatePollWindowEvent(CreatePollWindowEvent.OPEN_WINDOW));
         }
         
         private function close():void {

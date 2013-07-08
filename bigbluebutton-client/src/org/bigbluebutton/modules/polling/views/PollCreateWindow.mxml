@@ -53,19 +53,12 @@ Notes.mxml is the main view of the SharedNotes application
       import org.bigbluebutton.main.model.users.Conference;
       import org.bigbluebutton.main.views.MainCanvas;
       import org.bigbluebutton.modules.polling.events.CreatePollEvent;
-      import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
       import org.bigbluebutton.modules.polling.events.GetPollsEvent;
       import org.bigbluebutton.modules.polling.events.PollEvent;
-      import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
-      import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
-      import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
-      import org.bigbluebutton.modules.polling.events.PublishPollEvent;
       import org.bigbluebutton.modules.polling.events.RespondEvent;
       import org.bigbluebutton.modules.polling.events.SavePollEvent;
       import org.bigbluebutton.modules.polling.events.StartPollingEvent;
       import org.bigbluebutton.modules.polling.events.UpdatePollEvent;
-      import org.bigbluebutton.modules.polling.managers.PollingManager;
-      import org.bigbluebutton.modules.polling.model.PollObject;
       import org.bigbluebutton.modules.polling.model.PollOptions;
       import org.bigbluebutton.modules.polling.vo.CreatePollVO;
       import org.bigbluebutton.modules.polling.vo.CreateQuestionVO;
@@ -79,7 +72,6 @@ Notes.mxml is the main view of the SharedNotes application
       public static const LOGNAME:String = "[PollingInstructionsWindow] ";
 
       [Bindable] public var invalidTitles:Array;
-      [Bindable] public var incomingPoll:PollObject;
       [Bindable] public var editing:Boolean;
       [Bindable] public var pollOptions:PollOptions;
       [Bindable] private var baseIndex:int;

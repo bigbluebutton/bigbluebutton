@@ -30,10 +30,15 @@ Notes.mxml is the main view of the SharedNotes application
   <mx:Script>
     <![CDATA[
       import org.bigbluebutton.main.views.MainCanvas;
+      import org.bigbluebutton.modules.polling.events.CreatePollWindowEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
           
       public function getPrefferedPosition():String{
         return MainCanvas.POPUP;
+      }
+      
+      override public function close(event:MouseEvent = null):void {
+        dispatchEvent(new CreatePollWindowEvent(CreatePollWindowEvent.CLOSE_WINDOW));		
       }
       
     ]]>
