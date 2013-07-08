@@ -1,3 +1,7 @@
+function setTitle(title){
+    document.title=title;
+}
+
 var i = 1;
 function addAlert(message){
 	var target = document.getElementById( 'notifications' ),
