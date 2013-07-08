@@ -28,7 +28,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.polling.events.GetPollsEvent;
 	import org.bigbluebutton.modules.polling.events.PollMainWindowEvent;
-	import org.bigbluebutton.modules.polling.events.OpenPollResultWindowEvent;
+	import org.bigbluebutton.modules.polling.events.PollResultWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollUpdateWindowEvent;
 	import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
 	import org.bigbluebutton.modules.polling.events.OpenTakePollWindowEvent;
@@ -102,6 +102,10 @@ package org.bigbluebutton.modules.polling.managers
     
     public function handleCloseCreatePollWindowEvent():void {
       closeWindow(createPollWindow);
+    }
+    
+    public function handleClosePollResultWindowEvent():void {
+      closeWindow(resultsWindow);  
     }
     
     public function handlePollStartedEvent(event:PollEvent):void {

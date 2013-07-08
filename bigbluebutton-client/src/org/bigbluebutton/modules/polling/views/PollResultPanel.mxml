@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
+          xmlns:poll="org.bigbluebutton.modules.polling.views.*"
+          borderStyle="none" horizontalAlign="center"
+          headerHeight="0" borderThicknessBottom="0" borderThicknessLeft="0"
+          borderThicknessRight="0" borderThicknessTop="0"
+          creationComplete="onCreationComplete()">
+  <mx:Script>
+    <![CDATA[
+      import mx.events.ItemClickEvent;     
+      import org.bigbluebutton.modules.polling.model.PollingViewModel;
+      
+      [Bindable] public var viewModel:PollingViewModel;
+      [Bindable] public var pollID:String;
+      
+      private function onCreationComplete():void{
+        setCurrentState("PieChart");
+      }
+      
+      private function switchChart(event:ItemClickEvent):void {
+        if (event.currentTarget.selectedValue == "piechart") {
+          setCurrentState("PieChart");     
+        } else if (event.currentTarget.selectedValue == "barchart") {
+          setCurrentState("BarChart");
+        } 
+      }
+      
+    ]]>
+  </mx:Script>
+  
+  <mx:VBox id="resultsBox" horizontalAlign="center">
+    <mx:HBox height="10%" id="chartbox" horizontalAlign="center">
+      <mx:RadioButtonGroup id="charttype" selectedValue="piechart" itemClick="switchChart(event);" />  
+      <mx:RadioButton groupName="charttype" id="pieChart" label="Pie Chart" value="piechart" width="100" />
+      <mx:RadioButton groupName="charttype" id="barChart" label="Bar Chart" value="barchart" width="100" />
+    </mx:HBox>
+  </mx:VBox>
+  
+  <mx:states>
+    <mx:State name="PieChart"  >
+      <mx:AddChild relativeTo="{chartbox}" position="after" >
+        <poll:DisplayResultPieChartPanel width="100%" height="100%" viewModel="{viewModel}" pollID="{pollID}" horizontalAlign="center"/>
+      </mx:AddChild>
+    </mx:State>
+    <mx:State name="BarChart">
+      <mx:AddChild relativeTo="{chartbox}" position="after">
+        <poll:DisplayResultBarChartPanel width="100%" height="100%" viewModel="{viewModel}" pollID="{pollID}" horizontalAlign="center"/>
+      </mx:AddChild>
+    </mx:State>
+  </mx:states>
+</mx:Panel>

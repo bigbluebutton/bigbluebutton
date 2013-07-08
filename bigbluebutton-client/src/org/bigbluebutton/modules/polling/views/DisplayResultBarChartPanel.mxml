@@ -24,16 +24,11 @@
 
     <mx:ColumnChart id="barChart" dataProvider="{_responses}" showDataTips="true">
         <mx:horizontalAxis>
-            <mx:CategoryAxis 
-                dataProvider="{_responses}" 
-                categoryField="response"
+            <mx:CategoryAxis dataProvider="{_responses}" categoryField="response"
             />
         </mx:horizontalAxis>
         <mx:series>
-            <mx:ColumnSeries 
-                xField="response" 
-                yField="numResponses"
-                displayName="Number of responses"
+            <mx:ColumnSeries xField="response" yField="numResponses" displayName="Number of responses"
             />
         </mx:series>
     </mx:ColumnChart>
