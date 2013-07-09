@@ -74,6 +74,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.enabled = false;
 				var vxml:XML = BBB.getConfigForModule("PhoneModule");
 				var phoneOptions:PhoneOptions = new PhoneOptions();
+				
 				if (noMicrophone() == false) {
 					var askToChangeEvent:BBBEvent;
 					askToChangeEvent = new BBBEvent("ASK_TO_CHANGE_VOICE_CONFERENCE_EVENT");
@@ -99,26 +100,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.selected = true;
 				startPhone();
 			}
-			
-			private function micStatusEventHandler(event:StatusEvent):void {				
-        var joinEvent:BBBEvent;
-				switch(event.code) {
-					case "Microphone.Muted":						
-						LogUtil.warn("Access to microphone has been denied.");
-						joinEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
-						joinEvent.payload['useMicrophone'] = false;
-						dispatcher.dispatchEvent(joinEvent);
-						break;
-					case "Microphone.Unmuted":
-						LogUtil.debug("Access to the microphone has been allowed.");
-						joinEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
-						joinEvent.payload['useMicrophone'] = true;
-						dispatcher.dispatchEvent(joinEvent);
-						break;
-					default:
-						LogUtil.debug("unknown micStatusHandler event: " + event);
-				}
-			}			
 			
 			private function mouseOverHandler(event:MouseEvent):void {
 				if(stopChangingIcon) {
