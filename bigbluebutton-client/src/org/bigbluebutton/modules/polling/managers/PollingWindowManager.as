@@ -31,7 +31,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.events.PollResultWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollUpdateWindowEvent;
 	import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
-	import org.bigbluebutton.modules.polling.events.OpenTakePollWindowEvent;
+	import org.bigbluebutton.modules.polling.events.TakePollWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollEvent;
 	import org.bigbluebutton.modules.polling.events.StopPollEvent;
 	import org.bigbluebutton.modules.polling.model.PollingModel;
@@ -120,8 +120,8 @@ package org.bigbluebutton.modules.polling.managers
       
     }
     
-		public function handleOpenTakePollWindowEvent(event:OpenTakePollWindowEvent):void {
-
+		public function handleCloseTakePollWindowEvent():void {
+      closeWindow(takePollWindow);
 		}
 		
     private function openTakePollWindow(pollID:String):void {

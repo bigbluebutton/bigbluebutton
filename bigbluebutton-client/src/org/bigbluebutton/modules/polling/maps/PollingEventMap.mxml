@@ -30,7 +30,7 @@
       import org.bigbluebutton.modules.polling.events.PollResultWindowEvent;
       import org.bigbluebutton.modules.polling.events.PollUpdateWindowEvent;
       import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
-      import org.bigbluebutton.modules.polling.events.OpenTakePollWindowEvent;
+      import org.bigbluebutton.modules.polling.events.TakePollWindowEvent;
       import org.bigbluebutton.modules.polling.events.PollEvent;
       import org.bigbluebutton.modules.polling.managers.PollingWindowManager;
       import org.bigbluebutton.modules.polling.model.PollingModel;
@@ -86,8 +86,8 @@
     <MethodInvoker generator="{PollingWindowManager}"   method="handleCloseEditPollEvent"/>
   </EventHandlers>
   
-	<EventHandlers type="{OpenTakePollWindowEvent.OPEN_TAKE_POLL_WINDOW}">
-		<MethodInvoker generator="{PollingWindowManager}"  method="handleOpenTakePollWindowEvent" arguments="{event}"/>
+	<EventHandlers type="{TakePollWindowEvent.CLOSE_WINDOW}">
+		<MethodInvoker generator="{PollingWindowManager}"  method="handleCloseTakePollWindowEvent"/>
 	</EventHandlers>
 		
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">

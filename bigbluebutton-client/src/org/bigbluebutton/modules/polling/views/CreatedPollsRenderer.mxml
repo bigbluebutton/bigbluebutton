@@ -4,7 +4,7 @@
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
       
-      import org.bigbluebutton.modules.polling.events.OpenTakePollWindowEvent;
+      import org.bigbluebutton.modules.polling.events.TakePollWindowEvent;
       import org.bigbluebutton.modules.polling.events.PollEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
       
