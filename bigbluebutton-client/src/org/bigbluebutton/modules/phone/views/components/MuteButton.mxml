@@ -28,6 +28,7 @@
 	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.mute')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent">
 	
+	<mate:Listener type="{ShortcutEvent.PAUSE_REMOTE_STREAM}" method="remoteClick" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -37,6 +38,7 @@
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.managers.UserManager;			
 			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.modules.phone.PhoneOptions;
 			import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
@@ -63,6 +65,12 @@
 				phoneIcon = images.speakerActiveIcon;
 							
 			}
+
+			public function remoteClick(event:ShortcutEvent):void{
+				startSound();
+			}
+
+
 			private function startSound():void {
 				this.enabled = false;
 				if (this.selected) {	

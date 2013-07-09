@@ -67,7 +67,7 @@ package org.bigbluebutton.modules.phone.managers {
 			if (phoneOptions.joinGlobal) {
 				joinVoiceGlobal();
 			}
-			else if (phoneOptions.autoJoin) {
+			if (phoneOptions.autoJoin) {
 					if (phoneOptions.skipCheck) {
 						if(noMicrophone())
 							joinVoice(false);

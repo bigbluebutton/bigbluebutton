@@ -154,6 +154,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
 		if (ShortcutOptions.audioActive){
 			keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.share.microphone') as String)] = ShortcutEvent.SHARE_MICROPHONE;
+      keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.share.pauseRemoteStream') as String)] = ShortcutEvent.PAUSE_REMOTE_STREAM;
 		}
 	}
 	
