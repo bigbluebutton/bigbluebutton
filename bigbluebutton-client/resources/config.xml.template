@@ -84,6 +84,7 @@
 			dependsOn="PresentModule"
 			baseTabIndex="601"
 			whiteboardAccess="presenter"
+			keepToolbarVisible="false"
 		/>
 
 <!--
