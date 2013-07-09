@@ -120,6 +120,10 @@ package org.bigbluebutton.modules.polling.managers
       
     }
     
+    public function handleUserRespondedEvent(event:PollEvent):void {
+      openPollResultsWindow(event.pollID);
+    }
+    
 		public function handleCloseTakePollWindowEvent():void {
       closeWindow(takePollWindow);
 		}

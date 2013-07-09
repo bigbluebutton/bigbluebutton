@@ -16,6 +16,7 @@ package org.bigbluebutton.modules.polling.events
     public static const REMOVE_POLL:String = "remove poll event";
     public static const EDIT_POLL_REQUEST:String = "request to edit poll event";
     public static const SHOW_POLL_RESULT:String = "request to show result poll event";
+    public static const USER_RESPONDED:String = "user has responded to poll event";
     
     private var _pollID:String;
     

@@ -82,6 +82,10 @@
 		<MethodInvoker generator="{PollingWindowManager}"   method="handleEditPollRequestEvent" arguments="{event}"/>
 	</EventHandlers>
 
+  <EventHandlers type="{PollEvent.USER_RESPONDED}">
+    <MethodInvoker generator="{PollingWindowManager}"   method="handleUserRespondedEvent" arguments="{event}"/>
+  </EventHandlers>
+  
   <EventHandlers type="{PollUpdateWindowEvent.CLOSE_WINDOW}">
     <MethodInvoker generator="{PollingWindowManager}"   method="handleCloseEditPollEvent"/>
   </EventHandlers>

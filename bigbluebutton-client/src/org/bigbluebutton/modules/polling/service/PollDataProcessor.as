@@ -145,6 +145,7 @@ package org.bigbluebutton.modules.polling.service
         
         if (UsersUtil.isMe(responder.userID)) {
           model.userHasResponded(response.pollID);
+          dispatcher.dispatchEvent(new PollEvent(PollEvent.USER_RESPONDED, response.pollID));
         }
         
         trace(LOG + "*** handlePollResultUpdatedMesage pollID = [" + response.pollID + "] **** \n")
