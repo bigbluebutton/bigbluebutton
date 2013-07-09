@@ -29,6 +29,9 @@ package org.bigbluebutton.modules.polling.service
         var map:Object = polls[i];
         var id:String = map.id;
         var title:String = map.title;
+        var started:Boolean = map.started;
+        var stopped:Boolean = map.stopped;
+        
         var questions:Array = map.questions as Array;
         
         var qs:Array = new Array();
@@ -37,13 +40,15 @@ package org.bigbluebutton.modules.polling.service
           qs.push(buildQuestion(questions[j]));
         }
         
-        var poll:Poll = new Poll(id, title, qs);
+        var poll:Poll = new Poll(id, title, qs, started, stopped);
         
         model.createPoll(poll);        
       }
       
       trace(LOG + "*** getPollsReply num polls = [" + model.getPolls().length + "] **** \n")
     }
+    
+    
     
     private function buildQuestion(question:Object):Question {
       var resps:Array = question.responses as Array;
@@ -169,7 +174,7 @@ package org.bigbluebutton.modules.polling.service
           qs.push(buildQuestion(questions[j]));
         }
         
-        var poll:Poll = new Poll(id, title, qs);
+        var poll:Poll = new Poll(id, title, qs, false, false);
         
         model.createPoll(poll);
         
@@ -195,7 +200,7 @@ package org.bigbluebutton.modules.polling.service
           qs.push(buildQuestion(questions[j]));
         }
         
-        var poll:Poll = new Poll(id, title, qs);
+        var poll:Poll = new Poll(id, title, qs, false, false);
         
         model.updatePoll(poll);
         

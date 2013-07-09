@@ -20,7 +20,6 @@ case class GetPollResult(meetingID:String, requesterID: String, pollID: String) 
 case class RespondToPoll(meetingID: String, requesterID: String, response: PollResponseVO) extends InMessage
 
 
-
 case class R(id: String, response: String)
 case class Q(id: String, questionType: String, question: String, responses: Array[R])
 case class P(id: String, title: String, questions: Array[Q])

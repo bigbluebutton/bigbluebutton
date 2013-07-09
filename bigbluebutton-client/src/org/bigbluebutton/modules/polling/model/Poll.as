@@ -21,11 +21,13 @@ package org.bigbluebutton.modules.polling.model
     
     private var _hasResponded:Boolean = false;
     
-    public function Poll(id:String, title:String, questions:Array)
+    public function Poll(id:String, title:String, questions:Array, started:Boolean, stopped:Boolean)
     {
       _id = id;
       _title = title;
       _questions = questions;
+      _started = started;
+      _stopped = stopped;
     }
     
     public function start():void {

@@ -60,7 +60,7 @@ class PollClientMessageSender(service: ConnectionInvokerService) extends OutMess
   	  
 	  message.put("msg", gson.toJson(collection))
   	  
-//	  println("PollClientMessageSender - Handling GetPollsReplyOutMsg \n" + message.get("msg") + "\n")
+	  println("PollClientMessageSender - Handling GetPollsReplyOutMsg \n" + message.get("msg") + "\n")
 	  
   	  var m = new DirectClientMessage(msg.meetingID, msg.requesterID, "pollGetPollsReply", message);
   	  service.sendMessage(m);		  

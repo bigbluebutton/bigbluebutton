@@ -9,7 +9,7 @@ case class ResponderVO(responseID: String, user: Responder)
 
 case class ResponseVO(id: String, text: String, responders: Array[Responder] = Array[Responder]())
 case class QuestionVO(id: String, multiResponse: Boolean, question: String, responses: Array[ResponseVO])
-case class PollVO(id: String, title: String, questions: Array[QuestionVO])
+case class PollVO(id: String, title: String, questions: Array[QuestionVO], started: Boolean = false, stopped: Boolean = false)
 
 case class Responder(val userID: String, name: String)
 
@@ -19,23 +19,23 @@ case class PollOutVO(id: String, title: String, started: Boolean, stopped: Boole
 
 
 class Poll(val id: String, val title: String, val questions: Array[Question]) {						
-	private var started: Boolean = false
-	private var stopped: Boolean = false
+	private var _started: Boolean = false
+	private var _stopped: Boolean = false
 	
 	def start() {
-		started = true;
+		_started = true;
 	}
 
 	def stop() {
-	  stopped = true;
+	  _stopped = true;
 	}
 	
 	def isStarted():Boolean = {
-	  return started
+	  return _started
 	}
 	
 	def isStopped():Boolean = {
-	  return stopped
+	  return _stopped
 	}
 	
 	def clear() {
@@ -43,8 +43,8 @@ class Poll(val id: String, val title: String, val questions: Array[Question]) {
 	    q.clear
 	  })	
 	  
-	  started = false
-	  stopped = false
+	  _started = false
+	  _stopped = false
 	}
 	
 	def hasResponses():Boolean = {
@@ -69,7 +69,7 @@ class Poll(val id: String, val title: String, val questions: Array[Question]) {
         qvos += q.toQuestionVO
       })
      
-      new PollVO(id, title, qvos.toArray)	  
+      new PollVO(id, title, qvos.toArray, _started, _stopped)	  
 	}
 }
 

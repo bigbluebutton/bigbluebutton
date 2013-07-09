@@ -157,17 +157,14 @@ package org.bigbluebutton.modules.polling.managers
     }
     
 
-
-		// Action makers (function that actually act on the windows )
-		//#############################################################################
-		private function openWindow(window:IBbbModuleWindow):void{
+		private function openWindow(window:IBbbModuleWindow):void {
 			var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 			windowEvent.window = window;
 			if (windowEvent.window != null)
 				dispatcher.dispatchEvent(windowEvent);
 		}
 		
-		private function closeWindow(window:IBbbModuleWindow):void{
+		private function closeWindow(window:IBbbModuleWindow):void {
 			var windowEvent:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
 			windowEvent.window = window;
       dispatcher.dispatchEvent(windowEvent);

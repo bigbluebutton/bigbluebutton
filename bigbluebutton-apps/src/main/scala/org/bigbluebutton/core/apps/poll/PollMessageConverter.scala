@@ -139,7 +139,7 @@ class PollMessageConverter {
 			val aquestion = iter.next().getAsJsonObject();
 			val questionID = gson.fromJson(aquestion.get("questionID"), classOf[String])
 					
-			val responses = aquestion.get("responses").getAsJsonArray();
+			val responses = aquestion.get("responseIDs").getAsJsonArray();
 			
 			val rvoArray = ArrayBuffer[String]()
 

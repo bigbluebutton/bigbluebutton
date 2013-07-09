@@ -64,7 +64,7 @@ package org.bigbluebutton.modules.polling.model
       
       _questions.push(_q1);
       
-      var _poll:Poll = new Poll("pollID", "Sample Poll", _questions);    
+      var _poll:Poll = new Poll("pollID", "Sample Poll", _questions, false, false);    
       
       _model.createPoll(_poll);
     }
@@ -80,7 +80,7 @@ package org.bigbluebutton.modules.polling.model
       
       _questions.push(_q1);
       
-      var _poll:Poll = new Poll("chicken-poll", "Chicken and Egg", _questions);    
+      var _poll:Poll = new Poll("chicken-poll", "Chicken and Egg", _questions, false, false);    
       
       _model.createPoll(_poll);
     }
@@ -103,7 +103,7 @@ package org.bigbluebutton.modules.polling.model
       
       _questions.push(_q1);
       
-      var _poll:Poll = new Poll("philcap", "Philippine Capital", _questions);    
+      var _poll:Poll = new Poll("philcap", "Philippine Capital", _questions, false, false);    
       
       _model.createPoll(_poll);
     }
