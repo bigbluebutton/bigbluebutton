@@ -116,7 +116,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
     public void roomStop(IScope room) {
 		log.debug("***** " + APP + " [ " + " roomStop [ " + scope.getName() + "] *********");
 		
-    	bbbGW.destroyMeeting(room.getName());
+//    	bbbGW.destroyMeeting(room.getName());
     	
 		recorderApplication.destroyRecordSession(room.getName());
 		connInvokerService.removeScope(room.getName());
@@ -152,7 +152,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         					",voiceConf=" + voiceBridge + ",room=" + room + ",externalUserid=" + externalUserID;
 		log.debug("User [{}] connected to room [{}]", debugInfo, room); 
 		
-		bbbGW.createMeeting2(room, record, voiceBridge);
+//		bbbGW.createMeeting2(room, record, voiceBridge);
 		
         connInvokerService.addConnection(bbbSession.getInternalUserID(), connection);
         

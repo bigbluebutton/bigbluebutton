@@ -84,12 +84,18 @@ public class MeetingService {
 		  			log.debug("[" + m.getInternalId() + "] is recorded. Process it.");		  			
 		  			processRecording(m.getInternalId());
 		  		}
+		  		
+		  		destroyMeeting(m.getInternalId());
+		  		
 				meetings.remove(m.getInternalId());
+				
 				continue;
 			}
 			
 			if (m.wasNeverStarted(defaultMeetingCreateJoinDuration)) {
 				log.info("Removing non-joined meeting [{} - {}]", m.getInternalId(), m.getName());
+				destroyMeeting(m.getInternalId());
+				
 				meetings.remove(m.getInternalId());
 				continue;
 			}
@@ -101,6 +107,10 @@ public class MeetingService {
 		}
 	}
 	
+	private void destroyMeeting(String meetingID) {
+		messagingService.destroyMeeting(meetingID);
+	}
+	
 	public Collection<Meeting> getMeetings() {
 		log.debug("The number of meetings are: " + meetings.size());
 		return meetings.isEmpty() ? Collections.<Meeting>emptySet() : Collections.unmodifiableCollection(meetings.values());
@@ -110,7 +120,7 @@ public class MeetingService {
 		log.debug("Storing Meeting with internal id:" + m.getInternalId());
 		meetings.put(m.getInternalId(), m);
 		if (m.isRecord()) {
-			Map<String,String> metadata=new LinkedHashMap<String,String>();
+			Map<String,String> metadata = new LinkedHashMap<String,String>();
 			metadata.putAll(m.getMetadata());
 			//TODO: Need a better way to store these values for recordings
 			metadata.put("meetingId", m.getExternalId());
@@ -118,6 +128,8 @@ public class MeetingService {
 			
 			messagingService.recordMeetingInfo(m.getInternalId(), metadata);
 		}
+		
+		messagingService.createMeeting(m.getInternalId(), m.isRecord(), m.getTelVoice());
 	}
 
 	public String addSubscription(String meetingId, String event, String callbackURL){
@@ -230,15 +242,16 @@ public class MeetingService {
 	}
 
 	public void createdPolls(String meetingId, String title, String question, ArrayList<String> answers){
-		messagingService.sendPolls(meetingId,title,question,answers);
+		messagingService.sendPolls(meetingId, title, question, answers);
 	}
 	
 	public void endMeeting(String meetingId) {		
 		messagingService.endMeeting(meetingId);
+		
 		Meeting m = getMeeting(meetingId);
-		if(m != null){
+		if (m != null) {
 			m.setForciblyEnded(true);
-			if(removeMeetingWhenEnded)
+			if (removeMeetingWhenEnded)
 			{
 				if (m.isRecord()) {
 					log.debug("[" + m.getInternalId() + "] is recorded. Process it.");		  			

@@ -44,10 +44,6 @@ public class RedisMessagingService implements MessagingService {
 	private final Executor exec = Executors.newSingleThreadExecutor();
 	private Runnable pubsubListener;
 
-	public RedisMessagingService(){
-		
-	}
-	
  	@Override
 	public void addListener(MessageListener listener) {
  		listeners.add(listener);
@@ -73,6 +69,27 @@ public class RedisMessagingService implements MessagingService {
 		}		
 	}
 
+	public void destroyMeeting(String meetingID) {
+		HashMap<String,String> map = new HashMap<String, String>();
+		map.put("messageId", MessagingConstants.DESTROY_MEETING_REQUEST_EVENT);
+		map.put("meetingID", meetingID);
+		Gson gson = new Gson();
+		
+		send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));		
+	}
+	
+	public void createMeeting(String meetingID, Boolean recorded, String voiceBridge) {
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		map.put("messageId", MessagingConstants.CREATE_MEETING_REQUEST_EVENT);
+		map.put("meetingID", meetingID);
+		map.put("record", recorded);
+		map.put("voiceBridge", voiceBridge);
+		
+		Gson gson = new Gson();
+		
+		send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));		
+	}
+	
 	public void endMeeting(String meetingId) {
 		HashMap<String,String> map = new HashMap<String, String>();
 		map.put("messageId", MessagingConstants.END_MEETING_REQUEST_EVENT);
@@ -98,11 +115,20 @@ public class RedisMessagingService implements MessagingService {
 		HashMap<String,String> map = new HashMap<String, String>();
 		map.put("messageId", MessagingConstants.SEND_POLLS_EVENT);
 		map.put("meetingId", meetingId);
-		map.put("title",title);
-		map.put("question",question);
-		map.put("answers",gson.toJson(answers));
+		map.put("title", title);
+		map.put("question", question);
+		map.put("answers", gson.toJson(answers));
 		
-		send(MessagingConstants.POLLING_CHANNEL, gson.toJson(map));	
+		String pollJson = gson.toJson(map);
+		
+		Jedis jedis = redisPool.getResource();
+		try {
+			jedis.sadd("meeting:" + meetingId + ":polls", pollJson);			
+		} catch (Exception e){
+			log.warn("Cannot store subscription:" + meetingId, e);
+		} finally {
+			redisPool.returnResource(jedis);
+		}
 	}
 
 	public String storeSubscription(String meetingId, String event, String callbackURL){

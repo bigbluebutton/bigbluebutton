@@ -31,10 +31,18 @@ public class MeetingMessageHandler implements MessageHandler {
 				if (MessagingConstants.END_MEETING_REQUEST_EVENT.equalsIgnoreCase(messageId)){
 					String meetingId = map.get("meetingId");
 					bbbGW.endMeeting(meetingId);
-				}
-				if(messageId.equalsIgnoreCase(KEEP_ALIVE_REQUEST)){
+				} else if(messageId.equalsIgnoreCase(KEEP_ALIVE_REQUEST)){
 					String keepAliveId = map.get("aliveId");
 					bbbGW.isAliveAudit(keepAliveId);
+				} else if(MessagingConstants.CREATE_MEETING_REQUEST_EVENT.equalsIgnoreCase(messageId)){
+					String meetingID = map.get("meetingID");
+					Boolean record = Boolean.parseBoolean(map.get("record"));
+					String voiceBridge = map.get("voiceBridge");
+					
+					bbbGW.createMeeting2(meetingID, record, voiceBridge);
+				} else if(MessagingConstants.DESTROY_MEETING_REQUEST_EVENT.equalsIgnoreCase(messageId)){
+					String meetingID = map.get("meetingID");
+					bbbGW.isAliveAudit(meetingID);
 				}
 			}
 		}
