@@ -798,6 +798,105 @@ class ApiController {
   }
 
   /***********************************************
+  * POLL API
+  ***********************************************/
+  def setPollXML = {
+    String API_CALL = "setPollXML"
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    println CONTROLLER_NAME + "#${API_CALL}"
+
+    if (StringUtils.isEmpty(params.checksum)) {
+        invalid("checksumError", "You did not pass the checksum security check")
+        return
+    }
+    
+    if (StringUtils.isEmpty(params.pollXML)) {
+        invalid("configXMLError", "You did not pass a poll XML")
+        return
+    }
+
+    if (StringUtils.isEmpty(params.meetingID)) {
+        invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+        return
+    }
+    
+    // Translate the external meeting id into an internal meeting id.
+    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
+    Meeting meeting = meetingService.getMeeting(internalMeetingId);
+    if (meeting == null) {
+      // BEGIN - backward compatibility
+      invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
+      return;
+      // END - backward compatibility
+        
+       errors.invalidMeetingIdError();
+       respondWithErrors(errors)
+       return;
+    }
+    
+    Map<String, String[]> reqParams = getParameters(request)
+    
+    String pollXML = params.pollXML
+    
+    String decodedPollXML;
+        
+    try {
+      decodedPollXML = URLDecoder.decode(pollXML, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      log.error("Couldn't decode poll XML.");
+      invalid("pollXMLError", "Cannot decode poll XML")
+      return;
+    }
+    
+    println "decodedPollXML [" + decodedPollXML + "]"
+         
+    if (! paramsProcessorUtil.isPostChecksumSame(API_CALL, reqParams)) {       
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        xml {
+          render(contentType:"text/xml") {
+            response() {
+              returncode("FAILED")
+              messageKey("pollXMLChecksumError")
+              message("pollXMLChecksumError: request did not pass the checksum security check.")
+            }
+          }
+        }
+      }       
+    } else {
+      println "**************** CHECKSUM PASSED **************************"
+        
+      //println "[" + decodedPollXML + "]";
+
+      def pollxml = new XmlSlurper().parseText(decodedPollXML);
+        
+      pollxml.children().each { poll ->
+        String title = poll.title.text();
+        String question = poll.question.text();
+        ArrayList<String> answers = new ArrayList<String>();
+        poll.answers.children().each { answer ->
+          answers.add(answer.text());
+        }
+              
+        //send poll to BigBlueButton Apps
+        meetingService.createdPolls(meeting.getInternalId(), title, question, answers);
+      }
+            
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        xml {
+          render(contentType:"text/xml") {
+            response() {
+              returncode("SUCCESS")
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  /***********************************************
   * CONFIG API
   ***********************************************/
   def setConfigXML = {

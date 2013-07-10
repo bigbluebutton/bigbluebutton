@@ -55,7 +55,11 @@ class UrlMappings {
 	  "/api/setConfigXML"(controller:"api") {
 		  action = [POST:'setConfigXML']
 	 }
-	  
+
+     "/api/setPollXML"(controller:"api") {
+         action = [POST:'setPollXML']
+     }
+     	  
       "/$controller/$action?/$id?"{
 	      constraints {
 			 // apply constraints here

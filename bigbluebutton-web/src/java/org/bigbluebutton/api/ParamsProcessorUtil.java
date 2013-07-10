@@ -547,6 +547,11 @@ public class ParamsProcessorUtil {
 				csbuf.append("=");
 				String encResult;
 
+				encResult = value;
+				
+/*****
+ * Seems like Grails 1.3.9 doesn't encode it automatically anymore. So comment this out.
+ * We'll remove this later. richard (july 10, 2013)						
 				try {       
 					// we need to re-encode the values because Grails unencoded it
 					// when it received the 'POST'ed data. Might not need to do in a GET request.
@@ -554,7 +559,7 @@ public class ParamsProcessorUtil {
 				} catch (UnsupportedEncodingException e) {       
 					encResult = value;     
 				} 					
-
+*/
 				csbuf.append(encResult);
 			}
 		}
@@ -562,17 +567,23 @@ public class ParamsProcessorUtil {
 
 		String baseString = csbuf.toString();
 
-   // System.out.println( "POST basestring = [" + baseString + "]");
-
+//		System.out.println( "POST basestring = [" + baseString + "]");
+		
+		log.debug("POST basestring = [" + baseString + "]");
+		
 		String cs = DigestUtils.shaHex(baseString);
- 		//System.out.println("our checksum: [" + cs + "], client: [" + checksum + "]");
-		//log.debug("our checksum: [{}], client: [{}]", cs, checksum);
+		
+ 		System.out.println("our checksum: [" + cs + "], client: [" + checksum + "]");
+ 		
+		log.debug("our checksum: [{}], client: [{}]", cs, checksum);
 
 		if (cs == null || cs.equals(checksum) == false) {
+			System.out.println("our checksum: [" + cs + "], client: [" + checksum + "]");
 			log.info("checksumError: request did not pass the checksum security check");
 			return false;
 		}
 		log.debug("checksum ok: request passed the checksum security check");
+		
 		return true;
 	}
 
