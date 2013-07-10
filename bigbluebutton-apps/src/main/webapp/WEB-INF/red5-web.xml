@@ -132,7 +132,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <constructor-arg index="0" ref="recorderApplication"/>
     </bean>
 
-
+    <bean id="pollMessageHandler" class="org.bigbluebutton.conference.service.poll.messaging.redis.PollRedisMessageHandler">
+      <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
+    </bean>
             
     <bean id="meetingMessageHandler" class="org.bigbluebutton.conference.meeting.messaging.redis.MeetingMessageHandler">
       <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>

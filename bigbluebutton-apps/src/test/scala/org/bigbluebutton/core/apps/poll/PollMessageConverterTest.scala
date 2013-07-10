@@ -66,4 +66,25 @@ class PollMessageConverterTest {
 		
 	   assert(pvp.responses.length == 1, "Number of responses is 1")
 	} 
+	 
+	 @Test(groups = Array[String]( "unit" ))
+	 def convertPreCreatedPollMessageTest() { 
+	   // {"title":"Canada\u0027s Capital","answers":"[\"Ottawa\",\"Montreal\",\"Vancouver\"]","meetingId":"1419393e41e5ce83c04efd35946b64c1ddcbcee7-1373482430620","question":" What is Canada\u0027s Capital","messageId":"SendPollsEvent"}
+	   
+	   val r1 = new java.util.HashMap[String, Object]() 
+	   
+	   val pollJSON = new java.util.HashMap[String, Object]()
+	   pollJSON.put("title", "Canada\u0027s Capital")
+	   pollJSON.put("questionType", "MULTI_CHOICE")
+	   pollJSON.put("question", "What is Canada\u0027s Capital?")
+	   pollJSON.put("answers", Array("Ottawa", "Montreal", "Vancouver"))
+	   
+	   val gson = new Gson()
+	   val cut = new PollMessageConverter
+	   val pvp = cut.convertPreCreatedPollMessage(gson.toJson(pollJSON))
+		
+	   assert(pvp.questions.length == 1, "Number of responses is 1")
+	   assert(pvp.questions(0).question.equals("What is Canada's Capital?"), "First questions is [" + pvp.questions(0).question + "]")
+	   assert(pvp.questions(0).responses.length == 3, "Num responses should be 3")
+	} 	 
 }

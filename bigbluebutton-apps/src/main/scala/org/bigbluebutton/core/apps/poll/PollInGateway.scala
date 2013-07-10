@@ -9,15 +9,21 @@ import org.bigbluebutton.core.apps.poll.messages.StopPoll
 import org.bigbluebutton.core.apps.poll.messages.RemovePoll
 import org.bigbluebutton.core.apps.poll.messages.GetPolls
 import org.bigbluebutton.core.apps.poll.messages.RespondToPoll
+import org.bigbluebutton.core.apps.poll.messages.PreCreatedPoll
 
 class PollInGateway(bbbGW: BigBlueButtonGateway) {
 
   val msgConverter = new PollMessageConverter
   
-  def createPoll(meetingID: String, requesterID: String) {
+  def getPolls(meetingID: String, requesterID: String) {
     bbbGW.accept(new GetPolls(meetingID, requesterID))
   }
-  
+
+  def preCreatedPoll(meetingID: String, msg: String) {
+	val pvo = msgConverter.convertPreCreatedPollMessage(msg)
+	bbbGW.accept(new PreCreatedPoll(meetingID, pvo))
+  }
+    
   def createPoll(meetingID: String, requesterID: String, msg: String) {
 	val pvo = msgConverter.convertCreatePollMessage(msg)
 	bbbGW.accept(new CreatePoll(meetingID, requesterID, pvo))

@@ -10,7 +10,7 @@ class PollModel {
   /***
    * Uncomment to create sample polls for manual testing purposes
    */
-  createSamplePoll
+  //createSamplePoll
       
   def numPolls():Int = {
     polls.size

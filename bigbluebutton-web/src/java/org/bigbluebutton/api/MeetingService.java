@@ -241,8 +241,8 @@ public class MeetingService {
 		messagingService.send(channel, message);
 	}
 
-	public void createdPolls(String meetingId, String title, String question, ArrayList<String> answers){
-		messagingService.sendPolls(meetingId, title, question, answers);
+	public void createdPolls(String meetingId, String title, String question, String questionType, ArrayList<String> answers){
+		messagingService.sendPolls(meetingId, title, question, questionType, answers);
 	}
 	
 	public void endMeeting(String meetingId) {		

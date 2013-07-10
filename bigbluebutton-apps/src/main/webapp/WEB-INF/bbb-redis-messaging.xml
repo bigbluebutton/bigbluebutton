@@ -46,7 +46,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   	     <property name="messageListeners">
             <set>
                 <ref bean="presentationMessageListener" />
-                <ref bean="meetingMessageHandler" />
+                <ref bean="meetingMessageHandler" />               
+                <ref bean="pollMessageHandler" />
             </set>
         </property> 
   	</bean>	  	

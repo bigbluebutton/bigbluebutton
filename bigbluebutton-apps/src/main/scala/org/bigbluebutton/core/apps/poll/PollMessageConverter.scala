@@ -7,6 +7,39 @@ import scala.collection.mutable.ArrayBuffer
 
 class PollMessageConverter {
 
+  def convertPreCreatedPollMessage(msg:String):PollVO = {
+   		val gson = new Gson();
+		val parser = new JsonParser();
+		val obj = parser.parse(msg).getAsJsonObject();
+		val title = gson.fromJson(obj.get("title"), classOf[String]);
+
+		val question = gson.fromJson(obj.get("question"), classOf[String]);
+		val qType = gson.fromJson(obj.get("questionType"), classOf[String])
+		
+		val cvoArray = ArrayBuffer[QuestionVO]()
+
+		val responses = obj.get("answers").getAsJsonArray();
+			
+		val rvoArray = ArrayBuffer[ResponseVO]()
+
+		var j = 0
+		val respIter = responses.iterator()
+		while(respIter.hasNext()) {
+			val response = gson.fromJson(respIter.next(), classOf[String]);
+
+			rvoArray += new ResponseVO(j.toString, response)
+
+			j += 1
+		}		
+
+		val questionType = if (qType.equalsIgnoreCase(QuestionType.MULTI_CHOICE.toString())) true else false
+
+		cvoArray += new QuestionVO(0.toString, questionType, question, rvoArray.toArray)
+		
+		new PollVO(randomAlphanumericString(12), title, cvoArray.toArray)
+		
+  }
+    
   def convertCreatePollMessage(msg:String):PollVO = {
    		val gson = new Gson();
 		val parser = new JsonParser();

@@ -109,26 +109,20 @@ public class RedisMessagingService implements MessagingService {
 		}
 	}
 
-	public void sendPolls(String meetingId, String title, String question, List<String> answers){
+	public void sendPolls(String meetingId, String title, String question, String questionType, List<String> answers){
 		Gson gson = new Gson();
 
-		HashMap<String,String> map = new HashMap<String, String>();
+		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put("messageId", MessagingConstants.SEND_POLLS_EVENT);
 		map.put("meetingId", meetingId);
 		map.put("title", title);
 		map.put("question", question);
-		map.put("answers", gson.toJson(answers));
+		map.put("questionType", questionType);
+		map.put("answers", answers);
 		
-		String pollJson = gson.toJson(map);
+		System.out.println(gson.toJson(map));
 		
-		Jedis jedis = redisPool.getResource();
-		try {
-			jedis.sadd("meeting:" + meetingId + ":polls", pollJson);			
-		} catch (Exception e){
-			log.warn("Cannot store subscription:" + meetingId, e);
-		} finally {
-			redisPool.returnResource(jedis);
-		}
+		send(MessagingConstants.POLLING_CHANNEL, gson.toJson(map));		
 	}
 
 	public String storeSubscription(String meetingId, String event, String callbackURL){

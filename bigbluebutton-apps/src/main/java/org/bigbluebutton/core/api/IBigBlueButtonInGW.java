@@ -38,4 +38,5 @@ public interface IBigBlueButtonInGW {
 	void stopPoll(String meetingID, String requesterID, String msg);
 	void removePoll(String meetingID, String requesterID, String msg);
 	void respondPoll(String meetingID, String requesterID, String msg);
+	void preCreatedPoll(String meetingID, String msg);
 }

@@ -7,6 +7,7 @@ import org.bigbluebutton.core.api.IOutMessage
 import org.bigbluebutton.core.apps.poll.Responder
 
 // Poll Messages
+case class PreCreatedPoll(meetingID: String, poll: PollVO) extends InMessage
 case class CreatePoll(meetingID: String, requesterID: String, poll: PollVO) extends InMessage
 case class UpdatePoll(meetingID: String, requesterID: String, poll: PollVO) extends InMessage
 case class GetPolls(meetingID: String, requesterID: String) extends InMessage

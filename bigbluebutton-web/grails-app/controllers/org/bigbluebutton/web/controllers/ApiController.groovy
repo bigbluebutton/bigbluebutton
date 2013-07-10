@@ -874,13 +874,15 @@ class ApiController {
       pollxml.children().each { poll ->
         String title = poll.title.text();
         String question = poll.question.text();
+        String questionType = poll.questionType.text();
+        
         ArrayList<String> answers = new ArrayList<String>();
         poll.answers.children().each { answer ->
           answers.add(answer.text());
         }
               
         //send poll to BigBlueButton Apps
-        meetingService.createdPolls(meeting.getInternalId(), title, question, answers);
+        meetingService.createdPolls(meeting.getInternalId(), title, question, questionType, answers);
       }
             
       response.addHeader("Cache-Control", "no-cache")

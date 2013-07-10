@@ -13,6 +13,7 @@ class PollApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway, us
 	
   def handleMessage(msg: InMessage):Unit = {
     msg match {
+      case preCreatePoll: PreCreatedPoll => handlePreCreatedPoll(preCreatePoll)
       case createPoll: CreatePoll => handleCreatePoll(createPoll)
       case updatePoll: UpdatePoll => handleUpdatePoll(updatePoll)
       case destroyPoll: DestroyPoll => handleDestroyPoll(destroyPoll)
@@ -103,7 +104,12 @@ class PollApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway, us
 	  print("PollApp:: handleUpdatePoll - " + msg.poll.id + " not found" )
 	}
   }
-  
+
+  private def handlePreCreatedPoll(msg: PreCreatedPoll) {
+    model.createPoll(msg.poll)
+	outGW.send(new PollCreatedOutMsg(meetingID, recorded, msg.poll.id, msg.poll)) 
+  }
+    
   private def handleCreatePoll(msg: CreatePoll) {
     model.createPoll(msg.poll)
 	outGW.send(new PollCreatedOutMsg(meetingID, recorded, msg.poll.id, msg.poll)) 
