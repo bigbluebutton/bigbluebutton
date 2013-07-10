@@ -961,7 +961,7 @@ class ApiController {
         us = meetingService.getUserSession(session['user-token']);
         meeting = meetingService.getMeeting(us.meetingID);
         if(meeting == null){
-          reject = false
+          reject = true
         }
       }
     }
