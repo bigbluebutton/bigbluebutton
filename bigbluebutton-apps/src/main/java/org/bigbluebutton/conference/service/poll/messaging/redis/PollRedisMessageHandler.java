@@ -1,16 +1,12 @@
 package org.bigbluebutton.conference.service.poll.messaging.redis;
 
-import java.util.HashMap;
-import java.util.Map;
+
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
-
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
