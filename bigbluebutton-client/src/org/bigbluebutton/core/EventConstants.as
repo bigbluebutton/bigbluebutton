@@ -62,7 +62,7 @@ package org.bigbluebutton.core
     public static const GET_MY_USER_INFO_REP:String       = "GetMyUserInfoResponse";
     public static const IS_USER_PUBLISHING_CAM_RESP:String = "IsUserPublishingCamResponse";
     public static const OPEN_EXTERNAL_UPLOAD_WINDOW:String = "OpenExternalFileUploadWindowEvent";
-    
+    public static const QUERY_PRESENTATION_REPLY:String    = "QueryPresentationsReplyEvent";
     
     /** For Conversion Update Events **/
     public static const OFFICE_DOC_CONVERSION_SUCCESS:String    = "OfficeDocConversionSuccessEvent";

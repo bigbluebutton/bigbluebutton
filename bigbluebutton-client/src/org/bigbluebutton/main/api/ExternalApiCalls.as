@@ -41,6 +41,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
   import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
+  import org.bigbluebutton.modules.present.events.QueryListOfPresentationsReplyEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 
@@ -376,6 +377,12 @@ package org.bigbluebutton.main.api
       broadcastEvent(payload);
     }
 
+    public function handleQueryListOfPresentationsReplyEvent(event:QueryListOfPresentationsReplyEvent):void {
+      var payload:Object = new Object();
+      payload.eventName = EventConstants.QUERY_PRESENTATION_REPLY;
+      payload.presentations = event.presentations;
+      broadcastEvent(payload);
+    }
     
     private function broadcastEvent(message:Object):void {
       if (ExternalInterface.available) {

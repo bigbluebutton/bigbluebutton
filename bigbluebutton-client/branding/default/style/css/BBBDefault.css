@@ -40,6 +40,13 @@ Panel {
   paddingRight: 3;
 }
 
+.meetingNameLabelStyle {
+  fontWeight: bold;
+  fontSize: 15;
+  fontFamily: Arial;
+  color: #e1e2e5;
+}
+
 Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle {
   textIndent: 0;
   paddingLeft: 10;

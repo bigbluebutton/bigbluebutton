@@ -37,7 +37,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="graphicObjSelected" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="graphicObjDeselected" />
 	<mate:Listener type="{WhiteboardButtonEvent.WHITEBOARD_BUTTON_PRESSED}" method="handleWhiteboardButtonPressed"/>
-	
+    
 	<mx:Style>
 		.colorPickerStyle {
 	      backgroundColor:#E5E6E7;
@@ -59,6 +59,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
+            import com.asfusion.mate.events.Listener;
+            
 			import flash.ui.Keyboard;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -203,7 +205,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function viewerMode(e:MadePresenterEvent):void {
 				canvas.makeTextObjectsUneditable(e);
-				if (!toolbarAllowed()) hideToolbar();
+				if (!toolbarAllowed()) {
+                    hideToolbar();
+                    if (panzoomBtn) {
+                        panzoomBtn.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+                    }
+                }
 			}
 			
 			private function undoShortcut(e:ShortcutEvent):void{
@@ -216,28 +223,44 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO));
         }
 			}
-						
+			
 			public function positionToolbar(window:PresentationWindow):void {
         trace("Positioning whiteboard toolbar");
 				presentationWindow = window;
 				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
 				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
-				//presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
 				
-				window.presCtrlBar.addEventListener(MouseEvent.ROLL_OVER, hideToolbar);
-				window.presCtrlBar.addEventListener(MouseEvent.ROLL_OUT, showToolbar);
-				
-				window.addEventListener(MouseEvent.ROLL_OVER, showToolbar);
-				window.addEventListener(MouseEvent.ROLL_OUT, hideToolbar);
-				
-				this.addEventListener(MouseEvent.ROLL_OVER, showToolbar);
-				this.addEventListener(MouseEvent.ROLL_OUT, hideToolbar);
-				
-				//this.x = presentationWindow.x + presentationWindow.width - 43;
-				//this.y = presentationWindow.y + 30;
-				//parent.setChildIndex(this, parent.numChildren - 1);
+                if (!wbOptions.keepToolbarVisible) {
+    				window.presCtrlBar.addEventListener(MouseEvent.ROLL_OVER, hideToolbar);
+    				window.presCtrlBar.addEventListener(MouseEvent.ROLL_OUT, showToolbar);
+    				
+    				window.addEventListener(MouseEvent.ROLL_OVER, showToolbar);
+    				window.addEventListener(MouseEvent.ROLL_OUT, hideToolbar);
+    				
+    				this.addEventListener(MouseEvent.ROLL_OVER, showToolbar);
+    				this.addEventListener(MouseEvent.ROLL_OUT, hideToolbar);
+                } else {
+                    var listener1:Listener = new Listener();
+                    listener1.method = checkVisibility;
+                    listener1.type = MadePresenterEvent.SWITCH_TO_PRESENTER_MODE;
+                    var listener2:Listener = new Listener();
+                    listener2.method = checkVisibility;
+                    listener2.type = MadePresenterEvent.SWITCH_TO_VIEWER_MODE;
+                    presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
+                    //Do an initial check to see if the toolbar should be visible
+                    checkVisibility();
+                }
 			}
 			
+            private function checkVisibility(e:MadePresenterEvent = null):void {
+                if (toolbarAllowed()) {
+                    setPositionAndDepth();
+                    showWhiteboardToolbar = true;
+                } else {
+                    showWhiteboardToolbar = false;
+                }
+            }
+            
 			private function setPositionAndDepth(e:Event = null):void {
 				this.x = presentationWindow.x + presentationWindow.width - 43;
 				this.y = presentationWindow.y + 30;

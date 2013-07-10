@@ -33,7 +33,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{SettingsEvent.SETTINGS_MODULE_LOADED}" method="showSettingsButton" />
 	<mate:Listener type="{ShortcutEvent.REMOTE_OPEN_SHORTCUT_WIN}" method="remoteShortcutClick" />
 	<mate:Listener type="{ShortcutEvent.LOGOUT}" method="remoteLogout" />
-	
+	<mate:Listener type="{ShortcutEvent.FOCUS_SHORTCUT_BUTTON}" method="focusShortcutButton" />
+	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="retrieveMeetingName" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -55,6 +56,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
+            import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -107,6 +109,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 			
+            private function retrieveMeetingName(e:ConferenceCreatedEvent):void {
+                if (toolbarOptions.showMeetingName) {
+                    var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();
+                    
+                    if (meetingTitle != null) {
+                        meetingNameLbl.text = meetingTitle;
+                    } 
+                }
+            }
+            
 			public function addButton(name:String):Button{
 				var btn:Button = new Button();
 				btn.id = name;
@@ -230,13 +242,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var d:Dispatcher = new Dispatcher();
 				d.dispatchEvent(new ShortcutEvent(ShortcutEvent.OPEN_SHORTCUT_WIN));
 			}
+			
+			private function focusShortcutButton(e:ShortcutEvent):void{
+				shortcutKeysBtn.setFocus();
+			}
 
 		]]>
 	</mx:Script>	
 	<mx:HBox id="addedBtns"/>
 	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}"/>
 	<views:MuteMeButton id="muteMeBtn"  height="20" tabIndex="{baseIndex+numButtons+5}"/>
-	<mx:Spacer width="100%"/>
+	<mx:Spacer width="50%"/>
+    <mx:Label id="meetingNameLbl" styleName="meetingNameLabelStyle" />
+    <mx:Spacer width="50%"/>
 	<views:LanguageSelector id="langSelector" 
 							visible="false" 
 							tabIndex="{baseIndex+numButtons+5}"
@@ -249,8 +267,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
              toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}" 
              tabIndex="{baseIndex+numButtons+5}" />
 	<mx:LinkButton id="helpBtn" visible="{showHelpBtn}" label="?" click="onHelpButtonClicked()" height="22" 
-                   styleName="helpLinkButtonStyle" tabIndex="{baseIndex+numButtons+6}"
-				   accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"/>
                    styleName="helpLinkButtonStyle" tabIndex="{baseIndex+numButtons+7}" 
                    toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"
 				   accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"/>

@@ -98,15 +98,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		private var privateFocus:Boolean = false;
 		private var timerInterval:int = 10; // How many seconds you want the timer to wait between chat notifications
 		private var notificationTimer:Timer = new Timer(timerInterval * 1000);
-			
+		/*	
+			// Sound files removed while chat accessibility is reworked; these lines commented out to accomodate that
 			[Embed(source="../sounds/publicSound.mp3")] 
-      private var publicSoundClass:Class;
+      		private var publicSoundClass:Class;
       
 			[Embed(source="../sounds/privateSound.mp3")] 
-      private var privateSoundClass:Class;
-			
-      private var publicSound:Sound = new publicSoundClass() as Sound;
-			private var privateSound:Sound = new privateSoundClass() as Sound;		
+      		private var privateSoundClass:Class;
+		
+      		private var publicSound:Sound = new publicSoundClass() as Sound;
+			private var privateSound:Sound = new privateSoundClass() as Sound;	
+		*/
 			
 			// Initialization
 			private function init():void{
@@ -118,15 +120,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onCreationComplete():void{
 				// Start the timer for screen-reader-friendly chat notifications
 				notificationTimer.addEventListener(TimerEvent.TIMER, checkNotifications);
-				notificationTimer.start();
+				// Timer removed. Better method must be found for accessible notifications.
+				// notificationTimer.start();
 				
 				openChatBoxFor(PUBLIC_CHAT_USERID, true);
 		        makePublicChatUncloseable();
 		        
-		        if (chatOptions.privateEnabled) {
-		          createAddTabBox();
-		          makeAddPrivateChatUncloseable();
-		        }
+                // you have to always create the AddTabBox because we always need to give people access to the dropdown to change font size
+		        createAddTabBox();
+		        makeAddPrivateChatUncloseable();
 				
 				
 				addEventListener(SuperTabEvent.TAB_CLOSE, onUserClosedTab);
@@ -178,7 +180,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function activate(event:Event):void{
-				ExternalInterface.call("clearblink");
 				this.focus = true;
 			}
 			
@@ -343,10 +344,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function publicChatFocus(event:FocusEvent):void{
-				publicFocus = true;
-				if (publicWaiting) {
-	          		ExternalInterface.call("clearblink");
-	        	}					
+				publicFocus = true;					
 				publicWaiting = false;
 			}
 			
@@ -357,7 +355,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					for (var messageCounter:int = 0; messageCounter < event.target.parent.exposeNumMessages(); messageCounter ++){
 						removed = removePrivateSender(event.target.parent.exposeSenderID(messageCounter));
 						if (removed) {
-							ExternalInterface.call("clearblink");
 							messageCounter = event.target.parent.exposeNumMessages() + 1;
 						}
 					}
@@ -387,7 +384,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var playSoundClip:Boolean = useSoundClip();
 					if (publicWaiting == true && publicFocus == false) {
 						if (playSoundClip) {
-	            			publicSound.play();
+	            			//publicSound.play();
             			} else{
 	            			message += PUBLIC_TAB_NEW; 
 						}
@@ -395,7 +392,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					
 					if (privateWaiting.length && !privateFocus) {
 						if (playSoundClip){
-							privateSound.play();
+							//privateSound.play();
 						}
 						else {
 							var names:String = "";
