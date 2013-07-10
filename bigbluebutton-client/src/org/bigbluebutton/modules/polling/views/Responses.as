@@ -15,7 +15,7 @@ package org.bigbluebutton.modules.polling.views
       return _questionID;
     }
     
-    public function get responses():Array {
+    public function get responseIDs():Array {
       return _resps;
     }
   }
