@@ -80,7 +80,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					
 	private static const PUBLIC_CHAT_USERID:String = 'public_chat_userid';
 	private static const PUBLIC_CHAT_USERNAME:String = ResourceUtil.getInstance().getString("bbb.chat.publicChatUsername");
-	private static const TAB_BOX_ID:String = '+';
+	private static const OPTION_TAB_ID:String = ResourceUtil.getInstance().getString("bbb.chat.optionsTabName");
 	private var tabBox:AddChatTabBox;			
 	private var focus:Boolean = true;			
 	private var globalDispatcher:Dispatcher = new Dispatcher();			
@@ -266,8 +266,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		        chatBox.name = chatWithUserID;
 				chatBox.baseIndex = baseIndex;
                 
-                if (chatTabs.getChildByName(TAB_BOX_ID)) {
-                    chatBox.setStyle("fontSize", int((chatTabs.getChildByName(TAB_BOX_ID) as AddChatTabBox).cmbFontSize.selectedItem));
+                if (chatTabs.getChildByName(OPTION_TAB_ID)) {
+                    chatBox.setStyle("fontSize", int((chatTabs.getChildByName(OPTION_TAB_ID) as AddChatTabBox).cmbFontSize.selectedItem));
                 }
                 
 		        if (publicChat) {
@@ -292,9 +292,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function createAddTabBox():AddChatTabBox {
 				tabBox = new AddChatTabBox();
 				tabBox.chatView = this;
-				tabBox.id = TAB_BOX_ID;
-				tabBox.label = TAB_BOX_ID;
-				tabBox.name = TAB_BOX_ID;
+				tabBox.id = OPTION_TAB_ID;
+				tabBox.label = OPTION_TAB_ID;
+				tabBox.name = OPTION_TAB_ID;
 				tabBox.chatOptions = chatOptions;
 				
 				tabBox.addEventListener(KeyboardEvent.KEY_DOWN, tabBox.accessibleClick);
