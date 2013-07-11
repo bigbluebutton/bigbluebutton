@@ -125,11 +125,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				systemManager.stage.addEventListener(Event.MOUSE_LEAVE, mouseLeave);
 				systemManager.stage.addEventListener(Event.ACTIVATE, activate);
 				systemManager.stage.addEventListener(Event.DEACTIVATE, deactivate);
-				
-				
-				var chatBox:ChatBox = getChatBoxForUser(PUBLIC_CHAT_USERID);
-				var tabIndex:int = getTabIndexFor(chatBox);
-				LogUtil.debug("WATERFALL: TabNav children are: " + chatTabs.getTabAt(tabIndex).toString());
 			}       
 			
 			private function focusChatTabs(e:ShortcutEvent):void{
@@ -214,26 +209,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				tab.setStyle("fillColors", new Array(0xFFAE00, 0xD3800A));
 				tab.setStyle("fillAlphas", new Array(1.0, 0.8));
 				
-				//tab.accessibilityDescription = tab.label + " " + noticeLabel;
-				//tab.accessibilityName = tab.label + " " + noticeLabel;
-				
-				
-				// Find out what gets picked up
-				//tab.accessibilityDescription = "ALPHA"; 
-				//tab.accessibilityName = "BETA";
-				//tab.accessibilityProperties.description = "GAMMA"; 
-				tab.accessibilityProperties.name = "DELTA";
-				
-				
-				// Changing the accessibilityProperties of chatTabs somehow BREAKS the normal functionality of the TabNavigator
-				//chatTabs.accessibilityProperties.name = tab.label + " " + noticeLabel;
-				//LogUtil.debug("WATERFALL: chatTab's description is " + chatTabs.accessibilityDescription);
-				//chatTabs.accessibilityName = tab.label + " " + noticeLabel;
-				
-				Accessibility.updateProperties();
-								
-				//LogUtil.debug("WATERFALL: " + tab.label + " tab's description is " + tab.accessibilityDescription);
-				//LogUtil.debug("WATERFALL: " + tab.label + " tab's name is " + tab.accessibilityName);
+				// An event to change the accessibilityDescription of the given chat tab to <existing label> + "NEW MESSAGE" should go here.
+				// However, the SuperTabNavigator does not cooperate with changes to it's accessibility properties.
 			}
 			
 			private function getTabIndexFor(chatBox:ChatBox):int {
@@ -244,26 +221,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var tab:Button = chatTabs.getTabAt(chatTabs.selectedIndex);
 				tab.setStyle("fillColors", new Array(0xFFFFFF, 0xCCCCCC));
 				
-				//tab.accessibilityDescription = tab.label;
-				//tab.accessibilityName = tab.label;
-				
-				
-				// Find out what gets picked up
-				//tab.accessibilityDescription = "ALPHA 2"; 
-				//tab.accessibilityName = "BETA 2";
-				//tab.accessibilityProperties.description = "GAMMA 2"; 
-				tab.accessibilityProperties.name = "DELTA 2";
-				
-				
-				// Changing the accessibilityProperties of chatTabs somehow BREAKS the normal functionality of the TabNavigator
-				//chatTabs.accessibilityProperties.name = tab.label;
-				//LogUtil.debug("WATERFALL: chatTab's description is " + chatTabs.accessibilityDescription);
-				//chatTabs.accessibilityName = tab.label;
-				
-				Accessibility.updateProperties();
-				
-				//LogUtil.debug("WATERFALL: " + tab.label + " tab's description is " + tab.accessibilityDescription);
-				//LogUtil.debug("WATERFALL: " + tab.label + " tab's name is " + tab.accessibilityName);
+				// An event to remove the "NEW MESSAGE" notification from the accessibilityDescription of the given chat tab (if it exists) should go here.
+				// However, the SuperTabNavigator does not cooperate with changes to it's accessibility properties.
 				
 		        var chatBox:IChatTab = chatTabs.getChildAt(chatTabs.selectedIndex) as IChatTab;
 		        chatBox.focusToTextMessageArea();
@@ -457,5 +416,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 	<containers:SuperTabNavigator includeInLayout="false" id="chatTabs" width="100%" height="100%" change="onTabNavChange()" tabClose="onTabClose(event)" minTabWidth="20"
-								  dragEnabled="false" popUpButtonPolicy="off" tabIndex="{baseIndex}"/>
+								  dragEnabled="false" popUpButtonPolicy="off" tabIndex="{baseIndex}"
+								  />
 </mx:VBox>
