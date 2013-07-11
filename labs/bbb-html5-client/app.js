@@ -172,8 +172,19 @@ io.sockets.on('connection', socketAction.SocketOnConnection);
  */
 sub.on("pmessage", function(pattern, channel, message) {
   if(channel == "bigbluebutton:bridge"){
-    console.log(message);
+   // console.log(message);
     var attributes = JSON.parse(message);
+   /*In order to send 'changeslide' event to get the current slide url after user join,
+   I manually save the current presentation slide url to redis key: 'currentUrl' for future use.
+   This key will be used in socketio.js file line 276*/
+    if (attributes[1]=='changeslide'){
+        var url = attributes[2];
+        store.set('currentUrl', url, function(err, reply) {
+            if(reply) console.log("REDIS: Set current page url to " + url);
+            if(err) console.log("REDIS ERROR: Couldn't set current pageurl to " + url);
+          });
+    }
+
     var channel_viewers = io.sockets.in(attributes[0]);
     attributes.splice(0,1);
     /*var only_values = [];
