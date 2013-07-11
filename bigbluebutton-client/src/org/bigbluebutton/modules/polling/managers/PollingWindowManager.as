@@ -117,7 +117,12 @@ package org.bigbluebutton.modules.polling.managers
     }
     
     public function handlePollStoppedEvent(event:PollEvent):void {
-      
+      if (! UsersUtil.amIModerator() && ! UsersUtil.amIPresenter()) {
+        if (! _viewModel.hasUserResponded(event.pollID)) {
+          closeWindow(takePollWindow);
+          openPollResultsWindow(event.pollID);
+        }
+      }
     }
     
     public function handleUserRespondedEvent(event:PollEvent):void {

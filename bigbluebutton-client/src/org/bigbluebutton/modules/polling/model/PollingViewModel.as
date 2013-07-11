@@ -16,6 +16,10 @@ package org.bigbluebutton.modules.polling.model
       _model = model;
     }
     
+    public function hasUserResponded(pollID:String):void {
+      return _model.userHasResponded(pollID);  
+    }
+    
     public function getPoll(pollID:String):PollVO {
       var poll:Poll = _model.getPoll(pollID);
       if (poll != null) {

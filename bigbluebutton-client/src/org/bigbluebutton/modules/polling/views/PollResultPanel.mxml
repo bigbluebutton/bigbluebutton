@@ -7,14 +7,21 @@
           creationComplete="onCreationComplete()">
   <mx:Script>
     <![CDATA[
-      import mx.events.ItemClickEvent;     
+      import mx.events.ItemClickEvent;
+      
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.modules.polling.events.PollEvent;
       import org.bigbluebutton.modules.polling.model.PollingViewModel;
       
       [Bindable] public var viewModel:PollingViewModel;
       [Bindable] public var pollID:String;
+      [Bindable] private var _showStopButton:Boolean = false;
       
       private function onCreationComplete():void{
         setCurrentState("PieChart");
+        if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) {
+          _showStopButton = true;
+        }
       }
       
       private function switchChart(event:ItemClickEvent):void {
@@ -23,6 +30,10 @@
         } else if (event.currentTarget.selectedValue == "barchart") {
           setCurrentState("BarChart");
         } 
+      }
+      
+      private function stop():void {
+        dispatchEvent(new PollEvent(PollEvent.STOP_POLL, pollID));		
       }
       
     ]]>
@@ -39,7 +50,7 @@
       <mx:Spacer width="5"/>
       <mx:Label text="Time remaining:" fontSize="12" styleName="micSettingsWindowTitleStyle"/>
       <mx:Spacer width="100%"/>
-      <mx:Button label="Stop"/>
+      <mx:Button label="Stop" visible="{_showStopButton}" click="stop()"/>
       <mx:Spacer width="5"/>
     </mx:HBox>  
   </mx:VBox>
