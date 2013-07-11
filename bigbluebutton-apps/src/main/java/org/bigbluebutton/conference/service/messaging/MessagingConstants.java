@@ -19,6 +19,9 @@
 package org.bigbluebutton.conference.service.messaging;
 
 public class MessagingConstants {
+	// BigBlueButton Events WebHooks
+	public static final String BIGBLUEBUTTON_WEBHOOK_EVENTS = "bigbluebutton:webhook_events";
+			
 	//BigBlueButton Pattern
 	public static final String BIGBLUEBUTTON_PATTERN = "bigbluebutton:meeting:*";
 	

@@ -29,20 +29,24 @@ public class MeetingMessagePublisher implements OutMessageListener {
 
 	private void meetingStarted(MeetingStartedMessage msg) {
 		HashMap<String,String> map = new HashMap<String,String>();
-		map.put("meetingId", msg.getMeetingID());
-		map.put("messageId", MessagingConstants.MEETING_STARTED_EVENT);
+		map.put("meetingID", msg.getMeetingID());
+		map.put("messageID", MessagingConstants.MEETING_STARTED_EVENT);
 		
 		Gson gson = new Gson();
 		service.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));	
+		
+		service.send(MessagingConstants.BIGBLUEBUTTON_WEBHOOK_EVENTS, gson.toJson(map));
 	}
 
 	private void meetingEnded(MeetingEndedMessage msg) {
 		HashMap<String,String> map = new HashMap<String,String>();
-		map.put("meetingId", msg.getMeetingID());
-		map.put("messageId", MessagingConstants.MEETING_ENDED_EVENT);
+		map.put("meetingID", msg.getMeetingID());
+		map.put("messageID", MessagingConstants.MEETING_ENDED_EVENT);
 		
 		Gson gson = new Gson();
 		service.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
+		
+		service.send(MessagingConstants.BIGBLUEBUTTON_WEBHOOK_EVENTS, gson.toJson(map));
 	}
 
 }

@@ -22,41 +22,48 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
     
     private def handleUserStatusChange(msg: UserStatusChange) {
 		val map= new java.util.HashMap[String, String]();
-		map.put("meetingId", msg.meetingID);
-		map.put("messageId", MessagingConstants.USER_STATUS_CHANGE_EVENT);
+		map.put("meetingID", msg.meetingID);
+		map.put("messageID", MessagingConstants.USER_STATUS_CHANGE_EVENT);
 			
-		map.put("internalUserId", msg.userID);
+		map.put("internalUserID", msg.userID);
 		map.put("status", msg.status);
 		map.put("value", msg.value.toString);
 			
 		val gson= new Gson();
 		service.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(map));
+		
+		service.send(MessagingConstants.BIGBLUEBUTTON_WEBHOOK_EVENTS, gson.toJson(map));
 	}
 	
 	private def handleUserJoined(msg: UserJoined) {
 		println("UsersEventRedisPublisher: init handleUserJoined")
 		val map= new java.util.HashMap[String, String]();
-		map.put("meetingId", msg.meetingID);
-		map.put("messageId", MessagingConstants.USER_JOINED_EVENT);
-		map.put("internalUserId", msg.internalUserID);
-		map.put("externalUserId", msg.externalUserID);
+		map.put("meetingID", msg.meetingID);
+		map.put("messageID", MessagingConstants.USER_JOINED_EVENT);
+		map.put("internalUserID", msg.internalUserID);
+		map.put("externalUserID", msg.externalUserID);
 		map.put("fullname", msg.name);
 		map.put("role", msg.role);
 			
 		val gson= new Gson();
 		service.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(map));
 		println("UsersEventRedisPublisher: end handleUserJoined")
+		
+		service.send(MessagingConstants.BIGBLUEBUTTON_WEBHOOK_EVENTS, gson.toJson(map));
 	}
 	
 	private def handleUserLeft(msg: UserLeft) {
 		println("UsersEventRedisPublisher: init handleUserLeft")		
 		val map= new java.util.HashMap[String, String]();
-		map.put("meetingId", msg.meetingID);
-		map.put("messageId", MessagingConstants.USER_LEFT_EVENT);
-		map.put("internalUserId", msg.userID);
+		map.put("meetingID", msg.meetingID);
+		map.put("messageID", MessagingConstants.USER_LEFT_EVENT);
+		map.put("internalUserID", msg.userID);
 			
 		val gson= new Gson();
 		service.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(map));
+		
+		service.send(MessagingConstants.BIGBLUEBUTTON_WEBHOOK_EVENTS, gson.toJson(map));
+		
 		println("UsersEventRedisPublisher: end handleUserLeft")
 	}
 }

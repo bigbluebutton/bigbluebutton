@@ -125,7 +125,7 @@ public class RedisMessagingService implements MessagingService {
 		send(MessagingConstants.POLLING_CHANNEL, gson.toJson(map));		
 	}
 
-	public String storeSubscription(String meetingId, String event, String callbackURL){
+	public String storeSubscription(String meetingId, String externalMeetingID, String callbackURL){
 		String sid = "";
 		Jedis jedis = redisPool.getResource();
 		try {
@@ -134,13 +134,12 @@ public class RedisMessagingService implements MessagingService {
 			HashMap<String,String> props = new HashMap<String,String>();
 			props.put("subscriptionID", sid);
 			props.put("meetingId", meetingId);
-			props.put("event", event);
+			props.put("externalMeetingID", externalMeetingID);
 			props.put("callbackURL", callbackURL);
 			props.put("active", "true");
 
 			jedis.hmset("meeting:" + meetingId + ":subscription:" + sid, props);
 			jedis.rpush("meeting:" + meetingId + ":subscriptions", sid);
-			jedis.rpush("meeting:" + meetingId + ":subscriptions:" + event, sid); 
 			
 		} catch (Exception e){
 			log.warn("Cannot store subscription:" + meetingId, e);
@@ -237,28 +236,28 @@ public class RedisMessagingService implements MessagingService {
 //			}
 			
 			if(channel.equalsIgnoreCase(MessagingConstants.SYSTEM_CHANNEL)){
-				String messageId = map.get("messageId");
+				String messageId = map.get("messageID");
 				log.debug("*** Message {}", messageId);
 
 				for (MessageListener listener : listeners) {
 					if(MessagingConstants.MEETING_STARTED_EVENT.equalsIgnoreCase(messageId)) {
-						String meetingId = map.get("meetingId");
+						String meetingId = map.get("meetingID");
 						listener.meetingStarted(meetingId);
 					} else if(MessagingConstants.MEETING_ENDED_EVENT.equalsIgnoreCase(messageId)) {
-						String meetingId = map.get("meetingId");
+						String meetingId = map.get("meetingID");
 						listener.meetingEnded(meetingId);
 					} else if(MessagingConstants.KEEP_ALIVE_REPLY_EVENT.equalsIgnoreCase(messageId)){
-						String aliveId = map.get("aliveId");
+						String aliveId = map.get("aliveID");
 						listener.keepAliveReply(aliveId);
 					}
 				}
 			}
 			else if(channel.equalsIgnoreCase(MessagingConstants.PARTICIPANTS_CHANNEL)){
-				String meetingId = map.get("meetingId");
-				String messageId = map.get("messageId");
+				String meetingId = map.get("meetingID");
+				String messageId = map.get("messageID");
 				if(MessagingConstants.USER_JOINED_EVENT.equalsIgnoreCase(messageId)){
-					String internalUserId = map.get("internalUserId");
-					String externalUserId = map.get("externalUserId");
+					String internalUserId = map.get("internalUserID");
+					String externalUserId = map.get("externalUserID");
 					String fullname = map.get("fullname");
 					String role = map.get("role");
 					
@@ -266,7 +265,7 @@ public class RedisMessagingService implements MessagingService {
 						listener.userJoined(meetingId, internalUserId, externalUserId, fullname, role);
 					}
 				} else if(MessagingConstants.USER_STATUS_CHANGE_EVENT.equalsIgnoreCase(messageId)){
-					String internalUserId = map.get("internalUserId");
+					String internalUserId = map.get("internalUserID");
 					String status = map.get("status");
 					String value = map.get("value");
 					
@@ -274,7 +273,7 @@ public class RedisMessagingService implements MessagingService {
 						listener.updatedStatus(meetingId, internalUserId, status, value);
 					}
 				} else if(MessagingConstants.USER_LEFT_EVENT.equalsIgnoreCase(messageId)){
-					String internalUserId = map.get("internalUserId");
+					String internalUserId = map.get("internalUserID");
 					
 					for (MessageListener listener : listeners) {
 						listener.userLeft(meetingId, internalUserId);

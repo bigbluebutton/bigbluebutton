@@ -1003,11 +1003,6 @@ class ApiController {
       return
     }
     
-    if (StringUtils.isEmpty(params.event)) {
-      invalid("missingParamEvent", "You must pass an event for subscribing")
-      return
-    }
-
     if (StringUtils.isEmpty(params.callbackURL)) {
       invalid("missingParamCallbackURL", "You must specify a callbackURL for subscribing");
       return
@@ -1046,7 +1041,7 @@ class ApiController {
       }     
     } else {
       //println "**************** CHECKSUM PASSED **************************"
-      String sid = meetingService.addSubscription(meeting.getInternalId(), params.event,params.callbackURL);
+      String sid = meetingService.addSubscription(meeting.getInternalId(), meeting.getExternalId(), params.callbackURL);
 
       if(sid.isEmpty()){
         response.addHeader("Cache-Control", "no-cache")

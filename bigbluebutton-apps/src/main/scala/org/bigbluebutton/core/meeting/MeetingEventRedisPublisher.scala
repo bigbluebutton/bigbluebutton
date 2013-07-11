@@ -26,19 +26,19 @@ class MeetingEventRedisPublisher(service: MessageSender) extends OutMessageListe
 
     private def handleKeepAliveMessageReply(msg: KeepAliveMessageReply):Unit = {
     	val gson = new Gson
-    	var map = Map("messageId" -> KEEP_ALIVE_REPLY, "aliveId" -> msg.aliveID)
+    	var map = Map("messageID" -> KEEP_ALIVE_REPLY, "aliveID" -> msg.aliveID)
     	service.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map.asJava))
 	}
 
 	private def handleMeetingCreated(msg:MeetingCreated):Unit = {
 		val gson = new Gson
-    	var map = Map("messageId" -> MessagingConstants.MEETING_STARTED_EVENT, "meetingId" -> msg.meetingID)
+    	var map = Map("messageID" -> MessagingConstants.MEETING_STARTED_EVENT, "meetingID" -> msg.meetingID)
     	service.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map.asJava))	
 	}
 
 	private def handleMeetingEnded(msg:MeetingEnded):Unit = {
 		val gson = new Gson
-    	var map = Map("messageId" -> MessagingConstants.MEETING_ENDED_EVENT, "meetingId" -> msg.meetingID)
+    	var map = Map("messageID" -> MessagingConstants.MEETING_ENDED_EVENT, "meetingID" -> msg.meetingID)
     	service.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map.asJava))	
 	}
 }

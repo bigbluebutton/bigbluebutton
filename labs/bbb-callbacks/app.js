@@ -17,12 +17,13 @@ subscriber.on("message", function (channel, message) {
     console.log(e);
   }
 
-  if(properties != undefined){
-    client.lrange("meeting:" + properties.meetingID + ":subscriptions:" + properties.event, 0, -1, function(error,reply){
+  if (properties != undefined){
+    client.lrange("meeting:" + properties.meetingID + ":subscriptions", 0, -1, function(error,reply){
       reply.forEach(function (sid, index) {
         console.log(sid);
         client.hgetall("meeting:" + properties.meetingID + ":subscription:" + sid, function(err,rep){
-          if(rep.active == "true"){
+          if (rep.active == "true") {
+            properties.meetingID = rep.externalMeetingID;
             var post_options = {
               uri: rep.callbackURL,
               method: 'POST',
@@ -42,4 +43,4 @@ subscriber.on("message", function (channel, message) {
 
 });
 
-subscriber.subscribe("bigbluebutton:events");
+subscriber.subscribe("bigbluebutton:webhook_events");

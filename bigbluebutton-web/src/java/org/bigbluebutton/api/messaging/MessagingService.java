@@ -33,7 +33,7 @@ public interface MessagingService {
 	public void addListener(MessageListener listener);
 	public void removeListener(MessageListener listener);
 	public void sendPolls(String meetingId, String title, String question, String questionType, List<String> answers);
-	public String storeSubscription(String meetingId, String event, String callbackURL);
+	public String storeSubscription(String meetingId, String externalMeetingID, String callbackURL);
 	public boolean removeSubscription(String meetingId, String subscriptionId);
 	public List<Map<String,String>> listSubscriptions(String meetingId);
 }
