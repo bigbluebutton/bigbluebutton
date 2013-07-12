@@ -185,15 +185,12 @@ public class SipPeer implements SipRegisterAgentListener {
 
 	if(ca != null) {
 		if(ca.isTalking()) {
-			System.out.println("CA ESTA FALANDO");
 			ca.hangup();
 		}
 		else {
-			System.out.println("REMOVE USER");
 			GlobalCall.removeUser(destination);
 			ca.hangup();
 			if(GlobalCall.roomHasGlobalStream(destination) && GlobalCall.getNumberOfUsers(destination) <= 0) 				{		
-				System.out.println("REMOVE GLOBAL");
 				CallAgent caGlobal = callManager.removeGlobal(destination);
 	   			GlobalCall.removeRoom(destination);
 				caGlobal.hangup();

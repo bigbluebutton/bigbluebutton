@@ -27,6 +27,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	visible = "{amIPresenter || !phoneOptions.presenterShareOnly}"
 	includeInLayout = "{amIPresenter || !phoneOptions.presenterShareOnly}"
 	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start')}"
+	creationComplete="initPhone()"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent">
 
 	
@@ -34,6 +35,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="LISTENING_ONLY" method="handleBBBListeningOnly"/>
 	<mate:Listener type="{ShortcutEvent.SHARE_MICROPHONE}" method="remoteClick" />
 	<mate:Listener type="{BBBEvent.JOIN_VOICE_FOCUS_HEAD}" method="joinVoiceFocusHead"/>
+	<mate:Listener type="{BBBEvent.MIC_SETTINGS_CLOSED}" method="handleMicSettingsClosedEvent"/>
 
 
 	<mx:Script>
@@ -66,7 +68,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var stopChangingIcon:Boolean = false;
 		
 			
-			[Bindable] public var phoneIcon:Class = images.headsetDefaultIcon;
+			[Bindable] public var phoneIcon:Class;
+
+			private function initPhone():void {
+				phoneIcon = getDefaultIcon();
+			}
 			
 			private function startPhone():void {
 				// Disable the button right away to prevent the user from clicking
@@ -75,7 +81,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var vxml:XML = BBB.getConfigForModule("PhoneModule");
 				var phoneOptions:PhoneOptions = new PhoneOptions();
 				
-				if (noMicrophone() == false) {
+				if(phoneOptions.listenOnlyMode) {
 					var askToChangeEvent:BBBEvent;
 					askToChangeEvent = new BBBEvent("ASK_TO_CHANGE_VOICE_CONFERENCE_EVENT");
 					if(_currentState == DEFAULT_STATE) {
@@ -84,6 +90,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						}
 						else {
 							askToChangeEvent = new BBBEvent("SHOW_MIC_SETTINGS");
+							askToChangeEvent.payload["listenOnlyMode"] = true;
 						}
 					}
 					else {
@@ -91,9 +98,50 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 					dispatcher.dispatchEvent(askToChangeEvent);
 				}
+				else {
+					if(_currentState == ACTIVE_STATE) {
+						var leaveEvent:BBBEvent = new BBBEvent("LEAVE_VOICE_CONFERENCE_EVENT");
+						leaveEvent.payload["userRequested"] = true;
+						dispatcher.dispatchEvent(leaveEvent);
+					}
+					else {
+						if(phoneOptions.skipCheck) {
+							var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+							joinEvent.payload['useMicrophone'] = !noMicrophone();
+							dispatcher.dispatchEvent(joinEvent);
+						}
+						else {
+							var showMicSettings:BBBEvent = new BBBEvent("SHOW_MIC_SETTINGS");
+							showMicSettings.payload["listenOnlyMode"] = false;
+							dispatcher.dispatchEvent(showMicSettings);
+						}
+					}
+				}
+				
 				if(stopChangingIcon) {
 					disableButton();
 				}
+			}
+
+			private function getActiveIcon():Class {
+				if(phoneOptions.listenOnlyMode)
+					return images.listenOnlyActiveIcon;
+				else
+					return images.headsetActiveIcon;
+			}
+
+			private function getInactiveIcon():Class {
+				if(phoneOptions.listenOnlyMode)
+					return images.listenOnlyInactiveIcon;
+				else
+					return images.headsetInactiveIcon;
+			}
+
+			private function getDefaultIcon():Class {
+				if(phoneOptions.listenOnlyMode)
+					return images.listenOnlyDefaultIcon;
+				else
+					return images.headsetDefaultIcon;
 			}
 
 			public function remoteClick(event:ShortcutEvent):void{
@@ -108,14 +156,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				else {
 					if(stopChangingIcon == false) {
 						if(_currentState == ACTIVE_STATE)
-							phoneIcon = images.headsetInactiveIcon;
-						else
-							phoneIcon = images.headsetActiveIcon;	
+								phoneIcon = getInactiveIcon();
+							else
+								phoneIcon = getActiveIcon();
 					}
 					else {
-						phoneIcon = images.headsetDefaultIcon;
-					}		
+						phoneIcon = getDefaultIcon();
+					}
+					
 				}
+			}
+
+			private function handleMicSettingsClosedEvent(event:BBBEvent):void {
+				userJoinedConference(false);
+				this.setFocus();
 			}
 
 			private function mouseOutHandler(event:MouseEvent):void {
@@ -124,9 +178,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 				else {
 					if(_currentState == ACTIVE_STATE)
-						phoneIcon = images.headsetActiveIcon;
+						phoneIcon = getActiveIcon();
 					else
-						phoneIcon = images.headsetDefaultIcon;	
+						phoneIcon = getDefaultIcon();
 				}		
 			}
 
@@ -134,7 +188,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.selected = false;
 				this.enabled = false;
 				stopChangingIcon = true;
-				phoneIcon = images.headsetDefaultIcon;
+				phoneIcon = getDefaultIcon();
 				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.nomic');
 			}
 
@@ -147,7 +201,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						this.selected = true;
 						this.enabled = true;
 						_currentState = ACTIVE_STATE;
-						phoneIcon = images.headsetActiveIcon;
+						phoneIcon = getActiveIcon();
 						this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');
 					}
 
@@ -159,7 +213,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						this.selected = false;
 						this.enabled = true;
 						_currentState = DEFAULT_STATE;
-						phoneIcon = images.headsetDefaultIcon;
+						phoneIcon = getDefaultIcon();
 						this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
 					}
 				}
@@ -176,7 +230,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.selected = false;
 				this.enabled = true;
 				_currentState = DEFAULT_STATE;
-				phoneIcon = images.headsetDefaultIcon;
+				phoneIcon = getDefaultIcon();
 				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
 				if(stopChangingIcon) {
 					disableButton();
@@ -201,11 +255,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			//For whatever reason the tooltip does not update when localization is changed dynamically. Overrideing it here
 			override protected function resourcesChanged():void{
 				if(_currentState == ACTIVE_STATE) {
-					phoneIcon = images.headsetActiveIcon;
+					phoneIcon = getActiveIcon();
 					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');
 				} 
 				else {
-					phoneIcon = images.headsetDefaultIcon;
+					phoneIcon = getDefaultIcon();
 					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
 				}
 				if(stopChangingIcon) {

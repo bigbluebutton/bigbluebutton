@@ -45,7 +45,7 @@ package org.bigbluebutton.modules.phone.managers {
 		private var rejoining:Boolean = false;
 		// User has requested to leave the voice conference.
 		private var userHangup:Boolean = false;
-		private var globalCall:Boolean = true;
+		private var listenOnlyCall:Boolean = true;
 		private var userRequestedToChange:Boolean = false;
 		private var userRequestedToChangeToGlobal:Boolean = true;
 		private var mic:Microphone;
@@ -59,13 +59,9 @@ package org.bigbluebutton.modules.phone.managers {
 			this.attributes = attributes;
 			var vxml:XML = BBB.getConfigForModule("PhoneModule");
 			phoneOptions = new PhoneOptions();
-			if (vxml != null) {
-				phoneOptions.showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
-				phoneOptions.autoJoin = (vxml.@autoJoin.toString().toUpperCase() == "TRUE") ? true : false;
-				phoneOptions.skipCheck = (vxml.@skipCheck.toString().toUpperCase() == "TRUE") ? true : false;
-			}
-			if (phoneOptions.joinGlobal) {
-				joinVoiceGlobal();
+			
+			if (phoneOptions.listenOnlyMode) {
+				joinVoiceListenOnlyMode();
 			}
 			if (phoneOptions.autoJoin) {
 					if (phoneOptions.skipCheck) {
@@ -123,9 +119,9 @@ package org.bigbluebutton.modules.phone.managers {
 			streamManager.setConnection(connectionManager.getConnection());
 		}
 		
-		public function joinVoiceGlobal():void {
+		public function joinVoiceListenOnlyMode():void {
 			userHangup = false;
-			globalCall = true;
+			listenOnlyCall = true;
 			var uid:String = String(Math.floor(new Date().getTime()));
 			var uname:String = encodeURIComponent(UsersUtil.getMyExternalUserID() + "-bbbID-" + attributes.username);
       		connectionManager.connect(uid, attributes.internalUserID, uname , attributes.room, attributes.uri); 
@@ -135,7 +131,7 @@ package org.bigbluebutton.modules.phone.managers {
 		
 		public function joinVoice(autoJoin:Boolean):void {
 			userHangup = false;
-			globalCall = false;
+			listenOnlyCall = false;
 			setupMic(autoJoin);
 			var uid:String = String(Math.floor(new Date().getTime()));
 			var uname:String = encodeURIComponent(UsersUtil.getMyExternalUserID() + "-bbbID-" + attributes.username);
@@ -149,16 +145,16 @@ package org.bigbluebutton.modules.phone.managers {
 				// We got disconnected and it's not because the user requested it. Let's rejoin the conference.
 				LogUtil.debug("Rejoining the conference");
 				rejoining = true;
-				if(globalCall == false) {
+				if(listenOnlyCall == false) {
 					joinVoice(withMic);
 				}
 				else
-					joinVoiceGlobal();
+					joinVoiceListenOnlyMode();
 			}
 		}
 				
 		public function dialConference():void {
-			if(globalCall == false) {
+			if(listenOnlyCall == false) {
 				LogUtil.debug("*** Talking/Listening ***");
 				connectionManager.doCall(attributes.webvoiceconf);
 			}
@@ -177,7 +173,7 @@ package org.bigbluebutton.modules.phone.managers {
 			rejoining = false;
 			userHangup = false;
 			var dispatcher:Dispatcher = new Dispatcher();
-			if(globalCall)
+			if(listenOnlyCall)
 				dispatcher.dispatchEvent(new BBBEvent("LISTENING_ONLY"));
 			else
 				dispatcher.dispatchEvent(new BBBEvent("SPEAKING_AND_LISTENING"));
@@ -224,12 +220,18 @@ package org.bigbluebutton.modules.phone.managers {
 				streamManager.stopStreams();
 				connectionManager.doHangUp();
 				onCall = false;
+				if(phoneOptions.listenOnlyMode == false) {
+					var event:BBBEvent = new BBBEvent("ENABLE_JOIN_BUTTON");
+					event.payload["leaveVoiceConference"] = true;
+					var dispatcher:Dispatcher = new Dispatcher();
+					dispatcher.dispatchEvent(event);
+				}
 			}
 			else {
 				if(userRequestedToChange) {
 					userRequestedToChange = false;
 					if(userRequestedToChangeToGlobal)
-						joinVoiceGlobal();
+						joinVoiceListenOnlyMode();
 					else
 						joinVoice(withMic);
 				}

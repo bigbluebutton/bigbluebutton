@@ -279,6 +279,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function showMicSettings(event:BBBEvent):void {
 				var micSettings:MicSettings = MicSettings(PopUpManager.createPopUp(mdiCanvas, MicSettings, true));				
+				micSettings.listenOnlyMode = event.payload.listenOnlyMode;
 				var point1:Point = new Point();
 				// Calculate position of TitleWindow in Application's coordinates. 
 				point1.x = width/2;

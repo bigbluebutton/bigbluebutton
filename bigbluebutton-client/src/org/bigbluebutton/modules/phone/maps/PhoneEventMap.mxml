@@ -131,7 +131,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 
 	<EventHandlers type="ENABLE_JOIN_BUTTON">        
-		<MethodInvoker generator="{PhoneEventMapDelegate}" method="enableToolbarButton"/> 
+		<MethodInvoker generator="{PhoneEventMapDelegate}" method="enableToolbarButton"  arguments="{event}"/> 
     </EventHandlers>
 
     <EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" >

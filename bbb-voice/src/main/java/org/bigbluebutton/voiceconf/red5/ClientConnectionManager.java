@@ -47,7 +47,6 @@ public class ClientConnectionManager {
 	public void joinConferenceSuccessNew(String clientId, String listen, String codec) {
 		ClientConnection cc = clients.get(clientId);
 		if (cc != null) {
-			System.out.println("String Global");
 			cc.onJoinConferenceSuccess("", listen, codec);
 		}
 

@@ -34,10 +34,13 @@ package org.bigbluebutton.modules.phone
 		public var enabledEchoCancel:Boolean = false;
 
 		[Bindable]
-		public var joinGlobal:Boolean = true;
+		public var listenOnlyMode:Boolean = true;
 
 		[Bindable]
 		public var presenterShareOnly:Boolean = false;
+
+		[Bindable]
+		public var showSpeakerButton:Boolean = true;
 
 		public function PhoneOptions() {
 			var vxml:XML = BBB.getConfigForModule("PhoneModule");
@@ -45,8 +48,9 @@ package org.bigbluebutton.modules.phone
 				this.showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
 				this.autoJoin = (vxml.@autoJoin.toString().toUpperCase() == "TRUE") ? true : false;
 				this.skipCheck = (vxml.@skipCheck.toString().toUpperCase() == "TRUE") ? true : false;
-				this.joinGlobal = (vxml.@joinGlobal.toString().toUpperCase() == "TRUE") ? true : false;
+				this.listenOnlyMode = (vxml.@listenOnlyMode.toString().toUpperCase() == "TRUE") ? true : false;
 				this.presenterShareOnly = (vxml.@presenterShareOnly.toString().toUpperCase() == "TRUE") ? true : false;
+				this.showSpeakerButton = (vxml.@showSpeakerButton.toString().toUpperCase() == "TRUE") ? true : false;
 			}
 		}
 	}
