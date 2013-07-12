@@ -321,7 +321,8 @@ load_video = function(){
 
    video.setAttribute('data-timeline-sources', SLIDES_XML);    
    //video.setAttribute('controls','');
-   video.setAttribute('autoplay','autoplay');
+   //leave auto play turned off for accessiblity support
+   //video.setAttribute('autoplay','autoplay');
 
    document.getElementById("videoRecordingWrapper").appendChild(video);
 }  
@@ -339,7 +340,8 @@ load_audio = function() {
    audio.setAttribute('id', 'video');
    audio.setAttribute('data-timeline-sources', SLIDES_XML);
    //audio.setAttribute('controls','');
-   audio.setAttribute('autoplay','autoplay');
+   //leave auto play turned off for accessiblity support
+   //audio.setAttribute('autoplay','autoplay');
    document.getElementById("audioRecordingWrapper").appendChild(audio);
 }
 
