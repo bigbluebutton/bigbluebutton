@@ -36,7 +36,7 @@ package org.bigbluebutton.modules.deskshare.model
 					baseTabIndex = vxml.@baseTabIndex;
 				}
 				else{
-					baseTabIndex = 101;
+					baseTabIndex = 201;
 				}
 				if (vxml.@showButton != undefined){
 					showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false; 
