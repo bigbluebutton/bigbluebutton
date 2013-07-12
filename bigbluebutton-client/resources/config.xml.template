@@ -28,6 +28,7 @@
 		<module name="UsersModule" url="http://HOST/client/UsersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			allowKickUser="true"
+			baseTabIndex="301"
 		/>
 
 		
@@ -36,7 +37,7 @@
 			uri="rtmp://HOST/deskShare"
 			showButton="true"
 			autoStart="false"
-			baseTabIndex="101"
+			baseTabIndex="201"
 		/>
 		
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
