@@ -88,7 +88,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var xml:XML;
 						
 			private function init():void{
-				baseIndex = 1;
+				baseIndex = 101;
 				numButtons = 0;
 			}
 			
