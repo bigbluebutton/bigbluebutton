@@ -99,7 +99,7 @@ module BigBlueButton
       command = "sox #{file} -n stat 2>&1"
       # Try "sox --i -D file" as it is much shorter
       BigBlueButton.logger.info("Task: Getting length of audio")
-      output = BigBlueButton.execute(command)
+      output = BigBlueButton.execute(command).output
       if output.to_s =~ /Length(.+)/
         stats = $1
       end

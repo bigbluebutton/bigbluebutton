@@ -64,6 +64,8 @@ if (playback == "slides")
 		FileUtils.cp("#{process_dir}/events.xml", package_dir)
 		FileUtils.cp_r("#{process_dir}/presentation", package_dir)
 
+		processing_time = File.read("#{$process_dir}/processing_time")
+
                 BigBlueButton.logger.info("Creating metadata.xml")
 		# Create metadata.xml
 		b = Builder::XmlMarkup.new(:indent => 2)		 
@@ -77,6 +79,7 @@ if (playback == "slides")
 		  b.playback {
 		  	b.format("slides")
 		  	b.link("http://#{playback_host}/playback/slides/playback.html?meetingId=#{meeting_id}")
+		  	b.processing_time("#{processing_time}")
 	  	}
 		  b.meta {
 		  	BigBlueButton::Events.get_meeting_metadata("#{process_dir}/events.xml").each { |k,v| b.method_missing(k,v) }
