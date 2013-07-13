@@ -41,7 +41,7 @@ package org.bigbluebutton.modules.present.ui.views
 					baseTabIndex = vxml.@baseTabIndex;
 				}
 				else{
-					baseTabIndex = 501;
+					baseTabIndex = 601;
 				}
 				if (vxml.@maxFileSize != undefined) {
 					maxFileSize = vxml.@maxFileSize;
