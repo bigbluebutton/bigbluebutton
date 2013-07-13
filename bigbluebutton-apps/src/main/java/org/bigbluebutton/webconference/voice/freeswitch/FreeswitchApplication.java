@@ -241,8 +241,10 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     @Override
     public void conferenceEventLeave(String uniqueId, String confName, int confSize, EslEvent event) {
         Integer memberId = this.getMemberIdFromEvent(event);
-        ParticipantLeftEvent pl = new ParticipantLeftEvent(memberId, confName);
-        conferenceEventListener.handleConferenceEvent(pl);
+        if(memberId != null){
+            ParticipantLeftEvent pl = new ParticipantLeftEvent(memberId, confName);
+            conferenceEventListener.handleConferenceEvent(pl);            
+        }
     }
 
     @Override
@@ -407,7 +409,11 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     
     private Integer getMemberIdFromEvent(EslEvent e)
     {
-        return new Integer(e.getEventHeaders().get("Member-ID"));
+        String mem = e.getEventHeaders().get("Member-ID");
+        if(mem == null)
+            return null;
+
+        return new Integer(mem);
     }
 
     private String getCallerIdFromEvent(EslEvent e)

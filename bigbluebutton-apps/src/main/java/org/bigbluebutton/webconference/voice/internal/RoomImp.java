@@ -75,8 +75,10 @@ public class RoomImp implements Room {
 	}
 	
 	public void remove(Integer id) {
-		Participant p = participants.remove(id);
-		if (p != null) p = null;
+		if(id != null){
+			Participant p = participants.remove(id);
+			if (p != null) p = null;	
+		}
 	}
 	
 	public void mute(boolean mute) {

@@ -28,9 +28,13 @@ import org.slf4j.Logger;
 import org.red5.server.api.scope.IScope;
 import org.red5.server.api.so.ISharedObject;
 import org.red5.server.adapter.ApplicationAdapter;
-import org.red5.server.api.Red5;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;import org.red5.logging.Red5LoggerFactory;
+import org.red5.server.api.Red5;
+import org.bigbluebutton.conference.BigBlueButtonSession;
+import org.bigbluebutton.conference.Constants;
+import org.red5.logging.Red5LoggerFactory;
 import org.bigbluebutton.webconference.voice.ConferenceService;
-import org.bigbluebutton.webconference.red5.voice.ClientNotifier; 
+import org.bigbluebutton.webconference.red5.voice.ClientNotifier;
+ 
 public class VoiceHandler extends ApplicationAdapter implements IApplication{
 	private static Logger log = Red5LoggerFactory.getLogger(VoiceHandler.class, "bigbluebutton");
 
@@ -98,6 +102,8 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 	}
 
 	private static final String VOICE_BRIDGE = "VOICE_BRIDGE";
+	private static final String VOICE_BREAKOUT = "VOICE_BREAKOUT";
+	
 	
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
@@ -111,7 +117,10 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
     	ArrayList breakoutNumbers = getBbbSession().getBreakoutRooms();
     	
     	if (!connection.getScope().hasAttribute(VOICE_BRIDGE)) {
-    		connection.getScope().setAttribute(VOICE_BRIDGE, getBbbSession().getVoiceBridge());
+    		connection.getScope().setAttribute(VOICE_BRIDGE, getBbbSession().getVoiceBridge());	
+    	}
+    	if (!connection.getScope().hasAttribute(VOICE_BREAKOUT)){
+    		connection.getScope().setAttribute(VOICE_BREAKOUT, getBbbSession().getBreakoutRooms());
     	}
     	
     	log.debug("Setting up voiceBridge " + voiceBridge);
@@ -132,7 +141,7 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 		 */
 		String voiceBridge = (String) scope.getAttribute(VOICE_BRIDGE);
 		conferenceService.destroyConference(voiceBridge);
-		ArrayList breakoutNumbers = getBbbSession().getBreakoutRooms();
+		ArrayList breakoutNumbers = (ArrayList)scope.getAttribute(VOICE_BREAKOUT);
 		for(int i=0; i<breakoutNumbers.size();i++){
 			HashMap<String,String> item = (HashMap<String, String>) breakoutNumbers.get(0);
 			conferenceService.destroyConference(item.get("number"));

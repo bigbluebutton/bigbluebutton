@@ -17,12 +17,19 @@
 *
 */
 package org.bigbluebutton.conference.service.voice;
-import org.slf4j.Logger;import org.red5.server.api.Red5;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;import org.red5.logging.Red5LoggerFactory;
-import org.bigbluebutton.webconference.voice.ConferenceService;import java.util.ArrayList;import java.util.HashMap;
+import org.slf4j.Logger;
+import org.red5.server.api.Red5;
+import org.bigbluebutton.conference.BigBlueButtonSession;
+import org.bigbluebutton.conference.Constants;
+import org.red5.logging.Red5LoggerFactory;
+import org.bigbluebutton.webconference.voice.ConferenceService;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bigbluebutton.webconference.voice.Participant;
+import org.bigbluebutton.webconference.voice.Participant;
+
 public class VoiceService {
 	
 	private static Logger log = Red5LoggerFactory.getLogger( VoiceService.class, "bigbluebutton" );
@@ -83,26 +90,26 @@ public class VoiceService {
 	}	
 	
 	public boolean isRoomMuted(){
-		String conference = getVoiceRoomByUserID(Integer.parseInt(getBbbSession().getInternalUserID()));//getBbbSession().getVoiceBridge(); 
+		String conference = getBbbSession().getVoiceBridge(); 
     	return conferenceService.isRoomMuted(conference);	
 	}
 	
 	public void muteUnmuteUser(Integer userid,Boolean mute) {
 		log.debug("muteUnmute checking: " + userid + " " + mute );
-		String conference = getVoiceRoomByUserID(userid.intValue());//getBbbSession().getVoiceBridge();
+		String conference = getVoiceRoomByUserID(userid.intValue());
 		log.debug("muteUnmute checking: " + conference);
     	log.debug("MuteUnmute request for user [" + userid + "] in room[" + conference + "]");
     	conferenceService.mute(userid, conference, mute);
 	}
 
 	public void lockMuteUser(Integer userid, Boolean lock) {
-		String conference = getVoiceRoomByUserID(userid.intValue());//getBbbSession().getVoiceBridge();    	
+		String conference = getVoiceRoomByUserID(userid.intValue());    	
     	log.debug("Lock request for user [" + userid + "] in room[" + conference + "]");
     	conferenceService.lock(userid, conference, lock);
 	}
 	
 	public void kickUSer(Integer userid) {
-		String conference = getVoiceRoomByUserID(userid.intValue());//getBbbSession().getVoiceBridge();		
+		String conference = getVoiceRoomByUserID(userid.intValue());		
     	log.debug("KickUser " + userid + " from " + conference);		
 		conferenceService.eject(userid, conference);
 	}
