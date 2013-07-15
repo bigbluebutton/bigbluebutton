@@ -53,6 +53,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<ref bean="chatHandler" />
 				<ref bean="layoutHandler" />
 				<ref bean="presentationHandler" />
+				<ref bean="sharedNotesHandler" />
 				<ref bean="voiceHandler" />
 				<ref bean="whiteboardApplication" />
     		</set>

@@ -1,0 +1,321 @@
+<!--
+	This file is part of BBB-Notes.
+	
+	Copyright (c) Islam El-Ashi. All rights reserved.
+	
+	BBB-Notes is free software: you can redistribute it and/or modify
+	it under the terms of the Lesser GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or 
+	any later version.
+	
+	BBB-Notes is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	Lesser GNU General Public License for more details.
+	
+	You should have received a copy of the Lesser GNU General Public License
+	along with BBB-Notes.  If not, see <http://www.gnu.org/licenses/>.
+	
+	Author: Islam El-Ashi <ielashi@gmail.com>, <http://www.ielashi.com>
+-->
+<containers:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:containers="flexlib.mdi.containers.*" 
+	xmlns:mate="http://mate.asfusion.com/"
+	layout="absolute" 
+	minWidth="160" 
+	minHeight="160" 
+	implements="org.bigbluebutton.common.IBbbModuleWindow" 
+	title="{ResourceUtil.getInstance().getString('bbb.sharedNotes.title')}" 
+	creationComplete="init()" 
+	xmlns:components="org.bigbluebutton.modules.sharednotes.views.components.*"
+	resize="onResize()"
+	showCloseButton="false">
+
+	
+	<mate:Listener type="{CurrentDocumentEvent.CURRENT_DOCUMENT}" method="addRemoteDocument"/>
+	<mate:Listener type="{ReceivePatchEvent.RECEIVE_PATCH_EVENT}" method="receivePatch" />
+
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.utils.getTimer;
+			
+			import flexlib.mdi.events.MDIWindowEvent;
+			
+			import mx.events.ResizeEvent;
+			import mx.events.SliderEvent;
+			import flexlib.mdi.containers.MDICanvas;
+			
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.IBbbModuleWindow;
+			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.sharednotes.views.components.PatchableTextArea;
+			import org.bigbluebutton.modules.sharednotes.SharedNotesOptions;
+			import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
+			import org.bigbluebutton.modules.sharednotes.events.GetCurrentDocumentEvent;
+			import org.bigbluebutton.modules.sharednotes.events.CurrentDocumentEvent;
+			import org.bigbluebutton.modules.sharednotes.events.SendPatchEvent;
+			import org.bigbluebutton.modules.sharednotes.events.ReceivePatchEvent;
+			import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import flash.utils.getQualifiedClassName;
+			import mx.collections.ArrayCollection;
+
+			//private var client:Client;
+			
+			private var _room:String;
+			private var _uri:String;
+			private var _host:String;
+			private var _connection:NetConnection;
+			private var _dispatcher:Dispatcher = new Dispatcher();
+			private var _document:String = "";
+			private var _initialDocument:String = "";
+			private var _undoHistory:ArrayCollection = new ArrayCollection();
+			private var _redoHistory:Array = new Array();
+
+			private var options:SharedNotesOptions = new SharedNotesOptions();
+
+			public static const SHARED_NOTES_CLOSED:String = "SHARED_NOTES_CLOSED";
+			
+			private var sendUpdateTimer:Timer;
+			
+			[Bindable] private var DEFAULT_PADDING:int = 5; 
+			[Bindable] private var RIGHT_PADDING:int = DEFAULT_PADDING; 
+			[Bindable] private var LEFT_PADDING:int = DEFAULT_PADDING;
+			[Bindable] private var TOP_PADDING:int = DEFAULT_PADDING;
+			[Bindable] private var BOTTOM_PADDING:int = 30;
+			
+			
+			public function init():void {
+				sendUpdateTimer = new Timer(options.refreshDelay, 1);
+			
+				textArea.visible = true;
+				textArea.setCanvas(getMdiCanvas(parent) as MDICanvas);
+				btnBackPlayback.visible = false;
+				btnPlayback.visible = false;
+				playbackSlider.visible = false;
+				lblPlaybackVersion.visible = false;
+			
+				textArea.addEventListener(KeyboardEvent.KEY_DOWN, function(e:Event):void {
+					if (!sendUpdateTimer.running) {
+						sendUpdateTimer.reset();
+						sendUpdateTimer.start();
+					} 
+				});
+
+
+				sendUpdateTimer.addEventListener(TimerEvent.TIMER, function(e:Event):void {
+					sendPatch();
+				});
+				_dispatcher.dispatchEvent(new GetCurrentDocumentEvent());
+				
+				addEventListener(MDIWindowEvent.RESIZE, onResize);
+				onResize();
+			}
+
+			private function sendPatch():void {
+				var clientText:String = new String(textArea.textFieldText); // a snapshot of the client text
+				if (_document != clientText) {
+					textArea.editable = false;
+					onSyncing();
+					trace("ADD LOCAL");
+					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
+					sendPatchEvent.patch = DiffPatch.diff(_document, clientText);
+					sendPatchEvent.beginIndex = textArea.selectionBeginIndex;
+					sendPatchEvent.endIndex = textArea.selectionEndIndex;
+					//patchHistory.push(messageToSend.patchData);
+					//_undoHistory.addItem([0,sendPatchEvent.patch]);
+					_dispatcher.dispatchEvent(sendPatchEvent);
+					_document = clientText;
+					textArea.editable = true;
+					onSynced();
+				}
+			}
+
+			
+
+			private function receivePatch(e:ReceivePatchEvent):void {
+				if (e.patch != "") {
+					var result:String = DiffPatch.patch(e.patch, _document);
+					_document = result;
+					textArea.patchClientText(e.patch, e.beginIndex, e.endIndex);
+					trace("ADD PATCH SERVER");
+					//_undoHistory.addItem([1,e.patch]);
+				}
+			}
+
+			private function getType(obj:Object):String {
+
+					var qualifiedClass:String = String(getQualifiedClassName(obj));
+					var pattern:RegExp = /(\w+)::(\w+)/g;
+					if (qualifiedClass.match(pattern)) {
+						return qualifiedClass.split("::")[1];
+					} else {
+						return String(Object).substr(String(Object).lastIndexOf(".") + 1).match(/[a-zA-Z]+/).join();
+					}
+			}
+
+			private function getMdiCanvas(p:DisplayObjectContainer):DisplayObject {
+				if (p == null)
+					return null;
+				for (var i:int = 0; i < p.numChildren; ++i) {
+					//if (String(getQualifiedClassName(p.getChildAt(i))).match("MainCanvas"))
+					if (getType(p.getChildAt(i)) == "MainCanvas")
+						return p.getChildAt(i);
+					var obj:DisplayObject = getMdiCanvas(p.parent);
+					if (obj != null)
+						return obj;
+				}
+				return null;
+			}
+			
+			private function addBlur():void {
+				textArea.init();
+				var bf:BlurFilter = new BlurFilter(0,0,0);
+				
+				var myFilters:Array = new Array();
+				
+				myFilters.push(bf);
+				
+				textArea.filters = myFilters;
+			}
+			
+			private function onResize(e:Event = null):void {
+				if (this.minimized)
+					return;
+					
+				// limits the window size to the parent size
+				this.width = (this.parent != null? Math.min(this.width, this.parent.width): this.width);
+				this.height = (this.parent != null? Math.min(this.height, this.parent.height): this.height);
+			
+				const availableWidth:int = this.width - this.borderMetrics.left - this.borderMetrics.right;
+				const availableHeight:int = this.height - this.borderMetrics.top - this.borderMetrics.bottom;
+				
+				//if (options.enablePlayback) {
+				//	if (BOTTOM_PADDING < Math.max(btnPlayback.height, btnBackPlayback.height) + 4)
+				//		BOTTOM_PADDING = Math.max(btnPlayback.height, btnBackPlayback.height) + 4;
+				//	btnPlayback.x = btnBackPlayback.x = LEFT_PADDING;
+				//	btnPlayback.y = btnBackPlayback.y = availableHeight - BOTTOM_PADDING + (BOTTOM_PADDING - Math.max(btnPlayback.height, btnBackPlayback.height)) / 2;
+				//} else {
+					btnPlayback.x = btnBackPlayback.x = 0;
+					btnPlayback.y = btnBackPlayback.y = 0;
+				//} 
+				
+				textArea.width = textArea.measuredWidth = txtPlayback.width = availableWidth - RIGHT_PADDING - LEFT_PADDING;
+				textArea.height = textArea.measuredHeight = txtPlayback.height = availableHeight - TOP_PADDING - BOTTOM_PADDING;
+				textArea.x = txtPlayback.x = LEFT_PADDING;
+				textArea.y = txtPlayback.y = TOP_PADDING;
+
+				lblPlaybackVersion.x = LEFT_PADDING + (btnPlayback.visible? btnPlayback.width: 0) + (btnBackPlayback.visible? btnBackPlayback.width: 0) + (btnPlayback.visible || btnBackPlayback.visible? DEFAULT_PADDING: 0);
+				lblPlaybackVersion.y = availableHeight - (BOTTOM_PADDING + lblPlaybackVersion.height) / 2;
+
+				playbackSlider.x = lblPlaybackVersion.x + lblPlaybackVersion.width + DEFAULT_PADDING;
+				playbackSlider.y = availableHeight - (BOTTOM_PADDING + playbackSlider.height) / 2;
+				
+				icoSynced.x = icoSyncing.x = availableWidth - RIGHT_PADDING - icoSynced.width;
+				icoSynced.y = icoSyncing.y = availableHeight - BOTTOM_PADDING + (BOTTOM_PADDING - icoSynced.height) / 2;
+				btnSave.x = availableWidth - RIGHT_PADDING - btnSave.width - 30;
+				btnSave.y = availableHeight - BOTTOM_PADDING + (BOTTOM_PADDING - btnSave.height) / 2;				
+				playbackSlider.width = availableWidth - playbackSlider.x - 2 * RIGHT_PADDING - icoSynced.width;
+				
+				
+			}
+			
+			private function onSynced(e:Event = null):void {
+				//if (client.version > 0 && !btnBackPlayback.visible && options.enablePlayback) {
+				//	btnPlayback.visible = true;
+			//		onResize();
+			//	} 
+				icoSynced.visible = true;
+				icoSyncing.visible = false;
+			}
+			
+			private function onSyncing(e:Event = null):void {
+				icoSyncing.visible = true;
+				icoSynced.visible = false;
+			}
+
+			private function addRemoteDocument(e:CurrentDocumentEvent):void {
+				icoSynced.visible = true;
+				icoSyncing.visible = false;
+				textArea.text = e.document;
+				_document = e.document;
+				_initialDocument = e.document;
+				
+			}
+			private function onTextChange(e:Event):void {
+				onSyncing(e);
+				
+			}
+			
+			protected function btnPlay_clickHandler(event:MouseEvent):void
+			{
+				
+			}
+			
+			private var previousSliderValue:int = 0;
+			protected function playbackSlider_changeHandler(event:SliderEvent):void
+			{
+				//txtPlayback.text = client.getSnapshotAtVersion(previousSliderValue, event.value, txtPlayback.text);
+				lblPlaybackVersion.text = "Version " + event.value + ":";
+			}
+			
+			protected function btnPlayback_clickHandler(event:MouseEvent):void
+			{
+				//playbackSlider.maximum = client.version;
+				playbackSlider.value = 0;
+				previousSliderValue = 0;
+				//txtPlayback.text = client.getSnapshotAtVersion(0, 0, "");
+
+				switchComponentsVisibility();
+				onResize();
+			}
+
+			protected function btnSave_clickHandler(event:MouseEvent):void
+			{
+				textArea.saveNotesToFile(title);
+				
+			}
+
+			protected function btnBackPlayback_clickHandler(event:MouseEvent):void
+			{
+				switchComponentsVisibility();
+				onResize();
+			}
+			
+			protected function switchComponentsVisibility():void
+			{
+				textArea.visible = !textArea.visible;
+				btnBackPlayback.visible = !btnBackPlayback.visible;
+				btnPlayback.visible = !btnPlayback.visible;
+				playbackSlider.visible = !playbackSlider.visible;
+				lblPlaybackVersion.visible = !lblPlaybackVersion.visible;
+			}
+					
+			public function getPrefferedPosition():String{
+				return options.position;
+
+			}
+			
+			
+			override public function close(event:MouseEvent=null):void {
+				//new Dispatcher().dispatchEvent(new Event(SHARED_NOTES_CLOSED, true));
+				super.close(event);
+			}
+		]]>
+	</mx:Script>
+	<mx:Fade id="dissolveOut" duration="1000" alphaFrom="1.0" alphaTo="0.0"/>
+	<mx:Fade id="dissolveIn" duration="1000" alphaFrom="0.0" alphaTo="1.0"/>
+	
+	<mx:Button x="10" y="425" label="Playback" id="btnPlayback" click="btnPlayback_clickHandler(event)" icon="@Embed(source='images/play-icon.png')" visible="false"/>
+	<mx:HSlider x="79" y="395" width="413" id="playbackSlider" liveDragging="true" snapInterval="1" change="playbackSlider_changeHandler(event)" maximum="0"/>
+	<mx:TextArea x="10" y="10" width="482" height="387" id="txtPlayback"/>
+	<mx:Image x="476" y="431" source="@Embed(source='images/tick.png')" id="icoSynced" visible="false" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.upToDate.toolTip')}"/>	
+	<mx:Image x="476" y="431" source="@Embed(source='images/action_refresh.gif')" id="icoSyncing" visible="false" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.refreshing.toolTip')}"/>
+	<mx:Button x="10" y="425" icon="@Embed(source='images/arrow_left.png')" id="btnBackPlayback" click="btnBackPlayback_clickHandler(event)" visible="false"/>
+	<mx:Label id="lblPlaybackVersion" x="10" y="399" text="Version 0:"/>
+	<components:PatchableTextArea x="10" y="10" id="textArea" hideEffect="{dissolveOut}" showEffect="{dissolveIn}" creationComplete="addBlur()" width="482" height="407" editable="true" verticalScrollPolicy = "auto"/>
+	<mx:Button  x="476" y="431" id="btnSave" width="24" height="24" click="btnSave_clickHandler(event)" visible="true" icon="@Embed(source='images/disk.png')" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.save.toolTip')}"/>
+	<mx:Button x="0" y="0" label="Start" id="btnPlay" click="btnPlay_clickHandler(event)" visible="false"/>
+</containers:MDIWindow>

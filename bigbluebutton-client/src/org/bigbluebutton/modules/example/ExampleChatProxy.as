@@ -20,6 +20,7 @@ package org.bigbluebutton.modules.example
 {
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
+	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
 	import mx.controls.Alert;
@@ -42,7 +43,7 @@ package org.bigbluebutton.modules.example
 			
 			extractAttributes(attributes);
 			
-			simpleChatSO = SharedObject.getRemote("simpleChatSO", url, false);
+			simpleChatSO = SharedObject.getRemote("simpleChat", url, false);
 			simpleChatSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusEventHandler);
 			simpleChatSO.client = this;
 			simpleChatSO.connect(connection);
@@ -61,11 +62,19 @@ package org.bigbluebutton.modules.example
 		}
 		
 		public function sendMessage(message:String):void{
-			simpleChatSO.send("serverCallback", message);
+			connection.call("rtmpadapter.sendData", new Responder(
+				function(result:Object):void{
+					//window.displayNewMessage(result as String);
+				}, 
+				function(status:Object):void{
+					window.displayNewMessage("Call failed");
+				}), 
+				"simpleChat", "testMethod", message)
 		}
 		
-		public function serverCallback(message:String):void{
-			window.displayNewMessage(message);
+		public function testMethod(data:String):void{
+			window.displayNewMessage(data);
 		}
+		
 	}
 }

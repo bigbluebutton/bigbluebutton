@@ -20,10 +20,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{notesIcon}" 
-		   click="openPublishWindow()" creationComplete="init()" 
-		   toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip')}" xmlns:mate="http://mate.asfusion.com/"
-		   implements="org.bigbluebutton.common.IBbbToolbarComponent">
+<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" 
+		icon="{notesIcon}" 
+		click="openNotesWindow()" 
+		creationComplete="init()" 
+		toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.sharednotes.toolTip')}" 
+		xmlns:mate="http://mate.asfusion.com/"
+		implements="org.bigbluebutton.common.IBbbToolbarComponent">
 	
 	<mate:Listener type="{SharedNotesWindow.SHARED_NOTES_CLOSED}" method="closeEventHandler" />
 	<mx:Script>
@@ -33,42 +36,60 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.modules.sharednotes.events.ToolbarButtonWindowEvent;
+			import org.bigbluebutton.modules.sharednotes.events.JoinSharedNotesEvent;
+			import org.bigbluebutton.modules.sharednotes.events.GetCurrentDocumentEvent;
+			import org.bigbluebutton.modules.sharednotes.SharedNotesOptions;
+			
 			
 			[Embed(source="images/note_edit.png")]
 			public var notes:Class;
 			
+			private var _attributes:Object;
 			
 			[Bindable] public var notesIcon:Class = notes;
 			
 			private var dispatcher:Dispatcher;
-			
+			private var window:SharedNotesWindow;
+			private var _join:Boolean = false;
+			private var options:SharedNotesOptions = new SharedNotesOptions();
+
 			private function init():void{
+				_join = false;
 				dispatcher = new Dispatcher();
 				this.addEventListener(SharedNotesWindow.SHARED_NOTES_CLOSED, closeEventHandler);
+				if(options.autoStart) {
+					openNotesWindow();
+				}
 			}
-			
-			private function openPublishWindow():void{
-				var window:IBbbModuleWindow = new SharedNotesWindow();
-				
-				var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-				event.window = window;
-				dispatcher.dispatchEvent(event);
-				this.enabled = false;
-			}
-			
-			public function show():void{
-				this.enabled = true;
+
+			public function openNotesWindow(event:Event = null):void{
+				if (!this.selected) {
+					if(!_join) {
+						_join = true;
+						dispatcher.dispatchEvent(new JoinSharedNotesEvent());
+					}
+					dispatcher.dispatchEvent(new ToolbarButtonWindowEvent(ToolbarButtonWindowEvent.SHOW_WINDOW));
+					dispatcher.dispatchEvent(new GetCurrentDocumentEvent());
+					this.selected = true;
+				} else {
+					dispatcher.dispatchEvent(new ToolbarButtonWindowEvent(ToolbarButtonWindowEvent.HIDE_WINDOW));
+					this.selected = false;
+				}
 			}
 			
 			private function closeEventHandler(e:Event):void {
-				show();
+				this.selected = false;
 			}
 			
 			public function getAlignment():String{
 				return MainToolbar.ALIGN_LEFT;
-			}
+            		}
+
+			
 		]]>
 	</mx:Script>
 </mx:Button>
