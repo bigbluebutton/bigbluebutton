@@ -5,7 +5,7 @@ package org.bigbluebutton.modules.whiteboard.views.models
 	public class WhiteboardOptions
 	{
 		[Bindable] public var whiteboardAccess:String = "presenter";
-		[Bindable] public var baseTabIndex:int = 601;
+		[Bindable] public var baseTabIndex:int = 701;
         [Bindable] public var keepToolbarVisible:Boolean = false;
         
 		public function WhiteboardOptions() {

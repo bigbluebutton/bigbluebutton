@@ -88,7 +88,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var xml:XML;
 						
 			private function init():void{
-				baseIndex = 1;
+				baseIndex = 101;
 				numButtons = 0;
 			}
 			
@@ -268,7 +268,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
              tabIndex="{baseIndex+numButtons+5}" />
 	<mx:LinkButton id="helpBtn" visible="{showHelpBtn}" label="?" click="onHelpButtonClicked()" height="22" 
                    styleName="helpLinkButtonStyle" tabIndex="{baseIndex+numButtons+7}" 
-                   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"
+                   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" 
 				   accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"/>
 	<mx:Button label="" id="btnLogout" styleName="logoutButtonStyle"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()" height="22"
