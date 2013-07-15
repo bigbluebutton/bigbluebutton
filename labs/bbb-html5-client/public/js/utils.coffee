@@ -14,7 +14,6 @@ define [
   # @return {undefined}
   Utils.postToUrl = (path, params, method) ->
     method = method or "post"
-    #form = document.createElement("form")
     form = $("<form></form>")
     form.attr
       "method" : method,
