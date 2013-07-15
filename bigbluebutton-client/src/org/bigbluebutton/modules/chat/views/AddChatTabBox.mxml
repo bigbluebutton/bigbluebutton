@@ -29,6 +29,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import flexlib.controls.textClasses.StringBoundaries;
+			
 			import mx.collections.ArrayCollection;
 			
 			import org.bigbluebutton.core.EventConstants;
@@ -43,9 +45,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] public var chatView:ChatView;
 			[Bindable] private var fontSizes:Array = ['8', '10', '12', '14', '16', '18'];
 
-			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();			
-
-			
+			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();		
+						
 			private function init():void{
 				users = UserManager.getInstance().getConference().users;
 			}
@@ -82,6 +83,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       public function focusToTextMessageArea():void {
         // Do nothing. This is only handle by the chat boxes.
       }
+			
 		]]>
 	</mx:Script>
 	
