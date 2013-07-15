@@ -45,19 +45,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import flash.media.Sound;
       import flash.media.SoundChannel;
       import flash.utils.Timer;
-      
+
       import flexlib.controls.tabBarClasses.SuperTab;
       import flexlib.controls.textClasses.StringBoundaries;
       import flexlib.events.SuperTabEvent;
       import flexlib.mdi.containers.MDIWindow;
-      
+
       import mx.collections.ArrayCollection;
       import mx.containers.ControlBar;
       import mx.controls.Button;
       import mx.core.Container;
       import mx.core.UIComponent;
       import mx.events.IndexChangedEvent;
-      
+
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.BBB;
       import org.bigbluebutton.core.EventConstants;
@@ -98,16 +98,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		private var privateFocus:Boolean = false;
 		private var timerInterval:int = 10; // How many seconds you want the timer to wait between chat notifications
 		private var notificationTimer:Timer = new Timer(timerInterval * 1000);
-			
-			//[Embed(source="../sounds/publicSound.mp3")] 
-     // private var publicSoundClass:Class;
-      
-			//[Embed(source="../sounds/privateSound.mp3")] 
-     // private var privateSoundClass:Class;
-			
-     // private var publicSound:Sound = new publicSoundClass() as Sound;
-			//private var privateSound:Sound = new privateSoundClass() as Sound;		
-			
+					
 			// Initialization
 			private function init():void{
 				chatOptions = new ChatOptions();
@@ -118,15 +109,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onCreationComplete():void{
 				// Start the timer for screen-reader-friendly chat notifications
 				notificationTimer.addEventListener(TimerEvent.TIMER, checkNotifications);
-				// Timer removed. Better method must be found for accessible notifications.
-				// notificationTimer.start();
+				notificationTimer.start();
 				
 				openChatBoxFor(PUBLIC_CHAT_USERID, true);
 		        makePublicChatUncloseable();
 		        
-                // you have to always create the AddTabBox because we always need to give people access to the dropdown to change font size
-		        createAddTabBox();
-		        makeAddPrivateChatUncloseable();
+		        if (chatOptions.privateEnabled) {
+		          createAddTabBox();
+		          makeAddPrivateChatUncloseable();
+		        }
 				
 				
 				addEventListener(SuperTabEvent.TAB_CLOSE, onUserClosedTab);
@@ -178,6 +169,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function activate(event:Event):void{
+				ExternalInterface.call("clearblink");
 				this.focus = true;
 			}
 			
@@ -265,11 +257,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				chatBox.id = chatWithUserID;
 		        chatBox.name = chatWithUserID;
 				chatBox.baseIndex = baseIndex;
-                
-                if (chatTabs.getChildByName(OPTION_TAB_ID)) {
-                    chatBox.setStyle("fontSize", int((chatTabs.getChildByName(OPTION_TAB_ID) as AddChatTabBox).cmbFontSize.selectedItem));
-                }
-                
+		        
 		        if (publicChat) {
 		          chatBox.label = PUBLIC_CHAT_USERNAME
 		          chatBox.publicChat = true;
@@ -342,7 +330,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function publicChatFocus(event:FocusEvent):void{
-				publicFocus = true;					
+				publicFocus = true;
+				if (publicWaiting) {
+	          		ExternalInterface.call("clearblink");
+	        	}					
 				publicWaiting = false;
 			}
 			
@@ -353,6 +344,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					for (var messageCounter:int = 0; messageCounter < event.target.parent.exposeNumMessages(); messageCounter ++){
 						removed = removePrivateSender(event.target.parent.exposeSenderID(messageCounter));
 						if (removed) {
+							ExternalInterface.call("clearblink");
 							messageCounter = event.target.parent.exposeNumMessages() + 1;
 						}
 					}
@@ -381,8 +373,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var message:String = "";
 					var playSoundClip:Boolean = useSoundClip();
 					if (publicWaiting == true && publicFocus == false) {
-						if (playSoundClip) {
-	            			//publicSound.play();
+						if (!playSoundClip) {
             			} else{
 	            			message += PUBLIC_TAB_NEW; 
 						}
@@ -390,12 +381,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					
 					if (privateWaiting.length && !privateFocus) {
 						if (playSoundClip){
-							//privateSound.play();
 						}
 						else {
 							var names:String = "";
 							for (var i:int = 0; i < privateWaiting.length; i++){
-								names += " " + privateWaiting.getItemAt(i).message.fromUsername;
+								names += " " + privateWaiting.getItemAt(i).message.chatobj.username;
 								if (i < privateWaiting.length - 1)
 									names += ",";
 							}
@@ -407,7 +397,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						if (message == ""){
 						}
 						else{
-							ExternalInterface.call("addAlert", message);
+							// Chat alerts temporarily disabled, so messages do not interfere with accessibility testing of other modules.
+							//ExternalInterface.call("addAlert", message);
 						}
 					}				
 				}
@@ -430,7 +421,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var privateSenders:ArrayCollection = new ArrayCollection;
 				if (privateWaiting.length){
 					for (var i:int = 0; i < privateWaiting.length; i++){
-						privateSenders.addItem(privateWaiting.getItemAt(i).message.fromUserID);
+						privateSenders.addItem(privateWaiting.getItemAt(i).message.chatobj.userid);
 					}
 				}
 				return privateSenders;
@@ -441,7 +432,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var success:Boolean = false;
 				if (privateWaiting.length){
 					for (var i:int = 0; i < privateWaiting.length; i++){
-						if (senderID == privateWaiting.getItemAt(i).message.fromUserID){
+						if (senderID == privateWaiting.getItemAt(i).message.chatobj.userid){
 							privateWaiting.removeItemAt(i);
 							success = true;
 							i = privateWaiting.length;

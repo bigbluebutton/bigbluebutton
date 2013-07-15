@@ -29,6 +29,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mate:Listener type="{LayoutEvent.REMOTE_LOCK_LAYOUT_EVENT}" method="onLockLayoutEvent" />
 	<mate:Listener type="{LayoutEvent.REMOTE_UNLOCK_LAYOUT_EVENT}" method="onUnlockLayoutEvent" />
+	<mate:Listener type="{FocusEvent.FOCUS_OUT}" method="loopToStart" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_LOOP_END}" method="loopToEnd" />
 
 	<mx:Script>
 		<![CDATA[
@@ -41,6 +43,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.modules.layout.events.LayoutEvent;
+			
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import flash.events.FocusEvent;
 
 			private var _dispatcher:Dispatcher = new Dispatcher();
 			private var _images:Images = new Images();
@@ -66,6 +72,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onUnlockLayoutEvent(e:Event):void {
 				this.selected = false;
 				this.setStyle("icon", icon_unlocked);
+			}
+						
+			private function loopToStart(e:FocusEvent):void {
+				if (e.target == this && !e.shiftKey)
+					_dispatcher.dispatchEvent(new BBBEvent(BBBEvent.JOIN_VOICE_FOCUS_HEAD));
+			}
+			
+			private function loopToEnd(e:ShortcutEvent):void{
+				this.setFocus();
 			}
 			
 		]]>
