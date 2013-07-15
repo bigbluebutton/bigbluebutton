@@ -1,7 +1,8 @@
 define [
+  'jquery',
   'underscore',
   'backbone'
-], (_, Backbone) ->
+], ($,_, Backbone) ->
 
   # Module with general utility methods.
   Utils = {}
@@ -13,8 +14,8 @@ define [
   # @return {undefined}
   Utils.postToUrl = (path, params, method) ->
     method = method or "post"
-    $form = $ "<form></form>"
-    $form.attr
+    form = $("<form></form>")
+    form.attr
       "method" : method,
       "action" : path
     for key of params
@@ -24,9 +25,9 @@ define [
           "type" : "hidden",
           "name" : key,
           "value" : params[key]
-        $form.append $hiddenField
+        form.append $hiddenField
 
-    $('body').append $form  
+    $('body').append form
     form.submit()
 
   # @param {string,int} stroke    stroke color, can be a number (a hex converted to int) or a
