@@ -30,6 +30,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{BBBEvent.JOIN_VOICE_CONFERENCE}" method="handleBBBJoinConferenceEvent"/>
 	<mate:Listener type="{BBBEvent.MIC_SETTINGS_CLOSED}" method="handleMicSettingsClosedEvent"/>
 	<mate:Listener type="{BBBEvent.JOIN_VOICE_FOCUS_HEAD}" method="joinVoiceFocusHead"/>
+	<mate:Listener type="{FocusEvent.FOCUS_OUT}" method="loopToEnd" />
 	
 	<mate:Listener type="{ShortcutEvent.SHARE_MICROPHONE}" method="remoteClick" />
 
@@ -207,8 +208,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return "Audio button";
 			}
 			
-			private function joinVoiceFocusHead(e:BBBEvent):void{
+			private function joinVoiceFocusHead(e:Event):void{
 				this.setFocus();
+			}
+			
+			private function loopToEnd(e:FocusEvent):void {
+				if (e.target == this && e.shiftKey)
+					dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_LOOP_END));
 			}
 		]]>
 	</mx:Script>
