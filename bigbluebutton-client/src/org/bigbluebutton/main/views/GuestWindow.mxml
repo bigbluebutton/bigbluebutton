@@ -45,7 +45,6 @@
 			import mx.controls.Spacer;
 			import org.bigbluebutton.main.events.BBBEvent;
 			
-			private var urlLoader:URLLoader;
 			private var guestWindowMap:Object = new Object();
 			private var guestButtons:Object = new Object();
 			[Bindable] private var numberOfGuests:Number = 0;

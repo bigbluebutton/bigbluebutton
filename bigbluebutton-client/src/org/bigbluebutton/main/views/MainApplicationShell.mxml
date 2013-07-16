@@ -45,7 +45,7 @@
 	<mate:Listener type="{RemoveGuestRequestEvent.GUEST_EVENT}" method="removeGuestWindow" />
 	<mate:Listener type="SHOW_MIC_SETTINGS" method="showMicSettings"  />
 	<mate:Listener type="SHOW_BBB_SETTINGS" method="showBBBSettings"  />
-	<mate:Listener type="{NewGuestEvent.NEW_GUEST_EVENT}" method="newGuestWindow" />
+	<mate:Listener type="{NewGuestEvent.NEW_GUEST_EVENT}" method="addNewGuest" />
 	<mate:Listener type="{ModeratorRespEvent.GUEST_ALLOWED}" method="guestAllowed" />
 	<mate:Listener type="{BBBEvent.RETRIEVE_GUEST_POLICY}" method="setGuestPolicy"/>
 	
@@ -87,6 +87,7 @@
 			import org.bigbluebutton.main.events.ModeratorRespEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+			import org.bigbluebutton.main.model.Guest;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.util.logging.Logger;
 			import org.bigbluebutton.common.events.SettingsComponentEvent;
@@ -118,6 +119,7 @@
 			private var receivedConfigLocaleVer:Boolean = false;
 			private var receivedResourceLocaleVer:Boolean = false;
 			private var guestManagement:GuestManagement = null;
+			private var guest:Guest = new Guest();
 
 			private var guestPolicy:String = "ASK_MODERATOR";
 			
@@ -211,14 +213,14 @@
 				}
 			}
 				
-			private function newGuestWindow(evt:NewGuestEvent):void {
-				if(guestWindow == null) {
-					guestWindow = PopUpManager.createPopUp( mdiCanvas, GuestWindow, false) as GuestWindow;
-					guestWindow.x = width - 400;
-					guestWindow.y = 20;
-				}
-				
-				guestWindow.addGuest(evt.userid, evt.name);
+			private function addNewGuest(evt:NewGuestEvent):void {
+				guest.addGuest(evt.userid, evt.name);
+				//if(guestWindow == null) {
+				//	guestWindow = PopUpManager.createPopUp( mdiCanvas, GuestWindow, false) as GuestWindow;
+				//	guestWindow.x = width - 400;
+				//	guestWindow.y = 20;
+				//}
+				//guestWindow.addGuest(evt.userid, evt.name);
 				
 			}
 			public function removeGuestWindow(evt:RemoveGuestRequestEvent):void {
