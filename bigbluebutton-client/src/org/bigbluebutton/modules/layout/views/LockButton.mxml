@@ -29,8 +29,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mate:Listener type="{LayoutEvent.REMOTE_LOCK_LAYOUT_EVENT}" method="onLockLayoutEvent" />
 	<mate:Listener type="{LayoutEvent.REMOTE_UNLOCK_LAYOUT_EVENT}" method="onUnlockLayoutEvent" />
-	<mate:Listener type="{FocusEvent.FOCUS_OUT}" method="loopToStart" />
-	<mate:Listener type="{ShortcutEvent.FOCUS_LOOP_END}" method="loopToEnd" />
 
 	<mx:Script>
 		<![CDATA[
@@ -73,7 +71,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.selected = false;
 				this.setStyle("icon", icon_unlocked);
 			}
-						
+			
+            /* disabling this for new because it needs more work to work
 			private function loopToStart(e:FocusEvent):void {
 				if (e.target == this && !e.shiftKey)
 					_dispatcher.dispatchEvent(new BBBEvent(BBBEvent.JOIN_VOICE_FOCUS_HEAD));
@@ -82,6 +81,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function loopToEnd(e:ShortcutEvent):void{
 				this.setFocus();
 			}
+            */
 			
 		]]>
 	</mx:Script>

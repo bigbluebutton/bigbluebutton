@@ -24,13 +24,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	icon="{phoneIcon}" click="startPhone()"
 	mouseOver = "mouseOverHandler(event)"
 	mouseOut = "mouseOutHandler(event)"
+    height="24"
 	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent">
 	
 	<mate:Listener type="{BBBEvent.JOIN_VOICE_CONFERENCE}" method="handleBBBJoinConferenceEvent"/>
 	<mate:Listener type="{BBBEvent.MIC_SETTINGS_CLOSED}" method="handleMicSettingsClosedEvent"/>
 	<mate:Listener type="{BBBEvent.JOIN_VOICE_FOCUS_HEAD}" method="joinVoiceFocusHead"/>
-	<mate:Listener type="{FocusEvent.FOCUS_OUT}" method="loopToEnd" />
 	
 	<mate:Listener type="{ShortcutEvent.SHARE_MICROPHONE}" method="remoteClick" />
 
@@ -212,10 +212,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.setFocus();
 			}
 			
+            /* disabling this for new because it needs more work to work
 			private function loopToEnd(e:FocusEvent):void {
 				if (e.target == this && e.shiftKey)
 					dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_LOOP_END));
 			}
+            */
 		]]>
 	</mx:Script>
 </mx:Button>
