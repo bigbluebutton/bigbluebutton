@@ -36,7 +36,7 @@ public class ParticipantsService {
 	public void assignPresenter(Map<String, String> msg) {
 
 		IScope scope = Red5.getConnectionLocal().getScope();
-
+		log.debug("Checking assignPresenter values " + msg.get("newPresenterID") + " " + msg.get("newPresenterName") + " " + msg.get("assignedBy"));
 		application.assignPresenter(scope.getName(), (String) msg.get("newPresenterID"), (String) msg.get("newPresenterName"), (String) msg.get("assignedBy"));
 	}
 	

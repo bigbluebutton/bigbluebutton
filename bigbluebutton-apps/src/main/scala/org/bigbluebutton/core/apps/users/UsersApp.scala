@@ -99,17 +99,19 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   private def assignNewPresenter(newPresenterID:String, newPresenterName: String, assignedBy: String) {
     if (users.hasUser(newPresenterID)) {
       if (users.hasPresenter) {
- 	    val curPresenter = users.getCurrentPresenter
-	    users.unbecomePresenter(curPresenter.userID)  
-	    outGW.send(new UserStatusChange(meetingID, recorded, curPresenter.userID, "presenter", false:java.lang.Boolean))
+   	    val curPresenter = users.getCurrentPresenter
+  	    users.unbecomePresenter(curPresenter.userID)  
+  	    outGW.send(new UserStatusChange(meetingID, recorded, curPresenter.userID, "presenter", false:java.lang.Boolean))
       }
 
-	  val newPresenter = users.getUser(newPresenterID)
-	  users.becomePresenter(newPresenter.userID)    
-	  
-	  currentPresenter = new Presenter(newPresenterID, newPresenterName, assignedBy)
-	  
-	  outGW.send(new PresenterAssigned(meetingID, recorded, new Presenter(newPresenterID, newPresenterName, assignedBy)))
+  	  val newPresenter = users.getUser(newPresenterID)
+  	  users.becomePresenter(newPresenter.userID)    
+  	  
+  	  currentPresenter = new Presenter(newPresenterID, newPresenterName, assignedBy)
+  	  
+  	  outGW.send(new PresenterAssigned(meetingID, recorded, new Presenter(newPresenterID, newPresenterName, assignedBy)))
+
+      outGW.send(new UserStatusChange(meetingID, recorded, newPresenterID, "presenter", true:java.lang.Boolean))
     }
   }
 }
