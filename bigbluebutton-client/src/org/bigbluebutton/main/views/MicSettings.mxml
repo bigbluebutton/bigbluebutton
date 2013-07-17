@@ -185,7 +185,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:HBox width="100%">
 			<!-- mx:Label text="Audio Settings" styleName="micSettingsWindowTitleStyle"/ -->
 			<mx:TextArea borderSkin="{null}" editable="false" text="{ResourceUtil.getInstance().getString('bbb.users.settings.audioSettings')}" styleName="micSettingsWindowTitleStyle"
-                         tabIndex="{baseIndex}"/>
+                         tabIndex="{baseIndex}" width="400"/>
 						 <!-- accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.title')} "/ -->
 			<mx:Spacer width="100%"/>
             <mx:LinkButton fontSize="10" toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" 
@@ -200,7 +200,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 <mx:Spacer height="5"/>
                 <mx:HRule width="100%"/>
                 <mx:HBox width="100%">
-                    <mx:Label id="testMicLabel" text="Test Microphone" styleName="micSettingsWindowTestMicrophoneLabelStyle" tabIndex="{baseIndex+2}"/>
+                    <mx:Label id="testMicLabel" text="{ResourceUtil.getInstance().getString('bbb.micSettings.microphone.header')}" styleName="micSettingsWindowTestMicrophoneLabelStyle" tabIndex="{baseIndex+2}"/>
                     <mx:Spacer width="100%"/>
                 </mx:HBox>
             </mx:VBox>   
@@ -219,7 +219,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             <mx:VBox width="100%">
                 <mx:Spacer height="5"/>
                 <mx:HBox width="100%">
-                    <mx:Label id="testSpeakersLabel" text="Test Speakers" styleName="micSettingsWindowTestSpeakersLabelStyle" tabIndex="{baseIndex+5}"/>
+                    <mx:Label id="testSpeakersLabel" text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakers.header')}" styleName="micSettingsWindowTestSpeakersLabelStyle" tabIndex="{baseIndex+5}"/>
                 </mx:HBox>
             </mx:VBox> 
         </mx:HBox>
