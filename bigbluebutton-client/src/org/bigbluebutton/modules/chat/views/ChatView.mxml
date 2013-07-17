@@ -169,7 +169,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function activate(event:Event):void{
-				ExternalInterface.call("clearblink");
 				this.focus = true;
 			}
 			
@@ -322,10 +321,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function publicChatFocus(event:FocusEvent):void{
-				publicFocus = true;
-				if (publicWaiting) {
-	          		ExternalInterface.call("clearblink");
-	        	}					
+				publicFocus = true;					
 				publicWaiting = false;
 			}
 			
@@ -336,7 +332,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					for (var messageCounter:int = 0; messageCounter < event.target.parent.exposeNumMessages(); messageCounter ++){
 						removed = removePrivateSender(event.target.parent.exposeSenderID(messageCounter));
 						if (removed) {
-							ExternalInterface.call("clearblink");
 							messageCounter = event.target.parent.exposeNumMessages() + 1;
 						}
 					}
