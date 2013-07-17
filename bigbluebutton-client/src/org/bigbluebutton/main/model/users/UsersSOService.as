@@ -32,7 +32,7 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.main.events.ParticipantJoinEvent;
 	import org.bigbluebutton.main.events.PresenterStatusEvent;
-	import org.bigbluebutton.main.events.NewGuestEvent;
+	import org.bigbluebutton.main.events.AddGuestEvent;
 	import org.bigbluebutton.main.events.RemoveGuestRequestEvent;
 	import org.bigbluebutton.main.events.ModeratorRespEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
@@ -288,7 +288,7 @@ package org.bigbluebutton.main.model.users {
 		//Callback from server	
 		public function guestEntrance(userid:Number, name:String):void {
 			if(UserManager.getInstance().getConference().amIModerator() && UserManager.getInstance().getConference().amIWaitForModerator() == false) {
-				var e:NewGuestEvent = new NewGuestEvent(NewGuestEvent.NEW_GUEST_EVENT);
+				var e:AddGuestEvent = new AddGuestEvent();
 				e.userid = userid;
 				e.name = name;				
 				var dispatcher:Dispatcher = new Dispatcher();

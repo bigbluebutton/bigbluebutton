@@ -37,17 +37,16 @@
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.ResponseModeratorEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
+			import org.bigbluebutton.main.events.RemoveGuestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import mx.containers.HBox;
 			import mx.controls.Button;
 			import mx.controls.Spacer;
 			import org.bigbluebutton.main.events.BBBEvent;
 			
-			private var guestWindowMap:Object = new Object();
 			private var guestButtons:Object = new Object();
-			[Bindable] private var numberOfGuests:Number = 0;
+			private var numberOfGuests:Number = 0;
 			private var dispatcher:Dispatcher = new Dispatcher();
 
 			public function init():void {
@@ -55,19 +54,20 @@
 				//this.isPopUp = false;
 			}
 
-			public function addGuest(userid:Number, username:String):void {
-				numberOfGuests++;
-				guestWindowMap[userid] = username;
-
-				var guestItem:GuestItem = new GuestItem();
-				guestItem.setUser(username, userid);
-				guestListBox.addChild(guestItem);
-				guestButtons[userid] = guestItem;
-
-				// ideally we would like to control if the view is displayed or not adding or removing the popup, not using the visible property
+			public refreshGuestView(listOfGuests:Object):void {
+				for (var key:String in listOfGuests) {
+				    var userid:Number = new Number(key);
+				    if(guestButtons[userid] == null) {
+				    	var guestItem:GuestItem = new GuestItem();
+						guestItem.setUser(username, userid);
+						guestListBox.addChild(guestItem);
+						guestButtons[userid] = guestItem;
+						numberOfGuests++;
+				    }
+				}
 				this.visible = true;
 			}
-
+			
 			public function sendResponseToAllGuests(resp:Boolean):void {
 				removeAllGuests();
 				var respCommand:ResponseModeratorEvent = new ResponseModeratorEvent(ResponseModeratorEvent.RESPONSE_ALL);
@@ -83,7 +83,7 @@
 					} else {
 						event.payload['guestPolicy'] = "ALWAYS_DENY";
 					}
-					dispatchEvent(event);
+					dispatcher.dispatchEvent(event);
 				}
 				sendResponseToAllGuests(resp);
 			}
@@ -97,27 +97,23 @@
 			}
 	
 			public function removeAllGuests():void {
-				numberOfGuests = 0;
+				var removeGuestEvent:RemoveGuestEvent = new RemoveGuestEvent(RemoveGuestEvent.REMOVE_ALL):
+				dispatcher.dispatchEvent(removeGuestEvent);
 
-				for (var key:String in guestWindowMap) {
-				    var userid:Number = new Number(key);
-				    guestListBox.removeChild(guestButtons[userid]);
-				}
-				guestWindowMap = new Object();
-				guestButtons = new Object();
-				close();
+				closeWindow();
 			}
 		
 			public function remove(userid:Number):void {
-				if (guestWindowMap[userid] != null) {
-					numberOfGuests--;
-				
-					delete guestWindowMap[userid];
+				if (guestButtons[userid] != null) {
 					guestListBox.removeChild(guestButtons[userid]);
 					delete guestButtons[userid];
 
+					var removeGuestEvent:RemoveGuestEvent = new RemoveGuestEvent():
+					removeGuestEvent.userid = userid;
+					dispatcher.dispatchEvent(removeGuestEvent);
+
 					if (!hasGuest()) {
-						close();
+						closeWindow();
 					}
 				}
 			}
@@ -126,14 +122,10 @@
 				return numberOfGuests > 0;
 			}
 
-			public function removeAll():void {
-				close();
-				PopUpManager.removePopUp(this);
-			}
-
-			public function close():void {
-				rememberCheckBox.selected = false;
+			public function closeWindow():void {
 				this.visible = false;
+				PopUpManager.removePopUp(this);
+				close();
 			}
 			
 			private function onModeratorResponse(event:ResponseModeratorEvent):void {

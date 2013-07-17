@@ -45,15 +45,16 @@
 	<mate:Listener type="{RemoveGuestRequestEvent.GUEST_EVENT}" method="removeGuestWindow" />
 	<mate:Listener type="SHOW_MIC_SETTINGS" method="showMicSettings"  />
 	<mate:Listener type="SHOW_BBB_SETTINGS" method="showBBBSettings"  />
-	<mate:Listener type="{NewGuestEvent.NEW_GUEST_EVENT}" method="addNewGuest" />
 	<mate:Listener type="{ModeratorRespEvent.GUEST_ALLOWED}" method="guestAllowed" />
 	<mate:Listener type="{BBBEvent.RETRIEVE_GUEST_POLICY}" method="setGuestPolicy"/>
+	<mate:Listener type="{RefreshGuestEvent}" method="refreshGuestView"
 	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.events.MouseEvent;
+			import flash.events.Event;
 			
 			import flexlib.mdi.containers.MDIWindow;
 			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
@@ -82,12 +83,12 @@
 			import org.bigbluebutton.main.events.PortTestEvent;
 			import org.bigbluebutton.main.events.RecordStatusEvent;
 			import org.bigbluebutton.main.events.WaitModeratorEvent;
-			import org.bigbluebutton.main.events.NewGuestEvent;
 			import org.bigbluebutton.main.events.RemoveGuestRequestEvent;
 			import org.bigbluebutton.main.events.ModeratorRespEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.main.model.Guest;
+			import org.bigbluebutton.main.events.RefreshGuestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.util.logging.Logger;
 			import org.bigbluebutton.common.events.SettingsComponentEvent;
@@ -144,15 +145,12 @@
 			}
 
 			private function setGuestPolicy(event:BBBEvent):void {
-				LogUtil.debug("INICIALIZANDO GUEST_POLICY " + event.payload.guestPolicy);
 				guestPolicy = event.payload.guestPolicy;
 				if(guestManagement == null) {
 					LogUtil.debug("ADD Guest Event");
 					guestManagement = new GuestManagement();
 					guestManagement.setGuestPolicy(guestPolicy);
 					guestManagement.addToSettings();
-					//Add event to init bbbsettings
-					
 				}
 			}
 			
@@ -212,17 +210,22 @@
 					/* Do something specific here if we switched to normal mode. */
 				}
 			}
-				
-			private function addNewGuest(evt:NewGuestEvent):void {
-				guest.addGuest(evt.userid, evt.name);
-				//if(guestWindow == null) {
-				//	guestWindow = PopUpManager.createPopUp( mdiCanvas, GuestWindow, false) as GuestWindow;
-				//	guestWindow.x = width - 400;
-				//	guestWindow.y = 20;
-				//}
-				//guestWindow.addGuest(evt.userid, evt.name);
-				
+
+			private function closeGuestWindow(e:Event) {
+				LogUtil.debug("CLOSE GUEST WINDOW");
+				guestWindow = null;
 			}
+				
+			private function refreshGuestView(evt:RefreshGuestEvent):void {
+				if(guestWindow == null) {
+					guestWindow = PopUpManager.createPopUp( mdiCanvas, GuestWindow, false) as GuestWindow;
+					guestWindow.addEventListener(Event.CLOSE, closeGuestWindow);
+					guestWindow.x = width - 400;
+					guestWindow.y = 20;
+				}
+				guestWindow.refreshGuestView(evt.listOfGuests);
+			}
+
 			public function removeGuestWindow(evt:RemoveGuestRequestEvent):void {
 				if(guestWindow != null)
 					guestWindow.remove(evt.userid);

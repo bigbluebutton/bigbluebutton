@@ -20,18 +20,11 @@
 package org.bigbluebutton.main.model
 {
 
-	import com.asfusion.mate.events.Dispatcher;
-
-
 	public class Guest
 	{
 		private var listOfGuests:Object = new Object();
 		private var numberOfGuests = 0;
 		private var dispatcher;
-
-		function Guest(dispatcher:Dispatcher) {
-			this.dispatcher = dispatcher;
-		}
 
 		public function hasGuest():Boolean {
 			return numberOfGuests > 0;
@@ -45,6 +38,10 @@ package org.bigbluebutton.main.model
 			var guest:Object = {userid:userID, username:userName};
 			listOfGuests.addItem(guest);
 			numberOfGuests++;
+		}
+
+		public function getGuests():Object {
+			return this.listOfGuests;
 		}
 
 		public function removeAllGuests():void {

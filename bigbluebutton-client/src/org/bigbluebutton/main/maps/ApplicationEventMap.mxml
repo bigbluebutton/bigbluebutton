@@ -31,6 +31,7 @@
 		<ObjectBuilder generator="{ModulesProxy}" cache="global" />
 		<ObjectBuilder generator="{UserService}" cache="global" />
 		<ObjectBuilder generator="{ConfigManager}" cache="global" />
+		<ObjectBuilder generator="{GuestManager}" cache="global" />
 	</EventHandlers>
 	
 	<EventHandlers type="{PortTestEvent.TEST_RTMP}" >
@@ -38,7 +39,13 @@
 	</EventHandlers>
 
 
-	
+	<EventHandlers type="{AddGuestEvent.ADD_GUEST}" >
+		<MethodInvoker generator="{GuestManager}" method="addNewGuest" arguments="{event}" />
+	</EventHandlers>
+
+	<EventHandlers type="{ResponseModeratorEvent.RESPONSE}" >
+		<MethodInvoker generator="{GuestManager}" method="removeGuest" arguments="{event.userid}" />
+	</EventHandlers>
 
 
 	<EventHandlers type="{PortTestEvent.PORT_TEST_SUCCESS}" >
@@ -161,6 +168,7 @@
 		import org.bigbluebutton.main.events.PortTestEvent;
 		import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 		import org.bigbluebutton.main.events.UserServicesEvent;
+		import org.bigbluebutton.main.model.GuestManager;
 		import org.bigbluebutton.main.model.PortTestProxy;
 		import org.bigbluebutton.main.model.modules.ModulesProxy;
 		import org.bigbluebutton.main.model.users.UserService;
@@ -172,6 +180,8 @@
 		import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 		import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;	
 		import org.bigbluebutton.main.events.WaitModeratorEvent;	
+		import org.bigbluebutton.main.events.ResponseModeratorEvent;
+		import org.bigbluebutton.main.events.AddGuestEvent;
 		import org.bigbluebutton.main.events.ResponseModeratorEvent;
 
 	]]>
