@@ -229,13 +229,13 @@ public class RedisMessagingService implements MessagingService {
 			log.debug("Message: " + message);
 			
 			Gson gson = new Gson();
-			HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
 			
 //			for (String key: map.keySet()) {
 //				log.debug("rx: {} = {}", key, map.get(key));
 //			}
 			
 			if(channel.equalsIgnoreCase(MessagingConstants.SYSTEM_CHANNEL)){
+				HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
 				String messageId = map.get("messageID");
 				log.debug("*** Message {}", messageId);
 
@@ -253,6 +253,7 @@ public class RedisMessagingService implements MessagingService {
 				}
 			}
 			else if(channel.equalsIgnoreCase(MessagingConstants.PARTICIPANTS_CHANNEL)){
+				HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
 				String meetingId = map.get("meetingID");
 				String messageId = map.get("messageID");
 				if(MessagingConstants.USER_JOINED_EVENT.equalsIgnoreCase(messageId)){
