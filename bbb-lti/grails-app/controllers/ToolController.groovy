@@ -59,7 +59,7 @@ class ToolController {
                 def consumer = ltiService.getConsumer(params.get(Parameter.CONSUMER_ID))
                 if (consumer != null) {
                     log.debug "Found consumer with key " + consumer.get("key") //+ " and sharedSecret " + consumer.get("secret")
-                    if (checkValidSignature(params.get(REQUEST_METHOD), ltiService.retrieveBasicLtiEndpoint(request.isSecure()?"https":"http"), consumer.get("secret"), sanitizedParams, params.get(Parameter.OAUTH_SIGNATURE))) {
+                    if (checkValidSignature(params.get(REQUEST_METHOD), ltiService.endPoint, consumer.get("secret"), sanitizedParams, params.get(Parameter.OAUTH_SIGNATURE))) {
                         log.debug  "The message has a valid signature."
                         
                         if( !"extended".equals(ltiService.mode) ) {
@@ -359,10 +359,8 @@ class ToolController {
         '                             http://www.imsglobal.org/xsd/imslticp_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticp_v1p0.xsd">' +
         '    <blti:title>ePortfolio</blti:title>' +
         '    <blti:description>Single Sign On into BigBlueButton</blti:description>' +
-        '    <blti:launch_url>' + ltiService.retrieveBasicLtiEndpoint("http") + '</blti:launch_url>' +
-        '    <blti:secure_launch_url>' + ltiService.retrieveBasicLtiEndpoint("https") + '</blti:secure_launch_url>' +
-        '    <blti:icon>' + ltiService.retrieveEndpoint("http") + 'images/icon.ico</blti:icon>' +
-        '    <blti:secure_icon>' + ltiService.retrieveEndpoint("http") + 'images/icon.ico</blti:secure_icon>' +
+        '    <blti:launch_url>' + ltiService.retrieveBasicLtiEndpoint() + '</blti:launch_url>' +
+        '    <blti:icon>' + ltiService.retrieveIconEndpoint() + '</blti:icon>' +
         '    <blti:vendor>' +
         '        <lticp:code>BBB</lticp:code>' +
         '        <lticp:name>BigBlueButton</lticp:name>' +
