@@ -275,18 +275,27 @@ module BigBlueButton
     end
     
     # Trim audio file
-    def self.trim_audio_file(file, length)
-      audio_length = determine_length_of_audio_from_file(file)
+    def self.trim_audio_file(input_file, output_file, start_in_millis, length_in_millis)
+      audio_length = determine_length_of_audio_from_file(input_file)
       if (audio_length == 0)
-        BigBlueButton.logger.error("Can't trim #{file} as it's length is zero\n")
+        BigBlueButton.logger.error("Can't trim #{input_file}: file lenght is zero\n")
+        return
+      elsif (start_in_millis + length_in_millis > audio_length)
+        BigBlueButton.logger.error("Can't trim #{input_file}: file length exceeded\n")
         return
       else
-        temp_wav_file = "#{file}.temp.wav"
-        command = "sox #{file} #{temp_wav_file} trim 0 #{audio_length - length}"
-        BigBlueButton.logger.info("Task: Trimming audio")
+        temp_wav_file = output_file.sub(/(.+)\.wav/, '\1-temp.wav')
+        start_in_seconds = start_in_millis.to_f/1000
+        length_in_seconds = length_in_millis.to_f/1000
+
+        command = "sox #{input_file} #{temp_wav_file} trim #{start_in_seconds} #{length_in_seconds}"
+        BigBlueButton.logger.info("Task: Trimming audio: start = #{start_in_seconds}s, duration = #{length_in_seconds}s")
         BigBlueButton.execute(command)
-        File.delete(file)
-        File.rename(temp_wav_file, file)
+
+        if(output_file.eql?(input_file))
+          File.delete(input_file)
+        end
+        File.rename(temp_wav_file, output_file)
       end
     end
     
@@ -302,7 +311,7 @@ module BigBlueButton
       # recording. This prevents us from generating a veeeerrryyy looonnngggg silence maxing disk space.
       if (length_of_gap < 3600000)
         if (length_of_gap < 0)
-            trim_audio_file(events[0].file, length_of_gap.abs)
+            trim_audio_file(events[0].file, events[0].file, 0, events[0].audio_length - length_of_gap.abs)
         else
           paddings << create_gap_audio_event(length_of_gap, BigBlueButton::Events.first_event_timestamp(events_xml), events[0].start_event_timestamp.to_i - 1)
         end
@@ -322,7 +331,7 @@ module BigBlueButton
           # recording. This prevents us from generating a veeeerrryyy looonnngggg silence maxing disk space.
           if (length_of_gap < 3600000)
             if (length_of_gap < 0)
-              trim_audio_file(ar_prev.file, length_of_gap.abs)
+              trim_audio_file(ar_prev.file, ar_prev.file, 0, ar_prev.audio_length - length_of_gap.abs)
             else
               paddings << create_gap_audio_event(length_of_gap, ar_prev.stop_event_timestamp.to_i + 1, ar_next.start_event_timestamp.to_i - 1)
             end
@@ -339,7 +348,7 @@ module BigBlueButton
       # recording. This prevents us from generating a veeeerrryyy looonnngggg silence maxing disk space.
       if (length_of_gap < 3600000)
         if (length_of_gap < 0)
-            trim_audio_file(events[-1].file, length_of_gap.abs)
+            trim_audio_file(events[-1].file, events[-1].file, 0, events[-1].audio_length - length_of_gap.abs)
         else
           paddings << create_gap_audio_event(length_of_gap, events[-1].stop_event_timestamp.to_i + 1, BigBlueButton::Events.last_event_timestamp(events_xml))
         end
