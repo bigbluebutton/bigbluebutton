@@ -26,11 +26,30 @@ class LtiService {
 
     boolean transactional = false
     
-    def endPoint = "http://localhost/lti/tool.xml"
+    //def endPoint = "http://localhost/lti/tool.xml"
+    def endPoint = "localhost"
+    def basicLtiEndpoint = "tool.xml"
+    
     def consumers = "demo:welcome"
     def mode = "simple"
     Map<String, String> consumerMap
     
+    def retrieveEndpoint() {
+        return retrieveEndpoint("http")
+    }
+
+    def retrieveEndpoint(protocol) {
+        return protocol + "://" + endPoint + "/lti/"
+    }
+        
+    def retrieveBasicLtiEndpoint() {
+        return retrieveBasicLtiEndpoint("http")
+    }
+    
+    def retrieveBasicLtiEndpoint(protocol) {
+        return protocol + "://" + endPoint + "/lti/" + basicLtiEndpoint
+    }
+
     private Map<String, String> getConsumer(consumerId) {
         Map<String, String> consumer = null
         
