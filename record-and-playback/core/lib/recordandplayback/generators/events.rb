@@ -152,14 +152,66 @@ module BigBlueButton
       stop_events.sort {|a, b| a[:stop_timestamp] <=> b[:stop_timestamp]}
     end
 
-	def self.linkify( text )
-	  generic_URL_regexp = Regexp.new( '(^|[\n ])([\w]+?://[\w]+[^ \"\n\r\t<]*)', Regexp::MULTILINE | Regexp::IGNORECASE )
-	  starts_with_www_regexp = Regexp.new( '(^|[\n ])((www)\.[^ \"\t\n\r<]*)', Regexp::MULTILINE | Regexp::IGNORECASE )
-	  
-	  s = text.to_s
-	  s.gsub!( generic_URL_regexp, '\1<a href="\2">\2</a>' )
-	  s.gsub!( starts_with_www_regexp, '\1<a href="http://\2">\2</a>' )
-	  s
-	end
+    def self.linkify( text )
+      generic_URL_regexp = Regexp.new( '(^|[\n ])([\w]+?://[\w]+[^ \"\n\r\t<]*)', Regexp::MULTILINE | Regexp::IGNORECASE )
+      starts_with_www_regexp = Regexp.new( '(^|[\n ])((www)\.[^ \"\t\n\r<]*)', Regexp::MULTILINE | Regexp::IGNORECASE )
+      
+      s = text.to_s
+      s.gsub!( generic_URL_regexp, '\1<a href="\2">\2</a>' )
+      s.gsub!( starts_with_www_regexp, '\1<a href="http://\2">\2</a>' )
+      s
+    end
+
+    #		
+    # Get events when the moderator wants the recording to start or stop
+    #
+    def self.get_start_and_stop_rec_events(events_xml)
+      BigBlueButton.logger.info "Getting start and stop rec button events"
+      rec_events = []
+      doc = Nokogiri::XML(File.open(events_xml))
+
+      #Comment this code below in production
+      a=doc.xpath("//event[@eventname='PublicChatEvent']")
+      BigBlueButton.logger.info "Extracting PublicChatEvent events " + a.size.to_s
+      a.each do |event|
+    	if not event.xpath("message[text()='START' or text()='STOP']").empty?
+    		  #rec_events << a             
+    		  event.attributes["eventname"].value ='RecordStatusEvent'
+    		  BigBlueButton.logger.info event.text()
+    	end
+      end
+    
+      BigBlueButton.logger.info ("Finished extracting record events")
+      #Comment this code above in production
+
+      doc.xpath("//event[@eventname='RecordStatusEvent']").each do |event|
+    	s = {:start_timestamp => event['timestamp'].to_i}
+    	rec_events << s
+      end
+      if rec_events.size.odd?
+    	#User forgot to click Record Button to stop the recording
+    	rec_events << { :start_timestamp => BigBlueButton::Events.last_event_timestamp(events_xml) }
+      end      
+    
+      BigBlueButton.logger.info ("Finished processing record events")
+    
+      rec_events.sort {|a, b| a[:start_timestamp] <=> b[:start_timestamp]}  
+    end
+    
+    #
+    # Match recording start and stop events
+    #
+    
+    def self.match_start_and_stop_rec_events(rec_events)
+      BigBlueButton.logger.info ("Matching record events")
+      matched_rec_events = []
+      rec_events.each_with_index { |evt,i|
+    	if i.even?
+    		   evt[:stop_timestamp] = rec_events[i+1][:start_timestamp]
+    		   matched_rec_events << evt
+    	end       
+      }
+      matched_rec_events     
+    end
   end
 end
