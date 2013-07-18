@@ -12,6 +12,7 @@
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.modules.polling.events.PollEvent;
       import org.bigbluebutton.modules.polling.model.PollingViewModel;
+      import org.bigbluebutton.modules.polling.events.PollResultWindowEvent;
       
       [Bindable] public var viewModel:PollingViewModel;
       [Bindable] public var pollID:String;
@@ -33,7 +34,12 @@
       }
       
       private function stop():void {
+        btnStop.visible = false;
         dispatchEvent(new PollEvent(PollEvent.STOP_POLL, pollID));		
+      }
+
+      private function close():void {
+        dispatchEvent(new PollResultWindowEvent()); 
       }
       
     ]]>
@@ -48,9 +54,11 @@
     <mx:Spacer height="5"/>
     <mx:HBox height="5%" width="100%" horizontalAlign="right">
       <mx:Spacer width="5"/>
-      <mx:Label text="Time remaining:" fontSize="12" styleName="micSettingsWindowTitleStyle"/>
+      <mx:Label text="Time remaining:" fontSize="12" styleName="micSettingsWindowTitleStyle" visible="false" />
       <mx:Spacer width="100%"/>
-      <mx:Button label="Stop" visible="{_showStopButton}" click="stop()"/>
+      <mx:Button id="btnStop" label="Stop Polling" visible="{_showStopButton}" click="stop()"/>
+      <mx:Spacer width="5"/>
+      <mx:Button id="btnClose" label="Close" click="close()"/>
       <mx:Spacer width="5"/>
     </mx:HBox>  
   </mx:VBox>

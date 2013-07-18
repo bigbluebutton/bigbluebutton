@@ -7,6 +7,7 @@
       import org.bigbluebutton.modules.polling.events.TakePollWindowEvent;
       import org.bigbluebutton.modules.polling.events.PollEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
+      import org.bigbluebutton.modules.polling.events.PollMainWindowEvent;
       
       private static const LOG:String = "CreatedPollsRenderer - ";
       
@@ -15,7 +16,10 @@
       private function startPoll():void {
         trace(LOG + "::startPoll() " + data.id);   
         var event:PollEvent = new PollEvent(PollEvent.START_POLL, data.id);
-        globalDispatch.dispatchEvent(event);         
+        globalDispatch.dispatchEvent(event);     
+
+        //Close main window because we are just going to focus on the polling
+        globalDispatch.dispatchEvent(new PollMainWindowEvent(PollMainWindowEvent.CLOSE_WINDOW));    
       }
       
       private function deletePoll():void {
