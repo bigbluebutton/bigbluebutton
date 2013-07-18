@@ -42,8 +42,14 @@ module BigBlueButton
         else
           # Substitute the original file location with the archive location
           ae.file = ae.file.sub(/.+\//, "#{audio_dir}/")
+          if (ae.trimmed)
+            output_file = ae.file.sub(/(.+)\.wav/, '\1-' + ae.start_event_timestamp + '.wav')
+
+            BigBlueButton::AudioEvents.trim_audio_file(ae.file, output_file,
+                                                                  ae.offset, ae.audio_length)
+            ae.file = output_file
+          end
         end
-        
         audio_files << ae.file
       end
       

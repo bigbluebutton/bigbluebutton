@@ -155,6 +155,10 @@ module BigBlueButton
         if not audio_event.matched
             determine_start_stop_timestamps_for_unmatched_event!(audio_event)
         end
+
+        if audio_event.audio_length.nil?
+          audio_event.audio_length = determine_length_of_audio_from_file(audio_event.file)
+        end
       end
 
       if audio_events.length > 0
@@ -171,7 +175,30 @@ module BigBlueButton
 
         audio_paddings = generate_audio_paddings(unique_events, events_xml)
         unique_events.concat(audio_paddings)
-        return unique_events.sort! {|a,b| a.start_event_timestamp.to_i <=> b.start_event_timestamp.to_i}
+        unique_events.sort! {|a,b| a.start_event_timestamp.to_i <=> b.start_event_timestamp.to_i}
+
+        #Slice audio events list
+        record_events = BigBlueButton::Events.match_start_and_stop_rec_events(
+                                 BigBlueButton::Events.get_start_and_stop_rec_events(events_xml))
+
+        BigBlueButton.logger.debug ("Audio Events")
+        unique_events.each do |evt|
+          BigBlueButton.logger.info (evt)
+        end
+
+        BigBlueButton.logger.debug ("Record Events")
+        record_events.each do |evt|
+          BigBlueButton.logger.debug ("[start_event = #{evt[:start_timestamp]}, stop_event = #{evt[:stop_timestamp]}]")
+        end
+
+        sliced_audio_events = slice_audio_events(unique_events, record_events)
+
+        BigBlueButton.logger.debug ("Sliced Events")
+        sliced_audio_events.each do |evt|
+          BigBlueButton.logger.debug (evt)
+        end
+
+        return sliced_audio_events
       else
         first_event = BigBlueButton::Events.first_event_timestamp(events_xml).to_i
         last_event = BigBlueButton::Events.last_event_timestamp(events_xml).to_i
@@ -360,16 +387,15 @@ module BigBlueButton
 
       # Check if the silence is greater that 10 minutes long. If it is, assume something went wrong with the
       # recording. This prevents us from generating a veeeerrryyy looonnngggg silence maxing disk space.      
-#
-# DO NOT pad the end of the recording for now. Running issues when audio file is longer than the last event timestamp.
-#      length_of_gap = BigBlueButton::Events.last_event_timestamp(events_xml).to_i - events[-1].stop_event_timestamp.to_i
-#      if ((length_of_gap > 0) and (length_of_gap < 600000))
-#        paddings << create_gap_audio_event(length_of_gap, events[-1].stop_event_timestamp.to_i + 1, BigBlueButton::Events.last_event_timestamp(events_xml))
-#      else
-#        BigBlueButton.logger.error("Length of silence is too long #{length_of_gap}.\n")
-#        raise Exception,  "Length of silence is too long #{length_of_gap}."  
-#      end
-      
+      #
+      # DO NOT pad the end of the recording for now. Running issues when audio file is longer than the last event timestamp.
+      #length_of_gap = BigBlueButton::Events.last_event_timestamp(events_xml).to_i - events[-1].stop_event_timestamp.to_i
+      #if ((length_of_gap > 0) and (length_of_gap < 600000))
+      #  paddings << create_gap_audio_event(length_of_gap, events[-1].stop_event_timestamp.to_i + 1, BigBlueButton::Events.last_event_timestamp(events_xml))
+      #else
+      #  BigBlueButton.logger.error("Length of silence is too long #{length_of_gap}.\n")
+      #  raise Exception,  "Length of silence is too long #{length_of_gap}."  
+      #end
       paddings
     end
     
@@ -381,6 +407,55 @@ module BigBlueButton
       end
       File.exist?(recording_event.file)  
     end
+
+    #
+    # Slice the audio events according to recording events
+    #
+    def self.slice_audio_events(audio_events, rec_events)
+      BigBlueButton.logger.info("Task: Slicing audio events")
+      sliced_events = []
+      rec_events.each do |re|
+        audio_events.each do |ae|
+          # Deep copy using serialization. Review this later.
+          ae_copy = Marshal.load(Marshal.dump(ae))
+          ae_copy.offset = 0
+
+          # Start recording mark cuts the audio event
+          if (re[:start_timestamp] > ae.start_event_timestamp.to_i and re[:start_timestamp] < ae.stop_event_timestamp.to_i)
+            ae_copy.offset = re[:start_timestamp] - ae_copy.start_event_timestamp.to_i
+            if ae_copy.padding
+              ae_copy.length_of_gap -= ae_copy.offset
+            else
+              ae_copy.audio_length -= ae_copy.offset
+            end
+            ae_copy.start_event_timestamp = re[:start_timestamp].to_s
+            ae_copy.trimmed = true
+          end
+
+          # Stop recording mark cuts the audio event
+          if (re[:stop_timestamp] > ae.start_event_timestamp.to_i and re[:stop_timestamp] < ae.stop_event_timestamp.to_i)
+            if ae_copy.padding
+              ae_copy.length_of_gap -= ae_copy.stop_event_timestamp.to_i - re[:stop_timestamp]
+            else
+              ae_copy.audio_length -= ae_copy.stop_event_timestamp.to_i - re[:stop_timestamp]
+            end
+            ae_copy.stop_event_timestamp = re[:stop_timestamp].to_s
+            ae_copy.trimmed = true
+          end
+
+          if (ae_copy.trimmed)
+            sliced_events << ae_copy
+          end
+
+          # Audio event is between start/stop recording marks
+          if (re[:start_timestamp] <= ae.start_event_timestamp.to_i and re[:stop_timestamp] >= ae.stop_event_timestamp.to_i)
+            sliced_events << ae_copy
+          end
+        end
+      end
+      return sliced_events
+    end
+
   end
   
   class AudioRecordingEvent
@@ -394,7 +469,13 @@ module BigBlueButton
     attr_accessor :matched      # True if the event has matching start/stop events
     attr_accessor :audio_length
     attr_accessor :padding, :length_of_gap # If this is padding and the length of it
+    attr_accessor :trimmed      # True if audio file must be trimmed to match the event
+    attr_accessor :offset       # Offset used when trimming the audio file
      
+    #def to_s
+    #  "[start_event=#{start_event_timestamp}, stop_event=#{stop_event_timestamp}, padding=#{padding}]"
+    #end
+
     def to_s
       "[startEvent=#{start_event_timestamp}, startRecord=#{start_record_timestamp}, stopRecord=#{stop_record_timestamp}, stopEvent=#{stop_event_timestamp}, " +
       "brige=#{bridge}, file=#{file}, exist=#{file_exist}, padding=#{padding}]\n"
@@ -405,6 +486,5 @@ module BigBlueButton
       (file == other.file) and
       (bridge == other.bridge)
     end
-    
   end
 end
