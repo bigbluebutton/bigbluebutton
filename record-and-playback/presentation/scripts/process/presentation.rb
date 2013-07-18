@@ -89,7 +89,7 @@ if not FileTest.directory?(target_dir)
         pdf_page = "#{pres_dir}/slide-#{page}.pdf"
         BigBlueButton::Presentation.extract_page_from_pdf(page, pres_pdf, pdf_page)
         #BigBlueButton::Presentation.convert_pdf_to_png(pdf_page, "#{target_pres_dir}/slide-#{page}.png")
-        command = "convert -density 300x300 -resize 1600x1200 -quality 90 +dither -depth 8 -colors 256 #{pdf_page} #{target_pres_dir}/slide-#{page}.png"
+        command = "convert -density 300x300 #{pdf_page} -resize 1600x1200 -background white -flatten -quality 90 +dither -depth 8 -colors 256 #{target_pres_dir}/slide-#{page}.png"
         BigBlueButton.execute(command)
         if File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt") then
           FileUtils.cp("#{pres_dir}/textfiles/slide-#{page}.txt", "#{target_pres_dir}/textfiles")
@@ -98,7 +98,7 @@ if not FileTest.directory?(target_dir)
     else
       ext = File.extname("#{images[0]}")
       #BigBlueButton::Presentation.convert_image_to_png(images[0],"#{target_pres_dir}/slide-1.png")
-      command="convert -resize 1600x1200 #{images[0]} #{target_pres_dir}/slide-1.png"
+      command="convert #{images[0]} -resize 1600x1200 -background white -flatten #{target_pres_dir}/slide-1.png"
       BigBlueButton.execute(command)
     end
   
