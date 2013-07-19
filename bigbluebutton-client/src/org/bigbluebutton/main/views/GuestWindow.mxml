@@ -27,7 +27,7 @@
 
 	<mate:Listener type="{BBBEvent.ACCEPT_ALL_WAITING_GUESTS}" method="acceptAllWaitingGuests" />
 	<mate:Listener type="{BBBEvent.DENY_ALL_WAITING_GUESTS}" method="denyAllWaitingGuests" />
-	<mate:Listener type="{ResponseModeratorEvent.RESPONSE}" method="onModeratorResponse" />
+	<mate:Listener type="{RemoveGuestFromViewEvent.REMOVE_GUEST}" receive="{remove(event.userid)}" />
 
 	<mx:Script>
 		<![CDATA[
@@ -39,14 +39,17 @@
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.RemoveGuestEvent;
+            import org.bigbluebutton.main.events.ResponseModeratorEvent;
+            import org.bigbluebutton.main.events.RemoveGuestFromViewEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import mx.containers.HBox;
 			import mx.controls.Button;
 			import mx.controls.Spacer;
+			import mx.events.CloseEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
 			
 			private var guestButtons:Object = new Object();
-			private var numberOfGuests:Number = 0;
+			[Bindable] private var numberOfGuests:Number = 0;
 			private var dispatcher:Dispatcher = new Dispatcher();
 
 			public function init():void {
@@ -54,12 +57,12 @@
 				//this.isPopUp = false;
 			}
 
-			public refreshGuestView(listOfGuests:Object):void {
+			public function refreshGuestView(listOfGuests:Object):void {
 				for (var key:String in listOfGuests) {
 				    var userid:Number = new Number(key);
 				    if(guestButtons[userid] == null) {
 				    	var guestItem:GuestItem = new GuestItem();
-						guestItem.setUser(username, userid);
+						guestItem.setUser(listOfGuests[userid], userid);
 						guestListBox.addChild(guestItem);
 						guestButtons[userid] = guestItem;
 						numberOfGuests++;
@@ -97,7 +100,7 @@
 			}
 	
 			public function removeAllGuests():void {
-				var removeGuestEvent:RemoveGuestEvent = new RemoveGuestEvent(RemoveGuestEvent.REMOVE_ALL):
+				var removeGuestEvent:RemoveGuestEvent = new RemoveGuestEvent(RemoveGuestEvent.REMOVE_ALL);
 				dispatcher.dispatchEvent(removeGuestEvent);
 
 				closeWindow();
@@ -108,7 +111,7 @@
 					guestListBox.removeChild(guestButtons[userid]);
 					delete guestButtons[userid];
 
-					var removeGuestEvent:RemoveGuestEvent = new RemoveGuestEvent():
+					var removeGuestEvent:RemoveGuestEvent = new RemoveGuestEvent();
 					removeGuestEvent.userid = userid;
 					dispatcher.dispatchEvent(removeGuestEvent);
 
@@ -125,13 +128,9 @@
 			public function closeWindow():void {
 				this.visible = false;
 				PopUpManager.removePopUp(this);
-				close();
+				dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
 			}
 			
-			private function onModeratorResponse(event:ResponseModeratorEvent):void {
-				remove(event.userid);
-			}
-
 		]]>
 	</mx:Script>
 	<mx:Label text="{numberOfGuests > 1? ResourceUtil.getInstance().getString('bbb.guests.message.plural', [String(numberOfGuests)]): ResourceUtil.getInstance().getString('bbb.guests.message.singular', [String(numberOfGuests)])}"/>

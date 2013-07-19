@@ -43,11 +43,6 @@
 		<MethodInvoker generator="{GuestManager}" method="addNewGuest" arguments="{event}" />
 	</EventHandlers>
 
-	<EventHandlers type="{ResponseModeratorEvent.RESPONSE}" >
-		<MethodInvoker generator="{GuestManager}" method="removeGuest" arguments="{event.userid}" />
-	</EventHandlers>
-
-
 	<EventHandlers type="{PortTestEvent.PORT_TEST_SUCCESS}" >
 		<MethodInvoker generator="{ModulesProxy}" method="portTestSuccess" arguments="{event.protocol}" />
 	</EventHandlers>
@@ -93,8 +88,12 @@
 
 	<EventHandlers type="{ResponseModeratorEvent.RESPONSE}" >
 		<MethodInvoker generator="{UserService}" method="responseToGuest" arguments="{event}" />
+		<MethodInvoker generator="{GuestManager}" method="removeGuest" arguments="{event.userid}" />
 	</EventHandlers>
 
+	<EventHandlers type="{RemoveGuestRequestEvent.GUEST_EVENT}" >
+		<MethodInvoker generator="{GuestManager}" method="removeGuest" arguments="{event.userid}" />
+	</EventHandlers>
 
 	<EventHandlers type="{ResponseModeratorEvent.RESPONSE_ALL}" >
 		<MethodInvoker generator="{UserService}" method="responseToAllGuests" arguments="{event}" />
@@ -183,6 +182,7 @@
 		import org.bigbluebutton.main.events.ResponseModeratorEvent;
 		import org.bigbluebutton.main.events.AddGuestEvent;
 		import org.bigbluebutton.main.events.ResponseModeratorEvent;
+		import org.bigbluebutton.main.events.RemoveGuestRequestEvent;
 
 	]]>
 	</mx:Script>

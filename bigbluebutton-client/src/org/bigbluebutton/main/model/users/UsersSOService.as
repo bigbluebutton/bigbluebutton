@@ -409,11 +409,11 @@ package org.bigbluebutton.main.model.users {
 					for(i = 0; i < users.length; i++) {
 						if(users[i] != "") {
 							var pairSplited:Array = users[i].split("!2");
-							var newGuestEvent:NewGuestEvent = new NewGuestEvent(NewGuestEvent.NEW_GUEST_EVENT);
-							newGuestEvent.userid = new Number(pairSplited[0]);
-							newGuestEvent.name = pairSplited[1];
+							var addGuestEvent:AddGuestEvent = new AddGuestEvent(AddGuestEvent.ADD_GUEST);
+							addGuestEvent.userid = new Number(pairSplited[0]);
+							addGuestEvent.name = pairSplited[1];
 							var dispatcher:Dispatcher = new Dispatcher();
-							dispatcher.dispatchEvent(newGuestEvent);
+							dispatcher.dispatchEvent(addGuestEvent);
 						}
 					}
 				}	

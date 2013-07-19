@@ -47,7 +47,7 @@
 	<mate:Listener type="SHOW_BBB_SETTINGS" method="showBBBSettings"  />
 	<mate:Listener type="{ModeratorRespEvent.GUEST_ALLOWED}" method="guestAllowed" />
 	<mate:Listener type="{BBBEvent.RETRIEVE_GUEST_POLICY}" method="setGuestPolicy"/>
-	<mate:Listener type="{RefreshGuestEvent}" method="refreshGuestView"
+	<mate:Listener type="{RefreshGuestEvent}" method="refreshGuestView" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -211,9 +211,8 @@
 				}
 			}
 
-			private function closeGuestWindow(e:Event) {
-				LogUtil.debug("CLOSE GUEST WINDOW");
-				guestWindow = null;
+			private function closeGuestWindow(e:Event):void {
+				guestWindow.closeWindow();
 			}
 				
 			private function refreshGuestView(evt:RefreshGuestEvent):void {
@@ -346,9 +345,9 @@
 				if(waitWindow != null)				
 					waitWindow.removeWindow();
 				
-				if(guestWindow != null)
-					guestWindow.removeAll();
-			
+				if(guestWindow != null) {
+					guestWindow.closeWindow();
+				}
 
 				
 				if (layoutOptions.showLogoutWindow) {

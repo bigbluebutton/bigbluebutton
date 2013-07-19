@@ -23,12 +23,14 @@ package org.bigbluebutton.main.model
 	import com.asfusion.mate.events.Dispatcher;
 	import org.bigbluebutton.main.events.RefreshGuestEvent;
 	import org.bigbluebutton.main.events.AddGuestEvent;
+	import org.bigbluebutton.main.events.RemoveGuestFromViewEvent;
 
 	public class GuestManager
 	{
 		private var guest:Guest;
+		private var dispatcher:Dispatcher;
 
-		function GuestManager(dispatcher:Dispatcher) {
+		function GuestManager() {
 			this.dispatcher = new Dispatcher();
 			this.guest = new Guest();
 		}
@@ -48,7 +50,7 @@ package org.bigbluebutton.main.model
 			guest.removeAllGuests();
 		}
 
-		private function removeGuetFromView(userid:Number):void {
+		private function removeGuestFromView(userid:Number):void {
 			var removeGuestFromViewEvent:RemoveGuestFromViewEvent = new RemoveGuestFromViewEvent();
 			removeGuestFromViewEvent.userid = userid;
 			dispatcher.dispatchEvent(removeGuestFromViewEvent);
@@ -56,7 +58,7 @@ package org.bigbluebutton.main.model
 		
 		public function removeGuest(userid:Number):void {
 			guest.remove(userid);
-			removeGuetFromView(userid);
+			removeGuestFromView(userid);
 		}
 	}
 }

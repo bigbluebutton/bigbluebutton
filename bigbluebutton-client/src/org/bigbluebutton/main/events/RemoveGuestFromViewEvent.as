@@ -20,13 +20,13 @@ package org.bigbluebutton.main.events
 {
 	import flash.events.Event;
 
-	public class RefreshGuestEvent extends Event
+	public class RemoveGuestFromViewEvent extends Event
 	{
-		public static const REFRESH_GUEST_VIEW:String = "RefreshGuestView";
-		
-		public var listOfGuests:Object;
+		public static const REMOVE_GUEST:String = "RemoveGuest";
 
-		public function RefreshGuestEvent(type:String = REFRESH_GUEST_VIEW)
+		public var userid:Number;
+
+		public function RemoveGuestFromViewEvent(type:String = REMOVE_GUEST)
 		{
 			super(type, true, false);
 		}

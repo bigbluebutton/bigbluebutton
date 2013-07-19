@@ -23,8 +23,7 @@ package org.bigbluebutton.main.model
 	public class Guest
 	{
 		private var listOfGuests:Object = new Object();
-		private var numberOfGuests = 0;
-		private var dispatcher;
+		private var numberOfGuests:Number = 0;
 
 		public function hasGuest():Boolean {
 			return numberOfGuests > 0;
@@ -34,9 +33,8 @@ package org.bigbluebutton.main.model
 			return numberOfGuests;
 		}
 
-		public function addGuest(userID:Number, userName:String):void {
-			var guest:Object = {userid:userID, username:userName};
-			listOfGuests.addItem(guest);
+		public function addGuest(userid:Number, username:String):void {
+			listOfGuests[userid] = username;
 			numberOfGuests++;
 		}
 
