@@ -53,7 +53,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<div id="slide" role="region" aria-label="Slide"></div>
 			<div id="slideText" class="visually-hidden" role="region" aria-live="polite" aria-label="Slide Text"></div>
 		</div>
-		<div class="chatcontainer">
+		<div id="chatAndMediaArea">
 			<div id="chat" aria-live="polite" role="region" aria-label="Chat messages"></div>
 			<div id="videoRecordingWrapper" role="region" aria-label="Video">
 <!--
@@ -61,14 +61,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			  This playback requires modern browser, please use FF, Safari, Chrome</video>
 -->			  
 		  	</div>
-		  	<div id="audioRecordingWrapper" role="region" aria-label="Audio">
+	  		<div id="audioRecordingWrapper" role="region" aria-label="Audio">
 <!--
 		  	  <audio id="video">You must use an HTML5 capable browser to view this page.
 			  This playback requires modern browser, please use FF, Safari, Chrome</audio>	
 -->
-		  	</div>
-		</div>
+			</div>
+	  	</div>
 	</div>
+	<!--div id="playbackControls">
+		<div id="autoscrollWrapper">
+			<input id="autoscrollEnabled" type="checkbox" name="autoscrollEnabled" checked="true" aria-label="Toggle autoscroll"/>
+			<label for="autoscrollEnabled">Auto scroll</label>
+		</div>
+	</div-->
 
 	<!--
 	<div id="accInfo">
@@ -77,9 +83,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<div id="countdown" />
 	</div>
 	-->
-	<p id="footer">Recorded with <a href="http://bigbluebutton.org/">BigBlueButton</a></p>
+	<div id="footer">
+                <p>Recorded with <a target="_blank" href="http://bigbluebutton.org/">BigBlueButton</a>. </p>
+                <p>Use <a target="_blank" href="http://mozilla.org/firefox">Mozilla Firefox</a> or
+                   <a target="_blank" href="http://google.com/chrome/">Google Chrome</a> to play this recording.
+                </p>
+        </div>
 <!--	<script src='lib/writing.js'></script> -->
 </body>
 </html>
-
-

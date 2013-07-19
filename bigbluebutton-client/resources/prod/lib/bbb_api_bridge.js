@@ -383,7 +383,39 @@
         swfObj.sendPrivateChatRequest(fontColor, localeLang, message, toUserID);
       }    
     }
-        
+
+    /**
+    * Request to display a presentation.
+    *  presentationID - the presentation to display
+    */     
+    BBB.displayPresentation = function(presentationID) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.displayPresentationRequest(presentationID);
+      }     
+    }
+    
+   /**
+    * Query the list of uploaded presentations.
+    */     
+    BBB.queryListOfPresentations = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.queryListsOfPresentationsRequest();
+      }     
+    }
+
+    /**
+    * Request to delete a presentation.
+    *  presentationID - the presentation to delete
+    */      
+    BBB.deletePresentation = function(presentationID) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.deletePresentationRequest(presentationID);
+      }     
+    }
+            
     // Third-party JS apps should use this to query if the BBB SWF file is ready to handle calls.
     BBB.isSwfClientReady = function() {
       return swfReady;

@@ -71,7 +71,32 @@ package org.bigbluebutton.main.events {
 		public static const CHANGE_FONT_COLOUR:String = 'CHANGE_FONT_COLOUR';
 		public static const SEND_MESSAGE:String = 'SEND_MESSAGE';
 		
+		//public static const FOCUS_LOOP_END:String = 'FOCUS_LOOP_END';
+		public static const FOCUS_SHORTCUT_BUTTON:String = 'FOCUS_SHORTCUT_BUTTON';
 		public static const MUTE_ALL_BUT_PRES:String = 'MUTE_ALL_BUT_PRES';
+		
+		public static const CLOSE_POLL_STATS:String = 'CLOSE_POLL_STATS';
+		public static const FOCUS_MULT_CHECK:String = 'FOCUS_MULT_CHECK';
+		public static const FOCUS_POLL_ANSWERS:String = 'FOCUS_POLL_ANSWERS';
+		public static const FOCUS_POLL_DATA:String = 'FOCUS_POLL_DATA';
+		public static const FOCUS_POLL_TITLE:String = 'FOCUS_POLL_TITLE';
+		public static const FOCUS_POLL_QUESTION:String = 'FOCUS_POLL_QUESTION';
+		public static const FOCUS_POLLING_WINDOW_CREATE:String = 'FOCUS_POLLING_WINDOW_CREATE';
+		public static const FOCUS_POLLING_WINDOW_STATS:String = 'FOCUS_POLLING_WINDOW_STATS';
+		public static const FOCUS_VOTE_QUESTION:String = 'FOCUS_VOTE_QUESTION';
+		public static const FOCUS_VOTING_WINDOW:String = 'FOCUS_VOTING_WINDOW';
+		public static const FOCUS_WEBPOLL_ADDRESS:String = 'FOCUS_WEBPOLL_ADDRESS';
+		public static const FOCUS_WEBPOLL_CHECK:String = 'FOCUS_WEBPOLL_CHECK';
+		public static const POLL_BUTTON_CLICK:String = 'POLL_BUTTON_CLICK';
+		public static const POLL_CANCEL:String = 'POLL_CANCEL';
+		public static const POLL_MODIFY:String = 'POLL_MODIFY';
+		public static const POLL_PREVIEW:String = 'POLL_PREVIEW';
+		public static const POLL_PUBLISH:String = 'POLL_PUBLISH';
+		public static const POLL_SAVE:String = 'POLL_SAVE';
+		public static const REMOTE_CAST_VOTE:String = 'REMOTE_CAST_VOTE';
+		public static const SC_REFRESH_POLL:String = 'SC_REFRESH_POLL';
+		public static const SC_REPOST_POLL:String = 'SC_REPOST_POLL';
+		public static const SC_STOP_POLL:String = 'SC_STOP_POLL';
 		
 		// Temporary string to help fix chat message navigation for screen readers
 		public static const CHAT_DEBUG:String = 'CHAT_DEBUG';

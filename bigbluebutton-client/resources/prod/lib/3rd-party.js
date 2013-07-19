@@ -3,6 +3,9 @@ var presenterUserID = "";
 
 var registerListeners = function() {
   console.log("Listening for events.");
+  BBB.listen("QueryPresentationsReplyEvent", function(bbbEvent) {   
+    console.log("Number of presentations [" + bbbEvent.presentations.length + "]. First presentation [" + bbbEvent.presentations[0] + "].");
+  });
   BBB.listen("OpenExternalFileUploadWindowEvent", function(bbbEvent) {
     console.log("Open file upload dialog. Max file size is [" + bbbEvent.maxFileSize + "].");
   });
@@ -250,6 +253,17 @@ var lockLayout = function(lock) {
   BBB.lockLayout(lock);
 }
 
+var queryListOfPresentations = function() {
+  BBB.queryListOfPresentations();
+}
+
+var displayPresentation = function(presentationID) {
+  BBB.displayPresentation(presentationID);
+}
+
+var deletePresentation = function(presentationID) {
+  BBB.deletePresentation(presentationID);
+}
 
 var sendPublicChat = function () {
   var message = "Hello from the Javascript API";

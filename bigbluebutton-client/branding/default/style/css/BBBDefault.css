@@ -40,6 +40,13 @@ Panel {
   paddingRight: 3;
 }
 
+.meetingNameLabelStyle {
+  fontWeight: bold;
+  fontSize: 15;
+  fontFamily: Arial;
+  color: #e1e2e5;
+}
+
 Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle {
   textIndent: 0;
   paddingLeft: 10;
@@ -56,6 +63,17 @@ Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle {
   themeColor: haloBlue;
   fontFamily: Arial;
   fontSize: 12;
+}
+
+.quickWindowLinkStyle {
+  paddingLeft: 0;
+  paddingRight: 0;
+  textDecoration: underline;
+  rollOverColor: #cccccc;
+  selectionColor: #999999;
+  color: #ffffff;
+  textRollOverColor: #504f3d;
+  textSelectedColor: #504f3d;
 }
 
 .helpLinkButtonStyle {

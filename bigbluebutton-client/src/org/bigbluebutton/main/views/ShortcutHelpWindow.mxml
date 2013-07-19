@@ -29,10 +29,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   title="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.title')}" >
 		   
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	<mate:Listener type="{MDIWindowEvent.CLOSE}" method="focusButton" />
 	
 	<mx:Script>
 		<![CDATA[
 			import flash.events.Event;
+			import com.asfusion.mate.events.Dispatcher;
+			import flexlib.mdi.events.MDIWindowEvent;
 			
 			import flexlib.controls.textClasses.StringBoundaries;
 			
@@ -42,31 +45,43 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.model.ShortcutOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var genKeys:ArrayList;
 			private var presKeys:ArrayList;
 			private var chatKeys:ArrayList;
 			private var userKeys:ArrayList;
+			private var pollKeys:ArrayList;
+			private var pollVoteKeys:ArrayList;
 			
-			private var genResource:Array = ['bbb.shortcutkey.general.minimize', 'bbb.shortcutkey.general.maximize', 'bbb.shortcutkey.flash.exit', 
-											 'bbb.shortcutkey.focus.users', 'bbb.shortcutkey.focus.video', 'bbb.shortcutkey.focus.presentation',  
-											 'bbb.shortcutkey.focus.chat', 'bbb.shortcutkey.chat.chatinput', 'bbb.shortcutkey.share.desktop', 
-											 'bbb.shortcutkey.share.microphone', 'bbb.shortcutkey.share.webcam', 'bbb.shortcutkey.shortcutWindow', 
-											 'bbb.shortcutkey.logout', 'bbb.shortcutkey.raiseHand', 'bbb.shortcutkey.users.muteme',
-											 'bbb.shortcutkey.users.muteAllButPres'];
-											 
+			[Bindable] private var generalString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.general");
+			[Bindable] private var presentationString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.presentation");
+			[Bindable] private var chatString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.chat");
+			[Bindable] private var userString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.users");
+			[Bindable] private var pollString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.polling");
+			[Bindable] private var pollVoteString:String = ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.polling2");
+						
 			private var presResource:Array = ['bbb.shortcutkey.present.focusslide', /*'bbb.shortcutkey.whiteboard.undo',*/ 'bbb.shortcutkey.present.upload',  
 											  'bbb.shortcutkey.present.previous', 'bbb.shortcutkey.present.select', 'bbb.shortcutkey.present.next', 	
 											  'bbb.shortcutkey.present.fitWidth', 'bbb.shortcutkey.present.fitPage'];
 			
-			private var chatResource:Array = ['bbb.shortcutkey.chat.focusTabs', 'bbb.shortcutkey.chat.focusBox', /*'bbb.shortcutkey.chat.changeColour',*/ 
-											  'bbb.shortcutkey.chat.sendMessage', 'bbb.shortcutkey.chat.explanation', 'bbb.shortcutkey.chat.chatbox.gofirst',  
-											  'bbb.shortcutkey.chat.chatbox.goback', 'bbb.shortcutkey.chat.chatbox.repeat', 'bbb.shortcutkey.chat.chatbox.advance', 
-											  'bbb.shortcutkey.chat.chatbox.golatest',  'bbb.shortcutkey.chat.chatbox.goread'];
+			private var chatResource:Array = ['bbb.shortcutkey.chat.focusTabs', 'bbb.shortcutkey.chat.focusBox', 'bbb.shortcutkey.chat.sendMessage',
+											  'bbb.shortcutkey.chat.explanation', 'bbb.shortcutkey.chat.chatbox.gofirst', 'bbb.shortcutkey.chat.chatbox.goback',
+											  'bbb.shortcutkey.chat.chatbox.advance', 'bbb.shortcutkey.chat.chatbox.golatest', 'bbb.shortcutkey.chat.chatbox.repeat', 
+											  'bbb.shortcutkey.chat.chatbox.goread'];
 			
 			private var userResource:Array = ['bbb.shortcutkey.users.focusUsers', 'bbb.shortcutkey.users.makePresenter', 'bbb.shortcutkey.users.mute', 
 											  /*'bbb.shortcutkey.users.kick',*/ 'bbb.shortcutkey.users.muteall'];
+			
+			private var pollResource:Array = ['bbb.shortcutkey.polling.focusTitle', 'bbb.shortcutkey.polling.focusQuestion', 'bbb.shortcutkey.polling.focusAnswers', 
+											  'bbb.shortcutkey.polling.focusMultipleCB', 'bbb.shortcutkey.polling.focusWebPollCB', 'bbb.shortcutkey.polling.previewClick', 
+											  'bbb.shortcutkey.polling.cancelClick', 'bbb.shortcutkey.polling.modify', 'bbb.shortcutkey.polling.publish', 
+											  'bbb.shortcutkey.polling.save', 'bbb.shortcutkey.pollStats.explanation', 'bbb.shortcutkey.polling.focusWebPoll', 
+											  'bbb.shortcutkey.polling.focusData', 'bbb.shortcutkey.polling.refresh', 'bbb.shortcutkey.polling.stopPoll', 
+											  'bbb.shortcutkey.polling.repostPoll', 'bbb.shortcutkey.polling.closeStatsWindow'];
+			
+			private var pollVoteResource:Array = ['bbb.shortcutkey.polling.focusVoteQuestion', 'bbb.shortcutkey.polling.vote'];
 			
 			[Bindable]
 			private var shownKeys:ArrayCollection;
@@ -80,11 +95,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function init():void {
 				modifier = ExternalInterface.call("determineModifier");
 				globalModifier = ExternalInterface.call("determineGlobalModifier");
+				populateModules();
 			}
 			
 			private function onCreationComplete():void {
 				localeChanged();
-				
 				titleBarOverlay.tabIndex = baseIndex;
 				
 				minimizeBtn.tabIndex = baseIndex + 1;
@@ -92,29 +107,61 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				closeBtn.tabIndex = baseIndex + 3;
 			}
 			
+			private function populateModules():void{
+				categoryAC.addItem(generalString);
+				if (ShortcutOptions.usersActive)
+					categoryAC.addItem(userString);
+				
+				if (ShortcutOptions.presentationActive)
+					categoryAC.addItem(presentationString);
+				
+				if (ShortcutOptions.chatActive)
+					categoryAC.addItem(chatString);
+				
+				if (ShortcutOptions.pollingActive){
+					categoryAC.addItem(pollString);
+					categoryAC.addItem(pollVoteString);
+				}
+			}
+			
 			private function reloadKeys():void {
-				genKeys = loadKeys(genResource, true);
+				genKeys = loadKeys(ShortcutOptions.genResource, true);
 				presKeys = loadKeys(presResource);
 				chatKeys = loadKeys(chatResource);
 				userKeys = loadKeys(userResource);
+				pollKeys = loadKeys(pollResource);
+				pollVoteKeys = loadKeys(pollVoteResource);
 				
 				changeArray();
 			}
 			
+			public override function close(event:MouseEvent = null):void{
+				var dispatcher:Dispatcher = new Dispatcher();
+				dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_SHORTCUT_BUTTON));
+				super.close(event);
+			}
+			
 			private function changeArray():void {
 				shownKeys = new ArrayCollection();
+				
 				switch(categories.selectedIndex) {
-				case 0: //General
+					case 0: //General
 					shownKeys.addAll(genKeys);
 					break;
-				case 1: //Presentation
+					case categoryAC.getItemIndex(presentationString): //Presentation
 					shownKeys.addAll(presKeys);
 					break;
-				case 2: //Chat
+					case categoryAC.getItemIndex(chatString): //Chat
 					shownKeys.addAll(chatKeys);
 					break;
-				case 3: //Users
+					case categoryAC.getItemIndex(userString): //Users
 					shownKeys.addAll(userKeys);
+					break;
+					case categoryAC.getItemIndex(pollString): //Polling, Presenter
+					shownKeys.addAll(pollKeys);
+					break;
+					case categoryAC.getItemIndex(pollVoteString): //Polling, Viewer
+					shownKeys.addAll(pollVoteKeys);
 					break;
 				}
 			}
@@ -137,13 +184,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					// Special cases where the keycodes don't render a sensible character
 					switch (key) {
 						case 32 :
-							convKey = "Space";
+							convKey = ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.space');
 						  	break;
+						case 37 :
+							convKey = ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.left');
+							break;
+						case 38 :
+							convKey = ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.up');
+							break;
+						case 39 :
+							convKey = ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.right');
+							break;
+						case 40 :
+							convKey = ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.down');
+							break;
 						case 189 :
-						  	convKey = "Minus";
+							convKey = ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.minus');
 						  	break;
 						case 187 :
-						  	convKey = "Plus";
+							convKey = ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.plus');
 						  	break;
 						default:
 							convKey = String.fromCharCode(key);
@@ -152,7 +211,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					
 					if (keyCombo == "----"){
 						keyList.addItem({shortcut:(ResourceUtil.getInstance().getString(resource[i] + '.function')), func:""});
-					} else{
+					//} else if (convKey == "Left" || convKey == "Up" || convKey == "Right" || convKey == "Down"){
+					} else if (convKey == ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.left') 
+								|| convKey == ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.up') 
+								|| convKey == ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.right') 
+								|| convKey == ResourceUtil.getInstance().getString('bbb.shortcutkey.specialKeys.down')){
+						keyList.addItem({shortcut:convKey, func:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
+					}
+					else{
 						keyList.addItem({shortcut:mod + convKey, func:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
 					}
 				}
@@ -189,6 +255,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				focusManager.setFocus(keyList);
 				keyList.drawFocus(true);
 			}
+			
+			public function focusHead():void {
+				focusManager.setFocus(titleBarOverlay);
+			}
+			
+			public function focusButton(e:MDIWindowEvent):void{
+				LogUtil.debug("Caught close event from window");
+				var dispatcher:Dispatcher = new Dispatcher();
+				dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_SHORTCUT_BUTTON));
+			}
 		]]>
 	</mx:Script>
 	
@@ -196,17 +272,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				 editable="false" 
 				 change="changeArray()"
 				 tabIndex="{baseIndex + 10}">
-		<mx:ArrayCollection>
-        	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.general")}</mx:String>
+		<mx:ArrayCollection id="categoryAC">
+        	<!--
+			<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.general")}</mx:String>
          	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.presentation")}</mx:String>
          	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.chat")}</mx:String>
          	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.users")}</mx:String>
+			<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.polling")}</mx:String>
+			<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.polling2")}</mx:String>
+			-->
       	</mx:ArrayCollection>
 	</mx:ComboBox>
 	<mx:DataGrid id="keyList" draggableColumns="false" dataProvider="{shownKeys}" width="100%" height="100%" tabIndex="{baseIndex + 15}" >
 		<mx:columns>
-			<mx:DataGridColumn dataField="shortcut" />
-			<mx:DataGridColumn dataField="func" />
+			<mx:DataGridColumn dataField="shortcut" headerText="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.headers.shortcut')}"/>
+			<mx:DataGridColumn dataField="func" headerText="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.headers.function')}"/>
 		</mx:columns>
 	</mx:DataGrid>
 </MDIWindow>

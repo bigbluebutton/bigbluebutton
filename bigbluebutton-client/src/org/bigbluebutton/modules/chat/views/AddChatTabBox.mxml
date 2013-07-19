@@ -29,6 +29,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import flexlib.controls.textClasses.StringBoundaries;
+			
 			import mx.collections.ArrayCollection;
 			
 			import org.bigbluebutton.core.EventConstants;
@@ -43,9 +45,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] public var chatView:ChatView;
 			[Bindable] private var fontSizes:Array = ['8', '10', '12', '14', '16', '18'];
 
-			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();			
-
-			
+			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();		
+						
 			private function init():void{
 				users = UserManager.getInstance().getConference().users;
 			}
@@ -82,13 +83,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       public function focusToTextMessageArea():void {
         // Do nothing. This is only handle by the chat boxes.
       }
+			
 		]]>
 	</mx:Script>
 	
 	<mx:HBox width="100%" height="100%" >
-		<mx:VBox height="100%" width="50%" visible="{chatOptions.privateEnabled}">
-			<mx:Label id="lblSelect" text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" />
+		<mx:VBox height="100%" width="50%" >
+			<mx:Label id="lblSelect" text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"/>
 			<mx:List id="usersList" height="100%" width="100%" dataProvider="{users}" dragEnabled="false"
+                     visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"
                itemRenderer="org.bigbluebutton.modules.chat.views.UserRenderer"
                itemClick="openPrivateChat(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.usersList.toolTip')}"/>
 			<mx:VBox id="optionsBox" height="100%" width="50%" >

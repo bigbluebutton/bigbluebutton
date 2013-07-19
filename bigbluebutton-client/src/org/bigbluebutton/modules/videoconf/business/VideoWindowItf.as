@@ -170,9 +170,17 @@ package org.bigbluebutton.modules.videoconf.business
 			_video.width = _videoHolder.width = tmpWidth;
 			_video.height = _videoHolder.height = tmpHeight;
 			
-			// center the video in the window
-			_video.x = Math.floor ((this.width - PADDING_HORIZONTAL - tmpWidth) / 2);
-			_video.y = Math.floor ((this.height - PADDING_VERTICAL - tmpHeight) / 2);
+			if (!keepAspect || this.maximized) {
+				// center the video in the window
+				_video.x = Math.floor ((this.width - PADDING_HORIZONTAL - tmpWidth) / 2);
+				_video.y = Math.floor ((this.height - PADDING_VERTICAL - tmpHeight) / 2);
+			} else {
+				// fit window dimensions on video
+				_video.x = 0;
+				_video.y = 0;
+				this.width = tmpWidth + PADDING_HORIZONTAL;
+				this.height = tmpHeight + PADDING_VERTICAL;
+			}
 			
 			// reposition the window to fit inside the parent window
 			if (this.parent != null) {
@@ -190,10 +198,12 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 		public function updateWidth():void {
+			this.width = Math.floor((this.height - paddingVertical) * aspectRatio) + paddingHorizontal;
 			onResize();
 		}
 		
 		public function updateHeight():void {
+			this.height = Math.floor((this.width - paddingHorizontal) / aspectRatio) + paddingVertical;
 			onResize();
 		}
 		

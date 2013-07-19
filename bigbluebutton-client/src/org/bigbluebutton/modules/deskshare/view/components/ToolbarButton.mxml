@@ -30,6 +30,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	implements="org.bigbluebutton.common.IBbbToolbarComponent">
 	
 	<mate:Listener type="{ShortcutEvent.SHARE_DESKTOP}" method="remoteClick" />
+	<mate:Listener type="{ShareWindowEvent.CLOSE}" method="closeFocus" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -131,6 +132,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public function theory():String{
 				return "Deskshare button";
+			}
+			
+			// Moves focus back to the toolbar button when the desktop sharing window closes, for accessibility
+			public function closeFocus(e:ShareWindowEvent):void{
+				this.setFocus();
 			}
 		]]>
 	</mx:Script>

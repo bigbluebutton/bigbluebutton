@@ -173,13 +173,13 @@ usage() {
         echo "Configuration:"
         echo "   --version                        Display BigBlueButton version (packages)"
         echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
-	echo "   --setsalt <salt>                 Change the security salt in bigbluebutton.properties"
+	echo "   --setsecret <secret>             Change the shared secret in bigbluebutton.properties"
         echo
         echo "Monitoring:"
         echo "   --check                          Check configuration files and processes for problems"
         echo "   --debug                          Scan the log files for error messages"
         echo "   --watch                          Scan the log files for error messages every 2 seconds"
-        echo "   --salt                           View the URL and salt (shared secret) for the server"
+        echo "   --secret                         View the URL and shared secret for the server"
         echo "   --lti                            View the URL and secret for LTI (if installed)"
         echo
         echo "Administration:"
@@ -493,6 +493,21 @@ while [ $# -gt 0 ]; do
 		continue
 	fi
 
+	if [ "$1" = "--secret" -o "$1" = "-secret"  -o "$1" = "--setsecret" ]; then
+		SALT="${2}"
+		if [ -z "$SALT" ]; then
+			BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+			SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep securitySalt | cut -d= -f2);
+			echo
+			echo "       URL: http://$BBB_WEB/bigbluebutton/"
+			echo "    Secret: $SALT"
+			echo
+			exit 0
+		fi
+		shift; shift
+		continue
+	fi
+
 	if [ "$1" = "--lti" -o "$1" = "-lti" ]; then
 		if [ -z "$SALT" ]; then
 			if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
@@ -504,7 +519,7 @@ while [ $# -gt 0 ]; do
 				echo "  Customer: $CUSTOMER"
 				echo "    Secret: $SECRET"
 				echo
-				ICON_URL=$( echo $LTI_URL | sed 's/tool/images\/favicon.ico/')
+				ICON_URL=$( echo $LTI_URL | sed 's/tool.xml/images\/icon.ico/')
 				echo "  Icon URL: $ICON_URL"
 				echo
 				echo
@@ -540,7 +555,7 @@ fi
 if [ $SALT ]; then
 	need_root
 	change_var_salt ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties securitySalt $SALT
-	echo "Changed BigBlueButton's security salt to $SALT"
+	echo "Changed BigBlueButton's shared secret to $SALT"
 	echo
 fi
 
@@ -742,7 +757,7 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
                 BBB_SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
 
 		if [ "$LTI_SALT" != "$BBB_SALT" ]; then
-			echo "# Warning: LTI Salt mismatch:"
+			echo "# Warning: LTI shared secret (salt) mismatch:"
 			echo "#  ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties                      = $LTI_SALT"
 			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties  = $BBB_SALT"
 			echo 
@@ -1244,6 +1259,10 @@ if [ $CHECK ]; then
 	CAPTURE_VIDEO="$(cat /usr/share/red5/webapps/video/WEB-INF/red5-web.xml | sed -n '/recordVideoStream/{s/^.*="//g;s/"\/>//g;p}')"
 	echo "                     capture video: $CAPTURE_VIDEO"
 
+	CAPTURE_DESKTOP="$(cat /usr/share/red5/webapps/deskshare/WEB-INF/red5-web.xml | grep -m 1 '<constructor-arg index="0" value'  | sed -n '/constructor-arg/{s/^.*="//g;s/"\/>//g;p}')"
+	echo "                   capture desktop: $CAPTURE_DESKTOP"
+
+
 	if [ -f /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml ]; then
 		PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml  | sed -n '/playback_host/{s/.*:[ ]*//;s/;//;p}')
 		echo
@@ -1465,7 +1484,7 @@ if [ -n "$HOST" ]; then
 		echo "Assigning $HOST for LTI integration in ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties"
         	sed -i "s/bigbluebuttonURL=http:\/\/.*/bigbluebuttonURL=http:\/\/$HOST\/bigbluebutton/g" \
                 	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
-        	sed -i "s/ltiEndPoint=http:\/\/.*/ltiEndPoint=http:\/\/$HOST\/lti\/tool.xml/g" \
+        	sed -i "s/ltiEndPoint=http:\/\/.*/ltiEndPoint=http:\/\/$HOST\/lti\/tool/g" \
                 	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
 	fi
 
