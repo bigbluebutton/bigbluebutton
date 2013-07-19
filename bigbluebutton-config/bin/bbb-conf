@@ -519,7 +519,7 @@ while [ $# -gt 0 ]; do
 				echo "  Customer: $CUSTOMER"
 				echo "    Secret: $SECRET"
 				echo
-				ICON_URL=$( echo $LTI_URL | sed 's/tool/images\/icon.ico/')
+				ICON_URL=$( echo $LTI_URL | sed 's/tool.xml/images\/icon.ico/')
 				echo "  Icon URL: $ICON_URL"
 				echo
 				echo
