@@ -21,6 +21,7 @@ import org.bigbluebutton.core.api.GetPresentationInfoOutMsg
 import org.bigbluebutton.core.api.InitializeMeeting
 import org.bigbluebutton.core.api.PreuploadedPresentations
 import org.bigbluebutton.core.api.PresentationConversionUpdateOutMsg
+import org.bigbluebutton.core.api.SharePresentationOutMsg
 
 class PresentationApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway, usersApp: UsersApp) {
 
@@ -157,18 +158,19 @@ class PresentationApp(meetingID: String, recorded: Boolean, outGW: MessageOutGat
     }
     
     private def sharePresentation(presentationID: String, share: Boolean) {
-		sharing = share;
-		if (share) {
-		  currentPresentation = presentationID;
-		  val index = presentationIDs.indexOf(presentationID);
-        
-		  if (index < 0) {
-			  presentationIDs.add(presentationID)
-		  }
-		  
-		} else {
-		  currentPresentation = "";
-		}	      
+  		sharing = share;
+  		if (share) {
+  		  currentPresentation = presentationID;
+  		  val index = presentationIDs.indexOf(presentationID);
+          
+  		  if (index < 0) {
+  			  presentationIDs.add(presentationID)
+  		  }
+  		  
+  		} else {
+  		  currentPresentation = "";
+  		}
+      outGW.send(new SharePresentationOutMsg(meetingID, recorded, currentPresentation, share))	      
     }
     
     private def handleGetSlideInfo(msg: GetSlideInfo) {
