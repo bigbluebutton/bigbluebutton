@@ -24,6 +24,7 @@ package org.bigbluebutton.modules.deskshare.model
 	{
 		[Bindable] public var showButton:Boolean = true;
 		[Bindable] public var autoStart:Boolean = false;
+		[Bindable] public var autoFullScreen:Boolean = false;
 		[Bindable] public var baseTabIndex:int;
 		
 		public function parseOptions():void {
@@ -31,6 +32,9 @@ package org.bigbluebutton.modules.deskshare.model
 			if (vxml != null) {
 				if (vxml.@autoStart != undefined) {
 					autoStart = (vxml.@autoStart.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (vxml.@autoFullScreen != undefined){
+					autoFullScreen = (vxml.@autoFullScreen.toString().toUpperCase() == "TRUE") ? true : false;
 				}
 				if (vxml.@baseTabIndex != undefined) {
 					baseTabIndex = vxml.@baseTabIndex;
