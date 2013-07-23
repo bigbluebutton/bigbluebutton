@@ -955,14 +955,34 @@ check_state() {
 	done
 
 	#
-	# Check if any of the red5 BigBlueButton applications did not start propery
+	# Check for required external commands
 	#
-	COMMANDS="ffmpeg ruby gem ghostscript pdf2swf"
+	COMMANDS="ruby gem ghostscript pdf2swf"
 	for cmd in $COMMANDS ; do
 		if ! which $cmd > /dev/null; then
 			echo "#    $cmd command not found"
 		fi
 	done
+
+	#
+	# Check if ffmpeg is installed, and whether it is a supported version
+	#
+	FFMPEG_VERSION=$(ffmpeg -version 2>/dev/null | grep ffmpeg | cut -d ' ' -f3)
+	case "$FFMPEG_VERSION" in
+	0.11.*)
+		# This is the current supported version; OK.
+		;;
+	'')
+		echo "# Warning: No ffmpeg version was found on the system"
+		echo "#          Recording processing will not function"
+		echo
+		;;
+	*)
+		echo "# Warning: The installed ffmpeg version '${FFMPEG_VERSION}' is not supported"
+		echo "#          Recording processing may not function correctly"
+		echo
+		;;
+	esac
 
 
 	if [ -f /usr/share/red5/log/sip.log ]; then
