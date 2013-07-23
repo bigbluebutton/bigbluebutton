@@ -414,7 +414,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</views:MainCanvas>	
 	
 	<mx:ControlBar width="100%" height="{footerHeight}" paddingTop="0">		
-	  <mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
+	  <mx:Text htmlText="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
 	 	<mx:Spacer width="20"/>
 		<mx:Spacer width="100%"/> 
     <mx:Label text="{isTunneling ? '[Tunnelling]' : ''}" id="isTunnellingLbl"/>
