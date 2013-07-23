@@ -28,6 +28,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.core.BBB;
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.events.CoreEvent;
@@ -174,11 +175,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function showPrivateChatButton():void {
         var chatOptions:ChatOptions = new ChatOptions();
-        if (chatOptions.privateEnabled && ! UsersUtil.isMe(sharerUserID)) {
+        // the first check is to see if the chat module is in the config.xml
+        if (BBB.getConfigForModule("ChatModule") && chatOptions.privateEnabled && ! UsersUtil.isMe(sharerUserID)) {
           privateChatBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.privateChatBtn.toolTip', [UsersUtil.getUserName(sharerUserID)]);
           privateChatBtn.visible = true;
         } else {
           privateChatBtn.visible = false;
+          privateChatBtn.includeInLayout = false;
         }
       }
     ]]>

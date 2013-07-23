@@ -207,6 +207,7 @@
 			
 			private function setRoomMute(e:UsersEvent):void {
 				roomMuted = e.mute_state;
+                roomMutedLbl.visible = roomMuted;
 			}
 			
 			private function muteAll():void {
@@ -391,6 +392,7 @@
 	<mx:ControlBar width="100%">
 		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
 					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" click="openSettings()" visible="true" tabIndex="{partOptions.baseTabIndex+10}"/>
+        <mx:Label id="roomMutedLbl" text="{ResourceUtil.getInstance().getString('bbb.users.settings.muteAll')}" />
 		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}" selected="{UserManager.getInstance().getConference().isMyHandRaised}"
 					width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip')}" click="raiseHand()"
 					visible="false" includeInLayout="{raiseHandBtn.visible}" tabIndex="{partOptions.baseTabIndex+15}" />
