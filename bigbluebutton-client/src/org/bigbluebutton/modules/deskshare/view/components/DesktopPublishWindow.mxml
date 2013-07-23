@@ -153,11 +153,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 */			
 			public function resetWidthAndHeight():void{/* do nothing */}
 			
-			public function initWindow(connection:NetConnection, uri:String, room:String, autoStart:Boolean):void {
+			public function initWindow(connection:NetConnection, uri:String, room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
 				this.connection = connection;
 				this.uri = uri;
 				this.room = room;				
-				this.autoStart = autoStart;		
+				this.autoStart = autoStart;
+				/*if(autoFullScreen)
+					shareScreen(true);*/		
 			}
 			
 			public function shareScreen(fullScreen:Boolean):void {

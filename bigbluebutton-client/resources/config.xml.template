@@ -37,6 +37,7 @@
 			uri="rtmp://HOST/deskShare"
 			showButton="true"
 			autoStart="false"
+			autoFullScreen="false"
 			baseTabIndex="201"
 		/>
 		
