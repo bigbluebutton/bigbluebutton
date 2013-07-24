@@ -45,6 +45,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
 	<mate:Listener type="{ShortcutEvent.OPEN_SHORTCUT_WIN}" method="openShortcutHelpWindow" />
+	<mate:Listener type="{LogoutEvent.CONFIRM_LOGOUT}" method="confirmLogoutWindow" />
   <mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
   
 	<mx:Script>
@@ -52,6 +53,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.events.MouseEvent;
+			import flash.geom.Point;
 			
 			import flexlib.mdi.containers.MDIWindow;
 			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
@@ -63,7 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.core.UIComponent;
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
-			import flash.geom.Point;
+			
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -79,6 +81,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.PortTestEvent;
 			import org.bigbluebutton.main.events.RecordStatusEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
@@ -94,6 +97,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var scWindow:ShortcutHelpWindow;
 			private var logoutWindow:LoggedOutWindow;
 			private var connectionLostWindow:ConnectionLostWindow;
+			private var clWindow:ConfirmLogoutWindow;
 			
 			[Bindable] private var baseIndex:int = 100000;
 			
@@ -389,6 +393,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function closeNetworkStatsWindow(e:Event = null):void {
 				networkStatsWindow.disappear();
+			}
+			
+			private function confirmLogoutWindow(e:Event):void{
+				//if (layoutOptions.showLogoutWindow) {
+					if (clWindow != null) return;
+					clWindow = ConfirmLogoutWindow(PopUpManager.createPopUp( mdiCanvas, ConfirmLogoutWindow, false));
+					
+					var point1:Point = new Point();
+					// Calculate position of TitleWindow in Application's coordinates. 
+					point1.x = width/2;
+					point1.y = height/2;                 
+					clWindow.x = point1.x - (clWindow.width/2);
+					clWindow.y = point1.y - (clWindow.height/2);
 			}
 
 		]]>

@@ -168,6 +168,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				doLogout();
 			}
 			
+			private function confirmLogout():void {
+				dispatchEvent(new LogoutEvent(LogoutEvent.CONFIRM_LOGOUT));
+				//dispatchEvent(new ShortcutEvent(ShortcutEvent.OPEN_SHORTCUT_WIN));
+			}
+			
 			private function doLogout():void {
 				dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
 			}
@@ -313,6 +318,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                    toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" 
 				   accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"/>
 	<mx:Button label="" id="btnLogout" styleName="logoutButtonStyle"
-                 toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()" height="22"
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="confirmLogout()" height="22"
                  tabIndex="{baseIndex+numButtons+14}" />
 </mx:ApplicationControlBar>

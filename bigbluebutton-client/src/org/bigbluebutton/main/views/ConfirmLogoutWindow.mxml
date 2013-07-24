@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				title="{ResourceUtil.getInstance().getString('bbb.logout.confirm.title')}" 
+				showCloseButton="false" creationComplete="onCreationComplete()"
+				verticalScrollPolicy="off" horizontalScrollPolicy="off"
+				x="168" y="86" layout="vertical" width="400" height="200" horizontalAlign="center">
+	<mx:Script>
+		<![CDATA[
+			import mx.core.FlexGlobals;
+			import mx.managers.PopUpManager;
+			
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+
+			private var urlLoader:URLLoader;
+			
+			private function onCreationComplete():void {
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:TextArea editable="false" borderSkin="{null}" text="{ResourceUtil.getInstance().getString('bbb.logout.confirm.message')}"/>
+	<mx:Button id="yesBtn" label="{ResourceUtil.getInstance().getString('bbb.logout.confirm.yes')}" click=""/>
+	<mx:Button id="noBtn" label="{ResourceUtil.getInstance().getString('bbb.logout.confirm.no')}" click=""/>
+</mx:TitleWindow> 
