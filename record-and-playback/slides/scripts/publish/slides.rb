@@ -1,6 +1,23 @@
 # Set encoding to utf-8
 # encoding: UTF-8
 
+#
+# BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+#
+# Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+#
+# This program is free software; you can redistribute it and/or modify it under the
+# terms of the GNU Lesser General Public License as published by the Free Software
+# Foundation; either version 3.0 of the License, or (at your option) any later
+# version.
+#
+# BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License along
+# with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+#
 require '../../core/lib/recordandplayback'
 require 'rubygems'
 require 'trollop'
@@ -30,7 +47,7 @@ if (playback == "slides")
 	recording_dir = bbb_props['recording_dir']
 	process_dir = "#{recording_dir}/process/slides/#{meeting_id}"
 	publish_dir = simple_props['publish_dir']
-	playback_host = simple_props['playback_host']
+	playback_host = bbb_props['playback_host']
 	
 	target_dir = "#{recording_dir}/publish/slides/#{meeting_id}"
 	if not FileTest.directory?(target_dir)
@@ -93,7 +110,7 @@ if (playback == "slides")
     slides_doc = Nokogiri::XML::Builder.new do |xml|
       xml.popcorn {
         xml.timeline {
-          xml.image(:in => 0, :out => first_slide_start, :src => "logo.png", :target => "slide", :width => 200, :width => 200 )
+          xml.altimage(:in => 0, :out => first_slide_start, :src => "logo.png", :target => "slide", :width => 200, :width => 200 )
           slides_events.each do |node|
             eventname =  node['eventname']
             if eventname == "SharePresentationEvent"
@@ -103,13 +120,18 @@ if (playback == "slides")
               slide_start = (slide_timestamp.to_i - meeting_start.to_i) / 1000
               slide_number = node.xpath(".//slide")[0].text()
               slide_src = "#{presentation_url}/#{presentation_name}/slide-#{slide_number.to_i + 1}.png"
+              slide_alt = "#{presentation_url}/#{presentation_name}/textfiles/slide-#{slide_number.to_i + 1}.txt"
+              #The txt files don't seem to appear in time for this script to attach the contents to slide_alt
+              #if FileTest.exist?("#{presentation_url}/#{presentation_name}/textfiles/slide-#{slide_number.to_i + 1}.txt")
+              #  slide_alt = File.open("#{presentation_url}/#{presentation_name}/textfiles/slide-#{slide_number.to_i + 1}.txt", 'r') { |f| f.read } 
+              #end
               current_index = slides_events.index(node)
               if( current_index + 1 < slides_events.length)
                 slide_end = ( slides_events[current_index + 1]['timestamp'].to_i - meeting_start.to_i ) / 1000
               else
                 slide_end = ( meeting_end.to_i - meeting_start.to_i ) / 1000
               end
-              xml.image(:in => slide_start, :out => slide_end, :src => slide_src, :target => "slide", :width => 200, :width => 200 )
+              xml.altimage(:in => slide_start, :out => slide_end, :src => slide_src, :alt => slide_alt, :target => "slide", :width => 200, :width => 200 )
               puts "#{slide_src} : #{slide_start} -> #{slide_end}"
             end
           end
@@ -117,9 +139,9 @@ if (playback == "slides")
         chat_events.each do |node|
           chat_timestamp =  node['timestamp']
           chat_sender = node.xpath(".//sender")[0].text()
-          chat_message =  node.xpath(".//message")[0].text()
+          chat_message =  BigBlueButton::Events.linkify(node.xpath(".//message")[0].text())
           chat_start = (chat_timestamp.to_i - meeting_start.to_i) / 1000
-          xml.timeline(:in => chat_start, :direction => "down",  :innerHTML => "<span><strong>#{chat_sender}:</strong> #{chat_message}</span>", :target => "chat" )
+          xml.chattimeline(:in => chat_start, :direction => "down",  :name => chat_sender, :message => chat_message, :target => "chat" )
         end
       }
     end

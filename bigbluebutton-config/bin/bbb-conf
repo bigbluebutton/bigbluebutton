@@ -1,12 +1,12 @@
 #!/bin/bash
 #
-# Copyright (c) 2008-2010 by BigBlueButton Inc.
+# BlueButton open source conferencing system - http://www.bigbluebutton.org/
 #
-# This file is part of BigBlueButton - http://www.bigbluebutton.org
-# 
-# BigBlueButton is free software; you can redistribute it and/or modify it under the
+# Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+#
+# This program is free software; you can redistribute it and/or modify it under the
 # terms of the GNU Lesser General Public License as published by the Free Software
-# Foundation; either version 2 of the License, or (at your option) any later
+# Foundation; either version 3.0 of the License, or (at your option) any later
 # version.
 #
 # BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -18,6 +18,7 @@
 #
 # Author(s):
 #       Fred Dixon <ffdixon@bigbluebutton.org>
+#	Sebastian Schneider <seb.sschneider@gmail.com>
 #
 # Changelog:
 #   2009-10-18 FFD  Inital Version   
@@ -43,8 +44,9 @@
 #   2012-01-14 FFD  Tsting the development environment for 0.8
 #   2012-02-22 FFD  Updates to development environment
 #   2012-04-27 FFD  Added sum of version numbers in --check
+#   2013-02-03 FFD  Updated for changes to parameters for 0.81 in bigbluebutton-sip.properties
 
-##set -x
+#set -x
 #set -e
 
 PATH=$PATH:/sbin
@@ -171,13 +173,14 @@ usage() {
         echo "Configuration:"
         echo "   --version                        Display BigBlueButton version (packages)"
         echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
-	echo "   --setsalt <salt>                 Change the security salt in bigbluebutton.properties"
+	echo "   --setsecret <secret>             Change the shared secret in bigbluebutton.properties"
         echo
         echo "Monitoring:"
         echo "   --check                          Check configuration files and processes for problems"
         echo "   --debug                          Scan the log files for error messages"
         echo "   --watch                          Scan the log files for error messages every 2 seconds"
-        echo "   --salt                           View the URL and salt (shared secret) for the server"
+        echo "   --secret                         View the URL and shared secret for the server"
+        echo "   --lti                            View the URL and secret for LTI (if installed)"
         echo
         echo "Administration:"
         echo "   --restart                        Restart BigBueButton"
@@ -187,10 +190,6 @@ usage() {
         echo "   --zip                            Zip up log files for reporting an error"
         echo
 
-        echo "Development:"
-        echo "   --setup-samba                    Setup samba share for current users"
-        echo "   --setup-dev [tools|client|web|apps]    Setup development environment "
-        echo "   --reset-dev                      Reset environment back to using packages"
         echo
 }
 
@@ -352,40 +351,6 @@ display_bigbluebutton_status () {
 	/etc/init.d/${SERVLET_CONTAINER} status
 }
 
-check_tools() {
-    if [ ! -d $1 ]; then
-        echo
-        echo "# Error: You haven't installed the development tools yet."
-        echo "# Run:"
-        echo "#    bbb-conf --setup-dev tools "
-        echo
-        exit 1
-    else
-        echo "# Found dev tools at $1"
-    fi
-}
-
-
-check_source() {
-	mkdir -p $HOME/dev
-        if [ ! -d $1 ]; then
-                echo 
-                echo "# You need to clone the BigBlueButton source from GitHub into"
-		echo "#"
-		echo "#     $HOME/dev"
-                echo "#"
-                echo "# After cloning you should have the folder"
-                echo "#"
-		echo "#     $HOME/dev/bigbluebutton"
-                echo "#"
-                echo "# For more information, see:"
-                echo "#    http://code.google.com/p/bigbluebutton/wiki/08SettingDevEnvironment"
-		echo
-		exit 1
-	else
-		echo "#    Found source at $1"
-        fi
-}
 
 if [ $# -eq 0 ]; then
 	usage
@@ -453,9 +418,13 @@ while [ $# -gt 0 ]; do
 	fi
 
 	if [ "$1" = "--reset-dev" -o "$1" = "-reset-dev" -o "$1" = "-r" ]; then
-		RESET_DEV=1
-		shift
-		continue
+		echo 
+		echo "This option is depreciated.  See "
+		echo 
+		echo "   https://code.google.com/p/bigbluebutton/wiki/081DevelopingBigBlueButton "
+		echo 
+		echo "for instructions on how to setup a development environment."
+		exit 0
 	fi
 
 	if [ "$1" = "--restart" -o "$1" = "-restart" ]; then
@@ -482,12 +451,13 @@ while [ $# -gt 0 ]; do
 	fi		
 
         if [ "$1" = "--setup-dev" -o "$1" = "-setup-dev" ]; then
-                SETUPDEV="${2}"
-		if test -z "${2}"; then
-			usage;
-		fi
-                shift; shift
-                continue
+		echo 
+		echo "This option is depreciated.  See "
+		echo 
+		echo "   https://code.google.com/p/bigbluebutton/wiki/081DevelopingBigBlueButton "
+		echo 
+		echo "for instructions on how to setup a development environment."
+		exit 0
         fi
 
 	if [ "$1" = "--conference" -o "$1" = "-conference" ]; then
@@ -523,6 +493,45 @@ while [ $# -gt 0 ]; do
 		continue
 	fi
 
+	if [ "$1" = "--secret" -o "$1" = "-secret"  -o "$1" = "--setsecret" ]; then
+		SALT="${2}"
+		if [ -z "$SALT" ]; then
+			BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+			SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep securitySalt | cut -d= -f2);
+			echo
+			echo "       URL: http://$BBB_WEB/bigbluebutton/"
+			echo "    Secret: $SALT"
+			echo
+			exit 0
+		fi
+		shift; shift
+		continue
+	fi
+
+	if [ "$1" = "--lti" -o "$1" = "-lti" ]; then
+		if [ -z "$SALT" ]; then
+			if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
+				LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiEndPoint/{s/^.*=//;p}')
+				CUSTOMER=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiConsumer/{s/^.*=//;s/:.*//p}')
+				SECRET=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiConsumer/{s/^[^:]*://;p}')
+				echo
+				echo "       URL: $LTI_URL"
+				echo "  Customer: $CUSTOMER"
+				echo "    Secret: $SECRET"
+				echo
+				ICON_URL=$( echo $LTI_URL | sed 's/tool.xml/images\/icon.ico/')
+				echo "  Icon URL: $ICON_URL"
+				echo
+				echo
+				exit 0
+			fi
+		fi
+		shift; shift
+		continue
+	fi
+
+
+
 	usage 
 	exit 1
 done
@@ -546,7 +555,7 @@ fi
 if [ $SALT ]; then
 	need_root
 	change_var_salt ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties securitySalt $SALT
-	echo "Changed BigBlueButton's security salt to $SALT"
+	echo "Changed BigBlueButton's shared secret to $SALT"
 	echo
 fi
 
@@ -599,323 +608,22 @@ you can map the above path to a drive letter.
 fi
 
 
-if [ $SETUPDEV ]; then
-	check_root
-
-	#
-	# Setup the development tools
-	#
-	if [ $SETUPDEV == "tools" ]; then
-
-		#
-		# Check for core development tools
-		#
-			if ! which git > /dev/null; then
-					sudo apt-get install git-core -y --force-yes
-			fi
-
-			if ! which ant > /dev/null; then
-					sudo apt-get install ant -y --force-yes
-			fi
-
-			if ! which javac > /dev/null; then
-					sudo apt-get install openjdk-6-jdk -y --force-yes
-			fi
-
-		BASE=~/dev/tools
-		mkdir -p $BASE
-		#
-		# Check for BigBlueButton-specific development tools
-		#
-		TOOLS="gradle-0.8 grails-1.1.1 groovy-1.6.5"
-		for tool in $TOOLS; do
-			if [ ! -d $BASE/$tool ]; then
-				cd $BASE
-				if [ ! -f $tool.tar.gz ]; then
-					wget http://bigbluebutton.googlecode.com/files/$tool.tar.gz
-				fi
-				echo "Installing $tool to $BASE/$tool"
-				tar xvfz $tool.tar.gz 
-			fi
-		done
-
-		if [ ! -f $BASE/flex-4.5.0.20967/flex-sdk-description.xml ]; then
-			cd $BASE
-			if [ ! -f flex_sdk_4.5.0.20967_mpl.zip ]; then
-				wget http://fpdownload.adobe.com/pub/flex/sdk/builds/flex4.5/flex_sdk_4.5.0.20967_mpl.zip
-			fi
-			mkdir -p $BASE/flex-4.5.0.20967
-			cd $BASE/flex-4.5.0.20967
-			unzip $BASE/flex_sdk_4.5.0.20967_mpl.zip
-			#
-			# The permissions are not in good shape, so let's fix them 
-			#
-			sudo find $BASE/flex-4.5.0.20967 -type d -exec chmod o+rx '{}' \;
-			chmod 755 $BASE/flex-4.5.0.20967/bin/*
-			sudo chmod -R +r $BASE/flex-4.5.0.20967
-			#sudo chmod o+w /usr/share/flex-4.5.0.20967/frameworks/projects/framework/bundles
-		fi
-
-		if [ ! -L $BASE/flex ]; then
-			ln -s $BASE/flex-4.5.0.20967 $BASE/flex
-		fi
-
-
-		if [ ! -f $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3/playerglobal.swc ]; then
-			mkdir -p $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3
-			cd $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3
-			if [ ! -f playerglobal10_3.swc ]; then
-				wget http://fpdownload.macromedia.com/pub/flashplayer/updaters/10/playerglobal10_3.swc
-			fi
-			mv -f playerglobal10_3.swc playerglobal.swc
-		fi
-
-		if ! grep -q GROOVY_HOME ~/.profile; then
-			echo "
-#
-# BigBlueButton: Setup development environment
-
-export GROOVY_HOME=$HOME/dev/tools/groovy-1.6.5
-export PATH=\$PATH:\$GROOVY_HOME/bin
-
-export GRAILS_HOME=$HOME/dev/tools/grails-1.1.1
-export PATH=\$PATH:\$GRAILS_HOME/bin
-
-export FLEX_HOME=$HOME/dev/tools/flex
-export PATH=\$PATH:\$FLEX_HOME/bin
-
-export GRADLE_HOME=$HOME/dev/tools/gradle-0.8
-export PATH=\$PATH:\$GRADLE_HOME/bin
-
-export JAVA_HOME=/usr/lib/jvm/java-6-openjdk
-export ANT_OPTS=\"-Xmx512m -XX:MaxPermSize=512m\"
-" >> ~/.profile
-		fi
-
-		if [ ! -n "$GROOVY_HOME" ]; then
-			echo "
-
-# Finished setting up your development environment variables in
-#
-#   $HOME/.profile
-#
-# Before you continue, you need to load them into your environment.
-# Do the following
-#
-#   source ~/.profile
-#
-# You then need to checkout the source for BigBlueButton.  See
-#
-#   http://code.google.com/p/bigbluebutton/wiki/08SettingDevEnvironment
-#
-"
-		
-			exit 0
-		fi
-	fi
-
-	check_tools ~/dev/tools
-
-	check_source ~/dev/bigbluebutton
-
-	#
-	# Now, setup the specific development environment
-	#
-    if [ $SETUPDEV == "web" ]; then
-	BBBWEBHOME=$HOME/dev/bigbluebutton/bigbluebutton-web
-	check_source $BBBWEBHOME
-
-        cp ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties $BBBWEBHOME/grails-app/conf
-
-
-        # Enabling $USER to write to /var/bigbluebutton to upload slides
-        sudo chmod -R ugo+rwx /var/bigbluebutton
-
-        # Enabling $USER to write to /var/log/bigbluebutton to write log files
-        sudo chmod -R ugo+rwx /var/log/bigbluebutton
-
-	# Resolving dependencies
-	cd $BBBWEBHOME
-	gradle resolveDeps
-
-        if [ ! -f /etc/bigbluebutton/nginx/web_dev ]; then
-            echo "
-         # Handle request to bbb-web running within Tomcat.  This is for
-         # the BBB-API and Presentation.
-       location /bigbluebutton {
-           proxy_pass         http://127.0.0.1:8888;
-           proxy_redirect     default;
-           proxy_set_header   X-Forwarded-For   \$proxy_add_x_forwarded_for;
-
-        # Allow 30M uploaded presentation document.
-           client_max_body_size       30m;
-           client_body_buffer_size    128k;
-
-           proxy_connect_timeout      90;
-           proxy_send_timeout         90;
-           proxy_read_timeout         90;
-
-           proxy_buffer_size          4k;
-           proxy_buffers              4 32k;
-           proxy_busy_buffers_size    64k;
-           proxy_temp_file_write_size 64k;
-
-           include    fastcgi_params;
-       }
-" | sudo tee /etc/bigbluebutton/nginx/web_dev > /dev/null 2>&1
-
-    fi
-
-    #sudo rm /etc/bigbluebutton/nginx/web.nginx
-    sudo ln -s -f /etc/bigbluebutton/nginx/web_dev /etc/bigbluebutton/nginx/web.nginx
-
-    sudo /etc/init.d/nginx restart
-
-    echo "
-# Done.  To run your local build of bbb-web:
-
-        cd ${BBBWEBHOME}
-        grails -Dserver.port=8888 run-app
-
-## Note ## 
-
-   You'll get an error running the above the first time.  Just cancel and run again.
-"
-    fi
-
-    if [ $SETUPDEV == "client" ]; then
-		BBBCLIENTHOME=$HOME/dev/bigbluebutton/bigbluebutton-client
-		check_source $BBBCLIENTHOME
-
-		#
-		# Setup initial values from the working environment
-		# 
-                cp /var/www/bigbluebutton/client/conf/config.xml $BBBCLIENTHOME/src/conf/config.xml
-                cp $BBBCLIENTHOME/resources/dev/join-mock.xml $BBBCLIENTHOME/src/conf/join-mock.xml
-
-		#
-		# We're going to create a symbolic link to the new location for BigBlueButton client
-		#
-		if [ ! -f /etc/bigbluebutton/nginx/client_dev ]; then
-			echo "
-        location /client/BigBlueButton.html {
-                root    $BBBCLIENTHOME;
-                index  index.html index.htm;
-                expires 1m;
-        }
-
-        # BigBlueButton Flash client.
-        location /client {
-                root    $BBBCLIENTHOME;
-                index  index.html index.htm;
-        }
-" | sudo tee /etc/bigbluebutton/nginx/client_dev > /dev/null 2>&1
-
-		fi
-		sudo ln -f -s /etc/bigbluebutton/nginx/client_dev /etc/bigbluebutton/nginx/client.nginx
-
-		if [ ! -L $BBBCLIENTHOME/client ]; then
-			ln -s $BBBCLIENTHOME/bin $BBBCLIENTHOME/client
-		fi
-
-		echo	
-                sudo /etc/init.d/nginx restart
-
-		# xxx
-		#if [ ! -d /var/bigbluebutton/conference-mock-default/conference-mock-default/room-mock-default ]; then
-		#	echo "# Creating /var/bigbluebutton/conference-mock-default/conference-mock-default/room-mock-default"
-                #        sudo mkdir -p /var/bigbluebutton/conference-mock-default/conference-mock-default/room-mock-default
-		#	echo "# chown /var/bigbluebutton/conference-mock-default to tomcat6"
-		#	sudo chown -R tomcat6:tomcat6 /var/bigbluebutton/conference-mock-default
-                #fi
-
-                cd $BBBCLIENTHOME
-
-                echo "
-# Setup of development for bigbluebutton-client complete.
-#
-# 1.  Build the language files.  (You need only do this once unless
-# you change the language files in the future.)
-#
-#       cd ${BBBCLIENTHOME}
-#	ant locales
-#
-# 2.  Modify the source for the client.  The source is locatedt at
-# 
-#       $BBBCLIENTHOME
-#
-# 3.  Build the client
-#
-#       cd ${BBBCLIENTHOME}
-#	ant
-
-"
-    fi
-
-    if [ $SETUPDEV == "apps" ]; then
-	    BBBAPPSHOME=~/dev/bigbluebutton/bigbluebutton-apps
-		check_source $BBBAPPSHOME
-
-        #
-        # We're going to make it easier to deploy by giving write access to others to
-        # $RED5_DIR/webapps
-        #
-        sudo chmod -R o+w $RED5_DIR/webapps
-
-        #
-        # Let's remove the existing bbb-apps
-        #
-        if dpkg-query -s bbb-apps | grep "install ok installed" > /dev/null 2>&1; then
-            sudo apt-get purge --yes bbb-apps
-        fi
-
-        echo "
-# Done.  To run your local build of bbb-apps:
-
-    sudo /etc/init.d/red5 stop
-    cd ${BBBAPPSHOME}
-    gradle resolveDeps
-    gradle clean war deploy
-    cd $RED5_DIR
-    sudo -u red5 ./red5.sh
-
-# To restore the packaged version of bbb-apps:
-
-    rm -rf $RED5_DIR/webapps/bigbluebutton
-    sudo apt-get install bigbluebutton
-    sudo /etc/init.d/red5 start
-"
-
-    fi
-fi
-
-if [ $RESET_DEV ]; then
-	check_root
-
-	echo "Reseting /etc/nginx/sites-available/bigbluebutton to point to /var/www/bigbluebutton"
-        sudo rm /etc/bigbluebutton/nginx/client.nginx
-        sudo ln -s /etc/bigbluebutton/nginx/client /etc/bigbluebutton/nginx/client.nginx
-
-	sudo /etc/init.d/nginx restart
-fi
-
 check_configuration() {
 	#
 	# Check if we've got the voice conference servers properly installed and configured
 	#
         if [ "$VOICE_CONFERENCE" == "bbb-voice-freeswitch.xml" ]; then
-		check_file /opt/freeswitch/conf.dist/vars.xml
-	
-		if [ -f /opt/freeswitch/conf.dist/vars.xml ]; then	
-			if ! sudo cat /opt/freeswitch/conf/vars.xml | grep --quiet BigBlueButton; then
-				echo 
-				echo "# Did not detect a valid BigBlueButton configuration for FreeSWITCH. The file"
-				echo "#   /opt/freeswitch/conf.dist/vars.xml" 
-				echo "# appears to be the original FreeSWITCH configuration file."
-				echo "#   Try running: sudo apt-get install bbb-freeswitch-config"
-				echo 
-			fi
-		fi
+               if [ ! -d /opt/freeswitch/conf/jingle_profiles ]; then
+                        echo
+                        echo "# You have an older version of FreeSWITCH installed.  To upgrade"
+                        echo "# enter the following commands"
+                        echo "# "
+                        echo "#   sudo apt-get remove bbb-freeswitch"
+                        echo "#   sudo apt-get install bigbluebutton"
+                        echo "# "
+                        echo
+                fi
+
 		
 		#
 		# Check that freeswtich ESL matches the value in bigbluebutton.properties
@@ -924,7 +632,7 @@ check_configuration() {
 			FREESWITCH_ESL_IP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
 			check_no_value event_socket /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml $FREESWITCH_ESL_IP
 			
-			ESL_HOST=$(cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | grep esl.host | sed 's/esl.host=//g')
+			ESL_HOST=$(cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | grep esl.host | sed 's/freeswitch.esl.host=//g')
 			check_no_value esl.host /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties $ESL_HOST
 
 			if [ "$FREESWITCH_ESL_IP" != "$ESL_HOST" ]; then
@@ -1029,8 +737,8 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 
 		if [ "$SALT_PROPERTIES" != "$SALT_DEMO" ]; then
 			echo "# Warning: API Salt mismatch: "
-			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties=$SALT_PROPERTIES"
-			echo "#  ${SERVLET_DIR}/demo/bbb_api_conf.jsp=$SALT_DEMO"
+			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties  = $SALT_PROPERTIES"
+			echo "#  ${SERVLET_DIR}/demo/bbb_api_conf.jsp                                   = $SALT_DEMO"
 			echo 
 		fi
 
@@ -1041,6 +749,18 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 			echo "#                                IP from ifconfig: $IP"
 			echo "#  ${SERVLET_DIR}/demo/bbb_api_conf.jsp: $API_IP"
 			echo
+		fi
+	fi
+
+	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
+                LTI_SALT=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | tr -d '\r' | sed -n '/^bigbluebuttonSalt/{s/.*=//;p}')
+                BBB_SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
+
+		if [ "$LTI_SALT" != "$BBB_SALT" ]; then
+			echo "# Warning: LTI Salt mismatch:"
+			echo "#  ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties                      = $LTI_SALT"
+			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties  = $BBB_SALT"
+			echo 
 		fi
 	fi
 
@@ -1091,12 +811,14 @@ check_state() {
 		fi
 	fi
 
-	if ! ps aux | grep -v grep | grep '[/]usr/lib/openoffice/program/soffice.bin' > /dev/null; then
-		print_header
-		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} OpenOffice"
-	else
-		RUNNING_APPS="${RUNNING_APPS} OpenOffice"
-	fi	
+        if ! ps aux | grep -v grep | grep '[/]usr/lib/openoffice/program/soffice.bin' > /dev/null; then
+                if ! ps aux | grep -v grep | grep '[/]usr/lib/libreoffice/program/soffice.bin' > /dev/null; then
+                        print_header
+                        NOT_RUNNING_APPS="${NOT_RUNNING_APPS} OpenOffice or LibreOffice"
+                fi
+        else
+                RUNNING_APPS="${RUNNING_APPS} OpenOffice"
+        fi
 
 	if ! ps aux | grep -v grep | grep '[/]usr/sbin/nginx' > /dev/null; then
 		print_header
@@ -1157,6 +879,15 @@ check_state() {
 		echo "#"
 		echo "# (This is OK if you have setup a development environment.) "
 		echo
+
+		if [ ! -d $NEW_LOCATION ]; then
+			echo "# Warning: The directory"
+			echo "#"
+			echo "#    $NEW_LOCATION"
+			echo "#"
+			echo "# does not exist.  The BigBlueButton client will not load."
+			echo
+		fi
 	fi
 
 	#
@@ -1220,6 +951,16 @@ check_state() {
 			fi
 		else
 			echo "#    $RED5_DIR/log/$bbb_app.log not found"
+		fi
+	done
+
+	#
+	# Check if any of the red5 BigBlueButton applications did not start propery
+	#
+	COMMANDS="ffmpeg ruby gem ghostscript pdf2swf"
+	for cmd in $COMMANDS ; do
+		if ! which $cmd > /dev/null; then
+			echo "#    $cmd command not found"
 		fi
 	done
 
@@ -1315,7 +1056,6 @@ check_state() {
 		fi
 	fi
 
-	if dpkg -l | grep -q bbb-freeswitch-config; then
 		if [ "$VOICE_CONFERENCE" == "bbb-voice-asterisk.xml" ]; then
 			echo "# Error: You have freeswitch installed, but the current voice conference set"
 			echo "# to asterisk.  To switch to freeswitch, enter"
@@ -1324,21 +1064,23 @@ check_state() {
 			echo 
 		fi
 
-		SIP_SERVER_HOST=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/^sip.server.host=/{s/.*=//;s/;//;p}')
-		if [ $SIP_SERVER_HOST != "127.0.0.1" ]; then
-			if [ $SIP_SERVER_HOST != $IP ]; then
-				echo "# Error: The setting of ($SIP_SERVER_HOST) for sip.server.host in"
+		BBB_SIP_APP_IP=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/^bbb.sip.app.ip=/{s/.*=//;s/;//;p}')
+		if [ $BBB_SIP_APP_IP != "127.0.0.1" ]; then
+			if [ $BBB_SIP_APP_IP != $IP ]; then
+				echo "# Warning: The setting of ($BBB_SIP_APP_IP) for bbb.sip.app.ip in"
 				echo "#"
 				echo "#    /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 				echo "#"
 				echo "# does not match the local IP address ($IP)."
+				echo "# (This is OK if you've manually changed the values to an external "
+				echo "# FreeSWITCH server.)"
 				echo 
 			fi
 
 			SIP_IP=$(netstat -ant | grep 5060 | head -n1 | awk -F" " '{print $4}' | cut -d: -f1)
-			if [ $SIP_SERVER_HOST != $SIP_IP ]; then
+			if [ $BBB_SIP_APP_IP != $SIP_IP ]; then
 				echo "# Error: FreeSWITCH is listening on IP address $SIP_IP for SIP calls, but "
-				echo "# The IP address ($SIP_SERVER_HOST) set for sip.server.host."
+				echo "# The IP address ($BBB_SIP_APP_IP) set bbb.sip.app.ip."
 				echo "#"
 				echo "# If your audio is not working (users click the  headset icon "
 				echo "# and don't appear in the Listeners window, ensure FreeSWITCH uses"
@@ -1347,46 +1089,16 @@ check_state() {
 				echo 
 			fi
 		fi
-	else
-		echo "# Error: You don't have bbb-freeswitch-config installed.  To install FreeSWITCH"
-		echo "#"
-		echo "#      sudo apt-get install bbb-freeswitch-config"
-		echo "#"
-		echo 
-	fi
 
-	#
-	# We've not done extensive testing of asterisk in BigBlueButton 0.8
-	#
-	if dpkg -l | grep -q bbb-voice-conference; then
-		if [ "$VOICE_CONFERENCE" == "bbb-voice-freeswitch.xml" ]; then
-			echo "# You have asterisk installed, but the current voice conference set"
-			echo "# to freeswitch.  To switch to asterisk, enter"
+	if [ -d ${SERVLET_DIR}/lti ]; then
+		if test ${SERVLET_DIR}/lti.war -nt ${SERVLET_DIR}/lti; then 
+			echo "# Error: The updated lti.war did not deploy.  To manually deploy:"
 			echo "#"
-			echo "#   sudo bbb-conf --conference konference"
-			echo 
-		fi
-
-		SIP_SERVER_HOST=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/sip.server.host=/{s/.*=//;s/;//;p}')
-		if [ $SIP_SERVER_HOST != "127.0.0.1" ]; then
-			echo "# The IP address ($SIP_SERVER_HOST) set for sip.server.host in"
+                        echo "#    sudo touch ${SERVLET_DIR}/lti.war"
 			echo "#"
-			echo "#    /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
-			echo "#"
-			echo "# should be 127.0.0.1 for Asterisk."
-			echo 
-		fi
-	fi
-
-        PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/slides.yml  | sed -n '/playback_host/{s/.*:[ ]*//;s/;//;p}')
-        if [ $PLAYBACK_IP != $IP ]; then
-                        echo "# Warning: The value ($PLAYBACK_IP) for playback_host in"
-			echo "#"
-                        echo "#    /usr/local/bigbluebutton/core/scripts/slides.yml"
-			echo "#"
-                        echo "# does not match the local IP address ($IP)."
                         echo
-        fi
+		fi
+	fi
 
 	if [ -d ${SERVLET_DIR}/demo ]; then
 		if test ${SERVLET_DIR}/demo.war -nt ${SERVLET_DIR}/demo; then 
@@ -1420,7 +1132,7 @@ check_state() {
 	fi
 
 	
-	if [ -f /var/lib/tomcat6/webapps/demo/demo1.jsp ]; then
+	if [ -f ${SERVLET_DIR}/demo/demo1.jsp ]; then
 		BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 		echo "# Warning: The API demos are installed and accessible from:"
 		echo "#"
@@ -1430,6 +1142,40 @@ check_state() {
 		echo "#"
 		echo "#    sudo apt-get purge bbb-demo"
 		echo 
+	fi
+
+	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
+		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiEndPoint/{s/^.*=//;p}')
+		echo "# Warning: The IMS Learning Tools Integration (LTI) is accessible from:"
+		echo "#"
+		echo "#    $LTI_URL"
+		echo "#"
+		echo "# To get the access parameters for LTI, run the command"
+		echo "#"
+		echo "#    bbb-conf --lti"
+		echo 
+	fi
+
+	BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
+	DEFAULT_PDF=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^beans.presentationService.defaultUploadedPresentation/{s/.*=//;p}')
+	if echo $DEFAULT_PDF | grep -q "bigbluebutton.web.serverURL"; then
+        	if ! echo "$BBB_WEB$(echo $DEFAULT_PDF | sed 's/${bigbluebutton.web.serverURL}//g')" | xargs wget -q -O /dev/null; then
+			echo "# Error: Unable to reach default URL for presentation:"
+			echo "#"
+			echo "#    $BBB_WEB$(echo $DEFAULT_PDF | sed 's/${bigbluebutton.web.serverURL}//g')"
+			echo "#"
+                	echo "# Check value for beans.presentationService.defaultUploadedPresentation in"
+                	echo "#   ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties"
+        	fi
+	else
+        	if ! echo "$DEFAULT_PDF" | xargs wget -q -O /dev/null; then
+			echo "# Error: Unable to reach default URL for presentation"
+			echo "#"
+			echo "#    $DEFAULT_PDF"
+			echo "#"
+                	echo "# Check value for beans.presentationService.defaultUploadedPresentation in"
+                	echo "#   ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties"
+        	fi
 	fi
 
 	exit 0
@@ -1493,6 +1239,13 @@ if [ $CHECK ]; then
 		echo "                           api url: $API_IP"
 	fi
 
+	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
+		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties  | sed -n '/^bigbluebuttonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
+		echo
+		echo "${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties (LTI integration)"
+		echo "                           api url: $LTI_URL"
+	fi
+
 	if [ $VOICE_CONFERENCE == "bbb-voice-freeswitch.xml" ]; then
 		CONFERENCING_MODULE="FreeSWITCH"
 	else
@@ -1503,17 +1256,15 @@ if [ $CHECK ]; then
 	echo "/usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml (red5)"
 	echo "                  voice conference: $CONFERENCING_MODULE"
 
-	if [ -f /usr/local/bigbluebutton/core/scripts/slides.yml ]; then
-		PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/slides.yml  | sed -n '/playback_host/{s/.*:[ ]*//;s/;//;p}')
+	CAPTURE_VIDEO="$(cat /usr/share/red5/webapps/video/WEB-INF/red5-web.xml | sed -n '/recordVideoStream/{s/^.*="//g;s/"\/>//g;p}')"
+	echo "                     capture video: $CAPTURE_VIDEO"
+
+	if [ -f /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml ]; then
+		PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml  | sed -n '/playback_host/{s/.*:[ ]*//;s/;//;p}')
 		echo
-		echo "/usr/local/bigbluebutton/core/scripts/slides.yml (record and playback)"
+		echo "/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml (record and playback)"
 		echo "                     playback host: $PLAYBACK_IP"
 	fi
-
-	#SIP_SERVER_HOST=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/sip.server.host=/{s/.*=//;s/;//;p}')
-	#echo
-	#echo "/usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
-	#echo "                   SIP server host: $SIP_SERVER_HOST"
 
 	check_state
 	echo ""
@@ -1667,58 +1418,9 @@ if [ $DEBUG ]; then
 	#
 	# Additional checks for record and playback
 	#
-	rm -rf /tmp/t
-	if ls /var/log/bigbluebutton/slides-process-* > /dev/null 2>1; then
-		  sudo grep -i Error /var/log/bigbluebutton/slides-process-* > /tmp/t 
-		  if [ -s /tmp/t ]; then
-			echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/slides-process-*.log -- "
-			cat /tmp/t
-			echo
-		  fi
-	fi
 
-	rm -rf /tmp/t
-	if ls /var/log/bigbluebutton/slides-publish-* > /dev/null 2>1; then
-		  sudo grep -i Error /var/log/bigbluebutton/slides-publish-* > /tmp/t 
-		  if [ -s /tmp/t ]; then
-			echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/slides-publish-*.log -- "
-			cat /tmp/t
-			echo
-		  fi
-	fi
+	bbb-record --check
 
-	rm -rf /tmp/t
-	if ls /var/log/bigbluebutton/slides-process-* > /dev/null 2>1; then
-		for file in /var/log/bigbluebutton/slides-process-*; do 
-		  if [ ! -f $(echo $file | sed 's/process/publish/g') ]; then 
-			echo "  $file" >> /tmp/t
-                  fi 
-                done
-
-		  if [ -s /tmp/t ]; then
-			echo "   -- Ingest and Processing: found process file but not publish -- "
-			cat /tmp/t
-			echo
-		  fi
-	fi
-
-
-	rm -rf /tmp/t
-	if ls /var/bigbluebutton/recording/status/recorded/*.done > /dev/null 2>1; then
-		for file in /var/bigbluebutton/recording/status/recorded/*.done; do 
-		  if [ ! -f $(echo $file | sed 's/recorded/archived/g') ]; then 
-			echo "  $file" >> /tmp/t
-                  fi 
-                done
-
-		  if [ -s /tmp/t ]; then
-			echo "   -- Ingest and Processing: found recorded meeting but no archive files-- "
-			cat /tmp/t
-			echo
-		  fi
-	fi
-	
-	
 	exit 0
 fi
 
@@ -1773,11 +1475,38 @@ if [ -n "$HOST" ]; then
 			${SERVLET_DIR}/demo/bbb_api_conf.jsp
 	fi
 	
-	if [ -f /usr/local/bigbluebutton/core/scripts/slides.yml ]; then
-		echo "Assigning $HOST for record and playback in /usr/local/bigbluebutton/core/scripts/slides.yml"
-		change_yml_value /usr/local/bigbluebutton/core/scripts/slides.yml $redis_host playback_host $HOST
+
+	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
+		echo "Assigning $HOST for LTI integration in ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties"
+        	sed -i "s/bigbluebuttonURL=http:\/\/.*/bigbluebuttonURL=http:\/\/$HOST\/bigbluebutton/g" \
+                	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
+        	sed -i "s/ltiEndPoint=http:\/\/.*/ltiEndPoint=http:\/\/$HOST\/lti\/tool/g" \
+                	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
 	fi
-	
+
+
+	if [ -f /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml ]; then
+		echo "Assigning $HOST for record and playback in /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml"
+		change_yml_value /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml $redis_host playback_host $HOST
+	fi
+
+	echo -n "Assigning $HOST for playback of recordings: "
+
+	TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g)
+	BASE=/var/bigbluebutton/recording
+        for type in $TYPES; do
+                for metadata in $(find $BASE/publish/$type -name metadata.xml); do
+			echo -n "."
+			sed -i "/<link>/{s/http:\/\/\([^\"\/]*\)\/playback\/$type\([^<]\)/http:\/\/$HOST\/playback\/$type\2/g}" $metadata
+                done
+        done
+        for type in $TYPES; do
+                for metadata in $(find /var/bigbluebutton/published/$type -name metadata.xml); do
+			echo -n "."
+			sed -i "/<link>/{s/http:\/\/\([^\"\/]*\)\/playback\/$type\([^<]\)/http:\/\/$HOST\/playback\/$type\2/g}" $metadata
+                done
+        done
+	echo 
 
 	echo "Restarting the bigbluebutton server ..."
 	stop_bigbluebutton
@@ -1852,7 +1581,7 @@ if [ $CONFERENCE ]; then
 			sudo update-rc.d -f freeswitch remove >/dev/null
 		fi
 
-	        change_var_ip /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties sip.server.host 127.0.0.1
+	        change_var_ip /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties bbb.sip.server.ip 127.0.0.1
 
 		sudo update-rc.d asterisk defaults 21 > /dev/null
 
@@ -1902,7 +1631,7 @@ if [ $CONFERENCE ]; then
                         /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml
                 fi
 
-	        change_var_ip /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties sip.server.host 127.0.0.1
+	        change_var_ip /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties bbb.sip.server.ip 127.0.0.1
 
 		echo "Switching to $CONFERENCE ... "
 		if [ -f $FREESWITCH_INIT_D ]; then
@@ -1932,7 +1661,7 @@ if [ $CONFERENCE ]; then
 			/usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml
 		fi
 
-	        change_var_ip /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties sip.server.host 127.0.0.1
+	        change_var_ip /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties bbb.sip.server.ip 127.0.0.1
 
 		echo "Switching to $CONFERENCE ... "
 		if [ -f /etc/init.d/asterisk ]; then
@@ -1965,7 +1694,7 @@ if [ $CLEAN ]; then
 	need_root
 	check_configuration
 	
-	echo "Doing a clean restart of BigBlueButton ..."
+	echo "Doing a restart of BigBlueButton and cleaning out all log files..."
 
 	stop_bigbluebutton
 

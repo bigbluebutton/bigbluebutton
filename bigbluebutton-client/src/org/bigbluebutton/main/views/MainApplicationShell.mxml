@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
-  
-  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
-  
-  BigBlueButton is free software; you can redistribute it and/or modify it under the 
-  terms of the GNU Lesser General Public License as published by the Free Software 
-  Foundation; either version 2.1 of the License, or (at your option) any later 
-  version. 
-  
-  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
-  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-  
-  You should have received a copy of the GNU Lesser General Public License along 
-  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- 
-  $Id: $
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
 -->
 
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
@@ -28,7 +28,8 @@
 		xmlns:maps="org.bigbluebutton.main.maps.*"
 		xmlns:api="org.bigbluebutton.main.api.*"
 		width="100%" height="100%" 
-		creationComplete="initializeShell()" xmlns:common="org.bigbluebutton.common.*">
+		creationComplete="initializeShell()" 
+		xmlns:common="org.bigbluebutton.common.*">
 		
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
@@ -54,7 +55,6 @@
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.events.MouseEvent;
-			import flash.events.Event;
 			
 			import flexlib.mdi.containers.MDIWindow;
 			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
@@ -63,16 +63,17 @@
 			import mx.containers.TitleWindow;
 			import mx.controls.Alert;
 			import mx.core.FlexGlobals;
+			import mx.core.UIComponent;
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
-			import mx.core.IFlexDisplayObject;
-			import org.bigbluebutton.common.IBbbToolbarComponent;
+			import flash.geom.Point;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.core.BBB;
@@ -103,9 +104,12 @@
 			private var waitWindow:WaitingWindow = null;	
 			private var guestWindow:GuestWindow = null;
 			private var bbbSettings:BBBSettings = null;
-			
+			private var scWindow:ShortcutHelpWindow;
+
 			private var logoutWindow:LoggedOutWindow;
 			private var connectionLostWindow:ConnectionLostWindow;
+			
+			[Bindable] private var baseIndex:int = 100000;
 			
 			// LIVE or PLAYBACK
 			private var _mode:String = 'LIVE';
@@ -116,7 +120,8 @@
 			[Bindable] private var fullscreen_icon:Class = images.full_screen;
 			[Bindable] private var logs_icon:Class = images.table;
 			[Bindable] private var reset_layout_icon:Class = images.layout;
-
+      [Bindable] private var statsIcon:Class = images.bandwidth;
+      
 			private var receivedConfigLocaleVer:Boolean = false;
 			private var receivedResourceLocaleVer:Boolean = false;
 			private var guestManagement:GuestManagement = null;
@@ -131,19 +136,33 @@
 			[Bindable] private var layoutOptions:LayoutOptions;
 			
 			[Bindable] private var showToolbarOpt:Boolean = true;
-			
+			[Bindable] private var toolbarHeight:Number = 30;
+      [Bindable] private var toolbarPaddingTop:Number = 4;
+      [Bindable] private var showFooterOpt:Boolean = true;
+      [Bindable] private var footerHeight:Number = 20;
+      
+      [Bindable] private var isTunneling:Boolean = false;
+      
 			public function initOptions(e:Event):void {
-				LogUtil.debug("**** Init layout options ***");
 				layoutOptions = new LayoutOptions();
 				layoutOptions.parseOptions();
 				showToolbarOpt = layoutOptions.showToolbar;
-				LogUtil.debug("*** show toolbar = " + layoutOptions.showToolbar);
+				if (!showToolbarOpt) {
+          toolbarHeight = 0;
+          toolbarPaddingTop = 0;
+        }
 				toolbar.displayToolbar();
-				
-				bbbSettings = BBBSettings(PopUpManager.createPopUp(mdiCanvas, BBBSettings, true));	
-				
-			}
+        
+        showFooterOpt = layoutOptions.showFooter;
+        if (!showFooterOpt) {
+          footerHeight = 0;
+        }
 
+		bbbSettings = BBBSettings(PopUpManager.createPopUp(mdiCanvas, BBBSettings, true));	
+			
+        
+      }
+			
 			private function setGuestPolicy(event:BBBEvent):void {
 				guestPolicy = event.payload.guestPolicy;
 				if(guestManagement == null) {
@@ -153,9 +172,9 @@
 					guestManagement.addToSettings();
 				}
 			}
-			
+
 			protected function initializeShell():void {	
-				globalDispatcher = new Dispatcher();	
+				globalDispatcher = new Dispatcher();
 			}
 		
 			protected function initFullScreen():void {				
@@ -171,7 +190,7 @@
 					receivedConfigLocaleVer = true;
 					appVersion = event.appVersion;
 					localeVersion = event.localeVersion;
-					LogUtil.debug("Received locale version fron config.xml");
+//					LogUtil.debug("Received locale version fron config.xml");
 				} else {
 					receivedResourceLocaleVer = true;
 					LogUtil.debug("Received locale version fron locale file.");
@@ -181,13 +200,12 @@
 					LogUtil.debug("Comparing locale versions.");
 					if (!event.suppressLocaleWarning) checkLocaleVersion(localeVersion);
 					if (sendStartModulesEvent) {
+            
 						sendStartModulesEvent = false;
 						sendStartAllModulesEvent();
-						
 					}				
 				}						
 			}
-
 			
 
 			public function guestAllowed(evt:ModeratorRespEvent):void {
@@ -254,6 +272,25 @@
 				logWindow.height = mdiCanvas.height - 100;
 			}
 			
+			public function openShortcutHelpWindow(e:Event = null):void{
+				if (scWindow == null) {
+					scWindow = new ShortcutHelpWindow();
+					scWindow.width = 300;
+					scWindow.height = 300;
+				}
+				
+				if (scWindow.minimized)
+					scWindow.restore();
+				
+				if (scWindow.maximized)
+					scWindow.restore();
+				
+				mdiCanvas.windowManager.add(scWindow);
+				mdiCanvas.windowManager.absPos(scWindow, mdiCanvas.width/2 - 150, mdiCanvas.height/2 - 150);
+				
+				scWindow.focusHead();
+			}
+			
 			private function toggleFullScreen():void{
 	   			LogUtil.debug("Toggling fullscreen");
 	   			try {
@@ -275,14 +312,14 @@
 	   		}	
 	   		
 	   		private function handleOpenWindowEvent(event:OpenWindowEvent):void {
-	   			
+          isTunneling = BBB.initConnectionManager().isTunnelling;
 	   			var window:IBbbModuleWindow = event.window;
 	   			mdiCanvas.addWindow(window);
 	   		}
 	   		
 	   		private function handleCloseWindowEvent(event:CloseWindowEvent):void {
 	   			var window:IBbbModuleWindow = event.window;
-				mdiCanvas.removeWindow(window);
+				  mdiCanvas.removeWindow(window);
 	   		}
 	   		
 	   		private function resetLayout():void{
@@ -309,15 +346,11 @@
 			private function showMicSettings(event:BBBEvent):void {
 				var micSettings:MicSettings = MicSettings(PopUpManager.createPopUp(mdiCanvas, MicSettings, true));				
 				var point1:Point = new Point();
-				//Calculate position of TitleWindow in Application's coordinates. 
+				// Calculate position of TitleWindow in Application's coordinates. 
 				point1.x = width/2;
 				point1.y = height/2;                
 				micSettings.x = point1.x - (micSettings.width/2);
 				micSettings.y = point1.y - (micSettings.height/2);	
-
-
-
-				
 			}
 			
 			private function showBBBSettings(event:BBBEvent):void {
@@ -329,8 +362,21 @@
 				bbbSettings.x = point1.x - (bbbSettings.width/2);
 				bbbSettings.y = point1.y - (bbbSettings.height/2);
 			}
-			
-	   		private function wrongLocaleVersion():void {
+
+      private function openVideoPreviewWindow(event:BBBEvent):void {
+        var camSettings:CameraDisplaySettings = CameraDisplaySettings(PopUpManager.createPopUp(mdiCanvas, CameraDisplaySettings, true));		
+        camSettings.resolutions = (event.payload.resolutions as String).split(",");
+        camSettings.publishInClient = event.payload.publishInClient;
+        
+        var point1:Point = new Point();
+        // Calculate position of TitleWindow in Application's coordinates. 
+        point1.x = width/2;
+        point1.y = height/2;                
+        camSettings.x = point1.x - (camSettings.width/2);
+        camSettings.y = point1.y - (camSettings.height/2);	
+      }
+      
+	   	private function wrongLocaleVersion():void {
 				var localeWindow:OldLocaleWarnWindow = OldLocaleWarnWindow(PopUpManager.createPopUp(mdiCanvas, OldLocaleWarnWindow, false));
 
 				var point1:Point = new Point();
@@ -339,7 +385,7 @@
 				point1.y = height/2;              
 				localeWindow.x = point1.x - (localeWindow.width/2);
 				localeWindow.y = point1.y - (localeWindow.height/2);	
-            }
+      }
 			
 			private function handleLogout(e:ConnectionFailedEvent):void {
 				if(waitWindow != null)				
@@ -351,7 +397,6 @@
 
 				
 				if (layoutOptions.showLogoutWindow) {
-					
 					if (logoutWindow != null) return;
 					logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, false));
 					
@@ -397,20 +442,78 @@
 				Alert.show(evt.status, evt.module);
 			}
 						
+			private function handleAddToolbarComponent(event:ToolbarButtonEvent):void {
+				if (event.location == ToolbarButtonEvent.BOTTOM_TOOLBAR) {
+					(event.button as UIComponent).tabIndex = baseIndex;
+					addedBtns.addChild(event.button as UIComponent);
+					//realignButtons();
+				}
+			}
+			
+			private function handleRemoveToolbarComponent(event:ToolbarButtonEvent):void {
+				if (addedBtns.contains(event.button as UIComponent))
+					addedBtns.removeChild(event.button as UIComponent);
+			}
+
+			private var networkStatsWindow:NetworkStatsWindow = new NetworkStatsWindow();
+
+			private function openNetworkStatsWindow(e:Event = null):void {
+				/*var btnPosition:Point = new Point(btnNetwork.x, btnNetwork.y);
+				var btnPositionOnGlobal:Point = btnNetwork.localToGlobal(btnPosition);
+				var windowPosition:Point = networkStatsWindow.globalToLocal(btnPositionOnGlobal);
+				
+				windowPosition.x += btnNetwork.width + 10;
+				windowPosition.y -= networkStatsWindow.height - 10;
+
+				networkStatsWindow.x = windowPosition.x;
+				networkStatsWindow.y = windowPosition.y;*/
+
+				networkStatsWindow.appear();
+			}
+			
+			private function closeNetworkStatsWindow(e:Event = null):void {
+				networkStatsWindow.disappear();
+			}
+
 		]]>
 	</mx:Script>
 			
-	<views:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="{showToolbarOpt}" verticalAlign="middle" toolbarOptions="{layoutOptions}"/>
-	<views:MainCanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off" effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" width="100%" height="100%">
-		<views:LoadingBar id="progressBar" x="{this.width/2 - progressBar.width/2}" y="{this.height/2 - progressBar.height/2}" width="{this.width/2}" visible="false" />
+	<views:MainToolbar id="toolbar" 
+					   dock="true" 
+					   width="100%" 
+					   height="{toolbarHeight}" 
+					   visible="{showToolbarOpt}" 
+					   verticalAlign="middle" 
+					   toolbarOptions="{layoutOptions}" 
+					   paddingTop="{toolbarPaddingTop}"/>
+					   
+	<views:MainCanvas id="mdiCanvas" 
+					  horizontalScrollPolicy="off" 
+					  verticalScrollPolicy="off" 
+					  effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" 
+					  width="100%" 
+					  height="100%">
+		<views:LoadingBar id="progressBar" x="{this.width/2 - progressBar.width/2}" y="{this.height/2 - progressBar.height/2}" width="{this.width/2}" />
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
 	</views:MainCanvas>	
-		
-	<mx:ControlBar width="100%" height="20" paddingTop="0">		
-	  	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
+	
+	<mx:ControlBar width="100%" height="{footerHeight}" paddingTop="0">		
+	  <mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
 	 	<mx:Spacer width="20"/>
 		<mx:Spacer width="100%"/> 
-		<mx:Button width="20" height="20" visible="{layoutOptions.showLogButton}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
-		<mx:Button width="20" height="20" visible="{layoutOptions.showResetLayout}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" />
+    <mx:Label text="{isTunneling ? '[Tunnelling]' : ''}" id="isTunnellingLbl"/>
+		
+		<mx:Button width="20" 
+				   height="20" 
+				   visible="{layoutOptions.showLogButton}" 
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" 
+				   id="logBtn" 
+				   icon="{logs_icon}" 
+				   click="openLogWindow()" 
+				   tabIndex="{baseIndex}"/>
+		
+		<!-- mx:Button width="20" height="20" visible="{layoutOptions.showResetLayout}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" /-->
+		<mx:Button id="btnNetwork" icon="{statsIcon}" width="20" height="20" mouseOver="openNetworkStatsWindow()" mouseOut="closeNetworkStatsWindow()" tabFocusEnabled="false" visible="{layoutOptions.showNetworkMonitor}" />		
+		<mx:HBox id="addedBtns" />
 	</mx:ControlBar>
 </mx:VBox>

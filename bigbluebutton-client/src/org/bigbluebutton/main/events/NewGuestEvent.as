@@ -29,7 +29,7 @@ package org.bigbluebutton.main.events
 		public static const NEW_GUEST_EVENT:String = "NewGuestEvent";
 		
 
-		public var userid:Number;
+		public var userid:String;
 		public var name:String;	
 		
 		public function NewGuestEvent(type:String)

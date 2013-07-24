@@ -1,29 +1,27 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
-	import flash.net.NetConnection;
-	
-	import mx.collections.ArrayCollection;
-	
+	import com.asfusion.mate.events.Dispatcher;	
+	import flash.net.NetConnection;	
+	import mx.collections.ArrayCollection;	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.UserConfigManager;
 	import org.bigbluebutton.core.managers.UserManager;
@@ -43,8 +41,6 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
-	import org.bigbluebutton.common.LogUtil;
-
 
 	public class UserService {
 		private var joinService:JoinService;
@@ -55,29 +51,42 @@ package org.bigbluebutton.main.model.users
 		private var connection:NetConnection;
 		private var dispatcher:Dispatcher;
 		
-	
 		public function UserService() {
 			dispatcher = new Dispatcher();
 		}
 		
-		public function startService(e:UserServicesEvent):void{
+		public function startService(e:UserServicesEvent):void {
 			applicationURI = e.applicationURI;
 			hostURI = e.hostURI;
-			
+			BBB.initConnectionManager().isTunnelling = e.isTunnelling;
+      
 			joinService = new JoinService();
 			joinService.addJoinResultListener(joinListener);
 			joinService.load(e.hostURI);
 		}
 		
-		private function joinListener(success:Boolean, result:Object):void{
+		private function joinListener(success:Boolean, result:Object):void {
 			if (success) {
 				UserManager.getInstance().getConference().setMyName(result.username);
 				UserManager.getInstance().getConference().setMyRole(result.role);
 				UserManager.getInstance().getConference().setMyRoom(result.room);
-				UserManager.getInstance().getConference().setMyAuthToken(result.authToken);
 				UserManager.getInstance().getConference().setGuest(result.guest == "true");
-				
+				UserManager.getInstance().getConference().setMyAuthToken(result.authToken);
+				UserManager.getInstance().getConference().setMyCustomData(result.customdata);
+        UserManager.getInstance().getConference().setDefaultLayout(result.defaultLayout);
+        
+        UserManager.getInstance().getConference().externalMeetingID = result.externMeetingID;
+        UserManager.getInstance().getConference().meetingName = result.conferenceName;
+        UserManager.getInstance().getConference().internalMeetingID = result.room;
+        UserManager.getInstance().getConference().externalUserID = result.externUserID;
+        UserManager.getInstance().getConference().avatarURL = result.avatarURL;
+		UserManager.getInstance().getConference().voiceBridge = result.voicebridge;
+		UserManager.getInstance().getConference().dialNumber = result.dialnumber;
+		
+        
 				_conferenceParameters = new ConferenceParameters();
+        _conferenceParameters.meetingName = result.conferenceName;
+        _conferenceParameters.externMeetingID = result.externMeetingID;
 				_conferenceParameters.conference = result.conference;
 				_conferenceParameters.username = result.username;
 				_conferenceParameters.guest = result.guest;
@@ -92,7 +101,7 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.logoutUrl = result.logoutUrl;
 				_conferenceParameters.record = true;
 				
-				if(result.record == "false") {
+				if (result.record == "false") {
 					_conferenceParameters.record = false;
 				}
 				
@@ -113,27 +122,26 @@ package org.bigbluebutton.main.model.users
 			_userSOService = new UsersSOService(applicationURI);
 			_userSOService.connect(_conferenceParameters);	
 		}
-
+		
 		public function userLoggedIn(e:UsersConnectionEvent):void{
+      LogUtil.debug("In UserService:userLoggedIn - Setting my userid to [" + e.userid + "]");
 			UserManager.getInstance().getConference().setMyUserid(e.userid);
 			_conferenceParameters.connection = e.connection;
 			_conferenceParameters.userid = e.userid;
 			
 			_userSOService.join(e.userid, _conferenceParameters.room);
-			
 			_userSOService.getGuestPolicy();
 			if(UserManager.getInstance().getConference().isGuest() == false) {	
 				var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
 				loadCommand.conferenceParameters = _conferenceParameters;
-				dispatcher.dispatchEvent(loadCommand);
+				dispatcher.dispatchEvent(loadCommand);		
 			}
-			
-				if(UserManager.getInstance().getConference().amIModerator()) {
-					dispatcher.dispatchEvent(new BBBEvent("SET_BBB_SETTINGS_BUTTON_VISIBLE"));
-				}
-				
-		}
 
+			if(UserManager.getInstance().getConference().amIModerator()) {
+				dispatcher.dispatchEvent(new BBBEvent("SET_BBB_SETTINGS_BUTTON_VISIBLE"));
+			}
+		}
+		
 		public function askToAccept():void {
 			UserManager.getInstance().getConference().setWaitForModerator(true);
 			var guestCommand:WaitModeratorEvent = new WaitModeratorEvent(WaitModeratorEvent.USER_LOGGED_IN);
@@ -141,7 +149,6 @@ package org.bigbluebutton.main.model.users
 			dispatcher.dispatchEvent(guestCommand);  
 			
 		}
-
 
 		public function getGuestPolicy():void {
 			_userSOService.getGuestPolicy();
@@ -163,7 +170,7 @@ package org.bigbluebutton.main.model.users
 
 		public function getAllGuests(e:SuccessfulLoginEvent):void {
 			if(UserManager.getInstance().getConference().amIModerator()) {
-				var numberId:Number = UserManager.getInstance().getConference().getMyUserId();
+				var numberId:String = UserManager.getInstance().getConference().getMyUserId();
 				_userSOService.askForGuestWaiting(numberId);
 			}
 		}
@@ -172,10 +179,8 @@ package org.bigbluebutton.main.model.users
 			_userSOService.guestDisconnect();
 		}
 
-
 		public function logoutUser():void {
 			_userSOService.disconnect(true);
-			
 		}
 		
 		public function disconnectTest():void{
@@ -227,7 +232,7 @@ package org.bigbluebutton.main.model.users
 		 * 
 		 */		
 		public function assignPresenter(e:RoleChangeEvent):void{
-			var assignTo:Number = e.userid;
+			var assignTo:String = e.userid;
 			var name:String = e.username;
 			_userSOService.assignPresenter(assignTo, name, 1);
 		}

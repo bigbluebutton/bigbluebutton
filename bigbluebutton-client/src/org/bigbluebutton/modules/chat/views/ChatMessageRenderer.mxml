@@ -1,42 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
-  
-  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
-  
-  BigBlueButton is free software; you can redistribute it and/or modify it under the 
-  terms of the GNU Lesser General Public License as published by the Free Software 
-  Foundation; either version 2.1 of the License, or (at your option) any later 
-  version. 
-  
-  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
-  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-  
-  You should have received a copy of the GNU Lesser General Public License along 
-  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- 
-  $Id: $
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
 -->
 
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="top" height="{txtMessage.height + 3}" 
-		 verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*" dataChange="validateNow()" 
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="top" 
+		 verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*"
 		 creationComplete="onCreationComplete()">
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.binding.utils.ChangeWatcher;			
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.modules.chat.model.ChatMessage;
-			import org.bigbluebutton.common.LogUtil;		
-			import mx.binding.utils.ChangeWatcher;
 
 			[Bindable] private var rolledOver:Boolean = false;					
 			[Bindable] private var chatMsg:ChatMessage;
 			[Bindable] private var chatTime:String;
 			
 			private function onLinkClick(e:TextEvent):void{
-				var url:URLRequest = new URLRequest(e.text);
-				navigateToURL(url, '_blank');
+        trace("Clicked on link[" + e.text + "] from chat");
+        if (ExternalInterface.available) {
+          ExternalInterface.call("chatLinkClicked", e.text);
+        } 
 			}
 			
 			private function onCreationComplete():void{
@@ -44,12 +46,8 @@
 				 * do this, we'll get a stale data which will display the chat 
 				 * message repeatedly. (ralam Nov 1, 2010)
 				 */
-				ChangeWatcher.watch(this, "data", dataChangeHandler);
-				if (data != null) {
-					chatMsg = data as ChatMessage;
-					data = null;
-					chatMsg.translateMessage();					
-				}
+				//ChangeWatcher.watch(this, "data", dataChangeHandler);
+				//dataChangeHandler(); // call to intialize
 				
 				/**
 				 * The next line will refresh the display so that chat history don't show up as
@@ -60,13 +58,42 @@
 				validateNow();
 			}
 			
-			private function dataChangeHandler(e:Event = null):void{
-				if (data == null) {
-					return;
-				}				
-				chatMsg = data as ChatMessage;
-				data = null;
-				chatMsg.translateMessage();	
+			//private function dataChangeHandler(e:Event = null):void{
+			override public function set data(value:Object):void {
+				//if (data == null) {
+				//	return;
+				//}		
+				super.data = value;
+				
+				//chatMsg = data as ChatMessage;
+				//data = null;
+				
+				if (data == null) return;
+				
+				data.translateMessage();
+				
+				/*
+				   This is setting the backgroundColor style. It changes the value correct and the if 
+				   statement works, but the style never takes effect. I have no idea what's wrong.
+				   		Chad
+				 */
+				//LogUtil.debug ("senderId: " + data.senderId);
+				//LogUtil.debug("backColor " + this.getStyle("backgroundColor") + "alpha " + this.getStyle("backgroundAlpha"));
+				if (data.senderId == " ") {
+					this.setStyle("backgroundColor", 0xff0000);
+				} else {
+					this.setStyle("backgroundColor", 0x00ff00);
+				}
+				
+				// The visibility check has to go here becasue ORs don't work with databinding
+				lblTime.visible = (!(data.lastTime == data.time) || !(data.senderId == data.lastSenderId));
+				// check the visibility of the name as well because events might fire in different order
+				lblName.visible = !(data.senderId == data.lastSenderId);
+				
+				//remove the header if not needed to save space
+				hbHeader.includeInLayout = hbHeader.visible = lblName.visible || lblTime.visible;
+				
+				validateNow();
 			}
 			
 			private function onRollOver():void{
@@ -80,10 +107,16 @@
 		]]>
 	</mx:Script>
 	
-	<mx:Label maxWidth="50" width="50" truncateToFit="true" id="lblName" text="{chatMsg.name} " visible="{!(chatMsg.senderId == chatMsg.lastSenderId)}" color="gray" />
-	<mx:Text id="txtMessage" htmlText="{rolledOver ? chatMsg.senderText : chatMsg.translatedText}" link="onLinkClick(event)" color="{chatMsg.senderColor}"
-			 rollOver="onRollOver()" rollOut="onRollOut()" width="100%" />
-	<mx:Text id="lblTime" htmlText="{chatMsg.translateLocale} {rolledOver ? chatMsg.senderTime : chatMsg.time}" 
-				visible="{!(chatMsg.lastTime == chatMsg.time) || !(chatMsg.senderId == chatMsg.lastSenderId)}" 
-				color="gray" />
-</mx:HBox>
+  <mx:HBox width="100%" id="hbHeader">
+    <mx:Label id="lblName" text="{data.name} " visible="true" color="gray" width="100%" textAlign="left"/>
+    <mx:Spacer width="100%"/>
+    <mx:Text id="lblTime" htmlText="{data.translateLocale} {data.time}" textAlign="right"
+             visible="true" 
+             color="gray"  width="100%"/>       
+  </mx:HBox>
+  <mx:HBox width="100%">
+    <mx:Spacer width="5"/>
+    <mx:Text id="txtMessage" htmlText="{rolledOver ? data.senderText : data.translatedText}" link="onLinkClick(event)" color="{data.senderColor}"
+             rollOver="onRollOver()" rollOut="onRollOut()" width="100%" selectable="true"/>
+  </mx:HBox>  
+</mx:VBox>

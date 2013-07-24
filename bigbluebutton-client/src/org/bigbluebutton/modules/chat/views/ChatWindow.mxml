@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
-  
-  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
-  
-  BigBlueButton is free software; you can redistribute it and/or modify it under the 
-  terms of the GNU Lesser General Public License as published by the Free Software 
-  Foundation; either version 2.1 of the License, or (at your option) any later 
-  version. 
-  
-  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
-  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-  
-  You should have received a copy of the GNU Lesser General Public License along 
-  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- 
-  $Id: $
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
 -->
 
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
@@ -25,10 +25,16 @@
 	       xmlns:chat="org.bigbluebutton.modules.chat.views.components.*"
 	       showCloseButton="false"
 	       implements="org.bigbluebutton.common.IBbbModuleWindow" 
+	       initialize="init()"
 	       creationComplete="onCreationComplete()"
 	       xmlns:components="org.bigbluebutton.modules.chat.view.components.*" 
 		   xmlns:mate="http://mate.asfusion.com/" 
 		   xmlns:views="org.bigbluebutton.modules.chat.views.*">
+	
+	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_WINDOW}" method="focusWindow" />
+	<mate:Listener type="{ShortcutEvent.MINIMIZE_CHAT}" method="remoteMinimize" />
+	<mate:Listener type="{ShortcutEvent.MAXIMIZE_CHAT}" method="remoteMaximize" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -41,15 +47,23 @@
 			import mx.resources.ResourceBundle;
 			import mx.resources.ResourceManager;			
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.chat.events.TranscriptEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.common.LogUtil;
 			
 			private var _xPosition:int;
 			private var _yPosition:int;
-			
+			private var keyCombos:Object;
+			private var disp:Dispatcher;
 			private var dispState:String;
 			[Bindable] public var chatOptions:ChatOptions;
+			
+			[Bindable] private var baseIndex:int;
+			private function init():void{
+				baseIndex = chatOptions.baseTabIndex;
+			}
 			
 			public function getPrefferedPosition():String{
 				return chatOptions.position;
@@ -60,13 +74,71 @@
 				FlexGlobals.topLevelApplication.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
 				dispState = FlexGlobals.topLevelApplication.stage.displayState;
 				
-				var disp:Dispatcher = new Dispatcher();
-				disp.dispatchEvent(new TranscriptEvent(TranscriptEvent.LOAD_TRANSCRIPT));
+				// var disp:Dispatcher = new Dispatcher();
+				disp  = new Dispatcher();
+//				disp.dispatchEvent(new TranscriptEvent(TranscriptEvent.LOAD_TRANSCRIPT));
+
+				hotkeyCapture();
+				titleBarOverlay.tabIndex = baseIndex;
 				
+				minimizeBtn.tabIndex = baseIndex+1;
+				maximizeRestoreBtn.tabIndex = baseIndex+2;
+				closeBtn.tabIndex = baseIndex+3;
+
+				resourcesChanged(); // update the window controls once they've been created
+			}
+			
+			private function loadKeyCombos(modifier:String):void {
+				keyCombos = new Object(); // always start with a fresh array
+			    keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.focusTabs') as String)] = ShortcutEvent.FOCUS_CHAT_TABS;
+				
+				// Get sent to chatView
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.focusBox') as String)] = ShortcutEvent.FOCUS_CHAT_BOX;
+				
+				// Get sent to chatBox
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.changeColour') as String)] = ShortcutEvent.CHANGE_FONT_COLOUR;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.sendMessage') as String)] = ShortcutEvent.SEND_MESSAGE;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.maximize') as String)] = ShortcutEvent.MAXIMIZE_CHAT;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.minimize') as String)] = ShortcutEvent.MINIMIZE_CHAT;
+			}
+		
+		    private function hotkeyCapture():void{
+		      this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+		      ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
+		    }
+		
+			// Handle general-access hotkeys, regardless of what window the user is focused in
+		    private function handleKeyDown(e:KeyboardEvent) :void {
+		      var modifier:String = ExternalInterface.call("determineModifier");
+			  loadKeyCombos(modifier);			  
+			  var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") +
+		                            (e.altKey   ? "alt+"     : "") + e.keyCode;		                              
+		      if (keyCombos[keyPress]) {
+		        disp.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+		      }
+		    }
+			
+			private function remoteMinimize(e:ShortcutEvent):void{
+				if (!minimized){
+					this.minimize();
+				}
+			}
+			
+			private function remoteMaximize(e:ShortcutEvent):void{
+				if (!maximized && !minimized){
+					this.maximize();
+				}
+				else{
+					this.restore();
+				}				
+			}
+			
+			private function focusWindow(e:ShortcutEvent):void{
+				focusManager.setFocus(titleBarOverlay);
 			}
 			
 			private function fullScreenHandler(evt:FullScreenEvent):void {
-				dispState = FlexGlobals.topLevelApplication.stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
+/*				dispState = FlexGlobals.topLevelApplication.stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
 				if (evt.fullScreen) {
 					txtMsg.text = "Chat not enabled in full screen mode";
 					txtMsg.enabled = false;
@@ -76,35 +148,50 @@
 					txtMsg.enabled = true;
 					sendBtn.enabled = true;
 				}
-			}		
+*/			}		
 			
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				this.title = ResourceUtil.getInstance().getString("bbb.chat.title");
+				
+				if (titleBarOverlay != null) {
+					titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.chat.titleBar');
+				}
+				
+				if (windowControls != null) {
+					minimizeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.minimizeBtn.toolTip");
+					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.chat.minimizeBtn.accessibilityName");
+					
+					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.maximizeRestoreBtn.toolTip");
+					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.chat.maximizeRestoreBtn.accessibilityName");
+					
+					closeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
+					closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.chat.closeBtn.accessibilityName");
+				}
 			}
 			
-			private function localeChanged(e:LocaleChangeEvent):void{
+			private function localeChanged(e:Event):void{
 				resourcesChanged();
 			}
             
-            private function enableMessageEntryTextBox():void {
-                txtMsg.enabled = true;
-            }
+      private function enableMessageEntryTextBox():void {
+//        txtMsg.enabled = true;
+      }
             
-            private function disableMessageEntryTextBox():void {
-                txtMsg.enabled = false;
-            }
+      private function disableMessageEntryTextBox():void {
+//        txtMsg.enabled = false;
+      }
+			
+			override protected function hideAllChildren():void {
+				chatView.includeInLayout=false;
+			}
+			
+			override protected function showAllChildren():void {
+				chatView.includeInLayout=true;
+			}
 			
 		]]>
 	</mx:Script>
 	
-	<views:ChatView id="chatView" chatOptions="{chatOptions}" chatWindow="{this}"/>
-    
-    <mx:ControlBar id="chatCtrlBar" width="100%" height="10%" styleName="chatControlBarStyle">		
-        <mx:TextInput id="txtMsg" width="100%" enter="chatView.sendMessages()" color="{cmpColorPicker.selectedColor}" styleName="chatControlBarTextMsgStyle"/>
-        <mx:ColorPicker id="cmpColorPicker" showTextField="false" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
-                        selectedColor="0x000000" dataProvider="{chatView.colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"/>
-        <mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn" styleName="chatControlBarSendButtonStyle"
-                   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" click="chatView.sendMessages()"/> 
-    </mx:ControlBar>	
+	<views:ChatView id="chatView" chatOptions="{chatOptions}" includeInLayout="false"/>
 </MDIWindow>

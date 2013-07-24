@@ -1,20 +1,21 @@
 <?php 
 /*
-Copyright 2010 Blindside Networks
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 Versions:
    1.0  --  Initial version written by DJP
@@ -134,7 +135,7 @@ class BigBlueButton {
 		'&logoutURL='.urlencode($creationParams['logoutUrl']).
 		'&maxParticipants='.urlencode($creationParams['maxParticipants']).
 		'&record='.urlencode($creationParams['record']).
-		'&duration='.urlencode($creationParams['duration']).
+		'&duration='.urlencode($creationParams['duration']);
 		//'&meta_category='.urlencode($creationParams['meta_category']);				
 		$welcomeMessage = $creationParams['welcomeMsg'];
 		if(trim($welcomeMessage)) 
@@ -153,7 +154,7 @@ class BigBlueButton {
 			'moderatorPw' => 'mp', 		-- Set to 'mp' and use 'mp' to join = no user pass required.
 			'welcomeMsg' => '', 		-- ''= use default. Change to customize.
 			'dialNumber' => '', 		-- The main number to call into. Optional.
-			'voiceBridge' => '', 		-- PIN to join voice. Optional.
+			'voiceBridge' => '12345', 	-- 5 digit PIN to join voice conference.  Required.
 			'webVoice' => '', 			-- Alphanumeric to join voice. Optional.
 			'logoutUrl' => '', 			-- Default in bigbluebutton.properties. Optional.
 			'maxParticipants' => '-1', 	-- Optional. -1 = unlimitted. Not supported in BBB. [number]

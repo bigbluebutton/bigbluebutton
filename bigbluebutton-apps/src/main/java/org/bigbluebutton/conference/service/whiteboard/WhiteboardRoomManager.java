@@ -1,55 +1,45 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.conference.service.whiteboard;
 
-import java.util.ArrayList;
-
-import org.red5.server.api.IScope;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class WhiteboardRoomManager {
 
-	private ArrayList<WhiteboardRoom> rooms;
+	private ConcurrentHashMap<String, WhiteboardRoom> rooms;
 	
 	public WhiteboardRoomManager(){
-		rooms = new ArrayList<WhiteboardRoom>();
+		rooms = new ConcurrentHashMap<String, WhiteboardRoom>();
 	}
 	
-	public WhiteboardRoom addRoom(IScope scope){
-		WhiteboardRoom newRoom = new WhiteboardRoom(scope);
-		rooms.add(newRoom);
+	public WhiteboardRoom addRoom(String id){
+		WhiteboardRoom newRoom = new WhiteboardRoom(id);
+		rooms.put(id, newRoom);
 		
 		return newRoom;
 	}
 	
-	public WhiteboardRoom getRoom(String scopeName){
-		for (int i=0; i<rooms.size(); i++){
-			if (rooms.get(i).getScope().getName().equals(scopeName)) return rooms.get(i);
-		}
-		return null;
+	public WhiteboardRoom getRoom(String id) {
+		return rooms.get(id);
 	}
 	
-	public void removeRoom(String scopeName){
-		for (int i=0; i<rooms.size(); i++){
-			if (rooms.get(i).getScope().getName().equals(scopeName)) rooms.remove(i);
-		}
+	public void removeRoom(String id){
+		rooms.remove(id);
 	}
 }

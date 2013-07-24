@@ -1,26 +1,96 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 package org.bigbluebutton.common
 {
 	[Bindable]
 	public class Images
 	{
+	
+	[Embed(source="assets/images/users_settings.png")]
+	public var users_settings:Class;
+	
+	[Embed(source="assets/images/eject_user.png")]
+	public var eject_user_new:Class;
+	
+	[Embed(source="assets/images/audio_muted.png")]
+	public var audio_muted:Class;
+	
+	[Embed(source="assets/images/audio.png")]
+	public var audio:Class;
+	
+	[Embed(source="assets/images/audio_muted_20.png")]
+	public var audio_muted_20:Class;
+	
+	[Embed(source="assets/images/audio_20.png")]
+	public var audio_20:Class;
+	
+	[Embed(source="assets/images/webcam_new.png")]
+	public var webcam_new:Class;
+	
+    [Embed(source="assets/images/webcam_new_20.png")]
+    public var webcam_new_20:Class;
+    
+	[Embed(source="assets/images/sound_new.png")]
+	public var sound_new:Class;
+	
+	[Embed(source="assets/images/hand_new.png")]
+	public var hand_new:Class;
+	
+	[Embed(source="assets/images/moderator.png")]
+	public var moderator:Class;
+	
+	[Embed(source="assets/images/presenter_new.png")]
+	public var presenter_new:Class;
+	
+    [Embed(source="assets/images/webcam_kickuser.png")]
+    public var webcam_kickuser:Class;
+    
+    [Embed(source="assets/images/webcam_make_presenter.png")]
+    public var webcam_make_presenter:Class;
+    
+    [Embed(source="assets/images/webcam_mute.png")]
+    public var webcam_mute:Class;
+    
+    [Embed(source="assets/images/webcam_private_chat.png")]
+    public var webcam_private_chat:Class;
+    
+    [Embed(source="assets/images/webcam_unmute.png")]
+    public var webcam_unmute:Class;
+    
+    [Embed(source="assets/images/vdoc_bg.jpg")]
+    public var video_dock_bg:Class;
+        
+    [Embed(source="assets/images/bandwidth.png")]
+    public var bandwidth:Class;
+    
+    [Embed(source="assets/images/statistics.png")]
+    public var stats:Class;
+    
+    [Embed(source="assets/images/avatar.png")]
+    public var avatar:Class;
+    
+    [Embed(source="assets/images/sign-out.png")]
+    public var signOutIcon:Class;
+    
+    [Embed(source="assets/images/chat.png")]
+    public var chatIcon:Class;
+    
 		[Embed(source="assets/images/webcam_close.png")]
 		public var webcamClose:Class;
 		
@@ -85,11 +155,7 @@ package org.bigbluebutton.common
         public var sound:Class;                
 
         [Embed(source="assets/images/cancel.png")]
-        public var cancel_user:Class;    
-
-	[Embed(source="assets/images/accept.png")]
-        public var accept_user:Class;    
-
+        public var cancel:Class;    
 
         [Embed(source="assets/images/user_go.png")]
         public var eject_user:Class;  
@@ -97,16 +163,28 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/webcam.png")]
         public var webcam:Class;                            
         
+	[Embed(source="assets/images/webcam_on.png")]
+        public var webcamOn:Class; 
+
         [Embed(source="assets/images/pencil.png")]
         public var pencil_icon:Class;  
         
         [Embed(source="assets/images/shape_square.png")]
         public var square_icon:Class;  
         
-        [Embed(source="assets/images/arrow_undo.png")] 
+        [Embed(source="assets/images/undo.png")] 
         public var undo_icon:Class;  
         
-        [Embed(source="assets/images/circle.png")]
+        [Embed(source="assets/images/hand.png")]
+        public var hand_icon:Class; 
+        
+        [Embed(source="assets/images/marker.png")]
+        public var scribble_icon:Class; 
+
+        [Embed(source="assets/images/text.png")]
+        public var text_icon:Class; 
+        
+        [Embed(source="assets/images/ellipse.png")]
         public var circle_icon:Class; 
         
         [Embed(source="assets/images/arrow_out.png")]
@@ -118,8 +196,17 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/deskshare_icon.png")]
         public var deskShareIcon:Class;  
         
+	[Embed(source="assets/images/deskshare_on.png")]
+        public var deskShareIconOn:Class;  
+
         [Embed(source="assets/images/control_play_blue.png")]
         public var control_play:Class;  
+
+        [Embed(source="assets/images/accept.png")]
+        public var accept_user:Class;    
+
+        [Embed(source="assets/images/cancel.png")]
+        public var cancel_user:Class; 
 
         [Embed(source="assets/images/shape_move_front.png")]
         public var layout:Class; 
@@ -127,7 +214,7 @@ package org.bigbluebutton.common
 		[Embed(source="assets/images/table.png")]
 		public var table:Class; 
 		
-		[Embed(source="assets/images/cancel.png")]
+		[Embed(source="assets/images/trash.png")]
 		public var delete_icon:Class; 
 
         [Embed(source="assets/images/arrow_right.png")]
@@ -163,6 +250,12 @@ package org.bigbluebutton.common
 		[Embed(source="assets/images/unlock.png")]
 		public var unlocked:Class;
 		
+		[Embed(source="assets/images/lock_20.png")]
+		public var locked_20:Class;
+		
+		[Embed(source="assets/images/unlock_20.png")]
+		public var unlocked_20:Class;
+		
 		[Embed(source="assets/images/presenter.png")]
 		public var presenter:Class;
 		
@@ -176,8 +269,47 @@ package org.bigbluebutton.common
 		public var arrow_in:Class;
 		
 		[Embed(source="assets/images/shape_handles.png")]
-		public var shape_handles:Class;		
+		public var shape_handles:Class;
+	[Embed(source="assets/images/poll_icon.png")]
+	public var pollIcon:Class;		
+
+		[Embed(source="assets/images/disk.png")]
+		public var disk:Class;		
+
+		[Embed(source="assets/images/folder.png")]
+		public var folder:Class;		
+	
+		// PLACE CUSTOM IMAGES BELOW
+		[Embed(source="assets/images/line.png")]
+		public var line_icon:Class;	
 		
+//		[Embed(source="assets/images/text_icon.png")]
+//		public var text_icon:Class;	
+		
+		[Embed(source="assets/images/fill_icon.png")]
+		public var fill_icon:Class;	
+		
+		[Embed(source="assets/images/transparency_icon.png")]
+		public var transparency_icon:Class;	
+		
+		[Embed(source="assets/images/eraser.png")]
+		public var eraser_icon:Class;	
+		
+		[Embed(source="assets/images/highlighter_icon.png")]
+		public var highlighter_icon:Class;	
+		
+		[Embed(source="assets/images/pointer_icon_small.png")]
+		public var select_icon:Class;	
+		
+		[Embed(source="assets/images/triangle.png")]
+		public var triangle_icon:Class;	
+		
+		[Embed(source="assets/images/text_background_icon.png")]
+		public var toggle_text_background_icon:Class;	
+		
+		[Embed(source="assets/images/grid_icon.png")]
+		public var grid_icon:Class;	
+
 		[Embed(source="assets/images/wrench.png")]
 		public var wrench:Class;
 		

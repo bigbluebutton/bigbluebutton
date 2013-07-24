@@ -31,7 +31,7 @@ package org.bigbluebutton.main.events
 		public static const RESPONSE_ALL:String	= "RESPONSE_ALL";
 		
 		
-		public var userid:Number;
+		public var userid:String;
 		public var resp:Boolean;
 		
 		public function ResponseModeratorEvent(type:String)

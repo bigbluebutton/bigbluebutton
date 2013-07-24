@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
-  
-  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
-  
-  BigBlueButton is free software; you can redistribute it and/or modify it under the 
-  terms of the GNU Lesser General Public License as published by the Free Software 
-  Foundation; either version 2.1 of the License, or (at your option) any later 
-  version. 
-  
-  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
-  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-  
-  You should have received a copy of the GNU Lesser General Public License along 
-  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- 
-  $Id: $
---> 
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
 
 <EventMap xmlns="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml">
 	<!--
@@ -32,6 +32,10 @@
 		<ObjectBuilder generator="{UserService}" cache="global" />
 		<ObjectBuilder generator="{ConfigManager}" cache="global" />
 		<ObjectBuilder generator="{GuestManager}" cache="global" />
+		<!--
+		Disabling temporarily the stream monitor
+		-->
+		<!--ObjectBuilder generator="{StreamMonitor}" cache="global" /-->
 	</EventHandlers>
 	
 	<EventHandlers type="{PortTestEvent.TEST_RTMP}" >
@@ -150,24 +154,29 @@
 	</EventHandlers>
 
 	<EventHandlers type="{ModuleLoadEvent.START_ALL_MODULES}">
-		<MethodInvoker generator="{ModulesProxy}" method="startAllModules" />
+		<MethodInvoker generator="{ModulesProxy}" method="startLayoutModule" />
 	</EventHandlers>
-	
+
+  <EventHandlers type="{ModuleLoadEvent.LAYOUT_MODULE_STARTED}">
+    <MethodInvoker generator="{ModulesProxy}" method="startAllModules" />
+  </EventHandlers>
+
 	<mx:Script>
 	<![CDATA[
 		import mx.events.FlexEvent;
 		
+		import org.bigbluebutton.main.events.ShortcutEvent;
+		
 		import org.bigbluebutton.core.managers.ConfigManager;
 		import org.bigbluebutton.core.services.SkinningService;
+		import org.bigbluebutton.core.services.StreamMonitor;
 		import org.bigbluebutton.main.events.BBBEvent;
 		import org.bigbluebutton.main.events.ConfigEvent;
 		import org.bigbluebutton.main.events.LogoutEvent;
 		import org.bigbluebutton.main.events.ModuleLoadEvent;
-		import org.bigbluebutton.main.events.ParticipantJoinEvent;
 		import org.bigbluebutton.main.events.PortTestEvent;
 		import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 		import org.bigbluebutton.main.events.UserServicesEvent;
-		import org.bigbluebutton.main.model.GuestManager;
 		import org.bigbluebutton.main.model.PortTestProxy;
 		import org.bigbluebutton.main.model.modules.ModulesProxy;
 		import org.bigbluebutton.main.model.users.UserService;
@@ -177,7 +186,8 @@
 		import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 		import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 		import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-		import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;	
+		import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;		
+		import org.bigbluebutton.main.model.GuestManager;
 		import org.bigbluebutton.main.events.WaitModeratorEvent;	
 		import org.bigbluebutton.main.events.ResponseModeratorEvent;
 		import org.bigbluebutton.main.events.AddGuestEvent;

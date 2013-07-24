@@ -1,35 +1,37 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 package org.bigbluebutton.conference.service.participants;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-
+import org.red5.server.api.Red5;
 import java.util.ArrayList;
 import java.util.Map;
+import org.bigbluebutton.conference.ConnectionInvokerService;
 import org.bigbluebutton.conference.RoomsManager;
 import org.bigbluebutton.conference.Room;
-import org.bigbluebutton.conference.Participant;
+import org.bigbluebutton.conference.User;
 import org.bigbluebutton.conference.IRoomListener;
 
 public class ParticipantsApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsApplication.class, "bigbluebutton" );	
+	private ConnectionInvokerService connInvokerService;
 	
 	private RoomsManager roomsManager;
 	
@@ -69,32 +71,8 @@ public class ParticipantsApplication {
 		return false;
 	}
 	
-	public void setParticipantStatus(String room, Long userid, String status, Object value) {
+	public void setParticipantStatus(String room, String userid, String status, Object value) {
 		roomsManager.changeParticipantStatus(room, userid, status, value);
-	}
-
-	public void askingToEnter(String roomName, Long userid) {
-		roomsManager.askToEnter(roomName, userid);	
-	}
-
-	public String getGuestPolicy(String roomName) {
-		return roomsManager.getGuestPolicy(roomName);
-	}
-
-	public void newGuestPolicy(String roomName, String guestPolicy) {
-		roomsManager.newGuestPolicy(roomName, guestPolicy);
-	}
-	
-	
-	public void askingForGuestWaiting(String roomName, Long userid) {
-		roomsManager.askForGuestWaiting(roomName, userid);	
-	}
-	public void responseToGuest(String roomName, Long userid, Boolean resp) {
-		roomsManager.responseToGuest(roomName, userid, resp);
-	}
-
-	public void responseToAllGuests(String roomName, Boolean resp) {
-		roomsManager.responseToAllGuests(roomName, resp);
 	}
 	
 	public Map getParticipants(String roomName) {
@@ -107,7 +85,7 @@ public class ParticipantsApplication {
 		return roomsManager.getParticipants(roomName);
 	}
 	
-	public boolean participantLeft(String roomName, Long userid) {
+	public boolean participantLeft(String roomName, String userid) {
 		log.debug("Participant " + userid + " leaving room " + roomName);
 		if (roomsManager.hasRoom(roomName)) {
 			Room room = roomsManager.getRoom(roomName);
@@ -120,10 +98,10 @@ public class ParticipantsApplication {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public boolean participantJoin(String roomName, Long userid, String username, String role, String externUserID, Map status, Boolean guest) {
+	public boolean participantJoin(String roomName, String userid, String username, String role, String externUserID, Map status, Boolean guest) {
 		log.debug("participant joining room " + roomName);
 		if (roomsManager.hasRoom(roomName)) {
-			Participant p = new Participant(userid, username, role, externUserID, status, guest);			
+			User p = new User(userid, username, role, externUserID, status, guest);			
 			Room room = roomsManager.getRoom(roomName);
 			room.addParticipant(p);
 			log.debug("participant joined room " + roomName);
@@ -152,5 +130,13 @@ public class ParticipantsApplication {
 	public void setRoomsManager(RoomsManager r) {
 		log.debug("Setting room manager");
 		roomsManager = r;
+	}
+	
+	private String getMeetingId(){
+		return Red5.getConnectionLocal().getScope().getName();
+	}
+		
+	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
+		this.connInvokerService = connInvokerService;
 	}
 }

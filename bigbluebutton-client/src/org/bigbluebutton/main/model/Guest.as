@@ -33,7 +33,7 @@ package org.bigbluebutton.main.model
 			return numberOfGuests;
 		}
 
-		public function addGuest(userid:Number, username:String):void {
+		public function addGuest(userid:String, username:String):void {
 			listOfGuests[userid] = username;
 			numberOfGuests++;
 		}
@@ -47,7 +47,7 @@ package org.bigbluebutton.main.model
 			numberOfGuests = 0;
 		}
 		
-		public function remove(userid:Number):void {
+		public function remove(userid:String):void {
 			if (listOfGuests[userid] != null) {
 					numberOfGuests--;
 					delete listOfGuests[userid];

@@ -45,9 +45,9 @@
             [Bindable] public var acceptUserIcon:Class = images.accept_user;
             [Bindable] public var rejectUserIcon:Class = images.cancel_user;
             [Bindable] private var username:String = "";
-            private var userid:Number;
+            private var userid:String;
 
-            public function setUser(username:String, userid:Number):void {
+            public function setUser(username:String, userid:String):void {
                 this.username = username;
                 this.userid = userid;
             }

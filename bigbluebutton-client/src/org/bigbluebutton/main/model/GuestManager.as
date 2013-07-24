@@ -50,13 +50,13 @@ package org.bigbluebutton.main.model
 			guest.removeAllGuests();
 		}
 
-		private function removeGuestFromView(userid:Number):void {
+		private function removeGuestFromView(userid:String):void {
 			var removeGuestFromViewEvent:RemoveGuestFromViewEvent = new RemoveGuestFromViewEvent();
 			removeGuestFromViewEvent.userid = userid;
 			dispatcher.dispatchEvent(removeGuestFromViewEvent);
 		}
 		
-		public function removeGuest(userid:Number):void {
+		public function removeGuest(userid:String):void {
 			guest.remove(userid);
 			removeGuestFromView(userid);
 		}

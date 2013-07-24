@@ -28,7 +28,7 @@ package org.bigbluebutton.main.events
 		public static const GUEST_EVENT:String = "GuestEvent";
 		
 
-		public var userid:Number;
+		public var userid:String;
 		
 		public function RemoveGuestRequestEvent(type:String)
 		{

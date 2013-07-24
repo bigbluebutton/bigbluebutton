@@ -25,7 +25,7 @@ package org.bigbluebutton.main.events
 		public static const REMOVE_GUEST:String = "RemoveGuest";
 		public static const REMOVE_ALL:String = "RemoveAllGuests";
 
-		public var userid:Number;
+		public var userid:String;
 
 		public function RemoveGuestEvent(type:String = REMOVE_GUEST)
 		{

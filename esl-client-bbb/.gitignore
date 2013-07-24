@@ -1,4 +1,5 @@
 .project
 .classpath
 lib
+org.freeswitch.esl.client/target
 

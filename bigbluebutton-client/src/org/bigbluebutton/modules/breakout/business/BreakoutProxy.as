@@ -1,26 +1,25 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 
 package org.bigbluebutton.modules.breakout.business
 {
-	import com.adobe.crypto.SHA1;
-	
+	import com.adobe.crypto.SHA1;	
 	import flash.events.Event;
 	import flash.events.NetStatusEvent;
 	import flash.events.SyncEvent;
@@ -29,11 +28,9 @@ package org.bigbluebutton.modules.breakout.business
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
-	import flash.net.navigateToURL;
-	
+	import flash.net.navigateToURL;	
 	import mx.controls.Alert;
-	import mx.events.CloseEvent;
-	
+	import mx.events.CloseEvent;	
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.Conference;
@@ -44,8 +41,7 @@ package org.bigbluebutton.modules.breakout.business
 		private var request:URLRequest;
 		private var meetingName:String;
 		private var attendeePW:String;
-		private var moderatorPW:String;
-		
+		private var moderatorPW:String;		
 		private var host:String;
 		private var conference:String;
 		private var room:String;
@@ -54,11 +50,9 @@ package org.bigbluebutton.modules.breakout.business
 		private var userrole:String;
 		private var connection:NetConnection;
 		private var ncURL:String;
-		private var breakoutSO:SharedObject;
-		
+		private var breakoutSO:SharedObject;		
 		private var usersList:Array;
-		private var kickUsers:Boolean;
-		
+		private var kickUsers:Boolean;		
 		private var api_url:String;
 		private var api_salt:String;
 		
@@ -178,7 +172,7 @@ package org.bigbluebutton.modules.breakout.business
 		private function newRoomHasModerator(list:Array):Boolean{
 			var conference:Conference = UserManager.getInstance().getConference();
 			for (var i:int = 0; i<list.length; i++){
-				var user:BBBUser = conference.getParticipant(Number(list[i]));
+				var user:BBBUser = conference.getUser(String(list[i]));
 				if (user.role == BBBUser.MODERATOR) return true;
 			}
 			return false;

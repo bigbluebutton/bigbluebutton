@@ -25,7 +25,7 @@ package org.bigbluebutton.main.events
 		public static const ADD_GUEST:String = "AddGuest";
 		
 
-		public var userid:Number;
+		public var userid:String;
 		public var name:String;	
 		
 		public function AddGuestEvent(type:String = ADD_GUEST)

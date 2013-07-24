@@ -58,8 +58,7 @@
 			}
 
 			public function refreshGuestView(listOfGuests:Object):void {
-				for (var key:String in listOfGuests) {
-				    var userid:Number = new Number(key);
+				for (var userid:String in listOfGuests) {
 				    if(guestButtons[userid] == null) {
 				    	var guestItem:GuestItem = new GuestItem();
 						guestItem.setUser(listOfGuests[userid], userid);
@@ -106,7 +105,7 @@
 				closeWindow();
 			}
 		
-			public function remove(userid:Number):void {
+			public function remove(userid:String):void {
 				if (guestButtons[userid] != null) {
 					guestListBox.removeChild(guestButtons[userid]);
 					delete guestButtons[userid];

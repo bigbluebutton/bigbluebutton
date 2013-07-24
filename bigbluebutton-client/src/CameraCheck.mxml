@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+                creationComplete="onCreationComplete()"
+                pageTitle="CameraCheck" width="600" height="400" layout="absolute">	
+  <mx:Script>
+    <![CDATA[    
+      import mx.core.UIComponent;
+      import mx.utils.URLUtil;
+      
+      [Bindable] private var defaultWidth:Number = 320;
+      [Bindable] private var defaultHeight:Number = 240;
+      
+      private var _video:Video;
+      private var _videoHolder:UIComponent;
+      private var camIndex:int = 0;
+      private var camWidth:Number = 320;
+      private var camHeight:Number = 240;
+      private var _camera:Camera = null;
+      private var quality:Number = 0;
+      private var PADDING_HORIZONTAL:Number = 6;
+      private var PADDING_VERTICAL:Number = 29;
+      private var _minWidth:int = 160 + PADDING_HORIZONTAL;
+      private var _minHeight:int = 120 + PADDING_VERTICAL;
+      private var aspectRatio:Number = 1;
+      
+      private function onCreationComplete():void{
+        _videoHolder = new UIComponent();
+        _videoHolder.width = camWidth;
+        _videoHolder.height = camHeight;
+        this.addChild(_videoHolder);				
+        
+        this.minWidth = _minWidth;
+        this.minHeight = _minHeight;
+        
+        trace('CamCheck::onCreationComplete');
+        Security.allowDomain(determineHTMLURL());
+        trace("CamCheck:: Security.allowDomain(" + determineHTMLURL() + ");");
+        
+        initExternalInterface();
+        callWebcamPreviewStandaloneReady();
+      }
+      
+      private function determineHTMLURL():String {
+        var serverName:String = "*";
+        if(ExternalInterface.available) {
+          try {
+            var htmlURL:String = String(ExternalInterface.call("window.location.href.toString"));
+            serverName = URLUtil.getServerName(htmlURL);
+            trace("CamCheck::determineHTMLURL HTML URL [" + htmlURL + "]");
+          } catch(s:Error) {
+            trace("CamCheck::determineHTMLURL Cannot determine HTML URL");
+          }
+        }
+        
+        return serverName;
+      }
+      
+      private function initExternalInterface():void {
+        trace('CamCheck::initExternalInterface');
+        if (ExternalInterface.available) {
+          ExternalInterface.addCallback("startPreviewCamera", handleStartPreviewCameraRequest);
+          ExternalInterface.addCallback("stopPreviewCamera", handleStopPreviewCamera);
+          ExternalInterface.addCallback("showCameraSettings", handleShowCameraSettings);
+        }
+      }
+      
+      private function handleShowCameraSettings():void {
+        
+      }
+      
+      private function callWebcamPreviewStandaloneReady():void {
+        if (ExternalInterface.available) {
+          ExternalInterface.call("webcamPreviewStandaloneAppReady");
+        }      
+      }
+      
+      private function handleStartPreviewCameraRequest(camIndex:String, camWidth:int, camHeight:int,
+                                                       camKeyFrameInterval:int, camModeFps:Number, 
+                                                       camQualityBandwidth:int, camQualityPicture:int):void {
+        displayCamera(camIndex, camWidth, camHeight, camKeyFrameInterval, camModeFps, camQualityBandwidth, camQualityPicture);
+      }
+      
+      private function handleStopPreviewCamera():void {
+        stopCamera();
+      }
+      
+      public function displayCamera(camIndex:String, camWidth:int, camHeight:int, camKeyFrameInterval:int, 
+                                                     camModeFps:Number, camQualityBandwidth:int, 
+                                                     camQualityPicture:int):void {
+        trace('CamCheck::displayCamera');
+        stopCamera();
+        
+        if (Camera.names.length == 0) {
+          trace('CamCheck::bbb.video.publish.hint.noCamera');
+          return;
+        }
+        
+        _camera = Camera.getCamera(camIndex);
+        if (_camera == null) {
+          trace('CamCheck::bbb.video.publish.hint.cantOpenCamera');
+          return;
+        }
+        
+        setResolution(camWidth, camHeight);
+        
+        _camera.setMotionLevel(5, 1000);
+        
+        _camera.setKeyFrameInterval(camKeyFrameInterval);
+        _camera.setMode(camWidth, camHeight, camModeFps);
+        _camera.setQuality(camQualityBandwidth, camQualityPicture);
+        
+        if (_camera.width != camWidth || _camera.height != camHeight) {
+          trace("CamCheck::Resolution " + camWidth + "x" + camHeight + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
+          setResolution(_camera.width, _camera.height);
+        }				
+        
+        _video = new Video;
+        _video.attachCamera(_camera);
+        
+        if (aspectRatio > _videoHolder.width / _videoHolder.height) {
+          _video.width = _videoHolder.width;
+          _video.height = _videoHolder.width / aspectRatio;
+          _video.x = 0;
+          _video.y = (_videoHolder.height - _video.height) / 2;
+        } else {
+          _video.width = _videoHolder.height * aspectRatio;
+          _video.height = _videoHolder.height;
+          _video.x = (_videoHolder.width - _video.width) / 2;
+          _video.y = 0;
+        }				
+        
+        _videoHolder.addChild(_video);        
+      }
+      
+      private function stopCamera():void {
+        _camera = null;
+        if (_video != null) {
+          _videoHolder.removeChild(_video);
+          _video.attachCamera(null);
+          _video.clear();
+          _video = null;
+        }        
+      }
+      
+      private function setResolution(width:int, height:int):void {
+        camWidth  = width;
+        camHeight = height;
+        setAspectRatio(camWidth, camHeight);        
+      }
+      
+      private function setAspectRatio(width:int, height:int):void {
+        aspectRatio = (width/height);
+        this.minHeight = Math.floor((this.minWidth - PADDING_HORIZONTAL) / aspectRatio) + PADDING_VERTICAL;
+      }
+      
+      
+    ]]>
+  </mx:Script>
+  
+</mx:Application>
