@@ -24,7 +24,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				title="{ResourceUtil.getInstance().getString('bbb.logout.confirm.title')}" 
 				showCloseButton="false" creationComplete="onCreationComplete()"
 				verticalScrollPolicy="off" horizontalScrollPolicy="off"
-				x="168" y="86" layout="vertical" width="400" height="200" horizontalAlign="center">
+				x="168" y="86" layout="vertical" 
+				width="400" height="150" 
+				horizontalAlign="center">
 	<mx:Script>
 		<![CDATA[
 			import mx.core.FlexGlobals;
@@ -33,15 +35,37 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.main.events.LogoutEvent;
 
 			private var urlLoader:URLLoader;
 			
 			private function onCreationComplete():void {
 			}
+			
+			private function doNotLogout():void{
+				LogUtil.debug("Confirm Logout Window: doNotLogout()");
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function logout():void{
+				LogUtil.debug("Confirm Logout Window: logout()");
+				dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
+				PopUpManager.removePopUp(this);
+			}
 		]]>
 	</mx:Script>
 	
 	<mx:TextArea editable="false" borderSkin="{null}" text="{ResourceUtil.getInstance().getString('bbb.logout.confirm.message')}"/>
-	<mx:Button id="yesBtn" label="{ResourceUtil.getInstance().getString('bbb.logout.confirm.yes')}" click=""/>
-	<mx:Button id="noBtn" label="{ResourceUtil.getInstance().getString('bbb.logout.confirm.no')}" click=""/>
+	<mx:HBox>
+		<mx:Button id="yesBtn" 
+				   click="logout()"
+				   label="{ResourceUtil.getInstance().getString('bbb.logout.confirm.yes')}" 
+				   accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.logout.confirm.yes')}"
+				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.logout.confirm.yes')}"/>
+		<mx:Button id="noBtn"
+				   click="doNotLogout()"
+				   label="{ResourceUtil.getInstance().getString('bbb.logout.confirm.no')}" 
+				   accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.logout.confirm.no')}"
+				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.logout.confirm.no')}"/>
+	</mx:HBox>
 </mx:TitleWindow> 
