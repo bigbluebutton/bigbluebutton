@@ -36,6 +36,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.main.events.LogoutEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 
 			private var urlLoader:URLLoader;
 			
@@ -44,6 +45,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function doNotLogout():void{
 				LogUtil.debug("Confirm Logout Window: doNotLogout()");
+				dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_LOGOUT_BUTTON));
 				PopUpManager.removePopUp(this);
 			}
 			
@@ -55,17 +57,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 	
-	<mx:TextArea editable="false" borderSkin="{null}" text="{ResourceUtil.getInstance().getString('bbb.logout.confirm.message')}"/>
+	<mx:TextArea editable="false" 
+				 borderSkin="{null}" 
+				 text="{ResourceUtil.getInstance().getString('bbb.logout.confirm.message')}"
+				 />
 	<mx:HBox>
 		<mx:Button id="yesBtn" 
 				   click="logout()"
 				   label="{ResourceUtil.getInstance().getString('bbb.logout.confirm.yes')}" 
 				   accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.logout.confirm.yes')}"
-				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.logout.confirm.yes')}"/>
+				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.logout.confirm.yes')}"
+				   />
 		<mx:Button id="noBtn"
 				   click="doNotLogout()"
 				   label="{ResourceUtil.getInstance().getString('bbb.logout.confirm.no')}" 
 				   accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.logout.confirm.no')}"
-				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.logout.confirm.no')}"/>
+				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.logout.confirm.no')}"
+				   />
 	</mx:HBox>
 </mx:TitleWindow> 
