@@ -20,13 +20,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+				xmlns:mate="http://mate.asfusion.com/"
 				title="{ResourceUtil.getInstance().getString('bbb.logout.confirm.title')}" 
 				showCloseButton="false" creationComplete="onCreationComplete()"
 				verticalScrollPolicy="off" horizontalScrollPolicy="off"
 				x="168" y="86" layout="vertical" 
 				width="400" height="150" 
 				horizontalAlign="center">
+	<mate:Listener type="{LogoutEvent.REFOCUS_CONFIRM}" method="refocus" />
 	<mx:Script>
 		<![CDATA[
 			import mx.core.FlexGlobals;
@@ -54,10 +56,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
 				PopUpManager.removePopUp(this);
 			}
+			
+			private function refocus(e:LogoutEvent):void{
+				confirmText.setFocus();
+			}
 		]]>
 	</mx:Script>
 	
-	<mx:TextArea editable="false" 
+	<mx:TextArea id="confirmText" 
+				 editable="false" 
 				 borderSkin="{null}" 
 				 text="{ResourceUtil.getInstance().getString('bbb.logout.confirm.message')}"
 				 />
