@@ -214,6 +214,57 @@ public class RoomsManager {
 	public void setConversionUpdatesMessageListener(ConversionUpdatesMessageListener conversionUpdatesMessageListener) {
 		this.conversionUpdatesMessageListener = conversionUpdatesMessageListener;
 	}
+
+	public void askToEnter(String roomName, String userid) {
+		log.debug("User " + userid + " asking to enter in room " + roomName);
+		Room r = getRoom(roomName);
+		if (r != null) {
+			r.askModerator(userid);
+			return;
+		}	
+		log.warn("Participant asking to enter on a non-existing room " + roomName);
+	}
+
+	public void askForGuestWaiting(String roomName, String userid) {
+		log.debug("User " + userid + " asking for guests waiting in room " + roomName);
+		Room r = getRoom(roomName);
+		if (r != null) {
+			r.guestWaiting(userid);
+			return;
+		}	
+		log.warn("Participant asking guests on a non-existing room " + roomName);
+	}
+
+	public void responseToGuest(String roomName, String userid, Boolean resp) {
+		Room r = getRoom(roomName);
+		if (r != null) {
+			r.responseToGuest(userid, resp);
+			return;
+		}
+	}
+
+	public String getGuestPolicy(String roomName) {
+		Room r = getRoom(roomName);
+		if (r != null) {
+			return r.getGuestPolicy();
+		}
+		return "";
+	}
+
+	public void newGuestPolicy(String roomName, String guestPolicy) {
+		Room r = getRoom(roomName);
+		if (r != null) {
+			r.newGuestPolicy(guestPolicy);
+		}
+	}
+
+	public void responseToAllGuests(String roomName, Boolean resp) {
+		Room r = getRoom(roomName);
+		if (r != null) {
+			r.responseToAllGuests(resp);
+			return;
+		}
+	}
 	
 	private class RoomsManagerListener implements MessageListener{
 
@@ -231,7 +282,7 @@ public class RoomsManager {
 		public void presentationUpdates(HashMap<String, String> map) {
 			conversionUpdatesMessageListener.handleReceivedMessage(map);
 		}
-		
+	
 	}
 	
 }

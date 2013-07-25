@@ -20,7 +20,8 @@ package org.bigbluebutton.conference;
 
 import java.util.Iterator;
 import java.util.Set;
-import org.red5.server.api.Red5;import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
+import org.red5.server.api.Red5;
+import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.IApplication;
@@ -123,7 +124,9 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
-		
+		for(int i = 0; i < params.length; i++) {
+			System.out.println("Parametro " + i + ": " + params[i]);
+		}
         String username = ((String) params[0]).toString();
         String role = ((String) params[1]).toString();
         String room = ((String)params[2]).toString();
@@ -134,13 +137,14 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		
     	String externalUserID = ((String) params[5]).toString();
     	String internalUserID = ((String) params[6]).toString();
-    	    	
+    	boolean guest = true;//((Boolean) params[7]);
+
 		if (record == true) {
 			recorderApplication.createRecordSession(room);
 		}
 			
     	BigBlueButtonSession bbbSession = new BigBlueButtonSession(room, internalUserID,  username, role, 
-    			voiceBridge, record, externalUserID);
+    			voiceBridge, record, externalUserID, guest);
         connection.setAttribute(Constants.SESSION, bbbSession);        
         
         String debugInfo = "internalUserID=" + internalUserID + ",username=" + username + ",role=" +  role + "," + 

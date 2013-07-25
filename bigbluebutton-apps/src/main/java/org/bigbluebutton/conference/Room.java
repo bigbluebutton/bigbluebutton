@@ -38,6 +38,8 @@ public class Room implements Serializable {
 	ArrayList<String> currentPresenter = null;
 	private String name;
 	private Map <String, User> participants;
+	private Map <String, String> guestsWaiting;
+	private String guestPolicy = "ASK_MODERATOR";
 
 	// these should stay transient so they're not serialized in ActiveMQ messages:	
 	//private transient Map <Long, Participant> unmodifiableMap;
@@ -48,6 +50,7 @@ public class Room implements Serializable {
 		participants = new ConcurrentHashMap<String, User>();
 		//unmodifiableMap = Collections.unmodifiableMap(participants);
 		listeners   = new ConcurrentHashMap<String, IRoomListener>();
+		guestsWaiting = new ConcurrentHashMap<String, String>();
 	}
 
 	public String getName() {
@@ -84,6 +87,9 @@ public class Room implements Serializable {
 		boolean present = false;
 		User p = null;
 		synchronized (this) {
+			if(guestsWaiting.containsKey(userid)) {
+				guestsWaiting.remove(userid);
+			}
 			present = participants.containsKey(userid);
 			if (present) {
 				log.debug("removing participant");
@@ -96,6 +102,81 @@ public class Room implements Serializable {
 				log.debug("calling participantLeft on listener " + listener.getName());
 				listener.participantLeft(p);
 			}
+		}
+	}
+
+
+	public void askModerator(String userid) {
+		boolean present = false;
+		User p = null;
+		present = participants.containsKey(userid);
+		if (present) {
+			log.debug("asking moderators");
+			p = participants.get(userid);
+			synchronized (this) {
+				guestsWaiting.put(userid, p.getName());
+			}
+			for (Iterator it = listeners.values().iterator(); it.hasNext();) {
+				IRoomListener listener = (IRoomListener) it.next();
+				log.debug("calling guestEntrance on listener " + listener.getName());
+				listener.guestEntrance(p);
+			}
+		}
+	}
+
+	public void guestWaiting(String userid) {
+		synchronized (this) {
+			Iterator entries = guestsWaiting.entrySet().iterator();
+			String userId_userName = "";
+			while (entries.hasNext()) {
+				Map.Entry pairs = (Map.Entry) entries.next();
+				userId_userName = userId_userName + "!1" + pairs.getKey().toString() + "!2" + pairs.getValue();
+			}
+			for (Iterator it = listeners.values().iterator(); it.hasNext();) {
+				IRoomListener listener = (IRoomListener) it.next();
+				log.debug("calling guestEntrance on listener " + listener.getName());
+				listener.guestWaitingForModerator(userid, userId_userName);
+			}
+		}
+	}
+
+	public void responseToGuest(String userid, Boolean resp) {
+		boolean present = false;
+		User p = null;
+		present = participants.containsKey(userid);
+		if (present) {
+			Boolean send = false;
+			synchronized (this) {
+				if(guestsWaiting.containsKey(userid)) {
+					guestsWaiting.remove(userid);
+					send = true;
+				}
+			}
+			if(send) {
+				p = participants.get(userid);
+				for (Iterator it = listeners.values().iterator(); it.hasNext();) {
+					IRoomListener listener = (IRoomListener) it.next();
+					log.debug("calling guestEntrance on listener " + listener.getName());
+					listener.guestResponse(p, resp);
+				}
+			}
+		}
+	}
+
+	public void responseToAllGuests(Boolean resp) {
+		synchronized (this) {
+			User p = null;
+			for (String userid : guestsWaiting.keySet()) {
+				if(participants.containsKey(userid)) {
+					p = participants.get(userid);
+					for (Iterator it = listeners.values().iterator(); it.hasNext();) {
+						IRoomListener listener = (IRoomListener) it.next();
+						log.debug("calling guestEntrance on listener " + listener.getName());
+						listener.guestResponse(p, resp);
+					}
+				}
+			}
+				guestsWaiting.clear();
 		}
 	}
 
@@ -120,6 +201,21 @@ public class Room implements Serializable {
 			}
 		}		
 	}
+
+	public String getGuestPolicy() {
+		return guestPolicy;
+	}
+
+	public void newGuestPolicy(String guestPolicy) {
+		synchronized (this) {
+			this.guestPolicy = guestPolicy;
+		}
+		for (Iterator it = listeners.values().iterator(); it.hasNext();) {
+			IRoomListener listener = (IRoomListener) it.next();
+			log.debug("calling guestPolicyChanged on listener " + listener.getName());
+			listener.guestPolicyChanged(guestPolicy);
+		}
+}
 
 	public void endAndKickAll() {
 		for (Iterator it = listeners.values().iterator(); it.hasNext();) {

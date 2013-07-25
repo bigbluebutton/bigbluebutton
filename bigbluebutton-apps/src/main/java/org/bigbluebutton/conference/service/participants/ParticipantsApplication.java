@@ -139,4 +139,28 @@ public class ParticipantsApplication {
 	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
 		this.connInvokerService = connInvokerService;
 	}
+
+	public void askingToEnter(String roomName, String userid) {
+		roomsManager.askToEnter(roomName, userid);	
+	}
+
+	public String getGuestPolicy(String roomName) {
+		return roomsManager.getGuestPolicy(roomName);
+	}
+
+	public void newGuestPolicy(String roomName, String guestPolicy) {
+		roomsManager.newGuestPolicy(roomName, guestPolicy);
+	}
+
+	public void askingForGuestWaiting(String roomName, String userid) {
+		roomsManager.askForGuestWaiting(roomName, userid);	
+	}
+
+	public void responseToGuest(String roomName, String userid, Boolean resp) {
+		roomsManager.responseToGuest(roomName, userid, resp);
+	}
+
+	public void responseToAllGuests(String roomName, Boolean resp) {
+		roomsManager.responseToAllGuests(roomName, resp);
+	}
 }
