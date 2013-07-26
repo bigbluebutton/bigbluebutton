@@ -44,7 +44,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 
 	<EventHandlers type="{AddGuestEvent.ADD_GUEST}" >
-		<MethodInvoker generator="{GuestManager}" method="addNewGuest" arguments="{event}" />
+		<MethodInvoker generator="{GuestManager}" method="addGuest" arguments="{event}" />
 	</EventHandlers>
 
 	<EventHandlers type="{PortTestEvent.PORT_TEST_SUCCESS}" >

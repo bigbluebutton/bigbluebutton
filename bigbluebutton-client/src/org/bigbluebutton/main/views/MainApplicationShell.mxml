@@ -48,7 +48,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="SHOW_BBB_SETTINGS" method="showBBBSettings"  />
 	<mate:Listener type="{ModeratorRespEvent.GUEST_ALLOWED}" method="guestAllowed" />
 	<mate:Listener type="{BBBEvent.RETRIEVE_GUEST_POLICY}" method="setGuestPolicy"/>
-	<mate:Listener type="{RefreshGuestEvent}" method="refreshGuestView" />
+	<mate:Listener type="{RefreshGuestEvent.REFRESH_GUEST_VIEW}" method="refreshGuestView" />
+	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
+	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
+	<mate:Listener type="{ShortcutEvent.OPEN_SHORTCUT_WIN}" method="openShortcutHelpWindow" />
+	<mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
+  
 	
 	<mx:Script>
 		<![CDATA[
@@ -93,7 +98,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.util.logging.Logger;
 			import org.bigbluebutton.common.events.SettingsComponentEvent;
-			
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			
 			private var globalDispatcher:Dispatcher;			
 			private var dispState:String; //full-screen?
@@ -162,78 +168,81 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
         
       }
-			
-			private function setGuestPolicy(event:BBBEvent):void {
-				guestPolicy = event.payload.guestPolicy;
-				if(guestManagement == null) {
-					LogUtil.debug("ADD Guest Event");
-					guestManagement = new GuestManagement();
-					guestManagement.setGuestPolicy(guestPolicy);
-					guestManagement.addToSettings();
-				}
-			}
+	
+	private function setGuestPolicy(event:BBBEvent):void {
+		guestPolicy = event.payload.guestPolicy;
+		if(guestManagement == null) {
+			LogUtil.debug("ADD Guest Event");
+			guestManagement = new GuestManagement();
+			guestManagement.setGuestPolicy(guestPolicy);
+			guestManagement.addToSettings();
+		}
+	}
 
-			protected function initializeShell():void {	
-				globalDispatcher = new Dispatcher();
-			}
+	protected function initializeShell():void {	
+		globalDispatcher = new Dispatcher();
+	}
 		
-			protected function initFullScreen():void {				
-				/* Set up full screen handler. */
-				stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
-				dispState = stage.displayState;
-			}					
+	protected function initFullScreen():void {				
+		/* Set up full screen handler. */
+		stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
+		dispState = stage.displayState;
+	}					
 			
-			private var sendStartModulesEvent:Boolean = true;
-			
-			private function handleApplicationVersionEvent(event:AppVersionEvent):void {
-				if (event.configLocaleVersion == true) {
-					receivedConfigLocaleVer = true;
-					appVersion = event.appVersion;
-					localeVersion = event.localeVersion;
-//					LogUtil.debug("Received locale version fron config.xml");
-				} else {
-					receivedResourceLocaleVer = true;
-					LogUtil.debug("Received locale version fron locale file.");
-				}
-				
-				if (receivedConfigLocaleVer && receivedResourceLocaleVer) {
-					LogUtil.debug("Comparing locale versions.");
-					if (!event.suppressLocaleWarning) checkLocaleVersion(localeVersion);
-					if (sendStartModulesEvent) {
-            
-						sendStartModulesEvent = false;
-						sendStartAllModulesEvent();
-					}				
-				}						
-			}
-			
+	private var sendStartModulesEvent:Boolean = true;
 
-			public function guestAllowed(evt:ModeratorRespEvent):void {
-				waitWindow.guestAllowed();
-			}
-			public function sendStartAllModulesEvent():void{
-				LogUtil.debug("Sending start all modules event");
-				var dispatcher:Dispatcher = new Dispatcher();
-				dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.START_ALL_MODULES));	
-			}
-			
-			private function fullScreenHandler(evt:FullScreenEvent):void {
-				dispState = stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
-				if (evt.fullScreen) {
-					LogUtil.debug("Switching to full screen");
-					/* Do something specific here if we switched to full screen mode. */
+	private function handleApplicationVersionEvent(event:AppVersionEvent):void {
+		if (event.configLocaleVersion == true) {
+			receivedConfigLocaleVer = true;
+			appVersion = event.appVersion;
+			localeVersion = event.localeVersion;
+//			LogUtil.debug("Received locale version fron config.xml");
+		} else {
+			receivedResourceLocaleVer = true;
+			LogUtil.debug("Received locale version fron locale file.");
+		}
 				
-				} else {
-					LogUtil.debug("Switching to normal screen");
-					/* Do something specific here if we switched to normal mode. */
-				}
-			}
+		if (receivedConfigLocaleVer && receivedResourceLocaleVer) {
+			LogUtil.debug("Comparing locale versions.");
+			if (!event.suppressLocaleWarning) checkLocaleVersion(localeVersion);
+			if (sendStartModulesEvent) {
+					sendStartModulesEvent = false;
+					sendStartAllModulesEvent();
+			}				
+		}						
+	}
+	
+	public function guestAllowed(evt:ModeratorRespEvent):void {
+		progressBar.visible = true;
+		waitWindow.guestAllowed();
+	}
+	
+	public function sendStartAllModulesEvent():void{
+		LogUtil.debug("Sending start all modules event");
+		var dispatcher:Dispatcher = new Dispatcher();
+		dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.START_ALL_MODULES));	
+	}
+			
+	private function fullScreenHandler(evt:FullScreenEvent):void {
+		dispState = stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
+		if (evt.fullScreen) {
+			LogUtil.debug("Switching to full screen");
+			/* Do something specific here if we switched to full screen mode. */
+		} else {
+			LogUtil.debug("Switching to normal screen");
+			/* Do something specific here if we switched to normal mode. */
+		}
+	}
 
 			private function closeGuestWindow(e:Event):void {
-				guestWindow.closeWindow();
+				if(guestWindow != null) {
+					guestWindow.closeWindow();
+					guestWindow = null;
+				}
 			}
 				
 			private function refreshGuestView(evt:RefreshGuestEvent):void {
+				LogUtil.debug("REFRESH GUEST");
 				if(guestWindow == null) {
 					guestWindow = PopUpManager.createPopUp( mdiCanvas, GuestWindow, false) as GuestWindow;
 					guestWindow.addEventListener(Event.CLOSE, closeGuestWindow);
@@ -249,8 +258,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function openWaitWindow(evt:WaitModeratorEvent):void {
+				 progressBar.visible = false;
 				 waitWindow = PopUpManager.createPopUp( mdiCanvas, WaitingWindow, false) as WaitingWindow;
-				 
 				 waitWindow.conferenceParameters = evt.conferenceParameters;
 				 
 				 var point1:Point = new Point();
@@ -361,72 +370,86 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				point1.y = height/2;                
 				bbbSettings.x = point1.x - (bbbSettings.width/2);
 				bbbSettings.y = point1.y - (bbbSettings.height/2);
+
+				if (scWindow.minimized)
+					scWindow.restore();
+				
+				if (scWindow.maximized)
+					scWindow.restore();
+				
+				mdiCanvas.windowManager.add(scWindow);
+				mdiCanvas.windowManager.absPos(scWindow, mdiCanvas.width/2 - 150, mdiCanvas.height/2 - 150);
+				
+				scWindow.focusHead();
 			}
 
-      private function openVideoPreviewWindow(event:BBBEvent):void {
-        var camSettings:CameraDisplaySettings = CameraDisplaySettings(PopUpManager.createPopUp(mdiCanvas, CameraDisplaySettings, true));		
-        camSettings.resolutions = (event.payload.resolutions as String).split(",");
-        camSettings.publishInClient = event.payload.publishInClient;
-        
-        var point1:Point = new Point();
-        // Calculate position of TitleWindow in Application's coordinates. 
-        point1.x = width/2;
-        point1.y = height/2;                
-        camSettings.x = point1.x - (camSettings.width/2);
-        camSettings.y = point1.y - (camSettings.height/2);	
-      }
+	private function openVideoPreviewWindow(event:BBBEvent):void {
+		var camSettings:CameraDisplaySettings = CameraDisplaySettings(PopUpManager.createPopUp(mdiCanvas, CameraDisplaySettings, true));		
+		camSettings.resolutions = (event.payload.resolutions as String).split(",");
+		camSettings.publishInClient = event.payload.publishInClient;
+
+		var point1:Point = new Point();
+		// Calculate position of TitleWindow in Application's coordinates. 
+		point1.x = width/2;
+		point1.y = height/2;
+		camSettings.x = point1.x - (camSettings.width/2);
+		camSettings.y = point1.y - (camSettings.height/2);
+	}
       
-	   	private function wrongLocaleVersion():void {
-				var localeWindow:OldLocaleWarnWindow = OldLocaleWarnWindow(PopUpManager.createPopUp(mdiCanvas, OldLocaleWarnWindow, false));
+	private function wrongLocaleVersion():void {
+		var localeWindow:OldLocaleWarnWindow = OldLocaleWarnWindow(PopUpManager.createPopUp(mdiCanvas, OldLocaleWarnWindow, false));
 
-				var point1:Point = new Point();
-	        	// Calculate position of TitleWindow in Application's coordinates. 
-				point1.x = width/2;
-				point1.y = height/2;              
-				localeWindow.x = point1.x - (localeWindow.width/2);
-				localeWindow.y = point1.y - (localeWindow.height/2);	
-      }
+		var point1:Point = new Point();
+		// Calculate position of TitleWindow in Application's coordinates. 
+		point1.x = width/2;
+		point1.y = height/2;
+		localeWindow.x = point1.x - (localeWindow.width/2);
+		localeWindow.y = point1.y - (localeWindow.height/2);
+	}
 			
-			private function handleLogout(e:ConnectionFailedEvent):void {
-				if(waitWindow != null)				
-					waitWindow.removeWindow();
+	private function handleLogout(e:ConnectionFailedEvent):void {
+		if(progressBar != null)
+			progressBar.visible = false;
+			
+		if(waitWindow != null)				
+			waitWindow.removeWindow();
 				
-				if(guestWindow != null) {
-					guestWindow.closeWindow();
-				}
+		if(guestWindow != null) {
+			guestWindow.closeWindow();
+		}
 
-				
-				if (layoutOptions.showLogoutWindow) {
-					if (logoutWindow != null) return;
-					logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, false));
+		if (layoutOptions.showLogoutWindow) {
+			if (logoutWindow != null) return;
+			logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, false));
+			var point1:Point = new Point();
+			// Calculate position of TitleWindow in Application's coordinates. 
+			point1.x = width/2;
+			point1.y = height/2;                 
+			logoutWindow.x = point1.x - (logoutWindow.width/2);
+			logoutWindow.y = point1.y - (logoutWindow.height/2);
 					
-					var point1:Point = new Point();
-					// Calculate position of TitleWindow in Application's coordinates. 
-					point1.x = width/2;
-					point1.y = height/2;                 
-					logoutWindow.x = point1.x - (logoutWindow.width/2);
-					logoutWindow.y = point1.y - (logoutWindow.height/2);
-					
-					if (e is ConnectionFailedEvent) logoutWindow.setReason((e as ConnectionFailedEvent).type);
-					else logoutWindow.setReason("You have logged out of the conference");	
-					
-					mdiCanvas.removeAllWindows(); 				
-				} else {
-					mdiCanvas.removeAllWindows();
-					var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
-					var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
-					var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
-					var urlLoader:URLLoader = new URLLoader();
-					urlLoader.addEventListener(Event.COMPLETE, handleLogoutComplete);	
-					urlLoader.load(request);
-				}				
-			}
+			if (e is ConnectionFailedEvent) 
+				logoutWindow.setReason((e as ConnectionFailedEvent).type);
+			else 
+				logoutWindow.setReason("You have logged out of the conference");	
+						
+			mdiCanvas.removeAllWindows(); 				
+		} else {
+			mdiCanvas.removeAllWindows();
+			var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
+			var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
+			var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
+			var urlLoader:URLLoader = new URLLoader();
+			urlLoader.addEventListener(Event.COMPLETE, handleLogoutComplete);	
+			urlLoader.load(request);
+		}				
+	}
 			
-			private function handleLogoutComplete(e:Event):void {	
-				var request:URLRequest = new URLRequest(BBB.initUserConfigManager().getLogoutUrl());
-				LogUtil.debug("Logging out to: " + BBB.initUserConfigManager().getLogoutUrl());
-				navigateToURL(request, '_self');			
-			}
+	private function handleLogoutComplete(e:Event):void {	
+		var request:URLRequest = new URLRequest(BBB.initUserConfigManager().getLogoutUrl());
+		LogUtil.debug("Logging out to: " + BBB.initUserConfigManager().getLogoutUrl());
+		navigateToURL(request, '_self');			
+	}
 			
 			private function attemptReconnect(e:ConnectionFailedEvent):void{
 				/*if (connectionLostWindow != null) return;

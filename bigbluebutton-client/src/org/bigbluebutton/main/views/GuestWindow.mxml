@@ -107,6 +107,7 @@
 		
 			public function remove(userid:String):void {
 				if (guestButtons[userid] != null) {
+					numberOfGuests = numberOfGuests  - 1;
 					guestListBox.removeChild(guestButtons[userid]);
 					delete guestButtons[userid];
 
