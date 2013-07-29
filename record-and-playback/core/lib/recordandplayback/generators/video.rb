@@ -745,6 +745,69 @@ module BigBlueButton
     BigBlueButton.logger.debug("Current timeline with details on streams:")
     BigBlueButton.logger.debug(hash_to_str(timeline))
 
+
+    # Retrieve (and match) the START/STOP record events
+    rec_events = BigBlueButton::Events.match_start_and_stop_rec_events(
+                                 BigBlueButton::Events.get_start_and_stop_rec_events(events_xml))
+
+    # Iterate over record events list (find cut points)
+    new_timeline = []
+
+    rec_events.each do |re|
+      re_start_timestamp = re[:start_timestamp] - first_timestamp
+      re_stop_timestamp = re[:stop_timestamp] - first_timestamp
+
+      BigBlueButton.logger.debug("re_start_timestamp: #{re_start_timestamp}")
+      BigBlueButton.logger.debug("re_stop_timestamp: #{re_stop_timestamp}")
+
+      timeline.each do |te|
+        have_to_add = false
+
+        # Deep copy using serialization. Review this later.
+        te_copy = Marshal.load(Marshal.dump(te))
+
+        # Start recording mark cuts the audio event
+        if (re_start_timestamp > te[:timestamp] and re_start_timestamp < te[:timestamp] + te[:duration])
+          record_offset = re_start_timestamp - te_copy[:timestamp]
+          te_copy[:duration] = te_copy[:duration] - record_offset
+
+          te_copy[:streams].each do |stream_name|
+            te_copy[:streams_detailed][stream_name][:begin] = record_offset
+            te_copy[:streams_detailed][stream_name][:end] =
+                                  te_copy[:streams_detailed][stream_name][:begin] + te_copy[:duration]
+          end
+          te_copy[:timestamp] = re_start_timestamp
+          have_to_add = true
+        end
+
+        # Stop recording mark cuts the audio event
+        if (re_stop_timestamp > te[:timestamp] and re_stop_timestamp < te[:timestamp] + te[:duration])
+          te_copy[:duration] = te_copy[:duration] - ((te[:timestamp] + te_copy[:duration]) - re_stop_timestamp)
+
+          te_copy[:streams].each do |stream_name|
+            te_copy[:streams_detailed][stream_name][:end] = 
+                                                te_copy[:streams_detailed][stream_name][:begin] + te_copy[:duration]
+          end
+          have_to_add = true
+        end
+
+        if(have_to_add)
+          new_timeline << te_copy
+        end
+
+        # Audio event is between start/stop recording marks
+        if (re_start_timestamp <= te[:timestamp] and re_stop_timestamp >= te[:timestamp] + te[:duration])
+          new_timeline << te_copy
+        end
+      end
+    end
+
+    timeline = new_timeline
+
+    BigBlueButton.logger.debug("Sliced events timeline:")
+    BigBlueButton.logger.debug(hash_to_str(timeline))
+
+
     blank_duration_error = 0
     concat = []
 
