@@ -62,7 +62,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import mx.controls.Alert;
 			import mx.accessibility.AlertAccImpl;
-			import mx.accessibility.LabelAccImpl;
 			import mx.events.CloseEvent;
 
 			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
@@ -93,6 +92,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function init():void{
 				AlertAccImpl.enableAccessibility();
+				
 				baseIndex = 101;
 				numButtons = 0;
                 
@@ -174,16 +174,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			
-			private function confirmLogout():void {	
-				// Confirm logout using built-in alert
-				var alert:Alert = Alert.show(ResourceUtil.getInstance().getString('bbb.logout.confirm.message'), ResourceUtil.getInstance().getString('bbb.logout.confirm.title'), Alert.YES | Alert.NO, this, alertLogout, null, Alert.YES);
-				
-				var newX:Number = this.width/2 - alert.width/2;
-				var newY:Number = 86;
-											
-				alert.validateNow();
-				alert.move(newX, newY);
-				Accessibility.updateProperties();
+			private function confirmLogout():void {
+				if (toolbarOptions.confirmLogout){
+					// Confirm logout using built-in alert
+					var alert:Alert = Alert.show(ResourceUtil.getInstance().getString('bbb.logout.confirm.message'), ResourceUtil.getInstance().getString('bbb.logout.confirm.title'), Alert.YES | Alert.NO, this, alertLogout, null, Alert.YES);
+					
+					var newX:Number = this.width/2 - alert.width/2;
+					var newY:Number = 86;
+												
+					alert.validateNow();
+					alert.move(newX, newY);
+					Accessibility.updateProperties();
+				}
+				else{
+					doLogout();
+				}
 			}
 			
 						

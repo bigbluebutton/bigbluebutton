@@ -45,12 +45,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
 	<mate:Listener type="{ShortcutEvent.OPEN_SHORTCUT_WIN}" method="openShortcutHelpWindow" />
-	<mate:Listener type="{LogoutEvent.CONFIRM_LOGOUT}" method="confirmLogoutWindow" />
-  <mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
-	<!-- <mate:Listener type="{FocusEvent.FOCUS_IN}" method="focusIn" /> -->
-	<!-- Try adding and removing the listener programatically -->
-	<mate:Listener type="{ShortcutEvent.FOCUS_LOGOUT_BUTTON}" method="logoutDenied" />
-  
+  	<mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
+	  
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -100,7 +96,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var scWindow:ShortcutHelpWindow;
 			private var logoutWindow:LoggedOutWindow;
 			private var connectionLostWindow:ConnectionLostWindow;
-			private var clWindow:ConfirmLogoutWindow;
 			
 			[Bindable] private var baseIndex:int = 100000;
 			
@@ -398,27 +393,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function closeNetworkStatsWindow(e:Event = null):void {
 				networkStatsWindow.disappear();
-			}
-			
-			private function confirmLogoutWindow(e:Event):void{
-					clWindow = ConfirmLogoutWindow(PopUpManager.createPopUp( mdiCanvas, ConfirmLogoutWindow, false));
-					var point1:Point = new Point();
-					// Calculate position of TitleWindow in Application's coordinates. 
-					point1.x = width/2;
-					point1.y = height/2;                 
-					clWindow.x = point1.x - (clWindow.width/2);
-					clWindow.y = point1.y - (clWindow.height/2);
-					//confirmingLogout = true;
-			}
-			
-			private function logoutDenied(e:ShortcutEvent):void{
-				//confirmingLogout = false;
-				clWindow = null;
-			}
-			
-			private function focusIn(e:FocusEvent):void{
-				if (clWindow != null)
-					dispatchEvent(new LogoutEvent(LogoutEvent.REFOCUS_CONFIRM));
 			}
 
 		]]>
