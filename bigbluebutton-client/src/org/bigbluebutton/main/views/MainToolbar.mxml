@@ -34,6 +34,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShortcutEvent.REMOTE_OPEN_SHORTCUT_WIN}" method="remoteShortcutClick" />
 	<mate:Listener type="{ShortcutEvent.LOGOUT}" method="remoteLogout" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_SHORTCUT_BUTTON}" method="focusShortcutButton" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_LOGOUT_BUTTON}" method="focusLogoutButton" />
 	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="retrieveMeetingName" />
 	
 	<mx:Script>
@@ -59,7 +60,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-
+			import mx.controls.Alert;
+			import mx.accessibility.AlertAccImpl;
+			import mx.events.CloseEvent;
 
 			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
 			
@@ -86,8 +89,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 */
 			
 			private var xml:XML;
-						
+			
 			private function init():void{
+				AlertAccImpl.enableAccessibility();
+				
 				baseIndex = 101;
 				numButtons = 0;
                 
@@ -166,6 +171,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function handleEndMeetingEvent(event:BBBEvent):void {
 				LogUtil.debug("Received end meeting event.");
 				doLogout();
+			}
+			
+			
+			private function confirmLogout():void {
+				if (toolbarOptions.confirmLogout){
+					// Confirm logout using built-in alert
+					var alert:Alert = Alert.show(ResourceUtil.getInstance().getString('bbb.logout.confirm.message'), ResourceUtil.getInstance().getString('bbb.logout.confirm.title'), Alert.YES | Alert.NO, this, alertLogout, null, Alert.YES);
+					
+					var newX:Number = this.width/2 - alert.width/2;
+					var newY:Number = 86;
+												
+					alert.validateNow();
+					alert.move(newX, newY);
+					Accessibility.updateProperties();
+				}
+				else{
+					doLogout();
+				}
+			}
+			
+						
+			private function alertLogout(e:CloseEvent):void {
+				// Check to see if the YES button was pressed.
+				if (e.detail==Alert.YES) {
+					 doLogout();
+				}
 			}
 			
 			private function doLogout():void {
@@ -263,7 +294,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function remoteLogout(e:ShortcutEvent):void{
-				doLogout();
+				confirmLogout();
 			}
 			
 			private function onShortcutButtonClick(e:Event = null):void {
@@ -273,6 +304,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function focusShortcutButton(e:ShortcutEvent):void{
 				shortcutKeysBtn.setFocus();
+			}
+			
+			private function focusLogoutButton(e:ShortcutEvent):void{
+				btnLogout.setFocus();
 			}
 
 		]]>
@@ -313,6 +348,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                    toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" 
 				   accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"/>
 	<mx:Button label="" id="btnLogout" styleName="logoutButtonStyle"
-                 toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()" height="22"
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="confirmLogout()" height="22"
                  tabIndex="{baseIndex+numButtons+14}" />
 </mx:ApplicationControlBar>
