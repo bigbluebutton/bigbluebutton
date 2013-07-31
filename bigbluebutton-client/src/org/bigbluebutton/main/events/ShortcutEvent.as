@@ -74,6 +74,7 @@ package org.bigbluebutton.main.events {
 		//public static const FOCUS_LOOP_END:String = 'FOCUS_LOOP_END';
 		public static const FOCUS_SHORTCUT_BUTTON:String = 'FOCUS_SHORTCUT_BUTTON';
 		public static const MUTE_ALL_BUT_PRES:String = 'MUTE_ALL_BUT_PRES';
+		public static const FOCUS_LOGOUT_BUTTON:String = 'FOCUS_LOGOUT_BUTTON';
 		
 		public static const CLOSE_POLL_STATS:String = 'CLOSE_POLL_STATS';
 		public static const FOCUS_MULT_CHECK:String = 'FOCUS_MULT_CHECK';
