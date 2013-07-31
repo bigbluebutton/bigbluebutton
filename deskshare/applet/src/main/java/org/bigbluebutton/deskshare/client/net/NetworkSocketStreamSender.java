@@ -1,22 +1,21 @@
-/** 
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-**/
+*
+*/
 package org.bigbluebutton.deskshare.client.net;
 
 import java.awt.Point;
@@ -37,6 +36,7 @@ public class NetworkSocketStreamSender implements Runnable {
 	private String room;
 	private Dimension screenDim;
 	private Dimension blockDim;
+	private boolean useSVC2;
 	private final NextBlockRetriever retriever;
 	private volatile boolean processMessages = false;
 	private final int id;
@@ -44,13 +44,14 @@ public class NetworkSocketStreamSender implements Runnable {
 	private final SequenceNumberGenerator seqNumGenerator;
 	
 	public NetworkSocketStreamSender(int id, NextBlockRetriever retriever, String room, 
-			Dimension screenDim, Dimension blockDim, SequenceNumberGenerator seqNumGenerator) {
+			Dimension screenDim, Dimension blockDim, SequenceNumberGenerator seqNumGenerator, boolean useSVC2) {
 		this.id = id;
 		this.retriever = retriever;
 		this.room = room;
 		this.screenDim = screenDim;
 		this.blockDim = blockDim;	
 		this.seqNumGenerator = seqNumGenerator;
+		this.useSVC2 = useSVC2;
 	}
 	
 	public void addListener(NetworkStreamListener listener) {
@@ -79,7 +80,7 @@ public class NetworkSocketStreamSender implements Runnable {
 		try {
 			ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
 			dataToSend.reset();
-			BlockStreamProtocolEncoder.encodeStartStreamMessage(room, screenDim, blockDim, dataToSend, seqNumGenerator.getNext());
+			BlockStreamProtocolEncoder.encodeStartStreamMessage(room, screenDim, blockDim, dataToSend, seqNumGenerator.getNext(), useSVC2);
 			BlockStreamProtocolEncoder.encodeDelimiter(dataToSend);
 			sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
 			sendToStream(dataToSend);
@@ -146,8 +147,8 @@ public class NetworkSocketStreamSender implements Runnable {
 				BlockStreamProtocolEncoder.encodeBlock(bv, dataToSend);
 			}
 			
-			System.out.println(blockSize + "] total=" + totalBytes + " bytes");
-			System.out.println(encodeTime + "] total=" + totalMillis + " ms");
+//			System.out.println(blockSize + "] total=" + totalBytes + " bytes");
+//			System.out.println(encodeTime + "] total=" + totalMillis + " ms");
 
 			BlockStreamProtocolEncoder.encodeDelimiter(dataToSend);
 			sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
@@ -156,7 +157,7 @@ public class NetworkSocketStreamSender implements Runnable {
 				retriever.blockSent((Integer)changedBlocks[i]);
 			}
 			long end = System.currentTimeMillis();
-			System.out.println("[Socket Thread " + id + "] Sending " + changedBlocks.length + " blocks took " + (end - start) + " millis");
+//			System.out.println("[Socket Thread " + id + "] Sending " + changedBlocks.length + " blocks took " + (end - start) + " millis");
 		} else if (message.getMessageType() == Message.MessageType.CURSOR) {
 			CursorMessage msg = (CursorMessage)message;
 			sendCursor(msg.getMouseLocation(), msg.getRoom());

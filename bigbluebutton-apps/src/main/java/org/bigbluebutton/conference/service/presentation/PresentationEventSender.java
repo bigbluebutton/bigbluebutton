@@ -1,25 +1,21 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
-
 package org.bigbluebutton.conference.service.presentation;
 
 import java.util.ArrayList;
@@ -139,6 +135,18 @@ public class PresentationEventSender implements IPresentationRoomListener {
 		list.add(share);
 		so.sendMessage("sharePresentationCallback", list);
 	}
+	
+	@Override
+	public void sendCursorUpdate(Double xPercent, Double yPercent) {
+		// Disable. We are using connection invoke now. (ralam Oct 1, 2012).
+		// We'll have to convert all other messages to use conn invoke soon.
+		
+//		log.debug("calling updateCursorCallback[" + xPercent + "," + yPercent + "]");
+//		ArrayList list=new ArrayList();
+//		list.add(xPercent);
+//		list.add(yPercent);
+//		so.sendMessage("updateCursorCallback", list);
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -151,4 +159,6 @@ public class PresentationEventSender implements IPresentationRoomListener {
 		list.add(heightRatio);
 		so.sendMessage("moveCallback", list);
 	}
+
+	
 }

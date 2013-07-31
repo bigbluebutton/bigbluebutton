@@ -1,25 +1,21 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
-
 package org.bigbluebutton.conference.service.presentation;
 
 import org.slf4j.Logger;
@@ -47,6 +43,11 @@ public class PresentationRoom {
 	Double yOffset = 0D;
 	Double widthRatio = 0D;
 	Double heightRatio = 0D;
+	
+	/* cursor location */
+	Double xPercent = 0D;
+	Double yPercent = 0D;
+	
 	ArrayList<String> presentationNames = new ArrayList<String>();
 	
 	public PresentationRoom(String name) {
@@ -93,6 +94,18 @@ public class PresentationRoom {
         }           
     }
 	
+	public void sendCursorUpdate(Double xPercent, Double yPercent) {
+		this.xPercent = xPercent;
+		this.yPercent = yPercent;
+		
+		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
+			log.debug("calling on listener");
+			IPresentationRoomListener listener = (IPresentationRoomListener) iter.next();
+			log.debug("calling sendCursorUpdate on listener " + listener.getName());
+			listener.sendCursorUpdate(xPercent,yPercent);
+		}
+	}
+	
 	public void resizeAndMoveSlide(Double xOffset, Double yOffset, Double widthRatio, Double heightRatio) {
 		this.xOffset = xOffset;
 		this.yOffset = yOffset;
@@ -125,7 +138,12 @@ public class PresentationRoom {
 		sharing = share;
 		if (share) {
 		  currentPresentation = presentationName;
-		  presentationNames.add(presentationName);   
+		  if (! presentationNames.contains(presentationName)) {
+			  log.debug("Adding [" + presentationName +  "] to list of presentations.");
+			  presentationNames.add(presentationName);
+		  }	else {
+			  log.debug("[" + presentationName +  "] is already in list of presentations.");
+		  }
 		} else {
 		  currentPresentation = "";
 		}
@@ -147,16 +165,18 @@ public class PresentationRoom {
             return;
         }
         
-        presentationNames.remove(index);
+        String  remPresentation = presentationNames.remove(index);
+        log.debug("Removed [" + remPresentation + "] presentation.");
         
         for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
-            log.debug("calling on listener");
+            
             IPresentationRoomListener listener = (IPresentationRoomListener) iter.next();
             log.debug("calling removePresentation on listener " + listener.getName());
             listener.removePresentation(presentationName);
         }   
         
-        if (currentPresentation == presentationName) {
+        if (currentPresentation.equals(presentationName)) {
+        	log.debug("[" + remPresentation + "] is the current presentation. Unsharing that presentation.");
             sharePresentation(presentationName, false);
         }        
     }
@@ -192,4 +212,6 @@ public class PresentationRoom {
 	public Double getHeightRatio() {
 		return heightRatio;
 	}
+
+	
 }

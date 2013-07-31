@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="955" minHeight="600"
+                applicationComplete="appInit()">
+  <mx:Script>
+    <![CDATA[
+      private function appInit():void {
+        if (ExternalInterface.available) {
+          ExternalInterface.addCallback("testRTMPConnection", handleTestRTMPConnectionRequest);
+          ExternalInterface.addCallback("testSocketConnection", handleTestSocketRequest);
+          ExternalInterface.addCallback("setPolicyFileURL", handleSetPolicyFileURL);
+        }
+        
+        // Tell out JS counterpart that we are ready.
+        if (ExternalInterface.available) {
+          ExternalInterface.call("BBBCheck.RTMPConnCheckAppReady");
+        }
+      }
+      
+      private var rtmpTimer:Timer = null;
+      private var netConnection:NetConnection = null;
+      private const connectionTimeout:int = 5000;
+      
+      private var server:String;
+      private var application:String;
+      
+      private function handleTestRTMPConnectionRequest(host:String, app:String):void {
+        server = host;
+        application = app;
+        
+        if ((server != null || server != "") && (application != null || application != "")) {
+          connect(true);
+        } else {
+          ExternalInterface.call("BBBCheck.invalidParamsForRtmpConnectionTest");
+        }
+      }
+      
+      private var rtmp:Boolean;
+      
+      private function handleSetPolicyFileURL(url:String):void {
+        Security.loadPolicyFile(url);
+      }
+      
+      private function connect(testRTMP:Boolean):void {
+        rtmp = testRTMP;
+        
+        netConnection = new NetConnection();
+        netConnection.client = this;
+        
+        netConnection.addEventListener(NetStatusEvent.NET_STATUS, connectionHandler);
+        var connStr:String = (rtmp ? "rtmp:" : "rtmpt:") + "//" + server + "/" + application;
+        trace("Connecting to [" + connStr + "]"); 
+        netConnection.connect(connStr);
+        
+        if (rtmp) {
+          rtmpTimer = new Timer(connectionTimeout, 1);
+          rtmpTimer.addEventListener(TimerEvent.TIMER_COMPLETE, rtmpTimeoutHandler);
+          rtmpTimer.start();
+        }
+      }
+      
+      private function rtmpTimeoutHandler(e:TimerEvent):void {
+        netConnection.close();
+        netConnection = null;
+        
+        connect(false);
+      }
+      
+      private function connectionHandler(e:NetStatusEvent):void {
+        if (rtmpTimer) {
+          rtmpTimer.stop();
+          rtmpTimer = null;
+        }
+        
+        if ("NetConnection.Connect.Success" == e.info.code) {
+          // We've managed to connect to Red5. Inform requester that we connected
+          // using either RTMP or RTMPT.
+          ExternalInterface.call("BBBCheck.rtmpConnectionTestSuccess", rtmp, server, application);
+        } else if ("NetConnection.Connect.Failed" == e.info.code) {
+          // Check if this event is for the RTMPT test. If so, reply that
+          // we cannot connect to Red5 using RTMP or RTMPT. If this is for
+          // RTMP, we just swallow and let the timeout occur to test using
+          // RTMPT. (ralam apr 17, 2013)
+          if (!rtmp) {
+            ExternalInterface.call("BBBCheck.rtmpConnectionTestFailed", server, application);
+          }
+        }
+      }
+      
+      private var socket:Socket;
+      private var socketTimer:Timer = null;
+      private var socketHost:String;
+      private var socketPort:uint;
+      
+      private function handleTestSocketRequest(host:String, port:uint):void {
+        configureListeners();
+        trace("Socket test for [" + host + "] [" + port + "]");
+        
+        if (host && port)  {
+          socket = new Socket();
+          socket.connect(host, port);
+          socketTimer = new Timer(connectionTimeout, 1);
+          socketTimer.addEventListener(TimerEvent.TIMER_COMPLETE, socketTimeoutHandler);
+          socketTimer.start();
+        }
+      }
+     
+      private function stopSocketTimer():void {
+        if (socketTimer) {
+          socketTimer.stop();
+          socketTimer = null;
+        }
+      }
+      
+      private function socketTimeoutHandler(e:TimerEvent):void {
+        socket.close();
+        socket = null;
+        
+        ExternalInterface.call("BBBCheck.socketConnTestFailed", socketHost, socketPort);
+      }
+      
+      private function closeSocket():void {
+        socket.close();
+        socket = null;  
+      }
+      
+      private function configureListeners():void {
+        addEventListener(Event.CLOSE, closeHandler);
+        addEventListener(Event.CONNECT, connectHandler);
+        addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
+        addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+      }
+                  
+      private function closeHandler(event:Event):void {
+        ExternalInterface.call("BBBCheck.socketConnTestClosed", socketHost, socketPort);
+      }
+      
+      private function connectHandler(event:Event):void {
+        ExternalInterface.call("BBBCheck.socketConnTestSuccess", socketHost, socketPort);
+        closeSocket();
+      }
+      
+      private function ioErrorHandler(event:IOErrorEvent):void {
+        ExternalInterface.call("BBBCheck.socketConnTestIOError", socketHost, socketPort);
+      }
+      
+      private function securityErrorHandler(event:SecurityErrorEvent):void {
+        ExternalInterface.call("BBBCheck.socketConnTestSecurityError", socketHost, socketPort);
+      }
+      
+      public function onBWCheck(... rest):Number { 
+        return 0; 
+      } 
+      
+      public function onBWDone(... rest):void { 
+        var p_bw:Number; 
+        if (rest.length > 0) p_bw = rest[0]; 
+        // your application should do something here 
+        // when the bandwidth check is complete 
+        trace("bandwidth = " + p_bw + " Kbps."); 
+      }
+
+    ]]>
+  </mx:Script>  
+</mx:Application>

@@ -1,24 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="400" height="300" 
 	xmlns:maps="org.bigbluebutton.modules.videoconf.maps.*" implements="org.bigbluebutton.common.IBigBlueButtonModule">
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import mx.controls.Alert;
-			
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.modules.videoconf.business.VideoProxy;
-			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.events.CloseWindowEvent;
+      import org.bigbluebutton.common.events.OpenWindowEvent;
+      import org.bigbluebutton.modules.videoconf.business.VideoProxy;
+      import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+      import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
+      import org.bigbluebutton.modules.videoconf.events.VideoModuleStartEvent;
+      import org.bigbluebutton.modules.videoconf.events.VideoModuleStopEvent;
 			
 			private var _moduleName:String = "Videoconf Module";			
 			private var _attributes:Object; 
-			private var proxy:VideoProxy;
-			private var mockProxy:VideoProxy;
-			
+		
 			private function onCreationComplete():void {
 				LogUtil.debug("VideoconfModule initialized");	
 			}
@@ -28,25 +45,13 @@
 			}
 		
 			public function get uri():String {
-				if (_attributes.mode == "PLAYBACK") {										
-					return _attributes.uri + "/" + _attributes.playbackRoom;
-				} 
-				
 				return _attributes.uri + "/" + _attributes.room;
 			}
 			
 			public function get username():String {
 				return _attributes.username;
 			}
-			
-			public function get connection():NetConnection {
-				return proxy.connection;
-			}
-			
-			public function get mockConnection():NetConnection {
-				return mockProxy.connection;
-			}
-			
+					
 			public function get mode():String {
 				if (_attributes.mode == null) {					
 					//_attributes.mode = "PLAYBACK"
@@ -57,8 +62,8 @@
 				return _attributes.mode;
 			}
 						
-			public function get userid():Number {
-				return _attributes.userid as Number;
+			public function get userid():String {
+				return _attributes.userid as String;
 			}
 			
 			public function get role():String {
@@ -79,27 +84,20 @@
 			}
 			
 			public function start(attributes:Object):void {	
-				LogUtil.debug("Videoconf attr: " + attributes.username);
-				_attributes = attributes;
-				proxy = new VideoProxy(uri);
-				
-				eventMap.module = this;
-				eventMap.proxy = proxy;
-				eventMap.addToolbarButton();
-				
-				if (proxy.videoOptions.autoStart) {
-					var dispatcher:Dispatcher = new Dispatcher();        
-					dispatcher.dispatchEvent(new OpenPublishWindowEvent());					
-				}
+        trace("Starting Video Module");
+        _attributes = attributes;
+        
+        var globalDispatcher:Dispatcher = new Dispatcher();
+        var event:VideoModuleStartEvent = new VideoModuleStartEvent(VideoModuleStartEvent.START);
+        event.uri = uri;
+        globalDispatcher.dispatchEvent(event);
 			}
 		
 			public function stop():void {
-				eventMap.stopModule();
+        var globalDispatcher:Dispatcher = new Dispatcher();
+        globalDispatcher.dispatchEvent(new VideoModuleStopEvent(VideoModuleStopEvent.STOP));
 			}
 			
-			public function mockConnect():void {
-				mockProxy = new VideoProxy(proxy.connection.uri.substring(0, proxy.connection.uri.indexOf("video") + 5));
-			}
 		]]>
 	</mx:Script>
 	

@@ -1,6 +1,25 @@
 # Set encoding to utf-8
 # encoding: UTF-8
 
+#
+# BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+#
+# Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+#
+# This program is free software; you can redistribute it and/or modify it under the
+# terms of the GNU Lesser General Public License as published by the Free Software
+# Foundation; either version 3.0 of the License, or (at your option) any later
+# version.
+#
+# BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License along
+# with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+#
+
+
 require 'fileutils'
 require 'rubygems'
 require 'nokogiri'
@@ -80,7 +99,7 @@ module BigBlueButton
       command = "sox #{file} -n stat 2>&1"
       # Try "sox --i -D file" as it is much shorter
       BigBlueButton.logger.info("Task: Getting length of audio")
-      output = BigBlueButton.execute(command)
+      output = BigBlueButton.execute(command).output
       if output.to_s =~ /Length(.+)/
         stats = $1
       end
@@ -314,6 +333,21 @@ module BigBlueButton
         end
         i += 1
       end
+
+      length_of_gap =  BigBlueButton::Events.last_event_timestamp(events_xml).to_i - events[-1].stop_event_timestamp.to_i
+      # Check if the silence is greater that 10 minutes long. If it is, assume something went wrong with the
+      # recording. This prevents us from generating a veeeerrryyy looonnngggg silence maxing disk space.
+      if (length_of_gap < 3600000)
+        if (length_of_gap < 0)
+            trim_audio_file(events[-1].file, length_of_gap.abs)
+        else
+          paddings << create_gap_audio_event(length_of_gap, events[-1].stop_event_timestamp.to_i + 1, BigBlueButton::Events.last_event_timestamp(events_xml))
+        end
+      else
+        BigBlueButton.logger.error("Tail padding: #{length_of_gap} [ #{BigBlueButton::Events.last_event_timestamp(events_xml).to_i} - #{events[-1].stop_event_timestamp.to_i} ].\n")
+        raise Exception,  "Length of silence is too long #{length_of_gap}."
+      end
+
 
       # Check if the silence is greater that 10 minutes long. If it is, assume something went wrong with the
       # recording. This prevents us from generating a veeeerrryyy looonnngggg silence maxing disk space.      

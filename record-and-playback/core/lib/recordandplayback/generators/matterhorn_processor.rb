@@ -1,6 +1,25 @@
 # Set encoding to utf-8
 # encoding: UTF-8
 
+#
+# BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+#
+# Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+#
+# This program is free software; you can redistribute it and/or modify it under the
+# terms of the GNU Lesser General Public License as published by the Free Software
+# Foundation; either version 3.0 of the License, or (at your option) any later
+# version.
+#
+# BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License along
+# with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+#
+
+
 require 'rubygems'
 require 'fileutils'
 require 'builder'
@@ -14,47 +33,58 @@ module BigBlueButton
   end
 
   class MatterhornProcessor    
-    def self.create_manifest_xml(webcam, deskshare, manifest)
-      vpresenter = FFMPEG::Movie.new(webcam)
-      vpresentation = FFMPEG::Movie.new(deskshare)
+    def self.create_manifest_xml(webcam, deskshare, manifest, meeting_id)
+
+      vpresenter = FFMPEG::Movie.new(webcam) if File.exists?(webcam)
+      vpresentation = FFMPEG::Movie.new(deskshare) if File.exists?(deskshare)
+
+      duration = vpresenter ?  vpresenter.duration.round : vpresentation.duration.round
+
 
       xml = Builder::XmlMarkup.new( :indent => 2 )
       result = xml.instruct! :xml, :version => "1.0"
 
       timestamp = (Time::now).utc.strftime("%Y-%m-%dT%H:%M:%S")
-      xml.tag!("ns2:mediapackage", "duration" => vpresenter.duration.round.to_s.split(".")[0] + "000", 
-              "start" => timestamp, "xmlns:ns2" => "http://mediapackage.opencastproject.org") {
+      xml.tag!("mediapackage", "duration" => duration.to_s.split(".")[0] + "000", "id" => meeting_id, "start" => timestamp ) {
 
         xml.media{
+
+         if vpresenter
           xml.track("id" => "track-1", "type" => "presenter/source") {
             xml.mimetype(MIME::Types.type_for(vpresenter.path).first.content_type)
+            xml.checksum(Digest::MD5.hexdigest(File.read(vpresenter.path)), "type" => "md5")
+            xml.url(vpresenter.path.sub(/.+\//, ""))
+            xml.size(vpresenter.size)
             xml.tags
             # Remove path and just have video.flv
-            xml.url(vpresenter.path.sub(/.+\//, ""))
-            xml.checksum(Digest::MD5.hexdigest(File.read(vpresenter.path)), "type" => "md5")
             xml.duration(vpresenter.duration.round.to_s.split(".")[0] + "000")
             xml.video("id" => "video1") {
               xml.encoder("type" => vpresenter.video_codec)
+              xml.resolution(vpresenter.width.to_s + "x" + vpresenter.height.to_s)
               xml.bitrate(vpresenter.bitrate.to_s + "000")
               xml.framerate(vpresenter.frame_rate)
-              xml.resolution(vpresenter.width.to_s + "x" + vpresenter.height.to_s)
             }
           }
+         end
 
+        if vpresentation
           xml.track("id" => "track-2", "type" => "presentation/source") {
             xml.mimetype(MIME::Types.type_for(vpresentation.path).first.content_type)
+            xml.checksum(Digest::MD5.hexdigest(File.read(vpresentation.path)),"type" => "md5")
+            xml.url(vpresentation.path.sub(/.+\//, ""))
+            xml.size(vpresentation.size)
+            xml.duration(vpresentation.duration.round.to_s.split(".")[0] + "000")
             xml.tags
             # Remove path and just have deskshare.flv
-            xml.url(vpresentation.path.sub(/.+\//, ""))
-            xml.checksum(Digest::MD5.hexdigest(File.read(vpresentation.path)),"type" => "md5")
-            xml.duration(vpresentation.duration.round.to_s.split(".")[0] + "000")
             xml.video("id" => "video2") {
               xml.encoder("type" => vpresentation.video_codec)
+              xml.resolution(vpresentation.width.to_s + "x" + vpresentation.height.to_s)
               xml.bitrate(vpresentation.bitrate.to_s + "000")
               xml.framerate(vpresentation.frame_rate)
-              xml.resolution(vpresentation.width.to_s + "x" + vpresentation.height.to_s)
             }
           }
+         end
+
         }
         
         xml.metadata {
@@ -109,9 +139,8 @@ module BigBlueButton
       aFile.close
     end
 
-    def self.zip_artifacts(webcam, deskshare, dublincore, manifest, zipped_file)
-      BigBlueButton.logger.info("Task: Zipping package... #{zipped_file} #{webcam} #{deskshare} #{dublincore} #{manifest}")
-      files = [webcam, deskshare, dublincore, manifest]
+    def self.zip_artifacts(files, zipped_file)
+      BigBlueButton.logger.info("Task: Zipping package... #{zipped_file} #{files}")
       Zip::ZipFile.open(zipped_file, Zip::ZipFile::CREATE) do |zipfile|
         files.each { |f| 
           BigBlueButton.logger.info("Zipping #{f} into #{zipped_file}")

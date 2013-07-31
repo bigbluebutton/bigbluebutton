@@ -1,20 +1,20 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 package org.bigbluebutton.conference;
 
@@ -23,11 +23,9 @@ import org.bigbluebutton.conference.service.messaging.MessageListener;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.MessagingService;
 import org.bigbluebutton.conference.service.presentation.ConversionUpdatesMessageListener;
-import org.bigbluebutton.conference.service.presentation.PresentationRoom;
 import org.red5.logging.Red5LoggerFactory;
 import com.google.gson.Gson;
 import net.jcip.annotations.ThreadSafe;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -140,7 +138,7 @@ public class RoomsManager {
 //		log.warn("Removing listener from a non-existing room ${roomName}")
 //	}
 
-	public void addParticipant(String roomName, Participant participant) {
+	public void addParticipant(String roomName, User participant) {
 		log.debug("Add participant " + participant.getName());
 		Room r = getRoom(roomName);
 		if (r != null) {
@@ -164,7 +162,7 @@ public class RoomsManager {
 		log.warn("Adding participant to a non-existing room " + roomName);
 	}
 	
-	public void removeParticipant(String roomName, Long userid) {
+	public void removeParticipant(String roomName, String userid) {
 		log.debug("Remove participant " + userid + " from " + roomName);
 		Room r = getRoom(roomName);
 		if (r != null) {
@@ -179,7 +177,7 @@ public class RoomsManager {
 		log.warn("Removing listener from a non-existing room " + roomName);
 	}
 	
-	public void changeParticipantStatus(String roomName, Long userid, String status, Object value) {
+	public void changeParticipantStatus(String roomName, String userid, String status, Object value) {
 		log.debug("Change participant status " + userid + " - " + status + " [" + value + "]");
 		Room r = getRoom(roomName);
 		if (r != null) {
