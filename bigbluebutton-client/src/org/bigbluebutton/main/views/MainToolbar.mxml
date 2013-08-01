@@ -176,8 +176,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function confirmLogout():void {
 				if (toolbarOptions.confirmLogout){
-					// Confirm logout using built-in alert; need to re skin // border // branding
-					// bbb.oldlocalewindow.reminder1
+					// Confirm logout using built-in alert
 					var alert:Alert = Alert.show(ResourceUtil.getInstance().getString('bbb.logout.confirm.message'), ResourceUtil.getInstance().getString('bbb.logout.confirm.title'), Alert.YES | Alert.NO, this, alertLogout, null, Alert.YES);
 					
 					var newX:Number = langSelector.x + langSelector.width/2;
