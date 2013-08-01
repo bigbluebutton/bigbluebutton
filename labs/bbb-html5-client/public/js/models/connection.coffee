@@ -78,7 +78,7 @@ define [
         globals.events.trigger("connection:all_slides", urls)
 
       # Received event to clear the whiteboard shapes
-      @socket.on "clrPaper", =>
+      @socket.on "clrPaper",=>
         console.log "socket on: clrPaper"
         globals.events.trigger("connection:clrPaper")
 

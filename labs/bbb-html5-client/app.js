@@ -172,6 +172,7 @@ io.sockets.on('connection', socketAction.SocketOnConnection);
  */
 sub.on("pmessage", function(pattern, channel, message) {
   if(channel == "bigbluebutton:bridge"){
+    console.log(message);
     var attributes = JSON.parse(message);
    /*In order to send 'changeslide' event to get the current slide url after user join,
    I manually save the current presentation slide url to redis key: 'currentUrl' for future use.
@@ -208,7 +209,7 @@ sub.on("pmessage", function(pattern, channel, message) {
           });
         });
     }
-    
+
     var channel_viewers = io.sockets.in(attributes[0]);
     attributes.splice(0,1);
     /*var only_values = [];
