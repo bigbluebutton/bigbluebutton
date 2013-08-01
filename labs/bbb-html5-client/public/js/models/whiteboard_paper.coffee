@@ -341,12 +341,12 @@ define [
 
     # Clear all shapes from this paper.
     clearShapes: ->
-      console.log "clearing shapes"
       if @currentShapes?
         @currentShapes.forEach (element) ->
           element.remove()
-        @currentShapes = null
+        @currentShapes = []
         @currentShapesDefinitions = []
+
 
     # Updated a shape `shape` with the data in `data`.
     # TODO: check if the objects exist before calling update, if they don't they should be created

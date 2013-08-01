@@ -185,6 +185,31 @@ sub.on("pmessage", function(pattern, channel, message) {
           });
     }
 
+    /*When presenter in flex side sends the 'undo' event, remove the current shape from Redis
+      and publish the rest shapes to html5 users*/
+    if (attributes[1]=='undo'){
+        var meetingID = attributes[0];
+        redisAction.getCurrentPresentationID(meetingID, function(presentationID) {
+          redisAction.getCurrentPageID(meetingID, presentationID, function(pageID) {
+            store.rpop(redisAction.getCurrentShapesString(meetingID, presentationID, pageID), function(err, reply) {
+              socketAction.publishShapes(meetingID);
+            });
+          });
+        });
+    }
+
+    /*When presenter in flex side sends the 'clrPaper' event, remove everything from Redis*/
+    if (attributes[1]=='clrPaper'){
+        var meetingID = attributes[0];
+        redisAction.getCurrentPresentationID(meetingID, function(presentationID) {
+          redisAction.getCurrentPageID(meetingID, presentationID, function(pageID) {
+            redisAction.getItemIDs(meetingID, presentationID, pageID, 'currentshapes', function(meetingID, presentationID, pageID, itemIDs, itemName) {
+              redisAction.deleteItemList(meetingID, presentationID, pageID, itemName, itemIDs);
+            });
+          });
+        });
+    }
+
     var channel_viewers = io.sockets.in(attributes[0]);
     attributes.splice(0,1);
     /*var only_values = [];
