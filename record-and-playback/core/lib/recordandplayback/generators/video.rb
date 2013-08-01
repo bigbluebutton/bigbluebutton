@@ -766,6 +766,8 @@ module BigBlueButton
         # Deep copy using serialization. Review this later.
         te_copy = Marshal.load(Marshal.dump(te))
 
+        record_offset = 0
+
         # Start recording mark cuts the audio event
         if (re_start_timestamp > te[:timestamp] and re_start_timestamp < te[:timestamp] + te[:duration])
           record_offset = re_start_timestamp - te_copy[:timestamp]
@@ -776,27 +778,31 @@ module BigBlueButton
             te_copy[:streams_detailed][stream_name][:end] =
                                   te_copy[:streams_detailed][stream_name][:begin] + te_copy[:duration]
           end
-          te_copy[:timestamp] = re_start_timestamp
           have_to_add = true
         end
 
         # Stop recording mark cuts the audio event
         if (re_stop_timestamp > te[:timestamp] and re_stop_timestamp < te[:timestamp] + te[:duration])
-          te_copy[:duration] = te_copy[:duration] - ((te[:timestamp] + te_copy[:duration]) - re_stop_timestamp)
+          te_copy[:duration] = te_copy[:duration] - ((te[:timestamp] + record_offset + te_copy[:duration]) - re_stop_timestamp)
 
           te_copy[:streams].each do |stream_name|
             te_copy[:streams_detailed][stream_name][:end] = 
-                                                te_copy[:streams_detailed][stream_name][:begin] + te_copy[:duration]
+                                           te_copy[:streams_detailed][stream_name][:begin] + te_copy[:duration]
           end
           have_to_add = true
         end
 
-        if(have_to_add)
-          new_timeline << te_copy
-        end
-
         # Audio event is between start/stop recording marks
         if (re_start_timestamp <= te[:timestamp] and re_stop_timestamp >= te[:timestamp] + te[:duration])
+          have_to_add = true
+        end
+
+        if (have_to_add)
+          if(not new_timeline.empty?)
+            te_copy[:timestamp] = new_timeline[-1][:timestamp] + new_timeline[-1][:duration]
+          else
+            te_copy[:timestamp] = 0
+          end
           new_timeline << te_copy
         end
       end
