@@ -344,7 +344,7 @@ define [
       if @currentShapes?
         @currentShapes.forEach (element) ->
           element.remove()
-        @currentShapes = null
+        @currentShapes = []
         @currentShapesDefinitions = []
 
 
