@@ -24,12 +24,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.main.events.ModuleStartedEvent;
-			import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
 			import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
 			import org.bigbluebutton.modules.present.events.NavigationEvent;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
 			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
-			import org.bigbluebutton.modules.whiteboard.business.DrawProxy;
 			import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 			import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
 			import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
@@ -37,7 +35,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
-			import org.bigbluebutton.modules.whiteboard.managers.PageManager;
 			import org.bigbluebutton.modules.whiteboard.managers.WhiteboardManager;
 			import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 			import org.bigbluebutton.modules.whiteboard.services.MessageReceiver;
@@ -125,10 +122,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</EventHandlers>
 	
 	<EventHandlers type="{WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT}">
-		<InlineInvoker method="dummyMethod" />
-	</EventHandlers>
-	
-	<EventHandlers type="{AddButtonToPresentationEvent.ADD_BUTTON}">
 		<InlineInvoker method="dummyMethod" />
 	</EventHandlers>
 	

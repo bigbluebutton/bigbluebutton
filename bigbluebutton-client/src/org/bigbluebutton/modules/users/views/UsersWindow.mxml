@@ -33,6 +33,7 @@
 	<mate:Listener type="{ShortcutEvent.RAISE_HAND}" method="remoteRaiseHand" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_USERS_WINDOW}" method="focusWindow" />
 	<mate:Listener type="{UsersEvent.ROOM_MUTE_STATE}" method="setRoomMute" />
+	<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -66,6 +67,8 @@
 			import org.bigbluebutton.modules.users.model.UsersOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;		
 			
+			import org.bigbluebutton.common.LogUtil;
+			
 			private var dispatcher:Dispatcher;
 			
 			private var keyCombos:Object;
@@ -83,7 +86,6 @@
 			[Bindable]
 			private var users:ArrayCollection = new ArrayCollection();
 			
-			private var handRaised:Boolean = false;
 			private var amIModerator:Boolean = false;
 			
 			private const FOCUS_USERS_LIST:String = "Focus Users List";
@@ -133,7 +135,7 @@
 					this.title = ResourceUtil.getInstance().getString('bbb.users.title', ["", ""]);
 			}
 			
-			private function localeChanged(e:LocaleChangeEvent):void {
+			private function localeChanged(e:Event):void {
 				updateNumberofUsers(users.length);
 				resourcesChanged();
 			}
@@ -158,9 +160,8 @@
 			
 			private function raiseHand():void{
 				if (UserManager.getInstance().getConference().getMyRole() == Role.VIEWER) {
-					handRaised = !handRaised;
 					var e:RaiseHandEvent = new RaiseHandEvent(RaiseHandEvent.RAISE_HAND);
-					e.raised = handRaised;
+					e.raised = !UserManager.getInstance().getConference().isMyHandRaised;
 					dispatchEvent(e);
 				}
 			}
@@ -206,6 +207,7 @@
 			
 			private function setRoomMute(e:UsersEvent):void {
 				roomMuted = e.mute_state;
+                roomMutedLbl.visible = roomMuted;
 			}
 			
 			private function muteAll():void {
@@ -364,6 +366,10 @@
 				usersGrid.drawFocus(true);
 			}
 			
+			private function remoteMuteAllButPres():void{
+				muteAlmostAll();
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -386,8 +392,9 @@
 	<mx:ControlBar width="100%">
 		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
 					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" click="openSettings()" visible="true" tabIndex="{partOptions.baseTabIndex+10}"/>
-		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}"
-					width="30" height="30" toolTip="Raise Hand" click="raiseHand()"
+        <mx:Label id="roomMutedLbl" text="{ResourceUtil.getInstance().getString('bbb.users.settings.muteAll')}" />
+		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}" selected="{UserManager.getInstance().getConference().isMyHandRaised}"
+					width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip')}" click="raiseHand()"
 					visible="false" includeInLayout="{raiseHandBtn.visible}" tabIndex="{partOptions.baseTabIndex+15}" />
 		<mx:Spacer width="100%"/>
 	</mx:ControlBar>

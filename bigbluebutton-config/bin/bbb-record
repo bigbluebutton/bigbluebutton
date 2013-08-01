@@ -138,7 +138,7 @@ usage() {
         echo "   --rebuild [meetingID]            	rebuild the output for meetingID"
         echo "   --republish [meetingID]          	republish the recording for meetingID"
 	echo "   --delete [meetingID]             	delete one meeting and recording"
-        echo "   --deletall                      	delete all meetings and recordings"
+        echo "   --deleteall                      	delete all meetings and recordings"
         echo "   --debug                          	check for recording errors"
         echo "   --check                          	check for configuration errors"
         echo "   --enable [workflow]              	enable a recording workflow"

@@ -50,67 +50,73 @@ class ToolController {
         params.put(REQUEST_METHOD, request.getMethod().toUpperCase())
         log.debug "params: " + params
         
-        Map<String, String> result = new HashMap<String, String>()
-        ArrayList<String> missingParams = new ArrayList<String>()
-        log.debug "Checking for required parameters"
-        if (hasAllRequiredParams(params, missingParams)) {
-            def sanitizedParams = sanitizePrametersForBaseString(params)
-            def consumer = ltiService.getConsumer(params.get(Parameter.CONSUMER_ID))
-            if (consumer != null) {
-                log.debug "Found consumer with key " + consumer.get("key") //+ " and sharedSecret " + consumer.get("secret")
-                if (checkValidSignature(params.get(REQUEST_METHOD), ltiService.endPoint, consumer.get("secret"), sanitizedParams, params.get(Parameter.OAUTH_SIGNATURE))) {
-                    log.debug  "The message has a valid signature."
-                    
-                    if( !"extended".equals(ltiService.mode) ) {
-                        log.debug  "LTI service running in simple mode."
-                        result = doJoinMeeting(params)
-                    } else {
-                        log.debug  "LTI service running in extended mode."
-                        if ( !Boolean.parseBoolean(params.get(Parameter.CUSTOM_BBB_RECORD)) ) {
-                            log.debug  "No bbb_record parameter was sent; immediately redirecting to BBB session!"
+        if( request.post ){
+            Map<String, String> result = new HashMap<String, String>()
+            ArrayList<String> missingParams = new ArrayList<String>()
+            log.debug "Checking for required parameters"
+            if (hasAllRequiredParams(params, missingParams)) {
+                def sanitizedParams = sanitizePrametersForBaseString(params)
+                def consumer = ltiService.getConsumer(params.get(Parameter.CONSUMER_ID))
+                if (consumer != null) {
+                    log.debug "Found consumer with key " + consumer.get("key") //+ " and sharedSecret " + consumer.get("secret")
+                    if (checkValidSignature(params.get(REQUEST_METHOD), ltiService.endPoint, consumer.get("secret"), sanitizedParams, params.get(Parameter.OAUTH_SIGNATURE))) {
+                        log.debug  "The message has a valid signature."
+                        
+                        if( !"extended".equals(ltiService.mode) ) {
+                            log.debug  "LTI service running in simple mode."
                             result = doJoinMeeting(params)
+                        } else {
+                            log.debug  "LTI service running in extended mode."
+                            if ( !Boolean.parseBoolean(params.get(Parameter.CUSTOM_RECORD)) ) {
+                                log.debug  "No bbb_record parameter was sent; immediately redirecting to BBB session!"
+                                result = doJoinMeeting(params)
+                            }
                         }
+                        
+                    } else {
+                        result.put("resultMessageKey", "InvalidSignature")
+                        result.put("resultMessage", "Invalid signature (" + params.get(Parameter.OAUTH_SIGNATURE) + ").")
                     }
                     
                 } else {
-                    result.put("resultMessageKey", "InvalidSignature")
-                    result.put("resultMessage", "Invalid signature (" + params.get(Parameter.OAUTH_SIGNATURE) + ").")
+                    result.put("resultMessageKey", "ConsumerNotFound")
+                    result.put("resultMessage", "Consumer with id = " + params.get(Parameter.CONSUMER_ID) + " was not found.")
                 }
+    
+            } else {
+                String missingStr = ""
+                for(String str:missingParams) {
+                    missingStr += str + ", ";
+                }
+                result.put("resultMessageKey", "MissingRequiredParameter")
+                result.put("resultMessage", "Missing parameters [$missingStr]")
+            }
+            
+            
+            if( result != null && result.containsKey("resultMessageKey") ) {
+                log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
+                render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
                 
             } else {
-                result.put("resultMessageKey", "ConsumerNotFound")
-                result.put("resultMessage", "Consumer with id = " + params.get(Parameter.CONSUMER_ID) + " was not found.")
+                session["params"] = params
+                List<Object> recordings = bigbluebuttonService.getRecordings(params)
+                for(Map<String, Object> recording: recordings){
+                    /// Calculate duration
+                    long endTime = Long.parseLong((String)recording.get("endTime"))
+                    endTime -= (endTime % 1000)
+                    long startTime = Long.parseLong((String)recording.get("startTime"))
+                    startTime -= (startTime % 1000)
+                    int duration = (endTime - startTime) / 60000
+                    /// Add duration
+                    recording.put("duration", duration )
+                }
+                
+                render(view: "index", model: ['params': params, 'recordingList': recordings, 'ismoderator': bigbluebuttonService.isModerator(params)])
             }
-
+    
         } else {
-            String missingStr = ""
-            for(String str:missingParams) {
-                missingStr += str + ", ";
-            }
-            result.put("resultMessageKey", "MissingRequiredParameter")
-            result.put("resultMessage", "Missing parameters [$missingStr]")
-        }
+            render(text: getCartridgeXML(), contentType: "text/xml", encoding: "UTF-8")
         
-        
-        if( result != null && result.containsKey("resultMessageKey") ) {
-            log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
-            render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
-            
-        } else {
-            session["params"] = params
-            List<Object> recordings = bigbluebuttonService.getRecordings(params)
-            for(Map<String, Object> recording: recordings){
-                /// Calculate duration
-                long endTime = Long.parseLong((String)recording.get("endTime"))
-                endTime -= (endTime % 1000) 
-                long startTime = Long.parseLong((String)recording.get("startTime"))
-                startTime -= (startTime % 1000)
-                int duration = (endTime - startTime) / 60000
-                /// Add duration
-                recording.put("duration", duration )
-            }
-            
-            render(view: "index", model: ['params': params, 'recordingList': recordings, 'ismoderator': bigbluebuttonService.isModerator(params)])
         }
     }
     
@@ -164,10 +170,20 @@ class ToolController {
             log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
             render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
         } else {
-            //String destinationURL = createLink(controller:"tool", action:"view", params:"[foo: 'bar', boo: 'far']") 
-            String destinationURL = createLink(controller:"tool", action:"view") 
-            log.debug "destinationURL=[" + destinationURL + "]"
-            redirect(url:destinationURL)
+            List<Object> recordings = bigbluebuttonService.getRecordings(sessionParams)
+            for(Map<String, Object> recording: recordings){
+                /// Calculate duration
+                long endTime = Long.parseLong((String)recording.get("endTime"))
+                endTime -= (endTime % 1000)
+                long startTime = Long.parseLong((String)recording.get("startTime"))
+                startTime -= (startTime % 1000)
+                int duration = (endTime - startTime) / 60000
+                /// Add duration
+                recording.put("duration", duration )
+            }
+            
+            render(view: "index", model: ['params': sessionParams, 'recordingList': recordings, 'ismoderator': bigbluebuttonService.isModerator(sessionParams)])
+            
         }
 
     }
@@ -198,10 +214,19 @@ class ToolController {
             log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
             render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
         } else {
-            //String destinationURL = createLink(controller:"tool", action:"view", params:"[foo: 'bar', boo: 'far']")
-            String destinationURL = createLink(controller:"tool", action:"view")
-            log.debug "destinationURL=[" + destinationURL + "]"
-            redirect(url:destinationURL)
+            List<Object> recordings = bigbluebuttonService.getRecordings(sessionParams)
+            for(Map<String, Object> recording: recordings){
+                /// Calculate duration
+                long endTime = Long.parseLong((String)recording.get("endTime"))
+                endTime -= (endTime % 1000)
+                long startTime = Long.parseLong((String)recording.get("startTime"))
+                startTime -= (startTime % 1000)
+                int duration = (endTime - startTime) / 60000
+                /// Add duration
+                recording.put("duration", duration )
+            }
+            
+            render(view: "index", model: ['params': sessionParams, 'recordingList': recordings, 'ismoderator': bigbluebuttonService.isModerator(sessionParams)])
         }
 
     }
@@ -230,8 +255,8 @@ class ToolController {
         log.debug "Localized default welcome message: [" + welcome + "]"
 
 		// Check for [custom_]welcome parameter being passed from the LTI
-		if (params.get(Parameter.CUSTOM_BBB_WELCOME) != null) {
-			welcome = params.get(Parameter.CUSTOM_BBB_WELCOME)
+		if (params.get(Parameter.CUSTOM_WELCOME) != null) {
+			welcome = params.get(Parameter.CUSTOM_WELCOME)
 			log.debug "Overriding default welcome message with: [" + welcome + "]"
 		}
            
@@ -319,5 +344,36 @@ class ToolController {
         log.debug("Calculated: " + calculatedSignature + " Received: " + signature);
         return calculatedSignature.equals(signature)
     }
+    
+    private String getCartridgeXML(){
+        def cartridge = '' +
+        '<?xml version="1.0" encoding="UTF-8"?>' +
+        '<cartridge_basiclti_link xmlns="http://www.imsglobal.org/xsd/imslticc_v1p0"' +
+        '       xmlns:blti = "http://www.imsglobal.org/xsd/imsbasiclti_v1p0"' +
+        '       xmlns:lticm ="http://www.imsglobal.org/xsd/imslticm_v1p0"' +
+        '       xmlns:lticp ="http://www.imsglobal.org/xsd/imslticp_v1p0"' +
+        '       xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance"' +
+        '       xsi:schemaLocation = "http://www.imsglobal.org/xsd/imslticc_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticc_v1p0.xsd' +
+        '                             http://www.imsglobal.org/xsd/imsbasiclti_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imsbasiclti_v1p0.xsd' +
+        '                             http://www.imsglobal.org/xsd/imslticm_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticm_v1p0.xsd' +
+        '                             http://www.imsglobal.org/xsd/imslticp_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticp_v1p0.xsd">' +
+        '    <blti:title>ePortfolio</blti:title>' +
+        '    <blti:description>Single Sign On into BigBlueButton</blti:description>' +
+        '    <blti:launch_url>' + ltiService.retrieveBasicLtiEndpoint() + '</blti:launch_url>' +
+        '    <blti:icon>' + ltiService.retrieveIconEndpoint() + '</blti:icon>' +
+        '    <blti:vendor>' +
+        '        <lticp:code>BBB</lticp:code>' +
+        '        <lticp:name>BigBlueButton</lticp:name>' +
+        '        <lticp:description>Open source web conferencing system for distance learning.</lticp:description>' +
+        '        <lticp:url>http://www.bigbluebutton.org/</lticp:url>' +
+        '    </blti:vendor>' +
+        '    <cartridge_bundle identifierref="BLTI001_Bundle"/>' +
+        '    <cartridge_icon identifierref="BLTI001_Icon"/>' +
+        '</cartridge_basiclti_link>'
+        
+        return cartridge
+        
+    }
+
 
 }

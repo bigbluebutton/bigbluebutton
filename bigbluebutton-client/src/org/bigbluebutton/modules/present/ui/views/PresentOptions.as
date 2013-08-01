@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.present.ui.views
 		[Bindable] public var showWindowControls:Boolean = true;
 		[Bindable] public var baseTabIndex:int;
 		[Bindable] public var maxFileSize:Number;
+    [Bindable] public var openExternalFileUploadDialog:Boolean = false;
 		
 		public function PresentOptions()
 		{
@@ -33,11 +34,14 @@ package org.bigbluebutton.modules.present.ui.views
 				if (vxml.@showWindowControls != undefined) {
 					showWindowControls = (vxml.@showWindowControls.toString().toUpperCase() == "TRUE") ? true : false;
 				}
+        if (vxml.@openExternalFileUploadDialog != undefined) {
+          openExternalFileUploadDialog = (vxml.@openExternalFileUploadDialog.toString().toUpperCase() == "TRUE") ? true : false;
+        }
 				if (vxml.@baseTabIndex != undefined) {
 					baseTabIndex = vxml.@baseTabIndex;
 				}
 				else{
-					baseTabIndex = 501;
+					baseTabIndex = 601;
 				}
 				if (vxml.@maxFileSize != undefined) {
 					maxFileSize = vxml.@maxFileSize;

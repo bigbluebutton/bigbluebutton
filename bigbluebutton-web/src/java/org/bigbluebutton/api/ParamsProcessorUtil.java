@@ -19,14 +19,18 @@
 
 package org.bigbluebutton.api;
 
+import javax.servlet.ServletRequest;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
@@ -513,6 +517,65 @@ public class ParamsProcessorUtil {
 		return true; 
 	}
 	
+	public boolean isPostChecksumSame(String apiCall, HashMap<String, String[]> params) {
+		if (StringUtils.isEmpty(securitySalt)) {
+			log.warn("Security is disabled in this service. Make sure this is intentional.");
+			return true;
+		}
+
+		StringBuffer csbuf = new StringBuffer();
+		csbuf.append(apiCall);
+ 
+		SortedSet<String> keys = new TreeSet<String>(params.keySet());
+ 
+		boolean first = true;
+		String checksum = null;
+		for (String key: keys) {
+			if (key.equals("checksum")) {
+				// Don't include the "checksum" parameter in the checksum
+				checksum = params.get(key)[0];
+				continue;
+			}
+ 
+			for (String value: params.get(key)) {
+				if (first) {
+					first = false;
+				} else {
+					csbuf.append("&");
+				}
+				csbuf.append(key);
+				csbuf.append("=");
+				String encResult;
+
+				try {       
+					// we need to re-encode the values because Grails unencoded it
+					// when it received the 'POST'ed data. Might not need to do in a GET request.
+					encResult = URLEncoder.encode(value, "UTF-8");  
+				} catch (UnsupportedEncodingException e) {       
+					encResult = value;     
+				} 					
+
+				csbuf.append(encResult);
+			}
+		}
+		csbuf.append(securitySalt);
+
+		String baseString = csbuf.toString();
+
+   // System.out.println( "POST basestring = [" + baseString + "]");
+
+		String cs = DigestUtils.shaHex(baseString);
+ 		//System.out.println("our checksum: [" + cs + "], client: [" + checksum + "]");
+		//log.debug("our checksum: [{}], client: [{}]", cs, checksum);
+
+		if (cs == null || cs.equals(checksum) == false) {
+			log.info("checksumError: request did not pass the checksum security check");
+			return false;
+		}
+		log.debug("checksum ok: request passed the checksum security check");
+		return true;
+	}
+
 	/*************************************************
 	 * Setters
 	 ************************************************/

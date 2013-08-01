@@ -32,8 +32,15 @@ package org.bigbluebutton.core.managers
 			return conferenceParameters.logoutUrl;
 		}
     
-    public function getWelcomeMessage():String {
-      return conferenceParameters.welcome;
-    }
+        public function getWelcomeMessage():String {
+            return conferenceParameters.welcome;
+        }
+        
+        public function getMeetingTitle():String {
+            if (conferenceParameters)
+                return conferenceParameters.meetingName;
+            else
+                return null;
+        }
 	}
 }
