@@ -127,7 +127,7 @@ define [
     addImageToPaper: (url, width, height) ->
       @_updateContainerDimensions()
 
-      console.log "adding image to paper", url, width, height
+      console.log "++++++adding image to paper++++++", url, width, height
       if @fitToPage
         # solve for the ratio of what length is going to fit more than the other
         max = Math.max(width / @containerWidth, height / @containerHeight)
@@ -341,12 +341,12 @@ define [
 
     # Clear all shapes from this paper.
     clearShapes: ->
-      console.log "clearing shapes"
       if @currentShapes?
         @currentShapes.forEach (element) ->
           element.remove()
-        @currentShapes = null
+        #@currentShapes = null
         @currentShapesDefinitions = []
+
 
     # Updated a shape `shape` with the data in `data`.
     # TODO: check if the objects exist before calling update, if they don't they should be created
@@ -493,6 +493,7 @@ define [
       @containerHeight = $container.innerHeight()
       @containerOffsetLeft = $container.offset().left
       @containerOffsetTop = $container.offset().top
+      console.log @containerWidth,@containerHeight,@containerOffsetLeft,@containerOffsetTop
 
     # Retrieves an image element from the paper.
     # The url must be in the slides array.

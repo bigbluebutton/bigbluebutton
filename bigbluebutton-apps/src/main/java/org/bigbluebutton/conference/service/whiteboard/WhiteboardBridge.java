@@ -30,19 +30,37 @@ public class WhiteboardBridge {
 		
 	}
 	
+	// send "undo" event to html5-client
+	
+	public void undo(String meetingID){
+		ArrayList<Object> updates = new ArrayList<Object>();
+		updates.add(meetingID);
+		updates.add("undo");
+		Gson gson = new Gson();
+		messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
+	}
+	
+	// send "clrPaper" event to html5-client
+	
+	public void clear(String meetingID){
+		ArrayList<Object> updates = new ArrayList<Object>();
+		updates.add(meetingID);
+		updates.add("clrPaper");
+		Gson gson = new Gson();
+		messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
+	}
+	
 	public void sendAnnotation(String meetingID, Annotation an) {
 		
 		if(an.getType().equalsIgnoreCase(WhiteboardBridge.PENCIL_TYPE)){
 			Map map = an.getAnnotation();
-			ArrayList<Object> updates = new ArrayList<Object>();
-			
+			ArrayList<Object> updates = new ArrayList<Object>();		
 			updates.add(meetingID);
 			updates.add("shapePoints");
 			updates.add("line");
 			updates.add(map.get("color"));
 			updates.add(map.get("thickness"));
-			updates.add(map.get("points"));
-			
+			updates.add(map.get("points"));		
 			Gson gson = new Gson();
 			messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
 		}else if(an.getType().equalsIgnoreCase(WhiteboardBridge.RECTANGLE_TYPE)){
@@ -62,6 +80,7 @@ public class WhiteboardBridge {
 				updates.add("makeShape");
 				data.add(map.get("color"));
 				data.add(map.get("thickness"));
+				data.add(map.get("square"));
 				
 			}else{
 				updates.add("updShape");
@@ -69,7 +88,7 @@ public class WhiteboardBridge {
 				Double pH = Double.parseDouble(points.get(3).toString());
 				data.add(pW/100);
 				data.add(pH/100);
-				
+				data.add(map.get("square"));// if "Ctrl" key pressed, it should draw square in html5-client		
 			}
 			
 			updates.add("rect");
