@@ -164,7 +164,7 @@
 	transition: all 0.1s ease-in-out;
 }
 .acorn-player.darkglass .acorn-volume-box:hover {
-	height: 135px;
+	/*height: 135px;*/
 }
 .acorn-player.darkglass .acorn-volume-box:hover .acorn-volume-slider {
 	position: relative;
@@ -177,9 +177,10 @@
 	height: 100px;
 	width: 7px;
 	left: 4px;
+	top:-100px; /* Without getting rid of the hover condition, this makes the volume slider run away from the cursor. */
 	
 	visibility: visible;
-	opacity: 0;
+	opacity: 100;
 	
 	border: 1px solid #444;
 
