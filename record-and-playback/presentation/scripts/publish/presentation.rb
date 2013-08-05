@@ -635,17 +635,25 @@ end
 
 def processChatMessages
 	BigBlueButton.logger.info("Processing chat events")
+
+        rec_events = BigBlueButton::Events.match_start_and_stop_rec_events(
+                               BigBlueButton::Events.get_start_and_stop_rec_events("#{$process_dir}/events.xml"))
+
 	# Create slides.xml and chat.
 	$slides_doc = Nokogiri::XML::Builder.new do |xml|
 		$xml = xml
 		$xml.popcorn {
 			# Process chat events.
-			$chat_events.each do |node|
-				chat_timestamp =  node[:timestamp]
-				chat_sender = node.xpath(".//sender")[0].text()
-				chat_message =  BigBlueButton::Events.linkify(node.xpath(".//message")[0].text())
-				chat_start = (chat_timestamp.to_i - $meeting_start.to_i) / 1000
-				$xml.chattimeline(:in => chat_start, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
+                        rec_events.each do |re|
+			  $chat_events.each do |node|
+			    if (node[:timestamp].to_i > re[:start_timestamp] and node[:timestamp].to_i < re[:stop_timestamp])
+			      chat_timestamp =  node[:timestamp]
+			      chat_sender = node.xpath(".//sender")[0].text()
+			      chat_message =  BigBlueButton::Events.linkify(node.xpath(".//message")[0].text())
+			      chat_start = (chat_timestamp.to_i - $meeting_start.to_i) / 1000
+			      $xml.chattimeline(:in => chat_start, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
+			    end
+			  end
 			end
 		}
 	end
