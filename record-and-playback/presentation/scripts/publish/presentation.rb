@@ -644,16 +644,18 @@ def processChatMessages
 		$xml = xml
 		$xml.popcorn {
 			# Process chat events.
+                        current_time = 0
                         rec_events.each do |re|
 			  $chat_events.each do |node|
 			    if (node[:timestamp].to_i > re[:start_timestamp] and node[:timestamp].to_i < re[:stop_timestamp])
 			      chat_timestamp =  node[:timestamp]
 			      chat_sender = node.xpath(".//sender")[0].text()
 			      chat_message =  BigBlueButton::Events.linkify(node.xpath(".//message")[0].text())
-			      chat_start = (chat_timestamp.to_i - $meeting_start.to_i) / 1000
+			      chat_start = (current_time + (chat_timestamp.to_i - re[:start_timestamp])) / 1000
 			      $xml.chattimeline(:in => chat_start, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
 			    end
 			  end
+                          current_time += re[:stop_timestamp] - re[:start_timestamp]
 			end
 		}
 	end
