@@ -42,6 +42,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
+	import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 
 	public class UserService {
 		private var joinService:JoinService;
@@ -172,6 +173,10 @@ package org.bigbluebutton.main.model.users
 		
 		public function kickUser(e:KickUserEvent):void{
 			if (this.isModerator()) _userSOService.kickUser(e.userid);
+		}
+
+		public function changeRole(e:ChangeRoleEvent):void {
+			if (this.isModerator()) _userSOService.changeRole(e.userid, e.role);
 		}
 		
 		/**

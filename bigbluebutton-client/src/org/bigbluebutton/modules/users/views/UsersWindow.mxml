@@ -93,8 +93,10 @@
 			private const KICK_USER:String = "Kick User";
 			private const MUTE_USER:String = "Mute User";
 			private const MUTE_ALL_USER:String = "Mute All User";
-			
+			public static const CHANGE_ROLE:String = "Promote to moderator";
+
 			private var muteMeRolled:Boolean = false;
+			private var lastRollOverIndex:int;
 			
 			private function onCreationComplete():void {
 				dispatcher = new Dispatcher();
@@ -121,10 +123,29 @@
 				minimizeBtn.tabIndex = partOptions.baseTabIndex+1;
 				maximizeRestoreBtn.tabIndex = partOptions.baseTabIndex+2;
 				closeBtn.tabIndex = partOptions.baseTabIndex+3;
+
+				addContextMenuItems();
 			}
 			
 			public function getPrefferedPosition():String{
 				return MainCanvas.TOP_LEFT;
+			}
+
+			private function addContextMenuItems():void {
+				var contextMenu:ContextMenu = new ContextMenu();
+				contextMenu.hideBuiltInItems();
+				
+				var changeRole:ContextMenuItem = new ContextMenuItem(CHANGE_ROLE);
+				changeRole.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler);
+				contextMenu.customItems.push(changeRole);
+				usersGrid.contextMenu = contextMenu;
+			}
+
+			private function menuItemHandler(e:ContextMenuEvent):void{
+				if (e.target.caption == CHANGE_ROLE) {
+					LogUtil.debug("OI");
+					LogUtil.debug(e.mouseTarget.name);
+				}
 			}
 			
 			

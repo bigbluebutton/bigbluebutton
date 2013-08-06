@@ -121,6 +121,26 @@ public class Room implements Serializable {
 		}		
 	}
 
+	public void setParticipantRole(String userid, String role) {
+		boolean present = false;
+		User p = null;
+		synchronized (this) {
+			present = participants.containsKey(userid);
+			if (present) {
+				log.debug("change participant status");
+				p = participants.get(userid);
+				p.setRole(role);
+			}
+		}
+		if (present) {
+			for (Iterator it = listeners.values().iterator(); it.hasNext();) {
+				IRoomListener listener = (IRoomListener) it.next();
+				log.debug("calling participantRoleChange on listener " + listener.getName());
+				listener.participantRoleChange(p, role);
+			}
+		}	
+	}
+
 	public void endAndKickAll() {
 		for (Iterator it = listeners.values().iterator(); it.hasNext();) {
 			IRoomListener listener = (IRoomListener) it.next();

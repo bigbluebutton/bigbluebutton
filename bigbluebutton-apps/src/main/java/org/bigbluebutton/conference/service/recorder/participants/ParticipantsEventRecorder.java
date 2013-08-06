@@ -81,6 +81,17 @@ public class ParticipantsEventRecorder implements IRoomListener {
 	}
 
 	@Override
+	public void participantRoleChange(User p, String role) {
+		ParticipantRoleChangeRecordEvent ev = new ParticipantRoleChangeRecordEvent();
+		ev.setTimestamp(System.currentTimeMillis());
+		ev.setUserId(p.getInternalUserID());
+		ev.setMeetingId(session);
+		ev.setRole(role);
+		
+		recorder.record(session, ev);
+	}
+
+	@Override
 	public void assignPresenter(ArrayList<String> presenter) {
 		log.debug("RECORD module:presentation event:assign_presenter");
 		AssignPresenterRecordEvent event = new AssignPresenterRecordEvent();

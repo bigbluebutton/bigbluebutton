@@ -61,6 +61,21 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 			log.debug("Publishing a status change in: " + this.room.getName());
 		}
 	}
+
+	public void participantRoleChange(User p, String role){
+		if (messagingService != null) {
+			HashMap<String,String> map= new HashMap<String, String>();
+			map.put("meetingId", this.room.getName());
+			map.put("messageId", MessagingConstants.USER_ROLE_CHANGE_EVENT);
+			
+			map.put("internalUserId", p.getInternalUserID());
+			map.put("role", role);
+			
+			Gson gson= new Gson();
+			messagingService.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(map));
+			log.debug("Publishing a role change in: " + this.room.getName());
+		}
+	}
 	
 	public void participantJoined(User p) {
 		if (messagingService != null) {

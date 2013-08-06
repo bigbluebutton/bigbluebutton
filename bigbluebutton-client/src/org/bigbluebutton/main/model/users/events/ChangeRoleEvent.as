@@ -16,17 +16,22 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
+package org.bigbluebutton.main.model.users.events
+{
+	import flash.events.Event;
 
-package org.bigbluebutton.conference;
-
-import java.util.ArrayList;
-
-public interface IRoomListener {
-	public String getName();
-	public void participantStatusChange(User p, String status, Object value);
-	public void participantJoined(User participant);
-	public void participantLeft(User participant);
-	public void participantRoleChange(User p, String role);
-	public void assignPresenter(ArrayList<String> presenter);
-	public void endAndKickAll();
+	public class ChangeRoleEvent extends Event
+	{
+		public static const CHANGE_ROLE_EVENT:String = "CHANGE_ROLE_EVENT";
+		
+		public var userid:String;
+		public var role:String;
+		
+		public function ChangeRoleEvent(userid:String, role:String)
+		{
+			this.userid = userid;
+			this.role = role;
+			super(CHANGE_ROLE_EVENT, true, false);
+		}
+	}
 }

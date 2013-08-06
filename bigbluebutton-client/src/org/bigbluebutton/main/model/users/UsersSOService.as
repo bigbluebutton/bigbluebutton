@@ -293,6 +293,15 @@ package org.bigbluebutton.main.model.users {
 				dispatcher.dispatchEvent(e);
 			}		
 		}
+
+		/**
+		 * Callback from the server from many of the bellow nc.call methods
+		 */
+		public function participantRoleChange(userID:String, role:String):void {
+			LogUtil.debug("Received role change [" + userID + "," + role + "]")			
+			UserManager.getInstance().getConference().newUserRole(userID, role);
+		}
+
 					
 		public function raiseHand(userID:String, raise:Boolean):void {
 			var nc:NetConnection = _connectionManager.connection;			
@@ -399,5 +408,15 @@ package org.bigbluebutton.main.model.users {
 				} 
 			}
 		)
+
+		public function changeRole(userID:String, role:String):void {
+			var nc:NetConnection = _connectionManager.connection;			
+			nc.call(
+				"participants.setParticipantRole",// Remote function name
+				responder,
+        		userID,
+        		role
+			); //_netConnection.call
+		}
 	}
 }

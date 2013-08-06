@@ -63,6 +63,10 @@ public class User implements Serializable {
 	public String getRole() {
 		return role;
 	}
+
+	public void setRole(String role) {
+		this.role = role;
+	}
 	
 	public String getExternalUserID() {
 	   return externalUserID;

@@ -24,7 +24,8 @@ import java.util.Hashtable;
 import java.util.Map;
 import org.bigbluebutton.conference.service.recorder.Recorder;
 import org.bigbluebutton.conference.IRoomListener;
-import org.bigbluebutton.conference.BigBlueButtonUtils;import org.red5.server.api.so.ISharedObject;
+import org.bigbluebutton.conference.BigBlueButtonUtils;
+import org.red5.server.api.so.ISharedObject;
 import org.bigbluebutton.conference.User;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
@@ -87,6 +88,16 @@ public class ParticipantsEventSender implements IRoomListener {
 		args.add(status);
 		args.add(value);
 		so.sendMessage("participantStatusChange", args);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public void participantRoleChange(User p, String role) {
+		log.debug("A participant's role has changed " + p.getInternalUserID() + " " + role);
+		ArrayList args = new ArrayList();
+		args.add(p.getInternalUserID());
+		args.add(role);
+		so.sendMessage("participantRoleChange", args);
 	}
 
 	@Override

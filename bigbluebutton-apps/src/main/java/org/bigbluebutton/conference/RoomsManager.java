@@ -187,6 +187,15 @@ public class RoomsManager {
 		log.warn("Changing participant status on a non-existing room " + roomName);
 	}
 
+	public void setParticipantRole(String roomName, String userid, String role) {
+		Room r = getRoom(roomName);
+		if (r != null) {
+			r.setParticipantRole(userid, role);
+			return;
+		}		
+		log.warn("Changing participant role on a non-existing room " + roomName);
+	}
+
 	public void setMessagingService(MessagingService messagingService) {
 		this.messagingService = messagingService;
 		this.messagingService.addListener(new RoomsManagerListener());

@@ -43,6 +43,14 @@ public class RoomListener implements IRoomListener{
 		list.add(value);
 		so.sendMessage("participantStatusChange", list);
 	}
+
+	@SuppressWarnings("unchecked")
+	public void participantRoleChange(User p, String role){
+		List list = new ArrayList();
+		list.add(p.getInternalUserID());
+		list.add(role);
+		so.sendMessage("participantRoleChange", list);
+	}
 	
 	@SuppressWarnings("unchecked")
 	public void participantJoined(User p) {
