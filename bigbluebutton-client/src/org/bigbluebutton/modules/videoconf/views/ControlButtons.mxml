@@ -39,7 +39,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.chat.model.ChatOptions;
       import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
-      
+      import org.bigbluebutton.modules.users.model.UsersOptions;
+			
       public var sharerUserID:String;
       [Bindable]
       private var BUTTONS_SIZE:int = 31;
@@ -109,6 +110,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
       
     private function displayEjectButton(controlsForPresenter:Boolean):void {
+			var userOption:UsersOptions = new UsersOptions();
+			if (! userOption.allowKickUser) {
+				trace("Kicking user not allowed");
+				// User kicking not enabled. Just return;
+				ejectUserBtn.visible = false;
+				return;
+			}
+			
+			trace("Kicking user allowed [" + userOption.allowKickUser + "]");
+			
       /**
        * Display button if:
        * 1. If I am moderator and this window is not me.

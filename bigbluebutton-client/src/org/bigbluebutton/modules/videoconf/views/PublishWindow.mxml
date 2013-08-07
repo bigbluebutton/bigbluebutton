@@ -43,46 +43,47 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleNewRoleEvent" />
   <mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
   <mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_WEBCAM}" method="remoteFocus" />
-   
+	
 	<mx:Script>
 		<![CDATA[
-      import flexlib.mdi.events.MDIWindowEvent;
-      
-      import mx.core.UIComponent;
-      import mx.events.ResizeEvent;
-      
-      import org.bigbluebutton.common.Images;
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.common.Role;
-      import org.bigbluebutton.common.events.CloseWindowEvent;
-      import org.bigbluebutton.common.events.LocaleChangeEvent;
-      import org.bigbluebutton.core.EventConstants;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.core.events.CoreEvent;
-      import org.bigbluebutton.core.managers.UserManager;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.MadePresenterEvent;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.events.SwitchedPresenterEvent;
-      import org.bigbluebutton.main.views.MainCanvas;
-      import org.bigbluebutton.modules.videoconf.business.TalkingButtonOverlay;
-      import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
-      import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
-      import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
-      import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
-      import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
-      
-      [Bindable] private var defaultWidth:Number = 320;
-      [Bindable] private var defaultHeight:Number = 240;
-
-      
-      public var camIndex:int = 0;
+			import flexlib.mdi.events.MDIWindowEvent;
+			
+			import mx.core.UIComponent;
+			import mx.events.ResizeEvent;
+			import com.asfusion.mate.events.Dispatcher;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.EventConstants;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.events.CoreEvent;
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.events.SwitchedPresenterEvent;
+			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.videoconf.business.TalkingButtonOverlay;
+			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
+			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
+			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
+			import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
+				
+			[Bindable] private var defaultWidth:Number = 320;
+			[Bindable] private var defaultHeight:Number = 240;
+			
+			
+			public var camIndex:int = 0;
 			private var camWidth:Number = 320;
-      private var camHeight:Number = 240;
+			private var camHeight:Number = 240;
 			private var _camera:Camera = null;
 			public var quality:Number = 0;
-						
+			
 			// Timer to auto-publish webcam. We need this timer to delay
 			// the auto-publishing until after the Viewers's window has loaded
 			// to receive the publishing events. Otherwise, the user joining next
@@ -107,13 +108,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				videoOptions = new VideoConfOptions();
 				baseIndex = videoOptions.baseTabIndex;
 			}
-
+			
 			private var windowType:String = "PublishWindowType";
 			
 			override public function getWindowType():String {
 				return windowType;
 			}
-      
+			
 			private function onCreationComplete():void{
 				this.glowColor = videoOptions.glowColor;
 				this.glowBlurSize = videoOptions.glowBlurSize;
@@ -122,25 +123,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_videoHolder.width = camWidth;
 				_videoHolder.height = camHeight;
 				this.addChild(_videoHolder);				
-
+				
 				this.minWidth = _minWidth;
 				this.minHeight = _minHeight;
 				maximizeRestoreBtn.visible = false;
 				this.resizable = false;
-							
+				
 				this.visible = videoOptions.publishWindowVisible;
-        this.showCloseButton = videoOptions.showCloseButton;
-        
+				this.showCloseButton = videoOptions.showCloseButton;
+				
 				if (videoOptions.autoStart) {
 					/*
-					 * Need to have a timer to trigger auto-publishing of webcam.
-					 */
+					* Need to have a timer to trigger auto-publishing of webcam.
+					*/
 					autoPublishTimer = new Timer(3000, 1);
 					autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
 					autoPublishTimer.start();
 				}
 				
-
+				
 				titleBarOverlay.tabIndex = baseIndex;
 				titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.publish.titleBar');
 				closeBtn.focusEnabled = true;
@@ -159,61 +160,61 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function remoteFocus(e:ShortcutEvent):void{
 				focusManager.setFocus(closeBtn);
 			}
-
+			
 			private function autopublishTimerHandler(event:TimerEvent):void {				
 				startPublishing();
 				autoPublishTimer.stop();
 			}
 			
-      private function handleMadePresenterEvent(event:MadePresenterEvent):void {
-        trace("******** PublishWindow: HandleMadePresenter event *********");
-        updateControlButtons();
-      }
-      
-      private function handleSwitchedPresenterEvent(event:SwitchedPresenterEvent):void {
-        trace("******** PublishWindow: handleSwitchedPresenterEvent event *********");
-        updateControlButtons();
-      }
-      
-      private function handleNewRoleEvent(event:Event):void {
-        updateControlButtons();
-      }
-            
-      private function handleUserVoiceMutedEvent(event:BBBEvent):void {
-        if (event.payload.userID ==  userID) {
-          userMuted(event.payload.muted);
-        }
-      }
-      
-      private function handleUserTalkingEvent(event:CoreEvent):void {
-        if (event.message.userID ==  userID) {
-          if (event.message.talking) {
-            notTalkingEffect.end();
-            talkingEffect.play([this]);    
-            simulateClick();        
-          } else {
-            talkingEffect.end();
-            notTalkingEffect.play([this]);
-          }
-        }
-      }
-      		
+			private function handleMadePresenterEvent(event:MadePresenterEvent):void {
+				trace("******** PublishWindow: HandleMadePresenter event *********");
+				updateControlButtons();
+			}
+			
+			private function handleSwitchedPresenterEvent(event:SwitchedPresenterEvent):void {
+				trace("******** PublishWindow: handleSwitchedPresenterEvent event *********");
+				updateControlButtons();
+			}
+			
+			private function handleNewRoleEvent(event:Event):void {
+				updateControlButtons();
+			}
+			
+			private function handleUserVoiceMutedEvent(event:BBBEvent):void {
+				if (event.payload.userID ==  userID) {
+					userMuted(event.payload.muted);
+				}
+			}
+			
+			private function handleUserTalkingEvent(event:CoreEvent):void {
+				if (event.message.userID ==  userID) {
+					if (event.message.talking) {
+						notTalkingEffect.end();
+						talkingEffect.play([this]);    
+						simulateClick();        
+					} else {
+						talkingEffect.end();
+						notTalkingEffect.play([this]);
+					}
+				}
+			}
+			
 			private function updateCamera():void {
 				stopCamera();
-					
+				
 				if (Camera.names.length == 0) {
 					showWarning('bbb.video.publish.hint.noCamera');
 					return;
 				}
 				
-        _camera = Camera.getCamera();
+				_camera = Camera.getCamera();
 				if (_camera == null) {
 					showWarning('bbb.video.publish.hint.cantOpenCamera');
 					return;
 				}
 				
 				_camera.setMotionLevel(5, 1000);
-
+				
 				if (_camera.muted) {
 					if (_cameraAccessDenied) {
 						onCameraAccessDisallowed();
@@ -226,9 +227,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					// previously allowed the camera capture on the flash privacy box
 					onCameraAccessAllowed();
 				}
-
-			  _camera.addEventListener(ActivityEvent.ACTIVITY, onActivityEvent);
-			  _camera.addEventListener(StatusEvent.STATUS, onStatusEvent);
+				
+				_camera.addEventListener(ActivityEvent.ACTIVITY, onActivityEvent);
+				_camera.addEventListener(StatusEvent.STATUS, onStatusEvent);
 				
 				_camera.setKeyFrameInterval(videoOptions.camKeyFrameInterval);
 				_camera.setMode(camWidth, camHeight, videoOptions.camModeFps);
@@ -241,8 +242,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				_video = new Video();
 				_video.attachCamera(_camera);
-        _video.smoothing = true;
-        
+				_video.smoothing = true;
+				
 				if (aspectRatio > _videoHolder.width / _videoHolder.height) {
 					_video.width = _videoHolder.width;
 					_video.height = _videoHolder.width / aspectRatio;
@@ -254,65 +255,65 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					_video.x = (_videoHolder.width - _video.width) / 2;
 					_video.y = 0;
 				}				
-
+				
 				_videoHolder.addChild(_video);
-                
-   		}
-   		      
-			private function onActivityEvent(e:ActivityEvent):void {        
-        if (_waitingForActivation && e.activating) {
-          trace("Cam activity event:  waitingForActivation = [" + _waitingForActivation + "] activating = [" + e.activating + "]");
-          _activationTimer.stop();
-          showWarning('bbb.video.publish.hint.videoPreview', false, "0xFFFF00");
-          _waitingForActivation = false;
-              
-          trace("Starting auto-publisher timer.");             
-          autoPublishTimer = new Timer(3000, 1);
-          autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
-          autoPublishTimer.start();
-        }
+				
 			}
-
+			
+			private function onActivityEvent(e:ActivityEvent):void {        
+				if (_waitingForActivation && e.activating) {
+					trace("Cam activity event:  waitingForActivation = [" + _waitingForActivation + "] activating = [" + e.activating + "]");
+					_activationTimer.stop();
+					showWarning('bbb.video.publish.hint.videoPreview', false, "0xFFFF00");
+					_waitingForActivation = false;
+					
+					trace("Starting auto-publisher timer.");             
+					autoPublishTimer = new Timer(3000, 1);
+					autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
+					autoPublishTimer.start();
+				}
+			}
+			
 			private function onStatusEvent(e:StatusEvent):void {
 				if (e.code == "Camera.Unmuted") {
 					onCameraAccessAllowed();
 					// this is just to overwrite the message of waiting for approval
-          showWarning('bbb.video.publish.hint.openingCamera');
-        } else if (e.code == "Camera.Muted") {
-          onCameraAccessDisallowed();
-        }
+					showWarning('bbb.video.publish.hint.openingCamera');
+				} else if (e.code == "Camera.Muted") {
+					onCameraAccessDisallowed();
+				}
 			}
 			
 			private function onCameraAccessAllowed():void {
 				// set timer to ensure that the camera activates.  If not, it might be in use by another application
 				_waitingForActivation = true;
 				if (_activationTimer != null) {
-          _activationTimer.stop();
-        }
-					
-        _activationTimer = new Timer(10000, 1);
-        _activationTimer.addEventListener(TimerEvent.TIMER, activationTimeout);
-        _activationTimer.start();
+					_activationTimer.stop();
+				}
+				
+				_activationTimer = new Timer(10000, 1);
+				_activationTimer.addEventListener(TimerEvent.TIMER, activationTimeout);
+				_activationTimer.start();
 			}
 			
 			private function onCameraAccessDisallowed():void {
-		    	showWarning('bbb.video.publish.hint.cameraDenied');
-		    	_cameraAccessDenied = true;
+				showWarning('bbb.video.publish.hint.cameraDenied');
+				_cameraAccessDenied = true;
 			}
-
+			
 			private function activationTimeout(e:TimerEvent):void {
 				showWarning('bbb.video.publish.hint.cameraIsBeingUsed');
 				// it will try to reopen the camera after the timeout
 				updateCamera();
 			}   			
-						
+			
 			private function startPublishing():void{
 				if (_camera == null) return;
-
+				
 				if (autoPublishTimer != null) {
-          autoPublishTimer.stop();
-        }
-					
+					autoPublishTimer.stop();
+				}
+				
 				showWarning('bbb.video.publish.hint.publishing', true, "0xFFFF00");
 				
 				var e:StartBroadcastEvent = new StartBroadcastEvent();
@@ -320,34 +321,37 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				e.camera = _camera;
 				dispatchEvent(e);
 				
-        // Store the userid for the publisher. This allows us to control
-        // the user's status from the video window
-        userID = UsersUtil.getMyUserID();
+				// Store the userid for the publisher. This allows us to control
+				// the user's status from the video window
+				userID = UsersUtil.getMyUserID();
 				
-        createButtons();
-        addControlButtons();
-                	
+				createButtons();
+				addControlButtons();
+				
 			}
 			
-      private var _isClosing:Boolean = false;
-      
+			private var _isClosing:Boolean = false;
+			
 			override public function close(event:MouseEvent=null):void{
-        trace("PublishWindow:: closing");
-        
-			  if (!_isClosing) {
-          _isClosing = true;
-          stopPublishing();
-        }
+				trace("PublishWindow:: closing");
+				
+				if (!_isClosing) {
+					_isClosing = true;
+					stopPublishing();
+					trace("Dispatching ClosePublishWindowEvent event");
+					var gDispatcher:Dispatcher = new Dispatcher();
+					gDispatcher.dispatchEvent(new ClosePublishWindowEvent());
+				}				
 			}
 			
 			private function stopCamera():void {
-        trace("PublishWindow:: stopping camera");
-        
-        _camera = null;
+				trace("PublishWindow:: stopping camera");
+				
+				_camera = null;
 				if (_video != null) {
-          trace("PublishWindow:: removing video from display");
+					trace("PublishWindow:: removing video from display");
 					_videoHolder.removeChild(_video);
-          
+					
 					_video.attachCamera(null);
 					_video.clear();
 					_video = null;
@@ -356,81 +360,81 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function stopPublishing():void{
-        trace("PublishWindow::stopPublishing");
+				trace("PublishWindow::stopPublishing");
 				stopCamera();
 				var e:StopBroadcastEvent = new StopBroadcastEvent()
 				e.stream = streamName;
 				dispatchEvent(e);
 			}
 			
-      override protected function onResize():void {
-        
-        super.onResize();
-        
-        if (_videoHolder != null) {
-
-            fitVideoToWindow();
-
-          _video.x = (this.width - PADDING_HORIZONTAL - _video.width) / 2;
-          _video.y = (this.height - PADDING_VERTICAL - _video.height) / 2;    
-        }
-                     
-      }
-      
-      private function fitVideoToWindow():void {
-        if (_videoHolder.width - PADDING_HORIZONTAL < _videoHolder.height - PADDING_VERTICAL) {
-          fitToHeightAndAdjustWidthToMaintainAspectRatio();         			
-        } else {
-          fitToWidthAndAdjustHeightToMaintainAspectRatio();	
-        }				
-      }
-      
-      private function videoIsSmallerThanWindow():Boolean {
-        return (camWidth < _videoHolder.width - PADDING_HORIZONTAL) && (camHeight < _videoHolder.height - PADDING_VERTICAL);
-      }
-      
-      private function fitToWidthAndAdjustHeightToMaintainAspectRatio():void {
-        var aspect:Number = camHeight / camWidth;
-        _video.width = _videoHolder.width - PADDING_HORIZONTAL;
-        
-        // Maintain aspect-ratio
-        _video.height = _video.width * aspect;			
-      }
-      
-      private function fitToHeightAndAdjustWidthToMaintainAspectRatio():void {
-        var aspect:Number = camWidth / camHeight;
-        _video.height = _videoHolder.height - PADDING_VERTICAL;
-        
-        // Maintain aspect-ratio
-        _video.width = _video.height * aspect;				
-      }
-		
+			override protected function onResize():void {
+				
+				super.onResize();
+				
+				if (_videoHolder != null) {
+					
+					fitVideoToWindow();
+					
+					_video.x = (this.width - PADDING_HORIZONTAL - _video.width) / 2;
+					_video.y = (this.height - PADDING_VERTICAL - _video.height) / 2;    
+				}
+				
+			}
+			
+			private function fitVideoToWindow():void {
+				if (_videoHolder.width - PADDING_HORIZONTAL < _videoHolder.height - PADDING_VERTICAL) {
+					fitToHeightAndAdjustWidthToMaintainAspectRatio();         			
+				} else {
+					fitToWidthAndAdjustHeightToMaintainAspectRatio();	
+				}				
+			}
+			
+			private function videoIsSmallerThanWindow():Boolean {
+				return (camWidth < _videoHolder.width - PADDING_HORIZONTAL) && (camHeight < _videoHolder.height - PADDING_VERTICAL);
+			}
+			
+			private function fitToWidthAndAdjustHeightToMaintainAspectRatio():void {
+				var aspect:Number = camHeight / camWidth;
+				_video.width = _videoHolder.width - PADDING_HORIZONTAL;
+				
+				// Maintain aspect-ratio
+				_video.height = _video.width * aspect;			
+			}
+			
+			private function fitToHeightAndAdjustWidthToMaintainAspectRatio():void {
+				var aspect:Number = camWidth / camHeight;
+				_video.height = _videoHolder.height - PADDING_VERTICAL;
+				
+				// Maintain aspect-ratio
+				_video.width = _video.height * aspect;				
+			}
+			
 			public function setResolution(width:int, height:int):void {
 				camWidth = width;
 				camHeight = height;
 				setAspectRatio(camWidth, camHeight);
 				
- 				/**
-         		 * Add timestamp to create a unique stream name. This way we can record	 	
-         		 * stream without overwriting previously recorded streams.	 	
-         		 */	 	
-        var d:Date = new Date();
+				/**
+				 * Add timestamp to create a unique stream name. This way we can record	 	
+				 * stream without overwriting previously recorded streams.	 	
+				 */	 	
+				var d:Date = new Date();
 				var curTime:Number = d.getTime();	
-        var uid:String = UserManager.getInstance().getConference().getMyUserId();
-        var res:String = camWidth + "x" + camHeight;
-        this.streamName = res.concat("-" + uid) + "-" + curTime;
+				var uid:String = UserManager.getInstance().getConference().getMyUserId();
+				var res:String = camWidth + "x" + camHeight;
+				this.streamName = res.concat("-" + uid) + "-" + curTime;
 			}
-						
+			
 			private function isPresenter():Boolean{
 				if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return true;
 				else return false;
 			}
-						
+			
 			private function closeWindow(e:CloseAllWindowsEvent):void{
-        trace("PublishWindow::closeWindow");
-        stopCamera();
+				trace("PublishWindow::closeWindow");
+				stopCamera();
 			}
-							
+			
 			private var hideWarningTimer:Timer = null;
 			
 			private function showWarning(resourceName:String, autoHide:Boolean=false, color:String="0xFF0000"):void {
