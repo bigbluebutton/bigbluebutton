@@ -34,6 +34,8 @@
 	<mate:Listener type="{ShortcutEvent.FOCUS_USERS_WINDOW}" method="focusWindow" />
 	<mate:Listener type="{UsersEvent.ROOM_MUTE_STATE}" method="setRoomMute" />
 	<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
+	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
+	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -45,6 +47,7 @@
 			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
 			import mx.controls.listClasses.IListItemRenderer;
+			import mx.controls.dataGridClasses.DataGridItemRenderer;
 			import mx.events.DataGridEvent;
 			import mx.events.ListEvent;
 			import mx.events.MenuEvent;
@@ -65,6 +68,7 @@
 			import org.bigbluebutton.core.events.VoiceConfEvent;
 			import org.bigbluebutton.modules.users.events.UsersEvent;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
+			import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;		
 			
 			import org.bigbluebutton.common.LogUtil;
@@ -96,7 +100,16 @@
 			public static const CHANGE_ROLE:String = "Promote to moderator";
 
 			private var muteMeRolled:Boolean = false;
-			private var lastRollOverIndex:int;
+			private var lastRollOverIndex:int = -1;
+			private var changeRole:ContextMenuItem;
+			private var added:Boolean = false;
+
+			private function refreshRole(e:ChangeMyRole):void {
+				if(e.role == Role.MODERATOR) {
+					amIModerator = true;
+					settingsBtn.visible = settingsBtn.includeInLayout = true;
+				}
+			}
 			
 			private function onCreationComplete():void {
 				dispatcher = new Dispatcher();
@@ -132,20 +145,45 @@
 			}
 
 			private function addContextMenuItems():void {
-				var contextMenu:ContextMenu = new ContextMenu();
+				var contextMenu:ContextMenu;
+
+				if(usersGrid.contextMenu == null)
+					contextMenu = new ContextMenu();
+				else
+					contextMenu = usersGrid.contextMenu;
 				contextMenu.hideBuiltInItems();
 				
-				var changeRole:ContextMenuItem = new ContextMenuItem(CHANGE_ROLE);
-				changeRole.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler);
+				changeRole = new ContextMenuItem(CHANGE_ROLE);
+				changeRole.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler,false,0,true);
 				contextMenu.customItems.push(changeRole);
+
+				contextMenu.addEventListener(ContextMenuEvent.MENU_SELECT,dataGridContextMenu_menuSelect,false,0,true);
 				usersGrid.contextMenu = contextMenu;
 			}
 
-			private function menuItemHandler(e:ContextMenuEvent):void{
-				if (e.target.caption == CHANGE_ROLE) {
-					LogUtil.debug("OI");
-					LogUtil.debug(e.mouseTarget.name);
+			private function dataGridContextMenu_menuSelect(event:ContextMenuEvent):void{
+				usersGrid.selectedIndex = lastRollOverIndex;
+				if(lastRollOverIndex < 0) {
+					changeRole.visible = false;
 				}
+				else {
+					if (UserManager.getInstance().getConference().getMyRole() == Role.MODERATOR && !(users[lastRollOverIndex].me))
+						changeRole.visible = true;
+					else
+						changeRole.visible = false;
+					if(users[lastRollOverIndex].role == Role.VIEWER)
+						changeRole.enabled = true;
+					else
+						changeRole.enabled = false;
+				}
+			}
+
+			private function menuItemHandler(e:ContextMenuEvent):void{
+				if (e.target.caption == CHANGE_ROLE && usersGrid.selectedIndex > -1) {
+					var item:BBBUser = users[usersGrid.selectedIndex];
+					var changeRoleEvent:ChangeRoleEvent = new ChangeRoleEvent(item.userID, Role.MODERATOR)
+    				dispatchEvent(changeRoleEvent);
+    			}
 			}
 			
 			
@@ -166,6 +204,7 @@
 			}
 			
 			private function onItemRollOver(event:ListEvent):void{
+				lastRollOverIndex = event.rowIndex;
 				var item:IListItemRenderer = event.itemRenderer;
 				var user:BBBUser = item.data as BBBUser;
 				var rollEvent:UsersRollEvent = new UsersRollEvent(UsersRollEvent.USER_ROLL_OVER, user.userID);
@@ -173,6 +212,7 @@
 			}
 			
 			private function onItemRollOut(event:ListEvent):void{
+				lastRollOverIndex = -1;
 				var item:IListItemRenderer = event.itemRenderer;
 				var user:BBBUser = item.data as BBBUser;
 				var rollEvent:UsersRollEvent = new UsersRollEvent(UsersRollEvent.USER_ROLL_OUT, user.userID);
@@ -401,7 +441,7 @@
 		tabIndex="{partOptions.baseTabIndex+5}"
 		accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.accessibilityName')}" >
     	<mx:columns>
-    		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer')}" editable="false" width="45" minWidth="45"
+    		<mx:DataGridColumn id="statusUser" dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer')}" editable="false" width="45" minWidth="45"
     			itemRenderer="org.bigbluebutton.modules.users.views.StatusItemRenderer" sortable="false" />
     		<mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer')}" editable="false" sortable="false" minWidth="60"
     			itemRenderer="org.bigbluebutton.modules.users.views.NameItemRenderer"/>

@@ -42,9 +42,11 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+	import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	import flash.external.ExternalInterface;
 	import org.bigbluebutton.main.model.users.BBBUser;
+
 
 	public class UsersSOService {
 		public static const NAME:String = "ViewersSOService";
@@ -300,6 +302,12 @@ package org.bigbluebutton.main.model.users {
 		public function participantRoleChange(userID:String, role:String):void {
 			LogUtil.debug("Received role change [" + userID + "," + role + "]")			
 			UserManager.getInstance().getConference().newUserRole(userID, role);
+			if(UserManager.getInstance().getConference().amIThisUser(userID)) {
+				UserManager.getInstance().getConference().setMyRole(role);
+				var e:ChangeMyRole = new ChangeMyRole(role);
+				dispatcher.dispatchEvent(e);
+			}
+
 		}
 
 					

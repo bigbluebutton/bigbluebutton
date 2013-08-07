@@ -30,6 +30,7 @@
 	<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
 	<mate:Listener type="{UsersRollEvent.USER_ROLL_OUT}" method="onRollOut" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -141,6 +142,15 @@
 					rolledOver = false;
 					updateButton();
 				}
+			}
+
+			private function refreshRole(e:ChangeMyRole):void {
+				if(e.role == Role.MODERATOR)
+					moderator = true;
+				else
+					moderator = false;
+
+				updateButton();
 			}
   			
   			private function roleBtnClicked():void {

@@ -28,6 +28,7 @@
 	
 	<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
 	<mate:Listener type="{UsersRollEvent.USER_ROLL_OUT}" method="onRollOut" />
+	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -101,6 +102,13 @@
 					rolledOver = false;
 					updateButtons();
 				}
+			}
+
+			private function refreshRole(e:ChangeMyRole):void {
+				if(e.role == Role.Moderator)
+					lockBtn.enabled = muteBtn.enabled = kickUserBtn.enabled = moderator = true;
+				else
+					lockBtn.enabled = muteBtn.enabled = kickUserBtn.enabled = moderator = false;
 			}
 			
 			private function muteMouseOverHandler():void {
