@@ -574,6 +574,15 @@
 					initSliderAccess(acorn.$volume.$handle, volumeSliderOptions);
 					acorn.$volume.$handle.attr("tabindex", "6");
 					
+					// show the volume slider when it is tabbed into
+					acorn.$volume.$handle.focus(function(){
+						if (!acorn.$volume.parent().is(":hover")) {
+							acorn.$volume.addClass("handle-focused");
+						}
+					});
+					acorn.$volume.$handle.blur(function(){
+						acorn.$volume.removeClass("handle-focused");
+					});
 					// manully blur the Caption Button when clicking the handle
 					$('.ui-slider-handle', acorn.$volume).click(blurCaptionBtn);
 				}
