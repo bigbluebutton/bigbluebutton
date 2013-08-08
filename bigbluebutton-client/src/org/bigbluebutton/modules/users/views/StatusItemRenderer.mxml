@@ -45,6 +45,7 @@
             import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
@@ -145,6 +146,7 @@
 			}
 
 			private function refreshRole(e:ChangeMyRole):void {
+				data.role == e.role;
 				if(e.role == Role.MODERATOR)
 					moderator = true;
 				else

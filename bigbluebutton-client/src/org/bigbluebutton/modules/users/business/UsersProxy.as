@@ -30,6 +30,7 @@ package org.bigbluebutton.modules.users.business
 	import org.bigbluebutton.modules.users.events.UsersEvent;
 	import org.bigbluebutton.modules.users.events.StartUsersModuleEvent;
 	import org.bigbluebutton.modules.users.events.StopUsersModuleEvent;
+	import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 	import org.bigbluebutton.core.events.VoiceConfEvent;
 
 	public class UsersProxy
@@ -111,14 +112,23 @@ package org.bigbluebutton.modules.users.business
 			_listenersService.lockMuteUser(command.userid, command.lock);		
 		}
 
-    public function kickUser(event:KickUserEvent):void {
-      var user:BBBUser = UsersUtil.getUser(event.userid);
-      _listenersService.ejectUser(user.voiceUserid);
-    }
+	    public function kickUser(event:KickUserEvent):void {
+	      var user:BBBUser = UsersUtil.getUser(event.userid);
+	      _listenersService.ejectUser(user.voiceUserid);
+	    }
       
 		public function ejectUser(command:VoiceConfEvent):void
 		{
 			_listenersService.ejectUser(command.userid);			
 		}	
+
+		public function refreshRole(e:ChangeMyRole):void {
+			if(e.role == Role.MODERATOR) {
+				_listenersService.setModerator(true);
+			}
+			else
+				_listenersService.setModerator(false);
+		}
+
 	}
 }

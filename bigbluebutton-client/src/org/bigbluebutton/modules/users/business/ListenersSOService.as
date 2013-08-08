@@ -67,6 +67,10 @@ package org.bigbluebutton.modules.users.business
 		public function disconnect():void {
 			leave();
 		}
+
+		public function setModerator(moderator:Boolean):void {
+			this.moderator = moderator;
+		}
 		
 		private function connectionListener(connected:Boolean, errors:Array=null):void {
 			if (connected) {

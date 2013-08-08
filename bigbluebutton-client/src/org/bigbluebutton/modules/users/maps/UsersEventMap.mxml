@@ -30,6 +30,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.users.events.StartUsersModuleEvent;
 			import org.bigbluebutton.modules.users.events.StopUsersModuleEvent;
 			import org.bigbluebutton.modules.users.managers.UsersManager;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 		]]>
 	</mx:Script>
 	
@@ -76,6 +77,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<EventHandlers type="{VoiceConfEvent.LOCK_MUTE_USER}" >
 		<MethodInvoker generator="{UsersProxy}" method="lockMuteUser" arguments="{event}" />
+	</EventHandlers>
+
+	<EventHandlers type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" >
+		<MethodInvoker generator="{UsersProxy}" method="refreshRole" arguments="{event}" />
 	</EventHandlers>
 	
 </EventMap>

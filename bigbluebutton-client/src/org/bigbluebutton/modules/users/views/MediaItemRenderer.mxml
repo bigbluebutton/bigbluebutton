@@ -51,6 +51,7 @@
 			import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.modules.users.events.ViewCameraEvent;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -105,7 +106,7 @@
 			}
 
 			private function refreshRole(e:ChangeMyRole):void {
-				if(e.role == Role.Moderator)
+				if(e.role == Role.MODERATOR)
 					lockBtn.enabled = muteBtn.enabled = kickUserBtn.enabled = moderator = true;
 				else
 					lockBtn.enabled = muteBtn.enabled = kickUserBtn.enabled = moderator = false;
