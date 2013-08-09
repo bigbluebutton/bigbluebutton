@@ -34,6 +34,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;
 			import org.bigbluebutton.modules.layout.managers.LayoutManager;
 			import org.bigbluebutton.modules.layout.services.LayoutService;
+      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 		]]>
 	</mx:Script>
 
@@ -60,6 +61,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <EventHandlers type="{LayoutEvent.STOP_LAYOUT_MODULE_EVENT}">
    		<MethodInvoker generator="{LayoutService}" method="leave" />
    		<MethodInvoker generator="{LayoutEventMapDelegate}" method="stopModule" />
+    </EventHandlers>
+
+    <EventHandlers type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}">
+      <MethodInvoker generator="{LayoutEventMapDelegate}" method="refreshRole" arguments="{event}"/>
     </EventHandlers>
         
     <EventHandlers type="{ConnectionEvent.CONNECT_EVENT}">

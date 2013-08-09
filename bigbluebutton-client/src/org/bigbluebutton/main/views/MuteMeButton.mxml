@@ -36,6 +36,7 @@ $Id: $
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	<mate:Listener type="{ShortcutEvent.MUTE_ME_EVENT}" method="toggleMuteMeState" />
 	<mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalking" />
+	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
 				   
 	<mx:Script>
 		<![CDATA[
@@ -50,6 +51,7 @@ $Id: $
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			
 			private var muteMeRolled:Boolean = false;
 			
@@ -76,6 +78,10 @@ $Id: $
 			}
 			
 			private function localeChanged(e:Event):void {
+				updateMuteMeBtn();
+			}
+
+			private function refreshRole(e:ChangeMyRole):void {
 				updateMuteMeBtn();
 			}
 			

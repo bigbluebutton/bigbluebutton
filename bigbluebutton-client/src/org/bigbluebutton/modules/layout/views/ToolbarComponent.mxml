@@ -74,6 +74,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function getAlignment():String{
 				return MainToolbar.ALIGN_RIGHT;
 			}
+
+			public function refreshButtons():void {
+				addButton.enabled = UserManager.getInstance().getConference().amIModerator();
+				saveButton.enabled = UserManager.getInstance().getConference().amIModerator();
+				loadButton.enabled = UserManager.getInstance().getConference().amIModerator();
+				lockButton.enabled = UserManager.getInstance().getConference().amIModerator();
+			}
 			
 		]]>
 	</mx:Script>
