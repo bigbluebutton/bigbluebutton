@@ -100,10 +100,12 @@
 			private const MUTE_ALL_USER:String = "Mute All User";
 			private var CHANGE_ROLE_TO_MODERATOR:String = null;
 			private var CHANGE_TO_PRESENTER:String = null;
+			private var CHANGE_ROLE_TO_VIEWER:String = null;
 
 			private var muteMeRolled:Boolean = false;
 			private var lastRollOverIndex:int = -1;
 			private var changeRole:ContextMenuItem = null;
+			private var changeRoleToViewer:ContextMenuItem = null;
 			private var changeToPresenter:ContextMenuItem = null;
 			private var customContextMenu:ContextMenu = null;
 			private var added:Boolean = false;
@@ -159,7 +161,7 @@
 
 				CHANGE_ROLE_TO_MODERATOR = ResourceUtil.getInstance().getString("bbb.users.usersGrid.promoteUserToModerator");
 				changeRole = new ContextMenuItem(CHANGE_ROLE_TO_MODERATOR);
-				changeRole.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler,false,0,true);
+				changeRole.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, changeRoleHandler,false,0,true);
 				customContextMenu.customItems.push(changeRole);
 
 				CHANGE_TO_PRESENTER = ResourceUtil.getInstance().getString("bbb.users.usersGrid.promoteUserToPresenter");
@@ -167,11 +169,16 @@
 				changeToPresenter.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, changeUserToPresenter,false,0,true);
 				customContextMenu.customItems.push(changeToPresenter);
 
+				CHANGE_ROLE_TO_VIEWER = ResourceUtil.getInstance().getString("bbb.users.usersGrid.promoteUserToViewer");
+				changeRoleToViewer = new ContextMenuItem(CHANGE_ROLE_TO_VIEWER);
+				changeRoleToViewer.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, changeRoleHandler,false,0,true);
+				customContextMenu.customItems.push(changeRoleToViewer);
+
 				customContextMenu.addEventListener(ContextMenuEvent.MENU_SELECT,dataGridContextMenu_menuSelect,false,0,true);
 				usersGrid.contextMenu = customContextMenu;
 			}
 
-			private function changeToModeratorVisibility():void {
+			private function changeToPresenterVisibility():void {
 				if(lastRollOverIndex < 0) {
 					changeToPresenter.visible = false;
 				}
@@ -191,7 +198,27 @@
 				}
 			}
 
-			private function changeToPresenterVisibility():void {
+			private function changeToViewerVisibility():void {
+				if(lastRollOverIndex < 0) {
+					changeRoleToViewer.visible = false;
+				}
+				else {
+					if (UserManager.getInstance().getConference().getMyRole() == Role.MODERATOR) {
+						changeRoleToViewer.visible = true;
+					}
+					else {
+						changeRoleToViewer.visible = false;
+					}
+					if(users[lastRollOverIndex].role == Role.MODERATOR) {
+						changeRoleToViewer.enabled = true;
+					}
+					else {
+						changeRoleToViewer.enabled = false;
+					}
+				}
+			}
+
+			private function changeToModeratorVisibility():void {
 				if(lastRollOverIndex < 0) {
 					changeRole.visible = false;
 				}
@@ -215,6 +242,7 @@
 				usersGrid.selectedIndex = lastRollOverIndex;
 				changeToModeratorVisibility();
 				changeToPresenterVisibility();
+				changeToViewerVisibility();
 			}
 
 			private function changeUserToPresenter(e:ContextMenuEvent):void {
@@ -229,10 +257,15 @@
     			}
 			}
 
-			private function menuItemHandler(e:ContextMenuEvent):void{
+			private function changeRoleHandler(e:ContextMenuEvent):void{
 				if (e.target.caption == CHANGE_ROLE_TO_MODERATOR && usersGrid.selectedIndex > -1) {
 					var item:BBBUser = users[usersGrid.selectedIndex];
-					var changeRoleEvent:ChangeRoleEvent = new ChangeRoleEvent(item.userID, Role.MODERATOR)
+					var changeRoleEvent:ChangeRoleEvent = new ChangeRoleEvent(item.userID, Role.MODERATOR);
+    				dispatchEvent(changeRoleEvent);
+    			}
+    			if(e.target.caption == CHANGE_ROLE_TO_VIEWER && usersGrid.selectedIndex > -1) {
+					var item:BBBUser = users[usersGrid.selectedIndex];
+					var changeRoleEvent:ChangeRoleEvent = new ChangeRoleEvent(item.userID, Role.VIEWER);
     				dispatchEvent(changeRoleEvent);
     			}
 			}
@@ -375,14 +408,18 @@
 				if(changeRole != null) {
 					customContextMenu.customItems.pop();
 				}
-				if(changeToPresenter != null)
+				if(changeToPresenter != null) {
 					customContextMenu.customItems.pop();
+				}
+				if(changeRoleToViewer != null) {
+					customContextMenu.customItems.pop();
+				}
 
 				if(changeRole != null) {
 					CHANGE_ROLE_TO_MODERATOR = ResourceUtil.getInstance().getString("bbb.users.usersGrid.promoteUserToModerator");
 					
 					changeRole = new ContextMenuItem(ResourceUtil.getInstance().getString("bbb.users.usersGrid.promoteUserToModerator"));
-					changeRole.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler,false,0,true);
+					changeRole.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, changeRoleHandler,false,0,true);
 					customContextMenu.customItems.push(changeRole);
 					usersGrid.contextMenu = customContextMenu;
 				} 
@@ -394,7 +431,15 @@
 					customContextMenu.customItems.push(changeToPresenter);
 					usersGrid.contextMenu = customContextMenu;
 				}
-				
+				if(changeRoleToViewer != null) {
+					CHANGE_ROLE_TO_VIEWER = ResourceUtil.getInstance().getString("bbb.users.usersGrid.promoteUserToViewer");
+					
+					changeRoleToViewer = new ContextMenuItem(CHANGE_ROLE_TO_VIEWER);
+					changeRoleToViewer.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, changeRoleHandler,false,0,true);
+					customContextMenu.customItems.push(changeRoleToViewer);
+					usersGrid.contextMenu = customContextMenu;
+				}
+
 			}
 			
 			private function loadKeyCombos(modifier:String):void {
