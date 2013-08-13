@@ -230,11 +230,11 @@ public String getJoinURL(String username, String meetingID, String record, Strin
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
-public String getJoinURLwithDynamicConfigXML(String username, String meetingID, String xml) {
+public String getJoinURLwithDynamicConfigXML(String username, String meetingID, String configXML) {
     
     String base_url_create = BigBlueButtonURL + "api/create?";
     String base_url_join = BigBlueButtonURL + "api/join?";
-    String base_url_setConfigXML = BigBlueButtonURL + "api/setConfigXML.xml";
+    String base_url_setConfigXML = BigBlueButtonURL + "api/setConfigXML.xml?";
 
     Random random = new Random();
     String voiceBridge_param = "&voiceBridge=" + (70000 + random.nextInt(9999));
@@ -288,21 +288,25 @@ public String getJoinURLwithDynamicConfigXML(String username, String meetingID, 
     //  
     
     String xml_param = "";
-    if ((xml != null) && !xml.equals("")) {
-        xml_param = xml;
+    if ((configXML != null) && !configXML.equals("")) {
+        xml_param = configXML;
         xml_param = xml_param.replace("\n", "");
         xml_param = xml_param.replace("\t", "");
         xml_param = xml_param.replace(">  <", "><");
         xml_param = xml_param.replace(">    <", "><");
     }
 
-    String setConfigXML_parameters = "meetingID=" + urlEncode(meetingID) + 
-            "&checksum=" + checksum(meetingID + encodeURIComponent(xml_param) + salt) +"&configXML=" + urlEncode(encodeURIComponent(xml_param));
+    // Create the parameters we want to send to the server. 
+    Map<String, String[]> paramsMap = new HashMap<String, String[]>();
+    paramsMap.put("meetingID", new String[]{urlEncode(meetingID)});
+    paramsMap.put("configXML", new String[]{urlEncode(xml_param)});
+
+    String baseString = createBaseString(paramsMap);
+
+    String setConfigXML_parameters = baseString + "&checksum=" + checksum("setConfigXML" + baseString + salt);
     
-    url = "";
     try {
-        url = base_url_setConfigXML + "?"; // + setConfigXML_parameters; 
-        doc = parseXml( postURL( url, setConfigXML_parameters, "application/x-www-form-urlencoded" ) );
+        doc = parseXml( postURL( base_url_setConfigXML, setConfigXML_parameters, "application/x-www-form-urlencoded" ) );
     } catch (Exception e) {
         e.printStackTrace();
     }
@@ -312,7 +316,7 @@ public String getJoinURLwithDynamicConfigXML(String username, String meetingID, 
         //
         // Someting went wrong, return the error 
         //  
-        return " " + url + "<br>" + doc.getElementsByTagName("messageKey").item(0).getTextContent().trim()
+        return " " + base_url_setConfigXML + "<br>" + doc.getElementsByTagName("messageKey").item(0).getTextContent().trim()
                 + ": " 
                 + doc.getElementsByTagName("message").item(0).getTextContent().trim() + "<br>" + encodeURIComponent(xml_param);
     } else {
@@ -320,20 +324,41 @@ public String getJoinURLwithDynamicConfigXML(String username, String meetingID, 
     }
     
     //
-    // And finally return a URL to join that meeting
+    // And finally return a URL to join that meeting using the specific config.xml
     //  
-    String join_parameters = "meetingID=" + urlEncode(meetingID)
-        + "&fullName=" + urlEncode(username) + "&password=mp&configToken=" + configToken;
+    String join_parameters = "meetingID=" + urlEncode(meetingID) + "&fullName=" + urlEncode(username) + "&password=mp&configToken=" + configToken;
 
-    return base_url_join + join_parameters + "&checksum="
-        + checksum("join" + join_parameters + salt);
+    return base_url_join + join_parameters + "&checksum=" + checksum("join" + join_parameters + salt);
 
 }
 
+// From the list of parameters we want to pass. Creates a base string with parameters
+// sorted in alphabetical order for us to sign.
+public String createBaseString(Map<String, String[]> params) {
+	StringBuffer csbuf = new StringBuffer();
+	SortedSet<String> keys = new TreeSet<String>(params.keySet());
+ 
+	boolean first = true;
+	String checksum = null;
+	for (String key: keys) {
+		for (String value: params.get(key)) {
+			if (first) {
+				first = false;
+			} else {
+				csbuf.append("&");
+			}
+			csbuf.append(key);
+			csbuf.append("=");
+			csbuf.append(value);
+		}
+	}
+
+	return csbuf.toString();
+}
 
 
 //
-//Create a meeting and return a URL to join it as moderator
+// Create a meeting and return a URL to join it as moderator
 //
 public String getJoinURLXML(String username, String meetingID, String welcome, String xml) {
 	String base_url_create = BigBlueButtonURL + "api/create?";
@@ -690,7 +715,7 @@ public String getMetaData( Map<String, String> metadata ) {
 }
 
 //
-// checksum() -- create a hash based on the shared salt (located in bbb_api_conf.jsp)
+// checksum() -- Return a checksum based on SHA-1 digest
 //
 public static String checksum(String s) {
 	String checksum = "";

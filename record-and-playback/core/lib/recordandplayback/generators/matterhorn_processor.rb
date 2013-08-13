@@ -33,7 +33,7 @@ module BigBlueButton
   end
 
   class MatterhornProcessor    
-    def self.create_manifest_xml(webcam, deskshare, manifest)
+    def self.create_manifest_xml(webcam, deskshare, manifest, meeting_id)
 
       vpresenter = FFMPEG::Movie.new(webcam) if File.exists?(webcam)
       vpresentation = FFMPEG::Movie.new(deskshare) if File.exists?(deskshare)
@@ -45,44 +45,45 @@ module BigBlueButton
       result = xml.instruct! :xml, :version => "1.0"
 
       timestamp = (Time::now).utc.strftime("%Y-%m-%dT%H:%M:%S")
-      xml.tag!("ns2:mediapackage", "duration" => duration.to_s.split(".")[0] + "000", 
-              "start" => timestamp, "xmlns:ns2" => "http://mediapackage.opencastproject.org") {
+      xml.tag!("mediapackage", "duration" => duration.to_s.split(".")[0] + "000", "id" => meeting_id, "start" => timestamp ) {
 
         xml.media{
 
-	 if vpresenter
+         if vpresenter
           xml.track("id" => "track-1", "type" => "presenter/source") {
             xml.mimetype(MIME::Types.type_for(vpresenter.path).first.content_type)
+            xml.checksum(Digest::MD5.hexdigest(File.read(vpresenter.path)), "type" => "md5")
+            xml.url(vpresenter.path.sub(/.+\//, ""))
+            xml.size(vpresenter.size)
             xml.tags
             # Remove path and just have video.flv
-            xml.url(vpresenter.path.sub(/.+\//, ""))
-            xml.checksum(Digest::MD5.hexdigest(File.read(vpresenter.path)), "type" => "md5")
             xml.duration(vpresenter.duration.round.to_s.split(".")[0] + "000")
             xml.video("id" => "video1") {
               xml.encoder("type" => vpresenter.video_codec)
+              xml.resolution(vpresenter.width.to_s + "x" + vpresenter.height.to_s)
               xml.bitrate(vpresenter.bitrate.to_s + "000")
               xml.framerate(vpresenter.frame_rate)
-              xml.resolution(vpresenter.width.to_s + "x" + vpresenter.height.to_s)
             }
           }
-	 end
+         end
 
-	 if vpresentation
+        if vpresentation
           xml.track("id" => "track-2", "type" => "presentation/source") {
             xml.mimetype(MIME::Types.type_for(vpresentation.path).first.content_type)
+            xml.checksum(Digest::MD5.hexdigest(File.read(vpresentation.path)),"type" => "md5")
+            xml.url(vpresentation.path.sub(/.+\//, ""))
+            xml.size(vpresentation.size)
+            xml.duration(vpresentation.duration.round.to_s.split(".")[0] + "000")
             xml.tags
             # Remove path and just have deskshare.flv
-            xml.url(vpresentation.path.sub(/.+\//, ""))
-            xml.checksum(Digest::MD5.hexdigest(File.read(vpresentation.path)),"type" => "md5")
-            xml.duration(vpresentation.duration.round.to_s.split(".")[0] + "000")
             xml.video("id" => "video2") {
               xml.encoder("type" => vpresentation.video_codec)
+              xml.resolution(vpresentation.width.to_s + "x" + vpresentation.height.to_s)
               xml.bitrate(vpresentation.bitrate.to_s + "000")
               xml.framerate(vpresentation.frame_rate)
-              xml.resolution(vpresentation.width.to_s + "x" + vpresentation.height.to_s)
             }
           }
-	 end
+         end
 
         }
         

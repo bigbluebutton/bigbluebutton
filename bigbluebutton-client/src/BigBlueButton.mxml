@@ -28,7 +28,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   pageTitle="BigBlueButton" 
   layout="absolute" preinitialize="init()"
   preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader"
-  applicationComplete="hotkeyCapture()">
+  applicationComplete="appComplete()">
  
   <mx:Script>
     <![CDATA[
@@ -45,11 +45,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.api.ExternalApiCallbacks;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
+	  import org.bigbluebutton.main.model.ShortcutOptions;
       import org.bigbluebutton.main.views.MainApplicationShell;
       import org.bigbluebutton.util.i18n.ResourceUtil;
-      private var langResources:ResourceUtil = null; //ResourceUtil.getInstance();
+      private var langResources:ResourceUtil = null;
 
-	private var modifier:String;
+	private var globalModifier:String;
     /**
      * Thse two lines are workaround for this. (ralam - Nov 8, 2008)
      * http://gregjessup.com/flex-3-advanceddatagrid-cannot-convert-mxmanagersdragmanagerimpl-to-mxmanagersidragmanager/
@@ -67,13 +68,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       setupAPI();
       EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
       BBB.initConfigManager();
-	  modifier = ExternalInterface.call("determineModifier");
+	  globalModifier = ExternalInterface.call("determineGlobalModifier");
     }
 
     private function configLoadedEventHandler(e:Event):void {
       LogUtil.debug("***** Config Loaded ****");
       mainShell.initOptions(null);
+      ShortcutOptions.initialize();
     }
+	
+	private function appComplete():void{
+		hotkeyCapture();
+	}
       
     private var api:ExternalApiCallbacks;
       
@@ -104,31 +110,51 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
      */
 
     private function localeChanged(e:Event):void{
-      loadKeyCombos(modifier);
+      loadKeyCombos(globalModifier);
     }
 
     private var keyCombos:Object;
 
-    private function loadKeyCombos(modifier:String):void {
+    private function loadKeyCombos(globalModifier:String):void {
 		keyCombos = new Object(); // always start with a fresh array
-      
-	    keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.flash.exit') as String)] = ShortcutEvent.FOCUS_AWAY_EVENT;
-		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.users.muteme') as String)] = ShortcutEvent.MUTE_ME_EVENT;
-		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatinput') as String)] = ShortcutEvent.FOCUS_CHAT_INPUT;
-			    
-		// General hotKeys (usable from anywhere in the application)
-		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.users') as String)] = ShortcutEvent.FOCUS_USERS_WINDOW;
-		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.video') as String)] = ShortcutEvent.FOCUS_VIDEO_WINDOW;
-		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.presentation') as String)] = ShortcutEvent.FOCUS_PRESENTATION_WINDOW;
-		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.chat') as String)] = ShortcutEvent.FOCUS_CHAT_WINDOW;
+       
+		// Module-independent keys
+		keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.flash.exit') as String)] = ShortcutEvent.FOCUS_AWAY_EVENT;
+		keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.shortcutWindow') as String)] = ShortcutEvent.REMOTE_OPEN_SHORTCUT_WIN;
+		keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.logout') as String)] = ShortcutEvent.LOGOUT;
 		
-		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.share.desktop') as String)] = ShortcutEvent.SHARE_DESKTOP;
-		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.share.webcam') as String)] = ShortcutEvent.SHARE_WEBCAM;
-		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.share.microphone') as String)] = ShortcutEvent.SHARE_MICROPHONE;
-		
-		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.shortcutWindow') as String)] = ShortcutEvent.REMOTE_OPEN_SHORTCUT_WIN;
-		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.logout') as String)] = ShortcutEvent.LOGOUT;
-		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.raiseHand') as String)] = ShortcutEvent.RAISE_HAND;
+		// Module-dependent keys
+		if (ShortcutOptions.usersActive){
+			keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.users') as String)] = ShortcutEvent.FOCUS_USERS_WINDOW;
+			keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.raiseHand') as String)] = ShortcutEvent.RAISE_HAND;
+			keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.users.muteme') as String)] = ShortcutEvent.MUTE_ME_EVENT;
+			keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.users.muteAllButPres') as String)] = ShortcutEvent.MUTE_ALL_BUT_PRES;
+		}
+		if (ShortcutOptions.videoDockActive){
+			keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.video') as String)] = ShortcutEvent.FOCUS_VIDEO_WINDOW;
+		}
+		if (ShortcutOptions.presentationActive){
+			keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.presentation') as String)] = ShortcutEvent.FOCUS_PRESENTATION_WINDOW;
+		}
+		if (ShortcutOptions.chatActive){
+			keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.chat') as String)] = ShortcutEvent.FOCUS_CHAT_WINDOW;
+			keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatinput') as String)] = ShortcutEvent.FOCUS_CHAT_INPUT;
+		}
+		if (ShortcutOptions.pollingActive){
+			keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.pollingCreate') as String)] = ShortcutEvent.FOCUS_POLLING_WINDOW_CREATE;
+			keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.pollingStats') as String)] = ShortcutEvent.FOCUS_POLLING_WINDOW_STATS;
+			keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.voting') as String)] = ShortcutEvent.FOCUS_VOTING_WINDOW;
+			keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.buttonClick') as String)] = ShortcutEvent.POLL_BUTTON_CLICK;
+		}
+		if (ShortcutOptions.webcamActive){
+			keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.share.webcam') as String)] = ShortcutEvent.SHARE_WEBCAM;
+		}
+		if (ShortcutOptions.deskshareActive){
+			keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.share.desktop') as String)] = ShortcutEvent.SHARE_DESKTOP;
+		}
+		if (ShortcutOptions.audioActive){
+			keyCombos[globalModifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.share.microphone') as String)] = ShortcutEvent.SHARE_MICROPHONE;
+		}
 	}
 	
     public function hotkeyCapture():void{
@@ -140,7 +166,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	// Handle general-access hotkeys, regardless of what window the user is focused in
 	private function handleKeyDown(e:KeyboardEvent) :void {
-  		if (keyCombos == null) loadKeyCombos(modifier);
+  		if (keyCombos == null) loadKeyCombos(globalModifier);
   
   		var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;
 		
@@ -149,6 +175,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
 		
 		if (keyCombos[keyPress]) {
+			//LogUtil.debug("Caught shortcut: " + keyCombos[keyPress]);
 			globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
 		}
     }

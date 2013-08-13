@@ -18,9 +18,15 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;	
-	import flash.net.NetConnection;	
-	import mx.collections.ArrayCollection;	
+	import com.asfusion.mate.events.Dispatcher;
+	
+	import flash.events.TimerEvent;
+	import flash.external.ExternalInterface;
+	import flash.net.NetConnection;
+	import flash.utils.Timer;
+	
+	import mx.collections.ArrayCollection;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.UserConfigManager;
@@ -70,7 +76,7 @@ package org.bigbluebutton.main.model.users
         UserManager.getInstance().getConference().setDefaultLayout(result.defaultLayout);
         
         UserManager.getInstance().getConference().externalMeetingID = result.externMeetingID;
-        UserManager.getInstance().getConference().meetingName = result.confereceName;
+        UserManager.getInstance().getConference().meetingName = result.conferenceName;
         UserManager.getInstance().getConference().internalMeetingID = result.room;
         UserManager.getInstance().getConference().externalUserID = result.externUserID;
         UserManager.getInstance().getConference().avatarURL = result.avatarURL;
@@ -79,7 +85,7 @@ package org.bigbluebutton.main.model.users
 		
         
 				_conferenceParameters = new ConferenceParameters();
-        _conferenceParameters.meetingName = result.confereceName;
+        _conferenceParameters.meetingName = result.conferenceName;
         _conferenceParameters.externMeetingID = result.externMeetingID;
 				_conferenceParameters.conference = result.conference;
 				_conferenceParameters.username = result.username;
@@ -98,6 +104,9 @@ package org.bigbluebutton.main.model.users
 					_conferenceParameters.record = false;
 				}
 				
+                // assign the meeting name to the document title
+                ExternalInterface.call("setTitle", "BigBlueButton - " + _conferenceParameters.meetingName);
+                
 				/**
 				 * Temporarily store the parameters in global BBB so we get easy access to it.
 				 */

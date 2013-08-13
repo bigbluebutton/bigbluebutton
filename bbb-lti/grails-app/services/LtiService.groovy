@@ -26,10 +26,19 @@ class LtiService {
 
     boolean transactional = false
     
-    def endPoint = "http://localhost/lti/tool.xml"
+    def endPoint = "http://localhost/lti/tool"
+    
     def consumers = "demo:welcome"
     def mode = "simple"
     Map<String, String> consumerMap
+    
+    def retrieveIconEndpoint() {
+        return endPoint.replaceFirst("tool", "images/icon.ico")
+    }
+
+    def retrieveBasicLtiEndpoint() {
+        return endPoint
+    }
     
     private Map<String, String> getConsumer(consumerId) {
         Map<String, String> consumer = null

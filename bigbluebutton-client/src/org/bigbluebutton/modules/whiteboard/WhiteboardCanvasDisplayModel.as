@@ -108,8 +108,9 @@ package org.bigbluebutton.modules.whiteboard
             if (gobj.id == o.id) {
 //              LogUtil.debug("Removing shape [" + gobj.id + "]");
               wbCanvas.removeGraphic(gobj as DisplayObject);
-            } else {
+            } else { // no DRAW_START event was thrown for o so place gobj back on the top
               LogUtil.debug("Not removing shape [" + gobj.id + "] new [" + o.id + "]");
+              _annotationsList.push(gobj);
             }
                   
             dobj = shapeFactory.makeDrawObject(o, whiteboardModel);  

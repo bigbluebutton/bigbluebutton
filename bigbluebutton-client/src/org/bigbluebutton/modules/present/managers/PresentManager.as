@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.present.managers
 	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
+	import org.bigbluebutton.modules.present.events.QueryListOfPresentationsReplyEvent;
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.ui.views.FileUploadWindow;
@@ -102,5 +103,14 @@ package org.bigbluebutton.modules.present.managers
         }
       }
 		}
+    
+    public function queryPresentations():void {
+      var pArray:Array = new Array();
+      pArray = presentationNames.toArray();
+      
+      var qEvent:QueryListOfPresentationsReplyEvent = new QueryListOfPresentationsReplyEvent();
+      qEvent.presentations = pArray;
+      globalDispatcher.dispatchEvent(qEvent);
+    }
 	}
 }

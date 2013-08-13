@@ -1,30 +1,5 @@
-var blinkTimer = false;
-var blinking = false;
-
-var startblink = function(message1, message2)
-{
-        if(!blinking)
-        {
-                document.title = (document.title == message2)?message1:message2;
-                blinkTimer = window.setTimeout("blinktitle('" + message1 + "', '" + message2 + "', 1)", 500);
-                blinking = true;
-        }
-}
-
-var blinktitle = function(message1, message2)
-{
-        document.title = (document.title == message2)?message1:message2;
-        blinkTimer = window.setTimeout("blinktitle('" + message1 + "', '" + message2 + "', 1)", 500);
-}
-
-var clearblink = function()
-{
-        blinking = false;
-        if(blinkTimer)
-        {
-                window.clearTimeout(blinkTimer);
-        }
-        document.title = 'BigBlueButton';
+function setTitle(title){
+    document.title=title;
 }
 
 var i = 1;
@@ -56,13 +31,35 @@ function determineModifier()
 		modifier = "control+";
 	}
 	else if (browser == "Microsoft Internet Explorer"){
-		modifier = "shift+alt+";
+		modifier = "control+shift+";
 	}
-	/*else if (browser == "Safari"){
-		modifier = "control+";
-	}*/
+	//else if (browser == "Safari"){
+	//	modifier = "control+shift+";
+	//}
 	else{
-		modifier = "shift+alt+";
+		modifier = "control+shift+";
+	}
+	return modifier;
+}
+
+function determineGlobalModifier()
+{
+	var browser = determineBrowser();
+	var modifier;
+	if (browser == "Firefox"){
+		modifier = "control+shift+";
+	}
+	else if (browser == "Chrome"){
+		modifier = "control+shift+";
+	}
+	else if (browser == "Microsoft Internet Explorer"){
+		modifier = "control+alt+";
+	}
+	//else if (browser == "Safari"){
+	//	modifier = "control+alt";
+	//}
+	else{
+		modifier = "control+alt+";
 	}
 	return modifier;
 }

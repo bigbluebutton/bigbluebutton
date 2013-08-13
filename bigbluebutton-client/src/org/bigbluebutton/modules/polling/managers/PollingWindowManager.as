@@ -89,7 +89,7 @@ package org.bigbluebutton.modules.polling.managers
 		}
 		
 		private function moveInstructionsFocus(event:TimerEvent):void{
-			appFM.setFocus(instructionsWindow.pollTitle);
+			appFM.setFocus(instructionsWindow.titleBarOverlay);
 			instructionsFocusTimer.stop();
 		}
 		
@@ -188,20 +188,12 @@ package org.bigbluebutton.modules.polling.managers
 			openWindow(statsWindow);
 			service.setPolling(true);
 			
-			if (statsWindow.webPollText.visible)
-				statsFocusTimer.addEventListener(TimerEvent.TIMER, focusStatsWebPoll);
-			else
-				statsFocusTimer.addEventListener(TimerEvent.TIMER, focusStatsRefresh);
+			statsFocusTimer.addEventListener(TimerEvent.TIMER, focusStatsWindow);
 			statsFocusTimer.start();
 		}
 		
-		private function focusStatsWebPoll(event:TimerEvent):void{
-			statsWindow.focusManager.setFocus(statsWindow.webPollURLBox);
-			statsFocusTimer.stop();
-		}
-		
-		private function focusStatsRefresh(event:TimerEvent):void{
-			statsWindow.focusManager.setFocus(statsWindow.btnRefreshResults);
+		private function focusStatsWindow(event:TimerEvent):void{
+			statsWindow.focusManager.setFocus(statsWindow.titleBarOverlay);
 			statsFocusTimer.stop();
 		}
 		

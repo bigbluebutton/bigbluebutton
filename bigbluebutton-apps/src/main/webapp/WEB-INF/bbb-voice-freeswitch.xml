@@ -24,21 +24,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     xsi:schemaLocation="http://www.springframework.org/schema/beans
             http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 	
-
-	<beans:bean id="conferenceServiceProvider" class="org.bigbluebutton.webconference.voice.freeswitch.FreeswitchServiceProvider">
+	<beans:bean id="connectionManager" class="org.bigbluebutton.webconference.voice.freeswitch.ConnectionManager" init-method="start" destroy-method="stop">
 		<beans:property name="managerConnection" ref="eslConnection"/>
+  		<beans:property name="conferenceEventListener" ref="conferenceService"/>
+  		<beans:property name="eSLEventListener" ref="eslEventListener"/>
+	</beans:bean>
+
+	<beans:bean id="eslEventListener" class="org.bigbluebutton.webconference.voice.freeswitch.ESLEventListener">
+  		<beans:property name="conferenceEventListener" ref="conferenceService"/>
+	</beans:bean>
+		
+	<beans:bean id="conferenceServiceProvider" class="org.bigbluebutton.webconference.voice.freeswitch.FreeswitchServiceProvider">
   		<beans:property name="freeswitchApplication" ref="freeswitchApplication"/>
 	</beans:bean>
 	
 	<beans:bean id="freeswitchApplication" class="org.bigbluebutton.webconference.voice.freeswitch.FreeswitchApplication">
-		<beans:property name="managerConnection" ref="eslConnection"/>
-    <beans:property name="DebugNullConferenceAction" value="true"/>
-    <beans:property name="icecastProtocol" value="${icecast.protocol}"/>
-    <beans:property name="icecastHost" value="${icecast.host}"/>
-    <beans:property name="icecastPort" value="${icecast.port}"/>
-    <beans:property name="icecastUsername" value="${icecast.username}"/>
-    <beans:property name="icecastPassword" value="${icecast.password}"/>
-    <beans:property name="icecastBroadcast" value="${icecast.broadcast}"/>
+		<beans:property name="connectionManager" ref="connectionManager"/>
+    	<beans:property name="icecastProtocol" value="${icecast.protocol}"/>
+    	<beans:property name="icecastHost" value="${icecast.host}"/>
+    	<beans:property name="icecastPort" value="${icecast.port}"/>
+    	<beans:property name="icecastUsername" value="${icecast.username}"/>
+    	<beans:property name="icecastPassword" value="${icecast.password}"/>
+    	<beans:property name="icecastBroadcast" value="${icecast.broadcast}"/>
 	</beans:bean>
 
 	<beans:bean id="eslConnection" class="org.freeswitch.esl.client.manager.DefaultManagerConnection">

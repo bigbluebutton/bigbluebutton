@@ -26,6 +26,7 @@
 			import mx.events.FlexEvent;		
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			
 			import org.bigbluebutton.modules.polling.managers.PollingManager;
 			
@@ -129,11 +130,16 @@
 	 <EventHandlers type="{PollGetTitlesEvent.UPDATE}">
 		<MethodInvoker generator="{PollingManager}"  method="handleUpdateTitlesEvent" arguments="{event}"/>
 	 </EventHandlers>
+	<EventHandlers type="{PollGetTitlesEvent.REMOTE_CHECK}">
+		<MethodInvoker generator="{PollingManager}" method="handleRemoteInitializePollMenuEvent" arguments="{event}"/>
+	</EventHandlers>
 
 	 <EventHandlers type="{PollReturnTitlesEvent.UPDATE}">
 		<MethodInvoker generator="{PollingManager}"  method="handleReturnTitlesEvent" arguments="{event}"/>
 	 </EventHandlers>
-
+	<EventHandlers type="{PollReturnTitlesEvent.REMOTE_RETURN}">
+		<MethodInvoker generator="{PollingManager}" method="handleRemoteReturnTitlesEvent" arguments="{event}"/>
+	</EventHandlers>
 	 
 	 <EventHandlers type="{PollGetPollEvent.INIT}">
 		<MethodInvoker generator="{PollingManager}"  method="handlePopulateMenuEvent" arguments="{event}"/>
@@ -164,4 +170,8 @@
 	 <EventHandlers type="{GenerateWebKeyEvent.RETURN}">
 		<MethodInvoker generator="{PollingManager}"  method="handleReturnWebKeyEvent" arguments="{event}"/>
 	 </EventHandlers>
+	
+	<EventHandlers type="{ShortcutEvent.POLL_BUTTON_CLICK}">
+		<MethodInvoker generator="{PollingManager}" method="handleGlobalPollHotkey" arguments="{event}"/>
+	</EventHandlers>
 </EventMap>

@@ -49,18 +49,22 @@ def processPanAndZooms
 			timestamp_prev = nil
 			last_time = nil
 			if $panzoom_events.empty?
-				BigBlueButton.logger.info("No panzoom events; synthesizing one")
-				timestamp_orig = $slides_events.first[:timestamp].to_f + 1000
-				timestamp = ((timestamp_orig - $join_time) / 1000).round(1)
-				$xml.event(:timestamp => timestamp, :orig => timestamp_orig) do
-					$xml.viewBox "0 0 #{$vbox_width} #{$vbox_height}"
+				if !$slides_events.empty?
+					BigBlueButton.logger.info("Slides found, but no panzoom events; synthesizing one")
+					timestamp_orig = $slides_events.first[:timestamp].to_f + 1000
+					timestamp = ((timestamp_orig - $join_time) / 1000).round(1)
+					$xml.event(:timestamp => timestamp, :orig => timestamp_orig) do
+						$xml.viewBox "0 0 #{$vbox_width} #{$vbox_height}"
+					end
+					timestamp_orig_prev = timestamp_orig
+					timestamp_prev = timestamp
+					h_ratio_prev = 100
+					w_ratio_prev = 100
+					x_prev = 0
+					y_prev = 0
+				else
+					BigBlueButton.logger.info("Couldn't find any slides! panzooms will be empty.")
 				end
-				timestamp_orig_prev = timestamp_orig
-				timestamp_prev = timestamp
-				h_ratio_prev = 100
-				w_ratio_prev = 100
-				x_prev = 0
-				y_prev = 0
 			else
 				last_time = $panzoom_events.last[:timestamp].to_f
 			end
@@ -520,7 +524,7 @@ def processShapesAndClears
 						
 						if(in_this_image)
                                                         # Get variables
-                                                        BigBlueButton.logger.info shape
+                                                        BigBlueButton.logger.info shape.to_xml(:indent => 2)
                                                         $shapeType = shape.xpath(".//type")[0].text()
                                                         $pageNumber = shape.xpath(".//pageNumber")[0].text()
                                                         $shapeDataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
@@ -594,7 +598,12 @@ def processShapesAndClears
 
 							# Process the rectangle shapes
 							elsif $shapeType.eql? "rectangle"
-                                                                $is_square = shape.xpath(".//square")[0].text()
+								square = shape.xpath(".//square")
+								if square.length > 0
+									$is_square = square[0].text()
+								else
+									$is_square = 'false'
+								end
 								storeRectShape()
 
 							# Process the triangle shapes
@@ -603,7 +612,12 @@ def processShapesAndClears
 
 							# Process the ellipse shapes
 							elsif $shapeType.eql? "ellipse"
-                                                                $is_circle = shape.xpath(".//circle")[0].text()
+								circle = shape.xpath(".//circle")
+								if circle.length > 0
+									$is_circle = circle[0].text()
+								else
+									$is_circle = 'false'
+								end
 								storeEllipseShape()
 							
 							elsif $shapeType.eql? "text"
@@ -707,17 +721,7 @@ if ($playback == "presentation")
 		BigBlueButton.logger.info("Making dir package_dir")
 		FileUtils.mkdir_p package_dir
 
-		begin
-		audio_dir = "#{package_dir}/audio"
-		BigBlueButton.logger.info("Making audio dir")
-		FileUtils.mkdir_p audio_dir
-		BigBlueButton.logger.info("Made audio dir - copying: #{$process_dir}/audio.ogg to -> #{audio_dir}")
-		FileUtils.cp("#{$process_dir}/audio.ogg", audio_dir)
-		BigBlueButton.logger.info("Copied .ogg file - copying: #{$process_dir}/temp/#{$meeting_id}/audio/recording.wav to -> #{audio_dir}")
-		FileUtils.cp("#{$process_dir}/temp/#{$meeting_id}/audio/recording.wav", audio_dir)
-		BigBlueButton.logger.info("Copied .wav file - copying #{$process_dir}/events.xml to -> #{package_dir}")
-		FileUtils.cp("#{$process_dir}/events.xml", package_dir)
-		BigBlueButton.logger.info("Copied events.xml file")
+		begin	
 		
 		if File.exist?("#{$process_dir}/webcams.webm")
   		  BigBlueButton.logger.info("Making video dir")
@@ -726,11 +730,23 @@ if ($playback == "presentation")
 		  BigBlueButton.logger.info("Made video dir - copying: #{$process_dir}/webcams.webm to -> #{video_dir}")
 		  FileUtils.cp("#{$process_dir}/webcams.webm", video_dir)
 		  BigBlueButton.logger.info("Copied .webm file")
+		else
+		  audio_dir = "#{package_dir}/audio"
+   		  BigBlueButton.logger.info("Making audio dir")
+		  FileUtils.mkdir_p audio_dir
+		  BigBlueButton.logger.info("Made audio dir - copying: #{$process_dir}/audio.ogg to -> #{audio_dir}")
+		  FileUtils.cp("#{$process_dir}/audio.ogg", audio_dir)
+		  BigBlueButton.logger.info("Copied .ogg file - copying: #{$process_dir}/audio.webm to -> #{audio_dir}")
+		  FileUtils.cp("#{$process_dir}/audio.webm", audio_dir)
+		  BigBlueButton.logger.info("Copied audio.webm file")	
 		end
 
 		BigBlueButton.logger.info("Copying files to package dir")
 		FileUtils.cp_r("#{$process_dir}/presentation", package_dir)
 		BigBlueButton.logger.info("Copied files to package dir")
+
+		processing_time = File.read("#{$process_dir}/processing_time")
+
 		BigBlueButton.logger.info("Creating metadata.xml")
 		# Create metadata.xml
 		b = Builder::XmlMarkup.new(:indent => 2)
@@ -745,9 +761,11 @@ if ($playback == "presentation")
 			b.playback {
 				b.format("presentation")
 				b.link("http://#{playback_host}/playback/presentation/playback.html?meetingId=#{$meeting_id}")
+				b.processing_time("#{processing_time}")
 			}
 			b.meta {
 				BigBlueButton::Events.get_meeting_metadata("#{$process_dir}/events.xml").each { |k,v| b.method_missing(k,v) }
+
 			}
 		}
 		metadata_xml = File.new("#{package_dir}/metadata.xml","w")
