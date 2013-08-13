@@ -82,17 +82,19 @@ public class WhiteboardService {
 	public void requestAnnotationHistory(Map<String, Object> message) {
 		log.info("WhiteboardApplication - requestAnnotationHistory");
 		application.sendAnnotationHistory(getBbbSession().getInternalUserID(), 
-				(String) message.get("presentationID"), (Integer) message.get("pageNumber"));
+		(String) message.get("presentationID"), (Integer) message.get("pageNumber"));
 	}
 		
 	public void clear() {
 		log.info("WhiteboardApplication - Clearing board");
 		application.clear();
+		whiteboardBridge.clear(application.getMeetingId()); // send "clrPaper" event to html5-client
 	}
 	
 	public void undo() {
 		log.info("WhiteboardApplication - Deleting last graphic");
 		application.undo();
+		whiteboardBridge.undo(application.getMeetingId()); // send "undo" event to html5-client
 	}
 	
 	public void toggleGrid() {
