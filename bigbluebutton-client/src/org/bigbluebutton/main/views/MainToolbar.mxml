@@ -398,9 +398,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <mx:Label text="0:00" id="logOutTimeLeft"/>
     <mx:Button label="Reset Logout Timer"  click='resetLogOutTimer()' height="22"/>
-   
-    <mx:Button click="parentDocument.getWhiteBoard()" label="Take Snapshot" height="22" />
-
     <mx:Button click="parentDocument.getWhiteBoard()" label="Take Snapshot" />
 
 	<views:LanguageSelector id="langSelector" 
