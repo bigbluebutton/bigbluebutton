@@ -694,7 +694,7 @@
 						"at": "right top",
 						"of": '#thumbnails',
 						"collision": "none none",
-						"offset": "0 0"
+						"offset": "10 0"
 					});
 					$('#videoRecordingWrapper').width("800px");
 					$('#videoRecordingWrapper').height("600px");
@@ -713,7 +713,7 @@
 						"at": "left bottom",
 						"of": '#videoRecordingWrapper',
 						"collision": "none none",
-						"offset": "0 0"
+						"offset": "10 7"
 					});
 	  
 					draw(0,0);
