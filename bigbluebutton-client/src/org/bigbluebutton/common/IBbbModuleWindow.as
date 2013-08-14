@@ -37,5 +37,6 @@ package org.bigbluebutton.common
 		 * 
 		 */		
 		function getPrefferedPosition():String;
+		function getTitle():String;
 	}
 }

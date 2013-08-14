@@ -147,6 +147,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function getPrefferedPosition():String{
 				return MainCanvas.DESKTOP_SHARING_PUBLISH;
 			}
+			public function getTitle():String{
+				return "DesktopPublishWindow";
+			}
 
 			/*
 			 * Implement resizeable interface.

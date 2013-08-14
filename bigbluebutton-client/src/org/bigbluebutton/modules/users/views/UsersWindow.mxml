@@ -126,7 +126,9 @@
 			public function getPrefferedPosition():String{
 				return MainCanvas.TOP_LEFT;
 			}
-			
+			public function getTitle():String{
+				return "UsersWindos";
+			}
 			
 			private function updateNumberofUsers(numUsers:int):void {
 				if (numUsers > 8)

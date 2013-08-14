@@ -80,7 +80,9 @@
 			public function getPrefferedPosition():String{
 				return MainCanvas.POPUP;
 			}	
-									
+			public function getTitle():String{
+				return "PollingViewWindow";
+			}						
 			private function closeWindow():void{
 				dispatchEvent(new PollingViewWindowEvent(PollingViewWindowEvent.CLOSE));
 			}

@@ -218,7 +218,9 @@
 		public function getPrefferedPosition():String{
 			return MainCanvas.POPUP;
 		}
-				
+		public function getTitle():String{
+			return "PollingStatsWindow";
+		}				
 		private function refreshPoll():void{
 			var e:PollRefreshEvent = new PollRefreshEvent(PollRefreshEvent.GET);
 			e.poll.title = trackingPoll.title;
