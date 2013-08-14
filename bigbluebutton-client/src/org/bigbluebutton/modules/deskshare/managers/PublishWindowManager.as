@@ -53,19 +53,19 @@ package org.bigbluebutton.modules.deskshare.managers
 			if (shareWindow != null) shareWindow.stopSharing();
 		}
 																			
-		public function startSharing(uri:String, room:String, autoStart:Boolean):void {
-			LogUtil.debug("DS:PublishWindowManager::opening desk share window, autostart=" + autoStart );
+		public function startSharing(uri:String, room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
+			LogUtil.debug("DS:PublishWindowManager::opening desk share window, autostart=" + autoStart + " autoFullScreen=" + autoFullScreen);
 			shareWindow = new DesktopPublishWindow();
-			shareWindow.initWindow(service.getConnection(), uri, room, autoStart);
+			shareWindow.initWindow(service.getConnection(), uri, room, autoStart, autoFullScreen);
 			shareWindow.visible = true;
 			openWindow(shareWindow);
-			if (autoStart) {
+			if (autoStart || autoFullScreen) {
 				/*
 				* Need to have a timer to trigger auto-publishing of deskshare.
 				*/
 				shareWindow.btnFSPublish.enabled = false;
 				shareWindow.btnRegionPublish.enabled = false;
-				autoPublishTimer = new Timer(3000, 1);
+				autoPublishTimer = new Timer(2000, 1);
 				autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
 				autoPublishTimer.start();
 			}			

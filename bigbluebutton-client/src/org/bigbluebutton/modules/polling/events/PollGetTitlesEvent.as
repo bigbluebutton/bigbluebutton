@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.polling.events
 		public static const UPDATE:String = "UPDATE_GET_TITLES";
 		public static const CHECK:String = "GET_TITLES_CHECK";
 		public static const RETURN:String = "GET_TITLES_RETURN";
+		public static const REMOTE_CHECK:String = "REMOTE_CHECK"
 		public var titleList:Array;
 		
 		public function PollGetTitlesEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)

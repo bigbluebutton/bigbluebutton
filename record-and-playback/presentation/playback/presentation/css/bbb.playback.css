@@ -49,7 +49,14 @@ br{
 
 #playbackArea {
 	width: 1360px; /* #slide.width + #chat.width + #audioRecording.width */
+	height: 650px;
 	margin: 0 auto;
+	overflow: hidden;
+}
+
+#audioRecordingWrapper{
+	float: left;
+	width: 800px;
 }
 
 #audioRecording{
@@ -57,6 +64,26 @@ br{
 	margin-left: auto;
 	margin-right: auto;
 	width: 100%;
+}
+
+#audioRecordingWrapper .acorn-controls, #videoRecordingWrapper .acorn-controls{
+	position: relative;
+	top: 0;
+	left: -810px;
+	width: 730px;
+}
+
+#playbackControls{
+	width: 1360px;
+	margin: 0 auto;
+	margin-top: -50px;
+}
+
+#autoscrollWrapper{
+	float: left;
+	margin-left: 10px;
+	margin-top: 8px;
+	font-size: 14px;
 }
 
 .webcam{
@@ -85,6 +112,7 @@ br{
 #presentation {
 	float: left;
 	position: relative;
+	height: 600px;
 }
 
 #slide {
@@ -111,10 +139,16 @@ br{
 	overflow: hidden;
 }
 
-.chatcontainer{
+#mediaArea {
 	float: right;
 	background: white;
-	height: 300px; 
+	width: 402px;
+}
+
+#chatAndMediaArea{
+	float: right;
+	background: white;
+	height: 600px;
 	width: 402px;
 }
 #chat{
