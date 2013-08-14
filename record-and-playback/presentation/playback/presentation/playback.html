@@ -53,12 +53,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<h2 class="visually-hidden">Presentation Slides</h2>
 		<div id="presentation">
 			<div class="circle" id="cursor" style="visibility:hidden;"></div>
-			<div id="slide" role="region" aria-label="Slide"></div>
-			<div id="slideText" class="visually-hidden" role="region" aria-live="polite" aria-label="Slide Text"></div>
+			<div id="slide" role="img" aria-labelledby="slideText"></div>
+			<div id="slideText" class="visually-hidden" aria-live="polite"></div>
 		</div>
 		<div id="chatAndMediaArea">
 			<h2 class="visually-hidden">Chat Messages</h2>
-			<input type="checkbox" name="exposechat" id="exposechat" value="exposechat" class="visually-hidden" checked="checked"/>
+			<input type="checkbox" name="exposechat" id="exposechat" value="exposechat" class="visually-hidden" checked="checked" />
 			<label for="exposechat" class="visually-hidden">Read chat messages</label>
 			<div id="chat" aria-live="polite" role="region" aria-label="Chat messages"></div>
 			<div id="videoRecordingWrapper" role="region" aria-label="Video">
