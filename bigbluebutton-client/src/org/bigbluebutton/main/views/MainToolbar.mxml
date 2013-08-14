@@ -64,6 +64,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.accessibility.AlertAccImpl;
 			import mx.events.CloseEvent;
 
+
+			private var logOutTimer:Timer = new Timer(1000 , 725 );
 			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
 			
 			public static const ALIGN_RIGHT:String ="ALIGN_RIGHT";
@@ -91,6 +93,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var xml:XML;
 			
 			private function init():void{
+				
+				logOutTimeLeft.setStyle("color" , "white");	
 				AlertAccImpl.enableAccessibility();
 				
 				baseIndex = 101;
@@ -127,6 +131,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 								
 			public function displayToolbar():void{
+				
+				logOutTimer.start();
+				logOutTimer.addEventListener(TimerEvent.TIMER, tickLogOut);
+				
+				
 				toolbarOptions = new LayoutOptions();
 				toolbarOptions.parseOptions();	
 				if (toolbarOptions.showToolbar) {
@@ -310,6 +319,56 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				btnLogout.setFocus();
 			}
 
+			public function tickLogOut(e:TimerEvent):void{
+			var timeLeft:int = 720 - logOutTimer.currentCount ;
+			//Create the minutes remaing String;
+			var minutesLeftString:String = String(int(timeLeft / 60)) ;
+			//Create the seconds String, and set leading zero for the seconds
+			var secondsLeft:int = timeLeft % 60 ;
+			var secondsLeftString:String = "";
+			if (secondsLeft < 10 ){
+				secondsLeftString = "0" + String(secondsLeft);
+			}
+			else{
+				secondsLeftString = String(secondsLeft);
+			}
+			//Update The time label for graphical reference.
+			editTimeLeftLable( minutesLeftString , secondsLeftString );
+			//Counter to send the alert , each unit is one second
+			if(logOutTimer.currentCount == 600){
+				logOutTimeLeft.setStyle("color" , "red");
+				/*This will issue the alert after 10 minutes that users need to press ok. We also added an event listener to the alert so we would know when it is pressed to we would be able to reset the timer*/
+				Alert.show("This is an incativity check, press OK to avoid being disconnected", "Incativity Check",Alert.OK, this,alertListener, null, Alert.OK);
+				}//Counter to lof of the user
+				//After 2 minutes of the alert being issued. The user will be logged out.
+				if(logOutTimer.currentCount == 720){
+					doLogout();	
+				}
+			}
+		
+			//Alert Event Listener.
+			private function alertListener(eventObj:CloseEvent):void {
+            // Check to see if the OK button was pressed.
+                if (eventObj.detail==Alert.OK) {
+					//This will call the reset timer.
+					resetLogOutTimer();
+				}
+			}
+		
+			//Function that resets the timer.
+			private function resetLogOutTimer():void{
+				//Reset The Timer
+			 	logOutTimer.reset();
+				logOutTimer.start();
+				//Reset The Display
+				logOutTimeLeft.setStyle("color" , "white");
+				editTimeLeftLable("12", "00");
+			}
+			private function editTimeLeftLable( minutes:String , seconds:String ):void{
+				logOutTimeLeft.text = minutes + ":" + seconds ;
+			}
+			
+
 		]]>
 	</mx:Script>
     <mx:HBox id="quickLinks" width="1" includeInLayout="false">
@@ -334,7 +393,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:Spacer width="50%"/>
     
     
-    <mx:Button click="parentDocument.getWhiteBoard()" label="Take Snapshot" />
+    <mx:Label text="0:00" id="logOutTimeLeft" height="22" />
+    <mx:Button label="Reset Logout Timer"  click='resetLogOutTimer()' height="22"/>
+   
+    <mx:Button click="parentDocument.getWhiteBoard()" label="Take Snapshot" height="22" />
 	<views:LanguageSelector id="langSelector" 
 							visible="false" 
 							tabIndex="{baseIndex+numButtons+11}"
