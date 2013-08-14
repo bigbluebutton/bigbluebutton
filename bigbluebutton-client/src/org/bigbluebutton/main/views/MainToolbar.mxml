@@ -335,8 +335,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			//Update The time label for graphical reference.
 			editTimeLeftLable( minutesLeftString , secondsLeftString );
 			//Counter to send the alert , each unit is one second
-			if(logOutTimer.currentCount == 600){
+			if(logOutTimer.currentCount == 480){
 				logOutTimeLeft.setStyle("color" , "red");
+			}
+			if(logOutTimer.currentCount == 600){
 				/*This will issue the alert after 10 minutes that users need to press ok. We also added an event listener to the alert so we would know when it is pressed to we would be able to reset the timer*/
 				Alert.show("This is an incativity check, press OK to avoid being disconnected", "Incativity Check",Alert.OK, this,alertListener, null, Alert.OK);
 				}//Counter to lof of the user
@@ -393,14 +395,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:Spacer width="50%"/>
     
     
-<<<<<<< HEAD
-    <mx:Label text="0:00" id="logOutTimeLeft" height="22" />
+
+    <mx:Label text="0:00" id="logOutTimeLeft"/>
     <mx:Button label="Reset Logout Timer"  click='resetLogOutTimer()' height="22"/>
    
     <mx:Button click="parentDocument.getWhiteBoard()" label="Take Snapshot" height="22" />
-=======
+
     <mx:Button click="parentDocument.getWhiteBoard()" label="Take Snapshot" />
->>>>>>> ca3952e34958d2c7e09a1f4d406cdf086d6181f9
+
 	<views:LanguageSelector id="langSelector" 
 							visible="false" 
 							tabIndex="{baseIndex+numButtons+11}"
