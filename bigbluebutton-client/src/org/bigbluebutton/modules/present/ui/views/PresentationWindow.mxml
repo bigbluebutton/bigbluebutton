@@ -322,7 +322,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function getPrefferedPosition():String{
 				return MainCanvas.MIDDLE;
 			}
-						
+			public function getTitle():String{
+				return "PresentationWindow";
+			}			
 			private function onSliderZoom():void {
 				slideView.onZoomSlide(zoomSlider.value);
 			}

@@ -103,7 +103,9 @@ Notes.mxml is the main view of the SharedNotes application
 		public function getPrefferedPosition():String{
 			return MainCanvas.POPUP;
 		}
-			
+		public function getTitle():String{
+			return "PollingsInstructionWindow";
+		}	
 		private function init():void{
 			pollOptions = new PollOptions();
 			baseIndex = pollOptions.baseTabIndex;

@@ -80,6 +80,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function getPrefferedPosition():String {
 				return MainCanvas.ABSOLUTE;
 			}
+			public function getTitle():String{
+				return "*NetworkStatWindow*";
+			}
 			
 			private function onResize():void {
 				LogUtil.debug("width=" + width + " height=" + height);

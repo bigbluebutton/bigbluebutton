@@ -68,7 +68,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function getPrefferedPosition():String{
 				return chatOptions.position;
 			} 
-			
+            public function getTitle():String{
+				return "ChatWindow";
+			}
 			private function onCreationComplete():void {
 				/* Set up full screen handler. */
 				FlexGlobals.topLevelApplication.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);

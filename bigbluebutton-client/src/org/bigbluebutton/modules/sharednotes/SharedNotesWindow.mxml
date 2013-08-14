@@ -188,7 +188,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function getPrefferedPosition():String{
 				return MainCanvas.MIDDLE;
 			}
-			
+			public function getTitle():String{
+				return "SharedNotesWindow";
+			}
 			public static function set document(document:String):void {
 				Client.documentName = document;
 			}
