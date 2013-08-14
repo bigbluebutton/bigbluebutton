@@ -14,13 +14,13 @@
           </libraryPathEntry>
           <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation.swc" useDefaultLinkType="false"/>
           <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation_dmv.swc" useDefaultLinkType="false"/>
-          <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation_agent.swc" useDefaultLinkType="false"/>
           <libraryPathEntry applicationDomain="default" forceLoad="false" index="3" kind="3" linkType="4" path="${PROJECT_FRAMEWORKS}/libs/spark.swc" useDefaultLinkType="true">
             <crossDomainRsls>
               <crossDomainRslEntry autoExtract="true" policyFileUrl="http://fpdownload.adobe.com/pub/swz/crossdomain.xml" rslUrl="http://fpdownload.adobe.com/pub/swz/flex/4.5.0.20967/spark_4.5.0.20967.swz"/>
               <crossDomainRslEntry autoExtract="true" policyFileUrl="" rslUrl="spark_4.5.0.20967.swz"/>
             </crossDomainRsls>
           </libraryPathEntry>
+          <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation_agent.swc" useDefaultLinkType="false"/>
         </excludedEntries>
       </libraryPathEntry>
       <libraryPathEntry kind="1" linkType="1" path="libs"/>
@@ -40,20 +40,18 @@
     <application path="org/red5/flash/bwcheck/app/BandwidthDetectionApp.as"/>
   </applications>
   <modules>
-    <module application="src/BigBlueButton.mxml" destPath="DynamicInfoModule.swf" optimize="true" sourcePath="src/DynamicInfoModule.mxml"/>
     <module application="src/BigBlueButton.mxml" destPath="PhoneModule.swf" optimize="true" sourcePath="src/PhoneModule.mxml"/>
-    <module application="src/BigBlueButton.mxml" destPath="PresentModule.swf" optimize="true" sourcePath="src/PresentModule.mxml"/>
-    <module application="src/BigBlueButton.mxml" destPath="ExampleChatModule.swf" optimize="true" sourcePath="src/ExampleChatModule.mxml"/>
-    <module application="src/BigBlueButton.mxml" destPath="DeskShareModule.swf" optimize="true" sourcePath="src/DeskShareModule.mxml"/>
     <module application="src/BigBlueButton.mxml" destPath="VideoconfModule.swf" optimize="true" sourcePath="src/VideoconfModule.mxml"/>
-    <module application="src/BigBlueButton.mxml" destPath="ViewersModule.swf" optimize="true" sourcePath="src/ViewersModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="DynamicInfoModule.swf" optimize="true" sourcePath="src/DynamicInfoModule.mxml"/>
     <module application="src/BigBlueButton.mxml" destPath="ChatModule.swf" optimize="true" sourcePath="src/ChatModule.mxml"/>
-    <module application="src/BigBlueButton.mxml" destPath="ListenersModule.swf" optimize="true" sourcePath="src/ListenersModule.mxml"/>
-    <module application="src/BigBlueButton.mxml" destPath="WhiteboardModule.swf" optimize="true" sourcePath="src/WhiteboardModule.mxml"/>
-    <module application="src/BigBlueButton.mxml" destPath="BreakoutModule.swf" optimize="true" sourcePath="src/BreakoutModule.mxml"/>
-    <module application="src/BigBlueButton.mxml" destPath="SharedNotesModule.swf" optimize="true" sourcePath="src/SharedNotesModule.mxml"/>
-    <module application="src/BigBlueButton.mxml" destPath="ClassroomAudioModule.swf" optimize="true" sourcePath="src/ClassroomAudioModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="PresentModule.swf" optimize="true" sourcePath="src/PresentModule.mxml"/>
     <module application="src/BigBlueButton.mxml" destPath="SettingsModule.swf" optimize="true" sourcePath="src/SettingsModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="ExampleChatModule.swf" optimize="true" sourcePath="src/ExampleChatModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="SharedNotesModule.swf" optimize="true" sourcePath="src/SharedNotesModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="DeskShareModule.swf" optimize="true" sourcePath="src/DeskShareModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="WhiteboardModule.swf" optimize="true" sourcePath="src/WhiteboardModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="ClassroomAudioModule.swf" optimize="true" sourcePath="src/ClassroomAudioModule.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="BreakoutModule.swf" optimize="true" sourcePath="src/BreakoutModule.mxml"/>
   </modules>
   <buildCSSFiles>
     <buildCSSFileEntry destPath="bin" sourcePath="src/branding/css/logo_basic.css"/>
@@ -61,4 +59,3 @@
   </buildCSSFiles>
   <flashCatalyst validateFlashCatalystCompatibility="false"/>
 </actionScriptProperties>
-

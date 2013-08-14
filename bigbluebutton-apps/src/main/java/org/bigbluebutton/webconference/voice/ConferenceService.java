@@ -19,14 +19,17 @@
 package org.bigbluebutton.webconference.voice;
 
 import java.util.ArrayList;
-
 import org.bigbluebutton.webconference.red5.voice.ClientManager;
 import org.bigbluebutton.webconference.voice.events.ConferenceEvent;
 import org.bigbluebutton.webconference.voice.events.ConferenceEventListener;
 import org.bigbluebutton.webconference.voice.events.ParticipantLockedEvent;
 import org.bigbluebutton.webconference.voice.internal.RoomManager;
+import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.Logger;
 
 public class ConferenceService implements ConferenceEventListener {
+	private static Logger log = Red5LoggerFactory.getLogger(ConferenceService.class, "bigbluebutton");
+	
 	private RoomManager roomMgr;
 	private ConferenceServiceProvider confProvider;
 	private ClientManager clientManager;
@@ -38,6 +41,16 @@ public class ConferenceService implements ConferenceEventListener {
 	public void shutdown() {
 		confProvider.shutdown();
 		roomMgr = null;
+	}
+	
+	public void hangupUser(String userID, String voiceBridge) {
+		int voiceUserID = roomMgr.getVoiceUserIDFromRoom(voiceBridge, userID);
+		if (voiceUserID > -1) {
+			log.info("Hanging up user [" + voiceUserID + "] from [" + voiceBridge + "]");
+			confProvider.eject(voiceBridge, voiceUserID);
+		} else {
+			log.info("Cannot hangup user. Could not find user=[" + userID + "] in [" + voiceBridge + "]");
+		}
 	}
 	
 	public void createConference(String room, String meetingid, boolean record) {
@@ -54,7 +67,6 @@ public class ConferenceService implements ConferenceEventListener {
 	
 	public void lock(Integer participant, String room, Boolean lock) {
 		if (roomMgr.hasParticipant(room, participant)) {
-//			roomMgr.lockParticipant(participant, room, lock);
 			ParticipantLockedEvent ple = new ParticipantLockedEvent(participant, room, lock);
 			handleConferenceEvent(ple);
 		}			
@@ -129,7 +141,6 @@ public class ConferenceService implements ConferenceEventListener {
 		
 	public void setConferenceServiceProvider(ConferenceServiceProvider c) {
 		confProvider = c;
-		confProvider.setConferenceEventListener(this);
 	}
 		
 	public void setRoomManager(RoomManager roomManager) {

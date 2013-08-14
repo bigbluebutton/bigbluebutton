@@ -140,8 +140,7 @@ Author: Jesus Federico <jesus@123it.ca>
 
 	Document doc = null;
 	try {
-        	 doc = parseXml( getURL( "http://"+ getBigBlueButtonIP() + "/client/conf/config.xml" ));
-        	 // doc = parseXml( getDefaultConfigXML() );
+        	 doc = parseXml( getDefaultConfigXML() );
 	} catch (Exception e) {
         	e.printStackTrace();
         }

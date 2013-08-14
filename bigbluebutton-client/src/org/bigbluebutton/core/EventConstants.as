@@ -54,12 +54,26 @@ package org.bigbluebutton.core
     public static const REMOTE_UNLOCKED_LAYOUT:String     = 'RemoteUnlockedLayoutEvent';
     public static const USER_JOINED_VOICE:String          = 'UserJoinedVoiceEvent';
     public static const USER_LEFT_VOICE:String            = 'UserLeftVoiceEvent';
+    public static const USER_KICKED_OUT:String            = 'UserKickedOutEvent';
     public static const USER_MUTED_VOICE:String           = 'UserVoiceMutedEvent';
     public static const USER_TALKING:String               = 'UserTalkingEvent';
     public static const USER_LOCKED_VOICE:String          = 'UserLockedVoiceEvent';
     public static const START_PRIVATE_CHAT:String         = "StartPrivateChatEvent";
     public static const GET_MY_USER_INFO_REP:String       = "GetMyUserInfoResponse";
     public static const IS_USER_PUBLISHING_CAM_RESP:String = "IsUserPublishingCamResponse";
+    public static const OPEN_EXTERNAL_UPLOAD_WINDOW:String = "OpenExternalFileUploadWindowEvent";
+    public static const QUERY_PRESENTATION_REPLY:String    = "QueryPresentationsReplyEvent";
     
+    /** For Conversion Update Events **/
+    public static const OFFICE_DOC_CONVERSION_SUCCESS:String    = "OfficeDocConversionSuccessEvent";
+    public static const OFFICE_DOC_CONVERSION_FAILED:String     = "OfficeDocConversionFailedEvent";
+    public static const SUPPORTED_DOCUMENT:String               = "SupportedDocEvent";
+    public static const UNSUPPORTED_DOCUMENT:String             = "UnsupportedDocEvent";    
+    public static const PAGE_COUNT_FAILED:String                = "PageCountFailedEvent";
+    public static const THUMBNAILS_UPDATE:String                = "ThumbnailsUpdateEvent";
+    public static const PAGE_COUNT_EXCEEDED:String              = "PageCountExceededEvent";
+    public static const CONVERT_SUCCESS:String                  = "ConversionSuccessEvent";
+    public static const CONVERT_UPDATE:String                   = "ConversionProgressEvent";
+
   }
 }

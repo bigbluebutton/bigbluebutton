@@ -24,7 +24,6 @@ package org.bigbluebutton.modules.present.api
 	import mx.controls.Button;
 	
 	import org.bigbluebutton.common.IBbbCanvas;
-	import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
 	import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
 
 	public class PresentationAPI
@@ -59,12 +58,6 @@ package org.bigbluebutton.modules.present.api
 			var overlayEvent:AddOverlayCanvasEvent = new AddOverlayCanvasEvent(AddOverlayCanvasEvent.ADD_OVERLAY_CANVAS);
 			overlayEvent.canvas = canvas;
 			dispatcher.dispatchEvent(overlayEvent);
-		}
-		
-		public function addButtonToToolbar(button:IPresentationButton):void{
-			var buttonEvent:AddButtonToPresentationEvent = new AddButtonToPresentationEvent(AddButtonToPresentationEvent.ADD_BUTTON);
-			buttonEvent.button = button;
-			dispatcher.dispatchEvent(buttonEvent);
 		}
 	}
 }

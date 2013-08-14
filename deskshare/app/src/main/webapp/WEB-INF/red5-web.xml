@@ -59,7 +59,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <constructor-arg index="3" value="${waitForAllBlocks}"/>
   </bean>
   <bean id="streamManager" class="org.bigbluebutton.deskshare.server.stream.StreamManager">
-    <constructor-arg index="0" value="false"/>
+    <constructor-arg index="0" value="true"/>
     <constructor-arg index="1" ref="recordingService"/>
   </bean>
   <bean id="recordingService" class="org.bigbluebutton.deskshare.server.recorder.FileRecordingServiceImp">

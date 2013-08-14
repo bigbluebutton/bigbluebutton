@@ -43,6 +43,9 @@ package org.bigbluebutton.common
 	[Embed(source="assets/images/webcam_new.png")]
 	public var webcam_new:Class;
 	
+    [Embed(source="assets/images/webcam_new_20.png")]
+    public var webcam_new_20:Class;
+    
 	[Embed(source="assets/images/sound_new.png")]
 	public var sound_new:Class;
 	
