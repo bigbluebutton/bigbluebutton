@@ -31,6 +31,14 @@
 		   title="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"
 		   layout="absolute"
 		   >
+	
+	<mate:Listener type="{ShortcutEvent.FOCUS_WEBPOLL_ADDRESS}" method="focusWebPollBox" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_POLL_DATA}" method="focusDataGrid" />
+	<mate:Listener type="{ShortcutEvent.SC_REFRESH_POLL}" method="remoteRefresh" />
+	<mate:Listener type="{ShortcutEvent.SC_STOP_POLL}" method="remoteStop" />
+	
+	<mate:Listener type="{ShortcutEvent.SC_REPOST_POLL}" method="remoteRepost" />
+	<mate:Listener type="{ShortcutEvent.CLOSE_POLL_STATS}" method="remoteClose" />
 
 	<mx:Script>
 		<![CDATA[
@@ -56,6 +64,7 @@
       import org.bigbluebutton.main.model.users.BBBUser;
       import org.bigbluebutton.main.model.users.Conference;
       import org.bigbluebutton.main.views.MainCanvas;
+	  import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
       import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
       import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
@@ -70,12 +79,15 @@
       import org.bigbluebutton.modules.polling.model.PollObject;
       import org.bigbluebutton.modules.polling.model.PollStatLineObject;
       import org.bigbluebutton.util.i18n.ResourceUtil;
+	  import org.bigbluebutton.modules.polling.model.PollOptions;
 
 	   	public static const LOGNAME:String = "[PollingStatsWindow] ";
 		[Bindable] public var question:String;
 		[Bindable] public var answers:Array;
 		
 		[Bindable] public var trackingPoll:PollObject;
+		[Bindable] public var pollOptions:PollOptions;
+		[Bindable] private var baseIndex:int;
 		
 		[Bindable] public var webPollUrl:String;
 		public var viewingClosedPoll:Boolean = false;
@@ -88,9 +100,14 @@
 		private var webClosed:Boolean;
 		private var notified:Boolean;
 		private var refreshTimer:Timer = new Timer(1000);
-		private var answersAC:ArrayCollection = new ArrayCollection();
+		[Bindable] private var answerCollection:ArrayCollection = new ArrayCollection();
+		private var keyCombos:Object;
 		
 		private function init():void{			
+			pollOptions = new PollOptions();
+			baseIndex = pollOptions.baseTabIndex; 
+			answerCollection = trackingPoll.generateStats();
+			
 			conference = UserManager.getInstance().getConference();
 			webPollText.visible = (UsersUtil.amIPresenter() && (!reviewing && trackingPoll.publishToWeb));
 			btnClosePoll.visible = UsersUtil.amIPresenter();
@@ -102,9 +119,6 @@
 				generate.poll = trackingPoll;
 				dispatchEvent(generate);
 			}
-			refreshTimer.addEventListener(TimerEvent.TIMER, autoRefresh);
-			refreshTimer.start();
-			answersAC = trackingPoll.generateStats();
 			notified = false;
 		}
 
@@ -115,8 +129,13 @@
 		
 
 		private function onCreationComplete():void{
+			hotkeyCapture();
 			
-			//conference.amIPresenter()
+			titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.polling.stats.accessTitle', [trackingPoll.title]);
+			titleBarOverlay.tabIndex = baseIndex;
+			minimizeBtn.tabIndex = baseIndex+1;
+			maximizeRestoreBtn.tabIndex = baseIndex+2;
+			closeBtn.tabIndex = baseIndex+3;
 			
 			// If the statistics window is being opened to view a poll that has been published and closed, the interface will 
 			// immediately appear with only the option to close the window. 
@@ -147,10 +166,39 @@
 			}				 	            	
 			height = height + ((lines+1) * 45);
 			createResultsTable(answers.length, answers);
-		}			
-
+			focusManager.setFocus(titleBarOverlay); 
+		}
+			
+			private function hotkeyCapture():void{
+				this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+				//ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
+			}
+			
+			private function handleKeyDown(e:KeyboardEvent) :void {
+				var modifier:String = ExternalInterface.call("determineModifier");
+				loadKeyCombos(modifier);             
+				var keyPress:String = (e.ctrlKey  ? "control+" : "") +
+					(e.shiftKey ? "shift+"   : "") +
+					(e.altKey   ? "alt+"     : "") + e.keyCode;                                     
+				if (keyCombos[keyPress]) {
+					dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+				}
+			}
+			
+			
+			private function loadKeyCombos(modifier:String):void {
+				keyCombos = new Object(); // always start with a fresh array
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusData') as String)] = ShortcutEvent.FOCUS_POLL_DATA;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.refresh') as String)] = ShortcutEvent.SC_REFRESH_POLL;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusWebPoll') as String)] = ShortcutEvent.FOCUS_WEBPOLL_ADDRESS;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.stopPoll') as String)] = ShortcutEvent.SC_STOP_POLL;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.closeStatsWindow') as String)] = ShortcutEvent.CLOSE_POLL_STATS;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.repostPoll') as String)] = ShortcutEvent.SC_REPOST_POLL;
+			}
+			
 		public function setUrlBoxText():void{
 			webPollURLBox.text = webPollUrl;
+			webPollURLBox.accessibilityName = ResourceUtil.getInstance().getString('bbb.polling.stats.webPollBoxAccessName', [webPollUrl]);
 			LogUtil.debug("webPollURLBox.Text is : " + webPollURLBox.text);
 			if (UsersUtil.amIPresenter())
 				messageForRecording(ResourceUtil.getInstance().getString('bbb.polling.stats.webPollURL') + " " + webPollUrl);
@@ -247,142 +295,119 @@
 			dispatchEvent(stopPollEvent);
 		}
  		
-			// function receives Array.length and ArrayCollection
 			private function createResultsTable(amount:uint, content:Array):void{
-				var _tx: Text;
-				var _votes: Text;
-				var _percent: Text;
-				var _hb: HBox; 
-				var _line: HRule;
-				var totalVotes:int = 0;
-				for (var n:int = 0; n < trackingPoll.votes.length; n++){
-					totalVotes+= int(trackingPoll.votes[n]);
-				}
-				// delete existing rows
-				resultBox.removeAllChildren();
-				// creating rows one by one
-				for (var i:int = 0; i < amount; i++) {
-					_tx = new Text();
-					_votes= new Text;
-					_percent= new Text();
-					_hb = new HBox();
-					
-					_line = new HRule();
-					_line.width = 290;
-					
-					_tx.name = "option" +i;
-					_tx.width = 200;
-					_tx.text =content[i].toString(); 
-					
-					_votes.name = "votes" +i;
-					_votes.width = 30;
-					_votes.text = trackingPoll.votes[i];
-					
-					_percent.name = "percent" +i;
-					_percent.width = 50;
-					
-					// Percentage is in terms of how many votes each option has in terms of total votes
-					if (totalVotes > 0){
-						_percent.text = Math.round(100*(trackingPoll.votes[i]/totalVotes)) + "%";
-					}else{
-						// Prevents percentages from displaying misleading results before any votes come in, and from dividing by zero
-						_percent.text = " ";
-					}
-					
-					resultBox.addChild(_hb);					
-					_hb.addChild(_tx);
-					_hb.addChild(_votes);
-					_hb.addChild(_percent);
-					
-					resultBox.addChild(_line);
-				} // end of loop
-				didNotVote();
-				invalidateDisplayList();
-				resultBox.validateNow();	
-			} // end of function createResultsTable
+				answerCollection = trackingPoll.generateStats();
+				answerCollection.addItem(didNotVote());
+				resultsGrid.dataProvider = answerCollection;
+			}
 			
-			private function didNotVote():void{
-				var _tx:Text = new Text();
-				var _votes:Text= new Text;
-				var _hb:HBox = new HBox();
-				_tx.name = "optionNull";
-				_tx.width = 200;
-				_tx.text = ResourceUtil.getInstance().getString('bbb.polling.stats.didNotVote'); 
-				
-				_votes.name = "voteNull";
-				_votes.width = 30;
-				_votes.text = trackingPoll.didNotVote.toString();
-				
-				resultBox.addChild(_hb);					
-				_hb.addChild(_tx);
-				_hb.addChild(_votes);
+			private function didNotVote():PollStatLineObject{
+				var pso:PollStatLineObject = new PollStatLineObject();
+				pso.answer = ResourceUtil.getInstance().getString('bbb.polling.stats.didNotVote');
+				pso.votes = trackingPoll.didNotVote.toString();
+				pso.percentage = "";
+				return pso;
+			}
+			
+			private function focusWebPollBox(e:ShortcutEvent):void{
+				if (webPollURLBox.visible)
+					focusManager.setFocus(webPollURLBox);
+			}
+			
+			private function focusDataGrid(e:ShortcutEvent):void{
+				focusManager.setFocus(resultsGrid);
+			}
+			
+			// addAlert
+			private function remoteRefresh(e:ShortcutEvent):void{
+				if (btnRefreshResults.label == ResourceUtil.getInstance().getString('bbb.polling.stats.refresh')){
+					var message:String = ResourceUtil.getInstance().getString('bbb.polling.stats.alerts.refresh');
+					ExternalInterface.call("addAlert", message);
+					refreshPoll();
+				}
+			}
+			
+			private function remoteStop(e:ShortcutEvent):void{
+				if (btnClosePoll.label == ResourceUtil.getInstance().getString('bbb.polling.stats.stopPoll')){
+					var message:String = ResourceUtil.getInstance().getString('bbb.polling.stats.alerts.stopPoll');
+					ExternalInterface.call("addAlert", message);
+					stopPoll();
+				}
+			}
+			
+			private function remoteRepost(e:ShortcutEvent):void{
+				if (btnRefreshResults.label == ResourceUtil.getInstance().getString('bbb.polling.stats.repost')){
+					var message:String = ResourceUtil.getInstance().getString('bbb.polling.stats.alerts.repost');
+					ExternalInterface.call("addAlert", message);
+					publishPollAgain(e);
+				}
+			}
+			
+			private function remoteClose(e:ShortcutEvent):void{
+				if (btnClosePoll.label == ResourceUtil.getInstance().getString('bbb.polling.stats.close')){
+					var message:String = ResourceUtil.getInstance().getString('bbb.polling.stats.alerts.close');
+					ExternalInterface.call("addAlert", message);
+					closeButtonClick(e);
+				}
 			}
 	]]>
 	</mx:Script>
 	
-	<!-- Prototype of Polling Statistics View Design -->
-    <mx:VBox width="100%" 
-    		 height="75%" 
-    		 horizontalAlign="center" 
-    		 paddingLeft="10" 
-    		 paddingRight="10"
-    		 focusEnabled="true"
-    		 accessibilityDescription="Alpha">
+	<!-- Accessible statistics view -->
+	<mx:VBox width="100%" 
+			 height="75%" 
+			 horizontalAlign="center" 
+			 paddingLeft="10" 
+			 paddingRight="10"
+			 focusEnabled="true">
 		<mx:HBox width="90%" 
 				 paddingTop="10"
-				 focusEnabled="true"
-				 accessibilityDescription="Bravo">
+				 focusEnabled="true">
 			<mx:Text id="webPollText"
 					 text="{ResourceUtil.getInstance().getString('bbb.polling.stats.webPollURL')}" 
-					 width="140"/>
+					 width="140"
+					 />
 		</mx:HBox>
 		<mx:HBox id="webPollBox" 
-				 width="90%" 
-				 accessibilityDescription="Charlie">
+				 width="90%">
 			<mx:TextArea id="webPollURLBox" 
 						 editable="false" 
 						 text="" 
 						 height="25"
 						 width="95%"
-						 />          
+						 tabIndex="{baseIndex+4}"
+						 />         
 		</mx:HBox>
-		<mx:Text width="200" 
-				 paddingTop="15" paddingBottom="10" 
+		<mx:Text width="200"
+				 paddingTop="15" paddingBottom="10"
 				 fontWeight="bold" textAlign="center"
 				 text="{question}"/>
-		<mx:Box id="resultBox"  
-				width="90%" 
-				height="90%" />
-    
-	<!-- Viewer's grid used as an example -->
-	<!--mx:DataGrid id="viewersGrid" dataProvider="{UserManager.getInstance().getConference().users}" editable="false"
->>>>>>> poll-access
-    	dragEnabled="false"  width="90%" height="100%"	accessibilityName="Users list.">
-    	<mx:columns>
-    		<mx:DataGridColumn dataField="role" 
-    						   headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.roleItemRenderer')}" 
-    						   dataTipField="Role" 
-    						   editable="false" 
-    						   width="35"
-    						   itemRenderer="org.bigbluebutton.modules.viewers.views.RoleItemRenderer" 
-    						   sortable="false" 
-    						   id="roleField"/>
-    		<mx:DataGridColumn dataField="name" 
-    						   headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.nameItemRenderer')}" 
-    						   editable="true" 
-    						   width="100" 
-    						   sortable="false"
-    						   itemRenderer="org.bigbluebutton.modules.viewers.views.NameItemRenderer"/>
-    		<mx:DataGridColumn dataField="status"
-    						   headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer')}"
-    						   dataTipField="Status"
-    						   id="statusField" 
-    						   sortable="false" 
-    						   itemRenderer="org.bigbluebutton.modules.viewers.views.StatusItemRenderer"/>
-    	</mx:columns>
-    </mx:DataGrid-->
-       
+		<mx:DataGrid id="resultsGrid" 
+					 dataProvider="{answerCollection}"
+					 rowCount="{answerCollection.length}" 
+					 width="90%" 
+					 accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.stats.question', [trackingPoll.question])}"
+					 tabIndex="{baseIndex+5}">
+			<mx:columns>
+				<mx:DataGridColumn id="answerColumn"
+								   dataField="answer"
+								   headerText="{ResourceUtil.getInstance().getString('bbb.polling.stats.answer')}"
+								   wordWrap="true"
+								   />
+				<mx:DataGridColumn id="voteColumn"
+								   dataField="votes"
+								   headerText="{ResourceUtil.getInstance().getString('bbb.polling.stats.votes')}"
+								   width="40"
+								   />
+				<mx:DataGridColumn id="percentColumn"
+								   dataField="percentage"
+								   headerText="{ResourceUtil.getInstance().getString('bbb.polling.stats.percentage')}"
+								   width="70"
+								   />
+			</mx:columns>
+		</mx:DataGrid>
 	</mx:VBox>
+	
 	<mx:ControlBar width="100%" height="10%">
 		<mx:Spacer width="100%"/>
 		<mx:Button id="btnRefreshResults" 
@@ -391,13 +416,16 @@
        			   width="100" 
        			   height="30"
        			   visible = "true"
+				   tabIndex="{baseIndex+6}"
        			   />
        	<mx:Button id="btnClosePoll" 
        			   label="{ResourceUtil.getInstance().getString('bbb.polling.stats.stopPoll')}" 
        			   click="stopPoll()" 
        			   width="100" 
        			   height="30"
-       			   visible = "true"/>
+       			   visible = "true"
+				   tabIndex="{baseIndex+7}"
+				   />
 		<mx:Spacer width="100%"/>
  	 </mx:ControlBar>
 </MDIWindow>

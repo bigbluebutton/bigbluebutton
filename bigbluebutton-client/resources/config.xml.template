@@ -10,8 +10,8 @@
     <skinning enabled="true" url="http://HOST/client/branding/css/BBBDefault.css.swf" />
     <shortcutKeys showButton="true" />
     <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="Default"
-            showToolbar="true" showFooter="true" showHelpButton="true" showLogoutWindow="true" 
-            showLayoutTools="true" showNetworkMonitor="false" />
+            showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true" 
+            showLogoutWindow="true" showLayoutTools="true" showNetworkMonitor="false" confirmLogout="true"/>
             
 		<modules>
 		 
@@ -24,25 +24,11 @@
 			position="top-right"
 			baseTabIndex="701"
 		/>
-		
-<!--		
-		<module name="ViewersModule" url="http://HOST/client/ViewersModule.swf?v=VERSION" 
-			uri="rtmp://HOST/bigbluebutton" 
-			host="http://HOST/bigbluebutton/api/enter"
-			allowKickUser="false"
-			baseTabIndex="201"
-		/>
-			
-		<module name="ListenersModule" url="http://HOST/client/ListenersModule.swf?v=VERSION" 
-			uri="rtmp://HOST/bigbluebutton" 
-			recordingHost="http://HOST"
-			position="bottom-left"
-			baseTabIndex="301"
-		/>
--->
 
 		<module name="UsersModule" url="http://HOST/client/UsersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
+			allowKickUser="true"
+			baseTabIndex="301"
 		/>
 
 		
@@ -51,7 +37,8 @@
 			uri="rtmp://HOST/deskShare"
 			showButton="true"
 			autoStart="false"
-			baseTabIndex="101"
+			autoFullScreen="false"
+			baseTabIndex="201"
 		/>
 		
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
@@ -98,6 +85,8 @@
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="PresentModule"
 			baseTabIndex="601"
+			whiteboardAccess="presenter"
+			keepToolbarVisible="false"
 		/>
 
 <!--
@@ -112,6 +101,7 @@
 			host="http://HOST" 
 			showPresentWindow="true"
 			showWindowControls="true"
+			openExternalFileUploadDialog="false"
 			dependsOn="UsersModule"
 			baseTabIndex="501"
 			maxFileSize="30"

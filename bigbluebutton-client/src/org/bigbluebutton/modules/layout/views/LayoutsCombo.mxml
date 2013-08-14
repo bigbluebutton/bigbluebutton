@@ -25,7 +25,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			prompt="{ResourceUtil.getInstance().getString('bbb.layout.combo.prompt')}"
 			height="{LayoutButton.BUTTON_SIZE}"
 			change="onSelectedItemChanged(event)"
-			disabledColor="{getStyle('color')}">
+			disabledColor="{getStyle('color')}"
+            rowCount="10" >
 	
 	<mate:Listener type="{LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT}" method="onApplyDefaultLayout" />
 	<mate:Listener type="{LayoutEvent.REMOTE_LOCK_LAYOUT_EVENT}" receive="{enabled=false || UserManager.getInstance().getConference().amIModerator()}" />

@@ -164,6 +164,7 @@
 			// More details on the issue: http://bugs.jquery.com/ticket/8015
 			$wrapper[0].appendChild( acorn.$self[0].cloneNode(true) );
 			
+			acorn.$self.trigger('pause');
 			acorn.$self.remove();
 			acorn.$self = $wrapper.find('video, audio');
 			
@@ -683,19 +684,24 @@
 						"collision": "none none",
 						"offset": "10 0"
 					});
+					$('#videoRecordingWrapper').width("800px");
+					$('#videoRecordingWrapper').height("600px");
 	  
 					$('#presentation').position({
-						"my": "center top",
-						"at": "center bottom",
+						"my": "left top",
+						"at": "left bottom",
 						"of": '#chat',
 						"collision": "none none"
 					});
+					$('#presentation').width("400px");
+					$('#presentation').height("300px");
 	  
 					$('.acorn-controls').position({
-						"my": "center top",
-						"at": "center bottom",
-						"of": '#playbackArea',
-						"collision": "none none"
+						"my": "left top",
+						"at": "left bottom",
+						"of": '#videoRecordingWrapper',
+						"collision": "none none",
+						"offset": "10 7"
 					});
 	  
 					draw(0,0);
@@ -722,19 +728,24 @@
 						"collision": "none none",
 						"offset": "10 0"
 					});
+					$('#presentation').width("800px");
+					$('#presentation').height("600px");
 					
 					$('#videoRecordingWrapper').position({
-						"my": "center top",
-						"at": "center bottom",
+						"my": "left top",
+						"at": "left bottom",
 						"of": '#chat',
 						"collision": "none none"
 					});
+					$('#videoRecordingWrapper').width("400px");
+					$('#videoRecordingWrapper').height("300px");
 	  
 					$('.acorn-controls').position({
-						"my": "center top",
-						"at": "center bottom",
-						"of": '#playbackArea',
-						"collision": "none none"
+						"my": "left top",
+						"at": "left bottom",
+						"of": '#presentation',
+						"collision": "none none",
+						"offset": "10 7"
 					});
 					
 					swapped = false;   

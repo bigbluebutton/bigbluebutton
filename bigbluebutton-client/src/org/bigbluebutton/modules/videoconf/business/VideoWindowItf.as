@@ -63,9 +63,7 @@ package org.bigbluebutton.modules.videoconf.business
 		protected var _minHeight:int = 120 + PADDING_VERTICAL;
 		protected var aspectRatio:Number = 1;
 		protected var keepAspect:Boolean = false;
-//		protected var originalWidth:Number;
-//		protected var originalHeight:Number;
-		
+	
 		protected var mousePositionOnDragStart:Point;
 		
 		public var streamName:String;
@@ -84,8 +82,8 @@ package org.bigbluebutton.modules.videoconf.business
       return windowType;
     }
     
-    protected function switchRole(presenter:Boolean):void {
-      _controlButtons.handleNewRoleEvent(presenter);
+    protected function updateControlButtons():void {
+      _controlButtons.updateControlButtons();
     }
     
 		protected function getVideoResolution(stream:String):Array {
@@ -172,9 +170,17 @@ package org.bigbluebutton.modules.videoconf.business
 			_video.width = _videoHolder.width = tmpWidth;
 			_video.height = _videoHolder.height = tmpHeight;
 			
-			// center the video in the window
-			_video.x = Math.floor ((this.width - PADDING_HORIZONTAL - tmpWidth) / 2);
-			_video.y = Math.floor ((this.height - PADDING_VERTICAL - tmpHeight) / 2);
+			if (!keepAspect || this.maximized) {
+				// center the video in the window
+				_video.x = Math.floor ((this.width - PADDING_HORIZONTAL - tmpWidth) / 2);
+				_video.y = Math.floor ((this.height - PADDING_VERTICAL - tmpHeight) / 2);
+			} else {
+				// fit window dimensions on video
+				_video.x = 0;
+				_video.y = 0;
+				this.width = tmpWidth + PADDING_HORIZONTAL;
+				this.height = tmpHeight + PADDING_VERTICAL;
+			}
 			
 			// reposition the window to fit inside the parent window
 			if (this.parent != null) {
@@ -192,10 +198,12 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 		public function updateWidth():void {
+			this.width = Math.floor((this.height - paddingVertical) * aspectRatio) + paddingHorizontal;
 			onResize();
 		}
 		
 		public function updateHeight():void {
+			this.height = Math.floor((this.width - paddingHorizontal) / aspectRatio) + paddingVertical;
 			onResize();
 		}
 		
@@ -213,6 +221,8 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 			
 		override public function close(event:MouseEvent = null):void{
+      trace("VideoWIndowItf close window event");
+      
 			var e:CloseWindowEvent = new CloseWindowEvent();
 			e.window = this;
 			dispatchEvent(e);
@@ -256,8 +266,8 @@ package org.bigbluebutton.modules.videoconf.business
 			if (controlButtons.visible == false) {
 				controlButtons.y = controlButtons.x = 0;
 			} else {
-				controlButtons.y = _video.y + _video.height - controlButtons.height - controlButtons.padding;
-				controlButtons.x = _video.x + _video.width - controlButtons.width - controlButtons.padding;
+				controlButtons.y = this.height - PADDING_VERTICAL - controlButtons.height - controlButtons.padding;
+				controlButtons.x = this.width - PADDING_HORIZONTAL - controlButtons.width - controlButtons.padding;
 			}
 		}
 		

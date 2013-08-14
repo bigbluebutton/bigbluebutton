@@ -50,11 +50,40 @@ def check_audio_files(raw_dir,meeting_id)
 end
 
 def check_webcam_files(raw_dir, meeting_id)
+	
+    BigBlueButton.logger.info "Checking all webcam recorded streams from events were archived."
     webcams = BigBlueButton::Events.get_start_video_events("#{raw_dir}/#{meeting_id}/events.xml")
     webcams.each do |webcam|
         raw_webcam_file = "#{raw_dir}/#{meeting_id}/video/#{meeting_id}/#{webcam[:stream]}.flv"
         raise Exception, "Webcam file #{webcam[:stream]}.flv was not archived" if not File.exists? raw_webcam_file
     end
+
+    BigBlueButton.logger.info "Checking the length of webcam streams is not zero."
+    meeting_dir = "#{raw_dir}/#{meeting_id}"
+    events_file = "#{meeting_dir}/events.xml"
+    events_xml = Nokogiri::XML(File.open(events_file))
+    original_num_events = events_xml.xpath("//event").size
+
+    Dir.glob("#{meeting_dir}/video/#{meeting_id}/*").each do |video|
+        if FFMPEG::Movie.new(video).duration == 0.0
+                video_name =  File.basename(video,File.extname(video))
+                removed_elements = events_xml.xpath("//event[contains(., '#{video_name}')]").remove
+                BigBlueButton.logger.info "Removed #{removed_elements.size} events for webcam stream '#{video_name}' ."
+                FileUtils.rm video
+                BigBlueButton.logger.info "Removing webcam file #{video} from raw dir due to length zero."
+        end
+    end
+
+    if original_num_events > events_xml.xpath("//event").size
+        BigBlueButton.logger.info "Making backup of original events file #{events_file}."
+        FileUtils.cp(events_file, "#{meeting_dir}/events.xml.original")
+
+        BigBlueButton.logger.info "Saving changes in #{events_file}."
+        File.open("#{raw_dir}/#{meeting_id}/events.xml",'w') {|f| f.write(events_xml) }
+    else
+	BigBlueButton.logger.info "Webcam streams with length zero were not found."
+    end
+
 end
 
 def check_deskshare_files(raw_dir, meeting_id)
@@ -83,25 +112,21 @@ redis_host = props['redis_host']
 redis_port = props['redis_port']
 
 begin
-	BigBlueButton.logger.info("checking events.xml")
+	BigBlueButton.logger.info("Starting sanity check for recording #{meeting_id}.")
+	BigBlueButton.logger.info("Checking events.xml")
 	check_events_xml(raw_archive_dir,meeting_id)
-	BigBlueButton.logger.info("checking audio")
+	BigBlueButton.logger.info("Checking audio")
 	check_audio_files(raw_archive_dir,meeting_id)
-        BigBlueButton.logger.info("checking webcam videos")
+        BigBlueButton.logger.info("Checking webcam videos")
         check_webcam_files(raw_archive_dir,meeting_id)
-        BigBlueButton.logger.info("checking deskshare videos")
+        BigBlueButton.logger.info("Checking deskshare videos")
         check_deskshare_files(raw_archive_dir,meeting_id)
 	#delete keys
-	BigBlueButton.logger.info("deleting keys")
+	BigBlueButton.logger.info("Deleting keys")
 	redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
 	events_archiver = BigBlueButton::RedisEventsArchiver.new redis    
         events_archiver.delete_events(meeting_id)
 
-	#delete audio
-        #Dir.glob("#{audio_dir}/#{meeting_id}*.wav").each{ |audio_meeting|
-	#	FileUtils.rm(
-	#}
-	
 	#create done files for sanity
 	BigBlueButton.logger.info("creating sanity done files")
 	sanity_done = File.new("#{recording_dir}/status/sanity/#{meeting_id}.done", "w")

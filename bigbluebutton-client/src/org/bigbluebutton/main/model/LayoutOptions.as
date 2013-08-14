@@ -28,10 +28,12 @@ package org.bigbluebutton.main.model
 		[Bindable] public var showResetLayout:Boolean = true;
 		[Bindable] public var showToolbar:Boolean = true;
     [Bindable] public var showFooter:Boolean = true;
+        [Bindable] public var showMeetingName:Boolean = true;
 		[Bindable] public var showHelpButton:Boolean = true;
 		[Bindable] public var showLogoutWindow:Boolean = true;
 		[Bindable] public var showLayoutTools:Boolean = true;
 		[Bindable] public var showNetworkMonitor:Boolean = true;
+		[Bindable] public var confirmLogout:Boolean = true;
 		
 		
     public var defaultLayout:String = "Default";
@@ -58,10 +60,18 @@ package org.bigbluebutton.main.model
 				if (vxml.@showToolbar != undefined) {
 					showToolbar = (vxml.@showToolbar.toString().toUpperCase() == "TRUE") ? true : false;
 				}
+				
+				if (vxml.@confirmLogout != undefined) {
+					confirmLogout = (vxml.@confirmLogout.toString().toUpperCase() == "TRUE") ? true : false;
+				}
 
         if (vxml.@showFooter != undefined) {
           showFooter = (vxml.@showFooter.toString().toUpperCase() == "TRUE") ? true : false;
         }
+        
+                if (vxml.@showMeetingName != undefined) {
+                    showMeetingName = (vxml.@showMeetingName.toString().toUpperCase() == "TRUE") ? true : false;
+                }
         
 				if (vxml.@showHelpButton != undefined) {
 					showHelpButton = (vxml.@showHelpButton.toString().toUpperCase() == "TRUE") ? true : false;

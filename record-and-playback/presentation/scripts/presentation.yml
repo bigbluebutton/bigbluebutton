@@ -2,4 +2,9 @@
 publish_dir: /var/bigbluebutton/published/presentation
 video_output_width: 640
 video_output_height: 480
-
+# offset applied to audio in the output video file
+# audio_offset = 1200 means that the audio will be delayed by 1200ms
+# recommended value for Sorenson: 800
+# recommended value for h.264: 1200
+audio_offset: 1200
+include_deskshare: true

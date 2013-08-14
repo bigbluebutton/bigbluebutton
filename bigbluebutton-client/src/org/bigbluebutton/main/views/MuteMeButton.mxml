@@ -26,8 +26,8 @@ $Id: $
 	xmlns:mate="http://mate.asfusion.com/"
 	visible="false" 
 	creationComplete="onCreationComplete()"
-	toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.listeners.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.listeners.pushToMute.toolTip')}" 
-	click="toggleMuteMeState()" width="100" maxWidth="180"
+	toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.users.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.users.pushToMute.toolTip')}" 
+	click="toggleMuteMeState()" width="140" maxWidth="180"
 	mouseOver="mouseOverHandler()"
 	mouseOut="mouseOutHandler()"
 	paddingTop="0"
@@ -75,7 +75,7 @@ $Id: $
 				}
 			}
 			
-			private function localeChanged(e:LocaleChangeEvent):void {
+			private function localeChanged(e:Event):void {
 				updateMuteMeBtn();
 			}
 			
@@ -90,13 +90,13 @@ $Id: $
 							muteMeBtnImg.source = images.audio;
 							muteMeBtnTxt.visible = true;
 							muteMeBtnTxt.includeInLayout = true;
-							muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.listeners.talk");
+							muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.talk");
 							hboxMuteMe.setStyle("paddingTop",0);
 						} else {
 							muteMeBtnImg.source = images.audio_muted;
 							muteMeBtnTxt.visible = true;
 							muteMeBtnTxt.includeInLayout = true;
-							muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.listeners.mute");
+							muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.mute");
 							hboxMuteMe.setStyle("paddingTop",0);
 						}
 					} else {
@@ -119,6 +119,7 @@ $Id: $
 			
 			private function toggleMuteMeState(event:ShortcutEvent = null):void{
 				if (UserManager.getInstance().getConference().voiceJoined) {
+					this.setFocus();
 					if (UserManager.getInstance().getConference().voiceLocked && !UserManager.getInstance().getConference().amIModerator()) return;
 					
 					var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);

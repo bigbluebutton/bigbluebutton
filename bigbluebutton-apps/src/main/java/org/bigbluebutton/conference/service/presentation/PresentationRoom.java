@@ -138,7 +138,12 @@ public class PresentationRoom {
 		sharing = share;
 		if (share) {
 		  currentPresentation = presentationName;
-		  presentationNames.add(presentationName);   
+		  if (! presentationNames.contains(presentationName)) {
+			  log.debug("Adding [" + presentationName +  "] to list of presentations.");
+			  presentationNames.add(presentationName);
+		  }	else {
+			  log.debug("[" + presentationName +  "] is already in list of presentations.");
+		  }
 		} else {
 		  currentPresentation = "";
 		}
@@ -160,16 +165,18 @@ public class PresentationRoom {
             return;
         }
         
-        presentationNames.remove(index);
+        String  remPresentation = presentationNames.remove(index);
+        log.debug("Removed [" + remPresentation + "] presentation.");
         
         for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
-            log.debug("calling on listener");
+            
             IPresentationRoomListener listener = (IPresentationRoomListener) iter.next();
             log.debug("calling removePresentation on listener " + listener.getName());
             listener.removePresentation(presentationName);
         }   
         
-        if (currentPresentation == presentationName) {
+        if (currentPresentation.equals(presentationName)) {
+        	log.debug("[" + remPresentation + "] is the current presentation. Unsharing that presentation.");
             sharePresentation(presentationName, false);
         }        
     }
