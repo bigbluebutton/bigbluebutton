@@ -4,7 +4,7 @@ targetCompatibility=1.6
 
 ant.importBuild 'build.xml'
 
-version = '0.8.1'
+version = 'unsigned-0.8.1'
 archivesBaseName = 'bbb-deskshare-applet' 
 
 dependencies {	   
@@ -29,3 +29,7 @@ jar.doFirst {
    jar.merge('../common/build/libs/bbb-deskshare-common-0.8.jar')
 }
 
+jar {
+   manifest.mainAttributes("Trusted-library": "true")
+
+}

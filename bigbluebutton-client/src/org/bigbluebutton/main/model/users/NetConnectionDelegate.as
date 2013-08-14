@@ -194,7 +194,8 @@ package org.bigbluebutton.main.model.users
 				case "NetConnection.Connect.Success":
 					LogUtil.debug(NAME + ":Connection to viewers application succeeded.");
           
-					startMonitoringBandwidth();
+					// uncomment this to turn on the bandwidth check
+//					startMonitoringBandwidth();
           
 					_netConnection.call(
 							"getMyUserId",// Remote function name

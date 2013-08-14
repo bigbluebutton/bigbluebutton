@@ -38,6 +38,8 @@ package org.bigbluebutton.modules.whiteboard.models
             var a:Annotation = getAnnotation(annotation.id);
             if (a != null) {
                 a.annotation = annotation.annotation;
+            } else {
+                addAnnotation(annotation);
             }
         }
         

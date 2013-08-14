@@ -37,8 +37,11 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.model.users.events.KickUserEvent;
+  import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-  import org.bigbluebutton.modules.listeners.events.ListenersCommand;
+  import org.bigbluebutton.modules.present.events.QueryPresentationsListEvent;
+  import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+  import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
   import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
   import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
@@ -55,6 +58,7 @@ package org.bigbluebutton.main.api
     
     private function init():void {
       if (ExternalInterface.available) {
+        ExternalInterface.addCallback("raiseHandRequest", handleRaiseHandRequest);
         ExternalInterface.addCallback("ejectUserRequest", handleEjectUserRequest);
         ExternalInterface.addCallback("switchPresenterRequest", handleSwitchPresenterRequest);
         ExternalInterface.addCallback("getMyUserInfoSync", handleGetMyUserInfoSynch);
@@ -62,6 +66,7 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("getPresenterUserID", handleGetPresenterUserID);
         ExternalInterface.addCallback("getMyUserID", handleGetMyUserID);
         ExternalInterface.addCallback("getExternalMeetingID", handleGetExternalMeetingID);
+        ExternalInterface.addCallback("getInternalMeetingID", handleGetInternalMeetingID);
         ExternalInterface.addCallback("joinVoiceRequest", handleJoinVoiceRequest);
         ExternalInterface.addCallback("leaveVoiceRequest", handleLeaveVoiceRequest);   
         ExternalInterface.addCallback("isUserPublishingCamRequestSync", handleIsUserPublishingCamRequestSync);
@@ -82,6 +87,9 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("sendPublicChatRequest", handleSendPublicChatRequest);  
         ExternalInterface.addCallback("sendPrivateChatRequest", handleSendPrivateChatRequest); 
         ExternalInterface.addCallback("lockLayout", handleSendLockLayoutRequest);
+        ExternalInterface.addCallback("displayPresentationRequest", handleDisplayPresentationRequest);
+        ExternalInterface.addCallback("deletePresentationRequest", handleDeletePresentationRequest);
+        ExternalInterface.addCallback("queryListsOfPresentationsRequest", handleQueryListsOfPresentationsRequest);
       }
       
       // Tell out JS counterpart that we are ready.
@@ -91,6 +99,23 @@ package org.bigbluebutton.main.api
       
     }
 
+    private function handleQueryListsOfPresentationsRequest():void {
+      _dispatcher.dispatchEvent(new QueryPresentationsListEvent());
+    }
+    
+    
+    private function handleDisplayPresentationRequest(presentationID:String):void {
+      var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
+      readyEvent.presentationName = presentationID;
+      _dispatcher.dispatchEvent(readyEvent);
+    }
+    
+    private function handleDeletePresentationRequest(presentationID:String):void {
+      var rEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.REMOVE_PRESENTATION_EVENT);
+      rEvent.presentationName = presentationID;
+      _dispatcher.dispatchEvent(rEvent);
+    }
+    
     private function handleIsUserPublishingCamRequestAsync(userID:String):void {
       var event:IsUserPublishingCamRequest = new IsUserPublishingCamRequest();
       event.userID = UsersUtil.externalUserIDToInternalUserID(userID);
@@ -101,6 +126,13 @@ package org.bigbluebutton.main.api
       }
     }
  
+    private function handleRaiseHandRequest(handRaised:Boolean):void {
+      trace("Received raise hand request from JS API [" + handRaised + "]");
+      var e:RaiseHandEvent = new RaiseHandEvent(RaiseHandEvent.RAISE_HAND);
+      e.raised = handRaised;
+      _dispatcher.dispatchEvent(e);
+    }
+    
     private function handleEjectUserRequest(userID:String):void {
         var intUserID:String = UsersUtil.externalUserIDToInternalUserID(userID);
         _dispatcher.dispatchEvent(new KickUserEvent(intUserID));
@@ -120,6 +152,7 @@ package org.bigbluebutton.main.api
       obj.userID = userID;
       obj.isUserPublishing = isUserPublishing;
       obj.streamName = streamName;
+      obj.avatarURL = UsersUtil.getAvatarURL();
       
       return obj;
     }
@@ -156,6 +189,7 @@ package org.bigbluebutton.main.api
       obj.camModeFps = vidConf.camModeFps;
       obj.camQualityBandwidth = vidConf.camQualityBandwidth;
       obj.camQualityPicture = vidConf.camQualityPicture;  
+      obj.avatarURL = UsersUtil.getAvatarURL();
       
       return obj;
     }
@@ -202,6 +236,10 @@ package org.bigbluebutton.main.api
     
     private function handleGetExternalMeetingID():String {
       return UserManager.getInstance().getConference().externalMeetingID;
+    }
+
+    private function handleGetInternalMeetingID():String {
+      return UserManager.getInstance().getConference().internalMeetingID;
     }
     
     private function handleSendLockLayoutRequest(lock:Boolean):void {

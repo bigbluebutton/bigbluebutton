@@ -72,7 +72,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.managers.Slide;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideCalcUtil;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
-			
+            import org.bigbluebutton.util.i18n.ResourceUtil;
+            
 			[Bindable] public var zoomPercentage:Number = 100;
 			public static const ZOOM_STEP:int = 5;
 			public static const THUMBNAILS_CLOSED:String = "ThumbnailsClosed";
@@ -131,10 +132,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function changeSlide():void {
-				dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, thumbnailView.selectedIndex));
-				thumbnailView.visible = false;
-				showOverlayCanvas(true);
-				dispatchEvent(new Event(THUMBNAILS_CLOSED));
+                if (thumbnailView.selectedIndex != selectedSlide) {
+				    dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, thumbnailView.selectedIndex));
+				    thumbnailView.visible = false;
+                }
 			}
 			
 			private function changeIndex(e:ListEvent):void {
@@ -308,10 +309,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 */						
 			private function handleSlideLoadedEvent(e:SlideEvent):void{
 				slideLoader.source = e.slide;
-				if(Capabilities.hasAccessibility){
-					slideLoader.accessibilityProperties.description = e.slideText;
-					Accessibility.updateProperties()
-				}
+			    //slideLoader.accessibilityProperties.description = "Slide text start:  " + e.slideText + "    Slide text end";
+                slideLoader.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + e.slideText + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
+                slideLoader.accessibilityName = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + e.slideText + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
+                LogUtil.debug(e.slideText);
 			}
 			
 			/**
@@ -446,7 +447,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function acceptOverlayCanvas(overlay:IBbbCanvas):void{
 				whiteboardCanvas = overlay;
 				var c:Canvas = overlay as Canvas;
-				this.addChild(c);
+                // add the canvas below the thumbnails
+				this.addChildAt(c, this.getChildIndex(thumbnailView));
 				c.x = slideLoader.x * SlideCalcUtil.MYSTERY_NUM;
 				c.y = slideLoader.y * SlideCalcUtil.MYSTERY_NUM;
 				c.width = slideLoader.width;
@@ -471,10 +473,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					//LogUtil.debug("Zooming Canvas " + width + " " + height);
 					whiteboardCanvas.zoomCanvas(width, height);
 				}
-			}
-			
-			public function showOverlayCanvas(show:Boolean):void{
-				whiteboardCanvas.showCanvas(show);
 			}
 			
 			public function showCanvas(show:Boolean):void{

@@ -38,7 +38,6 @@ public class PopulateRoomCommand extends FreeswitchCommand {
 
     public PopulateRoomCommand(String room, Integer requesterId) {
             super(room, requesterId);
-            // TODO Auto-generated constructor stub
     }
     
     @Override

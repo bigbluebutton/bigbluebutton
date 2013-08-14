@@ -61,7 +61,7 @@ module BigBlueButton
     # Convert a pdf page to a png.
     def self.convert_pdf_to_png(pdf_page, png_out)
         BigBlueButton.logger.info("Task: Converting .pdf to .png")      
-        command = "convert -density 300x300 -resize 800x600 -quality 90 +dither -depth 8 -colors 256 #{pdf_page} #{png_out}"
+        command = "convert -density 300x300 #{pdf_page} -background white -flatten -resize 800x600 -quality 90 +dither -depth 8 -colors 256 #{png_out}"
         BigBlueButton.execute(command)
 #        Process.wait  
     end
@@ -69,7 +69,7 @@ module BigBlueButton
     #Convert an image to a png	
     def self.convert_image_to_png(image,png_image)
         BigBlueButton.logger.info("Task: Converting image to .png")      
-        command="convert -resize 800x600 #{image} #{png_image}"
+        command="convert #{image} -resize 800x600 -background white -flatten #{png_image}"
         BigBlueButton.execute(command)
     end
 
