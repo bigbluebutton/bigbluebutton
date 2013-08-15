@@ -42,7 +42,7 @@ module BigBlueButton
         else
           # Substitute the original file location with the archive location
           orig_file = ae.file.sub(/.+\//, "#{audio_dir}/")
-          length = ae.stop_event_timestamp - ae.start_event_timestamp
+          length = ae.stop_event_timestamp.to_i - ae.start_event_timestamp.to_i
 
           ae.file = BigBlueButton::AudioEvents.stretch_audio_file(orig_file, length, sampling_rate)
         end
