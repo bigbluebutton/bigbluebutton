@@ -307,7 +307,7 @@ module BigBlueButton
 
       speed = orig_length.to_f / length.to_f
       BigBlueButton.logger.info("Adjusting #{file} speed to #{speed}")
-      sox_cmd = "sox #{file} #{new_file} speed #{speed} rate -h #{sample_rate} trim 0 =#{length.to_f/1000}"
+      sox_cmd = "sox #{file} #{new_file} speed #{speed} rate -h #{sample_rate} trim 0 #{length.to_f/1000}"
 
       BigBlueButton.execute(sox_cmd)
       return new_file
