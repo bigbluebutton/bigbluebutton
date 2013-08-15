@@ -298,7 +298,7 @@ module BigBlueButton
       orig_length = determine_length_of_audio_from_file(file)
       new_file = "#{file}.stretch.wav"
 
-      if (audio_length == 0)
+      if (orig_length == 0)
         BigBlueButton.logger.error("Stretch received 0-length file as input!")
         # Generate silence to fill the length
         generate_silence(length, new_file, sample_rate)
