@@ -65,7 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.events.CloseEvent;
 
 
-			private var logOutTimer:Timer = new Timer(1000 , 725 );
+			private var logOutTimer:Timer = new Timer(1000 , 3600 );
 			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
 			
 			public static const ALIGN_RIGHT:String ="ALIGN_RIGHT";
@@ -320,7 +320,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			public function tickLogOut(e:TimerEvent):void{
-			var timeLeft:int = 720 - logOutTimer.currentCount ;
+			var timeLeft:int = 3600 - logOutTimer.currentCount ;
 			//Create the minutes remaing String;
 			var minutesLeftString:String = String(int(timeLeft / 60)) ;
 			//Create the seconds String, and set leading zero for the seconds
@@ -335,15 +335,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			//Update The time label for graphical reference.
 			editTimeLeftLable( minutesLeftString , secondsLeftString );
 			//Counter to send the alert , each unit is one second
-			if(logOutTimer.currentCount == 480){
+			if(logOutTimer.currentCount == 2600){
 				logOutTimeLeft.setStyle("color" , "red");
 			}
-			if(logOutTimer.currentCount == 600){
+			if(logOutTimer.currentCount == 3200){
 				/*This will issue the alert after 10 minutes that users need to press ok. We also added an event listener to the alert so we would know when it is pressed to we would be able to reset the timer*/
 				Alert.show("This is an incativity check, press OK to avoid being disconnected", "Incativity Check",Alert.OK, this,alertListener, null, Alert.OK);
 				}//Counter to lof of the user
 				//After 2 minutes of the alert being issued. The user will be logged out.
-				if(logOutTimer.currentCount == 720){
+				if(logOutTimer.currentCount == 3600){
 					doLogout();	
 				}
 			}
@@ -364,7 +364,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				logOutTimer.start();
 				//Reset The Display
 				logOutTimeLeft.setStyle("color" , "white");
-				editTimeLeftLable("12", "00");
+				editTimeLeftLable("60", "00");
 			}
 			private function editTimeLeftLable( minutes:String , seconds:String ):void{
 				logOutTimeLeft.text = minutes + ":" + seconds ;
