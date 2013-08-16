@@ -97,6 +97,7 @@
 			private var muteMeRolled:Boolean = false;
 			
 			private function onCreationComplete():void {
+
 				dispatcher = new Dispatcher();
 			
 				users = UserManager.getInstance().getConference().users;
@@ -126,7 +127,9 @@
 			public function getPrefferedPosition():String{
 				return MainCanvas.TOP_LEFT;
 			}
-			
+			public function getTitle():String{
+				return "UsersWindos";
+			}
 			
 			private function updateNumberofUsers(numUsers:int):void {
 				if (numUsers > 8)
@@ -134,7 +137,7 @@
 				else 
 					this.title = ResourceUtil.getInstance().getString('bbb.users.title', ["", ""]);
 			}
-			
+				
 			private function localeChanged(e:Event):void {
 				updateNumberofUsers(users.length);
 				resourcesChanged();

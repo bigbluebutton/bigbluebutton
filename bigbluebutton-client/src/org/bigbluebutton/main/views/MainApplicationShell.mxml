@@ -87,6 +87,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.util.logging.Logger;
 	
+			import com.adobe.images.JPGEncoder;
+	
 			private var globalDispatcher:Dispatcher;			
 			private var dispState:String; //full-screen?
 			private var images:Images = new Images();
@@ -394,6 +396,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function closeNetworkStatsWindow(e:Event = null):void {
 				networkStatsWindow.disappear();
 			}
+			
+			public function getWhiteBoard():void{
+				if(mdiCanvas.isWhiteBoardOpen()){
+					saveToDesktop(DisplayObject(mdiCanvas.getwhiteboard()));
+				}
+				else{
+					Alert.show("Presentation Window is not open");
+				}
+			}
+			
+			private function saveToDesktop(canvas:DisplayObject):void{
+                var bitmapData:BitmapData = new BitmapData(canvas.width, canvas.height, true, 0xffffff);
+                bitmapData.draw(canvas);
+				var jpgEncoder:JPGEncoder = new JPGEncoder(100);
+                var bytes:ByteArray = jpgEncoder.encode(bitmapData);			
+				//Generate a new unique name for the image.
+				var myDate:Date = new Date();
+				var dateString:String = String(Math.round(myDate.getTime()/1000));
+							
+				var fileReference:FileReference=new FileReference();
+				fileReference.save(bytes, dateString + ".jpg"); 		
+			}
+			
 
 		]]>
 	</mx:Script>

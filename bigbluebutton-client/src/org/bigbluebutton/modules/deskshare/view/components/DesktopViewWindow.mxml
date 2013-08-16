@@ -184,6 +184,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function getPrefferedPosition():String{
 				return MainCanvas.DESKTOP_SHARING_VIEW;
 			}
+			public function getTitle():String{
+				return "DesktopViewWindow";
+			}
 												
 			/**
 			 * resizes the desktop sharing video to fit to this window

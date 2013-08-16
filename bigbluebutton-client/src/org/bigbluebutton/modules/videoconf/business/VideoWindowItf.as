@@ -219,7 +219,9 @@ package org.bigbluebutton.modules.videoconf.business
 				// the window is docked, so it should not be moved on reset layout
 				return MainCanvas.ABSOLUTE;
 		}
-			
+		public function getTitle():String{
+				return "Videoindowltf";
+			}	
 		override public function close(event:MouseEvent = null):void{
       trace("VideoWIndowItf close window event");
       

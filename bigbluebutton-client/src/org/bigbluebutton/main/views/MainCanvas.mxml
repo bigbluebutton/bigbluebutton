@@ -61,6 +61,31 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 			}
 			
+			public function isWhiteBoardOpen():Boolean{
+				var windows:Array = this.windowManager.getOpenWindowList();
+					for (var i:Number=0; i<windows.length; i++){
+						var window:IBbbModuleWindow = windows[i] as IBbbModuleWindow;
+						if(window.getTitle() == "PresentationWindow"){
+							return true;
+						}
+					}
+				return false ;
+			}
+			
+			public function getwhiteboard():IBbbModuleWindow{
+				var windows:Array = this.windowManager.getOpenWindowList();
+				var windowNb:int = 0 ;
+				for (var i:Number=0; i<windows.length; i++){
+				var window:IBbbModuleWindow = windows[i] as IBbbModuleWindow;
+					if(window.getTitle() == "PresentationWindow"){
+						return window;
+						windowNb = i ;
+					}
+				}
+				return  windows[windowNb] as IBbbModuleWindow;
+			}
+			
+			
 			public function addWindow(window:IBbbModuleWindow):void{
 				windowManager.add(window as MDIWindow);
 				positionWindow(window);
