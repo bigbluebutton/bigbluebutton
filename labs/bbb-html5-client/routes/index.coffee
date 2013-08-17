@@ -1,3 +1,12 @@
+exec = require("child_process").exec
+fs = require("fs")
+imagemagick = require("imagemagick")
+sanitizer = require("sanitizer")
+util = require("util")
+
+config = require("../config")
+routes = require("../routes")
+
 ###
 This returns the folder where the presentation files will be
 stored for that particular presentationID.
@@ -23,7 +32,7 @@ their login details.
 @return {undefined}  Response object is sent back to the client.
 ###
 exports.get_index = (req, res) ->
-  redisAction.getMeetings (meetings) ->
+  config.redisAction.getMeetings (meetings) ->
     res.render "index",
       title: "BigBlueButton HTML5 Client"
       meetings: meetings
@@ -39,30 +48,30 @@ the meeting was created successfully or not.
 @return {undefined}          callback is used to send the status back to the caller of this function
 ###
 makeMeeting = (meetingID, sessionID, username, callback) ->
-  if (username) and (meetingID) and (username.length <= max_username_length) and (meetingID.split(" ").length is 1)
+  if (username) and (meetingID) and (username.length <= config.maxUsernameLength) and (meetingID.split(" ").length is 1)
     publicID = (new Date()).getTime()
-    redisAction.isMeetingRunning meetingID, (isRunning) ->
+    config.redisAction.isMeetingRunning meetingID, (isRunning) ->
       unless isRunning
-        redisAction.createMeeting meetingID, ->
-          redisAction.setCurrentTool meetingID, "line"
-          redisAction.setPresenter meetingID, sessionID, publicID
+        config.redisAction.createMeeting meetingID, ->
+          config.redisAction.setCurrentTool meetingID, "line"
+          config.redisAction.setPresenter meetingID, sessionID, publicID
 
-    redisAction.createUser meetingID, sessionID
-    store.get redisAction.getCurrentPresentationString(meetingID), (err, currPresID) ->
+    config.redisAction.createUser meetingID, sessionID
+    config.store.get config.redisAction.getCurrentPresentationString(meetingID), (err, currPresID) ->
       unless currPresID
-        redisAction.createPresentation meetingID, true, (presentationID) ->
-          redisAction.createPage meetingID, presentationID, "default.png", true, (pageID) ->
-            redisAction.setViewBox meetingID, JSON.stringify([0, 0, 1, 1])
+        config.redisAction.createPresentation meetingID, true, (presentationID) ->
+          config.redisAction.createPage meetingID, presentationID, "default.png", true, (pageID) ->
+            config.redisAction.setViewBox meetingID, JSON.stringify([0, 0, 1, 1])
             folder = routes.presentationImageFolder(meetingID, presentationID)
             fs.mkdir folder, 0o0777, (reply) ->
               newFile = fs.createWriteStream(folder + "/default.png")
               oldFile = fs.createReadStream("images/default.png")
               newFile.once "open", (fd) ->
                 util.pump oldFile, newFile
-                redisAction.setImageSize meetingID, presentationID, pageID, 800, 600
+                config.redisAction.setImageSize meetingID, presentationID, pageID, 800, 600
 
-    redisAction.setIDs meetingID, sessionID, publicID, ->
-      redisAction.updateUserProperties meetingID, sessionID, ["username", username, "meetingID", meetingID, "refreshing", false, "dupSess", false, "sockets", 0, "pubID", publicID]
+    config.redisAction.setIDs meetingID, sessionID, publicID, ->
+      config.redisAction.updateUserProperties meetingID, sessionID, ["username", username, "meetingID", meetingID, "refreshing", false, "dupSess", false, "sockets", 0, "pubID", publicID]
       callback?(true)
 
   else
@@ -106,7 +115,7 @@ match, the user is not accepted.
 @return {undefined}  Response object is sent back to the client.
 ###
 exports.get_auth = (req, res) ->
-  redisAction.isValidSession req.cookies.meetingid, req.cookies.sessionid, (valid) ->
+  config.redisAction.isValidSession req.cookies.meetingid, req.cookies.sessionid, (valid) ->
     res.contentType "json"
     unless valid
       user = {}
@@ -183,21 +192,21 @@ exports.post_upload = (req, res) ->
   if req.files.image.size isnt 0
     meetingID = req.cookies.meetingid
     sessionID = req.cookies.sessionid
-    pub.publish meetingID, JSON.stringify(["uploadStatus", "Processing..."])
-    redisAction.isValidSession meetingID, sessionID, (reply) ->
+    config.redis.pub.publish meetingID, JSON.stringify(["uploadStatus", "Processing..."])
+    config.redisAction.isValidSession meetingID, sessionID, (reply) ->
       file = req.files.image.path
       pageIDs = []
-      redisAction.getCurrentPresentationID meetingID, (prevPresID) ->
-        redisAction.getCurrentPageID meetingID, prevPresID, (prevPageID) ->
-          redisAction.createPresentation meetingID, false, (presentationID) ->
-            redisAction.setViewBox meetingID, JSON.stringify([0, 0, 1, 1])
+      config.redisAction.getCurrentPresentationID meetingID, (prevPresID) ->
+        config.redisAction.getCurrentPageID meetingID, prevPresID, (prevPageID) ->
+          config.redisAction.createPresentation meetingID, false, (presentationID) ->
+            config.redisAction.setViewBox meetingID, JSON.stringify([0, 0, 1, 1])
             folder = routes.presentationImageFolder(meetingID, presentationID)
 
             #make the directory the presentation files will go into.
             fs.mkdir folder, 0o0777, (reply) ->
 
               # ImageMagick call to convert file to PNG images named slide0.png, slide1.png, slide2.png, etc...
-              im.convert ["-quality", "50", "-density", "150x150", file, folder + "/slide%d.png"], (err) ->
+              imagemagick.convert ["-quality", "50", "-density", "150x150", file, folder + "/slide%d.png"], (err) ->
                 unless err
 
                   #counts how many files are in the folder for the presentation to get the slide count.
@@ -211,25 +220,25 @@ exports.post_upload = (req, res) ->
                     while i < numOfPages
                       setCurrent = true
                       setCurrent = false  if i isnt 0
-                      redisAction.createPage meetingID, presentationID, "slide" + i + ".png", setCurrent, (pageID, imageName) ->
+                      config.redisAction.createPage meetingID, presentationID, "slide" + i + ".png", setCurrent, (pageID, imageName) ->
 
                         #ImageMagick call to get the image size from each of the converted images.
-                        im.identify folder + "/" + imageName, (err, features) ->
+                        imagemagick.identify folder + "/" + imageName, (err, features) ->
                           if err
                             throw err
                           else
-                            redisAction.setImageSize meetingID, presentationID, pageID, features.width, features.height, ->
+                            config.redisAction.setImageSize meetingID, presentationID, pageID, features.width, features.height, ->
                               pageIDs.push pageID
                               numComplete++
                               if numComplete is numOfPages
 
                                 # Once complete, set the current presentation to the new one
                                 # and publish the new slides to all members of the meeting.
-                                redisAction.setCurrentPresentation meetingID, presentationID, ->
-                                  pub.publish meetingID, JSON.stringify(["clrPaper"])
-                                  socketAction.publishSlides meetingID, null, ->
-                                    socketAction.publishViewBox meetingID
-                                    pub.publish meetingID, JSON.stringify(["uploadStatus", "Upload succeeded", true])
+                                config.redisAction.setCurrentPresentation meetingID, presentationID, ->
+                                  config.redis.pub.publish meetingID, JSON.stringify(["clrPaper"])
+                                  config.socketAction.publishSlides meetingID, null, ->
+                                    config.socketAction.publishViewBox meetingID
+                                    config.redis.pub.publish meetingID, JSON.stringify(["uploadStatus", "Upload succeeded", true])
 
                       i++
 
@@ -237,7 +246,7 @@ exports.post_upload = (req, res) ->
                   console.log err
                   fs.rmdir folder, ->
                     console.log "Deleted invalid presentation folder"
-                    pub.publish meetingID, JSON.stringify(["uploadStatus", "Invalid file", true])
+                    config.redis.pub.publish meetingID, JSON.stringify(["uploadStatus", "Invalid file", true])
 
   # TODO: return a json indicating success/failure
   res.redirect "/"
@@ -258,6 +267,6 @@ exports.error404 = (req, res) ->
 @return {undefined}  Response object is sent back to the client.
 ###
 exports.meetings = (req, res) ->
-  redisAction.getMeetings (results) ->
+  config.redisAction.getMeetings (results) ->
     res.contentType "json"
     res.send JSON.stringify(results)

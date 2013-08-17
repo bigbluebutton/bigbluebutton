@@ -1,3 +1,8 @@
+sanitizer = require("sanitizer")
+rack = require("hat").rack()
+
+config = require("../config")
+
 ###
 Publish usernames to all the sockets
 @param {string} meetingID ID of the meeting
@@ -7,7 +12,7 @@ Publish usernames to all the sockets
 ###
 exports.publishUsernames = (meetingID, sessionID, callback) ->
   usernames = []
-  redisAction.getUsers meetingID, (users) ->
+  config.redisAction.getUsers meetingID, (users) ->
     i = users.length - 1
 
     while i >= 0
@@ -18,18 +23,18 @@ exports.publishUsernames = (meetingID, sessionID, callback) ->
       i--
     receivers = (if sessionID isnt `undefined` then sessionID else meetingID)
 
-    #pub.publish(receivers, JSON.stringify(['user list change', usernames]));
-    pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user list change", usernames])
+    #config.redis.pub.publish(receivers, JSON.stringify(['user list change', usernames]));
+    config.redis.pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user list change", usernames])
     callback?(true)
 
-  store.scard redisAction.getUsersString(meetingID), (err, cardinality) ->
+  config.store.scard config.redisAction.getUsersString(meetingID), (err, cardinality) ->
     if cardinality is "0"
-      redisAction.processMeeting meetingID
+      config.redisAction.processMeeting meetingID
       callback?(false)
 
 exports.publishLoadUsers = (meetingID, sessionID, callback) ->
   usernames = []
-  redisAction.getUsers meetingID, (users) ->
+  config.redisAction.getUsers meetingID, (users) ->
     i = users.length - 1
 
     while i >= 0
@@ -40,35 +45,35 @@ exports.publishLoadUsers = (meetingID, sessionID, callback) ->
       i--
     receivers = (if sessionID isnt `undefined` then sessionID else meetingID)
 
-    #pub.publish(receivers, JSON.stringify(['user list change', usernames]));
-    pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "load users", usernames])
+    #config.redis.pub.publish(receivers, JSON.stringify(['user list change', usernames]));
+    config.redis.pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "load users", usernames])
     callback?(true)
 
-  store.scard redisAction.getUsersString(meetingID), (err, cardinality) ->
+  config.store.scard config.redisAction.getUsersString(meetingID), (err, cardinality) ->
     if cardinality is "0"
-      redisAction.processMeeting meetingID
+      config.redisAction.processMeeting meetingID
       callback?(false)
 
 exports.publishUserJoin = (meetingID, sessionID, userid, username, callback) ->
   receivers = (if sessionID isnt `undefined` then sessionID else meetingID)
 
-  #pub.publish(receivers, JSON.stringify(['user list change', usernames]));
-  pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user join", userid, username, "VIEWER"])
+  #config.redis.pub.publish(receivers, JSON.stringify(['user list change', usernames]));
+  config.redis.pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user join", userid, username, "VIEWER"])
   callback?(true)
-  store.scard redisAction.getUsersString(meetingID), (err, cardinality) ->
+  config.store.scard config.redisAction.getUsersString(meetingID), (err, cardinality) ->
     if cardinality is "0"
-      redisAction.processMeeting meetingID
+      config.redisAction.processMeeting meetingID
       callback?(false)
 
 exports.publishUserLeave = (meetingID, sessionID, userid, callback) ->
   receivers = (if sessionID isnt `undefined` then sessionID else meetingID)
 
-  #pub.publish(receivers, JSON.stringify(['user list change', usernames]));
-  pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user leave", userid])
+  #config.redis.pub.publish(receivers, JSON.stringify(['user list change', usernames]));
+  config.redis.pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user leave", userid])
   callback?(true)
-  store.scard redisAction.getUsersString(meetingID), (err, cardinality) ->
+  config.store.scard config.redisAction.getUsersString(meetingID), (err, cardinality) ->
     if cardinality is "0"
-      redisAction.processMeeting meetingID
+      config.redisAction.processMeeting meetingID
       callback?(false)
 
 ###
@@ -79,9 +84,9 @@ Publish presenter to appropriate clients.
 @return {undefined} publish to Redis PubSub
 ###
 exports.publishPresenter = (meetingID, sessionID, callback) ->
-  redisAction.getPresenterPublicID meetingID, (publicID) ->
+  config.redisAction.getPresenterPublicID meetingID, (publicID) ->
     receivers = (if sessionID isnt `undefined` then sessionID else meetingID)
-    pub.publish receivers, JSON.stringify(["setPresenter", publicID])
+    config.redis.pub.publish receivers, JSON.stringify(["setPresenter", publicID])
     callback?(true)
 
 ###
@@ -93,11 +98,11 @@ Get all messages from Redis and publish to a specific sessionID (user)
 ###
 exports.publishMessages = (meetingID, sessionID, callback) ->
   messages = []
-  redisAction.getCurrentPresentationID meetingID, (presentationID) ->
-    redisAction.getCurrentPageID meetingID, presentationID, (pageID) ->
-      redisAction.getItems meetingID, presentationID, pageID, "messages", (messages) ->
+  config.redisAction.getCurrentPresentationID meetingID, (presentationID) ->
+    config.redisAction.getCurrentPageID meetingID, presentationID, (pageID) ->
+      config.redisAction.getItems meetingID, presentationID, pageID, "messages", (messages) ->
         receivers = (if sessionID isnt `undefined` then sessionID else meetingID)
-        pub.publish receivers, JSON.stringify(["all_messages", messages])
+        config.redis.pub.publish receivers, JSON.stringify(["all_messages", messages])
         callback?()
 
 ###
@@ -109,21 +114,21 @@ Publish list of slides from Redis to the appropriate clients
 ###
 exports.publishSlides = (meetingID, sessionID, callback) ->
   slides = []
-  redisAction.getCurrentPresentationID meetingID, (presentationID) ->
-    redisAction.getPageIDs meetingID, presentationID, (presentationID, pageIDs) ->
+  config.redisAction.getCurrentPresentationID meetingID, (presentationID) ->
+    config.redisAction.getPageIDs meetingID, presentationID, (presentationID, pageIDs) ->
       numOfSlides = pageIDs.length
       slideCount = 0
       i = 0
 
       while i < numOfSlides
-        redisAction.getPageImage meetingID, presentationID, pageIDs[i], (pageID, filename) ->
-          redisAction.getImageSize meetingID, presentationID, pageID, (width, height) ->
+        config.redisAction.getPageImage meetingID, presentationID, pageIDs[i], (pageID, filename) ->
+          config.redisAction.getImageSize meetingID, presentationID, pageID, (width, height) ->
 
             #slides.push(['images/presentation' +presentationID+'/'+filename, width, height]);
             slides.push ["bigbluebutton/presentation/" + meetingID + "/" + meetingID + "/" + presentationID + "/png/" + filename, width, height]
             if slides.length is numOfSlides
               receivers = (if sessionID isnt `undefined` then sessionID else meetingID)
-              pub.publish receivers, JSON.stringify(["all_slides", slides])
+              config.redis.pub.publish receivers, JSON.stringify(["all_slides", slides])
               callback?()
 
         i++
@@ -137,11 +142,11 @@ Publish list of shapes from Redis to appropriate clients
 ###
 exports.publishShapes = (meetingID, sessionID, callback) ->
   shapes = []
-  redisAction.getCurrentPresentationID meetingID, (presentationID) ->
-    redisAction.getCurrentPageID meetingID, presentationID, (pageID) ->
-      redisAction.getItems meetingID, presentationID, pageID, "currentshapes", (shapes) ->
+  config.redisAction.getCurrentPresentationID meetingID, (presentationID) ->
+    config.redisAction.getCurrentPageID meetingID, presentationID, (pageID) ->
+      config.redisAction.getItems meetingID, presentationID, pageID, "currentshapes", (shapes) ->
         receivers = (if sessionID isnt `undefined` then sessionID else meetingID)
-        pub.publish receivers, JSON.stringify(["all_shapes", shapes])
+        config.redis.pub.publish receivers, JSON.stringify(["all_shapes", shapes])
         callback?()
 
 ###
@@ -152,11 +157,11 @@ Publish viewbox from Redis to appropriate clients
 @return {undefined} publish to Redis PubSub
 ###
 exports.publishViewBox = (meetingID, sessionID, callback) ->
-  redisAction.getCurrentPresentationID meetingID, (presentationID) ->
-    redisAction.getViewBox meetingID, (viewBox) ->
+  config.redisAction.getCurrentPresentationID meetingID, (presentationID) ->
+    config.redisAction.getViewBox meetingID, (viewBox) ->
       viewBox = JSON.parse(viewBox)
       receivers = (if sessionID isnt `undefined` then sessionID else meetingID)
-      pub.publish receivers, JSON.stringify(["paper", viewBox[0], viewBox[1], viewBox[2], viewBox[3]])
+      config.redis.pub.publish receivers, JSON.stringify(["paper", viewBox[0], viewBox[1], viewBox[2], viewBox[3]])
       callback?()
 
 ###
@@ -168,9 +173,9 @@ Publish tool from Redis to appropriate clients
 @return {undefined} publish to Redis PubSub
 ###
 exports.publishTool = (meetingID, sessionID, tool, callback) ->
-  redisAction.getCurrentTool meetingID, (tool) ->
+  config.redisAction.getCurrentTool meetingID, (tool) ->
     receivers = (if sessionID isnt `undefined` then sessionID else meetingID)
-    pub.publish receivers, JSON.stringify(["toolChanged", tool])
+    config.redis.pub.publish receivers, JSON.stringify(["toolChanged", tool])
     callback?()
 
 ###
@@ -181,11 +186,11 @@ Publish viewbox from Redis to appropriate clients
 @return {undefined} publish to Redis PubSub
 ###
 exports.publishViewBox = (meetingID, sessionID, callback) ->
-  redisAction.getCurrentPresentationID meetingID, (presentationID) ->
-    redisAction.getViewBox meetingID, (viewBox) ->
+  config.redisAction.getCurrentPresentationID meetingID, (presentationID) ->
+    config.redisAction.getViewBox meetingID, (viewBox) ->
       viewBox = JSON.parse(viewBox)
       receivers = (if sessionID isnt `undefined` then sessionID else meetingID)
-      pub.publish receivers, JSON.stringify(["paper", viewBox[0], viewBox[1], viewBox[2], viewBox[3]])
+      config.redis.pub.publish receivers, JSON.stringify(["paper", viewBox[0], viewBox[1], viewBox[2], viewBox[3]])
       callback?()
 
 ###
@@ -197,9 +202,9 @@ Publish tool from Redis to appropriate clients
 @return {undefined} publish to Redis PubSub
 ###
 exports.publishTool = (meetingID, sessionID, tool, callback) ->
-  redisAction.getCurrentTool meetingID, (tool) ->
+  config.redisAction.getCurrentTool meetingID, (tool) ->
     receivers = (if sessionID isnt `undefined` then sessionID else meetingID)
-    pub.publish receivers, JSON.stringify(["toolChanged", tool])
+    config.redis.pub.publish receivers, JSON.stringify(["toolChanged", tool])
     callback?()
 
 
@@ -215,19 +220,19 @@ exports.SocketOnConnection = (socket) ->
     handshake = socket.handshake
     sessionID = handshake.sessionID
     meetingID = handshake.meetingID
-    redisAction.isValidSession meetingID, sessionID, (reply) ->
+    config.redisAction.isValidSession meetingID, sessionID, (reply) ->
       if reply
-        if msg.length > max_chat_length
-          pub.publish sessionID, JSON.stringify(["msg", "System", "Message too long."])
+        if msg.length > config.maxChatLength
+          config.redis.pub.publish sessionID, JSON.stringify(["msg", "System", "Message too long."])
         else
           username = handshake.username
-          redisAction.getUserProperties meetingID, sessionID, (properties) ->
-            pub.publish "bigbluebutton:bridge", JSON.stringify([meetingID, "msg", username, msg, properties.pubID])
+          config.redisAction.getUserProperties meetingID, sessionID, (properties) ->
+            config.redis.pub.publish "bigbluebutton:bridge", JSON.stringify([meetingID, "msg", username, msg, properties.pubID])
             messageID = rack() #get a randomly generated id for the message
 
             #try later taking these nulls out and see if the function still works
-            store.rpush redisAction.getMessagesString(meetingID, null, null), messageID #store the messageID in the list of messages
-            store.hmset redisAction.getMessageString(meetingID, null, null, messageID), "message", msg, "username", username, "userID", properties.pubID
+            config.store.rpush config.redisAction.getMessagesString(meetingID, null, null), messageID #store the messageID in the list of messages
+            config.store.hmset config.redisAction.getMessageString(meetingID, null, null, messageID), "message", msg, "username", username, "userID", properties.pubID
 
   ###
   When a user connects to the socket...
@@ -237,7 +242,7 @@ exports.SocketOnConnection = (socket) ->
     handshake = socket.handshake
     sessionID = handshake.sessionID
     meetingID = handshake.meetingID
-    redisAction.isValidSession meetingID, sessionID, (reply) ->
+    config.redisAction.isValidSession meetingID, sessionID, (reply) ->
       if reply
         username = handshake.username
         socketID = socket.id
@@ -245,47 +250,47 @@ exports.SocketOnConnection = (socket) ->
         socket.join sessionID #join the socket Room with value of the sessionID
 
         #add socket to list of sockets.
-        redisAction.getUserProperties meetingID, sessionID, (properties) ->
-          socketAction.publishLoadUsers meetingID, null, ->
-            socketAction.publishPresenter meetingID
+        config.redisAction.getUserProperties meetingID, sessionID, (properties) ->
+          config.socketAction.publishLoadUsers meetingID, null, ->
+            config.socketAction.publishPresenter meetingID
 
           numOfSockets = parseInt(properties.sockets, 10)
           numOfSockets += 1
-          store.hset redisAction.getUserString(meetingID, sessionID), "sockets", numOfSockets
+          config.store.hset config.redisAction.getUserString(meetingID, sessionID), "sockets", numOfSockets
           if (properties.refreshing is "false") and (properties.dupSess is "false")
 
             #all of the next sessions created with this sessionID are duplicates
-            store.hset redisAction.getUserString(meetingID, sessionID), "dupSess", true
+            config.store.hset config.redisAction.getUserString(meetingID, sessionID), "dupSess", true
 
-            #socketAction.publishUsernames(meetingID, null, function() {
-            #              socketAction.publishPresenter(meetingID);
+            #config.socketAction.publishUsernames(meetingID, null, function() {
+            #              config.socketAction.publishPresenter(meetingID);
             #            });
-            socketAction.publishUserJoin meetingID, null, properties.pubID, properties.username, ->
-              socketAction.publishPresenter meetingID
+            config.socketAction.publishUserJoin meetingID, null, properties.pubID, properties.username, ->
+              config.socketAction.publishPresenter meetingID
 
           else
-            store.hset redisAction.getUserString(meetingID, sessionID), "refreshing", false
+            config.store.hset config.redisAction.getUserString(meetingID, sessionID), "refreshing", false
 
-            #socketAction.publishUsernames(meetingID, sessionID, function() {
-            #             socketAction.publishPresenter(meetingID, sessionID);
+            #config.socketAction.publishUsernames(meetingID, sessionID, function() {
+            #             config.socketAction.publishPresenter(meetingID, sessionID);
             #           });
-            socketAction.publishUserJoin meetingID, sessionID, properties.pubID, properties.username, ->
-              socketAction.publishPresenter meetingID, sessionID
+            config.socketAction.publishUserJoin meetingID, sessionID, properties.pubID, properties.username, ->
+              config.socketAction.publishPresenter meetingID, sessionID
 
-          socketAction.publishMessages meetingID, sessionID
-          socketAction.publishSlides meetingID, sessionID, ->
+          config.socketAction.publishMessages meetingID, sessionID
+          config.socketAction.publishSlides meetingID, sessionID, ->
 
             # after send 'all_slides' event, we have to load the current slide for new user by
             # getting the current presentation slide url and send the 'changeslide' event
-            store.get "currentUrl", (err, url) ->
+            config.store.get "currentUrl", (err, url) ->
               if err
                 console.log err
               else
-                pub.publish meetingID, JSON.stringify(["changeslide", url])
+                config.redis.pub.publish meetingID, JSON.stringify(["changeslide", url])
 
-            socketAction.publishTool meetingID, sessionID
-            socketAction.publishShapes meetingID, sessionID
-            socketAction.publishViewBox meetingID, sessionID
+            config.socketAction.publishTool meetingID, sessionID
+            config.socketAction.publishShapes meetingID, sessionID
+            config.socketAction.publishViewBox meetingID, sessionID
 
   ###
   When a user disconnects from the socket...
@@ -297,33 +302,33 @@ exports.SocketOnConnection = (socket) ->
     meetingID = handshake.meetingID
 
     #check if user is still in database
-    redisAction.isValidSession meetingID, sessionID, (isValid) ->
+    config.redisAction.isValidSession meetingID, sessionID, (isValid) ->
       if isValid
         username = handshake.username
         socketID = socket.id
-        redisAction.updateUserProperties meetingID, sessionID, ["refreshing", true], (success) ->
+        config.redisAction.updateUserProperties meetingID, sessionID, ["refreshing", true], (success) ->
           setTimeout (->
 
             #in one second, check again...
-            redisAction.isValidSession meetingID, sessionID, (isValid) ->
+            config.redisAction.isValidSession meetingID, sessionID, (isValid) ->
               if isValid
-                redisAction.getUserProperties meetingID, sessionID, (properties) ->
+                config.redisAction.getUserProperties meetingID, sessionID, (properties) ->
                   numOfSockets = parseInt(properties.sockets, 10)
                   numOfSockets -= 1
                   if numOfSockets is 0
-                    redisAction.deleteUser meetingID, sessionID, ->
+                    config.redisAction.deleteUser meetingID, sessionID, ->
 
-                      #socketAction.publishUsernames(meetingID);
-                      socketAction.publishUserLeave meetingID, sessionID, properties.pubID
+                      #config.socketAction.publishUsernames(meetingID);
+                      config.socketAction.publishUserLeave meetingID, sessionID, properties.pubID
 
                   else
-                    redisAction.updateUserProperties meetingID, sessionID, ["sockets", numOfSockets]
+                    config.redisAction.updateUserProperties meetingID, sessionID, ["sockets", numOfSockets]
 
               else
-                socketAction.publishUsernames meetingID
+                config.socketAction.publishUsernames meetingID
 
 
-          #socketAction.publishPresenter(meetingID, sessionID);
+          #config.socketAction.publishPresenter(meetingID, sessionID);
           ), 5000
 
   ###
@@ -334,24 +339,24 @@ exports.SocketOnConnection = (socket) ->
     handshake = socket.handshake
     sessionID = handshake.sessionID
     meetingID = handshake.meetingID
-    redisAction.isValidSession meetingID, sessionID, (isValid) ->
+    config.redisAction.isValidSession meetingID, sessionID, (isValid) ->
       if isValid
 
         #initialize local variables
         username = handshake.username
-        redisAction.getUserProperties meetingID, sessionID, (properties) ->
-          socketAction.publishUserLeave meetingID, null, properties.pubID
+        config.redisAction.getUserProperties meetingID, sessionID, (properties) ->
+          config.socketAction.publishUserLeave meetingID, null, properties.pubID
 
         #remove the user from the list of users
-        store.srem redisAction.getUsersString(meetingID), sessionID, (numDeleted) ->
+        config.store.srem config.redisAction.getUsersString(meetingID), sessionID, (numDeleted) ->
 
           #delete key from database
-          store.del redisAction.getUserString(meetingID, sessionID), (reply) ->
-            pub.publish sessionID, JSON.stringify(["logout"]) #send to all users on same session (all tabs)
-            #socketAction.publishUserLeave(meetingID, sessionID, sessionID);
+          config.store.del config.redisAction.getUserString(meetingID, sessionID), (reply) ->
+            config.redis.pub.publish sessionID, JSON.stringify(["logout"]) #send to all users on same session (all tabs)
+            #config.socketAction.publishUserLeave(meetingID, sessionID, sessionID);
             socket.disconnect() #disconnect own socket
 
-  #socketAction.publishUsernames(meetingID);
+  #config.socketAction.publishUsernames(meetingID);
 
   ###
   A user clicks to change to previous slide
@@ -361,16 +366,16 @@ exports.SocketOnConnection = (socket) ->
     handshake = socket.handshake
     sessionID = handshake.sessionID
     meetingID = handshake.meetingID
-    redisAction.getPresenterSessionID meetingID, (presenterID) ->
+    config.redisAction.getPresenterSessionID meetingID, (presenterID) ->
       if presenterID is sessionID
-        redisAction.getCurrentPresentationID meetingID, (presentationID) ->
-          redisAction.changeToPrevPage meetingID, presentationID, (pageID) ->
-            redisAction.getPageImage meetingID, presentationID, pageID, (pageID, filename) ->
+        config.redisAction.getCurrentPresentationID meetingID, (presentationID) ->
+          config.redisAction.changeToPrevPage meetingID, presentationID, (pageID) ->
+            config.redisAction.getPageImage meetingID, presentationID, pageID, (pageID, filename) ->
 
-              #pub.publish(meetingID, JSON.stringify(['changeslide', 'images/presentation/' + presentationID + '/'+filename]));
-              pub.publish meetingID, JSON.stringify(["changeslide", "bigbluebutton/presentation/" + meetingID + "/" + meetingID + "/" + presentationID + "/png/" + filename])
-              pub.publish meetingID, JSON.stringify(["clrPaper"])
-              socketAction.publishShapes meetingID
+              #config.redis.pub.publish(meetingID, JSON.stringify(['changeslide', 'images/presentation/' + presentationID + '/'+filename]));
+              config.redis.pub.publish meetingID, JSON.stringify(["changeslide", "bigbluebutton/presentation/" + meetingID + "/" + meetingID + "/" + presentationID + "/png/" + filename])
+              config.redis.pub.publish meetingID, JSON.stringify(["clrPaper"])
+              config.socketAction.publishShapes meetingID
 
   ###
   A user clicks to change to next slide
@@ -380,16 +385,16 @@ exports.SocketOnConnection = (socket) ->
     handshake = socket.handshake
     sessionID = handshake.sessionID
     meetingID = handshake.meetingID
-    redisAction.getPresenterSessionID meetingID, (presenterID) ->
+    config.redisAction.getPresenterSessionID meetingID, (presenterID) ->
       if presenterID is sessionID
-        redisAction.getCurrentPresentationID meetingID, (presentationID) ->
-          redisAction.changeToNextPage meetingID, presentationID, (pageID) ->
-            redisAction.getPageImage meetingID, presentationID, pageID, (pageID, filename) ->
+        config.redisAction.getCurrentPresentationID meetingID, (presentationID) ->
+          config.redisAction.changeToNextPage meetingID, presentationID, (pageID) ->
+            config.redisAction.getPageImage meetingID, presentationID, pageID, (pageID, filename) ->
 
-              #pub.publish(meetingID, JSON.stringify(['changeslide', 'images/presentation/' + presentationID + '/'+filename]));
-              pub.publish meetingID, JSON.stringify(["changeslide", "bigbluebutton/presentation/" + meetingID + "/" + meetingID + "/" + presentationID + "/png/" + filename])
-              pub.publish meetingID, JSON.stringify(["clrPaper"])
-              socketAction.publishShapes meetingID
+              #config.redis.pub.publish(meetingID, JSON.stringify(['changeslide', 'images/presentation/' + presentationID + '/'+filename]));
+              config.redis.pub.publish meetingID, JSON.stringify(["changeslide", "bigbluebutton/presentation/" + meetingID + "/" + meetingID + "/" + presentationID + "/png/" + filename])
+              config.redis.pub.publish meetingID, JSON.stringify(["clrPaper"])
+              config.socketAction.publishShapes meetingID
 
   ###
   When a rectangle creation event is received
@@ -399,8 +404,8 @@ exports.SocketOnConnection = (socket) ->
   ###
   socket.on "makeShape", (shape, data) ->
     meetingID = socket.handshake.meetingID
-    redisAction.getPresenterSessionID meetingID, (presenterID) ->
-      pub.publish meetingID, JSON.stringify(["makeShape", shape, data])  if presenterID is socket.handshake.sessionID
+    config.redisAction.getPresenterSessionID meetingID, (presenterID) ->
+      config.redis.pub.publish meetingID, JSON.stringify(["makeShape", shape, data])  if presenterID is socket.handshake.sessionID
 
   ###
   When a update shape event is received
@@ -410,8 +415,8 @@ exports.SocketOnConnection = (socket) ->
   ###
   socket.on "updShape", (shape, data) ->
     meetingID = socket.handshake.meetingID
-    redisAction.getPresenterSessionID meetingID, (presenterID) ->
-      pub.publish meetingID, JSON.stringify(["updShape", shape, data])  if presenterID is socket.handshake.sessionID
+    config.redisAction.getPresenterSessionID meetingID, (presenterID) ->
+      config.redis.pub.publish meetingID, JSON.stringify(["updShape", shape, data])  if presenterID is socket.handshake.sessionID
 
   ###
   When a cursor move event is received
@@ -421,8 +426,8 @@ exports.SocketOnConnection = (socket) ->
   ###
   socket.on "mvCur", (x, y) ->
     meetingID = socket.handshake.meetingID
-    redisAction.getPresenterSessionID meetingID, (presenterID) ->
-      pub.publish "bigbluebutton:bridge", JSON.stringify([meetingID, "mvCur", x, y])  if presenterID is socket.handshake.sessionID
+    config.redisAction.getPresenterSessionID meetingID, (presenterID) ->
+      config.redis.pub.publish "bigbluebutton:bridge", JSON.stringify([meetingID, "mvCur", x, y])  if presenterID is socket.handshake.sessionID
 
   ###
   When a clear Paper event is received
@@ -431,15 +436,15 @@ exports.SocketOnConnection = (socket) ->
   socket.on "clrPaper", ->
     meetingID = socket.handshake.meetingID
     sessionID = socket.handshake.sessionID
-    redisAction.getPresenterSessionID meetingID, (presenterID) ->
+    config.redisAction.getPresenterSessionID meetingID, (presenterID) ->
       if presenterID is socket.handshake.sessionID
-        redisAction.getCurrentPresentationID meetingID, (presentationID) ->
-          redisAction.getCurrentPageID meetingID, presentationID, (pageID) ->
-            redisAction.getItemIDs meetingID, presentationID, pageID, "currentshapes", (meetingID, presentationID, pageID, itemIDs, itemName) ->
-              redisAction.deleteItemList meetingID, presentationID, pageID, itemName, itemIDs
+        config.redisAction.getCurrentPresentationID meetingID, (presentationID) ->
+          config.redisAction.getCurrentPageID meetingID, presentationID, (pageID) ->
+            config.redisAction.getItemIDs meetingID, presentationID, pageID, "currentshapes", (meetingID, presentationID, pageID, itemIDs, itemName) ->
+              config.redisAction.deleteItemList meetingID, presentationID, pageID, itemName, itemIDs
 
-            pub.publish meetingID, JSON.stringify(["clrPaper"])
-            socketAction.publishTool meetingID, sessionID
+            config.redis.pub.publish meetingID, JSON.stringify(["clrPaper"])
+            config.socketAction.publishTool meetingID, sessionID
 
   ###
   When the user wishes to set the presenter to another user
@@ -449,8 +454,8 @@ exports.SocketOnConnection = (socket) ->
   socket.on "setPresenter", (publicID) ->
     console.log "setting presenter to" + publicID
     meetingID = socket.handshake.meetingID
-    redisAction.setPresenterFromPublicID meetingID, publicID, (success) ->
-      pub.publish "bigbluebutton:bridge", JSON.stringify([meetingID, "setPresenter", publicID])  if success
+    config.redisAction.setPresenterFromPublicID meetingID, publicID, (success) ->
+      config.redis.pub.publish "bigbluebutton:bridge", JSON.stringify([meetingID, "setPresenter", publicID])  if success
 
   ###
   When a user is updating the viewBox of the paper
@@ -462,16 +467,16 @@ exports.SocketOnConnection = (socket) ->
   ###
   socket.on "paper", (cx, cy, sw, sh) ->
     meetingID = socket.handshake.meetingID
-    redisAction.getPresenterSessionID meetingID, (presenterID) ->
+    config.redisAction.getPresenterSessionID meetingID, (presenterID) ->
       if presenterID is socket.handshake.sessionID
-        pub.publish socket.handshake.meetingID, JSON.stringify(["paper", cx, cy, sw, sh])
+        config.redis.pub.publish socket.handshake.meetingID, JSON.stringify(["paper", cx, cy, sw, sh])
         if not sw and not sh
-          redisAction.getViewBox socket.handshake.meetingID, (viewbox) ->
+          config.redisAction.getViewBox socket.handshake.meetingID, (viewbox) ->
             viewbox = JSON.parse(viewbox)
-            redisAction.setViewBox socket.handshake.meetingID, JSON.stringify([cx, cy, viewbox[2], viewbox[3]])
+            config.redisAction.setViewBox socket.handshake.meetingID, JSON.stringify([cx, cy, viewbox[2], viewbox[3]])
 
         else
-          redisAction.setViewBox socket.handshake.meetingID, JSON.stringify([cx, cy, sw, sh])
+          config.redisAction.setViewBox socket.handshake.meetingID, JSON.stringify([cx, cy, sw, sh])
 
   ###
   When a user is zooming
@@ -480,8 +485,8 @@ exports.SocketOnConnection = (socket) ->
   ###
   socket.on "zoom", (delta) ->
     meetingID = socket.handshake.meetingID
-    redisAction.getPresenterSessionID meetingID, (presenterID) ->
-      pub.publish meetingID, JSON.stringify(["zoom", delta])  if presenterID is socket.handshake.sessionID
+    config.redisAction.getPresenterSessionID meetingID, (presenterID) ->
+      config.redis.pub.publish meetingID, JSON.stringify(["zoom", delta])  if presenterID is socket.handshake.sessionID
 
   ###
   When a user finishes panning
@@ -489,8 +494,8 @@ exports.SocketOnConnection = (socket) ->
   ###
   socket.on "panStop", ->
     meetingID = socket.handshake.meetingID
-    redisAction.getPresenterSessionID meetingID, (presenterID) ->
-      pub.publish meetingID, JSON.stringify(["panStop"])  if presenterID is socket.handshake.sessionID
+    config.redisAction.getPresenterSessionID meetingID, (presenterID) ->
+      config.redis.pub.publish meetingID, JSON.stringify(["panStop"])  if presenterID is socket.handshake.sessionID
 
   ###
   Undoing the last shape
@@ -498,14 +503,14 @@ exports.SocketOnConnection = (socket) ->
   ###
   socket.on "undo", ->
     meetingID = socket.handshake.meetingID
-    redisAction.getPresenterSessionID meetingID, (presenterID) ->
+    config.redisAction.getPresenterSessionID meetingID, (presenterID) ->
       if presenterID is socket.handshake.sessionID
-        redisAction.getCurrentPresentationID meetingID, (presentationID) ->
-          redisAction.getCurrentPageID meetingID, presentationID, (pageID) ->
+        config.redisAction.getCurrentPresentationID meetingID, (presentationID) ->
+          config.redisAction.getCurrentPageID meetingID, presentationID, (pageID) ->
 
             #pop the last shape off the current list of shapes
-            store.rpop redisAction.getCurrentShapesString(meetingID, presentationID, pageID), (err, reply) ->
-              socketAction.publishShapes meetingID
+            config.store.rpop config.redisAction.getCurrentShapesString(meetingID, presentationID, pageID), (err, reply) ->
+              config.socketAction.publishShapes meetingID
 
   ###
   Telling everyone the current text has been finished
@@ -513,8 +518,8 @@ exports.SocketOnConnection = (socket) ->
   ###
   socket.on "textDone", ->
     meetingID = socket.handshake.meetingID
-    redisAction.getPresenterSessionID meetingID, (presenterID) ->
-      pub.publish meetingID, JSON.stringify(["textDone"])  if presenterID is socket.handshake.sessionID
+    config.redisAction.getPresenterSessionID meetingID, (presenterID) ->
+      config.redis.pub.publish meetingID, JSON.stringify(["textDone"])  if presenterID is socket.handshake.sessionID
 
   ###
   Saving a shape to Redis. Does not provide feedback to client(s)
@@ -525,13 +530,13 @@ exports.SocketOnConnection = (socket) ->
   socket.on "saveShape", (shape, data) ->
     handshake = socket.handshake
     meetingID = handshake.meetingID
-    redisAction.getPresenterSessionID meetingID, (presenterID) ->
+    config.redisAction.getPresenterSessionID meetingID, (presenterID) ->
       if presenterID is handshake.sessionID
-        redisAction.getCurrentPresentationID meetingID, (presentationID) ->
-          redisAction.getCurrentPageID meetingID, presentationID, (pageID) ->
+        config.redisAction.getCurrentPresentationID meetingID, (presentationID) ->
+          config.redisAction.getCurrentPageID meetingID, presentationID, (pageID) ->
             shapeID = rack() #get a randomly generated id for the shape
-            store.rpush redisAction.getCurrentShapesString(meetingID, presentationID, pageID), shapeID
-            store.hmset redisAction.getShapeString(meetingID, presentationID, pageID, shapeID), "shape", shape, "data", data, (err, reply) ->
+            config.store.rpush config.redisAction.getCurrentShapesString(meetingID, presentationID, pageID), shapeID
+            config.store.hmset config.redisAction.getShapeString(meetingID, presentationID, pageID, shapeID), "shape", shape, "data", data, (err, reply) ->
 
   ###
   Changing the currently set tool.
@@ -543,10 +548,10 @@ exports.SocketOnConnection = (socket) ->
   socket.on "changeTool", (tool) ->
     handshake = socket.handshake
     meetingID = handshake.meetingID
-    redisAction.getPresenterSessionID meetingID, (presenterID) ->
+    config.redisAction.getPresenterSessionID meetingID, (presenterID) ->
       if presenterID is socket.handshake.sessionID
-        redisAction.setCurrentTool meetingID, tool, (success) ->
-          pub.publish meetingID, JSON.stringify(["toolChanged", tool])  if success
+        config.redisAction.setCurrentTool meetingID, tool, (success) ->
+          config.redis.pub.publish meetingID, JSON.stringify(["toolChanged", tool])  if success
 
   ###
   If a user requests all the shapes,
@@ -558,7 +563,7 @@ exports.SocketOnConnection = (socket) ->
     handshake = socket.handshake
     meetingID = handshake.meetingID
     sessionID = handshake.sessionID
-    socketAction.publishShapes meetingID
+    config.socketAction.publishShapes meetingID
 
   ###
   Updating the fit of the image to the whiteboard
@@ -568,5 +573,5 @@ exports.SocketOnConnection = (socket) ->
   socket.on "fitToPage", (fit) ->
     handshake = socket.handshake
     meetingID = handshake.meetingID
-    redisAction.getPresenterSessionID meetingID, (presenterID) ->
-      pub.publish meetingID, JSON.stringify(["fitToPage", fit])  if presenterID is socket.handshake.sessionID
+    config.redisAction.getPresenterSessionID meetingID, (presenterID) ->
+      config.redis.pub.publish meetingID, JSON.stringify(["fitToPage", fit])  if presenterID is socket.handshake.sessionID

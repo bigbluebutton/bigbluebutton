@@ -1,38 +1,24 @@
-# default global variables
-max_chat_length = 140
-max_username_length = 30
-max_meetingid_length = 10
-maxImage = 3
-
 # Module dependencies
 express = require("express")
-io = require("socket.io").listen(app)
 RedisStore = require("connect-redis")(express)
 redis = require("redis")
+
+config = require("./config")
 routes = require("./routes")
-hat = require("hat")
-rack = hat.rack()
-format = require("util").format
-fs = require("fs")
-im = require("imagemagick")
-util = require("util")
-exec = require("child_process").exec
-ip_address = "localhost"
 
 # global variables
-redisAction = require("./redis")
-socketAction = require("./routes/socketio")
-sanitizer = require("sanitizer")
-store = redis.createClient()
+config.redisAction = require("./redis")
+config.socketAction = require("./routes/socketio")
+config.store = redis.createClient()
 
 # store.flushdb();
-pub = redis.createClient()
-sub = redis.createClient()
+config.redis.pub = redis.createClient()
+config.redis.sub = redis.createClient()
 subscriptions = ["*"]
-sub.psubscribe.apply sub, subscriptions
+config.redis.sub.psubscribe.apply(config.redis.sub, subscriptions)
 
 # the application, exported in this module
-app = module.exports = express.createServer()
+config.app = app = module.exports = express.createServer()
 
 # Configuration
 app.configure ->
@@ -80,7 +66,7 @@ function is used to verify they are logged in.
 requiresLogin = (req, res, next) ->
 
   # check that they have a cookie with valid session id
-  redisAction.isValidSession req.cookies["meetingid"], req.cookies["sessionid"], (isValid) ->
+  config.redisAction.isValidSession req.cookies["meetingid"], req.cookies["sessionid"], (isValid) ->
     if isValid
       next()
     else
@@ -100,6 +86,8 @@ app.get "*", routes.error404
 app.post "*", routes.error404
 
 # Socket.IO Routes
+
+io = require("socket.io").listen(app)
 
 ###
 This function is used to parse a variable value from a cookie string.
@@ -128,19 +116,19 @@ io.configure ->
   io.set "authorization", (handshakeData, callback) ->
     sessionID = getCookie(handshakeData.headers.cookie, "sessionid")
     meetingID = getCookie(handshakeData.headers.cookie, "meetingid")
-    redisAction.isValidSession meetingID, sessionID, (isValid) ->
+    config.redisAction.isValidSession meetingID, sessionID, (isValid) ->
       unless isValid
         console.log "Invalid sessionID/meetingID"
         callback null, false # failed authorization
       else
-        redisAction.getUserProperties meetingID, sessionID, (properties) ->
+        config.redisAction.getUserProperties meetingID, sessionID, (properties) ->
           handshakeData.sessionID = sessionID
           handshakeData.username = properties.username
           handshakeData.meetingID = properties.meetingID
           callback null, true # good authorization
 
 # When someone connects to the websocket. Includes all the SocketIO events.
-io.sockets.on "connection", socketAction.SocketOnConnection
+io.sockets.on "connection", config.socketAction.SocketOnConnection
 
 # Redis Routes
 ###
@@ -150,7 +138,7 @@ When Redis Sub gets a message from Pub
 @param  {String} message Message published (socket message data)
 @return {undefined}
 ###
-sub.on "pmessage", (pattern, channel, message) ->
+config.redis.sub.on "pmessage", (pattern, channel, message) ->
 
   if channel is "bigbluebutton:bridge"
     console.log message
@@ -161,7 +149,7 @@ sub.on "pmessage", (pattern, channel, message) ->
     # This key will be used in socketio.js file line 276
     if attributes[1] is "changeslide"
       url = attributes[2]
-      store.set "currentUrl", url, (err, reply) ->
+      config.store.set "currentUrl", url, (err, reply) ->
         console.log "REDIS: Set current page url to " + url  if reply
         console.log "REDIS ERROR: Couldn't set current pageurl to " + url  if err
 
@@ -170,18 +158,18 @@ sub.on "pmessage", (pattern, channel, message) ->
     # and publish the rest shapes to html5 users
     if attributes[1] is "undo"
       meetingID = attributes[0]
-      redisAction.getCurrentPresentationID meetingID, (presentationID) ->
-        redisAction.getCurrentPageID meetingID, presentationID, (pageID) ->
-          store.rpop redisAction.getCurrentShapesString(meetingID, presentationID, pageID), (err, reply) ->
-            socketAction.publishShapes meetingID
+      config.redisAction.getCurrentPresentationID meetingID, (presentationID) ->
+        config.redisAction.getCurrentPageID meetingID, presentationID, (pageID) ->
+          config.store.rpop config.redisAction.getCurrentShapesString(meetingID, presentationID, pageID), (err, reply) ->
+            config.socketAction.publishShapes meetingID
 
     # When presenter in flex side sends the 'clrPaper' event, remove everything from Redis
     if attributes[1] is "clrPaper"
       meetingID = attributes[0]
-      redisAction.getCurrentPresentationID meetingID, (presentationID) ->
-        redisAction.getCurrentPageID meetingID, presentationID, (pageID) ->
-          redisAction.getItemIDs meetingID, presentationID, pageID, "currentshapes", (meetingID, presentationID, pageID, itemIDs, itemName) ->
-            redisAction.deleteItemList meetingID, presentationID, pageID, itemName, itemIDs
+      config.redisAction.getCurrentPresentationID meetingID, (presentationID) ->
+        config.redisAction.getCurrentPageID meetingID, presentationID, (pageID) ->
+          config.redisAction.getItemIDs meetingID, presentationID, pageID, "currentshapes", (meetingID, presentationID, pageID, itemIDs, itemName) ->
+            config.redisAction.deleteItemList meetingID, presentationID, pageID, itemName, itemIDs
 
     channel_viewers = io.sockets.in(attributes[0])
     attributes.splice 0, 1
@@ -196,10 +184,10 @@ sub.on "pmessage", (pattern, channel, message) ->
     attributes = JSON.parse(message)
     if attributes.messageKey is "CONVERSION_COMPLETED"
       meetingID = attributes.room
-      pub.publish meetingID, JSON.stringify(["clrPaper"])
-      socketAction.publishSlides meetingID, null, ->
-        socketAction.publishViewBox meetingID
-        pub.publish meetingID, JSON.stringify(["uploadStatus", "Upload succeeded", true])
+      config.redis.pub.publish meetingID, JSON.stringify(["clrPaper"])
+      config.socketAction.publishSlides meetingID, null, ->
+        config.socketAction.publishViewBox meetingID
+        config.redis.pub.publish meetingID, JSON.stringify(["uploadStatus", "Upload succeeded", true])
 
   else
     # value of pub channel is used as the name of the SocketIO room to send to.
