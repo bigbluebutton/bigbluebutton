@@ -11,7 +11,7 @@
     <shortcutKeys showButton="true" />
     <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="Default"
             showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true" 
-            showLogoutWindow="true" showLayoutTools="true" showNetworkMonitor="false" confirmLogout="false"/>
+            showLogoutWindow="true" showLayoutTools="true" showNetworkMonitor="false" confirmLogout="true"/>
             
 		<modules>
 		 
