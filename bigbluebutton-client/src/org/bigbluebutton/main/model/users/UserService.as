@@ -105,7 +105,7 @@ package org.bigbluebutton.main.model.users
 				}
 				
                 // assign the meeting name to the document title
-                ExternalInterface.call("setTitle", "BigBlueButton - " + _conferenceParameters.meetingName);
+                ExternalInterface.call("setTitle", _conferenceParameters.meetingName);
                 
 				/**
 				 * Temporarily store the parameters in global BBB so we get easy access to it.
