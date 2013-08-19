@@ -180,11 +180,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var alert:Alert = Alert.show(ResourceUtil.getInstance().getString('bbb.logout.confirm.message'), ResourceUtil.getInstance().getString('bbb.logout.confirm.title'), Alert.YES | Alert.NO, this, alertLogout, null, Alert.YES);
 					
 					var newX:Number = langSelector.x + langSelector.width/2;
-					var newY:Number = btnLogout.y;
+					var newY:Number = btnLogout.y + btnLogout.height;
 												
 					alert.validateNow();
 					alert.move(newX, newY);
-					Accessibility.updateProperties();
+					//Accessibility.updateProperties();
 				}
 				else{
 					doLogout();
@@ -312,6 +312,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 		]]>
 	</mx:Script>
+    
+    <mx:Style>
+        Alert{
+            fontSize: 20;
+        }
+        
+    </mx:Style>
+    
     <mx:HBox id="quickLinks" width="1" includeInLayout="false">
         <mx:LinkButton id="usersLinkBtn" click="onQuickLinkClicked('users')" label="{ResourceUtil.getInstance().getString('bbb.users.quickLink.label')}"
                        accessibilityDescription="{usersLinkBtn.label}" toolTip="{usersLinkBtn.label}"
