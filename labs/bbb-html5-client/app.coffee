@@ -4,14 +4,14 @@ RedisStore = require("connect-redis")(express)
 redis = require("redis")
 
 config = require("./config")
+RedisAction = require("./lib/redis_action")
 routes = require("./routes")
 
 # global variables
-config.redisAction = require("./redis")
+config.redisAction = new RedisAction()
 config.socketAction = require("./routes/socketio")
 config.store = redis.createClient()
 
-# store.flushdb();
 config.redis.pub = redis.createClient()
 config.redis.sub = redis.createClient()
 subscriptions = ["*"]
