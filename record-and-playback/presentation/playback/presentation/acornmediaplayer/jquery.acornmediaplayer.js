@@ -122,25 +122,25 @@
 			 * Markup for the fullscreen button
 			 * If the element is not <video> we leave if blank, as the button if useless on <audio> elements
 			 */
-			var fullscreenBtnMarkup = (acorn.$self.is('video')) ? '<button class="acorn-fullscreen-button" title="' + text.fullscreenTitle + '" aria-controls="' + acorn.id + '">' + text.fullscreen + '</button>' : '';
+			var fullscreenBtnMarkup = (acorn.$self.is('video')) ? '<button class="acorn-fullscreen-button" title="' + text.fullscreenTitle + '" aria-controls="' + acorn.id + '" tabindex="3">' + text.fullscreen + '</button>' : '';
 			
 			/* 
 			 * Markup for the swap button
 			 * If the element is not <video> we leave if blank, as the button if useless on <audio> elements
 			 */
-			var swapBtnMarkup = (acorn.$self.is('video')) ? '<button class="acorn-swap-button" title="' + text.swapTitle + '" aria-controls="' + acorn.id + '">' + text.swap + '</button>' : '';
+			var swapBtnMarkup = (acorn.$self.is('video')) ? '<button class="acorn-swap-button" title="' + text.swapTitle + '" aria-controls="' + acorn.id + '" tabindex="4" >' + text.swap + '</button>' : '';
 			
 
 			/*
 			 * Complete markup
 			 */
 			var template = '<div class="acorn-controls">' +
-								'<button class="acorn-play-button" title="' + text.playTitle + '" aria-controls="' + acorn.id + '">' + text.play + '</button>' +
-								'<input type="range" class="acorn-seek-slider" title="' + text.seekTitle + '" value="0" min="0" max="150" step="0.1" aria-controls="' + acorn.id + '"/>' +
+								'<button class="acorn-play-button" title="' + text.playTitle + '" aria-controls="' + acorn.id + '" tabindex="1">' + text.play + '</button>' +
+								'<input type="range" class="acorn-seek-slider" title="' + text.seekTitle + '" value="0" min="0" max="150" step="0.1" aria-controls="' + acorn.id + '" tabindex="2" />' +
 								'<span class="acorn-timer">00:00</span>' +
 								'<div class="acorn-volume-box">' +
-									'<button class="acorn-volume-button" title="' + text.mute + '" aria-controls="' + acorn.id + '">' + text.mute + '</button>' +
-									'<input type="range" class="acorn-volume-slider" title="' + text.volumeTitle + '" value="1" min="0" max="1" step="0.05" aria-controls="' + acorn.id + '"/>' +
+									'<button class="acorn-volume-button" title="' + text.mute + '" aria-controls="' + acorn.id + '" tabindex="5" >' + text.mute + '</button>' +
+									'<input type="range" class="acorn-volume-slider" title="' + text.volumeTitle + '" value="1" min="0" max="1" step="0.05" aria-controls="' + acorn.id + '" tabindex="6" />' +
 								'</div>' +
 								swapBtnMarkup +
 								fullscreenBtnMarkup +
@@ -367,8 +367,7 @@
 				 'aria-valuenow': parseInt(opts.value, 10),
 				 'aria-valuemin': parseInt(opts.min, 10),
 				 'aria-valuemax': parseInt(opts.max, 10),
-				 'aria-valuetext': opts.valuetext,
-				 'tabindex': '0'
+				 'aria-valuetext': opts.valuetext
 				};
 				elem.attr(accessDefaults);        
 			};
@@ -449,6 +448,9 @@
 					// manully blur the Caption Button when clicking the handle
 					$('.ui-slider-handle', acorn.$seek).click(blurCaptionBtn);
 					
+					// set the tab index
+					$('.ui-slider-handle', acorn.$seek).attr("tabindex", "2");
+
 					// show buffering progress on progress
 					acorn.$self.bind('progress', showBuffer);
 				}
@@ -557,7 +559,7 @@
 						max: 1,
 						min: 0,
 						step: 0.1,
-						animate: true,
+						animate: false,
 						slide: changeVolume
 					};
 					
@@ -570,7 +572,17 @@
 					volumeSliderOptions.value = volumeSliderOptions.value * 100;
 					volumeSliderOptions.valuetext = volumeSliderOptions.value + ' percent';
 					initSliderAccess(acorn.$volume.$handle, volumeSliderOptions);
+					acorn.$volume.$handle.attr("tabindex", "6");
 					
+					// show the volume slider when it is tabbed into
+					acorn.$volume.$handle.focus(function(){
+						if (!acorn.$volume.parent().is(":hover")) {
+							acorn.$volume.addClass("handle-focused");
+						}
+					});
+					acorn.$volume.$handle.blur(function(){
+						acorn.$volume.removeClass("handle-focused");
+					});
 					// manully blur the Caption Button when clicking the handle
 					$('.ui-slider-handle', acorn.$volume).click(blurCaptionBtn);
 				}
