@@ -5,7 +5,7 @@ redis = require("redis")
 
 config = require("./config")
 RedisAction = require("./lib/redis_action")
-routes = require("./routes")
+MainRouter = require("./routes/main_router")
 
 # global variables
 config.redisAction = new RedisAction()
@@ -55,35 +55,8 @@ app.configure "production", ->
 app.helpers
   h_environment: app.settings.env
 
-###
-If a page requires authentication to view, this
-function is used to verify they are logged in.
-@param  {Object}   req   Request object from client
-@param  {Object}   res   Response object to client
-@param  {Function} next  To be run as a callback if valid
-@return {undefined}      Response object is used to send data back to the client
-###
-requiresLogin = (req, res, next) ->
-
-  # check that they have a cookie with valid session id
-  config.redisAction.isValidSession req.cookies["meetingid"], req.cookies["sessionid"], (isValid) ->
-    if isValid
-      next()
-    else
-      res.redirect "/"
-
-# Routes (see /routes/index.js)
-app.get "/", routes.get_index
-app.get "/auth", routes.get_auth
-app.post "/auth", routes.post_auth
-app.post "/logout", requiresLogin, routes.logout
-app.get "/join", routes.join
-app.post "/upload", requiresLogin, routes.post_upload
-app.get "/meetings", routes.meetings
-
-# --- 404 (keep as last route) --- //
-app.get "*", routes.error404
-app.post "*", routes.error404
+# Router
+config.mainRouter = new MainRouter(app)
 
 # Socket.IO Routes
 
