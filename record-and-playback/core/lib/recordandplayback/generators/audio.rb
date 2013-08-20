@@ -289,6 +289,29 @@ module BigBlueButton
         File.rename(temp_wav_file, file)
       end
     end
+
+    # Stretch/squish the length of the audio file to match the requested length
+    # The length parameter should be in milliseconds.
+    # Returns the filename of the new file (in the same directory as the original)
+    def self.stretch_audio_file(file, length, sample_rate)
+      BigBlueButton.logger.info("Task: Stretching/Squishing Audio")
+      orig_length = determine_length_of_audio_from_file(file)
+      new_file = "#{file}.stretch.wav"
+
+      if (orig_length == 0)
+        BigBlueButton.logger.error("Stretch received 0-length file as input!")
+        # Generate silence to fill the length
+        generate_silence(length, new_file, sample_rate)
+        return new_file
+      end
+
+      speed = orig_length.to_f / length.to_f
+      BigBlueButton.logger.info("Adjusting #{file} speed to #{speed}")
+      sox_cmd = "sox #{file} #{new_file} speed #{speed} rate -h #{sample_rate} trim 0 #{length.to_f/1000}"
+
+      BigBlueButton.execute(sox_cmd)
+      return new_file
+    end
     
     # Determine the audio padding we need to generate.
     def self.generate_audio_paddings(events, events_xml)
