@@ -4,16 +4,15 @@ RedisStore = require("connect-redis")(express)
 redis = require("redis")
 
 config = require("./config")
-RedisAction = require("./lib/redis_action")
 MainRouter = require("./routes/main_router")
+RedisAction = require("./lib/redis_action")
+WebsocketConnection = require("./lib/websocket_connection")
 
 # global variables
 config.redisAction = new RedisAction()
-config.socketAction = require("./routes/socketio")
-config.store = redis.createClient()
-
-config.redis.pub = redis.createClient()
-config.redis.sub = redis.createClient()
+config.store = redis.createClient() # TODO:
+config.redis.pub = redis.createClient() # TODO:
+config.redis.sub = redis.createClient() # TODO:
 subscriptions = ["*"]
 config.redis.sub.psubscribe.apply(config.redis.sub, subscriptions)
 
@@ -100,8 +99,7 @@ io.configure ->
           handshakeData.meetingID = properties.meetingID
           callback null, true # good authorization
 
-# When someone connects to the websocket. Includes all the SocketIO events.
-io.sockets.on "connection", config.socketAction.SocketOnConnection
+config.socketAction = new WebsocketConnection(io)
 
 # Redis Routes
 ###
@@ -110,6 +108,7 @@ When Redis Sub gets a message from Pub
 @param  {String} channel Channel the pmessage was published on (socket room)
 @param  {String} message Message published (socket message data)
 @return {undefined}
+TODO: why is this here?
 ###
 config.redis.sub.on "pmessage", (pattern, channel, message) ->
 

@@ -4,6 +4,7 @@ util = require("util")
 
 config = require("../config")
 
+# The main router that registers the routes that can be accessed by the client.
 module.exports = class MainRouter
   constructor: (@app) ->
     @_registerRoutes()
