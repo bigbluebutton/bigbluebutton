@@ -153,11 +153,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 */			
 			public function resetWidthAndHeight():void{/* do nothing */}
 			
-			public function initWindow(connection:NetConnection, uri:String, room:String, autoStart:Boolean):void {
+			public function initWindow(connection:NetConnection, uri:String, room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
 				this.connection = connection;
 				this.uri = uri;
 				this.room = room;				
-				this.autoStart = autoStart;		
+				this.autoStart = autoStart;
+				/*if(autoFullScreen)
+					shareScreen(true);*/		
 			}
 			
 			public function shareScreen(fullScreen:Boolean):void {
@@ -380,12 +382,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							   click="stopSharing()" 
 							   tabIndex="{baseIndex+5}"/>
 					<mx:Spacer width="100%"/>
-					<mx:Button id="btnRegionPublish" 
+					<mx:Button id="btnRegionPublish"
 							   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.tooltip')}" 
 							   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.label')}" 
 							   visible="true" 
 							   click="shareScreen(false)" 
-							   tabIndex="{baseIndex+6}"/>
+							   tabIndex="{baseIndex+6}"
+                               focusEnabled="false"
+                               tabEnabled="false"/>
 					<mx:Spacer width="100%"/>
 					<!--mx:CheckBox id="useSVC2Check" label="SVC2" selected="true" /-->
 				</mx:ControlBar>

@@ -41,6 +41,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.modules.layout.events.LayoutEvent;
+			
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import flash.events.FocusEvent;
 
 			private var _dispatcher:Dispatcher = new Dispatcher();
 			private var _images:Images = new Images();
@@ -48,6 +52,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var icon_unlocked:Class = _images.unlocked;
 			
 			private function init():void {
+				if (!UserManager.getInstance().getConference().amIModerator()) {
+					this.visible = false;
+				}
 			}
 			
 			private function onClick(e:Event):void {
@@ -59,14 +66,31 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onLockLayoutEvent(e:Event):void {
+				if (!UserManager.getInstance().getConference().amIModerator()) {
+					this.visible = true;
+				}
 				this.selected = true;
 				this.setStyle("icon", icon_locked);
 			}
 			
 			private function onUnlockLayoutEvent(e:Event):void {
+				if (!UserManager.getInstance().getConference().amIModerator()) {
+					this.visible = false;
+				}
 				this.selected = false;
 				this.setStyle("icon", icon_unlocked);
 			}
+			
+            /* disabling this for new because it needs more work to work
+			private function loopToStart(e:FocusEvent):void {
+				if (e.target == this && !e.shiftKey)
+					_dispatcher.dispatchEvent(new BBBEvent(BBBEvent.JOIN_VOICE_FOCUS_HEAD));
+			}
+			
+			private function loopToEnd(e:ShortcutEvent):void{
+				this.setFocus();
+			}
+            */
 			
 		]]>
 	</mx:Script>

@@ -14,7 +14,7 @@ package org.bigbluebutton.main.model
 		private static var audio:Boolean = true;
 		private static var generalResource:Array;
 		
-		public static function initialize() {
+		public static function initialize():void {
 			var vxml:XML;
 			
 			vxml = BBB.getConfigForModule("UsersModule");

@@ -317,15 +317,20 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function handleClosePublishWindowEvent(event:ClosePublishWindowEvent):void {
+			trace("Closing publish window");
       if (_isPublishing) {
         stopBroadcasting();
       }
+			trace("Resetting flags for publish window.");
+			// Reset flags to determine if we are publishing or previewing webcam.
+			_isPublishing = false;
+			_isWaitingActivation = false;
     }
     
     public function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
-	  LogUtil.debug("Webcam: "+_isPublishing + " " + _isPreviewWebcamOpen);
+	  trace("Webcam: "+_isPublishing + " " + _isPreviewWebcamOpen + " " + _isWaitingActivation);
 	  if (!_isPublishing && !_isPreviewWebcamOpen && !_isWaitingActivation)
-		openWebcamPreview(event.publishInClient);
+			openWebcamPreview(event.publishInClient);
     }
 	
 	public function handleCamSettingsClosedEvent(event:BBBEvent):void{

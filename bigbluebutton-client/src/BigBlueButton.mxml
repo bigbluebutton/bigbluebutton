@@ -74,10 +74,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     private function configLoadedEventHandler(e:Event):void {
       LogUtil.debug("***** Config Loaded ****");
       mainShell.initOptions(null);
+      ShortcutOptions.initialize();
     }
 	
 	private function appComplete():void{
-		ShortcutOptions.initialize();
 		hotkeyCapture();
 	}
       

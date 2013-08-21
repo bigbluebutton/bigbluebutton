@@ -524,7 +524,7 @@ def processShapesAndClears
 						
 						if(in_this_image)
                                                         # Get variables
-                                                        BigBlueButton.logger.info shape
+                                                        BigBlueButton.logger.info shape.to_xml(:indent => 2)
                                                         $shapeType = shape.xpath(".//type")[0].text()
                                                         $pageNumber = shape.xpath(".//pageNumber")[0].text()
                                                         $shapeDataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
@@ -645,7 +645,7 @@ def processChatMessages
 				chat_sender = node.xpath(".//sender")[0].text()
 				chat_message =  BigBlueButton::Events.linkify(node.xpath(".//message")[0].text())
 				chat_start = (chat_timestamp.to_i - $meeting_start.to_i) / 1000
-				$xml.chattimeline(:in => chat_start, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
+				$xml.chattimeline(:in => chat_start, :direction => :down,  :name => chat_sender, :message => chat_message.to_s.gsub("event:",""), :target => :chat )
 			end
 		}
 	end
@@ -744,6 +744,9 @@ if ($playback == "presentation")
 		BigBlueButton.logger.info("Copying files to package dir")
 		FileUtils.cp_r("#{$process_dir}/presentation", package_dir)
 		BigBlueButton.logger.info("Copied files to package dir")
+
+		processing_time = File.read("#{$process_dir}/processing_time")
+
 		BigBlueButton.logger.info("Creating metadata.xml")
 		# Create metadata.xml
 		b = Builder::XmlMarkup.new(:indent => 2)
@@ -758,9 +761,11 @@ if ($playback == "presentation")
 			b.playback {
 				b.format("presentation")
 				b.link("http://#{playback_host}/playback/presentation/playback.html?meetingId=#{$meeting_id}")
+				b.processing_time("#{processing_time}")
 			}
 			b.meta {
 				BigBlueButton::Events.get_meeting_metadata("#{$process_dir}/events.xml").each { |k,v| b.method_missing(k,v) }
+
 			}
 		}
 		metadata_xml = File.new("#{package_dir}/metadata.xml","w")

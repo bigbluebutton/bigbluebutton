@@ -26,21 +26,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	mouseOut = "mouseOutHandler(event)"
 	visible = "{amIPresenter || !phoneOptions.presenterShareOnly}"
 	includeInLayout = "{amIPresenter || !phoneOptions.presenterShareOnly}"
+    height="24"
 	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start')}"
-	creationComplete="initPhone()"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent">
-
 	
 	<mate:Listener type="SPEAKING_AND_LISTENING" method="handleBBBSpeakingAndListening"/>
 	<mate:Listener type="LISTENING_ONLY" method="handleBBBListeningOnly"/>
-	<mate:Listener type="{ShortcutEvent.SHARE_MICROPHONE}" method="remoteClick" />
-	<mate:Listener type="{BBBEvent.JOIN_VOICE_FOCUS_HEAD}" method="joinVoiceFocusHead"/>
 	<mate:Listener type="{BBBEvent.MIC_SETTINGS_CLOSED}" method="handleMicSettingsClosedEvent"/>
-
+	<mate:Listener type="{BBBEvent.JOIN_VOICE_FOCUS_HEAD}" method="joinVoiceFocusHead"/>
+	
+	<mate:Listener type="{ShortcutEvent.SHARE_MICROPHONE}" method="remoteClick" />
 
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.system.Security;
+			import flash.system.SecurityPanel;
 			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.BBB;
@@ -60,6 +62,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var phoneOptions:PhoneOptions = new PhoneOptions();
 			[Bindable]
 			private var amIPresenter:Boolean = UserManager.getInstance().getConference().amIPresenter;
+			private var mic:Microphone;
 			
 			public const DEFAULT_STATE:Number = 0;
 			public const ACTIVE_STATE:Number = 1;
@@ -68,12 +71,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var stopChangingIcon:Boolean = false;
 		
 			
-			[Bindable] public var phoneIcon:Class;
+			[Bindable] public var phoneIcon:Class = getDefaultIcon();
 
-			private function initPhone():void {
-				phoneIcon = getDefaultIcon();
-			}
-			
 			private function startPhone():void {
 				// Disable the button right away to prevent the user from clicking
 				// multiple times.
@@ -87,30 +86,47 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					if(_currentState == DEFAULT_STATE) {
 						if(phoneOptions.skipCheck) {
 							askToChangeEvent.payload["global"] = false;
-						}
-						else {
+						} else {
 							askToChangeEvent = new BBBEvent("SHOW_MIC_SETTINGS");
 							askToChangeEvent.payload["listenOnlyMode"] = true;
 						}
-					}
-					else {
+					} else {
 						askToChangeEvent.payload["global"] = true;
 					}
 					dispatcher.dispatchEvent(askToChangeEvent);
-				}
-				else {
+				} else {
 					if(_currentState == ACTIVE_STATE) {
 						var leaveEvent:BBBEvent = new BBBEvent("LEAVE_VOICE_CONFERENCE_EVENT");
 						leaveEvent.payload["userRequested"] = true;
 						dispatcher.dispatchEvent(leaveEvent);
-					}
-					else {
-						if(phoneOptions.skipCheck) {
-							var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
-							joinEvent.payload['useMicrophone'] = !noMicrophone();
-							dispatcher.dispatchEvent(joinEvent);
-						}
-						else {
+						userJoinedConference(false);
+					} else {
+						var joinEvent:BBBEvent;
+
+						if (phoneOptions.skipCheck || noMicrophone()) {
+							// need to figure out if the user has a mic and if they do if it's muted ask for access
+							mic = Microphone.getMicrophone();
+						
+							if (mic == null) {
+								/*
+								 * If the user had no mic, let her join but she'll just be listening.	
+								 * We should indicate a warning that the user is joining without mic
+								 * so that he will know that others won't be able to hear him.
+								*/
+								joinEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+								joinEvent.payload['useMicrophone'] = false;
+								dispatcher.dispatchEvent(joinEvent);
+							} else if (mic.muted) {
+	  							// user has disallowed access to the mic
+	  							mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
+	  							Security.showSettings(SecurityPanel.PRIVACY);
+							} else {
+								// user has allowed access to the mic already
+								joinEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+								joinEvent.payload['useMicrophone'] = true;
+								dispatcher.dispatchEvent(joinEvent);
+							}
+						} else {
 							var showMicSettings:BBBEvent = new BBBEvent("SHOW_MIC_SETTINGS");
 							showMicSettings.payload["listenOnlyMode"] = false;
 							dispatcher.dispatchEvent(showMicSettings);
@@ -149,34 +165,41 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				startPhone();
 			}
 			
+			private function micStatusEventHandler(event:StatusEvent):void {				
+				var joinEvent:BBBEvent;
+				switch(event.code) {
+					case "Microphone.Muted":						
+						LogUtil.warn("Access to microphone has been denied.");
+						joinEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+						joinEvent.payload['useMicrophone'] = false;
+						dispatcher.dispatchEvent(joinEvent);
+						break;
+					case "Microphone.Unmuted":
+						LogUtil.debug("Access to the microphone has been allowed.");
+						joinEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+						joinEvent.payload['useMicrophone'] = true;
+						dispatcher.dispatchEvent(joinEvent);
+						break;
+					default:
+						LogUtil.debug("unknown micStatusHandler event: " + event);
+				}
+			}			
+			
 			private function mouseOverHandler(event:MouseEvent):void {
 				if(stopChangingIcon) {
 					disableButton();
+				} else {
+					if(_currentState == ACTIVE_STATE)
+						phoneIcon = getInactiveIcon();
+					else
+						phoneIcon = getActiveIcon();
 				}
-				else {
-					if(stopChangingIcon == false) {
-						if(_currentState == ACTIVE_STATE)
-								phoneIcon = getInactiveIcon();
-							else
-								phoneIcon = getActiveIcon();
-					}
-					else {
-						phoneIcon = getDefaultIcon();
-					}
-					
-				}
-			}
-
-			private function handleMicSettingsClosedEvent(event:BBBEvent):void {
-				userJoinedConference(false);
-				this.setFocus();
 			}
 
 			private function mouseOutHandler(event:MouseEvent):void {
 				if(stopChangingIcon) {
 					disableButton();
-				}
-				else {
+				} else {
 					if(_currentState == ACTIVE_STATE)
 						phoneIcon = getActiveIcon();
 					else
@@ -193,23 +216,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			public function userJoinedConference(joined: Boolean):void {
-				if (joined) {
-					if(stopChangingIcon) {
-						disableButton();
-					}
-					else {
+				
+
+				if (stopChangingIcon) {
+					disableButton();
+				} else {
+					if (joined) {
 						this.selected = true;
 						this.enabled = true;
 						_currentState = ACTIVE_STATE;
 						phoneIcon = getActiveIcon();
 						this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');
-					}
-
-				} else {
-					if(stopChangingIcon) {
-						disableButton();
-					}
-					else {
+					} else {
 						this.selected = false;
 						this.enabled = true;
 						_currentState = DEFAULT_STATE;
@@ -235,23 +253,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if(stopChangingIcon) {
 					disableButton();
 				}
-					
 			}
 			
+			private function handleMicSettingsClosedEvent(event:BBBEvent):void {
+				userJoinedConference(false);
+				this.setFocus();
+			}
 			
 			private function handleBBBListeningOnly(event:BBBEvent):void {
 				userJoinedConference(false);
 			}
+
 			private function handleBBBSpeakingAndListening(event:BBBEvent):void {
 				userJoinedConference(true);
 			}
-			
-			private function handleBBBJoinConferenceEvent(event:BBBEvent):void {
-				//var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
-				//joinEvent.payload['useMicrophone'] = false;
-				//dispatcher.dispatchEvent(joinEvent);
-			}
-			
+
 			//For whatever reason the tooltip does not update when localization is changed dynamically. Overrideing it here
 			override protected function resourcesChanged():void{
 				if(_currentState == ACTIVE_STATE) {
@@ -270,17 +286,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function getAlignment():String{
 				return MainToolbar.ALIGN_LEFT;
 			}
+			
 			public function theory():String{
 				return "Audio button";
 			}
 			
-			private function joinVoiceFocusHead(e:BBBEvent):void{
+			private function joinVoiceFocusHead(e:Event):void{
 				this.setFocus();
 			}
 
 			public function setPresenter(value:Boolean):void {
 				amIPresenter = value;
 			}
+			
+            /* disabling this for new because it needs more work to work
+			private function loopToEnd(e:FocusEvent):void {
+				if (e.target == this && e.shiftKey)
+					dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_LOOP_END));
+			}
+            */
 		]]>
 	</mx:Script>
 </mx:Button>

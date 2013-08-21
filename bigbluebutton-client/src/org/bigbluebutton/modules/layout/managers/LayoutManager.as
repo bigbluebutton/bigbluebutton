@@ -180,7 +180,6 @@ package org.bigbluebutton.modules.layout.managers
 		
 		public function setCanvas(canvas:MDICanvas):void {
 			_canvas = canvas;
-			//LogUtil.debug("CHAD: Canvas initialized");
 			/*
 			 * it should be dispatched when the layouts get loaded, but
 			 * the view is not ready at that point to receive the layouts
