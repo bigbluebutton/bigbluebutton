@@ -645,7 +645,7 @@ def processChatMessages
 				chat_sender = node.xpath(".//sender")[0].text()
 				chat_message =  BigBlueButton::Events.linkify(node.xpath(".//message")[0].text())
 				chat_start = (chat_timestamp.to_i - $meeting_start.to_i) / 1000
-				$xml.chattimeline(:in => chat_start, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
+				$xml.chattimeline(:in => chat_start, :direction => :down,  :name => chat_sender, :message => chat_message.to_s.gsub("event:",""), :target => :chat )
 			end
 		}
 	end
