@@ -127,7 +127,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       [Bindable] private var isTunneling:Boolean = false;
 			
-			private var confirmingLogout = false;
+			private var confirmingLogout:Boolean = false;
       
 			public function initOptions(e:Event):void {
 				layoutOptions = new LayoutOptions();
