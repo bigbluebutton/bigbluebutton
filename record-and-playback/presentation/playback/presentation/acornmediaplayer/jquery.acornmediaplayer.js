@@ -68,6 +68,7 @@
 				$self: $(this)
 			};
 			
+			var loadedMetadata; // Is the metadata loaded
 			var seeking; // The user is seeking the media
 			var wasPlaying; // Media was playing when the seeking started
 			var fullscreenMode; // The media is in fullscreen mode
@@ -241,6 +242,9 @@
 			var startPlayback = function() {
 				acorn.$playBtn.text(text.pause).attr('title', text.pauseTitle);
 				acorn.$playBtn.addClass('acorn-paused-button');
+
+				// if the metadata is not loaded yet, add the loading class
+				if (!loadedMetadata) $wrapper.addClass('show-loading');
 			};
 			
 			var stopPlayback = function() {
@@ -455,8 +459,10 @@
 					acorn.$self.bind('progress', showBuffer);
 				}
 				
+
+				$wrapper.removeClass('show-loading');
 				// remove the loading element
-				acorn.$self.next('.loading-media').remove();
+				//acorn.$self.next('.loading-media').remove();
 				
 			};
 			
@@ -1053,7 +1059,8 @@
 					 */
 
 					var t = window.setInterval(function() {
-								if (acorn.$self[0].readyState > 0) {									
+								if (acorn.$self[0].readyState > 0) {
+									loadedMetadata = true;
 									updateSeek();
 									
 									clearInterval(t);
