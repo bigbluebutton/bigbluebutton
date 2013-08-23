@@ -18,7 +18,7 @@ html
   // javascript variables in the module "globals"
   - if (typeof(meetings) == 'undefined')
     - meetings = []
-  script(type='text/javascript')
+  script(type='text/javascript').
     define('globals', function() {
       server = window.location.protocol + '//' + window.location.host;
       server = server.replace(/:\d+/, ''); // remove :port
