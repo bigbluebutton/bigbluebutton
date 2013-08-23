@@ -172,7 +172,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		        
 		        queryForChatHistory();
 
-		        chatMessagesList.accessibilityProperties = new AccessibilityProperties();
+		        if(chatMessagesList.accessibilityProperties == null)
+		        	chatMessagesList.accessibilityProperties = new AccessibilityProperties();
 
 				chatMessagesList.accessibilityProperties.description = ResourceUtil.getInstance().getString('bbb.accessibility.chat.initialDescription');
 				
