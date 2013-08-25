@@ -134,9 +134,14 @@
 	z-index: 100000 !important;
 }
 /* Loading */
+.show-loading .loading-media {
+	visibility: visible;
+}
+
 .loading-media {
+	visibility: hidden;
 	position: absolute;
-	left: 50%;
+	left: 25%;
 	top: 50%;
 	width: 20px;
 	height: 20px;
@@ -177,7 +182,7 @@
 }
 
 /* Controls overlay while loading */
-.loading-media + .acorn-controls:before {
+.show-loading .acorn-controls:after {
 	content: '';
 	position: absolute;
 	top: -2px; /* Slider handle goes above */

@@ -29,7 +29,7 @@ package org.bigbluebutton.modules.users.model
 		public var position:String = "top-left";
 		
 		[Bindable]
-		public var baseTabIndex:int = 201;
+		public var baseTabIndex:int = 301;
 		
 		[Bindable]
 		public var allowKickUser:Boolean = false;
@@ -46,7 +46,7 @@ package org.bigbluebutton.modules.users.model
 				baseTabIndex = vxml.@baseTabIndex;
 			}
 			if (vxml.@allowKickUser != undefined) {
-				allowKickUser = vxml.@allowKickUser;
+				allowKickUser = (vxml.@allowKickUser.toString().toUpperCase() == "TRUE") ? true : false;
 			}
 		}
 
