@@ -72,6 +72,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import mx.collections.ArrayCollection;
       import mx.controls.Button;
       import mx.core.ScrollPolicy;
+
+      import flash.accessibility.AccessibilityProperties;
       
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.UsersUtil;
@@ -169,6 +171,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		        txtMsgArea.addEventListener(KeyboardEvent.KEY_UP, handleTextAreaKeyUpEvent);
 		        
 		        queryForChatHistory();
+
+		        if(chatMessagesList.accessibilityProperties == null)
+		        	chatMessagesList.accessibilityProperties = new AccessibilityProperties();
+
 				chatMessagesList.accessibilityProperties.description = ResourceUtil.getInstance().getString('bbb.accessibility.chat.initialDescription');
 				
 				if(Capabilities.hasAccessibility)

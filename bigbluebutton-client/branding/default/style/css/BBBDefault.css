@@ -47,7 +47,7 @@ Panel {
   color: #e1e2e5;
 }
 
-Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle {
+Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowChangeResolutionCombo {
   textIndent: 0;
   paddingLeft: 10;
   paddingRight: 10;
@@ -673,4 +673,13 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 .cameraDisplaySettingsWindowStartBtn
 {
   icon:   Embed('assets/images/webcam.png');
+}
+
+Alert {
+	borderColor: #DFDFDF;
+	backgroundColor: #EFEFEF;
+	borderAlpha: 1;
+	shadowDistance: 1;
+	dropShadowColor: #FFFFFF;
+	color: #000000;
 }

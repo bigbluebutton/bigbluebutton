@@ -313,7 +313,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <mx:Spacer width="5"/>
 			<mx:ComboBox id="cmbResolution" styleName="cameraDisplaySettingsWindowChangeResolutionCombo" 
 						 dataProvider="{resolutions}" visible="false" change="updateCamera()" tabIndex="{baseIndex+2}"
-                         toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.cmbResolution.tooltip')}" />
+                         toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.cmbResolution.tooltip')}" height="30" />
 			<mx:Spacer width="5"/>
     </mx:HBox>
     
