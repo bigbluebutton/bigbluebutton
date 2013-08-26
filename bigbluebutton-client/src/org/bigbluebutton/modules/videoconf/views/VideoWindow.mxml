@@ -158,7 +158,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					globalDispatcher.dispatchEvent(stopEvent); 
                     
                     if (UserManager.getInstance().getConference().hasUser(userID)) {
-                        UserManager.getInstance().getConference().getUser(userID).viewingStream = false;
+                        UserManager.getInstance().getConference().getUser(userID).removeViewingStream(streamName);
                     }
 				}
 				
@@ -221,7 +221,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.height = _video.height + paddingVertical;
                 
                 if (UserManager.getInstance().getConference().hasUser(userID)) {
-                    UserManager.getInstance().getConference().getUser(userID).viewingStream = true;
+                    UserManager.getInstance().getConference().getUser(userID).addViewingStream(streamName);
                 }
 			}
 			
