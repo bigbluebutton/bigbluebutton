@@ -85,11 +85,11 @@ module BigBlueButton
           sections << filename
 
           if audio
-            # If the audio file length is within 2% of where it should be,
+            # If the audio file length is within 5% of where it should be,
             # adjust the speed to match up timing.
             # TODO: This should be part of the import logic somehow, since
             # render can be run after cutting.
-            if ((duration - audioinfo[audio[:filename]][:duration]).to_f / duration).abs < 0.02
+            if ((duration - audioinfo[audio[:filename]][:duration]).to_f / duration).abs < 0.05
               speed = audioinfo[audio[:filename]][:duration].to_f / duration
               BigBlueButton.logger.warn "  Audio file length mismatch, adjusting speed to #{speed}"
               sox_cmd += ['speed', speed.to_s, 'rate', '-h', audioinfo[audio[:filename]][:sample_rate].to_s]
