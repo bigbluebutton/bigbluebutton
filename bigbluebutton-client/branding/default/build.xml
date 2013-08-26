@@ -9,7 +9,7 @@
 	<property name="BASE_DIR" value="${basedir}" />
 	<property name="SRC_DIR" value="${BASE_DIR}/src" />
 		
-	<property name="OUTPUT_DIR" value="${BASE_DIR}/bin" />
+	<property name="OUTPUT_DIR" value="${BASE_DIR}/client" />
 	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
 	
 	<target name="init-ant-contrib">

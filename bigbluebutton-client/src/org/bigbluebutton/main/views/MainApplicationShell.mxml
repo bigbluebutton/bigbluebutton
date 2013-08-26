@@ -45,13 +45,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
 	<mate:Listener type="{ShortcutEvent.OPEN_SHORTCUT_WIN}" method="openShortcutHelpWindow" />
-  <mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
-  
+  	<mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
+	  
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.events.MouseEvent;
+			import flash.geom.Point;
 			
 			import flexlib.mdi.containers.MDIWindow;
 			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
@@ -63,7 +64,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.core.UIComponent;
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
-			import flash.geom.Point;
+			
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -75,6 +76,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.AppVersionEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ConfigEvent;
+			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
 			import org.bigbluebutton.main.events.RecordStatusEvent;
@@ -124,6 +126,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       [Bindable] private var footerHeight:Number = 20;
       
       [Bindable] private var isTunneling:Boolean = false;
+			
+			private var confirmingLogout:Boolean = false;
       
 			public function initOptions(e:Event):void {
 				layoutOptions = new LayoutOptions();
@@ -222,7 +226,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				mdiCanvas.windowManager.add(scWindow);
 				mdiCanvas.windowManager.absPos(scWindow, mdiCanvas.width/2 - 150, mdiCanvas.height/2 - 150);
 				
-				scWindow.focusCategories();
+				scWindow.focusHead();
 			}
 			
 			private function toggleFullScreen():void{
@@ -409,12 +413,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					  effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" 
 					  width="100%" 
 					  height="100%">
-		<views:LoadingBar id="progressBar" x="{this.width/2 - progressBar.width/2}" y="{this.height/2 - progressBar.height/2}" width="{this.width/2}" />
+		<views:LoadingBar id="progressBar" horizontalCenter="0" verticalCenter="0" width="50%" />
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
 	</views:MainCanvas>	
 	
 	<mx:ControlBar width="100%" height="{footerHeight}" paddingTop="0">		
-	  <mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
+	  <mx:Text htmlText="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
 	 	<mx:Spacer width="20"/>
 		<mx:Spacer width="100%"/> 
     <mx:Label text="{isTunneling ? '[Tunnelling]' : ''}" id="isTunnellingLbl"/>

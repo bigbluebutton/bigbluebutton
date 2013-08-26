@@ -234,7 +234,7 @@ public String getJoinURLwithDynamicConfigXML(String username, String meetingID, 
     
     String base_url_create = BigBlueButtonURL + "api/create?";
     String base_url_join = BigBlueButtonURL + "api/join?";
-    String base_url_setConfigXML = BigBlueButtonURL + "api/setConfigXML?";
+    String base_url_setConfigXML = BigBlueButtonURL + "api/setConfigXML.xml?";
 
     Random random = new Random();
     String voiceBridge_param = "&voiceBridge=" + (70000 + random.nextInt(9999));

@@ -24,6 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	icon="{phoneIcon}" click="startPhone()"
 	mouseOver = "mouseOverHandler(event)"
 	mouseOut = "mouseOutHandler(event)"
+    height="24"
 	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent">
 	
@@ -207,9 +208,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return "Audio button";
 			}
 			
-			private function joinVoiceFocusHead(e:BBBEvent):void{
+			private function joinVoiceFocusHead(e:Event):void{
 				this.setFocus();
 			}
+			
+            /* disabling this for new because it needs more work to work
+			private function loopToEnd(e:FocusEvent):void {
+				if (e.target == this && e.shiftKey)
+					dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_LOOP_END));
+			}
+            */
 		]]>
 	</mx:Script>
 </mx:Button>

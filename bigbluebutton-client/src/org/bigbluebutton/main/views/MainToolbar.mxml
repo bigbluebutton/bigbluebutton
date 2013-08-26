@@ -33,7 +33,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{SettingsEvent.SETTINGS_MODULE_LOADED}" method="showSettingsButton" />
 	<mate:Listener type="{ShortcutEvent.REMOTE_OPEN_SHORTCUT_WIN}" method="remoteShortcutClick" />
 	<mate:Listener type="{ShortcutEvent.LOGOUT}" method="remoteLogout" />
-	
+	<mate:Listener type="{ShortcutEvent.FOCUS_SHORTCUT_BUTTON}" method="focusShortcutButton" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_LOGOUT_BUTTON}" method="focusLogoutButton" />
+	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="retrieveMeetingName" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -55,9 +57,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
+			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-
+			import mx.controls.Alert;
+			import mx.accessibility.AlertAccImpl;
+			import mx.events.CloseEvent;
 
 			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
 			
@@ -84,12 +89,42 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 */
 			
 			private var xml:XML;
-						
-			private function init():void{
-				baseIndex = 1;
-				numButtons = 0;
-			}
 			
+			private function init():void{
+				AlertAccImpl.enableAccessibility();
+				
+				baseIndex = 101;
+				numButtons = 0;
+                
+                // Accessibility isn't active till a few second after the client starts to load so we need a delay
+                var timer:Timer = new Timer(3000, 1);
+                timer.addEventListener(TimerEvent.TIMER, checkAccessiblity);
+                timer.start();
+
+			}
+            private function checkAccessiblity(e:TimerEvent):void {
+                // remove the quick links if there's no screen reader active
+                if (!Accessibility.active) {
+                    quickLinks.removeAllChildren();
+                }
+            }
+            private function onQuickLinkClicked(window:String):void {
+                var dispatcher:Dispatcher = new Dispatcher();
+                switch(window) {
+                    case "users":
+                        dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_USERS_WINDOW));
+                        break;
+                    case "webcams":
+                        dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_VIDEO_WINDOW));
+                        break;
+                    case "presentation":
+                        dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_PRESENTATION_WINDOW));
+                        break;
+                    case "chat":
+                        dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_CHAT_WINDOW));
+                        break;
+                }
+            }
 								
 			public function displayToolbar():void{
 				toolbarOptions = new LayoutOptions();
@@ -105,28 +140,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} else {
 					showHelpBtn = false;
 				}
-                
-                if (toolbarOptions.showMeetingName) {
-                    // Need to wait to allow time for the conference parameters to be loaded
-                    var timer:Timer = new Timer(2000, 1);
-                    timer.addEventListener(TimerEvent.TIMER, retrieveMeetingName);
-                    timer.start();
-                }
 			}
 			
-            private function retrieveMeetingName(e:TimerEvent):void {
+            private function retrieveMeetingName(e:ConferenceCreatedEvent):void {
+                if (toolbarOptions.showMeetingName) {
                     var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();
                     
                     if (meetingTitle != null) {
                         meetingNameLbl.text = meetingTitle;
-                    } else { // if the meeting title isn't loaded, wait and check again.
-                        /* This is an awful implementation, but it works.
-                         *                 Chad
-                         */
-                        var timer:Timer = new Timer(2000, 1);
-                        timer.addEventListener(TimerEvent.TIMER, retrieveMeetingName);
-                        timer.start();
-                    }
+                    } 
+                }
             }
             
 			public function addButton(name:String):Button{
@@ -148,6 +171,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function handleEndMeetingEvent(event:BBBEvent):void {
 				LogUtil.debug("Received end meeting event.");
 				doLogout();
+			}
+			
+			
+			private function confirmLogout():void {
+				if (toolbarOptions.confirmLogout){
+					// Confirm logout using built-in alert
+					var alert:Alert = Alert.show(ResourceUtil.getInstance().getString('bbb.logout.confirm.message'), ResourceUtil.getInstance().getString('bbb.logout.confirm.title'), Alert.YES | Alert.NO, this, alertLogout, null, Alert.YES);
+					
+					var newX:Number = langSelector.x + langSelector.width/2;
+					var newY:Number = btnLogout.y + btnLogout.height + 5;
+												
+					alert.validateNow();
+					alert.move(newX, newY);
+					//Accessibility.updateProperties();
+				}
+				else{
+					doLogout();
+				}
+			}
+			
+						
+			private function alertLogout(e:CloseEvent):void {
+				// Check to see if the YES button was pressed.
+				if (e.detail==Alert.YES) {
+					 doLogout();
+				}
 			}
 			
 			private function doLogout():void {
@@ -208,7 +257,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						addedBtns.setChildIndex(button, addedBtns.numChildren - 1);
 						//(addedBtns.getChildAt(0) as Button).tabIndex = addedBtns.numChildren - 1;
 					}*/
-					button.tabIndex = baseIndex;
+					button.tabIndex = baseIndex + 5;
 					//for (var i:int = 0; i < addedBtns.numChildren; i++){
 					//	(addedBtns.getChildAt(i) as Button).tabIndex = baseIndex + i;
 					//}
@@ -245,25 +294,48 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function remoteLogout(e:ShortcutEvent):void{
-				doLogout();
+				confirmLogout();
 			}
 			
 			private function onShortcutButtonClick(e:Event = null):void {
 				var d:Dispatcher = new Dispatcher();
 				d.dispatchEvent(new ShortcutEvent(ShortcutEvent.OPEN_SHORTCUT_WIN));
 			}
+			
+			private function focusShortcutButton(e:ShortcutEvent):void{
+				shortcutKeysBtn.setFocus();
+			}
+			
+			private function focusLogoutButton(e:ShortcutEvent):void{
+				btnLogout.setFocus();
+			}
 
 		]]>
-	</mx:Script>	
+	</mx:Script>
+    
+    <mx:HBox id="quickLinks" width="1" includeInLayout="false">
+        <mx:LinkButton id="usersLinkBtn" click="onQuickLinkClicked('users')" label="{ResourceUtil.getInstance().getString('bbb.users.quickLink.label')}"
+                       accessibilityDescription="{usersLinkBtn.label}" toolTip="{usersLinkBtn.label}"
+                       tabIndex="{baseIndex+1}" height="22" styleName="quickWindowLinkStyle" />
+        <mx:LinkButton id="webcamLinkButton" click="onQuickLinkClicked('webcams')" label="{ResourceUtil.getInstance().getString('bbb.videodock.quickLink.label')}" 
+                       accessibilityDescription="{webcamLinkButton.label}" toolTip="{webcamLinkButton.label}"
+                       tabIndex="{baseIndex+2}" height="22" styleName="quickWindowLinkStyle" />
+        <mx:LinkButton id="presentationLinkBtn" click="onQuickLinkClicked('presentation')" label="{ResourceUtil.getInstance().getString('bbb.presentation.quickLink.label')}"
+                       accessibilityDescription="{presentationLinkBtn.label}" toolTip="{presentationLinkBtn.label}"
+                       tabIndex="{baseIndex+3}" height="22" styleName="quickWindowLinkStyle" />
+        <mx:LinkButton id="chatLinkBtn" click="onQuickLinkClicked('chat')" label="{ResourceUtil.getInstance().getString('bbb.chat.quickLink.label')}" 
+                       accessibilityDescription="{chatLinkBtn.label}" toolTip="{chatLinkBtn.label}"
+                       tabIndex="{baseIndex+4}" height="22" styleName="quickWindowLinkStyle" />
+    </mx:HBox>
 	<mx:HBox id="addedBtns"/>
 	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}"/>
-	<views:MuteMeButton id="muteMeBtn"  height="20" />
+	<views:MuteMeButton id="muteMeBtn"  height="20" tabIndex="{baseIndex+numButtons+10}"/>
 	<mx:Spacer width="50%"/>
     <mx:Label id="meetingNameLbl" styleName="meetingNameLabelStyle" />
     <mx:Spacer width="50%"/>
 	<views:LanguageSelector id="langSelector" 
 							visible="false" 
-							tabIndex="{baseIndex+numButtons+5}"
+							tabIndex="{baseIndex+numButtons+11}"
 							accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"/>
 <!--
   <mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
@@ -271,11 +343,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Button id="shortcutKeysBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" styleName="shortcutButtonStyle"
              click="onShortcutButtonClick()" height="22" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}" 
-             tabIndex="{baseIndex+numButtons+6}" />
+             tabIndex="{baseIndex+numButtons+12}" />
 	<mx:LinkButton id="helpBtn" visible="{showHelpBtn}" label="?" click="onHelpButtonClicked()" height="22" 
-                   styleName="helpLinkButtonStyle" tabIndex="{baseIndex+numButtons+7}" 
-                   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"/>
+                   styleName="helpLinkButtonStyle" tabIndex="{baseIndex+numButtons+13}" 
+                   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" 
+				   accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"/>
 	<mx:Button label="" id="btnLogout" styleName="logoutButtonStyle"
-                 toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()" height="22"
-                 tabIndex="{baseIndex+numButtons+8}" />
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="confirmLogout()" height="22"
+                 tabIndex="{baseIndex+numButtons+14}" />
 </mx:ApplicationControlBar>

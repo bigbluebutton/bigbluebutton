@@ -354,6 +354,30 @@ package org.bigbluebutton.modules.polling.service
 			}
 			//--------------------------------------//
 		 }
+		
+		public function initializePollingMenuRemotely(roomID:String):void{
+			nc.call("poll.titleList", new Responder(titleSuccess, titleFailure));
+			//--------------------------------------//
+			// Responder functions
+			function titleSuccess(obj:Object):void{
+				LogUtil.debug("REMOTE_POLL_MENU_INIT: Entering NC CALL SUCCESS section");
+				var event:PollReturnTitlesEvent = new PollReturnTitlesEvent(PollReturnTitlesEvent.REMOTE_RETURN);
+				event.titleList = obj as Array;
+				// Append roomID to each item in titleList, call getPoll on that key, add the result to pollList back in ToolBarButton
+				for (var i:int = 0; i < event.titleList.length; i++){
+					var pollKey:String = roomID +"-"+ event.titleList[i];
+					getPoll(pollKey, "initialize");
+				}
+				// This dispatch populates the titleList back in the Menu; the pollList is populated one item at a time in the for-loop
+				LogUtil.debug("PollingService.initializePollingMenuRemotely, dispatching PollReturnTitlesEvent.REMOTE_RETURN");
+				dispatcher.dispatchEvent(event);
+			}
+			function titleFailure(obj:Object):void{
+				LogUtil.error(LOGNAME+"Responder object failure in INITALIZE POLLING MENU NC.CALL");
+				LogUtil.error("Failure object tostring is: " + obj.toString());
+			}
+			//--------------------------------------//
+		}
 		 
 		 public function updateTitles():void{
 		 	nc.call("poll.titleList", new Responder(success, failure));

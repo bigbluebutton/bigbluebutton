@@ -42,6 +42,30 @@ module BigBlueButton
   
   class FileNotFoundException < RuntimeError
   end
+
+  class ExecutionStatus
+    def initialize
+      @output = []
+      @errors = []
+      @detailedStatus = nil
+    end
+
+    attr_accessor :output
+    attr_accessor :errors
+    attr_accessor :detailedStatus
+
+    def success?
+      @detailedStatus.success?
+    end
+
+    def exited?
+      @detailedStatus.exited?
+    end
+
+    def exitstatus
+      @detailedStatus.exitstatus
+    end
+  end
   
   # BigBlueButton logs information about its progress.
   # Replace with your own logger if you desire.
@@ -66,23 +90,25 @@ module BigBlueButton
     FileTest.directory?(dir)
   end
     
-  def self.execute(command)
-    output=""
-    status = Open4::popen4(command) do | pid, stdin, stdout, stderr|
+  def self.execute(command, fail_on_error=true)
+    status = ExecutionStatus.new
+    status.detailedStatus = Open4::popen4(command) do | pid, stdin, stdout, stderr|
         BigBlueButton.logger.info("Executing: #{command}")
 
-	output = stdout.readlines
-        BigBlueButton.logger.info( "Output: #{output} ") unless output.empty?
+        status.output = stdout.readlines
+        BigBlueButton.logger.info( "Output: #{Array(status.output).join()} ") unless status.output.empty?
  
-        errors = stderr.readlines
-        unless errors.empty?
-          BigBlueButton.logger.error( "Error: stderr: #{Array(errors).join()}")
- #         raise errors.to_s 
+        status.errors = stderr.readlines
+        unless status.errors.empty?
+          BigBlueButton.logger.error( "Error: stderr: #{Array(status.errors).join()}")
         end
     end
-    BigBlueButton.logger.info("Success ?:  #{status.success?}")
+    BigBlueButton.logger.info("Success?: #{status.success?}")
     BigBlueButton.logger.info("Process exited? #{status.exited?}")
     BigBlueButton.logger.info("Exit status: #{status.exitstatus}")
-    output
+    if status.success? == false and fail_on_error
+      raise "Execution failed"
+    end
+    status
   end
 end

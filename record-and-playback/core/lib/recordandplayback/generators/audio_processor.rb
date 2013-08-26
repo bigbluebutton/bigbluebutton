@@ -41,7 +41,10 @@ module BigBlueButton
           BigBlueButton::AudioEvents.generate_silence(ae.length_of_gap, ae.file, sampling_rate)
         else
           # Substitute the original file location with the archive location
-          ae.file = ae.file.sub(/.+\//, "#{audio_dir}/")
+          orig_file = ae.file.sub(/.+\//, "#{audio_dir}/")
+          length = ae.stop_event_timestamp.to_i - ae.start_event_timestamp.to_i
+
+          ae.file = BigBlueButton::AudioEvents.stretch_audio_file(orig_file, length, sampling_rate)
         end
         
         audio_files << ae.file
