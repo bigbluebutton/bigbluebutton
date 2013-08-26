@@ -127,7 +127,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       [Bindable] private var isTunneling:Boolean = false;
 			
-			private var confirmingLogout = false;
+			private var confirmingLogout:Boolean = false;
       
 			public function initOptions(e:Event):void {
 				layoutOptions = new LayoutOptions();
@@ -414,7 +414,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					  effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" 
 					  width="100%" 
 					  height="100%">
-		<views:LoadingBar id="progressBar" x="{this.width/2 - progressBar.width/2}" y="{this.height/2 - progressBar.height/2}" width="{this.width/2}" />
+		<views:LoadingBar id="progressBar" horizontalCenter="0" verticalCenter="0" width="50%" />
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
 	</views:MainCanvas>	
 	
