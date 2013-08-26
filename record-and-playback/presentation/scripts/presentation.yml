@@ -8,7 +8,5 @@ deskshare_output_width: 1280
 deskshare_output_height: 720
 # offset applied to audio in the output video file
 # audio_offset = 1200 means that the audio will be delayed by 1200ms
-# recommended value for Sorenson: 800
-# recommended value for h.264: 1200
-audio_offset: 1200
+audio_offset: 0
 include_deskshare: true
