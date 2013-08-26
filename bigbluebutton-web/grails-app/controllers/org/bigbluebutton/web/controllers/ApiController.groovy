@@ -953,49 +953,63 @@ class ApiController {
   /***********************************************
    * ENTER API
    ***********************************************/
-  def enter = {	    
-    if (! session["user-token"] || (meetingService.getUserSession(session['user-token']) == null)) {
+  def enter = {
+    boolean reject = false;
+
+    UserSession us = null;
+    Meeting meeting = null;
+
+    if(!session["user-token"]){
+      reject = true;
+    }else{
+      if(meetingService.getUserSession(session['user-token']) == null)
+        reject = true;
+      else{
+        us = meetingService.getUserSession(session['user-token']);
+        meeting = meetingService.getMeeting(us.meetingID);
+        if(meeting == null){
+          reject = true
+        }
+      }
+    }
+
+    if (reject) {
       log.info("No session for user in conference.")
-	  
-	  Meeting meeting = null;	  
-	  
-	  // Determine the logout url so we can send the user there.
-	  String logoutUrl = session["logout-url"]
-					
-	  if (! session['meeting-id']) {
-		  meeting = meetingService.getMeeting(session['meeting-id']);
-	  }
-	
-	  // Log the user out of the application.
-	  session.invalidate()
-	
-	  if (meeting != null) {
-		  log.debug("Logging out from [" + meeting.getInternalId() + "]");
-		  logoutUrl = meeting.getLogoutUrl();
-	  }
-	  
-	  if (StringUtils.isEmpty(logoutUrl))
-	  	logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
-	  
+
+      // Determine the logout url so we can send the user there.
+      String logoutUrl = session["logout-url"]
+
+      if (! session['meeting-id']) {
+        meeting = meetingService.getMeeting(session['meeting-id']);
+      }
+
+      // Log the user out of the application.
+      session.invalidate()
+
+      if (meeting != null) {
+        log.debug("Logging out from [" + meeting.getInternalId() + "]");
+        logoutUrl = meeting.getLogoutUrl();
+      }
+
+      if (StringUtils.isEmpty(logoutUrl))
+        logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
+
       response.addHeader("Cache-Control", "no-cache")
-      withFormat {				
+      withFormat {        
         xml {
           render(contentType:"text/xml") {
             response() {
               returncode("FAILED")
               message("Could not find conference.")
-			  logoutURL(logoutUrl)
+              logoutURL(logoutUrl)
             }
           }
         }
       }
-	  
     } else {
-		UserSession us = meetingService.getUserSession(session['user-token']);
-		Meeting meeting = meetingService.getMeeting(us.meetingID);
-        log.info("Found conference for " + us.fullname)
-        response.addHeader("Cache-Control", "no-cache")
-        withFormat {				
+      log.info("Found conference for " + us.fullname)
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {        
         xml {
           render(contentType:"text/xml") {
             response() {
@@ -1003,27 +1017,27 @@ class ApiController {
               fullname(us.fullname)
               confname(us.conferencename)
               meetingID(us.meetingID)
-			  externMeetingID(us.externMeetingID)
+              externMeetingID(us.externMeetingID)
               externUserID(us.externUserID)
-			  internalUserID(us.internalUserId)
+              internalUserID(us.internalUserId)
               role(us.role)
               guest(us.guest)
               conference(us.conference)
               room(us.room)
               voicebridge(us.voicebridge)
-			  dialnumber(meeting.getDialNumber())
+              dialnumber(meeting.getDialNumber())
               webvoiceconf(us.webvoiceconf)
               mode(us.mode)
               record(us.record)
               welcome(us.welcome)
-			  logoutUrl(us.logoutUrl)
-			  defaultLayout(us.defaultLayout)
-			  avatarURL(us.avatarURL)
-			  customdata(){
-				  meeting.getUserCustomData(us.externUserID).each{ k,v ->
-					  "$k"("$v")
-				  }
-			  }
+              logoutUrl(us.logoutUrl)
+              defaultLayout(us.defaultLayout)
+              avatarURL(us.avatarURL)
+              customdata(){
+                meeting.getUserCustomData(us.externUserID).each{ k,v ->
+                 "$k"("$v")
+                }
+              }
             }
           }
         }

@@ -33,7 +33,7 @@ module BigBlueButton
   end
 
   class MatterhornProcessor    
-    def self.create_manifest_xml(webcam, deskshare, manifest)
+    def self.create_manifest_xml(webcam, deskshare, manifest, meeting_id)
 
       vpresenter = FFMPEG::Movie.new(webcam) if File.exists?(webcam)
       vpresentation = FFMPEG::Movie.new(deskshare) if File.exists?(deskshare)

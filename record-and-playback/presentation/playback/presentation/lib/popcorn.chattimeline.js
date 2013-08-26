@@ -67,7 +67,9 @@
 
       start: function( event, options ) {
         contentDiv.style.display = "block";
-        contentDiv.setAttribute('aria-hidden', false);
+        if ($("#exposechat").is(':checked')) {
+          contentDiv.setAttribute('aria-hidden', false);
+        }
         if( options.direction === "down" ) {
           target.scrollTop = target.scrollHeight;
         }

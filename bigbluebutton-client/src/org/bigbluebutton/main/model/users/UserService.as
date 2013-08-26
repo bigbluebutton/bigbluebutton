@@ -18,9 +18,15 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;	
-	import flash.net.NetConnection;	
-	import mx.collections.ArrayCollection;	
+	import com.asfusion.mate.events.Dispatcher;
+	
+	import flash.events.TimerEvent;
+	import flash.external.ExternalInterface;
+	import flash.net.NetConnection;
+	import flash.utils.Timer;
+	
+	import mx.collections.ArrayCollection;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.UserConfigManager;
@@ -105,6 +111,9 @@ package org.bigbluebutton.main.model.users
 					_conferenceParameters.record = false;
 				}
 				
+                // assign the meeting name to the document title
+                ExternalInterface.call("setTitle", _conferenceParameters.meetingName);
+                
 				/**
 				 * Temporarily store the parameters in global BBB so we get easy access to it.
 				 */

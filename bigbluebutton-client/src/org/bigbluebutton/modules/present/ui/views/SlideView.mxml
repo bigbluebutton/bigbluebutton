@@ -72,7 +72,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.managers.Slide;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideCalcUtil;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
-			
+            import org.bigbluebutton.util.i18n.ResourceUtil;
+            
 			[Bindable] public var zoomPercentage:Number = 100;
 			public static const ZOOM_STEP:int = 5;
 			public static const THUMBNAILS_CLOSED:String = "ThumbnailsClosed";
@@ -308,10 +309,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 */						
 			private function handleSlideLoadedEvent(e:SlideEvent):void{
 				slideLoader.source = e.slide;
-				if(Capabilities.hasAccessibility){
-					slideLoader.accessibilityProperties.description = e.slideText;
-					Accessibility.updateProperties()
-				}
+			    //slideLoader.accessibilityProperties.description = "Slide text start:  " + e.slideText + "    Slide text end";
+                slideLoader.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + e.slideText + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
+                slideLoader.accessibilityName = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + e.slideText + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
+                LogUtil.debug(e.slideText);
 			}
 			
 			/**

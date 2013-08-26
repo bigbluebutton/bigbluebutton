@@ -18,6 +18,7 @@
 */
 package org.bigbluebutton.main.model.users
 {
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.*;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
@@ -26,7 +27,8 @@ package org.bigbluebutton.main.model.users
 	import flash.net.navigateToURL;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
-	        	
+	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+        	
 	public class JoinService
 	{  
 		private var request:URLRequest = new URLRequest();
@@ -48,12 +50,25 @@ package org.bigbluebutton.main.model.users
             request = new URLRequest(url);
             request.method = URLRequestMethod.GET;		
             
-			urlLoader.addEventListener(Event.COMPLETE, handleComplete);	
+			urlLoader.addEventListener(Event.COMPLETE, handleComplete);
+			urlLoader.addEventListener(HTTPStatusEvent.HTTP_STATUS, httpStatusHandler);
+			urlLoader.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
             urlLoader.load(request);	
 		}
 
 		public function addJoinResultListener(listener:Function):void {
 			_resultListener = listener;
+		}
+		
+		private function httpStatusHandler(event:HTTPStatusEvent):void {
+			LogUtil.debug("httpStatusHandler: " + event);
+		}
+
+		private function ioErrorHandler(event:IOErrorEvent):void {
+			trace("ioErrorHandler: " + event);
+			var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.USER_LOGGED_OUT);
+			var dispatcher:Dispatcher = new Dispatcher();
+			dispatcher.dispatchEvent(e);
 		}
 		
 		private function handleComplete(e:Event):void {			

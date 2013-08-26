@@ -91,7 +91,9 @@ package org.bigbluebutton.modules.deskshare.managers
 			LogUtil.debug("DeskshareManager::handleStartSharingEvent");
 			//toolbarButtonManager.disableToolbarButton();
 			toolbarButtonManager.startedSharing();
-			publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), autoStart);
+			var option:DeskshareOptions = new DeskshareOptions();
+			option.parseOptions();
+			publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), autoStart, option.autoFullScreen);
 			sharing = true;
 		}
 		
