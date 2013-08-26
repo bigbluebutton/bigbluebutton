@@ -22,7 +22,7 @@
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
     title="{ResourceUtil.getInstance().getString('bbb.waitWindow.waitMessage.title')}" showCloseButton="false" 
-    x="168" y="86" layout="vertical" width="400" height="80" horizontalAlign="center">
+    layout="vertical" width="350" horizontalAlign="center">
 
 	<mx:Script>
 		<![CDATA[
@@ -56,5 +56,5 @@
 			
 		]]>
 	</mx:Script>
-	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.waitWindow.waitMessage.message')}" width="100%" textAlign="center"/>
+	<mx:Text text="{ResourceUtil.getInstance().getString('bbb.waitWindow.waitMessage.message')}" width="100%" textAlign="center" />
 </mx:TitleWindow> 

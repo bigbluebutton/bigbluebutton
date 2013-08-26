@@ -24,10 +24,7 @@
 	icon="{wrenchIcon}" click="start()"
 	toolTip="{ResourceUtil.getInstance().getString('bbb.settings.btn.toolTip')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent"
-	
-	
-	>
-	
+	height="22">
 	
 	<mx:Script>
 		<![CDATA[
