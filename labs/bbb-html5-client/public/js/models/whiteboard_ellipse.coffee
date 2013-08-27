@@ -39,19 +39,40 @@ define [
     # @param  {number} y1 the y value of the top left corner
     # @param  {number} x2 the x value of the bottom right corner
     # @param  {number} y2 the y value of the bottom right corner
-    update: (x1, y1, x2, y2) ->
+    # @param  {boolean} square (draw a circle or not
+    update: (x1, y1, x2, y2, circle) ->
+
+      
+
+
       if @obj?
         [x1, x2] = [x2, x1] if x2 < x1
         [y1, y2] = [y2, y1] if y2 < y1
 
         rx = (x2 - x1) / 2
         ry = (y2 - y1) / 2
-        @obj.attr
-          cx: (rx + x1) * @gw + @xOffset
-          cy: (ry + y1) * @gh + @yOffset
-          rx: rx * @gw
-          ry: ry * @gh
 
+        if square
+          ry = rx
+                    
+          r= 
+            rx: rx * @gw
+            ry: ry * @gh
+            cx: (rx + x1) * @gw + @xOffset
+            cy: (ry + y1) * @gw + @yOffset
+          console.log "------------>", r
+          @obj.attr(r)
+            
+        else
+          r= 
+            rx: rx * @gw
+            ry: ry * @gh
+            cx: (rx + x1) * @gw + @xOffset
+            cy: (ry + y1) * @gh + @yOffset
+          console.log "------------>", r
+          @obj.attr(r)
+
+        console.log( "@gw: " + @gw + "\n@gh: " + @gh + "\n@xOffset: " + @xOffset + "\n@yOffset: " + @yOffset );      
         # we need to update all these values, specially for when shapes are drawn backwards
         @definition.data[0] = x1
         @definition.data[1] = y1
