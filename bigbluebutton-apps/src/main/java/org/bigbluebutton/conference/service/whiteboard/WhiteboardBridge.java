@@ -120,7 +120,7 @@ public class WhiteboardBridge {
 				Double hR = Double.parseDouble(points.get(3).toString());
 				data.add(vR/100);
 				data.add(hR/100);
-				
+				data.add(map.get("circle"));// if "Ctrl" key pressed, it should draw a circle in html5-client
 			}
 			
 			updates.add("ellipse");

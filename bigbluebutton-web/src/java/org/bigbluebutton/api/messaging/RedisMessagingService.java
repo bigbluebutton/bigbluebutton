@@ -250,17 +250,23 @@ public class RedisMessagingService implements MessagingService {
 				jedis.rpush("meeting-"+meetingID+"-presentation-"+presentationName+"-pages", Integer.toString(i));
 				jedis.set("meeting-"+meetingID+"-presentation-"+presentationName+"-page-"+i+"-image", "slide"+i+".png");
 				
-				//TODO: Temporary solution. This should be implemented on Pdf2SwfSlidesGenerationService.
+				/*default image size is 800x600.
+				This will cause images in any other aspect ratio to be stretched out
+				To fix this, we pass the image size through redis which is obtained from the png files in the 
+				var/bigbluebutton directory*/
 				int width = 800;
 				int height = 600;
-				/*try {
+				try {
 					BufferedImage bimg = ImageIO.read(new File("/var/bigbluebutton/"+meetingID+"/"+meetingID+"/"+presentationName+"/pngs/slide"+i+".png"));
 					width = bimg.getWidth();
 					height = bimg.getHeight();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}*/
+					/*If there is an error in opening the files, the images will default back to 800x600
+					This is not ideal*/
+					width = 800;
+					height = 600;
+					log.error(e.toString());
+				}
 				
 				jedis.set("meeting-"+meetingID+"-presentation-"+presentationName+"-page-"+i+"-width", Integer.toString(width));
 				jedis.set("meeting-"+meetingID+"-presentation-"+presentationName+"-page-"+i+"-height", Integer.toString(height));
