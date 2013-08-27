@@ -969,7 +969,7 @@ check_state() {
 	#
 	FFMPEG_VERSION=$(ffmpeg -version 2>/dev/null | grep ffmpeg | cut -d ' ' -f3)
 	case "$FFMPEG_VERSION" in
-	0.11.*)
+	2.0|2.0.*)
 		# This is the current supported version; OK.
 		;;
 	'')
