@@ -1,6 +1,25 @@
 # Set encoding to utf-8
 # encoding: UTF-8
 
+#
+# BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+#
+# Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+#
+# This program is free software; you can redistribute it and/or modify it under the
+# terms of the GNU Lesser General Public License as published by the Free Software
+# Foundation; either version 3.0 of the License, or (at your option) any later
+# version.
+#
+# BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License along
+# with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+#
+
+
 require 'rubygems'
 require 'nokogiri'
 
@@ -131,6 +150,16 @@ module BigBlueButton
         stop_events << s
       end
       stop_events.sort {|a, b| a[:stop_timestamp] <=> b[:stop_timestamp]}
-    end    
+    end
+
+	def self.linkify( text )
+	  generic_URL_regexp = Regexp.new( '(^|[\n ])([\w]+?://[\w]+[^ \"\n\r\t<]*)', Regexp::MULTILINE | Regexp::IGNORECASE )
+	  starts_with_www_regexp = Regexp.new( '(^|[\n ])((www)\.[^ \"\t\n\r<]*)', Regexp::MULTILINE | Regexp::IGNORECASE )
+	  
+	  s = text.to_s
+	  s.gsub!( generic_URL_regexp, '\1<a href="\2">\2</a>' )
+	  s.gsub!( starts_with_www_regexp, '\1<a href="http://\2">\2</a>' )
+	  s
+	end
   end
 end

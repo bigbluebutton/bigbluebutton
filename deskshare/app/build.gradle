@@ -9,50 +9,71 @@ jar.enabled = true
 archivesBaseName = 'bbb-deskshare-app' 
 
 dependencies {	  
-    providedCompile 'javax.servlet:servlet-api:2.5@jar'
+	// Servlet
+	providedCompile 'javax.servlet:servlet-api:2.5@jar'
 	
-	providedCompile 'mina:mina-core:2.0.4@jar' 
-
+	// Mina
+	providedCompile 'org.apache.mina:mina-core:2.0.7@jar'
+	providedCompile 'org.apache.mina:mina-integration-beans:2.0.7@jar'
+	providedCompile 'org.apache.mina:mina-integration-jmx:2.0.7@jar'
 	
-	// Spring
-	providedCompile 'org.springframework:spring-web:3.0.6.RELEASE@jar'
-	providedCompile  'org.springframework:spring-beans:3.0.6.RELEASE@jar'
-	providedCompile 'org.springframework:spring-context:3.0.6.RELEASE@jar'
-	providedCompile 'org.springframework:spring-core:3.0.6.RELEASE@jar'
-	compile 'org.springframework:spring-webmvc:3.0.6.RELEASE@jar'
-		
-	providedCompile 'org/red5:red5:1.0r4316@jar'
+	// Spring 
+	providedCompile 'org.springframework:spring-web:3.1.1.RELEASE@jar' 
+	providedCompile  'org.springframework:spring-beans:3.1.1.RELEASE@jar'
+	providedCompile 'org.springframework:spring-context:3.1.1.RELEASE@jar'
+	providedCompile 'org.springframework:spring-core:3.1.1.RELEASE@jar'
 	
-
+	// Red5
+	providedCompile 'org/red5:red5:1.0r4643@jar'
+	
 	// Logging
-	providedCompile 'org.slf4j:com.springsource.slf4j.api:1.6.1@jar'
-	providedCompile 'org.slf4j:com.springsource.slf4j.bridge:1.6.1@jar'
-	providedCompile ':logback-core:0.9.28@jar'
-	providedCompile ':logback-classic:0.9.28@jar'
-	providedCompile ':log4j-over-slf4j:1.6.1@jar'
-	providedCompile ':jcl-over-slf4j:1.6.1@jar'
-	providedCompile ':jul-to-slf4j:1.6.1@jar'
-	
-	compile project(':common')
-    providedCompile 'commons-fileupload:commons-fileupload:1.2.2@jar'
-	providedCompile 'commons-io:commons-io:2.1@jar' 
-    
-    // Libraries needed to run the scala tools
-    scalaTools 'org.scala-lang:scala-compiler:2.7.7'
-    scalaTools 'org.scala-lang:scala-library:2.7.7'
+	providedCompile 'ch.qos.logback:logback-core:1.0.9@jar'
+	providedCompile 'ch.qos.logback:logback-classic:1.0.9@jar'
+	providedCompile 'org.slf4j:log4j-over-slf4j:1.7.2@jar' 
+	providedCompile 'org.slf4j:jcl-over-slf4j:1.7.2@jar'
+	providedCompile 'org.slf4j:jul-to-slf4j:1.7.2@jar'
+    providedCompile 'org.slf4j:slf4j-api:1.7.2@jar'
 
-    // Libraries needed for scala api
-    compile 'org.scala-lang:scala-library:2.7.7'   
-    compile 'net/lag/configgy:configgy:1.5@jar'
-    
-        // Testing
+	// Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
+	// Otherwise we get exception on aop utils class not found.
+	providedCompile 'org.springframework:spring-aop:3.1.1.RELEASE@jar'
+	providedCompile 'aopalliance:aopalliance:1.0@jar'
+	
+    // Java Concurrency In Practice
+    providedCompile 'net.jcip:jcip-annotations:1.0@jar'
+        
+    // Testing
     compile 'org.testng:testng:5.8@jar' 
     compile 'org.easymock:easymock:2.4@jar'
-
+	
 	// Testing
 	testRuntime 'org/testng:testng:5.8@jar'
 	testRuntime 'org.easymock:easymock:2.4@jar'
 	
+	// Tunnelling servlet
+	compile 'org.springframework:spring-webmvc:3.1.1.RELEASE@jar'
+		
+	compile project(':common')
+	
+	// Need to put commons-fileupload and commons-io in red5/lib dir. Otherwise, we get an
+	// java.lang.NoClassDefFoundError: org/apache/commons/fileupload/FileItemFactory or
+        // java.lang.NoClassDefFoundError: org/apache/commons/io/output/DeferredFileOutputStream
+	// ralam (Feb 27, 2013) 
+        providedCompile 'commons-fileupload:commons-fileupload:1.2.2@jar'
+	providedCompile 'commons-io:commons-io:2.1@jar' 
+    
+    // Libraries needed to run the scala tools
+    scalaTools 'org.scala-lang:scala-compiler:2.9.2'
+    scalaTools 'org.scala-lang:scala-library:2.9.2'
+
+	// workaround for http://issues.gradle.org/browse/GRADLE-1273
+	compileScala.classpath = sourceSets.main.compileClasspath + files(sourceSets.main.classesDir)
+	compileTestScala.classpath = sourceSets.test.compileClasspath + files(sourceSets.test.classesDir)
+	
+    // Libraries needed for scala api
+    compile 'org.scala-lang:scala-library:2.9.2'   
+    compile 'net.lag:configgy:2.0.0'
+    
         //redis
 	compile 'redis.clients:jedis:1.5.1'
 	providedCompile 'commons-pool:commons-pool:1.5.6'
@@ -64,7 +85,6 @@ test {
 
 war.doLast {
   ant.unzip(src: war.archivePath, dest: "$buildDir/deskshare")
-  ant.copy(file: "$buildDir/deskshare/WEB-INF/logback-deskshare.xml", todir: "$buildDir/deskshare/WEB-INF/classes")
 }
 
 task deploy() << {

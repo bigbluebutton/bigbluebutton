@@ -225,7 +225,7 @@ Error: createMeeting() failed
 		}
 		
 		//
-		// We've got a valid meeting_ID and passoword -- let's join!
+		// We've got a valid meeting_ID and password -- let's join!
 		//
 
 		String joinURL;

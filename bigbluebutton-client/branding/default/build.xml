@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- BigBlueButton Branding build.xml for use by Hudson builds.   -->
+<project name="BigBlueButton Branding" basedir="../.." default="branding" >
+	<property environment="env" />
+	<property name="DEBUG" value="true" />
+	<property name="BUILD_ENV" value="DEV" />
+	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
+	<property name="themeFile" value="BBBDefault.css" />
+	<property name="BASE_DIR" value="${basedir}" />
+	<property name="SRC_DIR" value="${BASE_DIR}/src" />
+		
+	<property name="OUTPUT_DIR" value="${BASE_DIR}/client" />
+	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
+	
+	<target name="init-ant-contrib">
+		<property name="ant-contrib.jar" location="${BASE_DIR}/build/lib/ant-contrib-0.6.jar"/>
+		<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="${ant-contrib.jar}"/>
+	</target>
+	  	
+	<target name="branding" depends="init-ant-contrib">
+		<sequential>
+			<mxmlc file="${BASE_DIR}/branding/default/style/css/${themeFile}" 
+				output="${OUTPUT_DIR}/branding/css/${themeFile}.swf" 
+				debug="${DEBUG}" 
+				mxml.compatibility-version="3.0.0" 
+				swf-version="13" 
+				optimize="true">
+			</mxmlc>
+		</sequential>
+	</target>
+</project>

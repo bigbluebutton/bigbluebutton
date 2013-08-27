@@ -1,28 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
-  
-  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
-  
-  BigBlueButton is free software; you can redistribute it and/or modify it under the 
-  terms of the GNU Lesser General Public License as published by the Free Software 
-  Foundation; either version 2.1 of the License, or (at your option) any later 
-  version. 
-  
-  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
-  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-  
-  You should have received a copy of the GNU Lesser General Public License along 
-  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- 
-  $Id: $
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
 -->
 
 <mx:ApplicationControlBar xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/" visible="{showToolbar}"
-	enabled="true" xmlns:views="org.bigbluebutton.main.views.*" >   
+	enabled="true" xmlns:views="org.bigbluebutton.main.views.*"
+	initialize="init()" >   
 	
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarButtonEvent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarButtonEvent"/>
@@ -30,6 +31,11 @@
 	<mate:Listener type="{ConnectionFailedEvent.USER_LOGGED_OUT}" method="hideToolbar" />
 	<mate:Listener type="{ConfigEvent.CONFIG_EVENT}" method="gotConfigParameters" />
 	<mate:Listener type="{SettingsEvent.SETTINGS_MODULE_LOADED}" method="showSettingsButton" />
+	<mate:Listener type="{ShortcutEvent.REMOTE_OPEN_SHORTCUT_WIN}" method="remoteShortcutClick" />
+	<mate:Listener type="{ShortcutEvent.LOGOUT}" method="remoteLogout" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_SHORTCUT_BUTTON}" method="focusShortcutButton" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_LOGOUT_BUTTON}" method="focusLogoutButton" />
+	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="retrieveMeetingName" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -40,17 +46,25 @@
 			import org.bigbluebutton.common.IBbbToolbarComponent;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
+			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.services.BandwidthMonitor;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ConfigEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.SettingsEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
+			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import mx.controls.Alert;
+			import mx.accessibility.AlertAccImpl;
+			import mx.events.CloseEvent;
 
-			private var DEFAULT_HELP_URL:String = "http://mconf.org/m/about";
+			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
 			
 			public static const ALIGN_RIGHT:String ="ALIGN_RIGHT";
 			public static const ALIGN_LEFT:String = "ALIGN_LEFT";
@@ -61,7 +75,57 @@
 			private var showToolbar:Boolean = false;
 			[Bindable]
 			public var toolbarOptions:LayoutOptions = new LayoutOptions();
-						
+			
+			[Bindable]
+			private var baseIndex:int;
+			[Bindable]
+			private var numButtons:int;
+			/*
+			 * Because of the de-centralized way buttons are added to the toolbar, there is a large gap between the tab indexes of the main buttons
+			 * on the left and the tab indexes of the "other" items on the right (shortcut glossary, language slector, etc). This will make it more
+			 * convenient to add future items to the tab order.
+			 * 
+			 * - Justin Robinson, November 13 2012 
+			 */
+			
+			private var xml:XML;
+			
+			private function init():void{
+				AlertAccImpl.enableAccessibility();
+				
+				baseIndex = 101;
+				numButtons = 0;
+                
+                // Accessibility isn't active till a few second after the client starts to load so we need a delay
+                var timer:Timer = new Timer(3000, 1);
+                timer.addEventListener(TimerEvent.TIMER, checkAccessiblity);
+                timer.start();
+
+			}
+            private function checkAccessiblity(e:TimerEvent):void {
+                // remove the quick links if there's no screen reader active
+                if (!Accessibility.active) {
+                    quickLinks.removeAllChildren();
+                }
+            }
+            private function onQuickLinkClicked(window:String):void {
+                var dispatcher:Dispatcher = new Dispatcher();
+                switch(window) {
+                    case "users":
+                        dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_USERS_WINDOW));
+                        break;
+                    case "webcams":
+                        dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_VIDEO_WINDOW));
+                        break;
+                    case "presentation":
+                        dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_PRESENTATION_WINDOW));
+                        break;
+                    case "chat":
+                        dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_CHAT_WINDOW));
+                        break;
+                }
+            }
+								
 			public function displayToolbar():void{
 				toolbarOptions = new LayoutOptions();
 				toolbarOptions.parseOptions();	
@@ -78,6 +142,16 @@
 				}
 			}
 			
+            private function retrieveMeetingName(e:ConferenceCreatedEvent):void {
+                if (toolbarOptions.showMeetingName) {
+                    var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();
+                    
+                    if (meetingTitle != null) {
+                        meetingNameLbl.text = meetingTitle;
+                    } 
+                }
+            }
+            
 			public function addButton(name:String):Button{
 				var btn:Button = new Button();
 				btn.id = name;
@@ -90,12 +164,39 @@
 			}
 			
 			private function onHelpButtonClicked():void {
+        DEFAULT_HELP_URL = BBB.initConfigManager().config.help.url;        
 				navigateToURL(new URLRequest(DEFAULT_HELP_URL))
 			}
 			
 			private function handleEndMeetingEvent(event:BBBEvent):void {
 				LogUtil.debug("Received end meeting event.");
 				doLogout();
+			}
+			
+			
+			private function confirmLogout():void {
+				if (toolbarOptions.confirmLogout){
+					// Confirm logout using built-in alert
+					var alert:Alert = Alert.show(ResourceUtil.getInstance().getString('bbb.logout.confirm.message'), ResourceUtil.getInstance().getString('bbb.logout.confirm.title'), Alert.YES | Alert.NO, this, alertLogout, null, Alert.YES);
+					
+					var newX:Number = langSelector.x + langSelector.width/2;
+					var newY:Number = btnLogout.y + btnLogout.height + 5;
+												
+					alert.validateNow();
+					alert.move(newX, newY);
+					//Accessibility.updateProperties();
+				}
+				else{
+					doLogout();
+				}
+			}
+			
+						
+			private function alertLogout(e:CloseEvent):void {
+				// Check to see if the YES button was pressed.
+				if (e.detail==Alert.YES) {
+					 doLogout();
+				}
 			}
 			
 			private function doLogout():void {
@@ -111,26 +212,62 @@
 			}
 			
 			private function handleAddToolbarButtonEvent(event:ToolbarButtonEvent):void {
-				addedBtns.addChild(event.button as UIComponent);
-				realignButtons();
+				// Find out how to import accessibility into custom components; even though the ToolbarButtons are buttons, they don't seem to have a tabIndex
+				if (event.location == ToolbarButtonEvent.TOP_TOOLBAR) {
+					var index:int;
+					var added:int = 0;
+					//*var localButton:UIComponent;
+					if (event.module == "DeskShare"){
+						index = 0;
+					}
+					else if (event.module == "Microphone"){
+						index = 1;
+					}
+					else if (event.module == "Webcam"){
+						index = 2;
+					}
+					
+					//localButton = event.button as UIComponent;
+					//(localButton as Button).tabIndex = baseIndex + numButtons;
+					//addedBtns.addChild(localButton);*/
+					
+					
+					addedBtns.addChild(event.button as UIComponent);
+					// Won't work quite like this: addedBtns.addChildAt(event.button as UIComponent, index);					
+					numButtons++;
+					realignButtons();
+				}
 			}
 			
 			private function handleRemoveToolbarButtonEvent(event:ToolbarButtonEvent):void {
-				addedBtns.removeChild(event.button as UIComponent);
+				if (addedBtns.contains(event.button as UIComponent))
+					addedBtns.removeChild(event.button as UIComponent);
 			}
 			
 			private function realignButtons():void{
 				for each (var button:UIComponent in addedBtns.getChildren()){
 					var toolbarComponent:IBbbToolbarComponent = button as IBbbToolbarComponent;
-					if (toolbarComponent.getAlignment() == ALIGN_LEFT) addedBtns.setChildIndex(button, 0);
-					else if (toolbarComponent.getAlignment() == ALIGN_RIGHT) addedBtns.setChildIndex(button, addedBtns.numChildren - 1);
+					
+					
+					/*if (toolbarComponent.getAlignment() == ALIGN_LEFT){ 
+						addedBtns.setChildIndex(button, 0);
+						//(addedBtns.getChildAt(0) as Button).tabIndex = 0;
+					}
+					else if (toolbarComponent.getAlignment() == ALIGN_RIGHT){ 
+						addedBtns.setChildIndex(button, addedBtns.numChildren - 1);
+						//(addedBtns.getChildAt(0) as Button).tabIndex = addedBtns.numChildren - 1;
+					}*/
+					button.tabIndex = baseIndex + 5;
+					//for (var i:int = 0; i < addedBtns.numChildren; i++){
+					//	(addedBtns.getChildAt(i) as Button).tabIndex = baseIndex + i;
+					//}
 				}
 			}
 						
 			private function gotConfigParameters(e:ConfigEvent):void{
 				langSelector.visible = e.config.languageEnabled;
-				if(e.config.helpURL != "")
-					DEFAULT_HELP_URL = e.config.helpURL;
+				shortcutKeysBtn.includeInLayout = shortcutKeysBtn.visible = e.config.shortcutKeysShowButton; 
+				DEFAULT_HELP_URL = e.config.helpURL;
 			}
 			
 			private function onDisconnectTest():void{
@@ -152,13 +289,66 @@
 				d.dispatchEvent(new SettingsEvent(SettingsEvent.OPEN_SETTINGS_PANEL));
 			}
 			
+			public function remoteShortcutClick(e:ShortcutEvent):void{
+				onShortcutButtonClick();
+			}
+			
+			public function remoteLogout(e:ShortcutEvent):void{
+				confirmLogout();
+			}
+			
+			private function onShortcutButtonClick(e:Event = null):void {
+				var d:Dispatcher = new Dispatcher();
+				d.dispatchEvent(new ShortcutEvent(ShortcutEvent.OPEN_SHORTCUT_WIN));
+			}
+			
+			private function focusShortcutButton(e:ShortcutEvent):void{
+				shortcutKeysBtn.setFocus();
+			}
+			
+			private function focusLogoutButton(e:ShortcutEvent):void{
+				btnLogout.setFocus();
+			}
+
 		]]>
-	</mx:Script>	
-	<mx:HBox id="addedBtns">
-	</mx:HBox>		
-	<mx:Spacer width="100%"/>
-	<views:LanguageSelector id="langSelector" visible="false" />
-	<mx:LinkButton id="helpBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" visible="{showHelpBtn}" click="onHelpButtonClicked()"/>
-	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" 
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()"/>
+	</mx:Script>
+    
+    <mx:HBox id="quickLinks" width="1" includeInLayout="false">
+        <mx:LinkButton id="usersLinkBtn" click="onQuickLinkClicked('users')" label="{ResourceUtil.getInstance().getString('bbb.users.quickLink.label')}"
+                       accessibilityDescription="{usersLinkBtn.label}" toolTip="{usersLinkBtn.label}"
+                       tabIndex="{baseIndex+1}" height="22" styleName="quickWindowLinkStyle" />
+        <mx:LinkButton id="webcamLinkButton" click="onQuickLinkClicked('webcams')" label="{ResourceUtil.getInstance().getString('bbb.videodock.quickLink.label')}" 
+                       accessibilityDescription="{webcamLinkButton.label}" toolTip="{webcamLinkButton.label}"
+                       tabIndex="{baseIndex+2}" height="22" styleName="quickWindowLinkStyle" />
+        <mx:LinkButton id="presentationLinkBtn" click="onQuickLinkClicked('presentation')" label="{ResourceUtil.getInstance().getString('bbb.presentation.quickLink.label')}"
+                       accessibilityDescription="{presentationLinkBtn.label}" toolTip="{presentationLinkBtn.label}"
+                       tabIndex="{baseIndex+3}" height="22" styleName="quickWindowLinkStyle" />
+        <mx:LinkButton id="chatLinkBtn" click="onQuickLinkClicked('chat')" label="{ResourceUtil.getInstance().getString('bbb.chat.quickLink.label')}" 
+                       accessibilityDescription="{chatLinkBtn.label}" toolTip="{chatLinkBtn.label}"
+                       tabIndex="{baseIndex+4}" height="22" styleName="quickWindowLinkStyle" />
+    </mx:HBox>
+	<mx:HBox id="addedBtns"/>
+	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}"/>
+	<views:MuteMeButton id="muteMeBtn"  height="20" tabIndex="{baseIndex+numButtons+10}"/>
+	<mx:Spacer width="50%"/>
+    <mx:Label id="meetingNameLbl" styleName="meetingNameLabelStyle" />
+    <mx:Spacer width="50%"/>
+	<views:LanguageSelector id="langSelector" 
+							visible="false" 
+							tabIndex="{baseIndex+numButtons+11}"
+							accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"/>
+<!--
+  <mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
+-->
+	<mx:Button id="shortcutKeysBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" styleName="shortcutButtonStyle"
+             click="onShortcutButtonClick()" height="22" 
+             toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}" 
+             tabIndex="{baseIndex+numButtons+12}" />
+	<mx:LinkButton id="helpBtn" visible="{showHelpBtn}" label="?" click="onHelpButtonClicked()" height="22" 
+                   styleName="helpLinkButtonStyle" tabIndex="{baseIndex+numButtons+13}" 
+                   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" 
+				   accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"/>
+	<mx:Button label="" id="btnLogout" styleName="logoutButtonStyle"
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="confirmLogout()" height="22"
+                 tabIndex="{baseIndex+numButtons+14}" />
 </mx:ApplicationControlBar>

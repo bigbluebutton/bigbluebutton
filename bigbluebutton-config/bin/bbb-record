@@ -1,12 +1,12 @@
 #!/bin/bash
 #
-# Copyright (c) 2008-2011 by BigBlueButton Inc.
+# BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 #
-# This file is part of BigBlueButton - http://www.bigbluebutton.org
+# Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 #
-# BigBlueButton is free software; you can redistribute it and/or modify it under the
+# This program is free software; you can redistribute it and/or modify it under the
 # terms of the GNU Lesser General Public License as published by the Free Software
-# Foundation; either version 2 of the License, or (at your option) any later
+# Foundation; either version 3.0 of the License, or (at your option) any later
 # version.
 #
 # BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -18,19 +18,29 @@
 #
 # Author(s):
 #       Fred Dixon <ffdixon@bigbluebutton.org>
+#       Gustavo Salazar <guga.salazar.loor@gmail.com>
 #
 # Changelog:
 #   2011-08-18 FFD  Inital Version
 #   2011-11-20 FFD  Added more checks for processing of recording
 #   2012-01-04 GUG  Add option to check for errors
 #   2012-02-27 GUG  Add option to delete one meeting and recording
+#   2012-08-13 GUG  Republish recording
+#   2012-10-22 FFD  Use combination of /var/bigbluebutton and /var/bigbluebutton/recording/raw
+#                   to get the list of recent recordings for bbb-record --watch
+#   2013-04-03 GUG  Enable/Disable a recording workflow
+#   2013-04-05 GUG  Description is optional in bbb-record --watch
+#   2013-04-05 GUG  Map internal meeting id with external meeting id
 
-set -e
+#set -e
 #set -x
 
 BASE=/var/bigbluebutton/recording
 STATUS=$BASE/status
 source /etc/bigbluebutton/bigbluebutton-release
+
+SERVLET_DIR=/var/lib/tomcat6/webapps
+BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 
 RECORDING_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(recording_dir\)/{s/.*recording_dir:[ ]*//;s/;//;p}')
 PUBLISHED_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(published_dir\)/{s/.*published_dir:[ ]*//;s/;//;p}')
@@ -77,6 +87,24 @@ mark_for_rebuild() {
 	done
 }
 
+mark_for_republish() { 
+	MEETING_ID=$1
+	#set -x
+	for type in $TYPES; do                
+                if [ -d $BASE/publish/$type/$MEETING_ID ]; then
+			rm -rf $BASE/publish/$type/$MEETING_ID
+		fi
+              
+                if [ -d /var/bigbluebutton/published/$type/$MEETING_ID ]; then
+                        rm -rf /var/bigbluebutton/published/$type/$MEETING_ID
+                fi
+
+                if [ -d /var/bigbluebutton/unpublished/$type/$MEETING_ID ]; then
+                        rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID
+                fi
+	done
+}
+
 BIGBLUEBUTTON_RELEASE=0.8-beta-4
 
 need_root() {
@@ -100,15 +128,24 @@ usage() {
         echo "   bbb-record [options]"
         echo
         echo "Reporting:"
-        echo "   --list                           List all recordings"
+        echo "   --list                          	 List all recordings"
 	echo
         echo "Monitoring:"
-        echo "   --watch                          Watch processing of recordings"
-        echo "   --rebuild [meetingID]            rebuild the output for meetingID"
-	echo "   --delete [meetingID]             delete one meeting and recording"
-        echo "   --deletall                       delete all meetings and recordings"
-        echo "   --debug                          check for recording errors"
-        echo "   --check                          check for configuration errors"
+        echo "   --watch                          	Watch processing of recordings"
+	echo "   --watch --withDesc               	Watch processing of recordings and show their description"
+	echo
+        echo "Administration:"
+        echo "   --rebuild [meetingID]            	rebuild the output for meetingID"
+        echo "   --republish [meetingID]          	republish the recording for meetingID"
+	echo "   --delete [meetingID]             	delete one meeting and recording"
+        echo "   --deleteall                      	delete all meetings and recordings"
+        echo "   --debug                          	check for recording errors"
+        echo "   --check                          	check for configuration errors"
+        echo "   --enable [workflow]              	enable a recording workflow"
+        echo "   --disable [workflow]             	disable a recording workflow"
+        echo "   --tointernal [external meetingId]      get the internal meeting ids for the given external meetingId"
+        echo "   --toexternal [internal meetingId]      get the external meeting id for the given internal meetingId"
+        #echo "   --rearchive [meetingID]          	rearchive the recording (created before a restart)"
 	echo
 }
 
@@ -121,6 +158,10 @@ fi
 while [ $# -gt 0 ]; do
         if [ "$1" = "-watch" -o "$1" = "--watch" ]; then
                 WATCH=1
+                if [ "$2" = "--withDesc" ]; then
+                        WITHDESC=1
+                        shift
+                fi
 		shift
                 continue
         fi
@@ -132,6 +173,10 @@ while [ $# -gt 0 ]; do
         if [ "$1" = "--list20" ]; then
                 LIST=1
 		HEAD=20
+                if [ "$2" ]; then
+                        WITHDESC=1
+                        shift
+                fi
 		shift
                 continue
         fi
@@ -145,8 +190,19 @@ while [ $# -gt 0 ]; do
 		shift
                 continue
         fi
+
+	if [ "$1" = "-republish" -o "$1" = "--republish" ]; then
+		need_root
+		if [ ! -z "${2}" ]; then
+                	MEETING_ID="${2}"
+			shift
+		fi
+                REPUBLISH=1
+		shift
+                continue
+        fi
 		
-		if [ "$1" = "-delete" -o "$1" = "--delete" ]; then
+	if [ "$1" = "-delete" -o "$1" = "--delete" ]; then
                 need_root
                 if [ ! -z "${2}" ]; then
                         MEETING_ID="${2}"
@@ -177,6 +233,68 @@ while [ $# -gt 0 ]; do
                 continue
         fi
 
+        if [ "$1" = "-clean" -o "$1" = "--clean" ]; then
+		need_root
+                CLEAN=1
+		shift
+                continue
+        fi
+
+        if [ "$1" = "-disable" -o "$1" = "--disable" ]; then
+		need_root
+                if [ ! -z "${2}" ]; then
+                        WORKFLOW="${2}"
+                        shift
+                fi
+                DISABLE=1
+		shift
+                continue
+        fi
+
+        if [ "$1" = "-enable" -o "$1" = "--enable" ]; then
+		need_root
+                if [ ! -z "${2}" ]; then
+                        WORKFLOW="${2}"
+                        shift
+                fi
+                ENABLE=1
+		shift
+                continue
+        fi
+
+        if [ "$1" = "-toexternal" -o "$1" = "--toexternal" ]; then
+		need_root
+                if [ ! -z "${2}" ]; then
+                        INTERNAL_MEETINGID="${2}"
+                        shift
+                fi
+                TOEXTERNAL=1
+		shift
+                continue
+        fi
+
+        if [ "$1" = "-tointernal" -o "$1" = "--tointernal" ]; then
+		need_root
+                if [ ! -z "${2}" ]; then
+                        EXTERNAL_MEETINGID="${2}"
+                        shift
+                fi
+                TOINTERNAL=1
+		shift
+                continue
+        fi
+
+#	if [ "$1" = "-rearchive" -o "$1" = "--rearchive" ]; then
+#                need_root
+#                if [ ! -z "${2}" ]; then
+#                        MEETING_ID="${2}"
+#                        shift
+#                fi
+#                REARCHIVE=1
+#                shift
+#                continue
+#        fi
+
 	usage
 	exit 1
 done
@@ -195,6 +313,30 @@ if [ $REBUILD ]; then
 	mark_for_rebuild $MEETING_ID
     fi
 fi 
+
+if [ $REPUBLISH ]; then
+    if [ -z "$MEETING_ID" ]; then
+	#
+	# Republish all meetings
+	#
+	for recording in $(dir $BASE/raw); do
+		echo "Marking for republish: $recording"
+		mark_for_republish $recording
+	done
+    else
+	echo "Marking for republish: $MEETING_ID"
+	mark_for_republish $MEETING_ID
+    fi
+fi 
+
+if [ $CLEAN ]; then
+	sudo /etc/init.d/bbb-record-core stop
+	for type in $TYPES; do
+		echo " clearning logs in /var/log/bigbluebutton/$type"
+		find /var/log/bigbluebutton/$type -name "*.log" -exec sudo rm '{}' \;
+	done
+	sudo /etc/init.d/bbb-record-core start
+fi
 
 if [ $DELETE ]; then
   if [ ! -z "$MEETING_ID" ]; then
@@ -241,6 +383,7 @@ if [ $DELETEALL ]; then
 	rm -f /var/bigbluebutton/recording/status/recorded/*
 	rm -f /var/bigbluebutton/recording/status/archived/*
 	rm -f /var/bigbluebutton/recording/status/processed/*
+	rm -f /var/bigbluebutton/recording/status/sanity/*
 
 	rm -f /usr/share/red5/webapps/video/streams/*.flv
 	rm -f /var/bigbluebutton/deskshare/*.flv
@@ -272,15 +415,25 @@ if [ $LIST ]; then
 # 	A -- Archiving
 #
 
-echo "MeetingID                                               Time                         APVD APVDE RA Slides Processed            Published             Description"
-echo "------------------------------------------------------  ---------------------------- ---- ----- -- ------ -------------------- --------------------  -----------------------------"
+if [ $WITHDESC ]; then
+	echo "Internal MeetingID                                               Time                APVD APVDE RAS Slides Processed            Published           External MeetingID  Description"
+	echo "------------------------------------------------------  ---------------------------- ---- ----- --- ------ -------------------- ------------------  ------------------- -----------"
+else
+	echo "Internal MeetingID                                               Time                APVD APVDE RAS Slides Processed            Published           External MeetingID"
+	echo "------------------------------------------------------  ---------------------------- ---- ----- --- ------ -------------------- ------------------  -------------------"
+fi 
 
 if [ -z $HEAD ]; then
 	# If we're not called with --list20, show all recordings
 	HEAD=99999
 fi
-                                                              
-for meeting in $(ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD); do
+
+tmp_file=$(mktemp)
+ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD > $tmp_file
+ls -t /var/bigbluebutton/recording/raw | grep "[0-9]\{13\}$" | head -n $HEAD >> $tmp_file
+                                                 
+#for meeting in $(ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD); do
+for meeting in $(cat $tmp_file | sort -t - -k 2 -r| uniq); do
 	echo -n "$meeting"
 	timestamp=$(echo $meeting | sed s/.*-//g)
 	epoc=$(($timestamp/1000))
@@ -366,7 +519,7 @@ for meeting in $(ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD)
 	#
 	echo -n " "
 	STATUS_DIR=$RAW_PRESENTATION_SRC/recording/status
-	DIRS="recorded archived"
+	DIRS="recorded archived sanity"
 	for dir in $DIRS; do
 		if [ -f $STATUS_DIR/$dir/$meeting.done ]; then
 			echo -n "X"
@@ -377,7 +530,11 @@ for meeting in $(ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD)
 
 	#
 	# Numbe rof slides
-	printf "%7s" $(find /var/bigbluebutton/$meeting/$meeting -name "*.swf" | wc -l)
+	if [ -d /var/bigbluebutton/$meeting/$meeting ]; then
+		printf "%7s" $(find /var/bigbluebutton/$meeting/$meeting -name "*.swf" | wc -l)
+        else
+		printf "%7s" $(find /var/bigbluebutton/recording/raw/$meeting -name "*.swf" | wc -l)
+	fi
 
 
 	echo -n " "
@@ -413,8 +570,12 @@ for meeting in $(ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD)
 
 
 	if [ -f /var/bigbluebutton/recording/raw/$recording/events.xml ]; then
-		echo -n "     "
-		echo -n $(head -n 5 /var/bigbluebutton/recording/raw/$recording/events.xml | grep description | sed s/.*description=\"//g | sed s/\".*//g) | sed -e 's/<[^>]*>//g' -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&amp;/\&/g' -e 's/ \{1,\}/ /g' | tr -d '\n'
+		echo -n "   "
+		echo -n $(head -n 5 /var/bigbluebutton/recording/raw/$recording/events.xml | grep meetingId | sed s/.*meetingId=\"//g | sed s/\".*//g) | sed -e 's/<[^>]*>//g' -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&amp;/\&/g' -e 's/ \{1,\}/ /g' | tr -d '\n'
+		if [ $WITHDESC ]; then
+			echo -n "         "
+			echo -n $(head -n 5 /var/bigbluebutton/recording/raw/$recording/events.xml | grep description | sed s/.*description=\"//g | sed s/\".*//g) | sed -e 's/<[^>]*>//g' -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&amp;/\&/g' -e 's/ \{1,\}/ /g' | tr -d '\n'
+		fi
 	fi
 
 fi
@@ -435,8 +596,80 @@ done
 fi
 
 if [ $WATCH ]; then
-	watch -n 2 "bbb-record --list20"
+	watch -n 2 "bbb-record --list20 $WITHDESC"
 fi
+
+if [ $ENABLE ]; then
+	SCRIPTS_DIR=/usr/local/bigbluebutton/core/scripts
+	PROCESS_SCRIPT=$SCRIPTS_DIR/process/$WORKFLOW
+	PUBLISH_SCRIPT=$SCRIPTS_DIR/publish/$WORKFLOW
+	if [ -f $PROCESS_SCRIPT.rb.bk ]; then
+		echo "Enabling process script in workflow '$WORKFLOW'"
+		mv $PROCESS_SCRIPT.rb.bk $PROCESS_SCRIPT.rb
+		echo "Enabling publish script in workflow '$WORKFLOW'"
+		mv $PUBLISH_SCRIPT.rb.bk $PUBLISH_SCRIPT.rb
+	elif [ -f $PROCESS_SCRIPT.rb ]; then
+		echo "Workflow '$WORKFLOW' is already enabled."
+	else
+		echo "Workflow '$WORKFLOW' does not exist or is not installed"
+	fi
+fi
+
+if [ $DISABLE ]; then
+	SCRIPTS_DIR=/usr/local/bigbluebutton/core/scripts
+	PROCESS_SCRIPT=$SCRIPTS_DIR/process/$WORKFLOW
+	PUBLISH_SCRIPT=$SCRIPTS_DIR/publish/$WORKFLOW
+	if [ -f $PROCESS_SCRIPT.rb ]; then
+		echo "Disabling process script in workflow '$WORKFLOW'"
+		mv $PROCESS_SCRIPT.rb $PROCESS_SCRIPT.rb.bk
+		echo "Disabling publish script in workflow '$WORKFLOW'"
+		mv $PUBLISH_SCRIPT.rb $PUBLISH_SCRIPT.rb.bk
+	elif [ -f $PROCESS_SCRIPT.rb.bk ]; then
+		echo "Workflow '$WORKFLOW' is already disabled."
+	else
+		echo "Workflow '$WORKFLOW' does not exist or is not installed"
+	fi
+fi
+
+if [ $TOEXTERNAL ]; then
+	echo
+	echo "External meeting id related to the given internal meeting id:"
+	echo "-------------------------------------------------------------"
+	expr "$(grep meetingId /var/bigbluebutton/recording/raw/$INTERNAL_MEETINGID/events.xml 2> /dev/null)" : '.*meetingId="\(.*\)"' 
+	echo "-------------------------------------------------------------"
+	echo
+fi
+
+if [ $TOINTERNAL ]; then
+	echo
+	echo "Internal meeting ids related to the given external meeting id:"
+	echo "-------------------------------------------------------------"
+	grep  "meetingId=\"$EXTERNAL_MEETINGID\"" /var/bigbluebutton/recording/raw/*/events.xml  | cut -f6 -d'/'
+	echo "-------------------------------------------------------------"
+	echo
+fi
+
+#if [ $REARCHIVE ]; then
+#        ARCHIVE_DONE_FILE=/var/bigbluebutton/recording/status/archived/$MEETING_ID.done
+#        SANITY_FAIL_FILE=/var/bigbluebutton/recording/status/sanity/$MEETING_ID.fail
+#        if [ -f $SANITY_FAIL_FILE ]; then
+#                max_days=$(expr "$(grep history= /etc/cron.daily/bigbluebutton)" : 'history=\(.*\)')
+#                # The recording has not been removed.
+#                still_exists=$(find /var/bigbluebutton/recording/status/recorded/*.done  -mtime -$max_days | grep $MEETING_ID)
+#                if [ -n "$still_exists" ]; then
+#                        if [ -f $ARCHIVE_DONE_FILE ]; then
+#                                echo "Removing archived .done file, sanity .fail fail,  and raw directory for meeting $MEETING_ID"
+#                                rm $ARCHIVE_DONE_FILE
+#                                rm -r /var/bigbluebutton/recording/raw/$MEETING_ID
+#                                rm $SANITY_FAIL_FILE
+#                        else
+#                                echo "$MEETING_ID is not archived."
+#                        fi
+#                fi
+#        else
+#               echo "The meeting you want to re archive has not failed in sanity check."
+#        fi
+#fi
 
 if [ $CHECK ]; then
 	if [ -f /var/bigbluebutton/recording/process/slides ]; then 
@@ -450,6 +683,36 @@ if [ $CHECK ]; then
 		echo
 	    fi
 	fi
+
+	#
+	# Check that the playback of slides have the proper URL
+	#
+	#set -x
+        for type in $TYPES; do
+		for recording in $(find $BASE/publish/$type -name metadata.xml); do
+			url_playback=$(cat $recording | grep "<link>" | sed 's/[ ]*<link>http:\/\/\([^\"\/]*\)[^>]*>/\1/g')
+			if [ "$BBB_WEB" != "$url_playback" ]; then
+                                echo
+                                echo "# The hostname in <link> .. </link> ($url_playback)"
+                                echo "#     $recording"
+                                echo "# do not match the hostname for bigbluebutton.web.serverURL ($BBB_WEB)"
+                                echo "#     /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
+                                echo
+			fi
+		done
+		for recording in $(find /var/bigbluebutton/published/$type -name metadata.xml); do
+			url_playback=$(cat $recording | grep "<link>" | sed 's/[ ]*<link>http:\/\/\([^\"\/]*\)[^>]*>/\1/g')
+			if [ "$BBB_WEB" != "$url_playback" ]; then
+                                echo
+                                echo "# The hostname in <link> .. </link> ($url_playback)"
+                                echo "#     $recording"
+                                echo "# do not match the hostname for bigbluebutton.web.serverURL ($BBB_WEB)"
+                                echo "#     /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
+                                echo
+			fi
+		done
+	done
+
 fi
 
 if [ $DEBUG ]; then
@@ -482,21 +745,19 @@ if [ $DEBUG ]; then
 	#
 	STAGES="process publish"
         for type in $TYPES; do
-        	for stage in $STAGES; do
-			if ls -A $LOG_DIR/$type/$stage-* &> /dev/null; then
-				rm -rf /tmp/t
-				grep -B 3 "ERROR -- : Error:" $LOG_DIR/$type/$stag-* | egrep -w 'Task:| Error:' > /tmp/t
-				if [ -s /tmp/t ]; then
-					echo "  -- ERRORS found while processing slides $LOG_DIR/$type/$stag-* -- "
-					cat /tmp/t
-					echo
-				fi
-			fi
-		done
-	done
-
-
-
+                for stage in $STAGES; do
+                        LOC=$LOG_DIR/$type/$stage
+                        if ls -A $LOC-* &> /dev/null; then
+                                rm -rf /tmp/t
+                                grep -B 3 "ERROR -- : Error:" $LOC-* | egrep -w 'Error:' | grep -v "ffmpeg version" > /tmp/t
+                                if [ -s /tmp/t ]; then
+                                        echo "  -- ERRORS found while processing slides $LOC-* -- "
+                                        cat /tmp/t
+                                        echo
+                                fi
+                        fi
+                done
+        done
 
 
 	#

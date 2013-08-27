@@ -1,3 +1,21 @@
+/**
+ * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+ * 
+ * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+ *
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation; either version 3.0 of the License, or (at your option) any later
+ * version.
+ * 
+ * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along
+ * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package org.bigbluebutton.modules.present.ui.views.models
 {
 	import org.bigbluebutton.common.LogUtil;
@@ -201,9 +219,9 @@ package org.bigbluebutton.modules.present.ui.views.models
 					}												
 				}					
 			} else {
-				if (viewportW < pageOrigW) {
-					viewportH = (viewportW/pageOrigW)*pageOrigH;
-				}
+				viewportH = (viewportW/pageOrigW)*pageOrigH;
+				if (viewportH > parentH) 
+					viewportH = parentH;
 			}		
 		}	
 			
@@ -220,45 +238,33 @@ package org.bigbluebutton.modules.present.ui.views.models
 			var zpy:Number = Math.abs(_calcPageY) + mouseY;
 			var zpxp:Number = zpx/cpw;
 			var zpyp:Number = zpy/cph;
-				
-			_calcPageW = pageOrigW * zoomValue / HUNDRED_PERCENT;
-			_calcPageH = (_calcPageW/cpw) * cph; 
+
+			if (isPortraitDoc()) {
+				if (fitToPage) {
+					_calcPageH = viewportH * zoomValue / HUNDRED_PERCENT;
+					_calcPageW = (_pageOrigW/_pageOrigH)*_calcPageH;
+				} else {
+					_calcPageW = viewportW * zoomValue / HUNDRED_PERCENT;
+					_calcPageH = (_calcPageW/_pageOrigW)*_pageOrigH;
+				}
+			} else {
+				if (fitToPage) {
+					_calcPageW = viewportW * zoomValue / HUNDRED_PERCENT;
+					_calcPageH = viewportH * zoomValue / HUNDRED_PERCENT;
+				} else {
+					_calcPageW = viewportW * zoomValue / HUNDRED_PERCENT;
+					_calcPageH = (_calcPageW/_pageOrigW)*_pageOrigH;
+				}
+			}
 				
 			var zpx1:Number = _calcPageW * zpxp;
 			var zpy1:Number = _calcPageH * zpyp;				
 			_calcPageX = -((zpx1 + zpx)/2) + mouseX;
 			_calcPageY = -((zpy1 + zpy)/2) + mouseY;
-				
+						
 			doWidthBoundsDetection();
 			doHeightBoundsDetection();
-				
-			if ((zoomValue <= HUNDRED_PERCENT) || (_calcPageW < viewportW) || (_calcPageH < viewportH)) {
-				if (isPortraitDoc()) {
-					if (fitToPage) {
-						_calcPageY = 0;
-						_calcPageH = viewportH;
-						_calcPageW = (_pageOrigW/_pageOrigH)*_calcPageH;
-						_calcPageX = 0;
-					} else {
-						_calcPageX = 0;
-						_calcPageY = 0;
-						_calcPageW = viewportW;
-						_calcPageH = (_calcPageW/_pageOrigW)*_pageOrigH;
-					}
-				} else {
-					if (fitToPage) {
-						_calcPageW = viewportW;
-						_calcPageH = viewportH;
-						_calcPageY = 0;
-						_calcPageX = 0;							
-					} else {
-						_calcPageX = 0;
-						_calcPageY = 0;
-						_calcPageW = viewportW;
-						_calcPageH = (_calcPageW/_pageOrigW)*_pageOrigH;							
-					}
-				}
-			} 
+			
 			calcViewedRegion();
 		}
 		
@@ -287,7 +293,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 				viewportH = (vrhp/vrwp)*parentW;				 
 				if (parentH < viewportH) {
 					viewportH = parentH;
-					viewportW = ((vrwp * viewportH)/viewportH);
+					viewportW = ((vrwp * viewportH)/vrhp);
 //					LogUtil.debug("calc viewport ***** resizing [" + viewportW + "," + viewportH + "] [" + parentW + "," + parentH + "," + fitToPage + "] [" + pageOrigW + "," + pageOrigH + "]");
 				}
 			} else {
