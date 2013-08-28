@@ -119,6 +119,7 @@ function removeSlideChangeAttribute() {
 // - - - END OF JAVASCRIPT FUNCTIONS - - - //
 
 function runPopcorn() {
+
   if(svgobj.contentDocument) svgfile = svgobj.contentDocument.getElementById("svgfile");
   else svgfile = svgobj.getSVGDocument('svgfile');
 
@@ -144,9 +145,22 @@ function runPopcorn() {
   });
   var images = shapeelements[0].getElementsByTagName("image");
 
+
+  //create a map from timestamp to id list
+  var timestampToId = {};
+  for (var j = 0; j < array.length; j++) {
+    shapeTime = array[j].getAttribute("timestamp");
+    shapeId = array[j].getAttribute("id");
+
+    if (timestampToId[shapeTime] == undefined) {
+      timestampToId[shapeTime] = new Array(0);
+    }
+    timestampToId[shapeTime].push(shapeId);
+  }
+
   //fill the times array with the times of the svg images.
   for (var j = 0; j < array.length; j++) {
-  	times[j] = array[j].getAttribute("id").substr(4);
+    times[j] = array[j].getAttribute("timestamp");
   }
 
   var times_length = times.length; //get the length of the times array.
@@ -224,8 +238,8 @@ function runPopcorn() {
   var shape;
   for (var i = 0, len = times_length; i < len-1; i++) { //iterate through all the shapes and pick out the main ones
   	var time = times[i];
-  	  shape = svgobj.contentDocument.getElementById("draw" + time).getAttribute("shape");
-  	  next_shape = svgobj.contentDocument.getElementById("draw" + times[i+1]).getAttribute("shape");
+  	  shape = svgobj.contentDocument.getElementById(timestampToId[time][0]).getAttribute("shape");
+  	  next_shape = svgobj.contentDocument.getElementById(timestampToId[times[i+1]][0]).getAttribute("shape");
 
   	if(shape !== next_shape) {
   		main_shapes_times[main_shapes_times.length] = time;
@@ -244,8 +258,13 @@ function runPopcorn() {
         if(!((p.paused() === true) && (p.seeking() === false))) {
           var t = p.currentTime().toFixed(1); //get the time and round to 1 decimal place
           
-          if(svgobj.contentDocument) current_shape = svgobj.contentDocument.getElementById("draw" + t);
-          else current_shape = svgobj.getSVGDocument('svgfile').getElementById("draw" + t);
+          if(timestampToId[t] != undefined) {
+            if(svgobj.contentDocument) current_shape = svgobj.contentDocument.getElementById(timestampToId[t][0]);
+            else current_shape = svgobj.getSVGDocument('svgfile').getElementById(timestampToId[t][0]);
+          }
+          else {
+            current_shape = null
+          }
 
           if(current_shape !== null) { //if there is actually a new shape to be displayed
             current_shape = current_shape.getAttribute("shape"); //get actual shape tag for this specific time of playback
@@ -255,8 +274,8 @@ function runPopcorn() {
             var time_s = times[i];
             var time_f = parseFloat(time_s);
             
-            if(svgobj.contentDocument) shape = svgobj.contentDocument.getElementById("draw" + time_s);
-            else shape = svgobj.getSVGDocument('svgfile').getElementById("draw" + time_s);
+            if(svgobj.contentDocument) shape = svgobj.contentDocument.getElementById(timestampToId[time_s][0]);
+            else shape = svgobj.getSVGDocument('svgfile').getElementById(timestampToId[time_s][0]);
             
             var shape_i = shape.getAttribute("shape");
             if (time_f < t) {
@@ -401,6 +420,9 @@ var panAndZoomTimes = [];
 var viewBoxes = [];
 var coords = [];
 var times = [];
+// timestamp and id for drawings
+var shapeTime;
+var shapeId;
 var clearTimes = [];
 var main_shapes_times = [];
 var vboxValues = {};
