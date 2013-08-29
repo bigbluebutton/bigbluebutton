@@ -47,7 +47,7 @@ Panel {
   color: #e1e2e5;
 }
 
-Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowChangeResolutionCombo {
+Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowChangeResolutionCombo, .languageSelectorStyle {
   textIndent: 0;
   paddingLeft: 10;
   paddingRight: 10;
