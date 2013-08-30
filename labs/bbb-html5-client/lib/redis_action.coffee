@@ -313,7 +313,7 @@ module.exports = class RedisAction
       registerError("deletePresentations", err, "couldn't delete all presentations") if err?
       config.store.del RedisKeys.getCurrentPresentationString(meetingID), (err, reply) ->
         registerSuccess("deletePresentations", "deleted current presentation") if reply
-        registerError("deletePresentations", err, "couldn't delete current presentations") ir err?
+        registerError("deletePresentations", err, "couldn't delete current presentations") if err?
         callback?()
 
   # Delete the user from redis
@@ -358,7 +358,7 @@ module.exports = class RedisAction
         registerSuccess("getUserProperty")
         callback?(prop)
       else
-        registerError("getUserProperty", err) ir err?
+        registerError("getUserProperty", err) if err?
         callback?(null)
 
   # Get all users and their data in an array (users are originally in a set, not a list, because they
@@ -396,7 +396,7 @@ module.exports = class RedisAction
         registerSuccess("getPageImage")
         callback?(pageID, filename)
       else
-        registerError("getPageImage", err) ir err?
+        registerError("getPageImage", err) if err?
         callback?(null)
 
   # Get array of items by item name and meeting id
@@ -439,7 +439,7 @@ module.exports = class RedisAction
         registerSuccess("getCurrentPresentationID")
         callback?(currPresID)
       else
-        registerError("getCurrentPresentationID", err) ir err?
+        registerError("getCurrentPresentationID", err) if err?
         callback?(null)
 
   # Change to the next page in the presentation
@@ -455,7 +455,7 @@ module.exports = class RedisAction
             registerSuccess("changeToNextPage")
             callback?(currPage)
           else
-            registerError("changeToNextPage", err) ir err?
+            registerError("changeToNextPage", err) if err?
             callback?(null)
 
   # Change to the previous page in the presentation
@@ -472,7 +472,7 @@ module.exports = class RedisAction
         registerSuccess("changeToPrevPage")
         callback?(currPage)
       else
-        registerError("changeToPrevPage", err) ir err?
+        registerError("changeToPrevPage", err) if err?
         callback?(null)
 
   # Get the current page of the presentation
@@ -487,7 +487,7 @@ module.exports = class RedisAction
         registerSuccess("getCurrentPageID")
         callback?(currPgID)
       else
-        registerError("getCurrentPageID", err) ir err?
+        registerError("getCurrentPageID", err) if err?
         callback?(null)
 
   # Create a new presentation for a meeting, and possibly set it as the current meeting
@@ -505,7 +505,7 @@ module.exports = class RedisAction
         else
           callback?(presentationID)
       else
-        registerError("createPresentation", err, "couldn't add presentationID #{presentationID} to set of presentations") ir err?
+        registerError("createPresentation", err, "couldn't add presentationID #{presentationID} to set of presentations") if err?
         callback?(null)
 
   # Set the current page of the presentation
@@ -516,7 +516,7 @@ module.exports = class RedisAction
   setCurrentPage: (meetingID, presentationID, pageID, callback) ->
     config.store.set RedisKeys.getCurrentPageString(meetingID, presentationID), pageID, (err, reply) ->
       registerSuccess("setCurrentPage", "set current pageID to #{pageID}") if reply
-      registerError("setCurrentPage", err, "couldn't set current pageID to #{pageID}") ir err?
+      registerError("setCurrentPage", err, "couldn't set current pageID to #{pageID}") if err?
       callback?()
 
   # Create a page for a presentation in a meeting
@@ -533,7 +533,7 @@ module.exports = class RedisAction
         @_setPageImage meetingID, presentationID, pageID, imageName, ->
           callback?(pageID, imageName)
       else
-        registerError("createPage", err, "couldn't create page with ID #{pageID}") ir err?
+        registerError("createPage", err, "couldn't create page with ID #{pageID}") if err?
         callback?(null)
 
     if setCurrent
@@ -547,7 +547,7 @@ module.exports = class RedisAction
   setCurrentPresentation: (meetingID, presentationID, callback) ->
     config.store.set RedisKeys.getCurrentPresentationString(meetingID), presentationID, (err, reply) ->
       registerSuccess("setCurrentPresentation", "set current presentationID to #{presentationID}") if reply
-      registerError("setCurrentPresentation", err, "couldn't set current presentationID to #{presentationID}") ir err?
+      registerError("setCurrentPresentation", err, "couldn't set current presentationID to #{presentationID}") if err?
       callback?()
 
   # Set the value of the current viewbox for the meeting
@@ -559,7 +559,7 @@ module.exports = class RedisAction
         registerSuccess("setViewBox")
         callback?(true)
       else
-        registerError("setViewBox", err) ir err?
+        registerError("setViewBox", err) if err?
         callback?(false)
 
   # Get the current viewbox of the meeting
@@ -571,7 +571,7 @@ module.exports = class RedisAction
         registerSuccess("getViewBox")
         callback?(reply)
       else
-        registerError("getViewBox", err) ir err?
+        registerError("getViewBox", err) if err?
         callback?(false)
 
   # Create a reference to a meeting
@@ -603,7 +603,7 @@ module.exports = class RedisAction
         registerSuccess("updateUserProperties")
         callback?(reply)
       else
-        registerError("updateUserProperties", err) ir err?
+        registerError("updateUserProperties", err) if err?
         callback?(false)
 
     # TODO: no callback on the call below?
@@ -629,7 +629,7 @@ module.exports = class RedisAction
 
         config.store.hgetall "meeting-" + meetingids[index], f
       else
-        registerError("getMeetings", err) ir err?
+        registerError("getMeetings", err) if err?
         callback?([])
 
 

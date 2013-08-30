@@ -4,106 +4,48 @@ rack = require("hat").rack()
 config = require("../config")
 RedisKeys = require("./redis_keys")
 
+# Websocket module. Listens for messages from the clients and reacts accordingly.
+# Also includes methods used to send messages to the clients
 module.exports = class WebsocketConnection
   constructor: (@io) ->
     @_registerListeners()
 
-  # Publish usernames to all the sockets
+  # Publish list of shapes from Redis to appropriate clients
   # @param {string} meetingID ID of the meeting
   # @param {string} sessionID ID of the user
-  # @param {Function} callback callback to call when finished
-  # TODO: use a `for` instead of a `while`
-  # TODO: 2 places calling the callback
-  _publishUsernames: (meetingID, sessionID, callback) ->
-    usernames = []
-    @_getUsers meetingID, (users) ->
-      i = users.length - 1
-      while i >= 0
-        usernames.push
-          name: users[i].username
-          id: users[i].pubID
-        i--
-
-      receivers = (if sessionID? then sessionID else meetingID)
-      config.redis.pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user list change", usernames])
-      callback?(true)
-
-    config.store.scard RedisKeys.getUsersString(meetingID), (err, cardinality) ->
-      if cardinality is "0"
-        config.redisAction.processMeeting meetingID
-        callback?(false)
-
-  # TODO: use a `for` instead of a `while`
-  # TODO: 2 places calling the callback
-  _publishLoadUsers: (meetingID, sessionID, callback) ->
-    usernames = []
-    config.redisAction.getUsers meetingID, (users) ->
-      i = users.length - 1
-      while i >= 0
-        usernames.push
-          name: users[i].username
-          id: users[i].pubID
-        i--
-
-      receivers = (if sessionID? then sessionID else meetingID)
-      config.redis.pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "load users", usernames])
-      callback?(true)
-
-    config.store.scard RedisKeys.getUsersString(meetingID), (err, cardinality) ->
-      if cardinality is "0"
-        config.redisAction.processMeeting meetingID
-        callback?(false)
-
-  # TODO: 2 places calling the callback
-  _publishUserJoin: (meetingID, sessionID, userid, username, callback) ->
-    receivers = (if sessionID? then sessionID else meetingID)
-
-    config.redis.pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user join", userid, username, "VIEWER"])
-    callback?(true)
-    config.store.scard RedisKeys.getUsersString(meetingID), (err, cardinality) ->
-      if cardinality is "0"
-        config.redisAction.processMeeting meetingID
-        callback?(false)
-
-  # TODO: 2 places calling the callback
-  _publishUserLeave: (meetingID, sessionID, userid, callback) ->
-    receivers = (if sessionID? then sessionID else meetingID)
-    config.redis.pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user leave", userid])
-    callback?(true)
-    config.store.scard RedisKeys.getUsersString(meetingID), (err, cardinality) ->
-      if cardinality is "0"
-        config.redisAction.processMeeting meetingID
-        callback?(false)
-
-  # Publish presenter to appropriate clients.
-  # @param {string} meetingID ID of the meeting
-  # @param {string} sessionID ID of the user
-  # @param {Function} callback callback to call when finished
-  _publishPresenter: (meetingID, sessionID, callback) ->
-    config.redisAction.getPresenterPublicID meetingID, (publicID) ->
-      receivers = (if sessionID isnt `undefined` then sessionID else meetingID)
-      config.redis.pub.publish receivers, JSON.stringify(["setPresenter", publicID])
-      callback?(true)
-
-  # Get all messages from redis and publish to a specific sessionID (user)
-  # @param {string} meetingID ID of the meeting
-  # @param {string} sessionID ID of the user
-  # @param {Function} callback callback to call when finished
-  _publishMessages: (meetingID, sessionID, callback) ->
-    messages = []
+  # aram {Function} callback callback to call when finished
+  # TODO: only external because it is called by RedisBridge
+  # TODO: publishes to redis, maybe should be on RedisBridge
+  publishShapes: (meetingID, sessionID, callback) ->
+    shapes = []
     config.redisAction.getCurrentPresentationID meetingID, (presentationID) ->
       config.redisAction.getCurrentPageID meetingID, presentationID, (pageID) ->
-        config.redisAction.getItems meetingID, presentationID, pageID, "messages", (messages) ->
+        config.redisAction.getItems meetingID, presentationID, pageID, "currentshapes", (shapes) ->
           receivers = (if sessionID? then sessionID else meetingID)
-          config.redis.pub.publish receivers, JSON.stringify(["all_messages", messages])
+          config.redis.pub.publish receivers, JSON.stringify(["all_shapes", shapes])
           callback?()
+
+  # Publish viewbox from redis to appropriate clients
+  # @param {string} meetingID ID of the meeting
+  # @param {string} sessionID ID of the user
+  # @param {Function} callback callback to call when finished
+  # TODO: only external because it is called by RedisBridge
+  # TODO: publishes to redis, maybe should be on RedisBridge
+  publishViewBox: (meetingID, sessionID, callback) ->
+    config.redisAction.getCurrentPresentationID meetingID, (presentationID) ->
+      config.redisAction.getViewBox meetingID, (viewBox) ->
+        viewBox = JSON.parse(viewBox)
+        receivers = (if sessionID? then sessionID else meetingID)
+        config.redis.pub.publish receivers, JSON.stringify(["paper", viewBox[0], viewBox[1], viewBox[2], viewBox[3]])
+        callback?()
 
   # Publish list of slides from redis to the appropriate clients
   # @param {string} meetingID ID of the meeting
   # @param {string} sessionID ID of the user
   # @param {Function} callback callback to call when finished
-  # TODO: only external because it is called by app.coffee
+  # TODO: only external because it is called by RedisBridge
   # TODO: use a `for` instead of a `while`
+  # TODO: publishes to redis, maybe should be on RedisBridge
   publishSlides: (meetingID, sessionID, callback) ->
     slides = []
     config.redisAction.getCurrentPresentationID meetingID, (presentationID) ->
@@ -123,44 +65,17 @@ module.exports = class WebsocketConnection
 
           i++
 
-  # Publish list of shapes from Redis to appropriate clients
-  # @param {string} meetingID ID of the meeting
-  # @param {string} sessionID ID of the user
-  # aram {Function} callback callback to call when finished
-  # TODO: only external because it is called by app.coffee
-  publishShapes: (meetingID, sessionID, callback) ->
-    shapes = []
-    config.redisAction.getCurrentPresentationID meetingID, (presentationID) ->
-      config.redisAction.getCurrentPageID meetingID, presentationID, (pageID) ->
-        config.redisAction.getItems meetingID, presentationID, pageID, "currentshapes", (shapes) ->
-          receivers = (if sessionID? then sessionID else meetingID)
-          config.redis.pub.publish receivers, JSON.stringify(["all_shapes", shapes])
-          callback?()
+  # Emits a message to all clients connected in the given channel.
+  # @param {string} channel The name of the target channel, usually the meetingID
+  # @param {object} message The message, usually an array.
+  emitToAll: (channel, message) ->
+    channelViewers = @io.sockets.in(channel)
+    channelViewers.emit.apply(channelViewers, message)
 
-  # Publish viewbox from redis to appropriate clients
-  # @param {string} meetingID ID of the meeting
-  # @param {string} sessionID ID of the user
-  # @param {Function} callback callback to call when finished
-  # TODO: only external because it is called by app.coffee
-  publishViewBox: (meetingID, sessionID, callback) ->
-    config.redisAction.getCurrentPresentationID meetingID, (presentationID) ->
-      config.redisAction.getViewBox meetingID, (viewBox) ->
-        viewBox = JSON.parse(viewBox)
-        receivers = (if sessionID? then sessionID else meetingID)
-        config.redis.pub.publish receivers, JSON.stringify(["paper", viewBox[0], viewBox[1], viewBox[2], viewBox[3]])
-        callback?()
 
-  # Publish tool from redis to appropriate clients
-  # @param {string} meetingID ID of the meeting
-  # @param {string} sessionID ID of the user
-  # @param {string} tool [description]
-  # @param {Function} callback callback to call when finished
-  _publishTool: (meetingID, sessionID, tool, callback) ->
-    config.redisAction.getCurrentTool meetingID, (tool) ->
-      receivers = (if sessionID? then sessionID else meetingID)
-      config.redis.pub.publish receivers, JSON.stringify(["toolChanged", tool])
-      callback?()
-
+  #
+  # # Private methods
+  #
 
   # Registers listeners to all socket IO events that can be emitted by the client
   # The events will always pass content to the server and the server will usually
@@ -227,6 +142,7 @@ module.exports = class WebsocketConnection
 
             # after send 'all_slides' event, we have to load the current slide for new user by
             # getting the current presentation slide url and send the 'changeslide' event
+            # TODO: currentUrl is not a good name and maybe there's already this info on another key on redis
             config.store.get "currentUrl", (err, url) ->
               if err
                 console.log err
@@ -472,6 +388,109 @@ module.exports = class WebsocketConnection
     config.redisAction.getPresenterSessionID meetingID, (presenterID) ->
       if isCurrentPresenter(presenterID)
         config.redis.pub.publish meetingID, JSON.stringify(["fitToPage", fit])
+
+
+
+  # Publish usernames to all the sockets
+  # @param {string} meetingID ID of the meeting
+  # @param {string} sessionID ID of the user
+  # @param {Function} callback callback to call when finished
+  # TODO: use a `for` instead of a `while`
+  # TODO: 2 places calling the callback
+  _publishUsernames: (meetingID, sessionID, callback) ->
+    usernames = []
+    @_getUsers meetingID, (users) ->
+      i = users.length - 1
+      while i >= 0
+        usernames.push
+          name: users[i].username
+          id: users[i].pubID
+        i--
+
+      receivers = (if sessionID? then sessionID else meetingID)
+      config.redis.pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user list change", usernames])
+      callback?(true)
+
+    config.store.scard RedisKeys.getUsersString(meetingID), (err, cardinality) ->
+      if cardinality is "0"
+        config.redisAction.processMeeting meetingID
+        callback?(false)
+
+  # TODO: use a `for` instead of a `while`
+  # TODO: 2 places calling the callback
+  _publishLoadUsers: (meetingID, sessionID, callback) ->
+    usernames = []
+    config.redisAction.getUsers meetingID, (users) ->
+      i = users.length - 1
+      while i >= 0
+        usernames.push
+          name: users[i].username
+          id: users[i].pubID
+        i--
+
+      receivers = (if sessionID? then sessionID else meetingID)
+      config.redis.pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "load users", usernames])
+      callback?(true)
+
+    config.store.scard RedisKeys.getUsersString(meetingID), (err, cardinality) ->
+      if cardinality is "0"
+        config.redisAction.processMeeting meetingID
+        callback?(false)
+
+  # TODO: 2 places calling the callback
+  _publishUserJoin: (meetingID, sessionID, userid, username, callback) ->
+    receivers = (if sessionID? then sessionID else meetingID)
+
+    config.redis.pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user join", userid, username, "VIEWER"])
+    callback?(true)
+    config.store.scard RedisKeys.getUsersString(meetingID), (err, cardinality) ->
+      if cardinality is "0"
+        config.redisAction.processMeeting meetingID
+        callback?(false)
+
+  # TODO: 2 places calling the callback
+  _publishUserLeave: (meetingID, sessionID, userid, callback) ->
+    receivers = (if sessionID? then sessionID else meetingID)
+    config.redis.pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user leave", userid])
+    callback?(true)
+    config.store.scard RedisKeys.getUsersString(meetingID), (err, cardinality) ->
+      if cardinality is "0"
+        config.redisAction.processMeeting meetingID
+        callback?(false)
+
+  # Publish presenter to appropriate clients.
+  # @param {string} meetingID ID of the meeting
+  # @param {string} sessionID ID of the user
+  # @param {Function} callback callback to call when finished
+  _publishPresenter: (meetingID, sessionID, callback) ->
+    config.redisAction.getPresenterPublicID meetingID, (publicID) ->
+      receivers = (if sessionID isnt `undefined` then sessionID else meetingID)
+      config.redis.pub.publish receivers, JSON.stringify(["setPresenter", publicID])
+      callback?(true)
+
+  # Get all messages from redis and publish to a specific sessionID (user)
+  # @param {string} meetingID ID of the meeting
+  # @param {string} sessionID ID of the user
+  # @param {Function} callback callback to call when finished
+  _publishMessages: (meetingID, sessionID, callback) ->
+    messages = []
+    config.redisAction.getCurrentPresentationID meetingID, (presentationID) ->
+      config.redisAction.getCurrentPageID meetingID, presentationID, (pageID) ->
+        config.redisAction.getItems meetingID, presentationID, pageID, "messages", (messages) ->
+          receivers = (if sessionID? then sessionID else meetingID)
+          config.redis.pub.publish receivers, JSON.stringify(["all_messages", messages])
+          callback?()
+
+  # Publish tool from redis to appropriate clients
+  # @param {string} meetingID ID of the meeting
+  # @param {string} sessionID ID of the user
+  # @param {string} tool [description]
+  # @param {Function} callback callback to call when finished
+  _publishTool: (meetingID, sessionID, tool, callback) ->
+    config.redisAction.getCurrentTool meetingID, (tool) ->
+      receivers = (if sessionID? then sessionID else meetingID)
+      config.redis.pub.publish receivers, JSON.stringify(["toolChanged", tool])
+      callback?()
 
 
 # Returns a given attribute `attr` registered in the `socket`.
