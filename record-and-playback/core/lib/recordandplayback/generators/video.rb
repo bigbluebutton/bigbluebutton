@@ -22,11 +22,12 @@
 
 require 'rubygems'
 require 'streamio-ffmpeg'
-require 'pp'
+
+require File.expand_path('../../edl', __FILE__)
 
 module BigBlueButton
-  # use "info" or "debug" for development
-  FFMPEG_LOG_LEVEL = "fatal"
+
+  FFMPEG_CMD_BASE="ffmpeg -loglevel warning -nostats"
 
   # Strips the audio stream from the video file
   #   video_in - the FLV file that needs to be stripped of audio
@@ -35,7 +36,7 @@ module BigBlueButton
   #    strip_audio_from_video(orig-video.flv, video2.flv)
   def self.strip_audio_from_video(video_in, video_out)
     BigBlueButton.logger.info("Task: Stripping audio from video")      
-    command = "ffmpeg -y -i #{video_in} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -an -vcodec copy -sameq #{video_out}"
+    command = "#{FFMPEG_CMD_BASE} -i #{video_in} -an -vcodec copy #{video_out}"
     BigBlueButton.execute(command)
     # TODO: check for result, raise an exception when there is an error
   end
@@ -47,14 +48,7 @@ module BigBlueButton
   #   video_out - the resulting new video
   def self.trim_video(start, duration, video_in, video_out)
     BigBlueButton.logger.info("Task: Trimming video")
-    command = ""
-    if duration != (BigBlueButton.get_video_duration(video_in) * 1000).to_i
-      # -ss coming before AND after the -i option improves the precision ==> http://ffmpeg.org/pipermail/ffmpeg-user/2012-August/008767.html
-      command = "ffmpeg -y -ss #{BigBlueButton.ms_to_strtime(start)} -i #{video_in} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -vcodec copy -acodec copy -ss 0 -t #{BigBlueButton.ms_to_strtime(duration)} -sameq #{video_out}"
-    else
-      BigBlueButton.logger.info("The video has exactly the same duration as requested, so it will be just copied")
-      command = "ffmpeg -y -i #{video_in} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -vcodec copy -acodec copy -sameq #{video_out}"
-    end
+    command = "#{FFMPEG_CMD_BASE} -i #{video_in} -vcodec copy -acodec copy -ss #{BigBlueButton.ms_to_strtime(start)} -t #{BigBlueButton.ms_to_strtime(duration)} #{video_out}"
     BigBlueButton.execute(command)  
     # TODO: check for result, raise an exception when there is an error
   end
@@ -68,7 +62,7 @@ module BigBlueButton
   #   create_blank_video(15, 1000, canvas.jpg, blank-video.flv)
   def self.create_blank_deskshare_video(length, rate, blank_canvas, video_out)
     BigBlueButton.logger.info("Task: Creating blank deskshare video")      
-    command = "ffmpeg -y -loop 1 -t #{length} -i #{blank_canvas} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -v -10 -r #{rate} -vcodec flashsv #{video_out}"
+    command = "#{FFMPEG_CMD_BASE} -loop 1 -i #{blank_canvas} -t #{length} -r #{rate} -vcodec flashsv #{video_out}"
     BigBlueButton.execute(command)
     # TODO: check for result, raise exception when there is an error
   end
@@ -82,7 +76,7 @@ module BigBlueButton
   #   create_blank_video(15, 1000, canvas.jpg, blank-video.flv)
   def self.create_blank_video(length, rate, blank_canvas, video_out)
     BigBlueButton.logger.info("Task: Creating blank video")      
-    command = "ffmpeg -y -loop 1 -t #{length} -i #{blank_canvas} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -v -10 -r #{rate} #{video_out}"
+    command = "#{FFMPEG_CMD_BASE} -y -loop 1 -i #{blank_canvas} -t #{length} -r #{rate} #{video_out}"
     BigBlueButton.execute(command)
     # TODO: check for result, raise exception when there is an error
   end
@@ -144,7 +138,7 @@ module BigBlueButton
 
   #Converts flv to mpg
   def self.convert_flv_to_mpg(flv_video, mpg_video_out)
-        command = "ffmpeg -y -i #{flv_video} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -v -10 -sameq -f mpegts -r 29.97 #{mpg_video_out}"
+        command = "#{FFMPEG_CMD_BASE} -i #{flv_video} -same_quant -f mpegts -r 29.97 #{mpg_video_out}"
         BigBlueButton.logger.info("Task: Converting .flv to .mpg")    
         BigBlueButton.execute(command)
   end
@@ -158,7 +152,7 @@ module BigBlueButton
 
   #Converts .mpg to .flv
   def self.convert_mpg_to_flv(mpg_video,flv_video_out)
-        command = "ffmpeg -y -i  #{mpg_video} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -v -10 -sameq  #{flv_video_out}"
+        command = "#{FFMPEG_CMD_BASE} -i  #{mpg_video} -same_quant  #{flv_video_out}"
         BigBlueButton.logger.info("Task: Converting .mpg to .flv")
         BigBlueButton.execute(command);
   end
@@ -169,7 +163,7 @@ module BigBlueButton
   #  video - the video file. Must not contain an audio stream. 
   def self.multiplex_audio_and_video(audio, video, video_out)
     BigBlueButton.logger.info("Task: Multiplexing audio and video")      
-    command = "ffmpeg -y -i #{audio} -i #{video} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -v -10 -map 1:0 -map 0:0 -ar 22050 #{video_out}"
+    command = "#{FFMPEG_CMD_BASE} -i #{audio} -i #{video} -map 1:0 -map 0:0 #{video_out}"
     BigBlueButton.execute(command)
     # TODO: check result, raise an exception when there is an error
   end
@@ -409,7 +403,7 @@ module BigBlueButton
  
    			# Use for newer version of FFMPEG
     		padding = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{side_padding}:#{top_bottom_padding}:FFFFFF"       
-		    command = "ffmpeg -y -i #{stripped_webcam} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -v -10 -aspect 4:3 -r 1000 -sameq #{frame_size} #{padding} #{scaled_flv}" 
+		    command = "#{FFMPEG_CMD_BASE} -i #{stripped_webcam} -aspect 4:3 -r 1000 -same_quant #{frame_size} #{padding} #{scaled_flv}" 
 		    #BigBlueButton.logger.info(command)
 		    #IO.popen(command)
 		    #Process.wait                
@@ -458,7 +452,7 @@ module BigBlueButton
  
    			# Use for newer version of FFMPEG
     		padding = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{side_padding}:#{top_bottom_padding}:FFFFFF"       
-		    command = "ffmpeg -y -i #{flv_in} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -v -10 -aspect 4:3 -r 1000 -sameq #{frame_size} #{padding} -vcodec flashsv #{scaled_flv}" 
+		    command = "#{FFMPEG_CMD_BASE} -i #{flv_in} -aspect 4:3 -r 1000 -same_quant #{frame_size} #{padding} -vcodec flashsv #{scaled_flv}" 
 		    BigBlueButton.execute(command)
 		    #BigBlueButton.logger.info(command)
 		    #IO.popen(command)
@@ -479,342 +473,54 @@ module BigBlueButton
     t = Time.at(ms / 1000, (ms % 1000) * 1000)
     return t.getutc.strftime("%H:%M:%S.%L")
   end
-
-  def self.hash_to_str(hash)
-    return PP.pp(hash, "")
-  end
-
-  def self.calculate_videos_grid(videos_list, details, output_video)
-    # try to find the number of rows and columns to maximize the internal videos
-    each_row = 0
-    num_rows = 0
-    slot_width = 0
-    slot_height = 0
-    total_area = 0
-    num_cams = videos_list.length
-    for tmp_num_rows in 1..(num_cams)
-      tmp_each_row = (num_cams / tmp_num_rows.to_f).ceil
-      max_width = (output_video[:width] / tmp_each_row).floor
-      max_height = (output_video[:height] / tmp_num_rows).floor
-      if max_width <= 0 or max_height <= 0 then
-        next
-      end
-      
-      tmp_total_area = 0
-      videos_list.each do |stream|
-        measurements = BigBlueButton.fit_to(details[stream][:width], details[stream][:height], max_width, max_height)
-        tmp_total_area += measurements[:width] * measurements[:height]
-      end
-      
-      if tmp_total_area > total_area
-        slot_width = max_width
-        slot_height = max_height
-        num_rows = tmp_num_rows
-        each_row = tmp_each_row
-        total_area = tmp_total_area
-      end
-    end
-
-    return {
-      :rows => num_rows,
-      :columns => each_row,
-      :cell_width => slot_width,
-      :cell_height => slot_height
-    }
-  end
-
-  def self.calculate_video_position_and_size(videos_list, details, output_video, grid)
-    transformation = Hash.new
-    videos_list.each_with_index do |stream, index|
-      video_dimensions = BigBlueButton.fit_to(details[stream][:width], details[stream][:height], grid[:cell_width], grid[:cell_height])
-      slot_x = (index%grid[:columns])       * grid[:cell_width]  + (output_video[:width]  - grid[:cell_width]  * grid[:columns]) / 2
-      slot_y = (index/grid[:columns]).floor * grid[:cell_height] + (output_video[:height] - grid[:cell_height] * grid[:rows]) / 2
-      x = slot_x + (grid[:cell_width]  - video_dimensions[:width])  / 2
-      y = slot_y + (grid[:cell_height] - video_dimensions[:height]) / 2
-
-      transformation[stream] = {
-        :x => x,
-        :y => y,
-        :width => video_dimensions[:width],
-        :height => video_dimensions[:height]
-      }
-    end
-    return transformation
-  end
-
-  def self.get_video_dir(temp_dir, meeting_id, type="video")
-    dir = nil
-    if type == "video"
-      dir = "#{temp_dir}/#{meeting_id}/video/#{meeting_id}"
-    elsif type == "deskshare"
-      dir = "#{temp_dir}/#{meeting_id}/deskshare"
-    end
-    return dir
-  end
-
+  
   def BigBlueButton.process_multiple_videos(target_dir, temp_dir, meeting_id, output_width, output_height, audio_offset, include_deskshare=false)
     BigBlueButton.logger.info("Processing webcam videos")
 
     # Process audio
-    BigBlueButton::AudioProcessor.process("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio.ogg")
+    audio_edl = BigBlueButton::AudioEvents.create_audio_edl(
+      "#{temp_dir}/#{meeting_id}")
+    BigBlueButton::EDL::Audio.dump(audio_edl)
+
+    audio_file = BigBlueButton::EDL::Audio.render(
+      audio_edl, "#{target_dir}/webcams")
 
     # Process video
-    events_xml = "#{temp_dir}/#{meeting_id}/events.xml"
-    first_timestamp = BigBlueButton::Events.first_event_timestamp(events_xml)
-    last_timestamp = BigBlueButton::Events.last_event_timestamp(events_xml)        
-    start_evt = BigBlueButton::Events.get_start_video_events(events_xml)
-    stop_evt = BigBlueButton::Events.get_stop_video_events(events_xml)
+    webcam_edl = BigBlueButton::Events.create_webcam_edl(
+      "#{temp_dir}/#{meeting_id}")
+    deskshare_edl = BigBlueButton::Events.create_deskshare_edl(
+      "#{temp_dir}/#{meeting_id}")
+    video_edl = BigBlueButton::EDL::Video.merge(webcam_edl, deskshare_edl)
+    BigBlueButton::EDL::Video.dump(video_edl)
 
-    start_evt.each {|evt| evt[:stream_type] = "video"}
-    stop_evt.each {|evt| evt[:stream_type] = "video"}
+    layout = {
+      :width => output_width, :height => output_height,
+      :areas => [ { :name => :webcam, :x => 0, :y => 0,
+        :width => output_width, :height => output_height } ]
+    }
     if include_deskshare
-      start_deskshare_evt = BigBlueButton::Events.get_start_deskshare_events(events_xml)
-      stop_deskshare_evt = BigBlueButton::Events.get_stop_deskshare_events(events_xml)
-      start_deskshare_evt.each {|evt| evt[:stream_type] = "deskshare"}
-      stop_deskshare_evt.each {|evt| evt[:stream_type] = "deskshare"}
-      start_evt = start_evt + start_deskshare_evt
-      stop_evt = stop_evt + stop_deskshare_evt
+      layout[:areas] += [ { :name => :deskshare, :x => 0, :y => 0,
+        :width => output_width, :height => output_height, :pad => true } ]
     end
+    video_file = BigBlueButton::EDL::Video.render(
+      video_edl, layout, "#{target_dir}/webcams")
 
-    (start_evt + stop_evt).each do |evt|
-      ext = File.extname(evt[:stream])
-      ext = ".flv" if ext.empty?
-      evt[:file_extension] = ext
-      # removes the file extension from :stream
-      evt[:stream].chomp!(File.extname(evt[:stream]))
-      evt[:stream_file_name] = evt[:stream] + evt[:file_extension]
-    end
-
-    # fix the stop events list so the matched events will be consistent
-    start_evt.each do |evt|
-      video_dir = get_video_dir(temp_dir, meeting_id, evt[:stream_type])
-      if stop_evt.select{ |s| s[:stream] == evt[:stream] }.empty?
-        new_event = { 
-          :stream => evt[:stream],
-          :stop_timestamp => evt[:start_timestamp] + (BigBlueButton.get_video_duration("#{video_dir}/#{evt[:stream_file_name]}") * 1000).to_i
-        }
-        BigBlueButton.logger.debug("Adding stop event: #{new_event}")
-        stop_evt << new_event
-      end
-    end
-    
-    # fix the start events list so the matched events will be consistent
-    stop_evt.each do |evt|
-      if start_evt.select{ |s| s[:stream] == evt[:stream] }.empty?
-        new_event = {
-          :stream => evt[:stream],
-          :start_timestamp => evt[:stop_timestamp] - (BigBlueButton.get_video_duration("#{video_dir}/#{evt[:stream]}.flv") * 1000).to_i
-        }
-        BigBlueButton.logger.debug("Adding stop event: #{new_event}")
-        start_evt << new_event
-      end
-    end
-
-    matched_evts = BigBlueButton::Events.match_start_and_stop_video_events(start_evt, stop_evt)
-
-    BigBlueButton.logger.debug("First timestamp: #{first_timestamp}")
-    BigBlueButton.logger.debug("Last timestamp: #{last_timestamp}")
-    BigBlueButton.logger.debug("Matched events:")
-    BigBlueButton.logger.debug(hash_to_str(matched_evts))
-
-    video_streams = Hash.new
-
-    matched_evts.each do |evt|
-      video_dir = BigBlueButton.get_video_dir(temp_dir, meeting_id, evt[:stream_type])
-      # removes audio stream
-      stripped_webcam = "#{temp_dir}/#{meeting_id}/stripped-#{evt[:stream]}.flv"
-      BigBlueButton.strip_audio_from_video("#{video_dir}/#{evt[:stream_file_name]}", stripped_webcam)
-
-      # the encoder for Flash Screen Codec v2 doesn't work on the current version of FFmpeg, so trim doesn't work at all
-      # in this step the desktop sharing file is re-encoded with Flash Screen Codec v1 so everything works fine
-      if evt[:stream_type] == "deskshare"
-        processed_deskshare = "#{temp_dir}/#{meeting_id}/stripped-#{evt[:stream]}_processed.flv"
-        command = "ffmpeg -y -i #{stripped_webcam} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -v -10 -vcodec flashsv -sameq #{processed_deskshare}"
-        BigBlueButton.execute(command)
-        stripped_webcam = processed_deskshare
-      end
-
-      video_stream = {
-        :name => evt[:stream],
-        :file => stripped_webcam,
-        :duration => (BigBlueButton.get_video_duration(stripped_webcam) * 1000).to_i,
-        :width => BigBlueButton.get_video_width(stripped_webcam),
-        :height => BigBlueButton.get_video_height(stripped_webcam),
-        :start => evt[:start_timestamp] - first_timestamp,
-        :stop => evt[:stop_timestamp] - first_timestamp,
-        :stream_type => evt[:stream_type]
+    formats = [
+      {
+        :extension => 'webm',
+        :parameters => [
+          [ '-c:v', 'libvpx', '-crf', '34', '-b:v', '60M',
+            '-threads', '2', '-deadline', 'good', '-cpu-used', '3',
+            '-c:a', 'libvorbis', '-b:a', '32K',
+            '-f', 'webm' ]
+        ]
       }
-      video_stream[:start_error] = video_stream[:stop] - (video_stream[:start] + video_stream[:duration])
-      # adjust the start_timestamp based on the video duration
-      video_stream[:start] = video_stream[:start] + video_stream[:start_error]
-      video_streams[video_stream[:name]] = video_stream
+    ]
+    formats.each do |format|
+      filename = BigBlueButton::EDL::encode(
+        audio_file, video_file, format, "#{target_dir}/webcams", audio_offset)
     end
 
-    BigBlueButton.logger.debug("Video streams:")
-    BigBlueButton.logger.debug(hash_to_str(video_streams))
-
-    # if we include desktop sharing streams to the video, we will use the highest resolution as the output video resolution in order to preserve the quality of the desktop sharing
-    deskshare_streams = video_streams.select{ |stream_name, stream_details| stream_details[:stream_type] == "deskshare" }
-    if not deskshare_streams.empty?
-      max = deskshare_streams.values().max_by {|stream| stream[:width] * stream[:height]}
-      output_width = max[:width]
-      output_height = max[:height]
-      BigBlueButton.logger.debug("Modifying the output video resolution to #{output_width}x#{output_height}")
-    end
-
-    blank_color = "000000"
-    blank_canvas = "#{temp_dir}/canvas.jpg"
-    BigBlueButton.create_blank_canvas(output_width, output_height, "##{blank_color}", blank_canvas)
-
-    # put all events in a single list in ascendent timestamp order
-    all_events = []
-    video_streams.each do |name, video_stream|
-      { "start" => video_stream[:start], "stop" => video_stream[:stop] }.each do |type, timestamp|
-        event = Hash.new
-        event[:type] = type
-        event[:timestamp] = timestamp
-        event[:stream] = name
-        all_events << event
-      end
-    end
-    all_events.sort!{|a,b| a[:timestamp] <=> b[:timestamp]}
-
-    BigBlueButton.logger.debug("All events:")
-    BigBlueButton.logger.debug(hash_to_str(all_events))
-
-    # create a single timeline of events, keeping for each interval which video streams are enabled
-    timeline = [ { :timestamp => 0, :streams => [] } ]
-    all_events.each do |event|
-      new_event = { :timestamp => event[:timestamp], :streams => timeline.last[:streams].clone }
-      if event[:type] == "start"
-        new_event[:streams] << event[:stream]
-      elsif event[:type] == "stop"
-        new_event[:streams].delete(event[:stream])
-      end
-      timeline << new_event
-    end
-    timeline << { :timestamp => last_timestamp - first_timestamp, :streams => [] }
-
-    BigBlueButton.logger.debug("Current timeline:")
-    BigBlueButton.logger.debug(hash_to_str(timeline))
-
-    # isolate the desktop sharing stream so while the presenter is sharing his screen, it will be the only video in the playback
-    timeline.each do |evt|
-      deskshare_streams = evt[:streams].select{ |stream_name| video_streams[stream_name][:stream_type] == "deskshare" }
-      if not deskshare_streams.empty?
-        evt[:streams] = deskshare_streams
-      end
-    end
-
-    BigBlueButton.logger.debug("Timeline keeping desktop sharing isolated:")
-    BigBlueButton.logger.debug(hash_to_str(timeline))
-
-    # remove the consecutive events with the same streams list
-    timeline_no_duplicates = []
-    timeline.each do |evt|
-      if timeline_no_duplicates.empty? or timeline_no_duplicates.last()[:streams].uniq.sort != evt[:streams].uniq.sort
-        timeline_no_duplicates << evt
-      end
-    end
-    timeline = timeline_no_duplicates
-
-    BigBlueButton.logger.debug("Timeline with no duplicates:")
-    BigBlueButton.logger.debug(hash_to_str(timeline))
-
-    for i in 1..(timeline.length-1)
-      current_event = timeline[i-1]
-      next_event = timeline[i]
-
-      current_event[:duration] = next_event[:timestamp] - current_event[:timestamp]
-      current_event[:streams_detailed] = Hash.new
-      current_event[:streams].each do |stream|
-        current_event[:streams_detailed][stream] = {
-          :begin => current_event[:timestamp] - video_streams[stream][:start],
-          :end => current_event[:timestamp] - video_streams[stream][:start] + current_event[:duration]
-        }
-      end
-      current_event[:grid] = calculate_videos_grid(current_event[:streams], video_streams, { :width => output_width, :height => output_height })
-      current_event[:transformation] = calculate_video_position_and_size(current_event[:streams], video_streams, { :width => output_width, :height => output_height }, current_event[:grid])
-    end
-    # last_timestamp - first_timestamp is the actual duration of the entire meeting
-    timeline.last()[:duration] = (last_timestamp - first_timestamp) - timeline.last()[:timestamp]
-    timeline.pop() if timeline.last()[:duration] == 0
-
-    BigBlueButton.logger.debug("Current timeline with details on streams:")
-    BigBlueButton.logger.debug(hash_to_str(timeline))
-
-    blank_duration_error = 0
-    concat = []
-
-    timeline.each do |event|
-      blank_video = "#{temp_dir}/#{meeting_id}/blank_video_#{event[:timestamp]}.flv"
-
-      # Here I evaluated the MSE between the blank video requested duration and the retrieved duration ranging the FPS and found 15 as the best value
-      # Mean Squared Error over blank videos duration using k = 10: 32.62620320850205
-      # Mean Squared Error over blank videos duration using k = 15: 4.742765771202899 <-- best value
-      # Mean Squared Error over blank videos duration using k = 25: 7.874007874011811
-      # Mean Squared Error over blank videos duration using k = 30: 7.874007874011811
-      # Mean Squared Error over blank videos duration using k = 45: 16.33824567096903
-      # Mean Squared Error over blank videos duration using k = 60: 16.33824567096903
-      # Mean Squared Error over blank videos duration using k = 100: 29.06399919802359
-      # Mean Squared Error over blank videos duration using k = 1000: 29.06399919802359
-      BigBlueButton.create_blank_video_ms(event[:duration], 15, blank_canvas, blank_video)
-      blank_duration_error = event[:duration] - (BigBlueButton.get_video_duration(blank_video) * 1000).to_i
-      BigBlueButton.logger.info("Blank video duration needed: #{event[:duration]}; duration retrieved: #{(BigBlueButton.get_video_duration(blank_video) * 1000).to_i}; error: #{blank_duration_error}")
-
-      filter = ""
-      next_main = "0:0"
-
-      event[:streams].each_with_index do |stream_name, index|
-        trimmed_video = "#{temp_dir}/#{meeting_id}/#{stream_name}_#{event[:timestamp]}.flv"
-        BigBlueButton.trim_video(event[:streams_detailed][stream_name][:begin], event[:duration], video_streams[stream_name][:file], trimmed_video)
-        trimmed_duration_error = event[:duration] - (BigBlueButton.get_video_duration(trimmed_video) * 1000).to_i
-        BigBlueButton.logger.info("Trimmed video duration needed: #{event[:duration]}; duration retrieved: #{(BigBlueButton.get_video_duration(trimmed_video) * 1000).to_i}; error: #{trimmed_duration_error}")
-
-        current_main = next_main
-        next_main = "out-#{Time.now.to_i}"
-
-        filter += "; " if not filter.empty?
-        filter += "movie=#{trimmed_video}, scale=#{event[:transformation][stream_name][:width]}:#{event[:transformation][stream_name][:height]}, setpts=PTS%+f/TB [#{stream_name}]; [#{current_main}][#{stream_name}] overlay=#{event[:transformation][stream_name][:x]}:#{event[:transformation][stream_name][:y]}" % (trimmed_duration_error/1000.to_f)
-        filter += " [#{next_main}]" unless index == event[:streams].length - 1
-      end
-      filter = "-filter_complex \"#{filter}\"" unless filter.empty?
-
-      patch_video = "#{temp_dir}/#{meeting_id}/patch_video_#{event[:timestamp]}.flv"
-      command = "ffmpeg -y -i #{blank_video} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -v -10 #{filter} -sameq #{patch_video}"
-      BigBlueButton.execute(command)
-
-      concat << patch_video
-    end
-    
-    output = "#{temp_dir}/#{meeting_id}/output.flv"
-=begin
-    # This is probably the best solution to concatenate the videos, but the filter "concat" isn't available on this version of FFmpeg. Anyway, it could be used in the future.
-    # There's also a concat demuxex on FFmpeg 1.1 and above http://ffmpeg.org/trac/ffmpeg/wiki/How%20to%20concatenate%20(join%2C%20merge)%20media%20files
-#    filter_input = []
-    input = []
-    concat.each_with_index do |file,index|
-      input << "-i #{file}"
-#      filter_input << "[#{index}:0]"
-    end
-#    command = "ffmpeg #{input.join(' ')} -vcodec copy -sameq -filter_complex \"#{filter_input.join()} concat=n=#{input.length}:v=#{input.length}:a=0\" #{output}"
-    command = "ffmpeg -y -f concat #{input.join(' ')} -vcodec copy -sameq #{output}"
-    BigBlueButton.execute(command)
-=end
-    BigBlueButton.concatenate_videos(concat, output)
-
-    # create webm video and mux audio
-    command = "ffmpeg -itsoffset #{BigBlueButton.ms_to_strtime(audio_offset)} -i #{target_dir}/audio.ogg -i #{output} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -v -10 -vcodec libvpx -b 1000k -threads 0 -map 1:0 -map 0:0 -ar 22050 #{target_dir}/webcams.webm"
-    BigBlueButton.execute(command)
-
-    recording_duration = last_timestamp - first_timestamp
-    audio_duration = (BigBlueButton.get_video_duration("#{target_dir}/audio.ogg") * 1000).to_i
-    video_duration = (BigBlueButton.get_video_duration(output) * 1000).to_i
-    output_duration = (BigBlueButton.get_video_duration("#{target_dir}/webcams.webm") * 1000).to_i
-    BigBlueButton.logger.debug("Recording duration: #{recording_duration}")
-    BigBlueButton.logger.debug("Audio file duration: #{audio_duration}")
-    BigBlueButton.logger.debug("Video file duration: #{video_duration}")
-    BigBlueButton.logger.debug("Output file duration: #{output_duration}")
   end
 
 
@@ -823,7 +529,7 @@ module BigBlueButton
  # deskshare_file : Video of shared desktop of the recording
 
  def self.mux_audio_deskshare(target_dir, audio_file, deskshare_file)
-  command = "ffmpeg -y -i #{audio_file} -i #{deskshare_file} -loglevel #{BigBlueButton::FFMPEG_LOG_LEVEL} -v -10 -vcodec flv -b 1000k -threads 0  -map 1:0 -map 0:0 -ar 22050 #{target_dir}/muxed_audio_deskshare.flv"
+  command = "#{FFMPEG_CMD_BASE} -i #{audio_file} -i #{deskshare_file} -vcodec flv -b 1000k -threads 0  -map 1:0 -map 0:0 -ar 22050 #{target_dir}/muxed_audio_deskshare.flv"
   BigBlueButton.execute(command)
   FileUtils.mv("#{target_dir}/muxed_audio_deskshare.flv","#{target_dir}/deskshare.flv")
  end
