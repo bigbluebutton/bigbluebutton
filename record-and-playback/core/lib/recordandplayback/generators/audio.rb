@@ -178,6 +178,56 @@ module BigBlueButton
         return [create_gap_audio_event(last_event - first_event + 1, last_event, first_event)]
       end
     end
+
+    def self.create_audio_edl(archive_dir)
+      audio_edl = []
+      audio_dir = "#{archive_dir}/audio"
+      events = Nokogiri::XML(File.open("#{archive_dir}/events.xml"))
+
+      event = events.at_xpath('/recording/event[position()=1]')
+      initial_timestamp = event['timestamp'].to_i
+      event = events.at_xpath('/recording/event[position()=last()]')
+      final_timestamp = event['timestamp'].to_i
+
+      # Initially start with silence
+      audio_edl << {
+        :timestamp => 0,
+        :audio => nil
+      }
+
+      # Add events for recording start/stop
+      events.xpath('/recording/event[@module="VOICE"]').each do |event|
+        timestamp = event['timestamp'].to_i - initial_timestamp
+        case event['eventname']
+        when 'StartRecordingEvent'
+          filename = event.at_xpath('filename').text
+          filename = "#{audio_dir}/#{File.basename(filename)}"
+          audio_edl << {
+            :timestamp => timestamp,
+            :audio => { :filename => filename, :timestamp => 0 }
+          }
+        when 'StopRecordingEvent'
+          filename = event.at_xpath('filename').text
+          filename = "#{audio_dir}/#{File.basename(filename)}"
+          if audio_edl.last[:audio] && audio_edl.last[:audio][:filename] == filename
+            audio_edl << {
+              :timestamp => timestamp,
+              :audio => nil
+            }
+          end
+        end
+      end
+
+      audio_edl << {
+        :timestamp => final_timestamp - initial_timestamp,
+        :audio => nil
+      }
+
+      return audio_edl
+    end
+
+
+
         
     TIMESTAMP = 'timestamp'
     BRIDGE = 'bridge'
@@ -289,29 +339,6 @@ module BigBlueButton
         File.rename(temp_wav_file, file)
       end
     end
-
-    # Stretch/squish the length of the audio file to match the requested length
-    # The length parameter should be in milliseconds.
-    # Returns the filename of the new file (in the same directory as the original)
-    def self.stretch_audio_file(file, length, sample_rate)
-      BigBlueButton.logger.info("Task: Stretching/Squishing Audio")
-      orig_length = determine_length_of_audio_from_file(file)
-      new_file = "#{file}.stretch.wav"
-
-      if (orig_length == 0)
-        BigBlueButton.logger.error("Stretch received 0-length file as input!")
-        # Generate silence to fill the length
-        generate_silence(length, new_file, sample_rate)
-        return new_file
-      end
-
-      speed = orig_length.to_f / length.to_f
-      BigBlueButton.logger.info("Adjusting #{file} speed to #{speed}")
-      sox_cmd = "sox #{file} #{new_file} speed #{speed} rate -h #{sample_rate} trim 0 #{length.to_f/1000}"
-
-      BigBlueButton.execute(sox_cmd)
-      return new_file
-    end
     
     # Determine the audio padding we need to generate.
     def self.generate_audio_paddings(events, events_xml)
@@ -341,7 +368,7 @@ module BigBlueButton
         if (not ar_prev.eql?(ar_next))
           length_of_gap = ar_next.start_event_timestamp.to_i - ar_prev.stop_event_timestamp.to_i
 
-          # Check if the silence is greater that 10 minutes long. If it is, assume something went wrong with the
+          # Check if the silence is greater than 1 hour long. If it is, assume something went wrong with the
           # recording. This prevents us from generating a veeeerrryyy looonnngggg silence maxing disk space.
           if (length_of_gap < 3600000)
             if (length_of_gap < 0)
@@ -358,9 +385,9 @@ module BigBlueButton
       end
 
       length_of_gap =  BigBlueButton::Events.last_event_timestamp(events_xml).to_i - events[-1].stop_event_timestamp.to_i
-      # Check if the silence is greater that 10 minutes long. If it is, assume something went wrong with the
+      # Check if the silence is greater than 2 hours long. If it is, assume something went wrong with the
       # recording. This prevents us from generating a veeeerrryyy looonnngggg silence maxing disk space.
-      if (length_of_gap < 3600000)
+      if (length_of_gap < 7200000)
         if (length_of_gap < 0)
             trim_audio_file(events[-1].file, length_of_gap.abs)
         else
