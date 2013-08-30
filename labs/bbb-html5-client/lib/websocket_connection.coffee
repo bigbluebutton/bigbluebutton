@@ -2,6 +2,7 @@ sanitizer = require("sanitizer")
 rack = require("hat").rack()
 
 config = require("../config")
+RedisKeys = require("./redis_keys")
 
 module.exports = class WebsocketConnection
   constructor: (@io) ->
@@ -27,7 +28,7 @@ module.exports = class WebsocketConnection
       config.redis.pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user list change", usernames])
       callback?(true)
 
-    config.store.scard config.redisAction.getUsersString(meetingID), (err, cardinality) ->
+    config.store.scard RedisKeys.getUsersString(meetingID), (err, cardinality) ->
       if cardinality is "0"
         config.redisAction.processMeeting meetingID
         callback?(false)
@@ -48,7 +49,7 @@ module.exports = class WebsocketConnection
       config.redis.pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "load users", usernames])
       callback?(true)
 
-    config.store.scard config.redisAction.getUsersString(meetingID), (err, cardinality) ->
+    config.store.scard RedisKeys.getUsersString(meetingID), (err, cardinality) ->
       if cardinality is "0"
         config.redisAction.processMeeting meetingID
         callback?(false)
@@ -59,7 +60,7 @@ module.exports = class WebsocketConnection
 
     config.redis.pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user join", userid, username, "VIEWER"])
     callback?(true)
-    config.store.scard config.redisAction.getUsersString(meetingID), (err, cardinality) ->
+    config.store.scard RedisKeys.getUsersString(meetingID), (err, cardinality) ->
       if cardinality is "0"
         config.redisAction.processMeeting meetingID
         callback?(false)
@@ -69,7 +70,7 @@ module.exports = class WebsocketConnection
     receivers = (if sessionID? then sessionID else meetingID)
     config.redis.pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user leave", userid])
     callback?(true)
-    config.store.scard config.redisAction.getUsersString(meetingID), (err, cardinality) ->
+    config.store.scard RedisKeys.getUsersString(meetingID), (err, cardinality) ->
       if cardinality is "0"
         config.redisAction.processMeeting meetingID
         callback?(false)
@@ -206,17 +207,17 @@ module.exports = class WebsocketConnection
 
           numOfSockets = parseInt(properties.sockets, 10)
           numOfSockets += 1
-          config.store.hset config.redisAction.getUserString(meetingID, sessionID), "sockets", numOfSockets
+          config.store.hset RedisKeys.getUserString(meetingID, sessionID), "sockets", numOfSockets
           if (properties.refreshing is "false") and (properties.dupSess is "false")
 
             # all of the next sessions created with this sessionID are duplicates
-            config.store.hset config.redisAction.getUserString(meetingID, sessionID), "dupSess", true
+            config.store.hset RedisKeys.getUserString(meetingID, sessionID), "dupSess", true
 
             @_publishUserJoin meetingID, null, properties.pubID, properties.username, =>
               @_publishPresenter meetingID
 
           else
-            config.store.hset config.redisAction.getUserString(meetingID, sessionID), "refreshing", false
+            config.store.hset RedisKeys.getUserString(meetingID, sessionID), "refreshing", false
 
             @_publishUserJoin meetingID, sessionID, properties.pubID, properties.username, =>
               @_publishPresenter meetingID, sessionID
@@ -280,8 +281,8 @@ module.exports = class WebsocketConnection
             messageID = rack() # get a randomly generated id for the message
 
             # try later taking these nulls out and see if the function still works
-            config.store.rpush config.redisAction.getMessagesString(meetingID, null, null), messageID #store the messageID in the list of messages
-            config.store.hmset config.redisAction.getMessageString(meetingID, null, null, messageID), "message", msg, "username", username, "userID", properties.pubID
+            config.store.rpush RedisKeys.getMessagesString(meetingID, null, null), messageID #store the messageID in the list of messages
+            config.store.hmset RedisKeys.getMessageString(meetingID, null, null, messageID), "message", msg, "username", username, "userID", properties.pubID
 
   # When a user logs out
   _onLogout: (socket) ->
@@ -295,10 +296,10 @@ module.exports = class WebsocketConnection
           @_publishUserLeave meetingID, null, properties.pubID
 
         # remove the user from the list of users
-        config.store.srem config.redisAction.getUsersString(meetingID), sessionID, (numDeleted) ->
+        config.store.srem RedisKeys.getUsersString(meetingID), sessionID, (numDeleted) ->
 
           # delete key from database
-          config.store.del config.redisAction.getUserString(meetingID, sessionID), (reply) ->
+          config.store.del RedisKeys.getUserString(meetingID, sessionID), (reply) ->
             config.redis.pub.publish sessionID, JSON.stringify(["logout"]) # send to all users on same session (all tabs)
             socket.disconnect() # disconnect own socket
 
@@ -423,7 +424,7 @@ module.exports = class WebsocketConnection
           config.redisAction.getCurrentPageID meetingID, presentationID, (pageID) =>
 
             # pop the last shape off the current list of shapes
-            config.store.rpop config.redisAction.getCurrentShapesString(meetingID, presentationID, pageID), (err, reply) =>
+            config.store.rpop RedisKeys.getCurrentShapesString(meetingID, presentationID, pageID), (err, reply) =>
               @publishShapes meetingID
 
   # Telling everyone the current text being draw in the whiteboard has been finished
@@ -443,8 +444,8 @@ module.exports = class WebsocketConnection
         config.redisAction.getCurrentPresentationID meetingID, (presentationID) ->
           config.redisAction.getCurrentPageID meetingID, presentationID, (pageID) ->
             shapeID = rack() # get a randomly generated id for the shape
-            config.store.rpush config.redisAction.getCurrentShapesString(meetingID, presentationID, pageID), shapeID
-            config.store.hmset config.redisAction.getShapeString(meetingID, presentationID, pageID, shapeID), "shape", shape, "data", data, (err, reply) ->
+            config.store.rpush RedisKeys.getCurrentShapesString(meetingID, presentationID, pageID), shapeID
+            config.store.hmset RedisKeys.getShapeString(meetingID, presentationID, pageID, shapeID), "shape", shape, "data", data, (err, reply) ->
               # TODO: this callback does nothing?
 
   # Changing the currently set tool.

@@ -6,6 +6,7 @@ redis = require("redis")
 config = require("./config")
 MainRouter = require("./routes/main_router")
 RedisAction = require("./lib/redis_action")
+RedisKeys = require("./lib/redis_keys")
 WebsocketConnection = require("./lib/websocket_connection")
 
 # global variables
@@ -132,7 +133,7 @@ config.redis.sub.on "pmessage", (pattern, channel, message) ->
       meetingID = attributes[0]
       config.redisAction.getCurrentPresentationID meetingID, (presentationID) ->
         config.redisAction.getCurrentPageID meetingID, presentationID, (pageID) ->
-          config.store.rpop config.redisAction.getCurrentShapesString(meetingID, presentationID, pageID), (err, reply) ->
+          config.store.rpop RedisKeys.getCurrentShapesString(meetingID, presentationID, pageID), (err, reply) ->
             config.socketAction.publishShapes meetingID
 
     # When presenter in flex side sends the 'clrPaper' event, remove everything from Redis

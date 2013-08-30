@@ -3,6 +3,7 @@ sanitizer = require("sanitizer")
 util = require("util")
 
 config = require("../config")
+RedisKeys = require("../lib/redis_keys")
 
 # The main router that registers the routes that can be accessed by the client.
 module.exports = class MainRouter
@@ -115,7 +116,7 @@ makeMeeting = (meetingID, sessionID, username, callback) ->
           config.redisAction.setPresenter meetingID, sessionID, publicID
 
     config.redisAction.createUser meetingID, sessionID
-    config.store.get config.redisAction.getCurrentPresentationString(meetingID), (err, currPresID) ->
+    config.store.get RedisKeys.getCurrentPresentationString(meetingID), (err, currPresID) ->
       unless currPresID
         config.redisAction.createPresentation meetingID, true, (presentationID) ->
           config.redisAction.createPage meetingID, presentationID, "default.png", true, (pageID) ->
