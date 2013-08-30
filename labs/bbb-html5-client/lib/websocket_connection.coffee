@@ -222,7 +222,7 @@ module.exports = class WebsocketConnection
               @_publishPresenter meetingID, sessionID
 
           @_publishMessages meetingID, sessionID
-          @publishSlides meetingID, sessionID, ->
+          @publishSlides meetingID, sessionID, =>
 
             # after send 'all_slides' event, we have to load the current slide for new user by
             # getting the current presentation slide url and send the 'changeslide' event
@@ -335,7 +335,7 @@ module.exports = class WebsocketConnection
   _onMakeShape: (socket, shape, data) ->
     meetingID = fromSocket(socket, "meetingID")
     config.redisAction.getPresenterSessionID meetingID, (presenterID) ->
-      if isCurrentPresenter(presenterID)
+      if isCurrentPresenter(socket, presenterID)
         config.redis.pub.publish meetingID, JSON.stringify(["makeShape", shape, data])
 
   # When a user updates a shape
@@ -345,7 +345,7 @@ module.exports = class WebsocketConnection
   _onUpdateShape: (socket, shape, data) ->
     meetingID = fromSocket(socket, "meetingID")
     config.redisAction.getPresenterSessionID meetingID, (presenterID) ->
-      if isCurrentPresenter(presenterID)
+      if isCurrentPresenter(socket, presenterID)
         config.redis.pub.publish meetingID, JSON.stringify(["updShape", shape, data])
 
   # When the user (presenter) moves the cursor over the presentation
@@ -354,15 +354,15 @@ module.exports = class WebsocketConnection
   _onMvCur: (socket, x, y) ->
     meetingID = fromSocket(socket, "meetingID")
     config.redisAction.getPresenterSessionID meetingID, (presenterID) ->
-      if isCurrentPresenter(presenterID)
+      if isCurrentPresenter(socket, presenterID)
         config.redis.pub.publish "bigbluebutton:bridge", JSON.stringify([meetingID, "mvCur", x, y])
 
   # Then the user clears all drawings
-  _onClearPaper: () ->
+  _onClearPaper: (socket) ->
     meetingID = fromSocket(socket, "meetingID")
     sessionID = fromSocket(socket, "sessionID")
     config.redisAction.getPresenterSessionID meetingID, (presenterID) =>
-      if isCurrentPresenter(presenterID)
+      if isCurrentPresenter(socket, presenterID)
         config.redisAction.getCurrentPresentationID meetingID, (presentationID) =>
           config.redisAction.getCurrentPageID meetingID, presentationID, (pageID) =>
             config.redisAction.getItemIDs meetingID, presentationID, pageID, "currentshapes", (meetingID, presentationID, pageID, itemIDs, itemName) =>
@@ -480,5 +480,5 @@ fromSocket = (socket, attr) ->
 
 # Returns whether the current user is the presenter or not.
 # @return {boolean}
-isCurrentPresenter = (presenterID) ->
+isCurrentPresenter = (socket, presenterID) ->
   presenterID is fromSocket(socket, "sessionID")
