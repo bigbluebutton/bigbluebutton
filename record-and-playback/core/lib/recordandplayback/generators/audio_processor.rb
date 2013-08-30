@@ -22,37 +22,33 @@
 
 require 'fileutils'
 
+require File.expand_path('../../edl', __FILE__)
+
 module BigBlueButton
   class AudioProcessor
     # Process the raw recorded audio to ogg file.
     #   archive_dir - directory location of the raw archives. Assumes there is audio file and events.xml present.
-    #   ogg_file - the file name of the ogg audio output
+    #   file_basename - the file name of the audio output. '.webm' will be added
     #
-    def self.process(archive_dir, ogg_file)
+    def self.process(archive_dir, file_basename)
+      audio_edl = BigBlueButton::AudioEvents.create_audio_edl(archive_dir)
+
       audio_dir = "#{archive_dir}/audio"
       events_xml = "#{archive_dir}/events.xml"
-      audio_events = BigBlueButton::AudioEvents.process_events(audio_dir, events_xml)
-      audio_files = []
-      first_no_silence = audio_events.select { |e| !e.padding }.first
-      sampling_rate = first_no_silence.nil? ? 16000 :  FFMPEG::Movie.new(first_no_silence.file).audio_sample_rate
-      audio_events.each do |ae|
-        if ae.padding 
-          ae.file = "#{audio_dir}/#{ae.length_of_gap}.wav"
-          BigBlueButton::AudioEvents.generate_silence(ae.length_of_gap, ae.file, sampling_rate)
-        else
-          # Substitute the original file location with the archive location
-          orig_file = ae.file.sub(/.+\//, "#{audio_dir}/")
-          length = ae.stop_event_timestamp.to_i - ae.start_event_timestamp.to_i
 
-          ae.file = BigBlueButton::AudioEvents.stretch_audio_file(orig_file, length, sampling_rate)
-        end
-        
-        audio_files << ae.file
-      end
-      
-      wav_file = "#{audio_dir}/recording.wav"
-      BigBlueButton::AudioEvents.concatenate_audio_files(audio_files, wav_file)    
-      BigBlueButton::AudioEvents.wav_to_ogg(wav_file, ogg_file)
+      wav_file = BigBlueButton::EDL::Audio.render(audio_edl, "#{audio_dir}/recording")
+
+      ogg_format = {
+        :extension => 'ogg',
+        :parameters => [ [ '-c:a', 'libvorbis', '-b:a', '32K', '-f', 'ogg' ] ]
+      }
+      BigBlueButton::EDL.encode(wav_file, nil, ogg_format, file_basename)
+
+      webm_format = {
+        :extension => 'webm',
+        :parameters => [ [ '-c:a', 'libvorbis', '-b:a', '32K', '-f', 'webm' ] ]
+      }
+      BigBlueButton::EDL.encode(wav_file, nil, webm_format, file_basename)
     end
   end
 end
