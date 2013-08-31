@@ -338,14 +338,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
 					var urlLoader:URLLoader = new URLLoader();
 					urlLoader.addEventListener(Event.COMPLETE, handleLogoutComplete);	
+					urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleLogoutError);
 					urlLoader.load(request);
 				}				
 			}
-			
-			private function handleLogoutComplete(e:Event):void {	
+			private function redirectToLogoutUrl ():void {
 				var request:URLRequest = new URLRequest(BBB.initUserConfigManager().getLogoutUrl());
 				LogUtil.debug("Logging out to: " + BBB.initUserConfigManager().getLogoutUrl());
-				navigateToURL(request, '_self');			
+				navigateToURL(request, '_self');
+			}
+			
+			private function handleLogoutError(e:Event):void {
+				LogUtil.debug("Call to signOut URL failed.");
+				redirectToLogoutUrl();
+			}
+			
+			private function handleLogoutComplete(e:Event):void {	
+				LogUtil.debug("Call to signOut URL succeeded.");
+				redirectToLogoutUrl();
 			}
 			
 			private function attemptReconnect(e:ConnectionFailedEvent):void{
