@@ -146,11 +146,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				PUBLIC_CHAT_USERNAME = ResourceUtil.getInstance().getString("bbb.chat.publicChatUsername");
 				OPTION_TAB_ID = ResourceUtil.getInstance().getString("bbb.chat.optionsTabName");				
 				
-				tabBox.id = OPTION_TAB_ID;
-				tabBox.label = OPTION_TAB_ID;
-				tabBox.name = OPTION_TAB_ID;
+				if (tabBox != null) {
+					tabBox.id = OPTION_TAB_ID;
+					tabBox.label = OPTION_TAB_ID;
+					tabBox.name = OPTION_TAB_ID;
+				}
 				
-				publicBox.label = PUBLIC_CHAT_USERNAME;
+				if (publicBox != null) {
+					publicBox.label = PUBLIC_CHAT_USERNAME;
+				}
 			}
 			
 		private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
