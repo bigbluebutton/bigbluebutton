@@ -27,7 +27,7 @@
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 		]]>
 	</mx:Script>
-	<mx:Label id="nameLabel" textAlign="left" text="{data.name} {data.me ? '(you)' : ''}" 
+	<mx:Label id="nameLabel" textAlign="left" text="{data.name} {data.me ? '(' + ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer.youIdentifier') + ')' : ''}" 
 		fontWeight="{data.me ? 'bold' : 'normal'}"
 		color="{data.me ? 0x003399 : 0x000000}"
 		toolTip="{data.name}"/>

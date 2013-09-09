@@ -99,7 +99,7 @@ module BigBlueButton
       command = "sox #{file} -n stat 2>&1"
       # Try "sox --i -D file" as it is much shorter
       BigBlueButton.logger.info("Task: Getting length of audio")
-      output = BigBlueButton.execute(command)
+      output = BigBlueButton.execute(command).output
       if output.to_s =~ /Length(.+)/
         stats = $1
       end
@@ -178,6 +178,56 @@ module BigBlueButton
         return [create_gap_audio_event(last_event - first_event + 1, last_event, first_event)]
       end
     end
+
+    def self.create_audio_edl(archive_dir)
+      audio_edl = []
+      audio_dir = "#{archive_dir}/audio"
+      events = Nokogiri::XML(File.open("#{archive_dir}/events.xml"))
+
+      event = events.at_xpath('/recording/event[position()=1]')
+      initial_timestamp = event['timestamp'].to_i
+      event = events.at_xpath('/recording/event[position()=last()]')
+      final_timestamp = event['timestamp'].to_i
+
+      # Initially start with silence
+      audio_edl << {
+        :timestamp => 0,
+        :audio => nil
+      }
+
+      # Add events for recording start/stop
+      events.xpath('/recording/event[@module="VOICE"]').each do |event|
+        timestamp = event['timestamp'].to_i - initial_timestamp
+        case event['eventname']
+        when 'StartRecordingEvent'
+          filename = event.at_xpath('filename').text
+          filename = "#{audio_dir}/#{File.basename(filename)}"
+          audio_edl << {
+            :timestamp => timestamp,
+            :audio => { :filename => filename, :timestamp => 0 }
+          }
+        when 'StopRecordingEvent'
+          filename = event.at_xpath('filename').text
+          filename = "#{audio_dir}/#{File.basename(filename)}"
+          if audio_edl.last[:audio] && audio_edl.last[:audio][:filename] == filename
+            audio_edl << {
+              :timestamp => timestamp,
+              :audio => nil
+            }
+          end
+        end
+      end
+
+      audio_edl << {
+        :timestamp => final_timestamp - initial_timestamp,
+        :audio => nil
+      }
+
+      return audio_edl
+    end
+
+
+
         
     TIMESTAMP = 'timestamp'
     BRIDGE = 'bridge'
@@ -318,7 +368,7 @@ module BigBlueButton
         if (not ar_prev.eql?(ar_next))
           length_of_gap = ar_next.start_event_timestamp.to_i - ar_prev.stop_event_timestamp.to_i
 
-          # Check if the silence is greater that 10 minutes long. If it is, assume something went wrong with the
+          # Check if the silence is greater than 1 hour long. If it is, assume something went wrong with the
           # recording. This prevents us from generating a veeeerrryyy looonnngggg silence maxing disk space.
           if (length_of_gap < 3600000)
             if (length_of_gap < 0)
@@ -335,9 +385,9 @@ module BigBlueButton
       end
 
       length_of_gap =  BigBlueButton::Events.last_event_timestamp(events_xml).to_i - events[-1].stop_event_timestamp.to_i
-      # Check if the silence is greater that 10 minutes long. If it is, assume something went wrong with the
+      # Check if the silence is greater than 2 hours long. If it is, assume something went wrong with the
       # recording. This prevents us from generating a veeeerrryyy looonnngggg silence maxing disk space.
-      if (length_of_gap < 3600000)
+      if (length_of_gap < 7200000)
         if (length_of_gap < 0)
             trim_audio_file(events[-1].file, length_of_gap.abs)
         else

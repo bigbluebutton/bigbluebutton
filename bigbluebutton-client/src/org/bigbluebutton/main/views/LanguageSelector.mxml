@@ -20,13 +20,48 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" dataProvider="{ResourceUtil.getInstance().localeNames}" 
-			 selectedIndex="{ResourceUtil.getInstance().localeIndex}"
-			 change="changeLanguage()" rowCount="15" width="120" height="22">
+<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+		dataProvider="{ResourceUtil.getInstance().localeNames}" 
+		selectedIndex="{ResourceUtil.getInstance().localeIndex}"
+		change="changeLanguage()" rowCount="15" width="120" height="22">
+
+	<mx:itemRenderer >
+		<mx:Component >
+			<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+					mouseOver="highlightItem()" 
+					mouseOut="removeHighlightItem()"
+					enabled="true"
+					width="100%"
+					paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
+				<mx:Script>
+					<![CDATA[
+						import org.bigbluebutton.util.i18n.ResourceUtil;
+						
+						private function highlightItem():void {
+							boxCont.setStyle("backgroundColor", "0xB2E1FF");
+						}
+						private function removeHighlightItem():void {
+							if(data == ResourceUtil.getInstance().getPreferredLocaleName())
+								boxCont.setStyle("backgroundColor", "0x7FCEFF");
+							else
+								boxCont.setStyle("backgroundColor", "0xFFFFFF");
+						}
+					]]>
+				</mx:Script>
+				<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+						paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" id="boxCont" width="100%" backgroundColor="{data == ResourceUtil.getInstance().getPreferredLocaleName() ? 0x7FCEFF : 0xFFFFFF}">
+					<mx:Label paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" text="{data}" width="90"/>
+				</mx:HBox>
+			</mx:HBox>
+		</mx:Component>
+	</mx:itemRenderer>
+
+
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			
+			import org.bigbluebutton.common.LogUtil;
+
 			private function changeLanguage():void {
 				ResourceUtil.getInstance().setPreferredLocale(ResourceUtil.getInstance().getLocaleCodeForIndex(selectedIndex));
 			}

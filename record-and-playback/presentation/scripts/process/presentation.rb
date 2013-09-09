@@ -1,3 +1,5 @@
+#!/usr/bin/ruby1.9.1
+
 # Set encoding to utf-8
 # encoding: UTF-8
 
@@ -19,7 +21,7 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
 
-require '../../core/lib/recordandplayback'
+require File.expand_path('../../../lib/recordandplayback', __FILE__)
 require 'rubygems'
 require 'trollop'
 require 'yaml'
@@ -33,6 +35,8 @@ meeting_id = opts[:meeting_id]
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 presentation_props = YAML::load(File.open('presentation.yml'))
+presentation_props['audio_offset'] = 0 if presentation_props['audio_offset'].nil?
+presentation_props['include_deskshare'] = false if presentation_props['include_deskshare'].nil?
 
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
@@ -54,8 +58,7 @@ if not FileTest.directory?(target_dir)
   FileUtils.mkdir_p temp_dir
   FileUtils.cp_r(raw_archive_dir, temp_dir)
   
-  BigBlueButton::AudioProcessor.process("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio.ogg")
-
+  BigBlueButton::AudioProcessor.process("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio")
   events_xml = "#{temp_dir}/#{meeting_id}/events.xml"
   FileUtils.cp(events_xml, target_dir)
   
@@ -87,7 +90,7 @@ if not FileTest.directory?(target_dir)
         pdf_page = "#{pres_dir}/slide-#{page}.pdf"
         BigBlueButton::Presentation.extract_page_from_pdf(page, pres_pdf, pdf_page)
         #BigBlueButton::Presentation.convert_pdf_to_png(pdf_page, "#{target_pres_dir}/slide-#{page}.png")
-        command = "convert -density 300x300 -resize 1600x1200 -quality 90 +dither -depth 8 -colors 256 #{pdf_page} #{target_pres_dir}/slide-#{page}.png"
+        command = "convert -density 300x300 #{pdf_page} -resize 1600x1200 -background white -flatten -quality 90 +dither -depth 8 -colors 256 #{target_pres_dir}/slide-#{page}.png"
         BigBlueButton.execute(command)
         if File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt") then
           FileUtils.cp("#{pres_dir}/textfiles/slide-#{page}.txt", "#{target_pres_dir}/textfiles")
@@ -96,18 +99,20 @@ if not FileTest.directory?(target_dir)
     else
       ext = File.extname("#{images[0]}")
       #BigBlueButton::Presentation.convert_image_to_png(images[0],"#{target_pres_dir}/slide-1.png")
-      command="convert -resize 1600x1200 #{images[0]} #{target_pres_dir}/slide-1.png"
+      command="convert #{images[0]} -resize 1600x1200 -background white -flatten #{target_pres_dir}/slide-1.png"
       BigBlueButton.execute(command)
     end
   
   end
   
-  if !Dir["#{raw_archive_dir}/video/*"].empty?    
-    BigBlueButton.process_multiple_videos(target_dir, temp_dir, meeting_id, presentation_props['video_output_width'], presentation_props['video_output_height'])
-  else
-    #Convert the audio file to webm to play it in IE
-    command = "ffmpeg -i #{target_dir}/audio.ogg  #{target_dir}/audio.webm"
-    BigBlueButton.execute(command)
+  if !Dir["#{raw_archive_dir}/video/*"].empty? or (presentation_props['include_deskshare'] and !Dir["#{raw_archive_dir}/deskshare/*"].empty?)
+    width = presentation_props['video_output_width']
+    height = presentation_props['video_output_height']
+    if !Dir["#{raw_archive_dir}/deskshare/*"].empty?
+      width = presentation_props['deskshare_output_width']
+      height = presentation_props['deskshare_output_height']
+    end
+    BigBlueButton.process_multiple_videos(target_dir, temp_dir, meeting_id, width, height, presentation_props['audio_offset'], presentation_props['include_deskshare'])
   end
 
   process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-presentation.done", "w")
@@ -117,6 +122,10 @@ if not FileTest.directory?(target_dir)
 #	BigBlueButton.logger.debug("Skipping #{meeting_id} as it has already been processed.")  
  rescue Exception => e
         BigBlueButton.logger.error(e.message)
+	e.backtrace.each do |traceline|
+		BigBlueButton.logger.error(traceline)
+	end
+	exit 1
  end
 end
     

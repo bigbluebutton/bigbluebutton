@@ -47,7 +47,7 @@ Panel {
   color: #e1e2e5;
 }
 
-Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle {
+Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowChangeResolutionCombo, .languageSelectorStyle {
   textIndent: 0;
   paddingLeft: 10;
   paddingRight: 10;
@@ -63,6 +63,17 @@ Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle {
   themeColor: haloBlue;
   fontFamily: Arial;
   fontSize: 12;
+}
+
+.quickWindowLinkStyle {
+  paddingLeft: 0;
+  paddingRight: 0;
+  textDecoration: underline;
+  rollOverColor: #cccccc;
+  selectionColor: #999999;
+  color: #ffffff;
+  textRollOverColor: #504f3d;
+  textSelectedColor: #504f3d;
 }
 
 .helpLinkButtonStyle {
@@ -662,4 +673,13 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 .cameraDisplaySettingsWindowStartBtn
 {
   icon:   Embed('assets/images/webcam.png');
+}
+
+Alert {
+	borderColor: #DFDFDF;
+	backgroundColor: #EFEFEF;
+	borderAlpha: 1;
+	shadowDistance: 1;
+	dropShadowColor: #FFFFFF;
+	color: #000000;
 }

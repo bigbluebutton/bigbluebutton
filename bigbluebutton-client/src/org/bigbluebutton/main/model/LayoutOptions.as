@@ -33,6 +33,7 @@ package org.bigbluebutton.main.model
 		[Bindable] public var showLogoutWindow:Boolean = true;
 		[Bindable] public var showLayoutTools:Boolean = true;
 		[Bindable] public var showNetworkMonitor:Boolean = true;
+		[Bindable] public var confirmLogout:Boolean = true;
 		
 		
     public var defaultLayout:String = "Default";
@@ -58,6 +59,10 @@ package org.bigbluebutton.main.model
 				
 				if (vxml.@showToolbar != undefined) {
 					showToolbar = (vxml.@showToolbar.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				
+				if (vxml.@confirmLogout != undefined) {
+					confirmLogout = (vxml.@confirmLogout.toString().toUpperCase() == "TRUE") ? true : false;
 				}
 
         if (vxml.@showFooter != undefined) {
