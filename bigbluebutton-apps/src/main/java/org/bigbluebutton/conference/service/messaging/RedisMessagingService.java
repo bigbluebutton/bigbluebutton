@@ -61,10 +61,7 @@ public class RedisMessagingService implements MessagingService{
 	private ChatApplication chatApplication;
 	private PresentationApplication presentationApplication;
 
-	public RedisMessagingService(){
-		
-	}
-	
+
 	@Override
 	public void start() {
 		log.debug("Starting redis pubsub...");		

@@ -257,7 +257,11 @@ public class WhiteboardBridge {
 			log.debug("sendAnnotation: " + gson.toJson(updates));
 			messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
 		}
-		
+
+		else{
+			Map map = an.getAnnotation();
+			log.debug("another type of annotation: " + map);
+		}	
 		
 	}
 	

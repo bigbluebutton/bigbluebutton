@@ -17,11 +17,13 @@
 *
 */
 package org.bigbluebutton.conference.service.presentation;
-import java.util.ArrayList;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
-import org.red5.logging.Red5LoggerFactory;import org.red5.server.api.Red5;import org.red5.server.api.scope.IScope;
+import org.red5.logging.Red5LoggerFactory;
+import org.red5.server.api.Red5;
+import org.red5.server.api.scope.IScope;
 import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
 
 public class PresentationService {	
@@ -108,6 +110,7 @@ public class PresentationService {
 		log.debug("Request to resize and move slide[" + xOffset + "," + yOffset + "," + widthRatio + "," + heightRatio);
 		IScope scope = Red5.getConnectionLocal().getScope();
 		presentationApplication.resizeAndMoveSlide(scope.getName(), xOffset, yOffset, widthRatio, heightRatio);
+		bridge.resizeAndMoveSlide(scope.getName(), xOffset, yOffset, widthRatio, heightRatio);
 	}
 
 	public void setParticipantsApplication(ParticipantsApplication a) {

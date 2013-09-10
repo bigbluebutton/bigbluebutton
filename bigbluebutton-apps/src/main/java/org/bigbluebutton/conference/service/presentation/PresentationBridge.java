@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.MessagingService;
+import org.slf4j.Logger;
+import org.red5.logging.Red5LoggerFactory;
 
 import com.google.gson.Gson;
 
@@ -14,10 +16,8 @@ import redis.clients.jedis.Jedis;
 
 public class PresentationBridge {
 	private MessagingService messagingService;
+	private static Logger log = Red5LoggerFactory.getLogger(PresentationBridge.class, "bigbluebutton");
 	
-	public PresentationBridge(){
-		
-	}
 	
 	public void sendUpdateMessage(Map message) {
 		/*//temporary solution for integrate with the html5 client
@@ -51,7 +51,7 @@ public class PresentationBridge {
 	public void sendCursorUpdate(String meetingID, Double xPercent, Double yPercent) {
 		ArrayList<Object> updates = new ArrayList<Object>();
 		updates.add(meetingID);
-		updates.add("mvCur");
+		updates.add("mvcur");
 		updates.add(xPercent);
 		updates.add(yPercent);
 		Gson gson = new Gson();
@@ -99,6 +99,18 @@ public class PresentationBridge {
 		
 		pub.publish(receivers, JSON.stringify(['all_shapes', shapes]));
 		 * */
+	}
+
+	public void resizeAndMoveSlide(String meetingID, Double xOffset,Double yOffset,Double widthRatio,Double heightRatio) {
+		ArrayList<Object> updates = new ArrayList<Object>();
+		updates.add(meetingID);
+		updates.add("move_and_zoom");
+		updates.add(xOffset);
+		updates.add(yOffset);
+		updates.add(widthRatio);
+		updates.add(heightRatio);
+		Gson gson = new Gson();
+		messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
 	}
 	
 }
