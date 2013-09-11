@@ -95,5 +95,14 @@ package org.bigbluebutton.modules.polling.model
         if (p.id == pollID) p.userResponded();
       }       
     }
+
+    public function hasUserResponded(pollID:String):Boolean {
+      for (var i:int = 0; i < _polls.length; i++) {
+        var p:Poll = _polls.getItemAt(i) as Poll;
+        if (p.id == pollID) return p.hasResponded();
+      }
+      return false;       
+    }    
+
   }
 }
