@@ -153,6 +153,20 @@ class PollModel {
     poll
   }
   
+  def hidePollResult(pollID: String) {
+    polls.get(pollID) match {
+      case Some(p) => p.hideResult
+      case None => // do nothing
+    }
+  }
+  
+  def showPollResult(pollID: String) {
+    polls.get(pollID) match {
+      case Some(p) => p.showResult
+      case None => // do nothing
+    }    
+  }
+  
   def respondToQuestion(pollID: String, questionID: String, responseID: String, responder: Responder) {
      polls.get(pollID) match {
       case Some(p) => {

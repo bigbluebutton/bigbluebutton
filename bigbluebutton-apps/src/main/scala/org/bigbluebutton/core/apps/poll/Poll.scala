@@ -22,6 +22,20 @@ class Poll(val id: String, val title: String, val questions: Array[Question]) {
 	private var _started: Boolean = false
 	private var _stopped: Boolean = false
 	
+	private var _showResult: Boolean = false
+	
+	def showResult() {
+		_showResult = true
+	}
+	
+	def hideResult() {
+	  _showResult = false
+	}
+	
+	def resultShown(): Boolean = {
+	  _showResult
+	}
+	
 	def start() {
 		_started = true;
 	}

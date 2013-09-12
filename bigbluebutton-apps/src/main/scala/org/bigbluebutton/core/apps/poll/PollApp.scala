@@ -24,8 +24,28 @@ class PollApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway, us
       case clearPoll: ClearPoll => handleClearPoll(clearPoll)
       case getPolls: GetPolls => handleGetPolls(getPolls)
       case respondPoll: RespondToPoll => handleRespondToPoll(respondPoll)
+      case hidePollResult: HidePollResult => handleHidePollResult(hidePollResult)
+      case showPollResult: ShowPollResult => handleShowPollResult(showPollResult)
       case _ => // do nothing
     }    
+  }
+  
+  private def handleHidePollResult(msg: HidePollResult) {
+    val pollID = msg.pollID
+
+    if (model.hasPoll(pollID)) {
+      model.hidePollResult(pollID)
+   	  outGW.send(new PollHideResultOutMsg(meetingID, recorded, pollID))
+    }
+  }
+
+  private def handleShowPollResult(msg: ShowPollResult) {
+    val pollID = msg.pollID
+
+    if (model.hasPoll(pollID)) {
+      model.showPollResult(pollID)
+      outGW.send(new PollShowResultOutMsg(meetingID, recorded, pollID))
+    }
   }
   
   private def handleRespondToPoll(msg: RespondToPoll) {   

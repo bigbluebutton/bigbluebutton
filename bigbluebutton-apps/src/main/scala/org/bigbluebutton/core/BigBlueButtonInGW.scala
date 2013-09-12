@@ -129,6 +129,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	
 	// Polling
 	val pollGW = new PollInGateway(bbbGW)
+	
 	def getPolls(meetingID: String, requesterID: String) {
 	  pollGW.getPolls(meetingID, requesterID)
 	}
@@ -159,5 +160,13 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	
 	def respondPoll(meetingID: String, requesterID: String, msg: String) {
 	  pollGW.respondPoll(meetingID, requesterID, msg)
+	}
+	
+	def showPollResult(meetingID: String, requesterID: String, msg: String) {
+	  pollGW.showPollResult(meetingID, requesterID, msg)
+	}
+	
+	def hidePollResult(meetingID: String, requesterID: String, msg: String) {
+	  pollGW.hidePollResult(meetingID, requesterID, msg)
 	}
 }

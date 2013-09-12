@@ -10,6 +10,8 @@ import org.bigbluebutton.core.apps.poll.messages.RemovePoll
 import org.bigbluebutton.core.apps.poll.messages.GetPolls
 import org.bigbluebutton.core.apps.poll.messages.RespondToPoll
 import org.bigbluebutton.core.apps.poll.messages.PreCreatedPoll
+import org.bigbluebutton.core.apps.poll.messages.ShowPollResult
+import org.bigbluebutton.core.apps.poll.messages.HidePollResult
 
 class PollInGateway(bbbGW: BigBlueButtonGateway) {
 
@@ -52,5 +54,13 @@ class PollInGateway(bbbGW: BigBlueButtonGateway) {
   def respondPoll(meetingID: String, requesterID: String, msg: String) {
 	val pollResponse = msgConverter.convertTakePollMessage(msg)
 	bbbGW.accept(new RespondToPoll(meetingID, requesterID, pollResponse))
+  }
+  
+  def showPollResult(meetingID: String, requesterID: String, pollID: String) {  
+	bbbGW.accept(new ShowPollResult(meetingID, requesterID, pollID))
+  }
+	
+  def hidePollResult(meetingID: String, requesterID: String, pollID: String) {
+	bbbGW.accept(new HidePollResult(meetingID, requesterID, pollID))
   }
 }

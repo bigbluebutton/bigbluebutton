@@ -14,6 +14,8 @@ case class GetPolls(meetingID: String, requesterID: String) extends InMessage
 case class DestroyPoll(meetingID: String, requesterID: String, pollID: String) extends InMessage
 case class RemovePoll(meetingID: String, requesterID: String, pollID: String) extends InMessage
 case class SharePoll(meetingID: String, requesterID: String, pollID: String) extends InMessage
+case class ShowPollResult(meetingID: String, requesterID: String, pollID: String) extends InMessage
+case class HidePollResult(meetingID: String, requesterID: String, pollID: String) extends InMessage
 case class StopPoll(meetingID:String, requesterID: String, pollID: String) extends InMessage
 case class StartPoll(meetingID:String, requesterID: String, pollID: String) extends InMessage
 case class ClearPoll(meetingID: String, requesterID: String, pollID: String, force: Boolean=false) extends InMessage
@@ -36,3 +38,5 @@ case class PollRemovedOutMsg(meetingID: String, recorded: Boolean, pollID: Strin
 case class PollUpdatedOutMsg(meetingID: String, recorded: Boolean, pollID: String, pollVO: PollVO) extends IOutMessage
 case class PollCreatedOutMsg(meetingID: String, recorded: Boolean, pollID: String, pollVO: PollVO) extends IOutMessage
 case class PollResponseOutMsg(meetingID: String, recorded: Boolean, responder: Responder, response: PollResponseVO) extends IOutMessage
+case class PollHideResultOutMsg(meetingID: String, recorded: Boolean, pollID: String) extends IOutMessage
+case class PollShowResultOutMsg(meetingID: String, recorded: Boolean, pollID: String) extends IOutMessage
