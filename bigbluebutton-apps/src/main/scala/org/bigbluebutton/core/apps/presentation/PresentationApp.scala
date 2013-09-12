@@ -80,7 +80,8 @@ class PresentationApp(meetingID: String, recorded: Boolean, outGW: MessageOutGat
         val messageKey = msg.msg.get("messageKey").asInstanceOf[String]
              
         if (messageKey.equalsIgnoreCase("CONVERSION_COMPLETED")) {            
-            presentationIDs.add(presentationID.asInstanceOf[String]);                                
+            presentationIDs.add(presentationID.asInstanceOf[String]); 
+            sharePresentation(presentationID.asInstanceOf[String], true);
         }
     	
     	outGW.send(new PresentationConversionUpdateOutMsg(meetingID, recorded, msg.msg))
@@ -114,6 +115,7 @@ class PresentationApp(meetingID: String, recorded: Boolean, outGW: MessageOutGat
 		}
 				
 		val presentation = new java.util.HashMap[String, Object]();
+		
 		if (sharing) {
 			presentation.put("sharing", true:java.lang.Boolean)
 			presentation.put("slide", currentSlide:java.lang.Integer)
@@ -158,7 +160,9 @@ class PresentationApp(meetingID: String, recorded: Boolean, outGW: MessageOutGat
     }
     
     private def sharePresentation(presentationID: String, share: Boolean) {
+      
   		sharing = share;
+  		
   		if (share) {
   		  currentPresentation = presentationID;
   		  val index = presentationIDs.indexOf(presentationID);
