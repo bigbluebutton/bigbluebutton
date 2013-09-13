@@ -16,15 +16,17 @@ See: https://www.exratione.com/2013/02/nodejs-and-forever-as-a-service-simple-up
   make
   sudo make install
 
-0. Install forever
+2. Install forever
   sudo npm -g install forever
 
-1. Copy the init.d script
+3. Copy the init.d script
   sudo cp bbb-callback.sh /etc/init.d/bbb-callback.sh
   sudo chmod a+x /etc/init.d/bbb-callback.sh
   sudo update-rc.d bbb-callback.sh defaults
 
-2. How to start/stop the service
+4. Copy bbb-callback dir to /usr/local/bigbluebutton/bbb-callback
+
+5. How to start/stop the service
   sudo service bbb-callback.sh start
   sudo service bbb-callback.sh status
   sudo service bbb-callback.sh restart
