@@ -110,6 +110,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var highlighter_icon:Class = images.highlighter_icon;
 			[Bindable] private var select_icon:Class = images.select_icon;
 			[Bindable] private var grid_icon:Class = images.grid_icon;
+			[Bindable] private var delete_selected_icon:Class = images.delete_selected_icon;
 			
 			[Bindable] public var wbOptions:WhiteboardOptions;
 			[Bindable] private var baseIndex:int;
@@ -148,6 +149,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                         panzoomBtn.setTool(graphicType, toolType);
                     }
                     
+                    if (selectBtn != null) {
+						selectBtn.setTool(graphicType, toolType);
+					}
+
                     if (scribbleBtn != null) {
                         scribbleBtn.setTool(graphicType, toolType); 
                     }
@@ -294,6 +299,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function get isModerator():Boolean {
         return UsersUtil.amIModerator();
       }
+
+      protected function deleteSelectedShape():void{
+		canvas.deleteSelectedShape();
+	  }
 		           
 		]]>
 	</mx:Script>
@@ -305,32 +314,36 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <wbBtns:PanZoomButton id="panzoomBtn" 
     					  tabIndex="{baseIndex}" 
     					  visible="{showWhiteboardToolbar}"/>
+    <wbBtns:SelectButton id="selectBtn" 
+						  tabIndex="{baseIndex+1}" 
+						  visible="{showWhiteboardToolbar}"/>
+	<mx:Button width="30" height="30" id="btnDeleteShape" click="deleteSelectedShape()" icon="{delete_selected_icon}" toolTip="Delete selected shape" />
     <mx:Spacer height="10" visible="{showWhiteboardToolbar}"/>
 	<wbBtns:ScribbleButton id="scribbleBtn" 
-						   tabIndex="{baseIndex+1}" 
+						   tabIndex="{baseIndex+2}" 
 						   visible="{showWhiteboardToolbar}"/>
 	<wbBtns:RectangleButton id="rectangleBtn" 
-							tabIndex="{baseIndex+2}" 
+							tabIndex="{baseIndex+3}" 
 							visible="{showWhiteboardToolbar}"/>
 	<wbBtns:CircleButton id="circleBtn" 
-						 tabIndex="{baseIndex+3}" 
+						 tabIndex="{baseIndex+4}" 
 						 visible="{showWhiteboardToolbar}"/>
 	<wbBtns:TriangleButton id="triangleBtn" 
-						   tabIndex="{baseIndex+4}" 
+						   tabIndex="{baseIndex+5}" 
 						   visible="{showWhiteboardToolbar}"/>
 	<wbBtns:LineButton id="lineBtn" 
-					   tabIndex="{baseIndex+5}" 
+					   tabIndex="{baseIndex+6}" 
 					   visible="{showWhiteboardToolbar}"/>
 	<wbBtns:TextButton id="textBtn" 
-					   tabIndex="{baseIndex+6}" 
+					   tabIndex="{baseIndex+7}" 
 					   visible="{showWhiteboardToolbar}"/>
 		
 	<mx:Spacer height="5" visible="{showWhiteboardToolbar}"/>
 	<wbBtns:ClearButton id="clearBtn" 
-						tabIndex="{baseIndex+7}" 
+						tabIndex="{baseIndex+8}" 
 						visible="{showWhiteboardToolbar}"/>
 	<wbBtns:UndoButton id="undoBtn" 
-					   tabIndex="{baseIndex+8}" 
+					   tabIndex="{baseIndex+9}" 
 					   visible="{showWhiteboardToolbar}"/>
 	
 	<mx:Spacer height="5" visible="{showWhiteboardToolbar}"/>

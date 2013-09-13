@@ -32,6 +32,24 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		function normalize(val:Number, side:Number):Number;
 				
 		function makeGraphic(parentWidth:Number, parentHeight:Number):void;
+
+		function movePoints(distanceX:Number, distanceY:Number, parentWidth:Number, parentHeight:Number):void;
+		
+		function changeTopLeft(newX:Number, newY:Number, parentWidth:Number, parentHeight:Number):void;
+		
+		function changeTopMiddle(newY:Number, parentHeight:Number):void;
+		
+		function changeTopRight(newX:Number, newY:Number, parentWidth:Number, parentHeight:Number):void;
+		
+		function changeMiddleLeft(newX:Number, parentWidth:Number):void;
+		
+		function changeMiddleRight(newX:Number, parentWidth:Number):void;
+		
+		function changeBottomLeft(newX:Number, newY:Number, parentWidth:Number, parentHeight:Number):void;
+		
+		function changeBottomMiddle(newY:Number, parentHeight:Number):void;
+		
+		function changeBottomRight(newX:Number, newY:Number, parentWidth:Number, parentHeight:Number):void;
 		
 	}
 }

@@ -49,6 +49,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     public static const TEXT_CREATED:String = "textCreated";
     public static const TEXT_UPDATED:String = "textEdited";
     public static const TEXT_PUBLISHED:String = "textPublished";
+    public static const TEXT_MODIFIED:String = "textModified";
+    public static const TEXT_DELETED:String = "textDeleted";
+
     
     public static const TEXT_TOOL:String = "textTool";
     
@@ -100,11 +103,19 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     public function getOrigX():Number {
       return origX;
     }
+
+    public function setOrigX(x:Number):void {
+      origX = x;
+    }
         
     public function getOrigY():Number {
       return origY;
     }
-        
+     
+    public function setOrigY(y:Number):void {
+      origY = y;
+    }
+
     public function setGraphicID(id:String):void {
       this.ID = id;
     }
@@ -150,9 +161,17 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     public function get textBoxWidth():Number {
       return _textBoxWidth;
     }
+
+    public function set textBoxWidth(width:Number):void {
+      _textBoxWidth = width;
+    }
         
     public function get textBoxHeight():Number {
       return _textBoxHeight;
+    }
+
+    public function set textBoxHeight(height:Number):void {
+      _textBoxHeight = height;
     }
         
     public function get oldParentWidth():Number {
@@ -229,5 +248,73 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       this.removeEventListener(TextEvent.TEXT_INPUT, textObjTextListener);
       this.removeEventListener(KeyboardEvent.KEY_DOWN, textObjDeleteListener);
     }
+
+    public function movePoints(distanceX:Number, distanceY:Number, parentWidth:Number, parentHeight:Number):void {
+   this.origX += normalize(distanceX, parentWidth);
+   this.origY += normalize(distanceY, parentHeight);
+ }
+ 
+ public function changeTopLeft(newX:Number, newY:Number, parentWidth:Number, parentHeight:Number):void{
+   var normalizedNewX:Number = normalize(newX, parentWidth);
+   var normalizedNewY:Number = normalize(newY, parentHeight);
+   
+   this._textBoxWidth -= normalizedNewX - origX;
+   this._textBoxHeight -= normalizedNewY - origY;
+   this.origX = normalizedNewX;
+   this.origY = normalizedNewY;
+ }
+ 
+ public function changeTopMiddle(newY:Number, parentHeight:Number):void {
+   var normalizedNewY:Number = normalize(newY, parentHeight);
+   
+   this._textBoxHeight -= normalizedNewY - origY;
+   this.origY = normalizedNewY;
+ }
+ 
+ public function changeTopRight(newX:Number, newY:Number, parentWidth:Number, parentHeight:Number):void{
+   var normalizedNewX:Number = normalize(newX, parentWidth);
+   var normalizedNewY:Number = normalize(newY, parentHeight);
+   
+   this._textBoxWidth = normalizedNewX - origX;
+   this._textBoxHeight -= normalizedNewY - origY;
+   this.origY = normalizedNewY;
+ }
+ 
+ public function changeMiddleLeft(newX:Number, parentWidth:Number):void{
+   var normalizedNewX:Number = normalize(newX, parentWidth);
+   
+   this._textBoxWidth -= normalizedNewX - origX;
+   this.origX = normalizedNewX;
+ }
+ 
+ public function changeMiddleRight(newX:Number, parentWidth:Number):void{ 
+   var normalizedNewX:Number = normalize(newX, parentWidth);
+   
+   this._textBoxWidth = normalizedNewX - origX;
+ }
+ 
+ public function changeBottomLeft(newX:Number, newY:Number, parentWidth:Number, parentHeight:Number):void{
+   var normalizedNewX:Number = normalize(newX, parentWidth);
+   var normalizedNewY:Number = normalize(newY, parentHeight);
+   
+   this._textBoxWidth -= normalizedNewX - origX;
+   this._textBoxHeight = normalizedNewY - origY;
+   this.origX = normalizedNewX;
+ }
+ 
+ 
+ public function changeBottomMiddle(newY:Number, parentHeight:Number):void{
+   var normalizedNewY:Number = normalize(newY, parentHeight);
+   
+   this._textBoxHeight = normalizedNewY - origY;
+ }
+ 
+ public function changeBottomRight(newX:Number, newY:Number, parentWidth:Number, parentHeight:Number):void{
+   var normalizedNewX:Number = normalize(newX, parentWidth);
+   var normalizedNewY:Number = normalize(newY, parentHeight);
+   
+   this._textBoxWidth = normalizedNewX - origX;
+   this._textBoxHeight = normalizedNewY - origY;
+ }
   }
 }

@@ -31,10 +31,11 @@ package org.bigbluebutton.modules.whiteboard
   import flash.text.TextFieldType;
   import flash.text.TextFormat;
   import flash.ui.Keyboard;
+
   import mx.controls.TextInput;
   import mx.core.Application;
-  import mx.core.UIComponent;
   import mx.managers.CursorManager;
+
   import org.bigbluebutton.common.IBbbCanvas;
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.managers.UserManager;
@@ -54,6 +55,7 @@ package org.bigbluebutton.modules.whiteboard
   import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
   import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
   import org.bigbluebutton.modules.whiteboard.views.AnnotationIDGenerator;
+  import org.bigbluebutton.modules.whiteboard.views.GraphicSelectorListener;
   import org.bigbluebutton.modules.whiteboard.views.IDrawListener;
   import org.bigbluebutton.modules.whiteboard.views.PencilDrawListener;
   import org.bigbluebutton.modules.whiteboard.views.TextDrawListener;
@@ -80,17 +82,23 @@ package org.bigbluebutton.modules.whiteboard
 
     private var width:Number;
     private var height:Number;
+    private var zoomPercentage:Number = 100;
+    private var graphicSelectorListener:GraphicSelectorListener;
         
     public function set wbCanvas(canvas:WhiteboardCanvas):void {
       _wbCanvas = canvas;
       drawListeners.push(new PencilDrawListener(idGenerator, _wbCanvas, sendShapeFrequency, shapeFactory, whiteboardModel));
       drawListeners.push(new TextDrawListener(idGenerator, _wbCanvas, sendShapeFrequency, shapeFactory, whiteboardModel));
+    
+      graphicSelectorListener = new GraphicSelectorListener(_wbCanvas, shapeFactory, whiteboardModel);
+      drawListeners.push(graphicSelectorListener);
     }
         
-    public function zoomCanvas(width:Number, height:Number):void {
-      shapeFactory.setParentDim(width, height);	
+    public function zoomCanvas(width:Number, height:Number, zoomPercentage:Number):void {
+      shapeFactory.setParentDim(width, height, zoomPercentage);
       this.width = width;
-      this.height = height;	
+      this.height = height;
+      this.zoomPercentage = zoomPercentage;	
     }
         
     public function changeFontStyle(font:String):void {
@@ -114,7 +122,7 @@ package org.bigbluebutton.modules.whiteboard
     }
         
     public function doMouseUp(mouseX:Number, mouseY:Number):void {
-      // LogUtil.debug("CanvasModel doMouseUp ***");
+      LogUtil.debug("CanvasModel doMouseUp ***");
       for (var ob:int = 0; ob < drawListeners.length; ob++) {
         (drawListeners[ob] as IDrawListener).onMouseUp(mouseX, mouseY, wbTool);
       }
@@ -133,9 +141,38 @@ package org.bigbluebutton.modules.whiteboard
       }
     }
 
+    public function onGraphicMouseDown(graphic:DisplayObject, mouseX:Number, mouseY:Number):void{
+       if (graphic is GraphicObject){
+         graphicSelectorListener.onGraphicMouseDown(graphic as GraphicObject, mouseX, mouseY, wbTool);
+       }
+     }
+     
+     public function doResizeButtonMouseDown(buttonIndex:Number, mouseX:Number, mouseY:Number):void{
+       graphicSelectorListener.doResizeButtonMouseDown(buttonIndex, mouseX, mouseY);
+     }
+     
+     public function doSelectedShapeMouseDown(mouseX:Number, mouseY:Number):void{
+       onGraphicMouseDown(graphicSelectorListener.selectedGraphicObject as DisplayObject, mouseX, mouseY);
+     }
+     
+     public function redrawSelectionBorder():void {
+       graphicSelectorListener.redrawSelectionBorder();
+     }
+     
+     public function clearSelection():void {
+       graphicSelectorListener.clearSelection();
+     }
+
     public function setGraphicType(type:String):void {
-      //LogUtil.debug("!!! Set graphic type = " + type);
+      LogUtil.debug("!!! Set graphic type = " + type);
       wbTool.graphicType = type;
+
+      if (wbTool.graphicType == WhiteboardConstants.TYPE_SELECTION) {
+         _wbCanvas.setDrawingCanvasToWhiteboard();
+       } else {
+         graphicSelectorListener.clearSelection();
+         _wbCanvas.setDrawingCanvasToSlide();
+       }
     }
 
     public function setTool(s:String):void {
@@ -154,6 +191,10 @@ package org.bigbluebutton.modules.whiteboard
     /** Helper method to test whether this user is the presenter */
     private function get isPresenter():Boolean {
       return UserManager.getInstance().getConference().amIPresenter;
+    }
+
+    public function deleteSelectedShape():void {
+      graphicSelectorListener.deleteSelectedShape(wbTool);
     }
   }
 }

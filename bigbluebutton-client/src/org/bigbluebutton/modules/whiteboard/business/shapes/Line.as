@@ -23,18 +23,25 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 	
-	public class Line extends DrawObject
+	public class Line extends AsymetricDrawObject
 	{
 		public function Line(id:String, type:String, status:String)
 		{
 			super(id, type, status);
 		}
 				
-		override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
+		override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoomPercentage:Number):void {
 //			LogUtil.debug("Drawing LINE");
 			var ao:Object = a.annotation;
 			
-			this.graphics.lineStyle(ao.thickness, ao.color);
+			setDenormalizedPoints(ao.points as Array, parentWidth, parentHeight);
+			_rawThickness = ao.thickness as uint;
+			_drawColor = ao.color as uint;
+			_fillOn = ao.fill as Boolean;
+			_fillColor = ao.fillColor as uint;
+			_transparencyOn = ao.transparency as Boolean;
+			
+			this.graphics.lineStyle(this.getThickness(zoomPercentage), ao.color);
 			var arrayEnd:Number = (ao.points as Array).length;
 			var startX:Number = denormalize((ao.points as Array)[0], parentWidth);
 			var startY:Number = denormalize((ao.points as Array)[1], parentHeight);
@@ -46,9 +53,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.graphics.lineTo(endX-startX, endY-startY);			
 		}
 		
-		override public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
-			draw(a, parentWidth, parentHeight);
+		override public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number, zoomPercentage:Number):void {
+			this.graphics.clear();
+			draw(a, parentWidth, parentHeight, zoomPercentage);
 		}
 		
+		override public function getOriginatedToolType():String {
+			return DrawObject.LINE;
+		}
 	}
 }

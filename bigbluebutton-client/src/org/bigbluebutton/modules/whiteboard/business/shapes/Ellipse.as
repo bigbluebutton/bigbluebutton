@@ -18,9 +18,6 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-	import flash.display.Sprite;
-	
-	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 
 	/**
@@ -35,14 +32,20 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             super(id, type, status);
         }
         
-        override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
+        override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoomPercentage:Number):void {
 //            LogUtil.debug("Drawing ELLIPSE");
             var ao:Object = a.annotation;
             
-            
+            setDenormalizedPoints(ao.points as Array, parentWidth, parentHeight);
+            _rawThickness = ao.thickness as uint;
+            _drawColor = ao.color as uint;
+            _fillOn = ao.fill as Boolean;
+            _fillColor = ao.fillColor as uint;
+            _transparencyOn = ao.transparency as Boolean;
+
             if(!ao.fill)
-                this.graphics.lineStyle(ao.thickness, ao.color, ao.transparency ? 0.6 : 1.0);
-            else this.graphics.lineStyle(ao.thickness, ao.color);
+                this.graphics.lineStyle(this.getThickness(zoomPercentage), ao.color, ao.transparency ? 0.6 : 1.0);
+            else this.graphics.lineStyle(this.getThickness(zoomPercentage), ao.color);
             
             var arrayEnd:Number = (ao.points as Array).length;
             var startX:Number = denormalize((ao.points as Array)[0], parentWidth);
@@ -59,8 +62,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             
         }
         
-        override public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
-            draw(a, parentWidth, parentHeight);
+        override public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number, zoomPercentage:Number):void {
+            this.graphics.clear();
+            draw(a, parentWidth, parentHeight, zoomPercentage);
+        }
+
+        override public function getOriginatedToolType():String {
+            return DrawObject.ELLIPSE;
         }
 	}
 }

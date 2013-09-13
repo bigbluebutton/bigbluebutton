@@ -302,6 +302,9 @@ package org.bigbluebutton.common
 		public var toggle_text_background_icon:Class;	
 		
 		[Embed(source="assets/images/grid_icon.png")]
-		public var grid_icon:Class;	
+		public var grid_icon:Class;
+
+		[Embed(source="assets/images/delete_selected.png")]
+		public var delete_selected_icon:Class;	
 	}
 }
