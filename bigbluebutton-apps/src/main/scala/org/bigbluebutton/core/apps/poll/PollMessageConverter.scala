@@ -71,7 +71,7 @@ class PollMessageConverter {
 				j += 1
 			}		
 
-			val questionType = if (qType.equalsIgnoreCase(QuestionType.MULTI_CHOICE.toString())) true else false
+			val questionType = if (! qType.equalsIgnoreCase(QuestionType.MULTI_CHOICE.toString())) true else false
 
 			cvoArray += new QuestionVO(i.toString, questionType, questionText, rvoArray.toArray)
 
