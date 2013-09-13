@@ -6,6 +6,7 @@
           borderThicknessRight="0" borderThicknessTop="0" creationComplete="onCreationComplete()" >
   
   <mate:Listener type="{PollEvent.POLL_CREATED}" method="onPollCreateEvent" />
+  <mate:Listener type="{PollEvent.POLL_DESTROYED}" method="onPollDestroyedEvent" />
   
   <mx:Script>
       <![CDATA[
@@ -27,6 +28,10 @@
         }
      
         private function onPollCreateEvent(event:PollEvent):void {
+          _polls = viewModel.polls;
+        }
+
+        private function onPollDestroyedEvent(event:PollEvent):void {
           _polls = viewModel.polls;
         }
         
