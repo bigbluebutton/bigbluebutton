@@ -36,21 +36,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShortcutEvent.FOCUS_SHORTCUT_BUTTON}" method="focusShortcutButton" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_LOGOUT_BUTTON}" method="focusLogoutButton" />
 	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="retrieveMeetingName" />
-	<mate:Listener type="SET_BBB_SETTINGS_BUTTON_VISIBLE" method="showBBBSettings"/>
 	<mate:Listener type="{ConnectionFailedEvent.GUEST_KICKED_OUT}" method="hideToolbar" />
+	<mate:Listener type="{SettingsComponentEvent.ADD}" method="addSettingsComponent" />	
+	<mate:Listener type="{SettingsComponentEvent.REMOVE}" method="removeSettingsComponent"/>
 	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import mx.core.UIComponent;
+			import mx.managers.PopUpManager;
 			
 			import org.bigbluebutton.common.IBbbToolbarComponent;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.events.SettingsComponentEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.core.services.BandwidthMonitor;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ConfigEvent;
@@ -76,6 +80,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable]
 			private var showToolbar:Boolean = false;
 			[Bindable]
+			private var showConfigurationsButton:Boolean = false;
+			[Bindable]
 			public var toolbarOptions:LayoutOptions = new LayoutOptions();
 			
 			[Bindable]
@@ -91,7 +97,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 */
 			
 			private var xml:XML;
-			
+			private var settingsComponents:Array = new Array();
+			private var settingsPopup:BBBSettings = null;
+
 			private function init():void{
 				AlertAccImpl.enableAccessibility();
 				
@@ -102,6 +110,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 var timer:Timer = new Timer(3000, 1);
                 timer.addEventListener(TimerEvent.TIMER, checkAccessiblity);
                 timer.start();
+
+
 
 			}
             private function checkAccessiblity(e:TimerEvent):void {
@@ -152,6 +162,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                         meetingNameLbl.text = meetingTitle;
                     } 
                 }
+
+                // need to put it here because on init() the conference object 
+                // still doesn't have the updated information
+                showConfigurationsButton = UserManager.getInstance().getConference().amIModerator();
             }
             
 			public function addButton(name:String):Button{
@@ -312,8 +326,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				btnLogout.setFocus();
 			}
 
-			private function showBBBSettings(e:Event = null):void {
-				bbbSettings.visible = true;
+			private function addSettingsComponent(e:SettingsComponentEvent = null):void {
+				settingsComponents.push(e.component);
+			}
+
+			private function removeSettingsComponent(e:SettingsComponentEvent = null):void {
+				throw("Not implemented");
+			}
+
+			private function onSettingsButtonClick():void {
+				settingsPopup = BBBSettings(PopUpManager.createPopUp(this.parent, BBBSettings, true));
+				settingsPopup.pushComponents(settingsComponents);
 			}
 
 		]]>
@@ -339,7 +362,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Spacer width="50%"/>
     <mx:Label id="meetingNameLbl" styleName="meetingNameLabelStyle" />
     <mx:Spacer width="50%"/>
-	<views:BBBSettingsButton id="bbbSettings" visible="false"/>
+	<mx:Button
+			id="bbbSettings"
+			visible="{showConfigurationsButton}"
+			includeInLayout="{showConfigurationsButton}"
+			toolTip="{ResourceUtil.getInstance().getString('bbb.settings.btn.toolTip')}"
+			click="onSettingsButtonClick()"
+			styleName="settingsButtonStyle"
+			height="22"
+	/>
 	<views:LanguageSelector id="langSelector" 
 							visible="false" 
 							tabIndex="{baseIndex+numButtons+11}"

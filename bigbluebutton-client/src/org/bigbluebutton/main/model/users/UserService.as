@@ -145,10 +145,6 @@ package org.bigbluebutton.main.model.users
 				loadCommand.conferenceParameters = _conferenceParameters;
 				dispatcher.dispatchEvent(loadCommand);		
 			}
-
-			if(UserManager.getInstance().getConference().amIModerator()) {
-				dispatcher.dispatchEvent(new BBBEvent("SET_BBB_SETTINGS_BUTTON_VISIBLE"));
-			}
 		}
 		
 		public function askToAccept():void {

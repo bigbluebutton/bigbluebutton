@@ -45,7 +45,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{WaitModeratorEvent.USER_LOGGED_IN}" method="openWaitWindow" />
 	<mate:Listener type="{RemoveGuestRequestEvent.GUEST_EVENT}" method="removeGuestWindow" />
 	<mate:Listener type="SHOW_MIC_SETTINGS" method="showMicSettings"  />
-	<mate:Listener type="SHOW_BBB_SETTINGS" method="showBBBSettings"  />
 	<mate:Listener type="{ModeratorRespEvent.GUEST_ALLOWED}" method="guestAllowed" />
 	<mate:Listener type="{BBBEvent.RETRIEVE_GUEST_POLICY}" method="setGuestPolicy"/>
 	<mate:Listener type="{RefreshGuestEvent.REFRESH_GUEST_VIEW}" method="refreshGuestView" />
@@ -110,7 +109,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var logWindow:LogWindow;
 			private var waitWindow:WaitingWindow = null;	
 			private var guestWindow:GuestWindow = null;
-			private var bbbSettings:BBBSettings = null;
 			private var scWindow:ShortcutHelpWindow;
 			private var logoutWindow:LoggedOutWindow;
 			private var connectionLostWindow:ConnectionLostWindow;
@@ -165,7 +163,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           footerHeight = 0;
         }
 
-		bbbSettings = BBBSettings(PopUpManager.createPopUp(mdiCanvas, BBBSettings, true));	
 			
         
       }
@@ -363,16 +360,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				point1.y = height/2;                
 				micSettings.x = point1.x - (micSettings.width/2);
 				micSettings.y = point1.y - (micSettings.height/2);	
-			}
-			
-			private function showBBBSettings(event:BBBEvent):void {
-				bbbSettings.visible = true;
-				var point1:Point = new Point();
-				// Calculate position of TitleWindow in Application's coordinates. 
-				point1.x = width/2;
-				point1.y = height/2;                
-				bbbSettings.x = point1.x - (bbbSettings.width/2);
-				bbbSettings.y = point1.y - (bbbSettings.height/2);
 			}
 
       private function openVideoPreviewWindow(event:BBBEvent):void {

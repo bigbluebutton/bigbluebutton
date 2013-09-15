@@ -309,9 +309,5 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/grid_icon.png")]
 		public var grid_icon:Class;	
-
-		[Embed(source="assets/images/wrench.png")]
-		public var wrench:Class;
-		
 	}
 }
