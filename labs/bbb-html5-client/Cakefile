@@ -1,9 +1,34 @@
 fs            = require 'fs'
 {print}       = require 'util'
 {spawn, exec} = require 'child_process'
+glob          = require 'glob'
+
+
+# Configurations
 
 config = {}
 config.binPath = './node_modules/.bin/'
+
+
+# Cake tasks
+
+# `cake build`
+# Builds all assets that are needed to run the application in production.
+task 'build', 'Builds what is needed for production', ->
+  buildApp()
+
+# `cake docs`
+# Builds the documentation files.
+task 'docs', 'Generate annotated source code with docco', ->
+  serverFilesForDocs (files) ->
+    options = ['-o', 'docs/server'].concat(files)
+    run 'docco', options
+  clientFilesForDocs (files) ->
+    options = ['-o', 'docs/client'].concat(files)
+    run 'docco', options
+
+
+# Internal methods
 
 # Spawns an application with `options` and calls `onExit`
 # when it finishes.
@@ -22,10 +47,27 @@ timeNow = ->
   today = new Date()
   today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()
 
-
-buildAssets = ->
+# Runs the command to build the application for use in production.
+buildApp = ->
   options = ['-o', 'public/js/build.js']
   run 'r.js', options
 
-task 'build', 'Builds what is needed for production', ->
-  buildAssets()
+# Returns an array with all files from the server that should be used when generating
+# the documentation
+serverFilesForDocs = (callback) ->
+  r = []
+  glob '*.coffee', (error, files) ->
+    r = r.concat(files)
+    glob '*.js', (error, files) ->
+      r = r.concat(files)
+      glob 'routes/**/*.coffee', (error, files) ->
+        r = r.concat(files)
+        glob 'lib/**/*.coffee', (error, files) ->
+          r = r.concat(files)
+          callback(r)
+
+# Returns an array with all files from the client that should be used when generating
+# the documentation
+clientFilesForDocs = (callback) ->
+  glob 'public/**/*.coffee', (error, files) ->
+    callback(files)
