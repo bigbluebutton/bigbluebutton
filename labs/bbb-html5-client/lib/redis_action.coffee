@@ -3,10 +3,15 @@ rack = require("hat").rack()
 config = require("../config")
 RedisKeys = require("./redis_keys")
 
+moduleDeps = ["RedisStore"]
+
 # TODO: some callbacks are not always called
 # TODO: use standard success/error responses (e.g. sometimes failure returns `null`, sometimes `false`)
 module.exports = class RedisAction
-  constructor: () ->
+
+  constructor: ->
+    config.modules.wait moduleDeps, =>
+      @redisStore = config.modules.get("RedisStore")
 
   # Set the public and session ID to match one another for lookup later
   # @param {string}   meetingID the ID of the meeting
@@ -14,9 +19,9 @@ module.exports = class RedisAction
   # @param {string}   publicID  the unique public ID of the user
   # @param {Function} callback  callback function
   setIDs: (meetingID, sessionID, publicID, callback) ->
-    config.store.set RedisKeys.getSessionIDString(meetingID, sessionID), publicID, (err, reply) =>
+    @redisStore.set RedisKeys.getSessionIDString(meetingID, sessionID), publicID, (err, reply) =>
       registerError("setIDs", err)
-      config.store.set RedisKeys.getPublicIDString(meetingID, publicID), sessionID, (err, reply) ->
+      @redisStore.set RedisKeys.getPublicIDString(meetingID, publicID), sessionID, (err, reply) ->
         registerError("setIDs", err)
         callback?()
 
@@ -39,7 +44,7 @@ module.exports = class RedisAction
   # @param {string}   publicID  the unique public ID of the user
   # @param {Function} callback(success)  callback function
   setCurrentTool: (meetingID, tool, callback) ->
-    config.store.set RedisKeys.getCurrentToolString(meetingID), tool, (err, reply) ->
+    @redisStore.set RedisKeys.getCurrentToolString(meetingID), tool, (err, reply) ->
       if reply
         callback?(true)
       else
@@ -53,7 +58,7 @@ module.exports = class RedisAction
   # @param {Function} callback(publicID)  callback function
   # TODO: returns publicID or false, doesn't make much sense, review
   setPresenter: (meetingID, sessionID, publicID, callback) ->
-    config.store.hmset RedisKeys.getPresenterString(meetingID), "sessionID", sessionID, "publicID", publicID, (err, reply) ->
+    @redisStore.hmset RedisKeys.getPresenterString(meetingID), "sessionID", sessionID, "publicID", publicID, (err, reply) ->
       if reply
         callback?(publicID)
       else
@@ -64,7 +69,7 @@ module.exports = class RedisAction
   # @param  {string}   meetingID the ID of the meeting
   # @param  {Function} callback(presenterID)  callback function
   getPresenterSessionID: (meetingID, callback) ->
-    config.store.hget RedisKeys.getPresenterString(meetingID), "sessionID", (err, reply) ->
+    @redisStore.hget RedisKeys.getPresenterString(meetingID), "sessionID", (err, reply) ->
       if reply
         callback?(reply)
       else
@@ -75,7 +80,7 @@ module.exports = class RedisAction
   # @param  {string}   meetingID the ID of the meeting
   # @param  {Function} callback(publicID)  callback function
   getPresenterPublicID: (meetingID, callback) ->
-    config.store.hget RedisKeys.getPresenterString(meetingID), "publicID", (err, reply) ->
+    @redisStore.hget RedisKeys.getPresenterString(meetingID), "publicID", (err, reply) ->
       if reply
         callback?(reply)
       else
@@ -86,7 +91,7 @@ module.exports = class RedisAction
   # @param  {string}   meetingID the ID of the meeting
   # @param  {Function} callback(tool)  callback function
   getCurrentTool: (meetingID, callback) ->
-    config.store.get RedisKeys.getCurrentToolString(meetingID), (err, reply) ->
+    @redisStore.get RedisKeys.getCurrentToolString(meetingID), (err, reply) ->
       if reply
         callback?(reply)
       else
@@ -102,7 +107,7 @@ module.exports = class RedisAction
   deleteItemList: (meetingID, presentationID, pageID, itemName, callback) ->
 
     # delete the list which contains the item ids
-    config.store.del @_getItemsStringFunction(itemName)(meetingID, presentationID, pageID), (err, reply) ->
+    @redisStore.del @_getItemsStringFunction(itemName)(meetingID, presentationID, pageID), (err, reply) ->
       registerSuccess("deleteItemList", "deleted the list of items: #{itemName}") if reply
       registerError("deleteItemList", err, "could not delete list of items: #{itemName}") if err?
 
@@ -117,7 +122,7 @@ module.exports = class RedisAction
     # TODO: review if the reverse loop is ok
     for i in [itemIDs.length-1..0] by -1
       item = itemIDs[i]
-      config.store.del getString(meetingID, presentationID, pageID, item), (err, reply) ->
+      @redisStore.del getString(meetingID, presentationID, pageID, item), (err, reply) ->
         registerSuccess("deleteItems", "delete item: #{itemName}") if reply
         registerError("deleteItems", err, "could not delete item: #{itemName}") if err?
 
@@ -125,7 +130,7 @@ module.exports = class RedisAction
   # @param  {string}   meetingID the ID of the meeting
   # @param  {Function} callback  callback function
   deleteMeeting: (meetingID, callback) ->
-    config.store.srem RedisKeys.getMeetingsString(), meetingID, (err, reply) ->
+    @redisStore.srem RedisKeys.getMeetingsString(), meetingID, (err, reply) ->
       if reply
         registerSuccess("deleteMeeting", "deleted meeting #{meetingID} from list of meetings")
         callback?(true)
@@ -140,13 +145,13 @@ module.exports = class RedisAction
   # TODO: shouldn't all methods be nested? some callbacks are being used simply for console.log
   # TODO: use for's, not while's
   processMeeting: (meetingID) ->
-    config.store.del RedisKeys.getPresenterString(meetingID), (err, reply) ->
+    @redisStore.del RedisKeys.getPresenterString(meetingID), (err, reply) ->
       console.log "deleted presenter"
 
-    config.store.del RedisKeys.getCurrentViewBoxString(meetingID), (err, reply) ->
+    @redisStore.del RedisKeys.getCurrentViewBoxString(meetingID), (err, reply) ->
       console.log "deleted viewbox"
 
-    config.store.del RedisKeys.getCurrentToolString(meetingID), (err, reply) ->
+    @redisStore.del RedisKeys.getCurrentToolString(meetingID), (err, reply) ->
       console.log "deleted current tool"
 
     @deleteMeeting(meetingID) # TODO: it has a callback
@@ -190,7 +195,7 @@ module.exports = class RedisAction
   # @param  {Function} callback       the callback function to be called when finished
   getItemIDs: (meetingID, presentationID, pageID, itemName, callback) ->
     method = @_getItemsStringFunction(itemName)
-    config.store.lrange method(meetingID, presentationID, pageID), 0, -1, (err, itemIDs) ->
+    @redisStore.lrange method(meetingID, presentationID, pageID), 0, -1, (err, itemIDs) ->
       callback?(meetingID, presentationID, pageID, itemIDs, itemName)
 
   # Get a list of the current users of the meeting
@@ -198,7 +203,7 @@ module.exports = class RedisAction
   # @param  {Function} callback  callback function
   # TODO: not being used
   getCurrentUsers: (meetingID, callback) ->
-    config.store.smembers RedisKeys.getCurrentUsersString(meetingID), (err, reply) ->
+    @redisStore.smembers RedisKeys.getCurrentUsersString(meetingID), (err, reply) ->
       if reply
         registerSuccess("getCurrentUsers")
         callback?(reply)
@@ -214,8 +219,8 @@ module.exports = class RedisAction
   # @param {string|number}   height  the value of the height of the image (in pixels)
   # TODO: treat possible errors
   setImageSize: (meetingID, presentationID, pageID, width, height, callback) ->
-    config.store.set RedisKeys.getPageWidthString(meetingID, presentationID, pageID), width, (err, reply) =>
-      config.store.set RedisKeys.getPageHeightString(meetingID, presentationID, pageID), height, (err, reply) =>
+    @redisStore.set RedisKeys.getPageWidthString(meetingID, presentationID, pageID), width, (err, reply) =>
+      @redisStore.set RedisKeys.getPageHeightString(meetingID, presentationID, pageID), height, (err, reply) =>
         callback?(true)
 
   # Get a image size from the image on the page
@@ -225,8 +230,8 @@ module.exports = class RedisAction
   # @param  {Function} callback       the callback function to be called when finished
   # TODO: treat possible errors
   getImageSize: (meetingID, presentationID, pageID, callback) ->
-    config.store.get RedisKeys.getPageWidthString(meetingID, presentationID, pageID), (err, width) =>
-      config.store.get RedisKeys.getPageHeightString(meetingID, presentationID, pageID), (err, height) =>
+    @redisStore.get RedisKeys.getPageWidthString(meetingID, presentationID, pageID), (err, width) =>
+      @redisStore.get RedisKeys.getPageHeightString(meetingID, presentationID, pageID), (err, height) =>
         callback?(width, height)
 
   # Get presentation IDs for a meeting
@@ -234,7 +239,7 @@ module.exports = class RedisAction
   # @param  {Function} callback  callback function
   # TODO: treat possible errors
   getPresentationIDs: (meetingID, callback) ->
-    config.store.smembers RedisKeys.getPresentationsString(meetingID), (err, presIDs) ->
+    @redisStore.smembers RedisKeys.getPresentationsString(meetingID), (err, presIDs) ->
       callback?(presIDs)
 
   # Get the page IDs for a presentation
@@ -243,7 +248,7 @@ module.exports = class RedisAction
   # @param  {Function} callback       the callback function to be called when finished
   # TODO: treat possible errors
   getPageIDs: (meetingID, presentationID, callback) ->
-    config.store.lrange RedisKeys.getPagesString(meetingID, presentationID), 0, -1, (err, pageIDs) ->
+    @redisStore.lrange RedisKeys.getPagesString(meetingID, presentationID), 0, -1, (err, pageIDs) ->
       callback?(presentationID, pageIDs)
 
   # Checks the redis datastore whether the session is valid
@@ -252,7 +257,7 @@ module.exports = class RedisAction
   # @param  {Function} callback  callback function returns true if valid session
   # TODO: treat possible errors
   isValidSession: (meetingID, sessionID, callback) ->
-    config.store.sismember RedisKeys.getUsersString(meetingID), sessionID, (err, isValid) ->
+    @redisStore.sismember RedisKeys.getUsersString(meetingID), sessionID, (err, isValid) ->
       callback?(isValid)
 
   # Checks whether the meeting is running or not (true => running)
@@ -260,7 +265,7 @@ module.exports = class RedisAction
   # @param  {Function} callback  callback function returns true if meeting is running
   # TODO: treat possible errors
   isMeetingRunning: (meetingID, callback) ->
-    config.store.sismember RedisKeys.getMeetingsString(), meetingID, (err, reply) ->
+    @redisStore.sismember RedisKeys.getMeetingsString(), meetingID, (err, reply) ->
       if reply is 1
         callback?(true)
       else
@@ -275,7 +280,7 @@ module.exports = class RedisAction
   deletePages: (meetingID, presentationID, callback) ->
 
     # delete each page image
-    @getPageIDs meetingID, presentationID, (presentationID, pageIDs) ->
+    @getPageIDs meetingID, presentationID, (presentationID, pageIDs) =>
       i = pageIDs.length - 1
 
       while i >= 0
@@ -283,12 +288,12 @@ module.exports = class RedisAction
         i--
 
       # delete list of pages
-      config.store.del RedisKeys.getPagesString(meetingID, presentationID), (err, reply) ->
+      @redisStore.del RedisKeys.getPagesString(meetingID, presentationID), (err, reply) =>
         registerError("deletePages", err, "couldn't delete all pages") if err?
         registerSuccess("deletePages", "deleted all pages") if reply
 
         # delete currentpage
-        config.store.del RedisKeys.getCurrentPageString(meetingID, presentationID), (err, reply) ->
+        @redisStore.del RedisKeys.getCurrentPageString(meetingID, presentationID), (err, reply) ->
           registerError("deletePages", err, "couldn't delete current pages") if err?
           registerSuccess("deletePages", "deleted the current pages") if reply
           callback?()
@@ -299,7 +304,7 @@ module.exports = class RedisAction
   # @param  {string}   pageID         the unique ID of the page in the presentation
   # @param  {Function} callback       the callback function to be called when finished
   deletePageImage: (meetingID, presentationID, pageID, callback) ->
-    config.store.del RedisKeys.getPageImageString(meetingID, presentationID, pageID), (err, reply) ->
+    @redisStore.del RedisKeys.getPageImageString(meetingID, presentationID, pageID), (err, reply) ->
       registerError("deletePageImage", err, "couldn't delete page image") if err?
       registerSuccess("deletePageImage", "deleted page image") if reply
       callback?()
@@ -308,10 +313,10 @@ module.exports = class RedisAction
   # @param  {string}   meetingID the ID of the meeting
   # @param  {Function} callback  callback function
   deletePresentations: (meetingID, callback) ->
-    config.store.del RedisKeys.getPresentationsString(meetingID), (err, reply) =>
+    @redisStore.del RedisKeys.getPresentationsString(meetingID), (err, reply) =>
       registerSuccess("deletePresentations", "deleted all presentations") if reply
       registerError("deletePresentations", err, "couldn't delete all presentations") if err?
-      config.store.del RedisKeys.getCurrentPresentationString(meetingID), (err, reply) ->
+      @redisStore.del RedisKeys.getCurrentPresentationString(meetingID), (err, reply) ->
         registerSuccess("deletePresentations", "deleted current presentation") if reply
         registerError("deletePresentations", err, "couldn't delete current presentations") if err?
         callback?()
@@ -322,8 +327,8 @@ module.exports = class RedisAction
   # @param  {Function} callback  callback function
   # TODO: treat possible errors
   deleteUser: (meetingID, sessionID, callback) ->
-    config.store.srem RedisKeys.getUsersString(meetingID), sessionID, (err, num_deleted) =>
-      config.store.del RedisKeys.getUserString(meetingID, sessionID), (err, reply) =>
+    @redisStore.srem RedisKeys.getUsersString(meetingID), sessionID, (err, num_deleted) =>
+      @redisStore.del RedisKeys.getUserString(meetingID, sessionID), (err, reply) =>
         callback?(true)
 
   # Remove the current user from the list of current user
@@ -333,7 +338,7 @@ module.exports = class RedisAction
   # TODO: treat possible errors
   # TODO: not being used
   deleteCurrentUser: (meetingID, sessionID, callback) ->
-    config.store.srem RedisKeys.getCurrentUsersString(meetingID), sessionID, (err, num_deleted) ->
+    @redisStore.srem RedisKeys.getCurrentUsersString(meetingID), sessionID, (err, num_deleted) ->
       callback?(true)
 
   # Gets all the properties associated with a specific user (sessionID)
@@ -342,7 +347,7 @@ module.exports = class RedisAction
   # @param  {Function} callback  callback function
   # TODO: treat possible errors
   getUserProperties: (meetingID, sessionID, callback) ->
-    config.store.hgetall RedisKeys.getUserString(meetingID, sessionID), (err, properties) ->
+    @redisStore.hgetall RedisKeys.getUserString(meetingID, sessionID), (err, properties) ->
       callback?(properties)
 
   # Gets a single property from a specific user
@@ -353,7 +358,7 @@ module.exports = class RedisAction
   # TODO: treat possible errors
   # TODO: not being used
   getUserProperty: (meetingID, sessionID, property, callback) ->
-    config.store.hget RedisKeys.getUserString(meetingID, sessionID), property, (err, prop) ->
+    @redisStore.hget RedisKeys.getUserString(meetingID, sessionID), property, (err, prop) ->
       if prop?
         registerSuccess("getUserProperty")
         callback?(prop)
@@ -372,12 +377,12 @@ module.exports = class RedisAction
     users = []
     usercount = 0
     usersdone = 0
-    config.store.smembers RedisKeys.getUsersString(meetingID), (err, userids) =>
+    @redisStore.smembers RedisKeys.getUsersString(meetingID), (err, userids) =>
       usercount = userids.length
       i = usercount - 1
 
       while i >= 0
-        config.store.hgetall RedisKeys.getUserString(meetingID, userids[i]), (err, props) =>
+        @redisStore.hgetall RedisKeys.getUserString(meetingID, userids[i]), (err, props) =>
           users.push props
           usersdone++
           if usercount is usersdone
@@ -391,7 +396,7 @@ module.exports = class RedisAction
   # @param  {string}   pageID         the unique ID of the page in the presentation
   # aram  {Function} callback       the callback function to be called when finished
   getPageImage: (meetingID, presentationID, pageID, callback) ->
-    config.store.get RedisKeys.getPageImageString(meetingID, presentationID, pageID), (err, filename) ->
+    @redisStore.get RedisKeys.getPageImageString(meetingID, presentationID, pageID), (err, filename) ->
       if filename
         registerSuccess("getPageImage")
         callback?(pageID, filename)
@@ -416,13 +421,13 @@ module.exports = class RedisAction
     itemGetFunction = undefined
     itemGetFunction = @_getItemStringFunction(item)
     itemsGetFunction = @_getItemsStringFunction(item)
-    config.store.lrange itemsGetFunction(meetingID, presentationID, pageID), 0, -1, (err, itemIDs) ->
+    @redisStore.lrange itemsGetFunction(meetingID, presentationID, pageID), 0, -1, (err, itemIDs) =>
       itemCount = itemIDs.length
       callback?([]) if itemCount is 0
       i = itemCount - 1
 
       while i >= 0
-        config.store.hgetall itemGetFunction(meetingID, presentationID, pageID, itemIDs[i]), (err, itemHash) ->
+        @redisStore.hgetall itemGetFunction(meetingID, presentationID, pageID, itemIDs[i]), (err, itemHash) ->
           items.push itemHash
           itemsDone++
           if itemCount is itemsDone
@@ -434,7 +439,7 @@ module.exports = class RedisAction
   # @param  {string}   meetingID the ID of the meeting
   # @param  {Function} callback  callback function
   getCurrentPresentationID: (meetingID, callback) ->
-    config.store.get RedisKeys.getCurrentPresentationString(meetingID), (err, currPresID) ->
+    @redisStore.get RedisKeys.getCurrentPresentationString(meetingID), (err, currPresID) ->
       if currPresID
         registerSuccess("getCurrentPresentationID")
         callback?(currPresID)
@@ -448,9 +453,9 @@ module.exports = class RedisAction
   # @param  {Function} callback       the callback function to be called when finished
   changeToNextPage: (meetingID, presentationID, callback) ->
     pages = RedisKeys.getPagesString(meetingID, presentationID)
-    config.store.lpop pages, (err, reply) ->
-      config.store.rpush pages, reply, (err, reply) ->
-        config.store.lindex pages, 0, (err, currPage) ->
+    @redisStore.lpop pages, (err, reply) =>
+      @redisStore.rpush pages, reply, (err, reply) =>
+        @redisStore.lindex pages, 0, (err, currPage) ->
           if currPage
             registerSuccess("changeToNextPage")
             callback?(currPage)
@@ -467,7 +472,7 @@ module.exports = class RedisAction
 
     # removes the last element and then returns it, only after appending it back
     # to the beginning of the same list
-    config.store.rpoplpush pages, pages, (err, currPage) ->
+    @redisStore.rpoplpush pages, pages, (err, currPage) ->
       if currPage
         registerSuccess("changeToPrevPage")
         callback?(currPage)
@@ -482,7 +487,7 @@ module.exports = class RedisAction
   getCurrentPageID: (meetingID, presentationID, callback) ->
 
     # the first element in the pages is always the current page
-    config.store.lindex RedisKeys.getPagesString(meetingID, presentationID), 0, (err, currPgID) ->
+    @redisStore.lindex RedisKeys.getPagesString(meetingID, presentationID), 0, (err, currPgID) ->
       if currPgID
         registerSuccess("getCurrentPageID")
         callback?(currPgID)
@@ -496,7 +501,7 @@ module.exports = class RedisAction
   # @param  {Function} callback   the callback function to be called when finished
   createPresentation: (meetingID, setCurrent, callback) ->
     presentationID = rack() # create a new unique presentationID
-    config.store.sadd RedisKeys.getPresentationsString(meetingID), presentationID, (err, reply) =>
+    @redisStore.sadd RedisKeys.getPresentationsString(meetingID), presentationID, (err, reply) =>
       if reply
         registerSuccess("createPresentation", "added presentationID #{presentationID} to set of presentations.")
         if setCurrent
@@ -514,7 +519,7 @@ module.exports = class RedisAction
   # @param {string}   pageID         the unique ID of the page in the presentation
   # TODO: not being used
   setCurrentPage: (meetingID, presentationID, pageID, callback) ->
-    config.store.set RedisKeys.getCurrentPageString(meetingID, presentationID), pageID, (err, reply) ->
+    @redisStore.set RedisKeys.getCurrentPageString(meetingID, presentationID), pageID, (err, reply) ->
       registerSuccess("setCurrentPage", "set current pageID to #{pageID}") if reply
       registerError("setCurrentPage", err, "couldn't set current pageID to #{pageID}") if err?
       callback?()
@@ -537,15 +542,15 @@ module.exports = class RedisAction
         callback?(null)
 
     if setCurrent
-      config.store.lpush RedisKeys.getPagesString(meetingID, presentationID), pageID, afterPush
+      @redisStore.lpush RedisKeys.getPagesString(meetingID, presentationID), pageID, afterPush
     else
-      config.store.rpush RedisKeys.getPagesString(meetingID, presentationID), pageID, afterPush
+      @redisStore.rpush RedisKeys.getPagesString(meetingID, presentationID), pageID, afterPush
 
   # Set the current presentation
   # @param {string}   meetingID      the ID of the meeting
   # @param {string}   presentationID the unique ID of the presentation in the meeting
   setCurrentPresentation: (meetingID, presentationID, callback) ->
-    config.store.set RedisKeys.getCurrentPresentationString(meetingID), presentationID, (err, reply) ->
+    @redisStore.set RedisKeys.getCurrentPresentationString(meetingID), presentationID, (err, reply) ->
       registerSuccess("setCurrentPresentation", "set current presentationID to #{presentationID}") if reply
       registerError("setCurrentPresentation", err, "couldn't set current presentationID to #{presentationID}") if err?
       callback?()
@@ -554,7 +559,7 @@ module.exports = class RedisAction
   # @param {string}   meetingID the ID of the meeting
   # @param {string}   viewbox   the string representing the viewbox value
   setViewBox: (meetingID, viewbox, callback) ->
-    config.store.set RedisKeys.getCurrentViewBoxString(meetingID), viewbox, (err, reply) ->
+    @redisStore.set RedisKeys.getCurrentViewBoxString(meetingID), viewbox, (err, reply) ->
       if reply
         registerSuccess("setViewBox")
         callback?(true)
@@ -566,7 +571,7 @@ module.exports = class RedisAction
   # @param  {string}   meetingID the ID of the meeting
   # @param  {Function} callback  callback function
   getViewBox: (meetingID, callback) ->
-    config.store.get RedisKeys.getCurrentViewBoxString(meetingID), (err, reply) ->
+    @redisStore.get RedisKeys.getCurrentViewBoxString(meetingID), (err, reply) ->
       if reply
         registerSuccess("getViewBox")
         callback?(reply)
@@ -579,7 +584,7 @@ module.exports = class RedisAction
   # @param  {Function} callback  callback function
   createMeeting: (meetingID, callback) ->
     # TODO: no callback on sadd?
-    config.store.sadd RedisKeys.getMeetingsString(), meetingID # create the meeting if not already created.
+    @redisStore.sadd RedisKeys.getMeetingsString(), meetingID # create the meeting if not already created.
     callback?()
 
   # Create a reference to a user
@@ -588,7 +593,7 @@ module.exports = class RedisAction
   # @param  {Function} callback  callback function
   createUser: (meetingID, userID, callback) ->
     # TODO: no callback on sadd?
-    config.store.sadd RedisKeys.getUsersString(meetingID), userID # meeting-123-users.push(sessionID)
+    @redisStore.sadd RedisKeys.getUsersString(meetingID), userID # meeting-123-users.push(sessionID)
     callback?()
 
   # Update user properties
@@ -607,15 +612,15 @@ module.exports = class RedisAction
         callback?(false)
 
     # TODO: no callback on the call below?
-    config.store.hmset.apply config.store, properties
+    @redisStore.hmset.apply @redisStore, properties
 
   getMeetings: (callback) ->
-    config.store.smembers "meetings", (err, meetingids) ->
+    @redisStore.smembers "meetings", (err, meetingids) =>
       if meetingids
         registerSuccess("getMeetings")
         index = 0
         resp = []
-        f = (err, properties) ->
+        f = (err, properties) =>
           if index is meetingids.length
             callback?(resp)
           else
@@ -625,9 +630,9 @@ module.exports = class RedisAction
             r.meetingName = properties["name"]
             resp.push r
             index += 1
-            config.store.hgetall "meeting-" + meetingids[index], f
+            @redisStore.hgetall "meeting-" + meetingids[index], f
 
-        config.store.hgetall "meeting-" + meetingids[index], f
+        @redisStore.hgetall "meeting-" + meetingids[index], f
       else
         registerError("getMeetings", err) if err?
         callback?([])
@@ -665,7 +670,7 @@ module.exports = class RedisAction
   # @param  {string}   publicID  the unique public ID of the user
   # @param  {Function} callback  callback function
   _getSessionIDFromPublicID: (meetingID, publicID, callback) ->
-    config.store.get RedisKeys.getPublicIDString(meetingID, publicID), (err, sessionID) ->
+    @redisStore.get RedisKeys.getPublicIDString(meetingID, publicID), (err, sessionID) ->
       registerError("_getSessionIDFromPublicID", err)
       callback?(sessionID)
 
@@ -675,7 +680,7 @@ module.exports = class RedisAction
   # @param  {Function} callback  callback function
   # TODO: not being used
   _getPublicIDFromSessionID: (meetingID, sessionID, callback) ->
-    config.store.get RedisKeys.getSessionIDString(meetingID, sessionID), (err, publicID) ->
+    @redisStore.get RedisKeys.getSessionIDString(meetingID, sessionID), (err, publicID) ->
       callback?(publicID)
 
   # Set the image for a particular page ID
@@ -684,7 +689,7 @@ module.exports = class RedisAction
   # @param {string}   pageID         the unique ID of the page in the presentation
   # @param {string}   imageName      the file name of the image
   _setPageImage: (meetingID, presentationID, pageID, imageName, callback) ->
-    config.store.set RedisKeys.getPageImageString(meetingID, presentationID, pageID), imageName, (err, reply) ->
+    @redisStore.set RedisKeys.getPageImageString(meetingID, presentationID, pageID), imageName, (err, reply) ->
       registerSuccess("_setPageImage", "set page #{pageID} image to #{imageName}") if reply
       registerError("_setPageImage", err, "couldn't set page #{pageID} image to #{imageName}") if err?
       callback?()

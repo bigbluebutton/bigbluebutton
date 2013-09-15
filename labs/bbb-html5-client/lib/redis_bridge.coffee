@@ -3,20 +3,23 @@ redis = require("redis")
 config = require("../config")
 RedisKeys = require("../lib/redis_keys")
 
+moduleDeps = ["RedisAction", "WebsocketConnection", "RedisStore", "RedisPublisher"]
+
 # Redis pub/sub actions: listens for events on redis and takes the necessary actions
 module.exports = class RedisBridge
-  constructor: (@io) ->
-    @store = redis.createClient()
-    @pub = redis.createClient()
-    @sub = redis.createClient()
-    @subscriptions = ["*"]
-    @sub.psubscribe.apply(@sub, @subscriptions)
-    @_registerListeners()
 
-    # TODO: review global variables
-    config.store = @store
-    config.redis.pub = @pub
-    config.redis.sub = @sub
+  constructor: (@io) ->
+    config.modules.wait moduleDeps, =>
+      @redisAction = config.modules.get("RedisAction")
+      @redisStore = config.modules.get("RedisStore")
+      @websocket = config.modules.get("WebsocketConnection")
+
+      @pub = config.modules.get("RedisPublisher")
+      @sub = redis.createClient()
+      @subscriptions = ["*"]
+      @sub.psubscribe.apply(@sub, @subscriptions)
+
+      @_registerListeners()
 
 
   #
@@ -56,7 +59,7 @@ module.exports = class RedisBridge
     # TODO: use an action in RedisAction to do this
     if attributes[1] is "changeslide"
       url = attributes[2]
-      config.store.set "currentUrl", url, (err, reply) ->
+      @redisStore.set "currentUrl", url, (err, reply) ->
         registerSuccess("on changeslide", "set current page url to #{url}") if reply
         registerError("on changeslide", err) if err?
 
@@ -64,18 +67,18 @@ module.exports = class RedisBridge
     # and publish the rest shapes to html5 users
     # TODO: use an action in RedisAction to do this
     if attributes[1] is "undo"
-      config.redisAction.getCurrentPresentationID meetingID, (presentationID) ->
-        config.redisAction.getCurrentPageID meetingID, presentationID, (pageID) ->
-          config.store.rpop RedisKeys.getCurrentShapesString(meetingID, presentationID, pageID), (err, reply) ->
-            config.socketAction.publishShapes meetingID
+      @redisAction.getCurrentPresentationID meetingID, (presentationID) =>
+        @redisAction.getCurrentPageID meetingID, presentationID, (pageID) =>
+          @redisStore.rpop RedisKeys.getCurrentShapesString(meetingID, presentationID, pageID), (err, reply) =>
+            @websocket.publishShapes meetingID
 
     # When presenter in flex side sends the 'clrPaper' event, remove everything from Redis
     # TODO: use an action in RedisAction to do this
     if attributes[1] is "clrPaper"
-      config.redisAction.getCurrentPresentationID meetingID, (presentationID) ->
-        config.redisAction.getCurrentPageID meetingID, presentationID, (pageID) ->
-          config.redisAction.getItemIDs meetingID, presentationID, pageID, "currentshapes", (meetingID, presentationID, pageID, itemIDs, itemName) ->
-            config.redisAction.deleteItemList meetingID, presentationID, pageID, itemName, itemIDs
+      @redisAction.getCurrentPresentationID meetingID, (presentationID) =>
+        @redisAction.getCurrentPageID meetingID, presentationID, (pageID) =>
+          @redisAction.getItemIDs meetingID, presentationID, pageID, "currentshapes", (meetingID, presentationID, pageID, itemIDs, itemName) =>
+            @redisAction.deleteItemList meetingID, presentationID, pageID, itemName, itemIDs
 
     # apply the parameters to the socket event, and emit it on the channels
     attributes.splice(0, 1) # remove the meeting id from the params
@@ -87,13 +90,13 @@ module.exports = class RedisBridge
     if attributes.messageKey is "CONVERSION_COMPLETED"
       meetingID = attributes.room
       @pub.publish meetingID, JSON.stringify(["clrPaper"])
-      config.socketAction.publishSlides meetingID, null, =>
-        config.socketAction.publishViewBox meetingID
+      @websocket.publishSlides meetingID, null, =>
+        @websocket.publishViewBox meetingID
         @pub.publish meetingID, JSON.stringify(["uploadStatus", "Upload succeeded", true])
 
   # Emits a message to all clients connected
   _emitToClients: (channel, message) ->
-    config.socketAction.emitToAll(channel, message)
+    @websocket.emitToAll(channel, message)
 
 
 #

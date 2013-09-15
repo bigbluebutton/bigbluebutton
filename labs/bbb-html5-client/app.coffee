@@ -5,17 +5,26 @@ redis = require("redis")
 
 config = require("./config")
 MainRouter = require("./routes/main_router")
+Modules = require("./lib/modules")
 RedisAction = require("./lib/redis_action")
 RedisBridge = require("./lib/redis_bridge")
-RedisKeys = require("./lib/redis_keys")
 Utils = require("./lib/utils")
 WebsocketConnection = require("./lib/websocket_connection")
 
-# global variables
-config.redisAction = new RedisAction()
 
-# the application, exported in this module
-config.app.server = app = module.exports = express.createServer()
+# Module to store the modules registered in the application
+config.modules = modules = new Modules()
+
+# TODO: there's a lot of objects to deal with redis, it would probably be a lot better to have just
+#   one object that uses the others internally, so only one would be a global module, the rest can
+#   be local instance variables.
+config.modules.register "RedisAction", new RedisAction()
+config.modules.register "RedisStore", redis.createClient()
+config.modules.register "RedisPublisher", redis.createClient()
+
+# The application, exported in this module
+app = config.modules.register "App", express.createServer()
+module.exports = app
 
 # configure the application
 app.configure ->
@@ -51,27 +60,29 @@ app.helpers
   h_environment: app.settings.env
 
 # Router
-config.mainRouter = new MainRouter(app)
+config.modules.register "MainRouter", new MainRouter()
 
 # Socket.IO
 io = require("socket.io").listen(app)
 io.configure ->
+
   # Authorize a session before it given access to connect to SocketIO
   io.set "authorization", (handshakeData, callback) ->
+    redisAction = config.modules.get("RedisAction")
     sessionID = Utils.getCookieVar(handshakeData.headers.cookie, "sessionid")
     meetingID = Utils.getCookieVar(handshakeData.headers.cookie, "meetingid")
-    config.redisAction.isValidSession meetingID, sessionID, (isValid) ->
+    redisAction.isValidSession meetingID, sessionID, (isValid) ->
       unless isValid
         console.log "Invalid sessionID/meetingID"
         callback(null, false) # failed authorization
       else
-        config.redisAction.getUserProperties meetingID, sessionID, (properties) ->
+        redisAction.getUserProperties meetingID, sessionID, (properties) ->
           handshakeData.sessionID = sessionID
           handshakeData.username = properties.username
           handshakeData.meetingID = properties.meetingID
           callback(null, true) # good authorization
 
+# WebsocketConnection instance used to talk to all clients connected via websocket.
+config.modules.register "WebsocketConnection", new WebsocketConnection(io)
 
-config.socketAction = new WebsocketConnection(io)
-
-config.redisBridge =  new RedisBridge(io)
+config.modules.register "RedisBridge", new RedisBridge(io)
