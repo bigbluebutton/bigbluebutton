@@ -114,6 +114,13 @@ define [
         console.log "socket on: mvCur"
         globals.events.trigger("connection:mvCur", x, y)
 
+      # Received event to update the zoom or move the slide
+      # @param  {number} x x-coord of the cursor as a percentage of page width
+      # @param  {number} y y-coord of the cursor as a percentage of page height
+      @socket.on "move_and_zoom", (xOffset, yOffset, widthRatio, heightRatio) =>
+        console.log "socket on: move_and_zoom"
+        globals.events.trigger("connection:move_and_zoom", xOffset, yOffset, widthRatio, heightRatio)
+
       # Received event to update the slide image
       # @param  {string} url URL of image to show
       @socket.on "changeslide", (url) =>
