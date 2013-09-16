@@ -403,6 +403,44 @@ define [
       [slideWidth, slideHeight] = @_currentSlideOriginalDimensions()
       @cursor.setPosition(x * slideWidth + cx, y * slideHeight + cy)
 
+    # Update the slide to move and zoom
+    # @param  {number} xOffset the x value of offset
+    # @param  {number} yOffset the y value of offset
+    # @param  {number} widthRatio the ratio of the previous width
+    # @param  {number} heightRatio the ratio of the previous height
+    moveAndZoom: (xOffset, yOffset, widthRatio, heightRatio) ->
+      ###[cx, cy] = @_currentSlideOffsets()
+      [slideWidth, slideHeight] = @_currentSlideOriginalDimensions()
+      @cursor.setPosition(x * slideWidth + cx, y * slideHeight + cy)###
+      [slideWidth, slideHeight] = @_currentSlideOriginalDimensions()
+      #console.log("xOffset: " + xOffset + ", yOffset: " + yOffset);
+      #console.log("@containerWidth: " + @containerWidth + " @containerHeight: " + @containerHeight);
+      #console.log("slideWidth: " + slideWidth + " slideHeight: " + slideHeight);
+      baseWidth = (@containerWidth - slideWidth) / 2;
+      baseHeight = (@containerHeight - slideHeight) / 2;
+
+
+      #get the actual size of the slide, depending on the limiting factor (container width or container height)
+      if(@containerWidth - slideWidth < @containerHeight - slideHeight)
+        actualHeight = @containerWidth * slideHeight / slideWidth
+        actualWidth = @containerWidth
+      else
+        actualWidth = @containerHeight * slideWidth / slideHeight 
+        actualHeight = @containerHeight
+
+      #console.log("actualWidth:" + actualWidth + " actualHeight: " + actualHeight)
+
+      #calculate parameters to pass
+      newXPos = baseWidth - 2* xOffset * actualWidth / 100
+      newyPos = baseHeight - 2* yOffset * actualHeight / 100
+      newWidth = actualWidth  /  100 * widthRatio
+      newHeight = actualHeight / 100 * heightRatio
+
+      #console.log("newXPos: " + newXPos + " newyPos: " + newyPos + " newWidth: " + newWidth + " newHeight: " + newHeight)
+
+      #set parameters to raphael viewbox
+      @raphaelObj.setViewBox(newXPos , newyPos,  newWidth , newHeight , true);
+
     # Registers listeners for events in the gloval event bus
     _registerEvents: ->
 
@@ -454,6 +492,9 @@ define [
 
       globals.events.on "connection:mvCur", (x, y) =>
         @moveCursor(x, y)
+
+      globals.events.on "connection:move_and_zoom", (xOffset, yOffset, widthRatio, heightRatio) =>
+        @moveAndZoom(xOffset, yOffset, widthRatio, heightRatio)
 
       globals.events.on "connection:changeslide", (url) =>
         @showImageFromPaper(url)
