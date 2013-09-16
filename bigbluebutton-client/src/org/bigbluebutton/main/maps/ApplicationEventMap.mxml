@@ -24,7 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<!--
 	This is the main event map for the application, think of it as the application controller.
 	-->
-	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+	<EventHandlers type="{FlexEvent.APPLICATION_COMPLETE}">
 		<!--
 		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
 		-->

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"
+  xmlns:views="org.bigbluebutton.main.views.*"
+  xmlns:maps="org.bigbluebutton.main.maps.*"
+  xmlns:apimap="org.bigbluebutton.main.api.maps.*"
+  xmlns:coreMap="org.bigbluebutton.core.controllers.maps.*"
+ 
+  layout="absolute" 
+  width="100%" height="100%"
+  borderStyle="none" horizontalAlign="center"
+  headerHeight="0" borderThicknessBottom="0" borderThicknessLeft="0"
+  borderThicknessRight="0" borderThicknessTop="0"
+  creationComplete="init()">
+  
+  <mx:Script>
+    <![CDATA[
+      public function initOptions():void {
+        mainShell.initOptions(null);
+      }
+    ]]>
+  </mx:Script> 
+  
+  <apimap:ExternalApiEventMap/>
+  <coreMap:BbbCoreEventMap/>  
+  <maps:ApplicationEventMap />
+  
+  <views:MainApplicationShell id="mainShell"/>	
+  
+</mx:Panel>
