@@ -118,7 +118,7 @@ define [
       # @param  {number} x x-coord of the cursor as a percentage of page width
       # @param  {number} y y-coord of the cursor as a percentage of page height
       @socket.on "move_and_zoom", (xOffset, yOffset, widthRatio, heightRatio) =>
-        console.log "socket on: move_and_zoom"
+        #console.log "socket on: move_and_zoom"
         globals.events.trigger("connection:move_and_zoom", xOffset, yOffset, widthRatio, heightRatio)
 
       # Received event to update the slide image
