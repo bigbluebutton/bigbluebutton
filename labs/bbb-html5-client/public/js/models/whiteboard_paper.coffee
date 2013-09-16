@@ -409,9 +409,11 @@ define [
     # @param  {number} widthRatio the ratio of the previous width
     # @param  {number} heightRatio the ratio of the previous height
     moveAndZoom: (xOffset, yOffset, widthRatio, heightRatio) ->
-      ###[cx, cy] = @_currentSlideOffsets()
-      [slideWidth, slideHeight] = @_currentSlideOriginalDimensions()
-      @cursor.setPosition(x * slideWidth + cx, y * slideHeight + cy)###
+      @globalxOffset = xOffset
+      @globalyOffset = yOffset
+      @globalwidthRatio = widthRatio
+      @globalheightRatio = heightRatio
+
       [slideWidth, slideHeight] = @_currentSlideOriginalDimensions()
       #console.log("xOffset: " + xOffset + ", yOffset: " + yOffset);
       #console.log("@containerWidth: " + @containerWidth + " @containerHeight: " + @containerHeight);
@@ -617,6 +619,17 @@ define [
     # Called when the application window is resized.
     _onWindowResize: ->
       @_updateContainerDimensions()
+      console.log("_onWindowResize");
+
+
+      #TODO: maybe find solution besides these global values..it was pretty clever though..
+      
+      #now the zooming will still be correct when the window is resized
+      #and hopefully when rotated on a mobile device
+      if @globalxOffset && @globalyOffset && @globalwidthRatio && @globalheightRatio
+        @moveAndZoom(@globalxOffset, @globalyOffset, @globalwidthRatio, @globalheightRatio)
+      
+
 
     # when pressing down on a key at anytime
     _onKeyDown: (event) ->
