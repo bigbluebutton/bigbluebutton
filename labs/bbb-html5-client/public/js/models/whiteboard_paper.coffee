@@ -622,7 +622,7 @@ define [
       console.log("_onWindowResize");
 
 
-      #TODO: maybe find solution besides these global values..it was pretty clever though..
+      #TODO: maybe find solution besides these global values..no conflicts however
       
       #now the zooming will still be correct when the window is resized
       #and hopefully when rotated on a mobile device
