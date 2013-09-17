@@ -623,11 +623,41 @@ define [
 
 
       #TODO: maybe find solution besides these global values..no conflicts however
+
+      [slideWidth, slideHeight] = @_currentSlideOriginalDimensions()
+      #console.log("xOffset: " + xOffset + ", yOffset: " + yOffset);
+      #console.log("@containerWidth: " + @containerWidth + " @containerHeight: " + @containerHeight);
+      #console.log("slideWidth: " + slideWidth + " slideHeight: " + slideHeight);
+      baseWidth = (@containerWidth - slideWidth) / 2;
+      baseHeight = (@containerHeight - slideHeight) / 2;
+
+
+      #get the actual size of the slide, depending on the limiting factor (container width or container height)
+      if(@containerWidth - slideWidth < @containerHeight - slideHeight)
+        actualHeight = @containerWidth * slideHeight / slideWidth
+        actualWidth = @containerWidth
+      else
+        actualWidth = @containerHeight * slideWidth / slideHeight 
+        actualHeight = @containerHeight
+
+      #console.log("actualWidth:" + actualWidth + " actualHeight: " + actualHeight)
+
+      #calculate parameters to pass
+      newXPos = baseWidth
+      newyPos = baseHeight
+      newWidth = actualWidth  
+      newHeight = actualHeight 
       
       #now the zooming will still be correct when the window is resized
       #and hopefully when rotated on a mobile device
       if @globalxOffset && @globalyOffset && @globalwidthRatio && @globalheightRatio
+        console.log "has zoomed in"
         @moveAndZoom(@globalxOffset, @globalyOffset, @globalwidthRatio, @globalheightRatio)
+
+      else
+        console.log "not zoomed"
+        @raphaelObj.setViewBox(newXPos, newyPos, newWidth, newHeight,true)
+
       
 
 
