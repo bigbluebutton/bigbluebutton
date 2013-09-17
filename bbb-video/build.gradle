@@ -1,27 +1,15 @@
-usePlugin 'java'
-usePlugin 'war'
-usePlugin 'eclipse'
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'eclipse'
 
 version = '0.7'
 jar.enabled = true
 archivesBaseName = 'video' 
 
-task dependencies(type: Copy) {
+task resolveDeps(type: Copy) {
     into('lib')
     from configurations.default
-    from configurations.default.allArtifacts*.file
-}
-
-task resolveDeps(dependsOn: configurations.default.buildArtifacts, type: Copy) {
-    into('lib')
-    from configurations.default
-    from configurations.default.allArtifacts*.file
-}
-
-task resolveDependencies(dependsOn: configurations.default.buildArtifacts, type: Copy) {
-    into('lib')
-    from configurations.default
-    from configurations.default.allArtifacts*.file
+    from configurations.default.allArtifacts.file
 }
 
 repositories {
