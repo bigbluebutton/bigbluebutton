@@ -19,7 +19,6 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
 
-
 require 'rubygems'
 require 'nokogiri'
 
@@ -51,8 +50,8 @@ module BigBlueButton
       BigBlueButton.logger.info("Task: Getting the timestamp of the last event")
       doc = Nokogiri::XML(File.open(events_xml))
       doc.xpath("recording/event").last["timestamp"].to_i
-    end  
-    
+    end
+
     # Determine if the start and stop event matched.
     def self.find_video_event_matched(start_events, stop)      
       BigBlueButton.logger.info("Task: Finding video events that match")
@@ -162,56 +161,55 @@ module BigBlueButton
       s
     end
 
-    #		
+    #
     # Get events when the moderator wants the recording to start or stop
     #
     def self.get_start_and_stop_rec_events(events_xml)
       BigBlueButton.logger.info "Getting start and stop rec button events"
-      rec_events = []
       doc = Nokogiri::XML(File.open(events_xml))
 
-      #Comment this code below in production
-      a=doc.xpath("//event[@eventname='PublicChatEvent']")
-      BigBlueButton.logger.info "Extracting PublicChatEvent events " + a.size.to_s
+      #######################################################################################
+      # THE CODE BELOW IS FOR DEVELOPMENT PURPOSES ONLY AND SHOULD BE REMOVED WHEN FINISHED #
+      #######################################################################################
+      a = doc.xpath("//event[@eventname='PublicChatEvent']")
+      BigBlueButton.logger.info "Extracting PublicChatEvent events"
       a.each do |event|
-    	if not event.xpath("message[text()='START' or text()='STOP']").empty?
-    		  #rec_events << a             
-    		  event.attributes["eventname"].value ='RecordStatusEvent'
-    		  BigBlueButton.logger.info event.text()
-    	end
+        if not event.xpath("message[text()='START' or text()='STOP']").empty?
+            event.attributes["eventname"].value = 'RecordStatusEvent'
+            BigBlueButton.logger.info event.to_xml(:indent => 2)
+        end
       end
-    
-      BigBlueButton.logger.info ("Finished extracting record events")
-      #Comment this code above in production
+      #######################################################################################
+      # THE CODE ABOVE IS FOR DEVELOPMENT PURPOSES ONLY AND SHOULD BE REMOVED WHEN FINISHED #
+      #######################################################################################
 
+      rec_events = []
       doc.xpath("//event[@eventname='RecordStatusEvent']").each do |event|
-    	s = {:start_timestamp => event['timestamp'].to_i}
-    	rec_events << s
+        s = { :timestamp => event['timestamp'].to_i }
+        rec_events << s
       end
       if rec_events.size.odd?
-    	#User forgot to click Record Button to stop the recording
-    	rec_events << { :start_timestamp => BigBlueButton::Events.last_event_timestamp(events_xml) }
+        # user didn't click the Record Button to stop the recording
+        rec_events << { :timestamp => BigBlueButton::Events.last_event_timestamp(events_xml) }
       end      
-    
-      BigBlueButton.logger.info ("Finished processing record events")
-    
-      rec_events.sort {|a, b| a[:start_timestamp] <=> b[:start_timestamp]}  
+      rec_events.sort {|a, b| a[:timestamp] <=> b[:timestamp]}  
     end
     
     #
     # Match recording start and stop events
     #
-    
     def self.match_start_and_stop_rec_events(rec_events)
       BigBlueButton.logger.info ("Matching record events")
       matched_rec_events = []
-      rec_events.each_with_index { |evt,i|
-    	if i.even?
-    		   evt[:stop_timestamp] = rec_events[i+1][:start_timestamp]
-    		   matched_rec_events << evt
-    	end       
-      }
-      matched_rec_events     
+      rec_events.each_with_index do |evt,i|
+        if i.even?
+          matched_rec_events << {
+            :start_timestamp => evt[:timestamp],
+            :stop_timestamp => rec_events[i + 1][:timestamp]
+          }
+        end
+      end
+      matched_rec_events
     end
   end
 end
