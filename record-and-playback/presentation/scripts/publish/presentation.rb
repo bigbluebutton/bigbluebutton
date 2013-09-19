@@ -52,7 +52,7 @@ def processPanAndZooms
 				if !$slides_events.empty?
 					BigBlueButton.logger.info("Slides found, but no panzoom events; synthesizing one")
 					timestamp_orig = $slides_events.first[:timestamp].to_f + 1000
-					timestamp = ( normalizeTimestamp(timestamp_orig) / 1000 ).round(1)
+					timestamp = ( translateTimestamp(timestamp_orig) / 1000 ).round(1)
 					$xml.event(:timestamp => timestamp, :orig => timestamp_orig) do
 						$xml.viewBox "0 0 #{$vbox_width} #{$vbox_height}"
 					end
@@ -72,7 +72,7 @@ def processPanAndZooms
 				# Get variables
 				timestamp_orig = panZoomEvent[:timestamp].to_f
 
-				timestamp = ( normalizeTimestamp(timestamp_orig) / 1000 ).round(1)
+				timestamp = ( translateTimestamp(timestamp_orig) / 1000 ).round(1)
 				h_ratio = panZoomEvent.xpath(".//heightRatio")[0].text()
 				w_ratio = panZoomEvent.xpath(".//widthRatio")[0].text()
 				x = panZoomEvent.xpath(".//xOffset")[0].text()
@@ -144,7 +144,7 @@ def processCursorEvents
 				last_time = $cursor_events.last[:timestamp].to_f
 				$cursor_events.each do |cursorEvent|
 					timestamp_orig = cursorEvent[:timestamp].to_f
-					timestamp = ( normalizeTimestamp(timestamp_orig) / 1000 ).round(1)
+					timestamp = ( translateTimestamp(timestamp_orig) / 1000 ).round(1)
 				
 					x = cursorEvent.xpath(".//xOffset")[0].text()
 					y = cursorEvent.xpath(".//yOffset")[0].text()
@@ -182,7 +182,7 @@ end
 def processClearEvents
 	# process all the cleared pages events.
 	$clear_page_events.each do |clearEvent|
-		clearTime = ( normalizeTimestamp(clearEvent[:timestamp]) / 1000 ).round(1)
+		clearTime = ( translateTimestamp(clearEvent[:timestamp]) / 1000 ).round(1)
 		$pageCleared = clearEvent.xpath(".//pageNumber")[0].text()
 		slideFolder = clearEvent.xpath(".//presentation")[0].text()
 		#$clearPageTimes[clearTime] = [$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared.to_i+1}.png", nil]
@@ -235,13 +235,13 @@ def processUndoEvents
 			end
 		end
 		if(closest_shape != nil)
-			$undos[closest_shape] = ( normalizeTimestamp(undo[:timestamp]) / 1000 ).round(1)
+			$undos[closest_shape] = ( translateTimestamp(undo[:timestamp]) / 1000 ).round(1)
 		end
 	end
 
 	$undos_temp = {}
 	$undos.each do |un, val|
-		$undos_temp[( normalizeTimestamp(un[:timestamp]) / 1000 ).round(1)] = val
+		$undos_temp[( translateTimestamp(un[:timestamp]) / 1000 ).round(1)] = val
 	end
 	$undos = $undos_temp
 	BigBlueButton.logger.info("Undos: #{$undos}")
@@ -437,6 +437,10 @@ def storeTextShape
 	end # end if($shapeCreationTime != $prev_time)
 end
 
+#
+# Calculate the offsets based on the start and stop recording events, so it's easier
+# to translate the timestamps later based on these offsets
+#
 def calculateRecordEventsOffset
 	accumulated_duration = 0
 	accumulated_gap = 0
@@ -452,20 +456,30 @@ def calculateRecordEventsOffset
 	end
 end
 
-def normalizeTimestamp(timestamp)
-	new_timestamp = normalizeTimestamp_internal(timestamp.to_f).to_f
-	BigBlueButton.logger.info("Normalizing #{timestamp}, old value=#{timestamp.to_f-$meeting_start.to_f}, new value=#{new_timestamp}")
+#
+# Translated an arbitrary Unix timestamp to the recording timestamp. This is the 
+# function that others will call
+#
+def translateTimestamp(timestamp)
+	new_timestamp = translateTimestamp_helper(timestamp.to_f).to_f
+	BigBlueButton.logger.info("Translating #{timestamp}, old value=#{timestamp.to_f-$meeting_start.to_f}, new value=#{new_timestamp}")
 	new_timestamp
 end
 
-def normalizeTimestamp_internal(timestamp)
+#
+# Translated an arbitrary Unix timestamp to the recording timestamp
+#
+def translateTimestamp_helper(timestamp)
 	$rec_events.each do |event|
+		# if the timestamp comes before the start recording event, then the timestamp is translated to the moment it starts recording
 		if timestamp <= event[:start_timestamp]
 			return event[:start_timestamp] - event[:offset]
+		# if the timestamp is during the recording period, it is just translated to the new one using the offset
 		elsif timestamp > event[:start_timestamp] and timestamp <= event[:stop_timestamp]
 			return timestamp - event[:offset]
 		end
 	end
+	# if the timestamp comes after the last stop recording event, then the timestamp is translated to the last stop recording event timestamp
 	return timestamp - $rec_events.last()[:offset] + $rec_events.last()[:duration]
 end
 
@@ -498,7 +512,7 @@ def processSlideEvents
 			$presentation_name = node.xpath(".//presentationName")[0].text()
 		else
 			slide_timestamp =  node[:timestamp]
-			slide_start = ( normalizeTimestamp(slide_timestamp) / 1000 ).round(1)
+			slide_start = ( translateTimestamp(slide_timestamp) / 1000 ).round(1)
 			slide_number = node.xpath(".//slide")[0].text()
 			slide_src = "presentation/#{$presentation_name}/slide-#{slide_number.to_i + 1}.png"
                         txt_file_path = "presentation/#{$presentation_name}/textfiles/slide-#{slide_number.to_i + 1}.txt"
@@ -507,9 +521,14 @@ def processSlideEvents
 			slide_size = FastImage.size(image_url)
 			current_index = $slides_events.index(node)
 			if(current_index + 1 < $slides_events.length)
-				slide_end = ( normalizeTimestamp($slides_events[current_index + 1][:timestamp]) / 1000 ).round(1)
+				slide_end = ( translateTimestamp($slides_events[current_index + 1][:timestamp]) / 1000 ).round(1)
 			else
-				slide_end = ( normalizeTimestamp($meeting_end) / 1000 ).round(1)
+				slide_end = ( translateTimestamp($meeting_end) / 1000 ).round(1)
+			end
+
+			if slide_start == slide_end
+				BigBlueButton.logger.info("#{slide_src} is never displayed (slide_start = slide_end), so it won't be included in the svg")
+				next
 			end
 
 			BigBlueButton.logger.info("Processing slide image")
@@ -540,7 +559,7 @@ def processShapesAndClears
 		processUndoEvents()
 		
 		# Put in the last clear events numbers (previous clear to the end of the slideshow)
-		endPresentationTime = ( normalizeTimestamp($end_time) / 1000 ).round(1)
+		endPresentationTime = ( translateTimestamp($end_time) / 1000 ).round(1)
 		$clearPageTimes[($prev_clear_time..endPresentationTime)] = [$pageCleared, $canvas_number, nil, nil]
 		
 		# Put the headers on the svg xml file.
@@ -567,7 +586,7 @@ def processShapesAndClears
 					# Select and print the shapes within the current image
 					$shape_events.each do |shape|
 						$shapeTimestamp = shape[:timestamp].to_f
-						$shapeCreationTime = ( normalizeTimestamp($shapeTimestamp) / 1000 ).round(1)
+						$shapeCreationTime = ( translateTimestamp($shapeTimestamp) / 1000 ).round(1)
 						in_this_image = false
 						index = 0
 						numOfTimes = $val[0].length
@@ -599,8 +618,8 @@ def processShapesAndClears
 							
 							# figure out undo time
 							BigBlueButton.logger.info("Figuring out undo time")
-							if($undos.has_key? ( normalizeTimestamp(shape[:timestamp]) / 1000 ).round(1))
-								$shapeUndoTime = $undos[( normalizeTimestamp(shape[:timestamp]) / 1000 ).round(1)]
+							if($undos.has_key? ( translateTimestamp(shape[:timestamp]) / 1000 ).round(1))
+								$shapeUndoTime = $undos[( translateTimestamp(shape[:timestamp]) / 1000 ).round(1)]
 							else						
 								$shapeUndoTime = -1
 							end
@@ -706,7 +725,7 @@ def processChatMessages
 						chat_timestamp =  node[:timestamp]
 						chat_sender = node.xpath(".//sender")[0].text()
 						chat_message =  BigBlueButton::Events.linkify(node.xpath(".//message")[0].text())
-						chat_start = ( normalizeTimestamp(chat_timestamp) / 1000).to_i
+						chat_start = ( translateTimestamp(chat_timestamp) / 1000).to_i
 						$xml.chattimeline(:in => chat_start, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
 					end
 				end
@@ -866,7 +885,7 @@ if ($playback == "presentation")
 		if not first_presentation_start_node.empty?
 			first_presentation_start = first_presentation_start_node[0][:timestamp]
 		end
-		$first_slide_start = ( normalizeTimestamp(first_presentation_start) / 1000 ).round(1)
+		$first_slide_start = ( translateTimestamp(first_presentation_start) / 1000 ).round(1)
 		
 		processChatMessages()
 		
