@@ -399,5 +399,18 @@ package org.bigbluebutton.main.model.users {
 				} 
 			}
 		)
+
+		public function changeRecordingStatus(userID:String, recording:Boolean):void {
+			trace("UsersSOService::changeRecordingStatus")
+			var nc:NetConnection = _connectionManager.connection;
+			nc.call(
+				"participants.changeRecordingStatus",// Remote function name
+				responder,
+				userID,
+				"recording",
+				recording
+			); //_netConnection.call
+		}
+
 	}
 }

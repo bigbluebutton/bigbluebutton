@@ -67,7 +67,7 @@ package org.bigbluebutton.main.model.users
 		private function ioErrorHandler(event:IOErrorEvent):void {
 			trace("ioErrorHandler: " + event);
 			var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.USER_LOGGED_OUT);
-			var dispatcher = new Dispatcher();
+			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(e);
 		}
 		

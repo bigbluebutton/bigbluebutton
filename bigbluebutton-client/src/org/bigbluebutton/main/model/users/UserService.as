@@ -31,6 +31,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.UserConfigManager;
 	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
@@ -184,5 +185,16 @@ package org.bigbluebutton.main.model.users
 			var name:String = e.username;
 			_userSOService.assignPresenter(assignTo, name, 1);
 		}
+
+		public function changeRecordingStatus(e:BBBEvent):void {
+			trace("UserService::changeRecordingStatus")
+			if (this.isModerator() && !e.payload.remote) {
+				_userSOService.changeRecordingStatus(
+						UserManager.getInstance().getConference().getMyUserId(), 
+						e.payload.recording
+				);
+			}
+		}
+
 	}
 }

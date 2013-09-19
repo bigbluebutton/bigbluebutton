@@ -35,6 +35,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShortcutEvent.LOGOUT}" method="remoteLogout" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_SHORTCUT_BUTTON}" method="focusShortcutButton" />
 	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="retrieveMeetingName" />
+	<mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -247,6 +248,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				shortcutKeysBtn.setFocus();
 			}
 
+			private function onRecordButtonClick(e:Event = null):void {
+				var event:BBBEvent = new BBBEvent(BBBEvent.CHANGE_RECORDING_STATUS);
+				event.payload.remote = false;
+				event.payload.recording = !recordBtn.toggle;
+				var d:Dispatcher = new Dispatcher();
+				d.dispatchEvent(event);
+
+				recordBtn.enabled = false;
+			}
+
+			private function onRecordingStatusChanged(event:BBBEvent):void {
+				if (event.payload.remote) {
+					recordBtn.toggle = event.payload.recording;
+				}
+
+				recordBtn.enabled = true;
+			}
+
 		]]>
 	</mx:Script>	
 	<mx:HBox id="addedBtns"/>
@@ -255,6 +274,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Spacer width="50%"/>
     <mx:Label id="meetingNameLbl" styleName="meetingNameLabelStyle" />
     <mx:Spacer width="50%"/>
+	<mx:Button id="recordBtn"
+		styleName="recordButtonStyle"
+		click="onRecordButtonClick()"
+		height="22"
+		toolTip="Start recording" />
 	<views:LanguageSelector id="langSelector" 
 							visible="false" 
 							tabIndex="{baseIndex+numButtons+5}"
