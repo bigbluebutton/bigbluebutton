@@ -62,15 +62,15 @@ package org.bigbluebutton.modules.videoconf.maps
     
     private var webcamWindows:WindowManager = new WindowManager();
     
-    private var button:ToolbarButton;
+    private var button:ToolbarButton = new ToolbarButton();	
     private var proxy:VideoProxy;
     private var streamName:String;
     
     private var _dispatcher:IEventDispatcher;
     private var _ready:Boolean = false;
     private var _isPublishing:Boolean = false;
-	private var _isPreviewWebcamOpen:Boolean = false;
-	private var _isWaitingActivation:Boolean = false;
+	  private var _isPreviewWebcamOpen:Boolean = false;
+	  private var _isWaitingActivation:Boolean = false;
     
     public function VideoEventMapDelegate(dispatcher:IEventDispatcher)
     {
@@ -114,10 +114,25 @@ package org.bigbluebutton.modules.videoconf.maps
       }
     }
     
+    private function displayToolbarButton():void {
+      button.isPresenter = true;
+      
+      if (options.presenterShareOnly) {
+        if (UsersUtil.amIPresenter()) {
+          button.isPresenter = true;
+        } else { 
+          button.isPresenter = false;
+        }
+      }
+            
+    }
+    
     private function addToolbarButton():void{
-      if (proxy.videoOptions.showButton || proxy.videoOptions.presenterShareOnly) {
-        button = new ToolbarButton();	  
-        button.isPresenter = !options.presenterShareOnly;
+      LogUtil.debug("****************** Adding toolbar button. presenter?=[" + UsersUtil.amIPresenter() + "]");
+      if (proxy.videoOptions.showButton) {  
+
+        displayToolbarButton();
+        
         var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
         event.button = button;
 		    event.module="Webcam";
@@ -365,20 +380,21 @@ package org.bigbluebutton.modules.videoconf.maps
     public function switchToPresenter(event:MadePresenterEvent):void{
       trace("VideoEventMapDelegate:: [" + me + "] Got Switch to presenter event. ready = [" + _ready + "]");
       
-      if (!_ready) return;
+//      if (!_ready) return;
            
-      if (options.presenterShareOnly){
-        button.isPresenter = true;
-      }
+      if (options.showButton) {
+        displayToolbarButton();
+      }  
     }
-    
+        
     public function switchToViewer(event:MadePresenterEvent):void{
       trace("VideoEventMapDelegate:: [" + me + "] Got Switch to viewer event. ready = [" + _ready + "]");
       
-      if (!_ready) return;
+//      if (!_ready) return;
             
-      if (options.presenterShareOnly){
-        button.isPresenter = false;
+      if (options.showButton){
+        LogUtil.debug("****************** Switching to viewer. Show video button?=[" + UsersUtil.amIPresenter() + "]");
+        displayToolbarButton();
         if (_isPublishing) {
           stopBroadcasting();
         }
