@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <config>
-    <localeversion suppressWarning="false">0.8</localeversion>
+    <localeversion suppressWarning="false">0.81</localeversion>
     <version>VERSION</version>
     <help url="http://HOST/help.html"/>
     <porttest host="HOST" application="video/portTest" timeout="10000"/>    
