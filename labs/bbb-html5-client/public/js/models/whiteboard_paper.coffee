@@ -430,6 +430,8 @@ define [
         actualWidth = @containerHeight * slideWidth / slideHeight 
         actualHeight = @containerHeight
 
+      actualWidth = @currentSlide.displayWidth
+      actualHeight = @currentSlide.displayHeight
       #console.log("actualWidth:" + actualWidth + " actualHeight: " + actualHeight)
 
       #calculate parameters to pass
