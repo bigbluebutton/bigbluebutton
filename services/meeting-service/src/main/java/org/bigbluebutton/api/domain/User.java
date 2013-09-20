@@ -23,40 +23,42 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class User {
-	private String internalUserId;
-	private String externalUserId;
-	private String fullname;
+	private String internalID;
+	private String externalID;
+	private String name;
 	private String role;
+	private Map<String,String> customData;
+	
 	private Map<String,String> status;
 	
-	public User(String internalUserId, String externalUserId, String fullname, String role) {
-		this.internalUserId = internalUserId;
-		this.externalUserId = externalUserId;
-		this.fullname = fullname;
+	public User(String internalID, String externalID, String name, String role) {
+		this.internalID = internalID;
+		this.externalID = externalID;
+		this.name = name;
 		this.role = role;
 		this.status = new ConcurrentHashMap<String, String>();
 	}
 	
-	public String getInternalUserId() {
-		return this.internalUserId;
+	public String getInternalID() {
+		return this.internalID;
 	}
-	public void setInternalUserId(String internalUserId) {
-		this.internalUserId = internalUserId;
-	}
-	
-	public String getExternalUserId(){
-		return this.externalUserId;
+	public void setInternalID(String internalID) {
+		this.internalID = internalID;
 	}
 	
-	public void setExternalUserId(String externalUserId){
-		this.externalUserId = externalUserId;
+	public String getExternalID(){
+		return this.externalID;
 	}
 	
-	public String getFullname() {
-		return fullname;
+	public void setExternalID(String externalID){
+		this.externalID = externalID;
 	}
-	public void setFullname(String fullname) {
-		this.fullname = fullname;
+	
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
 	}
 	public String getRole() {
 		return role;

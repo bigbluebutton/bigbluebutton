@@ -21,45 +21,45 @@ package org.bigbluebutton.meeting.api;
 
 public interface IMeetingService {
 	
-	void addUser();
+	/**
+	 * Query if a meeting is present.
+	 * @param id
+	 * @return true/false
+	 */
+	boolean hasMeeting(String id);
 	
-	User getUser(String token);
+	/**
+	 * Create a meeting.
+	 * NOTE:
+	 *  Callers should call {@link}hasMeeting first to determine if a meeting with
+	 *  id is already running.
+	 * @return
+	 */
+	String createMeeting();
+	
+	/**
+	 * Request to end a meeting.
+	 * @param id
+	 * @return
+	 */
+	boolean endMeeting(String id);
+	
+	/**
+	 * A user wants to join a meeting.
+	 * @return
+	 */
+	String joinUser();
+	
+	User getUser(String userID);
 	
 	User removeUser(String token);
-		
+	
+	
 	void removeExpiredMeetings();
 	
 	void destroyMeeting(String meetingID);
 	
 	Collection<Meeting> getMeetings();
-
-	String addSubscription(String meetingId, String event, String callbackURL);
-
-	boolean removeSubscription(String meetingId, String subscriptionId);
-
-	List<Map<String,String>> listSubscriptions(String meetingId);
-
-	Meeting getMeeting(String meetingId);
-
-	HashMap<String,Recording> getRecordings(ArrayList<String> idList);
-	
-	HashMap<String,Recording> reorderRecordings(ArrayList<Recording> olds);
-		
-	boolean existsAnyRecording(ArrayList<String> idList);
-	
-	void setPublishRecording(ArrayList<String> idList,boolean publish);
-	
-	void setRemoveMeetingWhenEnded(boolean s);
-	
-	void deleteRecordings(ArrayList<String> idList);
-	
-	void processRecording(String meetingId);
-		
-	void createdPolls(String meetingId, String title, String question, String questionType, ArrayList<String> answers);
-	
-	void endMeeting(String meetingId);
-	
-	void addUserCustomData(String meetingId, String userID, Map<String,String> userCustomData);
 
 
 }
