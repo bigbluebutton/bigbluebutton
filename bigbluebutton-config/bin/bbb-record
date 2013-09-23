@@ -106,7 +106,7 @@ mark_for_republish() {
 	done
 }
 
-BIGBLUEBUTTON_RELEASE=0.8-beta-4
+BIGBLUEBUTTON_RELEASE=0.81
 
 need_root() {
         if [ $EUID != 0 ]; then
