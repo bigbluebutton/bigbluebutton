@@ -51,7 +51,7 @@ public class PresentationBridge {
 	public void sendCursorUpdate(String meetingID, Double xPercent, Double yPercent) {
 		ArrayList<Object> updates = new ArrayList<Object>();
 		updates.add(meetingID);
-		updates.add("mvcur");
+		updates.add("mvCur");
 		updates.add(xPercent);
 		updates.add(yPercent);
 		Gson gson = new Gson();
