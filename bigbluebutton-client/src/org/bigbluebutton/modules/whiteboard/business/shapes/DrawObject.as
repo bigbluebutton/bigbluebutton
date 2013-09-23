@@ -18,8 +18,6 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-	import flash.display.DisplayObject;
-	import flash.display.Shape;
 	import flash.display.Sprite;
 	
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
@@ -50,11 +48,20 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public static const DRAW_UPDATE:String = "DRAW_UPDATE";
 		public static const DRAW_END:String = "DRAW_END";
 		public static const DRAW_START:String = "DRAW_START";
+		public static const DRAW_MODIFIED:String = "DRAW_MODIFIED";
+		public static const DRAW_DELETED:String = "DRAW_DELETED";
 				
         private var _id:String;
         private var _type:String;
         
         private var _status:String;
+		protected var _denormalizedPoints:Array = new Array();
+		protected var _rawThickness:uint;
+		protected var _drawColor:uint = 0;
+		protected var _fillOn:Boolean;
+		protected var _fillColor:uint;
+		protected var _transparencyOn:Boolean;
+		private var _isLockingDenormalizedPoints:Boolean = false;
 		
 		/**
 		 * ID we can use to match the shape in the client's view
@@ -70,6 +77,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             _id = id;
             _type = type;
             _status = status;
+            this.buttonMode = true;
 		}
 		
         public function get id():String {
@@ -98,12 +106,268 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         
         public function makeGraphic(parentWidth:Number, parentHeight:Number):void {}
 		
-        public function draw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
+        public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoomPercentage:Number):void {
             
         }
         
-        public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
+        public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number, zoomPercentage:Number):void {
             
         }
+
+        public function getOriginatedToolType():String {
+			return null; 
+		}
+		
+		public function getThickness(zoomPercentage:Number = 0):uint{
+			if (zoomPercentage == 0) {
+				return this._rawThickness;
+			}
+			return uint(this._rawThickness * zoomPercentage / 100);
+		}
+		
+		public function get drawColor():uint {
+			return _drawColor;
+		}
+		
+		public function get fillOn():Boolean {
+			return _fillOn;
+		}
+		
+		public function get fillColor():uint {
+			return _fillColor;
+		}
+		
+		public function get transparencyOn():Boolean {
+			return _transparencyOn;
+		}
+		
+		public function lockDenormalizedPoints():void {
+			_isLockingDenormalizedPoints = true;
+		}
+		
+		public function unlockDenormalizedPoints():void {
+			_isLockingDenormalizedPoints = false;
+		}
+		
+		protected function setDenormalizedPoints(points:Array, parentWidth:Number, parentHeight:Number):void {
+			if (_isLockingDenormalizedPoints) {
+				return;
+			}
+			
+			_denormalizedPoints.length = 0;
+			
+			for (var i:int = 0; i < points.length - 1 ; i += 2) {
+				_denormalizedPoints.push(denormalize(points[i], parentWidth));
+				_denormalizedPoints.push(denormalize(points[i + 1], parentHeight));
+			}
+		}
+		
+		public function get denormalizedPoints():Array {
+			return _denormalizedPoints;
+		}
+		
+		public function movePoints(distanceX:Number, distanceY:Number, parentWidth:Number, parentHeight:Number):void {
+			for (var i:int = 0; i < _denormalizedPoints.length - 1 ; i += 2) {
+				_denormalizedPoints[i] += distanceX;
+				_denormalizedPoints[i + 1] += distanceY;
+			}
+		}
+		
+		public function getX():Number {
+			var x1:Number = _denormalizedPoints[0];
+			var x2:Number = _denormalizedPoints[_denormalizedPoints.length - 2];
+			
+			return Math.min(x1, x2);
+		}
+		
+		public function getY():Number {
+			var y1:Number = _denormalizedPoints[1];
+			var y2:Number = _denormalizedPoints[_denormalizedPoints.length - 1];
+			
+			return Math.min(y1, y2);
+		}
+		
+		public function getWidth():Number {
+			var x1:Number = _denormalizedPoints[0];
+			var x2:Number = _denormalizedPoints[_denormalizedPoints.length - 2];
+			
+			return Math.abs(x1 - x2);
+		}
+		
+		public function getHeight():Number {
+			var y1:Number = _denormalizedPoints[1];
+			var y2:Number = _denormalizedPoints[_denormalizedPoints.length - 1];
+			
+			return Math.abs(y1 - y2);
+		}
+		
+		
+		public function changeTopLeft(newX:Number, newY:Number, parentWidth:Number, parentHeight:Number):void{
+			var x1:Number = _denormalizedPoints[0];
+			var y1:Number = _denormalizedPoints[1];
+			var x2:Number = _denormalizedPoints[_denormalizedPoints.length - 2];
+			var y2:Number = _denormalizedPoints[_denormalizedPoints.length - 1];
+			
+			var firstXIndex:int = 0;
+			var secondXIndex:int = 2;
+			
+			if (y1 > y2) {
+				firstXIndex = 2;
+				secondXIndex = 0;
+			}
+			
+			_denormalizedPoints.length = 0;
+			_denormalizedPoints[firstXIndex] = newX;
+			_denormalizedPoints[firstXIndex + 1] = newY;
+			_denormalizedPoints[secondXIndex] = Math.max(x1, x2);
+			_denormalizedPoints[secondXIndex + 1] = Math.max(y1, y2);
+		}
+		
+		public function changeTopMiddle(newY:Number, parentHeight:Number):void{
+			var x1:Number = _denormalizedPoints[0];
+			var y1:Number = _denormalizedPoints[1];
+			var x2:Number = _denormalizedPoints[_denormalizedPoints.length - 2];
+			var y2:Number = _denormalizedPoints[_denormalizedPoints.length - 1];
+			
+			var firstXIndex:int = 0;
+			var secondXIndex:int = 2;
+			
+			if (y1 > y2) {
+				firstXIndex = 2;
+				secondXIndex = 0;
+			}
+			
+			_denormalizedPoints.length = 0;
+			_denormalizedPoints[firstXIndex] = Math.min(x1, x2);
+			_denormalizedPoints[firstXIndex + 1] = newY;
+			_denormalizedPoints[secondXIndex] = Math.max(x1, x2);
+			_denormalizedPoints[secondXIndex + 1] = Math.max(y1, y2);
+		}
+		
+		public function changeTopRight(newX:Number, newY:Number, parentWidth:Number, parentHeight:Number):void{
+			var x1:Number = _denormalizedPoints[0];
+			var y1:Number = _denormalizedPoints[1];
+			var x2:Number = _denormalizedPoints[_denormalizedPoints.length - 2];
+			var y2:Number = _denormalizedPoints[_denormalizedPoints.length - 1];
+			
+			var firstXIndex:int = 0;
+			var secondXIndex:int = 2;
+			
+			if (y1 > y2) {
+				firstXIndex = 2;
+				secondXIndex = 0;
+			}
+			
+			_denormalizedPoints.length = 0;
+			_denormalizedPoints[firstXIndex] = newX;
+			_denormalizedPoints[firstXIndex + 1] = newY;
+			_denormalizedPoints[secondXIndex] = Math.min(x1, x2);
+			_denormalizedPoints[secondXIndex + 1] = Math.max(y1, y2);
+		}
+		
+		public function changeMiddleLeft(newX:Number, parentWidth:Number):void{
+			var x1:Number = _denormalizedPoints[0];
+			var y1:Number = _denormalizedPoints[1];
+			var x2:Number = _denormalizedPoints[_denormalizedPoints.length - 2];
+			var y2:Number = _denormalizedPoints[_denormalizedPoints.length - 1];
+			
+			var firstXIndex:int = 0;
+			var secondXIndex:int = 2;
+		
+			if (y1 > y2) {
+				firstXIndex = 2;
+				secondXIndex = 0;
+			}
+			
+			_denormalizedPoints.length = 0;
+			_denormalizedPoints[firstXIndex] = newX;
+			_denormalizedPoints[firstXIndex + 1] = Math.min(y1, y2);
+			_denormalizedPoints[secondXIndex] = Math.max(x1, x2);
+			_denormalizedPoints[secondXIndex + 1] = Math.max(y1, y2);
+		}
+		
+		public function changeMiddleRight(newX:Number, parentWidth:Number):void{
+			var x1:Number = _denormalizedPoints[0];
+			var y1:Number = _denormalizedPoints[1];
+			var x2:Number = _denormalizedPoints[_denormalizedPoints.length - 2];
+			var y2:Number = _denormalizedPoints[_denormalizedPoints.length - 1];
+			
+			var firstXIndex:int = 0;
+			var secondXIndex:int = 2;
+			
+			if (y1 > y2) {
+				firstXIndex = 2;
+				secondXIndex = 0;
+			}
+			
+			_denormalizedPoints.length = 0;
+			_denormalizedPoints[firstXIndex] = newX;
+			_denormalizedPoints[firstXIndex + 1] = Math.min(y1, y2);
+			_denormalizedPoints[secondXIndex] = Math.min(x1, x2);
+			_denormalizedPoints[secondXIndex + 1] = Math.max(y1, y2);
+		}
+		
+		public function changeBottomLeft(newX:Number, newY:Number, parentWidth:Number, parentHeight:Number):void{
+			var x1:Number = _denormalizedPoints[0];
+			var y1:Number = _denormalizedPoints[1];
+			var x2:Number = _denormalizedPoints[_denormalizedPoints.length - 2];
+			var y2:Number = _denormalizedPoints[_denormalizedPoints.length - 1];
+			
+			var firstXIndex:int = 0;
+			var secondXIndex:int = 2;
+			
+			if (y1 < y2) {
+				firstXIndex = 2;
+				secondXIndex = 0;
+			}
+			
+			_denormalizedPoints.length = 0;
+			_denormalizedPoints[firstXIndex] = newX;
+			_denormalizedPoints[firstXIndex + 1] = newY;
+			_denormalizedPoints[secondXIndex] = Math.max(x1, x2);
+			_denormalizedPoints[secondXIndex + 1] = Math.min(y1, y2);
+		}
+		
+		public function changeBottomMiddle(newY:Number, parentHeight:Number):void{
+			var x1:Number = _denormalizedPoints[0];
+			var y1:Number = _denormalizedPoints[1];
+			var x2:Number = _denormalizedPoints[_denormalizedPoints.length - 2];
+			var y2:Number = _denormalizedPoints[_denormalizedPoints.length - 1];
+			
+			var firstXIndex:int = 0;
+			var secondXIndex:int = 2;
+			
+			if (y1 < y2) {
+				firstXIndex = 2;
+				secondXIndex = 0;
+			}
+			
+			_denormalizedPoints.length = 0;
+			_denormalizedPoints[firstXIndex] = Math.min(x1, x2);
+			_denormalizedPoints[firstXIndex + 1] = newY;
+			_denormalizedPoints[secondXIndex] = Math.max(x1, x2);
+			_denormalizedPoints[secondXIndex + 1] = Math.min(y1, y2);
+		}
+		
+		public function changeBottomRight(newX:Number, newY:Number, parentWidth:Number, parentHeight:Number):void{
+			var x1:Number = _denormalizedPoints[0];
+			var y1:Number = _denormalizedPoints[1];
+			var x2:Number = _denormalizedPoints[_denormalizedPoints.length - 2];
+			var y2:Number = _denormalizedPoints[_denormalizedPoints.length - 1];
+			
+			var firstXIndex:int = 0;
+			var secondXIndex:int = 2;
+			
+			if (y1 < y2) {
+				firstXIndex = 2;
+				secondXIndex = 0;
+			}
+			
+			_denormalizedPoints.length = 0;
+			_denormalizedPoints[firstXIndex] = newX;
+			_denormalizedPoints[firstXIndex + 1] = newY;
+			_denormalizedPoints[secondXIndex] = Math.min(x1, x2);
+			_denormalizedPoints[secondXIndex + 1] = Math.min(y1, y2);
+		}
 	}
 }

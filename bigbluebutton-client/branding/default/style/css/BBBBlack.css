@@ -78,6 +78,7 @@ DataGrid {
   fontFamily: arial;
   fontSize: 11;
   headerStyleName: "mydataGridHeaderStyle";
+  icon: Embed('assets/images/hand.png');
 }
 
 .mydataGridHeaderStyle {
@@ -89,7 +90,8 @@ DataGrid {
 
 .whiteboardUndoButtonStyle, .whiteboardCircleButtonStyle, .whiteboardClearButtonStyle,
 .whiteboardTriangleButtonStyle, .whiteboardTextButtonStyle, .whiteboardRectangleButtonStyle,
-.whiteboardPanZoomButtonStyle, .whiteboardLineButtonStyle, .whiteboardScribbleButtonStyle
+.whiteboardPanZoomButtonStyle, .whiteboardSelectButtonStyle , .whiteboardLineButtonStyle, 
+.whiteboardScribbleButtonStyle
 {
   textIndent: 0;
   paddingLeft: 0;
@@ -131,6 +133,10 @@ DataGrid {
 
 .whiteboardPanZoomButtonStyle {
   icon: Embed('assets/images/hand.png');   
+}
+
+.whiteboardSelectButtonStyle {
+  icon: Embed('assets/images/pointer_icon_small.png');   
 }
 
 .whiteboardRectangleButtonStyle {

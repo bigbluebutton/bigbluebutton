@@ -34,6 +34,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 	import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
 	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;

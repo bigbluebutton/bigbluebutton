@@ -25,24 +25,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[		
             import com.asfusion.mate.events.Dispatcher;
-            
-            import mx.managers.CursorManager;
-            
-            import org.bigbluebutton.common.IBbbCanvas;
-            import org.bigbluebutton.common.Images;
-            import org.bigbluebutton.common.LogUtil;
-            import org.bigbluebutton.main.events.MadePresenterEvent;
-            import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
-            import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
-            import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-            import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
-            import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
-            import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
-            import org.bigbluebutton.modules.whiteboard.events.PageEvent;
-            import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-            import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-            import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
-            import org.bigbluebutton.modules.whiteboard.models.Annotation;
+			
+			import mx.core.UIComponent;
+			import mx.managers.CursorManager;
+			
+			import org.bigbluebutton.common.IBbbCanvas;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
+			import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
+			import org.bigbluebutton.modules.whiteboard.events.PageEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
+			import org.bigbluebutton.modules.whiteboard.models.Annotation;
 			
 			public var model:WhiteboardCanvasModel;	
             public var displayModel:WhiteboardCanvasDisplayModel;
@@ -64,6 +65,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var toolType:String = DrawObject.PENCIL;
 			private var whiteboardEnabled:Boolean = false;
 			private var showWhiteboard:Boolean = true;
+			private var currentDrawingCanvas:IBbbCanvas;
+			private var selectionBorder:UIComponent = null;
+			private var resizingButtons:Array = new Array();
           
 			private function init():void {
 				this.label = "Highlighter";
@@ -186,6 +190,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function makeTextObjectsUneditable(e:MadePresenterEvent):void {
 //				model.makeTextObjectsUneditable(e);
 			}
+
+			public function makeTextObjectEditable(tobj:TextObject):void {
+				LogUtil.debug("canvas makeTextObjectEditable");
+				displayModel.makeTextObjectEditable(tobj);
+				tobj.removeEventListener(MouseEvent.MOUSE_DOWN, onGraphicMouseDown);
+			}
 			
 			private function setWhiteboardVisibility():void {
                 if (this.whiteboardEnabled && this.showWhiteboard) {
@@ -193,6 +203,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     registerForMouseEvents();
                 } else {
                     this.visible = false;
+                    setDrawingCanvasToSlide();
                     unregisterForMouseEvents();
                 }
 			}
@@ -230,14 +241,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			/** Inherited from org.bigbluebutton.common.IBbbCanvas*/
 			public function addRawChild(child:DisplayObject):void {
-				this.bbbCanvas.addRawChild(child);
+				addRawChildConcerningEvent(child, false);
 			}
 			
 			public function removeRawChild(child:DisplayObject):void {
-				this.bbbCanvas.removeRawChild(child);
+				if(currentDrawingCanvas == this) {
+					LogUtil.debug("Remove raw child from whiteboard");
+					this.rawChildren.removeChild(child);
+				} else {
+					LogUtil.debug("Remove raw child from slide");
+					this.bbbCanvas.removeRawChild(child);
+				}
 			}
 			
 			public function doesContain(child:DisplayObject):Boolean {
+				if (currentDrawingCanvas == this) {
+					return this.rawChildren.contains(child);
+				}
 				return bbbCanvas.doesContain(child);
 			}
 			
@@ -246,6 +266,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 //				LogUtil.debug("OVERLAYING PRESENTATION CANVAS");
                 
 				this.bbbCanvas = overlay;
+				currentDrawingCanvas = overlay;
 				//Load existing shapes onto the canvas.
 				dispatchEvent(new PageEvent(PageEvent.LOAD_PAGE));
                 
@@ -279,11 +300,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				addRawChild(child);
 			}
 			
-			public function zoomCanvas(width:Number, height:Number):void {
+			public function zoomCanvas(width:Number, height:Number, zoomPercentage:Number):void {
 				this.width = width;
 				this.height = height;	
-				displayModel.zoomCanvas(width, height);
-                model.zoomCanvas(width, height);
+				displayModel.zoomCanvas(width, height, zoomPercentage);
+                model.zoomCanvas(width, height, zoomPercentage);
 				textToolbar.adjustForZoom(width, height);
 			}
 					
@@ -310,6 +331,210 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 useHandCursor = true;
 			}
 			
+			public function setDrawingCanvasToWhiteboard():void{
+				if(currentDrawingCanvas == this.bbbCanvas) {
+					LogUtil.debug("Switch Canvas to whiteboard");
+					
+					currentDrawingCanvas = this;
+					
+					// Move drawing up to whiteboard here
+					var annotationList:Array = displayModel.getAnnotationList();
+					
+					LogUtil.debug("annotationList.length = " + annotationList.length);
+					
+					for (var i:int = 0; i < annotationList.length; i++) {
+						LogUtil.debug(flash.utils.getQualifiedClassName(annotationList[i]));
+						
+						var graphic:DisplayObject = annotationList[i] as DisplayObject;
+						if (this.bbbCanvas.doesContain(graphic)) {
+							this.bbbCanvas.removeRawChild(graphic);
+							
+							this.addRawChild(graphic);
+						}
+					}
+					
+					if (selectionBorder && this.bbbCanvas.doesContain(selectionBorder)){
+						this.bbbCanvas.removeRawChild(selectionBorder);
+						
+						this.addRawChildConcerningEvent(selectionBorder, true);
+					}
+					
+					for (i = 0; i < resizingButtons.length; i++) {
+						var button:UIComponent = resizingButtons[i] as UIComponent;
+						if (this.bbbCanvas.doesContain(button)){
+							this.bbbCanvas.removeRawChild(button);
+							
+							this.addRawChildConcerningEvent(button, true);
+						}
+					}
+				}
+			}
+			
+			public function setDrawingCanvasToSlide():void{
+				if(currentDrawingCanvas == this) {
+					LogUtil.debug("Switch Canvas to slide");
+					
+					currentDrawingCanvas = this.bbbCanvas;
+					
+					// Move drawing down to slide here
+					var annotationList:Array = displayModel.getAnnotationList();
+					
+					LogUtil.debug("annotationList.length = " + annotationList.length);
+					
+					for (var i:int = 0; i < annotationList.length; i++) {
+						var graphic:DisplayObject = annotationList[i] as DisplayObject;
+						if (this.rawChildren.contains(graphic)) {
+							graphic.removeEventListener(MouseEvent.MOUSE_DOWN, onGraphicMouseDown);
+							this.rawChildren.removeChild(graphic);
+							
+							this.addRawChild(graphic);
+						}
+					}
+					
+					if (selectionBorder && this.rawChildren.contains(selectionBorder)){
+						this.rawChildren.removeChild(selectionBorder);
+						
+						this.addRawChildConcerningEvent(selectionBorder, true);
+					}
+					
+					for (i = 0; i < resizingButtons.length; i++) {
+						var button:UIComponent = resizingButtons[i] as UIComponent;
+						if (this.rawChildren.contains(button)){
+							this.rawChildren.removeChild(button);
+							
+							this.addRawChildConcerningEvent(button, true);
+						}
+					}
+				}
+			}
+			
+			private function onGraphicMouseDown(event:MouseEvent):void{
+				LogUtil.debug("Graphic mousedown fired");
+				
+				model.onGraphicMouseDown(event.currentTarget as DisplayObject, this.mouseX, this.mouseY);
+			}
+			
+			private function onSelectionBorderMouseDown(event:MouseEvent):void{
+				model.doSelectedShapeMouseDown(this.mouseX, this.mouseY);
+			}
+			
+			private function clearResizingButtons():void{
+				for(var i:int=0; i < resizingButtons.length; i++){
+					var button:UIComponent = resizingButtons[i] as UIComponent;
+					if(doesContain(button)){
+						removeRawChild(button);
+					}
+				}								
+				
+				resizingButtons.length = 0;
+			}
+			
+			public function clearSelectionBorder(clearSelectionAsWell:Boolean = false):void{
+				LogUtil.debug("clearSelectionBorder");
+				
+				if (selectionBorder && doesContain(selectionBorder)) {
+					this.removeRawChild(selectionBorder);
+					
+					this.clearResizingButtons();
+				}
+				
+				if (clearSelectionAsWell) {
+					model.clearSelection();
+				}
+			}
+			
+			private function drawResizeButton(x:Number, y:Number):UIComponent
+			{
+				var btn:UIComponent = new UIComponent;
+				
+				btn.graphics.lineStyle(2, 0x000000);
+				btn.graphics.beginFill(0xffffff);
+				btn.graphics.drawRect(0,0,7,7);
+				btn.graphics.endFill();
+				addRawChildConcerningEvent(btn, true);
+				
+				btn.x = x;
+				btn.y = y;
+				
+				return btn;
+			}
+			
+			public function redrawSelectionBorder():void {
+				model.redrawSelectionBorder();
+			}
+			
+			public function drawGraphicSelectionBorder(graphic:DisplayObject):void{
+				LogUtil.debug("drawGraphicSelectionBorder");
+				
+				clearSelectionBorder();
+				
+				LogUtil.debug("after clearSelectionBorder");
+				
+				selectionBorder = new UIComponent();
+				
+				LogUtil.debug("after new selectorBorder");
+				selectionBorder.graphics.lineStyle(2, 0x000000, 0.30);
+				
+				var dimensions:Array = displayModel.getAnnotationDimensions(graphic);
+				var thickness:Number = displayModel.getAnnotationThickness(graphic);
+				var borderX:Number = dimensions[0] - thickness - 3;
+				var borderY:Number = dimensions[1] - thickness - 3;
+				var borderWidth:Number = dimensions[2] + 2 * (thickness + 3);
+				var borderHeight:Number = dimensions[3] + 2 * (thickness + 3);
+				
+				selectionBorder.graphics.beginFill(0x000000, 0);
+				selectionBorder.graphics.drawRect(borderX, borderY, borderWidth, borderHeight);
+				selectionBorder.graphics.endFill();
+				
+				selectionBorder.addEventListener(MouseEvent.MOUSE_DOWN, onSelectionBorderMouseDown);
+				
+				this.clearResizingButtons();
+				
+				resizingButtons.push(drawResizeButton(borderX - 3, borderY - 3));
+				resizingButtons.push(drawResizeButton(borderX + borderWidth/2 - 3, borderY - 3));
+				resizingButtons.push(drawResizeButton(borderX + borderWidth - 3, borderY - 3));
+				resizingButtons.push(drawResizeButton(borderX - 3, borderY + borderHeight/2 - 3));
+				resizingButtons.push(drawResizeButton(borderX + borderWidth - 3, borderY + borderHeight/2 - 3));
+				resizingButtons.push(drawResizeButton(borderX - 3, borderY + borderHeight - 3));
+				resizingButtons.push(drawResizeButton(borderX + borderWidth/2 - 3, borderY + borderHeight - 3));
+				resizingButtons.push(drawResizeButton(borderX + borderWidth - 3, borderY + borderHeight - 3));
+				
+				for(var i:int=0; i < resizingButtons.length; i++){
+					(function(i:int):void{
+						(resizingButtons[i] as UIComponent).addEventListener(MouseEvent.MOUSE_DOWN,function():void{
+							LogUtil.debug("resizingButtons " + i + " mousedown");
+							model.doResizeButtonMouseDown(i, this.mouseX, this.mouseY);
+						});	
+					})(i);
+				}
+				
+				LogUtil.debug("before add selectorBorder to canvas");
+				addRawChildConcerningEvent(selectionBorder, true);
+				
+				LogUtil.debug("end drawSelectedBorderForShape");
+			}
+			
+			public function addRawChildConcerningEvent(child:DisplayObject, shouldNotBindEvent:Boolean):void {				
+				if (currentDrawingCanvas == this) {
+					LogUtil.debug("Add raw child to whiteboard");
+					
+					this.rawChildren.addChild(child);
+					
+					LogUtil.debug("After rawChildren addChild line");
+					
+					if (!shouldNotBindEvent) {
+						child.addEventListener(MouseEvent.MOUSE_DOWN, onGraphicMouseDown);
+						LogUtil.debug("Add mouse down event");
+					}
+				} else {
+					LogUtil.debug("Add raw child to slide");
+					this.bbbCanvas.addRawChild(child);
+				}
+			}
+			
+			public function deleteSelectedShape():void{
+				model.deleteSelectedShape();
+			}
 		]]>
 	</mx:Script>
 </mx:Canvas>

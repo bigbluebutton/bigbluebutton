@@ -35,14 +35,16 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
   {
     private var _parentWidth:Number = 0;
     private var _parentHeight:Number = 0;
+    private var _zoomPercentage:Number = 100;
     
     public function ShapeFactory() {
       super(GraphicFactory.SHAPE_FACTORY);
     }
     
-    public function setParentDim(width:Number, height:Number):void {
+    public function setParentDim(width:Number, height:Number, zoomPercentage:Number):void {
       _parentWidth = width;
       _parentHeight = height;
+      _zoomPercentage = zoomPercentage;      
     }
     
         public function get parentWidth():Number {
@@ -51,6 +53,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         
         public function get parentHeight():Number {
             return _parentHeight;
+        }
+
+        public function get zoomPercentage():Number {
+            return _zoomPercentage;
         }
         
         public function makeDrawObject(a:Annotation, whiteboardModel:WhiteboardModel):DrawObject{

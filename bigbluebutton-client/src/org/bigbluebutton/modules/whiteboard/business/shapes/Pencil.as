@@ -18,8 +18,6 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-	import flash.display.Sprite;
-	
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 
 	/**
@@ -27,17 +25,24 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	 * @author dzgonjan
 	 * 
 	 */	
-	public class Pencil extends DrawObject
+	public class Pencil extends AsymetricDrawObject
 	{
 		public function Pencil(id:String, type:String, status:String)
 		{
 			super(id, type, status);
 		}
 		
-        override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
+        override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoomPercentage:Number):void {
             var ao:Object = a.annotation;
             
-            this.graphics.lineStyle(ao.thickness, ao.color);
+            setDenormalizedPoints(ao.points as Array, parentWidth, parentHeight);
+            _rawThickness = ao.thickness as uint;
+            _drawColor = ao.color as uint;
+            _fillOn = ao.fill as Boolean;
+            _fillColor = ao.fillColor as uint;
+            _transparencyOn = ao.transparency as Boolean;
+           
+            this.graphics.lineStyle(this.getThickness(zoomPercentage), ao.color);
             
             var graphicsCommands:Vector.<int> = new Vector.<int>();
             graphicsCommands.push(1);
@@ -53,9 +58,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             this.alpha = 1;
         }
         
-        override public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
-            draw(a, parentWidth, parentHeight);
+        override public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number, zoomPercentage:Number):void {
+            this.graphics.clear();
+            draw(a, parentWidth, parentHeight, zoomPercentage);
         }
         
+        override public function getOriginatedToolType():String {
+            return DrawObject.PENCIL;
+        }
 	}
 }

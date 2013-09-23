@@ -149,10 +149,10 @@ package org.bigbluebutton.modules.whiteboard.views
       /** PENCIL is a special case as each segment is a separate shape 
       *   Force the status to always DRAW_START to generate unique ids.
       * **/
-      if (tool.toolType == DrawObject.PENCIL) {
-          status = DrawObject.DRAW_START;
-          _curID = _idGenerator.generateID();
-      }
+//      if (tool.toolType == DrawObject.PENCIL) {
+//          status = DrawObject.DRAW_START;
+//          _curID = _idGenerator.generateID();
+//      }
       
       switch (status) {
         case DrawObject.DRAW_START:
@@ -178,13 +178,13 @@ package org.bigbluebutton.modules.whiteboard.views
       }
             
       /** PENCIL is a special case as each segment is a separate shape **/
-      if (tool.toolType == DrawObject.PENCIL) {
-        dobj.status = DrawObject.DRAW_START;
-        _drawStatus = DrawObject.DRAW_START;
-        _segment = new Array();	
-        var xy:Array = _wbCanvas.getMouseXY();
-        _segment.push(xy[0], xy[1]);
-      }
+//      if (tool.toolType == DrawObject.PENCIL) {
+//        dobj.status = DrawObject.DRAW_START;
+//        _drawStatus = DrawObject.DRAW_START;
+//        _segment = new Array();	
+//        var xy:Array = _wbCanvas.getMouseXY();
+//        _segment.push(xy[0], xy[1]);
+//      }
            
       var an:Annotation = dobj.createAnnotation(_wbModel, _ctrlKeyDown);
       if (an != null) {
