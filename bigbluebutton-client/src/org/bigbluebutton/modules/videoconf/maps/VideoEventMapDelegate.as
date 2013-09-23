@@ -144,17 +144,21 @@ package org.bigbluebutton.modules.videoconf.maps
     private function autoStart():void {     
       
       if (options.skipCamSettingsCheck) {
+        skipCameraSettingsCheck();
+      } else {
+        _dispatcher.dispatchEvent(new ShareCameraRequestEvent());	
+      }
+      				       
+    }
+
+    private function skipCameraSettingsCheck():void {     
         var cam:Camera = Camera.getCamera();
         var videoOptions:VideoConfOptions = new VideoConfOptions();
         cam.setMotionLevel(5, 1000);
         cam.setKeyFrameInterval(videoOptions.camKeyFrameInterval);
         cam.setMode(cam.width, cam.height, videoOptions.camModeFps);
         cam.setQuality(videoOptions.camQualityBandwidth, videoOptions.camQualityPicture);
-        initCameraWithSettings(cam.index, cam.width, cam.height);
-      } else {
-        _dispatcher.dispatchEvent(new ShareCameraRequestEvent());	
-      }
-      				       
+        initCameraWithSettings(cam.index, cam.width, cam.height);     
     }
     
     private function openWebcamWindows():void {
@@ -355,10 +359,15 @@ package org.bigbluebutton.modules.videoconf.maps
 			_isWaitingActivation = false;
     }
     
-    public function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
-	  trace("Webcam: "+_isPublishing + " " + _isPreviewWebcamOpen + " " + _isWaitingActivation);
-	  if (!_isPublishing && !_isPreviewWebcamOpen && !_isWaitingActivation)
-			openWebcamPreview(event.publishInClient);
+    public function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {     
+      if (options.skipCamSettingsCheck) {
+        skipCameraSettingsCheck();
+      } else {
+    	  trace("Webcam: "+_isPublishing + " " + _isPreviewWebcamOpen + " " + _isWaitingActivation);
+    	  if (!_isPublishing && !_isPreviewWebcamOpen && !_isWaitingActivation) {
+          openWebcamPreview(event.publishInClient);
+        }   			
+      }
     }
 	
 	public function handleCamSettingsClosedEvent(event:BBBEvent):void{
