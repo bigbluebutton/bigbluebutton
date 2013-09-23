@@ -135,16 +135,16 @@ usage() {
 	echo "   --watch --withDesc               	Watch processing of recordings and show their description"
 	echo
         echo "Administration:"
-        echo "   --rebuild [meetingID]            	rebuild the output for meetingID"
-        echo "   --republish [meetingID]          	republish the recording for meetingID"
-	echo "   --delete [meetingID]             	delete one meeting and recording"
+        echo "   --rebuild <meetingID>            	rebuild the output for meetingID"
+        echo "   --republish <meetingID>          	republish the recording for meetingID"
+	echo "   --delete <meetingID>             	delete one meeting and recording"
         echo "   --deleteall                      	delete all meetings and recordings"
         echo "   --debug                          	check for recording errors"
         echo "   --check                          	check for configuration errors"
-        echo "   --enable [workflow]              	enable a recording workflow"
-        echo "   --disable [workflow]             	disable a recording workflow"
-        echo "   --tointernal [external meetingId]      get the internal meeting ids for the given external meetingId"
-        echo "   --toexternal [internal meetingId]      get the external meeting id for the given internal meetingId"
+        echo "   --enable <workflow>              	enable a recording workflow"
+        echo "   --disable <workflow>             	disable a recording workflow"
+        echo "   --tointernal <external meetingId>      get the internal meeting ids for the given external meetingId"
+        echo "   --toexternal <internal meetingId>      get the external meeting id for the given internal meetingId"
         #echo "   --rearchive [meetingID]          	rearchive the recording (created before a restart)"
 	echo
 }
