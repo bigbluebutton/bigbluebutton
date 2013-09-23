@@ -94,4 +94,14 @@ public class ParticipantsEventSender implements IRoomListener {
 		// TODO Auto-generated method stub
 		return name;
 	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public void recordingStatusChange(User p, Boolean recording) {
+		log.debug("The recording status has changed " + p.getInternalUserID() + " " + recording);
+		ArrayList args = new ArrayList();
+		args.add(p.getInternalUserID());
+		args.add(recording);
+		so.sendMessage("recordingStatusChange", args);
+	}
 }

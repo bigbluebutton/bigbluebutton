@@ -83,6 +83,7 @@ package org.bigbluebutton.main.model.users
         UserManager.getInstance().getConference().avatarURL = result.avatarURL;
 		UserManager.getInstance().getConference().voiceBridge = result.voicebridge;
 		UserManager.getInstance().getConference().dialNumber = result.dialnumber;
+		UserManager.getInstance().getConference().record = (result.record != "false");
 		
         
 				_conferenceParameters = new ConferenceParameters();
@@ -99,11 +100,7 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.externUserID = result.externUserID;
 				_conferenceParameters.internalUserID = result.internalUserId;
 				_conferenceParameters.logoutUrl = result.logoutUrl;
-				_conferenceParameters.record = true;
-				
-				if (result.record == "false") {
-					_conferenceParameters.record = false;
-				}
+				_conferenceParameters.record = (result.record != "false");
 				
                 // assign the meeting name to the document title
                 ExternalInterface.call("setTitle", "BigBlueButton - " + _conferenceParameters.meetingName);

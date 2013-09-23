@@ -28,4 +28,5 @@ public interface IRoomListener {
 	public void participantLeft(User participant);
 	public void assignPresenter(ArrayList<String> presenter);
 	public void endAndKickAll();
+	public void recordingStatusChange(User p, Boolean recording);
 }

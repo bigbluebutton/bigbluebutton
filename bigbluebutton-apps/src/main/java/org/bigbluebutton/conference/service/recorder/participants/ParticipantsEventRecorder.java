@@ -98,4 +98,14 @@ public class ParticipantsEventRecorder implements IRoomListener {
 		return this.name;
 	}
 
+	@Override
+	public void recordingStatusChange(User p, Boolean recording) {
+		RecordStatusRecordEvent ev = new RecordStatusRecordEvent();
+		ev.setTimestamp(System.currentTimeMillis());
+		ev.setUserId(p.getInternalUserID());
+		ev.setMeetingId(session);
+		ev.setRecordingStatus(recording.toString());
+
+		recorder.record(session, ev);
+	}
 }

@@ -167,31 +167,19 @@ module BigBlueButton
     def self.get_start_and_stop_rec_events(events_xml)
       BigBlueButton.logger.info "Getting start and stop rec button events"
       doc = Nokogiri::XML(File.open(events_xml))
-
-      #######################################################################################
-      # THE CODE BELOW IS FOR DEVELOPMENT PURPOSES ONLY AND SHOULD BE REMOVED WHEN FINISHED #
-      #######################################################################################
-      a = doc.xpath("//event[@eventname='PublicChatEvent']")
-      BigBlueButton.logger.info "Extracting PublicChatEvent events"
-      a.each do |event|
-        if not event.xpath("message[text()='START' or text()='STOP']").empty?
-            event.attributes["eventname"].value = 'RecordStatusEvent'
-            BigBlueButton.logger.info event.to_xml(:indent => 2)
-        end
-      end
-      #######################################################################################
-      # THE CODE ABOVE IS FOR DEVELOPMENT PURPOSES ONLY AND SHOULD BE REMOVED WHEN FINISHED #
-      #######################################################################################
-
       rec_events = []
       doc.xpath("//event[@eventname='RecordStatusEvent']").each do |event|
         s = { :timestamp => event['timestamp'].to_i }
         rec_events << s
       end
+      if rec_events.empty?
+        # old recording generated in a version without the Record Button
+        rec_events << { :timestamp => BigBlueButton::Events.first_event_timestamp(events_xml) }
+      end
       if rec_events.size.odd?
         # user didn't click the Record Button to stop the recording
         rec_events << { :timestamp => BigBlueButton::Events.last_event_timestamp(events_xml) }
-      end      
+      end
       rec_events.sort {|a, b| a[:timestamp] <=> b[:timestamp]}  
     end
     

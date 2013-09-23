@@ -234,4 +234,22 @@ public class RoomsManager {
 		
 	}
 	
+	public void changeRecordingStatus(String roomName, String userid, Boolean recording) {
+		log.debug("Change recording status " + userid + " [" + recording + "]");
+		Room r = getRoom(roomName);
+		if (r != null) {
+			r.changeRecordingStatus(userid, recording);
+			return;
+		}
+		log.warn("Changing recording status on a non-existing room " + roomName);
+	}
+
+	public Boolean getRecordingStatus(String roomName) {
+		Room r = getRoom(roomName);
+		if (r != null) {
+			return r.getRecordingStatus();
+		}
+		log.warn("Getting recording status from a non-existing room " + roomName);
+		return null;
+	}
 }

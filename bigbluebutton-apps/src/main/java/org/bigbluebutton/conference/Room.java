@@ -38,6 +38,7 @@ public class Room implements Serializable {
 	ArrayList<String> currentPresenter = null;
 	private String name;
 	private Map <String, User> participants;
+	private Boolean recording = false;
 
 	// these should stay transient so they're not serialized in ActiveMQ messages:	
 	//private transient Map <Long, Participant> unmodifiableMap;
@@ -167,4 +168,31 @@ public class Room implements Serializable {
 			listener.assignPresenter(presenter);
 		}	
 	}
+
+	public void changeRecordingStatus(String userid, Boolean recording) {
+		boolean notifyAll = false;
+		User p = null;
+		synchronized (this) {
+			if (participants.containsKey(userid)) {
+				p = participants.get(userid);
+				if (recording != this.recording) {
+					log.debug("Changed recording status to " + recording);
+					this.recording = recording;
+					notifyAll = true;
+				}
+			}
+		}
+		if (notifyAll) {
+			for (Iterator it = listeners.values().iterator(); it.hasNext();) {
+				IRoomListener listener = (IRoomListener) it.next();
+				log.debug("calling recordingStatusChange on listener " + listener.getName());
+				listener.recordingStatusChange(p, recording);
+			}
+		}
+	}
+
+	public Boolean getRecordingStatus() {
+		return recording;
+	}
+
 }

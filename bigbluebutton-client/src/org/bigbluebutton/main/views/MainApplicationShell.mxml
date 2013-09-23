@@ -77,7 +77,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.ConfigEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
-			import org.bigbluebutton.main.events.RecordStatusEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
@@ -354,10 +353,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				handleLogout(e);
 			}
 			
-			private function handleRecordStatusEvent(evt:RecordStatusEvent):void {
-				Alert.show(evt.status, evt.module);
-			}
-						
 			private function handleAddToolbarComponent(event:ToolbarButtonEvent):void {
 				if (event.location == ToolbarButtonEvent.BOTTOM_TOOLBAR) {
 					(event.button as UIComponent).tabIndex = baseIndex;

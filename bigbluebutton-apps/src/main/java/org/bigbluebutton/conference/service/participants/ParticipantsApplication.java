@@ -137,4 +137,12 @@ public class ParticipantsApplication {
 	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
 		this.connInvokerService = connInvokerService;
 	}
+
+	public void setRecordingStatus(String room, String userid, Boolean recording) {
+		roomsManager.changeRecordingStatus(room, userid, recording);
+	}
+
+	public Boolean getRecordingStatus(String roomName) {
+		return roomsManager.getRecordingStatus(roomName);
+	}
 }
