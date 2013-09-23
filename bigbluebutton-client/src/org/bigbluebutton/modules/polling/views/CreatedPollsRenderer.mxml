@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="90%">
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="90%"
+         creationComplete="onCreationComplete()">
   <mx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
@@ -12,6 +13,17 @@
       private static const LOG:String = "CreatedPollsRenderer - ";
       
       private var globalDispatch:Dispatcher = new Dispatcher();
+      
+      private function onCreationComplete():void{
+        validateNow();
+      }
+      
+      override public function set data(value:Object):void {
+        super.data = value;  
+        if (data == null) return;
+     
+        validateNow();
+      }
       
       private function startPoll():void {
         trace(LOG + "::startPoll() " + data.id);   
@@ -30,14 +42,12 @@
       
       private function editPoll():void {
         var event:PollEvent = new PollEvent(PollEvent.EDIT_POLL_REQUEST, data.id);
-        globalDispatch.dispatchEvent(event);        
-        
+        globalDispatch.dispatchEvent(event);              
       }
       
       private function showPollResult():void {
         var event:PollEvent = new PollEvent(PollEvent.SHOW_POLL_RESULT, data.id);
-        globalDispatch.dispatchEvent(event);        
-        
+        globalDispatch.dispatchEvent(event);               
       }
     ]]>
   </mx:Script>
@@ -45,17 +55,17 @@
   <mx:Button id="resultBtn" label="Result" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn.toolTip')}" 
              styleName="presentationUploadShowButtonStyle"
-             click="showPollResult()" enabled="true"/>
+             click="showPollResult()" enabled="{data.stopped}"/>
   <mx:Button id="startBtn" label="Start" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn.toolTip')}" 
              styleName="presentationUploadShowButtonStyle"
-             click="startPoll()" enabled="true"/>
+             click="startPoll()" enabled="{!data.started}"/>
   <mx:Button id="editBtn" label="Edit" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn.toolTip')}" 
              styleName="presentationUploadShowButtonStyle"
-             click="editPoll()" enabled="true"/>
+             click="editPoll()" enabled="{!data.started}"/>
   <mx:Button id="deleteBtn" label="" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.deleteBtn.toolTip')}" 
              styleName="presentationUploadDeleteButtonStyle"
-             click="deletePoll()" enabled="true"/>
+             click="deletePoll()" enabled="{!data.started}"/>
   
 </mx:HBox>
