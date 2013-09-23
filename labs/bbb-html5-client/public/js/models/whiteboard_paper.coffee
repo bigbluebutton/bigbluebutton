@@ -64,6 +64,8 @@ define [
         globals.events.on "connection:connected", =>
           @_registerEvents()
 
+      
+
     # Override the close() to unbind events.
     unbindEvents: ->
       $(window).off "resize.whiteboard_paper"
@@ -89,6 +91,27 @@ define [
         @slides = {} # if previously loaded
       unless navigator.userAgent.indexOf("Firefox") is -1
         @raphaelObj.renderfix()
+
+      #initializing boarder around slide to cover up areas which shouldnt show
+      
+      @boarderLeft = @raphaelObj.rect(0, 0, 0, 0 );
+      @boarderRight = @raphaelObj.rect(0, 0, 0, 0 );
+
+      @boarderTop = @raphaelObj.rect(0,0, 0, 0)
+      @boarderBottom = @raphaelObj.rect(0,0, 0, 0)
+
+      @boarderLeft.attr("fill", "#ababab");
+      @boarderLeft.attr( {stroke:"#ababab"} )
+
+      @boarderRight.attr("fill", "#ababab");
+      @boarderRight.attr( {stroke:"#ababab"} )
+
+      @boarderTop.attr("fill", "#ababab");
+      @boarderTop.attr( {stroke:"#ababab"} )
+
+      @boarderBottom.attr("fill", "#ababab");
+      @boarderBottom.attr( {stroke:"#ababab"} )
+      
 
     # Re-add the images to the paper that are found
     # in the slides array (an object of urls and dimensions).
@@ -423,13 +446,7 @@ define [
 
 
       #get the actual size of the slide, depending on the limiting factor (container width or container height)
-      if(@containerWidth - slideWidth < @containerHeight - slideHeight)
-        actualHeight = @containerWidth * slideHeight / slideWidth
-        actualWidth = @containerWidth
-      else
-        actualWidth = @containerHeight * slideWidth / slideHeight 
-        actualHeight = @containerHeight
-
+      
       actualWidth = @currentSlide.displayWidth
       actualHeight = @currentSlide.displayHeight
       #console.log("actualWidth:" + actualWidth + " actualHeight: " + actualHeight)
@@ -444,6 +461,31 @@ define [
 
       #set parameters to raphael viewbox
       @raphaelObj.setViewBox(newXPos , newyPos,  newWidth , newHeight , true);
+
+      
+      #update the rectangle elements which create the boarder when page is zoomed
+
+      @boarderLeft.attr( {width:newXPos, height: @containerHeight} )
+      
+      @boarderRight.attr(
+        x: newXPos + newWidth
+        y: 0
+        width:newXPos
+        height:@containerHeight
+      )
+
+      
+      @boarderTop.attr(
+        width: @containerWidth
+        height: newyPos
+      )
+
+
+      @boarderBottom.attr(
+        y: newyPos + newHeight
+        width: @containerWidth
+        height: @containerHeight
+      )
 
     # Registers listeners for events in the gloval event bus
     _registerEvents: ->
