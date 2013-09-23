@@ -426,6 +426,7 @@ define [
       [slideWidth, slideHeight] = @_currentSlideOriginalDimensions()
       @cursor.setPosition(x * slideWidth + cx, y * slideHeight + cy)
 
+      #if the slide is zoomed in then move the cursor based on where the viewBox is looking
       if @viewBoxXpos? && @viewBoxYPos?  && @viewBoxWidth? && @viewBoxHeight?
         @cursor.setPosition( @viewBoxXpos + x * @viewBoxWidth, @viewBoxYPos + y * @viewBoxHeight ) 
 
