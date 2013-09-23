@@ -538,6 +538,7 @@ define [
 
       globals.events.on "connection:mvCur", (x, y) =>
         @moveCursor(x, y)
+        console.log "x: " + x + " y: " + y
 
       globals.events.on "connection:move_and_zoom", (xOffset, yOffset, widthRatio, heightRatio) =>
         @moveAndZoom(xOffset, yOffset, widthRatio, heightRatio)
@@ -694,11 +695,18 @@ define [
       
       #now the zooming will still be correct when the window is resized
       #and hopefully when rotated on a mobile device
-      if @globalxOffset && @globalyOffset && @globalwidthRatio && @globalheightRatio
+      if @globalxOffset? && @globalyOffset? && @globalwidthRatio? && @globalheightRatio?
         console.log "has zoomed in"
         @moveAndZoom(@globalxOffset, @globalyOffset, @globalwidthRatio, @globalheightRatio)
 
       else
+        obj = 
+          globalxOffset : @globalxOffset
+          globalyOffset : @globalyOffset
+          globalwidthRatio : @globalwidthRatio
+          globalheightRatio : @globalheightRatio
+
+        console.log obj
         console.log "not zoomed"
         @raphaelObj.setViewBox(newXPos, newyPos, newWidth, newHeight,true)
 
