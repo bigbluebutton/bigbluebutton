@@ -138,7 +138,6 @@ usage() {
         echo "Administration:"
         echo "   --rebuild <internal meetingID>       rebuild the output for the given internal meetingID"
         echo "   --rebuildall			        rebuild every recording"
-        echo "   --republish <internal meetingID>	republish the recording for meetingID"
 	echo "   --delete <internal meetingID>	delete one meeting and recording"
         echo "   --deleteall                      	delete all meetings and recordings"
         echo "   --debug                          	check for recording errors"
@@ -147,6 +146,7 @@ usage() {
         echo "   --disable <workflow>             	disable a recording workflow"
         echo "   --tointernal <external meetingId>	get the internal meeting ids for the given external meetingId"
         echo "   --toexternal <internal meetingId>	get the external meeting id for the given internal meetingId"
+        echo "   --republish <internal meetingID>	republish the recording for meetingID. (Only for Matterhorn Integration)"
         #echo "   --rearchive [meetingId]		rearchive the recording (created before a restart)"
 	echo
 }
