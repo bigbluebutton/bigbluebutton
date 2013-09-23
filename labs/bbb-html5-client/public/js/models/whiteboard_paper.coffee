@@ -426,6 +426,9 @@ define [
       [slideWidth, slideHeight] = @_currentSlideOriginalDimensions()
       @cursor.setPosition(x * slideWidth + cx, y * slideHeight + cy)
 
+      if @viewBoxXpos? && @viewBoxYPos?  && @viewBoxWidth? && @viewBoxHeight?
+        @cursor.setPosition( @viewBoxXpos + x * @viewBoxWidth, @viewBoxYPos + y * @viewBoxHeight ) 
+
     # Update the slide to move and zoom
     # @param  {number} xOffset the x value of offset
     # @param  {number} yOffset the y value of offset
@@ -456,6 +459,11 @@ define [
       newyPos = baseHeight - 2* yOffset * actualHeight / 100
       newWidth = actualWidth  /  100 * widthRatio
       newHeight = actualHeight / 100 * heightRatio
+
+      @viewBoxXpos = newXPos
+      @viewBoxYPos = newyPos
+      @viewBoxWidth = newWidth
+      @viewBoxHeight = newHeight
 
       #console.log("newXPos: " + newXPos + " newyPos: " + newyPos + " newWidth: " + newWidth + " newHeight: " + newHeight)
 
