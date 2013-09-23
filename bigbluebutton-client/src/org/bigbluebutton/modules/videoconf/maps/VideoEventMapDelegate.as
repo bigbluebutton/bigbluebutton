@@ -19,6 +19,7 @@
 package org.bigbluebutton.modules.videoconf.maps
 {
   import flash.events.IEventDispatcher;
+  import flash.media.Camera;
   
   import mx.collections.ArrayCollection;
   
@@ -140,8 +141,20 @@ package org.bigbluebutton.modules.videoconf.maps
       }
     }
     
-    private function autoStart():void {       
-      _dispatcher.dispatchEvent(new ShareCameraRequestEvent());					       
+    private function autoStart():void {     
+      
+      if (options.skipCamSettingsCheck) {
+        var cam:Camera = Camera.getCamera();
+        var videoOptions:VideoConfOptions = new VideoConfOptions();
+        cam.setMotionLevel(5, 1000);
+        cam.setKeyFrameInterval(videoOptions.camKeyFrameInterval);
+        cam.setMode(cam.width, cam.height, videoOptions.camModeFps);
+        cam.setQuality(videoOptions.camQualityBandwidth, videoOptions.camQualityPicture);
+        initCameraWithSettings(cam.index, cam.width, cam.height);
+      } else {
+        _dispatcher.dispatchEvent(new ShareCameraRequestEvent());	
+      }
+      				       
     }
     
     private function openWebcamWindows():void {
@@ -413,15 +426,19 @@ package org.bigbluebutton.modules.videoconf.maps
       var camWidth:int = event.payload.cameraWidth;
       var camHeight:int = event.payload.cameraHeight;     
       trace("VideoEventMapDelegate::handleCameraSettings [" + cameraIndex + "," + camWidth + "," + camHeight + "]");
+      initCameraWithSettings(cameraIndex, camWidth, camHeight);
+    }
+    
+    private function initCameraWithSettings(camIndex:int, camWidth:int, camHeight:int):void {
       var camSettings:CameraSettingsVO = new CameraSettingsVO();
-      camSettings.camIndex = cameraIndex;
+      camSettings.camIndex = camIndex;
       camSettings.camWidth = camWidth;
       camSettings.camHeight = camHeight;
       
       UsersUtil.setCameraSettings(camSettings);
       
-	  _isWaitingActivation = true;
-      openPublishWindowFor(UsersUtil.getMyUserID(), cameraIndex, camWidth, camHeight);       
+      _isWaitingActivation = true;
+      openPublishWindowFor(UsersUtil.getMyUserID(), camIndex, camWidth, camHeight);       
     }
     
     public function handleStoppedViewingWebcamEvent(event:StoppedViewingWebcamEvent):void {

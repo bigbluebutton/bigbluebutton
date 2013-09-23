@@ -97,7 +97,10 @@ package org.bigbluebutton.modules.videoconf.model
 		
 		[Bindable]
 		public var focusTalking:Boolean = false;
-		
+	
+    [Bindable]
+    public var skipCamSettingsCheck:Boolean = false;
+    
 		[Bindable]
 		public var glowColor:String = "0x4A931D";
 		
@@ -141,6 +144,9 @@ package org.bigbluebutton.modules.videoconf.model
 				if (vxml.@viewerWindowMaxed != undefined) {
 					viewerWindowMaxed = (vxml.@viewerWindowMaxed.toString().toUpperCase() == "TRUE") ? true : false;
 				}					
+        if (vxml.@skipCamSettingsCheck != undefined) {
+          skipCamSettingsCheck = (vxml.@skipCamSettingsCheck.toString().toUpperCase() == "TRUE") ? true : false;
+        }	        
 				if (vxml.@viewerWindowLocation != undefined) {
 					viewerWindowLocation = vxml.@viewerWindowLocation.toString().toUpperCase();
 				}				
