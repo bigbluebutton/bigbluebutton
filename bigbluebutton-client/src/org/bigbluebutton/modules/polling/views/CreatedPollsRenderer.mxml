@@ -52,19 +52,19 @@
     ]]>
   </mx:Script>
   <mx:Label id="pollTitleLabel" text="{data.title}" styleName="presentationNameLabelStyle" width="80%"/>
-  <mx:Button id="resultBtn" label="Result" 
-             toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn.toolTip')}" 
+  <mx:Button id="resultBtn" label="{ResourceUtil.getInstance().getString('bbb.polling.resultBtn.label')}" 
+             toolTip="{ResourceUtil.getInstance().getString('bbb.polling.resultBtn.toolTip')}" 
              styleName="presentationUploadShowButtonStyle"
              click="showPollResult()" enabled="{data.stopped}"/>
-  <mx:Button id="startBtn" label="Start" 
-             toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn.toolTip')}" 
+  <mx:Button id="startBtn" label="{ResourceUtil.getInstance().getString('bbb.polling.startBtn.label')}" 
+             toolTip="{ResourceUtil.getInstance().getString('bbb.polling.startBtn.toolTip')}" 
              styleName="presentationUploadShowButtonStyle"
              click="startPoll()" enabled="{!data.started}"/>
-  <mx:Button id="editBtn" label="Edit" 
-             toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn.toolTip')}" 
+  <mx:Button id="editBtn" label="{ResourceUtil.getInstance().getString('bbb.polling.editBtn.label')}" 
+             toolTip="{ResourceUtil.getInstance().getString('bbb.polling.editBtn.toolTip')}" 
              styleName="presentationUploadShowButtonStyle"
              click="editPoll()" enabled="{!data.started}"/>
-  <mx:Button id="deleteBtn" label="" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.deleteBtn.toolTip')}" 
+  <mx:Button id="deleteBtn" label="" toolTip="{ResourceUtil.getInstance().getString('bbb.polling.deleteBtn.toolTip')}" 
              styleName="presentationUploadDeleteButtonStyle"
              click="deletePoll()" enabled="{!data.started}"/>
   
