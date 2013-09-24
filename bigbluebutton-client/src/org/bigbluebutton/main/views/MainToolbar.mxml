@@ -91,7 +91,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var xml:XML;
 			
 			private function init():void{
-				AlertAccImpl.enableAccessibility();
+				if (Capabilities.hasAccessibility) {
+					AlertAccImpl.enableAccessibility();
+				}
 				
 				baseIndex = 101;
 				numButtons = 0;
