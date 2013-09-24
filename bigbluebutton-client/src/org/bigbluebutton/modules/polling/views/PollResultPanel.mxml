@@ -11,8 +11,9 @@
       
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.modules.polling.events.PollEvent;
-      import org.bigbluebutton.modules.polling.model.PollingViewModel;
       import org.bigbluebutton.modules.polling.events.PollResultWindowEvent;
+      import org.bigbluebutton.modules.polling.model.PollVO;
+      import org.bigbluebutton.modules.polling.model.PollingViewModel;
       
       [Bindable] public var viewModel:PollingViewModel;
       [Bindable] public var pollID:String;
@@ -21,7 +22,12 @@
       private function onCreationComplete():void{
         setCurrentState("PieChart");
         if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) {
-          _showStopButton = true;
+          var poll:PollVO = viewModel.getPoll(pollID);
+          if (poll.started && !poll.stopped) {
+            _showStopButton = true;
+          } else {
+            _showStopButton = false;
+          }         
         }
       }
       
