@@ -102,12 +102,15 @@ define [
 
       @boarderLeft.attr("fill", "#ababab");
       @boarderLeft.attr( {stroke:"#ababab"} )
+      
 
       @boarderRight.attr("fill", "#ababab");
       @boarderRight.attr( {stroke:"#ababab"} )
+      
 
       @boarderTop.attr("fill", "#ababab");
       @boarderTop.attr( {stroke:"#ababab"} )
+      
 
       @boarderBottom.attr("fill", "#ababab");
       @boarderBottom.attr( {stroke:"#ababab"} )
@@ -495,6 +498,12 @@ define [
         width: @containerWidth
         height: @containerHeight
       )
+
+      #boarders should appear infront of every other element (i.e. shapes)
+      @boarderLeft.toFront()
+      @boarderRight.toFront()
+      @boarderTop.toFront()
+      @boarderBottom.toFront()
 
     # Registers listeners for events in the gloval event bus
     _registerEvents: ->
