@@ -269,6 +269,93 @@ module BigBlueButton
       return deskshare_edl
     end
 
+    def self.edl_match_recording_marks_audio(edl, archive_dir)
+      calculate_entry_files_timestamp = Proc.new do |edl_entry, new_value|
+        edl_entry[:audio][:timestamp] = new_value
+      end
+
+      empty_entry = {
+        :timestamp => nil,
+        :audio => nil
+      }
+
+      return edl_match_recording_marks(edl, archive_dir, calculate_entry_files_timestamp, empty_entry)
+    end
+
+    def self.edl_match_recording_marks(edl, archive_dir, calculate_entry_files_timestamp, empty_entry)
+      events = Nokogiri::XML(File.open("#{archive_dir}/events.xml"))
+      event = events.at_xpath('/recording/event[position()=1]')
+      initial_timestamp = event['timestamp'].to_i
+
+      start_stop_events = BigBlueButton::Events.match_start_and_stop_rec_events(BigBlueButton::Events.get_start_and_stop_rec_events("#{archive_dir}/events.xml"))
+      # translated the timestamps to the recording timestamp
+      start_stop_events.each do |record_event|
+        record_event[:start_timestamp] -= initial_timestamp
+        record_event[:stop_timestamp] -= initial_timestamp
+      end
+      BigBlueButton.logger.debug "start_stop_events:\n#{BigBlueButton.hash_to_str(start_stop_events)}"
+
+      # add duration to EDL
+      edl.each_with_index do |edl_entry, i|
+        if i == edl.length-1
+          edl_entry[:duration] = 0
+        else
+          edl_entry[:duration] = edl[i+1][:timestamp] - edl_entry[:timestamp]
+        end
+        # the original_duration is used to calculate the speed of the output file
+        edl_entry[:original_duration] = edl_entry[:duration]
+      end
+
+      BigBlueButton.logger.debug "edl with duration:\n#{BigBlueButton.hash_to_str(edl)}"
+
+      edl_postprocessed = []
+      start_stop_events.each do |record_event|
+        edl.each do |edl_entry|
+          edl_copy = Marshal.load(Marshal.dump(edl_entry))
+
+          edl_start = edl_entry[:timestamp]
+          edl_stop = edl_entry[:timestamp] + edl_entry[:duration]
+          rec_start = record_event[:start_timestamp]
+          rec_stop = record_event[:stop_timestamp]
+
+          # edl doesn't match with the recording marks
+          if (edl_start < rec_start and edl_stop < rec_start) or (edl_start > rec_stop and edl_stop > rec_stop)
+            next
+          end
+
+          # adjust the beginning timestamp
+          if edl_start < rec_start
+            edl_copy[:timestamp] = rec_start
+            edl_copy[:duration] -= rec_start - edl_start
+            calculate_entry_files_timestamp.call(edl_copy, rec_start - edl_start)
+            # edl_copy[:audio][:timestamp] = rec_start - edl_start
+          end
+
+          # adjust the duration
+          if edl_stop > rec_stop
+            edl_copy[:duration] -= edl_stop - rec_stop
+          end
+
+          edl_postprocessed << edl_copy
+        end
+      end
+
+      # trim the intervals
+      next_timestamp = 0
+      edl_postprocessed.each do |edl_entry|
+        edl_entry[:timestamp] = next_timestamp
+        next_timestamp += edl_entry[:duration]
+      end
+      empty_entry[:timestamp] = next_timestamp
+      edl_postprocessed << empty_entry
+#      edl_postprocessed << {
+#        :timestamp => next_timestamp,
+#        media_symbol => nil
+#      }
+      BigBlueButton.logger.debug "edl_postprocessed:\n#{BigBlueButton.hash_to_str(edl_postprocessed)}"
+      return edl_postprocessed
+    end
+
     def self.linkify( text )
       generic_URL_regexp = Regexp.new( '(^|[\n ])([\w]+?://[\w]+[^ \"\n\r\t<]*)', Regexp::MULTILINE | Regexp::IGNORECASE )
       starts_with_www_regexp = Regexp.new( '(^|[\n ])((www)\.[^ \"\t\n\r<]*)', Regexp::MULTILINE | Regexp::IGNORECASE )
