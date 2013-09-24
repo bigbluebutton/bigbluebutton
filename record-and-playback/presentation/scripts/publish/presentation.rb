@@ -49,9 +49,12 @@ def processPanAndZooms
 			timestamp_prev = nil
 			last_time = nil
 			if $panzoom_events.empty?
+				BigBlueButton.logger.info("No panzoom events; old recording?")
+				BigBlueButton.logger.info("Synthesizing a panzoom event")
 				if !$slides_events.empty?
-					BigBlueButton.logger.info("Slides found, but no panzoom events; synthesizing one")
-					timestamp_orig = $slides_events.first[:timestamp].to_f + 1000
+					timestamp_orig = $slides_events.first[:timestamp].to_f
+					# make sure this is scheduled *after* the slide is shown. Dunno if needed.
+					timestamp_orig += 1000
 					timestamp = ( translateTimestamp(timestamp_orig) / 1000 ).round(1)
 					$xml.event(:timestamp => timestamp, :orig => timestamp_orig) do
 						$xml.viewBox "0 0 #{$vbox_width} #{$vbox_height}"
@@ -277,7 +280,7 @@ def storeLineShape
                 else
                         $line_count = $line_count + 1
                 end
-		$global_shape_count += 1
+                $global_shape_count += 1
                 $xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "line#{$line_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
 
                         $originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
@@ -337,7 +340,7 @@ def storeTriangleShape
                 else
                         $triangle_count = $triangle_count + 1
                 end
-		$global_shape_count += 1
+                $global_shape_count += 1
                 $xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "triangle#{$triangle_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
 
                         $originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
@@ -712,7 +715,6 @@ end
 
 def processChatMessages
 	BigBlueButton.logger.info("Processing chat events")
-
 	# Create slides.xml and chat.
 	$slides_doc = Nokogiri::XML::Builder.new do |xml|
 		$xml = xml
@@ -809,21 +811,21 @@ if ($playback == "presentation")
 		begin	
 		
 		if File.exist?("#{$process_dir}/webcams.webm")
-  		  BigBlueButton.logger.info("Making video dir")
-  		  video_dir = "#{package_dir}/video"
-		  FileUtils.mkdir_p video_dir
-		  BigBlueButton.logger.info("Made video dir - copying: #{$process_dir}/webcams.webm to -> #{video_dir}")
-		  FileUtils.cp("#{$process_dir}/webcams.webm", video_dir)
-		  BigBlueButton.logger.info("Copied .webm file")
+			BigBlueButton.logger.info("Making video dir")
+			video_dir = "#{package_dir}/video"
+			FileUtils.mkdir_p video_dir
+			BigBlueButton.logger.info("Made video dir - copying: #{$process_dir}/webcams.webm to -> #{video_dir}")
+			FileUtils.cp("#{$process_dir}/webcams.webm", video_dir)
+			BigBlueButton.logger.info("Copied .webm file")
 		else
-		  audio_dir = "#{package_dir}/audio"
-   		  BigBlueButton.logger.info("Making audio dir")
-		  FileUtils.mkdir_p audio_dir
-		  BigBlueButton.logger.info("Made audio dir - copying: #{$process_dir}/audio.ogg to -> #{audio_dir}")
-		  FileUtils.cp("#{$process_dir}/audio.ogg", audio_dir)
-		  BigBlueButton.logger.info("Copied .ogg file - copying: #{$process_dir}/audio.webm to -> #{audio_dir}")
-		  FileUtils.cp("#{$process_dir}/audio.webm", audio_dir)
-		  BigBlueButton.logger.info("Copied audio.webm file")	
+			audio_dir = "#{package_dir}/audio"
+			BigBlueButton.logger.info("Making audio dir")
+			FileUtils.mkdir_p audio_dir
+			BigBlueButton.logger.info("Made audio dir - copying: #{$process_dir}/audio.webm to -> #{audio_dir}")
+			FileUtils.cp("#{$process_dir}/audio.webm", audio_dir)
+			BigBlueButton.logger.info("Copied audio.webm file - copying: #{$process_dir}/audio.ogg to -> #{audio_dir}")
+			FileUtils.cp("#{$process_dir}/audio.ogg", audio_dir)
+			BigBlueButton.logger.info("Copied audio.ogg file")
 		end
 
 		BigBlueButton.logger.info("Copying files to package dir")
@@ -850,7 +852,6 @@ if ($playback == "presentation")
 			}
 			b.meta {
 				BigBlueButton::Events.get_meeting_metadata("#{$process_dir}/events.xml").each { |k,v| b.method_missing(k,v) }
-
 			}
 		}
 		metadata_xml = File.new("#{package_dir}/metadata.xml","w")
@@ -921,7 +922,11 @@ if ($playback == "presentation")
 		FileUtils.rm_r(Dir.glob("#{target_dir}/*"))
                 rescue  Exception => e
                         BigBlueButton.logger.error(e.message)
-                end
+			e.backtrace.each do |traceline|
+				BigBlueButton.logger.error(traceline)
+			end
+			exit 1
+		end
 	else
 		BigBlueButton.logger.info("#{target_dir} is already there")
 	end

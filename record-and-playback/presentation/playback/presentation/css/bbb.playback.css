@@ -93,6 +93,7 @@ br{
 
 #video{
   width: 402px;
+  background: white;
 }
 
 /* To remove the white space on top of the audio tag in Firefox

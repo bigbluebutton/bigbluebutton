@@ -19,6 +19,7 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
 
+
 require 'rubygems'
 require 'nokogiri'
 
@@ -50,8 +51,8 @@ module BigBlueButton
       BigBlueButton.logger.info("Task: Getting the timestamp of the last event")
       doc = Nokogiri::XML(File.open(events_xml))
       doc.xpath("recording/event").last["timestamp"].to_i
-    end
-
+    end  
+    
     # Determine if the start and stop event matched.
     def self.find_video_event_matched(start_events, stop)      
       BigBlueButton.logger.info("Task: Finding video events that match")
@@ -100,6 +101,78 @@ module BigBlueButton
       end
       stop_events
     end
+
+    # Build a webcam EDL
+    def self.create_webcam_edl(archive_dir)
+      events = Nokogiri::XML(File.open("#{archive_dir}/events.xml"))
+
+      recording = events.at_xpath('/recording')
+      meeting_id = recording['meeting_id']
+      event = events.at_xpath('/recording/event[position()=1]')
+      initial_timestamp = event['timestamp'].to_i
+      event = events.at_xpath('/recording/event[position()=last()]')
+      final_timestamp = event['timestamp'].to_i
+
+      video_dir = "#{archive_dir}/video/#{meeting_id}"
+
+      videos = {}
+      active_videos = []
+      video_edl = []
+      
+      video_edl << {
+        :timestamp => 0,
+        :areas => { :webcam => [] } 
+      }
+
+      events.xpath('/recording/event[@module="WEBCAM"]').each do |event|
+        timestamp = event['timestamp'].to_i - initial_timestamp
+        case event['eventname']
+        when 'StartWebcamShareEvent'
+          stream = event.at_xpath('stream').text
+          filename = "#{video_dir}/#{stream}.flv"
+
+          videos[filename] = { :timestamp => timestamp }
+          active_videos << filename
+
+          edl_entry = {
+            :timestamp => timestamp,
+            :areas => { :webcam => [] }
+          }
+          active_videos.each do |filename|
+            edl_entry[:areas][:webcam] << {
+              :filename => filename,
+              :timestamp => timestamp - videos[filename][:timestamp]
+            }
+          end
+          video_edl << edl_entry
+        when 'StopWebcamShareEvent'
+          stream = event.at_xpath('stream').text
+          filename = "#{video_dir}/#{stream}.flv"
+
+          active_videos.delete(filename)
+
+          edl_entry = {
+            :timestamp => timestamp,
+            :areas => { :webcam => [] }
+          }
+          active_videos.each do |filename|
+            edl_entry[:areas][:webcam] << {
+              :filename => filename,
+              :timestamp => timestamp - videos[filename][:timestamp]
+            }
+          end
+          video_edl << edl_entry
+        end
+      end
+
+      video_edl << {
+        :timestamp => final_timestamp - initial_timestamp,
+        :areas => { :webcam => [] }
+      }
+
+      return video_edl
+    end
+
         
     # Determine if the start and stop event matched.
     def self.deskshare_event_matched?(stop_events, start)
@@ -151,19 +224,62 @@ module BigBlueButton
       stop_events.sort {|a, b| a[:stop_timestamp] <=> b[:stop_timestamp]}
     end
 
+    def self.create_deskshare_edl(archive_dir)
+      events = Nokogiri::XML(File.open("#{archive_dir}/events.xml"))
+
+      event = events.at_xpath('/recording/event[position()=1]')
+      initial_timestamp = event['timestamp'].to_i
+      event = events.at_xpath('/recording/event[position()=last()]')
+      final_timestamp = event['timestamp'].to_i
+
+      deskshare_edl = []
+
+      deskshare_edl << {
+        :timestamp => 0,
+        :areas => { :deskshare => [] }
+      }
+
+      events.xpath('/recording/event[@module="Deskshare"]').each do |event|
+        timestamp = event['timestamp'].to_i - initial_timestamp
+        case event['eventname']
+        when 'DeskshareStartedEvent'
+          filename = event.at_xpath('file').text
+          filename = "#{archive_dir}/deskshare/#{File.basename(filename)}"
+          deskshare_edl << {
+            :timestamp => timestamp,
+            :areas => {
+              :deskshare => [
+                { :filename => filename, :timestamp => 0 }
+              ]
+            }
+          }
+        when 'DeskshareStoppedEvent'
+          deskshare_edl << {
+            :timestamp => timestamp,
+            :areas => { :deskshare => [] }
+          }
+        end
+      end
+
+      deskshare_edl << {
+        :timestamp => final_timestamp - initial_timestamp,
+        :areas => {}
+      }
+
+      return deskshare_edl
+    end
+
     def self.linkify( text )
       generic_URL_regexp = Regexp.new( '(^|[\n ])([\w]+?://[\w]+[^ \"\n\r\t<]*)', Regexp::MULTILINE | Regexp::IGNORECASE )
       starts_with_www_regexp = Regexp.new( '(^|[\n ])((www)\.[^ \"\t\n\r<]*)', Regexp::MULTILINE | Regexp::IGNORECASE )
-      
+
       s = text.to_s
       s.gsub!( generic_URL_regexp, '\1<a href="\2">\2</a>' )
       s.gsub!( starts_with_www_regexp, '\1<a href="http://\2">\2</a>' )
       s
     end
 
-    #
     # Get events when the moderator wants the recording to start or stop
-    #
     def self.get_start_and_stop_rec_events(events_xml)
       BigBlueButton.logger.info "Getting start and stop rec button events"
       doc = Nokogiri::XML(File.open(events_xml))
@@ -183,9 +299,7 @@ module BigBlueButton
       rec_events.sort {|a, b| a[:timestamp] <=> b[:timestamp]}  
     end
     
-    #
     # Match recording start and stop events
-    #
     def self.match_start_and_stop_rec_events(rec_events)
       BigBlueButton.logger.info ("Matching record events")
       matched_rec_events = []

@@ -113,8 +113,33 @@ module BigBlueButton
     status
   end
 
+  def self.exec_ret(*command)
+    BigBlueButton.logger.info "Executing: #{command.join(' ')}"
+    IO.popen([*command, :err => [:child, :out]]) do |io|
+      io.lines.each do |line|
+        BigBlueButton.logger.info line.chomp
+      end
+    end
+    BigBlueButton.logger.info "Exit status: #{$?.exitstatus}"
+    return $?.exitstatus
+  end
+
+  def self.exec_redirect_ret(outio, *command)
+    BigBlueButton.logger.info "Executing: #{command.join(' ')}"
+    BigBlueButton.logger.info "Sending output to #{outio}"
+    IO.pipe do |r, w|
+      pid = spawn(*command, :out => outio, :err => w)
+      w.close
+      r.lines.each do |line|
+        BigBlueButton.logger.info line.chomp
+      end
+      Process.waitpid(pid)
+      BigBlueButton.logger.info "Exit status: #{$?.exitstatus}"
+      return $?.exitstatus
+    end
+  end
+
   def self.hash_to_str(hash)
     return PP.pp(hash, "")
   end
-  
 end

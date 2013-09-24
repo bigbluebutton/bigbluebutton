@@ -11,7 +11,7 @@
     <shortcutKeys showButton="true" />
     <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="Default"
             showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true" 
-            showLogoutWindow="true" showLayoutTools="true" showNetworkMonitor="false" />
+            showLogoutWindow="true" showLayoutTools="true" showNetworkMonitor="false" confirmLogout="true"/>
             
 		<modules>
 		 
@@ -28,6 +28,8 @@
 		<module name="UsersModule" url="http://HOST/client/UsersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			allowKickUser="true"
+			enableRaiseHand="true"
+			enableSettingsButton="true"
 			baseTabIndex="301"
 		/>
 
@@ -37,6 +39,7 @@
 			uri="rtmp://HOST/deskShare"
 			showButton="true"
 			autoStart="false"
+			autoFullScreen="false"
 			baseTabIndex="201"
 		/>
 		
@@ -57,6 +60,7 @@
 			controlsForPresenter = "false"
 			resolutions = "320x240,640x480,1280x720"
 			autoStart = "false"
+			skipCamSettingsCheck="false"
 			showButton = "true"
 			showCloseButton = "true"
 			publishWindowVisible = "true"
