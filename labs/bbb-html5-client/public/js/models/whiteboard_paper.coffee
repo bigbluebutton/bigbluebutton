@@ -494,6 +494,7 @@ define [
       @containerOffsetLeft = $container.offset().left
       @containerOffsetTop = $container.offset().top
 
+
     # Retrieves an image element from the paper.
     # The url must be in the slides array.
     # @param  {string} url        the url of the image (must be in slides array)

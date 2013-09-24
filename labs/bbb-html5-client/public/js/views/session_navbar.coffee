@@ -4,7 +4,8 @@ define [
   'backbone',
   'globals',
   'text!templates/session_navbar.html',
-], ($, _, Backbone, globals, sessionNavbarTemplate) ->
+  'text!templates/hideMenu.html'
+], ($, _, Backbone, globals, sessionNavbarTemplate,hideMenuTemplate) ->
 
   # The navbar in a session
   # The contents are rendered by SessionView, this class is Used to
@@ -16,12 +17,10 @@ define [
 
       "click #users-btn": "_toggleUsers"
       "click #logout-btn": "_logout"
-      "click #prev-slide-btn": "_previousSlide"
-      "click #next-slide-btn": "_nextSlide"
-      "click #tool-pan-btn": "_toolPan"
-      "click #tool-line-btn": "_toolLine"
-      "click #tool-rect-btn": "_toolRect"
-      "click #tool-ellipse-btn": "_toolEllipse"
+      "click #toggle-menu-btn": "_toggleMenu"
+      "click #chat-btn": "_toggleChatBox"
+      "click #video-btn": "_toggleVideo"
+       
 
     initialize: ->
       @$parentEl = null
@@ -35,8 +34,8 @@ define [
     _setToggleButtonsStatus: ->
       $("#chat-btn", @$el).toggleClass "active", @$parentEl.hasClass("chat-enabled")
       $("#users-btn", @$el).toggleClass "active", @$parentEl.hasClass("users-enabled")
-
     # Toggle the visibility of the chat panel
+    
     _toggleChat: ->
       clearTimeout @toggleChatTimeout if @toggleChatTimeout?
       @$parentEl.toggleClass "chat-enabled"
@@ -65,29 +64,65 @@ define [
     _logout: ->
       globals.connection.emitLogout()
       globals.currentAuth = null
-
-    # Go to the previous slide
-    _previousSlide: ->
-      globals.connection.emitPreviousSlide()
-
-    # Go to the next slide
-    _nextSlide: ->
-      globals.connection.emitNextSlide()
-
-    # "Pan" tool was clicked
-    _toolPan: ->
-      globals.connection.emitChangeTool("panzoom")
-
-    # "Line" tool was clicked
-    _toolLine: ->
-      globals.connection.emitChangeTool("line")
-
-    # "Rect" tool was clicked
-    _toolRect: ->
-      globals.connection.emitChangeTool("rect")
-
-    # "Ellipse" tool was clicked
-    _toolEllipse: ->
-      globals.connection.emitChangeTool("ellipse")
-
+    
+    _toggleChatBox: ->
+      $("#chat").toggle()
+      chatdisplay = $("#chat").css('display')
+      videodisplay = $("#video").css('display')
+      $("#chat").css('top','6vh') if videodisplay is 'none'
+      $("#chat").css('top','35vh') if videodisplay is 'block'
+      if chatdisplay is 'block' or videodisplay is 'block'
+        $("#whiteboard").css 
+          "width":'77%' 
+          "left":'0' 
+      else
+          $("#whiteboard").css "width",'100%' 
+      #trigger 'whiteboard:reposition' event to center svg image in whiteboard
+      globals.events.trigger("whiteboard:reposition")
+                      
+    _toggleVideo: ->
+      $("#video").toggle()
+      videodisplay = $("#video").css('display')
+      chatdisplay = $("#chat").css('display')
+      $("#chat").css('top','35vh') if chatdisplay is 'block' and videodisplay is 'block'
+      $("#chat").css('top','6vh') if chatdisplay is 'block' and videodisplay is 'none'
+      if chatdisplay is 'block' or videodisplay is 'block'
+        $("#whiteboard").css 
+          "width":'77%' 
+          "left":'0' 
+      else
+        $("#whiteboard").css "width",'100%' 
+      #trigger 'whiteboard:reposition' event to center svg image in whiteboard
+      globals.events.trigger("whiteboard:reposition")
+                   
+    _toggleMenu: ->
+      videodisplay = $("#video").css('display')
+      chatdisplay = $("#chat").css('display')
+      $("#chat").css 'top','0'
+      if chatdisplay is 'none' and videodisplay is 'none'
+        $("#whiteboard").css 
+          "top":'0'
+          "width":'100%'
+      else if chatdisplay is 'block' and videodisplay is 'block'
+        $("#whiteboard").css 
+          "top":'0'
+          "width":'77%'   
+      else if videodisplay is 'block'
+        $("#chat").hide()
+        $("#whiteboard").css 
+          "top":'0'
+          "width":'100%'   
+      else  
+        $("#whiteboard").css 
+          "top":'0'
+          "width":'77%'
+ 
+      $("#video").hide()
+      $("#users").hide()   
+      $("#navbar").hide()
+      compiledTemplate = _.template(hideMenuTemplate)
+      $("#layout").append compiledTemplate
+      #trigger 'whiteboard:reposition' event to center svg image in whiteboard
+      globals.events.trigger("whiteboard:reposition")
+      
   SessionNavbarView

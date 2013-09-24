@@ -15,13 +15,13 @@ define [
 
     events:
       "submit #login-form": "_onLoginFormSubmit"
+      
 
     render: ->
       # At first we render a simple "loading" page while we check if the
       # user is authenticated or not
       compiledTemplate = _.template(loginLoadingTemplate, {})
       @$el.html compiledTemplate
-
       # Go check the authentication
       @_checkAuthentication()
 
@@ -98,5 +98,5 @@ define [
         false
       else
         true
-
+       
   LoginView

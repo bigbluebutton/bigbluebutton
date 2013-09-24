@@ -9,7 +9,7 @@ define [
   # "page" being seen by the user).
   AppView = Backbone.View.extend
     el: $('#container')
-
+ 
     initialize: ->
       @currentView = null
 
@@ -37,5 +37,6 @@ define [
   # From: http://ianstormtaylor.com/rendering-views-in-backbonejs-isnt-always-simple/
   Backbone.View.prototype.assign = (view, selector) ->
     view.setElement(@$(selector)).render()
+
 
   AppView

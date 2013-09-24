@@ -5,8 +5,9 @@ define [
   'globals',
   'cs!collections/users',
   'text!templates/session_users.html',
-  'text!templates/user.html'
-], ($, _, Backbone, globals, UserCollection, sessionUsersTemplate, userTemplate) ->
+  'text!templates/user.html',
+  'text!templates/users_table.html'
+], ($, _, Backbone, globals, UserCollection, sessionUsersTemplate, userTemplate,tableTemplate) ->
 
   # The users panel in a session
   # The contents are rendered by SessionView, this class is Used to
@@ -21,6 +22,7 @@ define [
     initialize: ->
       @userListID = "#current-users"
       @model.start()
+
 
       # Bind to the event triggered when the client connects to the server
       if globals.connection.isConnected()
@@ -44,6 +46,8 @@ define [
 
       globals.events.on "users:load_users", (users) =>
         @_removeAllUsers()
+        compiledTemplate = _.template(tableTemplate)
+        @$(@userListID).append compiledTemplate
         for userBlock in users
           @_addUser(userBlock.id, userBlock.name)
 
@@ -74,8 +78,10 @@ define [
         username: username
         userID: userID
       compiledTemplate = _.template(userTemplate, data)
-      @$(@userListID).append compiledTemplate
-
+      #@$(@userListID).append compiledTemplate
+      $('#usertable').append compiledTemplate
+      
+      
     # Marks a user as selected when clicked.
     _userClicked: (e) ->
       @$('.user.selected').removeClass('selected')
@@ -88,6 +94,7 @@ define [
 
     # Sets the current presenter to the user currently selected.
     _switchPresenter: ->
+      console.log "change a new presenter"
       id = @$(".user.selected").attr("id").replace("user-", "")
       globals.connection.emitSetPresenter id
 
@@ -95,5 +102,6 @@ define [
     _setPresenter: (userID) ->
       @$(".user.presenter").removeClass "presenter"
       @$("#user-#{userID}").addClass "presenter"
-
+        
+      
   SessionUsersView
