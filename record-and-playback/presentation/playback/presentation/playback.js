@@ -78,6 +78,7 @@ secondsToYouTubeFormat = function(secs) {
   if (hours > 0)   {time += hours+"h";}
   if (minutes > 0) {time += minutes+"m";}
   if (seconds > 0) {time += seconds+"s";}
+  if (secs == 0) {time = "0s";}
 
   return time;
 }
