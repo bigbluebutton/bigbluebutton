@@ -98,6 +98,16 @@ public class Room implements Serializable {
 				listener.participantLeft(p);
 			}
 		}
+
+		// When the last participant leaves the conference, if it's still recording
+		// we will finish the recording. The problem it will avoid is that when the last
+		// participant leaves the conference, the Room is cleaned up and the recording
+		// flag is lost. If a user joins after that, but before the meeting get cleaned up
+		// by the server, there's no way to detect that the previous part of the session
+		// was being recorded.
+		if (participants.isEmpty() && recording) {
+			changeRecordingStatus(p, false);
+		}
 	}
 
 	public void changeParticipantStatus(String userid, String status, Object value) {
@@ -170,24 +180,27 @@ public class Room implements Serializable {
 	}
 
 	public void changeRecordingStatus(String userid, Boolean recording) {
-		boolean notifyAll = false;
+		boolean present = false;
 		User p = null;
 		synchronized (this) {
-			if (participants.containsKey(userid)) {
+			present = participants.containsKey(userid);
+			if (present) {
 				p = participants.get(userid);
-				if (recording != this.recording) {
-					log.debug("Changed recording status to " + recording);
-					this.recording = recording;
-					notifyAll = true;
-				}
 			}
 		}
-		if (notifyAll) {
-			for (Iterator it = listeners.values().iterator(); it.hasNext();) {
-				IRoomListener listener = (IRoomListener) it.next();
-				log.debug("calling recordingStatusChange on listener " + listener.getName());
-				listener.recordingStatusChange(p, recording);
-			}
+		if (present && recording != this.recording) {
+			changeRecordingStatus(p, recording);
+		}
+	}
+
+	private void changeRecordingStatus(User p, Boolean recording) {
+		log.debug("Changed recording status to " + recording);
+		this.recording = recording;
+
+		for (Iterator it = listeners.values().iterator(); it.hasNext();) {
+			IRoomListener listener = (IRoomListener) it.next();
+			log.debug("calling recordingStatusChange on listener " + listener.getName());
+			listener.recordingStatusChange(p, recording);
 		}
 	}
 
