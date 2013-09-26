@@ -271,170 +271,160 @@ def storePencilShape
 end
 
 def storeLineShape
-        if($shapeCreationTime != $prev_time)
-                if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
-                        # do not update the line count
-                else
-                        $line_count = $line_count + 1
-                end
-		$global_shape_count += 1
-                $xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "line#{$line_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
+	if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
+		# do not update the line count
+	else
+		$line_count = $line_count + 1
+	end
+	$global_shape_count += 1
+	$xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "line#{$line_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
 
-                        $originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
-                        $originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
-                        endPointX = (($shapeDataPoints[2].to_f)/100)*$vbox_width
-                        endPointY = (($shapeDataPoints[3].to_f)/100)*$vbox_height
+		$originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
+		$originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
+		endPointX = (($shapeDataPoints[2].to_f)/100)*$vbox_width
+		endPointY = (($shapeDataPoints[3].to_f)/100)*$vbox_height
 
-                        $originalOriginX = $originX
-                        $originalOriginY = $originY
+		$originalOriginX = $originX
+		$originalOriginY = $originY
 
-                        $xml.line(:x1 => $originX, :y1 => $originY, :x2 => endPointX, :y2 => endPointY )
-                        $prev_time = $shapeCreationTime
-                end
-        end
+		$xml.line(:x1 => $originX, :y1 => $originY, :x2 => endPointX, :y2 => endPointY )
+		$prev_time = $shapeCreationTime
+	end
 end
 
 def storeRectShape
-	if($shapeCreationTime != $prev_time)
-		if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
-			# do not update the rectangle count
-		else
-			$rectangle_count = $rectangle_count + 1
-		end
-		$global_shape_count += 1
-		$xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "rect#{$rectangle_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
-			$originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
-			$originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
-			$originalOriginX = $originX
-			$originalOriginY = $originY
-			rectWidth = (($shapeDataPoints[2].to_f - $shapeDataPoints[0].to_f)/100)*$vbox_width
-			rectHeight = (($shapeDataPoints[3].to_f - $shapeDataPoints[1].to_f)/100)*$vbox_height
+	if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
+		# do not update the rectangle count
+	else
+		$rectangle_count = $rectangle_count + 1
+	end
+	$global_shape_count += 1
+	$xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "rect#{$rectangle_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
+		$originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
+		$originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
+		$originalOriginX = $originX
+		$originalOriginY = $originY
+		rectWidth = (($shapeDataPoints[2].to_f - $shapeDataPoints[0].to_f)/100)*$vbox_width
+		rectHeight = (($shapeDataPoints[3].to_f - $shapeDataPoints[1].to_f)/100)*$vbox_height
 
-			# Cannot have a negative height or width so we adjust
-			if(rectHeight < 0)
-				$originY = $originY + rectHeight
-				rectHeight = rectHeight.abs
-			end
-			if(rectWidth < 0)
-				$originX = $originX + rectWidth
-				rectWidth = rectWidth.abs
-			end
-                        if $is_square == "true"
-				#width of the square as reference
-                                $xml.rect(:x => $originX, :y => $originY, :width => rectWidth, :height => rectWidth)
-                        else
-                                $xml.rect(:x => $originX, :y => $originY, :width => rectWidth, :height => rectHeight)
-                        end
-			$prev_time = $shapeCreationTime
+		# Cannot have a negative height or width so we adjust
+		if(rectHeight < 0)
+			$originY = $originY + rectHeight
+			rectHeight = rectHeight.abs
 		end
+		if(rectWidth < 0)
+			$originX = $originX + rectWidth
+			rectWidth = rectWidth.abs
+		end
+		if $is_square == "true"
+			#width of the square as reference
+			$xml.rect(:x => $originX, :y => $originY, :width => rectWidth, :height => rectWidth)
+		else
+			$xml.rect(:x => $originX, :y => $originY, :width => rectWidth, :height => rectHeight)
+		end
+		$prev_time = $shapeCreationTime
 	end
 end
 
 def storeTriangleShape
-        if($shapeCreationTime != $prev_time)
-                if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
-                        # do not update the triangle count
-                else
-                        $triangle_count = $triangle_count + 1
-                end
-		$global_shape_count += 1
-                $xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "triangle#{$triangle_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
+	if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
+		# do not update the triangle count
+	else
+		$triangle_count = $triangle_count + 1
+	end
+	$global_shape_count += 1
+	$xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "triangle#{$triangle_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
 
-                        $originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
-                        $originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
+		$originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
+		$originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
 
-                        #3 points (p0, p1 and p2) to draw a triangle
+		#3 points (p0, p1 and p2) to draw a triangle
 
-                        base = (($shapeDataPoints[2].to_f - $shapeDataPoints[0].to_f)/100)*$vbox_width
+		base = (($shapeDataPoints[2].to_f - $shapeDataPoints[0].to_f)/100)*$vbox_width
 
-                        x0 = $originX + (base.to_f / 2.0)
-                        x1 = $originX
-                        x2 = $originX + base.to_f
+		x0 = $originX + (base.to_f / 2.0)
+		x1 = $originX
+		x2 = $originX + base.to_f
 
-                        height = (($shapeDataPoints[3].to_f - $shapeDataPoints[1].to_f)/100)*$vbox_height
+		height = (($shapeDataPoints[3].to_f - $shapeDataPoints[1].to_f)/100)*$vbox_height
 
-                        y0 = $originY
-                        y1 = $originY + height
-                        y2 = y1
+		y0 = $originY
+		y1 = $originY + height
+		y2 = y1
 
-                        p0 = "#{x0},#{y0}"
-                        p1 = "#{x1},#{y1}"
-                        p2 = "#{x2},#{y2}"
+		p0 = "#{x0},#{y0}"
+		p1 = "#{x1},#{y1}"
+		p2 = "#{x2},#{y2}"
 
-                        $originalOriginX = $originX
-                        $originalOriginY = $originY
+		$originalOriginX = $originX
+		$originalOriginY = $originY
 
-                        $xml.polyline(:points => "#{p0} #{p1} #{p2} #{p0}")
-                        $prev_time = $shapeCreationTime
-                end
-        end
+		$xml.polyline(:points => "#{p0} #{p1} #{p2} #{p0}")
+		$prev_time = $shapeCreationTime
+	end
 end
 
 def storeEllipseShape
-	if($shapeCreationTime != $prev_time)
-		if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
-			# do not update the rectangle count
+	if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
+		# do not update the rectangle count
+	else
+		$ellipse_count = $ellipse_count + 1
+	end # end (($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
+	$global_shape_count += 1
+	$xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "ellipse#{$ellipse_count}", :style =>"stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
+		$originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
+		$originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
+		$originalOriginX = $originX
+		$originalOriginY = $originY
+		ellipseWidth = (($shapeDataPoints[2].to_f - $shapeDataPoints[0].to_f)/100)*$vbox_width
+		ellipseHeight = (($shapeDataPoints[3].to_f - $shapeDataPoints[1].to_f)/100)*$vbox_height
+		if(ellipseHeight < 0)
+			$originY = $originY + ellipseHeight
+			ellipseHeight = ellipseHeight.abs
+		end
+		if(ellipseWidth < 0)
+			$originX = $originX + ellipseWidth
+			ellipseWidth = ellipseWidth.abs
+		end
+		if $is_circle == "true"
+			#Use width as reference
+			$xml.circle(:cx => $originX+(ellipseWidth/2), :cy => $originY+(ellipseWidth/2), :r => ellipseWidth/2)
 		else
-			$ellipse_count = $ellipse_count + 1
-		end # end (($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
-		$global_shape_count += 1
-		$xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "ellipse#{$ellipse_count}", :style =>"stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
-			$originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
-			$originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
-			$originalOriginX = $originX
-			$originalOriginY = $originY
-			ellipseWidth = (($shapeDataPoints[2].to_f - $shapeDataPoints[0].to_f)/100)*$vbox_width
-			ellipseHeight = (($shapeDataPoints[3].to_f - $shapeDataPoints[1].to_f)/100)*$vbox_height
-			if(ellipseHeight < 0)
-				$originY = $originY + ellipseHeight
-				ellipseHeight = ellipseHeight.abs
-			end
-			if(ellipseWidth < 0)
-				$originX = $originX + ellipseWidth
-				ellipseWidth = ellipseWidth.abs
-			end
-                        if $is_circle == "true"
-                                #Use width as reference
-                                $xml.circle(:cx => $originX+(ellipseWidth/2), :cy => $originY+(ellipseWidth/2), :r => ellipseWidth/2)
-                        else
-                                $xml.ellipse(:cx => $originX+(ellipseWidth/2), :cy => $originY+(ellipseHeight/2), :rx => ellipseWidth/2, :ry => ellipseHeight/2)
-                        end
-			$prev_time = $shapeCreationTime
-		end # end xml.g
-	end # end if($shapeCreationTime != $prev_time)
+			$xml.ellipse(:cx => $originX+(ellipseWidth/2), :cy => $originY+(ellipseHeight/2), :rx => ellipseWidth/2, :ry => ellipseHeight/2)
+		end
+		$prev_time = $shapeCreationTime
+	end # end xml.g
 end
 
 def storeTextShape	
-	if($shapeCreationTime != $prev_time)
-		$originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
-		$originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
-		if(($originalOriginX == $originX) && ($originalOriginY == $originY))
-			# do not update the text count
-		else
-			$text_count = $text_count + 1
-		end
-		font_size_factor = 1.7
-                width_extra_percent = -0.7
-                height_extra_percent = 1
-                width = ( ($textBoxWidth.to_f + width_extra_percent) / 100.0) * $vbox_width
-                height = ( ($textBoxHeight.to_f + height_extra_percent ) / 100.0) * $vbox_height
-		y_gap = -30.0 		
-		x_gap = 5.0
-		$textFontSize_pixels = $textFontSize.to_f * font_size_factor				
-		$global_shape_count += 1
-		$xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "text#{$text_count}", :style => "word-wrap: break-word; visibility:hidden; font-family: #{$textFontType}; font-size: #{$textFontSize_pixels}px;") do
-			$xml.switch do 
-				$xml.foreignObject(  :color => "##{$colour_hex}", :width => width, :height => height, :x => "#{((($shapeDataPoints[0].to_f)/100)*$vbox_width) + x_gap}", :y => "#{((($shapeDataPoints[1].to_f)/100) *$vbox_height )  + y_gap.to_f }") do
-					$xml.p( :xmlns => "http://www.w3.org/1999/xhtml" ) do
-						$xml.text($textValue)
-					end
+	$originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
+	$originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
+	if(($originalOriginX == $originX) && ($originalOriginY == $originY))
+		# do not update the text count
+	else
+		$text_count = $text_count + 1
+	end
+	font_size_factor = 1.7
+	width_extra_percent = -0.7
+	height_extra_percent = 1
+	width = ( ($textBoxWidth.to_f + width_extra_percent) / 100.0) * $vbox_width
+	height = ( ($textBoxHeight.to_f + height_extra_percent ) / 100.0) * $vbox_height
+	y_gap = -30.0 		
+	x_gap = 5.0
+	$textFontSize_pixels = $textFontSize.to_f * font_size_factor				
+	$global_shape_count += 1
+	$xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "text#{$text_count}", :style => "word-wrap: break-word; visibility:hidden; font-family: #{$textFontType}; font-size: #{$textFontSize_pixels}px;") do
+		$xml.switch do 
+			$xml.foreignObject(  :color => "##{$colour_hex}", :width => width, :height => height, :x => "#{((($shapeDataPoints[0].to_f)/100)*$vbox_width) + x_gap}", :y => "#{((($shapeDataPoints[1].to_f)/100) *$vbox_height )  + y_gap.to_f }") do
+				$xml.p( :xmlns => "http://www.w3.org/1999/xhtml" ) do
+					$xml.text($textValue)
 				end
 			end
-			$prev_time = $shapeCreationTime
-		end # end xml.g		
-		$originalOriginX = $originX
+		end
+		$prev_time = $shapeCreationTime
+	end # end xml.g		
+	$originalOriginX = $originX
         $originalOriginY = $originY
-	end # end if($shapeCreationTime != $prev_time)
 end
 
 #
@@ -483,6 +473,20 @@ def translateTimestamp_helper(timestamp)
 	return timestamp - $rec_events.last()[:offset] + $rec_events.last()[:duration]
 end
 
+
+#
+# Given an event timestamp, says whether it occurs during a recording period or not.
+#
+def occursDuringRecording(timestamp)
+	$rec_events.each do |event|
+		if timestamp >= event[:start_timestamp] and timestamp <= event[:stop_timestamp]
+			return true
+		end
+	end
+	return false
+end
+
+
 def preprocessSlideEvents
 	new_slides_events = []
 	$slides_events.each do |slide_event|
@@ -512,6 +516,7 @@ def processSlideEvents
 			$presentation_name = node.xpath(".//presentationName")[0].text()
 		else
 			slide_timestamp =  node[:timestamp]
+			original_start_time = ( slide_timestamp.to_f / 1000 ).round(1)
 			slide_start = ( translateTimestamp(slide_timestamp) / 1000 ).round(1)
 			slide_number = node.xpath(".//slide")[0].text()
 			slide_src = "presentation/#{$presentation_name}/slide-#{slide_number.to_i + 1}.png"
@@ -521,10 +526,22 @@ def processSlideEvents
 			slide_size = FastImage.size(image_url)
 			current_index = $slides_events.index(node)
 			if(current_index + 1 < $slides_events.length)
+				original_stop_time = ( $slides_events[current_index + 1][:timestamp].to_f / 1000 ).round(1)
 				slide_end = ( translateTimestamp($slides_events[current_index + 1][:timestamp]) / 1000 ).round(1)
 			else
+				original_stop_time = ( $meeting_end.to_f / 1000 ).round(1)
 				slide_end = ( translateTimestamp($meeting_end) / 1000 ).round(1)
 			end
+
+			# Keep original time information
+			if($slides_raw[[slide_src, slide_size[1], slide_size[0]]] == nil)
+				$slides_raw[[slide_src, slide_size[1], slide_size[0]]] = [[original_start_time],
+											  [original_stop_time]]
+			elsif
+				$slides_raw[[slide_src, slide_size[1], slide_size[0]]][0] << original_start_time
+				$slides_raw[[slide_src, slide_size[1], slide_size[0]]][1] << original_stop_time
+			end
+
 
 			if slide_start == slide_end
 				BigBlueButton.logger.info("#{slide_src} is never displayed (slide_start = slide_end), so it won't be included in the svg")
@@ -582,20 +599,33 @@ def processShapesAndClears
 				$canvas_number+=1
 				$xml.g(:class => :canvas, :id => "canvas#{$val[2].to_i}", :image => "image#{$val[2].to_i}", :display => :none) do
 					
-					BigBlueButton.logger.info("Processing shapes within the image")
+					BigBlueButton.logger.info("Processing shapes within the image #{$val[2].to_i}")
 					# Select and print the shapes within the current image
 					$shape_events.each do |shape|
 						$shapeTimestamp = shape[:timestamp].to_f
 						$shapeCreationTime = ( translateTimestamp($shapeTimestamp) / 1000 ).round(1)
+						originalShapeCreationTime = ( $shapeTimestamp.to_f / 1000 ).round(1)
 						in_this_image = false
 						index = 0
-						numOfTimes = $val[0].length
+						numOfTimes = $slides_raw[key][0].length
 
 						# Checks to see if the current shapes are to be drawn in this particular image
 						while((in_this_image == false) && (index < numOfTimes)) do
-							if((($val[0][index].to_f)..($val[1][index].to_f)) === $shapeCreationTime) # is the shape within the certain time of the image
+
+							# Was the shape originally drawn in this image
+							if (originalShapeCreationTime >= $slides_raw[key][0][index] and
+							    originalShapeCreationTime <= $slides_raw[key][1][index])
+
+								# Was the shape drawn during a non recordin period
+								if (not($shapeCreationTime >= $val[0][index] and
+									$shapeCreationTime <= $val[1][index]))
+
+									# Set creation time to in time of image
+									$shapeCreationTime = $val[0][index]
+								end
 								in_this_image = true
 							end
+
 							index+=1
 						end
 						
@@ -702,7 +732,7 @@ def processShapesAndClears
 								$textBoxHeight = shape.xpath(".//textBoxHeight")[0].text()
 								storeTextShape()
 							end # end if pencil (and other shapes)
-						end # end if((in_this_image) && (in_this_canvas))
+						end # end if(in_this_image)
 					end # end shape_events.each do |shape|
 				end
 			end
@@ -768,6 +798,7 @@ $prev_time = "NaN"
 $ss = {}
 $clearPageTimes = {}
 $slides_compiled = {}
+$slides_raw = {}
 $undos = {}
 
 opts = Trollop::options do
