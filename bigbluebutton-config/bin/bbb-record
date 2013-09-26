@@ -106,8 +106,6 @@ mark_for_republish() {
 	done
 }
 
-BIGBLUEBUTTON_RELEASE=0.81
-
 need_root() {
         if [ $EUID != 0 ]; then
                 echo "Need to be root to run this option"
