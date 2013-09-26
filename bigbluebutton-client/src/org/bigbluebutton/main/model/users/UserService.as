@@ -38,6 +38,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
 	import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
 	import org.bigbluebutton.main.model.users.events.KickUserEvent;
+	import org.bigbluebutton.main.model.users.events.ChangeStatusEvent
 	import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 	import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
@@ -162,12 +163,16 @@ package org.bigbluebutton.main.model.users
 			_userSOService.removeStream(e.userid, e.stream);
 		}
 		
+		public function changeStatus(e:ChangeStatusEvent):void {
+			_userSOService.changeStatus(e.userId, e.getStatusName());
+		}	
+		
 		public function raiseHand(e:RaiseHandEvent):void {
-			_userSOService.raiseHand(UserManager.getInstance().getConference().getMyUserId(), e.raised);
+			//_userSOService.raiseHand(UserManager.getInstance().getConference().getMyUserId(), e.raised);
 		}
 		
 		public function lowerHand(e:LowerHandEvent):void {
-			if (this.isModerator()) _userSOService.raiseHand(e.userid, false);
+			//if (this.isModerator()) _userSOService.raiseHand(e.userid, false);
 		}
 		
 		public function kickUser(e:KickUserEvent):void{

@@ -24,15 +24,17 @@ package org.bigbluebutton.main.model.users
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
-    import org.bigbluebutton.core.managers.UserManager;
+        import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
+	import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
 
 	
 	public class BBBUser {
 		public static const MODERATOR:String = "MODERATOR";
 		public static const VIEWER:String = "VIEWER";
 		public static const PRESENTER:String = "PRESENTER";
+		private static const NO_STATUS:String = "";
 		
     // Flag to tell that user is in the process of leaving the meeting.
     public var isLeavingFlag:Boolean = false;
@@ -76,6 +78,24 @@ package org.bigbluebutton.main.model.users
 			_raiseHand = r;
 			verifyUserStatus();
 		}
+
+
+		private var _currentStatus:String = NO_STATUS;
+
+		public function get userHasStatus():Boolean {
+			return _currentStatus != NO_STATUS;
+		}
+
+		[Bindable]
+		public function get currentStatus():String {
+			return _currentStatus;
+		}
+		
+		public function set currentStatus(newStatus:String):void {
+			_currentStatus = newStatus;
+			verifyUserStatus();
+		}		
+
 		
 		private var _role:String = Role.VIEWER;
 		[Bindable] 
@@ -113,7 +133,7 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		[Bindable] public var voiceLocked:Boolean = false;
-		[Bindable] public var status:String = "";
+		//[Bindable] public var status:String = "";
 		[Bindable] public var customdata:Object = {};
 		
 		/*
@@ -131,10 +151,55 @@ package org.bigbluebutton.main.model.users
 		private function verifyUserStatus():void {
 			if (presenter)
 				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presenter');
+
 			else if (role == Role.MODERATOR)
 				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.moderator');
-			else if (raiseHand)
-				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.handRaised');
+			
+			else if (userHasStatus)
+			{
+				switch(currentStatus)
+				{
+					case ChangeStatusEvent.RAISE_HAND:
+						_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.handRaised');
+						break;
+
+					case ChangeStatusEvent.AGREE:
+						_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.agree');
+						break;
+
+					case ChangeStatusEvent.DISAGREE:
+						_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.disagree');
+						break;
+
+					case ChangeStatusEvent.SPEAK_LOUDER:
+						_userStatus = ResourceUtil.getInstance().getString('bbb.users.status.speak_louder');
+						break;
+
+					case ChangeStatusEvent.SPEAK_LOWER:
+						_userStatus = ResourceUtil.getInstance().getString('bbb.users.status.speak_lower');
+						break;
+
+					case ChangeStatusEvent.SPEAK_FASTER:
+						_userStatus = ResourceUtil.getInstance().getString('bbb.users.status.speak_faster');
+						break;
+
+					case ChangeStatusEvent.SPEAK_SLOWER:
+						_userStatus = ResourceUtil.getInstance().getString('bbb.users.status.speak_slower');
+						break;
+
+					case ChangeStatusEvent.BE_RIGHT_BACK:
+						_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.be_right_back');
+						break;
+
+					case ChangeStatusEvent.LAUGHTER:
+						_userStatus = ResourceUtil.getInstance().getString('bbb.users.status.laughter');
+						break;
+
+					case ChangeStatusEvent.SAD:
+						_userStatus = ResourceUtil.getInstance().getString('bbb.users.status.sad');
+				}
+			}
+
 			else
 				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.viewer');
 		}
@@ -160,18 +225,18 @@ package org.bigbluebutton.main.model.users
 		 
 		private var _status:StatusCollection = new StatusCollection();
 			
-		public function buildStatus():void{
-			var showingWebcam:String = "";
-			var isPresenter:String = "";
-			var handRaised:String = "";
-			if (hasStream)
-				showingWebcam = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.streamIcon.toolTip');
-			if (presenter)
-				isPresenter = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.presIcon.toolTip');
-			if (raiseHand)
-				handRaised = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.raiseHand.toolTip');
-			status = showingWebcam + isPresenter + handRaised;
-		}
+		//public function buildStatus():void{
+			//var showingWebcam:String = "";
+			//var isPresenter:String = "";
+			//var handRaised:String = "";
+			//if (hasStream)
+				//showingWebcam = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.streamIcon.toolTip');
+			//if (presenter)
+				//isPresenter = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.presIcon.toolTip');
+			//if (raiseHand)
+				//handRaised = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.raiseHand.toolTip');
+			//status = showingWebcam + isPresenter + handRaised;
+		//}
 	
 		public function addStatus(status:Status):void {
 			_status.addStatus(status);
@@ -205,14 +270,51 @@ package org.bigbluebutton.main.model.users
 					streamName = streamNameInfo[1]; 
 					if (hasStream) sendStreamStartedEvent();
 					break;
-				case "raiseHand":
-					raiseHand = status.value as Boolean;
-                    if (me) {
-                        UserManager.getInstance().getConference().isMyHandRaised = status.value;
-                    }
+
+				case ChangeStatusEvent.CLEAR_STATUS:
+					currentStatus = NO_STATUS;
 					break;
+
+				case ChangeStatusEvent.RAISE_HAND:
+					currentStatus = ChangeStatusEvent.RAISE_HAND;		
+					break;
+
+				case ChangeStatusEvent.AGREE:
+					currentStatus = ChangeStatusEvent.AGREE;
+					break;
+
+				case ChangeStatusEvent.DISAGREE:
+					currentStatus = ChangeStatusEvent.DISAGREE
+					break;
+
+				case ChangeStatusEvent.SPEAK_LOUDER:
+					currentStatus = ChangeStatusEvent.SPEAK_LOUDER
+					break;
+
+				case ChangeStatusEvent.SPEAK_LOWER:
+					currentStatus = ChangeStatusEvent.SPEAK_LOWER
+					break;
+
+				case ChangeStatusEvent.SPEAK_FASTER:
+					currentStatus = ChangeStatusEvent.SPEAK_FASTER
+					break;
+
+				case ChangeStatusEvent.SPEAK_SLOWER:
+					currentStatus = ChangeStatusEvent.SPEAK_SLOWER
+					break;
+
+				case ChangeStatusEvent.BE_RIGHT_BACK:
+					currentStatus = ChangeStatusEvent.BE_RIGHT_BACK
+					break;
+
+				case ChangeStatusEvent.LAUGHTER:
+					currentStatus = ChangeStatusEvent.LAUGHTER
+					break;
+
+				case ChangeStatusEvent.SAD:
+					currentStatus = ChangeStatusEvent.SAD
 			}
-			buildStatus();
+			//buildStatus();
 		}
 		
 		public function removeStatus(name:String):void {

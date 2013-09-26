@@ -293,6 +293,17 @@ package org.bigbluebutton.main.model.users {
 				dispatcher.dispatchEvent(e);
 			}		
 		}
+
+		public function changeStatus(userID:String, status:String):void {
+			var nc:NetConnection = _connectionManager.connection;			
+			nc.call(
+				"participants.setParticipantStatus",// Remote function name
+				responder,
+        			userID,
+				status,
+				status //instead of a boolean, the value of the status is going to be its name
+			); //_netConnection.call
+		}
 					
 		public function raiseHand(userID:String, raise:Boolean):void {
 			var nc:NetConnection = _connectionManager.connection;			
