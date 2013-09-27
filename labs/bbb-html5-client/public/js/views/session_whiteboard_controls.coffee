@@ -16,6 +16,7 @@ define [
       "click #slide-fit-to-width-btn": "_fitToWidthClick"
       "change #slide-upload-file": "_uploadFileSelected"
       "submit #slide-upload-form": "_uploadFormSubmit"
+ 
 
     initialize: ->
       # Bind to the event triggered when the client connects to the server
@@ -48,6 +49,7 @@ define [
 
     _uploadFileSelected: ->
       @$("#slide-upload-form").submit()
+      
 
     _uploadFormSubmit: ->
       @setUploadStatus "Uploading..."

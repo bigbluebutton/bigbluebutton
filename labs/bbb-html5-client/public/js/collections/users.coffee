@@ -34,7 +34,8 @@ define [
             username: userBlock.name
           ]
         globals.events.trigger("users:load_users", users)
-
+        globals.events.trigger("privatechat:load_users", users)
+        
       globals.events.on "connection:user_join", (userid, username) =>
         @add [
           id : userid
@@ -42,11 +43,13 @@ define [
           username: username
         ]    
         globals.events.trigger("users:user_join", userid, username)
-
+        globals.events.trigger("privatechat:user_join", userid, username)
+        
       globals.events.on "connection:user_leave", (userid) =>
         toDel = @get(userid)
         @remove(toDel)
         globals.events.trigger("users:user_leave", userid)
+        globals.events.trigger("privatechat:user_leave", userid)
 
       globals.events.on "connection:setPresenter", (userid) =>      
         globals.events.trigger("users:setPresenter", userid)

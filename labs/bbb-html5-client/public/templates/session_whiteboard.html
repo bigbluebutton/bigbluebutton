@@ -1,4 +1,5 @@
-<div id="slide"></div>
+<div id="slide">
+</div>
 <div id="slide-controls" style="clear:left">
   <canvas id="colour-view" width="12" height="12"></canvas>
   <div id="colour-picker">
@@ -11,17 +12,8 @@
   <select>
     <option value="14">14</option>
   </select>
-  <button id="slide-undo-btn">Undo</button>
   <button id="slide-fit-to-page-btn">Fit to Page</button>
   <button id="slide-fit-to-width-btn">Fit to Width</button>
-  <div id="slide-upload-controls">
-    <p>Upload custom slides
-      <form method="post" action="/upload" enctype="multipart/form-data" id="slide-upload-form">
-        <input type="file" name="image" id="slide-upload-file">
-      </form>
-      <span id="slide-upload-status"></span>
-    </p>
-  </div>
-<textarea autofocus="autofocus" id="slide-current-text-area"
-          class="textinput" style="visibility:hidden;"></textarea>
+  <textarea autofocus="autofocus" id="slide-current-text-area" class="textinput" style="visibility:hidden;">
+  </textarea>
 </div>

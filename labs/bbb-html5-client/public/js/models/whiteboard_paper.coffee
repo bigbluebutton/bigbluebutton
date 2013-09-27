@@ -508,6 +508,9 @@ define [
     # Registers listeners for events in the gloval event bus
     _registerEvents: ->
 
+      globals.events.on "whiteboard:reposition", =>
+        $(window).trigger('resize');
+
       globals.events.on "connection:all_slides", (urls) =>
         @removeAllImagesFromPaper()
         for url in urls
@@ -592,6 +595,7 @@ define [
       globals.events.on "connection:uploadStatus", (message, fade) =>
         globals.events.trigger("whiteboard:paper:uploadStatus", message, fade)
 
+
     # Update the dimensions of the container.
     _updateContainerDimensions: ->
       $container = $(@container)
@@ -599,6 +603,7 @@ define [
       @containerHeight = $container.innerHeight()
       @containerOffsetLeft = $container.offset().left
       @containerOffsetTop = $container.offset().top
+
 
     # Retrieves an image element from the paper.
     # The url must be in the slides array.

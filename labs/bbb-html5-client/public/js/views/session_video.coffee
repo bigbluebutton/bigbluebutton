@@ -14,4 +14,5 @@ define [
       compiledTemplate = _.template(sessionVideoTemplate, data)
       @$el.html compiledTemplate
 
+
   SessionVideoView
