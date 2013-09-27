@@ -271,7 +271,7 @@ module BigBlueButton
 
     def self.edl_match_recording_marks_audio(edl, archive_dir)
       calculate_entry_files_timestamp = Proc.new do |edl_entry, offset|
-        edl_entry[:audio][:timestamp] += offset
+        edl_entry[:audio][:timestamp] += offset if edl_entry[:audio]
       end
 
       empty_entry = {
