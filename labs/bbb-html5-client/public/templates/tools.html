@@ -1,0 +1,50 @@
+<div id="mainToolBar" class="tools main-tools">
+  <button id="slide-upload-button" >
+   <i class="icon-file-alt"></i>
+  </button> 
+  <button id="tool-toggle-btn" style="float:right">
+      <i class="icon-edit"></i>
+  </button>
+  <button id="tool-zoom-btn" style="float:right">
+      <i class="icon-zoom-in"></i> 
+  </button>
+</div>
+
+<div id="toggleToolBar" class="tools whiteboard-tools">
+    
+  <button id="tool-square-btn" >
+       <i class="icon-check-empty"></i> 
+  </button> 
+  <button id="tool-circle-btn" >
+      <i class="icon-circle-blank"></i>
+  </button>
+  <button id="prev-slide-btn" >
+    <i class="icon-arrow-left"></i> 
+  </button>
+  <button id="next-slide-btn" >
+    <i class="icon-arrow-right"></i> 
+  </button>
+  <button id="tool-pan-btn" >
+    <i class="icon-move"></i> 
+  </button>
+  <button id="tool-line-btn" >
+    <i class="icon-pencil"></i> 
+  </button>
+  <button id="slide-undo-btn" >
+    <i class="icon-undo"></i>
+  </button>
+  <button id="slide-clean-btn" >
+    <i class="icon-remove-circle"></i>
+  </button>
+</div>
+<div id="slide-upload-controls">
+  <h3>Upload Custom Slides</h3>
+  <form method="post" action="/upload" enctype="multipart/form-data" id="slide-upload-form">
+    <input type="file" name="image" id="slide-upload-file">
+  </form>
+    <span id="slide-upload-status"></span>
+  <input type="button" id="closeUploadWindow" value="close">
+</div>
+  
+
+

@@ -64,6 +64,8 @@ define [
         globals.events.on "connection:connected", =>
           @_registerEvents()
 
+      
+
     # Override the close() to unbind events.
     unbindEvents: ->
       $(window).off "resize.whiteboard_paper"
@@ -89,6 +91,30 @@ define [
         @slides = {} # if previously loaded
       unless navigator.userAgent.indexOf("Firefox") is -1
         @raphaelObj.renderfix()
+
+      #initializing boarder around slide to cover up areas which shouldnt show
+      
+      @boarderLeft = @raphaelObj.rect(0, 0, 0, 0 );
+      @boarderRight = @raphaelObj.rect(0, 0, 0, 0 );
+
+      @boarderTop = @raphaelObj.rect(0,0, 0, 0)
+      @boarderBottom = @raphaelObj.rect(0,0, 0, 0)
+
+      @boarderLeft.attr("fill", "#ababab");
+      @boarderLeft.attr( {stroke:"#ababab"} )
+      
+
+      @boarderRight.attr("fill", "#ababab");
+      @boarderRight.attr( {stroke:"#ababab"} )
+      
+
+      @boarderTop.attr("fill", "#ababab");
+      @boarderTop.attr( {stroke:"#ababab"} )
+      
+
+      @boarderBottom.attr("fill", "#ababab");
+      @boarderBottom.attr( {stroke:"#ababab"} )
+      
 
     # Re-add the images to the paper that are found
     # in the slides array (an object of urls and dimensions).
@@ -403,6 +429,10 @@ define [
       [slideWidth, slideHeight] = @_currentSlideOriginalDimensions()
       @cursor.setPosition(x * slideWidth + cx, y * slideHeight + cy)
 
+      #if the slide is zoomed in then move the cursor based on where the viewBox is looking
+      if @viewBoxXpos? && @viewBoxYPos?  && @viewBoxWidth? && @viewBoxHeight?
+        @cursor.setPosition( @viewBoxXpos + x * @viewBoxWidth, @viewBoxYPos + y * @viewBoxHeight ) 
+
     # Update the slide to move and zoom
     # @param  {number} xOffset the x value of offset
     # @param  {number} yOffset the y value of offset
@@ -423,13 +453,9 @@ define [
 
 
       #get the actual size of the slide, depending on the limiting factor (container width or container height)
-      if(@containerWidth - slideWidth < @containerHeight - slideHeight)
-        actualHeight = @containerWidth * slideHeight / slideWidth
-        actualWidth = @containerWidth
-      else
-        actualWidth = @containerHeight * slideWidth / slideHeight 
-        actualHeight = @containerHeight
-
+      
+      actualWidth = @currentSlide.displayWidth
+      actualHeight = @currentSlide.displayHeight
       #console.log("actualWidth:" + actualWidth + " actualHeight: " + actualHeight)
 
       #calculate parameters to pass
@@ -438,13 +464,56 @@ define [
       newWidth = actualWidth  /  100 * widthRatio
       newHeight = actualHeight / 100 * heightRatio
 
+      @viewBoxXpos = newXPos
+      @viewBoxYPos = newyPos
+      @viewBoxWidth = newWidth
+      @viewBoxHeight = newHeight
+
       #console.log("newXPos: " + newXPos + " newyPos: " + newyPos + " newWidth: " + newWidth + " newHeight: " + newHeight)
 
       #set parameters to raphael viewbox
       @raphaelObj.setViewBox(newXPos , newyPos,  newWidth , newHeight , true);
 
+      
+      #update the rectangle elements which create the boarder when page is zoomed
+
+      @boarderLeft.attr( {width:newXPos, height: @containerHeight} )
+      
+      @boarderRight.attr(
+        x: newXPos + newWidth
+        y: 0
+        width:newXPos
+        height:@containerHeight
+      )
+
+      
+      @boarderTop.attr(
+        width: @containerWidth
+        height: newyPos
+      )
+
+
+      @boarderBottom.attr(
+        y: newyPos + newHeight
+        width: @containerWidth
+        height: @containerHeight
+      )
+
+      #boarders should appear infront of every other element (i.e. shapes)
+      @boarderLeft.toFront()
+      @boarderRight.toFront()
+      @boarderTop.toFront()
+      @boarderBottom.toFront()
+
+
+      #update cursor to appear the same size even when page is zoomed in
+      @cursor.setRadius( 2 * widthRatio / 100 )
+
     # Registers listeners for events in the gloval event bus
     _registerEvents: ->
+
+      globals.events.on "whiteboard:reposition", =>
+        $(window).trigger('resize');
 
       globals.events.on "connection:all_slides", (urls) =>
         @removeAllImagesFromPaper()
@@ -494,6 +563,7 @@ define [
 
       globals.events.on "connection:mvCur", (x, y) =>
         @moveCursor(x, y)
+        console.log "x: " + x + " y: " + y
 
       globals.events.on "connection:move_and_zoom", (xOffset, yOffset, widthRatio, heightRatio) =>
         @moveAndZoom(xOffset, yOffset, widthRatio, heightRatio)
@@ -529,6 +599,7 @@ define [
       globals.events.on "connection:uploadStatus", (message, fade) =>
         globals.events.trigger("whiteboard:paper:uploadStatus", message, fade)
 
+
     # Update the dimensions of the container.
     _updateContainerDimensions: ->
       $container = $(@container)
@@ -536,6 +607,7 @@ define [
       @containerHeight = $container.innerHeight()
       @containerOffsetLeft = $container.offset().left
       @containerOffsetTop = $container.offset().top
+
 
     # Retrieves an image element from the paper.
     # The url must be in the slides array.
@@ -650,11 +722,18 @@ define [
       
       #now the zooming will still be correct when the window is resized
       #and hopefully when rotated on a mobile device
-      if @globalxOffset && @globalyOffset && @globalwidthRatio && @globalheightRatio
+      if @globalxOffset? && @globalyOffset? && @globalwidthRatio? && @globalheightRatio?
         console.log "has zoomed in"
         @moveAndZoom(@globalxOffset, @globalyOffset, @globalwidthRatio, @globalheightRatio)
 
       else
+        obj = 
+          globalxOffset : @globalxOffset
+          globalyOffset : @globalyOffset
+          globalwidthRatio : @globalwidthRatio
+          globalheightRatio : @globalheightRatio
+
+        console.log obj
         console.log "not zoomed"
         @raphaelObj.setViewBox(newXPos, newyPos, newWidth, newHeight,true)
 

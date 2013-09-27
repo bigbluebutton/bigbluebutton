@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<auxiliary-configuration xmlns="http://www.netbeans.org/ns/auxiliary-configuration/1">
+    <preferences xmlns="http://www.netbeans.org/ns/auxiliary-configuration-preferences/1">
+        <module name="org-netbeans-modules-html-editor-lib">
+            <property name="default-html-public-id" value="HTML5"/>
+        </module>
+        <module name="org-netbeans-modules-editor-indent">
+            <node name="CodeStyle"/>
+        </module>
+    </preferences>
+</auxiliary-configuration>

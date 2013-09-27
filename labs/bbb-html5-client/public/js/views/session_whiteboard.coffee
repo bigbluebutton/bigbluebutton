@@ -23,7 +23,7 @@ define [
   SessionWhiteboardView = Backbone.View.extend
     events:
       "click #colour-view": "_toggleColorPicker"
-
+      
     initialize: ->
       @paper = null
       @controlsView = new SessionWhiteboardControlsView()
@@ -48,7 +48,7 @@ define [
     render: ->
       compiledTemplate = _.template(sessionWhiteboardTemplate)
       @$el.html compiledTemplate
-
+    
       # subview with whiteboard controls
       @assign(@controlsView, "#slide-controls")
 
@@ -67,10 +67,10 @@ define [
 
       @_createColourPicker()
       @_createPaper()
-
       @_drawThicknessView(DEFAULT_THICKNESS, DEFAULT_COLOUR)
       @_drawColourView(DEFAULT_COLOUR)
 
+      
     _createColourPicker: ->
       unless @colourPicker
         @$("#colour-picker").hide()
@@ -80,7 +80,7 @@ define [
           @_drawThicknessView(null, color.hex)
           @_drawColourView(color.hex)
         @colourPicker.color DEFAULT_COLOUR
-
+        
     _createPaper: ->
       # have to create the paper here, in the initializer #slide doesn't exist yet
       container = @$("#slide")[0]
@@ -99,6 +99,18 @@ define [
         @controlsView.clearUploadStatus()
         # to make sure the paper will ocuupy all available area
         @_setPaperSize()
+      
+      #Listen to a reposition event when user click 'chat', or 'video' button
+      #Always center the image according to the whiteboard width changes
+      globals.events.on "whiteboard:reposition",=> 
+        whiteboardWidth = $("#whiteboard").width()
+        $("#slide").width(whiteboardWidth)
+        svg = document.getElementsByTagName('svg')[0]
+        img = svg.getElementsByTagName('image')[0]
+        imgWidth=img.getAttribute('width')
+        width = ($("#whiteboard").width()-imgWidth)/2
+        $("#slide image").attr("x",width)
+
 
     # Toggles the visibility of the colour picker, which is hidden by
     # default. The picker is a RaphaelJS object, so each node of the object
@@ -154,5 +166,6 @@ define [
 
     _setPaperSize: () ->
       @paper.changeSize(@$el.width(), @$el.height(), true, false)
+      
 
    SessionWhiteboardView
