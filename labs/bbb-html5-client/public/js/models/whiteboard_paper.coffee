@@ -505,6 +505,10 @@ define [
       @boarderTop.toFront()
       @boarderBottom.toFront()
 
+
+      #update cursor to appear the same size even when page is zoomed in
+      @cursor.setRadius( 2 * widthRatio / 100 )
+
     # Registers listeners for events in the gloval event bus
     _registerEvents: ->
 
