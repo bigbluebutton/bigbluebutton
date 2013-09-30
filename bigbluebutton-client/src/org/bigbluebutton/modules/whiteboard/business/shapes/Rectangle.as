@@ -72,7 +72,21 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             if (ao.fill) this.graphics.beginFill(ao.fillColor, ao.transparency ? 0.6 : 1.0);
 			
 			if (ao.square) {
-				this.graphics.drawRect(startX, startY, width, width);
+				
+                if(height < 0){
+                    if(width<0)
+                        this.graphics.drawRect(startX, startY, width, width);
+                    else
+                        this.graphics.drawRect(startX, startY, width, -width);
+                }
+                else{
+                    if(width<0)
+                        this.graphics.drawRect(startX, startY, width, -width);
+                    else
+                        this.graphics.drawRect(startX, startY, width, width);
+                }
+
+
 			} else {
 				this.graphics.drawRect(startX, startY, width, height);
 			}
