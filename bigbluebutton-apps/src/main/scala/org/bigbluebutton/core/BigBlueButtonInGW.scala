@@ -24,6 +24,7 @@ import org.bigbluebutton.core.api.KeepAliveMessage
 import org.bigbluebutton.core.api.PreuploadedPresentations
 import scala.collection.JavaConversions._
 import org.bigbluebutton.core.apps.poll.PollInGateway
+import org.bigbluebutton.core.apps.layout.LayoutInGateway
 
 class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW {
 
@@ -59,7 +60,10 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
     
   }
   
-  // Users
+  /*************************************************************
+   * Message Interface for Users
+   *************************************************************/
+  
 	def setUserStatus(meetingID: String, userID: String, status: String, value: Object):Unit = {
 		bbbGW.accept(new ChangeUserStatus(meetingID, userID, status, value));
 	}
@@ -89,8 +93,11 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	def getCurrentPresenter(meetingID: String, requesterID: String):Unit = {
 		// do nothing
 	}
-		
-	// Presentation
+	
+	/**************************************************************************************
+	 * Message Interface for Presentation
+	 **************************************************************************************/
+
 	def clear(meetingID: String) {
 	  bbbGW.accept(new ClearPresentation(meetingID))
 	}
@@ -127,7 +134,9 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	  bbbGW.accept(new GetSlideInfo(meetingID, requesterID))
 	}
 	
-	// Polling
+	/**************************************************************
+	 * Message Interface Polling
+	 **************************************************************/
 	val pollGW = new PollInGateway(bbbGW)
 	
 	def getPolls(meetingID: String, requesterID: String) {
@@ -168,5 +177,26 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	
 	def hidePollResult(meetingID: String, requesterID: String, msg: String) {
 	  pollGW.hidePollResult(meetingID, requesterID, msg)
+	}
+	
+	/*************************************************************************
+	 * Message Interface for Layout
+	 *********************************************************************/
+	val layoutGW = new LayoutInGateway(bbbGW)
+	
+	def getCurrentLayout(meetingID: String, requesterID: String) {
+	  layoutGW.getCurrentLayout(meetingID, requesterID)
+	}
+	
+	def setLayout(meetingID: String, requesterID: String, layoutID: String) {
+	  layoutGW.setLayout(meetingID, requesterID, layoutID)
+	}
+	
+	def lockLayout(meetingID: String, requesterID: String, layoutID: String) {
+	  layoutGW.lockLayout(meetingID, requesterID, layoutID)
+	}
+	
+	def unlockLayout(meetingID: String, requesterID: String) {
+	  layoutGW.unlockLayout(meetingID, requesterID)
 	}
 }

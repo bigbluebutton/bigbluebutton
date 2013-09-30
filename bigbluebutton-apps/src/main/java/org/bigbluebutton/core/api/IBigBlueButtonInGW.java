@@ -39,4 +39,11 @@ public interface IBigBlueButtonInGW {
 	void removePoll(String meetingID, String requesterID, String msg);
 	void respondPoll(String meetingID, String requesterID, String msg);
 	void preCreatedPoll(String meetingID, String msg);
+	
+	// Layout
+	void getCurrentLayout(String meetingID, String requesterID);
+	void setLayout(String meetingID, String requesterID, String layoutID);
+	void lockLayout(String meetingID, String requesterID, String layoutID);
+	void unlockLayout(String meetingID, String requesterID);
+	
 }

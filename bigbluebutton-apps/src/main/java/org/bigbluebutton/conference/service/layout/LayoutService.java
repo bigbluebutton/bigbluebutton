@@ -44,7 +44,7 @@ public class LayoutService {
 	
 	public void unlock() {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
-		application.unlockLayout(meetingID);
+		application.unlockLayout(meetingID, getBbbSession().getInternalUserID());
 	}
 	
 	public void setLayoutApplication(LayoutApplication a) {
