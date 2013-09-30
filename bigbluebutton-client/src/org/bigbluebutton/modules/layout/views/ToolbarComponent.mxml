@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   creationComplete="init()" visible="{_visibleTools}"
+		   xmlns:mate="http://mate.asfusion.com/"
+		   xmlns:views="org.bigbluebutton.modules.layout.views.*"
+		   implements="org.bigbluebutton.common.IBbbToolbarComponent">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+
+			import flexlib.mdi.containers.MDICanvas;
+
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.views.MainToolbar;
+			import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;
+			import org.bigbluebutton.modules.layout.model.WindowLayout;
+
+			private var _dispatcher:Dispatcher = new Dispatcher();
+			[Bindable] private var _enableEdit:Boolean = false;
+			[Bindable] private var _visibleTools:Boolean = true;
+			
+			[Bindable] private var baseIndex:int = 110000;
+			
+			private function init():void {
+				var evt:ViewInitializedEvent = new ViewInitializedEvent();
+				evt.canvas = getMdiCanvas(parent) as MDICanvas;
+				_dispatcher.dispatchEvent(evt);
+			}
+			
+			public function set enableEdit(arg:Boolean):void {
+				_enableEdit = arg && UserManager.getInstance().getConference().amIModerator();
+			}
+			
+			public function set visibleTools(arg:Boolean):void {
+				_visibleTools = arg;
+			}
+			
+			private function getMdiCanvas(p:DisplayObjectContainer):DisplayObject {
+				if (p == null)
+					return null;
+					
+				for (var i:int = 0; i < p.numChildren; ++i) {
+					//if (String(getQualifiedClassName(p.getChildAt(i))).match("MainCanvas"))
+					if (WindowLayout.getType(p.getChildAt(i)) == "MainCanvas") 
+						return p.getChildAt(i);
+					
+					var obj:DisplayObject = getMdiCanvas(p.parent);
+					if (obj != null)
+						return obj;
+				}
+				return null;
+			}
+			
+			public function getAlignment():String{
+				return MainToolbar.ALIGN_RIGHT;
+			}
+			
+		]]>
+	</mx:Script>
+
+	<views:LayoutsCombo id="comboBox" 
+						tabIndex="{baseIndex}"/>
+	<views:AddButton id="addButton" 
+					 includeInLayout="{_enableEdit}" 
+					 visible="{_enableEdit}" 
+					 tabIndex="{baseIndex+1}"/>
+	<views:SaveButton id="saveButton" 
+					  includeInLayout="{_enableEdit}" 
+					  visible="{_enableEdit}" 
+					  tabIndex="{baseIndex+2}"/>
+	<views:LoadButton id="loadButton" 
+					  includeInLayout="{_enableEdit}" 
+					  visible="{_enableEdit}" 
+					  tabIndex="{baseIndex+3}"/>
+	<views:LockButton id="lockButton"
+					  tabIndex="{baseIndex+4}"/>
+</mx:HBox>

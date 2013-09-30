@@ -1,20 +1,20 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 package org.bigbluebutton.main.model
 {
@@ -23,11 +23,19 @@ package org.bigbluebutton.main.model
 	import flash.events.Event;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
+	import flash.system.ApplicationDomain;
 	import flash.utils.Dictionary;
+	
+	import mx.core.Application;
+	import mx.core.FlexGlobals;
+	import mx.managers.BrowserManager;
+	import mx.utils.URLUtil;
+	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.model.modules.ModuleDescriptor;
 
 	public class ConfigParameters {
-		public static const FILE_PATH:String = "conf/config.xml";
+    public static const CONFIG_XML:String = "bigbluebutton/api/configXML";
 		
 		private var _urlLoader:URLLoader;
 		
@@ -38,11 +46,13 @@ package org.bigbluebutton.main.model
 		public var suppressLocaleWarning:Boolean = false;
 		public var portTestHost:String;
 		public var portTestApplication:String;
+		public var portTestTimeout:Number;
 		public var helpURL:String;
 		public var application:String;
 		public var host:String;
 		public var numModules:int;
 		public var languageEnabled:Boolean;
+		public var shortcutKeysShowButton:Boolean;
 		public var skinning:String = "";
 		public var showDebug:Boolean = false;
 		
@@ -51,15 +61,25 @@ package org.bigbluebutton.main.model
 		
 		private var _modules:Dictionary;
 		
-		public function ConfigParameters(loadedListener:Function, file:String = FILE_PATH) {			
+		public function ConfigParameters(loadedListener:Function, file:String = CONFIG_XML) {			
 			this.numModules = 0;
 			this.loadedListener = loadedListener;
 			_urlLoader = new URLLoader();
 			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);
 			var date:Date = new Date();
-			_urlLoader.load(new URLRequest(file + "?a=" + date.time));
+      var localeReqURL:String = buildRequestURL() + "?a=" + date.time;
+      
+      trace("ConfigParameters:: [" + localeReqURL + "]");
+      _urlLoader.load(new URLRequest(localeReqURL));
 		}
 		
+    private function buildRequestURL():String {
+      var swfURL:String = FlexGlobals.topLevelApplication.url;
+      var protocol:String = URLUtil.getProtocol(swfURL);
+      var serverName:String = URLUtil.getServerNameWithPort(swfURL);        
+      return protocol + "://" + serverName + "/" + CONFIG_XML;
+    }
+    
 		private function handleComplete(e:Event):void{
 			parse(new XML(e.target.data));	
 			buildModuleDescriptors();
@@ -67,10 +87,15 @@ package org.bigbluebutton.main.model
 		}
 		
 		private function parse(xml:XML):void{
+      trace("ConfigParameters:: parse [" + xml + "]");
 			rawXML = xml;
 			
 			portTestHost = xml.porttest.@host;
 			portTestApplication = xml.porttest.@application;
+			
+			portTestTimeout = parseInt(xml.porttest.@timeout);
+			if(isNaN(portTestTimeout) || portTestTimeout < 500) portTestTimeout = 10000;
+			
 			application = xml.application.@uri;
 			host = xml.application.@host;
 			helpURL = xml.help.@url;
@@ -79,6 +104,10 @@ package org.bigbluebutton.main.model
 			if (xml.localeversion.@suppressWarning == "true") suppressLocaleWarning = true;
 			if (xml.language.@userSelectionEnabled == "true") languageEnabled = true;
 			else languageEnabled = false;
+			
+			if (xml.shortcutKeys.@showButton == "true") shortcutKeysShowButton = true;
+			else shortcutKeysShowButton = false;
+			
 			if (xml.skinning.@enabled == "true") skinning = xml.skinning.@url;
 
 			if (xml.debug.@showDebugWindow == "true") showDebug = true;

@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
-  
-  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
-  
-  BigBlueButton is free software; you can redistribute it and/or modify it under the 
-  terms of the GNU Lesser General Public License as published by the Free Software 
-  Foundation; either version 2.1 of the License, or (at your option) any later 
-  version. 
-  
-  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
-  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-  
-  You should have received a copy of the GNU Lesser General Public License along 
-  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- 
-  $Id: $
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
 -->
 
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
@@ -32,18 +32,19 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import mx.controls.Alert;
-			
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.modules.chat.events.ChatEvent;
-			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
-			import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
-			import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
-			import org.bigbluebutton.modules.chat.events.TranscriptEvent;
-			import org.bigbluebutton.modules.chat.model.ChatObject;
-			import org.bigbluebutton.modules.chat.views.ChatBox;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import mx.controls.Alert;
+      
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.modules.chat.ChatUtil;
+      import org.bigbluebutton.modules.chat.events.ChatEvent;
+      import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+      import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
+      import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
+      import org.bigbluebutton.modules.chat.events.TranscriptEvent;
+      import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
+      import org.bigbluebutton.modules.chat.views.ChatBox;
 		
 			private var _moduleName:String = "Chat Module";			
 			private var _attributes:Object;
@@ -128,19 +129,19 @@
 			private function handleTranscriptLoadedEvent(event:Event):void {
 				LogUtil.debug("Handling TranscriptLoadedEvent");
 				var welcome:String = _attributes.welcome as String;
-				if (welcome != ""){
-					var welcomeEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-					var chatobj:ChatObject = new ChatObject();
-					chatobj.message = welcome;
-					chatobj.username = " ";
-					chatobj.color = "0";
-					chatobj.time = ChatBox.getHours() + ":" + ChatBox.getMinutes();
-					chatobj.language = "en";
-					chatobj.userid = "";
+				if (welcome != "") {
+//					var welcomeEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
+//					var chatobj:ChatMessageVO = new ChatMessageVO();
+//					chatobj.message = welcome;
+//					chatobj.username = " ";
+//					chatobj.color = "0";
+//					chatobj.time = ChatUtil.getCurrentTime();
+//					chatobj.language = "en";
+//					chatobj.userid = "";
 					
-					welcomeEvent.chatobj = chatobj;
-					var globalDispatcher:Dispatcher = new Dispatcher();
-					globalDispatcher.dispatchEvent(welcomeEvent);
+		//			welcomeEvent.chatobj = chatobj;
+//					var globalDispatcher:Dispatcher = new Dispatcher();
+		//			globalDispatcher.dispatchEvent(welcomeEvent);
 				}	
 			}
 		]]>

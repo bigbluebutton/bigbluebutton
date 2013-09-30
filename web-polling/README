@@ -1,0 +1,3 @@
+The web-polling project (p) is a Dynamic Web Project created in Eclipse EE.
+
+To install place p.war into /var/lib/tomcat6/webapps, and p.nginx into /etc/bigbluebutton/nginx.

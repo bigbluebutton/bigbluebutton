@@ -91,7 +91,7 @@ module BigBlueButton
     FileTest.directory?(dir)
   end
     
-  def self.execute(command)
+  def self.execute(command, fail_on_error=true)
     status = ExecutionStatus.new
     status.detailedStatus = Open4::popen4(command) do | pid, stdin, stdout, stderr|
         BigBlueButton.logger.info("Executing: #{command}")
@@ -102,12 +102,40 @@ module BigBlueButton
         status.errors = stderr.readlines
         unless status.errors.empty?
           BigBlueButton.logger.error( "Error: stderr: #{Array(status.errors).join()}")
-#          raise errors.to_s
         end
     end
     BigBlueButton.logger.info("Success?: #{status.success?}")
     BigBlueButton.logger.info("Process exited? #{status.exited?}")
     BigBlueButton.logger.info("Exit status: #{status.exitstatus}")
+    if status.success? == false and fail_on_error
+      raise "Execution failed"
+    end
     status
+  end
+
+  def self.exec_ret(*command)
+    BigBlueButton.logger.info "Executing: #{command.join(' ')}"
+    IO.popen([*command, :err => [:child, :out]]) do |io|
+      io.lines.each do |line|
+        BigBlueButton.logger.info line.chomp
+      end
+    end
+    BigBlueButton.logger.info "Exit status: #{$?.exitstatus}"
+    return $?.exitstatus
+  end
+
+  def self.exec_redirect_ret(outio, *command)
+    BigBlueButton.logger.info "Executing: #{command.join(' ')}"
+    BigBlueButton.logger.info "Sending output to #{outio}"
+    IO.pipe do |r, w|
+      pid = spawn(*command, :out => outio, :err => w)
+      w.close
+      r.lines.each do |line|
+        BigBlueButton.logger.info line.chomp
+      end
+      Process.waitpid(pid)
+      BigBlueButton.logger.info "Exit status: #{$?.exitstatus}"
+      return $?.exitstatus
+    end
   end
 end

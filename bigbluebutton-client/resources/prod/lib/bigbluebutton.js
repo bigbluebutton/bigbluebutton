@@ -17,3 +17,19 @@
 })(jQuery);
 
 $(function () { $.fn.bigbluebutton(); });
+
+$(function () {
+	setTimeout(function(){
+		   $('#BigBlueButton').focus();
+	},1000);
+});
+
+function startFlashFocus() {
+	f = $('#BigBlueButton')[0]
+	f.tabIndex = 0;
+	f.focus();
+}
+
+function stopFlashFocus() {
+	$('#enterFlash')[0].focus();
+}

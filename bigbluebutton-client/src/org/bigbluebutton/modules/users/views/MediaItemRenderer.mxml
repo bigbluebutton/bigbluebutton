@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+--> 
+
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:mate="http://mate.asfusion.com/"
+	verticalScrollPolicy="off" horizontalScrollPolicy="off"
+	verticalAlign="middle"
+	creationComplete="onCreationComplete()" > 
+	
+	<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
+	<mate:Listener type="{UsersRollEvent.USER_ROLL_OUT}" method="onRollOut" />
+	
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.core.events.VoiceConfEvent;
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
+			import org.bigbluebutton.main.model.users.Conference;
+			import org.bigbluebutton.main.model.users.events.KickUserEvent;
+			import org.bigbluebutton.main.model.users.events.LowerHandEvent;
+			import org.bigbluebutton.modules.users.events.UsersRollEvent;
+			import org.bigbluebutton.modules.users.events.ViewCameraEvent;
+			import org.bigbluebutton.modules.users.model.UsersOptions;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			[Bindable]
+			private var images:Images = new Images();
+   			
+			private var moderator:Boolean = false;
+			[Bindable]
+			private var rolledOver:Boolean = false;
+			
+			private var rolledOverMute:Boolean = false;
+			private var rolledOverLock:Boolean = false;
+			
+			private var muteRolled:Boolean = false;
+			private var lockRolled:Boolean = false;
+			
+			private var options:UsersOptions;
+			
+			private function onCreationComplete():void{
+				lockBtn.enabled = muteBtn.enabled = kickUserBtn.enabled = moderator = UserManager.getInstance().getConference().amIModerator();
+				
+				this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
+				
+				BindingUtils.bindSetter(updateButtons, voiceJoinedInd, "visible");
+				BindingUtils.bindSetter(updateButtons, muteInd, "visible");
+				BindingUtils.bindSetter(updateButtons, voiceLockedInd, "visible");
+				BindingUtils.bindSetter(updateButtons, hasStreamInd, "visible");
+                BindingUtils.bindSetter(updateButtons, viewingStreamInd, "visible");
+                
+				options = new UsersOptions();
+			}
+			
+			private function dataChangeHandler(e:Event):void {
+				//rest rolledOver when the data changes because onRollOut wont be called if the row moves
+				if (data != null) {
+					updateButtons();
+				}
+			}
+			
+			private function onRollOver(e:UsersRollEvent):void{
+				if (moderator && (e.userID == data.userID)) {
+					rolledOver = true;
+					updateButtons();
+				}
+			}
+			
+			private function onRollOut(e:UsersRollEvent):void{
+				if (moderator && (e.userID == data.userID)) {
+					rolledOver = false;
+					updateButtons();
+				}
+			}
+			
+			private function muteMouseOverHandler():void {
+				rolledOverMute = true;
+				updateButtons();
+			}
+			
+			private function muteMouseOutHandler():void {
+				rolledOverMute = false;
+				updateButtons();
+			}
+			
+			private function lockMouseOverHandler():void {
+				rolledOverLock = true;
+				updateButtons();
+			}
+			
+			private function lockMouseOutHandler():void {
+				rolledOverLock = false;
+				updateButtons();
+			}
+			
+			private function viewCamera():void {
+				dispatchEvent(new ViewCameraEvent(data.userID, data.streamName, data.name));
+   			}	
+			
+			private function kickUser():void{
+				dispatchEvent(new KickUserEvent(data.userID));
+			}
+			
+			private function toggleMuteState():void {
+				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
+				e.userid = data.voiceUserid;
+				e.mute = !data.voiceMuted;
+				dispatchEvent(e);
+			}
+			
+			public function toggleLockState():void {
+				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.LOCK_MUTE_USER);
+				e.userid = data.voiceUserid;
+				e.lock = !data.voiceLocked;
+				dispatchEvent(e);
+			}
+			
+			private function updateButtons(voiceMuted:Boolean = false):void {
+				if (data != null) {
+					kickUserBtn.visible = !data.me && rolledOver && options.allowKickUser;
+					
+					
+					if (!data.voiceJoined) {
+						muteImg.visible = false;
+						muteImg.includeInLayout = false;
+						muteBtn.visible = false;
+						muteBtn.includeInLayout = true;
+					} else {
+						muteImg.visible = !rolledOver;
+						muteImg.includeInLayout = !rolledOver;
+						muteBtn.visible = rolledOver;
+						muteBtn.includeInLayout = rolledOver;
+						
+						if(data.talking && !rolledOver){
+							muteImg.filters = [new GlowFilter(0x898989)];
+						}else{
+							muteImg.filters = [];
+						}
+					}
+					
+					if (!data.voiceJoined) {
+						lockImg.visible = false;
+						lockImg.includeInLayout = false;
+						lockBtn.visible = false;
+						lockBtn.includeInLayout = true;
+					} else {
+						lockImg.visible = !rolledOver;
+						lockImg.includeInLayout = !rolledOver;
+						lockBtn.visible = rolledOver;
+						lockBtn.includeInLayout = rolledOver;
+					}
+					
+                    if (data.hasStream) {
+                        if (data.viewingStream || data.me) {
+                            webcamImg.visible = true;
+                            webcamImg.includeInLayout = true;
+                            webcamBtn.visible = false;
+                            webcamBtn.includeInLayout = false;
+                        } else {
+                            webcamImg.visible = false;
+                            webcamImg.includeInLayout = false;
+                            webcamBtn.visible = true;
+                            webcamBtn.includeInLayout = true;
+                        }
+                    } else {
+                        webcamImg.visible = false;
+                        webcamImg.includeInLayout = true;
+                        webcamBtn.visible = false;
+                        webcamBtn.includeInLayout = false;
+                    }
+                    
+					if (!rolledOver) {
+						if (data.voiceMuted)
+							muteImg.source = images.audio_muted_20;
+						else
+							muteImg.source = images.audio_20;
+						
+						if (data.voiceLocked)
+							lockImg.source = images.locked_20;
+						//else if (moderator)
+						//	lockImg.source = images.unlocked_20;
+						else
+							lockImg.source = null;
+					} else {
+						if (data.voiceMuted == rolledOverMute)
+							muteBtn.setStyle("icon", images.audio);
+						else
+							muteBtn.setStyle("icon", images.audio_muted);
+						
+						if (data.voiceLocked == rolledOverLock)
+							lockBtn.setStyle("icon", images.unlocked);
+						else
+							lockBtn.setStyle("icon", images.locked);
+					}
+				}
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<!--mx:Image id="talkingIcon" visible="{data.talking}" source="{images.sound_new}" width="20" height="16" 
+				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.talking')}" /-->
+	<mx:Image id="webcamImg" visible="false" source="{images.webcam_new_20}"
+				width="20" height="20"
+				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.webcam')}" />
+    <mx:Button id="webcamBtn" visible="false" includeInLayout="false" icon="{images.webcam_new_20}"
+              width="20" height="20" enabled="true" click="viewCamera()"
+              toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.webcamBtn')}" />
+	<mx:Image id="muteImg" visible="false" includeInLayout="true" width="20" height="20" />
+	<mx:Button id="muteBtn" visible="false" includeInLayout="false" enabled="false" icon="{images.audio}"
+				width="20" height="20" click="toggleMuteState()"
+				mouseOver="muteMouseOverHandler()"
+				mouseOut="muteMouseOutHandler()"
+				toolTip="{data.voiceMuted ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToTalk',[data.name]) : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToMute',[data.name])}" />
+	<mx:Button id="kickUserBtn" icon="{images.eject_user_new}" 
+				width="20" height="20" visible="false"
+				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.kickUser',[data.name])}"
+				click="kickUser()"/>
+	<mx:Image id="lockImg" visible="false" includeInLayout="false" width="20" height="20" />
+	<mx:Button id="lockBtn" visible="false" includeInLayout="false" enabled="false"
+				width="20" height="20" click="toggleLockState()"
+				mouseOver="lockMouseOverHandler()"
+				mouseOut="lockMouseOutHandler()"
+				toolTip="{data.voiceLocked ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToUnlock',[data.name]) : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToLock',[data.name])}" />		
+	<!-- Helper objects because using BindingUtil with data break when the itemRenderer is recycled -->
+	<mx:Image id="muteInd" includeInLayout="false" visible="{data.voiceMuted}" />
+	<mx:Image id="voiceJoinedInd" includeInLayout="false" visible="{data.voiceJoined}" />
+	<mx:Image id="voiceLockedInd" includeInLayout="false" visible="{data.voiceLocked}" />
+    <mx:Image id="hasStreamInd" includeInLayout="false" visible="{data.hasStream}" />
+    <mx:Image id="viewingStreamInd" includeInLayout="false" visible="{data.viewingStream}" />
+</mx:HBox>

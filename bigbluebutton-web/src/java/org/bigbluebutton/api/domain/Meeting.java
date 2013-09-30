@@ -1,30 +1,32 @@
-/* BigBlueButton - http://www.bigbluebutton.org
- * 
- * 
- * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
- * 
- * BigBlueButton is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License as published by the Free Software 
- * Foundation; either version 3 of the License, or (at your option) any later 
- * version. 
- * 
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License along 
- * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
- *
- * @author Jeremy Thomerson <jthomerson@genericconf.com>
- * @version $Id: $
- */
+/**
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 3.0 of the License, or (at your option) any later
+* version.
+* 
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+*
+*/
+
 package org.bigbluebutton.api.domain;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import org.apache.commons.lang.RandomStringUtils;
 
 public class Meeting {
 	private static final int MILLIS_IN_A_MINUTE = 60000;
@@ -46,9 +48,13 @@ public class Meeting {
 	private int maxUsers;
 	private boolean record;
 	private String dialNumber;
-
-	private Map<String, String> metadata;	
+	private String defaultAvatarURL;
+	private String defaultConfigToken;
+	
+	private Map<String, String> metadata;
+	private Map<String, Object> userCustomData;
 	private final ConcurrentMap<String, User> users; 
+	private final ConcurrentMap<String, Config> configs;
 	
 	public Meeting(Builder builder) {
 		name = builder.name;
@@ -58,6 +64,7 @@ public class Meeting {
 		moderatorPass = builder.moderatorPass;
 		maxUsers = builder.maxUsers;
 		logoutUrl = builder.logoutUrl;
+		defaultAvatarURL = builder.defaultAvatarURL;
 		record = builder.record;
     	duration = builder.duration;
     	webVoice = builder.webVoice;
@@ -66,9 +73,43 @@ public class Meeting {
     	dialNumber = builder.dialNumber;
     	metadata = builder.metadata;
     	createdTime = builder.createdTime;
+    	userCustomData = new HashMap<String, Object>();
 		users = new ConcurrentHashMap<String, User>();
+		
+		configs = new ConcurrentHashMap<String, Config>();
 	}
 
+	public String storeConfig(boolean defaultConfig, String config) {
+		String token = RandomStringUtils.randomAlphanumeric(8);
+		while (configs.containsKey(token)) {
+			token = RandomStringUtils.randomAlphanumeric(8);
+		}
+		
+		configs.put(token, new Config(token, System.currentTimeMillis(), config));
+		
+		if (defaultConfig) {
+			defaultConfigToken = token;
+		}
+		
+		return token;
+	}
+	
+	public Config getDefaultConfig() {
+		if (defaultConfigToken != null) {
+			return getConfig(defaultConfigToken);
+		}
+		
+		return null;
+	}
+	
+	public Config getConfig(String token) {
+		return configs.get(token);
+	}
+	
+	public Config removeConfig(String token) {
+		return configs.remove(token);
+	}
+	
 	public Map<String, String> getMetadata() {
 		return metadata;
 	}
@@ -152,6 +193,10 @@ public class Meeting {
 		return welcomeMsg;
 	}
 
+	public String getDefaultAvatarURL() {
+		return defaultAvatarURL;
+	}
+	
 	public String getLogoutUrl() {
 		return logoutUrl;
 	}
@@ -230,6 +275,14 @@ public class Meeting {
 		return (System.currentTimeMillis() - endTime > (expiry * MILLIS_IN_A_MINUTE));
 	}
 	
+	public void addUserCustomData(String userID, Map<String, String> data) {
+		userCustomData.put(userID, data);
+	}
+	
+	public Map getUserCustomData(String userID){
+		return (Map) userCustomData.get(userID);
+	}
+	
 	/***
 	 * Meeting Builder
 	 *
@@ -249,6 +302,7 @@ public class Meeting {
     	private String logoutUrl;
     	private Map<String, String> metadata;
     	private String dialNumber;
+    	private String defaultAvatarURL;
     	private long createdTime;
     	
     	public Builder(String externalId, String internalId, long createTime) {
@@ -307,6 +361,11 @@ public class Meeting {
     		return this;
     	}
     	
+    	public Builder withDefaultAvatarURL(String w) {
+    		defaultAvatarURL = w;
+    		return this;
+    	}
+    	   	
     	public Builder withLogoutUrl(String l) {
     		logoutUrl = l;
     		return this;

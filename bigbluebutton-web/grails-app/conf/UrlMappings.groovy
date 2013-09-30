@@ -1,22 +1,22 @@
-/*
- * BigBlueButton - http://www.bigbluebutton.org
- * 
- * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
- * 
- * BigBlueButton is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License as published by the Free Software 
- * Foundation; either version 3 of the License, or (at your option) any later 
- * version. 
- * 
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License along 
- * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
- *
- * $Id: $
- */
+/**
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 3.0 of the License, or (at your option) any later
+* version.
+* 
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+*
+*/
+
 class UrlMappings {
     static mappings = {
 
@@ -43,7 +43,19 @@ class UrlMappings {
       "/presentation/$conference/$room/$presentation_name/thumbnail/$id"(controller:"presentation") {
       		action = [GET:'showThumbnail']
       }
+	  
+	  "/presentation/$conference/$room/$presentation_name/textfiles"(controller:"presentation") {
+		    action = [GET:'numberOfTextfiles']
+	  }
+  
+	  "/presentation/$conference/$room/$presentation_name/textfile/$id"(controller:"presentation") {
+		   action = [GET:'showTextfile']
+      }
       
+	  "/api/setConfigXML"(controller:"api") {
+		  action = [POST:'setConfigXML']
+	 }
+	  
       "/$controller/$action?/$id?"{
 	      constraints {
 			 // apply constraints here

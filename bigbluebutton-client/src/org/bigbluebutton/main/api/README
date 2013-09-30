@@ -1,0 +1,8 @@
+This package will contain classes that will support the BigBlueButton client to be embedded into other
+3rd-party HTML applications.
+
+There will be APIs here using the ExternalInterface to allow containers to interact with the BigBlueButton
+client using Javascript.
+
+First step towards HTML5...
+

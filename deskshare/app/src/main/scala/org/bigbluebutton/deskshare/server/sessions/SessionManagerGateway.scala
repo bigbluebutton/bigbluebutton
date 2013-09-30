@@ -1,27 +1,23 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.deskshare.server.sessions
 
-import org.bigbluebutton.deskshare.common.Dimension
 import org.bigbluebutton.deskshare.server.svc1.Dimension
 import org.bigbluebutton.deskshare.server.stream.StreamManager
 import org.bigbluebutton.deskshare.server.session.ISessionManagerGateway
@@ -36,10 +32,10 @@ class SessionManagerGateway(streamManager: StreamManager, keyFrameInterval: Int,
 	val sessionManager: SessionManagerSVC = new SessionManagerSVC(streamManager, keyFrameInterval, interframeInterval, waitForAllBlocks)
     sessionManager.start 
   
-	def createSession(room: String, screenDim: common.Dimension, blockDim: common.Dimension, seqNum: Int): Unit = {
+	def createSession(room: String, screenDim: org.bigbluebutton.deskshare.common.Dimension, blockDim: org.bigbluebutton.deskshare.common.Dimension, seqNum: Int, useSVC2: Boolean): Unit = {
 		log.info("SessionManagerGateway:createSession for %s", room)
-		sessionManager ! new CreateSession(room, new svc1.Dimension(screenDim.getWidth(), screenDim.getHeight()), 
-	                                       new svc1.Dimension(blockDim.getWidth(), blockDim.getHeight()), seqNum)
+		sessionManager ! new CreateSession(room, new Dimension(screenDim.getWidth(), screenDim.getHeight()), 
+	                                       new Dimension(blockDim.getWidth(), blockDim.getHeight()), seqNum, useSVC2)
 		log.info("SessionManagerGateway:Sent create session for %s", room)	    
 	}
 

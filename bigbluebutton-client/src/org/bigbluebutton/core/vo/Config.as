@@ -1,20 +1,20 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 package org.bigbluebutton.core.vo {
 	public class Config {
@@ -27,6 +27,7 @@ package org.bigbluebutton.core.vo {
 		private var _host:String;
 		private var _numModules:int;
 		private var _languageEnabled:Boolean;
+		private var _shortcutKeysShowButton:Boolean;
 		private var _skinning:String = "";
 		private var _showDebug:Boolean = false;
 		
@@ -40,6 +41,7 @@ package org.bigbluebutton.core.vo {
 			_host = builder.host;
 			_numModules = builder.numModules;
 			_languageEnabled = builder.languageEnabled;
+			_shortcutKeysShowButton = builder.shortcutKeysShowButton;
 			_skinning = builder.skinning;
 			_showDebug = builder.showDebug;
 		}
@@ -78,7 +80,11 @@ package org.bigbluebutton.core.vo {
 		
 		public function get languageEnabled():Boolean {
 			return _languageEnabled;
-		} 
+		}
+		
+		public function get shortcutKeysShowButton():Boolean {
+			return _shortcutKeysShowButton;
+		}
 		
 		public function get skinning():String {
 			return _skinning;

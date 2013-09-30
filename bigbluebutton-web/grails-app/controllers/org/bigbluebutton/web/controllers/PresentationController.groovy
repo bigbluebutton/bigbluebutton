@@ -1,22 +1,21 @@
-/*
- * BigBlueButton - http://www.bigbluebutton.org
- * 
- * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
- * 
- * BigBlueButton is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License as published by the Free Software 
- * Foundation; either version 3 of the License, or (at your option) any later 
- * version. 
- * 
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License along 
- * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
- *
- * $Id: $
- */
+/**
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 3.0 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+*
+*/
 package org.bigbluebutton.web.controllers
 
 import grails.converters.*
@@ -159,6 +158,33 @@ class PresentationController {
     return null;
   }
   
+  def showTextfile = {
+	  def presentationName = params.presentation_name
+	  def conf = params.conference
+	  def rm = params.room
+	  def textfile = params.id
+	  println "Controller: Show thumbnails request for $presentationName $textfile"
+	  
+	  InputStream is = null;
+	  try {
+		def pres = presentationService.showTextfile(conf, rm, presentationName, textfile)
+		if (pres.exists()) {
+		  println "Controller: Sending textfiles reply for $presentationName $textfile"
+		  
+		  def bytes = pres.readBytes()
+		  response.addHeader("Cache-Control", "no-cache")
+		  response.contentType = 'plain/text'
+		  response.outputStream << bytes;
+		} else {
+		  println "$pres does not exist."
+		}
+	  } catch (IOException e) {
+		println("Error reading file.\n" + e.getMessage());
+	  }
+	  
+	  return null;
+  }
+  
   def show = {
     //def filename = params.id.replace('###', '.')
     def filename = params.presentation_name
@@ -214,7 +240,7 @@ class PresentationController {
               presentation(name:presentationName) {
                 slides(count:numThumbs) {
                   for (def i = 1; i <= numThumbs; i++) {
-                    slide(number:"${i}", name:"slide/${i}", thumb:"thumbnail/${i}")
+                    slide(number:"${i}", name:"slide/${i}", thumb:"thumbnail/${i}", textfile:"textfile/${i}")
                   }
                 }
               }
@@ -244,6 +270,27 @@ class PresentationController {
         }
       }		
   }
+  
+  def numberOfTextfiles = {
+	  def filename = params.presentation_name
+	  def f = confInfo()
+	  def numFiles = presentationService.numberOfTextfiles(f.conference, f.room, filename)
+		withFormat {
+		  xml {
+			render(contentType:"text/xml") {
+			  conference(id:f.conference, room:f.room) {
+				presentation(name:filename) {
+				  textfiles(count:numFiles) {
+					for (def i=0;i<numFiles;i++) {
+						textfile(name:"textfiles/${i}")
+					  }
+				  }
+				}
+			  }
+			}
+		  }
+		}
+	}
   
   def confInfo = {
 //    	Subject currentUser = SecurityUtils.getSubject() 

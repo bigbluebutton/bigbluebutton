@@ -17,13 +17,8 @@
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
-# Authors:
-#   Felipe Cecagno (felipe@mconf.org)
-#
 
-echo
-echo "+++++ Building record-and-playback"
-cd ~/dev/bigbluebutton/record-and-playback/
+set -e
 
 sudo cp core/Gemfile /usr/local/bigbluebutton/core/Gemfile
 sudo rm -rf /usr/local/bigbluebutton/core/lib
@@ -69,6 +64,8 @@ sudo mkdir -p /var/bigbluebutton/recording/status/sanity/
 
 sudo mv /usr/local/bigbluebutton/core/scripts/*.nginx /etc/bigbluebutton/nginx/
 sudo chown -R tomcat6:tomcat6 /var/bigbluebutton/ /var/log/bigbluebutton/
+sudo chown -R red5:red5 /var/bigbluebutton/deskshare/
+sudo chown -R freeswitch:daemon /var/bigbluebutton/meetings/
 
 cd /usr/local/bigbluebutton/core/
 sudo bundle install

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+			creationComplete="init()" 
+			xmlns:mate="http://mate.asfusion.com/"
+			toolTip="{ResourceUtil.getInstance().getString('bbb.layout.combo.toolTip')}"
+			prompt="{ResourceUtil.getInstance().getString('bbb.layout.combo.prompt')}"
+			height="{LayoutButton.BUTTON_SIZE}"
+			change="onSelectedItemChanged(event)"
+			disabledColor="{getStyle('color')}"
+            rowCount="10" >
+	
+	<mate:Listener type="{LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT}" method="onApplyDefaultLayout" />
+	<mate:Listener type="{LayoutEvent.REMOTE_LOCK_LAYOUT_EVENT}" receive="{enabled=false || UserManager.getInstance().getConference().amIModerator()}" />
+	<mate:Listener type="{LayoutEvent.REMOTE_UNLOCK_LAYOUT_EVENT}" receive="{enabled=true}" />
+	<mate:Listener type="{LayoutEvent.INVALIDATE_LAYOUT_EVENT}" method="invalidadeLayout" />
+	<mate:Listener type="{RedefineLayoutEvent.REDEFINE_LAYOUT_EVENT}" method="onRedefineLayout" />
+	<mate:Listener type="{LayoutsLoadedEvent.LAYOUTS_LOADED_EVENT}" method="populateLayoutsList"/>
+	
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			import flash.events.Event;
+			import flash.events.ProgressEvent;
+			import flash.events.IOErrorEvent;
+			
+			import mx.controls.Alert;
+			import mx.events.ResizeEvent;
+			
+			import flash.net.FileReference;
+
+			import flexlib.mdi.managers.MDIManager;
+			import flexlib.mdi.containers.MDICanvas;
+			import flexlib.mdi.containers.MDIWindow;
+			import flexlib.mdi.events.MDIManagerEvent;
+			import flexlib.mdi.events.MDIWindowEvent;
+			
+			import org.bigbluebutton.common.IBbbModuleWindow;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.views.MainToolbar;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.modules.layout.events.LayoutEvent;
+			import org.bigbluebutton.modules.layout.events.ComboBoxCreatedEvent;
+			import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
+			import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
+			import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;
+			import org.bigbluebutton.modules.layout.model.LayoutDefinitionFile;
+			import org.bigbluebutton.modules.layout.model.LayoutDefinition;
+			import org.bigbluebutton.modules.layout.model.WindowLayout;
+			import org.bigbluebutton.modules.layout.views.LayoutButton;
+			
+			private var _dispatcher:Dispatcher = new Dispatcher();
+			
+			private var _defaultLayout:Object = null;
+			
+			private function init():void {
+				LogUtil.debug("LayoutsCombo: view initialized");
+				var comboBoxCreated:ComboBoxCreatedEvent = new ComboBoxCreatedEvent();
+				_dispatcher.dispatchEvent(comboBoxCreated);
+			}
+			
+			private function populateLayoutsList(e:LayoutsLoadedEvent):void {
+				LogUtil.debug("LayoutsCombo: populating list");
+				_defaultLayout = null;
+				dataProvider.removeAll();
+				var idx:int = 0;
+				for each (var value:LayoutDefinition in e.layouts.list) {
+					var item:Object = {index:idx, label:value.name, layout:value};
+					if (value.defaultLayout)
+						_defaultLayout = item;
+					dataProvider.addItem(item);
+					idx++;
+				}
+				invalidateDisplayList();
+			}
+			
+			private function onApplyDefaultLayout(e:Event = null):void {
+				if (_defaultLayout != null)
+					selectedItem = _defaultLayout; 
+			}
+			
+			private function onRedefineLayout(e:RedefineLayoutEvent):void {
+				/*
+				 *	remote means that the this event wasn't dispatched by this class
+				 *	it will come tipically from LayoutService or LayoutManager
+				 */
+				LogUtil.debug("LayoutCombo::onRedefineLayout");
+				if (e.remote) {
+					LogUtil.debug("LayoutCombo::onRedefineLayout remote event");
+	
+					var idx:int = -1;
+					prompt = e.layout.name;
+					
+					for each (var obj:Object in dataProvider) {
+						if (obj.label == e.layout.name)
+							idx = obj.index;
+					}
+					selectedIndex = idx;
+				}
+				invalidateDisplayList();
+				LogUtil.debug("LayoutCombo::onRedefineLayout done");
+			}
+			
+			private function onSelectedItemChanged(e:Event):void {
+				LogUtil.debug("LayoutsCombo: different layout selected");
+				var redefineLayout:RedefineLayoutEvent = new RedefineLayoutEvent();
+				redefineLayout.layout = e.currentTarget.selectedItem.layout;
+				redefineLayout.remote = false;
+				_dispatcher.dispatchEvent(redefineLayout);
+			}
+			
+			private function invalidadeLayout(e:Event):void {
+				selectedIndex = -1;
+				prompt = ResourceUtil.getInstance().getString('bbb.layout.combo.custom');
+			}
+			
+		]]>
+	</mx:Script>
+</mx:ComboBox>

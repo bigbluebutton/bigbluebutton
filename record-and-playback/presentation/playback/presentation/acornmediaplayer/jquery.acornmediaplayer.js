@@ -11,7 +11,7 @@
  * contact@ghinda.net
  *
  */
-
+ 
 (function($) {
 	$.fn.acornMediaPlayer = function(options) {
 		/*
@@ -68,6 +68,7 @@
 				$self: $(this)
 			};
 			
+			var loadedMetadata; // Is the metadata loaded
 			var seeking; // The user is seeking the media
 			var wasPlaying; // Media was playing when the seeking started
 			var fullscreenMode; // The media is in fullscreen mode
@@ -85,6 +86,8 @@
 				unmute: 'Unmute',
 				fullscreen: 'Fullscreen',
 				fullscreenTitle: 'Toggle fullscreen mode',
+				swap: 'Swap',
+				swapTitle: 'Toggle video and presention swap',
 				volumeTitle: 'Volume control',
 				seekTitle: 'Video seek control',
 				captions: 'Captions',
@@ -120,19 +123,27 @@
 			 * Markup for the fullscreen button
 			 * If the element is not <video> we leave if blank, as the button if useless on <audio> elements
 			 */
-			var fullscreenBtnMarkup = (acorn.$self.is('video')) ? '<button class="acorn-fullscreen-button" title="' + text.fullscreenTitle + '" aria-controls="' + acorn.id + '">' + text.fullscreen + '</button>' : '';
+			var fullscreenBtnMarkup = (acorn.$self.is('video')) ? '<button class="acorn-fullscreen-button" title="' + text.fullscreenTitle + '" aria-controls="' + acorn.id + '" tabindex="3">' + text.fullscreen + '</button>' : '';
 			
+			/* 
+			 * Markup for the swap button
+			 * If the element is not <video> we leave if blank, as the button if useless on <audio> elements
+			 */
+			var swapBtnMarkup = (acorn.$self.is('video')) ? '<button class="acorn-swap-button" title="' + text.swapTitle + '" aria-controls="' + acorn.id + '" tabindex="4" >' + text.swap + '</button>' : '';
+			
+
 			/*
 			 * Complete markup
 			 */
 			var template = '<div class="acorn-controls">' +
-								'<button class="acorn-play-button" title="' + text.playTitle + '" aria-controls="' + acorn.id + '">' + text.play + '</button>' +
-								'<input type="range" class="acorn-seek-slider" title="' + text.seekTitle + '" value="0" min="0" max="150" step="0.1" aria-controls="' + acorn.id + '"/>' +
+								'<button class="acorn-play-button" title="' + text.playTitle + '" aria-controls="' + acorn.id + '" tabindex="1">' + text.play + '</button>' +
+								'<input type="range" class="acorn-seek-slider" title="' + text.seekTitle + '" value="0" min="0" max="150" step="0.1" aria-controls="' + acorn.id + '" tabindex="2" />' +
 								'<span class="acorn-timer">00:00</span>' +
 								'<div class="acorn-volume-box">' +
-									'<button class="acorn-volume-button" title="' + text.mute + '" aria-controls="' + acorn.id + '">' + text.mute + '</button>' +
-									'<input type="range" class="acorn-volume-slider" title="' + text.volumeTitle + '" value="1" min="0" max="1" step="0.05" aria-controls="' + acorn.id + '"/>' +
+									'<button class="acorn-volume-button" title="' + text.mute + '" aria-controls="' + acorn.id + '" tabindex="5" >' + text.mute + '</button>' +
+									'<input type="range" class="acorn-volume-slider" title="' + text.volumeTitle + '" value="1" min="0" max="1" step="0.05" aria-controls="' + acorn.id + '" tabindex="6" />' +
 								'</div>' +
+								swapBtnMarkup +
 								fullscreenBtnMarkup +
 								'<button class="acorn-caption-button" title="' + text.captionsTitle + '"  aria-controls="' + acorn.id + '">' + text.captions + '</button>' +
 								'<div class="acorn-caption-selector"></div>' +
@@ -154,6 +165,7 @@
 			// More details on the issue: http://bugs.jquery.com/ticket/8015
 			$wrapper[0].appendChild( acorn.$self[0].cloneNode(true) );
 			
+			acorn.$self.trigger('pause');
 			acorn.$self.remove();
 			acorn.$self = $wrapper.find('video, audio');
 			
@@ -172,7 +184,7 @@
 			acorn.$volume = $('.acorn-volume-slider', acorn.$container);
 			acorn.$volumeBtn = $('.acorn-volume-button', acorn.$container);
 			acorn.$fullscreenBtn = $('.acorn-fullscreen-button', acorn.$container);				
-			
+			acorn.$swapBtn = $('.acorn-swap-button', acorn.$container);	
 			/*
 			 * Append the markup for the Captions and Transcript
 			 * and define newly created DOM nodes for these
@@ -230,6 +242,9 @@
 			var startPlayback = function() {
 				acorn.$playBtn.text(text.pause).attr('title', text.pauseTitle);
 				acorn.$playBtn.addClass('acorn-paused-button');
+
+				// if the metadata is not loaded yet, add the loading class
+				if (!loadedMetadata) $wrapper.addClass('show-loading');
 			};
 			
 			var stopPlayback = function() {
@@ -356,8 +371,7 @@
 				 'aria-valuenow': parseInt(opts.value, 10),
 				 'aria-valuemin': parseInt(opts.min, 10),
 				 'aria-valuemax': parseInt(opts.max, 10),
-				 'aria-valuetext': opts.valuetext,
-				 'tabindex': '0'
+				 'aria-valuetext': opts.valuetext
 				};
 				elem.attr(accessDefaults);        
 			};
@@ -438,12 +452,17 @@
 					// manully blur the Caption Button when clicking the handle
 					$('.ui-slider-handle', acorn.$seek).click(blurCaptionBtn);
 					
+					// set the tab index
+					$('.ui-slider-handle', acorn.$seek).attr("tabindex", "2");
+
 					// show buffering progress on progress
 					acorn.$self.bind('progress', showBuffer);
 				}
 				
+
+				$wrapper.removeClass('show-loading');
 				// remove the loading element
-				acorn.$self.next('.loading-media').remove();
+				//acorn.$self.next('.loading-media').remove();
 				
 			};
 			
@@ -546,7 +565,7 @@
 						max: 1,
 						min: 0,
 						step: 0.1,
-						animate: true,
+						animate: false,
 						slide: changeVolume
 					};
 					
@@ -559,7 +578,17 @@
 					volumeSliderOptions.value = volumeSliderOptions.value * 100;
 					volumeSliderOptions.valuetext = volumeSliderOptions.value + ' percent';
 					initSliderAccess(acorn.$volume.$handle, volumeSliderOptions);
+					acorn.$volume.$handle.attr("tabindex", "6");
 					
+					// show the volume slider when it is tabbed into
+					acorn.$volume.$handle.focus(function(){
+						if (!acorn.$volume.parent().is(":hover")) {
+							acorn.$volume.addClass("handle-focused");
+						}
+					});
+					acorn.$volume.$handle.blur(function(){
+						acorn.$volume.removeClass("handle-focused");
+					});
 					// manully blur the Caption Button when clicking the handle
 					$('.ui-slider-handle', acorn.$volume).click(blurCaptionBtn);
 				}
@@ -639,6 +668,108 @@
 				}
 			};	
 			
+			/* 
+			 * Swap the video and presentation areas
+			 * 
+			 * Resizes and moves based on hard coded numbers
+			 * Uses css to move it 
+			 */
+
+			var swapped = false;
+
+			var goSwap = function() {
+				if (swapped === false) {
+					$('#slide').css("width", "400px");
+					$('#slide').css("height", "300px");
+					$('#slide > object').attr("width", "400px");
+					$('#slide > object').attr("height", "300px");
+					var svgfile = $('#slide > object')[0].contentDocument.getElementById("svgfile");
+					svgfile.style.width = "400px";
+					svgfile.style.height = "300px";
+					
+					var slide = document.getElementById("slide");
+					var cursor = document.getElementById("cursor");
+					var slideT = document.getElementById("slideText");
+					var video = document.getElementById("video");
+					
+					video.style.width = "800px";
+					video.style.height = "600px";
+					
+					$('#videoRecordingWrapper').position({
+						"my": "left top",
+						"at": "right top",
+						"of": '#thumbnails',
+						"collision": "none none",
+						"offset": "10 0"
+					});
+					$('#videoRecordingWrapper').width("800px");
+					$('#videoRecordingWrapper').height("600px");
+	  
+					$('#presentation').position({
+						"my": "left top",
+						"at": "left bottom",
+						"of": '#chat',
+						"collision": "none none"
+					});
+					$('#presentation').width("400px");
+					$('#presentation').height("300px");
+	  
+					$('.acorn-controls').position({
+						"my": "left top",
+						"at": "left bottom",
+						"of": '#videoRecordingWrapper',
+						"collision": "none none",
+						"offset": "10 7"
+					});
+	  
+					draw(0,0);
+
+					swapped = true;
+				} else {
+					$('#slide').css("width", "800px");
+					$('#slide').css("height", "600px");
+					$('#slide > object').attr("width", "800px");
+					$('#slide > object').attr("height", "600px");
+					var svgfile = $('#slide > object')[0].contentDocument.getElementById("svgfile");
+					svgfile.style.width = "800px";
+					svgfile.style.height = "600px";
+					
+					var video = document.getElementById("video");
+					
+					video.style.width = "400px";
+					video.style.height = "300px";
+					
+					$('#presentation').position({
+						"my": "left top",
+						"at": "right top",
+						"of": '#thumbnails',
+						"collision": "none none",
+						"offset": "10 0"
+					});
+					$('#presentation').width("800px");
+					$('#presentation').height("600px");
+					
+					$('#videoRecordingWrapper').position({
+						"my": "left top",
+						"at": "left bottom",
+						"of": '#chat',
+						"collision": "none none"
+					});
+					$('#videoRecordingWrapper').width("400px");
+					$('#videoRecordingWrapper').height("300px");
+	  
+					$('.acorn-controls').position({
+						"my": "left top",
+						"at": "left bottom",
+						"of": '#presentation',
+						"collision": "none none",
+						"offset": "10 7"
+					});
+					
+					swapped = false;   
+				}
+			}
+
 			/* 
 			 * CAPTIONS Behaviour
 			 *		
@@ -909,6 +1040,9 @@
 				// bind Fullscreen Button
 				acorn.$fullscreenBtn.click(goFullscreen);
 				
+				// bind Swap Button
+				acorn.$swapBtn.click(goSwap);
+
 				// initialize volume controls
 				initVolume();				
 				
@@ -925,7 +1059,8 @@
 					 */
 
 					var t = window.setInterval(function() {
-								if (acorn.$self[0].readyState > 0) {									
+								if (acorn.$self[0].readyState > 0) {
+									loadedMetadata = true;
 									updateSeek();
 									
 									clearInterval(t);

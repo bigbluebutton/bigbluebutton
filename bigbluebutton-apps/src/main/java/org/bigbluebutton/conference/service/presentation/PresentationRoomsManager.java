@@ -1,30 +1,25 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.conference.service.presentation;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.red5.logging.Red5LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
@@ -121,6 +116,16 @@ public class PresentationRoomsManager {
 		return null;
 	}
 	
+	public void sendCursorUpdate(String room, Double xPercent, Double yPercent) {
+		PresentationRoom r = getRoom(room);
+		if (r != null){
+			log.debug("Request to update cursor[" + xPercent + "," + yPercent + "]");
+			r.sendCursorUpdate(xPercent, yPercent);
+			return;
+		}
+		log.warn("resizeAndMoveSlide on a non-existant room " + room);
+	}
+	
 	public void resizeAndMoveSlide(String room, Double xOffset, Double yOffset, Double widthRatio, Double heightRatio) {
 		PresentationRoom r = getRoom(room);
 		if (r != null){
@@ -186,4 +191,5 @@ public class PresentationRoomsManager {
         	log.warn("Removing presentation from a non-existing room " + room);
         }
     }
+
 }
