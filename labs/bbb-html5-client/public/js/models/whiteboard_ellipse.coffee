@@ -46,13 +46,25 @@ define [
 
 
             if @obj?
+
                 [x1, x2] = [x2, x1] if x2 < x1
-                [y1, y2] = [y2, y1] if y2 < y1
+
+                
+
+                
+                if y2 < y1
+                    [y1, y2] = [y2, y1]
+                    reversed = true
+
+                if circle
+                    if reversed #if reveresed, the y1 coordinate gets updated, not the y2 coordinate
+                        y1 = y2 - (x2 - x1) * @gw / @gh
+                    else
+                        y2 = y1 + (x2 - x1) * @gw / @gh
 
                 #if the control key is pressed then the width and height of the ellipse are equal (a circle)
                 #we calculate this by making the y2 coord equal to the y1 coord plus the width of x2-x1 and corrected for the slide size
-                if circle
-                    y2 = y1 + (x2 - x1) * @gw / @gh
+                
 
                 coords = 
                     x1: x1
