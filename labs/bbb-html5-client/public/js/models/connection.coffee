@@ -111,7 +111,7 @@ define [
       # @param  {number} x x-coord of the cursor as a percentage of page width
       # @param  {number} y y-coord of the cursor as a percentage of page height
       @socket.on "mvCur", (x, y) =>
-        console.log "socket on: mvCur"
+        #console.log "socket on: mvCur"
         globals.events.trigger("connection:mvCur", x, y)
 
       # Received event to update the zoom or move the slide

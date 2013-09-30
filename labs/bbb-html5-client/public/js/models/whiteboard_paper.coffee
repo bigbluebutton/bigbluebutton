@@ -562,8 +562,8 @@ define [
               @updateShape(type, data)
 
       globals.events.on "connection:mvCur", (x, y) =>
-        @moveCursor(x, y)
-        console.log "x: " + x + " y: " + y
+        #@moveCursor(x, y)
+        #console.log "x: " + x + " y: " + y
 
       globals.events.on "connection:move_and_zoom", (xOffset, yOffset, widthRatio, heightRatio) =>
         @moveAndZoom(xOffset, yOffset, widthRatio, heightRatio)

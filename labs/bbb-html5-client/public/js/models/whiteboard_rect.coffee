@@ -37,26 +37,37 @@ define [
     # @param  {number} x2 the x value of the bottom right corner
     # @param  {number} y2 the y value of the bottom right corner
     # @param  {boolean} square (draw a square or not)
-    update: (x1, y1, x2, y2,square) ->
+    update: (x1, y1, x2, y2,square) -> 
       if @obj?
         [x1, x2] = [x2, x1] if x2 < x1
-        [y1, y2] = [y2, y1] if y2 < y1
+        [x1, x2] = [x2, x1] if x2 < x1
+
+        if y2 < y1
+            [y1, y2] = [y2, y1]
+            reversed = true
+
+        if square
+            if reversed #if reveresed, the y1 coordinate gets updated, not the y2 coordinate
+                y1 = y2 - (x2 - x1) * @gw / @gh
+            else
+                y2 = y1 + (x2 - x1) * @gw / @gh
+
         x = x1 * @gw + @xOffset
         y = y1 * @gh + @yOffset
         width = (x2 * @gw + @xOffset) - x
         height = (y2 * @gh + @yOffset) - y
-        if !square
+        #if !square
+        @obj.attr
+          x: x
+          y: y
+          width: width
+          height: height
+        ###else
           @obj.attr
             x: x
             y: y
             width: width
-            height: height
-        else
-          @obj.attr
-            x: x
-            y: y
-            width: width
-            height: width
+            height: width###
 
         # we need to update all these values, specially for when shapes are drawn backwards
         @definition.data[0] = x1
