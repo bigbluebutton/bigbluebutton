@@ -70,8 +70,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<bean id="outMessageGateway" class="org.bigbluebutton.conference.meeting.messaging.OutMessageGateway">
         <property name="outMessageListeners">
             <set>
-                <ref bean="meetingMessagePublisher" />
-                <ref bean="layoutClientSender" />            
+                <ref bean="meetingMessagePublisher" />          
             </set>
         </property>  	
 	</bean>
