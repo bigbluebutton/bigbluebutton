@@ -31,11 +31,19 @@ import org.red5.server.api.scope.IScope;
 import org.slf4j.Logger;
 import org.bigbluebutton.conference.service.whiteboard.red5.ClientMessageSender;
 import org.bigbluebutton.conference.service.whiteboard.shapes.Annotation;
+import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 public class WhiteboardApplication extends ApplicationAdapter implements IApplication {	
 	private static Logger log = Red5LoggerFactory.getLogger(WhiteboardApplication.class, "bigbluebutton");
 
+	private IBigBlueButtonInGW bbbInGW;
+	
+	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
+		bbbInGW = inGW;
+	}
+	
 	private WhiteboardRecordingService recordingService;
 	private ClientMessageSender clientSender;
 	private static final String APP = "WHITEBOARD";
@@ -120,6 +128,37 @@ public class WhiteboardApplication extends ApplicationAdapter implements IApplic
 		rooms.remove(scope.getName());
 	}
 	
+	
+	public void sendWhiteboardAnnotation(String meetingID, String requesterID, java.util.Map<String, Object> shape) {
+		bbbInGW.sendWhiteboardAnnotation(meetingID, requesterID, shape);
+	}
+	
+	public void changeWhiteboardPage(String meetingID, String requesterID, Integer page) {
+		
+	}
+	
+	public void clearWhiteboard(String meetingID, String requesterID) {
+		
+	}
+	
+	public void undoWhiteboard(String meetingID, String requesterID) {
+		
+	}
+	
+	public void setWhiteboardActivePresentation(String meetingID, String requesterID) {
+		
+	}
+	
+	public void setWhiteboardEnable(String meetingID, String requesterID) {
+		
+	}
+	
+	public void setIsWhiteboardEnabled(String meetingID, String requesterID) {
+		
+	}
+	
+	/*================================================== CUT ================================================*/
+	
 	public void setActivePresentation(String presentationID, int numPages) {
 		String meetingID = getMeetingId();
 
@@ -164,6 +203,9 @@ public class WhiteboardApplication extends ApplicationAdapter implements IApplic
 
 		}
 	}
+	
+
+	
 	
 	private static final String TEXT_CREATED = "textCreated";
 	private static final String TEXT_TYPE = "text";

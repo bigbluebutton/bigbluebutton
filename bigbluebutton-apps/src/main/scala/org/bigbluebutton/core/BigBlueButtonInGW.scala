@@ -219,4 +219,39 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	def sendPrivateMessage(meetingID: String, requesterID: String, message: java.util.Map[String, String]) {
 	  chatGW.sendPrivateMessage(meetingID, requesterID, mapAsScalaMap(message).toMap)
 	}
+	
+	/*********************************************************************
+	 * Message Interface for Whiteboard
+	 *******************************************************************/
+	def sendWhiteboardAnnotation(meetingID: String, requesterID: String, annotation: java.util.Map[String, Object]) {
+	  
+	}
+	
+	def setWhiteboardActivePage(meetingID: String, requesterID: String, page: java.lang.Integer){
+	  
+	}
+	
+	def requestWhiteboardAnnotationHistory(meetingID: String, requestedID: String) {
+	  
+	}
+	
+	def clearWhiteboard(meetingID: String, requestedID: String) {
+	  
+	}
+	
+	def undoWhiteboard(meetingID: String, requestedID: String) {
+	  
+	}
+	
+	def setActivePresentation(meetingID: String, requestedID: String, presentationID: String) {
+	  
+	}
+	
+	def enableWhiteboard(meetingID: String, requestedID: String, enable: java.lang.Boolean) {
+	  
+	}
+	
+	def isWhiteboardEnabled(meetingID: String, requestedID: String) {
+	  
+	}
 }
