@@ -163,7 +163,7 @@ module BigBlueButton
   #  video - the video file. Must not contain an audio stream. 
   def self.multiplex_audio_and_video(audio, video, video_out)
     BigBlueButton.logger.info("Task: Multiplexing audio and video")      
-    command = "#{FFMPEG_CMD_BASE} -i #{audio} -i #{video} -map 1:0 -map 0:0 #{video_out}"
+    command = "#{FFMPEG_CMD_BASE} -i #{audio} -i #{video} -map 1:0 -map 0:0 -ar 44100 #{video_out}"
     BigBlueButton.execute(command)
     # TODO: check result, raise an exception when there is an error
   end
