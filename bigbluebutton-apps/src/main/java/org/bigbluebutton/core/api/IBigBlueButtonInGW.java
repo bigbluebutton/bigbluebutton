@@ -45,5 +45,10 @@ public interface IBigBlueButtonInGW {
 	void setLayout(String meetingID, String requesterID, String layoutID);
 	void lockLayout(String meetingID, String requesterID, String layoutID);
 	void unlockLayout(String meetingID, String requesterID);
+
+	// Chat
+	void getChatHistory(String meetingID, String requesterID);
+	void sendPublicMessage(String meetingID, String requesterID, Map<String, String> message);
+	void sendPrivateMessage(String meetingID, String requesterID, Map<String, String> message);
 	
 }

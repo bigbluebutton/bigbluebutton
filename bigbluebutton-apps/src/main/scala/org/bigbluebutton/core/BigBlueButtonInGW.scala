@@ -25,6 +25,8 @@ import org.bigbluebutton.core.api.PreuploadedPresentations
 import scala.collection.JavaConversions._
 import org.bigbluebutton.core.apps.poll.PollInGateway
 import org.bigbluebutton.core.apps.layout.LayoutInGateway
+import org.bigbluebutton.core.apps.chat.ChatInGateway
+import scala.collection.JavaConversions._
 
 class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW {
 
@@ -198,5 +200,23 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	
 	def unlockLayout(meetingID: String, requesterID: String) {
 	  layoutGW.unlockLayout(meetingID, requesterID)
+	}
+	
+	/*********************************************************************
+	 * Message Interface for Chat
+	 *******************************************************************/
+	val chatGW = new ChatInGateway(bbbGW)
+	
+	def getChatHistory(meetingID: String, requesterID: String) {
+	  chatGW.getChatHistory(meetingID, requesterID)
+	}
+	
+	def sendPublicMessage(meetingID: String, requesterID: String, message: java.util.Map[String, String]) {
+	  // Convert java Map to Scala Map, then convert Mutable map to immutable map
+	  chatGW.sendPublicMessage(meetingID, requesterID, mapAsScalaMap(message).toMap)
+	}
+	
+	def sendPrivateMessage(meetingID: String, requesterID: String, message: java.util.Map[String, String]) {
+	  chatGW.sendPrivateMessage(meetingID, requesterID, mapAsScalaMap(message).toMap)
 	}
 }

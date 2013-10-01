@@ -33,14 +33,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</bean>
 	
 	<bean id="chatApplication" class="org.bigbluebutton.conference.service.chat.ChatApplication">
-		<property name="roomsManager"> <ref local="chatRoomsManager"/></property>
-		<property name="connInvokerService"> <ref bean="connInvokerService"/></property>
+        <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
 	</bean>
 	
 	<bean id="chat.service" class="org.bigbluebutton.conference.service.chat.ChatService">
 		<property name="chatApplication"> <ref local="chatApplication"/></property>
 	</bean>
 	
-	<bean id="chatRoomsManager" class="org.bigbluebutton.conference.service.chat.ChatRoomsManager"/>
-
 </beans>

@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.scope.IScope;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
-import org.bigbluebutton.conference.service.recorder.chat.ChatEventRecorder;
 
 public class ChatHandler implements IApplication{
 	private static Logger log = Red5LoggerFactory.getLogger( ChatHandler.class, "bigbluebutton" );
@@ -89,11 +88,6 @@ public class ChatHandler implements IApplication{
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
 		
-		chatApplication.createRoom(connection.getScope().getName());
-		
-		ChatEventRecorder recorder = new ChatEventRecorder(connection.getScope().getName(), recorderApplication);
-		chatApplication.addRoomListener(connection.getScope().getName(), recorder);
-
 		return true;
 	}
 
@@ -106,13 +100,11 @@ public class ChatHandler implements IApplication{
 	@Override
 	public void roomStop(IScope scope) {
 		log.debug("***** " + APP + " [ " + " roomStop [ " + scope.getName() + "] *********");
-		chatApplication.destroyRoom(scope.getName());
 	}
 	
 	public void setChatApplication(ChatApplication a) {
 		log.debug("Setting chat application");
 		chatApplication = a;
-		chatApplication.handler = this;
 	}
 	
 	public void setRecorderApplication(RecorderApplication a) {
