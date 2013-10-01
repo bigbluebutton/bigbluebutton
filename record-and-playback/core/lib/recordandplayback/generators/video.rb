@@ -438,25 +438,33 @@ module BigBlueButton
         flvs << blank_flv
         BigBlueButton.create_blank_deskshare_video((comb[:stop_timestamp] - comb[:start_timestamp].to_f)/1000, 1000, blank_canvas, blank_flv)
       else
-      	scaled_flv = "#{temp_dir}/#{meeting_id}/deskshare/scaled-#{comb[:stream]}"
-        flvs << scaled_flv
-        flv_in = "#{temp_dir}/#{meeting_id}/deskshare/#{comb[:stream]}"
-        frame_size = BigBlueButton.scale_to_640_x_480(BigBlueButton.get_video_width(flv_in), BigBlueButton.get_video_height(flv_in))
+        deskshare_dir = "#{temp_dir}/#{meeting_id}/deskshare"
+        scaled_flv = "#{deskshare_dir}/scaled-#{comb[:stream]}"
+        padded_flv = "#{deskshare_dir}/padded-#{comb[:stream]}"
+        flvs << padded_flv
+        flv_in = "#{deskshare_dir}/#{comb[:stream]}"
 
+        deskshare_params = "-aspect 4:3 -r 1000 -q:v 0 -vcodec flashsv"
+
+        #Scale options
+        frame_size = BigBlueButton.scale_to_640_x_480(BigBlueButton.get_video_width(flv_in), BigBlueButton.get_video_height(flv_in))
         width = frame_size[:width]
         height = frame_size[:height]
-        
-     		frame_size = "-s #{width}x#{height}"
-    		side_padding = ((MAX_VID_WIDTH - width) / 2).to_i
-    		top_bottom_padding = ((MAX_VID_HEIGHT - height) / 2).to_i
+        frame_size = "-s #{width}x#{height}"
+
+        #Scale video
+        scale_command = "#{FFMPEG_CMD_BASE} -i #{flv_in} #{deskshare_params} #{frame_size}  #{scaled_flv}"
+        BigBlueButton.execute(scale_command)
+
+        # Padding options
+        side_padding = ((MAX_VID_WIDTH - width) / 2).to_i
+        top_bottom_padding = ((MAX_VID_HEIGHT - height) / 2).to_i
+        padding_params = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{side_padding}:#{top_bottom_padding}:FFFFFF"
  
-   			# Use for newer version of FFMPEG
-    		padding = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{side_padding}:#{top_bottom_padding}:FFFFFF"       
-		    command = "#{FFMPEG_CMD_BASE} -i #{flv_in} -aspect 4:3 -r 1000 -q:v 0 #{frame_size} #{padding} -vcodec flashsv #{scaled_flv}" 
-		    BigBlueButton.execute(command)
-		    #BigBlueButton.logger.info(command)
-		    #IO.popen(command)
-		    #Process.wait 
+        #Pad  video
+        padding_command = "#{FFMPEG_CMD_BASE} -i #{scaled_flv} #{deskshare_params}  #{padding_params} #{padded_flv}"
+        BigBlueButton.execute(padding_command)
+
       end
     end
                
