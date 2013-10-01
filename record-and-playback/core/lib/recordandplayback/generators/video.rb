@@ -138,7 +138,7 @@ module BigBlueButton
 
   #Converts flv to mpg
   def self.convert_flv_to_mpg(flv_video, mpg_video_out)
-        command = "#{FFMPEG_CMD_BASE} -i #{flv_video} -same_quant -f mpegts -r 29.97 #{mpg_video_out}"
+        command = "#{FFMPEG_CMD_BASE} -i #{flv_video} -q:v 0 -f mpegts -r 29.97 #{mpg_video_out}"
         BigBlueButton.logger.info("Task: Converting .flv to .mpg")    
         BigBlueButton.execute(command)
   end
@@ -152,7 +152,7 @@ module BigBlueButton
 
   #Converts .mpg to .flv
   def self.convert_mpg_to_flv(mpg_video,flv_video_out)
-        command = "#{FFMPEG_CMD_BASE} -i  #{mpg_video} -same_quant  #{flv_video_out}"
+        command = "#{FFMPEG_CMD_BASE} -i  #{mpg_video} -q:v 0  #{flv_video_out}"
         BigBlueButton.logger.info("Task: Converting .mpg to .flv")
         BigBlueButton.execute(command);
   end
@@ -403,7 +403,7 @@ module BigBlueButton
  
    			# Use for newer version of FFMPEG
     		padding = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{side_padding}:#{top_bottom_padding}:FFFFFF"       
-		    command = "#{FFMPEG_CMD_BASE} -i #{stripped_webcam} -aspect 4:3 -r 1000 -same_quant #{frame_size} #{padding} #{scaled_flv}" 
+		    command = "#{FFMPEG_CMD_BASE} -i #{stripped_webcam} -aspect 4:3 -r 1000 -q:v 0 #{frame_size} #{padding} #{scaled_flv}" 
 		    #BigBlueButton.logger.info(command)
 		    #IO.popen(command)
 		    #Process.wait                
@@ -452,7 +452,7 @@ module BigBlueButton
  
    			# Use for newer version of FFMPEG
     		padding = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{side_padding}:#{top_bottom_padding}:FFFFFF"       
-		    command = "#{FFMPEG_CMD_BASE} -i #{flv_in} -aspect 4:3 -r 1000 -same_quant #{frame_size} #{padding} -vcodec flashsv #{scaled_flv}" 
+		    command = "#{FFMPEG_CMD_BASE} -i #{flv_in} -aspect 4:3 -r 1000 -q:v 0 #{frame_size} #{padding} -vcodec flashsv #{scaled_flv}" 
 		    BigBlueButton.execute(command)
 		    #BigBlueButton.logger.info(command)
 		    #IO.popen(command)
