@@ -24,17 +24,17 @@ package org.bigbluebutton.main.model.users.events
 	{
 		public static const CHANGE_STATUS:String = "CHANGE_STATUS_EVENT";
 
-		public static const CLEAR_STATUS:String = "clear_status";
-		public static const RAISE_HAND:String = "raise_hand";
-		public static const AGREE:String = "agree";
-		public static const DISAGREE:String = "disagree";
-		public static const SPEAK_LOUDER:String = "speak_louder";
-		public static const SPEAK_LOWER:String = "speak_lower";
-		public static const SPEAK_FASTER:String = "speak_faster";
-		public static const SPEAK_SLOWER:String = "speak_slower";
-		public static const BE_RIGHT_BACK:String = "be_right_back";
-		public static const LAUGHTER:String = "laughter";
-		public static const SAD:String = "sad";
+		public static const CLEAR_STATUS:String = "CLEAR_STATUS";
+		public static const RAISE_HAND:String = "RAISE_HAND";
+		public static const AGREE:String = "AGREE";
+		public static const DISAGREE:String = "DISAGREE";
+		public static const SPEAK_LOUDER:String = "SPEAK_LOUDER";
+		public static const SPEAK_LOWER:String = "SPEAK_LOWER";
+		public static const SPEAK_FASTER:String = "SPEAK_FASTER";
+		public static const SPEAK_SLOWER:String = "SPEAK_SLOWER";
+		public static const BE_RIGHT_BACK:String = "BE_RIGHT_BACK";
+		public static const LAUGHTER:String = "LAUGHTER";
+		public static const SAD:String = "SAD";
 
 		private var status:String;
 		public var userId:String;

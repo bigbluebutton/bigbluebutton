@@ -89,6 +89,7 @@
 			private var users:ArrayCollection = new ArrayCollection();
 			
 			private var amIModerator:Boolean = false;
+			private var baseIndex:int = 0;
 			
 			private const FOCUS_USERS_LIST:String = "Focus Users List";
 			private const MAKE_PRESENTER:String = "Make Presenter";
@@ -104,9 +105,8 @@
 				users = UserManager.getInstance().getConference().users;
 				amIModerator = UserManager.getInstance().getConference().amIModerator();
 				
-				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
+				//settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
 				
-				BindingUtils.bindSetter(changeButtons, UserManager.getInstance().getConference(), "amIPresenter");
 				BindingUtils.bindSetter(updateNumberofUsers, users, "length");
 				
 				this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
@@ -114,8 +114,6 @@
 				
 				modifier = ExternalInterface.call("determineModifier");
 				loadKeyCombos(modifier);
-				
-				changeButtons(UserManager.getInstance().getConference().amIPresenter);
 				
 				resourcesChanged();
 				
@@ -142,10 +140,6 @@
 				resourcesChanged();
 			}
 			
-			private function changeButtons(presenter:Boolean):void {
-				statusBtn.visible = statusBtn.includeInLayout = partOptions.enableRaiseHand && !(presenter || amIModerator);
-			}
-			
 			private function onItemRollOver(event:ListEvent):void{
 				var item:IListItemRenderer = event.itemRenderer;
 				var user:BBBUser = item.data as BBBUser;
@@ -168,80 +162,6 @@
 				}
 			}
 
-			private function openParticipantStatus():void {
-
-				var menuStatusData:Array = [];
-				
-				menuStatusData[0] = {label: ResourceUtil.getInstance().getString('bbb.users.status.clearStatus'), icon: images.delete_icon};
-				menuStatusData[1] = {label: ResourceUtil.getInstance().getString('bbb.shortcutkey.raiseHand.function'), icon: images.hand_new};
-				menuStatusData[2] = {label: ResourceUtil.getInstance().getString('bbb.users.status.agree'), icon: images.agree};	
-				menuStatusData[3] = {label: ResourceUtil.getInstance().getString('bbb.users.status.disagree'), icon: images.disagree};	
-				menuStatusData[4] = {label: ResourceUtil.getInstance().getString('bbb.users.status.speak_louder'), icon: images.speak_louder};	
-				menuStatusData[5] = {label: ResourceUtil.getInstance().getString('bbb.users.status.speak_lower'), icon: images.speak_lower};	
-				menuStatusData[6] = {label: ResourceUtil.getInstance().getString('bbb.users.status.speak_faster'), icon: images.speak_faster};	
-				menuStatusData[7] = {label: ResourceUtil.getInstance().getString('bbb.users.status.speak_slower'), icon: images.speak_slower};	
-				menuStatusData[8] = {label: ResourceUtil.getInstance().getString('bbb.users.status.be_right_back'), icon: images.be_right_back};
-				menuStatusData[9] = {label: ResourceUtil.getInstance().getString('bbb.users.status.laughter'), icon: images.laughter};
-				menuStatusData[10] = {label: ResourceUtil.getInstance().getString('bbb.users.status.sad'), icon: images.sad};
-				
-
-				// make sure the previous menu is closed before opening a new one
-				// This could be improved to include a flag that tells if the menu is open,
-				// but it would require an extra listener for the MenuCloseEvent.
-				if (menuStatus) menuStatus.hide();
-				
-				menuStatus = Menu.createMenu(null, menuStatusData, true);
-				
-				menuStatus.variableRowHeight = true;
-				menuStatus.show(this.x + settingsBtn.x + 2, this.y + this.height + 25);
-				menuStatus.addEventListener(MenuEvent.ITEM_CLICK, menuStatusClickHandler);
-				menuStatus.setFocus();
-			}
-
-			private function menuStatusClickHandler(e:MenuEvent):void {
-				switch (e.index) {
-					case 0:
-						changeStatus(ChangeStatusEvent.CLEAR_STATUS);
-						break;
-					case 1:
-						changeStatus(ChangeStatusEvent.RAISE_HAND);
-						break;
-					case 2:
-						changeStatus(ChangeStatusEvent.AGREE);					
-						break;
-					case 3:
-						changeStatus(ChangeStatusEvent.DISAGREE);
-						break;
-					case 4:
-						changeStatus(ChangeStatusEvent.SPEAK_LOUDER);
-						break;
-					case 5:
-						changeStatus(ChangeStatusEvent.SPEAK_LOWER);
-						break;
-					case 6:
-						changeStatus(ChangeStatusEvent.SPEAK_FASTER);
-						break;
-					case 7:
-						changeStatus(ChangeStatusEvent.SPEAK_SLOWER);
-						break;
-					case 8:
-						changeStatus(ChangeStatusEvent.BE_RIGHT_BACK);
-						break;
-					case 9:
-						changeStatus(ChangeStatusEvent.LAUGHTER);
-						break;
-					default:
-						changeStatus(ChangeStatusEvent.SAD);
-				}
-			}
-
-			private function changeStatus(whichStatus:String):void{
-				if (UserManager.getInstance().getConference().getMyRole() == Role.VIEWER) {
-					var e:ChangeStatusEvent = new ChangeStatusEvent(UserManager.getInstance().getConference().getMyUserId(), whichStatus);
-					dispatchEvent(e);
-				}
-			}
-
 			private function clearAllStatus():void { // Pendente: ver clear status do moderador
 				for (var i:int = 0; i < users.length; i++) {
 					var p:BBBUser = users.getItemAt(i) as BBBUser;
@@ -253,15 +173,41 @@
 			private function openSettings():void {
 				// everyone can see the audio settings
 				var myMenuData:Array = [];
-				
-				myMenuData[0] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.clearAllStats'), icon: images.delete_icon};
-				if (!roomMuted) {
-					myMenuData[1] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted};
-					if (UserManager.getInstance().getConference().getPresenter())
-						myMenuData[2] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.audio_muted};
-				} else
-					myMenuData[1] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio};
-				
+
+				if(amIModerator)
+				{			
+					myMenuData[0] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.clearAllStats'), icon: images.delete_icon};
+					if (!roomMuted) 
+					{
+						myMenuData[1] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted};
+						if (UserManager.getInstance().getConference().getPresenter())
+							myMenuData[2] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.audio_muted};
+							baseIndex = 2;
+					} 
+					else
+					{
+						myMenuData[1] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio};
+						baseIndex = 1;	
+					}
+				}
+
+
+				if(partOptions.enableRaiseHand)
+				{
+					myMenuData[baseIndex+1] = {label: ResourceUtil.getInstance().getString('bbb.users.status.clearStatus'), icon: images.delete_icon};
+					myMenuData[baseIndex+2] = {label: ResourceUtil.getInstance().getString('bbb.shortcutkey.raiseHand.function'), icon: images.hand_new};
+					myMenuData[baseIndex+3] = {label: ResourceUtil.getInstance().getString('bbb.users.status.agree'), icon: images.agree};	
+					myMenuData[baseIndex+4] = {label: ResourceUtil.getInstance().getString('bbb.users.status.disagree'), icon: images.disagree};	
+					myMenuData[baseIndex+5] = {label: ResourceUtil.getInstance().getString('bbb.users.status.speak_louder'), icon: images.speak_louder};	
+					myMenuData[baseIndex+6] = {label: ResourceUtil.getInstance().getString('bbb.users.status.speak_lower'), icon: images.speak_lower};	
+					myMenuData[baseIndex+7] = {label: ResourceUtil.getInstance().getString('bbb.users.status.speak_faster'), icon: images.speak_faster};	
+					myMenuData[baseIndex+8] = {label: ResourceUtil.getInstance().getString('bbb.users.status.speak_slower'), icon: images.speak_slower};	
+					myMenuData[baseIndex+9] = {label: ResourceUtil.getInstance().getString('bbb.users.status.be_right_back'), icon: images.be_right_back};
+					myMenuData[baseIndex+10] = {label: ResourceUtil.getInstance().getString('bbb.users.status.laughter'), icon: images.laughter};
+					myMenuData[baseIndex+11] = {label: ResourceUtil.getInstance().getString('bbb.users.status.sad'), icon: images.sad};
+				}
+
+
 				// make sure the previous menu is closed before opening a new one
 				// This could be improved to include a flag that tells if the menu is open,
 				// but it would require an extra listener for the MenuCloseEvent.
@@ -276,19 +222,89 @@
 			}
 
 			
-			private function menuClickHandler(e:MenuEvent):void {
-				// case 1 is the separator and can never get called
-				switch (e.index) {
-				case 0:
-					clearAllStatus();
-					break;
-				case 1:
-					muteAll();
-					break;
-				case 2:
-					muteAlmostAll();
+			private function menuClickHandler(e:MenuEvent):void 
+			{
+				if(baseIndex == 0) //not a moderator
+				{
+					changeStatusHandler(e.index)
+				}
+
+				else if(baseIndex == 1) //i'm a moderator and there is NOT the "mute all except" option
+				{
+					switch (e.index) {
+						case 0:
+							clearAllStatus();
+							break;
+						case 1:
+							muteAll();
+							break;
+						default:
+							changeStatusHandler(e.index);
+						}					
+				}
+
+				else //i'm a moderator and the option "mute all except" is enabled
+				{
+					switch (e.index) {
+						case 0:
+							clearAllStatus();
+							break;
+						case 1:
+							muteAll();
+							break;	
+						case 2:
+							muteAlmostAll();
+							break;
+						default:
+							changeStatusHandler(e.index);
+						}	
 				}
 			}
+
+			private function changeStatusHandler(index:int):void {
+				switch (index) {
+					case baseIndex+1:
+						changeStatus(ChangeStatusEvent.CLEAR_STATUS);
+						break;
+					case baseIndex+2:
+						changeStatus(ChangeStatusEvent.RAISE_HAND);
+						break;
+					case baseIndex+3:
+						changeStatus(ChangeStatusEvent.AGREE);					
+						break;
+					case baseIndex+4:
+						changeStatus(ChangeStatusEvent.DISAGREE);
+						break;
+					case baseIndex+5:
+						changeStatus(ChangeStatusEvent.SPEAK_LOUDER);
+						break;
+					case baseIndex+6:
+						changeStatus(ChangeStatusEvent.SPEAK_LOWER);
+						break;
+					case baseIndex+7:
+						changeStatus(ChangeStatusEvent.SPEAK_FASTER);
+						break;
+					case baseIndex+8:
+						changeStatus(ChangeStatusEvent.SPEAK_SLOWER);
+						break;
+					case baseIndex+9:
+						changeStatus(ChangeStatusEvent.BE_RIGHT_BACK);
+						break;
+					case baseIndex+10:
+						changeStatus(ChangeStatusEvent.LAUGHTER);
+						break;
+					case baseIndex+11:
+						changeStatus(ChangeStatusEvent.SAD);
+				}
+			}
+
+			private function changeStatus(whichStatus:String):void
+			{
+				var e:ChangeStatusEvent = new ChangeStatusEvent(UserManager.getInstance().getConference().getMyUserId(), whichStatus);
+				dispatchEvent(e);
+				
+			}
+
 			
 			private function setRoomMute(e:UsersEvent):void {
 				roomMuted = e.mute_state;
@@ -465,7 +481,7 @@
 		tabIndex="{partOptions.baseTabIndex+5}"
 		accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.accessibilityName')}" >
     	<mx:columns>
-    		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer')}" editable="false" width="45" minWidth="45"
+    		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer')}" editable="false" width="60" minWidth="60"
     			itemRenderer="org.bigbluebutton.modules.users.views.StatusItemRenderer" sortable="false" />
     		<mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer')}" editable="false" sortable="false" minWidth="60"
     			itemRenderer="org.bigbluebutton.modules.users.views.NameItemRenderer"/>
@@ -479,11 +495,6 @@
 					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" 
 					click="openSettings()" visible="true" 
 					tabIndex="{partOptions.baseTabIndex+10}" />
-
-		<mx:Button id="statusBtn" icon="{images.status}" width="30" height="30"
-					toolTip="{ResourceUtil.getInstance().getString('bbb.users.statusBtn.toolTip')}" 
-					click="openParticipantStatus()" visible="false" 
-					tabIndex="{partOptions.baseTabIndex+15}" />
 
 		<mx:Label id="roomMutedLbl" text="{ResourceUtil.getInstance().getString('bbb.users.settings.muteAll')}" />
 		<mx:Spacer width="100%"/>
