@@ -67,7 +67,10 @@ def fetchRecordings(url)
         decrypted_file = File.basename(encrypted_file, '.*') + ".zip"
         if not File.exist?("#{$archived_dir}/#{meeting_id}.done") then
           Dir.chdir($raw_dir) do
-            BigBlueButton.logger.info("Decrypting the recording #{meeting_id}")
+            BigBlueButton.logger.info("Next recording to be processed is #{meeting_id}")
+
+            BigBlueButton.logger.debug("Removing any file previously downloaded related to this recording")
+            FileUtils.rm_rf Dir.glob("$raw_dir/#{record_id}*"), :force => true
 
             BigBlueButton.logger.debug("recordID = #{record_id}")
             BigBlueButton.logger.debug("file_url = #{file_url}")
