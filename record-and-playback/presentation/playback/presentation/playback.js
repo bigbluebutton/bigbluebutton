@@ -270,6 +270,10 @@ generateThumbnails = function() {
         div.append(label);
         div.append(hiddenDesc);
 
+        if (parseFloat(timeIn) == 0 ) {
+          div.addClass("active");
+        }
+
         imagesList.push(timeIn);
         elementsMap[timeIn] = div;
 	
