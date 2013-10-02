@@ -145,8 +145,8 @@ public class WhiteboardApplication extends ApplicationAdapter implements IApplic
 		
 	}
 	
-	public void setWhiteboardActivePresentation(String meetingID, String requesterID) {
-		
+	public void setWhiteboardActivePresentation(String meetingID, String requesterID, String presentationID, Integer numPages) {
+		bbbInGW.setActivePresentation(meetingID, requesterID, presentationID, numPages);
 	}
 	
 	public void setWhiteboardEnable(String meetingID, String requesterID) {

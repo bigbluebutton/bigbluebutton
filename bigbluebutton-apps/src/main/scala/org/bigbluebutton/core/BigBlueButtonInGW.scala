@@ -243,7 +243,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	  
 	}
 	
-	def setActivePresentation(meetingID: String, requestedID: String, presentationID: String) {
+	def setActivePresentation(meetingID: String, requestedID: String, presentationID: String, numPages: java.lang.Integer) {
 	  
 	}
 	
