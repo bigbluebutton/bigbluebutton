@@ -25,7 +25,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:views="org.bigbluebutton.main.views.*"
 	styleName="recordButtonStyleNormal"
 	click="confirmChangeRecordingStatus()"
-	height="22"
+	height="24"
 	toolTip="{UserManager.getInstance().getConference().amIModerator()? ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.start'): ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.notRecording')}"
 	enabled="false"
 	visible="{UserManager.getInstance().getConference().record}"

@@ -330,12 +330,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                        tabIndex="{baseIndex+4}" height="22" styleName="quickWindowLinkStyle" />
     </mx:HBox>
 	<mx:HBox id="addedBtns"/>
+	<views:RecordButton id="recordBtn" tabIndex="{baseIndex+numButtons+10}" />
 	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}"/>
-	<views:MuteMeButton id="muteMeBtn"  height="20" tabIndex="{baseIndex+numButtons+10}"/>
+	<views:MuteMeButton id="muteMeBtn"  height="20" tabIndex="{baseIndex+numButtons+11}"/>
 	<mx:Spacer width="50%"/>
     <mx:Label id="meetingNameLbl" styleName="meetingNameLabelStyle" />
     <mx:Spacer width="50%"/>
-	<views:RecordButton id="recordBtn" tabIndex="{baseIndex+numButtons+11}" />
 	<views:LanguageSelector id="langSelector" 
 							visible="false" 
 							tabIndex="{baseIndex+numButtons+12}"
