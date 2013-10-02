@@ -56,13 +56,13 @@ public interface IBigBlueButtonInGW {
 	
 	void setWhiteboardActivePage(String meetingID, String requesterID, Integer page);
 	
-	void requestWhiteboardAnnotationHistory(String meetingID, String requesterID);
+	void requestWhiteboardAnnotationHistory(String meetingID, String requesterID, String presentationID, Integer pageNum);
 	
 	void clearWhiteboard(String meetingID, String requesterID);
 	
 	void undoWhiteboard(String meetingID, String requesterID);
 	
-	void setActivePresentation(String meetingID, String requesterID, String presentationID);
+	void setActivePresentation(String meetingID, String requesterID, String presentationID, Integer numPages);
 	
 	void enableWhiteboard(String meetingID, String requesterID, Boolean enable);
 	

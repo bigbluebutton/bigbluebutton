@@ -27,6 +27,7 @@ import org.bigbluebutton.core.apps.poll.PollInGateway
 import org.bigbluebutton.core.apps.layout.LayoutInGateway
 import org.bigbluebutton.core.apps.chat.ChatInGateway
 import scala.collection.JavaConversions._
+import org.bigbluebutton.core.apps.whiteboard.WhiteboardInGateway
 
 class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW {
 
@@ -223,35 +224,37 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	/*********************************************************************
 	 * Message Interface for Whiteboard
 	 *******************************************************************/
+	val wbGW = new WhiteboardInGateway(bbbGW)
+	
 	def sendWhiteboardAnnotation(meetingID: String, requesterID: String, annotation: java.util.Map[String, Object]) {
-	  
+	  wbGW.sendWhiteboardAnnotation(meetingID, requesterID, mapAsScalaMap(annotation).toMap)
 	}
 	
 	def setWhiteboardActivePage(meetingID: String, requesterID: String, page: java.lang.Integer){
-	  
+	  wbGW.setWhiteboardActivePage(meetingID, requesterID, page)
 	}
 	
-	def requestWhiteboardAnnotationHistory(meetingID: String, requestedID: String) {
-	  
+	def requestWhiteboardAnnotationHistory(meetingID: String, requestedID: String, presentationID: String, page: java.lang.Integer) {
+	  wbGW.requestWhiteboardAnnotationHistory(meetingID, requestedID, presentationID, page)
 	}
 	
 	def clearWhiteboard(meetingID: String, requestedID: String) {
-	  
+	  wbGW.clearWhiteboard(meetingID, requestedID);
 	}
 	
 	def undoWhiteboard(meetingID: String, requestedID: String) {
-	  
+	  wbGW.undoWhiteboard(meetingID, requestedID)
 	}
 	
 	def setActivePresentation(meetingID: String, requestedID: String, presentationID: String, numPages: java.lang.Integer) {
-	  
+	  wbGW.setActivePresentation(meetingID, requestedID, presentationID, numPages)
 	}
 	
 	def enableWhiteboard(meetingID: String, requestedID: String, enable: java.lang.Boolean) {
-	  
+	  wbGW.enableWhiteboard(meetingID, requestedID, enable)
 	}
 	
 	def isWhiteboardEnabled(meetingID: String, requestedID: String) {
-	  
+	  wbGW.isWhiteboardEnabled(meetingID, requestedID)
 	}
 }

@@ -14,7 +14,7 @@ class Page(val pageNum: Int) {
   def removeAnnotation(id: String) {
     annotations.get(id) match {
       case Some(a) => annotations -= id
-      case None => // don nothing      
+      case None => // do nothing      
     }
   }
   
@@ -25,5 +25,21 @@ class Page(val pageNum: Int) {
     })
     
     poll.toArray    
+  }
+  
+  def undo() {
+    
+  }
+  
+  def clear() {
+    
+  }
+  
+  def modifyText(shape: Map[String, Object]) {
+    
+  }
+  
+  def addShape(shape: Map[String, Object]) {
+    
   }
 }
