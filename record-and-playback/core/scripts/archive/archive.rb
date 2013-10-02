@@ -81,6 +81,19 @@ def archive_presentation(meeting_id, presentation_dir, raw_archive_dir)
   end
 end
 
+def archive_has_recording_marks?(meeting_id, raw_archive_dir)
+  BigBlueButton.logger.info("Fetching the recording marks for #{meeting_id}.")
+  has_recording_marks = true
+  begin
+    record_events = BigBlueButton::Events.get_record_status_events("#{raw_archive_dir}/#{meeting_id}/events.xml")
+    BigBlueButton.logger.info("record_events:\n#{BigBlueButton.hash_to_str(record_events)}")
+    has_recording_marks = (not record_events.empty?)
+  rescue => e
+    BigBlueButton.logger.warn("Failed to fetch the recording marks for #{meeting_id}. " + e.to_s)
+  end
+  has_recording_marks
+end
+
 
 ################## START ################################
 
@@ -109,13 +122,18 @@ target_dir = "#{raw_archive_dir}/#{meeting_id}"
 if not FileTest.directory?(target_dir)
   FileUtils.mkdir_p target_dir
   archive_events(meeting_id, redis_host, redis_port, raw_archive_dir)
-  archive_audio(meeting_id, audio_dir, raw_archive_dir)
-  archive_presentation(meeting_id, presentation_dir, raw_archive_dir)
-  archive_deskshare(meeting_id, deskshare_dir, raw_archive_dir)
-  archive_video(meeting_id, video_dir, raw_archive_dir)   
-  archive_done = File.new("#{recording_dir}/status/archived/#{meeting_id}.done", "w")
-	archive_done.write("Archived #{meeting_id}")
-	archive_done.close
+  # we will abort the archiving if there's no marks to start and stop the recording
+  if not archive_has_recording_marks?(meeting_id, raw_archive_dir)
+    BigBlueButton.logger.info("There's no recording marks for #{meeting_id}, aborting the rest of the archive process.")
+  else
+    archive_audio(meeting_id, audio_dir, raw_archive_dir)
+    archive_presentation(meeting_id, presentation_dir, raw_archive_dir)
+    archive_deskshare(meeting_id, deskshare_dir, raw_archive_dir)
+    archive_video(meeting_id, video_dir, raw_archive_dir)
+    archive_done = File.new("#{recording_dir}/status/archived/#{meeting_id}.done", "w")
+    archive_done.write("Archived #{meeting_id}")
+    archive_done.close
+  end
 #else
 #	BigBlueButton.logger.debug("Skipping #{meeting_id} as it has already been archived.")
 end

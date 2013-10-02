@@ -396,24 +396,30 @@ module BigBlueButton
       s
     end
 
-    # Get events when the moderator wants the recording to start or stop
-    def self.get_start_and_stop_rec_events(events_xml)
-      BigBlueButton.logger.info "Getting start and stop rec button events"
+    def self.get_record_status_events(events_xml)
+      BigBlueButton.logger.info "Getting record status events"
       doc = Nokogiri::XML(File.open(events_xml))
       rec_events = []
       doc.xpath("//event[@eventname='RecordStatusEvent']").each do |event|
         s = { :timestamp => event['timestamp'].to_i }
         rec_events << s
       end
+      rec_events.sort_by {|a| a[:timestamp]}
+    end
+
+    # Get events when the moderator wants the recording to start or stop
+    def self.get_start_and_stop_rec_events(events_xml)
+      BigBlueButton.logger.info "Getting start and stop rec button events"
+      rec_events = BigBlueButton::Events.get_record_status_events(events_xml)
       if rec_events.empty?
-        # old recording generated in a version without the Record Button
+        # old recording generated in a version without the record button
         rec_events << { :timestamp => BigBlueButton::Events.first_event_timestamp(events_xml) }
       end
       if rec_events.size.odd?
-        # user didn't click the Record Button to stop the recording
+        # user did not click on the record button to stop the recording
         rec_events << { :timestamp => BigBlueButton::Events.last_event_timestamp(events_xml) }
       end
-      rec_events.sort {|a, b| a[:timestamp] <=> b[:timestamp]}  
+      rec_events.sort_by {|a| a[:timestamp]}
     end
     
     # Match recording start and stop events
