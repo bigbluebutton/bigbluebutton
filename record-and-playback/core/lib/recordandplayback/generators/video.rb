@@ -365,7 +365,7 @@ module BigBlueButton
   def self.process_webcam(target_dir, temp_dir, meeting_id) 
     BigBlueButton.logger.info("Processing webcam")
     # Process audio
-    BigBlueButton::AudioProcessor.process("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio.ogg")
+    BigBlueButton::AudioProcessor.process("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio")
 
     # Process video    
     video_dir = "#{temp_dir}/#{meeting_id}/video/#{meeting_id}"
