@@ -24,26 +24,26 @@ class WhiteboardApp(meetingID: String, recorded: Boolean, outGW: MessageOutGatew
     }
     
     private def handleSendWhiteboardAnnotationRequest(msg: SendWhiteboardAnnotationRequest) {
-      val status = msg.annotation.get("status");
-      val shapeType = msg.annotation.get("type")
-      val shape = msg.annotation.toMap
+      val status = msg.annotation.status
+      val shapeType = msg.annotation.shapeType
+      val shape = msg.annotation
       
       if ("textCreated".equals(status)) {
-		model.addAnnotation(shape);
+		model.addAnnotation(shape)
       } else if ((WhiteboardKeyUtil.PENCIL_TYPE == shapeType) && ("DRAW_START" == status)) {
-		model.addAnnotation(shape);
+		model.addAnnotation(shape)
       } else if (("DRAW_END" == status) && ((WhiteboardKeyUtil.RECTANGLE_TYPE == shapeType) 
 														|| (WhiteboardKeyUtil.ELLIPSE_TYPE == shapeType)
 														|| (WhiteboardKeyUtil.TRIANGLE_TYPE == shapeType)
 														|| (WhiteboardKeyUtil.LINE_TYPE == shapeType))) {				
-				model.addAnnotation(shape);
+				model.addAnnotation(shape)
       } else {
 		if ("text" == shapeType) {
-			model.modifyText(shape);	
+			model.modifyText(shape)
 		}
       }
       
-      outGW.send(new SendWhiteboardAnnotationEvent(meetingID, recorded, msg.requesterID, shape))
+      outGW.send(new SendWhiteboardAnnotationEvent(meetingID, recorded, msg.requesterID, msg.annotation))
     }
     
     private def handleSetWhiteboardActivePageRequest(msg: SetWhiteboardActivePageRequest) {
@@ -53,7 +53,8 @@ class WhiteboardApp(meetingID: String, recorded: Boolean, outGW: MessageOutGatew
     }
     
     private def handleSendWhiteboardAnnotationHistoryRequest(msg: SendWhiteboardAnnotationHistoryRequest) {
-      
+      val history = model.history
+      outGW.send(new SendWhiteboardAnnotationHistoryReply(meetingID, recorded, msg.requesterID, history))
     }
     
     private def handleClearWhiteboardRequest(msg: ClearWhiteboardRequest) {

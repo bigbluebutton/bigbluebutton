@@ -2,12 +2,30 @@ package org.bigbluebutton.core.apps.whiteboard
 
 import org.bigbluebutton.core.BigBlueButtonGateway
 import org.bigbluebutton.core.apps.whiteboard.messages._
+import org.bigbluebutton.core.apps.whiteboard.vo.AnnotationVO
 
 class WhiteboardInGateway(bbbGW: BigBlueButtonGateway) { 
   
-	def sendWhiteboardAnnotation(meetingID: String, requesterID: String, annotation: Map[String, Object]) {	  
-	  bbbGW.accept(new SendWhiteboardAnnotationRequest(meetingID, requesterID, annotation))
-	}
+  private def buildAnnotation(annotation: Map[String, Object]):Option[AnnotationVO] = {
+    var shape:Option[AnnotationVO] = None
+    
+    val id = annotation.getOrElse("id", null).asInstanceOf[String]
+    val shapeType = annotation.getOrElse("type", null).asInstanceOf[String]
+    val status = annotation.getOrElse("status", null).asInstanceOf[String]
+    
+    if (id != null && shapeType == null && status != null) {
+      shape = Some(new AnnotationVO(id, shapeType, status, annotation.toMap))
+    }
+    
+    shape
+  }
+  
+  def sendWhiteboardAnnotation(meetingID: String, requesterID: String, annotation: Map[String, Object]) {	  
+	  buildAnnotation(annotation) match {
+	    case Some(shape) => bbbGW.accept(new SendWhiteboardAnnotationRequest(meetingID, requesterID, shape))
+	    case None => // do nothing
+	  }
+  }
 	
 	def setWhiteboardActivePage(meetingID: String, requesterID: String, page: Int){
 	  bbbGW.accept(new SetWhiteboardActivePageRequest(meetingID, requesterID, page))

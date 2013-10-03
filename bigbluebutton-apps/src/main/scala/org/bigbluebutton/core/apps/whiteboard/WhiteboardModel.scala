@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.apps.whiteboard
 
 import scala.collection.mutable.HashMap
+import org.bigbluebutton.core.apps.whiteboard.vo.AnnotationVO
 
 class WhiteboardModel {
 
@@ -8,7 +9,7 @@ class WhiteboardModel {
   private var _activePresentation = ""
   private var _enabled = true
   
-  def addAnnotation(shape: Map[String, Object]) {
+  def addAnnotation(shape: AnnotationVO) {
     _presentations.get(_activePresentation) match {
       case Some(p) => {
         p.addAnnotation(shape)
@@ -17,7 +18,7 @@ class WhiteboardModel {
     }    
   }
   
-  def modifyText(shape: Map[String, Object]) {
+  def modifyText(shape: AnnotationVO) {
     _presentations.get(_activePresentation) match {
       case Some(p) => {
         p.modifyText(shape)
@@ -33,6 +34,19 @@ class WhiteboardModel {
       }
       case None => // do nothing
     }      
+  }
+  
+  def history():Array[AnnotationVO] = {
+    var shapes:Array[AnnotationVO] = new Array(0)
+    
+    _presentations.get(_activePresentation) match {
+      case Some(p) => {
+        shapes = p.annotations
+      }
+      case None => // do nothing
+    }
+    
+    shapes
   }
   
   def clearWhiteboard() {

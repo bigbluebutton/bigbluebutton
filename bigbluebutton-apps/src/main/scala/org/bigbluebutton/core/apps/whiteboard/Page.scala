@@ -1,13 +1,15 @@
 package org.bigbluebutton.core.apps.whiteboard
 
-import org.bigbluebutton.core.apps.whiteboard.messages.Annotation
-import scala.collection.mutable.HashMap
 import scala.collection.mutable.ArrayBuffer
 
 class Page(val pageNum: Int) {
-  val annotations = new HashMap[String, Annotation]()
+  import org.bigbluebutton.core.apps.whiteboard.vo._
   
-  def addAnnotation(shape: Annotation) {
+  private val annotations = new scala.collection.mutable.HashMap[String, AnnotationVO]()
+  private var _lastAnnotationID: String = _
+  
+  def addAnnotation(shape: AnnotationVO) {
+    _lastAnnotationID = shape.id
     annotations += shape.id -> shape
   }
   
@@ -18,13 +20,13 @@ class Page(val pageNum: Int) {
     }
   }
   
-  def getAnnotations():Array[Annotation] = {
-    val poll = new ArrayBuffer[Annotation]   
+  def getAnnotations():Array[AnnotationVO] = {
+    val shapes = new ArrayBuffer[AnnotationVO]   
     annotations.values.foreach(p => {     
-      poll += p
+      shapes += p
     })
     
-    poll.toArray    
+    shapes.toArray    
   }
   
   def undo() {
@@ -32,14 +34,14 @@ class Page(val pageNum: Int) {
   }
   
   def clear() {
-    
+    annotations.clear
   }
   
-  def modifyText(shape: Map[String, Object]) {
-    
+  def modifyText(shape: AnnotationVO) {
+    annotations.get(shape.id) match {
+      case Some(a) => annotations += shape.id -> shape
+      case None => // do nothing      
+    }    
   }
-  
-  def addShape(shape: Map[String, Object]) {
-    
-  }
+
 }

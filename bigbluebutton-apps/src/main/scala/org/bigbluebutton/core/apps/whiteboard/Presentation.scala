@@ -1,6 +1,8 @@
 package org.bigbluebutton.core.apps.whiteboard
 
 import scala.collection.mutable.HashMap
+import org.bigbluebutton.core.apps.whiteboard.vo.AnnotationVO
+import scala.collection.mutable.ArrayBuffer
 
 class Presentation(presentationID: String, numPages: Int) {
   
@@ -12,16 +14,16 @@ class Presentation(presentationID: String, numPages: Int) {
 	  _pages += i -> page
 	}
 	
-	def addAnnotation(shape: Map[String, Object]) {
+	def addAnnotation(shape: AnnotationVO) {
 	  _pages.get(_curPage) match {
 	    case Some(p) => {
-	      p.addShape(shape)
+	      p.addAnnotation(shape)
 	    }
 	    case None => // do nothing
 	  }
 	}
 	
-	def modifyText(shape: Map[String, Object]) {
+	def modifyText(shape: AnnotationVO) {
 	  _pages.get(_curPage) match {
 	    case Some(p) => {
 	      p.modifyText(shape)
@@ -52,5 +54,16 @@ class Presentation(presentationID: String, numPages: Int) {
 	  }	  
 	}
 	
-	
+	def annotations():Array[AnnotationVO] = {
+	  var shapes:Array[AnnotationVO] = new Array(0)
+	  
+	  _pages.get(_curPage) match {
+	    case Some(p) => {
+	      shapes = p.getAnnotations
+	    }
+	    case None => // do nothing
+	  }	
+	  
+	  shapes
+	}
 }
