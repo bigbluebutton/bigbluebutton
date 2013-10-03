@@ -24,11 +24,17 @@ define [
 
     initialize: ->
       @$parentEl = null
+      
 
     render: ->
       compiledTemplate = _.template(sessionNavbarTemplate)
       @$el.html compiledTemplate
       @_setToggleButtonsStatus()
+      $(document).ready =>
+        $(".navbar-btngroup-right").css("right", 0 )
+        $(".navbar-btngroup-right").css("width",$(".navbar-btn").width() * 3 * 2)
+        console.log("initialized " + $(".navbar-btngroup-right").width() )
+      
 
     # Ensure the status of the toggle buttons is ok
     _setToggleButtonsStatus: ->
