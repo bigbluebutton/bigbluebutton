@@ -1,3 +1,5 @@
+#!/usr/bin/ruby1.9.1
+
 # Set encoding to utf-8
 # encoding: UTF-8
 
@@ -19,7 +21,7 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
 
-require '../../core/lib/recordandplayback'
+require File.expand_path('../../../lib/recordandplayback', __FILE__)
 require 'rubygems'
 require 'trollop'
 require 'yaml'
@@ -56,8 +58,7 @@ if not FileTest.directory?(target_dir)
   FileUtils.mkdir_p temp_dir
   FileUtils.cp_r(raw_archive_dir, temp_dir)
   
-  BigBlueButton::AudioProcessor.process("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio.ogg")
-
+  BigBlueButton::AudioProcessor.process("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio")
   events_xml = "#{temp_dir}/#{meeting_id}/events.xml"
   FileUtils.cp(events_xml, target_dir)
   
@@ -105,11 +106,13 @@ if not FileTest.directory?(target_dir)
   end
   
   if !Dir["#{raw_archive_dir}/video/*"].empty? or (presentation_props['include_deskshare'] and !Dir["#{raw_archive_dir}/deskshare/*"].empty?)
-    BigBlueButton.process_multiple_videos(target_dir, temp_dir, meeting_id, presentation_props['video_output_width'], presentation_props['video_output_height'], presentation_props['audio_offset'], presentation_props['include_deskshare'])
-  else
-    #Convert the audio file to webm to play it in IE
-    command = "ffmpeg -i #{target_dir}/audio.ogg  #{target_dir}/audio.webm"
-    BigBlueButton.execute(command)
+    width = presentation_props['video_output_width']
+    height = presentation_props['video_output_height']
+    if !Dir["#{raw_archive_dir}/deskshare/*"].empty?
+      width = presentation_props['deskshare_output_width']
+      height = presentation_props['deskshare_output_height']
+    end
+    BigBlueButton.process_multiple_videos(target_dir, temp_dir, meeting_id, width, height, presentation_props['audio_offset'], presentation_props['include_deskshare'])
   end
 
   process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-presentation.done", "w")
@@ -119,6 +122,10 @@ if not FileTest.directory?(target_dir)
 #	BigBlueButton.logger.debug("Skipping #{meeting_id} as it has already been processed.")  
  rescue Exception => e
         BigBlueButton.logger.error(e.message)
+	e.backtrace.each do |traceline|
+		BigBlueButton.logger.error(traceline)
+	end
+	exit 1
  end
 end
     
