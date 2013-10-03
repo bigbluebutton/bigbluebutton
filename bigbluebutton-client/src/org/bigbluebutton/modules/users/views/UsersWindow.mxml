@@ -56,10 +56,8 @@
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
-			import org.bigbluebutton.main.model.users.events.LowerHandEvent;
-			import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
+			import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
@@ -87,9 +85,9 @@
 			
 			[Bindable]
 			private var users:ArrayCollection = new ArrayCollection();
+
 			
 			private var amIModerator:Boolean = false;
-			private var baseIndex:int = 0;
 			
 			private const FOCUS_USERS_LIST:String = "Focus Users List";
 			private const MAKE_PRESENTER:String = "Make Presenter";
@@ -99,6 +97,8 @@
 			
 			private var muteMeRolled:Boolean = false;
 			
+			private var myMenuStaticHeight:Number = 301;
+
 			private function onCreationComplete():void {
 				dispatcher = new Dispatcher();
 			
@@ -155,18 +155,21 @@
 			}
 			
 			private function raiseHand():void{
-				if (UserManager.getInstance().getConference().getMyRole() == Role.VIEWER) {
-					var e:RaiseHandEvent = new RaiseHandEvent(RaiseHandEvent.RAISE_HAND);
-					e.raised = !UserManager.getInstance().getConference().isMyHandRaised;
-					dispatchEvent(e);
+				var e:ChangeStatusEvent;
+				var userID:String = UserManager.getInstance().getConference().getMyUserId();
+				if (UserManager.getInstance().getConference().getMyMood() == ChangeStatusEvent.RAISE_HAND) {
+					e = new ChangeStatusEvent(userID, ChangeStatusEvent.CLEAR_STATUS);
+				} else {
+					e = new ChangeStatusEvent(userID, ChangeStatusEvent.RAISE_HAND);
 				}
+				dispatchEvent(e);
 			}
 
-			private function clearAllStatus():void { // Pendente: ver clear status do moderador
+			private function clearAllStatus():void {
 				for (var i:int = 0; i < users.length; i++) {
 					var p:BBBUser = users.getItemAt(i) as BBBUser;
-					if (p.userHasStatus) dispatchEvent( new ChangeStatusEvent(p.userID,ChangeStatusEvent.CLEAR_STATUS)  );
-        			}
+					if (p.hasMood) dispatchEvent( new ChangeStatusEvent(p.userID, ChangeStatusEvent.CLEAR_STATUS) );
+				}
 			}
 
 			
@@ -174,39 +177,33 @@
 				// everyone can see the audio settings
 				var myMenuData:Array = [];
 
-				if(amIModerator)
-				{			
-					myMenuData[0] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.clearAllStats'), icon: images.delete_icon};
-					if (!roomMuted) 
-					{
-						myMenuData[1] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted};
+				if(UserManager.getInstance().getConference().amIModerator()) {
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.settings.clearAllStatus'), icon: images.delete_icon, callback: clearAllStatus} );
+					if (!roomMuted) {
+						myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted, callback: muteAll} );
 						if (UserManager.getInstance().getConference().getPresenter())
-							myMenuData[2] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.audio_muted};
-							baseIndex = 2;
-					} 
-					else
-					{
-						myMenuData[1] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio};
-						baseIndex = 1;	
+							myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.audio_muted, callback: muteAlmostAll} );
+					} else {
+						myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio, callback: muteAll} );
 					}
 				}
 
-
-				if(partOptions.enableRaiseHand)
-				{
-					myMenuData[baseIndex+1] = {label: ResourceUtil.getInstance().getString('bbb.users.status.clearStatus'), icon: images.delete_icon};
-					myMenuData[baseIndex+2] = {label: ResourceUtil.getInstance().getString('bbb.shortcutkey.raiseHand.function'), icon: images.hand_new};
-					myMenuData[baseIndex+3] = {label: ResourceUtil.getInstance().getString('bbb.users.status.agree'), icon: images.agree};	
-					myMenuData[baseIndex+4] = {label: ResourceUtil.getInstance().getString('bbb.users.status.disagree'), icon: images.disagree};	
-					myMenuData[baseIndex+5] = {label: ResourceUtil.getInstance().getString('bbb.users.status.speak_louder'), icon: images.speak_louder};	
-					myMenuData[baseIndex+6] = {label: ResourceUtil.getInstance().getString('bbb.users.status.speak_lower'), icon: images.speak_lower};	
-					myMenuData[baseIndex+7] = {label: ResourceUtil.getInstance().getString('bbb.users.status.speak_faster'), icon: images.speak_faster};	
-					myMenuData[baseIndex+8] = {label: ResourceUtil.getInstance().getString('bbb.users.status.speak_slower'), icon: images.speak_slower};	
-					myMenuData[baseIndex+9] = {label: ResourceUtil.getInstance().getString('bbb.users.status.be_right_back'), icon: images.be_right_back};
-					myMenuData[baseIndex+10] = {label: ResourceUtil.getInstance().getString('bbb.users.status.laughter'), icon: images.laughter};
-					myMenuData[baseIndex+11] = {label: ResourceUtil.getInstance().getString('bbb.users.status.sad'), icon: images.sad};
+				if(partOptions.enableRaiseHand) {
+					if (myMenuData.length > 0) {
+						myMenuData.push( {type: "separator"} );
+					}
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.clearStatus'), icon: images.delete_icon, callback: function():void { changeStatus(ChangeStatusEvent.CLEAR_STATUS); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.shortcutkey.raiseHand.function'), icon: images.hand_new, callback: function():void { changeStatus(ChangeStatusEvent.RAISE_HAND); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.agree'), icon: images.agree, callback: function():void { changeStatus(ChangeStatusEvent.AGREE); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.disagree'), icon: images.disagree, callback: function():void { changeStatus(ChangeStatusEvent.DISAGREE); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speak_louder'), icon: images.speak_louder, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_LOUDER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speak_lower'), icon: images.speak_lower, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_LOWER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speak_faster'), icon: images.speak_faster, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_FASTER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speak_slower'), icon: images.speak_slower, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_SLOWER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.be_right_back'), icon: images.be_right_back, callback: function():void { changeStatus(ChangeStatusEvent.BE_RIGHT_BACK); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.laughter'), icon: images.laughter, callback: function():void { changeStatus(ChangeStatusEvent.LAUGHTER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.sad'), icon: images.sad, callback: function():void { changeStatus(ChangeStatusEvent.SAD); }} );
 				}
-
 
 				// make sure the previous menu is closed before opening a new one
 				// This could be improved to include a flag that tells if the menu is open,
@@ -214,98 +211,37 @@
 				if (myMenu) myMenu.hide();
 				
 				myMenu = Menu.createMenu(null, myMenuData, true);
-				
 				myMenu.variableRowHeight = true;
-				myMenu.show(this.x + settingsBtn.x + 2, this.y + this.height + 25);
+				var settingsBtnPos:Point = settingsBtn.localToGlobal(new Point(0,0));
+
+				var myMenuPos:Point = new Point();
+				myMenuPos.x = settingsBtnPos.x;
+				myMenuPos.y = settingsBtnPos.y + settingsBtn.height;
+				if (myMenuPos.y + myMenuStaticHeight > stage.stageHeight) {
+					myMenuPos.x += settingsBtn.width;
+					myMenuPos.y = stage.stageHeight - myMenuStaticHeight;
+				}
+
 				myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
+				myMenu.addEventListener(MenuEvent.MENU_SHOW, menuShowHandler);
+				myMenu.show(myMenuPos.x, myMenuPos.y);
 				myMenu.setFocus();
 			}
 
-			
-			private function menuClickHandler(e:MenuEvent):void 
-			{
-				if(baseIndex == 0) //not a moderator
-				{
-					changeStatusHandler(e.index)
-				}
-
-				else if(baseIndex == 1) //i'm a moderator and there is NOT the "mute all except" option
-				{
-					switch (e.index) {
-						case 0:
-							clearAllStatus();
-							break;
-						case 1:
-							muteAll();
-							break;
-						default:
-							changeStatusHandler(e.index);
-						}					
-				}
-
-				else //i'm a moderator and the option "mute all except" is enabled
-				{
-					switch (e.index) {
-						case 0:
-							clearAllStatus();
-							break;
-						case 1:
-							muteAll();
-							break;	
-						case 2:
-							muteAlmostAll();
-							break;
-						default:
-							changeStatusHandler(e.index);
-						}	
-				}
+			private function menuShowHandler(e:MenuEvent):void {
+				myMenuStaticHeight = e.currentTarget.height;
+				trace("New menu height is " + myMenuStaticHeight);
 			}
 
-			private function changeStatusHandler(index:int):void {
-				switch (index) {
-					case baseIndex+1:
-						changeStatus(ChangeStatusEvent.CLEAR_STATUS);
-						break;
-					case baseIndex+2:
-						changeStatus(ChangeStatusEvent.RAISE_HAND);
-						break;
-					case baseIndex+3:
-						changeStatus(ChangeStatusEvent.AGREE);					
-						break;
-					case baseIndex+4:
-						changeStatus(ChangeStatusEvent.DISAGREE);
-						break;
-					case baseIndex+5:
-						changeStatus(ChangeStatusEvent.SPEAK_LOUDER);
-						break;
-					case baseIndex+6:
-						changeStatus(ChangeStatusEvent.SPEAK_LOWER);
-						break;
-					case baseIndex+7:
-						changeStatus(ChangeStatusEvent.SPEAK_FASTER);
-						break;
-					case baseIndex+8:
-						changeStatus(ChangeStatusEvent.SPEAK_SLOWER);
-						break;
-					case baseIndex+9:
-						changeStatus(ChangeStatusEvent.BE_RIGHT_BACK);
-						break;
-					case baseIndex+10:
-						changeStatus(ChangeStatusEvent.LAUGHTER);
-						break;
-					case baseIndex+11:
-						changeStatus(ChangeStatusEvent.SAD);
-				}
+			private function menuClickHandler(e:MenuEvent):void {
+				e.item.callback();
 			}
 
-			private function changeStatus(whichStatus:String):void
-			{
-				var e:ChangeStatusEvent = new ChangeStatusEvent(UserManager.getInstance().getConference().getMyUserId(), whichStatus);
+			private function changeStatus(status:String):void {
+				var e:ChangeStatusEvent = new ChangeStatusEvent(UserManager.getInstance().getConference().getMyUserId(), status);
 				dispatchEvent(e);
-				
 			}
 
-			
 			private function setRoomMute(e:UsersEvent):void {
 				roomMuted = e.mute_state;
                 roomMutedLbl.visible = roomMuted;
@@ -333,13 +269,6 @@
 						roomMuted = true;
 					}
 				}
-			}
-			
-			private function lowerHands():void { // Pendente: ver clear status do moderador
-				for (var i:int = 0; i < users.length; i++) {
-					var p:BBBUser = users.getItemAt(i) as BBBUser;
-					if (p.raiseHand) dispatchEvent(new LowerHandEvent(p.userID));
-        			}
 			}
 			
 			override protected function resourcesChanged():void{

@@ -254,13 +254,13 @@ package org.bigbluebutton.main.model.users {
       user.externUserID = joinedUser.externUserID;
       user.isLeavingFlag = false;
       
-			LogUtil.debug("User status: " + joinedUser.status.hasStream);
+			trace("New user joined, mood: " + joinedUser.status.mood);
 
 			LogUtil.info("Joined as [" + user.userID + "," + user.name + "," + user.role + "]");
 			UserManager.getInstance().getConference().addUser(user);
 			participantStatusChange(user.userID, "hasStream", joinedUser.status.hasStream);
 			participantStatusChange(user.userID, "presenter", joinedUser.status.presenter);
-			participantStatusChange(user.userID, "raiseHand", joinedUser.status.raiseHand);
+			participantStatusChange(user.userID, "mood", joinedUser.status.mood);
 			
 
 			var joinEvent:UserJoinedEvent = new UserJoinedEvent(UserJoinedEvent.JOINED);
@@ -300,22 +300,11 @@ package org.bigbluebutton.main.model.users {
 				"participants.setParticipantStatus",// Remote function name
 				responder,
         			userID,
-				status,
+				"mood",
 				status //instead of a boolean, the value of the status is going to be its name
 			); //_netConnection.call
 		}
 					
-		public function raiseHand(userID:String, raise:Boolean):void {
-			var nc:NetConnection = _connectionManager.connection;			
-			nc.call(
-				"participants.setParticipantStatus",// Remote function name
-				responder,
-        userID,
-				"raiseHand",
-				raise
-			); //_netConnection.call
-		}
-		
 		public function addStream(userID:String, streamName:String):void {
 			var nc:NetConnection = _connectionManager.connection;	
 			nc.call(

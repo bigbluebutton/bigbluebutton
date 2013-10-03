@@ -75,14 +75,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{UserService}" method="changeStatus" arguments="{event}" />
 	</EventHandlers>
 
-	<EventHandlers type="{RaiseHandEvent.RAISE_HAND}" >
-		<MethodInvoker generator="{UserService}" method="raiseHand" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{LowerHandEvent.LOWER_HAND_EVENT}" >
-		<MethodInvoker generator="{UserService}" method="lowerHand" arguments="{event}" />
-	</EventHandlers>
-	
 	<EventHandlers type="{BroadcastStartedEvent.BROADCAST_STARTED_EVENT}" >
 		<MethodInvoker generator="{UserService}" method="addStream" arguments="{event}" />
 	</EventHandlers>
@@ -133,10 +125,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.main.model.users.UserService;
 		import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 		import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
-		import org.bigbluebutton.main.model.users.events.KickUserEvent;
 		import org.bigbluebutton.main.model.users.events.ChangeStatusEvent
-		import org.bigbluebutton.main.model.users.events.LowerHandEvent;
-		import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
+		import org.bigbluebutton.main.model.users.events.KickUserEvent;
 		import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 		import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;		
 	]]>

@@ -92,6 +92,11 @@ public class ParticipantsService {
 	
 	public void setParticipantStatus(String userid, String status, Object value) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
+
+		if (status.equals("mood")) {
+			value = ((String) value) + "," + System.currentTimeMillis();
+		}
+
 		log.debug("Setting participant status " + roomName + " " + userid + " " + status + " " + value);
 		application.setParticipantStatus(roomName, userid, status, value);
 	}

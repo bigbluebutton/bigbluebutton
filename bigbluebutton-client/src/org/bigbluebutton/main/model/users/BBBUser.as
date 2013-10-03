@@ -34,7 +34,6 @@ package org.bigbluebutton.main.model.users
 		public static const MODERATOR:String = "MODERATOR";
 		public static const VIEWER:String = "VIEWER";
 		public static const PRESENTER:String = "PRESENTER";
-		private static const NO_STATUS:String = "";
 		
     // Flag to tell that user is in the process of leaving the meeting.
     public var isLeavingFlag:Boolean = false;
@@ -68,35 +67,37 @@ package org.bigbluebutton.main.model.users
 			_presenter = p;
 			verifyUserStatus();
 		}
-		
-		private var _raiseHand:Boolean = false;
+
+		private var _mood:String = ChangeStatusEvent.CLEAR_STATUS;
+		[Bindable]
+		public function get hasMood():Boolean {
+			return _mood != ChangeStatusEvent.CLEAR_STATUS;
+		}
+		[Bindable]
+		public function get mood():String {
+			return _mood;
+		}
+		public function set mood(m:String):void {
+			_mood = m;
+			verifyUserStatus();
+		}
 		[Bindable]
 		public function get raiseHand():Boolean {
-			return _raiseHand;
+			return _mood == ChangeStatusEvent.RAISE_HAND;
 		}
 		public function set raiseHand(r:Boolean):void {
-			_raiseHand = r;
-			verifyUserStatus();
+			mood = (r? ChangeStatusEvent.RAISE_HAND: ChangeStatusEvent.CLEAR_STATUS);
 		}
 
-
-		private var _currentStatus:String = NO_STATUS;
-
-		public function get userHasStatus():Boolean {
-			return _currentStatus != NO_STATUS;
-		}
-
+		private var _moodTimestamp:Number = 0;
 		[Bindable]
-		public function get currentStatus():String {
-			return _currentStatus;
+		public function get moodTimestamp():Number {
+			return _moodTimestamp;
 		}
-		
-		public function set currentStatus(newStatus:String):void {
-			_currentStatus = newStatus;
-			verifyUserStatus();
-		}		
+		public function set moodTimestamp(t:Number):void {
+			_moodTimestamp = t;
+		}
 
-		
 		private var _role:String = Role.VIEWER;
 		[Bindable] 
 		public function get role():String {
@@ -155,53 +156,42 @@ package org.bigbluebutton.main.model.users
 			else if (role == Role.MODERATOR)
 				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.moderator');
 			
-			else if (userHasStatus)
-			{
-				switch(currentStatus)
-				{
+			else if (hasMood) {
+				switch(mood) {
 					case ChangeStatusEvent.RAISE_HAND:
 						_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.handRaised');
 						break;
-
 					case ChangeStatusEvent.AGREE:
 						_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.agree');
 						break;
-
 					case ChangeStatusEvent.DISAGREE:
 						_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.disagree');
 						break;
-
 					case ChangeStatusEvent.SPEAK_LOUDER:
 						_userStatus = ResourceUtil.getInstance().getString('bbb.users.status.speak_louder');
 						break;
-
 					case ChangeStatusEvent.SPEAK_LOWER:
 						_userStatus = ResourceUtil.getInstance().getString('bbb.users.status.speak_lower');
 						break;
-
 					case ChangeStatusEvent.SPEAK_FASTER:
 						_userStatus = ResourceUtil.getInstance().getString('bbb.users.status.speak_faster');
 						break;
-
 					case ChangeStatusEvent.SPEAK_SLOWER:
 						_userStatus = ResourceUtil.getInstance().getString('bbb.users.status.speak_slower');
 						break;
-
 					case ChangeStatusEvent.BE_RIGHT_BACK:
 						_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.be_right_back');
 						break;
-
 					case ChangeStatusEvent.LAUGHTER:
 						_userStatus = ResourceUtil.getInstance().getString('bbb.users.status.laughter');
 						break;
-
 					case ChangeStatusEvent.SAD:
 						_userStatus = ResourceUtil.getInstance().getString('bbb.users.status.sad');
+						break;
 				}
-			}
-
-			else
+			} else {
 				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.viewer');
+			}
 		}
 		
 		/*
@@ -244,9 +234,6 @@ package org.bigbluebutton.main.model.users
 		
 		public function changeStatus(status:Status):void {
 			//_status.changeStatus(status);
-			if (status.name == "presenter") {
-				presenter = status.value
-			}
 			switch (status.name) {
 				case "presenter":
 					presenter = status.value;
@@ -270,49 +257,20 @@ package org.bigbluebutton.main.model.users
 					streamName = streamNameInfo[1]; 
 					if (hasStream) sendStreamStartedEvent();
 					break;
-
-				case ChangeStatusEvent.CLEAR_STATUS:
-					currentStatus = NO_STATUS;
+				case "mood":
+					trace("New mood received: " + status.value);
+					var moodValue:String = String(status.value);
+					if (moodValue == "") {
+						trace("Empty mood, assuming CLEAR_STATUS");
+						moodValue = ChangeStatusEvent.CLEAR_STATUS;
+						moodTimestamp = 0;
+					} else {
+						var valueSplit:Array = moodValue.split(",");
+						moodValue = valueSplit[0];
+						moodTimestamp = Number(valueSplit[1]);
+					}
+					mood = moodValue;
 					break;
-
-				case ChangeStatusEvent.RAISE_HAND:
-					currentStatus = ChangeStatusEvent.RAISE_HAND;		
-					break;
-
-				case ChangeStatusEvent.AGREE:
-					currentStatus = ChangeStatusEvent.AGREE;
-					break;
-
-				case ChangeStatusEvent.DISAGREE:
-					currentStatus = ChangeStatusEvent.DISAGREE
-					break;
-
-				case ChangeStatusEvent.SPEAK_LOUDER:
-					currentStatus = ChangeStatusEvent.SPEAK_LOUDER
-					break;
-
-				case ChangeStatusEvent.SPEAK_LOWER:
-					currentStatus = ChangeStatusEvent.SPEAK_LOWER
-					break;
-
-				case ChangeStatusEvent.SPEAK_FASTER:
-					currentStatus = ChangeStatusEvent.SPEAK_FASTER
-					break;
-
-				case ChangeStatusEvent.SPEAK_SLOWER:
-					currentStatus = ChangeStatusEvent.SPEAK_SLOWER
-					break;
-
-				case ChangeStatusEvent.BE_RIGHT_BACK:
-					currentStatus = ChangeStatusEvent.BE_RIGHT_BACK
-					break;
-
-				case ChangeStatusEvent.LAUGHTER:
-					currentStatus = ChangeStatusEvent.LAUGHTER
-					break;
-
-				case ChangeStatusEvent.SAD:
-					currentStatus = ChangeStatusEvent.SAD
 			}
 			//buildStatus();
 		}
@@ -336,7 +294,8 @@ package org.bigbluebutton.main.model.users
             n.viewingStream = user.viewingStream;
 			n.streamName = user.streamName;
 			n.presenter = user.presenter;
-			n.raiseHand = user.raiseHand;
+			n.mood = user.mood;
+			n.moodTimestamp = user.moodTimestamp;
 			n.role = user.role;	
 			n.room = user.room;
 			n.customdata = user.customdata;

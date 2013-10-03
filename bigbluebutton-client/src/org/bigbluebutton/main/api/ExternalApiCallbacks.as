@@ -36,8 +36,8 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
+  import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
   import org.bigbluebutton.main.model.users.events.KickUserEvent;
-  import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
   import org.bigbluebutton.modules.present.events.QueryPresentationsListEvent;
   import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
@@ -128,8 +128,8 @@ package org.bigbluebutton.main.api
  
     private function handleRaiseHandRequest(handRaised:Boolean):void {
       trace("Received raise hand request from JS API [" + handRaised + "]");
-      var e:RaiseHandEvent = new RaiseHandEvent(RaiseHandEvent.RAISE_HAND);
-      e.raised = handRaised;
+      var userID:String = UserManager.getInstance().getConference().getMyUserId();
+      var e:ChangeStatusEvent = new ChangeStatusEvent(userID, handRaised? ChangeStatusEvent.RAISE_HAND: ChangeStatusEvent.CLEAR_STATUS);
       _dispatcher.dispatchEvent(e);
     }
     

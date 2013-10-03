@@ -41,8 +41,7 @@
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.managers.UserManager;
-            		import org.bigbluebutton.main.model.users.events.LowerHandEvent;
-			import org.bigbluebutton.main.model.users.events.ChangeStatusEvent
+			import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -94,7 +93,7 @@
 				{
 					if (rolledOver) //if i'm moderator and I rolled the mouse
 					{
-                        			if (data.userHasStatus)
+                        			if (data.hasMood)
 						{
                             				statusBtn.setStyle("icon", images.delete_icon);
                             				statusBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.clearStatus');
@@ -137,7 +136,7 @@
 
 						
 						//updating which status	to show
-						switch(data.currentStatus)
+						switch(data.mood)
 						{
 							case ChangeStatusEvent.RAISE_HAND:
 								statusImg.source = images.hand_new;
@@ -249,5 +248,5 @@
 	<!-- Helper objects because direct bindings to data break when the itemRenderer is recycled -->
 	<mx:Image id="presenterInd" includeInLayout="false" visible="{data.presenter}" />
 	<mx:Image id="moderatorInd" includeInLayout="false" visible="{data.role == Role.MODERATOR}" />
-	<mx:Image id="statusInd" includeInLayout="false" visible="{data.userHasStatus}" />
+	<mx:Image id="statusInd" includeInLayout="false" visible="{data.hasMood}" />
 </mx:HBox>
