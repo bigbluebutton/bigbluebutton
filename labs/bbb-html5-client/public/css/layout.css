@@ -86,6 +86,7 @@ img.logo {
   left: 0;
   right: 0;
   height: 6vh;
+  min-height: 0.75cm;
   background: #333;
 
   background: -moz-linear-gradient(top, #494c56, #42444c);
@@ -128,6 +129,7 @@ img.logo {
   position: absolute;
   left:0;
   height:6vh;
+
   position: block;
 }
 
@@ -149,6 +151,8 @@ img.logo {
   /*display: inline-block;*/
   width: 8vh;
   height: 6vh;
+  min-height: 0.75cm;
+  min-width: 1cm;
   padding: 0;
   background: -moz-linear-gradient(top, #494c56, #42444c);
   background: -webkit-linear-gradient(top, #494c56, #42444c);
@@ -167,13 +171,15 @@ img.logo {
   text-align: center;
   vertical-align: middle;
   margin-bottom: 0;
-  font-size: 4vh;
+  /*font-size: 4vh;*/
   line-height:4vh;
 }
 
 .icon{
-  height:4vh;
-  width:3vh;
+  /*max-height:4vh;
+  max-width:3vh;*/
+  min-height: 1.5625cm;
+  min-width: 1.75cm;
 }
 
 .navbar-btn:hover {
