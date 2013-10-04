@@ -170,7 +170,7 @@ module BigBlueButton
         :areas => { :webcam => [] }
       }
 
-      return edl_match_recording_marks_webcam(video_edl, archive_dir)
+      return video_edl
     end
 
         
@@ -266,7 +266,7 @@ module BigBlueButton
         :areas => {}
       }
 
-      return edl_match_recording_marks_deskshare(deskshare_edl, archive_dir)
+      return deskshare_edl
     end
 
     def self.edl_match_recording_marks_audio(edl, archive_dir)
@@ -282,16 +282,23 @@ module BigBlueButton
       return edl_match_recording_marks(edl, archive_dir, calculate_entry_files_timestamp, empty_entry)
     end
 
-    def self.edl_match_recording_marks_webcam(edl, archive_dir)
+    def self.edl_match_recording_marks_video(edl, archive_dir)
       calculate_entry_files_timestamp = Proc.new do |edl_entry, offset|
-        edl_entry[:areas][:webcam].each do |webcam_entry|
-          webcam_entry[:timestamp] += offset
+        if edl_entry[:areas][:webcam]
+          edl_entry[:areas][:webcam].each do |webcam_entry|
+            webcam_entry[:timestamp] += offset
+          end
+        end
+        if edl_entry[:areas][:deskshare]
+          edl_entry[:areas][:deskshare].each do |deskshare_entry|
+            deskshare_entry[:timestamp] += offset
+          end
         end
       end
 
       empty_entry = {
         :timestamp => nil,
-        :areas => { :webcam => [] }
+        :areas => { :webcam => [], :deskshare => [] }
       }
 
       return edl_match_recording_marks(edl, archive_dir, calculate_entry_files_timestamp, empty_entry)

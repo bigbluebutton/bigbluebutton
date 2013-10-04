@@ -490,7 +490,8 @@ module BigBlueButton
       "#{temp_dir}/#{meeting_id}")
     deskshare_edl = BigBlueButton::Events.create_deskshare_edl(
       "#{temp_dir}/#{meeting_id}")
-    video_edl = BigBlueButton::EDL::Video.merge(webcam_edl, deskshare_edl)
+    temporary_video_edl = BigBlueButton::EDL::Video.merge(webcam_edl, deskshare_edl)
+    video_edl = BigBlueButton::Events.edl_match_recording_marks_video(temporary_video_edl, "#{temp_dir}/#{meeting_id}")
     BigBlueButton::EDL::Video.dump(video_edl)
 
     layout = {
