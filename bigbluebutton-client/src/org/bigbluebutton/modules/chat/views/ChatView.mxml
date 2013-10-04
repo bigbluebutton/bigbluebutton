@@ -40,24 +40,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       import com.asfusion.mate.events.Dispatcher;
       
+      import flash.accessibility.Accessibility;
+      import flash.events.Event;
       import flash.events.FocusEvent;
       import flash.external.ExternalInterface;
       import flash.media.Sound;
       import flash.media.SoundChannel;
-	  import flash.accessibility.Accessibility;
-
+      
       import flexlib.controls.tabBarClasses.SuperTab;
       import flexlib.controls.textClasses.StringBoundaries;
       import flexlib.events.SuperTabEvent;
       import flexlib.mdi.containers.MDIWindow;
-
+      
       import mx.collections.ArrayCollection;
       import mx.containers.ControlBar;
       import mx.controls.Button;
       import mx.core.Container;
       import mx.core.UIComponent;
       import mx.events.IndexChangedEvent;
-
+      
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.BBB;
       import org.bigbluebutton.core.EventConstants;
@@ -79,9 +80,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.util.i18n.ResourceUtil;			
 					
 	private static const PUBLIC_CHAT_USERID:String = 'public_chat_userid';
-	private static const PUBLIC_CHAT_USERNAME:String = ResourceUtil.getInstance().getString("bbb.chat.publicChatUsername");
-	private static const OPTION_TAB_ID:String = ResourceUtil.getInstance().getString("bbb.chat.optionsTabName");
-	private var tabBox:AddChatTabBox;			
+	private var PUBLIC_CHAT_USERNAME:String = ResourceUtil.getInstance().getString("bbb.chat.publicChatUsername");
+	private var OPTION_TAB_ID:String = ResourceUtil.getInstance().getString("bbb.chat.optionsTabName");
+	private var tabBox:AddChatTabBox;
+	private var publicBox:ChatBox;
 	private var focus:Boolean = true;			
 	private var globalDispatcher:Dispatcher = new Dispatcher();			
 	private var autoTranslation:Boolean=false;
@@ -122,6 +124,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		          makeAddPrivateChatUncloseable();
 		        }
 				
+				ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
+				
 				addEventListener(SuperTabEvent.TAB_CLOSE, onUserClosedTab);
         
 				systemManager.stage.addEventListener(Event.MOUSE_LEAVE, mouseLeave);
@@ -131,6 +135,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function focusChatTabs(e:ShortcutEvent):void{
 				focusManager.setFocus(chatTabs);
+			}
+			
+			
+			private function localeChanged(e:Event):void{
+				setTabTitles();
+			}
+			
+			private function setTabTitles():void {
+				PUBLIC_CHAT_USERNAME = ResourceUtil.getInstance().getString("bbb.chat.publicChatUsername");
+				OPTION_TAB_ID = ResourceUtil.getInstance().getString("bbb.chat.optionsTabName");				
+				
+				if (tabBox != null) {
+					tabBox.id = OPTION_TAB_ID;
+					tabBox.label = OPTION_TAB_ID;
+					tabBox.name = OPTION_TAB_ID;
+				}
+				
+				if (publicBox != null) {
+					publicBox.label = PUBLIC_CHAT_USERNAME;
+				}
 			}
 			
 		private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
@@ -267,6 +291,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		        if (publicChat) {
 		          chatBox.label = PUBLIC_CHAT_USERNAME
 		          chatBox.publicChat = true;
+				  publicBox = chatBox; // keep a reference to the public chat box
 		        } else {
 		          chatBox.publicChat = false;
 		          chatBox.label = UsersUtil.getUserName(chatWithUserID);

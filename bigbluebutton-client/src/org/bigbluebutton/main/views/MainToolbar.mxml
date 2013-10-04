@@ -336,7 +336,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<views:LanguageSelector id="langSelector" 
 							visible="false" 
 							tabIndex="{baseIndex+numButtons+11}"
-							accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"/>
+							accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"
+							styleName="languageSelectorStyle" />
 <!--
   <mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
 -->

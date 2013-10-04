@@ -969,7 +969,7 @@ check_state() {
 	#
 	FFMPEG_VERSION=$(ffmpeg -version 2>/dev/null | grep ffmpeg | cut -d ' ' -f3)
 	case "$FFMPEG_VERSION" in
-	0.11.*)
+	2.0|2.0.*)
 		# This is the current supported version; OK.
 		;;
 	'')
@@ -1158,7 +1158,9 @@ check_state() {
 		echo "#"
 		echo "#    http://$BBB_WEB/"
 		echo "#"
-		echo "# Use the API demos test your BigBlueButton setup. To remove"
+		echo "# These API demos allow anyone to access your server without authentication"
+		echo "# to create/manage meetings and recordings. They are for testing purposes only."
+		echo "# If you are running a production system, remove them by running:"
 		echo "#"
 		echo "#    sudo apt-get purge bbb-demo"
 		echo 
