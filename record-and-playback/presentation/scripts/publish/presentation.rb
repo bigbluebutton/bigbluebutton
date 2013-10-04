@@ -436,14 +436,12 @@ end
 #
 def calculateRecordEventsOffset
 	accumulated_duration = 0
-	accumulated_gap = 0
 	previous_stop_recording = $meeting_start.to_f
 	$rec_events.each do |event|
-		event[:offset] = event[:start_timestamp] - accumulated_gap;
+		event[:offset] = event[:start_timestamp] - accumulated_duration;
 		event[:duration] = event[:stop_timestamp] - event[:start_timestamp]
 		event[:accumulated_duration] = accumulated_duration
 
-		accumulated_gap += (event[:start_timestamp] - previous_stop_recording)
 		previous_stop_recording = event[:stop_timestamp]
 		accumulated_duration += event[:duration]
 	end
