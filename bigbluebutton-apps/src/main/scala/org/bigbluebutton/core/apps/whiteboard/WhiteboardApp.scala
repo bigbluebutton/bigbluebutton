@@ -28,22 +28,22 @@ class WhiteboardApp(meetingID: String, recorded: Boolean, outGW: MessageOutGatew
       val shapeType = msg.annotation.shapeType
       val shape = msg.annotation
       
-      if ("textCreated".equals(status)) {
+      if (WhiteboardKeyUtil.TEXT_CREATED_STATUS == status) {
 		model.addAnnotation(shape)
-      } else if ((WhiteboardKeyUtil.PENCIL_TYPE == shapeType) && ("DRAW_START" == status)) {
+      } else if ((WhiteboardKeyUtil.PENCIL_TYPE == shapeType) && (WhiteboardKeyUtil.DRAW_START_STATUS == status)) {
 		model.addAnnotation(shape)
-      } else if (("DRAW_END" == status) && ((WhiteboardKeyUtil.RECTANGLE_TYPE == shapeType) 
+      } else if ((WhiteboardKeyUtil.DRAW_END_STATUS == status) && ((WhiteboardKeyUtil.RECTANGLE_TYPE == shapeType) 
 														|| (WhiteboardKeyUtil.ELLIPSE_TYPE == shapeType)
 														|| (WhiteboardKeyUtil.TRIANGLE_TYPE == shapeType)
 														|| (WhiteboardKeyUtil.LINE_TYPE == shapeType))) {				
 				model.addAnnotation(shape)
       } else {
-		if ("text" == shapeType) {
+		if (WhiteboardKeyUtil.TEXT_TYPE == shapeType) {
 			model.modifyText(shape)
 		}
       }
       
-      outGW.send(new SendWhiteboardAnnotationEvent(meetingID, recorded, msg.requesterID, msg.annotation))
+      outGW.send(new SendWhiteboardAnnotationEvent(meetingID, recorded, msg.requesterID, model.activePresentation, model.currentPage, msg.annotation))
     }
     
     private def handleSetWhiteboardActivePageRequest(msg: SetWhiteboardActivePageRequest) {
@@ -60,13 +60,13 @@ class WhiteboardApp(meetingID: String, recorded: Boolean, outGW: MessageOutGatew
     private def handleClearWhiteboardRequest(msg: ClearWhiteboardRequest) {
       model.clearWhiteboard()
       
-      outGW.send(new ClearWhiteboardEvent(meetingID, recorded, msg.requesterID))
+      outGW.send(new ClearWhiteboardEvent(meetingID, recorded, msg.requesterID, model.activePresentation, model.currentPage))
     }
     
     private def handleUndoWhiteboardRequest(msg: UndoWhiteboardRequest) {
       model.undoWhiteboard()
       
-      outGW.send(new UndoWhiteboardEvent(meetingID, recorded, msg.requesterID))
+      outGW.send(new UndoWhiteboardEvent(meetingID, recorded, msg.requesterID, model.activePresentation, model.currentPage))
     }
     
     private def handleSetActivePresentationRequest(msg: SetActivePresentationRequest) {

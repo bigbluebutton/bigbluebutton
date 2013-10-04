@@ -14,6 +14,7 @@ class Presentation(val presentationID: String, val numPages: Int) {
 	  _pages += i -> page
 	}
 	
+	def currentPage() = _curPage
 	
 	def addAnnotation(shape: AnnotationVO) {
 	  _pages.get(_curPage) match {

@@ -10,7 +10,18 @@ class WhiteboardModel {
   private var _enabled = true
   
   def activePresentation() = _activePresentation
-  
+  def currentPage() = {
+    var curPage = 0
+    _presentations.get(_activePresentation) match {
+      case Some(p) => {
+        curPage = p.currentPage
+      }
+      case None => // do nothing
+    } 	  
+    
+    curPage    
+  }
+    
   def numPages() = {
     var numPages = 0
     _presentations.get(_activePresentation) match {

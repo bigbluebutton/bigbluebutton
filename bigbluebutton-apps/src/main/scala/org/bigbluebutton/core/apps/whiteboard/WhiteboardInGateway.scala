@@ -23,17 +23,13 @@ class WhiteboardInGateway(bbbGW: BigBlueButtonGateway) {
   def sendWhiteboardAnnotation(meetingID: String, requesterID: String, annotation: Map[String, Object]) {	  
 	  buildAnnotation(annotation) match {
 	    case Some(shape) => {
-	      println("************ Received annotation **************")
 	      bbbGW.accept(new SendWhiteboardAnnotationRequest(meetingID, requesterID, shape))
 	    }
-	    case None => {
-	      println("************ Ignoring Received annotation **************")
-	    }// do nothing
+	    case None => // do nothing
 	  }
   }
 	
 	def setWhiteboardActivePage(meetingID: String, requesterID: String, page: Int){
-	  println("************ setWhiteboardActivePage **************")
 	  bbbGW.accept(new SetWhiteboardActivePageRequest(meetingID, requesterID, page))
 	}
 	

@@ -39,7 +39,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="whiteboardApplication"> <ref local="whiteboardApplication"/></property>
 	</bean>
 	
-	<bean id="whiteboardRecordingService" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardRecordingService">
-		<property name="recorderApplication"> <ref bean="recorderApplication"/></property>
-	</bean>
 </beans>
