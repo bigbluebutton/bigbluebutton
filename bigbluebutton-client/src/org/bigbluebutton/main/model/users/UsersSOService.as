@@ -299,12 +299,12 @@ package org.bigbluebutton.main.model.users {
 			nc.call(
 				"participants.setParticipantStatus",// Remote function name
 				responder,
-        			userID,
+				userID,
 				"mood",
 				status //instead of a boolean, the value of the status is going to be its name
 			); //_netConnection.call
 		}
-					
+
 		public function addStream(userID:String, streamName:String):void {
 			var nc:NetConnection = _connectionManager.connection;	
 			nc.call(

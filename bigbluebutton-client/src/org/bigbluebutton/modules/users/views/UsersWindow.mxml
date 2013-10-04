@@ -85,7 +85,6 @@
 			
 			[Bindable]
 			private var users:ArrayCollection = new ArrayCollection();
-
 			
 			private var amIModerator:Boolean = false;
 			
@@ -105,7 +104,7 @@
 				users = UserManager.getInstance().getConference().users;
 				amIModerator = UserManager.getInstance().getConference().amIModerator();
 				
-				//settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
+				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton;
 				
 				BindingUtils.bindSetter(updateNumberofUsers, users, "length");
 				
@@ -171,7 +170,6 @@
 					if (p.hasMood) dispatchEvent( new ChangeStatusEvent(p.userID, ChangeStatusEvent.CLEAR_STATUS) );
 				}
 			}
-
 			
 			private function openSettings():void {
 				// everyone can see the audio settings
@@ -193,14 +191,14 @@
 						myMenuData.push( {type: "separator"} );
 					}
 					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.clearStatus'), icon: images.delete_icon, callback: function():void { changeStatus(ChangeStatusEvent.CLEAR_STATUS); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.shortcutkey.raiseHand.function'), icon: images.hand_new, callback: function():void { changeStatus(ChangeStatusEvent.RAISE_HAND); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.raiseHand'), icon: images.hand_new, callback: function():void { changeStatus(ChangeStatusEvent.RAISE_HAND); }} );
 					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.agree'), icon: images.agree, callback: function():void { changeStatus(ChangeStatusEvent.AGREE); }} );
 					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.disagree'), icon: images.disagree, callback: function():void { changeStatus(ChangeStatusEvent.DISAGREE); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speak_louder'), icon: images.speak_louder, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_LOUDER); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speak_lower'), icon: images.speak_lower, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_LOWER); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speak_faster'), icon: images.speak_faster, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_FASTER); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speak_slower'), icon: images.speak_slower, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_SLOWER); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.be_right_back'), icon: images.be_right_back, callback: function():void { changeStatus(ChangeStatusEvent.BE_RIGHT_BACK); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakLouder'), icon: images.speak_louder, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_LOUDER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakSofter'), icon: images.speak_lower, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_LOWER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakFaster'), icon: images.speak_faster, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_FASTER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakSlower'), icon: images.speak_slower, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_SLOWER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.beRightBack'), icon: images.be_right_back, callback: function():void { changeStatus(ChangeStatusEvent.BE_RIGHT_BACK); }} );
 					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.laughter'), icon: images.laughter, callback: function():void { changeStatus(ChangeStatusEvent.LAUGHTER); }} );
 					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.sad'), icon: images.sad, callback: function():void { changeStatus(ChangeStatusEvent.SAD); }} );
 				}
@@ -410,7 +408,7 @@
 		tabIndex="{partOptions.baseTabIndex+5}"
 		accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.accessibilityName')}" >
     	<mx:columns>
-    		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer')}" editable="false" width="60" minWidth="60"
+    		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer')}" editable="false" width="45" minWidth="45"
     			itemRenderer="org.bigbluebutton.modules.users.views.StatusItemRenderer" sortable="false" />
     		<mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer')}" editable="false" sortable="false" minWidth="60"
     			itemRenderer="org.bigbluebutton.modules.users.views.NameItemRenderer"/>
@@ -421,10 +419,7 @@
 	
 	<mx:ControlBar width="100%">
 		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
-					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" 
-					click="openSettings()" visible="true" 
-					tabIndex="{partOptions.baseTabIndex+10}" />
-
+					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" click="openSettings()" visible="true" tabIndex="{partOptions.baseTabIndex+10}" />
 		<mx:Label id="roomMutedLbl" text="{ResourceUtil.getInstance().getString('bbb.users.settings.muteAll')}" />
 		<mx:Spacer width="100%"/>
 	</mx:ControlBar>

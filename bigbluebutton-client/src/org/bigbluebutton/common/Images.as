@@ -23,35 +23,32 @@ package org.bigbluebutton.common
 	{
 	
 	[Embed(source="assets/images/status/agree.png")]
-	public var agree:Class;	
-		
+	public var agree:Class;
+	
 	[Embed(source="assets/images/status/disagree.png")]
 	public var disagree:Class;
 	
 	[Embed(source="assets/images/status/speak_faster.png")]
-	public var speak_faster:Class;	
-			
+	public var speak_faster:Class;
+	
 	[Embed(source="assets/images/status/speak_slower.png")]
-	public var speak_slower:Class;	
-			
+	public var speak_slower:Class;
+	
 	[Embed(source="assets/images/status/speak_louder.png")]
-	public var speak_louder:Class;	
-			
+	public var speak_louder:Class;
+	
 	[Embed(source="assets/images/status/speak_lower.png")]
-	public var speak_lower:Class;	
-			
+	public var speak_lower:Class;
+	
 	[Embed(source="assets/images/status/be_right_back.png")]
-	public var be_right_back:Class;	
-			
+	public var be_right_back:Class;
+	
 	[Embed(source="assets/images/status/laughter.png")]
 	public var laughter:Class;
-
-	[Embed(source="assets/images/status/sad.png")]
-	public var sad:Class;	
 	
-	[Embed(source="assets/images/status/status.png")]
-	public var status:Class;	
-			
+	[Embed(source="assets/images/status/sad.png")]
+	public var sad:Class;
+	
 	[Embed(source="assets/images/users_settings.png")]
 	public var users_settings:Class;
 	

@@ -88,150 +88,136 @@
 				}
   			}
   			
-  			private function updateButton(unneeded:Object = null):void {
-	  			if (data != null) 
-				{
-					if (rolledOver) //if i'm moderator and I rolled the mouse
-					{
-                        			if (data.hasMood)
-						{
-                            				statusBtn.setStyle("icon", images.delete_icon);
-                            				statusBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.clearStatus');
-							
+			private function updateButton(unneeded:Object = null):void {
+				if (data != null) {
+					if (rolledOver) { //if i'm moderator and I rolled the mouse
+						if (data.hasMood) {
+							statusBtn.setStyle("icon", images.delete_icon);
+							if (data.raiseHand) {
+								statusBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.lowerHand');
+							} else {
+								statusBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.clearStatus');
+							}
+
 							statusImg.visible = false;
 							statusBtn.visible = true;
 							statusBtn.enabled = true;
-                        			} 
-						if(!data.presenter) 
-						{
-                           				roleBtn.setStyle("icon", images.presenter_new);
-                            				roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.changePresenter');
-
-	  						roleImg.visible = false;		
-	  						roleBtn.visible = true;
-	  						roleBtn.enabled = true;
-                        			}
-	  				}
-
-					else 
-					{
-						//updating which role to show: presenter or moderator
-						if (data.presenter) 
-						{
-	  						roleImg.source = images.presenter_new;
-	  						roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presenter')
 						}
-						
-						else if(data.role == Role.MODERATOR)
-						{
+						if (!data.presenter) {
+							roleBtn.setStyle("icon", images.presenter_new);
+							roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.changePresenter');
+
+							roleImg.visible = false;
+							roleBtn.visible = true;
+							roleBtn.enabled = true;
+						}
+					} else {
+						//updating which role to show: presenter or moderator
+						if (data.presenter) {
+							roleImg.source = images.presenter_new;
+							roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presenter')
+						} else if(data.role == Role.MODERATOR) {
 							roleImg.source = images.moderator;
 							roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.moderator');
-						}
-						
-						else
-						{
-							roleImg.source = null;	
+						} else {
+							roleImg.source = null;
 							roleImg.toolTip = "";
 						}
 
-						
 						//updating which status	to show
-						switch(data.mood)
-						{
+						switch(data.mood) {
 							case ChangeStatusEvent.RAISE_HAND:
 								statusImg.source = images.hand_new;
-		  						statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.handRaised');	
+								statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.handRaised');
 								break;
 
 							case ChangeStatusEvent.AGREE:
-		  						statusImg.source = images.agree;
-		  						statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.agree');
+								statusImg.source = images.agree;
+								statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.agree');
 								break;
-						
+
 							case ChangeStatusEvent.DISAGREE:
-		  						statusImg.source = images.disagree;
-		  						statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.disagree');
+								statusImg.source = images.disagree;
+								statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.disagree');
 								break;
 
 							case ChangeStatusEvent.SPEAK_LOUDER:
-		  						statusImg.source = images.speak_louder;
-		  						statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.status.speak_louder');
+								statusImg.source = images.speak_louder;
+								statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.speakLouder');
 								break;
 
 							case ChangeStatusEvent.SPEAK_LOWER:
-		  						statusImg.source = images.speak_lower;
-		  						statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.status.speak_lower');
+								statusImg.source = images.speak_lower;
+								statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.speakSofter');
 								break;
 
 							case ChangeStatusEvent.SPEAK_FASTER:
-		  						statusImg.source = images.speak_faster;
-		  						statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.status.speak_faster');
+								statusImg.source = images.speak_faster;
+								statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.speakFaster');
 								break;
 
 							case ChangeStatusEvent.SPEAK_SLOWER:
-		  						statusImg.source = images.speak_slower;
-		  						statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.status.speak_slower');
+								statusImg.source = images.speak_slower;
+								statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.speakSlower');
 								break;
 
 							case ChangeStatusEvent.BE_RIGHT_BACK:
-		  						statusImg.source = images.be_right_back;
-		  						statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.be_right_back');
+								statusImg.source = images.be_right_back;
+								statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.beRightBack');
 								break;
 
 							case ChangeStatusEvent.LAUGHTER:
-		  						statusImg.source = images.laughter;
-		  						statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.status.laughter');
+								statusImg.source = images.laughter;
+								statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.laughter');
 								break;
 
 							case ChangeStatusEvent.SAD:
-		  						statusImg.source = images.sad;
-		  						statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.status.sad');
+								statusImg.source = images.sad;
+								statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.sad');
 								break;
 
-							default: //user has no status...
+							default: //user has no status
 								statusImg.source = null;
 								statusImg.toolTip = "";
 						}
-												
+
 						roleImg.visible = true;
 						statusImg.visible = true;
-			
-	  					roleBtn.visible = false;
+
+						roleBtn.visible = false;
 						statusBtn.visible = false;
 
-	  					roleBtn.enabled = false;
+						roleBtn.enabled = false;
 						statusBtn.enabled = false;
-				  			
+
 					}
 				}
 			}
   			
-  			private function onRollOver(e:UsersRollEvent):void{ //descobrir qual botão: role ou status
+  			private function onRollOver(e:UsersRollEvent):void{
 				if (moderator && (e.userID == data.userID) && !data.phoneUser) {
 					rolledOver = true;
 					updateButton();
 				}
 			}
-			
-			private function onRollOut(e:UsersRollEvent):void{ //descobrir qual botão: role ou status
+
+			private function onRollOut(e:UsersRollEvent):void{
 				if (moderator) {
 					rolledOver = false;
 					updateButton();
 				}
 			}
-  			
-  			private function roleBtnClicked():void 
-			{
-    				var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
-    				e.userid = data.userID;
-    				e.username = data.name;
-    				dispatchEvent(e);	
-        		}
 
- 			private function statusBtnClicked():void 
-			{
-				dispatchEvent( new ChangeStatusEvent(data.userID, ChangeStatusEvent.CLEAR_STATUS)  )
-        		}
+			private function roleBtnClicked():void {
+				var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
+				e.userid = data.userID;
+				e.username = data.name;
+				dispatchEvent(e);
+			}
+
+			private function statusBtnClicked():void {
+				dispatchEvent( new ChangeStatusEvent(data.userID, ChangeStatusEvent.CLEAR_STATUS) );
+			}
 			
 			// Need to refresh the roleBtn toolTip text on locale change
 			private function localeChanged(e:Event):void {

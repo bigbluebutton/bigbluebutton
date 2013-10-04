@@ -24,10 +24,10 @@ package org.bigbluebutton.main.model.users
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
-        import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
-	import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
 
 	
 	public class BBBUser {
@@ -69,7 +69,6 @@ package org.bigbluebutton.main.model.users
 		}
 
 		private var _mood:String = ChangeStatusEvent.CLEAR_STATUS;
-		[Bindable]
 		public function get hasMood():Boolean {
 			return _mood != ChangeStatusEvent.CLEAR_STATUS;
 		}
@@ -134,7 +133,6 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		[Bindable] public var voiceLocked:Boolean = false;
-		//[Bindable] public var status:String = "";
 		[Bindable] public var customdata:Object = {};
 		
 		/*
@@ -152,10 +150,8 @@ package org.bigbluebutton.main.model.users
 		private function verifyUserStatus():void {
 			if (presenter)
 				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presenter');
-
 			else if (role == Role.MODERATOR)
 				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.moderator');
-			
 			else if (hasMood) {
 				switch(mood) {
 					case ChangeStatusEvent.RAISE_HAND:
@@ -168,25 +164,25 @@ package org.bigbluebutton.main.model.users
 						_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.disagree');
 						break;
 					case ChangeStatusEvent.SPEAK_LOUDER:
-						_userStatus = ResourceUtil.getInstance().getString('bbb.users.status.speak_louder');
+						_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.speakLouder');
 						break;
 					case ChangeStatusEvent.SPEAK_LOWER:
-						_userStatus = ResourceUtil.getInstance().getString('bbb.users.status.speak_lower');
+						_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.speakSofter');
 						break;
 					case ChangeStatusEvent.SPEAK_FASTER:
-						_userStatus = ResourceUtil.getInstance().getString('bbb.users.status.speak_faster');
+						_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.speakFaster');
 						break;
 					case ChangeStatusEvent.SPEAK_SLOWER:
-						_userStatus = ResourceUtil.getInstance().getString('bbb.users.status.speak_slower');
+						_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.speakSlower');
 						break;
 					case ChangeStatusEvent.BE_RIGHT_BACK:
-						_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.be_right_back');
+						_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.beRightBack');
 						break;
 					case ChangeStatusEvent.LAUGHTER:
-						_userStatus = ResourceUtil.getInstance().getString('bbb.users.status.laughter');
+						_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.laughter');
 						break;
 					case ChangeStatusEvent.SAD:
-						_userStatus = ResourceUtil.getInstance().getString('bbb.users.status.sad');
+						_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.sad');
 						break;
 				}
 			} else {
@@ -215,19 +211,6 @@ package org.bigbluebutton.main.model.users
 		 
 		private var _status:StatusCollection = new StatusCollection();
 			
-		//public function buildStatus():void{
-			//var showingWebcam:String = "";
-			//var isPresenter:String = "";
-			//var handRaised:String = "";
-			//if (hasStream)
-				//showingWebcam = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.streamIcon.toolTip');
-			//if (presenter)
-				//isPresenter = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.presIcon.toolTip');
-			//if (raiseHand)
-				//handRaised = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.raiseHand.toolTip');
-			//status = showingWebcam + isPresenter + handRaised;
-		//}
-	
 		public function addStatus(status:Status):void {
 			_status.addStatus(status);
 		}
