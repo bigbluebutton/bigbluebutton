@@ -143,7 +143,7 @@ img.logo {
   white-space: nowrap;
   position: absolute;
   height:6vh;
-  /*width: 8vh;*/
+  width: 8vh;
   right:8vh;
 }
 
@@ -171,13 +171,13 @@ img.logo {
   text-align: center;
   vertical-align: middle;
   margin-bottom: 0;
-  /*font-size: 4vh;*/
+  font-size: 4vh;
   line-height:4vh;
 }
 
 .icon{
-  /*max-height:4vh;
-  max-width:3vh;*/
+  height:6vh;
+  width:4vh;
   min-height: 1.5625cm;
   min-width: 1.75cm;
 }
