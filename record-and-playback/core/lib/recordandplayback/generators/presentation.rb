@@ -57,6 +57,25 @@ module BigBlueButton
         FileUtils.mv(temp_out,pdf_out)
  #       Process.wait
     end
+
+    # Extract a page from a pdf file as a png image
+    def self.extract_png_page_from_pdf(page_num, pdf_presentation, png_out, resize = '800x600')
+      BigBlueButton.logger.info("Task: Extracting a page from pdf file as png image")
+      temp_out = "/tmp/#{File.basename(png_out)}"
+      command = "ghostscript -dSAFER -dBATCH -dNOPAUSE -dQUIET -dFirstPage=#{page_num} -dLastPage=#{page_num} -sDEVICE=png16m -dUseCropBox -dGraphicsAlphaBits=4 -dTextAlphaBits=4 -r300 -sOutputFile=#{temp_out} #{NO_PDF_MARK_WORKAROUND} #{pdf_presentation}"
+      status = BigBlueButton.execute(command, false)
+      if status.success?
+        # Resize to the requested size
+        command = "convert #{temp_out} -resize #{resize} -quality 90 +dither -depth 8 -colors 256 #{png_out}"
+        BigBlueButton.execute(command)
+      else
+        # If page extraction failed, generate a blank white image at requested size
+        command = "convert -size #{resize} xc:white -quality 90 +dither -depth 8 -colors 256 #{png_out}"
+        BigBlueButton.execute(command)
+      end
+    ensure
+      FileUtils.rm_f(temp_out)
+    end
     
     # Convert a pdf page to a png.
     def self.convert_pdf_to_png(pdf_page, png_out)
