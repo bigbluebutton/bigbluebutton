@@ -128,13 +128,12 @@ img.logo {
   position: absolute;
   left:0;
   height:6vh;
-  /*position: block;*/
+  position: block;
 }
 
 .navbar-btngroup-right {
   border-left: 1px solid #222;
   border-right: 1px solid #555;
-  
   display: inline-block;
   font-size: 0;
   vertical-align: middle;
@@ -142,14 +141,15 @@ img.logo {
   white-space: nowrap;
   position: absolute;
   height:6vh;
-  right:10vw;
+  /*width: 8vh;*/
+  right:8vh;
 }
 
 .navbar-btn {
   /*display: inline-block;*/
-  width: 4vw;
+  width: 8vh;
   height: 6vh;
-  padding: 3px;
+  padding: 0;
   background: -moz-linear-gradient(top, #494c56, #42444c);
   background: -webkit-linear-gradient(top, #494c56, #42444c);
   background: -ms-linear-gradient(top,#494c56, #42444c);
@@ -172,7 +172,7 @@ img.logo {
 }
 
 .icon{
-  height:2vh;
+  height:4vh;
   width:3vh;
 }
 
@@ -475,7 +475,6 @@ button:focus, textarea:focus, input:focus {
 
   cursor: pointer;
   z-index:10;
-  display:none;
 }
 #ChatAndControls {
   float: right;
