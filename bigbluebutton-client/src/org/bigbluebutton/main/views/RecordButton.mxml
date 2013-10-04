@@ -56,7 +56,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// Confirm logout using built-in alert
 				var alert:Alert = Alert.show(message, ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.confirm.title'), Alert.YES | Alert.NO, this, alertChangeRecordingStatus, null, Alert.YES);
 
-				var newX:Number = this.x + this.width - alert.width;
+				var newX:Number = this.x;
 				var newY:Number = this.y + this.height + 5;
 
 				alert.validateNow();
