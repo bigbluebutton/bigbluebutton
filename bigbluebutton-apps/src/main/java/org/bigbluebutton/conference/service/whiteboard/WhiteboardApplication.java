@@ -87,14 +87,7 @@ public class WhiteboardApplication extends ApplicationAdapter implements IApplic
 	
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
-		boolean record = getBbbSession().getRecord();
-		if (record) {
-			String meetingID = connection.getScope().getName();
-			if (rooms.containsKey(meetingID)) {
-				WhiteboardRoom wbMeeting = rooms.get(meetingID);
-				wbMeeting.record(record);
-			}
-		}
+
     	return true;
 	}
 
@@ -114,13 +107,7 @@ public class WhiteboardApplication extends ApplicationAdapter implements IApplic
 
 	@Override
 	public boolean roomStart(IScope scope) {
-		String meetingID = scope.getName();
-		// Set the recording to false here. We don't have the information yet as
-		// the recorded info is passed from the client on the connect.
-		WhiteboardRoom newRoom = new WhiteboardRoom(meetingID, false);
-		rooms.put(meetingID, newRoom);
-
-    return true;
+		return true;
 	}
 
 	@Override

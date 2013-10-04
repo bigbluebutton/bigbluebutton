@@ -4,7 +4,7 @@ import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.apps.whiteboard.vo.AnnotationVO
 import scala.collection.mutable.ArrayBuffer
 
-class Presentation(presentationID: String, numPages: Int) {
+class Presentation(val presentationID: String, val numPages: Int) {
   
 	private val _pages = new HashMap[Int, Page]()	
 	private var _curPage = 1;
@@ -13,6 +13,7 @@ class Presentation(presentationID: String, numPages: Int) {
 	  val page = new Page(i)
 	  _pages += i -> page
 	}
+	
 	
 	def addAnnotation(shape: AnnotationVO) {
 	  _pages.get(_curPage) match {

@@ -9,6 +9,20 @@ class WhiteboardModel {
   private var _activePresentation = ""
   private var _enabled = true
   
+  def activePresentation() = _activePresentation
+  
+  def numPages() = {
+    var numPages = 0
+    _presentations.get(_activePresentation) match {
+      case Some(p) => {
+        numPages = p.numPages
+      }
+      case None => // do nothing
+    } 	  
+    
+    numPages
+  }
+  
   def addAnnotation(shape: AnnotationVO) {
     _presentations.get(_activePresentation) match {
       case Some(p) => {

@@ -49,12 +49,12 @@ class WhiteboardApp(meetingID: String, recorded: Boolean, outGW: MessageOutGatew
     private def handleSetWhiteboardActivePageRequest(msg: SetWhiteboardActivePageRequest) {
       model.changePage(msg.page)
       
-      outGW.send(new ChangeWhiteboardPageEvent(meetingID, recorded, msg.requesterID, msg.page))
+      outGW.send(new ChangeWhiteboardPageEvent(meetingID, recorded, msg.requesterID, msg.page, model.history.length))
     }
     
     private def handleSendWhiteboardAnnotationHistoryRequest(msg: SendWhiteboardAnnotationHistoryRequest) {
       val history = model.history
-      outGW.send(new SendWhiteboardAnnotationHistoryReply(meetingID, recorded, msg.requesterID, history))
+      outGW.send(new SendWhiteboardAnnotationHistoryReply(meetingID, recorded, msg.requesterID, model.activePresentation, model.numPages, history))
     }
     
     private def handleClearWhiteboardRequest(msg: ClearWhiteboardRequest) {

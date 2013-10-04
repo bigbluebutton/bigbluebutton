@@ -13,7 +13,7 @@ class WhiteboardInGateway(bbbGW: BigBlueButtonGateway) {
     val shapeType = annotation.getOrElse("type", null).asInstanceOf[String]
     val status = annotation.getOrElse("status", null).asInstanceOf[String]
     
-    if (id != null && shapeType == null && status != null) {
+    if (id != null && shapeType != null && status != null) {
       shape = Some(new AnnotationVO(id, shapeType, status, annotation.toMap))
     }
     
@@ -22,12 +22,18 @@ class WhiteboardInGateway(bbbGW: BigBlueButtonGateway) {
   
   def sendWhiteboardAnnotation(meetingID: String, requesterID: String, annotation: Map[String, Object]) {	  
 	  buildAnnotation(annotation) match {
-	    case Some(shape) => bbbGW.accept(new SendWhiteboardAnnotationRequest(meetingID, requesterID, shape))
-	    case None => // do nothing
+	    case Some(shape) => {
+	      println("************ Received annotation **************")
+	      bbbGW.accept(new SendWhiteboardAnnotationRequest(meetingID, requesterID, shape))
+	    }
+	    case None => {
+	      println("************ Ignoring Received annotation **************")
+	    }// do nothing
 	  }
   }
 	
 	def setWhiteboardActivePage(meetingID: String, requesterID: String, page: Int){
+	  println("************ setWhiteboardActivePage **************")
 	  bbbGW.accept(new SetWhiteboardActivePageRequest(meetingID, requesterID, page))
 	}
 	
