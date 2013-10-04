@@ -28,6 +28,7 @@ import org.bigbluebutton.core.apps.layout.LayoutInGateway
 import org.bigbluebutton.core.apps.chat.ChatInGateway
 import scala.collection.JavaConversions._
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardInGateway
+import org.bigbluebutton.core.apps.voice.VoiceInGateway
 
 class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW {
 
@@ -257,4 +258,34 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	def isWhiteboardEnabled(meetingID: String, requestedID: String) {
 	  wbGW.isWhiteboardEnabled(meetingID, requestedID)
 	}
+	
+	/*********************************************************************
+	 * Message Interface for Voice
+	 *******************************************************************/
+	val voiceGW = new VoiceInGateway(bbbGW)
+	
+	def getVoiceUsers(meetingID: String, requesterID: String) {
+	  voiceGW.getVoiceUsers(meetingID, requesterID)
+	}
+	
+	def muteAllUsers(meetingID: String, requesterID: String, mute: java.lang.Boolean) {
+	  voiceGW.muteAllUsers(meetingID, requesterID, mute)
+	}
+	
+	def isMeetingMuted(meetingID: String, requesterID: String) {
+	  voiceGW.isMeetingMuted(meetingID, requesterID)
+	}
+	
+	def muteUser(meetingID: String, requesterID: String, userID: java.lang.Integer, mute: java.lang.Boolean) {
+	  voiceGW.muteUser(meetingID, requesterID, userID, mute)
+	}
+	
+	def lockUser(meetingID: String, requesterID: String, userID: java.lang.Integer, lock: java.lang.Boolean) {
+	  voiceGW.lockUser(meetingID, requesterID, userID, lock)
+	}
+	
+	def ejectUser(meetingID: String, requesterID: String, userID: java.lang.Integer) {
+	  voiceGW.ejectUser(meetingID, requesterID, userID)
+	}
+
 }

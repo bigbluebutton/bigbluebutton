@@ -12,6 +12,7 @@ import org.bigbluebutton.core.apps.presentation.PresentationApp
 import org.bigbluebutton.core.apps.layout.LayoutApp
 import org.bigbluebutton.core.apps.chat.ChatApp
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp
+import org.bigbluebutton.core.apps.voice.VoiceApp
 
 case object StopMeetingActor
 
@@ -26,6 +27,7 @@ class Meeting(val meetingID: String, val recorded: Boolean, val voiceBridge: Str
   val layoutApp = new LayoutApp(meetingID, recorded, outGW)
   val chatApp = new ChatApp(meetingID, recorded, outGW)
   val whiteboardApp = new WhiteboardApp(meetingID, recorded, outGW)
+  val voiceApp = new VoiceApp(meetingID, recorded, outGW)
   
   	def act() = {
 	  loop {
@@ -37,6 +39,7 @@ class Meeting(val meetingID: String, val recorded: Boolean, val voiceBridge: Str
 	        layoutApp.handleMessage(msg)
 	        chatApp.handleMessage(msg)
 	        whiteboardApp.handleMessage(msg)
+	        voiceApp.handleMessage(msg)
 	      }
 	      case StopMeetingActor => exit
 	    }
