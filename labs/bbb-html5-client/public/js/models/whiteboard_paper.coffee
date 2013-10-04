@@ -693,6 +693,10 @@ define [
       @_updateContainerDimensions()
       console.log("_onWindowResize");
 
+      #TODO: temporary hacked away fix so that the buttons resize correctly when the window resizes
+      $("#users-btn").click();
+      $("#users-btn").click();
+
 
       #TODO: maybe find solution besides these global values..no conflicts however
 
