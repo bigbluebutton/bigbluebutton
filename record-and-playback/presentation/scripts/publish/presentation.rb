@@ -605,7 +605,7 @@ def processShapesAndClears
 						originalShapeCreationTime = ( $shapeTimestamp.to_f / 1000 ).round(1)
 						in_this_image = false
 						index = 0
-						numOfTimes = $slides_raw[key][0].length
+						numOfTimes = $val[0].length
 
 						# Checks to see if the current shapes are to be drawn in this particular image
 						while((in_this_image == false) && (index < numOfTimes)) do
