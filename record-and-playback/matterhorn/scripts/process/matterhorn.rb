@@ -59,7 +59,7 @@ if not FileTest.directory?(target_dir)
 
 		  # Mux audio and deskshare if webcam was not processed
 		  if !File.exists?("#{target_dir}/muxed-audio-webcam.flv")
-		    BigBlueButton::AudioProcessor.process("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio.ogg")
+		    BigBlueButton::AudioProcessor.process("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio")
 		    BigBlueButton.mux_audio_deskshare( target_dir, "#{target_dir}/audio.ogg", "#{target_dir}/deskshare.flv") 
 		  end
 
