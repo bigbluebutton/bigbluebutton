@@ -438,7 +438,7 @@ def calculateRecordEventsOffset
 	accumulated_duration = 0
 	previous_stop_recording = $meeting_start.to_f
 	$rec_events.each do |event|
-		event[:offset] = event[:start_timestamp] - accumulated_duration;
+		event[:offset] = event[:start_timestamp] - accumulated_duration
 		event[:duration] = event[:stop_timestamp] - event[:start_timestamp]
 		event[:accumulated_duration] = accumulated_duration
 
@@ -514,7 +514,6 @@ def processSlideEvents
 			$presentation_name = node.xpath(".//presentationName")[0].text()
 		else
 			slide_timestamp =  node[:timestamp]
-			original_start_time = ( slide_timestamp.to_f / 1000 ).round(1)
 			slide_start = ( translateTimestamp(slide_timestamp) / 1000 ).round(1)
 			slide_number = node.xpath(".//slide")[0].text()
 			slide_src = "presentation/#{$presentation_name}/slide-#{slide_number.to_i + 1}.png"
@@ -524,21 +523,11 @@ def processSlideEvents
 			slide_size = FastImage.size(image_url)
 			current_index = $slides_events.index(node)
 			if(current_index + 1 < $slides_events.length)
-				original_stop_time = ( $slides_events[current_index + 1][:timestamp].to_f / 1000 ).round(1)
 				slide_end = ( translateTimestamp($slides_events[current_index + 1][:timestamp]) / 1000 ).round(1)
 			else
-				original_stop_time = ( $meeting_end.to_f / 1000 ).round(1)
 				slide_end = ( translateTimestamp($meeting_end) / 1000 ).round(1)
 			end
 
-			# Keep original time information
-			if($slides_raw[[slide_src, slide_size[1], slide_size[0]]] == nil)
-				$slides_raw[[slide_src, slide_size[1], slide_size[0]]] = [[original_start_time],
-											  [original_stop_time]]
-			elsif
-				$slides_raw[[slide_src, slide_size[1], slide_size[0]]][0] << original_start_time
-				$slides_raw[[slide_src, slide_size[1], slide_size[0]]][1] << original_stop_time
-			end
 			if slide_start == slide_end
 				BigBlueButton.logger.info("#{slide_src} is never displayed (slide_start = slide_end), so it won't be included in the svg")
 				next
@@ -600,29 +589,14 @@ def processShapesAndClears
 					$shape_events.each do |shape|
 						$shapeTimestamp = shape[:timestamp].to_f
 						$shapeCreationTime = ( translateTimestamp($shapeTimestamp) / 1000 ).round(1)
-						originalShapeCreationTime = ( $shapeTimestamp.to_f / 1000 ).round(1)
+						shapePageNumber = shape.xpath(".//pageNumber")[0].text().to_i
 						in_this_image = false
-						index = 0
-						numOfTimes = $val[0].length
 
-						# Checks to see if the current shapes are to be drawn in this particular image
-						while((in_this_image == false) && (index < numOfTimes)) do
-							# Was the shape originally drawn in this image
-							if (originalShapeCreationTime >= $slides_raw[key][0][index] and
-							    originalShapeCreationTime <= $slides_raw[key][1][index])
-
-								# Was the shape drawn during a non recordin period
-								if (not($shapeCreationTime >= $val[0][index] and
-									$shapeCreationTime <= $val[1][index]))
-
-									# Set creation time to in time of image
-									$shapeCreationTime = $val[0][index]
-								end
-								in_this_image = true
-							end
-							index+=1
+						# Check if the current shape is to be drawn in this particular image
+						if (shapePageNumber.to_i == $val[2].to_i)
+							in_this_image = true
 						end
-						
+
 						if(in_this_image)
                                                         # Get variables
                                                         BigBlueButton.logger.info shape.to_xml(:indent => 2)
