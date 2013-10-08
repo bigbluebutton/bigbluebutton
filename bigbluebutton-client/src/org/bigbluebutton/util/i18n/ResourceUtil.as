@@ -134,10 +134,14 @@ package org.bigbluebutton.util.i18n
 			return -1;
 		}
 		
+		public function getPreferredLocaleName():String {
+			return localeNames[localeIndex];
+		}
+		
 		public function setPreferredLocale(locale:String):void {
 			LogUtil.debug("Setting up preferred locale " + locale);
-			if (isPreferredLocaleAvailable(preferredLocale)) {
-				LogUtil.debug("The locale " + preferredLocale + " is available");
+			if (isPreferredLocaleAvailable(locale)) {
+				LogUtil.debug("The locale " + locale + " is available");
 				preferredLocale = locale;
 			}else{
 				LogUtil.debug("The locale " + preferredLocale + " isn't available. Default will be: " + MASTER_LOCALE);
