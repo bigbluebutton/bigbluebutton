@@ -13,14 +13,13 @@ import org.bigbluebutton.core.apps.layout.LayoutApp
 import org.bigbluebutton.core.apps.chat.ChatApp
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp
 import org.bigbluebutton.core.apps.voice.VoiceApp
-
+import org.bigbluebutton.core.apps.poll.messages._
+import org.bigbluebutton.core.api.Presenter
+  
 case object StopMeetingActor
 
-class Meeting(val meetingID: String, val recorded: Boolean, val voiceBridge: String, outGW: MessageOutGateway) extends Actor {
-
-  import org.bigbluebutton.core.apps.poll.messages._
-  import org.bigbluebutton.core.api.Presenter
-   
+class MeetingActor(val meetingID: String, val recorded: Boolean, val voiceBridge: String, outGW: MessageOutGateway) extends Actor
+{  
   val usersApp = new UsersApp(meetingID, recorded, outGW)
   val presentationApp = new PresentationApp(meetingID, recorded, outGW, usersApp)
   val pollApp = new PollApp(meetingID, recorded, outGW, usersApp)
@@ -46,5 +45,4 @@ class Meeting(val meetingID: String, val recorded: Boolean, val voiceBridge: Str
 	  }
   	}
   	
-
 }

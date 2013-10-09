@@ -108,8 +108,7 @@ public class ESLEventListener implements IEslEventListener {
     public void conferenceEventRecord(String uniqueId, String confName, int confSize, EslEvent event) {
     	String action = event.getEventHeaders().get("Action");
     	
-        if(action == null) {
-            
+        if(action == null) {          
             return;
         }
         
@@ -143,11 +142,11 @@ public class ESLEventListener implements IEslEventListener {
 
 	@Override
 	public void eventReceived(EslEvent event) {
-        if (event.getEventName().equals(FreeswitchHeartbeatMonitor.EVENT_HEARTBEAT)) {
+//        if (event.getEventName().equals(FreeswitchHeartbeatMonitor.EVENT_HEARTBEAT)) {
 //            setChanged();
  //           notifyObservers(event);
-            return; 
-        }
+//            return; 
+//        }
 	}
 
     private Integer getMemberIdFromEvent(EslEvent e) {

@@ -24,7 +24,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     xsi:schemaLocation="http://www.springframework.org/schema/beans
             http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 	
-	<beans:bean id="connectionManager" class="org.bigbluebutton.webconference.voice.freeswitch.ConnectionManager" init-method="start" destroy-method="stop">
+	<beans:bean id="connectionManager" class="org.bigbluebutton.webconference.voice.freeswitch.ConnectionManager" 
+	           init-method="start" destroy-method="stop">
 		<beans:property name="managerConnection" ref="eslConnection"/>
   		<beans:property name="conferenceEventListener" ref="conferenceService"/>
   		<beans:property name="eSLEventListener" ref="eslEventListener"/>
@@ -38,7 +39,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   		<beans:property name="freeswitchApplication" ref="freeswitchApplication"/>
 	</beans:bean>
 	
-	<beans:bean id="freeswitchApplication" class="org.bigbluebutton.webconference.voice.freeswitch.FreeswitchApplication">
+	<beans:bean id="freeswitchApplication" class="org.bigbluebutton.webconference.voice.freeswitch.FreeswitchApplication"
+	           init-method="start" destroy-method="stop">
 		<beans:property name="connectionManager" ref="connectionManager"/>
     	<beans:property name="icecastProtocol" value="${icecast.protocol}"/>
     	<beans:property name="icecastHost" value="${icecast.host}"/>

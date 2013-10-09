@@ -27,4 +27,24 @@ class VoiceInGateway(bbbGW: BigBlueButtonGateway) {
 	def ejectUser(meetingID: String, requesterID: String, userID: Int) {
 	  bbbGW.accept(new EjectUserRequest(meetingID, requesterID, userID))
 	}
+	
+	def voiceUserJoined(user: Int, voiceConfId: String, callerIdNum: String, callerIdName: String, muted: Boolean, speaking: Boolean) {
+	  bbbGW.acceptVoiceMessage(new VoiceUserJoined(user, voiceConfId, callerIdNum, callerIdName, muted, speaking))
+	}
+	
+	def voiceUserLeft(user: Int, voiceConfId: String) {
+	  bbbGW.acceptVoiceMessage(new VoiceUserLeft(user, voiceConfId))
+	}
+	
+	def voiceUserMuted(user: Int, voiceConfId: String, muted: Boolean) {
+	  bbbGW.acceptVoiceMessage(new VoiceUserMuted(user, voiceConfId, muted))
+	}
+	
+	def voiceUserTalking(user: Int, voiceConfId: String, talking: Boolean) {
+	  bbbGW.acceptVoiceMessage(new VoiceUserTalking(user, voiceConfId, talking))
+	}
+	
+	def voiceStartedRecording(voiceConfId: String, filename: String, timestamp: String, record: Boolean) {
+	  bbbGW.acceptVoiceMessage(new VoiceStartedRecording(voiceConfId, filename, timestamp, record))
+	}
 }

@@ -35,12 +35,11 @@ public class ConferenceService implements ConferenceEventListener {
 	private ClientManager clientManager;
 	
 	public boolean startup() {
-		return confProvider.startup();
+		return true;
 	}
 	
 	public void shutdown() {
-		confProvider.shutdown();
-		roomMgr = null;
+
 	}
 	
 	public void hangupUser(String userID, String voiceBridge) {

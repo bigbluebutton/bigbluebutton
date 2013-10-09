@@ -11,26 +11,86 @@ import org.bigbluebutton.core.api.InMessage
 import org.bigbluebutton.core.api.InitializeMeeting
 import org.bigbluebutton.core.api.DestroyMeeting
 import org.bigbluebutton.core.api.KeepAliveMessage
-import org.red5.logging.Red5LoggerFactory
-import org.slf4j.Logger
 import org.bigbluebutton.core.api.KeepAliveMessageReply
+import org.bigbluebutton.core.apps.voice.messages._
 
 class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
-  private var log = Red5LoggerFactory.getLogger(classOf[BigBlueButtonActor], "bigbluebutton")
 
-  private var meetings = new HashMap[String, Meeting]
+  private var meetings = new HashMap[String, MeetingActor]
  
   def act() = {
-
 	loop {
 		react {
 	      case createMeeting: CreateMeeting => handleCreateMeeting(createMeeting)
 	      case destroyMeeting: DestroyMeeting => handleDestroyMeeting(destroyMeeting)
 	      case keepAliveMessage: KeepAliveMessage => handleKeepAliveMessage(keepAliveMessage)
+	      case voiceUserJoined: VoiceUserJoined => handleVoiceUserJoined(voiceUserJoined)
+	      case voiceUserLeft: VoiceUserLeft => handleVoiceUserLeft(voiceUserLeft)
+	      case voiceUserMuted: VoiceUserMuted => handleVoiceUserMuted(voiceUserMuted)
+	      case voiceUserTalking: VoiceUserTalking => handleVoiceUserTalking(voiceUserTalking)
+	      case voiceStartedRecording: VoiceStartedRecording => handleVoiceStartedRecording(voiceStartedRecording)
 	      case msg:InMessage => handleMeetingMessage(msg)
 	      case _ => // do nothing
 	    }
 	}
+  }
+  
+  private def getMeetingWithVoiceConfId(id:String):Option[MeetingActor] = {
+    var meeting:Option[MeetingActor] = None
+    meetings.find((m: (String, MeetingActor)) => m._2.voiceBridge == id) match {
+      case Some(mactor) => meeting = Some(mactor._2)
+      case None => // do nothing
+    }
+    
+    meeting
+  }
+  
+  private def handleVoiceUserLeft(msg: VoiceUserLeft) {
+    getMeetingWithVoiceConfId(msg.voiceConfId) match {
+      case Some(meeting) => meeting ! new VoiceUserLeftMessage(meeting.meetingID, msg.user, msg.voiceConfId)
+      case None => // do nothing
+    }    
+  }
+
+  private def handleVoiceUserJoined(msg: VoiceUserJoined) {
+    getMeetingWithVoiceConfId(msg.voiceConfId) match {
+      case Some(meeting) => {
+        meeting ! new VoiceUserJoinedMessage(
+            meeting.meetingID, 
+            msg.user, msg.voiceConfId, 
+            msg.callerIdNum, 
+            msg.callerIdName, 
+            msg.muted, msg.speaking)
+      }
+      case None => // do nothing
+    }    
+  }
+
+  private def handleVoiceUserMuted(msg: VoiceUserMuted) {
+    getMeetingWithVoiceConfId(msg.voiceConfId) match {
+      case Some(meeting) => {
+        meeting ! new VoiceUserMutedMessage(meeting.meetingID, msg.user, msg.voiceConfId, msg.muted)
+      }
+      case None => // do nothing
+    }    
+  }
+
+  private def handleVoiceUserTalking(msg: VoiceUserTalking) {
+    getMeetingWithVoiceConfId(msg.voiceConfId) match {
+      case Some(meeting) => {
+        meeting ! new VoiceUserTalkingMessage(meeting.meetingID, msg.user, msg.voiceConfId, msg.talking)
+      }
+      case None => // do nothing
+    }    
+  }
+  
+  private def handleVoiceStartedRecording(msg: VoiceStartedRecording) {
+    getMeetingWithVoiceConfId(msg.voiceConfId) match {
+      case Some(meeting) => {
+        meeting ! new VoiceStartedRecordingMessage(meeting.meetingID, msg.voiceConfId, msg.filename, msg.timestamp, msg.record)
+      }
+      case None => // do nothing
+    }    
   }
   
   private def handleMeetingMessage(msg: InMessage):Unit = {
@@ -58,7 +118,7 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
   private def handleCreateMeeting(msg: CreateMeeting):Unit = {
     meetings.get(msg.meetingID) match {
       case None => {
-    	  var m = new Meeting(msg.meetingID, msg.recorded, msg.voiceBridge, outGW)
+    	  var m = new MeetingActor(msg.meetingID, msg.recorded, msg.voiceBridge, outGW)
     	  m.start
     	  meetings += m.meetingID -> m
     	  outGW.send(new MeetingCreated(m.meetingID))

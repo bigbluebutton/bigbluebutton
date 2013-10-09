@@ -3,6 +3,7 @@ package org.bigbluebutton.core
 import org.bigbluebutton.core.api.InMessage
 import org.bigbluebutton.core.api.MessageOutGateway
 import org.bigbluebutton.core.api.KeepAliveMessage
+import org.bigbluebutton.core.apps.voice.messages.VoiceMessage
 
 class BigBlueButtonGateway(outGW: MessageOutGateway) {
   
@@ -15,5 +16,9 @@ class BigBlueButtonGateway(outGW: MessageOutGateway) {
 
   def acceptKeepAlive(msg: KeepAliveMessage):Unit = {
   	bbbActor ! msg
+  }
+  
+  def acceptVoiceMessage(msg: VoiceMessage) {
+    bbbActor ! msg
   }
 }
