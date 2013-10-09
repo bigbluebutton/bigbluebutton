@@ -185,7 +185,9 @@ end
 def processClearEvents
 	# process all the cleared pages events.
 	$clear_page_events.each do |clearEvent|
-		clearTime = ( translateTimestamp(clearEvent[:timestamp]) / 1000 ).round(1)
+		#Retrieve time, page and presentation.
+		clearTime = clearEvent[:timestamp].to_f
+		#clearTime = ( clearEvent[:timestamp].to_f / 1000 ).round(1)
 		$pageCleared = clearEvent.xpath(".//pageNumber")[0].text()
 		slideFolder = clearEvent.xpath(".//presentation")[0].text()
 		#$clearPageTimes[clearTime] = [$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared.to_i+1}.png", nil]
@@ -238,13 +240,13 @@ def processUndoEvents
 			end
 		end
 		if(closest_shape != nil)
-			$undos[closest_shape] = ( translateTimestamp(undo[:timestamp]) / 1000 ).round(1)
+			$undos[closest_shape] = undo[:timestamp]
 		end
 	end
 
 	$undos_temp = {}
 	$undos.each do |un, val|
-		$undos_temp[( translateTimestamp(un[:timestamp]) / 1000 ).round(1)] = val
+		$undos_temp[ un[:timestamp] ] = val
 	end
 	$undos = $undos_temp
 	BigBlueButton.logger.info("Undos: #{$undos}")
@@ -561,7 +563,8 @@ def processShapesAndClears
 		processUndoEvents()
 		
 		# Put in the last clear events numbers (previous clear to the end of the slideshow)
-		endPresentationTime = ( translateTimestamp($end_time) / 1000 ).round(1)
+		#endPresentationTime = ( $end_time.to_f / 1000 ).round(1)
+		endPresentationTime = $end_time.to_f
 		$clearPageTimes[($prev_clear_time..endPresentationTime)] = [$pageCleared, $canvas_number, nil, nil]
 		
 		# Put the headers on the svg xml file.
@@ -616,8 +619,8 @@ def processShapesAndClears
 							
 							# figure out undo time
 							BigBlueButton.logger.info("Figuring out undo time")
-							if($undos.has_key? ( translateTimestamp(shape[:timestamp]) / 1000 ).round(1))
-								$shapeUndoTime = $undos[( translateTimestamp(shape[:timestamp]) / 1000 ).round(1)]
+							if($undos.has_key? ( shape[:timestamp] ))
+								$shapeUndoTime = ( translateTimestamp( $undos[ shape[:timestamp] ] ) / 1000).round(1)
 							else						
 								$shapeUndoTime = -1
 							end
@@ -626,9 +629,9 @@ def processShapesAndClears
 							$clearPageTimes.each do |clearTimeInstance, pageAndCanvasNumbers|
 								$clearTimeInstance = clearTimeInstance
 								$pageAndCanvasNumbers = pageAndCanvasNumbers
-								if(($clearTimeInstance.last > $shapeCreationTime) && ($pageAndCanvasNumbers[3] == "image#{$val[2].to_i}"))
-									if((clear_time > $clearTimeInstance.last) || (clear_time == -1))
-										clear_time = $clearTimeInstance.last
+								if(($clearTimeInstance.last > $shapeTimestamp) && ($pageAndCanvasNumbers[3] == "image#{$val[2].to_i}"))
+									if((clear_time > ( translateTimestamp($clearTimeInstance.last) / 1000 ).round(1)) || (clear_time == -1))
+										clear_time = ( translateTimestamp($clearTimeInstance.last) / 1000 ).round(1)
 									end
 								end
 							end
