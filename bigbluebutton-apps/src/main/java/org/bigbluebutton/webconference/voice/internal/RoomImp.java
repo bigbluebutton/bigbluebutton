@@ -23,17 +23,13 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
 import org.bigbluebutton.webconference.voice.Participant;
 import org.bigbluebutton.webconference.voice.Room;
 
-import net.jcip.annotations.ThreadSafe;
-
-@ThreadSafe
 public class RoomImp implements Room {
 	private final String name;
 	
-	private final ConcurrentMap<Integer, Participant> participants;
+	private final ConcurrentMap<String, Participant> participants;
 	
 	private boolean muted = false;
 	private boolean record = false;
@@ -44,7 +40,7 @@ public class RoomImp implements Room {
 		this.name = name;
 		this.record = record;
 		this.meetingid = meetingid;
-		participants = new ConcurrentHashMap<Integer, Participant>();
+		participants = new ConcurrentHashMap<String, Participant>();
 	}
 	
 	public String getName() {
@@ -55,7 +51,7 @@ public class RoomImp implements Room {
 		return participants.size();
 	}
 	
-	public Participant getParticipant(Integer id) {
+	public Participant getParticipant(String id) {
 		return participants.get(id);
 	}
 	
@@ -67,18 +63,18 @@ public class RoomImp implements Room {
 		return participants.containsKey(id);
 	}
 	
-	public int getUserWithID(String userID) {
-		for (Map.Entry<Integer, Participant> entry : participants.entrySet()) {
+	public String getUserWithID(String userID) {
+		for (Map.Entry<String, Participant> entry : participants.entrySet()) {
 		    Participant u = entry.getValue();
 		    if (userID.equals(u.getUserID())) {
 		    	return u.getId();
 		    }
 		}
 		
-		return -1;
+		return "";
 	}
 	
-	public void remove(Integer id) {
+	public void remove(String id) {
 		Participant p = participants.remove(id);
 		if (p != null) p = null;
 	}
@@ -117,7 +113,7 @@ public class RoomImp implements Room {
 	
 	
 	public ArrayList<Participant> getParticipants() {
-		Map<Integer, Participant> p = Collections.unmodifiableMap(participants);
+		Map<String, Participant> p = Collections.unmodifiableMap(participants);
 		ArrayList<Participant> pa = new ArrayList<Participant>();
 		pa.addAll(p.values());
 		return pa;

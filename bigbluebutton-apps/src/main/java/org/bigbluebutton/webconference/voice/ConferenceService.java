@@ -20,9 +20,9 @@ package org.bigbluebutton.webconference.voice;
 
 import java.util.ArrayList;
 import org.bigbluebutton.webconference.red5.voice.ClientManager;
-import org.bigbluebutton.webconference.voice.events.ConferenceEvent;
+import org.bigbluebutton.webconference.voice.events.VoiceConferenceEvent;
 import org.bigbluebutton.webconference.voice.events.ConferenceEventListener;
-import org.bigbluebutton.webconference.voice.events.ParticipantLockedEvent;
+import org.bigbluebutton.webconference.voice.events.VoiceUserLockedEvent;
 import org.bigbluebutton.webconference.voice.internal.RoomManager;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
@@ -64,9 +64,9 @@ public class ConferenceService implements ConferenceEventListener {
 		roomMgr.destroyRoom(room);
 	}
 	
-	public void lock(Integer participant, String room, Boolean lock) {
+	public void lock(String participant, String room, Boolean lock) {
 		if (roomMgr.hasParticipant(room, participant)) {
-			ParticipantLockedEvent ple = new ParticipantLockedEvent(participant, room, lock);
+			VoiceUserLockedEvent ple = new VoiceUserLockedEvent(participant.toString(), room, lock);
 			handleConferenceEvent(ple);
 		}			
 	}
@@ -79,7 +79,7 @@ public class ConferenceService implements ConferenceEventListener {
 		confProvider.broadcast(room, meetingid);
 	}
 	
-	public void mute(Integer participant, String room, Boolean mute) {
+	public void mute(String participant, String room, Boolean mute) {
 		if (roomMgr.hasParticipant(room, participant))
 			muteParticipant(participant, room, mute);
 	}
@@ -103,11 +103,11 @@ public class ConferenceService implements ConferenceEventListener {
 		return false;
 	}
 	
-	private void muteParticipant(Integer participant, String room, Boolean mute) {
+	private void muteParticipant(String participant, String room, Boolean mute) {
 		confProvider.mute(room, participant, mute);		
 	}
 	
-	public void eject(Integer participant, String room) {
+	public void eject(String participant, String room) {
 		if (roomMgr.hasParticipant(room, participant))
 			ejectParticipant(room, participant);
 	}
@@ -121,7 +121,7 @@ public class ConferenceService implements ConferenceEventListener {
 		}
 	}
 	
-	private void ejectParticipant(String room, Integer participant) {
+	private void ejectParticipant(String room, String participant) {
 		confProvider.eject(room, participant);
 	}
 
@@ -129,7 +129,7 @@ public class ConferenceService implements ConferenceEventListener {
 		return roomMgr.getParticipants(room);
 	}
 	
-	public void handleConferenceEvent(ConferenceEvent event) {
+	public void handleConferenceEvent(VoiceConferenceEvent event) {
 		roomMgr.processConferenceEvent(event);
 		clientManager.handleConferenceEvent(event);
 	}

@@ -18,12 +18,14 @@ import java.util.ArrayList
 import org.bigbluebutton.core.apps.users.messages.GetUsersReply
 import org.bigbluebutton.core.api.ChangeUserStatus
 import org.bigbluebutton.core.apps.users.messages.UserStatusChange
+import org.bigbluebutton.core.apps.voice.messages._
 
 class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   
   private val users = new UsersModel
   
   var currentPresenter = new Presenter("system", "system", "system")
+  private var meetingMuted = false
   
   def handleMessage(msg: InMessage):Unit = {
     msg match {
@@ -32,6 +34,7 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
 	      case assignPresenter: AssignPresenter => handleAssignPresenter(assignPresenter)
 	      case getUsers: GetUsers => handleGetUsers(getUsers)
 	      case changeStatus: ChangeUserStatus => handleChangeUserStatus(changeStatus)
+	      case muteMeetingRequest: MuteMeetingRequest => handleMuteMeetingRequest(muteMeetingRequest)
 	      case _ => // do nothing
     }
   }
@@ -54,6 +57,10 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   
   def getUser(userID:String):UserVO = {
     users.getUser(userID)
+  }
+  
+  private def handleMuteMeetingRequest(msg: MuteMeetingRequest) {
+    
   }
   
   private def handleChangeUserStatus(msg: ChangeUserStatus):Unit = {    

@@ -288,20 +288,20 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	  voiceGW.ejectUser(meetingID, requesterID, userID)
 	}
 
-	def voiceUserJoined(user: java.lang.Integer, voiceConfId: String, callerIdNum: String, callerIdName: String,
+	def voiceUserJoined(user: String, voiceConfId: String, callerIdNum: String, callerIdName: String,
 			muted: java.lang.Boolean, speaking: java.lang.Boolean) {
 	  voiceGW.voiceUserJoined(user, voiceConfId, callerIdNum, callerIdName, muted, speaking)
 	}
 	
-	def voiceUserLeft(user: java.lang.Integer, voiceConfId: String) {
+	def voiceUserLeft(user: String, voiceConfId: String) {
 	  voiceGW.voiceUserLeft(user, voiceConfId)
 	}
 	
-	def voiceUserMuted(user: java.lang.Integer, voiceConfId: String, muted: java.lang.Boolean) {
+	def voiceUserMuted(user: String, voiceConfId: String, muted: java.lang.Boolean) {
 	  voiceGW.voiceUserMuted(user, voiceConfId, muted)
 	}
 	
-	def voiceUserTalking(user: java.lang.Integer, voiceConfId: String, talking: java.lang.Boolean) {
+	def voiceUserTalking(user: String, voiceConfId: String, talking: java.lang.Boolean) {
 	  voiceGW.voiceUserTalking(user, voiceConfId, talking)
 	}
 	

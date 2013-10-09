@@ -18,34 +18,23 @@
 */
 package org.bigbluebutton.webconference.voice.events;
 
-public class StartRecordingEvent extends ConferenceEvent {
+public class VoiceUserTalkingEvent extends VoiceConferenceEvent {
 
-	private String timestamp;
-	private String filename;
-	private boolean record;
+	private final boolean talking;
+	private final String userId;
 	
-	public StartRecordingEvent(Integer participantId, String room, boolean record) {
-		super(participantId, room);
-		this.record =  record;
-	}
-	
-	public void setTimestamp(String timestamp) {
-		this.timestamp = timestamp;
+	public VoiceUserTalkingEvent(String userId, String room, boolean talking) {
+		super(room);
+		this.talking = talking;
+		this.userId = userId;
 	}
 
-	public void setRecordingFilename(String filename) {
-		this.filename = filename;
+	public String getUserId() {
+		return userId;
 	}
 	
-	public String getTimestamp() {
-		return timestamp;
+	public boolean isTalking() {
+		return talking;
 	}
-	
-	public String getRecordingFilename() {
-		return filename;
-	}
-	
-	public boolean startRecord() {
-		return record;
-	}
+
 }

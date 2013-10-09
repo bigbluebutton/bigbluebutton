@@ -18,17 +18,15 @@
 */
 package org.bigbluebutton.webconference.voice.events;
 
-public class ParticipantMutedEvent extends ConferenceEvent {
-
-	private final boolean muted;
+public abstract class VoiceConferenceEvent {
+	private final String room;
 	
-	public ParticipantMutedEvent(Integer participantId, String room, boolean muted) {
-		super(participantId, room);
-		this.muted = muted;
+	public VoiceConferenceEvent(String room) {
+		this.room = room;
 	}
 
-	public boolean isMuted() {
-		return muted;
+	public String getRoom() {
+		return room;
 	}
-
+	
 }

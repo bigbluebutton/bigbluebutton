@@ -18,24 +18,36 @@
 */
 package org.bigbluebutton.webconference.voice.events;
 
-public class ParticipantJoinedEvent extends ConferenceEvent {
+public class VoiceUserJoinedEvent extends VoiceConferenceEvent {
 
+	private final String voiceUserId;
 	private final String callerIdNum;
 	private final String callerIdName;
 	private final Boolean muted;
 	private final Boolean speaking;
 	private final Boolean locked = false;
+	private final String userId;
 	
-	public ParticipantJoinedEvent(Integer participantId, String room, 
+	public VoiceUserJoinedEvent(String userId, String voiceUserId, String room, 
 								String callerIdNum, String callerIdName,
 								Boolean muted, Boolean speaking) {
-		super(participantId, room);
+		super(room);
+		this.userId = userId;
+		this.voiceUserId = voiceUserId;
 		this.callerIdName = callerIdName;
 		this.callerIdNum = callerIdNum;
 		this.muted = muted;
 		this.speaking = speaking;
 	}
 
+	public String getUserId() {
+		return userId;
+	}
+	
+	public String getVoiceUserId() {
+		return voiceUserId;
+	}
+	
 	public String getCallerIdNum() {
 		return callerIdNum;
 	}

@@ -81,19 +81,19 @@ public class VoiceService {
 	public void muteUnmuteUser(Integer userid,Boolean mute) {
 		String conference = getBbbSession().getVoiceBridge();    	
     	log.debug("MuteUnmute request for user [" + userid + "] in room[" + conference + "]");
-    	conferenceService.mute(userid, conference, mute);
+    	conferenceService.mute(userid.toString(), conference, mute);
 	}
 
 	public void lockMuteUser(Integer userid, Boolean lock) {
 		String conference = getBbbSession().getVoiceBridge();    	
     	log.debug("Lock request for user [" + userid + "] in room[" + conference + "]");
-    	conferenceService.lock(userid, conference, lock);
+    	conferenceService.lock(userid.toString(), conference, lock);
 	}
 	
 	public void kickUSer(Integer userid) {
 		String conference = getBbbSession().getVoiceBridge();		
     	log.debug("KickUser " + userid + " from " + conference);		
-		conferenceService.eject(userid, conference);
+		conferenceService.eject(userid.toString(), conference);
 	}
 	
 	public void setConferenceService(ConferenceService s) {

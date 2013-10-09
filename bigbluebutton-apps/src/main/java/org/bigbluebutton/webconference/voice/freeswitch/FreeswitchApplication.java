@@ -48,7 +48,7 @@ public class FreeswitchApplication implements ConferenceServiceProvider {
     private String icecastStreamExtension = ".mp3";
     private Boolean icecastBroadcast = false;
     
-    private final Integer USER = 0; /* not used for now */
+    private final String USER = "0"; /* not used for now */
   
     private volatile boolean sendMessages = false;
     

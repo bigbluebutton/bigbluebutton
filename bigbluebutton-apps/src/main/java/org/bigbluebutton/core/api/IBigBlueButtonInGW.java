@@ -70,12 +70,12 @@ public interface IBigBlueButtonInGW {
 	void ejectUser(String meetingID, String requesterID, Integer userID);
 	
 	// Voice events from Freeswitch
-	void voiceUserJoined(Integer user, String voiceConfId, 
+	void voiceUserJoined(String user, String voiceConfId, 
 			String callerIdNum, String callerIdName,
 			Boolean muted, Boolean speaking);
-	void voiceUserLeft(Integer user, String voiceConfId);
-	void voiceUserMuted(Integer user, String voiceConfId, Boolean muted);
-	void voiceUserTalking(Integer user, String voiceConfId, Boolean talking);
+	void voiceUserLeft(String user, String voiceConfId);
+	void voiceUserMuted(String user, String voiceConfId, Boolean muted);
+	void voiceUserTalking(String user, String voiceConfId, Boolean talking);
 	void voiceStartedRecording(String voiceConfId, String filename, String timestamp, Boolean record);
 	
 }

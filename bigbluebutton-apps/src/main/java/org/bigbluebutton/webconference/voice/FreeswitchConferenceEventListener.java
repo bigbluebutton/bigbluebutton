@@ -24,19 +24,19 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
-import org.bigbluebutton.webconference.voice.events.ConferenceEvent;
+import org.bigbluebutton.webconference.voice.events.VoiceConferenceEvent;
 import org.bigbluebutton.webconference.voice.events.ConferenceEventListener;
-import org.bigbluebutton.webconference.voice.events.ParticipantJoinedEvent;
-import org.bigbluebutton.webconference.voice.events.ParticipantLeftEvent;
-import org.bigbluebutton.webconference.voice.events.ParticipantMutedEvent;
-import org.bigbluebutton.webconference.voice.events.ParticipantTalkingEvent;
-import org.bigbluebutton.webconference.voice.events.StartRecordingEvent;
+import org.bigbluebutton.webconference.voice.events.VoiceUserJoinedEvent;
+import org.bigbluebutton.webconference.voice.events.VoiceUserLeftEvent;
+import org.bigbluebutton.webconference.voice.events.VoiceUserMutedEvent;
+import org.bigbluebutton.webconference.voice.events.VoiceUserTalkingEvent;
+import org.bigbluebutton.webconference.voice.events.VoiceStartRecordingEvent;
 
 public class FreeswitchConferenceEventListener implements ConferenceEventListener {
 	private static final int SENDERTHREADS = 1;
 	private static final Executor msgSenderExec = Executors.newFixedThreadPool(SENDERTHREADS);
 	
-	private BlockingQueue<ConferenceEvent> messages = new LinkedBlockingQueue<ConferenceEvent>();
+	private BlockingQueue<VoiceConferenceEvent> messages = new LinkedBlockingQueue<VoiceConferenceEvent>();
 
     private volatile boolean sendMessages = false;
 	private IBigBlueButtonInGW bbbInGW;
@@ -45,7 +45,7 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
 		bbbInGW = inGW;
 	}
 	
-    private void queueMessage(ConferenceEvent event) {
+    private void queueMessage(VoiceConferenceEvent event) {
     	try {
 			messages.offer(event, 5, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
@@ -54,23 +54,23 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
 		}
     }
     
-	private void sendMessageToBigBlueButton(ConferenceEvent event) {
-		if (event instanceof ParticipantJoinedEvent) {
-			ParticipantJoinedEvent evt = (ParticipantJoinedEvent) event;
-			bbbInGW.voiceUserJoined(evt.getParticipantId(), evt.getRoom(), 
+	private void sendMessageToBigBlueButton(VoiceConferenceEvent event) {
+		if (event instanceof VoiceUserJoinedEvent) {
+			VoiceUserJoinedEvent evt = (VoiceUserJoinedEvent) event;
+			bbbInGW.voiceUserJoined(evt.getUserId(), evt.getRoom(), 
 					evt.getCallerIdNum(), evt.getCallerIdName(),
 					evt.getMuted(), evt.getSpeaking());
-		} else if (event instanceof ParticipantLeftEvent) {
-			ParticipantLeftEvent evt = (ParticipantLeftEvent) event;
-			bbbInGW.voiceUserLeft(evt.getParticipantId(), evt.getRoom());
-		} else if (event instanceof ParticipantMutedEvent) {
-			ParticipantMutedEvent evt = (ParticipantMutedEvent) event;
-			bbbInGW.voiceUserMuted(evt.getParticipantId(), evt.getRoom(), evt.isMuted());
-		} else if (event instanceof ParticipantTalkingEvent) {
-			ParticipantTalkingEvent evt = (ParticipantTalkingEvent) event;
-			bbbInGW.voiceUserTalking(evt.getParticipantId(), evt.getRoom(), evt.isTalking());
-		} else if (event instanceof StartRecordingEvent) {
-			StartRecordingEvent evt = (StartRecordingEvent) event;
+		} else if (event instanceof VoiceUserLeftEvent) {
+			VoiceUserLeftEvent evt = (VoiceUserLeftEvent) event;
+			bbbInGW.voiceUserLeft(evt.getUserId(), evt.getRoom());
+		} else if (event instanceof VoiceUserMutedEvent) {
+			VoiceUserMutedEvent evt = (VoiceUserMutedEvent) event;
+			bbbInGW.voiceUserMuted(evt.getUserId(), evt.getRoom(), evt.isMuted());
+		} else if (event instanceof VoiceUserTalkingEvent) {
+			VoiceUserTalkingEvent evt = (VoiceUserTalkingEvent) event;
+			bbbInGW.voiceUserTalking(evt.getUserId(), evt.getRoom(), evt.isTalking());
+		} else if (event instanceof VoiceStartRecordingEvent) {
+			VoiceStartRecordingEvent evt = (VoiceStartRecordingEvent) event;
 			bbbInGW.voiceStartedRecording(evt.getRoom(), evt.getRecordingFilename(), evt.getTimestamp(), evt.startRecord());
 		} 		
 	}
@@ -80,7 +80,7 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
 		Runnable sender = new Runnable() {
 			public void run() {
 				while (sendMessages) {
-					ConferenceEvent message;
+					VoiceConferenceEvent message;
 					try {
 						message = messages.take();
 						sendMessageToBigBlueButton(message);	
@@ -98,7 +98,7 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
 		sendMessages = false;
 	}
 	
-	public void handleConferenceEvent(ConferenceEvent event) {
+	public void handleConferenceEvent(VoiceConferenceEvent event) {
 		queueMessage(event);
 	}
 	
