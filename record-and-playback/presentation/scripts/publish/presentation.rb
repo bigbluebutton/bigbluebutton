@@ -511,6 +511,10 @@ def processSlideEvents
 	BigBlueButton.logger.info("Slide events processing")
 	# For each slide (there is only one image per slide)
 	$slides_events.each do |node|
+		# Ignore slide events that happened after the last recording period.
+		if(node[:timestamp].to_f > $rec_events.last[:stop_timestamp].to_f)
+			next
+		end
 		eventname = node['eventname']
 		if eventname == "SharePresentationEvent"
 			$presentation_name = node.xpath(".//presentationName")[0].text()
