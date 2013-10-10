@@ -259,7 +259,6 @@ generateThumbnails = function() {
         hiddenDesc.attr("id", img.attr("id") + "description");
         hiddenDesc.attr("class", "visually-hidden");
         hiddenDesc.html("Slide " + ++slideCount + " " + secondsToHHMMSSText(timeIn));
-        
 
         // a wrapper around the img and label
         var div = $(document.createElement('div'));
@@ -272,6 +271,7 @@ generateThumbnails = function() {
 
         if (parseFloat(timeIn) == 0 ) {
           div.addClass("active");
+          $(".thumbnail-label", div).show();
         }
 
         imagesList.push(timeIn);
