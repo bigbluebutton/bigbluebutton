@@ -65,9 +65,9 @@ public interface IBigBlueButtonInGW {
 	void getVoiceUsers(String meetingID, String requesterID);
 	void muteAllUsers(String meetingID, String requesterID, Boolean mute);
 	void isMeetingMuted(String meetingID, String requesterID);
-	void muteUser(String meetingID, String requesterID, Integer userID, Boolean mute);
-	void lockUser(String meetingID, String requesterID, Integer userID, Boolean lock);
-	void ejectUser(String meetingID, String requesterID, Integer userID);
+	void muteUser(String meetingID, String requesterID, String userID, Boolean mute);
+	void lockUser(String meetingID, String requesterID, String userID, Boolean lock);
+	void ejectUser(String meetingID, String requesterID, String userID);
 	
 	// Voice events from Freeswitch
 	void voiceUserJoined(String user, String voiceConfId, 

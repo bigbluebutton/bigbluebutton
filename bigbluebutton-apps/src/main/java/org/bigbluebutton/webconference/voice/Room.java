@@ -24,8 +24,8 @@ import org.bigbluebutton.webconference.voice.Participant;
 public interface Room {		
 	public String getName();	
 	public int numParticipants();	
-	public Participant getParticipant(Integer id);
-	public boolean hasParticipant(Integer id);
+	public Participant getParticipant(String id);
+	public boolean hasParticipant(String id);
 	public ArrayList<Participant> getParticipants();
 	public boolean isMuted();
 	public void record(boolean rec);

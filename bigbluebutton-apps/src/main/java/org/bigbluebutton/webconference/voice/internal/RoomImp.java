@@ -59,7 +59,7 @@ public class RoomImp implements Room {
 		return participants.putIfAbsent(p.getId(), p);
 	}
 	
-	public boolean hasParticipant(Integer id) {
+	public boolean hasParticipant(String id) {
 		return participants.containsKey(id);
 	}
 	

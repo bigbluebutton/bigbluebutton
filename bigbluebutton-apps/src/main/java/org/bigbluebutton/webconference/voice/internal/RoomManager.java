@@ -32,9 +32,7 @@ import org.bigbluebutton.webconference.voice.events.VoiceUserTalkingEvent;
 import org.bigbluebutton.webconference.voice.events.VoiceStartRecordingEvent;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
-import net.jcip.annotations.ThreadSafe;
 
-@ThreadSafe
 public class RoomManager {
 	private static final Logger log = Red5LoggerFactory.getLogger(RoomManager.class, "bigbluebutton");
 	
@@ -46,13 +44,13 @@ public class RoomManager {
 		rooms = new ConcurrentHashMap<String, RoomImp>();
 	}
 	
-	public int getVoiceUserIDFromRoom(String room, String userID) {
+	public String getVoiceUserIDFromRoom(String room, String userID) {
 		RoomImp rm = rooms.get(room);
 		if (rm != null) {
 			return rm.getUserWithID(userID);
 		}
 		
-		return -1;
+		return "";
 	}
 	
 	public void createRoom(String name, boolean record, String meetingid) {

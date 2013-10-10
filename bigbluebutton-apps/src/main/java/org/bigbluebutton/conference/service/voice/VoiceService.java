@@ -17,7 +17,8 @@
 *
 */
 package org.bigbluebutton.conference.service.voice;
-import org.slf4j.Logger;import org.red5.server.api.Red5;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.Logger;import org.red5.server.api.Red5;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import org.red5.logging.Red5LoggerFactory;
 import org.bigbluebutton.webconference.voice.ConferenceService;import java.util.ArrayList;import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,28 +28,19 @@ public class VoiceService {
 	
 	private static Logger log = Red5LoggerFactory.getLogger( VoiceService.class, "bigbluebutton" );
 	
-	private ConferenceService conferenceService;
-
-	@SuppressWarnings("unchecked")
-	public Map<String, List> getMeetMeUsers() {
-		String voiceBridge = getBbbSession().getVoiceBridge();
-		
-    	log.debug("GetMeetmeUsers request for room[" + voiceBridge + "]");
-    	ArrayList<Participant> p = conferenceService.getParticipants(voiceBridge);
-
-		Map participants = new HashMap();
-		if (p == null) {
-			participants.put("count", 0);
-		} else {		
-			participants.put("count", p.size());
-			if (p.size() > 0) {				
-				participants.put("participants", arrayListToMap(p));
-			}			
-		}
-		log.info("MeetMe::service - Sending " + p.size() + " current users...");
-		return participants;
-	}
+	private IBigBlueButtonInGW bbbInGW;
 	
+	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
+		bbbInGW = inGW;
+	}
+
+	public void getMeetMeUsers() {
+		String meetingID = Red5.getConnectionLocal().getScope().getName();
+		String requesterID = getBbbSession().getInternalUserID();		
+		bbbInGW.getVoiceUsers(meetingID, requesterID);
+	}
+
+	/*
 	private Map<Integer, Map> arrayListToMap(ArrayList<Participant> alp) {
 		log.debug("Converting arraylist to Map " + alp.size());
 		Map<Integer, Map> result = new HashMap();
@@ -66,42 +58,39 @@ public class VoiceService {
 		
 		return result;
 	}
+*/	
 	
 	public void muteAllUsers(boolean mute) {
-		String conference = getBbbSession().getVoiceBridge();    	
-    	log.debug("Mute all users in room[" + conference + "]");
-    	conferenceService.mute(conference, mute);	   	
+		String meetingID = Red5.getConnectionLocal().getScope().getName();
+		String requesterID = getBbbSession().getInternalUserID();		
+		bbbInGW.muteAllUsers(meetingID, requesterID, mute); 		
 	}	
 	
-	public boolean isRoomMuted(){
-		String conference = getBbbSession().getVoiceBridge(); 
-    	return conferenceService.isRoomMuted(conference);	
+	public void isRoomMuted(){
+		String meetingID = Red5.getConnectionLocal().getScope().getName();
+		String requesterID = getBbbSession().getInternalUserID();		
+		bbbInGW.isMeetingMuted(meetingID, requesterID); 	
 	}
 	
-	public void muteUnmuteUser(Integer userid,Boolean mute) {
-		String conference = getBbbSession().getVoiceBridge();    	
-    	log.debug("MuteUnmute request for user [" + userid + "] in room[" + conference + "]");
-    	conferenceService.mute(userid.toString(), conference, mute);
+	public void muteUnmuteUser(String userid, Boolean mute) {
+		String meetingID = Red5.getConnectionLocal().getScope().getName();
+		String requesterID = getBbbSession().getInternalUserID();		
+		bbbInGW.muteUser(meetingID, requesterID, userid, mute); 
 	}
 
-	public void lockMuteUser(Integer userid, Boolean lock) {
-		String conference = getBbbSession().getVoiceBridge();    	
-    	log.debug("Lock request for user [" + userid + "] in room[" + conference + "]");
-    	conferenceService.lock(userid.toString(), conference, lock);
+	public void lockMuteUser(String userid, Boolean lock) { 	
+		String meetingID = Red5.getConnectionLocal().getScope().getName();
+		String requesterID = getBbbSession().getInternalUserID();		
+		bbbInGW.lockUser(meetingID, requesterID, userid, lock); 
 	}
 	
-	public void kickUSer(Integer userid) {
-		String conference = getBbbSession().getVoiceBridge();		
-    	log.debug("KickUser " + userid + " from " + conference);		
-		conferenceService.eject(userid.toString(), conference);
+	public void kickUSer(String userID) {
+		String meetingID = Red5.getConnectionLocal().getScope().getName();
+		String requesterID = getBbbSession().getInternalUserID();		
+		bbbInGW.ejectUser(meetingID, requesterID, userID); 	
+		
 	}
-	
-	public void setConferenceService(ConferenceService s) {
-		log.debug("Setting voice server");
-		conferenceService = s;
-		log.debug("Setting voice server DONE");
-	}
-	
+		
 	private BigBlueButtonSession getBbbSession() {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}

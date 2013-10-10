@@ -82,11 +82,14 @@ public class VoiceEventRecorder {
 	}
 
 	private void recordParticipantLeftEvent(VoiceConferenceEvent event, String room) {
+		
 		ParticipantLeftVoiceRecordEvent evt = new ParticipantLeftVoiceRecordEvent();
 		evt.setMeetingId(room);
 		evt.setTimestamp(System.currentTimeMillis());
 		evt.setBridge(event.getRoom());
-		evt.setParticipant(event.getUserId().toString());
+		
+		
+		evt.setParticipant(((VoiceUserLeftEvent)event).getUserId().toString());
 		
 		recorder.record(room, evt);
 	}
@@ -98,7 +101,7 @@ public class VoiceEventRecorder {
 		evt.setMeetingId(room);
 		evt.setTimestamp(System.currentTimeMillis());
 		evt.setBridge(event.getRoom());
-		evt.setParticipant(event.getUserId().toString());
+		evt.setParticipant(((VoiceUserMutedEvent)event).getUserId().toString());
 		evt.setMuted(pme.isMuted());
 		
 		recorder.record(room, evt);
@@ -111,7 +114,7 @@ public class VoiceEventRecorder {
 		evt.setMeetingId(room);
 		evt.setTimestamp(System.currentTimeMillis());
 		evt.setBridge(event.getRoom());
-		evt.setParticipant(event.getUserId().toString());
+		evt.setParticipant(((VoiceUserTalkingEvent)event).getUserId().toString());
 		evt.setTalking(pte.isTalking());
 		
 		recorder.record(room, evt);
@@ -124,7 +127,7 @@ public class VoiceEventRecorder {
 		evt.setMeetingId(room);
 		evt.setTimestamp(System.currentTimeMillis());
 		evt.setBridge(event.getRoom());
-		evt.setParticipant(event.getUserId().toString());
+		evt.setParticipant(((VoiceUserLockedEvent)event).getUserId().toString());
 		evt.setLocked(ple.isLocked());
 		
 		recorder.record(room, evt);

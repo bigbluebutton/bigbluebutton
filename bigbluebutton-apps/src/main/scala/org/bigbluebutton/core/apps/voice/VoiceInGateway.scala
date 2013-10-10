@@ -16,15 +16,15 @@ class VoiceInGateway(bbbGW: BigBlueButtonGateway) {
 	  bbbGW.accept(new IsMeetingMutedRequest(meetingID, requesterID))
 	}
 	
-	def muteUser(meetingID: String, requesterID: String, userID: Int, mute: Boolean) {
+	def muteUser(meetingID: String, requesterID: String, userID: String, mute: Boolean) {
 	  bbbGW.accept(new MuteUserRequest(meetingID, requesterID, userID, mute))
 	}
 	
-	def lockUser(meetingID: String, requesterID: String, userID: Int, lock: Boolean) {
+	def lockUser(meetingID: String, requesterID: String, userID: String, lock: Boolean) {
 	  bbbGW.accept(new LockUserRequest(meetingID, requesterID, userID, lock))
 	}
 	
-	def ejectUser(meetingID: String, requesterID: String, userID: Int) {
+	def ejectUser(meetingID: String, requesterID: String, userID: String) {
 	  bbbGW.accept(new EjectUserRequest(meetingID, requesterID, userID))
 	}
 	

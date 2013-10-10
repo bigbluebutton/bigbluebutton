@@ -35,6 +35,15 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
 	      case getUsers: GetUsers => handleGetUsers(getUsers)
 	      case changeStatus: ChangeUserStatus => handleChangeUserStatus(changeStatus)
 	      case muteMeetingRequest: MuteMeetingRequest => handleMuteMeetingRequest(muteMeetingRequest)
+	      case isMeetingMutedRequest: IsMeetingMutedRequest => handleIsMeetingMutedRequest(isMeetingMutedRequest)
+	      case muteUserRequest: MuteUserRequest => handleMuteUserRequest(muteUserRequest)
+	      case lockUserRequest: LockUserRequest => handleLockUserRequest(lockUserRequest)
+	      case ejectUserRequest: EjectUserRequest => handleEjectUserRequest(ejectUserRequest)
+	      case voiceUserJoinedMessage: VoiceUserJoinedMessage => handleVoiceUserJoinedMessage(voiceUserJoinedMessage)
+	      case voiceUserLeftMessage: VoiceUserLeftMessage => handleVoiceUserLeftMessage(voiceUserLeftMessage)
+	      case voiceUserMutedMessage: VoiceUserMutedMessage => handleVoiceUserMutedMessage(voiceUserMutedMessage)
+	      case voiceUserTalkingMessage: VoiceUserTalkingMessage => handleVoiceUserTalkingMessage(voiceUserTalkingMessage)
+	      case voiceStartedRecordingMessage: VoiceStartedRecordingMessage => handleVoiceStartedRecordingMessage(voiceStartedRecordingMessage)
 	      case _ => // do nothing
     }
   }
@@ -60,6 +69,46 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   }
   
   private def handleMuteMeetingRequest(msg: MuteMeetingRequest) {
+    meetingMuted = msg.mute
+    
+    users.getUsers().foreach(u => {
+      
+    })
+  }
+  
+  private def handleIsMeetingMutedRequest(msg: IsMeetingMutedRequest) {
+    outGW.send(new IsMeetingMutedReply(meetingID, recorded, msg.requesterID, meetingMuted))
+  }
+  
+  private def handleMuteUserRequest(msg: MuteUserRequest) {
+    
+  }
+  
+  private def handleLockUserRequest(msg: LockUserRequest) {
+    
+  }
+  
+  private def handleEjectUserRequest(msg: EjectUserRequest) {
+    
+  }
+  
+  private def handleVoiceUserJoinedMessage(msg: VoiceUserJoinedMessage) {
+    
+  }
+  
+  private def handleVoiceUserLeftMessage(msg: VoiceUserLeftMessage) {
+    
+  }
+  
+  private def handleVoiceUserMutedMessage(msg: VoiceUserMutedMessage) {
+    
+  }
+  
+  private def handleVoiceUserTalkingMessage(msg: VoiceUserTalkingMessage) {
+    
+  }
+  
+  private def handleVoiceStartedRecordingMessage(msg: VoiceStartedRecordingMessage) {
     
   }
   

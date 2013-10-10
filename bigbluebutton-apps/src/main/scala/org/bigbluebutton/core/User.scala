@@ -26,7 +26,8 @@ class User(val intUserID: String, val extUserID: String, val name: String, val r
   }
   
   def toUserVO():UserVO = {
-    new UserVO(intUserID, extUserID, name, role.toString, handRaised, isPresenter, hasStream)
+    new UserVO(intUserID, extUserID, name, role.toString, handRaised, 
+        isPresenter, hasStream)
   }
 }
 
