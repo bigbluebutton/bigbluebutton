@@ -23,7 +23,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:ApplicationControlBar xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/" visible="{showToolbar}"
 	enabled="true" xmlns:views="org.bigbluebutton.main.views.*"
-	initialize="init()" >   
+	initialize="init()" creationComplete="onCreationComplete()" >   
 	
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarButtonEvent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarButtonEvent"/>
@@ -91,7 +91,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var xml:XML;
 			
 			private function init():void{
-				AlertAccImpl.enableAccessibility();
+				if (Capabilities.hasAccessibility) {
+					AlertAccImpl.enableAccessibility();
+				}
 				
 				baseIndex = 101;
 				numButtons = 0;
@@ -102,6 +104,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 timer.start();
 
 			}
+      
+      private function onCreationComplete():void {
+        if (this.width < 800) {
+          meetingNameLbl.visible = false;
+          langSelector.visible = false;
+          shortcutKeysBtn.visible = false;
+          helpBtn.visible = false;      
+          muteMeBtn.visible = false;
+          meetingNameLbl.width = 0;
+          langSelector.width = 0;
+          shortcutKeysBtn.width = 0;
+          helpBtn.width = 0;          
+        }
+      }
+      
             private function checkAccessiblity(e:TimerEvent):void {
                 // remove the quick links if there's no screen reader active
                 if (!Accessibility.active) {
@@ -328,7 +345,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                        tabIndex="{baseIndex+4}" height="22" styleName="quickWindowLinkStyle" />
     </mx:HBox>
 	<mx:HBox id="addedBtns"/>
-	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}"/>
+	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}" includeInLayout="{muteMeBtn.includeInLayout}"/>
 	<views:MuteMeButton id="muteMeBtn"  height="20" tabIndex="{baseIndex+numButtons+10}"/>
 	<mx:Spacer width="50%"/>
     <mx:Label id="meetingNameLbl" styleName="meetingNameLabelStyle" />
