@@ -598,8 +598,6 @@ package org.bigbluebutton.modules.videoconf.maps
     
     public function switchToPresenter(event:MadePresenterEvent):void{
       trace("VideoEventMapDelegate:: [" + me + "] Got Switch to presenter event. ready = [" + _ready + "]");
-      
-//      if (!_ready) return;
            
       if (options.showButton) {
         displayToolbarButton();
@@ -608,13 +606,11 @@ package org.bigbluebutton.modules.videoconf.maps
         
     public function switchToViewer(event:MadePresenterEvent):void{
       trace("VideoEventMapDelegate:: [" + me + "] Got Switch to viewer event. ready = [" + _ready + "]");
-      
-//      if (!_ready) return;
-            
+                  
       if (options.showButton){
         LogUtil.debug("****************** Switching to viewer. Show video button?=[" + UsersUtil.amIPresenter() + "]");
         displayToolbarButton();
-        if (_isPublishing) {
+        if (_isPublishing && options.presenterShareOnly) {
           stopAllBroadcasting();
         }
       }
