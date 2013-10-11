@@ -76,7 +76,7 @@ package org.bigbluebutton.modules.broadcast.services
       );
     }
     
-    public function sendWhatIsTheCurrentStreamReply(requestedByUserID:Number, streamID:String):void {
+    public function sendWhatIsTheCurrentStreamReply(requestedByUserID:String, streamID:String):void {
       var message:Object = new Object();
       message["messageID"] = "BroadcastWhatIsTheCurrentStreamReply";	
       message["requestedBy"] = requestedByUserID;
