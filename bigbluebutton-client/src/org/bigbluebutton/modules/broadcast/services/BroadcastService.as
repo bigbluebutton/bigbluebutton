@@ -38,35 +38,19 @@ package org.bigbluebutton.modules.broadcast.services
       if (sender == null) {
         trace("SENDER is NULL!!!!");
       }
-//      sender.playStream(uri, streamID, streamName);
-      
-      var event:BBBEvent = new BBBEvent("BroadcastPlayStreamCommand");
-      event.payload["messageID"] = "BroadcastPlayStreamCommand";
-      event.payload["uri"] = uri;
-      event.payload["streamID"] = streamID;
-      event.payload["streamName"] = streamName;		
-      
-      var dispatcher:Dispatcher = new Dispatcher();
-      dispatcher.dispatchEvent(event);
-      
+      sender.playStream(uri, streamID, streamName);
 		}
 		
 		public function stopStream():void {
       trace("BroadcastService::stopStream"); 
-//			sender.stopStream();
-      
-      var event:BBBEvent = new BBBEvent("BroadcastStopStreamCommand");
-      event.payload["messageID"] = "BroadcastStopStreamCommand";    
-      
-      var dispatcher:Dispatcher = new Dispatcher();
-      dispatcher.dispatchEvent(event);     
+			sender.stopStream();
 		}
 		
 		public function sendWhatIsTheCurrentStreamRequest():void {
 			sender.sendWhatIsTheCurrentStreamRequest();
 		}
 		
-		public function sendWhatIsTheCurrentStreamReply(requestedByUserID:Number, streamID:String):void {
+		public function sendWhatIsTheCurrentStreamReply(requestedByUserID:String, streamID:String):void {
 			sender.sendWhatIsTheCurrentStreamReply(requestedByUserID, streamID);
 		}
 	}
