@@ -69,12 +69,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var dp:Object = [];
 			private var dataMenu:Menu;
 			public var numberOfCamerasOff:int = 0;
-			public var cameraIsOff:Object = new Object();
 			
 			private function init():void{
 				numberOfCamerasOff = Camera.names.length;
-				for(var i:int = 0; i < numberOfCamerasOff; i++) {
-					cameraIsOff[String(i)] = true;	
+				for(var i:int = 0; i < Camera.names.length; i++) {
 					dp.push({label: Camera.names[i], icon: images.webcam, status: OFF_STATE});		
 				}
 	
@@ -85,15 +83,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				this.popUp = dataMenu;
 				dispatcher = new Dispatcher();
+				this.enabled = true;
+				switchStateToNormal();
+			}
+
+			private function switchStateToNormal():void {
 				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
 				camIcon = images.webcam;
-				this.enabled = true;
 				this.selected = false;
 				_currentState = OFF_STATE;
 			}
 			
       public function set isPresenter(presenter:Boolean):void {
-        visible = presenter;
+        visible = includeInLayout = presenter;
       }
       
 			public function remoteClick(e:ShortcutEvent):void{
@@ -118,10 +120,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						
 					}
 					if(numberOfCamerasOff == Camera.names.length) {
-						_currentState = OFF_STATE;
-						//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
-						camIcon = images.webcam;
-						this.selected = false;
+						switchStateToNormal();
 					}
 				}
 				var evt:BBBEvent = new BBBEvent("EnableToolbarPopupButton");
@@ -135,10 +134,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.enabled = false;
 				if(_currentState == ON_STATE) {
 					trace("Close window");
-					_currentState = OFF_STATE;
-					//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
-					camIcon = images.webcam;
-					this.selected = false;
+					switchStateToNormal();
 					var stopShareCameraRequestEvent:StopShareCameraRequestEvent = new StopShareCameraRequestEvent(StopShareCameraRequestEvent.STOP_SHARE_ALL_CAMERA_REQUEST);
 					dispatchEvent(stopShareCameraRequestEvent);
 					this.enabled = true;		
@@ -163,9 +159,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					if(numberOfCamerasOff < Camera.names.length)
 						numberOfCamerasOff++;
 					if(numberOfCamerasOff == Camera.names.length) {
-						this.selected = false;
-						_currentState = OFF_STATE;
-						camIcon = images.webcam;
+						switchStateToNormal();
 					}
 				}
 			}
@@ -220,13 +214,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 			public function setAllCamAsInactive():void {
 				numberOfCamerasOff = Camera.names.length;
-				for(var i:int = 0; i < numberOfCamerasOff; i++) {
-					cameraIsOff[String(i)] = true;	
-					dp[i].icon = images.webcam;
-					dp[i].status = OFF_STATE;
+				for(var i:int = 0; i < Camera.names.length; i++) {
+					setCamAsInactive(i);
 				}
-				
-				dataMenu.dataProvider = dp;
+				switchStateToNormal();
 			}
 
 			public function setCamAsActive(camIndex:int):void {
