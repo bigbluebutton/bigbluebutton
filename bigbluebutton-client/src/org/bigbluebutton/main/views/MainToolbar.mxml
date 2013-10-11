@@ -330,7 +330,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                        tabIndex="{baseIndex+4}" height="22" styleName="quickWindowLinkStyle" />
     </mx:HBox>
 	<mx:HBox id="addedBtns"/>
-	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}"/>
+	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}" includeInLayout="{muteMeBtn.includeInLayout}"/>
 	<views:MuteMeButton id="muteMeBtn"  height="20" tabIndex="{baseIndex+numButtons+10}"/>
 	<mx:Spacer width="50%"/>
     <mx:Label id="meetingNameLbl" styleName="meetingNameLabelStyle" />
