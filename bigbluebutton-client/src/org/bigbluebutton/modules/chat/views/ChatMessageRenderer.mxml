@@ -98,15 +98,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 	
-  <mx:HBox width="100%" id="hbHeader">
-    <mx:Label id="lblName" text="{data.name} " visible="true" color="gray" width="80%" textAlign="left" />
+  <mx:Canvas width="100%" id="hbHeader">
+    <mx:Label id="lblName" text="{data.name} " visible="true" color="gray" width="100%" textAlign="left" left="0"/>
     <mx:Text id="lblTime" htmlText="{data.translateLocale} {data.time}" textAlign="right"
-             visible="true" right="0"
-             color="gray"/>       
-  </mx:HBox>
-  <mx:HBox width="100%">
-    <mx:Spacer width="5"/>
-    <mx:Text id="txtMessage" htmlText="{rolledOver ? data.senderText : data.translatedText}" link="onLinkClick(event)" color="{data.senderColor}"
-             rollOver="onRollOver()" rollOut="onRollOut()" width="100%" selectable="true"/>
-  </mx:HBox>  
+             visible="true" 
+             color="gray" right="0" width="100%"/>       
+  </mx:Canvas>
+  <mx:Text id="txtMessage" htmlText="{rolledOver ? data.senderText : data.translatedText}" link="onLinkClick(event)" color="{data.senderColor}"
+           rollOver="onRollOver()" rollOut="onRollOut()" paddingLeft="5" width="100%" selectable="true"/>
 </mx:VBox>

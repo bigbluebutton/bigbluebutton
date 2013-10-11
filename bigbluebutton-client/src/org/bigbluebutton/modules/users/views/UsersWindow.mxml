@@ -186,7 +186,7 @@
 				myMenu = Menu.createMenu(null, myMenuData, true);
 				
 				myMenu.variableRowHeight = true;
-				myMenu.show(this.x + settingsBtn.x + 2, this.y + this.height + 25);
+				myMenu.show(this.x + settingsBtn.x + settingsBtn.width + 2, this.y + this.height);
 				myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
 				myMenu.setFocus();
 			}
@@ -396,7 +396,6 @@
 					width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip')}" click="raiseHand()"
 					visible="false" tabIndex="{partOptions.baseTabIndex+15}" />
 		<mx:Label id="roomMutedLbl" text="{ResourceUtil.getInstance().getString('bbb.users.settings.muteAll')}" />
-		<mx:Spacer width="100%"/>
 	</mx:ControlBar>
 	
 </mdi:MDIWindow>

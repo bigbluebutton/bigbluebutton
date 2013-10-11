@@ -141,22 +141,52 @@ package org.bigbluebutton.modules.videoconf.maps
       }
     }
     
-    private function autoStart():void {     
-      
+    private function autoStart():void {          
       if (options.skipCamSettingsCheck) {
         skipCameraSettingsCheck();
       } else {
         _dispatcher.dispatchEvent(new ShareCameraRequestEvent());	
       }
-      				       
     }
 
+    private function changeDefaultCamForMac():Camera {
+      for (var i:int = 0; i < Camera.names.length; i++){
+        if (Camera.names[i] == "USB Video Class Video") {
+          /** Set as default for Macs */
+          return Camera.getCamera("USB Video Class Video");
+        }
+      }
+      
+      return null;
+    }
+    
+    private function getDefaultResolution(resolutions:String):Array {
+      var res:Array = resolutions.split(",");  
+      if (res.length > 0) {
+        var resStr:Array = (res[0] as String).split("x");
+        var resInts:Array = [Number(resStr[0]), Number(resStr[1])];
+        return resInts;
+      } else {
+        return [Number("320"), Number("240")];
+      }
+    }
+        
     private function skipCameraSettingsCheck():void {     
-        var cam:Camera = Camera.getCamera();
+        var cam:Camera = changeDefaultCamForMac();
+        if (cam == null) {
+          cam = Camera.getCamera();
+        }
+        
         var videoOptions:VideoConfOptions = new VideoConfOptions();
+        
+        var resolutions:Array = getDefaultResolution(videoOptions.resolutions);
+        var camWidth:Number = resolutions[0];
+        var camHeight:Number = resolutions[1];
+        trace("Skipping cam check. Using default resolution [" + camWidth + "x" + camHeight + "]");
+        cam.setMode(camWidth, camHeight, videoOptions.camModeFps);
         cam.setMotionLevel(5, 1000);
         cam.setKeyFrameInterval(videoOptions.camKeyFrameInterval);
-        cam.setMode(cam.width, cam.height, videoOptions.camModeFps);
+        
         cam.setQuality(videoOptions.camQualityBandwidth, videoOptions.camQualityPicture);
         initCameraWithSettings(cam.index, cam.width, cam.height);     
     }
@@ -401,8 +431,6 @@ package org.bigbluebutton.modules.videoconf.maps
     
     public function switchToPresenter(event:MadePresenterEvent):void{
       trace("VideoEventMapDelegate:: [" + me + "] Got Switch to presenter event. ready = [" + _ready + "]");
-      
-//      if (!_ready) return;
            
       if (options.showButton) {
         displayToolbarButton();
@@ -411,13 +439,11 @@ package org.bigbluebutton.modules.videoconf.maps
         
     public function switchToViewer(event:MadePresenterEvent):void{
       trace("VideoEventMapDelegate:: [" + me + "] Got Switch to viewer event. ready = [" + _ready + "]");
-      
-//      if (!_ready) return;
-            
+                  
       if (options.showButton){
         LogUtil.debug("****************** Switching to viewer. Show video button?=[" + UsersUtil.amIPresenter() + "]");
         displayToolbarButton();
-        if (_isPublishing) {
+        if (_isPublishing && options.presenterShareOnly) {
           stopBroadcasting();
         }
       }
