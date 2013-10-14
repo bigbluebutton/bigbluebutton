@@ -70,7 +70,7 @@ def fetchRecordings(url)
             BigBlueButton.logger.info("Next recording to be processed is #{meeting_id}")
 
             BigBlueButton.logger.debug("Removing any file previously downloaded related to this recording")
-            FileUtils.rm_rf Dir.glob("$raw_dir/#{record_id}*"), :force => true
+            FileUtils.rm_r Dir.glob("#{$raw_dir}/#{record_id}*"), :force => true
 
             BigBlueButton.logger.debug("recordID = #{record_id}")
             BigBlueButton.logger.debug("file_url = #{file_url}")
