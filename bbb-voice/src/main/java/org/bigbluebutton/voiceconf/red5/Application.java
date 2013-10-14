@@ -1,33 +1,34 @@
-/** 
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-* PARTICULAR PURPOSE. See the GNU General Public License for more details.
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
-* You should have received a copy of the GNU General Public License along
+* You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-**/
+*
+*/
 package org.bigbluebutton.voiceconf.red5;
 
 import java.util.List;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.bigbluebutton.voiceconf.sip.PeerNotFoundException;
 import org.bigbluebutton.voiceconf.sip.SipPeerManager;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IConnection;
-import org.red5.server.api.IScope;
 import org.red5.server.api.Red5;
+import org.red5.server.api.scope.IScope;
 import org.red5.server.api.service.IServiceCapableConnection;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.stream.ClientBroadcastStream;
@@ -39,6 +40,7 @@ public class Application extends MultiThreadedApplicationAdapter {
     private ClientConnectionManager clientConnManager;
     
     private String sipServerHost = "localhost";
+    private String sipClientRtpIp = "";
     private int sipPort = 5070;
     private int startAudioPort = 3000;
 	private int stopAudioPort = 3029;
@@ -49,24 +51,26 @@ public class Application extends MultiThreadedApplicationAdapter {
     @Override
     public boolean appStart(IScope scope) {
     	log.debug("VoiceConferenceApplication appStart[" + scope.getName() + "]");
+    	super.setScope(scope);
     	callStreamFactory = new CallStreamFactory();
     	callStreamFactory.setScope(scope);
     	sipPeerManager.setCallStreamFactory(callStreamFactory);
         sipPeerManager.setClientConnectionManager(clientConnManager);
-        sipPeerManager.createSipPeer("default", sipServerHost, sipPort, startAudioPort, stopAudioPort);
+        sipPeerManager.createSipPeer("default", sipClientRtpIp, sipServerHost, sipPort, startAudioPort, stopAudioPort);
         try {
 			sipPeerManager.register("default", username, password);
 		} catch (PeerNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        return true;
+        return super.appStart(scope);
     }
 
     @Override
     public void appStop(IScope scope) {
         log.debug("VoiceConferenceApplication appStop[" + scope.getName() + "]");
         sipPeerManager.destroyAllSessions();
+        super.appStop(scope);
     }
 
     @Override
@@ -86,7 +90,7 @@ public class Application extends MultiThreadedApplicationAdapter {
         log.info("[clientid={}] connected from {}.", clientId, remoteHost + ":" + remotePort);
         
         clientConnManager.createClient(clientId, userid, username, (IServiceCapableConnection) Red5.getConnectionLocal());
-        return true;
+        return super.appConnect(conn, params);
     }
 
     @Override
@@ -112,6 +116,7 @@ public class Application extends MultiThreadedApplicationAdapter {
 				e.printStackTrace();
 			}
         }
+        super.appDisconnect(conn);
     }
     
     @Override
@@ -157,14 +162,13 @@ public class Application extends MultiThreadedApplicationAdapter {
     	log.debug("{} has stopped publishing stream [{}]", username + "[uid=" + userid + "][clientid=" + clientId + "]", stream.getPublishedName());
     	IConnection conn = Red5.getConnectionLocal();
     	String peerId = (String) conn.getAttribute("VOICE_CONF_PEER");
-        if (peerId != null) {
-        	super.streamPublishStart(stream);	    	
+        if (peerId != null) {	    	
 	    	sipPeerManager.stopTalkStream(peerId, clientId, stream, conn.getScope());
 	    	super.streamBroadcastClose(stream);
         }
     }
     
-    public List<String> getStreams() {
+    public Set<String> getStreams() {
         IConnection conn = Red5.getConnectionLocal();
         return getBroadcastStreamNames( conn.getScope() );
     }
@@ -175,6 +179,10 @@ public class Application extends MultiThreadedApplicationAdapter {
 		
     public void setSipServerHost(String h) {
     	sipServerHost = h.trim();
+    }
+    
+    public void setSipClientRtpIp(String ipAddr) {
+    	this.sipClientRtpIp = ipAddr.trim();
     }
     
     public void setUsername(String un) {

@@ -62,35 +62,38 @@ dependencies {
 	compile 'javax.servlet:servlet-api:2.5@jar'
 	
 	// Mina
-	compile 'mina:mina-core:2.0.4@jar'
+	compile 'org.apache.mina:mina-core:2.0.7@jar'
+	compile 'org.apache.mina:mina-integration-beans:2.0.7@jar'
+	compile 'org.apache.mina:mina-integration-jmx:2.0.7@jar'
 	
-	// Spring
-	compile 'org.springframework:spring-web:3.0.6.RELEASE@jar'
-	compile  'org.springframework:spring-beans:3.0.6.RELEASE@jar'
-	compile 'org.springframework:spring-context:3.0.6.RELEASE@jar'
-	compile 'org.springframework:spring-core:3.0.6.RELEASE@jar'
-	compile 'org.springframework:spring-webmvc:3.0.6.RELEASE@jar'
-
+	// Spring 
+	compile 'org.springframework:spring-web:3.1.1.RELEASE@jar' 
+	compile  'org.springframework:spring-beans:3.1.1.RELEASE@jar'
+	compile 'org.springframework:spring-context:3.1.1.RELEASE@jar'
+	compile 'org.springframework:spring-core:3.1.1.RELEASE@jar'
 	
 	// Red5
-	compile 'org/red5:red5:1.0r4297@jar'
+	compile 'org/red5:red5:1.0r4643@jar'
 	
 	// Logging
-	compile 'org.slf4j:com.springsource.slf4j.api:1.6.1@jar'
-	compile 'org.slf4j:com.springsource.slf4j.bridge:1.6.1@jar'
-	compile ':logback-core:0.9.28@jar'
-	compile ':logback-classic:0.9.28@jar'
-	compile ':log4j-over-slf4j:1.6.1@jar'
-	compile ':jcl-over-slf4j:1.6.1@jar'
-	compile ':jul-to-slf4j:1.6.1@jar'
-  	
-	// Testing
-	compile 'org.testng:testng:5.8@jar'
-	compile 'org.easymock:easymock:2.4@jar'
-  
-	// Testing
-	testRuntime 'org/testng:testng:5.8@jar'
-	testRuntime 'org.easymock:easymock:2.4@jar'
+	compile 'ch.qos.logback:logback-core:1.0.9@jar'
+	compile 'ch.qos.logback:logback-classic:1.0.9@jar'
+	compile 'org.slf4j:log4j-over-slf4j:1.7.2@jar' 
+	compile 'org.slf4j:jcl-over-slf4j:1.7.2@jar'
+	compile 'org.slf4j:jul-to-slf4j:1.7.2@jar'
+    compile 'org.slf4j:slf4j-api:1.7.2@jar'
+
+	// Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
+	// Otherwise we get exception on aop utils class not found.
+	compile 'org.springframework:spring-aop:3.0.6.RELEASE@jar'
+	compile 'aopalliance:aopalliance:1.0@jar'
+	
+    // Java Concurrency In Practice
+    compile 'net.jcip:jcip-annotations:1.0@jar'
+        
+    // Testing
+    compile 'org.testng:testng:5.8@jar' 
+    compile 'org.easymock:easymock:2.4@jar'
 	
 	compile project(':common')
     compile 'commons-fileupload:commons-fileupload:1.2.2@jar'
@@ -100,17 +103,17 @@ dependencies {
 	compile 'net.jcip:jcip-annotations:1.0@jar'
 	
 	// Libraries needed to run the scala tools
-	scalaTools 'org.scala-lang:scala-compiler:2.7.7'
-	scalaTools 'org.scala-lang:scala-library:2.7.7'
+	scalaTools 'org.scala-lang:scala-compiler:2.9.2'
+	scalaTools 'org.scala-lang:scala-library:2.9.2'
 
 	// Libraries needed for scala api
-	compile 'org.scala-lang:scala-library:2.7.7'
+	compile 'org.scala-lang:scala-library:2.9.2'
 	
-	compile 'net/lag/configgy:configgy:1.5@jar'
+	compile 'net.lag:configgy:2.0.0'
 	
 	//redis
 	compile 'redis.clients:jedis:2.0.0'
-	compile 'commons:commons-pool:1.5.6'
+	compile 'commons-pool:commons-pool:1.5.6'
 }
 
 test {

@@ -1,3 +1,22 @@
+/**
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 3.0 of the License, or (at your option) any later
+* version.
+* 
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+*
+*/
+
 package org.bigbluebutton.api;
 
 import java.io.File;
@@ -89,9 +108,7 @@ public class RecordingService {
 		String[] format = getPlaybackFormats(path);
 		for (int i = 0; i < format.length; i++) {
 			File[] recordings = getDirectories(path + File.separatorChar + format[i]);
-			log.debug("number of recording dirs: "+recordings.length);
 			for (int f = 0; f < recordings.length; f++) {
-				log.debug("recording dir: "+recordings[f].getName()+" meetingid:"+meetingId);
 				if (recordings[f].getName().startsWith(meetingId)) {
 					Recording r = getRecordingInfo(path, recordings[f].getName(), format[i]);
 					if (r != null) recs.add(r);
@@ -125,7 +142,6 @@ public class RecordingService {
 				if (recordings[f].getName().equalsIgnoreCase(recordingId)) {
 					Recording r = getRecordingInfo(path, recordingId, format[i]);
 					if (r != null) {
-						log.debug("Recording is NOT Null!");
 						File dest;
 						if (publish) {
 							dest = new File(publishedDir+ File.separatorChar + format[i]);

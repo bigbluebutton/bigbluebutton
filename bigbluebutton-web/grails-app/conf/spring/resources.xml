@@ -1,4 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:util="http://www.springframework.org/schema/util"
@@ -74,6 +93,7 @@
     <property name="securitySalt" value="${securitySalt}"/>
     <property name="defaultMaxUsers" value="${defaultMaxUsers}"/>
     <property name="defaultWelcomeMessage" value="${defaultWelcomeMessage}"/>
+    <property name="defaultWelcomeMessageFooter" value="${defaultWelcomeMessageFooter}"/>
     <property name="defaultDialAccessNumber" value="${defaultDialAccessNumber}"/>
     <property name="testVoiceBridge" value="${testVoiceBridge}"/>
     <property name="testConferenceMock" value="${testConferenceMock}"/>
@@ -82,6 +102,9 @@
     <property name="defaultNumDigitsForTelVoice" value="${defaultNumDigitsForTelVoice}"/>
     <property name="defaultClientUrl" value="${defaultClientUrl}"/>
     <property name="defaultMeetingDuration" value="${defaultMeetingDuration}"/>
+    <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
+    <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
+    <property name="defaultConfigURL" value="${defaultConfigURL}"/>
   </bean>
         
 	<import resource="doc-conversion.xml" />

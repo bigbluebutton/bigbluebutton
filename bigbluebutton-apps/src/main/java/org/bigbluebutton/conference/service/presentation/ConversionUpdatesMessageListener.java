@@ -1,23 +1,20 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.conference.service.presentation;
 
@@ -77,15 +74,15 @@ public class ConversionUpdatesMessageListener {
 				conversionUpdatesProcessor.process(message);
 			}
 			else if(messageKey.equalsIgnoreCase(PAGE_COUNT_EXCEEDED_KEY)){
-				String numberOfPages = (String) mapMessage.get("numberOfPages");
-				String maxNumberPages = (String) mapMessage.get("maxNumberPages");
+				Integer numberOfPages = new Integer((String) mapMessage.get("numberOfPages"));
+				Integer maxNumberPages = new Integer((String) mapMessage.get("maxNumberPages"));
 				message.put("numberOfPages", numberOfPages);
 				message.put("maxNumberPages", maxNumberPages);
 				conversionUpdatesProcessor.process(message);
 			}
 			else if(messageKey.equalsIgnoreCase(GENERATED_SLIDE_KEY)){
-				String numberOfPages = (String) mapMessage.get("numberOfPages");
-				String pagesCompleted = (String) mapMessage.get("pagesCompleted");
+				Integer numberOfPages = new Integer((String)mapMessage.get("numberOfPages"));
+				Integer pagesCompleted = new Integer((String)mapMessage.get("pagesCompleted"));
 				message.put("numberOfPages", numberOfPages);
 				message.put("pagesCompleted", pagesCompleted);
 				

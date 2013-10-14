@@ -1,23 +1,20 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.deskshare.server.sessions
 
@@ -30,13 +27,13 @@ import org.bigbluebutton.deskshare.server.svc1.Dimension
 import org.bigbluebutton.deskshare.server.stream.StreamManager
 import java.awt.Point
 
-case class CreateSession(room: String, screenDim: Dimension, blockDim: Dimension, seqNum: Int)
+case class CreateSession(room: String, screenDim: Dimension, blockDim: Dimension, seqNum: Int, useSVC2: Boolean)
 case class RemoveSession(room: String)
 case class SendKeyFrame(room: String)
 case class UpdateBlock(room: String, position: Int, blockData: Array[Byte], keyframe: Boolean, seqNum: Int)
 case class UpdateMouseLocation(room: String, mouseLoc:Point, seqNum: Int)
 
-class SessionManagerSVC(streamManager: StreamManager, keyFrameInterval: Int) extends Actor {
+class SessionManagerSVC(streamManager: StreamManager, keyFrameInterval: Int, interframeInterval: Int, waitForAllBlocks: Boolean) extends Actor {
 	private val log = Logger.get 
  
  	private val sessions = new HashMap[String, SessionSVC]
@@ -71,7 +68,7 @@ class SessionManagerSVC(streamManager: StreamManager, keyFrameInterval: Int) ext
 		sessions.get(c.room) match {
 		  case None => {
 			  log.debug("SessionManager: Created session " + c.room)
-			  val session: SessionSVC = new SessionSVC(this, c.room, c.screenDim, c.blockDim, streamManager, keyFrameInterval) 
+			  val session: SessionSVC = new SessionSVC(this, c.room, c.screenDim, c.blockDim, streamManager, keyFrameInterval, interframeInterval, waitForAllBlocks, c.useSVC2) 
 			  if (session.initMe()) {
 				  val old:Int = sessions.size
 				  sessions += c.room -> session

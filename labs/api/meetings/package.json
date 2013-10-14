@@ -1,0 +1,10 @@
+{
+  "name": "meetings-api",
+  "description": "BigBlueButton Meetings API",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "3.0.0rc5"
+  }
+}
+

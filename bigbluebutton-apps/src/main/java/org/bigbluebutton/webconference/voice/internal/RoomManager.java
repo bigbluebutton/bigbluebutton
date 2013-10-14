@@ -1,21 +1,20 @@
-/** 
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 package org.bigbluebutton.webconference.voice.internal;
 
@@ -36,7 +35,6 @@ import org.bigbluebutton.webconference.voice.events.StartRecordingEvent;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 import net.jcip.annotations.ThreadSafe;
-//import org.red5.server.api.IConnection;
 
 @ThreadSafe
 public class RoomManager {
@@ -56,9 +54,18 @@ public class RoomManager {
 		this.messagingService.start();
 	}
 
-	public void createRoom(String name,boolean record, String meetingid) {
+	public int getVoiceUserIDFromRoom(String room, String userID) {
+		RoomImp rm = rooms.get(room);
+		if (rm != null) {
+			return rm.getUserWithID(userID);
+		}
+		
+		return -1;
+	}
+	
+	public void createRoom(String name, boolean record, String meetingid) {
 		log.debug("Creating room: " + name);
-		RoomImp r = new RoomImp(name,record,meetingid);
+		RoomImp r = new RoomImp(name, record, meetingid);
 		r.addRoomListener(new ParticipantUpdatingRoomListener(r, messagingService));
 		rooms.putIfAbsent(name, r);
 	}
@@ -157,24 +164,30 @@ public class RoomManager {
 		log.debug("Processing ParticipantJoinedEvent for room: " + event.getRoom());
 		ParticipantJoinedEvent pje = (ParticipantJoinedEvent) event;
 		ParticipantImp p = new ParticipantImp(pje.getParticipantId(), pje.getCallerIdName());
-
 		p.setMuted(pje.getMuted());
 		p.setTalking(pje.getSpeaking());
 		log.debug("Joined [" + p.getId() + "," + p.getName() + "," + p.isMuted() + "," + p.isTalking() + "] to room " + rm.getName());
-
+		
 		rm.add(p);
 		
-		if ((rm.numParticipants() == 1) && rm.record() && !rm.isRecording()) {
-			/**
-			 * Start recording when the first user joins the voice conference.
-			 * WARNING: Works only with FreeSWITCH for now. We need to come up with a generic way to
-			 * trigger recording for both Asterisk and FreeSWITCH.
-			 */
-			rm.recording(true);
-			log.debug("Starting recording of voice conference");
-			log.warn(" ** WARNING: Prototyping only. Works only with FreeSWITCH for now. We need to come up with a generic way to trigger recording for both Asterisk and FreeSWITCH.");
-			confService.recordSession(event.getRoom(), rm.getMeetingId());
+		if (rm.numParticipants() == 1) {
+			if (rm.record() && !rm.isRecording()) {
+				/**
+				 * Start recording when the first user joins the voice conference.
+				 * WARNING: Works only with FreeSWITCH for now. We need to come up with a generic way to
+				 * trigger recording for both Asterisk and FreeSWITCH.
+				 */
+				rm.recording(true);
+				log.debug("Starting recording of voice conference");
+				log.warn(" ** WARNING: Prototyping only. Works only with FreeSWITCH for now. We need to come up with a generic way to trigger recording for both Asterisk and FreeSWITCH.");
+				confService.recordSession(event.getRoom(), rm.getMeetingId());
+			}
+			
+			// Broadcast the audio
+			confService.broadcastSession(event.getRoom(), rm.getMeetingId());
 		}
+		
+		
 		
 		if (rm.isMuted() && !p.isMuted()) {
 			confService.mute(p.getId(), event.getRoom(), true);

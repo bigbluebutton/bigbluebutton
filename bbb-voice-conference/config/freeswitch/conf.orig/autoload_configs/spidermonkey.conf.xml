@@ -1,8 +1,0 @@
-<configuration name="spidermonkey.conf" description="Spider Monkey JavaScript Plug-Ins">
-  <modules>
-    <load module="mod_spidermonkey_teletone"/>
-    <load module="mod_spidermonkey_core_db"/>
-    <load module="mod_spidermonkey_socket"/>
-    <!--<load module="mod_spidermonkey_odbc"/>-->
-  </modules>
-</configuration>

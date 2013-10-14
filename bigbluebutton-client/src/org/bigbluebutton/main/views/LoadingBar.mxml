@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
-  
-  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
-  
-  BigBlueButton is free software; you can redistribute it and/or modify it under the 
-  terms of the GNU Lesser General Public License as published by the Free Software 
-  Foundation; either version 2.1 of the License, or (at your option) any later 
-  version. 
-  
-  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
-  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-  
-  You should have received a copy of the GNU Lesser General Public License along 
-  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- 
-  $Id: $
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
 -->
 
 <mx:ProgressBar xmlns:mate="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml" labelPlacement="bottom" minimum="0" maximum="100" mode="manual" >
@@ -26,6 +26,7 @@
 	<mate:Listener type="{ModuleLoadEvent.MODULE_LOAD_PROGRESS}" method="moduleLoadProgress" />
 	<mate:Listener type="{ModuleLoadEvent.ALL_MODULES_LOADED}" method="allModulesLoaded" />
 	<mate:Listener type="{PortTestEvent.TEST_RTMP}" method="testRTMP" />
+	<mate:Listener type="{PortTestEvent.PORT_TEST_UPDATE}" method="testRTMPupdate" />
 	<mate:Listener type="{PortTestEvent.TUNNELING_FAILED}" method="tunnelingFailed" />
 		
 	<mx:Script>
@@ -39,7 +40,7 @@
 			
 			private var modules:Dictionary = new Dictionary();
 			private var numModules:int = 0;
-			
+			private var portUpdateStr:String = 'Connecting to the server';
 			private function moduleLoadingStarted(e:ModuleLoadEvent):void{
 				var list:XMLList = e.modules;
 				var item:XML;
@@ -71,7 +72,14 @@
 			
 			private function testRTMP(e:PortTestEvent):void{
 				//- Cannot get locale string this early in loading process
-				this.label = 'Connecting to the server'; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
+				portUpdateStr += "."
+				this.label = portUpdateStr; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
+			}
+			
+			private function testRTMPupdate(e:PortTestEvent):void{
+				//- Cannot get locale string this early in loading process
+				portUpdateStr += "...";
+				this.label = portUpdateStr; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
 			}
 			
 			private function tunnelingFailed(e:PortTestEvent):void{

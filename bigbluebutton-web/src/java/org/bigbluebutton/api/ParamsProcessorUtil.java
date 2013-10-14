@@ -1,18 +1,44 @@
+/**
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 3.0 of the License, or (at your option) any later
+* version.
+* 
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+*
+*/
+
 package org.bigbluebutton.api;
 
+import javax.servlet.ServletRequest;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bigbluebutton.api.domain.Meeting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.httpclient.*;
+import org.apache.commons.httpclient.methods.*;
 
 public class ParamsProcessorUtil {
 	private static Logger log = LoggerFactory.getLogger(ParamsProcessorUtil.class);
@@ -24,6 +50,7 @@ public class ParamsProcessorUtil {
 	private String securitySalt;
 	private int defaultMaxUsers = 20;
 	private String defaultWelcomeMessage;
+	private String defaultWelcomeMessageFooter;
 	private String defaultDialAccessNumber;
 	private String testVoiceBridge;
 	private String testConferenceMock;
@@ -31,8 +58,11 @@ public class ParamsProcessorUtil {
 	private String defaultServerUrl;
 	private int defaultNumDigitsForTelVoice;
 	private String defaultClientUrl;
+	private String defaultAvatarURL;
+	private String defaultConfigURL;
 	private int defaultMeetingDuration;
-
+	private boolean disableRecordingDefault;
+	
 	private String substituteKeywords(String message, String dialNumber, String telVoice, String meetingName) {
 	    String welcomeMessage = message;
 	    
@@ -231,7 +261,11 @@ public class ParamsProcessorUtil {
 	
 	public Meeting processCreateParams(Map<String, String> params) {
 	    String meetingName = params.get("name");
+	    if(meetingName == null){
+	    	meetingName = "";
+	    }
 	    String externalMeetingId = params.get("meetingID");
+	    
 	    String viewerPass = processPassword(params.get("attendeePW"));
 	    String modPass = processPassword(params.get("moderatorPW")); 
 	    
@@ -255,7 +289,7 @@ public class ParamsProcessorUtil {
 	    int meetingDuration = processMeetingDuration(params.get("duration"));
 	    String welcomeMessage = processWelcomeMessage(params.get("welcome"));
 	    welcomeMessage = substituteKeywords(welcomeMessage, dialNumber, telVoice, meetingName);
-	    
+	    	    
 	    String internalMeetingId = convertToInternalMeetingId(externalMeetingId);
 	    
 	    // Check if this is a test meeting. NOTE: This should not belong here. Extract this out.				
@@ -285,7 +319,11 @@ public class ParamsProcessorUtil {
 	        .withName(meetingName).withMaxUsers(maxUsers).withModeratorPass(modPass)
 	        .withViewerPass(viewerPass).withRecording(record).withDuration(meetingDuration)
 	        .withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
+	        .withDefaultAvatarURL(defaultAvatarURL)
 	        .withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build();
+	    
+	    String configXML = getDefaultConfigXML();
+	    meeting.storeConfig(true, configXML);
 	    
 	    return meeting;
 	}
@@ -303,6 +341,32 @@ public class ParamsProcessorUtil {
 		return defaultClientUrl;
 	}
 	
+	public String getDefaultConfigXML() {
+		return getConfig(defaultConfigURL);
+	}
+	
+	private String getConfig(String url) {
+		HttpClient client = new HttpClient();
+		GetMethod get = new GetMethod(url);
+		String configXML = "";
+		try {
+			client.executeMethod(get);
+			configXML = get.getResponseBodyAsString();
+		} catch (HttpException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		  		  
+		return configXML;
+	  }
+	
+	public String getDefaultConfigURL() {
+		return defaultConfigURL;
+	}
+	
 	public String getDefaultLogoutUrl() {
 		 if ((StringUtils.isEmpty(defaultLogoutUrl)) || defaultLogoutUrl.equalsIgnoreCase("default")) {          
      		return defaultServerUrl;
@@ -316,6 +380,8 @@ public class ParamsProcessorUtil {
 		if (StringUtils.isEmpty(message)) {
 			welcomeMessage = defaultWelcomeMessage;
 		}
+		if( !StringUtils.isEmpty(defaultWelcomeMessageFooter) )
+		    welcomeMessage += "<br><br>" + defaultWelcomeMessageFooter;
 		return welcomeMessage;
 	}
 
@@ -352,6 +418,12 @@ public class ParamsProcessorUtil {
 	}
 	
 	public boolean processRecordMeeting(String record) {
+		// The administrator has turned off recording for all meetings.
+		if (disableRecordingDefault) {
+			log.info("Recording is turned OFF by default.");
+			return false;
+		}
+		
 		boolean rec = false;			
 		if(! StringUtils.isEmpty(record)){
 			try {
@@ -403,6 +475,23 @@ public class ParamsProcessorUtil {
 		return "";	
 	}
 	
+	public boolean isConfigXMLChecksumSame(String meetingID, String configXML, String checksum) {
+		if (StringUtils.isEmpty(securitySalt)) {
+			log.warn("Security is disabled in this service. Make sure this is intentional.");
+			return true;
+		}
+        
+		String cs = DigestUtils.shaHex(meetingID + configXML + securitySalt);
+		log.debug("our checksum: [{}], client: [{}]", cs, checksum);
+		System.out.println("our checksum: [" + cs + "] client: [" + checksum + "]");
+		if (cs == null || cs.equals(checksum) == false) {
+			log.info("checksumError: request did not pass the checksum security check");
+			return false;
+		}
+		log.debug("checksum ok: request passed the checksum security check");
+		return true;
+	}
+	
 	public boolean isChecksumSame(String apiCall, String checksum, String queryString) {
 		log.debug("checksum: [{}] ; query string: [{}]", checksum, queryString);
 	
@@ -428,6 +517,65 @@ public class ParamsProcessorUtil {
 		return true; 
 	}
 	
+	public boolean isPostChecksumSame(String apiCall, HashMap<String, String[]> params) {
+		if (StringUtils.isEmpty(securitySalt)) {
+			log.warn("Security is disabled in this service. Make sure this is intentional.");
+			return true;
+		}
+
+		StringBuffer csbuf = new StringBuffer();
+		csbuf.append(apiCall);
+ 
+		SortedSet<String> keys = new TreeSet<String>(params.keySet());
+ 
+		boolean first = true;
+		String checksum = null;
+		for (String key: keys) {
+			if (key.equals("checksum")) {
+				// Don't include the "checksum" parameter in the checksum
+				checksum = params.get(key)[0];
+				continue;
+			}
+ 
+			for (String value: params.get(key)) {
+				if (first) {
+					first = false;
+				} else {
+					csbuf.append("&");
+				}
+				csbuf.append(key);
+				csbuf.append("=");
+				String encResult;
+
+				try {       
+					// we need to re-encode the values because Grails unencoded it
+					// when it received the 'POST'ed data. Might not need to do in a GET request.
+					encResult = URLEncoder.encode(value, "UTF-8");  
+				} catch (UnsupportedEncodingException e) {       
+					encResult = value;     
+				} 					
+
+				csbuf.append(encResult);
+			}
+		}
+		csbuf.append(securitySalt);
+
+		String baseString = csbuf.toString();
+
+   // System.out.println( "POST basestring = [" + baseString + "]");
+
+		String cs = DigestUtils.shaHex(baseString);
+ 		//System.out.println("our checksum: [" + cs + "], client: [" + checksum + "]");
+		//log.debug("our checksum: [{}], client: [{}]", cs, checksum);
+
+		if (cs == null || cs.equals(checksum) == false) {
+			log.info("checksumError: request did not pass the checksum security check");
+			return false;
+		}
+		log.debug("checksum ok: request passed the checksum security check");
+		return true;
+	}
+
 	/*************************************************
 	 * Setters
 	 ************************************************/
@@ -451,6 +599,10 @@ public class ParamsProcessorUtil {
 	public void setDefaultWelcomeMessage(String defaultWelcomeMessage) {
 		this.defaultWelcomeMessage = defaultWelcomeMessage;
 	}
+	
+	public void setDefaultWelcomeMessageFooter(String defaultWelcomeMessageFooter) {
+	    this.defaultWelcomeMessageFooter = defaultWelcomeMessageFooter;
+	}
 
 	public void setDefaultDialAccessNumber(String defaultDialAccessNumber) {
 		this.defaultDialAccessNumber = defaultDialAccessNumber;
@@ -468,6 +620,10 @@ public class ParamsProcessorUtil {
 		this.defaultLogoutUrl = defaultLogoutUrl;
 	}
 
+	public void setDefaultConfigURL(String defaultConfigUrl) {
+		this.defaultConfigURL = defaultConfigUrl;
+	}
+	
 	public void setDefaultServerUrl(String defaultServerUrl) {
 		this.defaultServerUrl = defaultServerUrl;
 	}
@@ -482,6 +638,14 @@ public class ParamsProcessorUtil {
 
 	public void setDefaultMeetingDuration(int defaultMeetingDuration) {
 		this.defaultMeetingDuration = defaultMeetingDuration;
+	}
+
+	public void setDisableRecordingDefault(boolean disabled) {
+		this.disableRecordingDefault = disabled;
+	}
+	
+	public void setdefaultAvatarURL(String url) {
+		this.defaultAvatarURL = url;
 	}
 	
 	public ArrayList<String> decodeIds(String encodeid){
@@ -501,5 +665,21 @@ public class ParamsProcessorUtil {
 			internalMeetingIds.add(convertToInternalMeetingId(extid));
 		}
 		return internalMeetingIds;
+	}
+	
+	public Map<String,String> getUserCustomData(Map<String,String> params){
+		Map<String,String> resp = new HashMap<String, String>();
+		
+		for (String key: params.keySet()) {
+	    	if (key.contains("userdata")&&key.indexOf("userdata")==0){
+	    		String[] userdata = key.split("-");
+			    if(userdata.length == 2){
+			    	log.debug("Got user custom data {} = {}", key, params.get(key));
+			    	resp.put(userdata[1], params.get(key));
+			    }
+			}   
+	    }
+		
+		return resp;
 	}
 }

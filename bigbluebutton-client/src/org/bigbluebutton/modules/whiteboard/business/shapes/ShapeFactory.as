@@ -1,144 +1,128 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-	import flash.display.Shape;
-	
-	/**
-	 * The ShapeFactory receives DrawObjects and converts them to Flash Shapes which can then be displayed
-	 * <p>
-	 * This approach is necessary because Red5 does not allow Graphical Objects to be stored 
-	 * in remote shared objects 
-	 * @author dzgonjan
-	 * 
-	 */	
-	public class ShapeFactory
-	{
-		private var drawFactory:DrawObjectFactory;
-		
-		public function ShapeFactory()
-		{
-			drawFactory = new DrawObjectFactory();
-		}
-		
-		/**
-		 * Creates a Flash Shape, given a DrawObject representation of it 
-		 * @param shape
-		 * @return 
-		 * 
-		 */		
-		public function makeShape(shape:DrawObject):Shape{
-			var s:Shape = null;
-			if (shape.getType() == DrawObject.PENCIL){
-				s = makePencil(Pencil(shape));
-			} else if (shape.getType() == DrawObject.RECTANGLE){
-				s = makeRectangle(Rectangle(shape));
-			} else if (shape.getType() == DrawObject.ELLIPSE){
-				s = makeEllipse(Ellipse(shape));
-			}
-			return s;
-		}
-		
-		/**
-		 * Creates a shape from the specified parameters 
-		 * @param segment
-		 * @param type
-		 * @param color
-		 * @param thickness
-		 * @return A Flash Shape object
-		 * 
-		 */		
-		public function makeFeedback(segment:Array, type:String, color:uint, thickness:uint):Shape{
-			return makeShape(drawFactory.makeDrawObject(type,segment, color, thickness));
-		}
-		
-		/**
-		 * Creates a Flash Shape from a Pencil DrawObject 
-		 * @param p a Pencil DrawObject
-		 * @return a Shape
-		 * 
-		 */		
-		private function makePencil(p:Pencil):Shape{
-			var newShape:Shape = new Shape();
-			newShape.graphics.lineStyle(p.getThickness(), p.getColor());
-			
-			var graphicsCommands:Vector.<int> = new Vector.<int>();
-			graphicsCommands.push(1);
-			var coordinates:Vector.<Number> = new Vector.<Number>();
-			coordinates.push(p.getShapeArray()[0], p.getShapeArray()[1]);
-			
-			for (var i:int = 2; i < p.getShapeArray().length; i += 2){
-				graphicsCommands.push(2);
-				coordinates.push(p.getShapeArray()[i], p.getShapeArray()[i+1]);
-			}
-
-			newShape.graphics.drawPath(graphicsCommands, coordinates);
-			
-           	if (p.getColor() == 0x000000 || p.getColor() == 0xFFFFFF) newShape.alpha = 1;
-           	else newShape.alpha = 0.6;
-	            
-	        return newShape;
-		}
-		
-		/**
-		 * Creates a Flash Shape from a Rectangle DrawObject 
-		 * @param r a Rectangle DrawObject
-		 * @return a Shape
-		 * 
-		 */		
-		private function makeRectangle(r:Rectangle):Shape{
-			var newShape:Shape = new Shape();
-			newShape.graphics.lineStyle(r.getThickness(), r.getColor());
-			var arrayEnd:Number = r.getShapeArray().length;
-			var x:Number = r.getShapeArray()[0];
-			var y:Number = r.getShapeArray()[1];
-			var width:Number = r.getShapeArray()[arrayEnd-2] - x;
-			var height:Number = r.getShapeArray()[arrayEnd-1] - y;
-			
-			newShape.graphics.drawRect(x,y,width,height);
-			if (r.getColor() == 0x000000 || r.getColor() == 0xFFFFFF) newShape.alpha = 1.0;
-			else newShape.alpha = 0.6;
-			
-			return newShape;	
-		}
-		
-		/**
-		 * Creates a Flash Shape from an Ellipse DrawObject 
-		 * @param e an Ellipse DrawObject
-		 * @return a Shape
-		 * 
-		 */		
-		private function makeEllipse(e:Ellipse):Shape{
-			var newShape:Shape = new Shape();
-			newShape.graphics.lineStyle(e.getThickness(), e.getColor());
-			var arrayEnd:Number = e.getShapeArray().length;
-			var x:Number = e.getShapeArray()[0];
-			var y:Number = e.getShapeArray()[1];
-			var width:Number = e.getShapeArray()[arrayEnd-2] - x;
-			var height:Number = e.getShapeArray()[arrayEnd-1] - y;
-			
-			newShape.graphics.drawEllipse(x,y,width,height);
-			if (e.getColor() == 0x000000 || e.getColor() == 0xFFFFFF) newShape.alpha = 1.0;
-			else newShape.alpha = 0.6;
-			
-			return newShape;
-		}
-
-	}
+  import flash.display.Shape;  
+  import org.bigbluebutton.common.LogUtil;
+  import org.bigbluebutton.modules.whiteboard.models.Annotation;
+  import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
+  
+  /**
+   * The ShapeFactory receives DrawObjects and converts them to Flash Shapes which can then be displayed
+   * <p>
+   * This approach is necessary because Red5 does not allow Graphical Objects to be stored 
+   * in remote shared objects 
+   * @author dzgonjan
+   * 
+   */  
+  public class ShapeFactory extends GraphicFactory
+  {
+    private var _parentWidth:Number = 0;
+    private var _parentHeight:Number = 0;
+    
+    public function ShapeFactory() {
+      super(GraphicFactory.SHAPE_FACTORY);
+    }
+    
+    public function setParentDim(width:Number, height:Number):void {
+      _parentWidth = width;
+      _parentHeight = height;
+    }
+    
+        public function get parentWidth():Number {
+            return _parentWidth;
+        }
+        
+        public function get parentHeight():Number {
+            return _parentHeight;
+        }
+        
+        public function makeDrawObject(a:Annotation, whiteboardModel:WhiteboardModel):DrawObject{
+            if (a.type == DrawObject.PENCIL) {
+                return new Pencil(a.id, a.type, a.status);
+            } else if (a.type == DrawObject.RECTANGLE) {
+                return new Rectangle(a.id, a.type, a.status);
+            } else if (a.type == DrawObject.ELLIPSE) {
+                return new Ellipse(a.id, a.type, a.status);
+            }  else if (a.type == DrawObject.LINE) {
+                return new Line(a.id, a.type, a.status);
+            }  else if (a.type == DrawObject.TRIANGLE) {
+                return new Triangle(a.id, a.type, a.status);
+            } else if (a.type == DrawObject.TEXT) {
+                return new TextDrawObject(a.id, a.type, a.status);
+            }
+            
+            return null;
+        }
+        
+        private function createAnnotation(type:String, shape:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawAnnotation{
+            if (type == DrawObject.PENCIL){
+                return new PencilDrawAnnotation(shape, color, thickness, trans);
+            } else if (type == DrawObject.RECTANGLE){
+        return new RectangleAnnotation(shape, color, thickness, trans);
+      } else if (type == DrawObject.ELLIPSE){
+        return new EllipseAnnotation(shape, color, thickness, trans);
+      } else if (type == DrawObject.LINE){
+        return new LineAnnotation(shape, color, thickness, trans);
+      } else if (type == DrawObject.TRIANGLE){
+        return new TriangleAnnotation(shape, color, thickness, trans);
+      }
+            
+            return null;
+        }
+            
+    public function createDrawObject(type:String, segment:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, transparency:Boolean):DrawAnnotation {
+      var normSegment:Array = new Array();
+      for (var i:int = 0; i < segment.length; i += 2) {
+        normSegment[i] = normalize(segment[i] , _parentWidth);
+        normSegment[i+1] = normalize(segment[i+1], _parentHeight);
+      }
+      return createAnnotation(type, normSegment, color, thickness, fill, fillColor, transparency);
+    }
+        
+    public function createTextObject(txt:String, txtColor:uint, x:Number, y:Number, tbWidth:Number, tbHeight:Number, textSize:Number):TextDrawAnnotation {               
+      var tobj:TextDrawAnnotation = new TextDrawAnnotation(txt, txtColor, normalize(x , _parentWidth), normalize(y, _parentHeight), 
+                                                      normalize(tbWidth , _parentWidth), normalize(tbHeight , _parentHeight), 
+                                                      textSize, normalize(textSize, _parentHeight));
+            return tobj;
+        }
+          
+        
+        /* convenience method for above method, takes a TextObject and returns one with "normalized" coordinates */
+        public function makeTextObject(t:Annotation):TextObject {
+//            LogUtil.debug("***Making textObject [" + t.type + ", [" + t.annotation.x + "," + t.annotation.y + "]");
+            var tobj:TextObject = new TextObject(t.annotation.text, t.annotation.fontColor, 
+                                                t.annotation.x, t.annotation.y, t.annotation.textBoxWidth, 
+                                                t.annotation.textBoxHeight, t.annotation.fontSize, t.annotation.calcedFontSize);
+            tobj.makeGraphic(_parentWidth,_parentHeight);
+//            LogUtil.debug("***Made textObject [" + tobj.text + ", [" + tobj.x + "," + tobj.y + "," + tobj.textSize + "]");
+           return tobj;
+        }
+        
+        public function redrawTextObject(a:Annotation, t:TextObject):TextObject {
+//            LogUtil.debug("***Redraw textObject [" + a.type + ", [" + a.annotation.x + "," + a.annotation.y + "]");
+            var tobj:TextObject = new TextObject(a.annotation.text, a.annotation.fontColor, 
+                        a.annotation.x, a.annotation.y, a.annotation.textBoxWidth, a.annotation.textBoxHeight, 
+                        a.annotation.fontSize, a.annotation.calcedFontSize);
+            tobj.redrawText(t.oldParentWidth, t.oldParentHeight, _parentWidth,_parentHeight);
+//            LogUtil.debug("***Redraw textObject [" + tobj.text + ", [" + tobj.x + "," + tobj.y + "," + tobj.textSize + "]");
+            return tobj;
+        }        
+  }
 }

@@ -1,12 +1,30 @@
+/**
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 3.0 of the License, or (at your option) any later
+* version.
+* 
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+*
+*/
+
 package org.bigbluebutton.api;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.*;
+import org.apache.commons.lang.RandomStringUtils;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Playback;
 import org.bigbluebutton.api.domain.Recording;
@@ -23,6 +41,8 @@ public class MeetingService {
 	
 	private final ConcurrentMap<String, Meeting> meetings;	
 	private final ConcurrentMap<String, UserSession> sessions;
+	
+	
 	private int defaultMeetingExpireDuration = 1;	
 	private int defaultMeetingCreateJoinDuration = 5;
 	private RecordingService recordingService;
@@ -33,6 +53,7 @@ public class MeetingService {
 	public MeetingService() {
 		meetings = new ConcurrentHashMap<String, Meeting>();	
 		sessions = new ConcurrentHashMap<String, UserSession>();
+		
 	}
 	
 	public void addUserSession(String token, UserSession user) {
@@ -46,7 +67,7 @@ public class MeetingService {
 	public UserSession removeUserSession(String token) {
 		return sessions.remove(token);
 	}
-	
+		
 	/**
 	 * Remove the meetings that have ended from the list of
 	 * running meetings.
@@ -54,10 +75,10 @@ public class MeetingService {
 	public void removeExpiredMeetings() {
 		log.info("Cleaning up expired meetings");
 		for (Meeting m : meetings.values()) {
-			if (m.hasExpired(defaultMeetingExpireDuration)) {
+			if (m.hasExpired(defaultMeetingExpireDuration) ) {
 				log.info("Removing expired meeting [id={} , name={}]", m.getInternalId(), m.getName());
 				log.info("Expired meeting [start={} , end={}]", m.getStartTime(), m.getEndTime());
-		  		if (m.isRecord()) {
+		  		if (m.isRecord() && m.getNumUsers()==0) {
 		  			log.debug("[" + m.getInternalId() + "] is recorded. Process it.");		  			
 		  			processRecording(m.getInternalId());
 		  		}
@@ -73,9 +94,8 @@ public class MeetingService {
 			
 			if (m.hasExceededDuration()) {
 				log.info("Forcibly ending meeting [{} - {}]", m.getInternalId(), m.getName());
-				m.setForciblyEnded(true);
 				endMeeting(m.getInternalId());
-			}
+			}			
 		}
 	}
 	
@@ -88,7 +108,7 @@ public class MeetingService {
 		log.debug("Storing Meeting with internal id:" + m.getInternalId());
 		meetings.put(m.getInternalId(), m);
 		if (m.isRecord()) {
-			Map<String,String> metadata=new HashMap<String,String>();
+			Map<String,String> metadata=new LinkedHashMap<String,String>();
 			metadata.putAll(m.getMetadata());
 			//TODO: Need a better way to store these values for recordings
 			metadata.put("meetingId", m.getExternalId());
@@ -142,23 +162,14 @@ public class MeetingService {
 	}
 	
 	private int getDurationRecording(String end, String start){
-		// Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
-		SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss z yyyy");
 		int duration;
 		try{
-			Calendar cal=Calendar.getInstance();
-			
-			cal.setTime(sdf.parse(end));
-			long end_time=cal.getTimeInMillis();
-			
-			cal.setTime(sdf.parse(start));
-			long start_time=cal.getTimeInMillis();
-			
-			duration = (int)Math.ceil((end_time - start_time)/60000.0);
+			duration = (int)Math.ceil((Long.parseLong(end) - Long.parseLong(start))/60000.0);
 		}catch(Exception e){
 			log.debug(e.getMessage());
 			duration = 0;
 		}
+		
 		return duration;
 	}
 	
@@ -184,17 +195,7 @@ public class MeetingService {
 	
 	public void processRecording(String meetingId) {
 		log.debug("Process recording for [{}]", meetingId);
-		Meeting m = getMeeting(meetingId);
-		if (m != null) {
-			int numUsers = m.getNumUsers();
-			if (numUsers == 0) {
-				recordingService.startIngestAndProcessing(meetingId);		
-			} else {
-				log.debug("Meeting [{}] is not empty with {} users.", meetingId, numUsers);
-			}
-		} else {
-			log.warn("Meeting [{}] does not exist.", meetingId);
-		}
+		recordingService.startIngestAndProcessing(meetingId);
 	}
 		
 	public boolean isMeetingWithVoiceBridgeExist(String voiceBridge) {
@@ -213,14 +214,26 @@ public class MeetingService {
 	
 	public void endMeeting(String meetingId) {		
 		messagingService.endMeeting(meetingId);
-		
-		if (removeMeetingWhenEnded) {
-			meetings.remove(meetingId);
-		} else {
-			Meeting m = getMeeting(meetingId);
-			if (m != null) {
-				m.setForciblyEnded(true);
-			}			
+		Meeting m = getMeeting(meetingId);
+		if(m != null){
+			m.setForciblyEnded(true);
+			if(removeMeetingWhenEnded)
+			{
+				if (m.isRecord()) {
+					log.debug("[" + m.getInternalId() + "] is recorded. Process it.");		  			
+					processRecording(m.getInternalId());
+				}
+				meetings.remove(m.getInternalId());
+			}
+		}else{
+			log.debug("endMeeting - meeting doesn't exist: " + meetingId);
+		}
+	}
+	
+	public void addUserCustomData(String meetingId, String userID, Map<String,String> userCustomData){
+		Meeting m = getMeeting(meetingId);
+		if(m != null){
+			m.addUserCustomData(userID,userCustomData);
 		}
 	}
 

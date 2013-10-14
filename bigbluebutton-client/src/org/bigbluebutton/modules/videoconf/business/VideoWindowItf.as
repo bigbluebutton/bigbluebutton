@@ -1,41 +1,54 @@
 /**
- * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
- *
- * Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
- *
- * This program is free software; you can redistribute it and/or modify it under the
- * terms of the GNU Lesser General Public License as published by the Free Software
- * Foundation; either version 2.1 of the License, or (at your option) any later
- * version.
- *
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License along
- * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- * 
- */
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 3.0 of the License, or (at your option) any later
+* version.
+* 
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+*
+*/
 
 package org.bigbluebutton.modules.videoconf.business
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
+	import flash.events.MouseEvent;
+	import flash.geom.Point;
+	import flash.media.Video;
+	
 	import flexlib.mdi.containers.MDIWindow;
 	import flexlib.mdi.events.MDIWindowEvent;
 	
-	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.common.Images;
-	import org.bigbluebutton.common.IBbbModuleWindow;
-	import org.bigbluebutton.common.events.DragWindowEvent;
-	import org.bigbluebutton.common.events.CloseWindowEvent;
-	import org.bigbluebutton.main.views.MainCanvas;
-	import org.bigbluebutton.util.i18n.ResourceUtil;
-	
+	import mx.containers.Panel;
+	import mx.controls.Button;
 	import mx.core.UIComponent;
-	import mx.controls.Button;	
 	
-	import flash.events.MouseEvent;
-	import flash.media.Video;
-	import flash.geom.Point;
+	import org.bigbluebutton.common.IBbbModuleWindow;
+	import org.bigbluebutton.common.Images;
+	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.common.events.CloseWindowEvent;
+	import org.bigbluebutton.common.events.DragWindowEvent;
+	import org.bigbluebutton.core.EventConstants;
+	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.events.CoreEvent;
+	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.main.model.users.BBBUser;
+	import org.bigbluebutton.main.model.users.events.KickUserEvent;
+	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+	import org.bigbluebutton.main.views.MainCanvas;
+	import org.bigbluebutton.modules.videoconf.events.UserTalkingEvent;
+	import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+	import org.bigbluebutton.modules.videoconf.views.ControlButtons;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class VideoWindowItf extends MDIWindow implements IBbbModuleWindow
 	{
@@ -50,23 +63,45 @@ package org.bigbluebutton.modules.videoconf.business
 		protected var _minHeight:int = 120 + PADDING_VERTICAL;
 		protected var aspectRatio:Number = 1;
 		protected var keepAspect:Boolean = false;
-		protected var originalWidth:Number;
-		protected var originalHeight:Number;
-		
+	
 		protected var mousePositionOnDragStart:Point;
 		
 		public var streamName:String;
-		public var userId:int;
-		[Bindable] public var resolutions:Array;
+    
+    private var windowType:String = "VideoWindowItf";
+    
+    public var userID:String = null;
+
+    protected var _controlButtons:ControlButtons = new ControlButtons();
 		
+    [Bindable] public var resolutions:Array;
+
+	protected var videoConfOptions:VideoConfOptions = new VideoConfOptions();
+
+    public function getWindowType():String {
+      return windowType;
+    }
+    
+    protected function updateControlButtons():void {
+      _controlButtons.updateControlButtons();
+    }
+    
 		protected function getVideoResolution(stream:String):Array {
-			for each (var resStr:String in resolutions){
-				if (resStr == stream.substr(0, resStr.length))
-					return resStr.split( "x" );
+			var pattern:RegExp = new RegExp("(\\d+x\\d+)-([A-Za-z0-9]+)-\\d+", "");
+			if (pattern.test(stream)) {
+				LogUtil.debug("The stream name is well formatted [" + stream + "]");
+        var uid:String = UserManager.getInstance().getConference().getMyUserId();
+        LogUtil.debug("Stream resolution is [" + pattern.exec(stream)[1] + "]");
+        LogUtil.debug("Userid [" + pattern.exec(stream)[2] + "]");
+        userID = pattern.exec(stream)[2];
+        addControlButtons();
+        return pattern.exec(stream)[1].split("x");
+			} else {
+				LogUtil.error("The stream name doesn't follow the pattern <width>x<height>-<userId>-<timestamp>. However, the video resolution will be set to the lowest defined resolution in the config.xml: " + resolutions[0]);
+				return resolutions[0].split("x");
 			}
-			return null;
 		}
-		
+		    
 		protected function get paddingVertical():Number {
 			return this.borderMetrics.top + this.borderMetrics.bottom;
 		}
@@ -178,89 +213,74 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 		public function getPrefferedPosition():String{
-			if (_buttonsEnabled)
+			if (_controlButtonsEnabled)
 				return MainCanvas.POPUP;
 			else
 				// the window is docked, so it should not be moved on reset layout
 				return MainCanvas.ABSOLUTE;
 		}
-		
-		public function onDrag(event:MDIWindowEvent = null):void {
-			var e:DragWindowEvent = new DragWindowEvent(DragWindowEvent.DRAG);
-			e.mouseGlobal = this.localToGlobal(new Point(mouseX, mouseY));
-			e.window = this;
-			dispatchEvent(e);
-		}
-		
-		public function onDragStart(event:MDIWindowEvent = null):void {
-			var e:DragWindowEvent = new DragWindowEvent(DragWindowEvent.DRAG_START);
-			e.window = this;
-			dispatchEvent(e);
-		}
-		
-		public function onDragEnd(event:MDIWindowEvent = null):void {
-			var e:DragWindowEvent = new DragWindowEvent(DragWindowEvent.DRAG_END);
-			e.mouseGlobal = this.localToGlobal(new Point(mouseX, mouseY));
-			e.window = this;
-			dispatchEvent(e);
-		}
-		
+			
 		override public function close(event:MouseEvent = null):void{
+      trace("VideoWIndowItf close window event");
+      
 			var e:CloseWindowEvent = new CloseWindowEvent();
 			e.window = this;
 			dispatchEvent(e);
 			
 			super.close(event);
 		}
-		
-		private var _buttons:ButtonsOverlay = null;
-		private var _buttonsEnabled:Boolean = true;
+		   
+		private var _controlButtonsEnabled:Boolean = true;
 		
 		private var img_unlock_keep_aspect:Class = images.lock_open;
 		private var img_lock_keep_aspect:Class = images.lock_close;
 		private var img_fit_video:Class = images.arrow_in;
 		private var img_original_size:Class = images.shape_handles;
-		
-		protected function get buttons():ButtonsOverlay {
-			if (_buttons == null) {
-				_buttons = new ButtonsOverlay;
-				_buttons.add("originalSizeBtn", img_original_size, ResourceUtil.getInstance().getString('bbb.video.originalSizeBtn.tooltip'), onOriginalSizeClick);
-				
-				// hiding the other buttons
-				//_buttons.add("keepAspectBtn", img_lock_keep_aspect, ResourceUtil.getInstance().getString('bbb.video.keepAspectBtn.tooltip'), onKeepAspectClick);
-				//_buttons.add("fitVideoBtn", img_fit_video, ResourceUtil.getInstance().getString('bbb.video.fitVideoBtn.tooltip'), onFitVideoClick);
-				
-				_buttons.visible = false;
-				
-				this.addChild(_buttons);
+		private var img_mute_icon:Class = images.webcam_mute;
+    private var signOutIcon:Class = images.webcam_kickuser;
+    private var adminIcon:Class = images.webcam_make_presenter;
+    private var chatIcon:Class = images.webcam_private_chat;
+    
+    protected function addControlButtons():void {
+      _controlButtons.sharerUserID = userID;
+      _controlButtons.visible = true;
+      this.addChild(_controlButtons);
+    }
+    
+		protected function get controlButtons():ControlButtons {
+			if (_controlButtons == null) {				
+				_controlButtons.visible = false;							
 			} 
-			return _buttons;
+			return _controlButtons;
 		}
 		
-		protected function createButtons():void {
-			// creates the window keeping the aspect ratio 
-			onKeepAspectClick();
+		protected function createButtons():void {      
+      updateButtonsPosition();
 		}
 		
 		protected function updateButtonsPosition():void {
-			if (buttons.visible == false) {
-				buttons.y = buttons.x = 0;
+      if (this.width < controlButtons.width) {
+        controlButtons.visible = false;
+      }
+      
+			if (controlButtons.visible == false) {
+				controlButtons.y = controlButtons.x = 0;
 			} else {
-				buttons.y = _video.y + _video.height - buttons.height - buttons.padding;
-				buttons.x = _video.x + _video.width - buttons.width - buttons.padding;
+				controlButtons.y = this.height - PADDING_VERTICAL - controlButtons.height - controlButtons.padding;
+				controlButtons.x = this.width - PADDING_HORIZONTAL - controlButtons.width - controlButtons.padding;
 			}
 		}
 		
 		protected function showButtons(event:MouseEvent = null):void {
-			if (_buttonsEnabled && buttons.visible == false) {
-				buttons.visible = true;
+			if (_controlButtonsEnabled && controlButtons.visible == false && this.width > controlButtons.width) {
+				controlButtons.visible = true;
 				updateButtonsPosition();
 			}
 		}
 		
 		protected function hideButtons(event:MouseEvent = null):void {
-			if (_buttonsEnabled && buttons.visible == true) {
-				buttons.visible = false;
+			if (_controlButtonsEnabled && controlButtons.visible == true) {
+				controlButtons.visible = false;
 				updateButtonsPosition();
 			}
 		}
@@ -281,42 +301,19 @@ package org.bigbluebutton.modules.videoconf.business
 		public function set buttonsEnabled(enabled:Boolean):void {
 			if (!enabled) 
 				hideButtons();
-			_buttonsEnabled = enabled;
+			_controlButtonsEnabled = enabled;
 		}
 		
-		protected function onOriginalSizeClick(event:MouseEvent = null):void {
-			_video.width = _videoHolder.width = originalWidth;
-			_video.height = _videoHolder.height = originalHeight;
-			onFitVideoClick();
-		}		
 		
-		protected function onFitVideoClick(event:MouseEvent = null):void {
-			var newWidth:int = _video.width + paddingHorizontal;
-			var newHeight:int = _video.height + paddingVertical;
-			
-			this.x += (this.width - newWidth)/2;
-			this.y += (this.height - newHeight)/2;
-			this.width = newWidth;
-			this.height = newHeight;
-			onResize();
-		}
-		
-		protected function onKeepAspectClick(event:MouseEvent = null):void {
-			keepAspect = !keepAspect;
-			
-			var keepAspectBtn:Button = buttons.get("keepAspectBtn");
-			if (keepAspectBtn != null) { 
-				keepAspectBtn.selected = keepAspect;
-				keepAspectBtn.setStyle("icon", (keepAspect? img_lock_keep_aspect: img_unlock_keep_aspect));
-			}
-			
-			var fitVideoBtn:Button = buttons.get("fitVideoBtn");
-			if (fitVideoBtn != null) {
-				fitVideoBtn.enabled = !keepAspect;
-			}		
-			
-			onFitVideoClick();
-		}
-		
+    protected function userMuted(muted:Boolean):void {
+      _controlButtons.userMuted(muted);
+    }
+    
+    protected function simulateClick():void {
+    	if (videoConfOptions.focusTalking) {
+    		var talkingEvent:UserTalkingEvent = new UserTalkingEvent(UserTalkingEvent.TALKING);
+    		dispatchEvent(talkingEvent);
+    	}
+    }
 	}
 }

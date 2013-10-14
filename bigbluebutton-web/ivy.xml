@@ -7,11 +7,11 @@
         <conf name="runtime" extends="compile"/>
     </configurations>
     <dependencies>
-        <dependency org="org.grails" name="grails-bootstrap" rev="1.1.1" conf="build"/>
-        <dependency org="org.grails" name="grails-scripts" rev="1.1.1" conf="build"/>
-        <dependency org="org.grails" name="grails-gorm" rev="1.1.1" conf="compile"/>
-        <dependency org="org.grails" name="grails-web" rev="1.1.1" conf="compile"/>
-        <dependency org="org.grails" name="grails-test" rev="1.1.1" conf="test"/>
+        <dependency org="org.grails" name="grails-bootstrap" rev="1.3.9" conf="build"/>
+        <dependency org="org.grails" name="grails-scripts" rev="1.3.9" conf="build"/>
+        <dependency org="org.grails" name="grails-gorm" rev="1.3.9" conf="compile"/>
+        <dependency org="org.grails" name="grails-web" rev="1.3.9" conf="compile"/>
+        <dependency org="org.grails" name="grails-test" rev="1.3.9" conf="test"/>
         <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.5.5" conf="runtime"/>
         <dependency org="opensymphony" name="oscache" rev="2.4" conf="runtime">
             <exclude org="javax.jms" module="jms" name="*" type="*" ext="*" conf="" matcher="exact"/>

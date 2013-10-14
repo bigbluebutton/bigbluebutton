@@ -1,20 +1,20 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 
 package org.bigbluebutton.modules.deskshare.managers
@@ -59,7 +59,7 @@ package org.bigbluebutton.modules.deskshare.managers
 			LogUtil.debug("Sending startViewing command");
 			service.sendStartViewingNotification(videoWidth, videoHeight);
 		}
-		
+		    
 		public function handleStartedViewingEvent():void {
 			LogUtil.debug("handleStartedViewingEvent");
 			service.sendStartedViewingNotification();
@@ -67,12 +67,14 @@ package org.bigbluebutton.modules.deskshare.managers
 											
 		public function handleMadePresenterEvent(e:MadePresenterEvent):void {
 			LogUtil.debug("Got MadePresenterEvent ");
-			toolbarButtonManager.addToolbarButton();
 			sharing = false;
 			var option:DeskshareOptions = new DeskshareOptions();
 			option.parseOptions();
 			if (option.autoStart) {
 				handleStartSharingEvent(true);
+			}
+			if(option.showButton){
+				toolbarButtonManager.addToolbarButton();
 			}
 		}
 		
@@ -87,15 +89,19 @@ package org.bigbluebutton.modules.deskshare.managers
 		
 		public function handleStartSharingEvent(autoStart:Boolean):void {
 			LogUtil.debug("DeskshareManager::handleStartSharingEvent");
-			toolbarButtonManager.disableToolbarButton();
-			publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), autoStart);
+			//toolbarButtonManager.disableToolbarButton();
+			toolbarButtonManager.startedSharing();
+			var option:DeskshareOptions = new DeskshareOptions();
+			option.parseOptions();
+			publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), autoStart, option.autoFullScreen);
 			sharing = true;
 		}
 		
 		public function handleShareWindowCloseEvent():void {
-			toolbarButtonManager.enableToolbarButton();
+			//toolbarButtonManager.enableToolbarButton();
 			publishWindowManager.handleShareWindowCloseEvent();
 			sharing = false;
+			toolbarButtonManager.stopedSharing();
 		}
 					
 		public function handleViewWindowCloseEvent():void {

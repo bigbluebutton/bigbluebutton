@@ -1,22 +1,21 @@
-/** 
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-**/
+*
+*/
 package org.bigbluebutton.deskshare.client.net;
 
 import java.awt.Point;
@@ -37,6 +36,7 @@ public class NetworkSocketStreamSender implements Runnable {
 	private String room;
 	private Dimension screenDim;
 	private Dimension blockDim;
+	private boolean useSVC2;
 	private final NextBlockRetriever retriever;
 	private volatile boolean processMessages = false;
 	private final int id;
@@ -44,13 +44,14 @@ public class NetworkSocketStreamSender implements Runnable {
 	private final SequenceNumberGenerator seqNumGenerator;
 	
 	public NetworkSocketStreamSender(int id, NextBlockRetriever retriever, String room, 
-			Dimension screenDim, Dimension blockDim, SequenceNumberGenerator seqNumGenerator) {
+			Dimension screenDim, Dimension blockDim, SequenceNumberGenerator seqNumGenerator, boolean useSVC2) {
 		this.id = id;
 		this.retriever = retriever;
 		this.room = room;
 		this.screenDim = screenDim;
 		this.blockDim = blockDim;	
 		this.seqNumGenerator = seqNumGenerator;
+		this.useSVC2 = useSVC2;
 	}
 	
 	public void addListener(NetworkStreamListener listener) {
@@ -79,7 +80,8 @@ public class NetworkSocketStreamSender implements Runnable {
 		try {
 			ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
 			dataToSend.reset();
-			BlockStreamProtocolEncoder.encodeStartStreamMessage(room, screenDim, blockDim, dataToSend, seqNumGenerator.getNext());
+			BlockStreamProtocolEncoder.encodeStartStreamMessage(room, screenDim, blockDim, dataToSend, seqNumGenerator.getNext(), useSVC2);
+			BlockStreamProtocolEncoder.encodeDelimiter(dataToSend);
 			sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
 			sendToStream(dataToSend);
 		} catch (IOException e) {
@@ -92,6 +94,7 @@ public class NetworkSocketStreamSender implements Runnable {
 		ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
 		dataToSend.reset();
 		BlockStreamProtocolEncoder.encodeMouseLocation(mouseLoc, room, dataToSend, seqNumGenerator.getNext());
+		BlockStreamProtocolEncoder.encodeDelimiter(dataToSend);
 		sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
 		sendToStream(dataToSend);
 	}
@@ -115,35 +118,46 @@ public class NetworkSocketStreamSender implements Runnable {
 	public void disconnect() throws ConnectionException {
 		System.out.println("Disconnecting socket stream");
 		if (!processMessages) return;
-
-
 	}
 	
 	private void processNextMessageToSend(Message message) throws IOException {
 		if (message.getMessageType() == Message.MessageType.BLOCK) {
+			long start = System.currentTimeMillis();
 			ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
 			dataToSend.reset();
-			BlockStreamProtocolEncoder.encodeRoomAndSequenceNumber(room, seqNumGenerator.getNext(), dataToSend);
-			
+			BlockStreamProtocolEncoder.encodeRoomAndSequenceNumber(room, seqNumGenerator.getNext(), dataToSend);			
 			Integer[] changedBlocks = ((BlockMessage)message).getBlocks();
-
 			BlockStreamProtocolEncoder.numBlocksChanged(changedBlocks.length, dataToSend);
-//			System.out.println("Number of blocks changed: " + changedBlocks.length);
-			String blocksStr = "Encoding ";
+			
+			String blockSize = "Block length [";
+			String encodeTime = "Encode times [";
+			long encStart = 0;
+			long encEnd = 0;
+			int totalBytes = 0;
+			long totalMillis = 0;
 			for (int i = 0; i < changedBlocks.length; i++) {
-				blocksStr += " " + (Integer)changedBlocks[i];
+				encStart = System.currentTimeMillis();
 				EncodedBlockData block = retriever.getBlockToSend((Integer)changedBlocks[i]);
+				totalBytes += block.getVideoData().length;
+				blockSize += block.getVideoData().length + ",";
+				encEnd = System.currentTimeMillis();
+				totalMillis += (encEnd - encStart);
+				encodeTime += (encEnd - encStart) + ",";
 				BlockVideoData	bv = new BlockVideoData(room, block.getPosition(), block.getVideoData(), false /* should remove later */);	
 				BlockStreamProtocolEncoder.encodeBlock(bv, dataToSend);
 			}
 			
-//			System.out.println(blocksStr);
-			
+//			System.out.println(blockSize + "] total=" + totalBytes + " bytes");
+//			System.out.println(encodeTime + "] total=" + totalMillis + " ms");
+
+			BlockStreamProtocolEncoder.encodeDelimiter(dataToSend);
 			sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
 			sendToStream(dataToSend);
 			for (int i = 0; i< changedBlocks.length; i++) {
 				retriever.blockSent((Integer)changedBlocks[i]);
 			}
+			long end = System.currentTimeMillis();
+//			System.out.println("[Socket Thread " + id + "] Sending " + changedBlocks.length + " blocks took " + (end - start) + " millis");
 		} else if (message.getMessageType() == Message.MessageType.CURSOR) {
 			CursorMessage msg = (CursorMessage)message;
 			sendCursor(msg.getMouseLocation(), msg.getRoom());
@@ -153,6 +167,7 @@ public class NetworkSocketStreamSender implements Runnable {
 				ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
 				dataToSend.reset();
 				BlockStreamProtocolEncoder.encodeEndStreamMessage(room, dataToSend, seqNumGenerator.getNext());
+				BlockStreamProtocolEncoder.encodeDelimiter(dataToSend);
 				sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
 				sendToStream(dataToSend);
 			} catch (IOException e) {

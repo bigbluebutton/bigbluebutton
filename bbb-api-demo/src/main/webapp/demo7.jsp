@@ -70,10 +70,10 @@
    while (itr.hasNext()) {
 	   FileItem item = (FileItem) itr.next();
 		String xml = null;
- 		String url = BigBlueButtonURL.replace("bigbluebutton/","demo/");
-		String preUploadPDF = "<?xml version='1.0' encoding='UTF-8'?><modules><module name='presentation'><document url='"+url+"pdfs/sample.pdf'/></module></modules>";
+ 		// String url = BigBlueButtonURL.replace("bigbluebutton/","demo/");
+		// String preUploadPDF = "<?xml version='1.0' encoding='UTF-8'?><modules><module name='presentation'><document url='"+url+"pdfs/sample.pdf'/></module></modules>";
  
-		xml = preUploadPDF;
+		// xml = preUploadPDF;
 	   if (item.isFormField())
 		   {
 		      String name = item.getFieldName();

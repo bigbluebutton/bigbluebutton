@@ -1,24 +1,23 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 
-package org.bigbluebutton.modules.phone.managers {
-	
+package org.bigbluebutton.modules.phone.managers {	
 	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.Event;
@@ -83,34 +82,18 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 		
 		private function netStatus (evt:NetStatusEvent ):void {		 
-			var event:ConnectionStatusEvent = new ConnectionStatusEvent();
-			
-			switch(evt.info.code) {				
-				case "NetConnection.Connect.Success":
-					LogUtil.debug("Successfully connected to SIP application.");
-					event.status = ConnectionStatusEvent.SUCCESS;								
-					break;
-		
-				case "NetConnection.Connect.Failed":
-					LogUtil.debug("Failed to connect to SIP application.");
-					event.status = ConnectionStatusEvent.FAILED;
-					break;
-					
-				case "NetConnection.Connect.Closed":
-					LogUtil.debug("Connection to SIP application has closed.");
-					event.status = ConnectionStatusEvent.CLOSED;
-				break;
-		
-				case "NetConnection.Connect.Rejected":
-					LogUtil.debug("Connection to SIP application was rejected.");
-					event.status = ConnectionStatusEvent.REJECTED;
-					break;					
-				default:					
-			}			
-			
-			LogUtil.debug("Phone Module Connection Status: " + event.status);
-			LogUtil.debug("Dispatching " + event.status);
-			dispatcher.dispatchEvent(event); 
+			if (evt.info.code == "NetConnection.Connect.Success") {
+				var event:ConnectionStatusEvent = new ConnectionStatusEvent();
+				LogUtil.debug("Successfully connected to voice application.");
+				event.status = ConnectionStatusEvent.SUCCESS;
+				LogUtil.debug("Dispatching " + event.status);
+				dispatcher.dispatchEvent(event); 				
+			} else if (evt.info.code == "NetConnection.Connect.NetworkChange") {
+				LogUtil.info("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
+			} else {
+				LogUtil.info("Connection event info [" + evt.info.code + "]. Disconnecting.");
+				disconnect();
+			}
 		} 
 		
 		private function asyncErrorHandler(event:AsyncErrorEvent):void {
@@ -122,7 +105,7 @@ package org.bigbluebutton.modules.phone.managers {
         }
         
      	public function call():void {
-     		LogUtil.debug("Calling " + room);
+     		LogUtil.debug("in call - Calling " + room);
 			doCall(room);
      	}
         
@@ -161,7 +144,7 @@ package org.bigbluebutton.modules.phone.managers {
 		//
 		//********************************************************************************************		
 		public function doCall(dialStr:String):void {
-			LogUtil.debug("Calling " + dialStr);
+			LogUtil.debug("in doCall - Calling " + dialStr);
 			netConnection.call("voiceconf.call", null, "default", username, dialStr);
 		}
 				

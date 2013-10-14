@@ -1,49 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-BigBlueButton open source conferencing system - http://www.bigbluebutton.org
 
-Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 
-BigBlueButton is free software; you can redistribute it and/or modify it under the 
-terms of the GNU Lesser General Public License as published by the Free Software 
-Foundation; either version 2.1 of the License, or (at your option) any later 
-version. 
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 
-BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU Lesser General Public License along 
+You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
-$Id: $
 -->
 
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 		   xmlns:mx="http://www.adobe.com/2006/mxml" 
-		   creationComplete="init()" 
+		   initialize="init()" 
+       horizontalScrollPolicy="off"
+       verticalScrollPolicy="off"
+		   creationComplete="onCreationComplete()" 
 		   implements="org.bigbluebutton.common.IBbbModuleWindow"
 		   title="{ResourceUtil.getInstance().getString('bbb.videodock.title')}"
-		   xmlns:mate="http://mate.asfusion.com/"
-		   layout="absolute"
-		   horizontalAlign="center"
+		   xmlns:mate="http://mate.asfusion.com/" styleNameFocus="videoDockStyleFocus"
+		   layout="absolute" visible="false" styleNameNoFocus="videoDockStyleNoFocus"
+		   horizontalAlign="center" 
 		   verticalAlign="middle"
 		   resize="onChildAdd()">
 	
+	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_VIDEO_WINDOW}" method="focusWindow" />
+	<mate:Listener type="{ShortcutEvent.MINIMIZE_DOCK}" method="remoteMinimize" />
+	<mate:Listener type="{ShortcutEvent.MAXIMIZE_DOCK}" method="remoteMaximize" />
 	<mx:Script>
-		<![CDATA[
-			import mx.events.ChildExistenceChangedEvent;			
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.DragWindowEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
-			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+		<![CDATA[ 
+	  import org.bigbluebutton.main.events.ShortcutEvent;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import mx.events.ChildExistenceChangedEvent;
+      
+      import org.bigbluebutton.common.Images;
+
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.events.CloseWindowEvent;
+      import org.bigbluebutton.common.events.DragWindowEvent;
+      import org.bigbluebutton.common.events.OpenWindowEvent;
+      import org.bigbluebutton.core.BBB;
+      import org.bigbluebutton.core.events.ConnectAppEvent;
+      import org.bigbluebutton.main.model.users.Conference;
+      import org.bigbluebutton.main.views.MainCanvas;
+      import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
+      import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
+      import org.bigbluebutton.modules.videoconf.events.UserTalkingEvent;
+      import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
+	  import org.bigbluebutton.common.events.LocaleChangeEvent;
 			
 			private var childrenDimension:Dictionary = new Dictionary();
 			private var borderColor:String;
@@ -58,10 +75,26 @@ $Id: $
 			private var priorityWindowWeight:Number = 2/3;
 			
 			private var options:DockOptions = new DockOptions();
+			private var confOptions:VideoConfOptions = new VideoConfOptions();
+			private var dispatcher:Dispatcher;			
+			private var keyCombos:Object;
 			
-			private function init():void {				
+			[Bindable] 
+			private var baseIndex:int;
+			
+			private function init():void{
+				baseIndex = options.baseTabIndex;
+			}
+			
+			private var images:Images = new Images();
+      
+			[Bindable]
+			private var backgroundImage:Class = images.video_dock_bg;
+      
+			private function onCreationComplete():void {				
 				this.showCloseButton = false;		
-				
+				this.showControls = options.showControls;
+        
 				this.minWidth = options.width;
 				this.minHeight = options.height;
 				this.maxWidth = this.parent.width;
@@ -73,7 +106,66 @@ $Id: $
 				addEventListener(ChildExistenceChangedEvent.CHILD_ADD, onChildAdd);			
 				addEventListener(ChildExistenceChangedEvent.CHILD_REMOVE, onChildRemove);
 				
+				dispatcher = new Dispatcher();
+				hotkeyCapture();
+				
+				titleBarOverlay.tabIndex = baseIndex;
+				
+				minimizeBtn.tabIndex = baseIndex+1;
+				maximizeRestoreBtn.tabIndex = baseIndex+2;
+				
+				closeBtn.tabIndex = baseIndex+3;
+				
 				if (options.maximize) this.maximize();
+        
+		        var gDispatcher:Dispatcher = new Dispatcher();
+		        var evt:ConnectAppEvent = new ConnectAppEvent(ConnectAppEvent.CONNECT_VIDEO_APP);
+		        gDispatcher.dispatchEvent(evt);
+			}
+			
+			private function remoteMinimize(e:ShortcutEvent):void{
+				if (!minimized){
+					this.minimize();
+				}
+			}
+			
+			private function remoteMaximize(e:ShortcutEvent):void{
+				if (!maximized && !minimized){
+					this.maximize();
+				}
+				else{
+					this.restore();
+				}				
+			}
+
+		    private function loadKeyCombos(modifier:String):void {
+				keyCombos = new Object(); // always start with a fresh array
+			    keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.maximize') as String)] = ShortcutEvent.MAXIMIZE_DOCK;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.minimize') as String)] = ShortcutEvent.MINIMIZE_DOCK;
+			}
+		
+		    private function hotkeyCapture():void{
+		      this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+		      ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
+		    }
+		
+			// Handle general-access hotkeys, regardless of what window the user is focused in
+		    private function handleKeyDown(e:KeyboardEvent) :void {
+		      var modifier:String = ExternalInterface.call("determineModifier");
+			  loadKeyCombos(modifier);			  
+			  var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") +
+		                            (e.altKey   ? "alt+"     : "") + e.keyCode;		                              
+		      if (keyCombos[keyPress]) {
+		        dispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+		      }
+		    }
+			
+			private function focusWindow(e:ShortcutEvent):void{
+				focusManager.setFocus(titleBarOverlay);
+			}
+		
+			private function localeChanged(e:Event):void{
+				resourcesChanged();
 			}
 			
 			/**
@@ -122,33 +214,7 @@ $Id: $
 				//return MainCanvas.BOTTOM_RIGHT;
 				return options.position;
 			}
-			
-			private function onDragVideoWindow(e:DragWindowEvent):void{
-				switch (e.mode) {
-					case DragWindowEvent.DRAG:
-						if (hitTestPoint(e.mouseGlobal.x, e.mouseGlobal.y, true)) {
-							setStyle("borderColor","0xFF0000");
-							e.window.width = e.window.minWidth;
-							e.window.height = e.window.minHeight;
-						} else {
-							setStyle("borderColor",borderColor);
-							restoreWindowDimensions(e.window);
-						}
-						break;
-					case DragWindowEvent.DRAG_START:
-						borderColor = getStyle("borderColor");
-						removeVideoChild(e.window as VideoWindowItf);
-						saveWindowDimensions(e.window);
-						break;
-					case DragWindowEvent.DRAG_END:
-						setStyle("borderColor",borderColor);
-						restoreWindowDimensions(e.window);
-						if (hitTestPoint(e.mouseGlobal.x, e.mouseGlobal.y, true))
-							addVideoChild(e.window as VideoWindowItf);
-						break;
-				}
-			}
-			
+					
 			private function saveWindowDimensions(window:MDIWindow):void {
 				var dimensions:Object = {width:window.width, height:window.height};
 				childrenDimension[window] = dimensions;
@@ -171,13 +237,16 @@ $Id: $
 			
 			private function onCloseWindow(e:CloseWindowEvent):void {
 				// it should not just undock the window, it should close the window forever
-				if (isVideoWindow(e.window) && this.contains(e.window as VideoWindowItf))
-					this.removeChild(e.window as VideoWindowItf);
+				if (isVideoWindow(e.window) && this.contains(e.window as VideoWindowItf)) {
+          this.removeChild(e.window as VideoWindowItf);
+        }
+					
 			}
 			
 			private function onOpenWindow(e:OpenVideoWindowEvent):void {
-				if (isVideoWindow(e.window) && options.autoDock)
-					addVideoChild(e.window as VideoWindowItf);
+				if (isVideoWindow(e.window) && options.autoDock) {
+          addVideoChild(e.window as VideoWindowItf);
+        }					
 			}
 			
 			private function addVideoChild(window:VideoWindowItf):void {
@@ -197,10 +266,11 @@ $Id: $
 				window.minimizeBtn.visible = false;
 				window.maximizeRestoreBtn.visible = false;
 				window.resizable = false;
-				window.buttonsEnabled = false;
+       			window.draggable = false;
 
 				window.addEventListener(MouseEvent.CLICK, onWindowClick);
-
+				window.addEventListener(UserTalkingEvent.TALKING, onTalking);
+				
 				var e:CloseWindowEvent = new CloseWindowEvent();
 				e.window = window;
 				dispatchEvent(e);
@@ -208,26 +278,11 @@ $Id: $
 				this.addChild(window);
 			}
 			
-			private function removeVideoChild(window:VideoWindowItf):void {
-				if (!this.contains(window))
-					return;
-				
-				window.minimizeBtn.visible = true;
-				window.maximizeRestoreBtn.visible = true;
-				window.resizable = true;
-				window.buttonsEnabled = true;
-				
-				window.removeEventListener(MouseEvent.CLICK, onWindowClick);
-	
-				this.removeChild(window);
-				var e:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-				e.window = window;
-				dispatchEvent(e);
-				
-				restoreWindowDimensions(window);
-			}
-			
 			override public function close(event:MouseEvent = null):void {
+        for each(var windowItf:VideoWindowItf in mutableChildrenArray) {
+          windowItf.close();
+        }
+        
 				removeAllChildren();
 				super.close(event);
 			}
@@ -364,7 +419,7 @@ $Id: $
 						|| options.layout == DockOptions.LAYOUT_NONE)
 					return;
 				
-				if (window == priorityWindow && !options.oneAlwaysBigger) {
+				if (_prioritizeWindow && window == priorityWindow && !options.oneAlwaysBigger) {
 					deprioritizeWindow();
 				} else {
 					var index:int = mutableChildrenArray.indexOf(window);
@@ -374,6 +429,28 @@ $Id: $
 						_prioritizeWindow = true;
 					}
 				}
+				updateChildrenDimensions(mutableChildrenArray);
+			}
+			
+			protected function onTalking(event:UserTalkingEvent):void {
+				prioritizeTalking(event.currentTarget);
+			}
+			
+			private function prioritizeTalking(window:Object):void {
+				if (mutableChildrenArray.length <= 1
+						|| options.layout == DockOptions.LAYOUT_NONE)
+					return;
+				
+				if (window == priorityWindow) //window already prioritized
+					return;
+				
+				var index:int = mutableChildrenArray.indexOf(window);
+				if (index != -1) {
+					mutableChildrenArray[index] = mutableChildrenArray[0];
+					mutableChildrenArray[0] = window;
+					_prioritizeWindow = true;
+				}
+				
 				updateChildrenDimensions(mutableChildrenArray);
 			}
 			
@@ -393,12 +470,20 @@ $Id: $
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				this.title = ResourceUtil.getInstance().getString('bbb.videodock.title');
+				
+				if (titleBarOverlay != null) {
+					titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.videoDock.titleBar');
+				}
+				
+				if (windowControls != null) {
+					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.maximizeRestoreBtn.accessibilityName');
+					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.minimizeBtn.accessibilityName');
+				}
 			}			
 						
 		]]>
 	</mx:Script>
 	
-	<mate:Listener type="{DragWindowEvent.DRAG_WINDOW_EVENT}" method="onDragVideoWindow" />
 	<mate:Listener type="{OpenVideoWindowEvent.OPEN_VIDEO_WINDOW_EVENT}" method="onOpenWindow" />
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="onCloseWindow" />
 </MDIWindow>

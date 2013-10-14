@@ -1,33 +1,33 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.deskshare.server.stream
 
 import org.bigbluebutton.deskshare.server.recorder.Recorder
 import org.bigbluebutton.deskshare.server.red5.DeskshareApplication
 import org.bigbluebutton.deskshare.server.ScreenVideoBroadcastStream
-import org.red5.server.api.{IContext, IScope}
+import org.bigbluebutton.deskshare.server.RtmpClientAdapter
+import org.red5.server.api.IContext
+import org.red5.server.api.scope.{IScope, IBroadcastScope}
 import org.red5.server.api.so.ISharedObject
 import org.red5.server.net.rtmp.event.VideoData;
-import org.red5.server.stream.{BroadcastScope, IBroadcastScope, IProviderService}
+import org.red5.server.stream.IProviderService
+import org.red5.server.net.rtmp.message.Constants;
 import org.apache.mina.core.buffer.IoBuffer
 import java.util.ArrayList
 import scala.actors.Actor
@@ -61,7 +61,7 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 	     		broadcastStream = bs; 
 		       	app.createDeskshareClient(name) match {
 				     case None => return false
-				     case Some(dsc) => {
+				     case Some(dsc:RtmpClientAdapter) => {
 				     		dsClient = dsc; 
 				     		recorder.addListener(dsClient)
 				     		return true
@@ -106,22 +106,21 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 		buffer.rewind();
 		
 		if (record) {
-			System.out.println("Recording")
 			recorder.record(buffer)
-		} else {
-			System.out.println("Not Recording")
 		}	
 
 		val data: VideoData = new VideoData(buffer)
-		data.setTimestamp((System.currentTimeMillis() - startTimestamp).toInt)
+		data.setSourceType(Constants.SOURCE_TYPE_LIVE);
+	    /*
+	     * Use timestamp increments. This will force
+	     * Flash Player to playback at proper timestamp. If we calculate timestamp using
+	     * System.currentTimeMillis() - startTimestamp, the video has tendency to drift and
+	     * introduce delay. See how we do the voice. (ralam may 10, 2012)
+	     */
+        data.setTimestamp(us.timestamp.toInt);
 		broadcastStream.dispatchEvent(data)
 		data.release()
 		
-		if (record) {
-			System.out.println("Recording")
-		} else {
-			System.out.println("Not Recording")
-		}
 	}
  
 	override def  exit() : Nothing = {

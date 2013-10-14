@@ -1,3 +1,25 @@
+# Set encoding to utf-8
+# encoding: UTF-8
+
+#
+# BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+#
+# Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+#
+# This program is free software; you can redistribute it and/or modify it under the
+# terms of the GNU Lesser General Public License as published by the Free Software
+# Foundation; either version 3.0 of the License, or (at your option) any later
+# version.
+#
+# BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License along
+# with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+#
+
+
 path = File.expand_path(File.join(File.dirname(__FILE__), '../lib'))
 $LOAD_PATH << path
 
@@ -19,6 +41,30 @@ module BigBlueButton
   end
   
   class FileNotFoundException < RuntimeError
+  end
+
+  class ExecutionStatus
+    def initialize
+      @output = []
+      @errors = []
+      @detailedStatus = nil
+    end
+
+    attr_accessor :output
+    attr_accessor :errors
+    attr_accessor :detailedStatus
+
+    def success?
+      @detailedStatus.success?
+    end
+
+    def exited?
+      @detailedStatus.exited?
+    end
+
+    def exitstatus
+      @detailedStatus.exitstatus
+    end
   end
   
   # BigBlueButton logs information about its progress.
@@ -44,23 +90,51 @@ module BigBlueButton
     FileTest.directory?(dir)
   end
     
-  def self.execute(command)
-    output=""
-    status = Open4::popen4(command) do | pid, stdin, stdout, stderr|
+  def self.execute(command, fail_on_error=true)
+    status = ExecutionStatus.new
+    status.detailedStatus = Open4::popen4(command) do | pid, stdin, stdout, stderr|
         BigBlueButton.logger.info("Executing: #{command}")
 
-	output = stdout.readlines
-        BigBlueButton.logger.info( "Output: #{output} ") unless output.empty?
+        status.output = stdout.readlines
+        BigBlueButton.logger.info( "Output: #{Array(status.output).join()} ") unless status.output.empty?
  
-        errors = stderr.readlines
-        unless errors.empty?
-          BigBlueButton.logger.error( "Error: stderr: #{errors}")
- #         raise errors.to_s 
+        status.errors = stderr.readlines
+        unless status.errors.empty?
+          BigBlueButton.logger.error( "Error: stderr: #{Array(status.errors).join()}")
         end
     end
-    BigBlueButton.logger.info("Success ?:  #{status.success?}")
+    BigBlueButton.logger.info("Success?: #{status.success?}")
     BigBlueButton.logger.info("Process exited? #{status.exited?}")
     BigBlueButton.logger.info("Exit status: #{status.exitstatus}")
-    output
+    if status.success? == false and fail_on_error
+      raise "Execution failed"
+    end
+    status
+  end
+
+  def self.exec_ret(*command)
+    BigBlueButton.logger.info "Executing: #{command.join(' ')}"
+    IO.popen([*command, :err => [:child, :out]]) do |io|
+      io.lines.each do |line|
+        BigBlueButton.logger.info line.chomp
+      end
+    end
+    BigBlueButton.logger.info "Exit status: #{$?.exitstatus}"
+    return $?.exitstatus
+  end
+
+  def self.exec_redirect_ret(outio, *command)
+    BigBlueButton.logger.info "Executing: #{command.join(' ')}"
+    BigBlueButton.logger.info "Sending output to #{outio}"
+    IO.pipe do |r, w|
+      pid = spawn(*command, :out => outio, :err => w)
+      w.close
+      r.lines.each do |line|
+        BigBlueButton.logger.info line.chomp
+      end
+      Process.waitpid(pid)
+      BigBlueButton.logger.info "Exit status: #{$?.exitstatus}"
+      return $?.exitstatus
+    end
   end
 end

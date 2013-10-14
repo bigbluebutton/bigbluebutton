@@ -1,25 +1,24 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.deskshare.server.servlet;
+
+import java.util.*;
 
 import java.awt.Point;
 
@@ -78,6 +77,7 @@ public class HttpTunnelStreamController extends MultiActionController {
 		String seqNum = request.getParameterValues("sequenceNumber")[0];
 		String screenInfo = request.getParameterValues("screenInfo")[0];
 		String blockInfo = request.getParameterValues("blockInfo")[0];
+		String svc2Info = request.getParameterValues("svc2")[0];
 		
 		String[] screen = screenInfo.split("x");
 		String[] block = blockInfo.split("x");
@@ -86,15 +86,52 @@ public class HttpTunnelStreamController extends MultiActionController {
 		screenDim = new Dimension(Integer.parseInt(screen[0]), Integer.parseInt(screen[1]));
 		blockDim = new Dimension(Integer.parseInt(block[0]), Integer.parseInt(block[1]));
 		
+		boolean useSVC2 = Boolean.parseBoolean(svc2Info);
+		
 		if (! hasSessionManager) {
 			sessionManager = getSessionManager();
 			hasSessionManager = true;
 		}
-		sessionManager.createSession(room, screenDim, blockDim, Integer.parseInt(seqNum));		
+		sessionManager.createSession(room, screenDim, blockDim, Integer.parseInt(seqNum), useSVC2);		
 	}	
 	
 	private void handleCaptureUpdateRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
 		MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+
+
+      String room = request.getParameterValues("room")[0];
+      String keyframe = "false";  // This data is never a keyframe
+
+      //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      // Get the list of multipart files that are in this POST request.
+      // Get the block info from each embedded file and send it to the
+      // session manager to update the viewers.
+      //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      Iterator uploadedFilenames = multipartRequest.getFileNames();
+      while(uploadedFilenames.hasNext())
+      { // process each embedded upload-file (block)
+
+         String uploadedFilename = (String)uploadedFilenames.next();
+         MultipartFile multipartFile = multipartRequest.getFile(uploadedFilename);
+
+         // Parse the block info out of the upload file name
+         // The file name is of format "blockgroup_<seqnum>_<position>".
+         String[] uploadedFileInfo = uploadedFilename.split("[_]");
+         
+         String seqNum = uploadedFileInfo[1];
+         String position = uploadedFileInfo[2];
+
+         // Update the viewers with the uploaded block data.
+         sessionManager.updateBlock(room,
+                                    Integer.valueOf(position),
+                                    multipartFile.getBytes(),
+                                    false, // This data is never a keyframe
+                                    Integer.parseInt(seqNum));
+
+      } // process each embedded upload-file (block)
+
+ /*
 		// MultipartFile is a copy of file in memory, not in file system
 		MultipartFile multipartFile = multipartRequest.getFile("blockdata");
 	
@@ -112,6 +149,8 @@ public class HttpTunnelStreamController extends MultiActionController {
 		}
 			
 		sessionManager.updateBlock(room, Integer.valueOf(position), blockData, Boolean.parseBoolean(keyframe), Integer.parseInt(seqNum));
+*/
+
 	}
 	
 	private void handleCaptureEndRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {	

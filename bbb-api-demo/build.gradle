@@ -23,4 +23,6 @@ dependencies {
 	  compile group: 'commons-io', name: 'commons-io', version: '2.0'
 	  compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'
 	  compile group: 'commons-lang', name: 'commons-lang', version: '2.5'
+	  compile 'com.google.code.gson:gson:2.2.2'
+          compile 'org.expressme:JOpenId:1.08'
 }

@@ -1,23 +1,20 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.deskshare.server.sessions
 
@@ -38,15 +35,16 @@ case object StopSession
 case object GenerateKeyFrame
 
 class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dimension, 
-                 blockDim: Dimension, streamManager: StreamManager, keyFrameInterval: Int) extends Actor {
+                 blockDim: Dimension, streamManager: StreamManager, keyFrameInterval: Int, interframeInterval: Int, waitForAllBlocks: Boolean, useSVC2: Boolean) extends Actor {
 	private val log = Logger.get
  
-	private var blockManager: BlockManager = new BlockManager(room, screenDim, blockDim)
+	private var blockManager: BlockManager = new BlockManager(room, screenDim, blockDim, waitForAllBlocks, useSVC2)
 	private var stream:Stream = null
 	private var lastUpdate:Long = System.currentTimeMillis()
 	private var stop = true
 	private var mouseLoc:Point = new Point(100,100)
 	private var pendingGenKeyFrameRequest = false
+	private var timestamp = 0L;
 	
 	/*
 	 * Schedule to generate a key frame after 30seconds of a request.
@@ -64,7 +62,7 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 	def scheduleGenerateFrame() {
 		val mainActor = self
 		actor {
-			Thread.sleep(250)
+			Thread.sleep(interframeInterval)
 			mainActor ! "GenerateFrame"
 		}
 	}
@@ -135,7 +133,8 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 			sessionManager ! new RemoveSession(room)
 		} else {
 		  if (blockManager != null) {
-			  stream ! new UpdateStream(room, blockManager.generateFrame(keyframe))
+			  timestamp += 50;
+			  stream ! new UpdateStream(room, blockManager.generateFrame(keyframe), timestamp)
 			  stream ! new UpdateStreamMouseLocation(room, mouseLoc)
 		  }
 		}

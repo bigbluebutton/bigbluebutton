@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<!--
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+*
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+<head>
+  <title>BigBlueButton Playback</title>
+  <link rel="stylesheet" href="css/bbb.playback.css">
+  <script type="text/javascript" src="lib/jquery.min.js"></script>
+  <script type="text/javascript" src="lib/jquery-ui.min.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="acornmediaplayer/acornmediaplayer.base.css" />
+  <script type="text/javascript" src="acornmediaplayer/jquery.acornmediaplayer.js"></script>
+  <link rel="stylesheet" type="text/css" href="acornmediaplayer/themes/access/acorn.access.css" />
+  <link rel="stylesheet" type="text/css" href="acornmediaplayer/themes/darkglass/acorn.darkglass.css" />
+
+
+  <script type="text/javascript" src="playback.js"></script>
+  <script type="text/javascript" src="lib/popcorn-complete.min.js"></script>
+  <script type="text/javascript" src="lib/popcorn.chattimeline.js"></script>
+
+  <!--script type="text/javascript">
+    jQuery(function() {
+      
+    });
+  </script-->
+
+  <style>
+  .acorn-player.darkglass {
+    overflow: visible;
+  }
+  </style>
+</head>
+<body>
+	<h1 class="visually-hidden">BigBlueButton Playback</h1>
+	<div id="playbackArea" class="clearfix" role="main">
+		<h2 class="visually-hidden">Slide Thumbnails</h2>
+		<div id="thumbnails" role="region" aria-label="Slide thumbnails"></div>
+		<h2 class="visually-hidden">Presentation Slides</h2>
+		<div id="presentation">
+			<div class="circle" id="cursor" style="visibility:hidden;"></div>
+			<div id="slide" role="img" aria-labelledby="slideText"></div>
+			<div id="slideText" class="visually-hidden" aria-live="polite"></div>
+		</div>
+		<div id="chatAndMediaArea">
+			<h2 class="visually-hidden">Chat Messages</h2>
+			<input type="checkbox" name="exposechat" id="exposechat" value="exposechat" class="visually-hidden" checked="checked" />
+			<label for="exposechat" class="visually-hidden">Read chat messages</label>
+			<div id="chat" aria-live="polite" role="region" aria-label="Chat messages"></div>
+			<div id="videoRecordingWrapper" role="region" aria-label="Video">
+<!--
+			  <video id="webcam" >You must use an HTML5 capable browser to view this page.
+			  This playback requires modern browser, please use FF, Safari, Chrome</video>
+-->			  
+		  	</div>
+	  		<div id="audioRecordingWrapper" role="region" aria-label="Audio">
+<!--
+		  	  <audio id="video">You must use an HTML5 capable browser to view this page.
+			  This playback requires modern browser, please use FF, Safari, Chrome</audio>	
+-->
+			</div>
+	  	</div>
+	</div>
+	<!--div id="playbackControls">
+		<div id="autoscrollWrapper">
+			<input id="autoscrollEnabled" type="checkbox" name="autoscrollEnabled" checked="true" aria-label="Toggle autoscroll"/>
+			<label for="autoscrollEnabled">Auto scroll</label>
+		</div>
+	</div-->
+
+	<!--
+	<div id="accInfo">
+		<input id="accEnabled" type="checkbox" value="accEnabled" />
+		<label for="accEnabled">Enable accessibility pauses</label><br/>
+		<div id="countdown" />
+	</div>
+	-->
+	<div id="footer">
+                <p>Recorded with <a target="_blank" href="http://bigbluebutton.org/">BigBlueButton</a>. </p>
+                <p>Use <a target="_blank" href="http://mozilla.org/firefox">Mozilla Firefox</a> or
+                   <a target="_blank" href="http://google.com/chrome/">Google Chrome</a> to play this recording.
+                </p>
+        </div>
+<!--	<script src='lib/writing.js'></script> -->
+</body>
+</html>

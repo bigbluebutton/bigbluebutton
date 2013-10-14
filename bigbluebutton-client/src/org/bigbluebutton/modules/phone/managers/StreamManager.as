@@ -1,35 +1,35 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 
 package org.bigbluebutton.modules.phone.managers {
-        import com.asfusion.mate.events.Dispatcher;
-        import flash.events.ActivityEvent;
-        import flash.events.AsyncErrorEvent;
-        import flash.events.IEventDispatcher;
-        import flash.events.NetStatusEvent;
-        import flash.events.StatusEvent;
-        import flash.media.Microphone;
-        import flash.media.MicrophoneEnhancedMode;
-        import flash.media.MicrophoneEnhancedOptions;
-        import flash.media.SoundCodec;
-        import flash.net.NetConnection;
-        import flash.net.NetStream;
+	import com.asfusion.mate.events.Dispatcher;
+	import flash.events.ActivityEvent;
+	import flash.events.AsyncErrorEvent;
+	import flash.events.IEventDispatcher;
+	import flash.events.NetStatusEvent;
+	import flash.events.StatusEvent;
+	import flash.media.Microphone;
+	import flash.media.MicrophoneEnhancedMode;
+	import flash.media.MicrophoneEnhancedOptions;
+	import flash.media.SoundCodec;
+	import flash.net.NetConnection;
+	import flash.net.NetStream;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.main.events.BBBEvent;
@@ -184,7 +184,7 @@ package org.bigbluebutton.modules.phone.managers {
 			LogUtil.debug("Stopping Stream(s)");
 			if(incomingStream != null) {
 				LogUtil.debug("--Stopping Incoming Stream");
-				incomingStream.play(false); 
+        incomingStream.close(); 
 			} else {
 				LogUtil.debug("--Incoming Stream Null");
 			}

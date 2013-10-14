@@ -1,25 +1,22 @@
-/* BigBlueButton - http://www.bigbluebutton.org
- * 
- * 
- * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
- * 
- * BigBlueButton is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License as published by the Free Software 
- * Foundation; either version 3 of the License, or (at your option) any later 
- * version. 
- * 
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License along 
- * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
- *
- * Author: Richard Alam <ritzalam@gmail.com>
- * 		   DJP <DJP@architectes.org>
- * 
- * @version $Id: $
- */
+/**
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 3.0 of the License, or (at your option) any later
+* version.
+* 
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+*
+*/
+
 package org.bigbluebutton.presentation.imp;
 
 import java.io.File;
@@ -33,6 +30,8 @@ import org.bigbluebutton.presentation.ThumbnailCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.mysql.jdbc.log.LogUtils;
 
 public class ThumbnailCreatorImp implements ThumbnailCreator {
 	private static Logger log = LoggerFactory.getLogger(ThumbnailCreatorImp.class);
@@ -56,13 +55,14 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 		try {
 			success = generateThumbnails(thumbsDir, pres);
 	    } catch (InterruptedException e) {
+	    	log.warn("Interrupted Exception while generating thumbnails.");
 	        success = false;
 	    }
 	    
-	    if (! success) createBlankThumbnails(thumbsDir, pres.getNumberOfPages());
+	    // Create blank thumbnails for pages that failed to generate a thumbnail.
+	    createBlankThumbnails(thumbsDir, pres.getNumberOfPages());
 	    
-	    if(SupportedFileTypes.isImageFile(pres.getFileType()))
-	    	renameThumbnails(thumbsDir);
+	    renameThumbnails(thumbsDir);
 	    
 	    return true;
 	}
@@ -79,23 +79,15 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 	 		dest = thumbsDir.getAbsolutePath() + File.separator + "thumb-";
 	 		COMMAND = IMAGEMAGICK_DIR + "/gs -q -sDEVICE=pngalpha -dBATCH -dNOPAUSE -dNOPROMPT -dDOINTERPOLATE -dPDFFitPage -r16 -sOutputFile=" + dest +"%d.png " + source;
 	 	}
-		Process p;
-		
-		try {
-			p = Runtime.getRuntime().exec(COMMAND);
-			log.debug("begin waiting for... "+source+" "+dest);
-			int exitValue = p.waitFor();
-			log.debug("finish waiting for... "+ source);
-			if (exitValue != 0) {
-		    	log.warn("Exit Value != 0 while for " + COMMAND);
-		    } else {
-		    	return true;
-		    }
-		} catch (IOException e) {
-			log.error("IOException while processing " + COMMAND);
-		}       
-		
-		log.warn("Failed to create thumbnails: " + COMMAND);
+	 	
+	 	boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);
+	 	
+	 	if (done) {
+	 		return true;
+	 	} else {			
+			log.warn("Failed to create thumbnails: " + COMMAND);	 		
+	 	}
+
 		return false;		
 	}
 	
@@ -141,6 +133,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 			for (int i = 0; i < pageCount; i++) {
 				File thumb = new File(thumbsDir.getAbsolutePath() + File.separator + TEMP_THUMB_NAME + "-" + i + ".png");
 				if (! thumb.exists()) {
+					log.info("Copying blank thumbnail for slide " + i);
 					copyBlankThumbnail(thumb);
 				}
 			}

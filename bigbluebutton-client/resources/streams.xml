@@ -1,0 +1,5 @@
+<?xml version="1.0" ?>
+<streams>
+    <stream url="rtmp://192.168.153.128/oflaDemo" id="hobbit_vp6" name="The Hobbit"/>
+    <stream url="rtmp://192.168.153.128/oflaDemo" id="startrekintodarkness_vp6" name="Star Trek"/>
+</streams>

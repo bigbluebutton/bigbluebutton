@@ -1,44 +1,40 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.deskshare.server.red5
 
-
+import org.red5.server.api.{IContext, IConnection}
+import org.red5.server.so.SharedObjectService
+import org.red5.server.api.so.{ISharedObject, ISharedObjectService}
+import org.red5.server.stream.IProviderService
 import org.bigbluebutton.deskshare.server.ScreenVideoBroadcastStream
+import org.bigbluebutton.deskshare.server.RtmpClientAdapter
 import org.bigbluebutton.deskshare.server.stream.StreamManager
 import org.bigbluebutton.deskshare.server.socket.DeskShareServer
 import org.bigbluebutton.deskshare.server.MultiThreadedAppAdapter
-import org.red5.server.api.ScopeUtils
-import org.red5.server.api.IConnection
-import org.red5.server.api.{IContext, IScope}
-import org.red5.server.so.SharedObjectService
-import org.red5.server.api.so.{ISharedObject, ISharedObjectService}
-import org.red5.server.stream.{BroadcastScope, IBroadcastScope, IProviderService}
 import scala.actors.Actor
 import scala.actors.Actor._
-
 import net.lag.configgy.Configgy
 import net.lag.logging.Logger
 import java.io.File
 import java.util.concurrent.CountDownLatch
+import org.red5.server.api.scope.{IScope}
+import org.red5.server.util.ScopeUtils
 
 class DeskshareApplication(streamManager: StreamManager, deskShareServer: DeskShareServer) extends MultiThreadedAppAdapter {
 	private val deathSwitch = new CountDownLatch(1)
@@ -100,76 +96,87 @@ class DeskshareApplication(streamManager: StreamManager, deskShareServer: DeskSh
 		  return None
 		}
   
-		var roomScope: IScope  = ScopeUtils.resolveScope(appScope, room)
+		var roomScope:IScope  = ScopeUtils.resolveScope(appScope, room)
 	   
 		if (roomScope == null) {
 			if (appScope.createChildScope(room)) {
-				logger.debug("RoomScope %s created", room)
+				logger.debug("DeskshareApplication: RoomScope for [ %s ] created", room)
 				
 				roomScope = ScopeUtils.resolveScope(appScope, room)
 				
 				if (roomScope == null) {
-				  logger.error("****!!!!!!! ROOM SCOPE IS NULL!!!!!!*")
-				  println("****!!!!!!! ROOM SCOPE IS NULL!!!!!!*")
+				  logger.error("DeskshareApplication: ****!!!!!!! ROOM SCOPE IS NULL!!!!!!*")
+				  println("DeskshareApplication: ****!!!!!!! ROOM SCOPE IS NULL!!!!!!*")
 				}
 			} else {
-				logger.error("Failed to create room scope %s", room)
+				logger.error("DeskshareApplication: Failed to create scope for room [ %s ]", room)
 				return None
 			}
 		} else {
-				logger.debug("Room scope %s was found", room)
+				logger.debug("DeskshareApplication: Room scope [ %s ] was found", room)
 		}
     	return Some(roomScope)
 	}
  
-	private def getRoomSharedObject(roomScope:IScope):Option[ISharedObject] = {
+	private def getRoomSharedObject(roomScope:IScope, name:String):Option[ISharedObject] = {
+	    var soName:String = name + "-deskSO";
+	  
 		if (roomScope == null) {
-		   logger.error("Cannot get shared object because room scope is null.")
+		   logger.error("DeskshareApplication: Cannot get shared object because room scope is null.")
 		   return None
 		} 
+		logger.debug("DeskshareApplication: Getting shared object.")
+		var deskSO:ISharedObject = getSharedObject(roomScope, soName)
+		logger.debug("DeskshareApplication: Got shared object.")
 		
-		var deskSO: ISharedObject = getSharedObject(roomScope, "deskSO")
-   
 		if (deskSO == null) {	
-			if (createSharedObject(roomScope, "deskSO", false)) {
-				  deskSO = getSharedObject(roomScope, "deskSO")
+		  logger.debug("DeskshareApplication: Creating shared object.")
+			if (createSharedObject(roomScope, soName, false)) {
+			  logger.debug("DeskshareApplication: Created shared object. Getting shared object.")
+			  deskSO = getSharedObject(roomScope, soName)
 			} else {
-				println ("Failed to create shared object")
+			  logger.error("DeskshareApplication: Failed to create shared object for room")
+			//	println ("Failed to create shared object")
 				return None
 			}
+		} else {
+		  logger.debug("DeskshareApplication: Not creating shared object as one has already been created.")
 		}
 		return Some(deskSO)
 	}
  
  	def createDeskshareClient(name: String): Option[RtmpClientAdapter] = {
- 		getRoomScope(name) match {
-	     case None => logger.error("Failed to get room scope %s", name)
-	     case Some(roomScope) => {
-	    	 getRoomSharedObject(roomScope) match {
-	    	   case None => logger.error("Failed to get shared object for room %s",name)
+ //		getRoomScope(name) match {
+//	     case None => logger.error("DeskshareApplication: Failed to get room scope for [ %s ] ", name)
+//	     case Some(roomScope) => {
+	    	 getRoomSharedObject(appScope, name) match {
+	    	   case None => logger.error("DeskshareApplication:: Failed to get shared object for room [ %s ]",name)
 	    	   case Some(deskSO) => {
-	    		   return Some(new RtmpClientAdapter(deskSO))
+	    	     logger.debug("DeskshareApplication: Creating RtmpClientAdapter")
+	    		 return Some(new RtmpClientAdapter(deskSO))
 	    	   }
-	    	 }
-	       }
+//	    	 }
+//	       }
 	   }
 	   
 	   return None
  	
  	}
  	
-	def createScreenVideoBroadcastStream(name: String): Option[ScreenVideoBroadcastStream] = {	  
-	   getRoomScope(name) match {
-	     case None => logger.error("Failed to get room scope %s", name)
-	     case Some(roomScope) => {
-	    	 getRoomSharedObject(roomScope) match {
+	def createScreenVideoBroadcastStream(name: String): Option[ScreenVideoBroadcastStream] = {
+	  logger.debug("DeskshareApplication: Creating ScreenVideoBroadcastStream")
+//	   getRoomScope(name) match {
+//	     case None => logger.error("Failed to get room scope %s", name)
+//	     case Some(roomScope) => {
+	    	 getRoomSharedObject(appScope, name) match {
 	    	   case None => logger.error("Failed to get shared object for room %s",name)
 	    	   case Some(deskSO) => {
-	    		   return createBroadcastStream(name, roomScope)
+	    	     logger.debug("DeskshareApplication: Creating Broadcast Stream for room [ %s ]", name)
+	    		   return createBroadcastStream(name, appScope)
 	    	   }
 	    	 }
-	       }
-	   }
+//	       }
+//	   }
 	   
 	   return None	   
 	}
@@ -180,16 +187,19 @@ class DeskshareApplication(streamManager: StreamManager, deskShareServer: DeskSh
 		   return None
 		}
   
+		logger.debug("DeskshareApplication: Creating ScreenVideoBroadcastStream for room [ %s ]", name)
 		var broadcastStream = new ScreenVideoBroadcastStream(name)
 		broadcastStream.setPublishedName(name)
 		broadcastStream.setScope(roomScope)
     
 		val context: IContext  = roomScope.getContext()
 		
+		logger.debug("DeskshareApplication: Getting provider service for room [ %s ]", name)		
 		val providerService: IProviderService  = context.getBean(IProviderService.BEAN_NAME).asInstanceOf[IProviderService]
+		
+		logger.debug("DeskshareApplication: Registering broadcast stream for room [ %s ]", name)
 		if (providerService.registerBroadcastStream(roomScope, name, broadcastStream)) {
-			var bScope: BroadcastScope = providerService.getLiveProviderInput(roomScope, name, true).asInstanceOf[BroadcastScope]			
-			bScope.setAttribute(IBroadcastScope.STREAM_ATTRIBUTE, broadcastStream)
+			// Do nothing. Successfully registered a live broadcast stream. (ralam Sept. 4, 2012)
 		} else{
 			logger.error("DeskShareStream: Could not register broadcast stream")
 		}

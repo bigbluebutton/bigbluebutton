@@ -1,35 +1,33 @@
-/** 
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-* PARTICULAR PURPOSE. See the GNU General Public License for more details.
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
-* You should have received a copy of the GNU General Public License along
+* You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-**/
+*
+*/
 package org.bigbluebutton.voiceconf.sip;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.zoolu.sip.provider.*;
 import org.zoolu.net.SocketAddress;
 import org.slf4j.Logger;
 import org.bigbluebutton.voiceconf.red5.CallStreamFactory;
 import org.bigbluebutton.voiceconf.red5.ClientConnectionManager;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.IScope;
+import org.red5.server.api.scope.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
 
 /**
@@ -47,6 +45,7 @@ public class SipPeer implements SipRegisterAgentListener {
     private CallManager callManager = new CallManager();
     
     private SipProvider sipProvider;
+    private String clientRtpIp;
     private SipRegisterAgent registerAgent;
     private final String id;
     private final AudioConferenceProvider audioconfProvider;
@@ -54,8 +53,9 @@ public class SipPeer implements SipRegisterAgentListener {
     private boolean registered = false;
     private SipPeerProfile registeredProfile;
     
-    public SipPeer(String id, String host, int sipPort, int startAudioPort, int stopAudioPort) {
+    public SipPeer(String id, String sipClientRtpIp, String host, int sipPort, int startAudioPort, int stopAudioPort) {
         this.id = id;
+        this.clientRtpIp = sipClientRtpIp;
         audioconfProvider = new AudioConferenceProvider(host, sipPort, startAudioPort, stopAudioPort);
         initSipProvider(host, sipPort);
     }
@@ -109,12 +109,12 @@ public class SipPeer implements SipRegisterAgentListener {
     		 * (in case FS is offline) and the user will be kept wondering why the call
     		 * isn't going through.
     		 */
-    		log.warn("We are not registered to FreeSWITCH. We are not allowing {} to call {}.", callerName, destination);
-    		return;
+    		log.warn("We are not registered to FreeSWITCH. However, we will allow {} to call {}.", callerName, destination);
+//    		return;
     	}
     	
     	SipPeerProfile callerProfile = SipPeerProfile.copy(registeredProfile);    	
-    	CallAgent ca = new CallAgent(sipProvider, callerProfile, audioconfProvider, clientId);
+    	CallAgent ca = new CallAgent(this.clientRtpIp, sipProvider, callerProfile, audioconfProvider, clientId);
     	ca.setClientConnectionManager(clientConnManager);
     	ca.setCallStreamFactory(callStreamFactory);
     	callManager.add(ca);
