@@ -40,13 +40,12 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.main.events.UserJoinedEvent;
 	import org.bigbluebutton.main.events.UserLeftEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
+	import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-	import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	import flash.external.ExternalInterface;
 	import org.bigbluebutton.main.model.users.BBBUser;
-
 
 	public class UsersSOService {
 		public static const NAME:String = "ViewersSOService";
@@ -296,21 +295,16 @@ package org.bigbluebutton.main.model.users {
 			}		
 		}
 
-		/**
-		 * Callback from the server from many of the bellow nc.call methods
-		 */
 		public function participantRoleChange(userID:String, role:String):void {
-			LogUtil.debug("Received role change [" + userID + "," + role + "]")			
+			LogUtil.debug("Received role change [" + userID + "," + role + "]");
 			UserManager.getInstance().getConference().newUserRole(userID, role);
 			if(UserManager.getInstance().getConference().amIThisUser(userID)) {
 				UserManager.getInstance().getConference().setMyRole(role);
 				var e:ChangeMyRole = new ChangeMyRole(role);
 				dispatcher.dispatchEvent(e);
 			}
-
 		}
 
-					
 		public function raiseHand(userID:String, raise:Boolean):void {
 			var nc:NetConnection = _connectionManager.connection;			
 			nc.call(
@@ -418,12 +412,12 @@ package org.bigbluebutton.main.model.users {
 		)
 
 		public function changeRole(userID:String, role:String):void {
-			var nc:NetConnection = _connectionManager.connection;			
+			var nc:NetConnection = _connectionManager.connection;
 			nc.call(
 				"participants.setParticipantRole",// Remote function name
 				responder,
-        		userID,
-        		role
+				userID,
+				role
 			); //_netConnection.call
 		}
 	}

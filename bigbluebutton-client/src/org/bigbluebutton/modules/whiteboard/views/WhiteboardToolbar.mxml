@@ -77,6 +77,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
 			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 			import org.bigbluebutton.modules.present.ui.views.SlideView;
@@ -84,7 +85,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
-			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
 			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
 			import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;

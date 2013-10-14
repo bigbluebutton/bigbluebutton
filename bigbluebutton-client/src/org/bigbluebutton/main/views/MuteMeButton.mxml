@@ -37,7 +37,7 @@ $Id: $
 	<mate:Listener type="{ShortcutEvent.MUTE_ME_EVENT}" method="toggleMuteMeState" />
 	<mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalking" />
 	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
-				   
+	
 	<mx:Script>
 		<![CDATA[
 			import mx.binding.utils.BindingUtils;
@@ -50,8 +50,8 @@ $Id: $
 			import org.bigbluebutton.core.events.VoiceConfEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var muteMeRolled:Boolean = false;
 			

@@ -180,6 +180,13 @@ public class RedisMessagingService implements MessagingService {
 					for (MessageListener listener : listeners) {
 						listener.userLeft(meetingId, internalUserId);
 					}
+				} else if(MessagingConstants.USER_ROLE_CHANGE_EVENT.equalsIgnoreCase(messageId)){
+					String internalUserId = map.get("internalUserId");
+					String role = map.get("role");
+
+					for (MessageListener listener : listeners) {
+						listener.userRoleChange(meetingId, internalUserId, role);
+					}
 				}
 			}
 		}

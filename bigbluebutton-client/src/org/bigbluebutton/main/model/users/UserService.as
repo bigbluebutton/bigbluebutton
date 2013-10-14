@@ -36,13 +36,13 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 	import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
+	import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 	import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
 	import org.bigbluebutton.main.model.users.events.KickUserEvent;
 	import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 	import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
-	import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 
 	public class UserService {
 		private var joinService:JoinService;

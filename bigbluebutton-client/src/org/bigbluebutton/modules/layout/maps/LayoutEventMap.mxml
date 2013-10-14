@@ -25,6 +25,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import org.bigbluebutton.core.EventConstants;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.modules.layout.events.ComboBoxCreatedEvent;
 			import org.bigbluebutton.modules.layout.events.ConnectionEvent;
 			import org.bigbluebutton.modules.layout.events.LayoutEvent;
@@ -34,7 +35,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;
 			import org.bigbluebutton.modules.layout.managers.LayoutManager;
 			import org.bigbluebutton.modules.layout.services.LayoutService;
-      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 		]]>
 	</mx:Script>
 

@@ -24,11 +24,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.modules.layout.views.ToolbarComponent;
-			import org.bigbluebutton.common.Role;
-      		import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			
 			private var _attributes:Object;
 			private var _globalDispatcher:Dispatcher = new Dispatcher();
@@ -56,8 +56,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			public function refreshRole(e:ChangeMyRole):void {
 				layoutComponent.enableEdit = !(_attributes.enableEdit == "false");
-				layoutComponent.visibleTools = options.showLayoutTools;
-				layoutComponent.refreshButtons();
+				layoutComponent.refreshRole();
 			}
 		]]>
 	</mx:Script>

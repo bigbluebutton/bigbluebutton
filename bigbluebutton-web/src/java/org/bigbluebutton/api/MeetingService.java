@@ -320,7 +320,23 @@ public class MeetingService {
 			}
 			log.warn("The meeting " + meetingId + " doesn't exist");
 		}
-		
+
+		@Override
+		public void userRoleChange(String meetingId, String internalUserId, String role) {
+			Meeting m = getMeeting(meetingId);
+			if (m != null) {
+				User user = m.getUserById(internalUserId);
+				if(user != null){
+					user.setRole(role);
+					log.debug("Setting new role in meeting " + meetingId + " for participant:" + user.getFullname());
+					return;
+				}
+				log.warn("The participant " + internalUserId + " doesn't exist in the meeting " + meetingId);
+				return;
+			}
+			log.warn("The meeting " + meetingId + " doesn't exist");
+		}
+
 		@Override
 		public void updatedStatus(String meetingId, String internalUserId, String status, String value) {
 			Meeting m = getMeeting(meetingId);
