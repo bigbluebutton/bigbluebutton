@@ -742,8 +742,10 @@ class ApiController {
               mtgs.each { m ->
                 meeting() {
                   meetingID(m.getExternalId())
-				          meetingName(m.getName())
-				          createTime(m.getCreateTime())
+                  meetingName(m.getName())
+                  createTime(m.getCreateTime())
+                  voiceBridge(m.getTelVoice())
+                  dialNumber(m.getDialNumber())
                   attendeePW(m.getViewerPassword())
                   moderatorPW(m.getModeratorPassword())
                   hasBeenForciblyEnded(m.isForciblyEnded() ? "true" : "false")
@@ -1505,6 +1507,8 @@ class ApiController {
             attendeePW(meeting.getViewerPassword())
             moderatorPW(meeting.getModeratorPassword())
             createTime(meeting.getCreateTime())
+            voiceBridge(meeting.getTelVoice())
+            dialNumber(meeting.getDialNumber())
             hasBeenForciblyEnded(meeting.isForciblyEnded() ? "true" : "false")
             messageKey(msgKey == null ? "" : msgKey)
             message(msg == null ? "" : msg)
