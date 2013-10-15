@@ -18,8 +18,7 @@
 */
 package org.bigbluebutton.conference.service.voice;
 import org.slf4j.Logger;import org.red5.server.api.Red5;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;import org.bigbluebutton.core.api.IBigBlueButtonInGW;
-import org.red5.logging.Red5LoggerFactory;
-import org.bigbluebutton.webconference.voice.ConferenceService;import java.util.ArrayList;import java.util.HashMap;
+import org.red5.logging.Red5LoggerFactory;import java.util.ArrayList;import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

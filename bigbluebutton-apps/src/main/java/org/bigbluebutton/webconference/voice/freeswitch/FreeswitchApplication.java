@@ -67,14 +67,12 @@ public class FreeswitchApplication implements ConferenceServiceProvider {
     	queueMessage(prc);
     }
 
-    @Override
-    public void mute(String room, Integer participant, Boolean mute) {
+    public void mute(String room, String participant, Boolean mute) {
         MuteParticipantCommand mpc = new MuteParticipantCommand(room, participant, mute, USER);
         queueMessage(mpc);
     }
 
-    @Override
-    public void eject(String room, Integer participant) {
+    public void eject(String room, String participant) {
         EjectParticipantCommand mpc = new EjectParticipantCommand(room, participant, USER);       
         queueMessage(mpc);
     }
