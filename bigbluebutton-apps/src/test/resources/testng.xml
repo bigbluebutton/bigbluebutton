@@ -11,6 +11,7 @@
     <packages>
     	<package name="org.bigbluebutton.conference.service.poll"/>
     	<package name="org.bigbluebutton.core.apps.poll"/>
+    	<package name="org.bigbluebutton.core.apps.users"/>
     	
     </packages>
   </test>
