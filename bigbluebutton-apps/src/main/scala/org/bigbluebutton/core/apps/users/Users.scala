@@ -10,9 +10,7 @@ class Users {
   /**
    * Add a new user.
    */
-  def add(user: UserV) = {
-    users += user.id -> user
-  }
+  def add(user: UserV) = users += user.id -> user
   
   /**
    * Returns the number of users.
@@ -22,9 +20,7 @@ class Users {
   /**
    * Removes a user.
    */
-  def remove(id: String) = {
-    users -= id
-  }
+  def remove(id: String) = users -= id
   
   /**
    * Gets a user.
