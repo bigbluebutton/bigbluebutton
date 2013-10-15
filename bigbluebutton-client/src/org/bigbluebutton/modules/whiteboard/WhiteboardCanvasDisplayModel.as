@@ -104,15 +104,17 @@ package org.bigbluebutton.modules.whiteboard
             break;
           case DrawObject.DRAW_UPDATE:
           case DrawObject.DRAW_END:
-            var gobj:DrawObject = _annotationsList.pop();  
-            if (gobj.id == o.id) {
-//              LogUtil.debug("Removing shape [" + gobj.id + "]");
-              wbCanvas.removeGraphic(gobj as DisplayObject);
-            } else { // no DRAW_START event was thrown for o so place gobj back on the top
-              LogUtil.debug("Not removing shape [" + gobj.id + "] new [" + o.id + "]");
-              _annotationsList.push(gobj);
+            if (_annotationsList.length > 0) {
+              var gobj:DrawObject = _annotationsList.pop();  
+              if (gobj.id == o.id) {
+                //              LogUtil.debug("Removing shape [" + gobj.id + "]");
+                wbCanvas.removeGraphic(gobj as DisplayObject);
+              } else { // no DRAW_START event was thrown for o so place gobj back on the top
+                LogUtil.debug("Not removing shape [" + gobj.id + "] new [" + o.id + "]");
+                _annotationsList.push(gobj);
+              }              
             }
-                  
+                 
             dobj = shapeFactory.makeDrawObject(o, whiteboardModel);  
             if (dobj != null) {
               dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
