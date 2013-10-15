@@ -487,6 +487,17 @@ def occursDuringRecording(timestamp)
 	return false
 end
 
+#
+# Calculates the length of a recording
+#
+def computeRecordingLength()
+	recordingLength = 0
+	$rec_events.each do |event|
+		recordingLength += event[:stop_timestamp] - event[:start_timestamp]
+	end
+	recordingLength
+end
+
 def preprocessSlideEvents
 	new_slides_events = []
 	$slides_events.each do |slide_event|
@@ -837,6 +848,12 @@ if ($playback == "presentation")
 
 		processing_time = File.read("#{$process_dir}/processing_time")
 
+		# Retrieve record events and calculate total recording duration.
+		$rec_events = BigBlueButton::Events.match_start_and_stop_rec_events(
+				BigBlueButton::Events.get_start_and_stop_rec_events("#{$process_dir}/events.xml"))
+
+		recording_time = computeRecordingLength()
+
 		BigBlueButton.logger.info("Creating metadata.xml")
 		# Create metadata.xml
 		b = Builder::XmlMarkup.new(:indent => 2)
@@ -852,6 +869,7 @@ if ($playback == "presentation")
 				b.format("presentation")
 				b.link("http://#{playback_host}/playback/presentation/playback.html?meetingId=#{$meeting_id}")
 				b.processing_time("#{processing_time}")
+				b.duration("#{recording_time}")
 			}
 			b.meta {
 				BigBlueButton::Events.get_meeting_metadata("#{$process_dir}/events.xml").each { |k,v| b.method_missing(k,v) }
@@ -879,8 +897,6 @@ if ($playback == "presentation")
 		$undo_events = @doc.xpath("//event[@eventname='UndoShapeEvent']") # for undoing shapes.
 		$join_time = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0][:timestamp].to_f
 		$end_time = @doc.xpath("//event[@eventname='EndAndKickAllEvent']")[0][:timestamp].to_f
-		$rec_events = BigBlueButton::Events.match_start_and_stop_rec_events(
-				BigBlueButton::Events.get_start_and_stop_rec_events("#{$process_dir}/events.xml"))
 
 		calculateRecordEventsOffset()
 		
