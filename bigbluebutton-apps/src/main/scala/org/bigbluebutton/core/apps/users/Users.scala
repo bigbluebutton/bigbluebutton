@@ -86,7 +86,21 @@ class Users {
     
     user
   }
-  
+
+  def lockVoice(id:String, lock: Boolean):Option[UserV] = {
+    var user:Option[UserV] = None
+    get(id) match {
+      case Some(u) => {
+        val lockedUser = u.copy(voice=u.voice.copy(locked=lock))
+        users += lockedUser.id -> lockedUser
+        user = Some(lockedUser)
+      }
+      case None =>
+    }
+    
+    user
+  }
+    
   def joinedVoice(id:String, voice: Voice):Option[UserV] = {
     var user:Option[UserV] = None
     get(id) match {

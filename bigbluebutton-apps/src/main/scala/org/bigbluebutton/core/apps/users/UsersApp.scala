@@ -19,10 +19,13 @@ import org.bigbluebutton.core.apps.users.messages.GetUsersReply
 import org.bigbluebutton.core.api.ChangeUserStatus
 import org.bigbluebutton.core.apps.users.messages.UserStatusChange
 import org.bigbluebutton.core.apps.voice.messages._
+import org.bigbluebutton.core.apps.users.messages.MuteUserCommand
+import org.bigbluebutton.core.apps.users.messages.EjectUserFromVoice
 
-class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
+class UsersApp(meetingID: String, recorded: Boolean, voiceBridge: String, outGW: MessageOutGateway) {
   
   private val users = new UsersModel
+  private val users2 = new Users
   
   var currentPresenter = new Presenter("system", "system", "system")
   private var meetingMuted = false
@@ -71,8 +74,8 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   private def handleMuteMeetingRequest(msg: MuteMeetingRequest) {
     meetingMuted = msg.mute
     
-    users.getUsers().foreach(u => {
-      
+    users2.unlockedUsers map ({ u =>
+      outGW.send(new MuteUserCommand(meetingID, recorded, msg.requesterID, u.voice.id, voiceBridge, msg.mute))
     })
   }
   
@@ -81,19 +84,24 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   }
   
   private def handleMuteUserRequest(msg: MuteUserRequest) {
-    
+    users2.get(msg.userID) match {
+      case Some(u) => outGW.send(new MuteUserCommand(meetingID, recorded, msg.requesterID, u.voice.id, voiceBridge, msg.mute))
+    }
   }
   
   private def handleLockUserRequest(msg: LockUserRequest) {
-    
+    users2.lockVoice(msg.userID, msg.lock)
   }
   
   private def handleEjectUserRequest(msg: EjectUserRequest) {
-    
+    users2.get(msg.userID) match {
+      case Some(u) => outGW.send(new EjectUserFromVoice(meetingID, recorded, msg.requesterID, u.voice.id, voiceBridge))
+      case None => // do nothing
+    }
   }
   
   private def handleVoiceUserJoinedMessage(msg: VoiceUserJoinedMessage) {
-    
+ //   users2.joinedVoice(msg., voice)
   }
   
   private def handleVoiceUserLeftMessage(msg: VoiceUserLeftMessage) {

@@ -20,7 +20,7 @@ case object StopMeetingActor
 
 class MeetingActor(val meetingID: String, val recorded: Boolean, val voiceBridge: String, outGW: MessageOutGateway) extends Actor
 {  
-  val usersApp = new UsersApp(meetingID, recorded, outGW)
+  val usersApp = new UsersApp(meetingID, recorded, voiceBridge, outGW)
   val presentationApp = new PresentationApp(meetingID, recorded, outGW, usersApp)
   val pollApp = new PollApp(meetingID, recorded, outGW, usersApp)
   val layoutApp = new LayoutApp(meetingID, recorded, outGW)
