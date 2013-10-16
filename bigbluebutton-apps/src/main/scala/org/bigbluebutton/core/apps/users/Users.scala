@@ -114,4 +114,6 @@ class Users {
     
     user
   }
+  
+  def unlockedUsers():Array[UserV] = users.values filter (u => !u.voice.locked) toArray
 }
