@@ -246,7 +246,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if(guestWindow == null) {
 					guestWindow = PopUpManager.createPopUp( mdiCanvas, GuestWindow, false) as GuestWindow;
 					guestWindow.addEventListener(Event.CLOSE, closeGuestWindow);
-					guestWindow.x = width - 400;
+
+					guestWindow.x = systemManager.screen.width - guestWindow.width - 20;
 					guestWindow.y = 20;
 				}
 				guestWindow.refreshGuestView(evt.listOfGuests);
@@ -262,12 +263,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				 waitWindow = PopUpManager.createPopUp( mdiCanvas, WaitingWindow, false) as WaitingWindow;
 				 waitWindow.conferenceParameters = evt.conferenceParameters;
 				 
-				 var point1:Point = new Point();
 				 // Calculate position of TitleWindow in Application's coordinates. 
-				 point1.x = width/2;
-				 point1.y = height/2;                 
-				 waitWindow.x = point1.x - (waitWindow.width/2);
-				 waitWindow.y = point1.y - (waitWindow.height/2);
+				 waitWindow.x = (systemManager.screen.width - waitWindow.width) / 2;
+				 waitWindow.y = (systemManager.screen.height - waitWindow.height) / 2;
 			}			
 			
 			private function openLogWindow():void {
