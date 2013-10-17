@@ -41,7 +41,11 @@ package org.bigbluebutton.modules.whiteboard.models
         }
         
         public function getAnnotation(id:String):Annotation {
+          if (_currentPage != null) {
             return _currentPage.getAnnotation(id);
+          }
+          
+          return null;
         }
         
 		private function createPages(numPages:int):void {
