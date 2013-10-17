@@ -150,7 +150,7 @@ package org.bigbluebutton.modules.polling.managers
     }
     
     public function handleOpenPollResultWindowEvent(event:PollEvent):void {
-
+      openPollResultsWindow(event.pollID);
     }
 		
     public function handleEditPollRequestEvent(event:PollEvent):void {

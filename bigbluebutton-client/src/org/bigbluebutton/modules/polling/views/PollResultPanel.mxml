@@ -11,17 +11,23 @@
       
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.modules.polling.events.PollEvent;
-      import org.bigbluebutton.modules.polling.model.PollingViewModel;
       import org.bigbluebutton.modules.polling.events.PollResultWindowEvent;
+      import org.bigbluebutton.modules.polling.model.PollVO;
+      import org.bigbluebutton.modules.polling.model.PollingViewModel;
       
       [Bindable] public var viewModel:PollingViewModel;
       [Bindable] public var pollID:String;
       [Bindable] private var _showStopButton:Boolean = false;
       
       private function onCreationComplete():void{
-        setCurrentState("PieChart");
+        setCurrentState("BarChart");
         if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) {
-          _showStopButton = true;
+          var poll:PollVO = viewModel.getPoll(pollID);
+          if (poll.started && !poll.stopped) {
+            _showStopButton = true;
+          } else {
+            _showStopButton = false;
+          }         
         }
       }
       
@@ -47,9 +53,9 @@
 
   <mx:VBox id="resultsBox" horizontalAlign="center" width="100%" height="100%">
     <mx:HBox height="5%" width="100%" id="chartbox" horizontalAlign="center" borderThickness="1" borderStyle="solid">
-      <mx:RadioButtonGroup id="charttype" selectedValue="piechart" itemClick="switchChart(event);"/>  
-      <mx:RadioButton groupName="charttype" id="pieChart" label="Pie Chart" value="piechart" width="100" />
+      <mx:RadioButtonGroup id="charttype" selectedValue="barChart" itemClick="switchChart(event);"/>  
       <mx:RadioButton groupName="charttype" id="barChart" label="Bar Chart" value="barchart" width="100" />
+      <mx:RadioButton groupName="charttype" id="pieChart" label="Pie Chart" value="piechart" width="100" />
     </mx:HBox>
     <mx:Spacer height="5"/>
     <mx:HBox height="5%" width="100%" horizontalAlign="right">
