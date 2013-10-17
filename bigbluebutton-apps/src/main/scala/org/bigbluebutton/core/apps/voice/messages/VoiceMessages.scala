@@ -40,7 +40,7 @@ case class VoiceUserJoinedMessage(
     callerIdNum: String, 
     callerIdName: String, 
     muted: Boolean, 
-    speaking: Boolean) extends InMessage
+    talking: Boolean) extends InMessage
     
 case class VoiceUserLeftMessage(meetingID: String, user: String, voiceConfId: String) extends InMessage
 case class VoiceUserMutedMessage(meetingID: String, user: String, voiceConfId: String, muted: Boolean) extends InMessage

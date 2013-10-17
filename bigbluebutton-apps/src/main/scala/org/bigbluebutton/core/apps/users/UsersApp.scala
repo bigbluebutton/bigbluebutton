@@ -86,6 +86,7 @@ class UsersApp(meetingID: String, recorded: Boolean, voiceBridge: String, outGW:
   private def handleMuteUserRequest(msg: MuteUserRequest) {
     users2.get(msg.userID) match {
       case Some(u) => outGW.send(new MuteUserCommand(meetingID, recorded, msg.requesterID, u.voice.id, voiceBridge, msg.mute))
+      case None => // do nothing
     }
   }
   
