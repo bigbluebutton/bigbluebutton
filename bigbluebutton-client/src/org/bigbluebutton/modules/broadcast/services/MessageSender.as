@@ -76,12 +76,15 @@ package org.bigbluebutton.modules.broadcast.services
       );
     }
     
-    public function sendWhatIsTheCurrentStreamReply(requestedByUserID:Number, streamID:String):void {
+    public function sendWhatIsTheCurrentStreamReply(requestedByUserID:String, streamID:String):void {
       var message:Object = new Object();
       message["messageID"] = "BroadcastWhatIsTheCurrentStreamReply";	
       message["requestedBy"] = requestedByUserID;
       message["streamID"] = streamID;
 
+      trace("MessageSender:: sendWhatIsTheCurrentStreamReply [" + message["requestedBy"] 
+        + "," +  message["streamID"] + "]");
+      
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("bigbluebutton.sendMessage", 
         function(result:String):void { // On successful result

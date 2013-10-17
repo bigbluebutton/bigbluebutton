@@ -53,6 +53,7 @@ TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g
 
 mark_for_rebuild() {
 	MEETING_ID=$1
+	echo "Marking for rebuild $MEETING_ID"
 	#set -x
 	for type in $TYPES; do
                 if [ -d $BASE/process/$type/$MEETING_ID ]; then
@@ -105,8 +106,6 @@ mark_for_republish() {
 	done
 }
 
-BIGBLUEBUTTON_RELEASE=0.8-beta-4
-
 need_root() {
         if [ $EUID != 0 ]; then
                 echo "Need to be root to run this option"
@@ -128,24 +127,25 @@ usage() {
         echo "   bbb-record [options]"
         echo
         echo "Reporting:"
-        echo "   --list                          	 List all recordings"
+        echo "   --list                          	List all recordings"
 	echo
         echo "Monitoring:"
         echo "   --watch                          	Watch processing of recordings"
 	echo "   --watch --withDesc               	Watch processing of recordings and show their description"
 	echo
         echo "Administration:"
-        echo "   --rebuild [meetingID]            	rebuild the output for meetingID"
-        echo "   --republish [meetingID]          	republish the recording for meetingID"
-	echo "   --delete [meetingID]             	delete one meeting and recording"
+        echo "   --rebuild <internal meetingID>       rebuild the output for the given internal meetingID"
+        echo "   --rebuildall			        rebuild every recording"
+	echo "   --delete <internal meetingID>	delete one meeting and recording"
         echo "   --deleteall                      	delete all meetings and recordings"
         echo "   --debug                          	check for recording errors"
         echo "   --check                          	check for configuration errors"
-        echo "   --enable [workflow]              	enable a recording workflow"
-        echo "   --disable [workflow]             	disable a recording workflow"
-        echo "   --tointernal [external meetingId]      get the internal meeting ids for the given external meetingId"
-        echo "   --toexternal [internal meetingId]      get the external meeting id for the given internal meetingId"
-        #echo "   --rearchive [meetingID]          	rearchive the recording (created before a restart)"
+        echo "   --enable <workflow>              	enable a recording workflow"
+        echo "   --disable <workflow>             	disable a recording workflow"
+        echo "   --tointernal <external meetingId>	get the internal meeting ids for the given external meetingId"
+        echo "   --toexternal <internal meetingId>	get the external meeting id for the given internal meetingId"
+        echo "   --republish <internal meetingID>	republish the recording for meetingID. (Only for Matterhorn Integration)"
+        #echo "   --rearchive [meetingId]		rearchive the recording (created before a restart)"
 	echo
 }
 
@@ -187,6 +187,16 @@ while [ $# -gt 0 ]; do
 			shift
 		fi
                 REBUILD=1
+		shift
+                continue
+        fi
+        if [ "$1" = "-rebuildall" -o "$1" = "--rebuildall" ]; then
+		need_root
+		if [ ! -z "${2}" ]; then
+                	MEETING_ID="${2}"
+			shift
+		fi
+                REBUILDALL=1
 		shift
                 continue
         fi
@@ -301,17 +311,17 @@ done
 
 if [ $REBUILD ]; then
     if [ -z "$MEETING_ID" ]; then
-	#
-	# Regenerate all meetings
-	#
-	for recording in $(dir $BASE/raw); do
-		echo "Marking for rebuild: $MEETING_ID"
-		mark_for_rebuild $MEETING_ID
-	done
+	echo "Pass an internal meeting id as parameter."
     else
-	echo "Marking for rebuild: $MEETING_ID"
 	mark_for_rebuild $MEETING_ID
     fi
+fi 
+
+if [ $REBUILDALL ]; then
+	echo "Rebuilding all recordings"
+	for recording in $(dir $BASE/raw); do
+		mark_for_rebuild $recording
+	done
 fi 
 
 if [ $REPUBLISH ]; then
