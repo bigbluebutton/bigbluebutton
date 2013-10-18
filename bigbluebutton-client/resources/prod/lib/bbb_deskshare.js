@@ -1,5 +1,10 @@
 function startApplet(IP, roomNumber, fullScreen, useSVC2)
 {
+  if (!deployJava.versionCheck("1.7.0_45+")) {
+    alert("Either the Java plugin version is too old, or your browser is missing Java support. Desktop sharing cannot be started.");
+    return;
+  }
+
         var iframe = document.createElement("iframe");
         iframe.id = "iframe";
         document.body.appendChild(iframe);
