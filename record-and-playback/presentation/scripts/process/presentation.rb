@@ -76,7 +76,7 @@ if not FileTest.directory?(target_dir)
     FileUtils.mkdir_p target_pres_dir
     FileUtils.mkdir_p "#{target_pres_dir}/textfiles"
     
-    images=Dir.glob("#{pres_dir}/#{pres}.{jpg,png,gif,JPG,PNG,GIF}")
+    images=Dir.glob("#{pres_dir}/#{pres}.{jpg,jpeg,png,gif,JPG,JPEG,PNG,GIF}")
     if images.empty? 
       pres_pdf = "#{pres_dir}/#{pres}.pdf"
       if !File.exists?(pres_pdf)
