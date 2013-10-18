@@ -11,6 +11,7 @@ function startApplet(IP, roomNumber, fullScreen, useSVC2)
                 "<param name=\"PORT\" value=\"9123\"/>" +
                 "<param name=\"FULL_SCREEN\" value=\"" + fullScreen + "\"/>" +
                 "<param name=\"SVC2\" value=\"" + useSVC2 + "\"/>" +
+                "<param name=\"permissions\" value=\"all-permissions\"/>" +
         "</applet>"
      );
 }
