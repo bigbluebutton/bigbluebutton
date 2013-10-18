@@ -357,7 +357,7 @@ class ToolController {
         '                             http://www.imsglobal.org/xsd/imsbasiclti_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imsbasiclti_v1p0.xsd' +
         '                             http://www.imsglobal.org/xsd/imslticm_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticm_v1p0.xsd' +
         '                             http://www.imsglobal.org/xsd/imslticp_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticp_v1p0.xsd">' +
-        '    <blti:title>ePortfolio</blti:title>' +
+        '    <blti:title>BigBlueButton</blti:title>' +
         '    <blti:description>Single Sign On into BigBlueButton</blti:description>' +
         '    <blti:launch_url>' + ltiService.retrieveBasicLtiEndpoint() + '</blti:launch_url>' +
         '    <blti:icon>' + ltiService.retrieveIconEndpoint() + '</blti:icon>' +
