@@ -29,8 +29,10 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.modules.present.api.PresentationAPI;
 	import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
+	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 	import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
@@ -136,5 +138,15 @@ package org.bigbluebutton.modules.whiteboard.managers
 		public function disableWhiteboard(e:WhiteboardButtonEvent):void {
 			highlighterCanvas.disableWhiteboard(e);
 		}
+		
+		/* 
+		 * When a presentation loads switch the tool to pan and zoom to avoid a race condition 
+		 * with drawing on a half loaded slide.
+		 */
+		public function handlePresentationLoading(e:UploadEvent):void {
+			var event:WhiteboardButtonEvent = new WhiteboardButtonEvent(WhiteboardButtonEvent.WHITEBOARD_BUTTON_PRESSED);
+      		event.graphicType = WhiteboardConstants.TYPE_ZOOM;
+      		globalDispatcher.dispatchEvent(event);
+      	}
 	}
 }

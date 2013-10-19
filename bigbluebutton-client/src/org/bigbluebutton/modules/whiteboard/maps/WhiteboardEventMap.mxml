@@ -28,6 +28,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.events.NavigationEvent;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
 			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
+			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 			import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
 			import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
@@ -113,6 +114,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</EventHandlers>
 	<EventHandlers type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="disableWhiteboard" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{UploadEvent.PRESENTATION_READY}" >
+		<MethodInvoker generator="{WhiteboardManager}" method="handlePresentationLoading" arguments="{event}" />
 	</EventHandlers>
 
     <Injectors target="{WhiteboardManager}">
