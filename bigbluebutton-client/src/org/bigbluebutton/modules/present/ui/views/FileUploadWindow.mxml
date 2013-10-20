@@ -293,8 +293,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                       labelPlacement="center" width="460" visible="false"/>      
     </mx:HBox>
     <mx:Label id="presentationNamesLb" text="{ResourceUtil.getInstance().getString('bbb.fileupload.presentationNamesLbl')}" styleName="presentationNamesLabelStyle" paddingLeft="5"/>
-    <mx:Canvas width="90%" height="100">
-      <mx:List id="presentationNamesList" width="90%" height="100" left="5" top="5" alternatingItemColors="[#EFEFEF, #FEFEFE]" allowMultipleSelection="false"
+    <mx:Canvas width="90%" height="140" verticalScrollPolicy="off">
+      <mx:List id="presentationNamesList" width="90%" height="120" left="5" top="5" alternatingItemColors="[#EFEFEF, #FEFEFE]" allowMultipleSelection="false"
                itemRenderer="org.bigbluebutton.modules.present.ui.views.UploadedPresentationRenderer"
                dragEnabled="false" dataProvider="{presentationNamesAC}">
       </mx:List>
