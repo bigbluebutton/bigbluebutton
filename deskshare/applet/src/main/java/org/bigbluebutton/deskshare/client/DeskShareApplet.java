@@ -103,7 +103,7 @@ public class DeskShareApplet extends JApplet implements ClientListener {
     private void createAndShowGUI(final String warning) {
 		JOptionPane.showMessageDialog(null,
 				warning,
-		    "Java Version Check",
+		    "Java Version Error",
 		    JOptionPane.ERROR_MESSAGE);
 		stop();
     }
