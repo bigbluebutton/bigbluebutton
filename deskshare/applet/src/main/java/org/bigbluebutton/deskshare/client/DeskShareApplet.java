@@ -55,6 +55,7 @@ public class DeskShareApplet extends JApplet implements ClientListener {
     private volatile boolean clientStarted = false;
     private static final String JAVA_VERSION_PATTERN = "1.7.0_([0-9]+)";
     private final int MIN_JRE_VERSION = 45;
+    private final static String VERSION_ERROR_MSG = "Desktop sharing requires Java 7 update 45 (or later) to run.";
     
     private class DestroyJob implements PrivilegedExceptionAction {
        public Object run() throws Exception {
@@ -100,9 +101,9 @@ public class DeskShareApplet extends JApplet implements ClientListener {
      * event-dispatching thread.
      */
     private void createAndShowGUI(final String warning) {
-		JOptionPane.showMessageDialog(this,
+		JOptionPane.showMessageDialog(null,
 				warning,
-		    "Java Version Error",
+		    "Java Version Check",
 		    JOptionPane.ERROR_MESSAGE);
 		stop();
     }
@@ -129,12 +130,12 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 		if (matcher.matches()) {
 			int jreVersion = Integer.valueOf(matcher.group(1).trim()).intValue();
 			if (jreVersion < MIN_JRE_VERSION) {
-				displayJavaWarning("You don't have the minimum java version required to run this applet.");
+				displayJavaWarning(VERSION_ERROR_MSG);
 			} else {
 				allowDesktopSharing();
 			}
 		} else {
-			displayJavaWarning("Cannot determine java version.");
+			displayJavaWarning(VERSION_ERROR_MSG);
 		}
 	}
 	
