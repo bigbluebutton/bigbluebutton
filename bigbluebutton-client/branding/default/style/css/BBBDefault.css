@@ -90,6 +90,25 @@ Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraD
   fontWeight: bold;
 }
 
+.testJavaLinkButtonStyle {
+  paddingLeft: 4;
+  paddingRight: 4;
+  paddingTop: 2;
+  paddingBottom: 2;
+  fontSize: 12;
+  rollOverColor: #cccccc;
+  selectionColor: #999999;
+  color: #0000ff;
+  textRollOverColor: #504f3d;
+  textSelectedColor: #504f3d;
+}
+
+.javaVersionRequiredLabelStyle {
+  fontSize: 12;
+  color: #000000;
+  fontFamily: Arial;
+}
+
 .logoutButtonStyle {
   paddingLeft: 0;
   paddingRight: 0;
