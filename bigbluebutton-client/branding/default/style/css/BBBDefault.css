@@ -95,12 +95,13 @@ Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraD
   paddingRight: 4;
   paddingTop: 2;
   paddingBottom: 2;
-  fontSize: 12;
+  fontSize: 14;
   rollOverColor: #cccccc;
-  selectionColor: #999999;
-  color: #0000ff;
+  selectionColor: #cccccc;
+  color: #ffffff;
   textRollOverColor: #504f3d;
   textSelectedColor: #504f3d;
+  fontWeight: bold;
 }
 
 .javaVersionRequiredLabelStyle {
