@@ -60,6 +60,15 @@ class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension, wait
 	def updateBlock(position: Int, videoData: Array[Byte], keyFrame: Boolean, seqNum: Int): Unit = {
 		val block: Block = blocksMap.get(position)
 		block.update(videoData, keyFrame, seqNum)
+		
+		if (! gotAllBlocks ) {
+		  val numberOfBlocks = numberOfRows * numberOfColumns
+    	  gotAllBlocks = allBlocksReceived(numberOfBlocks)
+    	}
+	}
+	
+	def hasReceivedAllBlocks():Boolean = {
+	  gotAllBlocks;
 	}
 	
 	private def allBlocksReceived(numberOfBlocks: Int):Boolean = {
@@ -88,11 +97,7 @@ class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension, wait
     	  val flags : Byte = 0; // 6 bits reserved (0); HasIFrameImage=0; HasPaletteInfo=0
     	  screenVideoFrame.write(flags);
     	}
-    	
-    	if (! gotAllBlocks ) {
-    	  gotAllBlocks = allBlocksReceived(numberOfBlocks)
-    	}
-		
+    			
     	for (position: Int <- 1 to numberOfBlocks)  {
     		var block: Block = blocksMap.get(position)
     		var encodedBlock: Array[Byte] = ScreenVideoEncoder.encodeBlockUnchanged()
