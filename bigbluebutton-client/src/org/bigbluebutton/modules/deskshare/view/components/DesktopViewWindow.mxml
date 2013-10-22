@@ -147,6 +147,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				video = new Video(width, height);
 				video.width = width;
 				video.height = height;
+        video.smoothing = true;
 				video.attachNetStream(ns);
 				ns.play(stream);	
 				this.stream = stream;
