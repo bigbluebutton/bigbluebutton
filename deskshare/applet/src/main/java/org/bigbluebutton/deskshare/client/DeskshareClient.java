@@ -215,21 +215,11 @@ public class DeskshareClient {
         			y = ((int) fullScreenSize.getHeight() - captureHeight) / 2;    
         			System.out.println("Info[" + captureWidth + "," + captureHeight + "][" + x + "," + y +"]"
         					+ "[" + fullScreenSize.getWidth() + "," + fullScreenSize.getHeight() + "]");
-        			calculateDimensionsToMaintainAspectRatio();
+        			scaleWidth = captureWidth;
+        			scaleHeight = captureHeight; 
     		}
     	}
-    	
-    	private void calculateDimensionsToMaintainAspectRatio() {
-    		if (scaleWidth > 0 && scaleHeight > 0) {
-//    			if (aspectRatio) {
-//    				recalculateScaleDimensionsToMaintainAspectRatio();
-//    			}
-    		} else {
-    			scaleWidth = captureWidth;
-    			scaleHeight = captureHeight;
-    		}    		
-    	}
-    	
+    		
     	private void setupFullScreen() {
     		java.awt.Dimension fullScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
     		captureWidth = (int) fullScreenSize.getWidth();
