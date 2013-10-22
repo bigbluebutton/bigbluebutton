@@ -115,10 +115,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="disableWhiteboard" arguments="{event}" />
 	</EventHandlers>
-	
-	<EventHandlers type="{UploadEvent.PRESENTATION_READY}" >
-		<MethodInvoker generator="{WhiteboardManager}" method="handlePresentationLoading" arguments="{event}" />
-	</EventHandlers>
 
     <Injectors target="{WhiteboardManager}">
         <ObjectBuilder generator="{WhiteboardModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
