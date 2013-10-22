@@ -47,7 +47,7 @@ Panel {
   color: #e1e2e5;
 }
 
-Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowChangeResolutionCombo, .languageSelectorStyle {
+Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowChangeResolutionCombo, .languageSelectorStyle, .testJavaLinkButtonStyle {
   textIndent: 0;
   paddingLeft: 10;
   paddingRight: 10;
@@ -88,6 +88,27 @@ Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraD
   textRollOverColor: #504f3d;
   textSelectedColor: #504f3d;
   fontWeight: bold;
+}
+
+.testJavaLinkButtonStyle {
+  paddingLeft: 4;
+  paddingRight: 4;
+  paddingTop: 2;
+  paddingBottom: 2;
+  fontSize: 14;
+  rollOverColor: #cccccc;
+  selectionColor: #cccccc;
+  color: #e3e3e3;
+  textRollOverColor: #504f46;
+  textSelectedColor: #504f46;
+  fontWeight: bold;
+  textDecoration: none;
+}
+
+.javaVersionRequiredLabelStyle {
+  fontSize: 12;
+  color: #000000;
+  fontFamily: Arial;
 }
 
 .logoutButtonStyle {
