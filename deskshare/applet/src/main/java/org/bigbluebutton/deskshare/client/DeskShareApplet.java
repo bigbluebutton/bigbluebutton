@@ -41,6 +41,7 @@ public class DeskShareApplet extends JApplet implements ClientListener {
     Integer cHeightValue = new Integer(600);
     Integer sWidthValue = new Integer(800);
     Integer sHeightValue = new Integer(600);   
+    Double scale = new Double(0.8);
     Boolean qualityValue = false;
     Boolean aspectRatioValue = false;
     Integer xValue = new Integer(0);
@@ -76,6 +77,10 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 		if (port != null) portValue = Integer.parseInt(port);
 		roomValue = getParameter("ROOM");
 
+		String scaleValue = getParameter("SCALE");
+		if (scaleValue != null) scale = Double.parseDouble(scaleValue);
+		
+		
 		String captureFullScreen = getParameter("FULL_SCREEN");
 		if (captureFullScreen != null) fullScreenValue = Boolean.parseBoolean(captureFullScreen);
 		
@@ -143,7 +148,7 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 		client = new DeskshareClient.NewBuilder().host(hostValue).port(portValue)
 				.room(roomValue).captureWidth(cWidthValue)
 				.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
-				.quality(qualityValue).autoScale(0.8)
+				.quality(qualityValue).autoScale(scale)
 				.x(xValue).y(yValue).fullScreen(fullScreenValue).useSVC2(useSVC2Value)
 				.httpTunnel(tunnelValue).trayIcon(icon).enableTrayIconActions(false).build();
 		client.addClientListener(this);
