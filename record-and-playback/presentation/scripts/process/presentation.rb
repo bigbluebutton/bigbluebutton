@@ -84,7 +84,7 @@ if not FileTest.directory?(target_dir)
         pres_pdf = "#{pres_dir}/#{pres}"
       end
       if !File.exists?(pres_pdf)
-        BigBlueButton.logger.warning("Could not find pdf file for presentation #{pres}")
+        BigBlueButton.logger.warn("Could not find pdf file for presentation #{pres}")
       end
       1.upto(num_pages) do |page| 
         BigBlueButton::Presentation.extract_png_page_from_pdf(
