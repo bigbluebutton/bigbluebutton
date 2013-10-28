@@ -1,3 +1,5 @@
+Logger = require("./logger")
+
 # Utility class with methods used throughout the entire application.
 module.exports = class Utils
 
@@ -17,5 +19,5 @@ module.exports = class Utils
         x = x.replace(/^\s+|\s+$/g, "")
         return unescape(y) if x is varName
     else
-      console.log "Invalid cookie"
+      Logger.error "Invalid cookie"
       ""

@@ -4,6 +4,7 @@ RedisStore = require("connect-redis")(express)
 redis = require("redis")
 
 config = require("./config")
+Logger = require("./lib/logger")
 MainRouter = require("./routes/main_router")
 Modules = require("./lib/modules")
 RedisAction = require("./lib/redis_action")
@@ -73,7 +74,7 @@ io.configure ->
     meetingID = Utils.getCookieVar(handshakeData.headers.cookie, "meetingid")
     redisAction.isValidSession meetingID, sessionID, (isValid) ->
       unless isValid
-        console.log "Invalid sessionID/meetingID"
+        Logger.error "Invalid sessionID/meetingID"
         callback(null, false) # failed authorization
       else
         redisAction.getUserProperties meetingID, sessionID, (properties) ->

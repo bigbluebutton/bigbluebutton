@@ -47,8 +47,8 @@ node app.js
 
 ## Generating the documentation
 
-This application uses [docco](http://jashkenas.github.io/docco/) to generate HTML pages with the annotated source code
-for the HTML5 client and server. This documentation is targetted for developers.
+This application uses [codo](https://github.com/netzpirat/codo/) to generate HTML pages with the documentation
+for the HTML5 client and server. This documentation is targeted for developers.
 
 To generate the documentation pages, use:
 
@@ -57,3 +57,23 @@ cake docs
 ```
 
 The files will be output to the folder `docs/`.
+
+## Testing
+
+Run:
+
+```bash
+cake test
+```
+
+To run tests for a single file:
+
+```bash
+cake -f test/lib/modules-test.coffee test
+```
+
+To stop immediately in case a test fails:
+
+```bash
+cake -b test
+```

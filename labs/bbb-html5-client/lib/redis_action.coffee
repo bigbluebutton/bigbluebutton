@@ -2,6 +2,7 @@ _ = require("lodash")
 rack = require("hat").rack()
 
 config = require("../config")
+Logger = require("./logger")
 RedisKeys = require("./redis_keys")
 
 moduleDeps = ["RedisStore"]
@@ -102,10 +103,10 @@ module.exports = class RedisAction
     @_getSessionIDFromPublicID meetingID, publicID, (sessionID) =>
       @setPresenter meetingID, sessionID, publicID, (success) ->
         if success
-          console.log "set presenter to", sessionID
+          Logger.info "set presenter to", sessionID
           callback?(true)
         else
-          console.log "could not set presenter to", sessionID
+          Logger.error "could not set presenter to", sessionID
           callback?(false)
 
   # Set the current tool no redis.
@@ -215,13 +216,13 @@ module.exports = class RedisAction
   # TODO: use for's, not while's
   processMeeting: (meetingID) ->
     @redisStore.del RedisKeys.getPresenterString(meetingID), (err, reply) ->
-      console.log "deleted presenter"
+      Logger.info "deleted presenter"
 
     @redisStore.del RedisKeys.getCurrentViewBoxString(meetingID), (err, reply) ->
-      console.log "deleted viewbox"
+      Logger.info "deleted viewbox"
 
     @redisStore.del RedisKeys.getCurrentToolString(meetingID), (err, reply) ->
-      console.log "deleted current tool"
+      Logger.info "deleted current tool"
 
     @deleteMeeting(meetingID) # TODO: it has a callback
     @getPresentationIDs meetingID, (presIDs) =>
@@ -742,16 +743,19 @@ module.exports = class RedisAction
 #
 
 registerError = (method, err, message="") ->
-  console.log "error on RedisAction##{method}:", message, err if err?
+  Logger.error "error on RedisAction##{method}:", message, err if err?
 
 registerSuccess = (method, message="") ->
-  console.log "success on RedisAction##{method}:", message
+  Logger.info "success on RedisAction##{method}:", message
 
 registerResponse = (method, err, reply, message="") ->
+  hasMessage = message? and !_.isEmpty(message)
   if err?
-    console.log "error on RedisAction##{method}:(error:#{error})"
+    Logger.error "error on RedisAction##{method}:(error:#{error})"
+    Logger.error "  #{message}" if hasMessage
   else if reply
-    console.log "success on RedisAction##{method}:(reply:#{reply})"
+    Logger.info "success on RedisAction##{method}:(reply:#{reply})"
+    Logger.info "  #{message}" if hasMessage
   else
-    console.log "unknown on RedisAction##{method}:(reply:#{reply}, error:#{error})"
-  console.log "  #{message}" if message? and !_.isEmpty(message)
+    Logger.warn "unknown on RedisAction##{method}:(reply:#{reply}, error:#{error})"
+    Logger.warn "  #{message}" if hasMessage

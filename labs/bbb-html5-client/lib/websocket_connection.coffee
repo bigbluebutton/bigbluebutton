@@ -2,6 +2,7 @@ sanitizer = require("sanitizer")
 rack = require("hat").rack()
 
 config = require("../config")
+Logger = require("./logger")
 RedisKeys = require("./redis_keys")
 
 moduleDeps = ["RedisAction", "RedisStore", "RedisPublisher"]
@@ -157,7 +158,7 @@ module.exports = class WebsocketConnection
             # TODO: currentUrl is not a good name and maybe there's already this info on another key on redis
             @redisStore.get "currentUrl", (err, url) =>
               if err
-                console.log err
+                Logger.error err
               else
                 @pub.publish meetingID, JSON.stringify(["changeslide", url])
 

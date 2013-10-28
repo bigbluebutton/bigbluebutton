@@ -1,6 +1,7 @@
 redis = require("redis")
 
 config = require("../config")
+Logger = require("./logger")
 RedisKeys = require("../lib/redis_keys")
 
 moduleDeps = ["RedisAction", "WebsocketConnection", "RedisStore", "RedisPublisher"]
@@ -33,7 +34,7 @@ module.exports = class RedisBridge
   _registerListeners: ->
     @sub.on "pmessage", (pattern, channel, message) =>
       attributes = JSON.parse(message)
-      console.log "message received from redis:", channel, message
+      Logger.info "message from redis on channel:#{channel}, data:#{message}"
 
       if channel is "bigbluebutton:bridge"
         @_onBigbluebuttonBridge(attributes)
@@ -104,7 +105,7 @@ module.exports = class RedisBridge
 #
 
 registerError = (method, err, message="") ->
-  console.log "error on RedisBridge##{method}:", message, err
+  Logger.error "error on RedisBridge##{method}:", message, err
 
 registerSuccess = (method, message="") ->
-  console.log "success on RedisAction##{method}:", message
+  Logger.info "success on RedisAction##{method}:", message
