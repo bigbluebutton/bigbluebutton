@@ -1,4 +1,4 @@
-_ = require("lodash").rack()
+_ = require("lodash")
 rack = require("hat").rack()
 
 config = require("../config")

@@ -45,6 +45,7 @@ module.exports = class Modules extends EventEmitter
   # @param names [Array] an array of strings with the names of all modules that should be waited for
   # @param callback [Function] will be called when *all* modules in `names` are registered
   wait: (names, callback) ->
+    names = [names] unless _.isArray(names)
     @callbacks.push {modules: names, fn: callback}
     @_checkCallbacks()
 

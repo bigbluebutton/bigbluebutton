@@ -20,7 +20,11 @@
     "glob": "3.2.6"
   },
   "devDependencies": {
-    "codo": "1.9.0"
+    "codo": "1.9.0",
+    "mocha": "1.13.0",
+    "should": "2.0.2",
+    "sinon": "1.7.3",
+    "supertest": "0.8.0"
   },
   "engines": {
     "node": "0.10.x"
