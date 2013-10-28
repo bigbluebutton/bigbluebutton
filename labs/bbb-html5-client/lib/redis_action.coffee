@@ -1,3 +1,4 @@
+_ = require("lodash").rack()
 rack = require("hat").rack()
 
 config = require("../config")
@@ -5,8 +6,14 @@ RedisKeys = require("./redis_keys")
 
 moduleDeps = ["RedisStore"]
 
-# TODO: some callbacks are not always called
-# TODO: use standard success/error responses (e.g. sometimes failure returns `null`, sometimes `false`)
+# Includes methods to fetch and set values related to meetings in redis. Acts as a bridge
+# between the application and redis.
+#
+# All callbacks are in the format `method(error, response)`, where `response` is usually the
+# response returned by the method called on redis.
+#
+# @TODO some callbacks are not always called
+# @TODO use standard success/error responses (e.g. sometimes failure returns `null`, sometimes `false`)
 module.exports = class RedisAction
 
   constructor: ->
@@ -14,16 +21,78 @@ module.exports = class RedisAction
       @redisStore = config.modules.get("RedisStore")
 
   # Set the public and session ID to match one another for lookup later
-  # @param {string}   meetingID the ID of the meeting
-  # @param {string}   sessionID the sessionID (unique ID) of the user
-  # @param {string}   publicID  the unique public ID of the user
-  # @param {Function} callback  callback function
+  # @param meetingID [string] the ID of the meeting
+  # @param sessionID [string] the sessionID (unique ID) of the user
+  # @param publicID [string] the unique public ID of the user
+  # @param callback [Function] callback function
   setIDs: (meetingID, sessionID, publicID, callback) ->
     @redisStore.set RedisKeys.getSessionIDString(meetingID, sessionID), publicID, (err, reply) =>
-      registerError("setIDs", err)
-      @redisStore.set RedisKeys.getPublicIDString(meetingID, publicID), sessionID, (err, reply) ->
-        registerError("setIDs", err)
-        callback?()
+      registerResponse "setIDs", err, reply
+      if err?
+        callback?(err, reply)
+      else
+        @redisStore.set RedisKeys.getPublicIDString(meetingID, publicID), sessionID, (err, reply) ->
+          callback?(err, reply)
+
+  # Given a meetingID, sessionID and username a meeting will be created and a user with the
+  # given username will be joined. The callback indicates either true or false depending on whether
+  # the meeting was created successfully or not.
+  # @param meetingID [string] the meeting ID of the meeting we are creating and/or connecting to
+  # @param sessionID [string] the session ID of the user that is connecting to the meeting
+  # @param username [string] username of the users that that is connecting to the meeting
+  # @param callback [Function] the callback function returns true if meeting successfully started and joined, false otherwise
+  makeMeeting: (meetingID, sessionID, username, callback) ->
+    failed = false
+    publicID = new Date().getTime()
+
+    @isMeetingRunning meetingID, (isRunning) =>
+      # TODO: Currently the meeting is always created in the flash client. To allow the HTML5 to create
+      #   a meeting this block has to be implemented
+      # unless isRunning
+      #   @createMeeting meetingID, =>
+      #     @setCurrentTool meetingID, "line"
+      #     @setPresenter meetingID, sessionID, publicID
+
+      @createUser meetingID, sessionID, (err, reply) =>
+        failed or= err?
+        @setIDs meetingID, sessionID, publicID, (err, reply) =>
+          failed or= err?
+          # TODO: review if all these parameters are necessary
+          properties = ["username", username, "meetingID", meetingID, "refreshing", false, "dupSess", false, "sockets", 0, "pubID", publicID]
+          @updateUserProperties meetingID, sessionID, properties, (err, reply) ->
+            failed or= err?
+            callback?(!failed)
+
+  # Create a reference to a user on redis.
+  # The user is identified by his sessionID and will be grouped inside the users key for
+  # the meeting `meetingID`.
+  #
+  # @example Example values for the key created
+  #   meeting-183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1382970693956-users qT6PfopPUcRsRbtH4T9A8o2R.y7bD/JtU6MFbBn9g1lhKAYmNkD/rzZRS5AYl7TWw/9A
+  #
+  # @param meetingID [string] the ID of the meeting
+  # @param userID [string] the unique session ID of the user
+  # @param callback [Function] callback function
+  createUser: (meetingID, userID, callback) ->
+    @redisStore.sadd RedisKeys.getUsersString(meetingID), userID, (err, reply) ->
+      registerResponse "createUser", err, reply
+      callback?(err, reply)
+
+  # Update user properties
+  # @param  {string}   meetingID  the ID of the meeting
+  # @param  {string}   userID     the unique session ID of the user
+  # @param  {Object}   properties a hash of properties to set as the users properties
+  # @param  {Function} callback   the callback function to be called when finished
+  updateUserProperties: (meetingID, userID, properties, callback) ->
+    properties.unshift RedisKeys.getUserString(meetingID, userID)
+    # push the callback as the last parameter in the array
+    properties.push (err, reply) ->
+      registerResponse "updateUserProperties", err, reply
+      callback?(err, reply)
+    @redisStore.hmset.apply @redisStore, properties
+
+
+
 
   # Set the presenter from the public ID only.
   # @param {string}   meetingID the ID of the meeting
@@ -587,33 +656,6 @@ module.exports = class RedisAction
     @redisStore.sadd RedisKeys.getMeetingsString(), meetingID # create the meeting if not already created.
     callback?()
 
-  # Create a reference to a user
-  # @param  {string}   meetingID the ID of the meeting
-  # @param  {string}   userID    the unique session ID of the user
-  # @param  {Function} callback  callback function
-  createUser: (meetingID, userID, callback) ->
-    # TODO: no callback on sadd?
-    @redisStore.sadd RedisKeys.getUsersString(meetingID), userID # meeting-123-users.push(sessionID)
-    callback?()
-
-  # Update user properties
-  # @param  {string}   meetingID  the ID of the meeting
-  # @param  {string}   userID     the unique session ID of the user
-  # @param  {Object}   properties a hash of properties to set as the users properties
-  # @param  {Function} callback   the callback function to be called when finished
-  updateUserProperties: (meetingID, userID, properties, callback) ->
-    properties.unshift RedisKeys.getUserString(meetingID, userID)
-    properties.push (err, reply) ->
-      if reply
-        registerSuccess("updateUserProperties")
-        callback?(reply)
-      else
-        registerError("updateUserProperties", err) if err?
-        callback?(false)
-
-    # TODO: no callback on the call below?
-    @redisStore.hmset.apply @redisStore, properties
-
   getMeetings: (callback) ->
     @redisStore.smembers "meetings", (err, meetingids) =>
       if meetingids
@@ -700,7 +742,16 @@ module.exports = class RedisAction
 #
 
 registerError = (method, err, message="") ->
-  console.log "error on RedisAction##{method}:", message, err
+  console.log "error on RedisAction##{method}:", message, err if err?
 
 registerSuccess = (method, message="") ->
   console.log "success on RedisAction##{method}:", message
+
+registerResponse = (method, err, reply, message="") ->
+  if err?
+    console.log "error on RedisAction##{method}:(error:#{error})"
+  else if reply
+    console.log "success on RedisAction##{method}:(reply:#{reply})"
+  else
+    console.log "unknown on RedisAction##{method}:(reply:#{reply}, error:#{error})"
+  console.log "  #{message}" if message? and !_.isEmpty(message)

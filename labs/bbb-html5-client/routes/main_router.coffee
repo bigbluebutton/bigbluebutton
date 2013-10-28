@@ -29,38 +29,53 @@ module.exports = class MainRouter
   # the same data, they are instantly redirected to join into the meeting.
   # If they are not, they will be redirected to the index page where they can enter
   # their login details.
+  #
+  # This method is registered as a route on express.
+  #
+  # @internal
   _index: (req, res) =>
     @redisAction.getMeetings (meetings) ->
       res.render "index",
-        title: "BigBlueButton HTML5 Client"
+        title: config.appName
         meetings: meetings
 
-  # Upon submitting their login details from the index page via a POST request,
-  # a meeting will be created and joined. If an error occurs, which usually
-  # results in using a username/meetingID that is too long, the user receives
-  # an error response. Both success and error responses are in json only.
+  # Upon submitting their login details from the index page via a POST request, a meeting
+  # will be created and joined. If an error occurs, which usually results in using an
+  # invalid username or meetingID, the user receives an error response. Both success and
+  # error responses are in json only.
+  #
+  # This method is registered as a route on express.
+  #
+  # @internal
   _postAuth: (req, res) =>
     user = req.body
-    username = sanitizer.escape(user.username)
-    meetingID = sanitizer.escape(user.meetingID)
+    username = user.username = sanitizer.escape(user.username)
+    meetingID = user.meetingID = sanitizer.escape(user.meetingID)
     sessionID = req.sessionID
-    @_makeMeeting meetingID, sessionID, username, (result) ->
-      user.meetingID = meetingID
-      user.username = username
-      res.contentType "json"
-      if result
-        res.cookie "sessionid", sessionID # save the id so socketio can get the username
-        res.cookie "meetingid", meetingID
-        user.loginAccepted = true
+
+    validParameters = @_validateLoginParameters username, meetingID
+
+    if validParameters
+      @redisAction.makeMeeting meetingID, sessionID, username, (result) ->
+        user.loginAccepted = result
+        # save the ids so socketio can get the username and meeting
+        if result
+          res.cookie "sessionid", sessionID
+          res.cookie "meetingid", meetingID
+        res.contentType "json"
         res.send(user)
-      else
-        user.loginAccepted = false
-        res.send(user)
+    else
+      user.loginAccepted = false
+      res.send(user)
 
   # Returns a json informing if there's an authenticated user or not. The meetingID and
   # sessionID are extracted from the user's cookie. If they match with a user that is
   # in the database, the user is accepted and his information is included in the response.
   # If they don't match, the user is not accepted.
+  #
+  # This method is registered as a route on express.
+  #
+  # @internal
   _getAuth: (req, res) =>
     @redisAction.isValidSession req.cookies["meetingid"], req.cookies["sessionid"], (valid) ->
       res.contentType "json"
@@ -77,6 +92,10 @@ module.exports = class MainRouter
   # When a user logs out, their session is destroyed and their cookies are cleared.
   # @param  {Object} req Request object from the client
   # @param  {Object} res Response object to the client
+  #
+  # This method is registered as a route on express.
+  #
+  # @internal
   _logout: (req, res) =>
     req.session.destroy() # end the session
     res.cookie "sessionid", null # clear the cookie from the client
@@ -85,6 +104,10 @@ module.exports = class MainRouter
 
   # @param  {Object} req Request object from the client
   # @param  {Object} res Response object to the client
+  #
+  # This method is registered as a route on express.
+  #
+  # @internal
   _meetings: (req, res) =>
     @redisAction.getMeetings (results) ->
       res.contentType "json"
@@ -95,6 +118,10 @@ module.exports = class MainRouter
   # @param  {Object}   req   Request object from client
   # @param  {Object}   res   Response object to client
   # @param  {Function} next  To be run as a callback if valid
+  #
+  # This method is registered as a route on express.
+  #
+  # @internal
   _requiresLogin: (req, res, next) =>
     # check that they have a cookie with valid session id
     @redisAction.isValidSession req.cookies["meetingid"], req.cookies["sessionid"], (isValid) ->
@@ -103,41 +130,12 @@ module.exports = class MainRouter
       else
         res.redirect "/"
 
-  # Given a meetingID, sessionID and username a meeting will be created and a user with the
-  # given username will be joined. The callback indicates either true or false depending on whether
-  # the meeting was created successfully or not.
-  # @param  {string}   meetingID the meeting ID of the meeting we are creating and/or connecting to
-  # @param  {string}   sessionID the session ID of the user that is connecting to the meeting
-  # @param  {string}   username  username of the users that that is connecting to the meeting
-  # @param  {Function} callback  the callback function returns true if meeting successfully started and joined, false otherwise
-  # TODO: move to another class in lib/ maybe?
-  # TODO: the callbacks are not all nested as they should
-  _makeMeeting: (meetingID, sessionID, username, callback) ->
-    if (username) and (meetingID) and (username.length <= config.maxUsernameLength) and (meetingID.split(" ").length is 1)
-      publicID = (new Date()).getTime()
-      @redisAction.isMeetingRunning meetingID, (isRunning) =>
-        unless isRunning
-          @redisAction.createMeeting meetingID, =>
-            @redisAction.setCurrentTool meetingID, "line"
-            @redisAction.setPresenter meetingID, sessionID, publicID
-
-      @redisAction.createUser meetingID, sessionID
-      @redisStore.get RedisKeys.getCurrentPresentationString(meetingID), (err, currPresID) =>
-        unless currPresID
-          @redisAction.createPresentation meetingID, true, (presentationID) =>
-            @redisAction.createPage meetingID, presentationID, "default.png", true, (pageID) =>
-              @redisAction.setViewBox meetingID, JSON.stringify([0, 0, 1, 1])
-              folder = config.presentationImageFolder(meetingID, presentationID)
-              fs.mkdir folder, 0o0777, (reply) =>
-                newFile = fs.createWriteStream(folder + "/default.png")
-                oldFile = fs.createReadStream("images/default.png")
-                newFile.once "open", (fd) ->
-                  util.pump oldFile, newFile
-                  @redisAction.setImageSize meetingID, presentationID, pageID, 800, 600
-
-      @redisAction.setIDs meetingID, sessionID, publicID, =>
-        @redisAction.updateUserProperties meetingID, sessionID, ["username", username, "meetingID", meetingID, "refreshing", false, "dupSess", false, "sockets", 0, "pubID", publicID]
-        callback?(true)
-
-    else
-      callback?(false)
+  # Checks whether the parameters passed by the user to login are correct
+  # @param username [string] the username passed by the user
+  # @param meetingID [string] the meetingID passed by the user
+  # @return [boolean] whether the parameters are correct or not
+  # @internal
+  _validateLoginParameters: (username, meetingID) ->
+    username? and meetingID? and
+      username.length <= config.maxUsernameLength and
+      meetingID.split(" ").length is 1

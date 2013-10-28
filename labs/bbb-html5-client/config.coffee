@@ -3,6 +3,7 @@
 config = {}
 
 # Default global variables
+config.appName = 'BigBlueButton HTML5 Client'
 config.maxUsernameLength = 30
 config.maxChatLength = 140
 
@@ -25,13 +26,5 @@ config.redis.post = "6379"
 
 # Global instance of Modules, created by `app.coffee`
 config.modules = null
-
-# This returns the folder where the presentation files will be stored for that
-# particular presentationID.
-# @param  {string} metingID       the ID of the meeting
-# @param  {string} presentationID the presentationID being looked up for a folder
-# @return {string}                the full URL for where the images will be stored
-config.presentationImageFolder = (meetingID, presentationID) ->
-  "/var/bigbluebutton/#{meetingID}/#{meetingID}/#{presentationID}/pngs"
 
 module.exports = config
