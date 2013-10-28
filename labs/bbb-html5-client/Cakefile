@@ -21,11 +21,11 @@ task 'build', 'Builds what is needed for production', ->
 # Builds the documentation files.
 task 'docs', 'Generate annotated source code with docco', ->
   serverFilesForDocs (files) ->
-    options = ['-o', 'docs/server'].concat(files)
-    run 'docco', options
+    options = ['-n', 'BigBlueButton HTML5 Client', '-o', 'docs/server'].concat(files)
+    run 'codo', options
   clientFilesForDocs (files) ->
-    options = ['-o', 'docs/client'].concat(files)
-    run 'docco', options
+    options = ['-n', 'BigBlueButton HTML5 Client', '-o', 'docs/client'].concat(files)
+    run 'codo', options
 
 
 # Internal methods
