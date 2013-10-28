@@ -21,7 +21,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="top" 
-		 verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*"
+		 verticalScrollPolicy="off" horizontalScrollPolicy="off" 
+		 xmlns:common="org.bigbluebutton.common.*"
 		 creationComplete="onCreationComplete()">
 	
 	<mx:Script>
@@ -72,19 +73,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				data.translateMessage();
 				
-				/*
-				   This is setting the backgroundColor style. It changes the value correct and the if 
-				   statement works, but the style never takes effect. I have no idea what's wrong.
-				   		Chad
-				 */
-				//LogUtil.debug ("senderId: " + data.senderId);
-				//LogUtil.debug("backColor " + this.getStyle("backgroundColor") + "alpha " + this.getStyle("backgroundAlpha"));
-				if (data.senderId == " ") {
-					this.setStyle("backgroundColor", 0xff0000);
-				} else {
-					this.setStyle("backgroundColor", 0x00ff00);
-				}
-				
 				// The visibility check has to go here becasue ORs don't work with databinding
 				lblTime.visible = (!(data.lastTime == data.time) || !(data.senderId == data.lastSenderId));
 				// check the visibility of the name as well because events might fire in different order
@@ -92,6 +80,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				//remove the header if not needed to save space
 				hbHeader.includeInLayout = hbHeader.visible = lblName.visible || lblTime.visible;
+				
+				// adjust the name width so that "..." are added if it's too long
+				lblName.width = this.width - lblTime.width - 22;
 				
 				validateNow();
 			}
@@ -108,11 +99,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
 	
   <mx:HBox width="100%" id="hbHeader">
-    <mx:Label id="lblName" text="{data.name} " visible="true" color="gray" width="100%" textAlign="left"/>
-    <mx:Spacer width="100%"/>
+    <mx:Label id="lblName" text="{data.name} " visible="true" color="gray" width="80%" textAlign="left" />
     <mx:Text id="lblTime" htmlText="{data.translateLocale} {data.time}" textAlign="right"
-             visible="true" 
-             color="gray"  width="100%"/>       
+             visible="true" right="0"
+             color="gray"/>       
   </mx:HBox>
   <mx:HBox width="100%">
     <mx:Spacer width="5"/>

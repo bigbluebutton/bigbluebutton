@@ -507,7 +507,7 @@ define [
 
 
       #update cursor to appear the same size even when page is zoomed in
-      @cursor.setRadius( 2 * widthRatio / 100 )
+      @cursor.setRadius( 3 * widthRatio / 100 )
 
     # Registers listeners for events in the gloval event bus
     _registerEvents: ->
@@ -562,7 +562,7 @@ define [
               @updateShape(type, data)
 
       globals.events.on "connection:mvCur", (x, y) =>
-        #@moveCursor(x, y)
+        @moveCursor(x, y)
         #console.log "x: " + x + " y: " + y
 
       globals.events.on "connection:move_and_zoom", (xOffset, yOffset, widthRatio, heightRatio) =>
@@ -692,6 +692,10 @@ define [
     _onWindowResize: ->
       @_updateContainerDimensions()
       console.log("_onWindowResize");
+
+      #TODO: temporary hacked away fix so that the buttons resize correctly when the window resizes
+      $("#users-btn").click();
+      $("#users-btn").click();
 
 
       #TODO: maybe find solution besides these global values..no conflicts however

@@ -17,6 +17,9 @@ define [
       # the defintion of this shape, kept so we can redraw the shape whenever needed
       @definition = []
 
+    #set the size of the paper
+    # @param  {number} @gh    gh parameter
+    # @param  {number} @gw    gw parameter
     setPaperSize: (@gh, @gw) ->
 
     setOffsets: (@xOffset, @yOffset) ->
