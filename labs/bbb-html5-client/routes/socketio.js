@@ -153,6 +153,8 @@ exports.publishShapes = function(meetingID, sessionID, callback) {
       redisAction.getItems(meetingID, presentationID, pageID, 'currentshapes', function (shapes) {
         var receivers = sessionID != undefined ? sessionID : meetingID;
         pub.publish(receivers, JSON.stringify(['all_shapes', shapes]));
+        console.log("**getting Shapes");
+        console.log(shapes)
         if(callback) callback();
       });
     });
@@ -377,7 +379,7 @@ exports.SocketOnConnection = function(socket) {
             redisAction.getPageImage(meetingID, presentationID, pageID, function(pageID, filename) {
               //pub.publish(meetingID, JSON.stringify(['changeslide', 'images/presentation/' + presentationID + '/'+filename]));
               pub.publish(meetingID, JSON.stringify(['changeslide', 'bigbluebutton/presentation/'+meetingID +"/" + meetingID + "/" + presentationID + "/png/" + filename]));
-              pub.publish(meetingID, JSON.stringify(['clrPaper']));
+//              pub.publish(meetingID, JSON.stringify(['clrPaper']));
              socketAction.publishShapes(meetingID);
             });
           });
@@ -401,7 +403,7 @@ exports.SocketOnConnection = function(socket) {
             redisAction.getPageImage(meetingID, presentationID, pageID, function(pageID, filename) {
               //pub.publish(meetingID, JSON.stringify(['changeslide', 'images/presentation/' + presentationID + '/'+filename]));
               pub.publish(meetingID, JSON.stringify(['changeslide', 'bigbluebutton/presentation/'+meetingID +"/" + meetingID + "/" + presentationID + "/png/" + filename]));
-              pub.publish(meetingID, JSON.stringify(['clrPaper']));
+              //pub.publish(meetingID, JSON.stringify(['clrPaper']));
              socketAction.publishShapes(meetingID);
             });
           });
@@ -459,7 +461,8 @@ exports.SocketOnConnection = function(socket) {
   * When a clear Paper event is received
   * @return {undefined} publish to Redis PubSub
   */
-  socket.on('clrPaper', function () {
+  /*socket.on('clrPaper', function () {
+    console.log("**CLEAR PAPER CALLED**");
     var meetingID = socket.handshake.meetingID;
     var sessionID = socket.handshake.sessionID;
     redisAction.getPresenterSessionID(meetingID, function(presenterID) {
@@ -475,7 +478,7 @@ exports.SocketOnConnection = function(socket) {
         });
       }
     });
-  });
+  });*/
 
   /**
   * When the user wishes to set the presenter to another user
@@ -624,7 +627,7 @@ exports.SocketOnConnection = function(socket) {
   /**
   * If a user requests all the shapes,
   * publish the shapes to everyone.
-  * Only reason this happens is when its fit changes.
+  * Only reason this happens is when its fit changes.blbl
   * @return {undefined} publish to Redis PubSub
   */
   socket.on('all_shapes', function(){

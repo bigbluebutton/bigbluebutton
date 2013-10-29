@@ -72,10 +72,10 @@ public class PresentationBridge {
 		messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
 		
 
-		ArrayList<Object> clr = new ArrayList<Object>();
+		/*ArrayList<Object> clr = new ArrayList<Object>();
 		clr.add(meetingID);
 		clr.add("clrPaper");
-		messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(clr));
+		messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(clr));*/
 		
 		Jedis jedis = messagingService.createRedisClient();
 		
