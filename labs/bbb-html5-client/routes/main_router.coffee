@@ -34,7 +34,7 @@ module.exports = class MainRouter
   #
   # @internal
   _index: (req, res) =>
-    @redisAction.getMeetings (meetings) ->
+    @redisAction.getMeetings (err, meetings) ->
       res.render "index",
         title: config.appName
         meetings: meetings
@@ -77,7 +77,7 @@ module.exports = class MainRouter
   #
   # @internal
   _getAuth: (req, res) =>
-    @redisAction.isValidSession req.cookies["meetingid"], req.cookies["sessionid"], (valid) ->
+    @redisAction.isValidSession req.cookies["meetingid"], req.cookies["sessionid"], (err, valid) ->
       res.contentType "json"
       user = {}
       unless valid
@@ -109,7 +109,7 @@ module.exports = class MainRouter
   #
   # @internal
   _meetings: (req, res) =>
-    @redisAction.getMeetings (results) ->
+    @redisAction.getMeetings (err, results) ->
       res.contentType "json"
       res.send JSON.stringify(results)
 
@@ -124,7 +124,7 @@ module.exports = class MainRouter
   # @internal
   _requiresLogin: (req, res, next) =>
     # check that they have a cookie with valid session id
-    @redisAction.isValidSession req.cookies["meetingid"], req.cookies["sessionid"], (isValid) ->
+    @redisAction.isValidSession req.cookies["meetingid"], req.cookies["sessionid"], (err, isValid) ->
       if isValid
         next()
       else

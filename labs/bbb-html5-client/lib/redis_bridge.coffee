@@ -29,6 +29,7 @@ module.exports = class RedisBridge
   #
 
   # Listens for messages published to redis
+  #
   # @param pattern [string] Matched pattern on Redis PubSub
   # @param channel [string] Channel the message was published on (socket room)
   # @param message [string] Message published (socket message data)
@@ -50,6 +51,7 @@ module.exports = class RedisBridge
         @_emitToClients(channel, JSON.parse(message))
 
   # When received a message on the channel "bigbluebutton:bridge"
+  #
   # @param attributes [Array] follows the format of this example:
   #   `["183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1377871468173","mvCur",0.608540925266904,0.298932384341637]`
   #   The first attribute is the meetingID
@@ -63,6 +65,7 @@ module.exports = class RedisBridge
       @_emitToClients(meetingID, attributes)
 
     # Stores the current URL so the server can send it to the clients when they connect via websockets.
+    # TODO: should this really be done by the HTML5 client?
     if attributes[1] is "changeslide"
       url = attributes[2]
       @redisAction.onChangeSlide url, (err, reply) -> emit()
@@ -81,16 +84,16 @@ module.exports = class RedisBridge
       emit()
 
   # When received a message on the channel "bigbluebutton:meeting:presentation"
+  #
   # @private
   _onBigbluebuttonMeetingPresentation: (attributes) ->
     if attributes.messageKey is "CONVERSION_COMPLETED"
       meetingID = attributes.room
-      @pub.publish meetingID, JSON.stringify(["clrPaper"])
       @websocket.publishSlides meetingID, null, =>
         @websocket.publishViewBox meetingID
-        @pub.publish meetingID, JSON.stringify(["uploadStatus", "Upload succeeded", true])
 
   # Emits a message to all clients connected
+  #
   # @private
   _emitToClients: (channel, message) ->
     @websocket.emitToAll(channel, message)

@@ -72,12 +72,12 @@ io.configure ->
     redisAction = config.modules.get("RedisAction")
     sessionID = Utils.getCookieVar(handshakeData.headers.cookie, "sessionid")
     meetingID = Utils.getCookieVar(handshakeData.headers.cookie, "meetingid")
-    redisAction.isValidSession meetingID, sessionID, (isValid) ->
+    redisAction.isValidSession meetingID, sessionID, (err, isValid) ->
       unless isValid
         Logger.error "Invalid sessionID/meetingID"
         callback(null, false) # failed authorization
       else
-        redisAction.getUserProperties meetingID, sessionID, (properties) ->
+        redisAction.getUserProperties meetingID, sessionID, (err, properties) ->
           handshakeData.sessionID = sessionID
           handshakeData.username = properties.username
           handshakeData.meetingID = properties.meetingID

@@ -34,11 +34,11 @@ module.exports = class Utils
   @registerResponse = (location, err, reply, message="") ->
     hasMessage = message? and !_.isEmpty(message)
     if err?
-      Logger.error "error on #{location}:(error:#{error})"
-      Logger.error "  #{message}" if hasMessage
+      Logger.error "error on #{location}:(error:#{err})"
+      Logger.error "> #{message}" if hasMessage
     else if reply
       Logger.info "success on #{location}:(reply:#{reply})"
-      Logger.info "  #{message}" if hasMessage
+      Logger.info "> #{message}" if hasMessage
     else
-      Logger.warn "unknown on #{location}:(reply:#{reply}, error:#{error})"
-      Logger.warn "  #{message}" if hasMessage
+      Logger.warn "unknown on #{location}:(error:#{err}, reply:#{reply})"
+      Logger.warn "> #{message}" if hasMessage

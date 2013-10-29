@@ -9,6 +9,7 @@ moduleDeps = ["RedisAction", "RedisStore", "RedisPublisher"]
 
 # Websocket module. Listens for messages from the clients and reacts accordingly.
 # Also includes methods used to send messages to the clients
+# @todo should be more focused on websockets, but it's doing too much stuff on redis
 module.exports = class WebsocketConnection
 
   constructor: (@io) ->
@@ -24,59 +25,55 @@ module.exports = class WebsocketConnection
       @_registerListeners()
 
   # Publish list of shapes from Redis to appropriate clients
+  #
   # @param {string} meetingID ID of the meeting
   # @param {string} sessionID ID of the user
-  # aram {Function} callback callback to call when finished
-  # TODO: only external because it is called by RedisBridge
-  # TODO: publishes to redis, maybe should be on RedisBridge
+  # @param {Function} callback callback to call when finished
+  # @todo publishes to redis, maybe should be on RedisBridge
   publishShapes: (meetingID, sessionID, callback) ->
     shapes = []
-    @redisAction.getCurrentPresentationID meetingID, (presentationID) =>
-      @redisAction.getCurrentPageID meetingID, presentationID, (pageID) =>
-        @redisAction.getItems meetingID, presentationID, pageID, "currentshapes", (shapes) =>
+    @redisAction.getCurrentPresentationID meetingID, (err, presentationID) =>
+      @redisAction.getCurrentPageID meetingID, presentationID, (err, pageID) =>
+        @redisAction.getItems meetingID, presentationID, pageID, "currentshapes", (err, shapes) =>
           receivers = (if sessionID? then sessionID else meetingID)
           @pub.publish receivers, JSON.stringify(["all_shapes", shapes])
           callback?(null)
 
   # Publish viewbox from redis to appropriate clients
+  #
   # @param {string} meetingID ID of the meeting
   # @param {string} sessionID ID of the user
   # @param {Function} callback callback to call when finished
-  # TODO: only external because it is called by RedisBridge
-  # TODO: publishes to redis, maybe should be on RedisBridge
+  # @todo only external because it is called by RedisBridge
+  # @todo publishes to redis, maybe should be on RedisBridge
   publishViewBox: (meetingID, sessionID, callback) ->
-    @redisAction.getCurrentPresentationID meetingID, (presentationID) =>
-      @redisAction.getViewBox meetingID, (viewBox) =>
-        viewBox = JSON.parse(viewBox)
+    @redisAction.getCurrentPresentationID meetingID, (err, presentationID) =>
+      @redisAction.getViewBox meetingID, (err, viewBox) =>
         receivers = (if sessionID? then sessionID else meetingID)
         @pub.publish receivers, JSON.stringify(["paper", viewBox[0], viewBox[1], viewBox[2], viewBox[3]])
         callback?()
 
   # Publish list of slides from redis to the appropriate clients
+  #
   # @param {string} meetingID ID of the meeting
   # @param {string} sessionID ID of the user
   # @param {Function} callback callback to call when finished
-  # TODO: only external because it is called by RedisBridge
-  # TODO: use a `for` instead of a `while`
-  # TODO: publishes to redis, maybe should be on RedisBridge
+  # @todo only external because it is called by RedisBridge
+  # @todo use a `for` instead of a `while`
+  # @todo publishes to redis, maybe should be on RedisBridge
   publishSlides: (meetingID, sessionID, callback) ->
     slides = []
-    @redisAction.getCurrentPresentationID meetingID, (presentationID) =>
-      @redisAction.getPageIDs meetingID, presentationID, (presentationID, pageIDs) =>
-        numOfSlides = pageIDs.length
+    @redisAction.getCurrentPresentationID meetingID, (err, presentationID) =>
+      @redisAction.getPageIDs meetingID, presentationID, (err, pageIDs) =>
         slideCount = 0
-        i = 0
-
-        while i < numOfSlides
-          @redisAction.getPageImage meetingID, presentationID, pageIDs[i], (pageID, filename) =>
-            @redisAction.getImageSize meetingID, presentationID, pageID, (width, height) =>
+        pageIDs.forEach (pageID) =>
+          @redisAction.getPageImage meetingID, presentationID, pageID, (err, filename) =>
+            @redisAction.getImageSize meetingID, presentationID, pageID, (err, width, height) =>
               slides.push ["bigbluebutton/presentation/" + meetingID + "/" + meetingID + "/" + presentationID + "/png/" + filename, width, height]
-              if slides.length is numOfSlides
+              if slides.length is pageIDs.length
                 receivers = (if sessionID? then sessionID else meetingID)
                 @pub.publish receivers, JSON.stringify(["all_slides", slides])
                 callback?()
-
-          i++
 
   # Emits a message to all clients connected in the given channel.
   # @param {string} channel The name of the target channel, usually the meetingID
@@ -99,29 +96,15 @@ module.exports = class WebsocketConnection
       socket.on "disconnect", () => @_onUserDisconnected(socket)
       socket.on "msg", (msg) => @_onChatMessage(socket, msg)
       socket.on "logout", () => @_onLogout(socket)
-      socket.on "prevslide", () => @_onPreviousSlide(socket)
-      socket.on "nextslide", () => @_onNextSlide(socket)
-      socket.on "makeShape", (shape, data) => @_onMakeShape(socket, shape, data)
-      socket.on "updShape", (shape, data) => @_onUpdateShape(socket, shape, data)
-      socket.on "mvCur", (x, y) => @_onMvCur(socket, x, y)
-      socket.on "clrPaper", () => @_onClearPaper(socket)
-      socket.on "setPresenter", (publicID) => @_onSetPresenter(socket, publicID)
-      socket.on "paper", (cx, cy, sw, sh) => @_onPaper(socket, cx, cy, sw, sh)
-      socket.on "zoom", (delta) => @_onZoom(socket, delta)
-      socket.on "panStop", () => @_onPanStop(socket)
-      socket.on "undo", () => @_onUndo(socket)
-      socket.on "textDone", () => @_onTextDone(socket)
-      socket.on "saveShape", (shape, data) => @_onSaveShape(socket, shape, data)
-      socket.on "changeTool", (tool) => @_onChangeTool(socket, tool)
       socket.on "all_shapes", () => @_onAllShapes(socket)
-      socket.on "fitToPage", (fit) => @_onFitToPage(socket, fit)
 
   # When a user connected to the web socket
-  # TODO: several methods with callback that are not nested
+  #
+  # @todo several methods with callback that are not nested
   _onUserConnected: (socket, msg) ->
     sessionID = fromSocket(socket, "sessionID")
     meetingID = fromSocket(socket, "meetingID")
-    @redisAction.isValidSession meetingID, sessionID, (reply) =>
+    @redisAction.isValidSession meetingID, sessionID, (err, reply) =>
       if reply
         username = fromSocket(socket, "username")
         socketID = socket.id
@@ -129,7 +112,7 @@ module.exports = class WebsocketConnection
         socket.join sessionID # join the socket room with value of the sessionID
 
         # add socket to list of sockets
-        @redisAction.getUserProperties meetingID, sessionID, (properties) =>
+        @redisAction.getUserProperties meetingID, sessionID, (err, properties) =>
           @_publishLoadUsers meetingID, null, =>
             @_publishPresenter meetingID
 
@@ -155,7 +138,7 @@ module.exports = class WebsocketConnection
 
             # after send 'all_slides' event, we have to load the current slide for new user by
             # getting the current presentation slide url and send the 'changeslide' event
-            # TODO: currentUrl is not a good name and maybe there's already this info on another key on redis
+            # @todo currentUrl is not a good name and maybe there's already this info on another key on redis
             @redisStore.get "currentUrl", (err, url) =>
               if err
                 Logger.error err
@@ -173,39 +156,39 @@ module.exports = class WebsocketConnection
     meetingID = fromSocket(socket, "meetingID")
 
     # check if user is still in database
-    @redisAction.isValidSession meetingID, sessionID, (isValid) =>
+    @redisAction.isValidSession meetingID, sessionID, (err, isValid) =>
       if isValid
         username = fromSocket(socket, "username")
         socketID = socket.id
         @redisAction.updateUserProperties meetingID, sessionID, ["refreshing", true], (success) =>
           setTimeout (=>
-            @redisAction.isValidSession meetingID, sessionID, (isValid) =>
+            @redisAction.isValidSession meetingID, sessionID, (err, isValid) =>
               if isValid
-                @redisAction.getUserProperties meetingID, sessionID, (properties) =>
+                @redisAction.getUserProperties meetingID, sessionID, (err, properties) =>
                   numOfSockets = parseInt(properties.sockets, 10)
                   numOfSockets -= 1
                   if numOfSockets is 0
-                    @redisAction.deleteUser meetingID, sessionID, =>
+                    @redisAction.deleteUser meetingID, sessionID, (err, reply) =>
                       @_publishUserLeave meetingID, sessionID, properties.pubID
                   else
                     @redisAction.updateUserProperties meetingID, sessionID, ["sockets", numOfSockets]
               else
                 @_publishUsernames(meetingID)
 
-          ), 5000 # TODO: a 5 sec timeout, really?? timeouts are bad, there must be a better solution.
+          ), 5000 # @todo a 5 sec timeout, really?? timeouts are bad, there must be a better solution.
 
   # When a user sends a chat message
   _onChatMessage: (socket, msg) ->
     msg = sanitizer.escape(msg)
     sessionID = fromSocket(socket, "sessionID")
     meetingID = fromSocket(socket, "meetingID")
-    @redisAction.isValidSession meetingID, sessionID, (reply) =>
+    @redisAction.isValidSession meetingID, sessionID, (err, reply) =>
       if reply
         if msg.length > config.maxChatLength
           @pub.publish sessionID, JSON.stringify(["msg", "System", "Message too long."])
         else
           username = fromSocket(socket, "username")
-          @redisAction.getUserProperties meetingID, sessionID, (properties) =>
+          @redisAction.getUserProperties meetingID, sessionID, (err, properties) =>
             @pub.publish "bigbluebutton:bridge", JSON.stringify([meetingID, "msg", username, msg, properties.pubID])
             messageID = rack() # get a randomly generated id for the message
 
@@ -217,11 +200,11 @@ module.exports = class WebsocketConnection
   _onLogout: (socket) ->
     sessionID = fromSocket(socket, "sessionID")
     meetingID = fromSocket(socket, "meetingID")
-    @redisAction.isValidSession meetingID, sessionID, (isValid) =>
+    @redisAction.isValidSession meetingID, sessionID, (err, isValid) =>
       if isValid
 
         username = fromSocket(socket, "username")
-        @redisAction.getUserProperties meetingID, sessionID, (properties) =>
+        @redisAction.getUserProperties meetingID, sessionID, (err, properties) =>
           @_publishUserLeave meetingID, null, properties.pubID
 
         # remove the user from the list of users
@@ -232,186 +215,23 @@ module.exports = class WebsocketConnection
             @pub.publish sessionID, JSON.stringify(["logout"]) # send to all users on same session (all tabs)
             socket.disconnect() # disconnect own socket
 
-  # When a user clicks to change to the previous slide
-  _onPreviousSlide: (socket) ->
-    sessionID = fromSocket(socket, "sessionID")
-    meetingID = fromSocket(socket, "meetingID")
-    @redisAction.getPresenterSessionID meetingID, (presenterID) =>
-      if presenterID is sessionID
-        @redisAction.getCurrentPresentationID meetingID, (presentationID) =>
-          @redisAction.changeToPrevPage meetingID, presentationID, (pageID) =>
-            @redisAction.getPageImage meetingID, presentationID, pageID, (pageID, filename) =>
-              @pub.publish meetingID, JSON.stringify(["changeslide", "bigbluebutton/presentation/" + meetingID + "/" + meetingID + "/" + presentationID + "/png/" + filename])
-              @pub.publish meetingID, JSON.stringify(["clrPaper"])
-              @publishShapes meetingID
-
-  # When a user clicks to change to the next slide
-  _onPreviousSlide: (socket) ->
-    sessionID = fromSocket(socket, "sessionID")
-    meetingID = fromSocket(socket, "meetingID")
-    @redisAction.getPresenterSessionID meetingID, (presenterID) =>
-      if presenterID is sessionID
-        @redisAction.getCurrentPresentationID meetingID, (presentationID) =>
-          @redisAction.changeToNextPage meetingID, presentationID, (pageID) =>
-            @redisAction.getPageImage meetingID, presentationID, pageID, (pageID, filename) =>
-              @pub.publish meetingID, JSON.stringify(["changeslide", "bigbluebutton/presentation/" + meetingID + "/" + meetingID + "/" + presentationID + "/png/" + filename])
-              @pub.publish meetingID, JSON.stringify(["clrPaper"])
-              @publishShapes meetingID
-
-  # When a user draws a shape
-  # @param {string} shape type of shape
-  # @param {Object} data information needed to draw the shape
-  # TODO: not being used yet because the client can't draw properly
-  _onMakeShape: (socket, shape, data) ->
-    meetingID = fromSocket(socket, "meetingID")
-    @redisAction.getPresenterSessionID meetingID, (presenterID) =>
-      if isCurrentPresenter(socket, presenterID)
-        @pub.publish meetingID, JSON.stringify(["makeShape", shape, data])
-
-  # When a user updates a shape
-  # @param {string} shape type of shape
-  # @param {Object} data information needed to draw the shape
-  # TODO: not being used yet because the client can't draw properly
-  _onUpdateShape: (socket, shape, data) ->
-    meetingID = fromSocket(socket, "meetingID")
-    @redisAction.getPresenterSessionID meetingID, (presenterID) =>
-      if isCurrentPresenter(socket, presenterID)
-        @pub.publish meetingID, JSON.stringify(["updShape", shape, data])
-
-  # When the user (presenter) moves the cursor over the presentation
-  # @param {[type]} x x coord of cursor as a percentage of width
-  # @param {[type]} y y coord of cursor as a percentage of height
-  _onMvCur: (socket, x, y) ->
-    meetingID = fromSocket(socket, "meetingID")
-    @redisAction.getPresenterSessionID meetingID, (presenterID) =>
-      if isCurrentPresenter(socket, presenterID)
-        @pub.publish "bigbluebutton:bridge", JSON.stringify([meetingID, "mvCur", x, y])
-
-  # Then the user clears all drawings
-  _onClearPaper: (socket) ->
-    meetingID = fromSocket(socket, "meetingID")
-    sessionID = fromSocket(socket, "sessionID")
-    @redisAction.getPresenterSessionID meetingID, (presenterID) =>
-      if isCurrentPresenter(socket, presenterID)
-        @redisAction.getCurrentPresentationID meetingID, (presentationID) =>
-          @redisAction.getCurrentPageID meetingID, presentationID, (pageID) =>
-            @redisAction.getItemIDs meetingID, presentationID, pageID, "currentshapes", (meetingID, presentationID, pageID, itemIDs, itemName) =>
-              @redisAction.deleteItemList meetingID, presentationID, pageID, itemName, itemIDs
-
-            @pub.publish meetingID, JSON.stringify(["clrPaper"])
-            @_publishTool meetingID, sessionID
-
-  # When the user wishes to set the presenter to another user
-  # @param {[type]} publicID public ID of user to make presenter
-  _onSetPresenter: (socket, publicID) ->
-    meetingID = fromSocket(socket, "meetingID")
-    @redisAction.setPresenterFromPublicID meetingID, publicID, (success) =>
-      if success
-        @pub.publish "bigbluebutton:bridge", JSON.stringify([meetingID, "setPresenter", publicID])
-      # TODO: else...
-
-  # When a user is updating the viewBox of the paper
-  # @param {number} cx x-offset from corner as a percentage of width
-  # @param {number} cy y-offset from corner as a percentage of height
-  # @param {number} sw width of page as a percentage of original width
-  # @param {number} sh height of page as a percentage of original height
-  _onPaper: (socket, cx, cy, sw, sh) ->
-    meetingID = fromSocket(socket, "meetingID")
-    @redisAction.getPresenterSessionID meetingID, (presenterID) =>
-      if isCurrentPresenter(presenterID)
-        @pub.publish meetingID, JSON.stringify(["paper", cx, cy, sw, sh])
-        if not sw and not sh
-          @redisAction.getViewBox meetingID, (viewbox) ->
-            viewbox = JSON.parse(viewbox)
-            @redisAction.setViewBox meetingID, JSON.stringify([cx, cy, viewbox[2], viewbox[3]])
-        else
-          @redisAction.setViewBox meetingID, JSON.stringify([cx, cy, sw, sh])
-
-  # When a user is zooming the presentation
-  # @param {number} delta amount the mouse scroll has moved
-  # TODO: not being used yet because the zoom doesn't work yet in the client
-  _onZoom: (socket, delta) ->
-    meetingID = fromSocket(socket, "meetingID")
-    @redisAction.getPresenterSessionID meetingID, (presenterID) =>
-      if isCurrentPresenter(presenterID)
-        @pub.publish meetingID, JSON.stringify(["zoom", delta])
-
-  # When a user finishes panning
-  # TODO: not being used yet because the panning doesn't work yet in the client
-  _onPanStop: (socket) ->
-    meetingID = fromSocket(socket, "meetingID")
-    @redisAction.getPresenterSessionID meetingID, (presenterID) =>
-      if isCurrentPresenter(presenterID)
-        @pub.publish meetingID, JSON.stringify(["panStop"])
-
-  # Undoing the last shape
-  _onUndo: (socket) ->
-    meetingID = fromSocket(socket, "meetingID")
-    @redisAction.getPresenterSessionID meetingID, (presenterID) =>
-      if isCurrentPresenter(presenterID)
-        @redisAction.getCurrentPresentationID meetingID, (presentationID) =>
-          @redisAction.getCurrentPageID meetingID, presentationID, (pageID) =>
-
-            # pop the last shape off the current list of shapes
-            @redisStore.rpop RedisKeys.getCurrentShapesString(meetingID, presentationID, pageID), (err, reply) =>
-              @publishShapes meetingID
-
-  # Telling everyone the current text being draw in the whiteboard has been finished
-  _onTextDone: (socket) ->
-    meetingID = fromSocket(socket, "meetingID")
-    @redisAction.getPresenterSessionID meetingID, (presenterID) =>
-      if isCurrentPresenter(presenterID)
-        @pub.publish meetingID, JSON.stringify(["textDone"])
-
-  # Saving a shape to Redis. Does not provide feedback to client(s)
-  # @param {string} shape type of shape
-  # @param {Object} data information needed to recreate shape
-  _onSaveShape: (socket, shape, data) ->
-    meetingID = fromSocket(socket, "meetingID")
-    @redisAction.getPresenterSessionID meetingID, (presenterID) =>
-      if isCurrentPresenter(presenterID)
-        @redisAction.getCurrentPresentationID meetingID, (presentationID) =>
-          @redisAction.getCurrentPageID meetingID, presentationID, (pageID) =>
-            shapeID = rack() # get a randomly generated id for the shape
-            @redisStore.rpush RedisKeys.getCurrentShapesString(meetingID, presentationID, pageID), shapeID
-            @redisStore.hmset RedisKeys.getShapeString(meetingID, presentationID, pageID, shapeID), "shape", shape, "data", data, (err, reply) ->
-              # TODO: this callback does nothing?
-
-  # Changing the currently set tool.
-  # Set the current tool in Redis, then publish the tool change to the members
-  # @param {string} tool name of the tool to change to
-  _onChangeTool: (socket, tool) ->
-    meetingID = fromSocket(socket, "meetingID")
-    @redisAction.getPresenterSessionID meetingID, (presenterID) =>
-      if isCurrentPresenter(presenterID)
-        @redisAction.setCurrentTool meetingID, tool, (success) =>
-          if success
-            @pub.publish meetingID, JSON.stringify(["toolChanged", tool])
-
   # If a user requests all the shapes, publish the shapes to everyone.
-  # Only reason this happens is when its fit changes. TODO: really? review
+  # Only reason this happens is when its fit changes. @todo really? review
   _onAllShapes: (socket) ->
     meetingID = fromSocket(socket, "meetingID")
     @publishShapes(meetingID)
 
-  # Updating the fit of the image to the whiteboard
-  # @param {boolean} fit true for fit to page and false for fit to width
-  _onFitToPage: (socket, fit) ->
-    meetingID = fromSocket(socket, "meetingID")
-    @redisAction.getPresenterSessionID meetingID, (presenterID) =>
-      if isCurrentPresenter(presenterID)
-        @pub.publish meetingID, JSON.stringify(["fitToPage", fit])
-
-
 
   # Publish usernames to all the sockets
+  #
   # @param {string} meetingID ID of the meeting
   # @param {string} sessionID ID of the user
   # @param {Function} callback callback to call when finished
-  # TODO: use a `for` instead of a `while`
-  # TODO: 2 places calling the callback
+  # @todo use a `for` instead of a `while`
+  # @todo 2 places calling the callback
   _publishUsernames: (meetingID, sessionID, callback) ->
     usernames = []
+    # @TODO: @_getUsers doesn't exist, probably this method is never being called
     @_getUsers meetingID, (users) =>
       i = users.length - 1
       while i >= 0
@@ -424,16 +244,11 @@ module.exports = class WebsocketConnection
       @pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user list change", usernames])
       callback?(true)
 
-    @redisStore.scard RedisKeys.getUsersString(meetingID), (err, cardinality) =>
-      if cardinality is "0"
-        @redisAction.processMeeting meetingID
-        callback?(false)
-
-  # TODO: use a `for` instead of a `while`
-  # TODO: 2 places calling the callback
+  # @todo use a `for` instead of a `while`
+  # @todo 2 places calling the callback
   _publishLoadUsers: (meetingID, sessionID, callback) ->
     usernames = []
-    @redisAction.getUsers meetingID, (users) =>
+    @redisAction.getUsers meetingID, (err, users) =>
       i = users.length - 1
       while i >= 0
         usernames.push
@@ -445,62 +260,51 @@ module.exports = class WebsocketConnection
       @pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "load users", usernames])
       callback?(true)
 
-    @redisStore.scard RedisKeys.getUsersString(meetingID), (err, cardinality) =>
-      if cardinality is "0"
-        @redisAction.processMeeting meetingID
-        callback?(false)
-
-  # TODO: 2 places calling the callback
+  # @todo 2 places calling the callback
   _publishUserJoin: (meetingID, sessionID, userid, username, callback) ->
     receivers = (if sessionID? then sessionID else meetingID)
-
     @pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user join", userid, username, "VIEWER"])
     callback?(true)
-    @redisStore.scard RedisKeys.getUsersString(meetingID), (err, cardinality) =>
-      if cardinality is "0"
-        @redisAction.processMeeting meetingID
-        callback?(false)
 
-  # TODO: 2 places calling the callback
+  # @todo 2 places calling the callback
   _publishUserLeave: (meetingID, sessionID, userid, callback) ->
     receivers = (if sessionID? then sessionID else meetingID)
     @pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user leave", userid])
     callback?(true)
-    @redisStore.scard RedisKeys.getUsersString(meetingID), (err, cardinality) =>
-      if cardinality is "0"
-        @redisAction.processMeeting meetingID
-        callback?(false)
 
   # Publish presenter to appropriate clients.
+  #
   # @param {string} meetingID ID of the meeting
   # @param {string} sessionID ID of the user
   # @param {Function} callback callback to call when finished
   _publishPresenter: (meetingID, sessionID, callback) ->
-    @redisAction.getPresenterPublicID meetingID, (publicID) =>
+    @redisAction.getPresenterPublicID meetingID, (err, publicID) =>
       receivers = (if sessionID isnt `undefined` then sessionID else meetingID)
       @pub.publish receivers, JSON.stringify(["setPresenter", publicID])
       callback?(true)
 
   # Get all messages from redis and publish to a specific sessionID (user)
+  #
   # @param {string} meetingID ID of the meeting
   # @param {string} sessionID ID of the user
   # @param {Function} callback callback to call when finished
   _publishMessages: (meetingID, sessionID, callback) ->
     messages = []
-    @redisAction.getCurrentPresentationID meetingID, (presentationID) =>
-      @redisAction.getCurrentPageID meetingID, presentationID, (pageID) =>
-        @redisAction.getItems meetingID, presentationID, pageID, "messages", (messages) =>
+    @redisAction.getCurrentPresentationID meetingID, (err, presentationID) =>
+      @redisAction.getCurrentPageID meetingID, presentationID, (err, pageID) =>
+        @redisAction.getItems meetingID, presentationID, pageID, "messages", (err, messages) =>
           receivers = (if sessionID? then sessionID else meetingID)
           @pub.publish receivers, JSON.stringify(["all_messages", messages])
           callback?()
 
   # Publish tool from redis to appropriate clients
+  #
   # @param {string} meetingID ID of the meeting
   # @param {string} sessionID ID of the user
   # @param {string} tool [description]
   # @param {Function} callback callback to call when finished
   _publishTool: (meetingID, sessionID, tool, callback) ->
-    @redisAction.getCurrentTool meetingID, (tool) =>
+    @redisAction.getCurrentTool meetingID, (err, tool) =>
       receivers = (if sessionID? then sessionID else meetingID)
       @pub.publish receivers, JSON.stringify(["toolChanged", tool])
       callback?()
