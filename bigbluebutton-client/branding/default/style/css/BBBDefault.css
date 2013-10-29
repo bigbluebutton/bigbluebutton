@@ -47,7 +47,7 @@ Panel {
   color: #e1e2e5;
 }
 
-Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle {
+Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowChangeResolutionCombo, .languageSelectorStyle, .testJavaLinkButtonStyle {
   textIndent: 0;
   paddingLeft: 10;
   paddingRight: 10;
@@ -88,6 +88,27 @@ Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle {
   textRollOverColor: #504f3d;
   textSelectedColor: #504f3d;
   fontWeight: bold;
+}
+
+.testJavaLinkButtonStyle {
+  paddingLeft: 4;
+  paddingRight: 4;
+  paddingTop: 2;
+  paddingBottom: 2;
+  fontSize: 14;
+  rollOverColor: #cccccc;
+  selectionColor: #cccccc;
+  color: #e3e3e3;
+  textRollOverColor: #504f46;
+  textSelectedColor: #504f46;
+  fontWeight: bold;
+  textDecoration: none;
+}
+
+.javaVersionRequiredLabelStyle {
+  fontSize: 12;
+  color: #000000;
+  fontFamily: Arial;
 }
 
 .logoutButtonStyle {
@@ -673,4 +694,13 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 .cameraDisplaySettingsWindowStartBtn
 {
   icon:   Embed('assets/images/webcam.png');
+}
+
+Alert {
+	borderColor: #DFDFDF;
+	backgroundColor: #EFEFEF;
+	borderAlpha: 1;
+	shadowDistance: 1;
+	dropShadowColor: #FFFFFF;
+	color: #000000;
 }

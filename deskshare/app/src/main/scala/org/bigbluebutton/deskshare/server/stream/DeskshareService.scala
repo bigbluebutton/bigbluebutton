@@ -34,7 +34,7 @@ class DeskshareService(streamManager: StreamManager, sessionGateway: SessionMana
 		var height = 0
   
 		streamManager !? (3000, IsStreamPublishing(room)) match {
-		  	case None => log.warning("Timeout waiting for reply to IsStreamPublishing for room %s", room)
+		  	case None => log.warning("DeskshareService: Timeout waiting for reply to IsStreamPublishing for room %s", room)
 		  	case Some(rep) => {
 		  		val reply = rep.asInstanceOf[StreamPublishingReply]
 		  		publishing = reply.publishing
@@ -51,9 +51,8 @@ class DeskshareService(streamManager: StreamManager, sessionGateway: SessionMana
 		return stream;
 	}
 	
-	def startedToViewStream(): Unit = {
-		val room: String = Red5.getConnectionLocal().getScope().getName();
-		log.debug("Started viewing stream for room %s", room)
-		sessionGateway.sendKeyFrame(room)
+	def startedToViewStream(stream: String): Unit = {
+		log.debug("DeskshareService: Started viewing stream for room %s", stream)
+		sessionGateway.sendKeyFrame(stream)
 	}
 }

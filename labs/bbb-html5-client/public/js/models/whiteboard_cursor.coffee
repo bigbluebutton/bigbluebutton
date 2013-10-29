@@ -9,7 +9,7 @@ define [
   WhiteboardCursorModel = Backbone.Model.extend
 
     initialize: (@paper, radius=null, color=null) ->
-      @radius = radius or 2
+      @radius = radius or 3
       @color = color or "#ff6666" # a pinkish red
       @cursor = null
 

@@ -79,7 +79,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</EventHandlers>
 	
 	<EventHandlers type="{StartedViewingEvent.STARTED_VIEWING_EVENT}">		
-		<MethodInvoker generator="{DeskshareManager}" method="handleStartedViewingEvent"/>
+		<MethodInvoker generator="{DeskshareManager}" method="handleStartedViewingEvent" arguments="{event.stream}"/>
 	</EventHandlers>
 		
 	<EventHandlers type="{ViewWindowEvent.CLOSE}">
