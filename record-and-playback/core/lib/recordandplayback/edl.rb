@@ -23,7 +23,7 @@ require File.expand_path('../edl/audio', __FILE__)
 module BigBlueButton
   module EDL
     FFMPEG = ['ffmpeg', '-y', '-v', 'warning', '-nostats']
-    FFPROBE = ['ffprobe', '-v', 'warning', '-print_format', 'json', '-show_format', '-show_streams']
+    FFPROBE = ['ffprobe', '-v', 'warning', '-print_format', 'json', '-show_format', '-show_streams', '-count_frames']
 
     def self.encode(audio, video, format, output_basename, audio_offset = 0)
       output = "#{output_basename}.#{format[:extension]}"

@@ -18,6 +18,7 @@
 */
 package org.bigbluebutton.deskshare.server.svc1
 
+import java.awt.Color;
 import java.util.Random
 import net.lag.logging.Logger
 import org.bigbluebutton.deskshare.common.ScreenVideoEncoder
@@ -41,8 +42,14 @@ class Block(val dim: Dimension, val position: Int) {
     // Initialize a blank block.
     private var blankPixels = new Array[Int](dim.width * dim.height)
 	for (i: Int <- 0 until blankPixels.length) {
-			blankPixels(i) = 0xCECECE;
+			blankPixels(i) = randomColor
 	}
+    
+    private def randomColor():Int = {
+        val color = new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256))
+        color.getRGB()
+    }
+    
     val encodedBlankPixels = ScreenVideoEncoder.encodePixels(blankPixels, dim.width, dim.height, false)
     
     def update(videoData: Array[Byte], isKeyFrame: Boolean, seqNum: Int): Unit =  {	

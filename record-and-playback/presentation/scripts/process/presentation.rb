@@ -76,7 +76,7 @@ if not FileTest.directory?(target_dir)
     FileUtils.mkdir_p target_pres_dir
     FileUtils.mkdir_p "#{target_pres_dir}/textfiles"
     
-    images=Dir.glob("#{pres_dir}/#{pres}.{jpg,png,gif,JPG,PNG,GIF}")
+    images=Dir.glob("#{pres_dir}/#{pres}.{jpg,jpeg,png,gif,JPG,JPEG,PNG,GIF}")
     if images.empty? 
       pres_pdf = "#{pres_dir}/#{pres}.pdf"
       if !File.exists?(pres_pdf)
@@ -84,14 +84,11 @@ if not FileTest.directory?(target_dir)
         pres_pdf = "#{pres_dir}/#{pres}"
       end
       if !File.exists?(pres_pdf)
-        raise "Could not find pdf file for presentation #{pres}"
+        BigBlueButton.logger.warn("Could not find pdf file for presentation #{pres}")
       end
       1.upto(num_pages) do |page| 
-        pdf_page = "#{pres_dir}/slide-#{page}.pdf"
-        BigBlueButton::Presentation.extract_page_from_pdf(page, pres_pdf, pdf_page)
-        #BigBlueButton::Presentation.convert_pdf_to_png(pdf_page, "#{target_pres_dir}/slide-#{page}.png")
-        command = "convert -density 300x300 #{pdf_page} -resize 1600x1200 -background white -flatten -quality 90 +dither -depth 8 -colors 256 #{target_pres_dir}/slide-#{page}.png"
-        BigBlueButton.execute(command)
+        BigBlueButton::Presentation.extract_png_page_from_pdf(
+          page, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1200')
         if File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt") then
           FileUtils.cp("#{pres_dir}/textfiles/slide-#{page}.txt", "#{target_pres_dir}/textfiles")
         end
