@@ -36,7 +36,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         }
         
         override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
-//            LogUtil.debug("Drawing ELLIPSE");
+            LogUtil.debug("Drawing ELLIPSE");
+            LogUtil.debug("annotation: " + a);
             var ao:Object = a.annotation;
             
             

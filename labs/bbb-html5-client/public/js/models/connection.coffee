@@ -86,6 +86,7 @@ define [
       # @param  {Array} shapes Array of shapes to be drawn
       @socket.on "all_shapes", (shapes) =>
         console.log "socket on: all_shapes"
+        console.log shapes
         globals.events.trigger("connection:all_shapes", shapes)
 
       # Received event to update a shape being created

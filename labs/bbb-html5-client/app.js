@@ -200,6 +200,7 @@ sub.on("pmessage", function(pattern, channel, message) {
 
     /*When presenter in flex side sends the 'clrPaper' event, remove everything from Redis*/
     if (attributes[1]=='clrPaper'){
+      console.log("**CLEAR PAPER**");
         var meetingID = attributes[0];
         redisAction.getCurrentPresentationID(meetingID, function(presentationID) {
           redisAction.getCurrentPageID(meetingID, presentationID, function(pageID) {
