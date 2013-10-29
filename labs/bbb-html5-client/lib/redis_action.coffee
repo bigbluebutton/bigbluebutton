@@ -4,6 +4,7 @@ rack = require("hat").rack()
 config = require("../config")
 Logger = require("./logger")
 RedisKeys = require("./redis_keys")
+Utils = require("./utils")
 
 moduleDeps = ["RedisStore"]
 
@@ -58,7 +59,7 @@ module.exports = class RedisAction
         failed or= err?
         @setIDs meetingID, sessionID, publicID, (err, reply) =>
           failed or= err?
-          # TODO: review if all these parameters are necessary
+          # TODO: comment what these parameters are used for
           properties = ["username", username, "meetingID", meetingID, "refreshing", false, "dupSess", false, "sockets", 0, "pubID", publicID]
           @updateUserProperties meetingID, sessionID, properties, (err, reply) ->
             failed or= err?
@@ -92,6 +93,39 @@ module.exports = class RedisAction
       callback?(err, reply)
     @redisStore.hmset.apply @redisStore, properties
 
+  # Sets the current URL for the current presentation page.
+  # @param url [string] the URL for the page being set as current
+  # @param callback [Function(err, reply)] called when the URL is set, with the error and reply from redis
+  setCurrentUrl: (url, callback) ->
+    # TODO: "currentUrl" is a bad name for a key, there's probably already a key with the current page
+    @redisStore.set "currentUrl", url, (err, reply) ->
+      registerResponse "setCurrentUrl", err, reply, "setting current page url to #{url}"
+      callback?(err, reply)
+
+  # Called when the application receives a `changeslide` from the server.
+  # @param url [string] the URL for the slide that will be shown
+  # @param callback [Function(err, reply)] called when the URL is set, with the error and reply from redis
+  onChangeSlide: (url, callback) ->
+    @setCurrentUrl url, callback
+
+  # Called when the application receives an `undo` from the server.
+  # @param meetingID [string] the ID of the meeting the undo was called on
+  # @param callback [Function(err, reply)] called when done, with the error and reply from redis
+  onUndo: (meetingID, callback) ->
+    @getCurrentPresentationID meetingID, (presentationID) =>
+      @getCurrentPageID meetingID, presentationID, (pageID) =>
+        @redisStore.rpop RedisKeys.getCurrentShapesString(meetingID, presentationID, pageID), (err, reply) =>
+          callback?(err, reply)
+
+  # Called when the application receives a `clrPaper` from the server.
+  # @param meetingID [string] the ID of the meeting the method was called on
+  # @param callback [Function(err, reply)] called when done, with the error and reply from redis
+  onClearPaper: (meetingID, callback) ->
+    @getCurrentPresentationID meetingID, (presentationID) =>
+      @getCurrentPageID meetingID, presentationID, (pageID) =>
+        @getItemIDs meetingID, presentationID, pageID, "currentshapes", (meetingID, presentationID, pageID, itemIDs, itemName) =>
+          @deleteItemList meetingID, presentationID, pageID, itemName, itemIDs, (err, reply) ->
+            emit()
 
 
 
@@ -180,6 +214,7 @@ module.exports = class RedisAction
     @redisStore.del @_getItemsStringFunction(itemName)(meetingID, presentationID, pageID), (err, reply) ->
       registerSuccess("deleteItemList", "deleted the list of items: #{itemName}") if reply
       registerError("deleteItemList", err, "could not delete list of items: #{itemName}") if err?
+      callback?(err, reply)
 
   # Deletes the items by itemName and an array of itemIDs (use helper).
   # @param  {string} meetingID      the ID of the meeting
@@ -749,13 +784,4 @@ registerSuccess = (method, message="") ->
   Logger.info "success on RedisAction##{method}:", message
 
 registerResponse = (method, err, reply, message="") ->
-  hasMessage = message? and !_.isEmpty(message)
-  if err?
-    Logger.error "error on RedisAction##{method}:(error:#{error})"
-    Logger.error "  #{message}" if hasMessage
-  else if reply
-    Logger.info "success on RedisAction##{method}:(reply:#{reply})"
-    Logger.info "  #{message}" if hasMessage
-  else
-    Logger.warn "unknown on RedisAction##{method}:(reply:#{reply}, error:#{error})"
-    Logger.warn "  #{message}" if hasMessage
+  Utils.registerResponse "RedisAction##{method}", err, reply, message

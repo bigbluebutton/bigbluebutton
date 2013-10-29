@@ -36,7 +36,7 @@ module.exports = class WebsocketConnection
         @redisAction.getItems meetingID, presentationID, pageID, "currentshapes", (shapes) =>
           receivers = (if sessionID? then sessionID else meetingID)
           @pub.publish receivers, JSON.stringify(["all_shapes", shapes])
-          callback?()
+          callback?(null)
 
   # Publish viewbox from redis to appropriate clients
   # @param {string} meetingID ID of the meeting
