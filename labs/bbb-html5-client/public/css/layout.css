@@ -1,3 +1,164 @@
+/* All Smartphones in portrait and landscape ----------- */
+@media only screen 
+and (min-device-width : 320px) 
+and (max-device-width : 480px) {
+/* YOUR STYLE GOES HERE */
+}
+
+/* All Smartphones in landscape ----------- */
+@media only screen 
+and (min-width : 321px) {
+/* YOUR STYLE GOES HERE */
+}
+
+/* All Smartphones in portrait ----------- */
+@media only screen 
+and (max-width : 479px) {
+/* YOUR STYLE GOES HERE */
+}
+
+/***** ANDROID DEVICES *****/
+
+/* Android 240 X 320 ----------- */
+@media only screen
+and (max-width: 241px){
+/* YOUR STYLE GOES HERE */
+}
+
+/* Android(Samsung Galaxy) in portrait 380 X 685 ----------- */
+@media only screen
+and (min-width: 375px)
+and (max-width: 385px){
+/* YOUR STYLE GOES HERE */
+}
+
+/* Android(Samsung Galaxy) in Landscape 685 X  380 ----------- */
+@media only screen
+and (min-width: 680px)
+and (max-width: 690px){
+/* YOUR STYLE GOES HERE */
+}
+
+/* Kindle Portrait 600 X 1024 ----------- */
+@media only screen
+and (min-width: 595px)
+and (max-width: 610px){
+/* YOUR STYLE GOES HERE */
+}
+
+/* Kindle Landscape 1024 X 600 ----------- */
+@media only screen
+and (min-width: 1000px)
+and (max-width: 1030px){
+/* YOUR STYLE GOES HERE */
+}
+
+/***** ALL GENERATION IPADS *****/
+
+/* iPads in portrait and landscape----------- */
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) {
+/* YOUR STYLE GOES HERE */  
+}
+
+/* iPad in landscape----------- */
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) 
+and (orientation : landscape) {
+/* YOUR STYLE GOES HERE */
+}
+
+/* iPad in portrait----------- */
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) 
+and (orientation : portrait){
+/* YOUR STYLE GOES HERE */
+}
+
+
+
+/***** Retina IPAD 3 & 4*****/
+
+/* Retina iPad 3 & 4 in portrait and landscape----------- */
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px)
+and (-webkit-min-device-pixel-ratio: 2){
+/* YOUR STYLE GOES HERE */
+}
+
+/* Retina iPad 3 & 4 in landscape----------- */
+
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) 
+and (orientation : landscape)
+and (-webkit-min-device-pixel-ratio: 2){
+/* YOUR STYLE GOES HERE */
+}
+
+/* Retina iPad 3 & 4 in landscape----------- */
+
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) 
+and (orientation : portrait)
+and (-webkit-min-device-pixel-ratio: 2){
+/* YOUR STYLE GOES HERE */
+}
+
+
+
+
+/***** IPAD 1 & 2 (ALSO IPAD MINI)*****/
+
+/* iPad 1 & 2 in portrait and landscape ----------- */
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) 
+and (-webkit-min-device-pixel-ratio: 1){
+/* YOUR STYLE GOES HERE */
+}
+
+/* iPad 1 & 2 in landscape ----------- */
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) 
+and (orientation : landscape)
+and (-webkit-min-device-pixel-ratio: 1)  {
+/* YOUR STYLE GOES HERE */
+}
+
+/* iPad 1 & 2 in portrait ----------- */
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) 
+and (orientation : portrait) 
+and (-webkit-min-device-pixel-ratio: 1){
+/* YOUR STYLE GOES HERE */
+}
+
+
+/* Large screens ----------- */
+@media only screen 
+and (min-width : 1824px) {
+/* YOUR STYLE GOES HERE */
+}
+
+/* Only iPhone 4 ----------- */
+@media
+only screen and (-webkit-min-device-pixel-ratio : 1.5),
+only screen and (min-device-pixel-ratio : 1.5) {
+/* YOUR STYLE GOES HERE */
+}
+
+/* Desktops and laptops ----------- */
+@media only screen 
+and (min-width : 1224px) {
+
 html,body,#container, #session-view, #layout{
   width: 100%;
   height: 100%;
@@ -15,46 +176,44 @@ img.logo {
   position: absolute;
   width: 50px;
 }
-#layout {
 
-  background: #aaa;
+#layout {
+  background: #ddd;
   position: relative;
   overflow: scroll;
-
 }
-#whiteboard {
 
+#whiteboard {
   position: relative;
-  background: #aaa;
+  background: #ddd;
   top: 6vh;
   left: -1px;
   width:100%;
   bottom: 2vh;
-
   z-index: 1;
   border-top: none;
-  border-left: 1px solid #999999;
-  border-right: 1px solid #999999;
+/*   border-left: 1px solid #999999;
+  border-right: 1px solid #999999; */
   border-bottom: none;
   vertical-align: middle;
-
   text-align: center;
   overflow: hidden;
   height:88vh;
-
 }
+
 #chat {
   position: absolute;
-
   right: 0;
   top: 35vh;
-  bottom: 2vh;
+  bottom: 0vh;
   width: 22vw;
-  background: #f7f7f7;
+  background: #fff;
   z-index: 6; 
   display:none;
   overflow: hidden;
+  border-left:1px solid #ccc;
 }
+
 #video {
   position: absolute;
   top: 6vh;
@@ -77,26 +236,22 @@ img.logo {
   left: 0;
   right: 0;
   margin: auto;
-
 }
+
 #navbar {
   position: fixed;
-
   top: 0;
   left: 0;
   right: 0;
   height: 6vh;
   background: #333;
-
   background: -moz-linear-gradient(top, #494c56, #42444c);
   background: -webkit-linear-gradient(top, #494c56, #42444c);
   background: -ms-linear-gradient(top,#494c56, #42444c);
   background: -o-linear-gradient(top, #494c56, #42444c);
-  border-top: 1px solid #2f3138;
   border-left: none;
   border-right: none;
   border-bottom: 1px solid #2f3138;
-
   text-align: center;
   z-index: 13; /* over #whiteboard and sidebars */
 }
@@ -108,18 +263,14 @@ img.logo {
   z-index: 12
 }
 
-
-}
 #navbar a {
   color: #ffffff;
   text-decoration: none;
 }
 
-
 .navbar-btngroup-left {
   border-left: 1px solid #222;
   border-right: 1px solid #555;
-
   display: inline-block;
   font-size: 0;
   vertical-align: middle;
@@ -161,23 +312,21 @@ img.logo {
   color: #ffffff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   text-transform: uppercase;
-
   position: relative;
   cursor: pointer;
   text-align: center;
   vertical-align: middle;
   margin-bottom: 0;
-  font-size: 4vh;
+  font-size: 2.5vh;
   line-height:4vh;
 }
+
 .navbar-btn:hover {
   background: #6d6f77;
   color: #ffffff;
 }
 
-
 .navbar-btn:active, .navbar-btn.active {
-
   background: #33343b;
   color: #999a9d;
   border-top: none;
@@ -185,6 +334,7 @@ img.logo {
   border-right: 1px solid #33343b;
   border-bottom: none;
 }
+
 .navbar-btn:active {
   background: #33343b;
   color: #999a9d;
@@ -207,9 +357,7 @@ img.logo {
   color: #ffffff;
 }
 
-
 .navbar-btn.active, .navbar-btn.active:active {
-
   background-image: -moz-linear-gradient(top, #58ade3, #58ade3), -moz-linear-gradient(top, #33343b, #33343b);
   background-image: -webkit-linear-gradient(top, #58ade3, #58ade3), -webkit-linear-gradient(top, #33343b, #33343b);
   background-image: -ms-linear-gradient(top,#58ade3, #58ade3),-ms-linear-gradient(top, #33343b, #33343b);
@@ -219,10 +367,10 @@ img.logo {
   background-position: 0 63px, 0 0;
   color: #999a9d;
 }
+
 .navbar-btn .notification {
   display: block;
   position: absolute;
-
   background: #a72424;
   background-image: -moz-linear-gradient(top, #a72424, #8f1f1f);
   background-image: -webkit-linear-gradient(top, #a72424, #8f1f1f);
@@ -230,10 +378,9 @@ img.logo {
   background-image: -o-linear-gradient(top, #a72424, #8f1f1f);
   text-shadow: 0 -1px rgba(0,0,0,0.5);
   border-top: 1px solid #cc7e7e;
-
-  top: 11px;
+  top: 10px;
   left: none;
-  right: 17px;
+  right: 5px;
   bottom: none;
   background: #a72424;
   background-image: -moz-linear-gradient(top, #a72424, #8f1f1f);
@@ -256,23 +403,23 @@ button::-moz-focus-inner, input::-moz-focus-inner {
 
 button:focus, textarea:focus, input:focus {
   box-shadow: 0 0 4px rgba(88,173,227,0.5) inset;
-
   outline: none;
   z-index: 11;
 }
+
 #chat-entry {
   position: absolute;
-
   bottom: 1em;
-
   left: 0;
   right: 0;
-  bottom: 16px;
+  bottom: 10px;
+  height:35px;
+  background:#f7f7f7;
+  border-top:1px solid #ccc;
 }
 
 #chat-entry > textarea {
   position: absolute;
-
   bottom: 0;
   left: 5%;
   font-family: sans-serif;
@@ -289,24 +436,19 @@ button:focus, textarea:focus, input:focus {
 
 #chat-entry > button {
   position: absolute;
-
   bottom: 0;
   right: 5%;
   width: 20%;
   height: 24px;
-
   margin: 0;
   border: 1px solid #ccc;
   border-left: none;
   border-radius: 0 4px 4px 0;
-
   background: -moz-linear-gradient(top, #fff, #ddd);
   background: -webkit-linear-gradient(top, #fff, #ddd);
   background: -ms-linear-gradient(top, #fff, #ddd);
   background: -o-linear-gradient(top, #fff, #ddd);
   font-size: 1em;
-  
-
 }
 
 #chat-entry > button:active {
@@ -316,13 +458,29 @@ button:focus, textarea:focus, input:focus {
 #chat-messages {
   clear: both;
   font-size: 1em;
-  height: 70%;
+  height: 80%;
   line-height: 1em;
   overflow: scroll;
   position: absolute;
-
-  top: 12vh;
+  padding:15px;
+  font-size:12px;
+  color:#999;
+  line-height:14px;
+  margin-bottom:15px;
 }
+
+#chat-messages p { 
+ font-size:12px;
+ color:#999;
+ line-height:14px;
+ margin-bottom:15px;
+}
+
+#chat-messages p span {
+  font-weight:bold; 
+  color:#666;
+}
+
 
 .private-chat-box{
   overflow-y:scroll;
@@ -335,20 +493,25 @@ button:focus, textarea:focus, input:focus {
   font-size:1em;
 }
 
-#users > h3 {
-  background: -moz-linear-gradient(top, #fff, #ddd);
+#users > h3, #chatbox-head > h3 {
+ /*  background: -moz-linear-gradient(top, #fff, #ddd);
   background: -webkit-linear-gradient(top, #fff, #ddd);
   background: -ms-linear-gradient(top, #fff, #ddd);
   background: -o-linear-gradient(top, #fff, #ddd);
-  font-size: 2em;
+*/
+  background:#f7f7f7;  	
+  font-size: 1em;
   line-height: 2em;
   font-weight: bold;
   color: #666;
-  border-bottom: 1px solid #aaa;
-  text-align: center;
+  border-bottom: 1px solid #d7d7d7;
+  padding: 5px 10px;
+
+
 }
+
 #chatbox-head {
-  background: -moz-linear-gradient(top, #fff, #ddd);
+ /*  background: -moz-linear-gradient(top, #fff, #ddd);
   background: -webkit-linear-gradient(top, #fff, #ddd);
   background: -ms-linear-gradient(top, #fff, #ddd);
   background: -o-linear-gradient(top, #fff, #ddd);
@@ -358,7 +521,7 @@ button:focus, textarea:focus, input:focus {
   color: #666;
   border-bottom: 1px solid #aaa;
   text-align: center;
-  height: 6vh;
+  height: 6vh; */
 }
 
 #slide {
@@ -375,21 +538,20 @@ button:focus, textarea:focus, input:focus {
   font-family: Arial, Helvetica, "Helvetica Neue", sans-serif;
   font-size: 14px;
   /* keep in pixels*/
-
   resize: none;
   display: block;
 }
 .user {
-
   height: 16px;
   line-height: 16px;
-
   padding: 0 8px;
+  text-align:center;
 }
 
 .user:nth-child(even) {
   background: #eeeeee;
 }
+
 .user:before {
   content: "\f007";
   font-family: FontAwesome;
@@ -398,18 +560,22 @@ button:focus, textarea:focus, input:focus {
   display: inline-block;
   margin-right: 8px;
 }
+
 .user:nth-child(even).selected {
   color: #ffffff;
   background: #007fff;
   background: -moz-linear-gradient(top, #007fff, #005fdf);
   background: -webkit-linear-gradient(top, #007fff, #005fdf);
 }
+
 .presenter:before {
   content: "\f0d0";
 }
+
 .clickable {
   cursor: pointer;
 }
+
 .selected {
   color: #ffffff;
   background: #007fff;
@@ -418,12 +584,12 @@ button:focus, textarea:focus, input:focus {
   background: -ms-linear-gradient(top, #007fff, #005fdf);
   background: -o-linear-gradient(top, #007fff, #005fdf);
 }
+
 #chat_input {
   clear: both;
   display: block;
   float: right;
 }
-
 
 #slide-upload-controls {
   display:none;
@@ -441,21 +607,21 @@ button:focus, textarea:focus, input:focus {
 #chat_title {
   padding-left: 25px;
 }
+
 #listUsers {
   float: right;
 }
+
 #current-users {
   position: absolute;
-
   bottom: auto;
   left: 0;
   background: #fff;
   width:100%;
-
 }
+
 #switch-presenter {
   position: absolute;
-
   left: 0;
   bottom:1vh;
   margin-left: 16px;
@@ -466,76 +632,86 @@ button:focus, textarea:focus, input:focus {
   background: -webkit-linear-gradient(top, #fff, #ddd);
   background: -ms-linear-gradient(top, #fff, #ddd);
   background: -o-linear-gradient(top, #fff, #ddd);
-
   cursor: pointer;
   z-index:10;
 }
+
 #ChatAndControls {
   float: right;
 }
+
 #logout {
   float: right;
 }
+
 #send_chat {
   float: right;
 }
+
 #slide-controls {
   display: none;
   width: 800px;
   margin: 0 auto;
 }
+
 #slide-controls form {
   display: inline;
 }
+
 #slide-controls * {
   float: left;
   margin: 5px 10px 0 0;
 }
+
 #thickness-slider {
   width: 60px;
 }
+
 #colour-text {
   width: 50px;
   margin-left: 5px;
 }
+
 #colour-view {
   margin-left: 5px;
   cursor: pointer;
 }
+
 #colour-picker {
   position: absolute;
   z-index: 9;
   /* over everything */
 
 }
+
 .canvas {
   border: 1px solid #0000ff;
   position: absolute;
 }
-
 
 /*js/views/login.coffee*/
 
 #login-view {
   width: 100%;
   margin: 50px auto;
-
   border: 10x solid #dddddd;
-
   padding: 10px;
   background: #30406b;
   color: white;
 }
+
 #login-view h1 {
   font-size: 23.8px;
   font-weight: bold;
   text-align: center;
   margin: 5px 0 20px 0;
 }
+
 #login-container {
   text-align: center;
   font-family: Arial, Helvetica, sans-serif;
 }
+
 #slide {
   position: relative;
   margin: 0 auto;
@@ -546,9 +722,11 @@ button:focus, textarea:focus, input:focus {
   height: 99%;
   border: 1px solid #888;
 }
+
 #slide .preupload-image {
   display: none;
 }
+
 #slide > svg {
   width: 100%;
   height: 100%;
@@ -562,16 +740,22 @@ button:focus, textarea:focus, input:focus {
 
 #users {
   z-index: 11;
-  border: 1px solid #888;
+  border: 3px solid #33343b;
   display: none;
   position: absolute;
   left: 0;
   top: 6vh;
-  height:60vh;
-  background: #f7f7f7;
+  min-height:35vh;
+  background: #ffffff;
   overflow: scroll;
   resize:both;
   min-width: 16vw;
+-webkit-border-bottom-right-radius: 5px;
+-webkit-border-bottom-left-radius: 5px;
+-moz-border-radius-bottomright: 5px;
+-moz-border-radius-bottomleft: 5px;
+border-bottom-right-radius: 5px;
+border-bottom-left-radius: 5px;
 }
 
 #slide-upload-button,#tool-toggle-btn,#tool-zoom-btn{
@@ -588,15 +772,23 @@ button:focus, textarea:focus, input:focus {
   width:100%;
   position:absolute;
   top:0;
-  left:0;    
+  left:0;      
+  text-align:left;
+  color:#666;
+}
 
+#usertable tr { 
+  border-bottom:1px solid #f2f2f2;
+}
+
+#usertable tr:hover { 
+  background-color:#f6f6f6;
 }
 
 #usertable td {
-  width:15px;
-  height:10px;
-  padding:5px;
-  border:1px solid black;
+ /*  width:15px;
+  height:10px; */
+  padding:8px;
 }
 
 #closeUploadWindow{
@@ -612,15 +804,12 @@ image {
 }
 
 #chat-options-bar {
-  background: -moz-linear-gradient(top, #fff, #ddd);
-  background: -webkit-linear-gradient(top, #fff, #ddd);
-  background: -ms-linear-gradient(top, #fff, #ddd);
-  background: -o-linear-gradient(top, #fff, #ddd);
   height:4vh;
   width:100%;
   position:relative;
   font-size:1.5em;
   line-height: 1.5em;
+  border-bottom:1px solid #ccc;
 }
 
 #chat-options-bar button:active{
@@ -669,7 +858,6 @@ i.icon-angle-up{
   position: absolute;
   right: 1vw;
   top: 0;
-
   width: 50%;
 }
 
@@ -689,7 +877,7 @@ i.icon-angle-up{
 #publicChat{
   cursor: pointer;
   display: inline-block;
-  height: 90%;
+  height: 100%;
   left: 0;
   overflow: hidden;
   padding-left: 0;
@@ -834,3 +1022,5 @@ i{
 +#welcomeMsg{
 +  margin-bottom: 20px;
 +}
+}
+
