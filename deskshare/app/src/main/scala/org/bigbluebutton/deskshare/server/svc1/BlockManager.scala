@@ -34,7 +34,7 @@ class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension, wait
     private var lastFrameTime = 0L
     private var lastKeyFrameTime = 0L
     private val KEYFRAME_INTERVAL = 20000
-    private var blockToUpdate = 1
+    private var rowToUpdate = 1
     private var startTime = 0L
 	private var gotAllBlocksTime = 0L
 	private var gotAllBlocks = false;
@@ -60,6 +60,15 @@ class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension, wait
 	def updateBlock(position: Int, videoData: Array[Byte], keyFrame: Boolean, seqNum: Int): Unit = {
 		val block: Block = blocksMap.get(position)
 		block.update(videoData, keyFrame, seqNum)
+		
+		if (! gotAllBlocks ) {
+		  val numberOfBlocks = numberOfRows * numberOfColumns
+    	  gotAllBlocks = allBlocksReceived(numberOfBlocks)
+    	}
+	}
+	
+	def hasReceivedAllBlocks():Boolean = {
+	  gotAllBlocks;
 	}
 	
 	private def allBlocksReceived(numberOfBlocks: Int):Boolean = {
@@ -88,11 +97,7 @@ class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension, wait
     	  val flags : Byte = 0; // 6 bits reserved (0); HasIFrameImage=0; HasPaletteInfo=0
     	  screenVideoFrame.write(flags);
     	}
-    	
-    	if (! gotAllBlocks ) {
-    	  gotAllBlocks = allBlocksReceived(numberOfBlocks)
-    	}
-		
+    			
     	for (position: Int <- 1 to numberOfBlocks)  {
     		var block: Block = blocksMap.get(position)
     		var encodedBlock: Array[Byte] = ScreenVideoEncoder.encodeBlockUnchanged()
@@ -100,7 +105,7 @@ class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension, wait
     		  // We need to wait for all the blocks. Just encode a blank block.
     		  encodedBlock = block.getEncodedBlock(true);
     		} else {
-	    		if (block.hasChanged || (position == blockToUpdate) || genKeyFrame) {    		
+	    		if (block.hasChanged || (position/numberOfColumns == rowToUpdate) || genKeyFrame) {    		
 	    			encodedBlock = block.getEncodedBlock(false);
 	//    			println("Encoded block length[" + position + "] = " + encodedBlock.length)
 	    		}    		  
@@ -109,8 +114,8 @@ class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension, wait
     		screenVideoFrame.write(encodedBlock, 0, encodedBlock.length)
     	}
 
-		blockToUpdate += 1;
-		if (blockToUpdate > numberOfBlocks) blockToUpdate = 1;
+		rowToUpdate += 1;
+		if (rowToUpdate > numberOfRows) rowToUpdate = 1;
     	
 //		println("Key=" + genKeyFrame + " frame length=" + screenVideoFrame.toByteArray.length)
 		

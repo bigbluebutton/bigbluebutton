@@ -83,7 +83,7 @@ package org.bigbluebutton.modules.broadcast.managers
         trace("***BroadcastManager Not Opening BroadcastModule Window");
       }
       
- //     sendWhatIsTheCurrentStreamRequest();
+      sendWhatIsTheCurrentStreamRequest();
       
       if (UserManager.getInstance().getConference().amIPresenter) {
         handleSwitchToPresenterMode();
