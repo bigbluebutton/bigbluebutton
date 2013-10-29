@@ -31,13 +31,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             super(id, type, status);
 		}
 		
-		override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
+		override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
 //			LogUtil.debug("Drawing TRIANGLE");
 			var ao:Object = a.annotation;
 			
 			if (!ao.fill)
-				this.graphics.lineStyle(ao.thickness, ao.color, ao.transparency ? 0.6 : 1.0);
-			else this.graphics.lineStyle(ao.thickness, ao.color);
+				this.graphics.lineStyle(ao.thickness * zoom, ao.color, ao.transparency ? 0.6 : 1.0);
+			else this.graphics.lineStyle(ao.thickness * zoom, ao.color);
 			
 			var arrayEnd:Number = (ao.points as Array).length;
 			var startX:Number = denormalize((ao.points as Array)[0], parentWidth);
@@ -55,8 +55,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.graphics.lineTo(startX+triangleWidth/2, startY);
 		}
 		
-		override public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
-			draw(a, parentWidth, parentHeight);
+		override public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
+			draw(a, parentWidth, parentHeight, zoom);
 		}					
 	}
 }
