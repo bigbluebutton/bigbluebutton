@@ -34,10 +34,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			super(id, type, status);
 		}
 		
-        override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
+        override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
             var ao:Object = a.annotation;
             
-            this.graphics.lineStyle(ao.thickness, ao.color);
+            this.graphics.lineStyle(ao.thickness * zoom, ao.color);
             
             var graphicsCommands:Vector.<int> = new Vector.<int>();
             graphicsCommands.push(1);
@@ -53,8 +53,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             this.alpha = 1;
         }
         
-        override public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
-            draw(a, parentWidth, parentHeight);
+        override public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
+            draw(a, parentWidth, parentHeight, zoom);
         }
         
 	}
