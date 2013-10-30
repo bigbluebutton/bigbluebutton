@@ -159,15 +159,15 @@ module.exports = class RedisPublisher
   publishUsernames: (meetingID, sessionID, callback) ->
     usernames = []
     # @TODO: @_getUsers doesn't exist, probably this method is never being called
-    @_getUsers meetingID, (users) =>
-      users.forEach (user) =>
-        usernames.push
-          name: user.username
-          id: user.pubID
+    # @_getUsers meetingID, (users) =>
+    #   users.forEach (user) =>
+    #     usernames.push
+    #       name: user.username
+    #       id: user.pubID
 
-      receivers = (if sessionID? then sessionID else meetingID)
-      @pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user list change", usernames])
-      callback?(null, true)
+    #   receivers = (if sessionID? then sessionID else meetingID)
+    #   @pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user list change", usernames])
+    callback?(null, true)
 
   # Publishes a chat message informing that a text message is too long.
   #
