@@ -99,7 +99,8 @@ module.exports = class RedisAction
   onUndo: (meetingID, callback) ->
     @getCurrentPresentationID meetingID, (err, presentationID) =>
       @getCurrentPageID meetingID, presentationID, (err, pageID) =>
-        @redisStore.rpop RedisKeys.getCurrentShapesString(meetingID, presentationID, pageID), (err, reply) =>
+        currentShape = RedisKeys.getCurrentShapesString(meetingID, presentationID, pageID)
+        @redisStore.rpop currentShape, (err, reply) =>
           callback?(err, reply)
 
   # Called when the application receives a `clrPaper` from the server.
@@ -109,9 +110,8 @@ module.exports = class RedisAction
   onClearPaper: (meetingID, callback) ->
     @getCurrentPresentationID meetingID, (err, presentationID) =>
       @getCurrentPageID meetingID, presentationID, (err, pageID) =>
-        @_getItemIDs meetingID, presentationID, pageID, "currentshapes", (err, itemIDs) =>
-          @_deleteItemList meetingID, presentationID, pageID, "currentshapes", itemIDs, (err, reply) ->
-            emit()
+        @_deleteItemList meetingID, presentationID, pageID, "currentshapes", (err, reply) ->
+          callback?(err, reply)
 
   # Get the session ID (private) of the current presenter.
   #

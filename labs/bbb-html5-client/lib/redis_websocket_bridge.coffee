@@ -83,7 +83,7 @@ module.exports = class RedisWebsocketBridge
     # and publish the rest shapes to html5 users
     if attributes[1] is "undo"
       @redisAction.onUndo meetingID, (err, reply) =>
-        @redisPublisher.publishShapes meetingID, (err) -> emit()
+        @redisPublisher.publishShapes meetingID, null, (err) -> emit()
 
     # When presenter in flex side sends the 'clrPaper' event, remove everything from Redis
     else if attributes[1] is "clrPaper"
