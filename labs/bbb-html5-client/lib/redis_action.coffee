@@ -8,14 +8,10 @@ Utils = require("./utils")
 
 moduleDeps = ["RedisStore"]
 
-# Includes methods to fetch and set values related to meetings in redis. Acts as a bridge
-# between the application and redis.
+# Includes helper methods to work with redis.
 #
 # All callbacks are in the format `method(error, response)`, where `response` is usually the
 # response returned by the method called on redis.
-#
-# @TODO some callbacks are not always called
-# @TODO use standard success/error responses (e.g. sometimes failure returns `null`, sometimes `false`)
 module.exports = class RedisAction
 
   constructor: ->
@@ -349,12 +345,6 @@ module.exports = class RedisAction
         callback?(null, [])
 
 
-
-  #
-  # # Private methods
-  #
-
-
   # Returns the function for getting the string of a specific item given the name of
   # the item type in redis.
   #
@@ -534,11 +524,6 @@ module.exports = class RedisAction
         @redisStore.del RedisKeys.getCurrentPresentationString(meetingID), (err, reply) ->
           registerResponse "_deletePresentations", err, reply, "deleting current presentatation for #{meetingID}"
           callback?(err, reply)
-
-
-#
-# # Local methods
-#
 
 registerError = (method, err, message="") ->
   Logger.error "error on RedisAction##{method}:", message, err if err?
