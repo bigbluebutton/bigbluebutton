@@ -59,7 +59,7 @@ module.exports = class WebsocketConnection
   # @param {string} sessionID ID of the user
   # @param {Function} callback callback to call when finished
   # @todo only external because it is called by RedisBridge
-  # @todo use a `for` instead of a `while`
+  # @todo callback should be called at the end only, can use async for this
   # @todo publishes to redis, maybe should be on RedisBridge
   publishSlides: (meetingID, sessionID, callback) ->
     slides = []
@@ -69,11 +69,24 @@ module.exports = class WebsocketConnection
         pageIDs.forEach (pageID) =>
           @redisAction.getPageImage meetingID, presentationID, pageID, (err, filename) =>
             @redisAction.getImageSize meetingID, presentationID, pageID, (err, width, height) =>
-              slides.push ["bigbluebutton/presentation/" + meetingID + "/" + meetingID + "/" + presentationID + "/png/" + filename, width, height]
+              path = config.presentationImagePath(meetingID, presentationID, filename)
+              slides.push [path, width, height]
               if slides.length is pageIDs.length
                 receivers = (if sessionID? then sessionID else meetingID)
                 @pub.publish receivers, JSON.stringify(["all_slides", slides])
                 callback?()
+
+  # When the list of slides is loaded, we usually have to update the current image
+  # being show. This method can be use to do it.
+  #
+  # @param {string} meetingID ID of the meeting
+  # @param {string} sessionID ID of the user
+  # @param {Function} callback callback to call when finished
+  _publishCurrentImagePath: (meetingID, sessionID, callback) ->
+    @redisAction.getPathToCurrentImage meetingID, (err, path) =>
+      receivers = (if sessionID? then sessionID else meetingID)
+      @pub.publish receivers, JSON.stringify(["changeslide", path])
+      callback?()
 
   # Emits a message to all clients connected in the given channel.
   # @param {string} channel The name of the target channel, usually the meetingID
@@ -104,9 +117,8 @@ module.exports = class WebsocketConnection
   _onUserConnected: (socket, msg) ->
     sessionID = fromSocket(socket, "sessionID")
     meetingID = fromSocket(socket, "meetingID")
-    console.log "-=-=-=- USER CONNECTED, CHECK SESSION", sessionID, meetingID
     @redisAction.isValidSession meetingID, sessionID, (err, reply) =>
-      unless reply
+      if !reply
         Logger.error "got invalid session for meeting #{meetingID}, session #{sessionID}"
       else
         username = fromSocket(socket, "username")
@@ -116,52 +128,33 @@ module.exports = class WebsocketConnection
 
         Logger.info "got a valid session for meeting #{meetingID}, session #{sessionID}, username is '#{username}'"
 
-        console.log "-=-=-=- JOINED", meetingID, sessionID
-
         # add socket to list of sockets
         @redisAction.getUserProperties meetingID, sessionID, (err, properties) =>
-          console.log "-=-=-=- GOT USER PROPS", properties
+          Logger.info "publishing the list of users for #{meetingID}"
           @_publishLoadUsers meetingID, null, =>
-            console.log "-=-=-=- PUBLISHED LOAD USERS"
             @_publishPresenter meetingID
 
           numOfSockets = parseInt(properties.sockets, 10)
           numOfSockets += 1
           @redisStore.hset RedisKeys.getUserString(meetingID, sessionID), "sockets", numOfSockets
-          console.log "-=-=-=- NUM OF SOCKETS STORED", numOfSockets
 
           # if the user is not refreshing, it means its the first time he's entering the session
           # all users should be notified
-          if properties.refreshing is "false"
-            @_publishUserJoin meetingID, null, properties.pubID, properties.username, =>
-              @_publishPresenter meetingID
-          # when refreshing the other users don't have to be notified
-          else
-            @redisStore.hset RedisKeys.getUserString(meetingID, sessionID), "refreshing", false
-            @_publishUserJoin meetingID, sessionID, properties.pubID, properties.username, =>
-              @_publishPresenter meetingID, sessionID
+          # when the user is refreshing the page the other users don't have to be notified
+          Logger.info "publishing user join for #{meetingID}"
+          receivers = (if properties.refreshing is "false" then null else sessionID)
+          @redisStore.hset RedisKeys.getUserString(meetingID, sessionID), "refreshing", false
+          @_publishUserJoin meetingID, receivers, properties.pubID, properties.username, =>
+            @_publishPresenter(meetingID, receivers)
 
-          console.log "-=-=-=- PUBLISHING MESSAGES AND SLIDES"
-          @_publishMessages meetingID, sessionID
-          @publishSlides meetingID, sessionID, =>
-
-            console.log "-=-=-=- PUBLISH SLIDES DONE"
-
-            # after send 'all_slides' event, we have to load the current slide for new user by
-            # getting the current presentation slide url and send the 'changeslide' event
-            # @todo currentUrl is not a good name and maybe there's already this info on another key on redis
-            @redisStore.get "currentUrl", (err, url) =>
-              console.log "-=-=-=- GOT CURRENT URL"
-              if err
-                Logger.error err
-              else
-                console.log "-=-=-=- PUBLISHING CHANGESLIDE"
-                @pub.publish meetingID, JSON.stringify(["changeslide", url])
-
-            console.log "-=-=-=- PUBLISHING TOOL, SHAPES AND VIEWBOX"
-            @_publishTool(meetingID, sessionID)
-            @publishShapes(meetingID, sessionID)
-            @publishViewBox(meetingID, sessionID)
+            # publish everything else we need to update for the client
+            Logger.info "publishing messages, slides and shapes to #{meetingID}, #{sessionID}"
+            @_publishMessages(meetingID, sessionID)
+            @publishSlides meetingID, sessionID, =>
+              @_publishCurrentImagePath(meetingID)
+              @_publishTool(meetingID, sessionID)
+              @publishShapes(meetingID, sessionID)
+              @publishViewBox(meetingID, sessionID)
 
 
   # When a user disconnects from the socket
@@ -247,12 +240,10 @@ module.exports = class WebsocketConnection
     usernames = []
     # @TODO: @_getUsers doesn't exist, probably this method is never being called
     @_getUsers meetingID, (users) =>
-      i = users.length - 1
-      while i >= 0
+      users.forEach (user) =>
         usernames.push
-          name: users[i].username
-          id: users[i].pubID
-        i--
+          name: user.username
+          id: user.pubID
 
       receivers = (if sessionID? then sessionID else meetingID)
       @pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user list change", usernames])
@@ -263,12 +254,10 @@ module.exports = class WebsocketConnection
   _publishLoadUsers: (meetingID, sessionID, callback) ->
     usernames = []
     @redisAction.getUsers meetingID, (err, users) =>
-      i = users.length - 1
-      while i >= 0
+      users.forEach (user) =>
         usernames.push
-          name: users[i].username
-          id: users[i].pubID
-        i--
+          name: user.username
+          id: user.pubID
 
       receivers = (if sessionID? then sessionID else meetingID)
       @pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "load users", usernames])
@@ -334,4 +323,3 @@ fromSocket = (socket, attr) ->
 isCurrentPresenter = (socket, presenterID) ->
   id = fromSocket(socket, "sessionID")
   id? and presenterID is id
-

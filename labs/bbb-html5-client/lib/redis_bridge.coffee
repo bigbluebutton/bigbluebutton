@@ -64,15 +64,9 @@ module.exports = class RedisBridge
       attributes.splice(0, 1) # remove the meeting id from the params
       @_emitToClients(meetingID, attributes)
 
-    # Stores the current URL so the server can send it to the clients when they connect via websockets.
-    # TODO: should this really be done by the HTML5 client?
-    if attributes[1] is "changeslide"
-      url = attributes[2]
-      @redisAction.onChangeSlide url, (err, reply) -> emit()
-
     # When presenter in flex side sends the 'undo' event, remove the current shape from Redis
     # and publish the rest shapes to html5 users
-    else if attributes[1] is "undo"
+    if attributes[1] is "undo"
       @redisAction.onUndo meetingID, (err, reply) =>
         @websocket.publishShapes meetingID, (err) -> emit()
 
