@@ -167,6 +167,7 @@ html,body,#container, #session-view, #layout{
 body { 
   overflow: hidden; 
   font: 12px Arial, Helvetica, "Helvetica Neue", sans-serif;
+  color:#666;
 }
 
 img.logo {
@@ -316,12 +317,7 @@ img.logo {
   color: #ffffff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   text-transform: uppercase;
-<<<<<<< HEAD
-  position: relative;
-=======
-
   position:relative;
->>>>>>> cec517e67aa79a08bd236840e20c7ffbcb5fc0ad
   cursor: pointer;
   text-align: center;
   vertical-align: middle;
@@ -330,8 +326,6 @@ img.logo {
   line-height:4vh;
 }
 
-<<<<<<< HEAD
-=======
 .icon{
   height:6vh;
   width:4vh;
@@ -339,17 +333,17 @@ img.logo {
   min-width: 1.75cm;
 }
 
->>>>>>> cec517e67aa79a08bd236840e20c7ffbcb5fc0ad
 .navbar-btn:hover {
   background: #6d6f77;
   color: #ffffff;
+
 }
 
 .navbar-btn:active, .navbar-btn.active {
   background: #33343b;
   color: #999a9d;
   border-top: none;
-  border-left: 1px solid #33343b;
+
   border-right: 1px solid #33343b;
   border-bottom: none;
 }
@@ -361,29 +355,29 @@ img.logo {
   border-left: 1px solid #33343b;
   border-right: 1px solid #33343b;
   border-bottom: none;
-  background-image: -moz-linear-gradient(top, #58ade3, #58ade3), -moz-linear-gradient(top, #33343b, #33343b);
-  background-image: -webkit-linear-gradient(top, #58ade3, #58ade3), -webkit-linear-gradient(top, #33343b, #33343b);
-  background-size: 72px 3px, 100% 100%;
+  background-image: -moz-linear-gradient(top, #33343b, #33343b), -moz-linear-gradient(bottom, #58ade3, #58ade3);
+  background-image: -webkit-linear-gradient(top, #33343b, #33343b), -webkit-linear-gradient(bottom, #58ade3, #58ade3);
+  background-size: 100px 45px, 100% 98%;
   background-repeat: no-repeat;
-  background-position: 0 63px, 0 0;
+ /*  background-position: 0 63px, 0 0; */
 }
 
 .navbar-btn.active:hover {
-  background-image: -moz-linear-gradient(top, #58ade3, #58ade3), -moz-linear-gradient(top, #6d6f77, #6d6f77);
-  background-image: -webkit-linear-gradient(top, #58ade3, #58ade3), -webkit-linear-gradient(top, #6d6f77, #6d6f77);
-  background-image: -ms-linear-gradient(top,#58ade3, #58ade3),-ms-linear-gradient(top, #6d6f77, #6d6f77);
-  background-image: -o-linear-gradient(top,#58ade3, #58ade3),-o-linear-gradient(top, #6d6f77, #6d6f77);
+  background-image: -moz-linear-gradient(top, #33343b, #33343b), -moz-linear-gradient(bottom, #58ade3, #58ade3);
+  background-image: -webkit-linear-gradient(top, #33343b, #33343b), -webkit-linear-gradient(bottom, #58ade3, #58ade3);
+  background-image: -ms-linear-gradient(top, #33343b, #33343b3),-ms-linear-gradient(bottom, #58ade3, #58ade3);
+  background-image: -o-linear-gradient(top, #33343b, #33343b),-o-linear-gradient(bottom, #58ade3, #58ade3);
   color: #ffffff;
 }
 
 .navbar-btn.active, .navbar-btn.active:active {
-  background-image: -moz-linear-gradient(top, #58ade3, #58ade3), -moz-linear-gradient(top, #33343b, #33343b);
-  background-image: -webkit-linear-gradient(top, #58ade3, #58ade3), -webkit-linear-gradient(top, #33343b, #33343b);
-  background-image: -ms-linear-gradient(top,#58ade3, #58ade3),-ms-linear-gradient(top, #33343b, #33343b);
-  background-image: -o-linear-gradient(top,#58ade3, #58ade3),-o-linear-gradient(top, #33343b, #33343b);
-  background-size: 72px 3px, 100% 100%;
+  background-image: -moz-linear-gradient(top, #33343b, #33343b), -moz-linear-gradient(bottom, #58ade3, #58ade3);
+  background-image: -webkit-linear-gradient(top, #33343b, #33343b), -webkit-linear-gradient(bottom, #58ade3, #58ade3);
+  background-image: -ms-linear-gradient(top, #33343b, #33343b),-ms-linear-gradient(bottom, #58ade3, #58ade);
+  background-image: -o-linear-gradient(top, #33343b, #33343b),-o-linear-gradient(bottom, #58ade3, #58ade); 
+  background-size: 100px 45px, 100% 98%;
   background-repeat: no-repeat;
-  background-position: 0 63px, 0 0;
+  /* background-position: 0 63px, 0 0; */
   color: #999a9d;
 }
 
@@ -435,6 +429,7 @@ button:focus, textarea:focus, input:focus {
   height:35px;
   background:#f7f7f7;
   border-top:1px solid #ccc;
+  z-index:10;
 }
 
 #chat-entry > textarea {
@@ -443,7 +438,7 @@ button:focus, textarea:focus, input:focus {
   left: 5%;
   font-family: sans-serif;
   font-size: 1em;
-  width: 67%;
+  width: 68%;
   height: 16px;
   resize: none;
   background: #ffffff;
@@ -480,7 +475,7 @@ button:focus, textarea:focus, input:focus {
   height: 80%;
   line-height: 1em;
   overflow: scroll;
-  position: absolute;
+  position: relative;
   padding:15px;
   font-size:12px;
   color:#999;
@@ -503,13 +498,14 @@ button:focus, textarea:focus, input:focus {
 
 .private-chat-box{
   overflow-y:scroll;
-  height:70%;
-  border:1px solid #E8E3E5;
-  position:absolute;
-  top:10vh;
-  width:100%;
-  background: #E8E3E5;
+  height:auto;
+  position:relative;
+  width:auto;
+  background:#fff;
   font-size:1em;
+  padding:15px;
+  height:100%; 
+  z-index:9;
 }
 
 #users > h3, #chatbox-head > h3 {
@@ -823,11 +819,10 @@ image {
 }
 
 #chat-options-bar {
-  height:4vh;
+  height:3vh;
   width:100%;
   position:relative;
   font-size:1.5em;
-  line-height: 1.5em;
   border-bottom:1px solid #ccc;
 }
 
@@ -839,22 +834,29 @@ image {
 }
 
 #all-users-list {
-  border:1px solid grey;
-  background:#cccccc;
+  border:1px solid #ccc;
+  background:#fff;
   width: 7vw;
-  height:15vh;
+  height:auto;
   overflow-y: scroll;
   display:none;
   position: absolute;
-  top: 10vh;
-  left: 9vh;
+  top: 7.5vh;
+  left: 8.1vh;
   z-index:7;
+  padding:5px;
+-webkit-border-bottom-right-radius: 3px;
+-webkit-border-bottom-left-radius: 3px;
+-moz-border-radius-bottomright: 3px;
+-moz-border-radius-bottomleft: 3px;
+border-bottom-right-radius: 3px;
+border-bottom-left-radius: 3px;
 }
 
 .private-chat-box .icon-remove-sign {
   position: absolute;
   top:0;
-  right:0;
+  right:1vh;
   font-size: 1.5em;
   line-height: 1.5em;
   cursor: pointer;
@@ -871,26 +873,28 @@ i.icon-angle-up{
 
 
 #chatButtonWrapper{
-  float: right;
+  float:left;
   height: 100%;
   overflow-y: scroll;
-  position: absolute;
-  right: 1vw;
   top: 0;
-  width: 50%;
 }
 
 #chatButtonWrapper button{
   cursor: pointer;
-  display: inline-block;
   height: 100%;
   margin-bottom: 0;
   overflow: hidden;
   padding: 0;
-  position: relative;
   text-align: center;
   vertical-align: middle;
-  width: 40%;
+  width: auto;
+  display:block;
+  padding: 0 10px;
+  margin:0;
+  border:0;
+  background:#fff;
+  border-right:1px solid #ccc;
+  color:#666;
 }
 
 #publicChat{
@@ -904,26 +908,38 @@ i.icon-angle-up{
   position: relative;
   text-align: center;
   vertical-align: middle;
-  width: 45%;
+  padding:0 10px;
+  border:0;
+  margin:0;
+  background:#fff;
+  border-right:1px solid #ccc;
+  float:left;
+  margin:0;
+  color:#666;
 }
 
 #privateChat{
   cursor: pointer;
   display: inline-block;
-  height: 90%;
+  height: 100%;
   overflow: hidden;
   padding: 0;
   position: relative;
   text-align: center;
   vertical-align: middle;
-  width: 20%;
+  padding:0 5px;
+  border:0;
+  margin:0;
+  background:#fff;
+  float:left;
+  color:#666;
 }
 
 #generalbutton{
   height: 100%;
   left: 0;
   position: absolute;
-  width: 45%;
+  width: 100%;
 }
 
 i{

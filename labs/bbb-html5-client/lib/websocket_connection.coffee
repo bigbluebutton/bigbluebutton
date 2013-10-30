@@ -104,47 +104,61 @@ module.exports = class WebsocketConnection
   _onUserConnected: (socket, msg) ->
     sessionID = fromSocket(socket, "sessionID")
     meetingID = fromSocket(socket, "meetingID")
+    console.log "-=-=-=- USER CONNECTED, CHECK SESSION", sessionID, meetingID
     @redisAction.isValidSession meetingID, sessionID, (err, reply) =>
-      if reply
+      unless reply
+        Logger.error "got invalid session for meeting #{meetingID}, session #{sessionID}"
+      else
         username = fromSocket(socket, "username")
         socketID = socket.id
         socket.join meetingID # join the socket room with value of the meetingID
         socket.join sessionID # join the socket room with value of the sessionID
 
+        Logger.info "got a valid session for meeting #{meetingID}, session #{sessionID}, username is '#{username}'"
+
+        console.log "-=-=-=- JOINED", meetingID, sessionID
+
         # add socket to list of sockets
         @redisAction.getUserProperties meetingID, sessionID, (err, properties) =>
+          console.log "-=-=-=- GOT USER PROPS", properties
           @_publishLoadUsers meetingID, null, =>
+            console.log "-=-=-=- PUBLISHED LOAD USERS"
             @_publishPresenter meetingID
 
           numOfSockets = parseInt(properties.sockets, 10)
           numOfSockets += 1
           @redisStore.hset RedisKeys.getUserString(meetingID, sessionID), "sockets", numOfSockets
-          if (properties.refreshing is "false") and (properties.dupSess is "false")
+          console.log "-=-=-=- NUM OF SOCKETS STORED", numOfSockets
 
-            # all of the next sessions created with this sessionID are duplicates
-            @redisStore.hset RedisKeys.getUserString(meetingID, sessionID), "dupSess", true
-
+          # if the user is not refreshing, it means its the first time he's entering the session
+          # all users should be notified
+          if properties.refreshing is "false"
             @_publishUserJoin meetingID, null, properties.pubID, properties.username, =>
               @_publishPresenter meetingID
-
+          # when refreshing the other users don't have to be notified
           else
             @redisStore.hset RedisKeys.getUserString(meetingID, sessionID), "refreshing", false
-
             @_publishUserJoin meetingID, sessionID, properties.pubID, properties.username, =>
               @_publishPresenter meetingID, sessionID
 
+          console.log "-=-=-=- PUBLISHING MESSAGES AND SLIDES"
           @_publishMessages meetingID, sessionID
           @publishSlides meetingID, sessionID, =>
+
+            console.log "-=-=-=- PUBLISH SLIDES DONE"
 
             # after send 'all_slides' event, we have to load the current slide for new user by
             # getting the current presentation slide url and send the 'changeslide' event
             # @todo currentUrl is not a good name and maybe there's already this info on another key on redis
             @redisStore.get "currentUrl", (err, url) =>
+              console.log "-=-=-=- GOT CURRENT URL"
               if err
                 Logger.error err
               else
+                console.log "-=-=-=- PUBLISHING CHANGESLIDE"
                 @pub.publish meetingID, JSON.stringify(["changeslide", url])
 
+            console.log "-=-=-=- PUBLISHING TOOL, SHAPES AND VIEWBOX"
             @_publishTool(meetingID, sessionID)
             @publishShapes(meetingID, sessionID)
             @publishViewBox(meetingID, sessionID)
@@ -313,9 +327,11 @@ module.exports = class WebsocketConnection
 # Returns a given attribute `attr` registered in the `socket`.
 # @return {string} the value of the attribute requested
 fromSocket = (socket, attr) ->
-  socket.handshake[attr]
+  socket?.handshake?[attr]
 
 # Returns whether the current user is the presenter or not.
 # @return {boolean}
 isCurrentPresenter = (socket, presenterID) ->
-  presenterID is fromSocket(socket, "sessionID")
+  id = fromSocket(socket, "sessionID")
+  id? and presenterID is id
+
