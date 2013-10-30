@@ -9,7 +9,7 @@
     "connect-redis": "1.4.5",
     "connect": "2.8.5",
     "socket.io": "0.9.16",
-    "redis": "0.8.4",
+    "redis": "0.9.0",
     "hiredis": "0.1.15",
     "sanitizer": "0.0.15",
     "hat": "0.0.3",
