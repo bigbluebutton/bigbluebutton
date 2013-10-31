@@ -8,14 +8,10 @@ Utils = require("./utils")
 
 moduleDeps = ["RedisStore"]
 
-# Includes methods to fetch and set values related to meetings in redis. Acts as a bridge
-# between the application and redis.
+# Includes helper methods to work with redis.
 #
 # All callbacks are in the format `method(error, response)`, where `response` is usually the
 # response returned by the method called on redis.
-#
-# @TODO some callbacks are not always called
-# @TODO use standard success/error responses (e.g. sometimes failure returns `null`, sometimes `false`)
 module.exports = class RedisAction
 
   constructor: ->
@@ -62,7 +58,7 @@ module.exports = class RedisAction
         @setIDs meetingID, sessionID, publicID, (err, reply) =>
           failed or= err?
           # TODO: comment what these parameters are used for
-          properties = ["username", username, "meetingID", meetingID, "refreshing", false, "dupSess", false, "sockets", 0, "pubID", publicID]
+          properties = ["username", username, "meetingID", meetingID, "refreshing", false, "sockets", 0, "pubID", publicID]
           @updateUserProperties meetingID, sessionID, properties, (err, reply) ->
             failed or= err?
             callback?(!failed)
@@ -96,23 +92,6 @@ module.exports = class RedisAction
       callback?(err, reply)
     @redisStore.hmset.apply @redisStore, properties
 
-  # Sets the current URL for the current presentation page.
-  #
-  # @param url [string] the URL for the page being set as current
-  # @param callback [Function(err, reply)] called when the URL is set, with the error and reply from redis
-  setCurrentUrl: (url, callback) ->
-    # TODO: "currentUrl" is a bad name for a key, there's probably already a key with the current page
-    @redisStore.set "currentUrl", url, (err, reply) ->
-      registerResponse "setCurrentUrl", err, reply, "setting current page url to #{url}"
-      callback?(err, reply)
-
-  # Called when the application receives a `changeslide` from the server.
-  #
-  # @param url [string] the URL for the slide that will be shown
-  # @param callback [Function(err, reply)] called when the URL is set, with the error and reply from redis
-  onChangeSlide: (url, callback) ->
-    @setCurrentUrl url, callback
-
   # Called when the application receives an `undo` from the server.
   #
   # @param meetingID [string] the ID of the meeting the undo was called on
@@ -120,7 +99,8 @@ module.exports = class RedisAction
   onUndo: (meetingID, callback) ->
     @getCurrentPresentationID meetingID, (err, presentationID) =>
       @getCurrentPageID meetingID, presentationID, (err, pageID) =>
-        @redisStore.rpop RedisKeys.getCurrentShapesString(meetingID, presentationID, pageID), (err, reply) =>
+        currentShape = RedisKeys.getCurrentShapesString(meetingID, presentationID, pageID)
+        @redisStore.rpop currentShape, (err, reply) =>
           callback?(err, reply)
 
   # Called when the application receives a `clrPaper` from the server.
@@ -130,9 +110,8 @@ module.exports = class RedisAction
   onClearPaper: (meetingID, callback) ->
     @getCurrentPresentationID meetingID, (err, presentationID) =>
       @getCurrentPageID meetingID, presentationID, (err, pageID) =>
-        @_getItemIDs meetingID, presentationID, pageID, "currentshapes", (err, itemIDs) =>
-          @_deleteItemList meetingID, presentationID, pageID, "currentshapes", itemIDs, (err, reply) ->
-            emit()
+        @_deleteItemList meetingID, presentationID, pageID, "currentshapes", (err, reply) ->
+          callback?(err, reply)
 
   # Get the session ID (private) of the current presenter.
   #
@@ -293,11 +272,27 @@ module.exports = class RedisAction
   # @param meetingID [string] the ID of the meeting
   # @param presentationID [string] the unique ID of the presentation in the meeting
   # @param callback [Function(err, id)] the callback function to be called when finished
+  #
+  # @todo it doesn't need to receive `presentationID`, it could be taken from `getCurrentPresentationID`
+  # @todo the current page should be the first in the list in redis, but it's not. a new key will be added for it
   getCurrentPageID: (meetingID, presentationID, callback) ->
     # the first element in the pages is always the current page
     @redisStore.lindex RedisKeys.getPagesString(meetingID, presentationID), 0, (err, id) ->
       registerResponse "getCurrentPageID", err, id, "getting current page id for #{meetingID}, #{presentationID}"
       callback?(err, id)
+
+  # Get the path to the current image of a presentation
+  #
+  # @param meetingID [string] the ID of the meeting
+  # @param presentationID [string] the unique ID of the presentation in the meeting
+  # @param callback [Function(err, id)] the callback function to be called when finished
+  # @todo the current image should be the first in the list in redis, but it's not. a new key will be added for it
+  getPathToCurrentImage: (meetingID, callback) ->
+    @getCurrentPresentationID meetingID, (err, presentationID) =>
+      @getCurrentPageID meetingID, presentationID, (err, pageID) =>
+        @getPageImage meetingID, presentationID, pageID, (err, filename) =>
+          path = config.presentationImagePath(meetingID, presentationID, filename)
+          callback?(err, path)
 
   # Set the value of the current viewbox for the meeting
   #
@@ -348,12 +343,6 @@ module.exports = class RedisAction
         @redisStore.hgetall "meeting-" + meetingids[index], f
       else
         callback?(null, [])
-
-
-
-  #
-  # # Private methods
-  #
 
 
   # Returns the function for getting the string of a specific item given the name of
@@ -535,11 +524,6 @@ module.exports = class RedisAction
         @redisStore.del RedisKeys.getCurrentPresentationString(meetingID), (err, reply) ->
           registerResponse "_deletePresentations", err, reply, "deleting current presentatation for #{meetingID}"
           callback?(err, reply)
-
-
-#
-# # Local methods
-#
 
 registerError = (method, err, message="") ->
   Logger.error "error on RedisAction##{method}:", message, err if err?

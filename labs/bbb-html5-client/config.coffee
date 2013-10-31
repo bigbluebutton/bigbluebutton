@@ -7,6 +7,10 @@ config.appName = 'BigBlueButton HTML5 Client'
 config.maxUsernameLength = 30
 config.maxChatLength = 140
 
+# the path in which an image of a presentation is stored
+config.presentationImagePath = (meetingID, presentationID, filename) ->
+  "bigbluebutton/presentation/#{meetingID}/#{meetingID}/#{presentationID}/png/#{filename}"
+
 ## Application configurations
 # TODO: make this a module in config.modules
 config.app = {}

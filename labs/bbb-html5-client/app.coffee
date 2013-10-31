@@ -8,20 +8,19 @@ Logger = require("./lib/logger")
 MainRouter = require("./routes/main_router")
 Modules = require("./lib/modules")
 RedisAction = require("./lib/redis_action")
-RedisBridge = require("./lib/redis_bridge")
+RedisPublisher = require("./lib/redis_publisher")
+RedisWebsocketBridge = require("./lib/redis_websocket_bridge")
 Utils = require("./lib/utils")
-WebsocketConnection = require("./lib/websocket_connection")
-
 
 # Module to store the modules registered in the application
 config.modules = modules = new Modules()
 
-# TODO: there's a lot of objects to deal with redis, it would probably be a lot better to have just
-#   one object that uses the others internally, so only one would be a global module, the rest can
-#   be local instance variables.
 config.modules.register "RedisAction", new RedisAction()
+config.modules.register "RedisPublisher", new RedisPublisher()
+
+# @todo This is only as a module because this app still changes data on redis, but it shouldn't.
+#   When this is fixed, redisStore can probably become an internal variable in RedisAction.
 config.modules.register "RedisStore", redis.createClient()
-config.modules.register "RedisPublisher", redis.createClient()
 
 # The application, exported in this module
 app = config.modules.register "App", express.createServer()
@@ -83,7 +82,5 @@ io.configure ->
           handshakeData.meetingID = properties.meetingID
           callback(null, true) # good authorization
 
-# WebsocketConnection instance used to talk to all clients connected via websocket.
-config.modules.register "WebsocketConnection", new WebsocketConnection(io)
-
-config.modules.register "RedisBridge", new RedisBridge(io)
+# Bridge used to interact between redis and socket clients
+config.modules.register "RedisWebsocketBridge", new RedisWebsocketBridge(io)
