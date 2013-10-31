@@ -4,10 +4,15 @@ html
     block head
       title= title
       meta(name="viewport", content="width=device-width, initial-scale=1.0")
-      link(rel="stylesheet", href="css/jquery-ui-1.9.2.custom.min.css")
-      link(rel="stylesheet", href="css/reset.css")
-      link(rel="stylesheet", href="css/font-awesome.css")
-      link(rel="stylesheet", href="css/layout.css")      
+      link(rel="stylesheet", href="vendor/css/jquery-ui-1.9.2.custom.min.css")
+      link(rel="stylesheet", href="vendor/css/reset.css")
+      - if (h_environment == "development")
+        link(rel="stylesheet", href="vendor/css/font-awesome.css")
+        link(rel="stylesheet", href="vendor/css/bootstrap.css")
+      - else
+        link(rel="stylesheet", href="vendor/css/font-awesome.min.css")
+        link(rel="stylesheet", href="vendor/css/bootstrap.min.css")
+      != css('layout')
 
   body
     block content
@@ -34,6 +39,8 @@ html
   script(src='http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js')
   script(src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js')
   - if (h_environment == "development")
+    script(src='/vendor/js/bootstrap.js')
     script(src='/js/main.js')
   - else
+    script(src='/vendor/js/bootstrap.min.js')
     script(src='/js/main-dist.js')
