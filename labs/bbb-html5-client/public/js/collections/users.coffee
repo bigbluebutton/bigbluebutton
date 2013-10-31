@@ -27,31 +27,28 @@ define [
         globals.events.trigger("users:user_list_change", users)
 
       globals.events.on "connection:load_users", (users) =>
-        for userBlock in users        
+        for userBlock in users
           @add [
             id : userBlock.id
             userid: userBlock.id
             username: userBlock.name
           ]
         globals.events.trigger("users:load_users", users)
-        globals.events.trigger("privatechat:load_users", users)
-        
+
       globals.events.on "connection:user_join", (userid, username) =>
         @add [
           id : userid
           userid: userid
           username: username
-        ]    
+        ]
         globals.events.trigger("users:user_join", userid, username)
-        globals.events.trigger("privatechat:user_join", userid, username)
-        
+
       globals.events.on "connection:user_leave", (userid) =>
         toDel = @get(userid)
         @remove(toDel)
         globals.events.trigger("users:user_leave", userid)
-        globals.events.trigger("privatechat:user_leave", userid)
 
-      globals.events.on "connection:setPresenter", (userid) =>      
+      globals.events.on "connection:setPresenter", (userid) =>
         globals.events.trigger("users:setPresenter", userid)
 
   UsersCollection

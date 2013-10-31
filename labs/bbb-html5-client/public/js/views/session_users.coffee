@@ -19,7 +19,7 @@ define [
       "click .user": "_userClicked"
 
     initialize: ->
-      @userListID = "#session-users"
+      @userListID = "#user-list"
       @model.start()
 
       # Bind to the event triggered when the client connects to the server
