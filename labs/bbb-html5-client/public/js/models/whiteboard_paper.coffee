@@ -64,7 +64,7 @@ define [
         globals.events.on "connection:connected", =>
           @_registerEvents()
 
-      
+
 
     # Override the close() to unbind events.
     unbindEvents: ->
@@ -93,7 +93,7 @@ define [
         @raphaelObj.renderfix()
 
       #initializing boarder around slide to cover up areas which shouldnt show
-      
+
       @boarderLeft = @raphaelObj.rect(0, 0, 0, 0 );
       @boarderRight = @raphaelObj.rect(0, 0, 0, 0 );
 
@@ -102,19 +102,19 @@ define [
 
       @boarderLeft.attr("fill", "#ababab");
       @boarderLeft.attr( {stroke:"#ababab"} )
-      
+
 
       @boarderRight.attr("fill", "#ababab");
       @boarderRight.attr( {stroke:"#ababab"} )
-      
+
 
       @boarderTop.attr("fill", "#ababab");
       @boarderTop.attr( {stroke:"#ababab"} )
-      
+
 
       @boarderBottom.attr("fill", "#ababab");
       @boarderBottom.attr( {stroke:"#ababab"} )
-      
+
 
     # Re-add the images to the paper that are found
     # in the slides array (an object of urls and dimensions).
@@ -431,7 +431,7 @@ define [
 
       #if the slide is zoomed in then move the cursor based on where the viewBox is looking
       if @viewBoxXpos? && @viewBoxYPos?  && @viewBoxWidth? && @viewBoxHeight?
-        @cursor.setPosition( @viewBoxXpos + x * @viewBoxWidth, @viewBoxYPos + y * @viewBoxHeight ) 
+        @cursor.setPosition( @viewBoxXpos + x * @viewBoxWidth, @viewBoxYPos + y * @viewBoxHeight )
 
     # Update the slide to move and zoom
     # @param  {number} xOffset the x value of offset
@@ -453,7 +453,7 @@ define [
 
 
       #get the actual size of the slide, depending on the limiting factor (container width or container height)
-      
+
       actualWidth = @currentSlide.displayWidth
       actualHeight = @currentSlide.displayHeight
       #console.log("actualWidth:" + actualWidth + " actualHeight: " + actualHeight)
@@ -474,11 +474,11 @@ define [
       #set parameters to raphael viewbox
       @raphaelObj.setViewBox(newXPos , newyPos,  newWidth , newHeight , true);
 
-      
+
       #update the rectangle elements which create the boarder when page is zoomed
 
       @boarderLeft.attr( {width:newXPos, height: @containerHeight} )
-      
+
       @boarderRight.attr(
         x: newXPos + newWidth
         y: 0
@@ -486,7 +486,7 @@ define [
         height:@containerHeight
       )
 
-      
+
       @boarderTop.attr(
         width: @containerWidth
         height: newyPos
@@ -511,9 +511,6 @@ define [
 
     # Registers listeners for events in the gloval event bus
     _registerEvents: ->
-
-      globals.events.on "whiteboard:reposition", =>
-        $(window).trigger('resize');
 
       globals.events.on "connection:all_slides", (urls) =>
         @removeAllImagesFromPaper()
@@ -713,7 +710,7 @@ define [
         actualHeight = @containerWidth * slideHeight / slideWidth
         actualWidth = @containerWidth
       else
-        actualWidth = @containerHeight * slideWidth / slideHeight 
+        actualWidth = @containerHeight * slideWidth / slideHeight
         actualHeight = @containerHeight
 
       #console.log("actualWidth:" + actualWidth + " actualHeight: " + actualHeight)
@@ -721,9 +718,9 @@ define [
       #calculate parameters to pass
       newXPos = baseWidth
       newyPos = baseHeight
-      newWidth = actualWidth  
-      newHeight = actualHeight 
-      
+      newWidth = actualWidth
+      newHeight = actualHeight
+
       #now the zooming will still be correct when the window is resized
       #and hopefully when rotated on a mobile device
       if @globalxOffset? && @globalyOffset? && @globalwidthRatio? && @globalheightRatio?
@@ -731,7 +728,7 @@ define [
         @moveAndZoom(@globalxOffset, @globalyOffset, @globalwidthRatio, @globalheightRatio)
 
       else
-        obj = 
+        obj =
           globalxOffset : @globalxOffset
           globalyOffset : @globalyOffset
           globalwidthRatio : @globalwidthRatio
@@ -741,7 +738,7 @@ define [
         console.log "not zoomed"
         @raphaelObj.setViewBox(newXPos, newyPos, newWidth, newHeight,true)
 
-      
+
 
 
     # when pressing down on a key at anytime

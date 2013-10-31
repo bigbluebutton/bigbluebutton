@@ -8,8 +8,8 @@ define [
   # Used to control the current active view (i.e. the current
   # "page" being seen by the user).
   AppView = Backbone.View.extend
-    el: $('#container')
- 
+    el: $('#session-container')
+
     initialize: ->
       @currentView = null
 

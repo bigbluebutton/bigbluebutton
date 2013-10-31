@@ -5,28 +5,27 @@ define [
   'globals',
   'text!templates/session.html',
   'cs!views/session_navbar',
+  'cs!views/session_navbar_hidden',
   'cs!views/session_chat',
   'cs!views/session_users',
   'cs!views/session_video'
   'cs!views/session_whiteboard'
-  
-], ($, _, Backbone, globals, sessionTemplate, SessionNavbarView,
-    SessionChatView, SessionUsersView, SessionVideoView,
-    SessionWhiteboardView) ->
+], ($, _, Backbone, globals, sessionTemplate, SessionNavbarView, SessionNavbarHiddenView,
+    SessionChatView, SessionUsersView, SessionVideoView, SessionWhiteboardView) ->
 
   SessionView = Backbone.View.extend
+    tagName: 'section'
     id: 'session-view'
-    # className: 'users-enabled' # to start with #users opened
-    events:
-      "click #hide-menu-btn": "_showMenuBar"
-      
+
     initialize: ->
       @navbarView = new SessionNavbarView()
       @navbarView.$parentEl = @$el
+      @navbarHiddenView = new SessionNavbarHiddenView()
+      @navbarHiddenView.$parentEl = @$el
       @chatView = new SessionChatView()
       @usersView = new SessionUsersView()
       @videoView = new SessionVideoView()
-      @whiteboardView = new SessionWhiteboardView()  
+      @whiteboardView = new SessionWhiteboardView()
 
     # Override the close() method so we can close the sub-views.
     close: ->
@@ -40,27 +39,16 @@ define [
       compiledTemplate = _.template(sessionTemplate)
       @$el.html compiledTemplate
 
-      # TODO: temporary adaptation for iPads
-      @$el.addClass("chat-enabled")
       @assign(@navbarView, "#navbar")
+      @assign(@navbarHiddenView, "#navbar-hidden")
       @assign(@chatView, "#chat")
       @assign(@usersView, "#users")
       @assign(@videoView, "#video")
-      @assign(@whiteboardView, "#whiteboard") 
-         
+      @assign(@whiteboardView, "#whiteboard")
+
+      @$el.addClass('navbar-on') # navbar starts visible
+
       # Connect to the server
       globals.connection.connect()
-      
-    _showMenuBar: ->
-      chatdisplay = $("#chat").css('display')
-      $("#hide-menu-btn").hide()
-      $("#navbar").show()
-      $(".navbar-btngroup-left").show()
-      $(".navbar-btngroup-right").show()
-      $("#chat").css "top",'6vh' if chatdisplay is 'block'
-      $("#whiteboard").css "top",'6vh'
-      if chatdisplay is 'block'
-        $("#whiteboard").css "width",'77%'
-      globals.events.trigger("whiteboard:reposition")
 
   SessionView

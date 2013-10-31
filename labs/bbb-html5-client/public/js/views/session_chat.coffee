@@ -27,12 +27,12 @@ define [
       "click #chat-options-bar button":"_hideAllOtherChatBox"
       "click #nxt":"_scrollUptButton"
       "click #prv":"_scrollDowntButton"
-     
+
     initialize: ->
       @chatInputID = "#chat-input-box"
       @msgBoxID = "#chat-messages"
       @chatListID = "#all-users-list"
-      @model.start() 
+      @model.start()
 
       # Bind to the event triggered when the client connects to the server
       if globals.connection.isConnected()
@@ -59,31 +59,31 @@ define [
         for msgBlock in messages
           @_addChatMessage(msgBlock.username, msgBlock.message)
         @_scrollToBottom()
-        
+
       globals.events.on "privatechat:user_leave", (userid) =>
         childid = "#user-" + userid + "-private"
         $(childid).remove()
-      
+
       globals.events.on "privatechat:user_join", (userid, username) =>
-          data = 
-            userID: userid
-            username: username
-          compiledTemplate = _.template(chatList, data) 
-          childid = "#user-" + userid + "-private"
-          @$(@chatListID).append compiledTemplate
-          @$(childid).addClass "clickable"
-          
+        data =
+          userID: userid
+          username: username
+        compiledTemplate = _.template(chatList, data)
+        childid = "#user-" + userid + "-private"
+        @$(@chatListID).append compiledTemplate
+        @$(childid).addClass "clickable"
+
       globals.events.on "privatechat:load_users", (users) =>
         @$(@chatListID).html ""
-        for userBlock in users        
-          data = 
+        for userBlock in users
+          data =
             userID: userBlock.id
             username: userBlock.name
           compiledTemplate = _.template(chatList, data)
           childid = "#user-" + userBlock.id + "-private"
           @$(@chatListID).append compiledTemplate
           @$(childid).addClass "clickable"
-          
+
       # TODO: for now these messages are only being shown in the chat, maybe
       #       they should have their own view and do more stuff
       #       (e.g. disable the interface when disconnected)
@@ -124,10 +124,10 @@ define [
     _inputKeyPressed: (e) ->
       # Send message when the enter key is pressed
       @_sendMessage() if e.keyCode is 13
-      
+
     _toggleUserList: ->
       @$(@chatListID).toggle()
-      
+
     _chooseUser:(e)->
       @$(@chatListID).css "display","none"
       $target = $(e.target)
@@ -138,24 +138,24 @@ define [
       $("#chat-messages").hide()
       $("#chat").append(chatBoxTemplate)
 
-        
+
     _hideAllOtherChatBox:(e)->
       $target = $(e.target)
       username = $target.html()
       $(".private-chat-box").hide()
       $("."+username).show()
-          
-    _closePrivateChat:(e)->  
+
+    _closePrivateChat:(e)->
       $target = $(e.target)
       username = $target.parent('div').attr('class').split(' ')
       id = username[1]
       $('#'+id).remove()
       $target.parent('div').remove()
-      
+
     _togglePublicChat:(e)->
       $(".private-chat-box").hide()
       $("#chat-messages").show()
-      
+
     _scrollUptButton:(e)->
       currentPosition = $("#chatButtonWrapper").scrollTop()
       scrollAmount = $("#chatButtonWrapper").height();
@@ -165,7 +165,7 @@ define [
       currentPosition = $("#chatButtonWrapper").scrollTop()
       scrollAmount = $("#chatButtonWrapper").height();
       $("#chatButtonWrapper").scrollTop(currentPosition - scrollAmount)
-      
+
     # TODO: limit/show length of text in chatbox
     # $("#chat-input-box").on "keyup", (e) ->
     #   count = $(this).attr("maxlength")

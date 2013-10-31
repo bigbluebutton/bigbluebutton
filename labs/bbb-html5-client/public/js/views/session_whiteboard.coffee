@@ -6,11 +6,10 @@ define [
   'globals',
   'cs!models/whiteboard_paper',
   'cs!views/session_whiteboard_controls',
-  'text!templates/preupload_image.html',
   'text!templates/session_whiteboard.html',
   'colorwheel'
-], ($, _, Backbone, Raphael, globals, WhiteboardPaperModel, SessionWhiteboardControlsView,
-    preuploadImageTemplate, sessionWhiteboardTemplate) ->
+], ($, _, Backbone, Raphael, globals, WhiteboardPaperModel,
+    SessionWhiteboardControlsView, sessionWhiteboardTemplate) ->
 
   # TODO: this is being used for presentation and whiteboard, maybe they could be separated
 
@@ -23,7 +22,7 @@ define [
   SessionWhiteboardView = Backbone.View.extend
     events:
       "click #colour-view": "_toggleColorPicker"
-      
+
     initialize: ->
       @paper = null
       @controlsView = new SessionWhiteboardControlsView()
@@ -48,7 +47,7 @@ define [
     render: ->
       compiledTemplate = _.template(sessionWhiteboardTemplate)
       @$el.html compiledTemplate
-    
+
       # subview with whiteboard controls
       @assign(@controlsView, "#slide-controls")
 
@@ -70,7 +69,6 @@ define [
       @_drawThicknessView(DEFAULT_THICKNESS, DEFAULT_COLOUR)
       @_drawColourView(DEFAULT_COLOUR)
 
-      
     _createColourPicker: ->
       unless @colourPicker
         @$("#colour-picker").hide()
@@ -80,17 +78,13 @@ define [
           @_drawThicknessView(null, color.hex)
           @_drawColourView(color.hex)
         @colourPicker.color DEFAULT_COLOUR
-        
+
     _createPaper: ->
       # have to create the paper here, in the initializer #slide doesn't exist yet
       container = @$("#slide")[0]
       textbox = @$("#slide-current-text-area")[0]
       @paper ?= new WhiteboardPaperModel(container, textbox)
       @paper.create()
-
-      # events triggered when an image is added or removed from the paper
-      @paper.bind "paper:image:added", @_addPreloadImage, this
-      @paper.bind "paper:image:removed", @_removePreloadImage, this
 
     # Registers listeners for events in the gloval event bus
     _registerEvents: ->
@@ -99,18 +93,6 @@ define [
         @controlsView.clearUploadStatus()
         # to make sure the paper will ocuupy all available area
         @_setPaperSize()
-      
-      #Listen to a reposition event when user click 'chat', or 'video' button
-      #Always center the image according to the whiteboard width changes
-      globals.events.on "whiteboard:reposition",=> 
-        whiteboardWidth = $("#whiteboard").width()
-        $("#slide").width(whiteboardWidth)
-        svg = document.getElementsByTagName('svg')[0]
-        img = svg.getElementsByTagName('image')[0]
-        imgWidth=img.getAttribute('width')
-        width = ($("#whiteboard").width()-imgWidth)/2
-        $("#slide image").attr("x",width)
-
 
     # Toggles the visibility of the colour picker, which is hidden by
     # default. The picker is a RaphaelJS object, so each node of the object
@@ -123,21 +105,6 @@ define [
 
       # TODO: to use the event to test other things
       # @controlsView.setUploadStatus "msg", true
-
-    _addPreloadImage: (img) ->
-      customSrc = img.attr("src")
-      customSrc = customSrc.replace(":3000", "") # TODO: temporary
-      console.log "adding preload image", customSrc
-      data =
-        img:
-          id: img.id
-          url: customSrc
-      compiledTemplate = _.template(preuploadImageTemplate, data)
-      @$("#slide").append compiledTemplate
-
-    _removePreloadImage: (imgID) ->
-      console.log "removing preload image", imgID
-      $("#preload-" + imgID).remove()
 
     # Drawing the thickness viewer for client feedback.
     # No messages are sent to the server, it is completely
@@ -166,6 +133,6 @@ define [
 
     _setPaperSize: () ->
       @paper.changeSize(@$el.width(), @$el.height(), true, false)
-      
+
 
    SessionWhiteboardView
