@@ -9,6 +9,8 @@ define [
   # The navbar in a session
   # The contents are rendered by SessionView, this class is Used to
   # manage the events in the navbar.
+  # @todo it triggers window.resize() in several methods so the svg inside the presentation is
+  #   redraw properly, but this should be more dynamic in the future
   SessionNavbarView = Backbone.View.extend
     events:
       "click #hide-menu-btn": "_hideMenu"
@@ -35,17 +37,17 @@ define [
 
     # Toggle the visibility of the chat panel
     _toggleChat: ->
+      @_scheduleResize('#chat') # has to be the first method called!
       @$parentEl.toggleClass('chat-on')
       @_setToggleButtonsStatus()
-      #$(window).resize()
 
     # Toggle the visibility of the users panel
     _toggleUsers: ->
       @$parentEl.toggleClass('users-on')
       @_setToggleButtonsStatus()
-      #$(window).resize()
 
     _toggleVideo: ->
+      @_scheduleResize('#video') # has to be the first method called!
       @$parentEl.toggleClass('video-on')
       @_setToggleButtonsStatus()
 
@@ -56,6 +58,21 @@ define [
     _hideMenu: ->
       @$parentEl.removeClass('navbar-on')
       @_setToggleButtonsStatus()
+
+    # Waits for an element with id `id` to be displayed or hidden in the page.
+    # Hackishy way to update the size of the presentation when a section of the page
+    # is made visible or hidden.
+    _scheduleResize: (id) ->
+      attempts = 0
+      before = $(id).is(':visible')
+      interval = setInterval( ->
+        if $(id).is(':visible') != before or attempts > 20
+          attempts += 1
+          clearInterval(interval)
+          # @todo why do we have to do it twice? doing only once doesn't work as expected!
+          $(window).resize()
+          $(window).resize()
+      , 100)
 
     # Log out of the session
     _logout: ->
