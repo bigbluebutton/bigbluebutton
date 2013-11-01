@@ -1,3 +1,5 @@
+@import "elements.less";
+
 html,body,#container, #session-view, #layout{
   width: 100%;
   height: 100%;
@@ -839,10 +841,7 @@ i{
   min-height: 0.75cm;
   background: #333;
 
-  background: -moz-linear-gradient(top, #494c56, #42444c);
-  background: -webkit-linear-gradient(top, #494c56, #42444c);
-  background: -ms-linear-gradient(top,#494c56, #42444c);
-  background: -o-linear-gradient(top, #494c56, #42444c);
+  .gradient(#42444c, #42444c, #494c56);
 
   border-left: none;
   border-right: none;
