@@ -1,22 +1,22 @@
 #presentation-wrapper {
   // starts full size
   width: 100%;
+  top: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
 }
 
 #whiteboard {
   position: relative;
   background: #ddd;
-  top: 6vh;
-  left: -1px;
   width: auto;
-  bottom: 2vh;
   z-index: @z-index-presentation;
   border-top: none;
   border-bottom: none;
-  vertical-align: middle;
   text-align: center;
-  overflow: hidden;
-  height:88vh;
+  vertical-align: middle;
+  height: @whiteboard-height;
 }
 
 #slide {

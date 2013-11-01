@@ -37,9 +37,9 @@ define [
 
     # Toggle the visibility of the chat panel
     _toggleChat: ->
+      @_scheduleResize('#chat') # has to be the first method called!
       @$parentEl.toggleClass('chat-on')
       @_setToggleButtonsStatus()
-      $(window).resize()
 
     # Toggle the visibility of the users panel
     _toggleUsers: ->
@@ -47,9 +47,9 @@ define [
       @_setToggleButtonsStatus()
 
     _toggleVideo: ->
+      @_scheduleResize('#video') # has to be the first method called!
       @$parentEl.toggleClass('video-on')
       @_setToggleButtonsStatus()
-      $(window).resize()
 
     _toggleAudio: ->
       @$parentEl.toggleClass('audio-on')
@@ -58,7 +58,21 @@ define [
     _hideMenu: ->
       @$parentEl.removeClass('navbar-on')
       @_setToggleButtonsStatus()
-      $(window).resize()
+
+    # Waits for an element with id `id` to be displayed or hidden in the page.
+    # Hackishy way to update the size of the presentation when a section of the page
+    # is made visible or hidden.
+    _scheduleResize: (id) ->
+      attempts = 0
+      before = $(id).is(':visible')
+      interval = setInterval( ->
+        if $(id).is(':visible') != before or attempts > 20
+          attempts += 1
+          clearInterval(interval)
+          # @todo why do we have to do it twice? doing only once doesn't work as expected!
+          $(window).resize()
+          $(window).resize()
+      , 100)
 
     # Log out of the session
     _logout: ->

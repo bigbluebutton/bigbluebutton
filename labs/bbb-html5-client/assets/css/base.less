@@ -3,24 +3,34 @@ html, body {
   height: 100%;
 }
 
+body {
+  overflow: hidden;
+  font: @font-face;
+  color: @text-color;
+  background: @background-color;
+}
+
+// reduce the presentation area and position it when the sidebar is shown
+.sidebar-on {
+  #presentation-wrapper {
+    width: 75%;
+    top: 6vh;
+  }
+}
+
 #session-view {
   width: 100%;
   height: 100%;
 
-
   &.chat-on {
-    #presentation-wrapper {
-      width: 75%;
-    }
+    .sidebar-on;
     #chat {
       display: block;
     }
   }
 
   &.video-on {
-    #presentation-wrapper {
-      width: 75%;
-    }
+    .sidebar-on;
     #video {
       display: block;
     }
@@ -28,6 +38,12 @@ html, body {
 
   &.users-on {
     #users {
+      display: block;
+    }
+  }
+
+  &.navbar-on {
+    #navbar {
       display: block;
     }
   }
