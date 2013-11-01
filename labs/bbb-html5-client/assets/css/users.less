@@ -1,7 +1,7 @@
 #users {
-	z-index: 11;
+	display: none;
+	z-index: @z-index-users;
 	border: 3px solid #33343b;
-	/* display: none; */
 	position: absolute;
 	left: 0;
 	top: 6vh;
@@ -10,10 +10,5 @@
 	overflow: scroll;
 	resize:both;
 	min-width: 16.5vw;
-	-webkit-border-bottom-right-radius: 5px;
-	-webkit-border-bottom-left-radius: 5px;
-	-moz-border-radius-bottomright: 5px;
-	-moz-border-radius-bottomleft: 5px;
-	border-bottom-right-radius: 5px;
-	border-bottom-left-radius: 5px;
+  .border-radius(0, 5px, 5px, 0);
 }

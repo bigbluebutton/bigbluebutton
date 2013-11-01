@@ -9,6 +9,8 @@ define [
   # The navbar in a session
   # The contents are rendered by SessionView, this class is Used to
   # manage the events in the navbar.
+  # @todo it triggers window.resize() in several methods so the svg inside the presentation is
+  #   redraw properly, but this should be more dynamic in the future
   SessionNavbarView = Backbone.View.extend
     events:
       "click #hide-menu-btn": "_hideMenu"
@@ -37,17 +39,17 @@ define [
     _toggleChat: ->
       @$parentEl.toggleClass('chat-on')
       @_setToggleButtonsStatus()
-      #$(window).resize()
+      $(window).resize()
 
     # Toggle the visibility of the users panel
     _toggleUsers: ->
       @$parentEl.toggleClass('users-on')
       @_setToggleButtonsStatus()
-      #$(window).resize()
 
     _toggleVideo: ->
       @$parentEl.toggleClass('video-on')
       @_setToggleButtonsStatus()
+      $(window).resize()
 
     _toggleAudio: ->
       @$parentEl.toggleClass('audio-on')
@@ -56,6 +58,7 @@ define [
     _hideMenu: ->
       @$parentEl.removeClass('navbar-on')
       @_setToggleButtonsStatus()
+      $(window).resize()
 
     # Log out of the session
     _logout: ->

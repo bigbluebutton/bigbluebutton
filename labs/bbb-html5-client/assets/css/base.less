@@ -1,3 +1,38 @@
+html, body {
+  width: 100%;
+  height: 100%;
+}
+
+#session-view {
+  width: 100%;
+  height: 100%;
+
+
+  &.chat-on {
+    #presentation-wrapper {
+      width: 75%;
+    }
+    #chat {
+      display: block;
+    }
+  }
+
+  &.video-on {
+    #presentation-wrapper {
+      width: 75%;
+    }
+    #video {
+      display: block;
+    }
+  }
+
+  &.users-on {
+    #users {
+      display: block;
+    }
+  }
+}
+
 /* Right Sidebar
 ***********************************/
 #sidebar-right {
