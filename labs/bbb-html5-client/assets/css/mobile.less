@@ -23,6 +23,20 @@
     left: 0;
   }
 
+  // when users is small, bootstrap will show the columns one below the other,
+  // so we have to make them float again and set their width to the ones used by bootstrap.
+  #users {
+    .col-md-1, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-md-10, .col-md-11 {
+      float: left;
+    }
+    .col-md-1 {
+      width: 8.333333333333332%;
+    }
+    .col-md-5 {
+      width: 41.66666666666667%;
+    }
+  }
+
   #session-view {
     // common layout for when chat OR video is on
     &.chat-on, &.video-on {
@@ -73,4 +87,39 @@
 /* Landscape phones and down */
 @media (max-width: 480px) {
   .all-mobiles;
+
+  #users, #video, #chat {
+    width: 100%;
+    height: 94vh;
+    border: 0;
+    resize: none;
+  }
+
+  #session-view {
+    &.chat-on #chat {
+      position: fixed;
+      top: 6vh;
+      left: 0;
+      width: 100%;
+      height: 94vh;
+    }
+
+    &.video-on #video {
+      position: fixed;
+      top: 6vh;
+      left: 0;
+      width: 100%;
+      height: 94vh;
+    }
+
+    // to override styles set above
+    &.chat-on.video-on {
+      #video {
+        width: 100%;
+      }
+      #chat {
+        width: 100%;
+      }
+    }
+  }
 }
