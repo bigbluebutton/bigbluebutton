@@ -5,9 +5,8 @@ define [
   'globals',
   'cs!collections/users',
   'text!templates/session_users.html',
-  'text!templates/user.html',
-  'text!templates/users_table.html'
-], ($, _, Backbone, globals, UserCollection, sessionUsersTemplate, userTemplate,tableTemplate) ->
+  'text!templates/user.html'
+], ($, _, Backbone, globals, UserCollection, sessionUsersTemplate, userTemplate) ->
 
   # The users panel in a session
   # The contents are rendered by SessionView, this class is Used to
@@ -20,9 +19,8 @@ define [
       "click .user": "_userClicked"
 
     initialize: ->
-      @userListID = "#current-users"
+      @userListID = "#user-list"
       @model.start()
-
 
       # Bind to the event triggered when the client connects to the server
       if globals.connection.isConnected()
@@ -46,19 +44,13 @@ define [
 
       globals.events.on "users:load_users", (users) =>
         @_removeAllUsers()
-        compiledTemplate = _.template(tableTemplate)
-        @$(@userListID).append compiledTemplate
         for userBlock in users
           @_addUser(userBlock.id, userBlock.name)
 
       globals.events.on "users:user_join", (userid, username) =>
-        #@_removeAllUsers()
-        #for userBlock in users
         @_addUser(userid, username)
 
       globals.events.on "users:user_leave", (userid) =>
-        #@_removeAllUsers()
-        #for userBlock in users
         @_removeUserByID(userid)
 
       globals.events.on "users:setPresenter", (userid) =>
@@ -78,10 +70,8 @@ define [
         username: username
         userID: userID
       compiledTemplate = _.template(userTemplate, data)
-      #@$(@userListID).append compiledTemplate
-      $('#usertable').append compiledTemplate
-      
-      
+      @$el.children("ul").append compiledTemplate
+
     # Marks a user as selected when clicked.
     _userClicked: (e) ->
       @$('.user.selected').removeClass('selected')
@@ -102,6 +92,6 @@ define [
     _setPresenter: (userID) ->
       @$(".user.presenter").removeClass "presenter"
       @$("#user-#{userID}").addClass "presenter"
-        
-      
+
+
   SessionUsersView

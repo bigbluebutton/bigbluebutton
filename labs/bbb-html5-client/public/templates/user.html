@@ -1,9 +1,7 @@
-<tr>
-    <td class='user clickable' id="user-<%= userID %>"></td>
-    <td><strong><%= username %></strong></td>
-    <td>
-        <i style="padding-right: 10%" class="icon-facetime-video"></i>
-        <i style="padding-right: 10%" class="icon-microphone"></i>
-        <i  class="icon-remove-sign"></i>
-    </td>
-</tr>
+<li class="user-wrapper">
+  <div class="user-role" id="user-<%= userID %>"><i class="icon fa fa-user"></i></div>
+  <div class="user-name"><%= username %></div>
+  <div class="user-video"><i class="icon fa fa-video-camera"></i></div>
+  <div class="user-audio"><i class="icon fa fa-microphone"></i></div>
+  <div class="user-kick"><i class="icon fa fa-sign-out"></i></div>
+</li>

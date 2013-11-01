@@ -5,11 +5,12 @@ define [
   'globals',
   'cs!models/chat',
   'text!templates/session_chat.html',
-  'text!templates/chatlist.html',
+  'text!templates/chat_user_list_item.html',
   'text!templates/chat_message.html',
-  'text!templates/privateChatButton.html',
-  'text!templates/privateChatBox.html'
-], ($, _, Backbone, globals,ChatModel,sessionChatTemplate, chatList,chatMessageTemplate,privateChatButton,privateChatBox) ->
+  'text!templates/chat_private_tab.html',
+  'text!templates/chat_private_box.html'
+], ($, _, Backbone, globals,ChatModel,sessionChatTemplate, chatUserListItem,
+  chatMessageTemplate, privateChatTab, privateChatBox) ->
 
   # The chat panel in a session
   # The contents are rendered by SessionView, this class is Used to
@@ -18,35 +19,35 @@ define [
     model: new ChatModel()
 
     events:
-      "click button#chat-send": "_sendMessage"
+      "click button#chat-send-btn": "_sendMessage"
       "keyup #chat-input-box": "_inputKeyPressed"
-      "click #privateChat": "_toggleUserList"
-      "click p.clickable":"_chooseUser"
-      "click i.icon-remove-sign":"_closePrivateChat"
-      "click #publicChat":"_togglePublicChat"
-      "click #chat-options-bar button":"_hideAllOtherChatBox"
-      "click #nxt":"_scrollUptButton"
-      "click #prv":"_scrollDowntButton"
-     
+      "click .chat-user-list-item":"_startPrivateChat"
+      "click #chat-general-btn":"_selectPublicChat"
+      "click .chat-private-btn":"_selectPrivateChat"
+
     initialize: ->
-      @chatInputID = "#chat-input-box"
-      @msgBoxID = "#chat-messages"
-      @chatListID = "#all-users-list"
-      @model.start() 
+      # save a few IDs for easier access
+      @inputBoxID = "#chat-input-box"
+      @publicBoxID = "#chat-public-box"
+      @userListID = "#chat-user-list"
+      @privateTabsIDs = "#chat-private-tabs"
+      @messageBoxesContainerID = "#chat-messages"
+
+      @model.start()
 
       # Bind to the event triggered when the client connects to the server
       if globals.connection.isConnected()
         @_registerEvents()
+        @_addWelcomeMessage()
 
       else
         globals.events.on "connection:connected", =>
           @_registerEvents()
+          @_addWelcomeMessage()
 
     render: ->
-      data = { auth: globals.currentAuth }
-      compiledTemplate = _.template(sessionChatTemplate, data)
+      compiledTemplate = _.template(sessionChatTemplate)
       @$el.html compiledTemplate
-
 
     # Registers listeners for events in the application socket.
     _registerEvents: ->
@@ -59,31 +60,18 @@ define [
         for msgBlock in messages
           @_addChatMessage(msgBlock.username, msgBlock.message)
         @_scrollToBottom()
-        
-      globals.events.on "privatechat:user_leave", (userid) =>
-        childid = "#user-" + userid + "-private"
-        $(childid).remove()
-      
-      globals.events.on "privatechat:user_join", (userid, username) =>
-          data = 
-            userID: userid
-            username: username
-          compiledTemplate = _.template(chatList, data) 
-          childid = "#user-" + userid + "-private"
-          @$(@chatListID).append compiledTemplate
-          @$(childid).addClass "clickable"
-          
-      globals.events.on "privatechat:load_users", (users) =>
-        @$(@chatListID).html ""
-        for userBlock in users        
-          data = 
-            userID: userBlock.id
-            username: userBlock.name
-          compiledTemplate = _.template(chatList, data)
-          childid = "#user-" + userBlock.id + "-private"
-          @$(@chatListID).append compiledTemplate
-          @$(childid).addClass "clickable"
-          
+
+      globals.events.on "users:user_leave", (userid) =>
+        @_removeUserFromChatList(userid, username)
+
+      globals.events.on "users:user_join", (userid, username) =>
+        @_addUserToChatList(userid, username)
+
+      globals.events.on "users:load_users", (users) =>
+        @$(@userListID).clear()
+        for user in users
+          @_addUserToChatList(user.id, user.name)
+
       # TODO: for now these messages are only being shown in the chat, maybe
       #       they should have their own view and do more stuff
       #       (e.g. disable the interface when disconnected)
@@ -98,76 +86,113 @@ define [
       globals.events.on "connection:reconnect_failed", =>
         @_addChatMessage("system", "Reconnect failed!")
 
-    # Send a chat message
-    _sendMessage: ->
-      $chatInput = @$(@chatInputID)
-      msg = $chatInput.val()
-      if msg? and msg.trim() isnt ""
-        globals.connection.emitMsg msg
-        $chatInput.val("")
-      $chatInput.focus()
-
     # Add a message to the screen and scroll the chat area to bottom
     _addChatMessage: (username, message) ->
       data =
         username: username
         message: message
       compiledTemplate = _.template(chatMessageTemplate, data)
-      @$(@msgBoxID).append compiledTemplate
+      @$(@publicBoxID).append compiledTemplate
 
     # Scrolls the chat area to bottom to show the last messages
     _scrollToBottom: ->
-      $msgBox = @$(@msgBoxID)
+      $msgBox = @$(@publicBoxID)
       $msgBox.prop({ scrollTop: $msgBox.prop("scrollHeight") })
 
     # A key was pressed in the input box
     _inputKeyPressed: (e) ->
       # Send message when the enter key is pressed
       @_sendMessage() if e.keyCode is 13
-      
-    _toggleUserList: ->
-      @$(@chatListID).toggle()
-      
-    _chooseUser:(e)->
-      @$(@chatListID).css "display","none"
-      $target = $(e.target)
-      username = $target.html()
-      buttonTemplate =_.template(privateChatButton, {name:username})
-      $("#chatButtonWrapper").append buttonTemplate
-      chatBoxTemplate = _.template(privateChatBox, {name:username})
-      $("#chat-messages").hide()
-      $("#chat").append(chatBoxTemplate)
 
-        
-    _hideAllOtherChatBox:(e)->
-      $target = $(e.target)
-      username = $target.html()
-      $(".private-chat-box").hide()
-      $("."+username).show()
-          
-    _closePrivateChat:(e)->  
-      $target = $(e.target)
-      username = $target.parent('div').attr('class').split(' ')
-      id = username[1]
-      $('#'+id).remove()
-      $target.parent('div').remove()
-      
-    _togglePublicChat:(e)->
-      $(".private-chat-box").hide()
-      $("#chat-messages").show()
-      
-    _scrollUptButton:(e)->
-      currentPosition = $("#chatButtonWrapper").scrollTop()
-      scrollAmount = $("#chatButtonWrapper").height();
-      $("#chatButtonWrapper").scrollTop(currentPosition + scrollAmount)
+    # Send a chat message
+    _sendMessage: ->
+      $chatInput = @$(@inputBoxID)
+      msg = $chatInput.val()
+      if msg? and msg.trim() isnt ""
+        globals.connection.emitMsg msg
+        $chatInput.val("")
+      $chatInput.focus()
 
-    _scrollDowntButton:(e)->
-      currentPosition = $("#chatButtonWrapper").scrollTop()
-      scrollAmount = $("#chatButtonWrapper").height();
-      $("#chatButtonWrapper").scrollTop(currentPosition - scrollAmount)
-      
-    # TODO: limit/show length of text in chatbox
-    # $("#chat-input-box").on "keyup", (e) ->
-    #   count = $(this).attr("maxlength")
-    #   chcount.innerHTML = max - chatbox.value.length
+    # Adds a user to the list of users in the chat, used to start private chats
+    # @param userid [string] the ID of the user
+    # @param userid [string] the name of the user
+    _addUserToChatList: (userid, username) ->
+      # only add the new element if it doesn't exist yet
+      unless $("#chat-user-#{userid}").length > 0
+        data =
+          userid: userid
+          username: username
+        compiledTemplate = _.template(chatUserListItem, data)
+        @$(@userListID).append compiledTemplate
+
+    # Removes a user from the list of users in the chat
+    # @param userid [string] the ID of the user
+    # @param userid [string] the name of the user
+    _removeUserFromChatList: (userid, username) ->
+      $("#chat-user-#{userid}").remove()
+
+    # When a user clicks to start a private chat with a user
+    # @param e [event] the click event that generated this call
+    _startPrivateChat: (e) ->
+      $target = $(e.target)
+      userid = $target.attr("data-userid")
+      params =
+        username: $target.attr("data-username")
+        userid: userid
+
+      # add a new tab and chat box for the private chat, only if needed
+      unless $("#chat-private-#{userid}").length > 0
+        tab =_.template(privateChatTab, params)
+        $(@privateTabsIDs).prepend(tab)
+        chatBox = _.template(privateChatBox, params)
+        $(@messageBoxesContainerID).append(chatBox)
+
+      @_selectPrivateChat(e)
+
+    # Selects the private chat
+    _selectPublicChat: ->
+      # set all private tabs and chat boxes as inactive
+      @_inactivatePrivateChats()
+
+      # set the public chat button and box as active
+      $("#chat-general-btn").addClass("active")
+      $(@publicBoxID).addClass("active")
+
+      # tell the parent element that the public chat is active
+      @$el.addClass('public-chat-on')
+      @$el.removeClass('private-chat-on')
+
+    # Selects a private chat
+    # @param e [event] the click event that generated this call
+    _selectPrivateChat: (e) ->
+      $target = $(e.target)
+      userid = $target.attr("data-userid")
+
+      # set all other tabs and chat boxes as inactive
+      @_inactivatePrivateChats()
+      @_inactivatePublicChat()
+
+      # set the current private chat tab and box as active and public as inactive
+      $("#chat-private-btn-#{userid}").addClass("active")
+      $("#chat-private-#{userid}").addClass("active")
+      $(@publicBoxID).removeClass("active")
+
+      # tell the parent element that the private chat is active
+      @$el.removeClass('public-chat-on')
+      @$el.addClass('private-chat-on')
+
+    # Inactivates all private chat tabs/buttons
+    _inactivatePrivateChats: ->
+      $(".chat-private-btn").removeClass("active")
+      $(".chat-private-box").removeClass("active")
+
+    # Inactivates the public chat tab/button
+    _inactivatePublicChat: ->
+      $("#chat-general-btn").removeClass("active")
+
+    # Adds a default welcome message to the chat
+    _addWelcomeMessage: ->
+      msg = "You are now connected to the meeting '#{globals.currentAuth.get('meetingID')}'"
+      @_addChatMessage("System", msg)
+
   SessionChatView
