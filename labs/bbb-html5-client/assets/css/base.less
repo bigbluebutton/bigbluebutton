@@ -8,13 +8,13 @@ body {
   font: @font-face;
   color: @text-color;
   background: @background-color;
+  padding-top: @navbar-top-pad;
 }
 
 // reduce the presentation area and position it when the sidebar is shown
 .sidebar-on {
   #presentation-wrapper {
     width: 75%;
-    top: 6vh;
   }
 }
 
@@ -45,6 +45,9 @@ body {
   &.navbar-on {
     #navbar {
       display: block;
+    }
+    #navbar-hidden {
+      display: none;
     }
   }
 }
