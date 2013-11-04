@@ -20,7 +20,7 @@ subscriber.on("message", function (channel, message) {
   if (properties != undefined){
     client.lrange("meeting:" + properties.meetingID + ":subscriptions", 0, -1, function(error,reply){
       reply.forEach(function (sid, index) {
-        console.log(sid);
+        console.log("subscriber id = " + sid);
         client.hgetall("meeting:" + properties.meetingID + ":subscription:" + sid, function(err,rep){
           if (rep.active == "true") {
             properties.meetingID = rep.externalMeetingID;
@@ -32,7 +32,12 @@ subscriber.on("message", function (channel, message) {
 
             request(post_options, function (error, response, body) {
               if (!error && response.statusCode == 200) {
-                console.log(body.id) // Print the shortened url.
+                console.log("Error calling url: [" + post_options.uri + "]")
+                console.log("Error: [" + JSON.stringify(error) + "]");
+                console.log("Response: [" + JSON.stringify(response) + "]");
+              } else {
+                console.log("Passed calling url: [" + post_options.uri + "]")
+                console.log("Response: [" + JSON.stringify(response) + "]");
               }
             });
           }
