@@ -64,6 +64,7 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 			builder.playback {
 				builder.format(info.getPlaybackFormat())
 				builder.link(info.getPlaybackLink())	
+				builder.duration(info.getPlaybackDuration())
 			}
 			Map<String,String> metainfo = info.getMetadata();
 			builder.meta{
@@ -97,6 +98,7 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 		r.setEndTime(rec.end_time.text());
 		r.setPlaybackFormat(rec.playback.format.text());
 		r.setPlaybackLink(rec.playback.link.text());
+		r.setPlaybackDuration(rec.playback.duration.text());
 		
 		Map<String, String> meta = new HashMap<String, String>();		
 		rec.meta.children().each { anode ->
