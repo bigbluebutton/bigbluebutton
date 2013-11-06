@@ -24,8 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   xmlns:views="org.bigbluebutton.modules.layout.views.*"
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.layout.lockButton.toolTip')}"
 		   icon="{icon_unlocked}"
-		   click="onClick(event)"
-		   enabled="{UserManager.getInstance().getConference().amIModerator()}">
+		   click="onClick(event)">
 	
 	<mate:Listener type="{LayoutEvent.REMOTE_LOCK_LAYOUT_EVENT}" method="onLockLayoutEvent" />
 	<mate:Listener type="{LayoutEvent.REMOTE_UNLOCK_LAYOUT_EVENT}" method="onUnlockLayoutEvent" />
@@ -52,7 +51,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var icon_unlocked:Class = _images.unlocked;
 			
 			private function init():void {
-				refreshRole();
+				refreshRole(UserManager.getInstance().getConference().amIModerator());
 			}
 			
 			private function onClick(e:Event):void {
@@ -79,8 +78,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.setStyle("icon", icon_unlocked);
 			}
 			
-			public function refreshRole():void {
-				this.visible = UserManager.getInstance().getConference().amIModerator();
+			public function refreshRole(amIModerator:Boolean):void {
+				this.enabled = amIModerator;
+				if (amIModerator) {
+					this.visible = true;
+				} else {
+					this.visible = this.selected;
+				}
 			}
 			
             /* disabling this for new because it needs more work to work

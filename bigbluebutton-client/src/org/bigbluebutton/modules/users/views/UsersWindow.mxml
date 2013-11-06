@@ -34,8 +34,7 @@
 	<mate:Listener type="{ShortcutEvent.FOCUS_USERS_WINDOW}" method="focusWindow" />
 	<mate:Listener type="{UsersEvent.ROOM_MUTE_STATE}" method="setRoomMute" />
 	<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
-	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
-	
+	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -47,7 +46,6 @@
 			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
 			import mx.controls.listClasses.IListItemRenderer;
-			import mx.controls.dataGridClasses.DataGridItemRenderer;
 			import mx.events.DataGridEvent;
 			import mx.events.ListEvent;
 			import mx.events.MenuEvent;
@@ -98,23 +96,18 @@
 			private const KICK_USER:String = "Kick User";
 			private const MUTE_USER:String = "Mute User";
 			private const MUTE_ALL_USER:String = "Mute All User";
-
-			private var muteMeRolled:Boolean = false;
-			private var lastRollOverIndex:int = -1;
-			private var changeToModeratorItemMenu:ContextMenuItem = null;
-			private var changeToViewerItemMenu:ContextMenuItem = null;
-			private var changeToPresenterItemMenu:ContextMenuItem = null;
-			private var customContextMenu:ContextMenu = null;
-
-			private function refreshRole(e:ChangeMyRole):void {
-				updateModeratorDependentProperties(e.role == Role.MODERATOR);
-			}
 			
+			private var muteMeRolled:Boolean = false;
+
+			private function onChangeMyRole(e:ChangeMyRole):void {
+				refreshRole(e.role == Role.MODERATOR);
+			}
+
 			private function onCreationComplete():void {
 				dispatcher = new Dispatcher();
 			
 				users = UserManager.getInstance().getConference().users;
-				updateModeratorDependentProperties(UserManager.getInstance().getConference().amIModerator());
+				refreshRole(UserManager.getInstance().getConference().amIModerator());
 				
 				BindingUtils.bindSetter(changeButtons, UserManager.getInstance().getConference(), "amIPresenter");
 				BindingUtils.bindSetter(updateNumberofUsers, users, "length");
@@ -131,135 +124,23 @@
 				minimizeBtn.tabIndex = partOptions.baseTabIndex+1;
 				maximizeRestoreBtn.tabIndex = partOptions.baseTabIndex+2;
 				closeBtn.tabIndex = partOptions.baseTabIndex+3;
-				addContextMenuItems();
 			}
-
-			private function updateModeratorDependentProperties(moderator:Boolean = true):void {
+			
+			private function refreshRole(moderator:Boolean = true):void {
 				amIModerator = moderator;
 
 				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
 
 				changeButtons(UserManager.getInstance().getConference().amIPresenter);
-			}
 
+				if (myMenu) myMenu.hide();
+			}
+			
 			public function getPrefferedPosition():String{
 				return MainCanvas.TOP_LEFT;
 			}
-
-			private function addContextMenuItems():void {
-				if (usersGrid != null) {
-					customContextMenu = new ContextMenu();
-					customContextMenu.hideBuiltInItems();
-
-					changeToModeratorItemMenu = new ContextMenuItem(ResourceUtil.getInstance().getString("bbb.users.usersGrid.promoteUserToModerator"));
-					changeToModeratorItemMenu.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, changeRoleToModerator,false,0,true);
-					customContextMenu.customItems.push(changeToModeratorItemMenu);
-
-					changeToPresenterItemMenu = new ContextMenuItem(ResourceUtil.getInstance().getString("bbb.users.usersGrid.promoteUserToPresenter"));
-					changeToPresenterItemMenu.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, changeUserToPresenter,false,0,true);
-					customContextMenu.customItems.push(changeToPresenterItemMenu);
-
-					changeToViewerItemMenu = new ContextMenuItem(ResourceUtil.getInstance().getString("bbb.users.usersGrid.promoteUserToViewer"));
-					changeToViewerItemMenu.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, changeRoleToViewer,false,0,true);
-					customContextMenu.customItems.push(changeToViewerItemMenu);
-
-					customContextMenu.addEventListener(ContextMenuEvent.MENU_SELECT,dataGridContextMenu_menuSelect,false,0,true);
-					usersGrid.contextMenu = customContextMenu;
-				}
-			}
-
-			private function changeToPresenterVisibility():void {
-				if(lastRollOverIndex < 0) {
-					changeToPresenterItemMenu.visible = false;
-				} else {
-					if (UserManager.getInstance().getConference().amIModerator()) {
-						changeToPresenterItemMenu.visible = true;
-					} else {
-						changeToPresenterItemMenu.visible = false;
-					}
-
-					if(!users[lastRollOverIndex].presenter && !users[lastRollOverIndex].phoneUser) {
-						changeToPresenterItemMenu.enabled = true;
-					} else {
-						changeToPresenterItemMenu.enabled = false;
-					}
-				}
-			}
-
-			private function changeToViewerVisibility():void {
-				if(lastRollOverIndex < 0) {
-					changeToViewerItemMenu.visible = false;
-				} else {
-					if (UserManager.getInstance().getConference().amIModerator()) {
-						changeToViewerItemMenu.visible = true;
-					} else {
-						changeToViewerItemMenu.visible = false;
-					}
-
-					if(users[lastRollOverIndex].role == Role.MODERATOR) {
-						changeToViewerItemMenu.enabled = true;
-					} else {
-						changeToViewerItemMenu.enabled = false;
-					}
-				}
-			}
-
-			private function changeToModeratorVisibility():void {
-				if(lastRollOverIndex < 0) {
-					changeToModeratorItemMenu.visible = false;
-				} else {
-					if (UserManager.getInstance().getConference().amIModerator() && !(users[lastRollOverIndex].me)) {
-						changeToModeratorItemMenu.visible = true;
-					} else {
-						changeToModeratorItemMenu.visible = false;
-					}
-					
-					if(users[lastRollOverIndex].role == Role.VIEWER) {
-						changeToModeratorItemMenu.enabled = true;
-					} else {
-						changeToModeratorItemMenu.enabled = false;
-					}
-				}
-			}
-
-			private function dataGridContextMenu_menuSelect(event:ContextMenuEvent):void{
-				usersGrid.selectedIndex = lastRollOverIndex;
-				changeToModeratorVisibility();
-				changeToPresenterVisibility();
-				changeToViewerVisibility();
-			}
-
-			private function changeUserToPresenter(e:ContextMenuEvent):void {
-				if (usersGrid.selectedIndex > -1) {
-					var item:BBBUser = users[usersGrid.selectedIndex];
-					if (!item.presenter && !item.phoneUser) {
-						var ev:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
-						ev.userid = item.userID;
-						ev.username = item.name;
-						dispatchEvent(ev);
-					}
-				}
-			}
-
-			private function changeRoleToModerator(e:ContextMenuEvent):void {
-				if (usersGrid.selectedIndex > -1) {
-					var item:BBBUser = users[usersGrid.selectedIndex];
-					changeRole(item.userID, Role.MODERATOR);
-				}
-			}
-
-			private function changeRoleToViewer(e:ContextMenuEvent):void {
-				if (usersGrid.selectedIndex > -1) {
-					var item:BBBUser = users[usersGrid.selectedIndex];
-					changeRole(item.userID, Role.VIEWER);
-				}
-			}
-
-			private function changeRole(userID:String, role:String):void {
-				var changeRoleEvent:ChangeRoleEvent = new ChangeRoleEvent(userID, role);
-				dispatchEvent(changeRoleEvent);
-			}
-
+			
+			
 			private function updateNumberofUsers(numUsers:int):void {
 				if (numUsers > 8)
 					this.title = ResourceUtil.getInstance().getString('bbb.users.title', [":", numUsers]);
@@ -277,7 +158,6 @@
 			}
 			
 			private function onItemRollOver(event:ListEvent):void{
-				lastRollOverIndex = event.rowIndex;
 				var item:IListItemRenderer = event.itemRenderer;
 				var user:BBBUser = item.data as BBBUser;
 				var rollEvent:UsersRollEvent = new UsersRollEvent(UsersRollEvent.USER_ROLL_OVER, user.userID);
@@ -285,7 +165,6 @@
 			}
 			
 			private function onItemRollOut(event:ListEvent):void{
-				lastRollOverIndex = -1;
 				var item:IListItemRenderer = event.itemRenderer;
 				var user:BBBUser = item.data as BBBUser;
 				var rollEvent:UsersRollEvent = new UsersRollEvent(UsersRollEvent.USER_ROLL_OUT, user.userID);
@@ -393,8 +272,6 @@
 					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.maximizeRestoreBtn.toolTip");
 					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.users.maximizeRestoreBtn.accessibilityName");
 				}
-
-				addContextMenuItems();
 			}
 			
 			private function loadKeyCombos(modifier:String):void {
@@ -459,7 +336,7 @@
 					this.maximize();
 				} else{
 					this.restore();
-				}
+				}				
 			}
 			
 			public function remoteMakePresenter():void{
@@ -516,7 +393,7 @@
 		tabIndex="{partOptions.baseTabIndex+5}"
 		accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.accessibilityName')}" >
     	<mx:columns>
-    		<mx:DataGridColumn id="statusUser" dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer')}" editable="false" width="45" minWidth="45"
+    		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer')}" editable="false" width="45" minWidth="45"
     			itemRenderer="org.bigbluebutton.modules.users.views.StatusItemRenderer" sortable="false" />
     		<mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer')}" editable="false" sortable="false" minWidth="60"
     			itemRenderer="org.bigbluebutton.modules.users.views.NameItemRenderer"/>

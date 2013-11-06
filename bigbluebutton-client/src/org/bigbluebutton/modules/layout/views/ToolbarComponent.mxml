@@ -51,8 +51,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_enableEdit = arg && UserManager.getInstance().getConference().amIModerator();
 			}
 
-			public function refreshRole():void {
-				lockButton.refreshRole();
+			public function refreshRole(amIModerator:Boolean):void {
+				lockButton.refreshRole(amIModerator);
+				comboBox.refreshRole(amIModerator);
 			}
 			
 			public function set visibleTools(arg:Boolean):void {

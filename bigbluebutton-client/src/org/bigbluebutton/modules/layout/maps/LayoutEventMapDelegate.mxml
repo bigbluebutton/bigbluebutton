@@ -56,7 +56,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			public function refreshRole(e:ChangeMyRole):void {
 				layoutComponent.enableEdit = !(_attributes.enableEdit == "false");
-				layoutComponent.refreshRole();
+				layoutComponent.refreshRole(e.role == Role.MODERATOR);
 			}
 		]]>
 	</mx:Script>

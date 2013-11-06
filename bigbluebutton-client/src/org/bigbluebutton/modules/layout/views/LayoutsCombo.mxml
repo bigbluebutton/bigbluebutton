@@ -134,6 +134,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				selectedIndex = -1;
 				prompt = ResourceUtil.getInstance().getString('bbb.layout.combo.custom');
 			}
+
+			public function refreshRole(amIModerator:Boolean):void {
+				this.enabled = amIModerator;
+			}
 			
 		]]>
 	</mx:Script>
