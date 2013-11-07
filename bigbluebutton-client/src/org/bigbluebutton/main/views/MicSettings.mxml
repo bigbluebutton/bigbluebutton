@@ -182,29 +182,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
 	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
     
-		<mx:HBox width="100%">
+		<mx:Canvas width="100%">
 			<!-- mx:Label text="Audio Settings" styleName="micSettingsWindowTitleStyle"/ -->
 			<mx:TextArea borderSkin="{null}" editable="false" text="{ResourceUtil.getInstance().getString('bbb.users.settings.audioSettings')}" styleName="micSettingsWindowTitleStyle"
-                         tabIndex="{baseIndex}" width="400"/>
+                         tabIndex="{baseIndex}" width="400" left="0"/>
 						 <!-- accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.title')} "/ -->
-			<mx:Spacer width="100%"/>
             <mx:LinkButton fontSize="10" toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" 
-                           styleName="micSettingsWindowHelpButtonStyle"
+                           styleName="micSettingsWindowHelpButtonStyle" right="0"
                            click="onHelpButtonClicked()"
                            tabIndex="{baseIndex+1}"
                            accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
-		</mx:HBox>
+		</mx:Canvas>
     
-        <mx:HBox width="100%">
-            <mx:VBox width="100%">
-                <mx:Spacer height="5"/>
-                <mx:HRule width="100%"/>
-                <mx:HBox width="100%">
-                    <mx:Label id="testMicLabel" text="{ResourceUtil.getInstance().getString('bbb.micSettings.microphone.header')}" styleName="micSettingsWindowTestMicrophoneLabelStyle" tabIndex="{baseIndex+2}"/>
-                    <mx:Spacer width="100%"/>
-                </mx:HBox>
-            </mx:VBox>   
-        </mx:HBox>
+        <mx:VBox width="100%" paddingTop="5">
+            <mx:HRule width="100%"/>
+            <mx:Label id="testMicLabel" text="{ResourceUtil.getInstance().getString('bbb.micSettings.microphone.header')}" styleName="micSettingsWindowTestMicrophoneLabelStyle" width="100%" tabIndex="{baseIndex+2}"/>
+        </mx:VBox>   
         
         <mx:HBox width="100%">      
             <mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakIntoMic')}"
@@ -215,14 +208,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                        toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.changeMic.toolTip')}"/>		
         </mx:HBox>
         
-        <mx:HBox width="100%">
-            <mx:VBox width="100%">
-                <mx:Spacer height="5"/>
-                <mx:HBox width="100%">
-                    <mx:Label id="testSpeakersLabel" text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakers.header')}" styleName="micSettingsWindowTestSpeakersLabelStyle" tabIndex="{baseIndex+5}"/>
-                </mx:HBox>
-            </mx:VBox> 
-        </mx:HBox>
+        <mx:Label id="testSpeakersLabel" text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakers.header')}" styleName="micSettingsWindowTestSpeakersLabelStyle" paddingTop="5" tabIndex="{baseIndex+5}"/>
         
         <mx:HBox width="100%">
             <mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.hearFromHeadset')}"
@@ -235,12 +221,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
     <mx:HRule width="100%"/>
     <mx:Spacer height="20"/>
-		<mx:HBox width="100%">
-			<mx:Spacer width="80%"/>
+		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="18">
 			<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.join')}" 
 					   styleName="micSettingsWindowJoinButtonStyle"
 					   click="onJoinClicked()" tabIndex="{baseIndex+8}"/>
-			<mx:Spacer width="10"/>
 			<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel')}" 
 					   styleName="micSettingsWindowCancelButtonStyle"
 					   click="onCancelClicked()" tabIndex="{baseIndex+9}"

@@ -34,6 +34,12 @@ package org.bigbluebutton.core.model
 			help.url = config.help.@url;
 			return help;
 		}
+    
+    public function get javaTest():Object {
+      var javaTest:Object = new Object();
+      javaTest.url = config.javaTest.@url;
+      return javaTest;
+    }
 			
 		public function get locale():Object {
 			var v:Object = new Object();

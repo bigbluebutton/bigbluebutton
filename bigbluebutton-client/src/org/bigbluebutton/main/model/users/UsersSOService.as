@@ -21,6 +21,7 @@ package org.bigbluebutton.main.model.users {
 	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
+	import flash.external.ExternalInterface;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.net.SharedObject;
@@ -40,12 +41,12 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.main.events.UserJoinedEvent;
 	import org.bigbluebutton.main.events.UserLeftEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
+	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+	import org.bigbluebutton.modules.deskshare.events.StopSharingButtonEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
-	import flash.external.ExternalInterface;
-	import org.bigbluebutton.main.model.users.BBBUser;
 
 	public class UsersSOService {
 		public static const NAME:String = "ViewersSOService";
@@ -227,6 +228,7 @@ package org.bigbluebutton.main.model.users {
       dispatcher.dispatchEvent(kickedEvent);
       
 			if (UserManager.getInstance().getConference().amIThisUser(userid)) {
+				dispatcher.dispatchEvent(new StopSharingButtonEvent(StopSharingButtonEvent.STOP_SHARING));
 				dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
 			}
 		}
@@ -294,7 +296,7 @@ package org.bigbluebutton.main.model.users {
 				dispatcher.dispatchEvent(e);
 			}		
 		}
-
+					
 		public function participantRoleChange(userID:String, role:String):void {
 			LogUtil.debug("Received role change [" + userID + "," + role + "]");
 			UserManager.getInstance().getConference().newUserRole(userID, role);
@@ -304,7 +306,7 @@ package org.bigbluebutton.main.model.users {
 				dispatcher.dispatchEvent(e);
 			}
 		}
-
+		
 		public function raiseHand(userID:String, raise:Boolean):void {
 			var nc:NetConnection = _connectionManager.connection;			
 			nc.call(

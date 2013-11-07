@@ -27,10 +27,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:dspub="flexlib.mdi.containers.*"
 	backgroundColor="#C0C0C0"
 	initialize="init()"
-	creationComplete="onCreationComplete()"
-	
+	creationComplete="onCreationComplete()"	
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
-	width="320" height="240" 
+	width="320" height="320" 
 	title="{ResourceUtil.getInstance().getString('bbb.desktopPublish.title')}"
 	resizable="false">
 	
@@ -47,29 +46,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flexlib.mdi.events.MDIWindowEvent;
-			import flexlib.scheduling.scheduleClasses.BackgroundItem;
-			
-			import mx.core.UIComponent;
-			
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
-			import org.bigbluebutton.modules.deskshare.events.CursorEvent;
-			import org.bigbluebutton.modules.deskshare.events.ShareWindowEvent;
-			import org.bigbluebutton.modules.deskshare.events.StreamEvent;
-			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
-			import org.bigbluebutton.modules.deskshare.events.StopSharingButtonEvent;
-			import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
-			
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import flexlib.mdi.events.MDIWindowEvent;
+      import flexlib.scheduling.scheduleClasses.BackgroundItem;
+      
+      import mx.core.UIComponent;
+      
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.events.LocaleChangeEvent;
+      import org.bigbluebutton.core.BBB;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.views.MainCanvas;
+      import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
+      import org.bigbluebutton.modules.deskshare.events.CursorEvent;
+      import org.bigbluebutton.modules.deskshare.events.ShareWindowEvent;
+      import org.bigbluebutton.modules.deskshare.events.StopSharingButtonEvent;
+      import org.bigbluebutton.modules.deskshare.events.StreamEvent;
+      import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
+      import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			public static const SCALE:Number = 5;
 			private static const VID_HEIGHT_PAD:Number = 73;
@@ -359,6 +358,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				closeWindow();
 			}
 			
+      private function onCheckYourJavaClicked():void {
+        var CHECK_JAVA_URL:String = BBB.initConfigManager().config.javaTest.url;        
+        navigateToURL(new URLRequest(CHECK_JAVA_URL));
+      }
 		]]>
 	</mx:Script>
 
@@ -366,33 +369,46 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<dspub:states>	    
         <mx:State name="dispFullRegionControlBar">   
             <mx:AddChild>
-				<mx:ControlBar id="fullRegionBottomBar">
-					<mx:Button id="btnFSPublish" 
-							   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.tooltip')}" 
-							   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.label')}" 
-							   visible="true" 
-							   click="shareScreen(true)" 
-							   tabIndex="{baseIndex+4}"/>
-					<mx:Spacer width="100%"/>
-					<mx:Button id="btnClosePublish" 
-							   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}" 
-							   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.label')}" 
-							   visible="true" 
-							   enabled="false" 
-							   click="stopSharing()" 
-							   tabIndex="{baseIndex+5}"/>
-					<mx:Spacer width="100%"/>
-					<mx:Button id="btnRegionPublish"
-							   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.tooltip')}" 
-							   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.label')}" 
-							   visible="true" 
-							   click="shareScreen(false)" 
-							   tabIndex="{baseIndex+6}"
-                               focusEnabled="false"
-                               tabEnabled="false"/>
-					<mx:Spacer width="100%"/>
-					<!--mx:CheckBox id="useSVC2Check" label="SVC2" selected="true" /-->
-				</mx:ControlBar>
+              
+                <mx:ControlBar id="fullRegionBottomBar">
+                  <mx:VBox width="100%" height="100%" horizontalAlign="center">
+                    <mx:HBox horizontalAlign="center">
+                      <mx:Button id="btnFSPublish" 
+                                 toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.tooltip')}" 
+                                 label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.label')}" 
+                                 visible="true" 
+                                 click="shareScreen(true)" 
+                                 tabIndex="{baseIndex+4}"/>
+                      <mx:Spacer width="100%"/>
+                      <mx:Button id="btnClosePublish" 
+                                 toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}" 
+                                 label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.label')}" 
+                                 visible="true" 
+                                 enabled="false" 
+                                 click="stopSharing()" 
+                                 tabIndex="{baseIndex+5}"/>
+                      <mx:Spacer width="100%"/>
+                      <mx:Button id="btnRegionPublish"
+                                 toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.tooltip')}" 
+                                 label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.label')}" 
+                                 visible="true" 
+                                 click="shareScreen(false)" 
+                                 tabIndex="{baseIndex+6}"
+                                 focusEnabled="false"
+                                 tabEnabled="false"/>
+                      <mx:Spacer width="100%"/>                      
+                    </mx:HBox>
+
+                    
+                    <mx:Label id="javaVersionLabel" styleName="javaVersionRequiredLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.desktopPublish.javaRequiredLabel')}"/>
+                    <mx:LinkButton id="checkJavaBtn" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.javaTestLinkLabel')}" click="onCheckYourJavaClicked()" height="22" 
+                                   styleName="testJavaLinkButtonStyle" textDecoration="underline"
+                                   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.javaTestLinkLabel.tooltip')}" 
+                                   accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.desktopPublish.javaTestLinkLabel.tooltip.accessibility')}"/>
+                  </mx:VBox>
+                </mx:ControlBar>           
+
+              
             </mx:AddChild>
         </mx:State>	
 	</dspub:states>

@@ -93,9 +93,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.chat.views.ChatMessageRenderer;
       import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
       import org.bigbluebutton.util.i18n.ResourceUtil;
-
-			
-			public static const COPY_ALL_BUTTON:String = "Copy All Text";
 			
       public var publicChat:Boolean = false;
       public var chatWithUserID:String;
@@ -325,7 +322,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var contextMenu:ContextMenu = new ContextMenu();
 				contextMenu.hideBuiltInItems();
 				
-				var copyAllButton:ContextMenuItem = new ContextMenuItem(COPY_ALL_BUTTON);
+				var copyAllButton:ContextMenuItem = new ContextMenuItem(ResourceUtil.getInstance().getString("bbb.chat.contextmenu.copyalltext"));
 				copyAllButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler);
 				contextMenu.customItems.push(copyAllButton);
 				
@@ -333,7 +330,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function menuItemHandler(e:ContextMenuEvent):void{
-				if (e.target.caption == COPY_ALL_BUTTON){
+				if (e.target.caption == ResourceUtil.getInstance().getString("bbb.chat.contextmenu.copyalltext")){
 					System.setClipboard(chatMessages.getAllMessageAsString());
 				}
 			}
@@ -359,6 +356,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function localeChanged(e:Event):void {
 				var modifier:String = ExternalInterface.call("determineModifier");
 		  		loadKeyCombos(modifier);
+				
+				addContextMenuItems();
 			}
 
 			private function loadKeyCombos(modifier:String):void {
