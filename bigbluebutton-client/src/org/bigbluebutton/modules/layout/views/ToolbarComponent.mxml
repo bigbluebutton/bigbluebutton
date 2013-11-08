@@ -52,8 +52,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			public function refreshRole(amIModerator:Boolean):void {
-				lockButton.refreshRole(amIModerator);
 				comboBox.refreshRole(amIModerator);
+				lockButton.refreshRole(amIModerator);
+				addButton.refreshRole(amIModerator);
+				saveButton.refreshRole(amIModerator);
+				loadButton.refreshRole(amIModerator);
 			}
 			
 			public function set visibleTools(arg:Boolean):void {

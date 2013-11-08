@@ -29,8 +29,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             rowCount="10" >
 	
 	<mate:Listener type="{LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT}" method="onApplyDefaultLayout" />
-	<mate:Listener type="{LayoutEvent.REMOTE_LOCK_LAYOUT_EVENT}" receive="{enabled=false || UserManager.getInstance().getConference().amIModerator()}" />
-	<mate:Listener type="{LayoutEvent.REMOTE_UNLOCK_LAYOUT_EVENT}" receive="{enabled=true}" />
+	<mate:Listener type="{LayoutEvent.REMOTE_LOCK_LAYOUT_EVENT}" receive="{remoteLocked=true}" />
+	<mate:Listener type="{LayoutEvent.REMOTE_UNLOCK_LAYOUT_EVENT}" receive="{remoteLocked=false}" />
 	<mate:Listener type="{LayoutEvent.INVALIDATE_LAYOUT_EVENT}" method="invalidadeLayout" />
 	<mate:Listener type="{RedefineLayoutEvent.REDEFINE_LAYOUT_EVENT}" method="onRedefineLayout" />
 	<mate:Listener type="{LayoutsLoadedEvent.LAYOUTS_LOADED_EVENT}" method="populateLayoutsList"/>
@@ -73,7 +73,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var _dispatcher:Dispatcher = new Dispatcher();
 			
 			private var _defaultLayout:Object = null;
+			private var _remoteLocked:Boolean = false;
 			
+			public function set remoteLocked(value:Boolean):void {
+				_remoteLocked = value;
+				updateEnabled();
+			}
+
+			private function updateEnabled():void {
+				if (_remoteLocked) {
+					this.enabled = (false || UserManager.getInstance().getConference().amIModerator())
+				} else {
+					this.enabled = true;
+				}
+			}
+
 			private function init():void {
 				LogUtil.debug("LayoutsCombo: view initialized");
 				var comboBoxCreated:ComboBoxCreatedEvent = new ComboBoxCreatedEvent();
@@ -136,7 +150,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			public function refreshRole(amIModerator:Boolean):void {
-				this.enabled = amIModerator;
+				updateEnabled();
 			}
 			
 		]]>
