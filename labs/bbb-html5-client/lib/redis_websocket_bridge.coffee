@@ -38,6 +38,7 @@ module.exports = class RedisWebsocketBridge
   _socket_registerListeners: () ->
     @io.sockets.on "connection", (socket) =>
       socket.on "user connect", () => @_socket_onUserConnected(socket)
+      socket.on "user connect", () => @_socket_onUserConnected2(socket)
       socket.on "disconnect", () => @_socket_onUserDisconnected(socket)
       socket.on "msg", (msg) => @_socket_onChatMessage(socket, msg)
       socket.on "logout", () => @_socket_onLogout(socket)
@@ -107,6 +108,54 @@ module.exports = class RedisWebsocketBridge
   _emitToClients: (channel, message) ->
     channelViewers = @io.sockets.in(channel)
     channelViewers.emit.apply(channelViewers, message)
+
+  # When a user connected to the web socket.
+  # Several methods have callbacks but we don't need to wait for them all to run, they
+  # can just be triggered and the messages will be sent sometime.
+  #
+  # @param socket [Object] the socket that generated the event
+  # @private
+  _socket_onUserConnected: (socket) ->
+    sessionID = fromSocket(socket, "sessionID")
+    meetingID = fromSocket(socket, "meetingID")
+    @redisAction.isValidSession meetingID, sessionID, (err, reply) =>
+      if !reply
+        Logger.error "got invalid session for meeting #{meetingID}, session #{sessionID}"
+      else
+        username = fromSocket(socket, "username")
+        socketID = socket.id
+        socket.join meetingID # join the socket room with value of the meetingID
+        socket.join sessionID # join the socket room with value of the sessionID
+
+        Logger.info "got a valid session for meeting #{meetingID}, session #{sessionID}, username is '#{username}'"
+
+        # add socket to list of sockets
+        @redisAction.getUserProperties meetingID, sessionID, (err, properties) =>
+          Logger.info "publishing the list of users for #{meetingID}"
+          @redisPublisher.publishLoadUsers meetingID, null, =>
+            @redisPublisher.publishPresenter(meetingID)
+
+          numOfSockets = parseInt(properties.sockets, 10)
+          numOfSockets += 1
+          @redisStore.hset RedisKeys.getUserString(meetingID, sessionID), "sockets", numOfSockets
+
+          # if the user is not refreshing, it means its the first time he's entering the session
+          # all users should be notified
+          # when the user is refreshing the page the other users don't have to be notified
+          Logger.info "publishing user join for #{meetingID}"
+          receivers = (if properties.refreshing is "false" then null else sessionID)
+          @redisStore.hset RedisKeys.getUserString(meetingID, sessionID), "refreshing", false
+          @redisPublisher.publishUserJoin meetingID, receivers, properties.pubID, properties.username, =>
+            @redisPublisher.publishPresenter(meetingID, receivers)
+
+            # publish everything else we need to update for the client
+            Logger.info "publishing messages, slides and shapes to #{meetingID}, #{sessionID}"
+            @redisPublisher.publishMessages(meetingID, sessionID)
+            @redisPublisher.publishSlides meetingID, sessionID, =>
+              @redisPublisher.publishCurrentImagePath(meetingID)
+              @redisPublisher.publishTool(meetingID, sessionID)
+              @redisPublisher.publishShapes(meetingID, sessionID)
+              @redisPublisher.publishViewBox(meetingID, sessionID)
 
   # When a user connected to the web socket.
   # Several methods have callbacks but we don't need to wait for them all to run, they
@@ -244,6 +293,21 @@ module.exports = class RedisWebsocketBridge
 # @return {string} the value of the attribute requested
 # @internal
 fromSocket = (socket, attr) ->
+
+  console.log("\n***handshake**\n")
+  console.log(socket.handshake)
+
+  socket?.handshake?[attr]
+
+# Returns a given attribute `attr` registered in the `socket`.
+#
+# @return {string} the value of the attribute requested
+# @internal
+fromSocket2 = (socket, attr) ->
+
+  console.log("\n***handshake**\n")
+  console.log(socket.handshake)
+
   socket?.handshake?[attr]
 
 # Returns whether the current user is the presenter or not.

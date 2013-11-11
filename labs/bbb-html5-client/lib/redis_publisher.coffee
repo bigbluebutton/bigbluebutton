@@ -68,6 +68,31 @@ module.exports = class RedisPublisher
     @pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user join", userid, username, "VIEWER"])
     callback?(null, true)
 
+  # Publishes a user join.
+  #
+  # @param meetingID [string] the ID of the meeting
+  # @param sessionID [string] the ID of the user, if `null` will send to all clients
+  # @param callback(err, succeeded) [Function] callback to call when finished
+  publishUserJoin2: (meetingID, sessionID, userid, username, callback) ->
+    receivers = (if sessionID? then sessionID else meetingID)
+    userJoinEventObject = {
+      name: "UserJoiningRequest",
+      meeting: {
+        id:meetingID,
+        sessionID: sessionID
+      },
+      user: {
+        name:username,
+        metadata:{
+          userid: userid
+        }
+        role: "VIEWER"
+      }
+    }
+
+    @pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user join", userid, username, "VIEWER"])
+    callback?(null, true)
+
   # Get all chat messages from redis and publish to the appropriate clients
   #
   # @param meetingID [string] the ID of the meeting
