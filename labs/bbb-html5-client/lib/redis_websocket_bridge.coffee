@@ -56,7 +56,8 @@ module.exports = class RedisWebsocketBridge
       Logger.info "message from redis on channel:#{channel}, data:#{message}"
 
       if channel is "bigbluebutton:bridge"
-        @_redis_onBigbluebuttonBridge(attributes)
+        #@_redis_onBigbluebuttonBridge(attributes)
+        @_redis_onBigbluebuttonBridge2(attributes)
 
       else if channel is "bigbluebutton:meeting:presentation"
         @_redis_onBigbluebuttonMeetingPresentation(attributes)
@@ -64,7 +65,9 @@ module.exports = class RedisWebsocketBridge
       else
         # value of pub channel is used as the name of the SocketIO room to send to
         # apply the parameters to the socket event, and emit it on the channels
-        @_emitToClients(channel, JSON.parse(message))
+        #@_emitToClients(channel, JSON.parse(message))
+        @_emitToClients2(channel, JSON.parse(message))
+
 
   # When received a message on the channel "bigbluebutton:bridge"
   #
@@ -79,6 +82,38 @@ module.exports = class RedisWebsocketBridge
       # apply the parameters to the socket event, and emit it on the channels
       attributes.splice(0, 1) # remove the meeting id from the params
       @_emitToClients(meetingID, attributes)
+
+    # When presenter in flex side sends the 'undo' event, remove the current shape from Redis
+    # and publish the rest shapes to html5 users
+    if attributes[1] is "undo"
+      @redisAction.onUndo meetingID, (err, reply) =>
+        @redisPublisher.publishShapes meetingID, null, (err) -> emit()
+
+    # When presenter in flex side sends the 'clrPaper' event, remove everything from Redis
+    else if attributes[1] is "clrPaper"
+      @redisAction.onClearPaper meetingID, (err, reply) => emit()
+
+    else
+      emit()
+
+  # When received a message on the channel "bigbluebutton:bridge"
+  #
+  # @param attributes [Array] follows the format of this example:
+  #   `["183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1377871468173","mvCur",0.608540925266904,0.298932384341637]`
+  #   The first attribute is the meetingID
+  # @private
+  _redis_onBigbluebuttonBridge2: (attributes) ->
+    console.log("\n\n***attributes: ")
+    console.log attributes 
+    #meetingID = attributes[0]
+    meetingID = attributes?.meeting?.id
+    console.log("meetingID: " + meetingID);
+
+    emit = =>
+      # apply the parameters to the socket event, and emit it on the channels
+      #attributes.splice(0, 1) # remove the meeting id from the params
+      #@_emitToClients(meetingID, attributes)
+      @_emitToClients2(meetingID, attributes)
 
     # When presenter in flex side sends the 'undo' event, remove the current shape from Redis
     # and publish the rest shapes to html5 users
@@ -109,6 +144,13 @@ module.exports = class RedisWebsocketBridge
     channelViewers = @io.sockets.in(channel)
     channelViewers.emit.apply(channelViewers, message)
 
+  # Emits a message to all clients connected in the given channel.
+  #
+  # @private
+  _emitToClients2: (channel, message) ->
+    channelViewers = @io.sockets.in(channel)
+    channelViewers.emit.apply(channelViewers, [message.name, message])
+
   # When a user connected to the web socket.
   # Several methods have callbacks but we don't need to wait for them all to run, they
   # can just be triggered and the messages will be sent sometime.
@@ -132,8 +174,8 @@ module.exports = class RedisWebsocketBridge
         # add socket to list of sockets
         @redisAction.getUserProperties meetingID, sessionID, (err, properties) =>
           Logger.info "publishing the list of users for #{meetingID}"
-          @redisPublisher.publishLoadUsers meetingID, null, =>
-            @redisPublisher.publishPresenter(meetingID)
+          #@redisPublisher.publishLoadUsers meetingID, null, =>
+          # @redisPublisher.publishPresenter(meetingID)
 
           numOfSockets = parseInt(properties.sockets, 10)
           numOfSockets += 1
@@ -163,9 +205,9 @@ module.exports = class RedisWebsocketBridge
   #
   # @param socket [Object] the socket that generated the event
   # @private
-  _socket_onUserConnected: (socket) ->
-    sessionID = fromSocket(socket, "sessionID")
-    meetingID = fromSocket(socket, "meetingID")
+  _socket_onUserConnected2: (socket) ->
+    sessionID = fromSocket2(socket, "sessionID")
+    meetingID = fromSocket2(socket, "meetingID")
     @redisAction.isValidSession meetingID, sessionID, (err, reply) =>
       if !reply
         Logger.error "got invalid session for meeting #{meetingID}, session #{sessionID}"
@@ -180,8 +222,8 @@ module.exports = class RedisWebsocketBridge
         # add socket to list of sockets
         @redisAction.getUserProperties meetingID, sessionID, (err, properties) =>
           Logger.info "publishing the list of users for #{meetingID}"
-          @redisPublisher.publishLoadUsers meetingID, null, =>
-            @redisPublisher.publishPresenter(meetingID)
+          #@redisPublisher.publishLoadUsers meetingID, null, =>
+           # @redisPublisher.publishPresenter(meetingID)
 
           numOfSockets = parseInt(properties.sockets, 10)
           numOfSockets += 1
@@ -193,7 +235,7 @@ module.exports = class RedisWebsocketBridge
           Logger.info "publishing user join for #{meetingID}"
           receivers = (if properties.refreshing is "false" then null else sessionID)
           @redisStore.hset RedisKeys.getUserString(meetingID, sessionID), "refreshing", false
-          @redisPublisher.publishUserJoin meetingID, receivers, properties.pubID, properties.username, =>
+          @redisPublisher.publishUserJoin2 meetingID, receivers, properties.pubID, properties.username, =>
             @redisPublisher.publishPresenter(meetingID, receivers)
 
             # publish everything else we need to update for the client
@@ -294,8 +336,9 @@ module.exports = class RedisWebsocketBridge
 # @internal
 fromSocket = (socket, attr) ->
 
-  console.log("\n***handshake**\n")
-  console.log(socket.handshake)
+  #console.log("\n***handshake**\n")
+  #console.log(socket.handshake)
+  #console.log("\n\nhandshake end--\n")
 
   socket?.handshake?[attr]
 
@@ -307,6 +350,7 @@ fromSocket2 = (socket, attr) ->
 
   console.log("\n***handshake**\n")
   console.log(socket.handshake)
+  console.log("\n\nhandshake end--\n")
 
   socket?.handshake?[attr]
 

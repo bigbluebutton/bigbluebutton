@@ -90,7 +90,9 @@ module.exports = class RedisPublisher
       }
     }
 
-    @pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user join", userid, username, "VIEWER"])
+    #@pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user join", userid, username, "VIEWER"])
+    @pub.publish "bigbluebutton:bridge", JSON.stringify( userJoinEventObject )
+
     callback?(null, true)
 
   # Get all chat messages from redis and publish to the appropriate clients
