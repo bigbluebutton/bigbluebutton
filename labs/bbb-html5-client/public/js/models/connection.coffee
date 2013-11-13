@@ -182,7 +182,7 @@ define [
         console.log "socket on: uploadStatus"
         globals.events.trigger("connection:uploadStatus", message, fade)
 
-      # Received event for a new public chat message
+      # Received event for a user list change
       # @param  {Array} users Array of names and publicIDs of connected users
       # TODO: event name with spaces is bad
       @socket.on "user list change", (users) =>

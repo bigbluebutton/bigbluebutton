@@ -74,6 +74,7 @@ module.exports = class RedisPublisher
   # @param sessionID [string] the ID of the user, if `null` will send to all clients
   # @param callback(err, succeeded) [Function] callback to call when finished
   publishUserJoin2: (meetingID, sessionID, userid, username, callback) ->
+    console.log ("\n\n**publishUserJoin2**\n\n")
     receivers = (if sessionID? then sessionID else meetingID)
     userJoinEventObject = {
       name: "UserJoiningRequest",

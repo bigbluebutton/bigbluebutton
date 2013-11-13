@@ -352,9 +352,9 @@ fromSocket = (socket, attr) ->
 # @internal
 fromSocket2 = (socket, attr) ->
 
-  console.log("\n***handshake**\n")
+  ###console.log("\n***handshake**\n")
   console.log(socket.handshake)
-  console.log("\n\nhandshake end--\n")
+  console.log("\n\nhandshake end--\n")###
 
   socket?.handshake?[attr]
 
