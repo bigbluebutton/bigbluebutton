@@ -103,8 +103,8 @@ module.exports = class RedisWebsocketBridge
   #   The first attribute is the meetingID
   # @private
   _redis_onBigbluebuttonBridge2: (attributes) ->
-    console.log("\n\n***attributes: ")
-    console.log attributes 
+    #console.log("\n\n***attributes: ")
+    #console.log attributes 
     #meetingID = attributes[0]
     meetingID = attributes?.meeting?.id
     console.log("meetingID: " + meetingID);
@@ -148,7 +148,11 @@ module.exports = class RedisWebsocketBridge
   #
   # @private
   _emitToClients2: (channel, message) ->
+    console.log("\n\n***message: ")
+    console.log message 
     channelViewers = @io.sockets.in(channel)
+    console.log("**message name**: ")
+    console.log(message.name);
     channelViewers.emit.apply(channelViewers, [message.name, message])
 
   # When a user connected to the web socket.

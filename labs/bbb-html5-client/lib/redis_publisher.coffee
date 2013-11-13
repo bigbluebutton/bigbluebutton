@@ -35,7 +35,7 @@ module.exports = class RedisPublisher
   # @param meetingID [string] the ID of the meeting
   # @param sessionID [string] the ID of the user, if `null` will send to all clients
   # @param callback(err, succeeded) [Function] callback to call when finished
-  publishLoadUsers: (meetingID, sessionID, callback) ->
+  ###publishLoadUsers: (meetingID, sessionID, callback) ->
     usernames = []
     @redisAction.getUsers meetingID, (err, users) =>
       users.forEach (user) =>
@@ -45,7 +45,7 @@ module.exports = class RedisPublisher
 
       receivers = (if sessionID? then sessionID else meetingID)
       @pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "load users", usernames])
-      callback?(null, true)
+      callback?(null, true)###
 
   # Publish the current presenter's public ID to appropriate clients.
   #
