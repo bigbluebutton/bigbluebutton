@@ -195,8 +195,14 @@ define [
         globals.events.trigger("connection:load_users", users)
 
       # Received event for a new user
-      @socket.on "user join", (userid, username) =>
-        console.log "socket on: user join"
+      @socket.on "UserJoiningRequest", (message) =>
+        console.log "socket on: UserJoiningRequest"
+        #console.log message
+        #eventObject = JSON.parse(message);
+        console.log("message: ")
+        console.log(message);
+        userid = message.user.metadata.userid
+        username = message.user.name
         globals.events.trigger("connection:user_join", userid, username)
 
       # Received event when a user leave
