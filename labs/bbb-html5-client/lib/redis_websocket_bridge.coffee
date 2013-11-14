@@ -40,7 +40,8 @@ module.exports = class RedisWebsocketBridge
       socket.on "user connect", () => @_socket_onUserConnected(socket)
       socket.on "user connect", () => @_socket_onUserConnected2(socket)
       socket.on "disconnect", () => @_socket_onUserDisconnected(socket)
-      socket.on "msg", (msg) => @_socket_onChatMessage(socket, msg)
+      #socket.on "msg", (msg) => @_socket_onChatMessage(socket, msg)
+      socket.on "msg", (msg) => @_socket_onChatMessage2(socket, msg)
       socket.on "logout", () => @_socket_onLogout(socket)
       socket.on "all_shapes", () => @_socket_onAllShapes(socket)
 
@@ -298,6 +299,28 @@ module.exports = class RedisWebsocketBridge
           @redisAction.getUserProperties meetingID, sessionID, (err, properties) =>
             username = fromSocket(socket, "username")
             @redisPublisher.publishChatMessage(meetingID, username, msg, properties.pubID)
+
+            messageID = rack() # get a randomly generated id for the message
+            @redisStore.rpush RedisKeys.getMessagesString(meetingID, null, null), messageID #store the messageID in the list of messages
+            @redisStore.hmset RedisKeys.getMessageString(meetingID, null, null, messageID), "message", msg, "username", username, "userID", properties.pubID
+
+  # When a user sends a chat message
+  #
+  # @param socket [Object] the socket that generated the event
+  # @param msg [string] the message received
+  # @private
+  _socket_onChatMessage2: (socket, msg) ->
+    msg = sanitizer.escape(msg)
+    sessionID = fromSocket(socket, "sessionID")
+    meetingID = fromSocket(socket, "meetingID")
+    @redisAction.isValidSession meetingID, sessionID, (err, reply) =>
+      if reply
+        if msg.length > config.maxChatLength
+          @redisPublisher.publishChatMessageTooLong(meetingID, sessionID)
+        else
+          @redisAction.getUserProperties meetingID, sessionID, (err, properties) =>
+            username = fromSocket(socket, "username")
+            @redisPublisher.publishChatMessage2(meetingID, username, msg, properties.pubID)
 
             messageID = rack() # get a randomly generated id for the message
             @redisStore.rpush RedisKeys.getMessagesString(meetingID, null, null), messageID #store the messageID in the list of messages

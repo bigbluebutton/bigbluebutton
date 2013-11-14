@@ -219,8 +219,19 @@ define [
       # Received event for a new public chat message
       # @param  {string} name name of user
       # @param  {string} msg  message to be displayed
-      @socket.on "msg", (name, msg) =>
+      #THIS IS THE OLD MESSAGE FORMAT. NOT USED ANYMORE
+      ###@socket.on "msg", (name, msg) =>
         console.log "socket on: msg"
+        globals.events.trigger("connection:msg", name, msg)###
+
+      # Received event for a new public chat message
+      # @param  {string} name name of user
+      # @param  {string} msg  message to be displayed
+      @socket.on "SendPublicChatMessage", (msgEvent) =>
+        console.log "socket on: msg"
+        console.log(msgEvent);
+        name = msgEvent.chat.from.name
+        msg = msgEvent.chat.text
         globals.events.trigger("connection:msg", name, msg)
 
       # Received event to update all the messages in the chat box
@@ -247,6 +258,8 @@ define [
     # Emit a message to the server
     # @param  {string} the message
     emitMsg: (msg) ->
+      console.log "emitting message: "
+      console.log(msg)
       @socket.emit "msg", msg
 
     # Emit the finish of a text shape
