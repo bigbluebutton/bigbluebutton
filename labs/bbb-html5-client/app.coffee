@@ -85,3 +85,6 @@ io.configure ->
 
 # Bridge used to interact between redis and socket clients
 config.modules.register "RedisWebsocketBridge", new RedisWebsocketBridge(io)
+
+# reduce logging
+io.set('log level', 1);

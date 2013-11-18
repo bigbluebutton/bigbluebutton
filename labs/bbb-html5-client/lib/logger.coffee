@@ -31,7 +31,7 @@ colors = [ 91, 93, 34, 90 ]
 module.exports = class Logger
   @colors = false
   @level = 3
-  @enabled = true
+  @enabled = false
 
   # Saves to log and to req.flash to also show in a view.
   @flash = (req, type) ->

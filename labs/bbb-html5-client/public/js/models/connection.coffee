@@ -73,9 +73,11 @@ define [
 
       # Received event to update all the slide images
       # @param  {Array} urls list of URLs to be added to the paper (after old images are removed)
-      @socket.on "all_slides", (urls) =>
+      @socket.on "all_slides", (all_slidesEventObject) =>
         console.log "socket on: all_slides"
-        globals.events.trigger("connection:all_slides", urls)
+        console.log("all_slidesEventObject: ");
+        console.log(all_slidesEventObject)
+        globals.events.trigger("connection:all_slides", all_slidesEventObject);
 
       # Received event to clear the whiteboard shapes
       @socket.on "clrPaper",=>
@@ -111,8 +113,10 @@ define [
       # Received event to update the cursor coordinates
       # @param  {number} x x-coord of the cursor as a percentage of page width
       # @param  {number} y y-coord of the cursor as a percentage of page height
-      @socket.on "mvCur", (x, y) =>
-        #console.log "socket on: mvCur"
+      @socket.on "mvCur", (data) =>
+        x = data.cursor.x
+        y = data.cursor.y
+        console.log "socket on: mvCur"
         globals.events.trigger("connection:mvCur", x, y)
 
       # Received event to update the zoom or move the slide

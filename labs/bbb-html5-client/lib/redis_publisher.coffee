@@ -64,6 +64,7 @@ module.exports = class RedisPublisher
   # @param sessionID [string] the ID of the user, if `null` will send to all clients
   # @param callback(err, succeeded) [Function] callback to call when finished
   publishUserJoin: (meetingID, sessionID, userid, username, callback) ->
+    console.log ("\n\n**publishUserJoin**\n\n")
     receivers = (if sessionID? then sessionID else meetingID)
     @pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user join", userid, username, "VIEWER"])
     callback?(null, true)
@@ -118,6 +119,7 @@ module.exports = class RedisPublisher
   # @param callback(err, succeeded) [Function] callback to call when finished
   # @todo callback should be called at the end and only once, can use async for this
   publishSlides: (meetingID, sessionID, callback) ->
+    console.log("\n\n***publishSlides called");
     slides = []
     @redisAction.getCurrentPresentationID meetingID, (err, presentationID) =>
       @redisAction.getPageIDs meetingID, presentationID, (err, pageIDs) =>
@@ -130,6 +132,37 @@ module.exports = class RedisPublisher
               if slides.length is pageIDs.length
                 receivers = (if sessionID? then sessionID else meetingID)
                 @pub.publish receivers, JSON.stringify(["all_slides", slides])
+                callback?(true)
+
+
+  # Publish list of slides from redis to the appropriate clients
+  #
+  # @param meetingID [string] the ID of the meeting
+  # @param sessionID [string] the ID of the user, if `null` will send to all clients
+  # @param callback(err, succeeded) [Function] callback to call when finished
+  # @todo callback should be called at the end and only once, can use async for this
+  publishSlides2: (meetingID, sessionID, callback) ->
+    console.log("\n\n***publishSlides2 called");
+    slides = []
+    @redisAction.getCurrentPresentationID meetingID, (err, presentationID) =>
+      @redisAction.getPageIDs meetingID, presentationID, (err, pageIDs) =>
+        slideCount = 0
+        pageIDs.forEach (pageID) =>
+          @redisAction.getPageImage meetingID, presentationID, pageID, (err, filename) =>
+            @redisAction.getImageSize meetingID, presentationID, pageID, (err, width, height) =>
+              path = config.presentationImagePath(meetingID, presentationID, filename)
+              slides.push [path, width, height]
+              if slides.length is pageIDs.length
+                receivers = (if sessionID? then sessionID else meetingID)
+                allSlidesEventObject = {
+                  name : "all_slides",
+                  meeting:{
+                    id:meetingID,
+                    sessionID:sessionID
+                  },
+                  slides: slides
+                }
+                @pub.publish receivers, JSON.stringify( allSlidesEventObject )
                 callback?(true)
 
   # When the list of slides is loaded, we usually have to update the current image

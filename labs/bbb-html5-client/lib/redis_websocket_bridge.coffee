@@ -62,6 +62,7 @@ module.exports = class RedisWebsocketBridge
 
       else if channel is "bigbluebutton:meeting:presentation"
         @_redis_onBigbluebuttonMeetingPresentation(attributes)
+        @_redis_onBigbluebuttonMeetingPresentation2(attributes)
 
       else
         # value of pub channel is used as the name of the SocketIO room to send to
@@ -104,11 +105,11 @@ module.exports = class RedisWebsocketBridge
   #   The first attribute is the meetingID
   # @private
   _redis_onBigbluebuttonBridge2: (attributes) ->
-    #console.log("\n\n***attributes: ")
-    #console.log attributes 
+    console.log("\n\n***attributes: ")
+    console.log attributes 
     #meetingID = attributes[0]
     meetingID = attributes?.meeting?.id
-    console.log("meetingID: " + meetingID);
+    console.log("*meetingID: " + meetingID);
 
     emit = =>
       # apply the parameters to the socket event, and emit it on the channels
@@ -133,10 +134,22 @@ module.exports = class RedisWebsocketBridge
   #
   # @private
   _redis_onBigbluebuttonMeetingPresentation: (attributes) ->
+    console.log "\n\n**_redis_onBigbluebuttonMeetingPresentation"
     if attributes.messageKey is "CONVERSION_COMPLETED"
       meetingID = attributes.room
       @redisPublisher.publishSlides meetingID, null, =>
         @redisPublisher.publishViewBox meetingID
+
+  # When received a message on the channel "bigbluebutton:meeting:presentation"
+  #
+  # @private
+  _redis_onBigbluebuttonMeetingPresentation2: (attributes) ->
+    console.log "\n\n**_redis_onBigbluebuttonMeetingPresentation2"
+    if attributes.messageKey is "CONVERSION_COMPLETED"
+      meetingID = attributes.room
+      @redisPublisher.publishSlides2 meetingID, null, =>
+        @redisPublisher.publishViewBox meetingID
+
 
   # Emits a message to all clients connected in the given channel.
   #
@@ -149,7 +162,8 @@ module.exports = class RedisWebsocketBridge
   #
   # @private
   _emitToClients2: (channel, message) ->
-    console.log("\n\n***message: ")
+
+    console.log("\n\nin _emitToClients2 ***message: ")
     console.log message 
     channelViewers = @io.sockets.in(channel)
     console.log("**message name**: ")
@@ -163,6 +177,7 @@ module.exports = class RedisWebsocketBridge
   # @param socket [Object] the socket that generated the event
   # @private
   _socket_onUserConnected: (socket) ->
+    console.log("\n\n**userConnected")
     sessionID = fromSocket(socket, "sessionID")
     meetingID = fromSocket(socket, "meetingID")
     @redisAction.isValidSession meetingID, sessionID, (err, reply) =>
@@ -211,6 +226,7 @@ module.exports = class RedisWebsocketBridge
   # @param socket [Object] the socket that generated the event
   # @private
   _socket_onUserConnected2: (socket) ->
+    console.log("\n\n**userConnected2")
     sessionID = fromSocket2(socket, "sessionID")
     meetingID = fromSocket2(socket, "meetingID")
     @redisAction.isValidSession meetingID, sessionID, (err, reply) =>
@@ -246,11 +262,13 @@ module.exports = class RedisWebsocketBridge
             # publish everything else we need to update for the client
             Logger.info "publishing messages, slides and shapes to #{meetingID}, #{sessionID}"
             @redisPublisher.publishMessages(meetingID, sessionID)
-            @redisPublisher.publishSlides meetingID, sessionID, =>
+            @redisPublisher.publishSlides2 meetingID, sessionID, =>
               @redisPublisher.publishCurrentImagePath(meetingID)
               @redisPublisher.publishTool(meetingID, sessionID)
               @redisPublisher.publishShapes(meetingID, sessionID)
               @redisPublisher.publishViewBox(meetingID, sessionID)
+
+
 
   # When a user disconnects from the socket
   #

@@ -512,7 +512,8 @@ define [
     # Registers listeners for events in the gloval event bus
     _registerEvents: ->
 
-      globals.events.on "connection:all_slides", (urls) =>
+      globals.events.on "connection:all_slides", (data) =>
+        urls = data.slides
         @removeAllImagesFromPaper()
         for url in urls
           @addImageToPaper(url[0], url[1], url[2])
