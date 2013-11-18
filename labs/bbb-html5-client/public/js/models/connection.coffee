@@ -142,11 +142,6 @@ define [
         console.log "socket on: viewBox"
         globals.events.trigger("connection:viewBox", xperc, yperc, wperc, hperc)
 
-      # Received event to update the whiteboard between fit to width and fit to page
-      # @param  {boolean} value choice of fit: true for fit to page, false for fit to width
-      @socket.on "fitToPage", (value) ->
-        console.log "socket on: fitToPage"
-        globals.events.trigger("connection:fitToPage", value)
 
       # Received event to update the zoom level of the whiteboard.
       # @param  {number} delta amount of change in scroll wheel
@@ -168,11 +163,6 @@ define [
         console.log "socket on: panStop"
         globals.events.trigger("connection:panStop")
 
-      # Received event to change the current tool
-      # @param  {string} tool The tool to be turned on
-      @socket.on "toolChanged", (tool) ->
-        console.log "socket on: toolChanged"
-        globals.events.trigger("connection:toolChanged", tool)
 
       # Received event to denote when the text has been created
       @socket.on "textDone", ->
@@ -254,10 +244,6 @@ define [
     emitAllShapes: ->
       @socket.emit "all_shapes"
 
-    # Emit an update in a fit of the whiteboard
-    # @param  {boolean} true for fitToPage, false for fitToWidth
-    emitFitToPage: (value) ->
-      @socket.emit "fitToPage", value
 
     # Emit a message to the server
     # @param  {string} the message
