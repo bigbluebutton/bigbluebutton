@@ -54,24 +54,64 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var playingAudio:Boolean = false;
 			private var images:Images = new Images();
 			[Bindable] private var cancelIcon:Class = images.cancel;
-            
+      [Bindable] private var microphoneList:Array;
+      
             [Bindable]private var baseIndex:int = 1;
-			
-      override public function move(x:Number, y:Number):void
+	
+	    override public function move(x:Number, y:Number):void
       {
         return;
       }
+  
+      private function selectMicrophone(event:Event):void {
+            LogUtil.debug("Changing microphone.");
+            //LogUtil.debug(event.currentTarget.selectedIndex);
+            if (mic != null){
+              mic.setLoopBack(false);
+            }
+            mic = Microphone.getMicrophone(comboMicList.selectedIndex);           
+      }
+
+      private function testMicrophone():void{
+        LogUtil.debug("Testing microphone : " + comboMicList.selectedItem);
+        if (testMicBtn.selected) {
+          if (mic != null) {
+            if (mic.muted) {
+                LogUtil.debug("Microphone is muted.");
+                Security.showSettings(SecurityPanel.PRIVACY);
+                testMicBtn.selected = false;
+                return;
+            } else {
+                LogUtil.debug("Testing microphone.");                 
+                mic.setLoopBack(true);
+                mic.setUseEchoSuppression(true);                      
+                //Security.showSettings(SecurityPanel.MICROPHONE);
+            }
+          }else {
+            LogUtil.warn("Microphone is used by other application.");
+          }      
+        }else {
+          mic.setLoopBack(false);
+        }
+      }
       
 			private function initDefaultMic():void {
+
+				microphoneList = Microphone.names;
+				LogUtil.debug("Available microphones: " + microphoneList);
+        //microphone = Microphone.getMicrophone(comboMicList.selectedIndex);								
+        
+
 				mic = Microphone.getMicrophone();
+        
 				
 				if (mic != null) {
 					if (mic.muted) {
 						// user has disallowed access to the mic
 						mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
-                        // when we open the window show the default acceptor first and then the custom one every other time
+            // when we open the window show the default acceptor first and then the custom one every other time
 						mic.setLoopBack(true);
-                        mic.setLoopBack(false);
+            mic.setLoopBack(false);
 					} else {
 						// user has allowed access to the mic
 						mic.setLoopBack(false);
@@ -125,25 +165,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}	                     
 			}
 			
-			
-            private function showMicSettingsPanel():void {
-                if (settingBtn.selected) {
-                    if (mic != null) {
-                        if (mic.muted) {
-                            Security.showSettings(SecurityPanel.PRIVACY);
-                            settingBtn.selected = false;
-                            return;
-                        } else {
-                            mic.setLoopBack(true);
-                            mic.setUseEchoSuppression(true);
-                            Security.showSettings(SecurityPanel.MICROPHONE);
-                        }
-                    }
-                } else {
-                    mic.setLoopBack(false);
-                }	
+/*			
+      private function showMicSettingsPanel():void {
+          if (settingBtn.selected) {
+              if (mic != null) {
+                  if (mic.muted) {
+                      Security.showSettings(SecurityPanel.PRIVACY);
+                      settingBtn.selected = false;
+                      return;
+                  } else {
+                      mic.setLoopBack(true);
+                      mic.setUseEchoSuppression(true);
+                      Security.showSettings(SecurityPanel.MICROPHONE);
+                  }
+              }
+          } else {
+              mic.setLoopBack(false);
+          }	
 			}
 			
+*/			
 			private function onJoinClicked():void {
                 // Do one last check for if the mic has been allowed.
                 // This must come first because cleanUp() will destroy mic 
@@ -194,7 +235,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                            accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
 		</mx:Canvas>
     
-        <mx:VBox width="100%" paddingTop="5">
+<!--        <mx:VBox width="100%" paddingTop="5">
             <mx:HRule width="100%"/>
             <mx:Label id="testMicLabel" text="{ResourceUtil.getInstance().getString('bbb.micSettings.microphone.header')}" styleName="micSettingsWindowTestMicrophoneLabelStyle" width="100%" tabIndex="{baseIndex+2}"/>
         </mx:VBox>   
@@ -207,8 +248,31 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                        click="showMicSettingsPanel()" tabIndex="{baseIndex+4}"
                        toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.changeMic.toolTip')}"/>		
         </mx:HBox>
+-->        
+        <mx:VBox width="100%" paddingTop="5">
+          <mx:HRule width="100%"/>
+          <mx:Label id="testMicLabel" 
+                    text="Microphone" 
+                    styleName="micSettingsWindowTestMicrophoneLabelStyle" 
+                    width="100%" 
+                    tabIndex="{baseIndex+2}"/>
+        </mx:VBox>   
         
-        <mx:Label id="testSpeakersLabel" text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakers.header')}" styleName="micSettingsWindowTestSpeakersLabelStyle" paddingTop="5" tabIndex="{baseIndex+5}"/>
+                
+        <mx:HBox width="100%">       
+          <mx:ComboBox id="comboMicList" dataProvider="{microphoneList}" change="selectMicrophone(event)" />
+          <mx:Button id="testMicBtn" label="Test this microphone" 
+                       styleName="micSettingsWindowChangeMicButtonStyle"
+                       toggle="true"
+                       click="testMicrophone()" tabIndex="{baseIndex+4}"
+                       toolTip="Test this microphone"/>		
+        </mx:HBox>
+                       
+        <mx:Label id="testSpeakersLabel" 
+                    text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakers.header')}" 
+                    styleName="micSettingsWindowTestSpeakersLabelStyle" 
+                    paddingTop="5" 
+                    tabIndex="{baseIndex+5}"/>
         
         <mx:HBox width="100%">
             <mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.hearFromHeadset')}"
