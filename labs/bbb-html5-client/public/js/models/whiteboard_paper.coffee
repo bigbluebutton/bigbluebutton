@@ -393,6 +393,10 @@ define [
 
     # Make a shape `shape` with the data in `data`.
     makeShape: (shape, data) ->
+      console.log("shape")
+      console.log(shape)
+      console.log("data")
+      console.log(data)
       tool = null
       switch shape
         when "path", "line"
@@ -546,7 +550,7 @@ define [
       globals.events.on "connection:updShape", (shape, data) =>
         @updateShape(shape, data)
 
-      globals.events.on "connection:makeShape", (shape, data) =>
+      globals.events.on "connection:whiteboardMakeShape", (shape, data) =>
         @makeShape(shape, data)
 
       globals.events.on "connection:shapePoints", (type, color, thickness, points) =>

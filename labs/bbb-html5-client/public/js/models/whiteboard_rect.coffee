@@ -23,7 +23,13 @@ define [
     # @param  {number} y         the y value of the top left corner
     # @param  {string} colour    the colour of the object
     # @param  {number} thickness the thickness of the object's line(s)
-    make: (x, y, colour, thickness) ->
+    make: (data) ->
+      console.log("make data");
+      console.log(data);
+      x = data.shape.coordinate.firstX
+      y = data.shape.coordinate.firstY
+      color = data.shape.color
+      thickness = data.shape.thickness
       @obj = @paper.rect(x * @gw + @xOffset, y * @gh + @yOffset, 0, 0, 1)
       @obj.attr Utils.strokeAndThickness(colour, thickness)
       @definition =
