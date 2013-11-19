@@ -30,6 +30,7 @@ define [
       y = data.shape.coordinate.firstY
       color = data.shape.color
       thickness = data.shape.thickness
+
       @obj = @paper.rect(x * @gw + @xOffset, y * @gh + @yOffset, 0, 0, 1)
       @obj.attr Utils.strokeAndThickness(color, thickness)
       @definition =

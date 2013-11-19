@@ -385,7 +385,7 @@ define [
         when "ellipse"
           @currentEllipse.update(data)
         when "triangle"
-          @currentTriangle.update.apply(@currentTriangle, data)
+          @currentTriangle.update(data)
         when "text"
           @currentText.update.apply(@currentText, data)
         else
@@ -414,7 +414,7 @@ define [
         when "triangle"
           @currentTriangle = @_createTool(shape)
           toolModel = @currentTriangle
-          tool = @currentTriangle.make.apply(@currentTriangle, data)
+          tool = @currentTriangle.make(data)
         when "text"
           @currentText = @_createTool(shape)
           toolModel = @currentText

@@ -23,10 +23,16 @@ define [
     # @param  {[type]} y         the y value of the top left corner
     # @param  {string} colour    the colour of the object
     # @param  {number} thickness the thickness of the object's line(s)
-    make: (x, y, colour, thickness) ->
+    make: (data) ->
+
+      x = data.shape.coordinate.firstX
+      y = data.shape.coordinate.firstY
+      color = data.shape.color
+      thickness = data.shape.thickness
+
       path = @_buildPath(x, y, x, y, x, y)
       @obj = @paper.path(path)
-      @obj.attr Utils.strokeAndThickness(colour, thickness)
+      @obj.attr Utils.strokeAndThickness(color, thickness)
       @obj.attr({"stroke-linejoin": "round"})
 
       @definition =
@@ -40,7 +46,13 @@ define [
     # @param  {number} y1 the y value of the top left corner
     # @param  {number} x2 the x value of the bottom right corner
     # @param  {number} y2 the y value of the bottom right corner
-    update: (x1, y1, x2, y2) ->
+    update: (data) ->
+
+      x1 = data.shape.coordinate.firstX
+      y1 = data.shape.coordinate.firstY
+      x2 = data.shape.coordinate.lastX
+      y2 = data.shape.coordinate.lastY
+
       if @obj?
         [xTop, yTop, xBottomLeft, yBottomLeft, xBottomRight, yBottomRight] = @_getCornersFromPoints(x1, y1, x2, y2)
 
