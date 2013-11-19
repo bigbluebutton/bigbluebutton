@@ -383,7 +383,7 @@ define [
         when "rect"
           @currentRect.update(data)
         when "ellipse"
-          @currentEllipse.update.apply(@currentEllipse, data)
+          @currentEllipse.update(data)
         when "triangle"
           @currentTriangle.update.apply(@currentTriangle, data)
         when "text"
@@ -410,7 +410,7 @@ define [
         when "ellipse"
           @currentEllipse = @_createTool(shape)
           toolModel = @currentEllipse
-          tool = @currentEllipse.make.apply(@currentEllipse, data)
+          tool = @currentEllipse.make(data)
         when "triangle"
           @currentTriangle = @_createTool(shape)
           toolModel = @currentTriangle
