@@ -31,7 +31,7 @@ define [
       color = data.shape.color
       thickness = data.shape.thickness
       @obj = @paper.rect(x * @gw + @xOffset, y * @gh + @yOffset, 0, 0, 1)
-      @obj.attr Utils.strokeAndThickness(colour, thickness)
+      @obj.attr Utils.strokeAndThickness(color, thickness)
       @definition =
         shape: "rect"
         data: [x, y, 0, 0, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]
@@ -43,7 +43,12 @@ define [
     # @param  {number} x2 the x value of the bottom right corner
     # @param  {number} y2 the y value of the bottom right corner
     # @param  {boolean} square (draw a square or not)
-    update: (x1, y1, x2, y2,square) -> 
+    update: (data) -> 
+      x1 = data.shape.coordinate.firstX
+      y1 = data.shape.coordinate.firstY
+      x2 = data.shape.coordinate.lastX
+      y2 = data.shape.coordinate.lastY
+      square = data.shape.square
       if @obj?
         [x1, x2] = [x2, x1] if x2 < x1
         [x1, x2] = [x2, x1] if x2 < x1

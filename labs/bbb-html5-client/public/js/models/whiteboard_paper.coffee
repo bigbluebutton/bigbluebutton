@@ -381,7 +381,7 @@ define [
         when "line"
           @currentLine.update.apply(@currentLine, data)
         when "rect"
-          @currentRect.update.apply(@currentRect, data)
+          @currentRect.update(data)
         when "ellipse"
           @currentEllipse.update.apply(@currentEllipse, data)
         when "triangle"
@@ -406,7 +406,7 @@ define [
         when "rect"
           @currentRect = @_createTool(shape)
           toolModel = @currentRect
-          tool = @currentRect.make.apply(@currentRect, data)
+          tool = @currentRect.make(data)
         when "ellipse"
           @currentEllipse = @_createTool(shape)
           toolModel = @currentEllipse

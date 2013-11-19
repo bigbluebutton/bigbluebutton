@@ -94,9 +94,9 @@ define [
       # Received event to update a shape being created
       # @param  {string} shape type of shape being updated
       # @param  {Array} data   all information to update the shape
-      @socket.on "updShape", (data) =>
+      @socket.on "whiteboardUpdShape", (data) =>
         shape = data.shape.type
-        console.log "socket on: updShape"
+        console.log "socket on: whiteboardUpdShape"
         globals.events.trigger("connection:updShape", shape, data)
 
       # Received event to create a shape on the whiteboard
