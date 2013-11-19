@@ -14,7 +14,7 @@ String locIP=request.getLocalAddr();
 	<running><%= isMeetingRunning(request.getParameter("meetingID")) %></running>
 </response>
 <% } else if(request.getParameter("command").equals("getRecords")){%>
-      <%= getRecordings("English 101,English 102,English 103,English 104,English 105,english 106,English 107,English 108,English 109,English 110")%>
+      <%= getRecordings("English 101,English 102,English 103,English 104,English 105,English 106,English 107,English 108,English 109,English 110")%>
 <% } else if(request.getParameter("command").equals("publish")||request.getParameter("command").equals("unpublish")){%>
 	<%= setPublishRecordings( (request.getParameter("command").equals("publish")) ? true : false , request.getParameter("recordID"))%>
 <% } else if(request.getParameter("command").equals("delete")){%>
