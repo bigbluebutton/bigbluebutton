@@ -65,11 +65,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
       private function selectMicrophone(event:Event):void {
             LogUtil.debug("Changing microphone.");
-            //LogUtil.debug(event.currentTarget.selectedIndex);
+            testMicBtn.selected = false;
             if (mic != null){
               mic.setLoopBack(false);
             }
-            mic = Microphone.getMicrophone(comboMicList.selectedIndex);           
+            mic = Microphone.getMicrophone(comboMicList.selectedIndex);     
       }
 
       private function testMicrophone():void{
@@ -84,7 +84,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             } else {
                 LogUtil.debug("Testing microphone.");                 
                 mic.setLoopBack(true);
-                mic.setUseEchoSuppression(true);                      
+                mic.setUseEchoSuppression(true);     
+                timer = new Timer(100);
+        				timer.addEventListener(TimerEvent.TIMER, updateMicLevel);
+				        timer.start();                 
                 //Security.showSettings(SecurityPanel.MICROPHONE);
             }
           }else {
@@ -102,7 +105,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         //microphone = Microphone.getMicrophone(comboMicList.selectedIndex);								
         
 
-				mic = Microphone.getMicrophone();
+				mic = Microphone.getMicrophone(comboMicList.selectedIndex);
         
 				
 				if (mic != null) {
@@ -120,9 +123,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} else {
 					LogUtil.warn("Microphone is used by another application.");
 				}
-				timer = new Timer(100);
+				/*timer = new Timer(100);
 				timer.addEventListener(TimerEvent.TIMER, updateMicLevel);
 				//timer.start(); Commenting this out because the mic level has been removed
+				*/
+				
 			}
 			
 			// Added by Chad to enable closing the window without clicking the X
@@ -149,8 +154,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function updateMicLevel(e:TimerEvent):void{
 				if (mic != null) {
-//					mic1Label.text = mic.name;
-//					micLevel1.setProgress(mic.activityLevel, 100);					
+					micLevel.setProgress(mic.activityLevel, 100);					
 				}
 			}
 			
@@ -208,7 +212,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function cleanUp():void {
-				timer.stop();
+				if (timer) timer.stop();
 				mic.setLoopBack(false);
 				mic = null;
 				if (playingAudio) soundChannel.stop();				
@@ -256,16 +260,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     styleName="micSettingsWindowTestMicrophoneLabelStyle" 
                     width="100%" 
                     tabIndex="{baseIndex+2}"/>
+           <mx:Text width="100%" 
+                    text="Choose a microphone and check if the activity level increases its level when you talk" />
         </mx:VBox>   
         
-                
+
         <mx:HBox width="100%">       
-          <mx:ComboBox id="comboMicList" dataProvider="{microphoneList}" change="selectMicrophone(event)" />
+          <mx:ComboBox id="comboMicList" 
+                       dataProvider="{microphoneList}" 
+                       change="selectMicrophone(event)"
+                       height="30" />
+
           <mx:Button id="testMicBtn" label="Test this microphone" 
-                       styleName="micSettingsWindowChangeMicButtonStyle"
-                       toggle="true"
-                       click="testMicrophone()" tabIndex="{baseIndex+4}"
-                       toolTip="Test this microphone"/>		
+                     styleName="micSettingsWindowChangeMicButtonStyle"
+                     toggle="true"
+                     click="testMicrophone()" tabIndex="{baseIndex+4}"
+                     toolTip="Test this microphone"/>		
+
+          <mx:ProgressBar id="micLevel" 
+                          minimum="0" 
+                          maximum="100"
+                          labelPlacement="top" 
+                          label="   Activity level "
+                          direction="right" 
+                          mode="manual" 
+                          visible="true" 
+                          width="120" />             
         </mx:HBox>
                        
         <mx:Label id="testSpeakersLabel" 
