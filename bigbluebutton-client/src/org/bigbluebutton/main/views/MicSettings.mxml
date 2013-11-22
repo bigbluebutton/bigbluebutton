@@ -65,24 +65,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
       private function selectMicrophone(event:Event):void {
             LogUtil.debug("Changing microphone.");
-            testMicBtn.selected = false;
+            //testMicBtn.selected = false;
             if (mic != null){
               mic.setLoopBack(false);
             }
             mic = Microphone.getMicrophone(comboMicList.selectedIndex);     
+            testMicrophone();
       }
 
       private function testMicrophone():void{
         LogUtil.debug("Testing microphone : " + comboMicList.selectedItem);
-        if (testMicBtn.selected) {
           if (mic != null) {
             if (mic.muted) {
                 LogUtil.debug("Microphone is muted.");
+                mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
                 Security.showSettings(SecurityPanel.PRIVACY);
-                testMicBtn.selected = false;
                 return;
-            } else {
-                LogUtil.debug("Testing microphone.");                 
+            } else {        
                 mic.setLoopBack(true);
                 mic.setUseEchoSuppression(true);     
                 mic.soundTransform = new SoundTransform(0);  
@@ -94,20 +93,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           }else {
             LogUtil.warn("Microphone is used by other application.");
           }      
-        }else {
-          mic.setLoopBack(false);
-        }
       }
       
 			private function initDefaultMic():void {
 
 				microphoneList = Microphone.names;
-				LogUtil.debug("Available microphones: " + microphoneList);
-        //microphone = Microphone.getMicrophone(comboMicList.selectedIndex);								
-        
-
+				LogUtil.debug("Available microphones: " + microphoneList);    
 				mic = Microphone.getMicrophone(comboMicList.selectedIndex);
-        
+        testMicrophone();       
 				
 				if (mic != null) {
 					if (mic.muted) {
@@ -145,8 +138,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						break;
 					case "Microphone.Unmuted":
 //						mic.setLoopBack(true);
-//            mic.setUseEchoSuppression(true);
+//            mic.setUseEchoSuppression(true);            
 						LogUtil.debug("Access to the microphone has been allowed.");
+						testMicrophone();
 						break;
 					default:
 						LogUtil.debug("unknown micStatusHandler event: " + event);
@@ -272,12 +266,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                        change="selectMicrophone(event)"
                        height="30" />
 
-          <mx:Button id="testMicBtn" label="Test this microphone" 
+<!--          <mx:Button id="testMicBtn" label="Test this microphone" 
                      styleName="micSettingsWindowChangeMicButtonStyle"
                      toggle="true"
                      click="testMicrophone()" tabIndex="{baseIndex+4}"
                      toolTip="Test this microphone"/>		
-
+-->
           <mx:ProgressBar id="micLevel" 
                           minimum="0" 
                           maximum="100"
