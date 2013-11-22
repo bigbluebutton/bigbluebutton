@@ -85,6 +85,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 LogUtil.debug("Testing microphone.");                 
                 mic.setLoopBack(true);
                 mic.setUseEchoSuppression(true);     
+                mic.soundTransform = new SoundTransform(0);  
                 timer = new Timer(100);
         				timer.addEventListener(TimerEvent.TIMER, updateMicLevel);
 				        timer.start();                 
