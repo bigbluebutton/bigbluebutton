@@ -76,18 +76,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function testMicrophone():void{
         LogUtil.debug("Testing microphone : " + comboMicList.selectedItem);
           if (mic != null) {
+            mic.setLoopBack(false);
             if (mic.muted) {
                 LogUtil.debug("Microphone is muted.");
                 mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
                 Security.showSettings(SecurityPanel.PRIVACY);
+//                Security.showSettings(SecurityPanel.MICROPHONE);
                 return;
             } else {        
                 mic.setLoopBack(true);
-                mic.setUseEchoSuppression(true);     
+                LogUtil.debug("loopback set to true");
+                mic.setUseEchoSuppression(true);   
+                LogUtil.debug("echo suppression to true");  
+                mic.codec = SoundCodec.NELLYMOSER
                 mic.soundTransform = new SoundTransform(0);  
+                LogUtil.debug("new sound transform");
                 timer = new Timer(100);
+                LogUtil.debug("new timer");
         				timer.addEventListener(TimerEvent.TIMER, updateMicLevel);
+        				LogUtil.debug("new event listener");
 				        timer.start();                 
+				        LogUtil.debug("timer started");
                 //Security.showSettings(SecurityPanel.MICROPHONE);
             }
           }else {
@@ -102,7 +111,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				mic = Microphone.getMicrophone(comboMicList.selectedIndex);
         testMicrophone();       
 				
-				if (mic != null) {
+		/*		if (mic != null) {
 					if (mic.muted) {
 						// user has disallowed access to the mic
 						mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
@@ -117,6 +126,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} else {
 					LogUtil.warn("Microphone is used by another application.");
 				}
+				
+		*/		
 				/*timer = new Timer(100);
 				timer.addEventListener(TimerEvent.TIMER, updateMicLevel);
 				//timer.start(); Commenting this out because the mic level has been removed
