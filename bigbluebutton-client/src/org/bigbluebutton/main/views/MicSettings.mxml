@@ -85,18 +85,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 return;
             } else {        
                 mic.setLoopBack(true);
-                LogUtil.debug("loopback set to true");
                 mic.setUseEchoSuppression(true);   
-                LogUtil.debug("echo suppression to true");  
+                //http://stackoverflow.com/questions/2936925/no-mic-activity-with-setloopback-set-to-false-as3
+                //http://groups.yahoo.com/neo/groups/flexcoders/conversations/topics/144047
                 mic.codec = SoundCodec.NELLYMOSER
                 mic.soundTransform = new SoundTransform(0);  
-                LogUtil.debug("new sound transform");
                 timer = new Timer(100);
-                LogUtil.debug("new timer");
         				timer.addEventListener(TimerEvent.TIMER, updateMicLevel);
-        				LogUtil.debug("new event listener");
 				        timer.start();                 
-				        LogUtil.debug("timer started");
                 //Security.showSettings(SecurityPanel.MICROPHONE);
             }
           }else {
