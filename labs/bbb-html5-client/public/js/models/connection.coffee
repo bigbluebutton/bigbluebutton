@@ -108,9 +108,10 @@ define [
         globals.events.trigger("connection:whiteboardMakeShape", shape, data)
 
       # Pencil drawings are received as points from the server and painted as lines.
-      @socket.on "shapePoints", (type, color, thickness, points) =>
-        console.log "socket on: shapePoints"
-        globals.events.trigger("connection:shapePoints", type, color, thickness, points)
+      @socket.on "whiteboardDrawPen", (data) =>
+        console.log "socket on: whiteboardDrawPen"
+        console.log data
+        globals.events.trigger("connection:whiteboardDrawPen", data)
 
       # Received event to update the cursor coordinates
       # @param  {number} x x-coord of the cursor as a percentage of page width

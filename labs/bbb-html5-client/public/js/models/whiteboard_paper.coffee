@@ -379,7 +379,7 @@ define [
     updateShape: (shape, data) ->
       switch shape
         when "line"
-          @currentLine.update.apply(@currentLine, data)
+          @currentLine.update(data)
         when "rect"
           @currentRect.update(data)
         when "ellipse"
@@ -402,7 +402,7 @@ define [
         when "path", "line"
           @currentLine = @_createTool(shape)
           toolModel = @currentLine
-          tool = @currentLine.make.apply(@currentLine, data)
+          tool = @currentLine.make(data)
         when "rect"
           @currentRect = @_createTool(shape)
           toolModel = @currentRect
@@ -553,15 +553,48 @@ define [
       globals.events.on "connection:whiteboardMakeShape", (shape, data) =>
         @makeShape(shape, data)
 
-      globals.events.on "connection:shapePoints", (type, color, thickness, points) =>
+      globals.events.on "connection:whiteboardDrawPen", (data) =>
+        type = data.shape.type
+        color = data.shape.color
+        thickness = data.shape.thickness
+        points = data.shape.points
         if type is "line"
-          for i in [0..points.length] by 2
+          for i in [0..points.length - 1]
             if i is 0
-              data = [(points[i]/100),(points[i+1]/100),color,thickness]
-              @makeShape(type, data)
+              #make these compatible with a line
+              console.log("points[i]: ");
+              console.log(points[i]);
+              lineObject = {
+                shape: {
+                  type: "line",
+                  coordinate: {
+                    firstX : points[i].x/100,
+                    firstY : points[i].y/100
+                  },
+                  color: data.shape.color,
+                  thickness : data.shape.thickness
+                }
+              }
+              console.log("lineObject: ")
+              console.log(lineObject)
+              @makeShape(type, lineObject)
             else
-              data = [(points[i]/100),(points[i+1]/100),true]
-              @updateShape(type, data)
+              console.log("points[i]: ");
+              console.log(points[i]);
+              lineObject = {
+                shape: {
+                  type: "line",
+                  coordinate: {
+                    firstX : points[i].x/100,
+                    firstY : points[i].y/100
+                  },
+                  color: data.shape.color,
+                  thickness : data.shape.thickness
+                }
+              }
+              console.log("lineObject: ")
+              console.log(lineObject)
+              @updateShape(type, lineObject)
 
       globals.events.on "connection:mvCur", (x, y) =>
         @moveCursor(x, y)

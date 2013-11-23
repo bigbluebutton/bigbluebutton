@@ -32,13 +32,21 @@ define [
     # @param  {number} y         the y value of the line start point as a percentage of the original height
     # @param  {string} colour    the colour of the shape to be drawn
     # @param  {number} thickness the thickness of the line to be drawn
-    make: (x, y, colour, thickness) ->
+    make: (data) ->
+      console.log "in line MAKE(data): "
+      console.log data
+
+      x = data.shape.coordinate.firstX
+      y = data.shape.coordinate.firstY
+      color = data.shape.color
+      thickness = data.shape.thickness
+
       x1 = x * @gw + @xOffset
       y1 = y * @gh + @yOffset
       path = "M" + x1 + " " + y1 + " L" + x1 + " " + y1
       pathPercent = "M" + x + " " + y + " L" + x + " " + y
       @obj = @paper.path(path)
-      @obj.attr Utils.strokeAndThickness(colour, thickness)
+      @obj.attr Utils.strokeAndThickness(color, thickness)
       @obj.attr({"stroke-linejoin": "round"})
 
       @definition =
@@ -57,7 +65,15 @@ define [
     #                                 false if it should replace the last point
     # @param  {number}         y2  1) the y of the second point
     #                              2) undefined
-    update: (x1, y1, x2, y2) ->
+    update: (data) ->
+      console.log "in line UPDATE(data): "
+      console.log data
+
+      x1 = data.shape.coordinate.firstX
+      y1 = data.shape.coordinate.firstY
+      x2 = data.shape.coordinate.lastX
+      y2 = data.shape.coordinate.lastY
+
       if @obj?
 
         # addign points from the pencil
