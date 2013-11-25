@@ -201,6 +201,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.fitWidth') as String)] = ShortcutEvent.FIT_TO_WIDTH;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.fitPage') as String)] = ShortcutEvent.FIT_TO_PAGE;
 				//keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.whiteboard.undo') as String)] = ShortcutEvent.UNDO_WHITEBOARD;
+
+				keyCombos[Keyboard.LEFT] = ShortcutEvent.PREVIOUS_SLIDE;
+				keyCombos[Keyboard.RIGHT] = ShortcutEvent.NEXT_SLIDE;
 			}
 			
 			// Handle presentation-scope hotkeys
