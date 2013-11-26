@@ -66,7 +66,7 @@ define [
     # @param  {number}         y2  1) the y of the second point
     #                              2) undefined
     update: (data) ->
-      console.log "in line UPDATE(data): "
+      console.log "in line-UPDATE(data): "
       console.log data
 
       x1 = data.shape.coordinate.firstX
@@ -76,9 +76,9 @@ define [
 
       if @obj?
 
-        # addign points from the pencil
-        if _.isBoolean(x2)
-          add = x2
+        # if adding points from the pencil 
+        if _.isBoolean(data.adding)
+          add = data.adding
 
           pathPercent = "L" + x1 + " " + y1
           @definition.data[0] += pathPercent

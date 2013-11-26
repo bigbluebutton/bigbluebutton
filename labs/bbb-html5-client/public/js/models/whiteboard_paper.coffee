@@ -574,10 +574,11 @@ define [
                   color: data.shape.color,
                   thickness : data.shape.thickness
                 }
+                adding : false #tell the line object that we are NOT adding points but creating a new line
               }
-              console.log("lineObject: ")
-              console.log(lineObject)
-              @makeShape(type, lineObject)
+              console.log("lineObject: ");
+              console.log(lineObject);
+              @makeShape(type, lineObject);
             else
               console.log("points[i]: ");
               console.log(points[i]);
@@ -591,6 +592,7 @@ define [
                   color: data.shape.color,
                   thickness : data.shape.thickness
                 }
+                adding : true #tell the line object that we ARE adding points and NOT creating a new line
               }
               console.log("lineObject: ")
               console.log(lineObject)
