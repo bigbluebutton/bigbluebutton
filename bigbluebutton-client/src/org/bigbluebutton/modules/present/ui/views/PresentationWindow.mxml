@@ -204,6 +204,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				keyCombos[Keyboard.LEFT] = ShortcutEvent.PREVIOUS_SLIDE;
 				keyCombos[Keyboard.RIGHT] = ShortcutEvent.NEXT_SLIDE;
+				keyCombos[Keyboard.PAGE_UP] = ShortcutEvent.PREVIOUS_SLIDE;
+				keyCombos[Keyboard.PAGE_DOWN] = ShortcutEvent.NEXT_SLIDE;
 			}
 			
 			// Handle presentation-scope hotkeys
