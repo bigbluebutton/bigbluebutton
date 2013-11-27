@@ -26,7 +26,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				showCloseButton="false" 
 				close="onCancelClicked()" 
 				keyDown="handleKeyDown(event)">
-	
+
+    
 	<mx:Script>
 		<![CDATA[
       import flash.system.Security;
@@ -36,6 +37,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import mx.events.CloseEvent;
       import mx.events.ItemClickEvent;
       import mx.managers.PopUpManager;
+      import mx.core.IFlexDisplayObject;
       
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
@@ -51,12 +53,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var timer:Timer;
 			private var mic:Microphone;
+			private var biggestMicLevel:int = 0;
+			private var micName:String;
 			private var playingAudio:Boolean = false;
 			private var images:Images = new Images();
 			[Bindable] private var cancelIcon:Class = images.cancel;
-      [Bindable] private var microphoneList:Array;
-      
-            [Bindable]private var baseIndex:int = 1;
+      [Bindable] private var microphoneList:Array;      
+      [Bindable]private var baseIndex:int = 1;
 	
 	    override public function move(x:Number, y:Number):void
       {
@@ -74,7 +77,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function testMicrophone():void{
-        LogUtil.debug("Testing microphone : " + comboMicList.selectedItem);
+        micName = mic.name;
+        biggestMicLevel = 0;
+        LogUtil.debug("Testing microphone : " + micName);
           if (mic != null) {
             mic.setLoopBack(false);
             if (mic.muted) {
@@ -84,13 +89,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 //                Security.showSettings(SecurityPanel.MICROPHONE);
                 return;
             } else {        
+                // Update mic name
+       				  if (micName != mic.name ){
+      				    micName = mic.name;
+       				    LogUtil.debug("New mic name" + micName);
+      				  }
+                //Parameters valid only for the mic settings
                 mic.setLoopBack(true);
                 mic.setUseEchoSuppression(true);   
                 //http://stackoverflow.com/questions/2936925/no-mic-activity-with-setloopback-set-to-false-as3
                 //http://groups.yahoo.com/neo/groups/flexcoders/conversations/topics/144047
                 mic.codec = SoundCodec.NELLYMOSER
                 mic.soundTransform = new SoundTransform(0);  
-                timer = new Timer(100);
+                mic.gain = 60; // TODO: SET THIS WITH A BAR
+                timer = new Timer(0);
         				timer.addEventListener(TimerEvent.TIMER, updateMicLevel);
 				        timer.start();                 
                 //Security.showSettings(SecurityPanel.MICROPHONE);
@@ -156,6 +168,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function updateMicLevel(e:TimerEvent):void{
 				if (mic != null) {
+				  if (mic.activityLevel > biggestMicLevel) {
+				    biggestMicLevel = mic.activityLevel;
+				  }
+				  //LogUtil.debug("Mic level: " + mic.activityLevel);
 					micLevel.setProgress(mic.activityLevel, 100);					
 				}
 			}
@@ -191,19 +207,35 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 */			
+
+      
+ 
+
 			private function onJoinClicked():void {
-                // Do one last check for if the mic has been allowed.
-                // This must come first because cleanUp() will destroy mic 
-                if (mic != null && mic.muted) {
-                    Security.showSettings(SecurityPanel.PRIVACY);
-                }
-                
+			
+			  LogUtil.debug("Biggest activity level detected for " + micName + ": " + biggestMicLevel );
+        // Do one last check for if the mic has been allowed.
+        // This must come first because cleanUp() will destroy mic 
+        if (mic != null && mic.muted) {
+            Security.showSettings(SecurityPanel.PRIVACY);
+        }        
+        if (biggestMicLevel > 0){
+          joinConference();
+        } else {
+           var micWarning:MicWarning = new MicWarning();
+           micWarning.micsettings = this;
+           PopUpManager.addPopUp(micWarning, this, true);
+           PopUpManager.centerPopUp(micWarning);
+        }          	
+			}	
+			
+			public function joinConference():void{
 				cleanUp();      
 				var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
 				joinEvent.payload['useMicrophone'] = true;
 				dispatchEvent(joinEvent);
-				PopUpManager.removePopUp(this);
-			}	
+				PopUpManager.removePopUp(this);			
+			}
 			
 			private function onCancelClicked():void {
 				cleanUp();
@@ -217,10 +249,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (timer) timer.stop();
 				mic.setLoopBack(false);
 				mic = null;
-				if (playingAudio) soundChannel.stop();				
+				if (playingAudio) soundChannel.stop();								
 			}
 			
-			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
+			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";			
 			private function onHelpButtonClicked():void {
         DEFAULT_HELP_URL =  BBB.initConfigManager().config.help.url;
 				navigateToURL(new URLRequest(DEFAULT_HELP_URL));
@@ -273,12 +305,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                        change="selectMicrophone(event)"
                        height="30" />
 
-<!--          <mx:Button id="testMicBtn" label="Test this microphone" 
-                     styleName="micSettingsWindowChangeMicButtonStyle"
-                     toggle="true"
-                     click="testMicrophone()" tabIndex="{baseIndex+4}"
-                     toolTip="Test this microphone"/>		
--->
           <mx:ProgressBar id="micLevel" 
                           minimum="0" 
                           maximum="100"
@@ -318,4 +344,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</mx:HBox>
 		
 	</mx:VBox>		
+
 </mx:TitleWindow>
