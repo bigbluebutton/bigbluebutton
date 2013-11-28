@@ -41,6 +41,13 @@ public class ConversionUpdateMessage {
 			message.put("room", pres.getRoom());
 			message.put("returnCode", "CONVERT");
 			message.put("presentationName", pres.getName());
+		
+				
+
+			if(pres.isDownloadable())
+				message.put("fileName",pres.getFileNameToDownload());
+			else
+				message.put("fileName","");
     	}
 		
 		public MessageBuilder entry(String key, Object value) {

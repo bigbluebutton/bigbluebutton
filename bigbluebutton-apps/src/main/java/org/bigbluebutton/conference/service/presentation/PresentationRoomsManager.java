@@ -179,7 +179,16 @@ public class PresentationRoomsManager {
         if (r != null) {
             return r.getPresentationNames();
         }   
-        log.warn("Getting current presentation on a non-existing room " + room);
+        log.warn("Getting presentation names on a non-existing room " + room);
+        return null;
+    }
+
+	public ArrayList<String> getFileNamesToDownload(String room){
+        PresentationRoom r = getRoom(room);
+        if (r != null) {
+            return r.getFileNamesToDownload();
+        }   
+        log.warn("Getting file names on a non-existing room " + room);
         return null;
     }
     

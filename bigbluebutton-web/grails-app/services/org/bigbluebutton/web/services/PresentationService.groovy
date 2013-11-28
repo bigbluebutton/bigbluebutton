@@ -84,6 +84,14 @@ class PresentationService {
 		assert dir.exists()
 		return dir
 	}
+
+	public File downloadPresentationDirectory(String uploadDirectory) {
+		File dir = new File(uploadDirectory + File.separatorChar + "download")		
+		dir.mkdirs()
+		assert dir.exists()
+
+		return dir
+	}
 	
 	def processUploadedPresentation = {uploadedPres ->	
 		// Run conversion on another thread.
@@ -117,6 +125,19 @@ class PresentationService {
 		log.debug "showing $txt"
 		
 		new File(txt)
+	}
+
+	def getFile = {conf, room, presentationName ->
+		println "download request for $presentationName"
+
+		def fileDirectory = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
+					"download")
+		
+		//list the files of the download directory ; it must have only 1 file to download
+		def list = fileDirectory.listFiles()
+		
+		//new File(pdfFile)
+		list[0]
 	}
 	
 	def numberOfThumbnails = {conf, room, name ->

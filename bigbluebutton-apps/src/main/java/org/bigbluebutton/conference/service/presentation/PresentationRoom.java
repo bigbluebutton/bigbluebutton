@@ -22,8 +22,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.red5.logging.Red5LoggerFactory;
 
-import net.jcip.annotations.ThreadSafe;import java.util.concurrent.ConcurrentHashMap;import java.util.concurrent.CopyOnWriteArrayList;import java.util.ArrayList;
-import java.util.Collections;import java.util.Iterator;
+import net.jcip.annotations.ThreadSafe;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 /**
@@ -49,6 +53,7 @@ public class PresentationRoom {
 	Double yPercent = 0D;
 	
 	ArrayList<String> presentationNames = new ArrayList<String>();
+	ArrayList<String> fileNames = new ArrayList<String>();
 	
 	public PresentationRoom(String name) {
 		this.name = name;
@@ -81,6 +86,7 @@ public class PresentationRoom {
 		}	
 		
 		storePresentationNames(message);
+		storeFileNames(message);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -89,9 +95,18 @@ public class PresentationRoom {
         String messageKey = (String) message.get("messageKey");
              
         if (messageKey.equalsIgnoreCase("CONVERSION_COMPLETED")) {            
-            log.debug(messageKey + "[" + presentationName + "]");
+            log.debug("adding presentation name: " + messageKey + "[" + presentationName + "]");
             presentationNames.add(presentationName);                                
         }           
+    }
+
+
+	@SuppressWarnings("unchecked")
+	private void storeFileNames(Map message){
+        	String fileName = (String) message.get("fileName"); 
+		if(!fileName.equals("")) {
+        		fileNames.add(fileName);                                
+                }
     }
 	
 	public void sendCursorUpdate(Double xPercent, Double yPercent) {
@@ -178,7 +193,19 @@ public class PresentationRoom {
         if (currentPresentation.equals(presentationName)) {
         	log.debug("[" + remPresentation + "] is the current presentation. Unsharing that presentation.");
             sharePresentation(presentationName, false);
-        }        
+        }
+
+
+	//remove the corresponding file name
+	for(int i = 0 ; i < fileNames.size() ; i++) {
+
+		String presentationNameFromFileName = fileNames.get(i).substring(0,fileNames.get(i).lastIndexOf('.'));
+
+		if( presentationNameFromFileName.equals(presentationName) ) {
+			log.debug("Removing file name: " + fileNames.get(i));
+			fileNames.remove(i);
+		}
+	}  
     }
     
     public String getCurrentPresentation() {
@@ -195,6 +222,10 @@ public class PresentationRoom {
 
 	public ArrayList<String> getPresentationNames() {
 		return presentationNames;
+	}
+
+	public ArrayList<String> getFileNamesToDownload() {
+		return fileNames;
 	}
 
 	public Double getxOffset() {

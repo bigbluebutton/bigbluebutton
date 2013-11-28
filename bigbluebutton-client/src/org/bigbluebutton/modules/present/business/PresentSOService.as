@@ -35,6 +35,7 @@ package org.bigbluebutton.modules.present.business {
 	import org.bigbluebutton.modules.present.events.NavigationEvent;
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
+	import org.bigbluebutton.modules.present.events.DownloadEvent;
 	import org.bigbluebutton.modules.present.events.ZoomEvent;
 	
 	public class PresentSOService {
@@ -388,7 +389,7 @@ package org.bigbluebutton.modules.present.business {
 								sendPresentationName(u as String);
 							}
 						}
-						
+
 						// Force switching the presenter.
 						triggerSwitchPresenter();
 						
@@ -410,6 +411,37 @@ package org.bigbluebutton.modules.present.business {
 				) //new Responder
 			); //_netConnection.call
 		}
+
+		public function getFileNamesToDownload():void {
+			nc.call( "presentation.getFileNames",// Remote function name
+				new Responder(
+	        		// result - On successful result
+					function(result:Object):void { 	
+						LogUtil.debug("Getting from server: file names to download");					 
+						if(result.fileNames) {
+							for(var f:Object in result.fileNames) {
+								var u:Object = result.fileNames[f]
+								LogUtil.debug("Got from server the downloadable file: " + u as String);
+								sendFileName(u as String);
+							}
+						}
+						else 
+						    LogUtil.debug("result.fileNames is FALSE..."); 
+					},
+	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+							} 
+					}
+				) //new Responder
+			); //_netConnection.call
+		}
+
+
+
 		
 		/***
 		 * NOTE:
@@ -452,6 +484,12 @@ package org.bigbluebutton.modules.present.business {
 			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
 			uploadEvent.presentationName = presentationName;
 			dispatcher.dispatchEvent(uploadEvent)
+		}
+
+		private function sendFileName(fileName:String):void {
+			var e:DownloadEvent = new DownloadEvent(DownloadEvent.ADD_NEW_FILENAME);
+			e.fileNameToDownload = fileName;
+			dispatcher.dispatchEvent(e);
 		}
 					
 		/**

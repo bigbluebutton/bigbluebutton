@@ -139,18 +139,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.maxUploadFileExceededAlert'));
         } else {
           var presentationName:String = StringUtil.trim(fileToUpload.name);
-          trace("Uploading file : " + presentationName);
+          LogUtil.debug("Uploading file : " + presentationName);
 
           var filenamePattern:RegExp = /(.+)(\..+)/i;
           // Get the first match which should be the filename without the extension.
           presentationName = presentationName.replace(filenamePattern, "$1")
           // Replace any character other than a word character (A-Z, a-z, 0-9, or _).
           presentationName = presentationName.replace(/[^0-9a-zA-Z_\.]/g, "-");
-          trace("Uploadling presentation name: " + presentationName);
+          LogUtil.debug("Uploadling presentation name: " + presentationName);
 
-          var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.START_UPLOAD);
+	  var isDownloadable:Boolean = new Boolean(letUserDownload.selected);	  
+
+	  var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.START_UPLOAD);
           uploadEvent.presentationName = presentationName;
           uploadEvent.fileToUpload = fileToUpload;
+	  uploadEvent.isDownloadable = isDownloadable;
+
+	  LogUtil.debug("uploadEvent.isDownloadable = " + uploadEvent.isDownloadable);
+
+
           globalDispatch.dispatchEvent(uploadEvent);
 
           progBarLbl.visible = true;
@@ -289,9 +296,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                  toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.uploadBtn.toolTip')}"  click="startUpload()"
                  enabled="false" icon="{bulletGoIcon}"/>
     </mx:HBox>
+
+   <mx:Spacer height="2"/>
+    <mx:HBox>
+      <mx:Spacer width="3"/>
+ 	<mx:CheckBox id="letUserDownload" label="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload')}" selected="true" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload.tooltip')}"/>
+    </mx:HBox>
     <mx:Spacer height="5"/>
     <mx:HBox width="100%">
-      <mx:Spacer width="10"/>
+      <mx:Spacer width="5"/>
       <mx:Label id="progBarLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}" 
                 styleName="presentationUploadProgressBarLabelStyle"
                 visible="false"/>
@@ -306,20 +319,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </mx:HBox>  
     <mx:Spacer height="5"/>
     <mx:HBox width="90%" height="100">
-      <mx:Spacer width="10"/>
+      <mx:Spacer width="5"/>
       <mx:List id="presentationNamesList" width="90%" height="100" alternatingItemColors="[#EFEFEF, #FEFEFE]" allowMultipleSelection="false"
                itemRenderer="org.bigbluebutton.modules.present.ui.views.UploadedPresentationRenderer"
                dragEnabled="false" dataProvider="{presentationNamesAC}">
       </mx:List>
     </mx:HBox>
     <mx:Spacer height="5"/>
-    <mx:HBox width="100%">
+    <mx:HBox width="90%">
       <mx:Spacer width="100%"/>
       <mx:Button id="okCancelBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.okCancelBtn')}"
                  styleName="presentationUploadCancelButtonStyle"
                  click="globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW))"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.okCancelBtn.toolTip')}"/>
-      <mx:Spacer width="5"/>
     </mx:HBox>	
   </mx:VBox>
 

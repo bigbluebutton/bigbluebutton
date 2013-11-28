@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.present.business
 	import flash.events.TimerEvent;
 	import flash.net.NetConnection;
 	import flash.utils.Timer;
+	import flash.net.navigateToURL;
 	
 	import mx.controls.Alert;
 	
@@ -37,7 +38,14 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.SlideEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
+	import org.bigbluebutton.modules.present.events.DownloadEvent;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
+
+	import flash.events.*;
+	import flash.net.FileReference;
+	import flash.net.URLRequest;
+	import flash.errors.*;
+
 	
 	public class PresentProxy
 	{
@@ -77,8 +85,45 @@ package org.bigbluebutton.modules.present.business
 		 */		
 		public function startUpload(e:UploadEvent):void{
 			if (uploadService == null) uploadService = new FileUploadService(host + "/bigbluebutton/presentation/upload", conference, room);
-			uploadService.upload(e.presentationName, e.fileToUpload);
+			LogUtil.debug("Presentation is downloadable? " + e.isDownloadable);
+			uploadService.upload(e.presentationName, e.fileToUpload, e.isDownloadable);
 		}
+
+		/**
+		 * Start downloading the selected file 
+		 * @param e
+		 * 
+		 */		
+		public function startDownload(e:DownloadEvent):void {
+
+			var presentationName:String = getPresentationName(e.fileNameToDownload)
+		        var downloadUri:String = host + "/bigbluebutton/presentation/" + conference + "/" + room + "/" + presentationName + "/download";
+			
+			LogUtil.debug("PresentationApplication::downloadPresentation()... " + downloadUri);
+
+			var req:URLRequest = new URLRequest(downloadUri);
+			navigateToURL(req,"_blank");
+		}
+
+
+		/**
+		 * return the presentation name given a file name 
+		 * @param fileName
+		 */
+		private function getPresentationName(fileName:String):String {
+		   var filenamePattern:RegExp = /(.+)(\..+)/i;
+          	   // Get the first match which should be the filename without the extension.
+          	   return fileName.replace(filenamePattern, "$1")
+		}
+
+		/**
+		 * updates the list of downloadable file names 
+		 */		
+		public function getFileNamesFromServer():void{ 
+			if (soService == null) return;
+			soService.getFileNamesToDownload();
+		}
+
 		
 		/**
 		 * To to the specified slide 

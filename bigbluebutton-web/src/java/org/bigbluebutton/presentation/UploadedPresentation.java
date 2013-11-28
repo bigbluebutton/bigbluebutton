@@ -29,11 +29,30 @@ public final class UploadedPresentation {
 	private String fileType = "unknown";
 	private int numberOfPages = 0;
 	private boolean lastStepSuccessful = false;
+	private boolean isDownloadable = false;
+	private String fileNameToDownload = "";
 	
 	public UploadedPresentation(String conference, String room, String name) {
 		this.conference = conference;
 		this.room = room;
 		this.name = name;
+		this.isDownloadable = false;
+	}
+
+	public boolean isDownloadable() {
+		return isDownloadable;
+	}
+
+	public void setDownloadable() {
+		this.isDownloadable = true;
+	}
+
+	public void setFileNameToDownload(String name) {
+		this.fileNameToDownload = name;
+	}
+
+	public String getFileNameToDownload() {
+		return fileNameToDownload;
 	}
 
 	public File getUploadedFile() {

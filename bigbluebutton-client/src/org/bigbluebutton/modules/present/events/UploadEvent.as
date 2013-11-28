@@ -44,16 +44,18 @@ package org.bigbluebutton.modules.present.events
     	public static const UNSUPPORTED_DOCUMENT:String = "UNSUPPORTED_DOCUMENT";
     	public static const PAGE_COUNT_FAILED:String = "PAGE_COUNT_FAILED";
     	public static const PAGE_COUNT_EXCEEDED:String = "PAGE_COUNT_EXCEEDED";
-    			
+
+   			
 		public var presentationName:String;
 		public var data:Object;
 		public var completedSlides:Number;
 		public var totalSlides:Number;
+		public var isDownloadable:Boolean;
 		public var fileToUpload:FileReference;
 		public var percentageComplete:Number;
 		public var maximumSupportedNumberOfSlides:int;
-		public var maxFileSize:Number;
-		
+		public var maxFileSize:Number;	
+
 		public function UploadEvent(type:String) {
 			super(type, true, false);
 		}

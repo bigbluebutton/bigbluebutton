@@ -51,6 +51,10 @@ class UrlMappings {
 	  "/presentation/$conference/$room/$presentation_name/textfile/$id"(controller:"presentation") {
 		   action = [GET:'showTextfile']
       }
+
+	  "/presentation/$conference/$room/$presentation_name/download"(controller:"presentation") {
+		   action = [GET:'downloadFile']
+      }
       
 	  "/api/setConfigXML"(controller:"api") {
 		  action = [POST:'setConfigXML']

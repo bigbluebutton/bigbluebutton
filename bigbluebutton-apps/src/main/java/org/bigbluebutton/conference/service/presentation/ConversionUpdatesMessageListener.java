@@ -89,6 +89,11 @@ public class ConversionUpdatesMessageListener {
 				conversionUpdatesProcessor.process(message);
 			}
 			else if(messageKey.equalsIgnoreCase(CONVERSION_COMPLETED_KEY)){
+
+				String fileName =  (String) mapMessage.get("fileName");
+				message.put("fileName", fileName);
+				log.debug("Came the following file name: " + fileName);
+
 				String slidesInfo = (String) mapMessage.get("slidesInfo");
 				message.put("slidesInfo", StringEscapeUtils.unescapeXml(slidesInfo));				
 				conversionUpdatesProcessor.process(message);

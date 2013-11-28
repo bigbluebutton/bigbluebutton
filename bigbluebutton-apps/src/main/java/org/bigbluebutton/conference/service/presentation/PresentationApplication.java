@@ -22,7 +22,8 @@ import org.slf4j.Logger;
 import org.bigbluebutton.conference.ClientMessage;
 import org.bigbluebutton.conference.ConnectionInvokerService;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.Red5;import java.util.ArrayList;
+import org.red5.server.api.Red5;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -73,6 +74,14 @@ public class PresentationApplication {
             return roomsManager.getPresentations(room);           
         }
         log.warn("Getting presentations on a non-existant room " + room);
+        return null;
+	}
+
+	public ArrayList<String> getFileNamesToDownload(String room){
+	   if (roomsManager.hasRoom(room)){
+            return roomsManager.getFileNamesToDownload(room);           
+        }
+        log.warn("Getting file names on a non-existant room " + room);
         return null;
 	}
 	

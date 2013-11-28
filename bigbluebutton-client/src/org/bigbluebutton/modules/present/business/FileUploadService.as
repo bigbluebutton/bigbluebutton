@@ -60,8 +60,9 @@ package org.bigbluebutton.modules.present.business
 		 * @param file - The FileReference class of the file we wish to send
 		 * 
 		 */		
-		public function upload(presentationName:String, file:FileReference):void {
+		public function upload(presentationName:String, file:FileReference, downloadable: Boolean):void {
 			sendVars.presentation_name = presentationName;
+			sendVars.is_downloadable = downloadable; 
 			var fileToUpload : FileReference = new FileReference();
 			fileToUpload = file;
 			
@@ -74,7 +75,10 @@ package org.bigbluebutton.modules.present.business
 
 			request.method = URLRequestMethod.POST;
 			
+			LogUtil.debug("@FileUploadFile: sendVars.is_downloadable: " + sendVars.is_downloadable);
+
 			// "fileUpload" is the variable name of the uploaded file in the server
+			LogUtil.debug("fileToUpload.name = " + fileToUpload.name);
 			fileToUpload.upload(request, "fileUpload", true);
 		}
 		

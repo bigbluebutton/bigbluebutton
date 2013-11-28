@@ -33,18 +33,22 @@ package org.bigbluebutton.modules.present.managers
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.QueryListOfPresentationsReplyEvent;
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+	import org.bigbluebutton.modules.present.events.DownloadEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
+	import org.bigbluebutton.modules.present.ui.views.FileDownloadWindow;
 	import org.bigbluebutton.modules.present.ui.views.FileUploadWindow;
 	import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 	
 	public class PresentManager
 	{
 		private var globalDispatcher:Dispatcher;
+		private var downloadWindow:FileDownloadWindow;
 		private var uploadWindow:FileUploadWindow;
 		private var presentWindow:PresentationWindow;
 		
 		//format: presentationNames = [{label:"00"}, {label:"11"}, {label:"22"} ];
 		[Bindable] public var presentationNames:ArrayCollection = new ArrayCollection();
+		[Bindable] public var fileNamesToDownload:ArrayCollection = new ArrayCollection();
 		
 		public function PresentManager() {
 			globalDispatcher = new Dispatcher();
@@ -69,6 +73,21 @@ package org.bigbluebutton.modules.present.managers
 			event.window = window;
 			globalDispatcher.dispatchEvent(event);
 		}
+
+		public function handleOpenDownloadWindow():void{
+			if (downloadWindow != null) return;
+		
+			globalDispatcher.dispatchEvent(new DownloadEvent(DownloadEvent.UPDATE_FILE_NAMES));
+	
+			downloadWindow = new FileDownloadWindow();	
+			downloadWindow.fileNamesToDownload = fileNamesToDownload;	
+			mx.managers.PopUpManager.addPopUp(downloadWindow, presentWindow, true);
+		}
+		
+		public function handleCloseDownloadWindow():void{
+			PopUpManager.removePopUp(downloadWindow);
+			downloadWindow = null;
+		}
 	
 		public function handleOpenUploadWindow(e:UploadEvent):void{
 			if (uploadWindow != null) return;
@@ -85,24 +104,57 @@ package org.bigbluebutton.modules.present.managers
 		}
 		
 		public function updatePresentationNames(e:UploadEvent):void{
-			LogUtil.debug("Adding presentation " + e.presentationName);
+			LogUtil.debug("Adding presentation NAME " + e.presentationName);
 			for (var i:int = 0; i < presentationNames.length; i++) {
 				if (presentationNames[i] == e.presentationName) return;
 			}
-			presentationNames.addItem(e.presentationName);
+			presentationNames.addItem(e.presentationName);	
 		}
+
+		public function updateFileNamesToDownload(e:DownloadEvent):void{
+			LogUtil.debug("Adding file to download NAME " + e.fileNameToDownload);
+			for (var i:int = 0; i < fileNamesToDownload.length; i++) {
+				if (fileNamesToDownload[i] == e.fileNameToDownload) return;
+			}
+			fileNamesToDownload.addItem(e.fileNameToDownload);
+		}
+
 
 		public function removePresentation(e:RemovePresentationEvent):void {
 			LogUtil.debug("Removing presentation " + e.presentationName);
-      var p:String;
-      
-      for (var i:int = 0; i < presentationNames.length; i++) {
-        p = presentationNames.getItemAt(i) as String;
-        if (p == e.presentationName) {
-          presentationNames.removeItemAt(i);
-        }
-      }
+		        var p:String;
+		      
+		        for (var i:int = 0; i < presentationNames.length; i++) {
+			  p = presentationNames.getItemAt(i) as String;
+			  if (p == e.presentationName) {
+			    presentationNames.removeItemAt(i);
+			  }
+     		        }
+
+			removeFileNameToDownload(e.presentationName);
 		}
+
+
+		public function removeFileNameToDownload(presentationName:String):void {
+      			var p:String;
+      
+		        for (var i:int = 0; i < fileNamesToDownload.length; i++) {
+			  p = getPresentationName(fileNamesToDownload.getItemAt(i) as String);
+			  if (p == presentationName) {
+			     LogUtil.debug("Removing file name to download " + presentationName);
+			     fileNamesToDownload.removeItemAt(i);
+			  }
+		        }
+		}
+
+
+		private function getPresentationName(fileName:String):String
+		{
+		   var filenamePattern:RegExp = /(.+)(\..+)/i;
+          	   // Get the first match which should be the filename without the extension.
+          	   return fileName.replace(filenamePattern, "$1")
+		}
+
     
     public function queryPresentations():void {
       var pArray:Array = new Array();

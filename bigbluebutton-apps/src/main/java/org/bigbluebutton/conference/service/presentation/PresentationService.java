@@ -17,11 +17,14 @@
 *
 */
 package org.bigbluebutton.conference.service.presentation;
-import java.util.ArrayList;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
-import org.red5.logging.Red5LoggerFactory;import org.red5.server.api.Red5;import org.red5.server.api.scope.IScope;
+import org.red5.logging.Red5LoggerFactory;
+import org.red5.server.api.Red5;
+import org.red5.server.api.scope.IScope;
 import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
 
 public class PresentationService {	
@@ -81,6 +84,21 @@ public class PresentationService {
 		
 		log.info("getPresentationInfo::service - Sending presentation information...");
 		return presentationInfo;
+	}
+
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> getFileNames() {
+		log.debug("Getting the downloadable file names.");
+		IScope scope = Red5.getConnectionLocal().getScope();
+
+		ArrayList<String> downloadableFileNames = presentationApplication.getFileNamesToDownload(scope.getName());
+
+		Map<String, Object> fileNames = new HashMap<String, Object>();
+		fileNames.put("fileNames", downloadableFileNames);
+
+		log.info("getFileNames::service - Sending downloadable file names...");
+		return fileNames;
+		
 	}
 	
 	public void gotoSlide(int slideNum) {
