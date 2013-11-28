@@ -22,6 +22,9 @@ package org.bigbluebutton.modules.present.managers
 	
 	import mx.collections.ArrayCollection;
 	import mx.managers.PopUpManager;
+	import mx.managers.SystemManager;
+	import mx.core.Application;
+	import mx.core.FlexGlobals;
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
@@ -79,8 +82,16 @@ package org.bigbluebutton.modules.present.managers
 		
 			globalDispatcher.dispatchEvent(new DownloadEvent(DownloadEvent.UPDATE_FILE_NAMES));
 	
-			downloadWindow = new FileDownloadWindow();	
-			downloadWindow.fileNamesToDownload = fileNamesToDownload;	
+			downloadWindow = new FileDownloadWindow();
+
+			var width:int = Application(FlexGlobals.topLevelApplication).systemManager.screen.width;
+			var height:int = Application(FlexGlobals.topLevelApplication).systemManager.screen.height;
+
+			downloadWindow.x = (width - downloadWindow.width) / 2;
+                        downloadWindow.y = (height - downloadWindow.height) / 2;
+	
+			downloadWindow.fileNamesToDownload = fileNamesToDownload;
+	
 			mx.managers.PopUpManager.addPopUp(downloadWindow, presentWindow, true);
 		}
 		
@@ -93,8 +104,16 @@ package org.bigbluebutton.modules.present.managers
 			if (uploadWindow != null) return;
 			
 			uploadWindow = new FileUploadWindow();
+
+			var width:int = Application(FlexGlobals.topLevelApplication).systemManager.screen.width;
+			var height:int = Application(FlexGlobals.topLevelApplication).systemManager.screen.height;
+
+			uploadWindow.x = (width - uploadWindow.width) / 2;
+                        uploadWindow.y = (height - uploadWindow.height) / 2;
+
 			uploadWindow.presentationNamesAC = presentationNames;
 			uploadWindow.maxFileSize = e.maxFileSize;
+
 			mx.managers.PopUpManager.addPopUp(uploadWindow, presentWindow, true);
 		}
 		

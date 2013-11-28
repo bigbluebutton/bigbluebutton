@@ -68,9 +68,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     
     <mx:Spacer height="5"/>
     
-    <mx:HBox width="90%" height="100">
+    <mx:HBox width="90%" height="200">
       <mx:Spacer width="10"/>
-      <mx:List id="presentationNamesList" width="90%" height="100" alternatingItemColors="[#EFEFEF, #FEFEFE]" allowMultipleSelection="false"
+      <mx:List id="presentationNamesList" width="90%" height="200" alternatingItemColors="[#EFEFEF, #FEFEFE]" allowMultipleSelection="false"
                itemRenderer="org.bigbluebutton.modules.present.ui.views.DownloadPresentationRenderer"
                dragEnabled="false" dataProvider="{fileNamesToDownload}">
       </mx:List>

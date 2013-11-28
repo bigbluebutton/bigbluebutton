@@ -166,7 +166,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				closeBtn.tabIndex = baseIndex+3;
 
 				var images:Images = new Images();
-				downloadPres.setStyle("icon", images.disk);
+				downloadPres.setStyle("icon", images.disk_grayscale);
 				
 				slideView.slideLoader.tabIndex = baseIndex+4;
 				hotkeyCapture();
