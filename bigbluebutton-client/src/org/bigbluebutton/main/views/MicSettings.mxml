@@ -38,6 +38,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import mx.events.ItemClickEvent;
       import mx.managers.PopUpManager;
       import mx.core.IFlexDisplayObject;
+      import mx.events.SliderEvent;
+      import mx.controls.sliderClasses.Slider;
+
       
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
@@ -91,8 +94,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             } else {        
                 // Update mic name
        				  if (micName != mic.name ){
-      				    micName = mic.name;
-       				    LogUtil.debug("New mic name" + micName);
+      				    micName = mic.name;       				 
       				  }
                 //Parameters valid only for the mic settings
                 mic.setLoopBack(true);
@@ -101,7 +103,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 //http://groups.yahoo.com/neo/groups/flexcoders/conversations/topics/144047
                 mic.codec = SoundCodec.NELLYMOSER
                 mic.soundTransform = new SoundTransform(0);  
-                mic.gain = 60; // TODO: SET THIS WITH A BAR
+                mic.gain = micRecordVolume.value;
                 timer = new Timer(0);
         				timer.addEventListener(TimerEvent.TIMER, updateMicLevel);
 				        timer.start();                 
@@ -252,6 +254,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (playingAudio) soundChannel.stop();								
 			}
 			
+			private function changeRecordVolume(event:SliderEvent):void {
+                var currentSlider:Slider=Slider(event.currentTarget);
+                mic.gain = currentSlider.value
+      }
+                        
 			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";			
 			private function onHelpButtonClicked():void {
         DEFAULT_HELP_URL =  BBB.initConfigManager().config.help.url;
@@ -313,7 +320,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                           direction="right" 
                           mode="manual" 
                           visible="true" 
-                          width="120" />             
+                          width="120" />
+                          
+           <mx:HSlider id="micRecordVolume"
+                       maximum="100"
+                       snapInterval="1"                       
+                       labels="[0%,Record Volume,100%]"
+                       tickInterval="10"
+                       liveDragging="true" 
+                       change="changeRecordVolume(event);"
+                       showTrackHighlight="true"
+                       trackColors="[ 0xEEEEEE, 0xFFFFFF ]"
+                       value="60"/>                           
+                         
         </mx:HBox>
                        
         <mx:Label id="testSpeakersLabel" 
