@@ -559,10 +559,17 @@ def processSlideEvents
 				# If it is, add it to the list with all the data.
 				$slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start], [slide_end], $global_slide_count, slide_text, [orig_slide_start], [orig_slide_end]]
 				$global_slide_count = $global_slide_count + 1
-			elsif
+			else
 				# If not, append new in and out times to the old entry
-				$slides_compiled[[slide_src, slide_size[1], slide_size[0]]][0] << slide_start
-				$slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
+				# But if the previous slide_end is equal to the current slide_start, we just pop the previous slide_end and push the current one
+				# It will avoid the duplication of the thumbnails on the playback
+				if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1].last == slide_start)
+					$slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1].pop
+					$slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
+				else
+					$slides_compiled[[slide_src, slide_size[1], slide_size[0]]][0] << slide_start
+					$slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
+				end
 				$slides_compiled[[slide_src, slide_size[1], slide_size[0]]][4] << orig_slide_start
 				$slides_compiled[[slide_src, slide_size[1], slide_size[0]]][5] << orig_slide_end
 			end
