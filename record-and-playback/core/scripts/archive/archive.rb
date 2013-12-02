@@ -124,7 +124,11 @@ if not FileTest.directory?(target_dir)
   archive_events(meeting_id, redis_host, redis_port, raw_archive_dir)
   # we will abort the archiving if there's no marks to start and stop the recording
   if not archive_has_recording_marks?(meeting_id, raw_archive_dir)
-    BigBlueButton.logger.info("There's no recording marks for #{meeting_id}, aborting the rest of the archive process.")
+    BigBlueButton.logger.info("There's no recording marks for #{meeting_id}, aborting the archive process")
+    BigBlueButton.logger.info("Removing events.xml")
+    FileUtils.rm_r target_dir
+    BigBlueButton.logger.info("Removing the recorded flag")
+    FileUtils.rm("#{recording_dir}/status/recorded/#{meeting_id}.done")
   else
     archive_audio(meeting_id, audio_dir, raw_archive_dir)
     archive_presentation(meeting_id, presentation_dir, raw_archive_dir)

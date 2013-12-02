@@ -455,7 +455,7 @@ end
 #
 def translateTimestamp(timestamp)
 	new_timestamp = translateTimestamp_helper(timestamp.to_f).to_f
-	BigBlueButton.logger.info("Translating #{timestamp}, old value=#{timestamp.to_f-$meeting_start.to_f}, new value=#{new_timestamp}")
+#	BigBlueButton.logger.info("Translating #{timestamp}, old value=#{timestamp.to_f-$meeting_start.to_f}, new value=#{new_timestamp}")
 	new_timestamp
 end
 
@@ -532,6 +532,7 @@ def processSlideEvents
 		else
 			slide_timestamp =  node[:timestamp]
 			slide_start = ( translateTimestamp(slide_timestamp) / 1000 ).round(1)
+			orig_slide_start = ( slide_timestamp.to_f / 1000 ).round(1)
 			slide_number = node.xpath(".//slide")[0].text()
 			slide_src = "presentation/#{$presentation_name}/slide-#{slide_number.to_i + 1}.png"
                         txt_file_path = "presentation/#{$presentation_name}/textfiles/slide-#{slide_number.to_i + 1}.txt"
@@ -541,8 +542,10 @@ def processSlideEvents
 			current_index = $slides_events.index(node)
 			if(current_index + 1 < $slides_events.length)
 				slide_end = ( translateTimestamp($slides_events[current_index + 1][:timestamp]) / 1000 ).round(1)
+				orig_slide_end = ( $slides_events[current_index + 1][:timestamp].to_f / 1000 ).round(1)
 			else
 				slide_end = ( translateTimestamp($meeting_end) / 1000 ).round(1)
+				orig_slide_end = ( $meeting_end.to_f / 1000 ).round(1)
 			end
 
 			if slide_start == slide_end
@@ -554,12 +557,14 @@ def processSlideEvents
 			# Is this a new image or one previously viewed?
 			if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]] == nil)
 				# If it is, add it to the list with all the data.
-				$slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start], [slide_end], $global_slide_count, slide_text]
+				$slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start], [slide_end], $global_slide_count, slide_text, [orig_slide_start], [orig_slide_end]]
 				$global_slide_count = $global_slide_count + 1
 			elsif
 				# If not, append new in and out times to the old entry
 				$slides_compiled[[slide_src, slide_size[1], slide_size[0]]][0] << slide_start
 				$slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
+				$slides_compiled[[slide_src, slide_size[1], slide_size[0]]][4] << orig_slide_start
+				$slides_compiled[[slide_src, slide_size[1], slide_size[0]]][5] << orig_slide_end
 			end
 
 			$ss[(slide_start..slide_end)] = slide_size # store the size of the slide at that range of time
@@ -607,12 +612,17 @@ def processShapesAndClears
 					$shape_events.each do |shape|
 						$shapeTimestamp = shape[:timestamp].to_f
 						$shapeCreationTime = ( translateTimestamp($shapeTimestamp) / 1000 ).round(1)
-						shapePageNumber = shape.xpath(".//pageNumber")[0].text().to_i
+						orig_shapeCreationTime = ( $shapeTimestamp.to_f / 1000 ).round(1)
 						in_this_image = false
+						index = 0
+						numOfTimes = $val[0].length
 
 						# Check if the current shape is to be drawn in this particular image
-						if (shapePageNumber.to_i == $val[2].to_i)
-							in_this_image = true
+						while((in_this_image == false) && (index < numOfTimes)) do
+							if((($val[4][index].to_f)..($val[5][index].to_f)) === orig_shapeCreationTime) # is the shape within the certain time of the image
+								in_this_image = true
+							end
+							index+=1
 						end
 
 						if(in_this_image)
