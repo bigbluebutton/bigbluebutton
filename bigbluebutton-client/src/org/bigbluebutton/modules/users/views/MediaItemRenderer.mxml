@@ -113,6 +113,8 @@
 			private function onChangeMyRole(e:ChangeMyRole):void {
 				rolledOver = false;
 				updateButtons();
+				// close the menu if it was opened
+				if (myMenu) myMenu.hide();
 
 				refreshRole(e.role == Role.MODERATOR);
 			}
@@ -165,7 +167,7 @@
 			
 			private function updateButtons(voiceMuted:Boolean = false):void {
 				if (data != null) {
-					settingsBtn.visible = rolledOver;
+					settingsBtn.visible = rolledOver && !data.me;
 					
 					if (!data.voiceJoined) {
 						muteImg.visible = false;
@@ -273,7 +275,7 @@
 						});
 					}
 
-					if (!data.me && options.allowKickUser) {
+					if (options.allowKickUser) {
 						myMenuData.push({
 							label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.kickUser',[data.name]),
 							icon: images.eject_user_new,
