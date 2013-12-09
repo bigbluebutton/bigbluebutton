@@ -37,6 +37,8 @@ module.exports = class RedisWebsocketBridge
   # @private
   _socket_registerListeners: () ->
     @io.sockets.on "connection", (socket) =>
+      #console.log("\n\nsocket: ")
+      #console.log(socket);
       socket.on "user connect", () => @_socket_onUserConnected(socket)
       socket.on "user connect", () => @_socket_onUserConnected2(socket)
       socket.on "disconnect", () => @_socket_onUserDisconnected(socket)
@@ -261,7 +263,7 @@ module.exports = class RedisWebsocketBridge
 
             # publish everything else we need to update for the client
             Logger.info "publishing messages, slides and shapes to #{meetingID}, #{sessionID}"
-            @redisPublisher.publishMessages(meetingID, sessionID)
+            @redisPublisher.publishMessages2(meetingID, sessionID)
             @redisPublisher.publishSlides2 meetingID, sessionID, =>
               @redisPublisher.publishCurrentImagePath(meetingID)
               @redisPublisher.publishTool(meetingID, sessionID)

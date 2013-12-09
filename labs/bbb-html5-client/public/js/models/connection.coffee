@@ -23,6 +23,8 @@ define [
       unless @socket?
         console.log "connecting to the server", @host
         @socket = io.connect(@host)
+        console.log("socket: ");
+        console.log(@socket);
         @_registerEvents()
       else
         console.log "tried to connect but it's already connected"
@@ -73,11 +75,11 @@ define [
 
       # Received event to update all the slide images
       # @param  {Array} urls list of URLs to be added to the paper (after old images are removed)
-      @socket.on "all_slides", (all_slidesEventObject) =>
+      @socket.on "all_slides", (allSlidesEventObject) =>
         console.log "socket on: all_slides"
-        console.log("all_slidesEventObject: ");
-        console.log(all_slidesEventObject)
-        globals.events.trigger("connection:all_slides", all_slidesEventObject);
+        console.log("allSlidesEventObject: ");
+        console.log(allSlidesEventObject)
+        globals.events.trigger("connection:all_slides", allSlidesEventObject);
 
       # Received event to clear the whiteboard shapes
       @socket.on "clrPaper",=>
@@ -233,9 +235,10 @@ define [
 
       # Received event to update all the messages in the chat box
       # @param  {Array} messages Array of messages in public chat box
-      @socket.on "all_messages", (messages) =>
+      @socket.on "all_messages", (allMessagesEventObject) =>
         console.log "socket on: all_messages"
-        globals.events.trigger("connection:all_messages", messages)
+        console.log( allMessagesEventObject )
+        globals.events.trigger("connection:all_messages", allMessagesEventObject)
 
     # Emit an update to move the cursor around the canvas
     # @param  {number} x x-coord of the cursor as a percentage of page width

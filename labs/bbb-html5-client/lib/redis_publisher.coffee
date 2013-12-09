@@ -112,6 +112,31 @@ module.exports = class RedisPublisher
           @pub.publish receivers, JSON.stringify(["all_messages", messages])
           callback?(true)
 
+  # Get all chat messages from redis and publish to the appropriate clients
+  #
+  # @param meetingID [string] the ID of the meeting
+  # @param sessionID [string] the ID of the user, if `null` will send to all clients
+  # @param callback(err, succeeded) [Function] callback to call when finished
+  # @todo callback should be called at the end and only once, can use async for this
+  publishMessages2: (meetingID, sessionID, callback) ->
+    messages = []
+    @redisAction.getCurrentPresentationID meetingID, (err, presentationID) =>
+      @redisAction.getCurrentPageID meetingID, presentationID, (err, pageID) =>
+        @redisAction.getItems meetingID, presentationID, pageID, "messages", (err, messages) =>
+          receivers = (if sessionID? then sessionID else meetingID)
+          allMessagesEventObject = {
+            name: "all_messages",
+            meeting: {
+              id:meetingID,
+              sessionID:sessionID
+            },
+            messages:messages 
+
+          }
+          @pub.publish receivers, JSON.stringify( allMessagesEventObject )
+          callback?(true)
+
+
   # Publish list of slides from redis to the appropriate clients
   #
   # @param meetingID [string] the ID of the meeting

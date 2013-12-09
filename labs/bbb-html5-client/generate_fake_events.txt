@@ -42,18 +42,49 @@ When a shape is being created.
     "name": "whiteboardMakeShape",
     "timestamp": 123456,
     "meeting": {
-        "id": "c6a1dc56fc6e593d9f5e8b125ab29acbf0b948bc-1384802462765",
+        "id": "c6a1dc56fc6e593d9f5e8b125ab29acbf0b948bc-1386185969739",
         "name": "English 101",
-        "sessionID": "c6a1dc56fc6e593d9f5e8b125ab29acbf0b948bc-1384802462765"
+        "sessionID": "c6a1dc56fc6e593d9f5e8b125ab29acbf0b948bc-1386185969739"
     },
     "shape": {
         "id" : "user1-shape-1",
         "correlationId": "q779ogycfmxk-13-1383262166102",
-        "type": "rectangle",
+        "type": "rect",
         "coordinate": {
             "firstX": 0.1,
             "firstY": 0.1
         },
+        "color": 0,
+        "thickness": 10,
+        "square": true,
+        "by": {
+            "id": "user1",
+            "name": "Mohamed"
+        }
+    }
+}
+
+When a shape is being updated.
+
+{
+    "name": "whiteboardUpdShape",
+    "timestamp": 123456,
+    "meeting": {
+        "id": "c6a1dc56fc6e593d9f5e8b125ab29acbf0b948bc-1386185969739",
+        "name": "English 101",
+        "sessionID": "c6a1dc56fc6e593d9f5e8b125ab29acbf0b948bc-1386185969739"
+    },
+    "shape": {
+        "id" : "user1-shape-1",
+        "correlationId": "q779ogycfmxk-13-1383262166102",
+        "type": "rect",
+        "coordinate": {
+            "firstX": 0.1,
+            "firstY": 0.1,
+            "lastX" : 0.5,
+            "lastY" : 0.5
+        },
+        "square" : true,
         "color": 0,
         "thickness": 10,
         "square": true,
