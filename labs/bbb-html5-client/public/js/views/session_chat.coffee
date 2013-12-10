@@ -93,11 +93,16 @@ define [
         message: message
       compiledTemplate = _.template(chatMessageTemplate, data)
       @$(@publicBoxID).append compiledTemplate
+      @_scrollToBottom()
 
     # Scrolls the chat area to bottom to show the last messages
     _scrollToBottom: ->
-      $msgBox = @$(@publicBoxID)
-      $msgBox.prop({ scrollTop: $msgBox.prop("scrollHeight") })
+      #$msgBox = @$(@publicBoxID)
+      #$msgBox.prop({ scrollTop: $msgBox.prop("scrollHeight") })
+
+      #got scroll to bottom working using div element ID's (if they change then this line needs to change)
+      console.log("scrollToBottom called"); 
+      $("#chat-messages").scrollTop( $("#chat-public-box").height() )
 
     # A key was pressed in the input box
     _inputKeyPressed: (e) ->
