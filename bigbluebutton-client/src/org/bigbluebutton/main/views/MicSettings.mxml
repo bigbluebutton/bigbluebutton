@@ -231,11 +231,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }          	
 			}	
 			
-			public function joinConference():void{
-				cleanUp();      
+			public function joinConference():void{			
 				var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
 				joinEvent.payload['useMicrophone'] = true;
-				dispatchEvent(joinEvent);
+				joinEvent.payload['microphoneIndex'] = mic.index;
+				dispatchEvent(joinEvent);	
+  			cleanUp();      
 				PopUpManager.removePopUp(this);			
 			}
 			
