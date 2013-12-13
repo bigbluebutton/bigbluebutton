@@ -60,6 +60,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var micName:String;
 			private var playingAudio:Boolean = false;
 			private var images:Images = new Images();
+			private var chromeAllow:ChromeAllow;
+			private var userBrowser:String;
 			[Bindable] private var cancelIcon:Class = images.cancel;
       [Bindable] private var microphoneList:Array;      
       [Bindable]private var baseIndex:int = 1;
@@ -119,7 +121,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				microphoneList = Microphone.names;
 				LogUtil.debug("Available microphones: " + microphoneList);    
 				mic = Microphone.getMicrophone(comboMicList.selectedIndex);
-        testMicrophone();       
+        testMicrophone();
+        showChromeAllow();       
 				
 		/*		if (mic != null) {
 					if (mic.muted) {
@@ -173,6 +176,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				  if (mic.activityLevel > biggestMicLevel) {
 				    biggestMicLevel = mic.activityLevel;
 				  }
+				  if (chromeAllow && mic.activityLevel > 0){
+				    PopUpManager.removePopUp(chromeAllow);
+				  }
 				  //LogUtil.debug("Mic level: " + mic.activityLevel);
 					micLevel.setProgress(mic.activityLevel, 100);					
 				}
@@ -187,6 +193,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					playButton.label = ResourceUtil.getInstance().getString('bbb.micSettings.playSound');
 					playingAudio = false;
 				}	                     
+			}
+			
+			private function showChromeAllow():void{			 
+			     userBrowser =  ExternalInterface.call("determineBrowser");
+			     if (userBrowser == "Chrome"){
+      			 chromeAllow = new ChromeAllow();   
+             PopUpManager.addPopUp(chromeAllow, this, false);
+           }
 			}
 			
 /*			
@@ -295,6 +309,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                        toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.changeMic.toolTip')}"/>		
         </mx:HBox>
 -->        
+       
         <mx:VBox width="100%" paddingTop="5">
           <mx:HRule width="100%"/>
           <mx:Label id="testMicLabel" 
