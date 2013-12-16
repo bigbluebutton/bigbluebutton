@@ -146,6 +146,8 @@ package org.bigbluebutton.main.model.modules
 						.withPortTestHost(c.portTestHost)
 						.withShowDebug(c.showDebug)
 						.withSkinning(c.skinning)
+						.withCopyright(c.copyright)
+						.withLogo(c.logo)
 						.build()
 			event.config = config;
 			dispatcher.dispatchEvent(event);

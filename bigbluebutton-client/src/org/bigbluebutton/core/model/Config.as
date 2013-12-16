@@ -83,6 +83,13 @@ package org.bigbluebutton.core.model
 			a.url = config.skinning.@url;
 			return a
 		}
+
+		public function get branding():Object{
+			var a:Object = new Object();
+			a.copyright = config.branding.@copyright;
+			a.logo = config.branding.@logo;
+			return a
+		}
 					
 		public function get layout():XML {
 			return new XML(config.layout.toXMLString());

@@ -112,6 +112,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
 			private var receivedConfigLocaleVer:Boolean = false;
 			private var receivedResourceLocaleVer:Boolean = false;
+
+			[Bindable] private var copyrightText:String;
 			
 			public function get mode():String {
 				return _mode;
@@ -120,7 +122,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var layoutOptions:LayoutOptions;
 			
 			[Bindable] private var showToolbarOpt:Boolean = true;
-			[Bindable] private var toolbarHeight:Number = 32;
+			private const DEFAULT_TOOLBAR_HEIGHT:Number = 32;
+			[Bindable] private var toolbarHeight:Number = DEFAULT_TOOLBAR_HEIGHT;
       [Bindable] private var toolbarPaddingTop:Number = 4;
       [Bindable] private var showFooterOpt:Boolean = true;
       [Bindable] private var footerHeight:Number = 24;
@@ -144,9 +147,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           footerHeight = 0;
         }
 			
-        
       }
 			
+			private function updateCopyrightText():void {
+				if (BBB.initConfigManager().config.branding.copyright == undefined) {
+					copyrightText = ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion]);
+				} else {
+					copyrightText = String(BBB.initConfigManager().config.branding.copyright).replace("{0}", appVersion);
+				}
+			}
+
 			protected function initializeShell():void {	
 				globalDispatcher = new Dispatcher();
 
@@ -164,7 +174,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					copyrightLabel2.width += Math.min(spacer.width, copyrightLabel2.measuredWidth - copyrightLabel2.width);
 				}
 			}
-		
+
 			protected function initFullScreen():void {				
 				/* Set up full screen handler. */
 				stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
@@ -193,6 +203,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						sendStartAllModulesEvent();
 					}				
 				}						
+
+				updateCopyrightText();
 			}
 			
 			public function sendStartAllModulesEvent():void{
@@ -419,6 +431,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				networkStatsWindow.disappear();
 			}
 
+			private function updateToolbarHeight():void {
+				if (toolbarHeight != 0) {
+					toolbarHeight = Math.max(DEFAULT_TOOLBAR_HEIGHT, toolbar.logo.height + 10);
+				}
+			}
+
 		]]>
 	</mx:Script>
 			
@@ -429,7 +447,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   visible="{showToolbarOpt}" 
 					   verticalAlign="middle" 
 					   toolbarOptions="{layoutOptions}" 
-					   paddingTop="{toolbarPaddingTop}"/>
+					   paddingTop="{toolbarPaddingTop}" 
+					   updateComplete="updateToolbarHeight()"/>
 					   
 	<views:MainCanvas id="mdiCanvas" 
 					  horizontalScrollPolicy="off" 
@@ -443,7 +462,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:ControlBar width="100%" height="{footerHeight}" paddingTop="0" id="controlBar">
 		<mx:Label
-				htmlText="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}"
+				htmlText="{copyrightText}"
 				id="copyrightLabel2"
 				selectable="false" />
 		<mx:Spacer width="20"/>

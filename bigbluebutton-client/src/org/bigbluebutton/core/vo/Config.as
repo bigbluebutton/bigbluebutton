@@ -30,6 +30,8 @@ package org.bigbluebutton.core.vo {
 		private var _shortcutKeysShowButton:Boolean;
 		private var _skinning:String = "";
 		private var _showDebug:Boolean = false;
+		private var _copyright:String;
+		private var _logo:String;
 		
 		public function Config(builder:ConfigBuilder) {
 			_version = builder.version;
@@ -44,6 +46,8 @@ package org.bigbluebutton.core.vo {
 			_shortcutKeysShowButton = builder.shortcutKeysShowButton;
 			_skinning = builder.skinning;
 			_showDebug = builder.showDebug;
+			_copyright = builder.copyright;
+			_logo = builder.logo;
 		}
 		
 		public function get version():String {
@@ -93,5 +97,13 @@ package org.bigbluebutton.core.vo {
 		public function get showDebug():Boolean {
 			return _showDebug;
 		} 
+
+		public function get copyright():String {
+			return _copyright;
+		}
+
+		public function get logo():String {
+			return _logo;
+		}
 	}
 }
