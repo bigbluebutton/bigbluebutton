@@ -67,10 +67,15 @@ define [
       globals.events.on "users:user_join", (userid, username) =>
         @_addUserToChatList(userid, username)
 
-      globals.events.on "users:load_users", (users) =>
-        @$(@userListID).clear()
+      globals.events.on "users:loadUsers", (users) =>
+        console.log ' globals.events.on "users:loadUsers"'
+        console.log users
+        #@$(@userListID).clear()
         for user in users
-          @_addUserToChatList(user.id, user.name)
+          console.log("user: ")
+          console.log(user)
+          #@_addUserToChatList(user.id, user.name)
+          globals.events.trigger("users:user_join", user.id, user.name)
 
       # TODO: for now these messages are only being shown in the chat, maybe
       #       they should have their own view and do more stuff
@@ -123,6 +128,7 @@ define [
     # @param userid [string] the name of the user
     _addUserToChatList: (userid, username) ->
       # only add the new element if it doesn't exist yet
+      console.log("_addUserToChatList ", userid, " ", username)
       unless $("#chat-user-#{userid}").length > 0
         data =
           userid: userid

@@ -196,8 +196,8 @@ module.exports = class RedisWebsocketBridge
         # add socket to list of sockets
         @redisAction.getUserProperties meetingID, sessionID, (err, properties) =>
           Logger.info "publishing the list of users for #{meetingID}"
-          #@redisPublisher.publishLoadUsers meetingID, null, =>
-          # @redisPublisher.publishPresenter(meetingID)
+          @redisPublisher.publishLoadUsers meetingID, null, =>
+            @redisPublisher.publishPresenter(meetingID)
 
           numOfSockets = parseInt(properties.sockets, 10)
           numOfSockets += 1
@@ -245,8 +245,8 @@ module.exports = class RedisWebsocketBridge
         # add socket to list of sockets
         @redisAction.getUserProperties meetingID, sessionID, (err, properties) =>
           Logger.info "publishing the list of users for #{meetingID}"
-          #@redisPublisher.publishLoadUsers meetingID, null, =>
-           # @redisPublisher.publishPresenter(meetingID)
+          @redisPublisher.publishLoadUsers2 meetingID, null, =>
+            @redisPublisher.publishPresenter(meetingID)
 
           numOfSockets = parseInt(properties.sockets, 10)
           numOfSockets += 1

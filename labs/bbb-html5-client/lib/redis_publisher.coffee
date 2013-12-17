@@ -35,7 +35,8 @@ module.exports = class RedisPublisher
   # @param meetingID [string] the ID of the meeting
   # @param sessionID [string] the ID of the user, if `null` will send to all clients
   # @param callback(err, succeeded) [Function] callback to call when finished
-  ###publishLoadUsers: (meetingID, sessionID, callback) ->
+  publishLoadUsers: (meetingID, sessionID, callback) ->
+    console.log("***publishLoadUsers***")
     usernames = []
     @redisAction.getUsers meetingID, (err, users) =>
       users.forEach (user) =>
@@ -45,7 +46,38 @@ module.exports = class RedisPublisher
 
       receivers = (if sessionID? then sessionID else meetingID)
       @pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "load users", usernames])
-      callback?(null, true)###
+      callback?(null, true)
+
+
+  # Publish load users to appropriate clients.
+  #
+  # @param meetingID [string] the ID of the meeting
+  # @param sessionID [string] the ID of the user, if `null` will send to all clients
+  # @param callback(err, succeeded) [Function] callback to call when finished
+  publishLoadUsers2: (meetingID, sessionID, callback) ->
+    console.log("***publishLoadUsers2***")
+    usernames = []
+    @redisAction.getUsers meetingID, (err, users) =>
+      users.forEach (user) =>
+        usernames.push
+          name: user.username
+          id: user.pubID
+
+      receivers = (if sessionID? then sessionID else meetingID)
+
+      loadUsersEventObject = {
+        name: "loadUsers",
+        meeting : {
+          id: meetingID,
+          sessionID : sessionID
+        },
+        usernames : usernames
+      }
+
+      @pub.publish "bigbluebutton:bridge", JSON.stringify(loadUsersEventObject)
+      callback?(null, true)
+
+
 
   # Publish the current presenter's public ID to appropriate clients.
   #

@@ -189,9 +189,11 @@ define [
         globals.events.trigger("connection:user_list_change", users)
 
       # TODO: event name with spaces is bad
-      @socket.on "load users", (users) =>
-        console.log "socket on: load users"
-        globals.events.trigger("connection:load_users", users)
+      @socket.on "loadUsers", (loadUsersEventObject) =>
+        users = loadUsersEventObject.usernames
+        console.log "socket on: loadUsers"
+        console.log(loadUsersEventObject)
+        globals.events.trigger("users:loadUsers", users)
 
       # Received event for a new user
       @socket.on "UserJoiningRequest", (message) =>
