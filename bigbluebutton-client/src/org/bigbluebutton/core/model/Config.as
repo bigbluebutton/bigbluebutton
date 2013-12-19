@@ -88,6 +88,7 @@ package org.bigbluebutton.core.model
 			var a:Object = new Object();
 			a.copyright = config.branding.@copyright;
 			a.logo = config.branding.@logo;
+			a.background = config.branding.@background;
 			return a
 		}
 					

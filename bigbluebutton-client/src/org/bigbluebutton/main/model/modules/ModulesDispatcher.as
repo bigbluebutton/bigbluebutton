@@ -148,6 +148,7 @@ package org.bigbluebutton.main.model.modules
 						.withSkinning(c.skinning)
 						.withCopyright(c.copyright)
 						.withLogo(c.logo)
+						.withBackground(c.background)
 						.build()
 			event.config = config;
 			dispatcher.dispatchEvent(event);

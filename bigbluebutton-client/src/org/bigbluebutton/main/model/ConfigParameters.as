@@ -57,6 +57,7 @@ package org.bigbluebutton.main.model
 		public var showDebug:Boolean = false;
 		public var copyright:String = "";
 		public var logo:String = "";
+		public var background:String = "";
 		
 		private var loadedListener:Function;
 		private var dispatcher:Dispatcher = new Dispatcher();
@@ -116,6 +117,7 @@ package org.bigbluebutton.main.model
 
 			copyright = xml.branding.@copyright;
 			logo = xml.branding.@logo;
+			background = xml.branding.@background;
 		}
 		
 		public function getModulesXML():XMLList{

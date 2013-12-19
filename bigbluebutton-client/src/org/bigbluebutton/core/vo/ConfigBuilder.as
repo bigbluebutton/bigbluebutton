@@ -32,6 +32,7 @@ package org.bigbluebutton.core.vo {
 		internal var showDebug:Boolean = false;
 		internal var copyright:String;
 		internal var logo:String;
+		internal var background:String;
 		
 		public function ConfigBuilder(version:String, localVersion:String){
 			this.version = version;
@@ -95,6 +96,11 @@ package org.bigbluebutton.core.vo {
 
 		public function withLogo(logo:String):ConfigBuilder {
 			this.logo = logo;
+			return this;
+		}
+
+		public function withBackground(background:String):ConfigBuilder {
+			this.background = background;
 			return this;
 		}
 		

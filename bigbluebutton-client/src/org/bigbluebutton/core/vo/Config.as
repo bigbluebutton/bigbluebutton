@@ -32,6 +32,7 @@ package org.bigbluebutton.core.vo {
 		private var _showDebug:Boolean = false;
 		private var _copyright:String;
 		private var _logo:String;
+		private var _background:String;
 		
 		public function Config(builder:ConfigBuilder) {
 			_version = builder.version;
@@ -48,6 +49,7 @@ package org.bigbluebutton.core.vo {
 			_showDebug = builder.showDebug;
 			_copyright = builder.copyright;
 			_logo = builder.logo;
+			_background = builder.background;
 		}
 		
 		public function get version():String {
@@ -104,6 +106,10 @@ package org.bigbluebutton.core.vo {
 
 		public function get logo():String {
 			return _logo;
+		}
+
+		public function get background():String {
+			return _background;
 		}
 	}
 }
