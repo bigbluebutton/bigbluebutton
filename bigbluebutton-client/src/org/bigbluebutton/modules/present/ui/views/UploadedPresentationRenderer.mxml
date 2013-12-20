@@ -1,39 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="90%">
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="90%" creationComplete="onCreationComplete()" verticalAlign="middle">
   <mx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;      
       import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
       import org.bigbluebutton.modules.present.events.UploadEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.Images;
       
       private var globalDispatch:Dispatcher = new Dispatcher();
       
+      private function onCreationComplete():void {
+          var images:Images = new Images();
+          isDownloadable.source = images.disk_grayscale;
+      }
+
       private function showPresentation():void {
-        trace("FileUploadWindow::showPresentation() " + data);   
+        trace("FileUploadWindow::showPresentation() " + data.presentationName);
+	LogUtil.debug("data.presentationName = " + data.presentationName);   
         var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
-        readyEvent.presentationName = data as String;
+        readyEvent.presentationName = data.presentationName as String;
         globalDispatch.dispatchEvent(readyEvent);
         
         globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
       }
       
       private function deletePresentation():void {
-        trace("FileUploadWindow.mxml::deletePresentation() " + data);
+        trace("FileUploadWindow.mxml::deletePresentation() " + data.presentationName);
 
         var rEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.REMOVE_PRESENTATION_EVENT);
-        rEvent.presentationName = data as String;
+        rEvent.presentationName = data.presentationName as String;
         dispatchEvent(rEvent);
       }
     ]]>
   </mx:Script>
-  <mx:Label id="presentationNameLabel" text="{data as String}" styleName="presentationNameLabelStyle" width="80%"/>
+  <mx:Label id="presentationNameLabel2" text="{data.presentationName as String}" styleName="presentationNameLabelStyle" 
+	    width="75%"/>
+ 
+  <mx:Image id="isDownloadable" visible="{data.isDownloadable as Boolean}" 
+	    toolTip="{ResourceUtil.getInstance().getString('bbb.filedownload.thisFileIsDownloadable')}"
+            verticalAlign="middle" />
+
   <mx:Button id="showBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn')}" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn.toolTip')}" 
              styleName="presentationUploadShowButtonStyle"
-             click="showPresentation()" enabled="true"/>
+             click="showPresentation()" enabled="true"
+	     verticalCenter="0"  />
+
   <mx:Button id="deleteBtn" label="" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.deleteBtn.toolTip')}" 
              styleName="presentationUploadDeleteButtonStyle"
-             click="deletePresentation()" enabled="true"/>
+             click="deletePresentation()" enabled="true"
+	     verticalCenter="0"  />
   
 </mx:HBox>

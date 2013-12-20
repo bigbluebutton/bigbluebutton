@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="90%">
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="90%" verticalAlign="middle">
   <mx:Script>
     <![CDATA[
       import org.bigbluebutton.common.LogUtil;

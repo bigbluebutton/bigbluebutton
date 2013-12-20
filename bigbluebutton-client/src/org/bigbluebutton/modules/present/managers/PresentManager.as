@@ -49,8 +49,8 @@ package org.bigbluebutton.modules.present.managers
 		private var uploadWindow:FileUploadWindow;
 		private var presentWindow:PresentationWindow;
 		
-		//format: presentationNames = [{label:"00"}, {label:"11"}, {label:"22"} ];
-		[Bindable] public var presentationNames:ArrayCollection = new ArrayCollection();
+		//format: presentationInfos = [{label:"00"}, {label:"11"}, {label:"22"} ];
+		[Bindable] public var presentationInfos:ArrayCollection = new ArrayCollection();
 		[Bindable] public var fileNamesToDownload:ArrayCollection = new ArrayCollection();
 		
 		public function PresentManager() {
@@ -80,8 +80,6 @@ package org.bigbluebutton.modules.present.managers
 		public function handleOpenDownloadWindow():void{
 			if (downloadWindow != null) return;
 		
-			globalDispatcher.dispatchEvent(new DownloadEvent(DownloadEvent.UPDATE_FILE_NAMES));
-	
 			downloadWindow = new FileDownloadWindow();
 
 			var width:int = Application(FlexGlobals.topLevelApplication).systemManager.screen.width;
@@ -110,32 +108,44 @@ package org.bigbluebutton.modules.present.managers
 
 			uploadWindow.x = (width - uploadWindow.width) / 2;
                         uploadWindow.y = (height - uploadWindow.height) / 2;
+		 
+			uploadWindow.presentationInfosAC = presentationInfos;		
 
-			uploadWindow.presentationNamesAC = presentationNames;
 			uploadWindow.maxFileSize = e.maxFileSize;
-
+			
 			mx.managers.PopUpManager.addPopUp(uploadWindow, presentWindow, true);
+			 
 		}
 		
 		public function handleCloseUploadWindow():void{
 			PopUpManager.removePopUp(uploadWindow);
 			uploadWindow = null;
+			globalDispatcher.dispatchEvent(new DownloadEvent(DownloadEvent.UPDATE_FILE_NAMES));			
 		}
 		
 		public function updatePresentationNames(e:UploadEvent):void{
-			LogUtil.debug("Adding presentation NAME " + e.presentationName);
-			for (var i:int = 0; i < presentationNames.length; i++) {
-				if (presentationNames[i] == e.presentationName) return;
+			for (var i:int = 0; i < presentationInfos.length; i++) {
+				if (presentationInfos[i].presentationName == e.presentationName) return;
 			}
-			presentationNames.addItem(e.presentationName);	
+
+			var newPresentationInfo:Object = new Object();
+			newPresentationInfo.presentationName = e.presentationName;
+			newPresentationInfo.isDownloadable = false;
+
+			LogUtil.debug("Presentation Info: name =  " + newPresentationInfo.presentationName);
+			LogUtil.debug("Presentation Info: downloadable?   " + newPresentationInfo.isDownloadable);
+			presentationInfos.addItem(newPresentationInfo);		
 		}
 
 		public function updateFileNamesToDownload(e:DownloadEvent):void{
-			LogUtil.debug("Adding file to download NAME " + e.fileNameToDownload);
+			LogUtil.debug("Adding file NAME " + e.fileNameToDownload);
 			for (var i:int = 0; i < fileNamesToDownload.length; i++) {
 				if (fileNamesToDownload[i] == e.fileNameToDownload) return;
 			}
+		
 			fileNamesToDownload.addItem(e.fileNameToDownload);
+			updateDownloadablePresentations(e.fileNameToDownload);
+		
 		}
 
 
@@ -143,10 +153,10 @@ package org.bigbluebutton.modules.present.managers
 			LogUtil.debug("Removing presentation " + e.presentationName);
 		        var p:String;
 		      
-		        for (var i:int = 0; i < presentationNames.length; i++) {
-			  p = presentationNames.getItemAt(i) as String;
+		        for (var i:int = 0; i < presentationInfos.length; i++) {
+			  p = presentationInfos.getItemAt(i).presentationName as String;
 			  if (p == e.presentationName) {
-			    presentationNames.removeItemAt(i);
+			    presentationInfos.removeItemAt(i);
 			  }
      		        }
 
@@ -167,6 +177,24 @@ package org.bigbluebutton.modules.present.managers
 		}
 
 
+		private function updateDownloadablePresentations(fileName:String):void 
+		{
+			LogUtil.debug("Updating isDownloadable field ");
+			
+			var info:Object;
+
+		        for (var i:int = 0; i < presentationInfos.length; i++) {
+			    info = presentationInfos.getItemAt(i) as Object;
+			    if(info.presentationName == getPresentationName(fileName)) {
+				LogUtil.debug("Now we check the downloadable mark on the user interface (" + info.presentationName + ")");
+				info.isDownloadable = true;
+				presentationInfos.setItemAt(info,i);
+			    }			
+			}
+					
+		}
+
+
 		private function getPresentationName(fileName:String):String
 		{
 		   var filenamePattern:RegExp = /(.+)(\..+)/i;
@@ -177,7 +205,17 @@ package org.bigbluebutton.modules.present.managers
     
     public function queryPresentations():void {
       var pArray:Array = new Array();
-      pArray = presentationNames.toArray();
+      var pName:String;
+
+      // here make a new array with the presentationNames only
+      //pArray = presentationInfos.toArray();
+
+      for (var i:int = 0; i < presentationInfos.length; i++) {
+	  pName = presentationInfos.getItemAt(i).presentationName as String;
+	  pArray.push(pName);		 
+      }
+
+      LogUtil.debug("$ending... " + pArray);
       
       var qEvent:QueryListOfPresentationsReplyEvent = new QueryListOfPresentationsReplyEvent();
       qEvent.presentations = pArray;

@@ -58,7 +58,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.util.i18n.ResourceUtil;
 
             	
-      [Bindable] public var presentationNamesAC:ArrayCollection;
+      [Bindable] public var presentationInfosAC:ArrayCollection;
 	  [BIndable] public var maxFileSize:Number;
 
       private var images:Images = new Images();
@@ -78,7 +78,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function initData():void {
-        if (presentationNamesAC.length <= 0) {
+        if (presentationInfosAC.length <= 0) {
           selectFile();
         }
       }
@@ -289,7 +289,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <mx:Spacer width="100%"/>
     </mx:HBox>
     <mx:Spacer height="5"/>
-    <mx:HBox width="100%"> 
+    <mx:HBox width="100%" verticalAlign="middle"> 
       <mx:Spacer width="5"/>
       <mx:TextInput id="fileTxtInput" width="328" editable="false"/>
 		<mx:Button label="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.label')}" id="selectBtn" 
@@ -325,7 +325,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <mx:Spacer width="5"/>
       <mx:List id="presentationNamesList" width="90%" height="100" alternatingItemColors="[#EFEFEF, #FEFEFE]" allowMultipleSelection="false"
                itemRenderer="org.bigbluebutton.modules.present.ui.views.UploadedPresentationRenderer"
-               dragEnabled="false" dataProvider="{presentationNamesAC}">
+               dragEnabled="false" dataProvider="{presentationInfosAC}">
       </mx:List>
     </mx:HBox>
     <mx:Spacer height="5"/>
