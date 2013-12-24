@@ -28,7 +28,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   pageTitle="BigBlueButton" 
   layout="absolute" preinitialize="init()"
   preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader"
-  applicationComplete="appComplete()">
+  applicationComplete="appComplete()"
+  backgroundColor="white">
  
   <mx:Script>
     <![CDATA[
