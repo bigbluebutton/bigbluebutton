@@ -450,6 +450,15 @@ def processSlideEvents
                         txt_file_path = "presentation/#{$presentation_name}/textfiles/slide-#{slide_number.to_i + 1}.txt"
                         slide_text = File.exist?("#{$process_dir}/#{txt_file_path}") ? txt_file_path : nil
 			image_url = "#{$process_dir}/#{slide_src}"
+
+			if !File.exist?(image_url)
+				BigBlueButton.logger.warn("Missing image file #{slide_src}!")
+				# Emergency last-ditch blank image creation
+				FileUtils.mkdir_p("#{$process_dir}/presentation/#{$presentation_name}")
+				command = "convert -size 1600x1200 xc:white -quality 90 +dither -depth 8 -colors 256 #{image_url}"
+				BigBlueButton.execute(command)
+			end
+
 			slide_size = FastImage.size(image_url)
 			current_index = $slides_events.index(node)
 			if(current_index + 1 < $slides_events.length)
