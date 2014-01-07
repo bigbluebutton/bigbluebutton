@@ -57,18 +57,19 @@ define [
         @_scrollToBottom()
 
       globals.events.on "chat:all_messages", (messages) =>
-        for msgBlock in messages
-          @_addChatMessage(msgBlock.username, msgBlock.message)
-        @_scrollToBottom()
+        unless messages == null
+          for msgBlock in messages
+            @_addChatMessage(msgBlock.username, msgBlock.message)
+          @_scrollToBottom()
 
-      globals.events.on "users:user_leave", (userid) =>
+      globals.events.on "users:user_leave", (userid,username) =>
         @_removeUserFromChatList(userid, username)
 
       globals.events.on "users:user_join", (userid, username) =>
         @_addUserToChatList(userid, username)
 
       globals.events.on "users:load_users", (users) =>
-        @$(@userListID).clear()
+        @$(@userListID).empty()
         for user in users
           @_addUserToChatList(user.id, user.name)
 

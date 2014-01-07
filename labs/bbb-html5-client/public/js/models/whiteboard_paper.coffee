@@ -354,13 +354,14 @@ define [
     drawListOfShapes: (shapes) ->
       @currentShapesDefinitions = shapes
       @currentShapes = @raphaelObj.set()
-      for shape in shapes
-        data = if _.isString(shape.data) then JSON.parse(shape.data) else shape.data
-        tool = @_createTool(shape.shape)
-        if tool?
-          @currentShapes.push tool.draw.apply(tool, data)
-        else
-          console.log "shape not recognized at drawListOfShapes", shape
+      unless shapes ==null
+        for shape in shapes
+          data = if _.isString(shape.data) then JSON.parse(shape.data) else shape.data
+          tool = @_createTool(shape.shape)
+          if tool?
+            @currentShapes.push tool.draw.apply(tool, data)
+          else
+            console.log "shape not recognized at drawListOfShapes", shape
 
       # make sure the cursor is still on top
       @cursor.toFront()
@@ -523,22 +524,23 @@ define [
 
       globals.events.on "connection:all_shapes", (shapes) =>
         # TODO: a hackish trick for making compatible the shapes from redis with the node.js
-        for shape in shapes
-          properties = JSON.parse(shape.data)
-          if shape.shape is "path"
-            points = properties[0]
-            strPoints = ""
-            for i in [0..points.length] by 2
-              letter = ""
-              pA = points[i];
-              pB = points[i+1];
-              if i == 0
-                letter = "M";
-              else
-                letter = "L";
-              strPoints += letter + (pA/100) + "," + (pB/100)
-            properties[0] = strPoints
-            shape.data = JSON.stringify(properties)
+        unless shapes==null
+          for shape in shapes
+            properties = JSON.parse(shape.data)
+            if shape.shape is "path"
+              points = properties[0]
+              strPoints = ""
+              for i in [0..points.length] by 2
+                letter = ""
+                pA = points[i];
+                pB = points[i+1];
+                if i == 0
+                  letter = "M";
+                else
+                  letter = "L";
+                strPoints += letter + (pA/100) + "," + (pB/100)
+              properties[0] = strPoints
+              shape.data = JSON.stringify(properties)
         @clearShapes()
         @drawListOfShapes(shapes)
 
@@ -752,7 +754,7 @@ define [
           @shiftPressed = true
 
     # when releasing any key at any time
-    _onKeyUp: ->
+    _onKeyUp: (event)->
       unless event
         keyCode = window.event.keyCode
       else

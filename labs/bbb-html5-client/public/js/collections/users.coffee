@@ -45,8 +45,9 @@ define [
 
       globals.events.on "connection:user_leave", (userid) =>
         toDel = @get(userid)
+        username = @findWhere({userid:userid})
         @remove(toDel)
-        globals.events.trigger("users:user_leave", userid)
+        globals.events.trigger("users:user_leave", userid,username)
 
       globals.events.on "connection:setPresenter", (userid) =>
         globals.events.trigger("users:setPresenter", userid)
