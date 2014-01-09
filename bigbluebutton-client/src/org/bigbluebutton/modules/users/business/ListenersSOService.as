@@ -18,17 +18,22 @@
  */
 package org.bigbluebutton.modules.users.business
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-	import flash.net.SharedObject;	
+	import flash.net.SharedObject;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.EventConstants;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.events.CoreEvent;
+	import org.bigbluebutton.core.events.LockControlEvent;
+	import org.bigbluebutton.core.events.VoiceConfEvent;
 	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.core.vo.LockSettingsVO;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.Conference;
@@ -89,9 +94,12 @@ package org.bigbluebutton.modules.users.business
 			LogUtil.debug(LOGNAME + ":Voice is connected to Shared object");
 			notifyConnectionStatusListener(true);		
 			
+			// Query/set lock settings with server 
+			getLockSettings();
 			// Query the server if there are already listeners in the conference.
 			getCurrentUsers();
 			getRoomMuteState();
+			getRoomLockState();
 		}
 		
 		private function leave():void {
@@ -105,7 +113,7 @@ package org.bigbluebutton.modules.users.business
 			_connectionListener = connectionListener;
 		}
 		   
-		public function userJoin(userId:Number, cidName:String, cidNum:String, muted:Boolean, talking:Boolean, locked:Boolean):void {
+		public function userJoin(userId:Number, cidName:String, cidNum:String, muted:Boolean, talking:Boolean):void {
 			trace("***************** Voice user joining [" + cidName + "]");
 
 			if (cidName) {
@@ -117,7 +125,7 @@ package org.bigbluebutton.modules.users.business
 					var internUserID:String = UsersUtil.externalUserIDToInternalUserID(externUserID);
 					
 					if (UsersUtil.getMyExternalUserID() == externUserID) {
-						_conference.setMyVoiceUserId(userId);						
+						_conference.setMyVoiceUserId(userId);
 						_conference.muteMyVoice(muted);
 						_conference.setMyVoiceJoined(true);
 					}
@@ -130,7 +138,14 @@ package org.bigbluebutton.modules.users.business
 						
 						var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_JOINED);
 						bbbEvent.payload.userID = bu.userID;            
-						globalDispatcher.dispatchEvent(bbbEvent);            
+						globalDispatcher.dispatchEvent(bbbEvent);
+						
+						if(_conference.getLockSettings().getDisableMic() && !bu.voiceMuted && bu.userLocked && bu.me) {
+							var ev:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
+							ev.userid = userId;
+							ev.mute = true;
+							dispatcher.dispatchEvent(ev);
+						}
 					} 
 				} else { // caller doesn't exist yet and must be a phone user
 					var n:BBBUser = new BBBUser();
@@ -186,23 +201,6 @@ package org.bigbluebutton.modules.users.business
 			}			     
 		}
 		
-    public function userLockedMute(userID:Number, locked:Boolean):void {
-      if (UserManager.getInstance().getConference().amIThisVoiceUser(userID)) {
-        UserManager.getInstance().getConference().voiceLocked = locked;
-      }
-        
-      var bu:BBBUser = UsersUtil.getVoiceUser(userID)
-      if (bu != null) {
-        bu.voiceLocked = locked;
-        LogUtil.debug("[" + bu.name + "] is now locked=[" + bu.voiceLocked + "] muted=[" + bu.voiceMuted + "]");
-          
-        var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_LOCKED);
-        bbbEvent.payload.locked = bu.voiceLocked;
-        bbbEvent.payload.userID = bu.userID;
-        globalDispatcher.dispatchEvent(bbbEvent);
-      }   			
-    }
-    
 		public function userTalk(userID:Number, talk:Boolean):void {
 			trace("User talking event");
 			var l:BBBUser = _conference.getVoiceUser(userID);			
@@ -232,7 +230,7 @@ package org.bigbluebutton.modules.users.business
 				l.voiceMuted = false;
 				l.voiceJoined = false;
 				l.talking = false;
-        l.voiceLocked = false;
+        		l.userLocked = false;
 				
 				var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_LEFT);
 				bbbEvent.payload.userID = l.userID;
@@ -255,27 +253,27 @@ package org.bigbluebutton.modules.users.business
 			}
 		}
 		
-		public function lockMuteUser(userid:Number, lock:Boolean):void {
-			var nc:NetConnection = _module.connection;
-			nc.call(
-				"voice.lockMuteUser",// Remote function name
-				new Responder(
-					// participants - On successful result
-					function(result:Object):void { 
-						LogUtil.debug("Successfully lock mute/unmute: " + userid); 	
-					},	
-					// status - On error occurred
-					function(status:Object):void { 
-						LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-						} 
-					}
-				),//new Responder
-				userid,
-				lock
-			); //_netConnection.call		
-		}
+//		public function lockMuteUser(userid:Number, lock:Boolean):void {
+//			var nc:NetConnection = _module.connection;
+//			nc.call(
+//				"voice.lockMuteUser",// Remote function name
+//				new Responder(
+//					// participants - On successful result
+//					function(result:Object):void { 
+//						LogUtil.debug("Successfully lock mute/unmute: " + userid); 	
+//					},	
+//					// status - On error occurred
+//					function(status:Object):void { 
+//						LogUtil.error("Error occurred:"); 
+//						for (var x:Object in status) { 
+//							LogUtil.error(x + " : " + status[x]); 
+//						} 
+//					}
+//				),//new Responder
+//				userid,
+//				lock
+//			); //_netConnection.call		
+//		}
 		
 		public function muteUnmuteUser(userid:Number, mute:Boolean):void {
 			var nc:NetConnection = _module.connection;
@@ -299,7 +297,8 @@ package org.bigbluebutton.modules.users.business
 			); //_netConnection.call		
 		}
 		
-		public function muteAllUsers(mute:Boolean):void {	
+		public function muteAllUsers(mute:Boolean, dontMuteThese:Array = null):void {
+			if(dontMuteThese == null) dontMuteThese = [];
 			var nc:NetConnection = _module.connection;
 			nc.call(
 				"voice.muteAllUsers",// Remote function name
@@ -316,14 +315,21 @@ package org.bigbluebutton.modules.users.business
 						} 
 					}
 				),//new Responder
-				mute
+				mute,
+				dontMuteThese
 			); //_netConnection.call		
 			_listenersSO.send("muteStateCallback", mute);
 		}
 		
 		public function muteStateCallback(mute:Boolean):void {
 			var e:UsersEvent = new UsersEvent(UsersEvent.ROOM_MUTE_STATE);
-			e.mute_state = mute;
+			e.new_state = mute;
+			dispatcher.dispatchEvent(e);
+		}
+		
+		public function lockStateCallback(lock:Boolean):void {
+			var e:UsersEvent = new UsersEvent(UsersEvent.ROOM_LOCK_STATE);
+			e.new_state = lock;
 			dispatcher.dispatchEvent(e);
 		}
 		
@@ -360,7 +366,7 @@ package org.bigbluebutton.modules.users.business
 							for(var p:Object in result.participants) 
 							{
 								var u:Object = result.participants[p]
-								userJoin(u.participant, u.name, u.name, u.muted, u.talking, u.locked);
+								userJoin(u.participant, u.name, u.name, u.muted, u.talking);
 							}							
 						}	
 					},	
@@ -383,10 +389,30 @@ package org.bigbluebutton.modules.users.business
 					// participants - On successful result
 					function(result:Object):void { 
 						var e:UsersEvent = new UsersEvent(UsersEvent.ROOM_MUTE_STATE);
-						e.mute_state = result as Boolean;
+						e.new_state = result as Boolean;
 						dispatcher.dispatchEvent(e);
 					},	
 					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				)//new Responder
+			); //_netConnection.call
+		}
+		
+		public function getRoomLockState():void{
+			var nc:NetConnection = _module.connection;
+			nc.call(
+				"lock.isRoomLocked",// Remote function name
+				new Responder(
+					function(result:Object):void { 
+						var e:UsersEvent = new UsersEvent(UsersEvent.ROOM_LOCK_STATE);
+						e.new_state = result as Boolean;
+						dispatcher.dispatchEvent(e);
+					},	
 					function(status:Object):void { 
 						LogUtil.error("Error occurred:"); 
 						for (var x:Object in status) { 
@@ -458,5 +484,94 @@ package org.bigbluebutton.modules.users.business
 			}
 			_soErrors.push(error);
 		}
+		
+		
+		/**
+		 * Set lock state of all users in the room, except the users listed in second parameter
+		 * */
+		public function setAllUsersLock(lock:Boolean, except:Array = null):void {
+			if(except == null) except = [];
+			var nc:NetConnection = _module.connection;
+			nc.call(
+				"lock.setAllUsersLock",// Remote function name
+				new Responder(
+					function(result:Object):void { 
+						LogUtil.debug("Successfully locked all users except " + except.join(","));
+					},	
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				)//new Responder
+				, lock, except
+			); //_netConnection.call
+			
+			_listenersSO.send("lockStateCallback", lock);
+		}
+		
+		/**
+		 * Set lock state of all users in the room, except the users listed in second parameter
+		 * */
+		public function setUserLock(internalUserID:String, lock:Boolean):void {
+			var nc:NetConnection = _module.connection;
+			nc.call(
+				"lock.setUserLock",// Remote function name
+				new Responder(
+					function(result:Object):void { 
+						LogUtil.debug("Successfully locked user " + internalUserID);
+					},	
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				)//new Responder
+				, lock, internalUserID
+			); //_netConnection.call
+		}
+		
+		
+		public function getLockSettings():void{
+			var nc:NetConnection = _module.connection;
+			nc.call(
+				"lock.getLockSettings",// Remote function name
+				new Responder(
+					function(result:Object):void {
+						_conference.setLockSettings(new LockSettingsVO(result.allowModeratorLocking, result.disableCam, result.disableMic, result.disablePrivateChat, result.disablePublicChat));
+					},	
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				)//new Responder
+			); //_netConnection.call
+		}
+		
+		public function saveLockSettings(newLockSettings:Object):void{
+			var nc:NetConnection = _module.connection;
+			nc.call(
+				"lock.setLockSettings",// Remote function name
+				new Responder(
+					function(result:Object):void { 
+						
+					},	
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				)//new Responder
+				,
+				newLockSettings
+			); //_netConnection.call
+		}
+		
+		
 	}
 }

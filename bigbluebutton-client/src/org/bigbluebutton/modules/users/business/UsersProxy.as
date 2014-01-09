@@ -24,13 +24,14 @@ package org.bigbluebutton.modules.users.business
 	
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.events.LockControlEvent;
+	import org.bigbluebutton.core.events.VoiceConfEvent;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.events.KickUserEvent;
-	import org.bigbluebutton.modules.users.events.UsersEvent;
 	import org.bigbluebutton.modules.users.events.StartUsersModuleEvent;
 	import org.bigbluebutton.modules.users.events.StopUsersModuleEvent;
-	import org.bigbluebutton.core.events.VoiceConfEvent;
+	import org.bigbluebutton.modules.users.events.UsersEvent;
 
 	public class UsersProxy
 	{		
@@ -92,33 +93,53 @@ package org.bigbluebutton.modules.users.business
 		
 		public function muteAlmostAllUsers(command:VoiceConfEvent):void
 		{	
-			//find the presenter and lock them
+			var dontMuteThese:Array = [];
+			
 			var pres:BBBUser = UserManager.getInstance().getConference().getPresenter();
-			if (pres && pres.voiceLocked) pres = null;
-			
-			if (pres)
-				_listenersService.lockMuteUser(int(pres.voiceUserid), true);
-			
-			_listenersService.muteAllUsers(true);
-			
-			//unlock the presenter
-			if (pres)
-				_listenersService.lockMuteUser(int(pres.voiceUserid), false);
+			if (pres != null) dontMuteThese.push(pres.voiceUserid);
+
+			_listenersService.muteAllUsers(true, dontMuteThese);
 		}
 		
-		public function lockMuteUser(command:VoiceConfEvent):void
-		{
-			_listenersService.lockMuteUser(command.userid, command.lock);		
+		public function kickUser(event:KickUserEvent):void {
+		  var user:BBBUser = UsersUtil.getUser(event.userid);
+		  _listenersService.ejectUser(user.voiceUserid);
 		}
-
-    public function kickUser(event:KickUserEvent):void {
-      var user:BBBUser = UsersUtil.getUser(event.userid);
-      _listenersService.ejectUser(user.voiceUserid);
-    }
-      
+		
 		public function ejectUser(command:VoiceConfEvent):void
 		{
 			_listenersService.ejectUser(command.userid);			
 		}	
+		
+		//Lock events
+		public function lockAllUsers(command:LockControlEvent):void
+		{
+			_listenersService.setAllUsersLock(true);			
+		}
+		
+		public function unlockAllUsers(command:LockControlEvent):void
+		{	
+			_listenersService.setAllUsersLock(false);			
+		}
+		
+		public function lockAlmostAllUsers(command:LockControlEvent):void
+		{	
+			var pres:BBBUser = UserManager.getInstance().getConference().getPresenter();
+			_listenersService.setAllUsersLock(true, [pres.userID]);
+		}
+		
+		public function lockUser(command:LockControlEvent):void
+		{	
+			_listenersService.setUserLock(command.internalUserID, true);			
+		}
+		
+		public function unlockUser(command:LockControlEvent):void
+		{	
+			_listenersService.setUserLock(command.internalUserID, false);			
+		}
+		
+		public function saveLockSettings(command:LockControlEvent):void {	
+			_listenersService.saveLockSettings(command.payload);			
+		}
 	}
 }

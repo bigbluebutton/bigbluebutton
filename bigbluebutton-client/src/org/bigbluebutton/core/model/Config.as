@@ -87,6 +87,15 @@ package org.bigbluebutton.core.model
 		public function get layout():XML {
 			return new XML(config.layout.toXMLString());
 		}
+		
+		public function get meeting():XML {
+			return new XML(config.meeting.toXMLString());
+		}
+		
+		public function get lock():XML {
+			if(config.lock == null) return null;
+			return new XML(config.lock.toXMLString());
+		}
 			
 		public function isModulePresent(name:String):Boolean {
 			var mn:XMLList = config.modules..@name;

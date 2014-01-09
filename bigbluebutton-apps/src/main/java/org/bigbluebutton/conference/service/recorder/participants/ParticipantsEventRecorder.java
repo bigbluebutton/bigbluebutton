@@ -19,6 +19,8 @@
 package org.bigbluebutton.conference.service.recorder.participants;
 
 import java.util.ArrayList;
+import java.util.Map;
+
 import org.bigbluebutton.conference.IRoomListener;
 import org.bigbluebutton.conference.User;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
@@ -96,6 +98,11 @@ public class ParticipantsEventRecorder implements IRoomListener {
 	@Override
 	public String getName() {
 		return this.name;
+	}
+
+	@Override
+	public void lockSettingsChange(Map<String, Boolean> lockSettings) {
+		
 	}
 
 }

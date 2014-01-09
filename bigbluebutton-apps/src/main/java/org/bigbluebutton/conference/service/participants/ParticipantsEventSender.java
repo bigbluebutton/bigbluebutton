@@ -21,6 +21,7 @@ package org.bigbluebutton.conference.service.participants;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import org.bigbluebutton.conference.service.recorder.Recorder;
 import org.bigbluebutton.conference.IRoomListener;
@@ -93,5 +94,12 @@ public class ParticipantsEventSender implements IRoomListener {
 	public String getName() {
 		// TODO Auto-generated method stub
 		return name;
+	}
+
+	@Override
+	public void lockSettingsChange(Map<String, Boolean> lockSettings) {
+		List list = new ArrayList();
+		list.add(lockSettings);
+		so.sendMessage("lockSettingsChange", list);
 	}
 }

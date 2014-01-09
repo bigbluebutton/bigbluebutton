@@ -21,6 +21,7 @@ package org.bigbluebutton.conference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.MessagingService;
@@ -97,6 +98,11 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 	
 	public void endAndKickAll() {
 		// no-op
+	}
+
+	@Override
+	public void lockSettingsChange(Map<String, Boolean> lockSettings) {
+		// Do nothing
 	}
 	
 	
