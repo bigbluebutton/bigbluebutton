@@ -62,37 +62,43 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   	<mate:Listener type="{ShortcutEvent.SEND_MESSAGE}" method="remoteSendMessage" />
   	
   	<mate:Listener type="{ShortcutEvent.CHAT_DEBUG}" method="chatDebugInfo" />
+	
+	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
 
 	<mx:Script>
 		<![CDATA[
-      import com.adobe.utils.StringUtil;
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import mx.binding.utils.BindingUtils;
-      import mx.collections.ArrayCollection;
-      import mx.controls.Button;
-      import mx.core.ScrollPolicy;
-
-      import flash.accessibility.AccessibilityProperties;
-      
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.events.UserJoinedEvent;
-      import org.bigbluebutton.main.events.UserLeftEvent;
-      import org.bigbluebutton.modules.chat.ChatConstants;
-      import org.bigbluebutton.modules.chat.ChatUtil;
-      import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
-      import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.TranscriptEvent;
-      import org.bigbluebutton.modules.chat.model.ChatMessage;
-      import org.bigbluebutton.modules.chat.model.ChatMessages;
-      import org.bigbluebutton.modules.chat.views.ChatMessageRenderer;
-      import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+			import com.adobe.utils.StringUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.accessibility.AccessibilityProperties;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Button;
+			import mx.core.ScrollPolicy;
+			
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.events.UserJoinedEvent;
+			import org.bigbluebutton.main.events.UserLeftEvent;
+			import org.bigbluebutton.main.model.users.BBBUser;
+			import org.bigbluebutton.main.model.users.Conference;
+			import org.bigbluebutton.modules.chat.ChatConstants;
+			import org.bigbluebutton.modules.chat.ChatUtil;
+			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+			import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
+			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+			import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
+			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
+			import org.bigbluebutton.modules.chat.events.TranscriptEvent;
+			import org.bigbluebutton.modules.chat.model.ChatMessage;
+			import org.bigbluebutton.modules.chat.model.ChatMessages;
+			import org.bigbluebutton.modules.chat.views.ChatMessageRenderer;
+			import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
       public var publicChat:Boolean = false;
       public var chatWithUserID:String;
@@ -176,6 +182,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				if(Capabilities.hasAccessibility)
 					Accessibility.updateProperties();
+				
+				lockSettingsChanged(null);
 			}
 			
 			private function focusChatBox(e:ShortcutEvent):void{
@@ -585,6 +593,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  }
       
       private function sendMessages():void {
+		  if(!sendBtn.enabled) {
+			  txtMsgArea.text = StringUtil.trim(txtMsgArea.text);
+			  return;
+		  }
+		  
         // Trim the message. This will trim the '/n' char so we don't send a message when the
         // user just hits the enter key
         var msgToSend:String = StringUtil.trim(txtMsgArea.text);
@@ -602,6 +615,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		private function focusChatInput(e:ShortcutEvent):void{
 			txtMsgArea.setFocus();
 		}
+			
+			private function lockSettingsChanged(e:Event):void {
+				var userManager:UserManager = UserManager.getInstance();
+				var conference:Conference = userManager.getConference();
+				var me:BBBUser = conference.getMyUser();
+				
+				if(publicChat) {
+					sendBtn.enabled = !me.disableMyPublicChat;
+				} else {
+					sendBtn.enabled = !me.disableMyPrivateChat;
+				}
+			}
 		]]>
 		
 	</mx:Script>

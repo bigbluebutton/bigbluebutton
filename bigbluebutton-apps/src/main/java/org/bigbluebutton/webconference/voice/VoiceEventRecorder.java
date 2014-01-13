@@ -76,7 +76,6 @@ public class VoiceEventRecorder {
 		evt.setCallerNumber(pje.getCallerIdName());
 		evt.setMuted(pje.getMuted());
 		evt.setTalking(pje.getSpeaking());
-		evt.setLocked(pje.isLocked());
 		
 		recorder.record(room, evt);
 	}

@@ -33,6 +33,7 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.core.events.CoreEvent;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.core.vo.LockSettingsVO;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.LogoutEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -44,6 +45,7 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+	import org.bigbluebutton.main.views.LockSettings;
 	import org.bigbluebutton.modules.deskshare.events.StopSharingButtonEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -87,8 +89,8 @@ package org.bigbluebutton.main.model.users {
 			_participantsSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
 			_participantsSO.client = this;
 			_participantsSO.connect(_connectionManager.connection);
-      LogUtil.debug("In UserSOService:join - Setting my userid to [" + userid + "]");
-      UserManager.getInstance().getConference().setMyUserid(userid);
+	      LogUtil.debug("In UserSOService:join - Setting my userid to [" + userid + "]");
+	      UserManager.getInstance().getConference().setMyUserid(userid);
 			queryForParticipants();					
 			
 		}
@@ -253,8 +255,8 @@ package org.bigbluebutton.main.model.users {
 			user.userID = joinedUser.userid;
 			user.name = joinedUser.name;
 			user.role = joinedUser.role;
-      user.externUserID = joinedUser.externUserID;
-      user.isLeavingFlag = false;
+      		user.externUserID = joinedUser.externUserID;
+      		user.isLeavingFlag = false;
       
 			LogUtil.debug("User status: " + joinedUser.status.hasStream);
 
@@ -263,6 +265,7 @@ package org.bigbluebutton.main.model.users {
 			participantStatusChange(user.userID, "hasStream", joinedUser.status.hasStream);
 			participantStatusChange(user.userID, "presenter", joinedUser.status.presenter);
 			participantStatusChange(user.userID, "raiseHand", joinedUser.status.raiseHand);
+			participantStatusChange(user.userID, "locked", joinedUser.status.locked);
 			
 
 			var joinEvent:UserJoinedEvent = new UserJoinedEvent(UserJoinedEvent.JOINED);
@@ -401,5 +404,13 @@ package org.bigbluebutton.main.model.users {
 				} 
 			}
 		)
+			
+		/**
+		 * Callback from the server when lock settings are changed
+		 */
+		public function lockSettingsChange(newLockSettings:Object):void {
+			LogUtil.debug("Received lock settings change")			
+			UserManager.getInstance().getConference().setLockSettings(new LockSettingsVO(newLockSettings.allowModeratorLocking, newLockSettings.disableCam, newLockSettings.disableMic, newLockSettings.disablePrivateChat, newLockSettings.disablePublicChat));
+		}
 	}
 }

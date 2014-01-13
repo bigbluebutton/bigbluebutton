@@ -17,12 +17,19 @@
 *
 */
 package org.bigbluebutton.conference.service.voice;
-import org.slf4j.Logger;import org.red5.server.api.Red5;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;import org.red5.logging.Red5LoggerFactory;
-import org.bigbluebutton.webconference.voice.ConferenceService;import java.util.ArrayList;import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bigbluebutton.webconference.voice.Participant;
+import org.bigbluebutton.conference.BigBlueButtonSession;
+import org.bigbluebutton.conference.Constants;
+import org.bigbluebutton.webconference.voice.ConferenceService;
+import org.bigbluebutton.webconference.voice.Participant;
+import org.red5.logging.Red5LoggerFactory;
+import org.red5.server.api.Red5;
+import org.slf4j.Logger;
+
 public class VoiceService {
 	
 	private static Logger log = Red5LoggerFactory.getLogger( VoiceService.class, "bigbluebutton" );
@@ -59,7 +66,6 @@ public class VoiceService {
 			pmap.put("name", p.getName());
 			pmap.put("muted", p.isMuted());
 			pmap.put("talking", p.isTalking());
-			pmap.put("locked", p.isMuteLocked());
 			log.debug("[" + p.getId() + "," + p.getName() + "," + p.isMuted() + "," + p.isTalking() + "]");
 			result.put(p.getId(), pmap);
 		}
@@ -67,11 +73,17 @@ public class VoiceService {
 		return result;
 	}
 	
+	public void muteAllUsers(boolean mute, List<Integer> dontMuteThese) {
+		String conference = getBbbSession().getVoiceBridge();    	
+    	log.debug("Mute all users in room[" + conference + "], dontLockThese list size = " + dontMuteThese.size());
+    	conferenceService.muteAllBut(conference, mute, dontMuteThese);
+	}
+	
 	public void muteAllUsers(boolean mute) {
 		String conference = getBbbSession().getVoiceBridge();    	
     	log.debug("Mute all users in room[" + conference + "]");
     	conferenceService.mute(conference, mute);	   	
-	}	
+	}
 	
 	public boolean isRoomMuted(){
 		String conference = getBbbSession().getVoiceBridge(); 
@@ -82,12 +94,6 @@ public class VoiceService {
 		String conference = getBbbSession().getVoiceBridge();    	
     	log.debug("MuteUnmute request for user [" + userid + "] in room[" + conference + "]");
     	conferenceService.mute(userid, conference, mute);
-	}
-
-	public void lockMuteUser(Integer userid, Boolean lock) {
-		String conference = getBbbSession().getVoiceBridge();    	
-    	log.debug("Lock request for user [" + userid + "] in room[" + conference + "]");
-    	conferenceService.lock(userid, conference, lock);
 	}
 	
 	public void kickUSer(Integer userid) {

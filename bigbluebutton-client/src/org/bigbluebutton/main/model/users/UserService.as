@@ -29,8 +29,10 @@ package org.bigbluebutton.main.model.users
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.managers.ConfigManager;
 	import org.bigbluebutton.core.managers.UserConfigManager;
 	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.core.model.Config;
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
@@ -68,25 +70,27 @@ package org.bigbluebutton.main.model.users
 		
 		private function joinListener(success:Boolean, result:Object):void {
 			if (success) {
+				var config:Config = BBB.initConfigManager().config;
+				
 				UserManager.getInstance().getConference().setMyName(result.username);
 				UserManager.getInstance().getConference().setMyRole(result.role);
 				UserManager.getInstance().getConference().setMyRoom(result.room);
 				UserManager.getInstance().getConference().setMyAuthToken(result.authToken);
 				UserManager.getInstance().getConference().setMyCustomData(result.customdata);
-        UserManager.getInstance().getConference().setDefaultLayout(result.defaultLayout);
+				UserManager.getInstance().getConference().setDefaultLayout(result.defaultLayout);
         
-        UserManager.getInstance().getConference().externalMeetingID = result.externMeetingID;
-        UserManager.getInstance().getConference().meetingName = result.conferenceName;
-        UserManager.getInstance().getConference().internalMeetingID = result.room;
-        UserManager.getInstance().getConference().externalUserID = result.externUserID;
-        UserManager.getInstance().getConference().avatarURL = result.avatarURL;
-		UserManager.getInstance().getConference().voiceBridge = result.voicebridge;
-		UserManager.getInstance().getConference().dialNumber = result.dialnumber;
+				UserManager.getInstance().getConference().externalMeetingID = result.externMeetingID;
+				UserManager.getInstance().getConference().meetingName = result.conferenceName;
+				UserManager.getInstance().getConference().internalMeetingID = result.room;
+				UserManager.getInstance().getConference().externalUserID = result.externUserID;
+				UserManager.getInstance().getConference().avatarURL = result.avatarURL;
+				UserManager.getInstance().getConference().voiceBridge = result.voicebridge;
+				UserManager.getInstance().getConference().dialNumber = result.dialnumber;
 		
         
 				_conferenceParameters = new ConferenceParameters();
-        _conferenceParameters.meetingName = result.conferenceName;
-        _conferenceParameters.externMeetingID = result.externMeetingID;
+				_conferenceParameters.meetingName = result.conferenceName;
+				_conferenceParameters.externMeetingID = result.externMeetingID;
 				_conferenceParameters.conference = result.conference;
 				_conferenceParameters.username = result.username;
 				_conferenceParameters.role = result.role;
@@ -103,6 +107,24 @@ package org.bigbluebutton.main.model.users
 				if (result.record == "false") {
 					_conferenceParameters.record = false;
 				}
+				
+				var muteOnStart:Boolean;
+				try {
+					muteOnStart = (config.meeting.@muteOnStart.toUpperCase() == "TRUE");
+				} catch(e:Error) {
+					muteOnStart = false;
+				}
+				
+				var lockOnStart:Boolean;
+				try {
+					lockOnStart = (config.meeting.@lockOnStart.toUpperCase() == "TRUE");
+				} catch(e:Error) {
+					lockOnStart = false;
+				}
+				
+				_conferenceParameters.muteOnStart = muteOnStart;
+				_conferenceParameters.lockOnStart = lockOnStart;
+				_conferenceParameters.lockSettings = UserManager.getInstance().getConference().getLockSettings().toMap();
 				
                 // assign the meeting name to the document title
                 ExternalInterface.call("setTitle", _conferenceParameters.meetingName);

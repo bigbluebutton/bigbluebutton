@@ -34,7 +34,7 @@ package org.bigbluebutton.main.events {
 		public static const DESKSHARE_STARTED:String = 'BBB_DESKSHARE_STARTED';
     public static const USER_VOICE_JOINED:String = 'user voice joined event';
 		public static const USER_VOICE_MUTED:String = "user voice muted event";
-    public static const USER_VOICE_LOCKED:String = "user voice locked event";
+    public static const USER_LOCKED:String = "user locked event";
     public static const USER_VOICE_LEFT:String = "user voice left event";
     public static const USER_VOICE_TALKING:String = "user voice talking event";
     public static const CAMERA_SETTING:String = "camera settings event";

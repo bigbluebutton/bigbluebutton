@@ -23,7 +23,9 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.model.Config;
 	import org.bigbluebutton.core.vo.CameraSettingsVO;
+	import org.bigbluebutton.core.vo.LockSettingsVO;
 	
 	public class Conference {		
     public var meetingName:String;
@@ -34,6 +36,8 @@ package org.bigbluebutton.main.model.users {
 	public var voiceBridge:String;
 	public var dialNumber:String;
     
+	private var lockSettings:LockSettingsVO;
+	
     private var _myCamSettings:CameraSettingsVO = new CameraSettingsVO();
     
 		[Bindable] private var me:BBBUser = null;		
@@ -49,6 +53,7 @@ package org.bigbluebutton.main.model.users {
 			sort.compareFunction = sortFunction;
 			users.sort = sort;
 			users.refresh();
+			configLockSettings();
 		}
 		
 		// Custom sort function for the users ArrayCollection. Need to put dial-in users at the very bottom.
@@ -327,12 +332,12 @@ package org.bigbluebutton.main.model.users {
 		}
 		
 		[Bindable]
-		public function set voiceLocked(locked:Boolean):void {
-			me.voiceLocked = locked;
+		public function set locked(locked:Boolean):void {
+			me.userLocked = locked;
 		}
 		
-		public function get voiceLocked():Boolean {
-			return me.voiceLocked;
+		public function get locked():Boolean {
+			return me.userLocked;
 		}
 		
     public function getMyExternalUserID():String {
@@ -396,6 +401,77 @@ package org.bigbluebutton.main.model.users {
 				uids.addItem(u.userID);
 			}
 			return uids;
-		}		
+		}
+		
+		/**
+		 * Read default lock settings from config.xml
+		 * */
+		private function configLockSettings():void {
+			var config:Config = BBB.initConfigManager().config;
+			
+			var allowModeratorLocking:Boolean, disableCam:Boolean, disableMic:Boolean, disablePrivateChat:Boolean, disablePublicChat:Boolean;
+			
+			var lockConfig:XML;
+			
+			if(config!=null) {
+				lockConfig = config.lock;
+			}
+			
+			try{
+				allowModeratorLocking = (lockConfig.@allowModeratorLocking.toUpperCase() == "TRUE");
+			}catch(e:Error) {
+				allowModeratorLocking = false;
+			}
+			
+			try{
+				disableCam = (lockConfig.@disableCamForLockedUsers.toUpperCase() == "TRUE");
+			}catch(e:Error) {
+				disableCam = false;
+			}
+			
+			try{
+				disableMic = (lockConfig.@disableMicForLockedUsers.toUpperCase() == "TRUE");
+			}catch(e:Error) {
+				disableMic = false;
+			}
+			
+			try{
+				disablePrivateChat = (lockConfig.@disablePrivateChatForLockedUsers.toUpperCase() == "TRUE");
+			}catch(e:Error) {
+				disablePrivateChat = false;
+			}
+			
+			try{
+				disablePublicChat = (lockConfig.@disablePublicChatForLockedUsers.toUpperCase() == "TRUE");
+			}catch(e:Error) {
+				disablePublicChat = false;
+			}
+			
+			lockSettings = new LockSettingsVO(allowModeratorLocking, disableCam, disableMic, disablePrivateChat, disablePublicChat);
+		}
+		
+		public function getMyUser():BBBUser {
+			var eachUser:BBBUser;
+			
+			for (var i:int = 0; i < users.length; i++) {
+				eachUser = users.getItemAt(i) as BBBUser;
+				
+				if (eachUser.userID == me.userID) {
+					return eachUser;
+				}
+			}
+			
+			return null;
+		}
+		
+		public function getLockSettings():LockSettingsVO {
+			return lockSettings;
+		}
+		
+		public function setLockSettings(lockSettings:LockSettingsVO):void {
+			this.lockSettings = lockSettings;
+			
+			getMyUser().applyLockSettings();
+		}
 	}
 }

@@ -39,13 +39,14 @@ public class User implements Serializable {
 	private final Map status;
 	private Map<String, Object> unmodifiableStatus;
 	
-	public User(String internalUserID, String name, String role, String externalUserID, Map<String, Object> status) {
+	public User(String internalUserID, String name, String role, String externalUserID, Map<String, Object> status, Boolean locked) {
 		this.internalUserID = internalUserID;
 		this.name = name;
 		this.role = role;
 		this.externalUserID = externalUserID;
 		this.status = new ConcurrentHashMap<String, Object>(status);
 		unmodifiableStatus = Collections.unmodifiableMap(status);
+		setStatus("locked", locked);
 	}
 	
 	public boolean isModerator() {
@@ -115,5 +116,9 @@ public class User implements Serializable {
 		 */
 		m.put("status", new HashMap(unmodifiableStatus));
 		return m;
+	}
+
+	public Boolean isLocked() {
+		return ((Boolean) getStatus().get("locked") );
 	}
 }

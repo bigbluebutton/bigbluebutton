@@ -21,6 +21,8 @@ package org.bigbluebutton.conference;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 import org.red5.server.api.so.ISharedObject;
 
 public class RoomListener implements IRoomListener{
@@ -64,5 +66,12 @@ public class RoomListener implements IRoomListener{
 	
 	public void endAndKickAll() {
 		// no-op
+	}
+
+	@Override
+	public void lockSettingsChange(Map<String, Boolean> lockSettings) {
+		List list = new ArrayList();
+		list.add(lockSettings);
+		so.sendMessage("lockSettingsChange", list);
 	}	
 }

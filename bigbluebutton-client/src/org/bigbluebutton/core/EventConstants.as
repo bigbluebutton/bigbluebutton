@@ -57,7 +57,7 @@ package org.bigbluebutton.core
     public static const USER_KICKED_OUT:String            = 'UserKickedOutEvent';
     public static const USER_MUTED_VOICE:String           = 'UserVoiceMutedEvent';
     public static const USER_TALKING:String               = 'UserTalkingEvent';
-    public static const USER_LOCKED_VOICE:String          = 'UserLockedVoiceEvent';
+    public static const USER_LOCKED:String          	  = 'UserLockedEvent';
     public static const START_PRIVATE_CHAT:String         = "StartPrivateChatEvent";
     public static const GET_MY_USER_INFO_REP:String       = "GetMyUserInfoResponse";
     public static const IS_USER_PUBLISHING_CAM_RESP:String = "IsUserPublishingCamResponse";

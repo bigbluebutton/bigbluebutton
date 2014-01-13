@@ -225,9 +225,9 @@ package org.bigbluebutton.main.api
       broadcastEvent(payload);
     }
     
-    public function handleUserVoiceLockedEvent(event:BBBEvent):void {
+    public function handleUserLockedEvent(event:BBBEvent):void {
       var payload:Object = new Object();
-      payload.eventName = EventConstants.USER_LOCKED_VOICE;
+      payload.eventName = EventConstants.USER_LOCKED;
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       payload.locked = event.payload.locked;
       
