@@ -45,6 +45,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 		
 			public function get uri():String {
+				LogUtil.debug("URL eh: " + _attributes.uri + "/" + _attributes.room);
 				return _attributes.uri + "/" + _attributes.room;
 			}
 			

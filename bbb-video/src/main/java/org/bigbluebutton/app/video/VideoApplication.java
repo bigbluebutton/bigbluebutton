@@ -25,6 +25,9 @@ import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
+import org.red5.server.api.scope.IBasicScope;
+import org.red5.server.api.scope.IBroadcastScope;
+import org.red5.server.api.scope.ScopeType;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.api.stream.IServerStream;
 import org.red5.server.api.stream.IStreamListener;
@@ -70,6 +73,17 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     	super.streamPublishStart(stream);
     }
     
+
+    public IBroadcastScope getBroadcastScope(IScope scope, String name) {
+    IBasicScope basicScope = scope.getBasicScope(ScopeType.BROADCAST, name);
+    if (!(basicScope instanceof IBroadcastScope)) {
+        return null;
+    } else {
+        return (IBroadcastScope) basicScope;
+    }
+}
+
+
     @Override
     public void streamBroadcastStart(IBroadcastStream stream) {
     	IConnection conn = Red5.getConnectionLocal();  
@@ -83,6 +97,24 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	        stream.addStreamListener(listener); 
 	        streamListeners.put(conn.getScope().getName() + "-" + stream.getPublishedName(), listener);
         }
+
+        System.out.println("TESTE " + stream.getPublishedName());
+        System.out.println("TESTE");
+        System.out.println("TESTE");
+        System.out.println("TESTE");
+        System.out.println("TESTE");
+        System.out.println("TESTE");
+        IScope scope = stream.getScope();
+        IBroadcastScope bsScope = getBroadcastScope(scope, stream.getPublishedName());
+        StreamingProxy proxy = new StreamingProxy();
+        proxy.setHost("0.0.0.0");
+        proxy.setApp("video");
+        proxy.setPort(1935);
+        proxy.init();
+        bsScope.subscribe(proxy, null);
+        proxy.start("MY_STRING", StreamingProxy.LIVE, null);
+        //streamingProxyMap.put(stream.getPublishedName(), proxy);
+        //stream.addStreamListener(this);
     }
 
     @Override

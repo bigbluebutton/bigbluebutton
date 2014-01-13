@@ -208,9 +208,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					filter.divisor = videoOptions.filterDivisor;
 					_video.filters = [filter];					
 				}
+				LogUtil.debug("PLyaying: " + stream);
 				
-				ns.play(stream);
-				this.streamName = stream;
+				//ns.play(stream);
+				ns.play("MY_STRING");
+				LogUtil.debug("Playing MY_STRING 2");
+				this.streamName = "MY_STRING";
 				
 				this.width = _video.width + paddingHorizontal;
 				this.height = _video.height + paddingVertical;
@@ -233,6 +236,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onNetStatus(e:NetStatusEvent):void{
+
+				LogUtil.debug(e.info.code);
 				switch(e.info.code){
 					case "NetStream.Publish.Start":
 						LogUtil.debug("NetStream.Publish.Start for broadcast stream " + streamName);
@@ -253,6 +258,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					case "NetStream.Play.NoSupportedTrackFound":
 						LogUtil.debug("The MP4 doesn't contain any supported tracks");
 						break;
+
 				}
 			}
 			

@@ -82,6 +82,7 @@ dependencies {
 	
 	// Red5
 	providedCompile 'org/red5:red5:1.0r4643@jar'
+  compile files('./lib/red5-client-1.0.2-RC1.jar')
 	
 	// Logging
 	providedCompile 'ch.qos.logback:logback-core:1.0.9@jar'
