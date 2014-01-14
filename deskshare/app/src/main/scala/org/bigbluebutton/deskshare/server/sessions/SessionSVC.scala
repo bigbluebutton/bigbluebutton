@@ -45,17 +45,22 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 	private var mouseLoc:Point = new Point(100,100)
 	private var pendingGenKeyFrameRequest = false
 	private var timestamp = 0L;
+	private var lastUserKeyFrameRequest = 0L
+	private var sentInitialKeyFrame = false;
 	
 	/*
 	 * Schedule to generate a key frame after 30seconds of a request.
 	 * This prevents us from generating unnecessary key frames when
 	 * users join within seconds of each other.
 	 */
-	def scheduleGenerateKeyFrame() {
-		val mainActor = self
-		actor {
-			Thread.sleep(keyFrameInterval)
-			mainActor ! "GenerateAKeyFrame"
+	def scheduleGenerateKeyFrame(waitSec:Int) {
+		if (!pendingGenKeyFrameRequest) {
+			pendingGenKeyFrameRequest = true
+			val mainActor = self
+			actor {
+				Thread.sleep(waitSec)
+				mainActor ! "GenerateAKeyFrame"
+			}
 		}
 	}
 	
@@ -82,11 +87,16 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 	            }
             }
           case GenerateKeyFrame => {
-        	  if (!pendingGenKeyFrameRequest) {
-        	 	  pendingGenKeyFrameRequest = true
-        	 	  scheduleGenerateKeyFrame()
-        	  }        	  
+            val now = System.currentTimeMillis()
+            // Wait 30sec between keyframe request from the users. This prevents
+            // creating many keyframes when users join the session close to one
+            // another.
+            if (now - lastUserKeyFrameRequest > 30000) {
+              lastUserKeyFrameRequest = now
+              scheduleGenerateKeyFrame(keyFrameInterval)
             }
+        	  
+          }
           case "GenerateAKeyFrame" => {
         	  pendingGenKeyFrameRequest = false
          	  log.debug("Session: Generating Key Frame for room %s", room)
@@ -124,7 +134,17 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 	
 	private def updateBlock(position: Int, videoData: Array[Byte], keyFrame: Boolean, seqNum: Int): Unit = {
 		lastUpdate = System.currentTimeMillis()
-		blockManager.updateBlock(position, videoData, keyFrame, seqNum)	
+		blockManager.updateBlock(position, videoData, keyFrame, seqNum)
+		
+		if (!sentInitialKeyFrame) {
+		  // We have received all the blocks from the applet. Force sending a key frame
+		  // to all clients so they won't see the trickle effect.
+		  if (blockManager.hasReceivedAllBlocks) {
+		    log.debug("Session: Received all blocks. Generating key frame for session %s", room)
+		    scheduleGenerateKeyFrame(1)
+		    sentInitialKeyFrame = true;
+		  }
+		}		
 	}
 	
 	private def generateFrame(keyframe:Boolean) {				  

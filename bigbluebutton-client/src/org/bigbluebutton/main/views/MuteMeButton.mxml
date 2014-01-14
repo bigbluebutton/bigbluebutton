@@ -25,6 +25,7 @@ $Id: $
 	xmlns:flc="flexlib.controls.*"
 	xmlns:mate="http://mate.asfusion.com/"
 	visible="false" 
+	includeInLayout="false"
 	creationComplete="onCreationComplete()"
 	toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.users.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.users.pushToMute.toolTip')}" 
 	click="toggleMuteMeState()" width="140" maxWidth="180"
@@ -81,9 +82,9 @@ $Id: $
 			
 			private function updateMuteMeBtn(placeholder:Boolean = false):void {
 				if (!UserManager.getInstance().getConference().voiceJoined || (UserManager.getInstance().getConference().voiceLocked && !UserManager.getInstance().getConference().amIModerator())) {
-					this.visible = false;
+					this.visible = this.includeInLayout = false;
 				} else {
-					this.visible = true;
+					this.visible = this.includeInLayout = true;
 					
 					if (muteMeRolled) {
 						if (UserManager.getInstance().getConference().voiceMuted) {

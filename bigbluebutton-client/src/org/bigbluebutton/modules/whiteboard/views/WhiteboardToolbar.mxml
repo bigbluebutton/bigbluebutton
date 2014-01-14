@@ -37,6 +37,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="graphicObjSelected" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="graphicObjDeselected" />
 	<mate:Listener type="{WhiteboardButtonEvent.WHITEBOARD_BUTTON_PRESSED}" method="handleWhiteboardButtonPressed"/>
+    <mate:Listener type="{NavigationEvent.GOTO_PAGE}" method="handleSlideChange" />
+    <mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleSlideLoaded" />
+    <mate:Listener type="{UploadEvent.PRESENTATION_READY}" method="handlePresentationSwitch" />
     
 	<mx:Style>
 		.colorPickerStyle {
@@ -76,7 +79,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
+			import org.bigbluebutton.modules.present.events.NavigationEvent;
+			import org.bigbluebutton.modules.present.events.SlideEvent;
+			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 			import org.bigbluebutton.modules.present.ui.views.SlideView;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
@@ -118,6 +125,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var showWhiteboardToolbar:Boolean = false;
 
+			private var mousedOver:Boolean = false;
+			private var slideLoaded:Boolean = false;
+			
 			public var canvas:WhiteboardCanvas;
 			private var presentationWindow:PresentationWindow;
 			
@@ -206,7 +216,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function viewerMode(e:MadePresenterEvent):void {
 				canvas.makeTextObjectsUneditable(e);
 				if (!toolbarAllowed()) {
-                    hideToolbar();
+                    checkVisibility();
                     if (panzoomBtn) {
                         panzoomBtn.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
                     }
@@ -231,14 +241,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
 				
                 if (!wbOptions.keepToolbarVisible) {
-    				window.presCtrlBar.addEventListener(MouseEvent.ROLL_OVER, hideToolbar);
-    				window.presCtrlBar.addEventListener(MouseEvent.ROLL_OUT, showToolbar);
+    				window.presCtrlBar.addEventListener(MouseEvent.ROLL_OVER, handleMouseOut);
+    				window.presCtrlBar.addEventListener(MouseEvent.ROLL_OUT, handleMouseIn);
     				
-    				window.addEventListener(MouseEvent.ROLL_OVER, showToolbar);
-    				window.addEventListener(MouseEvent.ROLL_OUT, hideToolbar);
+    				window.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
+    				window.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
     				
-    				this.addEventListener(MouseEvent.ROLL_OVER, showToolbar);
-    				this.addEventListener(MouseEvent.ROLL_OUT, hideToolbar);
+    				this.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
+    				this.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
                 } else {
                     var listener1:Listener = new Listener();
                     listener1.method = checkVisibility;
@@ -253,7 +263,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
             private function checkVisibility(e:MadePresenterEvent = null):void {
-                if (toolbarAllowed()) {
+                if (toolbarAllowed() && slideLoaded && mousedOver) {
                     setPositionAndDepth();
                     showWhiteboardToolbar = true;
                 } else {
@@ -271,16 +281,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				parent.removeChild(this);
 			}
 			
-			private function showToolbar(e:MouseEvent):void {
-				if (toolbarAllowed()) {
-					setPositionAndDepth();
-					showWhiteboardToolbar = true;
-				}
+			private function handleMouseIn(e:MouseEvent):void {
+				mousedOver = true;
+				checkVisibility();
 			}
 			
-			private function hideToolbar(e:MouseEvent = null):void {
-				showWhiteboardToolbar = false;
+			private function handleMouseOut(e:MouseEvent = null):void {
+				mousedOver = false;
+				checkVisibility();
 			}
+           
+           private function handleSlideLoaded(e:DisplaySlideEvent):void {
+               slideLoaded = true;
+               checkVisibility();
+           }
+           
+           private function handleSlideChange(e:NavigationEvent):void {
+               slideLoaded = false;
+               // don't switch the toolbar button on slide change
+               checkVisibility();
+           }
+           
+           private function handlePresentationSwitch(e:UploadEvent):void {
+               slideLoaded = false;
+               if (panzoomBtn) {
+                   panzoomBtn.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+               }
+               checkVisibility();
+           }
            
       private function graphicObjSelected(event:GraphicObjectFocusEvent):void  {
         var gobj:GraphicObject = event.data;

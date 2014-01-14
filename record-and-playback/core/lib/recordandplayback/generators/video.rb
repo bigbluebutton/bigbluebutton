@@ -138,7 +138,7 @@ module BigBlueButton
 
   #Converts flv to mpg
   def self.convert_flv_to_mpg(flv_video, mpg_video_out)
-        command = "#{FFMPEG_CMD_BASE} -i #{flv_video} -same_quant -f mpegts -r 29.97 #{mpg_video_out}"
+        command = "#{FFMPEG_CMD_BASE} -i #{flv_video} -q:v 0 -f mpegts -r 29.97 #{mpg_video_out}"
         BigBlueButton.logger.info("Task: Converting .flv to .mpg")    
         BigBlueButton.execute(command)
   end
@@ -152,7 +152,7 @@ module BigBlueButton
 
   #Converts .mpg to .flv
   def self.convert_mpg_to_flv(mpg_video,flv_video_out)
-        command = "#{FFMPEG_CMD_BASE} -i  #{mpg_video} -same_quant  #{flv_video_out}"
+        command = "#{FFMPEG_CMD_BASE} -i  #{mpg_video} -q:v 0  #{flv_video_out}"
         BigBlueButton.logger.info("Task: Converting .mpg to .flv")
         BigBlueButton.execute(command);
   end
@@ -163,7 +163,7 @@ module BigBlueButton
   #  video - the video file. Must not contain an audio stream. 
   def self.multiplex_audio_and_video(audio, video, video_out)
     BigBlueButton.logger.info("Task: Multiplexing audio and video")      
-    command = "#{FFMPEG_CMD_BASE} -i #{audio} -i #{video} -map 1:0 -map 0:0 #{video_out}"
+    command = "#{FFMPEG_CMD_BASE} -i #{audio} -i #{video} -map 1:0 -map 0:0 -ar 44100 #{video_out}"
     BigBlueButton.execute(command)
     # TODO: check result, raise an exception when there is an error
   end
@@ -365,7 +365,7 @@ module BigBlueButton
   def self.process_webcam(target_dir, temp_dir, meeting_id) 
     BigBlueButton.logger.info("Processing webcam")
     # Process audio
-    BigBlueButton::AudioProcessor.process("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio.ogg")
+    BigBlueButton::AudioProcessor.process("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio")
 
     # Process video    
     video_dir = "#{temp_dir}/#{meeting_id}/video/#{meeting_id}"
@@ -403,7 +403,7 @@ module BigBlueButton
  
    			# Use for newer version of FFMPEG
     		padding = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{side_padding}:#{top_bottom_padding}:FFFFFF"       
-		    command = "#{FFMPEG_CMD_BASE} -i #{stripped_webcam} -aspect 4:3 -r 1000 -same_quant #{frame_size} #{padding} #{scaled_flv}" 
+		    command = "#{FFMPEG_CMD_BASE} -i #{stripped_webcam} -aspect 4:3 -r 1000 -q:v 0 #{frame_size} #{padding} #{scaled_flv}" 
 		    #BigBlueButton.logger.info(command)
 		    #IO.popen(command)
 		    #Process.wait                
@@ -438,25 +438,33 @@ module BigBlueButton
         flvs << blank_flv
         BigBlueButton.create_blank_deskshare_video((comb[:stop_timestamp] - comb[:start_timestamp].to_f)/1000, 1000, blank_canvas, blank_flv)
       else
-      	scaled_flv = "#{temp_dir}/#{meeting_id}/deskshare/scaled-#{comb[:stream]}"
-        flvs << scaled_flv
-        flv_in = "#{temp_dir}/#{meeting_id}/deskshare/#{comb[:stream]}"
-        frame_size = BigBlueButton.scale_to_640_x_480(BigBlueButton.get_video_width(flv_in), BigBlueButton.get_video_height(flv_in))
+        deskshare_dir = "#{temp_dir}/#{meeting_id}/deskshare"
+        scaled_flv = "#{deskshare_dir}/scaled-#{comb[:stream]}"
+        padded_flv = "#{deskshare_dir}/padded-#{comb[:stream]}"
+        flvs << padded_flv
+        flv_in = "#{deskshare_dir}/#{comb[:stream]}"
 
+        deskshare_params = "-aspect 4:3 -r 1000 -q:v 0 -vcodec flashsv"
+
+        #Scale options
+        frame_size = BigBlueButton.scale_to_640_x_480(BigBlueButton.get_video_width(flv_in), BigBlueButton.get_video_height(flv_in))
         width = frame_size[:width]
         height = frame_size[:height]
-        
-     		frame_size = "-s #{width}x#{height}"
-    		side_padding = ((MAX_VID_WIDTH - width) / 2).to_i
-    		top_bottom_padding = ((MAX_VID_HEIGHT - height) / 2).to_i
+        frame_size = "-s #{width}x#{height}"
+
+        #Scale video
+        scale_command = "#{FFMPEG_CMD_BASE} -i #{flv_in} #{deskshare_params} #{frame_size}  #{scaled_flv}"
+        BigBlueButton.execute(scale_command)
+
+        # Padding options
+        side_padding = ((MAX_VID_WIDTH - width) / 2).to_i
+        top_bottom_padding = ((MAX_VID_HEIGHT - height) / 2).to_i
+        padding_params = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{side_padding}:#{top_bottom_padding}:FFFFFF"
  
-   			# Use for newer version of FFMPEG
-    		padding = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{side_padding}:#{top_bottom_padding}:FFFFFF"       
-		    command = "#{FFMPEG_CMD_BASE} -i #{flv_in} -aspect 4:3 -r 1000 -same_quant #{frame_size} #{padding} -vcodec flashsv #{scaled_flv}" 
-		    BigBlueButton.execute(command)
-		    #BigBlueButton.logger.info(command)
-		    #IO.popen(command)
-		    #Process.wait 
+        #Pad  video
+        padding_command = "#{FFMPEG_CMD_BASE} -i #{scaled_flv} #{deskshare_params}  #{padding_params} #{padded_flv}"
+        BigBlueButton.execute(padding_command)
+
       end
     end
                

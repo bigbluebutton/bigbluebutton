@@ -21,6 +21,7 @@ package org.bigbluebutton.web.controllers
 import grails.converters.*
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.presentation.UploadedPresentation
+import org.bigbluebutton.api.Util;
 
 class PresentationController {
   PresentationService presentationService
@@ -67,14 +68,13 @@ class PresentationController {
     def file = request.getFile('fileUpload')
 		if(file && !file.empty) {
 			flash.message = 'Your file has been uploaded'
-			// Replace any character other than a (A-Z, a-z, 0-9, _ or .) with a - (dash).
-			def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
 			log.debug "Uploaded presentation name : $params.presentation_name"
-			def presentationName = params.presentation_name.replaceAll(notValidCharsRegExp, '-')
+			def presentationName = Util.cleanPresentationFilename(params.presentation_name)
+			
 			log.debug "Uploaded presentation name : $presentationName"
 			File uploadDir = presentationService.uploadedPresentationDirectory(params.conference, params.room, presentationName)
 	
-			def newFilename = file.getOriginalFilename().replaceAll(notValidCharsRegExp, '-')
+			def newFilename = Util.cleanPresentationFilename(file.getOriginalFilename())
 			def pres = new File( uploadDir.absolutePath + File.separatorChar + newFilename )
 			file.transferTo(pres)	
 	      

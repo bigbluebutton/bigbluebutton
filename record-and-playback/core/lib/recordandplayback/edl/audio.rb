@@ -44,6 +44,8 @@ module BigBlueButton
         sections = []
         audioinfo = {}
 
+        corrupt_audios = Set.new        
+
         BigBlueButton.logger.info "Pre-processing EDL"
         for i in 0...(edl.length - 1)
           # The render scripts use this to calculate cut lengths
@@ -60,7 +62,23 @@ module BigBlueButton
           info = audio_info(audiofile)
           BigBlueButton.logger.debug "    sample rate: #{info[:sample_rate]}, duration: #{info[:duration]}"
 
+          if !info[:audio] || !info[:duration]
+            BigBlueButton.logger.warn "    This audio file is corrupt! It will be removed from the output."
+            corrupt_audios << audiofile
+          end
+
           audioinfo[audiofile] = info
+        end
+
+        if corrupt_audios.length > 0
+          BigBlueButton.logger.info "Removing corrupt audio files from EDL"
+          edl.each do |event|
+            if event[:audio] && corrupt_audios.include?(event[:audio][:filename])
+              event[:audio] = nil
+            end
+          end
+
+          dump(edl)
         end
 
         BigBlueButton.logger.info "Generating sections"

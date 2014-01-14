@@ -43,9 +43,9 @@ package org.bigbluebutton.modules.deskshare.managers
 			if (isViewing) viewWindow.stopViewing();
 		}
 				
-		public function handleStartedViewingEvent():void{
+		public function handleStartedViewingEvent(stream:String):void{
 			LogUtil.debug("ViewerWindowManager handleStartedViewingEvent");
-			service.sendStartedViewingNotification();
+			service.sendStartedViewingNotification(stream);
 		}
 						
 		private function openWindow(window:IBbbModuleWindow):void{				
