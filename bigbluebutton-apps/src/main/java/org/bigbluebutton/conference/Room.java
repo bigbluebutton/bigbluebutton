@@ -19,15 +19,18 @@
 
 package org.bigbluebutton.conference;
 
-import org.slf4j.Logger;
-import org.red5.logging.Red5LoggerFactory;
-import net.jcip.annotations.ThreadSafe;
 import java.io.Serializable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import net.jcip.annotations.ThreadSafe;
+
+import org.bigbluebutton.conference.service.lock.LockSettings;
+import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.Logger;
 /**
  * Contains information about a Room and it's Participants. 
  * Encapsulates Participants and RoomListeners.
@@ -38,14 +41,19 @@ public class Room implements Serializable {
 	ArrayList<String> currentPresenter = null;
 	private String name;
 	private Map <String, User> participants;
+	private Boolean locked;
+	private LockSettings lockSettings = null;
 	private Boolean recording = false;
 
 	// these should stay transient so they're not serialized in ActiveMQ messages:	
 	//private transient Map <Long, Participant> unmodifiableMap;
 	private transient final Map<String, IRoomListener> listeners;
 
-	public Room(String name) {
+	public Room(String name, Boolean locked, LockSettings lockSettings) {
 		this.name = name;
+		this.locked = locked;
+		this.lockSettings = lockSettings;
+		
 		participants = new ConcurrentHashMap<String, User>();
 		//unmodifiableMap = Collections.unmodifiableMap(participants);
 		listeners   = new ConcurrentHashMap<String, IRoomListener>();
@@ -140,7 +148,7 @@ public class Room implements Serializable {
 		}
 	}
 
-	public Map getParticipants() {
+	public Map<String, User> getParticipants() {
 		return participants;//unmodifiableMap;
 	}	
 
@@ -179,6 +187,28 @@ public class Room implements Serializable {
 		}	
 	}
 
+	public void setLocked(Boolean locked) {
+		this.locked = locked;
+	}
+	
+	public boolean isLocked() {
+		return locked;
+	}
+
+	public LockSettings getLockSettings() {
+		return lockSettings;
+	}
+
+	public void setLockSettings(LockSettings lockSettings) {
+		this.lockSettings = lockSettings;
+		
+		for (Iterator it = listeners.values().iterator(); it.hasNext();) {
+			IRoomListener listener = (IRoomListener) it.next();
+			log.debug("calling setLockSettings on listener " + listener.getName());
+			listener.lockSettingsChange(lockSettings.toMap());
+		}
+	}
+
 	public void changeRecordingStatus(String userid, Boolean recording) {
 		boolean present = false;
 		User p = null;
@@ -207,5 +237,4 @@ public class Room implements Serializable {
 	public Boolean getRecordingStatus() {
 		return recording;
 	}
-
 }

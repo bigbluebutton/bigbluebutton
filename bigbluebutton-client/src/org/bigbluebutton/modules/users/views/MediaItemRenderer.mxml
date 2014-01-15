@@ -41,10 +41,12 @@
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
+			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.main.model.users.events.LowerHandEvent;
@@ -75,7 +77,7 @@
 				
 				BindingUtils.bindSetter(updateButtons, voiceJoinedInd, "visible");
 				BindingUtils.bindSetter(updateButtons, muteInd, "visible");
-				BindingUtils.bindSetter(updateButtons, voiceLockedInd, "visible");
+				BindingUtils.bindSetter(updateButtons, userLockedInd, "visible");
 				BindingUtils.bindSetter(updateButtons, hasStreamInd, "visible");
                 BindingUtils.bindSetter(updateButtons, viewingStreamInd, "visible");
                 
@@ -139,9 +141,15 @@
 			}
 			
 			public function toggleLockState():void {
-				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.LOCK_MUTE_USER);
-				e.userid = data.voiceUserid;
-				e.lock = !data.voiceLocked;
+				var e:LockControlEvent;
+				
+				if(data.userLocked) {
+					e = new LockControlEvent(LockControlEvent.UNLOCK_USER);
+				} else {
+					e = new LockControlEvent(LockControlEvent.LOCK_USER);
+				}
+				
+				e.internalUserID = data.userID;
 				dispatchEvent(e);
 			}
 			
@@ -156,28 +164,42 @@
 						muteBtn.visible = false;
 						muteBtn.includeInLayout = true;
 					} else {
-						muteImg.visible = !rolledOver;
-						muteImg.includeInLayout = !rolledOver;
-						muteBtn.visible = rolledOver;
-						muteBtn.includeInLayout = rolledOver;
-						
-						if(data.talking && !rolledOver){
-							muteImg.filters = [new GlowFilter(0x898989)];
-						}else{
-							muteImg.filters = [];
+						if(data.userLocked && UserManager.getInstance().getConference().getLockSettings().getDisableMic()) {
+							muteImg.visible = true;
+							muteImg.includeInLayout = true;
+							muteBtn.visible = false;
+							muteBtn.includeInLayout = false;
+						} else {
+							muteImg.visible = !rolledOver;
+							muteImg.includeInLayout = !rolledOver;
+							muteBtn.visible = rolledOver;
+							muteBtn.includeInLayout = rolledOver;
+							
+							if(data.talking && !rolledOver){
+								muteImg.filters = [new GlowFilter(0x898989)];
+							}else{
+								muteImg.filters = [];
+							}
 						}
 					}
 					
-					if (!data.voiceJoined) {
-						lockImg.visible = false;
-						lockImg.includeInLayout = false;
-						lockBtn.visible = false;
-						lockBtn.includeInLayout = true;
-					} else {
+					//If it's not a moderator, it always can be locked.
+					//If it's a moderator and moderator locking is eanbled, it can be locked
+					//If it's a moderator and moderator locking is disabeld, it can be unlocked
+					if(	data.role != BBBUser.MODERATOR 
+						|| (data.role == BBBUser.MODERATOR && UserManager.getInstance().getConference().getLockSettings().getAllowModeratorLocking())
+						|| (data.role == BBBUser.MODERATOR && !UserManager.getInstance().getConference().getLockSettings().getAllowModeratorLocking() && data.userLocked == true)
+					){
 						lockImg.visible = !rolledOver;
 						lockImg.includeInLayout = !rolledOver;
 						lockBtn.visible = rolledOver;
 						lockBtn.includeInLayout = rolledOver;
+					} else {
+						//If it can't be clicked, only show image
+						lockImg.visible = true;
+						lockImg.includeInLayout = true;
+						lockBtn.visible = false;
+						lockBtn.includeInLayout = false;
 					}
 					
                     if (data.hasStream) {
@@ -205,7 +227,7 @@
 						else
 							muteImg.source = images.audio_20;
 						
-						if (data.voiceLocked)
+						if (data.userLocked)
 							lockImg.source = images.locked_20;
 						//else if (moderator)
 						//	lockImg.source = images.unlocked_20;
@@ -217,7 +239,7 @@
 						else
 							muteBtn.setStyle("icon", images.audio_muted);
 						
-						if (data.voiceLocked == rolledOverLock)
+						if (data.userLocked == rolledOverLock)
 							lockBtn.setStyle("icon", images.unlocked);
 						else
 							lockBtn.setStyle("icon", images.locked);
@@ -251,11 +273,11 @@
 				width="20" height="20" click="toggleLockState()"
 				mouseOver="lockMouseOverHandler()"
 				mouseOut="lockMouseOutHandler()"
-				toolTip="{data.voiceLocked ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToUnlock',[data.name]) : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToLock',[data.name])}" />		
+				toolTip="{data.userLocked ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToUnlock',[data.name]) : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToLock',[data.name])}" />		
 	<!-- Helper objects because using BindingUtil with data break when the itemRenderer is recycled -->
 	<mx:Image id="muteInd" includeInLayout="false" visible="{data.voiceMuted}" />
 	<mx:Image id="voiceJoinedInd" includeInLayout="false" visible="{data.voiceJoined}" />
-	<mx:Image id="voiceLockedInd" includeInLayout="false" visible="{data.voiceLocked}" />
+	<mx:Image id="userLockedInd" includeInLayout="false" visible="{data.userLocked}" />
     <mx:Image id="hasStreamInd" includeInLayout="false" visible="{data.hasStream}" />
     <mx:Image id="viewingStreamInd" includeInLayout="false" visible="{data.viewingStream}" />
 </mx:HBox>

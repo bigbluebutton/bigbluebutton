@@ -109,7 +109,7 @@ public class RoomsManager {
 		return rooms.get(name);
 	}
 	
-	public Map getParticipants(String roomName) {
+	public Map<String, User> getParticipants(String roomName) {
 		Room r = getRoom(roomName);
 		if (r != null) {
 			return r.getParticipants();
@@ -142,20 +142,7 @@ public class RoomsManager {
 		log.debug("Add participant " + participant.getName());
 		Room r = getRoom(roomName);
 		if (r != null) {
-/*			if (checkPublisher()) {
-
-				if (r.getNumberOfParticipants() == 0) {
-					log.debug("Notified event listener of conference start");
-					HashMap<String,String> map = new HashMap<String,String>();
-					map.put("meetingId", roomName);
-					map.put("messageId", MessagingConstants.USER_JOINED_EVENT);
-					
-					Gson gson = new Gson();
-					publisher.publish(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
-					
-				}
-			}
-*/			r.addParticipant(participant);
+			r.addParticipant(participant);
 
 			return;
 		}

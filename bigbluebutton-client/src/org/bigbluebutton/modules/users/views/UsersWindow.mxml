@@ -33,41 +33,41 @@
 	<mate:Listener type="{ShortcutEvent.RAISE_HAND}" method="remoteRaiseHand" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_USERS_WINDOW}" method="focusWindow" />
 	<mate:Listener type="{UsersEvent.ROOM_MUTE_STATE}" method="setRoomMute" />
+	<mate:Listener type="{UsersEvent.ROOM_LOCK_STATE}" method="setRoomLock" />
 	<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import flash.system.Security;
-			import flash.system.SecurityPanel;
-			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
 			import mx.controls.listClasses.IListItemRenderer;
-			import mx.events.DataGridEvent;
+			import mx.core.IFlexDisplayObject;
 			import mx.events.ListEvent;
 			import mx.events.MenuEvent;
+			import mx.managers.PopUpManager;
 			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.events.VoiceConfEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
-			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 			import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+			import org.bigbluebutton.main.views.LockSettings;
 			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.users.events.UsersRollEvent;
-			import org.bigbluebutton.core.events.VoiceConfEvent;
+			import org.bigbluebutton.main.views.MicSettings;
 			import org.bigbluebutton.modules.users.events.UsersEvent;
+			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
-			import org.bigbluebutton.util.i18n.ResourceUtil;		
-			
-			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var dispatcher:Dispatcher;
 			
@@ -75,6 +75,8 @@
 			private var modifier:String;
 			
 			private var roomMuted:Boolean = false;
+			private var roomLocked:Boolean = false;
+			
 			private var myMenu:Menu;
 			
 			[Bindable]
@@ -95,6 +97,8 @@
 			private const MUTE_ALL_USER:String = "Mute All User";
 			
 			private var muteMeRolled:Boolean = false;
+			
+			private var myMenuData:Array = [];
 			
 			private function onCreationComplete():void {
 				dispatcher = new Dispatcher();
@@ -167,16 +171,28 @@
 			}
 			
 			private function openSettings():void {
-				// everyone can see the audio settings
-				var myMenuData:Array = [];
+				myMenuData = [];
+				myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lowerAllHands'), icon: images.hand_new, handler:lowerHands});
 				
-				myMenuData[0] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.lowerAllHands'), icon: images.hand_new};
 				if (!roomMuted) {
-					myMenuData[1] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted};
+					myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted, handler: muteAll});
 					if (UserManager.getInstance().getConference().getPresenter())
-						myMenuData[2] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.audio_muted};
+						myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.audio_muted, handler:muteAlmostAll});
 				} else
-					myMenuData[1] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio};
+					myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio, handler:muteAll});
+				
+				if (!roomLocked) {
+					myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockAll'), icon: images.lock_close, handler: lockAll});
+					
+					if (UserManager.getInstance().getConference().getPresenter())
+						myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.lock_close, handler: lockAlmostAll});
+				} else {
+					myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unlockAll'), icon: images.lock_open, handler: unlockAll});
+				}
+				
+				
+				myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: images.lock_open, handler: lockSettings});
+				
 				
 				// make sure the previous menu is closed before opening a new one
 				// This could be improved to include a flag that tells if the menu is open,
@@ -192,23 +208,70 @@
 			}
 			
 			private function menuClickHandler(e:MenuEvent):void {
-				// case 1 is the separator and can never get called
-				switch (e.index) {
-				case 0:
-					lowerHands();
-					break;
-				case 1:
-					muteAll();
-					break;
-				case 2:
-					muteAlmostAll();
+				if(myMenuData[e.index] != undefined && myMenuData[e.index].handler != undefined) {
+					myMenuData[e.index].handler();
 				}
 			}
 			
 			private function setRoomMute(e:UsersEvent):void {
-				roomMuted = e.mute_state;
+				roomMuted = e.new_state;
                 roomMutedLbl.visible = roomMuted;
+				roomMutedLbl.includeInLayout = roomMuted;
 			}
+			
+			private function setRoomLock(e:UsersEvent):void {
+				roomLocked = e.new_state;
+				roomLockedLbl.visible = roomLocked;
+				roomLockedLbl.includeInLayout = roomLocked;
+			}
+			
+			private function lockSettings():void {
+				LogUtil.traceObject("Action: lockSettings");
+				
+				var event:LockControlEvent = new LockControlEvent(LockControlEvent.OPEN_LOCK_SETTINGS);
+				dispatcher.dispatchEvent(event);
+			}
+			
+			private function unlockAll():void {
+				LogUtil.traceObject("Action: unlockAll");
+				if (amIModerator) {
+					if (roomLocked) {
+						var unlockCommand:LockControlEvent = new LockControlEvent(LockControlEvent.UNLOCK_ALL);
+						dispatchEvent(unlockCommand);
+						roomLocked = false;
+					} else {
+						LogUtil.error("Action: unlockAll, but room is not locked");
+					}
+				}
+			}
+			
+			private function lockAll():void {
+				LogUtil.traceObject("Action: lockAll");
+				if (amIModerator) {
+					if (!roomLocked) {
+						var lockCommand:LockControlEvent = new LockControlEvent(LockControlEvent.LOCK_ALL);
+						dispatchEvent(lockCommand);
+						roomLocked = true;
+					} else {
+						LogUtil.error("Action: lockAll, but room is already locked");
+					}
+				}
+			}
+			
+			private function lockAlmostAll():void {
+				LogUtil.traceObject("Action: lockAlmostAll");
+				
+				if (amIModerator) {
+					if (!roomLocked) {
+						var lockCommand:LockControlEvent = new LockControlEvent(LockControlEvent.LOCK_ALMOST_ALL);
+						dispatchEvent(lockCommand);
+						roomLocked = true;
+					} else {
+						LogUtil.error("Action: lockAlmostAll, but room is already locked");
+					}
+				}
+			}
+			
 			
 			private function muteAll():void {
 				if (amIModerator) {
@@ -268,6 +331,7 @@
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.users.kick') as String)] = KICK_USER;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.users.mute') as String)] = MUTE_USER;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.users.muteall') as String)] = MUTE_ALL_USER;
+				//TODO Include shortcuts to lock control
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.maximize') as String)] = ShortcutEvent.MAXIMIZE_USERS;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.minimize') as String)] = ShortcutEvent.MINIMIZE_USERS;
 			}
@@ -395,7 +459,10 @@
 		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}" selected="{UserManager.getInstance().getConference().isMyHandRaised}"
 					width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip')}" click="raiseHand()"
 					visible="false" tabIndex="{partOptions.baseTabIndex+15}" />
-		<mx:Label id="roomMutedLbl" text="{ResourceUtil.getInstance().getString('bbb.users.settings.muteAll')}" />
+		<mx:VBox width="100%">
+			<mx:Label id="roomMutedLbl" text="{ResourceUtil.getInstance().getString('bbb.users.settings.roomIsMuted')}" />
+			<mx:Label id="roomLockedLbl" text="{ResourceUtil.getInstance().getString('bbb.users.settings.roomIsLocked')}" />
+		</mx:VBox>
 	</mx:ControlBar>
 	
 </mdi:MDIWindow>

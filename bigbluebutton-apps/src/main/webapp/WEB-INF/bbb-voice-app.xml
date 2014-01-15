@@ -48,5 +48,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<beans:bean id="voice.service" class="org.bigbluebutton.conference.service.voice.VoiceService">
 		<beans:property name="conferenceService" ref="conferenceService"/>
 	</beans:bean>
-
+	
 </beans:beans>

@@ -37,6 +37,7 @@ $Id: $
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	<mate:Listener type="{ShortcutEvent.MUTE_ME_EVENT}" method="toggleMuteMeState" />
 	<mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalking" />
+	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
 				   
 	<mx:Script>
 		<![CDATA[
@@ -47,9 +48,12 @@ $Id: $
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.EventConstants;
 			import org.bigbluebutton.core.events.CoreEvent;
+			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.model.users.BBBUser;
+			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var muteMeRolled:Boolean = false;
@@ -59,7 +63,6 @@ $Id: $
 			
 			private function onCreationComplete():void {
 				BindingUtils.bindSetter(updateMuteMeBtn, UserManager.getInstance().getConference(), "voiceMuted"); 
-				BindingUtils.bindSetter(updateMuteMeBtn, UserManager.getInstance().getConference(), "voiceLocked");
 				BindingUtils.bindSetter(updateMuteMeBtn, UserManager.getInstance().getConference(), "voiceJoined");
 				
 				updateMuteMeBtn();
@@ -80,8 +83,20 @@ $Id: $
 				updateMuteMeBtn();
 			}
 			
+			private function lockSettingsChanged(e:Event):void {
+				updateMuteMeBtn();
+			}
+			
+			private function allowMuteUnmute():Boolean {
+				var userManager:UserManager = UserManager.getInstance();
+				var conference:Conference = userManager.getConference();
+				var me:BBBUser = conference.getMyUser();
+				
+				return (conference.voiceJoined && !me.disableMyMic);
+			}
+			
 			private function updateMuteMeBtn(placeholder:Boolean = false):void {
-				if (!UserManager.getInstance().getConference().voiceJoined || (UserManager.getInstance().getConference().voiceLocked && !UserManager.getInstance().getConference().amIModerator())) {
+				if (!allowMuteUnmute()) {
 					this.visible = this.includeInLayout = false;
 				} else {
 					this.visible = this.includeInLayout = true;
@@ -121,7 +136,7 @@ $Id: $
 			private function toggleMuteMeState(event:ShortcutEvent = null):void{
 				if (UserManager.getInstance().getConference().voiceJoined) {
 					this.setFocus();
-					if (UserManager.getInstance().getConference().voiceLocked && !UserManager.getInstance().getConference().amIModerator()) return;
+					if(!allowMuteUnmute()) return;
 					
 					var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
 					e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();

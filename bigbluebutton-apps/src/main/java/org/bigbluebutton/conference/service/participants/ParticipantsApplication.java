@@ -26,6 +26,7 @@ import java.util.Map;
 import org.bigbluebutton.conference.ConnectionInvokerService;
 import org.bigbluebutton.conference.RoomsManager;
 import org.bigbluebutton.conference.Room;import org.bigbluebutton.conference.User;import org.bigbluebutton.conference.IRoomListener;
+import org.bigbluebutton.conference.service.lock.LockSettings;
 
 public class ParticipantsApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsApplication.class, "bigbluebutton" );	
@@ -33,10 +34,10 @@ public class ParticipantsApplication {
 	
 	private RoomsManager roomsManager;
 	
-	public boolean createRoom(String name) {
+	public boolean createRoom(String name, Boolean locked, LockSettings lockSettings) {
 		if(!roomsManager.hasRoom(name)){
 			log.info("Creating room " + name);
-			roomsManager.addRoom(new Room(name));
+			roomsManager.addRoom(new Room(name, locked, lockSettings));
 			return true;
 		}
 		return false;
@@ -73,7 +74,7 @@ public class ParticipantsApplication {
 		roomsManager.changeParticipantStatus(room, userid, status, value);
 	}
 	
-	public Map getParticipants(String roomName) {
+	public Map<String, User> getParticipants(String roomName) {
 		log.debug("getParticipants - " + roomName);
 		if (! roomsManager.hasRoom(roomName)) {
 			log.warn("Could not find room " + roomName + ". Total rooms " + roomsManager.numberOfRooms());
@@ -99,9 +100,26 @@ public class ParticipantsApplication {
 	public boolean participantJoin(String roomName, String userid, String username, String role, String externUserID, Map status) {
 		log.debug("participant joining room " + roomName);
 		if (roomsManager.hasRoom(roomName)) {
-			User p = new User(userid, username, role, externUserID, status);			
 			Room room = roomsManager.getRoom(roomName);
+			Boolean userLocked = false;
+			
+			LockSettings ls = room.getLockSettings();
+			
+			if(room.isLocked()) {
+				//If room is locked and it's not a moderator, user join as locked
+				if(!"MODERATOR".equals(role))
+					userLocked = true;
+				else {
+					//If it's a moderator, check for lockSettings
+					if(ls.getAllowModeratorLocking()) {
+						userLocked = true;
+					}
+				}
+			} 
+			
+			User p = new User(userid, username, role, externUserID, status, userLocked);			
 			room.addParticipant(p);
+			
 			log.debug("participant joined room " + roomName);
 			return true;
 		}
@@ -128,6 +146,10 @@ public class ParticipantsApplication {
 	public void setRoomsManager(RoomsManager r) {
 		log.debug("Setting room manager");
 		roomsManager = r;
+	}
+	
+	public RoomsManager getRoomsManager() {
+		return roomsManager;
 	}
 	
 	private String getMeetingId(){

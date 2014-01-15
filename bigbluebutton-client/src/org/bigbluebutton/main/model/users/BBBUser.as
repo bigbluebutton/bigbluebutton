@@ -20,12 +20,13 @@ package org.bigbluebutton.main.model.users
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import mx.collections.ArrayCollection;
-	
-	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
-    import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.core.events.LockControlEvent;
+	import org.bigbluebutton.core.events.VoiceConfEvent;
+	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.core.vo.LockSettingsVO;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
+	import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	
@@ -43,6 +44,12 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var name:String;
 		[Bindable] public var talking:Boolean = false;
 		[Bindable] public var phoneUser:Boolean = false;
+		
+		[Bindable] public var disableMyCam:Boolean = false;
+		[Bindable] public var disableMyMic:Boolean = false;
+		[Bindable] public var disableMyPrivateChat:Boolean = false;
+		[Bindable] public var disableMyPublicChat:Boolean = false;
+		
 		private var _hasStream:Boolean = false;
 		[Bindable]
 		public function get hasStream():Boolean {
@@ -112,7 +119,7 @@ package org.bigbluebutton.main.model.users
 			verifyMedia();
 		}
 		
-		[Bindable] public var voiceLocked:Boolean = false;
+		[Bindable] public var userLocked:Boolean = false;
 		[Bindable] public var status:String = "";
 		[Bindable] public var customdata:Object = {};
 		
@@ -170,6 +177,7 @@ package org.bigbluebutton.main.model.users
 				isPresenter = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.presIcon.toolTip');
 			if (raiseHand)
 				handRaised = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.raiseHand.toolTip');
+			
 			status = showingWebcam + isPresenter + handRaised;
 		}
 	
@@ -183,6 +191,11 @@ package org.bigbluebutton.main.model.users
 				presenter = status.value
 			}
 			switch (status.name) {
+				case "locked":
+					userLocked = status.value as Boolean;
+					if(me)
+						applyLockSettings();
+					break;
 				case "presenter":
 					presenter = status.value;
 					break;
@@ -243,16 +256,46 @@ package org.bigbluebutton.main.model.users
 			n.talking = user.talking;
 			n.userStatus = user.userStatus;
 			n.voiceJoined = user.voiceJoined;
-			n.voiceLocked = user.voiceLocked;
+			n.userLocked = user.userLocked;
 			n.voiceMuted = user.voiceMuted;
 			n.voiceUserid = user.voiceUserid;
-			
+			n.disableMyCam = user.disableMyCam;
+			n.disableMyMic = user.disableMyMic;
+			n.disableMyPrivateChat = user.disableMyPrivateChat;
+			n.disableMyPublicChat = user.disableMyPublicChat;
 			return n;		
 		}
 		
 		private function sendStreamStartedEvent():void{
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(new StreamStartedEvent(userID, name, streamName));
+		}
+		
+		public function applyLockSettings():void {
+			var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
+			
+			disableMyCam = userLocked && lockSettings.getDisableCam();
+			disableMyMic = userLocked && lockSettings.getDisableMic();
+			disableMyPrivateChat = userLocked && lockSettings.getDisablePrivateChat();
+			disableMyPublicChat = userLocked && lockSettings.getDisablePublicChat();
+			
+			var dispatcher:Dispatcher = new Dispatcher();
+			
+			var event:LockControlEvent = new LockControlEvent(LockControlEvent.CHANGED_LOCK_SETTINGS)
+			dispatcher.dispatchEvent(event);
+			
+			//If it's sharing webcam, stop it
+			if(disableMyCam && hasStream){
+				dispatcher.dispatchEvent(new ClosePublishWindowEvent());
+			}
+			
+			//If it's sharing microphone, mute it
+			if(disableMyMic && !UserManager.getInstance().getConference().isMyVoiceMuted()) {
+				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
+				e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();
+				e.mute = true;
+				dispatcher.dispatchEvent(e);
+			}
 		}
 	}
 }

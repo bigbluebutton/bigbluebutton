@@ -24,7 +24,6 @@ public class ParticipantJoinedEvent extends ConferenceEvent {
 	private final String callerIdName;
 	private final Boolean muted;
 	private final Boolean speaking;
-	private final Boolean locked = false;
 	
 	public ParticipantJoinedEvent(Integer participantId, String room, 
 								String callerIdNum, String callerIdName,
@@ -50,9 +49,5 @@ public class ParticipantJoinedEvent extends ConferenceEvent {
 
 	public Boolean getSpeaking() {
 		return speaking;
-	}
-
-	public Boolean isLocked() {
-		return locked;
 	}
 }

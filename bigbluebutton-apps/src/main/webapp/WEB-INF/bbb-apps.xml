@@ -50,6 +50,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
 	</bean>
 	
+	<bean id="lock.service" class="org.bigbluebutton.conference.service.lock.LockService">
+		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
+	</bean>
 	
 	<!-- BEGIN LAYOUT -->	
 	<bean id="layoutRoomsManager" class="org.bigbluebutton.conference.service.layout.LayoutRoomsManager"/>
