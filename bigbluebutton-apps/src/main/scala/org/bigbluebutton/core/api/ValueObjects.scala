@@ -12,9 +12,9 @@ case class Presenter(presenterID: String, presenterName: String,
 case class UserVO(userID: String, externUserID: String, name: String, 
                   role: Role.Role, raiseHand: Boolean, presenter: Boolean, 
                   hasStream: Boolean, locked: Boolean, 
-                  voiceUser: Option[VoiceUser])
+                  voiceUser: VoiceUser)
 
-case class VoiceUser(userId: String, locked: Boolean, 
+case class VoiceUser(userId: String, joined: Boolean, locked: Boolean, 
                      muted: Boolean, talking: Boolean, 
                      metadata: Map[String, String])                  
                   

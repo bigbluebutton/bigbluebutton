@@ -86,7 +86,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy) extends Actor {
     fsconf foreach (fc => {
       val user = fc.getUser(msg.userId)
       user foreach (u => {
-        u.voiceUser foreach (v => fsproxy.muteUser(fc.conferenceNum, v.userId, msg.mute))
+        fsproxy.muteUser(fc.conferenceNum, u.voiceUser.userId, msg.mute)
       })
     })    
   }
@@ -97,7 +97,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy) extends Actor {
     fsconf foreach (fc => {
       val user = fc.getUser(msg.userId)
       user foreach (u => {
-        u.voiceUser foreach (v => fsproxy.ejectUser(fc.conferenceNum, v.userId))
+        fsproxy.ejectUser(fc.conferenceNum, u.voiceUser.userId)
       })
     })    
   }

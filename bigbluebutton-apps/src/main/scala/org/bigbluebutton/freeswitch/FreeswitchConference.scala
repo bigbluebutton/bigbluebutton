@@ -21,8 +21,7 @@ class FreeswitchConference(val conferenceNum: String,
   }
   
   def getVoiceUser(userId: String):Option[UserVO] = {
-    val vusers = users.values filter (u => if (u.voiceUser.isDefined) voiceUser)
-    vusers find (v => v.voiceUser.)
+    users.values find (u => u.voiceUser.userId == userId)
   }
   
   def numUsers = users.size
