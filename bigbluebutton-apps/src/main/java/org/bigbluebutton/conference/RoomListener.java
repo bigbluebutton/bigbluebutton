@@ -74,4 +74,12 @@ public class RoomListener implements IRoomListener{
 		list.add(lockSettings);
 		so.sendMessage("lockSettingsChange", list);
 	}	
+
+	@SuppressWarnings("unchecked")
+	public void recordingStatusChange(User p, Boolean recording){
+		List list = new ArrayList();
+		list.add(p.getInternalUserID());
+		list.add(recording);
+		so.sendMessage("recordingStatusChange", list);
+	}
 }

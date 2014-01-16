@@ -22,7 +22,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:mate="http://mate.asfusion.com/"
-	icon="{deskShareIcon}" 
+	icon="{deskShareIcon}"
+	height="24"
 	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip.start')}"
 	click="startDeskShare()"
 	mouseOver = "mouseOverHandler(event)"

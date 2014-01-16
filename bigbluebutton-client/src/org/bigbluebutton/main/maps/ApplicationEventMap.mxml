@@ -109,6 +109,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{ModulesProxy}" method="startAllModules" />
   </EventHandlers>
 
+	<EventHandlers type="{BBBEvent.CHANGE_RECORDING_STATUS}">
+		<MethodInvoker generator="{UserService}" method="changeRecordingStatus" arguments="{event}" />
+	</EventHandlers>
+
 	<mx:Script>
 	<![CDATA[
 		import mx.events.FlexEvent;
@@ -118,6 +122,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.core.managers.ConfigManager;
 		import org.bigbluebutton.core.services.SkinningService;
 		import org.bigbluebutton.core.services.StreamMonitor;
+		import org.bigbluebutton.main.events.BBBEvent;
 		import org.bigbluebutton.main.events.ConfigEvent;
 		import org.bigbluebutton.main.events.LogoutEvent;
 		import org.bigbluebutton.main.events.ModuleLoadEvent;

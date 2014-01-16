@@ -33,6 +33,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.managers.UserConfigManager;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.core.model.Config;
+	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
@@ -86,8 +87,8 @@ package org.bigbluebutton.main.model.users
 				UserManager.getInstance().getConference().avatarURL = result.avatarURL;
 				UserManager.getInstance().getConference().voiceBridge = result.voicebridge;
 				UserManager.getInstance().getConference().dialNumber = result.dialnumber;
-		
-        
+				UserManager.getInstance().getConference().record = (result.record != "false");
+				
 				_conferenceParameters = new ConferenceParameters();
 				_conferenceParameters.meetingName = result.conferenceName;
 				_conferenceParameters.externMeetingID = result.externMeetingID;
@@ -102,11 +103,7 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.externUserID = result.externUserID;
 				_conferenceParameters.internalUserID = result.internalUserId;
 				_conferenceParameters.logoutUrl = result.logoutUrl;
-				_conferenceParameters.record = true;
-				
-				if (result.record == "false") {
-					_conferenceParameters.record = false;
-				}
+				_conferenceParameters.record = (result.record != "false");
 				
 				var muteOnStart:Boolean;
 				try {
@@ -205,6 +202,16 @@ package org.bigbluebutton.main.model.users
 			var assignTo:String = e.userid;
 			var name:String = e.username;
 			_userSOService.assignPresenter(assignTo, name, 1);
+		}
+
+		public function changeRecordingStatus(e:BBBEvent):void {
+			trace("UserService::changeRecordingStatus")
+			if (this.isModerator() && !e.payload.remote) {
+				_userSOService.changeRecordingStatus(
+						UserManager.getInstance().getConference().getMyUserId(), 
+						e.payload.recording
+				);
+			}
 		}
 	}
 }

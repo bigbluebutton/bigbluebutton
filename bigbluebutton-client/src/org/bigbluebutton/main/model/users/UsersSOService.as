@@ -92,6 +92,7 @@ package org.bigbluebutton.main.model.users {
 	      LogUtil.debug("In UserSOService:join - Setting my userid to [" + userid + "]");
 	      UserManager.getInstance().getConference().setMyUserid(userid);
 			queryForParticipants();					
+			queryForRecordingStatus();
 			
 		}
 		
@@ -411,6 +412,54 @@ package org.bigbluebutton.main.model.users {
 		public function lockSettingsChange(newLockSettings:Object):void {
 			LogUtil.debug("Received lock settings change")			
 			UserManager.getInstance().getConference().setLockSettings(new LockSettingsVO(newLockSettings.allowModeratorLocking, newLockSettings.disableCam, newLockSettings.disableMic, newLockSettings.disablePrivateChat, newLockSettings.disablePublicChat));
+		}
+
+		private function queryForRecordingStatus():void {
+			var nc:NetConnection = _connectionManager.connection;
+			nc.call(
+				"participants.getRecordingStatus",// Remote function name
+				new Responder(
+					// Boolean - On successful result
+					function(result:Object):void {
+						LogUtil.debug("Successfully queried recording status: " + result);
+						sendRecordingStatusUpdate(result);
+					},
+					// status - On error occurred
+					function(status:Object):void {
+						LogUtil.error("Error occurred:");
+						for (var x:Object in status) {
+							LogUtil.error(x + " : " + status[x]);
+						}
+						sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
+					}
+				)//new Responder
+			); //_netConnection.call
+		}
+
+		public function changeRecordingStatus(userID:String, recording:Boolean):void {
+			trace("UsersSOService::changeRecordingStatus")
+			var nc:NetConnection = _connectionManager.connection;
+			nc.call(
+				"participants.setRecordingStatus",// Remote function name
+				responder,
+				userID,
+				recording
+			); //_netConnection.call
+		}
+
+		private function sendRecordingStatusUpdate(recording:Boolean):void {
+			var e:BBBEvent = new BBBEvent(BBBEvent.CHANGE_RECORDING_STATUS);
+			e.payload.remote = true;
+			e.payload.recording = recording;
+			dispatcher.dispatchEvent(e);
+		}
+
+		/**
+		 * Callback from the server
+		 */
+		public function recordingStatusChange(userID:String, recording:Boolean):void {
+			LogUtil.debug("Received recording status change [" + userID + "," + recording + "]")
+			sendRecordingStatusUpdate(recording);
 		}
 	}
 }

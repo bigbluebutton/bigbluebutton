@@ -105,5 +105,19 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 		// Do nothing
 	}
 	
-	
+	public void recordingStatusChange(User p, Boolean recording){
+		if (messagingService != null) {
+			HashMap<String,String> map= new HashMap<String, String>();
+			map.put("meetingId", this.room.getName());
+			map.put("messageId", MessagingConstants.RECORD_STATUS_EVENT);
+
+			map.put("internalUserId", p.getInternalUserID());
+			map.put("value", recording.toString());
+
+			Gson gson= new Gson();
+			messagingService.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(map));
+			log.debug("Publishing a recording status change in: " + this.room.getName());
+		}
+	}
+
 }

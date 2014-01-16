@@ -107,14 +107,15 @@ module BigBlueButton
             # adjust the speed to match up timing.
             # TODO: This should be part of the import logic somehow, since
             # render can be run after cutting.
-            if ((duration - audioinfo[audio[:filename]][:duration]).to_f / duration).abs < 0.05
-              speed = audioinfo[audio[:filename]][:duration].to_f / duration
+            # calculate the speed based on the original event duration
+            if ((entry[:original_duration] - audioinfo[audio[:filename]][:duration]).to_f / entry[:original_duration]).abs < 0.05
+              speed = audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]
               BigBlueButton.logger.warn "  Audio file length mismatch, adjusting speed to #{speed}"
               sox_cmd += ['speed', speed.to_s, 'rate', '-h', audioinfo[audio[:filename]][:sample_rate].to_s]
             end
 
-            BigBlueButton.logger.info "  Trimming from #{audio[:timestamp]} to #{audio[:timestamp] + duration}"
-            sox_cmd += ['trim', "#{ms_to_s(audio[:timestamp])}", "#{ms_to_s(audio[:timestamp] + duration)}"]
+            BigBlueButton.logger.info "  Trimming from #{audio[:timestamp]} to #{audio[:timestamp] + duration}, duration #{duration}"
+            sox_cmd += ['trim', "#{ms_to_s(audio[:timestamp])}", "#{ms_to_s(duration)}"]
           else
             BigBlueButton.logger.info "  Trimming to #{duration}"
             sox_cmd += ['trim', '0.000', "#{ms_to_s(duration)}"]

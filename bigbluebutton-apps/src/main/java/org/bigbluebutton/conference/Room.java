@@ -43,6 +43,7 @@ public class Room implements Serializable {
 	private Map <String, User> participants;
 	private Boolean locked;
 	private LockSettings lockSettings = null;
+	private Boolean recording = false;
 
 	// these should stay transient so they're not serialized in ActiveMQ messages:	
 	//private transient Map <Long, Participant> unmodifiableMap;
@@ -104,6 +105,16 @@ public class Room implements Serializable {
 				log.debug("calling participantLeft on listener " + listener.getName());
 				listener.participantLeft(p);
 			}
+		}
+
+		// When the last participant leaves the conference, if it's still recording
+		// we will finish the recording. The problem it will avoid is that when the last
+		// participant leaves the conference, the Room is cleaned up and the recording
+		// flag is lost. If a user joins after that, but before the meeting get cleaned up
+		// by the server, there's no way to detect that the previous part of the session
+		// was being recorded.
+		if (participants.isEmpty() && recording) {
+			changeRecordingStatus(p, false);
 		}
 	}
 
@@ -196,5 +207,34 @@ public class Room implements Serializable {
 			log.debug("calling setLockSettings on listener " + listener.getName());
 			listener.lockSettingsChange(lockSettings.toMap());
 		}
+	}
+
+	public void changeRecordingStatus(String userid, Boolean recording) {
+		boolean present = false;
+		User p = null;
+		synchronized (this) {
+			present = participants.containsKey(userid);
+			if (present) {
+				p = participants.get(userid);
+			}
+		}
+		if (present && recording != this.recording) {
+			changeRecordingStatus(p, recording);
+		}
+	}
+
+	private void changeRecordingStatus(User p, Boolean recording) {
+		log.debug("Changed recording status to " + recording);
+		this.recording = recording;
+
+		for (Iterator it = listeners.values().iterator(); it.hasNext();) {
+			IRoomListener listener = (IRoomListener) it.next();
+			log.debug("calling recordingStatusChange on listener " + listener.getName());
+			listener.recordingStatusChange(p, recording);
+		}
+	}
+
+	public Boolean getRecordingStatus() {
+		return recording;
 	}
 }

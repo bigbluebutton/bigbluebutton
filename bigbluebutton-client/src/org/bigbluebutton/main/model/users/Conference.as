@@ -35,6 +35,7 @@ package org.bigbluebutton.main.model.users {
     public var avatarURL:String;
 	public var voiceBridge:String;
 	public var dialNumber:String;
+	[Bindable] public var record:Boolean;
     
 	private var lockSettings:LockSettingsVO;
 	
