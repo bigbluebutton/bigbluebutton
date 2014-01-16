@@ -34,10 +34,10 @@ class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageL
 		if (msg.recorded) {
 			val ev = new ParticipantJoinRecordEvent();
 			ev.setTimestamp(System.currentTimeMillis());
-			ev.setUserId(msg.internalUserID);
-			ev.setName(msg.name);
+			ev.setUserId(msg.user.userID);
+			ev.setName(msg.user.name);
 			ev.setMeetingId(msg.meetingID);
-			ev.setRole(msg.role);
+			ev.setRole(msg.user.role.toString());
 
 			recorder.record(msg.meetingID, ev);			
 		}
@@ -47,7 +47,7 @@ class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageL
 		if (msg.recorded) {
 			val ev = new ParticipantLeftRecordEvent();
 			ev.setTimestamp(System.currentTimeMillis());
-			ev.setUserId(msg.userID);
+			ev.setUserId(msg.user.userID);
 			ev.setMeetingId(msg.meetingID);
 			
 			recorder.record(msg.meetingID, ev);			
