@@ -29,16 +29,6 @@ class VoiceInGateway(bbbGW: BigBlueButtonGateway) {
 	}
 	
 
-	def voiceUserLeft(user: String, voiceConfId: String) {
-	  bbbGW.acceptVoiceMessage(new VoiceUserLeft(user, voiceConfId))
-	}
-	
-	def voiceUserMuted(user: String, voiceConfId: String, muted: Boolean) {
-	  bbbGW.acceptVoiceMessage(new VoiceUserMuted(user, voiceConfId, muted))
-	}
-	
-	def voiceUserTalking(user: String, voiceConfId: String, talking: Boolean) {
-	  bbbGW.acceptVoiceMessage(new VoiceUserTalking(user, voiceConfId, talking))
-	}
+
 	
 }

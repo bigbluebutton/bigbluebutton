@@ -26,7 +26,4 @@ class BigBlueButtonGateway(outGW: MessageOutGateway) {
   	bbbActor ! msg
   }
   
-  def acceptVoiceMessage(msg: VoiceMessage) {
-    bbbActor ! msg
-  }
 }

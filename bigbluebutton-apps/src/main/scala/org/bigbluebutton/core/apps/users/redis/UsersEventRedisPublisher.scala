@@ -36,10 +36,10 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
 		val map= new java.util.HashMap[String, String]();
 		map.put("meetingID", msg.meetingID);
 		map.put("messageID", MessagingConstants.USER_JOINED_EVENT);
-		map.put("internalUserID", msg.internalUserID);
-		map.put("externalUserID", msg.externalUserID);
-		map.put("fullname", msg.name);
-		map.put("role", msg.role);
+		map.put("internalUserID", msg.user.userID);
+		map.put("externalUserID", msg.user.externUserID);
+		map.put("fullname", msg.user.name);
+		map.put("role", msg.user.role.toString());
 			
 		val gson= new Gson();
 		service.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(map));
@@ -53,7 +53,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
 		val map= new java.util.HashMap[String, String]();
 		map.put("meetingID", msg.meetingID);
 		map.put("messageID", MessagingConstants.USER_LEFT_EVENT);
-		map.put("internalUserID", msg.userID);
+		map.put("internalUserID", msg.user.userID);
 			
 		val gson= new Gson();
 		service.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(map));

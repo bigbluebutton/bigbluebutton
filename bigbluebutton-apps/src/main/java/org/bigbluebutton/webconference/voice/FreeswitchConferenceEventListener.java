@@ -57,21 +57,21 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
 	private void sendMessageToBigBlueButton(VoiceConferenceEvent event) {
 		if (event instanceof VoiceUserJoinedEvent) {
 			VoiceUserJoinedEvent evt = (VoiceUserJoinedEvent) event;
-			bbbInGW.voiceUserJoined(evt.getUserId(), evt.getRoom(), 
-					evt.getCallerIdNum(), evt.getCallerIdName(),
-					evt.getMuted(), evt.getSpeaking());
+		//	bbbInGW.voiceUserJoined(evt.getUserId(), evt.getRoom(), 
+		//			evt.getCallerIdNum(), evt.getCallerIdName(),
+		//			evt.getMuted(), evt.getSpeaking());
 		} else if (event instanceof VoiceUserLeftEvent) {
 			VoiceUserLeftEvent evt = (VoiceUserLeftEvent) event;
-			bbbInGW.voiceUserLeft(evt.getUserId(), evt.getRoom());
+		//	bbbInGW.voiceUserLeft(evt.getUserId(), evt.getRoom());
 		} else if (event instanceof VoiceUserMutedEvent) {
 			VoiceUserMutedEvent evt = (VoiceUserMutedEvent) event;
-			bbbInGW.voiceUserMuted(evt.getUserId(), evt.getRoom(), evt.isMuted());
+		//	bbbInGW.voiceUserMuted(evt.getUserId(), evt.getRoom(), evt.isMuted());
 		} else if (event instanceof VoiceUserTalkingEvent) {
 			VoiceUserTalkingEvent evt = (VoiceUserTalkingEvent) event;
-			bbbInGW.voiceUserTalking(evt.getUserId(), evt.getRoom(), evt.isTalking());
+		//	bbbInGW.voiceUserTalking(evt.getUserId(), evt.getRoom(), evt.isTalking());
 		} else if (event instanceof VoiceStartRecordingEvent) {
 			VoiceStartRecordingEvent evt = (VoiceStartRecordingEvent) event;
-			bbbInGW.voiceStartedRecording(evt.getRoom(), evt.getRecordingFilename(), evt.getTimestamp(), evt.startRecord());
+		//	bbbInGW.voiceStartedRecording(evt.getRoom(), evt.getRecordingFilename(), evt.getTimestamp(), evt.startRecord());
 		} 		
 	}
 	

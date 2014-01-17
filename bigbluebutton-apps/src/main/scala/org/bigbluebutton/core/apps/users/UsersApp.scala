@@ -36,7 +36,7 @@ trait UsersApp {
     meetingMuted = msg.mute
     
     users2.unlockedUsers map ({ u =>
-      outGW.send(new MuteUserCommand(meetingID, recorded, msg.requesterID, u.voice.id, voiceBridge, msg.mute))
+      outGW.send(new MuteVoiceUser(meetingID, recorded, msg.requesterID, u.voice.id, msg.mute))
     })
   }
   
@@ -46,7 +46,7 @@ trait UsersApp {
   
   def handleMuteUserRequest(msg: MuteUserRequest) {
     users2.get(msg.userID) match {
-      case Some(u) => outGW.send(new MuteUserCommand(meetingID, recorded, msg.requesterID, u.voice.id, voiceBridge, msg.mute))
+      case Some(u) => outGW.send(new MuteVoiceUser(meetingID, recorded, msg.requesterID, u.voice.id, msg.mute))
       case None => // do nothing
     }
   }
@@ -57,30 +57,12 @@ trait UsersApp {
   
   def handleEjectUserRequest(msg: EjectUserRequest) {
     users2.get(msg.userID) match {
-      case Some(u) => outGW.send(new EjectUserFromVoice(meetingID, recorded, msg.requesterID, u.voice.id, voiceBridge))
+      case Some(u) => outGW.send(new EjectVoiceUser(meetingID, recorded, msg.requesterID, u.voice.id))
       case None => // do nothing
     }
   }
   
-  def handleVoiceUserJoinedMessage(msg: VoiceUserJoinedMessage) {
- //   users2.joinedVoice(msg., voice)
-  }
-  
-  def handleVoiceUserLeftMessage(msg: VoiceUserLeftMessage) {
-    
-  }
-  
-  def handleVoiceUserMutedMessage(msg: VoiceUserMutedMessage) {
-    
-  }
-  
-  def handleVoiceUserTalkingMessage(msg: VoiceUserTalkingMessage) {
-    
-  }
-  
-  def handleVoiceStartedRecordingMessage(msg: VoiceStartedRecordingMessage) {
-    
-  }
+
   
   def handleLockUser(msg: LockUser) {
     
@@ -126,10 +108,9 @@ trait UsersApp {
   def handleUserJoin(msg: UserJoining):Unit = {
   	log.debug("UsersApp: init handleUserJoin")
   	
-	users.addUser(msg.userID, msg.extUserID, msg.name, msg.role)
+	val user = users.addUser(msg.userID, msg.extUserID, msg.name, msg.role)
 					
-	outGW.send(new UserJoined(meetingID, recorded, msg.userID, 
-			msg.extUserID, msg.name, msg.role.toString(), false, false, false))
+	outGW.send(new UserJoined(meetingID, recorded, user))
 	
 	// Become presenter if the only moderator		
 	if (users.numModerators == 1) {
@@ -141,8 +122,9 @@ trait UsersApp {
 			
   def handleUserLeft(msg: UserLeaving):Unit = {
 	 if (users.hasUser(msg.userID)) {
-	  users.removeUser(msg.userID)
-	  outGW.send(new UserLeft(msg.meetingID, recorded, msg.userID))
+	  val user = users.removeUser(msg.userID)
+	  user foreach (u => outGW.send(new UserLeft(msg.meetingID, recorded, u)))
+	  
 	 }
    else{
     log.warning("This user is not here:" + msg.userID)

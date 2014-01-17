@@ -10,7 +10,7 @@ case class EjectVoiceUser(meetingId: String, userId: String)
 
 
 class VoiceConferenceActor(val meetingId: String, 
-                           val voiceConf: String) extends Actor {
+                           val voiceConf: String) { //extends Actor {
   
 
 }

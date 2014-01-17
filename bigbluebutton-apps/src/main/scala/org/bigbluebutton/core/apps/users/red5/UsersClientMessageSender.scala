@@ -86,13 +86,13 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 
 	private def handleUserJoined(msg: UserJoined):Unit = {
 		var message = new HashMap[String, Object]();
-		message.put("userID", msg.internalUserID);
-		message.put("externUserID", msg.externalUserID);
-		message.put("name", msg.name);
-		message.put("role", msg.role);
-		message.put("raiseHand", msg.raiseHand:java.lang.Boolean)
-		message.put("presenter", msg.presenter:java.lang.Boolean)
-		message.put("hasStream", msg.hasStream:java.lang.Boolean)
+		message.put("userID", msg.user.userID);
+		message.put("externUserID", msg.user.externUserID);
+		message.put("name", msg.user.name);
+		message.put("role", msg.user.role.toString());
+		message.put("raiseHand", msg.user.raiseHand:java.lang.Boolean)
+		message.put("presenter", msg.user.presenter:java.lang.Boolean)
+		message.put("hasStream", msg.user.hasStream:java.lang.Boolean)
 		
 		val gson = new Gson()
 		val msgString = gson.toJson(message)
@@ -106,7 +106,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 
 	private def handleUserLeft(msg: UserLeft):Unit = {
 		var message = new HashMap[String, Object]();
-		message.put("userID", msg.userID);
+		message.put("userID", msg.user.userID);
 		
 		val gson = new Gson()
 		val msgString = gson.toJson(message)

@@ -5,16 +5,22 @@ import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.api.UserVO
 import org.bigbluebutton.core.api.Role._
 import scala.collection.mutable.ArrayBuffer
+import org.bigbluebutton.core.api.VoiceUser
 
 class UsersModel {
   private var uservos = new collection.immutable.HashMap[String, UserVO]
   
 //  private val users = new HashMap[String, User]
 
-  def addUser(userID:String, extUserID: String, name :String, role: Role):Unit = {
-    uservos += userID -> new UserVO(userID, extUserID, name, 
+  def addUser(userID:String, extUserID: String, name :String, role: Role):UserVO = {
+    val vu = new VoiceUser(userID, false, false, false, false, 
+                        new scala.collection.immutable.HashMap())
+    val uvo = new UserVO(userID, extUserID, name, 
                   role, raiseHand=false, presenter=false, 
-                  hasStream=false, locked=false)
+                  hasStream=false, locked=false, vu)
+    uservos += userID -> uvo 
+    
+    uvo
   }
   
   def removeUser(userID: String):Option[UserVO] = {

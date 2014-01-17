@@ -52,16 +52,6 @@ class MeetingActor(val meetingID: String, val recorded: Boolean,
 	                         handleLockUserRequest(message)
 	    case message: EjectUserRequest => 
 	                         handleEjectUserRequest(message)
-	    case message: VoiceUserJoinedMessage => 
-	                         handleVoiceUserJoinedMessage(message)
-	    case message: VoiceUserLeftMessage => 
-	                         handleVoiceUserLeftMessage(message)
-	    case message: VoiceUserMutedMessage => 
-	                         handleVoiceUserMutedMessage(message)
-	    case message: VoiceUserTalkingMessage => 
-	                         handleVoiceUserTalkingMessage(message)
-	    case message: VoiceStartedRecordingMessage => 
-	                         handleVoiceStartedRecordingMessage(message)
 	    case message: SetLockSettings => 
 	                         handleSetLockSettings(message)
 	    case message: InitLockSettings => 
