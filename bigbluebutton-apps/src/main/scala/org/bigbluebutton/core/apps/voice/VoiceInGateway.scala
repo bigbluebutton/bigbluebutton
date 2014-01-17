@@ -38,4 +38,19 @@ class VoiceInGateway(bbbGW: BigBlueButtonGateway) {
 	  bbbGW.accept(new VoiceUserJoined(meetingId, voiceUser))
 	}
 	
+	def voiceUserLeft(meetingId: String, userId: String) {
+	  bbbGW.accept(new VoiceUserLeft(meetingId, userId))
+	}
+	
+	def voiceUserLocked(meetingId: String, userId: String, locked: Boolean) {
+	  bbbGW.accept(new VoiceUserLocked(meetingId, userId, locked))
+	}
+	
+	def voiceUserMuted(meetingId: String, userId: String, muted: Boolean) {
+	  bbbGW.accept(new VoiceUserMuted(meetingId, userId, muted))
+	}
+	
+	def voiceUserTalking(meetingId: String, userId: String, talking: Boolean) {
+	  bbbGW.accept(new VoiceUserTalking(meetingId, userId, talking))
+	}
 }

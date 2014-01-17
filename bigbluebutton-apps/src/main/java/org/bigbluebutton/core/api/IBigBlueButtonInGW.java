@@ -40,9 +40,13 @@ public interface IBigBlueButtonInGW {
 	void muteUser(String meetingID, String requesterID, String userID, Boolean mute);
 	void lockUser(String meetingID, String requesterID, String userID, Boolean lock);
 	void ejectUser(String meetingID, String requesterID, String userID);
-	void voiceUserJoined(String meetingId, String userId, String webUserId, String room, 
+	void voiceUserJoined(String meetingId, String userId, String webUserId, String conference, 
 								String callerIdNum, String callerIdName,
 								Boolean muted, Boolean speaking);
+	void voiceUserLeft(String meetingId, String userId);
+	void voiceUserLocked(String meetingId, String userId, Boolean locked);
+	void voiceUserMuted(String meetingId, String userId, Boolean muted);
+	void voiceUserTalking(String meetingId, String userId, Boolean talking);
 	
 	// Presentation
 	void clear(String meetingID);

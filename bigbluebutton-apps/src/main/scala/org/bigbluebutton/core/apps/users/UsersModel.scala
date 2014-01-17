@@ -6,12 +6,18 @@ import org.bigbluebutton.core.api.UserVO
 import org.bigbluebutton.core.api.Role._
 import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.api.VoiceUser
+import org.bigbluebutton.core.util.RandomStringGenerator
 
 class UsersModel {
   private var uservos = new collection.immutable.HashMap[String, UserVO]
   
 //  private val users = new HashMap[String, User]
 
+  def generateWebUserId:String = {
+    val webUserId = RandomStringGenerator.randomAlphanumericString(6)
+    if (! hasUser(webUserId)) webUserId else generateWebUserId
+  }
+  
   def addUser(uvo: UserVO) {
     uservos += uvo.userID -> uvo 
   }

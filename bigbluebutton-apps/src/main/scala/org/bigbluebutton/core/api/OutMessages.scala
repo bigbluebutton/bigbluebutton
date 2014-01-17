@@ -51,7 +51,9 @@ case class UserVoiceTalking(meetingID: String, userId: String,
                             talking: Boolean) extends IOutMessage
 case class EjectVoiceUser(meetingID: String, recorded: Boolean, requesterID: String, 
                           userId: String) extends IOutMessage
-
+case class UserJoinedVoice(meetingID: String, recorded: Boolean, 
+                           user:UserVO) extends IOutMessage
+                          
 // Voice
 case class IsMeetingMutedReply(meetingID: String, recorded: Boolean, requesterID: String, meetingMuted: Boolean) extends IOutMessage
 case class StartRecording(meetingID: String, recorded: Boolean, requesterID: String) extends IOutMessage

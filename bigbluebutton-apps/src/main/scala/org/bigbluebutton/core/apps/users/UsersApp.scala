@@ -141,16 +141,24 @@ trait UsersApp {
         case Some(user) => {
           val nu = user.copy(voiceUser=msg.voiceUser)
           users.addUser(nu)
+          
+          outGW.send(new UserJoinedVoice(meetingID, recorded, nu))
         }
         case None => {
-          val vu = new VoiceUser(msg.voiceUser.userId, msg.voiceUser.userId, 
+          // No current web user. This means that the user called in through
+          // the phone. We need to generate a new user as we are not able
+          // to match with a web user.
+          val webUserId = users.generateWebUserId
+          val vu = new VoiceUser(msg.voiceUser.userId, webUserId, 
                                  msg.voiceUser.callerName, msg.voiceUser.callerNum,
                                  false, false, false, false)
-          val uvo = new UserVO(msg.voiceUser.userId, msg.voiceUser.userId, msg.voiceUser.callerName, 
+          val uvo = new UserVO(webUserId, webUserId, msg.voiceUser.callerName, 
 		                  Role.VIEWER, raiseHand=false, presenter=false, 
 		                  hasStream=false, locked=false, vu)
 		  	
-			users.addUser(uvo)          
+		  users.addUser(uvo)
+		  
+		  outGW.send(new UserJoined(meetingID, recorded, uvo))
         }
       }
   }
