@@ -14,7 +14,7 @@ case class FsVoiceUserLocked(userId: String, conference: String, locked: Boolean
 case class FsVoiceUserMuted(userId: String, conference: String, muted: Boolean)
 case class FsVoiceUserTalking(userId: String, conference: String, talking: Boolean)
 
-class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy) extends Actor {
+class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBlueButtonInGW) extends Actor {
 
   private var confs = new scala.collection.immutable.HashMap[String, FreeswitchConference]
   
@@ -84,7 +84,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy) extends Actor {
     val fsconf = confs.values find (c => c.meetingId == msg.meetingID)
     
     fsconf foreach (fc => {
-      val user = fc.getUser(msg.userId)
+      val user = fc.getVoiceUser(msg.userId)
       user foreach (u => {
         fsproxy.muteUser(fc.conferenceNum, u.voiceUser.userId, msg.mute)
       })
@@ -95,7 +95,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy) extends Actor {
     val fsconf = confs.values find (c => c.meetingId == msg.meetingID)
     
     fsconf foreach (fc => {
-      val user = fc.getUser(msg.userId)
+      val user = fc.getVoiceUser(msg.userId)
       user foreach (u => {
         fsproxy.ejectUser(fc.conferenceNum, u.voiceUser.userId)
       })
@@ -114,26 +114,56 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy) extends Actor {
     val fsconf = confs.values find (c => c.conferenceNum == msg.conference)
     
     fsconf foreach (fc => {
-      val user = fc.getVoiceUser(msg.userId)
-      user foreach (u => {
-        //u.voiceUser foreach (v => fsproxy.ejectUser(fc.conferenceNum, v.userId))
-      })
-    })    
+      fc.getVoiceUser(msg.userId) match {
+        case Some(user) => {
+        // handle voice user joined
+        }
+        case None =>
+      }
+    })
   }
   
   private def handleVoiceUserLeft(msg: FsVoiceUserLeft) {
+    val fsconf = confs.values find (c => c.conferenceNum == msg.conference)
     
+    fsconf foreach (fc => {
+      fc.getVoiceUser(msg.userId) match {
+        case Some(user) => //send user
+        case None => // user calling from phone
+      }  
+    })
   }
   
   private def handleVoiceUserLocked(msg: FsVoiceUserLocked) {
+    val fsconf = confs.values find (c => c.conferenceNum == msg.conference)
     
+    fsconf foreach (fc => {
+      fc.getVoiceUser(msg.userId) match {
+        case Some(user) => //send user
+        case None => // user calling from phone
+      }  
+    })    
   }
   
   private def handleVoiceUserMuted(msg: FsVoiceUserMuted) {
+    val fsconf = confs.values find (c => c.conferenceNum == msg.conference)
     
+    fsconf foreach (fc => {
+      fc.getVoiceUser(msg.userId) match {
+        case Some(user) => //send user
+        case None => // user calling from phone
+      }  
+    })     
   }
   
   private def handleVoiceUserTalking(msg: FsVoiceUserTalking) {
+    val fsconf = confs.values find (c => c.conferenceNum == msg.conference)
     
+    fsconf foreach (fc => {
+      fc.getVoiceUser(msg.userId) match {
+        case Some(user) => //send user
+        case None => // user calling from phone
+      }  
+    })     
   }
 }

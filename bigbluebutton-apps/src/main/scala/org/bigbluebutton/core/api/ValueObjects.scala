@@ -14,9 +14,10 @@ case class UserVO(userID: String, externUserID: String, name: String,
                   hasStream: Boolean, locked: Boolean, 
                   voiceUser: VoiceUser)
 
-case class VoiceUser(userId: String, joined: Boolean, locked: Boolean, 
-                     muted: Boolean, talking: Boolean, 
-                     metadata: Map[String, String])                  
+case class VoiceUser(userId: String, webUserId: String, 
+                     callerName: String, callerNum: String,
+                     joined: Boolean, locked: Boolean, 
+                     muted: Boolean, talking: Boolean)                  
                   
 case class MeetingConfig(name: String, id: MeetingID, 
                   passwords: MeetingPasswords, welcomeMsg: String, 

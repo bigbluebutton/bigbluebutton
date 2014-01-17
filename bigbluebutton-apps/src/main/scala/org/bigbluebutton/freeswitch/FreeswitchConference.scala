@@ -16,12 +16,12 @@ class FreeswitchConference(val conferenceNum: String,
     
   }
   
-  def getUser(userId: String):Option[UserVO] = {
-    users.values find (u => u.userID == userId)  
+  def getWebUser(webUserId: String):Option[UserVO] = {
+    users.values find (u => (u.userID == webUserId))  
   }
   
-  def getVoiceUser(userId: String):Option[UserVO] = {
-    users.values find (u => u.voiceUser.userId == userId)
+  def getVoiceUser(voiceUserId: String):Option[UserVO] = {
+    users.values find (u => u.voiceUser.userId == voiceUserId)
   }
   
   def numUsers = users.size

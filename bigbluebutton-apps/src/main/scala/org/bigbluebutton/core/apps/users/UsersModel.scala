@@ -12,15 +12,8 @@ class UsersModel {
   
 //  private val users = new HashMap[String, User]
 
-  def addUser(userID:String, extUserID: String, name :String, role: Role):UserVO = {
-    val vu = new VoiceUser(userID, false, false, false, false, 
-                        new scala.collection.immutable.HashMap())
-    val uvo = new UserVO(userID, extUserID, name, 
-                  role, raiseHand=false, presenter=false, 
-                  hasStream=false, locked=false, vu)
-    uservos += userID -> uvo 
-    
-    uvo
+  def addUser(uvo: UserVO) {
+    uservos += uvo.userID -> uvo 
   }
   
   def removeUser(userID: String):Option[UserVO] = {
@@ -40,26 +33,7 @@ class UsersModel {
   def numUsers():Int = {
     uservos.size
   }
-
-/*  
-  def isModerator(userID: String):Boolean = {
-    var moderator = false 
-    if (hasUser(userID)) {
-      val u = getUser(userID)
-      moderator = if (u.role == Role.MODERATOR) true else false
-    }             
-    moderator
-  }
   
-  def isPresenter(userID: String):Boolean = {
-    var presenter = false    
-    if (hasUser(userID)) {
-      val u = getUser(userID)
-      presenter = u.presenter
-    }   
-    presenter
-  }
-*/  
   def getUser(userID:String):Option[UserVO] = {
     uservos.values find (u => u.userID == userID) 
   }

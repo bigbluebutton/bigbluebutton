@@ -32,6 +32,17 @@ public interface IBigBlueButtonInGW {
 	void assignPresenter(String meetingID, String newPresenterID, String newPresenterName, String assignedBy);
 	void setRecordingStatus(String meetingId, String userId, Boolean recording);
 	void getRecordingStatus(String meetingId, String userId);
+
+	// Voice
+	void getVoiceUsers(String meetingID, String requesterID);
+	void muteAllUsers(String meetingID, String requesterID, Boolean mute);
+	void isMeetingMuted(String meetingID, String requesterID);
+	void muteUser(String meetingID, String requesterID, String userID, Boolean mute);
+	void lockUser(String meetingID, String requesterID, String userID, Boolean lock);
+	void ejectUser(String meetingID, String requesterID, String userID);
+	void voiceUserJoined(String meetingId, String userId, String webUserId, String room, 
+								String callerIdNum, String callerIdName,
+								Boolean muted, Boolean speaking);
 	
 	// Presentation
 	void clear(String meetingID);
@@ -74,15 +85,5 @@ public interface IBigBlueButtonInGW {
 	void setActivePresentation(String meetingID, String requesterID, String presentationID, Integer numPages);
 	void enableWhiteboard(String meetingID, String requesterID, Boolean enable);
 	void isWhiteboardEnabled(String meetingID, String requesterID);
-	
-	// Voice
-	void getVoiceUsers(String meetingID, String requesterID);
-	void muteAllUsers(String meetingID, String requesterID, Boolean mute);
-	void isMeetingMuted(String meetingID, String requesterID);
-	void muteUser(String meetingID, String requesterID, String userID, Boolean mute);
-	void lockUser(String meetingID, String requesterID, String userID, Boolean lock);
-	void ejectUser(String meetingID, String requesterID, String userID);
-	
-
 	
 }

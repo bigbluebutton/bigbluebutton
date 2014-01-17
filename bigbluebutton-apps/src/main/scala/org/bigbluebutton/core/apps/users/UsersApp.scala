@@ -107,10 +107,15 @@ trait UsersApp {
   
   def handleUserJoin(msg: UserJoining):Unit = {
   	log.debug("UsersApp: init handleUserJoin")
+    val vu = new VoiceUser(msg.userID, msg.userID, msg.name, msg.name,  
+                           false, false, false, false)
+    val uvo = new UserVO(msg.userID, msg.extUserID, msg.name, 
+                  msg.role, raiseHand=false, presenter=false, 
+                  hasStream=false, locked=false, vu)
   	
-	val user = users.addUser(msg.userID, msg.extUserID, msg.name, msg.role)
+	users.addUser(uvo)
 					
-	outGW.send(new UserJoined(meetingID, recorded, user))
+	outGW.send(new UserJoined(meetingID, recorded, uvo))
 	
 	// Become presenter if the only moderator		
 	if (users.numModerators == 1) {
@@ -130,7 +135,26 @@ trait UsersApp {
     log.warning("This user is not here:" + msg.userID)
    }
   }
-	
+
+  def handleVoiceUserJoined(msg: VoiceUserJoined) = {
+      val user = users.getUser(msg.voiceUser.webUserId) match {
+        case Some(user) => {
+          val nu = user.copy(voiceUser=msg.voiceUser)
+          users.addUser(nu)
+        }
+        case None => {
+          val vu = new VoiceUser(msg.voiceUser.userId, msg.voiceUser.userId, 
+                                 msg.voiceUser.callerName, msg.voiceUser.callerNum,
+                                 false, false, false, false)
+          val uvo = new UserVO(msg.voiceUser.userId, msg.voiceUser.userId, msg.voiceUser.callerName, 
+		                  Role.VIEWER, raiseHand=false, presenter=false, 
+		                  hasStream=false, locked=false, vu)
+		  	
+			users.addUser(uvo)          
+        }
+      }
+  }
+  
   def handleAssignPresenter(msg: AssignPresenter):Unit = {
 	assignNewPresenter(msg.newPresenterID, msg.newPresenterName, msg.assignedBy)
   } 

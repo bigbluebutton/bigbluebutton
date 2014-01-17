@@ -114,30 +114,30 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	
   
   // Users
-	def setUserStatus(meetingID: String, userID: String, status: String, value: Object):Unit = {
-		bbbGW.accept(new ChangeUserStatus(meetingID, userID, status, value));
-	}
+  def setUserStatus(meetingID: String, userID: String, status: String, value: Object):Unit = {
+    bbbGW.accept(new ChangeUserStatus(meetingID, userID, status, value));
+  }
 
-	def getUsers(meetingID: String, requesterID: String):Unit = {
-		bbbGW.accept(new GetUsers(meetingID, requesterID))
-	}
+  def getUsers(meetingID: String, requesterID: String):Unit = {
+    bbbGW.accept(new GetUsers(meetingID, requesterID))
+  }
 
-	def userLeft(meetingID: String, userID: String):Unit = {
-		bbbGW.accept(new UserLeaving(meetingID, userID))
-	}
+  def userLeft(meetingID: String, userID: String):Unit = {
+    bbbGW.accept(new UserLeaving(meetingID, userID))
+  }
 
-	def userJoin(meetingID: String, userID: String, name: String, role: String, extUserID: String):Unit = {
-		val userRole = if (role == "MODERATOR") Role.MODERATOR else Role.VIEWER
-		bbbGW.accept(new UserJoining(meetingID, userID, name, userRole, extUserID))
-	}
+  def userJoin(meetingID: String, userID: String, name: String, role: String, extUserID: String):Unit = {
+    val userRole = if (role == "MODERATOR") Role.MODERATOR else Role.VIEWER
+    bbbGW.accept(new UserJoining(meetingID, userID, name, userRole, extUserID))
+  }
 
-	def assignPresenter(meetingID: String, newPresenterID: String, newPresenterName: String, assignedBy: String):Unit = {
-		bbbGW.accept(new AssignPresenter(meetingID, newPresenterID, newPresenterName, assignedBy))
-	}
+  def assignPresenter(meetingID: String, newPresenterID: String, newPresenterName: String, assignedBy: String):Unit = {
+    bbbGW.accept(new AssignPresenter(meetingID, newPresenterID, newPresenterName, assignedBy))
+  }
 
-	def getCurrentPresenter(meetingID: String, requesterID: String):Unit = {
+  def getCurrentPresenter(meetingID: String, requesterID: String):Unit = {
 		// do nothing
-	}
+  }
 	
 	/**************************************************************************************
 	 * Message Interface for Presentation
@@ -330,4 +330,13 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	  voiceGW.ejectUser(meetingID, requesterID, userID)
 	}
 	
+	def voiceUserJoined(meetingId: String, userId: String, webUserId: String, 
+	                            conference: String, callerIdNum: String, 
+	                            callerIdName: String,
+								muted: java.lang.Boolean, speaking: java.lang.Boolean) {
+	  voiceGW.voiceUserJoined(meetingId, userId, webUserId, 
+	                            conference, callerIdNum, 
+	                            callerIdName,
+								muted, speaking)
+	}
 }
