@@ -53,7 +53,6 @@ package org.bigbluebutton.main.model.users {
 			sort.compareFunction = sortFunction;
 			users.sort = sort;
 			users.refresh();
-			configLockSettings();
 		}
 		
 		// Custom sort function for the users ArrayCollection. Need to put dial-in users at the very bottom.
@@ -406,7 +405,7 @@ package org.bigbluebutton.main.model.users {
 		/**
 		 * Read default lock settings from config.xml
 		 * */
-		private function configLockSettings():void {
+		public function configLockSettings():void {
 			var config:Config = BBB.initConfigManager().config;
 			
 			var allowModeratorLocking:Boolean, disableCam:Boolean, disableMic:Boolean, disablePrivateChat:Boolean, disablePublicChat:Boolean;

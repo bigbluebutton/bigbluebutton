@@ -76,6 +76,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.AppVersionEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ConfigEvent;
@@ -133,6 +134,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var confirmingLogout:Boolean = false;
       
 			public function initOptions(e:Event):void {
+				UserManager.getInstance().getConference().configLockSettings();
 				layoutOptions = new LayoutOptions();
 				layoutOptions.parseOptions();
 				showToolbarOpt = layoutOptions.showToolbar;
