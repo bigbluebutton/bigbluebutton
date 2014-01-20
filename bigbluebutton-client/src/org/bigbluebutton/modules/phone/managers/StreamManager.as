@@ -42,7 +42,8 @@ package org.bigbluebutton.modules.phone.managers {
 		private var incomingStream:NetStream = null
 		private var outgoingStream:NetStream = null;
 		private var publishName:String          = null;
-		private var mic:Microphone 				= null;
+		private var mic:Microphone 				= null;		
+  	private var micIndex:int 				= 0;		
 		private var isCallConnected:Boolean			= false;
 		private var muted:Boolean			    = false;
 		private var audioCodec:String = "SPEEX";
@@ -56,11 +57,13 @@ package org.bigbluebutton.modules.phone.managers {
 			this.connection = connection;
 		}
 		
-		public function initMicrophone():void {
-			mic = Microphone.getMicrophone(-1);
+		public function initMicrophone(microphoneIndex:int):void {
+		  mic = Microphone.getMicrophone(-1);
+			this.micIndex = microphoneIndex;
 			if(mic == null){
 				initWithNoMicrophone();
 			} else {
+			  LogUtil.debug("Setting up microphone");
 				setupMicrophone();
 				mic.addEventListener(StatusEvent.STATUS, micStatusHandler);
 			}
@@ -74,8 +77,8 @@ package org.bigbluebutton.modules.phone.managers {
 			}
 			
 			if ((BBB.getFlashPlayerVersion() >= 10.3) && (phoneOptions.enabledEchoCancel)) {
-				LogUtil.debug("Using acoustic echo cancellation.");
-				mic = Microphone(Microphone["getEnhancedMicrophone"]());
+				LogUtil.debug("Using acoustic echo cancellation.");		
+				mic = Microphone.getEnhancedMicrophone(micIndex);			
 				var options:MicrophoneEnhancedOptions = new MicrophoneEnhancedOptions();
 				options.mode = MicrophoneEnhancedMode.FULL_DUPLEX;
 				options.autoGain = false;
@@ -100,7 +103,6 @@ package org.bigbluebutton.modules.phone.managers {
 				mic.rate = 8;
 				LogUtil.debug("Using Nellymoser codec.");
 			}			
-			mic.gain = 60;			
 		}
 		
 		public function initWithNoMicrophone(): void {
