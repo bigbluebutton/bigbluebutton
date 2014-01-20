@@ -78,6 +78,7 @@ secondsToYouTubeFormat = function(secs) {
   if (hours > 0)   {time += hours+"h";}
   if (minutes > 0) {time += minutes+"m";}
   if (seconds > 0) {time += seconds+"s";}
+  if (secs == 0) {time = "0s";}
 
   return time;
 }
@@ -258,7 +259,6 @@ generateThumbnails = function() {
         hiddenDesc.attr("id", img.attr("id") + "description");
         hiddenDesc.attr("class", "visually-hidden");
         hiddenDesc.html("Slide " + ++slideCount + " " + secondsToHHMMSSText(timeIn));
-        
 
         // a wrapper around the img and label
         var div = $(document.createElement('div'));
@@ -268,6 +268,11 @@ generateThumbnails = function() {
         div.append(img);
         div.append(label);
         div.append(hiddenDesc);
+
+        if (parseFloat(timeIn) == 0 ) {
+          div.addClass("active");
+          $(".thumbnail-label", div).show();
+        }
 
         imagesList.push(timeIn);
         elementsMap[timeIn] = div;

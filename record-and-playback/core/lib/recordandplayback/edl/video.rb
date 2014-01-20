@@ -297,8 +297,8 @@ module BigBlueButton
       end
 
       def self.composite_cut(output, cut, layout, videoinfo)
-        stop_ts = cut[:next_timestamp] - cut[:timestamp]
-        BigBlueButton.logger.info "  Cut start time #{cut[:timestamp]}, duration #{stop_ts}"
+        duration = cut[:next_timestamp] - cut[:timestamp]
+        BigBlueButton.logger.info "  Cut start time #{cut[:timestamp]}, duration #{duration}"
 
         ffmpeg_inputs = []
         ffmpeg_filter = "color=c=white:s=#{layout[:width]}x#{layout[:height]}:r=24"
@@ -396,7 +396,7 @@ module BigBlueButton
         ffmpeg_inputs.each do |input|
           ffmpeg_cmd += ['-ss', ms_to_s(input[:seek]), '-itsoffset', ms_to_s(input[:seek]), '-i', input[:filename]]
         end
-        ffmpeg_cmd += ['-to', ms_to_s(stop_ts), '-filter_complex', ffmpeg_filter, *FFMPEG_WF_ARGS, '-']
+        ffmpeg_cmd += ['-t', ms_to_s(duration), '-filter_complex', ffmpeg_filter, *FFMPEG_WF_ARGS, '-']
 
         File.open(output, 'a') do |outio|
           exitstatus = BigBlueButton.exec_redirect_ret(outio, *ffmpeg_cmd)

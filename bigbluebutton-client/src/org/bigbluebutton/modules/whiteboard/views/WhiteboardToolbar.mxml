@@ -239,6 +239,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				presentationWindow = window;
 				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
 				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
+				presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
 				
                 if (!wbOptions.keepToolbarVisible) {
     				window.presCtrlBar.addEventListener(MouseEvent.ROLL_OVER, handleMouseOut);
@@ -256,14 +257,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     var listener2:Listener = new Listener();
                     listener2.method = checkVisibility;
                     listener2.type = MadePresenterEvent.SWITCH_TO_VIEWER_MODE;
-                    presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
                     //Do an initial check to see if the toolbar should be visible
                     checkVisibility();
                 }
 			}
 			
             private function checkVisibility(e:MadePresenterEvent = null):void {
-                if (toolbarAllowed() && slideLoaded && mousedOver) {
+                if (toolbarAllowed() && slideLoaded && (wbOptions.keepToolbarVisible || mousedOver)) {
                     setPositionAndDepth();
                     showWhiteboardToolbar = true;
                 } else {

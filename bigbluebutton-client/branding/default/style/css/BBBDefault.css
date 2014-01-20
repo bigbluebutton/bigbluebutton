@@ -47,7 +47,7 @@ Panel {
   color: #e1e2e5;
 }
 
-Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowChangeResolutionCombo, .languageSelectorStyle, .testJavaLinkButtonStyle {
+Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowChangeResolutionCombo, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop {
   textIndent: 0;
   paddingLeft: 10;
   paddingRight: 10;
@@ -697,12 +697,12 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 }
 
 Alert {
-	borderColor: #DFDFDF;
-	backgroundColor: #EFEFEF;
-	borderAlpha: 1;
-	shadowDistance: 1;
-	dropShadowColor: #FFFFFF;
-	color: #000000;
+  borderColor: #DFDFDF;
+  backgroundColor: #EFEFEF;
+  borderAlpha: 1;
+  shadowDistance: 1;
+  dropShadowColor: #FFFFFF;
+  color: #000000;
 }
 
 .lockSettingsDefaultLabelStyle {
@@ -733,4 +733,16 @@ Alert {
 	fontFamily: Arial;
 	fontSize: 20;  
 	fontWeight: bold;
+}
+
+.recordButtonStyleNormal {
+  icon:   Embed('assets/images/control-record.png');
+}
+
+.recordButtonStyleStart {
+  icon:   Embed('assets/images/control-record-start.png');
+}
+
+.recordButtonStyleStop {
+  icon:   Embed('assets/images/control-record-stop.png');
 }

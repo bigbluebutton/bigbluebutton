@@ -40,6 +40,7 @@ public class Recording {
 	private String state;
 	private String playbackLink;
 	private String playbackFormat;
+	private String playbackDuration;
 	
 	
 	public String getId() {
@@ -96,6 +97,14 @@ public class Recording {
 	
 	public void setPlaybackFormat(String playbackFormat) {
 		this.playbackFormat = playbackFormat;
+	}
+	
+	public String getPlaybackDuration() {
+		return playbackDuration;
+	}
+	
+	public void setPlaybackDuration(String playbackDuration) {
+		this.playbackDuration = playbackDuration;
 	}
 	
 	public Map<String, String> getMetadata() {

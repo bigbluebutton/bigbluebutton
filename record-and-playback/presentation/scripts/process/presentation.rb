@@ -1,5 +1,3 @@
-#!/usr/bin/ruby1.9.1
-
 # Set encoding to utf-8
 # encoding: UTF-8
 
