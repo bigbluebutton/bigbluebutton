@@ -215,6 +215,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				LogUtil.debug("Playing MY_STRING 2");
 				this.streamName = "MY_STRING";
 				
+				ns.play("MY_STRING");
+				
 				this.width = _video.width + paddingHorizontal;
 				this.height = _video.height + paddingVertical;
                 

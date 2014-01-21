@@ -56,6 +56,13 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     @Override
 	public boolean appConnect(IConnection conn, Object[] params) {
 		log.info("oflaDemo appConnect"); 
+        System.out.println("TESTE 2");
+        System.out.println("TESTE 2");
+        System.out.println("TESTE 2");
+        System.out.println("TESTE 2");
+        System.out.println(conn);
+        System.out.println(params);
+        
 		return super.appConnect(conn, params);
 	}
 
@@ -104,15 +111,15 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         System.out.println("TESTE");
         System.out.println("TESTE");
         System.out.println("TESTE");
-        IScope scope = stream.getScope();
-        IBroadcastScope bsScope = getBroadcastScope(scope, stream.getPublishedName());
-        StreamingProxy proxy = new StreamingProxy();
-        proxy.setHost("0.0.0.0");
-        proxy.setApp("video");
-        proxy.setPort(1935);
-        proxy.init();
-        bsScope.subscribe(proxy, null);
-        proxy.start("MY_STRING", StreamingProxy.LIVE, null);
+        //IScope scope = stream.getScope();
+        //IBroadcastScope bsScope = getBroadcastScope(scope, stream.getPublishedName());
+        //StreamingProxy proxy = new StreamingProxy();
+        //proxy.setHost("143.54.10.163");
+        //proxy.setApp("video");
+        //proxy.setPort(1935);
+        //proxy.init();
+        //bsScope.subscribe(proxy, null);
+        //proxy.start("teste", StreamingProxy.LIVE, null);
         //streamingProxyMap.put(stream.getPublishedName(), proxy);
         //stream.addStreamListener(this);
     }

@@ -41,7 +41,7 @@ import org.red5.server.stream.message.RTMPMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.red5.client.net.rtmp.RTMPClient;
+
 import org.red5.client.net.rtmp.INetStreamEventHandler;
 
 /**
@@ -124,7 +124,7 @@ public class StreamingProxy implements IPushableConsumer, IPipeConnectionListene
 	synchronized public void pushMessage(IPipe pipe, IMessage message) throws IOException {
 		if (state >= PUBLISHED && message instanceof RTMPMessage) {
 			RTMPMessage rtmpMsg = (RTMPMessage) message;
-			rtmpClient.publishStreamData(streamId, rtmpMsg);
+			//rtmpClient.publishStreamData(streamId, rtmpMsg);
 		} else {
 			frameBuffer.add(message);
 		}
@@ -152,10 +152,10 @@ public class StreamingProxy implements IPushableConsumer, IPipeConnectionListene
 		log.debug("<:{}", code);
 		if (StatusCodes.NS_PUBLISH_START.equals(code)) {
 			state = PUBLISHED;
-			rtmpClient.invoke("FCPublish", new Object[] { publishName }, this);
-			while (frameBuffer.size() > 0) {
-				rtmpClient.publishStreamData(streamId, frameBuffer.remove(0));
-			}
+			//rtmpClient.invoke("FCPublish", new Object[] { publishName }, this);
+			//while (frameBuffer.size() > 0) {
+			//	rtmpClient.publishStreamData(streamId, frameBuffer.remove(0));
+			//}
 		}
 	}
 
@@ -174,7 +174,7 @@ public class StreamingProxy implements IPushableConsumer, IPipeConnectionListene
 		if ("connect".equals(call.getServiceMethodName())) {
 			state = STREAM_CREATING;
 			System.out.println("CRIANDO STREAM");
-			rtmpClient.createStream(this);
+			//rtmpClient.createStream(this);
 		} else if ("createStream".equals(call.getServiceMethodName())) {
 			System.out.println("CRIANDO STREAM 2");
 			state = PUBLISHING;
@@ -183,7 +183,7 @@ public class StreamingProxy implements IPushableConsumer, IPipeConnectionListene
 				Integer streamIdInt = (Integer) result;
 				streamId = streamIdInt.intValue();
 				log.debug("Publishing: {}", state);
-				rtmpClient.publish(streamIdInt.intValue(), publishName, publishMode, this);
+				//rtmpClient.publish(streamIdInt.intValue(), publishName, publishMode, this);
 			} else {
 				rtmpClient.disconnect();
 				state = STOPPED;
