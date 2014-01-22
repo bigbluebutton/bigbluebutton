@@ -39,7 +39,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     
     private IScope appScope;
     private IServerStream serverStream;
-    
+    VideoRtmpReader rtmpReader;
     private boolean recordVideoStream = false;
     private EventRecordingService recordingService;
     private final Map<String, IStreamListener> streamListeners = new HashMap<String, IStreamListener>();
@@ -50,6 +50,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         log.info("oflaDemo appStart");
         System.out.println("oflaDemo appStart");        
         appScope = app;
+        rtmpReader = new VideoRtmpReader("MY_STRING", 320, 240);
         return true;
     }
 
@@ -104,10 +105,11 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         }
 */
 
-         VideoProxyReceiver v = new VideoProxyReceiver("143.54.10.63", "videoproxy", "conferencia", stream.getPublishedName());
+         VideoProxyReceiver v = new VideoProxyReceiver("143.54.10.63", "videoproxy", "conferencia", stream.getPublishedName(), rtmpReader);
          v.start();
-
-
+         VideoProxyPublisher proxy_publisher = new VideoProxyPublisher("143.54.10.63", "video", "conferencia", rtmpReader, "MY_STRING");
+         proxy_publisher.start();
+         //proxy_publisher.fireFirstFrame();
     }
 
     @Override

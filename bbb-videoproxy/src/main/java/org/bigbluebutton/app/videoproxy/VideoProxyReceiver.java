@@ -51,14 +51,15 @@ public class VideoProxyReceiver {
 
 	private String streamName;
 	private VideoConnection videoConnection;
+	private VideoRtmpReader reader;
 	
-	public VideoProxyReceiver(String host, String appPath, String conference, String streamName) {
+	public VideoProxyReceiver(String host, String appPath, String conference, String streamName, VideoRtmpReader reader) {
 		System.out.println("INIT");
 		ClientOptions opt = new ClientOptions();
 		opt.setClientVersionToUse(Utils.fromHex("00000000"));
 		opt.setHost(host);
 		opt.setAppName(appPath + "/" + conference);
-		
+		this.reader = reader;
 		this.streamName = streamName;
 
 		opt.setWriterToSave(null);
@@ -71,7 +72,8 @@ public class VideoProxyReceiver {
 	protected void onVideo(Video video) {
 		//Retransmit video package
 		//Received Video
-		System.out.println("Received Video data " + video.getHeader().getTime());
+		//reader.addFrame(video);
+		//System.out.println("Received Video data " + video.getHeader().getTime());
 		log.debug("received video package: {}", video.getHeader().getTime());
 	}
 	
