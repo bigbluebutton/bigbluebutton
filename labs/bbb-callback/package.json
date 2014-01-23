@@ -9,7 +9,7 @@
   ],
   "dependencies" : {
     "redis": "0.8.3",
-    "request": "*"
+    "request": "2.27.0"
   },
   "engines": {
     "node": "0.8.21"
