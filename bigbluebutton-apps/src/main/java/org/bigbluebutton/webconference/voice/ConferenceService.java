@@ -19,10 +19,11 @@
 package org.bigbluebutton.webconference.voice;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import org.bigbluebutton.webconference.red5.voice.ClientManager;
 import org.bigbluebutton.webconference.voice.events.ConferenceEvent;
 import org.bigbluebutton.webconference.voice.events.ConferenceEventListener;
-import org.bigbluebutton.webconference.voice.events.ParticipantLockedEvent;
 import org.bigbluebutton.webconference.voice.internal.RoomManager;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
@@ -53,9 +54,9 @@ public class ConferenceService implements ConferenceEventListener {
 		}
 	}
 	
-	public void createConference(String room, String meetingid, boolean record) {
+	public void createConference(String room, String meetingid, boolean record, boolean muted) {
 		if (roomMgr.hasRoom(room)) return;
-		roomMgr.createRoom(room, record, meetingid);
+		roomMgr.createRoom(room, record, meetingid, muted);
 		confProvider.populateRoom(room);
 		
 	}
@@ -63,13 +64,6 @@ public class ConferenceService implements ConferenceEventListener {
 	public void destroyConference(String room) {
 		confProvider.ejectAll(room);
 		roomMgr.destroyRoom(room);
-	}
-	
-	public void lock(Integer participant, String room, Boolean lock) {
-		if (roomMgr.hasParticipant(room, participant)) {
-			ParticipantLockedEvent ple = new ParticipantLockedEvent(participant, room, lock);
-			handleConferenceEvent(ple);
-		}			
 	}
 	
 	public void recordSession(String room, String meetingid){
@@ -85,16 +79,20 @@ public class ConferenceService implements ConferenceEventListener {
 			muteParticipant(participant, room, mute);
 	}
 	
-	public void mute(String room, Boolean mute) {
+	public void muteAllBut(String room, Boolean mute, List<Integer> dontMuteThese) {
 		if (roomMgr.hasRoom(room)) {
 			roomMgr.mute(room, mute);
 			ArrayList<Participant> p = getParticipants(room);
+			
 			for (Participant o : p) {
-				if (! roomMgr.isParticipantMuteLocked(o.getId(), room)) {
-					muteParticipant(o.getId(), room, mute);
-				}				
+				if(dontMuteThese == null || !dontMuteThese.contains(o.getId()))
+					muteParticipant(o.getId(), room, mute);				
 			}
 		}
+	}
+	
+	public void mute(String room, Boolean mute) {
+		this.muteAllBut(room, mute, null);
 	}
 	
 	public boolean isRoomMuted(String room){
@@ -103,10 +101,11 @@ public class ConferenceService implements ConferenceEventListener {
 		}
 		return false;
 	}
-	
+		
 	private void muteParticipant(Integer participant, String room, Boolean mute) {
 		confProvider.mute(room, participant, mute);		
 	}
+	
 	
 	public void eject(Integer participant, String room) {
 		if (roomMgr.hasParticipant(room, participant))

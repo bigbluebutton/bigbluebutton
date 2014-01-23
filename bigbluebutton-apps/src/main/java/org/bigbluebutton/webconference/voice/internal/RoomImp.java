@@ -24,10 +24,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import net.jcip.annotations.ThreadSafe;
+
 import org.bigbluebutton.webconference.voice.Participant;
 import org.bigbluebutton.webconference.voice.Room;
-
-import net.jcip.annotations.ThreadSafe;
 
 @ThreadSafe
 public class RoomImp implements Room {
@@ -35,15 +35,16 @@ public class RoomImp implements Room {
 	
 	private final ConcurrentMap<Integer, Participant> participants;
 	
-	private boolean muted = false;
+	private boolean muted;
 	private boolean record = false;
 	private String meetingid;
 	private boolean recording = false;
 	
-	public RoomImp(String name, boolean record, String meetingid) {
+	public RoomImp(String name, boolean record, String meetingid, Boolean muted) {
 		this.name = name;
 		this.record = record;
 		this.meetingid = meetingid;
+		this.muted = muted;
 		participants = new ConcurrentHashMap<Integer, Participant>();
 	}
 	

@@ -302,9 +302,9 @@ package org.bigbluebutton.modules.deskshare.services.red5
       }
     }
     
-    public function sendStartedViewingNotification():void{
+    public function sendStartedViewingNotification(stream:String):void{
       trace("Sending start viewing to server");
-      nc.call("deskshare.startedToViewStream", null);
+      nc.call("deskshare.startedToViewStream", null, stream);
     }
     
     /**

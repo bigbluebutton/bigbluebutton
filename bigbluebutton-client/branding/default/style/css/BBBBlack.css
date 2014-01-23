@@ -608,3 +608,33 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 {
   icon:   Embed('assets/images/play-blue.png');
 }
+
+.lockSettingsDefaultLabelStyle {
+	fontFamily: Arial;
+	fontSize: 14;  
+	fontWeight: bold;    
+}
+
+.lockSettingsWindowStyle {
+	borderColor: #000000;
+	borderAlpha: 1;
+	borderThicknessLeft: 10;
+	borderThicknessTop: 0;
+	borderThicknessBottom: 10;
+	borderThicknessRight: 10;
+	roundedBottomCorners: true;
+	cornerRadius: 5;
+	headerHeight: 20;
+	backgroundAlpha: 1;
+	headerColors: #000000, #000000;
+	footerColors: #000000, #000000;
+	backgroundColor: #000000;
+	dropShadowEnabled: true;
+	titleStyleName: "micSettingsWindowTitleStyle";
+}
+
+.lockSettingsWindowTitleStyle {
+	fontFamily: Arial;
+	fontSize: 20;  
+	fontWeight: bold;
+}

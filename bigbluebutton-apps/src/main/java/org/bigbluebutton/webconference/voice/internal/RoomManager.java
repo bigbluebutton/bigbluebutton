@@ -20,19 +20,20 @@ package org.bigbluebutton.webconference.voice.internal;
 
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
+
+import net.jcip.annotations.ThreadSafe;
+
 import org.bigbluebutton.webconference.voice.ConferenceService;
 import org.bigbluebutton.webconference.voice.Participant;
 import org.bigbluebutton.webconference.voice.VoiceEventRecorder;
 import org.bigbluebutton.webconference.voice.events.ConferenceEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantJoinedEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantLeftEvent;
-import org.bigbluebutton.webconference.voice.events.ParticipantLockedEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantMutedEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantTalkingEvent;
 import org.bigbluebutton.webconference.voice.events.StartRecordingEvent;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
-import net.jcip.annotations.ThreadSafe;
 
 @ThreadSafe
 public class RoomManager {
@@ -55,9 +56,9 @@ public class RoomManager {
 		return -1;
 	}
 	
-	public void createRoom(String name, boolean record, String meetingid) {
+	public void createRoom(String name, boolean record, String meetingid, Boolean muted) {
 		log.debug("Creating room: " + name);
-		RoomImp r = new RoomImp(name, record, meetingid);
+		RoomImp r = new RoomImp(name, record, meetingid, muted);
 		rooms.putIfAbsent(name, r);
 	}
 	
@@ -96,24 +97,6 @@ public class RoomManager {
 		}
 		return rm.getParticipants();
 	}
-		
-	public boolean isParticipantMuteLocked(Integer participant, String room) {
-		RoomImp rm = rooms.get(room);
-		if (rm != null) {
-			Participant p = rm.getParticipant(participant);
-			return p.isMuteLocked();
-		}
-		return false;
-	}
-
-	private void lockParticipant(String room, Integer participant, Boolean lock) {
-		RoomImp rm = rooms.get(room);
-		if (rm != null) {
-			ParticipantImp p = (ParticipantImp) rm.getParticipant(participant);
-			if (p != null)
-				p.setLock(lock);
-		}
-	}
 	
 	/**
 	 * Process the event from the voice conferencing server.
@@ -135,8 +118,6 @@ public class RoomManager {
 			handleParticipantMutedEvent(event, rm);
 		} else if (event instanceof ParticipantTalkingEvent) {
 			handleParticipantTalkingEvent(event, rm);
-		} else if (event instanceof ParticipantLockedEvent) {
-			handleParticipantLockedEvent(event, rm);
 		} else if (event instanceof StartRecordingEvent) {
 			// do nothing but let it through.
 			// later on we need to dispatch an event to the client that the voice recording has started.
@@ -208,11 +189,6 @@ public class RoomManager {
 		ParticipantTalkingEvent pte = (ParticipantTalkingEvent) event;
 		ParticipantImp p = (ParticipantImp) rm.getParticipant(event.getParticipantId());
 		if (p != null) p.setTalking(pte.isTalking());		
-	}
-	
-	private void handleParticipantLockedEvent(ConferenceEvent event, RoomImp rm) {
-		ParticipantLockedEvent ple = (ParticipantLockedEvent) event;
-		lockParticipant(ple.getRoom(), ple.getParticipantId(), ple.isLocked());		
 	}
 	
 	public void setVoiceEventRecorder(VoiceEventRecorder recorder) {

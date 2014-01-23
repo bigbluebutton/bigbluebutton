@@ -78,6 +78,8 @@ package org.bigbluebutton.modules.whiteboard
     private var width:Number;
     private var height:Number;
             
+	private var zoomPercentage:Number = 1;
+	
     public function doMouseDown(mouseX:Number, mouseY:Number):void {
       /**
         * Check if the presenter is starting a new text annotation without committing the last one.
@@ -97,25 +99,27 @@ package org.bigbluebutton.modules.whiteboard
           case DrawObject.DRAW_START:
             dobj = shapeFactory.makeDrawObject(o, whiteboardModel);  
             if (dobj != null) {
-              dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
+              dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
               wbCanvas.addGraphic(dobj);
               _annotationsList.push(dobj);              
             }
             break;
           case DrawObject.DRAW_UPDATE:
           case DrawObject.DRAW_END:
-            var gobj:DrawObject = _annotationsList.pop();  
-            if (gobj.id == o.id) {
-//              LogUtil.debug("Removing shape [" + gobj.id + "]");
-              wbCanvas.removeGraphic(gobj as DisplayObject);
-            } else { // no DRAW_START event was thrown for o so place gobj back on the top
-              LogUtil.debug("Not removing shape [" + gobj.id + "] new [" + o.id + "]");
-              _annotationsList.push(gobj);
+            if (_annotationsList.length > 0) {
+              var gobj:DrawObject = _annotationsList.pop();  
+              if (gobj.id == o.id) {
+                //              LogUtil.debug("Removing shape [" + gobj.id + "]");
+                wbCanvas.removeGraphic(gobj as DisplayObject);
+              } else { // no DRAW_START event was thrown for o so place gobj back on the top
+                LogUtil.debug("Not removing shape [" + gobj.id + "] new [" + o.id + "]");
+                _annotationsList.push(gobj);
+              }              
             }
-                  
+                 
             dobj = shapeFactory.makeDrawObject(o, whiteboardModel);  
             if (dobj != null) {
-              dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
+              dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
               wbCanvas.addGraphic(dobj);
               _annotationsList.push(dobj);              
             }
@@ -305,7 +309,7 @@ package org.bigbluebutton.modules.whiteboard
                 if(an.type != DrawObject.TEXT) {
                     var dobj:DrawObject = shapeFactory.makeDrawObject(an, whiteboardModel);  
                     if (dobj != null) {
-                        dobj.draw(an, shapeFactory.parentWidth, shapeFactory.parentHeight);
+                        dobj.draw(an, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
                         wbCanvas.addGraphic(dobj);
                         _annotationsList.push(dobj);              
                     }        
@@ -365,7 +369,7 @@ package org.bigbluebutton.modules.whiteboard
                     if(an.type != DrawObject.TEXT) {
                         var dobj:DrawObject = shapeFactory.makeDrawObject(an, whiteboardModel);  
                         if (dobj != null) {
-                            dobj.draw(an, shapeFactory.parentWidth, shapeFactory.parentHeight);
+                            dobj.draw(an, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
                             wbCanvas.addGraphic(dobj);
                             _annotationsList.push(dobj);              
                         }      
@@ -380,7 +384,8 @@ package org.bigbluebutton.modules.whiteboard
             }
         }
     
-    public function zoomCanvas(width:Number, height:Number):void{
+    public function zoomCanvas(width:Number, height:Number, zoom:Number):void{
+	  zoomPercentage = zoom / 100;
       shapeFactory.setParentDim(width, height);  
       this.width = width;
       this.height = height;
@@ -420,7 +425,7 @@ package org.bigbluebutton.modules.whiteboard
                 if (o != null) {
                     var dobj:DrawObject = shapeFactory.makeDrawObject(o, whiteboardModel);  
                     if (dobj != null) {
-                        dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
+                        dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
                         wbCanvas.addGraphic(dobj);
                         _annotationsList[objIndex] = dobj;              
                     }          

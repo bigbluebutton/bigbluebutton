@@ -177,23 +177,27 @@ public class MeetingService {
 
 				ArrayList<Playback> plays=new ArrayList<Playback>();
 				
-				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getDurationRecording(r.getEndTime(), r.getStartTime())));
+				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getDurationRecording(r.getPlaybackDuration(), r.getEndTime(), r.getStartTime())));
 				r.setPlaybacks(plays);
 				map.put(r.getId(), r);
 			}
 			else{
 				Recording rec=map.get(r.getId());
-				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getDurationRecording(r.getEndTime(), r.getStartTime())));
+				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getDurationRecording(r.getPlaybackDuration(), r.getEndTime(), r.getStartTime())));
 			}
 		}
 		
 		return map;
 	}
 	
-	private int getDurationRecording(String end, String start){
+	private int getDurationRecording(String playbackDuration, String end, String start) {
 		int duration;
 		try{
-			duration = (int)Math.ceil((Long.parseLong(end) - Long.parseLong(start))/60000.0);
+			if (!playbackDuration.equals("")) {
+				duration = (int)Math.ceil((Long.parseLong(playbackDuration))/60000.0);
+			} else {
+				duration = (int)Math.ceil((Long.parseLong(end) - Long.parseLong(start))/60000.0);
+			}
 		}catch(Exception e){
 			log.debug(e.getMessage());
 			duration = 0;

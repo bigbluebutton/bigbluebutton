@@ -98,11 +98,11 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         
         public function makeGraphic(parentWidth:Number, parentHeight:Number):void {}
 		
-        public function draw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
+        public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
             
         }
         
-        public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
+        public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
             
         }
 	}

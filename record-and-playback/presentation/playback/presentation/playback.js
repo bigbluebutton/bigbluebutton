@@ -78,6 +78,7 @@ secondsToYouTubeFormat = function(secs) {
   if (hours > 0)   {time += hours+"h";}
   if (minutes > 0) {time += minutes+"m";}
   if (seconds > 0) {time += seconds+"s";}
+  if (secs == 0) {time = "0s";}
 
   return time;
 }
@@ -258,7 +259,6 @@ generateThumbnails = function() {
         hiddenDesc.attr("id", img.attr("id") + "description");
         hiddenDesc.attr("class", "visually-hidden");
         hiddenDesc.html("Slide " + ++slideCount + " " + secondsToHHMMSSText(timeIn));
-        
 
         // a wrapper around the img and label
         var div = $(document.createElement('div'));
@@ -268,6 +268,11 @@ generateThumbnails = function() {
         div.append(img);
         div.append(label);
         div.append(hiddenDesc);
+
+        if (parseFloat(timeIn) == 0 ) {
+          div.addClass("active");
+          $(".thumbnail-label", div).show();
+        }
 
         imagesList.push(timeIn);
         elementsMap[timeIn] = div;
@@ -341,13 +346,21 @@ load_audio = function() {
    var webmsource = document.createElement("source");
    webmsource.setAttribute('src', RECORDINGS + '/audio/audio.webm');
    webmsource.setAttribute('type', 'audio/webm; codecs="vorbis"');
-   audio.appendChild(webmsource);
 
    // Need to keep the ogg source around for compat with old recordings
    var oggsource = document.createElement("source");
    oggsource.setAttribute('src', RECORDINGS + '/audio/audio.ogg');
    oggsource.setAttribute('type', 'audio/ogg; codecs="vorbis"');
-   audio.appendChild(oggsource);
+
+   // Browser Bug Workaround: The ogg file should be preferred in Firefox,
+   // since it can't seek in audio-only webm files.
+   if (navigator.userAgent.indexOf("Firefox") != -1) {
+      audio.appendChild(oggsource);
+      audio.appendChild(webmsource);
+   } else {
+      audio.appendChild(webmsource);
+      audio.appendChild(oggsource);
+   }
 
    audio.setAttribute('data-timeline-sources', SLIDES_XML);
    //audio.setAttribute('controls','');

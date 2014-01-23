@@ -113,6 +113,7 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
     	String voiceBridge = getBbbSession().getVoiceBridge();
     	String meetingid = getBbbSession().getRoom(); 
     	Boolean record = getBbbSession().getRecord();
+    	Boolean muted = getBbbSession().getStartAsMuted();
     	
     	if (!connection.getScope().hasAttribute(VOICE_BRIDGE)) {
     		connection.getScope().setAttribute(VOICE_BRIDGE, getBbbSession().getVoiceBridge());
@@ -120,7 +121,7 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
     	
     	log.debug("Setting up voiceBridge " + voiceBridge);
     	clientManager.addSharedObject(connection.getScope().getName(), voiceBridge, so);
-    	conferenceService.createConference(voiceBridge, meetingid, record); 			
+    	conferenceService.createConference(voiceBridge, meetingid, record, muted); 			
 
 		return true;
 	}

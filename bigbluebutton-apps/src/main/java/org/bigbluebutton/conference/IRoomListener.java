@@ -20,12 +20,16 @@
 package org.bigbluebutton.conference;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public interface IRoomListener {
 	public String getName();
+	
+	public void lockSettingsChange(Map<String, Boolean> lockSettings);
 	public void participantStatusChange(User p, String status, Object value);
 	public void participantJoined(User participant);
 	public void participantLeft(User participant);
 	public void assignPresenter(ArrayList<String> presenter);
 	public void endAndKickAll();
+	public void recordingStatusChange(User p, Boolean recording);
 }
