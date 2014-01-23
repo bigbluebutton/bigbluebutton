@@ -75,20 +75,29 @@ if not FileTest.directory?(target_dir)
     FileUtils.mkdir_p "#{target_pres_dir}/textfiles"
     
     images=Dir.glob("#{pres_dir}/#{pres}.{jpg,jpeg,png,gif,JPG,JPEG,PNG,GIF}")
-    if images.empty? 
-      pres_pdf = "#{pres_dir}/#{pres}.pdf"
-      if !File.exists?(pres_pdf)
-        BigBlueButton.logger.info("Falling back to old presentation filename")
-        pres_pdf = "#{pres_dir}/#{pres}"
-      end
-      if !File.exists?(pres_pdf)
+    if images.empty?
+      pres_name = "#{pres_dir}/#{pres}"
+      if File.exists?("#{pres_name}.pdf")
+        pres_pdf = "#{pres_name}.pdf"
+        BigBlueButton.logger.info("Found pdf file for presentation #{pres_pdf}")
+      elsif File.exists?("#{pres_name}.PDF")
+        pres_pdf = "#{pres_name}.PDF"
+        BigBlueButton.logger.info("Found PDF file for presentation #{pres_pdf}")
+      elsif File.exists?("#{pres_name}")
+        pres_pdf = pres_name
+        BigBlueButton.logger.info("Falling back to old presentation filename #{pres_pdf}")
+      else
+        pres_pdf = ""
         BigBlueButton.logger.warn("Could not find pdf file for presentation #{pres}")
       end
-      1.upto(num_pages) do |page| 
-        BigBlueButton::Presentation.extract_png_page_from_pdf(
-          page, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1200')
-        if File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt") then
-          FileUtils.cp("#{pres_dir}/textfiles/slide-#{page}.txt", "#{target_pres_dir}/textfiles")
+
+      if !pres_pdf.empty?
+        1.upto(num_pages) do |page|
+          BigBlueButton::Presentation.extract_png_page_from_pdf(
+            page, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1200')
+          if File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt") then
+            FileUtils.cp("#{pres_dir}/textfiles/slide-#{page}.txt", "#{target_pres_dir}/textfiles")
+          end
         end
       end
     else
@@ -97,7 +106,6 @@ if not FileTest.directory?(target_dir)
       command="convert #{images[0]} -resize 1600x1200 -background white -flatten #{target_pres_dir}/slide-1.png"
       BigBlueButton.execute(command)
     end
-  
   end
   
   if !Dir["#{raw_archive_dir}/video/*"].empty? or (presentation_props['include_deskshare'] and !Dir["#{raw_archive_dir}/deskshare/*"].empty?)
