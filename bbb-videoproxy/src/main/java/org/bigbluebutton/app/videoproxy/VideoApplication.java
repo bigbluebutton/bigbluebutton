@@ -34,6 +34,8 @@ import org.red5.server.api.stream.IStreamListener;
 import org.red5.server.stream.ClientBroadcastStream;
 import org.slf4j.Logger;
 
+import com.flazr.rtmp.RtmpReader;
+
 public class VideoApplication extends MultiThreadedApplicationAdapter {
     private static Logger log = Red5LoggerFactory.getLogger(VideoApplication.class, "video");
     
@@ -107,7 +109,12 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
          VideoProxyReceiver v = new VideoProxyReceiver("143.54.10.63", "videoproxy", "conferencia", stream.getPublishedName(), rtmpReader);
          v.start();
-         VideoProxyPublisher proxy_publisher = new VideoProxyPublisher("143.54.10.63", "video", "conferencia", rtmpReader, "MY_STRING");
+
+         //String videoFilename = "/home/mconf/bbbot/bot/etc/video-sample.flv";
+         //FlvPreLoader loader = new FlvPreLoader(videoFilename);
+         //RtmpReader reader = new GlobalFlvReader(loader);
+
+         VideoProxyPublisher proxy_publisher = new VideoProxyPublisher("143.54.10.63", "video", "", rtmpReader, "320x240-teste");
          proxy_publisher.start();
          //proxy_publisher.fireFirstFrame();
     }

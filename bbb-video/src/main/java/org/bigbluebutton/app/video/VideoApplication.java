@@ -56,14 +56,8 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     @Override
 	public boolean appConnect(IConnection conn, Object[] params) {
 		log.info("oflaDemo appConnect"); 
-        System.out.println("TESTE 2");
-        System.out.println("TESTE 2");
-        System.out.println("TESTE 2");
-        System.out.println("TESTE 2");
-        System.out.println(conn);
-        System.out.println(params);
-        
-		return super.appConnect(conn, params);
+       
+        return super.appConnect(conn, params);
 	}
 
     @Override
@@ -97,20 +91,20 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     	super.streamBroadcastStart(stream);
     	log.info("streamBroadcastStart " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
 
-        if (recordVideoStream) {
-	    	recordStream(stream);
-	    	VideoStreamListener listener = new VideoStreamListener(); 
-	        listener.setEventRecordingService(recordingService);
-	        stream.addStreamListener(listener); 
-	        streamListeners.put(conn.getScope().getName() + "-" + stream.getPublishedName(), listener);
-        }
+        //if (recordVideoStream) {
+	    //	recordStream(stream);
+	    //	VideoStreamListener listener = new VideoStreamListener(); 
+	     //   listener.setEventRecordingService(recordingService);
+	     //   stream.addStreamListener(listener); 
+	     //   streamListeners.put(conn.getScope().getName() + "-" + stream.getPublishedName(), listener);
+       // }
 
-        System.out.println("TESTE " + stream.getPublishedName());
+       /* System.out.println("TESTE " + stream.getPublishedName());
         System.out.println("TESTE");
         System.out.println("TESTE");
         System.out.println("TESTE");
         System.out.println("TESTE");
-        System.out.println("TESTE");
+        System.out.println("TESTE");*/
         //IScope scope = stream.getScope();
         //IBroadcastScope bsScope = getBroadcastScope(scope, stream.getPublishedName());
         //StreamingProxy proxy = new StreamingProxy();

@@ -70,7 +70,7 @@ package org.bigbluebutton.modules.videoconf.business
 		
     public function connect():void {
     	LogUtil.debug("OLD: " + _url);
-    	_url = "rtmp://143.54.10.63/video/conferencia";
+    	_url = "rtmp://143.54.10.63/videoproxy/conferencia";
 		nc.connect(_url);
     }
     

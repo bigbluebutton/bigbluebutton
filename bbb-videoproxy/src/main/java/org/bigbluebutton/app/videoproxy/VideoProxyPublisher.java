@@ -42,7 +42,7 @@ public class VideoProxyPublisher {
 		opt = new ClientOptions();
 		opt.setClientVersionToUse(Utils.fromHex("00000000"));
 		opt.setHost(host);
-		opt.setAppName("video/" + conference);
+		opt.setAppName(app + "/" + conference);
 		opt.publishLive();
 		opt.setStreamName(streamName);
 		opt.setReaderToPublish(reader);

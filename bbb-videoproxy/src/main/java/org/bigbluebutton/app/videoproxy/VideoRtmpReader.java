@@ -32,6 +32,7 @@ public class VideoRtmpReader implements RtmpReader {
     public int state;
     
     
+    
 	
 	        
     public VideoRtmpReader(String streamName, int width, int height) {
@@ -75,9 +76,8 @@ public class VideoRtmpReader implements RtmpReader {
 
     public void addFrame(Video video) {
         synchronized(this) {
-                
-            
            framesList.add(video);
+           this.notifyAll();
         }
      
     }
@@ -109,7 +109,15 @@ public class VideoRtmpReader implements RtmpReader {
 
 	@Override
 	public boolean hasNext() {
-        
+        synchronized(this) {
+            if(framesList.isEmpty())
+                        try {
+                                this.wait();
+                        } catch (InterruptedException e) {
+                                e.printStackTrace();
+                        }
+        }
+
 		if(state == START)
             return true;
         else
@@ -118,18 +126,12 @@ public class VideoRtmpReader implements RtmpReader {
 
 	@Override
 	public Video next() {
-        Video v;
         synchronized(this) {
-            System.out.println("SEND FRAME");
-            if(framesList.isEmpty() == false) {
-                v = framesList.get(0);
-                framesList.remove(0);
-            }
-            else {
-                v = new Video();
-            }
+            if(framesList != null && !framesList.isEmpty())
+                return framesList.remove(0);
+            else
+                return new Video();
         }
-        return v;
 	}
 
 	@Override
