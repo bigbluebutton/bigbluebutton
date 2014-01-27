@@ -72,7 +72,7 @@ public class VideoProxyReceiver {
 	protected void onVideo(Video video) {
 		//Retransmit video package
 		//Received Video
-		reader.addFrame(video);
+		//reader.addFrame(video);
 		//System.out.println("Received Video data " + video.getHeader().getTime());
 		log.debug("received video package: {}", video.getHeader().getTime());
 	}

@@ -33,10 +33,18 @@ import org.red5.server.api.stream.IServerStream;
 import org.red5.server.api.stream.IStreamListener;
 import org.red5.server.stream.ClientBroadcastStream;
 import org.slf4j.Logger;
+import com.flazr.rtmp.message.Video;
+
+import org.red5.server.net.rtmp.event.VideoData;
+
+import org.red5.server.api.stream.IStreamPacket;
+
+import org.apache.mina.core.buffer.IoBuffer;
+
 
 import com.flazr.rtmp.RtmpReader;
 
-public class VideoApplication extends MultiThreadedApplicationAdapter {
+public class VideoApplication extends MultiThreadedApplicationAdapter implements IStreamListener {
     private static Logger log = Red5LoggerFactory.getLogger(VideoApplication.class, "video");
     
     private IScope appScope;
@@ -52,7 +60,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         log.info("oflaDemo appStart");
         System.out.println("oflaDemo appStart");        
         appScope = app;
-        rtmpReader = new VideoRtmpReader("MY_STRING", 320, 240);
+        rtmpReader = new VideoRtmpReader("320x240-teste", 320, 240);
         return true;
     }
 
@@ -95,7 +103,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         log.info("streamBroadcastStart " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
 
 
-        System.out.println("TESTE");
+      
         System.out.println(conn.getScope().getName() + "-" + stream.getPublishedName());
         //VideoProxyReceiver(String host, String appPath, String conference, String streamName)
         /*if (recordVideoStream) {
@@ -107,8 +115,9 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         }
 */
 
-         VideoProxyReceiver v = new VideoProxyReceiver("143.54.10.63", "videoproxy", "conferencia", stream.getPublishedName(), rtmpReader);
-         v.start();
+         //VideoProxyReceiver v = new VideoProxyReceiver("143.54.10.63", "videoproxy", "conferencia", stream.getPublishedName(), rtmpReader);
+         //v.start();
+         stream.addStreamListener(this);
 
          //String videoFilename = "/home/mconf/bbbot/bot/etc/video-sample.flv";
          //FlvPreLoader loader = new FlvPreLoader(videoFilename);
@@ -170,5 +179,23 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     public void setEventRecordingService(EventRecordingService s) {
         recordingService = s;
     }
-    
+
+
+
+
+
+    public void packetReceived(IBroadcastStream stream, IStreamPacket packet) {
+        if (packet instanceof VideoData) {
+                VideoData aux = (VideoData) packet;
+                final int ts = aux.getTimestamp();
+                IoBuffer data = aux.getData();
+                //if(data != null) Need to check
+                int lenght = data.limit();
+                final byte[] array = new byte[lenght];
+                data.mark();
+                data.get(array);
+                data.reset();
+                rtmpReader.addFrame(new Video(ts, array, lenght));
+        }
+    }
 }
