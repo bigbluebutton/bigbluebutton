@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.poll.red5
 
+import com.google.gson.Gson
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService
 import org.bigbluebutton.core.api.OutMessageListener2
 import org.bigbluebutton.core.api.IOutMessage
@@ -11,7 +12,6 @@ import org.bigbluebutton.core.apps.poll.messages.PollRemovedOutMsg
 import org.bigbluebutton.core.apps.poll.messages.PollUpdatedOutMsg
 import org.bigbluebutton.core.apps.poll.messages.PollCreatedOutMsg
 import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage
-import com.google.gson.Gson
 import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage
 import java.util.ArrayList
 import org.bigbluebutton.core.apps.poll.PollVO

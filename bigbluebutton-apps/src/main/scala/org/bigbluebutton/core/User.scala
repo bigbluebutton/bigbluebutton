@@ -5,23 +5,30 @@ import org.bigbluebutton.core.api.Role._
 
 class User(val intUserID: String, val extUserID: String, val name: String, val role: Role) {
      
-  private var _presenter:Boolean = false;
-  private var _raiseHand:Boolean = false;
-  private var _hasStream:Boolean = false;
-
+  private var presenter = false
+  private var handRaised = false
+  private var hasStream = false
+  private var voiceId:String = _
+  private var muted = false
+  private var talking = false
+  private var locked = false
+	
   def isPresenter():Boolean = {
-    return _presenter;
+    return presenter;
   }
   
-  def becomePresenter():Unit = {
-    _presenter = true
+  def becomePresenter() {
+    presenter = true
   }
   
-  def unbecomePresenter():Unit = {
-    _presenter = false;
+  def unbecomePresenter() {
+    presenter = false
   }
   
   def toUserVO():UserVO = {
-    new UserVO(intUserID, extUserID, name, role.toString, _raiseHand, isPresenter, _hasStream)
+    new UserVO(intUserID, extUserID, name, role.toString, handRaised, 
+        isPresenter, hasStream)
   }
 }
+
+case class VoiceUser(userId: String, muted: Boolean=false, talking: Boolean=false, locked: Boolean=false)

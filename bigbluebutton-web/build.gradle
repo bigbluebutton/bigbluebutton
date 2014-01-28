@@ -42,6 +42,8 @@ dependencies {
 	compile 'commons-pool:commons-pool:1.5.6'
 	compile 'commons-lang:commons-lang:2.5'
         compile 'com.google.code.gson:gson:1.7.1'
+
+        compile 'org.springframework.amqp:spring-rabbit:1.2.0.RELEASE@jar'
 	
 	//junit
 	compile 'junit:junit:4.8.2'

@@ -19,30 +19,25 @@
 package org.bigbluebutton.webconference.voice.freeswitch;
 
 import java.io.File;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Observable;
-import java.util.logging.Level;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import org.bigbluebutton.webconference.voice.ConferenceServiceProvider;
-import org.bigbluebutton.webconference.voice.events.ConferenceEventListener;
-import org.bigbluebutton.webconference.voice.events.ParticipantJoinedEvent;
-import org.bigbluebutton.webconference.voice.events.ParticipantLeftEvent;
-import org.bigbluebutton.webconference.voice.events.ParticipantMutedEvent;
-import org.bigbluebutton.webconference.voice.events.ParticipantTalkingEvent;
-import org.bigbluebutton.webconference.voice.events.StartRecordingEvent;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.BroadcastConferenceCommand;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.EjectAllUsersCommand;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.EjectParticipantCommand;
+import org.bigbluebutton.webconference.voice.freeswitch.actions.FreeswitchCommand;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.PopulateRoomCommand;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.MuteParticipantCommand;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.RecordConferenceCommand;
-import org.red5.logging.Red5LoggerFactory;
-import org.slf4j.Logger;
-
 
 public class FreeswitchApplication implements ConferenceServiceProvider {
-    private static Logger log = Red5LoggerFactory.getLogger(FreeswitchApplication.class, "bigbluebutton");
-
+	private static final int SENDERTHREADS = 1;
+	private static final Executor msgSenderExec = Executors.newFixedThreadPool(SENDERTHREADS);
+	
+	private BlockingQueue<FreeswitchCommand> messages = new LinkedBlockingQueue<FreeswitchCommand>();
     private ConnectionManager manager;
     
     private String icecastProtocol = "shout";
@@ -53,30 +48,39 @@ public class FreeswitchApplication implements ConferenceServiceProvider {
     private String icecastStreamExtension = ".mp3";
     private Boolean icecastBroadcast = false;
     
-    private final Integer USER = 0; /* not used for now */
+    private final String USER = "0"; /* not used for now */
   
+    private volatile boolean sendMessages = false;
+    
+    private void queueMessage(FreeswitchCommand command) {
+    	try {
+			messages.offer(command, 5, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
     @Override
     public void populateRoom(String room) {    
     	PopulateRoomCommand prc = new PopulateRoomCommand(room, USER);
-    	manager.getUsers(prc);
+    	queueMessage(prc);
     }
 
-    @Override
-    public void mute(String room, Integer participant, Boolean mute) {
+    public void mute(String room, String participant, Boolean mute) {
         MuteParticipantCommand mpc = new MuteParticipantCommand(room, participant, mute, USER);
-        manager.mute(mpc);
+        queueMessage(mpc);
     }
 
-    @Override
-    public void eject(String room, Integer participant) {
-        EjectParticipantCommand mpc = new EjectParticipantCommand(room, participant, USER);
-        manager.eject(mpc);
+    public void eject(String room, String participant) {
+        EjectParticipantCommand mpc = new EjectParticipantCommand(room, participant, USER);       
+        queueMessage(mpc);
     }
 
     @Override
     public void ejectAll(String room) {
         EjectAllUsersCommand mpc = new EjectAllUsersCommand(room, USER);
-        manager.ejectAll(mpc);
+        queueMessage(mpc);
     }
     
     @Override
@@ -85,8 +89,7 @@ public class FreeswitchApplication implements ConferenceServiceProvider {
     	String voicePath = RECORD_DIR + File.separatorChar + meetingid + "-" + System.currentTimeMillis() + ".wav";
     	
     	RecordConferenceCommand rcc = new RecordConferenceCommand(room, USER, true, voicePath);
-    	
-    	manager.record(rcc);
+    	queueMessage(rcc);
     }
 
     @Override
@@ -101,7 +104,7 @@ public class FreeswitchApplication implements ConferenceServiceProvider {
     			+ File.separatorChar + meetingid + "." + icecastStreamExtension;       
     	
         BroadcastConferenceCommand rcc = new BroadcastConferenceCommand(room, USER, true, shoutPath);
-        manager.broadcast(rcc);
+        queueMessage(rcc);
     }
     
     public void setConnectionManager(ConnectionManager manager) {
@@ -136,17 +139,44 @@ public class FreeswitchApplication implements ConferenceServiceProvider {
     	icecastStreamExtension = ext;
     }
 
-	@Override
-	public boolean startup() {
-		// NO OP
-		return false;
+	private void sendMessageToFreeswitch(FreeswitchCommand command) {
+		if (command instanceof PopulateRoomCommand) {
+			manager.getUsers((PopulateRoomCommand) command);
+		} else if (command instanceof MuteParticipantCommand) {
+			manager.mute((MuteParticipantCommand) command);
+		} else if (command instanceof EjectParticipantCommand) {
+			manager.eject((EjectParticipantCommand) command);
+		} else if (command instanceof EjectAllUsersCommand) {
+			manager.ejectAll((EjectAllUsersCommand) command);
+		} else if (command instanceof RecordConferenceCommand) {
+			manager.record((RecordConferenceCommand) command);
+		} else if (command instanceof BroadcastConferenceCommand) {
+			manager.broadcast((BroadcastConferenceCommand) command);
+		}			
 	}
-
-	@Override
-	public void shutdown() {
-		// NO OP
-		
+	
+	public void start() {
+		sendMessages = true;
+		Runnable sender = new Runnable() {
+			public void run() {
+				while (sendMessages) {
+					FreeswitchCommand message;
+					try {
+						message = messages.take();
+						sendMessageToFreeswitch(message);	
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+									
+				}
+			}
+		};
+		msgSenderExec.execute(sender);		
 	}
-    
+	
+	public void stop() {
+		sendMessages = false;
+	}
 
 }

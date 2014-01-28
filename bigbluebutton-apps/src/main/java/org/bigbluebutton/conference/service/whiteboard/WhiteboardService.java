@@ -52,10 +52,12 @@ public class WhiteboardService {
 //		    	log.debug(key + "=[" + value + "]");
 //		    }
 //		}
+			
+		String meetingID = getMeetingId();
+		String requesterID = getBbbSession().getInternalUserID();
 		
-		Annotation a = new Annotation(annotation);
+		application.sendWhiteboardAnnotation(meetingID, requesterID, annotation);
 		
-		application.sendAnnotation(a);
 	}
 	
 	private String pointsToString(ArrayList<Double> points){
@@ -73,23 +75,39 @@ public class WhiteboardService {
 	
 	public void setActivePage(Map<String, Object> message){		
 		log.info("WhiteboardApplication - Getting number of shapes for page: " + (Integer) message.get("pageNum"));
-		application.changePage((Integer) message.get("pageNum"));
+
+		String meetingID = getMeetingId();
+		String requesterID = getBbbSession().getInternalUserID();
+		Integer page = (Integer) message.get("pageNum");
+		
+		application.changeWhiteboardPage(meetingID, requesterID, page);
 	}
 	
 	public void requestAnnotationHistory(Map<String, Object> message) {
 		log.info("WhiteboardApplication - requestAnnotationHistory");
-		application.sendAnnotationHistory(getBbbSession().getInternalUserID(), 
-				(String) message.get("presentationID"), (Integer) message.get("pageNumber"));
+		
+		String meetingID = getMeetingId();
+		String requesterID = getBbbSession().getInternalUserID();
+		String presentationID = (String) message.get("presentationID");
+		Integer pageNum = (Integer) message.get("pageNumber");
+		
+		application.requestAnnotationHistory(meetingID, requesterID, presentationID, pageNum);
 	}
 		
 	public void clear() {
 		log.info("WhiteboardApplication - Clearing board");
-		application.clear();
+
+		String meetingID = getMeetingId();
+		String requesterID = getBbbSession().getInternalUserID();
+		application.clearWhiteboard(meetingID, requesterID);		
 	}
 	
 	public void undo() {
 		log.info("WhiteboardApplication - Deleting last graphic");
-		application.undo();
+		
+		String meetingID = getMeetingId();
+		String requesterID = getBbbSession().getInternalUserID();
+		application.undoWhiteboard(meetingID, requesterID);
 	}
 	
 	public void toggleGrid() {
@@ -99,20 +117,36 @@ public class WhiteboardService {
 	
 	public void setActivePresentation(Map<String, Object> message) {		
 		log.info("WhiteboardApplication - Setting active presentation: " + (String)message.get("presentationID"));
-		application.setActivePresentation((String)message.get("presentationID"), (Integer) message.get("numberOfSlides"));
+
+		String meetingID = getMeetingId();
+		String requesterID = getBbbSession().getInternalUserID();
+		String presentationID = (String) message.get("presentationID");
+		Integer numPages = (Integer) message.get("numberOfSlides");		
+		application.setWhiteboardActivePresentation(meetingID, requesterID, presentationID, numPages);
 	}
 	
 	public void enableWhiteboard(Map<String, Object> message) {
 		log.info("WhiteboardApplication - Setting whiteboard enabled: " + (Boolean)message.get("enabled"));
-		application.enableWhiteboard((Boolean)message.get("enabled"));
+
+		String meetingID = getMeetingId();
+		String requesterID = getBbbSession().getInternalUserID();
+		Boolean enable = (Boolean)message.get("enabled");
+		
+		application.setWhiteboardEnable(meetingID, requesterID, enable);
 	}
 	
 	public void isWhiteboardEnabled() {
-		application.isWhiteboardEnabled(getBbbSession().getInternalUserID());
+		String meetingID = getMeetingId();
+		String requesterID = getBbbSession().getInternalUserID();		
+		application.setIsWhiteboardEnabled(meetingID, requesterID);
 	}
 	
 	private BigBlueButtonSession getBbbSession() {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
+	}
+	
+	private String getMeetingId(){
+		return Red5.getConnectionLocal().getScope().getName();
 	}
 	
 }

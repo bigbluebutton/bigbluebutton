@@ -20,23 +20,19 @@ package org.bigbluebutton.webconference.voice.internal;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.bigbluebutton.webconference.voice.Participant;
 
-import net.jcip.annotations.ThreadSafe;
-
-@ThreadSafe
 class ParticipantImp implements Participant {
 	private static final Pattern CALLERNAME_PATTERN = Pattern.compile("([A-Za-z0-9]+)-(.*)$");
 	
-	private final int id;
+	private final String id;
 	private final String name;
 	private boolean muted = false;
 	private boolean talking = false;
 	
 	private final String userID;
 	
-	ParticipantImp(int id, String name) {
+	ParticipantImp(String id, String name) {
 		this.id = id;
 		this.name = name;
 		Matcher matcher;
@@ -71,7 +67,7 @@ class ParticipantImp implements Participant {
 		return talking;
 	}
 
-	public int getId() {
+	public String getId() {
 		return id;
 	}
 

@@ -87,7 +87,6 @@ public class LayoutHandler extends ApplicationAdapter implements IApplication {
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
-		layoutApplication.createRoom(connection.getScope().getName(), getBbbSession().getRecord());
     	return true;
 	}
 	
@@ -102,7 +101,6 @@ public class LayoutHandler extends ApplicationAdapter implements IApplication {
 	@Override
 	public void roomStop(IScope scope) {
 		log.debug("***** " + APP + " [ " + " roomStop [ " + scope.getName() + "] *********");
-		layoutApplication.destroyRoom(scope.getName());
 	}
 	
 	public void setLayoutApplication(LayoutApplication a) {

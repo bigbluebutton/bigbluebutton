@@ -1,11 +1,11 @@
-usePlugin 'scala'
-usePlugin 'java'
-usePlugin 'eclipse'
+apply plugin: 'scala'
+apply plugin: 'java'
+apply plugin: 'eclipse'
 
-task resolveDeps(dependsOn: configurations.default.buildArtifacts, type: Copy) {
+task resolveDeps(type: Copy) {
     into('lib')
     from configurations.default
-    from configurations.default.allArtifacts*.file
+    from configurations.default.allArtifacts.file
 }
 
 /*
@@ -121,8 +121,8 @@ test {
 }
 
 subprojects {
-    usePlugin 'java'
-    usePlugin 'eclipse'
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
 
 	repositories {
 	   	add(new org.apache.ivy.plugins.resolver.ChainResolver()) {
