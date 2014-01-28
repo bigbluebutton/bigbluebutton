@@ -101,10 +101,10 @@ package org.bigbluebutton.modules.phone.managers {
 				|| ((Microphone.names.length == 1) && (Microphone.names[0] == "Unknown Microphone")));
 		}
 		
-		private function setupMic(useMic:Boolean):void {
+		private function setupMic(useMic:Boolean, microphoneIndex:int):void {
 			withMic = useMic;
 			if (withMic)
-				streamManager.initMicrophone();
+				streamManager.initMicrophone(microphoneIndex);
 			else
 				streamManager.initWithNoMicrophone();
 		}
@@ -112,10 +112,10 @@ package org.bigbluebutton.modules.phone.managers {
 		private function setupConnection():void {
 			streamManager.setConnection(connectionManager.getConnection());
 		}
-				
-		public function joinVoice(autoJoin:Boolean):void {
+						
+		public function joinVoice(autoJoin:Boolean, microphoneIndex:int = 0):void {
 			userHangup = false;
-			setupMic(autoJoin);
+			setupMic(autoJoin, microphoneIndex);
 			var uid:String = String(Math.floor(new Date().getTime()));
 			var uname:String = encodeURIComponent(UsersUtil.getMyExternalUserID() + "-bbbID-" + attributes.username);
 			connectionManager.connect(uid, attributes.internalUserID, uname , attributes.room, attributes.uri);

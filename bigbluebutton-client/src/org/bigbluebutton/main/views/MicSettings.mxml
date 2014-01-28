@@ -26,7 +26,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				showCloseButton="false" 
 				close="onCancelClicked()" 
 				keyDown="handleKeyDown(event)">
-	
+
+    
 	<mx:Script>
 		<![CDATA[
       import flash.system.Security;
@@ -36,6 +37,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import mx.events.CloseEvent;
       import mx.events.ItemClickEvent;
       import mx.managers.PopUpManager;
+      import mx.core.IFlexDisplayObject;
+      import mx.events.SliderEvent;
+      import mx.controls.sliderClasses.Slider;
+
       
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
@@ -51,27 +56,81 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var timer:Timer;
 			private var mic:Microphone;
+			private var biggestMicLevel:int = 0;
+			private var micName:String;
 			private var playingAudio:Boolean = false;
 			private var images:Images = new Images();
+			private var chromeAllow:ChromeAllow;
+			private var userBrowser:String;
 			[Bindable] private var cancelIcon:Class = images.cancel;
-            
-            [Bindable]private var baseIndex:int = 1;
-			
-      override public function move(x:Number, y:Number):void
+      [Bindable] private var microphoneList:Array;      
+      [Bindable]private var baseIndex:int = 1;
+	
+	    override public function move(x:Number, y:Number):void
       {
         return;
       }
+  
+      private function selectMicrophone(event:Event):void {
+            LogUtil.debug("Changing microphone.");
+            //testMicBtn.selected = false;
+            if (mic != null){
+              mic.setLoopBack(false);
+            }
+            mic = Microphone.getMicrophone(comboMicList.selectedIndex);     
+            testMicrophone();
+      }
+
+      private function testMicrophone():void{
+        micName = mic.name;
+        biggestMicLevel = 0;
+        LogUtil.debug("Testing microphone : " + micName);
+          if (mic != null) {
+            mic.setLoopBack(false);
+            if (mic.muted) {
+                LogUtil.debug("Microphone is muted.");
+                mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
+                Security.showSettings(SecurityPanel.PRIVACY);
+//                Security.showSettings(SecurityPanel.MICROPHONE);
+                return;
+            } else {        
+                // Update mic name
+       				  if (micName != mic.name ){
+      				    micName = mic.name;       				 
+      				  }
+                //Parameters valid only for the mic settings
+                mic.setLoopBack(true);
+                mic.setUseEchoSuppression(true);   
+                //http://stackoverflow.com/questions/2936925/no-mic-activity-with-setloopback-set-to-false-as3
+                //http://groups.yahoo.com/neo/groups/flexcoders/conversations/topics/144047
+                mic.codec = SoundCodec.NELLYMOSER
+                mic.soundTransform = new SoundTransform(0);  
+                mic.gain = micRecordVolume.value;
+                timer = new Timer(0);
+        				timer.addEventListener(TimerEvent.TIMER, updateMicLevel);
+				        timer.start();                 
+                //Security.showSettings(SecurityPanel.MICROPHONE);
+            }
+          }else {
+            LogUtil.warn("Microphone is used by other application.");
+          }      
+      }
       
 			private function initDefaultMic():void {
-				mic = Microphone.getMicrophone();
+
+				microphoneList = Microphone.names;
+				LogUtil.debug("Available microphones: " + microphoneList);    
+				mic = Microphone.getMicrophone(comboMicList.selectedIndex);
+        testMicrophone();
+        showChromeAllow();       
 				
-				if (mic != null) {
+		/*		if (mic != null) {
 					if (mic.muted) {
 						// user has disallowed access to the mic
 						mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
-                        // when we open the window show the default acceptor first and then the custom one every other time
+            // when we open the window show the default acceptor first and then the custom one every other time
 						mic.setLoopBack(true);
-                        mic.setLoopBack(false);
+            mic.setLoopBack(false);
 					} else {
 						// user has allowed access to the mic
 						mic.setLoopBack(false);
@@ -80,9 +139,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} else {
 					LogUtil.warn("Microphone is used by another application.");
 				}
-				timer = new Timer(100);
+				
+		*/		
+				/*timer = new Timer(100);
 				timer.addEventListener(TimerEvent.TIMER, updateMicLevel);
 				//timer.start(); Commenting this out because the mic level has been removed
+				*/
+				
 			}
 			
 			// Added by Chad to enable closing the window without clicking the X
@@ -99,8 +162,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						break;
 					case "Microphone.Unmuted":
 //						mic.setLoopBack(true);
-//            mic.setUseEchoSuppression(true);
+//            mic.setUseEchoSuppression(true);            
 						LogUtil.debug("Access to the microphone has been allowed.");
+						testMicrophone();
 						break;
 					default:
 						LogUtil.debug("unknown micStatusHandler event: " + event);
@@ -109,8 +173,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function updateMicLevel(e:TimerEvent):void{
 				if (mic != null) {
-//					mic1Label.text = mic.name;
-//					micLevel1.setProgress(mic.activityLevel, 100);					
+				  if (mic.activityLevel > biggestMicLevel) {
+				    biggestMicLevel = mic.activityLevel;
+				  }
+				  if (chromeAllow && mic.activityLevel > 0){
+				    PopUpManager.removePopUp(chromeAllow);
+				  }
+				  //LogUtil.debug("Mic level: " + mic.activityLevel);
+					micLevel.setProgress(mic.activityLevel, 100);					
 				}
 			}
 			
@@ -125,38 +195,64 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}	                     
 			}
 			
-			
-            private function showMicSettingsPanel():void {
-                if (settingBtn.selected) {
-                    if (mic != null) {
-                        if (mic.muted) {
-                            Security.showSettings(SecurityPanel.PRIVACY);
-                            settingBtn.selected = false;
-                            return;
-                        } else {
-                            mic.setLoopBack(true);
-                            mic.setUseEchoSuppression(true);
-                            Security.showSettings(SecurityPanel.MICROPHONE);
-                        }
-                    }
-                } else {
-                    mic.setLoopBack(false);
-                }	
+			private function showChromeAllow():void{			 
+			     userBrowser =  ExternalInterface.call("determineBrowser");
+			     if (userBrowser == "Chrome"){
+      			 chromeAllow = new ChromeAllow();   
+             PopUpManager.addPopUp(chromeAllow, this, false);
+           }
 			}
 			
+/*			
+      private function showMicSettingsPanel():void {
+          if (settingBtn.selected) {
+              if (mic != null) {
+                  if (mic.muted) {
+                      Security.showSettings(SecurityPanel.PRIVACY);
+                      settingBtn.selected = false;
+                      return;
+                  } else {
+                      mic.setLoopBack(true);
+                      mic.setUseEchoSuppression(true);
+                      Security.showSettings(SecurityPanel.MICROPHONE);
+                  }
+              }
+          } else {
+              mic.setLoopBack(false);
+          }	
+			}
+			
+*/			
+
+      
+ 
+
 			private function onJoinClicked():void {
-                // Do one last check for if the mic has been allowed.
-                // This must come first because cleanUp() will destroy mic 
-                if (mic != null && mic.muted) {
-                    Security.showSettings(SecurityPanel.PRIVACY);
-                }
-                
-				cleanUp();      
+			
+			  LogUtil.debug("Biggest activity level detected for " + micName + ": " + biggestMicLevel );
+        // Do one last check for if the mic has been allowed.
+        // This must come first because cleanUp() will destroy mic 
+        if (mic != null && mic.muted) {
+            Security.showSettings(SecurityPanel.PRIVACY);
+        }        
+        if (biggestMicLevel > 0){
+          joinConference();
+        } else {
+           var micWarning:MicWarning = new MicWarning();
+           micWarning.micsettings = this;
+           PopUpManager.addPopUp(micWarning, this, true);
+           PopUpManager.centerPopUp(micWarning);
+        }          	
+			}	
+			
+			public function joinConference():void{			
 				var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
 				joinEvent.payload['useMicrophone'] = true;
-				dispatchEvent(joinEvent);
-				PopUpManager.removePopUp(this);
-			}	
+				joinEvent.payload['microphoneIndex'] = mic.index;
+				dispatchEvent(joinEvent);	
+  			cleanUp();      
+				PopUpManager.removePopUp(this);			
+			}
 			
 			private function onCancelClicked():void {
 				cleanUp();
@@ -167,13 +263,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function cleanUp():void {
-				timer.stop();
+				if (timer) timer.stop();
 				mic.setLoopBack(false);
 				mic = null;
-				if (playingAudio) soundChannel.stop();				
+				if (playingAudio) soundChannel.stop();								
 			}
 			
-			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
+			private function changeRecordVolume(event:SliderEvent):void {
+                var currentSlider:Slider=Slider(event.currentTarget);
+                mic.gain = currentSlider.value
+      }
+                        
+			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";			
 			private function onHelpButtonClicked():void {
         DEFAULT_HELP_URL =  BBB.initConfigManager().config.help.url;
 				navigateToURL(new URLRequest(DEFAULT_HELP_URL));
@@ -194,7 +295,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                            accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
 		</mx:Canvas>
     
-        <mx:VBox width="100%" paddingTop="5">
+<!--        <mx:VBox width="100%" paddingTop="5">
             <mx:HRule width="100%"/>
             <mx:Label id="testMicLabel" text="{ResourceUtil.getInstance().getString('bbb.micSettings.microphone.header')}" styleName="micSettingsWindowTestMicrophoneLabelStyle" width="100%" tabIndex="{baseIndex+2}"/>
         </mx:VBox>   
@@ -207,8 +308,54 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                        click="showMicSettingsPanel()" tabIndex="{baseIndex+4}"
                        toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.changeMic.toolTip')}"/>		
         </mx:HBox>
+-->        
+       
+        <mx:VBox width="100%" paddingTop="5">
+          <mx:HRule width="100%"/>
+          <mx:Label id="testMicLabel" 
+                    text="Microphone" 
+                    styleName="micSettingsWindowTestMicrophoneLabelStyle" 
+                    width="100%" 
+                    tabIndex="{baseIndex+2}"/>
+           <mx:Text width="100%" 
+                    text="Choose a microphone and check if the activity level increases its level when you talk" />
+        </mx:VBox>   
         
-        <mx:Label id="testSpeakersLabel" text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakers.header')}" styleName="micSettingsWindowTestSpeakersLabelStyle" paddingTop="5" tabIndex="{baseIndex+5}"/>
+
+        <mx:HBox width="100%">       
+          <mx:ComboBox id="comboMicList" 
+                       dataProvider="{microphoneList}" 
+                       change="selectMicrophone(event)"
+                       height="30" />
+
+          <mx:ProgressBar id="micLevel" 
+                          minimum="0" 
+                          maximum="100"
+                          labelPlacement="top" 
+                          label="   Activity level "
+                          direction="right" 
+                          mode="manual" 
+                          visible="true" 
+                          width="120" />
+                          
+           <mx:HSlider id="micRecordVolume"
+                       maximum="100"
+                       snapInterval="1"                       
+                       labels="[0%,Record Volume,100%]"
+                       tickInterval="10"
+                       liveDragging="true" 
+                       change="changeRecordVolume(event);"
+                       showTrackHighlight="true"
+                       trackColors="[ 0xEEEEEE, 0xFFFFFF ]"
+                       value="60"/>                           
+                         
+        </mx:HBox>
+                       
+        <mx:Label id="testSpeakersLabel" 
+                    text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakers.header')}" 
+                    styleName="micSettingsWindowTestSpeakersLabelStyle" 
+                    paddingTop="5" 
+                    tabIndex="{baseIndex+5}"/>
         
         <mx:HBox width="100%">
             <mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.hearFromHeadset')}"
@@ -232,4 +379,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</mx:HBox>
 		
 	</mx:VBox>		
+
 </mx:TitleWindow>

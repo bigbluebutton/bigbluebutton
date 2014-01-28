@@ -534,6 +534,7 @@ def processSlideEvents
 			slide_start = ( translateTimestamp(slide_timestamp) / 1000 ).round(1)
 			orig_slide_start = ( slide_timestamp.to_f / 1000 ).round(1)
 			slide_number = node.xpath(".//slide")[0].text()
+                        slide_number = slide_number.to_i < 0 ? "0" : slide_number			
 			slide_src = "presentation/#{$presentation_name}/slide-#{slide_number.to_i + 1}.png"
                         txt_file_path = "presentation/#{$presentation_name}/textfiles/slide-#{slide_number.to_i + 1}.txt"
                         slide_text = File.exist?("#{$process_dir}/#{txt_file_path}") ? txt_file_path : nil

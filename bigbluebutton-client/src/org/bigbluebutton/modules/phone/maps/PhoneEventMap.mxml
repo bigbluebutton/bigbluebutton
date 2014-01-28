@@ -65,7 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </EventHandlers>
     
 	<EventHandlers type="JOIN_VOICE_CONFERENCE_EVENT">        
-		<MethodInvoker generator="{PhoneManager}" method="joinVoice" arguments="{event.payload.useMicrophone}"/>
+    <MethodInvoker generator="{PhoneManager}" method="joinVoice" arguments="{[event.payload.useMicrophone, event.payload.microphoneIndex]}"/>
 	</EventHandlers>
 	
 	<EventHandlers type="{CallConnectedEvent.CALL_CONNECTED_EVENT}">     
