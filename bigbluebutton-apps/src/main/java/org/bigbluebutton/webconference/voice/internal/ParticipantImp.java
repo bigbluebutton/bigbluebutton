@@ -29,6 +29,7 @@ class ParticipantImp implements Participant {
 	private final String name;
 	private boolean muted = false;
 	private boolean talking = false;
+	private boolean locked = false;
 	
 	private final String userID;
 	
@@ -71,6 +72,10 @@ class ParticipantImp implements Participant {
 		return id;
 	}
 
+	public void setLock(boolean lock) {
+		locked = lock;
+	}
+	
 	public String getName() {
 		return name;
 	}

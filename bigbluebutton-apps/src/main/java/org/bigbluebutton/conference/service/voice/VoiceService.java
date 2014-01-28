@@ -21,11 +21,11 @@ package org.bigbluebutton.conference.service.voice;
 import java.util.HashMap;
 import org.slf4j.Logger;import org.red5.server.api.Red5;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.red5.logging.Red5LoggerFactory;import java.util.ArrayList;import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.bigbluebutton.conference.BigBlueButtonSession;
 import org.bigbluebutton.conference.Constants;
-import org.bigbluebutton.webconference.voice.ConferenceService;
 import org.bigbluebutton.webconference.voice.Participant;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
@@ -69,7 +69,10 @@ public class VoiceService {
 	public void muteAllUsers(boolean mute, List<Integer> dontMuteThese) {
 		String conference = getBbbSession().getVoiceBridge();    	
     	log.debug("Mute all users in room[" + conference + "], dontLockThese list size = " + dontMuteThese.size());
-    	conferenceService.muteAllBut(conference, mute, dontMuteThese);
+    	
+    	log.error("TODO: Implement this");
+    	
+//    	conferenceService.muteAllBut(conference, mute, dontMuteThese);
 	}
 	
 	public void muteAllUsers(boolean mute) {

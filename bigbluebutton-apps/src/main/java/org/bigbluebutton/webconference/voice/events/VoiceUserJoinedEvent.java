@@ -63,4 +63,8 @@ public class VoiceUserJoinedEvent extends VoiceConferenceEvent {
 	public Boolean getSpeaking() {
 		return speaking;
 	}
+	
+	public Boolean isLocked() {
+		return locked;
+	}
 }

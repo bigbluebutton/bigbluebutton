@@ -23,17 +23,12 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
 import net.jcip.annotations.ThreadSafe;
-
+import org.bigbluebutton.webconference.voice.Participant;
+import org.bigbluebutton.webconference.voice.Room;
 import org.bigbluebutton.webconference.voice.Participant;
 import org.bigbluebutton.webconference.voice.Room;
 
-@ThreadSafe
-import org.bigbluebutton.webconference.voice.Participant;
-import org.bigbluebutton.webconference.voice.Room;
-
->>>>>>> refactor-voice-users
 public class RoomImp implements Room {
 	private final String name;
 	
@@ -49,7 +44,7 @@ public class RoomImp implements Room {
 		this.record = record;
 		this.meetingid = meetingid;
 		this.muted = muted;
-		participants = new ConcurrentHashMap<Integer, Participant>();
+		participants = new ConcurrentHashMap<String, Participant>();
 	}
 	
 	public String getName() {

@@ -24,8 +24,6 @@ import java.util.Map;
 
 import org.bigbluebutton.conference.BigBlueButtonSession;
 import org.bigbluebutton.conference.Constants;
-import org.bigbluebutton.conference.Room;
-import org.bigbluebutton.conference.RoomsManager;
 import org.bigbluebutton.conference.User;
 import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
 import org.red5.logging.Red5LoggerFactory;
@@ -58,10 +56,11 @@ public class LockService {
 	 * */
 	public Map<String, Boolean> getLockSettings(){
 		String roomID = getBbbSession().getRoom();
-		RoomsManager rm = application.getRoomsManager();
-		Room room = rm.getRoom(roomID);
+//		RoomsManager rm = application.getRoomsManager();
+//		Room room = rm.getRoom(roomID);
+		log.error("TODO: Need to implement!");
 		
-		return room.getLockSettings().toMap();
+		return null;
 	}
 	
 	/**
@@ -74,11 +73,13 @@ public class LockService {
 	 * */
 	public void setLockSettings(Map<String, Boolean> newSettings){
 		String roomID = getBbbSession().getRoom();
-		RoomsManager rm = application.getRoomsManager();
-		Room room = rm.getRoom(roomID);
+//		RoomsManager rm = application.getRoomsManager();
+//		Room room = rm.getRoom(roomID);
 		
-		room.setLockSettings(new LockSettings(newSettings));
+//		room.setLockSettings(new LockSettings(newSettings));
 		//Send notification to clients
+		
+		log.error("TODO: Need to implement!");
 	}
 	
 	/**
@@ -86,10 +87,12 @@ public class LockService {
 	 * */
 	public boolean isRoomLocked(){
 		String roomID = getBbbSession().getRoom();
-		RoomsManager rm = application.getRoomsManager();
-		Room room = rm.getRoom(roomID);
+//		RoomsManager rm = application.getRoomsManager();
+//		Room room = rm.getRoom(roomID);
 		
-		return room.isLocked();
+		log.error("TODO: Need to implement!");
+		
+		return true;
 	}
 	
 	/**
@@ -98,6 +101,10 @@ public class LockService {
 	 * */
 	public void setAllUsersLock(Boolean lock, ArrayList<String> dontLockTheseUsers){
 		log.debug("setAllUsersLock ({}, {})", new Object[] { lock, dontLockTheseUsers });
+		
+		log.error("TODO: Need to implement!");
+
+		/*
 		String roomID = getBbbSession().getRoom();
 		RoomsManager rm = application.getRoomsManager();
 		Room room = rm.getRoom(roomID);
@@ -121,6 +128,8 @@ public class LockService {
 			log.debug("setAllUsersLock::Will lock user " + user.getInternalUserID());
 			application.setParticipantStatus(roomID, user.getInternalUserID(), "locked", lock);
 		}
+		
+		*/
 	}
 	
 	/**
@@ -128,6 +137,8 @@ public class LockService {
 	 * */
 	public void setUserLock(Boolean lock, String internalUserID){
 		log.debug("setUserLock ({}, {}, {})", new Object[] { lock, internalUserID });
+		
+	/*
 		String roomID = getBbbSession().getRoom();
 		Map<String, User> roomUserMap = application.getParticipants(roomID);
 		
@@ -144,5 +155,7 @@ public class LockService {
 			
 			application.setParticipantStatus(roomID, user.getInternalUserID(), "locked", lock);
 		}
+		*/
+		log.error("TODO: Need to implement!");
 	}
 }

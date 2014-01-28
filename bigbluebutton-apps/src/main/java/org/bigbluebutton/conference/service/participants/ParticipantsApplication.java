@@ -20,61 +20,18 @@ package org.bigbluebutton.conference.service.participants;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.Red5;
-import java.util.ArrayList;
 import java.util.Map;
-import org.bigbluebutton.conference.ConnectionInvokerService;
-import org.bigbluebutton.conference.RoomsManager;
-import org.bigbluebutton.conference.Room;import org.bigbluebutton.conference.User;import org.bigbluebutton.conference.IRoomListener;
-import org.bigbluebutton.conference.service.lock.LockSettings;
+import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 
 public class ParticipantsApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsApplication.class, "bigbluebutton" );	
-	private ConnectionInvokerService connInvokerService;
+	private IBigBlueButtonInGW bbbInGW;
 	
-	private RoomsManager roomsManager;
-	
-	public boolean createRoom(String name, Boolean locked, LockSettings lockSettings) {
-		if(!roomsManager.hasRoom(name)){
-			log.info("Creating room " + name);
-			roomsManager.addRoom(new Room(name, locked, lockSettings));
-			return true;
-		}
-		return false;
-	}
-	
-	public boolean destroyRoom(String name) {
-		if (roomsManager.hasRoom(name)) {
-			log.info("Destroying room " + name);
-			roomsManager.removeRoom(name);
-		} else {
-			log.warn("Destroying non-existing room " + name);
-		}
-		return true;
-	}
-	
-	public void destroyAllRooms() {
-		roomsManager.destroyAllRooms();
-	}
-	
-	public boolean hasRoom(String name) {
-		return roomsManager.hasRoom(name);
-	}
-	
+
 	public void setParticipantStatus(String room, String userid, String status, Object value) {
 		bbbInGW.setUserStatus(room, userid, status, value);
 	}
-	
-	public Map<String, User> getParticipants(String roomName) {
-		log.debug("getParticipants - " + roomName);
-		if (! roomsManager.hasRoom(roomName)) {
-			log.warn("Could not find room " + roomName + ". Total rooms " + roomsManager.numberOfRooms());
-			return null;
-		}
-
-		return roomsManager.getParticipants(roomName);
-	}
-	
+		
 	public boolean participantLeft(String roomName, String userid) {
 		log.debug("Participant " + userid + " leaving room " + roomName);
 			bbbInGW.userLeft(userid, userid);
@@ -84,29 +41,6 @@ public class ParticipantsApplication {
 	
 	public boolean participantJoin(String roomName, String userid, String username, String role, String externUserID, Map status) {
 			bbbInGW.userJoin(roomName, userid, username, role, externUserID);
-		log.debug("participant joining room " + roomName);
-		if (roomsManager.hasRoom(roomName)) {
-			Room room = roomsManager.getRoom(roomName);
-			Boolean userLocked = false;
-			
-			LockSettings ls = room.getLockSettings();
-			
-			if(room.isLocked()) {
-				//If room is locked and it's not a moderator, user join as locked
-				if(!"MODERATOR".equals(role))
-					userLocked = true;
-				else {
-					//If it's a moderator, check for lockSettings
-					if(ls.getAllowModeratorLocking()) {
-						userLocked = true;
-					}
-				}
-			} 
-			
-			User p = new User(userid, username, role, externUserID, status, userLocked);			
-			room.addParticipant(p);
-			
-			log.debug("participant joined room " + roomName);
 			return true;
 
 	}
@@ -123,23 +57,4 @@ public class ParticipantsApplication {
 		bbbInGW = inGW;
 	}
 			
-	public RoomsManager getRoomsManager() {
-		return roomsManager;
-	}
-	
-	private String getMeetingId(){
-		return Red5.getConnectionLocal().getScope().getName();
-	}
-		
-	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
-		this.connInvokerService = connInvokerService;
-	}
-
-	public void setRecordingStatus(String room, String userid, Boolean recording) {
-		roomsManager.changeRecordingStatus(room, userid, recording);
-	}
-
-	public Boolean getRecordingStatus(String roomName) {
-		return roomsManager.getRecordingStatus(roomName);
-	}
 }

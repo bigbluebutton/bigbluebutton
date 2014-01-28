@@ -118,9 +118,12 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
     		connection.getScope().setAttribute(VOICE_BRIDGE, getBbbSession().getVoiceBridge());
     	}
     	
-    	log.debug("Setting up voiceBridge " + voiceBridge);
+    	
     	clientManager.addSharedObject(connection.getScope().getName(), voiceBridge, so);
-    	conferenceService.createConference(voiceBridge, meetingid, record, muted); 			
+    	
+    	log.error("TODO: Implement muting users");
+    	
+//    	conferenceService.createConference(voiceBridge, meetingid, record, muted); 			
 //    	conferenceService.createConference(voiceBridge, meetingid, record); 			
 
 		return true;

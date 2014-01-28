@@ -24,4 +24,6 @@ public interface Participant {
 	public String getId();
 	public String getName();
 	public String getUserID();
+	public boolean isMuteLocked();
+	public void setLock(boolean lock);
 }
