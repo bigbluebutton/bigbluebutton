@@ -160,9 +160,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
     			lsMap = new HashMap<String, Boolean>();
     		}
     	}
-    	
-    	
-    	    	
+    	   	    	
 		if (record == true) {
 			recorderApplication.createRecordSession(room);
 		}
@@ -175,7 +173,8 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         String debugInfo = "internalUserID=" + internalUserID + ",username=" + username + ",role=" +  role + "," + 
         					",voiceConf=" + voiceBridge + ",room=" + room + ",externalUserid=" + externalUserID;
 		log.debug("User [{}] connected to room [{}]", debugInfo, room); 
-		participantsApplication.createRoom(room, locked, new LockSettings(lsMap));
+		
+		bbbGW.lockSettings(room, locked, lsMap);
 		
         connInvokerService.addConnection(bbbSession.getInternalUserID(), connection);
         

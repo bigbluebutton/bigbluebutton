@@ -18,8 +18,18 @@ import org.bigbluebutton.core.api.Presenter
   
 case object StopMeetingActor
 
-class MeetingActor(val meetingID: String, val recorded: Boolean, val voiceBridge: String, outGW: MessageOutGateway) extends Actor
+case class LockSettings(allowModeratorLocking: Boolean, disableCam: Boolean, 
+                        disableMic: Boolean, disablePrivateChat: Boolean, 
+                        disablePublicChat: Boolean)
+                        
+class MeetingActor(val meetingID: String, val recorded: Boolean, 
+                   val voiceBridge: String, outGW: MessageOutGateway) 
+                   extends Actor
 {  
+  
+  var lockSettings = new LockSettings(true, true, true, true, true)
+  var recordingStatus = false;
+  
   val usersApp = new UsersApp(meetingID, recorded, voiceBridge, outGW)
   val presentationApp = new PresentationApp(meetingID, recorded, outGW, usersApp)
   val pollApp = new PollApp(meetingID, recorded, outGW, usersApp)

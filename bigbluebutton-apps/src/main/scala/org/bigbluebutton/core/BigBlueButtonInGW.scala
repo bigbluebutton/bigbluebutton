@@ -52,6 +52,11 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
     bbbGW.acceptKeepAlive(new KeepAliveMessage(aliveId)); 
   }
 
+  def lockSettings(meetingID: String, locked: java.lang.Boolean, 
+      lockSettings: java.util.Map[String, java.lang.Boolean]) {
+    
+  }
+  
   def statusMeetingAudit(meetingID: String) {
     
   }

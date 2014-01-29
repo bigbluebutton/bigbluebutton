@@ -10,6 +10,8 @@ public interface IBigBlueButtonInGW {
 	void endAllMeetings();
 	void createMeeting2(String meetingID, boolean recorded, String voiceBridge);
 	void destroyMeeting(String meetingID);
+	void lockSettings(String meetingID, Boolean locked, Map<String, Boolean> lockSettigs);
+	
 	
 	// Users
   	void setUserStatus(String meetingID, String userID, String status, Object value);

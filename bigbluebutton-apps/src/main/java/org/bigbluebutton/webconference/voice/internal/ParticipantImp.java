@@ -68,6 +68,10 @@ class ParticipantImp implements Participant {
 		return talking;
 	}
 
+	public boolean isMuteLocked() {
+		return locked;
+	}
+	
 	public String getId() {
 		return id;
 	}
