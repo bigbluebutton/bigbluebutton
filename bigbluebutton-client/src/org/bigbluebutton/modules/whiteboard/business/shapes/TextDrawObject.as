@@ -81,7 +81,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             return _textField;
         }
         
-        override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
+        override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
             LogUtil.debug("Drawing TEXT");
             
             this.x = denormalize(a.annotation.x, parentWidth);

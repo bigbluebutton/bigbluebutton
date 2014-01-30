@@ -147,6 +147,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				video = new Video(width, height);
 				video.width = width;
 				video.height = height;
+        video.smoothing = true;
 				video.attachNetStream(ns);
 				ns.play(stream);	
 				this.stream = stream;
@@ -172,7 +173,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					LogUtil.debug("NetStream.Publish.Start for broadcast stream " + stream);
 									LogUtil.debug("Dispatching start viewing event");
 				var dispatcher: Dispatcher  = new Dispatcher();
-				dispatcher.dispatchEvent(new StartedViewingEvent(StartedViewingEvent.STARTED_VIEWING_EVENT));
+        var viewEvent:StartedViewingEvent = new StartedViewingEvent(StartedViewingEvent.STARTED_VIEWING_EVENT);
+        viewEvent.stream = stream;
+				dispatcher.dispatchEvent(viewEvent);
 					break;
 				case "NetStream.Play.UnpublishNotify":
 					LogUtil.debug("NetStream.Play.UnpublishNotify for broadcast stream " + stream);

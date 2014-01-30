@@ -33,14 +33,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShortcutEvent.SHARE_WEBCAM}" method="remoteClick" />
 	<mate:Listener type="{BBBEvent.CAM_SETTINGS_CLOSED}" method="handleCamSettingsClosedEvent"/>
 	<mate:Listener type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}" receive="enabled=false" />
+	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
 	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.model.users.BBBUser;
+			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
@@ -61,6 +66,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var dispatcher:Dispatcher;
 			
+			public function lockSettingsChanged(e:*):void{
+				var userManager:UserManager = UserManager.getInstance();
+				var conference:Conference = userManager.getConference();
+				var me:BBBUser = conference.getMyUser();
+				
+				this.visible = !me.disableMyCam;
+				this.includeInLayout = !me.disableMyCam;
+			}
+			
 			private function init():void{
 				dispatcher = new Dispatcher();
 				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
@@ -68,6 +82,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.enabled = true;
 				this.selected = false;
 				_currentState = OFF_STATE;
+				lockSettingsChanged(null);
 			}
 			
       public function set isPresenter(presenter:Boolean):void {

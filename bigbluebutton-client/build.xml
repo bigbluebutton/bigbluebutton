@@ -3,14 +3,14 @@
 <project name="BigBlueButton Client" basedir="." default="clean-build-all" >
     	<property environment="env" />
     	<property name="STATIC_RSL" value="true" />
-	     <property name="DEBUG" value="true" />
+	    <property name="DEBUG" value="true" />
     	<property name="BUILD_ENV" value="DEV" />
     	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
     	<property name="LOCALE_DIR" value="${FLEX_HOME}/frameworks/locale"/>
     	<property name="BASE_DIR" value="${basedir}" />
       <property name="themeFile" value="BBBDefault.css"/>
 	    <property name="blackTheme" value="BBBBlack.css"/>
-	
+	    <property name="LOCALE" value="en_US" />
 	     <property name="RESOURCES_DIR" value="${BASE_DIR}/resources" />	
 	<property name="PROD_RESOURCES_DIR" value="${RESOURCES_DIR}/prod" />	
 	<property name="SRC_DIR" value="${BASE_DIR}/src" />
@@ -134,6 +134,10 @@
            		</else> 
         	</if>       	   
        </sequential>
+	</target>
+	
+	<target name="localize">
+	 <compileLocale locale="${LOCALE}" /> 
 	</target>
 		
 	<macrodef name="compileLocale" description="Compiles the Resource package for the given locale">

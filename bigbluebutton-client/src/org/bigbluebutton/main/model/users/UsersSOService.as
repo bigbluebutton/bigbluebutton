@@ -21,6 +21,7 @@ package org.bigbluebutton.main.model.users {
 	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
+	import flash.external.ExternalInterface;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.net.SharedObject;
@@ -32,6 +33,7 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.core.events.CoreEvent;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.core.vo.LockSettingsVO;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.LogoutEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -40,12 +42,15 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.main.events.UserJoinedEvent;
 	import org.bigbluebutton.main.events.UserLeftEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
+	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.modules.users.services.MessageSender;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	import flash.external.ExternalInterface;
 	import org.bigbluebutton.main.model.users.BBBUser;
+	import org.bigbluebutton.main.views.LockSettings;
+	import org.bigbluebutton.modules.deskshare.events.StopSharingButtonEvent;
 
 	public class UsersSOService {
 		public static const NAME:String = "ViewersSOService";
@@ -88,9 +93,10 @@ package org.bigbluebutton.main.model.users {
 			_participantsSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
 			_participantsSO.client = this;
 			_participantsSO.connect(_connectionManager.connection);
-      LogUtil.debug("In UserSOService:join - Setting my userid to [" + userid + "]");
-      
+	      LogUtil.debug("In UserSOService:join - Setting my userid to [" + userid + "]");
+	      UserManager.getInstance().getConference().setMyUserid(userid);
 			queryForParticipants();					
+			queryForRecordingStatus();
 			
 		}
 		
@@ -184,6 +190,7 @@ package org.bigbluebutton.main.model.users {
       dispatcher.dispatchEvent(kickedEvent);
       
 			if (UserManager.getInstance().getConference().amIThisUser(userid)) {
+				dispatcher.dispatchEvent(new StopSharingButtonEvent(StopSharingButtonEvent.STOP_SHARING));
 				dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
 			}
 		}
@@ -209,17 +216,17 @@ package org.bigbluebutton.main.model.users {
 			user.userID = joinedUser.userid;
 			user.name = joinedUser.name;
 			user.role = joinedUser.role;
-      user.externUserID = joinedUser.externUserID;
-      user.isLeavingFlag = false;
+      		user.externUserID = joinedUser.externUserID;
+      		user.isLeavingFlag = false;
       
 			LogUtil.debug("User status: " + joinedUser.status.hasStream);
 
 			LogUtil.info("Joined as [" + user.userID + "," + user.name + "," + user.role + "]");
 			UserManager.getInstance().getConference().addUser(user);
-			participantStatusChange(user.userID, "hasStream", joinedUser.hasStream);
-			participantStatusChange(user.userID, "presenter", joinedUser.presenter);
-			participantStatusChange(user.userID, "raiseHand", joinedUser.raiseHand);
-			
+			participantStatusChange(user.userID, "hasStream", joinedUser.status.hasStream);
+			participantStatusChange(user.userID, "presenter", joinedUser.status.presenter);
+			participantStatusChange(user.userID, "raiseHand", joinedUser.status.raiseHand);
+			participantStatusChange(user.userID, "locked", joinedUser.status.locked);
 
 			var joinEvent:UserJoinedEvent = new UserJoinedEvent(UserJoinedEvent.JOINED);
 			joinEvent.userID = user.userID;
@@ -357,5 +364,61 @@ package org.bigbluebutton.main.model.users {
 				} 
 			}
 		)
+			
+		/**
+		 * Callback from the server when lock settings are changed
+		 */
+		public function lockSettingsChange(newLockSettings:Object):void {
+			LogUtil.debug("Received lock settings change")			
+			UserManager.getInstance().getConference().setLockSettings(new LockSettingsVO(newLockSettings.allowModeratorLocking, newLockSettings.disableCam, newLockSettings.disableMic, newLockSettings.disablePrivateChat, newLockSettings.disablePublicChat));
+		}
+
+		private function queryForRecordingStatus():void {
+			var nc:NetConnection = _connectionManager.connection;
+			nc.call(
+				"participants.getRecordingStatus",// Remote function name
+				new Responder(
+					// Boolean - On successful result
+					function(result:Object):void {
+						LogUtil.debug("Successfully queried recording status: " + result);
+						sendRecordingStatusUpdate(result);
+					},
+					// status - On error occurred
+					function(status:Object):void {
+						LogUtil.error("Error occurred:");
+						for (var x:Object in status) {
+							LogUtil.error(x + " : " + status[x]);
+						}
+						sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
+					}
+				)//new Responder
+			); //_netConnection.call
+		}
+
+		public function changeRecordingStatus(userID:String, recording:Boolean):void {
+			trace("UsersSOService::changeRecordingStatus")
+			var nc:NetConnection = _connectionManager.connection;
+			nc.call(
+				"participants.setRecordingStatus",// Remote function name
+				responder,
+				userID,
+				recording
+			); //_netConnection.call
+		}
+
+		private function sendRecordingStatusUpdate(recording:Boolean):void {
+			var e:BBBEvent = new BBBEvent(BBBEvent.CHANGE_RECORDING_STATUS);
+			e.payload.remote = true;
+			e.payload.recording = recording;
+			dispatcher.dispatchEvent(e);
+		}
+
+		/**
+		 * Callback from the server
+		 */
+		public function recordingStatusChange(userID:String, recording:Boolean):void {
+			LogUtil.debug("Received recording status change [" + userID + "," + recording + "]")
+			sendRecordingStatusUpdate(recording);
+		}
 	}
 }

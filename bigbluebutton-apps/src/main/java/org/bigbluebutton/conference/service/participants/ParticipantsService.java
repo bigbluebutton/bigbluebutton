@@ -60,4 +60,16 @@ public class ParticipantsService {
 	private BigBlueButtonSession getBbbSession() {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}
+
+	public void setRecordingStatus(String userid, Boolean recording) {
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		log.debug("Setting recording status " + roomName + " " + userid + " " + recording);
+		application.setRecordingStatus(roomName, userid, recording);
+	}
+
+	public Boolean getRecordingStatus() {
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		log.info("Client is requesting the recording status in [" + roomName + "].");
+		return application.getRecordingStatus(roomName);
+	}
 }

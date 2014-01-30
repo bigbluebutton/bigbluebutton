@@ -75,8 +75,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{ExternalApiCalls}" method="handleUserVoiceMutedEvent" arguments="{event}"/>
   </EventHandlers>
   
-  <EventHandlers type="{BBBEvent.USER_VOICE_LOCKED}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserVoiceLockedEvent" arguments="{event}"/>
+  <EventHandlers type="{BBBEvent.USER_LOCKED}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserLockedEvent" arguments="{event}"/>
   </EventHandlers>
   
   <EventHandlers type="{BBBEvent.USER_VOICE_LEFT}" >

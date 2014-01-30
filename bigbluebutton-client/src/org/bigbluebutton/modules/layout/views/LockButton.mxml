@@ -80,18 +80,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.selected = false;
 				this.setStyle("icon", icon_unlocked);
 			}
-			
-            /* disabling this for new because it needs more work to work
-			private function loopToStart(e:FocusEvent):void {
-				if (e.target == this && !e.shiftKey)
-					_dispatcher.dispatchEvent(new BBBEvent(BBBEvent.JOIN_VOICE_FOCUS_HEAD));
-			}
-			
-			private function loopToEnd(e:ShortcutEvent):void{
-				this.setFocus();
-			}
-            */
-			
 		]]>
 	</mx:Script>
 </views:LayoutButton>

@@ -45,6 +45,7 @@
 #   2012-02-22 FFD  Updates to development environment
 #   2012-04-27 FFD  Added sum of version numbers in --check
 #   2013-02-03 FFD  Updated for changes to parameters for 0.81 in bigbluebutton-sip.properties
+#   2013-11-07 FFD  Finished 0.81
 
 #set -x
 #set -e

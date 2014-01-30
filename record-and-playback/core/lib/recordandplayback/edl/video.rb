@@ -18,6 +18,7 @@
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'json'
+require 'set'
 
 module BigBlueButton
   module EDL
@@ -155,6 +156,8 @@ module BigBlueButton
       def self.render(edl, layout, output_basename)
         videoinfo = {}
 
+        corrupt_videos = Set.new
+
         BigBlueButton.logger.info "Pre-processing EDL"
         for i in 0...(edl.length - 1)
           # The render scripts need this to calculate cut lengths
@@ -174,7 +177,21 @@ module BigBlueButton
           info = video_info(videofile)
           BigBlueButton.logger.debug "    width: #{info[:width]}, height: #{info[:height]}, duration: #{info[:duration]}"
 
+          if !info[:video] || !info[:video][:nb_read_frames]
+            BigBlueButton.logger.warn "    This video file is corrupt! It will be removed from the output."
+            corrupt_videos << videofile
+          end
+
           videoinfo[videofile] = info
+        end
+
+        if corrupt_videos.length > 0
+          BigBlueButton.logger.info "Removing corrupt video files from EDL"
+          edl.each do |event|
+            event[:areas].each do |area, videos|
+              videos.delete_if { |video| corrupt_videos.include?(video[:filename]) }
+            end
+          end
         end
 
         BigBlueButton.logger.info "Generating missing video end events"
@@ -280,8 +297,8 @@ module BigBlueButton
       end
 
       def self.composite_cut(output, cut, layout, videoinfo)
-        stop_ts = cut[:next_timestamp] - cut[:timestamp]
-        BigBlueButton.logger.info "  Cut start time #{cut[:timestamp]}, duration #{stop_ts}"
+        duration = cut[:next_timestamp] - cut[:timestamp]
+        BigBlueButton.logger.info "  Cut start time #{cut[:timestamp]}, duration #{duration}"
 
         ffmpeg_inputs = []
         ffmpeg_filter = "color=c=white:s=#{layout[:width]}x#{layout[:height]}:r=24"
@@ -379,7 +396,7 @@ module BigBlueButton
         ffmpeg_inputs.each do |input|
           ffmpeg_cmd += ['-ss', ms_to_s(input[:seek]), '-itsoffset', ms_to_s(input[:seek]), '-i', input[:filename]]
         end
-        ffmpeg_cmd += ['-to', ms_to_s(stop_ts), '-filter_complex', ffmpeg_filter, *FFMPEG_WF_ARGS, '-']
+        ffmpeg_cmd += ['-t', ms_to_s(duration), '-filter_complex', ffmpeg_filter, *FFMPEG_WF_ARGS, '-']
 
         File.open(output, 'a') do |outio|
           exitstatus = BigBlueButton.exec_redirect_ret(outio, *ffmpeg_cmd)

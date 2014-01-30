@@ -41,10 +41,10 @@ def check_audio_files(raw_dir,meeting_id)
     	audioname = fs_audio_file.content.split("/").last
     	raw_audio_file = "#{raw_dir}/#{meeting_id}/audio/#{audioname}"
     	#checking that the audio file exists in raw directory
-    	raise Exception,  "Audio file doesn't exists in raw directory." if not File.exists?(raw_audio_file)
+    	raise Exception,  "Audio file #{raw_audio_file} doesn't exist in raw directory." if not File.exists?(raw_audio_file)
 
     	#checking length
-    	raise Exception,  "Audio file length is zero." if BigBlueButton::AudioEvents.determine_length_of_audio_from_file(raw_audio_file) <= 0 
+    	raise Exception,  "Audio file #{raw_audio_file} length is zero." if BigBlueButton::AudioEvents.determine_length_of_audio_from_file(raw_audio_file) <= 0 
     }
 
 end
