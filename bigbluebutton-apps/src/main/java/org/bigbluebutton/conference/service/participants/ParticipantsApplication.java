@@ -21,56 +21,25 @@ package org.bigbluebutton.conference.service.participants;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import java.util.Map;import org.bigbluebutton.core.api.IBigBlueButtonInGW;
-import org.bigbluebutton.conference.service.lock.LockSettings;
+import org.bigbluebutton.conference.service.lock.LockSettingsOld;
 
 public class ParticipantsApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsApplication.class, "bigbluebutton" );	
 	private IBigBlueButtonInGW bbbInGW;
-		
-	public boolean createRoom(String name, Boolean locked, LockSettings lockSettings) {
-//		if(!roomsManager.hasRoom(name)){
-//			log.info("Creating room " + name);
-//			roomsManager.addRoom(new Room(name, locked, lockSettings));
-//			return true;
-//		}
-		return false;
-	}
-	
-	public boolean destroyRoom(String name) {
-//		if (roomsManager.hasRoom(name)) {
-//			log.info("Destroying room " + name);
-//			roomsManager.removeRoom(name);
-//		} else {
-//			log.warn("Destroying non-existing room " + name);
-//		}
-		return true;
-	}
-	
-	public void destroyAllRooms() {
-//		roomsManager.destroyAllRooms();
-	}
-	
-	public boolean hasRoom(String name) {
-//		return roomsManager.hasRoom(name);
-		return false;
-	}
-	
-	
+				
 	public void setParticipantStatus(String room, String userid, String status, Object value) {
 		bbbInGW.setUserStatus(room, userid, status, value);
 	}
 
 	public boolean participantLeft(String roomName, String userid) {
 		log.debug("Participant " + userid + " leaving room " + roomName);
-			bbbInGW.userLeft(userid, userid);
-			
-			return true;
+		bbbInGW.userLeft(userid, userid);	
+		return true;
 	}
 	
 	public boolean participantJoin(String roomName, String userid, String username, String role, String externUserID, Map status) {
-
-			bbbInGW.userJoin(roomName, userid, username, role, externUserID);
-			return true;
+		bbbInGW.userJoin(roomName, userid, username, role, externUserID);
+		return true;
 			
 /*
 		log.debug("participant joining room " + roomName);
@@ -101,7 +70,7 @@ public class ParticipantsApplication {
 	}
 		
 	public void assignPresenter(String room, String newPresenterID, String newPresenterName, String assignedBy){
-			bbbInGW.assignPresenter(room, newPresenterID, newPresenterName, assignedBy);			
+		bbbInGW.assignPresenter(room, newPresenterID, newPresenterName, assignedBy);			
 	}
 	
 	public void getUsers(String meetingID, String requesterID) {
@@ -112,12 +81,11 @@ public class ParticipantsApplication {
 		bbbInGW = inGW;
 	}
 	
-	public void setRecordingStatus(String room, String userid, Boolean recording) {
-//		roomsManager.changeRecordingStatus(room, userid, recording);
+	public void setRecordingStatus(String meetingId, String userId, Boolean recording) {
+		bbbInGW.setRecordingStatus(meetingId, userId, recording);
 	}
 
-	public Boolean getRecordingStatus(String roomName) {
-//		return roomsManager.getRecordingStatus(roomName);
-		return true;
+	public void getRecordingStatus(String meetingId, String userId) {
+		bbbInGW.getRecordingStatus(meetingId, userId);
 	}
 }

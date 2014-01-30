@@ -2,6 +2,7 @@ package org.bigbluebutton.core.api
 
 import org.bigbluebutton.core.api.Role._
 import java.util.Map
+import org.bigbluebutton.core.apps.users.LockSettings
 
 trait InMessage {val meetingID: String}
 
@@ -13,12 +14,24 @@ case class DestroyMeeting(meetingID: String) extends InMessage
 case class StartMeeting(meetingID: String) extends InMessage
 case class EndMeeting(meetingID: String) extends InMessage
 
+// Lock
+case class LockUser(meetingID: String, userId: String, lock: Boolean) extends InMessage
+case class LockAllUsers(meetingID: String, lock: Boolean, exceptUsers: Seq[String]) extends InMessage
+case class InitLockSettings(meetingID: String, locked: Boolean, 
+                        settings: LockSettings) extends InMessage
+case class SetLockSettings(meetingID: String,  
+                        settings: LockSettings) extends InMessage
+case class GetLockSettings(meetingID: String, userId: String) extends InMessage
+case class IsMeetingLocked(meetingID: String, userId: String) extends InMessage
+
 // Users
 case class UserJoining(meetingID: String, userID: String, name: String, role: Role, extUserID: String) extends InMessage
 case class UserLeaving(meetingID: String, userID: String) extends InMessage
 case class GetUsers(meetingID: String, requesterID: String) extends InMessage
 case class ChangeUserStatus(meetingID: String, userID: String, status: String, value: Object) extends InMessage
 case class AssignPresenter(meetingID: String, newPresenterID: String, newPresenterName: String, assignedBy: String) extends InMessage
+case class SetRecordingStatus(meetingID: String, userId: String, recording: Boolean) extends InMessage
+case class GetRecordingStatus(meetingID: String, userId: String) extends InMessage
 
 // Presentation
 case class ClearPresentation(meetingID: String) extends InMessage

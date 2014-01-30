@@ -18,11 +18,25 @@ import java.util.ArrayList
 import org.bigbluebutton.core.apps.users.messages.GetUsersReply
 import org.bigbluebutton.core.api.ChangeUserStatus
 import org.bigbluebutton.core.apps.users.messages.UserStatusChange
+import org.bigbluebutton.core.api.SetLockSettings
+import org.bigbluebutton.core.api.InitLockSettings
+import org.bigbluebutton.core.api.LockSettingsInitialized
+import org.bigbluebutton.core.api.NewLockSettings
+import org.bigbluebutton.core.api.LockUser
+import org.bigbluebutton.core.api.LockAllUsers
+import org.bigbluebutton.core.api.GetLockSettings
+import org.bigbluebutton.core.api.IsMeetingLocked
+	
+case class LockSettings(allowModeratorLocking: Boolean, disableCam: Boolean, 
+                        disableMic: Boolean, disablePrivateChat: Boolean,
+                        disablePublicChat: Boolean)
 
 class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   
   private val users = new UsersModel
   
+  var lockSettings = new LockSettings(true, true, true, true, true)
+  var locked = false
   var currentPresenter = new Presenter("system", "system", "system")
   
   def handleMessage(msg: InMessage):Unit = {
@@ -32,6 +46,12 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
 	      case assignPresenter: AssignPresenter => handleAssignPresenter(assignPresenter)
 	      case getUsers: GetUsers => handleGetUsers(getUsers)
 	      case changeStatus: ChangeUserStatus => handleChangeUserStatus(changeStatus)
+	      case message: SetLockSettings => handleSetLockSettings(message)
+	      case message: InitLockSettings => handleInitLockSettings(message)
+	      case message: LockUser => handleLockUser(message)
+	      case message: LockAllUsers => handleLockAllUsers(message)
+	      case message: GetLockSettings => handleGetLockSettings(message)
+	      case message: IsMeetingLocked => handleIsMeetingLocked(message)
 	      case _ => // do nothing
     }
   }
@@ -55,6 +75,39 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   def getUser(userID:String):UserVO = {
     users.getUser(userID)
   }
+  
+  private def handleLockUser(msg: LockUser) {
+    
+  }
+  
+  private def handleLockAllUsers(msg: LockAllUsers) {
+    
+  }
+  
+  private def handleGetLockSettings(msg: GetLockSettings) {
+    
+  }
+  
+  private def handleIsMeetingLocked(msg: IsMeetingLocked) {
+    
+  }
+	      
+  private def handleSetLockSettings(msg: SetLockSettings) {
+    if (lockSettings != msg.settings) {
+      lockSettings = msg.settings
+      outGW.send(new NewLockSettings(meetingID, lockSettings))
+    }    
+  }
+  
+  private def handleInitLockSettings(msg: InitLockSettings) {
+    if (lockSettings != msg.settings || locked != msg.locked) {
+	    lockSettings = msg.settings   
+	    locked = msg.locked
+	    
+	    outGW.send(new LockSettingsInitialized(msg.meetingID, msg.locked, msg.settings))
+    }
+
+  }  
   
   private def handleChangeUserStatus(msg: ChangeUserStatus):Unit = {    
 	if (users.hasUser(msg.userID)) {

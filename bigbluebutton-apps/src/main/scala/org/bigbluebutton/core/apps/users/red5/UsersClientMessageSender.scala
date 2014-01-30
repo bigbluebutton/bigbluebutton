@@ -12,6 +12,7 @@ import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage
 import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage
 import org.bigbluebutton.core.api.PresenterAssigned
 import com.google.gson.Gson
+import scala.collection.JavaConversions._
 
 class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMessageListener2 {
 	private val USERS_SO: String = "participantsSO"; 

@@ -23,7 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import org.red5.server.api.Red5;
-import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;import org.bigbluebutton.conference.service.lock.LockSettings;
+import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;import org.bigbluebutton.conference.service.lock.LockSettingsOld;
 import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
@@ -175,7 +175,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         					",voiceConf=" + voiceBridge + ",room=" + room + ",externalUserid=" + externalUserID;
 		log.debug("User [{}] connected to room [{}]", debugInfo, room); 
 
-		participantsApplication.createRoom(room, locked, new LockSettings(lsMap));
+		bbbGW.initLockSettings(room, locked, lsMap);
 
 		
         connInvokerService.addConnection(bbbSession.getInternalUserID(), connection);

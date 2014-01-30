@@ -1,11 +1,22 @@
 package org.bigbluebutton.core.api
 
+import org.bigbluebutton.core.apps.users.LockSettings
+
 abstract class OutMessage
 case class MeetingCreated(meetingID: String) extends IOutMessage
 case class MeetingEnded(meetingID: String) extends IOutMessage
 case class MeetingDestroyed(meetingID: String) extends IOutMessage
 case class KeepAliveMessageReply(aliveID:String) extends IOutMessage
 case object IsAliveMessage extends IOutMessage
+
+// Lock
+case class LockSettingsInitialized(meetingID: String, locked: Boolean, settings: LockSettings) extends IOutMessage
+case class NewLockSettings(meetingID: String, settings: LockSettings) extends IOutMessage
+case class UserLocked(meetingID: String, userId: String, lock: Boolean) extends IOutMessage
+case class UsersLocked(meetingID: String, lock: Boolean, exceptUsers: Seq[String]) extends IOutMessage
+case class GetLockSettingsReply(meetingID: String, userId: String) extends IOutMessage
+case class IsMeetingLockedReply(meetingID: String, userId: String) extends IOutMessage
+
 
 case class UserLeft(meetingID: String, isRecorded: Boolean, userID: String) extends IOutMessage
 case class PresenterAssigned(meetingID: String, recorded: Boolean, presenter: Presenter) extends IOutMessage
