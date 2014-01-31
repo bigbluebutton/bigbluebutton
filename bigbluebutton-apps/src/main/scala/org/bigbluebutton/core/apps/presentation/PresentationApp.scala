@@ -65,7 +65,7 @@ class PresentationApp(meetingID: String, recorded: Boolean, outGW: MessageOutGat
     }
     
     private def handleInitializeMeeting(msg: InitializeMeeting) {
-      
+       
     }
     
     private def handleClearPresentation(msg: ClearPresentation) {

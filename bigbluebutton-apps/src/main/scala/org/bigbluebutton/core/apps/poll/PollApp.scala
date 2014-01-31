@@ -53,17 +53,21 @@ class PollApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway, us
 
 	 if (model.hasPoll(pollID)) {
 	   if (usersApp.hasUser(msg.requesterID)) {
-	     val user = usersApp.getUser(msg.requesterID)
-	     val responder = new Responder(user.userID, user.name)
-	     msg.response.responses.foreach(question => {
-	       question.responseIDs.foreach(response => {
-	         model.respondToQuestion(pollID, question.questionID, response, responder)
-	       })
-	     })	
+	     usersApp.getUser(msg.requesterID) match {
+	       case Some(user) => {
+	         val responder = new Responder(user.userID, user.name)
+	         msg.response.responses.foreach(question => {
+	           question.responseIDs.foreach(response => {
+	             model.respondToQuestion(pollID, question.questionID, response, responder)
+	           })
+	         })	
 	     
-	     model.getPoll(msg.response.pollID) match {
-	       case Some(poll) => outGW.send(new PollResponseOutMsg(meetingID, recorded, responder, msg.response))
-	       case None => // do nothing
+	         model.getPoll(msg.response.pollID) match {
+	           case Some(poll) => outGW.send(new PollResponseOutMsg(meetingID, recorded, responder, msg.response))
+	           case None => // do nothing
+	         }	         
+	       }
+	       case None => //do nothing
 	     }
 	   }
 	 }

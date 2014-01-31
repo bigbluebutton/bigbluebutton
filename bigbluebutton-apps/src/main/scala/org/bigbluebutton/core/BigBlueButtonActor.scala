@@ -12,16 +12,17 @@ import org.bigbluebutton.core.api.InitializeMeeting
 import org.bigbluebutton.core.api.DestroyMeeting
 import org.bigbluebutton.core.api.KeepAliveMessage
 import org.red5.logging.Red5LoggerFactory
-import org.slf4j.Logger
 import org.bigbluebutton.core.api.KeepAliveMessageReply
+import net.lag.logging.Logger
 
 class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
-  private var log = Red5LoggerFactory.getLogger(classOf[BigBlueButtonActor], "bigbluebutton")
+  private val log = Logger.get 
 
   private var meetings = new HashMap[String, Meeting]
  
+  log.debug("Starting up BigBlueButton Actor")
+  
   def act() = {
-
 	loop {
 		react {
 	      case createMeeting: CreateMeeting => handleCreateMeeting(createMeeting)

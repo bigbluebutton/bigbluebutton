@@ -109,6 +109,8 @@ dependencies {
 	// workaround for http://issues.gradle.org/browse/GRADLE-1273
 	compileScala.classpath = sourceSets.main.compileClasspath + files(sourceSets.main.classesDir)
 	compileTestScala.classpath = sourceSets.test.compileClasspath + files(sourceSets.test.classesDir)
+	
+	compile 'net.lag:configgy:2.0.0'
 	  
    // Freeswitch ESL Client
    compile 'org/freeswitch:fs-esl-client:0.8.2@jar'

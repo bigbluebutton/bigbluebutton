@@ -26,12 +26,14 @@ import org.bigbluebutton.core.api.LockUser
 import org.bigbluebutton.core.api.LockAllUsers
 import org.bigbluebutton.core.api.GetLockSettings
 import org.bigbluebutton.core.api.IsMeetingLocked
-	
+import net.lag.logging.Logger
+
 case class LockSettings(allowModeratorLocking: Boolean, disableCam: Boolean, 
                         disableMic: Boolean, disablePrivateChat: Boolean,
                         disablePublicChat: Boolean)
 
 class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
+  private val log = Logger.get
   
   private val users = new UsersModel
   
@@ -56,13 +58,13 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
     }
   }
   
-  def isUserModerator(userID: String):Boolean = {
-    users.isModerator(userID)
-  }
+//  def isUserModerator(userID: String):Boolean = {
+//    users.isModerator(userID)
+//  }
   
-  def isUserPresenter(userID: String):Boolean = {
-    users.isPresenter(userID)
-  }
+//  def isUserPresenter(userID: String):Boolean = {
+//    users.isPresenter(userID)
+//  }
   
   def getCurrentPresenter():Presenter = {
     currentPresenter
@@ -72,7 +74,7 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
     users.hasUser(userID)
   }
   
-  def getUser(userID:String):UserVO = {
+  def getUser(userID:String):Option[UserVO] = {
     users.getUser(userID)
   }
   
@@ -120,7 +122,8 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   }
   
   private def handleUserJoin(msg: UserJoining):Unit = {
-  	println("UsersApp: init handleUserJoin")
+  	log.debug("UsersApp: init handleUserJoin")
+  	
 	users.addUser(msg.userID, msg.extUserID, msg.name, msg.role)
 					
 	outGW.send(new UserJoined(meetingID, recorded, msg.userID, 
@@ -128,11 +131,10 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
 	
 	// Become presenter if the only moderator		
 	if (users.numModerators == 1) {
-	  if (users.isModerator(msg.userID)) {
+	  if (msg.role == Role.MODERATOR) {
 		assignNewPresenter(msg.userID, msg.name, msg.userID)
 	  }	  
 	}
-	println("UsersApp: end handleUserJoin")	
   }
 			
   private def handleUserLeft(msg: UserLeaving):Unit = {
@@ -141,7 +143,7 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
 	  outGW.send(new UserLeft(msg.meetingID, recorded, msg.userID))
 	 }
    else{
-    println("This user is not here:" + msg.userID)
+    log.warning("This user is not here:" + msg.userID)
    }
   }
 	
@@ -151,20 +153,25 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
 	
   private def assignNewPresenter(newPresenterID:String, newPresenterName: String, assignedBy: String) {
     if (users.hasUser(newPresenterID)) {
-      if (users.hasPresenter) {
-   	    val curPresenter = users.getCurrentPresenter
-  	    users.unbecomePresenter(curPresenter.userID)  
-  	    outGW.send(new UserStatusChange(meetingID, recorded, curPresenter.userID, "presenter", false:java.lang.Boolean))
+
+      users.getCurrentPresenter match {
+        case Some(curPres) => {
+  	      users.unbecomePresenter(curPres.userID)  
+  	      outGW.send(new UserStatusChange(meetingID, recorded, curPres.userID, "presenter", false:java.lang.Boolean))        
+        }
+        case None => // do nothing
       }
+      
+  	  users.getUser(newPresenterID) match {
+  	    case Some(newPres) => {
+  	      users.becomePresenter(newPres.userID)      	  
+  	      currentPresenter = new Presenter(newPresenterID, newPresenterName, assignedBy)
+  	      outGW.send(new PresenterAssigned(meetingID, recorded, new Presenter(newPresenterID, newPresenterName, assignedBy)))
+          outGW.send(new UserStatusChange(meetingID, recorded, newPresenterID, "presenter", true:java.lang.Boolean))  	      
+  	    }
+  	    case None => // do nothing
+  	  }
 
-  	  val newPresenter = users.getUser(newPresenterID)
-  	  users.becomePresenter(newPresenter.userID)    
-  	  
-  	  currentPresenter = new Presenter(newPresenterID, newPresenterName, assignedBy)
-  	  
-  	  outGW.send(new PresenterAssigned(meetingID, recorded, new Presenter(newPresenterID, newPresenterName, assignedBy)))
-
-      outGW.send(new UserStatusChange(meetingID, recorded, newPresenterID, "presenter", true:java.lang.Boolean))
     }
   }
 }

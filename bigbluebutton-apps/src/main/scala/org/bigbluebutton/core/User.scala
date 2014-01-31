@@ -21,7 +21,4 @@ class User(val intUserID: String, val extUserID: String, val name: String, val r
     _presenter = false;
   }
   
-  def toUserVO():UserVO = {
-    new UserVO(intUserID, extUserID, name, role.toString, _raiseHand, isPresenter, _hasStream)
-  }
 }
