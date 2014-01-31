@@ -1,14 +1,12 @@
 package org.bigbluebutton.core.apps.layout.red5
 
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService
-import org.bigbluebutton.core.api.OutMessageListener2
-import org.bigbluebutton.core.api.IOutMessage
+import org.bigbluebutton.core.api._
 import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage
 import com.google.gson.Gson
 import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage
 
 class LayoutClientMessageSender(service: ConnectionInvokerService) extends OutMessageListener2 {
-	import org.bigbluebutton.core.apps.layout.messages._
 
 	def handleMessage(msg: IOutMessage) {
 	  msg match {

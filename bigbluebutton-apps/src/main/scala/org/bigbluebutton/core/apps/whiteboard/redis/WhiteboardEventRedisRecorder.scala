@@ -1,10 +1,8 @@
 package org.bigbluebutton.core.apps.whiteboard.redis
 
 import org.bigbluebutton.conference.service.recorder.RecorderApplication
-import org.bigbluebutton.core.api.OutMessageListener2
-import org.bigbluebutton.core.api.IOutMessage
+import org.bigbluebutton.core.api._
 import org.bigbluebutton.conference.service.whiteboard.redis.AddShapeWhiteboardRecordEvent
-import org.bigbluebutton.core.apps.whiteboard.messages._
 import scala.collection.JavaConversions._
 import org.bigbluebutton.conference.service.whiteboard.WhiteboardKeyUtil
 import org.bigbluebutton.conference.service.whiteboard.redis.AddTextWhiteboardRecordEvent

@@ -21,7 +21,7 @@ package org.bigbluebutton.conference.service.lock;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LockSettings {
+public class LockSettingsOld {
 	private Boolean allowModeratorLocking;
 	private Boolean disableCam;
 	private Boolean disableMic;
@@ -31,7 +31,7 @@ public class LockSettings {
 	/**
 	 * Read a map object received from client 
 	 * */
-	public LockSettings(Map<String, Boolean> lsMap) {
+	public LockSettingsOld(Map<String, Boolean> lsMap) {
 		if(lsMap.containsKey("allowModeratorLocking"))
 			allowModeratorLocking = lsMap.get("allowModeratorLocking");
 		else

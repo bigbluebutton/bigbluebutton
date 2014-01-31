@@ -20,33 +20,30 @@ package org.bigbluebutton.conference.service.participants;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-import java.util.Map;
-import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import java.util.Map;import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import org.bigbluebutton.conference.service.lock.LockSettingsOld;
 
 public class ParticipantsApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsApplication.class, "bigbluebutton" );	
 	private IBigBlueButtonInGW bbbInGW;
-	
-
+				
 	public void setParticipantStatus(String room, String userid, String status, Object value) {
 		bbbInGW.setUserStatus(room, userid, status, value);
 	}
-		
+
 	public boolean participantLeft(String roomName, String userid) {
 		log.debug("Participant " + userid + " leaving room " + roomName);
-			bbbInGW.userLeft(userid, userid);
-			
-			return true;
+		bbbInGW.userLeft(userid, userid);	
+		return true;
 	}
 	
 	public boolean participantJoin(String roomName, String userid, String username, String role, String externUserID, Map status) {
-			bbbInGW.userJoin(roomName, userid, username, role, externUserID);
-			return true;
-
+		bbbInGW.userJoin(roomName, userid, username, role, externUserID);
+		return true;
 	}
 		
 	public void assignPresenter(String room, String newPresenterID, String newPresenterName, String assignedBy){
-			bbbInGW.assignPresenter(room, newPresenterID, newPresenterName, assignedBy);			
+		bbbInGW.assignPresenter(room, newPresenterID, newPresenterName, assignedBy);			
 	}
 	
 	public void getUsers(String meetingID, String requesterID) {
@@ -56,5 +53,12 @@ public class ParticipantsApplication {
 	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
 		bbbInGW = inGW;
 	}
-			
+	
+	public void setRecordingStatus(String meetingId, String userId, Boolean recording) {
+		bbbInGW.setRecordingStatus(meetingId, userId, recording);
+	}
+
+	public void getRecordingStatus(String meetingId, String userId) {
+		bbbInGW.getRecordingStatus(meetingId, userId);
+	}
 }

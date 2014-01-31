@@ -3,21 +3,16 @@ package org.bigbluebutton.core
 import scala.actors.Actor
 import scala.actors.Actor._
 import scala.collection.mutable.HashMap
-import org.bigbluebutton.core.api.CreateMeeting
-import org.bigbluebutton.core.api.MeetingCreated
-import org.bigbluebutton.core.api.MeetingEnded
-import org.bigbluebutton.core.api.MessageOutGateway
-import org.bigbluebutton.core.api.InMessage
-import org.bigbluebutton.core.api.InitializeMeeting
-import org.bigbluebutton.core.api.DestroyMeeting
-import org.bigbluebutton.core.api.KeepAliveMessage
-import org.bigbluebutton.core.api.KeepAliveMessageReply
-import org.bigbluebutton.core.apps.voice.messages._
+import org.bigbluebutton.core.api._
+import net.lag.logging.Logger
 
 class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
+  private val log = Logger.get 
 
   private var meetings = new HashMap[String, MeetingActor]
  
+  log.debug("Starting up BigBlueButton Actor")
+  
   def act() = {
 	loop {
 		react {

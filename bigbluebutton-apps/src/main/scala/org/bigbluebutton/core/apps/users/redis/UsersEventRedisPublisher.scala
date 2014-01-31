@@ -1,13 +1,9 @@
 package org.bigbluebutton.core.apps.users.redis
 
 import org.bigbluebutton.conference.service.messaging.redis.MessageSender
-import org.bigbluebutton.core.api.OutMessageListener2
-import org.bigbluebutton.core.api.IOutMessage
-import org.bigbluebutton.core.apps.users.messages.UserStatusChange
+import org.bigbluebutton.core.api._
 import org.bigbluebutton.conference.service.messaging.MessagingConstants
 import com.google.gson.Gson
-import org.bigbluebutton.core.apps.users.messages.UserJoined
-import org.bigbluebutton.core.apps.users.messages.UserLeft
 
 class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListener2 {
 

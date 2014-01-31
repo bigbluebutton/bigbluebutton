@@ -56,17 +56,23 @@ public class ParticipantsService {
 		log.debug("Setting Participants Applications");
 		application = a;
 	}
+	
 	public void setRecordingStatus(String userid, Boolean recording) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 		log.error("TODO: Setting recording status " + roomName + " " + userid + " " + recording);
 		//application.setRecordingStatus(roomName, userid, recording);
 	}
 
-	public Boolean getRecordingStatus() {
+	public void getRecordingStatus() {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		log.error("TODO: Client is requesting the recording status in [" + roomName + "].");
-		return false;
-		//return application.getRecordingStatus(roomName);
+		log.info("Client is requesting the recording status in [" + roomName + "].");
+		application.getRecordingStatus(roomName, getMyUserId());
+	}
+	
+	public String getMyUserId() {
+		BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
+		assert bbbSession != null;
+		return bbbSession.getInternalUserID();
 	}
 	
 	private BigBlueButtonSession getBbbSession() {

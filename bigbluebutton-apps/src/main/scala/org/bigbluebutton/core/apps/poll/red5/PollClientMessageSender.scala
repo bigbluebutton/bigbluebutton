@@ -2,20 +2,11 @@ package org.bigbluebutton.core.apps.poll.red5
 
 import com.google.gson.Gson
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService
-import org.bigbluebutton.core.api.OutMessageListener2
-import org.bigbluebutton.core.api.IOutMessage
-import org.bigbluebutton.core.apps.poll.messages.GetPollsReplyOutMsg
-import org.bigbluebutton.core.apps.poll.messages.PollClearedOutMsg
-import org.bigbluebutton.core.apps.poll.messages.PollStartedOutMsg
-import org.bigbluebutton.core.apps.poll.messages.PollStoppedOutMsg
-import org.bigbluebutton.core.apps.poll.messages.PollRemovedOutMsg
-import org.bigbluebutton.core.apps.poll.messages.PollUpdatedOutMsg
-import org.bigbluebutton.core.apps.poll.messages.PollCreatedOutMsg
+import org.bigbluebutton.core.api._
 import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage
 import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage
 import java.util.ArrayList
 import org.bigbluebutton.core.apps.poll.PollVO
-import org.bigbluebutton.core.apps.poll.messages.PollResponseOutMsg
 
 class PollClientMessageSender(service: ConnectionInvokerService) extends OutMessageListener2 {
 

@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.api;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public interface IBigBlueButtonInGW {
@@ -13,6 +14,15 @@ public interface IBigBlueButtonInGW {
 	void lockSettings(String meetingID, Boolean locked, Map<String, Boolean> lockSettigs);
 	
 	
+	// Lock
+	void initLockSettings(String meetingID, boolean locked, Map<String, Boolean> settings);
+	void sendLockSettings(String meetingID, Map<String, Boolean> settings);
+	void getLockSettings(String meetingId, String userId);
+	void isMeetingLocked(String meetingId, String userId);
+	void lockAllUsers(String meetingId, boolean lock, ArrayList<String> dontLockTheseUsers);
+	void lockUser(String meetingId, boolean lock, String internalUserID);
+	
+	
 	// Users
   	void setUserStatus(String meetingID, String userID, String status, Object value);
 	void getUsers(String meetingID, String requesterID);
@@ -20,6 +30,8 @@ public interface IBigBlueButtonInGW {
 	void userJoin(String meetingID, String userID, String username, String role, String externUserID);
 	void getCurrentPresenter(String meetingID, String requesterID);
 	void assignPresenter(String meetingID, String newPresenterID, String newPresenterName, String assignedBy);
+	void setRecordingStatus(String meetingId, String userId, Boolean recording);
+	void getRecordingStatus(String meetingId, String userId);
 	
 	// Presentation
 	void clear(String meetingID);

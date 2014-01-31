@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.core.BigBlueButtonGateway
-import org.bigbluebutton.core.apps.voice.messages._
+import org.bigbluebutton.core.api._
 
 class VoiceInGateway(bbbGW: BigBlueButtonGateway) {
 	def getVoiceUsers(meetingID: String, requesterID: String) {

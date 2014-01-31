@@ -1,10 +1,7 @@
 package org.bigbluebutton.core.apps.layout
 
 import org.bigbluebutton.core.BigBlueButtonGateway
-import org.bigbluebutton.core.apps.layout.messages.UnlockLayoutRequest
-import org.bigbluebutton.core.apps.layout.messages.SetLayoutRequest
-import org.bigbluebutton.core.apps.layout.messages.LockLayoutRequest
-import org.bigbluebutton.core.apps.layout.messages.GetCurrentLayoutRequest
+import org.bigbluebutton.core.api._
 
 class LayoutInGateway(bbbGW: BigBlueButtonGateway) {
 	def getCurrentLayout(meetingID: String, requesterID: String) {

@@ -6,31 +6,19 @@ object Role extends Enumeration {
 	val VIEWER = Value("VIEWER")
 }
 
-case class Presenter(
-    presenterID: String, 
-    presenterName: String, 
-    assignedBy: String)
-    
-case class UserVO(
-    userID: String, 
-    externUserID: String, 
-    name: String, 
-    role: String, 
-    raiseHand: Boolean, 
-    presenter: Boolean, 
-    hasStream: Boolean)
-    
-case class MeetingConfig(
-    name: String, 
-    id: MeetingID, 
-    passwords: MeetingPasswords, 
-    welcomeMsg: String, 
-    logoutUrl: String,
-	maxUsers: Int, 
-	record: Boolean=false, 
-	duration: MeetingDuration,
-	defaultAvatarURL: String, 
-	defaultConfigToken: String)
+case class Presenter(presenterID: String, presenterName: String, 
+                     assignedBy: String)
+                     
+case class UserVO(userID: String, externUserID: String, name: String, 
+                  role: Role.Role, raiseHand: Boolean, presenter: Boolean, 
+                  hasStream: Boolean, locked: Boolean)
+                  
+case class MeetingConfig(name: String, id: MeetingID, 
+                  passwords: MeetingPasswords, welcomeMsg: String, 
+                  logoutUrl: String,
+	              maxUsers: Int, record: Boolean=false, 
+	              duration: MeetingDuration,
+	              defaultAvatarURL: String, defaultConfigToken: String)
 
 case class MeetingName(
     name: String)

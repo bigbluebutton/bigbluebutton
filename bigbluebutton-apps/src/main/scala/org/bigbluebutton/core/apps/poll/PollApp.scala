@@ -1,137 +1,125 @@
 package org.bigbluebutton.core.apps.poll
 
 import scala.collection.mutable.HashMap
-import org.bigbluebutton.core.api.InMessage
-import org.bigbluebutton.core.api.MessageOutGateway
+import org.bigbluebutton.core.api._
 import scala.collection.mutable.ArrayBuffer
-import org.bigbluebutton.core.apps.users.UsersApp
+import org.bigbluebutton.core.MeetingActor
+import net.lag.logging.Logger
 
-class PollApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway, usersApp: UsersApp) {
-  import org.bigbluebutton.core.apps.poll.messages._
+trait PollApp {
+  this : MeetingActor =>
   
-  val model = new PollModel
-	
-  def handleMessage(msg: InMessage):Unit = {
-    msg match {
-      case preCreatePoll: PreCreatedPoll => handlePreCreatedPoll(preCreatePoll)
-      case createPoll: CreatePoll => handleCreatePoll(createPoll)
-      case updatePoll: UpdatePoll => handleUpdatePoll(updatePoll)
-      case destroyPoll: DestroyPoll => handleDestroyPoll(destroyPoll)
-      case removePoll: RemovePoll => handleRemovePoll(removePoll)
-      case sharePoll: SharePoll => handleSharePoll(sharePoll)
-      case stopPoll: StopPoll => handleStopPoll(stopPoll)
-      case startPoll: StartPoll => handleStartPoll(startPoll)
-      case clearPoll: ClearPoll => handleClearPoll(clearPoll)
-      case getPolls: GetPolls => handleGetPolls(getPolls)
-      case respondPoll: RespondToPoll => handleRespondToPoll(respondPoll)
-      case hidePollResult: HidePollResult => handleHidePollResult(hidePollResult)
-      case showPollResult: ShowPollResult => handleShowPollResult(showPollResult)
-      case _ => // do nothing
-    }    
-  }
-  
-  private def handleHidePollResult(msg: HidePollResult) {
+  val log: Logger
+  val outGW: MessageOutGateway
+    
+  private val pollModel = new PollModel
+	  
+  def handleHidePollResult(msg: HidePollResult) {
     val pollID = msg.pollID
 
-    if (model.hasPoll(pollID)) {
-      model.hidePollResult(pollID)
+    if (pollModel.hasPoll(pollID)) {
+      pollModel.hidePollResult(pollID)
    	  outGW.send(new PollHideResultOutMsg(meetingID, recorded, pollID))
     }
   }
 
-  private def handleShowPollResult(msg: ShowPollResult) {
+  def handleShowPollResult(msg: ShowPollResult) {
     val pollID = msg.pollID
 
-    if (model.hasPoll(pollID)) {
-      model.showPollResult(pollID)
+    if (pollModel.hasPoll(pollID)) {
+      pollModel.showPollResult(pollID)
       outGW.send(new PollShowResultOutMsg(meetingID, recorded, pollID))
     }
   }
   
-  private def handleRespondToPoll(msg: RespondToPoll) {   
+  def handleRespondToPoll(msg: RespondToPoll) {   
     val pollID = msg.response.pollID
 
-	 if (model.hasPoll(pollID)) {
-	   if (usersApp.hasUser(msg.requesterID)) {
-	     val user = usersApp.getUser(msg.requesterID)
-	     val responder = new Responder(user.userID, user.name)
-	     msg.response.responses.foreach(question => {
-	       question.responseIDs.foreach(response => {
-	         model.respondToQuestion(pollID, question.questionID, response, responder)
-	       })
-	     })	
+	 if (pollModel.hasPoll(pollID)) {
+	   if (hasUser(msg.requesterID)) {
+	     getUser(msg.requesterID) match {
+	       case Some(user) => {
+	         val responder = new Responder(user.userID, user.name)
+	         msg.response.responses.foreach(question => {
+	           question.responseIDs.foreach(response => {
+	             pollModel.respondToQuestion(pollID, question.questionID, response, responder)
+	           })
+	         })	
 	     
-	     model.getPoll(msg.response.pollID) match {
-	       case Some(poll) => outGW.send(new PollResponseOutMsg(meetingID, recorded, responder, msg.response))
-	       case None => // do nothing
+	         pollModel.getPoll(msg.response.pollID) match {
+	           case Some(poll) => outGW.send(new PollResponseOutMsg(meetingID, recorded, responder, msg.response))
+	           case None => // do nothing
+	         }	         
+	       }
+	       case None => //do nothing
 	     }
 	   }
 	 }
   }
   
-  private def handleGetPolls(msg: GetPolls) {
-    var polls = model.getPolls
+  def handleGetPolls(msg: GetPolls) {
+    var polls = pollModel.getPolls
     outGW.send(new GetPollsReplyOutMsg(meetingID, recorded, msg.requesterID, polls))
   }
   
-  private def handleClearPoll(msg: ClearPoll) {
-    if (model.clearPoll(msg.pollID))  {
+  def handleClearPoll(msg: ClearPoll) {
+    if (pollModel.clearPoll(msg.pollID))  {
       outGW.send(new PollClearedOutMsg(meetingID, recorded, msg.pollID))
     } else {
 	  print("PollApp:: handleClearPoll - " + msg.pollID + " not found" )
 	}
   }
   
-  private def handleStartPoll(msg: StartPoll) {
-	if (model.hasPoll(msg.pollID)) {
-	  model.startPoll(msg.pollID)
+  def handleStartPoll(msg: StartPoll) {
+	if (pollModel.hasPoll(msg.pollID)) {
+	  pollModel.startPoll(msg.pollID)
 	  outGW.send(new PollStartedOutMsg(meetingID, recorded, msg.pollID))
 	} else {
 	  print("PollApp:: handleStartPoll - " + msg.pollID + " not found" )
 	}
   }
   
-  private def handleStopPoll(msg: StopPoll) {
-	if (model.hasPoll(msg.pollID)) {
-	  model.stopPoll(msg.pollID)
+  def handleStopPoll(msg: StopPoll) {
+	if (pollModel.hasPoll(msg.pollID)) {
+	  pollModel.stopPoll(msg.pollID)
 	  outGW.send(new PollStoppedOutMsg(meetingID, recorded, msg.pollID))	  
 	} else {
 	  print("PollApp:: handleStopPoll - " + msg.pollID + " not found" )
 	}
   }
   
-  private def handleSharePoll(msg: SharePoll) {
+  def handleSharePoll(msg: SharePoll) {
 
   }
   
-  private def handleRemovePoll(msg: RemovePoll) {
-    if (model.hasPoll(msg.pollID)) {
-      model.removePoll(msg.pollID)
+  def handleRemovePoll(msg: RemovePoll) {
+    if (pollModel.hasPoll(msg.pollID)) {
+      pollModel.removePoll(msg.pollID)
       outGW.send(new PollRemovedOutMsg(meetingID, recorded, msg.pollID))
     } else {
 	  print("PollApp:: handleRemovePoll - " + msg.pollID + " not found" )
 	}        
   }
   
-  private def handleDestroyPoll(msg: DestroyPoll) {
+  def handleDestroyPoll(msg: DestroyPoll) {
     
   }
   
-  private def handleUpdatePoll(msg: UpdatePoll) {
-	if (model.updatePoll(msg.poll)) {
+  def handleUpdatePoll(msg: UpdatePoll) {
+	if (pollModel.updatePoll(msg.poll)) {
 		outGW.send(new PollUpdatedOutMsg(meetingID, recorded, msg.poll.id, msg.poll))	  
 	} else {
 	  print("PollApp:: handleUpdatePoll - " + msg.poll.id + " not found" )
 	}
   }
 
-  private def handlePreCreatedPoll(msg: PreCreatedPoll) {
-    model.createPoll(msg.poll)
+  def handlePreCreatedPoll(msg: PreCreatedPoll) {
+    pollModel.createPoll(msg.poll)
 	outGW.send(new PollCreatedOutMsg(meetingID, recorded, msg.poll.id, msg.poll)) 
   }
     
-  private def handleCreatePoll(msg: CreatePoll) {
-    model.createPoll(msg.poll)
+  def handleCreatePoll(msg: CreatePoll) {
+    pollModel.createPoll(msg.poll)
 	outGW.send(new PollCreatedOutMsg(meetingID, recorded, msg.poll.id, msg.poll)) 
   }
 }

@@ -1,7 +1,9 @@
 package org.bigbluebutton.core.api
 
 import org.bigbluebutton.core.api.Role._
-import java.util.Map
+import org.bigbluebutton.core.apps.poll._
+import org.bigbluebutton.core.LockSettings
+import org.bigbluebutton.core.apps.whiteboard.vo.AnnotationVO
 
 trait InMessage {val meetingID: String}
 
@@ -14,12 +16,51 @@ case class StartMeeting(meetingID: String) extends InMessage
 case class EndMeeting(meetingID: String) extends InMessage
 case class LockSetting(meetingID: String, locked: Boolean, settings: Map[String, Boolean]) extends InMessage
 
+// Lock
+case class LockUser(meetingID: String, userId: String, lock: Boolean) extends InMessage
+case class LockAllUsers(meetingID: String, lock: Boolean, exceptUsers: Seq[String]) extends InMessage
+case class InitLockSettings(meetingID: String, locked: Boolean, 
+                        settings: LockSettings) extends InMessage
+case class SetLockSettings(meetingID: String,  
+                        settings: LockSettings) extends InMessage
+case class GetLockSettings(meetingID: String, userId: String) extends InMessage
+case class IsMeetingLocked(meetingID: String, userId: String) extends InMessage
+
 // Users
 case class UserJoining(meetingID: String, userID: String, name: String, role: Role, extUserID: String) extends InMessage
 case class UserLeaving(meetingID: String, userID: String) extends InMessage
 case class GetUsers(meetingID: String, requesterID: String) extends InMessage
 case class ChangeUserStatus(meetingID: String, userID: String, status: String, value: Object) extends InMessage
 case class AssignPresenter(meetingID: String, newPresenterID: String, newPresenterName: String, assignedBy: String) extends InMessage
+case class SetRecordingStatus(meetingID: String, userId: String, recording: Boolean) extends InMessage
+case class GetRecordingStatus(meetingID: String, userId: String) extends InMessage
+
+// Chat
+case class GetChatHistoryRequest(meetingID: String, requesterID: String) extends InMessage
+case class SendPublicMessageRequest(meetingID: String, requesterID: String, message: Map[String, String]) extends InMessage
+case class SendPrivateMessageRequest(meetingID: String, requesterID: String, message: Map[String, String]) extends InMessage
+
+// Layout
+case class GetCurrentLayoutRequest(meetingID: String, requesterID: String) extends InMessage
+case class SetLayoutRequest(meetingID: String, requesterID: String, layoutID: String) extends InMessage
+case class LockLayoutRequest(meetingID: String, requesterID: String, layoutID: String) extends InMessage
+case class UnlockLayoutRequest(meetingID: String, requesterID: String) extends InMessage
+
+// Poll
+case class PreCreatedPoll(meetingID: String, poll: PollVO) extends InMessage
+case class CreatePoll(meetingID: String, requesterID: String, poll: PollVO) extends InMessage
+case class UpdatePoll(meetingID: String, requesterID: String, poll: PollVO) extends InMessage
+case class GetPolls(meetingID: String, requesterID: String) extends InMessage
+case class DestroyPoll(meetingID: String, requesterID: String, pollID: String) extends InMessage
+case class RemovePoll(meetingID: String, requesterID: String, pollID: String) extends InMessage
+case class SharePoll(meetingID: String, requesterID: String, pollID: String) extends InMessage
+case class ShowPollResult(meetingID: String, requesterID: String, pollID: String) extends InMessage
+case class HidePollResult(meetingID: String, requesterID: String, pollID: String) extends InMessage
+case class StopPoll(meetingID:String, requesterID: String, pollID: String) extends InMessage
+case class StartPoll(meetingID:String, requesterID: String, pollID: String) extends InMessage
+case class ClearPoll(meetingID: String, requesterID: String, pollID: String, force: Boolean=false) extends InMessage
+case class GetPollResult(meetingID:String, requesterID: String, pollID: String) extends InMessage
+case class RespondToPoll(meetingID: String, requesterID: String, response: PollResponseVO) extends InMessage
 
 // Presentation
 case class ClearPresentation(meetingID: String) extends InMessage
@@ -33,3 +74,73 @@ case class SharePresentation(meetingID: String, presentationID: String, share: B
 case class GetSlideInfo(meetingID: String, requesterID: String) extends InMessage
 case class PreuploadedPresentations(meetingID: String, presentations: Array[Object]) extends InMessage
 
+// Voice
+case class SendVoiceUsersRequest(
+    meetingID: String, 
+    requesterID: String) extends InMessage
+    
+case class MuteMeetingRequest(
+    meetingID: String, 
+    requesterID: String, 
+    mute: Boolean) extends InMessage
+    
+case class IsMeetingMutedRequest(
+    meetingID: String, 
+    requesterID: String) extends InMessage
+    
+case class MuteUserRequest(
+    meetingID: String, 
+    requesterID: String, 
+    userID: String, 
+    mute: Boolean) extends InMessage
+    
+case class LockUserRequest(
+    meetingID: String, 
+    requesterID: String, 
+    userID: String, 
+    lock: Boolean) extends InMessage
+    
+case class EjectUserRequest(
+    meetingID: String, 
+    requesterID: String, 
+    userID: String) extends InMessage
+    
+case class VoiceUserJoinedMessage(
+    meetingID: String,
+    user: String, 
+    voiceConfId: String, 
+    callerIdNum: String, 
+    callerIdName: String, 
+    muted: Boolean, 
+    talking: Boolean) extends InMessage
+    
+case class VoiceUserLeftMessage(meetingID: String, user: String, voiceConfId: String) extends InMessage
+case class VoiceUserMutedMessage(meetingID: String, user: String, voiceConfId: String, muted: Boolean) extends InMessage
+case class VoiceUserTalkingMessage(meetingID: String, user: String, voiceConfId: String, talking: Boolean) extends InMessage
+case class VoiceStartedRecordingMessage(meetingID: String, voiceConfId: String, filename: String, timestamp: String, record: Boolean) extends InMessage
+
+// Need these extra classes since InMessage needs meetingID as parameter and
+// our messages from FreeSWITCH doesn't have it.
+trait VoiceMessage
+case class VoiceUserJoined(
+    user: String, 
+    voiceConfId: String, 
+    callerIdNum: String, 
+    callerIdName: String, 
+    muted: Boolean, 
+    speaking: Boolean) extends VoiceMessage
+    
+case class VoiceUserLeft(user: String, voiceConfId: String) extends VoiceMessage
+case class VoiceUserMuted(user: String, voiceConfId: String, muted: Boolean) extends VoiceMessage
+case class VoiceUserTalking(user: String, voiceConfId: String, talking: Boolean) extends VoiceMessage
+case class VoiceStartedRecording(voiceConfId: String, filename: String, timestamp: String, record: Boolean) extends VoiceMessage
+
+// Whiteboard
+case class SendWhiteboardAnnotationRequest(meetingID: String, requesterID: String, annotation: AnnotationVO) extends InMessage
+case class SetWhiteboardActivePageRequest(meetingID: String, requesterID: String, page: Int) extends InMessage
+case class SendWhiteboardAnnotationHistoryRequest(meetingID: String, requesterID: String, presentationID: String, page: Int) extends InMessage
+case class ClearWhiteboardRequest(meetingID: String, requesterID: String) extends InMessage
+case class UndoWhiteboardRequest(meetingID: String, requesterID: String) extends InMessage
+case class SetActivePresentationRequest(meetingID: String, requesterID: String, presentationID: String, numPages: Int) extends InMessage
+case class EnableWhiteboardRequest(meetingID: String, requesterID: String, enable: Boolean) extends InMessage
+case class IsWhiteboardEnabledRequest(meetingID: String, requesterID: String) extends InMessage

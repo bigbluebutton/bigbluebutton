@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.whiteboard
 
 import org.bigbluebutton.core.BigBlueButtonGateway
-import org.bigbluebutton.core.apps.whiteboard.messages._
+import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps.whiteboard.vo.AnnotationVO
 
 class WhiteboardInGateway(bbbGW: BigBlueButtonGateway) { 

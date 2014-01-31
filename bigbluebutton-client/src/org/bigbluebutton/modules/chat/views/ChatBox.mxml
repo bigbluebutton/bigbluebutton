@@ -432,7 +432,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (currentMessage < 0){
 					currentMessage = 0;
 					latestMessage = 0;
-					chatMessagesList.accessibilityProperties.description = chatMessages.messages.getItemAt(currentMessage).toString();
+					if (chatMessages.messages.length > 0)
+						chatMessagesList.accessibilityProperties.description = chatMessages.messages.getItemAt(currentMessage).toString();
 				}
 				if (e.otherUserID == chatWithUserID){
 					chatMessagesList.accessibilityProperties.description += " ";

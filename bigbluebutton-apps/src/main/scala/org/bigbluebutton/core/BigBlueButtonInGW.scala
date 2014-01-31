@@ -1,27 +1,7 @@
 package org.bigbluebutton.core
 
-import org.bigbluebutton.core.api.ChangeUserStatus
-import org.bigbluebutton.core.api.UserLeaving
-import org.bigbluebutton.core.api.UserJoining
-import org.bigbluebutton.core.api.UserJoining
-import org.bigbluebutton.core.api.GetUsers
-import org.bigbluebutton.core.api.AssignPresenter
-import org.bigbluebutton.core.api.Role._
-import org.bigbluebutton.core.api.IBigBlueButtonInGW
-import org.bigbluebutton.core.api.CreateMeeting
-import org.bigbluebutton.core.api.ClearPresentation
-import org.bigbluebutton.core.api.SendCursorUpdate
-import org.bigbluebutton.core.api.PresentationConversionUpdate
-import org.bigbluebutton.core.api.RemovePresentation
-import org.bigbluebutton.core.api.GetPresentationInfo
-import org.bigbluebutton.core.api.ResizeAndMoveSlide
-import org.bigbluebutton.core.api.GotoSlide
-import org.bigbluebutton.core.api.SharePresentation
-import org.bigbluebutton.core.api.GetSlideInfo
+import org.bigbluebutton.core.api._
 import org.bigbluebutton.conference.service.presentation.PreuploadedPresentationsUtil
-import org.bigbluebutton.core.api.DestroyMeeting
-import org.bigbluebutton.core.api.KeepAliveMessage
-import org.bigbluebutton.core.api.PreuploadedPresentations
 import scala.collection.JavaConversions._
 import org.bigbluebutton.core.apps.poll.PollInGateway
 import org.bigbluebutton.core.apps.layout.LayoutInGateway
@@ -29,6 +9,9 @@ import org.bigbluebutton.core.apps.chat.ChatInGateway
 import scala.collection.JavaConversions._
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardInGateway
 import org.bigbluebutton.core.apps.voice.VoiceInGateway
+import java.util.ArrayList
+import scala.collection.mutable.ArrayBuffer
+
 
 class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW {
 
@@ -73,6 +56,64 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
    * Message Interface for Users
    *************************************************************/
   
+  def sendLockSettings(meetingID: String, settings: java.util.Map[String, java.lang.Boolean]) {
+    // Convert java.util.Map to scala.collection.immutable.Map
+    // settings.mapValues -> convaert java Map to scala mutable Map
+    // v => v.booleanValue() -> convert java Boolean to Scala Boolean
+    // toMap -> converts from scala mutable map to scala immutable map
+    val s = settings.mapValues (v => v.booleanValue() /* convert java Boolean to Scala Boolean */).toMap  
+    val allowModeratorLocking = s.getOrElse("allowModeratorLocking", true)
+    val disableCam = s.getOrElse("disableCam", true) 
+    val disableMic = s.getOrElse("disableMic", true)
+    val disablePrivateChat = s.getOrElse("disablePrivateChat", true)
+    val disablePublicChat = s.getOrElse("disablePublicChat", true)
+    val ls = new LockSettings(allowModeratorLocking, disableCam, disableMic, 
+                              disablePrivateChat, disablePublicChat)
+    bbbGW.accept(new SetLockSettings(meetingID, ls))
+  }
+  
+  def initLockSettings(meetingID: String, locked: Boolean, settings: java.util.Map[String, java.lang.Boolean]) {
+    // Convert java.util.Map to scala.collection.immutable.Map
+    // settings.mapValues -> convaert java Map to scala mutable Map
+    // v => v.booleanValue() -> convert java Boolean to Scala Boolean
+    // toMap -> converts from scala mutable map to scala immutable map
+    val s = settings.mapValues (v => v.booleanValue() /* convert java Boolean to Scala Boolean */).toMap  
+    val allowModeratorLocking = s.getOrElse("allowModeratorLocking", true)
+    val disableCam = s.getOrElse("disableCam", true) 
+    val disableMic = s.getOrElse("disableMic", true)
+    val disablePrivateChat = s.getOrElse("disablePrivateChat", true)
+    val disablePublicChat = s.getOrElse("disablePublicChat", true)
+    val ls = new LockSettings(allowModeratorLocking, disableCam, disableMic, 
+                              disablePrivateChat, disablePublicChat)
+    bbbGW.accept(new InitLockSettings(meetingID, locked, ls))
+  }
+  
+  def getLockSettings(meetingId: String, userId: String) {
+    bbbGW.accept(new GetLockSettings(meetingId, userId))
+  }
+  
+  def isMeetingLocked(meetingId: String, userId: String) {
+    bbbGW.accept(new IsMeetingLocked(meetingId, userId))
+  }
+  
+  def lockAllUsers(meetingId: String, lock: Boolean, dontLockTheseUsers: ArrayList[String]) {
+    bbbGW.accept(new LockAllUsers(meetingId, lock, dontLockTheseUsers.toSeq))
+  }
+  
+  def lockUser(meetingId: String, lock: Boolean, userId: String) {
+    bbbGW.accept(new LockUser(meetingId, userId, lock))
+  }
+	
+  def setRecordingStatus(meetingId: String, userId: String, recording: java.lang.Boolean) {
+    bbbGW.accept(new SetRecordingStatus(meetingId, userId, recording.booleanValue()))
+  }
+  
+  def getRecordingStatus(meetingId: String, userId: String) {
+    bbbGW.accept(new GetRecordingStatus(meetingId, userId))
+  }
+	
+  
+  // Users
 	def setUserStatus(meetingID: String, userID: String, status: String, value: Object):Unit = {
 		bbbGW.accept(new ChangeUserStatus(meetingID, userID, status, value));
 	}
@@ -86,12 +127,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	}
 
 	def userJoin(meetingID: String, userID: String, name: String, role: String, extUserID: String):Unit = {
-		var userRole:Role = VIEWER;
-
-		if (role == "MODERATOR") {
-		  userRole = MODERATOR;
-		}
-
+		val userRole = if (role == "MODERATOR") Role.MODERATOR else Role.VIEWER
 		bbbGW.accept(new UserJoining(meetingID, userID, name, userRole, extUserID))
 	}
 
@@ -112,7 +148,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	}
 	
 	def sendUpdateMessage(meetingID: String, message: java.util.Map[String, Object]) {
-	  bbbGW.accept(new PresentationConversionUpdate(meetingID, message))
+	  val s = message.mapValues (v => v /* convert java Boolean to Scala Boolean */).toMap
+	  bbbGW.accept(new PresentationConversionUpdate(meetingID, s))
 	}
 	
 	def removePresentation(meetingID: String, presentationID: String) {

@@ -2,16 +2,7 @@ package org.bigbluebutton.core.apps.poll
 
 import org.bigbluebutton.conference.service.poll.PollInGW
 import org.bigbluebutton.core.BigBlueButtonGateway
-import org.bigbluebutton.core.apps.poll.messages.CreatePoll
-import org.bigbluebutton.core.apps.poll.messages.UpdatePoll
-import org.bigbluebutton.core.apps.poll.messages.StartPoll
-import org.bigbluebutton.core.apps.poll.messages.StopPoll
-import org.bigbluebutton.core.apps.poll.messages.RemovePoll
-import org.bigbluebutton.core.apps.poll.messages.GetPolls
-import org.bigbluebutton.core.apps.poll.messages.RespondToPoll
-import org.bigbluebutton.core.apps.poll.messages.PreCreatedPoll
-import org.bigbluebutton.core.apps.poll.messages.ShowPollResult
-import org.bigbluebutton.core.apps.poll.messages.HidePollResult
+import org.bigbluebutton.core.api._
 
 class PollInGateway(bbbGW: BigBlueButtonGateway) {
 

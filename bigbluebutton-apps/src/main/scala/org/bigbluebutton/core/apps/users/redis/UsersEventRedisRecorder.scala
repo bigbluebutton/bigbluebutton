@@ -1,10 +1,7 @@
 package org.bigbluebutton.core.apps.users.redis
 
 import org.bigbluebutton.conference.service.recorder.RecorderApplication
-import org.bigbluebutton.core.api.OutMessageListener2
-import org.bigbluebutton.core.api.IOutMessage
-import org.bigbluebutton.core.apps.users.messages._
-import org.bigbluebutton.core.api.PresenterAssigned
+import org.bigbluebutton.core.api._
 import org.bigbluebutton.conference.service.recorder.participants.ParticipantEndAndKickAllRecordEvent
 import org.bigbluebutton.conference.service.recorder.participants.AssignPresenterRecordEvent
 import org.bigbluebutton.conference.service.recorder.participants.ParticipantStatusChangeRecordEvent

@@ -51,7 +51,6 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.views.LockSettings;
 	import org.bigbluebutton.modules.deskshare.events.StopSharingButtonEvent;
-	import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public class UsersSOService {
 		public static const NAME:String = "ViewersSOService";

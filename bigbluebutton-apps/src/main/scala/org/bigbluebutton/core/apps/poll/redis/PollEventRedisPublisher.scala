@@ -1,8 +1,6 @@
 package org.bigbluebutton.core.apps.poll.redis
 
-import org.bigbluebutton.core.api.OutMessageListener2
-import org.bigbluebutton.core.api.IOutMessage
-import org.bigbluebutton.core.apps.poll.messages._
+import org.bigbluebutton.core.api._
 import org.bigbluebutton.conference.service.messaging.redis.MessageSender
 import com.google.gson.Gson
 import org.bigbluebutton.conference.service.messaging.MessagingConstants

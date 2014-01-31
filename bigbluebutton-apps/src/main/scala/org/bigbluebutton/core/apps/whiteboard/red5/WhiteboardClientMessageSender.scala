@@ -1,9 +1,7 @@
 package org.bigbluebutton.core.apps.whiteboard.red5
 
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService
-import org.bigbluebutton.core.api.OutMessageListener2
-import org.bigbluebutton.core.api.IOutMessage
-import org.bigbluebutton.core.apps.whiteboard.messages._
+import org.bigbluebutton.core.api._
 import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage
 import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage
 import scala.collection.JavaConversions._

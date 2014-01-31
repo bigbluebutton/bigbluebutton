@@ -24,11 +24,6 @@ class User(val intUserID: String, val extUserID: String, val name: String, val r
   def unbecomePresenter() {
     presenter = false
   }
-  
-  def toUserVO():UserVO = {
-    new UserVO(intUserID, extUserID, name, role.toString, handRaised, 
-        isPresenter, hasStream)
-  }
 }
 
 case class VoiceUser(userId: String, muted: Boolean=false, talking: Boolean=false, locked: Boolean=false)

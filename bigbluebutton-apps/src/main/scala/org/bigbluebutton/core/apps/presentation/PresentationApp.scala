@@ -1,30 +1,15 @@
 package org.bigbluebutton.core.apps.presentation
 
-import org.bigbluebutton.core.api.InMessage
-import org.bigbluebutton.core.api.MessageOutGateway
-import org.bigbluebutton.core.api.ClearPresentation
-import org.bigbluebutton.core.api.PresentationConversionUpdate
-import org.bigbluebutton.core.api.RemovePresentation
-import org.bigbluebutton.core.api.GetPresentationInfo
-import org.bigbluebutton.core.api.SendCursorUpdate
-import org.bigbluebutton.core.api.ResizeAndMoveSlide
-import org.bigbluebutton.core.api.GotoSlide
-import org.bigbluebutton.core.api.SharePresentation
-import org.bigbluebutton.core.api.GetSlideInfo
-import org.bigbluebutton.core.apps.users.UsersApp
-import org.bigbluebutton.core.api.ClearPresentationOutMsg
-import org.bigbluebutton.core.api.SendCursorUpdateOutMsg
-import org.bigbluebutton.core.api.ResizeAndMoveSlideOutMsg
-import org.bigbluebutton.core.api.GotoSlideOutMsg
-import org.bigbluebutton.core.api.GetSlideInfoOutMsg
-import org.bigbluebutton.core.api.GetPresentationInfoOutMsg
-import org.bigbluebutton.core.api.InitializeMeeting
-import org.bigbluebutton.core.api.PreuploadedPresentations
-import org.bigbluebutton.core.api.PresentationConversionUpdateOutMsg
-import org.bigbluebutton.core.api.SharePresentationOutMsg
+import org.bigbluebutton.core.api._
+import net.lag.logging.Logger
+import org.bigbluebutton.core.MeetingActor
 
-class PresentationApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway, usersApp: UsersApp) {
-
+trait PresentationApp {
+  this : MeetingActor =>
+  
+  val log: Logger
+  val outGW: MessageOutGateway
+  
   private var currentPresentation = ""
   private var currentSlide = 0
   private var sharing = false
@@ -38,25 +23,8 @@ class PresentationApp(meetingID: String, recorded: Boolean, outGW: MessageOutGat
   private var yCursorPercent = 0D
 	
   private var presentationIDs = new java.util.ArrayList[String]();
-	
-    def handleMessage(msg: InMessage):Unit = {
-    	msg match {
-    	  case initializeMeeting: InitializeMeeting => handleInitializeMeeting(initializeMeeting)
-    	  case clearPresentation: ClearPresentation => handleClearPresentation(clearPresentation)
-    	  case presentationConversionUpdate: PresentationConversionUpdate => handlePresentationConversionUpdate(presentationConversionUpdate)
-    	  case removePresentation: RemovePresentation => handleRemovePresentation(removePresentation)
-    	  case getPresentationInfo : GetPresentationInfo => handleGetPresentationInfo(getPresentationInfo)
-    	  case sendCursorUpdate : SendCursorUpdate => handleSendCursorUpdate(sendCursorUpdate)
-    	  case resizeAndMoveSlide: ResizeAndMoveSlide => handleResizeAndMoveSlide(resizeAndMoveSlide)
-    	  case gotoSlide: GotoSlide => handleGotoSlide(gotoSlide)
-    	  case sharePresentation: SharePresentation => handleSharePresentation(sharePresentation)
-    	  case getSlideInfo: GetSlideInfo => handleGetSlideInfo(getSlideInfo)
-    	  case preuploadedPresentetations: PreuploadedPresentations => handlePreuploadedPresentations(preuploadedPresentetations)
-    	  case _ => // do nothing
-    	}
-    }
-    
-    private def handlePreuploadedPresentations(msg: PreuploadedPresentations) {
+	    
+    def handlePreuploadedPresentations(msg: PreuploadedPresentations) {
       val pres = msg.presentations
       
       msg.presentations.foreach(presentationID => {
@@ -64,17 +32,17 @@ class PresentationApp(meetingID: String, recorded: Boolean, outGW: MessageOutGat
       })
     }
     
-    private def handleInitializeMeeting(msg: InitializeMeeting) {
-      
+    def handleInitializeMeeting(msg: InitializeMeeting) {
+       
     }
     
-    private def handleClearPresentation(msg: ClearPresentation) {
+    def handleClearPresentation(msg: ClearPresentation) {
       currentPresentation = ""
       sharing = false
       outGW.send(new ClearPresentationOutMsg(meetingID, recorded))
     }
     
-    private def handlePresentationConversionUpdate(msg: PresentationConversionUpdate) {
+    def handlePresentationConversionUpdate(msg: PresentationConversionUpdate) {
 
     	val presentationID = msg.msg.get("presentationName")
         val messageKey = msg.msg.get("messageKey").asInstanceOf[String]
@@ -87,7 +55,7 @@ class PresentationApp(meetingID: String, recorded: Boolean, outGW: MessageOutGat
     	outGW.send(new PresentationConversionUpdateOutMsg(meetingID, recorded, msg.msg))
     }
     
-    private def handleRemovePresentation(msg: RemovePresentation) {
+    def handleRemovePresentation(msg: RemovePresentation) {
         val index = presentationIDs.indexOf(msg.presentationID);
         
         if (index < 0) {
@@ -101,48 +69,48 @@ class PresentationApp(meetingID: String, recorded: Boolean, outGW: MessageOutGat
         }      
     }
     
-    private def handleGetPresentationInfo(msg: GetPresentationInfo) {
-		val curPresenter = usersApp.getCurrentPresenter();
+    def handleGetPresentationInfo(msg: GetPresentationInfo) {
+		val curPresenter = getCurrentPresenter;
 				
-		val presenter = new java.util.HashMap[String, Object]();		
+		val presenter = new scala.collection.immutable.HashMap[String, Object]();		
 		if (curPresenter != null) {
-			presenter.put("hasPresenter", true:java.lang.Boolean);
-			presenter.put("user", curPresenter.presenterID);
-			presenter.put("name", curPresenter.presenterName);
-			presenter.put("assignedBy",curPresenter.assignedBy);
+			presenter + "hasPresenter" -> true
+			presenter + "user" -> curPresenter.presenterID
+			presenter + "name" -> curPresenter.presenterName
+			presenter + "assignedBy" -> curPresenter.assignedBy
 		} else {
-			presenter.put("hasPresenter", false:java.lang.Boolean);
+			presenter + "hasPresenter" -> false
 		}
 				
-		val presentation = new java.util.HashMap[String, Object]();
+		val presentation = new scala.collection.immutable.HashMap[String, Object]();
 		
 		if (sharing) {
-			presentation.put("sharing", true:java.lang.Boolean)
-			presentation.put("slide", currentSlide:java.lang.Integer)
-			presentation.put("currentPresentation", currentPresentation)
-			presentation.put("xOffset", xOffset:java.lang.Double)
-			presentation.put("yOffset", yOffset:java.lang.Double)
-			presentation.put("widthRatio", widthRatio:java.lang.Double)
-			presentation.put("heightRatio", heightRatio:java.lang.Double)
+			presentation + "sharing" -> true
+			presentation + "slide" -> currentSlide
+			presentation + "currentPresentation" -> currentPresentation
+			presentation + "xOffset" -> xOffset
+			presentation + "yOffset" -> yOffset
+			presentation + "widthRatio" -> widthRatio
+			presentation + "heightRatio" -> heightRatio
 		} else {
-			presentation.put("sharing", false:java.lang.Boolean)
+			presentation + "sharing" -> false
 		}
 		
-		val presentationInfo = new java.util.HashMap[String, Object]();
-		presentationInfo.put("presenter", presenter);
-		presentationInfo.put("presentation", presentation);
-		presentationInfo.put("presentations", presentationIDs);
+		val presentationInfo = new scala.collection.immutable.HashMap[String, Object]();
+		presentationInfo + "presenter" -> presenter
+		presentationInfo + "presentation" -> presentation
+		presentationInfo + "presentations" -> presentationIDs
 		
 		outGW.send(new GetPresentationInfoOutMsg(meetingID, recorded, msg.requesterID, presentationInfo))    
     }
     
-    private def handleSendCursorUpdate(msg: SendCursorUpdate) {
+    def handleSendCursorUpdate(msg: SendCursorUpdate) {
       xCursorPercent = msg.xPercent
       yCursorPercent = msg.yPercent
       outGW.send(new SendCursorUpdateOutMsg(meetingID, recorded, xCursorPercent, yCursorPercent))
     }
     
-    private def handleResizeAndMoveSlide(msg: ResizeAndMoveSlide) {
+    def handleResizeAndMoveSlide(msg: ResizeAndMoveSlide) {
       xOffset = msg.xOffset
       yOffset = msg.yOffset
       widthRatio = msg.widthRatio
@@ -150,16 +118,16 @@ class PresentationApp(meetingID: String, recorded: Boolean, outGW: MessageOutGat
       outGW.send(new ResizeAndMoveSlideOutMsg(meetingID, recorded, xOffset, yOffset, widthRatio, heightRatio))
     }
     
-    private def handleGotoSlide(msg: GotoSlide) {
+    def handleGotoSlide(msg: GotoSlide) {
       currentSlide = msg.slide
       outGW.send(new GotoSlideOutMsg(meetingID, recorded, msg.slide))
     }
     
-    private def handleSharePresentation(msg: SharePresentation) {
+    def handleSharePresentation(msg: SharePresentation) {
       sharePresentation(msg.presentationID, msg.share)
     }
     
-    private def sharePresentation(presentationID: String, share: Boolean) {
+    def sharePresentation(presentationID: String, share: Boolean) {
       
   		sharing = share;
   		
@@ -177,7 +145,7 @@ class PresentationApp(meetingID: String, recorded: Boolean, outGW: MessageOutGat
       outGW.send(new SharePresentationOutMsg(meetingID, recorded, currentPresentation, share))	      
     }
     
-    private def handleGetSlideInfo(msg: GetSlideInfo) {
+    def handleGetSlideInfo(msg: GetSlideInfo) {
       outGW.send(new GetSlideInfoOutMsg(meetingID, recorded, msg.requesterID, xOffset, yOffset, widthRatio, heightRatio))
     }
     

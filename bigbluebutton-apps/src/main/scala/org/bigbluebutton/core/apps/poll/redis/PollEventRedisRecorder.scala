@@ -1,9 +1,7 @@
 package org.bigbluebutton.core.apps.poll.redis
 
 import org.bigbluebutton.conference.service.recorder.RecorderApplication
-import org.bigbluebutton.core.api.OutMessageListener2
-import org.bigbluebutton.core.api.IOutMessage
-import org.bigbluebutton.core.apps.poll.messages._
+import org.bigbluebutton.core.api._
 import org.bigbluebutton.conference.service.recorder.polling.PollCreatedRecordEvent
 import org.bigbluebutton.conference.service.recorder.polling.PollUpdatedRecordEvent
 import org.bigbluebutton.conference.service.recorder.polling.PollRemovedRecordEvent
