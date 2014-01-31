@@ -57,15 +57,7 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
 	      case _ => // do nothing
     }
   }
-  
-//  def isUserModerator(userID: String):Boolean = {
-//    users.isModerator(userID)
-//  }
-  
-//  def isUserPresenter(userID: String):Boolean = {
-//    users.isPresenter(userID)
-//  }
-  
+   
   def getCurrentPresenter():Presenter = {
     currentPresenter
   }
@@ -104,11 +96,9 @@ class UsersApp(meetingID: String, recorded: Boolean, outGW: MessageOutGateway) {
   private def handleInitLockSettings(msg: InitLockSettings) {
     if (lockSettings != msg.settings || locked != msg.locked) {
 	    lockSettings = msg.settings   
-	    locked = msg.locked
-	    
+	    locked = msg.locked	    
 	    outGW.send(new LockSettingsInitialized(msg.meetingID, msg.locked, msg.settings))
     }
-
   }  
   
   private def handleChangeUserStatus(msg: ChangeUserStatus):Unit = {    
