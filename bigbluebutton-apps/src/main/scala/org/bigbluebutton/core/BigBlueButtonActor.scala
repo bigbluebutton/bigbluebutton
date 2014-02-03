@@ -103,7 +103,7 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
     meetings.get(msg.meetingID) match {
       case None => // do nothing
       case Some(m) => {
-        outGW.send(new MeetingEnded(m.meetingID))
+        outGW.send(new MeetingEnded(m.meetingID, m.recorded, m.voiceBridge))
         m ! StopMeetingActor
         meetings -= msg.meetingID
       }
@@ -116,7 +116,7 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
     	  var m = new MeetingActor(msg.meetingID, msg.recorded, msg.voiceBridge, outGW)
     	  m.start
     	  meetings += m.meetingID -> m
-    	  outGW.send(new MeetingCreated(m.meetingID))
+    	  outGW.send(new MeetingCreated(m.meetingID, m.recorded, m.voiceBridge))
     	  
     	  m ! new InitializeMeeting(m.meetingID, m.recorded)
       }

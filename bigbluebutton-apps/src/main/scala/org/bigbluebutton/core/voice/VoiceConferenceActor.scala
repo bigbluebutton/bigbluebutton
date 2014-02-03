@@ -1,4 +1,4 @@
-package org.bigbluebutton.core
+package org.bigbluebutton.core.voice
 
 import scala.actors.Actor
 import scala.actors.Actor._

@@ -114,26 +114,12 @@ case class VoiceUserJoinedMessage(
     muted: Boolean, 
     talking: Boolean) extends InMessage
     
-case class VoiceUserLeftMessage(meetingID: String, user: String, voiceConfId: String) extends InMessage
-case class VoiceUserMutedMessage(meetingID: String, user: String, voiceConfId: String, muted: Boolean) extends InMessage
-case class VoiceUserTalkingMessage(meetingID: String, user: String, voiceConfId: String, talking: Boolean) extends InMessage
-case class VoiceStartedRecordingMessage(meetingID: String, voiceConfId: String, filename: String, timestamp: String, record: Boolean) extends InMessage
 
-// Need these extra classes since InMessage needs meetingID as parameter and
-// our messages from FreeSWITCH doesn't have it.
-trait VoiceMessage
-case class VoiceUserJoined(
-    user: String, 
-    voiceConfId: String, 
-    callerIdNum: String, 
-    callerIdName: String, 
-    muted: Boolean, 
-    speaking: Boolean) extends VoiceMessage
-    
-case class VoiceUserLeft(user: String, voiceConfId: String) extends VoiceMessage
-case class VoiceUserMuted(user: String, voiceConfId: String, muted: Boolean) extends VoiceMessage
-case class VoiceUserTalking(user: String, voiceConfId: String, talking: Boolean) extends VoiceMessage
-case class VoiceStartedRecording(voiceConfId: String, filename: String, timestamp: String, record: Boolean) extends VoiceMessage
+case class VoiceUserJoined(meetingID: String, voiceUser: VoiceUser) extends InMessage  
+case class VoiceUserLeft(meetingID: String, userId: String) extends InMessage
+case class VoiceUserMuted(meetingID: String, userId: String, muted: Boolean) extends InMessage
+case class VoiceUserTalking(meetingID: String, userId: String, talking: Boolean) extends InMessage
+case class VoiceRecording(meetingID: String, recording: Boolean, metadata:Map[String, String]) extends InMessage
 
 // Whiteboard
 case class SendWhiteboardAnnotationRequest(meetingID: String, requesterID: String, annotation: AnnotationVO) extends InMessage

@@ -11,7 +11,12 @@ case class Presenter(presenterID: String, presenterName: String,
                      
 case class UserVO(userID: String, externUserID: String, name: String, 
                   role: Role.Role, raiseHand: Boolean, presenter: Boolean, 
-                  hasStream: Boolean, locked: Boolean)
+                  hasStream: Boolean, locked: Boolean, 
+                  voiceUser: Option[VoiceUser])
+
+case class VoiceUser(userId: String, locked: Boolean, 
+                     muted: Boolean, talking: Boolean, 
+                     metadata: Map[String, String])                  
                   
 case class MeetingConfig(name: String, id: MeetingID, 
                   passwords: MeetingPasswords, welcomeMsg: String, 
@@ -20,23 +25,13 @@ case class MeetingConfig(name: String, id: MeetingID,
 	              duration: MeetingDuration,
 	              defaultAvatarURL: String, defaultConfigToken: String)
 
-case class MeetingName(
-    name: String)
+case class MeetingName(name: String)
     
-case class MeetingID(
-    internal:String, 
-    external: String)
+case class MeetingID(internal:String, external: String)
     
-case class VoiceConfig(
-    telVoice: String, 
-    webVoice: String, 
-    dialNumber: String)
+case class VoiceConfig(telVoice: String, webVoice: String, dialNumber: String)
     
-case class MeetingPasswords(
-    moderatorPass: String, 
-    viewerPass: String)
+case class MeetingPasswords(moderatorPass: String, viewerPass: String)
     
-case class MeetingDuration(duration: Int = 0, 
-    createdTime: Long = 0, 
-    startTime: Long = 0, 
-    endTime: Long = 0)
+case class MeetingDuration(duration: Int = 0, createdTime: Long = 0, 
+                           startTime: Long = 0, endTime: Long = 0)
