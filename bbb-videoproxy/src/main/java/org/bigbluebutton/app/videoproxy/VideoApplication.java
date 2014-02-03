@@ -53,6 +53,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter implements
     private boolean recordVideoStream = false;
     private EventRecordingService recordingService;
     private final Map<String, IStreamListener> streamListeners = new HashMap<String, IStreamListener>();
+    private final Map<String, IStreamListener> localStreamListeners = new HashMap<String, IStreamListener>();
     
     @Override
     public boolean appStart(IScope app) {
@@ -117,7 +118,8 @@ public class VideoApplication extends MultiThreadedApplicationAdapter implements
 
          //VideoProxyReceiver v = new VideoProxyReceiver("143.54.10.63", "videoproxy", "conferencia", stream.getPublishedName(), rtmpReader);
          //v.start();
-         stream.addStreamListener(this);
+         IStreamListener rtmpStreamListener = new RTMPStreamListener(stream.getPublishedName());
+         stream.addStreamListener(rtmpStreamListener);
 
          //String videoFilename = "/home/mconf/bbbot/bot/etc/video-sample.flv";
          //FlvPreLoader loader = new FlvPreLoader(videoFilename);
@@ -181,21 +183,12 @@ public class VideoApplication extends MultiThreadedApplicationAdapter implements
     }
 
 
+    public void createRetransmitter(String streamName, String destination, String app, String conference) {
 
-
-
-    public void packetReceived(IBroadcastStream stream, IStreamPacket packet) {
-        if (packet instanceof VideoData) {
-                VideoData aux = (VideoData) packet;
-                final int ts = aux.getTimestamp();
-                IoBuffer data = aux.getData();
-                //if(data != null) Need to check
-                int lenght = data.limit();
-                final byte[] array = new byte[lenght];
-                data.mark();
-                data.get(array);
-                data.reset();
-                rtmpReader.addFrame(new Video(ts, array, lenght));
-        }
     }
+
+
+
+
+    
 }

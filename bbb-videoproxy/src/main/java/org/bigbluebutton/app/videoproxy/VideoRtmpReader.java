@@ -44,36 +44,6 @@ public class VideoRtmpReader implements RtmpReader {
         System.out.println("INITIALIZED");
     }
     
-    /*
-    public int onReadyFrame (int bufferSize, int timestamp)
-    {    	
-    	if(firstTimestamp == 0){
-    		firstTimestamp = timestamp;
-    	}    	
-    	timestamp = timestamp - firstTimestamp;
-    	int interval = timestamp - lastTimestamp;
-    	lastTimestamp = timestamp;
-    	
-    	byte[] aux = new byte[bufferSize];
-    	System.arraycopy(sharedBuffer, 0, aux, 0, bufferSize); //\TODO see if we can avoid this copy
-    	
-       	Video video = new Video(timestamp, aux, bufferSize);
-   	    video.getHeader().setDeltaTime(interval);
-
-   	    if (framesListAvailable) {
-   	    	framesList.add(video);
-			if (firstFrameWrote) {
-				firstFrameWrote = false;
-				videoPublishHandler.fireFirstFrame();
-			}
-			synchronized(this) {
-				this.notifyAll();
-			}
-   	    }
-    	return 0;
-    }
-    */
-
     public void addFrame(Video video) {
         synchronized(this) {
            framesList.add(video);
