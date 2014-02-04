@@ -206,29 +206,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 			
+			public function hideChromeAllow():void{
+				PopUpManager.removePopUp(chromeAllow);			  
+			}
 			/*			
 			private function showMicSettingsPanel():void {
-			if (settingBtn.selected) {
-			if (mic != null) {
-			if (mic.muted) {
-			Security.showSettings(SecurityPanel.PRIVACY);
-			settingBtn.selected = false;
-			return;
-			} else {
-			mic.setLoopBack(true);
-			mic.setUseEchoSuppression(true);
-			Security.showSettings(SecurityPanel.MICROPHONE);
+				if (settingBtn.selected) {
+					if (mic != null) {
+						if (mic.muted) {
+							Security.showSettings(SecurityPanel.PRIVACY);
+							settingBtn.selected = false;
+							return;
+						} else {
+							mic.setLoopBack(true);
+							mic.setUseEchoSuppression(true);
+							Security.showSettings(SecurityPanel.MICROPHONE);
+						}
+					}
+				} else {
+					mic.setLoopBack(false);
+				}	
 			}
-			}
-			} else {
-			mic.setLoopBack(false);
-			}	
-			}
 			
-			*/			
-			
-			
-			
+			*/
 			
 			private function onJoinClicked():void {
 				
