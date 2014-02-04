@@ -47,7 +47,7 @@ Panel {
   color: #e1e2e5;
 }
 
-Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowChangeResolutionCombo, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop {
+Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowChangeResolutionCombo, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle {
   textIndent: 0;
   paddingLeft: 10;
   paddingRight: 10;
@@ -479,7 +479,17 @@ DataGrid {
 }
 
 .micSettingsWindowHelpButtonStyle {
-  icon:   Embed('assets/images/questionmark.png');
+	paddingLeft: 4;
+	paddingRight: 4;
+	paddingTop: 2;
+	paddingBottom: 2;
+	fontSize: 16;
+	rollOverColor: #cccccc;
+	selectionColor: #999999;
+	color: #504f3d;
+	textRollOverColor: #ffffff;
+	textSelectedColor: #ffffff;
+	fontWeight: bold;
 }
 
 MDIWindow { /*None of the following properties are overridden by the MDIWindow class*/
