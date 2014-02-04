@@ -14,7 +14,9 @@
             
             private function joinAnyway():void {                          
                 PopUpManager.removePopUp(this);
+                micsettings.hideChromeAllow();
                 micsettings.joinConference();
+                
             }
         ]]>
     </mx:Script>

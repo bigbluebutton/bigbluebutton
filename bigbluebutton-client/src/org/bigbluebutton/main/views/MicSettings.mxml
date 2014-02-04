@@ -203,6 +203,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
            }
 			}
 			
+			public function hideChromeAllow():void{
+			   PopUpManager.removePopUp(chromeAllow);			  
+			}
 /*			
       private function showMicSettingsPanel():void {
           if (settingBtn.selected) {
