@@ -266,6 +266,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function cleanUp():void {
+				hideChromeAllow();
+				
 				if (timer) timer.stop();
 				mic.setLoopBack(false);
 				mic = null;
