@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<!-- containers\layouts\myComponents\MyLoginForm.mxml -->
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
                 xmlns:mate="http://mate.asfusion.com/" 
         				width="600"
-        				height="350" 
-                styleName="micSettingsWindowStyle">
+        				horizontalAlign="center"
+        				title="Audio Warning"
+               >
 
     <mx:Script>
         <![CDATA[
@@ -20,7 +20,7 @@
             }
         ]]>
     </mx:Script>
-    <mx:Text width="100%" text="Your microphone did not show any activity, you won't be able to hear anything during the session." />  
+    <mx:Text width="100%" textAlign="center" text="Your microphone did not show any activity, you won't be able to hear anything during the session." />  
     <mx:HBox>      
         <mx:Button click="joinAnyway();" label="Join anyway"/> 
         <mx:Button label="Test again" click="PopUpManager.removePopUp(this);"/> 
