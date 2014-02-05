@@ -133,6 +133,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         fileFormatHintLbl.visible = false;
         fileFormatHintLbl.includeInLayout = false;
 		
+		uploadedFilesList.enabled = false;
+		
         progressReportBox.includeInLayout = true;
         progressReportBox.visible = true;
 		
@@ -306,7 +308,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </mx:HBox>
     <mx:Label id="presentationNamesLb" text="{ResourceUtil.getInstance().getString('bbb.fileupload.presentationNamesLbl')}" styleName="presentationNamesLabelStyle" paddingLeft="5"/>
     <mx:Canvas width="100%" height="140" verticalScrollPolicy="off">
-      <mx:List width="100%" height="120" left="5" top="5" right="5" alternatingItemColors="[#EFEFEF, #FEFEFE]" allowMultipleSelection="false"
+      <mx:List width="100%" height="120" left="5" top="5" right="5" id="uploadedFilesList" alternatingItemColors="[#EFEFEF, #FEFEFE]" allowMultipleSelection="false"
                itemRenderer="org.bigbluebutton.modules.present.ui.views.UploadedPresentationRenderer"
                dragEnabled="false" dataProvider="{presentationNamesAC}">
       </mx:List>
