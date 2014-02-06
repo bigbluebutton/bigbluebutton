@@ -4,7 +4,7 @@ import scala.actors.Actor
 import scala.actors.Actor._
 import org.bigbluebutton.core.api._
 
-case class FsVoiceUserJoined(userId: String, webUserId: Option[String], 
+case class FsVoiceUserJoined(userId: String, webUserId: String, 
                              conference: String, callerIdNum: String, 
                              callerIdName: String, muted: Boolean, 
                              speaking: Boolean)
@@ -30,11 +30,12 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
 	    case msg: EjectVoiceUser => handleEjectVoiceUser(msg)
 	    case msg: StartRecording => handleStartRecording(msg)
 	    case msg: StopRecording => handleStopRecording(msg)
-	    case msg: FsVoiceUserJoined => handleVoiceUserJoined(msg)
-	    case msg: FsVoiceUserLeft => handleVoiceUserLeft(msg)
-	    case msg: FsVoiceUserLocked => handleVoiceUserLocked(msg)
-	    case msg: FsVoiceUserMuted => handleVoiceUserMuted(msg)
-	    case msg: FsVoiceUserTalking => handleVoiceUserTalking(msg)
+	    case msg: FsRecording => handleFsRecording(msg)
+	    case msg: FsVoiceUserJoined => handleFsVoiceUserJoined(msg)
+	    case msg: FsVoiceUserLeft => handleFsVoiceUserLeft(msg)
+	    case msg: FsVoiceUserLocked => handleFsVoiceUserLocked(msg)
+	    case msg: FsVoiceUserMuted => handleFsVoiceUserMuted(msg)
+	    case msg: FsVoiceUserTalking => handleFsVoiceUserTalking(msg)
 	  }
 	}
   }  
@@ -65,7 +66,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     fsconf foreach (fc => {
       fc.addUser(msg.user)
       if (fc.numUsers == 1 && fc.recorded) {
-        fsproxy.startRecording(fc.conferenceNum)
+        fsproxy.startRecording(fc.conferenceNum, fc.meetingId)
       }
     })
   }
@@ -111,6 +112,10 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     
   }  
   
+  private def handleFsRecording(msg: FsRecording) {
+    
+  }
+  
   private def sendNonWebUserJoined(meetingId: String, webUserId: String, 
       msg: FsVoiceUserJoined) {
      bbbInGW.voiceUserJoined(meetingId, msg.userId, 
@@ -118,23 +123,18 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
 	              msg.muted, msg.speaking)    
   }
   
-  private def handleVoiceUserJoined(msg: FsVoiceUserJoined) {
+  private def handleFsVoiceUserJoined(msg: FsVoiceUserJoined) {
     val fsconf = confs.values find (c => c.conferenceNum == msg.conference)
     
     fsconf foreach (fc => {
-      msg.webUserId match {
-        case Some(wid) =>
-	      fc.getWebUser(wid) match {
-	        case Some(user) => sendNonWebUserJoined(fc.meetingId, wid, msg)
-	        case None => sendNonWebUserJoined(fc.meetingId, msg.userId, msg)
-	      }  
-        case None => sendNonWebUserJoined(fc.meetingId, msg.userId, msg)
-      }
-
+	  fc.getWebUser(msg.webUserId) match {
+	   case Some(user) => sendNonWebUserJoined(fc.meetingId, msg.webUserId, msg)
+	   case None => sendNonWebUserJoined(fc.meetingId, msg.userId, msg)
+	  }
     })
   }
   
-  private def handleVoiceUserLeft(msg: FsVoiceUserLeft) {
+  private def handleFsVoiceUserLeft(msg: FsVoiceUserLeft) {
     val fsconf = confs.values find (c => c.conferenceNum == msg.conference)
     
     fsconf foreach (fc => {
@@ -143,7 +143,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     })
   }
   
-  private def handleVoiceUserLocked(msg: FsVoiceUserLocked) {
+  private def handleFsVoiceUserLocked(msg: FsVoiceUserLocked) {
     val fsconf = confs.values find (c => c.conferenceNum == msg.conference)
     
     fsconf foreach (fc => {
@@ -152,7 +152,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     })    
   }
   
-  private def handleVoiceUserMuted(msg: FsVoiceUserMuted) {
+  private def handleFsVoiceUserMuted(msg: FsVoiceUserMuted) {
     val fsconf = confs.values find (c => c.conferenceNum == msg.conference)
     
     fsconf foreach (fc => {
@@ -161,7 +161,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     })      
   }
   
-  private def handleVoiceUserTalking(msg: FsVoiceUserTalking) {
+  private def handleFsVoiceUserTalking(msg: FsVoiceUserTalking) {
     val fsconf = confs.values find (c => c.conferenceNum == msg.conference)
     
     fsconf foreach (fc => {

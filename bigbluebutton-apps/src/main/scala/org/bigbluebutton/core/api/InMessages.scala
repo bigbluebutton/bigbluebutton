@@ -9,58 +9,126 @@ trait InMessage {val meetingID: String}
 
 case class KeepAliveMessage(aliveID:String)
 
-case class CreateMeeting(meetingID: String, recorded: Boolean, voiceBridge: String) extends InMessage
-case class InitializeMeeting(meetingID: String, recorded: Boolean) extends InMessage
+case class CreateMeeting(meetingID: String, recorded: Boolean, 
+                         voiceBridge: String) extends InMessage
+                         
+case class InitializeMeeting(meetingID: String, 
+                             recorded: Boolean) extends InMessage
+                             
 case class DestroyMeeting(meetingID: String) extends InMessage
+
 case class StartMeeting(meetingID: String) extends InMessage
+
 case class EndMeeting(meetingID: String) extends InMessage
-case class LockSetting(meetingID: String, locked: Boolean, settings: Map[String, Boolean]) extends InMessage
+
+case class LockSetting(meetingID: String, locked: Boolean, 
+                       settings: Map[String, Boolean]) extends InMessage
 
 // Lock
-case class LockUser(meetingID: String, userId: String, lock: Boolean) extends InMessage
-case class LockAllUsers(meetingID: String, lock: Boolean, exceptUsers: Seq[String]) extends InMessage
+case class LockUser(meetingID: String, userId: String, 
+                    lock: Boolean) extends InMessage
+                    
+case class LockAllUsers(meetingID: String, lock: Boolean, 
+                        exceptUsers: Seq[String]) extends InMessage
+                        
 case class InitLockSettings(meetingID: String, locked: Boolean, 
-                        settings: LockSettings) extends InMessage
+                            settings: LockSettings) extends InMessage
+                            
 case class SetLockSettings(meetingID: String,  
-                        settings: LockSettings) extends InMessage
-case class GetLockSettings(meetingID: String, userId: String) extends InMessage
-case class IsMeetingLocked(meetingID: String, userId: String) extends InMessage
+                           settings: LockSettings) extends InMessage
+                           
+case class GetLockSettings(meetingID: String, 
+                           userId: String) extends InMessage
+                           
+case class IsMeetingLocked(meetingID: String, 
+                           userId: String) extends InMessage
+                           
 
 // Users
-case class UserJoining(meetingID: String, userID: String, name: String, role: Role, extUserID: String) extends InMessage
-case class UserLeaving(meetingID: String, userID: String) extends InMessage
-case class GetUsers(meetingID: String, requesterID: String) extends InMessage
-case class ChangeUserStatus(meetingID: String, userID: String, status: String, value: Object) extends InMessage
-case class AssignPresenter(meetingID: String, newPresenterID: String, newPresenterName: String, assignedBy: String) extends InMessage
-case class SetRecordingStatus(meetingID: String, userId: String, recording: Boolean) extends InMessage
+case class UserJoining(meetingID: String, userID: String, 
+                       name: String, role: Role, 
+                       extUserID: String) extends InMessage
+                       
+case class UserLeaving(meetingID: String, 
+                       userID: String) extends InMessage
+                       
+case class GetUsers(meetingID: String, 
+                    requesterID: String) extends InMessage
+                    
+case class ChangeUserStatus(meetingID: String, userID: String, 
+                            status: String, value: Object) extends InMessage
+                            
+case class AssignPresenter(meetingID: String, newPresenterID: String, 
+                           newPresenterName: String, 
+                           assignedBy: String) extends InMessage
+                           
+case class SetRecordingStatus(meetingID: String, userId: String, 
+                              recording: Boolean) extends InMessage
+                              
 case class GetRecordingStatus(meetingID: String, userId: String) extends InMessage
 
 // Chat
-case class GetChatHistoryRequest(meetingID: String, requesterID: String) extends InMessage
-case class SendPublicMessageRequest(meetingID: String, requesterID: String, message: Map[String, String]) extends InMessage
-case class SendPrivateMessageRequest(meetingID: String, requesterID: String, message: Map[String, String]) extends InMessage
+case class GetChatHistoryRequest(meetingID: String, 
+                                 requesterID: String) extends InMessage
+                                 
+case class SendPublicMessageRequest(meetingID: String, requesterID: String, 
+                                    message: Map[String, String]) extends InMessage
+                                    
+case class SendPrivateMessageRequest(meetingID: String, requesterID: String, 
+                                     message: Map[String, String]) extends InMessage
 
 // Layout
-case class GetCurrentLayoutRequest(meetingID: String, requesterID: String) extends InMessage
-case class SetLayoutRequest(meetingID: String, requesterID: String, layoutID: String) extends InMessage
-case class LockLayoutRequest(meetingID: String, requesterID: String, layoutID: String) extends InMessage
+case class GetCurrentLayoutRequest(meetingID: String, 
+                                   requesterID: String) extends InMessage
+                                   
+case class SetLayoutRequest(meetingID: String, requesterID: String, 
+                            layoutID: String) extends InMessage
+                            
+case class LockLayoutRequest(meetingID: String, requesterID: String, 
+                             layoutID: String) extends InMessage
+                             
 case class UnlockLayoutRequest(meetingID: String, requesterID: String) extends InMessage
 
 // Poll
 case class PreCreatedPoll(meetingID: String, poll: PollVO) extends InMessage
-case class CreatePoll(meetingID: String, requesterID: String, poll: PollVO) extends InMessage
-case class UpdatePoll(meetingID: String, requesterID: String, poll: PollVO) extends InMessage
+
+case class CreatePoll(meetingID: String, requesterID: String, 
+                      poll: PollVO) extends InMessage
+                      
+case class UpdatePoll(meetingID: String, requesterID: String, 
+                      poll: PollVO) extends InMessage
+                      
 case class GetPolls(meetingID: String, requesterID: String) extends InMessage
-case class DestroyPoll(meetingID: String, requesterID: String, pollID: String) extends InMessage
-case class RemovePoll(meetingID: String, requesterID: String, pollID: String) extends InMessage
-case class SharePoll(meetingID: String, requesterID: String, pollID: String) extends InMessage
-case class ShowPollResult(meetingID: String, requesterID: String, pollID: String) extends InMessage
-case class HidePollResult(meetingID: String, requesterID: String, pollID: String) extends InMessage
-case class StopPoll(meetingID:String, requesterID: String, pollID: String) extends InMessage
-case class StartPoll(meetingID:String, requesterID: String, pollID: String) extends InMessage
-case class ClearPoll(meetingID: String, requesterID: String, pollID: String, force: Boolean=false) extends InMessage
-case class GetPollResult(meetingID:String, requesterID: String, pollID: String) extends InMessage
-case class RespondToPoll(meetingID: String, requesterID: String, response: PollResponseVO) extends InMessage
+
+case class DestroyPoll(meetingID: String, requesterID: String, 
+                       pollID: String) extends InMessage
+                       
+case class RemovePoll(meetingID: String, requesterID: String, 
+                      pollID: String) extends InMessage
+                      
+case class SharePoll(meetingID: String, requesterID: String, 
+                     pollID: String) extends InMessage
+                     
+case class ShowPollResult(meetingID: String, requesterID: String, 
+                          pollID: String) extends InMessage
+                          
+case class HidePollResult(meetingID: String, requesterID: String, 
+                          pollID: String) extends InMessage
+                          
+case class StopPoll(meetingID:String, requesterID: String, 
+                    pollID: String) extends InMessage
+                    
+case class StartPoll(meetingID:String, requesterID: String, 
+                     pollID: String) extends InMessage
+                     
+case class ClearPoll(meetingID: String, requesterID: String, 
+                     pollID: String, force: Boolean=false) extends InMessage
+                     
+case class GetPollResult(meetingID:String, requesterID: String, 
+                         pollID: String) extends InMessage
+                         
+case class RespondToPoll(meetingID: String, requesterID: String, 
+                         response: PollResponseVO) extends InMessage
 
 // Presentation
 case class ClearPresentation(meetingID: String) extends InMessage

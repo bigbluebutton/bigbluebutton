@@ -23,7 +23,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.bigbluebutton.webconference.voice.events.VoiceConferenceEvent;
 import org.bigbluebutton.webconference.voice.events.ConferenceEventListener;
 import org.bigbluebutton.webconference.voice.events.VoiceUserJoinedEvent;
@@ -39,10 +38,10 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
 	private BlockingQueue<VoiceConferenceEvent> messages = new LinkedBlockingQueue<VoiceConferenceEvent>();
 
     private volatile boolean sendMessages = false;
-	private IBigBlueButtonInGW bbbInGW;
+	private IVoiceConferenceService vcs;
 	
-	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
-		bbbInGW = inGW;
+	public void setVoiceConferenceService(IVoiceConferenceService vcs) {
+		this.vcs = vcs;
 	}
 	
     private void queueMessage(VoiceConferenceEvent event) {
@@ -53,25 +52,25 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
 			e.printStackTrace();
 		}
     }
-    
+    			
 	private void sendMessageToBigBlueButton(VoiceConferenceEvent event) {
 		if (event instanceof VoiceUserJoinedEvent) {
 			VoiceUserJoinedEvent evt = (VoiceUserJoinedEvent) event;
-		//	bbbInGW.voiceUserJoined(evt.getUserId(), evt.getRoom(), 
-		//			evt.getCallerIdNum(), evt.getCallerIdName(),
-		//			evt.getMuted(), evt.getSpeaking());
+			vcs.voiceUserJoined(evt.getVoiceUserId(), evt.getUserId(), evt.getRoom(), 
+					evt.getCallerIdNum(), evt.getCallerIdName(),
+					evt.getMuted(), evt.getSpeaking());
 		} else if (event instanceof VoiceUserLeftEvent) {
 			VoiceUserLeftEvent evt = (VoiceUserLeftEvent) event;
-		//	bbbInGW.voiceUserLeft(evt.getUserId(), evt.getRoom());
+			vcs.voiceUserLeft(evt.getUserId(), evt.getRoom());
 		} else if (event instanceof VoiceUserMutedEvent) {
 			VoiceUserMutedEvent evt = (VoiceUserMutedEvent) event;
-		//	bbbInGW.voiceUserMuted(evt.getUserId(), evt.getRoom(), evt.isMuted());
+			vcs.voiceUserMuted(evt.getUserId(), evt.getRoom(), evt.isMuted());
 		} else if (event instanceof VoiceUserTalkingEvent) {
 			VoiceUserTalkingEvent evt = (VoiceUserTalkingEvent) event;
-		//	bbbInGW.voiceUserTalking(evt.getUserId(), evt.getRoom(), evt.isTalking());
+			vcs.voiceUserTalking(evt.getUserId(), evt.getRoom(), evt.isTalking());
 		} else if (event instanceof VoiceStartRecordingEvent) {
 			VoiceStartRecordingEvent evt = (VoiceStartRecordingEvent) event;
-		//	bbbInGW.voiceStartedRecording(evt.getRoom(), evt.getRecordingFilename(), evt.getTimestamp(), evt.startRecord());
+		//	vcs.voiceStartedRecording(evt.getRoom(), evt.getRecordingFilename(), evt.getTimestamp(), evt.startRecord());
 		} 		
 	}
 	

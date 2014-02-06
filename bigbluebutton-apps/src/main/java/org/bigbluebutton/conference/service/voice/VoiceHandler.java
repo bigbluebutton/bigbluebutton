@@ -26,15 +26,12 @@ import org.red5.server.api.scope.IScope;
 import org.red5.server.api.so.ISharedObject;
 import org.red5.server.adapter.ApplicationAdapter;
 import org.red5.server.api.Red5;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;import org.red5.logging.Red5LoggerFactory;
-import org.bigbluebutton.webconference.red5.voice.ClientNotifier; 
+
 public class VoiceHandler extends ApplicationAdapter implements IApplication{
 	private static Logger log = Red5LoggerFactory.getLogger(VoiceHandler.class, "bigbluebutton");
 
 	private static final String VOICE_SO = "meetMeUsersSO";
 	private static final String APP = "VOICE";
-
-	private ClientNotifier clientManager;
-
 
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
@@ -118,14 +115,7 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
     		connection.getScope().setAttribute(VOICE_BRIDGE, getBbbSession().getVoiceBridge());
     	}
     	
-    	
-    	clientManager.addSharedObject(connection.getScope().getName(), voiceBridge, so);
-    	
-    	log.error("TODO: Implement muting users");
-    	
-//    	conferenceService.createConference(voiceBridge, meetingid, record, muted); 			
-//    	conferenceService.createConference(voiceBridge, meetingid, record); 			
-
+    			
 		return true;
 	}
 
@@ -134,23 +124,9 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 	@Override
 	public void roomStop(IScope scope) {
 		log.debug("***** " + APP + " [ " + " roomStop [ " + scope.getName() + "] *********");
-		/**
-		 * Remove the voicebridge from the list of running
-		 * voice conference.
-		 */
-		String voiceBridge = (String) scope.getAttribute(VOICE_BRIDGE);
-//		conferenceService.destroyConference(voiceBridge);
-		clientManager.removeSharedObject(scope.getName());
-		if (hasSharedObject(scope, VOICE_SO)) {
-    		clearSharedObjects(scope, VOICE_SO);
-    	}
+
 	}
-	
-	public void setClientNotifier(ClientNotifier c) {
-		log.debug("Setting voice application");
-		clientManager = c;
-	}
-		
+			
 	private BigBlueButtonSession getBbbSession() {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}

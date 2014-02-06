@@ -1,8 +1,11 @@
 package org.bigbluebutton.core.voice
 
 import org.bigbluebutton.core.api._
+import org.bigbluebutton.freeswitch.FreeswitchManagerProxy
 
-class VoiceConferenceService extends OutMessageListener2 {
+class VoiceConferenceService(fsproxy: FreeswitchManagerProxy, 
+                             bbbInGW: IBigBlueButtonInGW) 
+                             extends OutMessageListener2 {
 
   def handleMessage(msg: IOutMessage) {
 	  msg match {
