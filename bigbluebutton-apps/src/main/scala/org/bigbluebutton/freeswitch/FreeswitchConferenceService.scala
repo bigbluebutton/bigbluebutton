@@ -22,6 +22,7 @@ class FreeswitchConferenceService(fsproxy: FreeswitchManagerProxy,
   def handleMessage(msg: IOutMessage) {
 	  msg match {
 	    case msg: MeetingCreated => handleMeetingCreated(msg)
+	    case _ => // do nothing
 	  }
   }
   

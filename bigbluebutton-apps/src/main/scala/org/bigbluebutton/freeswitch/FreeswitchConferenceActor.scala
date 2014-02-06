@@ -36,6 +36,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
 	    case msg: FsVoiceUserLocked => handleFsVoiceUserLocked(msg)
 	    case msg: FsVoiceUserMuted => handleFsVoiceUserMuted(msg)
 	    case msg: FsVoiceUserTalking => handleFsVoiceUserTalking(msg)
+	    case _ => // do nothing
 	  }
 	}
   }  

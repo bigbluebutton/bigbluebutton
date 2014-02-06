@@ -34,6 +34,7 @@ public class LayoutService {
 
 	public void getCurrentLayout() {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
+		log.debug("Received get current layout request");
 		application.getCurrentLayout(meetingID, getBbbSession().getInternalUserID());
 	}
 	
