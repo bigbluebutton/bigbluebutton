@@ -3,7 +3,6 @@ package org.bigbluebutton.core.apps.presentation.redis
 import org.bigbluebutton.conference.service.recorder.RecorderApplication
 import org.bigbluebutton.core.api.OutMessageListener2
 import org.bigbluebutton.core.api.IOutMessage
-import org.bigbluebutton.core.api.PresentationConversionUpdateOutMsg
 import org.bigbluebutton.conference.service.recorder.presentation.GenerateSlidePresentationRecordEvent
 import org.bigbluebutton.conference.service.recorder.presentation.ConversionCompletedPresentationRecordEvent
 import org.bigbluebutton.core.api.GotoSlideOutMsg
@@ -24,13 +23,18 @@ class PresentationEventRedisRecorder(recorder: RecorderApplication) extends OutM
 	
   def handleMessage(msg: IOutMessage) {
     msg match {
-      case clearPresentationOutMsg: ClearPresentationOutMsg => handleClearPresentationOutMsg(clearPresentationOutMsg)
-      case presentationConversionUpdateOutMsg: PresentationConversionUpdateOutMsg => handlePresentationConversionUpdateOutMsg(presentationConversionUpdateOutMsg)
-      case removePresentationOutMsg: RemovePresentationOutMsg => handleRemovePresentationOutMsg(removePresentationOutMsg)
-      case sendCursorUpdateOutMsg: SendCursorUpdateOutMsg => handleSendCursorUpdateOutMsg(sendCursorUpdateOutMsg)
-      case resizeAndMoveSlideOutMsg: ResizeAndMoveSlideOutMsg => handleResizeAndMoveSlideOutMsg(resizeAndMoveSlideOutMsg)
-      case gotoSlideOutMsg: GotoSlideOutMsg => handleGotoSlideOutMsg(gotoSlideOutMsg)
-      case sharePresentationOutMsg: SharePresentationOutMsg => handleSharePresentationOutMsg(sharePresentationOutMsg)
+      case msg: ClearPresentationOutMsg => 
+                   handleClearPresentationOutMsg(msg)
+      case msg: RemovePresentationOutMsg => 
+                   handleRemovePresentationOutMsg(msg)
+      case msg: SendCursorUpdateOutMsg => 
+                   handleSendCursorUpdateOutMsg(msg)
+      case msg: ResizeAndMoveSlideOutMsg => 
+                   handleResizeAndMoveSlideOutMsg(msg)
+      case msg: GotoSlideOutMsg => 
+                   handleGotoSlideOutMsg(msg)
+      case msg: SharePresentationOutMsg => 
+                   handleSharePresentationOutMsg(msg)
       case _ => // do nothing
     }
   }
@@ -38,7 +42,7 @@ class PresentationEventRedisRecorder(recorder: RecorderApplication) extends OutM
   private def handleClearPresentationOutMsg(msg: ClearPresentationOutMsg) {
     
   }
-  
+/*  
   	private def handlePresentationConversionUpdateOutMsg(msg: PresentationConversionUpdateOutMsg) {
 		if (msg.recorded) {
 			val message = msg.msg;
@@ -63,14 +67,14 @@ class PresentationEventRedisRecorder(recorder: RecorderApplication) extends OutM
 			}			
 		}
 	}
-		
+*/		
 	private def handleGotoSlideOutMsg(msg: GotoSlideOutMsg) {
 		if (msg.recorded) {
 			val event = new GotoSlidePresentationRecordEvent();
 			event.setMeetingId(msg.meetingID);
 			event.setTimestamp(System.currentTimeMillis());
-			event.setSlide(msg.slide);
-			recorder.record(msg.meetingID, event);			
+//			event.setSlide(msg.slide);
+//			recorder.record(msg.meetingID, event);			
 		}
 	}
 
@@ -79,12 +83,12 @@ class PresentationEventRedisRecorder(recorder: RecorderApplication) extends OutM
 			val event = new ResizeAndMoveSlidePresentationRecordEvent();
 			event.setMeetingId(msg.meetingID);
 			event.setTimestamp(System.currentTimeMillis());
-			event.setXOffset(msg.xOffset);
-			event.setYOffset(msg.yOffset);
-			event.setWidthRatio(msg.widthRatio);
-			event.setHeightRatio(msg.heightRatio);
+//			event.setXOffset(msg.xOffset);
+//			event.setYOffset(msg.yOffset);
+//			event.setWidthRatio(msg.widthRatio);
+//			event.setHeightRatio(msg.heightRatio);
 			
-			recorder.record(msg.meetingID, event);			
+//			recorder.record(msg.meetingID, event);			
 		}
 	}
 

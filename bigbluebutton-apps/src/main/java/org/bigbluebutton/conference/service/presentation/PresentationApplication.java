@@ -61,9 +61,9 @@ public class PresentationApplication {
 	}
 
 	public void sendConversionCompleted(String messageKey, String meetingId, 
-            String code, String presentation, String slidesInfo) {
+            String code, String presentation, int numberOfPages) {
 		bbbInGW.sendConversionCompleted(messageKey, meetingId, 
-	            code, presentation, slidesInfo);
+	            code, presentation, numberOfPages);
 	}
 				
 	public void removePresentation(String meetingID, String presentationID){

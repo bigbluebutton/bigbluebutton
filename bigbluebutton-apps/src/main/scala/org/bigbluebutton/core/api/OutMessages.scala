@@ -4,6 +4,8 @@ import org.bigbluebutton.core.apps.poll._
 import org.bigbluebutton.core.LockSettings
 import org.bigbluebutton.core.apps.whiteboard.vo.AnnotationVO
 import org.bigbluebutton.core.apps.presentation.CurrentPresentationInfo
+import org.bigbluebutton.core.apps.presentation.Presentation
+import org.bigbluebutton.core.apps.presentation.Page
 
 abstract class OutMessage
 
@@ -86,15 +88,32 @@ case class PollHideResultOutMsg(meetingID: String, recorded: Boolean, pollID: St
 case class PollShowResultOutMsg(meetingID: String, recorded: Boolean, pollID: String) extends IOutMessage
 
 // Presentation
-case class ClearPresentationOutMsg(meetingID: String, recorded: Boolean) extends IOutMessage
-case class PresentationConversionUpdateOutMsg(meetingID: String, recorded: Boolean, msg: Map[String, Object]) extends IOutMessage
-case class RemovePresentationOutMsg(meetingID: String, recorded: Boolean, presentationID: String) extends IOutMessage
-case class GetPresentationInfoOutMsg(meetingID: String, recorded: Boolean, requesterID: String, info: CurrentPresentationInfo) extends IOutMessage
-case class SendCursorUpdateOutMsg(meetingID: String, recorded: Boolean, xPercent: Double, yPercent: Double) extends IOutMessage
-case class ResizeAndMoveSlideOutMsg(meetingID: String, recorded: Boolean, xOffset: Double, yOffset: Double, widthRatio: Double, heightRatio: Double) extends IOutMessage
-case class GotoSlideOutMsg(meetingID: String, recorded: Boolean, slide: Int) extends IOutMessage
-case class SharePresentationOutMsg(meetingID: String, recorded: Boolean, presentationID: String, share: Boolean) extends IOutMessage
-case class GetSlideInfoOutMsg(meetingID: String, recorded: Boolean, requesterID: String, xOffset: Double, yOffset: Double, widthRatio: Double, heightRatio: Double) extends IOutMessage
+case class ClearPresentationOutMsg(meetingID: String, 
+                                   recorded: Boolean) extends IOutMessage
+                                   
+case class RemovePresentationOutMsg(meetingID: String, 
+                                    recorded: Boolean, 
+                                    presentationID: String) extends IOutMessage
+                                    
+case class GetPresentationInfoOutMsg(meetingID: String, recorded: Boolean, 
+                                     requesterID: String, 
+                                     info: CurrentPresentationInfo) extends IOutMessage
+                                     
+case class SendCursorUpdateOutMsg(meetingID: String, recorded: Boolean, 
+                                  xPercent: Double, yPercent: Double) extends IOutMessage
+                                  
+case class ResizeAndMoveSlideOutMsg(meetingID: String, recorded: Boolean, 
+                                    page: Page) extends IOutMessage
+                                    
+case class GotoSlideOutMsg(meetingID: String, recorded: Boolean, 
+                                    page: Page) extends IOutMessage
+                                    
+case class SharePresentationOutMsg(meetingID: String, recorded: Boolean, 
+                                   presentationID: String, share: Boolean) extends IOutMessage
+                                   
+case class GetSlideInfoOutMsg(meetingID: String, recorded: Boolean, 
+                              requesterID: String, page: Page) extends IOutMessage
+                              
 case class GetPreuploadedPresentationsOutMsg(meetingID:String, recorded: Boolean) extends IOutMessage
 
 case class PresentationConversionProgress(meetingID: String, messageKey: String, 
@@ -108,8 +127,8 @@ case class PresentationPageGenerated(meetingID: String, messageKey: String,
                        numberOfPages: Int, 
                        pagesCompleted: Int) extends IOutMessage
 case class PresentationConversionDone(meetingID: String, messageKey: String, 
-                       code: String, presentationId: String, 
-                       slidesInfo: String) extends IOutMessage
+                       code: String,  
+                       presentation: Presentation) extends IOutMessage
                        
 // Whiteboard
 case class SendWhiteboardAnnotationHistoryReply(meetingID: String, recorded: Boolean, requesterID: String, presentationID: String, numPages: Int, shapes: Array[AnnotationVO]) extends IOutMessage

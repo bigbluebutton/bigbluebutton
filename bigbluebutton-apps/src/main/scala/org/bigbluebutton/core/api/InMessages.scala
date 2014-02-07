@@ -133,26 +133,39 @@ case class RespondToPoll(meetingID: String, requesterID: String,
 
 // Presentation
 case class ClearPresentation(meetingID: String) extends InMessage
+
 case class RemovePresentation(meetingID: String, presentationID: String) extends InMessage
+
 case class GetPresentationInfo(meetingID: String, requesterID: String) extends InMessage
+
 case class SendCursorUpdate(meetingID: String, xPercent: Double, yPercent: Double) extends InMessage
+
 case class ResizeAndMoveSlide(meetingID: String, xOffset: Double, yOffset: Double, widthRatio: Double, heightRatio: Double) extends InMessage
-case class GotoSlide(meetingID: String, slide: Int) extends InMessage
+
+case class GotoSlide(meetingID: String, page: String) extends InMessage
+
 case class SharePresentation(meetingID: String, presentationID: String, share: Boolean) extends InMessage
+
 case class GetSlideInfo(meetingID: String, requesterID: String) extends InMessage
-case class PreuploadedPresentations(meetingID: String, presentations: Array[Object]) extends InMessage
+
+case class PreuploadedPresentations(meetingID: String, 
+                                    presentations: Seq[Presentation]) extends InMessage
+
 case class PresentationConversionUpdate(meetingID: String, messageKey: String, 
             code: String, presentationId: String) extends InMessage
+
 case class PresentationPageCountError(meetingID: String, messageKey: String, 
                        code: String, presentationId: String, 
                        numberOfPages: Int, 
                        maxNumberPages: Int) extends InMessage
+
 case class PresentationSlideGenerated(meetingID: String, messageKey: String, 
                        code: String, presentationId: String, 
                        numberOfPages: Int, 
                        pagesCompleted: Int) extends InMessage
+
 case class PresentationConversionCompleted(meetingID: String, messageKey: String, 
-                       code: String, presentationId: String, 
+                       code: String,  
                        presentation: Presentation) extends InMessage                       
                        
 // Voice

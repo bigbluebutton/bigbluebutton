@@ -70,7 +70,7 @@ public interface IBigBlueButtonInGW {
             int pagesCompleted);
 	
 	void sendConversionCompleted(String messageKey, String meetingId, 
-            String code, String presentation, String slidesInfo);
+            String code, String presentation, int numPages);
 	
 	// Polling
 	void getPolls(String meetingID, String requesterID);
