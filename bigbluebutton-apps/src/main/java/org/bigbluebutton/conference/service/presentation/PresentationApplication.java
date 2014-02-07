@@ -21,6 +21,7 @@ package org.bigbluebutton.conference.service.presentation;
 import org.slf4j.Logger;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.red5.logging.Red5LoggerFactory;
+
 import java.util.Map;
 
 
@@ -38,12 +39,33 @@ public class PresentationApplication {
 	public void clear(String meetingID) {
 		
 	}
+
+	public void sendConversionUpdate(String messageKey, String meetingId, 
+            String code, String presentationId) {
+		bbbInGW.sendConversionUpdate(messageKey, meetingId, code, 
+				presentationId);
+    }
 	
-	public void sendUpdateMessage(Map<String, Object> message){	
-		String meetingID = (String) message.get("room");		
-		bbbInGW.sendUpdateMessage(meetingID, message);
+	public void sendPageCountError(String messageKey, String meetingId, 
+            String code, String presentationId, int numberOfPages,
+            int maxNumberPages) {
+		bbbInGW.sendPageCountError(messageKey, meetingId, code, 
+				presentationId, numberOfPages, maxNumberPages);
 	}
-			
+	
+	public void sendSlideGenerated(String messageKey, String meetingId, 
+            String code, String presentationId, int numberOfPages,
+            int pagesCompleted) {
+		bbbInGW.sendSlideGenerated(messageKey, meetingId, code, 
+				presentationId, numberOfPages, pagesCompleted);
+	}
+
+	public void sendConversionCompleted(String messageKey, String meetingId, 
+            String code, String presentation, String slidesInfo) {
+		bbbInGW.sendConversionCompleted(messageKey, meetingId, 
+	            code, presentation, slidesInfo);
+	}
+				
 	public void removePresentation(String meetingID, String presentationID){
 		bbbInGW.removePresentation(meetingID, presentationID);
     }

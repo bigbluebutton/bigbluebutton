@@ -82,8 +82,14 @@ class MeetingActor(val meetingID: String, val recorded: Boolean,
 	                         handleInitializeMeeting(message)
     	case message: ClearPresentation => 
     	                     handleClearPresentation(message)
-    	case message: PresentationConversionUpdate => 
+    	case message: PresentationConversionUpdate =>
     	                     handlePresentationConversionUpdate(message)
+    	case message: PresentationPageCountError =>
+    	                     handlePresentationPageCountError(message)
+    	case message: PresentationSlideGenerated =>
+    	                     handlePresentationSlideGenerated(message)
+    	case message: PresentationConversionCompleted =>
+    	                     handlePresentationConversionCompleted(message)
     	case message: RemovePresentation => 
     	                     handleRemovePresentation(message)
     	case message: GetPresentationInfo => 

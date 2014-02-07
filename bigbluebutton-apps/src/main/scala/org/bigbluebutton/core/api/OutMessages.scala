@@ -96,6 +96,20 @@ case class SharePresentationOutMsg(meetingID: String, recorded: Boolean, present
 case class GetSlideInfoOutMsg(meetingID: String, recorded: Boolean, requesterID: String, xOffset: Double, yOffset: Double, widthRatio: Double, heightRatio: Double) extends IOutMessage
 case class GetPreuploadedPresentationsOutMsg(meetingID:String, recorded: Boolean) extends IOutMessage
 
+case class PresentationConversionProgress(meetingID: String, messageKey: String, 
+            code: String, presentationId: String) extends IOutMessage
+case class PresentationConversionError(meetingID: String, messageKey: String, 
+                       code: String, presentationId: String, 
+                       numberOfPages: Int, 
+                       maxNumberPages: Int) extends IOutMessage
+case class PresentationPageGenerated(meetingID: String, messageKey: String, 
+                       code: String, presentationId: String, 
+                       numberOfPages: Int, 
+                       pagesCompleted: Int) extends IOutMessage
+case class PresentationConversionDone(meetingID: String, messageKey: String, 
+                       code: String, presentationId: String, 
+                       slidesInfo: String) extends IOutMessage
+                       
 // Whiteboard
 case class SendWhiteboardAnnotationHistoryReply(meetingID: String, recorded: Boolean, requesterID: String, presentationID: String, numPages: Int, shapes: Array[AnnotationVO]) extends IOutMessage
 case class SendWhiteboardAnnotationEvent(meetingID: String, recorded: Boolean, requesterID: String, presentationID: String, page: Int, shape: AnnotationVO) extends IOutMessage

@@ -50,7 +50,6 @@ public interface IBigBlueButtonInGW {
 	
 	// Presentation
 	void clear(String meetingID);
-	void sendUpdateMessage(String meetingID, Map<String, Object> message);
 	void removePresentation(String meetingID, String presentationID);
 	void getPresentationInfo(String meetingID, String requesterID);
 	void sendCursorUpdate(String meetingID, double xPercent, double yPercent);
@@ -58,6 +57,20 @@ public interface IBigBlueButtonInGW {
 	void gotoSlide(String meetingID, int slide);
 	void sharePresentation(String meetingID, String presentationID, boolean share);
 	void getSlideInfo(String meetingID, String requesterID);
+
+	void sendConversionUpdate(String messageKey, String meetingId, 
+            String code, String presentation); 
+	
+	void sendPageCountError(String messageKey, String meetingId, 
+            String code, String presentation, int numberOfPages,
+            int maxNumberPages);
+	
+	void sendSlideGenerated(String messageKey, String meetingId, 
+            String code, String presentation, int numberOfPages,
+            int pagesCompleted);
+	
+	void sendConversionCompleted(String messageKey, String meetingId, 
+            String code, String presentation, String slidesInfo);
 	
 	// Polling
 	void getPolls(String meetingID, String requesterID);

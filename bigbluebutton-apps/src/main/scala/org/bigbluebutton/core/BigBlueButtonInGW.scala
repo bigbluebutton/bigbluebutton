@@ -147,11 +147,32 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	  bbbGW.accept(new ClearPresentation(meetingID))
 	}
 	
-	def sendUpdateMessage(meetingID: String, message: java.util.Map[String, Object]) {
-	  val s = message.mapValues (v => v /* convert java Boolean to Scala Boolean */).toMap
-	  bbbGW.accept(new PresentationConversionUpdate(meetingID, s))
+    def sendConversionUpdate(messageKey: String, meetingId: String, 
+            code: String, presentationId: String) {
+      bbbGW.accept(new PresentationConversionUpdate(meetingId, messageKey, 
+                       code, presentationId))
+    }
+	
+	def sendPageCountError(messageKey: String, meetingId: String, 
+            code: String, presentationId: String, numberOfPages: Int,
+            maxNumberPages: Int) {
+      bbbGW.accept(new PresentationPageCountError(meetingId, messageKey, 
+                       code, presentationId, numberOfPages, maxNumberPages))	  
 	}
 	
+	def sendSlideGenerated(messageKey: String, meetingId: String, 
+            code: String, presentationId: String, numberOfPages: Int,
+            pagesCompleted: Int) {
+      bbbGW.accept(new PresentationSlideGenerated(meetingId, messageKey, 
+                       code, presentationId, numberOfPages, pagesCompleted))	  
+	}
+	
+	def sendConversionCompleted(messageKey: String, meetingId: String, 
+            code: String, presentationId: String, slidesInfo: String) {
+      bbbGW.accept(new PresentationConversionCompleted(meetingId, messageKey, 
+                       code, presentationId, slidesInfo))	  
+	}
+		
 	def removePresentation(meetingID: String, presentationID: String) {
 	  bbbGW.accept(new RemovePresentation(meetingID, presentationID))
 	}

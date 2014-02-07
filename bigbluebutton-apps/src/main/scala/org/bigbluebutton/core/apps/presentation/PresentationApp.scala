@@ -43,18 +43,32 @@ trait PresentationApp {
     }
     
     def handlePresentationConversionUpdate(msg: PresentationConversionUpdate) {
-
-    	val presentationID = msg.msg.get("presentationName")
-        val messageKey = msg.msg.get("messageKey").asInstanceOf[String]
-             
-        if (messageKey.equalsIgnoreCase("CONVERSION_COMPLETED")) {            
-            presentationIDs.add(presentationID.asInstanceOf[String]); 
-            sharePresentation(presentationID.asInstanceOf[String], true);
-        }
-    	
-    	outGW.send(new PresentationConversionUpdateOutMsg(meetingID, recorded, msg.msg))
+      outGW.send(new PresentationConversionProgress(meetingID, msg.messageKey, 
+            msg.code, msg.presentationId))
     }
     
+    def handlePresentationPageCountError(msg: PresentationPageCountError) {
+      outGW.send(new PresentationConversionError(meetingID, msg.messageKey, 
+                       msg.code, msg.presentationId, 
+                       msg.numberOfPages, 
+                       msg.maxNumberPages))      
+    }
+    
+    def handlePresentationSlideGenerated(msg: PresentationSlideGenerated) {
+      outGW.send(new PresentationPageGenerated(meetingID, msg.messageKey, 
+                       msg.code, msg.presentationId, 
+                       msg.numberOfPages, 
+                       msg.pagesCompleted))
+    }
+    
+    def handlePresentationConversionCompleted(msg: PresentationConversionCompleted) {           
+      presentationIDs.add(msg.presentationId); 
+      sharePresentation(msg.presentationId, true);
+      outGW.send(new PresentationConversionDone(meetingID, msg.messageKey, 
+                       msg.code, msg.presentationId, 
+                       msg.slidesInfo))      
+    }
+    	                     
     def handleRemovePresentation(msg: RemovePresentation) {
         val index = presentationIDs.indexOf(msg.presentationID);
         

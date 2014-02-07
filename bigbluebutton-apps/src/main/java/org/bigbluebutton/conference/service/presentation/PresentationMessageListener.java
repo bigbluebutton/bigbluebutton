@@ -26,6 +26,35 @@ public class PresentationMessageListener implements MessageHandler {
 		conversionUpdatesProcessor = p;
 	}	
 
+	private void sendConversionUpdate(String messageKey, String conference, 
+			                          String code, String presentation) {
+		conversionUpdatesProcessor.sendConversionUpdate(messageKey, conference,
+				code, presentation);
+	}
+	
+	public void sendPageCountError(String messageKey, String conference, 
+            String code, String presentation, Integer numberOfPages,
+            Integer maxNumberPages) {
+		conversionUpdatesProcessor.sendPageCountError(messageKey, conference, 
+	            code, presentation, numberOfPages,
+	            maxNumberPages);
+	}
+	
+	private void sendSlideGenerated(String messageKey, String conference, 
+            String code, String presentation, Integer numberOfPages,
+            Integer pagesCompleted) {
+		conversionUpdatesProcessor.sendSlideGenerated(messageKey, conference, 
+	            code, presentation, numberOfPages,
+	            pagesCompleted);
+	}
+		
+	private void sendConversionCompleted(String messageKey, String conference, 
+            String code, String presentation, String slidesInfo) {
+		conversionUpdatesProcessor.sendConversionCompleted(messageKey, conference, 
+	            code, presentation, slidesInfo);
+	}
+	
+	
 	@Override
 	public void handleMessage(String pattern, String channel, String message) {
 		if (channel.equalsIgnoreCase(MessagingConstants.PRESENTATION_CHANNEL)) {
@@ -38,14 +67,7 @@ public class PresentationMessageListener implements MessageHandler {
 	    	String presentationName = (String) map.get("presentationName");
 	    	String conference = (String) map.get("conference");
 	    	String messageKey = (String) map.get("messageKey");
-	    	
-			Map<String, Object> msg = new HashMap<String, Object>();
-			msg.put("conference", conference);
-			msg.put("room", room);
-			msg.put("code", code);
-			msg.put("presentationName", presentationName);
-			msg.put("messageKey", messageKey);
-						
+	    							
 			if (messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_SUCCESS_KEY)||
 					messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_FAILED_KEY)||
 					messageKey.equalsIgnoreCase(SUPPORTED_DOCUMENT_KEY)||
@@ -54,24 +76,27 @@ public class PresentationMessageListener implements MessageHandler {
 					messageKey.equalsIgnoreCase(GENERATED_THUMBNAIL_KEY)||
 					messageKey.equalsIgnoreCase(PAGE_COUNT_FAILED_KEY)){
 				
-				conversionUpdatesProcessor.process(msg);
+				sendConversionUpdate(messageKey, conference, code, presentationName);
+				
 			} else if(messageKey.equalsIgnoreCase(PAGE_COUNT_EXCEEDED_KEY)){
 				Integer numberOfPages = new Integer((String) map.get("numberOfPages"));
 				Integer maxNumberPages = new Integer((String) map.get("maxNumberPages"));
-				msg.put("numberOfPages", numberOfPages);
-				msg.put("maxNumberPages", maxNumberPages);
-				conversionUpdatesProcessor.process(msg);
+				
+				sendPageCountError(messageKey, conference, code,  
+						    presentationName, numberOfPages, maxNumberPages);
+				
 			} else if(messageKey.equalsIgnoreCase(GENERATED_SLIDE_KEY)){
 				Integer numberOfPages = new Integer((String) map.get("numberOfPages"));
 				Integer pagesCompleted = new Integer((String) map.get("pagesCompleted"));
-				msg.put("numberOfPages", numberOfPages);
-				msg.put("pagesCompleted", pagesCompleted);
 				
-				conversionUpdatesProcessor.process(msg);
+				sendSlideGenerated(messageKey, conference, code,  
+					    presentationName, numberOfPages, pagesCompleted);
+				
 			} else if(messageKey.equalsIgnoreCase(CONVERSION_COMPLETED_KEY)){
 				String slidesInfo = (String) map.get("slidesInfo");
-				msg.put("slidesInfo", StringEscapeUtils.unescapeXml(slidesInfo));				
-				conversionUpdatesProcessor.process(msg);
+				
+				sendConversionCompleted(messageKey, conference, code,  
+					    presentationName, slidesInfo);
 			} 
 		}
 	}
