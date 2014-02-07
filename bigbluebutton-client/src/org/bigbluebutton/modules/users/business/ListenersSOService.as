@@ -361,14 +361,14 @@ package org.bigbluebutton.modules.users.business
 				new Responder(
 					// participants - On successful result
 					function(result:Object):void { 
-						LogUtil.debug("Successfully queried participants: " + result.count); 
-						if (result.count > 0) {
-							for(var p:Object in result.participants) 
-							{
-								var u:Object = result.participants[p]
-								userJoin(u.participant, u.name, u.name, u.muted, u.talking);
-							}							
-						}	
+//						LogUtil.debug("Successfully queried participants: " + result.count); 
+//						if (result.count > 0) {
+//							for(var p:Object in result.participants) 
+//							{
+//								var u:Object = result.participants[p]
+//								userJoin(u.participant, u.name, u.name, u.muted, u.talking);
+//							}							
+//						}	
 					},	
 					// status - On error occurred
 					function(status:Object):void { 
@@ -388,13 +388,13 @@ package org.bigbluebutton.modules.users.business
 				new Responder(
 					// participants - On successful result
 					function(result:Object):void { 
-						var e:UsersEvent = new UsersEvent(UsersEvent.ROOM_MUTE_STATE);
-						e.new_state = result as Boolean;
-						dispatcher.dispatchEvent(e);
+//						var e:UsersEvent = new UsersEvent(UsersEvent.ROOM_MUTE_STATE);
+//						e.new_state = result as Boolean;
+//						dispatcher.dispatchEvent(e);
 					},	
 					// status - On error occurred
 					function(status:Object):void { 
-						LogUtil.error("Error occurred:"); 
+//						LogUtil.error("Error occurred:"); 
 						for (var x:Object in status) { 
 							LogUtil.error(x + " : " + status[x]); 
 						} 
@@ -404,14 +404,17 @@ package org.bigbluebutton.modules.users.business
 		}
 		
 		public function getRoomLockState():void{
+      
+      return;
+      
 			var nc:NetConnection = _module.connection;
 			nc.call(
 				"lock.isRoomLocked",// Remote function name
 				new Responder(
 					function(result:Object):void { 
-						var e:UsersEvent = new UsersEvent(UsersEvent.ROOM_LOCK_STATE);
-						e.new_state = result as Boolean;
-						dispatcher.dispatchEvent(e);
+//						var e:UsersEvent = new UsersEvent(UsersEvent.ROOM_LOCK_STATE);
+//						e.new_state = result as Boolean;
+//						dispatcher.dispatchEvent(e);
 					},	
 					function(status:Object):void { 
 						LogUtil.error("Error occurred:"); 
@@ -490,6 +493,9 @@ package org.bigbluebutton.modules.users.business
 		 * Set lock state of all users in the room, except the users listed in second parameter
 		 * */
 		public function setAllUsersLock(lock:Boolean, except:Array = null):void {
+      
+      return;
+      
 			if(except == null) except = [];
 			var nc:NetConnection = _module.connection;
 			nc.call(
@@ -515,6 +521,9 @@ package org.bigbluebutton.modules.users.business
 		 * Set lock state of all users in the room, except the users listed in second parameter
 		 * */
 		public function setUserLock(internalUserID:String, lock:Boolean):void {
+      
+      return;
+      
 			var nc:NetConnection = _module.connection;
 			nc.call(
 				"lock.setUserLock",// Remote function name
@@ -535,12 +544,15 @@ package org.bigbluebutton.modules.users.business
 		
 		
 		public function getLockSettings():void{
+      
+      return;
+      
 			var nc:NetConnection = _module.connection;
 			nc.call(
 				"lock.getLockSettings",// Remote function name
 				new Responder(
 					function(result:Object):void {
-						_conference.setLockSettings(new LockSettingsVO(result.allowModeratorLocking, result.disableCam, result.disableMic, result.disablePrivateChat, result.disablePublicChat));
+//						_conference.setLockSettings(new LockSettingsVO(result.allowModeratorLocking, result.disableCam, result.disableMic, result.disablePrivateChat, result.disablePublicChat));
 					},	
 					function(status:Object):void { 
 						LogUtil.error("Error occurred:"); 
@@ -553,6 +565,9 @@ package org.bigbluebutton.modules.users.business
 		}
 		
 		public function saveLockSettings(newLockSettings:Object):void{
+      
+      return;
+      
 			var nc:NetConnection = _module.connection;
 			nc.call(
 				"lock.setLockSettings",// Remote function name

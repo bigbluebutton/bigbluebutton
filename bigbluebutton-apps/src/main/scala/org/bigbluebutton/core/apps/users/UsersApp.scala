@@ -61,9 +61,7 @@ trait UsersApp {
       case None => // do nothing
     }
   }
-  
-
-  
+   
   def handleLockUser(msg: LockUser) {
     
   }

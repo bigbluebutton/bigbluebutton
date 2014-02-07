@@ -11,8 +11,6 @@ import org.bigbluebutton.core.util.RandomStringGenerator
 class UsersModel {
   private var uservos = new collection.immutable.HashMap[String, UserVO]
   
-//  private val users = new HashMap[String, User]
-
   def generateWebUserId:String = {
     val webUserId = RandomStringGenerator.randomAlphanumericString(6)
     if (! hasUser(webUserId)) webUserId else generateWebUserId
@@ -22,14 +20,11 @@ class UsersModel {
     uservos += uvo.userID -> uvo 
   }
   
-  def removeUser(userID: String):Option[UserVO] = {
-    uservos get (userID) match {
-      case Some(user) => {
-        uservos -= userID
-        Some(user)
-      }
-      case None => None
-    }
+  def removeUser(userId: String):Option[UserVO] = {
+    val user = uservos get (userId)
+    user foreach (u => uservos -= userId)
+    
+    user
   }
   
   def hasUser(userID: String):Boolean = {

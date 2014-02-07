@@ -41,7 +41,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 		  pm.put("userID", uvo.userID)
 		  pm.put("externUserID", uvo.externUserID)
 		  pm.put("name", uvo.name)
-		  pm.put("role", uvo.role)
+		  pm.put("role", uvo.role.toString())
 		  pm.put("hasStream", uvo.hasStream:java.lang.Boolean)
 		  pm.put("presenter", uvo.presenter:java.lang.Boolean)
 		  pm.put("raiseHand", uvo.raiseHand:java.lang.Boolean)
@@ -54,7 +54,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 		val gson = new Gson()
 		val msgString = gson.toJson(message)
 		
-	//	println("JSON = \n" + msgString)
+		println("JSON = \n" + msgString)
 			
 		var m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getUsersReply", message);
 		service.sendMessage(m);	  
@@ -76,7 +76,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 		val gson = new Gson()
 		val msgString = gson.toJson(message)
 		
-	//	println("JSON = \n" + msgString)
+		println("JSON = \n" + msgString)
 		
 		var m = new BroadcastClientMessage(msg.meetingID, "assignPresenterCallback", message);
 		service.sendMessage(m);
@@ -111,7 +111,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 		val gson = new Gson()
 		val msgString = gson.toJson(message)
 		
-	//	println("JSON = \n" + msgString)
+		println("JSON = \n" + msgString)
 		
 		var m = new BroadcastClientMessage(msg.meetingID, "participantLeft", message);
 		service.sendMessage(m);
@@ -126,7 +126,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 		val gson = new Gson()
 		val msgString = gson.toJson(message)
 		
-	//	println("JSON = \n" + msgString)
+		println("JSON = \n" + msgString)
 		
 		var m = new BroadcastClientMessage(msg.meetingID, "participantStatusChange", message);
 		service.sendMessage(m);

@@ -61,15 +61,15 @@ package org.bigbluebutton.modules.chat.services
     }
     
     private function handleChatRequestMessageHistoryReply(message:Object):void {
-      trace(LOG + "Handling chat history message [" + message.msg + "]");
-      var chats:Array = JSON.parse(message.msg) as Array;
+//      trace(LOG + "Handling chat history message [" + message.msg + "]");
+//      var chats:Array = JSON.parse(message.msg) as Array;
       
-      for (var i:int = 0; i < chats.length; i++) {
-        handleChatReceivePublicMessageCommand(chats[i]);
-      }
+//      for (var i:int = 0; i < chats.length; i++) {
+//        handleChatReceivePublicMessageCommand(chats[i]);
+//      }
          
-      var pcEvent:TranscriptEvent = new TranscriptEvent(TranscriptEvent.TRANSCRIPT_EVENT);
-      dispatcher.dispatchEvent(pcEvent);
+//      var pcEvent:TranscriptEvent = new TranscriptEvent(TranscriptEvent.TRANSCRIPT_EVENT);
+//      dispatcher.dispatchEvent(pcEvent);
     }
         
     private function handleChatReceivePublicMessageCommand(message:Object):void {

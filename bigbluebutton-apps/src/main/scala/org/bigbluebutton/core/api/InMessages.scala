@@ -4,6 +4,7 @@ import org.bigbluebutton.core.api.Role._
 import org.bigbluebutton.core.apps.poll._
 import org.bigbluebutton.core.LockSettings
 import org.bigbluebutton.core.apps.whiteboard.vo.AnnotationVO
+import org.bigbluebutton.core.apps.presentation.Presentation
 
 trait InMessage {val meetingID: String}
 
@@ -152,7 +153,7 @@ case class PresentationSlideGenerated(meetingID: String, messageKey: String,
                        pagesCompleted: Int) extends InMessage
 case class PresentationConversionCompleted(meetingID: String, messageKey: String, 
                        code: String, presentationId: String, 
-                       slidesInfo: String) extends InMessage                       
+                       presentation: Presentation) extends InMessage                       
                        
 // Voice
 case class SendVoiceUsersRequest(

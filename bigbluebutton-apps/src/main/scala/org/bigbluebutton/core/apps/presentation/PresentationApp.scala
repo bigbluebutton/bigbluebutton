@@ -3,6 +3,16 @@ package org.bigbluebutton.core.apps.presentation
 import org.bigbluebutton.core.api._
 import net.lag.logging.Logger
 import org.bigbluebutton.core.MeetingActor
+import com.google.gson.Gson
+
+case class CurrentPresenter(userId: String, name: String, assignedBy: String)
+
+case class CurrentPresentationInfo(presenter: CurrentPresenter, 
+                    currentPresentation: CurrentPresentation,
+                    presentations: Seq[Presentation])
+case class CursorLocation(xPercent: Double = 0D, yPercent: Double = 0D)
+
+
 
 trait PresentationApp {
   this : MeetingActor =>
@@ -11,26 +21,18 @@ trait PresentationApp {
   val outGW: MessageOutGateway
   
   private var currentPresentation = ""
-  private var currentSlide = 0
-  private var sharing = false
-  private var xOffset = 0D
-  private var yOffset = 0D
-  private var widthRatio = 1D
-  private var heightRatio = 1D
+  	
+  private var cursorLocation = new CursorLocation
 	
-  /* cursor location */
-  private var xCursorPercent = 0D
-  private var yCursorPercent = 0D
-	
-  private var presentationIDs = new java.util.ArrayList[String]();
+  
 	    
-    def handlePreuploadedPresentations(msg: PreuploadedPresentations) {
-      val pres = msg.presentations
+  def handlePreuploadedPresentations(msg: PreuploadedPresentations) {
+    val pres = msg.presentations
       
-      msg.presentations.foreach(presentationID => {
-    	  sharePresentation(presentationID.asInstanceOf[String], true)       
-      })
-    }
+    msg.presentations.foreach(presentationID => {
+  	  sharePresentation(presentationID.asInstanceOf[String], true)       
+    })
+  }
     
     def handleInitializeMeeting(msg: InitializeMeeting) {
        
@@ -61,9 +63,12 @@ trait PresentationApp {
                        msg.pagesCompleted))
     }
     
-    def handlePresentationConversionCompleted(msg: PresentationConversionCompleted) {           
+    def handlePresentationConversionCompleted(msg: PresentationConversionCompleted) { 
+      
       presentationIDs.add(msg.presentationId); 
+      
       sharePresentation(msg.presentationId, true);
+      
       outGW.send(new PresentationConversionDone(meetingID, msg.messageKey, 
                        msg.code, msg.presentationId, 
                        msg.slidesInfo))      
@@ -85,37 +90,29 @@ trait PresentationApp {
     
     def handleGetPresentationInfo(msg: GetPresentationInfo) {
 		val curPresenter = getCurrentPresenter;
-				
-		val presenter = new scala.collection.immutable.HashMap[String, Object]();		
-		if (curPresenter != null) {
-			presenter + "hasPresenter" -> true
-			presenter + "user" -> curPresenter.presenterID
-			presenter + "name" -> curPresenter.presenterName
-			presenter + "assignedBy" -> curPresenter.assignedBy
-		} else {
-			presenter + "hasPresenter" -> false
-		}
-				
-		val presentation = new scala.collection.immutable.HashMap[String, Object]();
 		
-		if (sharing) {
-			presentation + "sharing" -> true
-			presentation + "slide" -> currentSlide
-			presentation + "currentPresentation" -> currentPresentation
-			presentation + "xOffset" -> xOffset
-			presentation + "yOffset" -> yOffset
-			presentation + "widthRatio" -> widthRatio
-			presentation + "heightRatio" -> heightRatio
-		} else {
-			presentation + "sharing" -> false
-		}
+		val presenter = new CurrentPresenter(curPresenter.presenterID, 
+		                                   curPresenter.presenterName, 
+		                                   curPresenter.assignedBy)
+				
+		val presentation = new CurrentPresentation(currentPresentation, 
+		                         currentSlide, xOffset, yOffset, widthRatio,
+		                         heightRatio)
+		
 		
 		val presentationInfo = new scala.collection.immutable.HashMap[String, Object]();
 		presentationInfo + "presenter" -> presenter
 		presentationInfo + "presentation" -> presentation
 		presentationInfo + "presentations" -> presentationIDs
 		
-		outGW.send(new GetPresentationInfoOutMsg(meetingID, recorded, msg.requesterID, presentationInfo))    
+		val presentationInfo = new CurrentPresentationInfo()
+		
+		val gson = new Gson()
+		val msgString = gson.toJson(presentationInfo)
+		
+		println("JSON = \n" + msgString)		
+		
+	//	outGW.send(new GetPresentationInfoOutMsg(meetingID, recorded, msg.requesterID, presentationInfo))    
     }
     
     def handleSendCursorUpdate(msg: SendCursorUpdate) {

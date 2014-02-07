@@ -3,6 +3,7 @@ package org.bigbluebutton.core.api
 import org.bigbluebutton.core.apps.poll._
 import org.bigbluebutton.core.LockSettings
 import org.bigbluebutton.core.apps.whiteboard.vo.AnnotationVO
+import org.bigbluebutton.core.apps.presentation.CurrentPresentationInfo
 
 abstract class OutMessage
 
@@ -88,7 +89,7 @@ case class PollShowResultOutMsg(meetingID: String, recorded: Boolean, pollID: St
 case class ClearPresentationOutMsg(meetingID: String, recorded: Boolean) extends IOutMessage
 case class PresentationConversionUpdateOutMsg(meetingID: String, recorded: Boolean, msg: Map[String, Object]) extends IOutMessage
 case class RemovePresentationOutMsg(meetingID: String, recorded: Boolean, presentationID: String) extends IOutMessage
-case class GetPresentationInfoOutMsg(meetingID: String, recorded: Boolean, requesterID: String, info: Map[String, Object] ) extends IOutMessage
+case class GetPresentationInfoOutMsg(meetingID: String, recorded: Boolean, requesterID: String, info: CurrentPresentationInfo) extends IOutMessage
 case class SendCursorUpdateOutMsg(meetingID: String, recorded: Boolean, xPercent: Double, yPercent: Double) extends IOutMessage
 case class ResizeAndMoveSlideOutMsg(meetingID: String, recorded: Boolean, xOffset: Double, yOffset: Double, widthRatio: Double, heightRatio: Double) extends IOutMessage
 case class GotoSlideOutMsg(meetingID: String, recorded: Boolean, slide: Int) extends IOutMessage

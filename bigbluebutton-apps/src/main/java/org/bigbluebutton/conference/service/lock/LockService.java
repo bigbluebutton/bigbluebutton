@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import org.bigbluebutton.conference.BigBlueButtonSession;
 import org.bigbluebutton.conference.Constants;
-import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
