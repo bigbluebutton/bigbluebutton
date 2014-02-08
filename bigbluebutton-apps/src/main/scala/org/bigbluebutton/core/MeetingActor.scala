@@ -149,6 +149,7 @@ class MeetingActor(val meetingID: String, val recorded: Boolean,
 	    case message: IsWhiteboardEnabledRequest => 
 	                         handleIsWhiteboardEnabledRequest(message)
 	    case StopMeetingActor => exit
+	    case _ => // do nothing
 	  }
 	}
   }	

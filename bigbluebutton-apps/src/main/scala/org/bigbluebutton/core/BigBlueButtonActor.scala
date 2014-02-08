@@ -19,17 +19,30 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
 	      case createMeeting: CreateMeeting => handleCreateMeeting(createMeeting)
 	      case destroyMeeting: DestroyMeeting => handleDestroyMeeting(destroyMeeting)
 	      case keepAliveMessage: KeepAliveMessage => handleKeepAliveMessage(keepAliveMessage)
+	      case msg: GetPresentationInfo => handleGetPresentationInfo(msg)
 	      case msg:InMessage => handleMeetingMessage(msg)
 	      case _ => // do nothing
 	    }
 	}
   }
   
-
+  private def handleGetPresentationInfo(msg: GetPresentationInfo):Unit = {
+    meetings.get(msg.meetingID) match {
+      case None => // do nothing
+      case Some(m) => {
+        log.debug("Forwarding message [{}] to meeting [{}]", "GetPresentationInfo", msg.meetingID)
+        m ! msg
+      }
+    }
+  }
+  
   private def handleMeetingMessage(msg: InMessage):Unit = {
     meetings.get(msg.meetingID) match {
       case None => // do nothing
-      case Some(m) => m ! msg
+      case Some(m) => {
+       // log.debug("Forwarding message [{}] to meeting [{}]", msg.meetingID)
+        m ! msg
+      }
     }
   }
 

@@ -60,7 +60,7 @@ package org.bigbluebutton.modules.present.business
     private var presentationModel:PresentationModel;
     
 		public function PresentProxy(){
-      presentationModel = new PresentationModel();
+      presentationModel = PresentationModel.getInstance();
       
 			slides = new PresentationSlides();
       _messageReceiver = new MessageReceiver(presentationModel);
@@ -113,12 +113,12 @@ package org.bigbluebutton.modules.present.business
 		}
     
     public function getCurrentSlideNumber():void {
-      if (presentationModel.curSlideNum >= 0) {
-        var e:NavigationEvent = new NavigationEvent(NavigationEvent.GOTO_PAGE)
-        e.pageNumber = presentationModel.curSlideNum;
-        var dispatcher:Dispatcher = new Dispatcher();
-        dispatcher.dispatchEvent(e);
-      }
+//      if (presentationModel.curSlideNum >= 0) {
+//        var e:NavigationEvent = new NavigationEvent(NavigationEvent.GOTO_PAGE)
+//        e.pageNumber = presentationModel.curSlideNum;
+//        var dispatcher:Dispatcher = new Dispatcher();
+//        dispatcher.dispatchEvent(e);
+//      }
     }
 		
 		/**

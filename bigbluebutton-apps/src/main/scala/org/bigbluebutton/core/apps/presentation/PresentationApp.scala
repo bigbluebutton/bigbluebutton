@@ -16,7 +16,7 @@ case class CursorLocation(xPercent: Double = 0D, yPercent: Double = 0D)
 trait PresentationApp {
   this : MeetingActor =>
   
-  val log: Logger
+  val log : Logger
   val outGW: MessageOutGateway
     	
   private var cursorLocation = new CursorLocation
@@ -79,15 +79,16 @@ trait PresentationApp {
     }
     
     def handleGetPresentationInfo(msg: GetPresentationInfo) {
-		val curPresenter = getCurrentPresenter;
-		
-		val presenter = new CurrentPresenter(curPresenter.presenterID, 
+      println("PresentationApp : handleGetPresentationInfo GetPresentationInfo for meeting [" + msg.meetingID + "] [" + msg.requesterID + "]" )
+      
+      log.debug("Received GetPresentationInfo for meeting [{}] [{}]", msg.meetingID, msg.requesterID)
+      val curPresenter = getCurrentPresenter;
+      val presenter = new CurrentPresenter(curPresenter.presenterID, 
 		                                   curPresenter.presenterName, 
 		                                   curPresenter.assignedBy)
-		val presentations = presModel.getPresentations
-		val presentationInfo = new CurrentPresentationInfo(presenter, presentations)
-		
-		outGW.send(new GetPresentationInfoOutMsg(meetingID, recorded, msg.requesterID, presentationInfo))    
+      val presentations = presModel.getPresentations
+      val presentationInfo = new CurrentPresentationInfo(presenter, presentations)
+      outGW.send(new GetPresentationInfoOutMsg(meetingID, recorded, msg.requesterID, presentationInfo))    
     }
     
     def handleSendCursorUpdate(msg: SendCursorUpdate) {

@@ -9,8 +9,12 @@ import com.google.gson.Gson
 import java.util.ArrayList
 import org.bigbluebutton.core.apps.presentation.Page
 import org.bigbluebutton.core.apps.presentation.Presentation
+import net.lag.logging.Logger
 
 class PresentationClientMessageSender(service: ConnectionInvokerService) extends OutMessageListener2 {
+  
+  val log = Logger.get
+  
 	private val OFFICE_DOC_CONVERSION_SUCCESS_KEY = "OFFICE_DOC_CONVERSION_SUCCESS";
     private val OFFICE_DOC_CONVERSION_FAILED_KEY = "OFFICE_DOC_CONVERSION_FAILED";
     private val SUPPORTED_DOCUMENT_KEY = "SUPPORTED_DOCUMENT";
@@ -191,6 +195,10 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
     val message = new java.util.HashMap[String, Object]() 
 	val gson = new Gson();
   	message.put("msg", gson.toJson(args))
+  	
+  	log.debug("PresentationClientMessageSender - handleGetPresentationInfoOutMsg to user[{}] \n [{}]", msg.requesterID, message.get("msg"))
+  	
+  	println("***** PresentationClientMessageSender - handleGetPresentationInfoOutMsg to user[" +msg.requesterID + "] message[" + message.get("msg") + "]")
   	
 	val m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getPresentationInfoReply", message);
 	service.sendMessage(m);	

@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.present.services
   
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
+  import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -33,7 +34,10 @@ package org.bigbluebutton.modules.present.services
   import org.bigbluebutton.modules.present.events.NavigationEvent;
   import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
+  import org.bigbluebutton.modules.present.model.Page;
+  import org.bigbluebutton.modules.present.model.Presentation;
   import org.bigbluebutton.modules.present.model.PresentationModel;
+  import org.bigbluebutton.modules.present.model.Presenter;
   
   public class MessageReceiver implements IMessageListener
   {
@@ -118,7 +122,7 @@ package org.bigbluebutton.modules.present.services
     }
     
     private function handleGotoSlideCallback(msg:Object) : void {
-      presModel.curSlideNum = msg.pageNum;
+//      presModel.curSlideNum = msg.pageNum;
       
       var e:NavigationEvent = new NavigationEvent(NavigationEvent.GOTO_PAGE)
       e.pageNumber = msg.pageNum;
@@ -218,11 +222,51 @@ package org.bigbluebutton.modules.present.services
     private var currentSlide:Number = -1;
     
     private function handleGetPresentationInfoReply(msg:Object) : void {
-      trace(LOG + "has-presenter=[" + msg.presenter.hasPresenter + "]");
+      trace(LOG + "*** handleGetPresentationInfoReply " + msg.msg + " **** \n");
+      var map:Object = JSON.parse(msg.msg);
       
-      if (msg.presenter.hasPresenter) {
+      var presenterMap:Object = map.presenter;
+      
+      var presenter: Presenter = new Presenter(presenterMap.userId, presenterMap.name, presenterMap.assignedBy);
+      PresentationModel.getInstance().setPresenter(presenter);
+            
+      var presentations:Array = map.presentations as Array;
+      for (var j:int = 0; j < presentations.length; j++) {
+        var presentation:Object = presentations[j];
+       
+        var presoPages:Array = new Array();
+        var pages:Array = presentation.pages as Array;
+        for (var k:int = 0; k < pages.length; k++) {
+          var page:Object = pages[k];
+          var pg:Page = new Page();
+          pg.id = page.id;
+          pg.num = page.num;
+          pg.current = page.current;
+          pg.thumb = page.thumbnail;
+          pg.xOffset = page.xOffset;
+          pg.yOffset = page.yOffset;
+          pg.widthRatio = page.withRatio;
+          pg.heightRatio = page.heightRatio;
+          
+          presoPages.push(pg);
+        }
+       
+        var preso:Presentation = new Presentation(presentation.id, presentation.name, presentation.current);
+        PresentationModel.getInstance().addPresentation(preso);
+      }
+           
+      var myUserId: String = UsersUtil.getMyUserID();
+      
+      
+      if (presenter.userId != myUserId) {
+        trace(LOG + " Making self viewer. myId=[" + myUserId + "] presenter=[" + presenter.userId + "]");
         dispatcher.dispatchEvent(new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE));						
-      }	
+      }	else {
+        trace(LOG + " Making self presenter. myId=[" + myUserId + "] presenter=[" + presenter.userId + "]");
+        dispatcher.dispatchEvent(new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE));
+      }
+      
+      return;
       
       trace(LOG + " ************** msg.presentation.xOffset [" + msg.presentation.xOffset +"] ***********");
       

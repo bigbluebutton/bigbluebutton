@@ -9,8 +9,8 @@ class LayoutInGateway(bbbGW: BigBlueButtonGateway) {
   val log = Logger.get
   
   def getCurrentLayout(meetingID: String, requesterID: String) {
-    log.debug("Received get current layout request")
-   bbbGW.accept(new GetCurrentLayoutRequest(meetingID, requesterID))
+    log.debug("Received getCurrentLayout for meeting[{}]", meetingID)
+    bbbGW.accept(new GetCurrentLayoutRequest(meetingID, requesterID))
   }
 	
 	def setLayout(meetingID: String, requesterID: String, layoutID: String) {
