@@ -284,40 +284,25 @@ package org.bigbluebutton.modules.present.services
         dispatcher.dispatchEvent(new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE));
       }
       
-      return;
-      
-      trace(LOG + " ************** msg.presentation.xOffset [" + msg.presentation.xOffset +"] ***********");
-      
-      if (msg.presentation.xOffset) {
-        var e:MoveEvent = new MoveEvent(MoveEvent.CUR_SLIDE_SETTING);
-        e.xOffset = Number(msg.presentation.xOffset);
-        e.yOffset = Number(msg.presentation.yOffset);
-        e.slideToCanvasWidthRatio = Number(msg.presentation.widthRatio);
-        e.slideToCanvasHeightRatio = Number(msg.presentation.heightRatio);
-        
-        trace(LOG + " **************Dispatching MoveEvent.CUR_SLIDE_SETTING ***********");
-        dispatcher.dispatchEvent(e);
-      }
-      
-      if (msg.presentations) {
+      var presNames:Array = PresentationModel.getInstance().getPresentationNames();
+          
+      if (presNames) {
         trace(LOG + " ************ Getting list of presentations *************");
-        for(var p:Object in msg.presentations) {
-          var u:Object = msg.presentations[p]
-          sendPresentationName(u as String);
+        for (var x:int = 0; x < presNames.length; x++) {
+          sendPresentationName(presNames[x] as String);
         }
       }
       
       // Force switching the presenter.
       triggerSwitchPresenter();
       
-      if (msg.presentation.sharing) {							
-        currentSlide = Number(msg.presentation.slide);
-        trace(LOG + "**** Trigger sharing presentation of [" + msg.presentation.currentPresentation + "]");
-        
+
+      var curPresName:String = PresentationModel.getInstance().getCurrentPresentationName();
+      
         var shareEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
-        shareEvent.presentationName = String(msg.presentation.currentPresentation);
+        shareEvent.presentationName = curPresName;
         dispatcher.dispatchEvent(shareEvent);
-      }      
+
     }
     
     private function sendPresentationName(presentationName:String):void {

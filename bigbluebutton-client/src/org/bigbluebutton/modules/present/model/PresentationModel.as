@@ -44,7 +44,51 @@ package org.bigbluebutton.modules.present.model
     }
     
     public function addPresentation(p: Presentation):void {
+      _presentations.addItem(p);
+    }
+    
+    public function getCurrentPresentationName():String {
+      for (var i:int = 0; i < _presentations.length; i++) {
+        var pres: Presentation = _presentations.getItemAt(i) as Presentation;
+        if (pres.isCurrent()) return pres.id;
+      }   
       
+      return null;
+    }
+    
+    public function getPresentationNames():Array {
+      var presos:Array = new Array();
+      
+      for (var i:int = 0; i < _presentations.length; i++) {
+        var pres: Presentation = _presentations.getItemAt(i) as Presentation;
+        presos.push(pres.id);
+      }
+      
+      return presos;
+    }
+    
+    public function getCurrentPresentation():Presentation {
+      for (var i:int = 0; i < _presentations.length; i++) {
+        var pres: Presentation = _presentations.getItemAt(i) as Presentation;
+        if (pres.isCurrent()) return pres;
+      }
+      
+      return null;
+    }
+    
+    public function getCurrentPage():Page {
+      var pres: Presentation = getCurrentPresentation();
+      
+      if (pres != null) {
+        var pages:Array = pres.getPages();
+        for (var j:int = 0; j < pages.length; j++) {
+          var page:Page = pages[j] as Page;
+          if (page.current) return page;
+          
+        }        
+      }
+
+      return null;
     }
   }
 }

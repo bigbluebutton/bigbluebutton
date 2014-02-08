@@ -18,10 +18,23 @@ package org.bigbluebutton.modules.present.model
     public function get id():String {
       return _id;
     }
-      
+    
+    public function isCurrent():Boolean {
+      return _current;
+    }
+    
     public function addPage(p: Page):void {
       _pages.addItem(p);
     }
-     
+    
+    public function getPages():Array {
+      var pages:Array = new Array();
+      
+      for (var i: int = 0; i < _pages.length; i++) {
+        pages.push(_pages.getItemAt(i) as Page);
+      }
+      
+      return pages;
+    }
   }
 }

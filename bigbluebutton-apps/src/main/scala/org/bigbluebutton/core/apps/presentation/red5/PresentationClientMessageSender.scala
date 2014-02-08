@@ -205,31 +205,60 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
   }
   
   private def handleSendCursorUpdateOutMsg(msg: SendCursorUpdateOutMsg) {
-		 val args = new java.util.HashMap[String, Object]();
-		 args.put("xPercent", msg.xPercent:java.lang.Double);
-		 args.put("yPercent", msg.yPercent:java.lang.Double);
+	 val args = new java.util.HashMap[String, Object]();
+	 args.put("xPercent", msg.xPercent:java.lang.Double);
+	 args.put("yPercent", msg.yPercent:java.lang.Double);
 
-		val m = new BroadcastClientMessage(msg.meetingID, "PresentationCursorUpdateCommand", args);
-		service.sendMessage(m);	    
+	val message = new java.util.HashMap[String, Object]() 
+	val gson = new Gson();
+  	message.put("msg", gson.toJson(args))
+  	
+  	log.debug("PresentationClientMessageSender - handleSendCursorUpdateOutMsg \n [{}]", message.get("msg"))
+  	
+	val m = new BroadcastClientMessage(msg.meetingID, "PresentationCursorUpdateCommand", args);
+	service.sendMessage(m);	    
   }
   
   private def handleResizeAndMoveSlideOutMsg(msg: ResizeAndMoveSlideOutMsg) {
-//		val args = new java.util.HashMap[String, Object]();
-//		args.put("xOffset", msg.xOffset);
-//		args.put("yOffset", msg.yOffset:java.lang.Double);
-//		args.put("widthRatio", msg.widthRatio:java.lang.Double);
-//		args.put("heightRatio", msg.heightRatio:java.lang.Double);
-		
-//		val m = new BroadcastClientMessage(msg.meetingID, "moveCallback", args);
-//		service.sendMessage(m);	    
+	val args = new java.util.HashMap[String, Object]();
+	args.put("id", msg.page.id)
+	args.put("num", msg.page.num:java.lang.Integer)
+	args.put("current", msg.page.current:java.lang.Boolean)
+	args.put("thumbnail", msg.page.thumbnail)
+	args.put("xOffset", msg.page.xOffset:java.lang.Double);
+	args.put("yOffset", msg.page.yOffset:java.lang.Double);
+	args.put("widthRatio", msg.page.widthRatio:java.lang.Double);
+	args.put("heightRatio", msg.page.heightRatio:java.lang.Double);
+
+	val message = new java.util.HashMap[String, Object]() 
+	val gson = new Gson();
+  	message.put("msg", gson.toJson(args))
+  	
+  	log.debug("PresentationClientMessageSender - handleResizeAndMoveSlideOutMsg \n [{}]", message.get("msg"))
+  	
+	val m = new BroadcastClientMessage(msg.meetingID, "moveCallback", args);
+	service.sendMessage(m);	    
   }
   
   private def handleGotoSlideOutMsg(msg: GotoSlideOutMsg) {
-		val args = new java.util.HashMap[String, Object]();
-//		args.put("pageNum", msg.slide:java.lang.Integer);
+	val args = new java.util.HashMap[String, Object]();
+	args.put("id", msg.page.id)
+	args.put("num", msg.page.num:java.lang.Integer)
+	args.put("current", msg.page.current:java.lang.Boolean)
+	args.put("thumbnail", msg.page.thumbnail)
+	args.put("xOffset", msg.page.xOffset:java.lang.Double);
+	args.put("yOffset", msg.page.yOffset:java.lang.Double);
+	args.put("widthRatio", msg.page.widthRatio:java.lang.Double);
+	args.put("heightRatio", msg.page.heightRatio:java.lang.Double);
+
+	val message = new java.util.HashMap[String, Object]() 
+	val gson = new Gson();
+  	message.put("msg", gson.toJson(args))
+  	
+  	log.debug("PresentationClientMessageSender - handleGotoSlideOutMsg \n [{}]", message.get("msg"))
 		
-//		val m = new BroadcastClientMessage(msg.meetingID, "gotoSlideCallback", args);
-//		service.sendMessage(m);	    
+	val m = new BroadcastClientMessage(msg.meetingID, "gotoSlideCallback", args);
+	service.sendMessage(m);	    
   }
   
   private def handleSharePresentationOutMsg(msg: SharePresentationOutMsg) {

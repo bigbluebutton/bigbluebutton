@@ -57,7 +57,11 @@ public class PresentationService {
 		Integer slideNum = (Integer) msg.get("pageNumber");
 		
 		IScope scope = Red5.getConnectionLocal().getScope();
-		presentationApplication.gotoSlide(scope.getName(), slideNum);
+		log.debug("Got GotoSlide for meeting [{}] page=[{}]", scope.getName(), slideNum);
+
+		// We are adding 1 here because the slides in the client is zero based. Need to
+		// fix that so page numbers start with 1.
+		presentationApplication.gotoSlide(scope.getName(), slideNum + 1);
 	}
 	
 	public void sharePresentation(Map<String, Object> msg) {

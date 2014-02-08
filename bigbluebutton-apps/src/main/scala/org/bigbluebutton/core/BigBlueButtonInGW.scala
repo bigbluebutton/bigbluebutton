@@ -186,7 +186,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	    val id = "slide/" + i
 	    val num = i;
 	    val thumbnail = "thumbnail/" + i
-	    val p = new Page(id=id, num=num, thumbnail=thumbnail)
+	    val current = if (i == 1) true else false
+	    val p = new Page(id=id, num=num, thumbnail=thumbnail, current=current)
 	    pages += (p.id -> p)
 	  }
 	  
@@ -197,11 +198,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
             code: String, presentationId: String, numPages: Int) {
 	  
       val pages = generatePresentationPages(numPages)
-	  
-      pages.values foreach {p =>
-        println("**** Page [" + p.id + "," + p.num + "]")
-      }
-      
+	        
 	  val presentation = new Presentation(id=presentationId, name=presentationId, pages=pages)
       bbbGW.accept(new PresentationConversionCompleted(meetingId, messageKey, 
                        code, presentation))	 
@@ -227,7 +224,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	}
 	
 	def gotoSlide(meetingID: String, slide: Int) {
-	  bbbGW.accept(new GotoSlide(meetingID, slide.toString))
+	  println("**** Forwarding GotoSlide for meeting[" + meetingID + "] ****")
+	  bbbGW.accept(new GotoSlide(meetingID, "slide/" + slide.toString))
 	}
 	
 	def sharePresentation(meetingID: String, presentationID: String, share: Boolean) {
