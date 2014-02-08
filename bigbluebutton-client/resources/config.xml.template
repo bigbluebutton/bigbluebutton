@@ -51,6 +51,7 @@
 			skipCheck="false"
 			showButton="true"
 			enabledEchoCancel="true"
+			useWebrtcIfAvailable="true"
 			dependsOn="UsersModule"
 		/>
 

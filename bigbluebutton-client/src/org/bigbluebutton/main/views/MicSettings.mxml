@@ -20,14 +20,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				xmlns:mate="http://mate.asfusion.com/" 
-				width="600" height="350" 
+				width="600"
 				creationComplete="initDefaultMic()" 
 				styleName="micSettingsWindowStyle"
 				showCloseButton="false" 
 				close="onCancelClicked()" 
 				keyDown="handleKeyDown(event)">
-
-    
 	<mx:Script>
 		<![CDATA[
       import flash.system.Security;
@@ -60,8 +58,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var micName:String;
 			private var playingAudio:Boolean = false;
 			private var images:Images = new Images();
+
 			private var chromeAllow:ChromeAllow;
 			private var userBrowser:String;
+
+			[Bindable] private var _webrtcCapable:Boolean = false;
+			[Bindable] private var _useWebrtcIfAvailable:Boolean = true;
+
 			[Bindable] private var cancelIcon:Class = images.cancel;
       [Bindable] private var microphoneList:Array;      
       [Bindable]private var baseIndex:int = 1;
@@ -116,38 +119,57 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           }      
       }
       
-			private function initDefaultMic():void {
-
-				microphoneList = Microphone.names;
-				LogUtil.debug("Available microphones: " + microphoneList);    
-				mic = Microphone.getMicrophone(comboMicList.selectedIndex);
-        testMicrophone();
-        showChromeAllow();       
-				
+			private function initDefaultMic():void {			
+				if (webrtcCapable && useWebrtcIfAvailable) {
+					settingBtn.addEventListener(MouseEvent.CLICK, webrtcTestCall);
+				} else {					
+					microphoneList = Microphone.names;
+  				LogUtil.debug("Available microphones: " + microphoneList);    
+	  			mic = Microphone.getMicrophone(comboMicList.selectedIndex);
+          testMicrophone();
+          showChromeAllow();       
+			  }
 		/*		if (mic != null) {
 					if (mic.muted) {
 						// user has disallowed access to the mic
 						mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
             // when we open the window show the default acceptor first and then the custom one every other time
 						mic.setLoopBack(true);
-            mic.setLoopBack(false);
-					} else {
-						// user has allowed access to the mic
-						mic.setLoopBack(false);
-            mic.setUseEchoSuppression(true);
-					}
-				} else {
-					LogUtil.warn("Microphone is used by another application.");
-				}
+            mic.setLoopBack(false);			
+
+					mic = Microphone.getMicrophone();
 				
-		*/		
+					if (mic != null) {
+						if (mic.muted) {
+							// user has disallowed access to the mic
+							mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
+				      // when we open the window show the default acceptor first and then the custom one every other time
+							mic.setLoopBack(true);
+				      mic.setLoopBack(false);
+						} else {
+							// user has allowed access to the mic
+							mic.setLoopBack(false);
+						  mic.setUseEchoSuppression(true);
+						}
+					} else {
+						LogUtil.warn("Microphone is used by another application.");
+					}
+				}
+    */								
 				/*timer = new Timer(100);
 				timer.addEventListener(TimerEvent.TIMER, updateMicLevel);
 				//timer.start(); Commenting this out because the mic level has been removed
 				*/
-				
+			}						
+
+			private function webrtcTestCall(e:MouseEvent):void {
+				if (settingBtn.selected) {
+					ExternalInterface.call("startWebrtcAudioTest");
+				} else {
+					ExternalInterface.call("stopWebrtcAudioTest");
+				}
 			}
-			
+	
 			// Added by Chad to enable closing the window without clicking the X
 			private function handleKeyDown(event:KeyboardEvent):void {
 				if (event.charCode == Keyboard.ESCAPE) {
@@ -161,16 +183,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						LogUtil.warn("Access to microphone has been denied.");
 						break;
 					case "Microphone.Unmuted":
-//						mic.setLoopBack(true);
-//            mic.setUseEchoSuppression(true);            
+            //mic.setLoopBack(true);
+            //mic.setUseEchoSuppression(true);            
 						LogUtil.debug("Access to the microphone has been allowed.");
 						testMicrophone();
 						break;
 					default:
 						LogUtil.debug("unknown micStatusHandler event: " + event);
 				}
-			}			
-			
+			}						
+
 			private function updateMicLevel(e:TimerEvent):void{
 				if (mic != null) {
 				  if (mic.activityLevel > biggestMicLevel) {
@@ -206,7 +228,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function hideChromeAllow():void{
 			   PopUpManager.removePopUp(chromeAllow);			  
 			}
-/*			
+			
+/*
       private function showMicSettingsPanel():void {
           if (settingBtn.selected) {
               if (mic != null) {
@@ -226,19 +249,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 */			
-
-      
- 
-
-			private function onJoinClicked():void {
-			
+  
+			private function onJoinClicked():void {			
 			  LogUtil.debug("Biggest activity level detected for " + micName + ": " + biggestMicLevel );
         // Do one last check for if the mic has been allowed.
         // This must come first because cleanUp() will destroy mic 
         if (mic != null && mic.muted) {
             Security.showSettings(SecurityPanel.PRIVACY);
         }        
-        if (biggestMicLevel > 0){
+        if (biggestMicLevel > 0 || useWebrtcIfAvailable){
           joinConference();
         } else {
            var micWarning:MicWarning = new MicWarning();
@@ -251,25 +270,46 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function joinConference():void{			
 				var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
 				joinEvent.payload['useMicrophone'] = true;
-				joinEvent.payload['microphoneIndex'] = mic.index;
+        joinEvent.payload['microphoneIndex'] = mic == null ? 0 : mic.index;
+				joinEvent.payload['useWebrtcIfAvailable'] = useWebrtcIfAvailable;
+			  if (settingBtn.selected) {
+					ExternalInterface.call("stopWebrtcAudioTest");
+				}
 				dispatchEvent(joinEvent);	
+				// Do one last check for if the mic has been allowed.
+				// This must come first because cleanUp() will destroy mic 
+				if (mic != null && mic.muted) {
+					Security.showSettings(SecurityPanel.PRIVACY);
+				}
   			cleanUp();      
 				PopUpManager.removePopUp(this);			
 			}
-			
+						
 			private function onCancelClicked():void {
 				cleanUp();
 				var event:BBBEvent = new BBBEvent(BBBEvent.MIC_SETTINGS_CLOSED);
 				event.payload['clicked'] = "cancel";
+				hideChromeAllow();
 				dispatchEvent(event);
 				PopUpManager.removePopUp(this);
 			}
 			
 			private function cleanUp():void {
 				if (timer) timer.stop();
-				mic.setLoopBack(false);
-				mic = null;
+
 				if (playingAudio) soundChannel.stop();								
+
+				if (webrtcCapable) {
+					//ExternalInterface.call("stopWebrtcAudioTest"); 
+				}
+
+				if (mic) {
+					mic.setLoopBack(false);
+					mic = null;
+				}
+
+				settingBtn.removeEventListener(MouseEvent.CLICK, webrtcTestCall);
+				//settingBtn.removeEventListener(MouseEvent.CLICK, showMicSettingsPanel);
 			}
 			
 			private function changeRecordVolume(event:SliderEvent):void {
@@ -282,55 +322,109 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         DEFAULT_HELP_URL =  BBB.initConfigManager().config.help.url;
 				navigateToURL(new URLRequest(DEFAULT_HELP_URL));
 			}
+
+			private function dontUseWebrtc():void {
+				cleanUp();
+        if (settingBtn.selected) {
+					ExternalInterface.call("stopWebrtcAudioTest");
+				}
+				useWebrtcIfAvailable = false;
+				dontUseWebrtcBtn.enabled = false;
+				dontUseWebrtcBtn.label = "WebRTC won't be used";
+				dontUseWebrtcBtn.toolTip = "Close the dialog and open again to reactivate";
+
+				initDefaultMic();
+			}
+
+			public function set webrtcCapable(value:Boolean):void {
+				_webrtcCapable = value;
+			}
+
+			[Bindable]
+			public function get webrtcCapable():Boolean {
+				return _webrtcCapable;
+			}
+
+			public function set useWebrtcIfAvailable(value:Boolean):void {
+				_useWebrtcIfAvailable = value;
+			}
+
+			[Bindable]
+			public function get useWebrtcIfAvailable():Boolean {
+				return _useWebrtcIfAvailable;
+			}
 		]]>
 	</mx:Script>
-	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
-    
-		<mx:Canvas width="100%">
-			<!-- mx:Label text="Audio Settings" styleName="micSettingsWindowTitleStyle"/ -->
-			<mx:TextArea borderSkin="{null}" editable="false" text="{ResourceUtil.getInstance().getString('bbb.users.settings.audioSettings')}" styleName="micSettingsWindowTitleStyle"
-                         tabIndex="{baseIndex}" width="400" left="0"/>
-						 <!-- accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.title')} "/ -->
-            <mx:LinkButton fontSize="10" toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" 
-                           styleName="micSettingsWindowHelpButtonStyle" right="0"
-                           click="onHelpButtonClicked()"
-                           tabIndex="{baseIndex+1}"
-                           accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
-		</mx:Canvas>
-    
-<!--        <mx:VBox width="100%" paddingTop="5">
+	
+	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">    
+	
+		  <mx:Canvas width="100%">
+			  <!-- mx:Label text="Audio Settings" styleName="micSettingsWindowTitleStyle"/ -->
+			  <mx:TextArea    borderSkin="{null}" 
+			                  editable="false"
+			                  text="{ResourceUtil.getInstance().getString('bbb.users.settings.audioSettings')}"
+			                  styleName="micSettingsWindowTitleStyle"
+                        tabIndex="{baseIndex}" width="400" left="0"/>
+        <!-- accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.title')} "/ -->
+        <mx:LinkButton  fontSize="10" 
+                        toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" 
+                        styleName="micSettingsWindowHelpButtonStyle" right="0"
+                        click="onHelpButtonClicked()"
+                        tabIndex="{baseIndex+1}"
+                        accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
+		  </mx:Canvas>
+		  
+        <!-- WebRTC Test microphone -->
+        <mx:VBox width="100%"
+                 paddingTop="5"
+                 visible="{useWebrtcIfAvailable}"
+                 includeInLayout="{useWebrtcIfAvailable}">
             <mx:HRule width="100%"/>
-            <mx:Label id="testMicLabel" text="{ResourceUtil.getInstance().getString('bbb.micSettings.microphone.header')}" styleName="micSettingsWindowTestMicrophoneLabelStyle" width="100%" tabIndex="{baseIndex+2}"/>
+            <mx:Label id="testMicLabel" 
+                      text="{ResourceUtil.getInstance().getString('bbb.micSettings.microphone.header')}"
+                      styleName="micSettingsWindowTestMicrophoneLabelStyle" 
+                      width="100%" 
+                      tabIndex="{baseIndex+2}"/>
         </mx:VBox>   
         
-        <mx:HBox width="100%">      
-            <mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakIntoMic')}"
-                     styleName="micSettingsWindowSpeakIntoMicLabelStyle" tabIndex="{baseIndex+3}"/>
-            <mx:Button id="settingBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.changeMic')}" 
-                       styleName="micSettingsWindowChangeMicButtonStyle" toggle="true"
-                       click="showMicSettingsPanel()" tabIndex="{baseIndex+4}"
-                       toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.changeMic.toolTip')}"/>		
+        <mx:HBox width="100%"
+                 visible="{useWebrtcIfAvailable}"
+                 includeInLayout="{useWebrtcIfAvailable}">      
+            <mx:Text    id="settingTxt" 
+                        width="100%" 
+                        text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakIntoMic')}"
+                        styleName="micSettingsWindowSpeakIntoMicLabelStyle" 
+                        tabIndex="{baseIndex+3}"/>
+            <mx:Button  id="settingBtn" 
+                        label="{ResourceUtil.getInstance().getString('bbb.micSettings.changeMic')}" 
+                        styleName="micSettingsWindowChangeMicButtonStyle" 
+                        toggle="true"
+                        tabIndex="{baseIndex+4}"
+                        toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.changeMic.toolTip')}"/>		
         </mx:HBox>
--->        
-       
-        <mx:VBox width="100%" paddingTop="5">
+
+       <!-- Flash Microphone picker and volume -->
+        <mx:VBox width="100%" 
+                 paddingTop="5"
+                 visible="{!useWebrtcIfAvailable}"
+                 includeInLayout="{!useWebrtcIfAvailable}">
           <mx:HRule width="100%"/>
-          <mx:Label id="testMicLabel" 
+          <mx:Label id="testMicLabel2" 
                     text="Microphone" 
                     styleName="micSettingsWindowTestMicrophoneLabelStyle" 
                     width="100%" 
                     tabIndex="{baseIndex+2}"/>
            <mx:Text width="100%" 
                     text="Choose a microphone and check if the activity level increases its level when you talk" />
-        </mx:VBox>   
-        
+        </mx:VBox>           
 
-        <mx:HBox width="100%">       
-          <mx:ComboBox id="comboMicList" 
-                       dataProvider="{microphoneList}" 
-                       change="selectMicrophone(event)"
-                       height="30" />
-
+        <mx:HBox width="100%" 
+                 visible="{!useWebrtcIfAvailable}"         
+                 includeInLayout="{!useWebrtcIfAvailable}">       
+          <mx:ComboBox    id="comboMicList" 
+                          dataProvider="{microphoneList}" 
+                          change="selectMicrophone(event)"
+                          height="30" />
           <mx:ProgressBar id="micLevel" 
                           minimum="0" 
                           maximum="100"
@@ -339,46 +433,85 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                           direction="right" 
                           mode="manual" 
                           visible="true" 
-                          width="120" />
-                          
-           <mx:HSlider id="micRecordVolume"
-                       maximum="100"
-                       snapInterval="1"                       
-                       labels="[0%,Record Volume,100%]"
-                       tickInterval="10"
-                       liveDragging="true" 
-                       change="changeRecordVolume(event);"
-                       showTrackHighlight="true"
-                       trackColors="[ 0xEEEEEE, 0xFFFFFF ]"
-                       value="60"/>                           
-                         
+                          width="120" />                          
+           <mx:HSlider    id="micRecordVolume"
+                          maximum="100"
+                          snapInterval="1"                       
+                          labels="[0%,Record Volume,100%]"
+                          tickInterval="10"
+                          liveDragging="true" 
+                          change="changeRecordVolume(event);"
+                          showTrackHighlight="true"
+                          trackColors="[ 0xEEEEEE, 0xFFFFFF ]"
+                          value="60"/>                                                    
         </mx:HBox>
-                       
+                   
+        <!-- Test Speaker -->    
         <mx:Label id="testSpeakersLabel" 
-                    text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakers.header')}" 
-                    styleName="micSettingsWindowTestSpeakersLabelStyle" 
-                    paddingTop="5" 
-                    tabIndex="{baseIndex+5}"/>
+                  text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakers.header')}" 
+                  styleName="micSettingsWindowTestSpeakersLabelStyle" 
+                  paddingTop="5" 
+                  tabIndex="{baseIndex+5}"/>
         
         <mx:HBox width="100%">
-            <mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.hearFromHeadset')}"
-                     styleName="micSettingsWindowHearFromHeadsetLabelStyle" tabIndex="{baseIndex+6}"/>
-            <mx:Button id="playButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound')}" 
-                       click="playButtonClickHandler()" toggle="true" styleName="micSettingsWindowPlaySoundButtonStyle"
-                       toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound.toolTip')}"
-                       tabIndex="{baseIndex+7}" />		
+            <mx:Text    width="100%" 
+                        text="{ResourceUtil.getInstance().getString('bbb.micSettings.hearFromHeadset')}"
+                        styleName="micSettingsWindowHearFromHeadsetLabelStyle" 
+                        tabIndex="{baseIndex+6}"/>
+            <mx:Button  id="playButton" 
+                        label="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound')}" 
+                        click="playButtonClickHandler()" 
+                        toggle="true" 
+                        styleName="micSettingsWindowPlaySoundButtonStyle"
+                        toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound.toolTip')}"
+                        tabIndex="{baseIndex+7}" />		
         </mx:HBox>
         
+        <!-- Choose between WebRTC or Flash -->
+        <mx:VBox width="100%" visible="{useWebrtcIfAvailable}" includeInLayout="{useWebrtcIfAvailable}">
+            <mx:Label id="webrtcSupportLabel" 
+                      text="{ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.title')}"      
+                      styleName="micSettingsWindowTestSpeakersLabelStyle" 
+                      paddingTop="5" 
+                      tabIndex="{baseIndex+8}"/>
+
+            <mx:HBox width="100%">
+                <mx:HBox width="100%" visible="{webrtcCapable}" includeInLayout="{webrtcCapable}">
+                    <mx:Text    width="100%" 
+                                text="{ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.capableBrowser')}" 
+                                styleName="micSettingsWindowHearFromHeadsetLabelStyle" 
+                                tabIndex="{baseIndex+9}"/>
+                    <mx:Button  id="dontUseWebrtcBtn" 
+                                label="{ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.capableBrowser.dontuseit')}"
+                                click="dontUseWebrtc()" 
+                                styleName="micSettingsWindowPlaySoundButtonStyle"
+                                toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.capableBrowser.dontuseit.toolTip')}"
+                                tabIndex="{baseIndex+10}" />
+                </mx:HBox>
+                <mx:HBox width="100%" visible="{!webrtcCapable}" includeInLayout="{!webrtcCapable}">
+                    <mx:Text  width="100%" 
+                              text="{ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.notCapableBrowser')}" 
+                              styleName="micSettingsWindowHearFromHeadsetLabelStyle" 
+                              tabIndex="{baseIndex+11}"/>
+                </mx:HBox>
+            </mx:HBox>
+        </mx:VBox>
+
+    <!-- Join and Cancel buttons -->
     <mx:HRule width="100%"/>
     <mx:Spacer height="20"/>
 		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="18">
-			<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.join')}" 
-					   styleName="micSettingsWindowJoinButtonStyle"
-					   click="onJoinClicked()" tabIndex="{baseIndex+8}"/>
-			<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel')}" 
-					   styleName="micSettingsWindowCancelButtonStyle"
-					   click="onCancelClicked()" tabIndex="{baseIndex+9}"
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel.toolTip')}"/>
+			<mx:Button  id="okBtn" 
+			            label="{ResourceUtil.getInstance().getString('bbb.micSettings.join')}" 
+					        styleName="micSettingsWindowJoinButtonStyle"
+					        click="onJoinClicked()" 
+					        tabIndex="{baseIndex+12}"/>
+			<mx:Button  id="cancelBtn" 
+			            label="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel')}" 
+					        styleName="micSettingsWindowCancelButtonStyle"
+					        click="onCancelClicked()" 
+					        tabIndex="{baseIndex+13}"
+					        toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel.toolTip')}"/>
 		</mx:HBox>
 		
 	</mx:VBox>		
