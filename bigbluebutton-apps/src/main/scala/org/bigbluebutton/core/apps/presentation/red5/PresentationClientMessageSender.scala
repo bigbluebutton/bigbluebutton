@@ -13,7 +13,7 @@ import net.lag.logging.Logger
 
 class PresentationClientMessageSender(service: ConnectionInvokerService) extends OutMessageListener2 {
   
-  val log = Logger.get
+  private val log = Logger.get
   
 	private val OFFICE_DOC_CONVERSION_SUCCESS_KEY = "OFFICE_DOC_CONVERSION_SUCCESS";
     private val OFFICE_DOC_CONVERSION_FAILED_KEY = "OFFICE_DOC_CONVERSION_FAILED";
@@ -72,7 +72,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
   	message.put("msg", gson.toJson(args))
   	
   	println("PresentationClientMessageSender - handlePresentationConversionProgress \n" + message.get("msg") + "\n")
-  	
+  	log.debug("PresentationClientMessageSender - handlePresentationConversionProgress \n" + message.get("msg") + "\n")
     val m = new BroadcastClientMessage(msg.meetingID, "conversionUpdateMessageCallback", message);
 	service.sendMessage(m);	
   }
@@ -91,7 +91,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
   	message.put("msg", gson.toJson(args))
   	
   	println("PresentationClientMessageSender - handlePresentationConversionError \n" + message.get("msg") + "\n")
-  	
+  	log.debug("PresentationClientMessageSender - handlePresentationConversionError \n" + message.get("msg") + "\n")
 	val m = new BroadcastClientMessage(msg.meetingID, "pageCountExceededUpdateMessageCallback", message);
     service.sendMessage(m);    
   }
@@ -110,7 +110,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
   	message.put("msg", gson.toJson(args))
   	
   	println("PresentationClientMessageSender - handlePresentationPageGenerated \n" + message.get("msg") + "\n")
-  	
+  	log.debug("PresentationClientMessageSender - handlePresentationPageGenerated \n" + message.get("msg") + "\n")
 	val m = new BroadcastClientMessage(msg.meetingID, "generatedSlideUpdateMessageCallback", message);
     service.sendMessage(m);    
   }
@@ -141,17 +141,17 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
   	message.put("msg", gson.toJson(args))
   		
   	println("PresentationClientMessageSender - handlePresentationConversionDone \n" + message.get("msg") + "\n")
-  	
+  	log.debug("PresentationClientMessageSender - handlePresentationConversionDone \n" + message.get("msg") + "\n")
 	val m = new BroadcastClientMessage(msg.meetingID, "conversionCompletedUpdateMessageCallback", message);
     service.sendMessage(m);      
   }
  
   private def handleRemovePresentationOutMsg(msg: RemovePresentationOutMsg) {
-		val args = new java.util.HashMap[String, Object]();
-		args.put("presentationID", msg.presentationID);
+	val args = new java.util.HashMap[String, Object]();
+	args.put("presentationID", msg.presentationID);
 
-		val m = new BroadcastClientMessage(msg.meetingID, "removePresentationCallback", args);
-		service.sendMessage(m);    
+	val m = new BroadcastClientMessage(msg.meetingID, "removePresentationCallback", args);
+	service.sendMessage(m);    
   }
   
   private def handleGetPresentationInfoOutMsg(msg: GetPresentationInfoOutMsg) {
@@ -233,12 +233,18 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
   }
   
   private def handleSharePresentationOutMsg(msg: SharePresentationOutMsg) {
-		val args = new java.util.HashMap[String, Object]();
-		args.put("presentationID", msg.presentationID);
-		args.put("share", msg.share:java.lang.Boolean);
-		
-		val m = new BroadcastClientMessage(msg.meetingID, "sharePresentationCallback", args);
-		service.sendMessage(m);	    
+	val args = new java.util.HashMap[String, Object]();
+	args.put("presentationID", msg.presentationID);
+	args.put("share", msg.share:java.lang.Boolean);
+
+    val message = new java.util.HashMap[String, Object]() 
+	val gson = new Gson();
+  	message.put("msg", gson.toJson(args))
+  	
+  	log.debug("PresentationClientMessageSender - handleSharePresentationOutMsg to presentation[{}] \n [{}]", msg.presentationID, message.get("msg"))
+  	
+	val m = new BroadcastClientMessage(msg.meetingID, "sharePresentationCallback", message);
+	service.sendMessage(m);	    
   }
   
   private def handleGetSlideInfoOutMsg(msg: GetSlideInfoOutMsg) {

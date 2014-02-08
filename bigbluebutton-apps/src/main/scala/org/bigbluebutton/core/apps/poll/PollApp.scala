@@ -9,7 +9,7 @@ import net.lag.logging.Logger
 trait PollApp {
   this : MeetingActor =>
   
-  val log: Logger
+  private val log = Logger.get
   val outGW: MessageOutGateway
     
   private val pollModel = new PollModel

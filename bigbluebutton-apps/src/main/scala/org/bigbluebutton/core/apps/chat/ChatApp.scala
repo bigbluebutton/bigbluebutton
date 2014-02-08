@@ -8,7 +8,7 @@ import org.bigbluebutton.core.MeetingActor
 trait ChatApp {
   this : MeetingActor =>
   
-  val log: Logger
+  private val log = Logger.get
   val outGW: MessageOutGateway
   
   val messages = new ArrayBuffer[Map[String, String]]()

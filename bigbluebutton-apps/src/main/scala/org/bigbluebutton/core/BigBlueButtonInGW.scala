@@ -16,7 +16,7 @@ import org.bigbluebutton.core.apps.presentation.Presentation
 import net.lag.logging.Logger
 
 class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW {
-  val log = Logger.get
+  private val log = Logger.get
   
   val presUtil = new PreuploadedPresentationsUtil()
    

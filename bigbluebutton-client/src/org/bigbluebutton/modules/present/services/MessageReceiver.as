@@ -140,6 +140,10 @@ package org.bigbluebutton.modules.present.services
     }
     
     private function handleSharePresentationCallback(msg:Object):void {
+      trace(LOG + "*** handleSharePresentationCallback " + msg.msg + " **** \n");
+      
+      return;
+      
       if (msg.share) {
         var e:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
         e.presentationName = msg.presentationID;
@@ -156,7 +160,10 @@ package org.bigbluebutton.modules.present.services
     }
     
     private function handleConversionCompletedUpdateMessageCallback(msg:Object) : void {
-
+      trace(LOG + "*** handleConversionCompletedUpdateMessageCallback " + msg.msg + " **** \n");
+      
+      return;
+      
       var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
       uploadEvent.data = msg.messageKey;
       uploadEvent.presentationName = msg.presentationID;
@@ -168,7 +175,11 @@ package org.bigbluebutton.modules.present.services
       dispatcher.dispatchEvent(readyEvent);
     }
     
-    private function handleGeneratedSlideUpdateMessageCallback(msg:Object) : void {				
+    private function handleGeneratedSlideUpdateMessageCallback(msg:Object) : void {		
+      trace(LOG + "*** handleGeneratedSlideUpdateMessageCallback " + msg.msg + " **** \n");
+      
+      return;
+      
       var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_UPDATE);
       uploadEvent.totalSlides = msg.maxNumberPages;
       uploadEvent.completedSlides = msg.pagesCompleted;
@@ -176,13 +187,20 @@ package org.bigbluebutton.modules.present.services
     }
     
     private function handlePageCountExceededUpdateMessageCallback(msg:Object) : void {
+      trace(LOG + "*** handlePageCountExceededUpdateMessageCallback " + msg.msg + " **** \n");
+      
+      return;
+      
       var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.PAGE_COUNT_EXCEEDED);
       uploadEvent.maximumSupportedNumberOfSlides = msg.maxNumberPages;
       dispatcher.dispatchEvent(uploadEvent);
     }
     
     private function handleConversionUpdateMessageCallback(msg:Object) : void {
-
+      trace(LOG + "*** handleConversionUpdateMessageCallback " + msg.msg + " **** \n");
+      
+      return;
+      
       var totalSlides : Number;
       var completedSlides : Number;
       var message : String;

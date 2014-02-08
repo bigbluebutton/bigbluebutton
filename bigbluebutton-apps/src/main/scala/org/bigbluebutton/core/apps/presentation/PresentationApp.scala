@@ -16,7 +16,7 @@ case class CursorLocation(xPercent: Double = 0D, yPercent: Double = 0D)
 trait PresentationApp {
   this : MeetingActor =>
   
-  val log : Logger
+  private val log = Logger.get
   val outGW: MessageOutGateway
     	
   private var cursorLocation = new CursorLocation
@@ -26,8 +26,10 @@ trait PresentationApp {
   def handlePreuploadedPresentations(msg: PreuploadedPresentations) {
     val pres = msg.presentations
       
-    msg.presentations.foreach(presentationID => {
-  	  sharePresentation(presentationID.asInstanceOf[String], true)       
+    msg.presentations.foreach(presentation => {
+      presModel.addPresentation(presentation)
+                             
+      sharePresentation(presentation.id, true)     
     })
   }
     
@@ -63,7 +65,9 @@ trait PresentationApp {
       presModel.addPresentation(msg.presentation)
       
       outGW.send(new PresentationConversionDone(meetingID, msg.messageKey, 
-                       msg.code, msg.presentation))      
+                       msg.code, msg.presentation))    
+                       
+      sharePresentation(msg.presentation.id, true)
     }
     	                     
     def handleRemovePresentation(msg: RemovePresentation) {

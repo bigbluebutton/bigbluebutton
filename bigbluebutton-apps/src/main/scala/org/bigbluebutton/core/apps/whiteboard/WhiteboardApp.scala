@@ -8,7 +8,7 @@ import org.bigbluebutton.core.MeetingActor
 trait WhiteboardApp {
   this : MeetingActor =>
   
-  val log: Logger
+  private val log = Logger.get
   val outGW: MessageOutGateway
   
   private val wbModel = new WhiteboardModel

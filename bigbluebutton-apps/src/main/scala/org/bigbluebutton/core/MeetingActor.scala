@@ -24,7 +24,7 @@ class MeetingActor(val meetingID: String, val recorded: Boolean,
                    extends Actor with UsersApp with PresentationApp
                    with PollApp with LayoutApp with ChatApp
                    with WhiteboardApp {  
-  val log = Logger.get
+  private val log = Logger.get
   
   var lockSettings = new LockSettings(true, true, true, true, true)
   var recordingStatus = false;
