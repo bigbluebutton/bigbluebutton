@@ -6,6 +6,9 @@ import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessag
 import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage
 import collection.JavaConversions._
 import com.google.gson.Gson
+import java.util.ArrayList
+import org.bigbluebutton.core.apps.presentation.Page
+import org.bigbluebutton.core.apps.presentation.Presentation
 
 class PresentationClientMessageSender(service: ConnectionInvokerService) extends OutMessageListener2 {
 	private val OFFICE_DOC_CONVERSION_SUCCESS_KEY = "OFFICE_DOC_CONVERSION_SUCCESS";
@@ -109,70 +112,36 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
   }
   
   private def handlePresentationConversionDone(msg: PresentationConversionDone) {
-    val args = new java.util.HashMap[String, Object]();
+    val args = new java.util.HashMap[String, Object]()
 	args.put("meetingID", msg.meetingID);
 	args.put("code", msg.code);
-	args.put("presentation", msg.presentation);
+	
+	val presentation = new java.util.HashMap[String, Object]();
+	presentation.put("id", msg.presentation.id)
+	presentation.put("name", msg.presentation.name)
+	presentation.put("current", msg.presentation.current:java.lang.Boolean)
+	
+	val pages = new ArrayList[Page]()
+	
+	msg.presentation.pages.values foreach {p =>
+      println("PresentationClientMessageSender **** Page [" + p.id + "," + p.num + "]")
+      pages.add(p)
+    }
+	
+	presentation.put("pages", pages)
+	
+	args.put("presentation", presentation);
 
 	val message = new java.util.HashMap[String, Object]() 
 	val gson = new Gson();
   	message.put("msg", gson.toJson(args))
-  	
+  		
   	println("PresentationClientMessageSender - handlePresentationConversionDone \n" + message.get("msg") + "\n")
   	
 	val m = new BroadcastClientMessage(msg.meetingID, "conversionCompletedUpdateMessageCallback", message);
     service.sendMessage(m);      
   }
-
-/*  
-  private def handlePresentationConversionUpdateOutMsg(msg: PresentationConversionError) {
-	  val message = msg.msg;
-
-	  val messageKey:String = message.get("messageKey").asInstanceOf[String]
-
-			  val args = new java.util.HashMap[String, Object]();
-	  args.put("meetingID", message.get("conference"));
-	  args.put("code", message.get("returnCode"));
-	  args.put("presentationID", message.get("presentationName"));
-	  args.put("messageKey", messageKey);
-
-	  if (messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_SUCCESS_KEY) ||
-			  messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_FAILED_KEY) ||
-			  messageKey.equalsIgnoreCase(SUPPORTED_DOCUMENT_KEY) ||
-			  messageKey.equalsIgnoreCase(UNSUPPORTED_DOCUMENT_KEY) ||
-			  messageKey.equalsIgnoreCase(GENERATING_THUMBNAIL_KEY) ||
-			  messageKey.equalsIgnoreCase(GENERATED_THUMBNAIL_KEY) ||
-			  messageKey.equalsIgnoreCase(PAGE_COUNT_FAILED_KEY)){
-
-		  val m = new BroadcastClientMessage(msg.meetingID, "conversionUpdateMessageCallback", args);
-
-		  service.sendMessage(m);
-	  } else if(messageKey.equalsIgnoreCase(PAGE_COUNT_EXCEEDED_KEY)){
-		  args.put("numberOfPages", message.get("numberOfPages"));
-		  args.put("maxNumberPages", message.get("maxNumberPages"));
-
-		  val m = new BroadcastClientMessage(msg.meetingID, "pageCountExceededUpdateMessageCallback", args);
-
-		  service.sendMessage(m);
-
-	  } else if(messageKey.equalsIgnoreCase(GENERATED_SLIDE_KEY)){
-		  args.put("numberOfPages", message.get("numberOfPages"));
-		  args.put("pagesCompleted", message.get("pagesCompleted"));
-
-		  val m = new BroadcastClientMessage(msg.meetingID, "generatedSlideUpdateMessageCallback", args);
-
-		  service.sendMessage(m);			
-
-	  } else if(messageKey.equalsIgnoreCase(CONVERSION_COMPLETED_KEY)){
-		  args.put("slidesInfo", message.get("slidesInfo"));		
-
-		  val m = new BroadcastClientMessage(msg.meetingID, "conversionCompletedUpdateMessageCallback", args);
-
-		  service.sendMessage(m);			
-	  }        
-  }
-*/
-  
+ 
   private def handleRemovePresentationOutMsg(msg: RemovePresentationOutMsg) {
 		val args = new java.util.HashMap[String, Object]();
 		args.put("presentationID", msg.presentationID);
@@ -182,9 +151,49 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
   }
   
   private def handleGetPresentationInfoOutMsg(msg: GetPresentationInfoOutMsg) {
-		val message = msg.info;
-//		val m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getPresentationInfoReply", msg.info);
-//		service.sendMessage(m);	
+    val info = msg.info
+    
+    // Build JSON
+    val args = new java.util.HashMap[String, Object]()
+	args.put("meetingID", msg.meetingID);
+	
+    // Create a map for our current presenter
+    val presenter = new java.util.HashMap[String, String]()
+    presenter.put("userId", info.presenter.userId)
+    presenter.put("name", info.presenter.name)
+    presenter.put("assignedBy", info.presenter.assignedBy)
+	
+    args.put("presenter", presenter)
+    
+    // Create an array for our presentations
+    val presentations = new ArrayList[java.util.HashMap[String, Object]]     
+    info.presentations.foreach { pres =>
+	   val presentation = new java.util.HashMap[String, Object]();
+	   presentation.put("id", pres.id)
+	   presentation.put("name", pres.name)
+	   presentation.put("current", pres.current:java.lang.Boolean)      
+	   
+	   // Get the pages for a presentation
+       val pages = new ArrayList[Page]()	
+	   pres.pages.values foreach {p =>
+         pages.add(p)
+       }   
+	  // store the pages in the presentation 
+	  presentation.put("pages", pages)
+	
+	  // add this presentation into our presentations list
+	  presentations.add(presentation);	   
+    }
+    
+    // add the presentation to our map to complete our json
+    args.put("presentations", presentations)
+
+    val message = new java.util.HashMap[String, Object]() 
+	val gson = new Gson();
+  	message.put("msg", gson.toJson(args))
+  	
+	val m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getPresentationInfoReply", message);
+	service.sendMessage(m);	
   }
   
   private def handleSendCursorUpdateOutMsg(msg: SendCursorUpdateOutMsg) {

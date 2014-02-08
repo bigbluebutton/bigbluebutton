@@ -31,6 +31,7 @@ public class PreuploadedPresentationsUtil {
 			
 		} 
 		
+		System.out.println("Number of pre-uploaded presentations [" + preuploadedPresentations.size() + "]");
 		return preuploadedPresentations;
 	}
 	

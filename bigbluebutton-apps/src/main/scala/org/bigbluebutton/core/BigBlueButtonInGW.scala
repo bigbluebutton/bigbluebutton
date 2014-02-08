@@ -186,7 +186,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	    val num = i;
 	    val thumbnail = "thumbnail/" + i
 	    val p = new Page(id=id, num=num, thumbnail=thumbnail)
-	    pages += p.id -> p
+	    pages += (p.id -> p)
 	  }
 	  
 	  pages
@@ -197,6 +197,10 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	  
       val pages = generatePresentationPages(numPages)
 	  
+      pages.values foreach {p =>
+        println("**** Page [" + p.id + "," + p.num + "]")
+      }
+      
 	  val presentation = new Presentation(id=presentationId, name=presentationId, pages=pages)
       bbbGW.accept(new PresentationConversionCompleted(meetingId, messageKey, 
                        code, presentation))	 
