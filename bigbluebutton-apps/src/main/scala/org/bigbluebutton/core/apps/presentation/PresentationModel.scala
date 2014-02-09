@@ -81,8 +81,7 @@ class PresentationModel {
   } 
   
   private def deactivateCurrentPage(pres: Presentation) {
-    val curPage = getCurrentPage(pres) 
-    curPage foreach {cp =>
+    getCurrentPage(pres)  foreach {cp =>
         val page = cp.copy(current = false)
         val nPages = pres.pages + (page.id -> page)
         val newPres = pres.copy(pages= nPages)
@@ -91,27 +90,8 @@ class PresentationModel {
         println("After deact page. presentation id=[" + newPres.id + "] current=[" + newPres.current + "]")
         newPres.pages.values foreach {page =>
           println("page id=[" + page.id + "] current=[" + page.current + "]")
-        }
-        
+        }   
     }
-
-/*        
-    getCurrentPage(pres) match {
-      case Some(cp) => {
-        val page = cp.copy(current = false)
-        val nPages = pres.pages + (page.id -> page)
-        val newPres = pres.copy(pages= nPages)
-        savePresentation(newPres)
-        println("Making page[" + page.id + "] not current[" + page.current + "]")
-        Some(page)
-      }
-      case None => {
-        println("Could not find current page in presentation [" + pres.id + "]")
-        None
-      }
-    }
-    
-    */
   }
   
   

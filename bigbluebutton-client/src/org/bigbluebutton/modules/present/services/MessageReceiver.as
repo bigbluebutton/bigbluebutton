@@ -113,10 +113,14 @@ package org.bigbluebutton.modules.present.services
       dispatcher.dispatchEvent(e);	  
     }
     
-    private function handlePresentationCursorUpdateCommand(message:Object):void {    
+    private function handlePresentationCursorUpdateCommand(msg:Object):void {    
+      trace(LOG + "*** handlePresentationCursorUpdateCommand " + msg.msg + " **** \n");
+      
+      var map:Object = JSON.parse(msg.msg);
+      
       var e:CursorEvent = new CursorEvent(CursorEvent.UPDATE_CURSOR);
-      e.xPercent = message.xPercent;
-      e.yPercent = message.yPercent;
+      e.xPercent = map.xPercent;
+      e.yPercent = map.yPercent;
       var dispatcher:Dispatcher = new Dispatcher();
       dispatcher.dispatchEvent(e);
     }
@@ -134,29 +138,29 @@ package org.bigbluebutton.modules.present.services
     private function handleMoveCallback(msg:Object):void{
       trace(LOG + "*** handleMoveCallback " + msg.msg + " **** \n");
       
-      return;
+      var map:Object = JSON.parse(msg.msg);
       
-      trace(LOG + "handleMoveCallback [" + msg.xOffset + "," +  msg.yOffset + "][" +  msg.widthRatio + "," + msg.heightRatio + "]");
+  //    trace(LOG + "handleMoveCallback [" + msg.xOffset + "," +  msg.yOffset + "][" +  msg.widthRatio + "," + msg.heightRatio + "]");
       var e:MoveEvent = new MoveEvent(MoveEvent.MOVE);
-      e.xOffset = msg.xOffset;
-      e.yOffset = msg.yOffset;
-      e.slideToCanvasWidthRatio = msg.widthRatio;
-      e.slideToCanvasHeightRatio = msg.heightRatio;
+      e.xOffset = map.xOffset;
+      e.yOffset = map.yOffset;
+      e.slideToCanvasWidthRatio = map.widthRatio;
+      e.slideToCanvasHeightRatio = map.heightRatio;
       dispatcher.dispatchEvent(e);
     }
     
     private function handleSharePresentationCallback(msg:Object):void {
       trace(LOG + "*** handleSharePresentationCallback " + msg.msg + " **** \n");
       
-      return;
+      var map:Object = JSON.parse(msg.msg);
       
-      if (msg.share) {
+//      if (msg.share) {
         var e:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
-        e.presentationName = msg.presentationID;
+        e.presentationName = map.presentationID;
         dispatcher.dispatchEvent(e);
-      } else {
-        dispatcher.dispatchEvent(new UploadEvent(UploadEvent.CLEAR_PRESENTATION));
-      }
+//      } else {
+//        dispatcher.dispatchEvent(new UploadEvent(UploadEvent.CLEAR_PRESENTATION));
+//      }
     }
     
     private function handleRemovePresentationCallback(msg:Object):void {
