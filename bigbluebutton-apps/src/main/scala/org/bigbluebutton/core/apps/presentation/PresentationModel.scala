@@ -54,20 +54,7 @@ class PresentationModel {
   private def savePresentation(pres: Presentation) {
     presentations += pres.id -> pres
   }
-    
-  private def deactivateCurrentPage(pres: Presentation) {
-    getCurrentPage(pres) match {
-      case Some(cp) => {
-        val page = cp.copy(current = false)
-        val nPages = pres.pages + (page.id -> page)
-        val newPres = pres.copy(pages= nPages)
-        savePresentation(newPres)
-        Some(page)
-      }
-      case None => None
-    }
-  }
-  
+      
   private def resizeCurrentPage(pres: Presentation, 
                                 xOffset: Double, yOffset: Double, 
                                 widthRatio: Double, 
@@ -93,21 +80,61 @@ class PresentationModel {
     } yield page
   } 
   
+  private def deactivateCurrentPage(pres: Presentation) {
+    val curPage = getCurrentPage(pres) 
+    curPage foreach {cp =>
+        val page = cp.copy(current = false)
+        val nPages = pres.pages + (page.id -> page)
+        val newPres = pres.copy(pages= nPages)
+        savePresentation(newPres)
+        println("Making page[" + page.id + "] not current[" + page.current + "]")  
+        println("After deact page. presentation id=[" + newPres.id + "] current=[" + newPres.current + "]")
+        newPres.pages.values foreach {page =>
+          println("page id=[" + page.id + "] current=[" + page.current + "]")
+        }
+        
+    }
+
+/*        
+    getCurrentPage(pres) match {
+      case Some(cp) => {
+        val page = cp.copy(current = false)
+        val nPages = pres.pages + (page.id -> page)
+        val newPres = pres.copy(pages= nPages)
+        savePresentation(newPres)
+        println("Making page[" + page.id + "] not current[" + page.current + "]")
+        Some(page)
+      }
+      case None => {
+        println("Could not find current page in presentation [" + pres.id + "]")
+        None
+      }
+    }
+    
+    */
+  }
+  
+  
   private def makePageCurrent(pres: Presentation, page: String):Option[Page] = {
-    deactivateCurrentPage(pres)
     pres.pages.values find (p => p.id == page) match {
       case Some(newCurPage) => {
         val page = newCurPage.copy(current=true)
         val newPages = pres.pages + (page.id -> page)
         val newPres = pres.copy(pages= newPages)
         savePresentation(newPres)
+        println("Making page[" + page.id + "] current[" + page.current + "]")
         Some(page)
       }
-      case None => None
-    }    
+      case None => {
+        println("Could not find page[" + page + "] in presentation [" + pres.id + "]")
+        None
+      }
+    }
   }
   
   def changePage(pageId: String):Option[Page] = {
+    getCurrentPresentation foreach {pres => deactivateCurrentPage(pres)}
+       
     for {
       pres <- getCurrentPresentation      
       page <- makePageCurrent(pres, pageId)

@@ -108,10 +108,14 @@ trait PresentationApp {
     
     def handleGotoSlide(msg: GotoSlide) {
       println("Received GotoSlide for meeting=[" +  msg.meetingID + "] page=[" + msg.page + "]")
+      println("*** Before change page ****")
+      printPresentations
       presModel.changePage(msg.page) foreach {page => 
         println("Switching page for meeting=[" +  msg.meetingID + "] page=[" + page.id + "]")
         outGW.send(new GotoSlideOutMsg(meetingID, recorded, page))
       }
+      println("*** After change page ****")
+      printPresentations
     }
     
     def handleSharePresentation(msg: SharePresentation) {
@@ -129,6 +133,16 @@ trait PresentationApp {
     
     def handleGetSlideInfo(msg: GetSlideInfo) {
 //      outGW.send(new GetSlideInfoOutMsg(meetingID, recorded, msg.requesterID, xOffset, yOffset, widthRatio, heightRatio))
+    }
+    
+    def printPresentations() {
+      presModel.getPresentations foreach {pres =>
+        println("presentation id=[" + pres.id + "] current=[" + pres.current + "]")
+        pres.pages.values foreach {page =>
+          println("page id=[" + page.id + "] current=[" + page.current + "]")
+        }
+      }
+      
     }
     
 }
