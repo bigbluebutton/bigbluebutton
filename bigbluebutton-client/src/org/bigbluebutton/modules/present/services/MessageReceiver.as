@@ -122,14 +122,20 @@ package org.bigbluebutton.modules.present.services
     }
     
     private function handleGotoSlideCallback(msg:Object) : void {
-//      presModel.curSlideNum = msg.pageNum;
+      trace(LOG + "*** handleGotoSlideCallback " + msg.msg + " **** \n");
+      var map:Object = JSON.parse(msg.msg);
       
+      trace(LOG + "*** handleGotoSlideCallback GOTO_PAGE[" + (map.num - 1) + "] **** \n");
       var e:NavigationEvent = new NavigationEvent(NavigationEvent.GOTO_PAGE)
-      e.pageNumber = msg.pageNum;
+      e.pageNumber = map.num - 1;
       dispatcher.dispatchEvent(e);
     }
     
     private function handleMoveCallback(msg:Object):void{
+      trace(LOG + "*** handleMoveCallback " + msg.msg + " **** \n");
+      
+      return;
+      
       trace(LOG + "handleMoveCallback [" + msg.xOffset + "," +  msg.yOffset + "][" +  msg.widthRatio + "," + msg.heightRatio + "]");
       var e:MoveEvent = new MoveEvent(MoveEvent.MOVE);
       e.xOffset = msg.xOffset;

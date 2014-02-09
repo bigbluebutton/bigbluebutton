@@ -97,7 +97,9 @@ package org.bigbluebutton.modules.present.services
     public function gotoSlide(num:int) : void {
       var message:Object = new Object();
       message["pageNumber"] = num;      
-
+      
+      trace(LOG + "gotoSlide [" + num + "]");
+      
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("presentation.gotoSlide", 
         function(result:String):void { // On successful result

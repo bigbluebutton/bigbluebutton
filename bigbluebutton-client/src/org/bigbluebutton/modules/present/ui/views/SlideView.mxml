@@ -135,10 +135,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function changeSlide():void {
-                if (thumbnailView.selectedIndex != selectedSlide) {
+        if (thumbnailView.selectedIndex != selectedSlide) {
 				    dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, thumbnailView.selectedIndex));
 				    thumbnailView.visible = false;
-                }
+        }
 			}
 			
 			private function changeIndex(e:ListEvent):void {

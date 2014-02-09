@@ -449,6 +449,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function gotoPage(e:NavigationEvent):void{
+        trace("PresentationWindow:gotoPage page[" + e.pageNumber + "]");
 				loadPage(e.pageNumber);
 			}
 			

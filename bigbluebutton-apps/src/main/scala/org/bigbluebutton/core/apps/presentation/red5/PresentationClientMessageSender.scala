@@ -150,7 +150,11 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
 	val args = new java.util.HashMap[String, Object]();
 	args.put("presentationID", msg.presentationID);
 
-	val m = new BroadcastClientMessage(msg.meetingID, "removePresentationCallback", args);
+	val message = new java.util.HashMap[String, Object]() 
+	val gson = new Gson();
+  	message.put("msg", gson.toJson(args))
+  	
+	val m = new BroadcastClientMessage(msg.meetingID, "removePresentationCallback", message);
 	service.sendMessage(m);    
   }
   
@@ -215,7 +219,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
   	
   	log.debug("PresentationClientMessageSender - handleSendCursorUpdateOutMsg \n [{}]", message.get("msg"))
   	
-	val m = new BroadcastClientMessage(msg.meetingID, "PresentationCursorUpdateCommand", args);
+	val m = new BroadcastClientMessage(msg.meetingID, "PresentationCursorUpdateCommand", message);
 	service.sendMessage(m);	    
   }
   
@@ -236,7 +240,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
   	
   	log.debug("PresentationClientMessageSender - handleResizeAndMoveSlideOutMsg \n [{}]", message.get("msg"))
   	
-	val m = new BroadcastClientMessage(msg.meetingID, "moveCallback", args);
+	val m = new BroadcastClientMessage(msg.meetingID, "moveCallback", message);
 	service.sendMessage(m);	    
   }
   
@@ -257,7 +261,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
   	
   	log.debug("PresentationClientMessageSender - handleGotoSlideOutMsg \n [{}]", message.get("msg"))
 		
-	val m = new BroadcastClientMessage(msg.meetingID, "gotoSlideCallback", args);
+	val m = new BroadcastClientMessage(msg.meetingID, "gotoSlideCallback", message);
 	service.sendMessage(m);	    
   }
   
