@@ -4,6 +4,11 @@ import org.bigbluebutton.core.api._
 import org.bigbluebutton.conference.service.whiteboard.WhiteboardKeyUtil
 import net.lag.logging.Logger
 import org.bigbluebutton.core.MeetingActor
+import org.bigbluebutton.core.apps.whiteboard.vo._
+
+case class Page2(num:Int, current: Boolean = false, shapes: Seq[AnnotationVO])
+case class Presentation2(val presentationID: String, val numPages: Int, 
+                 current: Boolean = false, pages:scala.collection.immutable.HashMap[Int, Page2])
 
 trait WhiteboardApp {
   this : MeetingActor =>
