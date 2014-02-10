@@ -71,7 +71,7 @@ package org.bigbluebutton.modules.present.services
         case "PresentationCursorUpdateCommand":
           handlePresentationCursorUpdateCommand(message);
           break;			
-        case "gotoSlideCallback":
+        case "goToSlideCallback":
           handleGotoSlideCallback(message);
           break;			
         case "moveCallback":

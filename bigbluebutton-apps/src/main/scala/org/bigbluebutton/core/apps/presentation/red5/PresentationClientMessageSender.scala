@@ -261,7 +261,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
   	
   	log.debug("PresentationClientMessageSender - handleGotoSlideOutMsg \n [{}]", message.get("msg"))
 		
-	val m = new BroadcastClientMessage(msg.meetingID, "gotoSlideCallback", message);
+	val m = new BroadcastClientMessage(msg.meetingID, "goToSlideCallback", message);
 	service.sendMessage(m);	    
   }
   
