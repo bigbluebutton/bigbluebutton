@@ -358,7 +358,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		    </mx:Canvas>
 		      
         <!-- WebRTC microphone -->
-        <mx:VBox width="100%"
+<!--        <mx:VBox width="100%"
                  paddingTop="5"
                  visible="{useWebrtcIfAvailable}"
                  includeInLayout="{useWebrtcIfAvailable}">
@@ -385,6 +385,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                  tabIndex="{baseIndex+4}"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.changeMic.toolTip')}"/>		
         </mx:HBox>
+-->
 
        <!-- Flash Microphone -->
         <mx:VBox width="100%"
@@ -428,32 +429,50 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
         <!-- Choose between WebRTC and Flash -->
         <mx:VBox width="100%" visible="{useWebrtcIfAvailable}" includeInLayout="{useWebrtcIfAvailable}">
-            <mx:Label id="webrtcSupportLabel" 
+<!--            <mx:Label id="webrtcSupportLabel" 
                   text="{ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.title')}"      
                   styleName="micSettingsWindowTestSpeakersLabelStyle" 
                   paddingTop="5" 
                   tabIndex="{baseIndex+8}"/>
-
+-->                  
+            <mx:HRule width="100%"/>
             <mx:HBox width="100%">
-                <mx:HBox width="100%" visible="{webrtcCapable}" includeInLayout="{webrtcCapable}">
-                    <mx:Text    width="100%" 
-                          text="{ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.capableBrowser')}" 
-                          styleName="micSettingsWindowHearFromHeadsetLabelStyle" 
-                          tabIndex="{baseIndex+9}"/>
-                    <mx:Button  id="dontUseWebrtcBtn" 
+                <mx:VBox width="100%" visible="{webrtcCapable}" includeInLayout="{webrtcCapable}">
+                    <mx:Label id="webrtcSupportLabel" 
+                        text="{ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.capableBrowser')}"      
+                        styleName="micSettingsWindowTestSpeakersLabelStyle" 
+                        paddingTop="5" 
+                        tabIndex="{baseIndex+8}"/>
+<!--                    <mx:Text    width="100%" 
+                            text="{ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.capableBrowser')}" 
+                            styleName="micSettingsWindowHearFromHeadsetLabelStyle" 
+                            tabIndex="{baseIndex+9}"/>
+-->                            
+                    <mx:HBox width="100%">
+                      <mx:Button  id="settingBtn" 
+                           label="{ResourceUtil.getInstance().getString('bbb.micSettings.changeMic')}" 
+                           styleName="micSettingsWindowChangeMicButtonStyle" 
+                           toggle="true"
+                           tabIndex="{baseIndex+4}"
+                           toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.changeMic.toolTip')}"/>		
+                      <mx:Button  id="dontUseWebrtcBtn" 
                           label="{ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.capableBrowser.dontuseit')}"
                           click="dontUseWebrtc()" 
                           styleName="micSettingsWindowPlaySoundButtonStyle"
                           toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.capableBrowser.dontuseit.toolTip')}"
                           tabIndex="{baseIndex+10}" />
-                </mx:HBox>
+                     
+                    </mx:HBox>
+                </mx:VBox>
+                <!-- Not webrtc capable browser message -->
                 <mx:HBox width="100%" visible="{!webrtcCapable}" includeInLayout="{!webrtcCapable}">
                     <mx:Text  width="100%" 
                           text="{ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.notCapableBrowser')}" 
                           styleName="micSettingsWindowHearFromHeadsetLabelStyle" 
                           tabIndex="{baseIndex+11}"/>
                 </mx:HBox>
-            </mx:HBox>
+                
+            </mx:HBox>            
         </mx:VBox>
 
     <!-- Play Sound, Join and Cancel buttons -->
