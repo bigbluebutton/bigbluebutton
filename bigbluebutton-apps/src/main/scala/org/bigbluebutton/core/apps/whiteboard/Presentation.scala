@@ -6,7 +6,7 @@ import scala.collection.mutable.ArrayBuffer
 
 class Presentation(val presentationID: String, val numPages: Int) {
   
-	private val _pages = new HashMap[Int, Page]()	
+	private var _pages = new scala.collection.immutable.HashMap[Int, Page]()	
 	private var _curPage = 1;
 	
 	for (i <- 1 to numPages) {

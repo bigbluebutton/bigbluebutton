@@ -89,7 +89,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		 * 
 		 */		
 		public function undoGraphic():void{
-//			LogUtil.debug("Sending [whiteboard.undo] to server.");
+      trace("WB::MessageSender: Sending [whiteboard.undo] to server.");
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.undo", 
 				function(result:String):void { // On successful result
@@ -106,7 +106,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		 * 
 		 */		
 		public function clearBoard():void{
-//			LogUtil.debug("Sending [whiteboard.clear] to server.");
+      trace("WB::MessageSender: Sending [whiteboard.clear] to server.");
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.clear", 
 				function(result:String):void { // On successful result
@@ -118,8 +118,8 @@ package org.bigbluebutton.modules.whiteboard.services
 			);
 		}
 
-        public function requestAnnotationHistory(presentationID:String, pageNumber:int):void{
-//            LogUtil.debug("Sending [whiteboard.requestAnnotationHistory] to server.");
+    public function requestAnnotationHistory(presentationID:String, pageNumber:int):void{
+      trace("WB::MessageSender: Sending [whiteboard.requestAnnotationHistory] to server.");
             var msg:Object = new Object();
             msg["presentationID"] = presentationID;
             msg["pageNumber"] = pageNumber;
@@ -142,7 +142,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		 * 
 		 */		
 		public function sendText(e:WhiteboardDrawEvent):void{
-//			LogUtil.debug("Sending [whiteboard.sendAnnotation] (TEXT) to server.");
+      trace("WB::MessageSender: Sending [whiteboard.sendAnnotation] (TEXT) to server.");
             var _nc:ConnectionManager = BBB.initConnectionManager();
             _nc.sendMessage("whiteboard.sendAnnotation",               
                 function(result:String):void { // On successful result
@@ -161,7 +161,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		 * 
 		 */		
 		public function sendShape(e:WhiteboardDrawEvent):void {
-//			LogUtil.debug("Sending [whiteboard.sendAnnotation] (SHAPE) to server.");
+      trace("WB::MessageSender: Sending [whiteboard.sendAnnotation] (SHAPE) to server.");
             			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.sendAnnotation",               
@@ -176,7 +176,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		}
 		
 		public function checkIsWhiteboardOn():void {
-//			LogUtil.debug("Sending [whiteboard.isWhiteboardEnabled] to server.");
+      trace("WB::MessageSender: Sending [whiteboard.isWhiteboardEnabled] to server.");
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.isWhiteboardEnabled", 
 				function(result:String):void { // On successful result
@@ -189,7 +189,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		}
 		
 		public function setActivePresentation(e:PresentationEvent):void{
-//			LogUtil.debug("Sending [whiteboard.isWhiteboardEnabled] to server.");
+      trace("WB::MessageSender: Sending [whiteboard.isWhiteboardEnabled] to server.");
 			
 			var message:Object = new Object();
 			message["presentationID"] = e.presentationName;

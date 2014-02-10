@@ -5,7 +5,7 @@ import scala.collection.mutable.ArrayBuffer
 class Page(val pageNum: Int) {
   import org.bigbluebutton.core.apps.whiteboard.vo._
   
-  private val annotations = new scala.collection.mutable.HashMap[String, AnnotationVO]()
+  private var annotations = new scala.collection.immutable.HashMap[String, AnnotationVO]()
   private var _lastAnnotationID: String = _
   
   def addAnnotation(shape: AnnotationVO) {
@@ -34,7 +34,7 @@ class Page(val pageNum: Int) {
   }
   
   def clear() {
-    annotations.clear
+    annotations = new scala.collection.immutable.HashMap[String, AnnotationVO]()
   }
   
   def modifyText(shape: AnnotationVO) {

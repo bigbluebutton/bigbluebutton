@@ -20,13 +20,15 @@ trait WhiteboardApp {
       
       if (WhiteboardKeyUtil.TEXT_CREATED_STATUS == status) {
 		wbModel.addAnnotation(shape)
-      } else if ((WhiteboardKeyUtil.PENCIL_TYPE == shapeType) && (WhiteboardKeyUtil.DRAW_START_STATUS == status)) {
+      } else if ((WhiteboardKeyUtil.PENCIL_TYPE == shapeType) 
+              && (WhiteboardKeyUtil.DRAW_START_STATUS == status)) {
 		wbModel.addAnnotation(shape)
-      } else if ((WhiteboardKeyUtil.DRAW_END_STATUS == status) && ((WhiteboardKeyUtil.RECTANGLE_TYPE == shapeType) 
-														|| (WhiteboardKeyUtil.ELLIPSE_TYPE == shapeType)
-														|| (WhiteboardKeyUtil.TRIANGLE_TYPE == shapeType)
-														|| (WhiteboardKeyUtil.LINE_TYPE == shapeType))) {				
-				wbModel.addAnnotation(shape)
+      } else if ((WhiteboardKeyUtil.DRAW_END_STATUS == status) 
+             && ((WhiteboardKeyUtil.RECTANGLE_TYPE == shapeType) 
+              || (WhiteboardKeyUtil.ELLIPSE_TYPE == shapeType)
+			  || (WhiteboardKeyUtil.TRIANGLE_TYPE == shapeType)
+			  || (WhiteboardKeyUtil.LINE_TYPE == shapeType))) {				
+		wbModel.addAnnotation(shape)
       } else {
 		if (WhiteboardKeyUtil.TEXT_TYPE == shapeType) {
 			wbModel.modifyText(shape)
