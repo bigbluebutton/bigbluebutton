@@ -70,12 +70,8 @@ package org.bigbluebutton.modules.phone.managers {
 		}	
 		
 		private function setupMicrophone():void {
-			var vxml:XML = BBB.getConfigForModule("PhoneModule");
 			var phoneOptions:PhoneOptions = new PhoneOptions();
-			if (vxml != null) {
-				phoneOptions.enabledEchoCancel = (vxml.@enabledEchoCancel.toString().toUpperCase() == "TRUE") ? true : false;
-			}
-			
+
 			if ((BBB.getFlashPlayerVersion() >= 10.3) && (phoneOptions.enabledEchoCancel)) {
 				LogUtil.debug("Using acoustic echo cancellation.");		
 				mic = Microphone.getEnhancedMicrophone(micIndex);			

@@ -18,6 +18,8 @@
  */
 package org.bigbluebutton.modules.phone
 {
+	import org.bigbluebutton.core.BBB;
+	
 	public class PhoneOptions {
 		[Bindable]
 		public var showButton:Boolean = true;
@@ -30,5 +32,33 @@ package org.bigbluebutton.modules.phone
 		
 		[Bindable]
 		public var enabledEchoCancel:Boolean = false;
+		
+		[Bindable]
+		public var useWebrtcIfAvailable:Boolean = true;
+
+		public function PhoneOptions() {
+			parseOptions();
+		}
+		
+		public function parseOptions():void {
+			var vxml:XML = BBB.getConfigForModule("PhoneModule");
+			if (vxml != null) {
+				if (vxml.@showButton != undefined) {
+					showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (vxml.@autoJoin != undefined) {
+					autoJoin = (vxml.@autoJoin.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (vxml.@skipCheck != undefined) {
+					skipCheck = (vxml.@skipCheck.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (vxml.@enabledEchoCancel != undefined) {
+					enabledEchoCancel = (vxml.@enabledEchoCancel.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (vxml.@useWebrtcIfAvailable != undefined) {
+					useWebrtcIfAvailable = (vxml.@useWebrtcIfAvailable.toString().toUpperCase() == "TRUE");
+				}
+			}
+		}		
 	}
 }

@@ -24,6 +24,7 @@
 			privateEnabled="true"  
 			position="top-right"
 			baseTabIndex="701"
+			colorPickerIsVisible="false"
 		/>
 
 		<module name="UsersModule" url="http://HOST/client/UsersModule.swf?v=VERSION" 
@@ -50,6 +51,7 @@
 			skipCheck="false"
 			showButton="true"
 			enabledEchoCancel="true"
+			useWebrtcIfAvailable="true"
 			dependsOn="UsersModule"
 		/>
 

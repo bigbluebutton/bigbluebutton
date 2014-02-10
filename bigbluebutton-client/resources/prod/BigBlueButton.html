@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
   <head>
-    <title>BigBlueButton</title>
+    <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
     <style type="text/css" media="screen">
       html, body, #content    { height:100%; }
@@ -43,6 +43,10 @@
     <script src="lib/bbb_blinker.js" language="javascript"></script>
     <script src="lib/bbb_deskshare.js" language="javascript"></script>
     <script src="lib/bbb_api_bridge.js" language="javascript"></script>
+    <script src="lib/jssip-devel.js" language="javascript"></script> 
+    <script src="lib/bbb_webrtc_bridge_jssip.js" language="javascript"></script> 
+<!--    <script src="lib/sipml5api.js" language="javascript"></script> -->
+<!--    <script src="lib/bbb_webrtc_bridge_sipml5.js" language="javascript"></script> -->
     <script>
       window.chatLinkClicked = function(url) {
         window.open(url, '_blank');
@@ -50,7 +54,17 @@
       }
     </script>
   </head>
+
   <body>
+<div>
+<!-- <button onclick="hangUp()">Hang up</button>
+ <button onclick="callIntoConference()">Call</button>-->
+<audio id="audio-remote" autoplay="autoplay" />
+
+<audio id="local-media" autoplay="autoplay" />
+<audio id="remote-media" autoplay="autoplay" />
+</div>
+
     <div id="content">
       <div id="altFlash">
         <a href="http://www.adobe.com/go/getflashplayer">
@@ -58,8 +72,9 @@
         </a>
       </div>
     </div>
-    <button id="enterFlash" type="button" class="visually-hidden" onclick="startFlashFocus();" value="Focus the client" >Focus the client</button>
+    <button id="enterFlash" type="button" class="visually-hidden" onclick="startFlashFocus();" value="Click to focus the client"/>
     <div id="notifications" aria-live="polite" role="region" aria-label="Chat Notifications"></div>
+  </body>
   
   <script type="text/javascript">
     // Work around pixel alignment bug with Chrome 21 on Mac.
@@ -82,5 +97,82 @@
             }
     });
   </script>
-  </body>
 </html>
+
+<script type="text/javascript">
+
+	var fsServer = null;
+
+        var callIntoConference = function(callback) {
+            if (!isWebrtcCapable()) {
+                callback("Browser version not supported");
+                return;
+            }
+
+            BBB.getMyUserInfo(function(userInfo) {
+                console.log("User info callback [myUserID=" + userInfo.myUserID
+                    + ",myUsername=" + userInfo.myUsername + ",myAvatarURL=" + userInfo.myAvatarURL
+                    + ",myRole=" + userInfo.myRole + ",amIPresenter=" + userInfo.amIPresenter
+                    + ",dialNumber=" + userInfo.dialNumber + ",voiceBridge=" + userInfo.voiceBridge + "].");
+                var callerIdName = userInfo.myUserID + "-bbbID-" + userInfo.myUsername;
+
+                // setup a timer to call the error callback
+                var checkSuccessCallback = function(e) {
+                    if (e.userID == userInfo.myUserID) {
+                        console.info("Received the event from Flash that I've joined the voice conference");
+                        BBB.unlisten('UserJoinedVoiceEvent', checkSuccessCallback);
+                    }
+                }
+
+                BBB.listen('UserJoinedVoiceEvent', checkSuccessCallback);
+
+                console.log(callerIdName);
+                webrtc_call(callerIdName, userInfo.voiceBridge, fsServer, callback);
+            });
+        }
+
+        var joinWebRTCVoiceConference = function(){
+            console.log("Joining to the voice conference");
+            var callback = function(err) {
+                if (err) {
+                    console.info("Failed to call: " + err);
+                } else {
+                    console.info("Success to call");
+                }
+                BBB.joinWebRTCVoiceConferenceCallback(err);
+            }
+
+            callIntoConference(callback);
+        }
+
+        var leaveWebRTCVoiceConference = function(){
+            console.log("Leaving the voice conference");
+            var callback = function(err) {
+                if (err) {
+                    console.info("Failed to hang up: " + err);
+                } else {
+                    console.info("Success to hang up");
+                }
+                BBB.leaveWebRTCVoiceConferenceCallback(err);
+            }
+
+            webrtc_hangup(callback);
+        }
+
+	var startWebrtcAudioTest = function(){
+		console.log("Testing webrtc audio");
+		webrtc_call("tester", "9196", fsServer, function(message){
+			console.log("You should hear yourself talking");
+		});
+	}
+
+	var stopWebrtcAudioTest = function(){
+		console.log("Stopping webrtc audio test");
+		webrtc_hangup(function(){
+			console.log("Webrtc audio test stopped");
+		});
+	}
+
+	
+</script>
+

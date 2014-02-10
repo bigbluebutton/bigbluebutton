@@ -59,13 +59,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     	<MethodInvoker generator="{PhoneEventMapDelegate}" method="removeToolbarButton"/> 
 		<MethodInvoker generator="{PhoneManager}" method="userRequestedHangup"/>
     </EventHandlers>
-    
+
+	<EventHandlers type="CLICK_TO_JOIN_VOICE_CONFERENCE_EVENT">
+		<MethodInvoker generator="{PhoneManager}" method="onClickToJoinVoiceConference" arguments="{event.payload}"/>
+	</EventHandlers>
+	
+	<EventHandlers type="CLICK_TO_LEAVE_VOICE_CONFERENCE_EVENT">
+		<MethodInvoker generator="{PhoneManager}" method="onClickToLeaveVoiceConference" />
+	</EventHandlers>
+	
     <EventHandlers type="LEAVE_VOICE_CONFERENCE_EVENT">        
 		<MethodInvoker generator="{PhoneManager}" method="userRequestedHangup"/>
     </EventHandlers>
     
 	<EventHandlers type="JOIN_VOICE_CONFERENCE_EVENT">        
-    <MethodInvoker generator="{PhoneManager}" method="joinVoice" arguments="{[event.payload.useMicrophone, event.payload.microphoneIndex]}"/>
+		<MethodInvoker generator="{PhoneManager}" method="onJoinVoiceConferenceEvent" arguments="{event.payload}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{CallConnectedEvent.CALL_CONNECTED_EVENT}">     

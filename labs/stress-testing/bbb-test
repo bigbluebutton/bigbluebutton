@@ -60,7 +60,7 @@ fi
 HOST="http://$HOST"
 
 
-if ! wget $HOST/api -O - --quiet | grep -q SUCCESS; then
+if ! wget $HOST/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
 	echo "Startup unsuccessful: could not connect to $HOST/api"
         exit 1
 fi
