@@ -7,7 +7,7 @@ package org.bigbluebutton.modules.present.model
     private var _id:String;
     private var _name:String;
     private var _current:Boolean = false;
-    private var _pages:ArrayCollection;
+    private var _pages:ArrayCollection = new ArrayCollection();
     
     public function Presentation(id: String, name: String, current: Boolean) {
       _id = id;

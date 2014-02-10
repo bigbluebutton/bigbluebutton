@@ -45,12 +45,11 @@ package org.bigbluebutton.modules.whiteboard.services
     }
 
     public function changePage(pageNum:Number):void {
-      pageNum += 1;
       if (isPresenter) {
-        LogUtil.debug("PRESENTER Switch to page [" + pageNum + "]");
+        trace("WhiteboardService::changePage - PRESENTER Switch to page [" + pageNum + "]");
         sender.changePage(pageNum);	
       } else {
-        LogUtil.debug("Switch to page [" + pageNum + "]"); 
+        trace("WhiteboardService::changePage - Switch to page [" + pageNum + "]"); 
         whiteboardModel.changePage(pageNum, 0);
       }
     }

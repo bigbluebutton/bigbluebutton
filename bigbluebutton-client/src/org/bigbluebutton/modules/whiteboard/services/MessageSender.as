@@ -34,7 +34,7 @@ package org.bigbluebutton.modules.whiteboard.services
 	public class MessageSender
 	{	
 		public function changePage(pageNum:Number):void{
-//			LogUtil.debug("Sending [whiteboard.setActivePage] to server.");
+			trace("WB::MessageSender: changePage to page [" + pageNum + "]");
 			var message:Object = new Object();
 			message["pageNum"] = pageNum;
 			

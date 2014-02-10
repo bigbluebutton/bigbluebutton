@@ -39,6 +39,7 @@ public class PresentationService {
 	
 	public void getSlideInfo() {
 		IScope scope = Red5.getConnectionLocal().getScope();
+		log.debug("Getting slide info for meeting [{}]", scope.getName());
 		presentationApplication.getSlideInfo(scope.getName(), getBbbSession().getInternalUserID());		
 	}
 	

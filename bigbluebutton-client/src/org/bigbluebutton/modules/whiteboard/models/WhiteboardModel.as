@@ -89,13 +89,13 @@ package org.bigbluebutton.modules.whiteboard.models
 		}
 
 		public function changePresentation(presentationID:String, numberOfPages:int):void {
-//            LogUtil.debug("*** Changing presentation to " + presentationID + " ****");
+      trace("WhiteboardModel::changePresentation *** Changing presentation to " + presentationID + " ****");
 			var pres:Presentation = findPresentation(presentationID);
             if (pres == null) {
                 pres = new Presentation(presentationID, numberOfPages);
                 _presentations.addItem(pres);
             } 
- //           LogUtil.debug("*** Current presentation is [ " + presentationID + " ] ****");
+            trace("WhiteboardModel::changePresentation *** Current presentation is [ " + presentationID + " ] ****");
             _currentPresentation = pres;
 		}
 		
@@ -108,9 +108,9 @@ package org.bigbluebutton.modules.whiteboard.models
 		}
 		
 		public function changePage(pageNum:int, numAnnotations:int):void {
-            /* Need to increment the page by 1 as what is passed is zero-based while we store the pages as 1-based.*/
-//            var curPage:int = pageNum;
-//            LogUtil.debug("*** Switching to page [ " + curPage + " ] ****");
+    /* Need to increment the page by 1 as what is passed is zero-based while we store the pages as 1-based.*/
+    var curPage:int = pageNum;
+      trace("WhiteboardModel::changePage *** Switching to page [ " + curPage + " ] ****");
       if (_currentPresentation != null) {
         _currentPresentation.setCurrentPage(pageNum);
         _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.CHANGE_PAGE));        
@@ -121,17 +121,16 @@ package org.bigbluebutton.modules.whiteboard.models
 			
 		}
         
-        public function getCurrentPresentationAndPage():Object {
-            if (_currentPresentation == null) return null;
-            var pageNum:int = _currentPresentation.getCurrentPageNumber();
-            if (pageNum == 0) return null;
+    public function getCurrentPresentationAndPage():Object {
+      if (_currentPresentation == null) return null;
+        var pageNum:int = _currentPresentation.getCurrentPageNumber();
+        if (pageNum == 0) return null;
             
-            var cp:Object = new Object();
-            cp.presentationID = _currentPresentation.id;
-            cp.currentPageNumber = pageNum;
-            
-            return cp;
-        }
-        
+        var cp:Object = new Object();
+        cp.presentationID = _currentPresentation.id;
+        cp.currentPageNumber = pageNum;
+          
+        return cp;
+     }   
 	}
 }

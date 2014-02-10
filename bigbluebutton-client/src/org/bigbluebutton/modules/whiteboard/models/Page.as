@@ -34,14 +34,14 @@ package org.bigbluebutton.modules.whiteboard.models
 			_annotations.addItem(annotation);
 		}
 		
-        public function updateAnnotation(annotation:Annotation):void {
-            var a:Annotation = getAnnotation(annotation.id);
-            if (a != null) {
-                a.annotation = annotation.annotation;
-            } else {
-                addAnnotation(annotation);
-            }
-        }
+    public function updateAnnotation(annotation:Annotation):void {
+      var a:Annotation = getAnnotation(annotation.id);
+      if (a != null) {
+        a.annotation = annotation.annotation;
+      } else {
+        addAnnotation(annotation);
+      }
+    }
         
 		public function undo():void {
 			_annotations.removeItemAt(_annotations.length - 1);

@@ -103,7 +103,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
 	args.put("presentationID", msg.presentationId);
 	args.put("messageKey", msg.messageKey);
 	args.put("numberOfPages", msg.numberOfPages.toString);
-	args.put("maxNumberPages", msg.pagesCompleted.toString);
+	args.put("pagesCompleted", msg.pagesCompleted.toString);
 
 	val message = new java.util.HashMap[String, Object]() 
 	val gson = new Gson();
@@ -281,13 +281,17 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
   }
   
   private def handleGetSlideInfoOutMsg(msg: GetSlideInfoOutMsg) {
-//		val args = new java.util.HashMap[String, Object]();
-//		args.put("xOffset", msg.xOffset:java.lang.Double);
-//		args.put("yOffest", msg.yOffset:java.lang.Double);
-//		args.put("widthRatio", msg.widthRatio:java.lang.Double);
-//		args.put("heightRatio", msg.heightRatio:java.lang.Double);	
-		
-//		val m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getPresentationInfoReply", args);
-//		service.sendMessage(m);    
+    val args = new java.util.HashMap[String, Object]();
+    args.put("xOffset", msg.page.xOffset:java.lang.Double);
+    args.put("yOffest", msg.page.yOffset:java.lang.Double);
+    args.put("widthRatio", msg.page.widthRatio:java.lang.Double);
+    args.put("heightRatio", msg.page.heightRatio:java.lang.Double);	
+
+    val message = new java.util.HashMap[String, Object]() 
+    val gson = new Gson();
+    message.put("msg", gson.toJson(args))
+  	
+    val m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getPresentationInfoReply", message);
+    service.sendMessage(m);    
   }
 }

@@ -39,6 +39,7 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.events.SlideEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
+	import org.bigbluebutton.modules.present.model.Page;
 	import org.bigbluebutton.modules.present.model.PresentationModel;
 	import org.bigbluebutton.modules.present.services.MessageReceiver;
 	import org.bigbluebutton.modules.present.services.MessageSender;
@@ -113,12 +114,19 @@ package org.bigbluebutton.modules.present.business
 		}
     
     public function getCurrentSlideNumber():void {
-//      if (presentationModel.curSlideNum >= 0) {
-//        var e:NavigationEvent = new NavigationEvent(NavigationEvent.GOTO_PAGE)
-//        e.pageNumber = presentationModel.curSlideNum;
-//        var dispatcher:Dispatcher = new Dispatcher();
-//        dispatcher.dispatchEvent(e);
-//      }
+      var curPage:Page = presentationModel.getCurrentPage();
+      if (curPage != null) {
+        if (curPage.num >= 0) {
+          var e:NavigationEvent = new NavigationEvent(NavigationEvent.GOTO_PAGE)
+          trace("PresentPoxy: getCurrentSlideNumber [" + curPage.num + "]");
+          e.pageNumber = curPage.num;
+          var dispatcher:Dispatcher = new Dispatcher();
+          dispatcher.dispatchEvent(e);
+        }        
+      } else {
+        trace("PresentPoxy: getCurrentSlideNumber [No Current Page]");
+      }
+
     }
 		
 		/**
@@ -139,6 +147,7 @@ package org.bigbluebutton.modules.present.business
 		{
 			var presentationName:String = e.presentationName;
 			LogUtil.debug("PresentProxy::loadPresentation: presentationName=" + presentationName);
+      trace("PresentProxy::loadPresentation: presentationName=" + presentationName);
 			var fullUri : String = host + "/bigbluebutton/presentation/" + conference + "/" + room + "/" + presentationName+"/slides";	
 			var slideUri:String = host + "/bigbluebutton/presentation/" + conference + "/" + room + "/" + presentationName;
 			

@@ -459,23 +459,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (validPageNumber(pageNumber)) {
           loadSlide(pageNumber);
           disableSlideNavigationButtons(pageNumber);
-          displaySlideNumber(pageNumber + 1);
+          displaySlideNumber(pageNumber);
           
           //change the thumbnail to match
           slideView.thumbnailView.selectedIndex = pageNumber;
-        }	
+        }	else {
+          trace("PresentationWindow:loadPage - not valid page number [" + pageNumber + "]"); 
+        }
 			}
 			
 			private function loadSlide(page:int):void {
-				slideManager.load(slideView.slides.getItemAt(page) as Slide);
+        // subtract 1 as this is an array which is zero-based.
+				slideManager.load(slideView.slides.getItemAt(page-1) as Slide);
 			}
 			
 			private function validPageNumber(pageNumber:int):Boolean {
-				return (pageNumber <= slideView.slides.length-1 && pageNumber >= 0)
+				return (pageNumber <= slideView.slides.length && pageNumber > 0)
 			}
 			
 			private function disableSlideNavigationButtons(pageNumber:int):void {
-				if (pageNumber == 0) {
+				if (pageNumber == 1) {
 					backButton.enabled = false;
 					backButton.styleName = "presentationBackButtonDisabledStyle";
 				} else {
@@ -483,7 +486,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					backButton.styleName = "presentationBackButtonStyle";
 				}
 				
-				if (pageNumber < slideView.slides.length - 1) {
+				if (pageNumber < slideView.slides.length) {
 					forwardButton.enabled = true;
 					forwardButton.styleName = "presentationForwardButtonStyle";
 				} else {
@@ -508,12 +511,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function gotoPreviousSlide():void {
-				if ((slideView.selectedSlide - 1) >= 0)
+				if ((slideView.selectedSlide - 1) > 1)
 					dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide - 1));
 			}
 			
 			private function gotoNextSlide():void {
-				if ((slideView.selectedSlide + 1) < slideView.slides.length)
+				if ((slideView.selectedSlide + 1) < slideView.slides.length + 1)
 					dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide + 1));
 			}
 			

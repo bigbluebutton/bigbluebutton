@@ -132,7 +132,12 @@ trait PresentationApp {
     }
     
     def handleGetSlideInfo(msg: GetSlideInfo) {
-//      outGW.send(new GetSlideInfoOutMsg(meetingID, recorded, msg.requesterID, xOffset, yOffset, widthRatio, heightRatio))
+      presModel.getCurrentPresentation foreach {pres =>
+        presModel.getCurrentPage(pres) foreach {page =>
+          outGW.send(new GetSlideInfoOutMsg(meetingID, recorded, msg.requesterID, page))           
+        }       
+      }
+
     }
     
     def printPresentations() {

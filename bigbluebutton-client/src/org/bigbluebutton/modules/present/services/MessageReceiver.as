@@ -105,11 +105,14 @@ package org.bigbluebutton.modules.present.services
     }  
     
     private function handleGetSlideInfoReply(msg:Object):void {
+      trace(LOG + "*** handleGetSlideInfoReply " + msg.msg + " **** \n");
+      
+      var map:Object = JSON.parse(msg.msg);
       var e:MoveEvent = new MoveEvent(MoveEvent.CUR_SLIDE_SETTING);
-      e.xOffset = msg.xOffset;
-      e.yOffset = msg.yOffset;
-      e.slideToCanvasWidthRatio = msg.widthRatio;
-      e.slideToCanvasHeightRatio = msg.heightRatio;
+      e.xOffset = map.xOffset;
+      e.yOffset = map.yOffset;
+      e.slideToCanvasWidthRatio = map.widthRatio;
+      e.slideToCanvasHeightRatio = map.heightRatio;
       dispatcher.dispatchEvent(e);	  
     }
     
@@ -131,7 +134,7 @@ package org.bigbluebutton.modules.present.services
       
       trace(LOG + "*** handleGotoSlideCallback GOTO_PAGE[" + (map.num - 1) + "] **** \n");
       var e:NavigationEvent = new NavigationEvent(NavigationEvent.GOTO_PAGE)
-      e.pageNumber = map.num - 1;
+      e.pageNumber = map.num;
       dispatcher.dispatchEvent(e);
     }
     
@@ -172,51 +175,48 @@ package org.bigbluebutton.modules.present.services
     private function handleConversionCompletedUpdateMessageCallback(msg:Object) : void {
       trace(LOG + "*** handleConversionCompletedUpdateMessageCallback " + msg.msg + " **** \n");
       
-      return;
+      var map:Object = JSON.parse(msg.msg);
       
       var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
-      uploadEvent.data = msg.messageKey;
-      uploadEvent.presentationName = msg.presentationID;
+      uploadEvent.data = CONVERSION_COMPLETED_KEY;
+      uploadEvent.presentationName = map.id;
       dispatcher.dispatchEvent(uploadEvent);
       
       dispatcher.dispatchEvent(new BBBEvent(BBBEvent.PRESENTATION_CONVERTED));
       var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
-      readyEvent.presentationName = msg.presentationID;
+      readyEvent.presentationName = map.id;
       dispatcher.dispatchEvent(readyEvent);
     }
     
     private function handleGeneratedSlideUpdateMessageCallback(msg:Object) : void {		
       trace(LOG + "*** handleGeneratedSlideUpdateMessageCallback " + msg.msg + " **** \n");
       
-      return;
+      var map:Object = JSON.parse(msg.msg);
       
       var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_UPDATE);
-      uploadEvent.totalSlides = msg.maxNumberPages;
-      uploadEvent.completedSlides = msg.pagesCompleted;
+      uploadEvent.totalSlides = map.numberOfPages as Number;
+      uploadEvent.completedSlides = msg.pagesCompleted as Number;
       dispatcher.dispatchEvent(uploadEvent);	
     }
     
     private function handlePageCountExceededUpdateMessageCallback(msg:Object) : void {
       trace(LOG + "*** handlePageCountExceededUpdateMessageCallback " + msg.msg + " **** \n");
       
-      return;
+      var map:Object = JSON.parse(msg.msg);
       
       var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.PAGE_COUNT_EXCEEDED);
-      uploadEvent.maximumSupportedNumberOfSlides = msg.maxNumberPages;
+      uploadEvent.maximumSupportedNumberOfSlides = map.maxNumberPages as Number;
       dispatcher.dispatchEvent(uploadEvent);
     }
     
     private function handleConversionUpdateMessageCallback(msg:Object) : void {
       trace(LOG + "*** handleConversionUpdateMessageCallback " + msg.msg + " **** \n");
       
-      return;
+      var map:Object = JSON.parse(msg.msg);
       
-      var totalSlides : Number;
-      var completedSlides : Number;
-      var message : String;
       var uploadEvent:UploadEvent;
       
-      switch (msg.messageKey) {
+      switch (map.messageKey) {
         case OFFICE_DOC_CONVERSION_SUCCESS_KEY :
           uploadEvent = new UploadEvent(UploadEvent.OFFICE_DOC_CONVERSION_SUCCESS);
           dispatcher.dispatchEvent(uploadEvent);
@@ -261,8 +261,9 @@ package org.bigbluebutton.modules.present.services
       var presentations:Array = map.presentations as Array;
       for (var j:int = 0; j < presentations.length; j++) {
         var presentation:Object = presentations[j];
-       
-        var presoPages:Array = new Array();
+        var preso:Presentation = new Presentation(presentation.id, presentation.name, presentation.current);
+        
+//        var presoPages:Array = new Array();
         var pages:Array = presentation.pages as Array;
         for (var k:int = 0; k < pages.length; k++) {
           var page:Object = pages[k];
@@ -276,10 +277,10 @@ package org.bigbluebutton.modules.present.services
           pg.widthRatio = page.withRatio;
           pg.heightRatio = page.heightRatio;
           
-          presoPages.push(pg);
+ //         presoPages.push(pg);
+          preso.addPage(pg);
         }
        
-        var preso:Presentation = new Presentation(presentation.id, presentation.name, presentation.current);
         PresentationModel.getInstance().addPresentation(preso);
       }
            
