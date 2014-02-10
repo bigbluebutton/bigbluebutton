@@ -73,7 +73,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.ui.views.models.SlideCalcUtil;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
 			import org.bigbluebutton.modules.whiteboard.events.GetCurrentPresentationInfo;
-            import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
             
 			[Bindable] public var zoomPercentage:Number = 100;
 			public static const ZOOM_STEP:int = 5;
@@ -96,7 +96,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var whiteboardCanvas:IBbbCanvas;
 							
       [Bindable] public var slides:ArrayCollection = new ArrayCollection();
-			[Bindable] public var selectedSlide:int=0;
+			private var _selectedSlide:int=0;
 			[Bindable] private var lateComerSynched:Boolean = false;
 			
 			private var dispatcher:Dispatcher = new Dispatcher();
@@ -134,8 +134,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				thumbnailView.dataProvider = this.slides.toArray();
 			}
 			
+      public function setSelectedSlide(slideNum:int):void {
+        _selectedSlide = slideNum;
+        thumbnailView.selectedIndex = _selectedSlide;
+      }
+      
+      public function getSelectedSlide():int {
+        return _selectedSlide;
+      }
+      
 			private function changeSlide():void {
-        if (thumbnailView.selectedIndex != selectedSlide) {
+        if (thumbnailView.selectedIndex != _selectedSlide) {
+            // We need to add 1 as the thumbnail view is zero based.
 				    dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, thumbnailView.selectedIndex));
 				    thumbnailView.visible = false;
         }

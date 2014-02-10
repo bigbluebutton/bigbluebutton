@@ -366,7 +366,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				uploadPres.visible = isPresenter;
 				
 				if (presentationLoaded) {
-	            	displaySlideNumber(slideView.selectedSlide + 1);	
+	        displaySlideNumber(slideView.getSelectedSlide() + 1);	
 					displaySlideNavigationControls(isPresenter);
 				}
 			}
@@ -379,7 +379,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				slideView.visible = true;		
 	
 				if (slideManager != null) slideManager.clear();	
-				displaySlideNumber(slideView.selectedSlide + 1);	
+				displaySlideNumber(slideView.getSelectedSlide() + 1);	
 				if (isPresenter) {
 					displaySlideNavigationControls(true);					
 					notifyOthersOfSharingPresentation(e.presentationName);
@@ -454,15 +454,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function loadPage(pageNumber:int):void{
-        slideView.selectedSlide = pageNumber;
+        // using zero-based index. So we need to subtract 1.
+        slideView.setSelectedSlide(pageNumber - 1);
         
         if (validPageNumber(pageNumber)) {
           loadSlide(pageNumber);
           disableSlideNavigationButtons(pageNumber);
           displaySlideNumber(pageNumber);
-          
-          //change the thumbnail to match
-          slideView.thumbnailView.selectedIndex = pageNumber;
         }	else {
           trace("PresentationWindow:loadPage - not valid page number [" + pageNumber + "]"); 
         }
@@ -502,7 +500,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function clearPresentation(e:UploadEvent):void{
 				slideView.visible = false;		
 				slideView.slideLoader.source = null; 
-				slideView.selectedSlide = 0;
+				slideView.setSelectedSlide(0);
 				btnSlideNum.label = "";
 				displaySlideNavigationControls(false);
 
@@ -511,13 +509,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function gotoPreviousSlide():void {
-				if ((slideView.selectedSlide - 1) > 1)
-					dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide - 1));
+				if ((slideView.getSelectedSlide() - 1) >= 0)
+					dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.getSelectedSlide() - 1));
 			}
 			
 			private function gotoNextSlide():void {
-				if ((slideView.selectedSlide + 1) < slideView.slides.length + 1)
-					dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide + 1));
+				if ((slideView.getSelectedSlide() + 1) < slideView.slides.length)
+					dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.getSelectedSlide() + 1));
 			}
 			
       private function removeDecimalFromDataTip(val:String):String {			
