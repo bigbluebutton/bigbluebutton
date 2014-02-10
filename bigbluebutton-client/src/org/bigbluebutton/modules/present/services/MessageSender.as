@@ -116,10 +116,10 @@ package org.bigbluebutton.modules.present.services
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("presentation.getPresentationInfo", 
         function(result:String):void { // On successful result
- //         LogUtil.debug(result); 
+          LogUtil.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
- //         LogUtil.error(status); 
+          LogUtil.error(status); 
         }
       );
       

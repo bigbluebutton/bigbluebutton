@@ -306,13 +306,11 @@ package org.bigbluebutton.modules.present.services
       // Force switching the presenter.
       triggerSwitchPresenter();
       
-
       var curPresName:String = PresentationModel.getInstance().getCurrentPresentationName();
       
-        var shareEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
-        shareEvent.presentationName = curPresName;
-        dispatcher.dispatchEvent(shareEvent);
-
+      var shareEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
+      shareEvent.presentationName = curPresName;
+      dispatcher.dispatchEvent(shareEvent);
     }
     
     private function sendPresentationName(presentationName:String):void {
