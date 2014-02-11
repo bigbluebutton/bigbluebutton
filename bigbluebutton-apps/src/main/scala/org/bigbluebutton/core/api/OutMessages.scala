@@ -131,14 +131,40 @@ case class PresentationConversionDone(meetingID: String, messageKey: String,
                        presentation: Presentation) extends IOutMessage
                        
 // Whiteboard
-case class SendWhiteboardAnnotationHistoryReply(meetingID: String, recorded: Boolean, requesterID: String, presentationID: String, numPages: Int, shapes: Array[AnnotationVO]) extends IOutMessage
-case class SendWhiteboardAnnotationEvent(meetingID: String, recorded: Boolean, requesterID: String, presentationID: String, page: Int, shape: AnnotationVO) extends IOutMessage
-case class ChangeWhiteboardPageEvent(meetingID: String, recorded: Boolean, requesterID: String, page: Int, numAnnotations: Int) extends IOutMessage
-case class ClearWhiteboardEvent(meetingID: String, recorded: Boolean, requesterID: String, presentationID: String, page: Int) extends IOutMessage
-case class UndoWhiteboardEvent(meetingID: String, recorded: Boolean, requesterID: String, presentationID: String, page: Int) extends IOutMessage
-case class WhiteboardActivePresentationEvent(meetingID: String, recorded: Boolean, requesterID: String, presentationID: String, numPages: Int) extends IOutMessage
-case class WhiteboardEnabledEvent(meetingID: String, recorded: Boolean, requesterID: String, enable: Boolean) extends IOutMessage
-case class IsWhiteboardEnabledReply(meetingID: String, recorded: Boolean, requesterID: String, enabled: Boolean) extends IOutMessage
+case class SendWhiteboardAnnotationHistoryReply(meetingID: String, 
+                       recorded: Boolean, requesterID: String, 
+                       presentationID: String, numPages: Int, 
+                       shapes: Array[AnnotationVO]) extends IOutMessage
+                       
+case class SendWhiteboardAnnotationEvent(meetingID: String, recorded: Boolean, 
+                       requesterID: String, presentationID: String, 
+                       page: Int, shape: AnnotationVO) extends IOutMessage
+                       
+case class ChangeWhiteboardPageEvent(meetingID: String, recorded: Boolean, 
+                       requesterID: String, page: Int, 
+                       numAnnotations: Int) extends IOutMessage
+                       
+case class ClearWhiteboardEvent(meetingID: String, recorded: Boolean, 
+                       requesterID: String, presentationID: String, 
+                       page: Int) extends IOutMessage
+                       
+case class UndoWhiteboardEvent(meetingID: String, recorded: Boolean, 
+                       requesterID: String, presentationID: String, 
+                       page: Int) extends IOutMessage
+                       
+case class WhiteboardActivePresentationEvent(meetingID: String, 
+                       recorded: Boolean, requesterID: String, 
+                       presentationID: String, 
+                       numPages: Int) extends IOutMessage
+                       
+case class WhiteboardEnabledEvent(meetingID: String, recorded: Boolean, 
+                       requesterID: String, 
+                       enable: Boolean) extends IOutMessage
+                       
+case class IsWhiteboardEnabledReply(meetingID: String, recorded: Boolean, 
+                       requesterID: String, 
+                       enabled: Boolean) extends IOutMessage
+                       
 
 // Value Objects
 case class MeetingVO(id: String, recorded: Boolean)

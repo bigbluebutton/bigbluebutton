@@ -28,6 +28,8 @@ package org.bigbluebutton.modules.whiteboard.services
 
   public class MessageReceiver implements IMessageListener
   {
+    private static const LOG:String = "WB::MessageReceiver - ";
+    
         /* Injected by Mate */
     public var whiteboardModel:WhiteboardModel;
     
@@ -69,33 +71,59 @@ package org.bigbluebutton.modules.whiteboard.services
     }
 
     private function handleChangePresentationCommand(message:Object):void {
+      trace(LOG + "*** handleChangePresentationCommand " + message.msg + " **** \n");      
+      var map:Object = JSON.parse(message.msg);      
+      return;
+      
       trace("WB:MessageReceiver: Handle Whiteboard Change Presentation Command [ " + message.presentationID + ", " + message.numberOfPages + "]");
       whiteboardModel.changePresentation(message.presentationID, message.numberOfPages);
     }
 
     private function handleChangePageCommand(message:Object):void {
+      trace(LOG + "*** handleChangePageCommand " + message.msg + " **** \n");      
+      var map:Object = JSON.parse(message.msg);      
+      return;
+      
       trace("WB:MessageReceiver: Handle Whiteboard Change Page Command [ " + message.pageNum + ", " + message.numAnnotations + "]");
       whiteboardModel.changePage(message.pageNum, message.numAnnotations);
     }
 
     private function handleClearCommand(message:Object):void {
+      trace(LOG + "*** handleClearCommand " + message.msg + " **** \n");      
+      var map:Object = JSON.parse(message.msg);      
+      return;
+      
       trace("WB:MessageReceiver:Handle Whiteboard Clear Command ");
       whiteboardModel.clear();
     }
 
     private function handleUndoCommand(message:Object):void {
+      trace(LOG + "*** handleUndoCommand " + message.msg + " **** \n");      
+      var map:Object = JSON.parse(message.msg);      
+      return;
+      
       trace("WB:MessageReceiver: Handle Whiteboard Undo Command ");
       whiteboardModel.undo();
       //            dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.SHAPE_UNDONE));
     }
 
     private function handleEnableWhiteboardCommand(message:Object):void {
+      trace(LOG + "*** handleEnableWhiteboardCommand " + message.msg + " **** \n");      
+      var map:Object = JSON.parse(message.msg);
+      
+      return;
+      
       //if (result as Boolean) modifyEnabledCallback(true);
       // LogUtil.debug("Handle Whiteboard Enabled Command " + message.enabled);
       whiteboardModel.enable(message.enabled);
     }
     
     private function handleNewAnnotationCommand(message:Object):void {
+      trace(LOG + "*** handleNewAnnotationCommand " + message.msg + " **** \n");      
+      var map:Object = JSON.parse(message.msg);
+      
+      return;
+      
       // LogUtil.debug("Handle new annotation[" + message.type + ", " + message.id + ", " + message.status + "]");
       if (message.type == undefined || message.type == null || message.type == "") return;
       if (message.id == undefined || message.id == null || message.id == "") return;
@@ -107,11 +135,20 @@ package org.bigbluebutton.modules.whiteboard.services
     }
 
     private function handleIsWhiteboardEnabledReply(message:Object):void {
+      trace(LOG + "*** handleIsWhiteboardEnabledReply " + message.msg + " **** \n");      
+      var map:Object = JSON.parse(message.msg);
+      
+      return;
+      
       //if (result as Boolean) modifyEnabledCallback(true);
       LogUtil.debug("Whiteboard Enabled? " + message.enabled);
     }
 
     private function handleRequestAnnotationHistoryReply(message:Object):void {
+      trace(LOG + "*** handleRequestAnnotationHistoryReply " + message.msg + " **** \n");      
+      var map:Object = JSON.parse(message.msg);      
+      return;
+      
       trace("WB:MessageReceiver: handleRequestAnnotationHistoryReply: Annotation history for [" + message.presentationID + "," + message.pageNumber + "]");
             
       if (message.count == 0) {

@@ -109,7 +109,7 @@ package org.bigbluebutton.modules.whiteboard
             if (_annotationsList.length > 0) {
               var gobj:DrawObject = _annotationsList.pop();  
               if (gobj.id == o.id) {
-                //              LogUtil.debug("Removing shape [" + gobj.id + "]");
+                // LogUtil.debug("Removing shape [" + gobj.id + "]");
                 wbCanvas.removeGraphic(gobj as DisplayObject);
               } else { // no DRAW_START event was thrown for o so place gobj back on the top
                 LogUtil.debug("Not removing shape [" + gobj.id + "] new [" + o.id + "]");

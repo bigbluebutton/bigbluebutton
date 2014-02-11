@@ -29,7 +29,7 @@ package org.bigbluebutton.modules.layout.services
     }
     
     public function onMessage(messageName:String, message:Object):void {
-      trace("LAYOUT: received message " + messageName);
+//      trace("LAYOUT: received message " + messageName);
       
       switch (messageName) {
         case "getCurrentLayoutResponse":

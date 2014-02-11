@@ -39,7 +39,7 @@ package org.bigbluebutton.modules.polling.service
     }
 
     public function onMessage(messageName:String, message:Object):void {
-      trace(LOG + "received message " + messageName);
+//      trace(LOG + "received message " + messageName);
 
       switch (messageName) {
         case "pollGetPollsReply":

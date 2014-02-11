@@ -65,7 +65,7 @@ package org.bigbluebutton.modules.present.services
     }
     
     public function onMessage(messageName:String, message:Object):void {
-      trace("Presentation: received message " + messageName);
+//      trace("Presentation: received message " + messageName);
       
       switch (messageName) {
         case "PresentationCursorUpdateCommand":
@@ -117,7 +117,7 @@ package org.bigbluebutton.modules.present.services
     }
     
     private function handlePresentationCursorUpdateCommand(msg:Object):void {    
-      trace(LOG + "*** handlePresentationCursorUpdateCommand " + msg.msg + " **** \n");
+//      trace(LOG + "*** handlePresentationCursorUpdateCommand " + msg.msg + " **** \n");
       
       var map:Object = JSON.parse(msg.msg);
       

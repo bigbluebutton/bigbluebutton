@@ -34,7 +34,9 @@ class WhiteboardModel {
   }
   
   def addAnnotationToShape(pres: Presentation2, page: Page2, shape: AnnotationVO) = {
+    println("Adding shape to page [" + page.num + "]. Before numShapes=[" + page.shapes.length + "].")
     val newPage = page.copy(shapes=(page.shapes :+ shape))
+    println("Adding shape to page [" + page.num + "]. After numShapes=[" + newPage.shapes.length + "].")
     val newPages = pres.pages + (newPage.num -> newPage)
     val newPres = pres.copy(pages=newPages)
     savePresentation(newPres)
