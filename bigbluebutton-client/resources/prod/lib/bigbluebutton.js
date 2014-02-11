@@ -52,7 +52,7 @@ var isWebrtcCapable = function() {
 
     console.log("Browser: " + browser + ", version: " + version);
 //    if (browser != "Chrome" || version < 28) {
-    if ((browser == "Chrome" && version >= 28) || (browser == "Firefox" && version >= 27)) {
+    if ((browser == "Chrome" && version >= 28) || (browser == "Firefox" && version >= 26)) {
         return true;
     } else {
         return false;
