@@ -22,7 +22,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
-	x="168" y="86" layout="absolute" width="700" height="425" styleName="presentationFileUploadWindowStyle"
+	 layout="absolute" width="580" height="425" styleName="presentationFileUploadWindowStyle"
       initialize="initData();">
 
     <mate:Dispatcher id="globalDispatch" />
@@ -41,9 +41,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mate:Listener type="{UploadEvent.UNSUPPORTED_DOCUMENT}" method="handleUnsupportedDocument"/>
     <mate:Listener type="{UploadEvent.PAGE_COUNT_FAILED}" method="handlePageCountFailed"/>
     <mate:Listener type="{UploadEvent.PAGE_COUNT_EXCEEDED}" method="handlePageCountExceeded"/>
-
   <mx:Script>
     <![CDATA[
+		
       import org.bigbluebutton.common.LogUtil;
       import com.asfusion.mate.events.Dispatcher;			
       import mx.collections.*;
@@ -51,13 +51,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import mx.events.ValidationResultEvent;
       import mx.managers.PopUpManager;
       import mx.utils.*;
-      import mx.validators.*;			
+      import mx.validators.*;
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
       import org.bigbluebutton.modules.present.events.UploadEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
-
-            	
+         	
       [Bindable] public var presentationNamesAC:ArrayCollection;
 	  [BIndable] public var maxFileSize:Number;
 
@@ -71,7 +70,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var genThumbDots:String = ".";
 
       private var fileToUpload:FileReference = new FileReference();
-
+		
       override public function move(x:Number, y:Number):void
       {
         return;
@@ -134,12 +133,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         fileFormatHintLbl.includeInLayout = false;
 		
 		uploadedFilesList.enabled = false;
-		
-        progressReportBox.includeInLayout = true;
+
         progressReportBox.visible = true;
-		
         progressBar.visible = true;
-        progressBar.includeInLayout = true;
 		
         if (fileSize > maxFileSizeBytes) {     
           // Hardcode for now to 30M limit. 
