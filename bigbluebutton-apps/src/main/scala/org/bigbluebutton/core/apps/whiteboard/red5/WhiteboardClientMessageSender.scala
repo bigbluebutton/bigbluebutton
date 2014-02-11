@@ -84,7 +84,7 @@ class WhiteboardClientMessageSender(service: ConnectionInvokerService) extends O
 	   val annotation = new java.util.HashMap[String, Object]();
 	   annotation.put("id", shape.id)
 	   annotation.put("status", shape.status)
-	   annotation.put("shapeType", shape.shapeType)      
+	   annotation.put("type", shape.shapeType)      
 	   annotation.put("shapes", mapAsJavaMap(shape.shape))
 	
 	  annotations.add(annotation);	   
@@ -109,7 +109,7 @@ class WhiteboardClientMessageSender(service: ConnectionInvokerService) extends O
 	
 	val shape = new java.util.HashMap[String, Object]()
 	shape.put("id", msg.shape.id)
-	shape.put("shapeType", msg.shape.shapeType)
+	shape.put("type", msg.shape.shapeType)
 	shape.put("status", msg.shape.status)
 	shape.put("shape", mapAsJavaMap(msg.shape.shape))
 	

@@ -32,35 +32,36 @@ package org.bigbluebutton.modules.whiteboard.models
 	{
 		private var _presentations:ArrayCollection = new ArrayCollection();
 		private var _currentPresentation:Presentation;		
-        private var _dispatcher:IEventDispatcher;
+    private var _dispatcher:IEventDispatcher;
         
-        public function WhiteboardModel(dispatcher:IEventDispatcher) {
-            _dispatcher = dispatcher;
-        }		
+    public function WhiteboardModel(dispatcher:IEventDispatcher) {
+      _dispatcher = dispatcher;
+    }		
 		
 		public function addAnnotation(annotation:Annotation):void {
-//            LogUtil.debug("*** Adding annotation [" + annotation.id + "," + annotation.type + "," + annotation.status + "] ****");
-            if (annotation.status == DrawObject.DRAW_START || annotation.status == TextObject.TEXT_CREATED) {
-                _currentPresentation.addAnnotation(annotation);
-            } else {
-                _currentPresentation.updateAnnotation(annotation);
-            }
-			            
-            var event:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
-            event.annotation = annotation;
-            _dispatcher.dispatchEvent(event);
-//            LogUtil.debug("*** Dispatched WhiteboardUpdate.BOARD_UPDATED Event ****");
+      trace("*** Adding annotation [" + annotation.id + "," + annotation.type + "," + annotation.status + "] ****");
+      if (annotation.status == DrawObject.DRAW_START || annotation.status == TextObject.TEXT_CREATED) {
+         _currentPresentation.addAnnotation(annotation);
+       } else {
+          _currentPresentation.updateAnnotation(annotation);
+       }
+			 
+      trace("*** Dispatching WhiteboardUpdate.BOARD_UPDATED Event ****");
+       var event:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
+       event.annotation = annotation;
+       _dispatcher.dispatchEvent(event);
+       trace("*** Dispatched WhiteboardUpdate.BOARD_UPDATED Event ****");
 		}
 		
         public function addAnnotationFromHistory(presentationID:String, pageNumber:Number, annotation:Array):void {
           if (_currentPresentation.id != presentationID || _currentPresentation.getCurrentPageNumber() != pageNumber) {
-            LogUtil.debug("Wrong annotation history [curPresID=" + _currentPresentation.id + ",rxPresID=" + presentationID + 
+            trace("Wrong annotation history [curPresID=" + _currentPresentation.id + ",rxPresID=" + presentationID + 
                           "][curPage=" + _currentPresentation.getCurrentPageNumber() + ",rxPageNum=" + pageNumber + "]");
             return;
           }
           
             for (var i:int = 0; i < annotation.length; i++) {
-//                LogUtil.debug("addAnnotationFromHistory: annotation id=" + (annotation[i] as Annotation).id);
+                trace("addAnnotationFromHistory: annotation id=" + (annotation[i] as Annotation).id);
                 _currentPresentation.addAnnotation(annotation[i] as Annotation);
             } 
             _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.RECEIVED_ANNOTATION_HISTORY));

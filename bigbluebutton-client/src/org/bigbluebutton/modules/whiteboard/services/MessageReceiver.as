@@ -18,6 +18,8 @@
  */
 package org.bigbluebutton.modules.whiteboard.services
 {
+  import com.asfusion.mate.actions.builders.ObjectBuilder;
+  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.main.model.users.IMessageListener;
@@ -73,25 +75,22 @@ package org.bigbluebutton.modules.whiteboard.services
     private function handleChangePresentationCommand(message:Object):void {
       trace(LOG + "*** handleChangePresentationCommand " + message.msg + " **** \n");      
       var map:Object = JSON.parse(message.msg);      
-      return;
       
       trace("WB:MessageReceiver: Handle Whiteboard Change Presentation Command [ " + message.presentationID + ", " + message.numberOfPages + "]");
-      whiteboardModel.changePresentation(message.presentationID, message.numberOfPages);
+      whiteboardModel.changePresentation(map.presentationID, map.numberOfPages);
     }
 
     private function handleChangePageCommand(message:Object):void {
       trace(LOG + "*** handleChangePageCommand " + message.msg + " **** \n");      
       var map:Object = JSON.parse(message.msg);      
-      return;
       
       trace("WB:MessageReceiver: Handle Whiteboard Change Page Command [ " + message.pageNum + ", " + message.numAnnotations + "]");
-      whiteboardModel.changePage(message.pageNum, message.numAnnotations);
+      whiteboardModel.changePage(map.pageNum, map.numAnnotations);
     }
 
     private function handleClearCommand(message:Object):void {
       trace(LOG + "*** handleClearCommand " + message.msg + " **** \n");      
       var map:Object = JSON.parse(message.msg);      
-      return;
       
       trace("WB:MessageReceiver:Handle Whiteboard Clear Command ");
       whiteboardModel.clear();
@@ -100,7 +99,6 @@ package org.bigbluebutton.modules.whiteboard.services
     private function handleUndoCommand(message:Object):void {
       trace(LOG + "*** handleUndoCommand " + message.msg + " **** \n");      
       var map:Object = JSON.parse(message.msg);      
-      return;
       
       trace("WB:MessageReceiver: Handle Whiteboard Undo Command ");
       whiteboardModel.undo();
@@ -110,36 +108,31 @@ package org.bigbluebutton.modules.whiteboard.services
     private function handleEnableWhiteboardCommand(message:Object):void {
       trace(LOG + "*** handleEnableWhiteboardCommand " + message.msg + " **** \n");      
       var map:Object = JSON.parse(message.msg);
-      
-      return;
-      
+            
       //if (result as Boolean) modifyEnabledCallback(true);
       // LogUtil.debug("Handle Whiteboard Enabled Command " + message.enabled);
-      whiteboardModel.enable(message.enabled);
+      whiteboardModel.enable(map.enabled);
     }
     
     private function handleNewAnnotationCommand(message:Object):void {
       trace(LOG + "*** handleNewAnnotationCommand " + message.msg + " **** \n");      
       var map:Object = JSON.parse(message.msg);
+      var shape:Object = map.shape as Object;
+      var an:Object = shape.shape as Object;
+      trace(LOG + "*** handleNewAnnotationCommand shape id=[" + shape.id + "] type=[" + shape.type + "] status=[" + shape.status + "] **** \n"); 
       
-      return;
+      trace(LOG + "*** handleNewAnnotationCommand an color=[" + an.color + "] thickness=[" + an.thickness + "] points=[" + an.points + "]**** \n");
+      trace(LOG + "*** handleNewAnnotationCommand an a=[" + an + "] **** \n");
       
-      // LogUtil.debug("Handle new annotation[" + message.type + ", " + message.id + ", " + message.status + "]");
-      if (message.type == undefined || message.type == null || message.type == "") return;
-      if (message.id == undefined || message.id == null || message.id == "") return;
-      if (message.status == undefined || message.status == null || message.status == "") return;
-            
-      var annotation:Annotation = new Annotation(message.id, message.type, message);
-      annotation.status = message.status;
+      var annotation:Annotation = new Annotation(shape.id, shape.type, an);
+      annotation.status = shape.status;
       whiteboardModel.addAnnotation(annotation);
     }
 
     private function handleIsWhiteboardEnabledReply(message:Object):void {
       trace(LOG + "*** handleIsWhiteboardEnabledReply " + message.msg + " **** \n");      
       var map:Object = JSON.parse(message.msg);
-      
-      return;
-      
+            
       //if (result as Boolean) modifyEnabledCallback(true);
       LogUtil.debug("Whiteboard Enabled? " + message.enabled);
     }
@@ -147,33 +140,27 @@ package org.bigbluebutton.modules.whiteboard.services
     private function handleRequestAnnotationHistoryReply(message:Object):void {
       trace(LOG + "*** handleRequestAnnotationHistoryReply " + message.msg + " **** \n");      
       var map:Object = JSON.parse(message.msg);      
-      return;
-      
-      trace("WB:MessageReceiver: handleRequestAnnotationHistoryReply: Annotation history for [" + message.presentationID + "," + message.pageNumber + "]");
-            
-      if (message.count == 0) {
-        LogUtil.debug("handleRequestAnnotationHistoryReply: No annotations.");
+   
+      if (map.count == 0) {
+        trace("WB: handleRequestAnnotationHistoryReply: No annotations.");
       } else {
-        LogUtil.debug("handleRequestAnnotationHistoryReply: Number of annotations in history = " + message.count);
-        var annotations:Array = message.annotations as Array;
+        trace("WB: handleRequestAnnotationHistoryReply: Number of annotations in history = " + map.count);
+        var annotations:Array = map.annotations as Array;
         var tempAnnotations:Array = new Array();
         
-        for (var i:int = 0; i < message.count; i++) {
+        for (var i:int = 0; i < map.count; i++) {
           var an:Object = annotations[i] as Object;
-          
-          if (an.type == undefined || an.type == null || an.type == "") return;
-          if (an.id == undefined || an.id == null || an.id == "") return;
-          if (an.status == undefined || an.status == null || an.status == "") return;
-
-          //LogUtil.debug("handleRequestAnnotationHistoryReply: annotation id=" + an.id);
-                    
-          var annotation:Annotation = new Annotation(an.id, an.type, an);
+          var shape:Object = an.shapes as Object;                    
+          var annotation:Annotation = new Annotation(an.id, an.type, shape);
           annotation.status = an.status;
           tempAnnotations.push(annotation);
         }   
                 
         if (tempAnnotations.length > 0) {
-          whiteboardModel.addAnnotationFromHistory(message.presentationID, message.pageNumber, tempAnnotations);
+          trace("Number of whiteboard shapes =[" + tempAnnotations.length + "]");
+          whiteboardModel.addAnnotationFromHistory(map.presentationID, map.pageNumber, tempAnnotations);
+        } else {
+          trace("NO whiteboard shapes in history ");
         }
       }
     }
