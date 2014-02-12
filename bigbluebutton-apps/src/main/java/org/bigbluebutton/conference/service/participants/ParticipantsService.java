@@ -79,10 +79,9 @@ public class ParticipantsService {
 		application = a;
 	}
 	
-	public void setRecordingStatus(String userid, Boolean recording) {
+	public void setRecordingStatus(Map<String, Object> msg) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		log.error("TODO: Setting recording status " + roomName + " " + userid + " " + recording);
-		//application.setRecordingStatus(roomName, userid, recording);
+		application.setRecordingStatus(roomName, (String)msg.get("userId"), (Boolean) msg.get("recording"));
 	}
 
 	public void getRecordingStatus() {

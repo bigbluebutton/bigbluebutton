@@ -374,36 +374,11 @@ package org.bigbluebutton.main.model.users {
 		}
 
 		private function queryForRecordingStatus():void {
-			var nc:NetConnection = _connectionManager.connection;
-			nc.call(
-				"participants.getRecordingStatus",// Remote function name
-				new Responder(
-					// Boolean - On successful result
-					function(result:Object):void {
-						LogUtil.debug("Successfully queried recording status: " + result);
-						sendRecordingStatusUpdate(result);
-					},
-					// status - On error occurred
-					function(status:Object):void {
-						LogUtil.error("Error occurred:");
-						for (var x:Object in status) {
-							LogUtil.error(x + " : " + status[x]);
-						}
-						sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
-					}
-				)//new Responder
-			); //_netConnection.call
+      sender.queryForRecordingStatus();
 		}
 
 		public function changeRecordingStatus(userID:String, recording:Boolean):void {
-			trace("UsersSOService::changeRecordingStatus")
-			var nc:NetConnection = _connectionManager.connection;
-			nc.call(
-				"participants.setRecordingStatus",// Remote function name
-				responder,
-				userID,
-				recording
-			); //_netConnection.call
+      sender.changeRecordingStatus(userID, recording);
 		}
 
 		private function sendRecordingStatusUpdate(recording:Boolean):void {

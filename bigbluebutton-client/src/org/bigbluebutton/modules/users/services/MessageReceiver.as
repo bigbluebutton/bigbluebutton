@@ -102,14 +102,39 @@ package org.bigbluebutton.modules.users.services
         case "userUnsharedWebcam":
           handleUserUnsharedWebcam(message);
           break;
+        case "getRecordingStatusReply":
+          handleGetRecordingStatusReply(message);
+          break;
+        case "recordingStatusChanged":
+          handleRecordingStatusChanged(message);
+          break;
       }
     }  
+    
+    private function sendRecordingStatusUpdate(recording:Boolean):void {
+      var e:BBBEvent = new BBBEvent(BBBEvent.CHANGE_RECORDING_STATUS);
+      e.payload.remote = true;
+      e.payload.recording = recording;
+      dispatcher.dispatchEvent(e);
+    }
+    
+    private function handleGetRecordingStatusReply(msg: Object):void {
+      trace(LOG + "*** handleGetRecordingStatusReply " + msg.msg + " **** \n");      
+      var map:Object = JSON.parse(msg.msg);
+      sendRecordingStatusUpdate(map.recording);      
+    }
+    
+    private function handleRecordingStatusChanged(msg: Object):void {
+      trace(LOG + "*** handleRecordingStatusChanged " + msg.msg + " **** \n");      
+      var map:Object = JSON.parse(msg.msg);
+      sendRecordingStatusUpdate(map.recording);
+    }
     
     private function handleVoiceUserMuted(msg:Object):void {
       trace(LOG + "*** handleVoiceUserMuted " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);
-      var userId = map.voiceUserId;
-      var muted = map.muted;
+      var userId:Number = map.voiceUserId;
+      var muted:Boolean = map.muted;
 
       var l:BBBUser = _conference.getVoiceUser(userId);
       if (l != null) {
@@ -153,8 +178,8 @@ package org.bigbluebutton.modules.users.services
     private function handleVoiceUserTalking(msg:Object):void {
       trace(LOG + "*** handleVoiceUserTalking " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg); 
-      var userId = map.voiceUserId;
-      var talking = map.talking;  
+      var userId:Number = map.voiceUserId;
+      var talking:Boolean = map.talking;  
       
       userTalk(userId, talking);
     }

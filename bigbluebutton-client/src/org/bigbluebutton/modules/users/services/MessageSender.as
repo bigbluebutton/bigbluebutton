@@ -123,5 +123,37 @@ package org.bigbluebutton.modules.users.services
         }
       );
     }
+    
+    public function queryForRecordingStatus():void {
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.getRecordingStatus",// Remote function name
+        function(result:String):void { // On successful result
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void { // status - On error occurred
+          LogUtil.error(status); 
+        }
+      ); //_netConnection.call
+    }
+    
+    public function changeRecordingStatus(userID:String, recording:Boolean):void {
+      trace("Sending setRecordingStatus. recording=[" + recording + "]");
+      var message:Object = new Object();
+      message["userId"] = userID;
+      message["recording"] = recording;
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.setRecordingStatus",// Remote function name
+        function(result:String):void { // On successful result
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void { // status - On error occurred
+          LogUtil.error(status); 
+        },
+        message
+      ); //_netConnection.call
+    }
   }
 }

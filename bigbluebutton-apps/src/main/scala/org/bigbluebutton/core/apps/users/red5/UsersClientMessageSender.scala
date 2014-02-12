@@ -44,6 +44,10 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	                handleUserVoiceTalking(msg)
 	    case msg: UserLeftVoice =>
 	                handleUserLeftVoice(msg)
+	    case msg: RecordingStatusChanged =>
+	                handleRecordingStatusChanged(msg)
+	    case msg: GetRecordingStatusReply =>
+	                handleGetRecordingStatusReply(msg)	                
 	    case _ => // println("Unhandled message in UsersClientMessageSender")
 	  }
 	}
@@ -74,6 +78,35 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  
 	  wuser
 	}
+	
+	private def handleGetRecordingStatusReply(msg: GetRecordingStatusReply) {
+	  val args = new java.util.HashMap[String, Object]();  
+	  args.put("userId", msg.userId);
+	  args.put("recording", msg.recording:java.lang.Boolean);	    
+	  
+	  val message = new java.util.HashMap[String, Object]() 
+	  val gson = new Gson();
+  	  message.put("msg", gson.toJson(args))
+  	  
+  	  println("UsersClientMessageSender - handleGetRecordingStatusReply \n" + message.get("msg") + "\n")
+      val m = new DirectClientMessage(msg.meetingID, msg.userId, "getRecordingStatusReply", message);
+	  service.sendMessage(m);	  
+	}
+	
+	private def handleRecordingStatusChanged(msg: RecordingStatusChanged) {
+	  val args = new java.util.HashMap[String, Object]();  
+	  args.put("userId", msg.userId);
+	  args.put("recording", msg.recording:java.lang.Boolean);	    
+	  
+	  val message = new java.util.HashMap[String, Object]() 
+	  val gson = new Gson();
+  	  message.put("msg", gson.toJson(args))
+  	  
+  	  println("UsersClientMessageSender - handleRecordingStatusChanged \n" + message.get("msg") + "\n")
+      val m = new BroadcastClientMessage(msg.meetingID, "recordingStatusChanged", message);
+	  service.sendMessage(m);	
+	}
+	
 	private def handleUserVoiceMuted(msg: UserVoiceMuted) {
 	  val args = new java.util.HashMap[String, Object]();
 	  args.put("meetingID", msg.meetingID);	  
