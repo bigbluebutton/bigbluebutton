@@ -59,7 +59,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var playingAudio:Boolean = false;
 			private var images:Images = new Images();
 
-			private var chromeAllow:ChromeAllow;
+			private var micPermissionImg:MicPermissionImage;
 			private var userBrowser:String;
 
 			[Bindable] private var _webrtcCapable:Boolean = false;
@@ -121,16 +121,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function initDefaultMic():void {
-				
-				if (webrtcCapable && useWebrtcIfAvailable) {
-					settingBtn.addEventListener(MouseEvent.CLICK, webrtcTestCall);
+				if (webrtcCapable && useWebrtcIfAvailable) {  				
+					showMicPermissionImage();
+					settingBtn.addEventListener(MouseEvent.CLICK, webrtcTestCall);					
 				} else {
+					userBrowser =  ExternalInterface.call("determineBrowser");				
+					if (userBrowser == "Chrome"){
+					  showMicPermissionImage();
+					}
 				  microphoneList = Microphone.names;
 				  LogUtil.debug("Available microphones: " + microphoneList);    
 				  mic = Microphone.getMicrophone(comboMicList.selectedIndex);
-				  testMicrophone();
-				  showChromeAllow();
-				
+				  testMicrophone();				
 				  var tempArr:Array = new Array();
 				  tempArr.push("0%", ResourceUtil.getInstance().getString('bbb.micSettings.micRecordVolume.label'),"100%");
 				  micRecordVolume.labels = tempArr;
@@ -173,8 +175,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					if (mic.activityLevel > biggestMicLevel) {
 						biggestMicLevel = mic.activityLevel;
 					}
-					if (chromeAllow && mic.activityLevel > 0){
-						PopUpManager.removePopUp(chromeAllow);
+					if (micPermissionImg && mic.activityLevel > 0){
+						PopUpManager.removePopUp(micPermissionImg);
 					}
 					//LogUtil.debug("Mic level: " + mic.activityLevel);
 					micLevel.setProgress(mic.activityLevel, 100);					
@@ -192,16 +194,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}	                     
 			}
 			
-			private function showChromeAllow():void{			 
-				userBrowser =  ExternalInterface.call("determineBrowser");
-				if (userBrowser == "Chrome"){
-					chromeAllow = new ChromeAllow();   
-					PopUpManager.addPopUp(chromeAllow, this, false);
-				}
+			private function showMicPermissionImage():void{			 
+				micPermissionImg = new MicPermissionImage();   
+      	PopUpManager.addPopUp(micPermissionImg, this, false);				
 			}
 			
-			public function hideChromeAllow():void{
-				PopUpManager.removePopUp(chromeAllow);			  
+			public function hideMicPermissionImage():void{
+				PopUpManager.removePopUp(micPermissionImg);			  
 			}
 			
 /*
@@ -266,13 +265,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				cleanUp();
 				var event:BBBEvent = new BBBEvent(BBBEvent.MIC_SETTINGS_CLOSED);
 				event.payload['clicked'] = "cancel";
-				hideChromeAllow();
+				hideMicPermissionImage();
 				dispatchEvent(event);
 				PopUpManager.removePopUp(this);
 			}
 			
 			private function cleanUp():void {
-				hideChromeAllow();
+				hideMicPermissionImage();
 				
 				if (timer) timer.stop();
 

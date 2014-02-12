@@ -384,7 +384,11 @@ DataGrid {
 }
 
 .presentationNameLabelStyle {
-  
+
+}
+
+.presentationUploadFileFormatHintTextStyle {
+	fontWeight: bold;
 }
 
 .cameraDisplaySettingsWindowStyle {

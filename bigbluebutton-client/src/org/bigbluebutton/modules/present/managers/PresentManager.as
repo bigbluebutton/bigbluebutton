@@ -18,10 +18,13 @@
 */
 package org.bigbluebutton.modules.present.managers
 {
+	import flash.display.DisplayObject;
+	import flash.geom.Point;
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import mx.collections.ArrayCollection;
 	import mx.managers.PopUpManager;
+	import mx.core.*;
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
@@ -72,11 +75,18 @@ package org.bigbluebutton.modules.present.managers
 	
 		public function handleOpenUploadWindow(e:UploadEvent):void{
 			if (uploadWindow != null) return;
-			
-			uploadWindow = new FileUploadWindow();
+
+			uploadWindow = FileUploadWindow(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileUploadWindow, true));
+
 			uploadWindow.presentationNamesAC = presentationNames;
 			uploadWindow.maxFileSize = e.maxFileSize;
-			mx.managers.PopUpManager.addPopUp(uploadWindow, presentWindow, true);
+			
+			var point1:Point = new Point();
+			point1.x = Application.application.width / 2;
+			point1.y = Application.application.height / 2;  
+			
+			uploadWindow.x = point1.x - (uploadWindow.width/2);
+			uploadWindow.y = point1.y - (uploadWindow.height/2);
 		}
 		
 		public function handleCloseUploadWindow():void{
