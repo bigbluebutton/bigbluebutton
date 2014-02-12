@@ -198,7 +198,7 @@ package org.bigbluebutton.modules.users.services
     public function handleParticipantLeft(msg:Object):void {
       trace(LOG + "*** handleParticipantLeft " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);
-      var webUserId:String = map.user.userID;
+      var webUserId:String = map.user.userId;
       
       var user:BBBUser = UserManager.getInstance().getConference().getUser(webUserId);
       
