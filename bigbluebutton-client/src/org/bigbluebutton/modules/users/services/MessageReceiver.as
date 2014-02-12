@@ -382,14 +382,12 @@ package org.bigbluebutton.modules.users.services
       trace(LOG + "*** handleParticipantStatusChange " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);
       
-      return;
-      
-      trace(LOG + "Received status change [" + msg.userID + "," + msg.status + "," + msg.value + "]")			
-      UserManager.getInstance().getConference().newUserStatus(msg.userID, msg.status, msg.value);
+      trace(LOG + "Received status change [" + map.userID + "," + map.status + "," + map.value + "]")			
+      UserManager.getInstance().getConference().newUserStatus(map.userID, map.status, map.value);
       
       if (msg.status == "presenter"){
         var e:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.PRESENTER_NAME_CHANGE);
-        e.userID = msg.userID;
+        e.userID = map.userID;
         
         dispatcher.dispatchEvent(e);
       }		
