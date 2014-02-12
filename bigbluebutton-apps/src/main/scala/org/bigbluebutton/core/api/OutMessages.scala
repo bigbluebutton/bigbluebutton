@@ -42,6 +42,19 @@ case class GetUsersReply(meetingID: String, requesterID: String,
                          users: Array[UserVO]) extends IOutMessage
 case class UserJoined(meetingID: String, recorded: Boolean, 
                       user:UserVO) extends IOutMessage
+                      
+case class UserRaisedHand(meetingID: String, recorded: Boolean, 
+                      userID: String) extends IOutMessage
+
+case class UserLoweredHand(meetingID: String, recorded: Boolean, 
+                      userID: String, loweredBy: String) extends IOutMessage
+                      
+case class UserSharedWebcam(meetingID: String, recorded: Boolean, 
+                      userID: String, stream: String) extends IOutMessage
+                      
+case class UserUnsharedWebcam(meetingID: String, recorded: Boolean, 
+                      userID: String) extends IOutMessage
+                      
 case class UserStatusChange(meetingID: String, recorded: Boolean, 
                       userID: String, status: String, value: Object) extends IOutMessage
                       

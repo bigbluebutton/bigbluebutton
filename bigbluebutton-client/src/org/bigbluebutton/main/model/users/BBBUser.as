@@ -185,6 +185,39 @@ package org.bigbluebutton.main.model.users
 			_status.addStatus(status);
 		}
 		
+    public function userRaiseHand(raised: Boolean):void {
+      raiseHand = raised;
+      if (me) {
+        UserManager.getInstance().getConference().isMyHandRaised = raised;
+      }
+      buildStatus();
+    }
+    
+    public function sharedWebcam(stream: String):void {
+      hasStream = true;
+      streamName = stream;
+      if (hasStream) sendStreamStartedEvent();
+      buildStatus();
+    }
+    
+    public function unsharedWebcam():void {
+      hasStream = false;
+      streamName = "";  
+      buildStatus();
+    }
+    
+    public function presenterStatusChanged(presenter: Boolean):void {
+      this.presenter = presenter;
+      buildStatus();
+    }
+    
+    public function lockStatusChanged(locked: Boolean):void {
+      userLocked = locked;
+      if(me)
+        applyLockSettings();
+      buildStatus();
+    }
+    
 		public function changeStatus(status:Status):void {
 			//_status.changeStatus(status);
 			if (status.name == "presenter") {

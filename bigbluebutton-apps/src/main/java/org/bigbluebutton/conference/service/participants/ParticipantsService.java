@@ -45,7 +45,29 @@ public class ParticipantsService {
 		application.getUsers(scope.getName(), getBbbSession().getInternalUserID());
 	}
 	
-		
+	public void userRaiseHand() {
+		IScope scope = Red5.getConnectionLocal().getScope();
+		String userId = getBbbSession().getInternalUserID();
+		application.userRaiseHand(scope.getName(), userId);
+	}
+	
+	public void lowerHand(String userId, String loweredBy) {
+		IScope scope = Red5.getConnectionLocal().getScope();
+		application.lowerHand(scope.getName(), userId, loweredBy);
+	}
+	
+	public void shareWebcam(String stream) {
+		IScope scope = Red5.getConnectionLocal().getScope();
+		String userId = getBbbSession().getInternalUserID();
+		application.shareWebcam(scope.getName(), userId, stream);		
+	}
+	
+	public void unshareWebcam() {
+		IScope scope = Red5.getConnectionLocal().getScope();
+		String userId = getBbbSession().getInternalUserID();
+		application.unshareWebcam(scope.getName(), userId);
+	}
+	
 	public void setParticipantStatus(Map<String, Object> msg) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 

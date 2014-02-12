@@ -71,58 +71,56 @@ package org.bigbluebutton.modules.users.services
       );
     }
     
-    public function raiseHand(userID:String, raise:Boolean):void {
-      var message:Object = new Object();
-      message["userID"] = userID;
-      message["status"] = "hasStream";
-      message["value"] = raise;
-      
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("participants.setParticipantStatus", 
-        function(result:String):void { // On successful result
-          LogUtil.debug(result); 
-        },	                   
-        function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
-        },
-        message
-      );
-      
+    public function raiseHand(userID:String, raise:Boolean):void {      
+      if (raise) {
+        var _nc:ConnectionManager = BBB.initConnectionManager();
+        _nc.sendMessage("participants.userRaiseHand", 
+          function(result:String):void { // On successful result
+            LogUtil.debug(result); 
+          },	                   
+          function(status:String):void { // status - On error occurred
+            LogUtil.error(status); 
+          }
+        );        
+      } else {
+        var message:Object = new Object();
+        message["userID"] = userID;
+        message["loweredBy"] = userID;
+        var _nc:ConnectionManager = BBB.initConnectionManager();
+        _nc.sendMessage("participants.lowerHand", 
+          function(result:String):void { // On successful result
+            LogUtil.debug(result); 
+          },	                   
+          function(status:String):void { // status - On error occurred
+            LogUtil.error(status); 
+          },
+          message
+        );        
+      }  
     }
     
     public function addStream(userID:String, streamName:String):void {
-      var message:Object = new Object();
-      message["userID"] = userID;
-      message["status"] = "raiseHand";
-      message["value"] = "true,stream=" + streamName;
-
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("participants.setParticipantStatus", 
+      _nc.sendMessage("participants.shareWebcam", 
         function(result:String):void { // On successful result
           LogUtil.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
           LogUtil.error(status); 
         },
-        message
+        streamName
       );
     }
     
-    public function removeStream(userID:String, streamName:String):void {
-      var message:Object = new Object();
-      message["userID"] = userID;
-      message["status"] = "raiseHand";
-      message["value"] = "false,stream=" + streamName;
-      
+    public function removeStream(userID:String, streamName:String):void {      
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("participants.setParticipantStatus", 
+      _nc.sendMessage("participants.unshareWebcam", 
         function(result:String):void { // On successful result
           LogUtil.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
           LogUtil.error(status); 
-        },
-        message
+        }
       );
     }
   }

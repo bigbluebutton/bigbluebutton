@@ -20,13 +20,33 @@ package org.bigbluebutton.conference.service.participants;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-import java.util.Map;import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import org.red5.server.api.Red5;
+import org.red5.server.api.scope.IScope;
+
+import java.util.Map;
+import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.bigbluebutton.conference.service.lock.LockSettingsOld;
 
 public class ParticipantsApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsApplication.class, "bigbluebutton" );	
 	private IBigBlueButtonInGW bbbInGW;
-				
+
+	public void userRaiseHand(String meetingId, String userId) {
+		bbbInGW.userRaiseHand(meetingId, userId);
+	}
+	
+	public void lowerHand(String meetingId, String userId, String loweredBy) {
+		bbbInGW.lowerHand(meetingId, userId, loweredBy);
+	}
+	
+	public void shareWebcam(String meetingId, String userId, String stream) {
+		bbbInGW.shareWebcam(meetingId, userId, stream);		
+	}
+	
+	public void unshareWebcam(String meetingId, String userId) {
+		bbbInGW.unshareWebcam(meetingId, userId);
+	}
+	
 	public void setParticipantStatus(String room, String userid, String status, Object value) {
 		bbbInGW.setUserStatus(room, userid, status, value);
 	}

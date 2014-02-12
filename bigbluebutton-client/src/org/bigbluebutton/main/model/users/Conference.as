@@ -384,6 +384,42 @@ package org.bigbluebutton.main.model.users {
 			users.removeAll();
 		}		
 	
+    public function raiseHand(userId: String, raised: Boolean):void {
+      var aUser:BBBUser = getUser(userId);			
+      if (aUser != null) {
+        aUser.userRaiseHand(raised)
+      }	
+      
+      users.refresh();      
+    }
+    
+    public function sharedWebcam(userId: String, stream: String):void {
+      var aUser:BBBUser = getUser(userId);			
+      if (aUser != null) {
+        aUser.sharedWebcam(stream)
+      }	
+      
+      users.refresh();      
+    }
+    
+    public function unsharedWebcam(userId: String):void {
+      var aUser:BBBUser = getUser(userId);			
+      if (aUser != null) {
+        aUser.unsharedWebcam()
+      }	
+      
+      users.refresh();       
+    }
+    
+    public function presenterStatusChanged(userId: String, presenter: Boolean):void {
+      var aUser:BBBUser = getUser(userId);			
+      if (aUser != null) {
+        aUser.presenterStatusChanged(presenter)
+      }	
+      
+      users.refresh();          
+    }
+    
 		public function newUserStatus(userID:String, status:String, value:Object):void {
 			var aUser:BBBUser = getUser(userID);			
 			if (aUser != null) {

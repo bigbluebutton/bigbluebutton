@@ -12,6 +12,7 @@ case class Presenter(presenterID: String, presenterName: String,
 case class UserVO(userID: String, externUserID: String, name: String, 
                   role: Role.Role, raiseHand: Boolean, presenter: Boolean, 
                   hasStream: Boolean, locked: Boolean, 
+                  webcamStream: String,
                   voiceUser: VoiceUser)
 
 case class VoiceUser(userId: String, webUserId: String, 

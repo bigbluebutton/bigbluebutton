@@ -26,6 +26,14 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	                handleUserLeft(msg)
 	    case msg: UserStatusChange => 
 	                handleUserStatusChange(msg)
+	    case msg: UserRaisedHand =>
+	                handleUserRaisedHand(msg)
+	    case msg: UserLoweredHand =>
+	                handleUserLoweredHand(msg)
+	    case msg: UserSharedWebcam =>
+	                handleUserSharedWebcam(msg)
+	    case msg: UserUnsharedWebcam =>
+	                handleUserUnshareWebcam(msg)	                
 	    case msg: GetUsersReply => 
 	                handleGetUsersReply(msg)
 	    case msg: UserJoinedVoice =>
@@ -61,6 +69,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  wuser.put("presenter", user.presenter:java.lang.Boolean)
 	  wuser.put("hasStream", user.hasStream:java.lang.Boolean)
 	  wuser.put("locked", user.locked:java.lang.Boolean)
+	  wuser.put("webcamStream", user.webcamStream)
 	  wuser.put("voiceUser", vuser)	  
 	  
 	  wuser
@@ -188,6 +197,64 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 		service.sendMessage(m);
 	}
 
+    def handleUserRaisedHand(msg: UserRaisedHand) {
+	  	var args = new HashMap[String, Object]()	
+		args.put("userId", msg.userID)
+		
+	    val message = new java.util.HashMap[String, Object]() 
+	    val gson = new Gson();
+  	    message.put("msg", gson.toJson(args))
+  	    
+		println("UsersClientMessageSender - handleUserRaisedHand \n" + message.get("msg") + "\n")
+		
+		var m = new BroadcastClientMessage(msg.meetingID, "userRaisedHand", message);
+		service.sendMessage(m);      
+    }
+
+    def handleUserLoweredHand(msg: UserLoweredHand) {
+	  	var args = new HashMap[String, Object]();	
+		args.put("userId", msg.userID)
+		args.put("loweredBy", msg.loweredBy)
+		
+	    val message = new java.util.HashMap[String, Object]() 
+	    val gson = new Gson();
+  	    message.put("msg", gson.toJson(args))
+  	    
+		println("UsersClientMessageSender - handleUserLoweredHand \n" + message.get("msg") + "\n")
+		
+		var m = new BroadcastClientMessage(msg.meetingID, "userLoweredHand", message);
+		service.sendMessage(m);      
+    }
+
+	def handleUserSharedWebcam(msg: UserSharedWebcam) {
+	  	var args = new HashMap[String, Object]()	
+		args.put("userId", msg.userID)
+		args.put("webcamStream", msg.stream)
+		
+	    val message = new java.util.HashMap[String, Object]() 
+	    val gson = new Gson();
+  	    message.put("msg", gson.toJson(args))
+  	    
+		println("UsersClientMessageSender - handleUserSharedWebcam \n" + message.get("msg") + "\n")
+		
+		var m = new BroadcastClientMessage(msg.meetingID, "userSharedWebcam", message);
+		service.sendMessage(m);	  
+	}
+
+	def handleUserUnshareWebcam(msg: UserUnsharedWebcam) {
+	  	var args = new HashMap[String, Object]()	
+		args.put("userId", msg.userID)
+		
+	    val message = new java.util.HashMap[String, Object]() 
+	    val gson = new Gson();
+  	    message.put("msg", gson.toJson(args))
+  	    
+		println("UsersClientMessageSender - handleUserUnshareWebcam \n" + message.get("msg") + "\n")
+		
+		var m = new BroadcastClientMessage(msg.meetingID, "userUnsharedWebcam", message);
+		service.sendMessage(m);	  
+	}
+	                
 	private def handleUserStatusChange(msg: UserStatusChange):Unit = {
 	  	var args = new HashMap[String, Object]();	
 		args.put("userID", msg.userID);

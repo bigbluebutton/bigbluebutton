@@ -99,7 +99,39 @@ trait UsersApp {
 	    outGW.send(new LockSettingsInitialized(msg.meetingID, msg.locked, msg.settings))
     }
   }  
-  
+
+  def handleUserRaiseHand(msg: UserRaiseHand) {
+    users.getUser(msg.userId) foreach {user =>
+      val uvo = user.copy(raiseHand=true)
+      users.addUser(uvo)
+      outGW.send(new UserRaisedHand(meetingID, recorded, uvo.userID))
+    }
+  }
+
+  def handleUserLowerHand(msg: UserLowerHand) {
+    users.getUser(msg.userId) foreach {user =>
+      val uvo = user.copy(raiseHand=false)
+      users.addUser(uvo)
+      outGW.send(new UserLoweredHand(meetingID, recorded, uvo.userID, msg.loweredBy))
+    }    
+  }
+
+  def handleUserShareWebcam(msg: UserShareWebcam) {
+    users.getUser(msg.userId) foreach {user =>
+      val uvo = user.copy(hasStream=true, webcamStream=msg.stream)
+      users.addUser(uvo)
+      outGW.send(new UserSharedWebcam(meetingID, recorded, uvo.userID, msg.stream))
+    }     
+  }
+
+  def handleUserunshareWebcam(msg: UserUnshareWebcam) {
+    users.getUser(msg.userId) foreach {user =>
+      val uvo = user.copy(hasStream=false, webcamStream="")
+      users.addUser(uvo)
+      outGW.send(new UserUnsharedWebcam(meetingID, recorded, uvo.userID))
+    }     
+  }
+	                         
   def handleChangeUserStatus(msg: ChangeUserStatus):Unit = {    
 	if (users.hasUser(msg.userID)) {
 		  outGW.send(new UserStatusChange(meetingID, recorded, msg.userID, msg.status, msg.value))
@@ -116,7 +148,7 @@ trait UsersApp {
                            false, false, false, false)
     val uvo = new UserVO(msg.userID, msg.extUserID, msg.name, 
                   msg.role, raiseHand=false, presenter=false, 
-                  hasStream=false, locked=false, vu)
+                  hasStream=false, locked=false, webcamStream="", vu)
   	
 	users.addUser(uvo)
 					
@@ -159,7 +191,7 @@ trait UsersApp {
                                  false, false, false, false)
           val uvo = new UserVO(webUserId, webUserId, msg.voiceUser.callerName, 
 		                  Role.VIEWER, raiseHand=false, presenter=false, 
-		                  hasStream=false, locked=false, vu)
+		                  hasStream=false, locked=false, webcamStream="", vu)
 		  	
 		  users.addUser(uvo)
 		  println("New user joined voice for user [" + uvo.name + "] userid=[" + msg.voiceUser.webUserId + "]")

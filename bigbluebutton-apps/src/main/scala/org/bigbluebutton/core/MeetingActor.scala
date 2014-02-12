@@ -50,6 +50,14 @@ class MeetingActor(val meetingID: String, val recorded: Boolean,
 	                         handleGetUsers(message)
 	    case message: ChangeUserStatus => 
 	                         handleChangeUserStatus(message)
+	    case message: UserRaiseHand =>
+	                         handleUserRaiseHand(message)
+	    case message: UserLowerHand =>
+	                         handleUserLowerHand(message)
+	    case message: UserShareWebcam =>
+	                         handleUserShareWebcam(message)
+	    case message: UserUnshareWebcam =>
+	                         handleUserunshareWebcam(message)
 	    case message: MuteMeetingRequest => 
 	                         handleMuteMeetingRequest(message)
 	    case message: IsMeetingMutedRequest => 

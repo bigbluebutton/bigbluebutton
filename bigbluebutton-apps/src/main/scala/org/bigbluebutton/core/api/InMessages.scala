@@ -55,7 +55,17 @@ case class UserLeaving(meetingID: String,
                        
 case class GetUsers(meetingID: String, 
                     requesterID: String) extends InMessage
-                    
+ 
+case class UserRaiseHand(meetingID: String, userId: String) extends InMessage
+
+case class UserLowerHand(meetingID: String, userId: String, 
+                         loweredBy: String) extends InMessage
+                         
+case class UserShareWebcam(meetingID: String, userId: String, 
+                         stream: String) extends InMessage
+
+case class UserUnshareWebcam(meetingID: String, userId: String) extends InMessage
+                         
 case class ChangeUserStatus(meetingID: String, userID: String, 
                             status: String, value: Object) extends InMessage
                             

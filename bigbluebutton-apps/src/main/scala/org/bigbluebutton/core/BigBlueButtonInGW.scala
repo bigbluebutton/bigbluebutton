@@ -126,6 +126,22 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	
   
   // Users
+  def userRaiseHand(meetingId: String, userId: String) {
+    bbbGW.accept(new UserRaiseHand(meetingId, userId))
+  }
+  
+  def lowerHand(meetingId: String, userId: String, loweredBy: String) {
+    bbbGW.accept(new UserLowerHand(meetingId, userId, loweredBy))
+  }
+  
+  def shareWebcam(meetingId: String, userId: String, stream: String) {
+    bbbGW.accept(new UserShareWebcam(meetingId, userId, stream))
+  }
+  
+  def unshareWebcam(meetingId: String, userId: String) {
+    bbbGW.accept(new UserUnshareWebcam(meetingId, userId))
+  }
+	
   def setUserStatus(meetingID: String, userID: String, status: String, value: Object):Unit = {
     bbbGW.accept(new ChangeUserStatus(meetingID, userID, status, value));
   }
