@@ -18,13 +18,14 @@
  */
 package org.bigbluebutton.modules.users.services
 {
+
   import com.asfusion.mate.events.Dispatcher;
   
-  import org.bigbluebutton.core.EventConstants;
-  import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
+  import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.events.VoiceConfEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.main.events.BBBEvent;
@@ -183,7 +184,11 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function handleParticipantLeft(msg:Object):void {
-      var user:BBBUser = UserManager.getInstance().getConference().getUser(msg.userID);
+      trace(LOG + "*** handleParticipantLeft " + msg.msg + " **** \n");      
+      var map:Object = JSON.parse(msg.msg);
+      var webUserId:String = map.user.userID;
+      
+      var user:BBBUser = UserManager.getInstance().getConference().getUser(webUserId);
       
       trace(LOG + "Notify others that user [" + user.userID + ", " + user.name + "] is leaving!!!!");
       
@@ -195,11 +200,13 @@ package org.bigbluebutton.modules.users.services
       joinEvent.userID = user.userID;
       dispatcher.dispatchEvent(joinEvent);	
       
-      UserManager.getInstance().getConference().removeUser(msg.userID);	        
+      UserManager.getInstance().getConference().removeUser(webUserId);	        
     }
     
     public function handleParticipantJoined(msg:Object):void {
-      participantJoined(msg);
+      trace(LOG + "*** handleParticipantJoined " + msg.msg + " **** \n");      
+      var map:Object = JSON.parse(msg.msg);
+      participantJoined(map.user as Object);
     }
     
     /**
@@ -211,11 +218,15 @@ package org.bigbluebutton.modules.users.services
     }
     
     private function handleGetUsersReply(msg:Object):void {
-      trace(LOG + "number of users = [" + msg.count + "]");
-      if (msg.count > 0) {
-        trace(LOG + "number of users = [" + msg.users.length + "]");
-        for(var p:Object in msg.users) {
-          participantJoined(msg.users[p]);
+      trace(LOG + "*** handleGetUsersReply " + msg.msg + " **** \n");      
+      var map:Object = JSON.parse(msg.msg);
+      var users:Object = map.users as Array;
+      
+      if (map.count > 0) {
+        trace(LOG + "number of users = [" + users.length + "]");
+        for(var i:int = 0; i < users.length; i++) {
+          var user:Object = users[i] as Object;
+          participantJoined(user);
         }
       }	 
       becomePresenterIfLoneModerator();
@@ -243,9 +254,12 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function handleAssignPresenterCallback(msg:Object):void {
-      var newPresenterID:String = msg.newPresenterID;
-      var newPresenterName:String = msg.newPresenterName;
-      var assignedBy:String = msg.assignedBy;
+      trace(LOG + "*** handleAssignPresenterCallback " + msg.msg + " **** \n");      
+      var map:Object = JSON.parse(msg.msg);
+      
+      var newPresenterID:String = map.newPresenterID;
+      var newPresenterName:String = map.newPresenterName;
+      var assignedBy:String = map.assignedBy;
       
       trace(LOG + "**** assignPresenterCallback [" + newPresenterID + "," + newPresenterName + "," + assignedBy + "]");
       
@@ -297,9 +311,9 @@ package org.bigbluebutton.modules.users.services
       }		
     }
     
-    public function participantJoined(joinedUser:Object):void { 
+    public function participantJoined(joinedUser:Object):void {      
       var user:BBBUser = new BBBUser();
-      user.userID = joinedUser.userID;
+      user.userID = joinedUser.userId;
       user.name = joinedUser.name;
       user.role = joinedUser.role;
       user.externUserID = joinedUser.externUserID;
@@ -317,14 +331,18 @@ package org.bigbluebutton.modules.users.services
       var joinEvent:UserJoinedEvent = new UserJoinedEvent(UserJoinedEvent.JOINED);
       joinEvent.userID = user.userID;
       dispatcher.dispatchEvent(joinEvent);	
-      
+   
     }
     
     /**
      * Callback from the server from many of the bellow nc.call methods
      */
     public function handleParticipantStatusChange(msg:Object):void {
-
+      trace(LOG + "*** handleGetUsersReply " + msg.msg + " **** \n");      
+      var map:Object = JSON.parse(msg.msg);
+      
+      return;
+      
       trace(LOG + "Received status change [" + msg.userID + "," + msg.status + "," + msg.value + "]")			
       UserManager.getInstance().getConference().newUserStatus(msg.userID, msg.status, msg.value);
       

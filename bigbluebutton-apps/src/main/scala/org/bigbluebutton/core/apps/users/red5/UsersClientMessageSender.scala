@@ -102,53 +102,39 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	}
 	
 	private def handleUserJoinedVoice(msg: UserJoinedVoice) {
-	val args = new java.util.HashMap[String, Object]();
-	args.put("meetingID", msg.meetingID);
-	args.put("user", buildUserHashMap(msg.user))
+	  val args = new java.util.HashMap[String, Object]();
+	  args.put("meetingID", msg.meetingID);
+	  args.put("user", buildUserHashMap(msg.user))
 	
-	val message = new java.util.HashMap[String, Object]() 
-	val gson = new Gson();
-  	message.put("msg", gson.toJson(args))
+	  val message = new java.util.HashMap[String, Object]() 
+	  val gson = new Gson();
+  	  message.put("msg", gson.toJson(args))
   	
-  	println("UsersClientMessageSender - handleUserJoinedVoice \n" + message.get("msg") + "\n")
+  	  println("UsersClientMessageSender - handleUserJoinedVoice \n" + message.get("msg") + "\n")
 //  	log.debug("UsersClientMessageSender - handlePresentationConversionProgress \n" + message.get("msg") + "\n")
-    val m = new BroadcastClientMessage(msg.meetingID, "userJoinedVoice", message);
-	service.sendMessage(m);	
-			
+      val m = new BroadcastClientMessage(msg.meetingID, "userJoinedVoice", message);
+	  service.sendMessage(m);		
 	}
 	
 	private def handleGetUsersReply(msg: GetUsersReply):Unit = {
-		var message = new HashMap[String, Object]();
+      var args = new HashMap[String, Object]();			
+      args.put("count", msg.users.length:java.lang.Integer)
+		
+      var users = new ArrayList[java.util.HashMap[String, Object]];
+      msg.users.foreach(uvo => {		
+        users.add(buildUserHashMap(uvo))
+      })
+		
+      args.put("users", users);
+		
+      val message = new java.util.HashMap[String, Object]() 
+      val gson = new Gson();
+  	  message.put("msg", gson.toJson(args))
+		
+      println("UsersClientMessageSender - handleGetUsersReply \n" + message.get("msg") + "\n")
 			
-		message.put("count", msg.users.length:java.lang.Integer)
-		
-		var users = new HashMap[String, Object]();
-		
-		println("*************** Users lenght=[" + msg.users.length + "]")
-		
-		msg.users.foreach(uvo => {
-  		  var pm = new HashMap[String, Object]();
-
-		  pm.put("userID", uvo.userID)
-		  pm.put("externUserID", uvo.externUserID)
-		  pm.put("name", uvo.name)
-		  pm.put("role", uvo.role.toString())
-		  pm.put("hasStream", uvo.hasStream:java.lang.Boolean)
-		  pm.put("presenter", uvo.presenter:java.lang.Boolean)
-		  pm.put("raiseHand", uvo.raiseHand:java.lang.Boolean)
-		  
-		  users.put(uvo.userID, pm)
-		})
-		
-		message.put("users", users);
-		
-		val gson = new Gson()
-		val msgString = gson.toJson(message)
-		
-		println("JSON = \n" + msgString)
-			
-		var m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getUsersReply", message);
-		service.sendMessage(m);	  
+      var m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getUsersReply", message);
+  	  service.sendMessage(m);	  
 	}
 		
 	private def handleEndAndKickAll(msg: EndAndKickAll):Unit = {
@@ -158,64 +144,62 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	}
 
 	private def handleAssignPresenter(msg:PresenterAssigned):Unit = {
-	  	var message = new HashMap[String, Object]();
-		message.put("newPresenterID", msg.presenter.presenterID);
-		message.put("newPresenterName", msg.presenter.presenterName);
-		message.put("assignedBy", msg.presenter.assignedBy);
-
-		val gson = new Gson()
-		val msgString = gson.toJson(message)
+	  var args = new HashMap[String, Object]();	
+		args.put("newPresenterID", msg.presenter.presenterID);
+		args.put("newPresenterName", msg.presenter.presenterName);
+		args.put("assignedBy", msg.presenter.assignedBy);
 		
-		println("JSON = \n" + msgString)
+	    val message = new java.util.HashMap[String, Object]() 
+	    val gson = new Gson();
+  	    message.put("msg", gson.toJson(args))
 		
+  	    println("UsersClientMessageSender - handleAssignPresenter \n" + message.get("msg") + "\n")
+  	    
 		var m = new BroadcastClientMessage(msg.meetingID, "assignPresenterCallback", message);
 		service.sendMessage(m);		
 	}
 	
 	private def handleUserJoined(msg: UserJoined):Unit = {
-		var message = new HashMap[String, Object]();
-		message.put("userID", msg.user.userID);
-		message.put("externUserID", msg.user.externUserID);
-		message.put("name", msg.user.name);
-		message.put("role", msg.user.role.toString());
-		message.put("raiseHand", msg.user.raiseHand:java.lang.Boolean)
-		message.put("presenter", msg.user.presenter:java.lang.Boolean)
-		message.put("hasStream", msg.user.hasStream:java.lang.Boolean)
+	  	var args = new HashMap[String, Object]();	
+		args.put("user", buildUserHashMap(msg.user));
 		
-		val gson = new Gson()
-		val msgString = gson.toJson(message)
-		
-		println("JSON = \n" + msgString)
-		
+	    val message = new java.util.HashMap[String, Object]() 
+	    val gson = new Gson();
+  	    message.put("msg", gson.toJson(args))
+  	    
+  	    println("UsersClientMessageSender - handleUserJoined \n" + message.get("msg") + "\n")
+  	    
 		var m = new BroadcastClientMessage(msg.meetingID, "participantJoined", message);
 		service.sendMessage(m);		
 	}
 
 
 	private def handleUserLeft(msg: UserLeft):Unit = {
-		var message = new HashMap[String, Object]();
-		message.put("userID", msg.user.userID);
+	  	var args = new HashMap[String, Object]();	
+		args.put("user", buildUserHashMap(msg.user));
 		
-		val gson = new Gson()
-		val msgString = gson.toJson(message)
-		
-		println("JSON = \n" + msgString)
+	    val message = new java.util.HashMap[String, Object]() 
+	    val gson = new Gson();
+  	    message.put("msg", gson.toJson(args))
+  	    
+		println("UsersClientMessageSender - handleUserLeft \n" + message.get("msg") + "\n")
 		
 		var m = new BroadcastClientMessage(msg.meetingID, "participantLeft", message);
 		service.sendMessage(m);
 	}
 
 	private def handleUserStatusChange(msg: UserStatusChange):Unit = {
-		var message = new HashMap[String, Object]();
-		message.put("userID", msg.userID);
-		message.put("status", msg.status);
-		message.put("value", msg.value);
+	  	var args = new HashMap[String, Object]();	
+		args.put("userID", msg.userID);
+		args.put("status", msg.status);
+		args.put("value", msg.value);
 		
-		val gson = new Gson()
-		val msgString = gson.toJson(message)
-		
-		println("JSON = \n" + msgString)
-		
+	    val message = new java.util.HashMap[String, Object]() 
+	    val gson = new Gson();
+  	    message.put("msg", gson.toJson(args))
+  	    
+  	    println("UsersClientMessageSender - handleUserStatusChange \n" + message.get("msg") + "\n")
+  	    
 		var m = new BroadcastClientMessage(msg.meetingID, "participantStatusChange", message);
 		service.sendMessage(m);
 	}
