@@ -13,10 +13,12 @@ class FreeswitchManagerProxy(fsApp: FreeswitchApplication) {
   }
   
   def muteUser(conference: String, userId: String, mute: Boolean) {
+    println("Forwarding mute request to fsApp")
     fsApp.mute(conference, userId, mute)
   }
   
   def ejectUser(conference: String, userId: String ) {
+    println("Forwarding eject user request to fsApp")
     fsApp.eject(conference, userId)
   }
   

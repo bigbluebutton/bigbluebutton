@@ -20,8 +20,12 @@ package org.bigbluebutton.modules.users.services
 {
   import com.asfusion.mate.events.Dispatcher;
   
+  import org.bigbluebutton.core.EventConstants;
+  import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
+  import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.core.events.VoiceConfEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -45,8 +49,11 @@ package org.bigbluebutton.modules.users.services
     private static const LOG:String = "Users::MessageReceiver - ";
        
     private var dispatcher:Dispatcher;
+    private var _conference:Conference;
+    private static var globalDispatcher:Dispatcher = new Dispatcher();
     
     public function MessageReceiver() {
+      _conference = UserManager.getInstance().getConference();
       BBB.initConnectionManager().addMessageListener(this);
       this.dispatcher = new Dispatcher();
     }
@@ -73,8 +80,107 @@ package org.bigbluebutton.modules.users.services
         case "participantStatusChange":
           handleParticipantStatusChange(message);
           break;
+        case "userJoinedVoice":
+          handleUserJoinedVoice(message);
+          break;
+        case "voiceUserMuted":
+          handleVoiceUserMuted(message);
+          break;
+        case "voiceUserTalking":
+          handleVoiceUserTalking(message);
+          break;
       }
     }  
+    
+    private function handleVoiceUserMuted(msg:Object):void {
+      trace(LOG + "*** handleVoiceUserMuted " + msg.msg + " **** \n");      
+      var map:Object = JSON.parse(msg.msg);
+      var userId = map.voiceUserId;
+      var muted = map.muted;
+
+      var l:BBBUser = _conference.getVoiceUser(userId);
+      if (l != null) {
+        l.voiceMuted = muted;
+        
+        if (l.voiceMuted) {
+          // When the user is muted, set the talking flag to false so that the UI will not display the
+          // user as talking even if muted.
+          userTalk(userId, false);
+        }
+        
+        /**
+         * Let's store the voice userid so we can do push to talk.
+         */
+        if (l.me) {
+          _conference.muteMyVoice(l.voiceMuted);
+        }				
+        
+        LogUtil.debug("[" + l.name + "] is now muted=[" + l.voiceMuted + "]");
+        
+        var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_MUTED);
+        bbbEvent.payload.muted = muted;
+        bbbEvent.payload.userID = l.userID;
+        globalDispatcher.dispatchEvent(bbbEvent);    
+      }
+    }
+
+    private function userTalk(userID:Number, talk:Boolean):void {
+      trace("User talking event");
+      var l:BBBUser = _conference.getVoiceUser(userID);			
+      if (l != null) {
+        l.talking = talk;
+        
+        var event:CoreEvent = new CoreEvent(EventConstants.USER_TALKING);
+        event.message.userID = l.userID;
+        event.message.talking = l.talking;
+        globalDispatcher.dispatchEvent(event);  
+      }	
+    }
+    
+    private function handleVoiceUserTalking(msg:Object):void {
+      trace(LOG + "*** handleVoiceUserTalking " + msg.msg + " **** \n");      
+      var map:Object = JSON.parse(msg.msg); 
+      var userId = map.voiceUserId;
+      var talking = map.talking;  
+      
+      userTalk(userId, talking);
+    }
+    
+    private function handleUserJoinedVoice(msg:Object):void {
+      trace(LOG + "*** handleUserJoinedVoice " + msg.msg + " **** \n");      
+      var map:Object = JSON.parse(msg.msg);
+      
+      var webUser:Object = map.user as Object;
+      var voiceUser:Object = webUser.voiceUser as Object;
+
+      var externUserID:String = webUser.externUserID;
+      var internUserID:String = UsersUtil.externalUserIDToInternalUserID(externUserID);
+      
+      if (UsersUtil.getMyExternalUserID() == externUserID) {
+        _conference.setMyVoiceUserId(voiceUser.userId);
+        _conference.muteMyVoice(voiceUser.muted);
+        _conference.setMyVoiceJoined(true);
+      }
+      
+      if (UsersUtil.hasUser(internUserID)) {
+        var bu:BBBUser = UsersUtil.getUser(internUserID);
+        bu.voiceUserid = voiceUser.userId;
+        bu.voiceMuted = voiceUser.muted;
+        bu.voiceJoined = true;
+        
+        var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_JOINED);
+        bbbEvent.payload.userID = bu.userID;            
+        globalDispatcher.dispatchEvent(bbbEvent);
+        
+        if(_conference.getLockSettings().getDisableMic() && !bu.voiceMuted && bu.userLocked && bu.me) {
+          var ev:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
+          ev.userid = voiceUser.userId;
+          ev.mute = true;
+          dispatcher.dispatchEvent(ev);
+        }
+      } 
+      return;
+    }
     
     public function handleParticipantLeft(msg:Object):void {
       var user:BBBUser = UserManager.getInstance().getConference().getUser(msg.userID);

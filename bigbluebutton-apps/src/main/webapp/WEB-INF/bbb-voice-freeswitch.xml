@@ -24,7 +24,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     xsi:schemaLocation="http://www.springframework.org/schema/beans
             http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 	
-	<beans:bean id="fsEventListener" class="org.bigbluebutton.webconference.voice.FreeswitchConferenceEventListener"/>
+	<beans:bean id="fsEventListener" class="org.bigbluebutton.webconference.voice.FreeswitchConferenceEventListener"
+	               init-method="start" destroy-method="stop"/>
 	 
 	<beans:bean id="connectionManager" class="org.bigbluebutton.webconference.voice.freeswitch.ConnectionManager" 
 	           init-method="start" destroy-method="stop">

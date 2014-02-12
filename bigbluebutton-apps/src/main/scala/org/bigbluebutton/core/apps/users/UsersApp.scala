@@ -14,7 +14,7 @@ trait UsersApp {
   val outGW: MessageOutGateway
   
   private val users = new UsersModel
-  private val users2 = new Users
+//  private val users2 = new Users
   
   private var locked = false
   private var meetingMuted = false
@@ -35,9 +35,9 @@ trait UsersApp {
   def handleMuteMeetingRequest(msg: MuteMeetingRequest) {
     meetingMuted = msg.mute
     
-    users2.unlockedUsers map ({ u =>
-      outGW.send(new MuteVoiceUser(meetingID, recorded, msg.requesterID, u.voice.id, msg.mute))
-    })
+//    users2.unlockedUsers map ({ u =>
+//      outGW.send(new MuteVoiceUser(meetingID, recorded, msg.requesterID, u.voice.id, msg.mute))
+//    })
   }
   
   def handleIsMeetingMutedRequest(msg: IsMeetingMutedRequest) {
@@ -45,19 +45,26 @@ trait UsersApp {
   }
   
   def handleMuteUserRequest(msg: MuteUserRequest) {
-    users2.get(msg.userID) match {
-      case Some(u) => outGW.send(new MuteVoiceUser(meetingID, recorded, msg.requesterID, u.voice.id, msg.mute))
-      case None => // do nothing
+    println("Received mute user request uid=[" + msg.userID + "] mute=[" + msg.mute + "]")
+    users.getUser(msg.userID) match {
+      case Some(u) => {
+        println("Sending mute user request uid=[" + msg.userID + "] mute=[" + msg.mute + "]")
+        outGW.send(new MuteVoiceUser(meetingID, recorded, msg.requesterID, u.userID, msg.mute))
+      }
+      case None => {
+        println("Could not find user to mute. uid=[" + msg.userID + "] mute=[" + msg.mute + "]")
+      }
     }
   }
   
   def handleLockUserRequest(msg: LockUserRequest) {
-    users2.lockVoice(msg.userID, msg.lock)
+//    users2.lockVoice(msg.userID, msg.lock)
   }
   
   def handleEjectUserRequest(msg: EjectUserRequest) {
-    users2.get(msg.userID) match {
-      case Some(u) => outGW.send(new EjectVoiceUser(meetingID, recorded, msg.requesterID, u.voice.id))
+    println("Received eject user request uid=[" + msg.userID + "]")
+    users.getUser(msg.userID) match {
+      case Some(u) => outGW.send(new EjectVoiceUser(meetingID, recorded, msg.requesterID, u.userID))
       case None => // do nothing
     }
   }
@@ -139,7 +146,7 @@ trait UsersApp {
         case Some(user) => {
           val nu = user.copy(voiceUser=msg.voiceUser)
           users.addUser(nu)
-          
+          println("Received user joined voice for user [" + nu.name + "] userid=[" + msg.voiceUser.webUserId + "]" )
           outGW.send(new UserJoinedVoice(meetingID, recorded, nu))
         }
         case None => {
@@ -155,10 +162,41 @@ trait UsersApp {
 		                  hasStream=false, locked=false, vu)
 		  	
 		  users.addUser(uvo)
-		  
+		  println("New user joined voice for user [" + uvo.name + "] userid=[" + msg.voiceUser.webUserId + "]")
 		  outGW.send(new UserJoined(meetingID, recorded, uvo))
         }
       }
+  }
+  
+  def handleVoiceUserLeft(msg: VoiceUserLeft) {
+    users.getUser(msg.userId) foreach {user =>
+      val vu = new VoiceUser(user.userID, user.userID, user.name, user.name,  
+                           false, false, false, false)
+      val nu = user.copy(voiceUser=vu)
+      users.addUser(nu)
+      println("Received voice user left =[" + user.name + "] wid=[" + msg.userId + "]" )
+      outGW.send(new UserLeftVoice(meetingID, recorded, nu))        
+    }    
+  }
+  
+  def handleVoiceUserMuted(msg: VoiceUserMuted) {
+    users.getUser(msg.userId) foreach {user =>
+      val nv = user.voiceUser.copy(muted=msg.muted)
+      val nu = user.copy(voiceUser=nv)
+      users.addUser(nu)
+      println("Received voice muted=[" + msg.muted + "] wid=[" + msg.userId + "]" )
+      outGW.send(new UserVoiceMuted(meetingID, recorded, nu))        
+    }   
+  }
+  
+  def handleVoiceUserTalking(msg: VoiceUserTalking) {
+    users.getUser(msg.userId) foreach {user =>
+      val nv = user.voiceUser.copy(talking=msg.talking)
+      val nu = user.copy(voiceUser=nv)
+      users.addUser(nu)
+      println("Received voice talking=[" + msg.talking + "] wid=[" + msg.userId + "]" )
+      outGW.send(new UserVoiceMuted(meetingID, recorded, nu))        
+    }     
   }
   
   def handleAssignPresenter(msg: AssignPresenter):Unit = {

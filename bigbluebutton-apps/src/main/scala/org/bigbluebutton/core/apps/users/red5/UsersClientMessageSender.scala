@@ -16,14 +16,105 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 
 	def handleMessage(msg: IOutMessage) {
 	  msg match {
-	    case endMsg: EndAndKickAll => handleEndAndKickAll(endMsg)
-	    case assignPres: PresenterAssigned => handleAssignPresenter(assignPres)
-	    case userJoin: UserJoined => handleUserJoined(userJoin)
-	    case userLeft: UserLeft => handleUserLeft(userLeft)
-	    case statusChange: UserStatusChange => handleUserStatusChange(statusChange)
-	    case getUsersReply: GetUsersReply => handleGetUsersReply(getUsersReply)
+	    case msg: EndAndKickAll => 
+	                handleEndAndKickAll(msg)
+	    case msg: PresenterAssigned => 
+	                handleAssignPresenter(msg)
+	    case msg: UserJoined => 
+	                handleUserJoined(msg)
+	    case msg: UserLeft => 
+	                handleUserLeft(msg)
+	    case msg: UserStatusChange => 
+	                handleUserStatusChange(msg)
+	    case msg: GetUsersReply => 
+	                handleGetUsersReply(msg)
+	    case msg: UserJoinedVoice =>
+	                handleUserJoinedVoice(msg)
+	    case msg: UserVoiceMuted =>
+	                handleUserVoiceMuted(msg)
+	    case msg: UserVoiceTalking =>
+	                handleUserVoiceTalking(msg)
+	    case msg: UserLeftVoice =>
+	                handleUserLeftVoice(msg)
 	    case _ => // println("Unhandled message in UsersClientMessageSender")
 	  }
+	}
+	
+	private def buildUserHashMap(user: UserVO):java.util.HashMap[String, Object] = {
+	  val vu = user.voiceUser
+	  val vuser = new HashMap[String, Object]()
+	  vuser.put("userId", vu.userId)
+	  vuser.put("webUserId", vu.webUserId)
+	  vuser.put("callerName", vu.callerName)
+	  vuser.put("callerNum", vu.callerNum)
+	  vuser.put("joined", vu.joined:java.lang.Boolean)
+	  vuser.put("locked", vu.locked:java.lang.Boolean)
+	  vuser.put("muted", vu.muted:java.lang.Boolean)
+	  vuser.put("talking", vu.talking:java.lang.Boolean)
+	
+	  val wuser = new HashMap[String, Object]()
+	  wuser.put("userId", user.userID)
+	  wuser.put("externUserID", user.externUserID)
+	  wuser.put("name", user.name)
+	  wuser.put("role", user.role.toString())
+	  wuser.put("raiseHand", user.raiseHand:java.lang.Boolean)
+	  wuser.put("presenter", user.presenter:java.lang.Boolean)
+	  wuser.put("hasStream", user.hasStream:java.lang.Boolean)
+	  wuser.put("locked", user.locked:java.lang.Boolean)
+	  wuser.put("voiceUser", vuser)	  
+	  
+	  wuser
+	}
+	private def handleUserVoiceMuted(msg: UserVoiceMuted) {
+	  val args = new java.util.HashMap[String, Object]();
+	  args.put("meetingID", msg.meetingID);	  
+	  args.put("voiceUserId", msg.user.voiceUser.userId);
+	  args.put("muted", msg.user.voiceUser.muted:java.lang.Boolean);
+	  
+	  val message = new java.util.HashMap[String, Object]() 
+	  val gson = new Gson();
+  	  message.put("msg", gson.toJson(args))
+  	
+  	  println("UsersClientMessageSender - handleUserVoiceMuted \n" + message.get("msg") + "\n")
+//  	log.debug("UsersClientMessageSender - handlePresentationConversionProgress \n" + message.get("msg") + "\n")
+      val m = new BroadcastClientMessage(msg.meetingID, "voiceUserMuted", message);
+	  service.sendMessage(m);		  
+	}
+	
+	private def handleUserVoiceTalking(msg: UserVoiceTalking) {
+	  val args = new java.util.HashMap[String, Object]();
+	  args.put("meetingID", msg.meetingID);	  
+	  args.put("voiceUserId", msg.user.voiceUser.userId);
+	  args.put("talking", msg.user.voiceUser.talking:java.lang.Boolean);
+	  
+	  val message = new java.util.HashMap[String, Object]() 
+	  val gson = new Gson();
+  	  message.put("msg", gson.toJson(args))
+  	
+  	  println("UsersClientMessageSender - handleUserVoiceTalking \n" + message.get("msg") + "\n")
+//  	log.debug("UsersClientMessageSender - handlePresentationConversionProgress \n" + message.get("msg") + "\n")
+      val m = new BroadcastClientMessage(msg.meetingID, "voiceUserTalking", message);
+	  service.sendMessage(m);	  
+	}
+	
+	private def handleUserLeftVoice(msg: UserLeftVoice) {
+	  
+	}
+	
+	private def handleUserJoinedVoice(msg: UserJoinedVoice) {
+	val args = new java.util.HashMap[String, Object]();
+	args.put("meetingID", msg.meetingID);
+	args.put("user", buildUserHashMap(msg.user))
+	
+	val message = new java.util.HashMap[String, Object]() 
+	val gson = new Gson();
+  	message.put("msg", gson.toJson(args))
+  	
+  	println("UsersClientMessageSender - handleUserJoinedVoice \n" + message.get("msg") + "\n")
+//  	log.debug("UsersClientMessageSender - handlePresentationConversionProgress \n" + message.get("msg") + "\n")
+    val m = new BroadcastClientMessage(msg.meetingID, "userJoinedVoice", message);
+	service.sendMessage(m);	
+			
 	}
 	
 	private def handleGetUsersReply(msg: GetUsersReply):Unit = {
@@ -66,7 +157,6 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  service.sendMessage(m);
 	}
 
-
 	private def handleAssignPresenter(msg:PresenterAssigned):Unit = {
 	  	var message = new HashMap[String, Object]();
 		message.put("newPresenterID", msg.presenter.presenterID);
@@ -79,11 +169,9 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 		println("JSON = \n" + msgString)
 		
 		var m = new BroadcastClientMessage(msg.meetingID, "assignPresenterCallback", message);
-		service.sendMessage(m);
-			
+		service.sendMessage(m);		
 	}
 	
-
 	private def handleUserJoined(msg: UserJoined):Unit = {
 		var message = new HashMap[String, Object]();
 		message.put("userID", msg.user.userID);

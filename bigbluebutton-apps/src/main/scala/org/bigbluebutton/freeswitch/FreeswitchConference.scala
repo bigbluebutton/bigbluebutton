@@ -9,11 +9,11 @@ class FreeswitchConference(val conferenceNum: String,
   private var users = new scala.collection.immutable.HashMap[String, UserVO]
   
   def addUser(user: UserVO) {
-    
+    users += user.userID -> user
   }
   
   def removeUser(user: UserVO) {
-    
+    users -= user.userID
   }
   
   def getWebUser(webUserId: String):Option[UserVO] = {

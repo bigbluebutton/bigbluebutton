@@ -390,6 +390,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	                            conference: String, callerIdNum: String, 
 	                            callerIdName: String,
 								muted: java.lang.Boolean, speaking: java.lang.Boolean) {
+	  
 	  voiceGW.voiceUserJoined(meetingId, userId, webUserId, 
 	                            conference, callerIdNum, 
 	                            callerIdName,

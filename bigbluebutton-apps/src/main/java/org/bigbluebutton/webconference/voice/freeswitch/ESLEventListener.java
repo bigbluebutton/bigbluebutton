@@ -47,6 +47,7 @@ public class ESLEventListener implements IEslEventListener {
     
     @Override
     public void conferenceEventJoin(String uniqueId, String confName, int confSize, EslEvent event) {
+    	
         Integer memberId = this.getMemberIdFromEvent(event);
         Map<String, String> headers = event.getEventHeaders();
         String callerId = this.getCallerIdFromEvent(event);
@@ -55,6 +56,8 @@ public class ESLEventListener implements IEslEventListener {
         boolean speaking = headers.get("Talking").equals("true") ? true : false;
 
         String voiceUserId = callerIdName;
+        
+        System.out.println("Received Conference Join Event from FreeSWITCH user[" + callerIdName + "]");
         
 		Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
 		if (matcher.matches()) {			
@@ -67,8 +70,9 @@ public class ESLEventListener implements IEslEventListener {
     }
 
     @Override
-    public void conferenceEventLeave(String uniqueId, String confName, int confSize, EslEvent event) {
+    public void conferenceEventLeave(String uniqueId, String confName, int confSize, EslEvent event) {   	
         Integer memberId = this.getMemberIdFromEvent(event);
+        System.out.println("Received Conference Leave Event from FreeSWITCH user[" + memberId.toString() + "]");
         VoiceUserLeftEvent pl = new VoiceUserLeftEvent(memberId.toString(), confName);
         conferenceEventListener.handleConferenceEvent(pl);
     }
@@ -76,6 +80,7 @@ public class ESLEventListener implements IEslEventListener {
     @Override
     public void conferenceEventMute(String uniqueId, String confName, int confSize, EslEvent event) {
         Integer memberId = this.getMemberIdFromEvent(event);
+        System.out.println("Received Conference Muted Event from FreeSWITCH user[" + memberId.toString() + "]");
         VoiceUserMutedEvent pm = new VoiceUserMutedEvent(memberId.toString(), confName, true);
         conferenceEventListener.handleConferenceEvent(pm);
     }
@@ -83,6 +88,7 @@ public class ESLEventListener implements IEslEventListener {
     @Override
     public void conferenceEventUnMute(String uniqueId, String confName, int confSize, EslEvent event) {
         Integer memberId = this.getMemberIdFromEvent(event);
+        System.out.println("Received ConferenceUnmuted Event from FreeSWITCH user[" + memberId.toString() + "]");
         VoiceUserMutedEvent pm = new VoiceUserMutedEvent(memberId.toString(), confName, false);
         conferenceEventListener.handleConferenceEvent(pm);
     }
@@ -156,9 +162,9 @@ public class ESLEventListener implements IEslEventListener {
 	@Override
 	public void eventReceived(EslEvent event) {
 //        if (event.getEventName().equals(FreeswitchHeartbeatMonitor.EVENT_HEARTBEAT)) {
-//            setChanged();
- //           notifyObservers(event);
-//            return; 
+////           setChanged();
+//           notifyObservers(event);
+//           return; 
 //        }
 	}
 

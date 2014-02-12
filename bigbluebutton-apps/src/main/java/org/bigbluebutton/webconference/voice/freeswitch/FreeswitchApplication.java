@@ -32,8 +32,12 @@ import org.bigbluebutton.webconference.voice.freeswitch.actions.FreeswitchComman
 import org.bigbluebutton.webconference.voice.freeswitch.actions.PopulateRoomCommand;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.MuteParticipantCommand;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.RecordConferenceCommand;
+import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.Logger;
 
 public class FreeswitchApplication implements ConferenceServiceProvider {
+	private static Logger log = Red5LoggerFactory.getLogger( FreeswitchApplication.class, "bigbluebutton" );
+	
 	private static final int SENDERTHREADS = 1;
 	private static final Executor msgSenderExec = Executors.newFixedThreadPool(SENDERTHREADS);
 	
@@ -141,13 +145,22 @@ public class FreeswitchApplication implements ConferenceServiceProvider {
 
 	private void sendMessageToFreeswitch(FreeswitchCommand command) {
 		if (command instanceof PopulateRoomCommand) {
-			manager.getUsers((PopulateRoomCommand) command);
+			PopulateRoomCommand cmd = (PopulateRoomCommand) command;
+			log.debug("Sending PopulateRoomCommand for conference = [" + cmd.getRoom() + "]");
+			manager.getUsers(cmd);
 		} else if (command instanceof MuteParticipantCommand) {
-			manager.mute((MuteParticipantCommand) command);
+			MuteParticipantCommand cmd = (MuteParticipantCommand) command;
+			log.debug("Sending MuteParticipantCommand for conference = [" + cmd.getRoom() + "]");
+			System.out.println("Sending MuteParticipantCommand for conference = [" + cmd.getRoom() + "]");
+			manager.mute(cmd);
 		} else if (command instanceof EjectParticipantCommand) {
-			manager.eject((EjectParticipantCommand) command);
+			EjectParticipantCommand cmd = (EjectParticipantCommand) command;
+			log.debug("Sending EjectParticipantCommand for conference = [" + cmd.getRoom() + "]");
+			manager.eject(cmd);
 		} else if (command instanceof EjectAllUsersCommand) {
-			manager.ejectAll((EjectAllUsersCommand) command);
+			EjectAllUsersCommand cmd = (EjectAllUsersCommand) command;
+			log.debug("Sending EjectAllUsersCommand for conference = [" + cmd.getRoom() + "]");
+			manager.ejectAll(cmd);
 		} else if (command instanceof RecordConferenceCommand) {
 			manager.record((RecordConferenceCommand) command);
 		} else if (command instanceof BroadcastConferenceCommand) {

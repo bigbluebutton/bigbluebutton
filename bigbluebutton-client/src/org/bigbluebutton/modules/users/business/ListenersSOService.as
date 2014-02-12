@@ -230,7 +230,7 @@ package org.bigbluebutton.modules.users.business
 				l.voiceMuted = false;
 				l.voiceJoined = false;
 				l.talking = false;
-        		l.userLocked = false;
+        l.userLocked = false;
 				
 				var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_LEFT);
 				bbbEvent.payload.userID = l.userID;
@@ -276,25 +276,29 @@ package org.bigbluebutton.modules.users.business
 //		}
 		
 		public function muteUnmuteUser(userid:Number, mute:Boolean):void {
-			var nc:NetConnection = _module.connection;
-			nc.call(
-				"voice.muteUnmuteUser",// Remote function name
-				new Responder(
-					// participants - On successful result
-					function(result:Object):void { 
-						LogUtil.debug("Successfully mute/unmute: " + userid); 	
-					},	
-					// status - On error occurred
-					function(status:Object):void { 
-						LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-						} 
-					}
-				),//new Responder
-				userid,
-				mute
-			); //_netConnection.call		
+      var user:BBBUser = UsersUtil.getVoiceUser(userid)
+      if (user != null) {
+        var nc:NetConnection = _module.connection;
+        nc.call(
+          "voice.muteUnmuteUser",// Remote function name
+          new Responder(
+            // participants - On successful result
+            function(result:Object):void { 
+              LogUtil.debug("Successfully mute/unmute: " + userid); 	
+            },	
+            // status - On error occurred
+            function(status:Object):void { 
+              LogUtil.error("Error occurred:"); 
+              for (var x:Object in status) { 
+                LogUtil.error(x + " : " + status[x]); 
+              } 
+            }
+          ),//new Responder
+          user.userID,
+          mute
+        ); //_netConnection.call	        
+      }
+	
 		}
 		
 		public function muteAllUsers(mute:Boolean, dontMuteThese:Array = null):void {
@@ -334,24 +338,28 @@ package org.bigbluebutton.modules.users.business
 		}
 		
 		public function ejectUser(userId:Number):void {
-			var nc:NetConnection = _module.connection;
-			nc.call(
-				"voice.kickUSer",// Remote function name
-				new Responder(
-					// participants - On successful result
-					function(result:Object):void { 
-						LogUtil.debug("Successfully kick user: userId"); 	
-					},	
-					// status - On error occurred
-					function(status:Object):void { 
-						LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-						} 
-					}
-				),//new Responder
-				userId
-			); //_netConnection.call		
+      var user:BBBUser = UsersUtil.getVoiceUser(userId)
+      if (user != null) {
+        var nc:NetConnection = _module.connection;
+        nc.call(
+          "voice.kickUSer",// Remote function name
+          new Responder(
+            // participants - On successful result
+            function(result:Object):void { 
+              LogUtil.debug("Successfully kick user: userId"); 	
+            },	
+            // status - On error occurred
+            function(status:Object):void { 
+              LogUtil.error("Error occurred:"); 
+              for (var x:Object in status) { 
+                LogUtil.error(x + " : " + status[x]); 
+              } 
+            }
+          ),//new Responder
+          user.userID
+        ); //_netConnection.call        
+      }
+		
 		}
 		
 		private function getCurrentUsers():void {
