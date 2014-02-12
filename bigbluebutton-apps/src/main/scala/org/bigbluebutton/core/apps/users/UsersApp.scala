@@ -195,7 +195,7 @@ trait UsersApp {
       val nu = user.copy(voiceUser=nv)
       users.addUser(nu)
       println("Received voice talking=[" + msg.talking + "] wid=[" + msg.userId + "]" )
-      outGW.send(new UserVoiceMuted(meetingID, recorded, nu))        
+      outGW.send(new UserVoiceTalking(meetingID, recorded, nu))        
     }     
   }
   

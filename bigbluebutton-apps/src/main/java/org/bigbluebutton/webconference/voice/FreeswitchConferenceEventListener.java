@@ -65,15 +65,15 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
 			VoiceUserLeftEvent evt = (VoiceUserLeftEvent) event;
 			vcs.voiceUserLeft(evt.getUserId(), evt.getRoom());
 		} else if (event instanceof VoiceUserMutedEvent) {
-			System.out.println("************** FreeswitchConferenceEventListener VoiceUserMutedEvent VoiceUserLeftEvent ");
+			System.out.println("************** FreeswitchConferenceEventListener VoiceUserMutedEvent ");
 			VoiceUserMutedEvent evt = (VoiceUserMutedEvent) event;
 			vcs.voiceUserMuted(evt.getUserId(), evt.getRoom(), evt.isMuted());
 		} else if (event instanceof VoiceUserTalkingEvent) {
-			System.out.println("************** FreeswitchConferenceEventListener VoiceUserMutedEvent VoiceUserTalkingEvent ");
+			System.out.println("************** FreeswitchConferenceEventListener VoiceUserTalkingEvent ");
 			VoiceUserTalkingEvent evt = (VoiceUserTalkingEvent) event;
 			vcs.voiceUserTalking(evt.getUserId(), evt.getRoom(), evt.isTalking());
 		} else if (event instanceof VoiceStartRecordingEvent) {
-			System.out.println("************** FreeswitchConferenceEventListener VoiceUserMutedEvent VoiceStartRecordingEvent ");
+			System.out.println("************** FreeswitchConferenceEventListener VoiceStartRecordingEvent ");
 			VoiceStartRecordingEvent evt = (VoiceStartRecordingEvent) event;
 		//	vcs.voiceStartedRecording(evt.getRoom(), evt.getRecordingFilename(), evt.getTimestamp(), evt.startRecord());
 		} 		

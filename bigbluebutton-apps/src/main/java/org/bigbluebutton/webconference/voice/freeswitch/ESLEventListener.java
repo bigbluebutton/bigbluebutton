@@ -97,7 +97,9 @@ public class ESLEventListener implements IEslEventListener {
     public void conferenceEventAction(String uniqueId, String confName, int confSize, String action, EslEvent event) {
         Integer memberId = this.getMemberIdFromEvent(event);
         VoiceUserTalkingEvent pt;
-
+        
+        System.out.println("Receive conference Action [" + action + "]");
+        
         if (action == null) {
             return;
         }
@@ -110,6 +112,7 @@ public class ESLEventListener implements IEslEventListener {
             conferenceEventListener.handleConferenceEvent(pt);        	
         } else {
         	log.debug("Unknown conference Action [{}]", action);
+        	System.out.println("Unknown conference Action [" + action + "]");
         }
     }
 
@@ -161,6 +164,7 @@ public class ESLEventListener implements IEslEventListener {
 
 	@Override
 	public void eventReceived(EslEvent event) {
+		System.out.println("ESL Event Listener received event=[" + event.getEventName() + "]");
 //        if (event.getEventName().equals(FreeswitchHeartbeatMonitor.EVENT_HEARTBEAT)) {
 ////           setChanged();
 //           notifyObservers(event);

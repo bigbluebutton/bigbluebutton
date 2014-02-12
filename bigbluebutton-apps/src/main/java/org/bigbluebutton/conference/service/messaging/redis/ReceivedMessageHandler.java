@@ -50,7 +50,7 @@ public class ReceivedMessageHandler {
 	
 	private void processMessage(ReceivedMessage msg) {
 		if (handler != null) {
-			log.debug("Let's process this message: " + msg.getMessage());
+//			log.debug("Let's process this message: " + msg.getMessage());
 
 			handler.notifyListeners(msg.getPattern(), msg.getChannel(), msg.getMessage());
 		} else {

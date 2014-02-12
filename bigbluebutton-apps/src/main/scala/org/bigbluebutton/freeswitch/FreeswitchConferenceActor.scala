@@ -38,6 +38,8 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
 	    case msg: FsVoiceUserLocked => handleFsVoiceUserLocked(msg)
 	    case msg: FsVoiceUserMuted => handleFsVoiceUserMuted(msg)
 	    case msg: FsVoiceUserTalking => handleFsVoiceUserTalking(msg)
+	    case msg: UserJoinedVoice =>
+	                  handleUserJoinedVoice(msg)
 	    case _ => // do nothing
 	  }
 	}
@@ -63,6 +65,17 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
       confs -= fc.meetingId
     })
   }
+  
+  private def handleUserJoinedVoice(msg: UserJoinedVoice) {
+    val fsconf = confs.values find (c => c.meetingId == msg.meetingID)
+    
+    fsconf foreach {fc => 
+      log.debug("Web user id joining meeting id[" + fc.meetingId + "] wid=[" + msg.user.userID + "]")
+      println("Web user has joined voice. mid[" + fc.meetingId + "] wid=[" + msg.user.userID + "], vid=[" + msg.user.voiceUser.userId + "]")
+      fc.addUser(msg.user)
+    }
+  }
+  
   
   private def handleUserJoined(msg: UserJoined) {
     val fsconf = confs.values find (c => c.meetingId == msg.meetingID)
@@ -174,11 +187,11 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
   
   private def handleFsVoiceUserMuted(msg: FsVoiceUserMuted) {
     val fsconf = confs.values find (c => c.conferenceNum == msg.conference)
-    log.debug("Rx voice user muted for vid[" + msg.userId + "] mute=[" + msg.muted + "]")
-    println("Rx voice user muted for vid[" + msg.userId + "] mute=[" + msg.muted + "]")     
+    log.debug("Rx voice user muted for cnum=[" + msg.conference + "] vid[" + msg.userId + "] mute=[" + msg.muted + "]")
+    println("Rx voice user muted for cnum=[" + msg.conference + "] vid[" + msg.userId + "] mute=[" + msg.muted + "]")    
     fsconf foreach (fc => {
       val user = fc.getVoiceUser(msg.userId) 
-      println("Rx voice user muted for vid[" + msg.userId + "] mute=[" + msg.muted + "]") 
+      println("Rx voice user muted for mid=[" + fc.meetingId + "] vid[" + msg.userId + "] mute=[" + msg.muted + "]") 
       user foreach (u => bbbInGW.voiceUserMuted(fc.meetingId, u.userID, msg.muted))
     })      
   }

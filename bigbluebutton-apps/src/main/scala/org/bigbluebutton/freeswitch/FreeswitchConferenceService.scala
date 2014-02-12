@@ -32,8 +32,14 @@ class FreeswitchConferenceService(fsproxy: FreeswitchManagerProxy,
 	                  handleMuteVoiceUser(msg)
 	    case msg: EjectVoiceUser =>
 	                  handleEjectVoiceUser(msg)
+	    case msg: UserJoinedVoice =>
+	                  handleUserJoinedVoice(msg)
 	    case _ => // do nothing
 	  }
+  }
+  
+  private def handleUserJoinedVoice(msg: UserJoinedVoice) {
+    fsActor ! msg
   }
   
   private def handleMuteVoiceUser(msg: MuteVoiceUser) {
@@ -68,24 +74,24 @@ class FreeswitchConferenceService(fsproxy: FreeswitchManagerProxy,
     fsActor ! vuj
   }
   
-  def voiceUserLeft(conference: String, userId: String) {
+  def voiceUserLeft(userId: String, conference: String) {
     val vul = new FsVoiceUserLeft(userId, conference)
     fsActor ! vul
   }
   
-  def voiceUserLocked(conference: String, userId: String, locked: java.lang.Boolean) {
+  def voiceUserLocked(userId: String, conference: String, locked: java.lang.Boolean) {
     val vul = new FsVoiceUserLocked(userId, conference, locked)
     fsActor ! vul    
   }
   
-  def voiceUserMuted(conference: String, userId: String, muted: java.lang.Boolean) {
+  def voiceUserMuted(userId: String, conference: String, muted: java.lang.Boolean) {
     println("******** FreeswitchConferenceService received voiceUserMuted vui=[" + userId + "] muted=[" + muted + "]")
     val vum = new FsVoiceUserMuted(userId, conference, muted)
     fsActor ! vum   
   }
   
-  def voiceUserTalking(conference: String, userId: String, talking: java.lang.Boolean) {
-    println("******** FreeswitchConferenceService received voiceUserTalking vui=[" + userId + "] muted=[" + talking + "]")
+  def voiceUserTalking(userId: String, conference: String, talking: java.lang.Boolean) {
+    println("******** FreeswitchConferenceService received voiceUserTalking vui=[" + userId + "] talking=[" + talking + "]")
      val vut = new FsVoiceUserTalking(userId, conference, talking)
     fsActor ! vut   
   }
