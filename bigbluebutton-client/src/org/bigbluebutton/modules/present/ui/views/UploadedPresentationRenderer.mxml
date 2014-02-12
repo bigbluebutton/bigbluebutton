@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="90%">
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="90%" verticalScrollPolicy="off" horizontalScrollPolicy="off" toolTip="{data as String}">
   <mx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;      
@@ -27,7 +27,7 @@
       }
     ]]>
   </mx:Script>
-  <mx:Label id="presentationNameLabel" text="{data as String}" styleName="presentationNameLabelStyle" width="80%"/>
+  <mx:Label id="presentationNameLabel" width="420" text="{data as String}" styleName="presentationNameLabelStyle"/>
   <mx:Button id="showBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn')}" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn.toolTip')}" 
              styleName="presentationUploadShowButtonStyle"
