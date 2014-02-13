@@ -7,19 +7,99 @@ import org.bigbluebutton.conference.service.recorder.participants.AssignPresente
 import org.bigbluebutton.conference.service.recorder.participants.ParticipantStatusChangeRecordEvent
 import org.bigbluebutton.conference.service.recorder.participants.ParticipantLeftRecordEvent
 import org.bigbluebutton.conference.service.recorder.participants.ParticipantJoinRecordEvent
+import org.bigbluebutton.webconference.voice.ParticipantMutedVoiceRecordEvent
+import org.bigbluebutton.webconference.voice.ParticipantTalkingVoiceRecordEvent
+import org.bigbluebutton.webconference.voice.ParticipantJoinedVoiceRecordEvent
+import org.bigbluebutton.webconference.voice.ParticipantLeftVoiceRecordEvent
+import org.bigbluebutton.conference.service.recorder.participants.RecordStatusRecordEvent
 
 class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageListener2 {
 
   	def handleMessage(msg: IOutMessage) {
 	  msg match {
-	    case endMsg: EndAndKickAll => handleEndAndKickAll(endMsg)
-	    case assignPres: PresenterAssigned => handleAssignPresenter(assignPres)
-	    case userJoin: UserJoined => handleUserJoined(userJoin)
-	    case userLeft: UserLeft => handleUserLeft(userLeft)
-	    case statusChange: UserStatusChange => handleUserStatusChange(statusChange)
+	    case msg: EndAndKickAll => handleEndAndKickAll(msg)
+	    case msg: PresenterAssigned => handleAssignPresenter(msg)
+	    case msg: UserJoined => handleUserJoined(msg)
+	    case msg: UserLeft => handleUserLeft(msg)
+	    case msg: UserStatusChange => handleUserStatusChange(msg)
+	    case msg: UserVoiceMuted => handleUserVoiceMuted(msg)
+	    case msg: UserVoiceTalking => handleUserVoiceTalking(msg)
+	    case msg: UserJoinedVoice => handleUserJoinedVoice(msg)
+	    case msg: UserLeftVoice => handleUserLeftVoice(msg)
+	    case msg: RecordingStatusChanged => handleRecordingStatusChanged(msg)
+	    case msg: UserRaisedHand => handleUserRaisedHand(msg)
+	    case msg: UserLoweredHand => handleUserLoweredHand(msg)
+	    case msg: UserSharedWebcam => handleUserSharedWebcam(msg)
+	    case msg: UserUnsharedWebcam => handleUserUnsharedWebcam(msg)
 	    case _ => //println("Unhandled message in UsersClientMessageSender")
 	  }
 	}
+  	
+  	def handleUserVoiceMuted(msg: UserVoiceMuted) {
+  	  if (msg.recorded) {
+  	    val ev = new ParticipantMutedVoiceRecordEvent()
+		ev.setMeetingId(msg.meetingID);
+		ev.setTimestamp(System.currentTimeMillis());
+		ev.setBridge(msg.confNum);
+		ev.setParticipant(msg.user.voiceUser.userId);
+		ev.setMuted(msg.user.voiceUser.muted);
+		
+		recorder.record(msg.meetingID, ev);
+  	  }
+  	}
+  	
+  	def handleUserVoiceTalking(msg: UserVoiceTalking) {
+  	  if (msg.recorded) {
+  	    val evt = new ParticipantTalkingVoiceRecordEvent();
+		evt.setMeetingId(msg.meetingID);
+		evt.setTimestamp(System.currentTimeMillis());
+		evt.setBridge(msg.confNum);
+		evt.setParticipant(msg.user.userID);
+		evt.setTalking(msg.user.voiceUser.talking);
+		
+		recorder.record(msg.meetingID, evt);
+  	  }
+  	}
+  	
+  	def handleUserJoinedVoice(msg: UserJoinedVoice) {
+  	  if (msg.recorded) {
+		val evt = new ParticipantJoinedVoiceRecordEvent();
+		evt.setMeetingId(msg.meetingID);
+		evt.setTimestamp(System.currentTimeMillis());
+		evt.setBridge(msg.confNum);
+		evt.setParticipant(msg.user.voiceUser.userId);
+		evt.setCallerName(msg.user.voiceUser.callerName);
+		evt.setCallerNumber(msg.user.voiceUser.callerNum);
+		evt.setMuted(msg.user.voiceUser.muted);
+		evt.setTalking(msg.user.voiceUser.talking);
+		
+		recorder.record(msg.meetingID, evt)  	    
+  	  }
+  	}
+  	
+  	def handleUserLeftVoice(msg: UserLeftVoice) {
+  	  if (msg.recorded) {
+		val evt = new ParticipantLeftVoiceRecordEvent();
+		evt.setMeetingId(msg.meetingID);
+		evt.setTimestamp(System.currentTimeMillis());
+		evt.setBridge(msg.confNum);
+		evt.setParticipant(msg.user.voiceUser.userId);
+		
+		recorder.record(msg.meetingID, evt);  	    
+  	  }
+  	}
+  	
+  	def handleRecordingStatusChanged(msg: RecordingStatusChanged) {
+  	  if (msg.recorded) {
+		val evt = new RecordStatusRecordEvent();
+		evt.setMeetingId(msg.meetingID);
+		evt.setTimestamp(System.currentTimeMillis());
+		evt.setUserId(msg.userId);
+		evt.setRecordingStatus(msg.recording.toString);
+		
+		recorder.record(msg.meetingID, evt);  	    
+  	  }  	  
+  	}
   	
   	def handleEndAndKickAll(msg: EndAndKickAll):Unit = {
 		if (msg.recorded) {
@@ -55,6 +135,30 @@ class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageL
 
 	}
 
+	private def handleUserRaisedHand(msg: UserRaisedHand) {
+	  val status = UserStatusChange(msg.meetingID, msg.recorded, 
+	                   msg.userID, "raiseHand", true:java.lang.Boolean)
+	  handleUserStatusChange(status)
+	}
+	
+	private def handleUserLoweredHand(msg: UserLoweredHand) {
+	  val status = UserStatusChange(msg.meetingID, msg.recorded, 
+	                   msg.userID, "raiseHand", false:java.lang.Boolean)	
+	  handleUserStatusChange(status)
+	}
+	
+	private def handleUserSharedWebcam(msg: UserSharedWebcam) {
+	  val status = UserStatusChange(msg.meetingID, msg.recorded, 
+	                   msg.userID, "hasStream", "true,stream=" + msg.stream)	
+	  handleUserStatusChange(status)
+	}
+	
+	private def handleUserUnsharedWebcam(msg: UserUnsharedWebcam) {
+	  val status = UserStatusChange(msg.meetingID, msg.recorded, 
+	                   msg.userID, "hasStream", "false,stream=" + msg.stream)	  
+	  handleUserStatusChange(status)
+	}
+	    
 	private def handleUserStatusChange(msg: UserStatusChange):Unit = {
 		if (msg.recorded) {
 			val ev = new ParticipantStatusChangeRecordEvent();

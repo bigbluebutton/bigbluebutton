@@ -126,9 +126,10 @@ trait UsersApp {
 
   def handleUserunshareWebcam(msg: UserUnshareWebcam) {
     users.getUser(msg.userId) foreach {user =>
+      val stream = user.webcamStream
       val uvo = user.copy(hasStream=false, webcamStream="")
       users.addUser(uvo)
-      outGW.send(new UserUnsharedWebcam(meetingID, recorded, uvo.userID))
+      outGW.send(new UserUnsharedWebcam(meetingID, recorded, uvo.userID, stream))
     }     
   }
 	                         
@@ -179,7 +180,7 @@ trait UsersApp {
           val nu = user.copy(voiceUser=msg.voiceUser)
           users.addUser(nu)
           println("Received user joined voice for user [" + nu.name + "] userid=[" + msg.voiceUser.webUserId + "]" )
-          outGW.send(new UserJoinedVoice(meetingID, recorded, nu))
+          outGW.send(new UserJoinedVoice(meetingID, recorded, voiceBridge, nu))
         }
         case None => {
           // No current web user. This means that the user called in through
@@ -207,7 +208,7 @@ trait UsersApp {
       val nu = user.copy(voiceUser=vu)
       users.addUser(nu)
       println("Received voice user left =[" + user.name + "] wid=[" + msg.userId + "]" )
-      outGW.send(new UserLeftVoice(meetingID, recorded, nu))        
+      outGW.send(new UserLeftVoice(meetingID, recorded, voiceBridge, nu))        
     }    
   }
   
@@ -217,7 +218,7 @@ trait UsersApp {
       val nu = user.copy(voiceUser=nv)
       users.addUser(nu)
       println("Received voice muted=[" + msg.muted + "] wid=[" + msg.userId + "]" )
-      outGW.send(new UserVoiceMuted(meetingID, recorded, nu))        
+      outGW.send(new UserVoiceMuted(meetingID, recorded, voiceBridge, nu))        
     }   
   }
   
@@ -227,7 +228,7 @@ trait UsersApp {
       val nu = user.copy(voiceUser=nv)
       users.addUser(nu)
       println("Received voice talking=[" + msg.talking + "] wid=[" + msg.userId + "]" )
-      outGW.send(new UserVoiceTalking(meetingID, recorded, nu))        
+      outGW.send(new UserVoiceTalking(meetingID, recorded, voiceBridge, nu))        
     }     
   }
   

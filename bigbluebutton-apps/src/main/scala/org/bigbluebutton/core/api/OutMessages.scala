@@ -58,7 +58,7 @@ case class UserSharedWebcam(meetingID: String, recorded: Boolean,
                       userID: String, stream: String) extends IOutMessage
                       
 case class UserUnsharedWebcam(meetingID: String, recorded: Boolean, 
-                      userID: String) extends IOutMessage
+                      userID: String, stream: String) extends IOutMessage
                       
 case class UserStatusChange(meetingID: String, recorded: Boolean, 
                       userID: String, status: String, value: Object) extends IOutMessage
@@ -66,15 +66,15 @@ case class UserStatusChange(meetingID: String, recorded: Boolean,
 case class MuteVoiceUser(meetingID: String, recorded: Boolean, 
                          requesterID: String, userId: String, 
                          mute: Boolean) extends IOutMessage
-case class UserVoiceMuted(meetingID: String, recorded: Boolean, 
+case class UserVoiceMuted(meetingID: String, recorded: Boolean, confNum: String,
                             user:UserVO) extends IOutMessage
-case class UserVoiceTalking(meetingID: String, recorded: Boolean, 
+case class UserVoiceTalking(meetingID: String, recorded: Boolean, confNum: String,
                             user:UserVO) extends IOutMessage
 case class EjectVoiceUser(meetingID: String, recorded: Boolean, requesterID: String, 
                           userId: String) extends IOutMessage
-case class UserJoinedVoice(meetingID: String, recorded: Boolean, 
+case class UserJoinedVoice(meetingID: String, recorded: Boolean, confNum: String,
                            user:UserVO) extends IOutMessage
-case class UserLeftVoice(meetingID: String, recorded: Boolean, 
+case class UserLeftVoice(meetingID: String, recorded: Boolean, confNum: String,
                            user:UserVO) extends IOutMessage
                            
 // Voice
