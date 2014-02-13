@@ -30,11 +30,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<bean id="whiteboardApplication" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardApplication">
         <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
 	</bean>
-
-	<bean id="whiteboardClientSender" class="org.bigbluebutton.conference.service.whiteboard.red5.ClientMessageSender">
-		<property name="connectionInvokerService"> <ref bean="connInvokerService"/></property>
-	</bean>
-		
+	
 	<bean id="whiteboard.service" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardService">
 		<property name="whiteboardApplication"> <ref local="whiteboardApplication"/></property>
 	</bean>

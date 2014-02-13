@@ -29,8 +29,6 @@ import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
 import org.slf4j.Logger;
-import org.bigbluebutton.conference.service.whiteboard.red5.ClientMessageSender;
-import org.bigbluebutton.conference.service.whiteboard.shapes.Annotation;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 
 import java.util.concurrent.ConcurrentHashMap;

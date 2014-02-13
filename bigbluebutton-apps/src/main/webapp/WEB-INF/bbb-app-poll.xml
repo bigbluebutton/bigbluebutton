@@ -27,33 +27,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			http://www.springframework.org/schema/util/spring-util-2.0.xsd
 			">
 	
-	<bean id="pollHandler"
-	      class="org.bigbluebutton.conference.service.poll.PollHandler">
-		<property name="pollApplication"> 
-			<ref local="pollApplication"/>
-		</property>
-		<property name="recorderApplication"> 
-			<ref bean="recorderApplication"/>
-		</property>
-	</bean>
-	
-	<bean id="pollApplication" class="org.bigbluebutton.conference.service.poll.PollApplication">
-		<property name="roomsManager"> 
-			<ref local="pollRoomsManager"/>
-		</property>
-	</bean>
-	
 	<bean id="poll.service" class="org.bigbluebutton.conference.service.poll.PollService">
 	   <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
 	</bean>
 	
-	<bean id="pollRoomsManager"
-	      class="org.bigbluebutton.conference.service.poll.PollRoomsManager"/>
-	
-	<bean id="pollRecorder"
-	      class="org.bigbluebutton.conference.service.recorder.polling.PollRecorder">
-		<property name="redisPool">
-			<ref bean="redisPool" /> 
-		</property>   
-	</bean>
 </beans>

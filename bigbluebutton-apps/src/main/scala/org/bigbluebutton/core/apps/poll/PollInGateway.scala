@@ -1,6 +1,5 @@
 package org.bigbluebutton.core.apps.poll
 
-import org.bigbluebutton.conference.service.poll.PollInGW
 import org.bigbluebutton.core.BigBlueButtonGateway
 import org.bigbluebutton.core.api._
 
