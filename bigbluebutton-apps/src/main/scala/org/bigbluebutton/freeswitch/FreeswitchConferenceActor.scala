@@ -14,7 +14,8 @@ case class FsVoiceUserLeft(userId: String, conference: String)
 case class FsVoiceUserLocked(userId: String, conference: String, locked: Boolean)
 case class FsVoiceUserMuted(userId: String, conference: String, muted: Boolean)
 case class FsVoiceUserTalking(userId: String, conference: String, talking: Boolean)
-case class FsRecording(conference: String, recording: Boolean)
+case class FsRecording(conference: String, recordingFile: String, 
+                            timestamp: String, recording: Boolean)
 
 class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBlueButtonInGW) extends Actor {
   private val log = Logger.get
@@ -134,7 +135,10 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
   }  
   
   private def handleFsRecording(msg: FsRecording) {
-    
+    val fsconf = confs.values find (c => c.conferenceNum == msg.conference)
+    fsconf foreach {fc => 
+      bbbInGW.voiceRecording(fc.meetingId, msg.recordingFile, msg.timestamp, msg.recording) 
+    }
   }
   
   private def sendNonWebUserJoined(meetingId: String, webUserId: String, 

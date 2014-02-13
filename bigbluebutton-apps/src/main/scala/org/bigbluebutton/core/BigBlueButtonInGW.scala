@@ -428,4 +428,10 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	def voiceUserTalking(meetingId: String, userId: String, talking: java.lang.Boolean) {
 	  voiceGW.voiceUserTalking(meetingId, userId, talking)
 	}
+	
+	def voiceRecording(meetingId: String, recordingFile: String, 
+			            timestamp: String, recording: java.lang.Boolean) {
+	  voiceGW.voiceRecording(meetingId, recordingFile, 
+			            timestamp, recording)
+	}
 }

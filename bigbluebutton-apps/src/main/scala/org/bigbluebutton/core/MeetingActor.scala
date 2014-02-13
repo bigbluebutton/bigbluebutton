@@ -168,11 +168,24 @@ class MeetingActor(val meetingID: String, val recorded: Boolean,
 	                handleSetRecordingStatus(msg)
 	    case msg: GetRecordingStatus =>
 	                handleGetRecordingStatus(msg)
+	    case msg: VoiceRecording =>
+	                handleVoiceRecording(msg)
 	    case StopMeetingActor => exit
 	    case _ => // do nothing
 	  }
 	}
   }	
+  
+  private def handleVoiceRecording(msg: VoiceRecording) {
+     if (msg.recording) {
+       outGW.send(new VoiceRecordingStarted(meetingID, 
+                        recorded, msg.recordingFile, 
+                        msg.timestamp, voiceBridge))
+     } else {
+       outGW.send(new VoiceRecordingStopped(meetingID, recorded, 
+                        msg.recordingFile, msg.timestamp, voiceBridge))
+     }
+  }
   
   private def handleSetRecordingStatus(msg: SetRecordingStatus) {
      recordingStatus = msg.recording

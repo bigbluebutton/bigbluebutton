@@ -224,7 +224,8 @@ case class VoiceUserLeft(meetingID: String, userId: String) extends InMessage
 case class VoiceUserLocked(meetingID: String, userId: String, locked: Boolean) extends InMessage
 case class VoiceUserMuted(meetingID: String, userId: String, muted: Boolean) extends InMessage
 case class VoiceUserTalking(meetingID: String, userId: String, talking: Boolean) extends InMessage
-case class VoiceRecording(meetingID: String, recording: Boolean, metadata:Map[String, String]) extends InMessage
+case class VoiceRecording(meetingID: String, recordingFile: String, 
+			            timestamp: String, recording: Boolean) extends InMessage
 
 // Whiteboard
 case class SendWhiteboardAnnotationRequest(meetingID: String, requesterID: String, annotation: AnnotationVO) extends InMessage

@@ -54,4 +54,10 @@ class VoiceInGateway(bbbGW: BigBlueButtonGateway) {
 	def voiceUserTalking(meetingId: String, userId: String, talking: Boolean) {
 	  bbbGW.accept(new VoiceUserTalking(meetingId, userId, talking))
 	}
+	
+	def voiceRecording(meetingId: String, recordingFile: String, 
+			            timestamp: String, recording: java.lang.Boolean) {
+	  bbbGW.accept(new VoiceRecording(meetingId, recordingFile, 
+			            timestamp, recording))
+	}
 }

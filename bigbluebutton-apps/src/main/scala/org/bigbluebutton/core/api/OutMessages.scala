@@ -9,6 +9,15 @@ import org.bigbluebutton.core.apps.presentation.Page
 
 abstract class OutMessage
 
+case class VoiceRecordingStarted(meetingID: String, recorded: Boolean,
+                                 recordingFile: String, 
+                                 timestamp: String,
+                                 confNum: String) extends IOutMessage
+case class VoiceRecordingStopped(meetingID: String, recorded: Boolean,
+                                 recordingFile: String, 
+			                     timestamp: String,
+			                     confNum: String) extends IOutMessage
+
 case class RecordingStatusChanged(meetingID: String, recorded: Boolean,
                           userId: String, recording: Boolean) extends IOutMessage
 case class GetRecordingStatusReply(meetingID: String, recorded: Boolean,

@@ -12,6 +12,7 @@ import org.bigbluebutton.webconference.voice.ParticipantTalkingVoiceRecordEvent
 import org.bigbluebutton.webconference.voice.ParticipantJoinedVoiceRecordEvent
 import org.bigbluebutton.webconference.voice.ParticipantLeftVoiceRecordEvent
 import org.bigbluebutton.conference.service.recorder.participants.RecordStatusRecordEvent
+import org.bigbluebutton.webconference.voice.StartRecordingVoiceRecordEvent
 
 class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageListener2 {
 
@@ -31,10 +32,36 @@ class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageL
 	    case msg: UserLoweredHand => handleUserLoweredHand(msg)
 	    case msg: UserSharedWebcam => handleUserSharedWebcam(msg)
 	    case msg: UserUnsharedWebcam => handleUserUnsharedWebcam(msg)
+	    case msg: VoiceRecordingStarted => handleVoiceRecordingStarted(msg)
+	    case msg: VoiceRecordingStopped => handleVoiceRecordingStopped(msg)
 	    case _ => //println("Unhandled message in UsersClientMessageSender")
 	  }
 	}
   	
+	def handleVoiceRecordingStarted(msg: VoiceRecordingStarted) {
+	  if (msg.recorded) {
+		val evt = new StartRecordingVoiceRecordEvent(true);
+		evt.setMeetingId(msg.meetingID);
+		evt.setTimestamp(System.currentTimeMillis());
+		evt.setBridge(msg.confNum);
+		evt.setRecordingTimestamp(msg.timestamp);
+		evt.setFilename(msg.recordingFile);
+		recorder.record(msg.meetingID, evt);	    
+	  }
+	}
+	
+	def handleVoiceRecordingStopped(msg: VoiceRecordingStopped) {
+	  if (msg.recorded) {
+		val evt = new StartRecordingVoiceRecordEvent(false);
+		evt.setMeetingId(msg.meetingID);
+		evt.setTimestamp(System.currentTimeMillis());
+		evt.setBridge(msg.confNum);
+		evt.setRecordingTimestamp(msg.timestamp);
+		evt.setFilename(msg.recordingFile);
+		recorder.record(msg.meetingID, evt);	    
+	  }
+	}
+	    
   	def handleUserVoiceMuted(msg: UserVoiceMuted) {
   	  if (msg.recorded) {
   	    val ev = new ParticipantMutedVoiceRecordEvent()

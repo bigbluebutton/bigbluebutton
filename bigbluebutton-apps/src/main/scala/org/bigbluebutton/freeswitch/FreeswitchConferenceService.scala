@@ -62,6 +62,11 @@ class FreeswitchConferenceService(fsproxy: FreeswitchManagerProxy,
     fsActor ! msg
   }
   
+  def voiceStartedRecording(conference: String, recordingFile: String, 
+                            timestamp: String, recording: java.lang.Boolean) {
+    val fsRec = new FsRecording(conference, recordingFile, timestamp, recording)
+    fsActor ! fsRec
+  }
   
   def voiceUserJoined(userId: String, webUserId: String, conference: String, 
 			          callerIdNum: String, callerIdName: String,

@@ -75,7 +75,7 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
 		} else if (event instanceof VoiceStartRecordingEvent) {
 			System.out.println("************** FreeswitchConferenceEventListener VoiceStartRecordingEvent ");
 			VoiceStartRecordingEvent evt = (VoiceStartRecordingEvent) event;
-		//	vcs.voiceStartedRecording(evt.getRoom(), evt.getRecordingFilename(), evt.getTimestamp(), evt.startRecord());
+			vcs.voiceStartedRecording(evt.getRoom(), evt.getRecordingFilename(), evt.getTimestamp(), evt.startRecord());
 		} 		
 	}
 	
