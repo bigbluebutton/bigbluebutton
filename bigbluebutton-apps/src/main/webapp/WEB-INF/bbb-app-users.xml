@@ -26,11 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			http://www.springframework.org/schema/util 
 			http://www.springframework.org/schema/util/spring-util-2.0.xsd
 			">
-	
-	<bean id="bigbluebutton.service" class="org.bigbluebutton.conference.BigBlueButtonService">
-      <property name="connInvokerService"> <ref bean="connInvokerService"/></property>
-    </bean>
-     		
+	    		
 	<bean id="participantsHandler" class="org.bigbluebutton.conference.service.participants.ParticipantsHandler">
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
 	</bean>

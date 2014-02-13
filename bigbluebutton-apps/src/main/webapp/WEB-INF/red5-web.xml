@@ -65,20 +65,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   		<property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
 	</bean>
 	
-	<bean id="connInvokerService" class="org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService" init-method="start" destroy-method="stop"/>
+	<bean id="connInvokerService" class="org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService" 
+	      init-method="start" destroy-method="stop"/>
 	
-	<bean id="outMessageGateway" class="org.bigbluebutton.conference.meeting.messaging.OutMessageGateway">
-        <property name="outMessageListeners">
-            <set>
-                <ref bean="meetingMessagePublisher" />          
-            </set>
-        </property>  	
-	</bean>
-	
-	<bean id="meetingMessagePublisher" class="org.bigbluebutton.conference.meeting.messaging.redis.MeetingMessagePublisher">
-      <property name="messageService"> <ref bean="redisMessageSender"/></property>
-    </bean>
-
     <bean id="bbbInGW" class="org.bigbluebutton.core.BigBlueButtonInGW">
         <constructor-arg index="0" ref="bbbGW"/>
     </bean>
