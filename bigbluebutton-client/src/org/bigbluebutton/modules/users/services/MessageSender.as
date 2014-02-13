@@ -71,9 +71,9 @@ package org.bigbluebutton.modules.users.services
       );
     }
     
-    public function raiseHand(userID:String, raise:Boolean):void {      
+    public function raiseHand(userID:String, raise:Boolean):void {    
+      var _nc:ConnectionManager = BBB.initConnectionManager();
       if (raise) {
-        var _nc:ConnectionManager = BBB.initConnectionManager();
         _nc.sendMessage("participants.userRaiseHand", 
           function(result:String):void { // On successful result
             LogUtil.debug(result); 
@@ -86,7 +86,7 @@ package org.bigbluebutton.modules.users.services
         var message:Object = new Object();
         message["userID"] = userID;
         message["loweredBy"] = userID;
-        var _nc:ConnectionManager = BBB.initConnectionManager();
+
         _nc.sendMessage("participants.lowerHand", 
           function(result:String):void { // On successful result
             LogUtil.debug(result); 

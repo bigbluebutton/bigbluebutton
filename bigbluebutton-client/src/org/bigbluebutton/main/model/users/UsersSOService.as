@@ -53,6 +53,7 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.modules.deskshare.events.StopSharingButtonEvent;
 
 	public class UsersSOService {
+    private static const LOG:String = "Users::UsersSOService - ";
 		public static const NAME:String = "ViewersSOService";
 		public static const LOGNAME:String = "[ViewersSOService]";
 		
@@ -95,7 +96,9 @@ package org.bigbluebutton.main.model.users {
 			_participantsSO.connect(_connectionManager.connection);
 	      LogUtil.debug("In UserSOService:join - Setting my userid to [" + userid + "]");
 	      UserManager.getInstance().getConference().setMyUserid(userid);
+      trace(LOG + "Querying for participants.");
 			queryForParticipants();					
+      trace(LOG + "Querying for recording status.");
 			queryForRecordingStatus();
 			
 		}

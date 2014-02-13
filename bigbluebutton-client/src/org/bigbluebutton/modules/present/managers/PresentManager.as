@@ -82,8 +82,8 @@ package org.bigbluebutton.modules.present.managers
 			uploadWindow.maxFileSize = e.maxFileSize;
 			
 			var point1:Point = new Point();
-			point1.x = Application.application.width / 2;
-			point1.y = Application.application.height / 2;  
+			point1.x = FlexGlobals.topLevelApplication.width / 2;
+			point1.y = FlexGlobals.topLevelApplication.height / 2;  
 			
 			uploadWindow.x = point1.x - (uploadWindow.width/2);
 			uploadWindow.y = point1.y - (uploadWindow.height/2);

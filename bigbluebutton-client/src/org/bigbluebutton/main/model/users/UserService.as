@@ -166,7 +166,7 @@ package org.bigbluebutton.main.model.users
 			
       sender.queryForParticipants();
       
-	//		_userSOService.join(e.userid, _conferenceParameters.room);
+      sender.queryForRecordingStatus();
 			
 
 			var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
