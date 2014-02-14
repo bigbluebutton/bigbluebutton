@@ -19,7 +19,8 @@
 package org.bigbluebutton.modules.users.services
 {
 
-  import com.asfusion.mate.events.Dispatcher;  
+  import com.asfusion.mate.events.Dispatcher;
+  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
@@ -28,8 +29,8 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.events.VoiceConfEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.model.MeetingModel;
-  import org.bigbluebutton.core.model.users.UsersModel;
   import org.bigbluebutton.core.model.UsersService;
+  import org.bigbluebutton.core.model.users.UsersModel;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
   import org.bigbluebutton.main.events.PresenterStatusEvent;
@@ -200,6 +201,8 @@ package org.bigbluebutton.modules.users.services
       var webUser:Object = map.user as Object;
       var voiceUser:Object = webUser.voiceUser as Object;
 
+      UsersService.getInstance().userJoinedVoice(voiceUser);
+      
       var externUserID:String = webUser.externUserID;
       var internUserID:String = UsersUtil.externalUserIDToInternalUserID(externUserID);
       
@@ -233,6 +236,8 @@ package org.bigbluebutton.modules.users.services
       trace(LOG + "*** handleParticipantLeft " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);
       var webUserId:String = map.user.userId;
+      
+      UsersService.getInstance().userLeft(webUserId);
       
       var user:BBBUser = UserManager.getInstance().getConference().getUser(webUserId);
       

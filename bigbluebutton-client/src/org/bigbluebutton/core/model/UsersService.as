@@ -26,7 +26,7 @@ package org.bigbluebutton.core.model
       
     }
     
-    public function userJoined():void {
+    public function userJoined(user:Object):void {
       
     }
     
