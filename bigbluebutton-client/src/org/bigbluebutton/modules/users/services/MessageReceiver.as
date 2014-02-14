@@ -19,8 +19,7 @@
 package org.bigbluebutton.modules.users.services
 {
 
-  import com.asfusion.mate.events.Dispatcher;
-  
+  import com.asfusion.mate.events.Dispatcher;  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
@@ -29,6 +28,8 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.events.VoiceConfEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.model.MeetingModel;
+  import org.bigbluebutton.core.model.users.UsersModel;
+  import org.bigbluebutton.core.model.UsersService;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
   import org.bigbluebutton.main.events.PresenterStatusEvent;
@@ -139,6 +140,8 @@ package org.bigbluebutton.modules.users.services
       var userId:Number = map.voiceUserId;
       var muted:Boolean = map.muted;
 
+      UsersService.getInstance().userMuted(msg.userId, muted);
+      
       var l:BBBUser = _conference.getVoiceUser(userId);
       if (l != null) {
         l.voiceMuted = muted;
@@ -165,11 +168,11 @@ package org.bigbluebutton.modules.users.services
       }
     }
 
-    private function userTalk(userID:Number, talk:Boolean):void {
+    private function userTalk(userId:Number, talking:Boolean):void {      
       trace("User talking event");
-      var l:BBBUser = _conference.getVoiceUser(userID);			
+      var l:BBBUser = _conference.getVoiceUser(userId);			
       if (l != null) {
-        l.talking = talk;
+        l.talking = talking;
         
         var event:CoreEvent = new CoreEvent(EventConstants.USER_TALKING);
         event.message.userID = l.userID;
@@ -181,10 +184,13 @@ package org.bigbluebutton.modules.users.services
     private function handleVoiceUserTalking(msg:Object):void {
       trace(LOG + "*** handleVoiceUserTalking " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg); 
-      var userId:Number = map.voiceUserId;
+      var userId:String = map.userId;
+      var voiceUserId:Number = map.voiceUserId;
       var talking:Boolean = map.talking;  
       
-      userTalk(userId, talking);
+      UsersService.getInstance().userTalking(userId, talking);
+      
+      userTalk(voiceUserId, talking);
     }
     
     private function handleUserJoinedVoice(msg:Object):void {

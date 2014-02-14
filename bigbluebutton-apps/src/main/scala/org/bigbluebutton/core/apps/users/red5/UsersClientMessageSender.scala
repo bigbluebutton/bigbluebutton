@@ -110,6 +110,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	private def handleUserVoiceMuted(msg: UserVoiceMuted) {
 	  val args = new java.util.HashMap[String, Object]();
 	  args.put("meetingID", msg.meetingID);	  
+	  args.put("userId", msg.user.userID);
 	  args.put("voiceUserId", msg.user.voiceUser.userId);
 	  args.put("muted", msg.user.voiceUser.muted:java.lang.Boolean);
 	  

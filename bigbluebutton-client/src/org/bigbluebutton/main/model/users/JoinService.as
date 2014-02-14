@@ -33,8 +33,8 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.model.MeBuilder;
 	import org.bigbluebutton.core.model.MeetingBuilder;
 	import org.bigbluebutton.core.model.MeetingModel;
-	import org.bigbluebutton.core.model.User;
-	import org.bigbluebutton.core.model.UsersModel;
+	import org.bigbluebutton.core.model.users.User;
+	import org.bigbluebutton.core.model.users.UsersModel;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
         	
 	public class JoinService
