@@ -18,15 +18,23 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.*;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
-	import flash.net.navigateToURL;	
+	import flash.net.navigateToURL;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.model.Me;
+	import org.bigbluebutton.core.model.MeBuilder;
+	import org.bigbluebutton.core.model.MeetingBuilder;
+	import org.bigbluebutton.core.model.MeetingModel;
+	import org.bigbluebutton.core.model.User;
+	import org.bigbluebutton.core.model.UsersModel;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
         	
 	public class JoinService
@@ -83,13 +91,16 @@ package org.bigbluebutton.main.model.users
 			} else if (returncode == 'SUCCESS') {
 				LogUtil.debug("Join SUCESS = " + xml);
         trace("JoinService::handleComplete() Join SUCESS = " + xml);
-				var user:Object = {username:xml.fullname, conference:xml.conference, conferenceName:xml.confname, externMeetingID:xml.externMeetingID,
-										meetingID:xml.meetingID, externUserID:xml.externUserID, internalUserId:xml.internalUserID,
-										role:xml.role, room:xml.room, authToken:xml.room, record:xml.record, 
-										webvoiceconf:xml.webvoiceconf, dialnumber:xml.dialnumber,
-										voicebridge:xml.voicebridge, mode:xml.mode, welcome:xml.welcome, logoutUrl:xml.logoutUrl, 
-                    defaultLayout:xml.defaultLayout, avatarURL:xml.avatarURL};
+				var user:Object = {username:xml.fullname, conference:xml.conference, 
+                           conferenceName:xml.confname, externMeetingID:xml.externMeetingID,
+										       meetingID:xml.meetingID, externUserID:xml.externUserID, 
+                           internalUserId:xml.internalUserID,
+										       role:xml.role, room:xml.room, authToken:xml.room, record:xml.record, 
+										       webvoiceconf:xml.webvoiceconf, dialnumber:xml.dialnumber,
+										       voicebridge:xml.voicebridge, mode:xml.mode, welcome:xml.welcome, logoutUrl:xml.logoutUrl, 
+                           defaultLayout:xml.defaultLayout, avatarURL:xml.avatarURL};
 				user.customdata = new Object();
+       
 				if(xml.customdata)
 				{
 					for each(var cdnode:XML in xml.customdata.elements()){
@@ -98,6 +109,19 @@ package org.bigbluebutton.main.model.users
 					}
 				}
 				
+        var builder:MeBuilder = new MeBuilder(user.internalUserId, user.username).withAvatar(user.avatarURL)
+                                             .withExternalId(user.externUserID).withToken(user.authToken)
+                                             .withLayout(user.defaultLayout).withWelcome(user.welcome)
+                                             .withDialNumber(user.dialnumber).withRole(user.role)
+                                             .withCustomData(user.customData);
+        
+        var me:Me = new Me(builder);
+        UsersModel.getInstance().me = me;
+        
+        var meetingBuilder:MeetingBuilder = new MeetingBuilder(user.conference, user.conferenceName)
+                                             .withLayout(user.defaultLayout).withVoiceConference(user.voiceBridge)
+                                             .withExternalId(user.externMeetingID)
+        
 				if (_resultListener != null) _resultListener(true, user);
 			}
 				

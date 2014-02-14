@@ -90,9 +90,9 @@ package org.bigbluebutton.main.model.users
         UserManager.getInstance().getConference().internalMeetingID = result.room;
         UserManager.getInstance().getConference().externalUserID = result.externUserID;
         UserManager.getInstance().getConference().avatarURL = result.avatarURL;
-		UserManager.getInstance().getConference().voiceBridge = result.voicebridge;
-		UserManager.getInstance().getConference().dialNumber = result.dialnumber;
-    UserManager.getInstance().getConference().setMyUserid(result.internalUserId);
+		    UserManager.getInstance().getConference().voiceBridge = result.voicebridge;
+		    UserManager.getInstance().getConference().dialNumber = result.dialnumber;
+        UserManager.getInstance().getConference().setMyUserid(result.internalUserId);
         
 				UserManager.getInstance().getConference().externalMeetingID = result.externMeetingID;
 				UserManager.getInstance().getConference().meetingName = result.conferenceName;
