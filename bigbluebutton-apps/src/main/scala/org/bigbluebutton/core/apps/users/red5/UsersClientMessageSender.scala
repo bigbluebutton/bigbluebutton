@@ -127,6 +127,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	private def handleUserVoiceTalking(msg: UserVoiceTalking) {
 	  val args = new java.util.HashMap[String, Object]();
 	  args.put("meetingID", msg.meetingID);	  
+	  args.put("userId", msg.user.userID);
 	  args.put("voiceUserId", msg.user.voiceUser.userId);
 	  args.put("talking", msg.user.voiceUser.talking:java.lang.Boolean);
 	  
