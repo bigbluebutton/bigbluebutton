@@ -28,6 +28,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.events.VoiceConfEvent;
   import org.bigbluebutton.core.managers.UserManager;
+  import org.bigbluebutton.core.model.MeetingModel;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
   import org.bigbluebutton.main.events.PresenterStatusEvent;
@@ -112,6 +113,8 @@ package org.bigbluebutton.modules.users.services
     }  
     
     private function sendRecordingStatusUpdate(recording:Boolean):void {
+      MeetingModel.getInstance().recording = recording;
+      
       var e:BBBEvent = new BBBEvent(BBBEvent.CHANGE_RECORDING_STATUS);
       e.payload.remote = true;
       e.payload.recording = recording;

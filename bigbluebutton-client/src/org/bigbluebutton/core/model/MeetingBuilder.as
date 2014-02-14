@@ -5,7 +5,7 @@ package org.bigbluebutton.core.model
     internal var id: String;
     internal var name: String;
     internal var layout: String;
-    internal var voiceConference: String;
+    internal var voiceConf: String;
     internal var externId: String;
     
     public function MeetingBuilder(id: String, name: String) {
@@ -13,19 +13,23 @@ package org.bigbluebutton.core.model
       this.name = name;
     }
     
-    public function withLayout(value: String):void {
+    public function withLayout(value: String):MeetingBuilder {
       layout = value;
       return this;
     }
     
-    public function withVoiceConference(value: String):void {
-      voiceConference = value;
+    public function withVoiceConf(value: String):MeetingBuilder {
+      voiceConf = value;
       return this;
     }
     
-    public function withExternalId(value: String):void {
+    public function withExternalId(value: String):MeetingBuilder {
       externId = value;
       return this;
+    }
+    
+    public function build():Meeting {
+      return new Meeting(this);
     }
   }
 }

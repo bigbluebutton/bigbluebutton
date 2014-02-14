@@ -109,18 +109,15 @@ package org.bigbluebutton.main.model.users
 					}
 				}
 				
-        var builder:MeBuilder = new MeBuilder(user.internalUserId, user.username).withAvatar(user.avatarURL)
+        UsersModel.getInstance().me = new MeBuilder(user.internalUserId, user.username).withAvatar(user.avatarURL)
                                              .withExternalId(user.externUserID).withToken(user.authToken)
                                              .withLayout(user.defaultLayout).withWelcome(user.welcome)
                                              .withDialNumber(user.dialnumber).withRole(user.role)
-                                             .withCustomData(user.customData);
-        
-        var me:Me = new Me(builder);
-        UsersModel.getInstance().me = me;
-        
-        var meetingBuilder:MeetingBuilder = new MeetingBuilder(user.conference, user.conferenceName)
-                                             .withLayout(user.defaultLayout).withVoiceConference(user.voiceBridge)
-                                             .withExternalId(user.externMeetingID)
+                                             .withCustomData(user.customData).build();
+                
+        MeetingModel.getInstance().meeting = new MeetingBuilder(user.conference, user.conferenceName)
+                                             .withLayout(user.defaultLayout).withVoiceConf(user.voiceBridge)
+                                             .withExternalId(user.externMeetingID).build();
         
 				if (_resultListener != null) _resultListener(true, user);
 			}

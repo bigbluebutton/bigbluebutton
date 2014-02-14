@@ -11,8 +11,11 @@ package org.bigbluebutton.core.model
     public var recorded:Boolean;
     public var defaultLayout: String;
     
-    public function Meeting()
+    public var isRecording: Boolean = false;
+    
+    public function Meeting(build: MeetingBuilder)
     {
+      
     }
   }
 }

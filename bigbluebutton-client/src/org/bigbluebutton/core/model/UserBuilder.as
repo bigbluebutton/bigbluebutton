@@ -14,5 +14,38 @@ package org.bigbluebutton.core.model
     public function UserBuilder()
     {
     }
+    
+    public function withAvatar(value: String):void {
+      
+    }
+    
+    public function withExternalId(value: String):void {
+      
+    }
+    
+    public function withToken(value: String):void {
+      
+    }
+    
+    public function withLayout(value: String):void {
+      
+    }
+    public function withWelcome(value: String):void {
+      
+    }
+    public function withDialNumber(value: String):void {
+      
+    }
+    public function withRole(value: String):void {
+      
+    }
+    public function withCustomData(value: String):void {
+      
+    }
+    
+    public function build():User {
+      
+    }
+    
   }
 }

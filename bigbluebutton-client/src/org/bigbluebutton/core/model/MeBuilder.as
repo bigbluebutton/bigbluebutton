@@ -63,5 +63,9 @@ package org.bigbluebutton.core.model
       customData = value;
       return this;
     }
+    
+    public function build():Me {
+      return new Me(this);
+    }
   }
 }
