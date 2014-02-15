@@ -100,8 +100,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var logoutWindow:LoggedOutWindow;
 			private var connectionLostWindow:ConnectionLostWindow;
 			
-			[Bindable] private var baseIndex:int = 100000;
-			
 			// LIVE or PLAYBACK
 			private var _mode:String = 'LIVE';
 			[Bindable] public var appVersion:String = ' ';
@@ -397,7 +395,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function handleAddToolbarComponent(event:ToolbarButtonEvent):void {
 				if (event.location == ToolbarButtonEvent.BOTTOM_TOOLBAR) {
-					(event.button as UIComponent).tabIndex = baseIndex;
+					(event.button as UIComponent).tabIndex = tabIndexer.startIndex;
 					addedBtns.addChild(event.button as UIComponent);
 					//realignButtons();
 				}
@@ -442,7 +440,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 		]]>
 	</mx:Script>
-			
+	<common:TabIndexer id="tabIndexer" startIndex="100000" tabIndices="{[logBtn]}"/>
+
 	<views:MainToolbar id="toolbar" 
 					   dock="true" 
 					   width="100%" 
@@ -483,8 +482,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}"
 				id="logBtn"
 				icon="{logs_icon}"
-				click="openLogWindow()"
-				tabIndex="{baseIndex}"/>
+				click="openLogWindow()"/>
 		<mx:Button
 				id="btnNetwork"
 				icon="{statsIcon}"
