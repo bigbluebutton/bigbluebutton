@@ -72,8 +72,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     }
       
 		private function onCreationComplete():void {
-            tabIndex = 51;
-            
 			changeDefaultCamForMac();
 			
 			if (resolutions.length > 1) {
@@ -295,7 +293,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     ]]>
   </mx:Script>
 	
-	<common:TabIndexer tabIndices="{[viewTitle, changeCamera, cmbResolution, btnStartPublish, btnClosePublish]}"/>
+	<common:TabIndexer startIndex="51" tabIndices="{[viewTitle, changeCamera, cmbResolution, btnStartPublish, btnClosePublish]}"/>
   
 	<mx:VBox id="webcamDisplay" width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" styleName="cameraDisplaySettingsWindowBackground">
     <mx:HBox width="100%" horizontalAlign="left">

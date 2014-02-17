@@ -32,7 +32,11 @@ package org.bigbluebutton.common
         private var _id : String;
         private var _tabIndices : Array;
         private var _startIndex : int;
+        private var _ready : Boolean;
 
+        /**
+         * @inheritDoc
+         */
         public function initialized( document : Object, id : String ) : void
         {
             _id = id;
@@ -40,16 +44,38 @@ package org.bigbluebutton.common
             _document.addEventListener(FlexEvent.CREATION_COMPLETE, documentCreationCompleteHandler, false, 0, true);
         }
 
+        /**
+         *
+         * Sets state to ready to index after the document creation is compelete and starts
+         * the first tab indexation.
+         * @param event CREATION_COMPLETE event of the document
+         *
+         */
         private function documentCreationCompleteHandler( event : FlexEvent ) : void
         {
             _document.removeEventListener(FlexEvent.CREATION_COMPLETE, documentCreationCompleteHandler, false);
-            for (var i : int = 0; i < tabIndices.length; i++)
+            _ready = true;
+            indexTabs();
+        }
+
+        /**
+         * Runs a tab indexation on document components contained in tabIndices Array.
+         */
+        protected function indexTabs() : void
+        {
+            if (_ready)
             {
-                UIComponent(_tabIndices[i - 1]).tabIndex = startIndex + i;
+                for (var i : int = 0; i < tabIndices.length; i++)
+                {
+                    UIComponent(_tabIndices[i - 1]).tabIndex = startIndex + i;
+                }
             }
         }
 
         [Bindable(event = "tabIndicesChange")]
+        /**
+         * An array containing tab indexable properties to index. Tab indexing will use array order.
+         */
         public function get tabIndices() : Array
         {
             return _tabIndices;
@@ -61,10 +87,14 @@ package org.bigbluebutton.common
             {
                 _tabIndices = value;
                 dispatchEvent(new Event("tabIndicesChange"));
+                indexTabs();
             }
         }
 
         [Bindable(event = "startIndexChange")]
+        /**
+         * tabIndex value of the first element.
+         */
         public function get startIndex() : int
         {
             return _startIndex;
@@ -76,6 +106,7 @@ package org.bigbluebutton.common
             {
                 _startIndex = value;
                 dispatchEvent(new Event("startIndexChange"));
+                indexTabs();
             }
         }
 

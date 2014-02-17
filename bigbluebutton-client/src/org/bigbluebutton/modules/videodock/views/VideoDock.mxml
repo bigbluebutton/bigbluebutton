@@ -22,11 +22,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 		   xmlns:mx="http://www.adobe.com/2006/mxml" 
-		   initialize="init()" 
-       horizontalScrollPolicy="off"
-       verticalScrollPolicy="off"
+           horizontalScrollPolicy="off"
+       	   verticalScrollPolicy="off"
 		   creationComplete="onCreationComplete()" 
 		   implements="org.bigbluebutton.common.IBbbModuleWindow"
+		   xmlns:common="org.bigbluebutton.common.*"
 		   title="{ResourceUtil.getInstance().getString('bbb.videodock.title')}"
 		   xmlns:mate="http://mate.asfusion.com/" styleNameFocus="videoDockStyleFocus"
 		   layout="absolute" visible="false" styleNameNoFocus="videoDockStyleNoFocus"
@@ -40,27 +40,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShortcutEvent.MAXIMIZE_DOCK}" method="remoteMaximize" />
 	<mx:Script>
 		<![CDATA[ 
-	  import org.bigbluebutton.main.events.ShortcutEvent;
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import mx.events.ChildExistenceChangedEvent;
-      
-      import org.bigbluebutton.common.Images;
-
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.common.events.CloseWindowEvent;
-      import org.bigbluebutton.common.events.DragWindowEvent;
-      import org.bigbluebutton.common.events.OpenWindowEvent;
-      import org.bigbluebutton.core.BBB;
-      import org.bigbluebutton.core.events.ConnectAppEvent;
-      import org.bigbluebutton.main.model.users.Conference;
-      import org.bigbluebutton.main.views.MainCanvas;
-      import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
-      import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
-      import org.bigbluebutton.modules.videoconf.events.UserTalkingEvent;
-      import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
-	  import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.events.ChildExistenceChangedEvent;
+			
+			import flexlib.mdi.containers.MDIWindow;
+			
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.DragWindowEvent;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.events.ConnectAppEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.model.users.Conference;
+			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
+			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
+			import org.bigbluebutton.modules.videoconf.events.UserTalkingEvent;
+			import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var childrenDimension:Dictionary = new Dictionary();
 			private var borderColor:String;
@@ -78,13 +79,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var confOptions:VideoConfOptions = new VideoConfOptions();
 			private var dispatcher:Dispatcher;			
 			private var keyCombos:Object;
-			
-			[Bindable] 
-			private var baseIndex:int;
-			
-			private function init():void{
-				baseIndex = options.baseTabIndex;
-			}
 			
 			private var images:Images = new Images();
       
@@ -109,12 +103,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatcher = new Dispatcher();
 				hotkeyCapture();
 				
-				titleBarOverlay.tabIndex = baseIndex;
-				
-				minimizeBtn.tabIndex = baseIndex+1;
-				maximizeRestoreBtn.tabIndex = baseIndex+2;
-				
-				closeBtn.tabIndex = baseIndex+3;
+				titleBarOverlay.tabIndex = tabIndexer.startIndex - 1;
 				
 				if (options.maximize) this.maximize();
         
@@ -483,6 +472,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						
 		]]>
 	</mx:Script>
+	
+	<common:TabIndexer id="tabIndexer" startIndex="{options.baseTabIndex + 1}"
+					   tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn]}"/>
 	
 	<mate:Listener type="{OpenVideoWindowEvent.OPEN_VIDEO_WINDOW_EVENT}" method="onOpenWindow" />
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="onCloseWindow" />

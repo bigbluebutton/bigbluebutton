@@ -22,10 +22,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
     xmlns:mate="http://mate.asfusion.com/"
+	xmlns:flexlib="http://code.google.com/p/flexlib/"
+	xmlns:common="org.bigbluebutton.common.*"
+	xmlns:containers="flexlib.containers.*"
     creationComplete="onCreationComplete()"
     initialize="init()"
-    xmlns:flexlib="http://code.google.com/p/flexlib/"
-    width="100%" height="100%" xmlns:containers="flexlib.containers.*"
+    width="100%" height="100%"
     verticalScrollPolicy="off">
 
   <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
@@ -91,8 +93,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       [Bindable] 
       public var chatOptions:ChatOptions;
 	  
-	  [Bindable]
-		private var baseIndex:int;
 		private static const PUBLIC_TAB_NEW:String = ResourceUtil.getInstance().getString("bbb.accessibility.chat.chatView.publicTabNew");
 		private var publicWaiting:Boolean = false;
 		private var publicFocus:Boolean = false;
@@ -109,7 +109,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				chatOptions = new ChatOptions();
 				noticeLabel = ResourceUtil.getInstance().getString('bbb.chat.chatTabs.accessibleNotice');
 				// Get the base tab index from config, and add four to make up for the min/max/close buttons and title overlay
-				baseIndex = chatOptions.getBaseIndex() + 4;
 			}
 			
 
@@ -284,7 +283,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var chatBox:ChatBox = new ChatBox();
 				chatBox.id = chatWithUserID;
 		        chatBox.name = chatWithUserID;
-				chatBox.baseIndex = baseIndex;
 		        
 		        if (publicChat) {
 		          chatBox.label = PUBLIC_CHAT_USERNAME
@@ -377,7 +375,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 		]]>
 	</mx:Script>
+	
+	<common:TabIndexer id="tabIndexer" startIndex="{chatOptions.getBaseIndex() + 4}" tabIndices="{[chatTabs]}"/>
+	
 	<containers:SuperTabNavigator includeInLayout="false" id="chatTabs" width="100%" height="100%" change="onTabNavChange()" tabClose="onTabClose(event)" minTabWidth="20"
-								  dragEnabled="false" popUpButtonPolicy="off" tabIndex="{baseIndex}"
-								  />
+								  dragEnabled="false" popUpButtonPolicy="off" />
 </mx:VBox>

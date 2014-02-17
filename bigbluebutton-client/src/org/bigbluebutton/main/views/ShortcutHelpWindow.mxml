@@ -99,7 +99,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onCreationComplete():void {
 				localeChanged();
 				
-				titleBarOverlay.tabIndex = 100;
+				titleBarOverlay.tabIndex = tabIndexer.startIndex - 1;
 			}
 			
 			private function populateModules():void{
@@ -263,7 +263,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 
-	<common:TabIndexer startIndex="101" tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, categories, keyList]}"/>
+	<common:TabIndexer id="tabIndexer" startIndex="101" tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, categories, keyList]}"/>
 	
 	<mx:ComboBox id="categories" labelField="Please select an area for which to view shortcut keys: " 
 				 editable="false" 
