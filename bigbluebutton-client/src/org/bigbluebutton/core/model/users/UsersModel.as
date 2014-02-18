@@ -3,6 +3,8 @@ package org.bigbluebutton.core.model.users
   import mx.collections.ArrayCollection;
   
   import org.bigbluebutton.core.model.Me;
+  import org.bigbluebutton.core.vo.UserVO;
+  import org.bigbluebutton.core.vo.VoiceUserVO;
 
   public class UsersModel
   {
@@ -32,20 +34,33 @@ package org.bigbluebutton.core.model.users
       return _me;
     }
     
-    public function add(user: User):void {
+    private function add(user: UserVO):void {
       _users.addItem(user);
     }
     
-    public function remove(userId: String):User {
+    private function remove(userId: String):UserVO {
       var index:int = getIndex(userId);
       if (index >= 0) {
-        return _users.removeItemAt(index) as User;
+        return _users.removeItemAt(index) as UserVO;
       }
       
       return null;
     }
     
-    public function getUser(userId:String):User {
+    private function getUserAndIndex(userId: String):Object {
+      var user:User;
+      for (var i:int = 0; i < _users.length; i++) {
+        user = _users.getItemAt(i) as User;
+        
+        if (user.id == userId) {
+          return {index:i, user:user};;
+        }
+      }
+      
+      return null;      
+    }
+    
+    private function getUser(userId:String):User {
       var user:User;
       
       for (var i:int = 0; i < _users.length; i++) {
@@ -71,6 +86,65 @@ package org.bigbluebutton.core.model.users
       
       return -1;
     }
+    
+    public function userJoinedVoice(vu: VoiceUserVO):UserVO {
+      var user = getUser(vu.webId) as UserVO;
+      if (user != null) {
+        user.voiceUser = vu;
+        return user.copy();
+      }
+      
+      return null;
+    }
+    
+    public function userLeftVoice(vu: VoiceUserVO):UserVO {
+      var user = getUser(vu.webId) as UserVO;
+      if (user != null) {
+        user.voiceUser = vu;
+        return user.copy();
+      }
+      
+      return null;      
+    }
+    
+    public function userJoined(vu: UserVO):UserVO {
+      var user = add(vu);
+      if (user != null) {
+        return user.copy();
+      }
+      
+      return null;      
+    }
+
+    public function userLeft(vu: UserVO):UserVO {
+      var user = remove(vu.id);
+      if (user != null) {
+        return user.copy();
+      }
+      
+      return null;      
+    }
+    
+    public function userMuted(userId: String, voiceId: String, muted: Boolean):UserVO {
+      var user: UserVO = getUser(userId) as UserVO;
+      if (user != null) {
+        user.voiceUser.muted = muted;
+        return user.copy();
+      }
+      
+      return null;      
+    }
+    
+    public function userTalking(userId: String, voiceId: String, talking: Boolean):UserVO {
+      var user: UserVO = getUser(userId) as UserVO;
+      if (user != null) {
+        user.voiceUser.talking = talking;
+        return user.copy();
+      }
+      
+      return null;      
+    }
+    
     
 //    private function get users():ArrayCollection {
 //      var us:ArrayCollection = new ArrayCollection();

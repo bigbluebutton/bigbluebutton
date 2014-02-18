@@ -29,7 +29,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.events.VoiceConfEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.model.MeetingModel;
-  import org.bigbluebutton.core.model.UsersService;
+  import org.bigbluebutton.core.services.UsersService;
   import org.bigbluebutton.core.model.users.UsersModel;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -87,6 +87,9 @@ package org.bigbluebutton.modules.users.services
         case "userJoinedVoice":
           handleUserJoinedVoice(message);
           break;
+        case "userLeftVoice":
+          handleUserJoinedVoice(message);
+          break;
         case "voiceUserMuted":
           handleVoiceUserMuted(message);
           break;
@@ -141,7 +144,7 @@ package org.bigbluebutton.modules.users.services
       var userId:Number = map.voiceUserId;
       var muted:Boolean = map.muted;
 
-      UsersService.getInstance().userMuted(msg.userId, muted);
+      UsersService.getInstance().userMuted(map);
       
       var l:BBBUser = _conference.getVoiceUser(userId);
       if (l != null) {
@@ -189,9 +192,17 @@ package org.bigbluebutton.modules.users.services
       var voiceUserId:Number = map.voiceUserId;
       var talking:Boolean = map.talking;  
       
-      UsersService.getInstance().userTalking(userId, talking);
+      UsersService.getInstance().userTalking(map);
       
       userTalk(voiceUserId, talking);
+    }
+    
+    private function handleUserLeftVoice(msg:Object):void {
+      trace(LOG + "*** handleUserLeftVoice " + msg.msg + " **** \n");      
+      var map:Object = JSON.parse(msg.msg);
+      
+      var webUser:Object = map.user as Object;
+      UsersService.getInstance().userJoinedVoice(map);
     }
     
     private function handleUserJoinedVoice(msg:Object):void {
@@ -237,7 +248,7 @@ package org.bigbluebutton.modules.users.services
       var map:Object = JSON.parse(msg.msg);
       var webUserId:String = map.user.userId;
       
-      UsersService.getInstance().userLeft(webUserId);
+      UsersService.getInstance().userLeft(map);
       
       var user:BBBUser = UserManager.getInstance().getConference().getUser(webUserId);
       
@@ -257,6 +268,9 @@ package org.bigbluebutton.modules.users.services
     public function handleParticipantJoined(msg:Object):void {
       trace(LOG + "*** handleParticipantJoined " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);
+      
+      UsersService.getInstance().userJoined(map);
+      
       participantJoined(map.user as Object);
     }
     

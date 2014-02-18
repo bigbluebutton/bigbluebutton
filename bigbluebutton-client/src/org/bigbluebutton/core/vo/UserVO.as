@@ -13,5 +13,22 @@ package org.bigbluebutton.core.vo
     public var locked: Boolean;
     public var voiceUser: VoiceUserVO;
     public var customData: Object;
+    
+    public function copy():UserVO {
+      var nu: UserVO = new UserVO();
+      nu.id = id;
+      nu.externId = externId;
+      nu.name = name;
+      nu.role = role;
+      nu.handRaised = handRaised;
+      nu.presenter = presenter;
+      nu.hasStream = hasStream;
+      nu.webcamStream = webcamStream;
+      nu.locked = locked;
+      nu.voiceUser = voiceUser;
+      nu.customData = customData;    
+      
+      return nu;
+    }
   }
 }

@@ -10,8 +10,15 @@ package org.bigbluebutton.core.model.users
     private var _muted: Boolean;
     private var _talking: Boolean;
     
-    public function VoiceUser()
-    {
+    public function VoiceUser(id: String, name: String) {
+      _userId = id;
+      _name = name;
     }
+    
+    public function withNumber(value: String):void {
+      _number = value;
+    }
+    
+    
   }
 }

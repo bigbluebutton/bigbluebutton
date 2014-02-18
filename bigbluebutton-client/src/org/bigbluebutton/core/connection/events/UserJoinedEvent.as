@@ -8,7 +8,7 @@ package org.bigbluebutton.core.connection.events
     
     public function UserJoinedEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false)
     {
-      super(type, bubbles, cancelable);
+      super(USER_JOINED_EVENT, bubbles, cancelable);
     }
   }
 }

@@ -98,7 +98,7 @@ package org.bigbluebutton.main.model.users
     }   
         
     public function onMessageFromServer(messageName:String, result:Object):void {
-      trace("Got message from server [" + messageName + "]");    
+//      trace("Got message from server [" + messageName + "]");    
       notifyListeners(messageName, result);
     }
 		
