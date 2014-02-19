@@ -88,7 +88,7 @@ package org.bigbluebutton.core.model.users
     }
     
     public function userJoinedVoice(vu: VoiceUserVO):UserVO {
-      var user = getUser(vu.webId) as UserVO;
+      var user: UserVO = getUser(vu.webId) as UserVO;
       if (user != null) {
         user.voiceUser = vu;
         return user.copy();
@@ -98,7 +98,7 @@ package org.bigbluebutton.core.model.users
     }
     
     public function userLeftVoice(vu: VoiceUserVO):UserVO {
-      var user = getUser(vu.webId) as UserVO;
+      var user:UserVO = getUser(vu.webId) as UserVO;
       if (user != null) {
         user.voiceUser = vu;
         return user.copy();
@@ -108,21 +108,17 @@ package org.bigbluebutton.core.model.users
     }
     
     public function userJoined(vu: UserVO):UserVO {
-      var user = add(vu);
-      if (user != null) {
-        return user.copy();
-      }
-      
-      return null;      
+      add(vu);
+      return vu.copy();      
     }
 
     public function userLeft(vu: UserVO):UserVO {
       var user = remove(vu.id);
       if (user != null) {
         return user.copy();
-      }
+      }    
       
-      return null;      
+      return null;
     }
     
     public function userMuted(userId: String, voiceId: String, muted: Boolean):UserVO {
