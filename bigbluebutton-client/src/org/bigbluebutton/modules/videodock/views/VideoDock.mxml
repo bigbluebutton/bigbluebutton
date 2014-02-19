@@ -75,6 +75,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			// bigger the weight, bigger will be the window and less space the other windows will have
 			private var priorityWindowWeight:Number = 2/3;
 			
+			[Bindable]
 			private var options:DockOptions = new DockOptions();
 			private var confOptions:VideoConfOptions = new VideoConfOptions();
 			private var dispatcher:Dispatcher;			
