@@ -109,7 +109,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var bu:BBBUser = UsersUtil.getUser(sharerUserID);
         if (bu != null) {
           var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);        
-          e.userid = bu.voiceUserid;
+          e.userid = bu.userID;
           e.mute = ! bu.voiceMuted; 
           var gd:Dispatcher = new Dispatcher();
           gd.dispatchEvent(e);          

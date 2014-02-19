@@ -51,7 +51,9 @@ public class ParticipantsService {
 		application.userRaiseHand(scope.getName(), userId);
 	}
 	
-	public void lowerHand(String userId, String loweredBy) {
+	public void lowerHand(Map<String, String> msg) {
+		String userId = (String) msg.get("userId");
+		String loweredBy = (String) msg.get("loweredBy");
 		IScope scope = Red5.getConnectionLocal().getScope();
 		application.lowerHand(scope.getName(), userId, loweredBy);
 	}

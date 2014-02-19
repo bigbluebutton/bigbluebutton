@@ -32,7 +32,7 @@ package org.bigbluebutton.core.events
 		
 		public static const EJECT_USER:String = "VOICECONF_EJECT_USER";
 		
-		public var userid:int;
+		public var userid:String;
 		public var mute:Boolean;
 		public var lock:Boolean;
 		

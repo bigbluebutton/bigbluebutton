@@ -45,13 +45,11 @@ package org.bigbluebutton.main.model.users
 		private var urlLoader:URLLoader;
 		private var _resultListener:Function;
 		
-		public function JoinService()
-		{
+		public function JoinService() {
 			urlLoader = new URLLoader();
 		}
 		
-		public function load(url:String) : void
-		{
+		public function load(url:String):void {
 			var date:Date = new Date();
 //			url += "?a=" + date.time
 			LogUtil.debug("JoinService:load(...) " + url);
@@ -101,10 +99,9 @@ package org.bigbluebutton.main.model.users
                            defaultLayout:xml.defaultLayout, avatarURL:xml.avatarURL};
 				user.customdata = new Object();
        
-				if(xml.customdata)
-				{
+				if(xml.customdata) {
 					for each(var cdnode:XML in xml.customdata.elements()){
-						LogUtil.debug("checking user customdata: "+cdnode.name() + " = " + cdnode);
+						LogUtil.debug("checking user customdata: "+ cdnode.name() + " = " + cdnode);
 						user.customdata[cdnode.name()] = cdnode.toString();
 					}
 				}

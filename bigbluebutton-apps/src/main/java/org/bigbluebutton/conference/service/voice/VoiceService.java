@@ -20,6 +20,7 @@ package org.bigbluebutton.conference.service.voice;
 import org.slf4j.Logger;import org.red5.server.api.Red5;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.red5.logging.Red5LoggerFactory;
 import java.util.List;
+import java.util.Map;
 
 public class VoiceService {
 	
@@ -65,9 +66,10 @@ public class VoiceService {
 //    	conferenceService.muteAllBut(conference, mute, dontMuteThese);
 	}
 	
-	public void muteAllUsers(boolean mute) {
+	public void muteAllUsers(Map<String, Object> msg) {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
-		String requesterID = getBbbSession().getInternalUserID();		
+		String requesterID = getBbbSession().getInternalUserID();	
+		Boolean mute = (Boolean) msg.get("mute");
 		bbbInGW.muteAllUsers(meetingID, requesterID, mute); 		
 	}	
 	
@@ -77,22 +79,29 @@ public class VoiceService {
 		bbbInGW.isMeetingMuted(meetingID, requesterID); 	
 	}
 	
-	public void muteUnmuteUser(String userid, Boolean mute) {
+	public void muteUnmuteUser(Map<String, Object> msg) {
+		Boolean mute = (Boolean) msg.get("mute");
+		String userid = (String) msg.get("userId");
+
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String requesterID = getBbbSession().getInternalUserID();		
 		bbbInGW.muteUser(meetingID, requesterID, userid, mute); 
 	}
 	
-	public void lockMuteUser(String userid, Boolean lock) { 	
+	public void lockMuteUser(Map<String, Object> msg) { 			
+		Boolean lock = (Boolean) msg.get("lock");
+		String userid = (String) msg.get("userId");
+		
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String requesterID = getBbbSession().getInternalUserID();		
 		bbbInGW.lockUser(meetingID, requesterID, userid, lock); 
 	}
 	
-	public void kickUSer(String userID) {
+	public void kickUSer(Map<String, Object> msg) {
+		String userid = (String) msg.get("userId");
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String requesterID = getBbbSession().getInternalUserID();		
-		bbbInGW.ejectUser(meetingID, requesterID, userID); 	
+		bbbInGW.ejectUser(meetingID, requesterID, userid); 	
 		
 	}
 		

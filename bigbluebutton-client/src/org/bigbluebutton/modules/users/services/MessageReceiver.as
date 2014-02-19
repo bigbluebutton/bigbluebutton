@@ -141,12 +141,12 @@ package org.bigbluebutton.modules.users.services
     private function handleVoiceUserMuted(msg:Object):void {
       trace(LOG + "*** handleVoiceUserMuted " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);
-      var userId:Number = map.voiceUserId;
+      var userId:String = map.userId;
       var muted:Boolean = map.muted;
 
       UsersService.getInstance().userMuted(map);
       
-      var l:BBBUser = _conference.getVoiceUser(userId);
+      var l:BBBUser = _conference.getUser(userId);
       if (l != null) {
         l.voiceMuted = muted;
         
@@ -172,9 +172,9 @@ package org.bigbluebutton.modules.users.services
       }
     }
 
-    private function userTalk(userId:Number, talking:Boolean):void {      
+    private function userTalk(userId:String, talking:Boolean):void {      
       trace("User talking event");
-      var l:BBBUser = _conference.getVoiceUser(userId);			
+      var l:BBBUser = _conference.getUser(userId);			
       if (l != null) {
         l.talking = talking;
         
@@ -189,12 +189,11 @@ package org.bigbluebutton.modules.users.services
       trace(LOG + "*** handleVoiceUserTalking " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg); 
       var userId:String = map.userId;
-      var voiceUserId:Number = map.voiceUserId;
       var talking:Boolean = map.talking;  
       
       UsersService.getInstance().userTalking(map);
       
-      userTalk(voiceUserId, talking);
+      userTalk(userId, talking);
     }
     
     private function handleUserLeftVoice(msg:Object):void {
@@ -205,20 +204,18 @@ package org.bigbluebutton.modules.users.services
       var voiceUser:Object = webUser.voiceUser as Object;
       UsersService.getInstance().userLeftVoice(voiceUser);
       
-      var l:BBBUser = _conference.getVoiceUser(voiceUser.userId);
+      var l:BBBUser = _conference.getUser(webUser.userId);
       /**
        * Let's store the voice userid so we can do push to talk.
        */
       if (l != null) {
         trace("Found voice user id[" + voiceUser.userId + "]");
-        if (_conference.amIThisVoiceUser(voiceUser.userId)) {
+        if (_conference.getMyUserId() == l.userID) {
           trace("I am this voice user id[" + voiceUser.userId + "]");
           _conference.setMyVoiceJoined(false);
-          _conference.setMyVoiceUserId(0);
           _conference.setMyVoiceJoined(false);
         }
         
-        l.voiceUserid = 0;
         l.voiceMuted = false;
         l.voiceJoined = false;
         l.talking = false;
@@ -250,14 +247,12 @@ package org.bigbluebutton.modules.users.services
       var internUserID:String = UsersUtil.externalUserIDToInternalUserID(externUserID);
       
       if (UsersUtil.getMyExternalUserID() == externUserID) {
-        _conference.setMyVoiceUserId(voiceUser.userId);
         _conference.muteMyVoice(voiceUser.muted);
         _conference.setMyVoiceJoined(true);
       }
       
       if (UsersUtil.hasUser(internUserID)) {
         var bu:BBBUser = UsersUtil.getUser(internUserID);
-        bu.voiceUserid = voiceUser.userId;
         bu.voiceMuted = voiceUser.muted;
         bu.voiceJoined = true;
         

@@ -241,15 +241,6 @@ package org.bigbluebutton.main.model.users {
 			return null;
 		}
     
-		public function getVoiceUser(voiceUserID:Number):BBBUser {     
-			for (var i:int = 0; i < users.length; i++) {
-				var aUser:BBBUser = users.getItemAt(i) as BBBUser;
-				if (aUser.voiceUserid == voiceUserID) return aUser;
-			}
-			
-			return null;
-		}
-	
 		public function whatsMyRole():String {
 			return me.role;
 		}
@@ -299,18 +290,6 @@ package org.bigbluebutton.main.model.users {
 		
 		public function get voiceMuted():Boolean {
 			return me.voiceMuted;
-		}
-		
-		public function setMyVoiceUserId(userID:int):void {
-			me.voiceUserid = userID;
-		}
-		
-		public function getMyVoiceUserId():Number {
-			return me.voiceUserid;
-		}
-		
-		public function amIThisVoiceUser(userID:int):Boolean {
-			return me.voiceUserid == userID;
 		}
 		
 		public function setMyVoiceJoined(joined:Boolean):void {

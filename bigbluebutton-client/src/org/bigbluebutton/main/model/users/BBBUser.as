@@ -97,7 +97,6 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var room:String = "";
 		[Bindable] public var authToken:String = "";
 		[Bindable] public var selected:Boolean = false;
-		[Bindable] public var voiceUserid:Number = 0;
 		
 		private var _voiceMuted:Boolean = false;
 		[Bindable]
@@ -291,7 +290,6 @@ package org.bigbluebutton.main.model.users
 			n.voiceJoined = user.voiceJoined;
 			n.userLocked = user.userLocked;
 			n.voiceMuted = user.voiceMuted;
-			n.voiceUserid = user.voiceUserid;
 			n.disableMyCam = user.disableMyCam;
 			n.disableMyMic = user.disableMyMic;
 			n.disableMyPrivateChat = user.disableMyPrivateChat;
@@ -325,7 +323,7 @@ package org.bigbluebutton.main.model.users
 			//If it's sharing microphone, mute it
 			if(disableMyMic && !UserManager.getInstance().getConference().isMyVoiceMuted()) {
 				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-				e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();
+				e.userid = UserManager.getInstance().getConference().getMyUserId();
 				e.mute = true;
 				dispatcher.dispatchEvent(e);
 			}

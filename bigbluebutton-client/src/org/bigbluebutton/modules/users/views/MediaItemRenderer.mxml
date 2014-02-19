@@ -135,7 +135,7 @@
 			
 			private function toggleMuteState():void {
 				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-				e.userid = data.voiceUserid;
+				e.userid = data.userID;
 				e.mute = !data.voiceMuted;
 				dispatchEvent(e);
 			}

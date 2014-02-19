@@ -344,14 +344,14 @@ package org.bigbluebutton.main.api
     
     private function handleMuteMeRequest():void {
       var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-      e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();
+      e.userid = UserManager.getInstance().getConference().getMyUserId();
       e.mute = true;
       _dispatcher.dispatchEvent(e);
     }
 
     private function handleUnmuteMeRequest():void {
       var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-      e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();
+      e.userid = UserManager.getInstance().getConference().getMyUserId();
       e.mute = false;
       _dispatcher.dispatchEvent(e);
     }

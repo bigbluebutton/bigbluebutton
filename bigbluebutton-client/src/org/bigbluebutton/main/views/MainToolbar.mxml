@@ -159,15 +159,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 			
-            private function retrieveMeetingName(e:ConferenceCreatedEvent):void {
-                if (toolbarOptions.showMeetingName) {
-                    var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();
+      private function retrieveMeetingName(e:ConferenceCreatedEvent):void {
+         if (toolbarOptions.showMeetingName) {
+              var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();
                     
-                    if (meetingTitle != null) {
-                        meetingNameLbl.text = meetingTitle;
-                    } 
-                }
-            }
+              if (meetingTitle != null) {
+                  meetingNameLbl.text = meetingTitle;
+               } 
+          }
+      }
             
 			public function addButton(name:String):Button{
 				var btn:Button = new Button();
@@ -186,7 +186,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function handleEndMeetingEvent(event:BBBEvent):void {
-				LogUtil.debug("Received end meeting event.");
+				trace("Received end meeting event.");
 				doLogout();
 			}
 			

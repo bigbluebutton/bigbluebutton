@@ -113,7 +113,7 @@ package org.bigbluebutton.core.model.users
     }
 
     public function userLeft(vu: UserVO):UserVO {
-      var user = remove(vu.id);
+      var user: UserVO = remove(vu.id);
       if (user != null) {
         return user.copy();
       }    
