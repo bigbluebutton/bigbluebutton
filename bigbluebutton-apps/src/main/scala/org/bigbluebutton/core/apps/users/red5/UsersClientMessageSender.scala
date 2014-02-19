@@ -74,6 +74,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  wuser.put("hasStream", user.hasStream:java.lang.Boolean)
 	  wuser.put("locked", user.locked:java.lang.Boolean)
 	  wuser.put("webcamStream", user.webcamStream)
+	  wuser.put("phoneUser", user.phoneUser:java.lang.Boolean)
 	  wuser.put("voiceUser", vuser)	  
 	  
 	  wuser

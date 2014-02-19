@@ -149,7 +149,7 @@ trait UsersApp {
                            false, false, false, false)
     val uvo = new UserVO(msg.userID, msg.extUserID, msg.name, 
                   msg.role, raiseHand=false, presenter=false, 
-                  hasStream=false, locked=false, webcamStream="", vu)
+                  hasStream=false, locked=false, webcamStream="", phoneUser=false, vu)
   	
 	users.addUser(uvo)
 					
@@ -192,7 +192,7 @@ trait UsersApp {
                                  false, false, false, false)
           val uvo = new UserVO(webUserId, webUserId, msg.voiceUser.callerName, 
 		                  Role.VIEWER, raiseHand=false, presenter=false, 
-		                  hasStream=false, locked=false, webcamStream="", vu)
+		                  hasStream=false, locked=false, webcamStream="", phoneUser=true, vu)
 		  	
 		  users.addUser(uvo)
 		  println("New user joined voice for user [" + uvo.name + "] userid=[" + msg.voiceUser.webUserId + "]")

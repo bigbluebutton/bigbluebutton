@@ -67,21 +67,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
 			import com.adobe.utils.StringUtil;
-			import com.asfusion.mate.events.Dispatcher;    
-			
-			import flash.accessibility.AccessibilityProperties;  			
-			
+			import com.asfusion.mate.events.Dispatcher;    		
+			import flash.accessibility.AccessibilityProperties;  						
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Button;
-			import mx.core.ScrollPolicy;  
-			
+			import mx.core.ScrollPolicy;  		
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.main.events.UserJoinedEvent;
 			import org.bigbluebutton.main.events.UserLeftEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;

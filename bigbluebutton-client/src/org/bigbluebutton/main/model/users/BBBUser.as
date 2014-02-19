@@ -18,8 +18,7 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.events.LockControlEvent;
 	import org.bigbluebutton.core.events.VoiceConfEvent;
