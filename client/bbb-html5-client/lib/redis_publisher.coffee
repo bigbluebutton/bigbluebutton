@@ -30,6 +30,25 @@ module.exports = class RedisPublisher
           @pub.publish receivers, JSON.stringify(["all_shapes", shapes])
           callback?(null)
 
+  # Publish list of shapes to appropriate clients
+  #
+  # @param meetingID [string] the ID of the meeting
+  # @param sessionID [string] the ID of the user, if `null` will send to all clients
+  # @param callback(err, succeeded) [Function] callback to call when finished
+  publishShapes2: (meetingID, sessionID, callback) ->
+    shapes = []
+    @redisAction.getCurrentPresentationID meetingID, (err, presentationID) =>
+      @redisAction.getCurrentPageID meetingID, presentationID, (err, pageID) =>
+        @redisAction.getItems meetingID, presentationID, pageID, "currentshapes", (err, shapes) =>
+
+          receivers = (if sessionID? then sessionID else meetingID)
+          allShapesEventObject = {
+            name : "allShapes",
+            shapes : shapes
+          }
+          @pub.publish receivers, JSON.stringify(allShapesEventObject)
+          callback?(null)
+
   # Publish load users to appropriate clients.
   #
   # @param meetingID [string] the ID of the meeting

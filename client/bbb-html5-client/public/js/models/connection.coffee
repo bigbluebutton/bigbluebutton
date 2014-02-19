@@ -88,26 +88,26 @@ define [
 
       # Received event to update all the shapes in the whiteboard
       # @param  {Array} shapes Array of shapes to be drawn
-      @socket.on "all_shapes", (shapes) =>
+      @socket.on "allShapes", (allShapesEventObject) =>
         console.log "socket on: all_shapes"
-        console.log shapes
-        globals.events.trigger("connection:all_shapes", shapes)
+        console.log allShapesEventObject
+        globals.events.trigger("connection:all_shapes", allShapesEventObject)
 
       # Received event to update a shape being created
       # @param  {string} shape type of shape being updated
       # @param  {Array} data   all information to update the shape
-      @socket.on "whiteboardUpdShape", (data) =>
-        shape = data.shape.type
-        console.log "socket on: whiteboardUpdShape"
+      @socket.on "whiteboard_update_event", (data) =>     
+        shape = data.payload.shape_type
+        console.log "socket on: whiteboard_update_event"
         globals.events.trigger("connection:updShape", shape, data)
 
       # Received event to create a shape on the whiteboard
       # @param  {string} shape type of shape being made
       # @param  {Array} data   all information to make the shape
-      @socket.on "whiteboardMakeShape", (data) =>
-        shape = data.shape.type
-        console.log "socket on: whiteboardMakeShape"
-        globals.events.trigger("connection:whiteboardMakeShape", shape, data)
+      @socket.on "whiteboard_draw_event", (data) =>
+        shape = data.payload.shape_type
+        console.log "socket on: whiteboard_draw_event"
+        globals.events.trigger("connection:whiteboard_draw_event", shape, data)
 
       # Pencil drawings are received as points from the server and painted as lines.
       @socket.on "whiteboardDrawPen", (data) =>

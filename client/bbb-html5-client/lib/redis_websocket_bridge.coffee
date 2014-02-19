@@ -6,6 +6,7 @@ config = require("../config")
 Logger = require("./logger")
 RedisKeys = require("../lib/redis_keys")
 Utils = require("./utils")
+#messageLib = require("./message_library")
 
 moduleDeps = ["RedisAction", "RedisStore", "RedisPublisher"]
 
@@ -45,7 +46,7 @@ module.exports = class RedisWebsocketBridge
       #socket.on "msg", (msg) => @_socket_onChatMessage(socket, msg)
       socket.on "msg", (msg) => @_socket_onChatMessage2(socket, msg)
       socket.on "logout", () => @_socket_onLogout(socket)
-      socket.on "all_shapes", () => @_socket_onAllShapes(socket)
+      socket.on "allShapes", () => @_socket_onAllShapes(socket)
 
   # Listens for messages published to redis
   #
@@ -55,6 +56,9 @@ module.exports = class RedisWebsocketBridge
   # @private
   _redis_registerListeners: ->
     @sub.on "pmessage", (pattern, channel, message) =>
+      console.log("this is json:\n" + message)
+      console.log("this is javaScript Object:\n" + JSON.parse(message) + "\n\n")
+      
       attributes = JSON.parse(message)
       Logger.info "message from redis on channel:#{channel}, data:#{message}"
 
@@ -109,6 +113,7 @@ module.exports = class RedisWebsocketBridge
   _redis_onBigbluebuttonBridge2: (attributes) ->
     console.log("\n\n***attributes: ")
     console.log attributes 
+    
     #meetingID = attributes[0]
     meetingID = attributes?.meeting?.id
     console.log("*meetingID: " + meetingID);
@@ -169,8 +174,15 @@ module.exports = class RedisWebsocketBridge
     console.log message 
     channelViewers = @io.sockets.in(channel)
     console.log("**message name**: ")
-    console.log(message.name);
-    channelViewers.emit.apply(channelViewers, [message.name, message])
+
+    #if the message has "header":{"name":"some_event_name"} use that name
+    #otherwise look for "name":"some_event_name" in the top level of the message
+    if message.header? and message.header.name?
+      eventName = message.header.name
+    else eventName = message.name
+
+    console.log(eventName)
+    channelViewers.emit.apply(channelViewers, [eventName, message])
 
   # When a user connected to the web socket.
   # Several methods have callbacks but we don't need to wait for them all to run, they

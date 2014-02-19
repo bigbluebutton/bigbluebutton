@@ -380,7 +380,7 @@ define [
       switch shape
         when "line"
           @currentLine.update(data)
-        when "rect"
+        when "rectangle"
           @currentRect.update(data)
         when "ellipse"
           @currentEllipse.update(data)
@@ -403,7 +403,7 @@ define [
           @currentLine = @_createTool(shape)
           toolModel = @currentLine
           tool = @currentLine.make(data)
-        when "rect"
+        when "rectangle"
           @currentRect = @_createTool(shape)
           toolModel = @currentRect
           tool = @currentRect.make(data)
@@ -526,8 +526,9 @@ define [
       globals.events.on "connection:clrPaper", =>
         @clearShapes()
 
-      globals.events.on "connection:all_shapes", (shapes) =>
+      globals.events.on "connection:allShapes", (allShapesEventObject) =>
         # TODO: a hackish trick for making compatible the shapes from redis with the node.js
+        shapes = allShapesEventObject.shapes
         for shape in shapes
           properties = JSON.parse(shape.data)
           if shape.shape is "path"
@@ -550,14 +551,14 @@ define [
       globals.events.on "connection:updShape", (shape, data) =>
         @updateShape(shape, data)
 
-      globals.events.on "connection:whiteboardMakeShape", (shape, data) =>
+      globals.events.on "connection:whiteboard_draw_event", (shape, data) =>
         @makeShape(shape, data)
 
-      globals.events.on "connection:whiteboardDrawPen", (data) =>
-        type = data.shape.type
-        color = data.shape.color
-        thickness = data.shape.thickness
-        points = data.shape.points
+      globals.events.on "connection:whiteboardDrawPen", (startingData) =>
+        type = startingData.payload.shape_type
+        color = startingData.payload.data.line.color
+        thickness = startingData.payload.data.line.weight
+        points = startingData.shape.points
         if type is "line"
           for i in [0..points.length - 1]
             if i is 0
@@ -571,8 +572,8 @@ define [
                     firstX : points[i].x/100,
                     firstY : points[i].y/100
                   },
-                  color: data.shape.color,
-                  thickness : data.shape.thickness
+                  color: startingData.payload.data.line.color,
+                  thickness : startingData.payload.data.line.weight
                 }
                 adding : false #tell the line object that we are NOT adding points but creating a new line
               }
@@ -589,8 +590,8 @@ define [
                     firstX : points[i].x/100,
                     firstY : points[i].y/100
                   },
-                  color: data.shape.color,
-                  thickness : data.shape.thickness
+                  color: startingData.payload.data.line.color,
+                  thickness : startingData.payload.data.line.weight
                 }
                 adding : true #tell the line object that we ARE adding points and NOT creating a new line
               }
@@ -815,7 +816,7 @@ define [
       switch type
         when "path", "line"
           model = WhiteboardLineModel
-        when "rect"
+        when "rectangle"
           model = WhiteboardRectModel
         when "ellipse"
           model = WhiteboardEllipseModel

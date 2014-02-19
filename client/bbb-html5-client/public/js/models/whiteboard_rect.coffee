@@ -23,13 +23,13 @@ define [
     # @param  {number} y         the y value of the top left corner
     # @param  {string} colour    the colour of the object
     # @param  {number} thickness the thickness of the object's line(s)
-    make: (data) ->
-      console.log("make data");
-      console.log(data);
-      x = data.shape.coordinate.firstX
-      y = data.shape.coordinate.firstY
-      color = data.shape.color
-      thickness = data.shape.thickness
+    make: (startingData) ->
+      console.log("make startingData");
+      console.log(startingData);
+      x = startingData.payload.data.coordinate.first_x
+      y = startingData.payload.data.coordinate.first_y
+      color = startingData.payload.data.line.color
+      thickness = startingData.payload.data.line.weight
 
       @obj = @paper.rect(x * @gw + @xOffset, y * @gh + @yOffset, 0, 0, 1)
       @obj.attr Utils.strokeAndThickness(color, thickness)
@@ -44,12 +44,12 @@ define [
     # @param  {number} x2 the x value of the bottom right corner
     # @param  {number} y2 the y value of the bottom right corner
     # @param  {boolean} square (draw a square or not)
-    update: (data) -> 
-      x1 = data.shape.coordinate.firstX
-      y1 = data.shape.coordinate.firstY
-      x2 = data.shape.coordinate.lastX
-      y2 = data.shape.coordinate.lastY
-      square = data.shape.square
+    update: (startingData) -> 
+      x1 = startingData.payload.data.coordinate.first_x
+      y1 = startingData.payload.data.coordinate.first_y
+      x2 = startingData.payload.data.coordinate.last_x
+      y2 = startingData.payload.data.coordinate.last_y
+      square = startingData.payload.data.square
       if @obj?
         [x1, x2] = [x2, x1] if x2 < x1
         [x1, x2] = [x2, x1] if x2 < x1
