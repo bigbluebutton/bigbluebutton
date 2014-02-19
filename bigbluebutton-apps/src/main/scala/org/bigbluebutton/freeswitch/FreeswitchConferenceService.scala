@@ -80,6 +80,7 @@ class FreeswitchConferenceService(fsproxy: FreeswitchManagerProxy,
   }
   
   def voiceUserLeft(userId: String, conference: String) {
+    println("******** FreeswitchConferenceService received voiceUserLeft vui=[" + userId + "] conference=[" + conference + "]")
     val vul = new FsVoiceUserLeft(userId, conference)
     fsActor ! vul
   }

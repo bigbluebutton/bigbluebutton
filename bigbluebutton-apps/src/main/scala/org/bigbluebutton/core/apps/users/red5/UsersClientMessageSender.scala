@@ -142,7 +142,18 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	}
 	
 	private def handleUserLeftVoice(msg: UserLeftVoice) {
-	  
+	  val args = new java.util.HashMap[String, Object]();
+	  args.put("meetingID", msg.meetingID);
+	  args.put("user", buildUserHashMap(msg.user))
+	
+	  val message = new java.util.HashMap[String, Object]() 
+	  val gson = new Gson();
+  	  message.put("msg", gson.toJson(args))
+  	
+  	  println("UsersClientMessageSender - handleUserLeftVoice \n" + message.get("msg") + "\n")
+//  	log.debug("UsersClientMessageSender - handleUserLeftVoice \n" + message.get("msg") + "\n")
+      val m = new BroadcastClientMessage(msg.meetingID, "userLeftVoice", message);
+	  service.sendMessage(m);	  
 	}
 	
 	private def handleUserJoinedVoice(msg: UserJoinedVoice) {

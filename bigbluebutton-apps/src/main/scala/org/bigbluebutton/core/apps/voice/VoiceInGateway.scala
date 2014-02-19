@@ -40,6 +40,7 @@ class VoiceInGateway(bbbGW: BigBlueButtonGateway) {
 	}
 	
 	def voiceUserLeft(meetingId: String, userId: String) {
+	  println("VoiceInGateway: Got voiceUserLeft message for meeting [" + meetingId + "] user[" + userId + "]")
 	  bbbGW.accept(new VoiceUserLeft(meetingId, userId))
 	}
 	

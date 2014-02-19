@@ -160,7 +160,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
 	   case Some(user) => {
          println("FreeswitchConferenceActor:: Found webuser for this user for conference [" + 
                 msg.conference + "] user=[" + msg.callerIdName + "] wid=[" + msg.webUserId + "]")	     
-	     sendNonWebUserJoined(fc.meetingId, msg.webUserId, msg)
+	     sendNonWebUserJoined(fc.meetingId, user.voiceUser.webUserId, msg)
 	   }
 	   case None => {
 	     println("FreeswitchConferenceActor:: Did not find webuser for this user for conference [" + 
@@ -173,10 +173,10 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
   
   private def handleFsVoiceUserLeft(msg: FsVoiceUserLeft) {
     val fsconf = confs.values find (c => c.conferenceNum == msg.conference)
-    
+    log.debug("Rx voice user left for cnum=[" + msg.conference + "] vid[" + msg.userId + "]")
     fsconf foreach (fc => {
       val user = fc.getVoiceUser(msg.userId) 
-      user foreach (u => bbbInGW.voiceUserLeft(fc.meetingId, msg.userId))
+      user foreach (u => bbbInGW.voiceUserLeft(fc.meetingId, u.userID))
     })
   }
   
@@ -185,7 +185,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     
     fsconf foreach (fc => {
       val user = fc.getVoiceUser(msg.userId)   
-      user foreach (u => bbbInGW.voiceUserLocked(fc.meetingId, msg.userId, msg.locked))
+      user foreach (u => bbbInGW.voiceUserLocked(fc.meetingId, u.userID, msg.locked))
     })    
   }
   

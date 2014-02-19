@@ -207,8 +207,9 @@ trait UsersApp {
                            false, false, false, false)
       val nu = user.copy(voiceUser=vu)
       users.addUser(nu)
+            
       println("Received voice user left =[" + user.name + "] wid=[" + msg.userId + "]" )
-      outGW.send(new UserLeftVoice(meetingID, recorded, voiceBridge, nu))        
+      outGW.send(new UserLeftVoice(meetingID, recorded, voiceBridge, user))        
     }    
   }
   

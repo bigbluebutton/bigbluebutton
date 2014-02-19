@@ -88,7 +88,7 @@ package org.bigbluebutton.modules.users.services
           handleUserJoinedVoice(message);
           break;
         case "userLeftVoice":
-          handleUserJoinedVoice(message);
+          handleUserLeftVoice(message);
           break;
         case "voiceUserMuted":
           handleVoiceUserMuted(message);
@@ -202,7 +202,39 @@ package org.bigbluebutton.modules.users.services
       var map:Object = JSON.parse(msg.msg);
       
       var webUser:Object = map.user as Object;
-      UsersService.getInstance().userJoinedVoice(map);
+      var voiceUser:Object = webUser.voiceUser as Object;
+      UsersService.getInstance().userLeftVoice(voiceUser);
+      
+      var l:BBBUser = _conference.getVoiceUser(voiceUser.userId);
+      /**
+       * Let's store the voice userid so we can do push to talk.
+       */
+      if (l != null) {
+        trace("Found voice user id[" + voiceUser.userId + "]");
+        if (_conference.amIThisVoiceUser(voiceUser.userId)) {
+          trace("I am this voice user id[" + voiceUser.userId + "]");
+          _conference.setMyVoiceJoined(false);
+          _conference.setMyVoiceUserId(0);
+          _conference.setMyVoiceJoined(false);
+        }
+        
+        l.voiceUserid = 0;
+        l.voiceMuted = false;
+        l.voiceJoined = false;
+        l.talking = false;
+        l.userLocked = false;
+        
+        trace("notifying views that user has left voice. id[" + voiceUser.userId + "]");
+        var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_LEFT);
+        bbbEvent.payload.userID = l.userID;
+        globalDispatcher.dispatchEvent(bbbEvent);
+        
+        if (l.phoneUser) {
+          _conference.removeUser(l.userID);
+        }
+      } else {
+        trace("Could not find voice user id" + voiceUser.userId + "]");
+      }
     }
     
     private function handleUserJoinedVoice(msg:Object):void {

@@ -7,21 +7,19 @@ package org.bigbluebutton.core.services
   {
     private static const LOG:String = "Users::UsersMessageProcessor - ";
     
-    public function processUserJoinedVoiceMessage(user:Object):VoiceUserVO {
+    public function processUserJoinedVoiceMessage(voiceUser:Object):VoiceUserVO {
       trace(LOG + "*** processUserJoinedVoiceMessage **** \n"); 
-      if (user.voiceUser != null) {
-        var vu:Object = user.voiceUser as Object;
-        return processVoiceUser(vu);
+      if (voiceUser != null) {
+        return processVoiceUser(voiceUser);
       }
       
       return null;
     }
     
-    public function processUserLeftVoiceMessage(user:Object):VoiceUserVO {
-      trace(LOG + "*** processUserJoinedVoiceMessage **** \n"); 
-      if (user.voiceUser != null) {
-        var vu:Object = user.voiceUser as Object;
-        return processVoiceUser(vu);
+    public function processUserLeftVoiceMessage(voiceUser:Object):VoiceUserVO {
+      trace(LOG + "*** processUserLeftVoiceMessage **** \n"); 
+      if (voiceUser != null) {
+        return processVoiceUser(voiceUser);
       }
       
       return null;      
