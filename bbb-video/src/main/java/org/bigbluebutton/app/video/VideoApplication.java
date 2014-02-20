@@ -20,6 +20,7 @@ package org.bigbluebutton.app.video;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IConnection;
@@ -29,9 +30,12 @@ import org.red5.server.api.scope.IBasicScope;
 import org.red5.server.api.scope.IBroadcastScope;
 import org.red5.server.api.scope.ScopeType;
 import org.red5.server.api.stream.IBroadcastStream;
+import org.red5.server.api.stream.IPlayItem;
 import org.red5.server.api.stream.IServerStream;
 import org.red5.server.api.stream.IStreamListener;
+import org.red5.server.api.stream.ISubscriberStream;
 import org.red5.server.stream.ClientBroadcastStream;
+import org.red5.client.StreamRelay;
 import org.slf4j.Logger;
 
 public class VideoApplication extends MultiThreadedApplicationAdapter {
@@ -43,6 +47,9 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	private boolean recordVideoStream = false;
 	private EventRecordingService recordingService;
 	private final Map<String, IStreamListener> streamListeners = new HashMap<String, IStreamListener>();
+
+    private Map<String, StreamRelay> remoteStreams = new ConcurrentHashMap<String, StreamRelay>();
+
 	
     @Override
 	public boolean appStart(IScope app) {
@@ -169,5 +176,57 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	public void setEventRecordingService(EventRecordingService s) {
 		recordingService = s;
 	}
+
+    @Override
+    public void streamPlayItemPlay(ISubscriberStream stream, IPlayItem item, boolean isLive) {
+        // log w3c connect event
+        String streamName = item.getName();
+        
+        if(streamName.contains("remote")) {
+            String[] parts = streamName.split("/");
+            if(remoteStreams.containsKey(parts.length-1) == false) {
+                StreamRelay remoteRelay = null;
+                String conference = Red5.getConnectionLocal().getScope().getName();
+                String host = Red5.getConnectionLocal().getHost();
+                String[] initRelay = new String[7];
+                
+                initRelay[0] = parts[parts.length-2];
+                initRelay[3] = host;
+                initRelay[4] = "video" + "/" + conference; 
+                initRelay[5] = streamName;
+                initRelay[6] = "live";
+                
+               if(parts.length > 4) {
+                    initRelay[1] = "video/remote";
+                    String aux = "remote/" + parts[1] + "/";
+                    for(int i = 2; i <= parts.length-3; i++) {
+                        aux = aux + parts[i] + "/";
+                    }
+                    aux = aux + parts[parts.length-1];
+                    initRelay[2] = aux;
+                }
+                else {
+                    initRelay[1] = "video/" + parts[1];
+                    initRelay[2] = parts[parts.length-1];
+                }
+
+                remoteRelay = new StreamRelay(initRelay);
+                remoteStreams.put(streamName, remoteRelay);
+            }
+        }
+        
+        //URL
+        //rtmp://143.54.10.63/video/conferenciaNesseServidor/
+        //stremName: remote/conferenciaOrigem/143.54.10.22/streamName
+
+       // parts[0] = "remote"
+       // parts[1] = "conferenciaOrigem"
+       // parts[2] = "143.54.10.22"
+       // parts[3] = "143.54.10.21"
+       // parts[4] = "143.54.10.20"
+       // parts[5] = 'streamName"
+
+        log.info("W3C x-category:stream x-event:play c-ip:{} x-sname:{} x-name:{}", new Object[] { Red5.getConnectionLocal().getRemoteAddress(), stream.getName(), item.getName() });
+    }
 	
 }
