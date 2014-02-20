@@ -6,7 +6,7 @@ config = require("../config")
 Logger = require("./logger")
 RedisKeys = require("../lib/redis_keys")
 Utils = require("./utils")
-#messageLib = require("./message_library")
+messageLib = require("bigbluebutton-messages")
 
 moduleDeps = ["RedisAction", "RedisStore", "RedisPublisher"]
 
@@ -56,10 +56,36 @@ module.exports = class RedisWebsocketBridge
   # @private
   _redis_registerListeners: ->
     @sub.on "pmessage", (pattern, channel, message) =>
-      console.log("this is json:\n" + message)
-      console.log("this is javaScript Object:\n" + JSON.parse(message) + "\n\n")
       
-      attributes = JSON.parse(message)
+      ###
+        using the message library instead of simply doing attributes = JSON.parse messages
+      ###
+      eventType = null
+      messageLib.getEventType(message, #identify the name/type of the message
+        (text)->
+          eventType = text
+          console.log "assigned eventType="+eventType
+        ,
+          (err)->
+            console.log err
+      )
+
+      if eventType is null
+        attributes = JSON.parse message # no change to this part yet as it's related to 
+        #...the old style messages
+      else
+        attributes = null
+
+        messageLib["#{eventType}_to_javascript_object"](message,#convert to Javascript Object
+          (object)->
+            console.log "successfully converted (to js object) " + object.header.name
+            attributes = object
+            return
+          ,
+          ->
+            console.log "not successful in converting to js object "+ eventType
+        )
+      
       Logger.info "message from redis on channel:#{channel}, data:#{message}"
 
       if channel is "bigbluebutton:bridge"
@@ -73,9 +99,9 @@ module.exports = class RedisWebsocketBridge
       else
         # value of pub channel is used as the name of the SocketIO room to send to
         # apply the parameters to the socket event, and emit it on the channels
-        #@_emitToClients(channel, JSON.parse(message))
-        @_emitToClients2(channel, JSON.parse(message))
-
+        console.log "\n from within Websocket bridge:" + message + "\n"
+       
+        @_emitToClients2(channel, attributes)
 
   # When received a message on the channel "bigbluebutton:bridge"
   #
@@ -114,6 +140,7 @@ module.exports = class RedisWebsocketBridge
     console.log("\n\n***attributes: ")
     console.log attributes 
     
+
     #meetingID = attributes[0]
     meetingID = attributes?.meeting?.id
     console.log("*meetingID: " + meetingID);
@@ -168,10 +195,11 @@ module.exports = class RedisWebsocketBridge
   # Emits a message to all clients connected in the given channel.
   #
   # @private
-  _emitToClients2: (channel, message) ->
+  _emitToClients2: (channel, message) -> #message is a JS Object
 
     console.log("\n\nin _emitToClients2 ***message: ")
     console.log message 
+
     channelViewers = @io.sockets.in(channel)
     console.log("**message name**: ")
 
