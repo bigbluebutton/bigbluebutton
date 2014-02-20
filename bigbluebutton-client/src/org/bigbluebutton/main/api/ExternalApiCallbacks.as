@@ -50,6 +50,8 @@ package org.bigbluebutton.main.api
 
   public class ExternalApiCallbacks
   {
+    private static const LOG:String = "ExternalApiCallbacks - ";
+    
     private var _dispatcher:Dispatcher;
     
     public function ExternalApiCallbacks() {
@@ -167,15 +169,16 @@ package org.bigbluebutton.main.api
     }
     
     private function handleGetMyUserInfoSynch():Object {
+      trace(LOG + " handleGetMyUserInfoSynch");
       var obj:Object = new Object();
       obj.myUserID = UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
       obj.myUsername = UsersUtil.getMyUsername();
       obj.myAvatarURL = UsersUtil.getAvatarURL();
       obj.myRole = UsersUtil.getMyRole();
       obj.amIPresenter = UsersUtil.amIPresenter();
-	  obj.dialNumber = UsersUtil.getDialNumber();
-	  obj.voiceBridge = UsersUtil.getVoiceBridge();
-	  obj.customdata = UsersUtil.getCustomData();
+	    obj.dialNumber = UsersUtil.getDialNumber();
+	    obj.voiceBridge = UsersUtil.getVoiceBridge();
+	    obj.customdata = UsersUtil.getCustomData();
       
       return obj;
     }
@@ -227,10 +230,12 @@ package org.bigbluebutton.main.api
     }
     
     private function handleGetMyUserID():String {
+      trace(LOG + " handleGetMyUserID");
       return UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
     }
     
     private function handleGetPresenterUserID():String {
+      trace(LOG + " handleGetPresenterUserID");
       var presUserID:String = UsersUtil.getPresenterUserID();
       if (presUserID != "") {
         return UsersUtil.internalUserIDToExternalUserID(presUserID);

@@ -33,8 +33,7 @@ import java.util.Map;import org.bigbluebutton.conference.BigBlueButtonSession;
 
 public class ParticipantsHandler extends ApplicationAdapter implements IApplication{
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsHandler.class, "bigbluebutton" );
-
-	private static final String PARTICIPANTS_SO = "participantsSO";   
+ 
 	private static final String APP = "USERS";
 
 	private ParticipantsApplication participantsApplication;
@@ -86,15 +85,13 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
-		 
-		ISharedObject so = getSharedObject(connection.getScope(), PARTICIPANTS_SO, false);
 		return true;
 	}
 
 	@Override
 	public boolean roomJoin(IClient client, IScope scope) {
 		log.debug(APP + ":roomJoin " + scope.getName() + " - " + scope.getParent().getName());
-		participantJoin();
+		registerUser();
 		return true;
 	}
 
@@ -112,12 +109,9 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 	@Override
 	public void roomStop(IScope scope) {
 		log.debug("***** " + APP + " [ " + " roomStop [ " + scope.getName() + "] *********");
-		if (hasSharedObject(scope, PARTICIPANTS_SO)) {
-    		clearSharedObjects(scope, PARTICIPANTS_SO);
-    	}
 	}
 	
-	public boolean participantJoin() {
+	public void registerUser() {
 		log.debug(APP + ":participantJoin - getting userid");
 		BigBlueButtonSession bbbSession = getBbbSession();
 		if (bbbSession != null) {
@@ -131,10 +125,9 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 			status.put("raiseHand", false);
 			status.put("presenter", false);
 			status.put("hasStream", false);	
-			return participantsApplication.participantJoin(room, userid, username, role, bbbSession.getExternUserID(), status);
+			participantsApplication.registerUser(room, userid, username, role, bbbSession.getExternUserID(), status);
 		}
 		log.warn("Can't send user join as session is null.");
-		return false;
 	}
 	
 	public void setParticipantsApplication(ParticipantsApplication a) {

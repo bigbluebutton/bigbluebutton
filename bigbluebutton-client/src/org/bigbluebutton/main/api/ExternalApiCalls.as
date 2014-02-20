@@ -46,6 +46,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 
   public class ExternalApiCalls { 
+    private static const LOG:String = "ExternalApiCalls - ";
     
     public function handleOpenExternalUploadWindow(event:UploadEvent):void {
       var payload:Object = new Object();
@@ -56,6 +57,7 @@ package org.bigbluebutton.main.api
     
     
     public function handleUserKickedOutEvent(event:LogoutEvent):void {
+      trace(LOG + " handleUserKickedOutEvent");
       var payload:Object = new Object();
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.userID);
       payload.eventName = EventConstants.USER_KICKED_OUT;
@@ -63,6 +65,7 @@ package org.bigbluebutton.main.api
     }
     
     public function handleIsUserPublishingCamRequest(event:IsUserPublishingCamRequest):void {
+      trace(LOG + " handleIsUserPublishingCamRequest");
       var payload:Object = new Object();
       var isUserPublishing:Boolean = false;
       
@@ -83,6 +86,8 @@ package org.bigbluebutton.main.api
     }
     
     public function handleGetMyUserInfoRequest(event:GetMyUserInfoRequestEvent):void {
+      trace(LOG + " handleGetMyUserInfoRequest");
+      
       var payload:Object = new Object();
       payload.eventName = EventConstants.GET_MY_USER_INFO_REP;
       payload.myUserID = UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
@@ -106,6 +111,7 @@ package org.bigbluebutton.main.api
     }    
     
     public function handleStreamStartedEvent(event:StreamStartedEvent):void {
+      trace(LOG + " handleStreamStartedEvent");
       var vidConf:VideoConfOptions = new VideoConfOptions();
       
       var payload:Object = new Object();
@@ -192,6 +198,7 @@ package org.bigbluebutton.main.api
     }
 
     public function handleStartPrivateChatEvent(event:CoreEvent):void {
+      trace(LOG + " handleStartPrivateChatEvent");
       var payload:Object = new Object();
       payload.eventName = EventConstants.START_PRIVATE_CHAT;
       payload.chatWith = UsersUtil.internalUserIDToExternalUserID(event.message.chatWith);
@@ -206,6 +213,7 @@ package org.bigbluebutton.main.api
     }
 
     public function handleUserJoinedVoiceEvent(event:BBBEvent):void {
+      trace(LOG + " handleUserJoinedVoiceEvent");
       var payload:Object = new Object();
       payload.eventName = EventConstants.USER_JOINED_VOICE;
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
@@ -216,6 +224,7 @@ package org.bigbluebutton.main.api
     }
     
     public function handleUserVoiceMutedEvent(event:BBBEvent):void {
+      trace(LOG + " handleUserVoiceMutedEvent");
       var payload:Object = new Object();
       payload.eventName = EventConstants.USER_MUTED_VOICE;
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
@@ -226,6 +235,7 @@ package org.bigbluebutton.main.api
     }
     
     public function handleUserLockedEvent(event:BBBEvent):void {
+      trace(LOG + " handleUserLockedEvent");
       var payload:Object = new Object();
       payload.eventName = EventConstants.USER_LOCKED;
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
@@ -236,6 +246,7 @@ package org.bigbluebutton.main.api
     }
     
     public function handleUserVoiceLeftEvent(event:BBBEvent):void {
+      trace(LOG + " handleUserVoiceLeftEvent");
       var payload:Object = new Object();
       payload.eventName = EventConstants.USER_LEFT_VOICE;
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
@@ -246,6 +257,7 @@ package org.bigbluebutton.main.api
     }
             
     public function handleNewPublicChatEvent(event:CoreEvent):void {
+      trace(LOG + " handleNewPublicChatEvent");
       var payload:Object = new Object();
       payload.eventName = EventConstants.NEW_PUBLIC_CHAT;
       payload.chatType = event.message.chatType;      
@@ -264,6 +276,7 @@ package org.bigbluebutton.main.api
     }
     
     public function handleNewPrivateChatEvent(event:CoreEvent):void {
+      trace(LOG + " handleNewPrivateChatEvent");
       var payload:Object = new Object();
       payload.eventName = EventConstants.NEW_PRIVATE_CHAT;
       payload.chatType = event.message.chatType;      
@@ -284,6 +297,7 @@ package org.bigbluebutton.main.api
     }
         
     public function handleUserJoinedEvent(event:UserJoinedEvent):void {
+      trace(LOG + " handleUserJoinedEvent");
       var payload:Object = new Object();
       var user:BBBUser = UserManager.getInstance().getConference().getUser(event.userID);
       
@@ -300,7 +314,7 @@ package org.bigbluebutton.main.api
     }    
 
     public function handleUserLeftEvent(event:UserLeftEvent):void {
-      trace("Got notification that user [" + event.userID + "] has left the meeting");
+      trace(LOG + "Got notification that user [" + event.userID + "] has left the meeting");
       
       var payload:Object = new Object();
       var user:BBBUser = UserManager.getInstance().getConference().getUser(event.userID);

@@ -14,7 +14,7 @@ trait UsersApp {
   val outGW: MessageOutGateway
   
   private val users = new UsersModel
-//  private val users2 = new Users
+  private var regUsers = new collection.immutable.HashMap[String, RegisteredUser]
   
   private var locked = false
   private var meetingMuted = false
@@ -41,10 +41,16 @@ trait UsersApp {
   }
   
   def handleValidateAuthToken(msg: ValidateAuthToken) {
-    getUser(msg.userId) match {
+    regUsers.get (msg.userId) match {
       case Some(u) => outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true))
       case None => outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, false))
     }  
+  }
+  
+  def handleRegisterUser(msg: RegisterUser) {
+    val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role)
+    regUsers += msg.userID -> regUser
+    outGW.send(new UserRegistered(meetingID, recorded, regUser))
   }
   
   def handleIsMeetingMutedRequest(msg: IsMeetingMutedRequest) {

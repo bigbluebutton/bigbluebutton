@@ -107,10 +107,45 @@ package org.bigbluebutton.main.model.users
         notifyListeners(messageName, msg);
       } else {
         trace(LOG + "Ignoring message=[" + messageName + "] as our token hasn't been validated yet.");
-      }
-      
+      }     
     }
 		
+    private function validateToken():void {
+      sendMessage(
+        "validateToken",// Remote function name
+        // result - On successful result
+        function(result:Object):void { 
+          trace("validating token for [" + _conferenceParameters.internalUserID + "]"); 
+        },	
+        // status - On error occurred
+        function(status:Object):void { 
+          LogUtil.error("Error occurred:"); 
+          for (var x:Object in status) { 
+            LogUtil.error(x + " : " + status[x]); 
+          } 
+        },
+        _conferenceParameters.internalUserID
+      ); //_netConnection.call      
+    }
+    
+    private function joinMeeting():void {
+      sendMessage(
+        "joinMeeting",// Remote function name
+        // result - On successful result
+        function(result:Object):void { 
+          trace("joining meeting for [" + _conferenceParameters.internalUserID + "]"); 
+        },	
+        // status - On error occurred
+        function(status:Object):void { 
+          LogUtil.error("Error occurred:"); 
+          for (var x:Object in status) { 
+            LogUtil.error(x + " : " + status[x]); 
+          } 
+        },
+        _conferenceParameters.internalUserID
+      ); //_netConnection.call      
+    }
+    
     private function handleValidateAuthTokenReply(msg: Object):void {
       trace(LOG + "*** handleValidateAuthTokenReply " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);  
@@ -120,7 +155,7 @@ package org.bigbluebutton.main.model.users
       if (tokenValid) {
         authenticated = true;
         trace(LOG + "*** handleValidateAuthTokenReply. valid=[ " + tokenValid + "] **** \n");
-        sendConnectionSuccessEvent(userId);
+        joinMeeting();
       } else {
         trace(LOG + "*** handleValidateAuthTokenReply. valid=[ " + tokenValid + "] **** \n");
       }
@@ -134,7 +169,7 @@ package org.bigbluebutton.main.model.users
     }
     
 		public function sendMessage(service:String, onSuccess:Function, onFailure:Function, message:Object=null):void {
-      trace("SENDING [" + service + "]");
+//      trace("SENDING [" + service + "]");
 			var responder:Responder =	new Responder(                    
 					function(result:Object):void { // On successful result
 						onSuccess("Successfully sent [" + service + "]."); 
@@ -227,23 +262,7 @@ package org.bigbluebutton.main.model.users
           
 					// uncomment this to turn on the bandwidth check
 //					startMonitoringBandwidth();
-          
-					sendMessage(
-							"validateToken",// Remote function name
-	        					// result - On successful result
-								function(result:Object):void { 
-									LogUtil.debug("Userid [" + result + "]"); 
-//									sendConnectionSuccessEvent(result);
-								},	
-								// status - On error occurred
-								function(status:Object):void { 
-									LogUtil.error("Error occurred:"); 
-									for (var x:Object in status) { 
-										LogUtil.error(x + " : " + status[x]); 
-									} 
-								},
-              _conferenceParameters.internalUserID
-					); //_netConnection.call
+          validateToken();
 			
 					break;
 			

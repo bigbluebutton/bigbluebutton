@@ -46,6 +46,12 @@ case class IsMeetingLockedReply(meetingID: String,
                            userId: String) extends IOutMessage
 
 // Users
+case class UserRegistered(
+    meetingID: String,
+    recorded: Boolean,
+    user: RegisteredUser
+) extends IOutMessage
+
 case class UserLeft(meetingID: String, recorded: Boolean, 
                            user:UserVO) extends IOutMessage
 case class PresenterAssigned(meetingID: String, recorded: Boolean, 

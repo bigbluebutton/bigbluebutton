@@ -114,12 +114,12 @@ package org.bigbluebutton.modules.users.services
           break;
         case "recordingStatusChanged":
           handleRecordingStatusChanged(message);
+        case "joinMeetingReply":
+          handleJoinedMeeting(message);
           break;
       }
     }  
-    
-
-    
+        
     private function sendRecordingStatusUpdate(recording:Boolean):void {
       MeetingModel.getInstance().recording = recording;
       
@@ -127,6 +127,16 @@ package org.bigbluebutton.modules.users.services
       e.payload.remote = true;
       e.payload.recording = recording;
       dispatcher.dispatchEvent(e);
+    }
+    
+    private function handleJoinedMeeting(msg:Object):void {
+      trace(LOG + "*** handleJoinedMeeting " + msg.msg + " **** \n");      
+      var map:Object = JSON.parse(msg.msg);
+      var userid: String = map.user.userId;
+      
+      var e:UsersConnectionEvent = new UsersConnectionEvent(UsersConnectionEvent.CONNECTION_SUCCESS);
+      e.userid = userid;
+      dispatcher.dispatchEvent(e);      
     }
     
     private function handleGetRecordingStatusReply(msg: Object):void {
@@ -299,9 +309,11 @@ package org.bigbluebutton.modules.users.services
       trace(LOG + "*** handleParticipantJoined " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);
       
-      UsersService.getInstance().userJoined(map);
+      var user:Object = map.user as Object;
       
-      participantJoined(map.user as Object);
+      UsersService.getInstance().userJoined(user);
+      trace(LOG + "*** handleParticipantJoined [" + user.userId + "] **** \n");
+      participantJoined(user);
     }
     
     /**
@@ -431,6 +443,7 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function participantJoined(joinedUser:Object):void {      
+      trace(LOG + "*** participantJoined [" + joinedUser.userId + "] **** \n");
       var user:BBBUser = new BBBUser();
       user.userID = joinedUser.userId;
       user.name = joinedUser.name;

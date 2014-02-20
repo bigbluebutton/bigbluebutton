@@ -50,6 +50,8 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	                handleGetRecordingStatusReply(msg)
 	    case msg: ValidateAuthTokenReply =>
 	                handleValidateAuthTokenReply(msg)
+	    case msg: UserRegistered =>
+	                handleRegisteredUser(msg)
 	    case _ => // println("Unhandled message in UsersClientMessageSender")
 	  }
 	}
@@ -80,6 +82,19 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  wuser.put("voiceUser", vuser)	  
 	  
 	  wuser
+	}
+	
+	private def handleRegisteredUser(msg: UserRegistered) {
+	  val args = new java.util.HashMap[String, Object]();  
+	  args.put("userId", msg.user.id);
+
+	  val message = new java.util.HashMap[String, Object]() 
+	  val gson = new Gson();
+  	  message.put("msg", gson.toJson(args))
+  	  
+  	  println("UsersClientMessageSender - handleRegisteredUser \n" + message.get("msg") + "\n")
+//      val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenReply", message);
+//	  service.sendMessage(m);		  
 	}
 	
 	private def handleValidateAuthTokenReply(msg: ValidateAuthTokenReply) {
@@ -238,7 +253,12 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    val message = new java.util.HashMap[String, Object]() 
 	    val gson = new Gson();
   	    message.put("msg", gson.toJson(args))
-  	    
+
+  	    println("UsersClientMessageSender - joinMeetingReply \n" + message.get("msg") + "\n")
+			
+        var jmr = new DirectClientMessage(msg.meetingID, msg.user.userID, "joinMeetingReply", message);
+  	    service.sendMessage(jmr);
+  	  
   	    println("UsersClientMessageSender - handleUserJoined \n" + message.get("msg") + "\n")
   	    
 		var m = new BroadcastClientMessage(msg.meetingID, "participantJoined", message);

@@ -20,12 +20,8 @@ package org.bigbluebutton.conference.service.participants;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.Red5;
-import org.red5.server.api.scope.IScope;
-
 import java.util.Map;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
-import org.bigbluebutton.conference.service.lock.LockSettingsOld;
 
 public class ParticipantsApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsApplication.class, "bigbluebutton" );	
@@ -57,8 +53,9 @@ public class ParticipantsApplication {
 		return true;
 	}
 	
-	public boolean participantJoin(String roomName, String userid, String username, String role, String externUserID, Map status) {
-		bbbInGW.userJoin(roomName, userid, username, role, externUserID);
+	public boolean registerUser(String roomName, String userid, String username, String role, String externUserID, Map status) {
+		bbbInGW.registerUser(roomName, userid, username, role, externUserID);
+		//bbbInGW.userJoin(roomName, userid, username, role, externUserID);
 		return true;
 	}
 		

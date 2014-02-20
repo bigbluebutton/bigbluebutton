@@ -71,6 +71,11 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
     bbbGW.accept(new ValidateAuthToken(meetingId, userId, token))
   }
   
+  def registerUser(meetingID: String, userID: String, name: String, role: String, extUserID: String):Unit = {
+    val userRole = if (role == "MODERATOR") Role.MODERATOR else Role.VIEWER
+    bbbGW.accept(new RegisterUser(meetingID, userID, name, userRole, extUserID))
+  }
+  
   def sendLockSettings(meetingID: String, settings: java.util.Map[String, java.lang.Boolean]) {
     // Convert java.util.Map to scala.collection.immutable.Map
     // settings.mapValues -> convaert java Map to scala mutable Map

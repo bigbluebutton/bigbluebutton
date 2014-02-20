@@ -8,32 +8,50 @@ import org.bigbluebutton.core.apps.presentation.Presentation
 
 trait InMessage {val meetingID: String}
 
-case class KeepAliveMessage(aliveID:String)
+case class KeepAliveMessage
+( aliveID:String
+)
 
-case class CreateMeeting(meetingID: String, recorded: Boolean, 
-                         voiceBridge: String) extends InMessage
+case class CreateMeeting
+(
+  meetingID: String, 
+  recorded: Boolean, 
+  voiceBridge: String
+) extends InMessage
                          
-case class InitializeMeeting(meetingID: String, 
-                             recorded: Boolean) extends InMessage
+case class InitializeMeeting(
+  meetingID: String, 
+  recorded: Boolean) extends InMessage
                              
-case class DestroyMeeting(meetingID: String) extends InMessage
+case class DestroyMeeting(
+  meetingID: String) extends InMessage
 
-case class StartMeeting(meetingID: String) extends InMessage
+case class StartMeeting(
+  meetingID: String) extends InMessage
 
-case class EndMeeting(meetingID: String) extends InMessage
+case class EndMeeting(
+  meetingID: String) extends InMessage
 
-case class LockSetting(meetingID: String, locked: Boolean, 
-                       settings: Map[String, Boolean]) extends InMessage
+case class LockSetting(
+  meetingID: String, 
+  locked: Boolean, 
+  settings: Map[String, Boolean]) extends InMessage
 
 // Lock
-case class LockUser(meetingID: String, userId: String, 
-                    lock: Boolean) extends InMessage
+case class LockUser(
+  meetingID: String, 
+  userId: String, 
+  lock: Boolean) extends InMessage
                     
-case class LockAllUsers(meetingID: String, lock: Boolean, 
-                        exceptUsers: Seq[String]) extends InMessage
+case class LockAllUsers(
+  meetingID: String, 
+  lock: Boolean, 
+  exceptUsers: Seq[String]) extends InMessage
                         
-case class InitLockSettings(meetingID: String, locked: Boolean, 
-                            settings: LockSettings) extends InMessage
+case class InitLockSettings(
+  meetingID: String, 
+  locked: Boolean, 
+  settings: LockSettings) extends InMessage
                             
 case class SetLockSettings(meetingID: String,  
                            settings: LockSettings) extends InMessage
@@ -51,6 +69,10 @@ case class ValidateAuthToken(
   userId: String, 
   token: String) extends InMessage
 
+case class RegisterUser(meetingID: String, userID: String, 
+                       name: String, role: Role, 
+                       extUserID: String) extends InMessage
+                       
 case class UserJoining(meetingID: String, userID: String, 
                        name: String, role: Role, 
                        extUserID: String) extends InMessage

@@ -39,10 +39,16 @@ case class Permissions(
 )
 
 case class PermissionsSetting(
-  applyToModerators: Boolean,
+  includeModerators: Boolean,
   permissions: Permissions
 )
 
+case class RegisteredUser (
+    id: String, 
+    externId: String,
+    name: String, 
+    role: Role.Role 
+)
 
 case class Voice(
   id: String,

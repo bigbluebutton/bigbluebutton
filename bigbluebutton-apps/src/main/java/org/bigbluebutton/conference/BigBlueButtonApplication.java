@@ -208,6 +208,20 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		bbbGW.validateAuthToken(meetingId, userId, token);
 	}
 	
+	public void joinMeeting(String userId) {
+		BigBlueButtonSession bbbSession = getBbbSession();
+		if (bbbSession != null) {
+			String userid = bbbSession.getInternalUserID();
+			String username = bbbSession.getUsername();
+			String role = bbbSession.getRole();
+			String meetingId = bbbSession.getRoom();
+			log.debug(APP + ":joinMeeting - [" + meetingId + "] [" + userid + ", " + username + ", " + role + "]");
+			
+			bbbGW.userJoin(meetingId, userid, username, role, bbbSession.getExternUserID());
+		}
+		
+	}
+	
 	public void setParticipantsApplication(ParticipantsApplication a) {
 		participantsApplication = a;
 	}

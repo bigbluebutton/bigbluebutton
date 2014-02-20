@@ -146,7 +146,7 @@ package org.bigbluebutton.main.model.users
         // assign the meeting name to the document title
         ExternalInterface.call("setTitle", _conferenceParameters.meetingName);
         
-        trace(LOG + " Joined the meeting.");       
+        trace(LOG + " Got the user info from web api.");       
 				/**
 				 * Temporarily store the parameters in global BBB so we get easy access to it.
 				 */
