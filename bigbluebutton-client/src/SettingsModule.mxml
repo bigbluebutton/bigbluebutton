@@ -56,10 +56,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return _attributes.username;
 			}
 			
-			public function get connection():NetConnection {
-				return _attributes.connection;
-			}
-			
 			public function get userid():Number {
 				return _attributes.userid as Number;
 			}

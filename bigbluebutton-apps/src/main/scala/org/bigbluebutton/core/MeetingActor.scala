@@ -32,6 +32,8 @@ class MeetingActor(val meetingID: String, val recorded: Boolean,
   def act() = {
 	loop {
 	  react {
+	    case msg: ValidateAuthToken =>
+	                 handleValidateAuthToken(msg)
 	    case msg: VoiceUserJoined =>
 	                         handleVoiceUserJoined(msg)
 	    case msg: VoiceUserLeft =>

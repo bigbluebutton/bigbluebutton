@@ -31,7 +31,7 @@ package org.bigbluebutton.main.model.users
 		
 	public class NetConnectionDelegate
 	{
-		public static const NAME:String = "NetConnectionDelegate";
+		public static const LOG:String = "NetConnectionDelegate";
 		
 		private var _netConnection:NetConnection;	
 		private var connectionId:Number;
@@ -52,7 +52,9 @@ package org.bigbluebutton.main.model.users
 		
 		private var dispatcher:Dispatcher;    
     private var _messageListeners:Array = new Array();
-        
+    
+    private var authenticated: Boolean = false;
+    
 		public function NetConnectionDelegate():void
 		{
 			dispatcher = new Dispatcher();
@@ -97,11 +99,40 @@ package org.bigbluebutton.main.model.users
       }
     }   
         
-    public function onMessageFromServer(messageName:String, result:Object):void {
-//      trace("Got message from server [" + messageName + "]");    
-      notifyListeners(messageName, result);
+    public function onMessageFromServer(messageName:String, msg:Object):void {
+//      trace("Got message from server [" + messageName + "]"); 
+      if (!authenticated && (messageName == "validateAuthTokenReply")) {
+        handleValidateAuthTokenReply(msg)
+      } else if (authenticated) {
+        notifyListeners(messageName, msg);
+      } else {
+        trace(LOG + "Ignoring message=[" + messageName + "] as our token hasn't been validated yet.");
+      }
+      
     }
 		
+    private function handleValidateAuthTokenReply(msg: Object):void {
+      trace(LOG + "*** handleValidateAuthTokenReply " + msg.msg + " **** \n");      
+      var map:Object = JSON.parse(msg.msg);  
+      var tokenValid: Boolean = map.valid as Boolean;
+      var userId: String = map.userId as String;
+      
+      if (tokenValid) {
+        authenticated = true;
+        trace(LOG + "*** handleValidateAuthTokenReply. valid=[ " + tokenValid + "] **** \n");
+        sendConnectionSuccessEvent(userId);
+      } else {
+        trace(LOG + "*** handleValidateAuthTokenReply. valid=[ " + tokenValid + "] **** \n");
+      }
+    }
+    
+    private function sendConnectionSuccessEvent(userid:String):void{      
+      var e:UsersConnectionEvent = new UsersConnectionEvent(UsersConnectionEvent.CONNECTION_SUCCESS);
+      e.userid = userid;
+      dispatcher.dispatchEvent(e);
+      
+    }
+    
 		public function sendMessage(service:String, onSuccess:Function, onFailure:Function, message:Object=null):void {
       trace("SENDING [" + service + "]");
 			var responder:Responder =	new Responder(                    
@@ -140,7 +171,7 @@ package org.bigbluebutton.main.model.users
 			try {	
 				var uri:String = _applicationURI + "/" + _conferenceParameters.room;
 				
-				LogUtil.debug(NAME + "::Connecting to " + uri + " [" + _conferenceParameters.username + "," + _conferenceParameters.role + "," + 
+				LogUtil.debug(LOG + "::Connecting to " + uri + " [" + _conferenceParameters.username + "," + _conferenceParameters.role + "," + 
 					_conferenceParameters.conference + "," + _conferenceParameters.record + "," + _conferenceParameters.room + "]");	
 				_netConnection.connect(uri, _conferenceParameters.username, _conferenceParameters.role,
 											_conferenceParameters.room, _conferenceParameters.voicebridge, 
@@ -192,18 +223,17 @@ package org.bigbluebutton.main.model.users
 
 			switch (statusCode) {
 				case "NetConnection.Connect.Success":
-					LogUtil.debug(NAME + ":Connection to viewers application succeeded.");
+					LogUtil.debug(LOG + ":Connection to viewers application succeeded.");
           
 					// uncomment this to turn on the bandwidth check
 //					startMonitoringBandwidth();
           
-					_netConnection.call(
-							"getMyUserId",// Remote function name
-							new Responder(
+					sendMessage(
+							"validateToken",// Remote function name
 	        					// result - On successful result
 								function(result:Object):void { 
 									LogUtil.debug("Userid [" + result + "]"); 
-									sendConnectionSuccessEvent(result);
+//									sendConnectionSuccessEvent(result);
 								},	
 								// status - On error occurred
 								function(status:Object):void { 
@@ -211,19 +241,19 @@ package org.bigbluebutton.main.model.users
 									for (var x:Object in status) { 
 										LogUtil.error(x + " : " + status[x]); 
 									} 
-								}
-							)//new Responder
+								},
+              _conferenceParameters.internalUserID
 					); //_netConnection.call
 			
 					break;
 			
 				case "NetConnection.Connect.Failed":					
 					if (tried_tunneling) {
-						LogUtil.debug(NAME + ":Connection to viewers application failed...even when tunneling");
+						LogUtil.debug(LOG + ":Connection to viewers application failed...even when tunneling");
 						sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_FAILED);
 					} else {
 						disconnect(false);
-						LogUtil.debug(NAME + ":Connection to viewers application failed...try tunneling");
+						LogUtil.debug(LOG + ":Connection to viewers application failed...try tunneling");
 						var rtmptRetryTimer:Timer = new Timer(1000, 1);
             			rtmptRetryTimer.addEventListener("timer", rtmptRetryTimerHandler);
             			rtmptRetryTimer.start();						
@@ -231,7 +261,7 @@ package org.bigbluebutton.main.model.users
 					break;
 					
 				case "NetConnection.Connect.Closed":	
-					LogUtil.debug(NAME + ":Connection to viewers application closed");		
+					LogUtil.debug(LOG + ":Connection to viewers application closed");		
 //          if (logoutOnUserCommand) {
             sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_CLOSED);		
 //          } else {
@@ -242,17 +272,17 @@ package org.bigbluebutton.main.model.users
 					break;
 					
 				case "NetConnection.Connect.InvalidApp":	
-					LogUtil.debug(NAME + ":viewers application not found on server");			
+					LogUtil.debug(LOG + ":viewers application not found on server");			
 					sendConnectionFailedEvent(ConnectionFailedEvent.INVALID_APP);				
 					break;
 					
 				case "NetConnection.Connect.AppShutDown":
-					LogUtil.debug(NAME + ":viewers application has been shutdown");
+					LogUtil.debug(LOG + ":viewers application has been shutdown");
 					sendConnectionFailedEvent(ConnectionFailedEvent.APP_SHUTDOWN);	
 					break;
 					
 				case "NetConnection.Connect.Rejected":
-					LogUtil.debug(NAME + ":Connection to the server rejected. Uri: " + _applicationURI + ". Check if the red5 specified in the uri exists and is running" );
+					LogUtil.debug(LOG + ":Connection to the server rejected. Uri: " + _applicationURI + ". Check if the red5 specified in the uri exists and is running" );
 					sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_REJECTED);		
 					break;
 				
@@ -261,19 +291,19 @@ package org.bigbluebutton.main.model.users
 					break;
 					
 				default :
-				   LogUtil.debug(NAME + ":Default status to the viewers application" );
+				   LogUtil.debug(LOG + ":Default status to the viewers application" );
 				   sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 				   break;
 			}
 		}
 		
     private function autoReconnectTimerHandler(event:TimerEvent):void {
-      LogUtil.debug(NAME + "autoReconnectTimerHandler: " + event);
+      LogUtil.debug(LOG + "autoReconnectTimerHandler: " + event);
       connect(_conferenceParameters, tried_tunneling);
     }
         
 		private function rtmptRetryTimerHandler(event:TimerEvent):void {
-            LogUtil.debug(NAME + "rtmptRetryTimerHandler: " + event);
+            LogUtil.debug(LOG + "rtmptRetryTimerHandler: " + event);
             connect(_conferenceParameters, true);
         }
 			
@@ -307,19 +337,7 @@ package org.bigbluebutton.main.model.users
 			_userid = id;								
 			return "OK";
 		}
-		
-		private function sendConnectionSuccessEvent(userid:Object):void{
-			var useridString:String = userid as String;
-			var n:String = useridString;
-			
-			var e:UsersConnectionEvent = new UsersConnectionEvent(UsersConnectionEvent.CONNECTION_SUCCESS);
-			e.connection = _netConnection;
-			e.userid = n;
-			dispatcher.dispatchEvent(e);
-			
-			backoff = 2000;
-		}
-		
+				
 		private function sendConnectionFailedEvent(reason:String):void{
 			if (this.logoutOnUserCommand){
 				sendUserLoggedOutEvent();

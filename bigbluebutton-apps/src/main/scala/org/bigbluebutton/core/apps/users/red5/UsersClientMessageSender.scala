@@ -47,7 +47,9 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    case msg: RecordingStatusChanged =>
 	                handleRecordingStatusChanged(msg)
 	    case msg: GetRecordingStatusReply =>
-	                handleGetRecordingStatusReply(msg)	                
+	                handleGetRecordingStatusReply(msg)
+	    case msg: ValidateAuthTokenReply =>
+	                handleValidateAuthTokenReply(msg)
 	    case _ => // println("Unhandled message in UsersClientMessageSender")
 	  }
 	}
@@ -78,6 +80,20 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  wuser.put("voiceUser", vuser)	  
 	  
 	  wuser
+	}
+	
+	private def handleValidateAuthTokenReply(msg: ValidateAuthTokenReply) {
+	  val args = new java.util.HashMap[String, Object]();  
+	  args.put("userId", msg.requesterId);
+	  args.put("valid", msg.valid:java.lang.Boolean);	    
+	  
+	  val message = new java.util.HashMap[String, Object]() 
+	  val gson = new Gson();
+  	  message.put("msg", gson.toJson(args))
+  	  
+  	  println("UsersClientMessageSender - handleValidateAuthTokenReply \n" + message.get("msg") + "\n")
+      val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenReply", message);
+	  service.sendMessage(m);	    
 	}
 	
 	private def handleGetRecordingStatusReply(msg: GetRecordingStatusReply) {

@@ -67,6 +67,9 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
   /*************************************************************
    * Message Interface for Users
    *************************************************************/
+  def validateAuthToken(meetingId: String, userId: String, token: String) {
+    bbbGW.accept(new ValidateAuthToken(meetingId, userId, token))
+  }
   
   def sendLockSettings(meetingID: String, settings: java.util.Map[String, java.lang.Boolean]) {
     // Convert java.util.Map to scala.collection.immutable.Map

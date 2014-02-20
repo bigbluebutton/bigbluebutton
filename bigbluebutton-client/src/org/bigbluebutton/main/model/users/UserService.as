@@ -189,7 +189,6 @@ package org.bigbluebutton.main.model.users
 		public function userLoggedIn(e:UsersConnectionEvent):void{
       trace("In UserService:userLoggedIn - Setting my userid to [" + e.userid + "]");
 			UserManager.getInstance().getConference().setMyUserid(e.userid);
-			_conferenceParameters.connection = e.connection;
 			_conferenceParameters.userid = e.userid;
 			
       sender.queryForParticipants();     

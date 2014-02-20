@@ -40,6 +40,13 @@ trait UsersApp {
 //    })
   }
   
+  def handleValidateAuthToken(msg: ValidateAuthToken) {
+    getUser(msg.userId) match {
+      case Some(u) => outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true))
+      case None => outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, false))
+    }  
+  }
+  
   def handleIsMeetingMutedRequest(msg: IsMeetingMutedRequest) {
     outGW.send(new IsMeetingMutedReply(meetingID, recorded, msg.requesterID, meetingMuted))
   }

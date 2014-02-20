@@ -10,8 +10,53 @@ case class Presenter(
   presenterID: String, 
   presenterName: String, 
   assignedBy: String)
-                     
-case class UserVO(userID: String, 
+
+case class User(
+  id: String,
+  externId: String,
+  name: String,
+  moderator: Boolean,
+  avatarUrl: String,
+  logoutUrl: String,
+  presenter: Boolean,
+  callerId: CallerId,
+  phoneCaller: Boolean,
+  handRaised: Boolean,
+  muted: Boolean,
+  talking: Boolean
+)
+  
+case class CallerId(
+  name: String,
+  number: String
+)  
+
+case class Permissions(
+  allowCam: Boolean,
+  allowMic: Boolean,
+  allowPrivChat: Boolean,
+  allowPubChat: Boolean
+)
+
+case class PermissionsSetting(
+  applyToModerators: Boolean,
+  permissions: Permissions
+)
+
+
+case class Voice(
+  id: String,
+  webId: String,
+  callId: CallerId,
+  phoningIn: Boolean,
+  joined: Boolean,
+  locked: Boolean,
+  muted: Boolean, 
+  talking: Boolean
+)
+
+case class UserVO(
+  userID: String, 
   externUserID: String, 
   name: String, 
   role: Role.Role, 

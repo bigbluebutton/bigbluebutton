@@ -29,8 +29,8 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.events.VoiceConfEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.model.MeetingModel;
-  import org.bigbluebutton.core.services.UsersService;
   import org.bigbluebutton.core.model.users.UsersModel;
+  import org.bigbluebutton.core.services.UsersService;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
   import org.bigbluebutton.main.events.PresenterStatusEvent;
@@ -41,6 +41,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.Conference;
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+  import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
   import org.bigbluebutton.modules.present.events.CursorEvent;
   import org.bigbluebutton.modules.present.events.MoveEvent;
   import org.bigbluebutton.modules.present.events.NavigationEvent;
@@ -116,6 +117,8 @@ package org.bigbluebutton.modules.users.services
           break;
       }
     }  
+    
+
     
     private function sendRecordingStatusUpdate(recording:Boolean):void {
       MeetingModel.getInstance().recording = recording;

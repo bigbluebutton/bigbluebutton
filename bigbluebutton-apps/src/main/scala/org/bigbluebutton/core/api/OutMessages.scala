@@ -54,6 +54,13 @@ case class EndAndKickAll(meetingID: String,
                          recorded: Boolean) extends IOutMessage
 case class GetUsersReply(meetingID: String, requesterID: String, 
                          users: Array[UserVO]) extends IOutMessage
+                         
+case class ValidateAuthTokenReply(
+  meetingID: String, 
+  requesterId: String,
+  token: String,
+  valid: Boolean) extends IOutMessage
+
 case class UserJoined(meetingID: String, recorded: Boolean, 
                       user:UserVO) extends IOutMessage
                       

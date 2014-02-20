@@ -26,32 +26,31 @@ package org.bigbluebutton.core.managers
 
 	public class ConnectionManager
 	{
-        private var connDelegate:NetConnectionDelegate;
+    private var connDelegate:NetConnectionDelegate;
         
-        [Bindable]
-        public var isTunnelling:Boolean = false;
+    [Bindable]
+    public var isTunnelling:Boolean = false;
         
-		public function ConnectionManager()
-		{
-            connDelegate = new NetConnectionDelegate();
+		public function ConnectionManager() {
+      connDelegate = new NetConnectionDelegate();
 		}
    
        
-        public function setUri(uri:String):void {
-            connDelegate.setUri(uri);
-        }
+    public function setUri(uri:String):void {
+      connDelegate.setUri(uri);
+    }
 
-        public function get connection():NetConnection {
-            return connDelegate.connection;
-        }
+    public function get connection():NetConnection {
+      return connDelegate.connection;
+    }
         
-        public function connect(params:ConferenceParameters):void {
-            connDelegate.connect(params);
-        }
+    public function connect(params:ConferenceParameters):void {
+        connDelegate.connect(params);
+    }
         
-        public function disconnect(onUserAction:Boolean):void {
-            connDelegate.disconnect(onUserAction);
-        }
+    public function disconnect(onUserAction:Boolean):void {
+        connDelegate.disconnect(onUserAction);
+    }
         
         public function addMessageListener(listener:IMessageListener):void {
             connDelegate.addMessageListener(listener);

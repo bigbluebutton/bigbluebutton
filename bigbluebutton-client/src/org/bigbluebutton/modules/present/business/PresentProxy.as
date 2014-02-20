@@ -46,12 +46,10 @@ package org.bigbluebutton.modules.present.business
 	
 	public class PresentProxy
 	{
-		private var url:String;
 		private var host:String;
 		private var conference:String;
 		private var room:String;
 		private var userid:Number;
-		private var connection:NetConnection;
 		private var soService:PresentSOService;
 		private var uploadService:FileUploadService;
 		private var slides:PresentationSlides;
@@ -81,8 +79,6 @@ package org.bigbluebutton.modules.present.business
 			conference = a.conference as String;
 			room = a.room as String;
 			userid = a.userid as Number;
-			connection = a.connection;
-			url = connection.uri;
 		}
 				
 		/**
