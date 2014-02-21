@@ -211,7 +211,8 @@ package org.bigbluebutton.main.model.users
 				_netConnection.connect(uri, _conferenceParameters.username, _conferenceParameters.role,
 											_conferenceParameters.room, _conferenceParameters.voicebridge, 
 											_conferenceParameters.record, _conferenceParameters.externUserID,
-											_conferenceParameters.internalUserID, _conferenceParameters.lockOnStart, _conferenceParameters.muteOnStart, _conferenceParameters.lockSettings);			
+											_conferenceParameters.internalUserID, _conferenceParameters.lockOnStart, 
+                      _conferenceParameters.muteOnStart, _conferenceParameters.lockSettings);			
 			} catch(e:ArgumentError) {
 				// Invalid parameters.
 				switch (e.errorID) {
@@ -322,41 +323,25 @@ package org.bigbluebutton.main.model.users
     }
         
 		private function rtmptRetryTimerHandler(event:TimerEvent):void {
-            LogUtil.debug(LOG + "rtmptRetryTimerHandler: " + event);
-            connect(_conferenceParameters, true);
-        }
+      LogUtil.debug(LOG + "rtmptRetryTimerHandler: " + event);
+      connect(_conferenceParameters, true);
+    }
 			
-		protected function netSecurityError( event : SecurityErrorEvent ) : void 
-		{
+		protected function netSecurityError(event: SecurityErrorEvent):void {
 			LogUtil.debug("Security error - " + event.text);
 			sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 		}
 		
-		protected function netIOError( event : IOErrorEvent ) : void 
-		{
+		protected function netIOError(event: IOErrorEvent):void {
 			LogUtil.debug("Input/output error - " + event.text);
 			sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 		}
 			
-		protected function netASyncError( event : AsyncErrorEvent ) : void 
-		{
+		protected function netASyncError(event: AsyncErrorEvent):void  {
 			LogUtil.debug("Asynchronous code error - " + event.error );
 			sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 		}	
-
-		/**
-	 	*  Callback from server
-	 	*/
-		public function setUserId(id:Number, role:String):String
-		{
-			LogUtil.debug( "ViewersNetDelegate::setConnectionId: id=[" + id + "," + role + "]");
-			if (isNaN(id)) return "FAILED";
 			
-			// We should be receiving authToken and room from the server here.
-			_userid = id;								
-			return "OK";
-		}
-				
 		private function sendConnectionFailedEvent(reason:String):void{
 			if (this.logoutOnUserCommand){
 				sendUserLoggedOutEvent();

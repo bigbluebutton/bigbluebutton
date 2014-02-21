@@ -14,11 +14,7 @@ import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp
 import net.lag.logging.Logger
 
 case object StopMeetingActor
-
-case class LockSettings(allowModeratorLocking: Boolean, disableCam: Boolean, 
-                        disableMic: Boolean, disablePrivateChat: Boolean, 
-                        disablePublicChat: Boolean)
-                         
+                      
 class MeetingActor(val meetingID: String, val recorded: Boolean, 
                    val voiceBridge: String, val outGW: MessageOutGateway) 
                    extends Actor with UsersApp with PresentationApp
@@ -26,8 +22,9 @@ class MeetingActor(val meetingID: String, val recorded: Boolean,
                    with WhiteboardApp {  
   private val log = Logger.get
   
-  var lockSettings = new LockSettings(true, true, true, true, true)
-  var recordingStatus = false;
+  var permissions = new PermissionsSetting(false, new Permissions())
+  var recording = false;
+  var muted = false;
 
   def act() = {
 	loop {
@@ -192,11 +189,11 @@ class MeetingActor(val meetingID: String, val recorded: Boolean,
   }
   
   private def handleSetRecordingStatus(msg: SetRecordingStatus) {
-     recordingStatus = msg.recording
+     recording = msg.recording
      outGW.send(new RecordingStatusChanged(meetingID, recorded, msg.userId, msg.recording))
   }   
 
   private def handleGetRecordingStatus(msg: GetRecordingStatus) {
-     outGW.send(new GetRecordingStatusReply(meetingID, recorded, msg.userId, recordingStatus.booleanValue()))
+     outGW.send(new GetRecordingStatusReply(meetingID, recorded, msg.userId, recording.booleanValue()))
   } 
 }

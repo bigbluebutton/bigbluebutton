@@ -32,10 +32,10 @@ case class CallerId(
 )  
 
 case class Permissions(
-  allowCam: Boolean,
-  allowMic: Boolean,
-  allowPrivChat: Boolean,
-  allowPubChat: Boolean
+  allowCam: Boolean = true,
+  allowMic: Boolean = true,
+  allowPrivChat: Boolean = true,
+  allowPubChat: Boolean = true
 )
 
 case class PermissionsSetting(
@@ -72,7 +72,8 @@ case class UserVO(
   locked: Boolean, 
   webcamStream: String, 
   phoneUser: Boolean,
-  voiceUser: VoiceUser)
+  voiceUser: VoiceUser,
+  permissions: Permissions = new Permissions())
 
 case class VoiceUser(userId: String, 
   webUserId: String, 

@@ -99,17 +99,17 @@ trait UsersApp {
   }
 	      
   def handleSetLockSettings(msg: SetLockSettings) {
-    if (lockSettings != msg.settings) {
-      lockSettings = msg.settings
-      outGW.send(new NewLockSettings(meetingID, lockSettings))
+    if (permissions != msg.settings) {
+      permissions = msg.settings
+      outGW.send(new NewPermissionsSetting(meetingID, permissions))
     }    
   }
   
   def handleInitLockSettings(msg: InitLockSettings) {
-    if (lockSettings != msg.settings || locked != msg.locked) {
-	    lockSettings = msg.settings   
+    if (permissions != msg.settings || locked != msg.locked) {
+	    permissions = msg.settings   
 	    locked = msg.locked	    
-	    outGW.send(new LockSettingsInitialized(msg.meetingID, msg.locked, msg.settings))
+	    outGW.send(new PermissionsSettingInitialized(msg.meetingID, msg.locked, msg.settings))
     }
   }  
 
@@ -162,7 +162,8 @@ trait UsersApp {
                            false, false, false, false)
     val uvo = new UserVO(msg.userID, msg.extUserID, msg.name, 
                   msg.role, raiseHand=false, presenter=false, 
-                  hasStream=false, locked=false, webcamStream="", phoneUser=false, vu)
+                  hasStream=false, locked=false, webcamStream="", 
+                  phoneUser=false, vu, permissions.permissions)
   	
 	users.addUser(uvo)
 					
@@ -205,7 +206,8 @@ trait UsersApp {
                                  false, false, false, false)
           val uvo = new UserVO(webUserId, webUserId, msg.voiceUser.callerName, 
 		                  Role.VIEWER, raiseHand=false, presenter=false, 
-		                  hasStream=false, locked=false, webcamStream="", phoneUser=true, vu)
+		                  hasStream=false, locked=false, webcamStream="", 
+		                  phoneUser=true, vu, permissions.permissions)
 		  	
 		  users.addUser(uvo)
 		  println("New user joined voice for user [" + uvo.name + "] userid=[" + msg.voiceUser.webUserId + "]")
