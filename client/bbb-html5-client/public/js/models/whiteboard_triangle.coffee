@@ -23,12 +23,12 @@ define [
     # @param  {[type]} y         the y value of the top left corner
     # @param  {string} colour    the colour of the object
     # @param  {number} thickness the thickness of the object's line(s)
-    make: (data) ->
+    make: (info) ->
 
-      x = data.shape.coordinate.firstX
-      y = data.shape.coordinate.firstY
-      color = data.shape.color
-      thickness = data.shape.thickness
+      x = info.payload.data.coordinate.first_x
+      y = info.payload.data.coordinate.first_y
+      color = info.payload.data.line.color
+      thickness = info.payload.data.line.weight
 
       path = @_buildPath(x, y, x, y, x, y)
       @obj = @paper.path(path)
@@ -46,12 +46,12 @@ define [
     # @param  {number} y1 the y value of the top left corner
     # @param  {number} x2 the x value of the bottom right corner
     # @param  {number} y2 the y value of the bottom right corner
-    update: (data) ->
+    update: (info) ->
 
-      x1 = data.shape.coordinate.firstX
-      y1 = data.shape.coordinate.firstY
-      x2 = data.shape.coordinate.lastX
-      y2 = data.shape.coordinate.lastY
+      x1 = info.payload.data.coordinate.first_x
+      y1 = info.payload.data.coordinate.first_y
+      x2 = info.payload.data.coordinate.last_x
+      y2 = info.payload.data.coordinate.last_y
 
       if @obj?
         [xTop, yTop, xBottomLeft, yBottomLeft, xBottomRight, yBottomRight] = @_getCornersFromPoints(x1, y1, x2, y2)

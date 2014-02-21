@@ -32,14 +32,13 @@ define [
     # @param  {number} y         the y value of the line start point as a percentage of the original height
     # @param  {string} colour    the colour of the shape to be drawn
     # @param  {number} thickness the thickness of the line to be drawn
-    make: (data) ->
-      console.log "in line MAKE(data): "
-      console.log data
+    make: (info) ->
+      console.log "in line MAKE(info): " + info
 
-      x = data.shape.coordinate.firstX
-      y = data.shape.coordinate.firstY
-      color = data.shape.color
-      thickness = data.shape.thickness
+      x = info.payload.data.coordinate.first_x
+      y = info.payload.data.coordinate.first_y
+      color = info.payload.data.line.color
+      thickness = info.payload.data.line.weight
 
       x1 = x * @gw + @xOffset
       y1 = y * @gh + @yOffset
@@ -65,20 +64,19 @@ define [
     #                                 false if it should replace the last point
     # @param  {number}         y2  1) the y of the second point
     #                              2) undefined
-    update: (data) ->
-      console.log "in line-UPDATE(data): "
-      console.log data
+    update: (info) ->
+      console.log "in line-UPDATE(info): " + info
 
-      x1 = data.shape.coordinate.firstX
-      y1 = data.shape.coordinate.firstY
-      x2 = data.shape.coordinate.lastX
-      y2 = data.shape.coordinate.lastY
+      x1 = info.payload.data.coordinate.first_x
+      y1 = info.payload.data.coordinate.first_y
+      x2 = info.payload.data.coordinate.last_x
+      y2 = info.payload.data.coordinate.last_y
 
       if @obj?
 
         # if adding points from the pencil 
-        if _.isBoolean(data.adding)
-          add = data.adding
+        if _.isBoolean(info.adding)
+          add = info.adding
 
           pathPercent = "L" + x1 + " " + y1
           @definition.data[0] += pathPercent

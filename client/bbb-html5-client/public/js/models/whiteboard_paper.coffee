@@ -94,25 +94,25 @@ define [
 
       #initializing boarder around slide to cover up areas which shouldnt show
 
-      @boarderLeft = @raphaelObj.rect(0, 0, 0, 0 );
-      @boarderRight = @raphaelObj.rect(0, 0, 0, 0 );
+      @boarderLeft = @raphaelObj.rect(0, 0, 0, 0 )
+      @boarderRight = @raphaelObj.rect(0, 0, 0, 0 )
 
       @boarderTop = @raphaelObj.rect(0,0, 0, 0)
       @boarderBottom = @raphaelObj.rect(0,0, 0, 0)
 
-      @boarderLeft.attr("fill", "#ababab");
+      @boarderLeft.attr("fill", "#ababab")
       @boarderLeft.attr( {stroke:"#ababab"} )
 
 
-      @boarderRight.attr("fill", "#ababab");
+      @boarderRight.attr("fill", "#ababab")
       @boarderRight.attr( {stroke:"#ababab"} )
 
 
-      @boarderTop.attr("fill", "#ababab");
+      @boarderTop.attr("fill", "#ababab")
       @boarderTop.attr( {stroke:"#ababab"} )
 
 
-      @boarderBottom.attr("fill", "#ababab");
+      @boarderBottom.attr("fill", "#ababab")
       @boarderBottom.attr( {stroke:"#ababab"} )
 
 
@@ -393,10 +393,8 @@ define [
 
     # Make a shape `shape` with the data in `data`.
     makeShape: (shape, data) ->
-      console.log("shape")
-      console.log(shape)
-      console.log("data")
-      console.log(data)
+      alert "shape" + shape
+      #alert "data" + data
       tool = null
       switch shape
         when "path", "line"
@@ -452,8 +450,8 @@ define [
       #console.log("xOffset: " + xOffset + ", yOffset: " + yOffset);
       #console.log("@containerWidth: " + @containerWidth + " @containerHeight: " + @containerHeight);
       #console.log("slideWidth: " + slideWidth + " slideHeight: " + slideHeight);
-      baseWidth = (@containerWidth - slideWidth) / 2;
-      baseHeight = (@containerHeight - slideHeight) / 2;
+      baseWidth = (@containerWidth - slideWidth) / 2
+      baseHeight = (@containerHeight - slideHeight) / 2
 
 
       #get the actual size of the slide, depending on the limiting factor (container width or container height)
@@ -476,7 +474,7 @@ define [
       #console.log("newXPos: " + newXPos + " newyPos: " + newyPos + " newWidth: " + newWidth + " newHeight: " + newHeight)
 
       #set parameters to raphael viewbox
-      @raphaelObj.setViewBox(newXPos , newyPos,  newWidth , newHeight , true);
+      @raphaelObj.setViewBox(newXPos , newyPos,  newWidth , newHeight , true)
 
 
       #update the rectangle elements which create the boarder when page is zoomed
@@ -536,23 +534,25 @@ define [
             strPoints = ""
             for i in [0..points.length] by 2
               letter = ""
-              pA = points[i];
-              pB = points[i+1];
+              pA = points[i]
+              pB = points[i+1]
               if i == 0
-                letter = "M";
+                letter = "M"
               else
-                letter = "L";
+                letter = "L"
               strPoints += letter + (pA/100) + "," + (pB/100)
             properties[0] = strPoints
-            shape.data = JSON.stringify(properties)
+
+            shape.data = JSON.stringify properties #TODO
+
         @clearShapes()
-        @drawListOfShapes(shapes)
+        @drawListOfShapes shapes
 
       globals.events.on "connection:updShape", (shape, data) =>
-        @updateShape(shape, data)
+        @updateShape shape, data
 
       globals.events.on "connection:whiteboard_draw_event", (shape, data) =>
-        @makeShape(shape, data)
+        @makeShape shape, data
 
       globals.events.on "connection:whiteboardDrawPen", (startingData) =>
         type = startingData.payload.shape_type
@@ -563,8 +563,7 @@ define [
           for i in [0..points.length - 1]
             if i is 0
               #make these compatible with a line
-              console.log("points[i]: ");
-              console.log(points[i]);
+              console.log "points[i]: " + points[i]
               lineObject = {
                 shape: {
                   type: "line",
@@ -577,12 +576,10 @@ define [
                 }
                 adding : false #tell the line object that we are NOT adding points but creating a new line
               }
-              console.log("lineObject: ");
-              console.log(lineObject);
-              @makeShape(type, lineObject);
+              console.log "lineObject: " + lineObject
+              @makeShape type, lineObject
             else
-              console.log("points[i]: ");
-              console.log(points[i]);
+              console.log "points[i]: "+ points[i]
               lineObject = {
                 shape: {
                   type: "line",
@@ -595,9 +592,8 @@ define [
                 }
                 adding : true #tell the line object that we ARE adding points and NOT creating a new line
               }
-              console.log("lineObject: ")
-              console.log(lineObject)
-              @updateShape(type, lineObject)
+              console.log "lineObject: " + lineObject
+              @updateShape type, lineObject 
 
       globals.events.on "connection:mvCur", (x, y) =>
         @moveCursor(x, y)
@@ -729,7 +725,7 @@ define [
     # Called when the application window is resized.
     _onWindowResize: ->
       @_updateContainerDimensions()
-      console.log("_onWindowResize");
+      console.log "_onWindowResize"
 
       #TODO: temporary hacked away fix so that the buttons resize correctly when the window resizes
       $("#users-btn").click();
@@ -742,8 +738,8 @@ define [
       #console.log("xOffset: " + xOffset + ", yOffset: " + yOffset);
       #console.log("@containerWidth: " + @containerWidth + " @containerHeight: " + @containerHeight);
       #console.log("slideWidth: " + slideWidth + " slideHeight: " + slideHeight);
-      baseWidth = (@containerWidth - slideWidth) / 2;
-      baseHeight = (@containerHeight - slideHeight) / 2;
+      baseWidth = (@containerWidth - slideWidth) / 2
+      baseHeight = (@containerHeight - slideHeight) / 2
 
 
       #get the actual size of the slide, depending on the limiting factor (container width or container height)

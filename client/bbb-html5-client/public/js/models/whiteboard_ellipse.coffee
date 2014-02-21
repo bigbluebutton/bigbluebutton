@@ -26,11 +26,11 @@ define [
         # @param    {[type]} y                 the y value of the top left corner
         # @param    {string} colour        the colour of the object
         # @param    {number} thickness the thickness of the object's line(s)
-        make: (data) ->
-            x = data.shape.coordinate.firstX
-            y = data.shape.coordinate.firstY
-            color = data.shape.color
-            thickness = data.shape.thickness
+        make: (info) ->
+            x = info.payload.data.coordinate.first_x
+            y = info.payload.data.coordinate.first_y
+            color = info.payload.data.line.color
+            thickness = info.payload.data.line.weight
 
             @obj = @paper.ellipse(x * @gw + @xOffset, y * @gh + @yOffset, 0, 0)
             @obj.attr Utils.strokeAndThickness(color, thickness)
@@ -45,12 +45,12 @@ define [
         # @param    {number} x2 the x value of the bottom right corner in percent of current slide size
         # @param    {number} y2 the y value of the bottom right corner in percent of current slide size
         # @param    {boolean} square (draw a circle or not
-        update: (data) ->
-            x1 = data.shape.coordinate.firstX
-            y1 = data.shape.coordinate.firstY
-            x2 = data.shape.coordinate.lastX
-            y2 = data.shape.coordinate.lastY
-            circle = data.shape.square
+        update: (info) ->
+            x1 = info.payload.data.coordinate.first_x
+            y1 = info.payload.data.coordinate.first_y
+            x2 = info.payload.data.coordinate.last_x
+            y2 = info.payload.data.coordinate.last_y
+            circle = info.payload.data.square
             
             if @obj?
 

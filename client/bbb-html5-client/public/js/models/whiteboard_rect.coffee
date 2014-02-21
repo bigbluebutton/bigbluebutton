@@ -24,8 +24,7 @@ define [
     # @param  {string} colour    the colour of the object
     # @param  {number} thickness the thickness of the object's line(s)
     make: (startingData) ->
-      console.log("make startingData");
-      console.log(startingData);
+      console.log "make startingData"+ startingData
       x = startingData.payload.data.coordinate.first_x
       y = startingData.payload.data.coordinate.first_y
       color = startingData.payload.data.line.color

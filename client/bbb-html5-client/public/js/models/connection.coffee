@@ -93,17 +93,17 @@ define [
       # Received event to update a shape being created
       # @param  {string} shape type of shape being updated
       # @param  {Array} data   all information to update the shape
-      @socket.on "whiteboard_update_event", (data) =>     
-        shape = data.payload.shape_type
+      @socket.on "whiteboard_update_event", (data) =>
         console.log "socket on: whiteboard_update_event"
+        shape = data.payload.shape_type
         globals.events.trigger("connection:updShape", shape, data)
 
       # Received event to create a shape on the whiteboard
       # @param  {string} shape type of shape being made
       # @param  {Array} data   all information to make the shape
       @socket.on "whiteboard_draw_event", (data) =>
-        shape = data.payload.shape_type
         console.log "socket on: whiteboard_draw_event"
+        shape = data.payload.shape_type
         globals.events.trigger("connection:whiteboard_draw_event", shape, data)
 
       # Pencil drawings are received as points from the server and painted as lines.

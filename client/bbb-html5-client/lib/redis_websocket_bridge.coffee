@@ -194,7 +194,7 @@ module.exports = class RedisWebsocketBridge
   # @private
   _emitToClients2: (channel, message) -> #message is a JS Object
 
-    console.log "\n\nin _emitToClients2 ***message:\n" + message 
+    console.log "\n\nin _emitToClients2 ***message:\n"
     channelViewers = @io.sockets.in(channel)
 
     #if the message has "header":{"name":"some_event_name"} use that name
@@ -202,6 +202,8 @@ module.exports = class RedisWebsocketBridge
     eventName = message.header?.name or message.name
 
     console.log "**message name**: " + eventName
+    console.log "channelViewers" + channelViewers[0]
+    #console.log "message" + message
     channelViewers.emit.apply(channelViewers, [eventName, message])
 
   # When a user connected to the web socket.
