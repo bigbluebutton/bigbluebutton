@@ -23,8 +23,7 @@ define [
       unless @socket?
         console.log "connecting to the server", @host
         @socket = io.connect(@host)
-        console.log("socket: ");
-        console.log(@socket);
+        console.log "socket: " + @socket
         @_registerEvents()
       else
         console.log "tried to connect but it's already connected"
@@ -77,8 +76,7 @@ define [
       # @param  {Array} urls list of URLs to be added to the paper (after old images are removed)
       @socket.on "all_slides", (allSlidesEventObject) =>
         console.log "socket on: all_slides"
-        console.log("allSlidesEventObject: ");
-        console.log(allSlidesEventObject)
+        console.log "allSlidesEventObject: " + allSlidesEventObject
         globals.events.trigger("connection:all_slides", allSlidesEventObject);
 
       # Received event to clear the whiteboard shapes
@@ -89,8 +87,7 @@ define [
       # Received event to update all the shapes in the whiteboard
       # @param  {Array} shapes Array of shapes to be drawn
       @socket.on "allShapes", (allShapesEventObject) =>
-        console.log "socket on: all_shapes"
-        console.log allShapesEventObject
+        console.log "socket on: all_shapes" + allShapesEventObject
         globals.events.trigger("connection:all_shapes", allShapesEventObject)
 
       # Received event to update a shape being created
@@ -111,8 +108,7 @@ define [
 
       # Pencil drawings are received as points from the server and painted as lines.
       @socket.on "whiteboardDrawPen", (data) =>
-        console.log "socket on: whiteboardDrawPen"
-        console.log data
+        console.log "socket on: whiteboardDrawPen"+  data
         globals.events.trigger("connection:whiteboardDrawPen", data)
 
       # Received event to update the cursor coordinates
@@ -128,7 +124,7 @@ define [
       # @param  {number} x x-coord of the cursor as a percentage of page width
       # @param  {number} y y-coord of the cursor as a percentage of page height
       @socket.on "move_and_zoom", (xOffset, yOffset, widthRatio, heightRatio) =>
-        #console.log "socket on: move_and_zoom"
+        console.log "socket on: move_and_zoom"
         globals.events.trigger("connection:move_and_zoom", xOffset, yOffset, widthRatio, heightRatio)
 
       # Received event to update the slide image
@@ -191,17 +187,15 @@ define [
       # TODO: event name with spaces is bad
       @socket.on "loadUsers", (loadUsersEventObject) =>
         users = loadUsersEventObject.usernames
-        console.log "socket on: loadUsers"
-        console.log(loadUsersEventObject)
+        console.log "socket on: loadUsers" + loadUsersEventObject
         globals.events.trigger("users:loadUsers", users)
 
       # Received event for a new user
       @socket.on "UserJoiningRequest", (message) =>
-        console.log "socket on: UserJoiningRequest"
+        #console.log "socket on: UserJoiningRequest"
         #console.log message
         #eventObject = JSON.parse(message);
-        console.log("message: ")
-        console.log(message);
+        console.log "message: " + message
         userid = message.user.metadata.userid
         username = message.user.name
         globals.events.trigger("connection:user_join", userid, username)
@@ -229,8 +223,7 @@ define [
       # @param  {string} name name of user
       # @param  {string} msg  message to be displayed
       @socket.on "SendPublicChatMessage", (msgEvent) =>
-        console.log "socket on: msg"
-        console.log(msgEvent);
+        console.log "socket on: msg" + msgEvent
         name = msgEvent.chat.from.name
         msg = msgEvent.chat.text
         globals.events.trigger("connection:msg", name, msg)
@@ -238,8 +231,7 @@ define [
       # Received event to update all the messages in the chat box
       # @param  {Array} messages Array of messages in public chat box
       @socket.on "all_messages", (allMessagesEventObject) =>
-        console.log "socket on: all_messages"
-        console.log( allMessagesEventObject )
+        console.log "socket on: all_messages" + allMessagesEventObject
         globals.events.trigger("connection:all_messages", allMessagesEventObject)
 
     # Emit an update to move the cursor around the canvas
@@ -256,8 +248,7 @@ define [
     # Emit a message to the server
     # @param  {string} the message
     emitMsg: (msg) ->
-      console.log "emitting message: "
-      console.log(msg)
+      console.log "emitting message: " + msg
       @socket.emit "msg", msg
 
     # Emit the finish of a text shape

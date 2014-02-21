@@ -137,11 +137,10 @@ module.exports = class RedisWebsocketBridge
   #   The first attribute is the meetingID
   # @private
   _redis_onBigbluebuttonBridge2: (attributes) ->
-    console.log("\n\n***attributes(_redis_onBigbluebuttonBridge2): ")
-    console.log attributes 
+    console.log "\n\n***attributes(_redis_onBigbluebuttonBridge2): " + attributes 
     
     meetingID = attributes?.payload?.meeting?.id
-    console.log("*meetingID: " + meetingID);
+    console.log "*meetingID: " + meetingID
 
     emit = =>
       # apply the parameters to the socket event, and emit it on the channels
@@ -195,19 +194,14 @@ module.exports = class RedisWebsocketBridge
   # @private
   _emitToClients2: (channel, message) -> #message is a JS Object
 
-    console.log("\n\nin _emitToClients2 ***message: ")
-    console.log message 
-
+    console.log "\n\nin _emitToClients2 ***message:\n" + message 
     channelViewers = @io.sockets.in(channel)
-    console.log("**message name**: ")
 
     #if the message has "header":{"name":"some_event_name"} use that name
     #otherwise look for "name":"some_event_name" in the top level of the message
-    if message.header? and message.header.name?
-      eventName = message.header.name
-    else eventName = message.name
+    eventName = message.header?.name or message.name
 
-    console.log(eventName)
+    console.log "**message name**: " + eventName
     channelViewers.emit.apply(channelViewers, [eventName, message])
 
   # When a user connected to the web socket.
