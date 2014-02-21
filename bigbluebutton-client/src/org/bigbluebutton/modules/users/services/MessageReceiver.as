@@ -19,8 +19,7 @@
 package org.bigbluebutton.modules.users.services
 {
 
-  import com.asfusion.mate.events.Dispatcher;
-  
+  import com.asfusion.mate.events.Dispatcher;  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
@@ -338,30 +337,8 @@ package org.bigbluebutton.modules.users.services
           participantJoined(user);
         }
       }	 
-      becomePresenterIfLoneModerator();
     }
-    
-    private function becomePresenterIfLoneModerator():void {
-      trace(LOG + "Checking if I need to become presenter.");
-      var participants:Conference = UserManager.getInstance().getConference();
-      if (participants.hasOnlyOneModerator()) {
-        trace(LOG + "There is only one moderator in the meeting. Is it me? ");
-        var user:BBBUser = participants.getTheOnlyModerator();
-        if (user.me) {
-          trace(LOG + "Setting me as presenter because I'm the only moderator. My userid is [" + user.userID + "]");
-          var presenterEvent:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
-          presenterEvent.userid = user.userID;
-          presenterEvent.username = user.name;
-          var dispatcher:Dispatcher = new Dispatcher();
-          dispatcher.dispatchEvent(presenterEvent);
-        } else {
-          trace(LOG + "No. It is not me. It is [" + user.userID + ", " + user.name + "]");
-        }
-      } else {
-        trace(LOG + "No. There are more than one moderator.");
-      }
-    }
-    
+       
     public function handleAssignPresenterCallback(msg:Object):void {
       trace(LOG + "*** handleAssignPresenterCallback " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);
