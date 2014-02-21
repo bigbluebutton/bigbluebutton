@@ -137,12 +137,10 @@ module.exports = class RedisWebsocketBridge
   #   The first attribute is the meetingID
   # @private
   _redis_onBigbluebuttonBridge2: (attributes) ->
-    console.log("\n\n***attributes: ")
+    console.log("\n\n***attributes(_redis_onBigbluebuttonBridge2): ")
     console.log attributes 
     
-
-    #meetingID = attributes[0]
-    meetingID = attributes?.meeting?.id
+    meetingID = attributes?.payload?.meeting?.id
     console.log("*meetingID: " + meetingID);
 
     emit = =>
