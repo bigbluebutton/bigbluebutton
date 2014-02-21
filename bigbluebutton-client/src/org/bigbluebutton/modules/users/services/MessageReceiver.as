@@ -222,9 +222,9 @@ package org.bigbluebutton.modules.users.services
        * Let's store the voice userid so we can do push to talk.
        */
       if (l != null) {
-        trace("Found voice user id[" + voiceUser.userId + "]");
+        trace(LOG + "Found voice user id[" + voiceUser.userId + "]");
         if (_conference.getMyUserId() == l.userID) {
-          trace("I am this voice user id[" + voiceUser.userId + "]");
+          trace(LOG + "I am this voice user id[" + voiceUser.userId + "]");
           _conference.setMyVoiceJoined(false);
           _conference.setMyVoiceJoined(false);
         }
@@ -234,7 +234,7 @@ package org.bigbluebutton.modules.users.services
         l.talking = false;
         l.userLocked = false;
         
-        trace("notifying views that user has left voice. id[" + voiceUser.userId + "]");
+        trace(LOG + "notifying views that user has left voice. id[" + voiceUser.userId + "]");
         var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_LEFT);
         bbbEvent.payload.userID = l.userID;
         globalDispatcher.dispatchEvent(bbbEvent);
@@ -243,7 +243,7 @@ package org.bigbluebutton.modules.users.services
           _conference.removeUser(l.userID);
         }
       } else {
-        trace("Could not find voice user id" + voiceUser.userId + "]");
+        trace(LOG + "Could not find voice user id" + voiceUser.userId + "]");
       }
     }
     
@@ -254,7 +254,7 @@ package org.bigbluebutton.modules.users.services
       var webUser:Object = map.user as Object;
       var voiceUser:Object = webUser.voiceUser as Object;
 
-//      UsersService.getInstance().userJoinedVoice(voiceUser);
+      UsersService.getInstance().userJoinedVoice(voiceUser);
       
       var externUserID:String = webUser.externUserID;
       var internUserID:String = UsersUtil.externalUserIDToInternalUserID(externUserID);
@@ -286,9 +286,11 @@ package org.bigbluebutton.modules.users.services
     public function handleParticipantLeft(msg:Object):void {
       trace(LOG + "*** handleParticipantLeft " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);
-      var webUserId:String = map.user.userId;
+      var webUser:Object = map.user as Object;
       
-      UsersService.getInstance().userLeft(map);
+      var webUserId:String = webUser.userId;
+      
+      UsersService.getInstance().userLeft(webUser);
       
       var user:BBBUser = UserManager.getInstance().getConference().getUser(webUserId);
       

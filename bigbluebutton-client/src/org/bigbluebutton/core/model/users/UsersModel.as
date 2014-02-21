@@ -60,11 +60,11 @@ package org.bigbluebutton.core.model.users
       return null;      
     }
     
-    private function getUser(userId:String):User {
-      var user:User;
+    private function getUser(userId:String):UserVO {
+      var user:UserVO;
       
       for (var i:int = 0; i < _users.length; i++) {
-        user = _users.getItemAt(i) as User;
+        user = _users.getItemAt(i) as UserVO;
         
         if (user.id == userId) {
           return user;
@@ -75,9 +75,9 @@ package org.bigbluebutton.core.model.users
     }
     
     private function getIndex(userId: String):int {
-      var user:User;
+      var user:UserVO;
       for (var i:int = 0; i < _users.length; i++) {
-        user = _users.getItemAt(i) as User;
+        user = _users.getItemAt(i) as UserVO;
         
         if (user.id == userId) {
           return i;
