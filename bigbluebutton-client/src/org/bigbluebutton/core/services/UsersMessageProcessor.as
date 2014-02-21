@@ -41,7 +41,7 @@ package org.bigbluebutton.core.services
     private function processUser(u: Object):UserVO {
       var nu: UserVO = new UserVO();
       nu.id = u.id;
-      nu.externId = u.externId;
+      nu.externId = u.externUserID;
       nu.name = u.name;
       nu.role = u.role;
       nu.handRaised = u.handRaised;

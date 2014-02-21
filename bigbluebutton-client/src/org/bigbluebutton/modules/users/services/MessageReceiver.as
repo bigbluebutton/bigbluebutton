@@ -254,7 +254,7 @@ package org.bigbluebutton.modules.users.services
       var webUser:Object = map.user as Object;
       var voiceUser:Object = webUser.voiceUser as Object;
 
-      UsersService.getInstance().userJoinedVoice(voiceUser);
+//      UsersService.getInstance().userJoinedVoice(voiceUser);
       
       var externUserID:String = webUser.externUserID;
       var internUserID:String = UsersUtil.externalUserIDToInternalUserID(externUserID);

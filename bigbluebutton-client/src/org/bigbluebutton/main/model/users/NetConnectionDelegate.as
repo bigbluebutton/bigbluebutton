@@ -18,11 +18,14 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.adobe.protocols.dict.events.ErrorEvent;
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.*;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.utils.Timer;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.services.BandwidthMonitor;
 	import org.bigbluebutton.main.model.ConferenceParameters;
@@ -100,7 +103,7 @@ package org.bigbluebutton.main.model.users
     }   
         
     public function onMessageFromServer(messageName:String, msg:Object):void {
-//      trace("Got message from server [" + messageName + "]"); 
+      trace(LOG + "Got message from server [" + messageName + "]"); 
       if (!authenticated && (messageName == "validateAuthTokenReply")) {
         handleValidateAuthTokenReply(msg)
       } else if (authenticated) {
@@ -115,7 +118,7 @@ package org.bigbluebutton.main.model.users
         "validateToken",// Remote function name
         // result - On successful result
         function(result:Object):void { 
-          trace("validating token for [" + _conferenceParameters.internalUserID + "]"); 
+          trace(LOG + "validating token for [" + _conferenceParameters.internalUserID + "]"); 
         },	
         // status - On error occurred
         function(status:Object):void { 
@@ -133,11 +136,11 @@ package org.bigbluebutton.main.model.users
         "joinMeeting",// Remote function name
         // result - On successful result
         function(result:Object):void { 
-          trace("joining meeting for [" + _conferenceParameters.internalUserID + "]"); 
+          trace(LOG + "joining meeting for [" + _conferenceParameters.internalUserID + "]"); 
         },	
         // status - On error occurred
         function(status:Object):void { 
-          LogUtil.error("Error occurred:"); 
+          LogUtil.error(LOG + "Error occurred:"); 
           for (var x:Object in status) { 
             LogUtil.error(x + " : " + status[x]); 
           } 
@@ -169,7 +172,7 @@ package org.bigbluebutton.main.model.users
     }
     
 		public function sendMessage(service:String, onSuccess:Function, onFailure:Function, message:Object=null):void {
-//      trace("SENDING [" + service + "]");
+      trace(LOG + "SENDING [" + service + "]");
 			var responder:Responder =	new Responder(                    
 					function(result:Object):void { // On successful result
 						onSuccess("Successfully sent [" + service + "]."); 
@@ -338,7 +341,11 @@ package org.bigbluebutton.main.model.users
 		}
 			
 		protected function netASyncError(event: AsyncErrorEvent):void  {
-			LogUtil.debug("Asynchronous code error - " + event.error );
+      trace(LOG + "Asynchronous code error - " + event.toString() );
+      
+			LogUtil.debug("Asynchronous code error - " + event.toString() );
+      throw new Error("Encountered connection error");
+      
 			sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 		}	
 			

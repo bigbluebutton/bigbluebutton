@@ -86,13 +86,13 @@ package org.bigbluebutton.core.services
       var vu: Object = msgProc.processUserMutedMessage(msg);
       
       if (vu != null) {
-        trace(LOG + "*** got user name=[" + vu.name + "] **** \n");
+        trace(LOG + "*** got user name=[" + vu.userId + "] **** \n");
         var u: UserVO = UsersModel.getInstance().userMuted(vu.userId, vu.voiceId, vu.muted);
         if (u != null) {
           // dispatch event
         }
       } else {
-        trace(LOG + "*** failed to get voice user name=[" + vu.name + "] **** \n");
+        trace(LOG + "*** failed to get voice user name=[" + vu.userId + "] **** \n");
       }       
     }
     
