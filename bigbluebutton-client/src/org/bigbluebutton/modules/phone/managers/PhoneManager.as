@@ -50,6 +50,8 @@ package org.bigbluebutton.modules.phone.managers {
 		private var webrtcCapable:Boolean = false;
 		private var useWebrtcIfAvailable:Boolean = true;
 		
+    private var callDestination: String;
+    
 		public function PhoneManager() {
 			connectionManager = new ConnectionManager();
 			streamManager = new StreamManager();
@@ -119,6 +121,9 @@ package org.bigbluebutton.modules.phone.managers {
     }
 		
 		public function onJoinVoiceConferenceEvent(args:Object):void {
+      if (args != null && args.hasOwnProperty("callDestination")) {
+        callDestination = args.callDestination;
+      }
 			if (args != null && args.hasOwnProperty('useWebrtcIfAvailable')) {
 				useWebrtcIfAvailable = args.useWebrtcIfAvailable;
 			}
@@ -136,7 +141,7 @@ package org.bigbluebutton.modules.phone.managers {
 				
 		public function dialConference():void {
 			LogUtil.debug("*** Dialling conference ***");
-			connectionManager.doCall(attributes.webvoiceconf);
+			connectionManager.doCall(callDestination);
 		}
 		
 		public function callConnected(event:CallConnectedEvent):void {

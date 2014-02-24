@@ -36,6 +36,9 @@ package org.bigbluebutton.modules.phone
 		[Bindable]
 		public var useWebrtcIfAvailable:Boolean = true;
 
+    [Bindable]
+    public var echoTestApp:String = "9196";
+    
 		public function PhoneOptions() {
 			parseOptions();
 		}
@@ -58,6 +61,9 @@ package org.bigbluebutton.modules.phone
 				if (vxml.@useWebrtcIfAvailable != undefined) {
 					useWebrtcIfAvailable = (vxml.@useWebrtcIfAvailable.toString().toUpperCase() == "TRUE");
 				}
+        if (vxml.@echoTestApp != undefined) {
+          echoTestApp = vxml.@echoTestApp.toString();
+        }
 			}
 		}		
 	}

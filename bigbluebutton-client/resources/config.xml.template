@@ -52,6 +52,7 @@
 			showButton="true"
 			enabledEchoCancel="true"
 			useWebrtcIfAvailable="true"
+			echoTestApp="9196"
 			dependsOn="UsersModule"
 		/>
 

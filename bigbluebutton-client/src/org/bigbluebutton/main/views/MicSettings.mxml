@@ -29,23 +29,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<mx:Script>
 		<![CDATA[
-			import flash.system.Security;
-			import flash.system.SecurityPanel;
-			import flash.ui.Keyboard;
-			
-			import mx.controls.sliderClasses.Slider;
-			import mx.core.IFlexDisplayObject;
-			import mx.events.CloseEvent;
-			import mx.events.ItemClickEvent;
-			import mx.events.SliderEvent;
-			import mx.managers.PopUpManager;
-			
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import flash.system.Security;
+      import flash.system.SecurityPanel;
+      import flash.ui.Keyboard;
+      
+      import mx.controls.sliderClasses.Slider;
+      import mx.core.IFlexDisplayObject;
+      import mx.events.CloseEvent;
+      import mx.events.ItemClickEvent;
+      import mx.events.SliderEvent;
+      import mx.managers.PopUpManager;
+      
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.core.BBB;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.modules.phone.PhoneOptions;
+      import org.bigbluebutton.modules.phone.events.CallEchoTestAppEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			[Embed(source="assets/audio-test.mp3")]
 			[Bindable] private var soundClass:Class;
@@ -242,11 +245,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			}	
 			
+      private function echoTestButtonClickHandler():void {
+        var options:PhoneOptions = new PhoneOptions();
+        var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+        joinEvent.payload['useMicrophone'] = true;
+        joinEvent.payload['microphoneIndex'] = mic == null ? 0 : mic.index;
+        joinEvent.payload['useWebrtcIfAvailable'] = useWebrtcIfAvailable;
+        joinEvent.payload['callDestination'] = options.echoTestApp;
+        
+        dispatchEvent(joinEvent);	
+      }
+      
 			public function joinConference():void{			
 				var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
 				joinEvent.payload['useMicrophone'] = true;
         joinEvent.payload['microphoneIndex'] = mic == null ? 0 : mic.index;
 				joinEvent.payload['useWebrtcIfAvailable'] = useWebrtcIfAvailable;
+        joinEvent.payload['callDestination'] = UserManager.getInstance().getConference().voiceBridge;
 			  if (settingBtn.selected) {
 					ExternalInterface.call("stopWebrtcAudioTest");
 				}
@@ -331,6 +346,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function get useWebrtcIfAvailable():Boolean {
 				return _useWebrtcIfAvailable;
 			}
+     
 		]]>
 	</mx:Script>
 	
@@ -478,6 +494,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <mx:HRule width="100%"/>
   		<mx:Spacer height="10"/>
 			<mx:HBox width="100%" horizontalAlign="right" horizontalGap="18">
+        <mx:Button id="echoTestButton" label="Echo Test" 
+                   click="echoTestButtonClickHandler()" toggle="true" styleName="micSettingsWindowPlaySoundButtonStyle"
+                   toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound.toolTip')}"
+                   />
 				<mx:Button id="playButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound')}" 
 						   click="playButtonClickHandler()" toggle="true" styleName="micSettingsWindowPlaySoundButtonStyle"
 						   toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound.toolTip')}"

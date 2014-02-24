@@ -347,13 +347,11 @@ package org.bigbluebutton.modules.users.services
     
     private function processUserVoice(webUser: Object):void {      
       var voiceUser:Object = webUser.voiceUser as Object;
-      trace(LOG + "1. voice user=[" + internUserID + ",muted=" + voiceUser.muted + ",joined=" + voiceUser.joined + ",talking=" + voiceUser.talking + "]");
+
       UsersService.getInstance().userJoinedVoice(voiceUser);
       
       var externUserID:String = webUser.externUserID;
       var internUserID:String = UsersUtil.externalUserIDToInternalUserID(externUserID);
-      
-      trace(LOG + "2. voice user=[" + internUserID + ",muted=" + voiceUser.muted + ",joined=" + voiceUser.joined + ",talking=" + voiceUser.talking + "]"); 
       
       if (UsersUtil.getMyExternalUserID() == externUserID) {
         _conference.muteMyVoice(voiceUser.muted);
@@ -366,7 +364,6 @@ package org.bigbluebutton.modules.users.services
         bu.voiceJoined = voiceUser.joined;
         bu.talking = voiceUser.talking;
         bu.userLocked = voiceUser.locked;
-        trace(LOG + "Seeting voice user=[" + internUserID + ",muted=" + bu.voiceMuted + ",joined=" + bu.voiceJoined + ",talking=" + bu.talking + "]"); 
       }       
     }
     
