@@ -21,6 +21,7 @@ package org.bigbluebutton.main.model.users {
 	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
+	import flash.external.ExternalInterface;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.net.SharedObject;
@@ -32,22 +33,22 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.core.events.CoreEvent;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.main.events.AddGuestEvent;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.LogoutEvent;
-	import org.bigbluebutton.main.events.SwitchedPresenterEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
-	import org.bigbluebutton.main.events.PresenterStatusEvent;
-	import org.bigbluebutton.main.events.AddGuestEvent;
-	import org.bigbluebutton.main.events.RemoveGuestRequestEvent;
 	import org.bigbluebutton.main.events.ModeratorRespEvent;
+	import org.bigbluebutton.main.events.PresenterStatusEvent;
+	import org.bigbluebutton.main.events.RemoveGuestRequestEvent;
+	import org.bigbluebutton.main.events.SwitchedPresenterEvent;
 	import org.bigbluebutton.main.events.UserJoinedEvent;
 	import org.bigbluebutton.main.events.UserLeftEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
+	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+	import org.bigbluebutton.modules.deskshare.events.StopSharingButtonEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
-	import flash.external.ExternalInterface;
-	import org.bigbluebutton.main.model.users.BBBUser;
 
 	public class UsersSOService {
 		public static const NAME:String = "ViewersSOService";
@@ -244,6 +245,7 @@ package org.bigbluebutton.main.model.users {
       dispatcher.dispatchEvent(kickedEvent);
       
 			if (UserManager.getInstance().getConference().amIThisUser(userid)) {
+				dispatcher.dispatchEvent(new StopSharingButtonEvent(StopSharingButtonEvent.STOP_SHARING));
 				dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
 			}
 		}
@@ -351,7 +353,7 @@ package org.bigbluebutton.main.model.users {
 				dispatcher.dispatchEvent(e);				
 			}
 		}
-			
+					
 		public function raiseHand(userID:String, raise:Boolean):void {
 			var nc:NetConnection = _connectionManager.connection;			
 			nc.call(

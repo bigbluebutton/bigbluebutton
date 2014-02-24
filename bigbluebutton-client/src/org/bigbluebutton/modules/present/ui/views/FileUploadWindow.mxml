@@ -271,27 +271,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </mx:Script>
 
   <mx:VBox width="100%" height="100%">
-    <mx:Label text="{ResourceUtil.getInstance().getString('bbb.fileupload.title')}" styleName="presentationUploadTitleStyle"/>
-    <mx:Spacer height="10"/>
-    <mx:HBox width="100%">
-      <mx:Spacer height="5"/>
+    <mx:Label text="{ResourceUtil.getInstance().getString('bbb.fileupload.title')}" styleName="presentationUploadTitleStyle" paddingBottom="12"/>
+    <mx:HBox width="100%" paddingTop="5">
       <mx:Label id="fileLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.fileLbl')}" styleName="presentationUploadChooseFileLabelStyle"/>
-      <mx:Spacer width="100%"/>
     </mx:HBox>
-    <mx:Spacer height="5"/>
-    <mx:HBox width="100%"> 
-      <mx:Spacer width="5"/>
+    <mx:HBox width="100%" paddingLeft="5" paddingTop="5"> 
       <mx:TextInput id="fileTxtInput" width="328" editable="false"/>
-		<mx:Button label="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.label')}" id="selectBtn" 
+	  <mx:Button label="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.label')}" id="selectBtn" 
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.toolTip')}" 
 				   click="selectFile()" styleName="presentationUploadChooseFileButtonStyle"/>
       <mx:Button id="uploadBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.uploadBtn')}" 
                  toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.uploadBtn.toolTip')}"  click="startUpload()"
                  enabled="false" icon="{bulletGoIcon}"/>
     </mx:HBox>
-    <mx:Spacer height="5"/>
-    <mx:HBox width="100%">
-      <mx:Spacer width="10"/>
+    <mx:HBox width="100%" paddingLeft="10" paddingTop="5" paddingBottom="10">
       <mx:Label id="progBarLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}" 
                 styleName="presentationUploadProgressBarLabelStyle"
                 visible="false"/>
@@ -299,28 +292,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                       styleName="presentationUploadProgressBarStyle"
                       labelPlacement="center" width="460" visible="false"/>      
     </mx:HBox>
-    <mx:Spacer height="10"/>
-    <mx:HBox width="100%">
-      <mx:Spacer width="5"/>
-      <mx:Label id="presentationNamesLb" text="{ResourceUtil.getInstance().getString('bbb.fileupload.presentationNamesLbl')}" styleName="presentationNamesLabelStyle"/>
-    </mx:HBox>  
-    <mx:Spacer height="5"/>
-    <mx:HBox width="90%" height="100">
-      <mx:Spacer width="10"/>
-      <mx:List id="presentationNamesList" width="90%" height="100" alternatingItemColors="[#EFEFEF, #FEFEFE]" allowMultipleSelection="false"
+    <mx:Label id="presentationNamesLb" text="{ResourceUtil.getInstance().getString('bbb.fileupload.presentationNamesLbl')}" styleName="presentationNamesLabelStyle" paddingLeft="5"/>
+    <mx:Canvas width="90%" height="140" verticalScrollPolicy="off">
+      <mx:List id="presentationNamesList" width="90%" height="120" left="5" top="5" alternatingItemColors="[#EFEFEF, #FEFEFE]" allowMultipleSelection="false"
                itemRenderer="org.bigbluebutton.modules.present.ui.views.UploadedPresentationRenderer"
                dragEnabled="false" dataProvider="{presentationNamesAC}">
       </mx:List>
-    </mx:HBox>
-    <mx:Spacer height="5"/>
-    <mx:HBox width="100%">
-      <mx:Spacer width="100%"/>
+    </mx:Canvas>
+    <mx:Canvas width="100%">
       <mx:Button id="okCancelBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.okCancelBtn')}"
-                 styleName="presentationUploadCancelButtonStyle"
+                 styleName="presentationUploadCancelButtonStyle" right="5" top="5"
                  click="globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW))"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.okCancelBtn.toolTip')}"/>
-      <mx:Spacer width="5"/>
-    </mx:HBox>	
+    </mx:Canvas>	
   </mx:VBox>
 
 </mx:TitleWindow> 

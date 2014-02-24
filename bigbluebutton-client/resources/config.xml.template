@@ -3,6 +3,7 @@
     <localeversion suppressWarning="false">0.8</localeversion>
     <version>VERSION</version>
     <help url="http://HOST/help.html"/>
+    <javaTest url="http://HOST/testjava.html"/>
     <porttest host="HOST" application="video/portTest" timeout="10000"/>    
     <bwMon server="HOST" application="video/bwTest"/>
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" />
@@ -28,6 +29,8 @@
 		<module name="UsersModule" url="http://HOST/client/UsersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			allowKickUser="true"
+			enableRaiseHand="true"
+			enableSettingsButton="true"
 			baseTabIndex="301"
 		/>
 
@@ -58,6 +61,7 @@
 			controlsForPresenter = "false"
 			resolutions = "320x240,640x480,1280x720"
 			autoStart = "false"
+			skipCamSettingsCheck="false"
 			showButton = "true"
 			showCloseButton = "true"
 			publishWindowVisible = "true"

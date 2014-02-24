@@ -19,6 +19,7 @@
 package org.bigbluebutton.modules.videoconf.maps
 {
   import flash.events.IEventDispatcher;
+  import flash.media.Camera;
   
   import mx.collections.ArrayCollection;
   
@@ -62,15 +63,15 @@ package org.bigbluebutton.modules.videoconf.maps
     
     private var webcamWindows:WindowManager = new WindowManager();
     
-    private var button:ToolbarButton;
+    private var button:ToolbarButton = new ToolbarButton();	
     private var proxy:VideoProxy;
     private var streamName:String;
     
     private var _dispatcher:IEventDispatcher;
     private var _ready:Boolean = false;
     private var _isPublishing:Boolean = false;
-	private var _isPreviewWebcamOpen:Boolean = false;
-	private var _isWaitingActivation:Boolean = false;
+	  private var _isPreviewWebcamOpen:Boolean = false;
+	  private var _isWaitingActivation:Boolean = false;
     
     public function VideoEventMapDelegate(dispatcher:IEventDispatcher)
     {
@@ -114,19 +115,80 @@ package org.bigbluebutton.modules.videoconf.maps
       }
     }
     
+    private function displayToolbarButton():void {
+      button.isPresenter = true;
+      
+      if (options.presenterShareOnly) {
+        if (UsersUtil.amIPresenter()) {
+          button.isPresenter = true;
+        } else { 
+          button.isPresenter = false;
+        }
+      }
+            
+    }
+    
     private function addToolbarButton():void{
-      if (proxy.videoOptions.showButton) {
-        button = new ToolbarButton();	  
-        button.isPresenter = !options.presenterShareOnly;
+      LogUtil.debug("****************** Adding toolbar button. presenter?=[" + UsersUtil.amIPresenter() + "]");
+      if (proxy.videoOptions.showButton) {  
+
+        displayToolbarButton();
+        
         var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
         event.button = button;
-		event.module="Webcam";
+		    event.module="Webcam";
         _dispatcher.dispatchEvent(event);
       }
     }
     
-    private function autoStart():void {       
-      _dispatcher.dispatchEvent(new ShareCameraRequestEvent());					       
+    private function autoStart():void {          
+      if (options.skipCamSettingsCheck) {
+        skipCameraSettingsCheck();
+      } else {
+        _dispatcher.dispatchEvent(new ShareCameraRequestEvent());	
+      }
+    }
+
+    private function changeDefaultCamForMac():Camera {
+      for (var i:int = 0; i < Camera.names.length; i++){
+        if (Camera.names[i] == "USB Video Class Video") {
+          /** Set as default for Macs */
+          return Camera.getCamera("USB Video Class Video");
+        }
+      }
+      
+      return null;
+    }
+    
+    private function getDefaultResolution(resolutions:String):Array {
+      var res:Array = resolutions.split(",");  
+      if (res.length > 0) {
+        var resStr:Array = (res[0] as String).split("x");
+        var resInts:Array = [Number(resStr[0]), Number(resStr[1])];
+        return resInts;
+      } else {
+        return [Number("320"), Number("240")];
+      }
+    }
+        
+    private function skipCameraSettingsCheck():void {     
+        var cam:Camera = changeDefaultCamForMac();
+        if (cam == null) {
+          cam = Camera.getCamera();
+        }
+        
+        var videoOptions:VideoConfOptions = new VideoConfOptions();
+        
+        var resolutions:Array = getDefaultResolution(videoOptions.resolutions);
+        var camWidth:Number = resolutions[0];
+        var camHeight:Number = resolutions[1];
+        trace("Skipping cam check. Using default resolution [" + camWidth + "x" + camHeight + "]");
+        cam.setMode(camWidth, camHeight, videoOptions.camModeFps);
+        cam.setMotionLevel(5, 1000);
+        cam.setKeyFrameInterval(videoOptions.camKeyFrameInterval);
+        
+        cam.setQuality(videoOptions.camQualityBandwidth, videoOptions.camQualityPicture);
+        initCameraWithSettings(cam.index, cam.width, cam.height);     
     }
     
     private function openWebcamWindows():void {
@@ -327,10 +389,15 @@ package org.bigbluebutton.modules.videoconf.maps
 			_isWaitingActivation = false;
     }
     
-    public function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
-	  trace("Webcam: "+_isPublishing + " " + _isPreviewWebcamOpen + " " + _isWaitingActivation);
-	  if (!_isPublishing && !_isPreviewWebcamOpen && !_isWaitingActivation)
-			openWebcamPreview(event.publishInClient);
+    public function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {     
+      if (options.skipCamSettingsCheck) {
+        skipCameraSettingsCheck();
+      } else {
+    	  trace("Webcam: "+_isPublishing + " " + _isPreviewWebcamOpen + " " + _isWaitingActivation);
+    	  if (!_isPublishing && !_isPreviewWebcamOpen && !_isWaitingActivation) {
+          openWebcamPreview(event.publishInClient);
+        }   			
+      }
     }
 	
 	public function handleCamSettingsClosedEvent(event:BBBEvent):void{
@@ -364,22 +431,19 @@ package org.bigbluebutton.modules.videoconf.maps
     
     public function switchToPresenter(event:MadePresenterEvent):void{
       trace("VideoEventMapDelegate:: [" + me + "] Got Switch to presenter event. ready = [" + _ready + "]");
-      
-      if (!_ready) return;
            
-      if (options.presenterShareOnly){
-        button.isPresenter = true;
-      }
+      if (options.showButton) {
+        displayToolbarButton();
+      }  
     }
-    
+        
     public function switchToViewer(event:MadePresenterEvent):void{
       trace("VideoEventMapDelegate:: [" + me + "] Got Switch to viewer event. ready = [" + _ready + "]");
-      
-      if (!_ready) return;
-            
-      if (options.presenterShareOnly){
-        button.isPresenter = false;
-        if (_isPublishing) {
+                  
+      if (options.showButton){
+        LogUtil.debug("****************** Switching to viewer. Show video button?=[" + UsersUtil.amIPresenter() + "]");
+        displayToolbarButton();
+        if (_isPublishing && options.presenterShareOnly) {
           stopBroadcasting();
         }
       }
@@ -397,15 +461,19 @@ package org.bigbluebutton.modules.videoconf.maps
       var camWidth:int = event.payload.cameraWidth;
       var camHeight:int = event.payload.cameraHeight;     
       trace("VideoEventMapDelegate::handleCameraSettings [" + cameraIndex + "," + camWidth + "," + camHeight + "]");
+      initCameraWithSettings(cameraIndex, camWidth, camHeight);
+    }
+    
+    private function initCameraWithSettings(camIndex:int, camWidth:int, camHeight:int):void {
       var camSettings:CameraSettingsVO = new CameraSettingsVO();
-      camSettings.camIndex = cameraIndex;
+      camSettings.camIndex = camIndex;
       camSettings.camWidth = camWidth;
       camSettings.camHeight = camHeight;
       
       UsersUtil.setCameraSettings(camSettings);
       
-	  _isWaitingActivation = true;
-      openPublishWindowFor(UsersUtil.getMyUserID(), cameraIndex, camWidth, camHeight);       
+      _isWaitingActivation = true;
+      openPublishWindowFor(UsersUtil.getMyUserID(), camIndex, camWidth, camHeight);       
     }
     
     public function handleStoppedViewingWebcamEvent(event:StoppedViewingWebcamEvent):void {

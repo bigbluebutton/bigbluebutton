@@ -29,12 +29,12 @@ import java.util.concurrent.ConcurrentMap;
 import org.apache.commons.lang.RandomStringUtils;
 
 public class Meeting {
-	private static final int MILLIS_IN_A_MINUTE = 60000;
+	private static final long MILLIS_IN_A_MINUTE = 60000;
 	
 	private String name;
 	private String extMeetingId;
 	private String intMeetingId;	
-	private int duration = 0;	 
+	private long duration = 0;	 
 	private long createdTime = 0;
 	private long startTime = 0;
 	private long endTime = 0;
