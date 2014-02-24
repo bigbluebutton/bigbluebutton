@@ -69,9 +69,7 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
     public function connect():void {
-    	LogUtil.debug("OLD: " + _url);
-    	_url = "rtmp://143.54.10.63/videoproxy/conferencia";
-		nc.connect(_url);
+    	nc.connect(_url);
     }
     
 		private function onAsyncError(event:AsyncErrorEvent):void{

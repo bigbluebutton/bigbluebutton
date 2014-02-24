@@ -37,6 +37,7 @@ import org.red5.server.api.stream.ISubscriberStream;
 import org.red5.server.stream.ClientBroadcastStream;
 import org.red5.client.StreamRelay;
 import org.slf4j.Logger;
+import org.apache.commons.lang3.StringUtils;
 
 public class VideoApplication extends MultiThreadedApplicationAdapter {
 	private static Logger log = Red5LoggerFactory.getLogger(VideoApplication.class, "video");
@@ -49,6 +50,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	private final Map<String, IStreamListener> streamListeners = new HashMap<String, IStreamListener>();
 
     private Map<String, StreamRelay> remoteStreams = new ConcurrentHashMap<String, StreamRelay>();
+    private Map<String, Integer> listenersOnRemoteStream = new ConcurrentHashMap<String, Integer>();
 
 	
     @Override
@@ -97,32 +99,14 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     	IConnection conn = Red5.getConnectionLocal();  
     	super.streamBroadcastStart(stream);
     	log.info("streamBroadcastStart " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
-
-        //if (recordVideoStream) {
-	    //	recordStream(stream);
-	    //	VideoStreamListener listener = new VideoStreamListener(); 
-	     //   listener.setEventRecordingService(recordingService);
-	     //   stream.addStreamListener(listener); 
-	     //   streamListeners.put(conn.getScope().getName() + "-" + stream.getPublishedName(), listener);
-       // }
-
-       /* System.out.println("TESTE " + stream.getPublishedName());
-        System.out.println("TESTE");
-        System.out.println("TESTE");
-        System.out.println("TESTE");
-        System.out.println("TESTE");
-        System.out.println("TESTE");*/
-        //IScope scope = stream.getScope();
-        //IBroadcastScope bsScope = getBroadcastScope(scope, stream.getPublishedName());
-        //StreamingProxy proxy = new StreamingProxy();
-        //proxy.setHost("143.54.10.163");
-        //proxy.setApp("video");
-        //proxy.setPort(1935);
-        //proxy.init();
-        //bsScope.subscribe(proxy, null);
-        //proxy.start("teste", StreamingProxy.LIVE, null);
-        //streamingProxyMap.put(stream.getPublishedName(), proxy);
-        //stream.addStreamListener(this);
+    
+        if (recordVideoStream &&  stream.getPublishedName().contains("/") == false) {
+	    	recordStream(stream);
+	    	VideoStreamListener listener = new VideoStreamListener(); 
+	        listener.setEventRecordingService(recordingService);
+	        stream.addStreamListener(listener); 
+	        streamListeners.put(conn.getScope().getName() + "-" + stream.getPublishedName(), listener);
+        }
     }
 
     @Override
@@ -182,51 +166,35 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         // log w3c connect event
         String streamName = item.getName();
         
-        if(streamName.contains("remote")) {
-            String[] parts = streamName.split("/");
-            if(remoteStreams.containsKey(parts.length-1) == false) {
-                StreamRelay remoteRelay = null;
-                String conference = Red5.getConnectionLocal().getScope().getName();
-                String host = Red5.getConnectionLocal().getHost();
-                String[] initRelay = new String[7];
-                
-                initRelay[0] = parts[parts.length-2];
-                initRelay[3] = host;
-                initRelay[4] = "video" + "/" + conference; 
-                initRelay[5] = streamName;
-                initRelay[6] = "live";
-                
-               if(parts.length > 4) {
-                    initRelay[1] = "video/remote";
-                    String aux = "remote/" + parts[1] + "/";
-                    for(int i = 2; i <= parts.length-3; i++) {
-                        aux = aux + parts[i] + "/";
-                    }
-                    aux = aux + parts[parts.length-1];
-                    initRelay[2] = aux;
-                }
-                else {
-                    initRelay[1] = "video/" + parts[1];
-                    initRelay[2] = parts[parts.length-1];
-                }
+        //rtmp://SV1/video/conferencia
+        //SV2/SV3/SV4/streamName
 
-                remoteRelay = new StreamRelay(initRelay);
-                remoteStreams.put(streamName, remoteRelay);
+
+        if(streamName.contains("/"))
+            if(remoteStreams.containsKey(streamName) == false) {
+                String[] parts = streamName.split("/");
+                String sourceServer = parts[0];
+                String sourceStreamName = StringUtils.join(parts, '/', 1, parts.length);
+                String destinationServer = Red5.getConnectionLocal().getHost();
+                String destinationStreamName = streamName;
+                String app = "video/"+Red5.getConnectionLocal().getScope().getName();
+                
+                //StreamRelay remoteRelay = new StreamRelay(new String[]{sourceServer, app, sourceStreamName, destinationServer, app, destinationStreamName, "live"});
+                //remoteStreams.put(destinationStreamName, remoteRelay);
+                listenersOnRemoteStream.put(streamName, 1);
             }
-        }
+            else {
+                Integer numberOfListeners = listenersOnRemoteStream.get(streamName) + 1;
+                listenersOnRemoteStream.put(streamName,numberOfListeners);
+            }
         
-        //URL
-        //rtmp://143.54.10.63/video/conferenciaNesseServidor/
-        //stremName: remote/conferenciaOrigem/143.54.10.22/streamName
-
-       // parts[0] = "remote"
-       // parts[1] = "conferenciaOrigem"
-       // parts[2] = "143.54.10.22"
-       // parts[3] = "143.54.10.21"
-       // parts[4] = "143.54.10.20"
-       // parts[5] = 'streamName"
-
         log.info("W3C x-category:stream x-event:play c-ip:{} x-sname:{} x-name:{}", new Object[] { Red5.getConnectionLocal().getRemoteAddress(), stream.getName(), item.getName() });
     }
-	
+
+    @Override
+    public void streamPlayItemStop(ISubscriberStream stream, IPlayItem item) {
+        super.streamPlayItemStop(stream, item);
+        System.out.println("PARANDO");
+    }
+
 }

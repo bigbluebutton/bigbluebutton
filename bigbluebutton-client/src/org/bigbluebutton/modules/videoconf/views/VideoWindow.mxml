@@ -185,7 +185,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public function startVideo(connection:NetConnection, stream:String):void{
 
-				var stream2 = "320x240-rgheqrhe5odq-1390474656405";
 				ns = new NetStream(connection);
 				ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
 				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
@@ -194,7 +193,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				ns.receiveVideo(true);
 				ns.receiveAudio(false);
 				
-				var res:Array = getVideoResolution(stream2);
+				var res:Array = getVideoResolution(stream);
 				if (res == null) // error
 					return;
 				_video = new Video(Number(res[0]), Number(res[1]));
@@ -220,12 +219,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					filter.divisor = videoOptions.filterDivisor;
 					_video.filters = [filter];					
 				}
-				LogUtil.debug("PLyaying: " + stream2);
-				
-				//ns.play(stream);
-				ns.play("320x240-teste");
-				LogUtil.debug("Playing MY_STRING 2");
-				this.streamName = "MY_STRING";
+				ns.play(stream);
 				
 				
 				
