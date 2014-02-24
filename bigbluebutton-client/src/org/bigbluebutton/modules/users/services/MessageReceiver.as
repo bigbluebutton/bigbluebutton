@@ -19,7 +19,8 @@
 package org.bigbluebutton.modules.users.services
 {
 
-  import com.asfusion.mate.events.Dispatcher;  
+  import com.asfusion.mate.events.Dispatcher;
+  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
@@ -247,12 +248,17 @@ package org.bigbluebutton.modules.users.services
     }
     
     private function handleUserJoinedVoice(msg:Object):void {
-      trace(LOG + "*** handleUserJoinedVoice " + msg.msg + " **** \n");      
+      trace(LOG + "*** handleUserJoinedVoice " + msg.msg + " **** \n");
       var map:Object = JSON.parse(msg.msg);
-      
       var webUser:Object = map.user as Object;
-      var voiceUser:Object = webUser.voiceUser as Object;
+      userJoinedVoice(webUser);
 
+      return;
+    }
+    
+    private function userJoinedVoice(webUser: Object):void {      
+      var voiceUser:Object = webUser.voiceUser as Object;
+      
       UsersService.getInstance().userJoinedVoice(voiceUser);
       
       var externUserID:String = webUser.externUserID;
@@ -278,8 +284,7 @@ package org.bigbluebutton.modules.users.services
           ev.mute = true;
           dispatcher.dispatchEvent(ev);
         }
-      } 
-      return;
+      }       
     }
     
     public function handleParticipantLeft(msg:Object):void {
@@ -335,10 +340,36 @@ package org.bigbluebutton.modules.users.services
         for(var i:int = 0; i < users.length; i++) {
           var user:Object = users[i] as Object;
           participantJoined(user);
+          processUserVoice(user);
         }
       }	 
     }
-       
+    
+    private function processUserVoice(webUser: Object):void {      
+      var voiceUser:Object = webUser.voiceUser as Object;
+      trace(LOG + "1. voice user=[" + internUserID + ",muted=" + voiceUser.muted + ",joined=" + voiceUser.joined + ",talking=" + voiceUser.talking + "]");
+      UsersService.getInstance().userJoinedVoice(voiceUser);
+      
+      var externUserID:String = webUser.externUserID;
+      var internUserID:String = UsersUtil.externalUserIDToInternalUserID(externUserID);
+      
+      trace(LOG + "2. voice user=[" + internUserID + ",muted=" + voiceUser.muted + ",joined=" + voiceUser.joined + ",talking=" + voiceUser.talking + "]"); 
+      
+      if (UsersUtil.getMyExternalUserID() == externUserID) {
+        _conference.muteMyVoice(voiceUser.muted);
+        _conference.setMyVoiceJoined(voiceUser.joined);
+      }
+      
+      if (UsersUtil.hasUser(internUserID)) {
+        var bu:BBBUser = UsersUtil.getUser(internUserID);
+        bu.voiceMuted = voiceUser.muted;
+        bu.voiceJoined = voiceUser.joined;
+        bu.talking = voiceUser.talking;
+        bu.userLocked = voiceUser.locked;
+        trace(LOG + "Seeting voice user=[" + internUserID + ",muted=" + bu.voiceMuted + ",joined=" + bu.voiceJoined + ",talking=" + bu.talking + "]"); 
+      }       
+    }
+    
     public function handleAssignPresenterCallback(msg:Object):void {
       trace(LOG + "*** handleAssignPresenterCallback " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);

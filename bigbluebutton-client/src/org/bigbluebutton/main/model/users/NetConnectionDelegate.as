@@ -34,7 +34,7 @@ package org.bigbluebutton.main.model.users
 		
 	public class NetConnectionDelegate
 	{
-		public static const LOG:String = "NetConnectionDelegate";
+		public static const LOG:String = "NetConnectionDelegate - ";
 		
 		private var _netConnection:NetConnection;	
 		private var connectionId:Number;

@@ -203,7 +203,7 @@ trait UsersApp {
           val webUserId = users.generateWebUserId
           val vu = new VoiceUser(msg.voiceUser.userId, webUserId, 
                                  msg.voiceUser.callerName, msg.voiceUser.callerNum,
-                                 false, false, false, false)
+                                 true, false, false, false)
           val uvo = new UserVO(webUserId, webUserId, msg.voiceUser.callerName, 
 		                  Role.VIEWER, raiseHand=false, presenter=false, 
 		                  hasStream=false, locked=false, webcamStream="", 
@@ -224,7 +224,7 @@ trait UsersApp {
       users.addUser(nu)
             
       println("Received voice user left =[" + user.name + "] wid=[" + msg.userId + "]" )
-      outGW.send(new UserLeftVoice(meetingID, recorded, voiceBridge, user))        
+      outGW.send(new UserLeftVoice(meetingID, recorded, voiceBridge, nu))        
     }    
   }
   
