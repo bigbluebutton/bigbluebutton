@@ -282,7 +282,7 @@ public class RoomsManager {
 		public void presentationUpdates(HashMap<String, String> map) {
 			conversionUpdatesMessageListener.handleReceivedMessage(map);
 		}
-	
+		
 	}
 	
 }

@@ -121,6 +121,7 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 			map.put("fullname", p.getName());
 			map.put("role", p.getRole());
 			map.put("guest", p.isGuest().toString());
+			
 			Gson gson= new Gson();
 			messagingService.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(map));
 			log.debug("Publishing message participant joined in " + this.room.getName());

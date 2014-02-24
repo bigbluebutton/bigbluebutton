@@ -124,9 +124,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
-		for(int i = 0; i < params.length; i++) {
-			System.out.println("Parametro " + i + ": " + params[i]);
-		}
+		
         String username = ((String) params[0]).toString();
         String role = ((String) params[1]).toString();
         String room = ((String)params[2]).toString();
@@ -137,8 +135,8 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		
     	String externalUserID = ((String) params[5]).toString();
     	String internalUserID = ((String) params[6]).toString();
-    	boolean guest = true;//((Boolean) params[7]);
-
+    	boolean guest = ((Boolean) params[7]);
+    	    	
 		if (record == true) {
 			recorderApplication.createRecordSession(room);
 		}
