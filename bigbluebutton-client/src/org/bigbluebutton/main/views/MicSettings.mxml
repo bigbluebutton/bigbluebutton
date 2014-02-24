@@ -242,18 +242,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
            PopUpManager.addPopUp(micWarning, this, true);
            PopUpManager.centerPopUp(micWarning);
         }          	
-
 			}	
 			
+      private var doingEchoTest:Boolean = false;
+      
       private function echoTestButtonClickHandler():void {
-        var options:PhoneOptions = new PhoneOptions();
-        var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
-        joinEvent.payload['useMicrophone'] = true;
-        joinEvent.payload['microphoneIndex'] = mic == null ? 0 : mic.index;
-        joinEvent.payload['useWebrtcIfAvailable'] = useWebrtcIfAvailable;
-        joinEvent.payload['callDestination'] = options.echoTestApp;
-        
-        dispatchEvent(joinEvent);	
+        if (echoTestButton.selected) {
+          doingEchoTest = true;
+          okBtn.enabled = false;
+          var options:PhoneOptions = new PhoneOptions();
+          var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+          joinEvent.payload['useMicrophone'] = true;
+          joinEvent.payload['microphoneIndex'] = mic == null ? 0 : mic.index;
+          joinEvent.payload['useWebrtcIfAvailable'] = useWebrtcIfAvailable;
+          joinEvent.payload['callDestination'] = options.echoTestApp;
+          
+          dispatchEvent(joinEvent);	
+        } else {
+          doingEchoTest = false;
+          okBtn.enabled = true;
+          var endEchoTestEvent: BBBEvent = new BBBEvent("CLICK_TO_LEAVE_VOICE_CONFERENCE_EVENT");
+          dispatchEvent(endEchoTestEvent);
+        }
       }
       
 			public function joinConference():void{			
