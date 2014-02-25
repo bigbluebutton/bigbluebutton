@@ -31,8 +31,6 @@ import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mysql.jdbc.log.LogUtils;
-
 public class ThumbnailCreatorImp implements ThumbnailCreator {
 	private static Logger log = LoggerFactory.getLogger(ThumbnailCreatorImp.class);
 	
