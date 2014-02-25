@@ -96,11 +96,15 @@ environments {
 
 // log4j configuration
 log4j = {
-    // Example of changing the log pattern for the default console appender:
-    //
-    //appenders {
-    //    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
-    //}
+   appenders {
+      rollingFile name:'logfileAppender', maxFileSize:500000, file:"/var/log/bigbluebutton/bbb-web.log"
+      console name:'consoleAppender', layout:pattern(conversionPattern: '%d{[dd.MM.yy HH:mm:ss.SSS]} %-5p %c %x - %m%n')
+  }
+
+  root {
+    warn 'logfileAppender', 'consoleAppender'
+    additivity = true
+  }
 
     error  'org.codehaus.groovy.grails.web.servlet',        // controllers
            'org.codehaus.groovy.grails.web.pages',          // GSP
