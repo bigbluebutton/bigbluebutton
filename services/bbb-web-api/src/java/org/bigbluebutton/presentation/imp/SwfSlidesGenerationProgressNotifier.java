@@ -44,7 +44,7 @@ public class SwfSlidesGenerationProgressNotifier {
 	private void notifyProgressListener(Map<String, Object> msg) {	
 		if(messagingService != null){
 			Gson gson= new Gson();
-			String updateMsg=gson.toJson(msg);
+			String updateMsg = gson.toJson(msg);
 			log.debug("SENDING: " + updateMsg);
 			messagingService.send(MessagingConstants.PRESENTATION_CHANNEL, updateMsg);
 			log.debug("SENT: " + updateMsg);
@@ -78,10 +78,14 @@ public class SwfSlidesGenerationProgressNotifier {
 		}
 		
 		String xml = generatedSlidesInfoHelper.generateUploadedPresentationInfo(pres);
+		
+		
 		String escape_xml = StringEscapeUtils.escapeXml(xml);
+		
 		MessageBuilder builder = new ConversionUpdateMessage.MessageBuilder(pres);
-		builder.messageKey(ConversionMessageConstants.CONVERSION_COMPLETED_KEY);
+		builder.messageKey(ConversionMessageConstants.CONVERSION_COMPLETED_KEY);		
 		builder.slidesInfo(escape_xml);
+		builder.numberOfPages(pres.getNumberOfPages());
 		notifyProgressListener(builder.build().getMessage());	
 	}
 	

@@ -41,7 +41,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.text.DateFormat;
-
+import org.bigbluebutton.api.Util;
 
 class ApiController {
   private static final Integer SESSION_TIMEOUT = 14400  // 4 hours    
@@ -1716,8 +1716,8 @@ class ApiController {
   }
   def cleanFilename(filename) {
     String fname = URLDecoder.decode(filename).trim()
-    def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
-    return fname.replaceAll(notValidCharsRegExp, '-')
+    
+    return Util.cleanPresentationFilename(fname)
   }
 
  def processDocumentFromRawBytes(bytes, filename, conf) {
