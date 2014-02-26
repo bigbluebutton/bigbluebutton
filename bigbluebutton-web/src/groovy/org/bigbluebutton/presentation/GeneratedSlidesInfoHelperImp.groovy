@@ -33,8 +33,8 @@ public class GeneratedSlidesInfoHelperImp implements GeneratedSlidesInfoHelper {
 		def builder = new groovy.xml.MarkupBuilder(writer)
 		        		
 		def uploadedpresentation = builder.uploadedpresentation {        
-		    conference(id:pres.conference, room:pres.room) {
-		       presentation(name:pres.name) {
+		    conference(id:pres.meetingId, room:pres.meetingId) {
+		       presentation(name:pres.presentationName) {
 		          slides(count:pres.numberOfPages) {
 		             for (def i = 1; i <= pres.numberOfPages; i++) {
 		                slide(number:"${i}", name:"slide/${i}", thumb:"thumbnail/${i}")

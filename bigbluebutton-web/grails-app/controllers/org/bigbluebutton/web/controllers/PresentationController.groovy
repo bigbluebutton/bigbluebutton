@@ -68,23 +68,26 @@ class PresentationController {
     def file = request.getFile('fileUpload')
 		if(file && !file.empty) {
 			flash.message = 'Your file has been uploaded'
-			log.debug "Uploaded presentation name : $params.presentation_name"
-			def presentationName = Util.cleanPresentationFilename(params.presentation_name)
 			
-			log.debug "Uploaded presentation name : $presentationName"
-			File uploadDir = presentationService.uploadedPresentationDirectory(params.conference, params.room, presentationName)
-	
-			def newFilename = Util.cleanPresentationFilename(file.getOriginalFilename())
-			def pres = new File( uploadDir.absolutePath + File.separatorChar + newFilename )
-			file.transferTo(pres)	
-	      
-			UploadedPresentation uploadedPres = new UploadedPresentation(params.conference, params.room, presentationName);
-			uploadedPres.setUploadedFile(pres);
-			presentationService.processUploadedPresentation(uploadedPres)							             			     	
+			def meetingId = params.conference
+			def presFilename = file.getOriginalFilename()
+			def filenameExt = Util.getFilenameExt(presFilename);
+      String presentationDir = presentationService.getPresentationDir()
+      def presId = Util.generatePresentationId(presFilename)
+      File uploadDir = Util.createPresentationDirectory(meetingId, presentationDir, presId) 
+      if (uploadDir != null) {
+         def newFilename = Util.createNewFilename(presId, filenameExt)
+         def pres = new File(uploadDir.absolutePath + File.separatorChar + newFilename )
+         file.transferTo(pres)
+
+			   UploadedPresentation uploadedPres = new UploadedPresentation(meetingId, presId, presFilename);
+			   uploadedPres.setUploadedFile(pres);
+			   presentationService.processUploadedPresentation(uploadedPres)
+			 }							             			     	
 		} else {
 			flash.message = 'file cannot be empty'
 		}
-    //redirect( action:list)
+
     return [];
   }
 

@@ -71,19 +71,10 @@ class PresentationService {
 		}	
 		return presentationsList
 	}
-	
-	public File uploadedPresentationDirectory(String conf, String room, String presentation_name) {
-		File dir = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentation_name)
-		println "Uploaded presentation ${presentation_name} for conf ${conf} and room ${room} to dir ${dir.absolutePath}"
 
-		/* If the presentation name already exist, delete it. We should provide a check later on to notify user
-			that there is already a presentation with that name. */
-		if (dir.exists()) deleteDirectory(dir)		
-		dir.mkdirs()
-
-		assert dir.exists()
-		return dir
-	}
+  def getPresentationDir = {
+    return presentationDir
+  }
 	
 	def processUploadedPresentation = {uploadedPres ->	
 		// Run conversion on another thread.
@@ -130,9 +121,9 @@ class PresentationService {
 		textfilesDir.listFiles().length
 	}
 	
-	def roomDirectory = {conf, room ->
-		return new File(presentationDir + File.separatorChar + conf + File.separatorChar + room)
-	}
+  def roomDirectory = {conf, room ->
+      return new File(presentationDir + File.separatorChar + conf + File.separatorChar + room)
+  }
 
 	def testConversionProcess() {
 		File presDir = new File(roomDirectory(testConferenceMock, testRoomMock).absolutePath + File.separatorChar + testPresentationName)

@@ -45,10 +45,12 @@ public class OfficeToPdfConversionSuccessFilter {
 
 	private void notifyProgressListener(UploadedPresentation pres) {
 		Map<String, Object> msg = new HashMap<String, Object>();
-		msg.put("conference", pres.getConference());
-		msg.put("room", pres.getRoom());
+		msg.put("conference", pres.getMeetingId());
+		msg.put("room", pres.getMeetingId());
 		msg.put("returnCode", "CONVERT");
-		msg.put("presentationName", pres.getName());
+		msg.put("presentationId", pres.getPresentationId());
+		msg.put("presentationName", pres.getPresentationId());
+		msg.put("filename", pres.getPresentationName());
 		
 		if (pres.isLastStepSuccessful()) {
 			log.info("Notifying of OFFICE_DOC_CONVERSION_SUCCESS for " + pres.getUploadedFile().getAbsolutePath());

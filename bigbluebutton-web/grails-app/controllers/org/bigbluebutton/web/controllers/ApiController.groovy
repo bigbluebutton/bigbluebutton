@@ -1689,7 +1689,7 @@ class ApiController {
 
     if (requestBody == null) {
 		  System.out.println("No pre-uploaded presentation. Downloading default presentation.");
-		  downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf);
+		  downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId());
     } else {
 		  System.out.println("Request body: \n" + requestBody);
 		  log.debug "Request body: \n" + requestBody;
@@ -1701,11 +1701,11 @@ class ApiController {
           // need to iterate over presentation files and process them
           module.children().each { document ->
             if (!StringUtils.isEmpty(document.@url.toString())) {
-				      downloadAndProcessDocument(document.@url.toString(), conf);
+				      downloadAndProcessDocument(document.@url.toString(), conf.getInternalId());
             } else if (!StringUtils.isEmpty(document.@name.toString())) {
 				      def b64 = new Base64()
 				      def decodedBytes = b64.decode(document.text().getBytes())
-				      processDocumentFromRawBytes(decodedBytes, document.@name.toString(), conf);
+				      processDocumentFromRawBytes(decodedBytes, document.@name.toString(), conf.getInternalId());
 			     } else {
 				     log.debug("presentation module config found, but it did not contain url or name attributes");
            }
@@ -1714,51 +1714,56 @@ class ApiController {
 		  }
 	  }
   }
-  def cleanFilename(filename) {
-    String fname = URLDecoder.decode(filename).trim()
-    
-    return Util.cleanPresentationFilename(fname)
-  }
-
- def processDocumentFromRawBytes(bytes, filename, conf) {
-    def cleanName = cleanFilename(filename);
-    def nameWithoutExt = cleanName.substring(0, cleanName.lastIndexOf("."));
-    File uploadDir = presentationService.uploadedPresentationDirectory(conf.getInternalId(), conf.getInternalId(), nameWithoutExt);
-    def pres = new File(uploadDir.absolutePath + File.separatorChar + cleanName);
-
-    FileOutputStream fos = new java.io.FileOutputStream(pres)
-    fos.write(bytes)
-    fos.flush()
-    fos.close()
-
-    processUploadedFile(nameWithoutExt, pres, conf);
-  }
   
- def downloadAndProcessDocument(address, conf) {
-    log.debug("ApiController#downloadAndProcessDocument({$address}, ${conf.getInternalId()})");
-    String name = cleanFilename(address.tokenize("/")[-1]);
-    log.debug("Uploading presentation: ${name} from ${address} [starting download]");
-    String nameWithoutExt = name.substring(0, name.lastIndexOf("."));
-    def out;
-    def pres;
-    try {
-      File uploadDir = presentationService.uploadedPresentationDirectory(conf.getInternalId(), conf.getInternalId(), nameWithoutExt);
-      pres = new File(uploadDir.absolutePath + File.separatorChar + name);
-      out = new BufferedOutputStream(new FileOutputStream(pres))
-      out << new URL(address).openStream()
-    } finally {
-      if (out != null) {
-        out.close()
-      }
+
+ def processDocumentFromRawBytes(bytes, presFilename, meetingId) {
+    def filenameExt = Util.getFilenameExt(presFilename);
+    String presentationDir = presentationService.getPresentationDir()
+    def presId = Util.generatePresentationId(presFilename)
+    File uploadDir = Util.createPresentationDirectory(meetingId, presentationDir, presId) 
+    if (uploadDir != null) {
+      def newFilename = Util.createNewFilename(presId, filenameExt)
+      def pres = new File(uploadDir.absolutePath + File.separatorChar + newFilename);
+
+      FileOutputStream fos = new java.io.FileOutputStream(pres)
+      fos.write(bytes)
+      fos.flush()
+      fos.close()
+
+      processUploadedFile(meetingId, presId, presFilename, pres);      
     }
 
-    processUploadedFile(nameWithoutExt, pres, conf);
+  }
+  
+ def downloadAndProcessDocument(address, meetingId) {
+    log.debug("ApiController#downloadAndProcessDocument({$address}, ${meetingId})");
+    String presFilename = address.tokenize("/")[-1];
+    def filenameExt = Util.getFilenameExt(presFilename);
+    String presentationDir = presentationService.getPresentationDir()
+    
+    
+    def presId = Util.generatePresentationId(presFilename)
+    File uploadDir = Util.createPresentationDirectory(meetingId, presentationDir, presId) 
+    if (uploadDir != null) {
+        def newFilename = Util.createNewFilename(presId, filenameExt)
+        def pres = new File(uploadDir.absolutePath + File.separatorChar + newFilename);
+        def out
+        try {
+          out = new BufferedOutputStream(new FileOutputStream(pres))
+          out << new URL(address).openStream()             
+        } finally {
+          if (out != null) {
+            out.close()
+          }
+        }
+       processUploadedFile(meetingId, presId, presFilename, pres);
+    } 
   }
 
   
-  def processUploadedFile(name, pres, conf) {
-    UploadedPresentation uploadedPres = new UploadedPresentation(conf.getInternalId(), conf.getInternalId(), name);
-    uploadedPres.setUploadedFile(pres);
+  def processUploadedFile(meetingId, presId, filename, presFile) {
+    UploadedPresentation uploadedPres = new UploadedPresentation(meetingId, presId, filename);
+    uploadedPres.setUploadedFile(presFile);
     presentationService.processUploadedPresentation(uploadedPres);
   }
   

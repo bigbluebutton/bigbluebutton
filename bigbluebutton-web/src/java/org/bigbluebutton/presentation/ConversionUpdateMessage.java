@@ -37,10 +37,12 @@ public class ConversionUpdateMessage {
 		private Map<String, Object> message = new HashMap<String, Object>();
 		
 		public MessageBuilder(UploadedPresentation pres) {
-			message.put("conference", pres.getConference());
-			message.put("room", pres.getRoom());
+			message.put("conference", pres.getMeetingId());
+			message.put("room", pres.getMeetingId());
 			message.put("returnCode", "CONVERT");
-			message.put("presentationName", pres.getName());
+			message.put("presentationName", pres.getPresentationId());
+			message.put("presentationId", pres.getPresentationId());
+			message.put("filename", pres.getPresentationName());
     	}
 		
 		public MessageBuilder entry(String key, Object value) {
