@@ -57,7 +57,7 @@ public class VideoStreamListener implements IStreamListener {
 	    	  return;
 	      }
 	      	      
-	      if (packet instanceof VideoData) {
+	      /*if (packet instanceof VideoData) {
 	    	  if (! firstPacketReceived) {
 	    		  firstPacketReceived = true;
 	    		  IConnection conn = Red5.getConnectionLocal(); 
@@ -70,7 +70,7 @@ public class VideoStreamListener implements IStreamListener {
 	    			
 	    		  recordingService.record(conn.getScope().getName(), event);
 	    	  }
-	      } 
+	      } */
 	}
 	
 	public void setEventRecordingService(EventRecordingService s) {

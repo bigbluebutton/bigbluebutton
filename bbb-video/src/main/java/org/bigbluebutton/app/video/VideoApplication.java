@@ -35,7 +35,6 @@ import org.red5.server.api.stream.IServerStream;
 import org.red5.server.api.stream.IStreamListener;
 import org.red5.server.api.stream.ISubscriberStream;
 import org.red5.server.stream.ClientBroadcastStream;
-import org.red5.client.StreamRelay;
 import org.slf4j.Logger;
 import org.apache.commons.lang3.StringUtils;
 
@@ -49,7 +48,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	private EventRecordingService recordingService;
 	private final Map<String, IStreamListener> streamListeners = new HashMap<String, IStreamListener>();
 
-    private Map<String, StreamRelay> remoteStreams = new ConcurrentHashMap<String, StreamRelay>();
+    private Map<String, CustomStreamRelay> remoteStreams = new ConcurrentHashMap<String, CustomStreamRelay>();
     private Map<String, Integer> listenersOnRemoteStream = new ConcurrentHashMap<String, Integer>();
 
 	
@@ -179,8 +178,10 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
                 String destinationStreamName = streamName;
                 String app = "video/"+Red5.getConnectionLocal().getScope().getName();
                 
-                //StreamRelay remoteRelay = new StreamRelay(new String[]{sourceServer, app, sourceStreamName, destinationServer, app, destinationStreamName, "live"});
-                //remoteStreams.put(destinationStreamName, remoteRelay);
+                CustomStreamRelay remoteRelay = new CustomStreamRelay();
+                remoteRelay.initRelay(new String[]{sourceServer, app, sourceStreamName, destinationServer, app, destinationStreamName, "live"});
+                remoteRelay.startRelay();
+                remoteStreams.put(destinationStreamName, remoteRelay);
                 listenersOnRemoteStream.put(streamName, 1);
             }
             else {
@@ -192,9 +193,26 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     }
 
     @Override
-    public void streamPlayItemStop(ISubscriberStream stream, IPlayItem item) {
-        super.streamPlayItemStop(stream, item);
-        System.out.println("PARANDO");
+    public void streamSubscriberClose(ISubscriberStream stream) {
+        super.streamSubscriberClose(stream);
+        String streamName = stream.getBroadcastStreamPublishName();
+        System.exit(1);
+        if(streamName.contains("/"))
+            if(remoteStreams.containsKey(streamName)) {
+                Integer numberOfListeners = listenersOnRemoteStream.get(streamName);
+                if(numberOfListeners != null) {
+                    if(numberOfListeners > 1) {
+                        numberOfListeners = numberOfListeners - 1;
+                        listenersOnRemoteStream.put(streamName, numberOfListeners);
+                    }
+                    else {
+                        listenersOnRemoteStream.remove(streamName);
+                        CustomStreamRelay remoteRelay = remoteStreams.remove(streamName);
+                        remoteRelay.stopRelay();
+                    }
+                }
+
+            }
     }
 
 }
