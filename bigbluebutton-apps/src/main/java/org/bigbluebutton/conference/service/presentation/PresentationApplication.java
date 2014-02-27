@@ -22,9 +22,6 @@ import org.slf4j.Logger;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.red5.logging.Red5LoggerFactory;
 
-import java.util.Map;
-
-
 public class PresentationApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( PresentationApplication.class, "bigbluebutton" );	
 		
@@ -33,37 +30,35 @@ public class PresentationApplication {
 	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
 		bbbInGW = inGW;
 	}
-	
-
-	
+		
 	public void clear(String meetingID) {
 		
 	}
 
 	public void sendConversionUpdate(String messageKey, String meetingId, 
-            String code, String presentationId) {
+            String code, String presentationId, String presName) {
 		bbbInGW.sendConversionUpdate(messageKey, meetingId, code, 
-				presentationId);
+				presentationId, presName);
     }
 	
 	public void sendPageCountError(String messageKey, String meetingId, 
             String code, String presentationId, int numberOfPages,
-            int maxNumberPages) {
+            int maxNumberPages, String presName) {
 		bbbInGW.sendPageCountError(messageKey, meetingId, code, 
-				presentationId, numberOfPages, maxNumberPages);
+				presentationId, numberOfPages, maxNumberPages, presName);
 	}
 	
 	public void sendSlideGenerated(String messageKey, String meetingId, 
             String code, String presentationId, int numberOfPages,
-            int pagesCompleted) {
+            int pagesCompleted, String presName) {
 		bbbInGW.sendSlideGenerated(messageKey, meetingId, code, 
-				presentationId, numberOfPages, pagesCompleted);
+				presentationId, numberOfPages, pagesCompleted, presName);
 	}
 
 	public void sendConversionCompleted(String messageKey, String meetingId, 
-            String code, String presentation, int numberOfPages) {
+            String code, String presentation, int numberOfPages, String presName) {
 		bbbInGW.sendConversionCompleted(messageKey, meetingId, 
-	            code, presentation, numberOfPages);
+	            code, presentation, numberOfPages, presName);
 	}
 				
 	public void removePresentation(String meetingID, String presentationID){

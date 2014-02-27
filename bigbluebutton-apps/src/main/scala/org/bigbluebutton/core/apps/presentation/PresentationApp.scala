@@ -43,21 +43,21 @@ trait PresentationApp {
     
     def handlePresentationConversionUpdate(msg: PresentationConversionUpdate) {
       outGW.send(new PresentationConversionProgress(meetingID, msg.messageKey, 
-            msg.code, msg.presentationId))
+            msg.code, msg.presentationId, msg.presName))
     }
     
     def handlePresentationPageCountError(msg: PresentationPageCountError) {
       outGW.send(new PresentationConversionError(meetingID, msg.messageKey, 
                                         msg.code, msg.presentationId, 
                                         msg.numberOfPages, 
-                                        msg.maxNumberPages))      
+                                        msg.maxNumberPages, msg.presName))      
     }
     
     def handlePresentationSlideGenerated(msg: PresentationSlideGenerated) {
       outGW.send(new PresentationPageGenerated(meetingID, msg.messageKey, 
                                         msg.code, msg.presentationId, 
                                         msg.numberOfPages, 
-                                        msg.pagesCompleted))
+                                        msg.pagesCompleted, msg.presName))
     }
     
     def handlePresentationConversionCompleted(msg: PresentationConversionCompleted) { 

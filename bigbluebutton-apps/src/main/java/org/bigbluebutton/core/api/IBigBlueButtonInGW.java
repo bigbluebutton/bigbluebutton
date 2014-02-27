@@ -67,18 +67,18 @@ public interface IBigBlueButtonInGW {
 	void getSlideInfo(String meetingID, String requesterID);
 
 	void sendConversionUpdate(String messageKey, String meetingId, 
-            String code, String presentation); 
+            String code, String presId, String presName); 
 	
 	void sendPageCountError(String messageKey, String meetingId, 
-            String code, String presentation, int numberOfPages,
-            int maxNumberPages);
+            String code, String presId, int numberOfPages,
+            int maxNumberPages, String presName);
 	
 	void sendSlideGenerated(String messageKey, String meetingId, 
-            String code, String presentation, int numberOfPages,
-            int pagesCompleted);
+            String code, String presId, int numberOfPages,
+            int pagesCompleted, String presName);
 	
 	void sendConversionCompleted(String messageKey, String meetingId, 
-            String code, String presentation, int numPages);
+            String code, String presId, int numPages, String presName);
 	
 	// Polling
 	void getPolls(String meetingID, String requesterID);

@@ -326,7 +326,8 @@ case class PresentationConversionUpdate(
     meetingID: String, 
     messageKey: String, 
     code: String, 
-    presentationId: String
+    presentationId: String,
+    presName: String
 ) extends InMessage
 
 case class PresentationPageCountError(
@@ -335,7 +336,8 @@ case class PresentationPageCountError(
     code: String, 
     presentationId: String, 
     numberOfPages: Int, 
-    maxNumberPages: Int
+    maxNumberPages: Int,
+    presName: String
 ) extends InMessage
 
 case class PresentationSlideGenerated(
@@ -344,7 +346,8 @@ case class PresentationSlideGenerated(
     code: String, 
     presentationId: String, 
     numberOfPages: Int, 
-    pagesCompleted: Int
+    pagesCompleted: Int,
+    presName: String
 ) extends InMessage
 
 case class PresentationConversionCompleted(

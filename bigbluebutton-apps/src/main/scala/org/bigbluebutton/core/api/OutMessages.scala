@@ -433,7 +433,8 @@ case class PresentationConversionProgress(
     meetingID: String, 
     messageKey: String, 
     code: String, 
-    presentationId: String
+    presentationId: String,
+    presentationName: String
 ) extends IOutMessage
 
 case class PresentationConversionError(
@@ -442,7 +443,8 @@ case class PresentationConversionError(
     code: String, 
     presentationId: String, 
     numberOfPages: Int, 
-    maxNumberPages: Int
+    maxNumberPages: Int,
+    presentationName: String
 ) extends IOutMessage
 
 case class PresentationPageGenerated(
@@ -451,7 +453,8 @@ case class PresentationPageGenerated(
     code: String, 
     presentationId: String, 
     numberOfPages: Int, 
-    pagesCompleted: Int
+    pagesCompleted: Int,
+    presentationName: String
 ) extends IOutMessage
 
 case class PresentationConversionDone(

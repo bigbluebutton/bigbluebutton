@@ -65,6 +65,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
 	args.put("meetingID", msg.meetingID);
 	args.put("code", msg.code);
 	args.put("presentationID", msg.presentationId);
+	args.put("presentationName", msg.presentationName);
 	args.put("messageKey", msg.messageKey);
 	
 	val message = new java.util.HashMap[String, Object]() 
@@ -82,6 +83,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
 	args.put("meetingID", msg.meetingID);
 	args.put("code", msg.code);
 	args.put("presentationID", msg.presentationId);
+	args.put("presentationName", msg.presentationName);
 	args.put("messageKey", msg.messageKey);
 	args.put("numberOfPages", msg.numberOfPages.toString);
 	args.put("maxNumberPages", msg.maxNumberPages.toString);
@@ -101,6 +103,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
 	args.put("meetingID", msg.meetingID);
 	args.put("code", msg.code);
 	args.put("presentationID", msg.presentationId);
+	args.put("presentationName", msg.presentationName);
 	args.put("messageKey", msg.messageKey);
 	args.put("numberOfPages", msg.numberOfPages.toString);
 	args.put("pagesCompleted", msg.pagesCompleted.toString);

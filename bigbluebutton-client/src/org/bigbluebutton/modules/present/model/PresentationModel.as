@@ -61,7 +61,7 @@ package org.bigbluebutton.modules.present.model
       
       for (var i:int = 0; i < _presentations.length; i++) {
         var pres: Presentation = _presentations.getItemAt(i) as Presentation;
-        presos.push(pres.id);
+        presos.push(pres.name);
       }
       
       return presos;

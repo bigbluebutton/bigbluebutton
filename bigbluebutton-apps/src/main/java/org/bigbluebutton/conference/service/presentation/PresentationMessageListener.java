@@ -27,32 +27,33 @@ public class PresentationMessageListener implements MessageHandler {
 	}	
 
 	private void sendConversionUpdate(String messageKey, String conference, 
-			                          String code, String presentation) {
+			                          String code, String presId, String filename) {
 		conversionUpdatesProcessor.sendConversionUpdate(messageKey, conference,
-				code, presentation);
+				code, presId, filename);
 	}
 	
 	public void sendPageCountError(String messageKey, String conference, 
-            String code, String presentation, Integer numberOfPages,
-            Integer maxNumberPages) {
+            String code, String presId, Integer numberOfPages,
+            Integer maxNumberPages, String filename) {
 		conversionUpdatesProcessor.sendPageCountError(messageKey, conference, 
-	            code, presentation, numberOfPages,
-	            maxNumberPages);
+	            code, presId, numberOfPages,
+	            maxNumberPages, filename);
 	}
 	
 	private void sendSlideGenerated(String messageKey, String conference, 
-            String code, String presentation, Integer numberOfPages,
-            Integer pagesCompleted) {
+            String code, String presId, Integer numberOfPages,
+            Integer pagesCompleted, String filename) {
 		conversionUpdatesProcessor.sendSlideGenerated(messageKey, conference, 
-	            code, presentation, numberOfPages,
-	            pagesCompleted);
+	            code, presId, numberOfPages,
+	            pagesCompleted, filename);
 	}
 		
 	private void sendConversionCompleted(String messageKey, String conference, 
-            String code, String presentation, Integer numberOfPages) {
+            String code, String presId, Integer numberOfPages,
+             String filename) {
 		
 		conversionUpdatesProcessor.sendConversionCompleted(messageKey, conference,  
-	            code, presentation, numberOfPages);
+	            code, presId, numberOfPages, filename);
 	}
 	
 	
@@ -64,8 +65,8 @@ public class PresentationMessageListener implements MessageHandler {
 			HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
 
 			String code = (String) map.get("returnCode");
-	    	String room = (String) map.get("room");
-	    	String presentationName = (String) map.get("presentationName");
+	    	String presId = (String) map.get("presentationId");
+	    	String filename = (String) map.get("filename");
 	    	String conference = (String) map.get("conference");
 	    	String messageKey = (String) map.get("messageKey");
 	    							
@@ -77,26 +78,26 @@ public class PresentationMessageListener implements MessageHandler {
 					messageKey.equalsIgnoreCase(GENERATED_THUMBNAIL_KEY)||
 					messageKey.equalsIgnoreCase(PAGE_COUNT_FAILED_KEY)){
 				
-				sendConversionUpdate(messageKey, conference, code, presentationName);
+				sendConversionUpdate(messageKey, conference, code, presId, filename);
 				
 			} else if(messageKey.equalsIgnoreCase(PAGE_COUNT_EXCEEDED_KEY)){
 				Integer numberOfPages = new Integer((String) map.get("numberOfPages"));
 				Integer maxNumberPages = new Integer((String) map.get("maxNumberPages"));
 				
 				sendPageCountError(messageKey, conference, code,  
-						    presentationName, numberOfPages, maxNumberPages);
+						presId, numberOfPages, maxNumberPages, filename);
 				
 			} else if(messageKey.equalsIgnoreCase(GENERATED_SLIDE_KEY)){
 				Integer numberOfPages = new Integer((String) map.get("numberOfPages"));
 				Integer pagesCompleted = new Integer((String) map.get("pagesCompleted"));
 				
 				sendSlideGenerated(messageKey, conference, code,  
-					    presentationName, numberOfPages, pagesCompleted);
+						presId, numberOfPages, pagesCompleted, filename);
 				
 			} else if(messageKey.equalsIgnoreCase(CONVERSION_COMPLETED_KEY)){
 				Integer numberOfPages = new Integer((String) map.get("numberOfPages"));
 				sendConversionCompleted(messageKey, conference, code,  
-					    presentationName, numberOfPages);
+						presId, numberOfPages, filename);
 			} 
 		}
 	}

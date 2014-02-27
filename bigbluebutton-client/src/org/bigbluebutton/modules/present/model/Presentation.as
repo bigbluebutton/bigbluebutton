@@ -19,6 +19,10 @@ package org.bigbluebutton.modules.present.model
       return _id;
     }
     
+    public function get name():String {
+      return _name;
+    }
+    
     public function isCurrent():Boolean {
       return _current;
     }

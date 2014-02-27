@@ -26,30 +26,30 @@ public class ConversionUpdatesProcessor {
 	private PresentationApplication presentationApplication;
 	
 	public void sendConversionUpdate(String messageKey, String conference, 
-                      String code, String presentationId) {
+                      String code, String presId, String presName) {
 		presentationApplication.sendConversionUpdate(messageKey, conference,
-              code, presentationId);
+              code, presId, presName);
     }
 	
 	public void sendPageCountError(String messageKey, String conference, 
-            String code, String presentationId, int numberOfPages,
-            int maxNumberPages) {
+            String code, String presId, int numberOfPages,
+            int maxNumberPages, String presName) {
 		presentationApplication.sendPageCountError(messageKey, conference, 
-	            code, presentationId, numberOfPages,
-	            maxNumberPages);
+	            code, presId, numberOfPages,
+	            maxNumberPages, presName);
 	}
 	
 	public void sendSlideGenerated(String messageKey, String conference, 
-            String code, String presentationId, int numberOfPages,
-            int pagesCompleted) {
+            String code, String presId, int numberOfPages,
+            int pagesCompleted, String presName) {
 		presentationApplication.sendSlideGenerated(messageKey, conference, 
-	            code, presentationId, numberOfPages, pagesCompleted);
+	            code, presId, numberOfPages, pagesCompleted, presName);
 	}
 	
 	public void sendConversionCompleted(String messageKey, String conference, 
-            String code, String presentation, Integer numberOfPages) {
+            String code, String presId, Integer numberOfPages, String presName) {
 		presentationApplication.sendConversionCompleted(messageKey, conference, 
-	            code, presentation, numberOfPages);
+	            code, presId, numberOfPages, presName);
 	}
 	
 	public void setPresentationApplication(PresentationApplication a) {
