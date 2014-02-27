@@ -38,12 +38,8 @@ module.exports = class RedisWebsocketBridge
   # @private
   _socket_registerListeners: () ->
     @io.sockets.on "connection", (socket) =>
-      #console.log("\n\nsocket: ")
-      #console.log(socket);
-      socket.on "user connect", () => @_socket_onUserConnected(socket)
       socket.on "user connect", () => @_socket_onUserConnected2(socket)
       socket.on "disconnect", () => @_socket_onUserDisconnected(socket)
-      #socket.on "msg", (msg) => @_socket_onChatMessage(socket, msg)
       socket.on "msg", (msg) => @_socket_onChatMessage2(socket, msg)
       socket.on "logout", () => @_socket_onLogout(socket)
       socket.on "allShapes", () => @_socket_onAllShapes(socket)
@@ -56,7 +52,6 @@ module.exports = class RedisWebsocketBridge
   # @private
   _redis_registerListeners: ->
     @sub.on "pmessage", (pattern, channel, message) =>
-      
       ###
         using the message library instead of simply doing attributes = JSON.parse messages
       ###
@@ -82,18 +77,16 @@ module.exports = class RedisWebsocketBridge
             attributes = object
             return
           ,
-          ->
-            console.log "not successful in converting to js object "+ eventType
+          (err)->
+            console.log "not successful in converting to js object "+ eventType + " " + err
         )
       
       Logger.info "message from redis on channel:#{channel}, data:#{message}"
 
       if channel is "bigbluebutton:bridge"
-        #@_redis_onBigbluebuttonBridge(attributes)
         @_redis_onBigbluebuttonBridge2(attributes)
 
       else if channel is "bigbluebutton:meeting:presentation"
-        @_redis_onBigbluebuttonMeetingPresentation(attributes)
         @_redis_onBigbluebuttonMeetingPresentation2(attributes)
 
       else
@@ -103,32 +96,6 @@ module.exports = class RedisWebsocketBridge
        
         @_emitToClients2(channel, attributes)
 
-  # When received a message on the channel "bigbluebutton:bridge"
-  #
-  # @param attributes [Array] follows the format of this example:
-  #   `["183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1377871468173","mvCur",0.608540925266904,0.298932384341637]`
-  #   The first attribute is the meetingID
-  # @private
-  _redis_onBigbluebuttonBridge: (attributes) ->
-    meetingID = attributes[0]
-
-    emit = =>
-      # apply the parameters to the socket event, and emit it on the channels
-      attributes.splice(0, 1) # remove the meeting id from the params
-      @_emitToClients(meetingID, attributes)
-
-    # When presenter in flex side sends the 'undo' event, remove the current shape from Redis
-    # and publish the rest shapes to html5 users
-    if attributes[1] is "undo"
-      @redisAction.onUndo meetingID, (err, reply) =>
-        @redisPublisher.publishShapes meetingID, null, (err) -> emit()
-
-    # When presenter in flex side sends the 'clrPaper' event, remove everything from Redis
-    else if attributes[1] is "clrPaper"
-      @redisAction.onClearPaper meetingID, (err, reply) => emit()
-
-    else
-      emit()
 
   # When received a message on the channel "bigbluebutton:bridge"
   #
@@ -145,14 +112,13 @@ module.exports = class RedisWebsocketBridge
     emit = =>
       # apply the parameters to the socket event, and emit it on the channels
       #attributes.splice(0, 1) # remove the meeting id from the params
-      #@_emitToClients(meetingID, attributes)
       @_emitToClients2(meetingID, attributes)
 
     # When presenter in flex side sends the 'undo' event, remove the current shape from Redis
     # and publish the rest shapes to html5 users
     if attributes[1] is "undo"
       @redisAction.onUndo meetingID, (err, reply) =>
-        @redisPublisher.publishShapes meetingID, null, (err) -> emit()
+        @redisPublisher.publishShapes2 meetingID, null, (err) -> emit()
 
     # When presenter in flex side sends the 'clrPaper' event, remove everything from Redis
     else if attributes[1] is "clrPaper"
@@ -160,16 +126,6 @@ module.exports = class RedisWebsocketBridge
 
     else
       emit()
-
-  # When received a message on the channel "bigbluebutton:meeting:presentation"
-  #
-  # @private
-  _redis_onBigbluebuttonMeetingPresentation: (attributes) ->
-    console.log "\n\n**_redis_onBigbluebuttonMeetingPresentation"
-    if attributes.messageKey is "CONVERSION_COMPLETED"
-      meetingID = attributes.room
-      @redisPublisher.publishSlides meetingID, null, =>
-        @redisPublisher.publishViewBox meetingID
 
   # When received a message on the channel "bigbluebutton:meeting:presentation"
   #
@@ -185,17 +141,10 @@ module.exports = class RedisWebsocketBridge
   # Emits a message to all clients connected in the given channel.
   #
   # @private
-  _emitToClients: (channel, message) ->
-    channelViewers = @io.sockets.in(channel)
-    channelViewers.emit.apply(channelViewers, message)
-
-  # Emits a message to all clients connected in the given channel.
-  #
-  # @private
   _emitToClients2: (channel, message) -> #message is a JS Object
 
     console.log "\n\nin _emitToClients2 ***message:\n"
-    channelViewers = @io.sockets.in(channel)
+    channelViewers = @io.sockets.in(channel) #channel is the same as meetingID
 
     #if the message has "header":{"name":"some_event_name"} use that name
     #otherwise look for "name":"some_event_name" in the top level of the message
@@ -206,54 +155,6 @@ module.exports = class RedisWebsocketBridge
     #console.log "message" + message
     channelViewers.emit.apply(channelViewers, [eventName, message])
 
-  # When a user connected to the web socket.
-  # Several methods have callbacks but we don't need to wait for them all to run, they
-  # can just be triggered and the messages will be sent sometime.
-  #
-  # @param socket [Object] the socket that generated the event
-  # @private
-  _socket_onUserConnected: (socket) ->
-    console.log("\n\n**userConnected")
-    sessionID = fromSocket(socket, "sessionID")
-    meetingID = fromSocket(socket, "meetingID")
-    @redisAction.isValidSession meetingID, sessionID, (err, reply) =>
-      if !reply
-        Logger.error "got invalid session for meeting #{meetingID}, session #{sessionID}"
-      else
-        username = fromSocket(socket, "username")
-        socketID = socket.id
-        socket.join meetingID # join the socket room with value of the meetingID
-        socket.join sessionID # join the socket room with value of the sessionID
-
-        Logger.info "got a valid session for meeting #{meetingID}, session #{sessionID}, username is '#{username}'"
-
-        # add socket to list of sockets
-        @redisAction.getUserProperties meetingID, sessionID, (err, properties) =>
-          Logger.info "publishing the list of users for #{meetingID}"
-          @redisPublisher.publishLoadUsers meetingID, null, =>
-            @redisPublisher.publishPresenter(meetingID)
-
-          numOfSockets = parseInt(properties.sockets, 10)
-          numOfSockets += 1
-          @redisStore.hset RedisKeys.getUserString(meetingID, sessionID), "sockets", numOfSockets
-
-          # if the user is not refreshing, it means its the first time he's entering the session
-          # all users should be notified
-          # when the user is refreshing the page the other users don't have to be notified
-          Logger.info "publishing user join for #{meetingID}"
-          receivers = (if properties.refreshing is "false" then null else sessionID)
-          @redisStore.hset RedisKeys.getUserString(meetingID, sessionID), "refreshing", false
-          @redisPublisher.publishUserJoin meetingID, receivers, properties.pubID, properties.username, =>
-            @redisPublisher.publishPresenter(meetingID, receivers)
-
-            # publish everything else we need to update for the client
-            Logger.info "publishing messages, slides and shapes to #{meetingID}, #{sessionID}"
-            @redisPublisher.publishMessages(meetingID, sessionID)
-            @redisPublisher.publishSlides meetingID, sessionID, =>
-              @redisPublisher.publishCurrentImagePath(meetingID)
-              @redisPublisher.publishTool(meetingID, sessionID)
-              @redisPublisher.publishShapes(meetingID, sessionID)
-              @redisPublisher.publishViewBox(meetingID, sessionID)
 
   # When a user connected to the web socket.
   # Several methods have callbacks but we don't need to wait for them all to run, they
@@ -301,7 +202,7 @@ module.exports = class RedisWebsocketBridge
             @redisPublisher.publishSlides2 meetingID, sessionID, =>
               @redisPublisher.publishCurrentImagePath(meetingID)
               @redisPublisher.publishTool(meetingID, sessionID)
-              @redisPublisher.publishShapes(meetingID, sessionID)
+              @redisPublisher.publishShapes2(meetingID, sessionID)
               @redisPublisher.publishViewBox(meetingID, sessionID)
 
 
@@ -335,28 +236,6 @@ module.exports = class RedisWebsocketBridge
                 @redisPublisher.publishUsernames(meetingID)
 
           ), 5000 # @todo a 5 sec timeout, really?? timeouts are bad, there must be a better solution.
-
-  # When a user sends a chat message
-  #
-  # @param socket [Object] the socket that generated the event
-  # @param msg [string] the message received
-  # @private
-  _socket_onChatMessage: (socket, msg) ->
-    msg = sanitizer.escape(msg)
-    sessionID = fromSocket(socket, "sessionID")
-    meetingID = fromSocket(socket, "meetingID")
-    @redisAction.isValidSession meetingID, sessionID, (err, reply) =>
-      if reply
-        if msg.length > config.maxChatLength
-          @redisPublisher.publishChatMessageTooLong(meetingID, sessionID)
-        else
-          @redisAction.getUserProperties meetingID, sessionID, (err, properties) =>
-            username = fromSocket(socket, "username")
-            @redisPublisher.publishChatMessage(meetingID, username, msg, properties.pubID)
-
-            messageID = rack() # get a randomly generated id for the message
-            @redisStore.rpush RedisKeys.getMessagesString(meetingID, null, null), messageID #store the messageID in the list of messages
-            @redisStore.hmset RedisKeys.getMessageString(meetingID, null, null, messageID), "message", msg, "username", username, "userID", properties.pubID
 
   # When a user sends a chat message
   #
@@ -409,39 +288,39 @@ module.exports = class RedisWebsocketBridge
   # @todo review if we really need it
   _socket_onAllShapes: (socket) ->
     meetingID = fromSocket(socket, "meetingID")
-    @redisPublisher.publishShapes(meetingID)
+    @redisPublisher.publishShapes2(meetingID)
 
-# Returns a given attribute `attr` registered in the `socket`.
-#
-# @return {string} the value of the attribute requested
-# @internal
-fromSocket = (socket, attr) ->
+  # Returns a given attribute `attr` registered in the `socket`.
+  #
+  # @return {string} the value of the attribute requested
+  # @internal
+  fromSocket = (socket, attr) ->
 
-  #console.log("\n***handshake**\n")
-  #console.log(socket.handshake)
-  #console.log("\n\nhandshake end--\n")
+    #console.log("\n***handshake**\n")
+    #console.log(socket.handshake)
+    #console.log("\n\nhandshake end--\n")
 
-  socket?.handshake?[attr]
+    socket?.handshake?[attr]
 
-# Returns a given attribute `attr` registered in the `socket`.
-#
-# @return {string} the value of the attribute requested
-# @internal
-fromSocket2 = (socket, attr) ->
+  # Returns a given attribute `attr` registered in the `socket`.
+  #
+  # @return {string} the value of the attribute requested
+  # @internal
+  fromSocket2 = (socket, attr) ->
 
-  ###console.log("\n***handshake**\n")
-  console.log(socket.handshake)
-  console.log("\n\nhandshake end--\n")###
+    ###console.log("\n***handshake**\n")
+    console.log(socket.handshake)
+    console.log("\n\nhandshake end--\n")###
 
-  socket?.handshake?[attr]
+    socket?.handshake?[attr]
 
-# Returns whether the current user is the presenter or not.
-#
-# @return {boolean}
-# @internal
-isCurrentPresenter = (socket, presenterID) ->
-  id = fromSocket(socket, "sessionID")
-  id? and presenterID is id
+  # Returns whether the current user is the presenter or not.
+  #
+  # @return {boolean}
+  # @internal
+  isCurrentPresenter = (socket, presenterID) ->
+    id = fromSocket(socket, "sessionID")
+    id? and presenterID is id
 
-registerResponse = (method, err, reply, message="") ->
-  Utils.registerResponse "RedisWebsocketBridge##{method}", err, reply, message
+  registerResponse = (method, err, reply, message="") ->
+    Utils.registerResponse "RedisWebsocketBridge##{method}", err, reply, message

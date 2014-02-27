@@ -4,6 +4,7 @@ redis = require("redis")
 config = require("../config")
 Logger = require("./logger")
 Utils = require("./utils")
+messageLib = require("bigbluebutton-messages")
 
 moduleDeps = ["RedisAction"]
 
@@ -14,21 +15,6 @@ module.exports = class RedisPublisher
     config.modules.wait moduleDeps, =>
       @redisAction = config.modules.get("RedisAction")
       @pub = redis.createClient()
-
-  # Publish list of shapes to appropriate clients
-  #
-  # @param meetingID [string] the ID of the meeting
-  # @param sessionID [string] the ID of the user, if `null` will send to all clients
-  # @param callback(err, succeeded) [Function] callback to call when finished
-  publishShapes: (meetingID, sessionID, callback) ->
-    shapes = []
-    @redisAction.getCurrentPresentationID meetingID, (err, presentationID) =>
-      @redisAction.getCurrentPageID meetingID, presentationID, (err, pageID) =>
-        @redisAction.getItems meetingID, presentationID, pageID, "currentshapes", (err, shapes) =>
-
-          receivers = (if sessionID? then sessionID else meetingID)
-          @pub.publish receivers, JSON.stringify(["all_shapes", shapes])
-          callback?(null)
 
   # Publish list of shapes to appropriate clients
   #
@@ -49,25 +35,7 @@ module.exports = class RedisPublisher
           @pub.publish receivers, JSON.stringify(allShapesEventObject)
           callback?(null)
 
-  # Publish load users to appropriate clients.
-  #
-  # @param meetingID [string] the ID of the meeting
-  # @param sessionID [string] the ID of the user, if `null` will send to all clients
-  # @param callback(err, succeeded) [Function] callback to call when finished
-  publishLoadUsers: (meetingID, sessionID, callback) ->
-    console.log("***publishLoadUsers***")
-    usernames = []
-    @redisAction.getUsers meetingID, (err, users) =>
-      users.forEach (user) =>
-        usernames.push
-          name: user.username
-          id: user.pubID
-
-      receivers = (if sessionID? then sessionID else meetingID)
-      @pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "load users", usernames])
-      callback?(null, true)
-
-
+  
   # Publish load users to appropriate clients.
   #
   # @param meetingID [string] the ID of the meeting
@@ -114,17 +82,6 @@ module.exports = class RedisPublisher
   # @param meetingID [string] the ID of the meeting
   # @param sessionID [string] the ID of the user, if `null` will send to all clients
   # @param callback(err, succeeded) [Function] callback to call when finished
-  publishUserJoin: (meetingID, sessionID, userid, username, callback) ->
-    console.log ("\n\n**publishUserJoin**\n\n")
-    receivers = (if sessionID? then sessionID else meetingID)
-    @pub.publish "bigbluebutton:bridge", JSON.stringify([receivers, "user join", userid, username, "VIEWER"])
-    callback?(null, true)
-
-  # Publishes a user join.
-  #
-  # @param meetingID [string] the ID of the meeting
-  # @param sessionID [string] the ID of the user, if `null` will send to all clients
-  # @param callback(err, succeeded) [Function] callback to call when finished
   publishUserJoin2: (meetingID, sessionID, userid, username, callback) ->
     console.log ("\n\n**publishUserJoin2**\n\n")
     receivers = (if sessionID? then sessionID else meetingID)
@@ -154,21 +111,6 @@ module.exports = class RedisPublisher
   # @param sessionID [string] the ID of the user, if `null` will send to all clients
   # @param callback(err, succeeded) [Function] callback to call when finished
   # @todo callback should be called at the end and only once, can use async for this
-  publishMessages: (meetingID, sessionID, callback) ->
-    messages = []
-    @redisAction.getCurrentPresentationID meetingID, (err, presentationID) =>
-      @redisAction.getCurrentPageID meetingID, presentationID, (err, pageID) =>
-        @redisAction.getItems meetingID, presentationID, pageID, "messages", (err, messages) =>
-          receivers = (if sessionID? then sessionID else meetingID)
-          @pub.publish receivers, JSON.stringify(["all_messages", messages])
-          callback?(true)
-
-  # Get all chat messages from redis and publish to the appropriate clients
-  #
-  # @param meetingID [string] the ID of the meeting
-  # @param sessionID [string] the ID of the user, if `null` will send to all clients
-  # @param callback(err, succeeded) [Function] callback to call when finished
-  # @todo callback should be called at the end and only once, can use async for this
   publishMessages2: (meetingID, sessionID, callback) ->
     messages = []
     @redisAction.getCurrentPresentationID meetingID, (err, presentationID) =>
@@ -186,30 +128,6 @@ module.exports = class RedisPublisher
           }
           @pub.publish receivers, JSON.stringify( allMessagesEventObject )
           callback?(true)
-
-
-  # Publish list of slides from redis to the appropriate clients
-  #
-  # @param meetingID [string] the ID of the meeting
-  # @param sessionID [string] the ID of the user, if `null` will send to all clients
-  # @param callback(err, succeeded) [Function] callback to call when finished
-  # @todo callback should be called at the end and only once, can use async for this
-  publishSlides: (meetingID, sessionID, callback) ->
-    console.log("\n\n***publishSlides called");
-    slides = []
-    @redisAction.getCurrentPresentationID meetingID, (err, presentationID) =>
-      @redisAction.getPageIDs meetingID, presentationID, (err, pageIDs) =>
-        slideCount = 0
-        pageIDs.forEach (pageID) =>
-          @redisAction.getPageImage meetingID, presentationID, pageID, (err, filename) =>
-            @redisAction.getImageSize meetingID, presentationID, pageID, (err, width, height) =>
-              path = config.presentationImagePath(meetingID, presentationID, filename)
-              slides.push [path, width, height]
-              if slides.length is pageIDs.length
-                receivers = (if sessionID? then sessionID else meetingID)
-                @pub.publish receivers, JSON.stringify(["all_slides", slides])
-                callback?(true)
-
 
   # Publish list of slides from redis to the appropriate clients
   #
@@ -314,17 +232,6 @@ module.exports = class RedisPublisher
   publishChatMessageTooLong: (meetingID, sessionID, callback) ->
     receivers = (if sessionID? then sessionID else meetingID)
     @pub.publish receivers, JSON.stringify(["msg", "System", "Message too long."])
-    callback?(null, true)
-
-  # Publishes a chat message.
-  #
-  # @param meetingID [string] the ID of the meeting
-  # @param username [string] the username of the user that sent the message
-  # @param msg [string] the text message
-  # @param pubID [string] the public ID of the user sending the message
-  # @param callback(err, succeeded) [Function] callback to call when finished
-  publishChatMessage: (meetingID, username, msg, pubID, callback) ->
-    @pub.publish "bigbluebutton:bridge", JSON.stringify([meetingID, "msg", username, msg, pubID])
     callback?(null, true)
 
   # Publishes a chat message.
