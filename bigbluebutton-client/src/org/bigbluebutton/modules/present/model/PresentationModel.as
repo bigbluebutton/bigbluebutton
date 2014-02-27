@@ -6,6 +6,7 @@ package org.bigbluebutton.modules.present.model
   {
     private static var instance:PresentationModel = null;
     
+    private var _pages:ArrayCollection = new ArrayCollection();
     private var _presentations:ArrayCollection = new ArrayCollection();
     
     private var _presenter: Presenter;
@@ -43,6 +44,10 @@ package org.bigbluebutton.modules.present.model
       return _presenter;
     }
     
+    public function addPage(page: Page):void {
+      _pages.addItem(page);
+    }
+    
     public function addPresentation(p: Presentation):void {
       _presentations.addItem(p);
     }
@@ -56,12 +61,12 @@ package org.bigbluebutton.modules.present.model
       return null;
     }
     
-    public function getPresentationNames():Array {
-      var presos:Array = new Array();
+    public function getPresentationNames():ArrayCollection {
+      var presos:ArrayCollection = new ArrayCollection();
       
       for (var i:int = 0; i < _presentations.length; i++) {
         var pres: Presentation = _presentations.getItemAt(i) as Presentation;
-        presos.push(pres.name);
+        presos.addItem(pres.name);
       }
       
       return presos;
@@ -80,7 +85,7 @@ package org.bigbluebutton.modules.present.model
       var pres: Presentation = getCurrentPresentation();
       
       if (pres != null) {
-        var pages:Array = pres.getPages();
+        var pages:ArrayCollection = pres.getPages();
         for (var j:int = 0; j < pages.length; j++) {
           var page:Page = pages[j] as Page;
           if (page.current) return page;

@@ -79,8 +79,9 @@ class PresentationController {
          def newFilename = Util.createNewFilename(presId, filenameExt)
          def pres = new File(uploadDir.absolutePath + File.separatorChar + newFilename )
          file.transferTo(pres)
-
-			   UploadedPresentation uploadedPres = new UploadedPresentation(meetingId, presId, presFilename);
+         
+         def presentationBaseUrl = presentationService.presentationBaseUrl
+			   UploadedPresentation uploadedPres = new UploadedPresentation(meetingId, presId, presFilename, presentationBaseUrl);
 			   uploadedPres.setUploadedFile(pres);
 			   presentationService.processUploadedPresentation(uploadedPres)
 			 }							             			     	

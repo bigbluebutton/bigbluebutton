@@ -1762,7 +1762,8 @@ class ApiController {
 
   
   def processUploadedFile(meetingId, presId, filename, presFile) {
-    UploadedPresentation uploadedPres = new UploadedPresentation(meetingId, presId, filename);
+    def presentationBaseUrl = presentationService.presentationBaseUrl
+    UploadedPresentation uploadedPres = new UploadedPresentation(meetingId, presId, filename, presentationBaseUrl);
     uploadedPres.setUploadedFile(presFile);
     presentationService.processUploadedPresentation(uploadedPres);
   }

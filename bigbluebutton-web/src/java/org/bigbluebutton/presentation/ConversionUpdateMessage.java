@@ -19,6 +19,7 @@
 
 package org.bigbluebutton.presentation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,9 +41,9 @@ public class ConversionUpdateMessage {
 			message.put("conference", pres.getMeetingId());
 			message.put("room", pres.getMeetingId());
 			message.put("returnCode", "CONVERT");
-			message.put("presentationName", pres.getPresentationId());
-			message.put("presentationId", pres.getPresentationId());
-			message.put("filename", pres.getPresentationName());
+			message.put("presentationName", pres.getId());
+			message.put("presentationId", pres.getId());
+			message.put("filename", pres.getName());
     	}
 		
 		public MessageBuilder entry(String key, Object value) {
@@ -74,9 +75,37 @@ public class ConversionUpdateMessage {
 			message.put("slidesInfo", slidesInfo);
 			return this;
 		} 
+		
+		public MessageBuilder presBaseUrl(UploadedPresentation pres) {
+			message.put("presentationBaseUrl", generateBasePresUrl(pres));
+			return this;
+		} 
 				
 		public ConversionUpdateMessage build() {
 			return new ConversionUpdateMessage(this);
+		}
+		
+		public MessageBuilder generatePages(UploadedPresentation pres) {
+			String basePresUrl = generateBasePresUrl(pres);
+			ArrayList<Map<String, String>> pages = new ArrayList<Map<String, String>>();
+			
+			for (int i = 1; i <= pres.getNumberOfPages(); i++) {
+				Map<String, String> page = new HashMap<String, String>();
+				page.put("num", new Integer(i).toString());
+				page.put("thumb", basePresUrl + "/thumbnails/thumb-" + i + ".png");
+				page.put("swf", basePresUrl + "/slide-" + i + ".swf");
+				page.put("text", basePresUrl + "/textfiles/slide-" + i + ".txt");
+				
+				pages.add(page);
+			}
+			
+			message.put("pages", pages);
+			
+			return this;
+		}
+		
+		private String generateBasePresUrl(UploadedPresentation pres) {
+			return pres.getBaseUrl() + "/" + pres.getMeetingId() + "/" + pres.getId();
 		}
 	}
 }

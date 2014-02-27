@@ -209,15 +209,20 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
                        code, presentationId, numberOfPages, pagesCompleted, presName))	  
 	}
 	
-    def generatePresentationPages(numPages: Int):scala.collection.immutable.HashMap[String, Page] = {
+    def generatePresentationPages(numPages: Int, presBaseUrl: String):scala.collection.immutable.HashMap[String, Page] = {
 	  var pages = new scala.collection.immutable.HashMap[String, Page]
-	  
+	  val baseUrl = 
 	  for (i <- 1 to numPages) {
 	    val id = "slide/" + i
 	    val num = i;
-	    val thumbnail = "thumbnail/" + i
 	    val current = if (i == 1) true else false
-	    val p = new Page(id=id, num=num, thumbnail=thumbnail, current=current)
+	    val thumbnail = presBaseUrl + "/thumbnails/thumb-" + i + ".png"
+	    val swfUri = presBaseUrl + "/slide-" + i + ".swf"
+	    val txtUri = presBaseUrl + "/textfiles/slide-" + i + ".txt"
+				
+	    val p = new Page(id=id, num=num, thumbUri=thumbnail, swfUri=swfUri,
+	                     txtUri=txtUri, pngUri=thumbnail,
+	                     current=current)
 	    pages += (p.id -> p)
 	  }
 	  
@@ -225,9 +230,10 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	}
 	
 	def sendConversionCompleted(messageKey: String, meetingId: String, 
-            code: String, presentationId: String, numPages: Int, presName: String) {
+            code: String, presentationId: String, numPages: Int, 
+            presName: String, presBaseUrl: String) {
 	  println("******************** PRESENTATION CONVERSION COMPLETED MESSAGE ***************************** ")
-      val pages = generatePresentationPages(numPages)
+      val pages = generatePresentationPages(numPages, presBaseUrl)
 	        
 	  val presentation = new Presentation(id=presentationId, name=presName, pages=pages)
       bbbGW.accept(new PresentationConversionCompleted(meetingId, messageKey, 

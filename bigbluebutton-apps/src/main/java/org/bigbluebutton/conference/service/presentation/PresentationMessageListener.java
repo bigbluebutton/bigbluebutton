@@ -50,10 +50,10 @@ public class PresentationMessageListener implements MessageHandler {
 		
 	private void sendConversionCompleted(String messageKey, String conference, 
             String code, String presId, Integer numberOfPages,
-             String filename) {
+             String filename, String presBaseUrl) {
 		
 		conversionUpdatesProcessor.sendConversionCompleted(messageKey, conference,  
-	            code, presId, numberOfPages, filename);
+	            code, presId, numberOfPages, filename, presBaseUrl);
 	}
 	
 	
@@ -96,8 +96,9 @@ public class PresentationMessageListener implements MessageHandler {
 				
 			} else if(messageKey.equalsIgnoreCase(CONVERSION_COMPLETED_KEY)){
 				Integer numberOfPages = new Integer((String) map.get("numberOfPages"));
+				String presBaseUrl = (String) map.get("presentationBaseUrl");
 				sendConversionCompleted(messageKey, conference, code,  
-						presId, numberOfPages, filename);
+						presId, numberOfPages, filename, presBaseUrl);
 			} 
 		}
 	}

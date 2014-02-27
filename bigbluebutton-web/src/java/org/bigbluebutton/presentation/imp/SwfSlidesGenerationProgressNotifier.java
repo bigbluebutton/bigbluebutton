@@ -77,15 +77,10 @@ public class SwfSlidesGenerationProgressNotifier {
 			return;
 		}
 		
-		String xml = generatedSlidesInfoHelper.generateUploadedPresentationInfo(pres);
-		
-		
-		String escape_xml = StringEscapeUtils.escapeXml(xml);
-		
 		MessageBuilder builder = new ConversionUpdateMessage.MessageBuilder(pres);
 		builder.messageKey(ConversionMessageConstants.CONVERSION_COMPLETED_KEY);		
-		builder.slidesInfo(escape_xml);
 		builder.numberOfPages(pres.getNumberOfPages());
+		builder.presBaseUrl(pres);
 		notifyProgressListener(builder.build().getMessage());	
 	}
 	

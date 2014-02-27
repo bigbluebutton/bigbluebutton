@@ -20,6 +20,8 @@ package org.bigbluebutton.modules.present.services
 {
   import com.asfusion.mate.events.Dispatcher;
   
+  import mx.collections.ArrayCollection;
+  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
@@ -177,6 +179,8 @@ package org.bigbluebutton.modules.present.services
       
       var map:Object = JSON.parse(msg.msg);
       
+      pocessUploadedPresentation(map);
+      
       var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
       uploadEvent.data = CONVERSION_COMPLETED_KEY;
       uploadEvent.presentationName = map.id;
@@ -186,6 +190,25 @@ package org.bigbluebutton.modules.present.services
       var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
       readyEvent.presentationName = map.id;
       dispatcher.dispatchEvent(readyEvent);
+    }
+    
+    private function pocessUploadedPresentation(presentation:Object):void {
+      var presoPages:ArrayCollection = new ArrayCollection();
+      
+      var pages:ArrayCollection = presentation.pages as ArrayCollection;
+      for (var k:int = 0; k < pages.length; k++) {
+        var page:Object = pages[k];
+        var pg:Page = new Page(page.id, page.num, page.current,
+          page.swfUri, page.thumbUri, page.txtUri,
+          page.pngUri, page.xOffset, page.yOffset,
+          page.withRatio, page.heightRatio)
+        
+        presoPages.addItem(pg);
+      }
+      
+      var preso:Presentation = new Presentation(presentation.id, presentation.name, 
+        presentation.current, pages);
+      PresentationModel.getInstance().addPresentation(preso);
     }
     
     private function handleGeneratedSlideUpdateMessageCallback(msg:Object) : void {		
@@ -260,26 +283,8 @@ package org.bigbluebutton.modules.present.services
             
       var presentations:Array = map.presentations as Array;
       for (var j:int = 0; j < presentations.length; j++) {
-        var presentation:Object = presentations[j];
-        var preso:Presentation = new Presentation(presentation.id, presentation.name, presentation.current);
-        
-        var pages:Array = presentation.pages as Array;
-        for (var k:int = 0; k < pages.length; k++) {
-          var page:Object = pages[k];
-          var pg:Page = new Page();
-          pg.id = page.id;
-          pg.num = page.num;
-          pg.current = page.current;
-          pg.thumb = page.thumbnail;
-          pg.xOffset = page.xOffset;
-          pg.yOffset = page.yOffset;
-          pg.widthRatio = page.withRatio;
-          pg.heightRatio = page.heightRatio;
-          
-          preso.addPage(pg);
-        }
-       
-        PresentationModel.getInstance().addPresentation(preso);
+        var presentation:Object = presentations[j];        
+        pocessUploadedPresentation(presentation);
       }
            
       var myUserId: String = UsersUtil.getMyUserID();
@@ -293,7 +298,7 @@ package org.bigbluebutton.modules.present.services
         dispatcher.dispatchEvent(new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE));
       }
       
-      var presNames:Array = PresentationModel.getInstance().getPresentationNames();
+      var presNames:ArrayCollection = PresentationModel.getInstance().getPresentationNames();
           
       if (presNames) {
         trace(LOG + " ************ Getting list of presentations *************");

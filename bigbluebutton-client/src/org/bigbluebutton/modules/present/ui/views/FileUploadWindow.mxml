@@ -58,7 +58,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.util.i18n.ResourceUtil;
          	
       [Bindable] public var presentationNamesAC:ArrayCollection;
-	  [BIndable] public var maxFileSize:Number;
+	    [BIndable] public var maxFileSize:Number;
 
       private var images:Images = new Images();
       [Bindable] private var addIcon : Class = images.add;
@@ -71,8 +71,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
       private var fileToUpload:FileReference = new FileReference();
 		
-      override public function move(x:Number, y:Number):void
-      {
+      override public function move(x:Number, y:Number):void{
         return;
       }
       
@@ -132,7 +131,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         fileFormatHintLbl.visible = false;
         fileFormatHintLbl.includeInLayout = false;
 		
-		uploadedFilesList.enabled = false;
+		    uploadedFilesList.enabled = false;
 
         progressReportBox.visible = true;
         progressBar.visible = true;
@@ -146,13 +145,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         } else {
           var presentationName:String = StringUtil.trim(fileToUpload.name);
           trace("Uploading file : " + presentationName);
-
-          var filenamePattern:RegExp = /(.+)(\..+)/i;
-          // Get the first match which should be the filename without the extension.
-          presentationName = presentationName.replace(filenamePattern, "$1")
-          // Replace any character other than a word character (A-Z, a-z, 0-9, or _).
-          presentationName = presentationName.replace(/[^0-9a-zA-Z_\.]/g, "-");
-          trace("Uploadling presentation name: " + presentationName);
 
           var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.START_UPLOAD);
           uploadEvent.presentationName = presentationName;

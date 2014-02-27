@@ -23,9 +23,6 @@ package org.bigbluebutton.modules.present.business
 	import flash.events.TimerEvent;
 	import flash.net.NetConnection;
 	import flash.utils.Timer;
-	
-	import mx.controls.Alert;
-	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -44,13 +41,11 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.services.MessageReceiver;
 	import org.bigbluebutton.modules.present.services.MessageSender;
 	
-	public class PresentProxy
-	{
+	public class PresentProxy {
 		private var host:String;
 		private var conference:String;
 		private var room:String;
 		private var userid:Number;
-		private var soService:PresentSOService;
 		private var uploadService:FileUploadService;
 		private var slides:PresentationSlides;
 		private var sender:MessageSender;
@@ -124,17 +119,7 @@ package org.bigbluebutton.modules.present.business
       }
 
     }
-		
-		/**
-		 * Reset the zoom level of the current slide to the default value 
-		 * @param e
-		 * 
-		 */		
-		public function resetZoom(e:PresenterCommands):void{
-			if (soService == null) return;
-//			soService.restore();
-		}
-		
+			
 		/**
 		 * Loads a presentation from the server. creates a new PresentationService class 
 		 * 
@@ -203,9 +188,5 @@ package org.bigbluebutton.modules.present.business
 			sender.sendCursorUpdate(e.xPercent, e.yPercent);
 		}
 		
-		public function resizeSlide(e:PresenterCommands):void{
-//			soService.resizeSlide(e.newSizeInPercent);
-		}
-
 	}
 }

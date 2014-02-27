@@ -3,8 +3,12 @@ package org.bigbluebutton.core.apps.presentation
 case class Presentation(id: String, name: String, current: Boolean = false, 
                         pages: scala.collection.immutable.HashMap[String, Page])
                         
-case class Page(id: String, num: Int, current: Boolean = false, 
-                thumbnail: String = "",
+case class Page(id: String, num: Int,  
+                thumbUri: String = "",
+                swfUri: String,
+                txtUri: String,
+                pngUri: String,
+                current: Boolean = false,
                 xOffset: Double = 0, yOffset: Double = 0,
                 widthRatio: Double = 0D, heightRatio: Double = 0D)
                 

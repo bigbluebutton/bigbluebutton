@@ -23,17 +23,21 @@ import java.io.File;
 
 public final class UploadedPresentation {
 	private final String meetingId;
-	private final String presentationId;
-	private final String presentationName;
+	private final String id;
+	private final String name;
 	private File uploadedFile;
 	private String fileType = "unknown";
 	private int numberOfPages = 0;
 	private boolean lastStepSuccessful = false;
+	private final String baseUrl;
 	
-	public UploadedPresentation(String meetingId, String presentationId, String presentationName) {
+	public UploadedPresentation(String meetingId, String id, 
+			                    String name, 
+			                    String baseUrl) {
 		this.meetingId = meetingId;
-		this.presentationId = presentationId;
-		this.presentationName = presentationName;
+		this.id = id;
+		this.name = name;
+		this.baseUrl = baseUrl;
 	}
 
 	public File getUploadedFile() {
@@ -48,12 +52,16 @@ public final class UploadedPresentation {
 		return meetingId;
 	}
 	
-	public String getPresentationId() {
-		return presentationId;
+	public String getId() {
+		return id;
 	}
 
-	public String getPresentationName() {
-		return presentationName;
+	public String getName() {
+		return name;
+	}
+	
+	public String getBaseUrl() {
+		return baseUrl;
 	}
 
 	public String getFileType() {

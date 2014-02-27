@@ -231,7 +231,10 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
 	args.put("id", msg.page.id)
 	args.put("num", msg.page.num:java.lang.Integer)
 	args.put("current", msg.page.current:java.lang.Boolean)
-	args.put("thumbnail", msg.page.thumbnail)
+	args.put("swfUri", msg.page.swfUri)
+	args.put("txtUri", msg.page.txtUri)
+	args.put("pngUri", msg.page.pngUri)
+	args.put("thumbUri", msg.page.thumbUri)
 	args.put("xOffset", msg.page.xOffset:java.lang.Double);
 	args.put("yOffset", msg.page.yOffset:java.lang.Double);
 	args.put("widthRatio", msg.page.widthRatio:java.lang.Double);
@@ -252,7 +255,10 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
 	args.put("id", msg.page.id)
 	args.put("num", msg.page.num:java.lang.Integer)
 	args.put("current", msg.page.current:java.lang.Boolean)
-	args.put("thumbnail", msg.page.thumbnail)
+	args.put("swfUri", msg.page.swfUri)
+	args.put("txtUri", msg.page.txtUri)
+	args.put("pngUri", msg.page.pngUri)
+	args.put("thumbUri", msg.page.thumbUri)
 	args.put("xOffset", msg.page.xOffset:java.lang.Double);
 	args.put("yOffset", msg.page.yOffset:java.lang.Double);
 	args.put("widthRatio", msg.page.widthRatio:java.lang.Double);

@@ -47,9 +47,10 @@ public class ConversionUpdatesProcessor {
 	}
 	
 	public void sendConversionCompleted(String messageKey, String conference, 
-            String code, String presId, Integer numberOfPages, String presName) {
+            String code, String presId, Integer numberOfPages, String presName,
+            String presBaseUrl) {
 		presentationApplication.sendConversionCompleted(messageKey, conference, 
-	            code, presId, numberOfPages, presName);
+	            code, presId, numberOfPages, presName, presBaseUrl);
 	}
 	
 	public void setPresentationApplication(PresentationApplication a) {

@@ -2,17 +2,17 @@ package org.bigbluebutton.modules.present.model
 {
   import mx.collections.ArrayCollection;
 
-  public class Presentation
-  {  
+  public class Presentation {  
     private var _id:String;
     private var _name:String;
     private var _current:Boolean = false;
-    private var _pages:ArrayCollection = new ArrayCollection();
-    
-    public function Presentation(id: String, name: String, current: Boolean) {
+    private var _pages:ArrayCollection;
+     
+    public function Presentation(id: String, name: String, current: Boolean, pages: ArrayCollection) {
       _id = id;
       _name = name;
       _current = current;
+      _pages = pages
     }
     
     public function get id():String {
@@ -26,16 +26,12 @@ package org.bigbluebutton.modules.present.model
     public function isCurrent():Boolean {
       return _current;
     }
-    
-    public function addPage(p: Page):void {
-      _pages.addItem(p);
-    }
-    
-    public function getPages():Array {
-      var pages:Array = new Array();
+        
+    public function getPages():ArrayCollection {
+      var pages:ArrayCollection = new ArrayCollection();
       
       for (var i: int = 0; i < _pages.length; i++) {
-        pages.push(_pages.getItemAt(i) as Page);
+        pages.addItem(_pages.getItemAt(i) as Page);
       }
       
       return pages;

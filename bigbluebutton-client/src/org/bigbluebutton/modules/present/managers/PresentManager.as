@@ -18,13 +18,14 @@
 */
 package org.bigbluebutton.modules.present.managers
 {
-	import flash.display.DisplayObject;
-	import flash.geom.Point;
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import flash.display.DisplayObject;
+	import flash.geom.Point;
+	
 	import mx.collections.ArrayCollection;
-	import mx.managers.PopUpManager;
 	import mx.core.*;
+	import mx.managers.PopUpManager;
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
@@ -37,6 +38,7 @@ package org.bigbluebutton.modules.present.managers
 	import org.bigbluebutton.modules.present.events.QueryListOfPresentationsReplyEvent;
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
+	import org.bigbluebutton.modules.present.model.PresentationModel;
 	import org.bigbluebutton.modules.present.ui.views.FileUploadWindow;
 	import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 	
@@ -45,9 +47,6 @@ package org.bigbluebutton.modules.present.managers
 		private var globalDispatcher:Dispatcher;
 		private var uploadWindow:FileUploadWindow;
 		private var presentWindow:PresentationWindow;
-		
-		//format: presentationNames = [{label:"00"}, {label:"11"}, {label:"22"} ];
-		[Bindable] public var presentationNames:ArrayCollection = new ArrayCollection();
 		
 		public function PresentManager() {
 			globalDispatcher = new Dispatcher();
@@ -78,7 +77,7 @@ package org.bigbluebutton.modules.present.managers
 
 			uploadWindow = FileUploadWindow(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileUploadWindow, true));
 
-			uploadWindow.presentationNamesAC = presentationNames;
+			uploadWindow.presentationNamesAC = PresentationModel.getInstance().getPresentationNames();
 			uploadWindow.maxFileSize = e.maxFileSize;
 			
 			var point1:Point = new Point();
@@ -93,34 +92,5 @@ package org.bigbluebutton.modules.present.managers
 			PopUpManager.removePopUp(uploadWindow);
 			uploadWindow = null;
 		}
-		
-		public function updatePresentationNames(e:UploadEvent):void{
-			LogUtil.debug("Adding presentation " + e.presentationName);
-			for (var i:int = 0; i < presentationNames.length; i++) {
-				if (presentationNames[i] == e.presentationName) return;
-			}
-			presentationNames.addItem(e.presentationName);
-		}
-
-		public function removePresentation(e:RemovePresentationEvent):void {
-			LogUtil.debug("Removing presentation " + e.presentationName);
-      var p:String;
-      
-      for (var i:int = 0; i < presentationNames.length; i++) {
-        p = presentationNames.getItemAt(i) as String;
-        if (p == e.presentationName) {
-          presentationNames.removeItemAt(i);
-        }
-      }
-		}
-    
-    public function queryPresentations():void {
-      var pArray:Array = new Array();
-      pArray = presentationNames.toArray();
-      
-      var qEvent:QueryListOfPresentationsReplyEvent = new QueryListOfPresentationsReplyEvent();
-      qEvent.presentations = pArray;
-      globalDispatcher.dispatchEvent(qEvent);
-    }
 	}
 }
