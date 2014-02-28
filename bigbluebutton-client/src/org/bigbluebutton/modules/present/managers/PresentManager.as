@@ -22,11 +22,9 @@ package org.bigbluebutton.modules.present.managers
 	
 	import flash.display.DisplayObject;
 	import flash.geom.Point;
-	
 	import mx.collections.ArrayCollection;
 	import mx.core.*;
 	import mx.managers.PopUpManager;
-	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
@@ -35,7 +33,6 @@ package org.bigbluebutton.modules.present.managers
 	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
-	import org.bigbluebutton.modules.present.events.QueryListOfPresentationsReplyEvent;
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.model.PresentationModel;

@@ -4,9 +4,14 @@ package org.bigbluebutton.modules.present.commands
   
   public class ChangePageCommand extends Event
   {
-    public function ChangePageCommand(type:String, bubbles:Boolean=false, cancelable:Boolean=false)
+    public static const CHANGE_PAGE_COMMAND:String = "presentation change page command";
+    
+    public var pageId:String;
+    
+    public function ChangePageCommand(pageId: String)
     {
-      super(type, bubbles, cancelable);
+      super(CHANGE_PAGE_COMMAND, true, false);
+      this.pageId = pageId;
     }
   }
 }

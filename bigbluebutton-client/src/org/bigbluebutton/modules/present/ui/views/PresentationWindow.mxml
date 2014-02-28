@@ -46,11 +46,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShortcutEvent.FOCUS_PRESENTATION_WINDOW}" method="focusWindow" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="becomePresenter" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="becomeViewer" />
-	<mate:Listener type="{PresentationEvent.PRESENTATION_LOADED}" method="handlePresentationLoadedEvent" />
-	<mate:Listener type="{NavigationEvent.GOTO_PAGE}" method="gotoPage" />
-    <mate:Listener type="{NavigationEvent.BIND_KEYBOARD_EVENT}" method="bindToKeyboardEvents" />
+	<mate:Listener type="{PresentationChangedEvent.PRESENTATION_CHANGED_EVENT}" method="handlePresentationChangedEvent" />
+  <mate:Listener type="{NavigationEvent.BIND_KEYBOARD_EVENT}" method="bindToKeyboardEvents" />
 	<mate:Listener type="{UploadEvent.CLEAR_PRESENTATION}" method="clearPresentation" />
-	<mate:Listener type="{SlideResizedEvent.SLIDE_RESIZED_EVENT}" method="handleSlideResizedEvent" />
 	<mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
 	<mate:Listener type="{AddOverlayCanvasEvent.ADD_OVERLAY_CANVAS}" method="addOverlayCanvas" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
@@ -87,22 +85,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.events.LocaleChangeEvent;
+      import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.views.MainCanvas;
       import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
       import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
-      import org.bigbluebutton.modules.present.events.MoveEvent;
       import org.bigbluebutton.modules.present.events.NavigationEvent;
+      import org.bigbluebutton.modules.present.events.PresentationChangedEvent;
       import org.bigbluebutton.modules.present.events.PresentationEvent;
       import org.bigbluebutton.modules.present.events.PresenterCommands;
-      import org.bigbluebutton.modules.present.events.SlideEvent;
-      import org.bigbluebutton.modules.present.events.SlideResizedEvent;
       import org.bigbluebutton.modules.present.events.UploadEvent;
       import org.bigbluebutton.modules.present.events.WindowResizedEvent;
-      import org.bigbluebutton.modules.present.events.ZoomEvent;
       import org.bigbluebutton.modules.present.managers.Slide;
       import org.bigbluebutton.modules.present.managers.SlideManager;
+      import org.bigbluebutton.modules.present.model.Page;
       import org.bigbluebutton.modules.present.model.PresentationModel;
       import org.bigbluebutton.modules.present.ui.views.PresentOptions;
       import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
@@ -136,8 +133,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var currentSlideHeight:Number = DEFAULT_WINDOW_HEIGHT;
 									
 			private var mouseDown:Boolean = false;
-			[Bindable] private var isPresenter:Boolean = false;
-			[Bindable] private var presentationLoaded:Boolean = false;
+
 			[Bindable] private var currentPresentation:String = "";
 			
 			[Bindable] private var baseIndex:int; 
@@ -174,12 +170,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         t.start();
 			}
 			
-            private function addWhiteboardToolbar(event:TimerEvent):void {
-                // Tell the WhiteboardManager to add the toolbar
-                var e:WhiteboardButtonEvent = new WhiteboardButtonEvent(WhiteboardButtonEvent.WHITEBOARD_ADDED_TO_PRESENTATION);
-                e.window = this;
-                dispatchEvent(e);
-            }
+      private function addWhiteboardToolbar(event:TimerEvent):void {
+         // Tell the WhiteboardManager to add the toolbar
+         var e:WhiteboardButtonEvent = new WhiteboardButtonEvent(WhiteboardButtonEvent.WHITEBOARD_ADDED_TO_PRESENTATION);
+         e.window = this;
+         dispatchEvent(e);
+      }
             
 			private function hotkeyCapture():void{
 			    LogUtil.debug("Entering hotkeyCapture");
@@ -268,16 +264,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			/*
 			 * Notify the slide container telling it the available dimensions to display the slide.
 			 */
-			private function sendWindowResizedEvent(parentWidth:Number, parentHeight:Number):void {
-				var dispatcher:Dispatcher = new Dispatcher();
-				var dispEvent:WindowResizedEvent = new WindowResizedEvent(WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT);
-				dispEvent.width = parentWidth;
-				dispEvent.height = parentHeight;
-				dispEvent.fitToPage = fitToPage;
-				dispEvent.old_width = this.slideView.width;
-				dispEvent.old_height = this.slideView.height;
-				dispatcher.dispatchEvent(dispEvent);
-				
+			private function sendWindowResizedEvent(parentWidth:Number, parentHeight:Number):void {				
 				slideView.onParentResized(parentWidth, parentHeight);
 			}
 			
@@ -287,15 +274,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				fitSlideToWindowMaintainingAspectRatio();			
 			}
 			
-            private function bindToKeyboardEvents(event:NavigationEvent):void {
-                if (event.bindToKeyboard) {
-                    LogUtil.debug("******************************************** Binding to keyboard events ********************");
-                    bindKeyboardEvents();
-                } else {
-                    LogUtil.debug("********************************************* Unbinding to keyboard events *****************");
-                    unbindKeyboardEvents();
-                }
-            }
+      private function bindToKeyboardEvents(event:NavigationEvent):void {
+         if (event.bindToKeyboard) {
+            trace("******************************************** Binding to keyboard events ********************");
+            bindKeyboardEvents();
+         } else {
+            LogUtil.debug("********************************************* Unbinding to keyboard events *****************");
+            unbindKeyboardEvents();
+         }
+      }
             
             private function unbindKeyboardEvents():void {
                 stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);
@@ -343,11 +330,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				zoomSlider.value = 100;
 				slideView.onZoomSlide(zoomSlider.value);
 			}
-			
-			private function handleSlideResizedEvent(e:SlideResizedEvent):void{
-				zoomSlider.value = e.percent;
-			}
-						
+								
 			private function becomePresenter(e:MadePresenterEvent):void{
 				setupPresenter(true, e.presenterName);
 				addContextMenuItems();
@@ -363,30 +346,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			private function setupPresenter(isPresenter:Boolean, presentersName:String):void {
-				this.isPresenter = isPresenter;
 				uploadPres.visible = isPresenter;
 				
-				if (presentationLoaded) {
-	        displaySlideNumber(slideView.getSelectedSlide() + 1);	
-					displaySlideNavigationControls(isPresenter);
-				}
+        var page:Page = PresentationModel.getInstance().getCurrentPage();
+        displaySlideNumber(page.num);		
+				displaySlideNavigationControls(isPresenter);
 			}
 					
-			private function handlePresentationLoadedEvent(e:PresentationEvent):void {	
-        var newPresName =  PresentationModel.getInstance().getCurrentPresentationName();
+			private function handlePresentationChangedEvent(e:PresentationChangedEvent):void {	
+        var newPresName:String =  PresentationModel.getInstance().getCurrentPresentationName();
         
-				if (newPresName == currentPresentation) return;			
-				presentationLoaded = true;
-				slideView.setSlides(e.slides.slides);    		            		
+      	slideView.setSlides();    		            		
 				slideView.visible = true;		
-	
-				if (slideManager != null) slideManager.clear();	
-				displaySlideNumber(slideView.getSelectedSlide() + 1);	
-				if (isPresenter) {
+	      var page:Page = PresentationModel.getInstance().getCurrentPage();
+				displaySlideNumber(page.num);	
+        
+				if (UsersUtil.amIPresenter()) {
 					displaySlideNavigationControls(true);					
-					notifyOthersOfSharingPresentation(newPresName);
 				} else {
-					dispatchEvent(new SlideEvent(SlideEvent.LOAD_CURRENT_SLIDE));
+          displaySlideNavigationControls(false)
 				}
 				onResetZoom();
 			}
@@ -449,34 +427,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					shareEvent.share = true;
 					dispatchEvent(shareEvent);
 			}
-			
-			private function gotoPage(e:NavigationEvent):void{
-        trace("PresentationWindow:gotoPage page[" + e.pageNumber + "]");
-				loadPage(e.pageNumber);
-			}
-			
-			public function loadPage(pageNumber:int):void{
-        // using zero-based index. So we need to subtract 1.
-        slideView.setSelectedSlide(pageNumber - 1);
-        
-        if (validPageNumber(pageNumber)) {
-          loadSlide(pageNumber);
-          disableSlideNavigationButtons(pageNumber);
-          displaySlideNumber(pageNumber);
-        }	else {
-          trace("PresentationWindow:loadPage - not valid page number [" + pageNumber + "]"); 
-        }
-			}
-			
-			private function loadSlide(page:int):void {
-        // subtract 1 as this is an array which is zero-based.
-				slideManager.load(slideView.slides.getItemAt(page-1) as Slide);
-			}
-			
-			private function validPageNumber(pageNumber:int):Boolean {
-				return (pageNumber <= slideView.slides.length && pageNumber > 0)
-			}
-			
+										
 			private function disableSlideNavigationButtons(pageNumber:int):void {
 				if (pageNumber == 1) {
 					backButton.enabled = false;
@@ -499,6 +450,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				btnSlideNum.label = "" + currentSlide + '/' + slideView.slides.length;
 			}
 			
+      
 			private function clearPresentation(e:UploadEvent):void{
 				slideView.visible = false;		
 				slideView.slideLoader.source = null; 

@@ -41,7 +41,6 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
   import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
   import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
-  import org.bigbluebutton.modules.present.events.QueryPresentationsListEvent;
   import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
@@ -107,10 +106,11 @@ package org.bigbluebutton.main.api
     }
 
     private function handleQueryListsOfPresentationsRequest():void {
-      _dispatcher.dispatchEvent(new QueryPresentationsListEvent());
+      trace(LOG + "TODO - handleQueryListsOfPresentationsRequest");
+      
+      //_dispatcher.dispatchEvent(new QueryPresentationsListEvent());
     }
-    
-    
+        
     private function handleDisplayPresentationRequest(presentationID:String):void {
       var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
       readyEvent.presentationName = presentationID;

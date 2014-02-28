@@ -32,7 +32,6 @@ package org.bigbluebutton.modules.present.services.messaging
   import org.bigbluebutton.main.model.users.Conference;
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.modules.present.events.CursorEvent;
-  import org.bigbluebutton.modules.present.events.MoveEvent;
   import org.bigbluebutton.modules.present.events.NavigationEvent;
   import org.bigbluebutton.modules.present.events.PageChangedEvent;
   import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
@@ -41,20 +40,22 @@ package org.bigbluebutton.modules.present.services.messaging
   import org.bigbluebutton.modules.present.model.Presentation;
   import org.bigbluebutton.modules.present.model.PresentationModel;
   import org.bigbluebutton.modules.present.model.Presenter;
+  import org.bigbluebutton.modules.present.services.Constants;
   import org.bigbluebutton.modules.present.services.PresentationService;
   import org.bigbluebutton.modules.present.services.messages.CursorMovedMessage;
   import org.bigbluebutton.modules.present.services.messages.PageVO;
   import org.bigbluebutton.modules.present.services.messages.PresentationVO;
   
-  public class MessageReceiver implements IMessageListener
-  {
+  public class MessageReceiver implements IMessageListener {
     private static const LOG:String = "Present::MessageReceiver - ";
        
     private var service:PresentationService;
+    private var dispatcher:Dispatcher;
     
     public function MessageReceiver(service: PresentationService) {
       this.service = service;
       BBB.initConnectionManager().addMessageListener(this);
+      dispatcher = new Dispatcher();
     }
     
     public function onMessage(messageName:String, message:Object):void {
@@ -110,8 +111,7 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     private function handlePresentationCursorUpdateCommand(msg:Object):void {    
-//      trace(LOG + "*** handlePresentationCursorUpdateCommand " + msg.msg + " **** \n");
-      
+//      trace(LOG + "*** handlePresentationCursorUpdateCommand " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);      
       if (map.hasOwnProperty("xPercent") && map.hasOwnProperty("yPercent")) {
         service.cursorMoved(map.xPercent, map.yPercent);
@@ -121,14 +121,12 @@ package org.bigbluebutton.modules.present.services.messaging
     private function handleGotoSlideCallback(msg:Object) : void {
       trace(LOG + "*** handleGotoSlideCallback " + msg.msg + " **** \n");
       var map:Object = JSON.parse(msg.msg);
-      
       if (map.hasOwnProperty("id") && map.hasOwnProperty("num") && map.hasOwnProperty("current") &&
         map.hasOwnProperty("swfUri") && map.hasOwnProperty("txtUri") && map.hasOwnProperty("pngUri") &&
         map.hasOwnProperty("thumbUri") && map.hasOwnProperty("xOffset") && map.hasOwnProperty("yOffset") &&
         map.hasOwnProperty("widthRatio") && map.hasOwnProperty("heightRatio")) {
         
         var page:PageVO = extractPage(map);
-        
         service.pageChanged(page);
       }
     }
@@ -159,14 +157,6 @@ package org.bigbluebutton.modules.present.services.messaging
         && map.hasOwnProperty("heightRatio")) {
         service.pageChanged(extractPage(map));
       }
-      
-      trace(LOG + "TODO: handleMoveCallback [" + msg.xOffset + "," +  msg.yOffset + "][" +  msg.widthRatio + "," + msg.heightRatio + "]");
-//      var e:MoveEvent = new MoveEvent(MoveEvent.MOVE);
-//      e.xOffset = map.xOffset;
-//      e.yOffset = map.yOffset;
-//      e.slideToCanvasWidthRatio = map.widthRatio;
- //     e.slideToCanvasHeightRatio = map.heightRatio;
-//      dispatcher.dispatchEvent(e);
     }
     
     private function handleSharePresentationCallback(msg:Object):void {
@@ -195,21 +185,16 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     private function handleConversionCompletedUpdateMessageCallback(msg:Object) : void {
-      trace(LOG + "*** handleConversionCompletedUpdateMessageCallback " + msg.msg + " **** \n");
-      
+      trace(LOG + "*** handleConversionCompletedUpdateMessageCallback " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);      
       var presVO: PresentationVO = pocessUploadedPresentation(map)
       service.changePresentation(presVO);
       
-//      var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
-//      uploadEvent.data = CONVERSION_COMPLETED_KEY;
-//      uploadEvent.presentationName = map.id;
-//      dispatcher.dispatchEvent(uploadEvent);
+      var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
+      uploadEvent.data = Constants.CONVERSION_COMPLETED_KEY;
+      uploadEvent.presentationName = map.id;
+      dispatcher.dispatchEvent(uploadEvent);
       
-//      dispatcher.dispatchEvent(new BBBEvent(BBBEvent.PRESENTATION_CONVERTED));
-//      var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
-//      readyEvent.presentationName = map.id;
-//      dispatcher.dispatchEvent(readyEvent);
     }
     
     private function pocessUploadedPresentation(presentation:Object):PresentationVO {
@@ -230,59 +215,58 @@ package org.bigbluebutton.modules.present.services.messaging
       trace(LOG + "*** handleGeneratedSlideUpdateMessageCallback " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);
       
-//      var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_UPDATE);
-//      uploadEvent.totalSlides = map.numberOfPages as Number;
-//      uploadEvent.completedSlides = msg.pagesCompleted as Number;
-//      dispatcher.dispatchEvent(uploadEvent);	
+     var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_UPDATE);
+      uploadEvent.totalSlides = map.numberOfPages as Number;
+      uploadEvent.completedSlides = msg.pagesCompleted as Number;
+      dispatcher.dispatchEvent(uploadEvent);	
     }
     
     private function handlePageCountExceededUpdateMessageCallback(msg:Object) : void {
-      trace(LOG + "*** handlePageCountExceededUpdateMessageCallback " + msg.msg + " **** \n");
-      
+      trace(LOG + "*** handlePageCountExceededUpdateMessageCallback " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);
       
-//      var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.PAGE_COUNT_EXCEEDED);
-////      uploadEvent.maximumSupportedNumberOfSlides = map.maxNumberPages as Number;
- //     dispatcher.dispatchEvent(uploadEvent);
+      var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.PAGE_COUNT_EXCEEDED);
+      uploadEvent.maximumSupportedNumberOfSlides = map.maxNumberPages as Number;
+      dispatcher.dispatchEvent(uploadEvent);
     }
     
     private function handleConversionUpdateMessageCallback(msg:Object) : void {
       trace(LOG + "*** handleConversionUpdateMessageCallback " + msg.msg + " **** \n");
       
       var map:Object = JSON.parse(msg.msg);
-/*      
+      
       var uploadEvent:UploadEvent;
       
       switch (map.messageKey) {
-        case OFFICE_DOC_CONVERSION_SUCCESS_KEY :
+        case Constants.OFFICE_DOC_CONVERSION_SUCCESS_KEY :
           uploadEvent = new UploadEvent(UploadEvent.OFFICE_DOC_CONVERSION_SUCCESS);
           dispatcher.dispatchEvent(uploadEvent);
           break;
-        case OFFICE_DOC_CONVERSION_FAILED_KEY :
+        case Constants.OFFICE_DOC_CONVERSION_FAILED_KEY :
           uploadEvent = new UploadEvent(UploadEvent.OFFICE_DOC_CONVERSION_FAILED);
           dispatcher.dispatchEvent(uploadEvent);
           break;
-        case SUPPORTED_DOCUMENT_KEY :
+        case Constants.SUPPORTED_DOCUMENT_KEY :
           uploadEvent = new UploadEvent(UploadEvent.SUPPORTED_DOCUMENT);
           dispatcher.dispatchEvent(uploadEvent);
           break;
-        case UNSUPPORTED_DOCUMENT_KEY :
+        case Constants.UNSUPPORTED_DOCUMENT_KEY :
           uploadEvent = new UploadEvent(UploadEvent.UNSUPPORTED_DOCUMENT);
           dispatcher.dispatchEvent(uploadEvent);
           break;
-        case GENERATING_THUMBNAIL_KEY :	
+        case Constants.GENERATING_THUMBNAIL_KEY :	
           dispatcher.dispatchEvent(new UploadEvent(UploadEvent.THUMBNAILS_UPDATE));
           break;		
-        case PAGE_COUNT_FAILED_KEY :
+        case Constants.PAGE_COUNT_FAILED_KEY :
           uploadEvent = new UploadEvent(UploadEvent.PAGE_COUNT_FAILED);
           dispatcher.dispatchEvent(uploadEvent);
           break;	
-        case GENERATED_THUMBNAIL_KEY :
+        case Constants.GENERATED_THUMBNAIL_KEY :
           break;
         default:
           break;
       }		
-*/
+
     }	
     
     private var currentSlide:Number = -1;

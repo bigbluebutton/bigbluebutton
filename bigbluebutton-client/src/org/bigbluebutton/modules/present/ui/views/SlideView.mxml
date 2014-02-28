@@ -24,18 +24,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:local="*"
 	xmlns:fimage="org.bigbluebutton.common.model.*"
-    width="{slideModel.viewportW}" height="{slideModel.viewportH}" 
+  width="{slideModel.viewportW}" height="{slideModel.viewportH}" 
 	x="{slideModel.viewportX}" y="{slideModel.viewportY}"
-    creationComplete="onCreationComplete()" 
+  creationComplete="onCreationComplete()" 
 	verticalScrollPolicy="off" 
 	horizontalScrollPolicy="off"      
-    rollOut="hideCursor()" styleName="presentationSlideViewStyle"
-    xmlns:views="org.bigbluebutton.modules.present.views.*"
-    implements="org.bigbluebutton.common.IBbbCanvas">
-    
-	<mate:Listener type="{MoveEvent.CUR_SLIDE_SETTING}" method="handleCurSlideSettingEvent" />
-    <mate:Listener type="{MoveEvent.MOVE}" method="handleMoveEvent" />
-    <mate:Listener type="{SlideEvent.SLIDE_LOADED}" method="handleSlideLoadedEvent" />
+  rollOut="hideCursor()" styleName="presentationSlideViewStyle"
+  xmlns:views="org.bigbluebutton.modules.present.views.*"
+  implements="org.bigbluebutton.common.IBbbCanvas">
+     
+  <mate:Listener type="{PageChangedEvent.PRESENTATION_PAGE_CHANGED_EVENT}" method="handlePageChangedEvent" />
+    <mate:Listener type="{PageLoadedEvent.PAGE_LOADED_EVENT}" method="handlePageLoadedEvent" />
     <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleSwitchToPresenterEvent" />
     <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleSwitchToViewerEvent" />
     <mate:Listener type="{CursorEvent.UPDATE_CURSOR}" method="handleUpdateCursorEvent" />
@@ -43,34 +42,35 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;			
-			import flash.events.Event;			
-			import mx.binding.utils.BindingUtils;
-			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
-			import mx.controls.Button;
-			import mx.events.FlexEvent;
-			import mx.events.ListEvent;			
-			import org.bigbluebutton.common.IBbbCanvas;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.model.FocusableImage;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.modules.present.events.CursorEvent;
-			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
-			import org.bigbluebutton.modules.present.events.MoveEvent;
-			import org.bigbluebutton.modules.present.events.PresenterCommands;
-			import org.bigbluebutton.modules.present.events.SlideEvent;
-			import org.bigbluebutton.modules.present.events.SlideResizedEvent;
-			import org.bigbluebutton.modules.present.events.UploadEvent;
-			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
-			import org.bigbluebutton.modules.present.events.ZoomEvent;
-			import org.bigbluebutton.modules.present.managers.Slide;
-			import org.bigbluebutton.modules.present.ui.views.models.SlideCalcUtil;
-			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
-			import org.bigbluebutton.modules.whiteboard.events.GetCurrentPresentationInfo;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;      
+      import flash.events.Event;     
+      import mx.binding.utils.BindingUtils;
+      import mx.collections.ArrayCollection;
+      import mx.controls.Alert;
+      import mx.controls.Button;
+      import mx.events.FlexEvent;
+      import mx.events.ListEvent;      
+      import org.bigbluebutton.common.IBbbCanvas;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.model.FocusableImage;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.modules.present.commands.ChangePageCommand;
+      import org.bigbluebutton.modules.present.events.CursorEvent;
+      import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
+      import org.bigbluebutton.modules.present.events.PageChangedEvent;
+      import org.bigbluebutton.modules.present.events.PageLoadedEvent;
+      import org.bigbluebutton.modules.present.events.PresenterCommands;
+      import org.bigbluebutton.modules.present.events.UploadEvent;
+      import org.bigbluebutton.modules.present.events.WindowResizedEvent;
+      import org.bigbluebutton.modules.present.managers.Slide;
+      import org.bigbluebutton.modules.present.model.Page;
+      import org.bigbluebutton.modules.present.model.PresentationModel;
+      import org.bigbluebutton.modules.present.ui.views.models.SlideCalcUtil;
+      import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
+      import org.bigbluebutton.modules.whiteboard.events.GetCurrentPresentationInfo;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
             
 			[Bindable] public var zoomPercentage:Number = 100;
 			public static const ZOOM_STEP:int = 5;
@@ -92,7 +92,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var whiteboardCanvasHolder:Canvas = new Canvas();
 			private var whiteboardCanvas:IBbbCanvas;
 							
-      [Bindable] public var slides:ArrayCollection = new ArrayCollection();
+//      [Bindable] public var slides:ArrayCollection = new ArrayCollection();
 			private var _selectedSlide:int=0;
 			[Bindable] private var lateComerSynched:Boolean = false;
 			
@@ -121,14 +121,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				whiteboardCanvasHolder.x = 0;
 				whiteboardCanvasHolder.y = 0;
 				
-				this.setChildIndex(thumbnailView, this.numChildren - 1);
-        
-        dispatcher.dispatchEvent(new GetCurrentPresentationInfo());
+				this.setChildIndex(thumbnailView, this.numChildren - 1);       
 			}
 						
-			public function setSlides(slides:ArrayCollection):void {
-				this.slides = slides;
-				thumbnailView.dataProvider = this.slides.toArray();
+			public function setSlides():void {
+				thumbnailView.dataProvider = PresentationModel.getInstance().getCurrentPresentation().getPages();
 			}
 			
       public function setSelectedSlide(slideNum:int):void {
@@ -142,9 +139,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
 			private function changeSlide():void {
         if (thumbnailView.selectedIndex != _selectedSlide) {
-            // We need to add 1 as the thumbnail view is zero based.
-				    dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, thumbnailView.selectedIndex));
-				    thumbnailView.visible = false;
+          var data:Page = thumbnailView.selectedItem as Page;
+			    dispatchEvent(new ChangePageCommand(data.id));
+			    thumbnailView.visible = false;
         }
 			}
 			
@@ -277,52 +274,45 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// If delta is negative, the presenter is zooming-out of the presentation.
 				return delta < 0;
 			}
-			
+				
 			/**
 			 * Handles notification from presenter that the slide has moved.
 			 */
-			private function handleCurSlideSettingEvent(e:MoveEvent):void{
+			private function handlePageChangedEvent(e:PageChangedEvent):void{
 				if (UserManager.getInstance().getConference().amIPresenter) {
 					return;
 				}
+				
+        var page:Page = PresentationModel.getInstance().getPage(e.pageId);
+        if (page != null) {
+          presenterViewedRegionX = page.xOffset;
+          presenterViewedRegionY = page.yOffset;
+          presenterViewedRegionW = page.widthRatio;
+          presenterViewedRegionH = page.heightRatio;
+          
+          slideModel.saveViewedRegion(page.xOffset, page.yOffset, page.widthRatio, page.heightRatio);
+          slideModel.calculateViewportNeededForRegion(page.xOffset, page.yOffset, page.widthRatio, page.heightRatio);
+          slideModel.displayViewerRegion(page.xOffset, page.yOffset, page.widthRatio, page.heightRatio);
+          slideModel.calculateViewportXY();
+          slideModel.displayPresenterView();
+          slideModel.printViewedRegion();
+          fitSlideToLoader();          
+        }
 
-				presenterViewedRegionX = e.xOffset;
-				presenterViewedRegionY = e.yOffset;
-				presenterViewedRegionW = e.slideToCanvasWidthRatio;
-				presenterViewedRegionH = e.slideToCanvasHeightRatio;
 			}
-			
-			/**
-			 * Handles notification from presenter that the slide has moved.
-			 */
-			private function handleMoveEvent(e:MoveEvent):void{
-				if (UserManager.getInstance().getConference().amIPresenter) {
-					return;
-				}
-				
-				presenterViewedRegionX = e.xOffset;
-				presenterViewedRegionY = e.yOffset;
-				presenterViewedRegionW = e.slideToCanvasWidthRatio;
-				presenterViewedRegionH = e.slideToCanvasHeightRatio;
-				
-				slideModel.saveViewedRegion(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
-				slideModel.calculateViewportNeededForRegion(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
-				slideModel.displayViewerRegion(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
-				slideModel.calculateViewportXY();
-				slideModel.displayPresenterView();
-				slideModel.printViewedRegion();
-				fitSlideToLoader();
-			}
-					
-			/**
-			 * Handle notification from loader that a slide has been loaded.
-			 */						
-			private function handleSlideLoadedEvent(e:SlideEvent):void{
-				slideLoader.source = e.slide;
-			    //slideLoader.accessibilityProperties.description = "Slide text start:  " + e.slideText + "    Slide text end";
-        slideLoader.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + e.slideText + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
-        slideLoader.accessibilityName = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + e.slideText + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
-        LogUtil.debug(e.slideText);
+								
+			private function handleSlideLoadedEvent(e:PageLoadedEvent):void{
+        var page:Page = PresentationModel.getInstance().getPage(e.pageId);
+        if (page != null) {
+          slideLoader.source = page.swfData;
+          //slideLoader.accessibilityProperties.description = "Slide text start:  " + e.slideText + "    Slide text end";
+//          slideLoader.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
+//                                                 page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
+//          slideLoader.accessibilityName = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
+//                                                 page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
+          
+          
+        }
 			}
 			
 			/**

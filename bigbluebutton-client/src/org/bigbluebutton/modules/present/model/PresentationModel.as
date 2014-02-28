@@ -1,6 +1,7 @@
 package org.bigbluebutton.modules.present.model
 {
   import mx.collections.ArrayCollection;
+  
   import org.bigbluebutton.modules.present.model.Page;
   import org.bigbluebutton.modules.present.model.Presentation;
   
@@ -56,7 +57,7 @@ package org.bigbluebutton.modules.present.model
     public function getCurrentPresentationName():String {
       for (var i:int = 0; i < _presentations.length; i++) {
         var pres: Presentation = _presentations.getItemAt(i) as Presentation;
-        if (pres.isCurrent()) return pres.id;
+        if (pres.current) return pres.id;
       }   
       
       return null;
@@ -76,9 +77,17 @@ package org.bigbluebutton.modules.present.model
     public function getCurrentPresentation():Presentation {
       for (var i:int = 0; i < _presentations.length; i++) {
         var pres: Presentation = _presentations.getItemAt(i) as Presentation;
-        if (pres.isCurrent()) return pres;
+        if (pres.current) return pres;
       }
       
+      return null;
+    }
+    
+    public function getCurrentPage():Page {
+      var pres:Presentation = getCurrentPresentation();
+      if (pres != null) {
+        return pres.getCurrentPage();
+      }
       return null;
     }
     

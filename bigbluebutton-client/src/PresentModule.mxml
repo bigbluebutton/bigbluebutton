@@ -22,7 +22,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"
 	implements="org.bigbluebutton.common.IBigBlueButtonModule"
-	creationComplete="onCreationComplete()" xmlns:maps="org.bigbluebutton.modules.present.maps.*">
+	creationComplete="onCreationComplete()" 
+  xmlns:maps="org.bigbluebutton.modules.present.maps.*"
+  xmlns:maps="org.bigbluebutton.modules.present.ui.views.maps.*">
 	
 	<mx:Script>
 		<![CDATA[
@@ -98,4 +100,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
 	
 	<maps:PresentEventMap id="eventMap" />
+  <viewMaps:PresentationViewMap id="viewMap"/>
 </mx:Module>

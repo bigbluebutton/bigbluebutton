@@ -121,10 +121,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<InlineInvoker method="dummyMethod" />
 	</EventHandlers>
 	
-	<EventHandlers type="{WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT}">
-		<InlineInvoker method="dummyMethod" />
-	</EventHandlers>
-	
 	<EventHandlers type="{NavigationEvent.GOTO_PAGE}">
 		<InlineInvoker method="dummyMethod" />
 	</EventHandlers>

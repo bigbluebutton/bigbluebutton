@@ -32,7 +32,6 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.PresenterCommands;
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
-	import org.bigbluebutton.modules.present.events.SlideEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
 	import org.bigbluebutton.modules.present.model.Page;
@@ -93,36 +92,7 @@ package org.bigbluebutton.modules.present.business
 		public function gotoSlide(e:PresenterCommands):void{
       sender.gotoSlide(e.slideNumber);
 		}
-		
-		/**
-		 * Gets the current slide number from the server, then loads the page on the local client 
-		 * @param e
-		 * 
-		 */		
-		public function loadCurrentSlideLocally(e:SlideEvent):void{
-			getCurrentSlideNumber();
-		}
-    
-    public function getCurrentSlideNumber():void {
-      trace("PresentPoxy: getCurrentSlideNumber DISABLED!!!]");
-      
-      return;
-/*      
-      var curPage:Page = presentationModel.getCurrentPage();
-      if (curPage != null) {
-        if (curPage.num >= 0) {
-          var e:NavigationEvent = new NavigationEvent(NavigationEvent.GOTO_PAGE)
-          trace("PresentPoxy: getCurrentSlideNumber [" + curPage.num + "]");
-          e.pageNumber = curPage.num;
-          var dispatcher:Dispatcher = new Dispatcher();
-          dispatcher.dispatchEvent(e);
-        }        
-      } else {
-        trace("PresentPoxy: getCurrentSlideNumber [No Current Page]");
-      }
-*/
-    }
-			
+				
 		/**
 		 * Loads a presentation from the server. creates a new PresentationService class 
 		 * 

@@ -26,10 +26,6 @@
 	<InlineInvoker method="{MonitoringModule.handleAddedListenerEvent}" arguments="{[event]}" />
 </EventHandlers>
 
-<EventHandlers type="{BBBEvent.PRESENTATION_CONVERTED}" >
-	<InlineInvoker method="{MonitoringModule.handlePresentationConversion}" arguments="{[event]}" />
-</EventHandlers>
-
 <EventHandlers type="{BBBEvent.VIDEO_STARTED}" >
 	<InlineInvoker method="{MonitoringModule.videoHasStarted}" arguments="{[event]}" />
 </EventHandlers>

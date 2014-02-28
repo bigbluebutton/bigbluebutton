@@ -18,15 +18,12 @@
 */
 package org.bigbluebutton.modules.present.business
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.*;
 	import flash.net.URLLoader;
-	import flash.net.URLRequest;
-	
+	import flash.net.URLRequest;	
 	import mx.rpc.IResponder;
-	import mx.rpc.http.HTTPService;
-	
+	import mx.rpc.http.HTTPService;	
 	import org.bigbluebutton.modules.present.events.PresentationEvent;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
 	import org.bigbluebutton.modules.present.managers.Slide;
@@ -41,8 +38,7 @@ package org.bigbluebutton.modules.present.business
 	 * @author dev_team@bigbluebutton.org
 	 * 
 	 */	        	
-	public class PresentationService implements IResponder
-	{  
+	public class PresentationService implements IResponder {  
 		private var service : HTTPService;
 		private var _slides:PresentationSlides;
 		private var urlLoader:URLLoader;
@@ -50,8 +46,7 @@ package org.bigbluebutton.modules.present.business
 		private var dispatcher:Dispatcher;
     
     
-		public function PresentationService()
-		{
+		public function PresentationService() {
 			service = new HTTPService();
       
 			dispatcher = new Dispatcher();
@@ -62,28 +57,26 @@ package org.bigbluebutton.modules.present.business
 		 * @param url
 		 * 
 		 */		
-		public function load(url:String, slides:PresentationSlides, slideUri:String) : void
-		{
+		public function load(url:String, slides:PresentationSlides, slideUri:String):void {
 			_slides = slides;
 			this.slideUri = slideUri;
 			service.url = url;			
 			urlLoader = new URLLoader();
 			urlLoader.addEventListener(Event.COMPLETE, handleComplete);	
 			urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleIOErrorEvent);
-			urlLoader.load(new URLRequest(url));
-			
+			urlLoader.load(new URLRequest(url));		
 		}
 		
-		private function handleComplete(e:Event):void{
+		private function handleComplete(e:Event):void {
 			LogUtil.debug("Loading complete");
 			parse(new XML(e.target.data));				
 		}
 		
-		private function handleIOErrorEvent(e:IOErrorEvent):void{
+		private function handleIOErrorEvent(e:IOErrorEvent):void {
 			LogUtil.error(e.toString());
 		}
 		
-		public function parse(xml:XML):void{
+		public function parse(xml:XML):void {
 			var list:XMLList = xml.presentation.slides.slide;
 			var item:XML;
 			LogUtil.debug("Slides: " + xml);
@@ -120,8 +113,7 @@ package org.bigbluebutton.modules.present.business
 		 * @param event
 		 * 
 		 */		
-		public function result(event : Object):void
-		{
+		public function result(event : Object):void {
 			var xml:XML = new XML(event.result);
 			var list:XMLList = xml.presentations;
 			var item:XML;
@@ -138,8 +130,7 @@ package org.bigbluebutton.modules.present.business
 		 * @param event
 		 * 
 		 */
-		public function fault(event : Object):void
-		{
+		public function fault(event : Object):void {
 			LogUtil.debug("Got fault [" + event.fault.toString() + "]");		
 		}		
 		
