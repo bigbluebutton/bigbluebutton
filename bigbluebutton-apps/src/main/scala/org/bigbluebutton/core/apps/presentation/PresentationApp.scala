@@ -126,7 +126,7 @@ trait PresentationApp {
       val pres = presModel.sharePresentation(presentationID)
       
       pres foreach { p =>
-        outGW.send(new SharePresentationOutMsg(meetingID, recorded, p.id, share))
+        outGW.send(new SharePresentationOutMsg(meetingID, recorded, p))
       }
       	      
     }

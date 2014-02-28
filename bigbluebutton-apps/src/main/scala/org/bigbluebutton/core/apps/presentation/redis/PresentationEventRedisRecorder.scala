@@ -108,8 +108,8 @@ class PresentationEventRedisRecorder(recorder: RecorderApplication) extends OutM
 			val event = new SharePresentationPresentationRecordEvent();
 			event.setMeetingId(msg.meetingID);
 			event.setTimestamp(System.currentTimeMillis());
-			event.setPresentationName(msg.presentationID);
-			event.setShare(msg.share);
+//			event.setPresentationName(msg.presentationID);
+//			event.setShare(msg.share);
 			recorder.record(msg.meetingID, event);			
 		}
 	}

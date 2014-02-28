@@ -1,14 +1,14 @@
-package org.bigbluebutton.modules.present.model
+package org.bigbluebutton.modules.present.services.messages
 {
   import mx.collections.ArrayCollection;
-
-  public class Presentation {  
+  
+  public class PresentationVO {  
     private var _id:String;
     private var _name:String;
     private var _current:Boolean = false;
     private var _pages:ArrayCollection;
-     
-    public function Presentation(id: String, name: String, current: Boolean, pages: ArrayCollection) {
+    
+    public function PresentationVO(id: String, name: String, current: Boolean, pages: ArrayCollection) {
       _id = id;
       _name = name;
       _current = current;
@@ -27,22 +27,11 @@ package org.bigbluebutton.modules.present.model
       return _current;
     }
     
-    public function getPage(pageId:String):Page {
-      for (var i: int = 0; i < _pages.length; i++) {
-        var p: Page = _pages.getItemAt(i) as Page;
-        if (p.id == pageId) {
-          return p;
-        }
-      }  
-      
-      return null;
-    }
-    
     public function getPages():ArrayCollection {
       var pages:ArrayCollection = new ArrayCollection();
       
       for (var i: int = 0; i < _pages.length; i++) {
-        pages.addItem(_pages.getItemAt(i) as Page);
+        pages.addItem(_pages.getItemAt(i) as PageVO);
       }
       
       return pages;

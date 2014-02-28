@@ -2,12 +2,18 @@ package org.bigbluebutton.modules.present.services
 {
   import com.asfusion.mate.events.Dispatcher;
   
+  import mx.collections.ArrayCollection;
+  
   import org.bigbluebutton.modules.present.events.CursorEvent;
   import org.bigbluebutton.modules.present.events.PageChangedEvent;
   import org.bigbluebutton.modules.present.events.PageMovedEvent;
+  import org.bigbluebutton.modules.present.events.PresentationChangedEvent;
   import org.bigbluebutton.modules.present.model.Page;
+  import org.bigbluebutton.modules.present.model.Presentation;
   import org.bigbluebutton.modules.present.model.PresentationModel;
   import org.bigbluebutton.modules.present.services.messages.CursorMovedMessage;
+  import org.bigbluebutton.modules.present.services.messages.PageVO;
+  import org.bigbluebutton.modules.present.services.messages.PresentationVO;
   import org.bigbluebutton.modules.present.services.messaging.MessageReceiver;
   import org.bigbluebutton.modules.present.services.messaging.MessageSender;
 
@@ -31,19 +37,45 @@ package org.bigbluebutton.modules.present.services
       dispatcher.dispatchEvent(e);
     }
     
-    public function changeCurrentPage(pageId: String):void {
-      if (model.changeCurrentPage(pageId)) {
-        var event: PageChangedEvent = new PageChangedEvent(pageId);
-        dispatcher.dispatchEvent(event);
-      } 
+    public function pageChanged(page: PageVO):void {
+      var np: Page = model.getPage(page.id);
+      if (np != null) {
+        np.current = page.current;
+        np.xOffset = page.xOffset;
+        np.yOffset = page.yOffset;
+        np.widthRatio = page.widthRatio;
+        np.heightRatio = page.heightRatio;
+          
+        var event: PageChangedEvent = new PageChangedEvent(np.id);
+        dispatcher.dispatchEvent(event);           
+      }
+       
+    }
+        
+    private function copyPageVOToPage(p: PageVO):Page {
+      var page:Page = new Page(p.id, p.num, p.current,
+                               p.swfUri, p.thumbUri, p.txtUri,
+                               p.pngUri, p.xOffset, p.yOffset,
+                               p.widthRatio, p.heightRatio);      
+      return page;      
     }
     
-    public function movePage(id: String, xOffset: Number, yOffset: Number, widthRatio: Number, heightRatio: Number) {
-      if (model.movePage(id, xOffset, yOffset, widthRatio, heightRatio) {
-        var event: PageMovedEvent = new PageMovedEvent(id, xOffset, yOffset, widthRatio, heightRatio);
-        dispatcher.dispatchEvent(event);
-      }        
+    public function changePresentation(pres: PresentationVO):void {
+      var presoPages:ArrayCollection = new ArrayCollection();
+      var pages:ArrayCollection = pres.getPages() as ArrayCollection;
+      for (var k:int = 0; k < pages.length; k++) {
+        var page:PageVO = pages[k] as PageVO;
+        var pg:Page = copyPageVOToPage(page)
+        presoPages.addItem(pg);
+      }   
+      
+      var presentation: Presentation = new Presentation(pres.id, pres.name, pres.isCurrent(), presoPages);
+      
+      model.addPresentation(presentation);
+      
+      var event: PresentationChangedEvent = new PresentationChangedEvent(presentation.id);
+      dispatcher.dispatchEvent(event);
+      
     }
-    
   }
 }

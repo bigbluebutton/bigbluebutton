@@ -1,14 +1,15 @@
 package org.bigbluebutton.modules.present.model
 {
   import mx.collections.ArrayCollection;
-
+  import org.bigbluebutton.modules.present.model.Page;
+  import org.bigbluebutton.modules.present.model.Presentation;
+  
   public class PresentationModel
   {
     private static var instance:PresentationModel = null;
     
     private var _pages:ArrayCollection = new ArrayCollection();
-    private var _presentations:ArrayCollection = new ArrayCollection();
-    
+    private var _presentations:ArrayCollection = new ArrayCollection();   
     private var _presenter: Presenter;
     
     /**
@@ -81,33 +82,26 @@ package org.bigbluebutton.modules.present.model
       return null;
     }
     
-    public function getCurrentPage():Page {
-      var pres: Presentation = getCurrentPresentation();
-      
-      if (pres != null) {
-        var pages:ArrayCollection = pres.getPages();
-        for (var j:int = 0; j < pages.length; j++) {
-          var page:Page = pages[j] as Page;
-          if (page.current) return page;
-          
-        }        
+    public function getPage(id: String):Page {
+      var ids:Array = id.split("/");
+      if (ids.length > 1) {
+        var presId:String = ids[0];
+        var pres:Presentation = getPresentation(presId);
+        return pres.getPage(id);
       }
 
       return null;
     }
     
-    public function changeCurrentPage(id: String):void {
-      var pres: Presentation = getCurrentPresentation();
+    public function getPresentation(presId: String):Presentation {
+      for (var i:int = 0; i < _presentations.length; i++) {
+        var pres: Presentation = _presentations.getItemAt(i) as Presentation;
+        if (pres.id == presId) {
+          return pres;
+        }
+      }
       
-      if (pres != null) {
-        var pages:ArrayCollection = pres.getPages();
-        for (var j:int = 0; j < pages.length; j++) {
-          var page:Page = pages[j] as Page;
-          if (page.id == id) {
-            page.current = true;
-          }         
-        }        
-      }      
+      return null;      
     }
   }
 }

@@ -9,15 +9,16 @@ package org.bigbluebutton.modules.present.model
   public class Page {
     private var _id: String;
     private var _num: int;
-    private var _current: Boolean;
     private var _swfUri: String;
     private var _txtUri: String;
     private var _pngUri: String;
     private var _thumbUri: String;
-    private var _xOffset: Number;
-    private var _yOffset: Number;
-    private var _widthRatio: Number;
-    private var _heightRatio: Number
+    
+    public var current: Boolean;
+    public var xOffset: Number;
+    public var yOffset: Number;
+    public var widthRatio: Number;
+    public var heightRatio: Number
     
     private var _swfLoader:URLLoader;
     private var _swfLoaded:Boolean = false;
@@ -33,15 +34,15 @@ package org.bigbluebutton.modules.present.model
                 width: Number, height: Number) {
        _id = id;
        _num = num;
-       _current = current;
+       this.current = current;
        _swfUri = swfUri;
        _thumbUri = thumbUri;
        _txtUri = txtUri;
        _pngUri = pngUri;
-       _xOffset = x;
-       _yOffset = y;
-       _widthRatio = width;
-       _heightRatio = height;
+       this.xOffset = x;
+       this.yOffset = y;
+       this.widthRatio = width;
+       this.heightRatio = height;
        
        _swfLoader = new URLLoader();
        _swfLoader.addEventListener(Event.COMPLETE, handleSwfLoadingComplete);	
@@ -59,35 +60,7 @@ package org.bigbluebutton.modules.present.model
     public function get num():int {
       return _num;
     }
-    
-    public function get current():Boolean {
-      return _current;
-    }
-    
-    public function get xOffset():Number {
-      return _xOffset;
-    }
-    
-    public function set xOffset(x: Number):void {
-      _xOffset = x;
-    }
-    
-    public function get yOffset():Number {
-      return _yOffset;
-    }
-    
-    public function set yOffset(y: Number):void {
-      _yOffset = y;
-    }
-    
-    public function get widthRatio():Number {
-      return _widthRatio;
-    }
-    
-    public function set widthRatio(width:Number):void {
-      _widthRatio = width;  
-    }
-    
+       
     public function get swfUri():String {
       return _swfUri;
     }

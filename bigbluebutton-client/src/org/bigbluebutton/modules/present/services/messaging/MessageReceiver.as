@@ -44,6 +44,7 @@ package org.bigbluebutton.modules.present.services.messaging
   import org.bigbluebutton.modules.present.services.PresentationService;
   import org.bigbluebutton.modules.present.services.messages.CursorMovedMessage;
   import org.bigbluebutton.modules.present.services.messages.PageVO;
+  import org.bigbluebutton.modules.present.services.messages.PresentationVO;
   
   public class MessageReceiver implements IMessageListener
   {
@@ -112,9 +113,8 @@ package org.bigbluebutton.modules.present.services.messaging
 //      trace(LOG + "*** handlePresentationCursorUpdateCommand " + msg.msg + " **** \n");
       
       var map:Object = JSON.parse(msg.msg);      
-      if (map.hasOwnProperty("xPercent") && (map.hasOwnProperty("yPercent")) {
-        var curPos: CursorMovedMessage = new CursorMovedMessage(map.xPercent, map.yPercent);
-        service.cursorMoved(curPos);
+      if (map.hasOwnProperty("xPercent") && map.hasOwnProperty("yPercent")) {
+        service.cursorMoved(map.xPercent, map.yPercent);
       }
     }
     
@@ -127,21 +127,27 @@ package org.bigbluebutton.modules.present.services.messaging
         map.hasOwnProperty("thumbUri") && map.hasOwnProperty("xOffset") && map.hasOwnProperty("yOffset") &&
         map.hasOwnProperty("widthRatio") && map.hasOwnProperty("heightRatio")) {
         
-        var page:PageVO = new PageVO();
-        page.id = map.id;
-        page.num = map.num;
-        page.current = map.current;
-        page.swfUri = map.swfUri;
-        page.txtUri = map.txtUri;
-        page.pngUri = map.pngUri;
-        page.thumbUri = map.thumbUri;
-        page.xOffset = map.xOffset;
-        page.yOffset = map.yOffset;
-        page.widthRatio = map.widthRatio;
-        page.heightRatio = map.heightRatio;
+        var page:PageVO = extractPage(map);
         
-        service.changeCurrentPage(page);
+        service.pageChanged(page);
       }
+    }
+    
+    private function extractPage(map:Object):PageVO {
+      var page:PageVO = new PageVO();
+      page.id = map.id;
+      page.num = map.num;
+      page.current = map.current;
+      page.swfUri = map.swfUri;
+      page.txtUri = map.txtUri;
+      page.pngUri = map.pngUri;
+      page.thumbUri = map.thumbUri;
+      page.xOffset = map.xOffset;
+      page.yOffset = map.yOffset;
+      page.widthRatio = map.widthRatio;
+      page.heightRatio = map.heightRatio; 
+      
+      return page;
     }
     
     private function handleMoveCallback(msg:Object):void{
@@ -151,7 +157,7 @@ package org.bigbluebutton.modules.present.services.messaging
       if (map.hasOwnProperty("id") && map.hasOwnProperty("xOffset")
         && map.hasOwnProperty("yOffset") && map.hasOwnProperty("widthRatio")
         && map.hasOwnProperty("heightRatio")) {
-        service.movePage(map.id, map.xOffset, map.yOffset, map.widthRatio, map.heightRatio);
+        service.pageChanged(extractPage(map));
       }
       
       trace(LOG + "TODO: handleMoveCallback [" + msg.xOffset + "," +  msg.yOffset + "][" +  msg.widthRatio + "," + msg.heightRatio + "]");
@@ -165,10 +171,11 @@ package org.bigbluebutton.modules.present.services.messaging
     
     private function handleSharePresentationCallback(msg:Object):void {
       trace(LOG + "*** handleSharePresentationCallback " + msg.msg + " **** \n");
-      trace(LOG + "handleSharePresentationCallback - TODO: not needed as we should just use display page event"; 
+      trace(LOG + "handleSharePresentationCallback - TODO: not needed as we should just use display page event"); 
       var map:Object = JSON.parse(msg.msg);
-      if (map.hasOwnProperty("presentationId") && map.hasOwnProperty("show")) {
-        
+      if (map.hasOwnProperty("presentation")) {
+        var presVO: PresentationVO = pocessUploadedPresentation(map)
+        service.changePresentation(presVO);
       }
       
 //      if (msg.share) {
@@ -181,57 +188,52 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     private function handleRemovePresentationCallback(msg:Object):void {
+      trace(LOG + "***TODO: handleRemovePresentationCallback " + msg.msg + " **** \n");
       var e:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.PRESENTATION_REMOVED_EVENT);
       e.presentationName = msg.presentationID;
-      dispatcher.dispatchEvent(e);
+//      dispatcher.dispatchEvent(e);
     }
     
     private function handleConversionCompletedUpdateMessageCallback(msg:Object) : void {
       trace(LOG + "*** handleConversionCompletedUpdateMessageCallback " + msg.msg + " **** \n");
       
-      var map:Object = JSON.parse(msg.msg);
+      var map:Object = JSON.parse(msg.msg);      
+      var presVO: PresentationVO = pocessUploadedPresentation(map)
+      service.changePresentation(presVO);
       
-      pocessUploadedPresentation(map);
+//      var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
+//      uploadEvent.data = CONVERSION_COMPLETED_KEY;
+//      uploadEvent.presentationName = map.id;
+//      dispatcher.dispatchEvent(uploadEvent);
       
-      var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
-      uploadEvent.data = CONVERSION_COMPLETED_KEY;
-      uploadEvent.presentationName = map.id;
-      dispatcher.dispatchEvent(uploadEvent);
-      
-      dispatcher.dispatchEvent(new BBBEvent(BBBEvent.PRESENTATION_CONVERTED));
-      var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
-      readyEvent.presentationName = map.id;
-      dispatcher.dispatchEvent(readyEvent);
+//      dispatcher.dispatchEvent(new BBBEvent(BBBEvent.PRESENTATION_CONVERTED));
+//      var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
+//      readyEvent.presentationName = map.id;
+//      dispatcher.dispatchEvent(readyEvent);
     }
     
-    private function pocessUploadedPresentation(presentation:Object):void {
-      var presoPages:ArrayCollection = new ArrayCollection();
-      
+    private function pocessUploadedPresentation(presentation:Object):PresentationVO {
+      var presoPages:ArrayCollection = new ArrayCollection();      
       var pages:ArrayCollection = presentation.pages as ArrayCollection;
       for (var k:int = 0; k < pages.length; k++) {
         var page:Object = pages[k];
-        var pg:Page = new Page(page.id, page.num, page.current,
-          page.swfUri, page.thumbUri, page.txtUri,
-          page.pngUri, page.xOffset, page.yOffset,
-          page.withRatio, page.heightRatio)
-        
+        var pg:PageVO = extractPage(page)
         presoPages.addItem(pg);
       }
       
-      var preso:Presentation = new Presentation(presentation.id, presentation.name, 
-        presentation.current, pages);
-      PresentationModel.getInstance().addPresentation(preso);
+      var preso:PresentationVO = new PresentationVO(presentation.id, presentation.name, 
+                                   presentation.current, pages);
+      return preso;
     }
     
     private function handleGeneratedSlideUpdateMessageCallback(msg:Object) : void {		
-      trace(LOG + "*** handleGeneratedSlideUpdateMessageCallback " + msg.msg + " **** \n");
-      
+      trace(LOG + "*** handleGeneratedSlideUpdateMessageCallback " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);
       
-      var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_UPDATE);
-      uploadEvent.totalSlides = map.numberOfPages as Number;
-      uploadEvent.completedSlides = msg.pagesCompleted as Number;
-      dispatcher.dispatchEvent(uploadEvent);	
+//      var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_UPDATE);
+//      uploadEvent.totalSlides = map.numberOfPages as Number;
+//      uploadEvent.completedSlides = msg.pagesCompleted as Number;
+//      dispatcher.dispatchEvent(uploadEvent);	
     }
     
     private function handlePageCountExceededUpdateMessageCallback(msg:Object) : void {
@@ -239,16 +241,16 @@ package org.bigbluebutton.modules.present.services.messaging
       
       var map:Object = JSON.parse(msg.msg);
       
-      var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.PAGE_COUNT_EXCEEDED);
-      uploadEvent.maximumSupportedNumberOfSlides = map.maxNumberPages as Number;
-      dispatcher.dispatchEvent(uploadEvent);
+//      var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.PAGE_COUNT_EXCEEDED);
+////      uploadEvent.maximumSupportedNumberOfSlides = map.maxNumberPages as Number;
+ //     dispatcher.dispatchEvent(uploadEvent);
     }
     
     private function handleConversionUpdateMessageCallback(msg:Object) : void {
       trace(LOG + "*** handleConversionUpdateMessageCallback " + msg.msg + " **** \n");
       
       var map:Object = JSON.parse(msg.msg);
-      
+/*      
       var uploadEvent:UploadEvent;
       
       switch (map.messageKey) {
@@ -279,7 +281,8 @@ package org.bigbluebutton.modules.present.services.messaging
           break;
         default:
           break;
-      }														
+      }		
+*/
     }	
     
     private var currentSlide:Number = -1;
@@ -299,39 +302,38 @@ package org.bigbluebutton.modules.present.services.messaging
         pocessUploadedPresentation(presentation);
       }
            
-      var myUserId: String = UsersUtil.getMyUserID();
-      
-      
-      if (presenter.userId != myUserId) {
-        trace(LOG + " Making self viewer. myId=[" + myUserId + "] presenter=[" + presenter.userId + "]");
-        dispatcher.dispatchEvent(new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE));						
-      }	else {
-        trace(LOG + " Making self presenter. myId=[" + myUserId + "] presenter=[" + presenter.userId + "]");
-        dispatcher.dispatchEvent(new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE));
-      }
+//      var myUserId: String = UsersUtil.getMyUserID();
+           
+//      if (presenter.userId != myUserId) {
+//        trace(LOG + " Making self viewer. myId=[" + myUserId + "] presenter=[" + presenter.userId + "]");
+//        dispatcher.dispatchEvent(new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE));						
+//      }	else {
+//        trace(LOG + " Making self presenter. myId=[" + myUserId + "] presenter=[" + presenter.userId + "]");
+//        dispatcher.dispatchEvent(new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE));
+//      }
       
       var presNames:ArrayCollection = PresentationModel.getInstance().getPresentationNames();
           
-      if (presNames) {
-        trace(LOG + " ************ Getting list of presentations *************");
-        for (var x:int = 0; x < presNames.length; x++) {
-          sendPresentationName(presNames[x] as String);
-        }
-      }
+//      if (presNames) {
+//        trace(LOG + " ************ Getting list of presentations *************");
+//        for (var x:int = 0; x < presNames.length; x++) {
+//          sendPresentationName(presNames[x] as String);
+//        }
+//      }
            
       var curPresName:String = PresentationModel.getInstance().getCurrentPresentationName();
       
-      var shareEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
-      shareEvent.presentationName = curPresName;
-      dispatcher.dispatchEvent(shareEvent);
+//      var shareEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
+//      shareEvent.presentationName = curPresName;
+//      dispatcher.dispatchEvent(shareEvent);
     }
     
-    private function sendPresentationName(presentationName:String):void {
-      trace(LOG + " **************** Sending presentation names");
-      var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
-      uploadEvent.presentationName = presentationName;
-      dispatcher.dispatchEvent(uploadEvent)
-    }
+//    private function sendPresentationName(presentationName:String):void {
+//      trace(LOG + " **************** Sending presentation names");
+//      var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
+//      uploadEvent.presentationName = presentationName;
+//      dispatcher.dispatchEvent(uploadEvent)
+//    }
     
   }
 }

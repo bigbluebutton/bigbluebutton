@@ -276,14 +276,27 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
   
   private def handleSharePresentationOutMsg(msg: SharePresentationOutMsg) {
 	val args = new java.util.HashMap[String, Object]();
-	args.put("presentationID", msg.presentationID);
-	args.put("share", msg.share:java.lang.Boolean);
-
+	
+	val presentation = new java.util.HashMap[String, Object]();
+	presentation.put("id", msg.presentation.id)
+	presentation.put("name", msg.presentation.name)
+	presentation.put("current", msg.presentation.current:java.lang.Boolean)      
+	   
+	// Get the pages for a presentation
+    val pages = new ArrayList[Page]()	
+	msg.presentation.pages.values foreach {p =>
+     pages.add(p)
+    }   
+	// store the pages in the presentation 
+	presentation.put("pages", pages)
+	
+	args.put("presentation", presentation);
+	
     val message = new java.util.HashMap[String, Object]() 
 	val gson = new Gson();
   	message.put("msg", gson.toJson(args))
   	
-  	log.debug("PresentationClientMessageSender - handleSharePresentationOutMsg to presentation[{}] \n [{}]", msg.presentationID, message.get("msg"))
+  	log.debug("PresentationClientMessageSender - handleSharePresentationOutMsg to presentation[{}] \n [{}]", msg.presentation.id, message.get("msg"))
   	
 	val m = new BroadcastClientMessage(msg.meetingID, "sharePresentationCallback", message);
 	service.sendMessage(m);	    

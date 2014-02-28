@@ -413,8 +413,7 @@ case class GotoSlideOutMsg(
 case class SharePresentationOutMsg(
     meetingID: String, 
     recorded: Boolean, 
-    presentationID: String, 
-    share: Boolean
+    presentation: Presentation
 ) extends IOutMessage
                                    
 case class GetSlideInfoOutMsg(
@@ -463,7 +462,28 @@ case class PresentationConversionDone(
     code: String,  
     presentation: Presentation
 ) extends IOutMessage
-                       
+       
+case class PresentationChanged(
+    meetingID: String,
+    presentation: Presentation
+) extends IOutMessage
+
+case class GetPresentationStatusReply(
+    meetingID: String,
+    presentations: Seq[Presentation],
+    current: Presentation
+) extends IOutMessage
+
+case class PresentationRemoved(
+  meetingID: String,
+  presentationId: String
+) extends IOutMessage
+
+case class PageChanged(
+  meetingID: String,
+  page: Page
+) extends IOutMessage
+
 // Whiteboard
 case class SendWhiteboardAnnotationHistoryReply(
     meetingID: String, 

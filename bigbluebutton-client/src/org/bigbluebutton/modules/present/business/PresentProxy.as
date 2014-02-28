@@ -56,7 +56,7 @@ package org.bigbluebutton.modules.present.business
       presentationModel = PresentationModel.getInstance();
       
 			slides = new PresentationSlides();
-      _messageReceiver = new MessageReceiver(presentationModel);
+//      _messageReceiver = new MessageReceiver(presentationModel);
       sender = new MessageSender();
 		}
 		
@@ -104,6 +104,10 @@ package org.bigbluebutton.modules.present.business
 		}
     
     public function getCurrentSlideNumber():void {
+      trace("PresentPoxy: getCurrentSlideNumber DISABLED!!!]");
+      
+      return;
+/*      
       var curPage:Page = presentationModel.getCurrentPage();
       if (curPage != null) {
         if (curPage.num >= 0) {
@@ -116,7 +120,7 @@ package org.bigbluebutton.modules.present.business
       } else {
         trace("PresentPoxy: getCurrentSlideNumber [No Current Page]");
       }
-
+*/
     }
 			
 		/**

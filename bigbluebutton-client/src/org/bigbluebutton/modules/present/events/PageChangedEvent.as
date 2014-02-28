@@ -4,7 +4,7 @@ package org.bigbluebutton.modules.present.events
   
   public class PageChangedEvent extends Event
   {
-    public static const PRESENTATION_PAGE_CHANGED_EVENT = "presentation page changed event";
+    public static const PRESENTATION_PAGE_CHANGED_EVENT:String = "presentation page changed event";
     
     public var pageId: String;
     
