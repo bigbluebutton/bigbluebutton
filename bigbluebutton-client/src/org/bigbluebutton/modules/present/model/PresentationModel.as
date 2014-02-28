@@ -95,6 +95,20 @@ package org.bigbluebutton.modules.present.model
 
       return null;
     }
+    
+    public function changeCurrentPage(id: String):void {
+      var pres: Presentation = getCurrentPresentation();
+      
+      if (pres != null) {
+        var pages:ArrayCollection = pres.getPages();
+        for (var j:int = 0; j < pages.length; j++) {
+          var page:Page = pages[j] as Page;
+          if (page.id == id) {
+            page.current = true;
+          }         
+        }        
+      }      
+    }
   }
 }
 

@@ -16,7 +16,7 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.modules.present.services
+package org.bigbluebutton.modules.present.services.messaging
 {
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;

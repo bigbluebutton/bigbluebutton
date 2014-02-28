@@ -16,7 +16,7 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.modules.present.services
+package org.bigbluebutton.modules.present.services.messaging
 {
   import com.asfusion.mate.events.Dispatcher;
   
@@ -34,36 +34,26 @@ package org.bigbluebutton.modules.present.services
   import org.bigbluebutton.modules.present.events.CursorEvent;
   import org.bigbluebutton.modules.present.events.MoveEvent;
   import org.bigbluebutton.modules.present.events.NavigationEvent;
+  import org.bigbluebutton.modules.present.events.PageChangedEvent;
   import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.present.model.Page;
   import org.bigbluebutton.modules.present.model.Presentation;
   import org.bigbluebutton.modules.present.model.PresentationModel;
   import org.bigbluebutton.modules.present.model.Presenter;
+  import org.bigbluebutton.modules.present.services.PresentationService;
+  import org.bigbluebutton.modules.present.services.messages.CursorMovedMessage;
+  import org.bigbluebutton.modules.present.services.messages.PageVO;
   
   public class MessageReceiver implements IMessageListener
   {
     private static const LOG:String = "Present::MessageReceiver - ";
+       
+    private var service:PresentationService;
     
-    private static const OFFICE_DOC_CONVERSION_SUCCESS_KEY:String = "OFFICE_DOC_CONVERSION_SUCCESS";
-    private static const OFFICE_DOC_CONVERSION_FAILED_KEY:String = "OFFICE_DOC_CONVERSION_FAILED";
-    private static const SUPPORTED_DOCUMENT_KEY:String = "SUPPORTED_DOCUMENT";
-    private static const UNSUPPORTED_DOCUMENT_KEY:String = "UNSUPPORTED_DOCUMENT";
-    private static const PAGE_COUNT_FAILED_KEY:String = "PAGE_COUNT_FAILED";
-    private static const PAGE_COUNT_EXCEEDED_KEY:String = "PAGE_COUNT_EXCEEDED";    	
-    private static const GENERATED_SLIDE_KEY:String = "GENERATED_SLIDE";
-    private static const GENERATING_THUMBNAIL_KEY:String = "GENERATING_THUMBNAIL";
-    private static const GENERATED_THUMBNAIL_KEY:String = "GENERATED_THUMBNAIL";
-    private static const CONVERSION_COMPLETED_KEY:String = "CONVERSION_COMPLETED";
-    
-    private var dispatcher:Dispatcher;
-    
-    private var presModel:PresentationModel;
-    
-    public function MessageReceiver(presModel: PresentationModel) {
-      this.presModel = presModel;
+    public function MessageReceiver(service: PresentationService) {
+      this.service = service;
       BBB.initConnectionManager().addMessageListener(this);
-      this.dispatcher = new Dispatcher();
     }
     
     public function onMessage(messageName:String, message:Object):void {
@@ -107,62 +97,84 @@ package org.bigbluebutton.modules.present.services
     }  
     
     private function handleGetSlideInfoReply(msg:Object):void {
-      trace(LOG + "*** handleGetSlideInfoReply " + msg.msg + " **** \n");
+      trace(LOG + "*** handleGetSlideInfoReply " + msg.msg + " [DISABLED: SHouldn't be getting this!!] **** \n");
       
-      var map:Object = JSON.parse(msg.msg);
-      var e:MoveEvent = new MoveEvent(MoveEvent.CUR_SLIDE_SETTING);
-      e.xOffset = map.xOffset;
-      e.yOffset = map.yOffset;
-      e.slideToCanvasWidthRatio = map.widthRatio;
-      e.slideToCanvasHeightRatio = map.heightRatio;
-      dispatcher.dispatchEvent(e);	  
+//      var map:Object = JSON.parse(msg.msg);
+//      var e:MoveEvent = new MoveEvent(MoveEvent.CUR_SLIDE_SETTING);
+//      e.xOffset = map.xOffset;
+//      e.yOffset = map.yOffset;
+//      e.slideToCanvasWidthRatio = map.widthRatio;
+//      e.slideToCanvasHeightRatio = map.heightRatio;
+//      dispatcher.dispatchEvent(e);	  
     }
     
     private function handlePresentationCursorUpdateCommand(msg:Object):void {    
 //      trace(LOG + "*** handlePresentationCursorUpdateCommand " + msg.msg + " **** \n");
       
-      var map:Object = JSON.parse(msg.msg);
-      
-      var e:CursorEvent = new CursorEvent(CursorEvent.UPDATE_CURSOR);
-      e.xPercent = map.xPercent;
-      e.yPercent = map.yPercent;
-      var dispatcher:Dispatcher = new Dispatcher();
-      dispatcher.dispatchEvent(e);
+      var map:Object = JSON.parse(msg.msg);      
+      if (map.hasOwnProperty("xPercent") && (map.hasOwnProperty("yPercent")) {
+        var curPos: CursorMovedMessage = new CursorMovedMessage(map.xPercent, map.yPercent);
+        service.cursorMoved(curPos);
+      }
     }
     
     private function handleGotoSlideCallback(msg:Object) : void {
       trace(LOG + "*** handleGotoSlideCallback " + msg.msg + " **** \n");
       var map:Object = JSON.parse(msg.msg);
       
-      trace(LOG + "*** handleGotoSlideCallback GOTO_PAGE[" + (map.num - 1) + "] **** \n");
-      var e:NavigationEvent = new NavigationEvent(NavigationEvent.GOTO_PAGE)
-      e.pageNumber = map.num;
-      dispatcher.dispatchEvent(e);
+      if (map.hasOwnProperty("id") && map.hasOwnProperty("num") && map.hasOwnProperty("current") &&
+        map.hasOwnProperty("swfUri") && map.hasOwnProperty("txtUri") && map.hasOwnProperty("pngUri") &&
+        map.hasOwnProperty("thumbUri") && map.hasOwnProperty("xOffset") && map.hasOwnProperty("yOffset") &&
+        map.hasOwnProperty("widthRatio") && map.hasOwnProperty("heightRatio")) {
+        
+        var page:PageVO = new PageVO();
+        page.id = map.id;
+        page.num = map.num;
+        page.current = map.current;
+        page.swfUri = map.swfUri;
+        page.txtUri = map.txtUri;
+        page.pngUri = map.pngUri;
+        page.thumbUri = map.thumbUri;
+        page.xOffset = map.xOffset;
+        page.yOffset = map.yOffset;
+        page.widthRatio = map.widthRatio;
+        page.heightRatio = map.heightRatio;
+        
+        service.changeCurrentPage(page);
+      }
     }
     
     private function handleMoveCallback(msg:Object):void{
-      trace(LOG + "*** handleMoveCallback " + msg.msg + " **** \n");
-      
+      trace(LOG + "*** handleMoveCallback " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);
       
-  //    trace(LOG + "handleMoveCallback [" + msg.xOffset + "," +  msg.yOffset + "][" +  msg.widthRatio + "," + msg.heightRatio + "]");
-      var e:MoveEvent = new MoveEvent(MoveEvent.MOVE);
-      e.xOffset = map.xOffset;
-      e.yOffset = map.yOffset;
-      e.slideToCanvasWidthRatio = map.widthRatio;
-      e.slideToCanvasHeightRatio = map.heightRatio;
-      dispatcher.dispatchEvent(e);
+      if (map.hasOwnProperty("id") && map.hasOwnProperty("xOffset")
+        && map.hasOwnProperty("yOffset") && map.hasOwnProperty("widthRatio")
+        && map.hasOwnProperty("heightRatio")) {
+        service.movePage(map.id, map.xOffset, map.yOffset, map.widthRatio, map.heightRatio);
+      }
+      
+      trace(LOG + "TODO: handleMoveCallback [" + msg.xOffset + "," +  msg.yOffset + "][" +  msg.widthRatio + "," + msg.heightRatio + "]");
+//      var e:MoveEvent = new MoveEvent(MoveEvent.MOVE);
+//      e.xOffset = map.xOffset;
+//      e.yOffset = map.yOffset;
+//      e.slideToCanvasWidthRatio = map.widthRatio;
+ //     e.slideToCanvasHeightRatio = map.heightRatio;
+//      dispatcher.dispatchEvent(e);
     }
     
     private function handleSharePresentationCallback(msg:Object):void {
       trace(LOG + "*** handleSharePresentationCallback " + msg.msg + " **** \n");
-      
+      trace(LOG + "handleSharePresentationCallback - TODO: not needed as we should just use display page event"; 
       var map:Object = JSON.parse(msg.msg);
+      if (map.hasOwnProperty("presentationId") && map.hasOwnProperty("show")) {
+        
+      }
       
 //      if (msg.share) {
-        var e:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
-        e.presentationName = map.presentationID;
-        dispatcher.dispatchEvent(e);
+//        var e:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
+//        e.presentationName = map.presentationID;
+//        dispatcher.dispatchEvent(e);
 //      } else {
 //        dispatcher.dispatchEvent(new UploadEvent(UploadEvent.CLEAR_PRESENTATION));
 //      }

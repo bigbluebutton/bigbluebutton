@@ -18,8 +18,7 @@
 */
 package org.bigbluebutton.modules.present.business
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.TimerEvent;
 	import flash.net.NetConnection;
 	import flash.utils.Timer;
@@ -38,8 +37,8 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
 	import org.bigbluebutton.modules.present.model.Page;
 	import org.bigbluebutton.modules.present.model.PresentationModel;
-	import org.bigbluebutton.modules.present.services.MessageReceiver;
-	import org.bigbluebutton.modules.present.services.MessageSender;
+	import org.bigbluebutton.modules.present.services.messaging.MessageReceiver;
+	import org.bigbluebutton.modules.present.services.messaging.MessageSender;
 	
 	public class PresentProxy {
 		private var host:String;
@@ -53,7 +52,7 @@ package org.bigbluebutton.modules.present.business
     
     private var presentationModel:PresentationModel;
     
-		public function PresentProxy(){
+		public function PresentProxy() {
       presentationModel = PresentationModel.getInstance();
       
 			slides = new PresentationSlides();
