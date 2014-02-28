@@ -115,8 +115,8 @@ define [
       # @param  {number} x x-coord of the cursor as a percentage of page width
       # @param  {number} y y-coord of the cursor as a percentage of page height
       @socket.on "mvCur", (data) =>
-        x = data.cursor.x
-        y = data.cursor.y
+        x = data.cursor.x #TODO change to new json structure
+        y = data.cursor.y #TODO change to new json structure
         console.log "socket on: mvCur"
         globals.events.trigger("connection:mvCur", x, y)
 
@@ -196,8 +196,8 @@ define [
         #console.log message
         #eventObject = JSON.parse(message);
         console.log "message: " + message
-        userid = message.user.metadata.userid
-        username = message.user.name
+        userid = message.user.metadata.userid #TODO change to new json structure
+        username = message.user.name #TODO change to new json structure
         globals.events.trigger("connection:user_join", userid, username)
 
       # Received event when a user leave
@@ -233,6 +233,11 @@ define [
       @socket.on "all_messages", (allMessagesEventObject) =>
         console.log "socket on: all_messages" + allMessagesEventObject
         globals.events.trigger("connection:all_messages", allMessagesEventObject)
+
+      @socket.on "share_presentation_event", (data) =>
+        console.log "socket on: share_presentation_event"
+        globals.events.trigger("connection:share_presentation_event", data)
+
 
     # Emit an update to move the cursor around the canvas
     # @param  {number} x x-coord of the cursor as a percentage of page width

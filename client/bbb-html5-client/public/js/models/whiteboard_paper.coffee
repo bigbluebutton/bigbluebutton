@@ -153,7 +153,7 @@ define [
     addImageToPaper: (url, width, height) ->
       @_updateContainerDimensions()
 
-      console.log "adding image to paper", url, width, height
+      alert "addImageToPaper url=#{url} \n #{width}x#{height}"      
       if @fitToPage
         # solve for the ratio of what length is going to fit more than the other
         max = Math.max(width / @containerWidth, height / @containerHeight)
@@ -169,7 +169,7 @@ define [
         originalHeight = height
       else
         # fit to width
-        console.log "no fit"
+        alert "no fit"
         # assume it will fit width ways
         sw = width / wr
         sh = height / wr
@@ -365,6 +365,11 @@ define [
       # make sure the cursor is still on top
       @cursor.toFront()
 
+    #Changes the currently displayed presentation (if any) with this one
+    #@param {object} containing the "presentation" object -id,name,pages[]
+    sharePresentation: (data) ->
+      globals.events.trigger("connection:all_slides", data.payload)
+
     # Clear all shapes from this paper.
     clearShapes: ->
       if @currentShapes?
@@ -393,8 +398,6 @@ define [
 
     # Make a shape `shape` with the data in `data`.
     makeShape: (shape, data) ->
-      alert "shape" + shape
-      #alert "data" + data
       tool = null
       switch shape
         when "path", "line"
@@ -514,12 +517,40 @@ define [
     # Registers listeners for events in the gloval event bus
     _registerEvents: ->
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       globals.events.on "connection:all_slides", (data) =>
-        urls = data.slides
         @removeAllImagesFromPaper()
+        ###
+        urls = data.slides
         for url in urls
           @addImageToPaper(url[0], url[1], url[2])
+          #alert "registerEvents url[0]=" + url[0]          
+        ###
+
+        urls = data.presentation.pages
+        for url in urls
+          @addImageToPaper(url.png , 200, 200)
+          #alert "registerEvents url[0]=" + url[0]          
         globals.events.trigger("whiteboard:paper:all_slides", urls)
+        
 
       globals.events.on "connection:clrPaper", =>
         @clearShapes()
@@ -553,6 +584,9 @@ define [
 
       globals.events.on "connection:whiteboard_draw_event", (shape, data) =>
         @makeShape shape, data
+
+      globals.events.on "connection:share_presentation_event", (data) =>
+        @sharePresentation data
 
       globals.events.on "connection:whiteboardDrawPen", (startingData) =>
         type = startingData.payload.shape_type

@@ -104,7 +104,7 @@ module.exports = class RedisWebsocketBridge
   #   The first attribute is the meetingID
   # @private
   _redis_onBigbluebuttonBridge2: (attributes) ->
-    console.log "\n\n***attributes(_redis_onBigbluebuttonBridge2): " + attributes 
+    console.log "***attributes(_redis_onBigbluebuttonBridge2): " + attributes 
     
     meetingID = attributes?.payload?.meeting?.id
     console.log "*meetingID: " + meetingID
@@ -131,7 +131,8 @@ module.exports = class RedisWebsocketBridge
   #
   # @private
   _redis_onBigbluebuttonMeetingPresentation2: (attributes) ->
-    console.log "\n\n**_redis_onBigbluebuttonMeetingPresentation2"
+    console.log "**_redis_onBigbluebuttonMeetingPresentation2"
+
     if attributes.messageKey is "CONVERSION_COMPLETED"
       meetingID = attributes.room
       @redisPublisher.publishSlides2 meetingID, null, =>
@@ -143,7 +144,7 @@ module.exports = class RedisWebsocketBridge
   # @private
   _emitToClients2: (channel, message) -> #message is a JS Object
 
-    console.log "\n\nin _emitToClients2 ***message:\n"
+    console.log "in _emitToClients2:" 
     channelViewers = @io.sockets.in(channel) #channel is the same as meetingID
 
     #if the message has "header":{"name":"some_event_name"} use that name
@@ -163,7 +164,7 @@ module.exports = class RedisWebsocketBridge
   # @param socket [Object] the socket that generated the event
   # @private
   _socket_onUserConnected2: (socket) ->
-    console.log("\n\n**userConnected2")
+    console.log("**userConnected2")
     sessionID = fromSocket2(socket, "sessionID")
     meetingID = fromSocket2(socket, "meetingID")
     @redisAction.isValidSession meetingID, sessionID, (err, reply) =>
@@ -298,7 +299,7 @@ module.exports = class RedisWebsocketBridge
 
     #console.log("\n***handshake**\n")
     #console.log(socket.handshake)
-    #console.log("\n\nhandshake end--\n")
+    #console.log("handshake end--\n")
 
     socket?.handshake?[attr]
 
@@ -310,7 +311,7 @@ module.exports = class RedisWebsocketBridge
 
     ###console.log("\n***handshake**\n")
     console.log(socket.handshake)
-    console.log("\n\nhandshake end--\n")###
+    console.log("handshake end--\n")###
 
     socket?.handshake?[attr]
 
