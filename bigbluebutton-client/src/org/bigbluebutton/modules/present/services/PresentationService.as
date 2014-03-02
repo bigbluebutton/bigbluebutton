@@ -43,8 +43,7 @@ package org.bigbluebutton.modules.present.services
     
     public function pageChanged(page: PageVO):void {
       var np: Page = model.getPage(page.id);
-      if (np != null) {
-        
+      if (np != null) {        
         var oldPage: Page = PresentationModel.getInstance().getCurrentPage();
         if (oldPage != null) oldPage.current = false;
         
@@ -102,6 +101,10 @@ package org.bigbluebutton.modules.present.services
         if (curPage != null) {
           var changePageCommand: ChangePageCommand = new ChangePageCommand(curPage.id);
           dispatcher.dispatchEvent(changePageCommand);          
+          
+          trace(LOG + "Sending page moved event to position page [" + curPage.id + "] current=[" + curPage.current + "]");
+          var pageChangedEvent: PageChangedEvent = new PageChangedEvent(curPage.id);
+          dispatcher.dispatchEvent(pageChangedEvent); 
         }        
       }
     }
@@ -139,7 +142,8 @@ package org.bigbluebutton.modules.present.services
         var curPage:Page = PresentationModel.getInstance().getCurrentPage();
         if (curPage != null) {
           var changePageCommand: ChangePageCommand = new ChangePageCommand(curPage.id);
-          dispatcher.dispatchEvent(changePageCommand);          
+          dispatcher.dispatchEvent(changePageCommand);   
+          
         }        
       } else {
         trace(LOG + "Switching presentation but presentation [" + presVO.id + "] is not current [" + presVO.isCurrent() + "]");

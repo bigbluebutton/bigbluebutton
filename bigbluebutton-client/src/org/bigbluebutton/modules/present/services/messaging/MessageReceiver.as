@@ -18,10 +18,8 @@
  */
 package org.bigbluebutton.modules.present.services.messaging
 {
-  import com.asfusion.mate.events.Dispatcher;
-  
-  import mx.collections.ArrayCollection;
-  
+  import com.asfusion.mate.events.Dispatcher; 
+  import mx.collections.ArrayCollection;  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;

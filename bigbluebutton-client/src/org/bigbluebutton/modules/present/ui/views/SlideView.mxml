@@ -226,13 +226,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					slideModel.printViewedRegion();
 					fitSlideToLoader();
 					notifyOthersOfZoomEvent();
-				} else {
-					slideModel.calculateViewportNeededForRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
-					slideModel.displayViewerRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
-					slideModel.calculateViewportXY();
-					slideModel.displayPresenterView();
-					slideModel.printViewedRegion();
-					fitSlideToLoader();	
+				} else {          
+          var page:Page = PresentationModel.getInstance().getCurrentPage();
+          if (page != null) {
+            trace(LOG + "Parent window has resized. Reposition page [" + page.id + "]");
+            positionPage(page);
+          }
 				}				
 			}
 											
@@ -302,10 +301,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			/**
 			 * Handles notification from presenter that the slide has moved.
 			 */
-			private function handlePageChangedEvent(e:PageChangedEvent):void{
-			
+			private function handlePageChangedEvent(e:PageChangedEvent):void {
+        trace(LOG + "Got a page changed event for page [" + e.pageId + "]");
         var page:Page = PresentationModel.getInstance().getPage(e.pageId);
-        if (page != null) {          
+        if (page != null) {
+          positionPage(page);
+        }       
+			}
+			
+      private function positionPage(page:Page):void {
+        if (page != null && page.swfData != null) {   
+          trace(LOG + "Positioning page [" + page.id + "]");
           slideModel.saveViewedRegion(page.xOffset, page.yOffset, page.widthRatio, page.heightRatio);
           slideModel.calculateViewportNeededForRegion(page.xOffset, page.yOffset, page.widthRatio, page.heightRatio);
           slideModel.displayViewerRegion(page.xOffset, page.yOffset, page.widthRatio, page.heightRatio);
@@ -313,14 +319,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           slideModel.displayPresenterView();
           slideModel.printViewedRegion();
           fitSlideToLoader();          
-        }
-			}
-								
-			private function handlePageLoadedEvent(e:PageLoadedEvent):void{
+        }        
+      }
+      
+			private function handlePageLoadedEvent(e:PageLoadedEvent):void {
+        trace(LOG + "Got a page loaded event for page [" + e.pageId + "]");
         var page:Page = PresentationModel.getInstance().getPage(e.pageId);
         if (page != null) {
           setSelectedSlide(page.num);
           slideLoader.source = page.swfData;
+          trace(LOG + "Displaying page [" + e.pageId + "]");
+//          positionPage(page);
+          
           //slideLoader.accessibilityProperties.description = "Slide text start:  " + e.slideText + "    Slide text end";
 //          slideLoader.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
 //                                                 page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
@@ -423,6 +433,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function handleSlideLoadedCompleteEvent(event:Event):void {
+        trace(LOG + "Page has been loaded by swfLoader.");
 				slideModel.resetForNewSlide(slideLoader.contentWidth, slideLoader.contentHeight);									
 				dispatchNewSlideDisplayedEvent(slideModel.pageOrigW, slideModel.pageOrigH);				
 			}
