@@ -56,11 +56,24 @@ package org.bigbluebutton.modules.present.model
       _presentations.addItem(p);
     }
     
+    public function removePresentation(presId:String):Presentation {
+      for (var i:int = 0; i < _presentations.length; i++) {
+        var pres: Presentation = _presentations.getItemAt(i) as Presentation;
+        if (pres.id == presId) {
+          var old:Presentation = _presentations.removeItemAt(i) as Presentation;
+          return old;
+        }
+      }   
+      
+      return null;      
+    }
+    
     public function replacePresentation(p: Presentation):void {
-      var oldPres:Presentation = getPresentation(p.id);
-      if (oldPres != null) {
-        oldPres = p;
+      var oldPres:Presentation = removePresentation(p.id);
+      if (oldPres == null) {
+        trace(LOG + "Could not find presentation [" + p.id + "] to remove.");
       }
+      addPresentation(p);
     }
     
     public function getCurrentPresentationName():String {
@@ -86,10 +99,10 @@ package org.bigbluebutton.modules.present.model
     public function getCurrentPresentation():Presentation {
       for (var i:int = 0; i < _presentations.length; i++) {
         var pres: Presentation = _presentations.getItemAt(i) as Presentation;
-//        trace(LOG + "Is presentation [" + pres.name + "] current [" + pres.current + "]?");
+        trace(LOG + "Is presentation [" + pres.name + "] current [" + pres.current + "]?");
         if (pres.current) return pres;
       }
-//      trace(LOG + "No current presentation.");
+      trace(LOG + "No current presentation.");
       return null;
     }
     
@@ -107,7 +120,7 @@ package org.bigbluebutton.modules.present.model
       if (pres != null) {
         return pres.getCurrentPage();
       }
-      trace(LOG + "Coulnd not find current presentation.");
+      trace(LOG + "Could not find current page.");
       return null;
     }
     
@@ -166,7 +179,7 @@ package org.bigbluebutton.modules.present.model
           return pres;
         }
       }
-      
+      trace(LOG + "Coulnd not find presentation [" + presId + "].");
       return null;      
     }
   }
