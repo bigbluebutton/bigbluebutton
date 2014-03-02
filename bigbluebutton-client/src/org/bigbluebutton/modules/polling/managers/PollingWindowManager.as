@@ -20,29 +20,30 @@
 package org.bigbluebutton.modules.polling.managers
 {	
   import flash.events.IEventDispatcher;
-	import org.bigbluebutton.common.IBbbModuleWindow;
-	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.common.events.CloseWindowEvent;
-	import org.bigbluebutton.common.events.OpenWindowEvent;
-	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.main.events.MadePresenterEvent;
-	import org.bigbluebutton.modules.polling.events.GetPollsEvent;
-	import org.bigbluebutton.modules.polling.events.PollMainWindowEvent;
-	import org.bigbluebutton.modules.polling.events.PollResultWindowEvent;
-	import org.bigbluebutton.modules.polling.events.PollUpdateWindowEvent;
-	import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
-	import org.bigbluebutton.modules.polling.events.TakePollWindowEvent;
-	import org.bigbluebutton.modules.polling.events.PollEvent;
-	import org.bigbluebutton.modules.polling.events.StopPollEvent;
-	import org.bigbluebutton.modules.polling.model.PollingModel;
-	import org.bigbluebutton.modules.polling.model.PollingViewModel;
-	import org.bigbluebutton.modules.polling.service.PollingService;
-	import org.bigbluebutton.modules.polling.views.CreatePollWindow;
-	import org.bigbluebutton.modules.polling.views.DisplayResultWindow;
-	import org.bigbluebutton.modules.polling.views.PollCreateWindow;
-	import org.bigbluebutton.modules.polling.views.PollMainWindow;
-	import org.bigbluebutton.modules.polling.views.TakePollWindow;
-	import org.bigbluebutton.modules.polling.views.UpdatePollWindow;
+  
+  import org.bigbluebutton.common.IBbbModuleWindow;
+  import org.bigbluebutton.common.LogUtil;
+  import org.bigbluebutton.common.events.CloseWindowEvent;
+  import org.bigbluebutton.common.events.OpenWindowEvent;
+  import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.main.events.MadePresenterEvent;
+  import org.bigbluebutton.modules.polling.events.GetPollsEvent;
+  import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
+  import org.bigbluebutton.modules.polling.events.PollEvent;
+  import org.bigbluebutton.modules.polling.events.PollMainWindowEvent;
+  import org.bigbluebutton.modules.polling.events.PollResultWindowEvent;
+  import org.bigbluebutton.modules.polling.events.PollUpdateWindowEvent;
+  import org.bigbluebutton.modules.polling.events.StopPollEvent;
+  import org.bigbluebutton.modules.polling.events.TakePollWindowEvent;
+  import org.bigbluebutton.modules.polling.model.PollingModel;
+  import org.bigbluebutton.modules.polling.model.PollingViewModel;
+  import org.bigbluebutton.modules.polling.service.PollingService;
+  import org.bigbluebutton.modules.polling.views.CreatePollWindow;
+  import org.bigbluebutton.modules.polling.views.DisplayResultWindow;
+  import org.bigbluebutton.modules.polling.views.PollCreateWindow;
+  import org.bigbluebutton.modules.polling.views.PollMainWindow;
+  import org.bigbluebutton.modules.polling.views.TakePollWindow;
+  import org.bigbluebutton.modules.polling.views.UpdatePollWindow;
 
 	public class PollingWindowManager {	
     private static const LOG:String = "Poll::PollingWindowManager - ";
@@ -62,6 +63,10 @@ package org.bigbluebutton.modules.polling.managers
 			
 		public function initialize():void {
 			_viewModel = new PollingViewModel(model);
+      if (UsersUtil.amIPresenter()) {
+        toolbarButtonManager.addToolbarButton();
+        initializeModel();
+      }
 		}
 		
     private function initializeModel():void {
