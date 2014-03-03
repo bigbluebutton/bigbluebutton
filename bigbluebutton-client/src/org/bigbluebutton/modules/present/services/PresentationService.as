@@ -53,7 +53,7 @@ package org.bigbluebutton.modules.present.services
         np.yOffset = page.yOffset;
         np.widthRatio = page.widthRatio;
         np.heightRatio = page.heightRatio;
-          
+        trace(LOG + "Sending page changed event. page [" + np.id + "]");  
         var event: PageChangedEvent = new PageChangedEvent(np.id);
         dispatcher.dispatchEvent(event);           
       }       

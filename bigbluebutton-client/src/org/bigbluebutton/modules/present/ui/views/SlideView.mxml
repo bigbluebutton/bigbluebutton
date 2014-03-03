@@ -42,13 +42,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;      
-      import flash.events.Event;     
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import flash.events.Event;
+      
       import mx.binding.utils.BindingUtils;
       import mx.collections.ArrayCollection;
       import mx.controls.Button;
       import mx.events.FlexEvent;
-      import mx.events.ListEvent;      
+      import mx.events.ListEvent;
+      
       import org.bigbluebutton.common.IBbbCanvas;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.model.FocusableImage;
@@ -65,6 +68,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.present.events.WindowResizedEvent;
       import org.bigbluebutton.modules.present.managers.Slide;
       import org.bigbluebutton.modules.present.model.Page;
+      import org.bigbluebutton.modules.present.model.Presentation;
       import org.bigbluebutton.modules.present.model.PresentationModel;
       import org.bigbluebutton.modules.present.ui.views.models.SlideCalcUtil;
       import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
@@ -91,7 +95,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var whiteboardCanvasHolder:Canvas = new Canvas();
 			private var whiteboardCanvas:IBbbCanvas;
 							
-//      [Bindable] public var slides:ArrayCollection = new ArrayCollection();
 			private var _selectedSlide:int=0;
 			[Bindable] private var lateComerSynched:Boolean = false;
 			
@@ -124,7 +127,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			public function setSlides():void {
-				thumbnailView.dataProvider = PresentationModel.getInstance().getCurrentPresentation().getPages();
+        var pres: Presentation = PresentationModel.getInstance().getCurrentPresentation();
+        if (pres != null) {
+          thumbnailView.dataProvider = pres.getPages();
+        }				
 			}
 			
       public function setSelectedSlide(slideNum:int):void {

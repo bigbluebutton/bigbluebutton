@@ -259,9 +259,9 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	  bbbGW.accept(new ResizeAndMoveSlide(meetingID, xOffset, yOffset, widthRatio, heightRatio))
 	}
 	
-	def gotoSlide(meetingID: String, slide: Int) {
+	def gotoSlide(meetingID: String, pageId: String) {
 	  println("**** Forwarding GotoSlide for meeting[" + meetingID + "] ****")
-	  bbbGW.accept(new GotoSlide(meetingID, "slide/" + slide.toString))
+	  bbbGW.accept(new GotoSlide(meetingID, pageId))
 	}
 	
 	def sharePresentation(meetingID: String, presentationID: String, share: Boolean) {

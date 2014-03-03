@@ -23,12 +23,15 @@ package org.bigbluebutton.modules.present.business
 	import flash.events.TimerEvent;
 	import flash.net.NetConnection;
 	import flash.utils.Timer;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+	import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
+	import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
 	import org.bigbluebutton.modules.present.events.NavigationEvent;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.PresenterCommands;
@@ -36,12 +39,15 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
 	import org.bigbluebutton.modules.present.model.Page;
+	import org.bigbluebutton.modules.present.model.Presentation;
 	import org.bigbluebutton.modules.present.model.PresentationModel;
 	import org.bigbluebutton.modules.present.services.PresentationService;
 	import org.bigbluebutton.modules.present.services.messaging.MessageReceiver;
 	import org.bigbluebutton.modules.present.services.messaging.MessageSender;
 	
 	public class PresentProxy {
+    private static const LOG:String = "Present::PresentProxy - ";
+    
 		private var host:String;
 		private var conference:String;
 		private var room:String;
@@ -67,6 +73,7 @@ package org.bigbluebutton.modules.present.business
     }
     
 		public function connect(e:PresentModuleEvent):void{
+      extractAttributes(e.data);
 			sender.getPresentationInfo();     
 		}
 		
@@ -76,6 +83,22 @@ package org.bigbluebutton.modules.present.business
 			room = a.room as String;
 			userid = a.userid as Number;
 		}
+    
+    public function handleGoToPreviousPageCommand(cmd:GoToPrevPageCommand):void {
+      var page:Page = PresentationModel.getInstance().getPrevPage(cmd.curPageId);
+      if (page != null) {
+        trace(LOG + "Going to prev page[" + page.id + "] from page[" + cmd.curPageId + "]");
+        sender.goToPage(page.id);
+      }
+    }
+    
+    public function handleGoToNextPageCommand(cmd:GoToNextPageCommand):void {
+      var page:Page = PresentationModel.getInstance().getNextPage(cmd.curPageId);
+      if (page != null) {
+        trace(LOG + "Going to next page[" + page.id + "] from page[" + cmd.curPageId + "]");
+        sender.goToPage(page.id);
+      }     
+    }
 				
 		/**
 		 * Start uploading the selected file 
@@ -83,7 +106,11 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */		
 		public function startUpload(e:UploadEvent):void{
-			if (uploadService == null) uploadService = new FileUploadService(host + "/bigbluebutton/presentation/upload", conference, room);
+      trace(LOG + "Uploading presentation [" + e.presentationName + "]");
+      
+			if (uploadService == null) {
+        uploadService = new FileUploadService(host + "/bigbluebutton/presentation/upload", conference, room);
+      }
 			uploadService.upload(e.presentationName, e.fileToUpload);
 		}
 		
@@ -93,7 +120,7 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */		
 		public function gotoSlide(e:PresenterCommands):void{
-      sender.gotoSlide(e.slideNumber);
+     // sender.gotoSlide(e.slideNumber);
 		}
 				
 		/**
@@ -134,7 +161,7 @@ package org.bigbluebutton.modules.present.business
 		}
 		
 		private function sendViewerNotify(e:TimerEvent):void{
-			sender.gotoSlide(0);
+//			sender.gotoSlide(0);
 		}
 			
 		/**

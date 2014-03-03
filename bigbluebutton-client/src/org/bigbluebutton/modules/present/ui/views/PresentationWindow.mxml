@@ -79,7 +79,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import mx.events.ListEvent;
       import mx.events.ResizeEvent;
       import mx.managers.PopUpManager;
-      import mx.rpc.events.*;      
+      import mx.rpc.events.*;
+      
       import org.bigbluebutton.common.IBbbCanvas;
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
@@ -88,6 +89,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.views.MainCanvas;
+      import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
+      import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
       import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
       import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
       import org.bigbluebutton.modules.present.events.NavigationEvent;
@@ -165,6 +168,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var t:Timer = new Timer(2000, 1);
         t.addEventListener(TimerEvent.TIMER, addWhiteboardToolbar);
         t.start();
+        
+        uploadPres.visible = UsersUtil.amIPresenter();
 			}
 			
       private function addWhiteboardToolbar(event:TimerEvent):void {
@@ -355,8 +360,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
       	slideView.setSlides();    		            		
 				slideView.visible = true;		
-	      var page:Page = PresentationModel.getInstance().getCurrentPage();
-				displaySlideNumber(page.num);	
+//	      var page:Page = PresentationModel.getInstance().getCurrentPage();
+//				displaySlideNumber(page.num);	
         
 				if (UsersUtil.amIPresenter()) {
 					displaySlideNavigationControls(true);					
@@ -460,13 +465,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function gotoPreviousSlide():void {
-				if ((slideView.getSelectedSlide() - 1) >= 0)
-					dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.getSelectedSlide() - 1));
+        //				if ((slideView.getSelectedSlide() + 1) < PresentationModel.getInstance().getNumberOfPages()) {
+        var curPage:Page = PresentationModel.getInstance().getCurrentPage();
+        if (curPage != null) {
+          dispatchEvent(new GoToPrevPageCommand(curPage.id));
+            }                     
+        //        }
 			}
 			
 			private function gotoNextSlide():void {
-				if ((slideView.getSelectedSlide() + 1) < PresentationModel.getInstance().getNumberOfPages())
-					dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.getSelectedSlide() + 1));
+//				if ((slideView.getSelectedSlide() + 1) < PresentationModel.getInstance().getNumberOfPages()) {
+          var curPage:Page = PresentationModel.getInstance().getCurrentPage();
+          if (curPage != null) {
+            dispatchEvent(new GoToNextPageCommand(curPage.id));
+          }                     
+//        }
 			}
 			
       private function removeDecimalFromDataTip(val:String):String {			

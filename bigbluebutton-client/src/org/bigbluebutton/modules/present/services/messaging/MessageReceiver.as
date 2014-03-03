@@ -121,14 +121,10 @@ package org.bigbluebutton.modules.present.services.messaging
     private function handleGotoSlideCallback(msg:Object) : void {
       trace(LOG + "*** handleGotoSlideCallback " + msg.msg + " **** \n");
       var map:Object = JSON.parse(msg.msg);
-      if (map.hasOwnProperty("id") && map.hasOwnProperty("num") && map.hasOwnProperty("current") &&
-        map.hasOwnProperty("swfUri") && map.hasOwnProperty("txtUri") && map.hasOwnProperty("pngUri") &&
-        map.hasOwnProperty("thumbUri") && map.hasOwnProperty("xOffset") && map.hasOwnProperty("yOffset") &&
-        map.hasOwnProperty("widthRatio") && map.hasOwnProperty("heightRatio")) {
-        
-        var page:PageVO = extractPage(map);
-        service.pageChanged(page);
-      }
+
+      var page:PageVO = extractPage(map);
+      service.pageChanged(page);
+
     }
     
     private function validatePage(map:Object):Boolean {
@@ -195,20 +191,12 @@ package org.bigbluebutton.modules.present.services.messaging
     
     private function handleSharePresentationCallback(msg:Object):void {
       trace(LOG + "*** handleSharePresentationCallback " + msg.msg + " **** \n");
-      trace(LOG + "handleSharePresentationCallback - TODO: not needed as we should just use display page event"); 
       var map:Object = JSON.parse(msg.msg);
       if (map.hasOwnProperty("presentation")) {
-        var presVO: PresentationVO = processUploadedPresentation(map)
+        var pres:Object = map.presentation as Object;
+        var presVO: PresentationVO = processUploadedPresentation(pres)
         service.changePresentation(presVO);
       }
-      
-//      if (msg.share) {
-//        var e:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
-//        e.presentationName = map.presentationID;
-//        dispatcher.dispatchEvent(e);
-//      } else {
-//        dispatcher.dispatchEvent(new UploadEvent(UploadEvent.CLEAR_PRESENTATION));
-//      }
     }
     
     private function handleRemovePresentationCallback(msg:Object):void {
@@ -325,38 +313,9 @@ package org.bigbluebutton.modules.present.services.messaging
         service.changePresentation(presVO);
       }
            
-//      var myUserId: String = UsersUtil.getMyUserID();
-           
-//      if (presenter.userId != myUserId) {
-//        trace(LOG + " Making self viewer. myId=[" + myUserId + "] presenter=[" + presenter.userId + "]");
-//        dispatcher.dispatchEvent(new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE));						
-//      }	else {
-//        trace(LOG + " Making self presenter. myId=[" + myUserId + "] presenter=[" + presenter.userId + "]");
-//        dispatcher.dispatchEvent(new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE));
-//      }
-      
-//      var presNames:ArrayCollection = PresentationModel.getInstance().getPresentationNames();
-          
-//      if (presNames) {
-//        trace(LOG + " ************ Getting list of presentations *************");
-//        for (var x:int = 0; x < presNames.length; x++) {
-//          sendPresentationName(presNames[x] as String);
-//        }
-//      }
-           
-//      var curPresName:String = PresentationModel.getInstance().getCurrentPresentationName();
-      
-//      var shareEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
-//      shareEvent.presentationName = curPresName;
-//      dispatcher.dispatchEvent(shareEvent);
     }
     
-//    private function sendPresentationName(presentationName:String):void {
-//      trace(LOG + " **************** Sending presentation names");
-//      var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
-//      uploadEvent.presentationName = presentationName;
-//      dispatcher.dispatchEvent(uploadEvent)
-//    }
+
     
   }
 }

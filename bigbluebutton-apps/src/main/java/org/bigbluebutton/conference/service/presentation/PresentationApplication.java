@@ -79,8 +79,8 @@ public class PresentationApplication {
 		bbbInGW.resizeAndMoveSlide(meetingID, xOffset, yOffset, widthRatio, heightRatio);
 	}
 		
-	public void gotoSlide(String meetingID, int slide){		
-		bbbInGW.gotoSlide(meetingID, slide);
+	public void gotoSlide(String meetingID, String pageId){		
+		bbbInGW.gotoSlide(meetingID, pageId);
 	}
 	
 	public void sharePresentation(String meetingID, String presentationID, Boolean share){		

@@ -56,7 +56,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
       import org.bigbluebutton.modules.present.events.UploadEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
-         	
+      
+      private static const LOG:String = "Present::FileUploadWIndow - ";
+      
       [Bindable] public var presentationNamesAC:ArrayCollection;
 	    [BIndable] public var maxFileSize:Number;
 
@@ -76,9 +78,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function initData():void {
-        if (presentationNamesAC.length <= 0) {
+//        if (presentationNamesAC.length <= 0) {
           selectFile();
-        }
+//        }
       }
             
       private function handleThumbnailsProgressEvent(event:Event):void {	
@@ -139,12 +141,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (fileSize > maxFileSizeBytes) {     
           // Hardcode for now to 30M limit. 
           // This should be configurable to match what's allowed in nginx. (ralam feb 23, 2010) 
-          trace("File exceeds max limit:(" + fileSize + ">" + maxFileSizeBytes + ")");  			
+          trace(LOG + "File exceeds max limit:(" + fileSize + ">" + maxFileSizeBytes + ")");  			
           enableControls();
           displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.maxUploadFileExceededAlert'));
         } else {
           var presentationName:String = StringUtil.trim(fileToUpload.name);
-          trace("Uploading file : " + presentationName);
+          trace(LOG + "Uploading file : " + presentationName);
 
           var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.START_UPLOAD);
           uploadEvent.presentationName = presentationName;

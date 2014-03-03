@@ -7,6 +7,8 @@ package org.bigbluebutton.modules.present.model
   
   public class PresentationModel
   {
+    private static const LOG:String = "Present::PresentationModel - ";
+    
     private static var instance:PresentationModel = null;
     
     private var _pages:ArrayCollection = new ArrayCollection();
@@ -98,6 +100,34 @@ package org.bigbluebutton.modules.present.model
         return pres.getCurrentPage();
       }
       return null;
+    }
+    
+    public function getNextPage(id:String):Page {
+      var ids:Array = id.split("/");
+      if (ids.length > 1) {
+        var presId:String = ids[0];
+        var pageNum:int = int(ids[1]);
+        trace(LOG + "page id [" + id + "] ids= [" + presId + "," + pageNum + "] " + ids[1]);
+        var pres:Presentation = getPresentation(presId);
+        trace(LOG + "Next page [" + presId + "/" + (pageNum + 1) + "]");
+        return pres.getPage(presId + "/" + (pageNum + 1));
+      }
+      
+      return null;      
+    }
+    
+    public function getPrevPage(id:String):Page {
+      var ids:Array = id.split("/");
+      if (ids.length > 1) {
+        var presId:String = ids[0];
+        var pageNum:int = int(ids[1]);
+        trace(LOG + "page id [" + id + "] ids= [" + presId + "," + pageNum + "] " + ids[1]);
+        var pres:Presentation = getPresentation(presId);
+        trace(LOG + "Prev page [" + presId + "/" + (pageNum - 1) + "]");
+        return pres.getPage(presId + "/" + (pageNum - 1));
+      }
+      
+      return null;      
     }
     
     public function getPage(id: String):Page {

@@ -94,11 +94,11 @@ package org.bigbluebutton.modules.present.services.messaging
       );
     }
     
-    public function gotoSlide(num:int) : void {
+    public function goToPage(id: String):void {
       var message:Object = new Object();
-      message["pageNumber"] = num;      
+      message["page"] = id;      
       
-      trace(LOG + "gotoSlide [" + num + "]");
+      trace(LOG + "gotoPage [" + id + "]");
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("presentation.gotoSlide", 
