@@ -79,8 +79,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import mx.events.ListEvent;
       import mx.events.ResizeEvent;
       import mx.managers.PopUpManager;
-      import mx.rpc.events.*;
-      
+      import mx.rpc.events.*;      
       import org.bigbluebutton.common.IBbbCanvas;
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
@@ -98,7 +97,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.present.events.UploadEvent;
       import org.bigbluebutton.modules.present.events.WindowResizedEvent;
       import org.bigbluebutton.modules.present.managers.Slide;
-      import org.bigbluebutton.modules.present.managers.SlideManager;
       import org.bigbluebutton.modules.present.model.Page;
       import org.bigbluebutton.modules.present.model.PresentationModel;
       import org.bigbluebutton.modules.present.ui.views.PresentOptions;
@@ -113,7 +111,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] 
       private var thumbY:Number;
 			public var uploadWindow:FileUploadWindow = null;
-			private var slideManager:SlideManager = new SlideManager();
 			private var pageDialog:GotoPageDialog;
 			
 			[Bindable] private var DEFAULT_X_POSITION:Number = 237;
@@ -414,7 +411,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function showPageDialog():void{
 				if (pageDialog != null) PopUpManager.removePopUp(pageDialog);
 				pageDialog = new GotoPageDialog();
-				pageDialog.totalSlides = slideView.slides.length;
+				pageDialog.totalSlides = PresentationModel.getInstance().getNumberOfPages();
 				pageDialog.x = this.x + this.width/2 - pageDialog.width/2;
 				pageDialog.y = this.y + this.height/2 - pageDialog.height/2;
 				pageDialog.window = this;
@@ -437,7 +434,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					backButton.styleName = "presentationBackButtonStyle";
 				}
 				
-				if (pageNumber < slideView.slides.length) {
+				if (pageNumber < PresentationModel.getInstance().getNumberOfPages()) {
 					forwardButton.enabled = true;
 					forwardButton.styleName = "presentationForwardButtonStyle";
 				} else {
@@ -447,7 +444,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function displaySlideNumber(currentSlide:int):void {
-				btnSlideNum.label = "" + currentSlide + '/' + slideView.slides.length;
+				btnSlideNum.label = "" + currentSlide + '/' + PresentationModel.getInstance().getNumberOfPages();
 			}
 			
       
@@ -468,7 +465,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function gotoNextSlide():void {
-				if ((slideView.getSelectedSlide() + 1) < slideView.slides.length)
+				if ((slideView.getSelectedSlide() + 1) < PresentationModel.getInstance().getNumberOfPages())
 					dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.getSelectedSlide() + 1));
 			}
 			

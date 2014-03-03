@@ -34,11 +34,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   implements="org.bigbluebutton.common.IBbbCanvas">
      
   <mate:Listener type="{PageChangedEvent.PRESENTATION_PAGE_CHANGED_EVENT}" method="handlePageChangedEvent" />
-    <mate:Listener type="{PageLoadedEvent.PAGE_LOADED_EVENT}" method="handlePageLoadedEvent" />
-    <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleSwitchToPresenterEvent" />
-    <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleSwitchToViewerEvent" />
-    <mate:Listener type="{CursorEvent.UPDATE_CURSOR}" method="handleUpdateCursorEvent" />
-    <mate:Listener type="{ShortcutEvent.FOCUS_SLIDE}" method="focusSlide" />
+  <mate:Listener type="{PageLoadedEvent.PAGE_LOADED_EVENT}" method="handlePageLoadedEvent" />
+  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleSwitchToPresenterEvent" />
+  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleSwitchToViewerEvent" />
+  <mate:Listener type="{CursorEvent.UPDATE_CURSOR}" method="handleUpdateCursorEvent" />
+  <mate:Listener type="{ShortcutEvent.FOCUS_SLIDE}" method="focusSlide" />
     
 	<mx:Script>
 		<![CDATA[
@@ -46,7 +46,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import flash.events.Event;     
       import mx.binding.utils.BindingUtils;
       import mx.collections.ArrayCollection;
-      import mx.controls.Alert;
       import mx.controls.Button;
       import mx.events.FlexEvent;
       import mx.events.ListEvent;      
@@ -301,7 +300,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			}
 								
-			private function handleSlideLoadedEvent(e:PageLoadedEvent):void{
+			private function handlePageLoadedEvent(e:PageLoadedEvent):void{
         var page:Page = PresentationModel.getInstance().getPage(e.pageId);
         if (page != null) {
           slideLoader.source = page.swfData;

@@ -24,7 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	implements="org.bigbluebutton.common.IBigBlueButtonModule"
 	creationComplete="onCreationComplete()" 
   xmlns:maps="org.bigbluebutton.modules.present.maps.*"
-  xmlns:maps="org.bigbluebutton.modules.present.ui.views.maps.*">
+  xmlns:viewMaps="org.bigbluebutton.modules.present.ui.views.maps.*">
 	
 	<mx:Script>
 		<![CDATA[

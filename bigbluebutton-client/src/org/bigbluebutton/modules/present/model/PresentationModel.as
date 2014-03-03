@@ -83,6 +83,15 @@ package org.bigbluebutton.modules.present.model
       return null;
     }
     
+    public function getNumberOfPages():int {
+      var pres:Presentation = getCurrentPresentation();
+      if (pres != null) {
+        return pres.getPages().length;
+      }
+      
+      return 0;
+    }
+    
     public function getCurrentPage():Page {
       var pres:Presentation = getCurrentPresentation();
       if (pres != null) {

@@ -59,7 +59,7 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     public function onMessage(messageName:String, message:Object):void {
-//      trace("Presentation: received message " + messageName);
+      trace("Presentation: received message " + messageName);
       
       switch (messageName) {
         case "PresentationCursorUpdateCommand":
@@ -131,7 +131,41 @@ package org.bigbluebutton.modules.present.services.messaging
       }
     }
     
+    private function validatePage(map:Object):Boolean {
+      var missing:Array = new Array();
+      
+      if (! map.hasOwnProperty("id")) missing.push("Missing [id] param."); 
+      if (! map.hasOwnProperty("num")) missing.push("Missing [num] param.");
+      if (! map.hasOwnProperty("current")) missing.push("Missing [current] param.");
+      if (! map.hasOwnProperty("swfUri")) missing.push("Missing [swfUri] param.");
+      if (! map.hasOwnProperty("txtUri")) missing.push("Missing [txtUri] param.");
+      if (! map.hasOwnProperty("pngUri")) missing.push("Missing [pngUri] param.");
+      if (! map.hasOwnProperty("thumbUri")) missing.push("Missing [thumbUri] param.");
+      if (! map.hasOwnProperty("xOffset")) missing.push("Missing [xOffset] param.");
+      if (! map.hasOwnProperty("yOffset")) missing.push("Missing [yOffset] param.");
+      if (! map.hasOwnProperty("widthRatio")) missing.push("Missing [widthRatio] param.");
+      if (! map.hasOwnProperty("heightRatio")) missing.push("Missing [heightRatio] param.");
+      
+      if (missing.length > 0) {
+        for (var i: int = 0; i < missing.length; i++) {
+          trace(LOG + missing[i]);
+        }
+      }
+      
+      if (map.hasOwnProperty("id") && map.hasOwnProperty("num") && map.hasOwnProperty("current") &&
+        map.hasOwnProperty("swfUri") && map.hasOwnProperty("txtUri") && map.hasOwnProperty("pngUri") &&
+        map.hasOwnProperty("thumbUri") && map.hasOwnProperty("xOffset") && map.hasOwnProperty("yOffset") &&
+        map.hasOwnProperty("widthRatio") && map.hasOwnProperty("heightRatio")) {
+        return true;
+      }      
+      
+      return false;
+    }
+    
+    
     private function extractPage(map:Object):PageVO {
+      validatePage(map);
+      
       var page:PageVO = new PageVO();
       page.id = map.id;
       page.num = map.num;
@@ -164,7 +198,7 @@ package org.bigbluebutton.modules.present.services.messaging
       trace(LOG + "handleSharePresentationCallback - TODO: not needed as we should just use display page event"); 
       var map:Object = JSON.parse(msg.msg);
       if (map.hasOwnProperty("presentation")) {
-        var presVO: PresentationVO = pocessUploadedPresentation(map)
+        var presVO: PresentationVO = processUploadedPresentation(map)
         service.changePresentation(presVO);
       }
       
@@ -187,7 +221,7 @@ package org.bigbluebutton.modules.present.services.messaging
     private function handleConversionCompletedUpdateMessageCallback(msg:Object) : void {
       trace(LOG + "*** handleConversionCompletedUpdateMessageCallback " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);      
-      var presVO: PresentationVO = pocessUploadedPresentation(map)
+      var presVO: PresentationVO = processUploadedPresentation(map)
       service.changePresentation(presVO);
       
       var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
@@ -197,17 +231,17 @@ package org.bigbluebutton.modules.present.services.messaging
       
     }
     
-    private function pocessUploadedPresentation(presentation:Object):PresentationVO {
+    private function processUploadedPresentation(presentation:Object):PresentationVO {
       var presoPages:ArrayCollection = new ArrayCollection();      
-      var pages:ArrayCollection = presentation.pages as ArrayCollection;
+      var pages:Array = presentation.pages as Array;
       for (var k:int = 0; k < pages.length; k++) {
-        var page:Object = pages[k];
+        var page:Object = pages[k] as Object;
         var pg:PageVO = extractPage(page)
         presoPages.addItem(pg);
       }
       
       var preso:PresentationVO = new PresentationVO(presentation.id, presentation.name, 
-                                   presentation.current, pages);
+                                   presentation.current, presoPages);
       return preso;
     }
     
@@ -268,22 +302,27 @@ package org.bigbluebutton.modules.present.services.messaging
       }		
 
     }	
-    
-    private var currentSlide:Number = -1;
-    
+      
     private function handleGetPresentationInfoReply(msg:Object) : void {
       trace(LOG + "*** handleGetPresentationInfoReply " + msg.msg + " **** \n");
       var map:Object = JSON.parse(msg.msg);
       
-      var presenterMap:Object = map.presenter;
+      var presenterMap:Object = map.presenter as Object;
+      if (presenterMap.hasOwnProperty("userId") && presenterMap.hasOwnProperty("name") &&
+        presenterMap.hasOwnProperty("assignedBy")) {
+        trace(LOG + "Got presenter information");
+        var presenter: Presenter = new Presenter(presenterMap.userId, presenterMap.name, presenterMap.assignedBy);
+        PresentationModel.getInstance().setPresenter(presenter);        
+      }
       
-      var presenter: Presenter = new Presenter(presenterMap.userId, presenterMap.name, presenterMap.assignedBy);
-      PresentationModel.getInstance().setPresenter(presenter);
+      trace(LOG + "Getting presentations information");
             
       var presentations:Array = map.presentations as Array;
       for (var j:int = 0; j < presentations.length; j++) {
-        var presentation:Object = presentations[j];        
-        pocessUploadedPresentation(presentation);
+        var presentation:Object = presentations[j] as Object;     
+        trace(LOG + "Processing presentation information");
+        var presVO: PresentationVO = processUploadedPresentation(presentation)
+        service.changePresentation(presVO);
       }
            
 //      var myUserId: String = UsersUtil.getMyUserID();
@@ -296,7 +335,7 @@ package org.bigbluebutton.modules.present.services.messaging
 //        dispatcher.dispatchEvent(new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE));
 //      }
       
-      var presNames:ArrayCollection = PresentationModel.getInstance().getPresentationNames();
+//      var presNames:ArrayCollection = PresentationModel.getInstance().getPresentationNames();
           
 //      if (presNames) {
 //        trace(LOG + " ************ Getting list of presentations *************");
@@ -305,7 +344,7 @@ package org.bigbluebutton.modules.present.services.messaging
 //        }
 //      }
            
-      var curPresName:String = PresentationModel.getInstance().getCurrentPresentationName();
+//      var curPresName:String = PresentationModel.getInstance().getCurrentPresentationName();
       
 //      var shareEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
 //      shareEvent.presentationName = curPresName;

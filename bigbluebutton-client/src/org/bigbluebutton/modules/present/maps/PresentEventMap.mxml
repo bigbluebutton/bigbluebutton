@@ -37,6 +37,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.present.events.UploadEvent;
       import org.bigbluebutton.modules.present.managers.PresentManager;
       import org.bigbluebutton.modules.present.services.PageLoaderService;
+      import org.bigbluebutton.modules.present.services.PresentationService;
       import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
       import org.bigbluebutton.modules.whiteboard.events.GetCurrentPresentationInfo;
 
@@ -51,6 +52,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
 		<ObjectBuilder generator="{PresentManager}" cache="global" />
 		<ObjectBuilder generator="{PresentProxy}" cache="global" />
+    
 		<InlineInvoker method="createAPI" />
 	</EventHandlers>
 	

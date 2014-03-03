@@ -153,7 +153,7 @@ package org.bigbluebutton.modules.present.services.messaging
       );		
     }
     
-    private function queryPresenterForSlideInfo():void {
+    public function queryPresenterForSlideInfo():void {
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("presentation.getSlideInfo", 
         function(result:String):void { // On successful result

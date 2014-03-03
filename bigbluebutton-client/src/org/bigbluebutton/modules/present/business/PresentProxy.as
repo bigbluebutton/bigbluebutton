@@ -18,7 +18,8 @@
 */
 package org.bigbluebutton.modules.present.business
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.TimerEvent;
 	import flash.net.NetConnection;
 	import flash.utils.Timer;
@@ -36,6 +37,7 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
 	import org.bigbluebutton.modules.present.model.Page;
 	import org.bigbluebutton.modules.present.model.PresentationModel;
+	import org.bigbluebutton.modules.present.services.PresentationService;
 	import org.bigbluebutton.modules.present.services.messaging.MessageReceiver;
 	import org.bigbluebutton.modules.present.services.messaging.MessageSender;
 	
@@ -50,13 +52,14 @@ package org.bigbluebutton.modules.present.business
     private var _messageReceiver:MessageReceiver;
     
     private var presentationModel:PresentationModel;
+    private var service: PresentationService;
     
 		public function PresentProxy() {
       presentationModel = PresentationModel.getInstance();
       
 			slides = new PresentationSlides();
-//      _messageReceiver = new MessageReceiver(presentationModel);
       sender = new MessageSender();
+      service = new PresentationService();
 		}
 		
     public function getCurrentPresentationInfo():void {
@@ -64,7 +67,7 @@ package org.bigbluebutton.modules.present.business
     }
     
 		public function connect(e:PresentModuleEvent):void{
-			extractAttributes(e.data);      
+			sender.getPresentationInfo();     
 		}
 		
 		private function extractAttributes(a:Object):void{
@@ -106,8 +109,8 @@ package org.bigbluebutton.modules.present.business
 			var slideUri:String = host + "/bigbluebutton/presentation/" + conference + "/" + room + "/" + presentationName;
 			
 			LogUtil.debug("PresentationApplication::loadPresentation()... " + fullUri);
-			var service:PresentationService = new PresentationService();
-			service.load(fullUri, slides, slideUri);
+//			var service:PresentationService = new PresentationService();
+//			service.load(fullUri, slides, slideUri);
 			LogUtil.debug('number of slides=' + slides.size());
 		}
 		

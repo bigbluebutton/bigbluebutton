@@ -21,6 +21,8 @@ package org.bigbluebutton.modules.present.services
 
   public class PresentationService
   {
+    private static const LOG:String = "Present::PresentationService - ";
+    
     private var model:PresentationModel;
     private var sender:MessageSender;
     private var receiver:MessageReceiver;
