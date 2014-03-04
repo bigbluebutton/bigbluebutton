@@ -42,19 +42,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import flash.events.Event;
-      
+      import com.asfusion.mate.events.Dispatcher;      
+      import flash.events.Event;     
       import mx.binding.utils.BindingUtils;
       import mx.collections.ArrayCollection;
       import mx.controls.Button;
       import mx.events.FlexEvent;
-      import mx.events.ListEvent;
-      
+      import mx.events.ListEvent;     
       import org.bigbluebutton.common.IBbbCanvas;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.model.FocusableImage;
+      import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
@@ -78,25 +76,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] public var zoomPercentage:Number = 100;
 			public static const ZOOM_STEP:int = 5;
 			public static const THUMBNAILS_CLOSED:String = "ThumbnailsClosed";
-			
-			
-			/**
-			 * Variables that stores the presenter's ratio between
-			 * loader and canvas. We need to size the slide with the
-			 * same scale as the presenter so that the cursor syncs
-			 * properly.
-			 */
-			private var presenterViewedRegionX:Number = 0;
-			private var presenterViewedRegionY:Number = 0;
-			private var presenterViewedRegionW:Number = 100;
-			private var presenterViewedRegionH:Number = 100;
-						
+									
 			private var cursor:Shape;
 			private var whiteboardCanvasHolder:Canvas = new Canvas();
 			private var whiteboardCanvas:IBbbCanvas;
 							
 			private var _selectedSlide:int=0;
-			[Bindable] private var lateComerSynched:Boolean = false;
 			
 			private var dispatcher:Dispatcher = new Dispatcher();
 						
@@ -124,6 +109,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				whiteboardCanvasHolder.y = 0;
 				
 				this.setChildIndex(thumbnailView, this.numChildren - 1);       
+        
+        if (UsersUtil.amIPresenter()) {
+          becomePresenter();
+        } else {
+          becomeViewer();
+        }
 			}
 						
 			public function setSlides():void {
@@ -286,12 +277,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function handlePageChangedEvent(e:PageChangedEvent):void{
 			
         var page:Page = PresentationModel.getInstance().getPage(e.pageId);
-        if (page != null) {
-          presenterViewedRegionX = page.xOffset;
-          presenterViewedRegionY = page.yOffset;
-          presenterViewedRegionW = page.widthRatio;
-          presenterViewedRegionH = page.heightRatio;
-          
+        if (page != null) {          
           slideModel.saveViewedRegion(page.xOffset, page.yOffset, page.widthRatio, page.heightRatio);
           slideModel.calculateViewportNeededForRegion(page.xOffset, page.yOffset, page.widthRatio, page.heightRatio);
           slideModel.displayViewerRegion(page.xOffset, page.yOffset, page.widthRatio, page.heightRatio);
@@ -317,29 +303,37 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }
 			}
 			
+      private function becomeViewer():void {
+        removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
+        slideLoader.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+        slideLoader.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+        slideLoader.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+        _sendCurrentMouseLocTimer.stop();
+        _sendCurrentMouseLocTimer.removeEventListener(TimerEvent.TIMER, mouseCursorUpdateTimerListener);        
+      }
+      
 			/**
 			 * Handle the event where this presenter becomes a viewer because another attendee became presenter.
 			 */			
 			private function handleSwitchToViewerEvent(e:MadePresenterEvent):void{
-				removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
-				slideLoader.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-				slideLoader.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
-				slideLoader.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
-        _sendCurrentMouseLocTimer.stop();
-        _sendCurrentMouseLocTimer.removeEventListener(TimerEvent.TIMER, mouseCursorUpdateTimerListener);
+        becomeViewer();
 			}
 			
+      private function becomePresenter():void {
+        addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
+        slideLoader.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+        slideLoader.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+        slideLoader.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+        _sendCurrentMouseLocTimer.addEventListener(TimerEvent.TIMER, mouseCursorUpdateTimerListener);
+        _sendCurrentMouseLocTimer.start();
+        notifyOthersOfZoomEvent();        
+      }
+      
 			/**
 			 * Makes the attendee the presenter.
 			 */
 			private function handleSwitchToPresenterEvent(e:MadePresenterEvent):void {
-				addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
-				slideLoader.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-				slideLoader.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
-				slideLoader.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
-        _sendCurrentMouseLocTimer.addEventListener(TimerEvent.TIMER, mouseCursorUpdateTimerListener);
-        _sendCurrentMouseLocTimer.start();
-				notifyOthersOfZoomEvent();
+        becomePresenter();
 			}
 			
 			
@@ -401,14 +395,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function handleSlideLoadedCompleteEvent(event:Event):void {
-				if (lateComerSynched) {
-					slideModel.resetForNewSlide(slideLoader.contentWidth, slideLoader.contentHeight);					
-				} else {
-					lateComerSynched = true;
-					slideModel.reset(slideLoader.contentWidth, slideLoader.contentHeight);
-					slideModel.saveViewedRegion(presenterViewedRegionX, presenterViewedRegionY, presenterViewedRegionW, presenterViewedRegionH);					
-				}
-				
+				slideModel.resetForNewSlide(slideLoader.contentWidth, slideLoader.contentHeight);									
 				dispatchNewSlideDisplayedEvent(slideModel.pageOrigW, slideModel.pageOrigH);				
 			}
 					

@@ -51,26 +51,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{UploadEvent.CLEAR_PRESENTATION}" method="clearPresentation" />
 	<mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
 	<mate:Listener type="{AddOverlayCanvasEvent.ADD_OVERLAY_CANVAS}" method="addOverlayCanvas" />
-	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-	
+	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />	
 	<mate:Listener type="{ShortcutEvent.UPLOAD_PRESENTATION}" method="remoteUpload" />
 	<mate:Listener type="{ShortcutEvent.PREVIOUS_SLIDE}" method="remotePrevious" />
 	<mate:Listener type="{ShortcutEvent.SELECT_SLIDES}" method="remoteSelect" />
 	<mate:Listener type="{ShortcutEvent.NEXT_SLIDE}" method="remoteNext" />
 	<mate:Listener type="{ShortcutEvent.FIT_TO_WIDTH}" method="remoteWidth" />
-	<mate:Listener type="{ShortcutEvent.FIT_TO_PAGE}" method="remotePage" />
-	
+	<mate:Listener type="{ShortcutEvent.FIT_TO_PAGE}" method="remotePage" />	
 	<mate:Listener type="{ShortcutEvent.MINIMIZE_PRES}" method="remoteMinimize" />
 	<mate:Listener type="{ShortcutEvent.MAXIMIZE_PRES}" method="remoteMaximize" />
 	
 	
 	<mx:Script>
 		<![CDATA[
-      import flash.geom.Point;
-      
+      import flash.geom.Point;      
       import flexlib.containers.DockableToolBar;
-      import flexlib.mdi.events.MDIWindowEvent;
-      
+      import flexlib.mdi.events.MDIWindowEvent;      
       import mx.binding.utils.BindingUtils;
       import mx.collections.ArrayCollection;
       import mx.containers.TitleWindow;
@@ -79,8 +75,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import mx.events.ListEvent;
       import mx.events.ResizeEvent;
       import mx.managers.PopUpManager;
-      import mx.rpc.events.*;
-      
+      import mx.rpc.events.*;     
       import org.bigbluebutton.common.IBbbCanvas;
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
@@ -286,13 +281,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
          }
       }
             
-            private function unbindKeyboardEvents():void {
-                stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);
-            }
+      private function unbindKeyboardEvents():void {
+        stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+      }
 
-            private function bindKeyboardEvents():void {
-                stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
-            }
+      private function bindKeyboardEvents():void {
+        stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+      }
             
 			// Maybe there's a problem in here too?
 			private function onKeyUp(event:KeyboardEvent):void {	
@@ -351,7 +346,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				uploadPres.visible = isPresenter;
 				
         var page:Page = PresentationModel.getInstance().getCurrentPage();
-        displaySlideNumber(page.num);		
+        if (page != null) {
+          displaySlideNumber(page.num);		
+        }
+        
 				displaySlideNavigationControls(isPresenter);
 			}
 					
@@ -360,9 +358,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
       	slideView.setSlides();    		            		
 				slideView.visible = true;		
-//	      var page:Page = PresentationModel.getInstance().getCurrentPage();
-//				displaySlideNumber(page.num);	
-        
+	      var page:Page = PresentationModel.getInstance().getCurrentPage();
+        if (page != null) {
+          displaySlideNumber(page.num);
+        }
+					      
 				if (UsersUtil.amIPresenter()) {
 					displaySlideNavigationControls(true);					
 				} else {

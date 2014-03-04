@@ -111,7 +111,10 @@ package org.bigbluebutton.modules.present.model
         var pres:Presentation = getPresentation(presId);
         var nextPage:int = pageNum + 1;
         trace(LOG + "Next page [" + presId + "/" + nextPage + "]");
-        return pres.getPage(presId + "/" + nextPage);
+        if (pres != null) {
+          return pres.getPage(presId + "/" + nextPage);
+        }
+        
       }
       
       return null;      
@@ -126,7 +129,10 @@ package org.bigbluebutton.modules.present.model
         var pres:Presentation = getPresentation(presId);
         var prevPage:int = pageNum - 1;
         trace(LOG + "Prev page [" + presId + "/" + prevPage + "]");
-        return pres.getPage(presId + "/" + prevPage);
+        if (pres != null) {
+          return pres.getPage(presId + "/" + prevPage);
+        }
+        
       }
       
       return null;      
@@ -137,7 +143,9 @@ package org.bigbluebutton.modules.present.model
       if (ids.length > 1) {
         var presId:String = ids[0];
         var pres:Presentation = getPresentation(presId);
-        return pres.getPage(id);
+        if (pres != null) {
+          return pres.getPage(id);
+        }
       }
 
       return null;
