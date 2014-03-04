@@ -180,12 +180,9 @@ package org.bigbluebutton.modules.present.services.messaging
     
     private function handleMoveCallback(msg:Object):void{
       trace(LOG + "*** handleMoveCallback " + msg.msg + " **** \n");      
-      var map:Object = JSON.parse(msg.msg);
-      
-      if (map.hasOwnProperty("id") && map.hasOwnProperty("xOffset")
-        && map.hasOwnProperty("yOffset") && map.hasOwnProperty("widthRatio")
-        && map.hasOwnProperty("heightRatio")) {
-        service.pageChanged(extractPage(map));
+      var map:Object = JSON.parse(msg.msg);      
+      if (validatePage(map)) {
+        service.pageMoved(extractPage(map));
       }
     }
     
