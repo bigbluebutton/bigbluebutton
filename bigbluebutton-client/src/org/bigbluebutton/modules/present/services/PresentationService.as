@@ -1,9 +1,7 @@
 package org.bigbluebutton.modules.present.services
 {
-  import com.asfusion.mate.events.Dispatcher;
-  
-  import mx.collections.ArrayCollection;
-  
+  import com.asfusion.mate.events.Dispatcher;  
+  import mx.collections.ArrayCollection;  
   import org.bigbluebutton.modules.present.commands.ChangePageCommand;
   import org.bigbluebutton.modules.present.events.CursorEvent;
   import org.bigbluebutton.modules.present.events.PageChangedEvent;
@@ -54,8 +52,8 @@ package org.bigbluebutton.modules.present.services
         np.widthRatio = page.widthRatio;
         np.heightRatio = page.heightRatio;
         trace(LOG + "Sending page changed event. page [" + np.id + "]");  
-        var event: PageChangedEvent = new PageChangedEvent(np.id);
-        dispatcher.dispatchEvent(event);           
+        var changePageCommand: ChangePageCommand = new ChangePageCommand(np.id);
+        dispatcher.dispatchEvent(changePageCommand);          
       }       
     }
     
@@ -81,8 +79,7 @@ package org.bigbluebutton.modules.present.services
       return page;      
     }
     
-    public function changePresentation(pres: PresentationVO):void {
-      
+    public function changePresentation(pres: PresentationVO):void {      
       // We've switched presentations. Mark the old presentation as not current.
       var curPres:Presentation = PresentationModel.getInstance().getCurrentPresentation();
       if (curPres != null) {

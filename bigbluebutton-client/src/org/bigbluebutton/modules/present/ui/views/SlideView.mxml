@@ -284,9 +284,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 * Handles notification from presenter that the slide has moved.
 			 */
 			private function handlePageChangedEvent(e:PageChangedEvent):void{
-				if (UserManager.getInstance().getConference().amIPresenter) {
-					return;
-				}
+//				if (UserManager.getInstance().getConference().amIPresenter) {
+//					return;
+//				}
 				
         var page:Page = PresentationModel.getInstance().getPage(e.pageId);
         if (page != null) {
