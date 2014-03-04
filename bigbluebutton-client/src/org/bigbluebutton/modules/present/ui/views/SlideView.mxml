@@ -42,15 +42,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;     
-      import flash.events.Event;      
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import flash.events.Event;
+      
       import mx.binding.utils.BindingUtils;
       import mx.collections.ArrayCollection;
       import mx.collections.Sort;
       import mx.collections.SortField;
       import mx.controls.Button;
       import mx.events.FlexEvent;
-      import mx.events.ListEvent;      
+      import mx.events.ListEvent;
+      
       import org.bigbluebutton.common.IBbbCanvas;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.model.FocusableImage;
@@ -59,6 +62,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.modules.present.commands.ChangePageCommand;
+      import org.bigbluebutton.modules.present.commands.GoToPageCommand;
       import org.bigbluebutton.modules.present.events.CursorEvent;
       import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
       import org.bigbluebutton.modules.present.events.PageChangedEvent;
@@ -74,7 +78,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
       import org.bigbluebutton.modules.whiteboard.events.GetCurrentPresentationInfo;
       import org.bigbluebutton.util.i18n.ResourceUtil;
-            
+      
+      private static const LOG:String = "Present::SlideView - ";
+      
 			[Bindable] public var zoomPercentage:Number = 100;
 			public static const ZOOM_STEP:int = 5;
 			public static const THUMBNAILS_CLOSED:String = "ThumbnailsClosed";
@@ -82,14 +88,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var cursor:Shape;
 			private var whiteboardCanvasHolder:Canvas = new Canvas();
 			private var whiteboardCanvas:IBbbCanvas;
-							
-			private var _selectedSlide:int = 0;
-			
+										
 			private var dispatcher:Dispatcher = new Dispatcher();
 						
 			[Bindable]
 			private var slideModel:SlideViewModel = new SlideViewModel();
 			
+      private var pageCache:ArrayCollection = new ArrayCollection();
+      
       // Send update of mouse location to other users.
       private var _sendCurrentMouseLocTimer:Timer = new Timer(100);
       private var _lastMouseXPosition:Number = 0;
@@ -122,7 +128,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function setSlides():void {
         var pres: Presentation = PresentationModel.getInstance().getCurrentPresentation();
         if (pres != null) {
-          var arrCol:ArrayCollection = pres.getPages();
+          pageCache = pres.getPages();
           /* Create the SortField object for the "num" field in the ArrayCollection object, and make sure we do a numeric sort. */
           var dataSortField:SortField = new SortField();
           dataSortField.name = "num";
@@ -133,26 +139,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           numericDataSort.fields = [dataSortField];
           
           /* Set the ArrayCollection object's sort property to our custom sort, and refresh the ArrayCollection. */
-          arrCol.sort = numericDataSort;
-          arrCol.refresh();
-          thumbnailView.dataProvider = arrCol;
+          pageCache.sort = numericDataSort;
+          pageCache.refresh();
+          thumbnailView.dataProvider = pageCache;
         }				
 			}
 			
       public function setSelectedSlide(slideNum:int):void {
-        _selectedSlide = slideNum;
-        thumbnailView.selectedIndex = _selectedSlide;
+        if (slideNum > pageCache.length) {
+          trace("Page num [" + slideNum + "] > numPages[" + pageCache.length + "]");
+          return;
+        }
+        for (var idx:int = 0; idx < pageCache.length; idx++) {
+          var p:Page = pageCache.getItemAt(idx) as Page;
+          if (p.num == slideNum) {
+            thumbnailView.selectedIndex = idx;
+          }
+        }       
       }
-      
-      public function getSelectedSlide():int {
-        return _selectedSlide;
-      }
-      
+            
 			private function changeSlide():void {
-        if (thumbnailView.selectedIndex != _selectedSlide) {
-          var data:Page = thumbnailView.selectedItem as Page;
-			    dispatchEvent(new ChangePageCommand(data.id));
-			    thumbnailView.visible = false;
+        var data:Page = thumbnailView.selectedItem as Page;
+        trace(LOG + "Change page from thumbnail. Selected page [" + data.id + "]");
+        var selPage:Page = PresentationModel.getInstance().getPage(data.id);
+        if (selPage != null && !selPage.current) {
+          trace(LOG + "Dispatching change page from thumbnail. Selected page [" + data.id + "]");
+          dispatchEvent(new GoToPageCommand(selPage.id));
+          thumbnailView.visible = false;            
         }
 			}
 			

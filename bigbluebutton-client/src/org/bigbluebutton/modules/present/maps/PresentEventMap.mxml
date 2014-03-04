@@ -29,6 +29,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.present.business.PresentProxy;
       import org.bigbluebutton.modules.present.commands.ChangePageCommand;
       import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
+      import org.bigbluebutton.modules.present.commands.GoToPageCommand;
       import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
       import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
       import org.bigbluebutton.modules.present.events.PresentModuleEvent;
@@ -127,6 +128,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{PresentManager}" method="updatePresentationNames" arguments="{event}" />
 	</EventHandlers>
 
+  <EventHandlers type="{GoToPageCommand.GO_TO_PAGE}">
+    <MethodInvoker generator="{PresentProxy}" method="handleGoToPageCommand" arguments="{event}" />
+  </EventHandlers>
+  
   <EventHandlers type="{GoToPrevPageCommand.GO_TO_PREV_PAGE}">
     <MethodInvoker generator="{PresentProxy}" method="handleGoToPreviousPageCommand" arguments="{event}" />
   </EventHandlers>
