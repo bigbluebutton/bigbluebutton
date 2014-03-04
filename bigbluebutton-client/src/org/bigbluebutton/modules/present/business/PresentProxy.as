@@ -19,11 +19,9 @@
 package org.bigbluebutton.modules.present.business
 {
 	import com.asfusion.mate.events.Dispatcher;
-	
 	import flash.events.TimerEvent;
 	import flash.net.NetConnection;
-	import flash.utils.Timer;
-	
+	import flash.utils.Timer;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -89,15 +87,20 @@ package org.bigbluebutton.modules.present.business
       if (page != null) {
         trace(LOG + "Going to prev page[" + page.id + "] from page[" + cmd.curPageId + "]");
         sender.goToPage(page.id);
+      } else {
+        trace(LOG + "Could not find pervious page. Current page [" + cmd.curPageId + "]");
       }
     }
     
     public function handleGoToNextPageCommand(cmd:GoToNextPageCommand):void {
+      trace(LOG + "Go to next page. Current page [" + cmd.curPageId + "]");
       var page:Page = PresentationModel.getInstance().getNextPage(cmd.curPageId);
       if (page != null) {
         trace(LOG + "Going to next page[" + page.id + "] from page[" + cmd.curPageId + "]");
         sender.goToPage(page.id);
-      }     
+      } else {
+        trace(LOG + "Could not find next page. Current page [" + cmd.curPageId + "]");
+      }
     }
 				
 		/**

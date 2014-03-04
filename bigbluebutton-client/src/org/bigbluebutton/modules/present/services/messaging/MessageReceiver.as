@@ -100,14 +100,7 @@ package org.bigbluebutton.modules.present.services.messaging
     
     private function handleGetSlideInfoReply(msg:Object):void {
       trace(LOG + "*** handleGetSlideInfoReply " + msg.msg + " [DISABLED: SHouldn't be getting this!!] **** \n");
-      
-//      var map:Object = JSON.parse(msg.msg);
-//      var e:MoveEvent = new MoveEvent(MoveEvent.CUR_SLIDE_SETTING);
-//      e.xOffset = map.xOffset;
-//      e.yOffset = map.yOffset;
-//      e.slideToCanvasWidthRatio = map.widthRatio;
-//      e.slideToCanvasHeightRatio = map.heightRatio;
-//      dispatcher.dispatchEvent(e);	  
+     
     }
     
     private function handlePresentationCursorUpdateCommand(msg:Object):void {    
@@ -207,11 +200,11 @@ package org.bigbluebutton.modules.present.services.messaging
       trace(LOG + "*** handleConversionCompletedUpdateMessageCallback " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);      
       var presVO: PresentationVO = processUploadedPresentation(map)
-      service.changePresentation(presVO);
+      service.addPresentation(presVO);
       
       var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
       uploadEvent.data = Constants.CONVERSION_COMPLETED_KEY;
-      uploadEvent.presentationName = map.id;
+      uploadEvent.presentationName = presVO.id;
       dispatcher.dispatchEvent(uploadEvent);
       
     }
@@ -301,15 +294,17 @@ package org.bigbluebutton.modules.present.services.messaging
       }
       
       trace(LOG + "Getting presentations information");
-            
+      
+      var presos:ArrayCollection = new ArrayCollection();
       var presentations:Array = map.presentations as Array;
       for (var j:int = 0; j < presentations.length; j++) {
         var presentation:Object = presentations[j] as Object;     
         trace(LOG + "Processing presentation information");
         var presVO: PresentationVO = processUploadedPresentation(presentation)
-        service.changePresentation(presVO);
+        presos.addItem(presVO);
       }
-           
+      
+      service.addPresentations(presos);
     }
     
 

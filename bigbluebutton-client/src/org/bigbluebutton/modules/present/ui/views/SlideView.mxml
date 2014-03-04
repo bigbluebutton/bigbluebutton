@@ -42,13 +42,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;      
-      import flash.events.Event;     
+      import com.asfusion.mate.events.Dispatcher;     
+      import flash.events.Event;      
       import mx.binding.utils.BindingUtils;
       import mx.collections.ArrayCollection;
+      import mx.collections.Sort;
+      import mx.collections.SortField;
       import mx.controls.Button;
       import mx.events.FlexEvent;
-      import mx.events.ListEvent;     
+      import mx.events.ListEvent;      
       import org.bigbluebutton.common.IBbbCanvas;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.model.FocusableImage;
@@ -81,7 +83,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var whiteboardCanvasHolder:Canvas = new Canvas();
 			private var whiteboardCanvas:IBbbCanvas;
 							
-			private var _selectedSlide:int=0;
+			private var _selectedSlide:int = 0;
 			
 			private var dispatcher:Dispatcher = new Dispatcher();
 						
@@ -120,7 +122,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function setSlides():void {
         var pres: Presentation = PresentationModel.getInstance().getCurrentPresentation();
         if (pres != null) {
-          thumbnailView.dataProvider = pres.getPages();
+          var arrCol:ArrayCollection = pres.getPages();
+          /* Create the SortField object for the "num" field in the ArrayCollection object, and make sure we do a numeric sort. */
+          var dataSortField:SortField = new SortField();
+          dataSortField.name = "num";
+          dataSortField.numeric = true;
+          
+          /* Create the Sort object and add the SortField object created earlier to the array of fields to sort on. */
+          var numericDataSort:Sort = new Sort();
+          numericDataSort.fields = [dataSortField];
+          
+          /* Set the ArrayCollection object's sort property to our custom sort, and refresh the ArrayCollection. */
+          arrCol.sort = numericDataSort;
+          arrCol.refresh();
+          thumbnailView.dataProvider = arrCol;
         }				
 			}
 			
@@ -286,12 +301,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           slideModel.printViewedRegion();
           fitSlideToLoader();          
         }
-
 			}
 								
 			private function handlePageLoadedEvent(e:PageLoadedEvent):void{
         var page:Page = PresentationModel.getInstance().getPage(e.pageId);
         if (page != null) {
+          setSelectedSlide(page.num);
           slideLoader.source = page.swfData;
           //slideLoader.accessibilityProperties.description = "Slide text start:  " + e.slideText + "    Slide text end";
 //          slideLoader.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 

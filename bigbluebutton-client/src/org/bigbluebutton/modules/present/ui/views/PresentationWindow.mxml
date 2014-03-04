@@ -44,8 +44,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mate:Dispatcher id="globalDispatcher" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_PRESENTATION_WINDOW}" method="focusWindow" />
-	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="becomePresenter" />
-	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="becomeViewer" />
+	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleBecomePresenter" />
+	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleBecomeViewer" />
 	<mate:Listener type="{PresentationChangedEvent.PRESENTATION_CHANGED_EVENT}" method="handlePresentationChangedEvent" />
   <mate:Listener type="{NavigationEvent.BIND_KEYBOARD_EVENT}" method="bindToKeyboardEvents" />
 	<mate:Listener type="{UploadEvent.CLEAR_PRESENTATION}" method="clearPresentation" />
@@ -100,7 +100,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.present.ui.views.PresentOptions;
       import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
-             			
+             		
+      private static const LOG:String = "Present::PresentationWindow - ";
+      
       public static const TITLE:String = "Presentation";
 			private static const NEXT_BUTTON:String = "Next";
 			private static const PREVIOUS_BUTTON:String = "Previous";
@@ -164,7 +166,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         t.addEventListener(TimerEvent.TIMER, addWhiteboardToolbar);
         t.start();
         
-        uploadPres.visible = UsersUtil.amIPresenter();
+        if (UsersUtil.amIPresenter()) {
+          becomePresenter();
+        } else {
+          becomeViewer();
+        }
 			}
 			
       private function addWhiteboardToolbar(event:TimerEvent):void {
@@ -265,10 +271,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				slideView.onParentResized(parentWidth, parentHeight);
 			}
 			
-			private function handleDisplaySlideEvent(event:DisplaySlideEvent):void {				
-				currentSlideWidth = event.slideWidth;
-				currentSlideHeight = event.slideHeight;		
-				fitSlideToWindowMaintainingAspectRatio();			
+			private function handleDisplaySlideEvent(event:DisplaySlideEvent):void {		
+        var curPage:Page = PresentationModel.getInstance().getCurrentPage();
+        if (curPage != null) {
+          displaySlideNumber(curPage.num);
+          currentSlideWidth = event.slideWidth;
+          currentSlideHeight = event.slideHeight;		
+          fitSlideToWindowMaintainingAspectRatio();          
+        }			
 			}
 			
       private function bindToKeyboardEvents(event:NavigationEvent):void {
@@ -327,14 +337,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				zoomSlider.value = 100;
 				slideView.onZoomSlide(zoomSlider.value);
 			}
-								
-			private function becomePresenter(e:MadePresenterEvent):void{
-				setupPresenter(true, e.presenterName);
+
+      private function handleBecomePresenter(e:MadePresenterEvent):void{
+        becomePresenter();
+      }
+      
+			private function becomePresenter():void{
+				setupPresenter(true);
 				addContextMenuItems();
 			}
 			
-			private function becomeViewer(e:MadePresenterEvent):void{
-				setupPresenter(false, e.presenterName);
+      private function handleBecomeViewer(e:MadePresenterEvent):void{
+        becomeViewer();
+      }
+      
+			private function becomeViewer():void{
+				setupPresenter(false);
 				dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
 				this.contextMenu = new ContextMenu();
 				this.contextMenu.hideBuiltInItems();
@@ -342,9 +360,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					showThumbnails();
 			}
 						
-			private function setupPresenter(isPresenter:Boolean, presentersName:String):void {
-				uploadPres.visible = isPresenter;
-				
+			private function setupPresenter(isPresenter:Boolean):void {
+				uploadPres.visible = isPresenter;				
         var page:Page = PresentationModel.getInstance().getCurrentPage();
         if (page != null) {
           displaySlideNumber(page.num);		
@@ -449,6 +466,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function displaySlideNumber(currentSlide:int):void {
+        disableSlideNavigationButtons(currentSlide);
 				btnSlideNum.label = "" + currentSlide + '/' + PresentationModel.getInstance().getNumberOfPages();
 			}
 			
@@ -465,21 +483,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function gotoPreviousSlide():void {
-        //				if ((slideView.getSelectedSlide() + 1) < PresentationModel.getInstance().getNumberOfPages()) {
         var curPage:Page = PresentationModel.getInstance().getCurrentPage();
         if (curPage != null) {
+          trace(LOG + "Go to previous page. Current page [" + curPage.id + "]");
           dispatchEvent(new GoToPrevPageCommand(curPage.id));
-            }                     
-        //        }
+        } else {
+          trace(LOG + "Go to previous page. CanNOT find current page.");
+        }
 			}
 			
 			private function gotoNextSlide():void {
-//				if ((slideView.getSelectedSlide() + 1) < PresentationModel.getInstance().getNumberOfPages()) {
           var curPage:Page = PresentationModel.getInstance().getCurrentPage();
           if (curPage != null) {
+            trace(LOG + "Go to next page. Current page [" + curPage.id + "]");
             dispatchEvent(new GoToNextPageCommand(curPage.id));
-          }                     
-//        }
+          } else {
+            trace(LOG + "Go to next page. CanNOT find current page.");
+          }
 			}
 			
       private function removeDecimalFromDataTip(val:String):String {			
@@ -594,7 +614,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           event.maxFileSize = presentOptions.maxFileSize;
           dispatchEvent(event);
         }
-
 			}
 
 		]]>

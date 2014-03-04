@@ -79,9 +79,10 @@ package org.bigbluebutton.modules.present.model
     public function getCurrentPresentation():Presentation {
       for (var i:int = 0; i < _presentations.length; i++) {
         var pres: Presentation = _presentations.getItemAt(i) as Presentation;
+        trace(LOG + "Is presentation [" + pres.name + "] current [" + pres.current + "]?");
         if (pres.current) return pres;
       }
-      
+      trace(LOG + "No current presentation.");
       return null;
     }
     
@@ -99,6 +100,7 @@ package org.bigbluebutton.modules.present.model
       if (pres != null) {
         return pres.getCurrentPage();
       }
+      trace(LOG + "Coulnd not find current presentation.");
       return null;
     }
     
@@ -113,8 +115,7 @@ package org.bigbluebutton.modules.present.model
         trace(LOG + "Next page [" + presId + "/" + nextPage + "]");
         if (pres != null) {
           return pres.getPage(presId + "/" + nextPage);
-        }
-        
+        }       
       }
       
       return null;      

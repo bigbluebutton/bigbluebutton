@@ -1,7 +1,9 @@
 package org.bigbluebutton.modules.present.services
 {
-  import com.asfusion.mate.events.Dispatcher;  
-  import mx.collections.ArrayCollection;  
+  import com.asfusion.mate.events.Dispatcher;
+  
+  import mx.collections.ArrayCollection;
+  
   import org.bigbluebutton.modules.present.commands.ChangePageCommand;
   import org.bigbluebutton.modules.present.events.CursorEvent;
   import org.bigbluebutton.modules.present.events.PageChangedEvent;
@@ -51,7 +53,7 @@ package org.bigbluebutton.modules.present.services
         np.yOffset = page.yOffset;
         np.widthRatio = page.widthRatio;
         np.heightRatio = page.heightRatio;
-        trace(LOG + "Sending page changed event. page [" + np.id + "]");  
+        trace(LOG + "Sending page changed event. page [" + np.id + "] oldpage current=[" + oldPage.current + "] newPage current=[" + np.current + "]");  
         var changePageCommand: ChangePageCommand = new ChangePageCommand(np.id);
         dispatcher.dispatchEvent(changePageCommand);          
       }       
@@ -65,7 +67,7 @@ package org.bigbluebutton.modules.present.services
         np.yOffset = page.yOffset;
         np.widthRatio = page.widthRatio;
         np.heightRatio = page.heightRatio;
-        trace(LOG + "Sending page moved event. page [" + np.id + "]");
+        trace(LOG + "Sending page moved event. page [" + np.id + "] current=[" + np.current + "]");
         var event: PageChangedEvent = new PageChangedEvent(np.id);
         dispatcher.dispatchEvent(event);           
       }       
@@ -79,6 +81,37 @@ package org.bigbluebutton.modules.present.services
       return page;      
     }
     
+    public function addPresentations(presos:ArrayCollection):void {
+      for (var i:int = 0; i < presos.length; i++) {
+        var pres:PresentationVO = presos.getItemAt(i) as PresentationVO;
+        addPresentation(pres);
+      }
+    }
+    
+    public function addPresentation(pres:PresentationVO):void {
+      var presoPages:ArrayCollection = new ArrayCollection();
+      var pages:ArrayCollection = pres.getPages() as ArrayCollection;
+      for (var k:int = 0; k < pages.length; k++) {
+        var page:PageVO = pages[k] as PageVO;
+        var pg:Page = copyPageVOToPage(page)
+        presoPages.addItem(pg);
+      }          
+      
+      var presentation: Presentation = new Presentation(pres.id, pres.name, pres.isCurrent(), presoPages);      
+      model.addPresentation(presentation);    
+      
+      if (presentation.current) {
+        var event: PresentationChangedEvent = new PresentationChangedEvent(pres.id);
+        dispatcher.dispatchEvent(event);
+        
+        var curPage:Page = PresentationModel.getInstance().getCurrentPage();
+        if (curPage != null) {
+          var changePageCommand: ChangePageCommand = new ChangePageCommand(curPage.id);
+          dispatcher.dispatchEvent(changePageCommand);          
+        }        
+      }
+    }
+    
     public function changePresentation(pres: PresentationVO):void {      
       // We've switched presentations. Mark the old presentation as not current.
       var curPres:Presentation = PresentationModel.getInstance().getCurrentPresentation();
@@ -86,24 +119,18 @@ package org.bigbluebutton.modules.present.services
         curPres.current = false;
       }
       
-      var presoPages:ArrayCollection = new ArrayCollection();
-      var pages:ArrayCollection = pres.getPages() as ArrayCollection;
-      for (var k:int = 0; k < pages.length; k++) {
-        var page:PageVO = pages[k] as PageVO;
-        var pg:Page = copyPageVOToPage(page)
-        presoPages.addItem(pg);
-      }   
+      addPresentation(pres);
       
-      var presentation: Presentation = new Presentation(pres.id, pres.name, pres.isCurrent(), presoPages);      
-      model.addPresentation(presentation);
-      
-      var event: PresentationChangedEvent = new PresentationChangedEvent(presentation.id);
-      dispatcher.dispatchEvent(event);
-      
-      var curPage:Page = presentation.getCurrentPage();
-      var changePageCommand: ChangePageCommand = new ChangePageCommand(curPage.id);
-      dispatcher.dispatchEvent(changePageCommand);
-      
+      if (pres.isCurrent()) {
+        var event: PresentationChangedEvent = new PresentationChangedEvent(pres.id);
+        dispatcher.dispatchEvent(event);
+        
+        var curPage:Page = PresentationModel.getInstance().getCurrentPage();
+        if (curPage != null) {
+          var changePageCommand: ChangePageCommand = new ChangePageCommand(curPage.id);
+          dispatcher.dispatchEvent(changePageCommand);          
+        }        
+      }     
     }
   }
 }
