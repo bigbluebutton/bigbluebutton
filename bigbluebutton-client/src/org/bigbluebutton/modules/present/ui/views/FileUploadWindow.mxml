@@ -43,23 +43,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mate:Listener type="{UploadEvent.PAGE_COUNT_EXCEEDED}" method="handlePageCountExceeded"/>
   <mx:Script>
     <![CDATA[
-		
-      import org.bigbluebutton.common.LogUtil;
-      import com.asfusion.mate.events.Dispatcher;			
+      import com.asfusion.mate.events.Dispatcher;
+      
       import mx.collections.*;
       import mx.events.FlexEvent;
       import mx.events.ValidationResultEvent;
       import mx.managers.PopUpManager;
       import mx.utils.*;
       import mx.validators.*;
+      
       import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
       import org.bigbluebutton.modules.present.events.UploadEvent;
+      import org.bigbluebutton.modules.present.model.PresentationModel;
       import org.bigbluebutton.util.i18n.ResourceUtil;
       
       private static const LOG:String = "Present::FileUploadWIndow - ";
       
-      [Bindable] public var presentationNamesAC:ArrayCollection;
+      [Bindable] private var presentationNamesAC:ArrayCollection;
 	    [BIndable] public var maxFileSize:Number;
 
       private var images:Images = new Images();
@@ -78,9 +80,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function initData():void {
-//        if (presentationNamesAC.length <= 0) {
+        presentationNamesAC = PresentationModel.getInstance().getPresentations();
+        if (presentationNamesAC.length <= 0) {
           selectFile();
-//        }
+        }
       }
             
       private function handleThumbnailsProgressEvent(event:Event):void {	

@@ -65,12 +65,12 @@ package org.bigbluebutton.modules.present.model
       return null;
     }
     
-    public function getPresentationNames():ArrayCollection {
+    public function getPresentations():ArrayCollection {
       var presos:ArrayCollection = new ArrayCollection();
       
       for (var i:int = 0; i < _presentations.length; i++) {
         var pres: Presentation = _presentations.getItemAt(i) as Presentation;
-        presos.addItem(pres.name);
+        presos.addItem(pres);
       }
       
       return presos;

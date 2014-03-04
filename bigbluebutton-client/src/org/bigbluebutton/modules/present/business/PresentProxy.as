@@ -30,6 +30,7 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+	import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
 	import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
 	import org.bigbluebutton.modules.present.commands.GoToPageCommand;
 	import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
@@ -85,6 +86,12 @@ package org.bigbluebutton.modules.present.business
 			userid = a.userid as Number;
 		}
     
+    public function handleChangePresentationCommand(cmd:ChangePresentationCommand):void {
+      var pres:Presentation = PresentationModel.getInstance().getPresentation(cmd.presId);
+      if (pres != null) {
+        sender.sharePresentation(true, pres.id);
+      }
+    }
     public function handleGoToPageCommand(cmd:GoToPageCommand):void {
       var page:Page = PresentationModel.getInstance().getPage(cmd.pageId);
       if (page != null) {

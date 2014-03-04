@@ -118,9 +118,7 @@ package org.bigbluebutton.modules.present.services
       if (curPres != null) {
         curPres.current = false;
       }
-      
-      addPresentation(pres);
-      
+            
       if (pres.isCurrent()) {
         var event: PresentationChangedEvent = new PresentationChangedEvent(pres.id);
         dispatcher.dispatchEvent(event);

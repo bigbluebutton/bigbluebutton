@@ -73,8 +73,6 @@ package org.bigbluebutton.modules.present.managers
 			if (uploadWindow != null) return;
 
 			uploadWindow = FileUploadWindow(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileUploadWindow, true));
-
-			uploadWindow.presentationNamesAC = PresentationModel.getInstance().getPresentationNames();
 			uploadWindow.maxFileSize = e.maxFileSize;
 			
 			var point1:Point = new Point();
