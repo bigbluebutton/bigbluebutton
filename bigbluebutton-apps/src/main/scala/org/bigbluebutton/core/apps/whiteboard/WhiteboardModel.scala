@@ -4,34 +4,18 @@ import org.bigbluebutton.core.apps.whiteboard.vo.AnnotationVO
 import scala.collection.mutable.ArrayBuffer
 
 class WhiteboardModel {
-  private var _presentations = new scala.collection.immutable.HashMap[String, Presentation2]()
+  private var _whiteboards = new scala.collection.immutable.HashMap[String, Whiteboard]()
   
-  private var _activePresentation = ""
   private var _enabled = true
-  
-  def getCurrentPresentation():Option[Presentation2] = {
-    _presentations.values find (pres => pres.current)
-  }
-  
-  def getCurrentPage(pres: Presentation2):Option[Page2] = {
-    pres.pages.values find (page => page.current)
-  }
-   
-  def numPages() = {
-    var numPages = 0
-    _presentations.get(_activePresentation) match {
-      case Some(p) => {
-        numPages = p.numPages
-      }
-      case None => // do nothing
-    } 	  
     
-    numPages
+  private def saveWhiteboard(wb: Whiteboard) {
+    _whiteboards += wb.id -> wb
   }
   
-  private def savePresentation(pres: Presentation2) {
-    _presentations += pres.presentationID -> pres
+  private def getWhiteboard(id: String):Option[Whiteboard] = {
+    _whiteboards.values.find(wb => wb.id == id)
   }
+  
   
   def addAnnotationToShape(pres: Presentation2, page: Page2, shape: AnnotationVO) = {
     println("Adding shape to page [" + page.num + "]. Before numShapes=[" + page.shapes.length + "].")
@@ -67,55 +51,15 @@ class WhiteboardModel {
     }   
   }
   
-  private def deactivateCurrentPage(pres: Presentation2) {
-    getCurrentPage(pres)  foreach {cp =>
-        val page = cp.copy(current = false)
-        val nPages = pres.pages + (page.num -> page)
-        val newPres = pres.copy(pages= nPages)
-        savePresentation(newPres)
-        println("Making whiteboard page[" + page.num + "] not current[" + page.current + "]")  
-        println("After deact page. presentation id=[" + newPres.presentationID + "] current=[" + newPres.current + "]")
-        newPres.pages.values foreach {page =>
-          println("page num=[" + page.num + "] current=[" + page.current + "]")
-        }   
-    }
-  }
-  
-  
-  private def makePageCurrent(pres: Presentation2, page: Int):Option[Page2] = {
-    pres.pages.values find (p => p.num == page) match {
-      case Some(newCurPage) => {
-        val page = newCurPage.copy(current=true)
-        val newPages = pres.pages + (page.num -> page)
-        val newPres = pres.copy(pages= newPages)
-        savePresentation(newPres)
-        println("Making page[" + page.num + "] current[" + page.current + "]")
-        Some(page)
-      }
-      case None => {
-        println("Could not find page[" + page + "] in presentation [" + pres.presentationID + "]")
-        None
-      }
-    }
-  }
-  
-  def changePage(pageId: Int):Option[Page2] = {
-    getCurrentPresentation foreach {pres => deactivateCurrentPage(pres)}
-       
-    for {
-      pres <- getCurrentPresentation      
-      page <- makePageCurrent(pres, pageId)
-    } yield page
-  }
-  
-  def history():Option[Page2] = {
+ 
+  def history(wbId:String):Option[Whiteboard] = {
     for {
       pres <- getCurrentPresentation
       page <- getCurrentPage(pres)
     } yield page
   }
   
-  def clearWhiteboard() {
+  def clearWhiteboard(wbId:String) {
     getCurrentPresentation foreach {pres =>
       getCurrentPage(pres) foreach {page =>
         val clearedShapes = page.shapes.drop(page.shapes.length)
@@ -127,7 +71,7 @@ class WhiteboardModel {
     }    
   }
   
-  def undoWhiteboard() {
+  def undoWhiteboard(wbId:String) {
     getCurrentPresentation foreach {pres =>
       getCurrentPage(pres) foreach {page =>
         val droppedShapes = page.shapes.drop(page.shapes.length-1)
@@ -139,35 +83,7 @@ class WhiteboardModel {
     }  
   }
   
-  private def generatePages(numPages: Int):scala.collection.immutable.HashMap[Int, Page2] = {
-    var pages = new scala.collection.immutable.HashMap[Int, Page2]()
-	  
-	for (i <- 1 to numPages) {
-	  val shapes = new ArrayBuffer[AnnotationVO]
-	    val p = new Page2(num=i, current=false, shapes.toSeq)
-	    pages += (p.num -> p)
-	  }
-    
-    pages
-  }
-  
-  def setActivePresentation(presentationID: String, numPages: Int) {
-     getCurrentPresentation foreach {curPres =>
-        savePresentation(curPres.copy(current=false))
-     }
-     
-     _presentations.get(presentationID) match {
-       case Some(existingPres) => {
-         savePresentation(existingPres.copy(current=true))
-       }
-       case None => { // New presentation
-         val pages = generatePages(numPages)
-         val newPres = new Presentation2(presentationID, numPages, 
-                 current = true, pages)
-         savePresentation(newPres)
-       }
-     }
-  }
+
   
   def enableWhiteboard(enable: Boolean) {
     _enabled = enable

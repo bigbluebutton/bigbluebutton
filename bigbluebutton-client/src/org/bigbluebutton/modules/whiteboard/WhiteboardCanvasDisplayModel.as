@@ -31,14 +31,12 @@ package org.bigbluebutton.modules.whiteboard
   import flash.text.TextFieldAutoSize;
   import flash.text.TextFieldType;
   import flash.text.TextFormat;
-  import flash.ui.Keyboard;
-  
+  import flash.ui.Keyboard;  
   import mx.collections.ArrayCollection;
   import mx.controls.TextInput;
   import mx.core.Application;
   import mx.core.UIComponent;
-  import mx.managers.CursorManager;
-  
+  import mx.managers.CursorManager;  
   import org.bigbluebutton.common.IBbbCanvas;
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.managers.UserManager;
@@ -68,6 +66,8 @@ package org.bigbluebutton.modules.whiteboard
     * Class to handle displaying of received annotations from the server.
     */
   public class WhiteboardCanvasDisplayModel {
+    private static const LOG:String = "WB::WhiteboardCanvasDisplayModel - ";
+    
     public var whiteboardModel:WhiteboardModel;
     public var wbCanvas:WhiteboardCanvas;  
     private var _annotationsList:Array = new Array();
@@ -543,13 +543,13 @@ package org.bigbluebutton.modules.whiteboard
           break;
       }  
             
-            if (status == TextObject.TEXT_PUBLISHED) {
-              tobj.deregisterListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextChangeListener, textObjSpecialListener);
-                var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
-                e.data = tobj;
-                wbCanvas.dispatchEvent(e);   
+      if (status == TextObject.TEXT_PUBLISHED) {
+          tobj.deregisterListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextChangeListener, textObjSpecialListener);
+          var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
+          e.data = tobj;
+          wbCanvas.dispatchEvent(e);   
                              
-            }
+      }
 
 //      LogUtil.debug("SENDING TEXT: [" + tobj.textSize + "]");
       
@@ -563,20 +563,22 @@ package org.bigbluebutton.modules.whiteboard
       annotation["background"] = tobj.background;
       annotation["x"] = tobj.getOrigX();
       annotation["y"] = tobj.getOrigY();
-	  annotation["dataPoints"] = tobj.getOrigX() + "," +tobj.getOrigY();
+	    annotation["dataPoints"] = tobj.getOrigX() + "," +tobj.getOrigY();
       annotation["fontSize"] = tobj.textSize;
       annotation["calcedFontSize"] = GraphicFactory.normalize(tobj.textSize, shapeFactory.parentHeight);
       annotation["textBoxWidth"] = tobj.textBoxWidth;
       annotation["textBoxHeight"] = tobj.textBoxHeight;
       
-      var pn:Object = whiteboardModel.getCurrentPresentationAndPage();
-      if (pn != null) {
-        annotation["presentationID"] = pn.presentationID;
-        annotation["pageNumber"] = pn.currentPageNumber;
+      var wbId:String = whiteboardModel.getCurrentWhiteboardId();
+      if (wbId != null) {
+        annotation["whiteboardId"] = wbId;        
+        var msg:Annotation = new Annotation(tobj.id, "text", annotation);
+        wbCanvas.sendGraphicToServer(msg, WhiteboardDrawEvent.SEND_TEXT);
+      } else {
+        trace(LOG + "Cannot get current whiteboard Id!!!!");
       }
       
-      var msg:Annotation = new Annotation(tobj.id, "text", annotation);
-      wbCanvas.sendGraphicToServer(msg, WhiteboardDrawEvent.SEND_TEXT);
+
       
 /*      
       var tan:TextDrawAnnotation = shapeFactory.createTextObject(tobj.text, tobj.textColor, 

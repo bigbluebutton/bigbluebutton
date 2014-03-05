@@ -60,32 +60,10 @@ package org.bigbluebutton.modules.whiteboard.services
           break;  
         case "WhiteboardUndoCommand":
           handleUndoCommand(message);
-          break;  
-        case "WhiteboardChangePageCommand":
-          handleChangePageCommand(message);
-          break; 
-        case "WhiteboardChangePresentationCommand":
-          handleChangePresentationCommand(message);
-          break; 				
+          break;  			
         default:
 //          LogUtil.warn("Cannot handle message [" + messageName + "]");
       }
-    }
-
-    private function handleChangePresentationCommand(message:Object):void {
-      trace(LOG + "*** handleChangePresentationCommand " + message.msg + " **** \n");      
-      var map:Object = JSON.parse(message.msg);      
-      
-      trace("WB:MessageReceiver: Handle Whiteboard Change Presentation Command [ " + message.presentationID + ", " + message.numberOfPages + "]");
-      whiteboardModel.changePresentation(map.presentationID, map.numberOfPages);
-    }
-
-    private function handleChangePageCommand(message:Object):void {
-      trace(LOG + "*** handleChangePageCommand " + message.msg + " **** \n");      
-      var map:Object = JSON.parse(message.msg);      
-      
-      trace("WB:MessageReceiver: Handle Whiteboard Change Page Command [ " + message.pageNum + ", " + message.numAnnotations + "]");
-      whiteboardModel.changePage(map.pageNum, map.numAnnotations);
     }
 
     private function handleClearCommand(message:Object):void {

@@ -6,9 +6,7 @@ import net.lag.logging.Logger
 import org.bigbluebutton.core.MeetingActor
 import org.bigbluebutton.core.apps.whiteboard.vo._
 
-case class Page2(num:Int, current: Boolean = false, shapes: Seq[AnnotationVO])
-case class Presentation2(val presentationID: String, val numPages: Int, 
-                 current: Boolean = false, pages:scala.collection.immutable.HashMap[Int, Page2])
+case class Whiteboard(id: String, shapes:Seq[AnnotationVO])
 
 trait WhiteboardApp {
   this : MeetingActor =>
@@ -21,6 +19,7 @@ trait WhiteboardApp {
   def handleSendWhiteboardAnnotationRequest(msg: SendWhiteboardAnnotationRequest) {
     val status = msg.annotation.status
     val shapeType = msg.annotation.shapeType
+    val wbId = msg.annotation.wbId
     val shape = msg.annotation
     
     println("Received whiteboard shape. status=[" + status + "], shapeType=[" + shapeType + "]")

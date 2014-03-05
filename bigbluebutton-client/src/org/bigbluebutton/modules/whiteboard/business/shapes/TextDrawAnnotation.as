@@ -62,10 +62,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       ao["textBoxWidth"] = _textBoxWidth;
       ao["textBoxHeight"] = _textBoxHeight;
             
-      var pn:Object = wbModel.getCurrentPresentationAndPage();
-      if (pn != null) {
-        ao["presentationID"] = pn.presentationID;
-        ao["pageNumber"] = pn.currentPageNumber;
+      var wbId:String = wbModel.getCurrentWhiteboardId();
+      if (wbId != null) {
+        ao["whiteboardId"] = wbId;
       }
             
       return new Annotation(_id, DrawObject.TEXT, ao);

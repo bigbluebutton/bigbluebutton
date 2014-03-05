@@ -29,6 +29,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.modules.present.api.PresentationAPI;
 	import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
+	import org.bigbluebutton.modules.present.events.PageLoadedEvent;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
 	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
@@ -139,5 +140,9 @@ package org.bigbluebutton.modules.whiteboard.managers
 		public function disableWhiteboard(e:WhiteboardButtonEvent):void {
 			highlighterCanvas.disableWhiteboard(e);
 		}
+    
+    public function handlePageChangedEvent(e:PageLoadedEvent):void {
+ //     whiteboardModel.newWhiteboardId(e.pageId);
+    }
 	}
 }

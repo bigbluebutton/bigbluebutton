@@ -23,6 +23,8 @@ package org.bigbluebutton.modules.whiteboard.models
 	import mx.collections.ArrayCollection;
 	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.modules.present.model.Page;
+	import org.bigbluebutton.modules.present.model.PresentationModel;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
@@ -30,108 +32,98 @@ package org.bigbluebutton.modules.whiteboard.models
 
 	public class WhiteboardModel
 	{
-		private var _presentations:ArrayCollection = new ArrayCollection();
-		private var _currentPresentation:Presentation;		
+    private static const LOG:String = "WB::WhiteboardModel - ";    
+		private var _whiteboards:ArrayCollection = new ArrayCollection();
+
     private var _dispatcher:IEventDispatcher;
         
     public function WhiteboardModel(dispatcher:IEventDispatcher) {
       _dispatcher = dispatcher;
     }		
 		
+    private function getWhiteboard(id:String):Whiteboard {
+       for (var i:int = 0; i < _whiteboards.length; i++) {
+         var wb:Whiteboard = _whiteboards.getItemAt(i) as Whiteboard;
+         if (wb.id == id) return wb;
+       }
+       return null;
+    }
+    
 		public function addAnnotation(annotation:Annotation):void {
-      trace("*** Adding annotation [" + annotation.id + "," + annotation.type + "," + annotation.status + "] ****");
+      trace(LOG + "*** Adding annotation [" + annotation.id + "," + annotation.type + "," + annotation.status + "] ****");
+      var wb:Whiteboard;
       if (annotation.status == DrawObject.DRAW_START || annotation.status == TextObject.TEXT_CREATED) {
-         _currentPresentation.addAnnotation(annotation);
+        wb = getWhiteboard(annotation.whiteboardId);
+        if (wb != null) {
+          wb.addAnnotation(annotation);
+        }
+         
        } else {
-          _currentPresentation.updateAnnotation(annotation);
+         wb = getWhiteboard(annotation.whiteboardId);
+         if (wb != null) {
+           wb.updateAnnotation(annotation);
+         }
        }
 			 
-      trace("*** Dispatching WhiteboardUpdate.BOARD_UPDATED Event ****");
-       var event:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
-       event.annotation = annotation;
-       _dispatcher.dispatchEvent(event);
-       trace("*** Dispatched WhiteboardUpdate.BOARD_UPDATED Event ****");
+//      trace(LOG + "*** Dispatching WhiteboardUpdate.BOARD_UPDATED Event ****");
+//       var event:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
+//       event.annotation = annotation;
+//       _dispatcher.dispatchEvent(event);
+//       trace(LOG + "*** Dispatched WhiteboardUpdate.BOARD_UPDATED Event ****");
 		}
 		
-        public function addAnnotationFromHistory(presentationID:String, pageNumber:Number, annotation:Array):void {
-          if (_currentPresentation.id != presentationID || _currentPresentation.getCurrentPageNumber() != pageNumber) {
-            trace("Wrong annotation history [curPresID=" + _currentPresentation.id + ",rxPresID=" + presentationID + 
-                          "][curPage=" + _currentPresentation.getCurrentPageNumber() + ",rxPageNum=" + pageNumber + "]");
-            return;
-          }
-          
-            for (var i:int = 0; i < annotation.length; i++) {
-                trace("addAnnotationFromHistory: annotation id=" + (annotation[i] as Annotation).id);
-                _currentPresentation.addAnnotation(annotation[i] as Annotation);
-            } 
-            _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.RECEIVED_ANNOTATION_HISTORY));
-        }
+    public function addAnnotationFromHistory(presentationID:String, pageNumber:Number, annotation:Array):void {
+//      if (_currentPresentation.id != presentationID || _currentPresentation.getCurrentPageNumber() != pageNumber) {
+//         trace(LOG + "Wrong annotation history [curPresID=" + _currentPresentation.id + ",rxPresID=" + presentationID + 
+//                          "][curPage=" + _currentPresentation.getCurrentPageNumber() + ",rxPageNum=" + pageNumber + "]");
+//         return;
+//      }
+//          
+//      for (var i:int = 0; i < annotation.length; i++) {
+//         trace(LOG + "addAnnotationFromHistory: annotation id=" + (annotation[i] as Annotation).id);
+//         _currentPresentation.addAnnotation(annotation[i] as Annotation);
+//      } 
+//      _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.RECEIVED_ANNOTATION_HISTORY));
+    }
         
 		public function removeAnnotation(id:String):void {
 			
 		}
 		
-        public function getAnnotation(id:String):Annotation {
-            return _currentPresentation.getAnnotation(id);
-        }
+    public function getAnnotation(id:String):Annotation {
+      return null;
+//       return _currentPresentation.getAnnotation(id);
+    }
         
-        public function getAnnotations():Array {
-            return _currentPresentation.getAnnotations();
-        }
+    public function getAnnotations():Array {
+      return new Array();
+//       return _currentPresentation.getAnnotations();
+    }
         
 		public function undo():void {
-			_currentPresentation.undo();
 			_dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.UNDO_ANNOTATION));
 		}
 		
 		public function clear():void {
-			_currentPresentation.clear();
-			_dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.CLEAR_ANNOTATIONS));
+//			_currentPresentation.clear();
+//			_dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.CLEAR_ANNOTATIONS));
 		}
 
-		public function changePresentation(presentationID:String, numberOfPages:int):void {
-      trace("WhiteboardModel::changePresentation *** Changing presentation to " + presentationID + " ****");
-			var pres:Presentation = findPresentation(presentationID);
-            if (pres == null) {
-                pres = new Presentation(presentationID, numberOfPages);
-                _presentations.addItem(pres);
-            } 
-            trace("WhiteboardModel::changePresentation *** Current presentation is [ " + presentationID + " ] ****");
-            _currentPresentation = pres;
-		}
-		
-		private function findPresentation(presentationID:String):Presentation {
-			for (var i:int = 0; i < _presentations.length; i++) {
-				var p:Presentation = _presentations.getItemAt(i) as Presentation;
-				if (presentationID == p.id) return p;
-			}
-			return null;
-		}
-		
-		public function changePage(pageNum:int, numAnnotations:int):void {
-    /* Need to increment the page by 1 as what is passed is zero-based while we store the pages as 1-based.*/
-    var curPage:int = pageNum;
-      trace("WhiteboardModel::changePage *** Switching to page [ " + curPage + " ] ****");
-      if (_currentPresentation != null) {
-        _currentPresentation.setCurrentPage(pageNum);
-        _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.CHANGE_PAGE));        
-      }
-		}
-		
+
 		public function enable(enabled:Boolean):void {
 			
 		}
         
-    public function getCurrentPresentationAndPage():Object {
-      if (_currentPresentation == null) return null;
-        var pageNum:int = _currentPresentation.getCurrentPageNumber();
-        if (pageNum == 0) return null;
-            
-        var cp:Object = new Object();
-        cp.presentationID = _currentPresentation.id;
-        cp.currentPageNumber = pageNum;
-          
-        return cp;
-     }   
+      
+    public function getCurrentWhiteboardId():String {
+      var page:Page = PresentationModel.getInstance().getCurrentPage();
+      if (page != null) {
+        return page.id;
+      }
+      
+      return null;
+    }
+    
+
 	}
 }

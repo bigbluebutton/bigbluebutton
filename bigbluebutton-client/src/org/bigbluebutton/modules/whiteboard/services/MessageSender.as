@@ -19,8 +19,7 @@
 package org.bigbluebutton.modules.whiteboard.services
 {
 	import flash.net.NetConnection;
-	import flash.net.Responder;
-	
+	import flash.net.Responder;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.ConnectionManager;
@@ -118,11 +117,10 @@ package org.bigbluebutton.modules.whiteboard.services
 			);
 		}
 
-    public function requestAnnotationHistory(presentationID:String, pageNumber:int):void{
+    public function requestAnnotationHistory(wbId:String):void{
       trace("WB::MessageSender: Sending [whiteboard.requestAnnotationHistory] to server.");
             var msg:Object = new Object();
-            msg["presentationID"] = presentationID;
-            msg["pageNumber"] = pageNumber;
+            msg["whiteboardId"] = wbId;
             
             var _nc:ConnectionManager = BBB.initConnectionManager();
             _nc.sendMessage("whiteboard.requestAnnotationHistory", 

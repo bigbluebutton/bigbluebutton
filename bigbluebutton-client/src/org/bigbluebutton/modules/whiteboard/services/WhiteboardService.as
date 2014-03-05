@@ -34,24 +34,14 @@ package org.bigbluebutton.modules.whiteboard.services
 
     public function getAnnotationHistory():void
     {
-      var cp:Object = whiteboardModel.getCurrentPresentationAndPage();
-      if (cp != null) {
-        sender.requestAnnotationHistory(cp.presentationID, cp.currentPageNumber);
+      var wbId:String = whiteboardModel.getCurrentWhiteboardId();
+      if (wbId != null) {
+        sender.requestAnnotationHistory(wbId);
       }
     }
     
     public function modifyEnabled(e:WhiteboardPresenterEvent):void {
       sender.modifyEnabled(e);
-    }
-
-    public function changePage(pageNum:Number):void {
-      if (isPresenter) {
-        trace("WhiteboardService::changePage - PRESENTER Switch to page [" + pageNum + "]");
-        sender.changePage(pageNum);	
-      } else {
-        trace("WhiteboardService::changePage - Switch to page [" + pageNum + "]"); 
-        whiteboardModel.changePage(pageNum, 0);
-      }
     }
 
     public function toggleGrid():void {
@@ -78,19 +68,5 @@ package org.bigbluebutton.modules.whiteboard.services
       sender.checkIsWhiteboardOn();
     }
 
-    public function setActivePresentation(e:PresentationEvent):void {
-      if (isPresenter) {
- //               LogUtil.debug("PRESENTER Switch to presentation [" + e.presentationName + "," + e.numberOfPages + "]");
-        sender.setActivePresentation(e);
-      } else {
- //               LogUtil.debug("Switch to presentation [" + e.presentationName + "," + e.numberOfPages + "]");
-        whiteboardModel.changePresentation(e.presentationName, e.numberOfPages);
-      }
-    }
-
-        /** Helper method to test whether this user is the presenter */
-        private function get isPresenter():Boolean {
-            return UserManager.getInstance().getConference().amIPresenter;
-        }
 	}
 }
