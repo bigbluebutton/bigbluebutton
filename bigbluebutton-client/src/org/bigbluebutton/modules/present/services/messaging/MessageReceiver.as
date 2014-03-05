@@ -31,8 +31,17 @@ package org.bigbluebutton.modules.present.services.messaging
   import org.bigbluebutton.main.model.users.BBBUser;
   import org.bigbluebutton.main.model.users.Conference;
   import org.bigbluebutton.main.model.users.IMessageListener;
+  import org.bigbluebutton.modules.present.events.ConversionCompletedEvent;
+  import org.bigbluebutton.modules.present.events.ConversionPageCountError;
+  import org.bigbluebutton.modules.present.events.ConversionPageCountMaxed;
+  import org.bigbluebutton.modules.present.events.ConversionSupportedDocEvent;
+  import org.bigbluebutton.modules.present.events.ConversionUnsupportedDocEvent;
+  import org.bigbluebutton.modules.present.events.ConversionUpdateEvent;
+  import org.bigbluebutton.modules.present.events.CreatingThumbnailsEvent;
   import org.bigbluebutton.modules.present.events.CursorEvent;
   import org.bigbluebutton.modules.present.events.NavigationEvent;
+  import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
+  import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
   import org.bigbluebutton.modules.present.events.PageChangedEvent;
   import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
@@ -135,11 +144,11 @@ package org.bigbluebutton.modules.present.services.messaging
       if (! map.hasOwnProperty("widthRatio")) missing.push("Missing [widthRatio] param.");
       if (! map.hasOwnProperty("heightRatio")) missing.push("Missing [heightRatio] param.");
       
-      if (missing.length > 0) {
-        for (var i: int = 0; i < missing.length; i++) {
-          trace(LOG + missing[i]);
-        }
-      }
+//      if (missing.length > 0) {
+//        for (var i: int = 0; i < missing.length; i++) {
+//          trace(LOG + missing[i]);
+//        }
+//      }
       
       if (map.hasOwnProperty("id") && map.hasOwnProperty("num") && map.hasOwnProperty("current") &&
         map.hasOwnProperty("swfUri") && map.hasOwnProperty("txtUri") && map.hasOwnProperty("pngUri") &&
@@ -199,14 +208,14 @@ package org.bigbluebutton.modules.present.services.messaging
     private function handleConversionCompletedUpdateMessageCallback(msg:Object) : void {
       trace(LOG + "*** handleConversionCompletedUpdateMessageCallback " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);      
-      var presVO: PresentationVO = processUploadedPresentation(map)
+      var pres:Object = map.presentation as Object;
+      var presVO: PresentationVO = processUploadedPresentation(pres)
+      
       service.addPresentation(presVO);
       
-      var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
-      uploadEvent.data = Constants.CONVERSION_COMPLETED_KEY;
-      uploadEvent.presentationName = presVO.id;
+      var uploadEvent:ConversionCompletedEvent = new ConversionCompletedEvent(presVO.id, presVO.name);
       dispatcher.dispatchEvent(uploadEvent);
-      
+              
     }
     
     private function processUploadedPresentation(presentation:Object):PresentationVO {
@@ -226,20 +235,16 @@ package org.bigbluebutton.modules.present.services.messaging
     private function handleGeneratedSlideUpdateMessageCallback(msg:Object) : void {		
       trace(LOG + "*** handleGeneratedSlideUpdateMessageCallback " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);
+      var numPages:Number = map.numberOfPages;
+      var pagesDone:Number = map.pagesCompleted;
       
-     var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_UPDATE);
-      uploadEvent.totalSlides = map.numberOfPages as Number;
-      uploadEvent.completedSlides = msg.pagesCompleted as Number;
-      dispatcher.dispatchEvent(uploadEvent);	
+      dispatcher.dispatchEvent(new ConversionUpdateEvent(numPages, pagesDone));	
     }
     
     private function handlePageCountExceededUpdateMessageCallback(msg:Object) : void {
       trace(LOG + "*** handlePageCountExceededUpdateMessageCallback " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);
-      
-      var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.PAGE_COUNT_EXCEEDED);
-      uploadEvent.maximumSupportedNumberOfSlides = map.maxNumberPages as Number;
-      dispatcher.dispatchEvent(uploadEvent);
+      dispatcher.dispatchEvent(new ConversionPageCountMaxed(map.maxNumberPages as Number));
     }
     
     private function handleConversionUpdateMessageCallback(msg:Object) : void {
@@ -251,27 +256,22 @@ package org.bigbluebutton.modules.present.services.messaging
       
       switch (map.messageKey) {
         case Constants.OFFICE_DOC_CONVERSION_SUCCESS_KEY :
-          uploadEvent = new UploadEvent(UploadEvent.OFFICE_DOC_CONVERSION_SUCCESS);
-          dispatcher.dispatchEvent(uploadEvent);
+          dispatcher.dispatchEvent(new OfficeDocConvertSuccessEvent());
           break;
         case Constants.OFFICE_DOC_CONVERSION_FAILED_KEY :
-          uploadEvent = new UploadEvent(UploadEvent.OFFICE_DOC_CONVERSION_FAILED);
-          dispatcher.dispatchEvent(uploadEvent);
+          dispatcher.dispatchEvent(new OfficeDocConvertFailedEvent());
           break;
         case Constants.SUPPORTED_DOCUMENT_KEY :
-          uploadEvent = new UploadEvent(UploadEvent.SUPPORTED_DOCUMENT);
-          dispatcher.dispatchEvent(uploadEvent);
+          dispatcher.dispatchEvent(new ConversionSupportedDocEvent());
           break;
         case Constants.UNSUPPORTED_DOCUMENT_KEY :
-          uploadEvent = new UploadEvent(UploadEvent.UNSUPPORTED_DOCUMENT);
-          dispatcher.dispatchEvent(uploadEvent);
+          dispatcher.dispatchEvent(new ConversionUnsupportedDocEvent());
           break;
         case Constants.GENERATING_THUMBNAIL_KEY :	
-          dispatcher.dispatchEvent(new UploadEvent(UploadEvent.THUMBNAILS_UPDATE));
+          dispatcher.dispatchEvent(new CreatingThumbnailsEvent());
           break;		
         case Constants.PAGE_COUNT_FAILED_KEY :
-          uploadEvent = new UploadEvent(UploadEvent.PAGE_COUNT_FAILED);
-          dispatcher.dispatchEvent(uploadEvent);
+          dispatcher.dispatchEvent(new ConversionPageCountError());
           break;	
         case Constants.GENERATED_THUMBNAIL_KEY :
           break;
@@ -288,18 +288,18 @@ package org.bigbluebutton.modules.present.services.messaging
       var presenterMap:Object = map.presenter as Object;
       if (presenterMap.hasOwnProperty("userId") && presenterMap.hasOwnProperty("name") &&
         presenterMap.hasOwnProperty("assignedBy")) {
-        trace(LOG + "Got presenter information");
+//        trace(LOG + "Got presenter information");
         var presenter: Presenter = new Presenter(presenterMap.userId, presenterMap.name, presenterMap.assignedBy);
         PresentationModel.getInstance().setPresenter(presenter);        
       }
       
-      trace(LOG + "Getting presentations information");
+//      trace(LOG + "Getting presentations information");
       
       var presos:ArrayCollection = new ArrayCollection();
       var presentations:Array = map.presentations as Array;
       for (var j:int = 0; j < presentations.length; j++) {
         var presentation:Object = presentations[j] as Object;     
-        trace(LOG + "Processing presentation information");
+//        trace(LOG + "Processing presentation information");
         var presVO: PresentationVO = processUploadedPresentation(presentation)
         presos.addItem(presVO);
       }

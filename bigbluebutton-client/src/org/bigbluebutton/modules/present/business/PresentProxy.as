@@ -34,6 +34,7 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
 	import org.bigbluebutton.modules.present.commands.GoToPageCommand;
 	import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
+	import org.bigbluebutton.modules.present.commands.UploadFileCommand;
 	import org.bigbluebutton.modules.present.events.NavigationEvent;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.PresenterCommands;
@@ -125,13 +126,13 @@ package org.bigbluebutton.modules.present.business
 		 * @param e
 		 * 
 		 */		
-		public function startUpload(e:UploadEvent):void{
-      trace(LOG + "Uploading presentation [" + e.presentationName + "]");
+		public function startUpload(e:UploadFileCommand):void{
+      trace(LOG + "Uploading presentation [" + e.filename + "]");
       
 			if (uploadService == null) {
         uploadService = new FileUploadService(host + "/bigbluebutton/presentation/upload", conference, room);
       }
-			uploadService.upload(e.presentationName, e.fileToUpload);
+			uploadService.upload(e.filename, e.file);
 		}
 		
 		/**

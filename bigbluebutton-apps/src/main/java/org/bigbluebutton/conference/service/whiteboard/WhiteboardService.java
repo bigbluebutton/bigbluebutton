@@ -53,9 +53,7 @@ public class WhiteboardService {
 			
 		String meetingID = getMeetingId();
 		String requesterID = getBbbSession().getInternalUserID();
-		
-		
-		
+				
 		application.sendWhiteboardAnnotation(meetingID, requesterID, annotation);
 		
 	}

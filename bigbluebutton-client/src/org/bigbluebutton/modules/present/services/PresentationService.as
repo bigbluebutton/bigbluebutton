@@ -53,7 +53,7 @@ package org.bigbluebutton.modules.present.services
         np.yOffset = page.yOffset;
         np.widthRatio = page.widthRatio;
         np.heightRatio = page.heightRatio;
-        trace(LOG + "Sending page changed event. page [" + np.id + "] oldpage current=[" + oldPage.current + "] newPage current=[" + np.current + "]");  
+//        trace(LOG + "Sending page changed event. page [" + np.id + "] oldpage current=[" + oldPage.current + "] newPage current=[" + np.current + "]");  
         var changePageCommand: ChangePageCommand = new ChangePageCommand(np.id);
         dispatcher.dispatchEvent(changePageCommand);          
       }       
@@ -67,7 +67,7 @@ package org.bigbluebutton.modules.present.services
         np.yOffset = page.yOffset;
         np.widthRatio = page.widthRatio;
         np.heightRatio = page.heightRatio;
-        trace(LOG + "Sending page moved event. page [" + np.id + "] current=[" + np.current + "]");
+//        trace(LOG + "Sending page moved event. page [" + np.id + "] current=[" + np.current + "]");
         var event: PageChangedEvent = new PageChangedEvent(np.id);
         dispatcher.dispatchEvent(event);           
       }       
@@ -89,18 +89,12 @@ package org.bigbluebutton.modules.present.services
     }
     
     public function addPresentation(pres:PresentationVO):void {
-      var presoPages:ArrayCollection = new ArrayCollection();
-      var pages:ArrayCollection = pres.getPages() as ArrayCollection;
-      for (var k:int = 0; k < pages.length; k++) {
-        var page:PageVO = pages[k] as PageVO;
-        var pg:Page = copyPageVOToPage(page)
-        presoPages.addItem(pg);
-      }          
-      
-      var presentation: Presentation = new Presentation(pres.id, pres.name, pres.isCurrent(), presoPages);      
+      var presentation:Presentation = presentationVOToPresentation(pres);
       model.addPresentation(presentation);    
+      trace(LOG + "Added new presentation [" + presentation.id + "]");
       
       if (presentation.current) {
+        trace(LOG + "Making presentation [" + presentation.id +"] current [" + presentation.current + "]"); 
         var event: PresentationChangedEvent = new PresentationChangedEvent(pres.id);
         dispatcher.dispatchEvent(event);
         
@@ -112,15 +106,34 @@ package org.bigbluebutton.modules.present.services
       }
     }
     
-    public function changePresentation(pres: PresentationVO):void {      
+    public function presentationVOToPresentation(presVO:PresentationVO):Presentation {
+      var presoPages:ArrayCollection = new ArrayCollection();
+      var pages:ArrayCollection = presVO.getPages() as ArrayCollection;
+      for (var k:int = 0; k < pages.length; k++) {
+        var page:PageVO = pages[k] as PageVO;
+        var pg:Page = copyPageVOToPage(page)
+        presoPages.addItem(pg);
+      }          
+      
+      var presentation: Presentation = new Presentation(presVO.id, presVO.name, presVO.isCurrent(), presoPages);
+      return presentation;
+    }
+    
+    public function changePresentation(presVO: PresentationVO):void {      
       // We've switched presentations. Mark the old presentation as not current.
       var curPres:Presentation = PresentationModel.getInstance().getCurrentPresentation();
       if (curPres != null) {
         curPres.current = false;
+      } else {
+        trace(LOG + "No previous active presentation.");
       }
             
-      if (pres.isCurrent()) {
-        var event: PresentationChangedEvent = new PresentationChangedEvent(pres.id);
+      if (presVO.isCurrent()) {
+        trace(LOG + "Making presentation [" + presVO.id + "] the  active presentation.");
+        var newPres:Presentation = presentationVOToPresentation(presVO);
+        PresentationModel.getInstance().replacePresentation(newPres);
+        
+        var event: PresentationChangedEvent = new PresentationChangedEvent(presVO.id);
         dispatcher.dispatchEvent(event);
         
         var curPage:Page = PresentationModel.getInstance().getCurrentPage();
@@ -128,7 +141,9 @@ package org.bigbluebutton.modules.present.services
           var changePageCommand: ChangePageCommand = new ChangePageCommand(curPage.id);
           dispatcher.dispatchEvent(changePageCommand);          
         }        
-      }     
+      } else {
+        trace(LOG + "Switching presentation but presentation [" + presVO.id + "] is not current [" + presVO.isCurrent() + "]");
+      }
     }
   }
 }

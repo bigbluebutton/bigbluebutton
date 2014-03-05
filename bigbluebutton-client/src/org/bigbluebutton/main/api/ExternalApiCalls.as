@@ -41,6 +41,15 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
   import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
+  import org.bigbluebutton.modules.present.events.ConversionCompletedEvent;
+  import org.bigbluebutton.modules.present.events.ConversionPageCountError;
+  import org.bigbluebutton.modules.present.events.ConversionPageCountMaxed;
+  import org.bigbluebutton.modules.present.events.ConversionSupportedDocEvent;
+  import org.bigbluebutton.modules.present.events.ConversionUnsupportedDocEvent;
+  import org.bigbluebutton.modules.present.events.ConversionUpdateEvent;
+  import org.bigbluebutton.modules.present.events.CreatingThumbnailsEvent;
+  import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
+  import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 
@@ -332,61 +341,62 @@ package org.bigbluebutton.main.api
       broadcastEvent(payload);        
     }
 
-    public function handleOfficeDocConversionSuccess(event:UploadEvent):void{
+    public function handleOfficeDocConversionSuccess(event:OfficeDocConvertSuccessEvent):void{
       var payload:Object = new Object();
       payload.eventName = EventConstants.OFFICE_DOC_CONVERSION_SUCCESS;
       broadcastEvent(payload);
     }
 
-    public function handleOfficeDocConversionFailed(event:UploadEvent):void{
+    public function handleOfficeDocConversionFailed(event:OfficeDocConvertFailedEvent):void{
       var payload:Object = new Object();
       payload.eventName = EventConstants.OFFICE_DOC_CONVERSION_FAILED;
       broadcastEvent(payload);
     }
 
-    public function handleSupportedDocument(event:UploadEvent):void{
+    public function handleSupportedDocument(event:ConversionSupportedDocEvent):void{
       var payload:Object = new Object();
       payload.eventName = EventConstants.SUPPORTED_DOCUMENT;
       broadcastEvent(payload);
     }
 
-    public function handleUnsupportedDocument(event:UploadEvent):void{
+    public function handleUnsupportedDocument(event:ConversionUnsupportedDocEvent):void{
       var payload:Object = new Object();
       payload.eventName = EventConstants.UNSUPPORTED_DOCUMENT;
       broadcastEvent(payload);
     }
 
-    public function handlePageCountFailed(event:UploadEvent):void{
+    public function handlePageCountFailed(event:ConversionPageCountError):void{
       var payload:Object = new Object();
       payload.eventName = EventConstants.PAGE_COUNT_FAILED;
       broadcastEvent(payload);
     }
 
-    public function handleThumbnailsUpdate(event:UploadEvent):void{
+    public function handleThumbnailsUpdate(event:CreatingThumbnailsEvent):void{
       var payload:Object = new Object();
       payload.eventName = EventConstants.THUMBNAILS_UPDATE;
       broadcastEvent(payload);
     }
 
-    public function handlePageCountExceeded(event:UploadEvent):void{
+    public function handlePageCountExceeded(event:ConversionPageCountMaxed):void{
       var payload:Object = new Object();
       payload.eventName = EventConstants.PAGE_COUNT_EXCEEDED;
-      payload.maximumSupportedNumberOfSlides = event.maximumSupportedNumberOfSlides;
+      payload.maximumSupportedNumberOfSlides = event.maxPages;
       broadcastEvent(payload);
     }
 
-    public function handleConvertSuccess(event:UploadEvent):void{
+    public function handleConvertSuccess(event:ConversionCompletedEvent):void{
       var payload:Object = new Object();
       payload.eventName = EventConstants.CONVERT_SUCCESS;
-      payload.presentationName = event.presentationName;
+      payload.presentationName = event.presName;
+      payload.presentationId = event.presId;
       broadcastEvent(payload);
     }
 
-    public function handleConvertUpdate(event:UploadEvent):void{
+    public function handleConvertUpdate(event:ConversionUpdateEvent):void{
       var payload:Object = new Object();
       payload.eventName = EventConstants.CONVERT_UPDATE;
-      payload.totalSlides = event.totalSlides;
-      payload.completedSlides = event.completedSlides;
+      payload.totalSlides = event.totalPages;
+      payload.completedSlides = event.numPagesDone;
       broadcastEvent(payload);
     }
 

@@ -42,8 +42,10 @@ package org.bigbluebutton.modules.whiteboard.managers
 	
 	public class WhiteboardManager
 	{
-        /* Injected by Mate */
-        public var whiteboardModel:WhiteboardModel;
+    private static const LOG:String = "WB::WhiteboardManager - ";
+    
+    /* Injected by Mate */
+    public var whiteboardModel:WhiteboardModel;
         
 		private var globalDispatcher:Dispatcher;
 		private var highlighterCanvas:WhiteboardCanvas;
@@ -62,12 +64,12 @@ package org.bigbluebutton.modules.whiteboard.managers
             
 			highlighterCanvas = new WhiteboardCanvas();
 			highlighterCanvas.model = model;
-            highlighterCanvas.displayModel = displayModel;
-            displayModel.whiteboardModel = whiteboardModel;
-            model.whiteboardModel = whiteboardModel
+      highlighterCanvas.displayModel = displayModel;
+      displayModel.whiteboardModel = whiteboardModel;
+      model.whiteboardModel = whiteboardModel
                 
-		    model.wbCanvas = highlighterCanvas;
-            displayModel.wbCanvas = highlighterCanvas;
+		  model.wbCanvas = highlighterCanvas;
+      displayModel.wbCanvas = highlighterCanvas;
             
 			if (highlighterToolbar != null) return;
             
@@ -88,6 +90,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 		}
 		
 		private function addHighlighterCanvas(e:TimerEvent):void {
+      trace(LOG + "Adding Whiteboard Overlay Canvas");
 			PresentationAPI.getInstance().addOverlayCanvas(highlighterCanvas);
 		}	
 
@@ -110,15 +113,15 @@ package org.bigbluebutton.modules.whiteboard.managers
 		}
 		
 		public function clearAnnotations():void {
-            displayModel.clearBoard();
+      displayModel.clearBoard();
 		}
         
-        public function receivedAnnotationsHistory():void {
-            displayModel.receivedAnnotationsHistory();
-        }
+    public function receivedAnnotationsHistory():void {
+      displayModel.receivedAnnotationsHistory();
+    }
 		
 		public function undoAnnotation(event:WhiteboardUpdate):void {
-            displayModel.undoAnnotation(event.annotationID);
+      displayModel.undoAnnotation(event.annotationID);
 		}
 		
 		public function toggleGrid(event:ToggleGridEvent = null):void {
@@ -126,7 +129,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 		}
 		
 		public function changePage():void {
-            displayModel.changePage();
+      displayModel.changePage();
 		}
 		
 		public function enableWhiteboard(e:WhiteboardButtonEvent):void {

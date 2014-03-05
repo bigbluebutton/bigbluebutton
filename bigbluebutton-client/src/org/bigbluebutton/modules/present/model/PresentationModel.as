@@ -56,6 +56,13 @@ package org.bigbluebutton.modules.present.model
       _presentations.addItem(p);
     }
     
+    public function replacePresentation(p: Presentation):void {
+      var oldPres:Presentation = getPresentation(p.id);
+      if (oldPres != null) {
+        oldPres = p;
+      }
+    }
+    
     public function getCurrentPresentationName():String {
       for (var i:int = 0; i < _presentations.length; i++) {
         var pres: Presentation = _presentations.getItemAt(i) as Presentation;
@@ -79,10 +86,10 @@ package org.bigbluebutton.modules.present.model
     public function getCurrentPresentation():Presentation {
       for (var i:int = 0; i < _presentations.length; i++) {
         var pres: Presentation = _presentations.getItemAt(i) as Presentation;
-        trace(LOG + "Is presentation [" + pres.name + "] current [" + pres.current + "]?");
+//        trace(LOG + "Is presentation [" + pres.name + "] current [" + pres.current + "]?");
         if (pres.current) return pres;
       }
-      trace(LOG + "No current presentation.");
+//      trace(LOG + "No current presentation.");
       return null;
     }
     
