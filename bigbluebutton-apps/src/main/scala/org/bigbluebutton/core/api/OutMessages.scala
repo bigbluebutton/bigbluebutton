@@ -489,8 +489,7 @@ case class SendWhiteboardAnnotationHistoryReply(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    presentationID: String, 
-    numPages: Int, 
+    whiteboardId: String, 
     shapes: Array[AnnotationVO]
 ) extends IOutMessage
                        
@@ -498,42 +497,25 @@ case class SendWhiteboardAnnotationEvent(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    presentationID: String, 
-    page: Int, 
+    whiteboardId: String, 
     shape: AnnotationVO
 ) extends IOutMessage
-                       
-case class ChangeWhiteboardPageEvent(
-    meetingID: String, 
-    recorded: Boolean, 
-    requesterID: String, 
-    page: Int, 
-    numAnnotations: Int
-) extends IOutMessage
-                       
+                                            
 case class ClearWhiteboardEvent(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    presentationID: String, 
-    page: Int
+    whiteboardId: String
 ) extends IOutMessage
                        
 case class UndoWhiteboardEvent(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    presentationID: String, 
-    page: Int
+    whiteboardId: String,
+    shapeId: String
 ) extends IOutMessage
                        
-case class WhiteboardActivePresentationEvent(
-    meetingID: String, 
-    recorded: Boolean, 
-    requesterID: String, 
-    presentationID: String, 
-    numPages: Int
-) extends IOutMessage
                        
 case class WhiteboardEnabledEvent(
     meetingID: String, 

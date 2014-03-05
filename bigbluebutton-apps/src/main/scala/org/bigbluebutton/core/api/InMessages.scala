@@ -440,34 +440,34 @@ case class SendWhiteboardAnnotationRequest(
     annotation: AnnotationVO
 ) extends InMessage
 
-case class SetWhiteboardActivePageRequest(
+case class GetWhiteboardShapesRequest(
     meetingID: String, 
     requesterID: String, 
-    page: Int
+    whiteboardId: String
 ) extends InMessage
 
 case class SendWhiteboardAnnotationHistoryRequest(
     meetingID: String, 
     requesterID: String, 
-    presentationID: String, 
-    page: Int
+    whiteboardId: String
 ) extends InMessage
 
 case class ClearWhiteboardRequest(
     meetingID: String, 
-    requesterID: String
+    requesterID: String,
+    whiteboardId: String
 ) extends InMessage
 
 case class UndoWhiteboardRequest(
     meetingID: String, 
-    requesterID: String
+    requesterID: String,
+    whiteboardId: String
 ) extends InMessage
 
 case class SetActivePresentationRequest(
     meetingID: String, 
     requesterID: String, 
-    presentationID: String, 
-    numPages: Int
+    whiteboardId: String
 ) extends InMessage
 
 case class EnableWhiteboardRequest(
