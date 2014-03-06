@@ -77,7 +77,6 @@ package org.bigbluebutton.modules.whiteboard.services
       trace(LOG + "*** handleUndoCommand " + message.msg + " **** \n");      
       var map:Object = JSON.parse(message.msg);      
       
-      trace("WB:MessageReceiver: Handle Whiteboard Undo Command ");
       whiteboardModel.undo();
       //            dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.SHAPE_UNDONE));
     }
@@ -119,9 +118,9 @@ package org.bigbluebutton.modules.whiteboard.services
       var map:Object = JSON.parse(message.msg);      
    
       if (map.count == 0) {
-        trace("WB: handleRequestAnnotationHistoryReply: No annotations.");
+        trace(LOG + "handleRequestAnnotationHistoryReply: No annotations.");
       } else {
-        trace("WB: handleRequestAnnotationHistoryReply: Number of annotations in history = " + map.count);
+        trace(LOG + "handleRequestAnnotationHistoryReply: Number of annotations in history = " + map.count);
         var annotations:Array = map.annotations as Array;
         var tempAnnotations:Array = new Array();
         
@@ -134,10 +133,10 @@ package org.bigbluebutton.modules.whiteboard.services
         }   
                 
         if (tempAnnotations.length > 0) {
-          trace("Number of whiteboard shapes =[" + tempAnnotations.length + "]");
-          whiteboardModel.addAnnotationFromHistory(map.presentationID, map.pageNumber, tempAnnotations);
+          trace(LOG + "Number of whiteboard shapes =[" + tempAnnotations.length + "]");
+          whiteboardModel.addAnnotationFromHistory(map.whiteboardId, tempAnnotations);
         } else {
-          trace("NO whiteboard shapes in history ");
+          trace(LOG + "NO whiteboard shapes in history ");
         }
       }
     }

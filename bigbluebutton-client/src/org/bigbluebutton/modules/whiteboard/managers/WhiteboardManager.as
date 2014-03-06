@@ -35,6 +35,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 	import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardShapesEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
 	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
@@ -117,8 +118,8 @@ package org.bigbluebutton.modules.whiteboard.managers
       displayModel.clearBoard();
 		}
         
-    public function receivedAnnotationsHistory():void {
-      displayModel.receivedAnnotationsHistory();
+    public function receivedAnnotationsHistory(event:WhiteboardShapesEvent):void {
+      displayModel.receivedAnnotationsHistory(event.whiteboardId);
     }
 		
 		public function undoAnnotation(event:WhiteboardUpdate):void {
@@ -128,11 +129,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 		public function toggleGrid(event:ToggleGridEvent = null):void {
 	//		model.toggleGrid();
 		}
-		
-		public function changePage():void {
-      displayModel.changePage();
-		}
-		
+			
 		public function enableWhiteboard(e:WhiteboardButtonEvent):void {
 			highlighterCanvas.enableWhiteboard(e);
 		}
@@ -142,7 +139,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 		}
     
     public function handlePageChangedEvent(e:PageLoadedEvent):void {
- //     whiteboardModel.newWhiteboardId(e.pageId);
+      displayModel.changePage(e.pageId);
     }
 	}
 }

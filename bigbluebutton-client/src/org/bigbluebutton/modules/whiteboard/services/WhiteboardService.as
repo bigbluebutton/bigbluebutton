@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.whiteboard.services
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.modules.present.events.PresentationEvent;
+  import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
   import org.bigbluebutton.modules.whiteboard.events.PageEvent;
   import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
   import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
@@ -34,12 +35,9 @@ package org.bigbluebutton.modules.whiteboard.services
     public var receiver:MessageReceiver;
     public var whiteboardModel:WhiteboardModel;
 
-    public function getAnnotationHistory():void
+    public function getAnnotationHistory(cmd:GetWhiteboardShapesCommand):void
     {
-      var wbId:String = whiteboardModel.getCurrentWhiteboardId();
-      if (wbId != null) {
-        sender.requestAnnotationHistory(wbId);
-      }
+      sender.requestAnnotationHistory(cmd.whiteboardId);
     }
     
     public function modifyEnabled(e:WhiteboardPresenterEvent):void {

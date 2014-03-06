@@ -18,14 +18,17 @@
  */
 package org.bigbluebutton.modules.whiteboard.models
 {
-	import flash.events.IEventDispatcher;	
+	import flash.events.IEventDispatcher;
+	
 	import mx.collections.ArrayCollection;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.present.model.Page;
 	import org.bigbluebutton.modules.present.model.PresentationModel;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardShapesEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
 
 	public class WhiteboardModel
@@ -54,8 +57,11 @@ package org.bigbluebutton.modules.whiteboard.models
         wb = getWhiteboard(annotation.whiteboardId);
         if (wb != null) {
           wb.addAnnotation(annotation);
-        }
-         
+        } else {
+          wb = new Whiteboard(annotation.whiteboardId);
+          wb.addAnnotation(annotation);
+          _whiteboards.addItem(wb);
+        }         
        } else {
          wb = getWhiteboard(annotation.whiteboardId);
          if (wb != null) {
@@ -64,24 +70,32 @@ package org.bigbluebutton.modules.whiteboard.models
        }
 			 
 //      trace(LOG + "*** Dispatching WhiteboardUpdate.BOARD_UPDATED Event ****");
-//       var event:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
-//       event.annotation = annotation;
-//       _dispatcher.dispatchEvent(event);
+       var event:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
+       event.annotation = annotation;
+       _dispatcher.dispatchEvent(event);
 //       trace(LOG + "*** Dispatched WhiteboardUpdate.BOARD_UPDATED Event ****");
 		}
 		
-    public function addAnnotationFromHistory(presentationID:String, pageNumber:Number, annotation:Array):void {
-//      if (_currentPresentation.id != presentationID || _currentPresentation.getCurrentPageNumber() != pageNumber) {
-//         trace(LOG + "Wrong annotation history [curPresID=" + _currentPresentation.id + ",rxPresID=" + presentationID + 
-//                          "][curPage=" + _currentPresentation.getCurrentPageNumber() + ",rxPageNum=" + pageNumber + "]");
-//         return;
-//      }
-//          
-//      for (var i:int = 0; i < annotation.length; i++) {
-//         trace(LOG + "addAnnotationFromHistory: annotation id=" + (annotation[i] as Annotation).id);
-//         _currentPresentation.addAnnotation(annotation[i] as Annotation);
-//      } 
-//      _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.RECEIVED_ANNOTATION_HISTORY));
+    private function addShapes(wb:Whiteboard, shapes:Array):void {
+      for (var i:int = 0; i < shapes.length; i++) {
+        var an:Annotation = shapes[i] as Annotation;
+        wb.addAnnotation(an);
+      }  
+    }
+    public function addAnnotationFromHistory(whiteboardId:String, annotation:Array):void {                
+      trace(LOG + "addAnnotationFromHistory: wb id=[" + whiteboardId + "]");
+      var wb:Whiteboard = getWhiteboard(whiteboardId);
+      if (wb != null) {
+        trace(LOG + "Whiteboard is already present. Adding shapes.");
+        addShapes(wb, annotation);
+      } else {
+        trace(LOG + "Whiteboard is NOT present. Creating WB and adding shapes.");
+        wb = new Whiteboard(whiteboardId);
+        addShapes(wb, annotation);
+        _whiteboards.addItem(wb);
+      } 
+
+      _dispatcher.dispatchEvent(new WhiteboardShapesEvent(wb.id));
     }
         
 		public function removeAnnotation(id:String):void {
@@ -89,13 +103,24 @@ package org.bigbluebutton.modules.whiteboard.models
 		}
 		
     public function getAnnotation(id:String):Annotation {
+      var wbId:String = getCurrentWhiteboardId();
+      if (wbId != null) {
+        var wb:Whiteboard = getWhiteboard(wbId);
+        if (wb != null) {
+          return wb.getAnnotation(id);
+        }        
+      }
       return null;
 //       return _currentPresentation.getAnnotation(id);
     }
         
-    public function getAnnotations():Array {
+    public function getAnnotations(wbId:String):Array {
+      var wb:Whiteboard = getWhiteboard(wbId);
+      if (wb != null) {
+        return wb.getAnnotations();
+      }
+      // Just return an empty array.
       return new Array();
-//       return _currentPresentation.getAnnotations();
     }
         
 		public function undo():void {

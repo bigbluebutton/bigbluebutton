@@ -36,7 +36,7 @@ package org.bigbluebutton.modules.whiteboard
   import mx.controls.TextInput;
   import mx.core.Application;
   import mx.core.UIComponent;
-  import mx.managers.CursorManager;  
+  import mx.managers.CursorManager; 
   import org.bigbluebutton.common.IBbbCanvas;
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.managers.UserManager;
@@ -112,7 +112,7 @@ package org.bigbluebutton.modules.whiteboard
                 // LogUtil.debug("Removing shape [" + gobj.id + "]");
                 wbCanvas.removeGraphic(gobj as DisplayObject);
               } else { // no DRAW_START event was thrown for o so place gobj back on the top
-                LogUtil.debug("Not removing shape [" + gobj.id + "] new [" + o.id + "]");
+                trace(LOG + "Not removing shape [" + gobj.id + "] new [" + o.id + "]");
                 _annotationsList.push(gobj);
               }              
             }
@@ -299,33 +299,33 @@ package org.bigbluebutton.modules.whiteboard
       }
     }
         
-        public function receivedAnnotationsHistory():void {
-//            LogUtil.debug("**** CanvasDisplay receivedAnnotationsHistory *****");
-            var annotations:Array = whiteboardModel.getAnnotations();
-//            LogUtil.debug("**** CanvasDisplay receivedAnnotationsHistory [" + annotations.length + "] *****");
-            for (var i:int = 0; i < annotations.length; i++) {
-                var an:Annotation = annotations[i] as Annotation;
-//                LogUtil.debug("**** Drawing graphic from history [" + an.type + "] *****");
-                if(an.type != DrawObject.TEXT) {
-                    var dobj:DrawObject = shapeFactory.makeDrawObject(an, whiteboardModel);  
-                    if (dobj != null) {
-                        dobj.draw(an, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
-                        wbCanvas.addGraphic(dobj);
-                        _annotationsList.push(dobj);              
-                    }        
-                } else { 
-                    if (an.annotation.text != "") {
-                        addNormalText(an);     
-                    }
-                }             
-            }
+    public function receivedAnnotationsHistory(wbId:String):void {
+      trace(LOG + "**** CanvasDisplay receivedAnnotationsHistory for wbid=[" + wbId + "]");
+      var annotations:Array = whiteboardModel.getAnnotations(wbId);
+      trace(LOG + "**** CanvasDisplay receivedAnnotationsHistory [" + annotations.length + "] *****");
+      for (var i:int = 0; i < annotations.length; i++) {
+        var an:Annotation = annotations[i] as Annotation;
+        trace(LOG + "**** Drawing graphic from history [" + an.type + "] *****");
+        if ( an.type != DrawObject.TEXT) {
+           var dobj:DrawObject = shapeFactory.makeDrawObject(an, whiteboardModel);  
+           if (dobj != null) {
+              dobj.draw(an, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
+              wbCanvas.addGraphic(dobj);
+              _annotationsList.push(dobj);              
+           }        
+        } else { 
+          if (an.annotation.text != "") {
+              addNormalText(an);     
+          }
+        }             
+      }
             
-            if (_annotationsList.length > 0) {
-                for (var ij:int = 0; ij < this._annotationsList.length; ij++){
-                    redrawGraphic(this._annotationsList[ij] as GraphicObject, ij);
-                }                
-            }
+      if (_annotationsList.length > 0) {
+        for (var ij:int = 0; ij < this._annotationsList.length; ij++){
+          redrawGraphic(this._annotationsList[ij] as GraphicObject, ij);
+        }                
         }
+      }
 
         /*********************************************************
         * HACK! HACK! HACK! HACK! HACK! HACK! HACK! HACK! HACK! 
@@ -349,11 +349,11 @@ package org.bigbluebutton.modules.whiteboard
         
         /**********************************************************/
         
-    public function changePage():void{
+    public function changePage(wbId:String):void{
 //            LogUtil.debug("**** CanvasDisplay changePage. Clearing page *****");
             clearBoard();
             
-            var annotations:Array = whiteboardModel.getAnnotations();
+            var annotations:Array = whiteboardModel.getAnnotations(wbId);
 //            LogUtil.debug("**** CanvasDisplay changePage [" + annotations.length + "] *****");
             if (annotations.length == 0) {
                 /***
@@ -361,7 +361,7 @@ package org.bigbluebutton.modules.whiteboard
                 * If not, don't query for history. The overlay canvas event will trigger the querying of
                 * the history.
                 */
-                if (wbCanvasInitialized) wbCanvas.queryForAnnotationHistory();
+                if (wbCanvasInitialized) wbCanvas.queryForAnnotationHistory(wbId);
             } else {
                 for (var i:int = 0; i < annotations.length; i++) {
                     var an:Annotation = annotations[i] as Annotation;
@@ -436,18 +436,18 @@ package org.bigbluebutton.modules.whiteboard
                 if (an == null) {
                     LogUtil.error("Text with id [" + origTobj.id + "] is missing.");
                 } else {
-          wbCanvas.removeGraphic(origTobj as DisplayObject);
-//          addNormalText(an);
-          var tobj:TextObject = shapeFactory.redrawTextObject(an, origTobj);
-          tobj.setGraphicID(origTobj.id);
-          tobj.status = origTobj.status;
-          tobj.multiline = true;
-          tobj.wordWrap = true;
-          tobj.background = false;
-          tobj.makeEditable(false);
-          tobj.background = false;          
-          wbCanvas.addGraphic(tobj);
-                    _annotationsList[objIndex] = tobj;
+                  wbCanvas.removeGraphic(origTobj as DisplayObject);
+                  //          addNormalText(an);
+                  var tobj:TextObject = shapeFactory.redrawTextObject(an, origTobj);
+                  tobj.setGraphicID(origTobj.id);
+                  tobj.status = origTobj.status;
+                  tobj.multiline = true;
+                  tobj.wordWrap = true;
+                  tobj.background = false;
+                  tobj.makeEditable(false);
+                  tobj.background = false;          
+                  wbCanvas.addGraphic(tobj);
+                  _annotationsList[objIndex] = tobj;
                 }            
       }
     }

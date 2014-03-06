@@ -7,8 +7,7 @@ package org.bigbluebutton.modules.whiteboard.models
     private var _id:String;
     private var _annotations:ArrayCollection = new ArrayCollection();
     
-    public function Whiteboard(id:String)
-    {
+    public function Whiteboard(id:String) {
       _id = id;
     }
     
