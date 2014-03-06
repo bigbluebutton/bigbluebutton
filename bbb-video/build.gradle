@@ -82,10 +82,15 @@ dependencies {
 	
 	// Red5
 	providedCompile 'org/red5:red5:1.0r4643@jar'
-  compile files('./lib/red5-client-1.0.2-RC1.jar')
+  compile files('./lib/red5-client-1.0.2-RC1-MOD.jar')
+  compile files('./lib/red5-server-1.0.2-RC4-MOD.jar')
+  compile files('./lib/red5-io-1.0.2.jar') 
+  
   compile files('./lib/commons-lang3-3.2.1.jar')
-  //compile files('./lib/red5-server-1.0.2-RC4.jar')
-	compile files('./lib/red5-io-1.0.2.jar')
+  compile files('./lib/ehcache-core-2.5.0.jar')
+  compile files('./lib/bcprov-jdk15-1.46.jar')
+  compile files('./lib/commons-beanutils-1.8.3.jar')
+  compile files('./lib/commons-codec-1.6.jar')
 
 	// Logging
 	providedCompile 'ch.qos.logback:logback-core:1.0.9@jar'

@@ -98,7 +98,21 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     	IConnection conn = Red5.getConnectionLocal();  
     	super.streamBroadcastStart(stream);
     	log.info("streamBroadcastStart " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
-    
+        
+
+
+        /*String sourceServer = "143.54.10.63";
+        String sourceStreamName = stream.getPublishedName();
+        String destinationServer = "143.54.10.63";
+        String destinationStreamName = "320x240-teste";
+        String app = "video/"+Red5.getConnectionLocal().getScope().getName();
+        
+        CustomStreamRelay remoteRelay = new CustomStreamRelay();
+        remoteRelay.initRelay(new String[]{sourceServer, app, sourceStreamName, destinationServer, "video", destinationStreamName, "live"});
+        remoteRelay.startRelay();
+                
+        */
+        
         if (recordVideoStream &&  stream.getPublishedName().contains("/") == false) {
 	    	recordStream(stream);
 	    	VideoStreamListener listener = new VideoStreamListener(); 
