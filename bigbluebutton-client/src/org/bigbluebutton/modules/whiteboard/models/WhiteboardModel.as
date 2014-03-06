@@ -69,7 +69,7 @@ package org.bigbluebutton.modules.whiteboard.models
          }
        }
 			 
-//      trace(LOG + "*** Dispatching WhiteboardUpdate.BOARD_UPDATED Event ****");
+       trace(LOG + "*** Dispatching WhiteboardUpdate.BOARD_UPDATED Event ****");
        var event:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
        event.annotation = annotation;
        _dispatcher.dispatchEvent(event);
@@ -111,7 +111,6 @@ package org.bigbluebutton.modules.whiteboard.models
         }        
       }
       return null;
-//       return _currentPresentation.getAnnotation(id);
     }
         
     public function getAnnotations(wbId:String):Array {
@@ -123,14 +122,25 @@ package org.bigbluebutton.modules.whiteboard.models
       return new Array();
     }
         
-		public function undo():void {
-			_dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.UNDO_ANNOTATION));
+		public function undo(wbId:String):void {
+      trace(LOG + "Undoing whiteboard");
+      var wb:Whiteboard = getWhiteboard(wbId);
+      if (wb != null) {
+        wb.undo();
+        _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.UNDO_ANNOTATION));
+      }
+      
 		}
 		
-		public function clear():void {
-//			_currentPresentation.clear();
-//			_dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.CLEAR_ANNOTATIONS));
-		}
+		public function clear(wbId:String):void {
+      trace(LOG + "Clearing whiteboard");
+      var wb:Whiteboard = getWhiteboard(wbId);
+      if (wb != null) {
+        wb.clear();
+        _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.CLEAR_ANNOTATIONS));
+      }
+      
+    }
 
 
 		public function enable(enabled:Boolean):void {

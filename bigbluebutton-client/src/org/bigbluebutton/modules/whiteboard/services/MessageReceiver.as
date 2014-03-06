@@ -70,15 +70,18 @@ package org.bigbluebutton.modules.whiteboard.services
       var map:Object = JSON.parse(message.msg);      
       
       trace("WB:MessageReceiver:Handle Whiteboard Clear Command ");
-      whiteboardModel.clear();
+      if (map.hasOwnProperty("whiteboardId")) {
+        whiteboardModel.clear(map.whiteboardId);
+      }
+      
     }
 
     private function handleUndoCommand(message:Object):void {
       trace(LOG + "*** handleUndoCommand " + message.msg + " **** \n");      
       var map:Object = JSON.parse(message.msg);      
-      
-      whiteboardModel.undo();
-      //            dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.SHAPE_UNDONE));
+      if (map.hasOwnProperty("whiteboardId")) {
+        whiteboardModel.undo(map.whiteboardId);
+      }
     }
 
     private function handleEnableWhiteboardCommand(message:Object):void {

@@ -286,6 +286,7 @@ package org.bigbluebutton.modules.whiteboard
     }
     
     public function clearBoard(event:WhiteboardUpdate = null):void {
+      trace(LOG + "Got clear event.");
       var numGraphics:int = this._annotationsList.length;
       for (var i:Number = 0; i < numGraphics; i++){
         removeLastGraphic();
@@ -293,8 +294,10 @@ package org.bigbluebutton.modules.whiteboard
     }
     
     public function undoAnnotation(id:String):void {
-            /** We'll just remove the last annotation for now **/
+      trace(LOG + "Got undo event.");
+      /** We'll just remove the last annotation for now **/
       if (this._annotationsList.length > 0) {
+        trace(LOG + "Got undo event. Removing last shape");
         removeLastGraphic();
       }
     }
