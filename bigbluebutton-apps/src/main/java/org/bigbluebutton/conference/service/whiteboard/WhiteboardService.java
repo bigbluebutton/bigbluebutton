@@ -27,16 +27,25 @@ import org.red5.server.api.Red5;
 import org.slf4j.Logger;
 
 public class WhiteboardService {
-
 	private static Logger log = Red5LoggerFactory.getLogger(WhiteboardService.class, "bigbluebutton");
-	
 	private WhiteboardApplication application;
+	
+	 private final static String TYPE = "type";
+	 private final static String STATUS = "status";
+	 private final static String COR_ID = "id";
+	 private final static String WB_ID = "whiteboardId";
 	
 	public void setWhiteboardApplication(WhiteboardApplication a){
 		log.debug("Setting whiteboard application instance");
 		this.application = a;
 	}
-	
+		
+	private boolean validMessage(Map<String, Object> shp) {
+		if (shp.containsKey(COR_ID) && shp.containsKey(TYPE) &&
+				shp.containsKey(STATUS) && shp.containsKey(WB_ID)) return true;
+		
+		return false;
+	}
 	public void sendAnnotation(Map<String, Object> annotation) {
 //		for (Map.Entry<String, Object> entry : annotation.entrySet()) {
 //		    String key = entry.getKey();
@@ -53,9 +62,10 @@ public class WhiteboardService {
 			
 		String meetingID = getMeetingId();
 		String requesterID = getBbbSession().getInternalUserID();
-				
-		application.sendWhiteboardAnnotation(meetingID, requesterID, annotation);
 		
+		if (validMessage(annotation)) {
+			application.sendWhiteboardAnnotation(meetingID, requesterID, annotation);
+		}		
 	}
 	
 	private String pointsToString(ArrayList<Double> points){
@@ -71,58 +81,44 @@ public class WhiteboardService {
 
 	}
 	
-	public void setActivePage(Map<String, Object> message){		
-		log.info("WhiteboardApplication - Getting number of shapes for page: " + (Integer) message.get("pageNum"));
-
-		String meetingID = getMeetingId();
-		String requesterID = getBbbSession().getInternalUserID();
-		Integer page = (Integer) message.get("pageNum");
-		
-		application.changeWhiteboardPage(meetingID, requesterID, page);
-	}
-	
 	public void requestAnnotationHistory(Map<String, Object> message) {
 		log.info("WhiteboardApplication - requestAnnotationHistory");
 		
 		String meetingID = getMeetingId();
 		String requesterID = getBbbSession().getInternalUserID();
-		String presentationID = (String) message.get("presentationID");
-		Integer pageNum = (Integer) message.get("pageNumber");
-		
-		application.requestAnnotationHistory(meetingID, requesterID, presentationID, pageNum);
+		String wbId = (String) message.get(WB_ID);
+		if (wbId != null) {
+			application.requestAnnotationHistory(meetingID, requesterID, wbId);	
+		}		
 	}
 		
-	public void clear() {
+	public void clear(Map<String, Object> message) {
 		log.info("WhiteboardApplication - Clearing board");
 
 		String meetingID = getMeetingId();
 		String requesterID = getBbbSession().getInternalUserID();
-		application.clearWhiteboard(meetingID, requesterID);		
+		String wbId = (String) message.get(WB_ID);
+		if (wbId != null) {
+			application.clearWhiteboard(meetingID, requesterID, wbId);
+		}				
 	}
 	
-	public void undo() {
+	public void undo(Map<String, Object> message) {
 		log.info("WhiteboardApplication - Deleting last graphic");
 		
 		String meetingID = getMeetingId();
 		String requesterID = getBbbSession().getInternalUserID();
-		application.undoWhiteboard(meetingID, requesterID);
+		String wbId = (String) message.get(WB_ID);
+		if (wbId != null) {
+			application.undoWhiteboard(meetingID, requesterID, wbId);
+		}
 	}
 	
 	public void toggleGrid() {
 		log.info("WhiteboardApplication - Toggling grid mode");
 		//application.toggleGrid();
 	}
-	
-	public void setActivePresentation(Map<String, Object> message) {		
-		log.info("WhiteboardApplication - Setting active presentation: " + (String)message.get("presentationID"));
-
-		String meetingID = getMeetingId();
-		String requesterID = getBbbSession().getInternalUserID();
-		String presentationID = (String) message.get("presentationID");
-		Integer numPages = (Integer) message.get("numberOfSlides");		
-		application.setWhiteboardActivePresentation(meetingID, requesterID, presentationID, numPages);
-	}
-	
+		
 	public void enableWhiteboard(Map<String, Object> message) {
 		log.info("WhiteboardApplication - Setting whiteboard enabled: " + (Boolean)message.get("enabled"));
 

@@ -228,9 +228,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function sendUndoCommand():void {
-				if (!canvas.isPageEmpty()) {          
+//				if (!canvas.isPageEmpty()) {          
 					dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO));
-        }
+//        }
 			}
 			
 			public function positionToolbar(window:PresentationWindow):void {

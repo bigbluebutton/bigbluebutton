@@ -18,8 +18,7 @@
  */
 package org.bigbluebutton.modules.whiteboard.services
 {
-  import com.asfusion.mate.actions.builders.ObjectBuilder;
-  
+  import com.asfusion.mate.actions.builders.ObjectBuilder;  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.main.model.users.IMessageListener;

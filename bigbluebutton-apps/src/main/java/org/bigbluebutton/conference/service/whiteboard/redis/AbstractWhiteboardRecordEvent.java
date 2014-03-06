@@ -26,11 +26,8 @@ public abstract class AbstractWhiteboardRecordEvent extends RecordEvent {
 		setModule("WHITEBOARD");
 	}
 
-	public void setPresentation(String name) {
-		eventMap.put("presentation", name);
-	}
 	
-	public void setPageNumber(int page) {
-		eventMap.put("pageNumber", Integer.toString(page));
+	public void setWhiteboardId(String id) {
+		eventMap.put("whiteboardId", id);
 	}
 }

@@ -83,11 +83,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{ToggleGridEvent.TOGGLE_GRID}" >
 		<MethodInvoker generator="{WhiteboardService}" method="toggleGrid" />
 	</EventHandlers>
-			
-	<EventHandlers type="{NavigationEvent.GOTO_PAGE}" >
-		<MethodInvoker generator="{WhiteboardService}" method="changePage" arguments="{event.pageNumber}" />
-	</EventHandlers>
-		
+					
 	<EventHandlers type="{WhiteboardButtonEvent.WHITEBOARD_ADDED_TO_PRESENTATION}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="positionToolbar" arguments="{event}" />
 	</EventHandlers>

@@ -21,44 +21,40 @@ class WhiteboardEventRedisRecorder(recorder: RecorderApplication) extends OutMes
 	  }
 	}
   	
-	private def handleSendWhiteboardAnnotationEvent(msg: SendWhiteboardAnnotationEvent) {
+	private def handleSendWhiteboardAnnotationEvent(msg: SendWhiteboardAnnotationEvent) {	  
 	  if ((msg.shape.shapeType == WhiteboardKeyUtil.TEXT_TYPE) && (msg.shape.status != WhiteboardKeyUtil.TEXT_CREATED_STATUS)) {
+	    
 		val event = new ModifyTextWhiteboardRecordEvent()
 		event.setMeetingId(msg.meetingID)
 		event.setTimestamp(System.currentTimeMillis())
-		event.setPresentation(msg.presentationID)
-		event.setPageNumber(msg.page)
+		event.setWhiteboardId(msg.whiteboardId)
 		event.addAnnotation(mapAsJavaMap(msg.shape.shape))
 		recorder.record(msg.meetingID, event)	    
 	  } else {
 		val event = new AddShapeWhiteboardRecordEvent()
 		event.setMeetingId(msg.meetingID)
 		event.setTimestamp(System.currentTimeMillis())
-		event.setPresentation(msg.presentationID)
-		event.setPageNumber(msg.page)
+		event.setWhiteboardId(msg.whiteboardId);
 		event.addAnnotation(mapAsJavaMap(msg.shape.shape))
 		recorder.record(msg.meetingID, event)
 	  }
-
 	}
 	
 	private def handleClearWhiteboardEvent(msg: ClearWhiteboardEvent) {
 		val event = new ClearPageWhiteboardRecordEvent()
 		event.setMeetingId(msg.meetingID)
 		event.setTimestamp(System.currentTimeMillis())		
-		event.setPresentation(msg.presentationID)
-		event.setPageNumber(msg.page)
+		event.setWhiteboardId(msg.whiteboardId)
 		recorder.record(msg.meetingID, event)		
 	}
 
 	private def handleUndoWhiteboardEvent(msg: UndoWhiteboardEvent) {
 		val event = new UndoShapeWhiteboardRecordEvent()
 		event.setMeetingId(msg.meetingID)
-		event.setTimestamp(System.currentTimeMillis());		
-		event.setPresentation(msg.presentationID);
-		event.setPageNumber(msg.page);
-		
-		recorder.record(msg.meetingID, event);			
+		event.setTimestamp(System.currentTimeMillis())	
+		event.setWhiteboardId(msg.whiteboardId)
+		event.setShapeId(msg.shapeId);
+		recorder.record(msg.meetingID, event)		
 	}
 
 }

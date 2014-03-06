@@ -446,12 +446,6 @@ case class GetWhiteboardShapesRequest(
     whiteboardId: String
 ) extends InMessage
 
-case class SendWhiteboardAnnotationHistoryRequest(
-    meetingID: String, 
-    requesterID: String, 
-    whiteboardId: String
-) extends InMessage
-
 case class ClearWhiteboardRequest(
     meetingID: String, 
     requesterID: String,
@@ -461,12 +455,6 @@ case class ClearWhiteboardRequest(
 case class UndoWhiteboardRequest(
     meetingID: String, 
     requesterID: String,
-    whiteboardId: String
-) extends InMessage
-
-case class SetActivePresentationRequest(
-    meetingID: String, 
-    requesterID: String, 
     whiteboardId: String
 ) extends InMessage
 

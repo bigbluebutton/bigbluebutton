@@ -485,7 +485,7 @@ case class PageChanged(
 ) extends IOutMessage
 
 // Whiteboard
-case class SendWhiteboardAnnotationHistoryReply(
+case class GetWhiteboardShapesReply(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 

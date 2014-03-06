@@ -25,8 +25,14 @@ class WhiteboardModel {
   }
   
   def addAnnotation(wbId:String, shape: AnnotationVO) {
-    getWhiteboard(wbId) foreach { wb =>
-        addAnnotationToShape(wb, shape) 
+    getWhiteboard(wbId) match { 
+      case Some(wb) =>
+        addAnnotationToShape(wb, shape)
+      case None => {
+        val vec = scala.collection.immutable.Vector.empty
+        val wb = new Whiteboard(wbId, vec :+ shape)
+        saveWhiteboard(wb)
+      }
     }     
   }
   
@@ -42,8 +48,7 @@ class WhiteboardModel {
         modifyTextInPage(wb, shape) 
     }   
   }
-  
- 
+   
   def history(wbId:String):Option[Whiteboard] = {
     getWhiteboard(wbId)
   }
@@ -56,12 +61,17 @@ class WhiteboardModel {
     }    
   }
   
-  def undoWhiteboard(wbId:String) {
+  def undoWhiteboard(wbId:String):Option[AnnotationVO] = {
+    var last:Option[AnnotationVO] = None
     getWhiteboard(wbId) foreach { wb =>
-        val droppedShapes = wb.shapes.drop(wb.shapes.length-1)
-        val newWb = wb.copy(shapes= droppedShapes)
-        saveWhiteboard(newWb)          
-    }  
+      if (!wb.shapes.isEmpty) {
+        last = Some(wb.shapes.last)
+        val remaining = wb.shapes.dropRight(1)
+        val newWb = wb.copy(shapes=remaining)
+        saveWhiteboard(newWb)
+      }
+    }
+    last
   }
     
   def enableWhiteboard(enable: Boolean) {

@@ -11,38 +11,20 @@ import java.util.ArrayList
 class WhiteboardClientMessageSender(service: ConnectionInvokerService) extends OutMessageListener2 {
   def handleMessage(msg: IOutMessage) {
     msg match {
-      case msg: SendWhiteboardAnnotationHistoryReply => 
-                   handleSendWhiteboardAnnotationHistoryReply(msg)
+      case msg: GetWhiteboardShapesReply => 
+                   handleGetWhiteboardShapesReply(msg)
       case msg: SendWhiteboardAnnotationEvent => 
                    handleSendWhiteboardAnnotationEvent(msg)
-      case msg: ChangeWhiteboardPageEvent => 
-                   handleChangeWhiteboardPageEvent(msg)
       case msg: ClearWhiteboardEvent => 
                    handleClearWhiteboardEvent(msg)
       case msg: UndoWhiteboardEvent => 
                    handleUndoWhiteboardEvent(msg)
-      case msg: WhiteboardActivePresentationEvent => 
-                   handleWhiteboardActivePresentationEvent(msg)
       case msg: WhiteboardEnabledEvent => 
                    handleWhiteboardEnabledEvent(msg)
       case msg: IsWhiteboardEnabledReply => 
                    handleIsWhiteboardEnabledReply(msg)
       case _ => // do nothing
     }
-  }
-
-  private def handleWhiteboardActivePresentationEvent(msg: WhiteboardActivePresentationEvent) {
-	val args = new java.util.HashMap[String, Object]()
-	args.put("presentationID", msg.presentationID)
-	args.put("numberOfPages", msg.numPages:java.lang.Integer)
-	
-	val message = new java.util.HashMap[String, Object]() 
-	val gson = new Gson();
-  	message.put("msg", gson.toJson(args))
-  	
-	println("WhiteboardClientMessageSender - handleWhiteboardActivePresentationEvent \n" + message.get("msg") + "\n")	
-	val m = new BroadcastClientMessage(msg.meetingID, "WhiteboardChangePresentationCommand", message)
-	service.sendMessage(m)
   }
 	
   private def handleWhiteboardEnabledEvent(msg: WhiteboardEnabledEvent) {
@@ -73,11 +55,10 @@ class WhiteboardClientMessageSender(service: ConnectionInvokerService) extends O
 	service.sendMessage(m)
   }
 	
-  private def handleSendWhiteboardAnnotationHistoryReply(msg: SendWhiteboardAnnotationHistoryReply) {
+  private def handleGetWhiteboardShapesReply(msg: GetWhiteboardShapesReply) {
 	val args = new java.util.HashMap[String, Object]()			
 	args.put("count", msg.shapes.length:java.lang.Integer)
-	args.put("presentationID", msg.presentationID)
-	args.put("pageNumber", msg.numPages:java.lang.Integer)
+	args.put("whiteboardId", msg.whiteboardId)
 	
 	val annotations = new ArrayList[java.util.HashMap[String, Object]]
 	msg.shapes.foreach {shape =>
@@ -104,8 +85,7 @@ class WhiteboardClientMessageSender(service: ConnectionInvokerService) extends O
 	
   private def handleSendWhiteboardAnnotationEvent(msg: SendWhiteboardAnnotationEvent) {	
     val args = new java.util.HashMap[String, Object]()		
-	args.put("presentationId", msg.presentationID)
-	args.put("page", msg.page:java.lang.Integer)
+	args.put("whiteboardId", msg.whiteboardId)
 	
 	val shape = new java.util.HashMap[String, Object]()
 	shape.put("id", msg.shape.id)
@@ -119,30 +99,15 @@ class WhiteboardClientMessageSender(service: ConnectionInvokerService) extends O
 	val gson = new Gson();
   	message.put("msg", gson.toJson(args))
   	
-	println("WhiteboardClientMessageSender - handleChangeWhiteboardPageEvent \n" + message.get("msg") + "\n")
+	println("WhiteboardClientMessageSender - handleSendWhiteboardAnnotationEvent \n" + message.get("msg") + "\n")
 	
 	val m = new BroadcastClientMessage(msg.meetingID, "WhiteboardNewAnnotationCommand", message)
 	service.sendMessage(m)
   }
-	
-  private def handleChangeWhiteboardPageEvent(msg: ChangeWhiteboardPageEvent) {
-	val args = new java.util.HashMap[String, Object]()		
-	args.put("pageNum", msg.page:java.lang.Integer)
-	args.put("numAnnotations", msg.numAnnotations:java.lang.Integer)
-	
-	val message = new java.util.HashMap[String, Object]() 
-	val gson = new Gson();
-  	message.put("msg", gson.toJson(args))
-  	
-	println("WhiteboardClientMessageSender - handleChangeWhiteboardPageEvent \n" + message.get("msg") + "\n")
-	
-	val m = new BroadcastClientMessage(msg.meetingID, "WhiteboardChangePageCommand", message)
-	service.sendMessage(m)
-  }
-	
+		
   private def handleClearWhiteboardEvent(msg: ClearWhiteboardEvent) {
     val args = new java.util.HashMap[String, Object]()		
-	args.put("ignoreThis", "Filler")
+	args.put("whiteboardId", msg.whiteboardId)
 	
 	val message = new java.util.HashMap[String, Object]() 
 	val gson = new Gson();
@@ -156,7 +121,8 @@ class WhiteboardClientMessageSender(service: ConnectionInvokerService) extends O
 	
   private def handleUndoWhiteboardEvent(msg: UndoWhiteboardEvent) {
     val args = new java.util.HashMap[String, Object]()		
-	args.put("ignoreThis", "Filler")
+	args.put("whiteboardId", msg.whiteboardId)
+	args.put("shapeId", msg.shapeId)
 	
 	val message = new java.util.HashMap[String, Object]() 
 	val gson = new Gson();

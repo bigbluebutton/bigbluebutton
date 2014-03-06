@@ -151,16 +151,12 @@ class MeetingActor(val meetingID: String, val recorded: Boolean,
                              handleShowPollResult(msg)
 	    case msg: SendWhiteboardAnnotationRequest => 
 	                         handleSendWhiteboardAnnotationRequest(msg)
-	    case msg: SetWhiteboardActivePageRequest => 
-	                         handleSetWhiteboardActivePageRequest(msg)
-	    case msg: SendWhiteboardAnnotationHistoryRequest => 
-	                         handleSendWhiteboardAnnotationHistoryRequest(msg)
+	    case msg: GetWhiteboardShapesRequest => 
+	                         handleGetWhiteboardShapesRequest(msg)
 	    case msg: ClearWhiteboardRequest => 
 	                         handleClearWhiteboardRequest(msg)
 	    case msg: UndoWhiteboardRequest => 
 	                         handleUndoWhiteboardRequest(msg)
-	    case msg: SetActivePresentationRequest => 
-	                         handleSetActivePresentationRequest(msg)
 	    case msg: EnableWhiteboardRequest => 
 	                         handleEnableWhiteboardRequest(msg)
 	    case msg: IsWhiteboardEnabledRequest => 

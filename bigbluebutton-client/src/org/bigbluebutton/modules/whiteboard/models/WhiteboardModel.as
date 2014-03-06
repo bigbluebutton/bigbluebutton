@@ -18,10 +18,8 @@
  */
 package org.bigbluebutton.modules.whiteboard.models
 {
-	import flash.events.IEventDispatcher;
-	
+	import flash.events.IEventDispatcher;	
 	import mx.collections.ArrayCollection;
-	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.present.model.Page;
 	import org.bigbluebutton.modules.present.model.PresentationModel;

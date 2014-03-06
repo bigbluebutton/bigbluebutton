@@ -28,6 +28,8 @@ package org.bigbluebutton.modules.whiteboard.services
 
   public class WhiteboardService
   {
+    private static const LOG:String = "WB::WhiteboardService - ";
+    
     public var sender:MessageSender;
     public var receiver:MessageReceiver;
     public var whiteboardModel:WhiteboardModel;
@@ -49,11 +51,19 @@ package org.bigbluebutton.modules.whiteboard.services
     }
 
     public function undoGraphic():void {
-      sender.undoGraphic()
+      var wbId:String = whiteboardModel.getCurrentWhiteboardId();
+      if (wbId != null) {
+        
+        sender.undoGraphic(wbId)
+      }      
     }
 
     public function clearBoard():void {
-      sender.clearBoard();
+      var wbId:String = whiteboardModel.getCurrentWhiteboardId();
+      if (wbId != null) {
+        trace(LOG + "Clear shape for wb [" + wbId + "]");
+        sender.clearBoard(wbId);
+      }
     }
 
     public function sendText(e:WhiteboardDrawEvent):void {

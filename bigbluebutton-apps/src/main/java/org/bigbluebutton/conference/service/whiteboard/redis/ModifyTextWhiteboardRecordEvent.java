@@ -21,8 +21,7 @@ package org.bigbluebutton.conference.service.whiteboard.redis;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class ModifyTextWhiteboardRecordEvent  extends
-				AbstractWhiteboardRecordEvent {
+public class ModifyTextWhiteboardRecordEvent  extends AbstractWhiteboardRecordEvent {
 
 		public ModifyTextWhiteboardRecordEvent() {
 			super();

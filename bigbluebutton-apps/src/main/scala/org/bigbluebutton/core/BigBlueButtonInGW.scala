@@ -365,26 +365,18 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	  wbGW.sendWhiteboardAnnotation(meetingID, requesterID, mapAsScalaMap(annotation).toMap)
 	}
 	
-	def setWhiteboardActivePage(meetingID: String, requesterID: String, page: java.lang.Integer){
-	  wbGW.setWhiteboardActivePage(meetingID, requesterID, page)
+	def requestWhiteboardAnnotationHistory(meetingID: String, requestedID: String, whiteboardId: String) {
+	  wbGW.requestWhiteboardAnnotationHistory(meetingID, requestedID, whiteboardId)
 	}
 	
-	def requestWhiteboardAnnotationHistory(meetingID: String, requestedID: String, presentationID: String, page: java.lang.Integer) {
-	  wbGW.requestWhiteboardAnnotationHistory(meetingID, requestedID, presentationID, page)
+	def clearWhiteboard(meetingID: String, requestedID: String, whiteboardId: String) {
+	  wbGW.clearWhiteboard(meetingID, requestedID, whiteboardId);
 	}
 	
-	def clearWhiteboard(meetingID: String, requestedID: String) {
-	  wbGW.clearWhiteboard(meetingID, requestedID);
+	def undoWhiteboard(meetingID: String, requestedID: String, whiteboardId: String) {
+	  wbGW.undoWhiteboard(meetingID, requestedID, whiteboardId)
 	}
-	
-	def undoWhiteboard(meetingID: String, requestedID: String) {
-	  wbGW.undoWhiteboard(meetingID, requestedID)
-	}
-	
-	def setActivePresentation(meetingID: String, requestedID: String, presentationID: String, numPages: java.lang.Integer) {
-	  wbGW.setActivePresentation(meetingID, requestedID, presentationID, numPages)
-	}
-	
+		
 	def enableWhiteboard(meetingID: String, requestedID: String, enable: java.lang.Boolean) {
 	  wbGW.enableWhiteboard(meetingID, requestedID, enable)
 	}

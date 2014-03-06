@@ -92,30 +92,22 @@ public class WhiteboardApplication extends ApplicationAdapter implements IApplic
 	public void roomStop(IScope scope) {
 	}
 	
-	public void requestAnnotationHistory(String meetingID, String requesterID, String presentationID, Integer pageNum) {
-		bbbInGW.requestWhiteboardAnnotationHistory(meetingID, requesterID, presentationID, pageNum);
+	public void requestAnnotationHistory(String meetingID, String requesterID, String whiteboardId) {
+		bbbInGW.requestWhiteboardAnnotationHistory(meetingID, requesterID, whiteboardId);
 	}
 	
 	public void sendWhiteboardAnnotation(String meetingID, String requesterID, java.util.Map<String, Object> shape) {
 		bbbInGW.sendWhiteboardAnnotation(meetingID, requesterID, shape);
 	}
 	
-	public void changeWhiteboardPage(String meetingID, String requesterID, Integer page) {
-		bbbInGW.setWhiteboardActivePage(meetingID, requesterID, page);
+	public void clearWhiteboard(String meetingID, String requesterID, String whiteboardId) {
+		bbbInGW.clearWhiteboard(meetingID, requesterID, whiteboardId);
 	}
 	
-	public void clearWhiteboard(String meetingID, String requesterID) {
-		bbbInGW.clearWhiteboard(meetingID, requesterID);
+	public void undoWhiteboard(String meetingID, String requesterID, String whiteboardId) {
+		bbbInGW.undoWhiteboard(meetingID, requesterID, whiteboardId);
 	}
-	
-	public void undoWhiteboard(String meetingID, String requesterID) {
-		bbbInGW.undoWhiteboard(meetingID, requesterID);
-	}
-	
-	public void setWhiteboardActivePresentation(String meetingID, String requesterID, String presentationID, Integer numPages) {
-		bbbInGW.setActivePresentation(meetingID, requesterID, presentationID, numPages);
-	}
-	
+		
 	public void setWhiteboardEnable(String meetingID, String requesterID, Boolean enable) {
 		bbbInGW.enableWhiteboard(meetingID, requesterID, enable);
 	}

@@ -103,11 +103,9 @@ public interface IBigBlueButtonInGW {
 
 	// Whiteboard
 	void sendWhiteboardAnnotation(String meetingID, String requesterID, java.util.Map<String, Object> annotation);	
-	void setWhiteboardActivePage(String meetingID, String requesterID, Integer page);
-	void requestWhiteboardAnnotationHistory(String meetingID, String requesterID, String presentationID, Integer pageNum);
-	void clearWhiteboard(String meetingID, String requesterID);
-	void undoWhiteboard(String meetingID, String requesterID);
-	void setActivePresentation(String meetingID, String requesterID, String presentationID, Integer numPages);
+	void requestWhiteboardAnnotationHistory(String meetingID, String requesterID, String whiteboardId);
+	void clearWhiteboard(String meetingID, String requesterID, String whiteboardId);
+	void undoWhiteboard(String meetingID, String requesterID, String whiteboardId);
 	void enableWhiteboard(String meetingID, String requesterID, Boolean enable);
 	void isWhiteboardEnabled(String meetingID, String requesterID);
 	

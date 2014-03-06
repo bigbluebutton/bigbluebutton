@@ -26,4 +26,7 @@ public class UndoShapeWhiteboardRecordEvent extends
 		setEvent("UndoShapeEvent");
 	}
 
+	public void setShapeId(String id) {
+		eventMap.put("shapeId", id);
+	}
 }
