@@ -48,9 +48,9 @@ public class OfficeToPdfConversionSuccessFilter {
 		msg.put("conference", pres.getMeetingId());
 		msg.put("room", pres.getMeetingId());
 		msg.put("returnCode", "CONVERT");
-		msg.put("presentationId", pres.getPresentationId());
-		msg.put("presentationName", pres.getPresentationId());
-		msg.put("filename", pres.getPresentationName());
+		msg.put("presentationId", pres.getId());
+		msg.put("presentationName", pres.getId());
+		msg.put("filename", pres.getName());
 		
 		if (pres.isLastStepSuccessful()) {
 			log.info("Notifying of OFFICE_DOC_CONVERSION_SUCCESS for " + pres.getUploadedFile().getAbsolutePath());
