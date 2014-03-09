@@ -21,7 +21,7 @@ public class MeetingMessageHandler implements MessageHandler {
 	
 	@Override
 	public void handleMessage(String pattern, String channel, String message) {
-//		log.debug("Checking message: " + pattern + " " + channel + " " + message);
+		log.debug("Checking message: " + pattern + " " + channel + " " + message);
 		if (channel.equalsIgnoreCase(MessagingConstants.SYSTEM_CHANNEL)){
 			Gson gson = new Gson();
 			HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
@@ -30,19 +30,21 @@ public class MeetingMessageHandler implements MessageHandler {
 			if (messageId != null){
 				if (MessagingConstants.END_MEETING_REQUEST_EVENT.equalsIgnoreCase(messageId)){
 					String meetingId = map.get("meetingId");
+					log.info("Received end meeting request. Meeting id [{}]", meetingId);
 					bbbGW.endMeeting(meetingId);
 				} else if(messageId.equalsIgnoreCase(KEEP_ALIVE_REQUEST)){
 					String keepAliveId = map.get("aliveId");
 					bbbGW.isAliveAudit(keepAliveId);
 				} else if(MessagingConstants.CREATE_MEETING_REQUEST_EVENT.equalsIgnoreCase(messageId)){
 					String meetingID = map.get("meetingID");
+					log.info("Received create meeting request. Meeting id [{}]", meetingID);
 					Boolean record = Boolean.parseBoolean(map.get("record"));
-					String voiceBridge = map.get("voiceBridge");
-					
+					String voiceBridge = map.get("voiceBridge");					
 					bbbGW.createMeeting2(meetingID, record, voiceBridge);
 				} else if(MessagingConstants.DESTROY_MEETING_REQUEST_EVENT.equalsIgnoreCase(messageId)){
 					String meetingID = map.get("meetingID");
-					bbbGW.isAliveAudit(meetingID);
+					log.info("Received destroy meeting request. Meeting id [{}]", meetingID);
+					bbbGW.destroyMeeting(meetingID);
 				}
 			}
 		}

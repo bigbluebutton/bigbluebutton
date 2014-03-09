@@ -74,7 +74,7 @@ public class RedisMessagingService implements MessagingService {
 		map.put("messageId", MessagingConstants.DESTROY_MEETING_REQUEST_EVENT);
 		map.put("meetingID", meetingID);
 		Gson gson = new Gson();
-		
+		log.info("Sending destroy meeting [{}]", meetingID);
 		send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));		
 	}
 	
@@ -86,7 +86,7 @@ public class RedisMessagingService implements MessagingService {
 		map.put("voiceBridge", voiceBridge);
 		
 		Gson gson = new Gson();
-		
+		log.info("Sending create meeting [{}] - [{}]", meetingID, voiceBridge);
 		send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));		
 	}
 	
@@ -95,6 +95,7 @@ public class RedisMessagingService implements MessagingService {
 		map.put("messageId", MessagingConstants.END_MEETING_REQUEST_EVENT);
 		map.put("meetingId", meetingId);
 		Gson gson = new Gson();
+		log.info("Sending end meeting [{}]", meetingId);
 		send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
 	}
 
@@ -226,8 +227,7 @@ public class RedisMessagingService implements MessagingService {
 
 		@Override
 		public void onPMessage(String pattern, String channel, String message) {
-			log.debug("Message Received in channel: " + channel);
-			log.debug("Message: " + message);
+			log.debug("Received in channel [{}] message [{}]", channel, message);
 			
 			Gson gson = new Gson();
 			
@@ -238,7 +238,6 @@ public class RedisMessagingService implements MessagingService {
 			if(channel.equalsIgnoreCase(MessagingConstants.SYSTEM_CHANNEL)){
 				HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
 				String messageId = map.get("messageID");
-				log.debug("*** Message {}", messageId);
 
 				for (MessageListener listener : listeners) {
 					if(MessagingConstants.MEETING_STARTED_EVENT.equalsIgnoreCase(messageId)) {

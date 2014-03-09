@@ -21,7 +21,9 @@ package org.bigbluebutton.web.services;
 
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.api.messaging.MessagingConstants;
-
+import org.bigbluebutton.api.messaging.RedisMessagingService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.ArrayList;
@@ -30,7 +32,7 @@ import java.util.HashMap;
 import com.google.gson.Gson;
 
 public class KeepAliveService {
-
+	private static Logger log = LoggerFactory.getLogger(KeepAliveService.class);
 	private final String KEEP_ALIVE_REQUEST = "KEEP_ALIVE_REQUEST";
 	private MessagingService service;
 	private Timer cleanupTimer;
@@ -40,7 +42,6 @@ public class KeepAliveService {
 	
 	public void start() {
 		cleanupTimer = new Timer("keep-alive-task", true);
-
 		task = new KeepAliveTask();
 		cleanupTimer.scheduleAtFixedRate(task, 5000, runEvery);
 	}
@@ -54,61 +55,56 @@ public class KeepAliveService {
 	}
 	
 	class KeepAliveTask extends TimerTask {
-
-		ArrayList liveMsgs;
+		ArrayList<String> liveMsgs;
 		boolean available = true;
 
-		KeepAliveTask(){
-			liveMsgs = new ArrayList();
+		KeepAliveTask() {
+			liveMsgs = new ArrayList<String>();
 		}
 
         public void run() {
-        	if(liveMsgs.size() < maxLives){
+        	if (liveMsgs.size() < maxLives){
         		String aliveId = Long.toString(System.currentTimeMillis());
 
 	        	HashMap<String,String> map = new HashMap<String,String>();
 	        	map.put("messageId", KEEP_ALIVE_REQUEST);
 	        	map.put("aliveId", aliveId);
-
 	        	Gson gson = new Gson();
 
 	        	liveMsgs.add(aliveId);
+	        	log.info("Sending keep alive message to bbb-apps. keep-alive id [{}]", aliveId);
 	        	service.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
-        	}else{
+        	} else {
         		available = false;
-        		System.out.println("bbb-apps is down");
-        	}
-
-        	
+        		log.warn("bbb-apps is down!");
+        	}       	
         }
 
         public void checkAliveId(String id){
         	int count = 0;
         	boolean found = false;
 
-        	while(count < liveMsgs.size() || !found){
-        		if(liveMsgs.get(count).equals(id)){
+        	while (count < liveMsgs.size() || !found){
+        		if (liveMsgs.get(count).equals(id)){
         			liveMsgs.remove(count);
+        			log.debug("Found valid keep alive msg reply from bbb-apps. id [{}]", id);
         			found = true;
         		}
         		count++;
         	}
-        	if(!found){
-        		System.out.println("AliveID was not found:" + id);
+        	if (!found){
+        		log.info("Received valid response from bbb-apps:" + id);
         	}
         }
 
         public boolean isDown(){
         	return !available;
         }
-
-
     }
 
     public void keepAliveReply(String aliveId){
-    	System.out.println("Message received: " + aliveId);
-    	if(task != null){
-    		System.out.println("let's check aliveId:" + aliveId);
+    	log.debug("Received keep alive msg reply from bbb-apps. id [{}]", aliveId);
+    	if (task != null) {
     		task.checkAliveId(aliveId);		
     	}
     }

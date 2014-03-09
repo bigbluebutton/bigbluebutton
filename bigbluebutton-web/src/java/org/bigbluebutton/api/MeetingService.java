@@ -42,8 +42,7 @@ public class MeetingService {
 	
 	private final ConcurrentMap<String, Meeting> meetings;	
 	private final ConcurrentMap<String, UserSession> sessions;
-	
-	
+		
 	private int defaultMeetingExpireDuration = 1;	
 	private int defaultMeetingCreateJoinDuration = 5;
 	private RecordingService recordingService;
@@ -54,8 +53,7 @@ public class MeetingService {
 	
 	public MeetingService() {
 		meetings = new ConcurrentHashMap<String, Meeting>();	
-		sessions = new ConcurrentHashMap<String, UserSession>();
-		
+		sessions = new ConcurrentHashMap<String, UserSession>();		
 	}
 	
 	public void addUserSession(String token, UserSession user) {
@@ -80,15 +78,12 @@ public class MeetingService {
 			if (m.hasExpired(defaultMeetingExpireDuration) ) {
 				log.info("Removing expired meeting [id={} , name={}]", m.getInternalId(), m.getName());
 				log.info("Expired meeting [start={} , end={}]", m.getStartTime(), m.getEndTime());
-		  		if (m.isRecord() && m.getNumUsers()==0) {
+		  		if (m.isRecord() && m.getNumUsers() == 0) {
 		  			log.debug("[" + m.getInternalId() + "] is recorded. Process it.");		  			
 		  			processRecording(m.getInternalId());
-		  		}
-		  		
-		  		destroyMeeting(m.getInternalId());
-		  		
-				meetings.remove(m.getInternalId());
-				
+		  		}		  		
+		  		destroyMeeting(m.getInternalId());		  		
+				meetings.remove(m.getInternalId());				
 				continue;
 			}
 			
@@ -146,7 +141,6 @@ public class MeetingService {
 		return messagingService.listSubscriptions(meetingId);
 	}
 
-
 	public Meeting getMeeting(String meetingId) {
 		if(meetingId == null)
 			return null;
@@ -166,8 +160,8 @@ public class MeetingService {
 	
 	public HashMap<String,Recording> reorderRecordings(ArrayList<Recording> olds){
 		HashMap<String,Recording> map= new HashMap<String, Recording>();
-		for(Recording r:olds){
-			if(!map.containsKey(r.getId())){
+		for (Recording r:olds) {
+			if (!map.containsKey(r.getId())) {
 				Map<String,String> meta= r.getMetadata();
 				String mid = meta.remove("meetingId");
 				String name = meta.remove("meetingName");
@@ -175,15 +169,18 @@ public class MeetingService {
 				r.setMeetingID(mid);
 				r.setName(name);
 
-				ArrayList<Playback> plays=new ArrayList<Playback>();
+				ArrayList<Playback> plays = new ArrayList<Playback>();
 				
-				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getDurationRecording(r.getPlaybackDuration(), r.getEndTime(), r.getStartTime())));
+				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), 
+						getDurationRecording(r.getPlaybackDuration(), 
+								r.getEndTime(), r.getStartTime())));
 				r.setPlaybacks(plays);
 				map.put(r.getId(), r);
-			}
-			else{
-				Recording rec=map.get(r.getId());
-				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getDurationRecording(r.getPlaybackDuration(), r.getEndTime(), r.getStartTime())));
+			} else {
+				Recording rec = map.get(r.getId());
+				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), 
+						getDurationRecording(r.getPlaybackDuration(), 
+								r.getEndTime(), r.getStartTime())));
 			}
 		}
 		
@@ -192,13 +189,13 @@ public class MeetingService {
 	
 	private int getDurationRecording(String playbackDuration, String end, String start) {
 		int duration;
-		try{
+		try {
 			if (!playbackDuration.equals("")) {
 				duration = (int)Math.ceil((Long.parseLong(playbackDuration))/60000.0);
 			} else {
 				duration = (int)Math.ceil((Long.parseLong(end) - Long.parseLong(start))/60000.0);
 			}
-		}catch(Exception e){
+		} catch(Exception e){
 			log.debug(e.getMessage());
 			duration = 0;
 		}
@@ -255,15 +252,14 @@ public class MeetingService {
 		Meeting m = getMeeting(meetingId);
 		if (m != null) {
 			m.setForciblyEnded(true);
-			if (removeMeetingWhenEnded)
-			{
+			if (removeMeetingWhenEnded) {
 				if (m.isRecord()) {
-					log.debug("[" + m.getInternalId() + "] is recorded. Process it.");		  			
+					log.debug("Removing forcibly ended meeting [{}]. Process the recording.",  m.getInternalId());		  			
 					processRecording(m.getInternalId());
 				}
 				meetings.remove(m.getInternalId());
 			}
-		}else{
+		} else {
 			log.debug("endMeeting - meeting doesn't exist: " + meetingId);
 		}
 	}
@@ -313,24 +309,26 @@ public class MeetingService {
 		public void meetingStarted(String meetingId) {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
-				if(m.getStartTime() == 0){
-					log.debug("Setting meeting " + meetingId + " started time");
-					m.setStartTime(System.currentTimeMillis());
-				}else{
-					log.debug("The meeting " + meetingId + " has been started again...");
+				if (m.getStartTime() == 0){
+					long now = System.currentTimeMillis();
+					log.info("Meeting [{}] has started on [{}]", meetingId, now);
+					m.setStartTime(now);
+				} else {
+					log.debug("The meeting [{}] has been started again...", meetingId);
 				}
 				m.setEndTime(0);
 				return;
 			}
-			log.warn("The meeting " + meetingId + " doesn't exist");
+			log.warn("The meeting [{}] doesn't exist", meetingId);
 		}
 
 		@Override
 		public void meetingEnded(String meetingId) {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
-				log.debug("Setting meeting " + meetingId + " end time");
-				m.setEndTime(System.currentTimeMillis());
+				long now = System.currentTimeMillis();
+				log.debug("Meeting [{}] end time [{}].", meetingId, now);
+				m.setEndTime(now);
 				return;
 			}
 			log.warn("The meeting " + meetingId + " doesn't exist");

@@ -16,9 +16,10 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
   def act() = {
 	loop {
 		react {
-	      case createMeeting: CreateMeeting => handleCreateMeeting(createMeeting)
-	      case destroyMeeting: DestroyMeeting => handleDestroyMeeting(destroyMeeting)
-	      case keepAliveMessage: KeepAliveMessage => handleKeepAliveMessage(keepAliveMessage)
+	      case msg: CreateMeeting                 => handleCreateMeeting(msg)
+	      case msg: DestroyMeeting                => handleDestroyMeeting(msg)
+	      case msg: KeepAliveMessage              => handleKeepAliveMessage(msg)
+	      case msg: EndMeeting                    => handleEndMeetingMessage(msg)
 	      case msg: GetPresentationInfo => handleGetPresentationInfo(msg)
 	      case msg:InMessage => handleMeetingMessage(msg)
 	      case _ => // do nothing
@@ -48,6 +49,10 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
 
   private def handleKeepAliveMessage(msg: KeepAliveMessage):Unit = {
     outGW.send(new KeepAliveMessageReply(msg.aliveID))
+  }
+  
+  private def handleEndMeetingMessage(msg: EndMeeting) {
+     println("****************** BBBActor received EndMeeting message for meeting id [" + msg.meetingID + "] **************")  
   }
   
   private def handleDestroyMeeting(msg: DestroyMeeting) {

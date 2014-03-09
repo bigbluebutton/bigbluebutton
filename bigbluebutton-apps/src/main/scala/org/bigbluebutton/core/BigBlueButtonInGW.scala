@@ -22,7 +22,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
    
   // Meeting
   def createMeeting2(meetingID: String, record: Boolean, voiceBridge: String) {
-    println("******************** CREATING MEETING ***************************** ")
+    println("******************** CREATING MEETING [" + meetingID + "] ***************************** ")
 	bbbGW.accept(new CreateMeeting(meetingID, record, voiceBridge))
 
 	/*
@@ -44,6 +44,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
   }
   
   def destroyMeeting(meetingID: String) {
+    println("******************** DESTROY MEETING [" + meetingID + "] ***************************** ")
     bbbGW.accept(new DestroyMeeting(meetingID))
   }
   
@@ -61,7 +62,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
   }
 	
   def endMeeting(meetingID: String) {
-    
+    println("******************** END MEETING [" + meetingID + "] ***************************** ")
+    bbbGW.accept(new EndMeeting(meetingID))
   }
 	
   def endAllMeetings() {
