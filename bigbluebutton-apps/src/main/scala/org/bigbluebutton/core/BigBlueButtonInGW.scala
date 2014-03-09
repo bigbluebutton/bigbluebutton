@@ -21,9 +21,9 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
   val presUtil = new PreuploadedPresentationsUtil()
    
   // Meeting
-  def createMeeting2(meetingID: String, record: Boolean, voiceBridge: String) {
+  def createMeeting2(meetingID: String, meetingName: String, record: Boolean, voiceBridge: String, duration: Long) {
     println("******************** CREATING MEETING [" + meetingID + "] ***************************** ")
-	bbbGW.accept(new CreateMeeting(meetingID, record, voiceBridge))
+	bbbGW.accept(new CreateMeeting(meetingID, meetingName, record, voiceBridge, duration))
 
 	/*
 	val pres = presUtil.getPreuploadedPresentations(meetingID);

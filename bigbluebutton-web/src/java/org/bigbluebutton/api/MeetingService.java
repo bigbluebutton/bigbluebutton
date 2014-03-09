@@ -124,7 +124,7 @@ public class MeetingService {
 			messagingService.recordMeetingInfo(m.getInternalId(), metadata);
 		}
 		
-		messagingService.createMeeting(m.getInternalId(), m.isRecord(), m.getTelVoice());
+		messagingService.createMeeting(m.getInternalId(), m.getName(), m.isRecord(), m.getTelVoice(), m.getDuration());
 	}
 
 	public String addSubscription(String meetingId, String event, String callbackURL){

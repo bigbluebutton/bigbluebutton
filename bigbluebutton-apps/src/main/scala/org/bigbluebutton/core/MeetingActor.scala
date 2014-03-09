@@ -12,11 +12,12 @@ import org.bigbluebutton.core.apps.layout.LayoutApp
 import org.bigbluebutton.core.apps.chat.ChatApp
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp
 import net.lag.logging.Logger
+import scala.actors.TIMEOUT
 
 case object StopMeetingActor
                       
-class MeetingActor(val meetingID: String, val recorded: Boolean, 
-                   val voiceBridge: String, val outGW: MessageOutGateway) 
+class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boolean, 
+                   val voiceBridge: String, duration: Long, val outGW: MessageOutGateway) 
                    extends Actor with UsersApp with PresentationApp
                    with PollApp with LayoutApp with ChatApp
                    with WhiteboardApp {  
@@ -26,9 +27,19 @@ class MeetingActor(val meetingID: String, val recorded: Boolean,
   var recording = false;
   var muted = false;
 
+  class TimerActor(val timeout: Long, val who: Actor, val reply: String) extends Actor {
+    def act {
+        reactWithin(timeout) {
+          case TIMEOUT => who ! reply
+        }
+    }
+  }
+  
   def act() = {
 	loop {
 	  react {
+	    case "StartTimer"                           => handleStartTimer
+	    case "Hello"                                => handleHello
 	    case msg: ValidateAuthToken                      => handleValidateAuthToken(msg)
 	    case msg: RegisterUser                           => handleRegisterUser(msg)
 	    case msg: VoiceUserJoined                        => handleVoiceUserJoined(msg)
@@ -103,6 +114,19 @@ class MeetingActor(val meetingID: String, val recorded: Boolean,
 	  }
 	}
   }	
+  
+  private def handleStartTimer() {
+    println("***************timer started******************")
+    val timerActor = new TimerActor(2000, self, "Hello")
+    timerActor.start
+  }
+  
+  private def handleHello() {
+    println("***************hello received on [" + System.currentTimeMillis() + "]******************")
+    
+    val timerActor = new TimerActor(2000, self, "Hello")    
+    timerActor.start
+  }
   
   private def handleVoiceRecording(msg: VoiceRecording) {
      if (msg.recording) {

@@ -78,12 +78,14 @@ public class RedisMessagingService implements MessagingService {
 		send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));		
 	}
 	
-	public void createMeeting(String meetingID, Boolean recorded, String voiceBridge) {
+	public void createMeeting(String meetingID, String meetingName, Boolean recorded, String voiceBridge, Long duration) {
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put("messageId", MessagingConstants.CREATE_MEETING_REQUEST_EVENT);
 		map.put("meetingID", meetingID);
+		map.put("meetingName", meetingName);
 		map.put("record", recorded);
 		map.put("voiceBridge", voiceBridge);
+		map.put("duration", duration);
 		
 		Gson gson = new Gson();
 		log.info("Sending create meeting [{}] - [{}]", meetingID, voiceBridge);

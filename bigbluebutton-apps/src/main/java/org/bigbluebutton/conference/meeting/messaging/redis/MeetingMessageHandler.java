@@ -39,8 +39,10 @@ public class MeetingMessageHandler implements MessageHandler {
 					String meetingID = map.get("meetingID");
 					log.info("Received create meeting request. Meeting id [{}]", meetingID);
 					Boolean record = Boolean.parseBoolean(map.get("record"));
-					String voiceBridge = map.get("voiceBridge");					
-					bbbGW.createMeeting2(meetingID, record, voiceBridge);
+					String voiceBridge = map.get("voiceBridge");		
+					String meetingName = map.get("meetingName");
+					Long duration = Long.parseLong(map.get("duration"));
+					bbbGW.createMeeting2(meetingID, meetingName, record, voiceBridge, duration);
 				} else if(MessagingConstants.DESTROY_MEETING_REQUEST_EVENT.equalsIgnoreCase(messageId)){
 					String meetingID = map.get("meetingID");
 					log.info("Received destroy meeting request. Meeting id [{}]", meetingID);

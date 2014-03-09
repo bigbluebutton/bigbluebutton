@@ -14,8 +14,10 @@ case class KeepAliveMessage
 case class CreateMeeting
 (
   meetingID: String, 
+  meetingName: String,
   recorded: Boolean, 
-  voiceBridge: String
+  voiceBridge: String,
+  duration: Long
 ) extends InMessage
                          
 case class InitializeMeeting(

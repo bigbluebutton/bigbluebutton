@@ -69,12 +69,13 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
   private def handleCreateMeeting(msg: CreateMeeting):Unit = {
     meetings.get(msg.meetingID) match {
       case None => {
-    	  var m = new MeetingActor(msg.meetingID, msg.recorded, msg.voiceBridge, outGW)
+    	  var m = new MeetingActor(msg.meetingID, msg.meetingName, msg.recorded, msg.voiceBridge, msg.duration, outGW)
     	  m.start
     	  meetings += m.meetingID -> m
     	  outGW.send(new MeetingCreated(m.meetingID, m.recorded, m.voiceBridge))
     	  
     	  m ! new InitializeMeeting(m.meetingID, m.recorded)
+    	  m ! "StartTimer"
       }
       case Some(m) => // do nothing
     }
