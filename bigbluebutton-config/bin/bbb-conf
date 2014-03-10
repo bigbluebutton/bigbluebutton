@@ -46,6 +46,7 @@
 #   2012-04-27 FFD  Added sum of version numbers in --check
 #   2013-02-03 FFD  Updated for changes to parameters for 0.81 in bigbluebutton-sip.properties
 #   2013-11-07 FFD  Finished 0.81
+#   2014-03-10 GUG  Enable Webrtc
 
 #set -x
 #set -e
@@ -175,6 +176,8 @@ usage() {
         echo "   --version                        Display BigBlueButton version (packages)"
         echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
 	echo "   --setsecret <secret>             Change the shared secret in bigbluebutton.properties"
+        echo "   --enablewebrtc                   Enables webrtc feature in the server"
+        echo "   --disablewebrtc                  Disables webrtc feature in the server"
         echo
         echo "Monitoring:"
         echo "   --check                          Check configuration files and processes for problems"
@@ -353,6 +356,40 @@ display_bigbluebutton_status () {
 }
 
 
+enable_webrtc(){
+        # Set server ip address in freeswitch
+        sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=$IP\"/>@g"  /opt/freeswitch/conf/vars.xml
+ 
+        # Set server ip address in red5 sip app. For flash client.
+        sed -i "s/bbb.sip.app.ip=.*/bbb.sip.app.ip=$IP/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties               
+        sed -i "s/freeswitch.ip=.*/freeswitch.ip=$IP/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties                 
+
+        # Enable webrtc in the client
+        sed -i "s@useWebrtcIfAvailable=\".*\"@useWebrtcIfAvailable=\"true\"@g" /var/www/bigbluebutton/client/conf/config.xml    
+
+	# Enable port 5066 in freeswitch
+	sed -i "s@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@<param name=\"ws-binding\"  value=\":5066\"/>@g" /opt/freeswitch/conf/sip_profiles/external.xml
+
+        bbb-conf --clean
+}
+
+disable_webrtc(){
+        # Set 127.0.0.1 in freeswitch
+        sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=127.0.0.1\"/>@g"  /opt/freeswitch/conf/vars.xml
+ 
+        # Set 127.0.0.1 in red5 sip app. For flash client.
+        sed -i "s/bbb.sip.app.ip=.*/bbb.sip.app.ip=127.0.0.1/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties                 
+        sed -i "s/freeswitch.ip=.*/freeswitch.ip=127.0.0.1/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties           
+
+        # Disable webrtc in the client
+        sed -i "s@useWebrtcIfAvailable=\".*\"@useWebrtcIfAvailable=\"false\"@g" /var/www/bigbluebutton/client/conf/config.xml   
+	
+	# Disable port 5066 in freeswitch
+	sed -i "s@<param name=\"ws-binding\"  value=\":5066\"/>@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@g" /opt/freeswitch/conf/sip_profiles/external.xml
+
+        bbb-conf --clean
+}
+
 if [ $# -eq 0 ]; then
 	usage
 	exit 1
@@ -432,6 +469,16 @@ while [ $# -gt 0 ]; do
                 RESTART=1
                 shift
                 continue
+        fi
+
+	if [ "$1" = "--enablewebrtc" -o "$1" = "-enablewebrtc" ]; then
+		enable_webrtc
+		exit 0
+        fi
+
+	if [ "$1" = "--disablewebrtc" -o "$1" = "-disablewebrtc" ]; then
+		disable_webrtc
+		exit 0
         fi
 
 	#
@@ -1235,6 +1282,9 @@ if [ $CHECK ]; then
 
 	RED5_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp:\/\///;s/\/.*//;p}')
 	echo "                              Red5: $RED5_IP"
+
+	WEBRTC_ENABLED=$(grep -i webrtc /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
+	echo "			  'webrtc enabled: $WEBRTC_ENABLED"	
 
 #        HOST=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/recordingHost/{s/.*recordingHost="http:\/\///;s/"//;p}')
 #        echo "          host for bbb-web interface: $HOST"
