@@ -70,8 +70,11 @@ package org.bigbluebutton.modules.users.services
         case "assignPresenterCallback":
           handleAssignPresenterCallback(message);
           break;
-        case "logout":
+        case "meetingEnded":
           handleLogout(message);
+          break;
+        case "meetingHasEnded":
+          handleMeetingHasEnded(message);
           break;
         case "participantJoined":
           handleParticipantJoined(message);
@@ -116,7 +119,11 @@ package org.bigbluebutton.modules.users.services
           break;
       }
     }  
-        
+    
+    private function handleMeetingHasEnded(msg: Object):void {
+      trace(LOG + "*** handleMeetingHasEnded " + msg.msg + " **** \n"); 
+    }
+    
     private function sendRecordingStatusUpdate(recording:Boolean):void {
       MeetingModel.getInstance().recording = recording;
       

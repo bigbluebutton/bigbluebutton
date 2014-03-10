@@ -25,22 +25,21 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
   def act() = {
 	loop {
 	  react {
-	    case msg: MeetingCreated => handleMeetingCreated(msg)
-	    case msg: MeetingEnded => handleMeetingEnded(msg)
-	    case msg: UserJoined => handleUserJoined(msg)
-	    case msg: UserLeft => handleUserLeft(msg)
-	    case msg: MuteVoiceUser => handleMuteVoiceUser(msg)
-	    case msg: EjectVoiceUser => handleEjectVoiceUser(msg)
-	    case msg: StartRecording => handleStartRecording(msg)
-	    case msg: StopRecording => handleStopRecording(msg)
-	    case msg: FsRecording => handleFsRecording(msg)
-	    case msg: FsVoiceUserJoined => handleFsVoiceUserJoined(msg)
-	    case msg: FsVoiceUserLeft => handleFsVoiceUserLeft(msg)
-	    case msg: FsVoiceUserLocked => handleFsVoiceUserLocked(msg)
-	    case msg: FsVoiceUserMuted => handleFsVoiceUserMuted(msg)
-	    case msg: FsVoiceUserTalking => handleFsVoiceUserTalking(msg)
-	    case msg: UserJoinedVoice =>
-	                  handleUserJoinedVoice(msg)
+	    case msg: MeetingCreated                     => handleMeetingCreated(msg)
+	    case msg: MeetingEnded                       => handleMeetingEnded(msg)
+	    case msg: UserJoined                         => handleUserJoined(msg)
+	    case msg: UserLeft                           => handleUserLeft(msg)
+	    case msg: MuteVoiceUser                      => handleMuteVoiceUser(msg)
+	    case msg: EjectVoiceUser                     => handleEjectVoiceUser(msg)
+	    case msg: StartRecording                     => handleStartRecording(msg)
+	    case msg: StopRecording                      => handleStopRecording(msg)
+	    case msg: FsRecording                        => handleFsRecording(msg)
+	    case msg: FsVoiceUserJoined                  => handleFsVoiceUserJoined(msg)
+	    case msg: FsVoiceUserLeft                    => handleFsVoiceUserLeft(msg)
+	    case msg: FsVoiceUserLocked                  => handleFsVoiceUserLocked(msg)
+	    case msg: FsVoiceUserMuted                   => handleFsVoiceUserMuted(msg)
+	    case msg: FsVoiceUserTalking                 => handleFsVoiceUserTalking(msg)
+	    case msg: UserJoinedVoice                    => handleUserJoinedVoice(msg)
 	    case _ => // do nothing
 	  }
 	}

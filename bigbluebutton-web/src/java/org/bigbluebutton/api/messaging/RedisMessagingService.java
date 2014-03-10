@@ -229,7 +229,7 @@ public class RedisMessagingService implements MessagingService {
 
 		@Override
 		public void onPMessage(String pattern, String channel, String message) {
-			log.debug("Received in channel [{}] message [{}]", channel, message);
+//			log.debug("Received in channel [{}] message [{}]", channel, message);
 			
 			Gson gson = new Gson();
 			
@@ -237,7 +237,7 @@ public class RedisMessagingService implements MessagingService {
 //				log.debug("rx: {} = {}", key, map.get(key));
 //			}
 			
-			if(channel.equalsIgnoreCase(MessagingConstants.SYSTEM_CHANNEL)){
+			if (channel.equalsIgnoreCase(MessagingConstants.SYSTEM_CHANNEL)){
 				HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
 				String messageId = map.get("messageID");
 
@@ -251,10 +251,12 @@ public class RedisMessagingService implements MessagingService {
 					} else if(MessagingConstants.KEEP_ALIVE_REPLY_EVENT.equalsIgnoreCase(messageId)){
 						String aliveId = map.get("aliveID");
 						listener.keepAliveReply(aliveId);
+					} else if (MessagingConstants.MEETING_DESTROYED_EVENT.equalsIgnoreCase(messageId)) {
+						String meetingId = map.get("meetingID");
+						log.info("Received a meeting destroyed message for meeting id=[{}]", meetingId);
 					}
 				}
-			}
-			else if(channel.equalsIgnoreCase(MessagingConstants.PARTICIPANTS_CHANNEL)){
+			} else if(channel.equalsIgnoreCase(MessagingConstants.PARTICIPANTS_CHANNEL)){
 				HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
 				String meetingId = map.get("meetingID");
 				String messageId = map.get("messageID");

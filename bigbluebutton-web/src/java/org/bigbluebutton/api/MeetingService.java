@@ -85,6 +85,13 @@ public class MeetingService {
 		  		destroyMeeting(m.getInternalId());		  		
 				meetings.remove(m.getInternalId());				
 				continue;
+			} else {
+				log.debug("Meeting id=[" + m.getInternalId() + "] has not expired yet.");
+			}
+			
+			if (m.isForciblyEnded()) {
+				log.info("Meeting id[{}] has been forcefully ended. Destroying.", m.getInternalId());
+				destroyMeeting(m.getInternalId());
 			}
 			
 			if (m.wasNeverStarted(defaultMeetingCreateJoinDuration)) {
@@ -247,6 +254,7 @@ public class MeetingService {
 	}
 	
 	public void endMeeting(String meetingId) {		
+		log.info("Received EndMeeting request from the API for meeting=[{}]", meetingId);
 		messagingService.endMeeting(meetingId);
 		
 		Meeting m = getMeeting(meetingId);
@@ -257,6 +265,7 @@ public class MeetingService {
 					log.debug("Removing forcibly ended meeting [{}]. Process the recording.",  m.getInternalId());		  			
 					processRecording(m.getInternalId());
 				}
+				destroyMeeting(m.getInternalId());
 				meetings.remove(m.getInternalId());
 			}
 		} else {
@@ -309,7 +318,7 @@ public class MeetingService {
 		public void meetingStarted(String meetingId) {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
-				if (m.getStartTime() == 0){
+				if (m.getStartTime() == 0) {
 					long now = System.currentTimeMillis();
 					log.info("Meeting [{}] has started on [{}]", meetingId, now);
 					m.setStartTime(now);

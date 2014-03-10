@@ -10,6 +10,8 @@ import scala.collection.immutable.HashMap
 import com.google.gson.Gson
 import scala.collection.JavaConverters._
 import org.bigbluebutton.conference.service.messaging.MessagingConstants
+import org.bigbluebutton.core.api.MeetingDestroyed
+import org.bigbluebutton.core.api.MeetingDestroyed
 
 class MeetingEventRedisPublisher(service: MessageSender) extends OutMessageListener2 {
 
@@ -17,13 +19,20 @@ class MeetingEventRedisPublisher(service: MessageSender) extends OutMessageListe
 
 	def handleMessage(msg: IOutMessage) {
 	  msg match {
-	  	case meetingCreated: MeetingCreated => handleMeetingCreated(meetingCreated)
-	  	case meetingEnded: MeetingEnded => handleMeetingEnded(meetingEnded)
-	    case keepAliveMessageReply: KeepAliveMessageReply => handleKeepAliveMessageReply(keepAliveMessageReply)
+	  	case msg: MeetingCreated                         => handleMeetingCreated(msg)
+	  	case msg: MeetingEnded                           => handleMeetingEnded(msg)
+	  	case msg: MeetingDestroyed                       => handleMeetingDestroyed(msg)
+	    case msg: KeepAliveMessageReply                  => handleKeepAliveMessageReply(msg)
 	    case _ => //println("Unhandled message in MeetingEventRedisPublisher")
 	  }
     }
 
+	private def handleMeetingDestroyed(msg: MeetingDestroyed) {
+    	val gson = new Gson
+    	var map = Map("messageID" -> MessagingConstants.MEETING_DESTROYED_EVENT, "meetingID" -> msg.meetingID)
+    	service.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map.asJava))	     
+	}
+	
     private def handleKeepAliveMessageReply(msg: KeepAliveMessageReply):Unit = {
     	val gson = new Gson
     	var map = Map("messageID" -> KEEP_ALIVE_REPLY, "aliveID" -> msg.aliveID)

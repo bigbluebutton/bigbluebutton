@@ -124,7 +124,39 @@ public class ConnectionInvokerService {
 			sendDirectMessage((DirectClientMessage) message);
 		} else if (message instanceof SharedObjectClientMessage) {
 			sendSharedObjectMessage((SharedObjectClientMessage) message);
+		} else if (message instanceof DisconnectClientMessage) {
+			handlDisconnectClientMessage((DisconnectClientMessage) message);
+		} else if (message instanceof DisconnectAllClientsMessage) {
+			handleDisconnectAllClientsMessage((DisconnectAllClientsMessage) message);
 		}
+	}	
+
+	private void handleDisconnectAllClientsMessage(DisconnectAllClientsMessage msg) {
+		IScope meetingScope = getScope(msg.getMeetingId());
+		if (meetingScope != null) {
+			Set<IConnection> conns = meetingScope.getClientConnections();
+
+			for (IConnection conn : conns) {
+				if (conn.isConnected()) {
+					String connId = (String) conn.getAttribute("INTERNAL_USER_ID");
+					log.info("Disconnecting client=[{}] from meeting=[{}]", connId, msg.getMeetingId());
+					conn.close();
+				}
+			}	
+		}		
+	}
+	
+	private void handlDisconnectClientMessage(DisconnectClientMessage msg) {
+		IScope meetingScope = getScope(msg.getMeetingId());
+		if (meetingScope != null) {
+			IConnection conn = getConnection(meetingScope, msg.getUserId());
+			if (conn != null) {
+				if (conn.isConnected()) {
+					log.info("Disconnecting user=[{}] from meeting=[{}]", msg.getUserId(), msg.getMeetingId());
+					conn.close();
+				}
+			}				
+		}		
 	}	
 
 	private void sendSharedObjectMessage(SharedObjectClientMessage msg) {
@@ -159,9 +191,8 @@ public class ConnectionInvokerService {
 					params.add(msg.getMessage());
 					ServiceUtils.invokeOnConnection(conn, "onMessageFromServer", params.toArray());
 				}
-			}			
-		}
-		
+			}				
+		}		
 	}
 	
 	private void sendBroadcastMessage(BroadcastClientMessage msg) {
@@ -176,10 +207,9 @@ public class ConnectionInvokerService {
 	
 	private IConnection getConnection(IScope scope, String userID) {
 		Set<IConnection> conns = scope.getClientConnections();
-
 		for (IConnection conn : conns) {
 			String connID = (String) conn.getAttribute("INTERNAL_USER_ID");
-			if (connID.equals(userID)) {
+			if (connID != null && connID.equals(userID)) {
 				return conn;
 			}
 		}

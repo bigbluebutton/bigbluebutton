@@ -87,13 +87,13 @@ public class KeepAliveService {
         	while (count < liveMsgs.size() || !found){
         		if (liveMsgs.get(count).equals(id)){
         			liveMsgs.remove(count);
-        			log.debug("Found valid keep alive msg reply from bbb-apps. id [{}]", id);
+//        			log.debug("Found valid keep alive msg reply from bbb-apps. id [{}]", id);
         			found = true;
         		}
         		count++;
         	}
         	if (!found){
-        		log.info("Received valid response from bbb-apps:" + id);
+        		log.info("Received invalid keep alive response from bbb-apps:" + id);
         	}
         }
 

@@ -26,7 +26,8 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
   var permissions = new PermissionsSetting(false, new Permissions())
   var recording = false;
   var muted = false;
-
+  var meetingEnded = false
+  
   class TimerActor(val timeout: Long, val who: Actor, val reply: String) extends Actor {
     def act {
         reactWithin(timeout) {
@@ -38,8 +39,8 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
   def act() = {
 	loop {
 	  react {
-	    case "StartTimer"                           => handleStartTimer
-	    case "Hello"                                => handleHello
+	    case "StartTimer"                                => handleStartTimer
+	    case "Hello"                                     => handleHello
 	    case msg: ValidateAuthToken                      => handleValidateAuthToken(msg)
 	    case msg: RegisterUser                           => handleRegisterUser(msg)
 	    case msg: VoiceUserJoined                        => handleVoiceUserJoined(msg)
@@ -109,23 +110,40 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
 	    case msg: SetRecordingStatus                     => handleSetRecordingStatus(msg)
 	    case msg: GetRecordingStatus                     => handleGetRecordingStatus(msg)
 	    case msg: VoiceRecording                         => handleVoiceRecording(msg)
-	    case StopMeetingActor => exit
+	    
+	    case msg: EndMeeting                             => handleEndMeeting(msg)
+	    case StopMeetingActor                            => exit
 	    case _ => // do nothing
 	  }
 	}
   }	
   
+  def hasMeetingEnded():Boolean = {
+    meetingEnded
+  }
+  
   private def handleStartTimer() {
     println("***************timer started******************")
-    val timerActor = new TimerActor(2000, self, "Hello")
-    timerActor.start
+//    val timerActor = new TimerActor(2000, self, "Hello")
+//    timerActor.start
   }
   
   private def handleHello() {
     println("***************hello received on [" + System.currentTimeMillis() + "]******************")
     
-    val timerActor = new TimerActor(2000, self, "Hello")    
-    timerActor.start
+//    val timerActor = new TimerActor(2000, self, "Hello")    
+//    timerActor.start
+  }
+  
+  def sendMeetingHasEnded(userId: String) {
+    outGW.send(new MeetingHasEnded(meetingID, userId))
+    outGW.send(new DisconnectUser(meetingID, userId))
+  }
+  
+  private def handleEndMeeting(msg: EndMeeting) {
+    meetingEnded = true
+    outGW.send(new MeetingEnded(msg.meetingID, recorded, voiceBridge))
+    outGW.send(new DisconnectAllUsers(msg.meetingID))
   }
   
   private def handleVoiceRecording(msg: VoiceRecording) {

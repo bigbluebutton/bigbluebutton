@@ -50,8 +50,22 @@ case class MeetingEnded(
     voiceBridge: String
 ) extends IOutMessage
 
+case class MeetingHasEnded(
+  meetingID: String,
+  userId: String
+) extends IOutMessage
+
 case class MeetingDestroyed(
     meetingID: String
+) extends IOutMessage
+
+case class DisconnectAllUsers(
+  meetingID: String    
+) extends IOutMessage
+
+case class DisconnectUser(
+  meetingID: String, 
+  userId: String
 ) extends IOutMessage
 
 case class KeepAliveMessageReply(

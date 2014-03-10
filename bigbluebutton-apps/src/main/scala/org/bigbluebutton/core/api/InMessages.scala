@@ -8,7 +8,8 @@ import org.bigbluebutton.core.apps.presentation.Presentation
 trait InMessage {val meetingID: String}
 
 case class KeepAliveMessage
-( aliveID:String
+( 
+    aliveID:String
 )
 
 case class CreateMeeting

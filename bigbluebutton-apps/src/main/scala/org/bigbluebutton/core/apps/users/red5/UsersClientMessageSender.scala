@@ -10,48 +10,35 @@ import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage
 import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage
 import com.google.gson.Gson
 import scala.collection.JavaConversions._
+import org.bigbluebutton.conference.meeting.messaging.red5.DisconnectAllClientsMessage
+import org.bigbluebutton.conference.meeting.messaging.red5.DisconnectClientMessage
 
 class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMessageListener2 {
 	private val USERS_SO: String = "participantsSO"; 
 
 	def handleMessage(msg: IOutMessage) {
 	  msg match {
-	    case msg: EndAndKickAll => 
-	                handleEndAndKickAll(msg)
-	    case msg: PresenterAssigned => 
-	                handleAssignPresenter(msg)
-	    case msg: UserJoined => 
-	                handleUserJoined(msg)
-	    case msg: UserLeft => 
-	                handleUserLeft(msg)
-	    case msg: UserStatusChange => 
-	                handleUserStatusChange(msg)
-	    case msg: UserRaisedHand =>
-	                handleUserRaisedHand(msg)
-	    case msg: UserLoweredHand =>
-	                handleUserLoweredHand(msg)
-	    case msg: UserSharedWebcam =>
-	                handleUserSharedWebcam(msg)
-	    case msg: UserUnsharedWebcam =>
-	                handleUserUnshareWebcam(msg)	                
-	    case msg: GetUsersReply => 
-	                handleGetUsersReply(msg)
-	    case msg: UserJoinedVoice =>
-	                handleUserJoinedVoice(msg)
-	    case msg: UserVoiceMuted =>
-	                handleUserVoiceMuted(msg)
-	    case msg: UserVoiceTalking =>
-	                handleUserVoiceTalking(msg)
-	    case msg: UserLeftVoice =>
-	                handleUserLeftVoice(msg)
-	    case msg: RecordingStatusChanged =>
-	                handleRecordingStatusChanged(msg)
-	    case msg: GetRecordingStatusReply =>
-	                handleGetRecordingStatusReply(msg)
-	    case msg: ValidateAuthTokenReply =>
-	                handleValidateAuthTokenReply(msg)
-	    case msg: UserRegistered =>
-	                handleRegisteredUser(msg)
+	    case msg: MeetingEnded                           => handleMeetingEnded(msg)
+	    case msg: DisconnectAllUsers                     => handleDisconnectAllUsers(msg)
+	    case msg: MeetingHasEnded                        => handleMeetingHasEnded(msg)
+	    case msg: DisconnectUser                         => handleDisconnectUser(msg)
+	    case msg: PresenterAssigned                      => handleAssignPresenter(msg)
+	    case msg: UserJoined                             => handleUserJoined(msg)
+	    case msg: UserLeft                               => handleUserLeft(msg)
+	    case msg: UserStatusChange                       => handleUserStatusChange(msg)
+	    case msg: UserRaisedHand                         => handleUserRaisedHand(msg)
+	    case msg: UserLoweredHand                        => handleUserLoweredHand(msg)
+	    case msg: UserSharedWebcam                       => handleUserSharedWebcam(msg)
+	    case msg: UserUnsharedWebcam                     => handleUserUnshareWebcam(msg)	                
+	    case msg: GetUsersReply                          => handleGetUsersReply(msg)
+	    case msg: UserJoinedVoice                        => handleUserJoinedVoice(msg)
+	    case msg: UserVoiceMuted                         => handleUserVoiceMuted(msg)
+	    case msg: UserVoiceTalking                       => handleUserVoiceTalking(msg)
+	    case msg: UserLeftVoice                          => handleUserLeftVoice(msg)
+	    case msg: RecordingStatusChanged                 => handleRecordingStatusChanged(msg)
+	    case msg: GetRecordingStatusReply                => handleGetRecordingStatusReply(msg)
+	    case msg: ValidateAuthTokenReply                 => handleValidateAuthTokenReply(msg)
+	    case msg: UserRegistered                         => handleRegisteredUser(msg)
 	    case _ => // println("Unhandled message in UsersClientMessageSender")
 	  }
 	}
@@ -215,19 +202,53 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
       args.put("users", users);
 		
       val message = new java.util.HashMap[String, Object]() 
-      val gson = new Gson();
+      val gson = new Gson()
   	  message.put("msg", gson.toJson(args))
 		
       println("UsersClientMessageSender - handleGetUsersReply \n" + message.get("msg") + "\n")
 			
-      var m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getUsersReply", message);
-  	  service.sendMessage(m);	  
+      var m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getUsersReply", message)
+  	  service.sendMessage(m)
+	}
+
+	private def handleMeetingHasEnded(msg: MeetingHasEnded):Unit = {
+	  var args = new HashMap[String, Object]();	
+	  args.put("status", "Meeting has already ended.");
+		
+	  var message = new HashMap[String, Object]();
+	  val gson = new Gson();
+  	  message.put("msg", gson.toJson(args))
+	  
+	  println("UsersClientMessageSender - handleMeetingHasEnded \n" + message.get("msg") + "\n")
+	  
+	  var m = new DirectClientMessage(msg.meetingID, msg.userId, "meetingHasEnded", message)
+	  service.sendMessage(m);
+	}
+	
+	private def handleDisconnectUser(msg: DisconnectUser) {
+	  println("UsersClientMessageSender - handleDisconnectUser mid=[" + msg.meetingID + "], uid=[" + msg.userId + "]\n")
+	  
+	  var m = new DisconnectClientMessage(msg.meetingID, msg.userId)
+	  service.sendMessage(m);	  
 	}
 		
-	private def handleEndAndKickAll(msg: EndAndKickAll):Unit = {
+	private def handleMeetingEnded(msg: MeetingEnded):Unit = {
+	  var args = new HashMap[String, Object]();	
+	  args.put("status", "Meeting has been ended.");
+		
 	  var message = new HashMap[String, Object]();
-	  var m = new BroadcastClientMessage(msg.meetingID, "logout", message);
+	  val gson = new Gson();
+  	  message.put("msg", gson.toJson(args))
+  	    
+	  println("UsersClientMessageSender - handleMeetingEnded \n" + msg.meetingID + "\n")
+	  
+	  var m = new BroadcastClientMessage(msg.meetingID, "meetingEnded", message);
 	  service.sendMessage(m);
+	}
+	
+	private def handleDisconnectAllUsers(msg: DisconnectAllUsers) {
+	  var dm = new DisconnectAllClientsMessage(msg.meetingID)
+	  service.sendMessage(dm)	  
 	}
 
 	private def handleAssignPresenter(msg:PresenterAssigned):Unit = {

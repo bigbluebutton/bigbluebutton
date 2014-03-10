@@ -48,9 +48,15 @@ trait UsersApp {
   }
   
   def handleRegisterUser(msg: RegisterUser) {
-    val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role)
-    regUsers += msg.userID -> regUser
-    outGW.send(new UserRegistered(meetingID, recorded, regUser))
+    if (hasMeetingEnded) {
+      // Check first if the meeting has ended and the user refreshed the client to re-connect.
+      sendMeetingHasEnded(msg.userID)
+    } else {
+      val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role)
+      regUsers += msg.userID -> regUser
+      outGW.send(new UserRegistered(meetingID, recorded, regUser))      
+    }
+
   }
   
   def handleIsMeetingMutedRequest(msg: IsMeetingMutedRequest) {

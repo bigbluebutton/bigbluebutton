@@ -248,8 +248,8 @@ public class Meeting {
 	}
 	
 	public boolean hasExpired(int expiry) {
-		System.out.println("meeting-id=" + intMeetingId + " started=" + hasStarted() + " ended=" + hasEnded() + " notRunning=" + !isRunning() + " expired=" + didExpire(expiry));
-		return (hasStarted() && hasEnded() && !isRunning() && didExpire(expiry));
+		System.out.println("meetingIdd=[" + intMeetingId + "] started=[" + hasStarted() + "] notRunning=[" + !isRunning() + "] expired=[" + didExpire(expiry) + "]");
+		return (hasStarted() && !isRunning() && didExpire(expiry));
 	}
 	
 	public boolean hasExceededDuration() {
@@ -271,7 +271,7 @@ public class Meeting {
 	
 	private boolean didExpire(int expiry) {
 		long now = System.currentTimeMillis();
-		System.out.println("Expiry " + now + " endTime=" + endTime + "expiry=" + (expiry * MILLIS_IN_A_MINUTE));
+		System.out.println("Expiry " + now + " endTime=" + endTime + " expiry=" + (expiry * MILLIS_IN_A_MINUTE));
 		return (System.currentTimeMillis() - endTime > (expiry * MILLIS_IN_A_MINUTE));
 	}
 	
