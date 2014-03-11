@@ -14,9 +14,9 @@ class WhiteboardEventRedisRecorder(recorder: RecorderApplication) extends OutMes
 
   	def handleMessage(msg: IOutMessage) {
 	  msg match {
-	    case sendWhiteboardAnnotationEvent: SendWhiteboardAnnotationEvent => handleSendWhiteboardAnnotationEvent(sendWhiteboardAnnotationEvent)
-	    case clearWhiteboardEvent: ClearWhiteboardEvent => handleClearWhiteboardEvent(clearWhiteboardEvent)
-	    case undoWhiteboardEvent: UndoWhiteboardEvent => handleUndoWhiteboardEvent(undoWhiteboardEvent)
+	    case msg: SendWhiteboardAnnotationEvent     => handleSendWhiteboardAnnotationEvent(msg)
+	    case msg: ClearWhiteboardEvent              => handleClearWhiteboardEvent(msg)
+	    case msg: UndoWhiteboardEvent               => handleUndoWhiteboardEvent(msg)
 	    case _ => //println("Unhandled message in UsersClientMessageSender")
 	  }
 	}

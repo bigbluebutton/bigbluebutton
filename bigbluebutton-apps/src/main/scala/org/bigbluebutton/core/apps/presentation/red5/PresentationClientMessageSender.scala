@@ -28,30 +28,18 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
     
   def handleMessage(msg: IOutMessage) {
     msg match {
-      case msg: ClearPresentationOutMsg => 
-                   handleClearPresentationOutMsg(msg)
-      case msg: RemovePresentationOutMsg => 
-                   handleRemovePresentationOutMsg(msg)
-      case msg: GetPresentationInfoOutMsg => 
-                   handleGetPresentationInfoOutMsg(msg)
-      case msg: SendCursorUpdateOutMsg => 
-                   handleSendCursorUpdateOutMsg(msg)
-      case msg: ResizeAndMoveSlideOutMsg => 
-                   handleResizeAndMoveSlideOutMsg(msg)
-      case msg: GotoSlideOutMsg => 
-                   handleGotoSlideOutMsg(msg)
-      case msg: SharePresentationOutMsg => 
-                   handleSharePresentationOutMsg(msg)
-      case msg: GetSlideInfoOutMsg => 
-                   handleGetSlideInfoOutMsg(msg)
-      case msg: PresentationConversionProgress =>
-                   handlePresentationConversionProgress(msg)
-      case msg: PresentationConversionError =>
-                   handlePresentationConversionError(msg)
-      case msg: PresentationPageGenerated =>
-                   handlePresentationPageGenerated(msg)
-      case msg: PresentationConversionDone =>
-                   handlePresentationConversionDone(msg)
+      case msg: ClearPresentationOutMsg             => handleClearPresentationOutMsg(msg)
+      case msg: RemovePresentationOutMsg            => handleRemovePresentationOutMsg(msg)
+      case msg: GetPresentationInfoOutMsg           => handleGetPresentationInfoOutMsg(msg)
+      case msg: SendCursorUpdateOutMsg              => handleSendCursorUpdateOutMsg(msg)
+      case msg: ResizeAndMoveSlideOutMsg            => handleResizeAndMoveSlideOutMsg(msg)
+      case msg: GotoSlideOutMsg                     => handleGotoSlideOutMsg(msg)
+      case msg: SharePresentationOutMsg             => handleSharePresentationOutMsg(msg)
+      case msg: GetSlideInfoOutMsg                  => handleGetSlideInfoOutMsg(msg)
+      case msg: PresentationConversionProgress      => handlePresentationConversionProgress(msg)
+      case msg: PresentationConversionError         => handlePresentationConversionError(msg)
+      case msg: PresentationPageGenerated           => handlePresentationPageGenerated(msg)
+      case msg: PresentationConversionDone          => handlePresentationConversionDone(msg)
       case _ => // do nothing
     }
   }

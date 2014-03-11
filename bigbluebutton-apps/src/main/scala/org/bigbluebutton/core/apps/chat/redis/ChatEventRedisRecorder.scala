@@ -9,7 +9,7 @@ class ChatEventRedisRecorder(recorder: RecorderApplication) extends OutMessageLi
  
   	def handleMessage(msg: IOutMessage) {
 	  msg match {
-	    case sendPublicMessageEvent: SendPublicMessageEvent => handleSendPublicMessageEvent(sendPublicMessageEvent)
+	    case msg: SendPublicMessageEvent       => handleSendPublicMessageEvent(msg)
 	    case _ => // do nothing
 	  }
 	}

@@ -11,18 +11,12 @@ import java.util.ArrayList
 class WhiteboardClientMessageSender(service: ConnectionInvokerService) extends OutMessageListener2 {
   def handleMessage(msg: IOutMessage) {
     msg match {
-      case msg: GetWhiteboardShapesReply => 
-                   handleGetWhiteboardShapesReply(msg)
-      case msg: SendWhiteboardAnnotationEvent => 
-                   handleSendWhiteboardAnnotationEvent(msg)
-      case msg: ClearWhiteboardEvent => 
-                   handleClearWhiteboardEvent(msg)
-      case msg: UndoWhiteboardEvent => 
-                   handleUndoWhiteboardEvent(msg)
-      case msg: WhiteboardEnabledEvent => 
-                   handleWhiteboardEnabledEvent(msg)
-      case msg: IsWhiteboardEnabledReply => 
-                   handleIsWhiteboardEnabledReply(msg)
+      case msg: GetWhiteboardShapesReply             => handleGetWhiteboardShapesReply(msg)
+      case msg: SendWhiteboardAnnotationEvent        => handleSendWhiteboardAnnotationEvent(msg)
+      case msg: ClearWhiteboardEvent                 => handleClearWhiteboardEvent(msg)
+      case msg: UndoWhiteboardEvent                  => handleUndoWhiteboardEvent(msg)
+      case msg: WhiteboardEnabledEvent               => handleWhiteboardEnabledEvent(msg)
+      case msg: IsWhiteboardEnabledReply             => handleIsWhiteboardEnabledReply(msg)
       case _ => // do nothing
     }
   }

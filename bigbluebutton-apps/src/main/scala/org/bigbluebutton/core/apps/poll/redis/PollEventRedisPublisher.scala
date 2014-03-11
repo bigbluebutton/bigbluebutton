@@ -11,14 +11,14 @@ class PollEventRedisPublisher(service: MessageSender) extends OutMessageListener
 
   	def handleMessage(msg: IOutMessage) {
 	  msg match {
-	    case getPollsReplyOutMsg: GetPollsReplyOutMsg => handleGetPollsReplyOutMsg(getPollsReplyOutMsg)
-	    case pollClearedOutMsg : PollClearedOutMsg => handlePollClearedOutMsg(pollClearedOutMsg)
-	    case pollStartedOutMsg: PollStartedOutMsg => handlePollStartedOutMsg(pollStartedOutMsg)
-	    case pollStoppedOutMsg: PollStoppedOutMsg => handlePollStoppedOutMsg(pollStoppedOutMsg)
-	    case pollRemovedOutMsg: PollRemovedOutMsg => handlePollRemovedOutMsg(pollRemovedOutMsg)
-	    case pollUpdatedOutMsg: PollUpdatedOutMsg => handlePollUpdatedOutMsg(pollUpdatedOutMsg)
-	    case pollCreatedOutMsg: PollCreatedOutMsg => handlePollCreatedOutMsg(pollCreatedOutMsg)
-	    case pollResponseOutMsg: PollResponseOutMsg => handlePollResponseOutMsg(pollResponseOutMsg)
+	    case msg: GetPollsReplyOutMsg                 => handleGetPollsReplyOutMsg(msg)
+	    case msg : PollClearedOutMsg                  => handlePollClearedOutMsg(msg)
+	    case msg: PollStartedOutMsg                   => handlePollStartedOutMsg(msg)
+	    case msg: PollStoppedOutMsg                   => handlePollStoppedOutMsg(msg)
+	    case msg: PollRemovedOutMsg                   => handlePollRemovedOutMsg(msg)
+	    case msg: PollUpdatedOutMsg                   => handlePollUpdatedOutMsg(msg)
+	    case msg: PollCreatedOutMsg                   => handlePollCreatedOutMsg(msg)
+	    case msg: PollResponseOutMsg                  => handlePollResponseOutMsg(msg)
 	    case _ => // do nothing
 	  }
   	}

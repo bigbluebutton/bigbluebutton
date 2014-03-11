@@ -10,10 +10,10 @@ class LayoutClientMessageSender(service: ConnectionInvokerService) extends OutMe
 
 	def handleMessage(msg: IOutMessage) {
 	  msg match {
-	    case getCurrentLayoutReply:GetCurrentLayoutReply => handleGetCurrentLayoutReply(getCurrentLayoutReply)
-	    case setLayoutEvent:SetLayoutEvent => handleSetLayoutEvent(setLayoutEvent)
-	    case lockLayoutEvent:LockLayoutEvent => handleLockLayoutEvent(lockLayoutEvent)
-	    case unlockLayoutEvent:UnlockLayoutEvent => handleUnlockLayoutEvent(unlockLayoutEvent)
+	    case msg:GetCurrentLayoutReply                 => handleGetCurrentLayoutReply(msg)
+	    case msg:SetLayoutEvent                        => handleSetLayoutEvent(msg)
+	    case msg:LockLayoutEvent                       => handleLockLayoutEvent(msg)
+	    case msg:UnlockLayoutEvent                     => handleUnlockLayoutEvent(msg)
 	    case _ => // do nothing
 	  }
 	}  

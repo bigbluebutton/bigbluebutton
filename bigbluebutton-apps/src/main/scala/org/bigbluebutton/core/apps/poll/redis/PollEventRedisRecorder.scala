@@ -13,13 +13,13 @@ class PollEventRedisRecorder(recorder: RecorderApplication) extends OutMessageLi
 
   	def handleMessage(msg: IOutMessage) {
 	  msg match {
-	    case getPollsReplyOutMsg: GetPollsReplyOutMsg => // do nothing?
-	    case pollClearedOutMsg : PollClearedOutMsg => handlePollClearedOutMsg(pollClearedOutMsg)
-	    case pollStartedOutMsg: PollStartedOutMsg => handlePollStartedOutMsg(pollStartedOutMsg)
-	    case pollStoppedOutMsg: PollStoppedOutMsg => handlePollStoppedOutMsg(pollStoppedOutMsg)
-	    case pollRemovedOutMsg: PollRemovedOutMsg => handlePollRemovedOutMsg(pollRemovedOutMsg)
-	    case pollUpdatedOutMsg: PollUpdatedOutMsg => handlePollUpdatedOutMsg(pollUpdatedOutMsg)
-	    case pollCreatedOutMsg: PollCreatedOutMsg => handlePollCreatedOutMsg(pollCreatedOutMsg)
+	    case msg: GetPollsReplyOutMsg                       => // do nothing?
+	    case msg: PollClearedOutMsg                         => handlePollClearedOutMsg(msg)
+	    case msg: PollStartedOutMsg                         => handlePollStartedOutMsg(msg)
+	    case msg: PollStoppedOutMsg                         => handlePollStoppedOutMsg(msg)
+	    case msg: PollRemovedOutMsg                         => handlePollRemovedOutMsg(msg)
+	    case msg: PollUpdatedOutMsg                         => handlePollUpdatedOutMsg(msg)
+	    case msg: PollCreatedOutMsg                         => handlePollCreatedOutMsg(msg)
 	    case _ => // do nothing
 	  }
 	}

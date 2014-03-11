@@ -9,9 +9,9 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
 
     def handleMessage(msg: IOutMessage) {
 	  msg match {
-	    case userJoin: UserJoined => handleUserJoined(userJoin)
-	    case userLeft: UserLeft => handleUserLeft(userLeft)
-	    case statusChange: UserStatusChange => handleUserStatusChange(statusChange)
+	    case msg: UserJoined                            => handleUserJoined(msg)
+	    case msg: UserLeft                              => handleUserLeft(msg)
+	    case msg: UserStatusChange                      => handleUserStatusChange(msg)
 	    case _ => //println("Unhandled message in UsersClientMessageSender")
 	  }
 	}

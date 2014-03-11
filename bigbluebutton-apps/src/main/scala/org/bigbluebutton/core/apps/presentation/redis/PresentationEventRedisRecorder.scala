@@ -23,18 +23,12 @@ class PresentationEventRedisRecorder(recorder: RecorderApplication) extends OutM
 	
   def handleMessage(msg: IOutMessage) {
     msg match {
-      case msg: ClearPresentationOutMsg => 
-                   handleClearPresentationOutMsg(msg)
-      case msg: RemovePresentationOutMsg => 
-                   handleRemovePresentationOutMsg(msg)
-      case msg: SendCursorUpdateOutMsg => 
-                   handleSendCursorUpdateOutMsg(msg)
-      case msg: ResizeAndMoveSlideOutMsg => 
-                   handleResizeAndMoveSlideOutMsg(msg)
-      case msg: GotoSlideOutMsg => 
-                   handleGotoSlideOutMsg(msg)
-      case msg: SharePresentationOutMsg => 
-                   handleSharePresentationOutMsg(msg)
+      case msg: ClearPresentationOutMsg      => handleClearPresentationOutMsg(msg)
+      case msg: RemovePresentationOutMsg     => handleRemovePresentationOutMsg(msg)
+      case msg: SendCursorUpdateOutMsg       => handleSendCursorUpdateOutMsg(msg)
+      case msg: ResizeAndMoveSlideOutMsg     => handleResizeAndMoveSlideOutMsg(msg)
+      case msg: GotoSlideOutMsg              => handleGotoSlideOutMsg(msg)
+      case msg: SharePresentationOutMsg      => handleSharePresentationOutMsg(msg)
       case _ => // do nothing
     }
   }

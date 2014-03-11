@@ -14,9 +14,9 @@ class ChatClientMessageSender(service: ConnectionInvokerService) extends OutMess
  
 	def handleMessage(msg: IOutMessage) {
 	  msg match {
-	    case getChatHistoryReply: GetChatHistoryReply => handleGetChatHistoryReply(getChatHistoryReply)
-	    case sendPublicMessageEvent: SendPublicMessageEvent => handleSendPublicMessageEvent(sendPublicMessageEvent)
-	    case sendPrivateMessageEvent: SendPrivateMessageEvent => handleSendPrivateMessageEvent(sendPrivateMessageEvent)
+	    case msg: GetChatHistoryReply               => handleGetChatHistoryReply(msg)
+	    case msg: SendPublicMessageEvent            => handleSendPublicMessageEvent(msg)
+	    case msg: SendPrivateMessageEvent           => handleSendPrivateMessageEvent(msg)
 	    case _ => // do nothing
 	  }
 	}   
