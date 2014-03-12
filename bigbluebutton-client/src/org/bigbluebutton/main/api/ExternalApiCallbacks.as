@@ -104,8 +104,7 @@ package org.bigbluebutton.main.api
       
     }
 
-    private function handleQueryListsOfPresentationsRequest():void {
-      trace(LOG + "TODO - handleQueryListsOfPresentationsRequest");      
+    private function handleQueryListsOfPresentationsRequest():void {    
       _dispatcher.dispatchEvent(new GetListOfPresentationsRequest());
     }
         
