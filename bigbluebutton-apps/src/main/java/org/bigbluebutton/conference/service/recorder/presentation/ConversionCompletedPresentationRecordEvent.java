@@ -30,6 +30,10 @@ public class ConversionCompletedPresentationRecordEvent extends
 		eventMap.put("presentationName", name);
 	}
 	
+	public void setOriginalFilename(String name) {
+		eventMap.put("originalFilename", name);
+	}
+	
 	public void setSlidesInfo(String slidesInfo) {
 		eventMap.put("slidesInfo", slidesInfo);
 	}	

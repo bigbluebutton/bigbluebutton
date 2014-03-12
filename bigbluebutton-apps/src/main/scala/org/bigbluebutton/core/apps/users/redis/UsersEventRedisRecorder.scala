@@ -111,7 +111,6 @@ class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageL
 		evt.setTimestamp(System.currentTimeMillis());
 		evt.setBridge(msg.confNum);
 		evt.setParticipant(msg.user.voiceUser.userId);
-		
 		recorder.record(msg.meetingID, evt);  	    
   	  }
   	}
