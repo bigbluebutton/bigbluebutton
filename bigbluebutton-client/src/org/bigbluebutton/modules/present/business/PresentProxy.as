@@ -24,6 +24,8 @@ package org.bigbluebutton.modules.present.business
 	import flash.net.NetConnection;
 	import flash.utils.Timer;
 	
+	import mx.collections.ArrayCollection;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -35,6 +37,7 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.commands.GoToPageCommand;
 	import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
 	import org.bigbluebutton.modules.present.commands.UploadFileCommand;
+	import org.bigbluebutton.modules.present.events.GetListOfPresentationsReply;
 	import org.bigbluebutton.modules.present.events.NavigationEvent;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.PresenterCommands;
@@ -86,6 +89,21 @@ package org.bigbluebutton.modules.present.business
 			room = a.room as String;
 			userid = a.userid as Number;
 		}
+    
+    public function handleGetListOfPresentationsRequest():void {
+      var presos:ArrayCollection = PresentationModel.getInstance().getPresentations();
+      var idAndName:Array = new Array();
+      for (var i:int = 0; i < presos.length; i++) {
+        var pres:Presentation = presos.getItemAt(i) as Presentation;
+        var p:Object = new Object();
+        p.id = pres.id;
+        p.name = pres.name;
+        idAndName.push(p);
+      }
+      
+      var dispatcher:Dispatcher = new Dispatcher();
+      dispatcher.dispatchEvent(new GetListOfPresentationsReply(idAndName));
+    }
     
     public function handleChangePresentationCommand(cmd:ChangePresentationCommand):void {
       var pres:Presentation = PresentationModel.getInstance().getPresentation(cmd.presId);

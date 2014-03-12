@@ -45,6 +45,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.present.events.ConversionUnsupportedDocEvent;
       import org.bigbluebutton.modules.present.events.ConversionUpdateEvent;
       import org.bigbluebutton.modules.present.events.CreatingThumbnailsEvent;
+      import org.bigbluebutton.modules.present.events.GetListOfPresentationsReply;
       import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
       import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
       import org.bigbluebutton.modules.present.events.UploadEvent;
@@ -180,4 +181,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{ExternalApiCalls}" method="handleConvertUpdate" arguments="{event}" />
   </EventHandlers>
 
+  <EventHandlers type="{GetListOfPresentationsReply.GET_LIST_OF_PRESENTATIONS_REPLY}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleGetListOfPresentationsReply" arguments="{event}" />
+  </EventHandlers>
+  
 </EventMap>

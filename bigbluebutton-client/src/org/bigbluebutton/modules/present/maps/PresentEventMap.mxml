@@ -22,7 +22,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
-      import mx.events.FlexEvent;     
+      import mx.events.FlexEvent;
+      
       import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
       import org.bigbluebutton.modules.present.api.PresentationAPI;
       import org.bigbluebutton.modules.present.business.PresentProxy;
@@ -33,6 +34,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
       import org.bigbluebutton.modules.present.commands.UploadFileCommand;
       import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
+      import org.bigbluebutton.modules.present.events.GetListOfPresentationsRequest;
       import org.bigbluebutton.modules.present.events.PresentModuleEvent;
       import org.bigbluebutton.modules.present.events.PresentationChangedEvent;
       import org.bigbluebutton.modules.present.events.PresentationEvent;
@@ -103,6 +105,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <EventHandlers type="{GetCurrentPresentationInfo.GET_CURRENT_PRESENTATION_INFO}" >
     <MethodInvoker generator="{PresentProxy}" method="getCurrentPresentationInfo" />
+  </EventHandlers>
+
+  <EventHandlers type="{GetListOfPresentationsRequest.GET_LIST_OF_PRESENTATIONS}" >
+    <MethodInvoker generator="{PresentProxy}" method="handleGetListOfPresentationsRequest" />
   </EventHandlers>
   
 	<EventHandlers type="{PresenterCommands.SEND_CURSOR_UPDATE}" >

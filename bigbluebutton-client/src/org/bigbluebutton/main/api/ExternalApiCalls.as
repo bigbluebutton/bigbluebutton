@@ -48,6 +48,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.modules.present.events.ConversionUnsupportedDocEvent;
   import org.bigbluebutton.modules.present.events.ConversionUpdateEvent;
   import org.bigbluebutton.modules.present.events.CreatingThumbnailsEvent;
+  import org.bigbluebutton.modules.present.events.GetListOfPresentationsReply;
   import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
   import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
@@ -400,12 +401,12 @@ package org.bigbluebutton.main.api
       broadcastEvent(payload);
     }
 
-//    public function handleQueryListOfPresentationsReplyEvent(event:QueryListOfPresentationsReplyEvent):void {
-//      var payload:Object = new Object();
-//      payload.eventName = EventConstants.QUERY_PRESENTATION_REPLY;
-//      payload.presentations = event.presentations;
-//      broadcastEvent(payload);
-//    }
+    public function handleGetListOfPresentationsReply(event:GetListOfPresentationsReply):void {
+      var payload:Object = new Object();
+      payload.eventName = EventConstants.QUERY_PRESENTATION_REPLY;
+      payload.presentations = event.presentations;
+      broadcastEvent(payload);
+    }
     
     private function broadcastEvent(message:Object):void {
       if (ExternalInterface.available) {
