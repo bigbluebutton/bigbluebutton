@@ -10,7 +10,7 @@ case class Page(id: String, num: Int,
                 pngUri: String,
                 current: Boolean = false,
                 xOffset: Double = 0, yOffset: Double = 0,
-                widthRatio: Double = 0D, heightRatio: Double = 0D)
+                widthRatio: Double = 100D, heightRatio: Double = 100D)
                 
 class PresentationModel {
   private var presentations = new scala.collection.immutable.HashMap[String, Presentation]

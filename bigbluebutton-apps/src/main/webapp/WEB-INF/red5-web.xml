@@ -80,16 +80,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="listeners">
             <set>
                 <ref bean="presentationRed5ClientSender" />  
+                <ref bean="presentationRedisRecorder" />
                 <ref bean="usersRed5ClientSender" />   
-                <ref bean="presentationRedisRecorder" /> 
                 <ref bean="usersRedisRecorder" />
-                <ref bean="meetingEventRedisPublisher" />   
-                <ref bean="pollRed5ClientSender" />
-                <ref bean="layoutRed5ClientSender" />
                 <ref bean="usersRedisPublisher" />
+                <ref bean="meetingEventRedisPublisher" />  
+                <ref bean="layoutRed5ClientSender" /> 
+                <ref bean="pollRed5ClientSender" />
                 <ref bean="pollRedisRecorder" />  
                 <ref bean="pollRedisPublisher"/>  
                 <ref bean="whiteboardRed5ClientSender"/> 
+                <ref bean="whiteboardRedisRecorder"/>
                 <ref bean="chatRed5ClientSender"/>   
                 <ref bean="chatRedisRecorder"/>
                 <ref bean="fsConfService"/>                    
@@ -123,6 +124,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="whiteboardRed5ClientSender" class="org.bigbluebutton.core.apps.whiteboard.red5.WhiteboardClientMessageSender">
       <constructor-arg index="0" ref="connInvokerService"/>
+    </bean>
+    
+    <bean id="whiteboardRedisRecorder" class="org.bigbluebutton.core.apps.whiteboard.redis.WhiteboardEventRedisRecorder">
+        <constructor-arg index="0" ref="recorderApplication"/>
     </bean>
     
     <bean id="chatRed5ClientSender" class="org.bigbluebutton.core.apps.chat.red5.ChatClientMessageSender">

@@ -28,7 +28,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import com.google.gson.Gson;
 
 public class KeepAliveService {

@@ -21,8 +21,6 @@ package org.bigbluebutton.main.api
   import com.asfusion.mate.events.Dispatcher;
   
   import flash.external.ExternalInterface;
-
-  import mx.controls.Alert;
   
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.EventConstants;
@@ -41,6 +39,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
   import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
   import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
+  import org.bigbluebutton.modules.present.events.GetListOfPresentationsRequest;
   import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
@@ -105,10 +104,8 @@ package org.bigbluebutton.main.api
       
     }
 
-    private function handleQueryListsOfPresentationsRequest():void {
-      trace(LOG + "TODO - handleQueryListsOfPresentationsRequest");
-      
-      //_dispatcher.dispatchEvent(new QueryPresentationsListEvent());
+    private function handleQueryListsOfPresentationsRequest():void {    
+      _dispatcher.dispatchEvent(new GetListOfPresentationsRequest());
     }
         
     private function handleDisplayPresentationRequest(presentationID:String):void {
