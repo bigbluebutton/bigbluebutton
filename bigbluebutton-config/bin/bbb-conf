@@ -757,7 +757,7 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
                 BBB_SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
 
 		if [ "$LTI_SALT" != "$BBB_SALT" ]; then
-			echo "# Warning: LTI Salt mismatch:"
+			echo "# Warning: LTI shared secret (salt) mismatch:"
 			echo "#  ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties                      = $LTI_SALT"
 			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties  = $BBB_SALT"
 			echo 
@@ -955,14 +955,34 @@ check_state() {
 	done
 
 	#
-	# Check if any of the red5 BigBlueButton applications did not start propery
+	# Check for required external commands
 	#
-	COMMANDS="ffmpeg ruby gem ghostscript pdf2swf"
+	COMMANDS="ruby gem ghostscript pdf2swf"
 	for cmd in $COMMANDS ; do
 		if ! which $cmd > /dev/null; then
 			echo "#    $cmd command not found"
 		fi
 	done
+
+	#
+	# Check if ffmpeg is installed, and whether it is a supported version
+	#
+	FFMPEG_VERSION=$(ffmpeg -version 2>/dev/null | grep ffmpeg | cut -d ' ' -f3)
+	case "$FFMPEG_VERSION" in
+	2.0|2.0.*)
+		# This is the current supported version; OK.
+		;;
+	'')
+		echo "# Warning: No ffmpeg version was found on the system"
+		echo "#          Recording processing will not function"
+		echo
+		;;
+	*)
+		echo "# Warning: The installed ffmpeg version '${FFMPEG_VERSION}' is not supported"
+		echo "#          Recording processing may not function correctly"
+		echo
+		;;
+	esac
 
 
 	if [ -f /usr/share/red5/log/sip.log ]; then
@@ -1138,7 +1158,9 @@ check_state() {
 		echo "#"
 		echo "#    http://$BBB_WEB/"
 		echo "#"
-		echo "# Use the API demos test your BigBlueButton setup. To remove"
+		echo "# These API demos allow anyone to access your server without authentication"
+		echo "# to create/manage meetings and recordings. They are for testing purposes only."
+		echo "# If you are running a production system, remove them by running:"
 		echo "#"
 		echo "#    sudo apt-get purge bbb-demo"
 		echo 
@@ -1258,6 +1280,10 @@ if [ $CHECK ]; then
 
 	CAPTURE_VIDEO="$(cat /usr/share/red5/webapps/video/WEB-INF/red5-web.xml | sed -n '/recordVideoStream/{s/^.*="//g;s/"\/>//g;p}')"
 	echo "                     capture video: $CAPTURE_VIDEO"
+
+	CAPTURE_DESKTOP="$(cat /usr/share/red5/webapps/deskshare/WEB-INF/red5-web.xml | grep -m 1 '<constructor-arg index="0" value'  | sed -n '/constructor-arg/{s/^.*="//g;s/"\/>//g;p}')"
+	echo "                   capture desktop: $CAPTURE_DESKTOP"
+
 
 	if [ -f /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml ]; then
 		PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml  | sed -n '/playback_host/{s/.*:[ ]*//;s/;//;p}')
@@ -1480,7 +1506,7 @@ if [ -n "$HOST" ]; then
 		echo "Assigning $HOST for LTI integration in ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties"
         	sed -i "s/bigbluebuttonURL=http:\/\/.*/bigbluebuttonURL=http:\/\/$HOST\/bigbluebutton/g" \
                 	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
-        	sed -i "s/ltiEndPoint=http:\/\/.*/ltiEndPoint=http:\/\/$HOST\/lti\/tool/g" \
+        	sed -i "s/ltiEndPoint=http:\/\/.*/ltiEndPoint=http:\/\/$HOST\/lti\/tool.xml/g" \
                 	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
 	fi
 

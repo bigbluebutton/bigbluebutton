@@ -3,6 +3,7 @@
     <localeversion suppressWarning="false">0.8</localeversion>
     <version>VERSION</version>
     <help url="http://HOST/help.html"/>
+    <javaTest url="http://HOST/testjava.html"/>
     <porttest host="HOST" application="video/portTest" timeout="10000"/>    
     <bwMon server="HOST" application="video/bwTest"/>
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" />
@@ -11,7 +12,7 @@
     <shortcutKeys showButton="true" />
     <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="Default"
             showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true" 
-            showLogoutWindow="true" showLayoutTools="true" showNetworkMonitor="false" />
+            showLogoutWindow="true" showLayoutTools="true" showNetworkMonitor="false" confirmLogout="true"/>
             
 		<modules>
 		 
@@ -28,6 +29,9 @@
 		<module name="UsersModule" url="http://HOST/client/UsersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			allowKickUser="true"
+			enableRaiseHand="true"
+			enableSettingsButton="true"
+			baseTabIndex="301"
 		/>
 
 		
@@ -36,7 +40,8 @@
 			uri="rtmp://HOST/deskShare"
 			showButton="true"
 			autoStart="false"
-			baseTabIndex="101"
+			autoFullScreen="false"
+			baseTabIndex="201"
 		/>
 		
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
@@ -54,6 +59,7 @@
 			presenterShareOnly = "false"
 			controlsForPresenter = "false"
 			autoStart = "false"
+			skipCamSettingsCheck="false"
 			showButton = "true"
 			showCloseButton = "true"
 			publishWindowVisible = "true"
@@ -75,6 +81,7 @@
 			dependsOn="PresentModule"
 			baseTabIndex="601"
 			whiteboardAccess="presenter"
+			keepToolbarVisible="false"
 		/>
 
 <!--

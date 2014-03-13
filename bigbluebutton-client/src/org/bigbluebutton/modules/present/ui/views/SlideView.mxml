@@ -72,7 +72,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.managers.Slide;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideCalcUtil;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
-			
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+            
 			[Bindable] public var zoomPercentage:Number = 100;
 			public static const ZOOM_STEP:int = 5;
 			public static const THUMBNAILS_CLOSED:String = "ThumbnailsClosed";
@@ -93,7 +94,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var whiteboardCanvasHolder:Canvas = new Canvas();
 			private var whiteboardCanvas:IBbbCanvas;
 							
-        	[Bindable] public var slides:ArrayCollection;
+      [Bindable] public var slides:ArrayCollection = new ArrayCollection();
 			[Bindable] public var selectedSlide:int=0;
 			[Bindable] private var lateComerSynched:Boolean = false;
 			
@@ -214,7 +215,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				slideLoader.content.width = slideLoader.width;
 				slideLoader.content.height = slideLoader.height;
 				moveCanvas(slideLoader.x, slideLoader.y);
-				zoomCanvas(slideLoader.width, slideLoader.height);
+				zoomCanvas(slideLoader.width, slideLoader.height, zoomPercentage);
 			}
 												
 			/**
@@ -308,10 +309,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 */						
 			private function handleSlideLoadedEvent(e:SlideEvent):void{
 				slideLoader.source = e.slide;
-				if(Capabilities.hasAccessibility){
-					slideLoader.accessibilityProperties.description = e.slideText;
-					Accessibility.updateProperties()
-				}
+			    //slideLoader.accessibilityProperties.description = "Slide text start:  " + e.slideText + "    Slide text end";
+                slideLoader.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + e.slideText + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
+                slideLoader.accessibilityName = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + e.slideText + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
+                LogUtil.debug(e.slideText);
 			}
 			
 			/**
@@ -464,13 +465,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 			
-			public function zoomCanvas(width:Number, height:Number):void{
+			public function zoomCanvas(width:Number, height:Number, zoom:Number):void{
 				whiteboardCanvasHolder.width = width;
 				whiteboardCanvasHolder.height = height;
 				moveCanvas(slideLoader.x, slideLoader.y);
 				if (whiteboardCanvas != null) {
 					//LogUtil.debug("Zooming Canvas " + width + " " + height);
-					whiteboardCanvas.zoomCanvas(width, height);
+					whiteboardCanvas.zoomCanvas(width, height, zoom);
 				}
 			}
 			

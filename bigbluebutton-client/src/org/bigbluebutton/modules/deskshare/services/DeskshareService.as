@@ -72,8 +72,8 @@ package org.bigbluebutton.modules.deskshare.services
       conn.sendStartViewingNotification(captureWidth, captureHeight);
     }
 		
-    public function sendStartedViewingNotification():void{
-      conn.sendStartedViewingNotification();
+    public function sendStartedViewingNotification(stream:String):void{
+      conn.sendStartedViewingNotification(stream);
     }
 	}
 }

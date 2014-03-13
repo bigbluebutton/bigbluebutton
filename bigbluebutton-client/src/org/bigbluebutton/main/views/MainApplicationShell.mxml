@@ -45,13 +45,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
 	<mate:Listener type="{ShortcutEvent.OPEN_SHORTCUT_WIN}" method="openShortcutHelpWindow" />
-  <mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
-  
+  	<mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
+	  
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.events.MouseEvent;
+			import flash.geom.Point;
 			
 			import flexlib.mdi.containers.MDIWindow;
 			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
@@ -63,7 +64,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.core.UIComponent;
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
-			import flash.geom.Point;
+			
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -75,6 +76,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.AppVersionEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ConfigEvent;
+			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
 			import org.bigbluebutton.main.events.RecordStatusEvent;
@@ -118,12 +120,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var layoutOptions:LayoutOptions;
 			
 			[Bindable] private var showToolbarOpt:Boolean = true;
-			[Bindable] private var toolbarHeight:Number = 30;
+			[Bindable] private var toolbarHeight:Number = 32;
       [Bindable] private var toolbarPaddingTop:Number = 4;
       [Bindable] private var showFooterOpt:Boolean = true;
-      [Bindable] private var footerHeight:Number = 20;
+      [Bindable] private var footerHeight:Number = 24;
       
       [Bindable] private var isTunneling:Boolean = false;
+			
+			private var confirmingLogout:Boolean = false;
       
 			public function initOptions(e:Event):void {
 				layoutOptions = new LayoutOptions();
@@ -145,6 +149,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			protected function initializeShell():void {	
 				globalDispatcher = new Dispatcher();
+
+				systemManager.addEventListener(Event.RESIZE, updateCopyrightLabelDimensions);
+				copyrightLabel2.addEventListener(FlexEvent.UPDATE_COMPLETE, updateCopyrightLabelDimensions);
+				updateCopyrightLabelDimensions();
+			}
+
+			private function updateCopyrightLabelDimensions(e:Event = null):void {
+				var screenRect:Rectangle = systemManager.screen;
+
+				if (spacer.width == 0) {
+					copyrightLabel2.width += (screenRect.width - controlBar.width);
+				} else {
+					copyrightLabel2.width += Math.min(spacer.width, copyrightLabel2.measuredWidth - copyrightLabel2.width);
+				}
 			}
 		
 			protected function initFullScreen():void {				
@@ -333,14 +351,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
 					var urlLoader:URLLoader = new URLLoader();
 					urlLoader.addEventListener(Event.COMPLETE, handleLogoutComplete);	
+					urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleLogoutError);
 					urlLoader.load(request);
 				}				
 			}
-			
-			private function handleLogoutComplete(e:Event):void {	
+			private function redirectToLogoutUrl ():void {
 				var request:URLRequest = new URLRequest(BBB.initUserConfigManager().getLogoutUrl());
 				LogUtil.debug("Logging out to: " + BBB.initUserConfigManager().getLogoutUrl());
-				navigateToURL(request, '_self');			
+				navigateToURL(request, '_self');
+			}
+			
+			private function handleLogoutError(e:Event):void {
+				LogUtil.debug("Call to signOut URL failed.");
+				redirectToLogoutUrl();
+			}
+			
+			private function handleLogoutComplete(e:Event):void {	
+				LogUtil.debug("Call to signOut URL succeeded.");
+				redirectToLogoutUrl();
 			}
 			
 			private function attemptReconnect(e:ConnectionFailedEvent):void{
@@ -408,27 +436,43 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					  effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" 
 					  width="100%" 
 					  height="100%">
-		<views:LoadingBar id="progressBar" x="{this.width/2 - progressBar.width/2}" y="{this.height/2 - progressBar.height/2}" width="{this.width/2}" />
+		<views:LoadingBar id="progressBar" horizontalCenter="0" verticalCenter="0" width="50%" />
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
 	</views:MainCanvas>	
 	
-	<mx:ControlBar width="100%" height="{footerHeight}" paddingTop="0">		
-	  <mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
-	 	<mx:Spacer width="20"/>
-		<mx:Spacer width="100%"/> 
-    <mx:Label text="{isTunneling ? '[Tunnelling]' : ''}" id="isTunnellingLbl"/>
-		
-		<mx:Button width="20" 
-				   height="20" 
-				   visible="{layoutOptions.showLogButton}" 
-				   toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" 
-				   id="logBtn" 
-				   icon="{logs_icon}" 
-				   click="openLogWindow()" 
-				   tabIndex="{baseIndex}"/>
-		
-		<!-- mx:Button width="20" height="20" visible="{layoutOptions.showResetLayout}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" /-->
-		<mx:Button id="btnNetwork" icon="{statsIcon}" width="20" height="20" mouseOver="openNetworkStatsWindow()" mouseOut="closeNetworkStatsWindow()" tabFocusEnabled="false" visible="{layoutOptions.showNetworkMonitor}" />		
+	<mx:ControlBar width="100%" height="{footerHeight}" paddingTop="0" id="controlBar">
+		<mx:Label
+				htmlText="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}"
+				id="copyrightLabel2"
+				selectable="false" />
+		<mx:Spacer width="20"/>
+		<mx:Spacer width="100%" id="spacer" />
+		<mx:Label
+				text="[Tunnelling]"
+				id="isTunnellingLbl"
+				visible="{isTunneling}"
+				includeInLayout="{isTunneling}" />
+
+		<mx:Button
+				width="20"
+				height="20"
+				visible="{layoutOptions.showLogButton}"
+				includeInLayout="{layoutOptions.showLogButton}"
+				toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}"
+				id="logBtn"
+				icon="{logs_icon}"
+				click="openLogWindow()"
+				tabIndex="{baseIndex}"/>
+		<mx:Button
+				id="btnNetwork"
+				icon="{statsIcon}"
+				width="20"
+				height="20"
+				mouseOver="openNetworkStatsWindow()"
+				mouseOut="closeNetworkStatsWindow()"
+				tabFocusEnabled="false"
+				visible="{layoutOptions.showNetworkMonitor}"
+				includeInLayout="{layoutOptions.showNetworkMonitor}" />
 		<mx:HBox id="addedBtns" />
 	</mx:ControlBar>
 </mx:VBox>

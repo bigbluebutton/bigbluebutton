@@ -309,10 +309,14 @@ load_video = function(){
    console.log("Loading video")
    //document.getElementById("video").style.visibility = "hidden"  
    var video = document.createElement("video")   
-   video.setAttribute('src', RECORDINGS + '/video/webcams.webm');
-   video.setAttribute('type','video/webm');
-   video.setAttribute('class','webcam');  
    video.setAttribute('id','video');  
+   video.setAttribute('class','webcam');  
+
+   var webmsource = document.createElement("source");
+   webmsource.setAttribute('src', RECORDINGS + '/video/webcams.webm');
+   webmsource.setAttribute('type','video/webm; codecs="vp8.0, vorbis"');
+   video.appendChild(webmsource);
+
    /*var time_manager = Popcorn("#video");
    var pc_webcam = Popcorn("#webcam");
    time_manager.on( "timeupdate", function() {
@@ -321,7 +325,8 @@ load_video = function(){
 
    video.setAttribute('data-timeline-sources', SLIDES_XML);    
    //video.setAttribute('controls','');
-   video.setAttribute('autoplay','autoplay');
+   //leave auto play turned off for accessiblity support
+   //video.setAttribute('autoplay','autoplay');
 
    document.getElementById("videoRecordingWrapper").appendChild(video);
 }  
@@ -329,17 +334,33 @@ load_video = function(){
 load_audio = function() {
    console.log("Loading audio")
    var audio = document.createElement("audio") ;
-   if (navigator.appName === "Microsoft Internet Explorer"){
-     audio.setAttribute('src', RECORDINGS + '/audio/audio.webm'); //hack for IE
-     audio.setAttribute('type','audio/ogg');
-   }else{
-     audio.setAttribute('src', RECORDINGS + '/audio/audio.ogg');
-     audio.setAttribute('type','audio/ogg');
-   }
    audio.setAttribute('id', 'video');
+
+   // The webm file will work in IE with WebM components installed,
+   // and should load faster in Chrome too
+   var webmsource = document.createElement("source");
+   webmsource.setAttribute('src', RECORDINGS + '/audio/audio.webm');
+   webmsource.setAttribute('type', 'audio/webm; codecs="vorbis"');
+
+   // Need to keep the ogg source around for compat with old recordings
+   var oggsource = document.createElement("source");
+   oggsource.setAttribute('src', RECORDINGS + '/audio/audio.ogg');
+   oggsource.setAttribute('type', 'audio/ogg; codecs="vorbis"');
+
+   // Browser Bug Workaround: The ogg file should be preferred in Firefox,
+   // since it can't seek in audio-only webm files.
+   if (navigator.userAgent.indexOf("Firefox") != -1) {
+      audio.appendChild(oggsource);
+      audio.appendChild(webmsource);
+   } else {
+      audio.appendChild(webmsource);
+      audio.appendChild(oggsource);
+   }
+
    audio.setAttribute('data-timeline-sources', SLIDES_XML);
    //audio.setAttribute('controls','');
-   audio.setAttribute('autoplay','autoplay');
+   //leave auto play turned off for accessiblity support
+   //audio.setAttribute('autoplay','autoplay');
    document.getElementById("audioRecordingWrapper").appendChild(audio);
 }
 

@@ -241,17 +241,17 @@
 				width="20" height="20" click="toggleMuteState()"
 				mouseOver="muteMouseOverHandler()"
 				mouseOut="muteMouseOutHandler()"
-				toolTip="{data.voiceMuted ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToTalk') : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToMute')}" />
+				toolTip="{data.voiceMuted ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToTalk',[data.name]) : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToMute',[data.name])}" />
 	<mx:Button id="kickUserBtn" icon="{images.eject_user_new}" 
 				width="20" height="20" visible="false"
-				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.kickUser')}"
+				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.kickUser',[data.name])}"
 				click="kickUser()"/>
 	<mx:Image id="lockImg" visible="false" includeInLayout="false" width="20" height="20" />
 	<mx:Button id="lockBtn" visible="false" includeInLayout="false" enabled="false"
 				width="20" height="20" click="toggleLockState()"
 				mouseOver="lockMouseOverHandler()"
 				mouseOut="lockMouseOutHandler()"
-				toolTip="{data.voiceLocked ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToUnlock') : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToLock')}" />		
+				toolTip="{data.voiceLocked ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToUnlock',[data.name]) : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToLock',[data.name])}" />		
 	<!-- Helper objects because using BindingUtil with data break when the itemRenderer is recycled -->
 	<mx:Image id="muteInd" includeInLayout="false" visible="{data.voiceMuted}" />
 	<mx:Image id="voiceJoinedInd" includeInLayout="false" visible="{data.voiceJoined}" />

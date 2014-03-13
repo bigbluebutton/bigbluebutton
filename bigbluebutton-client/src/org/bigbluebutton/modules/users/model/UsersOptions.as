@@ -29,11 +29,17 @@ package org.bigbluebutton.modules.users.model
 		public var position:String = "top-left";
 		
 		[Bindable]
-		public var baseTabIndex:int = 201;
+		public var baseTabIndex:int = 301;
 		
 		[Bindable]
-		public var allowKickUser:Boolean = false;
+		public var allowKickUser:Boolean = true;
 		
+		[Bindable]
+		public var enableRaiseHand:Boolean = true;
+
+		[Bindable]
+		public var enableSettingsButton:Boolean = true;
+
 		public function UsersOptions() {
 			var vxml:XML = BBB.getConfigForModule("UsersModule");
 			if (vxml != null) {
@@ -46,7 +52,13 @@ package org.bigbluebutton.modules.users.model
 				baseTabIndex = vxml.@baseTabIndex;
 			}
 			if (vxml.@allowKickUser != undefined) {
-				allowKickUser = vxml.@allowKickUser;
+				allowKickUser = (vxml.@allowKickUser.toString().toUpperCase() == "TRUE") ? true : false;
+			}
+			if (vxml.@enableRaiseHand != undefined) {
+				enableRaiseHand = (vxml.@enableRaiseHand.toString().toUpperCase() == "TRUE") ? true : false;
+			}
+			if (vxml.@enableSettingsButton != undefined) {
+				enableSettingsButton = (vxml.@enableSettingsButton.toString().toUpperCase() == "TRUE") ? true : false;
 			}
 		}
 

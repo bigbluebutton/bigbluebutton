@@ -55,11 +55,12 @@ dependencies {
 		
 	compile project(':common')
 	
-	// Need to put commons file-upload in red5/lib dir. Otherwise, we get an
-	// java.lang.NoClassDefFoundError: org/apache/commons/fileupload/FileItemFactory
+	// Need to put commons-fileupload and commons-io in red5/lib dir. Otherwise, we get an
+	// java.lang.NoClassDefFoundError: org/apache/commons/fileupload/FileItemFactory or
+        // java.lang.NoClassDefFoundError: org/apache/commons/io/output/DeferredFileOutputStream
 	// ralam (Feb 27, 2013) 
-    providedCompile 'commons-fileupload:commons-fileupload:1.2.2@jar'
-	compile 'commons-io:commons-io:2.1@jar' 
+        providedCompile 'commons-fileupload:commons-fileupload:1.2.2@jar'
+	providedCompile 'commons-io:commons-io:2.1@jar' 
     
     // Libraries needed to run the scala tools
     scalaTools 'org.scala-lang:scala-compiler:2.9.2'
