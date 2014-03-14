@@ -21,17 +21,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-    showCloseButton="false" creationComplete="init()"
+    title=""
+    showCloseButton="false"
+    creationComplete="init()"
     verticalScrollPolicy="off"
     horizontalScrollPolicy="off"
-    horizontalAlign="center" 
-    borderAlpha="0.0"
-    borderThicknessLeft="0" 
-    borderThicknessRight="0"
+    x="20" y="-20"
+    borderColor="#BABABA"
+    backgroundColor="#EFEFEF"
+    horizontalAlign="center"
+    borderAlpha="1"
+    borderThicknessLeft="10" 
+    borderThicknessRight="10"
+    borderThicknessBottom="10"
     borderThicknessTop="0"
-    x="20"
-    y="-20">
-    
+    >	
 	<mx:Script>
 		<![CDATA[
 			import mx.core.FlexGlobals;
@@ -42,17 +46,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 						
+			[Bindable] private var message:String = "If the browser asks you for permission, click Allow.";
+		
 			
 			private function init():void {
-				//addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
+				
 			}
-
-      private function onUserLoggedOutWindowClose(e:Event):void {
-      	//PopUpManager.removePopUp(this);
-      }
-
-		
+	
 		]]>
 	</mx:Script>
-  <mx:Image source="@Embed('assets/chrome_allow.png')"/>	
+	<mx:HBox width="100%" horizontalAlign="right" horizontalGap="0">
+		<mx:Label paddingTop="13"  paddingLeft="15" text="{ResourceUtil.getInstance().getString('bbb.micPermission.message')}" fontSize="12"  color="#373737" fontWeight="bold"/>
+		<mx:Image source="@Embed('assets/up_arrow_small.png')"/>
+	</mx:HBox>
 </mx:TitleWindow> 
