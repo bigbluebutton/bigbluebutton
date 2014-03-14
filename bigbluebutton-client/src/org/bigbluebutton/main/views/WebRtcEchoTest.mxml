@@ -34,8 +34,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
 	<mx:Script>
 		<![CDATA[
-      import mx.managers.PopUpManager;
-      
+      import mx.managers.PopUpManager;     
       import org.bigbluebutton.core.BBB;
       import org.bigbluebutton.main.api.JSAPI;
       import org.bigbluebutton.main.events.BBBEvent;
@@ -65,6 +64,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
 			private function onCreationComplete():void {
         browserType = JSAPI.getInstance().getBrowserType();
+        trace(LOG + "************************* BROWSER TYPE = [" + browserType + "] **********************");
         startEchoTest();
       }
       
@@ -103,7 +103,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handleWebRtcCallStartedEvent(event:WebRtcCallStartedEvent):void {
-        var snowman:String = "Say 'Do you want to build a snowmaann?'";
+        var snowman:String = "Please say a few words. Are you able to hear yourself?";
         msgText.text = snowman;
       }
       
@@ -116,26 +116,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
     <mx:Canvas width="100%">
-      <mx:TextArea borderSkin="{null}"
-                   editable="false"
-                   id="msgText"
-                   text=""
-                   styleName="micSettingsWindowTitleStyle"
-                   width="400" height="100"
-                   left="0"/>
+      <mx:TextArea borderSkin="{null}" editable="false" id="msgText" text=""
+                   styleName="micSettingsWindowTitleStyle" width="400" height="100" left="0"/>
     </mx:Canvas>
 
       <mx:HRule width="100%"/>
   		<mx:Spacer height="10"/>
 			<mx:HBox width="100%" horizontalAlign="right" horizontalGap="18">
-        <mx:Button id="yesButton" label="Yes. I can hear myself." 
+        <mx:Button id="yesButton" label="Yes. Join me into the conference." 
                    click="yesButtonClicked()" styleName="micSettingsWindowPlaySoundButtonStyle"
-                   toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound.toolTip')}"/>
+                   toolTip=""/>
 				<mx:Button id="noButton" 
-				       label="No. I do not hear myself." 
+				       label="No. I would like to test another mic." 
 						   styleName="micSettingsWindowPlaySoundButtonStyle"
 						   click="noButtonClicked()" 
-						   toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.join.toolTip')}"/>
+						   toolTip=""/>
 			</mx:HBox>
 		</mx:VBox>		
 

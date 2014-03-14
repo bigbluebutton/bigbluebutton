@@ -60,7 +60,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var playingAudio:Boolean = false;
 			private var images:Images = new Images();
 
-			private var micPermissionImg:MicPermissionImage;
+			private var micPermissionImg:ChromeMicPermissionImage;
 			private var userBrowser:String;
 
 			[Bindable] private var _webrtcCapable:Boolean = false;
@@ -195,7 +195,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function showMicPermissionImage():void{			 
-				micPermissionImg = new MicPermissionImage();   
+				micPermissionImg = new ChromeMicPermissionImage();   
       	PopUpManager.addPopUp(micPermissionImg, this, false);				
 			}
 			
