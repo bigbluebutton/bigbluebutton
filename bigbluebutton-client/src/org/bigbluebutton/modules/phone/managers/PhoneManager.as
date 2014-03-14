@@ -202,13 +202,13 @@ package org.bigbluebutton.modules.phone.managers {
 //					}
 //				}
 //			} else {
-				var dispatcher:Dispatcher = new Dispatcher();
-
+//				var dispatcher:Dispatcher = new Dispatcher();
+//      dispatcher.dispatchEvent(new PerformEchoTestEvent("webrtc"));
 //				var showMicSettings:BBBEvent = new BBBEvent("SHOW_MIC_SETTINGS");
 ////				showMicSettings.payload['webrtcCapable'] = webrtcCapable;
 //				showMicSettings.payload['useWebrtcIfAvailable'] = phoneOptions.useWebrtcIfAvailable;
 //				dispatcher.dispatchEvent(showMicSettings);
-        dispatcher.dispatchEvent(new PerformEchoTestEvent("webrtc"));
+        
 //			}
 		}
 

@@ -65,7 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onCreationComplete():void {
         browserType = JSAPI.getInstance().getBrowserType();
         trace(LOG + "************************* BROWSER TYPE = [" + browserType + "] **********************");
-        startEchoTest();
+//        startEchoTest();
       }
       
       private function startEchoTest():void {
