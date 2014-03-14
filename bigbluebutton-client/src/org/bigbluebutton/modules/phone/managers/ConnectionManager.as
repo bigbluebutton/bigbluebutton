@@ -128,8 +128,8 @@ package org.bigbluebutton.modules.phone.managers {
 			isConnected = false;
 		}	
 				
-        public function successfullyJoinedVoiceConferenceCallback(publishName:String, playName:String, codec:String):* {
-        	LogUtil.debug("successfullyJoinedVoiceConferenceCallback " + publishName + " : " + playName + " : " + codec);
+     public function successfullyJoinedVoiceConferenceCallback(publishName:String, playName:String, codec:String):* {
+      LogUtil.debug("successfullyJoinedVoiceConferenceCallback " + publishName + " : " + playName + " : " + codec);
 			isConnected = true;
 			var event:CallConnectedEvent = new CallConnectedEvent();
 			event.publishStreamName = publishName;

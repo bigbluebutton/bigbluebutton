@@ -42,6 +42,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
 	<mate:Listener type="configLoadedEvent" method="initOptions"  />
 	<mate:Listener type="SHOW_MIC_SETTINGS" method="showMicSettings"  />
+  <mate:Listener type="{PerformEchoTestEvent.PERFORM_ECHO_TEST}" method="handlePerformEchoTest"  />
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
 	<mate:Listener type="{ShortcutEvent.OPEN_SHORTCUT_WIN}" method="openShortcutHelpWindow" />
@@ -50,45 +51,46 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.events.MouseEvent;
-			import flash.geom.Point;
-			
-			import flexlib.mdi.containers.MDIWindow;
-			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
-			
-			import mx.collections.ArrayCollection;
-			import mx.containers.TitleWindow;
-			import mx.controls.Alert;
-			import mx.core.FlexGlobals;
-			import mx.core.IFlexDisplayObject;
-			import mx.core.UIComponent;
-			import mx.events.CloseEvent;
-			import mx.managers.PopUpManager;
-			
-			import org.bigbluebutton.common.IBbbModuleWindow;
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.common.events.ToolbarButtonEvent;
-			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.core.events.LockControlEvent;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.AppVersionEvent;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.ConfigEvent;
-			import org.bigbluebutton.main.events.LogoutEvent;
-			import org.bigbluebutton.main.events.ModuleLoadEvent;
-			import org.bigbluebutton.main.events.PortTestEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
-			import org.bigbluebutton.main.model.LayoutOptions;
-			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.util.logging.Logger;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import flash.events.MouseEvent;
+      import flash.geom.Point;
+      
+      import flexlib.mdi.containers.MDIWindow;
+      import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
+      
+      import mx.collections.ArrayCollection;
+      import mx.containers.TitleWindow;
+      import mx.controls.Alert;
+      import mx.core.FlexGlobals;
+      import mx.core.IFlexDisplayObject;
+      import mx.core.UIComponent;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      
+      import org.bigbluebutton.common.IBbbModuleWindow;
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
+      import org.bigbluebutton.common.events.CloseWindowEvent;
+      import org.bigbluebutton.common.events.OpenWindowEvent;
+      import org.bigbluebutton.common.events.ToolbarButtonEvent;
+      import org.bigbluebutton.core.BBB;
+      import org.bigbluebutton.core.events.LockControlEvent;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.main.events.AppVersionEvent;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.ConfigEvent;
+      import org.bigbluebutton.main.events.LogoutEvent;
+      import org.bigbluebutton.main.events.ModuleLoadEvent;
+      import org.bigbluebutton.main.events.PortTestEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+      import org.bigbluebutton.main.model.LayoutOptions;
+      import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+      import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
+      import org.bigbluebutton.util.logging.Logger;
 	
 			private var globalDispatcher:Dispatcher;			
 			private var dispState:String; //full-screen?
@@ -342,6 +344,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				localeWindow.y = point1.y - (localeWindow.height/2);	
       }
 			
+      private function handlePerformEchoTest(event:PerformEchoTestEvent):void {
+        var webRtcEchoTest:WebRtcEchoTest = PopUpManager.createPopUp(mdiCanvas, WebRtcEchoTest, true) as WebRtcEchoTest;
+        webRtcEchoTest.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+          var point1:Point = new Point();
+          // Calculate position of TitleWindow in Application's coordinates. 
+          point1.x = width/2;
+          point1.y = height/2;
+          webRtcEchoTest.x = point1.x - (webRtcEchoTest.width/2);
+          webRtcEchoTest.y = point1.y - (webRtcEchoTest.height/2);
+        });        
+      }
+      
 			private function handleLogout(e:ConnectionFailedEvent):void {
 				if (layoutOptions.showLogoutWindow) {
 					if (logoutWindow != null) return;

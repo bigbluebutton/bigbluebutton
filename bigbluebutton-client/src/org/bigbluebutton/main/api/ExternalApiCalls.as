@@ -18,8 +18,7 @@
  */
 package org.bigbluebutton.main.api
 {
-  import flash.external.ExternalInterface;
-  
+  import flash.external.ExternalInterface;  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.common.Role;
   import org.bigbluebutton.core.EventConstants;
@@ -189,7 +188,7 @@ package org.bigbluebutton.main.api
     }
     
     public function handleSwitchToNewRoleEvent(event:SwitchedPresenterEvent):void {
-      trace("ExternalApiCalls:: Got NEW ROLE EVENT presenter = [" + event.amIPresenter + "]");
+      trace(LOG + "Got NEW ROLE EVENT presenter = [" + event.amIPresenter + "]");
       var payload:Object = new Object();
       payload.eventName = EventConstants.SWITCHED_PRESENTER;
       payload.amIPresenter = event.amIPresenter;
@@ -227,7 +226,7 @@ package org.bigbluebutton.main.api
       payload.eventName = EventConstants.USER_JOINED_VOICE;
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       
-      trace("ExternalApiCalls:: Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] has joined the voice conference.");
+      trace(LOG + "Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] has joined the voice conference.");
       
       broadcastEvent(payload);
     }
@@ -239,7 +238,7 @@ package org.bigbluebutton.main.api
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       payload.muted = event.payload.muted;
       
-      trace("ExternalApiCalls:: Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] is now muted=[" + payload.muted + "]");
+      trace(LOG + "Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] is now muted=[" + payload.muted + "]");
       broadcastEvent(payload);
     }
     
@@ -250,7 +249,7 @@ package org.bigbluebutton.main.api
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       payload.locked = event.payload.locked;
       
-      trace("ExternalApiCalls:: Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] is now locked=[" + payload.locked + "]");
+      trace(LOG + "Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] is now locked=[" + payload.locked + "]");
       broadcastEvent(payload);
     }
     
@@ -260,7 +259,7 @@ package org.bigbluebutton.main.api
       payload.eventName = EventConstants.USER_LEFT_VOICE;
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       
-      trace("ExternalApiCalls:: Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] has left the voice conference.");
+      trace(LOG + "Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] has left the voice conference.");
       
       broadcastEvent(payload);
     }

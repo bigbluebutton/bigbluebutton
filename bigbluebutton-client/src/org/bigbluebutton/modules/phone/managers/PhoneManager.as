@@ -18,14 +18,12 @@
 */
 
 package org.bigbluebutton.modules.phone.managers {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.StatusEvent;
 	import flash.external.ExternalInterface;
 	import flash.media.Microphone;
 	import flash.system.Security;
-	import flash.system.SecurityPanel;
-	
+	import flash.system.SecurityPanel;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
@@ -33,8 +31,11 @@ package org.bigbluebutton.modules.phone.managers {
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.phone.PhoneOptions;
 	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
+	import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
 
 	public class PhoneManager {		
+    private static const LOG:String = "Phone::PhoneManager - ";
+    
 		private var connectionManager:ConnectionManager;
 		private var streamManager:StreamManager;
 		private var onCall:Boolean = false;
@@ -108,7 +109,6 @@ package org.bigbluebutton.modules.phone.managers {
 		public function joinVoice(autoJoin:Boolean, microphoneIndex:int = 0):void {
 			if (webrtcCapable && useWebrtcIfAvailable) {			  
 				var s:String = ExternalInterface.call("joinWebRTCVoiceConference()");
-				trace(s);
 			} else {
 			  userHangup = false;
 			  setupMic(autoJoin, microphoneIndex);
@@ -168,7 +168,6 @@ package org.bigbluebutton.modules.phone.managers {
 				onCall = false;
 				if (webrtcCapable && useWebrtcIfAvailable) {
 					var s:String = ExternalInterface.call("leaveWebRTCVoiceConference()");
-					trace(s);
 				} else {
 					streamManager.stopStreams();
 					connectionManager.doHangUp();
@@ -177,39 +176,40 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 
 		public function onClickToJoinVoiceConference(args:Object = null):void {
-			var forceSkipCheck:Boolean = (args != null && args.hasOwnProperty('forceSkipCheck')? args['forceSkipCheck']: false);
-			webrtcCapable = (args != null && args.hasOwnProperty('webrtcCapable')? args['webrtcCapable']: webrtcCapable);
+//			var forceSkipCheck:Boolean = (args != null && args.hasOwnProperty('forceSkipCheck')? args['forceSkipCheck']: false);
+//			webrtcCapable = (args != null && args.hasOwnProperty('webrtcCapable')? args['webrtcCapable']: webrtcCapable);
 
-			if (phoneOptions.skipCheck || noMicrophone() || forceSkipCheck) {
-				if (webrtcCapable && phoneOptions.useWebrtcIfAvailable) {
-					joinVoice(true);
-				} else {
-					mic = Microphone.getMicrophone();
+//			if (phoneOptions.skipCheck || noMicrophone() || forceSkipCheck) {
+//				if (webrtcCapable && phoneOptions.useWebrtcIfAvailable) {
+//					joinVoice(true);
+//				} else {
+//					mic = Microphone.getMicrophone();
 					
 					/*
 					 * If the user had no mic, let her join but she'll just be listening.	
 					 * We should indicate a warning that the user is joining without mic
 					 * so that he will know that others won't be able to hear him.
 					*/
-					if (mic == null) {
-						joinVoice(false);
-					} else if (mic.muted) {
+//					if (mic == null) {
+//						joinVoice(false);
+//					} else if (mic.muted) {
 						// user has disallowed access to the mic
-						Security.showSettings(SecurityPanel.PRIVACY);
-						mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
-					} else {
+//						Security.showSettings(SecurityPanel.PRIVACY);
+//						mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
+//					} else {
 						// user has allowed access to the mic already
-						joinVoice(true);
-					}
-				}
-			} else {
+//						joinVoice(true);
+//					}
+//				}
+//			} else {
 				var dispatcher:Dispatcher = new Dispatcher();
 
-				var showMicSettings:BBBEvent = new BBBEvent("SHOW_MIC_SETTINGS");
-				showMicSettings.payload['webrtcCapable'] = webrtcCapable;
-				showMicSettings.payload['useWebrtcIfAvailable'] = phoneOptions.useWebrtcIfAvailable;
-				dispatcher.dispatchEvent(showMicSettings);
-			}
+//				var showMicSettings:BBBEvent = new BBBEvent("SHOW_MIC_SETTINGS");
+////				showMicSettings.payload['webrtcCapable'] = webrtcCapable;
+//				showMicSettings.payload['useWebrtcIfAvailable'] = phoneOptions.useWebrtcIfAvailable;
+//				dispatcher.dispatchEvent(showMicSettings);
+        dispatcher.dispatchEvent(new PerformEchoTestEvent("webrtc"));
+//			}
 		}
 
 		public function onClickToLeaveVoiceConference():void {

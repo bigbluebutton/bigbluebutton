@@ -433,6 +433,34 @@
       }
     }
 
+    BBB.webRtcCallProgressCallback = function(progress) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRtcCallProgressCallback(progress);
+      }
+    }
+
+    BBB.webRtcCallFailedCallback = function(reason) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRtcCallFailedCallback(reason);
+      }
+    }
+
+    BBB.webRtcCallEndedCallback = function(cause) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRtcCallEndedCallback(cause);
+      }
+    }
+
+    BBB.webRtcCallStartedCallback = function(localStream, remoteStream) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRtcCallStartedCallback(localStream, remoteStream);
+      }
+    }
+
             
     // Third-party JS apps should use this to query if the BBB SWF file is ready to handle calls.
     BBB.isSwfClientReady = function() {

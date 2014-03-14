@@ -103,13 +103,13 @@
 
 	var fsServer = null;
 
-        var callIntoConference = function(callback) {
-            if (!isWebrtcCapable()) {
-                callback("Browser version not supported");
-                return;
-            }
+  var callIntoConference = function(callback) {
+      if (!isWebrtcCapable()) {
+          callback("Browser version not supported");
+          return;
+      }
 
-            BBB.getMyUserInfo(function(userInfo) {
+      BBB.getMyUserInfo(function(userInfo) {
                 console.log("User info callback [myUserID=" + userInfo.myUserID
                     + ",myUsername=" + userInfo.myUsername + ",myAvatarURL=" + userInfo.myAvatarURL
                     + ",myRole=" + userInfo.myRole + ",amIPresenter=" + userInfo.amIPresenter
@@ -131,7 +131,7 @@
             });
         }
 
-        var joinWebRTCVoiceConference = function(){
+        var joinWebRTCVoiceConference = function(destination) {
             console.log("Joining to the voice conference");
             var callback = function(err) {
                 if (err) {
@@ -142,7 +142,7 @@
                 BBB.joinWebRTCVoiceConferenceCallback(err);
             }
 
-            callIntoConference(callback);
+            callIntoConference(destination, callback);
         }
 
         var leaveWebRTCVoiceConference = function(){
