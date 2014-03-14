@@ -18,7 +18,7 @@ function webrtc_call(username, voiceBridge, server, callback) {
 
     console.log("Browser: " + browser + ", version: " + version);
     if ( !( (browser == "Chrome" && version >= 28) || (browser == "Firefox" && version >= 26) ) ) {
-        callback("Browser version not supported");
+        callback({'status': 'browserError', message: "Browser version not supported"});
         return;
     }
 
@@ -61,20 +61,17 @@ function webrtc_call(username, voiceBridge, server, callback) {
 
   console.log("Registering callbacks to desired call events..");
   var eventHandlers = {
-    'connected': function(e) {
-      console.log("Call has been connected.");
-    },
     'progress': function(e){
       console.log('call is in progress: ' + e.data);
-      BBB.webRtcCallProgressCallback(e.data);
+      callback({'status':'progress', 'message': e.data});
     },
     'failed': function(e){
       console.log('call failed with cause: '+ e.data.cause);
-      BBB.webRtcCallFailedCallback(e.data.cause);
+      callback({'status':'failed', 'cause': e.data.cause});
     },
     'ended': function(e){
       console.log('call ended with cause: '+ e.data.cause);
-      BBB.webRtcCallEndedCallback(e.data.cause);
+      callback({'status':'ended', 'cause': e.data.cause});
     },
     'started': function(e){
       var rtcSession = e.sender;
@@ -95,8 +92,7 @@ function webrtc_call(username, voiceBridge, server, callback) {
         remoteView.src = window.URL.createObjectURL(rtcSession.getRemoteStreams()[0]);
         remoteStream = true;
       }
-      BBB.webRtcCallStartedCallback(localStream, remoteStream);
-     callback();
+     callback({'status':'started', 'localStream': localStream, 'remoteStream': remoteStream});
     }
   };
   

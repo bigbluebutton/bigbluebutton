@@ -94,12 +94,12 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("deletePresentationRequest", handleDeletePresentationRequest);
         ExternalInterface.addCallback("queryListsOfPresentationsRequest", handleQueryListsOfPresentationsRequest);
 
-        ExternalInterface.addCallback("joinWebRTCVoiceConferenceCallback", handleJoinWebRTCVoiceConferenceCallback);
-        ExternalInterface.addCallback("leaveWebRTCVoiceConferenceCallback", handleLeaveWebRTCVoiceConferenceCallback);
-        ExternalInterface.addCallback("webRtcCallProgressCallback", handleWebRtcCallProgressCallback);
-        ExternalInterface.addCallback("webRtcCallFailedCallback", handleWebRtcCallFailedCallback);
-        ExternalInterface.addCallback("webRtcCallEndedCallback", handleWebRtcCallEndedCallback);
-        ExternalInterface.addCallback("webRtcCallStartedCallback", handleWebRtcCallStartedCallback);
+        ExternalInterface.addCallback("webRtcConferenceCallEnded", handleWebRtcConferenceCallEnded);
+        ExternalInterface.addCallback("webRtcConferenceCallFailed", handleWebRtcConferenceCallFailed);
+        ExternalInterface.addCallback("webRtcConferenceCallStarted", handleWebRtcConferenceCallStarted);
+        ExternalInterface.addCallback("webRtcEchoTestFailed", handleWebRtcEchoTestFailed);
+        ExternalInterface.addCallback("webRtcEchoTestEnded", handleWebRtcEchoTestEnded);
+        ExternalInterface.addCallback("webRtcEchoTestStarted", handleWebRtcEchoTestStarted);
         
       }
       
@@ -392,45 +392,35 @@ package org.bigbluebutton.main.api
       _dispatcher.dispatchEvent(event);
     }
     
-    private function handleJoinWebRTCVoiceConferenceCallback(err:String=null):void {
-      trace(LOG + "handleJoinWebRTCVoiceConferenceCallback: [" + err + "]");
-      if (err) {
-        // we cannot use webrtc to join the voice conference, so try to call again using Flash
-        var e:BBBEvent = new BBBEvent("CLICK_TO_JOIN_VOICE_CONFERENCE_EVENT");
-        e.payload['forceSkipCheck'] = true;
-        e.payload['webrtcCapable'] = false;
-        _dispatcher.dispatchEvent(e);
-      } else {
-        var connectedEvent:CallConnectedEvent = new CallConnectedEvent();
-        _dispatcher.dispatchEvent(connectedEvent);
-      }
+    private function handleWebRtcConferenceCallStarted(localStream:Boolean, remoteStream:Boolean):void {
+      trace(LOG + "handleWebRtcConferenceCallStarted: local=[" + localStream + "] remote=[" + remoteStream + "]");
+      var connectedEvent:CallConnectedEvent = new CallConnectedEvent();
+      _dispatcher.dispatchEvent(connectedEvent);
     }
 
-    private function handleLeaveWebRTCVoiceConferenceCallback(err:String=null):void {
-      trace(LOG + "handleLeaveWebRTCVoiceConferenceCallback: [" + err + "]");
-      if (err) {
-        // do something if we cannot leave via webrtc
-//        var e:BBBEvent;
-//        e = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
-      } else {
-        var disconnectedEvent:CallDisconnectedEvent = new CallDisconnectedEvent();
-        _dispatcher.dispatchEvent(disconnectedEvent);
-      }
+    private function handleWebRtcConferenceCallEnded(cause:String):void {
+      trace(LOG + "handleWebRtcConferenceCallEnded: cause=[" + cause + "]");
+      var disconnectedEvent:CallDisconnectedEvent = new CallDisconnectedEvent();
+      _dispatcher.dispatchEvent(disconnectedEvent);
     }
     
-    private function handleWebRtcCallProgressCallback(progress:String):void {
-      _dispatcher.dispatchEvent(new WebRtcCallProgressEvent(progress));
+    private function handleWebRtcConferenceCallFailed(cause:String):void {
+      trace(LOG + "handleWebRtcConferenceCallFailed: cause=[" + cause + "]");
+//      _dispatcher.dispatchEvent(new WebRtcCallProgressEvent(progress));
     }
     
-    private function handleWebRtcCallFailedCallback(reason:String):void {
-      _dispatcher.dispatchEvent(new WebRtcCallFailedEvent(reason));
+    private function handleWebRtcEchoTestFailed(cause:String):void {
+      trace(LOG + "handleWebRtcEchoTestFailed: cause=[" + cause + "]");
+//      _dispatcher.dispatchEvent(new WebRtcCallFailedEvent(reason));
     }
     
-    private function handleWebRtcCallEndedCallback(cause:String):void {
+    private function handleWebRtcEchoTestEnded(cause:String):void {
+      trace(LOG + "handleWebRtcEchoTestEnded: cause=[" + cause + "]");
       _dispatcher.dispatchEvent(new WebRtcCallEndedEvent(cause));
     }
     
-    private function handleWebRtcCallStartedCallback(localStream:Boolean, remoteStream:Boolean):void {
+    private function handleWebRtcEchoTestStarted(localStream:Boolean, remoteStream:Boolean):void {
+      trace(LOG + "handleWebRtcEchoTestStarted: local=[" + localStream + "] remote=[" + remoteStream + "]");
       _dispatcher.dispatchEvent(new WebRtcCallStartedEvent(localStream, remoteStream));
     }
 

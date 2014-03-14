@@ -419,17 +419,24 @@
     /**
      *
      */
-    BBB.joinWebRTCVoiceConferenceCallback = function(message) {
+    BBB.webRtcConferenceCallEnded = function(message) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.joinWebRTCVoiceConferenceCallback(message);
+        swfObj.webRtcConferenceCallEnded(message);
       }
     }
 
-    BBB.leaveWebRTCVoiceConferenceCallback = function(message) {
+    BBB.webRtcConferenceCallFailed = function(message) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.leaveWebRTCVoiceConferenceCallback(message);
+        swfObj.webRtcConferenceCallFailed(message);
+      }
+    }
+
+    BBB.webRtcConferenceCallStarted = function(localStream, remoteStream) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRtcConferenceCallStarted(localStream, remoteStream);
       }
     }
 
@@ -440,24 +447,24 @@
       }
     }
 
-    BBB.webRtcCallFailedCallback = function(reason) {
+    BBB.webRtcEchoTestFailed = function(reason) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRtcCallFailedCallback(reason);
+        swfObj.webRtcEchoTestFailed(reason);
       }
     }
 
-    BBB.webRtcCallEndedCallback = function(cause) {
+    BBB.webRtcEchoTestEnded = function(cause) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRtcCallEndedCallback(cause);
+        swfObj.webRtcEchoTestEnded(cause);
       }
     }
 
-    BBB.webRtcCallStartedCallback = function(localStream, remoteStream) {
+    BBB.webRtcEchoTestStarted = function(localStream, remoteStream) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRtcCallStartedCallback(localStream, remoteStream);
+        swfObj.webRtcEchoTestStarted(localStream, remoteStream);
       }
     }
 
