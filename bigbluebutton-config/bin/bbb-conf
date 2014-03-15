@@ -46,7 +46,7 @@
 #   2012-04-27 FFD  Added sum of version numbers in --check
 #   2013-02-03 FFD  Updated for changes to parameters for 0.81 in bigbluebutton-sip.properties
 #   2013-11-07 FFD  Finished 0.81
-#   2014-01-13 FFD  Working on updates for 0.9.0
+#   2014-01-13 FFD  Working on updates for 0.9.0 
 #   2014-03-10 GUG  Enable Webrtc
 
 #set -x
