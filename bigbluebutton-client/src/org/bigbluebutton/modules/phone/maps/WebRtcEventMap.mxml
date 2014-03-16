@@ -28,7 +28,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import mx.events.FlexEvent;
       
       import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
+      import org.bigbluebutton.modules.phone.events.UseFlashModeEvent;
       import org.bigbluebutton.modules.phone.events.WebRtcCallStartedEvent;
+      import org.bigbluebutton.modules.phone.events.WebRtcEchoTestHasAudioEvent;
+      import org.bigbluebutton.modules.phone.events.WebRtcEchoTestNoAudioEvent;
+      import org.bigbluebutton.modules.phone.events.WebRtcUserChangedMicEvent;
       import org.bigbluebutton.modules.phone.managers.WebRtcCallManager;
 		]]>
 	</mx:Script>
@@ -50,6 +54,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{WebRtcCallStartedEvent.WEBRTC_CALL_STARTED}">        
     <MethodInvoker generator="{WebRtcCallManager}" method="handleWebRtcEchoTestStarted"/>
   </EventHandlers>  
+
+  <EventHandlers type="{WebRtcEchoTestHasAudioEvent.WEBRTC_ECHO_TEST_HAS_AUDIO}">        
+    <MethodInvoker generator="{WebRtcCallManager}" method="handleWebRtcEchoTestHasAudioEvent"/>
+  </EventHandlers> 
   
+  <EventHandlers type="{WebRtcEchoTestNoAudioEvent.WEBRTC_ECHO_TEST_NO_AUDIO}">        
+    <MethodInvoker generator="{WebRtcCallManager}" method="handleWebRtcEchoTestNoAudioEvent"/>
+  </EventHandlers> 
+  
+  <EventHandlers type="{UseFlashModeEvent.USE_FLASH_MODE}">        
+    <MethodInvoker generator="{WebRtcCallManager}" method="handleUseFlashModeEvent"/>
+  </EventHandlers>   
+  
+  <EventHandlers type="{WebRtcUserChangedMicEvent.WEBRTC_USER_CHANGED_MIC}">        
+    <MethodInvoker generator="{WebRtcCallManager}" method="handleWebRtcUserChangedMicEvent"/>
+  </EventHandlers> 
   
 </EventMap>

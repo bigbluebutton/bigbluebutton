@@ -43,7 +43,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="configLoadedEvent" method="initOptions"  />
 	<mate:Listener type="SHOW_MIC_SETTINGS" method="showMicSettings"  />
   <mate:Listener type="{WebRtcEchoTestStartedEvent.WEBRTC_ECHO_TEST_STARTED}" method="handleWebRtcEchoTestStartedEvent"  />
-  <mate:Listener type="{AskMicPermissionEvent.ASK_MIC_PERMISSION}" method="handleAskMicPermissionEvent"  />
+  <mate:Listener type="{WebRtcAskMicPermissionEvent.ASK_MIC_PERMISSION}" method="handleAskMicPermissionEvent"  />
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
 	<mate:Listener type="{ShortcutEvent.OPEN_SHORTCUT_WIN}" method="openShortcutHelpWindow" />
@@ -89,7 +89,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.SuccessfulLoginEvent;
       import org.bigbluebutton.main.model.LayoutOptions;
       import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-      import org.bigbluebutton.modules.phone.events.AskMicPermissionEvent;
+      import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionEvent;
       import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
       import org.bigbluebutton.modules.phone.events.WebRtcEchoTestStartedEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -347,7 +347,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				localeWindow.y = point1.y - (localeWindow.height/2);	
       }
 			
-      private function handleAskMicPermissionEvent(event:AskMicPermissionEvent):void {
+      private function handleAskMicPermissionEvent(event:WebRtcAskMicPermissionEvent):void {
         var browser:String = event.browser;
         if (browser == "Firefox") {
           var ffBrowser:FirefoxMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, FirefoxMicPermissionImage, true) as FirefoxMicPermissionImage;
