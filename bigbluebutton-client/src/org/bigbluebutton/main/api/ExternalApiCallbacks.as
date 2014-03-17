@@ -43,6 +43,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.modules.phone.events.WebRtcCallFailedEvent;
   import org.bigbluebutton.modules.phone.events.WebRtcCallProgressEvent;
   import org.bigbluebutton.modules.phone.events.WebRtcCallStartedEvent;
+  import org.bigbluebutton.modules.phone.events.WebRtcConfCallStartedEvent;
   import org.bigbluebutton.modules.present.events.GetListOfPresentationsRequest;
   import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
@@ -394,7 +395,7 @@ package org.bigbluebutton.main.api
     
     private function handleWebRtcConferenceCallStarted(localStream:Boolean, remoteStream:Boolean):void {
       trace(LOG + "handleWebRtcConferenceCallStarted: local=[" + localStream + "] remote=[" + remoteStream + "]");
-      var connectedEvent:CallConnectedEvent = new CallConnectedEvent();
+      var connectedEvent:WebRtcConfCallStartedEvent = new WebRtcConfCallStartedEvent();
       _dispatcher.dispatchEvent(connectedEvent);
     }
 

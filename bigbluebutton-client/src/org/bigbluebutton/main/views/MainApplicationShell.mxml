@@ -44,6 +44,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="SHOW_MIC_SETTINGS" method="showMicSettings"  />
   <mate:Listener type="{WebRtcEchoTestStartedEvent.WEBRTC_ECHO_TEST_STARTED}" method="handleWebRtcEchoTestStartedEvent"  />
   <mate:Listener type="{WebRtcAskMicPermissionEvent.ASK_MIC_PERMISSION}" method="handleAskMicPermissionEvent"  />
+  <mate:Listener type="{WebRtcAskUserToChangeMicEvent.WEBRTC_ASK_USER_TO_CHANGE_MIC}" method="handleWebRtcAskUserToChangeMicEvent"  />
+  <mate:Listener type="{WebRtcAskMicPermissionToJoinConferenceEvent.WEBRTC_ASK_MIC_PERMISSION_TO_JOIN_VOICE_CONFERENCE}" 
+                         method="handleWebRtcAskMicPermissionToJoinConferenceEvent"  />
+  
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
 	<mate:Listener type="{ShortcutEvent.OPEN_SHORTCUT_WIN}" method="openShortcutHelpWindow" />
@@ -89,8 +93,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.SuccessfulLoginEvent;
       import org.bigbluebutton.main.model.LayoutOptions;
       import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-      import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionEvent;
       import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
+      import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionEvent;
+      import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionToJoinConferenceEvent;
+      import org.bigbluebutton.modules.phone.events.WebRtcAskUserToChangeMicEvent;
       import org.bigbluebutton.modules.phone.events.WebRtcEchoTestStartedEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
       import org.bigbluebutton.util.logging.Logger;
@@ -347,6 +353,66 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				localeWindow.y = point1.y - (localeWindow.height/2);	
       }
 			
+      private function handleWebRtcAskMicPermissionToJoinConferenceEvent(event:WebRtcAskMicPermissionToJoinConferenceEvent):void {
+        var browser:String = event.browser;
+        if (browser == "Firefox") {
+          var ffBrowser:FirefoxMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, FirefoxMicPermissionImage, true) as FirefoxMicPermissionImage;
+          ffBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+            var point1:Point = new Point();
+            // Calculate position of TitleWindow in Application's coordinates. 
+            point1.x = width/2;
+            point1.y = height/2;
+            ffBrowser.x = point1.x - (ffBrowser.width/2);
+            ffBrowser.y = point1.y - (ffBrowser.height/2);
+            ffBrowser.x = 100;
+            ffBrowser.y = 150;
+          }); 
+        } else if (browser == "Chrome") {
+          var chromeBrowser:ChromeMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, ChromeMicPermissionImage, true) as ChromeMicPermissionImage;
+          chromeBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+            var point1:Point = new Point();
+            // Calculate position of TitleWindow in Application's coordinates. 
+            point1.x = width/2;
+            point1.y = height/2;
+            chromeBrowser.x = point1.x - (chromeBrowser.width/2);
+            chromeBrowser.y = point1.y - (chromeBrowser.height/2);
+            
+            chromeBrowser.x = 20;
+            chromeBrowser.y = 20;
+            
+          });          
+        }        
+      }
+      
+      
+      private function handleWebRtcAskUserToChangeMicEvent(event:WebRtcAskUserToChangeMicEvent):void {
+        var browser:String = event.browser;
+        if (browser == "Firefox") {
+          var ffBrowser:FirefoxMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, FirefoxMicPermissionImage, true) as FirefoxMicPermissionImage;
+          ffBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+            var point1:Point = new Point();
+            // Calculate position of TitleWindow in Application's coordinates. 
+            point1.x = width/2;
+            point1.y = height/2;
+            ffBrowser.x = point1.x - (ffBrowser.width/2);
+            ffBrowser.y = point1.y - (ffBrowser.height/2);
+            ffBrowser.x = 100;
+            ffBrowser.y = 150;
+          }); 
+        } else if (browser == "Chrome") {
+          var chromeBrowser:ChromeChangeMicImage = PopUpManager.createPopUp(mdiCanvas, ChromeChangeMicImage, true) as ChromeChangeMicImage;
+          chromeBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+            var point1:Point = new Point();
+            // Calculate position of TitleWindow in Application's coordinates. 
+            point1.x = width;
+            point1.y = 20;
+            chromeBrowser.x = point1.x - (chromeBrowser.width);
+            chromeBrowser.y = point1.y;           
+          });          
+        }        
+      }
+      
+      
       private function handleAskMicPermissionEvent(event:WebRtcAskMicPermissionEvent):void {
         var browser:String = event.browser;
         if (browser == "Firefox") {

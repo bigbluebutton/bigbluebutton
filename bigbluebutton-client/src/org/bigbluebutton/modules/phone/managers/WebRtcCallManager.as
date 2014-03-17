@@ -5,27 +5,36 @@ package org.bigbluebutton.modules.phone.managers
   import flash.external.ExternalInterface;
   
   import org.bigbluebutton.main.api.JSAPI;
-  import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionEvent;
+  import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
+  import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
   import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
-  import org.bigbluebutton.modules.phone.events.WebRtcRemoveAskMicPermissionEvent;
+  import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionEvent;
   import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionToJoinConferenceEvent;
   import org.bigbluebutton.modules.phone.events.WebRtcAskUserToChangeMicEvent;
   import org.bigbluebutton.modules.phone.events.WebRtcEchoTestStartedEvent;
+  import org.bigbluebutton.modules.phone.events.WebRtcRemoveAskMicPermissionEvent;
 
   public class WebRtcCallManager
   {
     private var browserType:String = "unknown";
     private var dispatcher:Dispatcher = new Dispatcher();
     
-    public function WebRtcCallManager()
-    {
+    public function WebRtcCallManager() {
       browserType = JSAPI.getInstance().getBrowserType();
     }
     
     
     public function initialize():void {         
-      ExternalInterface.call("startWebrtcAudioTest");
+      startWebRtcEchoTest();
       askMicPermission();
+    }
+    
+    public function startWebRtcEchoTest():void {
+      ExternalInterface.call("startWebrtcAudioTest");
+    }
+    
+    private function endEchoTest():void {
+      ExternalInterface.call("stopWebrtcAudioTest");
     }
     
     public function askMicPermission():void {      
@@ -36,23 +45,43 @@ package org.bigbluebutton.modules.phone.managers
       dispatcher.dispatchEvent(new WebRtcRemoveAskMicPermissionEvent());
     }
     
-    public function handleWebRtcEchoTestStarted():void {
+    public function handleWebRtcEchoTestStarted():void {     
       hideMicPermission();
       dispatcher.dispatchEvent(new WebRtcEchoTestStartedEvent());
     }
     
     public function handleWebRtcEchoTestNoAudioEvent():void {
+      endEchoTest();
       hideMicPermission();
-      dispatcher.dispatchEvent(new WebRtcAskUserToChangeMicEvent());
+      if (browserType == "Firefox") {
+        startWebRtcEchoTest();
+      }
+      
+      dispatcher.dispatchEvent(new WebRtcAskUserToChangeMicEvent(browserType));
     }
     
     public function handleWebRtcEchoTestHasAudioEvent():void {
-      ExternalInterface.call("joinWebRTCVoiceConference");
-      dispatcher.dispatchEvent(new WebRtcAskMicPermissionToJoinConferenceEvent());
+      endEchoTest();
+      ExternalInterface.call("joinWebRtcVoiceConference");
+      dispatcher.dispatchEvent(new WebRtcAskMicPermissionToJoinConferenceEvent(browserType));
     }
     
-    public function leaveVoiceConference():void {
-      
+    public function handleWebRtcConfCallStartedEvent():void {
+      hideMicPermission();
+      dispatcher.dispatchEvent(new CallConnectedEvent());
+    }
+    
+    public function handleWebRtcConfCallEndedEvent():void {
+      hideMicPermission();
+      dispatcher.dispatchEvent(new CallDisconnectedEvent());
+    }
+    
+    public function handleJoinVoiceConferenceCommand():void {
+      startWebRtcEchoTest();
+    }
+    
+    public function handleLeaveVoiceConferenceCommand():void {
+      ExternalInterface.call("leaveWebRtcVoiceConference");
     }
   }
 }

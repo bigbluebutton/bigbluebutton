@@ -25,11 +25,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:mx="http://www.adobe.com/2006/mxml">
 	<mx:Script>
 		<![CDATA[
-      import mx.events.FlexEvent;
-      
+      import mx.events.FlexEvent;     
+      import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
+      import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
       import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
       import org.bigbluebutton.modules.phone.events.UseFlashModeEvent;
       import org.bigbluebutton.modules.phone.events.WebRtcCallStartedEvent;
+      import org.bigbluebutton.modules.phone.events.WebRtcConfCallEndedEvent;
+      import org.bigbluebutton.modules.phone.events.WebRtcConfCallStartedEvent;
       import org.bigbluebutton.modules.phone.events.WebRtcEchoTestHasAudioEvent;
       import org.bigbluebutton.modules.phone.events.WebRtcEchoTestNoAudioEvent;
       import org.bigbluebutton.modules.phone.events.WebRtcUserChangedMicEvent;
@@ -70,5 +73,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{WebRtcUserChangedMicEvent.WEBRTC_USER_CHANGED_MIC}">        
     <MethodInvoker generator="{WebRtcCallManager}" method="handleWebRtcUserChangedMicEvent"/>
   </EventHandlers> 
+
+  <EventHandlers type="{WebRtcConfCallStartedEvent.WEBRTC_CONF_CALL_STARTED}">        
+    <MethodInvoker generator="{WebRtcCallManager}" method="handleWebRtcConfCallStartedEvent"/>
+  </EventHandlers> 
+
+  <EventHandlers type="{WebRtcConfCallEndedEvent.WEBRTC_CONF_CALL_ENDED}">        
+    <MethodInvoker generator="{WebRtcCallManager}" method="handleWebRtcConfCallEndedEvent"/>
+  </EventHandlers> 
+  
+  <EventHandlers type="{JoinVoiceConferenceCommand.JOIN_VOICE_CONF}">        
+    <MethodInvoker generator="{WebRtcCallManager}" method="handleJoinVoiceConferenceCommand"/>
+  </EventHandlers> 
+  
+  <EventHandlers type="{LeaveVoiceConferenceCommand.LEAVE_VOICE_CONF}">        
+    <MethodInvoker generator="{WebRtcCallManager}" method="handleLeaveVoiceConferenceCommand"/>
+  </EventHandlers> 
+  
   
 </EventMap>

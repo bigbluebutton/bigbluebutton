@@ -34,8 +34,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
 	<mx:Script>
 		<![CDATA[
-      import mx.managers.PopUpManager;
-      
+      import mx.managers.PopUpManager;      
       import org.bigbluebutton.core.BBB;
       import org.bigbluebutton.main.api.JSAPI;
       import org.bigbluebutton.main.events.BBBEvent;
@@ -68,30 +67,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onCreationComplete():void {
         browserType = JSAPI.getInstance().getBrowserType();
         trace(LOG + "************************* BROWSER TYPE = [" + browserType + "] **********************");
-//        startEchoTest();
       }
       
-      private function startEchoTest():void {
-        msgText.text = startEchoTestTxt;
-        ExternalInterface.call("startWebrtcAudioTest");
-      }
-      
-      private function endEchoTest():void {
-				ExternalInterface.call("stopWebrtcAudioTest");
-			}
-
       private function yesButtonClicked():void {
         trace(LOG + "Echo test passed.");
-        endEchoTest();
         dispatchEvent(new WebRtcEchoTestHasAudioEvent());
- //       var s:String = ExternalInterface.call("joinWebRTCVoiceConference");
         onCancelClicked();
       }
       
       private function noButtonClicked():void {
         trace(LOG + "Echo test failed.");
-        endEchoTest();
         dispatchEvent(new WebRtcEchoTestNoAudioEvent());
+        onCancelClicked();
       }
      
       private function onHelpButtonClicked():void {
@@ -120,18 +107,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
     <mx:Canvas width="100%">
-      <mx:TextArea borderSkin="{null}" editable="false" id="msgText" text=""
+      <mx:TextArea borderSkin="{null}" editable="false" id="msgText" 
+                   text="Please say a few words. Are you able to hear yourself?"
                    styleName="micSettingsWindowTitleStyle" width="400" height="100" left="0"/>
     </mx:Canvas>
 
       <mx:HRule width="100%"/>
   		<mx:Spacer height="10"/>
 			<mx:HBox width="100%" horizontalAlign="right" horizontalGap="18">
-        <mx:Button id="yesButton" label="Yes. Join me into the conference." 
+        <mx:Button id="yesButton" label="Yes" 
                    click="yesButtonClicked()" styleName="micSettingsWindowPlaySoundButtonStyle"
                    toolTip=""/>
 				<mx:Button id="noButton" 
-				       label="No. I would like to test another mic." 
+				       label="No" 
 						   styleName="micSettingsWindowPlaySoundButtonStyle"
 						   click="noButtonClicked()" 
 						   toolTip=""/>

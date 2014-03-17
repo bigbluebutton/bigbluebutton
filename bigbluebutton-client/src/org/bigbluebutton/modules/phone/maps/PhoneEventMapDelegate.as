@@ -63,13 +63,11 @@ package org.bigbluebutton.modules.phone.maps
 		public function disableToolbarButton():void {
 			phoneButton.selected = true;
 			phoneButton.enabled = true;
-			phoneButton.userJoinedConference(true);
 		}
 		
 		public function enableToolbarButton():void {
 			phoneButton.selected = false;
 			phoneButton.enabled = true;
-			phoneButton.userJoinedConference(false);
 		}
 	}
 }

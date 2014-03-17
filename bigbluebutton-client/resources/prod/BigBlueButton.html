@@ -130,7 +130,7 @@
     });
   }
 
-  var joinWebRTCVoiceConference = function(destination) {
+  var joinWebRtcVoiceConference = function(destination) {
     console.log("Joining to the voice conference");
     var callback = function(message) {
       if (message.status == 'failed') {
@@ -145,7 +145,7 @@
     callIntoConference(destination, callback);
   }
 
-  var leaveWebRTCVoiceConference = function() {
+  var leaveWebRtcVoiceConference = function() {
     console.log("Leaving the voice conference");
     var callback = function(err) {
       if (err) {
