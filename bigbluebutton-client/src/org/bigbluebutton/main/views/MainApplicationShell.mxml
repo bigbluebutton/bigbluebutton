@@ -455,7 +455,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:ControlBar width="100%" height="{footerHeight}" paddingTop="0" id="controlBar">
 		<mx:Label
-				htmlText="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}"
+				htmlText="(c) 2014 SimpleTutor. For more information visit &lt;a href='www.simpletutor.co.uk' target='_blank'>&lt;u>www.simpletutor.co.uk&lt;/u>&lt;/a>"
 				id="copyrightLabel2"
 				selectable="false" />
 		<mx:Spacer width="20"/>
