@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+       xmlns:mate="http://mate.asfusion.com/"
+       xmlns:views="org.bigbluebutton.modules.videoconf.views.*"
+       creationComplete="onCreationComplete()"
+       backgroundColor="white" width="320" height="240">
+
+    <mx:Script>
+        <![CDATA[
+
+            import org.bigbluebutton.core.UsersUtil;
+            import org.bigbluebutton.core.model.VideoProfile;
+            import org.bigbluebutton.main.model.users.BBBUser;
+            import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+
+            protected function onCreationComplete():void {
+//                loadAvatar("https://avatars3.githubusercontent.com/u/5931345?s=140");
+            }
+
+            public function loadAvatar(user:BBBUser, options:VideoConfOptions):void {
+                avatar.user = user;
+                avatar.options = options;
+                avatar.load(UsersUtil.getAvatarURL());
+
+                avatarVisibility = true;
+            }
+
+            public function loadCamera(user:BBBUser, options:VideoConfOptions, camIndex:int, videoProfile:VideoProfile):void {
+              video.user = user;
+              video.options = options;
+              video.publish(camIndex, videoProfile);
+
+              videoVisibility = true;
+            }
+
+            public function loadVideo(user:BBBUser, options:VideoConfOptions, connection:NetConnection, streamName:String):void {
+                video.user = user;
+                video.options = options;
+                video.view(connection, streamName);
+
+                videoVisibility = true;
+            }
+
+            public function get contentAspectRatio():Number {
+                if (avatar.visible) {
+                    return avatar.aspectRatio;
+                } else if (video.visible) {
+                    return video.aspectRatio;
+                } else {
+                    return 320 / 240;
+                }
+            }
+
+            public function get user():BBBUser {
+                if (avatar.visible) {
+                    return avatar.user;
+                } else if (video.visible) {
+                    return video.user;
+                } else {
+                    return null;
+                }
+            }
+
+            public function shutdown():void {
+                video.shutdown();
+            }
+
+            private function set avatarVisibility(value:Boolean):void {
+                avatar.visible = avatar.includeInLayout = value;
+                video.visible = video.includeInLayout = !value;
+            }
+
+            private function set videoVisibility(value:Boolean):void {
+                avatarVisibility = !value;
+            }
+        ]]>
+    </mx:Script>
+
+    <views:UserAvatar id="avatar" width="100%" height="100%" visible="false" includeInLayout="false" />
+    <views:UserVideo id="video" width="100%" height="100%" visible="false" includeInLayout="false" />
+</mx:VBox>

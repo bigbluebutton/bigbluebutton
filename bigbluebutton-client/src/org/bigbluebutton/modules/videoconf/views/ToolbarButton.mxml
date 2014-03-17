@@ -46,7 +46,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			
 			private var images:Images = new Images();
 			[Bindable] public var camIcon:Class = images.webcam;
 
@@ -55,10 +54,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public const STOP_PUBLISHING:Number = 0;
 			public const START_PUBLISHING:Number = 1;
-						
+
 			private var _currentState:Number = OFF_STATE;
 
-			
 			private var dispatcher:Dispatcher;
 			
 			private function init():void{
@@ -70,10 +68,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_currentState = OFF_STATE;
 			}
 			
-      public function set isPresenter(presenter:Boolean):void {
-        visible = presenter;
-      }
-      
+			public function set isPresenter(presenter:Boolean):void {
+				visible = presenter;
+			}
+
 			public function remoteClick(e:ShortcutEvent):void{
 				openPublishWindow();
 				dispatchEvent(new ShortcutEvent(ShortcutEvent.REMOTE_FOCUS_WEBCAM));
@@ -112,7 +110,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					camIcon = images.webcamOn;
 					this.selected = true;
 					dispatchEvent(new ShareCameraRequestEvent());
-				}			
+				}
 			}
 			
 			private function handleCamSettingsClosedEvent(e:BBBEvent):void {
