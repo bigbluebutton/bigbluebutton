@@ -46,7 +46,8 @@
 #   2012-04-27 FFD  Added sum of version numbers in --check
 #   2013-02-03 FFD  Updated for changes to parameters for 0.81 in bigbluebutton-sip.properties
 #   2013-11-07 FFD  Finished 0.81
-#   2014-01-13 FFD  Working on updates for 0.9.0
+#   2014-01-13 FFD  Working on updates for 0.9.0 
+#   2014-03-10 GUG  Enable Webrtc
 
 #set -x
 #set -e
@@ -85,14 +86,8 @@ if [ -f $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties ]; t
 		sudo sed -i s/^bigbluebutton.web.logoutURL=$/bigbluebutton.web.logoutURL=default/g $SERVLET_DIR/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 	fi
 fi
-#
-# Figure out if we're using Asterisk or FreeSWITCH
-#
-if cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml | grep -v '<!--' | grep -q 'bbb-voice-asterisk.xml'; then
-	VOICE_CONFERENCE="bbb-voice-asterisk.xml"
-elif cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml | grep -v '<!--' | grep -q 'bbb-voice-freeswitch.xml'; then
-	VOICE_CONFERENCE="bbb-voice-freeswitch.xml"
-fi
+
+VOICE_CONFERENCE="bbb-voice-freeswitch.xml"
 
 #
 # Determine IP so it works on multilingual installations
@@ -159,6 +154,8 @@ usage() {
         echo "   --version                        Display BigBlueButton version (packages)"
         echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
 	echo "   --setsecret <secret>             Change the shared secret in bigbluebutton.properties"
+        echo "   --enablewebrtc                   Enables webrtc feature in the server"
+        echo "   --disablewebrtc                  Disables webrtc feature in the server"
         echo
         echo "Monitoring:"
         echo "   --check                          Check configuration files and processes for problems"
@@ -174,6 +171,9 @@ usage() {
         echo "   --clean                          Restart and clean all log files"
         echo "   --zip                            Zip up log files for reporting an error"
         echo
+        echo "Testing:"
+        echo "   --enablewebrtc                   Enables webrtc feature in the server"
+        echo "   --disablewebrtc                  Disables webrtc feature in the server"
 
         echo
 }
@@ -234,55 +234,38 @@ stop_bigbluebutton () {
 	if [ -a /opt/freeswitch/run/freeswitch.pid ]; then
 		$FREESWITCH_INIT_D stop
 	fi
-	
-	if [ -a /var/run/asterisk/asterisk.pid ]; then
-		/etc/init.d/asterisk stop
-	fi
         
 	if [ -f /etc/init.d/bbb-openoffice-headless ]; then
 		/etc/init.d/bbb-openoffice-headless stop
 	fi
 
-	if [ -f /etc/init.d/bbb-recorde ]; then
+	if [ -f /etc/init.d/bbb-record ]; then
 		/etc/init.d/bbb-record stop
 	fi
 
 }
 
 start_bigbluebutton () {
-	if [ "$VOICE_CONFERENCE" == "bbb-voice-freeswitch.xml" ]; then
-		echo "Starting FreeSWITCH"
-		$FREESWITCH_INIT_D start
-	else
-		echo "Starting Asterisk"
-		/etc/init.d/asterisk start
-	fi
+
+	$FREESWITCH_INIT_D start
 	
-	if [ "$VOICE_CONFERENCE" == "bbb-voice-freeswitch.xml" ]; then
-		FREESWITCH_ESL_IP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
-		check_no_value listen-ip /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml $FREESWITCH_ESL_IP
+	FREESWITCH_ESL_IP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+	check_no_value listen-ip /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml $FREESWITCH_ESL_IP
 
-		echo -n "Waiting for FreeSWITCH to start: "
+	echo -n "Waiting for FreeSWITCH to start: "
 
-		if [ ! -z $FREESWITCH_ESL_IP ]; then
-			while ! nc -z -w 1 $FREESWITCH_ESL_IP 8021; do
-				echo -n "."
-                		sleep 1
-        		done
-		fi
-		echo
-	else
-		echo -n "Waiting for Asterisk to start: "
-
-		while ! nc -z -w 1 127.0.0.1 5038; do
+	if [ ! -z $FREESWITCH_ESL_IP ]; then
+		while ! nc -z -w 1 $FREESWITCH_ESL_IP 8021; do
 			echo -n "."
-                	sleep 1
-        	done
+			sleep 1
+		done
 	fi
+	echo
 
 	if [ -f /etc/init.d/bbb-openoffice-headless ]; then	
 		/etc/init.d/bbb-openoffice-headless start
 	fi
+	
 	/etc/init.d/nginx start
 	/etc/init.d/bbb-red5 start
 	/etc/init.d/${SERVLET_CONTAINER} start
@@ -323,6 +306,39 @@ display_bigbluebutton_status () {
 	/etc/init.d/${SERVLET_CONTAINER} status
 }
 
+enable_webrtc(){
+	# Set server ip address in freeswitch
+	sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=$IP\"/>@g"  /opt/freeswitch/conf/vars.xml
+
+	# Set server ip address in red5 sip app. For flash client.
+	sed -i "s/bbb.sip.app.ip=.*/bbb.sip.app.ip=$IP/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
+	sed -i "s/freeswitch.ip=.*/freeswitch.ip=$IP/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
+
+	# Enable webrtc in the client
+	sed -i "s@useWebrtcIfAvailable=\".*\"@useWebrtcIfAvailable=\"true\"@g" /var/www/bigbluebutton/client/conf/config.xml
+
+	# Enable port 5066 in freeswitch
+	sed -i "s@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@<param name=\"ws-binding\"  value=\":5066\"/>@g" /opt/freeswitch/conf/sip_profiles/external.xml
+
+	bbb-conf --clean
+}
+
+disable_webrtc(){
+	# Set 127.0.0.1 in freeswitch
+	sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=127.0.0.1\"/>@g"  /opt/freeswitch/conf/vars.xml
+
+	# Set 127.0.0.1 in red5 sip app. For flash client.
+	sed -i "s/bbb.sip.app.ip=.*/bbb.sip.app.ip=127.0.0.1/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
+	sed -i "s/freeswitch.ip=.*/freeswitch.ip=127.0.0.1/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
+
+	# Disable webrtc in the client
+	sed -i "s@useWebrtcIfAvailable=\".*\"@useWebrtcIfAvailable=\"false\"@g" /var/www/bigbluebutton/client/conf/config.xml
+
+	# Disable port 5066 in freeswitch
+	sed -i "s@<param name=\"ws-binding\"  value=\":5066\"/>@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@g" /opt/freeswitch/conf/sip_profiles/external.xml
+
+	bbb-conf --clean
+}
 
 if [ $# -eq 0 ]; then
 	usage
@@ -405,6 +421,18 @@ while [ $# -gt 0 ]; do
                 continue
         fi
 
+	if [ "$1" = "--enablewebrtc" -o "$1" = "-enablewebrtc" ]; then
+		need_root
+		enable_webrtc
+		exit 0
+        fi
+
+	if [ "$1" = "--disablewebrtc" -o "$1" = "-disablewebrtc" ]; then
+		need_root
+		disable_webrtc
+		exit 0
+        fi
+
 	#
 	# all other parameters requires at least 1 argument
 	#
@@ -431,24 +459,6 @@ while [ $# -gt 0 ]; do
 		echo "for instructions on how to setup a development environment."
 		exit 0
         fi
-
-	if [ "$1" = "--conference" -o "$1" = "-conference" ]; then
-		CONFERENCE="${2}"
-		confapp=$(cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | grep 'asterisk.application' | sed s/.*=//g);
-
-		if [ -z "$CONFERENCE" ] ; then
-			if [ $confapp == "meetme" ]; then
-				echo "Current conference application is $confapp"
-			elif [ $confapp == "konference" ] && [ "$VOICE_CONFERENCE" == "bbb-voice-asterisk.xml" ]; then
-				echo "Current conference application is $confapp"
-			elif [ "$VOICE_CONFERENCE" == "bbb-voice-freeswitch.xml" ]; then
-				echo "Current conference application is freeswitch"
-			fi
-			exit 0
-		fi
-		shift; shift
-		continue
-	fi		
 	
 	if [ "$1" = "--salt" -o "$1" = "-salt" -o "$1" = "--setsalt" ]; then
 		SALT="${2}"
@@ -502,8 +512,6 @@ while [ $# -gt 0 ]; do
 		continue
 	fi
 
-
-
 	usage 
 	exit 1
 done
@@ -535,6 +543,7 @@ fi
 # Setup samba
 #
 
+echo "##$CLEAN##"
 if [ $SAMBA ]; then
 	check_root
 
@@ -584,55 +593,38 @@ check_configuration() {
 	#
 	# Check if we've got the voice conference servers properly installed and configured
 	#
-        if [ "$VOICE_CONFERENCE" == "bbb-voice-freeswitch.xml" ]; then
-               if [ ! -d /opt/freeswitch/conf/jingle_profiles ]; then
-                        echo
-                        echo "# You have an older version of FreeSWITCH installed.  To upgrade"
-                        echo "# enter the following commands"
-                        echo "# "
-                        echo "#   sudo apt-get remove bbb-freeswitch"
-                        echo "#   sudo apt-get install bigbluebutton"
-                        echo "# "
-                        echo
-                fi
+       if [ ! -d /opt/freeswitch/conf/jingle_profiles ]; then
+		echo
+		echo "# You have an older version of FreeSWITCH installed.  To upgrade"
+		echo "# enter the following commands"
+		echo "# "
+		echo "#   sudo apt-get remove bbb-freeswitch"
+		echo "#   sudo apt-get install bigbluebutton"
+		echo "# "
+		echo
+	fi
 
-		
-		#
-		# Check that freeswtich ESL matches the value in bigbluebutton.properties
-		#
-		if [ -f /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml ]; then 
-			FREESWITCH_ESL_IP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
-			check_no_value event_socket /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml $FREESWITCH_ESL_IP
-			
-			ESL_HOST=$(cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | grep esl.host | sed 's/freeswitch.esl.host=//g')
-			check_no_value esl.host /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties $ESL_HOST
 
-			if [ "$FREESWITCH_ESL_IP" != "$ESL_HOST" ]; then
-				echo 
-				echo "# The values for listen-ip in   "
-				echo "#     /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml"
-				echo "# do not match the settings for esl.host in"
-				echo "#     /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
-				echo 
-			fi
-		fi
+	#
+	# Check that freeswtich ESL matches the value in bigbluebutton.properties
+	#
+	if [ -f /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml ]; then 
+		FREESWITCH_ESL_IP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
+		check_no_value event_socket /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml $FREESWITCH_ESL_IP
 
-        else
-        	if [ ! -x /usr/sbin/asterisk ]; then
-				echo 
-				echo "# BigBlueButton is configured to use asterisk but could not find   "
-				echo "#     /usr/sbin/asterisk"
-				echo         	
-        	fi
+		ESL_HOST=$(cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | grep esl.host | sed 's/freeswitch.esl.host=//g')
+		check_no_value esl.host /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties $ESL_HOST
 
-		if [ ! -f /usr/lib/asterisk/modules/app_konference.so ]; then
+		if [ "$FREESWITCH_ESL_IP" != "$ESL_HOST" ]; then
 			echo 
-			echo "# Did not detect the BigBlueButton configuration setup for asterisk.  Missing"
-			echo "#   /usr/lib/asterisk/modules/app_konference.so" 
-			echo "# Try running: sudo apt-get install bbb-voice-conference"
+			echo "# The values for listen-ip in   "
+			echo "#     /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml"
+			echo "# do not match the settings for esl.host in"
+			echo "#     /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
 			echo 
 		fi
 	fi
+
 
 	#
 	# Check if BigBlueButto is defined in Nginx
@@ -759,23 +751,7 @@ check_state() {
 		RUNNING_APPS="${RUNNING_APPS} red5"
 	fi	
 
-	# Check asterisk if asterisk has been started
-	# same for freeswitch	
-	if [ -a /var/run/asterisk/asterisk.pid ] && [ -a /opt/freeswitch/run/freeswitch.pid ]; then
-		print_header
-		echo
-		echo "# Asterisk and FreeSWITCH are running parallel"
-		echo "# Please run bbb-conf --conference with either freeswitch or asterisk and"
-		echo "# Uninstall on or the other."
-		echo
-	elif [ -a /var/run/asterisk/asterisk.pid ]; then 
-		if ! ps aux | grep -v grep | grep '[/]usr/sbin/asterisk' > /dev/null; then
-				print_header
-				NOT_RUNNING_APPS="${NOT_RUNNING_APPS} asterisk"
-		else
-				RUNNING_APPS="${RUNNING_APPS} asterisk"
-		fi
-	elif [ -a /opt/freeswitch/run/freeswitch.pid ]; then
+	if [ -a /opt/freeswitch/run/freeswitch.pid ]; then
 		if ! ps aux | grep -v grep | grep '[/]opt/freeswitch/bin/freeswitch' > /dev/null; then
 			print_header
 			NOT_RUNNING_APPS="${NOT_RUNNING_APPS} freeswitch"
@@ -952,7 +928,7 @@ check_state() {
 
 	if [ -f /usr/share/red5/log/sip.log ]; then
 		#
-		# Checking if voice app registered with Asterisk successfully
+		# Checking if voice app registered successfully
 		#
         	if cat /usr/share/red5/log/sip.log | grep -q "Failed to register with Sip Server"; then
                 	echo "# Error: The voice application failed to register with the sip server."
@@ -1041,13 +1017,6 @@ check_state() {
 		fi
 	fi
 
-		if [ "$VOICE_CONFERENCE" == "bbb-voice-asterisk.xml" ]; then
-			echo "# Error: You have freeswitch installed, but the current voice conference set"
-			echo "# to asterisk.  To switch to freeswitch, enter"
-			echo "#"
-			echo "#   sudo bbb-conf --conference freeswitch"
-			echo 
-		fi
 
 		BBB_SIP_APP_IP=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/^bbb.sip.app.ip=/{s/.*=//;s/;//;p}')
 		if [ $BBB_SIP_APP_IP != "127.0.0.1" ]; then
@@ -1198,10 +1167,14 @@ if [ $CHECK ]; then
 	echo "  		Port test (tunnel): $PORT_IP"
 
 	RED5_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp:\/\///;s/\/.*//;p}')
+	WEBRTC_ENABLED_CLIENT=$(grep -i webrtc /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
 	echo "                              Red5: $RED5_IP"
+	echo "                    webrtc enabled: $WEBRTC_ENABLED_CLIENT"
 
-#        HOST=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/recordingHost/{s/.*recordingHost="http:\/\///;s/"//;p}')
-#        echo "          host for bbb-web interface: $HOST"
+	WEBRTC_SOCKET=$(sudo cat /opt/freeswitch/conf/sip_profiles/external.xml | sed -n '/ws-binding/{s/.*value="://;s/".*//;p}')
+	echo
+	echo "/opt/freeswitch/conf/sip_profiles/external.xml (FreeSWITCH)"
+	echo "                    websocket port: $WEBRTC_SOCKET"	
 
 	echo
 	echo "/etc/nginx/sites-available/bigbluebutton (nginx)"
@@ -1233,11 +1206,7 @@ if [ $CHECK ]; then
 		echo "                           api url: $LTI_URL"
 	fi
 
-	if [ $VOICE_CONFERENCE == "bbb-voice-freeswitch.xml" ]; then
-		CONFERENCING_MODULE="FreeSWITCH"
-	else
-		CONFERENCING_MODULE="$(cat $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | sed -n '/asterisk.application/{s/.*=[ ]*//g;p}') (asterisk)"
-	fi
+	CONFERENCING_MODULE="FreeSWITCH"
 
 	echo
 	echo "/usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml (red5)"
@@ -1336,15 +1305,6 @@ if [ $DEBUG ]; then
 		echo
 	fi
 
-	rm -rf /tmp/t
-	if [ -f /var/log/asterisk ]; then 
-		find /var/log/asterisk -exec grep -H -i "Unable to register" '{}' \; > /tmp/t
-		if [ -s /tmp/t ]; then
-			echo "   -- Registration errors found in /var/log/asterisk/ -- "
-			echo "Found $(cat /tmp/t | wc -l) errors in /var/log/asterisk/* containing string \"Unable to register\""
-			echo
-		fi
-	fi
 
 	rm -rf /tmp/t
 	sudo grep Exception $SERVLET_LOGS/* | grep -v CacheExceptionHandlerFactory > /tmp/t 
@@ -1365,45 +1325,31 @@ if [ $DEBUG ]; then
         fi
 
 	rm -rf /tmp/t
-	if [ ! is_gentoo ]; then sudo grep -v "No Voicetronix cards detected" /var/log/asterisk/* | grep ERROR > /tmp/t 
-	  if [ -s /tmp/t ]; then
-		echo "   -- Errors found in /var/log/asterisk/* -- "
-		cat /tmp/t
-		echo
-	  fi
-	fi
-
-	rm -rf /tmp/t
-	if [ ! is_gentoo ]; then sudo grep -i exception /var/log/syslog > /tmp/t 
-	  if [ -s /tmp/t ]; then
+	sudo grep -i exception /var/log/syslog > /tmp/t 
+	if [ -s /tmp/t ]; then
 		echo "   -- Errors found in /var/log/syslog -- "
 		cat /tmp/t
 		echo
-	  fi
 	fi
 
 	rm -rf /tmp/t
 	if [ -d /var/log/bigbluebutton ]; then
-		if [ ! is_gentoo ]; then 
 		  sudo grep ERROR /var/log/bigbluebutton/* > /tmp/t 
 		  if [ -s /tmp/t ]; then
 			echo "   -- Errors found in /var/log/bigbluebutton -- "
 			cat /tmp/t
 			echo
 		  fi
-		fi
 	fi
 
 	rm -rf /tmp/t
 	if [ -d /var/log/bigbluebutton ]; then
-		if [ ! is_gentoo ]; then
 		  sudo grep -i exception /var/log/bigbluebutton/* > /tmp/t 
 		  if [ -s /tmp/t ]; then
 			echo "   -- Exceptions found in /var/log/bigbluebutton -- "
 			cat /tmp/t
 			echo
 		  fi
-		fi
 	fi
 
 	#
@@ -1507,165 +1453,6 @@ if [ -n "$HOST" ]; then
 	exit 0
 fi
 
-if [ $CONFERENCE ]; then
-	need_root
-
-	if [ ! -f $RED5_DIR/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml ]; then
-		echo 
-		echo "# Unable to find $RED5_DIR/webapps/bigbluebutton/WEB-INF/bbb-voice-app.xml"
-		exit 1
-	fi
-
-	if [ "$CONFERENCE" = "freeswitch" ]; then
-		CONFERENCE=freeswitch
-	elif [ "$CONFERENCE" = "meetme" ]; then
-		CONFERENCE=meetme
-	else 
-		if [ "$CONFERENCE" = "konference" ]; then
-			CONFERENCE=app_konference
-		else
-			echo
-			echo "Error: Valid options for --conference are: meetme, konference, freeswitch"
-			exit 1
-		fi
-	fi
-
-	#
-	# Depreciated
-	#
-	if [ $CONFERENCE = "meetme" ]; then
-	        if [ ! -f /etc/asterisk/bbb_extensions.conf ]; then
-			echo
-                	echo "# Unable to find /etc/asterisk/bbb_extensions.conf"
-                	exit 1
-        	fi
-
-		#
-		# update $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
-		#
-		# test this as a hack to check if the ip stays in listen-ip for event-conf.xml
-		# -- XXX
-		# EVENTIP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
-		
-		sudo sed -i "s/asterisk.application[ ]*=.*/asterisk.application=meetme/g" \
-		$RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
-
-		#
-		# update /etc/asterisk/bbb_extensions.conf
-		sudo sed -i "s/^exten => _XXXX.,n,Konference(\${EXTEN},H)/; exten => _XXXX.,n,Konference(\${EXTEN},H)/g" \
-			/etc/asterisk/bbb_extensions.conf
-
-		sudo sed -i "s/;[ ]*exten => _XXXX.,n,MeetMe(\${EXTEN},cdMsT)/exten => _XXXX.,n,MeetMe(\${EXTEN},cdMsT)/g" \
-			/etc/asterisk/bbb_extensions.conf
-
-		#
-		# update /etc/asterisk/bbb_extensions.conf
-		sudo sed -i "s/; exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/g" \
-			/etc/asterisk/bbb_extensions.conf
-
-		sudo sed -i "s/^exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/; exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/g" \
-			/etc/asterisk/bbb_extensions.conf
-
-		echo "Switching to $CONFERENCE ... "
-		if [ -f $FREESWITCH_INIT_D ]; then
-			sudo $FREESWITCH_INIT_D stop
-			sudo update-rc.d -f freeswitch remove >/dev/null
-		fi
-
-	        change_var_ip /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties bbb.sip.server.ip 127.0.0.1
-
-		sudo update-rc.d asterisk defaults 21 > /dev/null
-
-		sudo /etc/init.d/asterisk restart
-		sudo /etc/init.d/red5 restart
-	fi
-
-	#
-	# Depreciated
-	# 
-	if [ $CONFERENCE = "app_konference" ]; then
-	        if [ ! -f /etc/asterisk/bbb_extensions.conf ]; then
-			echo
-                	echo "# Unable to find /etc/asterisk/bbb_extensions.conf"
-                	echo "# To install asterisk for BigBlueButton, try"
-                	echo "#   sudo apt-get install bbb-voice-conference"
-                	exit 1
-        	fi
-
-		#
-		# update $RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
-		#
-		# EVENTIP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
-		# sed -i 's/$EVENTIP/$HOST/g' \
-		#	/opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
-
-	        sudo sed -i "s/asterisk.application[ ]*=.*/asterisk.application=konference/g" \
-			$RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties
-
-		#
-		# update /etc/asterisk/bbb_extensions.conf
-		sudo sed -i "s/;[ ]*exten => _XXXX.,n,Konference(\${EXTEN},H)/exten => _XXXX.,n,Konference(\${EXTEN},H)/g" \
-			/etc/asterisk/bbb_extensions.conf
-
-		sudo sed -i "s/^exten => _XXXX.,n,MeetMe(\${EXTEN},cdMsT)/; exten => _XXXX.,n,MeetMe(\${EXTEN},cdMsT)/g" \
-			/etc/asterisk/bbb_extensions.conf
-
-
-		sudo sed -i "s/^exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/; exten => _XXXX.,n,MeetMe(\${CONFERENCE_FOUND},cdMsT)/g" \
-			/etc/asterisk/bbb_extensions.conf
-
-		sudo sed -i "s/; exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/exten => _XXXX.,n,Konference(\${CONFERENCE_FOUND},H)/g" \
-			/etc/asterisk/bbb_extensions.conf
-
-                if [ -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
-                        sudo sed -i 's/<import resource="bbb-voice-freeswitch.xml"\(.*\)\/>/<import resource="bbb-voice-asterisk.xml"\1\/>/g' \
-                        /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml
-                fi
-
-	        change_var_ip /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties bbb.sip.server.ip 127.0.0.1
-
-		echo "Switching to $CONFERENCE ... "
-		if [ -f $FREESWITCH_INIT_D ]; then
-			sudo $FREESWITCH_INIT_D stop
-			sudo update-rc.d -f freeswitch remove >/dev/null
-		fi
-
-		sudo update-rc.d asterisk defaults 21 > /dev/null
-
-		sudo /etc/init.d/asterisk restart
-		sudo /etc/init.d/red5 restart
-	fi
-
-	if [ $CONFERENCE = "freeswitch" ]; then
-		# check if freeswitch is installed
-		if [ ! -d /opt/freeswitch ]; then
-			echo
-			echo "# Unable to switch to FreeSWTICH as it does not appear to be installed."
-			echo "# Try"
-			echo "#   sudo apt-get install bbb-freeswitch-config"
-			echo
-			exit 1;
-		fi
-		# switch the red5-web.xml from asterisk to freeswitch
-		if [ -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
-			sudo sed -i 's/<import resource="bbb-voice-asterisk.xml"\(.*\)\/>/<import resource="bbb-voice-freeswitch.xml"\1\/>/g' \
-			/usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml
-		fi
-
-	        change_var_ip /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties bbb.sip.server.ip 127.0.0.1
-
-		echo "Switching to $CONFERENCE ... "
-		if [ -f /etc/init.d/asterisk ]; then
-			sudo /etc/init.d/asterisk stop
-			sudo update-rc.d -f asterisk remove >/dev/null
-		fi
-
-		update-rc.d freeswitch defaults >/dev/null
-
-		sudo $FREESWITCH_INIT_D start
-		sudo /etc/init.d/red5 restart
-	fi
-fi
 
 if [ $RESTART ]; then
 	need_root
@@ -1695,9 +1482,6 @@ if [ $CLEAN ]; then
 
 	echo 
 	echo "Cleaning Log Files ..."
-	rm -f /var/log/asterisk/event* 
-	rm -f /var/log/asterisk/messages* 
-	rm -f /var/log/asterisk/queue* 
 	rm -f /var/log/bigbluebutton/bbb-web.log*
 	rm -f /var/log/bigbluebutton/*.log
 
@@ -1748,11 +1532,6 @@ fi
 
 if [ $WATCH ]; then
 	need_root
-
-	if [ $VOICE_CONFERENCE == "bbb-voice-asterisk.xml" ]; then
-		watch -n 2 "top -n 1 -b | head -n 5; echo; asterisk -r -x \"core show channels\"; echo; bbb-conf --network; bbb-conf --debug"
-	else
-		watch -n 2 "top -n 1 -b | head -n 5; echo; bbb-conf --network; bbb-conf --debug"
-	fi
+	watch -n 2 "top -n 1 -b | head -n 5; echo; bbb-conf --network; bbb-conf --debug"
 fi
 
