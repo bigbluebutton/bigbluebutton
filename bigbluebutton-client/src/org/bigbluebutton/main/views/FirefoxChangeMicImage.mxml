@@ -21,7 +21,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-    showCloseButton="false" 
+                xmlns:mate="http://mate.asfusion.com/"
+    showCloseButton="false"
     verticalScrollPolicy="off"
     horizontalScrollPolicy="off"
     horizontalAlign="center" 
@@ -31,51 +32,47 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     borderThicknessTop="0"
     x="20"
     y="-20">
-    
+  
+  <mate:Listener type="{WebRtcRemoveAskMicPermissionEvent.REMOVE_MIC_PERMISSION}" method="handleRemoveAskMicPermissionEvent" />
+  
 	<mx:Script>
 		<![CDATA[
-			import mx.core.FlexGlobals;
-			import mx.managers.PopUpManager;		
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-						
-			
-			private function connectUsingFlashClicked():void {
-				//addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
-			}
+      import mx.core.FlexGlobals;
+      import mx.managers.PopUpManager;      
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.core.BBB;
+      import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+      import org.bigbluebutton.modules.phone.events.WebRtcRemoveAskMicPermissionEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 
+      private function handleRemoveAskMicPermissionEvent(e:WebRtcRemoveAskMicPermissionEvent):void {
+        PopUpManager.removePopUp(this);
+      }
+
+      private function connectUsingFlashClicked():void {
+        //addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
+      }
 		]]>
 	</mx:Script>
+  
   <mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
     <mx:Canvas width="100%">
       <mx:TextArea borderSkin="{null}"
                    editable="false"
-                   text="Chrome Change Microphone"
+                   text="Firefox Change Microphone"
                    styleName="micSettingsWindowTitleStyle"
                    width="400"
                    left="0"/>
     </mx:Canvas>
     <mx:HBox width="100%">      
-      <mx:Text width="100%" text="Show the list of microphones."
+      <mx:Text width="100%" text="Choose your mic and then click Share."
                styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		
-      <mx:Image source="@Embed('assets/chrome-show-mics.png')"/>	
+      <mx:Image source="@Embed('assets/ff-share-mic.png')"/>	
     </mx:HBox>
-    <mx:HBox width="100%">      
-      <mx:Text width="100%" text="Select a microphone."
-               styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		
-      <mx:Image source="@Embed('assets/chrome-switch-mic.png')"/>	
-    </mx:HBox>
-    <mx:HBox width="100%">      
-      <mx:Text width="100%" text="Click Done."
-               styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		
-      <mx:Image source="@Embed('assets/chrome-mic-switch-done.png')"/>	
-    </mx:HBox>
-    <mx:HBox width="100%">      
-      <mx:Text width="100%" text="Reload page for the change to take effect."
-               styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		
-      <mx:Image source="@Embed('assets/chrome-reload-page.png')"/>	
+    <mx:HBox width="100%">
+      <mx:Text width="100%" text="If you don't see the list of microphones, click on the camera icon."
+               styleName="micSettingsWindowHearFromHeadsetLabelStyle"/>	
+      <mx:Image source="@Embed('assets/ff-show-mic.png')"/>
     </mx:HBox>
     <mx:HRule width="100%"/>
     <mx:Spacer height="10"/>
@@ -88,5 +85,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                  click="connectUsingFlashClicked()" 
                  toolTip=""/>
     </mx:HBox>
-  </mx:VBox>
+  </mx:VBox>		
+
 </mx:TitleWindow> 

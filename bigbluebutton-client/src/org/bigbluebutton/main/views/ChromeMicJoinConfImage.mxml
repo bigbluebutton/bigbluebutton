@@ -57,13 +57,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:Canvas width="100%">
       <mx:TextArea borderSkin="{null}"
                    editable="false"
-                   text="Chrome Microphone Permissions"
+                   text="Joining Voice Conference"
                    styleName="micSettingsWindowTitleStyle"
                    width="400"
                    left="0"/>
     </mx:Canvas>
     <mx:HBox width="100%">      
-      <mx:Text width="100%" text="Click Allow to give Chrome permission to use your microphone."
+      <mx:Text width="100%" text="Click Allow so Chrome can use microphone in the conference."
                styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		
       <mx:Image source="@Embed('assets/chrome-allow-mic-access.png')"/>	
     </mx:HBox>

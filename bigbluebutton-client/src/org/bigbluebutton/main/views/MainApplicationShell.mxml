@@ -356,7 +356,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handleWebRtcAskMicPermissionToJoinConferenceEvent(event:WebRtcAskMicPermissionToJoinConferenceEvent):void {
         var browser:String = event.browser;
         if (browser == "Firefox") {
-          var ffBrowser:FirefoxMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, FirefoxMicPermissionImage, true) as FirefoxMicPermissionImage;
+          var ffBrowser:FirefoxMicJoinConfImage = PopUpManager.createPopUp(mdiCanvas, FirefoxMicJoinConfImage, true) as FirefoxMicJoinConfImage;
           ffBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
             var point1:Point = new Point();
             // Calculate position of TitleWindow in Application's coordinates. 
@@ -368,7 +368,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             ffBrowser.y = 150;
           }); 
         } else if (browser == "Chrome") {
-          var chromeBrowser:ChromeMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, ChromeMicPermissionImage, true) as ChromeMicPermissionImage;
+          var chromeBrowser:ChromeMicJoinConfImage = PopUpManager.createPopUp(mdiCanvas, ChromeMicJoinConfImage, true) as ChromeMicJoinConfImage;
           chromeBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
             var point1:Point = new Point();
             // Calculate position of TitleWindow in Application's coordinates. 
@@ -388,7 +388,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handleWebRtcAskUserToChangeMicEvent(event:WebRtcAskUserToChangeMicEvent):void {
         var browser:String = event.browser;
         if (browser == "Firefox") {
-          var ffBrowser:FirefoxMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, FirefoxMicPermissionImage, true) as FirefoxMicPermissionImage;
+          var ffBrowser:FirefoxChangeMicImage = PopUpManager.createPopUp(mdiCanvas, FirefoxChangeMicImage, true) as FirefoxChangeMicImage;
           ffBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
             var point1:Point = new Point();
             // Calculate position of TitleWindow in Application's coordinates. 
