@@ -22,7 +22,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
                 xmlns:mate="http://mate.asfusion.com/"
-    showCloseButton="false" creationComplete="init()"
+    showCloseButton="false"
     verticalScrollPolicy="off"
     horizontalScrollPolicy="off"
     horizontalAlign="center" 
@@ -38,25 +38,39 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
       import mx.core.FlexGlobals;
-      import mx.managers.PopUpManager;
-      
+      import mx.managers.PopUpManager;      
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.BBB;
       import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
       import org.bigbluebutton.modules.phone.events.WebRtcRemoveAskMicPermissionEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
-						
-			
-			private function init():void {
-				//addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
-			}
 
       private function handleRemoveAskMicPermissionEvent(e:WebRtcRemoveAskMicPermissionEvent):void {
         PopUpManager.removePopUp(this);
       }
-
 		
 		]]>
 	</mx:Script>
-  <mx:Image source="@Embed('assets/ff-mic-permission.png')"/>	
+  
+  <mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
+    <mx:Canvas width="100%">
+      <mx:TextArea borderSkin="{null}"
+                   editable="false"
+                   text="Firefox Microphone Permissions"
+                   styleName="micSettingsWindowTitleStyle"
+                   width="400"
+                   left="0"/>
+    </mx:Canvas>
+    <mx:HBox width="100%">      
+      <mx:Text width="100%" text="Choose your mic and then click Share."
+               styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		
+      <mx:Image source="@Embed('assets/ff-share-mic.png')"/>	
+    </mx:HBox>
+    <mx:HBox width="100%">
+      <mx:Text width="100%" text="If you don't see the list of microphones, click on the camera icon."
+               styleName="micSettingsWindowHearFromHeadsetLabelStyle"/>	
+      <mx:Image source="@Embed('assets/ff-show-mic.png')"/>
+    </mx:HBox>
+  </mx:VBox>		
+
 </mx:TitleWindow> 
