@@ -41,7 +41,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ConnectionFailedEvent.UNKNOWN_REASON}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
 	<mate:Listener type="configLoadedEvent" method="initOptions"  />
-	<mate:Listener type="SHOW_MIC_SETTINGS" method="showMicSettings"  />
+	<mate:Listener type="{FlashEchoTestEvent.FLASH_ECHO_TEST}" method="handleFlashEchoTestEvent"  />
   <mate:Listener type="{WebRtcEchoTestStartedEvent.WEBRTC_ECHO_TEST_STARTED}" method="handleWebRtcEchoTestStartedEvent"  />
   <mate:Listener type="{WebRtcAskMicPermissionEvent.ASK_MIC_PERMISSION}" method="handleAskMicPermissionEvent"  />
   <mate:Listener type="{WebRtcAskUserToChangeMicEvent.WEBRTC_ASK_USER_TO_CHANGE_MIC}" method="handleWebRtcAskUserToChangeMicEvent"  />
@@ -93,6 +93,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.SuccessfulLoginEvent;
       import org.bigbluebutton.main.model.LayoutOptions;
       import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+      import org.bigbluebutton.modules.phone.events.FlashEchoTestEvent;
       import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
       import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionEvent;
       import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionToJoinConferenceEvent;
@@ -310,8 +311,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}	   			
 	   		}
 
-			private function showMicSettings(event:BBBEvent):void {
-				var micSettings:MicSettings = PopUpManager.createPopUp(mdiCanvas, MicSettings, true) as MicSettings;
+			private function handleFlashEchoTestEvent(event:FlashEchoTestEvent):void {
+				var micSettings:FlashMicSettings = PopUpManager.createPopUp(mdiCanvas, FlashMicSettings, true) as FlashMicSettings;
 				micSettings.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
 					var point1:Point = new Point();
 					// Calculate position of TitleWindow in Application's coordinates. 
@@ -320,13 +321,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					micSettings.x = point1.x - (micSettings.width/2);
 					micSettings.y = point1.y - (micSettings.height/2);
 				});
-
-				if (event.payload != null && event.payload.hasOwnProperty('webrtcCapable')) {
-					micSettings.webrtcCapable = event.payload.webrtcCapable;
-				}
-				if (event.payload != null && event.payload.hasOwnProperty('useWebrtcIfAvailable')) {
-					micSettings.useWebrtcIfAvailable = event.payload.useWebrtcIfAvailable;
-				}
 			}
 			
       private function openVideoPreviewWindow(event:BBBEvent):void {

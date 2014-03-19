@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				xmlns:mate="http://mate.asfusion.com/" 
+				width="500" height="240" 
+				creationComplete="initDefaultMic()" 
+				styleName="micSettingsWindowStyle"
+				showCloseButton="false" 
+				close="onCancelClicked()" 
+				keyDown="handleKeyDown(event)">
+
+	<mx:Script>
+		<![CDATA[
+      import flash.system.Security;
+      import flash.system.SecurityPanel;
+      import flash.ui.Keyboard;
+      
+      import mx.controls.sliderClasses.Slider;
+      import mx.core.IFlexDisplayObject;
+      import mx.events.CloseEvent;
+      import mx.events.ItemClickEvent;
+      import mx.events.SliderEvent;
+      import mx.managers.PopUpManager;
+      
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.core.BBB;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.modules.phone.PhoneOptions;
+      import org.bigbluebutton.modules.phone.events.CallEchoTestAppEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+      private static const LOG:String = "Phone::FlashMicSettings - ";
+      
+			[Embed(source="assets/audio-test.mp3")]
+			[Bindable] private var soundClass:Class;
+			private var sound:Sound = new soundClass() as Sound;			
+			private var soundChannel:SoundChannel;
+			
+			private var timer:Timer;
+			private var mic:Microphone;
+			private var biggestMicLevel:int = 0;
+			private var micName:String;
+			private var playingAudio:Boolean = false;
+			private var images:Images = new Images();
+
+			[Bindable] private var cancelIcon:Class = images.cancel;
+
+			[Bindable] private var microphoneList:Array;      
+			[Bindable]private var baseIndex:int = 1;
+			
+      private var my_nc:NetConnection;      
+      private var stream:NetStream;
+      
+			override public function move(x:Number, y:Number):void {
+				return;
+			}
+			
+			private function selectMicrophone(event:Event):void {
+				if (mic != null){
+					mic.setLoopBack(false);
+				}
+				mic = Microphone.getMicrophone(comboMicList.selectedIndex);
+        trace(LOG + "Changing microphone. mic.index[" + mic.index + "] name=[" + mic.name + "]");
+				testMicrophone();
+			}
+			
+			private function testMicrophone():void {
+        attachMic();
+				micName = mic.name;
+				biggestMicLevel = 0;
+				trace(LOG + "Testing microphone : " + micName);
+				if (mic != null) {
+					mic.setLoopBack(false);
+					if (mic.muted) {
+						trace(LOG + "Access to [" + mic.name + "] wasn't allowed.");
+						mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
+						return;
+					} else {        
+						// Update mic name
+						if (micName != mic.name ){
+							micName = mic.name;       				 
+						}
+            trace(LOG + "Access to [" + mic.name + "] allowed.");
+						//Parameters valid only for the mic settings
+						mic.setLoopBack(true);
+						mic.setUseEchoSuppression(true);   
+						//http://stackoverflow.com/questions/2936925/no-mic-activity-with-setloopback-set-to-false-as3
+						//http://groups.yahoo.com/neo/groups/flexcoders/conversations/topics/144047
+						mic.gain = micRecordVolume.value;
+						timer = new Timer(100);
+						timer.addEventListener(TimerEvent.TIMER, updateMicLevel);
+						timer.start();                 
+					}
+				} else {
+					trace(LOG + "Microphone is used by other application.");
+				}      
+			}
+      
+      private function attachMic():void {
+        stream.attachAudio(mic);
+      }
+			
+			private function initDefaultMic():void {
+				  microphoneList = Microphone.names;
+				  trace(LOG + "Available microphones: " + microphoneList);    
+				  mic = Microphone.getMicrophone(comboMicList.selectedIndex);
+          my_nc = new NetConnection();
+          my_nc.connect(null);
+          stream = new NetStream(my_nc);
+          
+          attachMic();
+				  testMicrophone();				
+				  var tempArr:Array = new Array();
+				  tempArr.push("0%", ResourceUtil.getInstance().getString('bbb.micSettings.micRecordVolume.label'),"100%");
+				  micRecordVolume.labels = tempArr;		
+			}						
+
+			// Added by Chad to enable closing the window without clicking the X
+			private function handleKeyDown(event:KeyboardEvent):void {
+				if (event.charCode == Keyboard.ESCAPE) {
+					this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+				}
+			}
+			
+			private function micStatusEventHandler(event:StatusEvent):void {					
+				switch(event.code) {
+					case "Microphone.Muted":						
+						trace(LOG + "Access to microphone has been denied.");
+						break;
+					case "Microphone.Unmuted":
+						//						mic.setLoopBack(true);
+						//            mic.setUseEchoSuppression(true);            
+						trace(LOG + "Access to the microphone has been allowed.");
+						testMicrophone();
+						break;
+					default:
+						LogUtil.debug("unknown micStatusHandler event: " + event);
+				}
+			}						
+
+			private function updateMicLevel(e:TimerEvent):void{
+				if (mic != null) {
+					if (mic.activityLevel > biggestMicLevel) {
+						biggestMicLevel = mic.activityLevel;
+					}
+					micLevel.setProgress(mic.activityLevel, 100);					
+				}
+			}
+			
+			public function playButtonClickHandler():void {
+				if (playButton.selected) {
+					soundChannel = sound.play();  
+          soundChannel.addEventListener(Event.SOUND_COMPLETE, soundCompleteHandler);
+					playingAudio = true;
+				} else {
+					soundChannel.stop();
+					playButton.label = ResourceUtil.getInstance().getString('bbb.micSettings.playSound');
+					playingAudio = false;
+				}	                     
+			}
+ 
+      private function soundCompleteHandler(e:Event):void {
+        playingAudio = false;
+        playButton.selected = false;
+      }
+      
+			private function onJoinClicked():void {			
+			  LogUtil.debug("Biggest activity level detected for " + micName + ": " + biggestMicLevel );
+        // Do one last check for if the mic has been allowed.
+        // This must come first because cleanUp() will destroy mic 
+        if (mic != null && mic.muted) {
+            Security.showSettings(SecurityPanel.PRIVACY);
+        }        
+        if (biggestMicLevel > 0){
+          joinConference();
+        }           	
+			}	
+			
+      private var doingEchoTest:Boolean = false;
+      
+      private function echoTestButtonClickHandler():void {
+        if (echoTestButton.selected) {
+          comboMicList.enabled = false;
+          doingEchoTest = true;
+          var options:PhoneOptions = new PhoneOptions();
+          var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+          joinEvent.payload['useMicrophone'] = true;
+          joinEvent.payload['microphoneIndex'] = mic == null ? 0 : mic.index;
+          joinEvent.payload['callDestination'] = options.echoTestApp;
+          
+          dispatchEvent(joinEvent);	
+        } else {
+          doingEchoTest = false;
+          comboMicList.enabled = true;
+          var endEchoTestEvent: BBBEvent = new BBBEvent("CLICK_TO_LEAVE_VOICE_CONFERENCE_EVENT");
+          dispatchEvent(endEchoTestEvent);
+        }
+      }
+      
+			public function joinConference():void{			
+				var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+				joinEvent.payload['useMicrophone'] = true;
+        joinEvent.payload['microphoneIndex'] = mic == null ? 0 : mic.index;
+        joinEvent.payload['callDestination'] = UserManager.getInstance().getConference().voiceBridge;
+
+				dispatchEvent(joinEvent);	
+
+				// Do one last check for if the mic has been allowed.
+				// This must come first because cleanUp() will destroy mic 
+				if (mic != null && mic.muted) {
+					Security.showSettings(SecurityPanel.PRIVACY);
+				}
+  			cleanUp();      
+				PopUpManager.removePopUp(this);			
+			}
+						
+			private function onCancelClicked():void {
+				cleanUp();
+				var event:BBBEvent = new BBBEvent(BBBEvent.MIC_SETTINGS_CLOSED);
+				event.payload['clicked'] = "cancel";
+				dispatchEvent(event);
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function cleanUp():void {				
+				if (timer) timer.stop();
+
+				if (playingAudio) soundChannel.stop();								
+
+				if (mic) {
+					mic.setLoopBack(false);
+					mic = null;
+				}
+
+			}
+			     
+			private function changeRecordVolume(event:SliderEvent):void {
+				var currentSlider:Slider=Slider(event.currentTarget);
+				mic.gain = currentSlider.value
+			}
+			
+			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";			
+			private function onHelpButtonClicked():void {
+				DEFAULT_HELP_URL =  BBB.initConfigManager().config.help.url;
+				navigateToURL(new URLRequest(DEFAULT_HELP_URL));
+			}
+     
+		]]>
+	</mx:Script>
+	
+	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
+
+        <!-- Audio Settings Title and help button -->
+		    <mx:Canvas width="100%">
+			    <mx:TextArea borderSkin="{null}"
+                   text="{ResourceUtil.getInstance().getString('bbb.users.settings.audioSettings')}"
+	                 editable="false"
+	                 styleName="micSettingsWindowTitleStyle"
+      						 tabIndex="{baseIndex}"
+      						 width="400"
+      						 left="0"/>
+			    <!-- accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.title')} "/ -->
+			    <mx:LinkButton toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"
+    						   label="?"
+          			   styleName="micSettingsWindowHelpButtonStyle" 
+          			   right="0"
+          			   height="22"
+          			   click="onHelpButtonClicked()"
+          			   tabIndex="{baseIndex+1}"
+          			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
+		    </mx:Canvas>
+		      
+       <!-- Flash Microphone -->
+        <mx:VBox width="100%">
+			    <mx:HBox>
+				    <mx:ComboBox id="comboMicList" 
+							  dataProvider="{microphoneList}" 
+							  change="selectMicrophone(event)"
+							  height="30" 
+							  tabIndex="{baseIndex+2}" 
+							  toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.comboMicList.toolTip')}" />
+				    <mx:HSlider id="micRecordVolume" 
+							  maximum="100"
+							  snapInterval="1"                       
+							  labels="[0%,{ResourceUtil.getInstance().getString('bbb.micSettings.micRecordVolume.label')},100%]"
+							  tickInterval="10"
+							  liveDragging="true" 
+							  change="changeRecordVolume(event);"
+							  showTrackHighlight="true"
+							  trackColors="[ 0xEEEEEE, 0xFFFFFF ]"
+							  value="60"
+							  tabIndex="{baseIndex+3}" 
+							  toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.micRecordVolume.toolTip')}" />                           
+			    </mx:HBox>
+			    <mx:ProgressBar id="micLevel" minimum="0" maximum="100" direction="right" label=""
+							  mode="manual" visible="true" width="450" height="27" trackHeight="25" verticalGap="-20" 
+							  tabIndex="{baseIndex+4}" />
+		  </mx:VBox>
+                   
+    <!-- Play Sound, Join and Cancel buttons -->
+      <mx:HRule width="100%"/>
+  		<mx:Spacer height="10"/>
+			<mx:HBox width="100%" horizontalAlign="right" horizontalGap="18">
+        <mx:Button id="echoTestButton" label="Echo Test" 
+                   click="echoTestButtonClickHandler()" toggle="true" styleName="micSettingsWindowPlaySoundButtonStyle"
+                   toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound.toolTip')}"/>
+				<mx:Button id="playButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound')}" 
+						   click="playButtonClickHandler()" toggle="true" styleName="micSettingsWindowPlaySoundButtonStyle"
+						   toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound.toolTip')}"
+						   tabIndex="{baseIndex+7}" />
+				<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel')}" 
+						   styleName="micSettingsWindowCancelButtonStyle"
+						   click="onCancelClicked()" tabIndex="{baseIndex+9}"
+						   toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel.toolTip')}"/>
+			</mx:HBox>
+		</mx:VBox>		
+
+		
+</mx:TitleWindow>

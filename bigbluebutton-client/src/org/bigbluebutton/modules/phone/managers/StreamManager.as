@@ -38,6 +38,8 @@ package org.bigbluebutton.modules.phone.managers {
 	import org.bigbluebutton.modules.phone.events.PlayStreamStatusEvent;
 	
 	public class StreamManager {
+    private static const LOG:String = "Phone::StreamManager - ";
+    
 		public  var connection:NetConnection = null;
 		private var incomingStream:NetStream = null
 		private var outgoingStream:NetStream = null;
@@ -63,7 +65,7 @@ package org.bigbluebutton.modules.phone.managers {
 			if(mic == null){
 				initWithNoMicrophone();
 			} else {
-			  LogUtil.debug("Setting up microphone");
+			  trace(LOG + "Setting up microphone");
 				setupMicrophone();
 				mic.addEventListener(StatusEvent.STATUS, micStatusHandler);
 			}
@@ -81,13 +83,12 @@ package org.bigbluebutton.modules.phone.managers {
 				options.echoPath = 128;
 				options.nonLinearProcessing = true;
 				mic['enhancedOptions'] = options;
-			} else {
-				
-			}
+			} 
 			
 			mic.setUseEchoSuppression(true);
 			mic.setLoopBack(false);
 			mic.setSilenceLevel(0,20000);
+      
 			if (audioCodec == "SPEEX") {
 				mic.encodeQuality = 6;
 				mic.codec = SoundCodec.SPEEX;
@@ -179,7 +180,7 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 			
 		public function stopStreams():void {
-			LogUtil.debug("Stopping Stream(s)");
+			trace("Stopping Stream(s)");
 			if(incomingStream != null) {
 				LogUtil.debug("--Stopping Incoming Stream");
         incomingStream.close(); 

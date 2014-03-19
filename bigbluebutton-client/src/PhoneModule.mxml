@@ -28,6 +28,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<maps:PhoneEventMap id="phoneLocalEventMap"/>
   <maps:WebRtcEventMap id="webRtcEventMap"/>
+  <maps:FlashCallEventMap id="flashCallEventMap"/>
   
 	<mx:Script>
 		<![CDATA[

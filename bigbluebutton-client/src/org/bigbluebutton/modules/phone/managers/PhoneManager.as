@@ -48,26 +48,16 @@ package org.bigbluebutton.modules.phone.managers {
 		// User has requested to leave the voice conference.
 		private var userHangup:Boolean = false;
 		private var mic:Microphone;
-		private var webrtcCapable:Boolean = false;
-		private var useWebrtcIfAvailable:Boolean = true;
 		
     private var callDestination: String;
     
 		public function PhoneManager() {
 			connectionManager = new ConnectionManager();
 			streamManager = new StreamManager();
-
-			webrtcCapable = initWebrtcFlag();
-		}
-
-		private function initWebrtcFlag():Boolean {
-			return (ExternalInterface.available && ExternalInterface.call("isWebrtcCapable"));
 		}
 
 		public function setModuleAttributes(attributes:Object):void {
 			this.attributes = attributes;
-
-			useWebrtcIfAvailable = phoneOptions.useWebrtcIfAvailable;
 
 			if (phoneOptions.autoJoin) {
 				onClickToJoinVoiceConference();
@@ -107,9 +97,6 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 						
 		public function joinVoice(autoJoin:Boolean, microphoneIndex:int = 0):void {
-			if (webrtcCapable && useWebrtcIfAvailable) {			  
-				var s:String = ExternalInterface.call("joinWebRTCVoiceConference()");
-			} else {
 			  userHangup = false;
 			  setupMic(autoJoin, microphoneIndex);
 			  var uid:String = String(Math.floor(new Date().getTime()));
@@ -117,16 +104,12 @@ package org.bigbluebutton.modules.phone.managers {
 			  connectionManager.connect(uid, attributes.internalUserID, uname , attributes.room, attributes.uri);
 			  var dispatcher:Dispatcher = new Dispatcher();
 			  dispatcher.dispatchEvent(new BBBEvent(BBBEvent.JOIN_VOICE_FOCUS_HEAD));
-			}
     }
 		
 		public function onJoinVoiceConferenceEvent(args:Object):void {
       if (args != null && args.hasOwnProperty("callDestination")) {
         callDestination = args.callDestination;
       }
-			if (args != null && args.hasOwnProperty('useWebrtcIfAvailable')) {
-				useWebrtcIfAvailable = args.useWebrtcIfAvailable;
-			}
 			joinVoice(args.useMicrophone, args.microphoneIndex);
 		}	
 		
@@ -145,12 +128,8 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 		
 		public function callConnected(event:CallConnectedEvent):void {
-			if (webrtcCapable && useWebrtcIfAvailable) {
-
-			} else {
 				setupConnection();
 				streamManager.callConnected(event.playStreamName, event.publishStreamName, event.codec);
-			}
 			onCall = true;
 			// We have joined the conference. Reset so that if and when we get disconnected, we
 			// can rejoin automatically.
@@ -166,12 +145,8 @@ package org.bigbluebutton.modules.phone.managers {
 		public function hangup():void {
 			if (onCall) {
 				onCall = false;
-				if (webrtcCapable && useWebrtcIfAvailable) {
-					var s:String = ExternalInterface.call("leaveWebRTCVoiceConference()");
-				} else {
-					streamManager.stopStreams();
-					connectionManager.doHangUp();
-				}
+				streamManager.stopStreams();
+				connectionManager.doHangUp();
 			}			
 		}
 
