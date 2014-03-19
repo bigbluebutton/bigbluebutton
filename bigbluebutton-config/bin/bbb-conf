@@ -340,6 +340,40 @@ disable_webrtc(){
 	bbb-conf --clean
 }
 
+enable_webrtc(){
+        # Set server ip address in freeswitch
+        sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=$IP\"/>@g"  /opt/freeswitch/conf/vars.xml
+ 
+        # Set server ip address in red5 sip app. For flash client.
+        sed -i "s/bbb.sip.app.ip=.*/bbb.sip.app.ip=$IP/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties               
+        sed -i "s/freeswitch.ip=.*/freeswitch.ip=$IP/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties                 
+
+        # Enable webrtc in the client
+        sed -i "s@useWebrtcIfAvailable=\".*\"@useWebrtcIfAvailable=\"true\"@g" /var/www/bigbluebutton/client/conf/config.xml    
+
+	# Enable port 5066 in freeswitch
+	sed -i "s@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@<param name=\"ws-binding\"  value=\":5066\"/>@g" /opt/freeswitch/conf/sip_profiles/external.xml
+
+        bbb-conf --clean
+}
+
+disable_webrtc(){
+        # Set 127.0.0.1 in freeswitch
+        sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=127.0.0.1\"/>@g"  /opt/freeswitch/conf/vars.xml
+ 
+        # Set 127.0.0.1 in red5 sip app. For flash client.
+        sed -i "s/bbb.sip.app.ip=.*/bbb.sip.app.ip=127.0.0.1/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties                 
+        sed -i "s/freeswitch.ip=.*/freeswitch.ip=127.0.0.1/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties           
+
+        # Disable webrtc in the client
+        sed -i "s@useWebrtcIfAvailable=\".*\"@useWebrtcIfAvailable=\"false\"@g" /var/www/bigbluebutton/client/conf/config.xml   
+	
+	# Disable port 5066 in freeswitch
+	sed -i "s@<param name=\"ws-binding\"  value=\":5066\"/>@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@g" /opt/freeswitch/conf/sip_profiles/external.xml
+
+        bbb-conf --clean
+}
+
 if [ $# -eq 0 ]; then
 	usage
 	exit 1
@@ -1175,6 +1209,11 @@ if [ $CHECK ]; then
 	echo
 	echo "/opt/freeswitch/conf/sip_profiles/external.xml (FreeSWITCH)"
 	echo "                    websocket port: $WEBRTC_SOCKET"	
+	WEBRTC_ENABLED=$(grep -i webrtc /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
+	echo "			  'webrtc enabled: $WEBRTC_ENABLED"	
+
+#        HOST=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/recordingHost/{s/.*recordingHost="http:\/\///;s/"//;p}')
+#        echo "          host for bbb-web interface: $HOST"
 
 	echo
 	echo "/etc/nginx/sites-available/bigbluebutton (nginx)"
