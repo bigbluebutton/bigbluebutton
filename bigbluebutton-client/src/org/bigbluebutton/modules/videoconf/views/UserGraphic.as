@@ -46,7 +46,7 @@ package org.bigbluebutton.modules.videoconf.views
         private var _object_y:Number;
 
         protected function resetGraphicDimensions(object:DisplayObject, unscaledWidth:Number, unscaledHeight:Number):void {
-            if (_previousUnscaledWidth != unscaledWidth || _previousUnscaledHeight != unscaledHeight) {
+//            if (_previousUnscaledWidth != unscaledWidth || _previousUnscaledHeight != unscaledHeight) {
 //                trace("=============> updateDisplayList " + unscaledWidth + " " + unscaledHeight);
                 if (unscaledWidth / unscaledHeight > aspectRatio) {
                     object.height = unscaledHeight;
@@ -63,7 +63,7 @@ package org.bigbluebutton.modules.videoconf.views
                 _previousUnscaledHeight = unscaledHeight;
                 object.x = _object_x;
                 object.y = _object_y;
-            }
+//            }
         }
 
         public function set user(value:BBBUser):void {

@@ -126,7 +126,7 @@ package org.bigbluebutton.modules.videoconf.views
             trace("[GraphicsWrapper:removeGraphicsFor] userId " + userId);
             for (var i:int = 0; i < numChildren; ++i) {
                 var item:UserGraphicHolder = getChildAt(i) as UserGraphicHolder;
-                if (item.user.userID == userId) {
+                if (item.user && item.user.userID == userId) {
                     trace("[GraphicsWrapper:removeGraphicsFor] removing graphic");
                     item.shutdown();
                     removeChild(item);

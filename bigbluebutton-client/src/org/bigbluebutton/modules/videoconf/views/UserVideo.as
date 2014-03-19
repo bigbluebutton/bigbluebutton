@@ -53,6 +53,7 @@ package org.bigbluebutton.modules.videoconf.views
       _video.attachCamera(_camera);
       _video.smoothing = true;
       addChild(_video);
+      invalidateDisplayList();
 
       startPublishing();
     }

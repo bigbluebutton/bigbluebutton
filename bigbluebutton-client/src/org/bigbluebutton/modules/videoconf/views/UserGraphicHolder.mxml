@@ -24,18 +24,50 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
        xmlns:mate="http://mate.asfusion.com/"
        xmlns:views="org.bigbluebutton.modules.videoconf.views.*"
        creationComplete="onCreationComplete()"
-       backgroundColor="white" width="320" height="240">
+       backgroundColor="white" width="320" height="240"
+       mouseOver="onCanvasMouseOver()" mouseOut="onCanvasMouseOut()" >
+
+    <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
+    <mate:Listener type="{PresenterStatusEvent.PRESENTER_NAME_CHANGE}" method="handlePresenterChangedEvent" />
 
     <mx:Script>
         <![CDATA[
 
+            import com.asfusion.mate.events.Dispatcher;
+
+            import org.bigbluebutton.common.Images;
+            import org.bigbluebutton.core.EventConstants;
+            import org.bigbluebutton.core.events.CoreEvent;
+            import org.bigbluebutton.core.events.VoiceConfEvent;
             import org.bigbluebutton.core.UsersUtil;
             import org.bigbluebutton.core.model.VideoProfile;
+            import org.bigbluebutton.main.events.PresenterStatusEvent;
             import org.bigbluebutton.main.model.users.BBBUser;
             import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+            import org.bigbluebutton.util.i18n.ResourceUtil;
+
+            [Bindable]
+            private var _rolledOverMuteBtn:Boolean = false;
+            [Bindable]
+            private var _rolledOverCanvas:Boolean = false;
+            [Bindable]
+            private var _username:String = "";
+            [Bindable]
+            private var _me:Boolean = false;
+            private var _dispatcher:Dispatcher = new Dispatcher();
+            private var _images:Images = new Images();
+
+            [Bindable] public var glowColor:String = ""; 
+            [Bindable] public var glowBlurSize:Number = 0;
+
+            [Bindable]
+            private var _videoOptions:VideoConfOptions = new VideoConfOptions();
 
             protected function onCreationComplete():void {
 //                loadAvatar("https://avatars3.githubusercontent.com/u/5931345?s=140");
+
+                this.glowColor = _videoOptions.glowColor;
+                this.glowBlurSize = _videoOptions.glowBlurSize;
             }
 
             public function loadAvatar(user:BBBUser, options:VideoConfOptions):void {
@@ -44,14 +76,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 avatar.load(UsersUtil.getAvatarURL());
 
                 avatarVisibility = true;
+                setUserProperties();
             }
 
             public function loadCamera(user:BBBUser, options:VideoConfOptions, camIndex:int, videoProfile:VideoProfile):void {
-              video.user = user;
-              video.options = options;
-              video.publish(camIndex, videoProfile);
+                video.user = user;
+                video.options = options;
+                video.publish(camIndex, videoProfile);
 
-              videoVisibility = true;
+                videoVisibility = true;
+                setUserProperties();
             }
 
             public function loadVideo(user:BBBUser, options:VideoConfOptions, connection:NetConnection, streamName:String):void {
@@ -60,23 +94,37 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 video.view(connection, streamName);
 
                 videoVisibility = true;
+                setUserProperties();
+            }
+
+            private function setUserProperties():void {
+                _username = user.name;
+                _me = user.me;
+
+                updateButtons();
+            }
+
+            private function get visibleComponent():UserGraphic {
+                if (avatar.visible) {
+                    return avatar;
+                } else if (video.visible) {
+                    return video;
+                } else {
+                    return null;
+                }
             }
 
             public function get contentAspectRatio():Number {
-                if (avatar.visible) {
-                    return avatar.aspectRatio;
-                } else if (video.visible) {
-                    return video.aspectRatio;
+                if (visibleComponent) {
+                    return visibleComponent.aspectRatio;
                 } else {
                     return 320 / 240;
                 }
             }
 
             public function get user():BBBUser {
-                if (avatar.visible) {
-                    return avatar.user;
-                } else if (video.visible) {
-                    return video.user;
+                if (visibleComponent) {
+                    return visibleComponent.user;
                 } else {
                     return null;
                 }
@@ -94,9 +142,152 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             private function set videoVisibility(value:Boolean):void {
                 avatarVisibility = !value;
             }
+
+            private function onMuteBtnClick():void {
+                if (user && user.voiceJoined) {
+                    var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
+                    e.userid = user.voiceUserid;
+                    e.mute = !user.voiceMuted;
+                    _dispatcher.dispatchEvent(e);
+                }
+            }
+
+            private function onMuteBtnMouseOver():void {
+                _rolledOverMuteBtn = true;
+                updateButtons();
+            }
+
+            private function onMuteBtnMouseOut():void {
+                _rolledOverMuteBtn = false;
+                updateButtons();
+            }
+
+            private function onCanvasMouseOver():void {
+                _rolledOverCanvas = true;
+                updateButtons();
+            }
+
+            private function onCanvasMouseOut():void {
+                _rolledOverCanvas = false;
+                updateButtons();
+            }
+
+            private function updateButtons():void {
+                if (user != null) {
+                    if (_rolledOverMuteBtn) {
+                        if (user.voiceMuted) {
+                            muteBtn.styleName = "unmuteOverlayBtn";
+                        } else {
+                            muteBtn.styleName = "muteOverlayBtn";
+                        }
+                    } else {
+                        if (user.voiceMuted) {
+                            muteBtn.styleName = "muteOverlayBtn";
+                        } else {
+                            if (user.talking) {
+                                muteBtn.styleName = "talkingOverlayBtn";
+                            } else {
+                                muteBtn.styleName = "unmuteOverlayBtn";
+                            }
+                        }
+                    }
+
+                    if (_rolledOverCanvas || _rolledOverMuteBtn) {
+                        muteBtn.visible = user.voiceJoined;
+                    } else {
+                        muteBtn.visible = user.voiceJoined && (user.talking || user.voiceMuted);
+                    }
+
+                    var userIconVisibility:Boolean;
+                    if (user.presenter) {
+                        userIcon.source = _images.presenter_new;
+                        userIconVisibility = true;
+                    } else {
+                        if (user.role == BBBUser.MODERATOR) {
+                            userIcon.source = _images.moderator;
+                            userIconVisibility = true;
+                        } else {
+                            userIconVisibility = false;
+                        }
+                    }
+                    userIconWrapper.visible = userIconWrapper.includeInLayout = userIconVisibility;
+                }
+            }
+
+            private function handleUserTalkingEvent(event:CoreEvent):void {
+                if (user && event.message.userID ==  user.userID) {
+                    updateButtons();
+/*
+                    if (event.message.talking) {
+                        notTalkingEffect.end();
+                        talkingEffect.play([muteBtn]);
+                    } else {
+                        talkingEffect.end();
+                        notTalkingEffect.play([muteBtn]);
+                    }
+*/
+                }
+            }
+
+            private function handlePresenterChangedEvent(event:PresenterStatusEvent):void {
+                if (user && event.userID == user.userID) {
+                    updateButtons();
+                }
+            }
+
         ]]>
     </mx:Script>
 
-    <views:UserAvatar id="avatar" width="100%" height="100%" visible="false" includeInLayout="false" />
-    <views:UserVideo id="video" width="100%" height="100%" visible="false" includeInLayout="false" />
+    <mx:Fade id="myCustomEffect" />
+
+    <mx:Glow id="talkingEffect" duration="500" alphaFrom="1.0" alphaTo="0.3"
+             blurXFrom="0.0" blurXTo="{glowBlurSize}" blurYFrom="0.0" blurYTo="{glowBlurSize}" color="{glowColor}"/>
+    <mx:Glow id="notTalkingEffect" duration="500" alphaFrom="0.3" alphaTo="1.0"
+             blurXFrom="{glowBlurSize}" blurXTo="0.0" blurYFrom="{glowBlurSize}" blurYTo="0.0" color="{glowColor}"/>
+
+    <mx:Canvas id="canvas" width="100%" height="100%">
+        <views:UserAvatar id="avatar" width="100%" height="100%" visible="false" includeInLayout="false" />
+        <views:UserVideo id="video" width="100%" height="100%" visible="false" includeInLayout="false" />
+        <mx:VBox id="overlay" width="100%" height="100%" >
+            <mx:HBox
+                    backgroundColor="#42444c"
+                    backgroundAlpha="0.6"
+                    width="100%"
+                    verticalAlign="middle"
+                    paddingRight="0"
+                    paddingLeft="0" >
+                <mx:Box id="userIconWrapper" visible="false" includeInLayout="false" paddingLeft="3" paddingRight="0" >
+                    <mx:Image id="userIcon" />
+                </mx:Box>
+                <mx:Label
+                        text="{_username + (_me? ' (' + ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer.youIdentifier') + ')' : '')}"
+                        fontWeight="{data.me ? 'bold' : 'normal'}"
+                        color="#FFFFFF"
+                        width="100%"
+                        paddingLeft="0"
+                        textIndent="0" />
+                <mx:Box paddingRight="5">
+                    <mx:Button styleName="closeBtnFocus" buttonMode="true" click="shutdown()" />
+                </mx:Box>
+            </mx:HBox>
+            <mx:HBox
+                    width="100%"
+                    paddingTop="15"
+                    paddingRight="15"
+                    horizontalAlign="right"
+                    horizontalScrollPolicy="off"
+                    verticalScrollPolicy="off" >
+                <mx:Button 
+                        id="muteBtn"
+                        styleName="talkingOverlayBtn"
+                        buttonMode="true"
+                        width="20"
+                        height="20"
+                        click="onMuteBtnClick()"
+                        mouseOver="onMuteBtnMouseOver()"
+                        mouseOut="onMuteBtnMouseOut()"
+                        visible="false" />
+            </mx:HBox>
+        </mx:VBox>
+    </mx:Canvas>
 </mx:VBox>

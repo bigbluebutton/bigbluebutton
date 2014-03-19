@@ -682,6 +682,38 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
   disabledSkin:  Embed('assets/images/3_minimizeButton.png');
 }
 
+/*
+https://www.iconfinder.com/icons/172512/mute_icon#size=128
+*/
+.muteOverlayBtn
+{
+  upSkin:        Embed('assets/images/icons8_mute20.png');
+  overSkin:      Embed('assets/images/icons8_mute20.png');
+  downSkin:      Embed('assets/images/icons8_mute20.png');
+  disabledSkin:  Embed('assets/images/icons8_mute20.png');
+}
+
+/*
+https://www.iconfinder.com/icons/172499/low_volume_icon#size=128
+*/
+.unmuteOverlayBtn
+{
+  upSkin:        Embed('assets/images/icons8_low_volume20.png');
+  overSkin:      Embed('assets/images/icons8_low_volume20.png');
+  downSkin:      Embed('assets/images/icons8_low_volume20.png');
+  disabledSkin:  Embed('assets/images/icons8_low_volume20.png');
+}
+
+/*
+https://www.iconfinder.com/icons/172479/high_volume_icon#size=128
+*/
+.talkingOverlayBtn
+{
+  upSkin:        Embed('assets/images/icons8_high_volume20.png');
+  overSkin:      Embed('assets/images/icons8_high_volume20.png');
+  downSkin:      Embed('assets/images/icons8_high_volume20.png');
+  disabledSkin:  Embed('assets/images/icons8_high_volume20.png');
+}
 
 .resizeHndlr 
 {
