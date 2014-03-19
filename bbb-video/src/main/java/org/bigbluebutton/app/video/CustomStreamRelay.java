@@ -192,7 +192,7 @@ public class CustomStreamRelay {
 			client.setStreamEventDispatcher(new StreamEventDispatcher());
 			client.setStreamEventHandler(new INetStreamEventHandler() {
 				public void onStreamEvent(Notify notify) {
-					System.out.printf("onStreamEvent: %s\n", notify);
+					System.out.printf("AQUIonStreamEvent: %s\n", notify);
 					ObjectMap<?, ?> map = (ObjectMap<?, ?>) notify.getCall().getArguments()[0];
 					String code = (String) map.get("code");
 					System.out.printf("<:%s\n", code);
@@ -201,7 +201,7 @@ public class CustomStreamRelay {
 						client.disconnect();
 					} else if (StatusCodes.NS_PLAY_UNPUBLISHNOTIFY.equals(code) || StatusCodes.NS_PLAY_COMPLETE.equals(code)) {
 						System.out.println("Source has stopped publishing or play is complete");
-						client.disconnect();
+						//client.disconnect();
 					}
 				}
 			});

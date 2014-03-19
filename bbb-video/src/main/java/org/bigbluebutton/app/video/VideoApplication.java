@@ -210,7 +210,6 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     public void streamSubscriberClose(ISubscriberStream stream) {
         super.streamSubscriberClose(stream);
         String streamName = stream.getBroadcastStreamPublishName();
-        System.exit(1);
         if(streamName.contains("/"))
             if(remoteStreams.containsKey(streamName)) {
                 Integer numberOfListeners = listenersOnRemoteStream.get(streamName);
