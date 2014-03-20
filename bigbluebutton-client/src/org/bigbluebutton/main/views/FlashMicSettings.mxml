@@ -20,7 +20,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				xmlns:mate="http://mate.asfusion.com/" 
-				width="500" height="240" 
+				width="600" height="240" 
 				creationComplete="initDefaultMic()" 
 				styleName="micSettingsWindowStyle"
 				showCloseButton="false" 
@@ -48,6 +48,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.modules.phone.PhoneOptions;
       import org.bigbluebutton.modules.phone.events.CallEchoTestAppEvent;
+      import org.bigbluebutton.modules.phone.events.FlashStartEchoTestCommand;
+      import org.bigbluebutton.modules.phone.events.FlashStopEchoTestCommand;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 			
       private static const LOG:String = "Phone::FlashMicSettings - ";
@@ -67,7 +69,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var cancelIcon:Class = images.cancel;
 
 			[Bindable] private var microphoneList:Array;      
-			[Bindable]private var baseIndex:int = 1;
+			[Bindable] private var baseIndex:int = 1;
 			
       private var my_nc:NetConnection;      
       private var stream:NetStream;
@@ -98,7 +100,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						return;
 					} else {        
 						// Update mic name
-						if (micName != mic.name ){
+						if (micName != mic.name ) {
 							micName = mic.name;       				 
 						}
             trace(LOG + "Access to [" + mic.name + "] allowed.");
@@ -202,19 +204,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function echoTestButtonClickHandler():void {
         if (echoTestButton.selected) {
           comboMicList.enabled = false;
-          doingEchoTest = true;
-          var options:PhoneOptions = new PhoneOptions();
-          var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
-          joinEvent.payload['useMicrophone'] = true;
-          joinEvent.payload['microphoneIndex'] = mic == null ? 0 : mic.index;
-          joinEvent.payload['callDestination'] = options.echoTestApp;
-          
-          dispatchEvent(joinEvent);	
+          doingEchoTest = true;          
+          dispatchEvent(new FlashStartEchoTestCommand(mic.index, mic.name));	
         } else {
           doingEchoTest = false;
           comboMicList.enabled = true;
-          var endEchoTestEvent: BBBEvent = new BBBEvent("CLICK_TO_LEAVE_VOICE_CONFERENCE_EVENT");
-          dispatchEvent(endEchoTestEvent);
+          dispatchEvent(new FlashStopEchoTestCommand());
         }
       }
       
@@ -295,22 +290,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <mx:VBox width="100%">
 			    <mx:HBox>
 				    <mx:ComboBox id="comboMicList" 
-							  dataProvider="{microphoneList}" 
-							  change="selectMicrophone(event)"
-							  height="30" 
-							  tabIndex="{baseIndex+2}" 
+							  dataProvider="{microphoneList}" change="selectMicrophone(event)"
+							  height="30" tabIndex="{baseIndex+2}" 
 							  toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.comboMicList.toolTip')}" />
 				    <mx:HSlider id="micRecordVolume" 
-							  maximum="100"
-							  snapInterval="1"                       
+							  maximum="100" snapInterval="1"                       
 							  labels="[0%,{ResourceUtil.getInstance().getString('bbb.micSettings.micRecordVolume.label')},100%]"
-							  tickInterval="10"
-							  liveDragging="true" 
-							  change="changeRecordVolume(event);"
-							  showTrackHighlight="true"
-							  trackColors="[ 0xEEEEEE, 0xFFFFFF ]"
-							  value="60"
-							  tabIndex="{baseIndex+3}" 
+							  tickInterval="10" liveDragging="true" change="changeRecordVolume(event);"
+							  showTrackHighlight="true" trackColors="[ 0xEEEEEE, 0xFFFFFF ]"
+							  value="60" tabIndex="{baseIndex+3}" 
 							  toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.micRecordVolume.toolTip')}" />                           
 			    </mx:HBox>
 			    <mx:ProgressBar id="micLevel" minimum="0" maximum="100" direction="right" label=""

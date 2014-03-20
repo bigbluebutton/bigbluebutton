@@ -6,7 +6,7 @@ package org.bigbluebutton.modules.phone.managers
   import flash.media.Microphone;
   
   import org.bigbluebutton.modules.phone.PhoneOptions;
-  import org.bigbluebutton.modules.phone.events.FlashEchoTestEvent;
+  import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
 
   public class FlashCallManager
   {
@@ -32,7 +32,7 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     private function doEchoTest():void {
-      dispatcher.dispatchEvent(new FlashEchoTestEvent(micNames));
+      dispatcher.dispatchEvent(new FlashMicSettingsEvent(micNames));
     }
     
     private function startUsingFlash():void {

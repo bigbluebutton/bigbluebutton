@@ -41,7 +41,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ConnectionFailedEvent.UNKNOWN_REASON}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
 	<mate:Listener type="configLoadedEvent" method="initOptions"  />
-	<mate:Listener type="{FlashEchoTestEvent.FLASH_ECHO_TEST}" method="handleFlashEchoTestEvent"  />
+	<mate:Listener type="{FlashMicSettingsEvent.FLASH_MIC_SETTINGS}" method="handleFlashMicSettingsEvent"  />
   <mate:Listener type="{WebRtcEchoTestStartedEvent.WEBRTC_ECHO_TEST_STARTED}" method="handleWebRtcEchoTestStartedEvent"  />
   <mate:Listener type="{WebRtcAskMicPermissionEvent.ASK_MIC_PERMISSION}" method="handleAskMicPermissionEvent"  />
   <mate:Listener type="{WebRtcAskUserToChangeMicEvent.WEBRTC_ASK_USER_TO_CHANGE_MIC}" method="handleWebRtcAskUserToChangeMicEvent"  />
@@ -93,7 +93,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.SuccessfulLoginEvent;
       import org.bigbluebutton.main.model.LayoutOptions;
       import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-      import org.bigbluebutton.modules.phone.events.FlashEchoTestEvent;
+      import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
       import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
       import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionEvent;
       import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionToJoinConferenceEvent;
@@ -311,7 +311,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}	   			
 	   		}
 
-			private function handleFlashEchoTestEvent(event:FlashEchoTestEvent):void {
+			private function handleFlashMicSettingsEvent(event:FlashMicSettingsEvent):void {
+        showEarbudsHeadsetRequired();
+        
 				var micSettings:FlashMicSettings = PopUpManager.createPopUp(mdiCanvas, FlashMicSettings, true) as FlashMicSettings;
 				micSettings.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
 					var point1:Point = new Point();
@@ -347,6 +349,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				localeWindow.y = point1.y - (localeWindow.height/2);	
       }
 			
+      private function showEarbudsHeadsetRequired():void {
+        var earbuds:EarbudsHeadsetRecommendedImage = PopUpManager.createPopUp(mdiCanvas, EarbudsHeadsetRecommendedImage, true) as EarbudsHeadsetRecommendedImage;
+        earbuds.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+          var point1:Point = new Point();
+          // Calculate position of TitleWindow in Application's coordinates. 
+          point1.x = width/2;
+          point1.y = 20;
+          earbuds.x = point1.x - (earbuds.width/2);
+          earbuds.y = point1.y;
+        });        
+      }
+      
       private function handleWebRtcAskMicPermissionToJoinConferenceEvent(event:WebRtcAskMicPermissionToJoinConferenceEvent):void {
         var browser:String = event.browser;
         if (browser == "Firefox") {
@@ -377,8 +391,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           });          
         }        
       }
-      
-      
+          
       private function handleWebRtcAskUserToChangeMicEvent(event:WebRtcAskUserToChangeMicEvent):void {
         var browser:String = event.browser;
         if (browser == "Firefox") {
@@ -405,9 +418,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           });          
         }        
       }
-      
-      
+         
       private function handleAskMicPermissionEvent(event:WebRtcAskMicPermissionEvent):void {
+        showEarbudsHeadsetRequired();
+        
         var browser:String = event.browser;
         if (browser == "Firefox") {
           var ffBrowser:FirefoxMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, FirefoxMicPermissionImage, true) as FirefoxMicPermissionImage;

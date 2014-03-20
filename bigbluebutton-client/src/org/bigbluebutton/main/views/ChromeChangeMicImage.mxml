@@ -38,7 +38,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.managers.PopUpManager;		
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 						
 			
