@@ -140,12 +140,19 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 				
 		public function dialConference():void {
+      // TODO: Just Return for now. Testing only WebRTC. Working on Flash.
+      // richard (mar 21, 2014)
+      
 			LogUtil.debug("*** Dialling conference ***");
 			connectionManager.doCall(callDestination);
 		}
 		
 		public function callConnected(event:CallConnectedEvent):void {
-			if (webrtcCapable && useWebrtcIfAvailable) {
+      // TODO: Just Return for now. Testing only WebRTC. Working on Flash.
+      // richard (mar 21, 2014)
+      return;
+			
+      if (webrtcCapable && useWebrtcIfAvailable) {
 
 			} else {
 				setupConnection();
@@ -158,6 +165,9 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 		
 		public function userRequestedHangup():void {
+      // TODO: Just Return for now. Testing only WebRTC. Working on Flash.
+      // richard (mar 21, 2014)
+      
 			LogUtil.debug("User has requested to hangup and leave the conference");
 			userHangup = true;
 			hangup();
