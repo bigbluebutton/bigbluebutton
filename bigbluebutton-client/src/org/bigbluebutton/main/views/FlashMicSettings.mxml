@@ -85,8 +85,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
       private function reInitialize():void {
-        nsStream.attachAudio(null);
-        if (mic != null) {
+        my_nc = new NetConnection();
+        my_nc.connect(null);
+        nsStream = new NetStream(my_nc);
+       if (mic != null) {
           mic.removeEventListener(StatusEvent.STATUS, micStatusEventHandler);
         }
         
@@ -105,6 +107,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler)
         nsStream.attachAudio(mic);  
 				
+        startMicLevelListener();
+        
         audioMicLevelDetected = 0;     
 			}
       
@@ -121,7 +125,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             //http://stackoverflow.com/questions/2936925/no-mic-activity-with-setloopback-set-to-false-as3
             //http://groups.yahoo.com/neo/groups/flexcoders/conversations/topics/144047
             mic.gain = micRecordVolume.value;
-            startMicLevelListener();
+            
             statusText.text = "Please speak to your mic to see f you get a green bar.";
             break;
           default:
@@ -141,9 +145,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}						
 
       private function setupForMicLoopbackTest():void {
-        my_nc = new NetConnection();
-        my_nc.connect(null);
-        nsStream = new NetStream(my_nc);
         
         setCurrentState("flashMicSettingsTest");
         
