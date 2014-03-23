@@ -563,7 +563,7 @@ fi
 
 #
 # Set Security Salt
-# - XXX
+# - Legacy
 #
 
 if [ $SALT ]; then
@@ -577,7 +577,6 @@ fi
 # Setup samba
 #
 
-echo "##$CLEAN##"
 if [ $SAMBA ]; then
 	check_root
 
