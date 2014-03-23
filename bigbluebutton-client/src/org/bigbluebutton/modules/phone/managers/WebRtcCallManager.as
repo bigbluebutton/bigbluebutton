@@ -19,6 +19,7 @@ package org.bigbluebutton.modules.phone.managers
     
     private var browserType:String = "unknown";
     private var dispatcher:Dispatcher = new Dispatcher();
+    private var echoTestDone:Boolean = false;
     
     private var usingWebRtc:Boolean = false;
     private var options:PhoneOptions;
@@ -72,8 +73,8 @@ package org.bigbluebutton.modules.phone.managers
     
     public function handleWebRtcEchoTestHasAudioEvent():void {
       endEchoTest();
-      ExternalInterface.call("joinWebRtcVoiceConference");
-      dispatcher.dispatchEvent(new WebRtcAskMicPermissionToJoinConferenceEvent(browserType));
+      echoTestDone = true;
+      joinVoiceConference();
     }
     
     public function handleWebRtcConfCallStartedEvent():void {
@@ -86,8 +87,17 @@ package org.bigbluebutton.modules.phone.managers
       dispatcher.dispatchEvent(new CallDisconnectedEvent());
     }
     
+    private function joinVoiceConference():void {
+      ExternalInterface.call("joinWebRtcVoiceConference");
+      dispatcher.dispatchEvent(new WebRtcAskMicPermissionToJoinConferenceEvent(browserType));        
+    }
+    
     public function handleJoinVoiceConferenceCommand():void {
-      startWebRtcEchoTest();
+      if (echoTestDone) {
+        joinVoiceConference();
+      } else {
+        startWebRtcEchoTest();
+      }     
     }
     
     public function handleLeaveVoiceConferenceCommand():void {
