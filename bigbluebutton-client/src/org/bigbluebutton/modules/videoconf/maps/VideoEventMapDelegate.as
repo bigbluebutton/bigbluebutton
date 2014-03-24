@@ -228,7 +228,8 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     private function openAvatarWindowFor(userID:String):void {
-
+      if (! UsersUtil.hasUser(userID)) return;
+      
       closeWindow(userID);
 
       var userAvatar:UserGraphicHolder = new UserGraphicHolder();
