@@ -1,12 +1,9 @@
 package org.bigbluebutton.core.apps.whiteboard.redis
 
-import org.bigbluebutton.conference.service.recorder.RecorderApplication
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.conference.service.whiteboard.redis.AddShapeWhiteboardRecordEvent
 import scala.collection.JavaConversions._
 import org.bigbluebutton.conference.service.whiteboard.WhiteboardKeyUtil
 import scala.collection.immutable.StringOps
-
 
 import org.bigbluebutton.conference.service.messaging.redis.MessageSender
 import org.bigbluebutton.conference.service.messaging.MessagingConstants
@@ -50,17 +47,8 @@ class WhiteboardEventRedisPublisher(service: MessageSender) extends OutMessageLi
 	  val gson = new Gson
 	
 	  System.out.println("^^^^I am in WhiteboardEventRedisPublisher.scala"
-	      + "\n and msg=" + msg)
-	      
-	  //val map= new java.util.HashMap[String, String]();
-	  //map.put("ANTON", "GE");
-	  //map.put("GE", "ANTO");
-	  
-	  
-	  
-	  
-
-	  	  
+	      + "\n and msg=" + gson.toJson(msg))
+		  
 	  val header= new java.util.HashMap[String, Any]();
 	  
 	  val destination= new java.util.HashMap[String, String]();
@@ -71,20 +59,18 @@ class WhiteboardEventRedisPublisher(service: MessageSender) extends OutMessageLi
 	  header.put("timestamp","Fri, 21 Mar 2014 18:53:08 GMT")
 	  header.put("source","bbb-apps")
 	  
-	  
-	  
 	  //PAYLOAD
 	  val payload= new java.util.HashMap[String, Any]();
 	  
 	  val meeting= new java.util.HashMap[String, Any]();
-	  meeting.put("name","someMeetingName")
 	  meeting.put("id","183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1395072308944")
+	  meeting.put("id", msg.meetingID)
 	  payload.put("meeting",meeting)
 	  
 	  payload.put("session","someSessionId")
-	  payload.put("whiteboard_id","presentation_id/page_num")
+	  payload.put("whiteboard_id",msg.whiteboardId)
 	  payload.put("shape_id","q779ogycfmxk-13-1383262166102")
-	  payload.put("shape_type","rectangle")
+	  payload.put("shape_type", msg.shape.shapeType) // this is how I should extract data from the msg
 	  
 	  val data= new java.util.HashMap[String, Any]();
 	  
