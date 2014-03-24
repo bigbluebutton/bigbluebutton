@@ -5,10 +5,6 @@ import org.bigbluebutton.core.api._
 import org.bigbluebutton.conference.service.whiteboard.redis.AddShapeWhiteboardRecordEvent
 import scala.collection.JavaConversions._
 import org.bigbluebutton.conference.service.whiteboard.WhiteboardKeyUtil
-import org.bigbluebutton.conference.service.whiteboard.redis.AddTextWhiteboardRecordEvent
-import org.bigbluebutton.conference.service.whiteboard.redis.ClearPageWhiteboardRecordEvent
-import org.bigbluebutton.conference.service.whiteboard.redis.UndoShapeWhiteboardRecordEvent
-import org.bigbluebutton.conference.service.whiteboard.redis.ModifyTextWhiteboardRecordEvent
 import scala.collection.immutable.StringOps
 
 
@@ -56,10 +52,76 @@ class WhiteboardEventRedisPublisher(service: MessageSender) extends OutMessageLi
 	  System.out.println("^^^^I am in WhiteboardEventRedisPublisher.scala"
 	      + "\n and msg=" + msg)
 	      
-	  val map= new java.util.HashMap[String, String]();
-	  map.put("ANTON", "GE");
-	  map.put("GE", "ANTO");
-		
+	  //val map= new java.util.HashMap[String, String]();
+	  //map.put("ANTON", "GE");
+	  //map.put("GE", "ANTO");
+	  
+	  
+	  
+	  
+
+	  	  
+	  val header= new java.util.HashMap[String, Any]();
+	  
+	  val destination= new java.util.HashMap[String, String]();
+	  destination.put("to","apps_channel")
+	  
+	  header.put("destination", destination)
+	  header.put("name","whiteboard_draw_event")
+	  header.put("timestamp","Fri, 21 Mar 2014 18:53:08 GMT")
+	  header.put("source","bbb-apps")
+	  
+	  
+	  
+	  //PAYLOAD
+	  val payload= new java.util.HashMap[String, Any]();
+	  
+	  val meeting= new java.util.HashMap[String, Any]();
+	  meeting.put("name","someMeetingName")
+	  meeting.put("id","183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1395072308944")
+	  payload.put("meeting",meeting)
+	  
+	  payload.put("session","someSessionId")
+	  payload.put("whiteboard_id","presentation_id/page_num")
+	  payload.put("shape_id","q779ogycfmxk-13-1383262166102")
+	  payload.put("shape_type","rectangle")
+	  
+	  val data= new java.util.HashMap[String, Any]();
+	  
+	  val coordinate= new java.util.HashMap[String, Any]();
+	  coordinate.put("first_x", 0.016025641025641028)
+	  coordinate.put("first_y", 0.982905982905983)
+	  coordinate.put("last_x",0.33)
+	  coordinate.put("last_y",0.45)
+	  data.put("coordinate",coordinate)
+	  
+	  val line= new java.util.HashMap[String, Any]();
+	  line.put("line_type", "solid")
+	  line.put("color", 0)
+	  data.put("line",line)
+	  
+	  data.put("weight", 18)
+	  
+	  val background= new java.util.HashMap[String, Any]();
+	  background.put("visible", true)
+	  background.put("color", 0)
+	  background.put("alpha", 1)
+	  data.put("background", background)
+	  
+	  data.put("square", false)
+	  
+	  payload.put("data", data)
+	  
+	  val by= new java.util.HashMap[String, Any]();
+	  by.put("id", "user1")
+	  by.put("name", "Guga")
+	  payload.put("by", by)
+	  
+	  //High level
+	  val map= new java.util.HashMap[String, Any]();
+	  map.put("header",header)
+	  map.put("payload",payload)
+	  
 	  service.send(MessagingConstants.BIGBLUEBUTTON_WEBHOOK_EVENTS, gson.toJson(map))   
 	      
   		/*val map= new java.util.HashMap[String, String]();
