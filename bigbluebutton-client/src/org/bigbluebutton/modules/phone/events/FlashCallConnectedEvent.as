@@ -20,13 +20,20 @@ package org.bigbluebutton.modules.phone.events
 {
 	import flash.events.Event;
 
-	public class CallDisconnectedEvent extends Event
+	public class FlashCallConnectedEvent extends Event
 	{
-		public static const CALL_DISCONNECTED_EVENT:String = 'callDisconnectedEvent';
+		public static const CALL_CONNECTED_EVENT:String = 'flash call connected event';
 		
-		public function CallDisconnectedEvent(bubbles:Boolean=true, cancelable:Boolean=false)
+		public var publishStreamName:String;
+		public var playStreamName:String;
+		public var codec:String;
+		
+		public function FlashCallConnectedEvent(publishStreamName:String, playStreamName:String, codec:String)
 		{
-			super(CALL_DISCONNECTED_EVENT, bubbles, cancelable);
+			super(CALL_CONNECTED_EVENT, true, false);
+      this.publishStreamName = publishStreamName;
+      this.playStreamName = playStreamName;
+      this.codec = codec;
 		}
 		
 	}

@@ -27,19 +27,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				close="onCancelClicked()" 
 				keyDown="handleKeyDown(event)">
 
+  <mate:Listener type="{FlashEchoTestStartedEvent.ECHO_TEST_STARTED}" method="handleFlashEchoTestStartedEvent" />	
+  <mate:Listener type="{FlashEchoTestStoppedEvent.ECHO_TEST_STOPPED}" method="handleFlashEchoTestStoppedEvent" />
+  
 	<mx:Script>
 		<![CDATA[
       import flash.system.Security;
       import flash.system.SecurityPanel;
-      import flash.ui.Keyboard;
-      
+      import flash.ui.Keyboard;     
       import mx.controls.sliderClasses.Slider;
       import mx.core.IFlexDisplayObject;
       import mx.events.CloseEvent;
       import mx.events.ItemClickEvent;
       import mx.events.SliderEvent;
       import mx.managers.PopUpManager;
-      
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.BBB;
@@ -50,11 +51,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.phone.events.CallEchoTestAppEvent;
       import org.bigbluebutton.modules.phone.events.FlashEchoTestHasAudioEvent;
       import org.bigbluebutton.modules.phone.events.FlashEchoTestNoAudioEvent;
+      import org.bigbluebutton.modules.phone.events.FlashEchoTestStartedEvent;
+      import org.bigbluebutton.modules.phone.events.FlashEchoTestStoppedEvent;
       import org.bigbluebutton.modules.phone.events.FlashStartEchoTestCommand;
       import org.bigbluebutton.modules.phone.events.FlashStopEchoTestCommand;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 			
       private static const LOG:String = "Phone::FlashMicSettings - ";
+      
+      [Bindable] private var FLASH_MIC_SETTING_STATE:String = "flashMicSettingsState";
+      [Bindable] private var FLASH_ECHO_TEST_STATE:String = "flashEchoTestState";     
+      [Bindable] private var FLASH_MIC_SETTING:String = "flashMicSettings";
+      [Bindable] private var FLASH_ECHO_TEST:String = "flashEchoTest";
       
 			[Embed(source="assets/audio-test.mp3")]
 			[Bindable] private var soundClass:Class;
@@ -88,7 +96,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         my_nc = new NetConnection();
         my_nc.connect(null);
         nsStream = new NetStream(my_nc);
-       if (mic != null) {
+        if (mic != null) {
           mic.removeEventListener(StatusEvent.STATUS, micStatusEventHandler);
         }
         
@@ -144,17 +152,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         setupForMicLoopbackTest();
 			}						
 
-      private function setupForMicLoopbackTest():void {
-        
-        setCurrentState("flashMicSettingsTest");
+      private function setupForMicLoopbackTest():void {        
+        setCurrentState(FLASH_MIC_SETTING_STATE);
         
         var tempArr:Array = new Array();
         tempArr.push("0%", ResourceUtil.getInstance().getString('bbb.micSettings.micRecordVolume.label'),"100%");
         micRecordVolume.labels = tempArr;		        
       }
       
-      private function setupForEchoTest():void {
-        setCurrentState("flashEchoTestState");
+      private function showEchoTestAudioPrompt():void {
+        setCurrentState(FLASH_ECHO_TEST_STATE);
       }
       
 			// Added by Chad to enable closing the window without clicking the X
@@ -190,54 +197,43 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         playButton.selected = false;
       }
       
-			private function onJoinClicked():void {			
-        // Do one last check for if the mic has been allowed.
-        // This must come first because cleanUp() will destroy mic 
-        if (mic != null && mic.muted) {
-            Security.showSettings(SecurityPanel.PRIVACY);
-        }        
-        if (audioMicLevelDetected > 0){
-          joinConference();
-        }           	
-			}	
-			  
+      private function handleFlashEchoTestStoppedEvent(event:FlashEchoTestStoppedEvent):void {
+        
+      }
+      
+      private function handleFlashEchoTestStartedEvent(event:FlashEchoTestStartedEvent):void {
+        showEchoTestAudioPrompt();
+      }
+      
       private function echoTestButtonClickHandler():void {
         if (echoTestButton.selected) {
           comboMicList.enabled = false;
           doingEchoTest = true;          
           dispatchEvent(new FlashStartEchoTestCommand(mic.index, mic.name));	
         } else {
-          doingEchoTest = false;
           comboMicList.enabled = true;
-          dispatchEvent(new FlashStopEchoTestCommand());
+          stopEchoTest();
         }
       }
-      
-			public function joinConference():void{			
-				var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
-				joinEvent.payload['useMicrophone'] = true;
-        joinEvent.payload['microphoneIndex'] = mic == null ? 0 : mic.index;
-        joinEvent.payload['callDestination'] = UserManager.getInstance().getConference().voiceBridge;
-
-				dispatchEvent(joinEvent);	
-
-				// Do one last check for if the mic has been allowed.
-				// This must come first because cleanUp() will destroy mic 
-				if (mic != null && mic.muted) {
-					Security.showSettings(SecurityPanel.PRIVACY);
-				}
-  			cleanUp();      
-				PopUpManager.removePopUp(this);			
-			}
-						
+      					
 			private function onCancelClicked():void {
+        /***** TEST ONLY ****/
+        showEchoTestAudioPrompt();
+        return;        
+        /***** TEST ONLY ****/
+        
 				cleanUp();
-				var event:BBBEvent = new BBBEvent(BBBEvent.MIC_SETTINGS_CLOSED);
-				event.payload['clicked'] = "cancel";
-				dispatchEvent(event);
+        stopEchoTest();
 				PopUpManager.removePopUp(this);
 			}
 			
+      private function stopEchoTest():void {
+        if (doingEchoTest) {
+          doingEchoTest = false;
+          dispatchEvent(new FlashStopEchoTestCommand());
+        }        
+      }
+      
 			private function cleanUp():void {				
 				if (micActivityTimer) micActivityTimer.stop();
 
@@ -269,8 +265,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function noButtonClicked():void {
         trace(LOG + "Echo test failed.");
-        dispatchEvent(new FlashEchoTestNoAudioEvent());
-        onCancelClicked();
+        stopEchoTest();
+        setupForMicLoopbackTest();
       }
       
       private function flashMicSettingsCreated():void {        
@@ -282,16 +278,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
 	
   <mx:states>
-    <mx:State name="flashEchoTestState">
+    <mx:State name="{FLASH_ECHO_TEST_STATE}">
       <mx:AddChild relativeTo="statusText" position="after">
-        <mx:VBox width="100%" height="100%">          
+        <mx:VBox id="flashEchoTest" width="100%" height="100%">          
           <mx:HBox width="100%">      
             <mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakIntoMic')}"
                    styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		
-          </mx:HBox>
-          <mx:HBox width="100%">
-            <mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.hearFromHeadset')}"
-                   styleName="micSettingsWindowHearFromHeadsetLabelStyle"/>	
           </mx:HBox>
           <mx:HRule width="100%"/>
           <mx:Spacer height="10"/>
@@ -299,8 +291,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             <mx:Button id="yesButton" label="Yes" 
                      click="yesButtonClicked()" styleName="micSettingsWindowPlaySoundButtonStyle"
                      toolTip=""/>
-            <mx:Button id="noButton" 
-                     label="No" 
+            <mx:Button id="noButton" label="No" 
                      styleName="micSettingsWindowPlaySoundButtonStyle"
                      click="noButtonClicked()" 
                      toolTip=""/>
@@ -309,10 +300,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       </mx:AddChild>
     </mx:State>
         
-    <mx:State name="flashMicSettingsTest">
+    <mx:State name="{FLASH_MIC_SETTING_STATE}">
       <mx:AddChild relativeTo="statusText" position="after" >
         <!-- Flash Microphone -->
-        <mx:VBox width="100%" height="100%" creationComplete="flashMicSettingsCreated()">
+        <mx:VBox id="flashMicSettings" width="100%" height="100%" creationComplete="flashMicSettingsCreated()">
             <mx:HBox>
               <mx:ComboBox id="comboMicList" 
                            dataProvider="{microphoneList}" change="selectMicrophone(event)"
@@ -335,7 +326,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </mx:State>
   </mx:states>
   
-	<mx:VBox id="foo" width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">          
+	<mx:VBox id="mainContainer" width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">          
         <!-- Audio Settings Title and help button -->
 		    <mx:Canvas width="100%" id="flashMicSettingsTitle">
 			    <mx:TextArea borderSkin="{null}"

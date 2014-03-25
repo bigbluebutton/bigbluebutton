@@ -27,8 +27,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent">
 
-  <mate:Listener type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}" method="handleCallDisconnectedEvent" />
-  <mate:Listener type="{CallConnectedEvent.CALL_CONNECTED_EVENT}" method="handleCallConnectedEvent" />
+  <mate:Listener type="{FlashCallDisconnectedEvent.CALL_DISCONNECTED_EVENT}" method="handleCallDisconnectedEvent" />
+  <mate:Listener type="{FlashCallConnectedEvent.CALL_CONNECTED_EVENT}" method="handleCallConnectedEvent" />
   
 	<mx:Script>
 		<![CDATA[
@@ -41,8 +41,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.views.MainToolbar;
       import org.bigbluebutton.modules.phone.PhoneOptions;
-      import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
-      import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
+      import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
+      import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
       import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
       import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
       import org.bigbluebutton.modules.phone.views.assets.Images;
@@ -91,7 +91,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					phoneIcon = images.headsetDefaultIcon;			
 			}
 
-			public function handleCallConnectedEvent(event: CallConnectedEvent):void {
+			public function handleCallConnectedEvent(event: FlashCallConnectedEvent):void {
 					this.selected = true;
 					this.enabled = true;
 					_currentState = ACTIVE_STATE;
@@ -99,7 +99,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');	
 			}
 						
-			private function handleCallDisconnectedEvent(event:CallDisconnectedEvent):void {
+			private function handleCallDisconnectedEvent(event:FlashCallDisconnectedEvent):void {
 				this.selected = false;
 				this.enabled = true;
 				_currentState = DEFAULT_STATE;

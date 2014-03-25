@@ -1,15 +1,19 @@
 package org.bigbluebutton.modules.phone.managers
 {
-  import com.asfusion.mate.events.Dispatcher; 
-  import flash.external.ExternalInterface;  
+  import com.asfusion.mate.events.Dispatcher;
+  
+  import flash.external.ExternalInterface;
+  
   import org.bigbluebutton.main.api.JSAPI;
   import org.bigbluebutton.modules.phone.PhoneOptions;
-  import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
-  import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
+  import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
+  import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
   import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
   import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionEvent;
   import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionToJoinConferenceEvent;
   import org.bigbluebutton.modules.phone.events.WebRtcAskUserToChangeMicEvent;
+  import org.bigbluebutton.modules.phone.events.WebRtcCallConnectedEvent;
+  import org.bigbluebutton.modules.phone.events.WebRtcCallDisconnectedEvent;
   import org.bigbluebutton.modules.phone.events.WebRtcEchoTestStartedEvent;
   import org.bigbluebutton.modules.phone.events.WebRtcRemoveAskMicPermissionEvent;
 
@@ -79,12 +83,12 @@ package org.bigbluebutton.modules.phone.managers
     
     public function handleWebRtcConfCallStartedEvent():void {
       hideMicPermission();
-      dispatcher.dispatchEvent(new CallConnectedEvent());
+      dispatcher.dispatchEvent(new WebRtcCallConnectedEvent());
     }
     
     public function handleWebRtcConfCallEndedEvent():void {
       hideMicPermission();
-      dispatcher.dispatchEvent(new CallDisconnectedEvent());
+      dispatcher.dispatchEvent(new WebRtcCallDisconnectedEvent());
     }
     
     private function joinVoiceConference():void {

@@ -18,7 +18,7 @@
 */
 
 package org.bigbluebutton.modules.phone.managers {
-	import com.asfusion.mate.events.Dispatcher;
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.ActivityEvent;
 	import flash.events.AsyncErrorEvent;
 	import flash.events.IEventDispatcher;
@@ -29,11 +29,14 @@ package org.bigbluebutton.modules.phone.managers {
 	import flash.media.MicrophoneEnhancedOptions;
 	import flash.media.SoundCodec;
 	import flash.net.NetConnection;
-	import flash.net.NetStream;
+	import flash.net.NetStream;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.phone.PhoneOptions;
+	import org.bigbluebutton.modules.phone.events.FlashMicAccessAllowedEvent;
+	import org.bigbluebutton.modules.phone.events.FlashMicAccessDeniedEvent;
+	import org.bigbluebutton.modules.phone.events.FlashMicUnavailableEvent;
 	import org.bigbluebutton.modules.phone.events.MicrophoneUnavailEvent;
 	import org.bigbluebutton.modules.phone.events.PlayStreamStatusEvent;
 	
@@ -43,29 +46,40 @@ package org.bigbluebutton.modules.phone.managers {
 		public  var connection:NetConnection = null;
 		private var incomingStream:NetStream = null
 		private var outgoingStream:NetStream = null;
-		private var publishName:String          = null;
-		private var mic:Microphone 				= null;		
-  	private var micIndex:int 				= 0;		
-		private var isCallConnected:Boolean			= false;
-		private var muted:Boolean			    = false;
-		private var audioCodec:String = "SPEEX";
+		private var publishName:String       = null;
+		private var mic:Microphone 				   = null;		
+  	private var micIndex:int 				     = 0;
+    private var micName:String;
+		private var isCallConnected:Boolean	 = false;
+		private var muted:Boolean			       = false;
+		private var audioCodec:String        = "SPEEX";
 		private var dispatcher:Dispatcher;
-					
-		public function StreamManager() {			
+		
+    private var connManager:ConnectionManager;
+    
+		public function StreamManager(connMgr:ConnectionManager) {			
 			dispatcher = new Dispatcher();
+      connManager = connMgr;
+      useDefaultMic();
 		}
 	
-		public function setConnection(connection:NetConnection):void {
-			this.connection = connection;
-		}
-		
-		public function initMicrophone(microphoneIndex:int):void {
-		  mic = Microphone.getMicrophone(-1);
-			this.micIndex = microphoneIndex;
-			if(mic == null){
-				initWithNoMicrophone();
-			} else {
-			  trace(LOG + "Setting up microphone");
+    public function usePreferredMic(micIndex:int, micName:String):void {
+      this.micIndex = micIndex;
+      this.micName = micName;
+      mic = Microphone.getMicrophone(micIndex);
+      if(mic != null){
+        trace(LOG + "Setting up default microphone");
+        setupMicrophone();
+        mic.addEventListener(StatusEvent.STATUS, micStatusHandler);
+      }
+    }
+    
+		private function useDefaultMic():void {
+		  mic = Microphone.getMicrophone();
+			this.micIndex = mic.index;
+      
+			if(mic != null){
+			  trace(LOG + "Setting up default microphone");
 				setupMicrophone();
 				mic.addEventListener(StatusEvent.STATUS, micStatusHandler);
 			}
@@ -75,7 +89,7 @@ package org.bigbluebutton.modules.phone.managers {
 			var phoneOptions:PhoneOptions = new PhoneOptions();
 
 			if ((BBB.getFlashPlayerVersion() >= 10.3) && (phoneOptions.enabledEchoCancel)) {
-				LogUtil.debug("Using acoustic echo cancellation.");		
+				trace(LOG + "Using acoustic echo cancellation.");		
 				mic = Microphone.getEnhancedMicrophone(micIndex);			
 				var options:MicrophoneEnhancedOptions = new MicrophoneEnhancedOptions();
 				options.mode = MicrophoneEnhancedMode.FULL_DUPLEX;
@@ -94,11 +108,11 @@ package org.bigbluebutton.modules.phone.managers {
 				mic.codec = SoundCodec.SPEEX;
 				mic.framesPerPacket = 1;
 				mic.rate = 16; 
-				LogUtil.debug("Using SPEEX whideband codec.");
+				trace(LOG + "Using SPEEX whideband codec.");
 			} else {
 				mic.codec = SoundCodec.NELLYMOSER;
 				mic.rate = 8;
-				LogUtil.debug("Using Nellymoser codec.");
+				trace(LOG + "Using Nellymoser codec.");
 			}			
 		}
 		
@@ -110,10 +124,10 @@ package org.bigbluebutton.modules.phone.managers {
 		private function micStatusHandler(event:StatusEvent):void {					
 			switch(event.code) {
 				case "Microphone.Muted":
-					dispatcher.dispatchEvent(new BBBEvent("MIC_ACCESS_DENIED_EVENT"));
+					dispatcher.dispatchEvent(new FlashMicAccessDeniedEvent(mic.name));
 					break;
 				case "Microphone.Unmuted":
-					dispatcher.dispatchEvent(new BBBEvent("MIC_ACCESS_ALLOWED_EVENT"));
+					dispatcher.dispatchEvent(new FlashMicAccessAllowedEvent(mic.name));
 					break;
 				default:
 					LogUtil.debug("unknown micStatusHandler event: " + event);
@@ -139,10 +153,12 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 		
 		private function publish(publishStreamName:String):void {
-			if (mic != null)
-				outgoingStream.publish(publishStreamName, "live");
-			else
-				LogUtil.debug("SM publish: No Microphone to publish");
+			if (mic != null) {
+        outgoingStream.publish(publishStreamName, "live");
+      } else {
+        trace(LOG + " publish: No Microphone to publish");
+        dispatcher.dispatchEvent(new FlashMicUnavailableEvent());
+      }     
 		}
 		
 		private function setupIncomingStream():void {

@@ -33,7 +33,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     x="20"
     y="-20">
   
-  <mate:Listener type="{CallConnectedEvent.CALL_CONNECTED_EVENT}" method="handleCallConnectedEvent" />
+  <mate:Listener type="{FlashCallConnectedEvent.CALL_CONNECTED_EVENT}" method="handleCallConnectedEvent" />
   
 	<mx:Script>
 		<![CDATA[
@@ -41,10 +41,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import mx.managers.PopUpManager;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.BBB;
-      import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
+      import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 
-      private function handleCallConnectedEvent(e:CallConnectedEvent):void {
+      private function handleCallConnectedEvent(e:FlashCallConnectedEvent):void {
         PopUpManager.removePopUp(this);
       }
 		

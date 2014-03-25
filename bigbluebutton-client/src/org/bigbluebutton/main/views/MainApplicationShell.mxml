@@ -312,7 +312,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	   		}
 
 			private function handleFlashMicSettingsEvent(event:FlashMicSettingsEvent):void {
-        showEarbudsHeadsetRequired();
+//        showEarbudsHeadsetRequired();
         
 				var micSettings:FlashMicSettings = PopUpManager.createPopUp(mdiCanvas, FlashMicSettings, true) as FlashMicSettings;
 				micSettings.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
