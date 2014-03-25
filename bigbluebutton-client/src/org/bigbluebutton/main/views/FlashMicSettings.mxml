@@ -198,7 +198,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handleFlashEchoTestStoppedEvent(event:FlashEchoTestStoppedEvent):void {
-        
+        doingEchoTest = false;
+        comboMicList.enabled = true;
       }
       
       private function handleFlashEchoTestStartedEvent(event:FlashEchoTestStartedEvent):void {
@@ -210,8 +211,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           comboMicList.enabled = false;
           doingEchoTest = true;          
           dispatchEvent(new FlashStartEchoTestCommand(mic.index, mic.name));	
-        } else {
-          comboMicList.enabled = true;
+        } else {          
           stopEchoTest();
         }
       }

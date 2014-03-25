@@ -101,7 +101,8 @@
        
     private function callIntoVoiceConference():void {
       if (isConnected()) {
-        var destination:String = MeetingModel.getInstance().meeting.voiceConference;
+        var destination:String = UsersUtil.getVoiceBridge();
+        
         if (destination != null && destination != "") {
           trace(LOG + "Calling into voice conference =[" + destination + "]");
           state = CALLING_INTO_CONFERENCE;
@@ -157,6 +158,7 @@
     }
     
     private function hangup():void {
+      streamManager.stopStreams();
       connectionManager.doHangUp();
     }
     
@@ -170,10 +172,12 @@
     }
     
     public function handleFlashStopEchoTestCommand(event:FlashStopEchoTestCommand):void {
+      trace(LOG + "handling FlashStopEchoTestCommand.");
       hangup();
     }
     
     public function handleFlashEchoTestHasAudioEvent(event:FlashEchoTestHasAudioEvent):void {
+      trace(LOG + "handling handleFlashEchoTestHasAudioEvent.");
       if (state == IN_ECHO_TEST) {
         hangup();
       }
@@ -182,14 +186,14 @@
     }
     
     public function handleFlashEchoTestNoAudioEvent(event:FlashEchoTestNoAudioEvent):void {
+      trace(LOG + "handling FlashEchoTestNoAudioEvent.");
       if (state == IN_ECHO_TEST) {
         hangup();
       }
       echoTestDone = false;      
     }
     
-    public function handleFlashCallConnectedEvent(event:FlashCallConnectedEvent):void {
-      
+    public function handleFlashCallConnectedEvent(event:FlashCallConnectedEvent):void {      
       switch (state) {
         case CALLING_INTO_CONFERENCE:
           trace(LOG + "Successfully joined the voice conference.");
@@ -199,33 +203,38 @@
           break;
         case CALLING_INTO_ECHO_TEST:
           state = IN_ECHO_TEST;
-          trace(LOG + "Successfully call into the echo test application.  [" + event.publishStreamName + "] : [" + event.playStreamName + "] : [" + event.codec + "]");
+          trace(LOG + "Successfully called into the echo test application.  [" + event.publishStreamName + "] : [" + event.playStreamName + "] : [" + event.codec + "]");
           streamManager.callConnected(event.playStreamName, event.publishStreamName, event.codec);
           
-          trace(LOG + "Successfully call into the echo test application.");
+          trace(LOG + "Successfully called into the echo test application.");
           dispatcher.dispatchEvent(new FlashEchoTestStartedEvent());
           break;
       }      
     }
     
     public function handleFlashCallDisconnectedEvent(event:FlashCallDisconnectedEvent):void {
+      trace(LOG + "Flash call disconnected.");
       switch (state) {
         case IN_CONFERENCE:
           state = INITED;
+          trace(LOG + "Flash user left voice conference.");
           dispatcher.dispatchEvent(new FlashLeftVoiceConferenceEvent());
           break;
         case IN_ECHO_TEST:
           state = INITED;
+          trace(LOG + "Flash echo test stopped.");
           dispatcher.dispatchEvent(new FlashEchoTestStoppedEvent());
           break;
       }
     }
     
     public function handleJoinVoiceConferenceCommand(event:JoinVoiceConferenceCommand):void {
+      trace(LOG + "handling JoinVoiceConferenceCommand.");
       startCall();
     }
     
     public function handleLeaveVoiceConferenceCommand(event:LeaveVoiceConferenceCommand):void {
+      trace(LOG + "handling LeaveVoiceConferenceCommand.");
       hangup();
     }
     

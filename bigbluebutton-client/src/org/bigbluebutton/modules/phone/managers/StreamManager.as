@@ -43,7 +43,6 @@ package org.bigbluebutton.modules.phone.managers {
 	public class StreamManager {
     private static const LOG:String = "Phone::StreamManager - ";
     
-//		public  var connection:NetConnection = null;
 		private var incomingStream:NetStream = null
 		private var outgoingStream:NetStream = null;
 		private var publishName:String       = null;
@@ -201,27 +200,27 @@ package org.bigbluebutton.modules.phone.managers {
 		public function stopStreams():void {
 			trace(LOG + "Stopping Stream(s)");
 			if(incomingStream != null) {
-				LogUtil.debug(LOG + "--Stopping Incoming Stream");
+				trace(LOG + "--Stopping Incoming Stream");
         incomingStream.close(); 
 			} else {
-				LogUtil.debug(LOG + "--Incoming Stream Null");
+				trace(LOG + "--Incoming Stream Null");
 			}
 			
 			if(outgoingStream != null) {
-				LogUtil.debug(LOG + "--Stopping Outgoing Stream");
+				trace(LOG + "--Stopping Outgoing Stream");
 				outgoingStream.attachAudio(null);
 				outgoingStream.close();
 			} else {
-				LogUtil.debug(LOG + "--Outgoing Stream Null");
+				trace(LOG + "--Outgoing Stream Null");
 			}
 				
 			isCallConnected = false;
-			LogUtil.debug(LOG + "Stopped Stream(s)");
+			trace(LOG + "Stopped Stream(s)");
 		}
 
 		private function netStatus (evt:NetStatusEvent ):void {		 
 			var event:PlayStreamStatusEvent = new PlayStreamStatusEvent();
-			LogUtil.debug(LOG + "******* evt.info.code  " + evt.info.code);
+			trace(LOG + "******* evt.info.code  " + evt.info.code);
 			switch(evt.info.code) {			
 				case "NetStream.Play.StreamNotFound":
 					event.status = PlayStreamStatusEvent.PLAY_STREAM_STATUS_EVENT;
@@ -244,15 +243,15 @@ package org.bigbluebutton.modules.phone.managers {
 		} 
 			
 		private function asyncErrorHandler(event:AsyncErrorEvent):void {
-	           trace(LOG + "AsyncErrorEvent: " + event);
-	    }
+	     trace(LOG + "AsyncErrorEvent: " + event);
+	  }
 	        
-	    private function playStatus(event:Object):void {
-	    	// do nothing
-	    }
+	  private function playStatus(event:Object):void {
+	    // do nothing
+	  }
 		
 		private function onMetadata(event:Object):void {
-	    	LogUtil.debug(LOG + "Recieve ON METADATA from SIP");
+	    	trace(LOG + "Recieve ON METADATA from SIP");
 	    }	
 	}
 }

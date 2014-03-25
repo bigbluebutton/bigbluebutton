@@ -115,6 +115,7 @@ package org.bigbluebutton.modules.phone.managers {
           dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.NETWORK_CHANGE));
           break;
         case "NetConnection.Connect.Closed":
+          trace(LOG + "Connection closed");
           handleConnectionClosed();
           break;
       }
@@ -163,6 +164,7 @@ package org.bigbluebutton.modules.phone.managers {
 				
 		public function doHangUp():void {			
 			if (isConnected()) {
+        trace(LOG + "hanging up call");
 				netConnection.call("voiceconf.hangup", null, "default");
 			}
 		}
