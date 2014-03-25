@@ -29,18 +29,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <mate:Listener type="{FlashEchoTestStartedEvent.ECHO_TEST_STARTED}" method="handleFlashEchoTestStartedEvent" />	
   <mate:Listener type="{FlashEchoTestStoppedEvent.ECHO_TEST_STOPPED}" method="handleFlashEchoTestStoppedEvent" />
+  <mate:Listener type="{FlashJoinedVoiceConferenceEvent.JOINED_VOICE_CONFERENCE}" method="handleFlashJoinedVoiceConferenceEvent" />
+  
   
 	<mx:Script>
 		<![CDATA[
       import flash.system.Security;
       import flash.system.SecurityPanel;
-      import flash.ui.Keyboard;     
+      import flash.ui.Keyboard;
+      
       import mx.controls.sliderClasses.Slider;
       import mx.core.IFlexDisplayObject;
       import mx.events.CloseEvent;
       import mx.events.ItemClickEvent;
       import mx.events.SliderEvent;
       import mx.managers.PopUpManager;
+      
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.BBB;
@@ -53,6 +57,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.phone.events.FlashEchoTestNoAudioEvent;
       import org.bigbluebutton.modules.phone.events.FlashEchoTestStartedEvent;
       import org.bigbluebutton.modules.phone.events.FlashEchoTestStoppedEvent;
+      import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
       import org.bigbluebutton.modules.phone.events.FlashStartEchoTestCommand;
       import org.bigbluebutton.modules.phone.events.FlashStopEchoTestCommand;
       import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -206,6 +211,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         showEchoTestAudioPrompt();
       }
       
+      private function handleFlashJoinedVoiceConferenceEvent(event:FlashJoinedVoiceConferenceEvent):void {
+        PopUpManager.removePopUp(this);
+      }
+      
       private function echoTestButtonClickHandler():void {
         if (echoTestButton.selected) {
           comboMicList.enabled = false;
@@ -216,12 +225,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }
       }
       					
-			private function onCancelClicked():void {
-        /***** TEST ONLY ****/
-        showEchoTestAudioPrompt();
-        return;        
-        /***** TEST ONLY ****/
-        
+			private function onCancelClicked():void {        
 				cleanUp();
         stopEchoTest();
 				PopUpManager.removePopUp(this);

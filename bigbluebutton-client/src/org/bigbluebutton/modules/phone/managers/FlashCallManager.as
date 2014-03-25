@@ -173,7 +173,9 @@
     
     public function handleFlashStopEchoTestCommand(event:FlashStopEchoTestCommand):void {
       trace(LOG + "handling FlashStopEchoTestCommand.");
-      hangup();
+      if (state == IN_ECHO_TEST) {
+        hangup();
+      }      
     }
     
     public function handleFlashEchoTestHasAudioEvent(event:FlashEchoTestHasAudioEvent):void {
