@@ -33,6 +33,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.phone.events.FlashEchoTestNoAudioEvent;
       import org.bigbluebutton.modules.phone.events.FlashStartEchoTestCommand;
       import org.bigbluebutton.modules.phone.events.FlashStopEchoTestCommand;
+      import org.bigbluebutton.modules.phone.events.FlashVoiceConnectionStatusEvent;
       import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
       import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
       import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
@@ -83,7 +84,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{FlashCallDisconnectedEvent.CALL_DISCONNECTED_EVENT}">        
     <MethodInvoker generator="{FlashCallManager}" method="handleFlashCallDisconnectedEvent" arguments="{event}"/>
   </EventHandlers>
+
+  <EventHandlers type="{FlashVoiceConnectionStatusEvent.CONN_STATUS}">        
+    <MethodInvoker generator="{FlashCallManager}" method="handleFlashVoiceConnectionStatusEvent" arguments="{event}"/>
+  </EventHandlers>
   
+  <EventHandlers type="{JoinVoiceConferenceCommand.JOIN_VOICE_CONF}">        
+    <MethodInvoker generator="{FlashCallManager}" method="handleJoinVoiceConferenceCommand" arguments="{event}"/>
+  </EventHandlers> 
   
+  <EventHandlers type="{LeaveVoiceConferenceCommand.LEAVE_VOICE_CONF}">        
+    <MethodInvoker generator="{FlashCallManager}" method="handleLeaveVoiceConferenceCommand" arguments="{event}"/>
+  </EventHandlers>   
   
 </EventMap>

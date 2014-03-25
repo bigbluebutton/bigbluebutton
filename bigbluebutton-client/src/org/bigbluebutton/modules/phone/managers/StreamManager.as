@@ -43,7 +43,7 @@ package org.bigbluebutton.modules.phone.managers {
 	public class StreamManager {
     private static const LOG:String = "Phone::StreamManager - ";
     
-		public  var connection:NetConnection = null;
+//		public  var connection:NetConnection = null;
 		private var incomingStream:NetStream = null
 		private var outgoingStream:NetStream = null;
 		private var publishName:String       = null;
@@ -68,7 +68,7 @@ package org.bigbluebutton.modules.phone.managers {
       this.micName = micName;
       mic = Microphone.getMicrophone(micIndex);
       if(mic != null){
-        trace(LOG + "Setting up default microphone");
+        trace(LOG + "Setting up preferred microphone");
         setupMicrophone();
         mic.addEventListener(StatusEvent.STATUS, micStatusHandler);
       }
@@ -130,11 +130,12 @@ package org.bigbluebutton.modules.phone.managers {
 					dispatcher.dispatchEvent(new FlashMicAccessAllowedEvent(mic.name));
 					break;
 				default:
-					LogUtil.debug("unknown micStatusHandler event: " + event);
+					LogUtil.debug(LOG + "unknown micStatusHandler event: " + event);
 			}
 		}
 										
 		public function callConnected(playStreamName:String, publishStreamName:String, codec:String):void {
+      trace(LOG + "setting up streams. [" + playStreamName + "] : [" + publishStreamName + "] : [" + codec + "]");
 			isCallConnected = true;
 			audioCodec = codec;
 			setupIncomingStream();
@@ -162,7 +163,8 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 		
 		private function setupIncomingStream():void {
-			incomingStream = new NetStream(connection);
+      trace(LOG + " setting up incoming stream");
+			incomingStream = new NetStream(connManager.getConnection());
 			incomingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
 			incomingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
 			/*
@@ -179,7 +181,8 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 		
 		private function setupOutgoingStream():void {
-			outgoingStream = new NetStream(connection);
+      trace(LOG + " setting up outgoing stream");
+			outgoingStream = new NetStream(connManager.getConnection());
 			outgoingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
 			outgoingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);		
 			setupMicrophone();
@@ -196,29 +199,29 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 			
 		public function stopStreams():void {
-			trace("Stopping Stream(s)");
+			trace(LOG + "Stopping Stream(s)");
 			if(incomingStream != null) {
-				LogUtil.debug("--Stopping Incoming Stream");
+				LogUtil.debug(LOG + "--Stopping Incoming Stream");
         incomingStream.close(); 
 			} else {
-				LogUtil.debug("--Incoming Stream Null");
+				LogUtil.debug(LOG + "--Incoming Stream Null");
 			}
 			
 			if(outgoingStream != null) {
-				LogUtil.debug("--Stopping Outgoing Stream");
+				LogUtil.debug(LOG + "--Stopping Outgoing Stream");
 				outgoingStream.attachAudio(null);
 				outgoingStream.close();
 			} else {
-				LogUtil.debug("--Outgoing Stream Null");
+				LogUtil.debug(LOG + "--Outgoing Stream Null");
 			}
 				
 			isCallConnected = false;
-			LogUtil.debug("Stopped Stream(s)");
+			LogUtil.debug(LOG + "Stopped Stream(s)");
 		}
 
 		private function netStatus (evt:NetStatusEvent ):void {		 
 			var event:PlayStreamStatusEvent = new PlayStreamStatusEvent();
-			LogUtil.debug("******* evt.info.code  " + evt.info.code);
+			LogUtil.debug(LOG + "******* evt.info.code  " + evt.info.code);
 			switch(evt.info.code) {			
 				case "NetStream.Play.StreamNotFound":
 					event.status = PlayStreamStatusEvent.PLAY_STREAM_STATUS_EVENT;
@@ -241,7 +244,7 @@ package org.bigbluebutton.modules.phone.managers {
 		} 
 			
 		private function asyncErrorHandler(event:AsyncErrorEvent):void {
-	           trace("AsyncErrorEvent: " + event);
+	           trace(LOG + "AsyncErrorEvent: " + event);
 	    }
 	        
 	    private function playStatus(event:Object):void {
@@ -249,7 +252,7 @@ package org.bigbluebutton.modules.phone.managers {
 	    }
 		
 		private function onMetadata(event:Object):void {
-	    	LogUtil.debug("Recieve ON METADATA from SIP");
+	    	LogUtil.debug(LOG + "Recieve ON METADATA from SIP");
 	    }	
 	}
 }

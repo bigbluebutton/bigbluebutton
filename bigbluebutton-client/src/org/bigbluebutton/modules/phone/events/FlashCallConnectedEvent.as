@@ -22,18 +22,18 @@ package org.bigbluebutton.modules.phone.events
 
 	public class FlashCallConnectedEvent extends Event
 	{
-		public static const CALL_CONNECTED_EVENT:String = 'flash call connected event';
+		public static const CALL_CONNECTED_EVENT:String = "flash voice call connected event";
 		
 		public var publishStreamName:String;
 		public var playStreamName:String;
 		public var codec:String;
 		
-		public function FlashCallConnectedEvent(publishStreamName:String, playStreamName:String, codec:String)
+		public function FlashCallConnectedEvent(publishStream:String, playStream:String, vcodec:String)
 		{
 			super(CALL_CONNECTED_EVENT, true, false);
-      this.publishStreamName = publishStreamName;
-      this.playStreamName = playStreamName;
-      this.codec = codec;
+      this.publishStreamName = publishStream;
+      this.playStreamName = playStream;
+      this.codec = vcodec;
 		}
 		
 	}

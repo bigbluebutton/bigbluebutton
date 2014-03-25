@@ -36,7 +36,8 @@ package org.bigbluebutton.modules.phone.managers {
 	import org.bigbluebutton.modules.phone.events.RegistrationSuccessEvent;
 	
 	public class ConnectionManager {
-			
+    private static const LOG:String = "Phone::ConnectionManager - ";
+    
 		private  var netConnection:NetConnection = null;
 		private var incomingNetStream:NetStream = null;
 		private var outgoingNetStream:NetStream = null;
@@ -66,7 +67,8 @@ package org.bigbluebutton.modules.phone.managers {
 			return netConnection;
 		}
 		
-    public function setup(uid:String, externUserId:String, username:String, room:String, uri:String):void {			
+    public function setup(uid:String, externUserId:String, username:String, room:String, uri:String):void {	
+      trace(LOG + "Setup uid=[" + uid + "] extuid=[" + externUserId + "] name=[" + username + "] uri=[" + uri + "]");
       this.uid = uid;	
       this.username  = username;
       this.room = room;
@@ -76,7 +78,7 @@ package org.bigbluebutton.modules.phone.managers {
     
 		public function connect():void {				
       closedByUser = false;
-      
+      trace(LOG + "Connecting to uri=[" + uri + "]");
 			NetConnection.defaultObjectEncoding = flash.net.ObjectEncoding.AMF0;	
 			netConnection = new NetConnection();
 			netConnection.client = this;
@@ -101,13 +103,15 @@ package org.bigbluebutton.modules.phone.managers {
       
       switch (statusCode) {
         case "NetConnection.Connect.Success":
+          trace(LOG + "Connection success");
           dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.CONNECTED));           
           break;
         case "NetConnection.Connect.Failed":
+          trace(LOG + "Connection failed");
           dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.FAILED));
           break;
         case "NetConnection.Connect.NetworkChange":
-          LogUtil.info("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
+          trace(LOG + "Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
           dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.NETWORK_CHANGE));
           break;
         case "NetConnection.Connect.Closed":
@@ -124,30 +128,25 @@ package org.bigbluebutton.modules.phone.managers {
       LogUtil.debug("securityErrorHandler: " + event);
     }
         
-    public function call():void {
-    	LogUtil.debug("in call - Calling " + room);
-			doCall(room);
-    }
-        
     //********************************************************************************************
 		//			
 		//			CallBack Methods from Red5 
 		//
 		//********************************************************************************************		
 		public function failedToJoinVoiceConferenceCallback(msg:String):* {
-			LogUtil.debug("failedToJoinVoiceConferenceCallback " + msg);
+			trace(LOG + "failedToJoinVoiceConferenceCallback " + msg);
 			var event:FlashCallDisconnectedEvent = new FlashCallDisconnectedEvent();
 			dispatcher.dispatchEvent(event);	
 		}
 		
 		public function disconnectedFromJoinVoiceConferenceCallback(msg:String):* {
-			LogUtil.debug("disconnectedFromJoinVoiceConferenceCallback " + msg);
+			trace(LOG + "disconnectedFromJoinVoiceConferenceCallback " + msg);
 			var event:FlashCallDisconnectedEvent = new FlashCallDisconnectedEvent();
 			dispatcher.dispatchEvent(event);	
 		}	
 				
      public function successfullyJoinedVoiceConferenceCallback(publishName:String, playName:String, codec:String):* {
-      LogUtil.debug("successfullyJoinedVoiceConferenceCallback " + publishName + " : " + playName + " : " + codec);
+      trace(LOG + "successfullyJoinedVoiceConferenceCallback [" + publishName + "] : [" + playName + "] : [" + codec + "]");
 			var event:FlashCallConnectedEvent = new FlashCallConnectedEvent(publishName, playName, codec);
 			dispatcher.dispatchEvent(event);
 		}
@@ -158,7 +157,7 @@ package org.bigbluebutton.modules.phone.managers {
 		//
 		//********************************************************************************************		
 		public function doCall(dialStr:String):void {
-			LogUtil.debug("in doCall - Calling " + dialStr);
+			trace(LOG + "in doCall - Calling " + dialStr);
 			netConnection.call("voiceconf.call", null, "default", username, dialStr);
 		}
 				

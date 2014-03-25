@@ -30,8 +30,6 @@ package org.bigbluebutton.modules.phone.managers {
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.phone.PhoneOptions;
-	import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
-	import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
 
 	public class PhoneManager {		
     private static const LOG:String = "Phone::PhoneManager - ";

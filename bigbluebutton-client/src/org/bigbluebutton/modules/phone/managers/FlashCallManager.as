@@ -10,11 +10,11 @@
   import org.bigbluebutton.modules.phone.PhoneOptions;
   import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
   import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
-  import org.bigbluebutton.modules.phone.events.FlashErrorEvent;
   import org.bigbluebutton.modules.phone.events.FlashEchoTestHasAudioEvent;
   import org.bigbluebutton.modules.phone.events.FlashEchoTestNoAudioEvent;
   import org.bigbluebutton.modules.phone.events.FlashEchoTestStartedEvent;
   import org.bigbluebutton.modules.phone.events.FlashEchoTestStoppedEvent;
+  import org.bigbluebutton.modules.phone.events.FlashErrorEvent;
   import org.bigbluebutton.modules.phone.events.FlashJoinVoiceConferenceCommand;
   import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
   import org.bigbluebutton.modules.phone.events.FlashLeaveVoiceConferenceCommand;
@@ -23,6 +23,8 @@
   import org.bigbluebutton.modules.phone.events.FlashStartEchoTestCommand;
   import org.bigbluebutton.modules.phone.events.FlashStopEchoTestCommand;
   import org.bigbluebutton.modules.phone.events.FlashVoiceConnectionStatusEvent;
+  import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
+  import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
 
   public class FlashCallManager
   {
@@ -79,22 +81,21 @@
     private function doEchoTest():void {
       dispatcher.dispatchEvent(new FlashMicSettingsEvent(micNames));
     }
-    
-    private function startUsingFlash():void {
-      connect();
-    }
-    
+        
     private function startCall():void {
       if (options.skipCheck || echoTestDone) {
+        trace(LOG + "Calling into voice conference. skipCheck=[" + options.skipCheck + "] echoTestDone=[" + echoTestDone + "]");
         callIntoVoiceConference();
       } else {
+        trace(LOG + "Performing echo test. echoTestDone=[" + echoTestDone + "]");
         doEchoTest();
       }      
     }
     
     private function autoJoin():void {
       if (options.autoJoin) {
-        startUsingFlash();
+        trace(LOG + "Auto joining into conference");
+        startCall();
       }      
     }
        
@@ -102,13 +103,15 @@
       if (isConnected()) {
         var destination:String = MeetingModel.getInstance().meeting.voiceConference;
         if (destination != null && destination != "") {
+          trace(LOG + "Calling into voice conference =[" + destination + "]");
           state = CALLING_INTO_CONFERENCE;
           connectionManager.doCall(destination);             
         } else {
+          trace(LOG + "Invalid voice conference [" + destination + "]");
           dispatcher.dispatchEvent(new FlashErrorEvent(FlashErrorEvent.INVALID_VOICE_DESTINATION));
         }
-     
       } else {
+        trace(LOG + "Need to connect before we can join the voice conference.");
         state = JOIN_VOICE_CONFERENCE;
         connect();
       }
@@ -118,12 +121,15 @@
       if (isConnected()) {
         var destination:String = options.echoTestApp;
         if (destination != null && destination != "") {
+          trace(LOG + "Calling into echo test =[" + destination + "]");
           state = CALLING_INTO_ECHO_TEST;
           connectionManager.doCall(destination);
         } else {
+          trace(LOG + "Invalid echo test destination [" + destination + "]");
           dispatcher.dispatchEvent(new FlashErrorEvent(FlashErrorEvent.INVALID_ECHO_TEST_DESTINATION));
         }
       } else {
+        trace(LOG + "Need to connect before we can call into echo test.");
         state = DO_ECHO_TEST;
         connect();
       }
@@ -136,7 +142,8 @@
     }
     
     public function userRequestedHangup():void {
-      
+      streamManager.stopStreams();
+      connectionManager.disconnect(true);
     }
     
     public function initialize():void {      
@@ -154,8 +161,10 @@
     }
     
     public function handleFlashStartEchoTestCommand(event:FlashStartEchoTestCommand):void {
+      trace(LOG + "handling FlashStartEchoTestCommand. mic index=[" + event.micIndex + "] name=[" + event.micName + "]");
       useMicIndex = event.micIndex;
       useMicName = event.micName;
+      trace(LOG + "Setting up preferred micriphone.");
       streamManager.usePreferredMic(event.micIndex, event.micName);
       callIntoEchoTest();
     }
@@ -180,16 +189,21 @@
     }
     
     public function handleFlashCallConnectedEvent(event:FlashCallConnectedEvent):void {
+      
       switch (state) {
         case CALLING_INTO_CONFERENCE:
+          trace(LOG + "Successfully joined the voice conference.");
           state = IN_CONFERENCE;
           dispatcher.dispatchEvent(new FlashJoinedVoiceConferenceEvent());
-          streamManager.callConnected(event.publishStreamName, event.playStreamName, event.codec);
+          streamManager.callConnected(event.playStreamName, event.publishStreamName, event.codec);
           break;
         case CALLING_INTO_ECHO_TEST:
           state = IN_ECHO_TEST;
+          trace(LOG + "Successfully call into the echo test application.  [" + event.publishStreamName + "] : [" + event.playStreamName + "] : [" + event.codec + "]");
+          streamManager.callConnected(event.playStreamName, event.publishStreamName, event.codec);
+          
+          trace(LOG + "Successfully call into the echo test application.");
           dispatcher.dispatchEvent(new FlashEchoTestStartedEvent());
-          streamManager.callConnected(event.publishStreamName, event.playStreamName, event.codec);
           break;
       }      
     }
@@ -207,15 +221,16 @@
       }
     }
     
-    public function handleFlashJoinVoiceConferenceCommand(event:FlashJoinVoiceConferenceCommand):void {
-      callIntoVoiceConference();
+    public function handleJoinVoiceConferenceCommand(event:JoinVoiceConferenceCommand):void {
+      startCall();
     }
     
-    public function handleFlashLeaveVoiceConferenceCommand(event:FlashLeaveVoiceConferenceCommand):void {
+    public function handleLeaveVoiceConferenceCommand(event:LeaveVoiceConferenceCommand):void {
       hangup();
     }
     
     public function handleFlashVoiceConnectionStatusEvent(event:FlashVoiceConnectionStatusEvent):void {
+      trace(LOG + "Connection status event. status=[" + event.status + "]");
       if (event.status == FlashVoiceConnectionStatusEvent.CONNECTED) {
         switch (state) {
           case JOIN_VOICE_CONFERENCE:

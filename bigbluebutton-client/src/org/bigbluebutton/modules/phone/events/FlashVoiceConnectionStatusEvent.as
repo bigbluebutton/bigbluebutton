@@ -4,6 +4,8 @@ package org.bigbluebutton.modules.phone.events
   
   public class FlashVoiceConnectionStatusEvent extends Event
   {
+    public static const CONN_STATUS:String = "flash voice connection status event";
+    
     public static const CONNECTED:String = "flash voice connection status connected event";
     public static const DISCONNECTED:String = "flash voice connection status disconnected event";
     public static const FAILED:String = "flash voice connection status failed event";
@@ -13,7 +15,7 @@ package org.bigbluebutton.modules.phone.events
     
     public function FlashVoiceConnectionStatusEvent(connStatus:String)
     {
-      super(type, true, false);
+      super(CONN_STATUS, true, false);
       status = connStatus;
     }
   }

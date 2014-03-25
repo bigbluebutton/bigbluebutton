@@ -1,12 +1,9 @@
 package org.bigbluebutton.modules.phone.managers
 {
-  import com.asfusion.mate.events.Dispatcher;
-  
-  import flash.external.ExternalInterface;
-  
+  import com.asfusion.mate.events.Dispatcher;  
+  import flash.external.ExternalInterface;  
   import org.bigbluebutton.main.api.JSAPI;
   import org.bigbluebutton.modules.phone.PhoneOptions;
-  import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
   import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
   import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
   import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionEvent;
