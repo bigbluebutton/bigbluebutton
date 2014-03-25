@@ -17,7 +17,7 @@ package org.bigbluebutton.modules.videoconf.views
 
         public function UserGraphic() {
             _background = new Canvas();
-            _background.setStyle("backgroundColor","red");
+            _background.setStyle("backgroundColor","white");
             _background.setStyle("borderStyle","solid");
             _background.setStyle("borderColor","#000000");
             _background.setStyle("borderThickness","1");
@@ -34,36 +34,33 @@ package org.bigbluebutton.modules.videoconf.views
         protected function setOriginalDimensions(width:Number, height:Number):void {
             _origWidth = width;
             _origHeight = height;
+            invalidateDisplayList();
         }
 
         public function get aspectRatio():Number {
             return _origWidth / _origHeight;
         }
 
-        private var _previousUnscaledWidth:Number;
-        private var _previousUnscaledHeight:Number;
         private var _object_x:Number;
         private var _object_y:Number;
 
         protected function resetGraphicDimensions(object:DisplayObject, unscaledWidth:Number, unscaledHeight:Number):void {
-//            if (_previousUnscaledWidth != unscaledWidth || _previousUnscaledHeight != unscaledHeight) {
-//                trace("=============> updateDisplayList " + unscaledWidth + " " + unscaledHeight);
-                if (unscaledWidth / unscaledHeight > aspectRatio) {
-                    object.height = unscaledHeight;
-                    object.width = Math.ceil(unscaledHeight * aspectRatio);
-                    _object_y = 0;
-                    _object_x = Math.ceil((unscaledWidth - object.width) / 2);
-                } else {
-                    object.width = unscaledWidth;
-                    object.height = Math.ceil(unscaledWidth / aspectRatio);
-                    _object_x = 0;
-                    _object_y = Math.ceil((unscaledHeight - object.height) / 2);
-                }
-                _previousUnscaledWidth = unscaledWidth;
-                _previousUnscaledHeight = unscaledHeight;
-                object.x = _object_x;
-                object.y = _object_y;
-//            }
+            if (unscaledWidth / unscaledHeight > aspectRatio) {
+                object.height = unscaledHeight;
+                object.width = Math.ceil(unscaledHeight * aspectRatio);
+                _object_y = 0;
+                _object_x = Math.ceil((unscaledWidth - object.width) / 2);
+            } else {
+                object.width = unscaledWidth;
+                object.height = Math.ceil(unscaledWidth / aspectRatio);
+                _object_x = 0;
+                _object_y = Math.ceil((unscaledHeight - object.height) / 2);
+            }
+            object.x = _object_x;
+            object.y = _object_y;
+
+            _background.width = unscaledWidth;
+            _background.height = unscaledHeight;
         }
 
         public function set user(value:BBBUser):void {

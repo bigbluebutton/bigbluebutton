@@ -101,27 +101,7 @@ package org.bigbluebutton.modules.videoconf.views
 
             updateDisplayListHelper();
         }
-/*
-        override protected function measure():void {
-            super.measure();
 
-            updateDisplayListHelper();
-        }
-*/
-/*
-        override public function validateSize(recursive:Boolean = false):void {
-            super.validateSize(recursive);
-
-            updateDisplayListHelper();
-        }
-*/
-/*
-        override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
-            super.updateDisplayList(unscaledWidth, unscaledHeight);
-
-            updateDisplayListHelper();
-        }
-*/
         public function removeGraphicsFor(userId:String):void {
             trace("[GraphicsWrapper:removeGraphicsFor] userId " + userId);
             for (var i:int = 0; i < numChildren; ++i) {

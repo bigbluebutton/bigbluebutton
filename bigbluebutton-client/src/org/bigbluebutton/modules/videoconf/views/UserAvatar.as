@@ -25,9 +25,8 @@ package org.bigbluebutton.modules.videoconf.views
       }
 
       private function onLoadingComplete(event:Event):void {
-//          trace("=============> onLoadingComplete " + _imageLoader.width + " " + _imageLoader.height);
-          setOriginalDimensions(_imageLoader.width, _imageLoader.height);
           _completed = true;
+          setOriginalDimensions(_imageLoader.width, _imageLoader.height);
       }
 
       override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
