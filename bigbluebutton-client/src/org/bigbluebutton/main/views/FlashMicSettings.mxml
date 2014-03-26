@@ -133,8 +133,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             break;
           case "Microphone.Unmuted":         
             trace(LOG + "Access to the microphone has been allowed.");
-            mic.setLoopBack(true);
-            mic.setUseEchoSuppression(true);   
+            // Comment these next 2-lines. We don't want the user hearing audio
+            // while testing mic levels. (richard mar 26, 2014)
+            // mic.setLoopBack(true);
+            // mic.setUseEchoSuppression(true);   
             //http://stackoverflow.com/questions/2936925/no-mic-activity-with-setloopback-set-to-false-as3
             //http://groups.yahoo.com/neo/groups/flexcoders/conversations/topics/144047
             mic.gain = micRecordVolume.value;
@@ -205,9 +207,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handleFlashEchoTestStoppedEvent(event:FlashEchoTestStoppedEvent):void {
         doingEchoTest = false;
         comboMicList.enabled = true;
+        echoTestButton.enabled = true;
       }
       
       private function handleFlashEchoTestStartedEvent(event:FlashEchoTestStartedEvent):void {
+        echoTestButton.enabled = false;
         showEchoTestAudioPrompt();
       }
       
@@ -216,13 +220,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function echoTestButtonClickHandler():void {
-        if (echoTestButton.selected) {
-          comboMicList.enabled = false;
-          doingEchoTest = true;          
-          dispatchEvent(new FlashStartEchoTestCommand(mic.index, mic.name));	
-        } else {          
-          stopEchoTest();
-        }
+        echoTestButton.enabled = false;
+        comboMicList.enabled = false;
+        doingEchoTest = true;          
+        dispatchEvent(new FlashStartEchoTestCommand(mic.index, mic.name));	
       }
       					
 			private function onCancelClicked():void {        
@@ -269,10 +270,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function noButtonClicked():void {
         trace(LOG + "Echo test failed.");
-        stopEchoTest();
+        dispatchEvent(new FlashEchoTestNoAudioEvent());
         setupForMicLoopbackTest();
       }
-      
+            
       private function flashMicSettingsCreated():void {        
         trace(LOG + "Available microphones: " + microphoneList);         
         testMicrophoneLoopback();				         
@@ -358,7 +359,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <mx:Spacer height="10"/>
         <mx:HBox width="100%" horizontalAlign="right" horizontalGap="18">
           <mx:Button id="echoTestButton" label="Echo Test" 
-                 click="echoTestButtonClickHandler()" toggle="true" styleName="micSettingsWindowPlaySoundButtonStyle"
+                 click="echoTestButtonClickHandler()" styleName="micSettingsWindowPlaySoundButtonStyle"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound.toolTip')}"/>
           <mx:Button id="playButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound')}" 
                  click="playButtonClickHandler()" toggle="true" styleName="micSettingsWindowPlaySoundButtonStyle"

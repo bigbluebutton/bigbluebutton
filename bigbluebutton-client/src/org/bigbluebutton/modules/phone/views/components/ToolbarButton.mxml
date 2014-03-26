@@ -32,8 +32,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{WebRtcCallConnectedEvent.WEBRTC_CALL_CONNECTED}" method="handleWebRtcCallConnectedEvent" />
   <mate:Listener type="{WebRtcCallDisconnectedEvent.WEBRTC_CALL_DISCONNECTED}" method="handleWebRtcCallDisconnectedEvent" />
   
-  
-  
 	<mx:Script>
 		<![CDATA[
       import com.asfusion.mate.events.Dispatcher;     

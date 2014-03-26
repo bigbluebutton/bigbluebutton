@@ -29,13 +29,13 @@
     private static const LOG:String = "Phone::FlashCallManager - ";   
     
     private static const INITED:String = "initialized state";
-    private static const CONNECTED:String = "connected state";
     private static const DO_ECHO_TEST:String = "do echo test state";
     private static const CALLING_INTO_ECHO_TEST:String = "calling into echo test state";
     private static const IN_ECHO_TEST:String = "in echo test state";
     private static const JOIN_VOICE_CONFERENCE:String = "join voice conference state";
     private static const CALLING_INTO_CONFERENCE:String = "calling into conference state";
     private static const IN_CONFERENCE:String = "in conference state";
+    private static const STOP_ECHO_THEN_JOIN_CONF:String = "stop echo then join conf state";
     
     private var state:String = INITED;
     
@@ -117,7 +117,7 @@
         connect();
       }
     }
-    
+        
     private function callIntoEchoTest():void {
       if (isConnected()) {
         var destination:String = options.echoTestApp;
@@ -163,6 +163,11 @@
       connectionManager.doHangUp();
     }
     
+    private function hangupEchoThenJoinVoiceConference():void {
+      state = STOP_ECHO_THEN_JOIN_CONF;
+      hangup();
+    }
+    
     public function handleFlashStartEchoTestCommand(event:FlashStartEchoTestCommand):void {
       trace(LOG + "handling FlashStartEchoTestCommand. mic index=[" + event.micIndex + "] name=[" + event.micName + "]");
       useMicIndex = event.micIndex;
@@ -175,17 +180,18 @@
     public function handleFlashStopEchoTestCommand(event:FlashStopEchoTestCommand):void {
       trace(LOG + "handling FlashStopEchoTestCommand.");
       if (state == IN_ECHO_TEST) {
-        hangup();
+         hangup();
       }      
     }
     
     public function handleFlashEchoTestHasAudioEvent(event:FlashEchoTestHasAudioEvent):void {
       trace(LOG + "handling handleFlashEchoTestHasAudioEvent.");
       if (state == IN_ECHO_TEST) {
-        hangup();
+        hangupEchoThenJoinVoiceConference();
+      } else {
+        callIntoVoiceConference();
       }
-      echoTestDone = true;
-      callIntoVoiceConference();
+      echoTestDone = true;      
     }
     
     public function handleFlashEchoTestNoAudioEvent(event:FlashEchoTestNoAudioEvent):void {
@@ -227,6 +233,11 @@
           state = INITED;
           trace(LOG + "Flash echo test stopped.");
           dispatcher.dispatchEvent(new FlashEchoTestStoppedEvent());
+          break;
+        case STOP_ECHO_THEN_JOIN_CONF:
+          trace(LOG + "Flash echo test stopped.");
+          dispatcher.dispatchEvent(new FlashEchoTestStoppedEvent());
+          callIntoVoiceConference();
           break;
       }
     }
