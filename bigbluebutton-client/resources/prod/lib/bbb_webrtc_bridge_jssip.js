@@ -1,5 +1,4 @@
 
-
 var bbbAudioConference;
 var currentSession;
 
@@ -26,7 +25,7 @@ function webrtc_call(username, voiceBridge, server, callback) {
     console.log("user " + username + " calling to " +  voiceBridge);
     
     var configuration = {
-         uri: 'sip:' + username + '@' + server,
+         uri: 'sip:' + escape(username) + '@' + server,
       //   password: freeswitchPassword,
       //   ws_servers: 'wss://' + server + ':7443',
          ws_servers: 'ws://' + server + ':5066',         

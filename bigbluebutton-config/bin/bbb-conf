@@ -154,8 +154,6 @@ usage() {
         echo "   --version                        Display BigBlueButton version (packages)"
         echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
 	echo "   --setsecret <secret>             Change the shared secret in bigbluebutton.properties"
-        echo "   --enablewebrtc                   Enables webrtc feature in the server"
-        echo "   --disablewebrtc                  Disables webrtc feature in the server"
         echo
         echo "Monitoring:"
         echo "   --check                          Check configuration files and processes for problems"
@@ -563,7 +561,7 @@ fi
 
 #
 # Set Security Salt
-# - XXX
+# - Legacy
 #
 
 if [ $SALT ]; then
@@ -577,7 +575,6 @@ fi
 # Setup samba
 #
 
-echo "##$CLEAN##"
 if [ $SAMBA ]; then
 	check_root
 
@@ -1201,9 +1198,9 @@ if [ $CHECK ]; then
 	echo "  		Port test (tunnel): $PORT_IP"
 
 	RED5_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp:\/\///;s/\/.*//;p}')
-	WEBRTC_ENABLED_CLIENT=$(grep -i webrtc /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
+	WEBRTC_ENABLED_CLIENT=$(grep -i useWebrtcIfAvailable /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
 	echo "                              Red5: $RED5_IP"
-	echo "                    webrtc enabled: $WEBRTC_ENABLED_CLIENT"
+	echo "              useWebrtcIfAvailable: $WEBRTC_ENABLED_CLIENT"
 
 	WEBRTC_SOCKET=$(sudo cat /opt/freeswitch/conf/sip_profiles/external.xml | sed -n '/ws-binding/{s/.*value="://;s/".*//;p}')
 	echo
