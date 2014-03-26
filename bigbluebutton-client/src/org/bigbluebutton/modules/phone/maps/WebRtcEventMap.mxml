@@ -29,7 +29,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
       import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
       import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
-      import org.bigbluebutton.modules.phone.events.UseFlashModeEvent;
+      import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
       import org.bigbluebutton.modules.phone.events.WebRtcCallStartedEvent;
       import org.bigbluebutton.modules.phone.events.WebRtcConfCallEndedEvent;
       import org.bigbluebutton.modules.phone.events.WebRtcConfCallStartedEvent;
@@ -66,8 +66,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{WebRtcCallManager}" method="handleWebRtcEchoTestNoAudioEvent"/>
   </EventHandlers> 
   
-  <EventHandlers type="{UseFlashModeEvent.USE_FLASH_MODE}">        
-    <MethodInvoker generator="{WebRtcCallManager}" method="handleUseFlashModeEvent"/>
+  <EventHandlers type="{UseFlashModeCommand.USE_FLASH_MODE}">        
+    <MethodInvoker generator="{WebRtcCallManager}" method="handleUseFlashModeCommand"/>
   </EventHandlers>   
   
   <EventHandlers type="{WebRtcUserChangedMicEvent.WEBRTC_USER_CHANGED_MIC}">        

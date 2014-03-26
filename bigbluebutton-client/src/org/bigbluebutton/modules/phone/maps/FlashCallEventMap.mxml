@@ -38,7 +38,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
       import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
       import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;
-      import org.bigbluebutton.modules.phone.events.UseFlashModeEvent;
+      import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
       import org.bigbluebutton.modules.phone.managers.FlashCallManager;
 		]]>
 	</mx:Script>
@@ -95,6 +95,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <EventHandlers type="{LeaveVoiceConferenceCommand.LEAVE_VOICE_CONF}">        
     <MethodInvoker generator="{FlashCallManager}" method="handleLeaveVoiceConferenceCommand" arguments="{event}"/>
+  </EventHandlers>   
+  
+  <EventHandlers type="{UseFlashModeCommand.USE_FLASH_MODE}">        
+    <MethodInvoker generator="{FlashCallManager}" method="handleUseFlashModeCommand"/>
   </EventHandlers>   
   
 </EventMap>

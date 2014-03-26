@@ -36,6 +36,7 @@ package org.bigbluebutton.modules.phone.managers
     public function initialize():void {         
       options = new PhoneOptions();
       if (options.useWebrtcIfAvailable && isWebRtcSupported()) {
+        usingWebRtc = true;
         startWebRtcEchoTest();
         askMicPermission();        
       }
@@ -94,6 +95,8 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     public function handleJoinVoiceConferenceCommand():void {
+      if (!usingWebRtc) return;
+      
       if (echoTestDone) {
         joinVoiceConference();
       } else {
@@ -102,7 +105,13 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     public function handleLeaveVoiceConferenceCommand():void {
+      if (!usingWebRtc) return;
+      
       ExternalInterface.call("leaveWebRtcVoiceConference");
+    }
+    
+    public function handleUseFlashModeCommand():void {
+      usingWebRtc = false;
     }
   }
 }

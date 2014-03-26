@@ -1,10 +1,8 @@
  package org.bigbluebutton.modules.phone.managers
 {
-  import com.asfusion.mate.events.Dispatcher;
-  
+  import com.asfusion.mate.events.Dispatcher;  
   import flash.external.ExternalInterface;
-  import flash.media.Microphone;
-  
+  import flash.media.Microphone;  
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.model.MeetingModel;
   import org.bigbluebutton.modules.phone.PhoneOptions;
@@ -28,7 +26,7 @@
 
   public class FlashCallManager
   {
-    private static const LOG:String = "Phone::FlashCallManager - ";
+    private static const LOG:String = "Phone::FlashCallManager - ";   
     
     private static const INITED:String = "initialized state";
     private static const CONNECTED:String = "connected state";
@@ -51,6 +49,8 @@
     
     private var useMicIndex:int = -1;
     private var useMicName:String = "unknown";
+    
+    private var usingFlash:Boolean = false;
     
     public function FlashCallManager() {
       micNames = Microphone.names;
@@ -150,9 +150,10 @@
     public function initialize():void {      
       printMics();
       options = new PhoneOptions();
-      if (options.useWebrtcIfAvailable && !isWebRtcSupported()) {
-          autoJoin();
+      if (options.useWebrtcIfAvailable && isWebRtcSupported()) {
+        usingFlash = false;
       } else {
+        usingFlash = true;
         autoJoin();
       }
     }
@@ -252,6 +253,10 @@
             break;
         }
       }
+    }
+    
+    public function handleUseFlashModeCommand():void {
+      usingFlash = false;
     }
   }
 }
