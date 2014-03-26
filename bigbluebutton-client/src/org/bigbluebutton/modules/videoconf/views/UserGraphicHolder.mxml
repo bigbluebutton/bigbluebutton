@@ -147,8 +147,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 avatarVisibility = !value;
             }
 
+            private function hasPermissionToMute():Boolean {
+                return (_me || UsersUtil.amIModerator());
+            }
+
             private function onMuteBtnClick():void {
-                if (user && user.voiceJoined) {
+                if (user && user.voiceJoined && hasPermissionToMute()) {
                     var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
                     e.userid = user.voiceUserid;
                     e.mute = !user.voiceMuted;
@@ -157,12 +161,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             private function onMuteBtnMouseOver():void {
-                _rolledOverMuteBtn = true;
+                if (hasPermissionToMute()) {
+                    _rolledOverMuteBtn = true;
+                }
                 updateButtons();
             }
 
             private function onMuteBtnMouseOut():void {
-                _rolledOverMuteBtn = false;
+                if (hasPermissionToMute()) {
+                    _rolledOverMuteBtn = false;
+                }
                 updateButtons();
             }
 
