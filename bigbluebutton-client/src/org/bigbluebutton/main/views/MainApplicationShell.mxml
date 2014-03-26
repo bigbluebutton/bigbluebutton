@@ -420,7 +420,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
          
       private function handleAskMicPermissionEvent(event:WebRtcAskMicPermissionEvent):void {
-        showEarbudsHeadsetRequired();
+ //       showEarbudsHeadsetRequired();
         
         var browser:String = event.browser;
         if (browser == "Firefox") {

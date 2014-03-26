@@ -243,11 +243,15 @@
     }
     
     public function handleJoinVoiceConferenceCommand(event:JoinVoiceConferenceCommand):void {
+      if (!usingFlash) return;
+      
       trace(LOG + "handling JoinVoiceConferenceCommand.");
       startCall();
     }
     
     public function handleLeaveVoiceConferenceCommand(event:LeaveVoiceConferenceCommand):void {
+      if (!usingFlash) return;
+      
       trace(LOG + "handling LeaveVoiceConferenceCommand.");
       hangup();
     }
@@ -268,6 +272,7 @@
     
     public function handleUseFlashModeCommand():void {
       usingFlash = false;
+      startCall();
     }
   }
 }
