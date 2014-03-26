@@ -15,7 +15,7 @@ package org.bigbluebutton.modules.videoconf.views
         protected var _origHeight:Number = 240;
         protected var _background:Canvas;
 
-        protected const BORDER_THICKNESS:int = 1;
+        protected const BORDER_THICKNESS:int = 0;
 
         public function UserGraphic() {
             _background = new Canvas();
