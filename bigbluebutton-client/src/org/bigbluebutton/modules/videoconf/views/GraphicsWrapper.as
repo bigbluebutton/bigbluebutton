@@ -1,24 +1,28 @@
 package org.bigbluebutton.modules.videoconf.views
 {
     import flash.display.DisplayObject;
-    import flash.utils.*;
+    import flash.net.NetConnection;
     import mx.containers.Canvas;
     import mx.core.UIComponent;
+    import mx.events.FlexEvent;
 
+    import org.bigbluebutton.core.UsersUtil;
+    import org.bigbluebutton.core.model.VideoProfile;
     import org.bigbluebutton.main.model.users.BBBUser;
+    import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
     import org.bigbluebutton.modules.videoconf.views.UserGraphicHolder;
 
     public class GraphicsWrapper extends Canvas {
 
-        public function GraphicsWrapper() {
+        private var _options:VideoConfOptions = new VideoConfOptions();
 
+        public function GraphicsWrapper() {
+            percentWidth = percentHeight = 100;
         }
 
         override public function addChild(child:DisplayObject):DisplayObject {
-            if (getQualifiedClassName(child) != "org.bigbluebutton.modules.videoconf.views::UserGraphicHolder") {
-                throw("Adding to GraphicsWrapper an invalid UIComponent: " + getQualifiedClassName(child));
-            }
-            return super.addChild(child);
+            throw("You should add the helper functions to add children to this Canvas: addAvatarFor, addVideoFor, addCameraFor");
+            return null;
         }
 
         private function get minContentAspectRatio():Number {
@@ -88,11 +92,20 @@ package org.bigbluebutton.modules.videoconf.views
             var blockY:int = Math.floor((height - cellHeight * numRows) / 2);
 
             for (var i:int = 0; i < numChildren; ++i) {
-                var item:DisplayObject = getChildAt(i);
-                item.width = cellWidth;
-                item.height = cellHeight;
-                item.x = (i % numColumns) * cellWidth + blockX;
-                item.y = Math.floor(i / numColumns) * cellHeight + blockY;
+                var item:UserGraphicHolder = getChildAt(i) as UserGraphicHolder;
+                var cellOffsetX:int = 0;
+                var cellOffsetY:int = 0;
+                if (item.contentAspectRatio > cellAspectRatio) {
+                    item.width = cellWidth;
+                    item.height = Math.floor(cellWidth / item.contentAspectRatio);
+                    cellOffsetY = (cellHeight - item.height) / 2;
+                } else {
+                    item.width = Math.floor(cellHeight * item.contentAspectRatio);
+                    item.height = cellHeight;
+                    cellOffsetX = (cellWidth - item.width) / 2;
+                }
+                item.x = (i % numColumns) * cellWidth + blockX + cellOffsetX;
+                item.y = Math.floor(i / numColumns) * cellHeight + blockY + cellOffsetY;
             }
         }
 
@@ -100,6 +113,36 @@ package org.bigbluebutton.modules.videoconf.views
             super.validateDisplayList();
 
             updateDisplayListHelper();
+        }
+
+        public function addAvatarFor(userId:String):void {
+            if (! UsersUtil.hasUser(userId)) return;
+
+            var graphic:UserGraphicHolder = new UserGraphicHolder();
+            graphic.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
+                graphic.loadAvatar(UsersUtil.getUser(userId), _options);
+            });
+            super.addChild(graphic);
+        }
+
+        public function addVideoFor(userId:String, connection:NetConnection, streamName:String):void {
+            if (! UsersUtil.hasUser(userId)) return;
+
+            var graphic:UserGraphicHolder = new UserGraphicHolder();
+            graphic.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
+                graphic.loadVideo(UsersUtil.getUser(userId), _options, connection, streamName);
+            });
+            super.addChild(graphic);
+        }
+
+        public function addCameraFor(userId:String, camIndex:int, videoProfile:VideoProfile):void {
+            if (! UsersUtil.hasUser(userId)) return;
+
+            var graphic:UserGraphicHolder = new UserGraphicHolder();
+            graphic.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
+                graphic.loadCamera(UsersUtil.getUser(userId), _options, camIndex, videoProfile);
+            });
+            super.addChild(graphic);
         }
 
         public function removeGraphicsFor(userId:String):void {
