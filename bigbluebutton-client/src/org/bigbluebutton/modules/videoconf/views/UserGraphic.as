@@ -15,12 +15,14 @@ package org.bigbluebutton.modules.videoconf.views
         protected var _origHeight:Number = 240;
         protected var _background:Canvas;
 
+        protected const BORDER_THICKNESS:int = 1;
+
         public function UserGraphic() {
             _background = new Canvas();
-            _background.setStyle("backgroundColor","white");
-            _background.setStyle("borderStyle","solid");
-            _background.setStyle("borderColor","#000000");
-            _background.setStyle("borderThickness","1");
+            _background.setStyle("backgroundColor", "white");
+            _background.setStyle("borderStyle", "solid");
+            _background.setStyle("borderColor", "#000000");
+            _background.setStyle("borderThickness", BORDER_THICKNESS);
             addChild(_background);
         }
 
@@ -45,22 +47,25 @@ package org.bigbluebutton.modules.videoconf.views
         private var _object_y:Number;
 
         protected function resetGraphicDimensions(object:DisplayObject, unscaledWidth:Number, unscaledHeight:Number):void {
+            unscaledHeight -= BORDER_THICKNESS * 2;
+            unscaledWidth -= BORDER_THICKNESS * 2;
+
             if (unscaledWidth / unscaledHeight > aspectRatio) {
                 object.height = unscaledHeight;
-                object.width = Math.ceil(unscaledHeight * aspectRatio);
-                _object_y = 0;
-                _object_x = Math.ceil((unscaledWidth - object.width) / 2);
+                object.width = Math.floor(unscaledHeight * aspectRatio);
+                _object_y = BORDER_THICKNESS;
+                _object_x = Math.floor((unscaledWidth - object.width) / 2);
             } else {
                 object.width = unscaledWidth;
-                object.height = Math.ceil(unscaledWidth / aspectRatio);
-                _object_x = 0;
-                _object_y = Math.ceil((unscaledHeight - object.height) / 2);
+                object.height = Math.floor(unscaledWidth / aspectRatio);
+                _object_x = BORDER_THICKNESS;
+                _object_y = Math.floor((unscaledHeight - object.height) / 2);
             }
             object.x = _object_x;
             object.y = _object_y;
 
-            _background.width = unscaledWidth;
-            _background.height = unscaledHeight;
+            _background.width = unscaledWidth + BORDER_THICKNESS * 2;
+            _background.height = unscaledHeight + BORDER_THICKNESS * 2;
         }
 
         public function set user(value:BBBUser):void {
