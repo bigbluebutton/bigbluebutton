@@ -33,18 +33,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     x="20"
     y="-20">
   
-  <mate:Listener type="{WebRtcRemoveAskMicPermissionEvent.REMOVE_MIC_PERMISSION}" method="handleRemoveAskMicPermissionEvent" />
+  <mate:Listener type="{FlashCallConnectedEvent.CALL_CONNECTED_EVENT}" method="handleCallConnectedEvent" />
   
 	<mx:Script>
 		<![CDATA[
       import mx.core.FlexGlobals;
-      import mx.managers.PopUpManager;      
+      import mx.managers.PopUpManager;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.BBB;
-      import org.bigbluebutton.modules.phone.events.WebRtcRemoveAskMicPermissionEvent;
+      import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 
-      private function handleRemoveAskMicPermissionEvent(e:WebRtcRemoveAskMicPermissionEvent):void {
+      private function handleCallConnectedEvent(e:FlashCallConnectedEvent):void {
         PopUpManager.removePopUp(this);
       }
 		
@@ -55,20 +55,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:Canvas width="100%">
       <mx:TextArea borderSkin="{null}"
                    editable="false"
-                   text="Firefox Microphone Permissions"
+                   text="Don't be that guy."
                    styleName="micSettingsWindowTitleStyle"
                    width="400"
                    left="0"/>
     </mx:Canvas>
     <mx:HBox width="100%">      
-      <mx:Text width="100%" text="Choose your mic and then click Share."
+      <mx:Text width="100%" text="Recommend you use a headset or earbuds. Otherwise, you will create echo."
                styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		
-      <mx:Image source="@Embed('assets/ff-share-mic.png')"/>	
-    </mx:HBox>
-    <mx:HBox width="100%">
-      <mx:Text width="100%" text="If you don't see the list of microphones, click on the camera icon."
-               styleName="micSettingsWindowHearFromHeadsetLabelStyle"/>	
-      <mx:Image source="@Embed('assets/ff-show-mic.png')"/>
+      <mx:Image source="@Embed('assets/headset-earbuds.png')"/>	
     </mx:HBox>
   </mx:VBox>		
 

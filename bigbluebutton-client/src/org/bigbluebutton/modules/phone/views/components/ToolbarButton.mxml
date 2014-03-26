@@ -27,8 +27,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent">
 
-  <mate:Listener type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}" method="handleCallDisconnectedEvent" />
-  <mate:Listener type="{CallConnectedEvent.CALL_CONNECTED_EVENT}" method="handleCallConnectedEvent" />
+  <mate:Listener type="{FlashLeftVoiceConferenceEvent.LEFT_VOICE_CONFERENCE}" method="handleFlashLeftVoiceConferenceEvent" />
+  <mate:Listener type="{FlashJoinedVoiceConferenceEvent.JOINED_VOICE_CONFERENCE}" method="handleFlashJoinedVoiceConferenceEvent" />
+  <mate:Listener type="{WebRtcCallConnectedEvent.WEBRTC_CALL_CONNECTED}" method="handleWebRtcCallConnectedEvent" />
+  <mate:Listener type="{WebRtcCallDisconnectedEvent.WEBRTC_CALL_DISCONNECTED}" method="handleWebRtcCallDisconnectedEvent" />
   
 	<mx:Script>
 		<![CDATA[
@@ -41,13 +43,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.views.MainToolbar;
       import org.bigbluebutton.modules.phone.PhoneOptions;
-      import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
-      import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
+      import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
+      import org.bigbluebutton.modules.phone.events.FlashLeftVoiceConferenceEvent;
       import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
       import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
+      import org.bigbluebutton.modules.phone.events.WebRtcCallConnectedEvent;
+      import org.bigbluebutton.modules.phone.events.WebRtcCallDisconnectedEvent;
       import org.bigbluebutton.modules.phone.views.assets.Images;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 			
+      private static const LOG:String = "Phone::ToolbarButton - ";
+      
 			private var images:Images = new Images();
 			private var dispatcher:Dispatcher = new Dispatcher();
 			private var mic:Microphone;
@@ -91,20 +97,39 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					phoneIcon = images.headsetDefaultIcon;			
 			}
 
-			public function handleCallConnectedEvent(event: CallConnectedEvent):void {
-					this.selected = true;
-					this.enabled = true;
-					_currentState = ACTIVE_STATE;
-					phoneIcon = images.headsetActiveIcon;
-					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');	
+      private function onUserJoinedConference():void {
+        this.selected = true;
+        this.enabled = true;
+        _currentState = ACTIVE_STATE;
+        phoneIcon = images.headsetActiveIcon;
+        this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');	        
+      }
+      
+      private function onUserLeftConference():void {
+        this.selected = false;
+        this.enabled = true;
+        _currentState = DEFAULT_STATE;
+        phoneIcon = images.headsetDefaultIcon;
+        this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');        
+      }
+      
+      private function handleFlashJoinedVoiceConferenceEvent(event:FlashJoinedVoiceConferenceEvent):void {
+        trace(LOG + "User has left the conference using flash");
+        onUserJoinedConference();
+      }
+      
+      private function handleFlashLeftVoiceConferenceEvent(event:FlashLeftVoiceConferenceEvent):void {
+        onUserLeftConference();
+      }
+      
+      private function handleWebRtcCallConnectedEvent(event: WebRtcCallConnectedEvent):void {
+        trace(LOG + "User has joined the conference using webrtc");
+        onUserJoinedConference();
 			}
 						
-			private function handleCallDisconnectedEvent(event:CallDisconnectedEvent):void {
-				this.selected = false;
-				this.enabled = true;
-				_currentState = DEFAULT_STATE;
-				phoneIcon = images.headsetDefaultIcon;
-				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
+			private function handleWebRtcCallDisconnectedEvent(event:WebRtcCallDisconnectedEvent):void {
+        trace(LOG + "User has left the conference using webrtc");
+        onUserLeftConference();
 			}
 				
 			//For whatever reason the tooltip does not update when localization is changed dynamically. Overrideing it here

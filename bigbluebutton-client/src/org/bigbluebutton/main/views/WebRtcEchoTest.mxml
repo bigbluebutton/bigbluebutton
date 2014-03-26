@@ -19,7 +19,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="500" height="240" 
+				width="600" height="350" 
 				creationComplete="onCreationComplete()" 
 				styleName="micSettingsWindowStyle"
 				showCloseButton="false" 
@@ -99,6 +99,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                      click="onHelpButtonClicked()"
                      accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
     </mx:Canvas>
+    <mx:HBox width="100%">
+      <mx:Text width="100%" text="Recommend you use a headset or earbuds. Otherwise, you will create echo."
+               styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		
+      <mx:Image source="@Embed('assets/headset-earbuds.png')"/>          
+    </mx:HBox>
     <mx:HBox width="100%">      
       <mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakIntoMic')}"
                styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		
