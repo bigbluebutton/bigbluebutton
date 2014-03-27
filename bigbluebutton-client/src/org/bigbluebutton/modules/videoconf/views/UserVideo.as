@@ -23,7 +23,7 @@ package org.bigbluebutton.modules.videoconf.views
   public class UserVideo extends UserGraphic {
 
     protected var _camera:Camera;
-    protected var _camIndex:int;
+    protected var _camIndex:int = -1;
 
     protected var _ns:NetStream;
 
@@ -126,17 +126,16 @@ package org.bigbluebutton.modules.videoconf.views
     private function stopViewing():void {
       var stopEvent:StoppedViewingWebcamEvent = new StoppedViewingWebcamEvent();
       stopEvent.webcamUserID = user.userID;
+      stopEvent.streamName = _streamName;
       _dispatcher.dispatchEvent(stopEvent); 
-      _user.viewingStream = false;
+      user.removeViewingStream(_streamName);
     }
 
     private function stopPublishing():void {
       var e:StopBroadcastEvent = new StopBroadcastEvent();
       e.stream = _streamName;
+      e.camId = _camIndex;
       _dispatcher.dispatchEvent(e);
-
-      trace("Dispatching ClosePublishWindowEvent event");
-      _dispatcher.dispatchEvent(new ClosePublishWindowEvent());
     }
 
     public function view(connection:NetConnection, streamName:String):void {
@@ -177,7 +176,7 @@ package org.bigbluebutton.modules.videoconf.views
       _ns.play(streamName);
       addChild(_video);
 
-      user.viewingStream = true;
+      user.addViewingStream(streamName);
     }
 
     private function onNetStatus(e:NetStatusEvent):void{
@@ -213,5 +212,12 @@ package org.bigbluebutton.modules.videoconf.views
         }
     }
 
+     public function get camIndex():int {
+      return _camIndex;
+    }
+
+     public function get streamName():String {
+      return _streamName;
+    }
   }
 }

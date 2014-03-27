@@ -60,6 +60,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             private var _me:Boolean = false;
             private var _dispatcher:Dispatcher = new Dispatcher();
             private var _images:Images = new Images();
+            private var _user:BBBUser = null;
 
             private const TITLE_BACKGROUND_TALKING:uint = 0x20c600;
             private const TITLE_BACKGROUND_NOT_TALKING:uint = 0x42444c;
@@ -74,8 +75,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             protected function onCreationComplete():void {
             }
 
-            public function loadAvatar(user:BBBUser, options:VideoConfOptions):void {
-                avatar.user = user;
+            public function set userId(value:String):void {
+                _user = UsersUtil.getUser(value);
+            }
+
+            public function loadAvatar(options:VideoConfOptions):void {
+                avatar.user = _user;
                 avatar.options = options;
                 avatar.load(UsersUtil.getAvatarURL());
 
@@ -83,8 +88,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 setUserProperties();
             }
 
-            public function loadCamera(user:BBBUser, options:VideoConfOptions, camIndex:int, videoProfile:VideoProfile):void {
-                video.user = user;
+            public function loadCamera(options:VideoConfOptions, camIndex:int, videoProfile:VideoProfile):void {
+                video.user = _user;
                 video.options = options;
                 video.publish(camIndex, videoProfile);
 
@@ -92,8 +97,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 setUserProperties();
             }
 
-            public function loadVideo(user:BBBUser, options:VideoConfOptions, connection:NetConnection, streamName:String):void {
-                video.user = user;
+            public function loadVideo(options:VideoConfOptions, connection:NetConnection, streamName:String):void {
+                video.user = _user;
                 video.options = options;
                 video.view(connection, streamName);
 
@@ -108,7 +113,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 updateButtons();
             }
 
-            private function get visibleComponent():UserGraphic {
+            public function get visibleComponent():UserGraphic {
                 if (avatar.visible) {
                     return avatar;
                 } else if (video.visible) {
@@ -127,14 +132,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             public function get user():BBBUser {
-                if (visibleComponent) {
-                    return visibleComponent.user;
-                } else {
-                    return null;
-                }
+                return _user;
             }
 
             public function shutdown():void {
+                trace("[UserGraphicHolder:shutdown]");
                 video.shutdown();
             }
 

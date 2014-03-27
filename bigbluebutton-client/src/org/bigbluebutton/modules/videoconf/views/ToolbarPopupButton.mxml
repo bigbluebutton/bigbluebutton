@@ -20,7 +20,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{camIcon}" 
+<mx:PopUpButton xmlns:mx="http://www.adobe.com/2006/mxml" icon="{camIcon}" 
 		   xmlns:mate="http://mate.asfusion.com/"
 		   click="openPublishWindow()" creationComplete="init()" 
 		   mouseOver = "mouseOverHandler(event)"
@@ -40,12 +40,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import mx.controls.Menu;
+			import mx.collections.ArrayList;
+			import mx.events.MenuEvent;
+			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
+			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
+			import org.bigbluebutton.modules.videoconf.events.StopShareCameraRequestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
@@ -60,12 +66,35 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var _currentState:Number = OFF_STATE;
 
 			private var dispatcher:Dispatcher = new Dispatcher;
+
+			private var dp:Object = [];
+			private var dataMenu:Menu;
+			public var numberOfCamerasOff:int = 0;
 			
 			private function init():void{
+				numberOfCamerasOff = Camera.names.length;
+				for(var i:int = 0; i < Camera.names.length; i++) {
+					dp.push({label: Camera.names[i], icon: images.webcam, status: OFF_STATE});		
+				}
+	
+				dataMenu = Menu.createMenu(this, dp, false);
+				dataMenu.addEventListener("itemClick", changeHandler);
+				dataMenu.addEventListener("mouseOver", mouseOverHandler);
+				dataMenu.addEventListener("mouseOut", mouseOutHandler);
+				
+				this.popUp = dataMenu;
+				switchStateToNormal();
+			}
+
+			private function switchStateToNormal():void {
+				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
+				camIcon = images.webcam;
+				this.selected = false;
+				_currentState = OFF_STATE;
 			}
 			
 			public function set isPresenter(presenter:Boolean):void {
-				visible = presenter;
+				visible = includeInLayout = presenter;
 			}
 
 			public function remoteClick(e:ShortcutEvent):void{
@@ -73,7 +102,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatchEvent(new ShortcutEvent(ShortcutEvent.REMOTE_FOCUS_WEBCAM));
 			}
 			
-			public function publishingStatus(status:Number):void {
+			public function publishingStatus(status:Number, camID:Number = -1):void {
 				if(status == START_PUBLISHING) {
 					_currentState = ON_STATE;
 					//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop');
@@ -82,40 +111,55 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					this.selected = true;
 				}
 				else {
-					_currentState = OFF_STATE;
-					//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
-					camIcon = images.webcam;
-					this.enabled = true;
-					this.selected = false;
+					if(camID != -1) {
+						dp[camID].icon = images.webcam;
+						dp[camID].status = OFF_STATE;
+						if(numberOfCamerasOff < Camera.names.length)
+							numberOfCamerasOff++;
+						
+					}
+					if(numberOfCamerasOff == Camera.names.length) {
+						switchStateToNormal();
+					}
 				}
+				var evt:BBBEvent = new BBBEvent("EnableToolbarPopupButton");
+				dispatchEvent(evt);
+						
+				dataMenu.dataProvider = dp;
 			}
 
 
 			private function openPublishWindow():void{
+				this.enabled = false;
 				if(_currentState == ON_STATE) {
-					trace("Close window");
-					_currentState = OFF_STATE;
-					//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
-					camIcon = images.webcam;
-					this.selected = false;
-					dispatchEvent(new ClosePublishWindowEvent());				
+					trace("[ToolbarPopupButton:openPublishWindow] Close window");
+					switchStateToNormal();
+					var stopShareCameraRequestEvent:StopShareCameraRequestEvent = new StopShareCameraRequestEvent(StopShareCameraRequestEvent.STOP_SHARE_ALL_CAMERA_REQUEST);
+					dispatchEvent(stopShareCameraRequestEvent);
+					this.enabled = true;		
 				} else {
 					trace("Share camera");
+					if(numberOfCamerasOff > 0)
+						numberOfCamerasOff--;
 					_currentState = ON_STATE;
 					//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop');
 					camIcon = images.webcamOn;
 					this.selected = true;
-					dispatchEvent(new ShareCameraRequestEvent());
+					var shareCameraRequestEvent:ShareCameraRequestEvent = new ShareCameraRequestEvent();
+					shareCameraRequestEvent.camerasArray = dp;
+					dispatchEvent(shareCameraRequestEvent);
 				}
 			}
 			
 			private function handleCamSettingsClosedEvent(e:BBBEvent):void {
 				this.setFocus();
-				if(e.payload['clicked'] == "cancel"){
-					this.enabled = true;
-					this.selected = false;
-					_currentState = OFF_STATE;
-					camIcon = images.webcam;
+				this.enabled = true;
+				if(e.payload['clicked'] == "cancel") {
+					if(numberOfCamerasOff < Camera.names.length)
+						numberOfCamerasOff++;
+					if(numberOfCamerasOff == Camera.names.length) {
+						switchStateToNormal();
+					}
 				}
 			}
 
@@ -141,6 +185,47 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function theory():String{
 				return "Webcam button";
 			}
+
+			private function changeHandler(event:MenuEvent):void {
+				if(dp[event.index].status == ON_STATE) {
+					var stopShareCameraRequestEvent:StopShareCameraRequestEvent = new StopShareCameraRequestEvent();
+					stopShareCameraRequestEvent.camId = event.index;
+					dispatchEvent(stopShareCameraRequestEvent);
+				}
+				else {
+					this.enabled = false;
+					if(numberOfCamerasOff > 0)
+						numberOfCamerasOff--;
+					var shareCameraRequestEvent:ShareCameraRequestEvent = new ShareCameraRequestEvent();
+					shareCameraRequestEvent.defaultCamera = String(event.index);
+					shareCameraRequestEvent.camerasArray = dp;
+					dispatchEvent(shareCameraRequestEvent);
+				}
+			}
+
+			public function setCamAsInactive(camIndex:int):void {
+				if(camIndex != -1) {
+					dp[camIndex].icon = images.webcam;
+					dp[camIndex].status = OFF_STATE;
+					dataMenu.dataProvider = dp;
+				}
+			}
+	
+			public function setAllCamAsInactive():void {
+				numberOfCamerasOff = Camera.names.length;
+				for(var i:int = 0; i < Camera.names.length; i++) {
+					setCamAsInactive(i);
+				}
+				switchStateToNormal();
+			}
+
+			public function setCamAsActive(camIndex:int):void {
+				if(camIndex != -1) {
+					dp[camIndex].icon = images.webcamOn;
+					dp[camIndex].status = ON_STATE;
+					dataMenu.dataProvider = dp;
+				}
+			}
 		]]>
 	</mx:Script>
-</mx:Button>
+</mx:PopUpButton>

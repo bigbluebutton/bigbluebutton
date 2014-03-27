@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.videoconf.maps
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
   import org.bigbluebutton.modules.videoconf.views.AvatarWindow;
+  import mx.collections.ArrayList;
     
   public class WindowManager
   {
@@ -44,6 +45,17 @@ package org.bigbluebutton.modules.videoconf.maps
         var win:VideoWindowItf = webcamWindows.getItemAt(i) as VideoWindowItf;
         trace("[" + me + "] removeWindow:: [" + win.userID + " == " + userID + "] equal = [" + (win.userID == userID) + "]");
         if (win.userID == userID) {
+          return webcamWindows.removeItemAt(i) as VideoWindowItf;
+        }
+      }      
+      
+      return null;
+    }
+
+    public function removeWin(window:VideoWindowItf):VideoWindowItf {
+      for (var i:int = 0; i < webcamWindows.length; i++) {
+        var win:VideoWindowItf = webcamWindows.getItemAt(i) as VideoWindowItf;
+        if (win == window) {
           return webcamWindows.removeItemAt(i) as VideoWindowItf;
         }
       }      
@@ -72,6 +84,17 @@ package org.bigbluebutton.modules.videoconf.maps
       }      
       
       return null;      
+    }
+
+    public function getAllWindow(userID:String):ArrayList {
+      var windowsList:ArrayList = new ArrayList();
+      for (var i:int = 0; i < webcamWindows.length; i++) {
+        var win:VideoWindowItf = webcamWindows.getItemAt(i) as VideoWindowItf;
+        trace("[" + me + "] getWindow:: [" + win.userID + " == " + userID + "] equal = [" + (win.userID == userID) + "]");
+        if (win.userID == userID) windowsList.addItem(win);
+      }      
+      
+      return windowsList;      
     }
   }
 }

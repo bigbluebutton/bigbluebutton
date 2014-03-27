@@ -29,6 +29,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import com.asfusion.mate.events.Dispatcher;     
 		import flash.ui.Keyboard;      
 		import mx.collections.ArrayCollection;
+		import mx.collections.ArrayList;
 		import mx.events.CloseEvent;
 		import mx.events.ItemClickEvent;
 		import mx.managers.PopUpManager;     
@@ -54,6 +55,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		public var selectedVideoProfile:VideoProfile;
 		public var publishInClient:Boolean;
 		
+		public var defaultCamera:String = null;
+		public var camerasArray:Object;
+		[Bindable] private var camerasAvaiable:ArrayList = new ArrayList();
 		private var _camera:Camera = null;
 		
 		// Timer used to enable the start publishing button, only after get any activity on the camera. 
@@ -65,6 +69,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		private var _video:Video;
 		private var aspectRatio:Number = 1;
+
+		public const OFF_STATE:Number = 0;
+		public const ON_STATE:Number = 1;
 		
         [Bindable]private var baseIndex:int; 
     override public function move(x:Number, y:Number):void
@@ -75,7 +82,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		private function onCreationComplete():void {
             tabIndex = 51;
             
-			changeDefaultCamForMac();
+			if(defaultCamera != null) {
+				var indexDefault:int = 0;
+				for (var i:int = 0; i < Camera.names.length; i++){
+					if(camerasArray[i].status == OFF_STATE) {
+						var myObj:Object = {}
+						myObj.label = camerasArray[i].label;
+						myObj.index = String(i);
+						camerasAvaiable.addItem(myObj);	
+						if(myObj.index == defaultCamera)
+							indexDefault = camerasAvaiable.length-1;		
+					}
+				}
+				cmbCameraSelector.selectedIndex = indexDefault;
+				defaultCamera = null;
+			} else {
+				cmbCameraSelector.selectedIndex = 0;
+			}
 			
 			var idx:int = 0;
 			var defaultProfile:VideoProfile = BBB.defaultVideoProfile;
@@ -125,7 +148,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		private function updateCamera():void {
 			_camera = null;
 			
-			_camera = Camera.getCamera(); 
+			_camera = Camera.getCamera(camerasAvaiable.getItemAt(cmbCameraSelector.selectedIndex).index); 
+			changeDefaultCamForMac();
 			
 			if (_camera == null) {
 				_videoHolder.showWarning('bbb.video.publish.hint.cantOpenCamera');
@@ -311,10 +335,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<view:VideoHolder id="_videoHolder" width="100%" height="75%" />
         
 		<mx:HBox width="100%" height="10%" horizontalAlign="center" horizontalGap="13" paddingRight="5"> 	
-			<mx:Button id="changeCamera" styleName="cameraDisplaySettingsWindowChangeCamBtn" 
-					   label="{ResourceUtil.getInstance().getString('bbb.publishVideo.changeCameraBtn.labelText')}" 
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.changeCameraBtn.toolTip')}" 
-					   click="showCameraSettings()" tabIndex="{baseIndex+1}"/>
+			<mx:ComboBox id="cmbCameraSelector" styleName="cameraDisplaySettingsWindowCameraSelector" dataProvider="{camerasAvaiable}" width="150" visible="true" labelField="label" change="updateCamera()" tabIndex="{baseIndex+1}" height="30"/>
 			<mx:ComboBox id="cmbVideoProfile" styleName="cameraDisplaySettingsWindowProfileComboStyle" 
 						 dataProvider="{_videoProfiles}" visible="false" change="updateCamera()" tabIndex="{baseIndex+2}"
                          toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.cmbResolution.tooltip')}" height="30" />

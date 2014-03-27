@@ -79,7 +79,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var defaultHeight:Number = 240;
 			
 			
-			public var camIndex:int = 0;
+			public var camIndex:int = -1;
 			public var selectedVideoProfile:VideoProfile;
 			private var _camera:Camera = null;
 			
@@ -179,6 +179,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				updateControlButtons();
 			}
 			
+			public function getStreamName():String {
+				return this.streamName;
+			}
+			
 			private function handleUserVoiceMutedEvent(event:BBBEvent):void {
 				if (event.payload.userID ==  userID) {
 					userMuted(event.payload.muted);
@@ -206,7 +210,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					return;
 				}
 				
-				_camera = Camera.getCamera();
+				_camera = Camera.getCamera(String(camIndex));
 				if (_camera == null) {
 					showWarning('bbb.video.publish.hint.cantOpenCamera');
 					return;
@@ -338,9 +342,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (!_isClosing) {
 					_isClosing = true;
 					stopPublishing();
-					trace("Dispatching ClosePublishWindowEvent event");
-					var gDispatcher:Dispatcher = new Dispatcher();
-					gDispatcher.dispatchEvent(new ClosePublishWindowEvent());
 				}				
 			}
 			
@@ -364,6 +365,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				stopCamera();
 				var e:StopBroadcastEvent = new StopBroadcastEvent()
 				e.stream = streamName;
+				e.camId = camIndex;
 				dispatchEvent(e);
 			}
 			
@@ -371,7 +373,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				super.onResize();
 				
-				if (_videoHolder != null) {
+				if (_videoHolder != null && _video != null) {
 					
 					fitVideoToWindow();
 					
@@ -382,11 +384,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function fitVideoToWindow():void {
-				if (_videoHolder.width - PADDING_HORIZONTAL < _videoHolder.height - PADDING_VERTICAL) {
-					fitToHeightAndAdjustWidthToMaintainAspectRatio();         			
-				} else {
-					fitToWidthAndAdjustHeightToMaintainAspectRatio();	
-				}				
+				if (_video != null || _videoHolder != null) {
+					if (_videoHolder.width - PADDING_HORIZONTAL < _videoHolder.height - PADDING_VERTICAL) {
+						fitToHeightAndAdjustWidthToMaintainAspectRatio();         			
+					} else {
+						fitToWidthAndAdjustHeightToMaintainAspectRatio();	
+					}				
+				}
 			}
 			
 			private function videoIsSmallerThanWindow():Boolean {

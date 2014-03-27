@@ -53,7 +53,45 @@ package org.bigbluebutton.main.model.users
 			verifyMedia();
 		}
         
-        [Bindable] public var viewingStream:Boolean = false;
+        [Bindable] private var _viewingStream:Array = new Array();
+
+        [Bindable]
+        public function get viewingStream():Array {
+        	return _viewingStream;
+        }
+        public function set viewingStream(v:Array):void {
+            throw new Error("Please use the helpers addViewingStream or removeViewingStream to handle viewingStream");
+        }
+        public function addViewingStream(streamName:String):Boolean {
+            trace("Before adding the stream " + streamName + ": " + _viewingStream);
+            if (isViewingStream(streamName)) {
+                return false;
+            }
+
+            _viewingStream.push(streamName);
+            trace("After adding the stream " + streamName + ": " + _viewingStream);
+            return true;
+        }
+        public function removeViewingStream(streamName:String):Boolean {
+            trace("Before removing the stream " + streamName + ": " + _viewingStream);
+            if (!isViewingStream(streamName)) {
+                return false;
+            }
+
+            _viewingStream = _viewingStream.filter(function(item:*, index:int, array:Array):Boolean { return item != streamName; });
+            trace("After removing the stream " + streamName + ": " + _viewingStream);
+            return true;
+        }
+        private function isViewingStream(streamName:String):Boolean {
+            return _viewingStream.some(function(item:*, index:int, array:Array):Boolean { return item == streamName; });
+        }
+        public function isViewingAllStreams():Boolean {
+            if (streamName == null) {
+                trace("BBBUser::isViewingAllStreams streaName is null here, which is unacceptable");
+                return false;
+            }
+            return _viewingStream.length == streamName.split("|").length;
+        }
 		
 		[Bindable] public var streamName:String = "";
 		
@@ -231,7 +269,7 @@ package org.bigbluebutton.main.model.users
 			n.externUserID = user.externUserID;
 			n.name = user.name;
 			n.hasStream = user.hasStream;
-            n.viewingStream = user.viewingStream;
+            n._viewingStream = user._viewingStream;
 			n.streamName = user.streamName;
 			n.presenter = user.presenter;
 			n.raiseHand = user.raiseHand;
