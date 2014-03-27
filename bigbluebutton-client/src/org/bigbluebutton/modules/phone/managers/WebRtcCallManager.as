@@ -34,7 +34,7 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     public function userRequestedHangup():void {
-      
+      if (usingWebRtc) hangup();
     }
     
     public function initialize():void {         
@@ -51,6 +51,10 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     private function endEchoTest():void {
+      ExternalInterface.call("stopWebrtcAudioTest");
+    }
+    
+    private function hangup():void {
       ExternalInterface.call("stopWebrtcAudioTest");
     }
     
@@ -116,6 +120,7 @@ package org.bigbluebutton.modules.phone.managers
     
     public function handleUseFlashModeCommand():void {
       usingWebRtc = false;
+      hangup();
     }
   }
 }

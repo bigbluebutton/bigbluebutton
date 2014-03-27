@@ -143,8 +143,10 @@
     }
     
     public function userRequestedHangup():void {
-      streamManager.stopStreams();
-      connectionManager.disconnect(true);
+      if (usingFlash) {
+        streamManager.stopStreams();
+        connectionManager.disconnect(true);        
+      }
     }
     
     public function initialize():void {      

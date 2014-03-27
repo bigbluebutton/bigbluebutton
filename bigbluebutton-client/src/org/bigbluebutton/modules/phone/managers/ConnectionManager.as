@@ -89,7 +89,9 @@ package org.bigbluebutton.modules.phone.managers {
 
 		public function disconnect(requestByUser:Boolean):void {
       closedByUser = requestByUser;
-			netConnection.close();
+      if (netConnection != null) {
+        netConnection.close();
+      }			
 		}
 		
     private function handleConnectionClosed():void {
