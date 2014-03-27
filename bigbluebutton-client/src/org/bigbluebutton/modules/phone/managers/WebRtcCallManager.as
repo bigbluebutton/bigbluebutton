@@ -33,6 +33,10 @@ package org.bigbluebutton.modules.phone.managers
       return (ExternalInterface.available && ExternalInterface.call("isWebrtcCapable"));
     }
     
+    public function userRequestedHangup():void {
+      
+    }
+    
     public function initialize():void {         
       options = new PhoneOptions();
       if (options.useWebrtcIfAvailable && isWebRtcSupported()) {

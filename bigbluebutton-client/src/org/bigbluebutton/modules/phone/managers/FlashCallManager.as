@@ -271,7 +271,7 @@
     }
     
     public function handleUseFlashModeCommand():void {
-      usingFlash = false;
+      usingFlash = true;
       startCall();
     }
   }

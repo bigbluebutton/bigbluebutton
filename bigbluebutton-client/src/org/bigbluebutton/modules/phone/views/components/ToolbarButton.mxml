@@ -66,13 +66,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] public var phoneOptions:PhoneOptions = new PhoneOptions();
 			
 			private function startPhone():void {
+        trace(LOG + "startPhone 1 enabled=[" + enabled + "] selected=[" + selected + "]");
 				// Disable the button right away to prevent the user from clicking
 				// multiple times.
 				this.enabled = false;
-
+        trace(LOG + "startPhone 2 enabled=[" + enabled + "] selected=[" + selected + "]");
+        
 				if (this.selected) {
+          trace(LOG + "Sending Join Conference command");
           dispatcher.dispatchEvent(new JoinVoiceConferenceCommand());
 				} else {
+          trace(LOG + "Sending Leave Conference command");
           dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
 				}				
 			}
@@ -100,6 +104,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function onUserJoinedConference():void {
         this.selected = true;
         this.enabled = true;
+
+        trace(LOG + "onUserJoinedConference enabled=[" + enabled + "] selected=[" + selected + "]");
+        
         _currentState = ACTIVE_STATE;
         phoneIcon = images.headsetActiveIcon;
         this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');	        
@@ -108,17 +115,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function onUserLeftConference():void {
         this.selected = false;
         this.enabled = true;
+        trace(LOG + "onUserLeftConference enabled=[" + enabled + "] selected=[" + selected + "]");
+        
         _currentState = DEFAULT_STATE;
         phoneIcon = images.headsetDefaultIcon;
         this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');        
       }
       
       private function handleFlashJoinedVoiceConferenceEvent(event:FlashJoinedVoiceConferenceEvent):void {
-        trace(LOG + "User has left the conference using flash");
+        trace(LOG + "User has joined the conference using flash");
         onUserJoinedConference();
       }
       
       private function handleFlashLeftVoiceConferenceEvent(event:FlashLeftVoiceConferenceEvent):void {
+        trace(LOG + "User has left the conference using flash");
         onUserLeftConference();
       }
       

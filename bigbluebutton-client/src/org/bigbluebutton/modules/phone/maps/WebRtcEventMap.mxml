@@ -25,10 +25,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:mx="http://www.adobe.com/2006/mxml">
 	<mx:Script>
 		<![CDATA[
-      import mx.events.FlexEvent;     
+      import mx.events.FlexEvent;
+      
       import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
       import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
       import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
+      import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;
       import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
       import org.bigbluebutton.modules.phone.events.WebRtcCallStartedEvent;
       import org.bigbluebutton.modules.phone.events.WebRtcConfCallEndedEvent;
@@ -52,6 +54,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
   <EventHandlers type="{StartPhoneModuleEvent.START_PHONE_MODULE_EVENT}">        
     <MethodInvoker generator="{WebRtcCallManager}" method="initialize"/>
+  </EventHandlers>
+
+  <EventHandlers type="{StopPhoneModuleEvent.STOP_PHONE_MODULE_EVENT}">       
+    <MethodInvoker generator="{WebRtcCallManager}" method="userRequestedHangup"/>
   </EventHandlers>
   
   <EventHandlers type="{WebRtcCallStartedEvent.WEBRTC_CALL_STARTED}">        
