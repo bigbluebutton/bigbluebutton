@@ -1,3 +1,4 @@
+#!/usr/bin/ruby
 # Set encoding to utf-8
 # encoding: UTF-8
 

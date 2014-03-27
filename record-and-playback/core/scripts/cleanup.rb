@@ -1,3 +1,4 @@
+#!/usr/bin/ruby
 #
 # BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 #
