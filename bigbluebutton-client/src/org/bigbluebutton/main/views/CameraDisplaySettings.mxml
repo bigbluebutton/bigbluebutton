@@ -103,7 +103,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			var idx:int = 0;
 			var defaultProfile:VideoProfile = BBB.defaultVideoProfile;
 			for each (var value:VideoProfile in BBB.videoProfiles) {
-				var item:Object = {index:idx, label:value.width + "x" + value.height + " " + value.name, profile:value};
+				var item:Object = {index:idx, label:value.name, profile:value};
 				_videoProfiles.addItem(item);
 
 				if (value.id == defaultProfile.id) {
