@@ -43,6 +43,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.modules.phone.events.WebRtcCallFailedEvent;
   import org.bigbluebutton.modules.phone.events.WebRtcCallProgressEvent;
   import org.bigbluebutton.modules.phone.events.WebRtcCallStartedEvent;
+  import org.bigbluebutton.modules.phone.events.WebRtcConfCallEndedEvent;
   import org.bigbluebutton.modules.phone.events.WebRtcConfCallStartedEvent;
   import org.bigbluebutton.modules.present.events.GetListOfPresentationsRequest;
   import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
@@ -401,7 +402,7 @@ package org.bigbluebutton.main.api
 
     private function handleWebRtcConferenceCallEnded(cause:String):void {
       trace(LOG + "handleWebRtcConferenceCallEnded: cause=[" + cause + "]");
-      var disconnectedEvent:FlashCallDisconnectedEvent = new FlashCallDisconnectedEvent();
+      var disconnectedEvent:WebRtcConfCallEndedEvent = new WebRtcConfCallEndedEvent();
       _dispatcher.dispatchEvent(disconnectedEvent);
     }
     

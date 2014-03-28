@@ -193,7 +193,11 @@
       } else {
         callIntoVoiceConference();
       }
-      echoTestDone = true;      
+      /**
+      * For echo test even if user has done echo test. This way, user is able to change mics
+      * after. (richard mar 28, 2014)
+      */
+//      echoTestDone = true;      
     }
     
     public function handleFlashEchoTestNoAudioEvent(event:FlashEchoTestNoAudioEvent):void {
@@ -224,6 +228,10 @@
     }
     
     public function handleFlashCallDisconnectedEvent(event:FlashCallDisconnectedEvent):void {
+      // The connection fires a disconnected event when connection closes.
+      // Ignore if we are not joined into the conference using Flash (richard mar 28, 2014)
+      if (!usingFlash) return;
+      
       trace(LOG + "Flash call disconnected.");
       switch (state) {
         case IN_CONFERENCE:

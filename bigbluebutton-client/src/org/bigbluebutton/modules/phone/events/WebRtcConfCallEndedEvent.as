@@ -6,7 +6,7 @@ package org.bigbluebutton.modules.phone.events
   {
     public static const WEBRTC_CONF_CALL_ENDED:String = "webrtc conf call ended event";
     
-    public function WebRtcConfCallEndedEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false)
+    public function WebRtcConfCallEndedEvent()
     {
       super(WEBRTC_CONF_CALL_ENDED, true, false);
     }

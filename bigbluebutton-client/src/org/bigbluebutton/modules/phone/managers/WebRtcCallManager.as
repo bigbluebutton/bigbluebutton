@@ -83,7 +83,11 @@ package org.bigbluebutton.modules.phone.managers
     
     public function handleWebRtcEchoTestHasAudioEvent():void {
       endEchoTest();
-      echoTestDone = true;
+      /**
+       * Force echo test even if user has done echo test. This way, user is able to change mics
+       * after. (richard mar 28, 2014)
+       */
+      //echoTestDone = true;
       joinVoiceConference();
     }
     
