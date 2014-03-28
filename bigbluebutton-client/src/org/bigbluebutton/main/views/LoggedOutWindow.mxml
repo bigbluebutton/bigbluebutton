@@ -74,7 +74,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
        
         var request:URLRequest = new URLRequest(getLogoutUrl());
         trace(LOG + "Logging out to: " + getLogoutUrl());
-        navigateToURL(request, '_self');          
+        navigateToURL(request, '_parent');          
         
 				PopUpManager.removePopUp(this);				
 			}
