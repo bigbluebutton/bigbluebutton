@@ -16,16 +16,8 @@
     with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 */    
 
-class UrlMappings {
-
-	static mappings = {
-        "/$controller/$action?/$id"{
-            constraints {
-                // apply constraints here
-            }
-        }
-
-        "/"(view:"/index")
-        "500"(view:'/error')
-	}
+modules = {
+    application {
+        resource url:'js/application.js'
+    }
 }
