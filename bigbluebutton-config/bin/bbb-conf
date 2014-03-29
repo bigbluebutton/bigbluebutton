@@ -237,8 +237,8 @@ stop_bigbluebutton () {
 		/etc/init.d/bbb-openoffice-headless stop
 	fi
 
-	if [ -f /etc/init.d/bbb-record ]; then
-		/etc/init.d/bbb-record stop
+	if [ -f /etc/init.d/bbb-record-core ]; then
+		/etc/init.d/bbb-record-core stop
 	fi
 
 }
@@ -268,8 +268,8 @@ start_bigbluebutton () {
 	/etc/init.d/bbb-red5 start
 	/etc/init.d/${SERVLET_CONTAINER} start
 
-	if [ -f /etc/init.d/bbb-record ]; then
-		/etc/init.d/bbb-record start
+	if [ -f /etc/init.d/bbb-record-core ]; then
+		/etc/init.d/bbb-record-core start
 	fi
 
 
