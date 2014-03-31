@@ -200,6 +200,14 @@ define [
         username = message.user.name #TODO change to new json structure
         globals.events.trigger("connection:user_join", userid, username)
 
+      # Received event for a new user
+      @socket.on "user_joined_event", (message) =>
+        console.log "message: " + message
+        userid = message.payload.user.id
+        username = message.payload.user.name
+
+        globals.events.trigger("connection:user_join", userid, username)
+
       # Received event when a user leave
       @socket.on "user leave", (userid) =>
         console.log "socket on: user leave"
