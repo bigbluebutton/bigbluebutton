@@ -68,12 +68,10 @@ define [
         @_addUserToChatList(userid, username)
 
       globals.events.on "users:loadUsers", (users) =>
-        console.log ' globals.events.on "users:loadUsers"'
-        console.log users
+        console.log ' globals.events.on "users:loadUsers"' + users
         #@$(@userListID).clear()
         for user in users
-          console.log("user: ")
-          console.log(user)
+          console.log "user: " + user
           #@_addUserToChatList(user.id, user.name)
           globals.events.trigger("users:user_join", user.id, user.name)
 
