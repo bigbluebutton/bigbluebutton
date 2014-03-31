@@ -45,10 +45,12 @@ module.exports = class RedisPublisher
     console.log("***publishLoadUsers2***")
     usernames = []
     @redisAction.getUsers meetingID, (err, users) =>
+      console.log "___users.length=" + users.length
       users.forEach (user) =>
-        usernames.push
-          name: user.username
-          id: user.pubID
+        if user?
+          usernames.push
+            name: user.username
+            id: user.pubID
 
       receivers = (if sessionID? then sessionID else meetingID)
 
