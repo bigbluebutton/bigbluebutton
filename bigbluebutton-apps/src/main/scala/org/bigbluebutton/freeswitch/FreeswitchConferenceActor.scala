@@ -74,7 +74,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
       log.debug("Web user id joining meeting id[" + fc.meetingId + "] wid=[" + msg.user.userID + "]")
       println("Web user has joined voice. mid[" + fc.meetingId + "] wid=[" + msg.user.userID + "], vid=[" + msg.user.voiceUser.userId + "]")
       fc.addUser(msg.user)
-      if (fc.numUsers == 1 && fc.recorded) {
+      if (fc.numUsersInVoiceConference == 1 && fc.recorded) {
         println("Meeting is recorded. Tell FreeSWITCH to start recording.")
         fsproxy.startRecording(fc.conferenceNum, fc.meetingId)
       }
@@ -87,12 +87,12 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     println("FreeswitchConferenceActor - handleUserLeftVoice mid=[" + msg.meetingID + "]")
     
     fsconf foreach {fc => 
+      fc.addUser(msg.user)
       log.debug("Web user id leaving meeting id[" + fc.meetingId + "] wid=[" + msg.user.userID + "]")
       println("Web user has left voice. mid[" + fc.meetingId + "] wid=[" + msg.user.userID + "], vid=[" + msg.user.voiceUser.userId + "]")
-      fc.removeUser(msg.user)
-      if (fc.numUsers == 0 && fc.recorded) {
+      if (fc.numUsersInVoiceConference == 0 && fc.recorded) {
         println("Meeting is recorded. No more users in voice conference. Tell FreeSWITCH to stop recording.")
-        fsproxy.startRecording(fc.conferenceNum, fc.meetingId)
+        fsproxy.stopRecording(fc.conferenceNum)
       }
     }
   }
@@ -112,9 +112,6 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     
     fsconf foreach (fc => {
       fc.removeUser(msg.user)
-      if (fc.numUsers == 0 && fc.recorded) {
-        fsproxy.stopRecording(fc.conferenceNum)
-      }
     })
   }
   
