@@ -40,6 +40,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
 	    case msg: FsVoiceUserMuted                   => handleFsVoiceUserMuted(msg)
 	    case msg: FsVoiceUserTalking                 => handleFsVoiceUserTalking(msg)
 	    case msg: UserJoinedVoice                    => handleUserJoinedVoice(msg)
+	    case msg: UserLeftVoice                      => handleUserLeftVoice(msg)
 	    case _ => // do nothing
 	  }
 	}
@@ -73,9 +74,28 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
       log.debug("Web user id joining meeting id[" + fc.meetingId + "] wid=[" + msg.user.userID + "]")
       println("Web user has joined voice. mid[" + fc.meetingId + "] wid=[" + msg.user.userID + "], vid=[" + msg.user.voiceUser.userId + "]")
       fc.addUser(msg.user)
+      if (fc.numUsers == 1 && fc.recorded) {
+        println("Meeting is recorded. Tell FreeSWITCH to start recording.")
+        fsproxy.startRecording(fc.conferenceNum, fc.meetingId)
+      }
     }
   }
   
+  private def handleUserLeftVoice(msg: UserLeftVoice) {
+    val fsconf = confs.values find (c => c.meetingId == msg.meetingID)
+    
+    println("FreeswitchConferenceActor - handleUserLeftVoice mid=[" + msg.meetingID + "]")
+    
+    fsconf foreach {fc => 
+      log.debug("Web user id leaving meeting id[" + fc.meetingId + "] wid=[" + msg.user.userID + "]")
+      println("Web user has left voice. mid[" + fc.meetingId + "] wid=[" + msg.user.userID + "], vid=[" + msg.user.voiceUser.userId + "]")
+      fc.removeUser(msg.user)
+      if (fc.numUsers == 0 && fc.recorded) {
+        println("Meeting is recorded. No more users in voice conference. Tell FreeSWITCH to stop recording.")
+        fsproxy.startRecording(fc.conferenceNum, fc.meetingId)
+      }
+    }
+  }
   
   private def handleUserJoined(msg: UserJoined) {
     val fsconf = confs.values find (c => c.meetingId == msg.meetingID)
@@ -84,9 +104,6 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
       log.debug("Web user id joining meeting id[" + fc.meetingId + "] wid=[" + msg.user.userID + "]")
       println("Web user id joining meeting id[" + fc.meetingId + "] wid=[" + msg.user.userID + "]")
       fc.addUser(msg.user)
-      if (fc.numUsers == 1 && fc.recorded) {
-        fsproxy.startRecording(fc.conferenceNum, fc.meetingId)
-      }
     })
   }
   
