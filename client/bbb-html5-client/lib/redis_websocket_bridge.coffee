@@ -86,11 +86,11 @@ module.exports = class RedisWebsocketBridge
       console.log "^^^CHANNEL=#{channel}, DATA=#{message}" unless attributes?.aliveID? or attributes?.aliveId?
 
       #TEMPORARY ------start------
-      #if attributes? and attributes.header?.name is "whiteboard_draw_event"
-      # # console.log "ANTON IS HANDLING THIS KIND OF MESSAGES"
-      # # channel = "bigbluebutton:bridge"
-      #else
-      ## console.log "ANTON ISN'T HANDLING THIS KIND OF MESSAGES" + channel
+      if attributes? and attributes.header?.name is "whiteboard_draw_event" or "user_joined_event"
+       console.log "ANTON IS HANDLING THIS KIND OF MESSAGES"
+       channel = "bigbluebutton:bridge"
+      else
+       console.log "ANTON ISN'T HANDLING THIS KIND OF MESSAGES" + channel
       #TEMPORARY ------end------
 
       if channel is "bigbluebutton:bridge"
