@@ -60,6 +60,7 @@ define [
       params =
         "username": @$("#user-name").val()
         "meetingID": @$("#meeting-id").val()
+      console.log "\n\n\n\n AAAAAAANTON" + params.username + " " + params.meetingID
       @model.save params,
         success: (model, response, options) =>
           if @model.get("loginAccepted")
@@ -88,7 +89,7 @@ define [
 
     # Checks if the login form is valid. If not, shows an alert.
     _validateForm: ->
-      name = @$("#user-name").val()
+      ###name = @$("#user-name").val()
       meeting = @$("#meeting-id").val()
       if not name? or name.trim() is ""
         alert "Please enter a username"
@@ -96,7 +97,8 @@ define [
       else if not meeting? or meeting.trim() is ""
         alert "Please select a meeting"
         false
-      else
-        true
+      else### 
+      #183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1395080674991
+      true
        
   LoginView

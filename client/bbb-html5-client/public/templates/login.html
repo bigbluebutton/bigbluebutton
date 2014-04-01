@@ -9,13 +9,14 @@
 
   <form id="login-form">
     <input id="user-name" type="text" maxlength="30" name="user[name]" placeholder="Enter a username" autofocus="autofocus"/>
-    <select id="meeting-id" name="meeting[id]">
+    <!-- <select id="meeting-id" name="meeting[id]">
       <% _.each(meetings, function(meeting) { %>
         <option value='<%= meeting.get("meetingID") %>'>
           <%= meeting.get("meetingName") %>
         </option>
       <% }); %>
-    </select>
+    </select> -->
+    <input id="meeting-id" type="text" maxlength="1000" name="meeting[0]"/>
     <input id="login-button" type="submit" class="submit_btn" value="Join"/>
   </form>
 
