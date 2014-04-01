@@ -191,7 +191,7 @@ define [
         globals.events.trigger("users:loadUsers", users)
 
       # Received event for a new user
-      @socket.on "UserJoiningRequest", (message) =>
+      @socket.on "UserJoiningRequest", (message) => #TODO MUST REMOVE WHEN NOT USED ANYMORE
         #console.log "socket on: UserJoiningRequest"
         #console.log message
         #eventObject = JSON.parse(message);

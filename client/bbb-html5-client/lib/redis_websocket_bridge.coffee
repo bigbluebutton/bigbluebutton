@@ -83,6 +83,16 @@ module.exports = class RedisWebsocketBridge
       
       Logger.info "message from redis on channel:#{channel}, data:#{message}"
 
+      console.log "^^^CHANNEL=#{channel}, DATA=#{message}" unless attributes?.aliveID? or attributes?.aliveId?
+
+      #TEMPORARY ------start------
+      #if attributes? and attributes.header?.name is "whiteboard_draw_event"
+      # # console.log "ANTON IS HANDLING THIS KIND OF MESSAGES"
+      # # channel = "bigbluebutton:bridge"
+      #else
+      ## console.log "ANTON ISN'T HANDLING THIS KIND OF MESSAGES" + channel
+      #TEMPORARY ------end------
+
       if channel is "bigbluebutton:bridge"
         @_redis_onBigbluebuttonBridge2(attributes)
 
@@ -92,7 +102,7 @@ module.exports = class RedisWebsocketBridge
       else
         # value of pub channel is used as the name of the SocketIO room to send to
         # apply the parameters to the socket event, and emit it on the channels
-        console.log "\n from within Websocket bridge:" + message + "\n"
+        #console.log "\n from within Websocket bridge:" + message + "\n"
        
         @_emitToClients2(channel, attributes)
 
@@ -104,7 +114,7 @@ module.exports = class RedisWebsocketBridge
   #   The first attribute is the meetingID
   # @private
   _redis_onBigbluebuttonBridge2: (attributes) ->
-    console.log "***attributes(_redis_onBigbluebuttonBridge2): " + attributes 
+    console.log "***attributes(_redis_onBigbluebuttonBridge2): " + JSON.stringify (attributes) #for debugging
     
     meetingID = attributes?.payload?.meeting?.id
     console.log "*meetingID: " + meetingID
@@ -143,16 +153,15 @@ module.exports = class RedisWebsocketBridge
   #
   # @private
   _emitToClients2: (channel, message) -> #message is a JS Object
-
-    console.log "in _emitToClients2:" 
+    console.log "in _emitToClients2:" unless message?.aliveID? or message?.aliveId?
     channelViewers = @io.sockets.in(channel) #channel is the same as meetingID
 
     #if the message has "header":{"name":"some_event_name"} use that name
     #otherwise look for "name":"some_event_name" in the top level of the message
     eventName = message.header?.name or message.name
 
-    console.log "**message name**: " + eventName
-    console.log "channelViewers" + channelViewers[0]
+    console.log "**message name**: " + eventName unless message?.aliveID? or message?.aliveId?
+    console.log "channelViewers" + channelViewers[0] unless message?.aliveID? or message?.aliveId?
     #console.log "message" + message
     channelViewers.emit.apply(channelViewers, [eventName, message])
 
@@ -167,6 +176,7 @@ module.exports = class RedisWebsocketBridge
     console.log("**userConnected2")
     sessionID = fromSocket2(socket, "sessionID")
     meetingID = fromSocket2(socket, "meetingID")
+    console.log "__meetingID=" + meetingID
     @redisAction.isValidSession meetingID, sessionID, (err, reply) =>
       if !reply
         Logger.error "got invalid session for meeting #{meetingID}, session #{sessionID}"
