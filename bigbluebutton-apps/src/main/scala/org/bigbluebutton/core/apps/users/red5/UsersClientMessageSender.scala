@@ -80,8 +80,6 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
   	  message.put("msg", gson.toJson(args))
   	  
   	  println("UsersClientMessageSender - handleRegisteredUser \n" + message.get("msg") + "\n")
-//      val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenReply", message);
-//	  service.sendMessage(m);		  
 	}
 	
 	private def handleValidateAuthTokenReply(msg: ValidateAuthTokenReply) {
@@ -283,27 +281,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
   	    println("UsersClientMessageSender - handleUserJoined \n" + message.get("msg") + "\n")
   	    
 		var m = new BroadcastClientMessage(msg.meetingID, "participantJoined", message);
-		service.sendMessage(m);		
-		
-		//Anton: for user_joined_event ---start------------
-		var usrJoinedEvent = new java.util.HashMap[String, Object]()
-		var id = "12345678"
-		var name = "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
-		var user = new java.util.HashMap[String, Object]()
-		user.put("id", id)
-		user.put("name", name)
-		var payload = new java.util.HashMap[String, Object]()
-		payload.put("user", user)
-		usrJoinedEvent.put("payload", payload)
-		
-		var header = new java.util.HashMap[String, Any]()
-		header.put("name", "user_joined_event")
-		usrJoinedEvent.put("header", header)
-		println("UserJoinedEvent**NEW - " + gson.toJson(usrJoinedEvent) + "\n")		
-		
-		var p = new BroadcastClientMessage(msg.meetingID, "user_joined_event", usrJoinedEvent);
-		service.sendMessage(p);	
-		//Anton: for user_joined_event ---end------------
+		service.sendMessage(m);
 	}
 
 
