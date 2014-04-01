@@ -102,6 +102,7 @@
 			maxFileSize="30"
 		/>
 
+<!--
 		<module name="VideodockModule" url="http://HOST/client/VideodockModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="VideoconfModule, UsersModule"
@@ -115,7 +116,8 @@
 			oneAlwaysBigger="false"
 			baseTabIndex="401"
 		/>
-		
+-->
+
 		<module name="LayoutModule" url="http://HOST/client/LayoutModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton"
 			layoutConfig="http://HOST/client/conf/layout.xml"
