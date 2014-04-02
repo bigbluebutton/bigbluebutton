@@ -53,6 +53,9 @@ define [
       globals.events.on "users:user_leave", (userid) =>
         @_removeUserByID(userid)
 
+      globals.events.on "users:user_left", (userid) =>
+        @_removeUserByID(userid)
+
       globals.events.on "users:setPresenter", (userid) =>
         @_setPresenter(userid)
 
@@ -60,7 +63,7 @@ define [
     _removeAllUsers: ->
       @$(@userListID).empty()
 
-    # Removes all users from the screen.
+    # Removes all a user from the list #TODO - for now it does not remove but moves to the left hand side
     _removeUserByID: (userID)->
       @$("#user-"+userID).remove()
 

@@ -205,8 +205,13 @@ define [
         console.log "message: " + message
         userid = message.payload.user.id
         username = message.payload.user.name
+        globals.events.trigger("connection:user_join", userid, username) #should it be user_joined?! #TODO
 
-        globals.events.trigger("connection:user_join", userid, username)
+      # Received event when a user leaves
+      @socket.on "user_left_event", (message) =>
+        console.log "message: " + message
+        userid = message.payload.user.id
+        globals.events.trigger("connection:user_left", userid)
 
       # Received event when a user leave
       @socket.on "user leave", (userid) =>
@@ -218,14 +223,6 @@ define [
       @socket.on "setPresenter", (userid) =>
         console.log "socket on: setPresenter"
         globals.events.trigger("connection:setPresenter", userid)
-
-      # Received event for a new public chat message
-      # @param  {string} name name of user
-      # @param  {string} msg  message to be displayed
-      #THIS IS THE OLD MESSAGE FORMAT. NOT USED ANYMORE
-      ###@socket.on "msg", (name, msg) =>
-        console.log "socket on: msg"
-        globals.events.trigger("connection:msg", name, msg)###
 
       # Received event for a new public chat message
       # @param  {string} name name of user

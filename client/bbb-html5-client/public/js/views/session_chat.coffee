@@ -64,6 +64,9 @@ define [
       globals.events.on "users:user_leave", (userid) =>
         @_removeUserFromChatList(userid, username)
 
+      globals.events.on "users:user_left", (userid) =>
+        @_removeUserFromChatList(userid) #do we need username or userid is sufficient?
+
       globals.events.on "users:user_join", (userid, username) =>
         @_addUserToChatList(userid, username)
 
