@@ -1290,15 +1290,15 @@ class ApiController {
     UserSession us = null;
     Meeting meeting = null;
 
-    if(!session["user-token"]){
+    if (!session["user-token"]) {
       reject = true;
-    }else{
-      if(meetingService.getUserSession(session['user-token']) == null)
+    } else {
+      if (meetingService.getUserSession(session['user-token']) == null)
         reject = true;
-      else{
+      else {
         us = meetingService.getUserSession(session['user-token']);
         meeting = meetingService.getMeeting(us.meetingID);
-        if (meeting == null) {
+        if (meeting == null || meeting.isForciblyEnded()) {
           reject = true
         }
       }
