@@ -151,5 +151,45 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
 		service.send(MessagingConstants.BIGBLUEBUTTON_WEBHOOK_EVENTS, gson.toJson(map));
 		
 		println("UsersEventRedisPublisher: end handleUserLeft")
+
+		//
+		//Event handled by the HTML5 client (and node)
+		println("UsersEventRedisPublisher: init handleUserLeft***Anton")		
+		
+		//HEADER
+		var header = new java.util.HashMap[String, Any]()
+		header.put("name", "user_left_event") //not the same as MessagingConstants.USER_LEFT_EVENT
+		header.put("timestamp", "Mon, 31 Mar 2014 14:49:07 GMT")
+		header.put("source", "web-api")
+		var destination = new java.util.HashMap[String, String]()
+		destination.put("to", "apps_channel")
+		header.put("destination", destination)
+
+		//PAYLOAD
+		var payload = new java.util.HashMap[String, Object]()
+
+		var meeting = new java.util.HashMap[String, String]()
+		meeting.put("id", msg.meetingID)
+		meeting.put("name", "English 101")
+		payload.put("meeting", meeting)
+
+		payload.put("session", "someSessionId")
+
+		var user = new java.util.HashMap[String, Any]()
+		user.put("id", msg.user.userID)
+		user.put("name", msg.user.name)
+		payload.put("user", user)
+
+
+		var usrLeftEvent = new java.util.HashMap[String, Object]()
+		usrLeftEvent.put("header", header)
+		usrLeftEvent.put("payload", payload)
+
+
+		service.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(usrLeftEvent));
+		
+		service.send(MessagingConstants.BIGBLUEBUTTON_WEBHOOK_EVENTS, gson.toJson(usrLeftEvent));
+		
+		println("UsersEventRedisPublisher: end handleUserLeft***Anton")
 	}
 }
