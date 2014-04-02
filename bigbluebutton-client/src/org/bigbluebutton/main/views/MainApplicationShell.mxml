@@ -35,6 +35,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
 	<mate:Listener type="{AddUIComponentToMainCanvas.ADD_COMPONENT}" method="addComponentToCanvas" />
 	<mate:Listener type="{AppVersionEvent.APP_VERSION_EVENT}" method="handleApplicationVersionEvent" />	
+  <mate:Listener type="{MeetingNotFoundEvent.MEETING_NOT_FOUND}" method="handleMeetingNotFoundEvent" />
 	<mate:Listener type="{ConnectionFailedEvent.USER_LOGGED_OUT}" method="handleLogout" />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_FAILED}" method="attemptReconnect" />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="attemptReconnect"  />
@@ -87,6 +88,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.ConfigEvent;
       import org.bigbluebutton.main.events.LogoutEvent;
+      import org.bigbluebutton.main.events.MeetingNotFoundEvent;
       import org.bigbluebutton.main.events.ModuleLoadEvent;
       import org.bigbluebutton.main.events.PortTestEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
@@ -102,6 +104,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.util.i18n.ResourceUtil;
       import org.bigbluebutton.util.logging.Logger;
 	
+      private static const LOG:String = "Main::MainApplicationShell - ";
+      
 			private var globalDispatcher:Dispatcher;			
 			private var dispState:String; //full-screen?
 			private var images:Images = new Images();
@@ -464,39 +468,63 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         });        
       }
       
+      private function handleMeetingNotFoundEvent(e:MeetingNotFoundEvent):void {
+        showlogoutWindow("Meeting not found.");
+      }
+      
+      private function showlogoutWindow(reason:String):void {
+        if (layoutOptions!= null && layoutOptions.showLogoutWindow) {
+          if (logoutWindow != null) return;
+          logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, false));
+          
+          var point1:Point = new Point();
+          // Calculate position of TitleWindow in Application's coordinates. 
+          point1.x = width/2;
+          point1.y = height/2;                 
+          logoutWindow.x = point1.x - (logoutWindow.width/2);
+          logoutWindow.y = point1.y - (logoutWindow.height/2);
+          
+          logoutWindow.setReason(reason);
+          mdiCanvas.removeAllWindows(); 				
+        } else {
+          mdiCanvas.removeAllWindows();
+          var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
+          var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
+          trace(LOG + "SingOut to [" + pageHost + "//" + pageURL + "/bigbluebutton/api/signOut]");
+          var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
+          var urlLoader:URLLoader = new URLLoader();
+          urlLoader.addEventListener(Event.COMPLETE, handleLogoutComplete);	
+          urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleLogoutError);
+          urlLoader.load(request);
+        }	        
+      }
+      
+      public function getLogoutUrl():String {
+        var logoutUrl:String = BBB.initUserConfigManager().getLogoutUrl();
+        if (logoutUrl == null) {
+          trace(LOG + "URL=[" + FlexGlobals.topLevelApplication.url + "]");
+          var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
+          var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
+          logoutUrl = pageHost + "//" + pageURL;
+        }      
+        return logoutUrl;
+      }
+      
 			private function handleLogout(e:ConnectionFailedEvent):void {
-				if (layoutOptions.showLogoutWindow) {
-					if (logoutWindow != null) return;
-					logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, false));
-					
-					var point1:Point = new Point();
-					// Calculate position of TitleWindow in Application's coordinates. 
-					point1.x = width/2;
-					point1.y = height/2;                 
-					logoutWindow.x = point1.x - (logoutWindow.width/2);
-					logoutWindow.y = point1.y - (logoutWindow.height/2);
-					
-					if (e is ConnectionFailedEvent) logoutWindow.setReason((e as ConnectionFailedEvent).type);
-					else logoutWindow.setReason("You have logged out of the conference");	
-					
-					mdiCanvas.removeAllWindows(); 				
-				} else {
-					mdiCanvas.removeAllWindows();
-					var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
-					var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
-					var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
-					var urlLoader:URLLoader = new URLLoader();
-					urlLoader.addEventListener(Event.COMPLETE, handleLogoutComplete);	
-					urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleLogoutError);
-					urlLoader.load(request);
-				}				
+        if (e is ConnectionFailedEvent) {
+          showlogoutWindow((e as ConnectionFailedEvent).type);
+        }
+        else showlogoutWindow("You have logged out of the conference");	
 			}
+      
 			private function redirectToLogoutUrl ():void {
-				var request:URLRequest = new URLRequest(BBB.initUserConfigManager().getLogoutUrl());
-				LogUtil.debug("Logging out to: " + BBB.initUserConfigManager().getLogoutUrl());
+        var logoutURL:String = getLogoutUrl();
+				var request:URLRequest = new URLRequest(logoutURL);
+				trace(LOG + "Logging out to: " + logoutURL);
 				navigateToURL(request, '_self');
 			}
 			
+
 			private function handleLogoutError(e:Event):void {
 				LogUtil.debug("Call to signOut URL failed.");
 				redirectToLogoutUrl();

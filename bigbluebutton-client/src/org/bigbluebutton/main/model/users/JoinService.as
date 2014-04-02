@@ -35,6 +35,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.model.MeetingModel;
 	import org.bigbluebutton.core.model.users.User;
 	import org.bigbluebutton.core.model.users.UsersModel;
+	import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
         	
 	public class JoinService
@@ -84,7 +85,8 @@ package org.bigbluebutton.main.model.users
 			if (returncode == 'FAILED') {
 				LogUtil.debug("Join FAILED = " + xml);
 							
-				navigateToURL(new URLRequest(xml.logoutURL),'_self')
+        var dispatcher:Dispatcher = new Dispatcher();
+        dispatcher.dispatchEvent(new MeetingNotFoundEvent(xml.logoutURL));
 				
 			} else if (returncode == 'SUCCESS') {
 				LogUtil.debug("Join SUCESS = " + xml);
