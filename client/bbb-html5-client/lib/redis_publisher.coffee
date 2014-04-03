@@ -87,7 +87,7 @@ module.exports = class RedisPublisher
   publishUserJoin2: (meetingID, sessionID, userid, username, callback) ->
     console.log ("\n\n**publishUserJoin2**\n\n")
     receivers = (if sessionID? then sessionID else meetingID)
-    userJoinEventObject = {
+    ###userJoinEventObject = {
       name: "UserJoiningRequest",
       meeting: {
         id:meetingID,
@@ -99,6 +99,74 @@ module.exports = class RedisPublisher
           userid: userid
         }
         role: "VIEWER"
+      }
+    }###
+
+    sessionID = "someSessionID" unless sessionID?
+
+    userJoinEventObject = {
+      header: {
+        destination: {
+          to: "apps_channel"
+        },
+        name: "user_joined_event",
+        timestamp: "Thu, 03 Apr 2014 16:06:38 GMT",
+        source: "bbb-web"
+      },
+      payload: {
+        meeting: {
+          name: "someMeetingName",
+          id: meetingID
+        },
+        session: sessionID,
+        user: {
+          id: userid,
+          external_id: "external_id",
+          name: username,
+          role: "MODERATOR",
+          pin: 12345,
+          welcome_message: "Welcome to English 101",
+          logout_url: "http://www.example.com",
+          avatar_url: "http://www.example.com/avatar.png",
+          is_presenter: true,
+          status: {
+            hand_raised: false,
+            muted: false,
+            locked: false,
+            talking: false
+          },
+          caller_id: {
+            name: "Juan Tamad",
+            number: "011-63-917-555-1234"
+          },
+          media_streams: [
+            {
+              media_type: "audio",
+              uri: "http://cdn.bigbluebutton.org/stream/a1234",
+              metadata: {
+                foo: "bar"
+              }
+            },
+            {
+              media_type: "video",
+              uri: "http://cdn.bigbluebutton.org/stream/v1234",
+              metadata: {
+                foo: "bar"
+              }
+            },
+            {
+              media_type: "screen",
+              uri: "http://cdn.bigbluebutton.org/stream/s1234",
+              metadata: {
+                foo: "bar"
+              }
+            }
+          ],
+          metadata: {
+            student_id: "54321",
+            program: "engineering"
+          }
+        }
       }
     }
 

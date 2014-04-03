@@ -86,14 +86,13 @@ module.exports = class RedisWebsocketBridge
       console.log "^^^CHANNEL=#{channel}, DATA=#{message}" unless attributes?.aliveID? or attributes?.aliveId?
 
       #TEMPORARY ------start------
-      if attributes? and attributes.header?.name is "whiteboard_draw_event" or "user_joined_event"
-       console.log "ANTON IS HANDLING THIS KIND OF MESSAGES"
+      if attributes?.header?.name is "whiteboard_draw_event" or attributes?.header?.name is "user_joined_event"
        channel = "bigbluebutton:bridge"
-      else
-       console.log "ANTON ISN'T HANDLING THIS KIND OF MESSAGES" + channel
       #TEMPORARY ------end------
 
       if channel is "bigbluebutton:bridge"
+        if attributes?.header?.name is "user_joined_event"
+          console.log "___#{attributes?.payload?.user?.name} is joining"
         @_redis_onBigbluebuttonBridge2(attributes)
 
       else if channel is "bigbluebutton:meeting:presentation"
@@ -103,7 +102,7 @@ module.exports = class RedisWebsocketBridge
         # value of pub channel is used as the name of the SocketIO room to send to
         # apply the parameters to the socket event, and emit it on the channels
         #console.log "\n from within Websocket bridge:" + message + "\n"
-       
+        console.log "\nThe channel was strange:" + channel
         @_emitToClients2(channel, attributes)
 
 
@@ -114,7 +113,7 @@ module.exports = class RedisWebsocketBridge
   #   The first attribute is the meetingID
   # @private
   _redis_onBigbluebuttonBridge2: (attributes) ->
-    console.log "***attributes(_redis_onBigbluebuttonBridge2): " + JSON.stringify (attributes) #for debugging
+    console.log "(_redis_onBigbluebuttonBridge2): " + attributes?.header?.name #for debugging
     
     meetingID = attributes?.payload?.meeting?.id
     console.log "*meetingID: " + meetingID
@@ -126,16 +125,17 @@ module.exports = class RedisWebsocketBridge
 
     # When presenter in flex side sends the 'undo' event, remove the current shape from Redis
     # and publish the rest shapes to html5 users
-    if attributes[1] is "undo"
+    ###if attributes[1] is "undo"
       @redisAction.onUndo meetingID, (err, reply) =>
-        @redisPublisher.publishShapes2 meetingID, null, (err) -> emit()
+        @redisPublisher.publishShapes2 meetingID, null, (err) -> emit()###
 
     # When presenter in flex side sends the 'clrPaper' event, remove everything from Redis
-    else if attributes[1] is "clrPaper"
-      @redisAction.onClearPaper meetingID, (err, reply) => emit()
+    ###else if attributes[1] is "clrPaper"
+      @redisAction.onClearPaper meetingID, (err, reply) => emit()###
 
-    else
-      emit()
+    ###else
+      emit()###
+    emit()
 
   # When received a message on the channel "bigbluebutton:meeting:presentation"
   #
@@ -158,7 +158,7 @@ module.exports = class RedisWebsocketBridge
 
     #if the message has "header":{"name":"some_event_name"} use that name
     #otherwise look for "name":"some_event_name" in the top level of the message
-    eventName = message.header?.name or message.name
+    eventName = message?.header?.name or message?.name
 
     console.log "**message name**: " + eventName unless message?.aliveID? or message?.aliveId?
     console.log "channelViewers" + channelViewers[0] unless message?.aliveID? or message?.aliveId?

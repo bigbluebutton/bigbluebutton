@@ -68,15 +68,16 @@ define [
         @_removeUserFromChatList(userid) #do we need username or userid is sufficient?
 
       globals.events.on "users:user_join", (userid, username) =>
+        console.log "session_chat - user_join for user:#{username}"
         @_addUserToChatList(userid, username)
 
       globals.events.on "users:loadUsers", (users) =>
-        console.log ' globals.events.on "users:loadUsers"' + users
+        console.log ' globals.events.on "users:loadUsers"' + JSON.stringify(users)
         #@$(@userListID).clear()
-        for user in users
-          console.log "user: " + user
+        ### for user in users
+          console.log "user: " + JSON.stringify(user)
           #@_addUserToChatList(user.id, user.name)
-          globals.events.trigger("users:user_join", user.id, user.name)
+          globals.events.trigger("users:user_join", user.id, user.name)###
 
       # TODO: for now these messages are only being shown in the chat, maybe
       #       they should have their own view and do more stuff
@@ -130,6 +131,7 @@ define [
     _addUserToChatList: (userid, username) ->
       # only add the new element if it doesn't exist yet
       console.log("_addUserToChatList ", userid, " ", username)
+      console.log "chat-user-#{userid}.length =" + $("#chat-user-#{userid}").length
       unless $("#chat-user-#{userid}").length > 0
         data =
           userid: userid

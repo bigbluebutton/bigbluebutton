@@ -36,6 +36,7 @@ define [
         globals.events.trigger("users:load_users", users)
 
       globals.events.on "connection:user_join", (userid, username) =>
+        console.log "users.coffee: on(connection:user_join)" + username
         @add [
           id : userid
           userid: userid

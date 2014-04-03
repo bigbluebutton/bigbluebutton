@@ -185,10 +185,10 @@ define [
         globals.events.trigger("connection:user_list_change", users)
 
       # TODO: event name with spaces is bad
-      @socket.on "loadUsers", (loadUsersEventObject) =>
+      ###@socket.on "loadUsers", (loadUsersEventObject) =>
         users = loadUsersEventObject.usernames
         console.log "socket on: loadUsers" + loadUsersEventObject
-        globals.events.trigger("users:loadUsers", users)
+        globals.events.trigger("users:loadUsers", users)###
 
       # Received event for a new user
       @socket.on "UserJoiningRequest", (message) => #TODO MUST REMOVE WHEN NOT USED ANYMORE
