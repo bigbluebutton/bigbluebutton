@@ -139,7 +139,7 @@ define [
         @removeAllImagesFromPaper()
         @slides = slidesTmp
         @rebuild()
-        @showImageFromPaper(urlTmp.url)
+        @showImageFromPaper(urlTmp?.url)
         # drawings
         tmp = _.clone(@currentShapesDefinitions)
         @clearShapes()
@@ -871,7 +871,7 @@ define [
 
     # Adds the base url (the protocol+server part) to `url` if needed.
     _slideUrl: (url) ->
-      if url.match(/http[s]?:/)
+      if url?.match(/http[s]?:/)
         url
       else
         globals.presentationServer + url

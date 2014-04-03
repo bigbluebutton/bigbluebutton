@@ -57,8 +57,9 @@ define [
         @_scrollToBottom()
 
       globals.events.on "chat:all_messages", (messages) =>
-        for msgBlock in messages
-          @_addChatMessage(msgBlock.username, msgBlock.message)
+        if messages?
+          for msgBlock in messages
+            @_addChatMessage(msgBlock.username, msgBlock.message)
         @_scrollToBottom()
 
       globals.events.on "users:user_leave", (userid) =>
