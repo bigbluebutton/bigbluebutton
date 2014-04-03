@@ -826,11 +826,16 @@ $playback = match[2]
 puts $meeting_id
 puts $playback
 if ($playback == "presentation")
-	logger = Logger.new("/var/log/bigbluebutton/presentation/publish-#{$meeting_id}.log", 'daily' )
-	BigBlueButton.logger = logger
+
 	# This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 	bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 	simple_props = YAML::load(File.open('presentation.yml'))
+
+    log_dir = bbb_props['log_dir']
+
+	logger = Logger.new("#{log_dir}/presentation/publish-#{$meeting_id}.log", 'daily' )
+	BigBlueButton.logger = logger
+
 	BigBlueButton.logger.info("Setting recording dir")
 	recording_dir = bbb_props['recording_dir']
 	BigBlueButton.logger.info("Setting process dir")

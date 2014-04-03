@@ -98,7 +98,7 @@ module BigBlueButton
         #    Volume adjustment:        1.215
       command = "sox #{file} -n stat 2>&1"
       # Try "sox --i -D file" as it is much shorter
-      BigBlueButton.logger.info("Task: Getting length of audio")
+      BigBlueButton.logger.info("Task: Getting length of audio [#{command}]")
       output = BigBlueButton.execute(command).output
       if output.to_s =~ /Length(.+)/
         stats = $1

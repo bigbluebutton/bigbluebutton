@@ -25,10 +25,6 @@ require 'rubygems'
 require 'yaml'
 require 'fileutils'
 
-logger = Logger.new("/var/log/bigbluebutton/bbb-rap-worker.log",'daily' )
-logger.level = Logger::ERROR
-BigBlueButton.logger = logger
-
 def archive_recorded_meeting(recording_dir)
   recorded_done_files = Dir.glob("#{recording_dir}/status/recorded/*.done")
   archived_dirs = Dir.entries("#{recording_dir}/raw/") - ['.','..']
@@ -147,7 +143,14 @@ def publish_processed_meeting(recording_dir)
 end
 
 props = YAML::load(File.open('bigbluebutton.yml'))
+
+log_dir = props['log_dir']
 recording_dir = props['recording_dir']
+
+logger = Logger.new("#{log_dir}/bbb-rap-worker.log",'daily' )
+logger.level = Logger::ERROR
+BigBlueButton.logger = logger
+
 archive_recorded_meeting(recording_dir)
 sanity_archived_meeting(recording_dir)
 process_archived_meeting(recording_dir)
