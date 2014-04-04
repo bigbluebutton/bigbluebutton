@@ -6,7 +6,7 @@ import java.util.concurrent.CountDownLatch
 import scala.actors.Actor
 import scala.actors.Actor._
 
-class BigBlueButtonGateway(outGW: MessageOutGateway) {
+class BigBlueButtonGateway(outGW: MessageOutGateway, collGW: CollectorGateway) {
   private val deathSwitch = new CountDownLatch(1)
   // load our config file and configure logfiles.
   Configgy.configure("webapps/bigbluebutton/WEB-INF/configgy-logger.conf")
@@ -19,7 +19,10 @@ class BigBlueButtonGateway(outGW: MessageOutGateway) {
   bbbActor.start
   
   def accept(msg: InMessage):Unit = {
+    collGW.collectInMessage(msg)
+    
     bbbActor ! msg
+    
   }
 
   def acceptKeepAlive(msg: KeepAliveMessage):Unit = {
