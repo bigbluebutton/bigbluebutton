@@ -84,7 +84,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="collDispatcher" class="org.bigbluebutton.core.api.ConsoleDispatcher">
     </bean>
 
-<--    
+<!--    
     <bean id="redisLpushDispatcher" class="org.bigbluebutton.core.api.RedisLpushDispatcher" 
            init-method="start" destroy-method="stop">
       <property name="redisPool"><ref bean="redisPool" /> </property>
