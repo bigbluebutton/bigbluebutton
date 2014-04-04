@@ -120,7 +120,10 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */
 		private function onUploadIoError(event:IOErrorEvent):void {
-			dispatcher.dispatchEvent(new UploadIoErrorEvent());
+			if(event["text"] != "Error #2038"){ //upload works despite of this error.
+				dispatcher.dispatchEvent(new UploadIoErrorEvent());
+			}
+			
 		}
 		
 		/**
