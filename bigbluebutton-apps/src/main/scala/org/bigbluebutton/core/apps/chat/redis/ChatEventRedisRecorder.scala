@@ -21,7 +21,7 @@ class ChatEventRedisRecorder(recorder: RecorderApplication) extends OutMessageLi
         val ev = new PublicChatRecordEvent();
 		ev.setTimestamp(System.currentTimeMillis());
 		ev.setMeetingId(msg.meetingID);
-		ev.setSender(message.get("fromUserID"));
+		ev.setSender(message.get("fromUsername"));
 		ev.setMessage(message.get("message"));
 		ev.setLocale(message.get("fromLang"));
 		ev.setColor(message.get("fromColor"));
