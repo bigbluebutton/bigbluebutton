@@ -103,7 +103,6 @@ end
 
 meeting_id = opts[:meeting_id]
 
-BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/archive-#{meeting_id}.log", 'daily' )
 
 # This script lives in scripts/archive/steps while bigbluebutton.yml lives in scripts/
 props = YAML::load(File.open('bigbluebutton.yml'))
@@ -116,7 +115,9 @@ redis_host = props['redis_host']
 redis_port = props['redis_port']
 presentation_dir = props['raw_presentation_src']
 video_dir = props['raw_video_src']
+log_dir = props['log_dir']
 
+BigBlueButton.logger = Logger.new("#{log_dir}/archive-#{meeting_id}.log", 'daily' )
 
 target_dir = "#{raw_archive_dir}/#{meeting_id}"
 if not FileTest.directory?(target_dir)
