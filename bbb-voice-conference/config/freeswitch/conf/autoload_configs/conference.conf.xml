@@ -123,6 +123,7 @@
       <param name="caller-id-name" value="$${outbound_caller_name}"/>
       <param name="caller-id-number" value="$${outbound_caller_id}"/>
       <param name="comfort-noise" value="true"/>
+      <param name="min-required-recording-participants" value="1"/>
       <!--<param name="tts-engine" value="flite"/>-->
       <!--<param name="tts-voice" value="kal16"/>-->
     </profile>
