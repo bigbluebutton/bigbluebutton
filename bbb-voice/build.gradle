@@ -50,7 +50,13 @@ repositories {
             addArtifactPattern "http://repository.springsource.com/maven/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
             addArtifactPattern "http://repository.springsource.com/maven/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
         }        
-   	}
+   	add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+            name = "Red5"
+            m2compatible = true
+            addArtifactPattern "http://red5.googlecode.com/svn/repository/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
+            addArtifactPattern "http://red5.googlecode.com/svn/repository/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
+        }        
+    }
 }
 
 dependencies {	 
@@ -70,6 +76,7 @@ dependencies {
 
   // Red5
   providedCompile 'org/red5:red5:1.0.2-M1@jar'
+  providedCompile 'org.red5:red5-io:1.0.3@jar'
   
   // Logging
   providedCompile 'ch.qos.logback:logback-core:1.0.13@jar'
