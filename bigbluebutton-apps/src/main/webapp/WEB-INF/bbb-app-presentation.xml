@@ -57,6 +57,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</bean>
 
 	<bean id="participantsListener" class="org.bigbluebutton.conference.service.participants.ParticipantsListener">
-		<property name="conversionUpdatesProcessor" ref="conversionUpdatesProcessor" />
+		<property name="bigBlueButtonInGW" ref="bbbInGW" />
 	</bean>
 </beans>
