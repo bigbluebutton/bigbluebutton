@@ -111,6 +111,8 @@ redis_host = props['redis_host']
 redis_port = props['redis_port']
 
 BigBlueButton.logger = Logger.new("#{log_dir}/sanity.log", 'daily' )
+FFMPEG.ffmpeg_binary=("/usr/local/bin/ffmpeg")
+
 begin
 	BigBlueButton.logger.info("Starting sanity check for recording #{meeting_id}.")
 	BigBlueButton.logger.info("Checking events.xml")
