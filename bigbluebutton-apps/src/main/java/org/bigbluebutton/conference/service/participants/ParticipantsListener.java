@@ -41,30 +41,29 @@ public class ParticipantsListener implements MessageHandler{
 			eventName = eventName.replace("\"", "");//strip off quotations
 			System.out.println("eventName="+eventName);
 
+			JsonObject user = (JsonObject) payload.get("user");
+			JsonObject meeting = (JsonObject) payload.get("meeting");
+
+			String meetingid = (String) meeting.get("id").toString().replace("\"", "");
+			String userid = (String) user.get("id").toString().replace("\"", "");
+			String username = (String) user.get("name").toString().replace("\"", "");
+			String role = (String) user.get("role").toString().replace("\"", "");
+			String externuserid = (String) user.get("external_id").toString().replace("\"", "");
+
 			if(eventName.equalsIgnoreCase("user_joined_event")) //put this string into a constants file
 			{
 				System.out.println("I'm in the case for joined_event" );
-				
-				JsonObject user = (JsonObject) payload.get("user");
-				JsonObject meeting = (JsonObject) payload.get("meeting");
-				
-				String meetingID = (String) meeting.get("id").toString().replace("\"", "");
-				String userid = (String) user.get("id").toString().replace("\"", "");
-				String username = (String) user.get("name").toString().replace("\"", "");
-				String role = (String) user.get("role").toString().replace("\"", "");
-				String externUserID = (String) user.get("external_id").toString().replace("\"", "");
+				System.out.println("\nmeetingid="+meetingid+", "+"userid = "+userid+", username="+username+
+					", role="+role+"external_id="+externuserid);
 
-				System.out.println("4");
-				System.out.println("\nmeetingID="+meetingID+", "+"userid = "+userid+", username="+username+", role="+role+
-					"external_id="+externUserID);
-
-				bbbGW.userJoin(meetingID, userid,  username, role, externUserID);
-
-				System.out.println("5");
+				bbbGW.userJoin(meetingid, userid, username, role, externuserid);
 			}
 			else if(eventName.equalsIgnoreCase("user_left_event")) //put this string into a constants file
 			{
 				System.out.println("I'm in the case for left_event" );
+				System.out.println("\nmeetingid="+meetingid+", "+"userid = "+userid);
+
+				bbbGW.userLeft(meetingid, userid);
 			}
 		}
 	}
