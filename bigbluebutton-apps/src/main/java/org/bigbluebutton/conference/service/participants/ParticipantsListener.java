@@ -1,5 +1,5 @@
 
-package org.bigbluebutton.conference.service.chat;
+package org.bigbluebutton.conference.service.participants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,17 +16,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 
 
-public class ChatMessageListener implements MessageHandler{
-	public static final String OFFICE_DOC_CONVERSION_SUCCESS_KEY = "OFFICE_DOC_CONVERSION_SUCCESS";
-	public static final String OFFICE_DOC_CONVERSION_FAILED_KEY = "OFFICE_DOC_CONVERSION_FAILED";
-	public static final String SUPPORTED_DOCUMENT_KEY = "SUPPORTED_DOCUMENT";
-	public static final String UNSUPPORTED_DOCUMENT_KEY = "UNSUPPORTED_DOCUMENT";
-	public static final String PAGE_COUNT_FAILED_KEY = "PAGE_COUNT_FAILED";
-	public static final String PAGE_COUNT_EXCEEDED_KEY = "PAGE_COUNT_EXCEEDED";	
-	public static final String GENERATED_SLIDE_KEY = "GENERATED_SLIDE";
-	public static final String GENERATING_THUMBNAIL_KEY = "GENERATING_THUMBNAIL";
-	public static final String GENERATED_THUMBNAIL_KEY = "GENERATED_THUMBNAIL";
-	public static final String CONVERSION_COMPLETED_KEY = "CONVERSION_COMPLETED";
+public class ParticipantsListener implements MessageHandler{
 	
 	private ConversionUpdatesProcessor conversionUpdatesProcessor;
 	
@@ -69,7 +59,7 @@ public class ChatMessageListener implements MessageHandler{
 	public void handleMessage(String pattern, String channel, String message) {
 		if (channel.equalsIgnoreCase(MessagingConstants.ANTON_CHANNEL))
 		{
-			System.out.println("AntonChannel=(chatlistener)" + channel);
+			System.out.println("AntonChannel=(participants)" + channel);
 			//System.out.println("AntonMessage=" + message);
 
 			JsonParser parser = new JsonParser();
@@ -81,10 +71,16 @@ public class ChatMessageListener implements MessageHandler{
 			eventName = eventName.replace("\"", "");//strip off quotations
 			System.out.println("eventName="+eventName);
 
-			if(eventName.equalsIgnoreCase("public_chat_message_event")) //put this string into a constants file
+			if(eventName.equalsIgnoreCase("user_joined_event")) //put this string into a constants file
 			{
-				System.out.println("I'm in the case for public_chat_message_event" );
+				System.out.println("I'm in the case for joined_event" );
+			}
+			else if(eventName.equalsIgnoreCase("user_left_event")) //put this string into a constants file
+			{
+				System.out.println("I'm in the case for left_event" );
 			}
 		}
 	}
 }
+
+
