@@ -77,6 +77,68 @@ package org.bigbluebutton.modules.videoconf.views
             return bestConfiguration;
         }
 
+	private function findPriorityConfiguration():Object{
+		var cellAspectRatio:Number = minContentAspectRatio;
+		var bestConfiguration:Object = {
+			isVerticalSplit: true,
+			priorityWidth: height * cellAspectRatio * 2/3,
+			priorityHeight: height * 2/3,
+			otherWidth: width / (numChildren - 1) ,
+			otherHeight: (width / cellAspectRatio) / (numChildren - 1)	
+		}
+		return bestConfiguration;
+	}
+
+	 private function updateDisplayListHelperByPriority():void {
+            if (numChildren == 0) {
+                return;
+            }
+
+            var bestConfiguration:Object = findPriorityConfiguration();
+            var numColumns:int = numChildren - 1;
+            var numRows:int = 1;
+            var oWidth:int = bestConfiguration.otherWidth;
+            var oHeight:int = bestConfiguration.otherHeight;
+	    var pHeight:int = bestConfiguration.priorityHeight;
+            var pWidth:int = bestConfiguration.priorityWidth;
+            var cellAspectRatio:Number = cellAspectRatio;
+            var blockX:int = Math.floor((width - oWidth * (numColumns - 1)) / 2);
+            var blockY:int = Math.floor((height - oHeight * (numRows - 1)) / 2);
+	    var item:UserGraphicHolder = getChildAt(0) as UserGraphicHolder;
+            var cellOffsetX:int = 0;
+            var cellOffsetY:int = 0;
+            
+	    if (item.contentAspectRatio > cellAspectRatio) {
+		item.width = pWidth;
+                item.height = Math.floor(pWidth / item.contentAspectRatio);
+                cellOffsetY = (pHeight - item.height) / 2;
+            } else {
+            	item.width = Math.floor(pHeight * item.contentAspectRatio);
+                item.height = pHeight;
+                cellOffsetX = (pWidth - item.width) / 2;
+            }
+            item.x = blockX + cellOffsetX;
+            item.y = pHeight + blockY + cellOffsetY;
+	    
+            for (var i:int = 1; i < numChildren; ++i) {
+                item = getChildAt(i) as UserGraphicHolder;
+                cellOffsetX = 0;
+                cellOffsetY = 0;
+                if (item.contentAspectRatio > cellAspectRatio) {
+                    item.width = oWidth;
+                    item.height = Math.floor(oWidth / item.contentAspectRatio);
+                    cellOffsetY = (oHeight - item.height) / 2;
+                } else {
+                    item.width = Math.floor(oHeight * item.contentAspectRatio);
+                    item.height = oHeight;
+                    cellOffsetX = (oWidth - item.width) / 2;
+                }
+                item.x = (i % numColumns) * oWidth + blockX + cellOffsetX;
+                item.y = Math.floor(i / numColumns) * oHeight + blockY + cellOffsetY;
+            }
+	}
+        
+
         private function updateDisplayListHelper():void {
             if (numChildren == 0) {
                 return;
