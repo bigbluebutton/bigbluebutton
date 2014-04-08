@@ -55,7 +55,6 @@ public class ParticipantsApplication {
 	
 	public boolean registerUser(String roomName, String userid, String username, String role, String externUserID, Map status) {
 		bbbInGW.registerUser(roomName, userid, username, role, externUserID);
-		//bbbInGW.userJoin(roomName, userid, username, role, externUserID);
 		return true;
 	}
 		
@@ -69,15 +68,6 @@ public class ParticipantsApplication {
 	
 	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
 		bbbInGW = inGW;
-	}
-
-	public boolean addParticipantsBridge(String room, ParticipantsBridge participantsBridge) {
-		if (roomsManager.hasRoom(room)){
-			roomsManager.addParticipantsBridge(room, participantsBridge);
-			return true;
-		}
-		log.warn("Adding listener to a non-existant room " + room);
-		return false;
 	}
 	
 	public void setRecordingStatus(String meetingId, String userId, Boolean recording) {

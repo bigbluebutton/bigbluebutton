@@ -25,15 +25,12 @@ import org.red5.server.api.IConnection;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.scope.IScope;
-import org.red5.server.api.so.ISharedObject;
 import org.red5.server.adapter.ApplicationAdapter;
 import org.red5.server.api.Red5;
 import java.util.HashMap;
 import java.util.Map;
 import org.bigbluebutton.conference.BigBlueButtonSession;
 import org.bigbluebutton.conference.Constants;
-import org.bigbluebutton.conference.service.recorder.RecorderApplication;
-import org.bigbluebutton.conference.service.recorder.participants.ParticipantsEventRecorder;
 
 public class ParticipantsHandler extends ApplicationAdapter implements IApplication{
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsHandler.class, "bigbluebutton" );
@@ -105,10 +102,6 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 		BigBlueButtonSession bbbSession = getBbbSession();
 		if (bbbSession == null) {
 			log.debug("roomLeave - session is null"); 
-		} else {
-			//participantsApplication.participantLeft(scope.getName(), bbbSession.getInternalUserID());
-			participantsBridge.removeParticipant(bbbSession.getRoom(),bbbSession.getInternalUserID());
-			participantsBridge.sendParticipantLeave(bbbSession.getRoom(),bbbSession.getInternalUserID());
 		}		
 	}
 	
@@ -131,14 +124,8 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 			status.put("raiseHand", false);
 			status.put("presenter", false);
 			status.put("hasStream", false);	
-<<<<<<< HEAD
+
 			participantsApplication.registerUser(room, userid, username, role, bbbSession.getExternUserID(), status);
-=======
-			participantsBridge.storeParticipant(room, userid, username, role);
-			participantsBridge.sendParticipantJoin(room, userid, username,role);
-			//return participantsApplication.participantJoin(room, userid, username, role, bbbSession.getExternUserID(), status);
-			return true;
->>>>>>> e45a77f080693613f8d3ee7369c2a7e3d228a925
 		}
 		log.warn("Can't send user join as session is null.");
 	}
@@ -152,11 +139,4 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}
 	
-	public ParticipantsBridge getParticipantsBridge() {
-		return participantsBridge;
-	}
-
-	public void setParticipantsBridge(ParticipantsBridge participantsBridge) {
-		this.participantsBridge = participantsBridge;
-	}
 }

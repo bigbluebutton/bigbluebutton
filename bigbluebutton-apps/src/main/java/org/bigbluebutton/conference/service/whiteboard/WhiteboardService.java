@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 public class WhiteboardService {
 	private static Logger log = Red5LoggerFactory.getLogger(WhiteboardService.class, "bigbluebutton");
 	private WhiteboardApplication application;
-	private WhiteboardBridge whiteboardBridge;
 	
 	 private final static String TYPE = "type";
 	 private final static String STATUS = "status";

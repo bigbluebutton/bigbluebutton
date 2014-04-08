@@ -29,10 +29,8 @@ import org.bigbluebutton.conference.Constants;
 
 
 public class ParticipantsService {
-
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsService.class, "bigbluebutton" );	
 	private ParticipantsApplication application;
-	private ParticipantsBridge participantsBridge;
 
 	public void assignPresenter(Map<String, String> msg) {
 
@@ -82,7 +80,6 @@ public class ParticipantsService {
 		application = a;
 	}
 	
-<<<<<<< HEAD
 	public void setRecordingStatus(Map<String, Object> msg) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 		application.setRecordingStatus(roomName, (String)msg.get("userId"), (Boolean) msg.get("recording"));
@@ -102,10 +99,6 @@ public class ParticipantsService {
 	
 	private BigBlueButtonSession getBbbSession() {
         return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
-}
-=======
-	public void setParticipantsBridge(ParticipantsBridge pb){
-		this.participantsBridge = pb;
-	}
->>>>>>> e45a77f080693613f8d3ee7369c2a7e3d228a925
+    }
+
 }
