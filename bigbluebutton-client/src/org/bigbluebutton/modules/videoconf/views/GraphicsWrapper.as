@@ -16,7 +16,7 @@ package org.bigbluebutton.modules.videoconf.views
     public class GraphicsWrapper extends Canvas {
 
         private var _options:VideoConfOptions = new VideoConfOptions();
-
+	private var priorityWeight:Number = 2/3;
         public function GraphicsWrapper() {
             percentWidth = percentHeight = 100;
         }
@@ -78,15 +78,25 @@ package org.bigbluebutton.modules.videoconf.views
         }
 
 	private function findPriorityConfiguration():Object{
-		var cellAspectRatio:Number = minContentAspectRatio;
-		var bestConfiguration:Object = {
+		var bestConfig:Object = {
 			isVerticalSplit: true,
-			priorityWidth: height * cellAspectRatio * 2/3,
-			priorityHeight: height * 2/3,
-			otherWidth: width / (numChildren - 1) ,
-			otherHeight: (width / cellAspectRatio) / (numChildren - 1)	
+			priorityWidth: width,
+			priorityHeight: width / ((getChildAt(0) as UserGraphicHolder).contentAspectRatio),
+			otherWidth: 0,
+			otherHeight: 0	
+		};
+		if (numChildren > 1){
+			if((getChildAt(0) as UserGraphicHolder).contentAspectRatio > priorityWeight * width/height){ 
+				bestConfig.priorityWidth=  Math.floor(priorityWeight * bestConfig.priorityWidth);
+				bestConfig.priorityHeight= Math.floor(priorityWeight * bestConfig.priorityHeight)
+			} else { 
+				bestConfig.priorityHeight= height;
+				bestConfig.priorityWidth= Math.floor(height * (getChildAt(0) as UserGraphicHolder).contentAspectRatio);
+			}
+			bestConfig.otherWidth= Math.floor((1-priorityWeight) * width );
+			bestConfig.otherHeight= Math.floor((1-priorityWeight) * width / minContentAspectRatio);
 		}
-		return bestConfiguration;
+		return bestConfig;
 	}
 
 	 private function updateDisplayListHelperByPriority():void {
@@ -95,46 +105,23 @@ package org.bigbluebutton.modules.videoconf.views
             }
 
             var bestConfiguration:Object = findPriorityConfiguration();
-            var numColumns:int = numChildren - 1;
-            var numRows:int = 1;
             var oWidth:int = bestConfiguration.otherWidth;
             var oHeight:int = bestConfiguration.otherHeight;
 	    var pHeight:int = bestConfiguration.priorityHeight;
             var pWidth:int = bestConfiguration.priorityWidth;
-            var cellAspectRatio:Number = cellAspectRatio;
-            var blockX:int = Math.floor((width - oWidth * (numColumns - 1)) / 2);
-            var blockY:int = Math.floor((height - oHeight * (numRows - 1)) / 2);
 	    var item:UserGraphicHolder = getChildAt(0) as UserGraphicHolder;
-            var cellOffsetX:int = 0;
-            var cellOffsetY:int = 0;
             
-	    if (item.contentAspectRatio > cellAspectRatio) {
-		item.width = pWidth;
-                item.height = Math.floor(pWidth / item.contentAspectRatio);
-                cellOffsetY = (pHeight - item.height) / 2;
-            } else {
-            	item.width = Math.floor(pHeight * item.contentAspectRatio);
-                item.height = pHeight;
-                cellOffsetX = (pWidth - item.width) / 2;
-            }
-            item.x = blockX + cellOffsetX;
-            item.y = pHeight + blockY + cellOffsetY;
+	    item.width =pWidth;
+            item.height = pHeight; 
+            item.x = 0;//blockX + cellOffsetX;
+            item.y = 0;//pHeight + blockY + cellOffsetY;
 	    
             for (var i:int = 1; i < numChildren; ++i) {
                 item = getChildAt(i) as UserGraphicHolder;
-                cellOffsetX = 0;
-                cellOffsetY = 0;
-                if (item.contentAspectRatio > cellAspectRatio) {
-                    item.width = oWidth;
-                    item.height = Math.floor(oWidth / item.contentAspectRatio);
-                    cellOffsetY = (oHeight - item.height) / 2;
-                } else {
-                    item.width = Math.floor(oHeight * item.contentAspectRatio);
-                    item.height = oHeight;
-                    cellOffsetX = (oWidth - item.width) / 2;
-                }
-                item.x = (i % numColumns) * oWidth + blockX + cellOffsetX;
-                item.y = Math.floor(i / numColumns) * oHeight + blockY + cellOffsetY;
+                item.width = oWidth;
+                item.height = oHeight;
+                item.x = pWidth;
+                item.y = (i-1) * oHeight;
             }
 	}
         
@@ -175,8 +162,9 @@ package org.bigbluebutton.modules.videoconf.views
         override public function validateDisplayList():void {
             super.validateDisplayList();
 
-            updateDisplayListHelper();
-        }
+		//updateDisplayListHelper();
+            	updateDisplayListHelperByPriority();
+	}
 
         public function addAvatarFor(userId:String):void {
             if (! UsersUtil.hasUser(userId)) return;
