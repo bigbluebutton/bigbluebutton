@@ -97,4 +97,10 @@ public class SwfSlidesGenerationProgressNotifier {
 		builder.messageKey(ConversionMessageConstants.GENERATING_TEXTFILES_KEY);
 		notifyProgressListener(builder.build().getMessage());	
 	}
+
+	public void sendCreatingPngImagesUpdateMessage(UploadedPresentation pres) {
+		MessageBuilder builder = new ConversionUpdateMessage.MessageBuilder(pres);
+		builder.messageKey(ConversionMessageConstants.GENERATING_PNGIMAGES_KEY);
+		notifyProgressListener(builder.build().getMessage());
+	}
 }

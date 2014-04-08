@@ -43,4 +43,6 @@ public class MessagingConstants {
 	public static final String USER_STATUS_CHANGE_EVENT = "UserStatusChangeEvent";	
 	public static final String SEND_POLLS_EVENT = "SendPollsEvent";
 	public static final String RECORD_STATUS_EVENT = "RecordStatusEvent";
+
+	public static final String BIGBLUEBUTTON_BRIDGE = "bigbluebutton:bridge";
 }

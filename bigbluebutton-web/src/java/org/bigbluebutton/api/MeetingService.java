@@ -99,6 +99,7 @@ public class MeetingService {
 				destroyMeeting(m.getInternalId());
 				
 				meetings.remove(m.getInternalId());
+				messagingService.removeMeeting(m.getInternalId());
 				continue;
 			}
 			
@@ -267,6 +268,7 @@ public class MeetingService {
 				}
 				destroyMeeting(m.getInternalId());
 				meetings.remove(m.getInternalId());
+				messagingService.removeMeeting(m.getInternalId());
 			}
 		} else {
 			log.debug("endMeeting - meeting doesn't exist: " + meetingId);

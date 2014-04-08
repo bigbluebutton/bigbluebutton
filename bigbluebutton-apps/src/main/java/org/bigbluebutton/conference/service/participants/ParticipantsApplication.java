@@ -70,6 +70,15 @@ public class ParticipantsApplication {
 	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
 		bbbInGW = inGW;
 	}
+
+	public boolean addParticipantsBridge(String room, ParticipantsBridge participantsBridge) {
+		if (roomsManager.hasRoom(room)){
+			roomsManager.addParticipantsBridge(room, participantsBridge);
+			return true;
+		}
+		log.warn("Adding listener to a non-existant room " + room);
+		return false;
+	}
 	
 	public void setRecordingStatus(String meetingId, String userId, Boolean recording) {
 		bbbInGW.setRecordingStatus(meetingId, userId, recording);

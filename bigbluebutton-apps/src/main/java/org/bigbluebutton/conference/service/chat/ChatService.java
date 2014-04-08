@@ -30,6 +30,7 @@ public class ChatService {
 	private static Logger log = Red5LoggerFactory.getLogger( ChatService.class, "bigbluebutton" );
 	
 	private ChatApplication application;
+	private ChatBridge chatBridge;
 
 	public void sendPublicChatHistory() {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
@@ -75,6 +76,9 @@ public class ChatService {
 	
 	public void setChatApplication(ChatApplication a) {
 		application = a;
+	}
+	public void setChatBridge(ChatBridge cb){
+		this.chatBridge = cb;
 	}
 	
 	public void sendPrivateMessage(Map<String, Object> msg){

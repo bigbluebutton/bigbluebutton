@@ -89,6 +89,10 @@ class PresentationService {
 		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "slide-${id}.swf")
 	}
 	
+	def showPngImage(String conf, String room, String presentationName, String id) {
+		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "pngs" + File.separatorChar + id)
+	}
+	
 	def showPresentation = {conf, room, filename ->
 		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + filename + File.separatorChar + "slides.swf")
 	}

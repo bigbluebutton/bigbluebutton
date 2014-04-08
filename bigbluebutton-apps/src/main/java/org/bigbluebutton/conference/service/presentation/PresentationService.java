@@ -18,10 +18,10 @@
 */
 package org.bigbluebutton.conference.service.presentation;
 
-import java.util.Map;
-
 import org.slf4j.Logger;
-import org.red5.logging.Red5LoggerFactory;import org.red5.server.api.Red5;import org.red5.server.api.scope.IScope;
+import org.red5.logging.Red5LoggerFactory;
+import org.red5.server.api.Red5;
+import org.red5.server.api.scope.IScope;
 import org.bigbluebutton.conference.BigBlueButtonSession;
 import org.bigbluebutton.conference.Constants;
 
@@ -29,6 +29,7 @@ public class PresentationService {
 	private static Logger log = Red5LoggerFactory.getLogger( PresentationService.class, "bigbluebutton" );
 	
 	private PresentationApplication presentationApplication;
+	private PresentationBridge bridge;
 
 	public void removePresentation(Map<String, Object> msg) {
 		String presentationID = (String) msg.get("presentationID");
