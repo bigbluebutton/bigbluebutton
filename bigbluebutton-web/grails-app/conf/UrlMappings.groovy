@@ -41,6 +41,14 @@ class UrlMappings {
 			action = [POST:'setPollXML']
 		}
 
+		"/api/getMeetings"(controller:"api") {
+			action = [GET:'getMeetingsHandler']
+		}
+		
+		"/api/getRecordings"(controller:"api") {
+			action = [GET:'getRecordingsHandler']
+		}
+		
 		"/$controller/$action?/$id?(.${format})?"{
 			constraints {
 				// apply constraints here

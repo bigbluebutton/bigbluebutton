@@ -46,7 +46,10 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
       case None => println("Could not find meeting id[" + msg.meetingID + "] to destroy.")
       case Some(m) => {
         m ! StopMeetingActor
-        meetings -= msg.meetingID     
+        meetings -= msg.meetingID    
+        println("Kinc everyone out on meeting id[" + msg.meetingID + "].")
+        outGW.send(new EndAndKickAll(msg.meetingID, m.recorded))
+        
         println("Destroyed meeting id[" + msg.meetingID + "].")
         outGW.send(new MeetingDestroyed(msg.meetingID))
       }

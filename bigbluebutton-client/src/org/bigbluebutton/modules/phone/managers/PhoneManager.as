@@ -18,25 +18,22 @@
 */
 
 package org.bigbluebutton.modules.phone.managers {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.StatusEvent;
 	import flash.external.ExternalInterface;
 	import flash.media.Microphone;
 	import flash.system.Security;
-	import flash.system.SecurityPanel;
-	
+	import flash.system.SecurityPanel;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.phone.PhoneOptions;
-	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
 
 	public class PhoneManager {		
-		private var connectionManager:ConnectionManager;
-		private var streamManager:StreamManager;
+    private static const LOG:String = "Phone::PhoneManager - ";
+    
 		private var onCall:Boolean = false;
 		private var attributes:Object;
 		private var phoneOptions:PhoneOptions = new PhoneOptions();
@@ -47,173 +44,19 @@ package org.bigbluebutton.modules.phone.managers {
 		// User has requested to leave the voice conference.
 		private var userHangup:Boolean = false;
 		private var mic:Microphone;
-		private var webrtcCapable:Boolean = false;
-		private var useWebrtcIfAvailable:Boolean = true;
 		
     private var callDestination: String;
     
 		public function PhoneManager() {
-			connectionManager = new ConnectionManager();
-			streamManager = new StreamManager();
-
-			webrtcCapable = initWebrtcFlag();
-		}
-
-		private function initWebrtcFlag():Boolean {
-			return (ExternalInterface.available && ExternalInterface.call("isWebrtcCapable"));
 		}
 
 		public function setModuleAttributes(attributes:Object):void {
 			this.attributes = attributes;
 
-			useWebrtcIfAvailable = phoneOptions.useWebrtcIfAvailable;
-
 			if (phoneOptions.autoJoin) {
-				onClickToJoinVoiceConference();
 			}
 		}
 
-		private function micStatusEventHandler(event:StatusEvent):void {					
-			switch(event.code) {
-				case "Microphone.Muted":
-					LogUtil.warn("Access to microphone has been denied.");
-					joinVoice(false);
-					break;
-				case "Microphone.Unmuted":
-					LogUtil.debug("Access to the microphone has been allowed.");
-					joinVoice(true);
-					break;
-				default:
-					LogUtil.debug("unknown micStatusHandler event: " + event);
-			}
-		}			
-		
-		private function noMicrophone():Boolean {
-			return ((Microphone.getMicrophone() == null) || (Microphone.names.length == 0) 
-				|| ((Microphone.names.length == 1) && (Microphone.names[0] == "Unknown Microphone")));
-		}
-		
-		private function setupMic(useMic:Boolean, microphoneIndex:int):void {
-			withMic = useMic;
-			if (withMic)
-				streamManager.initMicrophone(microphoneIndex);
-			else
-				streamManager.initWithNoMicrophone();
-		}
-		
-		private function setupConnection():void {
-			streamManager.setConnection(connectionManager.getConnection());
-		}
-						
-		public function joinVoice(autoJoin:Boolean, microphoneIndex:int = 0):void {
-			if (webrtcCapable && useWebrtcIfAvailable) {			  
-				var s:String = ExternalInterface.call("joinWebRTCVoiceConference()");
-				trace(s);
-			} else {
-			  userHangup = false;
-			  setupMic(autoJoin, microphoneIndex);
-			  var uid:String = String(Math.floor(new Date().getTime()));
-			  var uname:String = encodeURIComponent(UsersUtil.getMyExternalUserID() + "-bbbID-" + attributes.username);
-			  connectionManager.connect(uid, attributes.internalUserID, uname , attributes.room, attributes.uri);
-			  var dispatcher:Dispatcher = new Dispatcher();
-			  dispatcher.dispatchEvent(new BBBEvent(BBBEvent.JOIN_VOICE_FOCUS_HEAD));
-			}
-    }
-		
-		public function onJoinVoiceConferenceEvent(args:Object):void {
-      if (args != null && args.hasOwnProperty("callDestination")) {
-        callDestination = args.callDestination;
-      }
-			if (args != null && args.hasOwnProperty('useWebrtcIfAvailable')) {
-				useWebrtcIfAvailable = args.useWebrtcIfAvailable;
-			}
-			joinVoice(args.useMicrophone, args.microphoneIndex);
-		}	
-		
-		public function rejoin():void {
-			if (!rejoining && !userHangup) {
-				// We got disconnected and it's not because the user requested it. Let's rejoin the conference.
-				LogUtil.debug("Rejoining the conference");
-				rejoining = true;
-				joinVoice(withMic);
-			}			
-		}
-				
-		public function dialConference():void {
-			LogUtil.debug("*** Dialling conference ***");
-			connectionManager.doCall(callDestination);
-		}
-		
-		public function callConnected(event:CallConnectedEvent):void {
-			if (webrtcCapable && useWebrtcIfAvailable) {
 
-			} else {
-				setupConnection();
-				streamManager.callConnected(event.playStreamName, event.publishStreamName, event.codec);
-			}
-			onCall = true;
-			// We have joined the conference. Reset so that if and when we get disconnected, we
-			// can rejoin automatically.
-			rejoining = false;
-		}
-		
-		public function userRequestedHangup():void {
-			LogUtil.debug("User has requested to hangup and leave the conference");
-			userHangup = true;
-			hangup();
-		}
-		
-		public function hangup():void {
-			if (onCall) {
-				onCall = false;
-				if (webrtcCapable && useWebrtcIfAvailable) {
-					var s:String = ExternalInterface.call("leaveWebRTCVoiceConference()");
-					trace(s);
-				} else {
-					streamManager.stopStreams();
-					connectionManager.doHangUp();
-				}
-			}			
-		}
-
-		public function onClickToJoinVoiceConference(args:Object = null):void {
-			var forceSkipCheck:Boolean = (args != null && args.hasOwnProperty('forceSkipCheck')? args['forceSkipCheck']: false);
-			webrtcCapable = (args != null && args.hasOwnProperty('webrtcCapable')? args['webrtcCapable']: webrtcCapable);
-
-			if (phoneOptions.skipCheck || noMicrophone() || forceSkipCheck) {
-				if (webrtcCapable && phoneOptions.useWebrtcIfAvailable) {
-					joinVoice(true);
-				} else {
-					mic = Microphone.getMicrophone();
-					
-					/*
-					 * If the user had no mic, let her join but she'll just be listening.	
-					 * We should indicate a warning that the user is joining without mic
-					 * so that he will know that others won't be able to hear him.
-					*/
-					if (mic == null) {
-						joinVoice(false);
-					} else if (mic.muted) {
-						// user has disallowed access to the mic
-						Security.showSettings(SecurityPanel.PRIVACY);
-						mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
-					} else {
-						// user has allowed access to the mic already
-						joinVoice(true);
-					}
-				}
-			} else {
-				var dispatcher:Dispatcher = new Dispatcher();
-
-				var showMicSettings:BBBEvent = new BBBEvent("SHOW_MIC_SETTINGS");
-				showMicSettings.payload['webrtcCapable'] = webrtcCapable;
-				showMicSettings.payload['useWebrtcIfAvailable'] = phoneOptions.useWebrtcIfAvailable;
-				dispatcher.dispatchEvent(showMicSettings);
-			}
-		}
-
-		public function onClickToLeaveVoiceConference():void {
-			userRequestedHangup();
-		}
 	}
 }

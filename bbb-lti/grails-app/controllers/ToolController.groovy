@@ -41,19 +41,20 @@ class ToolController {
     LtiService ltiService
     BigbluebuttonService bigbluebuttonService
     
-    def index = { 
+    def index = {
         if( ltiService.consumerMap == null) ltiService.initConsumerMap()
         log.debug CONTROLLER_NAME + "#index"
 
         setLocalization(params)
         
         params.put(REQUEST_METHOD, request.getMethod().toUpperCase())
-        log.debug "params: " + params
+        ltiService.logParameters(params)
         
         if( request.post ){
             Map<String, String> result = new HashMap<String, String>()
             ArrayList<String> missingParams = new ArrayList<String>()
             log.debug "Checking for required parameters"
+
             if (hasAllRequiredParams(params, missingParams)) {
                 def sanitizedParams = sanitizePrametersForBaseString(params)
                 def consumer = ltiService.getConsumer(params.get(Parameter.CONSUMER_ID))
@@ -74,6 +75,7 @@ class ToolController {
                         }
                         
                     } else {
+                        log.debug  "The message has NOT a valid signature."
                         result.put("resultMessageKey", "InvalidSignature")
                         result.put("resultMessage", "Invalid signature (" + params.get(Parameter.OAUTH_SIGNATURE) + ").")
                     }
@@ -91,12 +93,11 @@ class ToolController {
                 result.put("resultMessageKey", "MissingRequiredParameter")
                 result.put("resultMessage", "Missing parameters [$missingStr]")
             }
-            
-            
-            if( result != null && result.containsKey("resultMessageKey") ) {
+
+            if( result.containsKey("resultMessageKey") ) {
                 log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
                 render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
-                
+
             } else {
                 session["params"] = params
                 List<Object> recordings = bigbluebuttonService.getRecordings(params)
@@ -110,23 +111,23 @@ class ToolController {
                     /// Add duration
                     recording.put("duration", duration )
                 }
-                
+
                 render(view: "index", model: ['params': params, 'recordingList': recordings, 'ismoderator': bigbluebuttonService.isModerator(params)])
             }
-    
+
         } else {
             render(text: getCartridgeXML(), contentType: "text/xml", encoding: "UTF-8")
-        
+
         }
     }
-    
+
     def join = {
         if( ltiService.consumerMap == null) ltiService.initConsumerMap()
         log.debug CONTROLLER_NAME + "#join"
         Map<String, String> result
-        
+
         def sessionParams = session["params"]
-        
+
         if( sessionParams != null ) {
             log.debug "params: " + params
             log.debug "sessionParams: " + sessionParams
@@ -136,7 +137,7 @@ class ToolController {
             result.put("resultMessageKey", "InvalidSession")
             result.put("resultMessage", "Invalid session. User can not execute this action.")
         } 
-        
+
         if( result.containsKey("resultMessageKey")) {
             log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
             render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
@@ -147,9 +148,9 @@ class ToolController {
     def publish = {
         log.debug CONTROLLER_NAME + "#publish"
         Map<String, String> result
-        
+
         def sessionParams = session["params"]
-        
+
         if( sessionParams == null ) {
             result = new HashMap<String, String>()
             result.put("resultMessageKey", "InvalidSession")
@@ -165,7 +166,7 @@ class ToolController {
             //Execute the publish command
             result = bigbluebuttonService.doPublishRecordings(params)
         } 
-        
+
         if( result.containsKey("resultMessageKey")) {
             log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
             render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
@@ -183,7 +184,7 @@ class ToolController {
             }
             
             render(view: "index", model: ['params': sessionParams, 'recordingList': recordings, 'ismoderator': bigbluebuttonService.isModerator(sessionParams)])
-            
+
         }
 
     }
@@ -191,9 +192,9 @@ class ToolController {
     def delete = {
         log.debug CONTROLLER_NAME + "#delete"
         Map<String, String> result
-        
+
         def sessionParams = session["params"]
-        
+
         if( sessionParams == null ) {
             result = new HashMap<String, String>()
             result.put("resultMessageKey", "InvalidSession")
@@ -209,7 +210,7 @@ class ToolController {
             //Execute the delete command
             result = bigbluebuttonService.doDeleteRecordings(params)
         }
-        
+
         if( result.containsKey("resultMessageKey")) {
             log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
             render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
@@ -225,14 +226,13 @@ class ToolController {
                 /// Add duration
                 recording.put("duration", duration )
             }
-            
+
             render(view: "index", model: ['params': sessionParams, 'recordingList': recordings, 'ismoderator': bigbluebuttonService.isModerator(sessionParams)])
         }
-
     }
-    
+
     private void setLocalization(params){
-        
+
         String locale = params.get(Parameter.LAUNCH_LOCALE)
         locale = (locale == null || locale.equals("")?"en":locale)
         log.debug "Locale code =" + locale
@@ -251,15 +251,28 @@ class ToolController {
         Map<String, String> result = new HashMap<String, String>()
                     
         setLocalization(params)
-        String welcome = message(code: "bigbluebutton.welcome", args: ["\"{0}\"", "\"{1}\""])
+        String welcome = message(code: "bigbluebutton.welcome.header", args: ["\"{0}\"", "\"{1}\""]) + "<br>"
         log.debug "Localized default welcome message: [" + welcome + "]"
 
 		// Check for [custom_]welcome parameter being passed from the LTI
 		if (params.get(Parameter.CUSTOM_WELCOME) != null) {
-			welcome = params.get(Parameter.CUSTOM_WELCOME)
+			welcome = params.get(Parameter.CUSTOM_WELCOME) + "<br>"
 			log.debug "Overriding default welcome message with: [" + welcome + "]"
 		}
-           
+
+        if ( Boolean.parseBoolean(params.get(Parameter.CUSTOM_RECORD)) ) {
+            welcome += "<br><b>" + message(code: "bigbluebutton.welcome.record") + "</b><br>"
+            log.debug "Adding record warning to welcome message, welcome is now: [" + welcome + "]"
+        }
+
+        if ( Integer.parseInt(params.get(Parameter.CUSTOM_DURATION)) > 0 ) {
+            welcome += "<br><b>" + message(code: "bigbluebutton.welcome.duration", args: [params.get(Parameter.CUSTOM_DURATION)]) + "</b><br>"
+            log.debug "Adding duration warning to welcome message, welcome is now: [" + welcome + "]"
+        }
+
+        welcome += "<br>" + message(code: "bigbluebutton.welcome.footer") + "<br>"
+        log.debug "Localized default welcome message including footer: [" + welcome + "]"
+
         String destinationURL = bigbluebuttonService.getJoinURL(params, welcome, ltiService.mode)
         log.debug "redirecting to " + destinationURL
                     
@@ -335,13 +348,16 @@ class ToolController {
      * @return - TRUE if the signatures matches the calculated signature
      */
     private boolean checkValidSignature(String method, String URL, String conSecret, Object postProp, String signature) {
-        OAuthMessage oam = new OAuthMessage(method, URL, ((Properties)postProp).entrySet());
-        HMAC_SHA1 hmac = new HMAC_SHA1();
-        hmac.setConsumerSecret(conSecret);
+		log.debug( "Starting checkValidSignature()" )
+        OAuthMessage oam = new OAuthMessage(method, URL, ((Properties)postProp).entrySet())
+		log.debug( "OAuthMessage oam = " + oam.toString() )
+        HMAC_SHA1 hmac = new HMAC_SHA1()
+		log.debug( "HMAC_SHA1 hmac = " + hmac.toString() )
+        hmac.setConsumerSecret(conSecret)
 
-        log.debug("Base Message String = [ " + hmac.getBaseString(oam) + " ]\n");
+        log.debug("Base Message String = [ " + hmac.getBaseString(oam) + " ]\n")
         String calculatedSignature = hmac.getSignature(hmac.getBaseString(oam))
-        log.debug("Calculated: " + calculatedSignature + " Received: " + signature);
+        log.debug("Calculated: " + calculatedSignature + " Received: " + signature)
         return calculatedSignature.equals(signature)
     }
     

@@ -21,6 +21,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+                xmlns:mate="http://mate.asfusion.com/"
     showCloseButton="false" creationComplete="init()"
     verticalScrollPolicy="off"
     horizontalScrollPolicy="off"
@@ -31,28 +32,31 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     borderThicknessTop="0"
     x="20"
     y="-20">
-    
+  
+  <mate:Listener type="{WebRtcRemoveAskMicPermissionEvent.REMOVE_MIC_PERMISSION}" method="handleRemoveAskMicPermissionEvent" />
+  
 	<mx:Script>
 		<![CDATA[
-			import mx.core.FlexGlobals;
-			import mx.managers.PopUpManager;
-			
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import mx.core.FlexGlobals;
+      import mx.managers.PopUpManager;
+      
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.core.BBB;
+      import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+      import org.bigbluebutton.modules.phone.events.WebRtcRemoveAskMicPermissionEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 						
 			
 			private function init():void {
 				//addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
 			}
 
-      private function onUserLoggedOutWindowClose(e:Event):void {
-      	//PopUpManager.removePopUp(this);
+      private function handleRemoveAskMicPermissionEvent(e:WebRtcRemoveAskMicPermissionEvent):void {
+      	PopUpManager.removePopUp(this);
       }
 
 		
 		]]>
 	</mx:Script>
-  <mx:Image source="@Embed('assets/chrome_allow.png')"/>	
+  <mx:Image source="@Embed('assets/chrome-mic-permission.png')"/>	
 </mx:TitleWindow> 

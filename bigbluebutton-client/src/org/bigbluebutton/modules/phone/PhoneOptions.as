@@ -21,6 +21,8 @@ package org.bigbluebutton.modules.phone
 	import org.bigbluebutton.core.BBB;
 	
 	public class PhoneOptions {
+    public var uri:String = "unknown";
+    
 		[Bindable]
 		public var showButton:Boolean = true;
 
@@ -46,6 +48,9 @@ package org.bigbluebutton.modules.phone
 		public function parseOptions():void {
 			var vxml:XML = BBB.getConfigForModule("PhoneModule");
 			if (vxml != null) {
+        if (vxml.@uri != undefined) {
+          uri = vxml.@uri.toString();
+        }
 				if (vxml.@showButton != undefined) {
 					showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
 				}

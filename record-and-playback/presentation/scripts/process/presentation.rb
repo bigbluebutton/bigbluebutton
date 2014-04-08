@@ -19,7 +19,13 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
 
+# For DEVELOPMENT
+# Allows us to run the script manually
+# require File.expand_path('../../../../core/lib/recordandplayback', __FILE__)
+
+# For PRODUCTION
 require File.expand_path('../../../lib/recordandplayback', __FILE__)
+
 require 'rubygems'
 require 'trollop'
 require 'yaml'
@@ -38,13 +44,13 @@ presentation_props['include_deskshare'] = false if presentation_props['include_d
 
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
-
+log_dir = props['log_dir']
 
 
 target_dir = "#{recording_dir}/process/presentation/#{meeting_id}"
 if not FileTest.directory?(target_dir)
-  FileUtils.mkdir_p "/var/log/bigbluebutton/presentation"
-  logger = Logger.new("/var/log/bigbluebutton/presentation/process-#{meeting_id}.log", 'daily' )
+  FileUtils.mkdir_p "#{log_dir}/presentation"
+  logger = Logger.new("#{log_dir}/presentation/process-#{meeting_id}.log", 'daily' )
   BigBlueButton.logger = logger
   BigBlueButton.logger.info("Processing script presentation.rb")
   FileUtils.mkdir_p target_dir

@@ -24,6 +24,7 @@ package org.bigbluebutton.core.managers
 	import flash.events.EventDispatcher;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
+	import flash.net.navigateToURL;
 	
 	import mx.core.FlexGlobals;
 	import mx.utils.URLUtil;
@@ -31,8 +32,11 @@ package org.bigbluebutton.core.managers
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.EventBroadcaster;
 	import org.bigbluebutton.core.model.Config;
+	import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 	
 	public class ConfigManager2 extends EventDispatcher {
+    private static const LOG:String = "Main::ConfigManager2 - ";
+    
     public static const CONFIG_XML:String = "bigbluebutton/api/configXML";
     
 		private var _config:Config = null;
@@ -42,7 +46,7 @@ package org.bigbluebutton.core.managers
 			urlLoader.addEventListener(Event.COMPLETE, handleComplete);
 			var date:Date = new Date();
       var localeReqURL:String = buildRequestURL() + "?a=" + date.time;
-      trace("ConfigManager2::loadConfig [" + localeReqURL + "]");
+      trace(LOG + "::loadConfig [" + localeReqURL + "]");
 			urlLoader.load(new URLRequest(localeReqURL));			
 		}		
 		
@@ -54,13 +58,20 @@ package org.bigbluebutton.core.managers
     }
     
 		private function handleComplete(e:Event):void{
-      trace("ConfigManager2::handleComplete [" + new XML(e.target.data) + "]");
+      trace(LOG + "handleComplete [" + new XML(e.target.data) + "]");
       
-			_config = new Config(new XML(e.target.data));
-			 EventBroadcaster.getInstance().dispatchEvent(new Event("configLoadedEvent", true));	
-		//	 var dispatcher:Dispatcher = new Dispatcher();
-		//	 LogUtil.debug("*** Sending config loaded event.");
-		//	 dispatcher.dispatchEvent(new Event("configLoadedEvent", true));
+      var xml:XML = new XML(e.target.data)
+      
+      if (xml.returncode == "FAILED") {
+        
+        trace(LOG + "Getting configXML failed [" + xml + "]");        
+        var dispatcher:Dispatcher = new Dispatcher();
+        dispatcher.dispatchEvent(new MeetingNotFoundEvent(xml.response.logoutURL));
+      } else { 
+        trace(LOG + "Getting configXML passed [" + xml + "]");
+			  _config = new Config(new XML(e.target.data));
+			  EventBroadcaster.getInstance().dispatchEvent(new Event("configLoadedEvent", true));	
+      }
 		}
 		
 		public function get config():Config {

@@ -42,12 +42,12 @@ public class RecorderApplication {
 	private BlockingQueue<RecordEvent> messages;
 	private volatile boolean recordEvents = false;
 
-	private final Map<String, String> recordingSessions;
+//	private final Map<String, String> recordingSessions;
 	private Recorder recorder;
 	
 	public RecorderApplication() {
 		 messages = new LinkedBlockingQueue<RecordEvent>();
-		recordingSessions = new ConcurrentHashMap<String, String>();
+//		recordingSessions = new ConcurrentHashMap<String, String>();
 	}
 
 	public void start() {
@@ -75,25 +75,25 @@ public class RecorderApplication {
 	}
 
 	public void destroyRecordSession(String meetingID) {
-		recordingSessions.remove(meetingID);
+//		recordingSessions.remove(meetingID);
 	}
 	
 	public void createRecordSession(String meetingID) {
-		recordingSessions.put(meetingID, meetingID);
+//		recordingSessions.put(meetingID, meetingID);
 	}
 	
 	public void record(String meetingID, RecordEvent message) {
 		messages.offer(message);
 
-		if (recordingSessions.containsKey(meetingID)) {
+//		if (recordingSessions.containsKey(meetingID)) {
 			recorder.record(meetingID, message);
-		}
+//		}
 	}
 
 	private void recordEvent(RecordEvent message) {
-		if (recordingSessions.containsKey(message.getMeetingID())) {
+//		if (recordingSessions.containsKey(message.getMeetingID())) {
 			recorder.record(message.getMeetingID(), message);
-		}		
+//		}		
 	}
 	
 	public void setRecorder(Recorder recorder) {

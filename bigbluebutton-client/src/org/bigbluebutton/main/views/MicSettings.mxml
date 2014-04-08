@@ -31,15 +31,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
       import flash.system.Security;
       import flash.system.SecurityPanel;
-      import flash.ui.Keyboard;
-      
+      import flash.ui.Keyboard;    
       import mx.controls.sliderClasses.Slider;
       import mx.core.IFlexDisplayObject;
       import mx.events.CloseEvent;
       import mx.events.ItemClickEvent;
       import mx.events.SliderEvent;
-      import mx.managers.PopUpManager;
-      
+      import mx.managers.PopUpManager;      
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.BBB;
@@ -62,7 +60,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var playingAudio:Boolean = false;
 			private var images:Images = new Images();
 
-			private var micPermissionImg:MicPermissionImage;
+			private var micPermissionImg:ChromeMicPermissionImage;
 			private var userBrowser:String;
 
 			[Bindable] private var _webrtcCapable:Boolean = false;
@@ -73,8 +71,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var microphoneList:Array;      
 			[Bindable]private var baseIndex:int = 1;
 			
-			override public function move(x:Number, y:Number):void
-			{
+			override public function move(x:Number, y:Number):void {
 				return;
 			}
 			
@@ -198,7 +195,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function showMicPermissionImage():void{			 
-				micPermissionImg = new MicPermissionImage();   
+				micPermissionImg = new ChromeMicPermissionImage();   
       	PopUpManager.addPopUp(micPermissionImg, this, false);				
 			}
 			

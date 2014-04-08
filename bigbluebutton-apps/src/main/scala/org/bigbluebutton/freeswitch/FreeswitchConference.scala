@@ -24,5 +24,10 @@ class FreeswitchConference(val conferenceNum: String,
     users.values find (u => u.voiceUser.userId == voiceUserId)
   }
   
+  def numUsersInVoiceConference:Int = {
+    val joinedUsers = users.values filter (u => u.voiceUser.joined)
+    joinedUsers.size
+  }
+  
   def numUsers = users.size
 }

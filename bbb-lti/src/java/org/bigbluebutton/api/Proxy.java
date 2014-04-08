@@ -59,7 +59,11 @@ public class Proxy {
     }
     
     public void setUrl(String url){
-        this.url = url;
+        if( url.substring(url.length()-1).equals("/") )
+            this.url = url.substring(0, url.length()-1);
+        else
+            this.url = url;
+        //this.url = url;
     }
     
     public void setSalt(String salt){
