@@ -16,7 +16,7 @@ package org.bigbluebutton.modules.videoconf.views
     public class GraphicsWrapper extends Canvas {
 
         private var _options:VideoConfOptions = new VideoConfOptions();
-	private var priorityWeight:Number = 2/3;
+        private var priorityWeight:Number = 2/3;
         public function GraphicsWrapper() {
             percentWidth = percentHeight = 100;
         }
@@ -39,8 +39,8 @@ package org.bigbluebutton.modules.videoconf.views
 
         private function calculateCellDimensions(numColumns:int, numRows:int, cellAspectRatio:Number):Object {
             var obj:Object = {
-                width: Math.floor(width / numColumns),
-                height: Math.floor(height / numRows)
+width: Math.floor(width / numColumns),
+       height: Math.floor(height / numRows)
             }
             if (obj.width / obj.height > cellAspectRatio) {
                 obj.width = Math.floor(obj.height * cellAspectRatio);
@@ -63,7 +63,7 @@ package org.bigbluebutton.modules.videoconf.views
             var cellAspectRatio:Number = minContentAspectRatio;
 
             var bestConfiguration:Object = {
-                occupiedArea: 0
+occupiedArea: 0
             }
 
             for (var numColumns:int = 1; numColumns <= numChildren; ++numColumns) {
@@ -77,29 +77,45 @@ package org.bigbluebutton.modules.videoconf.views
             return bestConfiguration;
         }
 
-	private function findPriorityConfiguration():Object{
-		var bestConfig:Object = {
-			isVerticalSplit: true,
-			priorityWidth: width,
-			priorityHeight: width / ((getChildAt(0) as UserGraphicHolder).contentAspectRatio),
-			otherWidth: 0,
-			otherHeight: 0	
-		};
-		if (numChildren > 1){
-			if((getChildAt(0) as UserGraphicHolder).contentAspectRatio > priorityWeight * width/height){ 
-				bestConfig.priorityWidth=  Math.floor(priorityWeight * bestConfig.priorityWidth);
-				bestConfig.priorityHeight= Math.floor(priorityWeight * bestConfig.priorityHeight)
-			} else { 
-				bestConfig.priorityHeight= height;
-				bestConfig.priorityWidth= Math.floor(height * (getChildAt(0) as UserGraphicHolder).contentAspectRatio);
-			}
-			bestConfig.otherWidth= Math.floor((1-priorityWeight) * width );
-			bestConfig.otherHeight= Math.floor((1-priorityWeight) * width / minContentAspectRatio);
-		}
-		return bestConfig;
-	}
+        private function findPriorityConfiguration():Object{
+            var aspectRatio:Number = minContentAspectRatio;
+            var bestConfig:Object = {
+                 isVerticalSplit: true,
+                 priorityWidth: width,
+                 priorityHeight: width / aspectRatio,
+                 otherWidth: 0,
+                 otherHeight: 0	
+            };/*{
+                 isVerticalSplit: false,
+                 priorityWidth: height * aspectRatio,
+                 priorityHeight: height,
+                 otherWidth: 0,
+                 otherHeight: 0
+            }*/
+            if (numChildren > 1){
+                bestConfig.priorityWidth=  Math.floor(priorityWeight * bestConfig.priorityWidth);
+                bestConfig.priorityHeight= Math.floor(priorityWeight * bestConfig.priorityHeight);
+                bestConfig.otherWidth= Math.floor((1-priorityWeight) * bestConfig.priorityWidth );
+                bestConfig.otherHeight= Math.floor((1-priorityWeight) * bestConfig.priorityHeight);
+                var nonPriorityRatio:Number = bestConfig.isVerticalSplit ?
+                                                height / (bestConfig.otherHeight * (numChildren - 1)) :
+                                                width  / (bestConfig.otherWidth  * (numChildren - 1));
+                if(nonPriorityRatio < 1){
+                    bestConfig.otherWidth*=nonPriorityRatio;
+                    bestConfig.otherHeight*=nonPriorityRatio;
+                }
+            }
+            var priorityRatio:Number = bestConfig.isVerticalSplit ?
+                                        height / (bestConfig.priorityHeight) :
+                                        width  / (bestConfig.priorityWidth);  
+            if(priorityRatio < 1){
+                bestConfig.priorityHeight*=priorityRatio;
+                bestConfig.priorityWidth*=priorityRatio;
+            }
+            return bestConfig;
+        }
 
-	 private function updateDisplayListHelperByPriority():void {
+        private function updateDisplayListHelperByPriority():void {
             if (numChildren == 0) {
                 return;
             }
@@ -107,24 +123,37 @@ package org.bigbluebutton.modules.videoconf.views
             var bestConfiguration:Object = findPriorityConfiguration();
             var oWidth:int = bestConfiguration.otherWidth;
             var oHeight:int = bestConfiguration.otherHeight;
-	    var pHeight:int = bestConfiguration.priorityHeight;
+            var pHeight:int = bestConfiguration.priorityHeight;
             var pWidth:int = bestConfiguration.priorityWidth;
-	    var item:UserGraphicHolder = getChildAt(0) as UserGraphicHolder;
-            
-	    item.width =pWidth;
-            item.height = pHeight; 
-            item.x = 0;//blockX + cellOffsetX;
-            item.y = 0;//pHeight + blockY + cellOffsetY;
-	    
+            var isVertical:Boolean = bestConfiguration.isVerticalSplit;
+            var item:UserGraphicHolder = getChildAt(0) as UserGraphicHolder;
+            var oX:int;
+            var oY:int;
+            var relativPosY:int;
+            item.width =pWidth;
+            item.height = pHeight;
+            if(isVertical){
+                item.x = (width-pWidth-oWidth)/2;
+                item.y = (height-pHeight)/2;
+                oX = (width+pWidth-oWidth)/2;
+                oY = (height - (oHeight * (numChildren-1)))/2;
+                relativPosY = 1;
+            } else {
+                item.y = (height-pHeight-oHeight)/2;
+                item.x = (width-pWidth)/2;
+                oY = (height+pHeight-oHeight)/2;
+                oX = (width - (oWidth * (numChildren-1)))/2;
+                relativPosY=0;
+            }
             for (var i:int = 1; i < numChildren; ++i) {
                 item = getChildAt(i) as UserGraphicHolder;
                 item.width = oWidth;
                 item.height = oHeight;
-                item.x = pWidth;
-                item.y = (i-1) * oHeight;
+                item.x=oX+(1-relativPosY)*(i-1)*oWidth
+                item.y=oY+relativPosY*(i-1)*oHeight;
             }
-	}
-        
+        }
+
 
         private function updateDisplayListHelper():void {
             if (numChildren == 0) {
@@ -162,9 +191,9 @@ package org.bigbluebutton.modules.videoconf.views
         override public function validateDisplayList():void {
             super.validateDisplayList();
 
-		//updateDisplayListHelper();
-            	updateDisplayListHelperByPriority();
-	}
+            //updateDisplayListHelper();
+            updateDisplayListHelperByPriority();
+        }
 
         public function addAvatarFor(userId:String):void {
             if (! UsersUtil.hasUser(userId)) return;
@@ -172,8 +201,8 @@ package org.bigbluebutton.modules.videoconf.views
             var graphic:UserGraphicHolder = new UserGraphicHolder();
             graphic.userId = userId;
             graphic.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
-                graphic.loadAvatar(_options);
-            });
+                    graphic.loadAvatar(_options);
+                    });
             super.addChild(graphic);
         }
 
@@ -182,8 +211,8 @@ package org.bigbluebutton.modules.videoconf.views
             var graphic:UserGraphicHolder = new UserGraphicHolder();
             graphic.userId = userId;
             graphic.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
-                graphic.loadVideo(_options, connection, streamName);
-            });
+                    graphic.loadVideo(_options, connection, streamName);
+                    });
             super.addChild(graphic);
         }
 
@@ -212,8 +241,8 @@ package org.bigbluebutton.modules.videoconf.views
             var graphic:UserGraphicHolder = new UserGraphicHolder();
             graphic.userId = userId;
             graphic.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
-                graphic.loadCamera(_options, camIndex, videoProfile);
-            });
+                    graphic.loadCamera(_options, camIndex, videoProfile);
+                    });
             super.addChild(graphic);
         }
 
