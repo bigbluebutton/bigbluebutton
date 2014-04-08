@@ -79,19 +79,25 @@ occupiedArea: 0
 
         private function findPriorityConfiguration():Object{
             var aspectRatio:Number = minContentAspectRatio;
-            var bestConfig:Object = {
+            var bestConfig:Object = 
+            /*
+            {
                  isVerticalSplit: true,
                  priorityWidth: width,
                  priorityHeight: width / aspectRatio,
                  otherWidth: 0,
                  otherHeight: 0	
-            };/*{
+            };
+            */
+            ///*
+            {
                  isVerticalSplit: false,
                  priorityWidth: height * aspectRatio,
                  priorityHeight: height,
                  otherWidth: 0,
                  otherHeight: 0
-            }*/
+            }
+            //*/
             if (numChildren > 1){
                 bestConfig.priorityWidth=  Math.floor(priorityWeight * bestConfig.priorityWidth);
                 bestConfig.priorityHeight= Math.floor(priorityWeight * bestConfig.priorityHeight);
