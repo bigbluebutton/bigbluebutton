@@ -175,7 +175,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	}
 
     @Override
-    public void streamPlayItemPlay(ISubscriberStream stream, IPlayItem item, boolean isLive) {
+    public synchronized void streamPlayItemPlay(ISubscriberStream stream, IPlayItem item, boolean isLive) {
         // log w3c connect event
         String streamName = item.getName();
         
@@ -207,7 +207,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     }
 
     @Override
-    public void streamSubscriberClose(ISubscriberStream stream) {
+    public synchronized void streamSubscriberClose(ISubscriberStream stream) {
         super.streamSubscriberClose(stream);
         String streamName = stream.getBroadcastStreamPublishName();
         if(streamName.contains("/"))
