@@ -228,7 +228,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("settings", msg.settings)
     map.put("timestamp", System.nanoTime())
                  
-    dispatcher.dispatch("***** DISPATCHING LOCK SETTINGS *****************")
+    dispatcher.dispatch("***** DISPATCHING LOCK SETTING *****************")
     dispatcher.dispatch((new Gson).toJson(map))
   }
   private def handleLockUser(msg: LockUser) {
@@ -696,7 +696,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     //map.put("presentations", msg.presentations) //#TODO
     map.put("timestamp", System.nanoTime())
 
-    dispatcher.dispatch("***** DISPATCHING PREUPLOADED PRESENTATION *****************")
+    dispatcher.dispatch("***** DISPATCHING PREUPLOADED PRESENTATIONS *****************")
     dispatcher.dispatch((new Gson).toJson(map))
   }
   private def handlePresentationConversionUpdate(msg: PresentationConversionUpdate) {
@@ -996,7 +996,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("recording", msg.recording)
     map.put("timestamp", System.nanoTime())
  
-    dispatcher.dispatch("***** DISPATCHING GET RECORDINGS STATUS REPLY *****************")
+    dispatcher.dispatch("***** DISPATCHING GET RECORDING STATUS REPLY *****************")
     dispatcher.dispatch((new Gson).toJson(map))
   }
   private def handleMeetingEnded(msg: MeetingEnded) {
@@ -1416,7 +1416,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("pollVO", msg.pollVO)
     map.put("timestamp", System.nanoTime())
 
-    dispatcher.dispatch("***** DISPATCHING GET POLL RESULTS REPLY *****************")
+    dispatcher.dispatch("***** DISPATCHING GET POLL RESULT REPLY *****************")
     dispatcher.dispatch((new Gson).toJson(map))
   }
   private def handleGetPollsReplyOutMsg(msg: GetPollsReplyOutMsg) {
@@ -1622,7 +1622,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("recorded", msg.recorded)
     map.put("timestamp", System.nanoTime())
 
-    dispatcher.dispatch("***** DISPATCHING GET PREUPLOADED PRESENTATION OUTMSG *****************")
+    dispatcher.dispatch("***** DISPATCHING GET PREUPLOADED PRESENTATIONS OUTMSG *****************")
     dispatcher.dispatch((new Gson).toJson(map))
   }
   private def handlePresentationConversionProgress(msg: PresentationConversionProgress) {
