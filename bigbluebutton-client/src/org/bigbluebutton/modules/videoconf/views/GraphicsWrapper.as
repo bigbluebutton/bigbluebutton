@@ -139,9 +139,9 @@ isVertSplit: true,
                 bestConf.numRows=oBestConf.numRows;
                 bestConf.aspectRatio=oBestConf.cellAspectRatio;
             } else {
-                var pBestConf:Object = findBestConfiguration(width,height,1);
-                bestConf.priorityHeight = pBestConf.height;
-                bestConf.priorityWidth = pBestConf.width; 
+                var auxBestConf:Object = findBestConfiguration(width,height,1);
+                bestConf.priorityHeight = auxBestConf.height;
+                bestConf.priorityWidth = auxBestConf.width; 
             }
             return bestConf;
         }
@@ -192,8 +192,7 @@ isVertSplit: true,
         override public function validateDisplayList():void {
             super.validateDisplayList();
 
-            //            updateDisplayListHelper();
-            updateDisplayListHelperByPriority2(0);
+            updateDisplayListHelperByPriority(0);
         }
 
         public function addAvatarFor(userId:String):void {
