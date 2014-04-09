@@ -110,154 +110,90 @@ occupiedArea: 0
             }
         }    
 
-        private function findPriorityConfiguration2():Object{
+        private function findPriorityConfiguration():Object{
             var bestConf:Object = {
-                 isVerticalSplit: true,
-                 priorityWidth: 0,
-                 priorityHeight: 0,
-                 otherWidth: 0,
-                 otherHeight: 0,
-                 numColumns: 0,
-                 numRows: 0,
-                 aspectRatio: 0                
-            };
-            var pBestConf:Object = findBestConfiguration(Math.floor(width* ((numChildren > 1) ? priorityWeight : 1)), height, 1);
-            bestConf.priorityHeight = pBestConf.height;
-            bestConf.priorityWidth = pBestConf.width;           
+isVertSplit: true,
+             priorityWidth: 0,
+             priorityHeight: 0,
+             otherWidth: 0,
+             otherHeight: 0,
+             numColumns: 0,
+             numRows: 0,
+             aspectRatio: 0                
+            };         
             if (numChildren > 1){
-                var oBestConf:Object = findBestConfiguration(width - pBestConf.width, height, numChildren-1);
+                var pBestConfVer:Object = findBestConfiguration(Math.floor(width*priorityWeight), height, 1);
+                var pBestConfHor:Object = findBestConfiguration(width, Math.floor(height*priorityWeight), 1);
+                bestConf.isVertSplit = (pBestConfVer.occupiedArea > pBestConfHor.occupiedArea);
+                var pBestConf:Object = bestConf.isVertSplit ?
+                    pBestConfVer :
+                    pBestConfHor;
+                bestConf.priorityHeight = pBestConf.height;
+                bestConf.priorityWidth = pBestConf.width;  
+                var oBestConf:Object = bestConf.isVertSplit ?
+                    findBestConfiguration(width - pBestConf.width, height,  numChildren-1) : 
+                    findBestConfiguration(width, height - pBestConf.height, numChildren-1);
                 bestConf.otherHeight=oBestConf.height;
                 bestConf.otherWidth=oBestConf.width;
                 bestConf.numColumns=oBestConf.numColumns;
                 bestConf.numRows=oBestConf.numRows;
                 bestConf.aspectRatio=oBestConf.cellAspectRatio;
+            } else {
+                var pBestConf:Object = findBestConfiguration(width,height,1);
+                bestConf.priorityHeight = pBestConf.height;
+                bestConf.priorityWidth = pBestConf.width; 
             }
             return bestConf;
         }
 
-        private function updateDisplayListHelperByPriority2():void {
+        private function updateDisplayListHelperByPriority(priorityItemIndex:int):void {
             if (numChildren == 0) {
                 return;
             }
 
-            var bestConfiguration:Object = findPriorityConfiguration2();
+            var bestConfiguration:Object = findPriorityConfiguration();
             var numColumns:int = bestConfiguration.numColumns;
             var numRows:int = bestConfiguration.numRows;
             var oWidth:int = bestConfiguration.otherWidth;
             var oHeight:int = bestConfiguration.otherHeight;
             var pWidth:int = bestConfiguration.priorityWidth;
             var pHeight:int = bestConfiguration.priorityHeight;  
-            var aspectRatio:Number = bestConfiguration.cellAspectRatio;
 
-            var cellOffsetX:int = 0;
-            var cellOffsetY:int = 0;
-
-            var item:UserGraphicHolder = getChildAt(0) as UserGraphicHolder;
-            item.width =pWidth;
+            var item:UserGraphicHolder = getChildAt(priorityItemIndex) as UserGraphicHolder;        
+            item.width = pWidth;
             item.height = pHeight;
-            item.x = Math.floor((width-pWidth-oWidth*numColumns)/2);
-            item.y = Math.floor((height-pHeight)/2);
-            var blockX:int = Math.floor((3*(width - oWidth*numColumns) + pWidth)/4);
-            var blockY:int = Math.floor((height-oHeight*numRows)/2);
-            for (var i:int = 1; i < numChildren; ++i) {
-                item = getChildAt(i) as UserGraphicHolder; 
-                item.width = oWidth;
-           //     item.height = Math.floor(oWidth / item.contentAspectRatio);
-                item.height = oHeight;
-                
-                item.x = ((i-1) % numColumns) * oWidth + blockX;
-                item.y = Math.floor((i-1) / numColumns) * oHeight + blockY;
-            }
-        }
-
-        private function findPriorityConfiguration():Object{
-            var aspectRatio:Number = minContentAspectRatio;
-            var bestConfig:Object = 
-            /*
-            {
-                 isVerticalSplit: true,
-                 priorityWidth: width,
-                 priorityHeight: width / aspectRatio,
-                 otherWidth: 0,
-                 otherHeight: 0	
-            };
-            */
-            ///*
-            {
-                 isVerticalSplit: false,
-                 priorityWidth: height * aspectRatio,
-                 priorityHeight: height,
-                 otherWidth: 0,
-                 otherHeight: 0
-            }
-            //*/
-            if (numChildren > 1){
-                bestConfig.priorityWidth=  Math.floor(priorityWeight * bestConfig.priorityWidth);
-                bestConfig.priorityHeight= Math.floor(priorityWeight * bestConfig.priorityHeight);
-                bestConfig.otherWidth= Math.floor((1-priorityWeight) * bestConfig.priorityWidth );
-                bestConfig.otherHeight= Math.floor((1-priorityWeight) * bestConfig.priorityHeight);
-                var nonPriorityRatio:Number = bestConfig.isVerticalSplit ?
-                                                height / (bestConfig.otherHeight * (numChildren - 1)) :
-                                                width  / (bestConfig.otherWidth  * (numChildren - 1));
-                if(nonPriorityRatio < 1){
-                    bestConfig.otherWidth*=nonPriorityRatio;
-                    bestConfig.otherHeight*=nonPriorityRatio;
-                }
-            }
-            var priorityRatio:Number = bestConfig.isVerticalSplit ?
-                                        height / (bestConfig.priorityHeight) :
-                                        width  / (bestConfig.priorityWidth);  
-            if(priorityRatio < 1){
-                bestConfig.priorityHeight*=priorityRatio;
-                bestConfig.priorityWidth*=priorityRatio;
-            }
-            return bestConfig;
-        }
-
-        private function updateDisplayListHelperByPriority():void {
-            if (numChildren == 0) {
-                return;
-            }
-
-            var bestConfiguration:Object = findPriorityConfiguration();
-            var oWidth:int = bestConfiguration.otherWidth;
-            var oHeight:int = bestConfiguration.otherHeight;
-            var pHeight:int = bestConfiguration.priorityHeight;
-            var pWidth:int = bestConfiguration.priorityWidth;
-            var isVertical:Boolean = bestConfiguration.isVerticalSplit;
-            var item:UserGraphicHolder = getChildAt(0) as UserGraphicHolder;
-            var oX:int;
-            var oY:int;
-            var relativPosY:int;
-            item.width =pWidth;
-            item.height = pHeight;
-            if(isVertical){
-                item.x = (width-pWidth-oWidth)/2;
-                item.y = (height-pHeight)/2;
-                oX = (width+pWidth-oWidth)/2;
-                oY = (height - (oHeight * (numChildren-1)))/2;
-                relativPosY = 1;
+            var blockX:int=0;
+            var blockY:int=0;
+            if(bestConfiguration.isVertSplit){
+                blockX = Math.floor((3*(width - oWidth*numColumns) + pWidth)/4);
+                blockY = Math.floor((height-oHeight*numRows)/2);
+                item.x = Math.floor((width-pWidth-oWidth*numColumns)/2);
+                item.y = Math.floor((height-pHeight)/2);
             } else {
-                item.y = (height-pHeight-oHeight)/2;
-                item.x = (width-pWidth)/2;
-                oY = (height+pHeight-oHeight)/2;
-                oX = (width - (oWidth * (numChildren-1)))/2;
-                relativPosY=0;
+                blockX = Math.floor((width - oWidth*numColumns)/2);
+                blockY = Math.floor((3*(height - oHeight*numRows) + pHeight)/4);
+                item.x = Math.floor((width-pWidth)/2);
+                item.y = Math.floor((height-pHeight-oHeight*numRows)/2);
             }
-            for (var i:int = 1; i < numChildren; ++i) {
-                item = getChildAt(i) as UserGraphicHolder;
-                item.width = oWidth;
-                item.height = oHeight;
-                item.x=oX+(1-relativPosY)*(i-1)*oWidth
-                item.y=oY+relativPosY*(i-1)*oHeight;
+
+            var nonPriorityIndex:int=0;
+            for (var curItemIndex:int = 0; curItemIndex < numChildren; ++curItemIndex) {
+                item = getChildAt(curItemIndex) as UserGraphicHolder;
+                if(curItemIndex != priorityItemIndex){ 
+                    item.width = oWidth;
+                    item.height = oHeight; 
+                    item.x = (nonPriorityIndex % numColumns) * oWidth + blockX;
+                    item.y = Math.floor(nonPriorityIndex / numColumns) * oHeight + blockY;
+                    nonPriorityIndex++;
+                }
             }
         } 
 
         override public function validateDisplayList():void {
             super.validateDisplayList();
 
-//            updateDisplayListHelper();
-            updateDisplayListHelperByPriority2();
+            //            updateDisplayListHelper();
+            updateDisplayListHelperByPriority2(0);
         }
 
         public function addAvatarFor(userId:String):void {
