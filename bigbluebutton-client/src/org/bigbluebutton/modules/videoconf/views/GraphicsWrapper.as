@@ -20,7 +20,7 @@ package org.bigbluebutton.modules.videoconf.views
         private var priorityWeight:Number = 2/3;
         private var priorityMode:Boolean = false;
         private var priorityItemIndex:int = 0;
- 
+
         public function GraphicsWrapper() {
             percentWidth = percentHeight = 100;
         }
@@ -43,8 +43,8 @@ package org.bigbluebutton.modules.videoconf.views
 
         private function calculateCellDimensions(canvasWidth:int, canvasHeight:int, numColumns:int, numRows:int, cellAspectRatio:Number):Object {
             var obj:Object = {
-width: Math.floor(canvasWidth / numColumns),
-       height: Math.floor(canvasHeight / numRows)
+                width: Math.floor(canvasWidth / numColumns),
+                height: Math.floor(canvasHeight / numRows)
             }
             if (obj.width / obj.height > cellAspectRatio) {
                 obj.width = Math.floor(obj.height * cellAspectRatio);
@@ -67,7 +67,7 @@ width: Math.floor(canvasWidth / numColumns),
             var cellAspectRatio:Number = minContentAspectRatio;
 
             var bestConfiguration:Object = {
-occupiedArea: 0
+                occupiedArea: 0
             }
 
             for (var numColumns:int = 1; numColumns <= numChildrenInCanvas; ++numColumns) {
@@ -116,10 +116,10 @@ occupiedArea: 0
 
         private function findPriorityConfiguration():Object{
             var pBestConf:Object = {
-                numRows: 0,
-                numColumns: 0,
-                width: 0,
-                height: 0};
+numRows: 0,
+         numColumns: 0,
+         width: 0,
+         height: 0};
             var oBestConf:Object = pBestConf;
             var isVertSplit:Boolean = false;
             if (numChildren > 1){
@@ -196,9 +196,8 @@ occupiedArea: 0
             var graphic:UserGraphicHolder = new UserGraphicHolder();
             graphic.userId = userId;
             graphic.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
-                    graphic.loadAvatar(_options);
-                    });
-            //graphic.addEventListener(MouseEvent.CLICK, onVBoxClick);
+                graphic.loadAvatar(_options);
+            });
             super.addChild(graphic);
         }
 
@@ -207,8 +206,8 @@ occupiedArea: 0
             var graphic:UserGraphicHolder = new UserGraphicHolder();
             graphic.userId = userId;
             graphic.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
-                    graphic.loadVideo(_options, connection, streamName);
-                    });
+                graphic.loadVideo(_options, connection, streamName);
+            });
             graphic.addEventListener(MouseEvent.CLICK, onVBoxClick);
             super.addChild(graphic);
         }
@@ -238,25 +237,25 @@ occupiedArea: 0
             var graphic:UserGraphicHolder = new UserGraphicHolder();
             graphic.userId = userId;
             graphic.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
-                    graphic.loadCamera(_options, camIndex, videoProfile);
-                    });
-            
+                graphic.loadCamera(_options, camIndex, videoProfile);
+            });
+
             graphic.addEventListener(MouseEvent.CLICK, onVBoxClick);
             super.addChild(graphic);
         }
 
         protected function onVBoxClick(event:MouseEvent = null):void {
-                var item:UserGraphicHolder = event.currentTarget as UserGraphicHolder;
-                var newItemIndex:int = getChildIndex(item);
-                priorityMode = !priorityMode || newItemIndex!=priorityItemIndex;
-                if(priorityMode){
-                    priorityItemIndex = newItemIndex;
-                    updateDisplayListHelperByPriority();
-                } else {
-                    updateDisplayListHelper();
-                }        
+            var item:UserGraphicHolder = event.currentTarget as UserGraphicHolder;
+            var newItemIndex:int = getChildIndex(item);
+            priorityMode = !priorityMode || newItemIndex!=priorityItemIndex;
+            if(priorityMode){
+                priorityItemIndex = newItemIndex;
+                updateDisplayListHelperByPriority();
+            } else {
+                updateDisplayListHelper();
+            }        
         }
-        
+
         public function addCameraFor(userId:String, camIndex:int, videoProfile:VideoProfile):void {
             if (! UsersUtil.hasUser(userId)) return;
 
