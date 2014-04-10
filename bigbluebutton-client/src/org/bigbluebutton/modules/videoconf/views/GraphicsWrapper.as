@@ -2,6 +2,7 @@ package org.bigbluebutton.modules.videoconf.views
 {
     import flash.display.DisplayObject;
     import flash.net.NetConnection;
+    import flash.events.MouseEvent;
     import mx.containers.Canvas;
     import mx.core.UIComponent;
     import mx.events.FlexEvent;
@@ -17,6 +18,9 @@ package org.bigbluebutton.modules.videoconf.views
 
         private var _options:VideoConfOptions = new VideoConfOptions();
         private var priorityWeight:Number = 2/3;
+        private var priorityMode:Boolean = false;
+        private var priorityItemIndex:int = 0;
+ 
         public function GraphicsWrapper() {
             percentWidth = percentHeight = 100;
         }
@@ -111,60 +115,48 @@ occupiedArea: 0
         }    
 
         private function findPriorityConfiguration():Object{
-            var bestConf:Object = {
-isVertSplit: true,
-             priorityWidth: 0,
-             priorityHeight: 0,
-             otherWidth: 0,
-             otherHeight: 0,
-             numColumns: 0,
-             numRows: 0,
-             aspectRatio: 0                
-            };         
+            var pBestConf:Object = {
+                numRows: 0,
+                numColumns: 0,
+                width: 0,
+                height: 0};
+            var oBestConf:Object = pBestConf;
+            var isVertSplit:Boolean = false;
             if (numChildren > 1){
                 var pBestConfVer:Object = findBestConfiguration(Math.floor(width*priorityWeight), height, 1);
                 var pBestConfHor:Object = findBestConfiguration(width, Math.floor(height*priorityWeight), 1);
-                bestConf.isVertSplit = (pBestConfVer.occupiedArea > pBestConfHor.occupiedArea);
-                var pBestConf:Object = bestConf.isVertSplit ?
+                isVertSplit = (pBestConfVer.occupiedArea > pBestConfHor.occupiedArea);
+                pBestConf = isVertSplit ?
                     pBestConfVer :
                     pBestConfHor;
-                bestConf.priorityHeight = pBestConf.height;
-                bestConf.priorityWidth = pBestConf.width;  
-                var oBestConf:Object = bestConf.isVertSplit ?
+                oBestConf = isVertSplit ?
                     findBestConfiguration(width - pBestConf.width, height,  numChildren-1) : 
                     findBestConfiguration(width, height - pBestConf.height, numChildren-1);
-                bestConf.otherHeight=oBestConf.height;
-                bestConf.otherWidth=oBestConf.width;
-                bestConf.numColumns=oBestConf.numColumns;
-                bestConf.numRows=oBestConf.numRows;
-                bestConf.aspectRatio=oBestConf.cellAspectRatio;
             } else {
-                var auxBestConf:Object = findBestConfiguration(width,height,1);
-                bestConf.priorityHeight = auxBestConf.height;
-                bestConf.priorityWidth = auxBestConf.width; 
+                pBestConf = findBestConfiguration(width,height,1);
             }
-            return bestConf;
+            return {isVertSplit: isVertSplit, priorConf: pBestConf, otherConf: oBestConf};
         }
 
-        private function updateDisplayListHelperByPriority(priorityItemIndex:int):void {
+        private function updateDisplayListHelperByPriority():void {
             if (numChildren == 0) {
                 return;
             }
 
-            var bestConfiguration:Object = findPriorityConfiguration();
-            var numColumns:int = bestConfiguration.numColumns;
-            var numRows:int = bestConfiguration.numRows;
-            var oWidth:int = bestConfiguration.otherWidth;
-            var oHeight:int = bestConfiguration.otherHeight;
-            var pWidth:int = bestConfiguration.priorityWidth;
-            var pHeight:int = bestConfiguration.priorityHeight;  
+            var bestConf:Object = findPriorityConfiguration();
+            var numColumns:int = bestConf.otherConf.numColumns;
+            var numRows:int = bestConf.otherConf.numRows;
+            var oWidth:int = bestConf.otherConf.width;
+            var oHeight:int = bestConf.otherConf.height;
+            var pWidth:int = bestConf.priorConf.width;
+            var pHeight:int = bestConf.priorConf.height;  
 
             var item:UserGraphicHolder = getChildAt(priorityItemIndex) as UserGraphicHolder;        
             item.width = pWidth;
             item.height = pHeight;
             var blockX:int=0;
             var blockY:int=0;
-            if(bestConfiguration.isVertSplit){
+            if(bestConf.isVertSplit){
                 blockX = Math.floor((3*(width - oWidth*numColumns) + pWidth)/4);
                 blockY = Math.floor((height-oHeight*numRows)/2);
                 item.x = Math.floor((width-pWidth-oWidth*numColumns)/2);
@@ -178,8 +170,8 @@ isVertSplit: true,
 
             var nonPriorityIndex:int=0;
             for (var curItemIndex:int = 0; curItemIndex < numChildren; ++curItemIndex) {
-                item = getChildAt(curItemIndex) as UserGraphicHolder;
                 if(curItemIndex != priorityItemIndex){ 
+                    item = getChildAt(curItemIndex) as UserGraphicHolder;
                     item.width = oWidth;
                     item.height = oHeight; 
                     item.x = (nonPriorityIndex % numColumns) * oWidth + blockX;
@@ -191,8 +183,11 @@ isVertSplit: true,
 
         override public function validateDisplayList():void {
             super.validateDisplayList();
-
-            updateDisplayListHelperByPriority(0);
+            if(priorityMode){
+                updateDisplayListHelperByPriority();
+            } else {
+                updateDisplayListHelper();
+            }
         }
 
         public function addAvatarFor(userId:String):void {
@@ -203,6 +198,7 @@ isVertSplit: true,
             graphic.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
                     graphic.loadAvatar(_options);
                     });
+            //graphic.addEventListener(MouseEvent.CLICK, onVBoxClick);
             super.addChild(graphic);
         }
 
@@ -213,6 +209,7 @@ isVertSplit: true,
             graphic.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
                     graphic.loadVideo(_options, connection, streamName);
                     });
+            graphic.addEventListener(MouseEvent.CLICK, onVBoxClick);
             super.addChild(graphic);
         }
 
@@ -243,9 +240,23 @@ isVertSplit: true,
             graphic.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
                     graphic.loadCamera(_options, camIndex, videoProfile);
                     });
+            
+            graphic.addEventListener(MouseEvent.CLICK, onVBoxClick);
             super.addChild(graphic);
         }
 
+        protected function onVBoxClick(event:MouseEvent = null):void {
+                var item:UserGraphicHolder = event.currentTarget as UserGraphicHolder;
+                var newItemIndex:int = getChildIndex(item);
+                priorityMode = !priorityMode || newItemIndex!=priorityItemIndex;
+                if(priorityMode){
+                    priorityItemIndex = newItemIndex;
+                    updateDisplayListHelperByPriority();
+                } else {
+                    updateDisplayListHelper();
+                }        
+        }
+        
         public function addCameraFor(userId:String, camIndex:int, videoProfile:VideoProfile):void {
             if (! UsersUtil.hasUser(userId)) return;
 
