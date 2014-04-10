@@ -72,7 +72,6 @@ package org.bigbluebutton.modules.videoconf.views
 
             for (var numColumns:int = 1; numColumns <= numChildrenInCanvas; ++numColumns) {
                 var numRows:int = Math.ceil(numChildrenInCanvas / numColumns);
-
                 var currentConfiguration:Object = calculateOccupiedArea(canvasWidth, canvasHeight, numColumns, numRows, cellAspectRatio);
                 if (currentConfiguration.occupiedArea > bestConfiguration.occupiedArea) {
                     bestConfiguration = currentConfiguration;
@@ -116,10 +115,11 @@ package org.bigbluebutton.modules.videoconf.views
 
         private function findPriorityConfiguration():Object{
             var pBestConf:Object = {
-numRows: 0,
-         numColumns: 0,
-         width: 0,
-         height: 0};
+                numRows: 0,
+                numColumns: 0,
+                width: 0,
+                height: 0
+            };
             var oBestConf:Object = pBestConf;
             var isVertSplit:Boolean = false;
             if (numChildren > 1){
