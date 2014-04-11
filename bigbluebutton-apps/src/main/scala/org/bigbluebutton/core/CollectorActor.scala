@@ -1770,7 +1770,28 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("recorded", msg.recorded)
     map.put("requesterID", msg.requesterID)
     map.put("whiteboardId", msg.whiteboardId)
-    map.put("shapes", msg.shapes.toString()) //#todo not tested
+
+    var shapesMap = new java.util.HashMap[String, Any]()
+
+    for(index <- 0 until msg.shapes.size)
+    {
+      val item = msg.shapes(index)
+      var tempMap = new java.util.HashMap[String, Any]()
+      tempMap.put("id", item.id)
+      tempMap.put("status", item.status)
+      tempMap.put("shapeType", item.shapeType)
+      tempMap.put("wbId", item.wbId)
+      
+      var innerMap = new java.util.HashMap[String, Any]()
+      for ((key, value)<-item.shape)
+      {
+        innerMap.put(key, value)
+      }
+      tempMap.put("shape", innerMap)
+      shapesMap.put(index.toString(), tempMap)
+    }
+    map.put("shapes", shapesMap)
+
     map.put("timestamp", System.nanoTime())
 
     dispatcher.dispatch("***** DISPATCHING GET WHITEBOARD SHAPES REPLY *****************")
