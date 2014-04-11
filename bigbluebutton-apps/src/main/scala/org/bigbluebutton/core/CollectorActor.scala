@@ -1171,7 +1171,28 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("meetingID", msg.meetingID)
     map.put("requesterID", msg.requesterID)
 
-    map.put("users", msg.users.toString()) //#todo not tested
+    var usersMap = new java.util.HashMap[String, Any]()
+
+    for(index <- 0 until msg.users.size)
+    {
+      val item = msg.users(index)
+      var tempMap = new java.util.HashMap[String, Any]()
+      tempMap.put("userID", item.userID)
+      tempMap.put("externUserID", item.externUserID)
+      tempMap.put("name", item.name)
+      tempMap.put("role", item.role.toString())
+      tempMap.put("raiseHand", item.raiseHand)
+      tempMap.put("presenter", item.presenter)
+      tempMap.put("hasStream", item.hasStream)
+      tempMap.put("locked", item.locked)
+      tempMap.put("webcamStream", item.webcamStream)
+      tempMap.put("phoneUser", item.phoneUser)
+      tempMap.put("voiceUser", item.voiceUser.toString())
+      tempMap.put("permissions", item.permissions.toString())
+      usersMap.put(index.toString(), tempMap)
+    }
+
+    map.put("users", usersMap)
     map.put("timestamp", System.nanoTime())
 
     dispatcher.dispatch("***** DISPATCHING GET USERS REPLY *****************")
