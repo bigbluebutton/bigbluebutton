@@ -225,8 +225,14 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     var map = new java.util.HashMap[String, Any]()
     map.put("meetingID", msg.meetingID)
     map.put("locked", msg.locked)
-    //map.put("settings", msg.settings) //#TODO
-    println("____________settings=" + msg.settings.toString())
+
+    var settingsMap = new java.util.HashMap[String, Boolean]()
+    for ((key, value) <- msg.settings)
+    {
+      settingsMap.put(key, value)
+    }
+    
+    map.put("settings", settingsMap) //#todo not tested
     map.put("timestamp", System.nanoTime())
                  
     dispatcher.dispatch("***** DISPATCHING LOCK SETTING *****************")
@@ -246,8 +252,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     var map = new java.util.HashMap[String, Any]()
     map.put("meetingID", msg.meetingID)
     map.put("lock", msg.lock)
-    //map.put("exceptUsers", msg.exceptUsers) //#TODO
-    //println("exceptUsers=" + msg.exceptUsers.toString())
+    map.put("exceptUsers", msg.exceptUsers.toString()) //#todo not tested
     map.put("timestamp", System.nanoTime())
 
     dispatcher.dispatch("***** DISPATCHING LOCK ALL USERS *****************")
@@ -257,8 +262,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     var map = new java.util.HashMap[String, Any]()
     map.put("meetingID", msg.meetingID)
     map.put("locked", msg.locked)
-    //map.put("settings", msg.settings) #todo
-    println("____________settings=" + msg.settings.toString())
+
+    map.put("settings", msg.settings.toString()) //#todo not tested
     map.put("timestamp", System.nanoTime())
 
     dispatcher.dispatch("***** DISPATCHING INIT LOCK SETTINGS *****************")
@@ -267,8 +272,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   private def handleSetLockSettings(msg: SetLockSettings) {
     var map = new java.util.HashMap[String, Any]()
     map.put("meetingID", msg.meetingID)
-    //map.put("settings", msg.settings) #todo
-    println("____________settings=" + msg.settings.toString())
+
+    map.put("settings", msg.settings.toString()) //#todo not tested
     map.put("timestamp", System.nanoTime())
                  
     dispatcher.dispatch("***** DISPATCHING SET LOCK SETTINGS *****************")
@@ -427,7 +432,14 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     var map = new java.util.HashMap[String, Any]()
     map.put("meetingID", msg.meetingID)
     map.put("requesterID", msg.requesterID)
-    //map.put("message"), msg.message) //#TODO
+
+    var messageMap = new java.util.HashMap[String, String]()
+    for ((key, value) <- msg.message)
+    {
+      messageMap.put(key, value)
+    }
+    
+    map.put("message", messageMap)
     map.put("timestamp", System.nanoTime())
  
     dispatcher.dispatch("***** DISPATCHING SEND PUBLIC MESSAGE REQUEST *****************")
@@ -437,7 +449,14 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     var map = new java.util.HashMap[String, Any]()
     map.put("meetingID", msg.meetingID)
     map.put("requesterID", msg.requesterID)
-    //map.put("message", msg.message) //#TODO
+
+    var messageMap = new java.util.HashMap[String, String]()
+    for ((key, value) <- msg.message)
+    {
+      messageMap.put(key, value)
+    }
+    
+    map.put("message", messageMap)
     map.put("timestamp", System.nanoTime())
 
     dispatcher.dispatch("***** DISPATCHING SEND PRIVATE MESSAGE REQUEST *****************")
@@ -698,7 +717,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   private def handlePreuploadedPresentations(msg: PreuploadedPresentations) {
     var map = new java.util.HashMap[String, Any]()
     map.put("meetingID", msg.meetingID)
-    //map.put("presentations", msg.presentations) //#TODO
+    map.put("presentations", msg.presentations.toString()) //#todo not tested
     map.put("timestamp", System.nanoTime())
 
     dispatcher.dispatch("***** DISPATCHING PREUPLOADED PRESENTATIONS *****************")
@@ -1052,8 +1071,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     var map = new java.util.HashMap[String, Any]()
     map.put("meetingID", msg.meetingID)
     map.put("locked", msg.locked)
-    //map.put("settings", msg.settings) #todo
-    println("____________settings=" + msg.settings.toString())
+
+    map.put("settings", msg.settings.toString()) //#todo not tested
     map.put("timestamp", System.nanoTime())
  
     dispatcher.dispatch("***** DISPATCHING PERMISSIONS SETTING INIIALIZED *****************")
@@ -1062,8 +1081,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   private def handleNewPermissionsSetting(msg: NewPermissionsSetting) {
     var map = new java.util.HashMap[String, Any]()
     map.put("meetingID", msg.meetingID)
-    //map.put("settings", msg.settings) #todo
-    println("____________settings=" + msg.settings.toString())
+
+    map.put("settings", msg.settings.toString()) //#todo not tested
     map.put("timestamp", System.nanoTime())
 
     dispatcher.dispatch("***** DISPATCHING NEW PERMISSIONS SETTING *****************")
@@ -1083,7 +1102,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     var map = new java.util.HashMap[String, Any]()
     map.put("meetingID", msg.meetingID)
     map.put("lock", msg.lock)
-    //map.put("exceptUsers", msg.exceptUsers) //#TODO
+    map.put("exceptUsers", msg.exceptUsers.toString()) //#todo not tested
     map.put("timestamp", System.nanoTime())
  
     dispatcher.dispatch("***** DISPATCHING USERS LOCKED *****************")
@@ -1151,7 +1170,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     var map = new java.util.HashMap[String, Any]()
     map.put("meetingID", msg.meetingID)
     map.put("requesterID", msg.requesterID)
-    //map.put("users", msg.users) //#TODO
+
+    map.put("users", msg.users.toString()) //#todo not tested
     map.put("timestamp", System.nanoTime())
 
     dispatcher.dispatch("***** DISPATCHING GET USERS REPLY *****************")
@@ -1336,7 +1356,17 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("meetingID", msg.meetingID)
     map.put("recorded", msg.recorded)
     map.put("requesterID", msg.requesterID)
-    //map.put("history", msg.history) //#TODO
+
+    var historyMap = new java.util.HashMap[String, Any]()
+    for(i<- 0 until msg.history.size)
+    {
+      var tempMap = new java.util.HashMap[String, String]()
+
+      for ((key, value) <- msg.history(i)) tempMap.put(key, value)
+
+      historyMap.put(i.toString() , tempMap)
+    }
+    map.put("history", historyMap)
     map.put("timestamp", System.nanoTime())
  
     dispatcher.dispatch("***** DISPATCHING GET CHAT HISTORY REPLY *****************")
@@ -1347,7 +1377,14 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("meetingID", msg.meetingID)
     map.put("recorded", msg.recorded)
     map.put("requesterID", msg.requesterID)
-    //map.put("message", msg.message) //#todo
+
+    var messageMap = new java.util.HashMap[String, String]()
+    for ((key, value) <- msg.message)
+    {
+      messageMap.put(key, value)
+    }
+
+    map.put("message", messageMap)
     map.put("timestamp", System.nanoTime())
 
     dispatcher.dispatch("***** DISPATCHING SEND PUBLIC MESSAGE EVENT *****************")
@@ -1358,7 +1395,14 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("meetingID", msg.meetingID)
     map.put("recorded", msg.recorded)
     map.put("requesterID", msg.requesterID)
-    //map.put("message", msg.message) //#TODO
+
+    var messageMap = new java.util.HashMap[String, String]()
+    for ((key, value) <- msg.message)
+    {
+      messageMap.put(key, value)
+    }
+    
+    map.put("message", messageMap)
     map.put("timestamp", System.nanoTime())
  
     dispatcher.dispatch("***** DISPATCHING SEND PRIVATE MESSAGE EVENT *****************")
@@ -1432,7 +1476,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("meetingID", msg.meetingID)
     map.put("recorded", msg.recorded)
     map.put("requesterID", msg.requesterID)
-    //map.put("polls", msg.polls) //#TODO
+    //map.put("polls", msg.polls.toString()) //#to do not tested
     map.put("timestamp", System.nanoTime())
  
     dispatcher.dispatch("***** DISPATCHING GET POLLS REPLY OUTMSG *****************")
@@ -1696,7 +1740,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   private def handleGetPresentationStatusReply(msg: GetPresentationStatusReply) {
     var map = new java.util.HashMap[String, Any]()
     map.put("meetingID", msg.meetingID)
-    //map.put("presentations", msg.presentations) //#TODO
+    map.put("presentations", msg.presentations.toString()) //#todo not tested
     map.put("timestamp", System.nanoTime())
 
     dispatcher.dispatch("***** DISPATCHING GET PRESENTATION STATUS REPLY *****************")
@@ -1726,7 +1770,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("recorded", msg.recorded)
     map.put("requesterID", msg.requesterID)
     map.put("whiteboardId", msg.whiteboardId)
-    //map.put("shapes", msg.shapes) //#TODO
+    map.put("shapes", msg.shapes.toString()) //#todo not tested
     map.put("timestamp", System.nanoTime())
 
     dispatcher.dispatch("***** DISPATCHING GET WHITEBOARD SHAPES REPLY *****************")
