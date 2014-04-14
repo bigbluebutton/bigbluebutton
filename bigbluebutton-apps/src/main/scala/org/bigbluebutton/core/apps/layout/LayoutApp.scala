@@ -1,13 +1,11 @@
 package org.bigbluebutton.core.apps.layout
 
 import org.bigbluebutton.core.api._
-import net.lag.logging.Logger
 import org.bigbluebutton.core.MeetingActor
 
 trait LayoutApp {
   this : MeetingActor =>
   
-  private val log = Logger.get
   val outGW: MessageOutGateway
   
 	private var _locked:Boolean = false;

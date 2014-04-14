@@ -37,4 +37,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<level value="DEBUG" />
 		<appender-ref ref="BIGBLUEBUTTON" />
 	</root>		
+	
+	<!-- LEVEL CAN NOT BE DEBUG -->
+  <logger name="org.apache" level="INFO"></logger>
 </configuration>

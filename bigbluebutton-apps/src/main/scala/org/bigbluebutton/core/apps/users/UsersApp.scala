@@ -4,13 +4,11 @@ import org.bigbluebutton.core.api._
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.User
 import java.util.ArrayList
-import net.lag.logging.Logger
 import org.bigbluebutton.core.MeetingActor
 
 trait UsersApp {
   this : MeetingActor =>
   
-  private val log = Logger.get
   val outGW: MessageOutGateway
   
   private val users = new UsersModel
@@ -163,7 +161,6 @@ trait UsersApp {
   }
   
   def handleUserJoin(msg: UserJoining):Unit = {
-  	log.debug("UsersApp: init handleUserJoin")
     val vu = new VoiceUser(msg.userID, msg.userID, msg.name, msg.name,  
                            false, false, false, false)
     val uvo = new UserVO(msg.userID, msg.extUserID, msg.name, 
@@ -190,7 +187,7 @@ trait UsersApp {
 	  
 	 }
    else{
-    log.warning("This user is not here:" + msg.userID)
+
    }
   }
 

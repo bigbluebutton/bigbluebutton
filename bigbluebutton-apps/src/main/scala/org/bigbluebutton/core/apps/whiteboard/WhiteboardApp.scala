@@ -2,7 +2,6 @@ package org.bigbluebutton.core.apps.whiteboard
 
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.conference.service.whiteboard.WhiteboardKeyUtil
-import net.lag.logging.Logger
 import org.bigbluebutton.core.MeetingActor
 import org.bigbluebutton.core.apps.whiteboard.vo._
 
@@ -11,7 +10,6 @@ case class Whiteboard(id: String, shapes:Seq[AnnotationVO])
 trait WhiteboardApp {
   this : MeetingActor =>
   
-  private val log = Logger.get
   val outGW: MessageOutGateway
   
   private val wbModel = new WhiteboardModel

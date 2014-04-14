@@ -1,7 +1,6 @@
 package org.bigbluebutton.core.apps.presentation
 
 import org.bigbluebutton.core.api._
-import net.lag.logging.Logger
 import org.bigbluebutton.core.MeetingActor
 import com.google.gson.Gson
 
@@ -16,7 +15,6 @@ case class CursorLocation(xPercent: Double = 0D, yPercent: Double = 0D)
 trait PresentationApp {
   this : MeetingActor =>
   
-  private val log = Logger.get
   val outGW: MessageOutGateway
     	
   private var cursorLocation = new CursorLocation
@@ -85,7 +83,6 @@ trait PresentationApp {
     def handleGetPresentationInfo(msg: GetPresentationInfo) {
       println("PresentationApp : handleGetPresentationInfo GetPresentationInfo for meeting [" + msg.meetingID + "] [" + msg.requesterID + "]" )
       
-      log.debug("Received GetPresentationInfo for meeting [{}] [{}]", msg.meetingID, msg.requesterID)
       val curPresenter = getCurrentPresenter;
       val presenter = new CurrentPresenter(curPresenter.presenterID, 
 		                                   curPresenter.presenterName, 
