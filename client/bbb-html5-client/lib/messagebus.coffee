@@ -2,12 +2,12 @@ postal = require('postal')
 redisrpc = require './redispubsub'
 crypto = require 'crypto'
 
-receiveMessage = (callback) ->
+exports.receiveMessage = (callback) ->
   postal.subscribe({
-    channel: replyTo.channel,
-    topic: replyTo.topic,
+    channel: "receiveChannel"
+    topic: "broadcast",
     callback: (msg, envelope) ->
-      callback( msg.err, msg.data )
+      callback( msg )
     })
 
 

@@ -1,6 +1,11 @@
 bus = require './messagebus'
 log = require './bbblogger'
 
+messageReceiver = null
+
+exports.registerMessageReceiver = (callback) ->
+  messageReceiver = callback
+
 exports.processLoginMessage = (data, callback) ->
   bus.sendMessage(data, (err, result) ->
     if (err)

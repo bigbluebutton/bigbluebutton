@@ -81,15 +81,15 @@ subClient.on("message", (channel, jsonMsg) ->
       data: response
     })
   else
-    if message.meetingId?
-      postal.publish({
-        channel: "bigbluebuttonAppChannel"
-        topic: message.meetingId,
-        data: message
-      })
-    else 
-      console.log("Invalid message: #{jsonMsg}")
+    sendToController message
 )
+
+sendToController = (message) ->
+  postal.publish({
+    channel: "receiveChannel"
+    topic: "broadcast",
+    data: message
+  })  
 
 initialize()
 
