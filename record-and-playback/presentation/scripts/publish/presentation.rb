@@ -825,6 +825,9 @@ $playback = match[2]
 
 puts $meeting_id
 puts $playback
+
+begin
+
 if ($playback == "presentation")
 
 	# This script lives in scripts/archive/steps while properties.yaml lives in scripts/
@@ -978,11 +981,25 @@ if ($playback == "presentation")
 			end
 			exit 1
 		end
+        publish_done = File.new("#{recording_dir}/status/published/#{$meeting_id}-presentation.done", "w")
+        publish_done.write("Published #{$meeting_id}")
+        publish_done.close
+
 	else
 		BigBlueButton.logger.info("#{target_dir} is already there")
 	end
 end
 
 
+rescue Exception => e
+        BigBlueButton.logger.error(e.message)
+        e.backtrace.each do |traceline|
+            BigBlueButton.logger.error(traceline)
+        end
+        publish_done = File.new("#{recording_dir}/status/published/#{$meeting_id}-presentation.fail", "w")
+        publish_done.write("Failed Publishing #{$meeting_id}")
+        publish_done.close
 
+        exit 1
+end
 

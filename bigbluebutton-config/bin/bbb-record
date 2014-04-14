@@ -66,6 +66,15 @@ mark_for_rebuild() {
 
                 if [ -f $STATUS/processed/$MEETING_ID-$type.done ]; then
                         rm $STATUS/processed/$MEETING_ID-$type.done
+
+                if [ -f $STATUS/published/$MEETING_ID-$type.done ]; then
+                        rm $STATUS/published/$MEETING_ID-$type.done
+                fi
+
+                if [ -f $STATUS/published/$MEETING_ID-$type.fail ]; then
+                        rm $STATUS/published/$MEETING_ID-$type.fail
+                fi
+
 #                else
 #                        echo "Warn: Didn't find $STATUS/processed/$MEETING_ID-$type.done"
 #                        exit 1
