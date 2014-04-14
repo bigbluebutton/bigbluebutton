@@ -52,7 +52,7 @@ sendAndWaitForReply = (message, envelope) ->
   pendingRequests[correlationId] = entry;
   console.log("Publishing #{message}")
 
-  message.correlationId = correlationId
+  message.header.correlationId = correlationId
   
   pubClient.publish("bigbluebuttonAppChannel", JSON.stringify(message))
 
@@ -61,18 +61,20 @@ subClient.on("subscribe", (channel, count) ->
 )
 
 subClient.on("message", (channel, jsonMsg) ->
+
   console.log("Received message on [channel] = #{channel} [message] = #{jsonMsg}")
   message = JSON.parse(jsonMsg)
 
-  if (message.correlationId?)
+  if (message.header.correlationId?)
+    correlationId = message.header.correlationId
     #retreive the request entry
-    entry = pendingRequests[message.correlationId];
+    entry = pendingRequests[correlationId];
     #make sure we don't timeout by clearing it
     clearTimeout(entry.timeout);
     #delete the entry from hash
-    delete pendingRequests[message.correlationId];
+    delete pendingRequests[correlationId];
     response = {}
-    response.data = message
+    response.data = message.payload
     postal.publish({
       channel: entry.replyTo.channel,
       topic: entry.replyTo.topic,

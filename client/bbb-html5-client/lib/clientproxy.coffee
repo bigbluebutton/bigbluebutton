@@ -11,7 +11,6 @@ exports.listen = (app) ->
   io = socketio.listen(app)
   io.sockets.on('connection', (socket) ->
     console.log("Client has connected.")
-    log.debug("LOG: Client has connected.")
     socket.on('message', (jsonMsg) ->
       log.debug("Received message #{jsonMsg}")
       handleMessage(socket, jsonMsg)
@@ -22,37 +21,41 @@ exports.listen = (app) ->
   )
 
 handleClientDisconnected = (socket) ->
-  log.debug("LOG: Client has disconnected.")
+  if (socket.userId?)
+    log.info("User [#{socket.userId}] has disconnected.")
 
 handleMessage = (socket, message) ->
-  if message.name?
+  if message.header.name?
     handleValidMessage(socket, message)
   else
-    log.error({error: "Invalid message", message: JSON.stringify(message)})
+    log.error({message: message}, "Invalid message.")
 
 handleValidMessage = (socket, message) ->
-  switch message.name
+  switch message.header.name
     when 'authenticateMessage'
       handleLoginMessage socket, message
-    when 'Sandra'
-      connectJackNumber 22
-    when 'Toby'
-      connectJackNumber 9
     else
-      console.log('I am sorry, your call cannot be connected')
+      log.error({message: message}, 'Unknown message name.')
 
 handleLoginMessage = (socket, data) ->
   controller.processLoginMessage(data, (err, result) ->
     if (err)
       message = {name: "authenticationReply", error: err}
       sendMessageToClient socket, message
+      # Disconnect this socket as it failed authentication.
+      socket.disconnect()
     else
+      # Assign the userId to this socket. This way we can
+      # locate this socket using the userId.
+      socket.userId = result.userId
       message = {name: "authenticationReply", data: result}
       sendMessageToClient socket, message
   )
 
 sendMessageToClient = (socket, message) ->
   socket.emit(MESSAGE, JSON.stringify(message))
+
+
 
 
 

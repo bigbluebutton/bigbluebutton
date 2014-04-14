@@ -4,13 +4,15 @@ log = require './bbblogger'
 exports.processLoginMessage = (data, callback) ->
   bus.sendMessage(data, (err, result) ->
     if (err)
-      errLog = {message: "Authentication Failure", reason: err, data: data}
-      log.error(JSON.stringify(errLog))
+      errLog = {reason: err, data: data}
+      log.error({error: errLog}, 'Authentication Failure')
       callback(err, null)
     else
-      console.log("SUCCESS: #{result}")
+      log.info("SUCCESS: #{result}")
       if result.error?
+        log.info({error: result.error}, 'Authentication Failure')
         callback(result.error, null) 
       else
+        log.info({response: result.data}, 'Authentication Success')
         callback(null, result.data)
   )
