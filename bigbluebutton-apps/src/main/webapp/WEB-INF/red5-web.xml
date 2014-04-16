@@ -78,18 +78,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </bean>
     
     <bean id="collectorGW" class="org.bigbluebutton.core.CollectorGateway">
-        <constructor-arg index="0" ref="collDispatcher"/>
+        <constructor-arg index="0" ref="redisLpushDispatcher"/>
     </bean>
-    
-    <bean id="collDispatcher" class="org.bigbluebutton.core.api.ConsoleDispatcher">
-    </bean>
+    <!--<bean id="collDispatcher" class="org.bigbluebutton.core.api.ConsoleDispatcher">
+    </bean> -->
 
-<!--    
+
     <bean id="redisLpushDispatcher" class="org.bigbluebutton.core.api.RedisLpushDispatcher" 
            init-method="start" destroy-method="stop">
       <property name="redisPool"><ref bean="redisPool" /> </property>
     </bean>
--->
+
       
     <bean id="outMsgGW" class="org.bigbluebutton.core.api.MessageOutGateway">
         <property name="listeners">
