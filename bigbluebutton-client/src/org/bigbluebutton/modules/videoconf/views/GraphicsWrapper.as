@@ -14,12 +14,14 @@ package org.bigbluebutton.modules.videoconf.views
     import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
     import org.bigbluebutton.modules.videoconf.views.UserGraphicHolder;
 
+
     public class GraphicsWrapper extends Canvas {
 
         private var _options:VideoConfOptions = new VideoConfOptions();
-        private var priorityWeight:Number = 2/3;
+        private var priorityWeight:Number = _options.priorityRatio;
         private var priorityMode:Boolean = false;
         private var priorityItemIndex:int = 0;
+        private var cellAspectRatio:Number=4/3;
 
         public function GraphicsWrapper() {
             percentWidth = percentHeight = 100;
@@ -41,10 +43,10 @@ package org.bigbluebutton.modules.videoconf.views
             return result;
         }
 
-        private function calculateCellDimensions(canvasWidth:int, canvasHeight:int, numColumns:int, numRows:int, cellAspectRatio:Number):Object {
+        private function calculateCellDimensions(canvasWidth:int, canvasHeight:int, numColumns:int, numRows:int):Object {
             var obj:Object = {
-                width: Math.floor(canvasWidth / numColumns),
-                height: Math.floor(canvasHeight / numRows)
+                width: Math.floor(canvasWidth / numColumns)-1,
+                height: Math.floor(canvasHeight / numRows)-1
             }
             if (obj.width / obj.height > cellAspectRatio) {
                 obj.width = Math.floor(obj.height * cellAspectRatio);
@@ -54,8 +56,8 @@ package org.bigbluebutton.modules.videoconf.views
             return obj;
         }
 
-        private function calculateOccupiedArea(canvasWidth:int, canvasHeight:int, numColumns:int, numRows:int, cellAspectRatio:Number):Object {
-            var obj:Object = calculateCellDimensions(canvasWidth, canvasHeight, numColumns, numRows, cellAspectRatio);
+        private function calculateOccupiedArea(canvasWidth:int, canvasHeight:int, numColumns:int, numRows:int):Object {
+            var obj:Object = calculateCellDimensions(canvasWidth, canvasHeight, numColumns, numRows);
             obj.occupiedArea = obj.width * obj.height * numChildren;
             obj.numColumns = numColumns;
             obj.numRows = numRows;
@@ -64,7 +66,6 @@ package org.bigbluebutton.modules.videoconf.views
         }
 
         private function findBestConfiguration(canvasWidth:int, canvasHeight:int, numChildrenInCanvas:int):Object {
-            var cellAspectRatio:Number = minContentAspectRatio;
 
             var bestConfiguration:Object = {
                 occupiedArea: 0
@@ -72,7 +73,7 @@ package org.bigbluebutton.modules.videoconf.views
 
             for (var numColumns:int = 1; numColumns <= numChildrenInCanvas; ++numColumns) {
                 var numRows:int = Math.ceil(numChildrenInCanvas / numColumns);
-                var currentConfiguration:Object = calculateOccupiedArea(canvasWidth, canvasHeight, numColumns, numRows, cellAspectRatio);
+                var currentConfiguration:Object = calculateOccupiedArea(canvasWidth, canvasHeight, numColumns, numRows);
                 if (currentConfiguration.occupiedArea > bestConfiguration.occupiedArea) {
                     bestConfiguration = currentConfiguration;
                 }
@@ -151,33 +152,49 @@ package org.bigbluebutton.modules.videoconf.views
             var pWidth:int = bestConf.priorConf.width;
             var pHeight:int = bestConf.priorConf.height;  
 
-            var item:UserGraphicHolder = getChildAt(priorityItemIndex) as UserGraphicHolder;        
-            item.width = pWidth;
-            item.height = pHeight;
             var blockX:int=0;
             var blockY:int=0;
+            var cellOffsetX:int = 0;
+            var cellOffsetY:int = 0;
+            var item:UserGraphicHolder = getChildAt(priorityItemIndex) as UserGraphicHolder;        
+            if (item.contentAspectRatio > cellAspectRatio) {
+                item.width = pWidth;
+                item.height = Math.floor(item.width / item.contentAspectRatio);
+            } else {
+                item.height = pHeight;         
+                item.width = Math.floor(item.height * item.contentAspectRatio);
+            }
+            
             if(bestConf.isVertSplit){
-                blockX = Math.floor((3*(width - oWidth*numColumns) + pWidth)/4);
+                blockX = Math.floor((3*(width - oWidth*numColumns) + item.width)/4);
                 blockY = Math.floor((height-oHeight*numRows)/2);
-                item.x = Math.floor((width-pWidth-oWidth*numColumns)/2);
-                item.y = Math.floor((height-pHeight)/2);
+                item.x = Math.floor((width-item.width-oWidth*numColumns)/2);
+                item.y = Math.floor((height-item.height)/2);
             } else {
                 blockX = Math.floor((width - oWidth*numColumns)/2);
-                blockY = Math.floor((3*(height - oHeight*numRows) + pHeight)/4);
-                item.x = Math.floor((width-pWidth)/2);
-                item.y = Math.floor((height-pHeight-oHeight*numRows)/2);
+                blockY = Math.floor((3*(height - oHeight*numRows) + item.height)/4);
+                item.x = Math.floor((width-item.width)/2);
+                item.y = Math.floor((height-item.height-oHeight*numRows)/2);
             }
-
+           
+ 
             var nonPriorityIndex:int=0;
             for (var curItemIndex:int = 0; curItemIndex < numChildren; ++curItemIndex) {
                 if(curItemIndex != priorityItemIndex){ 
                     item = getChildAt(curItemIndex) as UserGraphicHolder;
-                    item.width = oWidth;
-                    item.height = oHeight; 
-                    item.x = (nonPriorityIndex % numColumns) * oWidth + blockX;
-                    item.y = Math.floor(nonPriorityIndex / numColumns) * oHeight + blockY;
+                    if (item.contentAspectRatio > cellAspectRatio) {
+                        item.width = oWidth;
+                        item.height = Math.floor(oWidth / item.contentAspectRatio);
+                        cellOffsetY = (oHeight - item.height)/2;
+                    } else {
+                        item.height = oHeight;         
+                        item.width = Math.floor(item.height * item.contentAspectRatio);
+                        cellOffsetX = (oWidth - item.width)/2;
+                    }
+                    item.x = (nonPriorityIndex % numColumns) * oWidth + blockX + cellOffsetX;
+                    item.y = Math.floor(nonPriorityIndex / numColumns) * oHeight + blockY + cellOffsetY;
                     nonPriorityIndex++;
-                }
+                }               
             }
         } 
 
@@ -208,8 +225,10 @@ package org.bigbluebutton.modules.videoconf.views
             graphic.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
                 graphic.loadVideo(_options, connection, streamName);
             });
-            graphic.addEventListener(MouseEvent.CLICK, onVBoxClick);
-            super.addChild(graphic);
+            graphic.addEventListener(MouseEvent.CLICK, onVBoxClick); 
+            super.addChild(graphic); 
+            if(graphic.contentAspectRatio < cellAspectRatio)
+                cellAspectRatio = graphic.contentAspectRatio;
         }
 
         private function getUserStreamNames(user:BBBUser):Array {
@@ -242,6 +261,8 @@ package org.bigbluebutton.modules.videoconf.views
 
             graphic.addEventListener(MouseEvent.CLICK, onVBoxClick);
             super.addChild(graphic);
+            if(graphic.contentAspectRatio < cellAspectRatio)
+                cellAspectRatio = graphic.contentAspectRatio;
         }
 
         protected function onVBoxClick(event:MouseEvent = null):void {
@@ -274,9 +295,11 @@ package org.bigbluebutton.modules.videoconf.views
         }
 
         private function removeChildHelper(child:UserGraphicHolder):void {
-            child.shutdown();
+            child.shutdown(); 
+
             if (contains(child)) {
                 removeChild(child);
+                cellAspectRatio = minContentAspectRatio;
             }
         }
 
