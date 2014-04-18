@@ -773,77 +773,98 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   }
   
   private def handleStartPoll(msg: StartPoll) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("pollID", msg.pollID)
-    map.put("timestamp", System.nanoTime())
- 
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.POLL_ID, msg.pollID)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.START_POLL)
+    header.put(Constants.TIMESTAMP, System.nanoTime()) 
+
     println("***** DISPATCHING START POLL *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleClearPoll(msg: ClearPoll) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("pollID", msg.pollID)
-    map.put("force", msg.force)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.POLL_ID, msg.pollID)
+    payload.put(Constants.FORCE, msg.force)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.CLEAR_POLL)
+    header.put(Constants.TIMESTAMP, System.nanoTime()) 
 
     println("***** DISPATCHING CLEAR POLL *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleGetPollResult(msg: GetPollResult) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("pollID", msg.pollID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.POLL_ID, msg.pollID)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.GET_POLL_RESULT)
+    header.put(Constants.TIMESTAMP, System.nanoTime()) 
 
     println("***** DISPATCHING GET POLL RESULT *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleRespondToPoll(msg: RespondToPoll) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("response", msg.response)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.RESPONSE, msg.response)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.RESPONT_TO_POLL)
+    header.put(Constants.TIMESTAMP, System.nanoTime()) 
 
     println("***** DISPATCHING RESPOND TO POLL *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleClearPresentation(msg: ClearPresentation) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.CLEAR_PRESENTATION)
+    header.put(Constants.TIMESTAMP, System.nanoTime()) 
  
     println("***** DISPATCHING CLEAR PRESENTATION *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleRemovePresentation(msg: RemovePresentation) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("presentationID", msg.presentationID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.PRESENTATION_ID, msg.presentationID)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.REMOVE_PRESENTATION)
+    header.put(Constants.TIMESTAMP, System.nanoTime()) 
  
     println("***** DISPATCHING REMOVE PRESENTATION *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleGetPresentationInfo(msg: GetPresentationInfo) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.GET_PRESENTATION_INFO)
+    header.put(Constants.TIMESTAMP, System.nanoTime()) 
 
     println("***** DISPATCHING GET PRESENTATION INFO *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   /*private def handleSendCursorUpdate(msg: SendCursorUpdate) {
@@ -854,30 +875,36 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     dispatcher.dispatch("***** DISPATCHING SEND CURSOR UPDATE *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }*/
   
   private def handleResizeAndMoveSlide(msg: ResizeAndMoveSlide) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("xOffset", msg.xOffset)
-    map.put("yOffset", msg.yOffset)
-    map.put("widthRatio", msg.widthRatio)
-    map.put("heightRatio", msg.heightRatio)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.X_OFFSET, msg.xOffset)
+    payload.put(Constants.Y_OFFSET, msg.yOffset)
+    payload.put(Constants.WIDTH_RATIO, msg.widthRatio)
+    payload.put(Constants.HEIGHT_RATIO, msg.heightRatio)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.RESIZE_AND_MOVE_SLIDE)
+    header.put(Constants.TIMESTAMP, System.nanoTime()) 
 
     println("***** DISPATCHING RESIZE AND MOVE SLIDE *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleGotoSlide(msg: GotoSlide) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("page", msg.page)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.PAGE, msg.page)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.GO_TO_SLIDE)
+    header.put(Constants.TIMESTAMP, System.nanoTime()) 
 
     println("***** DISPATCHING GO TO SLIDE *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleSharePresentation(msg: SharePresentation) {
@@ -888,7 +915,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING SHARE PRESENTATION *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleGetSlideInfo(msg: GetSlideInfo) {
@@ -898,7 +925,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING GET SLIDE INFO *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePreuploadedPresentations(msg: PreuploadedPresentations) {
@@ -908,7 +935,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING PREUPLOADED PRESENTATIONS *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePresentationConversionUpdate(msg: PresentationConversionUpdate) {
@@ -921,7 +948,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING PRESENTATION CONVERSION UPDATE *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePresentationPageCountError(msg: PresentationPageCountError) {
@@ -936,7 +963,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING PRESENTATION PAGE COUNT ERROR *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePresentationSlideGenerated(msg: PresentationSlideGenerated) {
@@ -951,7 +978,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING PRESENTATION SLIDE GENERATED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePresentationConversionCompleted(msg: PresentationConversionCompleted) {
@@ -963,7 +990,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING PRESENTATION CONVERSION COMPLETED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleSendVoiceUsersRequest(msg: SendVoiceUsersRequest) {
@@ -973,7 +1000,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING SEND VOICE USERS REQUEST *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleMuteMeetingRequest(msg: MuteMeetingRequest) {
@@ -984,7 +1011,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING MUTE MEETING REQUEST *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleIsMeetingMutedRequest(msg: IsMeetingMutedRequest) {
@@ -994,7 +1021,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING IS MEETING MUTED REQUEST *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleMuteUserRequest(msg: MuteUserRequest) {
@@ -1003,7 +1030,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING MUTE USER REQUEST *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleLockUserRequest(msg: LockUserRequest) {
@@ -1015,7 +1042,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING LOCK USER REQUEST *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleEjectUserRequest(msg: EjectUserRequest) {
@@ -1026,7 +1053,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING EJECT USER REQUEST *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleVoiceUserJoinedMessage(msg: VoiceUserJoinedMessage) {
@@ -1041,7 +1068,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING VOICE USER JOINED MESSAGE *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleVoiceUserJoined(msg: VoiceUserJoined) {
@@ -1051,7 +1078,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING VOICE USER JOINED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleVoiceUserLeft(msg: VoiceUserLeft) {
@@ -1061,7 +1088,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING VOICE USER LEFT *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleVoiceUserLocked(msg: VoiceUserLocked) {
@@ -1072,7 +1099,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING VOICE USER LOCKED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleVoiceUserMuted(msg: VoiceUserMuted) {
@@ -1083,7 +1110,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING VOICE USER MUTED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleVoiceUserTalking(msg: VoiceUserTalking) {
@@ -1094,7 +1121,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING VOICE USER TALKING *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleVoiceRecording(msg: VoiceRecording) {
@@ -1106,7 +1133,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp-dispatching", System.nanoTime())
 
     println("***** DISPATCHING VOICE RECORDING *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleSendWhiteboardAnnotationRequest(msg: SendWhiteboardAnnotationRequest) {
@@ -1117,7 +1144,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING SEND WHITEBOARD ANNOTATION REQUEST *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleGetWhiteboardShapesRequest(msg: GetWhiteboardShapesRequest) {
@@ -1128,7 +1155,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING SEND WHITEBOARD SHAPES REQUEST *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleClearWhiteboardRequest(msg: ClearWhiteboardRequest) {
@@ -1139,7 +1166,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING CLEAR WHITEBOARD REQUEST *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUndoWhiteboardRequest(msg: UndoWhiteboardRequest) {
@@ -1150,7 +1177,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING UNDO WHITEBOARD REQUEST *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleEnableWhiteboardRequest(msg: EnableWhiteboardRequest) {
@@ -1161,7 +1188,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING ENABLE WHITEBOARD REQUEST *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleIsWhiteboardEnabledRequest(msg: IsWhiteboardEnabledRequest) {
@@ -1171,7 +1198,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING IS WHITEBOARD ENABLED REQUEST *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
 
   // OUT MESSAGES
@@ -1183,7 +1210,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING MEETING CREATED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleVoiceRecordingStarted(msg: VoiceRecordingStarted) {
@@ -1196,7 +1223,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp-dispatching", System.nanoTime())
  
     println("***** DISPATCHING VOICE RECORDING STARTED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleVoiceRecordingStopped(msg: VoiceRecordingStopped) {
@@ -1209,7 +1236,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp-dispatching", System.nanoTime())
 
     println("***** DISPATCHING VOICE RECORDING STOPPED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleRecordingStatusChanged(msg: RecordingStatusChanged) {
@@ -1221,7 +1248,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING RECORDING STATUS CHANGED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleGetRecordingStatusReply(msg: GetRecordingStatusReply) {
@@ -1233,7 +1260,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING GET RECORDING STATUS REPLY *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleMeetingEnded(msg: MeetingEnded) {
@@ -1244,7 +1271,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING MEETING ENDED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleMeetingHasEnded(msg: MeetingHasEnded) {
@@ -1254,7 +1281,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING MEETING HAS ENDED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleMeetingDestroyed(msg: MeetingDestroyed) {
@@ -1263,7 +1290,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING MEETING DESTROYED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleDisconnectAllUsers(msg: DisconnectAllUsers) {
@@ -1272,7 +1299,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING DISCONNECT ALL USERS *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleDisconnectUser(msg: DisconnectUser) {
@@ -1282,7 +1309,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING DISCONNECT USER *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePermissionsSettingInitialized(msg: PermissionsSettingInitialized) {
@@ -1294,7 +1321,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING PERMISSIONS SETTING INIIALIZED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleNewPermissionsSetting(msg: NewPermissionsSetting) {
@@ -1305,7 +1332,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING NEW PERMISSIONS SETTING *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUserLocked(msg: UserLocked) {
@@ -1316,7 +1343,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING USER LOCKED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUsersLocked(msg: UsersLocked) {
@@ -1328,7 +1355,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
  
     
     println("***** DISPATCHING USERS LOCKED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   private def handleGetPermissionsSettingReply(msg: GetPermissionsSettingReply) {
     var map = new java.util.HashMap[String, Any]()
@@ -1338,7 +1365,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
 
     
     println("***** DISPATCHING GET PERMISSIONS SETTING REPLY *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleIsMeetingLockedReply(msg: IsMeetingLockedReply) {
@@ -1348,7 +1375,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING IS MEETING LOCKED REPLY *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUserRegistered(msg: UserRegistered) {
@@ -1359,7 +1386,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING USER REGISTERED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
     println("end of USER REGISTERED")
   }
   
@@ -1371,7 +1398,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING USER LEFT *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePresenterAssigned(msg: PresenterAssigned) {
@@ -1382,7 +1409,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING PRESENTER ASSIGNED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleEndAndKickAll(msg: EndAndKickAll) {
@@ -1392,7 +1419,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING END AND KICK ALL *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleGetUsersReply(msg: GetUsersReply) {
@@ -1425,7 +1452,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING GET USERS REPLY *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleValidateAuthTokenReply(msg: ValidateAuthTokenReply) {
@@ -1437,7 +1464,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING VALIDATE AUTH TOKEN REPLY *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUserJoined(msg: UserJoined) {
@@ -1448,7 +1475,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING USER JOINED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUserRaisedHand(msg: UserRaisedHand) {
@@ -1459,7 +1486,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING USER RAISED HAND *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUserLoweredHand(msg: UserLoweredHand) {
@@ -1471,7 +1498,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING USER LOWERED HAND *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUserSharedWebcam(msg: UserSharedWebcam) {
@@ -1483,7 +1510,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING USER SHARED WEBCAM *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUserUnsharedWebcam(msg: UserUnsharedWebcam) {
@@ -1495,7 +1522,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING USER UNSHARED WEBCAM *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUserStatusChange(msg: UserStatusChange) {
@@ -1508,7 +1535,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING USER STATUS CHANGE *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleMuteVoiceUser(msg: MuteVoiceUser) {
@@ -1521,7 +1548,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING MUTE VOICE USER *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUserVoiceMuted(msg: UserVoiceMuted) {
@@ -1533,7 +1560,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING USER VOICE MUTED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUserVoiceTalking(msg: UserVoiceTalking) {
@@ -1545,7 +1572,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING USER VOICE TALKING *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleEjectVoiceUser(msg: EjectVoiceUser) {
@@ -1557,7 +1584,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING EJECT VOICE USER *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUserJoinedVoice(msg: UserJoinedVoice) {
@@ -1569,7 +1596,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING USER JOINED VOICE *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUserLeftVoice(msg: UserLeftVoice) {
@@ -1581,7 +1608,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING USER LEFT VOICE *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleIsMeetingMutedReply(msg: IsMeetingMutedReply) {
@@ -1593,7 +1620,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING IS MEETING MUTED REPLY *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleStartRecording(msg: StartRecording) {
@@ -1604,7 +1631,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING START RECORDING *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleStopRecording(msg: StopRecording) {
@@ -1615,7 +1642,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING STOP RECORDING *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleGetChatHistoryReply(msg: GetChatHistoryReply) {
@@ -1637,7 +1664,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING GET CHAT HISTORY REPLY *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleSendPublicMessageEvent(msg: SendPublicMessageEvent) {
@@ -1656,7 +1683,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING SEND PUBLIC MESSAGE EVENT *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleSendPrivateMessageEvent(msg: SendPrivateMessageEvent) {
@@ -1675,7 +1702,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING SEND PRIVATE MESSAGE EVENT *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleGetCurrentLayoutReply(msg: GetCurrentLayoutReply) {
@@ -1689,7 +1716,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING GET CURRENT LAYOUT REPLY *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleSetLayoutEvent(msg: SetLayoutEvent) {
@@ -1703,7 +1730,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     dispatcher.dispatch("***** DISPATCHING SET LAYOUT EVENT *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleLockLayoutEvent(msg: LockLayoutEvent) {
@@ -1717,7 +1744,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     dispatcher.dispatch("***** DISPATCHING LOCK LAYOUT EVENT *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUnlockLayoutEvent(msg: UnlockLayoutEvent) {
@@ -1731,7 +1758,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING UNLOCK LAYOUT EVENT *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleGetPollResultReply(msg: GetPollResultReply) {
@@ -1743,7 +1770,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING GET POLL RESULT REPLY *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleGetPollsReplyOutMsg(msg: GetPollsReplyOutMsg) {
@@ -1755,7 +1782,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING GET POLLS REPLY OUTMSG *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleClearPollFailed(msg: ClearPollFailed) {
@@ -1767,7 +1794,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING CLEAR POLL FAILED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePollClearedOutMsg(msg: PollClearedOutMsg) {
@@ -1778,7 +1805,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING POLL CLEARED OUTMSG *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePollStartedOutMsg(msg: PollStartedOutMsg) {
@@ -1789,7 +1816,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING POLL STARTED OUTMSG *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePollStoppedOutMsg(msg: PollStoppedOutMsg) {
@@ -1800,7 +1827,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING POLL STOPPED OUTMSG *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePollRemovedOutMsg(msg: PollRemovedOutMsg) {
@@ -1811,7 +1838,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING POLL REMOVED OUTMSG *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePollUpdatedOutMsg(msg: PollUpdatedOutMsg) {
@@ -1823,7 +1850,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING POLL UPDATED OUTMSG *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePollCreatedOutMsg(msg: PollCreatedOutMsg) {
@@ -1835,7 +1862,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING POLL CREATED OUTMSG *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePollResponseOutMsg(msg: PollResponseOutMsg) {
@@ -1847,7 +1874,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING POLL RESPONSE OUTMSG *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePollHideResultOutMsg(msg: PollHideResultOutMsg) {
@@ -1858,7 +1885,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING POLL HIDE RESULT OUTMSG *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePollShowResultOutMsg(msg: PollShowResultOutMsg) {
@@ -1869,7 +1896,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     dispatcher.dispatch("***** DISPATCHING POLL SHOW RESULT OUTMSG *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleClearPresentationOutMsg(msg: ClearPresentationOutMsg) {
@@ -1879,7 +1906,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING CLEAR PRESENTATION OUTMSG *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleRemovePresentationOutMsg(msg: RemovePresentationOutMsg) {
@@ -1890,7 +1917,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING REMOVE PRESENTATION OUTMSG *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleGetPresentationInfoOutMsg(msg: GetPresentationInfoOutMsg) {
@@ -1902,7 +1929,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING GET PRESENTATION INFO OUTMSG *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   /*private def handleSendCursorUpdateOutMsg(msg: SendCursorUpdateOutMsg) {
@@ -1914,7 +1941,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     dispatcher.dispatch("***** DISPATCHING SEND CURSOR UPDATE OUTMSG *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }*/
   
   private def handleResizeAndMoveSlideOutMsg(msg: ResizeAndMoveSlideOutMsg) {
@@ -1925,7 +1952,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING RESIZE AND MOVE SLIDE OUTMSG *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleGotoSlideOutMsg(msg: GotoSlideOutMsg) {
@@ -1936,7 +1963,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING GO TO SLIDE OUTMSG *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleSharePresentationOutMsg(msg: SharePresentationOutMsg) {
@@ -1947,7 +1974,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     dispatcher.dispatch("***** DISPATCHING SHARE PRESENTATION OUTMSG *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleGetSlideInfoOutMsg(msg: GetSlideInfoOutMsg) {
@@ -1959,7 +1986,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     dispatcher.dispatch("***** DISPATCHING GET SLIDE INFO OUTMSG *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleGetPreuploadedPresentationsOutMsg(msg: GetPreuploadedPresentationsOutMsg) {
@@ -1969,7 +1996,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     dispatcher.dispatch("***** DISPATCHING GET PREUPLOADED PRESENTATIONS OUTMSG *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePresentationConversionProgress(msg: PresentationConversionProgress) {
@@ -1982,7 +2009,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     dispatcher.dispatch("***** DISPATCHING PRESENTATION CONVERSION PROGRESS *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePresentationConversionError(msg: PresentationConversionError) {
@@ -1997,7 +2024,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING PRESENTATION CONVERSION ERROR *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePresentationPageGenerated(msg: PresentationPageGenerated) {
@@ -2012,7 +2039,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING PRESENTATION PAGE GENERATED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePresentationConversionDone(msg: PresentationConversionDone) {
@@ -2024,7 +2051,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING PRESENTATION CONVERSION DONE *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePresentationChanged(msg: PresentationChanged) {
@@ -2034,7 +2061,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING PRESENTATION CHANGED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleGetPresentationStatusReply(msg: GetPresentationStatusReply) {
@@ -2044,7 +2071,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING GET PRESENTATION STATUS REPLY *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePresentationRemoved(msg: PresentationRemoved) {
@@ -2054,7 +2081,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING PRESENTATION REMOVED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePageChanged(msg: PageChanged) {
@@ -2064,7 +2091,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING PAGE CHANGED *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleGetWhiteboardShapesReply(msg: GetWhiteboardShapesReply) {
@@ -2098,7 +2125,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING GET WHITEBOARD SHAPES REPLY *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleSendWhiteboardAnnotationEvent(msg: SendWhiteboardAnnotationEvent) {
@@ -2111,7 +2138,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING SEND WHITEBOARD ANNOTATION EVENT *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleClearWhiteboardEvent(msg: ClearWhiteboardEvent) {
@@ -2123,7 +2150,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING CLEAR WHITEBOARD EVENT *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUndoWhiteboardEvent(msg: UndoWhiteboardEvent) {
@@ -2136,7 +2163,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
 
     println("***** DISPATCHING UNDO WHITEBOARD EVENT *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleWhiteboardEnabledEvent(msg: WhiteboardEnabledEvent) {
@@ -2148,7 +2175,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING WHITEBOARD ENABLED EVENT *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
 
   private def handleIsWhiteboardEnabledReply(msg: IsWhiteboardEnabledReply) {
@@ -2160,6 +2187,6 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("timestamp", System.nanoTime())
  
     println("***** DISPATCHING IS WHITEBOARD ENABLED REPLY *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
 }

@@ -31,5 +31,12 @@ object Constants {
   val LAYOUT_ID                       = "layout_id"
   val POLL                            = "poll"
   val POLL_ID                         = "poll_id"
-    
+  val FORCE                           = "force"
+  val RESPONSE                        = "response"
+  val PRESENTATION_ID                 = "presentation_id"
+  val X_OFFSET                        = "x_offset"
+  val Y_OFFSET                        = "y_offset"
+  val WIDTH_RATIO                     = "width_ratio"
+  val HEIGHT_RATIO                    = "height_ratio"
+  val PAGE                            = "page"    
 }
