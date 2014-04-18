@@ -123,8 +123,11 @@ object MessageNames {
   val UNLOCK_LAYOUT_REPLY                  = "unlock_layout_reply"
   val GET_POLL_RESULT_REPLY                = "get_poll_result_reply"
   val POLL_CLEARED                         = "poll_cleared_message"
+  val GET_POLLS_REPLY                      = "get_polls_reply" 
+  val CLEAR_POLL_FAILED                    = "clear_poll_failed"    
   val POLL_STARTED                         = "poll_started_message"
   val POLL_STOPPED                         = "poll_stopped_message"
+  val POLL_REMOVED                         = "poll_removed"  
   val POLL_UPDATED                         = "poll_updated_message"
   val POLL_CREATED                         = "poll_created_message"
   val POLL_RESPONSE                        = "poll_response_message"
@@ -148,4 +151,6 @@ object MessageNames {
   val SEND_WHITEBOARD_SHAPE                = "send_whiteboard_shape_message"
   val UNDO_WHITEBOARD_MESSAGE              = "undo_whiteboard_message"
   val WHITEBOARD_ENABLED                   = "whiteboard_enabled_message"
+  val WHITEBOARD_CLEARED                   = "whiteboard_cleared_message"
+  val IS_WHITEBOARD_ENABLED_REPLY          = "is_whiteboard_enabled_reply"
 }
