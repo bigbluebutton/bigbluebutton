@@ -218,30 +218,39 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   }
   
   private def handleDestroyMeeting(msg: DestroyMeeting) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.DESTROY_MEETING)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
                  
     println("***** DISPATCHING DESTROY MEETING *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleStartMeeting(msg: StartMeeting) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.START_MEETING)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
                  
     println("***** DISPATCHING START MEETING *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleEndMeeting(msg: EndMeeting) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.END_MEETING)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
                  
     println("***** DISPATCHING END MEETING *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleLockSetting(msg: LockSetting) {
@@ -328,27 +337,33 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   }
   
   private def handleValidateAuthToken(msg: ValidateAuthToken) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("userId", msg.userId)
-    map.put("token", msg.token)
-    map.put("timestamp", System.nanoTime())
-
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userId)
+    payload.put(Constants.AUTH_TOKEN, msg.token)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.VALIDATE_AUTH_TOKEN)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
+    
     println("***** DISPATCHING VALIDATE AUTH TOKEN *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleRegisterUser(msg: RegisterUser) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("userID", msg.userID)
-    map.put("name", msg.name)
-    map.put("role", msg.role.toString())
-    map.put("extUserID", msg.extUserID)
-    map.put("timestamp", System.nanoTime())
-
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userID)
+    payload.put(Constants.NAME, msg.name)
+    payload.put(Constants.ROLE, msg.role.toString())
+    payload.put(Constants.EXT_USER_ID, msg.extUserID)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.REGISTER_USER)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
+    
     println("***** DISPATCHING REGISTER USER *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUserJoining(msg: UserJoining) {

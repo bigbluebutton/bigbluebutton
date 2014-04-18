@@ -11,5 +11,8 @@ object Constants {
   val MEETING_NAME                    = "meeting_name"
   val VOICE_CONF                      = "voice_conf"
   val DURATION                        = "duration"
+  val AUTH_TOKEN                      = "auth_token"
+  val ROLE                            = "role"
+  val EXT_USER_ID                     = "external_user_id"
   
 }
