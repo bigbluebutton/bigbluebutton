@@ -4,12 +4,10 @@ import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.api._
 import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.MeetingActor
-import net.lag.logging.Logger
 
 trait PollApp {
   this : MeetingActor =>
   
-  private val log = Logger.get
   val outGW: MessageOutGateway
     
   private val pollModel = new PollModel

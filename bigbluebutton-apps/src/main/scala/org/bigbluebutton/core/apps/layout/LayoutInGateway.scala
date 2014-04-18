@@ -2,14 +2,10 @@ package org.bigbluebutton.core.apps.layout
 
 import org.bigbluebutton.core.BigBlueButtonGateway
 import org.bigbluebutton.core.api._
-import net.lag.logging.Logger
 
 class LayoutInGateway(bbbGW: BigBlueButtonGateway) {
   
-  val log = Logger.get
-  
   def getCurrentLayout(meetingID: String, requesterID: String) {
-    log.debug("Received getCurrentLayout for meeting[{}]", meetingID)
     bbbGW.accept(new GetCurrentLayoutRequest(meetingID, requesterID))
   }
 	

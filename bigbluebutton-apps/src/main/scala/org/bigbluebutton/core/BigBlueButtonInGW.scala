@@ -13,11 +13,9 @@ import java.util.ArrayList
 import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.apps.presentation.Page
 import org.bigbluebutton.core.apps.presentation.Presentation
-import net.lag.logging.Logger
 
 class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW {
-  private val log = Logger.get
-  
+
   val presUtil = new PreuploadedPresentationsUtil()
    
   // Meeting
@@ -249,7 +247,6 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	
 	def getPresentationInfo(meetingID: String, requesterID: String) {
 	  println("**** Forwarding GetPresentationInfo for meeting[" + meetingID + "] ****")
-	  log.debug("**** Forwarding GetPresentationInfo for meeting[{}] ****", meetingID)
 	  bbbGW.accept(new GetPresentationInfo(meetingID, requesterID))
 	}
 	
