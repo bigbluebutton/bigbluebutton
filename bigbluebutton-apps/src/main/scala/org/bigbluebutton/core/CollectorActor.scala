@@ -563,170 +563,213 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   }
   
   private def handleSendPrivateMessageRequest(msg: SendPrivateMessageRequest) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
 
-    var messageMap = new java.util.HashMap[String, String]()
-    for ((key, value) <- msg.message)
-    {
+    val messageMap = new java.util.HashMap[String, String]()
+    for ((key, value) <- msg.message) {
       messageMap.put(key, value)
     }
+    payload.put("message", messageMap)
     
-    map.put("message", messageMap)
-    map.put("timestamp", System.nanoTime())
-
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.SEND_PRIVATE_CHAT_MESSAGE)
+    header.put(Constants.TIMESTAMP, System.nanoTime())  
+    
     println("***** DISPATCHING SEND PRIVATE MESSAGE REQUEST *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleGetCurrentLayoutRequest(msg: GetCurrentLayoutRequest) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.GET_CURRENT_LAYOUT)
+    header.put(Constants.TIMESTAMP, System.nanoTime())  
 
     println("***** DISPATCHING GET CURRENT LAYOUT REQUEST *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleSetLayoutRequest(msg: SetLayoutRequest) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.SET_LAYOUT)
+    header.put(Constants.TIMESTAMP, System.nanoTime())  
  
     println("***** DISPATCHING SET LAYOUT REQUEST *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleLockLayoutRequest(msg: LockLayoutRequest) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("layoutID", msg.layoutID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.LAYOUT_ID, msg.layoutID)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.LOCK_LAYOUT)
+    header.put(Constants.TIMESTAMP, System.nanoTime()) 
 
     println("***** DISPATCHING LOCK LAYOUT REQUEST *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUnlockLayoutRequest(msg: UnlockLayoutRequest) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.UNLOCK_LAYOUT)
+    header.put(Constants.TIMESTAMP, System.nanoTime()) 
 
     println("***** DISPATCHING UNLOCK LAYOUT REQUEST *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePreCreatedPoll(msg: PreCreatedPoll) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("poll", msg.poll)
-    map.put("timestamp", System.nanoTime())
-
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.POLL, msg.poll)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.PRECREATED_POLL)
+    header.put(Constants.TIMESTAMP, System.nanoTime()) 
+    
     println("***** DISPATCHING PRE CREATED POLL *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleCreatePoll(msg: CreatePoll) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("poll", msg.poll)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.POLL, msg.poll)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.CREATE_POLL)
+    header.put(Constants.TIMESTAMP, System.nanoTime()) 
 
     println("***** DISPATCHING CREATE POLL *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUpdatePoll(msg: UpdatePoll) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("poll", msg.poll)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.POLL, msg.poll)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.UPDATE_POLL)
+    header.put(Constants.TIMESTAMP, System.nanoTime()) 
 
     println("***** DISPATCHING UPDATE POLL *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleGetPolls(msg: GetPolls) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("timestamp", System.nanoTime())
- 
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.GET_POLLS)
+    header.put(Constants.TIMESTAMP, System.nanoTime()) 
+    
     println("***** DISPATCHING GET POLLS *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleDestroyPoll(msg: DestroyPoll) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("pollID", msg.pollID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.POLL_ID, msg.pollID)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.DESTROY_POLL)
+    header.put(Constants.TIMESTAMP, System.nanoTime()) 
 
     println("***** DISPATCHING DESTROY POLLS *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleRemovePoll(msg: RemovePoll) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("pollID", msg.pollID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.POLL_ID, msg.pollID)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.REMOVE_POLL)
+    header.put(Constants.TIMESTAMP, System.nanoTime()) 
 
     println("***** DISPATCHING REMOVE POLL *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleSharePoll(msg: SharePoll) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("pollID", msg.pollID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.POLL_ID, msg.pollID)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.SHARE_POLL)
+    header.put(Constants.TIMESTAMP, System.nanoTime()) 
 
     println("***** DISPATCHING SHARE POLL *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleShowPollResult(msg: ShowPollResult) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("pollID", msg.pollID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.POLL_ID, msg.pollID)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.SHOW_POLL_RESULT)
+    header.put(Constants.TIMESTAMP, System.nanoTime()) 
  
     println("***** DISPATCHING SHOW POLL RESULTS *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleHidePollResult(msg: HidePollResult) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("pollID", msg.pollID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.POLL_ID, msg.pollID)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.HIDE_POLL_RESULT)
+    header.put(Constants.TIMESTAMP, System.nanoTime()) 
 
     println("***** DISPATCHING HIDE POLL RESULTS *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleStopPoll(msg: StopPoll) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("pollID", msg.pollID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.POLL_ID, msg.pollID)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.STOP_POLL)
+    header.put(Constants.TIMESTAMP, System.nanoTime()) 
  
     println("***** DISPATCHING STOP POLL *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleStartPoll(msg: StartPoll) {

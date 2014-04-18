@@ -41,6 +41,7 @@ object MessageNames {
   val SHOW_POLL_RESULT                     = "show_poll_result_request"
   val HIDE_POLL_RESULT                     = "hide_poll_result_request"
   val START_POLL                           = "start_poll_request"
+  val STOP_POLL                            = "stop_poll_request"    
   val CLEAR_POLL                           = "clear_poll_request"
   val GET_POLL_RESULT                      = "get_poll_result_request"
   val RESPONT_TO_POLL                      = "respond_to_poll_request"

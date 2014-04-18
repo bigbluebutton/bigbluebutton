@@ -27,5 +27,9 @@ object Constants {
   val NEW_PRESENTER_ID                = "new_presenter_id"
   val NEW_PRESENTER_NAME              = "new_presenter_name"
   val ASSIGNED_BY                     = "assigned_by"
-  val RECORDING                       = "recording"  
+  val RECORDING                       = "recording" 
+  val LAYOUT_ID                       = "layout_id"
+  val POLL                            = "poll"
+  val POLL_ID                         = "poll_id"
+    
 }
