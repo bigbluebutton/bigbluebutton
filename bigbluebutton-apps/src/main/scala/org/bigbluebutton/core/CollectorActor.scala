@@ -908,482 +908,611 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   }
   
   private def handleSharePresentation(msg: SharePresentation) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("presentationID", msg.presentationID)
-    map.put("share", msg.share)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.PRESENTATION_ID, msg.presentationID)
+    payload.put(Constants.SHARE, msg.share)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.SHARE_PRESENTATION)
+    header.put(Constants.TIMESTAMP, System.nanoTime()) 
 
     println("***** DISPATCHING SHARE PRESENTATION *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleGetSlideInfo(msg: GetSlideInfo) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.GET_SLIDE_INFO)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
  
     println("***** DISPATCHING GET SLIDE INFO *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePreuploadedPresentations(msg: PreuploadedPresentations) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("presentations", msg.presentations.toString()) //#todo not tested
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.PRESENTATIONS, msg.presentations.toString()) //#todo not tested
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.PREUPLOADED_PRESENTATIONS)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING PREUPLOADED PRESENTATIONS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePresentationConversionUpdate(msg: PresentationConversionUpdate) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("messageKey", msg.messageKey)
-    map.put("code", msg.code)
-    map.put("presentationId", msg.presentationId)
-    map.put("presName", msg.presName)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.MESSAGE_KEY, msg.messageKey) 
+    payload.put(Constants.CODE, msg.code)
+    payload.put(Constants.PRESENTATION_ID, msg.presentationId)
+    payload.put(Constants.PRESENTATION_NAME, msg.presName)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.PRESENTATION_CONVERSION_UPDATE)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING PRESENTATION CONVERSION UPDATE *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePresentationPageCountError(msg: PresentationPageCountError) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("messageKey", msg.messageKey)
-    map.put("code", msg.code)
-    map.put("presentationId", msg.presentationId)
-    map.put("numberOfPages", msg.numberOfPages)
-    map.put("maxNumberPages", msg.maxNumberPages)
-    map.put("presName", msg.presName)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.MESSAGE_KEY, msg.messageKey) 
+    payload.put(Constants.CODE, msg.code)
+    payload.put(Constants.PRESENTATION_ID, msg.presentationId)
+    payload.put(Constants.PRESENTATION_NAME, msg.presName)
+    payload.put(Constants.NUM_PAGES, msg.numberOfPages)
+    payload.put(Constants.MAX_NUM_PAGES, msg.maxNumberPages)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.PRESENTATION_PAGE_COUNT_ERROR)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING PRESENTATION PAGE COUNT ERROR *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePresentationSlideGenerated(msg: PresentationSlideGenerated) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("messageKey", msg.messageKey)
-    map.put("code", msg.code)
-    map.put("presentationId", msg.presentationId)
-    map.put("numberOfPages", msg.numberOfPages)
-    map.put("pagesCompleted", msg.pagesCompleted)
-    map.put("presName", msg.presName)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.MESSAGE_KEY, msg.messageKey) 
+    payload.put(Constants.CODE, msg.code)
+    payload.put(Constants.PRESENTATION_ID, msg.presentationId)
+    payload.put(Constants.PRESENTATION_NAME, msg.presName)
+    payload.put(Constants.NUM_PAGES, msg.numberOfPages)
+    payload.put(Constants.PAGES_COMPLETED, msg.pagesCompleted)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.PRESENTATION_PAGE_GENERATED)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING PRESENTATION SLIDE GENERATED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePresentationConversionCompleted(msg: PresentationConversionCompleted) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("messageKey", msg.messageKey)
-    map.put("code", msg.code)
-    map.put("presentation", msg.presentation)
-    map.put("timestamp", System.nanoTime())
-
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.MESSAGE_KEY, msg.messageKey) 
+    payload.put(Constants.CODE, msg.code)
+    payload.put(Constants.PRESENTATION_ID, msg.presentation)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.PRESENTATION_CONVERSION_COMPLETED)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
+   
     println("***** DISPATCHING PRESENTATION CONVERSION COMPLETED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleSendVoiceUsersRequest(msg: SendVoiceUsersRequest) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID) 
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.SEND_VOICE_USERS_REQUEST)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
  
     println("***** DISPATCHING SEND VOICE USERS REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleMuteMeetingRequest(msg: MuteMeetingRequest) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("mute", msg.mute)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID) 
+    payload.put(Constants.MUTE, msg.mute) 
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.MUTE_MEETING_REQUEST)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING MUTE MEETING REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleIsMeetingMutedRequest(msg: IsMeetingMutedRequest) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID) 
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.IS_MEETING_MUTED)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
  
     println("***** DISPATCHING IS MEETING MUTED REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleMuteUserRequest(msg: MuteUserRequest) {
-    var map = new java.util.HashMap[String, Any]()
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID) 
+    payload.put(Constants.USER_ID, msg.userID)
+    payload.put(Constants.MUTE, msg.mute)
     
-    map.put("timestamp", System.nanoTime())
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.MUTE_USER)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING MUTE USER REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleLockUserRequest(msg: LockUserRequest) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("userID", msg.userID)
-    map.put("lock", msg.lock)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID) 
+    payload.put(Constants.USER_ID, msg.userID)
+    payload.put(Constants.LOCK, msg.lock)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.LOCK_USER)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING LOCK USER REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleEjectUserRequest(msg: EjectUserRequest) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("userID", msg.userID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID) 
+    payload.put(Constants.USER_ID, msg.userID)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.EJECT_USER)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING EJECT USER REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleVoiceUserJoinedMessage(msg: VoiceUserJoinedMessage) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("user", msg.user.toString())
-    map.put("voiceConfId", msg.voiceConfId)
-    map.put("callerIdNum", msg.callerIdNum)
-    map.put("callerIdName", msg.callerIdName)
-    map.put("muted", msg.muted)
-    map.put("talking", msg.talking)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER, msg.user.toString())
+    payload.put(Constants.VOICE_CONF, msg.voiceConfId)
+    payload.put(Constants.CALLER_ID_NUM, msg.callerIdNum)
+    payload.put(Constants.CALLER_ID_NAME, msg.callerIdName)
+    payload.put(Constants.MUTED, msg.muted)
+    payload.put(Constants.TALKING, msg.talking)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.VOICE_USER_JOINED_MESSAGE)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING VOICE USER JOINED MESSAGE *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleVoiceUserJoined(msg: VoiceUserJoined) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("voiceUser", msg.voiceUser)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.VOICE_USER, msg.voiceUser)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.VOICE_USER_JOINED)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING VOICE USER JOINED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleVoiceUserLeft(msg: VoiceUserLeft) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("userId", msg.userId)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userId)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.VOICE_USER_LEFT)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
  
     println("***** DISPATCHING VOICE USER LEFT *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleVoiceUserLocked(msg: VoiceUserLocked) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("userId", msg.userId)
-    map.put("locked", msg.locked)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userId)
+    payload.put(Constants.LOCKED, msg.locked)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.VOICE_USER_LOCKED)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING VOICE USER LOCKED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleVoiceUserMuted(msg: VoiceUserMuted) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("userId", msg.userId)
-    map.put("muted", msg.muted)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userId)
+    payload.put(Constants.MUTED, msg.muted)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.VOICE_USER_MUTED)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING VOICE USER MUTED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleVoiceUserTalking(msg: VoiceUserTalking) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("userId", msg.userId)
-    map.put("talking", msg.talking)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userId)
+    payload.put(Constants.TALKING, msg.talking)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.VOICE_USER_TALKING)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING VOICE USER TALKING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleVoiceRecording(msg: VoiceRecording) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("recordingFile", msg.recordingFile)
-    map.put("timestamp", msg.timestamp)
-    map.put("recording", msg.recording)
-    map.put("timestamp-dispatching", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.RECORDING_FILE, msg.recordingFile)
+    payload.put(Constants.TIMESTAMP, msg.timestamp)
+    payload.put(Constants.RECORDING, msg.recording)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.VOICE_RECORDING)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING VOICE RECORDING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleSendWhiteboardAnnotationRequest(msg: SendWhiteboardAnnotationRequest) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("annotation", msg.annotation)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.ANNOTATION, msg.annotation)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.SEND_WHITEBOARD_ANNOTATION)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING SEND WHITEBOARD ANNOTATION REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleGetWhiteboardShapesRequest(msg: GetWhiteboardShapesRequest) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("whiteboardId", msg.whiteboardId)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.WHITEBOARD_ID, msg.whiteboardId)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.GET_WHITEBOARD_SHAPES)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING SEND WHITEBOARD SHAPES REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleClearWhiteboardRequest(msg: ClearWhiteboardRequest) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("whiteboardId", msg.whiteboardId)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.WHITEBOARD_ID, msg.whiteboardId)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.CLEAR_WHITEBOARD)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
  
     println("***** DISPATCHING CLEAR WHITEBOARD REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUndoWhiteboardRequest(msg: UndoWhiteboardRequest) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("whiteboardId", msg.whiteboardId)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.WHITEBOARD_ID, msg.whiteboardId)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.UNDO_WHITEBOARD)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING UNDO WHITEBOARD REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleEnableWhiteboardRequest(msg: EnableWhiteboardRequest) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("enable", msg.enable)
-    map.put("timestamp", System.nanoTime())
- 
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.ENABLE, msg.enable)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.ENABLE_WHITEBOARD)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
+
     println("***** DISPATCHING ENABLE WHITEBOARD REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleIsWhiteboardEnabledRequest(msg: IsWhiteboardEnabledRequest) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("requesterID", msg.requesterID)
-    map.put("timestamp", System.nanoTime())
- 
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.IS_WHITEBOARD_ENABLED)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
+
     println("***** DISPATCHING IS WHITEBOARD ENABLED REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
 
   // OUT MESSAGES
   private def handleMeetingCreated(msg: MeetingCreated) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("recorded", msg.recorded)
-    map.put("voiceBridge", msg.voiceBridge)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.RECORDED, msg.recorded)
+    payload.put(Constants.VOICE_CONF, msg.voiceBridge)
+
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.MEETING_CREATED)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING MEETING CREATED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleVoiceRecordingStarted(msg: VoiceRecordingStarted) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("recorded", msg.recorded)
-    map.put("recordingFile", msg.recordingFile)
-    map.put("timestamp", msg.timestamp)
-    map.put("confNum", msg.confNum)
-    map.put("timestamp-dispatching", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.RECORDED, msg.recorded)
+    payload.put(Constants.RECORDING_FILE, msg.recordingFile)
+    payload.put(Constants.VOICE_CONF, msg.confNum)
+    payload.put(Constants.TIMESTAMP, msg.timestamp)
+
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.VOICE_RECORDING_STARTED)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
  
     println("***** DISPATCHING VOICE RECORDING STARTED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleVoiceRecordingStopped(msg: VoiceRecordingStopped) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("recorded", msg.recorded)
-    map.put("recordingFile", msg.recordingFile)
-    map.put("timestamp", msg.timestamp)
-    map.put("confNum", msg.confNum)
-    map.put("timestamp-dispatching", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.RECORDED, msg.recorded)
+    payload.put(Constants.RECORDING_FILE, msg.recordingFile)
+    payload.put(Constants.VOICE_CONF, msg.confNum)
+    payload.put(Constants.TIMESTAMP, msg.timestamp)
 
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.VOICE_RECORDING_STOPPED)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
+    
     println("***** DISPATCHING VOICE RECORDING STOPPED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleRecordingStatusChanged(msg: RecordingStatusChanged) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("recorded", msg.recorded)
-    map.put("userId", msg.userId)
-    map.put("recording", msg.recording)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.RECORDED, msg.recorded)
+    payload.put(Constants.USER_ID, msg.userId)
+    payload.put(Constants.RECORDING, msg.recording)
+
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.RECORDING_STATUS_CHANGED)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
  
     println("***** DISPATCHING RECORDING STATUS CHANGED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleGetRecordingStatusReply(msg: GetRecordingStatusReply) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("recorded", msg.recorded)
-    map.put("userId", msg.userId)
-    map.put("recording", msg.recording)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.RECORDED, msg.recorded)
+    payload.put(Constants.USER_ID, msg.userId)
+    payload.put(Constants.RECORDING, msg.recording)
+
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.GET_RECORDING_STATUS_REPLY)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
  
     println("***** DISPATCHING GET RECORDING STATUS REPLY *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleMeetingEnded(msg: MeetingEnded) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("recorded", msg.recorded)
-    map.put("voiceBridge", msg.voiceBridge)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.RECORDED, msg.recorded)
+    payload.put(Constants.VOICE_CONF, msg.voiceBridge)
+
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.MEETING_ENDED)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING MEETING ENDED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleMeetingHasEnded(msg: MeetingHasEnded) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("userId", msg.userId)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userId)
+
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.MEETING_ENDED)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
  
     println("***** DISPATCHING MEETING HAS ENDED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleMeetingDestroyed(msg: MeetingDestroyed) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.MEETING_DESTROYED)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
  
     println("***** DISPATCHING MEETING DESTROYED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleDisconnectAllUsers(msg: DisconnectAllUsers) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.DISCONNECT_ALL_USERS)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING DISCONNECT ALL USERS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleDisconnectUser(msg: DisconnectUser) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("userId", msg.userId)
-    map.put("timestamp", System.nanoTime())
- 
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userId)
+
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.DISCONNECT_USER)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
+
     println("***** DISPATCHING DISCONNECT USER *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handlePermissionsSettingInitialized(msg: PermissionsSettingInitialized) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("locked", msg.locked)
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.LOCKED, msg.locked)
+    payload.put(Constants.SETTINGS, msg.settings.toString()) //#todo not tested
 
-    map.put("settings", msg.settings.toString()) //#todo not tested
-    map.put("timestamp", System.nanoTime())
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.PERMISSION_SETTING_INITIALIZED)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
  
     println("***** DISPATCHING PERMISSIONS SETTING INIIALIZED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleNewPermissionsSetting(msg: NewPermissionsSetting) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.SETTINGS, msg.settings.toString()) //#todo not tested
 
-    map.put("settings", msg.settings.toString()) //#todo not tested
-    map.put("timestamp", System.nanoTime())
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.NEW_PERMISSION_SETTINGS)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING NEW PERMISSIONS SETTING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUserLocked(msg: UserLocked) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("userId", msg.userId)
-    map.put("lock", msg.lock)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userId) 
+    payload.put(Constants.LOCKED, msg.lock)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.USER_LOCKED)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
  
     println("***** DISPATCHING USER LOCKED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUsersLocked(msg: UsersLocked) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("lock", msg.lock)
-    map.put("exceptUsers", msg.exceptUsers.toString()) //#todo not tested
-    map.put("timestamp", System.nanoTime())
- 
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.EXCEPT_USERS, msg.exceptUsers.toString()) 
+    payload.put(Constants.LOCKED, msg.lock)
     
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.USERS_LOCKED)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
+
     println("***** DISPATCHING USERS LOCKED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
+  
   private def handleGetPermissionsSettingReply(msg: GetPermissionsSettingReply) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("userId", msg.userId)
-    map.put("timestamp", System.nanoTime())
-
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userId) 
     
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.GET_PERMISSION_SETTINGS_REPLY)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
+
     println("***** DISPATCHING GET PERMISSIONS SETTING REPLY *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleIsMeetingLockedReply(msg: IsMeetingLockedReply) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("userId", msg.userId)
-    map.put("timestamp", System.nanoTime())
- 
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userId) 
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.IS_MEETING_LOCKED_REPLY)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
+
     println("***** DISPATCHING IS MEETING LOCKED REPLY *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUserRegistered(msg: UserRegistered) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("recorded", msg.recorded)
-    map.put("user", msg.user.toString())
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER, msg.user.toString()) 
+    payload.put(Constants.RECORDED, msg.recorded) 
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.USER_REGISTERED)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING USER REGISTERED *****************")
     dispatcher.dispatch(buildJson(header, payload))
@@ -1391,11 +1520,14 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   }
   
   private def handleUserLeft(msg: UserLeft) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("recorded", msg.recorded)
-    map.put("user", msg.user.toString())
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER, msg.user.toString()) 
+    payload.put(Constants.RECORDED, msg.recorded) 
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.USER_LEFT)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
 
     println("***** DISPATCHING USER LEFT *****************")
     dispatcher.dispatch(buildJson(header, payload))
