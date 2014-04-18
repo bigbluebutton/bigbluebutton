@@ -18,5 +18,14 @@ object Constants {
   val REPLY_TO                        = "reply_to"
   val LOWERED_BY                      = "lowered_by"
   val STREAM                          = "stream"
-  
+  val LOCKED                          = "locked"
+  val SETTINGS                        = "settings"
+  val LOCK                            = "lock"
+  val EXCEPT_USERS                    = "except_users"
+  val STATUS                          = "status"
+  val VALUE                           = "value"
+  val NEW_PRESENTER_ID                = "new_presenter_id"
+  val NEW_PRESENTER_NAME              = "new_presenter_name"
+  val ASSIGNED_BY                     = "assigned_by"
+  val RECORDING                       = "recording"  
 }
