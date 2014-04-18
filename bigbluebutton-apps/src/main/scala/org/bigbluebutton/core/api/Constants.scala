@@ -14,5 +14,8 @@ object Constants {
   val AUTH_TOKEN                      = "auth_token"
   val ROLE                            = "role"
   val EXT_USER_ID                     = "external_user_id"
-  
+  val REQUESTER_ID                    = "requester_id"
+  val REPLY_TO                        = "reply_to"
+  val LOWERED_BY                      = "lowered_by"
+    
 }
