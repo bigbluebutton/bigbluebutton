@@ -174,30 +174,47 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
       }
     }
   }
-
+  
+  private def buildJson(header: java.util.HashMap[String, Any], 
+      payload: java.util.HashMap[String, Any]): String = {
+    
+    val message = new java.util.HashMap[String, java.util.HashMap[String, Any]]()
+    message.put(Constants.HEADER, header)
+    message.put(Constants.PAYLOAD, payload)
+    
+    val gson = new Gson()
+    gson.toJson(message)
+  }
+  
   // IN MESSAGES
   private def handleCreateMeeting(msg: CreateMeeting) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("meetingName", msg.meetingName)
-    map.put("recorded", msg.recorded)
-    map.put("voiceBridge", msg.voiceBridge)
-    map.put("duration", msg.duration)     
-    map.put("timestamp", System.nanoTime())
-                 
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)    
+    payload.put(Constants.MEETING_NAME, msg.meetingName)
+    payload.put(Constants.RECORDED, msg.recorded)
+    payload.put(Constants.VOICE_CONF, msg.voiceBridge)
+    payload.put(Constants.DURATION, msg.duration)     
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.CREATE_MEETING)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
+    
     println("***** DISPATCHING CREATE MEETING *****************")
     
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleInitializeMeeting(msg: InitializeMeeting) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("recorded", msg.recorded)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.RECORDED, msg.recorded)
+
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.INITIALIZE_MEETING)
+    header.put(Constants.TIMESTAMP, System.nanoTime())
                  
     println("***** DISPATCHING INITIALIZE MEETING *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleDestroyMeeting(msg: DestroyMeeting) {
