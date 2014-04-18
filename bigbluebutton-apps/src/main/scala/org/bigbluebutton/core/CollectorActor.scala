@@ -439,24 +439,30 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   }
   
   private def handleUserShareWebcam(msg: UserShareWebcam) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("userId", msg.userId)
-    map.put("stream", msg.stream)
-    map.put("timestamp", System.nanoTime())
-
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userId)
+    payload.put(Constants.STREAM, msg.stream)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.USER_SHARE_WEBCAM)
+    header.put(Constants.TIMESTAMP, System.nanoTime())    
+    
     println("***** DISPATCHING USER SHARE WEBCAM *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUserUnshareWebcam(msg: UserUnshareWebcam) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("userId", msg.userId)
-    map.put("timestamp", System.nanoTime())
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userId)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.USER_UNSHARE_WEBCAM)
+    header.put(Constants.TIMESTAMP, System.nanoTime())   
                  
     println("***** DISPATCHING USER UNSHARE WEBCAM *****************")
-    dispatcher.dispatch((new Gson).toJson(map))
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleChangeUserStatus(msg: ChangeUserStatus) {
@@ -601,6 +607,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     println("***** DISPATCHING CREATE POLL *****************")
     dispatcher.dispatch((new Gson).toJson(map))
   }
+  
   private def handleUpdatePoll(msg: UpdatePoll) {
     var map = new java.util.HashMap[String, Any]()
     map.put("meetingID", msg.meetingID)
@@ -611,6 +618,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     println("***** DISPATCHING UPDATE POLL *****************")
     dispatcher.dispatch((new Gson).toJson(map))
   }
+  
   private def handleGetPolls(msg: GetPolls) {
     var map = new java.util.HashMap[String, Any]()
     map.put("meetingID", msg.meetingID)
@@ -620,6 +628,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     println("***** DISPATCHING GET POLLS *****************")
     dispatcher.dispatch((new Gson).toJson(map))
   }
+  
   private def handleDestroyPoll(msg: DestroyPoll) {
     var map = new java.util.HashMap[String, Any]()
     map.put("meetingID", msg.meetingID)
@@ -630,6 +639,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     println("***** DISPATCHING DESTROY POLLS *****************")
     dispatcher.dispatch((new Gson).toJson(map))
   }
+  
   private def handleRemovePoll(msg: RemovePoll) {
     var map = new java.util.HashMap[String, Any]()
     map.put("meetingID", msg.meetingID)
@@ -640,6 +650,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     println("***** DISPATCHING REMOVE POLL *****************")
     dispatcher.dispatch((new Gson).toJson(map))
   }
+  
   private def handleSharePoll(msg: SharePoll) {
     var map = new java.util.HashMap[String, Any]()
     map.put("meetingID", msg.meetingID)

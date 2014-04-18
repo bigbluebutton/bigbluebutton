@@ -17,5 +17,6 @@ object Constants {
   val REQUESTER_ID                    = "requester_id"
   val REPLY_TO                        = "reply_to"
   val LOWERED_BY                      = "lowered_by"
-    
+  val STREAM                          = "stream"
+  
 }
