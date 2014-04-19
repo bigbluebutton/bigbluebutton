@@ -27,6 +27,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import javax.imageio.ImageIO;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
@@ -307,5 +310,18 @@ public class RedisMessagingService implements MessagingService {
 			// Not used.
 		}		
 	}
+
+	public void removeMeeting(String meetingId){
+		Jedis jedis = redisPool.getResource();
+		try {
+			jedis.del("meeting-" + meetingId);
+			//jedis.hmset("meeting"+ COLON +"info" + COLON + meetingId, metadata);
+			jedis.srem("meetings", meetingId);
+
+		} finally {
+			redisPool.returnResource(jedis);
+		}
+	}
+
 
 }

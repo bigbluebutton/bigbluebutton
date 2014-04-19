@@ -52,4 +52,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="conversionUpdatesProcessor" ref="conversionUpdatesProcessor" />
 	</bean>
 	
+	<bean id="chatMessageListener" class="org.bigbluebutton.conference.service.chat.ChatMessageListener">
+		<property name="conversionUpdatesProcessor" ref="conversionUpdatesProcessor" />
+	</bean>
+
+	<bean id="participantsListener" class="org.bigbluebutton.conference.service.participants.ParticipantsListener">
+		<property name="bigBlueButtonInGW" ref="bbbInGW" />
+	</bean>
 </beans>

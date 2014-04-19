@@ -30,6 +30,7 @@ public class MessagingConstants {
 	public static final String PARTICIPANTS_CHANNEL = "bigbluebutton:meeting:participants";
 	public static final String PRESENTATION_CHANNEL = "bigbluebutton:meeting:presentation";
 	public static final String POLLING_CHANNEL = "bigbluebutton:meeting:polling";
+	public static final String ANTON_CHANNEL = "bigbluebutton:meeting:anton";
 	
 	public static final String DESTROY_MEETING_REQUEST_EVENT = "DestroyMeetingRequestEvent";
 	public static final String CREATE_MEETING_REQUEST_EVENT = "CreateMeetingRequestEvent";	
@@ -42,4 +43,6 @@ public class MessagingConstants {
 	public static final String USER_STATUS_CHANGE_EVENT = "UserStatusChangeEvent";	
 	public static final String SEND_POLLS_EVENT = "SendPollsEvent";
 	public static final String RECORD_STATUS_EVENT = "RecordStatusEvent";
+
+	public static final String BIGBLUEBUTTON_BRIDGE = "bigbluebutton:bridge";
 }

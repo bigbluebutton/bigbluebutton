@@ -46,5 +46,4 @@ public class ChatApplication {
 	public void sendPrivateMessage(String meetingID, String requesterID, Map<String, String> message) {
 		bbbInGW.sendPrivateMessage(meetingID, requesterID, message);
 	}
-	
 }

@@ -25,8 +25,7 @@ import org.bigbluebutton.conference.BigBlueButtonSession;
 import org.bigbluebutton.conference.Constants;
 import org.red5.logging.Red5LoggerFactory;import org.red5.server.api.Red5;
 
-public class ChatService {
-	
+public class ChatService {	
 	private static Logger log = Red5LoggerFactory.getLogger( ChatService.class, "bigbluebutton" );
 	
 	private ChatApplication application;
@@ -76,7 +75,7 @@ public class ChatService {
 	public void setChatApplication(ChatApplication a) {
 		application = a;
 	}
-	
+
 	public void sendPrivateMessage(Map<String, Object> msg){
 		String chatType = msg.get(ChatKeyUtil.CHAT_TYPE).toString(); 
 		String fromUserID = msg.get(ChatKeyUtil.FROM_USERID).toString();

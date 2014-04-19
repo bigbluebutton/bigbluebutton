@@ -81,10 +81,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <constructor-arg index="0" ref="collDispatcher"/>
     </bean>
     
-    <bean id="collDispatcher" class="org.bigbluebutton.core.api.ConsoleDispatcher">
-    </bean>
+    <bean id="collDispatcher" class="org.bigbluebutton.core.api.ConsoleDispatcher"/>
 
-<!--    
+<!--
     <bean id="redisLpushDispatcher" class="org.bigbluebutton.core.api.RedisLpushDispatcher" 
            init-method="start" destroy-method="stop">
       <property name="redisPool"><ref bean="redisPool" /> </property>
@@ -108,7 +107,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 <ref bean="whiteboardRedisRecorder"/>
                 <ref bean="chatRed5ClientSender"/>   
                 <ref bean="chatRedisRecorder"/>
-                <ref bean="fsConfService"/> 
+                <ref bean="fsConfService"/>                    
+                <ref bean="whiteboardEventRedisPublisher"/>
                 <ref bean="collectorGW"/>                   
             </set>        
          </property> 
@@ -176,6 +176,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             
     <bean id="meetingMessageHandler" class="org.bigbluebutton.conference.meeting.messaging.redis.MeetingMessageHandler">
       <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
+    </bean>
+    
+    <bean id="whiteboardEventRedisPublisher" class="org.bigbluebutton.core.apps.whiteboard.redis.WhiteboardEventRedisPublisher">
+      <constructor-arg ref="redisMessageSender"/>
     </bean>
         
 	<import resource="bbb-redis-pool.xml"/>

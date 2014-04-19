@@ -18,6 +18,10 @@
 */
 package org.bigbluebutton.conference.service.messaging;
 
+import redis.clients.jedis.Jedis;
+
 public interface MessagingService {
 	public void send(String channel, String message);
+	public Jedis createRedisClient();
+	public void dropRedisClient(Jedis jedis);
 }

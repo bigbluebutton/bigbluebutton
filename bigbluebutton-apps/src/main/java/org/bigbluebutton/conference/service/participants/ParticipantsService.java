@@ -29,7 +29,6 @@ import org.bigbluebutton.conference.Constants;
 
 
 public class ParticipantsService {
-
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsService.class, "bigbluebutton" );	
 	private ParticipantsApplication application;
 
@@ -100,5 +99,6 @@ public class ParticipantsService {
 	
 	private BigBlueButtonSession getBbbSession() {
         return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
-}
+    }
+
 }

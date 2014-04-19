@@ -30,12 +30,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.bigbluebutton.presentation.ConversionMessageConstants;
 import org.bigbluebutton.presentation.ConversionUpdateMessage;
 import org.bigbluebutton.presentation.PageConverter;
 import org.bigbluebutton.presentation.PdfToSwfSlide;
+import org.bigbluebutton.presentation.PngImageCreator;
 import org.bigbluebutton.presentation.TextFileCreator;
 import org.bigbluebutton.presentation.ThumbnailCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
@@ -50,8 +50,10 @@ public class PdfToSwfSlidesGenerationService {
 	private PageCounterService counterService;
 	private PageConverter pdfToSwfConverter;
 	private PdfPageToImageConversionService imageConvertService;
+	
 	private ThumbnailCreator thumbnailCreator;
 	private TextFileCreator textFileCreator;
+	private PngImageCreator pngImageCreator;
 	private long MAX_CONVERSION_TIME = 5*60*1000;
 	private String BLANK_SLIDE;
 	private int MAX_SWF_FILE_SIZE;
@@ -62,7 +64,7 @@ public class PdfToSwfSlidesGenerationService {
 		log.debug("Determined number of pages " + pres.getNumberOfPages());
 		if (pres.getNumberOfPages() > 0) {
 			convertPdfToSwf(pres);
-			/* adding accessibility */
+			createPngImages(pres);
 			createTextFiles(pres);
 			createThumbnails(pres);
 			notifier.sendConversionCompletedMessage(pres);
@@ -103,7 +105,11 @@ public class PdfToSwfSlidesGenerationService {
 		notifier.sendCreatingTextFilesUpdateMessage(pres);
 		textFileCreator.createTextFiles(pres);
 	}
-	
+	private void createPngImages(UploadedPresentation pres) {
+		log.debug("Creating PNG images.");
+		notifier.sendCreatingPngImagesUpdateMessage(pres);
+		pngImageCreator.createPngImages(pres);
+	}
 	private void convertPdfToSwf(UploadedPresentation pres) {
 		int numPages = pres.getNumberOfPages();				
 		List<PdfToSwfSlide> slides = setupSlides(pres, numPages);
@@ -205,7 +211,9 @@ public class PdfToSwfSlidesGenerationService {
 	public void setTextFileCreator(TextFileCreator textFileCreator) {
 		this.textFileCreator = textFileCreator;
 	}
-	
+	public void setPngImageCreator(PngImageCreator pngImageCreator) {
+		this.pngImageCreator = pngImageCreator;
+	}
 	public void setMaxConversionTime(int minutes) {
 		MAX_CONVERSION_TIME = minutes * 60 * 1000;
 	}
@@ -213,4 +221,5 @@ public class PdfToSwfSlidesGenerationService {
 	public void setSwfSlidesGenerationProgressNotifier(SwfSlidesGenerationProgressNotifier notifier) {
 		this.notifier = notifier;
 	}
+	
 }

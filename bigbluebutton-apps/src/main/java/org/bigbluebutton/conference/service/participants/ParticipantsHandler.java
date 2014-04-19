@@ -25,11 +25,12 @@ import org.red5.server.api.IConnection;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.scope.IScope;
-import org.red5.server.api.so.ISharedObject;
 import org.red5.server.adapter.ApplicationAdapter;
 import org.red5.server.api.Red5;
 import java.util.HashMap;
-import java.util.Map;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;
+import java.util.Map;
+import org.bigbluebutton.conference.BigBlueButtonSession;
+import org.bigbluebutton.conference.Constants;
 
 public class ParticipantsHandler extends ApplicationAdapter implements IApplication{
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsHandler.class, "bigbluebutton" );
@@ -101,8 +102,6 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 		BigBlueButtonSession bbbSession = getBbbSession();
 		if (bbbSession == null) {
 			log.debug("roomLeave - session is null"); 
-		} else {
-			participantsApplication.participantLeft(scope.getName(), bbbSession.getInternalUserID());
 		}		
 	}
 	
@@ -125,6 +124,7 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 			status.put("raiseHand", false);
 			status.put("presenter", false);
 			status.put("hasStream", false);	
+
 			participantsApplication.registerUser(room, userid, username, role, bbbSession.getExternUserID(), status);
 		}
 		log.warn("Can't send user join as session is null.");
@@ -138,4 +138,5 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 	private BigBlueButtonSession getBbbSession() {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}
+	
 }

@@ -80,8 +80,6 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
   	  message.put("msg", gson.toJson(args))
   	  
   	  println("UsersClientMessageSender - handleRegisteredUser \n" + message.get("msg") + "\n")
-//      val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenReply", message);
-//	  service.sendMessage(m);		  
 	}
 	
 	private def handleValidateAuthTokenReply(msg: ValidateAuthTokenReply) {
@@ -283,7 +281,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
   	    println("UsersClientMessageSender - handleUserJoined \n" + message.get("msg") + "\n")
   	    
 		var m = new BroadcastClientMessage(msg.meetingID, "participantJoined", message);
-		service.sendMessage(m);		
+		service.sendMessage(m);
 	}
 
 

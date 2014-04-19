@@ -55,7 +55,6 @@ public class ParticipantsApplication {
 	
 	public boolean registerUser(String roomName, String userid, String username, String role, String externUserID, Map status) {
 		bbbInGW.registerUser(roomName, userid, username, role, externUserID);
-		//bbbInGW.userJoin(roomName, userid, username, role, externUserID);
 		return true;
 	}
 		
