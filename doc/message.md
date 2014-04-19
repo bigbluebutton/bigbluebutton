@@ -1,4 +1,4 @@
-'''
+```
 {
     "payload": {
         "page": {
@@ -21,9 +21,9 @@
         "name": "presentation_page_resized_message"
     }
 }
-'''
+```
 
-'''
+```
 {
     "payload": {
         "y_offset": 0,
@@ -37,9 +37,9 @@
         "name": "resize_and_move_slide_request"
     }
 }
-'''
+```
 
-'''
+```
 {
     "payload": {
         "whiteboard_id": "ed1c16ba8e432dfa7e73c6a82f215f1d6f933cae-1397936347045/1",
@@ -51,9 +51,9 @@
         "name": "get_whiteboard_shapes_request"
     }
 }
-'''
+```
 
-'''
+```
 {
     "payload": {
         "page": {
@@ -76,6 +76,6 @@
         "name": "presentation_page_resized_message"
     }
 }
-'''
+```
 
 
