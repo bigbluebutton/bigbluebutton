@@ -131,10 +131,10 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
 		println("UserJoinedEvent**NEW - " + gson.toJson(usrJoinedEvent) + "\n")
 		
 		//Should we keep sending the message to both channels?! //TODO
-		service.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(usrJoinedEvent));
+//		service.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(usrJoinedEvent));
 		println("UsersEventRedisPublisher: end handleUserJoined ***Anton")
 		
-		service.send(MessagingConstants.BIGBLUEBUTTON_WEBHOOK_EVENTS, gson.toJson(usrJoinedEvent));
+//		service.send(MessagingConstants.BIGBLUEBUTTON_WEBHOOK_EVENTS, gson.toJson(usrJoinedEvent));
 		//Anton: for user_joined_event ---end------------
 	}
 	
