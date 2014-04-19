@@ -76,4 +76,11 @@ object Constants {
   val SHAPES                          = "shapes" 
   val SHAPE                           = "shape"
   val SHAPE_ID                        = "shape_id"    
+  val PRESENTATION                    = "presentation"
+  val ID                              = "id"
+  val CURRENT                         = "current"
+  val PAGES                           = "pages"
+  val WEB_USER_ID                     = "web_user_id"
+  val JOINED                          = "joined"
+    
 }

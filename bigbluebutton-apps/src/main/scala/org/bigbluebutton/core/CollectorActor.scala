@@ -4,6 +4,13 @@ import scala.actors.Actor
 import scala.actors.Actor._
 import org.bigbluebutton.core.api._
 import com.google.gson.Gson
+import scala.collection.mutable.HashMap
+import collection.JavaConverters._
+import scala.collection.JavaConversions._
+import java.util.ArrayList
+import org.bigbluebutton.core.apps.poll.PollVO
+import org.bigbluebutton.core.apps.presentation.Page
+import org.bigbluebutton.core.apps.presentation.Presentation
 
 class CollectorActor(dispatcher: IDispatcher) extends Actor {
 
@@ -174,7 +181,35 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
       }
     }
   }
-  
+
+  private def buildUserHashMap(user: UserVO):java.util.HashMap[String, Object] = {
+	val vu = user.voiceUser
+	val vuser = new java.util.HashMap[String, Object]()
+	vuser.put(Constants.USER_ID, vu.userId)
+	vuser.put(Constants.WEB_USER_ID, vu.webUserId)
+	vuser.put(Constants.CALLER_ID_NAME, vu.callerName)
+	vuser.put(Constants.CALLER_ID_NUM, vu.callerNum)
+	vuser.put(Constants.JOINED, vu.joined:java.lang.Boolean)
+	vuser.put(Constants.LOCKED, vu.locked:java.lang.Boolean)
+	vuser.put(Constants.MUTED, vu.muted:java.lang.Boolean)
+	vuser.put(Constants.TALKING, vu.talking:java.lang.Boolean)
+	
+	val wuser = new java.util.HashMap[String, Object]()
+	wuser.put(Constants.USER_ID, user.userID)
+	wuser.put(Constants.EXT_USER_ID, user.externUserID)
+	wuser.put(Constants.NAME, user.name)
+	wuser.put(Constants.ROLE, user.role.toString())
+	wuser.put(Constants.RAISE_HAND, user.raiseHand:java.lang.Boolean)
+	wuser.put(Constants.PRESENTER, user.presenter:java.lang.Boolean)
+	wuser.put(Constants.HAS_STREAM, user.hasStream:java.lang.Boolean)
+	wuser.put(Constants.LOCKED, user.locked:java.lang.Boolean)
+	wuser.put(Constants.WEBCAM_STREAM, user.webcamStream)
+	wuser.put(Constants.PHONE_USER, user.phoneUser:java.lang.Boolean)
+	wuser.put(Constants.VOICE_USER, vuser)	  
+	  
+	wuser
+  }
+  	
   private def buildJson(header: java.util.HashMap[String, Any], 
       payload: java.util.HashMap[String, Any]): String = {
     
@@ -1522,7 +1557,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   private def handleUserLeft(msg: UserLeft) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.USER, msg.user.toString()) 
+    payload.put(Constants.USER, buildUserHashMap(msg.user)) 
     payload.put(Constants.RECORDED, msg.recorded) 
     
     val header = new java.util.HashMap[String, Any]()
@@ -1536,7 +1571,9 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   private def handlePresenterAssigned(msg: PresenterAssigned) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.PRESENTER, msg.presenter) 
+	payload.put(Constants.NEW_PRESENTER_ID, msg.presenter.presenterID);
+	payload.put(Constants.NEW_PRESENTER_NAME, msg.presenter.presenterName);
+	payload.put(Constants.ASSIGNED_BY, msg.presenter.assignedBy);
     payload.put(Constants.RECORDED, msg.recorded) 
     
     val header = new java.util.HashMap[String, Any]()
@@ -1564,28 +1601,13 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.REQUESTER_ID, msg.requesterID) 
-    
-    val usersMap = new java.util.HashMap[String, Any]()
 
-    for(index <- 0 until msg.users.size) {
-      val item = msg.users(index)
-      val tempMap = new java.util.HashMap[String, Any]()
-      tempMap.put(Constants.USER_ID, item.userID)
-      tempMap.put(Constants.EXT_USER_ID, item.externUserID)
-      tempMap.put(Constants.NAME, item.name)
-      tempMap.put(Constants.ROLE, item.role.toString())
-      tempMap.put(Constants.RAISE_HAND , item.raiseHand)
-      tempMap.put(Constants.PRESENTER, item.presenter)
-      tempMap.put(Constants.HAS_STREAM, item.hasStream)
-      tempMap.put(Constants.LOCKED, item.locked)
-      tempMap.put(Constants.WEBCAM_STREAM, item.webcamStream)
-      tempMap.put(Constants.PHONE_USER, item.phoneUser)
-      tempMap.put(Constants.VOICE_USER, item.voiceUser.toString())
-      tempMap.put(Constants.PERMISSIONS, item.permissions.toString())
-      usersMap.put(index.toString(), tempMap)
-    }
-
-    payload.put(Constants.USERS, usersMap)
+    val users = new ArrayList[java.util.HashMap[String, Object]];
+    msg.users.foreach(uvo => {		
+      users.add(buildUserHashMap(uvo))
+    })
+		
+    payload.put(Constants.USERS, users)
     
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.GET_USERS_REPLY)
@@ -1614,7 +1636,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
-    payload.put(Constants.USER, msg.user.toString())
+    payload.put(Constants.USER, buildUserHashMap(msg.user))
     
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.USER_JOINED)
@@ -1838,16 +1860,14 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
-
-    val historyMap = new java.util.HashMap[String, Any]()
-    for(i<- 0 until msg.history.size) {
-      var tempMap = new java.util.HashMap[String, String]()
-
-      for ((key, value) <- msg.history(i)) tempMap.put(key, value)
-
-      historyMap.put(i.toString() , tempMap)
-    }
-    payload.put(Constants.CHAT_HISTORY, historyMap)
+  	
+  	val collection = new ArrayList[java.util.Map[String, String]]();
+  	  
+  	msg.history.foreach(p => {
+  	    collection.add(mapAsJavaMap(p))
+  	})
+  	
+  	payload.put(Constants.CHAT_HISTORY, collection)
     
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.GET_CHAT_HISTORY_REPLY)
@@ -1862,13 +1882,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
-    
-    val messageMap = new java.util.HashMap[String, String]()
-    for ((key, value) <- msg.message) {
-      messageMap.put(key, value)
-    }
-
-    payload.put(Constants.MESSAGE, messageMap)
+    payload.put(Constants.MESSAGE, mapAsJavaMap(msg.message))
     
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.SEND_PUBLIC_CHAT_MESSAGE)
@@ -1884,12 +1898,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     payload.put(Constants.RECORDED, msg.recorded) 
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
     
-    val messageMap = new java.util.HashMap[String, String]()
-    for ((key, value) <- msg.message) {
-      messageMap.put(key, value)
-    }
-    
-    payload.put(Constants.MESSAGE, messageMap)
+    payload.put(Constants.MESSAGE, mapAsJavaMap(msg.message))
     
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.SEND_PRIVATE_CHAT_MESSAGE)
@@ -1987,7 +1996,13 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
-    payload.put(Constants.POLLS,  msg.polls.toString()) //#to do not tested
+    
+    val collection = new ArrayList[PollVO]();  
+  	msg.polls.foreach(p => {
+  	  collection.add(p)
+  	})
+  	    
+    payload.put(Constants.POLLS,  collection)
     
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.GET_POLLS_REPLY)
@@ -2163,6 +2178,39 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     payload.put(Constants.PRESENTATION_INFO, msg.info)
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
     
+    val info = msg.info
+    
+    // Create a map for our current presenter
+    val presenter = new java.util.HashMap[String, String]()
+    presenter.put(Constants.USER_ID, info.presenter.userId)
+    presenter.put(Constants.NAME, info.presenter.name)
+    presenter.put(Constants.ASSIGNED_BY, info.presenter.assignedBy)
+	
+    payload.put(Constants.PRESENTER, presenter)
+    
+    // Create an array for our presentations
+    val presentations = new ArrayList[java.util.HashMap[String, Object]]     
+    info.presentations.foreach { pres =>
+	   val presentation = new java.util.HashMap[String, Object]();
+	   presentation.put(Constants.ID, pres.id)
+	   presentation.put(Constants.NAME, pres.name)
+	   presentation.put(Constants.CURRENT, pres.current:java.lang.Boolean)      
+	   
+	   // Get the pages for a presentation
+       val pages = new ArrayList[Page]()	
+	   pres.pages.values foreach {p =>
+         pages.add(p)
+       }   
+	  // store the pages in the presentation 
+	  presentation.put(Constants.PAGES, pages)
+	
+	  // add this presentation into our presentations list
+	  presentations.add(presentation);	   
+    }
+    
+    // add the presentation to our map to complete our json
+    payload.put(Constants.PRESENTATIONS, presentations)
+    
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.GET_PRESENTATION_INFO_REPLY)
     header.put(Constants.TIMESTAMP, System.nanoTime())
@@ -2212,8 +2260,22 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   private def handleSharePresentationOutMsg(msg: SharePresentationOutMsg) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.PRESENTATION_ID, msg.presentation)
-    
+
+    val presentation = new java.util.HashMap[String, Object]();
+	presentation.put(Constants.ID, msg.presentation.id)
+	presentation.put(Constants.NAME, msg.presentation.name)
+	presentation.put(Constants.CURRENT, msg.presentation.current:java.lang.Boolean)      
+	   
+	// Get the pages for a presentation
+    val pages = new ArrayList[Page]()	
+	msg.presentation.pages.values foreach {p =>
+     pages.add(p)
+    }   
+	// store the pages in the presentation 
+	presentation.put(Constants.PAGES, pages)
+	
+	payload.put(Constants.PRESENTATION, presentation);
+	
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.PRESENTATION_SHARED)
     header.put(Constants.TIMESTAMP, System.nanoTime())
@@ -2305,8 +2367,22 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.MESSAGE_KEY, msg.messageKey)
     payload.put(Constants.CODE, msg.code)
-    payload.put(Constants.PRESENTATION_ID, msg.presentation)
     
+    val presentation = new java.util.HashMap[String, Object]();
+	presentation.put(Constants.ID, msg.presentation.id)
+	presentation.put(Constants.NAME, msg.presentation.name)
+	presentation.put(Constants.CURRENT, msg.presentation.current:java.lang.Boolean)
+	
+	val pages = new ArrayList[Page]()
+	
+	msg.presentation.pages.values foreach {p =>
+      pages.add(p)
+    }
+	
+	presentation.put(Constants.PAGES, pages)
+	
+	payload.put(Constants.PRESENTATION, presentation);
+	    
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.PRESENTATION_CONVERSION_DONE)
     header.put(Constants.TIMESTAMP, System.nanoTime())
@@ -2318,7 +2394,20 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   private def handlePresentationChanged(msg: PresentationChanged) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.PRESENTATION_ID, msg.presentation)
+    val presentation = new java.util.HashMap[String, Object]();
+	presentation.put(Constants.ID, msg.presentation.id)
+	presentation.put(Constants.NAME, msg.presentation.name)
+	presentation.put(Constants.CURRENT, msg.presentation.current:java.lang.Boolean)
+	
+	val pages = new ArrayList[Page]()
+	
+	msg.presentation.pages.values foreach {p =>
+      pages.add(p)
+    }
+	
+	presentation.put(Constants.PAGES, pages)
+	
+	payload.put(Constants.PRESENTATION, presentation);
     
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.PRESENTATION_CHANGED)
@@ -2331,7 +2420,21 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   private def handleGetPresentationStatusReply(msg: GetPresentationStatusReply) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.PRESENTATIONS, msg.presentations.toString()) //#todo not tested
+    val presentation = new java.util.HashMap[String, Object]();
+    
+	presentation.put(Constants.ID, msg.current.id)
+	presentation.put(Constants.NAME, msg.current.name)
+	presentation.put(Constants.CURRENT, msg.current.current:java.lang.Boolean)
+	
+	val pages = new ArrayList[Page]()
+	
+	msg.current.pages.values foreach {p =>
+      pages.add(p)
+    }
+	
+	presentation.put(Constants.PAGES, pages)
+	
+	payload.put(Constants.PRESENTATION, presentation);
     
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.GET_PRESENTATION_STATUS_REPLY)
