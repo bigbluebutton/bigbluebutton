@@ -69,6 +69,9 @@ public class ChatMessageListener implements MessageHandler{
 	public void handleMessage(String pattern, String channel, String message) {
 		if (channel.equalsIgnoreCase(MessagingConstants.ANTON_CHANNEL))
 		{
+			// TODO: Parse JSON message
+			// call the bbbInGW (getChatHistory, sendPublicMessage, sendPrivateMessage)
+			
 			System.out.println("AntonChannel=(chatlistener)" + channel);
 			//System.out.println("AntonMessage=" + message);
 
