@@ -4,15 +4,12 @@ import scala.actors.Actor
 import scala.actors.Actor._
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.api._
-import net.lag.logging.Logger
 
 class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
-  private val log = Logger.get 
 
   private var meetings = new HashMap[String, MeetingActor]
   
-  log.debug("Starting up BigBlueButton Actor")
-  
+ 
   def act() = {
 	loop {
 		react {

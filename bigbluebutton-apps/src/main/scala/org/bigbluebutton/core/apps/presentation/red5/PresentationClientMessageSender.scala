@@ -9,11 +9,9 @@ import com.google.gson.Gson
 import java.util.ArrayList
 import org.bigbluebutton.core.apps.presentation.Page
 import org.bigbluebutton.core.apps.presentation.Presentation
-import net.lag.logging.Logger
+
 
 class PresentationClientMessageSender(service: ConnectionInvokerService) extends OutMessageListener2 {
-  
-  private val log = Logger.get
   
 	private val OFFICE_DOC_CONVERSION_SUCCESS_KEY = "OFFICE_DOC_CONVERSION_SUCCESS";
     private val OFFICE_DOC_CONVERSION_FAILED_KEY = "OFFICE_DOC_CONVERSION_FAILED";
@@ -61,7 +59,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
   	message.put("msg", gson.toJson(args))
   	
   	println("PresentationClientMessageSender - handlePresentationConversionProgress \n" + message.get("msg") + "\n")
-  	log.debug("PresentationClientMessageSender - handlePresentationConversionProgress \n" + message.get("msg") + "\n")
+
     val m = new BroadcastClientMessage(msg.meetingID, "conversionUpdateMessageCallback", message);
 	service.sendMessage(m);	
   }
@@ -81,7 +79,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
   	message.put("msg", gson.toJson(args))
   	
   	println("PresentationClientMessageSender - handlePresentationConversionError \n" + message.get("msg") + "\n")
-  	log.debug("PresentationClientMessageSender - handlePresentationConversionError \n" + message.get("msg") + "\n")
+
 	val m = new BroadcastClientMessage(msg.meetingID, "pageCountExceededUpdateMessageCallback", message);
     service.sendMessage(m);    
   }
@@ -101,7 +99,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
   	message.put("msg", gson.toJson(args))
   	
   	println("PresentationClientMessageSender - handlePresentationPageGenerated \n" + message.get("msg") + "\n")
-  	log.debug("PresentationClientMessageSender - handlePresentationPageGenerated \n" + message.get("msg") + "\n")
+
 	val m = new BroadcastClientMessage(msg.meetingID, "generatedSlideUpdateMessageCallback", message);
     service.sendMessage(m);    
   }
@@ -132,7 +130,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
   	message.put("msg", gson.toJson(args))
   		
   	println("PresentationClientMessageSender - handlePresentationConversionDone \n" + message.get("msg") + "\n")
-  	log.debug("PresentationClientMessageSender - handlePresentationConversionDone \n" + message.get("msg") + "\n")
+
 	val m = new BroadcastClientMessage(msg.meetingID, "conversionCompletedUpdateMessageCallback", message);
     service.sendMessage(m);      
   }
@@ -190,9 +188,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
     val message = new java.util.HashMap[String, Object]() 
 	val gson = new Gson();
   	message.put("msg", gson.toJson(args))
-  	
-  	log.debug("PresentationClientMessageSender - handleGetPresentationInfoOutMsg to user[{}] \n [{}]", msg.requesterID, message.get("msg"))
-  	
+  	 	
   	println("***** PresentationClientMessageSender - handleGetPresentationInfoOutMsg to user[" +msg.requesterID + "] message[" + message.get("msg") + "]")
   	
 	val m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getPresentationInfoReply", message);
@@ -207,9 +203,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
 	val message = new java.util.HashMap[String, Object]() 
 	val gson = new Gson();
   	message.put("msg", gson.toJson(args))
-  	
-  	log.debug("PresentationClientMessageSender - handleSendCursorUpdateOutMsg \n [{}]", message.get("msg"))
-  	
+  	  	
 	val m = new BroadcastClientMessage(msg.meetingID, "PresentationCursorUpdateCommand", message);
 	service.sendMessage(m);	    
   }
@@ -231,9 +225,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
 	val message = new java.util.HashMap[String, Object]() 
 	val gson = new Gson();
   	message.put("msg", gson.toJson(args))
-  	
-  	log.debug("PresentationClientMessageSender - handleResizeAndMoveSlideOutMsg \n [{}]", message.get("msg"))
-  	
+  	  	
 	val m = new BroadcastClientMessage(msg.meetingID, "moveCallback", message);
 	service.sendMessage(m);	    
   }
@@ -255,9 +247,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
 	val message = new java.util.HashMap[String, Object]() 
 	val gson = new Gson();
   	message.put("msg", gson.toJson(args))
-  	
-  	log.debug("PresentationClientMessageSender - handleGotoSlideOutMsg \n [{}]", message.get("msg"))
-		
+  		
 	val m = new BroadcastClientMessage(msg.meetingID, "goToSlideCallback", message);
 	service.sendMessage(m);	    
   }
@@ -283,9 +273,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
     val message = new java.util.HashMap[String, Object]() 
 	val gson = new Gson();
   	message.put("msg", gson.toJson(args))
-  	
-  	log.debug("PresentationClientMessageSender - handleSharePresentationOutMsg to presentation[{}] \n [{}]", msg.presentation.id, message.get("msg"))
-  	
+  	  	
 	val m = new BroadcastClientMessage(msg.meetingID, "sharePresentationCallback", message);
 	service.sendMessage(m);	    
   }

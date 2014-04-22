@@ -2,13 +2,11 @@ package org.bigbluebutton.core.apps.chat
 
 import org.bigbluebutton.core.api._
 import scala.collection.mutable.ArrayBuffer
-import net.lag.logging.Logger
 import org.bigbluebutton.core.MeetingActor
 
 trait ChatApp {
   this : MeetingActor =>
   
-  private val log = Logger.get
   val outGW: MessageOutGateway
   
   val messages = new ArrayBuffer[Map[String, String]]()

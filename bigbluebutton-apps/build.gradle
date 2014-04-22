@@ -67,46 +67,38 @@ dependencies {
 	providedCompile 'org.apache.mina:mina-integration-jmx:2.0.7@jar'
 	
 	// Spring 
-	providedCompile 'org.springframework:spring-web:3.1.1.RELEASE@jar' 
-	providedCompile  'org.springframework:spring-beans:3.1.1.RELEASE@jar'
-	providedCompile 'org.springframework:spring-context:3.1.1.RELEASE@jar'
-	providedCompile 'org.springframework:spring-core:3.1.1.RELEASE@jar'
+	providedCompile 'org.springframework:spring-web:4.0.0.RELEASE@jar' 
+	providedCompile  'org.springframework:spring-beans:4.0.0.RELEASE@jar'
+	providedCompile 'org.springframework:spring-context:4.0.0.RELEASE@jar'
+	providedCompile 'org.springframework:spring-core:4.0.0.RELEASE@jar'
 
-    compile 'org.springframework.amqp:spring-rabbit:1.2.0.RELEASE@jar'
-	compile 'org.springframework.integration:spring-integration-core:2.2.5.RELEASE@jar'
-	compile 'org.springframework.integration:spring-integration-amqp:2.2.5.RELEASE@jar'
-	compile 'org.springframework.integration:spring-integration-stream:2.2.5.RELEASE@jar'
-	
+  // Red5
+  providedCompile 'org/red5:red5:1.0.2-M1@jar'
+  
+  // Logging
+  providedCompile 'ch.qos.logback:logback-core:1.0.13@jar'
+  providedCompile 'ch.qos.logback:logback-classic:1.0.13@jar'
+  providedCompile 'org.slf4j:log4j-over-slf4j:1.7.5@jar' 
+  providedCompile 'org.slf4j:jcl-over-slf4j:1.7.5@jar'
+  providedCompile 'org.slf4j:jul-to-slf4j:1.7.5@jar'
+  providedCompile 'org.slf4j:slf4j-api:1.7.5@jar'
+  	
 	compile "redis.clients:jedis:2.1.0"
-    compile "org.codehaus.jackson:jackson-core-asl:$jacksonVersion"
-    compile "org.codehaus.jackson:jackson-mapper-asl:$jacksonVersion"
-    compile "javax.servlet:com.springsource.javax.servlet.jsp.jstl:1.2.0"
-    compile ("org.springframework.data:spring-data-redis:$springRedisVersion") {
-        exclude group: 'commons-logging'
-    }
+  compile "org.codehaus.jackson:jackson-core-asl:$jacksonVersion"
+  compile "org.codehaus.jackson:jackson-mapper-asl:$jacksonVersion"
+  compile "javax.servlet:com.springsource.javax.servlet.jsp.jstl:1.2.0"
+  compile ("org.springframework.data:spring-data-redis:$springRedisVersion") {
+      exclude group: 'commons-logging'
+  }
     
-	// Red5
-	providedCompile 'org/red5:red5:1.0r4643@jar'
-	
-	// Logging
-	providedCompile 'ch.qos.logback:logback-core:1.0.9@jar'
-	providedCompile 'ch.qos.logback:logback-classic:1.0.9@jar'
-	providedCompile 'org.slf4j:log4j-over-slf4j:1.7.2@jar' 
-	providedCompile 'org.slf4j:jcl-over-slf4j:1.7.2@jar'
-	providedCompile 'org.slf4j:jul-to-slf4j:1.7.2@jar'
-    providedCompile 'org.slf4j:slf4j-api:1.7.2@jar'
-
 	// Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
 	// Otherwise we get exception on aop utils class not found.
-	providedCompile 'org.springframework:spring-aop:3.0.6.RELEASE@jar'
+	providedCompile 'org.springframework:spring-aop:4.0.0.RELEASE@jar'
 	compile 'aopalliance:aopalliance:1.0@jar'
-	
-    // Java Concurrency In Practice
-    providedCompile 'net.jcip:jcip-annotations:1.0@jar'
-        
-    // Testing
-    compile 'org.testng:testng:5.8@jar' 
-    compile 'org.easymock:easymock:2.4@jar'
+	     
+  // Testing
+  compile 'org.testng:testng:5.8@jar' 
+  compile 'org.easymock:easymock:2.4@jar'
   
 	//redis
 	//compile 'redis.clients:jedis:2.0.0'
@@ -122,15 +114,13 @@ dependencies {
 	// workaround for http://issues.gradle.org/browse/GRADLE-1273
 	//compileScala.classpath = sourceSets.main.compileClasspath + files(sourceSets.main.classesDir)
 	//compileTestScala.classpath = sourceSets.test.compileClasspath + files(sourceSets.test.classesDir)
-	
-	compile 'net.lag:configgy:2.0.0'
-	  
+		  
    // Freeswitch ESL Client
    compile 'org/freeswitch:fs-esl-client:0.8.2@jar'
    compile 'org.jboss.netty:netty:3.2.1.Final@jar'
    compile 'com.google.code.gson:gson:1.7.1'
    providedCompile 'org.apache.commons:commons-lang3:3.1'
-   compile 'commons-lang:commons-lang:2.5'
+   //compile 'commons-lang:commons-lang:2.5'
 }
 
 test {

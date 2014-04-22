@@ -1,18 +1,12 @@
 
 package org.bigbluebutton.conference.service.participants;
 
-import java.util.HashMap;
-import java.util.Map;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 
 //import org.bigbluebutton.conference.service.participants.participantsApplication;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 

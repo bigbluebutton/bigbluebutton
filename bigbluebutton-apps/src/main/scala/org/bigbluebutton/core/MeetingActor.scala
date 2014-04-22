@@ -11,7 +11,6 @@ import org.bigbluebutton.core.apps.presentation.PresentationApp
 import org.bigbluebutton.core.apps.layout.LayoutApp
 import org.bigbluebutton.core.apps.chat.ChatApp
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp
-import net.lag.logging.Logger
 import scala.actors.TIMEOUT
 
 case object StopMeetingActor
@@ -21,8 +20,7 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
                    extends Actor with UsersApp with PresentationApp
                    with PollApp with LayoutApp with ChatApp
                    with WhiteboardApp {  
-  private val log = Logger.get
-  
+
   var permissions = new PermissionsSetting(false, new Permissions())
   var recording = false;
   var muted = false;

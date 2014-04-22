@@ -2,7 +2,6 @@ package org.bigbluebutton.conference.service.presentation;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 import com.google.gson.Gson;
