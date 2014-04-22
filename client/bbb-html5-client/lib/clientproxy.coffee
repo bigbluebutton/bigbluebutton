@@ -22,6 +22,7 @@ exports.listen = (app) ->
 
 handleClientDisconnected = (socket) ->
   if (socket.userId?)
+    # Should send a message to bbb-apps that user has left.
     log.info("User [#{socket.userId}] has disconnected.")
 
 handleMessage = (socket, message) ->
@@ -31,12 +32,16 @@ handleMessage = (socket, message) ->
     log.error({message: message}, "Invalid message.")
 
 handleValidMessage = (socket, message) ->
+  # determine the type of message and call the handler
   switch message.header.name
     when 'authenticateMessage'
       handleLoginMessage socket, message
+    when 'foo'
+      handleFooMessage socket, message
     else
       log.error({message: message}, 'Unknown message name.')
 
+# Login message handler
 handleLoginMessage = (socket, data) ->
   controller.processLoginMessage(data, (err, result) ->
     if (err)
