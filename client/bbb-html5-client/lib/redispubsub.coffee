@@ -11,17 +11,21 @@ subClient = redis.createClient()
 # hash to store requests waiting for response
 pendingRequests = {}; 
 
+
 initialize = () ->
+  # Listen for messages from the bus
   postal.subscribe({
     channel: 'publishChannel',
     topic: 'broadcast',
     callback: ( msg, envelope ) -> 
       if (envelope.replyTo?)
+        # See if reply is needed
         sendAndWaitForReply(msg, envelope)
       else
         sendMessage(msg, envelope)
     })
 
+# Sends a message to the pubsub and wait for reply
 sendAndWaitForReply = (message, envelope) ->
   # generate a unique correlation id for this call
   correlationId = crypto.randomBytes(16).toString('hex');
@@ -56,16 +60,19 @@ sendAndWaitForReply = (message, envelope) ->
   
   pubClient.publish("bigbluebuttonAppChannel", JSON.stringify(message))
 
+# Listen for message to see if we have successfully subscribed to redis
 subClient.on("subscribe", (channel, count) ->
   console.log("Subscribed to #{channel}")
 )
 
+# Received message from redis pubsub
 subClient.on("message", (channel, jsonMsg) ->
 
   console.log("Received message on [channel] = #{channel} [message] = #{jsonMsg}")
   message = JSON.parse(jsonMsg)
 
   if (message.header.correlationId?)
+    # this is a reply message
     correlationId = message.header.correlationId
     #retreive the request entry
     entry = pendingRequests[correlationId];
