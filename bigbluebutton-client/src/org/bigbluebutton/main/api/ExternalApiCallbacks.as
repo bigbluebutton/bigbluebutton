@@ -45,6 +45,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.modules.phone.events.WebRtcCallStartedEvent;
   import org.bigbluebutton.modules.phone.events.WebRtcConfCallEndedEvent;
   import org.bigbluebutton.modules.phone.events.WebRtcConfCallStartedEvent;
+  import org.bigbluebutton.modules.phone.events.WebRtcEchoTestFailedEvent;
   import org.bigbluebutton.modules.present.events.GetListOfPresentationsRequest;
   import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
@@ -413,7 +414,7 @@ package org.bigbluebutton.main.api
     
     private function handleWebRtcEchoTestFailed(cause:String):void {
       trace(LOG + "handleWebRtcEchoTestFailed: cause=[" + cause + "]");
-//      _dispatcher.dispatchEvent(new WebRtcCallFailedEvent(reason));
+      _dispatcher.dispatchEvent(new WebRtcEchoTestFailedEvent(cause));
     }
     
     private function handleWebRtcEchoTestEnded(cause:String):void {

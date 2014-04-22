@@ -126,5 +126,10 @@ package org.bigbluebutton.modules.phone.managers
       usingWebRtc = false;
       hangup();
     }
+
+    public function handleWebrtcEchoTestFailedEvent(reason:String):void {
+      endEchoTest();
+      hideMicPermission();
+    }
   }
 }
