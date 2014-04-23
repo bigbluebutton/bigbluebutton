@@ -98,7 +98,34 @@ public class SipPeer implements SipRegisterAgentListener {
         log.debug( "SIPUser register : {}", fromURL );
         log.debug( "SIPUser register : {}", registeredProfile.contactUrl );
     }
-    
+    public void callGlobal(String clientIdGlobal, String callerNameGlobal, String clientId, String callerName, String destination) {
+	if (!registered) {
+    		/* 
+    		 * If we failed to register with FreeSWITCH, reject all calls right away.
+    		 * This way the user will know that there is a problem as quickly as possible.
+    		 * If we pass the call, it take more that 30seconds for the call to timeout
+    		 * (in case FS is offline) and the user will be kept wondering why the call
+    		 * isn't going through.
+    		 */
+    		log.warn("We are not registered to FreeSWITCH. However, we will allow {} to call {}.", callerName, destination);
+//    		return;
+    	}
+	SipPeerProfile callerProfile = SipPeerProfile.copy(registeredProfile);    	
+	SipPeerProfile callerProfileGlobal = SipPeerProfile.copy(registeredProfile);    	
+    	
+    	CallAgent ca = new CallAgent(this.clientRtpIp, sipProvider, callerProfile, audioconfProvider, clientId);
+	ca.setLocalSocketRelatedToGlobal();
+	CallAgent caGlobal = new CallAgent(this.clientRtpIp, sipProvider, callerProfileGlobal, audioconfProvider, clientIdGlobal);
+	ca.setClientConnectionManager(clientConnManager);
+    	ca.setCallStreamFactory(callStreamFactory);
+
+	caGlobal.setClientConnectionManager(clientConnManager);
+    	caGlobal.setCallStreamFactory(callStreamFactory);
+
+    	callManager.add(ca);
+	callManager.addGlobal(caGlobal);
+    	caGlobal.callGlobal(callerNameGlobal, destination, ca);
+    }    
 
     public void call(String clientId, String callerName, String destination) {
     	if (!registered) {
@@ -121,6 +148,16 @@ public class SipPeer implements SipRegisterAgentListener {
     	ca.call(callerName, destination);
     }
 
+	public void returnGlobalStream(String clientId, String destination) {
+		SipPeerProfile callerProfile = SipPeerProfile.copy(registeredProfile);    	
+    		CallAgent ca = new CallAgent(this.clientRtpIp, sipProvider, callerProfile, audioconfProvider, clientId);
+		ca.setClientConnectionManager(clientConnManager);
+    		ca.setCallStreamFactory(callStreamFactory);
+    		callManager.add(ca);
+    		ca.returnGlobalStreamName(clientId, destination);
+		
+	}
+
 	public void close() {
 		log.debug("SIPUser close1");
         try {
@@ -137,8 +174,28 @@ public class SipPeer implements SipRegisterAgentListener {
     	log.debug( "SIPUser hangup" );
 
     	CallAgent ca = callManager.remove(clientId);
-        if (ca != null) {
-           ca.hangup();
+	String destination;
+	if(ca != null) {
+		destination = ca.getDestination();
+	}
+	else {
+		destination = clientId;
+	}
+
+
+	if(ca != null) {
+		if(ca.isTalking()) {
+			ca.hangup();
+		}
+		else {
+			GlobalCall.removeUser(destination);
+			ca.hangup();
+			if(GlobalCall.roomHasGlobalStream(destination) && GlobalCall.getNumberOfUsers(destination) <= 0) 				{		
+				CallAgent caGlobal = callManager.removeGlobal(destination);
+	   			GlobalCall.removeRoom(destination);
+				caGlobal.hangup();
+		        }
+               }
         }
     }
 
@@ -151,6 +208,14 @@ public class SipPeer implements SipRegisterAgentListener {
     		ca.hangup();
     	}
     	
+	calls = callManager.getAllGlobal();
+	for (Iterator<CallAgent> iter = calls.iterator(); iter.hasNext();) {
+    		CallAgent ca = (CallAgent) iter.next();
+    		ca.hangup();
+    	}
+
+
+
         if (registerAgent != null) {
             registerAgent.unregister();
             registerAgent = null;

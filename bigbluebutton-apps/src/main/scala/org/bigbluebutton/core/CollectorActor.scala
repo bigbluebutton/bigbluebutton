@@ -90,7 +90,6 @@ PresentationConversionUpdate
 PresentationPageCountError
 PresentationSlideGenerated
 PresentationConversionCompleted
-SendVoiceUsersRequest
 MuteMeetingRequest
 IsMeetingMutedRequest
 MuteUserRequest

@@ -361,10 +361,6 @@ case class PresentationConversionCompleted(
 ) extends InMessage                       
                        
 // Voice
-case class SendVoiceUsersRequest(
-    meetingID: String, 
-    requesterID: String) extends InMessage
-    
 case class MuteMeetingRequest(
     meetingID: String, 
     requesterID: String, 
