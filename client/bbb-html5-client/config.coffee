@@ -28,6 +28,10 @@ config.redis = {}
 config.redis.host = "127.0.0.1"
 config.redis.post = "6379"
 
+# Logging
+config.log = {}
+config.log.path = "/var/log/bigbluebutton/bbbnode.log"
+
 # Global instance of Modules, created by `app.coffee`
 config.modules = null
 
