@@ -299,7 +299,8 @@ package org.bigbluebutton.modules.videoconf.maps
       closeWindow(userID);
             
       var bbbUser:BBBUser = UsersUtil.getUser(userID);      
-      window.startVideo(proxy.connection, bbbUser.streamName);
+		//TODO: change publishConnection to getPlayConnectionFor(userID)
+      window.startVideo(proxy.publishConnection, bbbUser.streamName);
       
       webcamWindows.addWindow(window);        
       openWindow(window);
@@ -325,7 +326,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function startPublishing(e:StartBroadcastEvent):void{
-	  LogUtil.debug("VideoEventMapDelegate:: [" + me + "] startPublishing:: Publishing stream to: " + proxy.connection.uri + "/" + e.stream);
+	  LogUtil.debug("VideoEventMapDelegate:: [" + me + "] startPublishing:: Publishing stream to: " + proxy.publishConnection.uri + "/" + e.stream);
       streamName = e.stream;
       proxy.startPublishing(e);
       

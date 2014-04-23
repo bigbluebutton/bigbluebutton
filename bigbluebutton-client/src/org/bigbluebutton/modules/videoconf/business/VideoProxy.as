@@ -46,7 +46,9 @@ package org.bigbluebutton.modules.videoconf.business
 	{		
 		public var videoOptions:VideoConfOptions;
 		
+		// NetConnection used for stream publishing
 		private var nc:NetConnection;
+		// NetStream used for stream publishing
 		private var ns:NetStream;
 		private var _url:String;
     
@@ -98,8 +100,28 @@ package org.bigbluebutton.modules.videoconf.business
 		private function onSecurityError(event:NetStatusEvent):void{
 		}
 		
-		public function get connection():NetConnection{
+		public function get publishConnection():NetConnection{
 			return this.nc;
+		}
+
+		public function getPlayConnectionFor(userID:String):NetConnection{
+			//TODO
+			// If connection does not exist
+				// Ask LB for path
+				// Open NetConnection
+				// Store stream name prefix
+			// Return connection
+			return new NetConnection();
+		}
+
+		public function getStreamNamePrefixFor(userID:String):String{
+			//TODO
+			// If does not exist
+				// Report
+				// Return empty
+			// Else
+				// Return prefix
+			return "";
 		}
 		
 		public function startPublishing(e:StartBroadcastEvent):void{
