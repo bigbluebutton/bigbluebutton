@@ -20,6 +20,7 @@ package org.bigbluebutton.modules.videoconf.maps
 {
   import flash.events.IEventDispatcher;
   import flash.media.Camera;
+	import flash.net.NetConnection;
   
   import mx.collections.ArrayCollection;
   
@@ -300,7 +301,11 @@ package org.bigbluebutton.modules.videoconf.maps
             
       var bbbUser:BBBUser = UsersUtil.getUser(userID);      
 		//TODO: change publishConnection to getPlayConnectionFor(userID)
-      window.startVideo(proxy.publishConnection, bbbUser.streamName);
+		var playConnection:NetConnection = proxy.getPlayConnectionFor(userID);
+		var playStream:String = proxy.getStreamNamePrefixFor(userID) + bbbUser.streamName;
+		LogUtil.debug("VideoEventMapDelegate:: [" + me + "] openViewWindowFor:: StreamName for [" + userID + "] : [" + playStream + "]");
+      window.startVideo(playConnection, playStream);
+//      window.startVideo(proxy.publishConnection, bbbUser.streamName);
       
       webcamWindows.addWindow(window);        
       openWindow(window);

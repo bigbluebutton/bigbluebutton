@@ -29,6 +29,7 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	import flash.system.Capabilities;
+	import flash.utils.Dictionary;
 	
 	import mx.collections.ArrayCollection;
 	
@@ -51,6 +52,11 @@ package org.bigbluebutton.modules.videoconf.business
 		// NetStream used for stream publishing
 		private var ns:NetStream;
 		private var _url:String;
+
+		// Dictionary<userID,NetConnection> used for stream playing
+		private var playConnectionDict:Dictionary;
+		// Dictionary<userID,streamName> used for stream playing
+		private var streamNamePrefixDict:Dictionary;
     
 		private function parseOptions():void {
 			videoOptions = new VideoConfOptions();
@@ -67,7 +73,8 @@ package org.bigbluebutton.modules.videoconf.business
 			nc.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
 			nc.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
 			nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError);
-			
+			playConnectionDict = new Dictionary();
+			streamNamePrefixDict = new Dictionary();
 		}
 		
     public function connect():void {
@@ -105,23 +112,41 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 
 		public function getPlayConnectionFor(userID:String):NetConnection{
-			//TODO
+			LogUtil.debug("VideoProxy::getPlayConnectionFor:: Looking for connection for stream from [" + userID + "]");
 			// If connection does not exist
-				// Ask LB for path
+			if(!playConnectionDict[userID]){
+				// TODO: Ask LB for path
+				// TODO: Split path
+//				var connectionPath = "10.0.3.254/10.0.3.79";
+//				var pathIps = connectionPath.split(/);
+				var ipRegex:String = "([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)";
+//				var newUrl:String = _url.replace(ipRegex, pathIps[0]);
+//				var streamPrefix:String =
+				var newUrl:String = _url.replace(ipRegex, "10.0.3.254");
+				var streamPrefix:String = "10.0.3.79/";
 				// Open NetConnection
+				var connection:NetConnection = new NetConnection();
+				connection.connect(newUrl);
+				// TODO change to trace
+				LogUtil.debug("VideoProxy::getPlayConnectionFor:: Creating connection for stream from [" + userID + "]");
+				// TODO Check this connection somehow?
+				playConnectionDict[userID] = connection;
 				// Store stream name prefix
-			// Return connection
-			return new NetConnection();
+				streamNamePrefixDict[userID] = streamPrefix;
+			}
+			return playConnectionDict[userID];
 		}
 
 		public function getStreamNamePrefixFor(userID:String):String{
-			//TODO
 			// If does not exist
-				// Report
-				// Return empty
-			// Else
-				// Return prefix
-			return "";
+			if(!streamNamePrefixDict[userID]){
+				// TODO: change LogUtil.debug(); to trace();
+				LogUtil.debug("VideoProxy:: getStreamNamePrefixFor:: streamPrefix not found. NetConnection might not exist for stream from [" + userID + "]");
+				return "";
+			}
+			else{
+				return streamNamePrefixDict[userID];
+			}
 		}
 		
 		public function startPublishing(e:StartBroadcastEvent):void{
