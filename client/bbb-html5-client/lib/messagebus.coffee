@@ -13,25 +13,25 @@ module.exports = class MessageBus
 
   receiveMessages: (callback) ->
     postal.subscribe
-      channel: "receiveChannel"
+      channel: config.redis.internalChannels.receive
       topic: "broadcast"
       callback: (msg, envelope) ->
-        callback( msg )
+        callback(msg.err, msg.data)
 
   sendAndWaitForReply: (data, callback) ->
     replyTo =
-      channel: 'replyChannel'
+      channel: config.redis.internalChannels.reply
       topic: 'get.' + crypto.randomBytes(16).toString('hex')
 
     postal.subscribe(
       channel: replyTo.channel
       topic: replyTo.topic
       callback: (msg, envelope) ->
-        callback( msg.err, msg.data )
+        callback(msg.err, msg.data)
     ).once()
 
     postal.publish
-      channel: 'publishChannel'
+      channel: config.redis.internalChannels.publish
       topic: 'broadcast'
       replyTo: replyTo
       data: data

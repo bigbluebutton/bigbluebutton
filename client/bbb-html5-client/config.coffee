@@ -25,6 +25,13 @@ config.app.sessionSecret = "J7XSu96KC/B/UPyeGub3J6w6QFXWoUNABVgi9Q1LskE="
 config.redis = {}
 config.redis.host = "127.0.0.1"
 config.redis.post = "6379"
+config.redis.channels = {}
+config.redis.channels.fromBBBApps = "from-bbb-apps"
+config.redis.channels.toBBBApps = "to-bbb-apps"
+config.redis.internalChannels = {}
+config.redis.internalChannels.receive = "html5-receive"
+config.redis.internalChannels.reply = "html5-reply"
+config.redis.internalChannels.publish = "html5-publish"
 
 # Logging
 config.log = {}

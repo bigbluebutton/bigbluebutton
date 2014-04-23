@@ -2,6 +2,7 @@ redis = require 'redis'
 crypto = require 'crypto'
 postal = require 'postal'
 
+config = require '../config'
 log = require './bbblogger'
 
 # default timeout to wait for response
@@ -17,7 +18,7 @@ module.exports = class RedisPubSub
     @pendingRequests = {}
 
     postal.subscribe
-      channel: 'publishChannel'
+      channel: config.redis.internalChannels.publish
       topic: 'broadcast'
       callback: (msg, envelope) ->
         if envelope.replyTo?
@@ -49,8 +50,8 @@ module.exports = class RedisPubSub
       else
         sendToController message
 
-    log.info("RPC: Subscribing message on channel [responseChannel]")
-    @subClient.subscribe("responseChannel")
+      log.info("RPC: Subscribing message on channel [#{config.redis.channels.fromBBBApps}]")
+      @subClient.subscribe(config.redis.channels.fromBBBApps)
 
   sendAndWaitForReply: (message, envelope) ->
     # generate a unique correlation id for this call
@@ -79,14 +80,13 @@ module.exports = class RedisPubSub
 
     # put the entry in the hash so we can match the response later
     @pendingRequests[correlationId] = entry
-    console.log("Publishing #{message}")
-
     message.header.correlationId = correlationId
 
-    @pubClient.publish("bigbluebuttonAppChannel", JSON.stringify(message))
+    log.info("Publishing #{message}")
+    @pubClient.publish(config.redis.channels.toBBBApps, JSON.stringify(message))
 
 sendToController = (message) ->
   postal.publish
-    channel: "receiveChannel"
+    channel: config.redis.internalChannels.receive
     topic: "broadcast"
     data: message
