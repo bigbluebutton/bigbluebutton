@@ -35,7 +35,11 @@ config.redis.internalChannels.publish = "html5-publish"
 
 # Logging
 config.log = {}
-config.log.path = "/var/log/bigbluebutton/bbbnode.log"
+
+config.log.path = if process.env.NODE_ENV == "production"
+  "/var/log/bigbluebutton/bbbnode.log"
+else
+  "./log/development.log"
 
 # Global instance of Modules, created by `app.coffee`
 config.modules = null
