@@ -1,5 +1,7 @@
 bunyan = require 'bunyan'
 
+config = require '../config'
+
 logger = bunyan.createLogger({
   name: 'bbbnode',
   streams: [
@@ -9,9 +11,9 @@ logger = bunyan.createLogger({
     },
     {
       level: 'info',
-      path: '/var/log/bigbluebutton/bbbnode.log'
+      path: config.log.path
     }
   ]
-});
+})
 
-module.exports = logger;
+module.exports = logger
