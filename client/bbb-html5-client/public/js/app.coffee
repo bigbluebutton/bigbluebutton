@@ -28,8 +28,8 @@ define [
     # Default connection (websocket)
     globals.connection = new ConnectionModel()
 
-    # Start at /login
-    globals.router.showLogin()
+    # Start at /session
+    globals.router.showSession()
     Backbone.history.start({silent: true})
 
   return {

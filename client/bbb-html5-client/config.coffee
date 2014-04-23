@@ -12,9 +12,7 @@ config.presentationImagePath = (meetingID, presentationID, filename) ->
   "bigbluebutton/presentation/#{meetingID}/#{meetingID}/#{presentationID}/png/#{filename}"
 
 ## Application configurations
-# TODO: make this a module in config.modules
 config.app = {}
-config.app.server = null # the express server, created by `app.coffee`
 
 # Generate a new secret with:
 # $ npm install crypto
