@@ -2,17 +2,20 @@ log = require './bbblogger'
 
 config = require '../config'
 
-moduleDeps = ["MessageBus"]
+moduleDeps = ["MessageBus", "ClientProxy"]
 
 module.exports = class Controller
 
   constructor: ->
     config.modules.wait moduleDeps, =>
       @messageBus = config.modules.get("MessageBus")
-      # @clientProxy = config.modules.get("ClientProxy")
+      @clientProxy = config.modules.get("ClientProxy")
 
-  # registerMessageReceiver: (callback) ->
-  #   messageReceiver = callback
+      @messageBus.receiveMessages (data) =>
+        @processReceivedMessage(data)
+
+  processReceivedMessage: (data, callback) ->
+    @clientProxy.sendToClients(data, callback)
 
   processLoginMessage: (data, callback) ->
     @messageBus.sendMessage data, (err, result) ->

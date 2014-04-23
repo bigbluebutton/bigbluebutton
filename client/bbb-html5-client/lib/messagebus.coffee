@@ -16,7 +16,7 @@ module.exports = class MessageBus
       channel: config.redis.internalChannels.receive
       topic: "broadcast"
       callback: (msg, envelope) ->
-        callback(msg.err, msg.data)
+        callback(msg)
 
   sendAndWaitForReply: (data, callback) ->
     replyTo =

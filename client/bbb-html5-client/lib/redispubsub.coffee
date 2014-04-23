@@ -50,8 +50,8 @@ module.exports = class RedisPubSub
       else
         sendToController message
 
-      log.info("RPC: Subscribing message on channel [#{config.redis.channels.fromBBBApps}]")
-      @subClient.subscribe(config.redis.channels.fromBBBApps)
+    log.info("RPC: Subscribing message on channel [#{config.redis.channels.fromBBBApps}]")
+    @subClient.subscribe(config.redis.channels.fromBBBApps)
 
   sendAndWaitForReply: (message, envelope) ->
     # generate a unique correlation id for this call
