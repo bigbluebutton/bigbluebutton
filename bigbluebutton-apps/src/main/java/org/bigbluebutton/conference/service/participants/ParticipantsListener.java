@@ -22,44 +22,46 @@ public class ParticipantsListener implements MessageHandler{
 	public void handleMessage(String pattern, String channel, String message) {
 		if (channel.equalsIgnoreCase(MessagingConstants.ANTON_CHANNEL))
 		{
-			// TODO: Parse JSON message and call API in bbbInGW
-			
-			System.out.println("AntonChannel=(participants)" + channel);
-			//System.out.println("AntonMessage=" + message);
+			if(false){ //this is only for participants' messages. I'm not there yet, I need the exact names for the events
+				// TODO: Parse JSON message and call API in bbbInGW
+				
+				System.out.println("AntonChannel=(participants)" + channel);
+				//System.out.println("AntonMessage=" + message);
 
-			JsonParser parser = new JsonParser();
-			JsonObject obj = (JsonObject) parser.parse(message);
-			JsonObject header = (JsonObject) obj.get("header");
-			//System.out.println ("header="+header);
-			JsonObject payload = (JsonObject) obj.get("payload");
+				JsonParser parser = new JsonParser();
+				JsonObject obj = (JsonObject) parser.parse(message);
+				JsonObject header = (JsonObject) obj.get("header");
+				//System.out.println ("header="+header);
+				JsonObject payload = (JsonObject) obj.get("payload");
 
-			String eventName = (String) header.get("name").toString();
-			eventName = eventName.replace("\"", "");//strip off quotations
-			System.out.println("eventName="+eventName);
+				String eventName = (String) header.get("name").toString();
+				eventName = eventName.replace("\"", "");//strip off quotations
+				System.out.println("eventName="+eventName);
 
-			JsonObject user = (JsonObject) payload.get("user");
-			JsonObject meeting = (JsonObject) payload.get("meeting");
+				JsonObject user = (JsonObject) payload.get("user");
+				JsonObject meeting = (JsonObject) payload.get("meeting");
 
-			String meetingid = (String) meeting.get("id").toString().replace("\"", "");
-			String userid = (String) user.get("id").toString().replace("\"", "");
-			String username = (String) user.get("name").toString().replace("\"", "");
-			String role = (String) user.get("role").toString().replace("\"", "");
-			String externuserid = (String) user.get("external_id").toString().replace("\"", "");
+				String meetingid = (String) meeting.get("id").toString().replace("\"", "");
+				String userid = (String) user.get("id").toString().replace("\"", "");
+				String username = (String) user.get("name").toString().replace("\"", "");
+				String role = (String) user.get("role").toString().replace("\"", "");
+				String externuserid = (String) user.get("external_id").toString().replace("\"", "");
 
-			if(eventName.equalsIgnoreCase("user_joined_event")) //put this string into a constants file
-			{
-				System.out.println("I'm in the case for joined_event" );
-				System.out.println("\nmeetingid="+meetingid+", "+"userid = "+userid+", username="+username+
-					", role="+role+"external_id="+externuserid);
+				if(eventName.equalsIgnoreCase("user_joined_event")) //put this string into a constants file
+				{
+					System.out.println("I'm in the case for joined_event" );
+					System.out.println("\nmeetingid="+meetingid+", "+"userid = "+userid+", username="+username+
+						", role="+role+"external_id="+externuserid);
 
-				bbbGW.userJoin(meetingid, userid, username, role, externuserid);
-			}
-			else if(eventName.equalsIgnoreCase("user_left_event")) //put this string into a constants file
-			{
-				System.out.println("I'm in the case for left_event" );
-				System.out.println("\nmeetingid="+meetingid+", "+"userid = "+userid);
+					bbbGW.userJoin(meetingid, userid, username, role, externuserid);
+				}
+				else if(eventName.equalsIgnoreCase("user_left_event")) //put this string into a constants file
+				{
+					System.out.println("I'm in the case for left_event" );
+					System.out.println("\nmeetingid="+meetingid+", "+"userid = "+userid);
 
-				bbbGW.userLeft(meetingid, userid);
+					bbbGW.userLeft(meetingid, userid);
+				}
 			}
 		}
 	}
