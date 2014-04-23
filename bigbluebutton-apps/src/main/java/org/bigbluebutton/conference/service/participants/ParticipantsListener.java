@@ -22,6 +22,8 @@ public class ParticipantsListener implements MessageHandler{
 	public void handleMessage(String pattern, String channel, String message) {
 		if (channel.equalsIgnoreCase(MessagingConstants.ANTON_CHANNEL))
 		{
+			// TODO: Parse JSON message and call API in bbbInGW
+			
 			System.out.println("AntonChannel=(participants)" + channel);
 			//System.out.println("AntonMessage=" + message);
 
