@@ -33,7 +33,7 @@ public class ChatMessageListener implements MessageHandler{
 			JsonObject payloadObject = (JsonObject) obj.get("payload");
 			JsonObject messageObject = (JsonObject)payloadObject.get("message");
 
-			String eventName = (String) headerObject.get("name").toString();
+			String eventName = headerObject.get("name").toString();
 			eventName = eventName.replace("\"", "");
 
 			if(eventName.equalsIgnoreCase("public_chat_message_event") || 
@@ -41,41 +41,18 @@ public class ChatMessageListener implements MessageHandler{
 				eventName.equalsIgnoreCase("private_chat_message_event") ||
 				eventName.equalsIgnoreCase("send_private_chat_message")){
 
-
-				String meeting_id = (String) payloadObject.get("meeting_id").toString();
-				meeting_id = meeting_id.replace("\"", "");
-
-				String requester_id = (String) payloadObject.get("requester_id").toString();
-				requester_id = requester_id.replace("\"", "");
-
-				String chatType = (String) messageObject.get("chatType").toString();
-				chatType = chatType.replace("\"", "");
-
-				String fromUserID = (String) messageObject.get("fromUserID").toString();
-				fromUserID = fromUserID.replace("\"", "");
-
-				String fromUsername = (String) messageObject.get("fromUsername").toString();
-				fromUsername = fromUsername.replace("\"", "");
-
-				String fromColor = (String) messageObject.get("fromColor").toString();
-				fromColor = fromColor.replace("\"", "");
-
-				String fromTime = (String) messageObject.get("fromTime").toString();
-				fromTime = fromTime.replace("\"", "");
-
-				String fromTimezoneOffset = (String) messageObject.get("fromTimezoneOffset").toString();
-				fromTimezoneOffset = fromTimezoneOffset.replace("\"", "");
-				String fromLang = (String) messageObject.get("fromLang").toString();
-				fromLang = fromLang.replace("\"", ""); 
-				String toUserID = (String) messageObject.get("toUserID").toString();
-				toUserID = toUserID.replace("\"", "");
-
-				String toUsername = (String) messageObject.get("toUsername").toString();
-				toUsername = toUsername.replace("\"", "");
-
-				String chatText = (String) messageObject.get("message").toString();
-				chatText = chatText.replace("\"", "");
-
+				String meeting_id = payloadObject.get("meeting_id").toString().replace("\"", "");
+				String requester_id = payloadObject.get("requester_id").toString().replace("\"", "");
+				String chatType = messageObject.get("chatType").toString().replace("\"", "");
+				String fromUserID = messageObject.get("fromUserID").toString().replace("\"", "");
+				String fromUsername = messageObject.get("fromUsername").toString().replace("\"", "");
+				String fromColor = messageObject.get("fromColor").toString().replace("\"", "");
+				String fromTime = messageObject.get("fromTime").toString().replace("\"", "");
+				String fromTimezoneOffset = messageObject.get("fromTimezoneOffset").toString().replace("\"", "");
+				String fromLang = messageObject.get("fromLang").toString().replace("\"", ""); 
+				String toUserID = messageObject.get("toUserID").toString().replace("\"", "");
+				String toUsername = messageObject.get("toUsername").toString().replace("\"", "");
+				String chatText = messageObject.get("message").toString().replace("\"", "");
 
 				Map<String, String> map = new HashMap<String, String>();
 				map.put(ChatKeyUtil.CHAT_TYPE, chatType); 

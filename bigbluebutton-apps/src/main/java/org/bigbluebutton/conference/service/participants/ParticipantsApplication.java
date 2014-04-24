@@ -49,7 +49,7 @@ public class ParticipantsApplication {
 
 	public boolean participantLeft(String roomName, String userid) {
 		log.debug("Participant " + userid + " leaving room " + roomName);
-		bbbInGW.userLeft(userid, userid);	
+		bbbInGW.userLeft(roomName, userid);
 		return true;
 	}
 	
