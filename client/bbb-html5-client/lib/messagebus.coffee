@@ -2,6 +2,7 @@ postal = require('postal')
 crypto = require 'crypto'
 
 config = require '../config'
+log = require './bbblogger'
 
 moduleDeps = ["RedisPubSub"]
 
@@ -27,8 +28,10 @@ module.exports = class MessageBus
       channel: replyTo.channel
       topic: replyTo.topic
       callback: (msg, envelope) ->
-        callback(msg.err, msg.data)
+        callback(null, msg)
     ).once()
+
+    log.info({ message: data, replyTo: replyTo }, "Sending a message and waiting for reply")
 
     postal.publish
       channel: config.redis.internalChannels.publish

@@ -5,9 +5,6 @@ postal = require 'postal'
 config = require '../config'
 log = require './bbblogger'
 
-# default timeout to wait for response
-TIMEOUT = 5000
-
 module.exports = class RedisPubSub
 
   constructor: ->
@@ -20,39 +17,19 @@ module.exports = class RedisPubSub
     postal.subscribe
       channel: config.redis.internalChannels.publish
       topic: 'broadcast'
-      callback: (msg, envelope) ->
+      callback: (msg, envelope) =>
         if envelope.replyTo?
-          sendAndWaitForReply(msg, envelope)
+          @sendAndWaitForReply(msg, envelope)
         else
-          sendMessage(msg, envelope)
+          @send(msg, envelope)
 
-    @subClient.on "subscribe", (channel, count) ->
-      log.info("Subscribed to #{channel}")
+    @subClient.on "subscribe", @_onSubscribe
+    @subClient.on "message", @_onMessage
 
-    @subClient.on "message", (channel, jsonMsg) ->
-      log.debug("Received message on [channel] = #{channel} [message] = #{jsonMsg}")
-      message = JSON.parse(jsonMsg)
-
-      if message.header?.correlationId?
-        correlationId = message.header.correlationId
-        # retrieve the request entry
-        entry = @pendingRequests[correlationId]
-        # make sure we don't timeout by clearing it
-        clearTimeout(entry.timeout)
-        # delete the entry from hash
-        delete @pendingRequests[correlationId]
-        response = {}
-        response.data = message.payload
-        postal.publish
-          channel: entry.replyTo.channel
-          topic: entry.replyTo.topic
-          data: response
-      else
-        sendToController message
-
-    log.info("RPC: Subscribing message on channel [#{config.redis.channels.fromBBBApps}]")
+    log.info("RPC: Subscribing message on channel: #{config.redis.channels.fromBBBApps}")
     @subClient.subscribe(config.redis.channels.fromBBBApps)
 
+  # Sends a message and waits for a reply
   sendAndWaitForReply: (message, envelope) ->
     # generate a unique correlation id for this call
     correlationId = crypto.randomBytes(16).toString('hex')
@@ -71,7 +48,7 @@ module.exports = class RedisPubSub
         data: response
       # delete the entry from hash
       delete @pendingRequests[correlationId]
-    , TIMEOUT, correlationId)
+    , config.redis.timeout, correlationId)
 
     # create a request entry to store in a hash
     entry =
@@ -80,10 +57,38 @@ module.exports = class RedisPubSub
 
     # put the entry in the hash so we can match the response later
     @pendingRequests[correlationId] = entry
-    message.header.correlationId = correlationId
+    message.header.correlation_id = correlationId
 
-    log.info("Publishing #{message}")
+    log.info({ message: message }, "Publishing a message")
     @pubClient.publish(config.redis.channels.toBBBApps, JSON.stringify(message))
+
+  # Send a message without waiting for a reply
+  send: (message, envelope) ->
+    # TODO
+
+  _onSubscribe: (channel, count) =>
+    log.info("Subscribed to #{channel}")
+
+  _onMessage: (channel, jsonMsg) =>
+    log.debug({ channel: channel, message: jsonMsg}, "Received a message from redis")
+    # TODO: this has to be in a try/catch block, otherwise the server will
+    #   crash if the message has a bad format
+    message = JSON.parse(jsonMsg)
+
+    # retrieve the request entry
+    correlationId = message.header?.correlation_id
+    if correlationId? and @pendingRequests?[correlationId]?
+      entry = @pendingRequests[correlationId]
+      # make sure the message in the timeout isn't triggered by clearing it
+      clearTimeout(entry.timeout)
+
+      delete @pendingRequests[correlationId]
+      postal.publish
+        channel: entry.replyTo.channel
+        topic: entry.replyTo.topic
+        data: message
+    else
+      sendToController(message)
 
 sendToController = (message) ->
   postal.publish

@@ -48,7 +48,4 @@ define [
 
       @$el.addClass('navbar-on') # navbar starts visible
 
-      # Connect to the server
-      globals.connection.connect()
-
   SessionView
