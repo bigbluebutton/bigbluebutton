@@ -63,6 +63,7 @@ package org.bigbluebutton.main.model.users
 			dispatcher = new Dispatcher();
 			
 			_netConnection = new NetConnection();				
+			_netConnection.proxyType = "best";
 			_netConnection.client = this;
 			_netConnection.addEventListener( NetStatusEvent.NET_STATUS, netStatus );
 			_netConnection.addEventListener( AsyncErrorEvent.ASYNC_ERROR, netASyncError );

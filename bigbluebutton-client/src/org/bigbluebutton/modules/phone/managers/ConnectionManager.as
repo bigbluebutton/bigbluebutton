@@ -81,6 +81,7 @@ package org.bigbluebutton.modules.phone.managers {
       trace(LOG + "Connecting to uri=[" + uri + "]");
 			NetConnection.defaultObjectEncoding = flash.net.ObjectEncoding.AMF0;	
 			netConnection = new NetConnection();
+			netConnection.proxyType = "best";
 			netConnection.client = this;
 			netConnection.addEventListener( NetStatusEvent.NET_STATUS , netStatus );
 			netConnection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
