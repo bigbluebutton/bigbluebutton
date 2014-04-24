@@ -33,6 +33,7 @@ public class ParticipantsListener implements MessageHandler{
 
 			if(eventName.equalsIgnoreCase("register_user_request") ||
 				eventName.equalsIgnoreCase("participant_left") || //TODO the event name is probably incorrect
+				eventName.equalsIgnoreCase("participant_join") || //TODO the event name is probably incorrect
 				eventName.equalsIgnoreCase("get_users_request") ||
 				eventName.equalsIgnoreCase("raise_user_hand_request")){
 
