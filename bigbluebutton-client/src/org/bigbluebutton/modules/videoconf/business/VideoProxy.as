@@ -113,18 +113,14 @@ package org.bigbluebutton.modules.videoconf.business
 
 		public function getPlayConnectionFor(userID:String):NetConnection{
 			LogUtil.debug("VideoProxy::getPlayConnectionFor:: Looking for connection for stream from [" + userID + "]");
-			// If connection does not exist
-			if(!playConnectionDict[userID]){
-				// TODO: Ask LB for path
-				// TODO: Split path
-//				var connectionPath = "10.0.3.254/10.0.3.79";
-//				var pathIps = connectionPath.split(/);
-//				var ipRegex:String = "([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)";
-//				var newUrl:String = _url.replace(ipRegex, pathIps[0]);
-//				var streamPrefix:String =
-				// Hard-coded addresses for debugging
-				var newUrl:String = _url.replace("10.0.3.79", "10.0.3.203");
-				var streamPrefix:String = "10.0.3.79/";
+			// TODO: Ask LB for path to current user
+			var connectionPath:String = "10.0.3.254/10.0.3.79";
+			var serverIp:String = connectionPath.split("/")[0];
+			// If connection with this server does not exist
+			if(!playConnectionDict[serverIp]){
+				var ipRegex:RegExp = /([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/;
+				var newUrl:String = _url.replace(ipRegex, serverIp);
+				var streamPrefix:String = connectionPath.replace(serverIp + "/", "") + "/";
 				// Open NetConnection
 				var connection:NetConnection = new NetConnection();
 				connection.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
@@ -133,12 +129,16 @@ package org.bigbluebutton.modules.videoconf.business
 				connection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError);
 				connection.connect(newUrl);
 				// TODO change to trace
-				LogUtil.debug("VideoProxy::getPlayConnectionFor:: Creating connection for stream from [" + userID + "] at [" + newUrl + "]");
-				playConnectionDict[userID] = connection;
+				LogUtil.debug("VideoProxy::getPlayConnectionFor:: Creating NetConnection for [" + newUrl + "]");
+				playConnectionDict[serverIp] = connection;
 				// Store stream name prefix
 				streamNamePrefixDict[userID] = streamPrefix;
 			}
-			return playConnectionDict[userID];
+			else {
+				// TODO change to trace
+				LogUtil.debug("VideoProxy::getPlayConnectionFor:: Found NetConnection for [" + newUrl + "]");
+			}
+			return playConnectionDict[serverIp];
 		}
 
 		public function getStreamNamePrefixFor(userID:String):String{

@@ -303,7 +303,6 @@ package org.bigbluebutton.modules.videoconf.maps
 			closeWindow(userID);
 
 			var bbbUser:BBBUser = UsersUtil.getUser(userID);
-			//TODO: change publishConnection to getPlayConnectionFor(userID)
 			var playStream:String = proxy.getStreamNamePrefixFor(userID) + bbbUser.streamName;
 			LogUtil.debug("VideoEventMapDelegate:: [" + me + "] openViewWindowFor:: StreamName for [" + userID + "] : [" + playStream + "]");
 			window.startVideo(playConnection, playStream);
