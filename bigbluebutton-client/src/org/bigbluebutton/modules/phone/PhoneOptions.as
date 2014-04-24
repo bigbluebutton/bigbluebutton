@@ -38,17 +38,17 @@ package org.bigbluebutton.modules.phone
 		[Bindable]
 		public var useWebrtcIfAvailable:Boolean = true;
 
-    [Bindable]
-    public var echoTestApp:String = "9196";
-    
-    [Bindable]
-    public var listenOnlyMode:Boolean = true;
+		[Bindable]
+		public var echoTestApp:String = "9196";
 
-    [Bindable]
-    public var presenterShareOnly:Boolean = false;
+		[Bindable]
+		public var listenOnlyMode:Boolean = true;
 
-    [Bindable]
-    public var showSpeakerButton:Boolean = true;
+		[Bindable]
+		public var presenterShareOnly:Boolean = false;
+
+		[Bindable]
+		public var showSpeakerButton:Boolean = true;
 
 		public function PhoneOptions() {
 			parseOptions();
@@ -75,18 +75,18 @@ package org.bigbluebutton.modules.phone
 				if (vxml.@useWebrtcIfAvailable != undefined) {
 					useWebrtcIfAvailable = (vxml.@useWebrtcIfAvailable.toString().toUpperCase() == "TRUE");
 				}
-        if (vxml.@echoTestApp != undefined) {
-          echoTestApp = vxml.@echoTestApp.toString();
-        }
-        if (vxml.@listenOnlyMode != undefined) {
-          listenOnlyMode = (vxml.@listenOnlyMode.toString().toUpperCase() == "TRUE");
-        }
-        if (vxml.@presenterShareOnly != undefined) {
-          presenterShareOnly = (vxml.@presenterShareOnly.toString().toUpperCase() == "TRUE");
-        }
-        if (vxml.@showSpeakerButton != undefined) {
-          showSpeakerButton = (vxml.@showSpeakerButton.toString().toUpperCase() == "TRUE");
-        }
+				if (vxml.@echoTestApp != undefined) {
+					echoTestApp = vxml.@echoTestApp.toString();
+				}
+				if (vxml.@listenOnlyMode != undefined) {
+					listenOnlyMode = (vxml.@listenOnlyMode.toString().toUpperCase() == "TRUE");
+				}
+				if (vxml.@presenterShareOnly != undefined) {
+					presenterShareOnly = (vxml.@presenterShareOnly.toString().toUpperCase() == "TRUE");
+				}
+				if (vxml.@showSpeakerButton != undefined) {
+					showSpeakerButton = (vxml.@showSpeakerButton.toString().toUpperCase() == "TRUE");
+				}
 			}
 		}		
 	}

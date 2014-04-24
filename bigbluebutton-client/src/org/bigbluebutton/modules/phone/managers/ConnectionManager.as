@@ -159,12 +159,12 @@ package org.bigbluebutton.modules.phone.managers {
 		//			SIP Actions
 		//
 		//********************************************************************************************		
-		public function doCall(dialStr:String):void {
-			trace(LOG + "in doCall - Calling " + dialStr);
-			netConnection.call("voiceconf.call", null, "default", username, dialStr);
 		}
 				
 		public function doHangUp():void {			
+		public function doCall(dialStr:String, listenOnly:Boolean = false):void {
+			trace(LOG + "in doCall - Calling " + dialStr + (listenOnly? " *listen only*": ""));
+			netConnection.call("voiceconf.call", null, "default", username, dialStr, listenOnly.toString());
 			if (isConnected()) {
         trace(LOG + "hanging up call");
 				netConnection.call("voiceconf.hangup", null, "default");

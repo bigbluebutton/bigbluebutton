@@ -60,9 +60,11 @@ package org.bigbluebutton.modules.phone.maps
 			}
 		}
 		
-		public function disableToolbarButton():void {
-			phoneButton.selected = true;
-			phoneButton.enabled = true;
+		public function disableToolbarButton(listenOnlyCall:Boolean):void {
+			if (!listenOnlyCall) {
+				phoneButton.selected = true;
+				phoneButton.enabled = true;
+			}
 		}
 		
 		public function enableToolbarButton():void {

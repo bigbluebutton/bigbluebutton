@@ -133,19 +133,25 @@ package org.bigbluebutton.modules.phone.managers {
 			}
 		}
 										
-		public function callConnected(playStreamName:String, publishStreamName:String, codec:String):void {
+		public function callConnected(playStreamName:String, publishStreamName:String, codec:String, listenOnlyCall:Boolean):void {
       trace(LOG + "setting up streams. [" + playStreamName + "] : [" + publishStreamName + "] : [" + codec + "]");
 			isCallConnected = true;
 			audioCodec = codec;
 			setupIncomingStream();
 
-			if (mic != null) {
+			if (mic != null && !listenOnlyCall) {
 				setupOutgoingStream();
+			} else {
+				trace(LOG + "not setting up an outgoing stream because I'm in listen only mode");
 			}
 
 			setupPlayStatusHandler();
 			play(playStreamName);
-			publish(publishStreamName);
+			if (!listenOnlyCall) {
+				publish(publishStreamName);
+			} else {
+				trace(LOG + "not publishing any stream because I'm in listen only mode");
+			}
 		}
 		
 		private function play(playStreamName:String):void {		
@@ -193,8 +199,9 @@ package org.bigbluebutton.modules.phone.managers {
 			custom_obj.onPlayStatus = playStatus;
 			custom_obj.onMetadata = onMetadata;
 			incomingStream.client = custom_obj;
-			if (mic != null)
-				outgoingStream.client = custom_obj;			
+			if (mic != null && outgoingStream != null) {
+				outgoingStream.client = custom_obj;
+			}
 		}
 			
 		public function stopStreams():void {
