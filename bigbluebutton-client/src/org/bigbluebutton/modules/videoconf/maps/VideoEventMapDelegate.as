@@ -287,31 +287,36 @@ package org.bigbluebutton.modules.videoconf.maps
         LogUtil.debug("VideoEventMapDelegate:: [" + me + "] closeWindow:: Not Closing. No window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
       }
     }
-    
-    private function openViewWindowFor(userID:String):void {
-      LogUtil.debug("VideoEventMapDelegate:: [" + me + "] openViewWindowFor:: Opening VIEW window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
-      
-      var window:VideoWindow = new VideoWindow();
-      window.userID = userID;
-      window.videoOptions = options;       
-      window.resolutions = options.resolutions.split(",");
-      window.title = UsersUtil.getUserName(userID);
-      
-      closeWindow(userID);
-            
-      var bbbUser:BBBUser = UsersUtil.getUser(userID);      
-		//TODO: change publishConnection to getPlayConnectionFor(userID)
+
+	private function openViewWindowFor(userID:String):void {
+		LogUtil.debug("VideoEventMapDelegate:: [" + me + "] openViewWindowFor:: Opening VIEW window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
+
+		// Check if NetConnection is ready
 		var playConnection:NetConnection = proxy.getPlayConnectionFor(userID);
-		var playStream:String = proxy.getStreamNamePrefixFor(userID) + bbbUser.streamName;
-		LogUtil.debug("VideoEventMapDelegate:: [" + me + "] openViewWindowFor:: StreamName for [" + userID + "] : [" + playStream + "]");
-      window.startVideo(playConnection, playStream);
-//      window.startVideo(proxy.publishConnection, bbbUser.streamName);
-      
-      webcamWindows.addWindow(window);        
-      openWindow(window);
-      dockWindow(window);  
-    }
-    
+		if (playConnection.connected) {
+			var window:VideoWindow = new VideoWindow();
+			window.userID = userID;
+			window.videoOptions = options;
+			window.resolutions = options.resolutions.split(",");
+			window.title = UsersUtil.getUserName(userID);
+
+			closeWindow(userID);
+
+			var bbbUser:BBBUser = UsersUtil.getUser(userID);
+			//TODO: change publishConnection to getPlayConnectionFor(userID)
+			var playStream:String = proxy.getStreamNamePrefixFor(userID) + bbbUser.streamName;
+			LogUtil.debug("VideoEventMapDelegate:: [" + me + "] openViewWindowFor:: StreamName for [" + userID + "] : [" + playStream + "]");
+			window.startVideo(playConnection, playStream);
+
+			webcamWindows.addWindow(window);
+			openWindow(window);
+			dockWindow(window);
+		}
+		else {
+			LogUtil.debug("VideoEventMapDelegate:: [" + me + "] openViewWindowFor:: NetConnection for [" + userID + "] isn't ready yet.");
+		}
+	}
+
     private function openWindow(window:VideoWindowItf):void {
       var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
       windowEvent.window = window;

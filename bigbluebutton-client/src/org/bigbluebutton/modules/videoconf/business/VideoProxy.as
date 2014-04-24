@@ -30,7 +30,7 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.net.NetStream;
 	import flash.system.Capabilities;
 	import flash.utils.Dictionary;
-	
+
 	import mx.collections.ArrayCollection;
 	
 	import org.bigbluebutton.common.LogUtil;
@@ -119,17 +119,21 @@ package org.bigbluebutton.modules.videoconf.business
 				// TODO: Split path
 //				var connectionPath = "10.0.3.254/10.0.3.79";
 //				var pathIps = connectionPath.split(/);
-				var ipRegex:String = "([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)";
+//				var ipRegex:String = "([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)";
 //				var newUrl:String = _url.replace(ipRegex, pathIps[0]);
 //				var streamPrefix:String =
-				var newUrl:String = _url.replace(ipRegex, "10.0.3.254");
+				// Hard-coded addresses for debugging
+				var newUrl:String = _url.replace("10.0.3.79", "10.0.3.203");
 				var streamPrefix:String = "10.0.3.79/";
 				// Open NetConnection
 				var connection:NetConnection = new NetConnection();
+				connection.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
+				connection.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
+				connection.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
+				connection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError);
 				connection.connect(newUrl);
 				// TODO change to trace
-				LogUtil.debug("VideoProxy::getPlayConnectionFor:: Creating connection for stream from [" + userID + "]");
-				// TODO Check this connection somehow?
+				LogUtil.debug("VideoProxy::getPlayConnectionFor:: Creating connection for stream from [" + userID + "] at [" + newUrl + "]");
 				playConnectionDict[userID] = connection;
 				// Store stream name prefix
 				streamNamePrefixDict[userID] = streamPrefix;
@@ -148,7 +152,7 @@ package org.bigbluebutton.modules.videoconf.business
 				return streamNamePrefixDict[userID];
 			}
 		}
-		
+
 		public function startPublishing(e:StartBroadcastEvent):void{
 			ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
 			ns.addEventListener( IOErrorEvent.IO_ERROR, onIOError );
