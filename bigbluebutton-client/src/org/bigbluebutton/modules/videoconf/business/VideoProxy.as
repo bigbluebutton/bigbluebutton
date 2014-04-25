@@ -118,10 +118,16 @@ package org.bigbluebutton.modules.videoconf.business
 			var serverIp:String = connectionPath.split("/")[0];
 			var ipRegex:RegExp = /([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/;
 			var newUrl:String = _url.replace(ipRegex, serverIp);
-			var streamPrefix:String = connectionPath.replace(serverIp + "/", "") + "/";
+
+			var streamPrefix:String;
+			if(connectionPath != serverIp) // More than one server -> has prefix
+				streamPrefix = connectionPath.replace(serverIp + "/", "") + "/";
+			else
+				streamPrefix = "";
+
 			// If connection with this URL does not exist
 			if(!playConnectionDict[newUrl]){
-				// Open NetConnection
+				// Create new NetConnection and store it
 				var connection:NetConnection = new NetConnection();
 				connection.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
 				connection.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
@@ -131,7 +137,6 @@ package org.bigbluebutton.modules.videoconf.business
 				// TODO change to trace
 				LogUtil.debug("VideoProxy::getPlayConnectionFor:: Creating NetConnection for [" + newUrl + "]");
 				playConnectionDict[newUrl] = connection;
-				// Store stream name prefix
 			}
 			else {
 				// TODO change to trace
