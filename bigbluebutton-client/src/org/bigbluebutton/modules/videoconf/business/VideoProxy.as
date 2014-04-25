@@ -118,9 +118,9 @@ package org.bigbluebutton.modules.videoconf.business
 			var serverIp:String = connectionPath.split("/")[0];
 			var ipRegex:RegExp = /([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/;
 			var newUrl:String = _url.replace(ipRegex, serverIp);
+			var streamPrefix:String = connectionPath.replace(serverIp + "/", "") + "/";
 			// If connection with this URL does not exist
 			if(!playConnectionDict[newUrl]){
-				var streamPrefix:String = connectionPath.replace(serverIp + "/", "") + "/";
 				// Open NetConnection
 				var connection:NetConnection = new NetConnection();
 				connection.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
@@ -132,12 +132,13 @@ package org.bigbluebutton.modules.videoconf.business
 				LogUtil.debug("VideoProxy::getPlayConnectionFor:: Creating NetConnection for [" + newUrl + "]");
 				playConnectionDict[newUrl] = connection;
 				// Store stream name prefix
-				streamNamePrefixDict[userID] = streamPrefix;
 			}
 			else {
 				// TODO change to trace
 				LogUtil.debug("VideoProxy::getPlayConnectionFor:: Found NetConnection for [" + newUrl + "]");
 			}
+			// Set current user streamPrefix to use the current path
+			streamNamePrefixDict[userID] = streamPrefix;
 			return playConnectionDict[newUrl];
 		}
 
