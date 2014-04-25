@@ -53,11 +53,11 @@ package org.bigbluebutton.modules.videoconf.business
 		private var ns:NetStream;
 		private var _url:String;
 
-		// Dictionary<userID,NetConnection> used for stream playing
+		// Dictionary<url,NetConnection> used for stream playing
 		private var playConnectionDict:Dictionary;
-		// Dictionary<userID,streamName> used for stream playing
+		// Dictionary<userID,streamNamePrefix> used for stream playing
 		private var streamNamePrefixDict:Dictionary;
-    
+
 		private function parseOptions():void {
 			videoOptions = new VideoConfOptions();
 			videoOptions.parseOptions();	
@@ -116,10 +116,10 @@ package org.bigbluebutton.modules.videoconf.business
 			// TODO: Ask LB for path to current user
 			var connectionPath:String = "10.0.3.254/10.0.3.79";
 			var serverIp:String = connectionPath.split("/")[0];
-			// If connection with this server does not exist
-			if(!playConnectionDict[serverIp]){
-				var ipRegex:RegExp = /([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/;
-				var newUrl:String = _url.replace(ipRegex, serverIp);
+			var ipRegex:RegExp = /([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/;
+			var newUrl:String = _url.replace(ipRegex, serverIp);
+			// If connection with this URL does not exist
+			if(!playConnectionDict[newUrl]){
 				var streamPrefix:String = connectionPath.replace(serverIp + "/", "") + "/";
 				// Open NetConnection
 				var connection:NetConnection = new NetConnection();
@@ -130,7 +130,7 @@ package org.bigbluebutton.modules.videoconf.business
 				connection.connect(newUrl);
 				// TODO change to trace
 				LogUtil.debug("VideoProxy::getPlayConnectionFor:: Creating NetConnection for [" + newUrl + "]");
-				playConnectionDict[serverIp] = connection;
+				playConnectionDict[newUrl] = connection;
 				// Store stream name prefix
 				streamNamePrefixDict[userID] = streamPrefix;
 			}
@@ -138,7 +138,7 @@ package org.bigbluebutton.modules.videoconf.business
 				// TODO change to trace
 				LogUtil.debug("VideoProxy::getPlayConnectionFor:: Found NetConnection for [" + newUrl + "]");
 			}
-			return playConnectionDict[serverIp];
+			return playConnectionDict[newUrl];
 		}
 
 		public function getStreamNamePrefixFor(userID:String):String{
