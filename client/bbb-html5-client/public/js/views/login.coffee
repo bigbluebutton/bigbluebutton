@@ -25,11 +25,11 @@ define [
 
       # Connect to the server and authenticate the user
       globals.connection.connect()
-      @_authentication()
+      @_authenticate()
 
     # Fetch information from the server to check if the user is autheticated
     # already or not. If not, authenticates the user.
-    _authentication: ->
+    _authenticate: ->
       console.log "Authenticating user"
       @model.authenticate (err, data) =>
         if not err? and data.payload?.valid

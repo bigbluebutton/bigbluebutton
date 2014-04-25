@@ -30,15 +30,33 @@ handleMessage = (message) ->
 
 handleAuthenticateMessage = (message) ->
   console.log "Handling:", message
+
   response =
     header:
       name: REPLY_MSG_NAME
       correlation_id: message.header.correlation_id
+      timestamp: new Date().getTime()
     payload:
       valid: true
       auth_token: message.payload.auth_token
-      user_id: message.payload.user_id
-      meeting_id: message.payload.meeting_id
+      fullname: "Richard Alam"
+      confname: "Demo Meeting"
+      meeting_id: "Demo Meeting"
+      external_meeting_id: "183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1398367421601"
+      user_id: "12345678901234567890234567890"
+      external_user_id: "12345678901234567890234567890"
+      conference: "183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1398367421601"
+      room: "183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1398367421601"
+      voice_bridge: 71234
+      dial_number: "613-555-1234"
+      web_voice_conf: 71234
+      mode: "LIVE"
+      record: false
+      welcome: "Welcome to my humble meeting."
+      logout_url: "http://10.0.3.181"
+      default_layout: "NOLAYOUT"
+      avatar_url: "http://10.0.3.181/client/avatar.png"
+
   console.log "Publishing", response, "to", PUBLISH_CHANNEL
   subClient.publish(PUBLISH_CHANNEL, JSON.stringify(response))
 

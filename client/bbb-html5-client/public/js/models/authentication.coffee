@@ -10,28 +10,37 @@ define [
     defaults:
       username: null
       meetingId: null
+      externalMeetingId: null
       userId: null
       loginAccepted: false
 
     authenticate: (callbacks) ->
-      # TOOD: request to /bigbluebutton/api/enter to get the meeting information
-      @username = "Test Name"
-      @meetingId = "183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1398367421601"
-      @userId = "12345678901234567890234567890"
-
       message =
-        "header":
-          "timestamp": new Date().getTime()
-          "name": "validate_auth_token_request"
-        "payload":
-          "auth_token": @userId
-          "user_id": @userId
-          "meeting_id": @meetingId
+        header:
+          timestamp: new Date().getTime()
+          name: "validate_auth_token_request"
+        payload:
+          auth_token: getURLParameter("auth_token")
 
       console.log "Sending authentication message", message
-      globals.events.on "message", (received) ->
+      globals.events.on "message", (received) =>
+        console.log "Authentication response", received
         if received?.header?.name is "validate_auth_token_reply"
+          @set("username", received.payload.fullname)
+          @set("meetingId", received.payload.meeting_id)
+          @set("externalMeetingId", received.payload.external_meeting_id)
+          @set("userId", received.payload.user_id)
           callbacks(null, received)
       globals.connection.emit(message)
+
+  getURLParameter = (name) ->
+    name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]")
+    regexS = "[\\?&]"+name+"=([^&#]*)"
+    regex = new RegExp(regexS)
+    results = regex.exec(location.search)
+    unless results?
+      ""
+    else
+      decodeURIComponent(results[1].replace(/\+/g, " "))
 
   AuthenticationModel
