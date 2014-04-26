@@ -1,33 +1,35 @@
+config = require '../config'
 log = require './bbblogger'
 
-config = require '../config'
-
-moduleDeps = ["MessageBus"]
+moduleDeps = ["MessageBus", "ClientProxy"]
 
 module.exports = class Controller
 
   constructor: ->
     config.modules.wait moduleDeps, =>
       @messageBus = config.modules.get("MessageBus")
-      # @clientProxy = config.modules.get("ClientProxy")
+      @clientProxy = config.modules.get("ClientProxy")
 
-  # registerMessageReceiver: (callback) ->
-  #   messageReceiver = callback
+      @messageBus.receiveMessages (data) =>
+        @processReceivedMessage(data)
 
-  processLoginMessage: (data, callback) ->
-    @messageBus.sendMessage data, (err, result) ->
+  processReceivedMessage: (data, callback) ->
+    @clientProxy.sendToClients(data, callback)
+
+  # Processes a message requesting authentication
+  processAuthMessage: (data, callback) ->
+    log.info({ data: data }, "Sending an authentication request and waiting for reply")
+    @messageBus.sendAndWaitForReply data, (err, result) ->
       if err?
-        errLog = {reason: err, data: data}
-        log.error({error: errLog}, 'Authentication Failure')
+        log.error({ reason: err, result: result, original: data }, "Authentication failure")
         callback(err, null)
       else
-        log.info("SUCCESS: #{result}")
-        if result.error?
-          log.info({error: result.error}, 'Authentication Failure')
-          callback(result.error, null)
+        if result.payload?.valid
+          log.info({ result: result }, "Authentication successful")
+          callback(null, result)
         else
-          log.info({response: result.data}, 'Authentication Success')
-          callback(null, result.data)
+          log.info({ result: result }, "Authentication failure")
+          callback(new Error("Authentication failure"), null)
 
     # processEndMessage: (data, callback) ->
     #   @clientProxy.endMeeting()

@@ -21,12 +21,20 @@ define [
 
     connect: ->
       unless @socket?
-        console.log "connecting to the server", @host
-        @socket = io.connect(@host)
-        console.log "socket: " + @socket
+        console.log "connecting to the socket.io server", @host
+        @socket = io.connect()
         @_registerEvents()
       else
         console.log "tried to connect but it's already connected"
+
+    # authenticate: (userId, meetingId) ->
+    #   @socket.emit "message", message
+
+    emit: (data) ->
+      if @isConnected()
+        @socket.emit("message", data)
+      else
+        console.log "Not connected, aborting emission of message", data
 
     isConnected: ->
       # if we have a socket set we assume we are connected
@@ -35,6 +43,12 @@ define [
     # Registers listeners to all events in the websocket. Passes these events to the
     # event bus so that other objects can receive them too.
     _registerEvents: ->
+
+      # All messages received from the server fall in this block
+      @socket.on "message", (data) ->
+        console.log "socket.io received: data"
+        globals.events.trigger("message", data)
+
 
       # Immediately say we are connected
       @socket.on "connect", =>

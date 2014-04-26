@@ -13,16 +13,37 @@ module.exports = class ClientProxy
     config.modules.wait moduleDeps, =>
       @controller = config.modules.get("Controller")
 
+  # Listens for events on the websocket and does something when they are triggered.
   listen: (app) ->
-    io = socketio.listen(app)
-    io.set('log level', 1)
-    io.sockets.on 'connection', (socket) =>
-      log.debug({client: socket}, "Client has connected.")
+    @io = socketio.listen(app)
+    @io.set('log level', 1)
+    @io.sockets.on 'connection', (socket) =>
+      log.debug({ client: socket.id }, "Client has connected.")
       socket.on 'message', (jsonMsg) =>
-        log.debug("Received message #{jsonMsg}")
+        log.debug({ message: jsonMsg }, "Received message")
         @_handleMessage(socket, jsonMsg)
       socket.on 'disconnect', =>
         @_handleClientDisconnected socket
+
+  # Sends a message in `data` to all the clients that should receive it.
+  sendToClients: (data, callback) ->
+    # the channel can be the user_id (send to one user only) or the meeting_id
+    # (send to everyone in the meeting)
+    channel = data?.payload?.user_id or data?.payload?.meeting_id
+
+    # if the data has "header":{"name":"some_event_name"} use that name
+    # otherwise look for "name":"some_event_name" in the top level of the data
+    eventName = data?.header?.name or data?.name
+
+    # clients = @io.sockets.clients(channel)
+    # console.log "Found", clients?.length, "clients for the channel", channel
+
+    log.debug({ channel: channel, eventName: eventName, message: data, clientCount: clients?.length },
+      "Sending message to websocket clients")
+    # TODO: if `channel` is undefined, it should not send the message,
+    #   instead if is sending to all users
+    @io.sockets.in(channel).emit(eventName, data)
+    callback?()
 
   _handleClientDisconnected: (socket) ->
     if socket.userId?
@@ -32,28 +53,33 @@ module.exports = class ClientProxy
     if message.header?.name?
       @_handleValidMessage(socket, message)
     else
-      log.error({message: message}, "Invalid message.")
+      log.error({ message: message }, "Invalid message.")
 
   _handleValidMessage: (socket, message) ->
     switch message.header.name
-      when 'authenticateMessage'
+      when 'validate_auth_token_request'
         @_handleLoginMessage socket, message
       else
-        log.error({message: message}, 'Unknown message name.')
+        log.error({ message: message }, 'Unknown message name.')
 
   _handleLoginMessage: (socket, data) ->
-    @controller.processLoginMessage data, (err, result) ->
+    @controller.processAuthMessage data, (err, result) ->
       if err?
-        message = {name: "authenticationReply", error: err}
-        sendMessageToClient socket, message
-        # Disconnect this socket as it failed authentication.
+        log.debug({ message: result }, "Sending authentication not OK to user and disconnecting socket")
+        sendMessageToClient(socket, result)
         socket.disconnect()
       else
-        # Assign the userId to this socket. This way we can
+        log.debug({ userChannel: result.payload.user_id, meetingChannel: result.payload.meeting_id },
+          "Subscribing a user to his channels")
+        socket.join(result.payload.user_id)
+        socket.join(result.payload.meeting_id)
+
+        # assign the userId to this socket. This way we can
         # locate this socket using the userId.
-        socket.userId = result.userId
-        message = {name: "authenticationReply", data: result}
-        sendMessageToClient socket, message
+        socket.userId = result?.payload?.user_id
+
+        log.debug({ message: result }, "Sending authentication OK reply to user")
+        sendMessageToClient(socket, result)
 
 sendMessageToClient = (socket, message) ->
-  socket.emit(MESSAGE, JSON.stringify(message))
+  socket.emit(MESSAGE, message)
