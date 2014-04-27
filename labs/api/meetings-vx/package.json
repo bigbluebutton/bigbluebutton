@@ -8,6 +8,7 @@
   "dependencies": {
     "hapi": "2.6.0",
     "joi": "2.7.0",
+    "oauth-signature": "1.1.3",
     "coffee-script": "1.7.1",
     "js-sha1": "0.1.1",
     "bunyan": "0.22.2",
