@@ -41,8 +41,8 @@ public class ChatMessageListener implements MessageHandler{
 				eventName.equalsIgnoreCase("private_chat_message_event") ||
 				eventName.equalsIgnoreCase("send_private_chat_message")){
 
-				String meeting_id = payloadObject.get("meeting_id").toString().replace("\"", "");
-				String requester_id = payloadObject.get("requester_id").toString().replace("\"", "");
+				String meetingID = payloadObject.get("meeting_id").toString().replace("\"", "");
+				String requesterID = payloadObject.get("requester_id").toString().replace("\"", "");
 				String chatType = messageObject.get("chatType").toString().replace("\"", "");
 				String fromUserID = messageObject.get("fromUserID").toString().replace("\"", "");
 				String fromUsername = messageObject.get("fromUsername").toString().replace("\"", "");
@@ -71,7 +71,7 @@ public class ChatMessageListener implements MessageHandler{
 				{
 					System.out.println("I'm in the case for a public chat message" );
 
-					bbbGW.sendPublicMessage(meeting_id, requester_id, map);
+					bbbGW.sendPublicMessage(meetingID, requesterID, map);
 
 				}
 				//private message
@@ -79,14 +79,14 @@ public class ChatMessageListener implements MessageHandler{
 				{
 					System.out.println("I'm in the case for a private chat message" );
 
-					bbbGW.sendPrivateMessage(meeting_id, requester_id, map); //TODO not tested yet
+					bbbGW.sendPrivateMessage(meetingID, requesterID, map); //TODO not tested yet
 				}
 				//case getChatHistory
 				else if(eventName.equalsIgnoreCase("get_chat_history")) //TODO this is not the correct name
 				{
 					System.out.println("I'm in the case for a requesting chat history" );
 
-					bbbGW.getChatHistory(meeting_id, requester_id);
+					bbbGW.getChatHistory(meetingID, requesterID);
 				}
 			}
 		}

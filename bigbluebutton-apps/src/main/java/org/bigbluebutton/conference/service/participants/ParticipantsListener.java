@@ -40,40 +40,40 @@ public class ParticipantsListener implements MessageHandler{
 				String roomName = payloadObject.get("meeting_id").toString().replace("\"", "");
 
 				if(eventName.equalsIgnoreCase("register_user_request")){
-					String userid = payloadObject.get("user_id").toString().replace("\"", "");
+					String userID = payloadObject.get("user_id").toString().replace("\"", "");
 					String username = payloadObject.get("name").toString().replace("\"", "");
 					String role = payloadObject.get("role").toString().replace("\"", "");
 					String externUserID = payloadObject.get("external_user_id").toString().replace("\"", "");
 
-					bbbInGW.registerUser(roomName, userid, username, role, externUserID);
+					bbbInGW.registerUser(roomName, userID, username, role, externUserID);
 				}
 				else if(eventName.equalsIgnoreCase("participant_left")){ //TODO the event name is probably incorrect
-					String userid = payloadObject.get("user_id").toString().replace("\"", "");
-					
-					bbbInGW.userLeft(roomName, userid);
+					String userID = payloadObject.get("user_id").toString().replace("\"", "");
+
+					bbbInGW.userLeft(roomName, userID);
 				}
 				else if(eventName.equalsIgnoreCase("participant_join")){ //TODO the event name is probably incorrect
-					String userid = payloadObject.get("user_id").toString().replace("\"", "");
+					String userID = payloadObject.get("user_id").toString().replace("\"", "");
 					String username = payloadObject.get("name").toString().replace("\"", "");
 					String role = payloadObject.get("role").toString().replace("\"", "");
 					String externUserID = payloadObject.get("external_user_id").toString().replace("\"", "");
 
-					bbbInGW.userJoin(roomName, userid, username, role, externUserID);
+					bbbInGW.userJoin(roomName, userID, username, role, externUserID);
 				}
 				else if(eventName.equalsIgnoreCase("get_users_request")){
-					String requester_id = payloadObject.get("requester_id").toString().replace("\"", "");
-					bbbInGW.getUsers(roomName, requester_id);
+					String requesterID = payloadObject.get("requester_id").toString().replace("\"", "");
+					bbbInGW.getUsers(roomName, requesterID);
 				}
 				else if(eventName.equalsIgnoreCase("raise_user_hand_request")){
-					String user_id = payloadObject.get("user_id").toString().replace("\"", "");
+					String userID = payloadObject.get("user_id").toString().replace("\"", "");
 					boolean raise = Boolean.parseBoolean(payloadObject.get("raise").toString().replace("\"", ""));
-					
+
 					if(raise){
-						bbbInGW.userRaiseHand(roomName, user_id);
+						bbbInGW.userRaiseHand(roomName, userID);
 					}
 					else {
-						String requester_id = payloadObject.get("requester_id").toString().replace("\"", "");
-						bbbInGW.lowerHand(roomName, user_id, requester_id);
+						String requesterID = payloadObject.get("requester_id").toString().replace("\"", "");
+						bbbInGW.lowerHand(roomName, userID, requesterID);
 					}
 				}
 
@@ -94,25 +94,25 @@ public class ParticipantsListener implements MessageHandler{
 				JsonObject meeting = (JsonObject) payload.get("meeting");
 
 				String meetingid =  meeting.get("id").toString().replace("\"", "");
-				String userid =  user.get("id").toString().replace("\"", "");
+				String userID =  user.get("id").toString().replace("\"", "");
 				String username =  user.get("name").toString().replace("\"", "");
 				String role =  user.get("role").toString().replace("\"", "");
-				String externuserid =  user.get("external_id").toString().replace("\"", "");*/
+				String externuserID =  user.get("external_id").toString().replace("\"", "");*/
 				/*
 				if(eventName.equalsIgnoreCase("user_joined_event")) //put this string into a constants file
 				{
 					System.out.println("I'm in the case for joined_event" );
-					System.out.println("\nmeetingid="+meetingid+", "+"userid = "+userid+", username="+username+
-						", role="+role+"external_id="+externuserid);
+					System.out.println("\nmeetingid="+meetingid+", "+"userID = "+userID+", username="+username+
+						", role="+role+"external_id="+externuserID);
 
-					bbbGW.userJoin(meetingid, userid, username, role, externuserid);
+					bbbGW.userJoin(meetingid, userID, username, role, externuserID);
 				}
 				else if(eventName.equalsIgnoreCase("user_left_event")) //put this string into a constants file
 				{
 					System.out.println("I'm in the case for left_event" );
-					System.out.println("\nmeetingid="+meetingid+", "+"userid = "+userid);
+					System.out.println("\nmeetingid="+meetingid+", "+"userID = "+userID);
 
-					bbbGW.userLeft(meetingid, userid);
+					bbbGW.userLeft(meetingid, userID);
 				}
 				*/
 			}
