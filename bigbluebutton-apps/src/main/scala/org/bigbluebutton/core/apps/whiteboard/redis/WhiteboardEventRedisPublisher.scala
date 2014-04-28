@@ -108,7 +108,7 @@ class WhiteboardEventRedisPublisher(service: MessageSender) extends OutMessageLi
 	  map.put("header",header)
 	  map.put("payload",payload)
 	  
-	  service.send(MessagingConstants.BIGBLUEBUTTON_WEBHOOK_EVENTS, gson.toJson(map))   
+//	  service.send(MessagingConstants.BIGBLUEBUTTON_WEBHOOK_EVENTS, gson.toJson(map))   
 	      
   		/*val map= new java.util.HashMap[String, String]();
 		map.put("meetingID", msg.meetingID);
