@@ -1,32 +1,40 @@
 postal = require('postal')
-redisrpc = require './redispubsub'
 crypto = require 'crypto'
 
-exports.receiveMessage = (callback) ->
-  postal.subscribe({
-    channel: "receiveChannel"
-    topic: "broadcast",
-    callback: (msg, envelope) ->
-      callback( msg )
-    })
+config = require '../config'
+log = require './bbblogger'
 
+moduleDeps = ["RedisPubSub"]
 
-exports.sendMessage = (data, callback) ->
-  replyTo = {
-    channel: 'model.data',
-    topic: 'get.' + crypto.randomBytes(16).toString('hex')
-  };
+module.exports = class MessageBus
 
-  postal.subscribe({
-    channel: replyTo.channel,
-    topic: replyTo.topic,
-    callback: (msg, envelope) ->
-      callback( msg.err, msg.data )
-  }).once()
+  constructor: ->
+    config.modules.wait moduleDeps, =>
+      @pubSub = config.modules.get("RedisPubSub")
 
-  postal.publish({
-    channel: 'publishChannel',
-    topic: 'broadcast',
-    replyTo: replyTo,
-    data: data
-  })
+  receiveMessages: (callback) ->
+    postal.subscribe
+      channel: config.redis.internalChannels.receive
+      topic: "broadcast"
+      callback: (msg, envelope) ->
+        callback(msg)
+
+  sendAndWaitForReply: (data, callback) ->
+    replyTo =
+      channel: config.redis.internalChannels.reply
+      topic: 'get.' + crypto.randomBytes(16).toString('hex')
+
+    postal.subscribe(
+      channel: replyTo.channel
+      topic: replyTo.topic
+      callback: (msg, envelope) ->
+        callback(null, msg)
+    ).once()
+
+    log.info({ message: data, replyTo: replyTo }, "Sending a message and waiting for reply")
+
+    postal.publish
+      channel: config.redis.internalChannels.publish
+      topic: 'broadcast'
+      replyTo: replyTo
+      data: data

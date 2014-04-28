@@ -1,30 +1,17 @@
-express        = require 'express'
-meetingHandler = require './routes/meeting'
-http           = require 'http'
-path           = require 'path'
+Hapi = require("hapi")
+pack = require './package'
+routes = require './lib/routes'
+bunyan = require 'bunyan'
 
-app = express()
+log = bunyan.createLogger({name: 'myapp'});
+log.info('hi')
+log.warn({lang: 'fr'}, 'au revoir')
 
-app.configure(() -> 
-  app.set('port', process.env.PORT || 5000);
-  app.set('views', __dirname + '/views');
-  app.set('view engine', 'ejs');
-  app.use(express.favicon());
-  app.use(express.logger('dev'));
-  app.use(express.bodyParser());
-  app.use(express.methodOverride());
-  app.use(express.cookieParser('your secret here'));
-  app.use(express.session());
-  app.use(app.router);
-  app.use(express.static(path.join(__dirname, 'public')));
+server = Hapi.createServer("0.0.0.0", parseInt(process.env.PORT, 10) or 4000)
+
+server.start(() -> 
+  log.info(['start'], pack.name + ' - web interface: ' + server.info.uri);
 )
 
-app.configure('development', () ->
-  app.use(express.errorHandler())
-)
+server.route routes.routes
 
-app.get('/bigbluebutton/api/create', meetingHandler.createHandler)
-
-http.createServer(app).listen(app.get('port'), () ->
-  console.log("Express server listening on port " + app.get('port'));
-)

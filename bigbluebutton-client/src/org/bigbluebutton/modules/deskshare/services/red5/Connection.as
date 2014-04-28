@@ -86,6 +86,7 @@ package org.bigbluebutton.modules.deskshare.services.red5
     
 		public function connect(retry:Boolean = false):void {
       nc = new NetConnection();
+			nc.proxyType = "best";
       nc.objectEncoding = ObjectEncoding.AMF0;
       nc.client = this;
       

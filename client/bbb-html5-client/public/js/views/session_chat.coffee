@@ -109,7 +109,7 @@ define [
       #$msgBox.prop({ scrollTop: $msgBox.prop("scrollHeight") })
 
       #got scroll to bottom working using div element ID's (if they change then this line needs to change)
-      console.log("scrollToBottom called"); 
+      console.log("scrollToBottom called");
       $("#chat-messages").scrollTop( $("#chat-public-box").height() )
 
     # A key was pressed in the input box
@@ -207,7 +207,7 @@ define [
 
     # Adds a default welcome message to the chat
     _addWelcomeMessage: ->
-      msg = "You are now connected to the meeting '#{globals.currentAuth.get('meetingID')}'"
+      msg = "You are now connected to the meeting '#{globals.currentAuth?.get('meetingID')}'"
       @_addChatMessage("System", msg)
 
   SessionChatView

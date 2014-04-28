@@ -12,9 +12,7 @@ config.presentationImagePath = (meetingID, presentationID, filename) ->
   "bigbluebutton/presentation/#{meetingID}/#{meetingID}/#{presentationID}/png/#{filename}"
 
 ## Application configurations
-# TODO: make this a module in config.modules
 config.app = {}
-config.app.server = null # the express server, created by `app.coffee`
 
 # Generate a new secret with:
 # $ npm install crypto
@@ -27,6 +25,22 @@ config.app.sessionSecret = "J7XSu96KC/B/UPyeGub3J6w6QFXWoUNABVgi9Q1LskE="
 config.redis = {}
 config.redis.host = "127.0.0.1"
 config.redis.post = "6379"
+config.redis.timeout = 5000
+config.redis.channels = {}
+config.redis.channels.fromBBBApps = "from-bbb-apps"
+config.redis.channels.toBBBApps = "to-bbb-apps"
+config.redis.internalChannels = {}
+config.redis.internalChannels.receive = "html5-receive"
+config.redis.internalChannels.reply = "html5-reply"
+config.redis.internalChannels.publish = "html5-publish"
+
+# Logging
+config.log = {}
+
+config.log.path = if process.env.NODE_ENV == "production"
+  "/var/log/bigbluebutton/bbbnode.log"
+else
+  "./log/development.log"
 
 # Global instance of Modules, created by `app.coffee`
 config.modules = null
