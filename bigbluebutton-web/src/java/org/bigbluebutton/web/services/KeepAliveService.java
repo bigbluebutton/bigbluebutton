@@ -28,6 +28,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+
 import com.google.gson.Gson;
 
 public class KeepAliveService {
@@ -38,11 +44,26 @@ public class KeepAliveService {
 	private long runEvery = 10000;
 	private int maxLives = 5;
 	private KeepAliveTask task = null;
+	private volatile boolean processMessages = false;
+	private ArrayList<String> liveMsgs;
+	volatile boolean available = true;
+	
+	private static final int SENDERTHREADS = 1;
+	private static final Executor msgSenderExec = Executors.newFixedThreadPool(SENDERTHREADS);
+	
+	private BlockingQueue<KeepAliveMessage> messages = new LinkedBlockingQueue<KeepAliveMessage>();
 	
 	public void start() {
 		cleanupTimer = new Timer("keep-alive-task", true);
 		task = new KeepAliveTask();
+		liveMsgs = new ArrayList<String>();
 		cleanupTimer.scheduleAtFixedRate(task, 5000, runEvery);
+		processKeepAliveMessage();
+	}
+	
+	public void stop() {
+		processMessages = false;
+		cleanupTimer.cancel();	
 	}
 	
 	public void setRunEvery(long v) {
@@ -54,61 +75,93 @@ public class KeepAliveService {
 	}
 	
 	class KeepAliveTask extends TimerTask {
-		ArrayList<String> liveMsgs;
-		boolean available = true;
-
-		KeepAliveTask() {
-			liveMsgs = new ArrayList<String>();
-		}
-
-        public void run() {
-        	if (liveMsgs.size() < maxLives){
-        		String aliveId = Long.toString(System.currentTimeMillis());
-
-	        	HashMap<String,String> map = new HashMap<String,String>();
-	        	map.put("messageId", KEEP_ALIVE_REQUEST);
-	        	map.put("aliveId", aliveId);
-	        	Gson gson = new Gson();
-
-	        	liveMsgs.add(aliveId);
-	        	log.info("Sending keep alive message to bbb-apps. keep-alive id [{}]", aliveId);
-	        	service.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
-        	} else {
-        		available = false;
-        		log.warn("bbb-apps is down!");
-        	}       	
-        }
-
-        public void checkAliveId(String id){
-        	int count = 0;
-        	boolean found = false;
-
-        	while (count < liveMsgs.size() || !found){
-        		if (liveMsgs.get(count).equals(id)){
-        			liveMsgs.remove(count);
-//        			log.debug("Found valid keep alive msg reply from bbb-apps. id [{}]", id);
-        			found = true;
-        		}
-        		count++;
-        	}
-        	if (!found){
-        		log.info("Received invalid keep alive response from bbb-apps:" + id);
-        	}
-        }
-
-        public boolean isDown(){
-        	return !available;
-        }
-    }
-
-    public void keepAliveReply(String aliveId){
-    	log.debug("Received keep alive msg reply from bbb-apps. id [{}]", aliveId);
-    	if (task != null) {
-    		task.checkAliveId(aliveId);		
-    	}
+    public void run() {
+     	String aliveId = Long.toString(System.currentTimeMillis());
+     	KeepAlivePing ping = new KeepAlivePing(aliveId);
+     	queueMessage(ping);
     }
 
     public boolean isDown(){
-    	return task.isDown();
+    	return !available;
     }
+  }
+
+  public void keepAliveReply(String aliveId) {
+   	log.debug("Received keep alive msg reply from bbb-apps. id [{}]", aliveId);
+   	KeepAlivePong pong = new KeepAlivePong(aliveId);
+   	queueMessage(pong);
+  }
+
+  public boolean isDown(){
+  	return task.isDown();
+  }
+    
+  private void queueMessage(KeepAliveMessage msg) {
+   	try {
+		  messages.offer(msg, 5, TimeUnit.SECONDS);
+	  } catch (InterruptedException e) {
+		  // TODO Auto-generated catch block
+		  e.printStackTrace();
+	  }    	
+  }
+    
+  private void processKeepAliveMessage() {
+  	processMessages = true;
+  	Runnable sender = new Runnable() {
+  		public void run() {
+  			while (processMessages) {
+  				KeepAliveMessage message;
+  				try {
+  					message = messages.take();
+  					processMessage(message);	
+  				} catch (InterruptedException e) {
+  					// TODO Auto-generated catch block
+  					e.printStackTrace();
+  				}								
+  			}
+  		}
+  	};
+  	msgSenderExec.execute(sender);		
+  } 
+  	
+  	private void processMessage(KeepAliveMessage msg) {
+  		if (msg instanceof KeepAlivePing) {
+  			processPing((KeepAlivePing) msg);
+  		} else if (msg instanceof KeepAlivePong) {
+  			processPong((KeepAlivePong) msg);
+  		}
+  	}
+  	
+  	private void processPing(KeepAlivePing msg) {
+    	if (liveMsgs.size() < maxLives) {
+      	HashMap<String,String> map = new HashMap<String,String>();
+      	map.put("messageId", KEEP_ALIVE_REQUEST);
+      	map.put("aliveId", msg.getId());
+      	Gson gson = new Gson();
+
+      	liveMsgs.add(msg.getId());
+      	log.info("Sending keep alive message to bbb-apps. keep-alive id [{}]", msg.getId());
+      	service.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
+    	} else {
+    		available = false;
+    		log.warn("bbb-apps is down!");
+    	}  		
+  	}
+  	
+  	private void processPong(KeepAlivePong msg) {
+    	int count = 0;
+    	boolean found = false;
+
+    	while (count < liveMsgs.size() || !found){
+    		if (liveMsgs.get(count).equals(msg.getId())){
+    			liveMsgs.remove(count);
+//    			log.debug("Found valid keep alive msg reply from bbb-apps. id [{}]", id);
+    			found = true;
+    		}
+    		count++;
+    	}
+    	if (!found){
+    		log.info("Received invalid keep alive response from bbb-apps:" + msg.getId());
+    	}  		
+  	}
 }
