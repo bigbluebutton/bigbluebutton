@@ -25,6 +25,7 @@ require 'rubygems'
 require 'yaml'
 require 'fileutils'
 
+
 def archive_recorded_meeting(recording_dir)
   recorded_done_files = Dir.glob("#{recording_dir}/status/recorded/*.done")
   archived_dirs = Dir.entries("#{recording_dir}/raw/") - ['.','..']
@@ -60,12 +61,15 @@ def sanity_archived_meeting(recording_dir)
 
         is_sanity_check_completed = sanity_done_files.any? { |s| s.include?(meeting_id)  }
         if(!is_sanity_check_completed)
-                command = "ruby sanity/sanity.rb -m #{meeting_id}"
+            command = "ruby sanity/sanity.rb -m #{meeting_id}"
             BigBlueButton.execute(command)
+            post_archive(recording_dir, meeting_id)
         end
   end
+ 
 
 end
+
 
 def process_archived_meeting(recording_dir)
   sanity_done_files = Dir.glob("#{recording_dir}/status/sanity/*.done")
@@ -99,10 +103,12 @@ def process_archived_meeting(recording_dir)
 	     processing_time = ((timestamp_stop-timestamp_start).to_f * 1000).truncate
 	     processing_time_file = "#{recording_dir}/process/#{process_type}/#{meeting_id}/processing_time"
 	     File.open(processing_time_file, 'w') { |file| file.write("#{processing_time}") }
+		 post_process(recording_dir, meeting_id)
 	  end
 
 	end
   end	
+
 end
 
 def publish_processed_meeting(recording_dir)
@@ -136,23 +142,46 @@ def publish_processed_meeting(recording_dir)
 		#puts "********** #{$?.exitstatus} #{$?.exited?} #{$?.success?}********************"
 		command = "ruby #{file} -m #{meeting_id}"
 		BigBlueButton.execute(command)
+		post_publish(recording_dir, meeting_id)
 	  end
 
     end
   end	
 end
 
-props = YAML::load(File.open('bigbluebutton.yml'))
+def post_archive(recording_dir, meeting_id)
+	command = "ruby post_scripts/post_archive.rb -m #{meeting_id}"
+	BigBlueButton.execute command
+end
 
-log_dir = props['log_dir']
-recording_dir = props['recording_dir']
+def post_process(recording_dir, meeting_id)
+	command = "ruby post_scripts/post_process.rb -m #{meeting_id}"
+	BigBlueButton.execute command
+end
 
-logger = Logger.new("#{log_dir}/bbb-rap-worker.log",'daily' )
-logger.level = Logger::ERROR
-BigBlueButton.logger = logger
+def post_publish(recording_dir, meeting_id)
+	command = "ruby post_scripts/post_publish.rb -m #{meeting_id}"
+	BigBlueButton.execute command
+end
 
-archive_recorded_meeting(recording_dir)
-sanity_archived_meeting(recording_dir)
-process_archived_meeting(recording_dir)
-publish_processed_meeting(recording_dir)
+begin 
 
+	props = YAML::load(File.open('bigbluebutton.yml'))
+
+	log_dir = props['log_dir']
+	recording_dir = props['recording_dir']
+
+	logger = Logger.new("#{log_dir}/bbb-rap-worker.log",'daily' )
+	logger.level = Logger::ERROR
+	BigBlueButton.logger = logger
+
+	archive_recorded_meeting(recording_dir)
+	sanity_archived_meeting(recording_dir)	
+	process_archived_meeting(recording_dir)	
+	publish_processed_meeting(recording_dir)
+rescue Exception => e
+    BigBlueButton.logger.error(e.message)
+	e.backtrace.each do |traceline|
+		BigBlueButton.logger.error(traceline)
+	end
+end	
