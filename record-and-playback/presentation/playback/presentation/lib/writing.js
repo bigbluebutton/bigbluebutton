@@ -22,6 +22,7 @@
 "use strict";
 
 function getUrlParameters() {
+    console.log("** Getting url params");
     var map = {};
     window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) { map[key] = value; });
     return map;
@@ -119,6 +120,7 @@ function removeSlideChangeAttribute() {
 // - - - END OF JAVASCRIPT FUNCTIONS - - - //
 
 function runPopcorn() {
+  console.log("** Running popcorn");
   if(svgobj.contentDocument) svgfile = svgobj.contentDocument.getElementById("svgfile");
   else svgfile = svgobj.getSVGDocument('svgfile');
 
@@ -132,9 +134,12 @@ function runPopcorn() {
   }
 
   // PROCESS SHAPES.SVG (in XML format).
+  console.log("** Getting shapes_svg");
   xmlhttp.open("GET", shapes_svg, false);
   xmlhttp.send();
   var xmlDoc = xmlhttp.responseXML;
+
+  console.log("** Processing shapes_svg");
   //getting all the event tags
   var shapeelements = xmlDoc.getElementsByTagName("svg");
 
@@ -164,6 +169,7 @@ function runPopcorn() {
 
   var times_length = times.length; //get the length of the times array.
 
+  console.log("** Getting text files");
   for(var m = 0; m < images.length; m++) {
   	len = images[m].getAttribute("in").split(" ").length;
   	for(var n = 0; n < len; n++) {
@@ -186,7 +192,7 @@ function runPopcorn() {
               if (txtFile.readyState === 4) {
                 if (txtFile.status === 200) {
                   slidePlainText[imgid] = $('<div/>').text(txtFile.responseText).html();
-                  console.log("Text file read " + imgid);
+                  //console.log("**Text file read " + imgid);
                 }
               }
           };
@@ -195,10 +201,12 @@ function runPopcorn() {
   }
 
   // PROCESS PANZOOMS.XML
+  console.log("** Getting panzooms.xml");
   xmlhttp.open("GET", events_xml, false);
   xmlhttp.send();
   xmlDoc = xmlhttp.responseXML;
   //getting all the event tags
+  console.log("** Processing panzooms.xml");
   var panelements = xmlDoc.getElementsByTagName("recording");
   var panZoomArray = panelements[0].getElementsByTagName("event");
   viewBoxes = xmlDoc.getElementsByTagName("viewBox");
@@ -216,10 +224,12 @@ function runPopcorn() {
 
 
   // PROCESS CURSOR.XML
+  console.log("** Getting cursor.xml");
   xmlhttp.open("GET", cursor_xml, false);
   xmlhttp.send();
   xmlDoc = xmlhttp.responseXML;
   //getting all the event tags
+  console.log("** Processing cursor.xml");
   var curelements = xmlDoc.getElementsByTagName("recording");
   var cursorArray = curelements[0].getElementsByTagName("event");
   coords = xmlDoc.getElementsByTagName("cursor");
@@ -231,6 +241,8 @@ function runPopcorn() {
   	cursorValues[cursorArray[m].getAttribute("timestamp")] = coords[m].childNodes[0].data;
   }
   
+
+
   svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
   svgobj.style.top = "8px";
   var next_shape;
@@ -249,6 +261,7 @@ function runPopcorn() {
   }
 
   var get_shapes_in_time = function(t) {
+    console.log("** Getting shapes in time");
     var shapes_in_time = timestampToId[t];
     var shapes = [];
     if (shapes_in_time != undefined) {
@@ -273,6 +286,7 @@ function runPopcorn() {
       start: 1, // start time
       end: p.duration(),
       onFrame: function(options) {
+        //console.log("**Popcorn video onframe");
         if(!((p.paused() === true) && (p.seeking() === false))) {
           var t = p.currentTime().toFixed(1); //get the time and round to 1 decimal place
 
@@ -388,9 +402,15 @@ function runPopcorn() {
        }
     }
   });
+
 };
 
 function defineStartTime() {
+  console.log("** Defining start time");
+  spinner.stop();
+  $("#playback-content").css('visibility','visible');
+  $("#load-recording-msg").css('display','none');
+
   if (params.t === undefined)
     return 1;
 
@@ -469,18 +489,25 @@ svgobj.addEventListener('load', runPopcorn, false);
  * came after that because it needs the popcorn element to be created properly
  */
 svgobj.addEventListener('load', function() {
+  console.log("** svgobj [load] listener activated");
   generateThumbnails();
   var p = Popcorn("#video");
   p.on('loadeddata', function() {
+    console.log("** popcorn video: [onloadeddata] activaded");
     p.currentTime(defineStartTime());
+
   });
 
   // Sometimes media has already loaded before our loadeddata listener is 
   // attached. If the media is already past the loadeddata stage then we 
   // trigger the event manually ourselves
   if ($('#video')[0].readyState > 0) {
+    console.log("** Video tag readyState >0");
     p.emit('loadeddata');
   }
+
+
+
 }, false);
 
 
