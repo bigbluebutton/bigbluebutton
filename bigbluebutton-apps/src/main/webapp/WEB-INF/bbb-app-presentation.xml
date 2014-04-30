@@ -53,7 +53,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</bean>
 	
 	<bean id="chatMessageListener" class="org.bigbluebutton.conference.service.chat.ChatMessageListener">
-		<property name="conversionUpdatesProcessor" ref="conversionUpdatesProcessor" />
+		<property name="bigBlueButtonInGW" ref="bbbInGW" />
 	</bean>
 
 	<bean id="participantsListener" class="org.bigbluebutton.conference.service.participants.ParticipantsListener">

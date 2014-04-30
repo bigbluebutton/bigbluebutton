@@ -8,78 +8,86 @@ import org.bigbluebutton.conference.service.presentation.ConversionUpdatesProces
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 
+import java.util.Map;
+import java.util.HashMap;
+
+import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 
 public class ChatMessageListener implements MessageHandler{
-	public static final String OFFICE_DOC_CONVERSION_SUCCESS_KEY = "OFFICE_DOC_CONVERSION_SUCCESS";
-	public static final String OFFICE_DOC_CONVERSION_FAILED_KEY = "OFFICE_DOC_CONVERSION_FAILED";
-	public static final String SUPPORTED_DOCUMENT_KEY = "SUPPORTED_DOCUMENT";
-	public static final String UNSUPPORTED_DOCUMENT_KEY = "UNSUPPORTED_DOCUMENT";
-	public static final String PAGE_COUNT_FAILED_KEY = "PAGE_COUNT_FAILED";
-	public static final String PAGE_COUNT_EXCEEDED_KEY = "PAGE_COUNT_EXCEEDED";	
-	public static final String GENERATED_SLIDE_KEY = "GENERATED_SLIDE";
-	public static final String GENERATING_THUMBNAIL_KEY = "GENERATING_THUMBNAIL";
-	public static final String GENERATED_THUMBNAIL_KEY = "GENERATED_THUMBNAIL";
-	public static final String CONVERSION_COMPLETED_KEY = "CONVERSION_COMPLETED";
-	
-	private ConversionUpdatesProcessor conversionUpdatesProcessor;
-	
-	public void setConversionUpdatesProcessor(ConversionUpdatesProcessor p) {
-		conversionUpdatesProcessor = p;
-	}	
 
-	private void sendConversionUpdate(String messageKey, String conference, 
-			                          String code, String presId, String filename) {
-		conversionUpdatesProcessor.sendConversionUpdate(messageKey, conference,
-				code, presId, filename);
-	}
+	private IBigBlueButtonInGW bbbGW;
 	
-	public void sendPageCountError(String messageKey, String conference, 
-            String code, String presId, Integer numberOfPages,
-            Integer maxNumberPages, String filename) {
-		conversionUpdatesProcessor.sendPageCountError(messageKey, conference, 
-	            code, presId, numberOfPages,
-	            maxNumberPages, filename);
+	public void setBigBlueButtonInGW(IBigBlueButtonInGW bbbGW) {
+		this.bbbGW = bbbGW;
 	}
-	
-	private void sendSlideGenerated(String messageKey, String conference, 
-            String code, String presId, Integer numberOfPages,
-            Integer pagesCompleted, String filename) {
-		conversionUpdatesProcessor.sendSlideGenerated(messageKey, conference, 
-	            code, presId, numberOfPages,
-	            pagesCompleted, filename);
-	}
-		
-	private void sendConversionCompleted(String messageKey, String conference, 
-            String code, String presId, Integer numberOfPages,
-             String filename, String presBaseUrl) {
-		
-		conversionUpdatesProcessor.sendConversionCompleted(messageKey, conference,  
-	            code, presId, numberOfPages, filename, presBaseUrl);
-	}
-	
 	
 	@Override
 	public void handleMessage(String pattern, String channel, String message) {
 		if (channel.equalsIgnoreCase(MessagingConstants.ANTON_CHANNEL))
 		{
-			// TODO: Parse JSON message
-			// call the bbbInGW (getChatHistory, sendPublicMessage, sendPrivateMessage)
-			
 			System.out.println("AntonChannel=(chatlistener)" + channel);
-			//System.out.println("AntonMessage=" + message);
 
 			JsonParser parser = new JsonParser();
 			JsonObject obj = (JsonObject) parser.parse(message);
-			JsonObject header = (JsonObject) obj.get("header");
-			//System.out.println ("header="+header);
+			JsonObject headerObject = (JsonObject) obj.get("header");
+			JsonObject payloadObject = (JsonObject) obj.get("payload");
+			JsonObject messageObject = (JsonObject)payloadObject.get("message");
 
-			String eventName = (String) header.get("name").toString();
-			eventName = eventName.replace("\"", "");//strip off quotations
-			System.out.println("eventName="+eventName);
+			String eventName = headerObject.get("name").toString();
+			eventName = eventName.replace("\"", "");
 
-			if(eventName.equalsIgnoreCase("public_chat_message_event")) //put this string into a constants file
-			{
-				System.out.println("I'm in the case for public_chat_message_event" );
+			if(eventName.equalsIgnoreCase("public_chat_message_event") || 
+				eventName.equalsIgnoreCase("send_public_chat_message") ||
+				eventName.equalsIgnoreCase("private_chat_message_event") ||
+				eventName.equalsIgnoreCase("send_private_chat_message")){
+
+				String meetingID = payloadObject.get("meeting_id").toString().replace("\"", "");
+				String requesterID = payloadObject.get("requester_id").toString().replace("\"", "");
+				String chatType = messageObject.get("chatType").toString().replace("\"", "");
+				String fromUserID = messageObject.get("fromUserID").toString().replace("\"", "");
+				String fromUsername = messageObject.get("fromUsername").toString().replace("\"", "");
+				String fromColor = messageObject.get("fromColor").toString().replace("\"", "");
+				String fromTime = messageObject.get("fromTime").toString().replace("\"", "");
+				String fromTimezoneOffset = messageObject.get("fromTimezoneOffset").toString().replace("\"", "");
+				String fromLang = messageObject.get("fromLang").toString().replace("\"", ""); 
+				String toUserID = messageObject.get("toUserID").toString().replace("\"", "");
+				String toUsername = messageObject.get("toUsername").toString().replace("\"", "");
+				String chatText = messageObject.get("message").toString().replace("\"", "");
+
+				Map<String, String> map = new HashMap<String, String>();
+				map.put(ChatKeyUtil.CHAT_TYPE, chatType); 
+				map.put(ChatKeyUtil.FROM_USERID, fromUserID);
+				map.put(ChatKeyUtil.FROM_USERNAME, fromUsername);
+				map.put(ChatKeyUtil.FROM_COLOR, fromColor);
+				map.put(ChatKeyUtil.FROM_TIME, fromTime);   
+				map.put(ChatKeyUtil.FROM_TZ_OFFSET, fromTimezoneOffset);
+				map.put(ChatKeyUtil.FROM_LANG, fromLang);
+				map.put(ChatKeyUtil.TO_USERID, toUserID);
+				map.put(ChatKeyUtil.TO_USERNAME, toUsername);
+				map.put(ChatKeyUtil.MESSAGE, chatText);
+
+				//public message
+				if(eventName.equalsIgnoreCase("public_chat_message_event") || eventName.equalsIgnoreCase("send_public_chat_message")) //put this string into a constants file
+				{
+					System.out.println("I'm in the case for a public chat message" );
+
+					bbbGW.sendPublicMessage(meetingID, requesterID, map);
+
+				}
+				//private message
+				else if(eventName.equalsIgnoreCase("private_chat_message_event") || eventName.equalsIgnoreCase("send_private_chat_message")) //put this string into a constants file
+				{
+					System.out.println("I'm in the case for a private chat message" );
+
+					bbbGW.sendPrivateMessage(meetingID, requesterID, map); //TODO not tested yet
+				}
+				//case getChatHistory
+				else if(eventName.equalsIgnoreCase("get_chat_history")) //TODO this is not the correct name
+				{
+					System.out.println("I'm in the case for a requesting chat history" );
+
+					bbbGW.getChatHistory(meetingID, requesterID);
+				}
 			}
 		}
 	}

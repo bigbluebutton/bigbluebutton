@@ -186,7 +186,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
 		usrLeftEvent.put("payload", payload)
 
 
-		service.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(usrLeftEvent));
+//		service.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(usrLeftEvent));
 		
 		//service.send(MessagingConstants.BIGBLUEBUTTON_WEBHOOK_EVENTS, gson.toJson(usrLeftEvent));
 		
