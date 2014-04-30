@@ -909,7 +909,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("yPercent", msg.yPercent)
     map.put("timestamp", System.nanoTime())
 
-    dispatcher.dispatch("***** DISPATCHING SEND CURSOR UPDATE *****************")
+    println("***** DISPATCHING SEND CURSOR UPDATE *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }*/
   
@@ -1938,7 +1938,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.SET_LAYOUT_REPLY)
     header.put(Constants.TIMESTAMP, System.nanoTime())
 
-    dispatcher.dispatch("***** DISPATCHING SET LAYOUT EVENT *****************")
+    println("***** DISPATCHING SET LAYOUT EVENT *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1955,7 +1955,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.LOCK_LAYOUT_REPLY)
     header.put(Constants.TIMESTAMP, System.nanoTime())
  
-    dispatcher.dispatch("***** DISPATCHING LOCK LAYOUT EVENT *****************")
+    println("***** DISPATCHING LOCK LAYOUT EVENT *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -2143,7 +2143,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.POLL_SHOW_RESULT)
     header.put(Constants.TIMESTAMP, System.nanoTime())
 
-    dispatcher.dispatch("***** DISPATCHING POLL SHOW RESULT OUTMSG *****************")
+    println("***** DISPATCHING POLL SHOW RESULT OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -2227,7 +2227,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     map.put("yPercent", msg.yPercent)
     map.put("timestamp", System.nanoTime())
  
-    dispatcher.dispatch("***** DISPATCHING SEND CURSOR UPDATE OUTMSG *****************")
+    println("***** DISPATCHING SEND CURSOR UPDATE OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }*/
   
@@ -2280,7 +2280,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.PRESENTATION_SHARED)
     header.put(Constants.TIMESTAMP, System.nanoTime())
  
-    dispatcher.dispatch("***** DISPATCHING SHARE PRESENTATION OUTMSG *****************")
+    println("***** DISPATCHING SHARE PRESENTATION OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -2294,7 +2294,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.PRESENTATION_SHARED)
     header.put(Constants.TIMESTAMP, System.nanoTime())
  
-    dispatcher.dispatch("***** DISPATCHING GET SLIDE INFO OUTMSG *****************")
+    println("***** DISPATCHING GET SLIDE INFO OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -2306,7 +2306,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.GET_PREUPLOADED_PRESENTATIONS)
     header.put(Constants.TIMESTAMP, System.nanoTime())
 
-    dispatcher.dispatch("***** DISPATCHING GET PREUPLOADED PRESENTATIONS OUTMSG *****************")
+    println("***** DISPATCHING GET PREUPLOADED PRESENTATIONS OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -2322,7 +2322,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.PRESENTATION_CONVERSION_PROGRESS)
     header.put(Constants.TIMESTAMP, System.nanoTime())
  
-    dispatcher.dispatch("***** DISPATCHING PRESENTATION CONVERSION PROGRESS *****************")
+    println("***** DISPATCHING PRESENTATION CONVERSION PROGRESS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
