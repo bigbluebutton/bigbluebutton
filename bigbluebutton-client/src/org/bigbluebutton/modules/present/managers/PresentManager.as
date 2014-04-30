@@ -79,6 +79,8 @@ package org.bigbluebutton.modules.present.managers
 
 		public function handleOpenDownloadWindow():void{
 			if (downloadWindow != null) return;
+
+			globalDispatcher.dispatchEvent(new DownloadEvent(DownloadEvent.UPDATE_FILE_NAMES));
 		
 			downloadWindow = new FileDownloadWindow();
 
@@ -119,8 +121,7 @@ package org.bigbluebutton.modules.present.managers
 		
 		public function handleCloseUploadWindow():void{
 			PopUpManager.removePopUp(uploadWindow);
-			uploadWindow = null;
-			globalDispatcher.dispatchEvent(new DownloadEvent(DownloadEvent.UPDATE_FILE_NAMES));			
+			uploadWindow = null;		
 		}
 		
 		public function updatePresentationNames(e:UploadEvent):void{
