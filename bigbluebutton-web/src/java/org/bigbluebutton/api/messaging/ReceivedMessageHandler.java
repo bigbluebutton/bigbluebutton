@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ReceivedMessageHandler {
-	private static Logger log = LoggerFactory.getLogger(MessageReceiver.class);
+	private static Logger log = LoggerFactory.getLogger(ReceivedMessageHandler.class);
 	
 	private BlockingQueue<ReceivedMessage> receivedMessages = new LinkedBlockingQueue<ReceivedMessage>();
 	

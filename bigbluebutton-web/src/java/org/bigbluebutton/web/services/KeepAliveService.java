@@ -19,9 +19,13 @@
 
 package org.bigbluebutton.web.services;
 
+import org.bigbluebutton.api.messaging.MessageListener;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.api.messaging.MessagingConstants;
 import org.bigbluebutton.api.messaging.RedisMessagingService;
+import org.bigbluebutton.api.messaging.messages.IMessage;
+import org.bigbluebutton.api.messaging.messages.KeepAliveReply;
+import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.Timer;
@@ -35,7 +39,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import com.google.gson.Gson;
 
-public class KeepAliveService {
+public class KeepAliveService implements MessageListener {
 	private static Logger log = LoggerFactory.getLogger(KeepAliveService.class);
 	private final String KEEP_ALIVE_REQUEST = "KEEP_ALIVE_REQUEST";
 	private MessagingService service;
@@ -79,12 +83,6 @@ public class KeepAliveService {
      	KeepAlivePing ping = new KeepAlivePing(aliveId);
      	queueMessage(ping);
     }
-  }
-
-  public void keepAliveReply(String aliveId) {
-   	log.debug("Received keep alive msg reply from bbb-apps. id [{}]", aliveId);
-   	KeepAlivePong pong = new KeepAlivePong(aliveId);
-   	queueMessage(pong);
   }
 
   public boolean isDown(){
@@ -166,5 +164,19 @@ public class KeepAliveService {
    	if (!found){
    		log.info("Received invalid keep alive response from bbb-apps:" + msg.getId());
    	}  		
+  }
+
+  private void keepAliveReply(String aliveId) {
+   	log.debug("Received keep alive msg reply from bbb-apps. id [{}]", aliveId);
+   	KeepAlivePong pong = new KeepAlivePong(aliveId);
+   	queueMessage(pong);
+  }
+  
+	@Override
+  public void handle(IMessage message) {
+		if (message instanceof KeepAliveReply) {
+			KeepAliveReply msg = (KeepAliveReply) message;
+			keepAliveReply(msg.pongId);
+		}
   }
 }

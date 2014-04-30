@@ -39,35 +39,11 @@ import redis.clients.jedis.JedisPubSub;
 public class RedisMessagingService implements MessagingService {
 	private static Logger log = LoggerFactory.getLogger(RedisMessagingService.class);
 	
-	private JedisPool redisPool;
-	private final Set<MessageListener> listeners = new HashSet<MessageListener>();
-
-	private final Executor exec = Executors.newSingleThreadExecutor();
-	private Runnable pubsubListener;
-
- 	@Override
-	public void addListener(MessageListener listener) {
- 		listeners.add(listener);
-	}
- 	
-	public void removeListener(MessageListener listener) {
- 		listeners.remove(listener);
- 	}
-
+	private RedisStorageService storeService;
+	private MessageSender sender;
+	
 	public void recordMeetingInfo(String meetingId, Map<String, String> info) {
-		Jedis jedis = redisPool.getResource();
-		try {
-		    for (String key: info.keySet()) {
-				    	log.debug("Storing metadata {} = {}", key, info.get(key));
-				}   
-
-		    log.debug("Saving metadata in {}", meetingId);
-			jedis.hmset("meeting:info:" + meetingId, info);
-		} catch (Exception e){
-			log.warn("Cannot record the info meeting:"+meetingId,e);
-		} finally {
-			redisPool.returnResource(jedis);
-		}		
+		storeService.recordMeetingInfo(meetingId, info);	
 	}
 
 	public void destroyMeeting(String meetingID) {
@@ -76,7 +52,7 @@ public class RedisMessagingService implements MessagingService {
 		map.put("meetingID", meetingID);
 		Gson gson = new Gson();
 		log.info("Sending destroy meeting [{}]", meetingID);
-		send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));		
+		sender.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));		
 	}
 	
 	public void createMeeting(String meetingID, String meetingName, Boolean recorded, String voiceBridge, Long duration) {
@@ -90,7 +66,7 @@ public class RedisMessagingService implements MessagingService {
 		
 		Gson gson = new Gson();
 		log.info("Sending create meeting [{}] - [{}]", meetingID, voiceBridge);
-		send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));		
+		sender.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));		
 	}
 	
 	public void endMeeting(String meetingId) {
@@ -99,21 +75,13 @@ public class RedisMessagingService implements MessagingService {
 		map.put("meetingId", meetingId);
 		Gson gson = new Gson();
 		log.info("Sending end meeting [{}]", meetingId);
-		send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
+		sender.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
 	}
 
-	public void send(String channel, String message) {
-		Jedis jedis = redisPool.getResource();
-		try {
-			log.debug("Sending to channel[" + channel + "] message[" + message + "]");
-			jedis.publish(channel, message);
-		} catch(Exception e){
-			log.warn("Cannot publish the message to redis",e);
-		}finally{
-			redisPool.returnResource(jedis);
-		}
-	}
-
+  public void send(String channel, String message) {
+		sender.send(channel, message);
+  }
+  
 	public void sendPolls(String meetingId, String title, String question, String questionType, List<String> answers){
 		Gson gson = new Gson();
 
@@ -127,199 +95,31 @@ public class RedisMessagingService implements MessagingService {
 		
 		System.out.println(gson.toJson(map));
 		
-		send(MessagingConstants.POLLING_CHANNEL, gson.toJson(map));		
+		sender.send(MessagingConstants.POLLING_CHANNEL, gson.toJson(map));		
 	}
 
+	public void setMessageSender(MessageSender sender) {
+		this.sender = sender;
+	}
+	
+  public void setRedisStorageService(RedisStorageService storeService) {
+  	this.storeService = storeService;
+  }
+  
 	public String storeSubscription(String meetingId, String externalMeetingID, String callbackURL){
-		String sid = "";
-		Jedis jedis = redisPool.getResource();
-		try {
-			sid = Long.toString(jedis.incr("meeting:" + meetingId + ":nextSubscription"));
-
-			HashMap<String,String> props = new HashMap<String,String>();
-			props.put("subscriptionID", sid);
-			props.put("meetingId", meetingId);
-			props.put("externalMeetingID", externalMeetingID);
-			props.put("callbackURL", callbackURL);
-			props.put("active", "true");
-
-			jedis.hmset("meeting:" + meetingId + ":subscription:" + sid, props);
-			jedis.rpush("meeting:" + meetingId + ":subscriptions", sid);
-			
-		} catch (Exception e){
-			log.warn("Cannot store subscription:" + meetingId, e);
-		} finally {
-			redisPool.returnResource(jedis);
-		}
-
-		return sid; 	
+		return storeService.storeSubscription(meetingId, externalMeetingID, callbackURL);
 	}
 
 	public boolean removeSubscription(String meetingId, String subscriptionId){
-		boolean unsubscribed = true;
-		Jedis jedis = redisPool.getResource();
-		try {
-			jedis.hset("meeting:" + meetingId + ":subscription:" + subscriptionId, "active", "false");	
-		} catch (Exception e){
-			log.warn("Cannot rmove subscription:" + meetingId, e);
-			unsubscribed = false;
-		} finally {
-			redisPool.returnResource(jedis);
-		}
-
-		return unsubscribed; 	
+		return storeService.removeSubscription(meetingId, subscriptionId);
 	}
 
 	public List<Map<String,String>> listSubscriptions(String meetingId){
-		List<Map<String,String>> list = new ArrayList<Map<String,String>>();
-		Jedis jedis = redisPool.getResource();
-		try {
-			List<String> sids = jedis.lrange("meeting:" + meetingId + ":subscriptions", 0 , -1);
-			for(int i=0; i<sids.size(); i++){
-				Map<String,String> props = jedis.hgetAll("meeting:" + meetingId + ":subscription:" + sids.get(i));
-				list.add(props);	
-			}
-				
-		} catch (Exception e){
-			log.warn("Cannot list subscriptions:" + meetingId, e);
-		} finally {
-			redisPool.returnResource(jedis);
-		}
-
-		return list;	
+		return storeService.listSubscriptions(meetingId);	
 	}	
-
-	public void start() {
-		log.debug("Starting redis pubsub...");		
-
-		final Jedis jedis = redisPool.getResource();
-		try {
-			pubsubListener = new Runnable() {
-			    public void run() {
-			    	jedis.psubscribe(new PubSubListener(), MessagingConstants.BIGBLUEBUTTON_PATTERN);       			
-			    }
-			};
-			exec.execute(pubsubListener);
-		} catch (Exception e) {
-			log.error("Error in subscribe: " + e.getMessage());
-		}
-	}
-
-	public void stop() {
-		try {
-			redisPool.destroy();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 	
-	public void setRedisPool(JedisPool redisPool){
-		this.redisPool=redisPool;
-	}
-	
-	private class PubSubListener extends JedisPubSub {
-		
-		public PubSubListener() {
-			super();			
-		}
-
-		@Override
-		public void onMessage(String channel, String message) {
-			// Not used.
-		}
-
-		@Override
-		public void onPMessage(String pattern, String channel, String message) {
-//			log.debug("Received in channel [{}] message [{}]", channel, message);
-			
-			Gson gson = new Gson();
-			
-//			for (String key: map.keySet()) {
-//				log.debug("rx: {} = {}", key, map.get(key));
-//			}
-			
-			if (channel.equalsIgnoreCase(MessagingConstants.SYSTEM_CHANNEL)){
-				HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
-				String messageId = map.get("messageID");
-
-				for (MessageListener listener : listeners) {
-					if(MessagingConstants.MEETING_STARTED_EVENT.equalsIgnoreCase(messageId)) {
-						String meetingId = map.get("meetingID");
-						listener.meetingStarted(meetingId);
-					} else if(MessagingConstants.MEETING_ENDED_EVENT.equalsIgnoreCase(messageId)) {
-						String meetingId = map.get("meetingID");
-						listener.meetingEnded(meetingId);
-					} else if(MessagingConstants.KEEP_ALIVE_REPLY_EVENT.equalsIgnoreCase(messageId)){
-						String aliveId = map.get("aliveID");
-						listener.keepAliveReply(aliveId);
-					} else if (MessagingConstants.MEETING_DESTROYED_EVENT.equalsIgnoreCase(messageId)) {
-						String meetingId = map.get("meetingID");
-						log.info("Received a meeting destroyed message for meeting id=[{}]", meetingId);
-					}
-				}
-			} else if(channel.equalsIgnoreCase(MessagingConstants.PARTICIPANTS_CHANNEL)){
-				HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
-				String meetingId = map.get("meetingID");
-				String messageId = map.get("messageID");
-				if(MessagingConstants.USER_JOINED_EVENT.equalsIgnoreCase(messageId)){
-					String internalUserId = map.get("internalUserID");
-					String externalUserId = map.get("externalUserID");
-					String fullname = map.get("fullname");
-					String role = map.get("role");
-					
-					for (MessageListener listener : listeners) {
-						listener.userJoined(meetingId, internalUserId, externalUserId, fullname, role);
-					}
-				} else if(MessagingConstants.USER_STATUS_CHANGE_EVENT.equalsIgnoreCase(messageId)){
-					String internalUserId = map.get("internalUserID");
-					String status = map.get("status");
-					String value = map.get("value");
-					
-					for (MessageListener listener : listeners) {
-						listener.updatedStatus(meetingId, internalUserId, status, value);
-					}
-				} else if(MessagingConstants.USER_LEFT_EVENT.equalsIgnoreCase(messageId)){
-					String internalUserId = map.get("internalUserID");
-					
-					for (MessageListener listener : listeners) {
-						listener.userLeft(meetingId, internalUserId);
-					}
-				}
-			}
-		}
-
-		@Override
-		public void onPSubscribe(String pattern, int subscribedChannels) {
-			log.debug("Subscribed to the pattern:"+pattern);
-		}
-
-		@Override
-		public void onPUnsubscribe(String pattern, int subscribedChannels) {
-			// Not used.
-		}
-
-		@Override
-		public void onSubscribe(String channel, int subscribedChannels) {
-			// Not used.
-		}
-
-		@Override
-		public void onUnsubscribe(String channel, int subscribedChannels) {
-			// Not used.
-		}		
-	}
-
 	public void removeMeeting(String meetingId){
-		Jedis jedis = redisPool.getResource();
-		try {
-			jedis.del("meeting-" + meetingId);
-			//jedis.hmset("meeting"+ COLON +"info" + COLON + meetingId, metadata);
-			jedis.srem("meetings", meetingId);
-
-		} finally {
-			redisPool.returnResource(jedis);
-		}
+		storeService.removeMeeting(meetingId);
 	}
-
-
+	
 }

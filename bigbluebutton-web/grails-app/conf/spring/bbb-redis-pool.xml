@@ -31,11 +31,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     	<constructor-arg index="0">
     		<bean factory-bean="config" factory-method="getConfig" />
   		</constructor-arg>
-        <constructor-arg index="1" value="${redis.host}"/>
-        <constructor-arg index="2" value="${redis.port}"/>
+      <constructor-arg index="1" value="${redisHost}"/>
+      <constructor-arg index="2" value="${redisPort}"/>
     </bean>
 	    
-    <bean id="config" class="org.bigbluebutton.conference.service.recorder.GenericObjectPoolConfigWrapper">
+    <bean id="config" class="org.bigbluebutton.api.messaging.GenericObjectPoolConfigWrapper">
 	  <!-- Action to take when trying to acquire a connection and all connections are taken -->
 	  <property name="whenExhaustedAction">
 	    <!-- Fail-fast behaviour, we don't like to keep the kids waiting -->
