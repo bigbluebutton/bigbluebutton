@@ -25,7 +25,7 @@ class MeetingEventRedisPublisher(service: MessageSender) extends OutMessageListe
 	    case msg: KeepAliveMessageReply                  => handleKeepAliveMessageReply(msg)
 	    case _ => //println("Unhandled message in MeetingEventRedisPublisher")
 	  }
-    }
+  }
 
 	private def handleMeetingDestroyed(msg: MeetingDestroyed) {
     	val gson = new Gson
