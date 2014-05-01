@@ -96,6 +96,7 @@ public class ImageToSwfSlidesGenerationService {
 		notifier.sendCreatingThumbnailsUpdateMessage(pres);
 		thumbnailCreator.createThumbnails(pres);
 	}
+	
 	private void createPngImages(UploadedPresentation pres) {
 		log.debug("Creating PNG images.");
 		notifier.sendCreatingPngImagesUpdateMessage(pres);
@@ -184,6 +185,7 @@ public class ImageToSwfSlidesGenerationService {
 	public void setTextFileCreator(TextFileCreator textFileCreator) {
 		this.textFileCreator = textFileCreator;
 	}
+	
 	public void setPngImageCreator(PngImageCreator pngImageCreator) {
 		this.pngImageCreator = pngImageCreator;
 	}

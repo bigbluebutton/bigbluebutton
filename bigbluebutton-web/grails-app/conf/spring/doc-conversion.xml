@@ -101,6 +101,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<bean id="imageToSwfSlidesGenerationService" class="org.bigbluebutton.presentation.imp.ImageToSwfSlidesGenerationService">
 		<property name="pngPageConverter" ref="png2SwfConverter"/>
 		<property name="jpgPageConverter" ref="jpg2SwfConverter"/>
+		<property name="pngImageCreator" ref="pngImageCreator"/>
 		<property name="thumbnailCreator" ref="thumbCreator"/>
 		<property name="textFileCreator" ref="textFileCreator"/>
 		<property name="blankSlide" value="${BLANK_SLIDE}"/>
