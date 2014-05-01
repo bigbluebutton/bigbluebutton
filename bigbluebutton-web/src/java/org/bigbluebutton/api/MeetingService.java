@@ -38,10 +38,13 @@ import org.bigbluebutton.api.messaging.MessageListener;
 import org.bigbluebutton.api.messaging.MessagingConstants;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.api.messaging.ReceivedMessage;
+import org.bigbluebutton.api.messaging.messages.CreateMeeting;
+import org.bigbluebutton.api.messaging.messages.EndMeeting;
 import org.bigbluebutton.api.messaging.messages.IMessage;
 import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
 import org.bigbluebutton.api.messaging.messages.MeetingEnded;
 import org.bigbluebutton.api.messaging.messages.MeetingStarted;
+import org.bigbluebutton.api.messaging.messages.RemoveExpiredMeetings;
 import org.bigbluebutton.api.messaging.messages.UserJoined;
 import org.bigbluebutton.api.messaging.messages.UserLeft;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
@@ -90,6 +93,10 @@ public class MeetingService implements MessageListener {
 	 * running meetings.
 	 */
 	public void removeExpiredMeetings() {
+     handle(new RemoveExpiredMeetings());
+	}
+	
+	private void checkAndRemoveExpiredMeetings() {
 		log.info("Cleaning up expired meetings");
 		for (Meeting m : meetings.values()) {
 			if (m.hasExpired(defaultMeetingExpireDuration) ) {
@@ -123,7 +130,7 @@ public class MeetingService implements MessageListener {
 				log.info("Forcibly ending meeting [{} - {}]", m.getInternalId(), m.getName());
 				endMeeting(m.getInternalId());
 			}			
-		}
+		}		
 	}
 	
 	private void destroyMeeting(String meetingID) {
@@ -136,6 +143,11 @@ public class MeetingService implements MessageListener {
 	}
 	
 	public void createMeeting(Meeting m) {
+    handle(new CreateMeeting(m));
+	}
+
+	private void processCreateMeeting(CreateMeeting message) {
+		Meeting m = message.meeting;
 		log.debug("Storing Meeting with internal id:" + m.getInternalId());
 		meetings.put(m.getInternalId(), m);
 		if (m.isRecord()) {
@@ -148,9 +160,9 @@ public class MeetingService implements MessageListener {
 			messagingService.recordMeetingInfo(m.getInternalId(), metadata);
 		}
 		
-		messagingService.createMeeting(m.getInternalId(), m.getName(), m.isRecord(), m.getTelVoice(), m.getDuration());
+		messagingService.createMeeting(m.getInternalId(), m.getName(), m.isRecord(), m.getTelVoice(), m.getDuration());		
 	}
-
+	
 	public String addSubscription(String meetingId, String event, String callbackURL){
 		log.debug("Add a new subscriber");
 		String sid = messagingService.storeSubscription(meetingId, event, callbackURL);
@@ -237,10 +249,6 @@ public class MeetingService implements MessageListener {
 		}
 	}
 	
-	public void setRemoveMeetingWhenEnded(boolean s) {
-		removeMeetingWhenEnded = s;
-	}
-	
 	public void deleteRecordings(ArrayList<String> idList){
 		for(String id:idList){
 			recordingService.delete(id);
@@ -271,10 +279,14 @@ public class MeetingService implements MessageListener {
 	}
 	
 	public void endMeeting(String meetingId) {		
-		log.info("Received EndMeeting request from the API for meeting=[{}]", meetingId);
-		messagingService.endMeeting(meetingId);
+    handle(new EndMeeting(meetingId));
+	}
+	
+	private void processEndMeeting(EndMeeting message) {
+		log.info("Received EndMeeting request from the API for meeting=[{}]", message.meetingId);
+		messagingService.endMeeting(message.meetingId);
 		
-		Meeting m = getMeeting(meetingId);
+		Meeting m = getMeeting(message.meetingId);
 		if (m != null) {
 			m.setForciblyEnded(true);
 			if (removeMeetingWhenEnded) {
@@ -286,8 +298,8 @@ public class MeetingService implements MessageListener {
 				meetings.remove(m.getInternalId());
 			}
 		} else {
-			log.debug("endMeeting - meeting doesn't exist: " + meetingId);
-		}
+			log.debug("endMeeting - meeting doesn't exist: " + message.meetingId);
+		}		
 	}
 	
 	public void addUserCustomData(String meetingId, String userID, Map<String,String> userCustomData){
@@ -295,28 +307,6 @@ public class MeetingService implements MessageListener {
 		if(m != null){
 			m.addUserCustomData(userID,userCustomData);
 		}
-	}
-
-	public void setDefaultMeetingCreateJoinDuration(int expiration) {
-		this.defaultMeetingCreateJoinDuration = expiration;
-	}
-	
-	public void setDefaultMeetingExpireDuration(int meetingExpiration) {
-		this.defaultMeetingExpireDuration = meetingExpiration;
-	}
-
-	public void setRecordingService(RecordingService s) {
-		recordingService = s;
-	}
-	
-	public void setMessagingService(MessagingService mess) {
-		messagingService = mess;
-	}
-	
-	public void setExpiredMeetingCleanupTimerTask(ExpiredMeetingCleanupTimerTask c) {
-		cleaner = c;
-		cleaner.setMeetingService(this);
-		cleaner.start();
 	}
 
 	private void meetingStarted(MeetingStarted message) {
@@ -399,6 +389,12 @@ public class MeetingService implements MessageListener {
 			userLeft((UserLeft)message);
 		} else if (message instanceof UserStatusChanged) {
 			updatedStatus((UserStatusChanged)message);
+		} else if (message instanceof RemoveExpiredMeetings) {
+			checkAndRemoveExpiredMeetings();
+		} else if (message instanceof CreateMeeting) {
+			processCreateMeeting((CreateMeeting)message);
+		} else if (message instanceof EndMeeting) {
+			processEndMeeting((EndMeeting)message);
 		}
 	}
 
@@ -437,5 +433,31 @@ public class MeetingService implements MessageListener {
 	
 	public void stop() {
 		processMessage = false;
+	}
+	
+	public void setDefaultMeetingCreateJoinDuration(int expiration) {
+		this.defaultMeetingCreateJoinDuration = expiration;
+	}
+	
+	public void setDefaultMeetingExpireDuration(int meetingExpiration) {
+		this.defaultMeetingExpireDuration = meetingExpiration;
+	}
+
+	public void setRecordingService(RecordingService s) {
+		recordingService = s;
+	}
+	
+	public void setMessagingService(MessagingService mess) {
+		messagingService = mess;
+	}
+	
+	public void setExpiredMeetingCleanupTimerTask(ExpiredMeetingCleanupTimerTask c) {
+		cleaner = c;
+		cleaner.setMeetingService(this);
+		cleaner.start();
+	}
+	
+	public void setRemoveMeetingWhenEnded(boolean s) {
+		removeMeetingWhenEnded = s;
 	}
 }
