@@ -6,6 +6,8 @@
     "start": "coffee index.coffee"
   },
   "dependencies": {
+    "chokidar": "0.8.2",
+    "redis": "*",
     "hapi": "2.6.0",
     "joi": "2.7.0",
     "coffee-script": "1.7.1",
