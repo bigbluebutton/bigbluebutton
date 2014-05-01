@@ -143,11 +143,11 @@ public class MeetingService implements MessageListener {
 	}
 	
 	public void createMeeting(Meeting m) {
-    handle(new CreateMeeting(m));
+//    handle(new CreateMeeting(m));
+		handleCreateMeeting(m);
 	}
 
-	private void processCreateMeeting(CreateMeeting message) {
-		Meeting m = message.meeting;
+	private void handleCreateMeeting(Meeting m) {
 		log.debug("Storing Meeting with internal id:" + m.getInternalId());
 		meetings.put(m.getInternalId(), m);
 		if (m.isRecord()) {
@@ -160,7 +160,11 @@ public class MeetingService implements MessageListener {
 			messagingService.recordMeetingInfo(m.getInternalId(), metadata);
 		}
 		
-		messagingService.createMeeting(m.getInternalId(), m.getName(), m.isRecord(), m.getTelVoice(), m.getDuration());		
+		messagingService.createMeeting(m.getInternalId(), m.getName(), m.isRecord(), m.getTelVoice(), m.getDuration());			
+	}
+	
+	private void processCreateMeeting(CreateMeeting message) {
+		handleCreateMeeting(message.meeting);
 	}
 	
 	public String addSubscription(String meetingId, String event, String callbackURL){
