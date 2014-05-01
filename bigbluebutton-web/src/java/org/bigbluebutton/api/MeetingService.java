@@ -180,14 +180,16 @@ public class MeetingService {
 				
 				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), 
 						getDurationRecording(r.getPlaybackDuration(), 
-								r.getEndTime(), r.getStartTime())));
+								r.getEndTime(), r.getStartTime()),
+						r.getPlaybackExtensions()));
 				r.setPlaybacks(plays);
 				map.put(r.getId(), r);
 			} else {
 				Recording rec = map.get(r.getId());
 				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), 
 						getDurationRecording(r.getPlaybackDuration(), 
-								r.getEndTime(), r.getStartTime())));
+								r.getEndTime(), r.getStartTime()),
+						r.getPlaybackExtensions()));
 			}
 		}
 		
