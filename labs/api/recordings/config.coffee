@@ -1,3 +1,5 @@
+# # Global configurations file
+
 config = {}
 
 # Logging
