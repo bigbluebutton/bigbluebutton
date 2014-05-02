@@ -212,9 +212,11 @@ trait UsersApp {
 		                  hasStream=false, locked=false, webcamStream="", 
 		                  phoneUser=true, vu, permissions.permissions)
 		  	
-		  users.addUser(uvo)
-		  println("New user joined voice for user [" + uvo.name + "] userid=[" + msg.voiceUser.webUserId + "]")
-		  outGW.send(new UserJoined(meetingID, recorded, uvo))
+		      users.addUser(uvo)
+		      println("New user joined voice for user [" + uvo.name + "] userid=[" + msg.voiceUser.webUserId + "]")
+		      outGW.send(new UserJoined(meetingID, recorded, uvo))
+		      
+		      outGW.send(new UserJoinedVoice(meetingID, recorded, voiceBridge, uvo))
         }
       }
   }
