@@ -93,7 +93,8 @@ public class MeetingService implements MessageListener {
 	 * running meetings.
 	 */
 	public void removeExpiredMeetings() {
-     handle(new RemoveExpiredMeetings());
+		log.info("Trigger cleaning up expired meetings");
+    handle(new RemoveExpiredMeetings());
 	}
 	
 	private void checkAndRemoveExpiredMeetings() {
@@ -285,6 +286,7 @@ public class MeetingService implements MessageListener {
 	}
 	
 	public void endMeeting(String meetingId) {		
+		log.info("Received request to end meeting=[{}]", meetingId);
     handle(new EndMeeting(meetingId));
 	}
 	
@@ -388,10 +390,13 @@ public class MeetingService implements MessageListener {
 		} else if (message instanceof MeetingStarted) {
 			meetingStarted((MeetingStarted)message);
 		} else if (message instanceof MeetingEnded) {
+			log.info("Processing meeting ended request.");
 			meetingEnded((MeetingEnded)message);
 		} else if (message instanceof UserJoined) {
+			log.info("Processing user joined message.");
       userJoined((UserJoined)message);
 		} else if (message instanceof UserLeft) {
+			log.info("Processing user left message.");
 			userLeft((UserLeft)message);
 		} else if (message instanceof UserStatusChanged) {
 			updatedStatus((UserStatusChanged)message);
@@ -400,6 +405,7 @@ public class MeetingService implements MessageListener {
 		} else if (message instanceof CreateMeeting) {
 			processCreateMeeting((CreateMeeting)message);
 		} else if (message instanceof EndMeeting) {
+			log.info("Processing end meeting request.");
 			processEndMeeting((EndMeeting)message);
 		}
 	}
@@ -416,11 +422,12 @@ public class MeetingService implements MessageListener {
   }
 	
 	public void start() {
+		log.info("Starting Meeting Service.");
 		try {
 			processMessage = true;
 			Runnable messageReceiver = new Runnable() {
 			    public void run() {
-			    	if (processMessage) {
+			    	while (processMessage) {
 			    		try {
 				    		IMessage msg = receivedMessages.take();
 								processMessage(msg); 			    			
