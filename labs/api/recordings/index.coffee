@@ -3,6 +3,7 @@ chokidar = require 'chokidar'
 Hapi     = require 'hapi'
 redis    = require 'redis'
 
+log      = require './lib/logger'
 pack     = require './package'
 routes   = require './lib/routes'
 
@@ -45,10 +46,6 @@ somethingChanged = (event, path) ->
 
 
 
-###log = bunyan.createLogger({name: 'myapp'})
-log.info('hi')
-log.warn({lang: 'fr'}, 'au revoir')
-
 server = Hapi.createServer("0.0.0.0",
   parseInt(process.env.PORT, 10) or 4000)
 
@@ -57,4 +54,3 @@ server.start(() ->
 )
 
 server.route(routes.routes)
-###

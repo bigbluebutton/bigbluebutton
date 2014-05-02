@@ -7,7 +7,8 @@
   },
   "dependencies": {
     "chokidar": "0.8.2",
-    "redis": "*",
+    "redis": "0.10.1",
+    "hiredis": "0.1.16",
     "hapi": "2.6.0",
     "joi": "2.7.0",
     "coffee-script": "1.7.1",
