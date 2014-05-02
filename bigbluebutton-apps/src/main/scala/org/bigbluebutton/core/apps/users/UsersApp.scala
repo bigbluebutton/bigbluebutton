@@ -227,7 +227,14 @@ trait UsersApp {
       users.addUser(nu)
             
       println("Received voice user left =[" + user.name + "] wid=[" + msg.userId + "]" )
-      outGW.send(new UserLeftVoice(meetingID, recorded, voiceBridge, nu))        
+      outGW.send(new UserLeftVoice(meetingID, recorded, voiceBridge, nu))    
+      
+      if (user.phoneUser) {
+	      if (users.hasUser(user.userID)) {
+	        val userLeaving = users.removeUser(user.userID)
+	        userLeaving foreach (u => outGW.send(new UserLeft(msg.meetingID, recorded, u)))
+	      }        
+      }
     }    
   }
   
