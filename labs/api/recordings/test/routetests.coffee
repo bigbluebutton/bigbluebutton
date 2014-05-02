@@ -1,9 +1,10 @@
-hapi        = require('hapi')
-assert      = require('assert')
+#assert      = require('assert')
 chai        = require('chai')
-assert      = chai.assert
+hapi        = require('hapi')
+
 routes      = require('../lib/routes')
 
+assert      = chai.assert
 
 # integration tests for API endpoint
 

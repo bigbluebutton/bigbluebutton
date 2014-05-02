@@ -47,15 +47,11 @@ somethingChanged = (event, path) ->
 getRecordingsArray = (meetingID, callback) ->
   thisKey = baseKey.concat(meetingID)
 
-
   client.smembers thisKey, (err, members) ->
-    array = []
-    if members?
-
-      for json in members
-        array.push(json)
-      console.log "I am returning an array of size " + array.length + " " + array
-    callback array
+    if err
+      console.log "Error: #{err}"
+    else
+      callback members
 
 exports.watch = watch
 exports.getRecordingsArray = getRecordingsArray

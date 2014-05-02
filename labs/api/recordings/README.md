@@ -24,3 +24,9 @@ Instructions:
 from Terminal:
 $ coffee index.coffee
 
+in another Terminal:
+$ curl localhost:4000/recordings?meetingid=fbdbde6fd7b6499723a101c4c962f03843b48
+returns an array of stringified json recordings (see above for the structure of the JSON)
+
+if there are no recordings for the given meetingID, the message 
+"No recordings for meetingid=some_random_string" appears

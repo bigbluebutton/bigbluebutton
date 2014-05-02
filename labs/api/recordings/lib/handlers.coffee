@@ -1,6 +1,5 @@
 hapi  = require 'hapi'
 Joi   = require 'joi'
-#redis = require 'redis'
 sha1  = require 'js-sha1'
 
 util       = require './util'
@@ -33,14 +32,10 @@ getRecordings = (req, resp) ->
   console.log("recordings for: " + requestedMeetingID)
 
   recWatcher.getRecordingsArray requestedMeetingID, (array) ->
-
-    console.log "case 1:" + array
-
     if array?.length > 0
-      resp JSON.stringify array
+      resp JSON.stringify(array)
     else
-      console.log "array=" + array
-      resp "No recordings for meetingid=" + requestedMeetingID
+      resp "No recordings for meetingid=#{requestedMeetingID}\n"
 
 exports.index = index
 exports.create = createHandler
