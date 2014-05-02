@@ -32,9 +32,16 @@ getRecordings = (req, resp) ->
   requestedMeetingID = req.query.meetingid
   console.log("recordings for: " + requestedMeetingID)
 
-  resp "response " + recWatcher.getRecordingsArray(requestedMeetingID)
+  recWatcher.getRecordingsArray requestedMeetingID, (array) ->
 
-	
+    console.log "case 1:" + array
+
+    if array?.length > 0
+      resp JSON.stringify array
+    else
+      console.log "array=" + array
+      resp "No recordings for meetingid=" + requestedMeetingID
+
 exports.index = index
 exports.create = createHandler
 exports.recordings = getRecordings

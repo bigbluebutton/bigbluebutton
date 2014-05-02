@@ -44,16 +44,18 @@ somethingChanged = (event, path) ->
 
     client.sadd(thisKey, str)
 
-getRecordingsArray = (meetingID) ->
-  console.log "+++" + meetingID
-
+getRecordingsArray = (meetingID, callback) ->
   thisKey = baseKey.concat(meetingID)
 
-  client.smembers thisKey, (err,keys) ->
-    if keys?
-      console.log ("awesome\n")
-    else
-      console.log ("naaaah")
+
+  client.smembers thisKey, (err, members) ->
+    array = []
+    if members?
+
+      for json in members
+        array.push(json)
+      console.log "I am returning an array of size " + array.length + " " + array
+    callback array
 
 exports.watch = watch
 exports.getRecordingsArray = getRecordingsArray
