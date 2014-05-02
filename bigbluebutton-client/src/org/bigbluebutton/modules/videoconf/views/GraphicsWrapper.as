@@ -223,10 +223,11 @@ package org.bigbluebutton.modules.videoconf.views
             var graphic:UserGraphicHolder = new UserGraphicHolder();
             graphic.userId = userId;
             graphic.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
-                graphic.loadVideo(_options, connection, streamName);
+                graphic.loadVideo(_options, connection, streamName);	
             });
             graphic.addEventListener(MouseEvent.CLICK, onVBoxClick); 
-            super.addChild(graphic); 
+            super.addChild(graphic);
+            //the cellAspectRatio must be up-to-date even if CREATION_COMPLETE fails            
             if(graphic.contentAspectRatio < cellAspectRatio)
                 cellAspectRatio = graphic.contentAspectRatio;
         }
@@ -261,11 +262,12 @@ package org.bigbluebutton.modules.videoconf.views
 
             graphic.addEventListener(MouseEvent.CLICK, onVBoxClick);
             super.addChild(graphic);
+            //the cellAspectRatio must be up-to-date even if CREATION_COMPLETE fails            
             if(graphic.contentAspectRatio < cellAspectRatio)
                 cellAspectRatio = graphic.contentAspectRatio;
         }
 
-        protected function onVBoxClick(event:MouseEvent = null):void {
+        protected function onVBoxClick(event:MouseEvent):void {
             var item:UserGraphicHolder = event.currentTarget as UserGraphicHolder;
             var newItemIndex:int = getChildIndex(item);
             priorityMode = !priorityMode || newItemIndex!=priorityItemIndex;
