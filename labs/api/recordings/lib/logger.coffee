@@ -3,14 +3,14 @@ bunyan = require 'bunyan'
 config = require '../config'
 
 logger = bunyan.createLogger({
-  name: 'bbbnode',
+  name: 'bbbnode'
   streams: [
     {
-      level: 'debug',
+      level: 'debug'
       stream: process.stdout
     },
     {
-      level: 'info',
+      level: 'info'
       path: config.log.path
     }
   ]

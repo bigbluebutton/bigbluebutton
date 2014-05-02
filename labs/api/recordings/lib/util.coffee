@@ -1,7 +1,5 @@
 sha1 = require 'js-sha1'
 
-
-
 removeChecksumFromQuery = (query) ->
   for own propName of query 
     console.log(propName + "=" + query[propName])
@@ -25,8 +23,8 @@ calculateChecksum = (method, baseString, sharedSecret) ->
   qStr = method + baseString + sharedSecret
   console.log("[" + qStr + "]")
   sha1(qStr)
-  
-    
+
+
 exports.removeChecksumFromQuery = removeChecksumFromQuery
 exports.buildCreateBaseString = buildCreateBaseString
 exports.calculateChecksum = calculateChecksum

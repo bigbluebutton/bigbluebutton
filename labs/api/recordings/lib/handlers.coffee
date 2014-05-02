@@ -1,7 +1,3 @@
-hapi  = require 'hapi'
-Joi   = require 'joi'
-sha1  = require 'js-sha1'
-
 util       = require './util'
 recWatcher = require './recording-dir-watcher'
 

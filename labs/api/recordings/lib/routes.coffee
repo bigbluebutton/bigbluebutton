@@ -1,4 +1,3 @@
-hapi        = require 'hapi'
 Joi         = require 'joi'
 
 handlers    = require './handlers'
@@ -17,29 +16,29 @@ recordingsValidation =
   meetingid: Joi.string().min(3).max(45).required()
 
 routes = [{
-    method: 'GET',
-    path: '/',
+    method: 'GET'
+    path: '/'
     config: {
       handler: handlers.index
     }
   }, {
-    method: "GET",
-    path: "/bigbluebutton/api/create",
+    method: "GET"
+    path: "/bigbluebutton/api/create"
     config: {
-      handler: handlers.create,
+      handler: handlers.create
       validate: {
         query: createValidation
       }
     }
   }, {
-    method: "GET",
-    path: "/recordings",
+    method: "GET"
+    path: "/recordings"
     config: {
-      handler: handlers.recordings,
+      handler: handlers.recordings
       validate: {
         query: recordingsValidation
       }
     }
-  }];
+  }]
 
-exports.routes = routes;
+exports.routes = routes

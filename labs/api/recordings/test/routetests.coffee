@@ -1,10 +1,7 @@
-#assert      = require('assert')
-chai        = require('chai')
-hapi        = require('hapi')
+assert = require('chai').assert
+hapi   = require('hapi')
 
-routes      = require('../lib/routes')
-
-assert      = chai.assert
+routes = require('../lib/routes')
 
 # integration tests for API endpoint
 
@@ -26,11 +23,11 @@ describe 'add endpoint', ->
   it 'add - should error if a string is passed', (done) ->
     server.inject({method: 'PUT', url: '/sum/add/100/x'}, (res) ->
         assert.deepEqual({
-          'statusCode': 400,
-          'error': 'Bad Request',
-          'message': 'the value of b must be a number',
+          'statusCode': 400
+          'error': 'Bad Request'
+          'message': 'the value of b must be a number'
           'validation': {
-            'source': 'path',
+            'source': 'path'
             'keys': [
               'b'
             ]
