@@ -1,6 +1,7 @@
-hapi = require 'hapi'
+hapi        = require 'hapi'
+Joi         = require 'joi'
+
 handlers    = require './handlers'
-Joi  = require 'joi'
 
 createValidation =
   attendeePW: Joi.string().max(20).required()
@@ -11,23 +12,34 @@ createValidation =
   record: Joi.boolean()
   voiceBridge: Joi.string()
   welcome: Joi.string()
-  
+
+recordingsValidation =
+  meetingid: Joi.string().min(3).max(45).required()
+
 routes = [{
-	method: 'GET',
-	path: '/',
-	config: {
-		handler: handlers.index
-	}
-	}, {
+    method: 'GET',
+    path: '/',
+    config: {
+      handler: handlers.index
+    }
+  }, {
     method: "GET",
     path: "/bigbluebutton/api/create",
-	config: {
-	  handler: handlers.create,
-	  validate: {
-	    query: createValidation
-	  }
-	}   
-	}];
-
+    config: {
+      handler: handlers.create,
+      validate: {
+        query: createValidation
+      }
+    }
+  }, {
+    method: "GET",
+    path: "/recordings",
+    config: {
+      handler: handlers.recordings,
+      validate: {
+        query: recordingsValidation
+      }
+    }
+  }];
 
 exports.routes = routes;

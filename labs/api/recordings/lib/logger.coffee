@@ -7,7 +7,7 @@ logger = bunyan.createLogger({
   streams: [
     {
       level: 'debug',
-      stream: process.stdout,
+      stream: process.stdout
     },
     {
       level: 'info',
