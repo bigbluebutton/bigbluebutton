@@ -1,7 +1,5 @@
-hapi = require 'hapi'
-Joi  = require 'joi'
-util = require './util'
-sha1 = require 'js-sha1'
+util       = require './util'
+recWatcher = require './recording-dir-watcher'
 
 sharedSecret = '8cd8ef52e8e101574e400365b55e11a6'
 
@@ -25,6 +23,16 @@ createHandler = (req, resp) ->
   else
     resp "everything is fine"
 
-	
+getRecordings = (req, resp) ->
+  requestedMeetingID = req.query.meetingid
+  console.log("recordings for: " + requestedMeetingID)
+
+  recWatcher.getRecordingsArray requestedMeetingID, (array) ->
+    if array?.length > 0
+      resp JSON.stringify(array)
+    else
+      resp "No recordings for meetingid=#{requestedMeetingID}\n"
+
 exports.index = index
 exports.create = createHandler
+exports.recordings = getRecordings

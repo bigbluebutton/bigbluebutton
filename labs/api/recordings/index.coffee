@@ -1,11 +1,11 @@
-Hapi     = require 'hapi'
-pack     = require './package'
+hapi       = require 'hapi'
 
 log        = require './lib/logger'
+pack       = require './package'
 recWatcher = require './lib/recording-dir-watcher'
 routes     = require './lib/routes'
 
-server = Hapi.createServer("0.0.0.0",
+server = hapi.createServer("0.0.0.0",
   parseInt(process.env.PORT, 10) or 4000)
 
 server.start(() -> 
@@ -13,3 +13,5 @@ server.start(() ->
 )
 
 server.route(routes.routes)
+
+recWatcher.watch()

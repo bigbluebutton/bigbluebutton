@@ -1,41 +1,32 @@
-exploringHapi
+recordingsWatcher
 =============
+This app is used to watch the file tree for recording files changes
+in the directories
+/var/bigbluebutton/published
+and
+/var/bigbluebutton/unpublished
 
-This was used as a playground for attempts to validate URL parameters
-and to calculate and compare checksum
 
-Keywords: hapi, joi, OAuth, checksum, hmac_sha1
+For each recording modified, we push into Redis:
+key = bbb:recordings:<meetingID>
+value = a set of JSON strings
+{"format": "<format>", "timestamp": "<timestamp>"}
+
+
+For example:
+
+bbb:recordings:fbdbde6fd7b6499723a101c4c962f03843b4879c
+[{"format": "presentation", "timestamp": "1396623833035"}, {"format": "capture", "timestamp": "1396623833045"}]
+
 
 Instructions:
 =============
 from Terminal:
 $ coffee index.coffee
-Listening on http://x.x.x.x:PORT
 
-go to the browser, open an MCONF API-MATE window
-modify the "server"(id="input-custom-server-url") field to http://x.x.x.x:PORT
-click on the link for creating a meeting ("create ...")
+in another Terminal:
+$ curl localhost:4000/recordings?meetingid=fbdbde6fd7b6499723a101c4c962f03843b48
+returns an array of stringified json recordings (see above for the structure of the JSON)
 
-In the Terminal window you should see something like:
-the checksum from url is 
-e8b540ab61a71c46ebc99e7250e2ca6372115d9a and mine is
-e8b540ab61a71c46ebc99e7250e2ca6372115d9a
-YAY! They match!
-
-or
-
-the checksum from url is 
-e8b540ab61a71c46ebc99e7250e2ca6372115d9a and mine is
-dkfjhdkjfhlkafhdfklahfkfhfjhkgfeq349492a
-
-The browser window will display
-"everything is fine" if the parameter validation was successful
-or Error if it was not
-
-
-LOGGING
-  # To use for CLI
-  npm install -g bunyan
-
-https://github.com/trentm/node-bunyan
-
+if there are no recordings for the given meetingID, the message 
+"No recordings for meetingid=some_random_string" appears
