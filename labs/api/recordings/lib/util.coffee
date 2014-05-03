@@ -1,30 +1,12 @@
-sha1 = require 'js-sha1'
+parser1 = require 'xml2json'
+parser2 = require 'json2xml'
 
-removeChecksumFromQuery = (query) ->
-  for own propName of query 
-    console.log(propName + "=" + query[propName])
-    delete query['checksum']
-  query
+xml2json = (xmlStr) ->
+  parser1.toJson(xmlStr)
 
-buildCreateBaseString = (query) ->
-  baseString = ""
-  for own propName of query 
-    propVal = query[propName]
-    if (propName == "welcome")
-      propVal = encodeURIComponent(query.welcome).replace(/%20/g, '+').replace(/[!'()]/g, escape).replace(/\*/g, "%2A")  
-    baseString += propName + "=" + propVal + "&"
-    console.log(propName + "=" + query[propName])
-    
-  console.log("baseString=[" + baseString.slice(0, -1) + "]")
-  
-  baseString.slice(0, -1)
+json2xml = (jsonObj) ->
+  #parser2(jsonObj)
+  parser1.toXml(jsonObj)
 
-calculateChecksum = (method, baseString, sharedSecret) ->
-  qStr = method + baseString + sharedSecret
-  console.log("[" + qStr + "]")
-  sha1(qStr)
-
-
-exports.removeChecksumFromQuery = removeChecksumFromQuery
-exports.buildCreateBaseString = buildCreateBaseString
-exports.calculateChecksum = calculateChecksum
+exports.xml2json = xml2json
+exports.json2xml = json2xml
