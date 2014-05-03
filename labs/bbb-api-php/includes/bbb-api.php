@@ -82,7 +82,7 @@ class BigBlueButton {
 		return (simplexml_load_file($url));	
 	}
 	
-	private function _requiredParam($param) {
+	private function _requiredParam($param, $name = '') {
 		/* Process required params and throw errors if we don't get values */
 		if ((isset($param)) && ($param != '')) {
 			return $param;
@@ -91,7 +91,7 @@ class BigBlueButton {
 			throw new Exception('Missing parameter.');
 		}
 		else {
-			throw new Exception(''.$param.' is required.');
+			throw new Exception(''.$name.' is required.');
 		}
 	}
 
@@ -119,8 +119,8 @@ class BigBlueButton {
 		USAGE: 
 		(see $creationParams array in createMeetingArray method.)
 		*/
-		$this->_meetingId = $this->_requiredParam($creationParams['meetingId']);
-		$this->_meetingName = $this->_requiredParam($creationParams['meetingName']);		
+		$this->_meetingId = $this->_requiredParam($creationParams['meetingId'], 'meetingId');
+		$this->_meetingName = $this->_requiredParam($creationParams['meetingName'], 'meetingName');		
 		// Set up the basic creation URL:
 		$creationUrl = $this->_bbbServerBaseUrl."api/create?";
 		// Add params:
@@ -204,9 +204,9 @@ class BigBlueButton {
 			'webVoiceConf' => ''		-- OPTIONAL - string
 		);
 		*/
-		$this->_meetingId = $this->_requiredParam($joinParams['meetingId']);
-		$this->_username = $this->_requiredParam($joinParams['username']);
-		$this->_password = $this->_requiredParam($joinParams['password']);		
+		$this->_meetingId = $this->_requiredParam($joinParams['meetingId'], 'meetingId');
+		$this->_username = $this->_requiredParam($joinParams['username'], 'username');
+		$this->_password = $this->_requiredParam($joinParams['password'], 'password');		
 		// Establish the basic join URL:
 		$joinUrl = $this->_bbbServerBaseUrl."api/join?";
 		// Add parameters to the URL:
@@ -231,8 +231,8 @@ class BigBlueButton {
 			'password' => 'mp'			-- REQUIRED - The moderator password for the meeting
 		);
 		*/
-		$this->_meetingId = $this->_requiredParam($endParams['meetingId']);
-		$this->_password = $this->_requiredParam($endParams['password']);		
+		$this->_meetingId = $this->_requiredParam($endParams['meetingId'], 'meetingId');
+		$this->_password = $this->_requiredParam($endParams['password'], 'password');		
 		$endUrl = $this->_bbbServerBaseUrl."api/end?";
 		$params = 
 		'meetingID='.urlencode($this->_meetingId).
@@ -272,7 +272,7 @@ class BigBlueButton {
 		/* USAGE: 
 		$meetingId = '1234'		-- REQUIRED - The unique id for the meeting
 		*/
-		$this->_meetingId = $this->_requiredParam($meetingId);	
+		$this->_meetingId = $this->_requiredParam($meetingId, 'meetingId');	
 		$runningUrl = $this->_bbbServerBaseUrl."api/isMeetingRunning?";
 		$params = 
 		'meetingID='.urlencode($this->_meetingId);
@@ -363,8 +363,8 @@ class BigBlueButton {
 			'password' => 'mp'			-- REQUIRED - The moderator password for the meeting
 		);
 		*/
-		$this->_meetingId = $this->_requiredParam($infoParams['meetingId']);
-		$this->_password = $this->_requiredParam($infoParams['password']);	
+		$this->_meetingId = $this->_requiredParam($infoParams['meetingId'], 'meetingId');
+		$this->_password = $this->_requiredParam($infoParams['password'], 'password');	
 		$infoUrl = $this->_bbbServerBaseUrl."api/getMeetingInfo?";
 		$params = 
 		'meetingID='.urlencode($this->_meetingId).
