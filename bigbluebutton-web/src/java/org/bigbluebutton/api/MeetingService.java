@@ -144,8 +144,8 @@ public class MeetingService implements MessageListener {
 	}
 	
 	public void createMeeting(Meeting m) {
-//    handle(new CreateMeeting(m));
-		handleCreateMeeting(m);
+    handle(new CreateMeeting(m));
+//		handleCreateMeeting(m);
 	}
 
 	private void handleCreateMeeting(Meeting m) {
@@ -344,7 +344,7 @@ public class MeetingService implements MessageListener {
 		log.warn("The meeting " + message.meetingId + " doesn't exist");
 	}
 
-	public void userJoined(UserJoined message) {
+	private void userJoined(UserJoined message) {
 		Meeting m = getMeeting(message.meetingId);
 		if (m != null) {
 			User user = new User(message.userId, message.externalUserId, message.name, message.role);
