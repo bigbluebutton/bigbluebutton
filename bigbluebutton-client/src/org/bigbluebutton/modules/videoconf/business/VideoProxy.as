@@ -114,7 +114,7 @@ package org.bigbluebutton.modules.videoconf.business
 		public function getPlayConnectionFor(userID:String):NetConnection{
 			LogUtil.debug("VideoProxy::getPlayConnectionFor:: Looking for connection for stream from [" + userID + "]");
 			// TODO: Ask LB for path to current user
-			var connectionPath:String = "10.0.3.254/10.0.3.79";
+			var connectionPath:String = "10.0.3.203/10.0.3.254/10.0.3.79";
 			var serverIp:String = connectionPath.split("/")[0];
 			var ipRegex:RegExp = /([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/;
 			var newUrl:String = _url.replace(ipRegex, serverIp);

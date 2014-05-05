@@ -36,6 +36,8 @@ import com.mconf.red5.server.net.rtmp.event.IRTMPEvent;
 import com.mconf.red5.server.net.rtmp.event.Notify;
 import com.mconf.red5.server.net.rtmp.status.StatusCodes;
 import com.mconf.red5.server.stream.message.RTMPMessage;
+import org.red5.server.net.rtmp.event.Ping;
+import com.mconf.red5.server.service.PendingCall;
 
 
 /**
@@ -48,7 +50,7 @@ import com.mconf.red5.server.stream.message.RTMPMessage;
 public class CustomStreamRelay {
 
 	// our consumer
-	private RTMPClient client;
+	private CustomRTMPClient client;
 
 	// our publisher
 	private StreamingProxy proxy;
@@ -149,6 +151,33 @@ public class CustomStreamRelay {
 		proxy.stop();
 	}
 
+	private class CustomRTMPClient extends RTMPClient {
+		@Override
+		public void play(int streamId, String name, int start, int length) {
+			System.out.println("play stream "+ streamId + ", name: " + name + ", start " + start + ", length " + length );
+			if (conn != null) {
+				// get the channel
+				int channel = getChannelForStreamId(streamId);
+				// send our requested buffer size
+				ping(Ping.CLIENT_BUFFER, streamId, 2000);
+				// send our request for a/v
+				PendingCall receiveAudioCall = new PendingCall("receiveAudio");
+				conn.invoke(receiveAudioCall, channel);
+				PendingCall receiveVideoCall = new PendingCall("receiveVideo");
+				conn.invoke(receiveVideoCall, channel);
+				// call play
+				Object[] params = new Object[1];
+				params[0] = name;
+//				params[1] = start;
+//				params[2] = length;
+				PendingCall pendingCall = new PendingCall("play", params);
+				conn.invoke(pendingCall, channel);
+			} else {
+				System.out.println("Connection was null ?");
+			}
+
+		}
+	}
 
 	public void startRelay() {
 			
@@ -188,7 +217,7 @@ public class CustomStreamRelay {
 			System.out.println("Publishing...");
 
 			// create the consumer
-			client = new RTMPClient();
+			client = new CustomRTMPClient();
 			client.setStreamEventDispatcher(new StreamEventDispatcher());
 			client.setStreamEventHandler(new INetStreamEventHandler() {
 				public void onStreamEvent(Notify notify) {
@@ -201,7 +230,7 @@ public class CustomStreamRelay {
 						client.disconnect();
 					} else if (StatusCodes.NS_PLAY_UNPUBLISHNOTIFY.equals(code) || StatusCodes.NS_PLAY_COMPLETE.equals(code)) {
 						System.out.println("Source has stopped publishing or play is complete");
-						//client.disconnect();
+						client.disconnect();
 					}
 				}
 			});
@@ -230,6 +259,7 @@ public class CustomStreamRelay {
 			// indicate for the handshake to generate swf verification data
 			client.setSwfVerification(true);
 			// connect the client
+			System.out.println("startRelay:: ProxyRelay status is running: " + proxy.isRunning());
 			client.connect(sourceHost, sourcePort, defParams, new IPendingServiceCallback() {
 				public void resultReceived(IPendingServiceCall call) {
 					System.out.println("connectCallback");
@@ -257,6 +287,7 @@ public class CustomStreamRelay {
 
 		public void dispatchEvent(IEvent event) {
 			System.out.println("ClientStream.dispachEvent()" + event.toString());
+			System.out.println("dispatchEvent:: ProxyRelay status is running: " + proxy.isRunning());
 			try {
 				proxy.pushMessage(null, RTMPMessage.build((IRTMPEvent) event));
 			} catch (IOException e) {
@@ -272,7 +303,7 @@ public class CustomStreamRelay {
 	private final class SubscribeStreamCallBack implements IPendingServiceCallback {
 
 		public void resultReceived(IPendingServiceCall call) {
-			System.out.println("resultReceived: " + call);
+			System.out.println("SubscirbeStreamCallBack::resultReceived: " + call);
 		}
 
 	}	
@@ -283,13 +314,16 @@ public class CustomStreamRelay {
 	private final class CreateStreamCallback implements IPendingServiceCallback {
 
 		public void resultReceived(IPendingServiceCall call) {
-			System.out.println("resultReceived: " + call);
+			System.out.println("CreateStreamCallBack::resultReceived: " + call);
 			int streamId = (Integer) call.getResult();
 			System.out.println("stream id: " + streamId);
 			// send our buffer size request
 			if (sourceStreamName.endsWith(".flv") || sourceStreamName.endsWith(".f4v") || sourceStreamName.endsWith(".mp4")) {
+				System.out.println("THIS IS WRONG");
+				System.out.println("play stream name " + sourceStreamName + " start 0 lenght -1");
 				client.play(streamId, sourceStreamName, 0, -1);
 			} else {
+				System.out.println("play stream name " + sourceStreamName + " start -1 lenght 0");
 				client.play(streamId, sourceStreamName, -1, 0);
 			}
 		}
