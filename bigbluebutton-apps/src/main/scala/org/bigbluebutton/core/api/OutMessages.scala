@@ -142,7 +142,8 @@ case class ValidateAuthTokenReply(
   meetingID: String, 
   requesterId: String,
   token: String,
-  valid: Boolean) extends IOutMessage
+  valid: Boolean,
+  correlationId: String) extends IOutMessage
 
 case class UserJoined(
     meetingID: String, 

@@ -12,6 +12,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
 	    case msg: UserJoined                            => handleUserJoined(msg)
 	    case msg: UserLeft                              => handleUserLeft(msg)
 	    case msg: UserStatusChange                      => handleUserStatusChange(msg)
+	    case msg: ValidateAuthTokenReply                => handleValidateAuthTokenReply(msg)
 	    case _ => //println("Unhandled message in UsersClientMessageSender")
 	  }
 	}
@@ -26,11 +27,32 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
 		map.put("value", msg.value.toString);
 			
 		val gson= new Gson();
-		service.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(map));
-		
-		service.send(MessagingConstants.BIGBLUEBUTTON_WEBHOOK_EVENTS, gson.toJson(map));
+		service.send(MessagingConstants.FROM_USERS_CHANNEL, gson.toJson(map));
+
 	}
 	
+  private def handleValidateAuthTokenReply(msg: ValidateAuthTokenReply) {
+		//HEADER
+		var header = new java.util.HashMap[String, Any]()
+		header.put("name", "validate_auth_token_reply")
+		header.put("timestamp", System.currentTimeMillis())
+
+		//PAYLOAD
+		var payload = new java.util.HashMap[String, Object]()
+		payload.put("correlation_id", msg.correlationId)
+		payload.put("valid", msg.valid.toString)
+		payload.put("user_id", msg.requesterId)
+		payload.put("token", msg.token)
+		payload.put("meeting_id", msg.meetingID)  
+		
+		val gson= new Gson();
+		
+		var map = new java.util.HashMap[String, Any]()
+		map.put("header", header)
+		map.put("payload", payload)
+		service.send(MessagingConstants.FROM_USERS_CHANNEL, gson.toJson(map));		
+  }
+  
 	private def handleUserJoined(msg: UserJoined) {
 		println("UsersEventRedisPublisher: init handleUserJoined")
 		val map= new java.util.HashMap[String, String]();
@@ -42,11 +64,9 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
 		map.put("role", msg.user.role.toString());
 			
 		val gson= new Gson();
-		service.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(map));
+		service.send(MessagingConstants.FROM_USERS_CHANNEL, gson.toJson(map));
 		println("UsersEventRedisPublisher: end handleUserJoined")
 		
-		service.send(MessagingConstants.BIGBLUEBUTTON_WEBHOOK_EVENTS, gson.toJson(map));
-
 		//Anton: for user_joined_event ---start------------
 		println("UsersEventRedisPublisher: init handleUserJoined ***Anton")
 
@@ -146,10 +166,8 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
 		map.put("internalUserID", msg.user.userID);
 			
 		val gson= new Gson();
-		service.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(map));
-		
-		service.send(MessagingConstants.BIGBLUEBUTTON_WEBHOOK_EVENTS, gson.toJson(map));
-		
+		service.send(MessagingConstants.FROM_USERS_CHANNEL, gson.toJson(map));
+				
 		println("UsersEventRedisPublisher: end handleUserLeft")
 
 		//

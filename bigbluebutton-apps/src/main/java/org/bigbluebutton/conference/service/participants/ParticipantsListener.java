@@ -19,8 +19,7 @@ public class ParticipantsListener implements MessageHandler{
 
 	@Override
 	public void handleMessage(String pattern, String channel, String message) {
-		if (channel.equalsIgnoreCase(MessagingConstants.ANTON_CHANNEL))
-		{
+		if (channel.equalsIgnoreCase(MessagingConstants.TO_USERS_CHANNEL)) {
 			System.out.println("AntonChannel=(participants)" + channel);
 
 			JsonParser parser = new JsonParser();

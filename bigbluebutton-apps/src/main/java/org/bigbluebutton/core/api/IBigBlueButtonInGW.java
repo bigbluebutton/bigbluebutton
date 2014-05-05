@@ -24,7 +24,7 @@ public interface IBigBlueButtonInGW {
 	
 	
 	// Users
-	void validateAuthToken(String meetingId, String userId, String token);
+	void validateAuthToken(String meetingId, String userId, String token, String correlationId);
 	void registerUser(String roomName, String userid, String username, String role, String externUserID);
 	void userRaiseHand(String meetingId, String userId);	
 	void lowerHand(String meetingId, String userId, String loweredBy);

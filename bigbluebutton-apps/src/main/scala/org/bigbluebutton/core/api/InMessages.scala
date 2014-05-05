@@ -75,7 +75,8 @@ case class IsMeetingLocked(
 case class ValidateAuthToken(
   meetingID: String, 
   userId: String, 
-  token: String) extends InMessage
+  token: String,
+  correlationId: String) extends InMessage
 
 case class RegisterUser(
     meetingID: String, 

@@ -20,14 +20,26 @@
 package org.bigbluebutton.api.messaging;
 
 public class MessagingConstants {
-	//BigBlueButton Pattern
-	public static final String BIGBLUEBUTTON_PATTERN = "bigbluebutton:meeting:*";
 	
-	//Messaging channels for each module
-	public static final String SYSTEM_CHANNEL = "bigbluebutton:meeting:system";
-	public static final String PARTICIPANTS_CHANNEL = "bigbluebutton:meeting:participants";
-	public static final String PRESENTATION_CHANNEL = "bigbluebutton:meeting:presentation";
-	public static final String POLLING_CHANNEL = "bigbluebutton:meeting:polling";
+	public static final String FROM_BBB_APPS_CHANNEL = "bigbluebutton:from-bbb-apps";
+	public static final String FROM_BBB_APPS_PATTERN = FROM_BBB_APPS_CHANNEL + ":*";
+	public static final String FROM_SYSTEM_CHANNEL = FROM_BBB_APPS_CHANNEL + ":system";
+	public static final String FROM_MEETING_CHANNEL = FROM_BBB_APPS_CHANNEL + ":meeting";
+  public static final String FROM_PRESENTATION_CHANNEL = FROM_BBB_APPS_CHANNEL + ":presentation";
+  public static final String FROM_POLLING_CHANNEL = FROM_BBB_APPS_CHANNEL + ":polling";
+  public static final String FROM_USERS_CHANNEL = FROM_BBB_APPS_CHANNEL + ":users";
+  public static final String FROM_CHAT_CHANNEL = FROM_BBB_APPS_CHANNEL + ":chat"; 
+  
+  
+	public static final String TO_BBB_APPS_CHANNEL = "bigbluebutton:to-bbb-apps";	
+	public static final String TO_BBB_APPS_PATTERN = TO_BBB_APPS_CHANNEL + ":*";
+	public static final String TO_MEETING_CHANNEL = TO_BBB_APPS_CHANNEL + ":meeting";	
+	public static final String TO_SYSTEM_CHANNEL = TO_BBB_APPS_CHANNEL + ":system";
+  public static final String TO_PRESENTATION_CHANNEL = TO_BBB_APPS_CHANNEL + ":presentation";
+  public static final String TO_POLLING_CHANNEL = TO_BBB_APPS_CHANNEL + ":polling";
+  public static final String TO_USERS_CHANNEL = TO_BBB_APPS_CHANNEL + ":users";
+  public static final String TO_CHAT_CHANNEL = TO_BBB_APPS_CHANNEL + ":chat";   
+
 	
 	public static final String DESTROY_MEETING_REQUEST_EVENT = "DestroyMeetingRequestEvent";
 	public static final String CREATE_MEETING_REQUEST_EVENT = "CreateMeetingRequestEvent";

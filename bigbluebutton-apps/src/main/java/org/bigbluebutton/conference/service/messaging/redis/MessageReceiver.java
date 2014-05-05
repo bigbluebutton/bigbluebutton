@@ -32,7 +32,7 @@ public class MessageReceiver {
 			Runnable messageReceiver = new Runnable() {
 			    public void run() {
 			    	if (receiveMessage) {
-			    		jedis.psubscribe(new PubSubListener(), MessagingConstants.BIGBLUEBUTTON_PATTERN); 
+			    		jedis.psubscribe(new PubSubListener(), MessagingConstants.TO_BBB_APPS_PATTERN); 
 			    	}
 			    }
 			};

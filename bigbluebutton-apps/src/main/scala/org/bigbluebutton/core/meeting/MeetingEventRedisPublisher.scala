@@ -30,24 +30,24 @@ class MeetingEventRedisPublisher(service: MessageSender) extends OutMessageListe
 	private def handleMeetingDestroyed(msg: MeetingDestroyed) {
     	val gson = new Gson
     	var map = Map("messageID" -> MessagingConstants.MEETING_DESTROYED_EVENT, "meetingID" -> msg.meetingID)
-    	service.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map.asJava))	     
+    	service.send(MessagingConstants.FROM_MEETING_CHANNEL, gson.toJson(map.asJava))	     
 	}
 	
     private def handleKeepAliveMessageReply(msg: KeepAliveMessageReply):Unit = {
     	val gson = new Gson
     	var map = Map("messageID" -> KEEP_ALIVE_REPLY, "aliveID" -> msg.aliveID)
-    	service.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map.asJava))
+    	service.send(MessagingConstants.FROM_SYSTEM_CHANNEL, gson.toJson(map.asJava))
 	}
 
 	private def handleMeetingCreated(msg:MeetingCreated):Unit = {
 		val gson = new Gson
     	var map = Map("messageID" -> MessagingConstants.MEETING_STARTED_EVENT, "meetingID" -> msg.meetingID)
-    	service.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map.asJava))	
+    	service.send(MessagingConstants.FROM_MEETING_CHANNEL, gson.toJson(map.asJava))	
 	}
 
 	private def handleMeetingEnded(msg:MeetingEnded):Unit = {
 		val gson = new Gson
     	var map = Map("messageID" -> MessagingConstants.MEETING_ENDED_EVENT, "meetingID" -> msg.meetingID)
-    	service.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map.asJava))	
+    	service.send(MessagingConstants.FROM_MEETING_CHANNEL, gson.toJson(map.asJava))	
 	}
 }
