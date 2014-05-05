@@ -142,7 +142,7 @@ def publish_processed_meeting(recording_dir)
 		#puts "********** #{$?.exitstatus} #{$?.exited?} #{$?.success?}********************"
 		command = "ruby #{file} -m #{meeting_id}"
 		BigBlueButton.execute(command)
-		post_publish(recording_dir, meeting_id)
+		post_publish(recording_dir, c_meeting_id)
 	  end
 
     end
