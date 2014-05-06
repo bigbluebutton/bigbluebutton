@@ -19,6 +19,7 @@
 package org.bigbluebutton.conference.service.recorder;
 
 import org.slf4j.Logger;
+import org.bigbluebutton.service.recording.RedisListRecorder;
 import org.red5.logging.Red5LoggerFactory;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,7 +43,8 @@ public class RecorderApplication {
 	private BlockingQueue<RecordEvent> messages;
 	private volatile boolean recordEvents = false;
 
-//	private final Map<String, String> recordingSessions;
+  private RedisListRecorder redisListRecorder;
+  
 	private Recorder recorder;
 	
 	public RecorderApplication() {
@@ -85,9 +87,11 @@ public class RecorderApplication {
 	public void record(String meetingID, RecordEvent message) {
 		messages.offer(message);
 
-//		if (recordingSessions.containsKey(meetingID)) {
-			recorder.record(meetingID, message);
-//		}
+		/**
+		 * Comment this out for now. Just setting up for transition on how
+		 * we store the events in Redis (ralam may 6, 2014)
+		 */
+		//redisListRecorder.record(message);
 	}
 
 	private void recordEvent(RecordEvent message) {
@@ -99,6 +103,10 @@ public class RecorderApplication {
 	public void setRecorder(Recorder recorder) {
 		this.recorder = recorder;
 		log.debug("setting recorder");
+	}
+	
+	public void setRedisListRecorder(RedisListRecorder rec) {
+		redisListRecorder = rec;
 	}
 }
 
