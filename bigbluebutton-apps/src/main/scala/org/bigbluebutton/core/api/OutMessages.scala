@@ -473,6 +473,7 @@ case class PresentationPageGenerated(
 
 case class PresentationConversionDone(
     meetingID: String, 
+    recorded: Boolean,
     messageKey: String, 
     code: String,  
     presentation: Presentation
