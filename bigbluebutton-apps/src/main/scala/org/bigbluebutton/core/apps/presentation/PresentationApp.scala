@@ -62,7 +62,7 @@ trait PresentationApp {
       
       presModel.addPresentation(msg.presentation)
       
-      outGW.send(new PresentationConversionDone(meetingID, msg.messageKey, 
+      outGW.send(new PresentationConversionDone(meetingID, recorded, msg.messageKey, 
                        msg.code, msg.presentation))    
                        
       sharePresentation(msg.presentation.id, true)
