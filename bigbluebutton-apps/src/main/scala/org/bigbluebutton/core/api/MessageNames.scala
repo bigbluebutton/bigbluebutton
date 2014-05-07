@@ -155,4 +155,7 @@ object MessageNames {
   val WHITEBOARD_ENABLED                   = "whiteboard_enabled_message"
   val WHITEBOARD_CLEARED                   = "whiteboard_cleared_message"
   val IS_WHITEBOARD_ENABLED_REPLY          = "is_whiteboard_enabled_reply"
+  val MEETING_DESTROYED_EVENT              = "meeting_destroyed_event"
+  val KEEP_ALIVE_REPLY                     = "keep_alive_reply"
+  
 }

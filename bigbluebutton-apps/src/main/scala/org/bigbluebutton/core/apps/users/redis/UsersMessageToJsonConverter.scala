@@ -1,211 +1,138 @@
 package org.bigbluebutton.core.apps.users.redis
 
-import org.bigbluebutton.conference.service.messaging.redis.MessageSender
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.conference.service.messaging.MessagingConstants
+import org.bigbluebutton.core.messaging.Util
 import com.google.gson.Gson
+import org.bigbluebutton.core.api.UserVO
+import collection.JavaConverters._
+import scala.collection.JavaConversions._
 
-class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListener2 {
-
-  def handleMessage(msg: IOutMessage) {
-	  msg match {
-
-        case msg: DisconnectAllUsers            => handleDisconnectAllUsers(msg)
-        case msg: DisconnectUser                => handleDisconnectUser(msg)
-        case msg: PermissionsSettingInitialized => handlePermissionsSettingInitialized(msg)
-        case msg: NewPermissionsSetting         => handleNewPermissionsSetting(msg)
-        case msg: UserLocked                    => handleUserLocked(msg)
-        case msg: UsersLocked                   => handleUsersLocked(msg)
-        case msg: GetPermissionsSettingReply    => handleGetPermissionsSettingReply(msg)
-        case msg: IsMeetingLockedReply          => handleIsMeetingLockedReply(msg)
-        case msg: UserRegistered                => handleUserRegistered(msg)
-        case msg: UserLeft                      => handleUserLeft(msg)
-        case msg: PresenterAssigned             => handlePresenterAssigned(msg)
-        case msg: EndAndKickAll                 => handleEndAndKickAll(msg)
-        case msg: GetUsersReply                 => handleGetUsersReply(msg)
-        case msg: ValidateAuthTokenReply        => handleValidateAuthTokenReply(msg)
-        case msg: UserJoined                    => handleUserJoined(msg)
-        case msg: UserRaisedHand                => handleUserRaisedHand(msg)
-        case msg: UserLoweredHand               => handleUserLoweredHand(msg)
-        case msg: UserSharedWebcam              => handleUserSharedWebcam(msg)
-        case msg: UserUnsharedWebcam            => handleUserUnsharedWebcam(msg)
-        case msg: UserStatusChange              => handleUserStatusChange(msg)
-        case msg: MuteVoiceUser                 => handleMuteVoiceUser(msg)
-        case msg: UserVoiceMuted                => handleUserVoiceMuted(msg)
-        case msg: UserVoiceTalking              => handleUserVoiceTalking(msg)
-        case msg: EjectVoiceUser                => handleEjectVoiceUser(msg)
-        case msg: UserJoinedVoice               => handleUserJoinedVoice(msg)
-        case msg: UserLeftVoice                 => handleUserLeftVoice(msg)
-        case msg: IsMeetingMutedReply           => handleIsMeetingMutedReply(msg)
-	    case _ => //println("Unhandled message in UsersClientMessageSender")
-	  }
+object UsersMessageToJsonConverter {
+	private def userToMap(user: UserVO):java.util.Map[String, Any] = {
+	  val wuser = new scala.collection.mutable.HashMap[String, Any]
+	  wuser += "userid"               -> user.userID
+	  wuser += "extern_userid"        -> user.externUserID
+	  wuser += "name"                 -> user.name
+	  wuser += "role"                 -> user.role.toString()
+	  wuser += "raise_hand"           -> user.raiseHand
+	  wuser += "presenter"            -> user.presenter
+	  wuser += "has_stream"           -> user.hasStream
+	  wuser += "locked"               -> user.locked
+	  wuser += "webcam_stream"        -> user.webcamStream
+	  wuser += "phone_user"           -> user.phoneUser	  
+	  
+	  val vuser = new scala.collection.mutable.HashMap[String, Any]	  	  
+	  vuser += "userid"               -> user.voiceUser.userId
+	  vuser += "web_userid"           -> user.voiceUser.webUserId
+	  vuser += "callername"           -> user.voiceUser.callerName
+	  vuser += "callernum"            -> user.voiceUser.callerNum
+	  vuser += "joined"               -> user.voiceUser.joined
+	  vuser += "locked"               -> user.voiceUser.locked
+	  vuser += "muted"                -> user.voiceUser.muted
+	  vuser += "talking"              -> user.voiceUser.talking
+	
+	  wuser.put("voiceUser", mapAsJavaMap(vuser))	  
+	  
+	  mapAsJavaMap(wuser)
 	}
+	
+  def disconnectAllUsersToJson(msg: DisconnectAllUsers):String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
 
-  private def handleDisconnectAllUsers(msg: DisconnectAllUsers) {
-    val json = UsersMessageToJsonConverter.disconnectAllUsersToJson(msg)
-    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
+    val header = Util.buildHeader(MessageNames.DISCONNECT_ALL_USERS, msg.version, None)
+    Util.buildJson(header, payload)
   }
-
-  private def handleDisconnectUser(msg: DisconnectUser) {
+  
+  def disconnectUserToJson(msg: DisconnectUser):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.USER_ID, msg.userId)
 
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.DISCONNECT_USER)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
-    println("***** DISPATCHING DISCONNECT USER *****************")
- //   dispatcher.dispatch(buildJson(header, payload))
+    val header = Util.buildHeader(MessageNames.DISCONNECT_USER, msg.version, None)
+    Util.buildJson(header, payload)
   }
 
-  private def handlePermissionsSettingInitialized(msg: PermissionsSettingInitialized) {
+  def permissionsSettingInitializedToJson(msg: PermissionsSettingInitialized):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.LOCKED, msg.locked)
     payload.put(Constants.SETTINGS, msg.settings.toString()) //#todo not tested
-
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.PERMISSION_SETTING_INITIALIZED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING PERMISSIONS SETTING INIIALIZED *****************")
- //   dispatcher.dispatch(buildJson(header, payload))
+    val header = Util.buildHeader(MessageNames.PERMISSION_SETTING_INITIALIZED, msg.version, None)
+    Util.buildJson(header, payload)
   }
 
-  private def handleNewPermissionsSetting(msg: NewPermissionsSetting) {
+  def newPermissionsSettingToJson(msg: NewPermissionsSetting):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.SETTINGS, msg.settings.toString()) //#todo not tested
 
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.NEW_PERMISSION_SETTINGS)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
-    println("***** DISPATCHING NEW PERMISSIONS SETTING *****************")
-   // dispatcher.dispatch(buildJson(header, payload))
+    val header = Util.buildHeader(MessageNames.NEW_PERMISSION_SETTINGS, msg.version, None)
+    Util.buildJson(header, payload)
   }
   
-  private def handleUserLocked(msg: UserLocked) {
+  def userLockedToJson(msg: UserLocked):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.USER_ID, msg.userId) 
     payload.put(Constants.LOCKED, msg.lock)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.USER_LOCKED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING USER LOCKED *****************")
-   // dispatcher.dispatch(buildJson(header, payload))
+
+    val header = Util.buildHeader(MessageNames.USER_LOCKED, msg.version, None)
+    Util.buildJson(header, payload)
   }
   
-  private def handleUsersLocked(msg: UsersLocked) {
+  def usersLockedToJson(msg: UsersLocked):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.EXCEPT_USERS, msg.exceptUsers.toString()) 
     payload.put(Constants.LOCKED, msg.lock)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.USERS_LOCKED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING USERS LOCKED *****************")
-  //  dispatcher.dispatch(buildJson(header, payload))
+    val header = Util.buildHeader(MessageNames.USERS_LOCKED, msg.version, None)
+    Util.buildJson(header, payload)
   }
   
-  private def handleGetPermissionsSettingReply(msg: GetPermissionsSettingReply) {
+  def getPermissionsSettingReplyToJson(msg: GetPermissionsSettingReply):String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userId) 
+
+    val header = Util.buildHeader(MessageNames.GET_PERMISSION_SETTINGS_REPLY, msg.version, None)
+    Util.buildJson(header, payload)
+  }
+  
+  def isMeetingLockedReplyToJson(msg: IsMeetingLockedReply):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.USER_ID, msg.userId) 
     
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.GET_PERMISSION_SETTINGS_REPLY)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
-    println("***** DISPATCHING GET PERMISSIONS SETTING REPLY *****************")
-  //  dispatcher.dispatch(buildJson(header, payload))
-  }
-  
-  private def handleIsMeetingLockedReply(msg: IsMeetingLockedReply) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.USER_ID, msg.userId) 
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.IS_MEETING_LOCKED_REPLY)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
-    println("***** DISPATCHING IS MEETING LOCKED REPLY *****************")
-  //  dispatcher.dispatch(buildJson(header, payload))
+    val header = Util.buildHeader(MessageNames.IS_MEETING_LOCKED_REPLY, msg.version, None)
+    Util.buildJson(header, payload)
   }
 
-  private def handleUserRegistered(msg: UserRegistered) {
+  def userRegisteredToJson(msg: UserRegistered):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.USER, msg.user.toString()) 
     payload.put(Constants.RECORDED, msg.recorded) 
     
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.USER_REGISTERED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
-    println("***** DISPATCHING USER REGISTERED *****************")
-  //  dispatcher.dispatch(buildJson(header, payload))
-    println("end of USER REGISTERED")
+    val header = Util.buildHeader(MessageNames.USER_REGISTERED, msg.version, None)
+    Util.buildJson(header, payload)
   }
     
-  private def handleAssignPresenter(msg: AssignPresenter) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.NEW_PRESENTER_ID, msg.newPresenterID)
-    payload.put(Constants.NEW_PRESENTER_NAME, msg.newPresenterName)
-    payload.put(Constants.ASSIGNED_BY, msg.assignedBy)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.ASSIGN_PRESENTER)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)     
-
-    println("***** DISPATCHING ASSIGN PRESENTER *****************")
- //   dispatcher.dispatch(buildJson(header, payload))
-  }
-    
-  private def handleUserStatusChange(msg: UserStatusChange) {
-    val json = UsersMessageToJsonConverter.userStatusChangeToJson(msg)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)		
-	}
   
-  private def handleMuteVoiceUser(msg: MuteVoiceUser) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RECORDED, msg.recorded) 
-    payload.put(Constants.USER_ID, msg.userId)
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
-    payload.put(Constants.MUTE, msg.mute)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.MUTE_VOICE_USER)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING MUTE VOICE USER *****************")
-//    dispatcher.dispatch(buildJson(header, payload))
-  }
-  
-  private def handleUserRaisedHand(msg: UserRaisedHand) {
+  def handleUserRaisedHand(msg: UserRaisedHand):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RAISE_HAND, msg.recorded) 
     payload.put(Constants.USER_ID, msg.userID)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.USER_RAISED_HAND)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING USER RAISED HAND *****************")
- //   dispatcher.dispatch(buildJson(header, payload))
+    val header = Util.buildHeader(MessageNames.USER_RAISED_HAND, msg.version, None)
+    Util.buildJson(header, payload)
   }
   
-  private def handleUserLoweredHand(msg: UserLoweredHand) {
+  def handleUserLoweredHand(msg: UserLoweredHand) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RAISE_HAND, msg.recorded) 
@@ -219,8 +146,19 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
     println("***** DISPATCHING USER LOWERED HAND *****************")
  //   dispatcher.dispatch(buildJson(header, payload))
   }
-  
-  private def handleUserSharedWebcam(msg: UserSharedWebcam) {
+
+  def userStatusChangeToJson(msg: UserStatusChange):String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.RAISE_HAND, msg.recorded) 
+    payload.put(Constants.STATUS, msg.status)
+    payload.put(Constants.VALUE, msg.value.toString)
+
+		val header = Util.buildHeader(MessageNames.USER_STATUS_CHANGED, msg.version, None)
+    Util.buildJson(header, payload)
+	}
+    
+  def handleUserSharedWebcam(msg: UserSharedWebcam) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
@@ -235,7 +173,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
   //  dispatcher.dispatch(buildJson(header, payload))
   }
   
-  private def handleUserUnsharedWebcam(msg: UserUnsharedWebcam) {
+  def handleUserUnsharedWebcam(msg: UserUnsharedWebcam) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
@@ -250,15 +188,15 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
  //   dispatcher.dispatch(buildJson(header, payload))
   }
 
-  private def handleGetUsersReply(msg: GetUsersReply) {
+  def handleGetUsersReply(msg: GetUsersReply) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.REQUESTER_ID, msg.requesterID) 
 
 //    val users = new java.util.ArrayList[java.util.HashMap[String, Object]];
- //   msg.users.foreach(uvo => {    
- //     users.add(userToMap(uvo))
- //   })
+//    msg.users.foreach(uvo => {    
+//      users.add(buildUserHashMap(uvo))
+//    })
     
  //   payload.put(Constants.USERS, users)
     
@@ -270,7 +208,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
  //   dispatcher.dispatch(buildJson(header, payload))
   }
 
-  private def handleUserJoinedVoice(msg: UserJoinedVoice) {
+  def handleUserJoinedVoice(msg: UserJoinedVoice) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
@@ -285,7 +223,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
  //   dispatcher.dispatch(buildJson(header, payload))
   }
   
-  private def handleUserVoiceMuted(msg: UserVoiceMuted) {
+  def handleUserVoiceMuted(msg: UserVoiceMuted) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
@@ -300,7 +238,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
  //   dispatcher.dispatch(buildJson(header, payload))
   }
   
-  private def handleUserVoiceTalking(msg: UserVoiceTalking) {
+  def handleUserVoiceTalking(msg: UserVoiceTalking) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
@@ -315,7 +253,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
  //   dispatcher.dispatch(buildJson(header, payload))
   }
   
-  private def handleEjectVoiceUser(msg: EjectVoiceUser) {
+  def handleEjectVoiceUser(msg: EjectVoiceUser) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
@@ -330,7 +268,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
  //   dispatcher.dispatch(buildJson(header, payload))
   }
   
-  private def handleUserLeftVoice(msg: UserLeftVoice) {
+  def handleUserLeftVoice(msg: UserLeftVoice) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
@@ -345,7 +283,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
  //   dispatcher.dispatch(buildJson(header, payload))
   }
   
-  private def handleIsMeetingMutedReply(msg: IsMeetingMutedReply) {
+  def handleIsMeetingMutedReply(msg: IsMeetingMutedReply) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
@@ -360,7 +298,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
  //   dispatcher.dispatch(buildJson(header, payload))
   }
   
-  private def handleRecordingStatusChanged(msg: RecordingStatusChanged) {
+  def handleRecordingStatusChanged(msg: RecordingStatusChanged) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded)
@@ -375,7 +313,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
 //    dispatcher.dispatch(buildJson(header, payload))
   }
   
-  private def handleGetRecordingStatusReply(msg: GetRecordingStatusReply) {
+  def handleGetRecordingStatusReply(msg: GetRecordingStatusReply) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded)
@@ -390,7 +328,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
  //   dispatcher.dispatch(buildJson(header, payload))
   }
   
-  private def handleValidateAuthTokenReply(msg: ValidateAuthTokenReply) {
+  def handleValidateAuthTokenReply(msg: ValidateAuthTokenReply) {
 		//HEADER
 		var header = new java.util.HashMap[String, Any]()
 		header.put("name", "validate_auth_token_reply")
@@ -409,15 +347,19 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
 		var map = new java.util.HashMap[String, Any]()
 		map.put("header", header)
 		map.put("payload", payload)
-		service.send(MessagingConstants.FROM_USERS_CHANNEL, gson.toJson(map));		
+//		service.send(MessagingConstants.FROM_USERS_CHANNEL, gson.toJson(map));		
   }
   
-	private def handleUserJoined(msg: UserJoined) {
-    val json = UsersMessageToJsonConverter.userJoinedToJson(msg)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)	
+	def userJoinedToJson(msg: UserJoined):String = {
+	  val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put("user", userToMap(msg.user))
+
+    val header = Util.buildHeader(MessageNames.USER_JOINED, msg.version, None)
+    Util.buildJson(header, payload)
 	}
 	
-	private def handleRegisteredUser(msg: UserRegistered) {
+	def handleRegisteredUser(msg: UserRegistered) {
 	  val args = new java.util.HashMap[String, Object]();  
 	  args.put("userId", msg.user.id);
 
@@ -428,12 +370,16 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
   	  println("UsersClientMessageSender - handleRegisteredUser \n" + message.get("msg") + "\n")
 	}
 		
-	private def handleUserLeft(msg: UserLeft) {
-    val json = UsersMessageToJsonConverter.userLeftToJson(msg)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)	
+	def userLeftToJson(msg: UserLeft):String = {
+	  val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put("user", userToMap(msg.user))
+
+    val header = Util.buildHeader(MessageNames.USER_LEFT, msg.version, None)
+    Util.buildJson(header, payload)
 	}
 	
-	private def handlePresenterAssigned(msg: PresenterAssigned) {
+	def handlePresenterAssigned(msg: PresenterAssigned) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
   payload.put(Constants.NEW_PRESENTER_ID, msg.presenter.presenterID);
@@ -449,7 +395,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
  //   dispatcher.dispatch(buildJson(header, payload))
   }
   
-	private def handleEndAndKickAll(msg: EndAndKickAll) {
+	def handleEndAndKickAll(msg: EndAndKickAll) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
@@ -460,6 +406,5 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
 
     println("***** DISPATCHING END AND KICK ALL *****************")
  //   dispatcher.dispatch(buildJson(header, payload))
-  }
-  
+  }  
 }

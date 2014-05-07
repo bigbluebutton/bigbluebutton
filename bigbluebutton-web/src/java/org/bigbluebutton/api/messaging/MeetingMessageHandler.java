@@ -33,9 +33,7 @@ public class MeetingMessageHandler implements MessageHandler {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
 		if (obj.has("header")) return; // we don't currently handle this type of message
-		
-		JsonObject messageObject = (JsonObject) obj.get("message");
-		
+				
 	  if (channel.equalsIgnoreCase(MessagingConstants.FROM_MEETING_CHANNEL)) {		
 		  HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
 		  String messageId = map.get("messageID");

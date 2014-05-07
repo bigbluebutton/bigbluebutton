@@ -14,6 +14,7 @@ import org.bigbluebutton.core.apps.presentation.Presentation
 import org.bigbluebutton.core.apps.chat.redis.ChatMessageToJsonConverter
 import org.bigbluebutton.core.apps.presentation.redis.PesentationMessageToJsonConverter
 import org.bigbluebutton.core.apps.whiteboard.redis.WhiteboardMessageToJsonConverter
+import org.bigbluebutton.core.meeting.MeetingMessageToJsonConverter
 
 class CollectorActor(dispatcher: IDispatcher) extends Actor {
 
@@ -1322,118 +1323,43 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
 
   // OUT MESSAGES
   private def handleMeetingCreated(msg: MeetingCreated) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RECORDED, msg.recorded)
-    payload.put(Constants.VOICE_CONF, msg.voiceBridge)
-
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.MEETING_CREATED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
-    println("***** DISPATCHING MEETING CREATED *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = MeetingMessageToJsonConverter.meetingCreatedToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handleVoiceRecordingStarted(msg: VoiceRecordingStarted) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RECORDED, msg.recorded)
-    payload.put(Constants.RECORDING_FILE, msg.recordingFile)
-    payload.put(Constants.VOICE_CONF, msg.confNum)
-    payload.put(Constants.TIMESTAMP, msg.timestamp)
-
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.VOICE_RECORDING_STARTED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING VOICE RECORDING STARTED *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = MeetingMessageToJsonConverter.voiceRecordingStartedToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handleVoiceRecordingStopped(msg: VoiceRecordingStopped) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RECORDED, msg.recorded)
-    payload.put(Constants.RECORDING_FILE, msg.recordingFile)
-    payload.put(Constants.VOICE_CONF, msg.confNum)
-    payload.put(Constants.TIMESTAMP, msg.timestamp)
-
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.VOICE_RECORDING_STOPPED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-    
-    println("***** DISPATCHING VOICE RECORDING STOPPED *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = MeetingMessageToJsonConverter.voiceRecordingStoppedToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handleRecordingStatusChanged(msg: RecordingStatusChanged) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RECORDED, msg.recorded)
-    payload.put(Constants.USER_ID, msg.userId)
-    payload.put(Constants.RECORDING, msg.recording)
-
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.RECORDING_STATUS_CHANGED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING RECORDING STATUS CHANGED *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = MeetingMessageToJsonConverter.recordingStatusChangedToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handleGetRecordingStatusReply(msg: GetRecordingStatusReply) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RECORDED, msg.recorded)
-    payload.put(Constants.USER_ID, msg.userId)
-    payload.put(Constants.RECORDING, msg.recording)
-
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.GET_RECORDING_STATUS_REPLY)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING GET RECORDING STATUS REPLY *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = MeetingMessageToJsonConverter.getRecordingStatusReplyToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handleMeetingEnded(msg: MeetingEnded) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RECORDED, msg.recorded)
-    payload.put(Constants.VOICE_CONF, msg.voiceBridge)
-
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.MEETING_ENDED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
-    println("***** DISPATCHING MEETING ENDED *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = MeetingMessageToJsonConverter.meetingEndedToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handleMeetingHasEnded(msg: MeetingHasEnded) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.USER_ID, msg.userId)
-
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.MEETING_ENDED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING MEETING HAS ENDED *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = MeetingMessageToJsonConverter.meetingHasEndedToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handleMeetingDestroyed(msg: MeetingDestroyed) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.MEETING_DESTROYED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING MEETING DESTROYED *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = MeetingMessageToJsonConverter.meetingDestroyedToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handleDisconnectAllUsers(msg: DisconnectAllUsers) {

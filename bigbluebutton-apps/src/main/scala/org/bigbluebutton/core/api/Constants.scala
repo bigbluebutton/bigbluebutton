@@ -84,5 +84,5 @@ object Constants {
   val JOINED                          = "joined"
   val X_PERCENT                       = "x_percent"
   val Y_PERCENT                       = "y_percent"
-    
+  val KEEP_ALIVE_ID                   = "keep_alive_id"  
 }
