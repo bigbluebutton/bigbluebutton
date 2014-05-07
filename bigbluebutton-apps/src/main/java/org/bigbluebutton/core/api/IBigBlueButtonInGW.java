@@ -59,12 +59,12 @@ public interface IBigBlueButtonInGW {
 	// Presentation
 	void clear(String meetingID);
 	void removePresentation(String meetingID, String presentationID);
-	void getPresentationInfo(String meetingID, String requesterID);
+	void getPresentationInfo(String meetingID, String requesterID, String replyTo);
 	void sendCursorUpdate(String meetingID, double xPercent, double yPercent);
 	void resizeAndMoveSlide(String meetingID, double xOffset, double yOffset, double widthRatio, double heightRatio);
 	void gotoSlide(String meetingID, String page);
 	void sharePresentation(String meetingID, String presentationID, boolean share);
-	void getSlideInfo(String meetingID, String requesterID);
+	void getSlideInfo(String meetingID, String requesterID, String replyTo);
 
 	void sendConversionUpdate(String messageKey, String meetingId, 
             String code, String presId, String presName); 

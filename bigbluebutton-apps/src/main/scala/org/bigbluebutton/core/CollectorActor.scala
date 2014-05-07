@@ -12,6 +12,7 @@ import org.bigbluebutton.core.apps.poll.PollVO
 import org.bigbluebutton.core.apps.presentation.Page
 import org.bigbluebutton.core.apps.presentation.Presentation
 import org.bigbluebutton.core.apps.chat.redis.ChatMessageToJsonConverter
+import org.bigbluebutton.core.apps.presentation.redis.PesentationMessageToJsonConverter
 
 class CollectorActor(dispatcher: IDispatcher) extends Actor {
 
@@ -2111,326 +2112,89 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   }
   
   private def handleClearPresentationOutMsg(msg: ClearPresentationOutMsg) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.PRESENTATION_CLEARED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING CLEAR PRESENTATION OUTMSG *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = PesentationMessageToJsonConverter.clearPresentationOutMsgToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handleRemovePresentationOutMsg(msg: RemovePresentationOutMsg) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.PRESENTATION_ID, msg.presentationID)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.PRESENTATION_REMOVED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING REMOVE PRESENTATION OUTMSG *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = PesentationMessageToJsonConverter.removePresentationOutMsgToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handleGetPresentationInfoOutMsg(msg: GetPresentationInfoOutMsg) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.PRESENTATION_INFO, msg.info)
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
-    
-    val info = msg.info
-    
-    // Create a map for our current presenter
-    val presenter = new java.util.HashMap[String, String]()
-    presenter.put(Constants.USER_ID, info.presenter.userId)
-    presenter.put(Constants.NAME, info.presenter.name)
-    presenter.put(Constants.ASSIGNED_BY, info.presenter.assignedBy)
-	
-    payload.put(Constants.PRESENTER, presenter)
-    
-    // Create an array for our presentations
-    val presentations = new ArrayList[java.util.HashMap[String, Object]]     
-    info.presentations.foreach { pres =>
-	   val presentation = new java.util.HashMap[String, Object]();
-	   presentation.put(Constants.ID, pres.id)
-	   presentation.put(Constants.NAME, pres.name)
-	   presentation.put(Constants.CURRENT, pres.current:java.lang.Boolean)      
-	   
-	   // Get the pages for a presentation
-       val pages = new ArrayList[Page]()	
-	   pres.pages.values foreach {p =>
-         pages.add(p)
-       }   
-	  // store the pages in the presentation 
-	  presentation.put(Constants.PAGES, pages)
-	
-	  // add this presentation into our presentations list
-	  presentations.add(presentation);	   
-    }
-    
-    // add the presentation to our map to complete our json
-    payload.put(Constants.PRESENTATIONS, presentations)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.GET_PRESENTATION_INFO_REPLY)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
-    println("***** DISPATCHING GET PRESENTATION INFO OUTMSG *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = PesentationMessageToJsonConverter.getPresentationInfoOutMsgToJson(msg)
+    dispatcher.dispatch(json)
   }
   
-  /*private def handleSendCursorUpdateOutMsg(msg: SendCursorUpdateOutMsg) {
-    var map = new java.util.HashMap[String, Any]()
-    map.put("meetingID", msg.meetingID)
-    map.put("recorded", msg.recorded)
-    map.put("xPercent", msg.xPercent)
-    map.put("yPercent", msg.yPercent)
-    map.put("timestamp", TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING SEND CURSOR UPDATE OUTMSG *****************")
-    dispatcher.dispatch(buildJson(header, payload))
-  }*/
+  private def handleSendCursorUpdateOutMsg(msg: SendCursorUpdateOutMsg) {
+    val json = PesentationMessageToJsonConverter.sendCursorUpdateOutMsgToJson(msg)
+    // Comment out as we don't want to store cursor updates (ralam may 7, 2014)
+    //dispatcher.dispatch(json)
+  }
   
   private def handleResizeAndMoveSlideOutMsg(msg: ResizeAndMoveSlideOutMsg) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.PAGE, msg.page)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.PRESENTATION_PAGE_RESIZED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING RESIZE AND MOVE SLIDE OUTMSG *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = PesentationMessageToJsonConverter.resizeAndMoveSlideOutMsgToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handleGotoSlideOutMsg(msg: GotoSlideOutMsg) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.PAGE, msg.page)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.PRESENTATION_PAGE_CHANGED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
-    println("***** DISPATCHING GO TO SLIDE OUTMSG *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = PesentationMessageToJsonConverter.gotoSlideOutMsgToJson(msg)
+    dispatcher.dispatch(json)    
   }
   
   private def handleSharePresentationOutMsg(msg: SharePresentationOutMsg) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-
-    val presentation = new java.util.HashMap[String, Object]();
-	presentation.put(Constants.ID, msg.presentation.id)
-	presentation.put(Constants.NAME, msg.presentation.name)
-	presentation.put(Constants.CURRENT, msg.presentation.current:java.lang.Boolean)      
-	   
-	// Get the pages for a presentation
-    val pages = new ArrayList[Page]()	
-	msg.presentation.pages.values foreach {p =>
-     pages.add(p)
-    }   
-	// store the pages in the presentation 
-	presentation.put(Constants.PAGES, pages)
-	
-	payload.put(Constants.PRESENTATION, presentation);
-	
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.PRESENTATION_SHARED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING SHARE PRESENTATION OUTMSG *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = PesentationMessageToJsonConverter.sharePresentationOutMsgToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handleGetSlideInfoOutMsg(msg: GetSlideInfoOutMsg) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
-    payload.put(Constants.PAGE, msg.page)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.PRESENTATION_SHARED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING GET SLIDE INFO OUTMSG *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = PesentationMessageToJsonConverter.getSlideInfoOutMsgToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handleGetPreuploadedPresentationsOutMsg(msg: GetPreuploadedPresentationsOutMsg) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.GET_PREUPLOADED_PRESENTATIONS)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
-    println("***** DISPATCHING GET PREUPLOADED PRESENTATIONS OUTMSG *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = PesentationMessageToJsonConverter.getPreuploadedPresentationsOutMsgToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handlePresentationConversionProgress(msg: PresentationConversionProgress) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.MESSAGE_KEY, msg.messageKey)
-    payload.put(Constants.CODE, msg.code)
-    payload.put(Constants.PRESENTATION_ID, msg.presentationId)
-    payload.put(Constants.PRESENTATION_NAME, msg.presentationName)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.PRESENTATION_CONVERSION_PROGRESS)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING PRESENTATION CONVERSION PROGRESS *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = PesentationMessageToJsonConverter.presentationConversionProgressToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handlePresentationConversionError(msg: PresentationConversionError) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.MESSAGE_KEY, msg.messageKey)
-    payload.put(Constants.CODE, msg.code)
-    payload.put(Constants.PRESENTATION_ID, msg.presentationId)
-    payload.put(Constants.PRESENTATION_NAME, msg.presentationName)
-    payload.put(Constants.NUM_PAGES, msg.numberOfPages)
-    payload.put(Constants.MAX_NUM_PAGES, msg.maxNumberPages)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.PRESENTATION_CONVERSION_ERROR)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING PRESENTATION CONVERSION ERROR *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = PesentationMessageToJsonConverter.presentationConversionErrorToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handlePresentationPageGenerated(msg: PresentationPageGenerated) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.MESSAGE_KEY, msg.messageKey)
-    payload.put(Constants.CODE, msg.code)
-    payload.put(Constants.PRESENTATION_ID, msg.presentationId)
-    payload.put(Constants.PRESENTATION_NAME, msg.presentationName)
-    payload.put(Constants.NUM_PAGES, msg.numberOfPages)
-    payload.put(Constants.PAGES_COMPLETED, msg.pagesCompleted)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.PRESENTATION_PAGE_GENERATED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
-    println("***** DISPATCHING PRESENTATION PAGE GENERATED *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = PesentationMessageToJsonConverter.presentationPageGenerated(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handlePresentationConversionDone(msg: PresentationConversionDone) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.MESSAGE_KEY, msg.messageKey)
-    payload.put(Constants.CODE, msg.code)
-    
-    val presentation = new java.util.HashMap[String, Object]();
-	presentation.put(Constants.ID, msg.presentation.id)
-	presentation.put(Constants.NAME, msg.presentation.name)
-	presentation.put(Constants.CURRENT, msg.presentation.current:java.lang.Boolean)
-	
-	val pages = new ArrayList[Page]()
-	
-	msg.presentation.pages.values foreach {p =>
-      pages.add(p)
-    }
-	
-	presentation.put(Constants.PAGES, pages)
-	
-	payload.put(Constants.PRESENTATION, presentation);
-	    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.PRESENTATION_CONVERSION_DONE)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING PRESENTATION CONVERSION DONE *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = PesentationMessageToJsonConverter.presentationConversionDoneToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handlePresentationChanged(msg: PresentationChanged) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    val presentation = new java.util.HashMap[String, Object]();
-	presentation.put(Constants.ID, msg.presentation.id)
-	presentation.put(Constants.NAME, msg.presentation.name)
-	presentation.put(Constants.CURRENT, msg.presentation.current:java.lang.Boolean)
-	
-	val pages = new ArrayList[Page]()
-	
-	msg.presentation.pages.values foreach {p =>
-      pages.add(p)
-    }
-	
-	presentation.put(Constants.PAGES, pages)
-	
-	payload.put(Constants.PRESENTATION, presentation);
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.PRESENTATION_CHANGED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING PRESENTATION CHANGED *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = PesentationMessageToJsonConverter.presentationChangedToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handleGetPresentationStatusReply(msg: GetPresentationStatusReply) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    val presentation = new java.util.HashMap[String, Object]();
-    
-	presentation.put(Constants.ID, msg.current.id)
-	presentation.put(Constants.NAME, msg.current.name)
-	presentation.put(Constants.CURRENT, msg.current.current:java.lang.Boolean)
-	
-	val pages = new ArrayList[Page]()
-	
-	msg.current.pages.values foreach {p =>
-      pages.add(p)
-    }
-	
-	presentation.put(Constants.PAGES, pages)
-	
-	payload.put(Constants.PRESENTATION, presentation);
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.GET_PRESENTATION_STATUS_REPLY)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
-    println("***** DISPATCHING GET PRESENTATION STATUS REPLY *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = PesentationMessageToJsonConverter.getPresentationStatusReplyToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handlePresentationRemoved(msg: PresentationRemoved) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.PRESENTATION_ID, msg.presentationId)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.PRESENTATION_REMOVED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING PRESENTATION REMOVED *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = PesentationMessageToJsonConverter.presentationRemovedToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handlePageChanged(msg: PageChanged) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.PAGE, msg.page)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.PRESENTATION_PAGE_CHANGED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING PAGE CHANGED *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = PesentationMessageToJsonConverter.pageChangedToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handleGetWhiteboardShapesReply(msg: GetWhiteboardShapesReply) {

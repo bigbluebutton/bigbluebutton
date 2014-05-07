@@ -89,7 +89,7 @@ trait PresentationApp {
 		                                   curPresenter.assignedBy)
       val presentations = presModel.getPresentations
       val presentationInfo = new CurrentPresentationInfo(presenter, presentations)
-      outGW.send(new GetPresentationInfoOutMsg(meetingID, recorded, msg.requesterID, presentationInfo))    
+      outGW.send(new GetPresentationInfoOutMsg(meetingID, recorded, msg.requesterID, presentationInfo, msg.replyTo))    
     }
     
     def handleSendCursorUpdate(msg: SendCursorUpdate) {
@@ -131,7 +131,7 @@ trait PresentationApp {
     def handleGetSlideInfo(msg: GetSlideInfo) {
       presModel.getCurrentPresentation foreach {pres =>
         presModel.getCurrentPage(pres) foreach {page =>
-          outGW.send(new GetSlideInfoOutMsg(meetingID, recorded, msg.requesterID, page))           
+          outGW.send(new GetSlideInfoOutMsg(meetingID, recorded, msg.requesterID, page, msg.replyTo))           
         }       
       }
 

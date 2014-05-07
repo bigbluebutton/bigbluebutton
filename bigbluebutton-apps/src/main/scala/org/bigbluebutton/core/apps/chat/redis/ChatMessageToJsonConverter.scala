@@ -15,7 +15,7 @@ object ChatMessageToJsonConverter {
 
   val UNKNOWN = "unknown"
     
-  def transformChatMessage(msg: Map[String, String]):HashMap[String, String] = {
+  private def chatMessageToMap(msg: Map[String, String]):HashMap[String, String] = {
     val res = new HashMap[String, String]
     res += "chat_type"       -> msg.get(ChatKeyUtil.CHAT_TYPE).getOrElse(UNKNOWN)
 		res += "from_userid"     -> msg.get(ChatKeyUtil.FROM_USERID).getOrElse(UNKNOWN)
@@ -39,7 +39,7 @@ object ChatMessageToJsonConverter {
   	val collection = new ArrayList[java.util.Map[String, String]]();
   	  
   	msg.history.foreach(p => {
-  	    collection.add(mapAsJavaMap(ChatMessageToJsonConverter.transformChatMessage(p)))
+  	    collection.add(mapAsJavaMap(ChatMessageToJsonConverter.chatMessageToMap(p)))
   	})
   	
   	payload.put(Constants.CHAT_HISTORY, collection)
@@ -51,7 +51,7 @@ object ChatMessageToJsonConverter {
   def sendPublicMessageEventToJson(msg: SendPublicMessageEvent):String = { 
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.MESSAGE, mapAsJavaMap(ChatMessageToJsonConverter.transformChatMessage(msg.message)))    
+    payload.put(Constants.MESSAGE, mapAsJavaMap(ChatMessageToJsonConverter.chatMessageToMap(msg.message)))    
 	  
     val header = Util.buildHeader(MessageNames.SEND_PUBLIC_CHAT_MESSAGE, msg.version, None)       
     Util.buildJson(header, payload)
@@ -60,7 +60,7 @@ object ChatMessageToJsonConverter {
   def sendPrivateMessageEventToJson(msg: SendPrivateMessageEvent):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.MESSAGE, mapAsJavaMap(ChatMessageToJsonConverter.transformChatMessage(msg.message)))    
+    payload.put(Constants.MESSAGE, mapAsJavaMap(ChatMessageToJsonConverter.chatMessageToMap(msg.message)))    
 	  
     val header = Util.buildHeader(MessageNames.SEND_PRIVATE_CHAT_MESSAGE, msg.version, None)	  
     Util.buildJson(header, payload) 

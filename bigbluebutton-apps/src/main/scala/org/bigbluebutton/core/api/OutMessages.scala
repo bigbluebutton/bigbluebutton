@@ -256,7 +256,7 @@ case class GetChatHistoryReply(
     requesterID: String, 
     replyTo: String,
     history: Array[Map[String, String]],
-    version:String = "0.0.1"
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class SendPublicMessageEvent(
@@ -264,7 +264,7 @@ case class SendPublicMessageEvent(
     recorded: Boolean, 
     requesterID: String, 
     message: Map[String, String],
-    version:String = "0.0.1"
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class SendPrivateMessageEvent(
@@ -272,7 +272,7 @@ case class SendPrivateMessageEvent(
     recorded: Boolean, 
     requesterID: String, 
     message: Map[String, String],
-    version:String = "0.0.1"
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 // Layout
@@ -394,57 +394,68 @@ case class PollShowResultOutMsg(
 // Presentation
 case class ClearPresentationOutMsg(
     meetingID: String, 
-    recorded: Boolean
+    recorded: Boolean,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                                    
 case class RemovePresentationOutMsg(
     meetingID: String, 
     recorded: Boolean, 
-    presentationID: String
+    presentationID: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                                     
 case class GetPresentationInfoOutMsg(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    info: CurrentPresentationInfo
+    info: CurrentPresentationInfo,
+    replyTo:String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                                      
 case class SendCursorUpdateOutMsg(
     meetingID: String, 
     recorded: Boolean, 
     xPercent: Double, 
-    yPercent: Double
+    yPercent: Double,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                                   
 case class ResizeAndMoveSlideOutMsg(
     meetingID: String, 
     recorded: Boolean, 
-    page: Page
+    page: Page,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                                     
 case class GotoSlideOutMsg(
     meetingID: String, 
     recorded: Boolean, 
-    page: Page
+    page: Page,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                                     
 case class SharePresentationOutMsg(
     meetingID: String, 
     recorded: Boolean, 
-    presentation: Presentation
+    presentation: Presentation,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                                    
 case class GetSlideInfoOutMsg(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    page: Page
+    page: Page,
+    replyTo: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                               
 case class GetPreuploadedPresentationsOutMsg(
     meetingID:String, 
-    recorded: Boolean
+    recorded: Boolean,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class PresentationConversionProgress(
@@ -452,7 +463,8 @@ case class PresentationConversionProgress(
     messageKey: String, 
     code: String, 
     presentationId: String,
-    presentationName: String
+    presentationName: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class PresentationConversionError(
@@ -462,7 +474,8 @@ case class PresentationConversionError(
     presentationId: String, 
     numberOfPages: Int, 
     maxNumberPages: Int,
-    presentationName: String
+    presentationName: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class PresentationPageGenerated(
@@ -472,7 +485,8 @@ case class PresentationPageGenerated(
     presentationId: String, 
     numberOfPages: Int, 
     pagesCompleted: Int,
-    presentationName: String
+    presentationName: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class PresentationConversionDone(
@@ -480,28 +494,34 @@ case class PresentationConversionDone(
     recorded: Boolean,
     messageKey: String, 
     code: String,  
-    presentation: Presentation
+    presentation: Presentation,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
        
 case class PresentationChanged(
     meetingID: String,
-    presentation: Presentation
+    presentation: Presentation,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class GetPresentationStatusReply(
     meetingID: String,
     presentations: Seq[Presentation],
-    current: Presentation
+    current: Presentation,
+    replyTo: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class PresentationRemoved(
   meetingID: String,
-  presentationId: String
+  presentationId: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class PageChanged(
   meetingID: String,
-  page: Page
+  page: Page,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 // Whiteboard
@@ -557,4 +577,5 @@ case class MeetingVO(
     id: String, 
     recorded: Boolean
 )
+
 

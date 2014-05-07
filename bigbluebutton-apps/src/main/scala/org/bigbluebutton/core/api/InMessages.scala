@@ -289,7 +289,8 @@ case class RemovePresentation(
 
 case class GetPresentationInfo(
     meetingID: String, 
-    requesterID: String
+    requesterID: String,
+    replyTo:String
 ) extends InMessage
 
 case class SendCursorUpdate(
@@ -319,7 +320,8 @@ case class SharePresentation(
 
 case class GetSlideInfo(
     meetingID: String, 
-    requesterID: String
+    requesterID: String,
+    replyTo: String
 ) extends InMessage
 
 case class PreuploadedPresentations(

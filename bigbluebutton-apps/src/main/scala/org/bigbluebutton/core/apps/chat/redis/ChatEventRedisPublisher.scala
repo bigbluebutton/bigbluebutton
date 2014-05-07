@@ -11,7 +11,7 @@ import java.util.ArrayList
 import org.bigbluebutton.conference.service.messaging.MessagingConstants
 import org.bigbluebutton.core.messaging.Util
 
-class ChatEventRedisPublisher (service: MessageSender) extends OutMessageListener2 {
+class ChatEventRedisPublisher(service: MessageSender) extends OutMessageListener2 {
 	def handleMessage(msg: IOutMessage) {
 	  msg match {
 	    case msg: GetChatHistoryReply               => handleGetChatHistoryReply(msg)

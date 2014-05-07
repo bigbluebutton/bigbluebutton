@@ -245,9 +245,9 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	  bbbGW.accept(new RemovePresentation(meetingID, presentationID))
 	}
 	
-	def getPresentationInfo(meetingID: String, requesterID: String) {
+	def getPresentationInfo(meetingID: String, requesterID: String, replyTo: String) {
 	  println("**** Forwarding GetPresentationInfo for meeting[" + meetingID + "] ****")
-	  bbbGW.accept(new GetPresentationInfo(meetingID, requesterID))
+	  bbbGW.accept(new GetPresentationInfo(meetingID, requesterID, replyTo))
 	}
 	
 	def sendCursorUpdate(meetingID: String, xPercent: Double, yPercent: Double) {
@@ -267,8 +267,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	  bbbGW.accept(new SharePresentation(meetingID, presentationID, share))
 	}
 	
-	def getSlideInfo(meetingID: String, requesterID: String) {
-	  bbbGW.accept(new GetSlideInfo(meetingID, requesterID))
+	def getSlideInfo(meetingID: String, requesterID: String, replyTo: String) {
+	  bbbGW.accept(new GetSlideInfo(meetingID, requesterID, replyTo))
 	}
 	
 	/**************************************************************

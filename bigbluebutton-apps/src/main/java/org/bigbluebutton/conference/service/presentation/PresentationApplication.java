@@ -71,11 +71,10 @@ public class PresentationApplication {
     }
 	
 	public void getPresentationInfo(String meetingID, String requesterID) {
-		bbbInGW.getPresentationInfo(meetingID, requesterID);
+		bbbInGW.getPresentationInfo(meetingID, requesterID, meetingID + "/" + requesterID);
 	}
 		
 	public void sendCursorUpdate(String meetingID, Double xPercent, Double yPercent) {	
-
 		bbbInGW.sendCursorUpdate(meetingID, xPercent, yPercent);
 	}
 	
@@ -91,10 +90,8 @@ public class PresentationApplication {
 		bbbInGW.sharePresentation(meetingID, presentationID, share);
 	}
 	
-	public void getSlideInfo(String meetingID, String requesterID) {
-		
-		bbbInGW.getSlideInfo(meetingID, requesterID);
-		
+	public void getSlideInfo(String meetingID, String requesterID) {		
+		bbbInGW.getSlideInfo(meetingID, requesterID,  meetingID + "/" + requesterID);		
 	}
 		
 }
