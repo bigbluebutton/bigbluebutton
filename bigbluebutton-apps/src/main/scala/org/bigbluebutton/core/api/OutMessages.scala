@@ -254,21 +254,25 @@ case class GetChatHistoryReply(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    history: Array[Map[String, String]]
+    replyTo: String,
+    history: Array[Map[String, String]],
+    version:String = "0.0.1"
 ) extends IOutMessage
 
 case class SendPublicMessageEvent(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    message: Map[String, String]
+    message: Map[String, String],
+    version:String = "0.0.1"
 ) extends IOutMessage
 
 case class SendPrivateMessageEvent(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    message: Map[String, String]
+    message: Map[String, String],
+    version:String = "0.0.1"
 ) extends IOutMessage
 
 // Layout

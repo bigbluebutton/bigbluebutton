@@ -154,7 +154,8 @@ case class GetRecordingStatus(
 // Chat
 case class GetChatHistoryRequest(
     meetingID: String, 
-    requesterID: String
+    requesterID: String,
+    replyTo: String
 ) extends InMessage
                                  
 case class SendPublicMessageRequest(

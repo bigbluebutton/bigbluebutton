@@ -12,7 +12,7 @@ class PollEventRedisPublisher(service: MessageSender) extends OutMessageListener
   	def handleMessage(msg: IOutMessage) {
 	  msg match {
 	    case msg: GetPollsReplyOutMsg                 => handleGetPollsReplyOutMsg(msg)
-	    case msg : PollClearedOutMsg                  => handlePollClearedOutMsg(msg)
+	    case msg: PollClearedOutMsg                   => handlePollClearedOutMsg(msg)
 	    case msg: PollStartedOutMsg                   => handlePollStartedOutMsg(msg)
 	    case msg: PollStoppedOutMsg                   => handlePollStoppedOutMsg(msg)
 	    case msg: PollRemovedOutMsg                   => handlePollRemovedOutMsg(msg)

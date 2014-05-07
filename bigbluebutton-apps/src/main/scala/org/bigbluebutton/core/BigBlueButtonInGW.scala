@@ -342,8 +342,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	 *******************************************************************/
 	val chatGW = new ChatInGateway(bbbGW)
 	
-	def getChatHistory(meetingID: String, requesterID: String) {
-	  chatGW.getChatHistory(meetingID, requesterID)
+	def getChatHistory(meetingID: String, requesterID: String, replyTo: String) {
+	  chatGW.getChatHistory(meetingID, requesterID, replyTo)
 	}
 	
 	def sendPublicMessage(meetingID: String, requesterID: String, message: java.util.Map[String, String]) {

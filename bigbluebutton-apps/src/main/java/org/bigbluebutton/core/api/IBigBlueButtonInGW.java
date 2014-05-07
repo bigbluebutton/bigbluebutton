@@ -97,7 +97,7 @@ public interface IBigBlueButtonInGW {
 	void unlockLayout(String meetingID, String requesterID);
 
 	// Chat
-	void getChatHistory(String meetingID, String requesterID);
+	void getChatHistory(String meetingID, String requesterID, String replyTo);
 	void sendPublicMessage(String meetingID, String requesterID, Map<String, String> message);
 	void sendPrivateMessage(String meetingID, String requesterID, Map<String, String> message);
 

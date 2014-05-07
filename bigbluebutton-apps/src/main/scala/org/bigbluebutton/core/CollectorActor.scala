@@ -11,6 +11,7 @@ import java.util.ArrayList
 import org.bigbluebutton.core.apps.poll.PollVO
 import org.bigbluebutton.core.apps.presentation.Page
 import org.bigbluebutton.core.apps.presentation.Presentation
+import org.bigbluebutton.core.apps.chat.redis.ChatMessageToJsonConverter
 
 class CollectorActor(dispatcher: IDispatcher) extends Actor {
 
@@ -1856,56 +1857,18 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   }
   
   private def handleGetChatHistoryReply(msg: GetChatHistoryReply) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RECORDED, msg.recorded) 
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
-  	
-  	val collection = new ArrayList[java.util.Map[String, String]]();
-  	  
-  	msg.history.foreach(p => {
-  	    collection.add(mapAsJavaMap(p))
-  	})
-  	
-  	payload.put(Constants.CHAT_HISTORY, collection)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.GET_CHAT_HISTORY_REPLY)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-     
-    println("***** DISPATCHING GET CHAT HISTORY REPLY *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = ChatMessageToJsonConverter.getChatHistoryReplyToJson(msg)  
+    dispatcher.dispatch(json)
   }
   
   private def handleSendPublicMessageEvent(msg: SendPublicMessageEvent) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RECORDED, msg.recorded) 
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
-    payload.put(Constants.MESSAGE, mapAsJavaMap(msg.message))
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.SEND_PUBLIC_CHAT_MESSAGE)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
-    println("***** DISPATCHING SEND PUBLIC MESSAGE EVENT *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = ChatMessageToJsonConverter.sendPublicMessageEventToJson(msg)	  
+    dispatcher.dispatch(json)
   }
   
   private def handleSendPrivateMessageEvent(msg: SendPrivateMessageEvent) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RECORDED, msg.recorded) 
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
-    
-    payload.put(Constants.MESSAGE, mapAsJavaMap(msg.message))
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.SEND_PRIVATE_CHAT_MESSAGE)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING SEND PRIVATE MESSAGE EVENT *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = ChatMessageToJsonConverter.sendPrivateMessageEventToJson(msg)  
+    dispatcher.dispatch(json)
   }
   
   private def handleGetCurrentLayoutReply(msg: GetCurrentLayoutReply) {

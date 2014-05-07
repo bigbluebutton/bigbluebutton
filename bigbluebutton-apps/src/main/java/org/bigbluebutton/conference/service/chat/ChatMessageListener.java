@@ -80,11 +80,10 @@ public class ChatMessageListener implements MessageHandler{
 					bbbGW.sendPrivateMessage(meetingID, requesterID, map); //TODO not tested yet
 				}
 				//case getChatHistory
-				else if(eventName.equalsIgnoreCase("get_chat_history")) //TODO this is not the correct name
-				{
+				else if(eventName.equalsIgnoreCase("get_chat_history")) {
 					System.out.println("I'm in the case for a requesting chat history" );
-
-					bbbGW.getChatHistory(meetingID, requesterID);
+          String replyTo = meetingID + "/" + requesterID;
+					bbbGW.getChatHistory(meetingID, requesterID, replyTo);
 				}
 			}
 		}
