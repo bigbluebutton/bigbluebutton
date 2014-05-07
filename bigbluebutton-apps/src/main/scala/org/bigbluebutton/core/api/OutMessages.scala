@@ -521,7 +521,7 @@ case class PresentationRemoved(
 case class PageChanged(
   meetingID: String,
   page: Page,
-    version:String = Versions.V_0_0_1
+  version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 // Whiteboard
@@ -530,7 +530,9 @@ case class GetWhiteboardShapesReply(
     recorded: Boolean, 
     requesterID: String, 
     whiteboardId: String, 
-    shapes: Array[AnnotationVO]
+    shapes: Array[AnnotationVO],
+    replyTo: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                        
 case class SendWhiteboardAnnotationEvent(
@@ -538,14 +540,16 @@ case class SendWhiteboardAnnotationEvent(
     recorded: Boolean, 
     requesterID: String, 
     whiteboardId: String, 
-    shape: AnnotationVO
+    shape: AnnotationVO,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                                             
 case class ClearWhiteboardEvent(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    whiteboardId: String
+    whiteboardId: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                        
 case class UndoWhiteboardEvent(
@@ -553,7 +557,8 @@ case class UndoWhiteboardEvent(
     recorded: Boolean, 
     requesterID: String, 
     whiteboardId: String,
-    shapeId: String
+    shapeId: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                        
                        
@@ -561,14 +566,17 @@ case class WhiteboardEnabledEvent(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    enable: Boolean
+    enable: Boolean,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                        
 case class IsWhiteboardEnabledReply(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    enabled: Boolean
+    enabled: Boolean,
+    replyTo: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                        
 

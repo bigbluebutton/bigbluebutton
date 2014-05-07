@@ -450,7 +450,8 @@ case class SendWhiteboardAnnotationRequest(
 case class GetWhiteboardShapesRequest(
     meetingID: String, 
     requesterID: String, 
-    whiteboardId: String
+    whiteboardId: String,
+    replyTo: String
 ) extends InMessage
 
 case class ClearWhiteboardRequest(
@@ -473,5 +474,6 @@ case class EnableWhiteboardRequest(
 
 case class IsWhiteboardEnabledRequest(
     meetingID: String, 
-    requesterID: String
+    requesterID: String,
+    replyTo: String
 ) extends InMessage

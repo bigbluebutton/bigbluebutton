@@ -93,7 +93,9 @@ public class WhiteboardApplication extends ApplicationAdapter implements IApplic
 	}
 	
 	public void requestAnnotationHistory(String meetingID, String requesterID, String whiteboardId) {
-		bbbInGW.requestWhiteboardAnnotationHistory(meetingID, requesterID, whiteboardId);
+	// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
+		String replyTo = meetingID + "/" + requesterID; 
+		bbbInGW.requestWhiteboardAnnotationHistory(meetingID, requesterID, whiteboardId, replyTo);
 	}
 	
 	public void sendWhiteboardAnnotation(String meetingID, String requesterID, java.util.Map<String, Object> shape) {
@@ -113,7 +115,9 @@ public class WhiteboardApplication extends ApplicationAdapter implements IApplic
 	}
 	
 	public void setIsWhiteboardEnabled(String meetingID, String requesterID) {
-		bbbInGW.isWhiteboardEnabled(meetingID, requesterID);
+		// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
+		String replyTo = meetingID + "/" + requesterID; 
+		bbbInGW.isWhiteboardEnabled(meetingID, requesterID, replyTo);
 	}
 	
 }

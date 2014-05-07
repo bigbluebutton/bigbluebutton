@@ -13,6 +13,7 @@ import org.bigbluebutton.core.apps.presentation.Page
 import org.bigbluebutton.core.apps.presentation.Presentation
 import org.bigbluebutton.core.apps.chat.redis.ChatMessageToJsonConverter
 import org.bigbluebutton.core.apps.presentation.redis.PesentationMessageToJsonConverter
+import org.bigbluebutton.core.apps.whiteboard.redis.WhiteboardMessageToJsonConverter
 
 class CollectorActor(dispatcher: IDispatcher) extends Actor {
 
@@ -2198,108 +2199,32 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   }
   
   private def handleGetWhiteboardShapesReply(msg: GetWhiteboardShapesReply) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.WHITEBOARD_ID, msg.whiteboardId)
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
-
-    val shapesMap = new java.util.HashMap[String, Any]()
-
-    for (index <- 0 until msg.shapes.size) {
-      val item = msg.shapes(index)
-      var tempMap = new java.util.HashMap[String, Any]()
-      tempMap.put("id", item.id)
-      tempMap.put("status", item.status)
-      tempMap.put("shapeType", item.shapeType)
-      tempMap.put("wbId", item.wbId)
-      
-      var innerMap = new java.util.HashMap[String, Any]()
-      for ((key, value)<-item.shape)
-      {
-        innerMap.put(key, value)
-      }
-      tempMap.put("shape", innerMap)
-      shapesMap.put(index.toString(), tempMap)
-    }
-    shapesMap.put(Constants.SHAPES, shapesMap)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.GET_WHITEBOARD_SHAPES_REPLY)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
-    println("***** DISPATCHING GET WHITEBOARD SHAPES REPLY *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = WhiteboardMessageToJsonConverter.getWhiteboardShapesReplyToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handleSendWhiteboardAnnotationEvent(msg: SendWhiteboardAnnotationEvent) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
-    payload.put(Constants.WHITEBOARD_ID, msg.whiteboardId)
-    payload.put(Constants.SHAPE, msg.shape)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.SEND_WHITEBOARD_SHAPE)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING SEND WHITEBOARD ANNOTATION EVENT *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = WhiteboardMessageToJsonConverter.sendWhiteboardAnnotationEventToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handleClearWhiteboardEvent(msg: ClearWhiteboardEvent) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
-    payload.put(Constants.WHITEBOARD_ID, msg.whiteboardId)
-
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.WHITEBOARD_CLEARED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING CLEAR WHITEBOARD EVENT *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = WhiteboardMessageToJsonConverter.clearWhiteboardEventToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handleUndoWhiteboardEvent(msg: UndoWhiteboardEvent) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
-    payload.put(Constants.WHITEBOARD_ID, msg.whiteboardId)
-    payload.put(Constants.SHAPE_ID, msg.shapeId)
-
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.UNDO_WHITEBOARD)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
-    println("***** DISPATCHING UNDO WHITEBOARD EVENT *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = WhiteboardMessageToJsonConverter.undoWhiteboardEventToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handleWhiteboardEnabledEvent(msg: WhiteboardEnabledEvent) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
-    payload.put(Constants.ENABLE, msg.enable)
-
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.WHITEBOARD_ENABLED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING WHITEBOARD ENABLED EVENT *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = WhiteboardMessageToJsonConverter.whiteboardEnabledEventToJson(msg)
+    dispatcher.dispatch(json)
   }
 
   private def handleIsWhiteboardEnabledReply(msg: IsWhiteboardEnabledReply) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
-    payload.put(Constants.ENABLE, msg.enabled)
-
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.IS_WHITEBOARD_ENABLED_REPLY)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING IS WHITEBOARD ENABLED REPLY *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = WhiteboardMessageToJsonConverter.isWhiteboardEnabledReplyToJson(msg)
+    dispatcher.dispatch(json)
   }
 }
