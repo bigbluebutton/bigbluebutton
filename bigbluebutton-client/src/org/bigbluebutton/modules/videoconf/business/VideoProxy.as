@@ -79,6 +79,7 @@ package org.bigbluebutton.modules.videoconf.business
 		
     public function connect():void {
     	nc.connect(_url);
+		playConnectionDict[_url] = nc;
     }
     
 		private function onAsyncError(event:AsyncErrorEvent):void{
@@ -91,11 +92,10 @@ package org.bigbluebutton.modules.videoconf.business
       var dispatcher:Dispatcher = new Dispatcher();
       dispatcher.dispatchEvent(new ConnectedEvent(ConnectedEvent.VIDEO_CONNECTED));
     }
-    
+
 		private function onNetStatus(event:NetStatusEvent):void{
 			switch(event.info.code){
 				case "NetConnection.Connect.Success":
-					ns = new NetStream(nc);
           onConnectedToVideoApp();
 					break;
         default:
@@ -103,7 +103,7 @@ package org.bigbluebutton.modules.videoconf.business
 					break;
 			}
 		}
-		
+
 		private function onSecurityError(event:NetStatusEvent):void{
 		}
 		
@@ -160,6 +160,7 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 
 		public function startPublishing(e:StartBroadcastEvent):void{
+			ns = new NetStream(nc);
 			ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
 			ns.addEventListener( IOErrorEvent.IO_ERROR, onIOError );
 			ns.addEventListener( AsyncErrorEvent.ASYNC_ERROR, onAsyncError );
@@ -226,14 +227,14 @@ package org.bigbluebutton.modules.videoconf.business
 				ns.attachCamera(null);
 				ns.close();
 				ns = null;
-				ns = new NetStream(nc);
-			}			
+			}
 		}
 		
 		public function disconnect():void {
       LogUtil.debug("VideoProxy:: disconnecting from Video application");
       stopBroadcasting();
 			if (nc != null) nc.close();
+			//TODO: Close play NetConnections
 		}
 		
 		public function onBWCheck(... rest):Number { 
