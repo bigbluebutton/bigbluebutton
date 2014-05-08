@@ -318,6 +318,7 @@ public class MeetingService implements MessageListener {
 	}
 
 	private void meetingStarted(MeetingStarted message) {
+		log.debug("Meeting [{}] has started.", message.meetingId);
 		Meeting m = getMeeting(message.meetingId);
 		if (m != null) {
 			if (m.getStartTime() == 0) {
@@ -334,6 +335,7 @@ public class MeetingService implements MessageListener {
 	}
 
 	private void meetingEnded(MeetingEnded message) {
+		log.debug("Meeting [{}] has ended.", message.meetingId);
 		Meeting m = getMeeting(message.meetingId);
 		if (m != null) {
 			long now = System.currentTimeMillis();
@@ -345,22 +347,24 @@ public class MeetingService implements MessageListener {
 	}
 
 	private void userJoined(UserJoined message) {
+		log.debug("User joined in meeting[{}]", message.meetingId);
 		Meeting m = getMeeting(message.meetingId);
 		if (m != null) {
 			User user = new User(message.userId, message.externalUserId, message.name, message.role);
 			m.userJoined(user);
-			log.debug("New user in meeting " + message.meetingId + ":" + user.getFullname());
+			log.debug("New user in meeting [" + message.meetingId + "] user [" + user.getFullname() + "]");
 			return;
 		}
 		log.warn("The meeting " + message.meetingId + " doesn't exist");
 	}
 
 	private void userLeft(UserLeft message) {
+		log.debug("User left from meeting[{}]", message.meetingId);
 		Meeting m = getMeeting(message.meetingId);
 		if (m != null) {
 			User user = m.userLeft(message.userId);
 			if(user != null){
-				log.debug("User removed from meeting " + message.meetingId + ":" + user.getFullname());
+				log.debug("User removed from meeting [" + message.meetingId + "] user [" + user.getFullname() + "]");
 				return;
 			}
 			log.warn("The participant " + message.userId + " doesn't exist in the meeting " + message.meetingId);

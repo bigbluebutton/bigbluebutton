@@ -44,13 +44,13 @@ public class MessagingConstants {
 	public static final String DESTROY_MEETING_REQUEST_EVENT = "DestroyMeetingRequestEvent";
 	public static final String CREATE_MEETING_REQUEST_EVENT = "CreateMeetingRequestEvent";
 	public static final String END_MEETING_REQUEST_EVENT = "EndMeetingRequestEvent";
-	public static final String MEETING_STARTED_EVENT = "MeetingStartedEvent";
-	public static final String MEETING_ENDED_EVENT = "MeetingEndedEvent";
-	public static final String MEETING_DESTROYED_EVENT = "MeetingDestroyedEvent";
-	public static final String USER_JOINED_EVENT = "UserJoinedEvent";
-	public static final String USER_LEFT_EVENT = "UserLeftEvent";
-	public static final String USER_STATUS_CHANGE_EVENT = "UserStatusChangeEvent";
+	public static final String MEETING_STARTED_EVENT = "meeting_created_message";
+	public static final String MEETING_ENDED_EVENT = "meeting_ended_message";
+	public static final String MEETING_DESTROYED_EVENT = "meeting_destroyed_event";
+	public static final String USER_JOINED_EVENT = "user_joined_message";
+	public static final String USER_LEFT_EVENT = "user_left_message";
+	public static final String USER_STATUS_CHANGE_EVENT = "user_status_changed_message";
 
 	public static final String SEND_POLLS_EVENT = "SendPollsEvent";
-	public static final String KEEP_ALIVE_REPLY_EVENT = "KEEP_ALIVE_REPLY";
+	public static final String KEEP_ALIVE_REPLY = "keep_alive_reply";
 }

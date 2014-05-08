@@ -150,7 +150,7 @@ object UsersMessageToJsonConverter {
   def userStatusChangeToJson(msg: UserStatusChange):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RAISE_HAND, msg.recorded) 
+    payload.put(Constants.USER_ID, msg.userID) 
     payload.put(Constants.STATUS, msg.status)
     payload.put(Constants.VALUE, msg.value.toString)
 
@@ -382,9 +382,9 @@ object UsersMessageToJsonConverter {
 	def handlePresenterAssigned(msg: PresenterAssigned) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-  payload.put(Constants.NEW_PRESENTER_ID, msg.presenter.presenterID);
-  payload.put(Constants.NEW_PRESENTER_NAME, msg.presenter.presenterName);
-  payload.put(Constants.ASSIGNED_BY, msg.presenter.assignedBy);
+    payload.put(Constants.NEW_PRESENTER_ID, msg.presenter.presenterID);
+    payload.put(Constants.NEW_PRESENTER_NAME, msg.presenter.presenterName);
+    payload.put(Constants.ASSIGNED_BY, msg.presenter.assignedBy);
     payload.put(Constants.RECORDED, msg.recorded) 
     
     val header = new java.util.HashMap[String, Any]()

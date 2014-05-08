@@ -29,44 +29,26 @@ class MeetingEventRedisPublisher(service: MessageSender) extends OutMessageListe
   }
 
 	private def handleMeetingDestroyed(msg: MeetingDestroyed) {
-	  val gson = new Gson
-    var map = Map("messageID" -> MessagingConstants.MEETING_DESTROYED_EVENT, "meetingID" -> msg.meetingID)
-    service.send(MessagingConstants.FROM_MEETING_CHANNEL, gson.toJson(map.asJava))
-
     val json = MeetingMessageToJsonConverter.meetingDestroyedToJson(msg)
     System.out.println("****\n" + json)
-    //service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)     
+    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)     
 	}
 	
   private def handleKeepAliveMessageReply(msg: KeepAliveMessageReply) {
-    val gson = new Gson
-    var map = Map("messageID" -> KEEP_ALIVE_REPLY, "aliveID" -> msg.aliveID)
-    service.send(MessagingConstants.FROM_SYSTEM_CHANNEL, gson.toJson(map.asJava))
-
     val json = MeetingMessageToJsonConverter.keepAliveMessageReplyToJson(msg)
-    System.out.println("****\n" + json)
-    //service.send(MessagingConstants.FROM_SYSTEM_CHANNEL, json)
+    service.send(MessagingConstants.FROM_SYSTEM_CHANNEL, json)
 	}
 
 	private def handleMeetingCreated(msg:MeetingCreated) {
-	  val gson = new Gson
-    var map = Map("messageID" -> MessagingConstants.MEETING_STARTED_EVENT, "meetingID" -> msg.meetingID)
-    service.send(MessagingConstants.FROM_MEETING_CHANNEL, gson.toJson(map.asJava))
-
-
     val json = MeetingMessageToJsonConverter.meetingCreatedToJson(msg)
     System.out.println("****\n" + json)
-    //service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)	
+    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)	
 	}
 
 	private def handleMeetingEnded(msg:MeetingEnded){
-    val gson = new Gson
-    var map = Map("messageID" -> MessagingConstants.MEETING_ENDED_EVENT, "meetingID" -> msg.meetingID)
-    service.send(MessagingConstants.FROM_MEETING_CHANNEL, gson.toJson(map.asJava))
-
     val json = MeetingMessageToJsonConverter.meetingEndedToJson(msg)
     System.out.println("****\n" + json)
-    //service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)	
+    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)	
 	}
 
 	private def handleStartRecording(msg: StartRecording) {
