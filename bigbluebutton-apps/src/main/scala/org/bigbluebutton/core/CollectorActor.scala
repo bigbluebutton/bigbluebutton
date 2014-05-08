@@ -15,6 +15,7 @@ import org.bigbluebutton.core.apps.chat.redis.ChatMessageToJsonConverter
 import org.bigbluebutton.core.apps.presentation.redis.PesentationMessageToJsonConverter
 import org.bigbluebutton.core.apps.whiteboard.redis.WhiteboardMessageToJsonConverter
 import org.bigbluebutton.core.meeting.MeetingMessageToJsonConverter
+import org.bigbluebutton.core.apps.users.redis.UsersMessageToJsonConverter
 
 class CollectorActor(dispatcher: IDispatcher) extends Actor {
 
@@ -1484,17 +1485,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   }
   
   private def handleUserLeft(msg: UserLeft) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.USER, buildUserHashMap(msg.user)) 
-    payload.put(Constants.RECORDED, msg.recorded) 
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.USER_LEFT)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
-    println("***** DISPATCHING USER LEFT *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = UsersMessageToJsonConverter.userLeftToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handlePresenterAssigned(msg: PresenterAssigned) {
@@ -1562,17 +1554,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   }
   
   private def handleUserJoined(msg: UserJoined) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RECORDED, msg.recorded) 
-    payload.put(Constants.USER, buildUserHashMap(msg.user))
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.USER_JOINED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING USER JOINED *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    val json = UsersMessageToJsonConverter.userJoinedToJson(msg)
+    dispatcher.dispatch(json)
   }
   
   private def handleUserRaisedHand(msg: UserRaisedHand) {

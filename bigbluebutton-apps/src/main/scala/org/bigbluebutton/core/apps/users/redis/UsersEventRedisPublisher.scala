@@ -423,7 +423,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
 
 	  val message = new java.util.HashMap[String, Object]() 
 	  val gson = new Gson();
-  	  message.put("msg", gson.toJson(args))
+  	message.put("msg", gson.toJson(args))
   	  
   	  println("UsersClientMessageSender - handleRegisteredUser \n" + message.get("msg") + "\n")
 	}
@@ -436,9 +436,9 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
 	private def handlePresenterAssigned(msg: PresenterAssigned) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-  payload.put(Constants.NEW_PRESENTER_ID, msg.presenter.presenterID);
-  payload.put(Constants.NEW_PRESENTER_NAME, msg.presenter.presenterName);
-  payload.put(Constants.ASSIGNED_BY, msg.presenter.assignedBy);
+    payload.put(Constants.NEW_PRESENTER_ID, msg.presenter.presenterID);
+    payload.put(Constants.NEW_PRESENTER_NAME, msg.presenter.presenterName);
+    payload.put(Constants.ASSIGNED_BY, msg.presenter.assignedBy);
     payload.put(Constants.RECORDED, msg.recorded) 
     
     val header = new java.util.HashMap[String, Any]()
