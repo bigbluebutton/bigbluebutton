@@ -71,11 +71,12 @@ public class PresentationApplication {
     }
 	
 	public void getPresentationInfo(String meetingID, String requesterID) {
-		bbbInGW.getPresentationInfo(meetingID, requesterID);
+		// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
+		String replyTo = meetingID + "/" + requesterID; 
+		bbbInGW.getPresentationInfo(meetingID, requesterID, replyTo);
 	}
 		
 	public void sendCursorUpdate(String meetingID, Double xPercent, Double yPercent) {	
-
 		bbbInGW.sendCursorUpdate(meetingID, xPercent, yPercent);
 	}
 	
@@ -91,10 +92,10 @@ public class PresentationApplication {
 		bbbInGW.sharePresentation(meetingID, presentationID, share);
 	}
 	
-	public void getSlideInfo(String meetingID, String requesterID) {
-		
-		bbbInGW.getSlideInfo(meetingID, requesterID);
-		
+	public void getSlideInfo(String meetingID, String requesterID) {		
+		// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
+		String replyTo = meetingID + "/" + requesterID; 
+		bbbInGW.getSlideInfo(meetingID, requesterID,  replyTo);		
 	}
 		
 }

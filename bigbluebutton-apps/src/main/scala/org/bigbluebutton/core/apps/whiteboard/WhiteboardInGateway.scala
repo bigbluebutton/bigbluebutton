@@ -31,8 +31,8 @@ class WhiteboardInGateway(bbbGW: BigBlueButtonGateway) {
 	  }
   }
 		
-	def requestWhiteboardAnnotationHistory(meetingID: String, requesterID: String, whiteboardId: String) {
-	  bbbGW.accept(new GetWhiteboardShapesRequest(meetingID, requesterID, whiteboardId))
+	def requestWhiteboardAnnotationHistory(meetingID: String, requesterID: String, whiteboardId: String, replyTo: String) {
+	  bbbGW.accept(new GetWhiteboardShapesRequest(meetingID, requesterID, whiteboardId, replyTo))
 	}
 	
 	def clearWhiteboard(meetingID: String, requesterID: String, whiteboardId: String) {
@@ -47,8 +47,8 @@ class WhiteboardInGateway(bbbGW: BigBlueButtonGateway) {
 	  bbbGW.accept(new EnableWhiteboardRequest(meetingID, requesterID, enable))
 	}
 	
-	def isWhiteboardEnabled(meetingID: String, requesterID: String) {
-	  bbbGW.accept(new IsWhiteboardEnabledRequest(meetingID, requesterID))
+	def isWhiteboardEnabled(meetingID: String, requesterID: String, replyTo: String) {
+	  bbbGW.accept(new IsWhiteboardEnabledRequest(meetingID, requesterID, replyTo))
 	}
 	
 }

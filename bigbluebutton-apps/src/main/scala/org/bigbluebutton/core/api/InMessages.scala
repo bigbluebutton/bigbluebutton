@@ -75,7 +75,8 @@ case class IsMeetingLocked(
 case class ValidateAuthToken(
   meetingID: String, 
   userId: String, 
-  token: String) extends InMessage
+  token: String,
+  correlationId: String) extends InMessage
 
 case class RegisterUser(
     meetingID: String, 
@@ -153,7 +154,8 @@ case class GetRecordingStatus(
 // Chat
 case class GetChatHistoryRequest(
     meetingID: String, 
-    requesterID: String
+    requesterID: String,
+    replyTo: String
 ) extends InMessage
                                  
 case class SendPublicMessageRequest(
@@ -287,7 +289,8 @@ case class RemovePresentation(
 
 case class GetPresentationInfo(
     meetingID: String, 
-    requesterID: String
+    requesterID: String,
+    replyTo:String
 ) extends InMessage
 
 case class SendCursorUpdate(
@@ -317,7 +320,8 @@ case class SharePresentation(
 
 case class GetSlideInfo(
     meetingID: String, 
-    requesterID: String
+    requesterID: String,
+    replyTo: String
 ) extends InMessage
 
 case class PreuploadedPresentations(
@@ -446,7 +450,8 @@ case class SendWhiteboardAnnotationRequest(
 case class GetWhiteboardShapesRequest(
     meetingID: String, 
     requesterID: String, 
-    whiteboardId: String
+    whiteboardId: String,
+    replyTo: String
 ) extends InMessage
 
 case class ClearWhiteboardRequest(
@@ -469,5 +474,6 @@ case class EnableWhiteboardRequest(
 
 case class IsWhiteboardEnabledRequest(
     meetingID: String, 
-    requesterID: String
+    requesterID: String,
+    replyTo: String
 ) extends InMessage

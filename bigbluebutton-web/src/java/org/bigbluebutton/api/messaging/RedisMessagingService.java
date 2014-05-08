@@ -52,7 +52,7 @@ public class RedisMessagingService implements MessagingService {
 		map.put("meetingID", meetingID);
 		Gson gson = new Gson();
 		log.info("Sending destroy meeting [{}]", meetingID);
-		sender.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));		
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, gson.toJson(map));		
 	}
 	
 	public void createMeeting(String meetingID, String meetingName, Boolean recorded, String voiceBridge, Long duration) {
@@ -66,7 +66,7 @@ public class RedisMessagingService implements MessagingService {
 		
 		Gson gson = new Gson();
 		log.info("Sending create meeting [{}] - [{}]", meetingID, voiceBridge);
-		sender.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));		
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, gson.toJson(map));		
 	}
 	
 	public void endMeeting(String meetingId) {
@@ -75,7 +75,7 @@ public class RedisMessagingService implements MessagingService {
 		map.put("meetingId", meetingId);
 		Gson gson = new Gson();
 		log.info("Sending end meeting [{}]", meetingId);
-		sender.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, gson.toJson(map));
 	}
 
   public void send(String channel, String message) {
@@ -95,7 +95,7 @@ public class RedisMessagingService implements MessagingService {
 		
 		System.out.println(gson.toJson(map));
 		
-		sender.send(MessagingConstants.POLLING_CHANNEL, gson.toJson(map));		
+		sender.send(MessagingConstants.TO_POLLING_CHANNEL, gson.toJson(map));		
 	}
 
 	public void setMessageSender(MessageSender sender) {

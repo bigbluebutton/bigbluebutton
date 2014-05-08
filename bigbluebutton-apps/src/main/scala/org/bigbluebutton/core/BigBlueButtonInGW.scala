@@ -71,8 +71,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
   /*************************************************************
    * Message Interface for Users
    *************************************************************/
-  def validateAuthToken(meetingId: String, userId: String, token: String) {
-    bbbGW.accept(new ValidateAuthToken(meetingId, userId, token))
+  def validateAuthToken(meetingId: String, userId: String, token: String, correlationId: String) {
+    bbbGW.accept(new ValidateAuthToken(meetingId, userId, token, correlationId))
   }
   
   def registerUser(meetingID: String, userID: String, name: String, role: String, extUserID: String):Unit = {
@@ -245,9 +245,9 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	  bbbGW.accept(new RemovePresentation(meetingID, presentationID))
 	}
 	
-	def getPresentationInfo(meetingID: String, requesterID: String) {
+	def getPresentationInfo(meetingID: String, requesterID: String, replyTo: String) {
 	  println("**** Forwarding GetPresentationInfo for meeting[" + meetingID + "] ****")
-	  bbbGW.accept(new GetPresentationInfo(meetingID, requesterID))
+	  bbbGW.accept(new GetPresentationInfo(meetingID, requesterID, replyTo))
 	}
 	
 	def sendCursorUpdate(meetingID: String, xPercent: Double, yPercent: Double) {
@@ -267,8 +267,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	  bbbGW.accept(new SharePresentation(meetingID, presentationID, share))
 	}
 	
-	def getSlideInfo(meetingID: String, requesterID: String) {
-	  bbbGW.accept(new GetSlideInfo(meetingID, requesterID))
+	def getSlideInfo(meetingID: String, requesterID: String, replyTo: String) {
+	  bbbGW.accept(new GetSlideInfo(meetingID, requesterID, replyTo))
 	}
 	
 	/**************************************************************
@@ -342,8 +342,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	 *******************************************************************/
 	val chatGW = new ChatInGateway(bbbGW)
 	
-	def getChatHistory(meetingID: String, requesterID: String) {
-	  chatGW.getChatHistory(meetingID, requesterID)
+	def getChatHistory(meetingID: String, requesterID: String, replyTo: String) {
+	  chatGW.getChatHistory(meetingID, requesterID, replyTo)
 	}
 	
 	def sendPublicMessage(meetingID: String, requesterID: String, message: java.util.Map[String, String]) {
@@ -364,8 +364,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	  wbGW.sendWhiteboardAnnotation(meetingID, requesterID, mapAsScalaMap(annotation).toMap)
 	}
 	
-	def requestWhiteboardAnnotationHistory(meetingID: String, requestedID: String, whiteboardId: String) {
-	  wbGW.requestWhiteboardAnnotationHistory(meetingID, requestedID, whiteboardId)
+	def requestWhiteboardAnnotationHistory(meetingID: String, requestedID: String, whiteboardId: String, replyTo: String) {
+	  wbGW.requestWhiteboardAnnotationHistory(meetingID, requestedID, whiteboardId, replyTo)
 	}
 	
 	def clearWhiteboard(meetingID: String, requestedID: String, whiteboardId: String) {
@@ -380,8 +380,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	  wbGW.enableWhiteboard(meetingID, requestedID, enable)
 	}
 	
-	def isWhiteboardEnabled(meetingID: String, requestedID: String) {
-	  wbGW.isWhiteboardEnabled(meetingID, requestedID)
+	def isWhiteboardEnabled(meetingID: String, requestedID: String, replyTo: String) {
+	  wbGW.isWhiteboardEnabled(meetingID, requestedID, replyTo)
 	}
 	
 	/*********************************************************************

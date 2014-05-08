@@ -40,8 +40,8 @@ trait UsersApp {
   
   def handleValidateAuthToken(msg: ValidateAuthToken) {
     regUsers.get (msg.userId) match {
-      case Some(u) => outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true))
-      case None => outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, false))
+      case Some(u) => outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true, msg.correlationId))
+      case None => outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, false, msg.correlationId))
     }  
   }
   
@@ -212,9 +212,11 @@ trait UsersApp {
 		                  hasStream=false, locked=false, webcamStream="", 
 		                  phoneUser=true, vu, permissions.permissions)
 		  	
-		  users.addUser(uvo)
-		  println("New user joined voice for user [" + uvo.name + "] userid=[" + msg.voiceUser.webUserId + "]")
-		  outGW.send(new UserJoined(meetingID, recorded, uvo))
+		      users.addUser(uvo)
+		      println("New user joined voice for user [" + uvo.name + "] userid=[" + msg.voiceUser.webUserId + "]")
+		      outGW.send(new UserJoined(meetingID, recorded, uvo))
+		      
+		      outGW.send(new UserJoinedVoice(meetingID, recorded, voiceBridge, uvo))
         }
       }
   }
@@ -227,7 +229,14 @@ trait UsersApp {
       users.addUser(nu)
             
       println("Received voice user left =[" + user.name + "] wid=[" + msg.userId + "]" )
-      outGW.send(new UserLeftVoice(meetingID, recorded, voiceBridge, nu))        
+      outGW.send(new UserLeftVoice(meetingID, recorded, voiceBridge, nu))    
+      
+      if (user.phoneUser) {
+	      if (users.hasUser(user.userID)) {
+	        val userLeaving = users.removeUser(user.userID)
+	        userLeaving foreach (u => outGW.send(new UserLeft(msg.meetingID, recorded, u)))
+	      }        
+      }
     }    
   }
   
