@@ -27,6 +27,8 @@ module.exports = class ClientProxy
 
   # Sends a message in `data` to all the clients that should receive it.
   sendToClients: (data, callback) ->
+    log.debug({ data: data }, "Sending to client")
+    
     # the channel can be the user_id (send to one user only) or the meeting_id
     # (send to everyone in the meeting)
     channel = data?.payload?.user_id or data?.payload?.meeting_id
