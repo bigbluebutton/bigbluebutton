@@ -20,7 +20,6 @@ package org.bigbluebutton.modules.videoconf.maps
 {
   import flash.events.IEventDispatcher;
   import flash.media.Camera;
-	import flash.net.NetConnection;
   
   import mx.collections.ArrayCollection;
   
@@ -56,6 +55,7 @@ package org.bigbluebutton.modules.videoconf.maps
   import org.bigbluebutton.modules.videoconf.views.ToolbarButton;
   import org.bigbluebutton.modules.videoconf.views.VideoWindow;
   import org.flexunit.runner.manipulation.filters.IncludeAllFilter;
+	import org.bigbluebutton.modules.videoconf.events.PlayConnectionReady;
 
   public class VideoEventMapDelegate
   {
@@ -73,6 +73,9 @@ package org.bigbluebutton.modules.videoconf.maps
     private var _isPublishing:Boolean = false;
 	  private var _isPreviewWebcamOpen:Boolean = false;
 	  private var _isWaitingActivation:Boolean = false;
+
+	// Store userID of windows waiting for a NetConnection
+	private var pendingVideoWindowsList:Object = new Object();
     
     public function VideoEventMapDelegate(dispatcher:IEventDispatcher)
     {
@@ -94,7 +97,7 @@ package org.bigbluebutton.modules.videoconf.maps
       if (!_ready) return;
       LogUtil.debug("VideoEventMapDelegate:: [" + me + "] Viewing [" + userID + " stream [" + stream + "]");
       if (! UserManager.getInstance().getConference().amIThisUser(userID)) {
-        openViewWindowFor(userID);			
+			initPlayConnectionFor(userID);
       }      
     }
 
@@ -214,7 +217,7 @@ package org.bigbluebutton.modules.videoconf.maps
           closeWindow(userID);
         }
         LogUtil.debug("VideoEventMapDelegate:: [" + me + "] openWebcamWindowFor:: View user's = [" + userID + "] webcam.");
-        openViewWindowFor(userID);
+			initPlayConnectionFor(userID);
       } else {
         if (UsersUtil.isMe(userID) && options.autoStart) {
           LogUtil.debug("VideoEventMapDelegate:: [" + me + "] openWebcamWindowFor:: It's ME and AutoStart. Start publishing.");
@@ -280,6 +283,7 @@ package org.bigbluebutton.modules.videoconf.maps
       if (win != null) {
         LogUtil.debug("VideoEventMapDelegate:: [" + me + "] closeWindow:: Closing [" + win.getWindowType() + "] for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
         win.close();
+		proxy.closePlayConnectionFor(userID);
         var cwe:CloseWindowEvent = new CloseWindowEvent();
         cwe.window = win;
         _dispatcher.dispatchEvent(cwe);
@@ -288,34 +292,45 @@ package org.bigbluebutton.modules.videoconf.maps
       }
     }
 
-	private function openViewWindowFor(userID:String):void {
-		LogUtil.debug("VideoEventMapDelegate:: [" + me + "] openViewWindowFor:: Opening VIEW window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
-
-		// Check if NetConnection is ready
-		var playConnection:NetConnection = proxy.getPlayConnectionFor(userID);
-		if (playConnection.connected) {
-			var window:VideoWindow = new VideoWindow();
-			window.userID = userID;
-			window.videoOptions = options;
-			window.resolutions = options.resolutions.split(",");
-			window.title = UsersUtil.getUserName(userID);
-
-			closeWindow(userID);
-
-			var bbbUser:BBBUser = UsersUtil.getUser(userID);
-			var playStream:String = proxy.getStreamNamePrefixFor(userID) + bbbUser.streamName;
-			LogUtil.debug("VideoEventMapDelegate:: [" + me + "] openViewWindowFor:: StreamName for [" + userID + "] : [" + playStream + "]");
-			window.startVideo(playConnection, playStream);
-
-			webcamWindows.addWindow(window);
-			openWindow(window);
-			dockWindow(window);
-		}
-		else {
-			LogUtil.debug("VideoEventMapDelegate:: [" + me + "] openViewWindowFor:: NetConnection for [" + userID + "] isn't ready yet.");
-		}
+	private function initPlayConnectionFor(userID:String):void {
+		//TODO: Change to trace
+		LogUtil.debug("VideoEventMapDelegate:: initPlayConnectionFor : [" + userID + "]");
+		// Store the userID
+		pendingVideoWindowsList[userID] = true;
+		// Request the connection
+		proxy.createPlayConnectionFor(userID);
 	}
 
+	public function handlePlayConnectionReady():void {
+		// Iterate through all pending windows
+		for(var userID:String in pendingVideoWindowsList) {
+			if(proxy.playConnectionIsReadyFor(userID)) {
+				delete pendingVideoWindowsList[userID];
+				openViewWindowFor(userID);
+			}
+		}
+	}
+    
+    private function openViewWindowFor(userID:String):void {
+      LogUtil.debug("VideoEventMapDelegate:: [" + me + "] openViewWindowFor:: Opening VIEW window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
+      
+      var window:VideoWindow = new VideoWindow();
+      window.userID = userID;
+      window.videoOptions = options;       
+      window.resolutions = options.resolutions.split(",");
+      window.title = UsersUtil.getUserName(userID);
+      
+      closeWindow(userID);
+            
+      var bbbUser:BBBUser = UsersUtil.getUser(userID);      
+		var streamName:String = proxy.getStreamNamePrefixFor(userID) + bbbUser.streamName;
+		window.startVideo(proxy.getPlayConnectionFor(userID), streamName);
+      
+      webcamWindows.addWindow(window);        
+      openWindow(window);
+      dockWindow(window);  
+    }
+    
     private function openWindow(window:VideoWindowItf):void {
       var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
       windowEvent.window = window;
