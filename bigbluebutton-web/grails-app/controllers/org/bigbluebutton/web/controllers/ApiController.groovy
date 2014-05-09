@@ -370,6 +370,9 @@ class ApiController {
 	
 	meetingService.addUserSession(session['user-token'], us);
 	
+	// Register user into the meeting.
+	meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID)
+	
 	log.info("Session user token for " + us.fullname + " [" + session['user-token'] + "]")	
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
     

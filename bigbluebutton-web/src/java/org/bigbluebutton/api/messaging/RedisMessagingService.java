@@ -28,6 +28,11 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import javax.imageio.ImageIO;
+
+import org.bigbluebutton.api.messaging.converters.messages.CreateMeetingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.RegisterUserMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
@@ -47,35 +52,27 @@ public class RedisMessagingService implements MessagingService {
 	}
 
 	public void destroyMeeting(String meetingID) {
-		HashMap<String,String> map = new HashMap<String, String>();
-		map.put("messageId", MessagingConstants.DESTROY_MEETING_REQUEST_EVENT);
-		map.put("meetingID", meetingID);
-		Gson gson = new Gson();
-		log.info("Sending destroy meeting [{}]", meetingID);
-		sender.send(MessagingConstants.TO_MEETING_CHANNEL, gson.toJson(map));		
+		DestroyMeetingMessage msg = new DestroyMeetingMessage(meetingID);
+		String json = MessageToJson.destroyMeetingMessageToJson(msg);
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);	
+	}
+	
+	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID) {
+		RegisterUserMessage msg = new RegisterUserMessage(meetingID, internalUserId, fullname, role, externUserID);
+		String json = MessageToJson.registerUserToJson(msg);
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);		
 	}
 	
 	public void createMeeting(String meetingID, String meetingName, Boolean recorded, String voiceBridge, Long duration) {
-		HashMap<String, Object> map = new HashMap<String, Object>();
-		map.put("messageId", MessagingConstants.CREATE_MEETING_REQUEST_EVENT);
-		map.put("meetingID", meetingID);
-		map.put("meetingName", meetingName);
-		map.put("record", recorded);
-		map.put("voiceBridge", voiceBridge);
-		map.put("duration", duration);
-		
-		Gson gson = new Gson();
-		log.info("Sending create meeting [{}] - [{}]", meetingID, voiceBridge);
-		sender.send(MessagingConstants.TO_MEETING_CHANNEL, gson.toJson(map));		
+		CreateMeetingMessage msg = new CreateMeetingMessage(meetingID, meetingName, recorded, voiceBridge, duration);
+		String json = MessageToJson.createMeetingMessageToJson(msg);
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);			
 	}
 	
 	public void endMeeting(String meetingId) {
-		HashMap<String,String> map = new HashMap<String, String>();
-		map.put("messageId", MessagingConstants.END_MEETING_REQUEST_EVENT);
-		map.put("meetingId", meetingId);
-		Gson gson = new Gson();
-		log.info("Sending end meeting [{}]", meetingId);
-		sender.send(MessagingConstants.TO_MEETING_CHANNEL, gson.toJson(map));
+		EndMeetingMessage msg = new EndMeetingMessage(meetingId);
+		String json = MessageToJson.endMeetingMessageToJson(msg);
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);	
 	}
 
   public void send(String channel, String message) {

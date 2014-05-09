@@ -53,8 +53,8 @@ public class ParticipantsApplication {
 		return true;
 	}
 	
-	public boolean registerUser(String roomName, String userid, String username, String role, String externUserID, Map status) {
-		bbbInGW.registerUser(roomName, userid, username, role, externUserID);
+	public boolean registerUser(String roomName, String userid, String username, String role, String externUserID) {
+		bbbInGW.registerUser(roomName, userid, username, role, externUserID, userid);
 		return true;
 	}
 		

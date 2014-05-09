@@ -567,7 +567,7 @@ public class ParamsProcessorUtil {
 
 		String baseString = csbuf.toString();
 
-//		System.out.println( "POST basestring = [" + baseString + "]");
+		System.out.println( "POST basestring = [" + baseString + "]");
 		
 		log.debug("POST basestring = [" + baseString + "]");
 		
