@@ -4,7 +4,6 @@ package org.bigbluebutton.conference.service.chat;
 
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
-import org.bigbluebutton.conference.service.presentation.ConversionUpdatesProcessor;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 
@@ -23,20 +22,19 @@ public class ChatMessageListener implements MessageHandler{
 	
 	@Override
 	public void handleMessage(String pattern, String channel, String message) {
-		if (channel.equalsIgnoreCase(MessagingConstants.ANTON_CHANNEL))
-		{
+		if (channel.equalsIgnoreCase(MessagingConstants.TO_CHAT_CHANNEL)) {
 			System.out.println("AntonChannel=(chatlistener)" + channel);
 
 			JsonParser parser = new JsonParser();
 			JsonObject obj = (JsonObject) parser.parse(message);
 			JsonObject headerObject = (JsonObject) obj.get("header");
 			JsonObject payloadObject = (JsonObject) obj.get("payload");
-			JsonObject messageObject = (JsonObject)payloadObject.get("message");
+			JsonObject messageObject = (JsonObject) payloadObject.get("message");
 
 			String eventName = headerObject.get("name").toString();
 			eventName = eventName.replace("\"", "");
 
-			if(eventName.equalsIgnoreCase("public_chat_message_event") || 
+			if (eventName.equalsIgnoreCase("public_chat_message_event") || 
 				eventName.equalsIgnoreCase("send_public_chat_message") ||
 				eventName.equalsIgnoreCase("private_chat_message_event") ||
 				eventName.equalsIgnoreCase("send_private_chat_message")){
@@ -82,11 +80,10 @@ public class ChatMessageListener implements MessageHandler{
 					bbbGW.sendPrivateMessage(meetingID, requesterID, map); //TODO not tested yet
 				}
 				//case getChatHistory
-				else if(eventName.equalsIgnoreCase("get_chat_history")) //TODO this is not the correct name
-				{
+				else if(eventName.equalsIgnoreCase("get_chat_history")) {
 					System.out.println("I'm in the case for a requesting chat history" );
-
-					bbbGW.getChatHistory(meetingID, requesterID);
+          String replyTo = meetingID + "/" + requesterID;
+					bbbGW.getChatHistory(meetingID, requesterID, replyTo);
 				}
 			}
 		}

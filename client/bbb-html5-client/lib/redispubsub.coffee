@@ -23,11 +23,11 @@ module.exports = class RedisPubSub
         else
           @send(msg, envelope)
 
-    @subClient.on "subscribe", @_onSubscribe
-    @subClient.on "message", @_onMessage
+    @subClient.on "psubscribe", @_onSubscribe
+    @subClient.on "pmessage", @_onMessage
 
     log.info("RPC: Subscribing message on channel: #{config.redis.channels.fromBBBApps}")
-    @subClient.subscribe(config.redis.channels.fromBBBApps)
+    @subClient.psubscribe(config.redis.channels.fromBBBApps)
 
   # Sends a message and waits for a reply
   sendAndWaitForReply: (message, envelope) ->
@@ -69,8 +69,8 @@ module.exports = class RedisPubSub
   _onSubscribe: (channel, count) =>
     log.info("Subscribed to #{channel}")
 
-  _onMessage: (channel, jsonMsg) =>
-    log.debug({ channel: channel, message: jsonMsg}, "Received a message from redis")
+  _onMessage: (pattern, channel, jsonMsg) =>
+    log.debug({ pattern: pattern, channel: channel, message: jsonMsg}, "Received a message from redis")
     # TODO: this has to be in a try/catch block, otherwise the server will
     #   crash if the message has a bad format
     message = JSON.parse(jsonMsg)

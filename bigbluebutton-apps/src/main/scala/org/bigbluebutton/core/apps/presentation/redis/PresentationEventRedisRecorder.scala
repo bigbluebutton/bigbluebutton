@@ -19,7 +19,7 @@ import org.bigbluebutton.core.api.ClearPresentationOutMsg
 import org.bigbluebutton.core.api.PresentationConversionDone
 
 class PresentationEventRedisRecorder(recorder: RecorderApplication) extends OutMessageListener2 {
-  	private val GENERATED_SLIDE_KEY = "GENERATED_SLIDE";
+  private val GENERATED_SLIDE_KEY = "GENERATED_SLIDE";
 	private val CONVERSION_COMPLETED_KEY = "CONVERSION_COMPLETED";
 	
   def handleMessage(msg: IOutMessage) {
@@ -40,31 +40,34 @@ class PresentationEventRedisRecorder(recorder: RecorderApplication) extends OutM
   
   
   private def handlePresentationConversionDone(msg: PresentationConversionDone) {	
-	val event = new ConversionCompletedPresentationRecordEvent();
-	event.setMeetingId(msg.meetingID);
-	event.setTimestamp(System.currentTimeMillis());
-	event.setPresentationName(msg.presentation.id);
-	event.setOriginalFilename(msg.presentation.name);
-	recorder.record(msg.meetingID, event);     
+    if (msg.recorded) {
+	    val event = new ConversionCompletedPresentationRecordEvent();
+	    event.setMeetingId(msg.meetingID);
+	    event.setTimestamp(System.currentTimeMillis());
+	    event.setPresentationName(msg.presentation.id);
+	    event.setOriginalFilename(msg.presentation.name);
+	    recorder.record(msg.meetingID, event);       
+    }
+    
   }
   		
   private def handleGotoSlideOutMsg(msg: GotoSlideOutMsg) {
-	if (msg.recorded) {
-		val event = new GotoSlidePresentationRecordEvent();
-		event.setMeetingId(msg.meetingID);
-		event.setTimestamp(System.currentTimeMillis());
-		event.setSlide(msg.page.num);
-		event.setId(msg.page.id);
-		event.setNum(msg.page.num);
-		event.setThumbUri(msg.page.thumbUri);
-		event.setSwfUri(msg.page.swfUri);
-		event.setTxtUri(msg.page.txtUri);
-		event.setPngUri(msg.page.pngUri);
-		event.setXOffset(msg.page.xOffset);
-		event.setYOffset(msg.page.yOffset);
-		event.setWidthRatio(msg.page.widthRatio);
-		event.setHeightRatio(msg.page.heightRatio);
-		recorder.record(msg.meetingID, event);			
+	  if (msg.recorded) {
+      val event = new GotoSlidePresentationRecordEvent();
+      event.setMeetingId(msg.meetingID);
+		  event.setTimestamp(System.currentTimeMillis());
+		  event.setSlide(msg.page.num);
+		  event.setId(msg.page.id);
+		  event.setNum(msg.page.num);
+		  event.setThumbUri(msg.page.thumbUri);
+		  event.setSwfUri(msg.page.swfUri);
+		  event.setTxtUri(msg.page.txtUri);
+		  event.setPngUri(msg.page.pngUri);
+		  event.setXOffset(msg.page.xOffset);
+		  event.setYOffset(msg.page.yOffset);
+		  event.setWidthRatio(msg.page.widthRatio);
+		  event.setHeightRatio(msg.page.heightRatio);
+		  recorder.record(msg.meetingID, event);			
 	}
   }
 

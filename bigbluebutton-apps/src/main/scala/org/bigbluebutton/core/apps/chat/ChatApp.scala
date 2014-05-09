@@ -13,19 +13,19 @@ trait ChatApp {
 		
   def handleGetChatHistoryRequest(msg: GetChatHistoryRequest) {
     val history  = new Array[Map[String, String]](messages.size)
-	messages.copyToArray(history)
-	outGW.send(new GetChatHistoryReply(meetingID, recorded, msg.requesterID, history))
+    messages.copyToArray(history)
+    outGW.send(new GetChatHistoryReply(meetingID, recorded, msg.requesterID, msg.replyTo, history))
   }
 	
   def handleSendPublicMessageRequest(msg: SendPublicMessageRequest) {
-	messages append msg.message.toMap	  
-	val pubMsg = msg.message.toMap
+	  messages append msg.message.toMap	  
+	  val pubMsg = msg.message.toMap
 	  
-	outGW.send(new SendPublicMessageEvent(meetingID, recorded, msg.requesterID, pubMsg))
+	  outGW.send(new SendPublicMessageEvent(meetingID, recorded, msg.requesterID, pubMsg))
   }
 	
   def handleSendPrivateMessageRequest(msg: SendPrivateMessageRequest) {
-	val pubMsg = msg.message.toMap	  
-	outGW.send(new SendPrivateMessageEvent(meetingID, recorded, msg.requesterID, pubMsg))	  
+	  val pubMsg = msg.message.toMap	  
+	  outGW.send(new SendPrivateMessageEvent(meetingID, recorded, msg.requesterID, pubMsg))	  
   }
 }

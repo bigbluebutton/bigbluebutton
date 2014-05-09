@@ -205,7 +205,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		assert bbbSession != null;
 		String userId = bbbSession.getInternalUserID();
 		String meetingId = Red5.getConnectionLocal().getScope().getName();
-		bbbGW.validateAuthToken(meetingId, userId, token);
+		bbbGW.validateAuthToken(meetingId, userId, token, meetingId + "/" + userId);
 	}
 	
 	public void joinMeeting(String userId) {

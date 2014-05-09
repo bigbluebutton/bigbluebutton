@@ -59,11 +59,11 @@ public class ESLEventListener implements IEslEventListener {
         
         System.out.println("Received Conference Join Event from FreeSWITCH user[" + callerIdName + "]");
         
-		Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
-		if (matcher.matches()) {			
-			voiceUserId = matcher.group(1).trim();
-			callerIdName = matcher.group(2).trim();
-		} 
+		    Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
+		    if (matcher.matches()) {			
+			    voiceUserId = matcher.group(1).trim();
+			    callerIdName = matcher.group(2).trim();
+		    } 
         
         VoiceUserJoinedEvent pj = new VoiceUserJoinedEvent(voiceUserId, memberId.toString(), confName, callerId, callerIdName, muted, speaking);
         conferenceEventListener.handleConferenceEvent(pj);

@@ -134,7 +134,7 @@ public class KeepAliveService implements MessageListener {
 
      	pingMessages.add(msg.getId());
      	log.debug("Sending keep alive message to bbb-apps. keep-alive id [{}]", msg.getId());
-     	service.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
+     	service.send(MessagingConstants.TO_SYSTEM_CHANNEL, gson.toJson(map));
    	} else {
    		// BBB-Apps has gone down. Mark it as unavailable and clear
    		// pending ping messages. This allows us to continue to send ping messages

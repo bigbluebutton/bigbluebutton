@@ -24,7 +24,7 @@ public interface IBigBlueButtonInGW {
 	
 	
 	// Users
-	void validateAuthToken(String meetingId, String userId, String token);
+	void validateAuthToken(String meetingId, String userId, String token, String correlationId);
 	void registerUser(String roomName, String userid, String username, String role, String externUserID);
 	void userRaiseHand(String meetingId, String userId);	
 	void lowerHand(String meetingId, String userId, String loweredBy);
@@ -59,12 +59,12 @@ public interface IBigBlueButtonInGW {
 	// Presentation
 	void clear(String meetingID);
 	void removePresentation(String meetingID, String presentationID);
-	void getPresentationInfo(String meetingID, String requesterID);
+	void getPresentationInfo(String meetingID, String requesterID, String replyTo);
 	void sendCursorUpdate(String meetingID, double xPercent, double yPercent);
 	void resizeAndMoveSlide(String meetingID, double xOffset, double yOffset, double widthRatio, double heightRatio);
 	void gotoSlide(String meetingID, String page);
 	void sharePresentation(String meetingID, String presentationID, boolean share);
-	void getSlideInfo(String meetingID, String requesterID);
+	void getSlideInfo(String meetingID, String requesterID, String replyTo);
 
 	void sendConversionUpdate(String messageKey, String meetingId, 
             String code, String presId, String presName); 
@@ -97,16 +97,16 @@ public interface IBigBlueButtonInGW {
 	void unlockLayout(String meetingID, String requesterID);
 
 	// Chat
-	void getChatHistory(String meetingID, String requesterID);
+	void getChatHistory(String meetingID, String requesterID, String replyTo);
 	void sendPublicMessage(String meetingID, String requesterID, Map<String, String> message);
 	void sendPrivateMessage(String meetingID, String requesterID, Map<String, String> message);
 
 	// Whiteboard
 	void sendWhiteboardAnnotation(String meetingID, String requesterID, java.util.Map<String, Object> annotation);	
-	void requestWhiteboardAnnotationHistory(String meetingID, String requesterID, String whiteboardId);
+	void requestWhiteboardAnnotationHistory(String meetingID, String requesterID, String whiteboardId, String replyTo);
 	void clearWhiteboard(String meetingID, String requesterID, String whiteboardId);
 	void undoWhiteboard(String meetingID, String requesterID, String whiteboardId);
 	void enableWhiteboard(String meetingID, String requesterID, Boolean enable);
-	void isWhiteboardEnabled(String meetingID, String requesterID);
+	void isWhiteboardEnabled(String meetingID, String requesterID, String replyTo);
 	
 }

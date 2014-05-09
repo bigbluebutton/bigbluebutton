@@ -136,7 +136,7 @@ class ApiController {
       } else {
 	  	// BEGIN - backward compatibility
 	  	invalid("idNotUnique", "A meeting already exists with that meeting ID.  Please use a different meeting ID.");
-		return;
+		  return;
 	  	// END - backward compatibility
 	  
         // enforce meetingID unique-ness

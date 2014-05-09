@@ -6,7 +6,7 @@ object Constants {
   val PAYLOAD                         = "payload"
   val MEETING_ID                      = "meeting_id"
   val TIMESTAMP                       = "timestamp"
-  val USER_ID                         = "user_id"
+  val USER_ID                         = "userid"
   val RECORDED                        = "recorded"
   val MEETING_NAME                    = "meeting_name"
   val VOICE_CONF                      = "voice_conf"
@@ -82,5 +82,7 @@ object Constants {
   val PAGES                           = "pages"
   val WEB_USER_ID                     = "web_user_id"
   val JOINED                          = "joined"
-    
+  val X_PERCENT                       = "x_percent"
+  val Y_PERCENT                       = "y_percent"
+  val KEEP_ALIVE_ID                   = "keep_alive_id"  
 }

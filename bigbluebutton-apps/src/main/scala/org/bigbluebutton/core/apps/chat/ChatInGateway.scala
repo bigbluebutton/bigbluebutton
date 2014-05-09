@@ -5,8 +5,8 @@ import org.bigbluebutton.core.api._
 
 class ChatInGateway(bbbGW: BigBlueButtonGateway) {
 
-  def getChatHistory(meetingID: String, requesterID: String) {
-    bbbGW.accept(new GetChatHistoryRequest(meetingID, requesterID))
+  def getChatHistory(meetingID: String, requesterID: String, replyTo: String) {
+    bbbGW.accept(new GetChatHistoryRequest(meetingID, requesterID, replyTo))
   }
   
   def sendPrivateMessage(meetingID: String, requesterID: String, msg: Map[String, String]) {
