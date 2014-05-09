@@ -36,7 +36,17 @@ object UsersMessageToJsonConverter {
 	  
 	  mapAsJavaMap(wuser)
 	}
-	
+
+	private def registeredUserToMap(user: RegisteredUser):java.util.Map[String, Any] = {
+	  val wuser = new scala.collection.mutable.HashMap[String, Any]
+	  wuser += "userid"               -> user.id
+	  wuser += "extern_userid"        -> user.externId
+	  wuser += "name"                 -> user.name
+	  wuser += "role"                 -> user.role.toString()	  
+	  
+	  mapAsJavaMap(wuser)
+	}
+
   def disconnectAllUsersToJson(msg: DisconnectAllUsers):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
@@ -114,7 +124,7 @@ object UsersMessageToJsonConverter {
   def userRegisteredToJson(msg: UserRegistered):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.USER, msg.user.toString()) 
+    payload.put(Constants.USER, registeredUserToMap(msg.user)) 
     payload.put(Constants.RECORDED, msg.recorded) 
     
     val header = Util.buildHeader(MessageNames.USER_REGISTERED, msg.version, None)
@@ -122,7 +132,7 @@ object UsersMessageToJsonConverter {
   }
     
   
-  def handleUserRaisedHand(msg: UserRaisedHand):String = {
+  def userRaisedHandToJson(msg: UserRaisedHand):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RAISE_HAND, msg.recorded) 
@@ -132,19 +142,15 @@ object UsersMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
   
-  def handleUserLoweredHand(msg: UserLoweredHand) {
+  def userLoweredHandToJson(msg: UserLoweredHand):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RAISE_HAND, msg.recorded) 
     payload.put(Constants.USER_ID, msg.userID)
     payload.put(Constants.LOWERED_BY, msg.loweredBy)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.USER_LOWERED_HAND)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING USER LOWERED HAND *****************")
- //   dispatcher.dispatch(buildJson(header, payload))
+
+    val header = Util.buildHeader(MessageNames.USER_LOWERED_HAND, msg.version, None)
+    Util.buildJson(header, payload)
   }
 
   def userStatusChangeToJson(msg: UserStatusChange):String = {
@@ -158,196 +164,142 @@ object UsersMessageToJsonConverter {
     Util.buildJson(header, payload)
 	}
     
-  def handleUserSharedWebcam(msg: UserSharedWebcam) {
+  def userSharedWebcamToJson(msg: UserSharedWebcam):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
     payload.put(Constants.USER_ID, msg.userID)
     payload.put(Constants.STREAM, msg.stream)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.USER_SHARED_WEBCAM)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING USER SHARED WEBCAM *****************")
-  //  dispatcher.dispatch(buildJson(header, payload))
+
+		val header = Util.buildHeader(MessageNames.USER_SHARED_WEBCAM, msg.version, None)
+    Util.buildJson(header, payload)
   }
   
-  def handleUserUnsharedWebcam(msg: UserUnsharedWebcam) {
+  def userUnsharedWebcamToJson(msg: UserUnsharedWebcam):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
     payload.put(Constants.USER_ID, msg.userID)
     payload.put(Constants.STREAM, msg.stream)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.USER_UNSHARED_WEBCAM)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING USER UNSHARED WEBCAM *****************")
- //   dispatcher.dispatch(buildJson(header, payload))
+		val header = Util.buildHeader(MessageNames.USER_UNSHARED_WEBCAM, msg.version, None)
+    Util.buildJson(header, payload)
   }
 
-  def handleGetUsersReply(msg: GetUsersReply) {
+  def getUsersReplyToJson(msg: GetUsersReply):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.REQUESTER_ID, msg.requesterID) 
 
-//    val users = new java.util.ArrayList[java.util.HashMap[String, Object]];
-//    msg.users.foreach(uvo => {    
-//      users.add(buildUserHashMap(uvo))
-//    })
+    val users = new java.util.ArrayList[java.util.Map[String, Any]];
+    msg.users.foreach(uvo => {    
+      users.add(userToMap(uvo))
+    })
     
- //   payload.put(Constants.USERS, users)
+    payload.put(Constants.USERS, users)
     
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.GET_USERS_REPLY)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-    
-    println("***** DISPATCHING GET USERS REPLY *****************")
- //   dispatcher.dispatch(buildJson(header, payload))
+		val header = Util.buildHeader(MessageNames.GET_USERS_REPLY, msg.version, None)
+    Util.buildJson(header, payload)
   }
 
-  def handleUserJoinedVoice(msg: UserJoinedVoice) {
+  def userJoinedVoice(msg: UserJoinedVoice):String =  {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
-    payload.put(Constants.USER, msg.user.toString())
+    payload.put(Constants.USER, userToMap(msg.user))
     payload.put(Constants.VOICE_CONF, msg.confNum)
     
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.USER_JOINED_VOICE)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
-    println("***** DISPATCHING USER JOINED VOICE *****************")
- //   dispatcher.dispatch(buildJson(header, payload))
+		val header = Util.buildHeader(MessageNames.USER_JOINED_VOICE, msg.version, None)
+    Util.buildJson(header, payload)
   }
   
-  def handleUserVoiceMuted(msg: UserVoiceMuted) {
+  def userVoiceMuted(msg: UserVoiceMuted):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
-    payload.put(Constants.USER, msg.user.toString())
+    payload.put(Constants.USER, userToMap(msg.user))
     payload.put(Constants.VOICE_CONF, msg.confNum)
     
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.USER_VOICE_MUTED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
-    println("***** DISPATCHING USER VOICE MUTED *****************")
- //   dispatcher.dispatch(buildJson(header, payload))
+		val header = Util.buildHeader(MessageNames.USER_VOICE_MUTED, msg.version, None)
+    Util.buildJson(header, payload)
   }
   
-  def handleUserVoiceTalking(msg: UserVoiceTalking) {
+  def userVoiceTalking(msg: UserVoiceTalking):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
-    payload.put(Constants.USER, msg.user.toString())
+    payload.put(Constants.USER, userToMap(msg.user))
     payload.put(Constants.VOICE_CONF, msg.confNum)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.USER_VOICE_TALKING)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING USER VOICE TALKING *****************")
- //   dispatcher.dispatch(buildJson(header, payload))
+
+		val header = Util.buildHeader(MessageNames.USER_VOICE_TALKING, msg.version, None)
+    Util.buildJson(header, payload)
   }
   
-  def handleEjectVoiceUser(msg: EjectVoiceUser) {
+  def ejectVoiceUserToJson(msg: EjectVoiceUser):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
     payload.put(Constants.USER_ID, msg.userId)
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
     
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.EJECT_VOICE_USER)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING EJECT VOICE USER *****************")
- //   dispatcher.dispatch(buildJson(header, payload))
+		val header = Util.buildHeader(MessageNames.EJECT_VOICE_USER, msg.version, None)
+    Util.buildJson(header, payload)
   }
   
-  def handleUserLeftVoice(msg: UserLeftVoice) {
+  def userLeftVoiceToJson(msg: UserLeftVoice):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
-    payload.put(Constants.USER, msg.user.toString())
+    payload.put(Constants.USER, userToMap(msg.user))
     payload.put(Constants.VOICE_CONF, msg.confNum)
     
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.USER_LEFT_VOICE)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING USER LEFT VOICE *****************")
- //   dispatcher.dispatch(buildJson(header, payload))
+		val header = Util.buildHeader(MessageNames.USER_LEFT_VOICE, msg.version, None)
+    Util.buildJson(header, payload)
   }
   
-  def handleIsMeetingMutedReply(msg: IsMeetingMutedReply) {
+  def isMeetingMutedReplyToJson(msg: IsMeetingMutedReply):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
     payload.put(Constants.MUTED, msg.meetingMuted)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.IS_MEETING_MUTED_REPLY)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING IS MEETING MUTED REPLY *****************")
- //   dispatcher.dispatch(buildJson(header, payload))
+
+		val header = Util.buildHeader(MessageNames.IS_MEETING_MUTED_REPLY, msg.version, None)
+    Util.buildJson(header, payload)
   }
   
-  def handleRecordingStatusChanged(msg: RecordingStatusChanged) {
+  def recordingStatusChangedToJson(msg: RecordingStatusChanged):String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.RECORDED, msg.recorded)
+    payload.put(Constants.USER_ID, msg.userId)
+    payload.put(Constants.RECORDING, msg.recording)
+ 
+		val header = Util.buildHeader(MessageNames.RECORDING_STATUS_CHANGED, msg.version, None)
+    Util.buildJson(header, payload)
+  }
+  
+  def getRecordingStatusReplyToJson(msg: GetRecordingStatusReply):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded)
     payload.put(Constants.USER_ID, msg.userId)
     payload.put(Constants.RECORDING, msg.recording)
 
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.RECORDING_STATUS_CHANGED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING RECORDING STATUS CHANGED *****************")
-//    dispatcher.dispatch(buildJson(header, payload))
+		val header = Util.buildHeader(MessageNames.GET_RECORDING_STATUS_REPLY, msg.version, None)
+    Util.buildJson(header, payload)
   }
   
-  def handleGetRecordingStatusReply(msg: GetRecordingStatusReply) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RECORDED, msg.recorded)
-    payload.put(Constants.USER_ID, msg.userId)
-    payload.put(Constants.RECORDING, msg.recording)
-
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.GET_RECORDING_STATUS_REPLY)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING GET RECORDING STATUS REPLY *****************")
- //   dispatcher.dispatch(buildJson(header, payload))
-  }
-  
-  def handleValidateAuthTokenReply(msg: ValidateAuthTokenReply) {
-		//HEADER
-		var header = new java.util.HashMap[String, Any]()
-		header.put("name", "validate_auth_token_reply")
-		header.put("timestamp", System.currentTimeMillis())
-
-		//PAYLOAD
-		var payload = new java.util.HashMap[String, Object]()
+  def validateAuthTokenReplyToJson(msg: ValidateAuthTokenReply):String = {
+		val payload = new java.util.HashMap[String, Any]()
 		payload.put("correlation_id", msg.correlationId)
 		payload.put("valid", msg.valid.toString)
 		payload.put("user_id", msg.requesterId)
 		payload.put("token", msg.token)
 		payload.put("meeting_id", msg.meetingID)  
 		
-		val gson= new Gson();
-		
-		var map = new java.util.HashMap[String, Any]()
-		map.put("header", header)
-		map.put("payload", payload)
-//		service.send(MessagingConstants.FROM_USERS_CHANNEL, gson.toJson(map));		
+		val header = Util.buildHeader(MessageNames.VALIDATE_AUTH_TOKEN_REPLY, msg.version, None)
+    Util.buildJson(header, payload)
   }
   
 	def userJoinedToJson(msg: UserJoined):String = {
@@ -359,16 +311,6 @@ object UsersMessageToJsonConverter {
     Util.buildJson(header, payload)
 	}
 	
-	def handleRegisteredUser(msg: UserRegistered) {
-	  val args = new java.util.HashMap[String, Object]();  
-	  args.put("userId", msg.user.id);
-
-	  val message = new java.util.HashMap[String, Object]() 
-	  val gson = new Gson();
-  	  message.put("msg", gson.toJson(args))
-  	  
-  	  println("UsersClientMessageSender - handleRegisteredUser \n" + message.get("msg") + "\n")
-	}
 		
 	def userLeftToJson(msg: UserLeft):String = {
 	  val payload = new java.util.HashMap[String, Any]()
@@ -379,7 +321,7 @@ object UsersMessageToJsonConverter {
     Util.buildJson(header, payload)
 	}
 	
-	def handlePresenterAssigned(msg: PresenterAssigned) {
+	def presenterAssignedToJson(msg: PresenterAssigned):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.NEW_PRESENTER_ID, msg.presenter.presenterID);
@@ -387,24 +329,16 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.ASSIGNED_BY, msg.presenter.assignedBy);
     payload.put(Constants.RECORDED, msg.recorded) 
     
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.PRESENTER_ASSIGNED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING PRESENTER ASSIGNED *****************")
- //   dispatcher.dispatch(buildJson(header, payload))
+    val header = Util.buildHeader(MessageNames.PRESENTER_ASSIGNED, msg.version, None)
+    Util.buildJson(header, payload)
   }
   
-	def handleEndAndKickAll(msg: EndAndKickAll) {
+	def endAndKickAllToJson(msg: EndAndKickAll):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
     
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.END_AND_KICK_ALL)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
-    println("***** DISPATCHING END AND KICK ALL *****************")
- //   dispatcher.dispatch(buildJson(header, payload))
+    val header = Util.buildHeader(MessageNames.END_AND_KICK_ALL, msg.version, None)
+    Util.buildJson(header, payload)
   }  
 }
