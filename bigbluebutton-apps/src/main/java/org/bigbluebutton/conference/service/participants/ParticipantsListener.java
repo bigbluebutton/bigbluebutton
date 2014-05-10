@@ -44,7 +44,7 @@ public class ParticipantsListener implements MessageHandler{
 					String role = payloadObject.get("role").toString().replace("\"", "");
 					String externUserID = payloadObject.get("external_user_id").toString().replace("\"", "");
 
-					bbbInGW.registerUser(roomName, userID, username, role, externUserID);
+					
 				}
 				else if(eventName.equalsIgnoreCase("participant_left")){ //TODO the event name is probably incorrect
 					String userID = payloadObject.get("user_id").toString().replace("\"", "");

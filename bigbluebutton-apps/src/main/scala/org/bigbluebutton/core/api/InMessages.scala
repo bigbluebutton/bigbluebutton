@@ -83,7 +83,8 @@ case class RegisterUser(
     userID: String, 
     name: String, 
     role: Role, 
-    extUserID: String
+    extUserID: String,
+    authToken: String
 ) extends InMessage
                        
 case class UserJoining(

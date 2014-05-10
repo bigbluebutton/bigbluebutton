@@ -336,19 +336,19 @@ class ApiController {
 	
 	UserSession us = new UserSession();
 	us.internalUserId = internalUserID
-    us.conferencename = meeting.getName()
-    us.meetingID = meeting.getInternalId()
+  us.conferencename = meeting.getName()
+  us.meetingID = meeting.getInternalId()
 	us.externMeetingID = meeting.getExternalId()
-    us.externUserID = externUserID
-    us.fullname = fullName 
-    us.role = role
-    us.conference = meeting.getInternalId()
-    us.room = meeting.getInternalId()
-    us.voicebridge = meeting.getTelVoice()
-    us.webvoiceconf = meeting.getWebVoice()
-    us.mode = "LIVE"
-    us.record = meeting.isRecord()
-    us.welcome = meeting.getWelcomeMessage()
+  us.externUserID = externUserID
+  us.fullname = fullName 
+  us.role = role
+  us.conference = meeting.getInternalId()
+  us.room = meeting.getInternalId()
+  us.voicebridge = meeting.getTelVoice()
+  us.webvoiceconf = meeting.getWebVoice()
+  us.mode = "LIVE"
+  us.record = meeting.isRecord()
+  us.welcome = meeting.getWelcomeMessage()
 	us.logoutUrl = meeting.getLogoutUrl();
 	us.configXML = configxml;
 			
@@ -369,6 +369,9 @@ class ApiController {
 	session['logout-url'] = us.logoutUrl
 	
 	meetingService.addUserSession(session['user-token'], us);
+	
+	// Register user into the meeting.
+	meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.internalUserId /* authToken for now */)
 	
 	log.info("Session user token for " + us.fullname + " [" + session['user-token'] + "]")	
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
@@ -405,6 +408,9 @@ class ApiController {
 				returncode(RESP_CODE_SUCCESS)
 				messageKey("successfullyJoined")
 				message("You have joined successfully.")
+				meeting_id(us.meetingID)
+				user_id(us.internalUserId)
+				auth_token(us.internalUserId)
 			  }
 			}
 		  }

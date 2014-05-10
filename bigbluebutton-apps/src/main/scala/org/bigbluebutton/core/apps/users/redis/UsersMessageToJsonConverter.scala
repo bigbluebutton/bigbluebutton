@@ -43,6 +43,7 @@ object UsersMessageToJsonConverter {
 	  wuser += "extern_userid"        -> user.externId
 	  wuser += "name"                 -> user.name
 	  wuser += "role"                 -> user.role.toString()	  
+	  wuser += "authToken"            -> user.authToken
 	  
 	  mapAsJavaMap(wuser)
 	}

@@ -80,6 +80,10 @@ public class MeetingService implements MessageListener {
 		sessions.put(token, user);
 	}
 	
+	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken) {
+		messagingService.registerUser(meetingID, internalUserId, fullname, role, externUserID, authToken);
+	}
+	
 	public UserSession getUserSession(String token) {
 		return sessions.get(token);
 	}
