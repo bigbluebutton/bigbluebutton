@@ -5,6 +5,7 @@ import java.util.HashMap;
 import org.bigbluebutton.api.messaging.converters.messages.CreateMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.KeepAliveMessage;
 import org.bigbluebutton.api.messaging.converters.messages.RegisterUserMessage;
 
 public class MessageToJson {
@@ -16,6 +17,7 @@ public class MessageToJson {
 		payload.put(Constants.USER_ID, message.internalUserId);
 		payload.put(Constants.ROLE, message.role);
 		payload.put(Constants.EXT_USER_ID, message.externUserID);
+		payload.put(Constants.AUTH_TOKEN, message.authToken);
 		
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(RegisterUserMessage.REGISTER_USER, message.VERSION, null);
 
@@ -48,5 +50,15 @@ public class MessageToJson {
 		
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(EndMeetingMessage.END_MEETING_REQUEST_EVENT, EndMeetingMessage.VERSION, null);
 		return MessageBuilder.buildJson(header, payload);				
-	}		
+	}	
+
+	public static String keepAliveMessageToJson(KeepAliveMessage msg) {
+		HashMap<String, Object> payload = new HashMap<String, Object>();
+		payload.put(Constants.KEEP_ALIVE_ID, msg.keepAliveId);
+		
+		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(KeepAliveMessage.KEEP_ALIVE_REQUEST, KeepAliveMessage.VERSION, null);
+		return MessageBuilder.buildJson(header, payload);				
+	}	
+	
+	
 }

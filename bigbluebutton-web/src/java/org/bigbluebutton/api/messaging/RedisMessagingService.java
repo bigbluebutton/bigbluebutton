@@ -27,16 +27,20 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import javax.imageio.ImageIO;
 
 import org.bigbluebutton.api.messaging.converters.messages.CreateMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.KeepAliveMessage;
 import org.bigbluebutton.api.messaging.converters.messages.RegisterUserMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
@@ -57,8 +61,8 @@ public class RedisMessagingService implements MessagingService {
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);	
 	}
 	
-	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID) {
-		RegisterUserMessage msg = new RegisterUserMessage(meetingID, internalUserId, fullname, role, externUserID);
+	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken) {
+		RegisterUserMessage msg = new RegisterUserMessage(meetingID, internalUserId, fullname, role, externUserID, authToken);
 		String json = MessageToJson.registerUserToJson(msg);
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);		
 	}
@@ -75,6 +79,12 @@ public class RedisMessagingService implements MessagingService {
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);	
 	}
 
+  public void sendKeepAlive(String keepAliveId) {
+		KeepAliveMessage msg = new KeepAliveMessage(keepAliveId);
+		String json = MessageToJson.keepAliveMessageToJson(msg);
+		sender.send(MessagingConstants.TO_SYSTEM_CHANNEL, json);		
+  }
+	
   public void send(String channel, String message) {
 		sender.send(channel, message);
   }

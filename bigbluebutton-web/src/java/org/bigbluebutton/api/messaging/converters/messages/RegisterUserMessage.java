@@ -9,12 +9,14 @@ public class RegisterUserMessage {
 	public final String fullname;
 	public final String role;
 	public final String externUserID;
+	public final String authToken;
 	
-	public RegisterUserMessage(String meetingID, String internalUserId, String fullname, String role, String externUserID) {
+	public RegisterUserMessage(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken) {
 		this.meetingID = meetingID;
 		this.internalUserId = internalUserId;
 		this.fullname = fullname;
 		this.role = role;
-		this.externUserID = externUserID;		
+		this.externUserID = externUserID;	
+		this.authToken = authToken;
 	}
 }

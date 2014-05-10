@@ -52,6 +52,4 @@ public class MessagingConstants {
 	public static final String SEND_POLLS_EVENT = "SendPollsEvent";
 	public static final String RECORD_STATUS_EVENT = "RecordStatusEvent";
 	
-	public static final String VALIDATE_AUTH_TOKEN = "validate_auth_token";
-
 }
