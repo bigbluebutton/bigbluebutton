@@ -72,6 +72,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
    * Message Interface for Users
    *************************************************************/
   def validateAuthToken(meetingId: String, userId: String, token: String, correlationId: String) {
+    println("******************** VALIDATE TOKEN [" + token + "] ***************************** ")
     bbbGW.accept(new ValidateAuthToken(meetingId, userId, token, correlationId))
   }
   

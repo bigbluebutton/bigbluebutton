@@ -26,7 +26,7 @@ public class MeetingMessageHandler implements MessageHandler {
 	
 	@Override
 	public void handleMessage(String pattern, String channel, String message) {
-		log.debug("Checking message: " + pattern + " " + channel + " " + message);
+		System.out.println("Checking message: " + pattern + " " + channel + " " + message);
 		if (channel.equalsIgnoreCase(MessagingConstants.TO_MEETING_CHANNEL)) {
 
 			IMessage msg = MessageFromJsonConverter.convert(message);

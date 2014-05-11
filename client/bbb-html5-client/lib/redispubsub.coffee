@@ -57,7 +57,7 @@ module.exports = class RedisPubSub
 
     # put the entry in the hash so we can match the response later
     @pendingRequests[correlationId] = entry
-    message.header.correlation_id = correlationId
+    message.header.replyTo = correlationId
 
     log.info({ message: message }, "Publishing a message")
     @pubClient.publish(config.redis.channels.toBBBApps, JSON.stringify(message))
@@ -76,7 +76,7 @@ module.exports = class RedisPubSub
     message = JSON.parse(jsonMsg)
 
     # retrieve the request entry
-    correlationId = message.header?.correlation_id
+    correlationId = message.header?.replyTo
     if correlationId? and @pendingRequests?[correlationId]?
       entry = @pendingRequests[correlationId]
       # make sure the message in the timeout isn't triggered by clearing it

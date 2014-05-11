@@ -39,6 +39,7 @@ trait UsersApp {
   }
   
   def handleValidateAuthToken(msg: ValidateAuthToken) {
+    println("*************** Got ValidateAuthToken message ********************" )
     regUsers.get (msg.userId) match {
       case Some(u) => outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true, msg.correlationId))
       case None => outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, false, msg.correlationId))

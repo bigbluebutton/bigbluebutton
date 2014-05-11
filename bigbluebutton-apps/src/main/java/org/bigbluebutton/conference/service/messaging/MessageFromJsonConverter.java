@@ -24,15 +24,26 @@ public class MessageFromJsonConverter {
 					return processEndMeetingMessage(payload);
 				  case KeepAliveMessage.KEEP_ALIVE_REQUEST:
 					return processKeepAlive(payload);
+				  case ValidateAuthTokenMessage.VALIDATE_AUTH_TOKEN:
+					return processValidateAuthTokenMessage(header, payload);
 				}
 			}
 		}
 		return null;
 	}
+	
+	private static IMessage processValidateAuthTokenMessage(JsonObject header, JsonObject payload) {
+		String id = payload.get(Constants.MEETING_ID).getAsString();
+		String userid = payload.get(Constants.USER_ID).getAsString();
+		String authToken = payload.get(Constants.AUTH_TOKEN).getAsString();
+		String replyTo = header.get(Constants.REPLY_TO).getAsString();
 		
+		return new ValidateAuthTokenMessage(id, userid, authToken, replyTo);
+	}
+	
 	private static IMessage processCreateMeeting(JsonObject payload) {
 		String id = payload.get(Constants.MEETING_ID).getAsString();
-		String name = payload.get(Constants.MEETING_ID).getAsString();
+		String name = payload.get(Constants.NAME).getAsString();
 		Boolean record = payload.get(Constants.RECORDED).getAsBoolean();
 		String voiceBridge = payload.get(Constants.VOICE_CONF).getAsString();
 		Long duration = payload.get(Constants.DURATION).getAsLong();
