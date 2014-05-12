@@ -4,9 +4,11 @@ hapi     = require 'hapi'
 path     = require 'path'
 
 handlers = require './lib/handlers'
+config   = require './config.json'
+
 
 app = express()
-app.set('port', process.env.PORT || 4000)
+app.set('port', config.settings.PORT)
 app.set('views', '/views')
 
 app.get('/', handlers.index)
