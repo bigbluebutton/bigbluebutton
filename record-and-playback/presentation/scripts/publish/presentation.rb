@@ -534,9 +534,10 @@ def processSlideEvents
 			slide_start = ( translateTimestamp(slide_timestamp) / 1000 ).round(1)
 			orig_slide_start = ( slide_timestamp.to_f / 1000 ).round(1)
 			slide_number = node.xpath(".//slide")[0].text()
-                        slide_number = slide_number.to_i < 0 ? "0" : slide_number			
-			slide_src = "presentation/#{$presentation_name}/slide-#{slide_number.to_i + 1}.png"
-                        txt_file_path = "presentation/#{$presentation_name}/textfiles/slide-#{slide_number.to_i + 1}.txt"
+                        slide_number = slide_number.to_i < 0 ? "0" : slide_number
+			index_add = $version.nil? ? 1 : 0 			
+			slide_src = "presentation/#{$presentation_name}/slide-#{slide_number.to_i + index_add}.png"
+                        txt_file_path = "presentation/#{$presentation_name}/textfiles/slide-#{slide_number.to_i + index_add}.txt"
                         slide_text = File.exist?("#{$process_dir}/#{txt_file_path}") ? txt_file_path : nil
 			image_url = "#{$process_dir}/#{slide_src}"
 
@@ -888,7 +889,8 @@ if ($playback == "presentation")
 				BigBlueButton::Events.get_start_and_stop_rec_events("#{$process_dir}/events.xml"))
 
 		recording_time = computeRecordingLength()
-
+		
+		$version = BigBlueButton::Events.bbb_version("#{$process_dir}/events.xml")
 		BigBlueButton.logger.info("Creating metadata.xml")
 		# Create metadata.xml
 		b = Builder::XmlMarkup.new(:indent => 2)

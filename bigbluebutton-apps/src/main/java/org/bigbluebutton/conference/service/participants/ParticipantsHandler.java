@@ -125,7 +125,7 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 			status.put("presenter", false);
 			status.put("hasStream", false);	
 
-			participantsApplication.registerUser(room, userid, username, role, bbbSession.getExternUserID(), status);
+			participantsApplication.registerUser(room, userid, username, role, bbbSession.getExternUserID());
 		}
 		log.warn("Can't send user join as session is null.");
 	}

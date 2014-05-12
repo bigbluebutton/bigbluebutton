@@ -41,15 +41,16 @@ dependencies {
 	compile 'redis.clients:jedis:2.0.0'
 	compile 'commons-pool:commons-pool:1.5.6'
 	compile 'commons-lang:commons-lang:2.5'
-        compile 'com.google.code.gson:gson:1.7.1'
+  compile 'com.google.code.gson:gson:1.7.1'
 	
-       // Logging
-//        compile 'ch.qos.logback:logback-core:1.0.9@jar'
-//        compile 'ch.qos.logback:logback-classic:1.0.9@jar'
-//        compile 'org.slf4j:log4j-over-slf4j:1.7.2@jar'
-//        compile 'org.slf4j:jcl-over-slf4j:1.7.2@jar'
-//        compile 'org.slf4j:jul-to-slf4j:1.7.2@jar'
-//        compile 'org.slf4j:slf4j-api:1.7.2@jar'
+  // Logging
+  // Commenting out as it results in build failure (ralam - may 11, 2014)
+  //compile 'ch.qos.logback:logback-core:1.0.9@jar'
+  //compile 'ch.qos.logback:logback-classic:1.0.9@jar'
+  //compile 'org.slf4j:log4j-over-slf4j:1.7.2@jar'
+  //compile 'org.slf4j:jcl-over-slf4j:1.7.2@jar'
+  //compile 'org.slf4j:jul-to-slf4j:1.7.2@jar'
+  //compile 'org.slf4j:slf4j-api:1.7.2@jar'
 
 	//junit
 	compile 'junit:junit:4.8.2'

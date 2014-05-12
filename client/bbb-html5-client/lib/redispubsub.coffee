@@ -23,11 +23,11 @@ module.exports = class RedisPubSub
         else
           @send(msg, envelope)
 
-    @subClient.on "subscribe", @_onSubscribe
-    @subClient.on "message", @_onMessage
+    @subClient.on "psubscribe", @_onSubscribe
+    @subClient.on "pmessage", @_onMessage
 
     log.info("RPC: Subscribing message on channel: #{config.redis.channels.fromBBBApps}")
-    @subClient.subscribe(config.redis.channels.fromBBBApps)
+    @subClient.psubscribe(config.redis.channels.fromBBBApps)
 
   # Sends a message and waits for a reply
   sendAndWaitForReply: (message, envelope) ->
@@ -57,7 +57,7 @@ module.exports = class RedisPubSub
 
     # put the entry in the hash so we can match the response later
     @pendingRequests[correlationId] = entry
-    message.header.correlation_id = correlationId
+    message.header.replyTo = correlationId
 
     log.info({ message: message }, "Publishing a message")
     @pubClient.publish(config.redis.channels.toBBBApps, JSON.stringify(message))
@@ -69,14 +69,14 @@ module.exports = class RedisPubSub
   _onSubscribe: (channel, count) =>
     log.info("Subscribed to #{channel}")
 
-  _onMessage: (channel, jsonMsg) =>
-    log.debug({ channel: channel, message: jsonMsg}, "Received a message from redis")
+  _onMessage: (pattern, channel, jsonMsg) =>
+    log.debug({ pattern: pattern, channel: channel, message: jsonMsg}, "Received a message from redis")
     # TODO: this has to be in a try/catch block, otherwise the server will
     #   crash if the message has a bad format
     message = JSON.parse(jsonMsg)
 
     # retrieve the request entry
-    correlationId = message.header?.correlation_id
+    correlationId = message.header?.replyTo
     if correlationId? and @pendingRequests?[correlationId]?
       entry = @pendingRequests[correlationId]
       # make sure the message in the timeout isn't triggered by clearing it

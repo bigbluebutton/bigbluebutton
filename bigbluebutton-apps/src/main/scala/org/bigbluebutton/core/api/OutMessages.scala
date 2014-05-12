@@ -143,18 +143,21 @@ case class UserLeft(
 case class PresenterAssigned(
     meetingID: String, 
     recorded: Boolean, 
-    presenter: Presenter
+    presenter: Presenter,
+  version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class EndAndKickAll(
     meetingID: String, 
-    recorded: Boolean
+    recorded: Boolean,
+  version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class GetUsersReply(
     meetingID: String, 
     requesterID: String, 
-    users: Array[UserVO]
+    users: Array[UserVO],
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                          
 case class ValidateAuthTokenReply(
@@ -162,7 +165,9 @@ case class ValidateAuthTokenReply(
   requesterId: String,
   token: String,
   valid: Boolean,
-  correlationId: String) extends IOutMessage
+  correlationId: String,
+  version:String = Versions.V_0_0_1
+  ) extends IOutMessage
 
 case class UserJoined(
     meetingID: String, 
@@ -216,42 +221,48 @@ case class MuteVoiceUser(
     recorded: Boolean, 
     requesterID: String, 
     userId: String, 
-    mute: Boolean
+    mute: Boolean,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class UserVoiceMuted(
     meetingID: String, 
     recorded: Boolean, 
     confNum: String,
-    user:UserVO
+    user:UserVO,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class UserVoiceTalking(
     meetingID: String, 
     recorded: Boolean, 
     confNum: String,
-    user:UserVO
+    user:UserVO,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class EjectVoiceUser(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    userId: String
+    userId: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class UserJoinedVoice(
     meetingID: String, 
     recorded: Boolean, 
     confNum: String,
-    user:UserVO
+    user:UserVO,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class UserLeftVoice(
     meetingID: String, 
     recorded: Boolean, 
     confNum: String,
-    user:UserVO
+    user:UserVO,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                            
 // Voice
@@ -259,7 +270,8 @@ case class IsMeetingMutedReply(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    meetingMuted: Boolean
+    meetingMuted: Boolean,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class StartRecording(

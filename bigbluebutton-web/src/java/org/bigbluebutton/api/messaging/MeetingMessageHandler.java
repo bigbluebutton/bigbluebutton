@@ -32,59 +32,98 @@ public class MeetingMessageHandler implements MessageHandler {
 
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
-		if (obj.has("header")) return; // we don't currently handle this type of message
+						
+	  if (channel.equalsIgnoreCase(MessagingConstants.FROM_MEETING_CHANNEL)) {	
+			if (obj.has("header") && obj.has("payload")) {
+				JsonObject header = (JsonObject) obj.get("header");
+				JsonObject payload = (JsonObject) obj.get("payload");
 				
-	  if (channel.equalsIgnoreCase(MessagingConstants.FROM_MEETING_CHANNEL)) {		
-		  HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
-		  String messageId = map.get("messageID");
-
-		  for (MessageListener listener : listeners) {
-			  if(MessagingConstants.MEETING_STARTED_EVENT.equalsIgnoreCase(messageId)) {
-				  String meetingId = map.get("meetingID");
-				  listener.handle(new MeetingStarted(meetingId));
-			  } else if(MessagingConstants.MEETING_ENDED_EVENT.equalsIgnoreCase(messageId)) {
-				  String meetingId = map.get("meetingID");
-				  listener.handle(new MeetingEnded(meetingId));
-			  } else if (MessagingConstants.MEETING_DESTROYED_EVENT.equalsIgnoreCase(messageId)) {
-				  String meetingId = map.get("meetingID");
-				  log.info("Received a meeting destroyed message for meeting id=[{}]", meetingId);
-				  listener.handle(new MeetingDestroyed(meetingId));
-			  } 
-		  }
-	  } else if (channel.equalsIgnoreCase(MessagingConstants.FROM_SYSTEM_CHANNEL)) {		
-		  HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
-		  String messageId = map.get("messageID");
-
-		  for (MessageListener listener : listeners) {
-			  if (MessagingConstants.KEEP_ALIVE_REPLY_EVENT.equalsIgnoreCase(messageId)){
-				  String pongId = map.get("aliveID");
-				  listener.handle(new KeepAliveReply(pongId));
-			  } 
-		  }
-		 } else if (channel.equalsIgnoreCase(MessagingConstants.FROM_USERS_CHANNEL)) {		
-			  HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
-			  String messageId = map.get("messageID");
-
-			  for (MessageListener listener : listeners) {
-				  if (MessagingConstants.USER_JOINED_EVENT.equalsIgnoreCase(messageId)){
-			  	  String meetingId = map.get("meetingID");
-				    String userId = map.get("internalUserID");
-				    String externalUserId = map.get("externalUserID");
-				    String name = map.get("fullname");
-				    String role = map.get("role");			
-					  listener.handle(new UserJoined(meetingId, userId, externalUserId, name, role));
-			    } else if(MessagingConstants.USER_STATUS_CHANGE_EVENT.equalsIgnoreCase(messageId)){
-				    String userId = map.get("internalUserID");
-				    String status = map.get("status");
-				    String value = map.get("value");
-				    String meetingId = map.get("meetingID");
-					  listener.handle(new UserStatusChanged(meetingId, userId, status, value));
-			    } else if(MessagingConstants.USER_LEFT_EVENT.equalsIgnoreCase(messageId)){
-				    String userId = map.get("internalUserID");
-				    String meetingId = map.get("meetingID");
-					  listener.handle(new UserLeft(meetingId, userId));
-			    }
-			  }
+				if (header.has("name")) {
+					String messageName = header.get("name").getAsString();
+					System.out.println("Received [" + messageName + "] message on channel [" + channel + "].");
+				  
+					  if(MessagingConstants.MEETING_STARTED_EVENT.equalsIgnoreCase(messageName)) {
+					  	System.out.println("Handling [" + messageName + "] message.");
+						  String meetingId = payload.get("meeting_id").getAsString();
+						  for (MessageListener listener : listeners) {
+						    listener.handle(new MeetingStarted(meetingId));
+						  }
+					  } else if(MessagingConstants.MEETING_ENDED_EVENT.equalsIgnoreCase(messageName)) {
+					  	System.out.println("Handling [" + messageName + "] message.");
+						  String meetingId = payload.get("meeting_id").getAsString();
+						  for (MessageListener listener : listeners) {
+						    listener.handle(new MeetingEnded(meetingId));
+						  }
+					  } else if (MessagingConstants.MEETING_DESTROYED_EVENT.equalsIgnoreCase(messageName)) {
+					  	System.out.println("Handling [" + messageName + "] message.");
+						  String meetingId = payload.get("meeting_id").getAsString();
+						  log.info("Received a meeting destroyed message for meeting id=[{}]", meetingId);
+						  for (MessageListener listener : listeners) {
+						    listener.handle(new MeetingDestroyed(meetingId));
+						  }
+					  }
+				}				
+			}
+	  } else if (channel.equalsIgnoreCase(MessagingConstants.FROM_SYSTEM_CHANNEL)) {
+	  	
+			if (obj.has("header") && obj.has("payload")) {
+				JsonObject header = (JsonObject) obj.get("header");
+				JsonObject payload = (JsonObject) obj.get("payload");
+				
+				if (header.has("name")) {
+					String messageName = header.get("name").getAsString();
+					System.out.println("Received [" + messageName + "] message on channel [" + channel + "].");
+				  for (MessageListener listener : listeners) {
+					  if (MessagingConstants.KEEP_ALIVE_REPLY.equalsIgnoreCase(messageName)){
+						  String pongId = payload.get("keep_alive_id").getAsString();
+						  listener.handle(new KeepAliveReply(pongId));
+					  } 
+				  }
+				}				
+			}
+		 } else if (channel.equalsIgnoreCase(MessagingConstants.FROM_USERS_CHANNEL)) {	
+				if (obj.has("header") && obj.has("payload")) {
+					JsonObject header = (JsonObject) obj.get("header");
+					JsonObject payload = (JsonObject) obj.get("payload");
+					
+					if (header.has("name")) {
+						String messageName = header.get("name").getAsString();
+						System.out.println("Received [" + messageName + "] message on channel [" + channel + "].");
+					  
+						if (MessagingConstants.USER_JOINED_EVENT.equalsIgnoreCase(messageName)) {
+              System.out.println("Handling [" + messageName + "] message.");
+							String meetingId = payload.get("meeting_id").getAsString();
+							JsonObject user = (JsonObject) payload.get("user");
+							
+							String userid = user.get("userid").getAsString();
+							String externuserid = user.get("extern_userid").getAsString();
+							String username = user.get("name").getAsString();
+							String role = user.get("role").getAsString();
+							
+							for (MessageListener listener : listeners) {
+								listener.handle(new UserJoined(meetingId, userid, externuserid, username, role));
+							}
+						} else if(MessagingConstants.USER_STATUS_CHANGE_EVENT.equalsIgnoreCase(messageName)) {
+						 	System.out.println("Handling [" + messageName + "] message.");
+						  String meetingId = payload.get("meeting_id").getAsString();
+						  String userid = payload.get("userid").getAsString();
+						  String status = payload.get("status").getAsString();
+						  String value = payload.get("value").getAsString();
+						  for (MessageListener listener : listeners) {
+						  	listener.handle(new UserStatusChanged(meetingId, userid, status, value));
+						  }
+						} else if (MessagingConstants.USER_LEFT_EVENT.equalsIgnoreCase(messageName)) {
+						 	System.out.println("Handling [" + messageName + "] message.");
+							String meetingId = payload.get("meeting_id").getAsString();
+							JsonObject user = (JsonObject) payload.get("user");
+							
+							String userid = user.get("userid").getAsString();
+						  for (MessageListener listener : listeners) {
+						  	listener.handle(new UserLeft(meetingId, userid));
+						  }
+						}
+					}				
+				}
 		  } 
 	}
 }

@@ -127,14 +127,9 @@ public class KeepAliveService implements MessageListener {
   	
   private void processPing(KeepAlivePing msg) {
    	if (pingMessages.size() < maxLives) {
-     	HashMap<String,String> map = new HashMap<String,String>();
-     	map.put("messageId", KEEP_ALIVE_REQUEST);
-     	map.put("aliveId", msg.getId());
-     	Gson gson = new Gson();
-
      	pingMessages.add(msg.getId());
      	log.debug("Sending keep alive message to bbb-apps. keep-alive id [{}]", msg.getId());
-     	service.send(MessagingConstants.TO_SYSTEM_CHANNEL, gson.toJson(map));
+     	service.sendKeepAlive(msg.getId());
    	} else {
    		// BBB-Apps has gone down. Mark it as unavailable and clear
    		// pending ping messages. This allows us to continue to send ping messages

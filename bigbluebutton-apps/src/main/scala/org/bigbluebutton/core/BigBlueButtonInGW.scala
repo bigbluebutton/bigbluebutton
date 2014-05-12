@@ -72,12 +72,13 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
    * Message Interface for Users
    *************************************************************/
   def validateAuthToken(meetingId: String, userId: String, token: String, correlationId: String) {
+    println("******************** VALIDATE TOKEN [" + token + "] ***************************** ")
     bbbGW.accept(new ValidateAuthToken(meetingId, userId, token, correlationId))
   }
   
-  def registerUser(meetingID: String, userID: String, name: String, role: String, extUserID: String):Unit = {
+  def registerUser(meetingID: String, userID: String, name: String, role: String, extUserID: String, authToken: String):Unit = {
     val userRole = if (role == "MODERATOR") Role.MODERATOR else Role.VIEWER
-    bbbGW.accept(new RegisterUser(meetingID, userID, name, userRole, extUserID))
+    bbbGW.accept(new RegisterUser(meetingID, userID, name, userRole, extUserID, authToken))
   }
   
   def sendLockSettings(meetingID: String, settings: java.util.Map[String, java.lang.Boolean]) {

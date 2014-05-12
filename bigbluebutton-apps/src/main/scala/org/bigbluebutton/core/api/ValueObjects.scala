@@ -47,7 +47,8 @@ case class RegisteredUser (
     id: String, 
     externId: String,
     name: String, 
-    role: Role.Role 
+    role: Role.Role,
+    authToken: String
 )
 
 case class Voice(
