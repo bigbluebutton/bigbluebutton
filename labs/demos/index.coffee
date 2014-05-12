@@ -3,9 +3,8 @@ http     = require 'http'
 hapi     = require 'hapi'
 path     = require 'path'
 
-handlers = require './lib/handlers'
 config   = require './config.json'
-
+handlers = require './lib/handlers'
 
 app = express()
 app.set('port', config.settings.PORT)
