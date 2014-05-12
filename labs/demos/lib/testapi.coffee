@@ -4,7 +4,7 @@ bbbapi  = require './bbbapi'
 config  = require '../config.json'
 
 bbbServer = config.settings.IP + "/bigbluebutton/api/"
-sharedSecret = "74a91f30f165423067bf3039722e33e0"
+sharedSecret = config.settings.salt
 
 console.log "will be creating a meeting on server: " + bbbServer
 
