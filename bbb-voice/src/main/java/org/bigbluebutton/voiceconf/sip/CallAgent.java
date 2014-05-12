@@ -310,7 +310,7 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 		globalAudioStreamName = GlobalCall.getGlobalAudioStream(destination);
 	}
 	GlobalCall.addUser(_destination);
-	clientConnManager.joinConferenceSuccessNew(clientId, globalAudioStreamName, GlobalCall.getRoomCodec(destination));
+	clientConnManager.joinConferenceSuccess(clientId, "", globalAudioStreamName, GlobalCall.getRoomCodec(destination));
 
    }
     

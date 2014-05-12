@@ -34,34 +34,27 @@ public class Service {
 	
 	private MessageFormat callExtensionPattern = new MessageFormat("{0}");
     	
-	public Boolean call(String peerId, String callerName, String destination, Boolean global) {
-
-		
-		
-		if(global == true) {
-			if(GlobalCall.reservePlaceToCreateGlobal(destination) == true) {
+	public Boolean call(String peerId, String callerName, String destination, Boolean listenOnly) {
+		if (listenOnly) {
+			if (GlobalCall.reservePlaceToCreateGlobal(destination)) {
 				String extension = callExtensionPattern.format(new String[] { destination });
 				try {
-					sipPeerManager.callGlobal(peerId, destination, "GLOBAL_AUDIO_" + destination, getClientId(), callerName, extension);
+					sipPeerManager.callGlobal(peerId, getClientId(), callerName, extension, destination, "GLOBAL_AUDIO_" + destination);
 					Red5.getConnectionLocal().setAttribute("VOICE_CONF_PEER", peerId);
 				} catch (PeerNotFoundException e) {
 					log.error("PeerNotFound {}", peerId);
 					return false;
-				}	
-			}
-			else {
+				}
+			} else {
 				sipPeerManager.returnGlobalStream(peerId, getClientId(), destination);
 				Red5.getConnectionLocal().setAttribute("VOICE_CONF_PEER", peerId);
 			}
-		}
-		else {
+		} else {
 			Boolean result = call(peerId, callerName, destination);
 			return result;
 		}
 
 		return true;
-		
-		
 	}
 
 	public Boolean call(String peerId, String callerName, String destination) {

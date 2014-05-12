@@ -66,12 +66,12 @@ public final class SipPeerManager {
     	sipPeer.call(clientId, callerName, destination);
     }
 
-    public void callGlobal(String peerId, String GlobalClientId, String GlobalCallerName, String clientId, String callerName, String destination) throws PeerNotFoundException {
-	SipPeer sipPeer = sipPeers.get(peerId);
-    	if (sipPeer == null) throw new PeerNotFoundException("Can't find sip peer " + peerId);
-    		sipPeer.callGlobal(GlobalClientId, GlobalCallerName, clientId, callerName, destination);
+    public void callGlobal(String peerId, String clientId, String callerName, String destination, String clientIdGlobal, String callerNameGlobal) throws PeerNotFoundException {
+        SipPeer sipPeer = sipPeers.get(peerId);
+        if (sipPeer == null) throw new PeerNotFoundException("Can't find sip peer " + peerId);
+        sipPeer.callGlobal(clientId, callerName, destination, clientIdGlobal, callerNameGlobal);
     }
-     
+
     public void unregister(String userid) {
     	SipPeer sipUser = sipPeers.get(userid);
     	if (sipUser != null) {

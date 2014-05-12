@@ -17,13 +17,12 @@ public class GlobalCall {
     }
 
     public static synchronized boolean reservePlaceToCreateGlobal(String roomName) {
-	if(voiceConference.containsKey(roomName) == false) {
-		voiceConference.put(roomName, "reserved");
-		return true;
-	}
-	else {
-		return false;
-	}
+        if (voiceConference.containsKey(roomName)) {
+            return false;
+        } else {
+            voiceConference.put(roomName, "reserved");
+            return true;
+        }
     }
 
     public static synchronized void addGlobalAudioStream(String roomName, String globalAudioStreamName, String codecName, KeepGlobalAudioAlive globalAudioKeepAlive) {
