@@ -60,7 +60,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </EventHandlers>
 
 	<EventHandlers type="{FlashCallConnectedEvent.CALL_CONNECTED_EVENT}">     
-		<MethodInvoker generator="{PhoneEventMapDelegate}" method="disableToolbarButton"/>
+		<MethodInvoker generator="{PhoneEventMapDelegate}" method="disableToolbarButton" arguments="{event.listenOnlyCall}"/>
     </EventHandlers>
     
     <EventHandlers type="{FlashCallDisconnectedEvent.CALL_DISCONNECTED_EVENT}">   

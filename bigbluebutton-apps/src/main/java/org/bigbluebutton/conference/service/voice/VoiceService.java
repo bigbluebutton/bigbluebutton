@@ -32,12 +32,6 @@ public class VoiceService {
 		bbbInGW = inGW;
 	}
 
-	public void getMeetMeUsers() {
-		String meetingID = Red5.getConnectionLocal().getScope().getName();
-		String requesterID = getBbbSession().getInternalUserID();		
-		bbbInGW.getVoiceUsers(meetingID, requesterID);
-	}
-
 	/*
 	private Map<Integer, Map> arrayListToMap(ArrayList<Participant> alp) {
 		log.debug("Converting arraylist to Map " + alp.size());

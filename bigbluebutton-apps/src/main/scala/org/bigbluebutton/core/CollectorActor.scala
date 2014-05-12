@@ -1452,7 +1452,6 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.GET_PERMISSION_SETTINGS_REPLY)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING GET PERMISSIONS SETTING REPLY *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   

@@ -37,7 +37,7 @@ public class CallStream implements StreamObserver {
 
     private FlashToSipAudioStream userTalkStream;
     private SipToFlashAudioStream userListenStream;
-    private final Codec sipCodec;
+    public final Codec sipCodec;
     private final SipConnectInfo connInfo;
     private final IScope scope;
     private CallStreamObserver callStreamObserver;
@@ -79,6 +79,10 @@ public class CallStream implements StreamObserver {
     
     public String getListenStreamName() {
     	return userListenStream.getStreamName();
+    }
+
+    public Codec getSipCodec() {
+	return sipCodec;
     }
     
     public void startTalkStream(IBroadcastStream broadcastStream, IScope scope) throws StreamException {
