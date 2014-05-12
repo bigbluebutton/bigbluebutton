@@ -39,22 +39,20 @@ public class Service {
 			if (GlobalCall.reservePlaceToCreateGlobal(destination)) {
 				String extension = callExtensionPattern.format(new String[] { destination });
 				try {
-					sipPeerManager.callGlobal(peerId, getClientId(), callerName, extension, destination, "GLOBAL_AUDIO_" + destination);
+					sipPeerManager.call(peerId, destination, "GLOBAL_AUDIO_" + destination, extension);
 					Red5.getConnectionLocal().setAttribute("VOICE_CONF_PEER", peerId);
 				} catch (PeerNotFoundException e) {
 					log.error("PeerNotFound {}", peerId);
 					return false;
 				}
-			} else {
-				sipPeerManager.returnGlobalStream(peerId, getClientId(), destination);
-				Red5.getConnectionLocal().setAttribute("VOICE_CONF_PEER", peerId);
 			}
+			sipPeerManager.connectToGlobalStream(peerId, getClientId(), destination);
+			Red5.getConnectionLocal().setAttribute("VOICE_CONF_PEER", peerId);
+			return true;
 		} else {
 			Boolean result = call(peerId, callerName, destination);
 			return result;
 		}
-
-		return true;
 	}
 
 	public Boolean call(String peerId, String callerName, String destination) {
