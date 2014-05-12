@@ -3,7 +3,7 @@ http     = require 'http'
 hapi     = require 'hapi'
 path     = require 'path'
 
-handlers = require './handlers'
+handlers = require './lib/handlers'
 
 app = express()
 app.set('port', process.env.PORT || 4000)
