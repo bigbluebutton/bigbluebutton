@@ -1,6 +1,10 @@
 Instructions
 ============
 
+Modify the file "config.json" so the fields for IP and salt are
+matching your bbb-web configuration
+PORT is used in the next steps (assuming you use 4000)
+
 Run:
 $ coffee index.coffee
 
