@@ -7,8 +7,6 @@
   },
   "dependencies": {
     "express": "4.1.2",
-    "hapi": "4.1.0",
-    "http": "*",
-    "path": "0.4.9"
+    "hapi": "4.1.0"
   }
 }
