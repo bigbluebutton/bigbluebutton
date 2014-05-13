@@ -17,7 +17,7 @@ login = (req, resp) ->
   joinParams.fullName = JSON.stringify req.query.username
 
   #calling createapi
-  bbbapi.create(createParams, serverAndSecret, {}, (error, response, body) ->
+  bbbapi.create(createParams, serverAndSecret, {}, (errorOuter, responseOuter, bodyOuter) ->
     #console.log JSON.stringify(response)
     bbbapi.join(joinParams, serverAndSecret, {}, (error, response, body) ->
       xml = '' + response.body
@@ -32,17 +32,35 @@ login = (req, resp) ->
         "\nuser_id = " + user_id + 
         "\nauth_token = " + auth_token
 
+        ###XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest
+        xhr = new XMLHttpRequest()
 
-        joinParams.userID = user_id
-        joinParams.meeting_id = meeting_id
-        joinParams.auth_token = auth_token
-        bbbapi.join(joinParams, serverAndSecret, {}, (error, response, body) ->
-          if error
-            console.log "error =" + error
-          else
-            console.log "wooo-hoooo"
-        )
+        url = "http:/192.168.0.203/html5.client?meeting_id=" + meeting_id +
+         "&user_id=" + user_id + "&auth_token=" + auth_token
+        url2 = "http://google.com"
+        if(xhr)
+          console.log("+++")
+          xhr.onreadystatechange = () ->
+            console.log("State: " + this.readyState);
 
+            if (this.readyState == 4) 
+              console.log("Complete.\nBody length: " + this.responseText.length);
+              console.log("Body:\n" + this.responseText);
+            
+          xhr.open('GET', url)
+          xhr.send()
+        else
+          console.log("----")###
+
+
+
+
+      ###resp.redirect("http:/192.168.0.203/html5.client?meeting_id=" + meeting_id +
+         "&user_id=" + user_id + "&auth_token=" + auth_token)###
+
+      resp.redirect("http://google.com")  #trying to use the "cors" npm module
+
+      console.log ("I am done for now "+ req.xhr)
     )
   )
 

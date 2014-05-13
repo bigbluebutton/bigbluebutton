@@ -10,8 +10,23 @@ app = express()
 app.set('port', config.settings.PORT)
 app.set('views', '/views')
 
+
+cors = require('cors')
+
+corsOptions = {
+  origin: 'http://google.com'
+}
+
+
+
+
+
+
+
+
+
 app.get('/', handlers.index)
-app.post('/login', handlers.login)
+app.post('/login', cors(corsOptions), handlers.login)
 
 http.createServer(app).listen(app.get('port'), () ->
 	console.log('Express server listening on port ' + app.get('port'))
@@ -24,3 +39,4 @@ app.get "/*", (req, res, next) ->
 
   #Send the requesting client the file.
   res.sendfile __dirname + "/" + file
+
