@@ -7,6 +7,8 @@ index = (request, response) ->
   response.sendfile('./views/index.html')
   
 login = (req, resp) ->
+  ###resp.header("Access-Control-Allow-Origin", "*")
+  resp.header("Access-Control-Allow-Headers", "X-Requested-With")###
 
   createParams = testapi.createParams
   joinParams = testapi.joinParams
@@ -52,15 +54,11 @@ login = (req, resp) ->
         else
           console.log("----")###
 
+        url = "http:/192.168.0.203/html5.client?meeting_id=" + meeting_id + "&user_id=" + user_id + "&auth_token=" + auth_token
 
+        resp.redirect(url)  #trying to use the "cors" npm module
 
-
-      ###resp.redirect("http:/192.168.0.203/html5.client?meeting_id=" + meeting_id +
-         "&user_id=" + user_id + "&auth_token=" + auth_token)###
-
-      resp.redirect("http://google.com")  #trying to use the "cors" npm module
-
-      console.log ("I am done for now "+ req.xhr)
+        console.log ("I am done for now "+ req.xhr)
     )
   )
 
