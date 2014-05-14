@@ -13,15 +13,8 @@ module.exports = class MainRouter
   _registerRoutes: () ->
     @app.get "/", @_index
 
-    @app.get "/html5.client", (req, res) ->
-      meetingId = req.query.meeting_id
-      userId = req.query.user_id
-      authToken = req.query.auth_token
-
-      console.log "\n\nLANDING PAGE IS PASSING:\n" + 
-        "meeting_id=#{meetingId}\n" +
-        "user_id=#{userId}\n" +
-        "auth_token=#{authToken}\n\n"
+    @app.get "/html5.client", @_landingPageHandler
+      
 
   # Base route to render the HTML5 client.
   #
@@ -30,4 +23,21 @@ module.exports = class MainRouter
   # @internal
   _index: (req, res) =>
     res.render "index",
+      title: config.appName
+
+  # A route to enter the HTML5 client from a landing page
+  #
+  # @internal
+  _landingPageHandler: (req, res) ->
+    meetingId = req.query.meeting_id
+    userId = req.query.user_id
+    authToken = req.query.auth_token
+
+    console.log "\n\nLANDING PAGE PROVIDED:\n" + 
+      "meeting_id=#{meetingId}\n" +
+      "user_id=#{userId}\n" +
+      "auth_token=#{authToken}\n\n"
+
+    #render a blank page page.html
+    res.render "session",
       title: config.appName
