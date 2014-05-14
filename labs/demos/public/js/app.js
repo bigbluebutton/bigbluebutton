@@ -2,24 +2,24 @@ var myModule = angular.module('landingPage', []);
 
 
 
-myModule.controller('MainCtrl', function($scope, $http) {
-	$scope.blah = {
-		name: 'zZzZ',
-		password: 'oOoOoO'
-	};
+myModule.controller('MainCtrl', function($scope, $http, $location, $window) {
 	$scope.postUsername = function(username) {
-		console.log("the passed uname=" + this.username);
-		/*jQuery.getJSON("config.json", function (json) {
-			$http.post(json.settings.IP + ':' + json.settings.PORT + '/login?username=' +
-			 $scope.username).success(function(res){
-				console.log("SUCCESS," + JSON.stringify(res));
+		$scope.account = {
+			"name": this.username,
+			"password": 'oOoOoO'
+		};
+		jQuery.getJSON("config.json", function (json) {
+			$http.post('/login', $scope.account).success(function(res) {
+				alert(res.success.url);
+
+				//TODO check if I really need $location
+
+				//console.log(res.success.url);
+				//$window.location.href = 'http://192.168.0.203:3000'; //res.success.url;
+				//$window.location.href = json.settings.IP + ':' + json.settings.PORT;
 			});
-			
-		}); */
-		$http.post('loginnn', $scope.blah).success(function(res){
-			console.log("SUCCESS," + JSON.stringify(res));
-			var newWindow = window.open("", "newWindow", "resizable=yes");
-			newWindow.document.write('JSON.stringify(res)');
-		});
+		}); 
 	}
 });
+
+
