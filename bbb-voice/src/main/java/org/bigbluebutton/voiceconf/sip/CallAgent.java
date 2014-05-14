@@ -55,7 +55,7 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     private ClientConnectionManager clientConnManager; 
     private final String clientId;
     private final AudioConferenceProvider portProvider;
-    private DatagramSocket localSocket;
+    private DatagramSocket localSocket = null;
     private String _callerName;
     private String _destination;
     private Boolean listeningToGlobal = false;
@@ -382,13 +382,11 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     }
     
     private void cleanup() {
+        if (localSocket == null) return;
+
         log.debug("Closing local audio port {}", localSocket.getLocalPort());
-        if (localSocket != null) {
-            if (!listeningToGlobal) {
-                localSocket.close();
-            }
-        } else {
-            log.debug("Trying to close un-allocated port {}", localSocket.getLocalPort());
+        if (!listeningToGlobal) {
+            localSocket.close();
         }
     }
     
