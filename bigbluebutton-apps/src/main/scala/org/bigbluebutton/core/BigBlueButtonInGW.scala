@@ -390,10 +390,6 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	 *******************************************************************/
 	val voiceGW = new VoiceInGateway(bbbGW)
 	
-	def getVoiceUsers(meetingID: String, requesterID: String) {
-	  voiceGW.getVoiceUsers(meetingID, requesterID)
-	}
-	
 	def muteAllUsers(meetingID: String, requesterID: String, mute: java.lang.Boolean) {
 	  voiceGW.muteAllUsers(meetingID, requesterID, mute)
 	}

@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.phone.events
 		public var publishStreamName:String;
 		public var playStreamName:String;
 		public var codec:String;
+		public var listenOnlyCall:Boolean;
 		
 		public function FlashCallConnectedEvent(publishStream:String, playStream:String, vcodec:String)
 		{
@@ -34,6 +35,7 @@ package org.bigbluebutton.modules.phone.events
       this.publishStreamName = publishStream;
       this.playStreamName = playStream;
       this.codec = vcodec;
+      this.listenOnlyCall = !(publishStreamName != null && publishStreamName.length > 0);
 		}
 		
 	}

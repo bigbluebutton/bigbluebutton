@@ -36,6 +36,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.phone.events.WebRtcCallStartedEvent;
       import org.bigbluebutton.modules.phone.events.WebRtcConfCallEndedEvent;
       import org.bigbluebutton.modules.phone.events.WebRtcConfCallStartedEvent;
+      import org.bigbluebutton.modules.phone.events.WebRtcEchoTestFailedEvent;
       import org.bigbluebutton.modules.phone.events.WebRtcEchoTestHasAudioEvent;
       import org.bigbluebutton.modules.phone.events.WebRtcEchoTestNoAudioEvent;
       import org.bigbluebutton.modules.phone.events.WebRtcUserChangedMicEvent;
@@ -100,6 +101,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{LeaveVoiceConferenceCommand.LEAVE_VOICE_CONF}">        
     <MethodInvoker generator="{WebRtcCallManager}" method="handleLeaveVoiceConferenceCommand"/>
   </EventHandlers> 
+  
+  <EventHandlers type="{WebRtcEchoTestFailedEvent.WEBRTC_ECHO_TEST_FAILED}">
+    <MethodInvoker generator="{WebRtcCallManager}" method="handleWebrtcEchoTestFailedEvent" arguments="{event.reason}"/>
+  </EventHandlers>
   
   
 </EventMap>

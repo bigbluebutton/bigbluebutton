@@ -98,7 +98,6 @@ public class SipPeer implements SipRegisterAgentListener {
         log.debug( "SIPUser register : {}", fromURL );
         log.debug( "SIPUser register : {}", registeredProfile.contactUrl );
     }
-    
 
     public void call(String clientId, String callerName, String destination) {
     	if (!registered) {
@@ -112,13 +111,26 @@ public class SipPeer implements SipRegisterAgentListener {
     		log.warn("We are not registered to FreeSWITCH. However, we will allow {} to call {}.", callerName, destination);
 //    		return;
     	}
-    	
-    	SipPeerProfile callerProfile = SipPeerProfile.copy(registeredProfile);    	
+
+    	CallAgent ca = createCallAgent(clientId);
+
+    	ca.call(callerName, destination);
+    }
+
+	public void connectToGlobalStream(String clientId, String destination) {
+    	CallAgent ca = createCallAgent(clientId);
+
+    	ca.connectToGlobalStream(clientId, destination);
+	}
+
+    private CallAgent createCallAgent(String clientId) {
+    	SipPeerProfile callerProfile = SipPeerProfile.copy(registeredProfile);
     	CallAgent ca = new CallAgent(this.clientRtpIp, sipProvider, callerProfile, audioconfProvider, clientId);
     	ca.setClientConnectionManager(clientConnManager);
     	ca.setCallStreamFactory(callStreamFactory);
     	callManager.add(ca);
-    	ca.call(callerName, destination);
+
+    	return ca;
     }
 
 	public void close() {
@@ -134,11 +146,26 @@ public class SipPeer implements SipRegisterAgentListener {
 	}
 
     public void hangup(String clientId) {
-    	log.debug( "SIPUser hangup" );
+        log.debug( "SIPUser hangup" );
 
-    	CallAgent ca = callManager.remove(clientId);
+        CallAgent ca = callManager.remove(clientId);
+
         if (ca != null) {
-           ca.hangup();
+            if (ca.isListeningToGlobal()) {
+                String destination = ca.getDestination();
+                GlobalCall.removeUser(destination);
+                ca.hangup();
+
+                boolean roomRemoved = GlobalCall.removeRoomIfUnused(destination);
+                log.debug("Should the global connection be removed? {}", roomRemoved? "yes": "no");
+                if (roomRemoved) {
+                    log.debug("Hanging up the global audio call {}", destination);
+                    CallAgent caGlobal = callManager.remove(destination);
+                    caGlobal.hangup();
+                }
+            } else {
+                ca.hangup();
+            }
         }
     }
 
@@ -150,7 +177,7 @@ public class SipPeer implements SipRegisterAgentListener {
     		CallAgent ca = (CallAgent) iter.next();
     		ca.hangup();
     	}
-    	
+
         if (registerAgent != null) {
             registerAgent.unregister();
             registerAgent = null;

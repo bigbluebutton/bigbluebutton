@@ -65,7 +65,7 @@ public final class SipPeerManager {
     	if (sipPeer == null) throw new PeerNotFoundException("Can't find sip peer " + peerId);
     	sipPeer.call(clientId, callerName, destination);
     }
-     
+
     public void unregister(String userid) {
     	SipPeer sipUser = sipPeers.get(userid);
     	if (sipUser != null) {
@@ -98,6 +98,13 @@ public final class SipPeerManager {
     private void remove(String userid) {
     	log.debug("Number of SipUsers in Manager before remove {}", sipPeers.size());
         sipPeers.remove(userid);
+    }
+
+    public void connectToGlobalStream(String peerId, String clientId, String destination) {
+    	SipPeer sipUser = sipPeers.get(peerId);
+    	if (sipUser != null) {
+    		sipUser.connectToGlobalStream(clientId, destination);
+    	}
     }
 
     public void close(String userid) {
