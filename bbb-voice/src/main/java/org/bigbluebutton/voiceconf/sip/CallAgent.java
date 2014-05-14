@@ -144,16 +144,16 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     
     /** Closes an ongoing, incoming, or pending call */
     public void hangup() {
+    	if (callState == CallState.UA_IDLE) return;
     	log.debug("hangup");
     	if (listeningToGlobal) {
-    		callState = CallState.UA_IDLE; 
-    		clientConnManager.leaveConference(clientId);
+    		log.debug("Hanging up of a call connected to the global audio stream");
+    		notifyListenersOfOnCallClosed();
     	} else {
-    		if (callState == CallState.UA_IDLE) return;    	
-    		closeVoiceStreams();        
+    		closeVoiceStreams();
     		if (call != null) call.hangup();
-    		callState = CallState.UA_IDLE; 
     	}
+    	callState = CallState.UA_IDLE; 
     }
 
     private DatagramSocket getLocalAudioSocket() throws Exception {
@@ -180,6 +180,10 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     	
     	return socket;
     }
+
+    private boolean isGlobalAudioStream() {
+        return (_callerName != null && _callerName.startsWith("GLOBAL_AUDIO_"));
+    }
     
     private void createVoiceStreams() {
         if (callStream != null) {            
@@ -204,9 +208,8 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 						callStream = callStreamFactory.createCallStream(sipCodec, connInfo);
 						callStream.addCallStreamObserver(this);
 						callStream.start();
-						if (_callerName.startsWith("GLOBAL_AUDIO_")) {
-							KeepGlobalAudioAlive globalAudioKeepAlive = new KeepGlobalAudioAlive(connInfo.getSocket(), connInfo, sipCodec.getCodecId());
-							GlobalCall.addGlobalAudioStream(_destination, callStream.getListenStreamName(), sipCodec.getCodecName(), globalAudioKeepAlive);
+						if (isGlobalAudioStream()) {
+							GlobalCall.addGlobalAudioStream(_destination, callStream.getListenStreamName(), sipCodec, connInfo);
 						} else {
 							notifyListenersOnCallConnected(callStream.getTalkStreamName(), callStream.getListenStreamName());
 						}
@@ -251,7 +254,9 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
         }
 
         GlobalCall.addUser(_destination);
-        clientConnManager.joinConferenceSuccess(clientId, "", globalAudioStreamName, GlobalCall.getRoomCodec(destination));
+        sipCodec = GlobalCall.getRoomCodec(destination);
+        callState = CallState.UA_ONCALL;
+        notifyListenersOnCallConnected("", globalAudioStreamName);
     }
     
     private void closeVoiceStreams() {        
@@ -369,6 +374,8 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     }
     
     private void notifyListenersOfOnCallClosed() {
+    	if (callState == CallState.UA_IDLE) return;
+
     	log.debug("notifyListenersOfOnCallClosed for {}", clientId);
     	clientConnManager.leaveConference(clientId);
     	cleanup();

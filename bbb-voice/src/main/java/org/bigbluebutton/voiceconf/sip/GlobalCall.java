@@ -4,6 +4,7 @@ package org.bigbluebutton.voiceconf.sip;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.net.DatagramSocket;
+import org.red5.app.sip.codecs.Codec;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
@@ -12,27 +13,27 @@ public class GlobalCall {
 
     public static Map<String,String> roomToStreamMap = new ConcurrentHashMap<String,String>();
     public static Map<String,Integer> numberOfUsers = new ConcurrentHashMap<String,Integer>();
-    public static Map<String,String> roomToCodecMap = new ConcurrentHashMap<String, String>();
+    public static Map<String,Codec> roomToCodecMap = new ConcurrentHashMap<String, Codec>();
     public static Map<String,KeepGlobalAudioAlive> globalAudioKeepAliverMap = new ConcurrentHashMap<String, KeepGlobalAudioAlive>();
-    
-    private static boolean roomHasGlobalStream(String roomName) {
-        return roomToStreamMap.containsKey(roomName);
-    }
 
     public static synchronized boolean reservePlaceToCreateGlobal(String roomName) {
         if (roomToStreamMap.containsKey(roomName)) {
+            log.debug("There's already a global audio stream for room {}, no need to create a new one", roomName);
             return false;
         } else {
+            log.debug("Reserving the place to create a global audio stream for room {}", roomName);
             roomToStreamMap.put(roomName, "reserved");
             return true;
         }
     }
 
-    public static synchronized void addGlobalAudioStream(String roomName, String globalAudioStreamName, String codecName, KeepGlobalAudioAlive globalAudioKeepAlive) {
+    public static synchronized void addGlobalAudioStream(String roomName, String globalAudioStreamName, Codec sipCodec, SipConnectInfo connInfo) {
+        log.debug("Adding a global audio stream to room {}", roomName);
         roomToStreamMap.put(roomName, globalAudioStreamName);
-        roomToCodecMap.put(roomName, codecName);
+        roomToCodecMap.put(roomName, sipCodec);
         numberOfUsers.put(roomName, 0);
-        globalAudioKeepAliverMap.put(roomName,globalAudioKeepAlive);
+        KeepGlobalAudioAlive globalAudioKeepAlive = new KeepGlobalAudioAlive(connInfo.getSocket(), connInfo, sipCodec.getCodecId());
+        globalAudioKeepAliverMap.put(roomName, globalAudioKeepAlive);
         globalAudioKeepAlive.start();
     }
 
@@ -50,7 +51,7 @@ public class GlobalCall {
     }
  
     private static void removeRoom(String roomName) {
-        log.debug("REMOVING GLOBAL AUDIO FROM ROOM " + roomName);
+        log.debug("Removing global audio stream of room {}", roomName);
         roomToStreamMap.remove(roomName);
         numberOfUsers.remove(roomName);
         roomToCodecMap.remove(roomName);
@@ -63,18 +64,19 @@ public class GlobalCall {
         int nUsers = numberOfUsers.get(roomName);
         nUsers += 1;
         numberOfUsers.put(roomName, nUsers);
+        log.debug("Adding new user to room {}, current number of users on global stream is {}", roomName, nUsers);
     }
 
     public static synchronized void removeUser(String roomName) {
         if (numberOfUsers.containsKey(roomName)) {
             int nUsers = numberOfUsers.get(roomName);
-            nUsers -=1;
+            nUsers -= 1;
             numberOfUsers.put(roomName, nUsers);
-            log.debug("REMOVING USER: Number of users left is " + nUsers);
+            log.debug("Removing user from room {}, current number of users on global stream is {}", roomName, nUsers);
         }
     }
 
-    public static String getRoomCodec(String roomName) {
+    public static Codec getRoomCodec(String roomName) {
         return roomToCodecMap.get(roomName);
     }
 }
