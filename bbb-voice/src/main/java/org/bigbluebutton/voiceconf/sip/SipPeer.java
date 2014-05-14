@@ -157,7 +157,9 @@ public class SipPeer implements SipRegisterAgentListener {
                 ca.hangup();
 
                 boolean roomRemoved = GlobalCall.removeRoomIfUnused(destination);
+                log.debug("Should the global connection be removed? {}", roomRemoved? "yes": "no");
                 if (roomRemoved) {
+                    log.debug("Hanging up the global audio call {}", destination);
                     CallAgent caGlobal = callManager.remove(destination);
                     caGlobal.hangup();
                 }
