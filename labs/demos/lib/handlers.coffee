@@ -32,8 +32,8 @@ login = (req, resp) ->
         "\nauth_token = " + auth_token
 
         #url = "http:/192.168.0.203/html5.client?meeting_id=" + meeting_id + "&user_id=" + user_id + "&auth_token=" + auth_token
-        url = "http:/192.168.0.203:3000/html5.client?meeting_id=" + meeting_id + "&user_id=" + user_id + "&auth_token=" + auth_token
-        json = 
+        url = "192.168.0.203:3000/html5.client?meeting_id=" + meeting_id + "&user_id=" + user_id + "&auth_token=" + auth_token
+        json =
         resp.json({
           success: {
             url: url
