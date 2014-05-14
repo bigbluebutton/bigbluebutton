@@ -1,8 +1,6 @@
 connect  = require 'connect'
 express  = require 'express'
 http     = require 'http'
-hapi     = require 'hapi'
-path     = require 'path'
 
 config   = require './config.json'
 handlers = require './lib/handlers'

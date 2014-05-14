@@ -12,15 +12,15 @@ login = (req, resp) ->
   serverAndSecret = testapi.serverAndSecret
 
   #use the name from the textbox
-  console.log "\n\nreq=" + JSON.stringify(req.body.name)   + "\n\n"  #query.username
-  #joinParams.fullName = JSON.stringify req.query.username #????
+  console.log "\n\nThe Username passed was=" + JSON.stringify(req.body.name) + "\n\n"
+  joinParams.fullName = JSON.stringify req.body.name
 
   #calling createapi
   bbbapi.create(createParams, serverAndSecret, {}, (errorOuter, responseOuter, bodyOuter) ->
     #console.log JSON.stringify(response)
     bbbapi.join(joinParams, serverAndSecret, {}, (error, response, body) ->
       xml = '' + response.body
-      console.log "\n\nxml=" + xml
+      #console.log "\n\nxml=" + xml
       
       {parseString} = require 'xml2js'
       parseString(xml, (err, result) ->
@@ -32,7 +32,7 @@ login = (req, resp) ->
         "\nauth_token = " + auth_token
 
         #url = "http:/192.168.0.203/html5.client?meeting_id=" + meeting_id + "&user_id=" + user_id + "&auth_token=" + auth_token
-        url = "http:/192.168.0.203:3000/"
+        url = "http:/192.168.0.203:3000/html5.client?meeting_id=" + meeting_id + "&user_id=" + user_id + "&auth_token=" + auth_token
         json = 
         resp.json({
           success: {
