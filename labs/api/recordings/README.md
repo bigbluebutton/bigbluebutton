@@ -30,3 +30,14 @@ returns an array of stringified json recordings (see above for the structure of 
 
 if there are no recordings for the given meetingID, the message 
 "No recordings for meetingid=some_random_string" appears
+
+
+Running Tests
+=============
+while the application is running // $ coffee index.coffee
+open another console and enter:
+$ cake test
+
+or
+$ ./node_modules/.bin/mocha --require coffee-script/register --compilers coffee:coffee-script/register --require should --colors --ignore-leaks --timeout 15000 --reporter spec test/routetests.coffee
+(where test/routetests.coffee is the collecion of tests you want to execute)

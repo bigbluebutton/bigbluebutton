@@ -30,6 +30,23 @@ app.configure ->
   app.use express.methodOverride()
   app.use express.cookieParser()
 
+
+  # Enables CORS
+  enableCORS = (req, res, next) ->
+    res.header('Access-Control-Allow-Origin', '*') #TODO: must restrict this!!!!!!
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS') #TODO: must restrict this!!!!!!
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With') #TODO: must restrict this!!!!!!
+   
+    # intercept OPTIONS method
+    if ('OPTIONS' is req.method)
+      res.send(200)
+    else
+      next()
+ 
+  # enable CORS!
+  app.use(enableCORS)
+
+
   # redis
   app.use express.session(
     secret: config.app.sessionSecret
