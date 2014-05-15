@@ -21,7 +21,7 @@ define [
 
     connect: ->
       unless @socket?
-        console.log "\n\n\n\nconnecting to the socket.io server", @host
+        console.log "connecting to the socket.io server", @host
         @socket = io.connect()
         @_registerEvents()
       else
@@ -52,31 +52,21 @@ define [
 
       # Immediately say we are connected
       @socket.on "connect", =>
-        console.log "socket on: connect\n\n\n\n"
+        console.log "socket on: connect"
         globals.events.trigger("connection:connected")
         #@socket.emit "user connect" # tell the server we have a new user
-
-        #emit the validate token json message
 
         getUrlVars = ()->
           vars = {}
           parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, (m,key,value) ->
             vars[key] = value
-            console.log "value=" + value
           )
           vars
-        
-
-        alert("url=" + window.location.href + 
-          "auth_token=" + getUrlVars()["auth_token"] +
-          "user_id=" + getUrlVars()["user_id"] +
-          "meeting_id=" + getUrlVars()["meeting_id"]
-        )
 
         message = {
           "payload": {
               "auth_token": getUrlVars()["auth_token"]
-              "user_id": getUrlVars()["user_id"]
+              "userid": getUrlVars()["user_id"]
               "meeting_id": getUrlVars()["meeting_id"]
           },
           "header": {
@@ -84,7 +74,11 @@ define [
               "name": "validate_auth_token"
           }
         }
-        @socket.emit "message", message
+
+        validFields = getUrlVars()["auth_token"]? and getUrlVars()["user_id"]? and getUrlVars()["meeting_id"]?
+
+        #emit the validate token json message
+        @socket.emit "message", message if validFields
 
       # Received event to logout yourself
       @socket.on "logout", ->
