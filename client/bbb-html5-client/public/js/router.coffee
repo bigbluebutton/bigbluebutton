@@ -12,15 +12,16 @@ define [
     routes:
       'session': 'showSession',
       'login': 'showLogin',
+
       # '*actions': 'defaultAction'
 
     initialize: ->
       @appView = new AppView()
 
-    showLogin: () ->
+    showLogin: () ->#TEMP I want to show the session window right away
       globals.router.navigate "/login", {replace: true}
-      @loginView ?= new LoginView()
-      @appView.render(@loginView)
+      @sessionView ?= new SessionView()#TEMP I want to show the session window right away
+      @appView.render(@sessionView)#TEMP I want to show the session window right away
 
     showSession: () ->
       globals.router.navigate "/session", {replace: true}
