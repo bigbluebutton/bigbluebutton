@@ -20,10 +20,10 @@ package org.bigbluebutton.voiceconf.sip;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.zoolu.sip.provider.*;
 import org.zoolu.net.SocketAddress;
 import org.slf4j.Logger;
+import org.bigbluebutton.voiceconf.messaging.IMessagingService;
 import org.bigbluebutton.voiceconf.red5.CallStreamFactory;
 import org.bigbluebutton.voiceconf.red5.ClientConnectionManager;
 import org.red5.logging.Red5LoggerFactory;
@@ -43,7 +43,7 @@ public class SipPeer implements SipRegisterAgentListener {
     private CallStreamFactory callStreamFactory;
     
     private CallManager callManager = new CallManager();
-    
+    private IMessagingService messagingService;
     private SipProvider sipProvider;
     private String clientRtpIp;
     private SipRegisterAgent registerAgent;
@@ -53,9 +53,12 @@ public class SipPeer implements SipRegisterAgentListener {
     private boolean registered = false;
     private SipPeerProfile registeredProfile;
     
-    public SipPeer(String id, String sipClientRtpIp, String host, int sipPort, int startAudioPort, int stopAudioPort) {
+    public SipPeer(String id, String sipClientRtpIp, String host, int sipPort, 
+    		int startAudioPort, int stopAudioPort, IMessagingService messagingService) {
+    	
         this.id = id;
         this.clientRtpIp = sipClientRtpIp;
+        this.messagingService = messagingService;
         audioconfProvider = new AudioConferenceProvider(host, sipPort, startAudioPort, stopAudioPort);
         initSipProvider(host, sipPort);
     }
@@ -119,13 +122,13 @@ public class SipPeer implements SipRegisterAgentListener {
 
 	public void connectToGlobalStream(String clientId, String callerIdName, String destination) {
     	CallAgent ca = createCallAgent(clientId);
-
-    	ca.connectToGlobalStream(clientId, callerIdName, destination);
+	    
+    	ca.connectToGlobalStream(clientId, callerIdName, destination); 	
 	}
 
     private CallAgent createCallAgent(String clientId) {
     	SipPeerProfile callerProfile = SipPeerProfile.copy(registeredProfile);
-    	CallAgent ca = new CallAgent(this.clientRtpIp, sipProvider, callerProfile, audioconfProvider, clientId);
+    	CallAgent ca = new CallAgent(this.clientRtpIp, sipProvider, callerProfile, audioconfProvider, clientId, messagingService);
     	ca.setClientConnectionManager(clientConnManager);
     	ca.setCallStreamFactory(callStreamFactory);
     	callManager.add(ca);
@@ -156,6 +159,7 @@ public class SipPeer implements SipRegisterAgentListener {
                 ListenOnlyUser lou = GlobalCall.removeUser(clientId, destination);
                 if (lou != null) {
                 	log.info("User has disconnected from global audio, user [{}] voiceConf {}", lou.callerIdName, lou.voiceConf);
+                	messagingService.userDisconnectedFromGlobalAudio(lou.voiceConf, lou.callerIdName);
                 }
                 ca.hangup();
 

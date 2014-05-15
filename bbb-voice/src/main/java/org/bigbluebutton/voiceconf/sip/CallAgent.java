@@ -18,11 +18,14 @@
 */
 package org.bigbluebutton.voiceconf.sip;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.zoolu.sip.call.*;
 import org.zoolu.sip.provider.SipProvider;
 import org.zoolu.sip.provider.SipStack;
 import org.zoolu.sip.message.*;
 import org.zoolu.sdp.*;
+import org.bigbluebutton.voiceconf.messaging.IMessagingService;
 import org.bigbluebutton.voiceconf.red5.CallStreamFactory;
 import org.bigbluebutton.voiceconf.red5.ClientConnectionManager;
 import org.bigbluebutton.voiceconf.red5.media.CallStream;
@@ -59,6 +62,7 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     private String _callerName;
     private String _destination;
     private Boolean listeningToGlobal = false;
+    private IMessagingService messagingService;
     
     private enum CallState {
     	UA_IDLE(0), UA_INCOMING_CALL(1), UA_OUTGOING_CALL(2), UA_ONCALL(3);    	
@@ -73,12 +77,14 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
         return _destination;
     }
 
-    public CallAgent(String sipClientRtpIp, SipProvider sipProvider, SipPeerProfile userProfile, AudioConferenceProvider portProvider, String clientId) {
+    public CallAgent(String sipClientRtpIp, SipProvider sipProvider, SipPeerProfile userProfile, 
+    		AudioConferenceProvider portProvider, String clientId, IMessagingService messagingService) {
         this.sipProvider = sipProvider;
         this.clientRtpIp = sipClientRtpIp;
         this.userProfile = userProfile;
         this.portProvider = portProvider;
         this.clientId = clientId;
+        this.messagingService = messagingService;
     }
     
     public String getCallId() {
@@ -240,25 +246,29 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     	}
     }
 
-    public void connectToGlobalStream(String clientId, String callerIdName, String destination) {
-        listeningToGlobal = true;
-        _destination = destination;
 
-        String globalAudioStreamName = GlobalCall.getGlobalAudioStream(destination);
+    
+    public void connectToGlobalStream(String clientId, String callerIdName, String voiceConf) {
+        listeningToGlobal = true;
+        _destination = voiceConf;
+
+        String globalAudioStreamName = GlobalCall.getGlobalAudioStream(voiceConf);
         while (globalAudioStreamName.equals("reserved")) {
             try {
                 Thread.sleep(100);
             } catch (Exception e) {
             }
-            globalAudioStreamName = GlobalCall.getGlobalAudioStream(destination);
+            globalAudioStreamName = GlobalCall.getGlobalAudioStream(voiceConf);
         }
 
+
+		    
         GlobalCall.addUser(clientId, callerIdName, _destination);
-        sipCodec = GlobalCall.getRoomCodec(destination);
+        sipCodec = GlobalCall.getRoomCodec(voiceConf);
         callState = CallState.UA_ONCALL;
         notifyListenersOnCallConnected("", globalAudioStreamName);
-        
-        log.info("User is has connected to global audio, user=[" + callerIdName + "] voiceConf = [" + destination + "]");
+        log.info("User is has connected to global audio, user=[" + callerIdName + "] voiceConf = [" + voiceConf + "]");
+        messagingService.userConnectedToGlobalAudio(voiceConf, callerIdName);
         
     }
     
