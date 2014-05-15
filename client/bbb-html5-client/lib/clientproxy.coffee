@@ -59,7 +59,7 @@ module.exports = class ClientProxy
 
   _handleValidMessage: (socket, message) ->
     switch message.header.name
-      when 'validate_auth_token_request'
+      when 'validate_auth_token'
         @_handleLoginMessage socket, message
       else
         log.error({ message: message }, 'Unknown message name.')
