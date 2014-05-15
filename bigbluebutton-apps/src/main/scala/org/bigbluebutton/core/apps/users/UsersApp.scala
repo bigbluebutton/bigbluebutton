@@ -30,6 +30,14 @@ trait UsersApp {
     currentPresenter
   }
   
+  def handleUserConnectedToGlobalAudio(msg: UserConnectedToGlobalAudio) {
+    println("*************** Got UserConnectedToGlobalAudio message for [" + msg.name + "] ********************" )
+  }
+  
+  def handleUserDisconnectedFromGlobalAudio(msg: UserDisconnectedFromGlobalAudio) {
+    println("*************** Got UserDisconnectedToGlobalAudio message for [" + msg.name + "] ********************" )
+  }
+  
   def handleMuteMeetingRequest(msg: MuteMeetingRequest) {
     meetingMuted = msg.mute
     

@@ -171,6 +171,20 @@ case class SendPrivateMessageRequest(
     message: Map[String, String]
 ) extends InMessage
 
+case class UserConnectedToGlobalAudio(
+    meetingID: String, /** Not used. Just to satisfy trait **/
+    voiceConf: String,
+    userid: String,
+    name: String
+) extends InMessage
+
+case class UserDisconnectedFromGlobalAudio(
+    meetingID: String, /** Not used. Just to satisfy trait **/
+    voiceConf: String,
+    userid: String,
+    name: String
+) extends InMessage
+
 // Layout
 case class GetCurrentLayoutRequest(
     meetingID: String, 

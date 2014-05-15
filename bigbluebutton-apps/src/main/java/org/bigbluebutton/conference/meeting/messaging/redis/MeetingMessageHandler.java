@@ -11,6 +11,8 @@ import org.bigbluebutton.conference.service.messaging.KeepAliveMessage;
 import org.bigbluebutton.conference.service.messaging.MessageFromJsonConverter;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.RegisterUserMessage;
+import org.bigbluebutton.conference.service.messaging.UserConnectedToGlobalAudio;
+import org.bigbluebutton.conference.service.messaging.UserDisconnectedFromGlobalAudio;
 import org.bigbluebutton.conference.service.messaging.ValidateAuthTokenMessage;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
@@ -50,6 +52,12 @@ public class MeetingMessageHandler implements MessageHandler {
 					ValidateAuthTokenMessage emm = (ValidateAuthTokenMessage) msg;
 					log.info("Received ValidateAuthTokenMessage toekn request. Meeting id [{}]", emm.meetingId);
 					bbbGW.validateAuthToken(emm.meetingId, emm.userId, emm.token, emm.replyTo);
+				} else if (msg instanceof UserConnectedToGlobalAudio) {
+					UserConnectedToGlobalAudio emm = (UserConnectedToGlobalAudio) msg;
+					bbbGW.userConnectedToGlobalAudio(emm.voiceConf, emm.userid, emm.name);
+				} else if (msg instanceof UserDisconnectedFromGlobalAudio) {
+					UserDisconnectedFromGlobalAudio emm = (UserDisconnectedFromGlobalAudio) msg;
+					bbbGW.userConnectedToGlobalAudio(emm.voiceConf, emm.userid, emm.name);
 				}
 			}
 		} else if (channel.equalsIgnoreCase(MessagingConstants.TO_SYSTEM_CHANNEL)) {

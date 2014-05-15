@@ -181,7 +181,15 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
   def getCurrentPresenter(meetingID: String, requesterID: String):Unit = {
 		// do nothing
   }
-	
+
+  def userConnectedToGlobalAudio(voiceConf: String, userid: String, name: String) {
+    bbbGW.accept(new UserConnectedToGlobalAudio(voiceConf, voiceConf, userid, name))
+  }
+  
+  def userDisconnectedFromGlobalAudio(voiceConf: String, userid: String, name: String) {
+    bbbGW.accept(new UserDisconnectedFromGlobalAudio(voiceConf, voiceConf, userid, name))
+  }
+  
 	/**************************************************************************************
 	 * Message Interface for Presentation
 	 **************************************************************************************/
