@@ -88,7 +88,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.util.logging.Logger;
 	
 			private var globalDispatcher:Dispatcher;			
-			private var dispState:String; //full-screen?
 			private var images:Images = new Images();
 			private var stoppedModules:ArrayCollection;			
 			private var logs:Logger = new Logger();
@@ -112,6 +111,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
 			private var receivedConfigLocaleVer:Boolean = false;
 			private var receivedResourceLocaleVer:Boolean = false;
+
+			private var _hideToolbarsTimer:Timer;
 			
 			public function get mode():String {
 				return _mode;
@@ -120,39 +121,131 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var layoutOptions:LayoutOptions;
 			
 			[Bindable] private var showToolbarOpt:Boolean = true;
+			[Bindable] private var _showToolbar:Boolean = true;
 			[Bindable] private var toolbarHeight:Number = 32;
       [Bindable] private var toolbarPaddingTop:Number = 4;
       [Bindable] private var showFooterOpt:Boolean = true;
+      [Bindable] private var _showFooter:Boolean = true;
       [Bindable] private var footerHeight:Number = 24;
       
       [Bindable] private var isTunneling:Boolean = false;
 			
 			private var confirmingLogout:Boolean = false;
       
+			private const THRESHOLD_AREA_SHOW_TOOLBARS:int = 5;
+			private const HIDE_TOOLBARS_EFFECT_DURATION:int = 500;
+			private const HIDE_TOOLBARS_DELAY:int = 1000;
+
 			public function initOptions(e:Event):void {
 				layoutOptions = new LayoutOptions();
 				layoutOptions.parseOptions();
 				showToolbarOpt = layoutOptions.showToolbar;
-				if (!showToolbarOpt) {
-          toolbarHeight = 0;
-          toolbarPaddingTop = 0;
-        }
 				toolbar.displayToolbar();
-        
-        showFooterOpt = layoutOptions.showFooter;
-        if (!showFooterOpt) {
-          footerHeight = 0;
-        }
-			
-        
-      }
-			
+				showFooterOpt = layoutOptions.showFooter;
+			}
+
 			protected function initializeShell():void {	
 				globalDispatcher = new Dispatcher();
+
+				_hideToolbarsTimer = new Timer(HIDE_TOOLBARS_DELAY, 1);
+				_hideToolbarsTimer.addEventListener(TimerEvent.TIMER, onHideToolbarsTimerComplete);
+
+				if (stage == null) {
+					addEventListener(Event.ADDED_TO_STAGE, initFullScreen);
+				} else {
+					initFullScreen();
+				}
 
 				systemManager.addEventListener(Event.RESIZE, updateCopyrightLabelDimensions);
 				copyrightLabel2.addEventListener(FlexEvent.UPDATE_COMPLETE, updateCopyrightLabelDimensions);
 				updateCopyrightLabelDimensions();
+			}
+
+			private function isFullScreen():Boolean {
+				return stage.displayState == StageDisplayState.FULL_SCREEN ||
+						stage.displayState == StageDisplayState.FULL_SCREEN_INTERACTIVE;
+			}
+
+			private function mouseMoveHandler(e:MouseEvent):void {
+				if (isFullScreen()) {
+					if (e.stageY <= THRESHOLD_AREA_SHOW_TOOLBARS || e.stageY > this.height - THRESHOLD_AREA_SHOW_TOOLBARS) {
+						showToolbars();
+					} else if (e.stageY >= toolbar.height && e.stageY <= this.height - controlBar.height) {
+						hideToolbars();
+					}
+				} else {
+					showToolbars();
+				}
+			}
+
+			private function set showToolbar(visible:Boolean):void {
+				if (!showToolbarOpt) return;
+
+				if (visible) {
+					if (enlargeToolbar.isPlaying) return;
+					if (shrinkToolbar.isPlaying) shrinkToolbar.end();
+
+					enlargeToolbar.heightFrom = toolbar.height;
+					if (enlargeToolbar.heightFrom != enlargeToolbar.heightTo) {
+						_showToolbar = true;
+						enlargeToolbar.play([toolbar]);
+					}
+				} else {
+					if (shrinkToolbar.isPlaying) return;
+					if (enlargeToolbar.isPlaying) enlargeToolbar.end();
+
+					shrinkToolbar.heightFrom = toolbar.height;
+					if (shrinkToolbar.heightFrom != shrinkToolbar.heightTo) {
+						_showToolbar = true;
+						shrinkToolbar.play([toolbar]);
+					}
+				}
+			}
+
+			private function onToolbarEffectEnd():void {
+				_showToolbar = showToolbarOpt && (toolbar.height > 0);
+			}
+
+			private function set showFooter(visible:Boolean):void {
+				if (!showFooterOpt) return;
+
+				if (visible) {
+					if (enlargeControlBar.isPlaying) return;
+					if (shrinkControlBar.isPlaying) shrinkControlBar.end();
+
+					enlargeControlBar.heightFrom = controlBar.height;
+					if (enlargeControlBar.heightFrom != enlargeControlBar.heightTo) {
+						_showFooter = true;
+						enlargeControlBar.play([controlBar]);
+					}
+				} else {
+					if (shrinkControlBar.isPlaying) return;
+					if (enlargeControlBar.isPlaying) enlargeControlBar.end();
+
+					shrinkControlBar.heightFrom = controlBar.height;
+					if (shrinkControlBar.heightFrom != shrinkControlBar.heightTo) {
+						_showFooter = true;
+						shrinkControlBar.play([controlBar]);
+					}
+				}
+			}
+
+			private function onControlBarEffectEnd():void {
+				_showFooter = showFooterOpt && (controlBar.height > 0);
+			}
+
+			private function onHideToolbarsTimerComplete(event:TimerEvent):void {
+				showToolbar = showFooter = false;
+			}
+
+			private function hideToolbars():void {
+				_hideToolbarsTimer.reset();
+				_hideToolbarsTimer.start();
+			}
+
+			private function showToolbars():void {
+				_hideToolbarsTimer.reset();
+				showToolbar = showFooter = true;
 			}
 
 			private function updateCopyrightLabelDimensions(e:Event = null):void {
@@ -164,12 +257,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					copyrightLabel2.width += Math.min(spacer.width, copyrightLabel2.measuredWidth - copyrightLabel2.width);
 				}
 			}
-		
-			protected function initFullScreen():void {				
-				/* Set up full screen handler. */
+			
+			protected function initFullScreen(e:Event = null):void {
 				stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
-				dispState = stage.displayState;
-			}					
+				stage.addEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
+			}
 			
 			private var sendStartModulesEvent:Boolean = true;
 			
@@ -202,16 +294,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function fullScreenHandler(evt:FullScreenEvent):void {
-				dispState = stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
 				if (evt.fullScreen) {
-					LogUtil.debug("Switching to full screen");
-					/* Do something specific here if we switched to full screen mode. */
-				
+					trace("Switching to full screen");
+					hideToolbars();
 				} else {
-					LogUtil.debug("Switching to normal screen");
-					/* Do something specific here if we switched to normal mode. */
+					trace("Switching to normal screen");
+					showToolbars();
 				}
-			}			
+			}
 			
 			private function openLogWindow():void {
 				if (logWindow == null){
@@ -244,18 +334,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function toggleFullScreen():void{
-	   			LogUtil.debug("Toggling fullscreen");
+	   			trace("Toggling fullscreen, current mode: " + stage.displayState);
 	   			try {
 					switch (stage.displayState) {
 						case StageDisplayState.FULL_SCREEN:
-							LogUtil.debug("full screen mode");
+						case StageDisplayState.FULL_SCREEN_INTERACTIVE:
+							trace("Full screen mode, switching to normal screen mode");
 							// If already in full screen mode, switch to normal mode.
 							stage.displayState = StageDisplayState.NORMAL;
 							break;
 						default:
-							LogUtil.debug("Normal screen mode");
+							trace("Normal screen mode, switching to full screen mode");
 							// If not in full screen mode, switch to full screen mode.
-							stage.displayState = StageDisplayState.FULL_SCREEN;
+							stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE;
 							break;
 					}
 				} catch (err:SecurityError) {
@@ -421,12 +512,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 		]]>
 	</mx:Script>
-			
+
+	<mx:Resize id="shrinkToolbar" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="{toolbarHeight}" heightTo="0" effectEnd="onToolbarEffectEnd()" />
+	<mx:Resize id="enlargeToolbar" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="0" heightTo="{toolbarHeight}" effectEnd="onToolbarEffectEnd()" />
+
+	<mx:Resize id="shrinkControlBar" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="{footerHeight}" heightTo="0" effectEnd="onControlBarEffectEnd()" />
+	<mx:Resize id="enlargeControlBar" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="0" heightTo="{footerHeight}" effectEnd="onControlBarEffectEnd()" />
+
 	<views:MainToolbar id="toolbar" 
 					   dock="true" 
 					   width="100%" 
 					   height="{toolbarHeight}" 
-					   visible="{showToolbarOpt}" 
+					   visible="{_showToolbar}" 
+					   includeInLayout="{showToolbarOpt}" 
 					   verticalAlign="middle" 
 					   toolbarOptions="{layoutOptions}" 
 					   paddingTop="{toolbarPaddingTop}"/>
@@ -441,7 +539,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
 	</views:MainCanvas>	
 	
-	<mx:ControlBar width="100%" height="{footerHeight}" paddingTop="0" id="controlBar">
+	<mx:ControlBar width="100%" height="{footerHeight}" paddingTop="0" paddingBottom="0" id="controlBar" visible="{_showFooter}" includeInLayout="{showFooterOpt}" >
 		<mx:Label
 				htmlText="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}"
 				id="copyrightLabel2"
@@ -475,5 +573,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				visible="{layoutOptions.showNetworkMonitor}"
 				includeInLayout="{layoutOptions.showNetworkMonitor}" />
 		<mx:HBox id="addedBtns" />
+		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.fullscreenBtn.toolTip')}" id="fullScreen" icon="{fullscreen_icon}" click="toggleFullScreen()" />
 	</mx:ControlBar>
 </mx:VBox>
