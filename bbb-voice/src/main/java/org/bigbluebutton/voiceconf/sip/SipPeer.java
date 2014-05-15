@@ -117,10 +117,10 @@ public class SipPeer implements SipRegisterAgentListener {
     	ca.call(callerName, destination);
     }
 
-	public void connectToGlobalStream(String clientId, String destination) {
+	public void connectToGlobalStream(String clientId, String callerIdName, String destination) {
     	CallAgent ca = createCallAgent(clientId);
 
-    	ca.connectToGlobalStream(clientId, destination);
+    	ca.connectToGlobalStream(clientId, callerIdName, destination);
 	}
 
     private CallAgent createCallAgent(String clientId) {
@@ -153,7 +153,10 @@ public class SipPeer implements SipRegisterAgentListener {
         if (ca != null) {
             if (ca.isListeningToGlobal()) {
                 String destination = ca.getDestination();
-                GlobalCall.removeUser(destination);
+                ListenOnlyUser lou = GlobalCall.removeUser(clientId, destination);
+                if (lou != null) {
+                	log.info("User has disconnected from global audio, user [{}] voiceConf {}", lou.callerIdName, lou.voiceConf);
+                }
                 ca.hangup();
 
                 boolean roomRemoved = GlobalCall.removeRoomIfUnused(destination);

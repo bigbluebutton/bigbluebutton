@@ -46,7 +46,7 @@ public class Service {
 					return false;
 				}
 			}
-			sipPeerManager.connectToGlobalStream(peerId, getClientId(), destination);
+			sipPeerManager.connectToGlobalStream(peerId, getClientId(), callerName, destination);
 			Red5.getConnectionLocal().setAttribute("VOICE_CONF_PEER", peerId);
 			return true;
 		} else {

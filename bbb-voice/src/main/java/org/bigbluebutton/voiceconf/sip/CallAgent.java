@@ -240,7 +240,7 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     	}
     }
 
-    public void connectToGlobalStream(String clientId, String destination) {
+    public void connectToGlobalStream(String clientId, String callerIdName, String destination) {
         listeningToGlobal = true;
         _destination = destination;
 
@@ -253,20 +253,23 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
             globalAudioStreamName = GlobalCall.getGlobalAudioStream(destination);
         }
 
-        GlobalCall.addUser(_destination);
+        GlobalCall.addUser(clientId, callerIdName, _destination);
         sipCodec = GlobalCall.getRoomCodec(destination);
         callState = CallState.UA_ONCALL;
         notifyListenersOnCallConnected("", globalAudioStreamName);
+        
+        log.info("User is has connected to global audio, user=[" + callerIdName + "] voiceConf = [" + destination + "]");
+        
     }
     
     private void closeVoiceStreams() {        
     	log.debug("Shutting down the voice streams.");         
-        if (callStream != null) {
-        	callStream.stop();
-        	callStream = null;
-        } else {
-        	log.debug("Can't shutdown voice stream. callstream is NULL");
-        }
+      if (callStream != null) {
+      	callStream.stop();
+       	callStream = null;
+       } else {
+       	log.debug("Can't shutdown voice stream. callstream is NULL");
+      }
     }
 
     // ********************** Call callback functions **********************
@@ -304,10 +307,7 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     public void onCallAccepted(Call call, String sdp, Message resp) {        
     	log.debug("Received 200/OK. So user has successfully joined the conference.");        
     	if (!isCurrentCall(call)) return;
-        
-        log.debug("ACCEPTED/CALL.");
         callState = CallState.UA_ONCALL;
-
         setupSdpAndCodec(sdp);
 
         if (userProfile.noOffer) {

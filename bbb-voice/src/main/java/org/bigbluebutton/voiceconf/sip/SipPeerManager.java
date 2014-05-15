@@ -100,10 +100,10 @@ public final class SipPeerManager {
         sipPeers.remove(userid);
     }
 
-    public void connectToGlobalStream(String peerId, String clientId, String destination) {
+    public void connectToGlobalStream(String peerId, String clientId, String callerIdName, String destination) {
     	SipPeer sipUser = sipPeers.get(peerId);
     	if (sipUser != null) {
-    		sipUser.connectToGlobalStream(clientId, destination);
+    		sipUser.connectToGlobalStream(clientId, callerIdName, destination);
     	}
     }
 
