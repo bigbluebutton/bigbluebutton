@@ -40,7 +40,7 @@ class UsersModel {
   }
   
   def getUsers():Array[UserVO] = {
-	uservos.values toArray
+	  uservos.values toArray
   }
   
   def numModerators():Int = {

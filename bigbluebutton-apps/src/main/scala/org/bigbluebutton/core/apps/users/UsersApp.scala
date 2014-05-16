@@ -189,16 +189,16 @@ trait UsersApp {
                   hasStream=false, locked=false, webcamStream="", 
                   phoneUser=false, vu, listenOnly=false, permissions.permissions)
   	
-	users.addUser(uvo)
+	  users.addUser(uvo)
 					
-	outGW.send(new UserJoined(meetingID, recorded, uvo))
+	  outGW.send(new UserJoined(meetingID, recorded, uvo))
 	
-	// Become presenter if the only moderator		
-	if (users.numModerators == 1) {
-	  if (msg.role == Role.MODERATOR) {
-		assignNewPresenter(msg.userID, msg.name, msg.userID)
-	  }	  
-	}
+	  // Become presenter if the only moderator		
+	  if (users.numModerators == 1) {
+	    if (msg.role == Role.MODERATOR) {
+		    assignNewPresenter(msg.userID, msg.name, msg.userID)
+	    }	  
+	  }
   }
 			
   def handleUserLeft(msg: UserLeaving):Unit = {

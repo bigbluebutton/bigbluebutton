@@ -475,6 +475,7 @@ package org.bigbluebutton.modules.users.services
       user.role = joinedUser.role;
       user.externUserID = joinedUser.externUserID;
       user.isLeavingFlag = false;
+      user.listenOnly = joinedUser.listenOnly;
       
       trace(LOG + "User status: hasStream " + joinedUser.hasStream);
       
