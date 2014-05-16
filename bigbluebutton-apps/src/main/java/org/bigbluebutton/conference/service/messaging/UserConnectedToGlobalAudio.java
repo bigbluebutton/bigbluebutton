@@ -1,6 +1,7 @@
 package org.bigbluebutton.conference.service.messaging;
 
 import java.util.HashMap;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -23,8 +24,8 @@ public class UserConnectedToGlobalAudio implements IMessage {
 	public String toJson() {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(Constants.VOICE_CONF, voiceConf);
-    payload.put(Constants.USER_ID, userid);
-    payload.put(Constants.NAME, name);		
+        payload.put(Constants.USER_ID, userid);
+        payload.put(Constants.NAME, name);		
 				
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(USER_CONNECTED_TO_GLOBAL_AUDIO, VERSION, null);
 
@@ -41,7 +42,7 @@ public class UserConnectedToGlobalAudio implements IMessage {
 			
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
-				if (messageName == USER_CONNECTED_TO_GLOBAL_AUDIO) {
+				if (USER_CONNECTED_TO_GLOBAL_AUDIO.equals(messageName)) {
 					if (payload.has(Constants.VOICE_CONF) 
 							&& payload.has(Constants.USER_ID)
 							&& payload.has(Constants.NAME)) {
@@ -50,7 +51,7 @@ public class UserConnectedToGlobalAudio implements IMessage {
 						String name = payload.get(Constants.NAME).getAsString();
 						return new UserConnectedToGlobalAudio(voiceConf, userid, name);						
 					}
-				}
+				} 
 			}
 		}
 		return null;

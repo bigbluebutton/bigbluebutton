@@ -21,8 +21,8 @@ public class UserDisconnectedFromGlobalAudio implements IMessage {
 	public String toJson() {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(Constants.VOICE_CONF, voiceConf);
-    payload.put(Constants.USER_ID, userid);
-    payload.put(Constants.NAME, name);		
+        payload.put(Constants.USER_ID, userid);
+        payload.put(Constants.NAME, name);		
 		
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(USER_DISCONNECTED_FROM_GLOBAL_AUDIO, VERSION, null);
 
@@ -39,7 +39,7 @@ public class UserDisconnectedFromGlobalAudio implements IMessage {
 
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
-				if (messageName == USER_DISCONNECTED_FROM_GLOBAL_AUDIO) {
+				if (USER_DISCONNECTED_FROM_GLOBAL_AUDIO.equals(messageName)) {
 					if (payload.has(Constants.VOICE_CONF) 
 							&& payload.has(Constants.USER_ID)
 							&& payload.has(Constants.NAME)) {
@@ -47,10 +47,11 @@ public class UserDisconnectedFromGlobalAudio implements IMessage {
 						String userid = payload.get(Constants.USER_ID).getAsString();
 						String name = payload.get(Constants.NAME).getAsString();
 						return new UserDisconnectedFromGlobalAudio(voiceConf, userid, name);						
-					}
+					} 
 				}
 			}
 		}
+		System.out.println("Failed to parse UserDisconnectedFromGlobalAudio");
 		return null;
 	}
 }

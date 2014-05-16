@@ -30,7 +30,7 @@ public class MeetingMessageHandler implements MessageHandler {
 	public void handleMessage(String pattern, String channel, String message) {
 		System.out.println("Checking message: " + pattern + " " + channel + " " + message);
 		if (channel.equalsIgnoreCase(MessagingConstants.TO_MEETING_CHANNEL)) {
-
+			System.out.println("Meeting message: " + channel + " " + message);
 			IMessage msg = MessageFromJsonConverter.convert(message);
 			
 			if (msg != null) {
@@ -54,9 +54,11 @@ public class MeetingMessageHandler implements MessageHandler {
 					bbbGW.validateAuthToken(emm.meetingId, emm.userId, emm.token, emm.replyTo);
 				} else if (msg instanceof UserConnectedToGlobalAudio) {
 					UserConnectedToGlobalAudio emm = (UserConnectedToGlobalAudio) msg;
+					log.info("Received UserConnectedToGlobalAudio toekn request. user id [{}]", emm.name);
 					bbbGW.userConnectedToGlobalAudio(emm.voiceConf, emm.userid, emm.name);
 				} else if (msg instanceof UserDisconnectedFromGlobalAudio) {
 					UserDisconnectedFromGlobalAudio emm = (UserDisconnectedFromGlobalAudio) msg;
+					log.info("Received UserDisconnectedFromGlobalAudio toekn request. Meeting id [{}]", emm.name);
 					bbbGW.userConnectedToGlobalAudio(emm.voiceConf, emm.userid, emm.name);
 				}
 			}

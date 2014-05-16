@@ -26,12 +26,10 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
   private def handleMeetingMessage(msg: InMessage):Unit = {
     msg match {
       case ucm: UserConnectedToGlobalAudio => {
-        println("*************** Got UserConnectedToGlobalAudio message for [" + "foo" + "] ********************" )
         val m = meetings.values.find( m => m.voiceBridge == ucm.voiceConf)
         m foreach {mActor => mActor ! ucm}
       }
       case udm: UserDisconnectedFromGlobalAudio => {
-        println("*************** Got UserDisconnectedToGlobalAudio message for [" + "foo" + "] ********************" )
         val m = meetings.values.find( m => m.voiceBridge == udm.voiceConf)
         m foreach {mActor => mActor ! udm}        
       }
