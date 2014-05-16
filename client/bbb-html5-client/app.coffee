@@ -32,17 +32,18 @@ app.configure ->
 
 
   # Enables CORS
+  # - we currently need this so that the login page can send data to the sessionView and load it
   enableCORS = (req, res, next) ->
-    res.header('Access-Control-Allow-Origin', '*') #TODO: must restrict this!!!!!!
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS') #TODO: must restrict this!!!!!!
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With') #TODO: must restrict this!!!!!!
-   
+    res.header('Access-Control-Allow-Origin', 'http://192.168.0.203:4000') #TODO: modify this or move it to config file
+    res.header('Access-Control-Allow-Methods', 'POST')
+    res.header('Access-Control-Allow-Headers', 'Content-Type')
+
     # intercept OPTIONS method
     if ('OPTIONS' is req.method)
       res.send(200)
     else
       next()
- 
+
   # enable CORS!
   app.use(enableCORS)
 

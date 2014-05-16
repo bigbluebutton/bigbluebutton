@@ -57,10 +57,10 @@ module.exports = class RedisPubSub
 
     # put the entry in the hash so we can match the response later
     @pendingRequests[correlationId] = entry
-    message.header.replyTo = correlationId
-
-    log.info({ message: message }, "Publishing a message")
-    @pubClient.publish(config.redis.channels.toBBBApps, JSON.stringify(message))
+    message.header.reply_to = correlationId
+    console.log("\n\n\n\n\nmessage=" + JSON.stringify(message) + "\n\n\n")
+    log.info({ message: message, channel: config.redis.channels.toBBBApps.meeting}, "Publishing a message")
+    @pubClient.publish(config.redis.channels.toBBBApps.meeting, JSON.stringify(message))
 
   # Send a message without waiting for a reply
   send: (message, envelope) ->
@@ -76,7 +76,7 @@ module.exports = class RedisPubSub
     message = JSON.parse(jsonMsg)
 
     # retrieve the request entry
-    correlationId = message.header?.replyTo
+    correlationId = message.header?.reply_to
     if correlationId? and @pendingRequests?[correlationId]?
       entry = @pendingRequests[correlationId]
       # make sure the message in the timeout isn't triggered by clearing it

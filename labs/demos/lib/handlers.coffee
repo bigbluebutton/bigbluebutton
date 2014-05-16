@@ -19,30 +19,37 @@ login = (req, resp) ->
   bbbapi.create(createParams, serverAndSecret, {}, (errorOuter, responseOuter, bodyOuter) ->
     #console.log JSON.stringify(response)
     bbbapi.join(joinParams, serverAndSecret, {}, (error, response, body) ->
-      xml = '' + response.body
-      #console.log "\n\nxml=" + xml
-      
-      {parseString} = require 'xml2js'
-      parseString(xml, (err, result) ->
-        meeting_id = result.response.meeting_id
-        user_id = result.response.user_id
-        auth_token = result.response.auth_token
-        console.log "\nmeeting_id = " + meeting_id +
-        "\nuser_id = " + user_id + 
-        "\nauth_token = " + auth_token
+      if error
+          console.log error
+      else
+        xml = '' + response.body
+        console.log "\n\nxml=" + xml
+        
+        {parseString} = require 'xml2js'
+        parseString(xml, (err, result) ->
+          if err
+            console.log "Error: " + err
+          else
+            meeting_id = result.response.meeting_id
+            user_id = result.response.user_id
+            auth_token = result.response.auth_token
+            console.log "\nmeeting_id = " + meeting_id +
+            "\nuser_id = " + user_id +
+            "\nauth_token = " + auth_token
 
-        #url = "http:/192.168.0.203/html5.client?meeting_id=" + meeting_id + "&user_id=" + user_id + "&auth_token=" + auth_token
-        url = "192.168.0.203:3000/html5.client?meeting_id=" + meeting_id + "&user_id=" + user_id + "&auth_token=" + auth_token
-        json =
-        resp.json({
-          success: {
-            url: url
-          },
-          failure: {
-            message: "Something went terribly wrong"
-          }
-        })
-      )
+            url = "http://192.168.0.203:3000/html5.client?meeting_id=" + meeting_id + "&user_id=" +
+                  user_id + "&auth_token=" + auth_token
+
+            json =
+            resp.json({
+              success: {
+                url: url
+              },
+              failure: {
+                message: "Something went terribly wrong"
+              }
+            })
+        )
     )
   )
 

@@ -50,7 +50,7 @@ public class MeetingMessageHandler implements MessageHandler {
 					bbbGW.destroyMeeting(emm.meetingId);
 				} else if (msg instanceof ValidateAuthTokenMessage) {
 					ValidateAuthTokenMessage emm = (ValidateAuthTokenMessage) msg;
-					log.info("Received ValidateAuthTokenMessage toekn request. Meeting id [{}]", emm.meetingId);
+					log.info("Received ValidateAuthTokenMessage token request. Meeting id [{}]", emm.meetingId);
 					bbbGW.validateAuthToken(emm.meetingId, emm.userId, emm.token, emm.replyTo);
 				} else if (msg instanceof UserConnectedToGlobalAudio) {
 					UserConnectedToGlobalAudio emm = (UserConnectedToGlobalAudio) msg;

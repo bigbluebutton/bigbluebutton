@@ -38,6 +38,14 @@ module.exports = class MainRouter
       "user_id=#{userId}\n" +
       "auth_token=#{authToken}\n\n"
 
-    #render a blank page page.html
-    res.render "session",
+    #go straight into the session view
+    res.render "index",
       title: config.appName
+
+
+    
+    ###@clientProxy = config.modules.get("ClientProxy")
+    console.log "\n\n\n\n about to send a request\n"
+    @clientProxy.sendToClients(message, () ->
+      console.log "\n\n\n\nSent the request for auth\n\n\n\n"
+    )###
