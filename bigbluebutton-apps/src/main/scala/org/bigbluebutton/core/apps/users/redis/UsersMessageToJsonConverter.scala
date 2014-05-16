@@ -294,11 +294,11 @@ object UsersMessageToJsonConverter {
   
   def validateAuthTokenReplyToJson(msg: ValidateAuthTokenReply):String = {
 		val payload = new java.util.HashMap[String, Any]()
-		payload.put("correlation_id", msg.correlationId)
-		payload.put("valid", msg.valid.toString)
-		payload.put("user_id", msg.requesterId)
-		payload.put("token", msg.token)
-		payload.put("meeting_id", msg.meetingID)  
+		payload.put(Constants.REPLY_TO, msg.correlationId)
+		payload.put(Constants.VALID, msg.valid.toString)
+		payload.put(Constants.USER_ID, msg.requesterId)
+		payload.put(Constants.AUTH_TOKEN, msg.token)
+		payload.put(Constants.MEETING_ID, msg.meetingID)  
 		
 		val header = Util.buildHeader(MessageNames.VALIDATE_AUTH_TOKEN_REPLY, msg.version, None)
     Util.buildJson(header, payload)
