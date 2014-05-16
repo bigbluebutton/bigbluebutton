@@ -18,11 +18,13 @@ module.exports = class ClientProxy
     @io = socketio.listen(app)
     @io.set('log level', 1)
     @io.sockets.on 'connection', (socket) =>
+      console.log "\n\n\n\n I got a connection message\n\n"
       log.debug({ client: socket.id }, "Client has connected.")
       socket.on 'message', (jsonMsg) =>
         log.debug({ message: jsonMsg }, "Received message")
         @_handleMessage(socket, jsonMsg)
       socket.on 'disconnect', =>
+        console.log "\n\n\n I got a disconnection message\n\n"
         @_handleClientDisconnected socket
 
   # Sends a message in `data` to all the clients that should receive it.

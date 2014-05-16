@@ -12,6 +12,11 @@ define [
       @socket = null
       @host = window.location.protocol + "//" + window.location.host
 
+      @authToken = @getUrlVars()["auth_token"]
+      @userId = @getUrlVars()["user_id"]
+      @meetingId = @getUrlVars()["meeting_id"]
+
+
     disconnect: ->
       if @socket?
         console.log "disconnecting from", @host
@@ -20,9 +25,16 @@ define [
         console.log "tried to disconnect but it's not connected"
 
     connect: ->
+      
+      console.log("user_id=" + @userId + " auth_token=" + @authToken + " meeting_id=" + @meetingId)
       unless @socket?
         console.log "connecting to the socket.io server", @host
-        @socket = io.connect()
+        @socket = io.connect()# 2 channels for mass message or indiv (or better??)
+
+        #@individual = io.connect()
+
+        #@group = io.connect()
+
         @_registerEvents()
       else
         console.log "tried to connect but it's already connected"
@@ -56,18 +68,11 @@ define [
         globals.events.trigger("connection:connected")
         #@socket.emit "user connect" # tell the server we have a new user
 
-        getUrlVars = ()->
-          vars = {}
-          parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, (m,key,value) ->
-            vars[key] = value
-          )
-          vars
-
         message = {
           "payload": {
-              "auth_token": getUrlVars()["auth_token"]
-              "userid": getUrlVars()["user_id"]
-              "meeting_id": getUrlVars()["meeting_id"]
+              "auth_token": @authToken
+              "userid": @userId
+              "meeting_id": @meetingId
           },
           "header": {
               "timestamp": new Date().getTime()
@@ -75,7 +80,7 @@ define [
           }
         }
 
-        validFields = getUrlVars()["auth_token"]? and getUrlVars()["user_id"]? and getUrlVars()["meeting_id"]?
+        validFields = @authToken? and @userId? and @meetingId?
 
         #emit the validate token json message
         @socket.emit "message", message if validFields
@@ -366,5 +371,13 @@ define [
     # Emit signal to clear the canvas
     emitClearCanvas: (id) ->
       @socket.emit "clrPaper", id
+
+    # Helper method to get the meeting_id, user_id and auth_token from the url
+    getUrlVars: ->
+      vars = {}
+      parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, (m,key,value) ->
+        vars[key] = value
+      )
+      vars
 
   ConnectionModel
