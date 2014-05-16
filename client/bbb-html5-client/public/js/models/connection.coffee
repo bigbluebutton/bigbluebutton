@@ -12,6 +12,7 @@ define [
       @socket = null
       @host = window.location.protocol + "//" + window.location.host
 
+      # Grab pieces of info from the URL
       @authToken = @getUrlVars()["auth_token"]
       @userId = @getUrlVars()["user_id"]
       @meetingId = @getUrlVars()["meeting_id"]
@@ -29,11 +30,10 @@ define [
       console.log("user_id=" + @userId + " auth_token=" + @authToken + " meeting_id=" + @meetingId)
       unless @socket?
         console.log "connecting to the socket.io server", @host
-        @socket = io.connect()# 2 channels for mass message or indiv (or better??)
+        @socket = io.connect()
 
-        #@individual = io.connect()
-
-        #@group = io.connect()
+        # a1 - just a random 
+        #@socket = io.connect('#{@host}/a1/#{meetingId}/#{userId}') #TODO
 
         @_registerEvents()
       else
