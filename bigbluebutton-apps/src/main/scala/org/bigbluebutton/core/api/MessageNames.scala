@@ -157,5 +157,6 @@ object MessageNames {
   val IS_WHITEBOARD_ENABLED_REPLY          = "is_whiteboard_enabled_reply"
   val MEETING_DESTROYED_EVENT              = "meeting_destroyed_event"
   val KEEP_ALIVE_REPLY                     = "keep_alive_reply"
+  val USER_LISTEN_ONLY                     = "user_listening_only"
   
 }

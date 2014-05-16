@@ -36,6 +36,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
         case msg: UserJoinedVoice               => handleUserJoinedVoice(msg)
         case msg: UserLeftVoice                 => handleUserLeftVoice(msg)
         case msg: IsMeetingMutedReply           => handleIsMeetingMutedReply(msg)
+        case msg: UserListeningOnly             => handleUserListeningOnly(msg)
 	    case _ => //println("Unhandled message in UsersClientMessageSender")
 	  }
 	}
@@ -186,4 +187,8 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)	
   }
   
+	private def handleUserListeningOnly(msg: UserListeningOnly) {
+    val json = UsersMessageToJsonConverter.userListeningOnlyToJson(msg)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)		  
+	}
 }

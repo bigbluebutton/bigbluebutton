@@ -17,15 +17,21 @@ public class MessageFromJsonConverter {
 				String messageName = header.get("name").getAsString();
 				switch (messageName) {
 				  case CreateMeetingMessage.CREATE_MEETING_REQUEST_EVENT:
-					return processCreateMeeting(payload);
+					  return processCreateMeeting(payload);
 				  case DestroyMeetingMessage.DESTROY_MEETING_REQUEST_EVENT:
-					return processDestroyMeeting(payload);
+					  return processDestroyMeeting(payload);
 				  case EndMeetingMessage.END_MEETING_REQUEST_EVENT:
-					return processEndMeetingMessage(payload);
+					  return processEndMeetingMessage(payload);
 				  case KeepAliveMessage.KEEP_ALIVE_REQUEST:
-					return processKeepAlive(payload);
+					  return processKeepAlive(payload);
 				  case ValidateAuthTokenMessage.VALIDATE_AUTH_TOKEN:
-					return processValidateAuthTokenMessage(header, payload);
+					  return processValidateAuthTokenMessage(header, payload);
+				  case UserConnectedToGlobalAudio.USER_CONNECTED_TO_GLOBAL_AUDIO:
+					  System.out.println("Converting message to UserConnectedToGlobalAudio");
+				  	return UserConnectedToGlobalAudio.fromJson(message);
+				  case UserDisconnectedFromGlobalAudio.USER_DISCONNECTED_FROM_GLOBAL_AUDIO:
+					  System.out.println("Converting message to UserDisconnectedFromGlobalAudio");
+				  	return UserDisconnectedFromGlobalAudio.fromJson(message);
 				}
 			}
 		}

@@ -21,6 +21,7 @@ object UsersMessageToJsonConverter {
 	  wuser += "locked"               -> user.locked
 	  wuser += "webcam_stream"        -> user.webcamStream
 	  wuser += "phone_user"           -> user.phoneUser	  
+	  wuser += "listenOnly"           -> user.listenOnly
 	  
 	  val vuser = new scala.collection.mutable.HashMap[String, Any]	  	  
 	  vuser += "userid"               -> user.voiceUser.userId
@@ -31,7 +32,7 @@ object UsersMessageToJsonConverter {
 	  vuser += "locked"               -> user.voiceUser.locked
 	  vuser += "muted"                -> user.voiceUser.muted
 	  vuser += "talking"              -> user.voiceUser.talking
-	
+	  
 	  wuser.put("voiceUser", mapAsJavaMap(vuser))	  
 	  
 	  mapAsJavaMap(wuser)
@@ -293,11 +294,11 @@ object UsersMessageToJsonConverter {
   
   def validateAuthTokenReplyToJson(msg: ValidateAuthTokenReply):String = {
 		val payload = new java.util.HashMap[String, Any]()
-		payload.put("correlation_id", msg.correlationId)
-		payload.put("valid", msg.valid.toString)
-		payload.put("user_id", msg.requesterId)
-		payload.put("token", msg.token)
-		payload.put("meeting_id", msg.meetingID)  
+		payload.put(Constants.REPLY_TO, msg.correlationId)
+		payload.put(Constants.VALID, msg.valid.toString)
+		payload.put(Constants.USER_ID, msg.requesterId)
+		payload.put(Constants.AUTH_TOKEN, msg.token)
+		payload.put(Constants.MEETING_ID, msg.meetingID)  
 		
 		val header = Util.buildHeader(MessageNames.VALIDATE_AUTH_TOKEN_REPLY, msg.version, None)
     Util.buildJson(header, payload)
@@ -342,4 +343,14 @@ object UsersMessageToJsonConverter {
     val header = Util.buildHeader(MessageNames.END_AND_KICK_ALL, msg.version, None)
     Util.buildJson(header, payload)
   }  
+	
+	def userListeningOnlyToJson(msg: UserListeningOnly):String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID) 
+    payload.put(Constants.USER_ID, msg.userID) 
+    payload.put(Constants.LISTEN_ONLY, msg.listenOnly) 
+    
+    val header = Util.buildHeader(MessageNames.USER_LISTEN_ONLY, msg.version, None)
+    Util.buildJson(header, payload)	  
+	}
 }

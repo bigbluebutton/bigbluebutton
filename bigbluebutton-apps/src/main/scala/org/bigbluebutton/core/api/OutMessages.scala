@@ -190,7 +190,15 @@ case class UserLoweredHand(
     loweredBy: String,
   version:String = Versions.V_0_0_1
 ) extends IOutMessage
-                      
+
+case class UserListeningOnly(
+    meetingID: String, 
+    recorded: Boolean, 
+    userID: String, 
+    listenOnly: Boolean,
+  version:String = Versions.V_0_0_1
+) extends IOutMessage
+
 case class UserSharedWebcam(
     meetingID: String, 
     recorded: Boolean, 

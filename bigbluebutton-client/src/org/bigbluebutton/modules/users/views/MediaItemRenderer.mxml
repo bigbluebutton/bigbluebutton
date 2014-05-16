@@ -75,11 +75,12 @@
 				
 				this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
 				
+        BindingUtils.bindSetter(updateButtons, listenOnlyInd, "visible");
 				BindingUtils.bindSetter(updateButtons, voiceJoinedInd, "visible");
 				BindingUtils.bindSetter(updateButtons, muteInd, "visible");
 				BindingUtils.bindSetter(updateButtons, userLockedInd, "visible");
 				BindingUtils.bindSetter(updateButtons, hasStreamInd, "visible");
-                BindingUtils.bindSetter(updateButtons, viewingStreamInd, "visible");
+        BindingUtils.bindSetter(updateButtons, viewingStreamInd, "visible");
                 
 				options = new UsersOptions();
 			}
@@ -159,10 +160,19 @@
 					
 					
 					if (!data.voiceJoined) {
-						muteImg.visible = false;
-						muteImg.includeInLayout = false;
-						muteBtn.visible = false;
-						muteBtn.includeInLayout = true;
+            if (data.listenOnly) {
+              muteImg.source = images.sound;
+              muteImg.visible = true;
+              muteImg.includeInLayout = false;
+              muteBtn.visible = false;
+              muteBtn.includeInLayout = false;             
+            } else {
+              muteImg.visible = false;
+              muteImg.includeInLayout = false;
+              muteBtn.visible = false;
+              muteBtn.includeInLayout = true;               
+            }
+
 					} else {
 						if(data.userLocked && UserManager.getInstance().getConference().getLockSettings().getDisableMic()) {
 							muteImg.visible = true;
@@ -222,10 +232,15 @@
                     }
                     
 					if (!rolledOver) {
-						if (data.voiceMuted)
-							muteImg.source = images.audio_muted_20;
-						else
-							muteImg.source = images.audio_20;
+            if (!data.voiceJoined && data.listenOnly) {
+              muteImg.source = images.sound;
+            } else {
+              if (data.voiceMuted)
+                muteImg.source = images.audio_muted_20;
+              else
+                muteImg.source = images.audio_20;              
+            }
+
 						
 						if (data.userLocked)
 							lockImg.source = images.locked_20;
@@ -278,6 +293,7 @@
 	<mx:Image id="muteInd" includeInLayout="false" visible="{data.voiceMuted}" />
 	<mx:Image id="voiceJoinedInd" includeInLayout="false" visible="{data.voiceJoined}" />
 	<mx:Image id="userLockedInd" includeInLayout="false" visible="{data.userLocked}" />
-    <mx:Image id="hasStreamInd" includeInLayout="false" visible="{data.hasStream}" />
-    <mx:Image id="viewingStreamInd" includeInLayout="false" visible="{data.viewingStream}" />
+  <mx:Image id="hasStreamInd" includeInLayout="false" visible="{data.hasStream}" />
+  <mx:Image id="viewingStreamInd" includeInLayout="false" visible="{data.viewingStream}" />
+  <mx:Image id="listenOnlyInd" includeInLayout="false" visible="{data.listenOnly}" />
 </mx:HBox>

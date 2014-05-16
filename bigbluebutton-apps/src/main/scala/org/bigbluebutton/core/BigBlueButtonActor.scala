@@ -19,18 +19,31 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
 	      case msg: InMessage                     => handleMeetingMessage(msg)
 	      case _ => // do nothing
 	    }
-	}
+	  }
   }
   
 
   private def handleMeetingMessage(msg: InMessage):Unit = {
-    meetings.get(msg.meetingID) match {
-      case None => //
-      case Some(m) => {
-       // log.debug("Forwarding message [{}] to meeting [{}]", msg.meetingID)
-        m ! msg
+    msg match {
+      case ucm: UserConnectedToGlobalAudio => {
+        val m = meetings.values.find( m => m.voiceBridge == ucm.voiceConf)
+        m foreach {mActor => mActor ! ucm}
+      }
+      case udm: UserDisconnectedFromGlobalAudio => {
+        val m = meetings.values.find( m => m.voiceBridge == udm.voiceConf)
+        m foreach {mActor => mActor ! udm}        
+      }
+      case allOthers => {
+		    meetings.get(allOthers.meetingID) match {
+		      case None => //
+		      case Some(m) => {
+		       // log.debug("Forwarding message [{}] to meeting [{}]", msg.meetingID)
+		        m ! allOthers
+		      }
+		    }        
       }
     }
+
   }
 
   private def handleKeepAliveMessage(msg: KeepAliveMessage):Unit = {

@@ -30,6 +30,26 @@ trait UsersApp {
     currentPresenter
   }
   
+  def handleUserConnectedToGlobalAudio(msg: UserConnectedToGlobalAudio) {
+    println("*************** Got UserConnectedToGlobalAudio message for [" + msg.name + "] ********************" )
+    val user = users.getUser(msg.userid)
+    user foreach {u =>
+      val uvo = u.copy(listenOnly=true)
+      users.addUser(uvo)
+      outGW.send(new UserListeningOnly(meetingID, recorded, uvo.userID, uvo.listenOnly))        
+    }
+  }
+  
+  def handleUserDisconnectedFromGlobalAudio(msg: UserDisconnectedFromGlobalAudio) {
+    println("*************** Got UserDisconnectedToGlobalAudio message for [" + msg.name + "] ********************" )
+    val user = users.getUser(msg.userid)
+    user foreach {u =>
+      val uvo = u.copy(listenOnly=false)
+      users.addUser(uvo)
+      outGW.send(new UserListeningOnly(meetingID, recorded, uvo.userID, uvo.listenOnly))        
+    }
+  }
+  
   def handleMuteMeetingRequest(msg: MuteMeetingRequest) {
     meetingMuted = msg.mute
     
@@ -167,18 +187,18 @@ trait UsersApp {
     val uvo = new UserVO(msg.userID, msg.extUserID, msg.name, 
                   msg.role, raiseHand=false, presenter=false, 
                   hasStream=false, locked=false, webcamStream="", 
-                  phoneUser=false, vu, permissions.permissions)
+                  phoneUser=false, vu, listenOnly=false, permissions.permissions)
   	
-	users.addUser(uvo)
+	  users.addUser(uvo)
 					
-	outGW.send(new UserJoined(meetingID, recorded, uvo))
+	  outGW.send(new UserJoined(meetingID, recorded, uvo))
 	
-	// Become presenter if the only moderator		
-	if (users.numModerators == 1) {
-	  if (msg.role == Role.MODERATOR) {
-		assignNewPresenter(msg.userID, msg.name, msg.userID)
-	  }	  
-	}
+	  // Become presenter if the only moderator		
+	  if (users.numModerators == 1) {
+	    if (msg.role == Role.MODERATOR) {
+		    assignNewPresenter(msg.userID, msg.name, msg.userID)
+	    }	  
+	  }
   }
 			
   def handleUserLeft(msg: UserLeaving):Unit = {
@@ -211,7 +231,7 @@ trait UsersApp {
           val uvo = new UserVO(webUserId, webUserId, msg.voiceUser.callerName, 
 		                  Role.VIEWER, raiseHand=false, presenter=false, 
 		                  hasStream=false, locked=false, webcamStream="", 
-		                  phoneUser=true, vu, permissions.permissions)
+		                  phoneUser=true, vu, listenOnly=false, permissions.permissions)
 		  	
 		      users.addUser(uvo)
 		      println("New user joined voice for user [" + uvo.name + "] userid=[" + msg.voiceUser.webUserId + "]")

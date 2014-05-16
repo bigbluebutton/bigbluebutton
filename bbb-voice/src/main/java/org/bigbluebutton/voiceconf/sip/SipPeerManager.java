@@ -20,6 +20,7 @@ package org.bigbluebutton.voiceconf.sip;
 
 import org.slf4j.Logger;
 import org.zoolu.sip.provider.SipStack;
+import org.bigbluebutton.voiceconf.messaging.IMessagingService;
 import org.bigbluebutton.voiceconf.red5.CallStreamFactory;
 import org.bigbluebutton.voiceconf.red5.ClientConnectionManager;
 import org.red5.logging.Red5LoggerFactory;
@@ -38,6 +39,7 @@ public final class SipPeerManager {
 	
 	private ClientConnectionManager clientConnManager;
 	private CallStreamFactory callStreamFactory;
+	private IMessagingService messagingService;
 	
     private Map<String, SipPeer> sipPeers;
     private int sipStackDebugLevel = 8;
@@ -48,7 +50,7 @@ public final class SipPeerManager {
     }
 
     public void createSipPeer(String peerId, String clientRtpIp, String host, int sipPort, int startRtpPort, int stopRtpPort) {
-    	SipPeer sipPeer = new SipPeer(peerId, clientRtpIp, host, sipPort, startRtpPort, stopRtpPort);
+    	SipPeer sipPeer = new SipPeer(peerId, clientRtpIp, host, sipPort, startRtpPort, stopRtpPort, messagingService);
     	sipPeer.setClientConnectionManager(clientConnManager);
     	sipPeer.setCallStreamFactory(callStreamFactory);
     	sipPeers.put(peerId, sipPeer);    	
@@ -100,10 +102,10 @@ public final class SipPeerManager {
         sipPeers.remove(userid);
     }
 
-    public void connectToGlobalStream(String peerId, String clientId, String destination) {
+    public void connectToGlobalStream(String peerId, String clientId, String callerIdName, String destination) {
     	SipPeer sipUser = sipPeers.get(peerId);
     	if (sipUser != null) {
-    		sipUser.connectToGlobalStream(clientId, destination);
+    		sipUser.connectToGlobalStream(clientId, callerIdName, destination);
     	}
     }
 
@@ -147,5 +149,9 @@ public final class SipPeerManager {
 	
 	public void setClientConnectionManager(ClientConnectionManager ccm) {
 		clientConnManager = ccm;
+	}
+	
+	public void setMessagingService(IMessagingService service) {
+		messagingService = service;
 	}
 }
