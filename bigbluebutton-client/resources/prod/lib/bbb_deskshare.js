@@ -1,5 +1,8 @@
 function startApplet(IP, roomNumber, fullScreen, useSVC2)
 {
+        console.log("isJavaEnabled? " + isJavaEnabled());
+        console.log("isJavaVersionAppropriateForDeskshare? " + isJavaVersionAppropriateForDeskshare());
+
         var iframe = document.createElement("iframe");
         iframe.id = "iframe";
         document.body.appendChild(iframe);
@@ -15,6 +18,22 @@ function startApplet(IP, roomNumber, fullScreen, useSVC2)
                 "<param name=\"permissions\" value=\"all-permissions\"/>" +
         "</applet>"
      );
+
+    var attributes = {
+            code: 'org.bigbluebutton.deskshare.client.DeskShareApplet.class',
+            id: 'DeskShareApplet',
+            width: '0',
+            height: '1',
+            archive: 'bbb-deskshare-applet-0.8.1.jar' };
+    var parameters = {
+            ROOM: roomNumber,
+            IP: IP,
+            PORT: '9123',
+            SCALE: '0.8',
+            FULL_SCREEN: fullScreen,
+            SVC2: useSVC2,
+            permissions: 'all-permissions' };
+    var version = '1.7.0_51';
 }
 
 function removeFrame () {
@@ -31,7 +50,11 @@ function stopApplet(){
         removeFrame();
 }
 
-function checkForJava(){
-//      if (navigator.javaEnabled() || window.navigator.javaEnabled())
-                return 1;
+var isJavaEnabled = function() {
+    return typeof(navigator.javaEnabled) !== 'undefined' && navigator.javaEnabled();
+}
+
+var isJavaVersionAppropriateForDeskshare = function() {
+    var required = '1.7.0_51+';
+    return deployJava.versionCheck(required);
 }
