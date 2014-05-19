@@ -200,6 +200,8 @@ var deployJava = function() {
 
     var rv = {
 
+    initialized: false,
+
     debug: null,
 
     /* version of deployJava.js */
@@ -563,7 +565,7 @@ var deployJava = function() {
         }
         startApplet += '>';
 
-        document.write(startApplet + '\n' + params + '\n' + endApplet);
+        this.writeInContainer(startApplet + '\n' + params + '\n' + endApplet);
     },
   
 
@@ -762,7 +764,7 @@ var deployJava = function() {
         }
 
         if (document.body == 'undefined' || document.body == null) {
-           document.write(launchTag);
+           this.writeInContainer(launchTag);
            // go back to original page, otherwise current page becomes blank
            document.location = jnlpDocbase;
         } else {
@@ -787,7 +789,7 @@ var deployJava = function() {
         var url = 'javascript:deployJava.launchWebStartApplication(\'' + jnlp +
 			'\');';
 
-        document.write('<' + 'a href="' + url +
+        this.writeInContainer('<' + 'a href="' + url +
                        '" onMouseOver="window.status=\'\'; ' +
                        'return true;"><' + 'img ' +
                        'src="' + this.launchButtonPNG + '" ' +
@@ -828,7 +830,7 @@ var deployJava = function() {
                       'if (deployJava.launch(&quot;' + jnlp + '&quot;)) {}' +
                   '}';
 
-        document.write('<' + 'a href="' + url +
+        this.writeInContainer('<' + 'a href="' + url +
                        '" onMouseOver="window.status=\'\'; ' +
                        'return true;"><' + 'img ' +
                        'src="' + this.launchButtonPNG + '" ' +
@@ -1230,7 +1232,7 @@ var deployJava = function() {
         var browser = this.getBrowser();
 
         if (browser == 'MSIE') {
-            document.write('<' +
+            this.writeInContainer('<' +
                 'object classid="clsid:CAFEEFAC-DEC7-0000-0001-ABCDEFFEDCBA" ' +
                 'id="deployJavaPlugin" width="0" height="0">' +
                 '<' + '/' + 'object' + '>');
@@ -1258,9 +1260,9 @@ var deployJava = function() {
             for (var i=0; i < navigator.mimeTypes.length; i++) {
                 if (navigator.mimeTypes[i].type == this.mimeType) {
                     if (navigator.mimeTypes[i].enabledPlugin) {
-                        document.write('<' +
+                        this.writeInContainer('<' +
                             'embed id="deployJavaPlugin" type="' +
-                            this.mimeType + '" hidden="true" />');
+                            this.mimeType + '" />');
                         written = true;
                     }
                 }
@@ -1269,17 +1271,27 @@ var deployJava = function() {
             if (!written) for (var i=0; i < navigator.mimeTypes.length; i++) {
                 if (navigator.mimeTypes[i].type == this.oldMimeType) {
                     if (navigator.mimeTypes[i].enabledPlugin) {
-                        document.write('<' +
+                        this.writeInContainer('<' +
                             'embed id="deployJavaPlugin" type="' +
-                            this.oldMimeType + '" hidden="true" />');
+                            this.oldMimeType + '" />');
                     }
                 }
             }
         }
+    },
+
+    writeInContainer: function(content) {
+        document.getElementById('deployJavaPluginContainer').insertAdjacentHTML('afterbegin', content);
+    },
+
+    init: function() {
+        if (!this.initialized) {
+            this.writePluginTag();
+        }
+        this.initialized = true;
     }
     }; // deployJava object
 
-    rv.writePluginTag();
     if (rv.locale == null) {
         var loc = null;
 
