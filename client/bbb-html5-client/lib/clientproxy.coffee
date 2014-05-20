@@ -29,7 +29,7 @@ module.exports = class ClientProxy
 
   # Sends a message in `data` to all the clients that should receive it.
   sendToClients: (data, callback) ->
-    log.debug({ data: data }, "Sending to client")
+    #log.debug({ data: data }, "Sending to client")
     
     # the channel can be the user_id (send to one user only) or the meeting_id
     # (send to everyone in the meeting)
@@ -42,8 +42,9 @@ module.exports = class ClientProxy
     # clients = @io.sockets.clients(channel)
     # console.log "Found", clients?.length, "clients for the channel", channel
 
-    log.debug({ channel: channel, eventName: eventName, message: data, clientCount: clients?.length },
-      "Sending message to websocket clients")
+    #log.debug({ channel: channel, eventName: eventName, message: data, clientCount: clients?.length },
+    #  "Sending message to websocket clients")
+
     # TODO: if `channel` is undefined, it should not send the message,
     #   instead if is sending to all users
     @io.sockets.in(channel).emit(eventName, data)
@@ -67,7 +68,7 @@ module.exports = class ClientProxy
         log.error({ message: message }, 'Unknown message name.')
 
   _handleLoginMessage: (socket, data) ->
-    @controller.processAuthMessage data, (err, result) ->
+    @controller.processAuthMessage(data, (err, result) ->
       if err?
         log.debug({ message: result }, "Sending authentication not OK to user and disconnecting socket")
         sendMessageToClient(socket, result)
@@ -84,6 +85,7 @@ module.exports = class ClientProxy
 
         log.debug({ message: result }, "Sending authentication OK reply to user")
         sendMessageToClient(socket, result)
+    )
 
 sendMessageToClient = (socket, message) ->
   socket.emit(MESSAGE, message)

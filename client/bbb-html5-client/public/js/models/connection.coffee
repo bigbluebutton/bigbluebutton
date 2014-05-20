@@ -26,7 +26,6 @@ define [
         console.log "tried to disconnect but it's not connected"
 
     connect: ->
-      
       console.log("user_id=" + @userId + " auth_token=" + @authToken + " meeting_id=" + @meetingId)
       unless @socket?
         console.log "connecting to the socket.io server", @host

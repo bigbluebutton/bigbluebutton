@@ -70,13 +70,18 @@ module.exports = class RedisPubSub
     log.info("Subscribed to #{channel}")
 
   _onMessage: (pattern, channel, jsonMsg) =>
-    log.debug({ pattern: pattern, channel: channel, message: jsonMsg}, "Received a message from redis")
     # TODO: this has to be in a try/catch block, otherwise the server will
     #   crash if the message has a bad format
     message = JSON.parse(jsonMsg)
+    unless message.header?.name is "keep_alive_reply" #temporarily stop logging the keep_alive_reply message
+      log.debug({ pattern: pattern, channel: channel, message: message}, "Received a message from redis")
+    console.log "=="+message.header?.name
 
     # retrieve the request entry
-    correlationId = message.header?.reply_to
+
+    #correlationId = message.header?.reply_to
+    correlationId = message.payload?.reply_to or message.header?.reply_to
+    console.log "\ncorrelation_id=" + correlationId
     if correlationId? and @pendingRequests?[correlationId]?
       entry = @pendingRequests[correlationId]
       # make sure the message in the timeout isn't triggered by clearing it

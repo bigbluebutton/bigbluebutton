@@ -34,9 +34,9 @@ module.exports = class MainRouter
     authToken = req.query.auth_token
 
     console.log "\n\nLANDING PAGE PROVIDED:\n" + 
-      "meeting_id=#{meetingId}\n" +
-      "user_id=#{userId}\n" +
-      "auth_token=#{authToken}\n\n"
+      "meeting_id= #{meetingId}\n" +
+      "user_id= #{userId}\n" +
+      "auth_token= #{authToken}\n\n"
 
     #go straight into the session view
     res.render "index",
