@@ -97,42 +97,49 @@ public class MeetingService implements MessageListener {
 	 * running meetings.
 	 */
 	public void removeExpiredMeetings() {
-		log.info("Trigger cleaning up expired meetings");
+		log.debug("Trigger cleaning up expired meetings");
     handle(new RemoveExpiredMeetings());
 	}
 	
+	private void kickOffProcessingOfRecording(Meeting m) {
+  	if (m.isRecord() && m.getNumUsers() == 0) {
+  		log.info("Kick-off processing of recording for meeting [id={} , name={}]", m.getInternalId(), m.getName());		  			
+  		processRecording(m.getInternalId());
+  	}		 		
+	}
+	
+	private void processMeetingForRemoval(Meeting m) {
+		kickOffProcessingOfRecording(m);	  		
+  	destroyMeeting(m.getInternalId());		  		
+		meetings.remove(m.getInternalId());				
+	}
+	
 	private void checkAndRemoveExpiredMeetings() {
-		log.info("Cleaning up expired meetings");
+		log.debug("Cleaning up expired meetings");
 		for (Meeting m : meetings.values()) {
 			if (m.hasExpired(defaultMeetingExpireDuration) ) {
-				log.info("Removing expired meeting [id={} , name={}]", m.getInternalId(), m.getName());
-				log.info("Expired meeting [start={} , end={}]", m.getStartTime(), m.getEndTime());
-		  		if (m.isRecord() && m.getNumUsers() == 0) {
-		  			log.debug("[" + m.getInternalId() + "] is recorded. Process it.");		  			
-		  			processRecording(m.getInternalId());
-		  		}		  		
-		  		destroyMeeting(m.getInternalId());		  		
-				meetings.remove(m.getInternalId());				
+				log.info("Meeting [id={} , name={}] has expired.", m.getInternalId(), m.getName());
+				processMeetingForRemoval(m);
 				continue;
 			} else {
-				log.debug("Meeting id=[" + m.getInternalId() + "] has not expired yet.");
+				log.debug("Meeting [id={} , name={}] has not expired yet.", m.getInternalId(), m.getName());
 			}
 			
 			if (m.isForciblyEnded()) {
-				log.info("Meeting id[{}] has been forcefully ended. Destroying.", m.getInternalId());
-				destroyMeeting(m.getInternalId());
+				log.info("Meeting [id={} , name={}] has been forcefully ended.", m.getInternalId(), m.getName());
+				processMeetingForRemoval(m);			
+				continue;
 			}
 			
-			if (m.wasNeverStarted(defaultMeetingCreateJoinDuration)) {
-				log.info("Removing non-joined meeting [{} - {}]", m.getInternalId(), m.getName());
-				destroyMeeting(m.getInternalId());
-				
+			if (m.wasNeverJoined(defaultMeetingCreateJoinDuration)) {
+				log.info("No user has joined the meeting [id={} , name={}]. Removing it.", m.getInternalId(), m.getName());
+				destroyMeeting(m.getInternalId());			
 				meetings.remove(m.getInternalId());
 				continue;
 			}
 			
 			if (m.hasExceededDuration()) {
-				log.info("Forcibly ending meeting [{} - {}]", m.getInternalId(), m.getName());
+				log.info("Meeting [id={} , name={}] has ran past duration. Ending it.", m.getInternalId(), m.getName());
 				endMeeting(m.getInternalId());
 			}			
 		}		
@@ -302,12 +309,7 @@ public class MeetingService implements MessageListener {
 		if (m != null) {
 			m.setForciblyEnded(true);
 			if (removeMeetingWhenEnded) {
-				if (m.isRecord()) {
-					log.debug("Removing forcibly ended meeting [{}]. Process the recording.",  m.getInternalId());		  			
-					processRecording(m.getInternalId());
-				}
-				destroyMeeting(m.getInternalId());
-				meetings.remove(m.getInternalId());
+				processMeetingForRemoval(m);
 			}
 		} else {
 			log.debug("endMeeting - meeting doesn't exist: " + message.meetingId);
@@ -332,7 +334,6 @@ public class MeetingService implements MessageListener {
 			} else {
 				log.debug("The meeting [{}] has been started again...", message.meetingId);
 			}
-			m.setEndTime(0);
 			return;
 		}
 		log.warn("The meeting [{}] doesn't exist", message.meetingId);

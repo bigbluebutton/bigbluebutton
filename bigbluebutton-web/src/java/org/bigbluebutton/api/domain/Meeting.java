@@ -50,7 +50,7 @@ public class Meeting {
 	private String dialNumber;
 	private String defaultAvatarURL;
 	private String defaultConfigToken;
-	
+	private boolean userHasJoined = false;
 	private Map<String, String> metadata;
 	private Map<String, Object> userCustomData;
 	private final ConcurrentMap<String, User> users; 
@@ -66,14 +66,14 @@ public class Meeting {
 		logoutUrl = builder.logoutUrl;
 		defaultAvatarURL = builder.defaultAvatarURL;
 		record = builder.record;
-    	duration = builder.duration;
-    	webVoice = builder.webVoice;
-    	telVoice = builder.telVoice;
-    	welcomeMsg = builder.welcomeMsg;
-    	dialNumber = builder.dialNumber;
-    	metadata = builder.metadata;
-    	createdTime = builder.createdTime;
-    	userCustomData = new HashMap<String, Object>();
+   	duration = builder.duration;
+   	webVoice = builder.webVoice;
+   	telVoice = builder.telVoice;
+   	welcomeMsg = builder.welcomeMsg;
+   	dialNumber = builder.dialNumber;
+   	metadata = builder.metadata;
+   	createdTime = builder.createdTime;
+   	userCustomData = new HashMap<String, Object>();
 		users = new ConcurrentHashMap<String, User>();
 		
 		configs = new ConcurrentHashMap<String, Config>();
@@ -158,17 +158,10 @@ public class Meeting {
 		this.forciblyEnded = forciblyEnded;
 	}
 
-	/**
-	 * Get the external meeting id.
-	 * @return external meeting id.
-	 */
 	public String getExternalId() {
 		return extMeetingId;
 	}
 	
-	/**
-	 * Get the internal meeting id;
-	 */
 	public String getInternalId() {
 		return intMeetingId;
 	}
@@ -209,7 +202,8 @@ public class Meeting {
 		return record;
 	}
 	
-	public void userJoined(User user){
+	public void userJoined(User user) {
+		userHasJoined = true;
 		this.users.put(user.getInternalUserId(), user);
 	}
 	
@@ -238,18 +232,33 @@ public class Meeting {
 		return dialNumber;
 	}
 	
-	public boolean wasNeverStarted(int expiry) {
-		return (!hasStarted() && !hasEnded() && nobodyJoined(expiry));
+	public boolean wasNeverJoined(int expiry) {
+		return (hasStarted() && !hasEnded() && nobodyJoined(expiry));
+	}
+	
+	private boolean meetingInfinite() {
+		/* Meeting stays runs infinitely */
+	  return 	duration == 0;
 	}
 	
 	private boolean nobodyJoined(int expiry) {
-		if (expiry == 0) return false; /* Meeting stays created infinitely */
-		return (System.currentTimeMillis() - createdTime) >  (expiry * MILLIS_IN_A_MINUTE);
+		if (meetingInfinite()) return false; 
+		
+		long now = System.currentTimeMillis();
+		return (!userHasJoined && (now - createdTime) >  (expiry * MILLIS_IN_A_MINUTE));
+	}
+
+	private boolean hasBeenEmptyFor(int expiry) {
+		long now = System.currentTimeMillis();
+		return (now - endTime > (expiry * MILLIS_IN_A_MINUTE));
+	}
+	
+	private boolean isEmpty() {
+		return users.isEmpty();
 	}
 	
 	public boolean hasExpired(int expiry) {
-		System.out.println("meetingIdd=[" + intMeetingId + "] started=[" + hasStarted() + "] notRunning=[" + !isRunning() + "] expired=[" + didExpire(expiry) + "]");
-		return (hasStarted() && !isRunning() && didExpire(expiry));
+		return (hasStarted() && userHasJoined && isEmpty() && hasBeenEmptyFor(expiry));
 	}
 	
 	public boolean hasExceededDuration() {
@@ -257,8 +266,9 @@ public class Meeting {
 	}
 
 	private boolean pastDuration() {
-		if (duration == 0) return false; /* Meeting runs infinitely */
-		return (System.currentTimeMillis() - startTime > (duration * MILLIS_IN_A_MINUTE));
+		if (meetingInfinite()) return false; 
+		long now = System.currentTimeMillis();
+		return (now - startTime > (duration * MILLIS_IN_A_MINUTE));
 	}
 	
 	private boolean hasStarted() {
@@ -269,18 +279,12 @@ public class Meeting {
 		return endTime > 0;
 	}
 	
-	private boolean didExpire(int expiry) {
-		long now = System.currentTimeMillis();
-		System.out.println("Expiry " + now + " endTime=" + endTime + " expiry=" + (expiry * MILLIS_IN_A_MINUTE));
-		return (System.currentTimeMillis() - endTime > (expiry * MILLIS_IN_A_MINUTE));
-	}
-	
 	public void addUserCustomData(String userID, Map<String, String> data) {
 		userCustomData.put(userID, data);
 	}
 	
-	public Map getUserCustomData(String userID){
-		return (Map) userCustomData.get(userID);
+	public Map<String, Object> getUserCustomData(String userID){
+		return (Map<String, Object>) userCustomData.get(userID);
 	}
 	
 	/***
