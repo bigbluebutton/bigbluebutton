@@ -1515,6 +1515,7 @@ if [ $CLEAN ]; then
 	rm -rf /var/log/nginx/*
 	mv /var/log/syslog /tmp/syslog.$$
 	echo "" > /var/log/syslog
+	chown syslog:adm /var/log/syslog
 
 	display_bigbluebutton_status
 
