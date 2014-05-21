@@ -16,7 +16,8 @@ define [
       @authToken = @getUrlVars()["auth_token"]
       @userId = @getUrlVars()["user_id"]
       @meetingId = @getUrlVars()["meeting_id"]
-
+      @username = @getUrlVars()["username"]
+      console.log "username=" + @username
 
     disconnect: ->
       if @socket?
@@ -233,14 +234,19 @@ define [
         globals.events.trigger("users:loadUsers", users)###
 
       # Received event for a new user
-      @socket.on "UserJoiningRequest", (message) => #TODO MUST REMOVE WHEN NOT USED ANYMORE
+      ###@socket.on "UserJoiningRequest", (message) => #TODO MUST REMOVE WHEN NOT USED ANYMORE
         #console.log "socket on: UserJoiningRequest"
         #console.log message
         #eventObject = JSON.parse(message);
         console.log "message: " + message
         userid = message.user.metadata.userid #TODO change to new json structure
         username = message.user.name #TODO change to new json structure
-        globals.events.trigger("connection:user_join", userid, username)
+        globals.events.trigger("connection:user_join", userid, username)###
+
+      @socket.on "UserJoined", (userId) =>
+        alert @username
+        globals.events.trigger("connection:user_join", userId, @username)
+
 
       # Received event for a new user
       @socket.on "user_joined_event", (message) =>
