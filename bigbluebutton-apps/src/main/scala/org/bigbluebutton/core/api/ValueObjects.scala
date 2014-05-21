@@ -47,7 +47,8 @@ case class RegisteredUser (
     id: String, 
     externId: String,
     name: String, 
-    role: Role.Role 
+    role: Role.Role,
+    authToken: String
 )
 
 case class Voice(
@@ -73,6 +74,7 @@ case class UserVO(
   webcamStream: String, 
   phoneUser: Boolean,
   voiceUser: VoiceUser,
+  listenOnly: Boolean,
   permissions: Permissions = new Permissions())
 
 case class VoiceUser(userId: String, 

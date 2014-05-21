@@ -117,6 +117,9 @@ package org.bigbluebutton.modules.users.services
         case "joinMeetingReply":
           handleJoinedMeeting(message);
           break;
+        case "user_listening_only":
+          handleUserListeningOnly(message);
+          break;
       }
     }  
     
@@ -153,6 +156,17 @@ package org.bigbluebutton.modules.users.services
       trace(LOG + "*** handleRecordingStatusChanged " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);
       sendRecordingStatusUpdate(map.recording);
+    }
+    
+    private function handleUserListeningOnly(msg: Object):void {
+      trace(LOG + "*** handleUserListeningOnly " + msg.msg + " **** \n");      
+      var map:Object = JSON.parse(msg.msg);  
+      var userId:String = map.userId;
+      var listenOnly:Boolean = map.listenOnly;
+      var l:BBBUser = _conference.getUser(userId);			
+      if (l != null) {
+        l.listenOnly = listenOnly;
+      }	
     }
     
     private function handleVoiceUserMuted(msg:Object):void {
@@ -461,6 +475,7 @@ package org.bigbluebutton.modules.users.services
       user.role = joinedUser.role;
       user.externUserID = joinedUser.externUserID;
       user.isLeavingFlag = false;
+      user.listenOnly = joinedUser.listenOnly;
       
       trace(LOG + "User status: hasStream " + joinedUser.hasStream);
       

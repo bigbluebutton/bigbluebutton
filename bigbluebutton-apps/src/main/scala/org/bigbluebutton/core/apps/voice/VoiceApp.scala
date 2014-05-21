@@ -8,10 +8,6 @@ trait VoiceApp {
   
   val outGW: MessageOutGateway
      
-  def handleSendVoiceUsersRequest(msg: SendVoiceUsersRequest) {
-      
-  }
-    
   def handleMuteMeetingRequest(msg: MuteMeetingRequest) {
       
   }

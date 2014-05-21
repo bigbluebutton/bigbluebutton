@@ -55,7 +55,7 @@ trait WhiteboardApp {
     println("WB: Received page history [" + msg.whiteboardId + "]")
       wbModel.history(msg.whiteboardId) foreach {wb =>
           outGW.send(new GetWhiteboardShapesReply(meetingID, recorded, 
-                       msg.requesterID, wb.id, wb.shapes.toArray))         
+                       msg.requesterID, wb.id, wb.shapes.toArray, msg.replyTo))         
       }
     }
     
@@ -88,6 +88,6 @@ trait WhiteboardApp {
   def handleIsWhiteboardEnabledRequest(msg: IsWhiteboardEnabledRequest) {
       val enabled = wbModel.isWhiteboardEnabled()      
       outGW.send(new IsWhiteboardEnabledReply(meetingID, recorded, 
-                       msg.requesterID, enabled))
+                       msg.requesterID, enabled, msg.replyTo))
     }
 }

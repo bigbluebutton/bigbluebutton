@@ -43,6 +43,7 @@ public class ESLEventListener implements IEslEventListener {
 //        notifyObservers(e);
     }
 
+    private static final Pattern GLOBAL_AUDION_PATTERN = Pattern.compile("(GLOBAL_AUDIO)_(.*)$");
     private static final Pattern CALLERNAME_PATTERN = Pattern.compile("(.*)-bbbID-(.*)$");
     
     @Override
@@ -59,11 +60,17 @@ public class ESLEventListener implements IEslEventListener {
         
         System.out.println("Received Conference Join Event from FreeSWITCH user[" + callerIdName + "]");
         
-		Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
-		if (matcher.matches()) {			
-			voiceUserId = matcher.group(1).trim();
-			callerIdName = matcher.group(2).trim();
-		} 
+        Matcher gapMatcher = GLOBAL_AUDION_PATTERN.matcher(callerIdName);
+        if (gapMatcher.matches()) {
+        	log.debug("Ignoring GLOBAL AUDIO USER [{}]", callerIdName);
+        	return;
+        }
+        		
+		    Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
+		    if (matcher.matches()) {			
+			    voiceUserId = matcher.group(1).trim();
+			    callerIdName = matcher.group(2).trim();
+		    } 
         
         VoiceUserJoinedEvent pj = new VoiceUserJoinedEvent(voiceUserId, memberId.toString(), confName, callerId, callerIdName, muted, speaking);
         conferenceEventListener.handleConferenceEvent(pj);

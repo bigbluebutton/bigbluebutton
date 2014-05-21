@@ -37,12 +37,34 @@ class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageL
 	    case _ => //println("Unhandled message in UsersClientMessageSender")
 	  }
 	}
+
+  private def handleEndAndKickAll(msg: EndAndKickAll):Unit = {
+		if (msg.recorded) {
+			val ev = new ParticipantEndAndKickAllRecordEvent();
+			ev.setTimestamp(TimestampGenerator.generateTimestamp);
+			ev.setMeetingId(msg.meetingID);
+			recorder.record(msg.meetingID, ev);					
+		}
+	}
+
+  private def handleUserJoined(msg: UserJoined):Unit = {
+		if (msg.recorded) {
+			val ev = new ParticipantJoinRecordEvent();
+			ev.setTimestamp(TimestampGenerator.generateTimestamp);
+			ev.setUserId(msg.user.userID);
+			ev.setName(msg.user.name);
+			ev.setMeetingId(msg.meetingID);
+			ev.setRole(msg.user.role.toString());
+
+			recorder.record(msg.meetingID, ev);			
+		}
+	}
   	
 	def handleVoiceRecordingStarted(msg: VoiceRecordingStarted) {
 	  if (msg.recorded) {
 		val evt = new StartRecordingVoiceRecordEvent(true);
 		evt.setMeetingId(msg.meetingID);
-		evt.setTimestamp(System.currentTimeMillis());
+		evt.setTimestamp(TimestampGenerator.generateTimestamp);
 		evt.setBridge(msg.confNum);
 		evt.setRecordingTimestamp(msg.timestamp);
 		evt.setFilename(msg.recordingFile);
@@ -54,7 +76,7 @@ class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageL
 	  if (msg.recorded) {
 		val evt = new StartRecordingVoiceRecordEvent(false);
 		evt.setMeetingId(msg.meetingID);
-		evt.setTimestamp(System.currentTimeMillis());
+		evt.setTimestamp(TimestampGenerator.generateTimestamp);
 		evt.setBridge(msg.confNum);
 		evt.setRecordingTimestamp(msg.timestamp);
 		evt.setFilename(msg.recordingFile);
@@ -66,7 +88,7 @@ class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageL
   	  if (msg.recorded) {
   	    val ev = new ParticipantMutedVoiceRecordEvent()
 		ev.setMeetingId(msg.meetingID);
-		ev.setTimestamp(System.currentTimeMillis());
+		ev.setTimestamp(TimestampGenerator.generateTimestamp);
 		ev.setBridge(msg.confNum);
 		ev.setParticipant(msg.user.voiceUser.userId);
 		ev.setMuted(msg.user.voiceUser.muted);
@@ -79,7 +101,7 @@ class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageL
   	  if (msg.recorded) {
   	    val evt = new ParticipantTalkingVoiceRecordEvent();
 		evt.setMeetingId(msg.meetingID);
-		evt.setTimestamp(System.currentTimeMillis());
+		evt.setTimestamp(TimestampGenerator.generateTimestamp);
 		evt.setBridge(msg.confNum);
 		evt.setParticipant(msg.user.userID);
 		evt.setTalking(msg.user.voiceUser.talking);
@@ -92,7 +114,7 @@ class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageL
   	  if (msg.recorded) {
 		val evt = new ParticipantJoinedVoiceRecordEvent();
 		evt.setMeetingId(msg.meetingID);
-		evt.setTimestamp(System.currentTimeMillis());
+		evt.setTimestamp(TimestampGenerator.generateTimestamp);
 		evt.setBridge(msg.confNum);
 		evt.setParticipant(msg.user.voiceUser.userId);
 		evt.setCallerName(msg.user.voiceUser.callerName);
@@ -108,7 +130,7 @@ class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageL
   	  if (msg.recorded) {
 		val evt = new ParticipantLeftVoiceRecordEvent();
 		evt.setMeetingId(msg.meetingID);
-		evt.setTimestamp(System.currentTimeMillis());
+		evt.setTimestamp(TimestampGenerator.generateTimestamp);
 		evt.setBridge(msg.confNum);
 		evt.setParticipant(msg.user.voiceUser.userId);
 		recorder.record(msg.meetingID, evt);  	    
@@ -119,7 +141,7 @@ class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageL
   	  if (msg.recorded) {
 		val evt = new RecordStatusRecordEvent();
 		evt.setMeetingId(msg.meetingID);
-		evt.setTimestamp(System.currentTimeMillis());
+		evt.setTimestamp(TimestampGenerator.generateTimestamp);
 		evt.setUserId(msg.userId);
 		evt.setRecordingStatus(msg.recording.toString);
 		
@@ -127,32 +149,10 @@ class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageL
   	  }  	  
   	}
   	
-  	def handleEndAndKickAll(msg: EndAndKickAll):Unit = {
-		if (msg.recorded) {
-			val ev = new ParticipantEndAndKickAllRecordEvent();
-			ev.setTimestamp(System.currentTimeMillis());
-			ev.setMeetingId(msg.meetingID);
-			recorder.record(msg.meetingID, ev);					
-		}
-	}
-
-	private def handleUserJoined(msg: UserJoined):Unit = {
-		if (msg.recorded) {
-			val ev = new ParticipantJoinRecordEvent();
-			ev.setTimestamp(System.currentTimeMillis());
-			ev.setUserId(msg.user.userID);
-			ev.setName(msg.user.name);
-			ev.setMeetingId(msg.meetingID);
-			ev.setRole(msg.user.role.toString());
-
-			recorder.record(msg.meetingID, ev);			
-		}
-	}
-
 	private def handleUserLeft(msg: UserLeft):Unit = {
 		if (msg.recorded) {
 			val ev = new ParticipantLeftRecordEvent();
-			ev.setTimestamp(System.currentTimeMillis());
+			ev.setTimestamp(TimestampGenerator.generateTimestamp);
 			ev.setUserId(msg.user.userID);
 			ev.setMeetingId(msg.meetingID);
 			
@@ -188,7 +188,7 @@ class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageL
 	private def handleUserStatusChange(msg: UserStatusChange):Unit = {
 		if (msg.recorded) {
 			val ev = new ParticipantStatusChangeRecordEvent();
-			ev.setTimestamp(System.currentTimeMillis());
+			ev.setTimestamp(TimestampGenerator.generateTimestamp);
 			ev.setUserId(msg.userID);
 			ev.setMeetingId(msg.meetingID);
 			ev.setStatus(msg.status);
@@ -202,7 +202,7 @@ class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageL
 		if (msg.recorded) {
 			val event = new AssignPresenterRecordEvent();
 			event.setMeetingId(msg.meetingID);
-			event.setTimestamp(System.currentTimeMillis());
+			event.setTimestamp(TimestampGenerator.generateTimestamp);
 			event.setUserId(msg.presenter.presenterID);
 			event.setName(msg.presenter.presenterName);
 			event.setAssignedBy(msg.presenter.assignedBy);

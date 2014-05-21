@@ -318,7 +318,9 @@ enable_webrtc(){
 	# Enable port 5066 in freeswitch
 	sed -i "s@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@<param name=\"ws-binding\"  value=\":5066\"/>@g" /opt/freeswitch/conf/sip_profiles/external.xml
 
-	bbb-conf --clean
+	echo "Recommend you do"
+	echo "   sudo bbb-conf --clean"
+	echo "to restart BigBlueButton."
 }
 
 disable_webrtc(){
@@ -335,42 +337,11 @@ disable_webrtc(){
 	# Disable port 5066 in freeswitch
 	sed -i "s@<param name=\"ws-binding\"  value=\":5066\"/>@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@g" /opt/freeswitch/conf/sip_profiles/external.xml
 
-	bbb-conf --clean
+	echo "Recommend you do"
+	echo "   sudo bbb-conf --clean"
+	echo "to restart BigBlueButton."
 }
 
-enable_webrtc(){
-        # Set server ip address in freeswitch
-        sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=$IP\"/>@g"  /opt/freeswitch/conf/vars.xml
- 
-        # Set server ip address in red5 sip app. For flash client.
-        sed -i "s/bbb.sip.app.ip=.*/bbb.sip.app.ip=$IP/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties               
-        sed -i "s/freeswitch.ip=.*/freeswitch.ip=$IP/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties                 
-
-        # Enable webrtc in the client
-        sed -i "s@useWebrtcIfAvailable=\".*\"@useWebrtcIfAvailable=\"true\"@g" /var/www/bigbluebutton/client/conf/config.xml    
-
-	# Enable port 5066 in freeswitch
-	sed -i "s@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@<param name=\"ws-binding\"  value=\":5066\"/>@g" /opt/freeswitch/conf/sip_profiles/external.xml
-
-        bbb-conf --clean
-}
-
-disable_webrtc(){
-        # Set 127.0.0.1 in freeswitch
-        sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=127.0.0.1\"/>@g"  /opt/freeswitch/conf/vars.xml
- 
-        # Set 127.0.0.1 in red5 sip app. For flash client.
-        sed -i "s/bbb.sip.app.ip=.*/bbb.sip.app.ip=127.0.0.1/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties                 
-        sed -i "s/freeswitch.ip=.*/freeswitch.ip=127.0.0.1/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties           
-
-        # Disable webrtc in the client
-        sed -i "s@useWebrtcIfAvailable=\".*\"@useWebrtcIfAvailable=\"false\"@g" /var/www/bigbluebutton/client/conf/config.xml   
-	
-	# Disable port 5066 in freeswitch
-	sed -i "s@<param name=\"ws-binding\"  value=\":5066\"/>@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@g" /opt/freeswitch/conf/sip_profiles/external.xml
-
-        bbb-conf --clean
-}
 
 if [ $# -eq 0 ]; then
 	usage
@@ -1207,7 +1178,7 @@ if [ $CHECK ]; then
 	echo "/opt/freeswitch/conf/sip_profiles/external.xml (FreeSWITCH)"
 	echo "                    websocket port: $WEBRTC_SOCKET"	
 	WEBRTC_ENABLED=$(grep -i webrtc /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
-	echo "			  'webrtc enabled: $WEBRTC_ENABLED"	
+	echo "                    webrtc enabled: $WEBRTC_ENABLED"	
 
 #        HOST=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/recordingHost/{s/.*recordingHost="http:\/\///;s/"//;p}')
 #        echo "          host for bbb-web interface: $HOST"
@@ -1256,7 +1227,7 @@ if [ $CHECK ]; then
 
 
 	if [ -f /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml ]; then
-		PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml  | sed -n '/playback_host/{s/.*:[ ]*//;s/;//;p}')
+		PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml  | sed -n '/^playback_host/{s/.*:[ ]*//;s/;//;p}' | tail -n 1)
 		echo
 		echo "/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml (record and playback)"
 		echo "                     playback host: $PLAYBACK_IP"
@@ -1306,6 +1277,8 @@ if [ $DEBUG ]; then
 	#
 	# Check log files
 	#
+
+set -x
 
 	rm -rf /tmp/t
 	grep ERROR /var/log/bigbluebutton/* > /tmp/t
@@ -1542,6 +1515,7 @@ if [ $CLEAN ]; then
 	rm -rf /var/log/nginx/*
 	mv /var/log/syslog /tmp/syslog.$$
 	echo "" > /var/log/syslog
+	chown syslog:adm /var/log/syslog
 
 	display_bigbluebutton_status
 

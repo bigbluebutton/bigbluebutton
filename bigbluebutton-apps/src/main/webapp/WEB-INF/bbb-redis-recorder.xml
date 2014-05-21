@@ -28,11 +28,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			">
 	
 	
-	<bean id="recorderApplication" class="org.bigbluebutton.conference.service.recorder.RecorderApplication">
+	<bean id="recorderApplication" class="org.bigbluebutton.conference.service.recorder.RecorderApplication"
+	      init-method="start" destroy-method="stop">
 		<property name="recorder"><ref bean="redisRecorder" /> </property>
+		<property name="redisListRecorder"><ref bean="redisListRecorder" /> </property>
 	</bean>
 	
 	<bean id="redisRecorder" class="org.bigbluebutton.conference.service.recorder.RedisDispatcher">
         <property name="redisPool"><ref bean="redisPool" /> </property>
     </bean> 
+    
+  <bean id="redisListRecorder" class="org.bigbluebutton.service.recording.RedisListRecorder" init-method="start" destroy-method="stop">
+      <property name="redisPool"><ref bean="redisPool" /> </property>
+  </bean>
 </beans>

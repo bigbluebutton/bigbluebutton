@@ -49,13 +49,12 @@ public class ParticipantsApplication {
 
 	public boolean participantLeft(String roomName, String userid) {
 		log.debug("Participant " + userid + " leaving room " + roomName);
-		bbbInGW.userLeft(userid, userid);	
+		bbbInGW.userLeft(roomName, userid);
 		return true;
 	}
 	
-	public boolean registerUser(String roomName, String userid, String username, String role, String externUserID, Map status) {
-		bbbInGW.registerUser(roomName, userid, username, role, externUserID);
-		//bbbInGW.userJoin(roomName, userid, username, role, externUserID);
+	public boolean registerUser(String roomName, String userid, String username, String role, String externUserID) {
+		bbbInGW.registerUser(roomName, userid, username, role, externUserID, userid);
 		return true;
 	}
 		

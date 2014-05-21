@@ -12,7 +12,7 @@ class PollEventRedisPublisher(service: MessageSender) extends OutMessageListener
   	def handleMessage(msg: IOutMessage) {
 	  msg match {
 	    case msg: GetPollsReplyOutMsg                 => handleGetPollsReplyOutMsg(msg)
-	    case msg : PollClearedOutMsg                  => handlePollClearedOutMsg(msg)
+	    case msg: PollClearedOutMsg                   => handlePollClearedOutMsg(msg)
 	    case msg: PollStartedOutMsg                   => handlePollStartedOutMsg(msg)
 	    case msg: PollStoppedOutMsg                   => handlePollStoppedOutMsg(msg)
 	    case msg: PollRemovedOutMsg                   => handlePollRemovedOutMsg(msg)
@@ -27,12 +27,12 @@ class PollEventRedisPublisher(service: MessageSender) extends OutMessageListener
   	  val gson = new Gson();
   	  val map = new java.util.HashMap[String, Object]() 
 
-	  map.put("meetingID", msg.meetingID)
-	  map.put("event", "PollResponseEvent")
+	    map.put("meetingID", msg.meetingID)
+	    map.put("event", "PollResponseEvent")
   	  map.put("responder", msg.responder)
   	  map.put("response", msg.response)
 
-	  service.send(MessagingConstants.BIGBLUEBUTTON_WEBHOOK_EVENTS, gson.toJson(map));	
+	    service.send(MessagingConstants.FROM_POLLING_CHANNEL, gson.toJson(map));	
   	}
   	
   	private def handleGetPollsReplyOutMsg(msg: GetPollsReplyOutMsg) {
@@ -63,7 +63,7 @@ class PollEventRedisPublisher(service: MessageSender) extends OutMessageListener
   	  map.put("meetingID", msg.meetingID)
 	  map.put("event", "PollStartedEvent")
   	  map.put("pollID", msg.pollID)
-  	  service.send(MessagingConstants.BIGBLUEBUTTON_WEBHOOK_EVENTS, gson.toJson(map));
+  	  service.send(MessagingConstants.FROM_POLLING_CHANNEL, gson.toJson(map));
 
   	}
   	
@@ -75,7 +75,7 @@ class PollEventRedisPublisher(service: MessageSender) extends OutMessageListener
   	  map.put("meetingID", msg.meetingID)
 	  map.put("event", "PollStoppedEvent")
   	  map.put("pollID", msg.pollID)
-  	  service.send(MessagingConstants.BIGBLUEBUTTON_WEBHOOK_EVENTS, gson.toJson(map));
+  	  service.send(MessagingConstants.FROM_POLLING_CHANNEL, gson.toJson(map));
   	}
   	
   	private def handlePollRemovedOutMsg(msg: PollRemovedOutMsg) {
@@ -86,7 +86,7 @@ class PollEventRedisPublisher(service: MessageSender) extends OutMessageListener
   	  map.put("meetingID", msg.meetingID)
 	  map.put("event", "PollRemovedEvent")
   	  map.put("pollID", msg.pollID)
-  	  service.send(MessagingConstants.BIGBLUEBUTTON_WEBHOOK_EVENTS, gson.toJson(map));
+  	  service.send(MessagingConstants.FROM_POLLING_CHANNEL, gson.toJson(map));
   	}
   	
   	private def handlePollUpdatedOutMsg(msg: PollUpdatedOutMsg) {
@@ -97,7 +97,7 @@ class PollEventRedisPublisher(service: MessageSender) extends OutMessageListener
 	  map.put("event", "PollUpdatedEvent")
 	  map.put("msg", gson.toJson(msg.pollVO))
 
-	  service.send(MessagingConstants.BIGBLUEBUTTON_WEBHOOK_EVENTS, gson.toJson(map));
+	  service.send(MessagingConstants.FROM_POLLING_CHANNEL, gson.toJson(map));
   	}
   	
   	private def handlePollCreatedOutMsg(msg: PollCreatedOutMsg) {
@@ -109,6 +109,6 @@ class PollEventRedisPublisher(service: MessageSender) extends OutMessageListener
 	  map.put("event", "PollCreatedEvent")
 	  map.put("msg", gson.toJson(msg.pollVO))
 
-	  service.send(MessagingConstants.BIGBLUEBUTTON_WEBHOOK_EVENTS, gson.toJson(map));
+	  service.send(MessagingConstants.FROM_POLLING_CHANNEL, gson.toJson(map));
   	}
 }

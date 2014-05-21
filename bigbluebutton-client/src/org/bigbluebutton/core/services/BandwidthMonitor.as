@@ -61,6 +61,7 @@ package org.bigbluebutton.core.services
     private function connect():void {
       nc = new NetConnection();
       nc.objectEncoding = flash.net.ObjectEncoding.AMF0;
+      nc.proxyType = "best";
       nc.client = this;
       nc.addEventListener(NetStatusEvent.NET_STATUS, onStatus);	
       nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);	

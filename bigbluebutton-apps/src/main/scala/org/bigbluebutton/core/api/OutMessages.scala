@@ -13,7 +13,8 @@ case class VoiceRecordingStarted(
     recorded: Boolean,
     recordingFile: String, 
     timestamp: String,
-    confNum: String
+    confNum: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class VoiceRecordingStopped(
@@ -21,55 +22,65 @@ case class VoiceRecordingStopped(
     recorded: Boolean,
     recordingFile: String, 
 	timestamp: String,
-	confNum: String
+	confNum: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class RecordingStatusChanged(
     meetingID: String, 
     recorded: Boolean,
     userId: String, 
-    recording: Boolean
+    recording: Boolean,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class GetRecordingStatusReply(
     meetingID: String, 
     recorded: Boolean,
     userId: String, 
-    recording: Boolean
+    recording: Boolean,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                           
 case class MeetingCreated(
     meetingID: String, 
     recorded: Boolean, 
-    voiceBridge: String
+    voiceBridge: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class MeetingEnded(
     meetingID: String, 
     recorded: Boolean, 
-    voiceBridge: String
+    voiceBridge: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class MeetingHasEnded(
   meetingID: String,
-  userId: String
+  userId: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class MeetingDestroyed(
-    meetingID: String
+    meetingID: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class DisconnectAllUsers(
-  meetingID: String    
+  meetingID: String,
+    version:String = Versions.V_0_0_1    
 ) extends IOutMessage
 
 case class DisconnectUser(
   meetingID: String, 
-  userId: String
+  userId: String,
+  version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class KeepAliveMessageReply(
-    aliveID:String
+  aliveID:String,
+  version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case object IsAliveMessage extends IOutMessage
@@ -78,103 +89,130 @@ case object IsAliveMessage extends IOutMessage
 case class PermissionsSettingInitialized(
     meetingID: String, 
     locked: Boolean, 
-    settings: PermissionsSetting
+    settings: PermissionsSetting,
+  version:String = Versions.V_0_0_1
 ) extends IOutMessage
     
 case class NewPermissionsSetting(
     meetingID: String, 
-    settings: PermissionsSetting
+    settings: PermissionsSetting,
+  version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class UserLocked(
     meetingID: String, 
     userId: String, 
-    lock: Boolean
+    lock: Boolean,
+  version:String = Versions.V_0_0_1
 ) extends IOutMessage
                            
 case class UsersLocked(
     meetingID: String, 
     lock: Boolean, 
-    exceptUsers: Seq[String]
+    exceptUsers: Seq[String],
+  version:String = Versions.V_0_0_1
 ) extends IOutMessage
                            
 case class GetPermissionsSettingReply(
     meetingID: String, 
-    userId: String
+    userId: String,
+  version:String = Versions.V_0_0_1
 ) extends IOutMessage
                            
 case class IsMeetingLockedReply(
     meetingID: String, 
-    userId: String
+    userId: String,
+  version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 // Users
 case class UserRegistered(
     meetingID: String,
     recorded: Boolean,
-    user: RegisteredUser
+    user: RegisteredUser,
+  version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class UserLeft(
     meetingID: String, 
     recorded: Boolean, 
-    user:UserVO
+    user:UserVO,
+  version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class PresenterAssigned(
     meetingID: String, 
     recorded: Boolean, 
-    presenter: Presenter
+    presenter: Presenter,
+  version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class EndAndKickAll(
     meetingID: String, 
-    recorded: Boolean
+    recorded: Boolean,
+  version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class GetUsersReply(
     meetingID: String, 
     requesterID: String, 
-    users: Array[UserVO]
+    users: Array[UserVO],
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                          
 case class ValidateAuthTokenReply(
   meetingID: String, 
   requesterId: String,
   token: String,
-  valid: Boolean) extends IOutMessage
+  valid: Boolean,
+  correlationId: String,
+  version:String = Versions.V_0_0_1
+  ) extends IOutMessage
 
 case class UserJoined(
     meetingID: String, 
     recorded: Boolean, 
-    user:UserVO
+    user:UserVO,
+  version:String = Versions.V_0_0_1
 ) extends IOutMessage
                       
 case class UserRaisedHand(
     meetingID: String, 
     recorded: Boolean, 
-    userID: String
+    userID: String,
+  version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class UserLoweredHand(
     meetingID: String, 
     recorded: Boolean, 
     userID: String, 
-    loweredBy: String
+    loweredBy: String,
+  version:String = Versions.V_0_0_1
 ) extends IOutMessage
-                      
+
+case class UserListeningOnly(
+    meetingID: String, 
+    recorded: Boolean, 
+    userID: String, 
+    listenOnly: Boolean,
+  version:String = Versions.V_0_0_1
+) extends IOutMessage
+
 case class UserSharedWebcam(
     meetingID: String, 
     recorded: Boolean, 
     userID: String, 
-    stream: String
+    stream: String,
+  version:String = Versions.V_0_0_1
 ) extends IOutMessage
                       
 case class UserUnsharedWebcam(
     meetingID: String, 
     recorded: Boolean, 
     userID: String, 
-    stream: String
+    stream: String,
+  version:String = Versions.V_0_0_1
 ) extends IOutMessage
                       
 case class UserStatusChange(
@@ -182,7 +220,8 @@ case class UserStatusChange(
     recorded: Boolean, 
     userID: String, 
     status: String, 
-    value: Object
+    value: Object,
+  version:String = Versions.V_0_0_1
 ) extends IOutMessage
                       
 case class MuteVoiceUser(
@@ -190,42 +229,48 @@ case class MuteVoiceUser(
     recorded: Boolean, 
     requesterID: String, 
     userId: String, 
-    mute: Boolean
+    mute: Boolean,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class UserVoiceMuted(
     meetingID: String, 
     recorded: Boolean, 
     confNum: String,
-    user:UserVO
+    user:UserVO,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class UserVoiceTalking(
     meetingID: String, 
     recorded: Boolean, 
     confNum: String,
-    user:UserVO
+    user:UserVO,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class EjectVoiceUser(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    userId: String
+    userId: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class UserJoinedVoice(
     meetingID: String, 
     recorded: Boolean, 
     confNum: String,
-    user:UserVO
+    user:UserVO,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class UserLeftVoice(
     meetingID: String, 
     recorded: Boolean, 
     confNum: String,
-    user:UserVO
+    user:UserVO,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                            
 // Voice
@@ -233,19 +278,22 @@ case class IsMeetingMutedReply(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    meetingMuted: Boolean
+    meetingMuted: Boolean,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class StartRecording(
     meetingID: String, 
     recorded: Boolean, 
-    requesterID: String
+    requesterID: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class StopRecording(
     meetingID: String, 
     recorded: Boolean, 
-    requesterID: String
+    requesterID: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 // Chat
@@ -253,21 +301,25 @@ case class GetChatHistoryReply(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    history: Array[Map[String, String]]
+    replyTo: String,
+    history: Array[Map[String, String]],
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class SendPublicMessageEvent(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    message: Map[String, String]
+    message: Map[String, String],
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class SendPrivateMessageEvent(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    message: Map[String, String]
+    message: Map[String, String],
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 // Layout
@@ -389,57 +441,68 @@ case class PollShowResultOutMsg(
 // Presentation
 case class ClearPresentationOutMsg(
     meetingID: String, 
-    recorded: Boolean
+    recorded: Boolean,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                                    
 case class RemovePresentationOutMsg(
     meetingID: String, 
     recorded: Boolean, 
-    presentationID: String
+    presentationID: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                                     
 case class GetPresentationInfoOutMsg(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    info: CurrentPresentationInfo
+    info: CurrentPresentationInfo,
+    replyTo:String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                                      
 case class SendCursorUpdateOutMsg(
     meetingID: String, 
     recorded: Boolean, 
     xPercent: Double, 
-    yPercent: Double
+    yPercent: Double,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                                   
 case class ResizeAndMoveSlideOutMsg(
     meetingID: String, 
     recorded: Boolean, 
-    page: Page
+    page: Page,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                                     
 case class GotoSlideOutMsg(
     meetingID: String, 
     recorded: Boolean, 
-    page: Page
+    page: Page,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                                     
 case class SharePresentationOutMsg(
     meetingID: String, 
     recorded: Boolean, 
-    presentation: Presentation
+    presentation: Presentation,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                                    
 case class GetSlideInfoOutMsg(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    page: Page
+    page: Page,
+    replyTo: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                               
 case class GetPreuploadedPresentationsOutMsg(
     meetingID:String, 
-    recorded: Boolean
+    recorded: Boolean,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class PresentationConversionProgress(
@@ -447,7 +510,8 @@ case class PresentationConversionProgress(
     messageKey: String, 
     code: String, 
     presentationId: String,
-    presentationName: String
+    presentationName: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class PresentationConversionError(
@@ -457,7 +521,8 @@ case class PresentationConversionError(
     presentationId: String, 
     numberOfPages: Int, 
     maxNumberPages: Int,
-    presentationName: String
+    presentationName: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class PresentationPageGenerated(
@@ -467,35 +532,43 @@ case class PresentationPageGenerated(
     presentationId: String, 
     numberOfPages: Int, 
     pagesCompleted: Int,
-    presentationName: String
+    presentationName: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class PresentationConversionDone(
     meetingID: String, 
+    recorded: Boolean,
     messageKey: String, 
     code: String,  
-    presentation: Presentation
+    presentation: Presentation,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
        
 case class PresentationChanged(
     meetingID: String,
-    presentation: Presentation
+    presentation: Presentation,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class GetPresentationStatusReply(
     meetingID: String,
     presentations: Seq[Presentation],
-    current: Presentation
+    current: Presentation,
+    replyTo: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class PresentationRemoved(
   meetingID: String,
-  presentationId: String
+  presentationId: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class PageChanged(
   meetingID: String,
-  page: Page
+  page: Page,
+  version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 // Whiteboard
@@ -504,7 +577,9 @@ case class GetWhiteboardShapesReply(
     recorded: Boolean, 
     requesterID: String, 
     whiteboardId: String, 
-    shapes: Array[AnnotationVO]
+    shapes: Array[AnnotationVO],
+    replyTo: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                        
 case class SendWhiteboardAnnotationEvent(
@@ -512,14 +587,16 @@ case class SendWhiteboardAnnotationEvent(
     recorded: Boolean, 
     requesterID: String, 
     whiteboardId: String, 
-    shape: AnnotationVO
+    shape: AnnotationVO,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                                             
 case class ClearWhiteboardEvent(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    whiteboardId: String
+    whiteboardId: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                        
 case class UndoWhiteboardEvent(
@@ -527,7 +604,8 @@ case class UndoWhiteboardEvent(
     recorded: Boolean, 
     requesterID: String, 
     whiteboardId: String,
-    shapeId: String
+    shapeId: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                        
                        
@@ -535,14 +613,17 @@ case class WhiteboardEnabledEvent(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    enable: Boolean
+    enable: Boolean,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                        
 case class IsWhiteboardEnabledReply(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
-    enabled: Boolean
+    enabled: Boolean,
+    replyTo: String,
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                        
 
@@ -551,4 +632,5 @@ case class MeetingVO(
     id: String, 
     recorded: Boolean
 )
+
 

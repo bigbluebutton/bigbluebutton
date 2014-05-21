@@ -81,6 +81,7 @@ package org.bigbluebutton.modules.phone.managers {
       trace(LOG + "Connecting to uri=[" + uri + "]");
 			NetConnection.defaultObjectEncoding = flash.net.ObjectEncoding.AMF0;	
 			netConnection = new NetConnection();
+			netConnection.proxyType = "best";
 			netConnection.client = this;
 			netConnection.addEventListener( NetStatusEvent.NET_STATUS , netStatus );
 			netConnection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
@@ -159,9 +160,9 @@ package org.bigbluebutton.modules.phone.managers {
 		//			SIP Actions
 		//
 		//********************************************************************************************		
-		public function doCall(dialStr:String):void {
-			trace(LOG + "in doCall - Calling " + dialStr);
-			netConnection.call("voiceconf.call", null, "default", username, dialStr);
+		public function doCall(dialStr:String, listenOnly:Boolean = false):void {
+			trace(LOG + "in doCall - Calling " + dialStr + (listenOnly? " *listen only*": ""));
+			netConnection.call("voiceconf.call", null, "default", username, dialStr, listenOnly.toString());
 		}
 				
 		public function doHangUp():void {			

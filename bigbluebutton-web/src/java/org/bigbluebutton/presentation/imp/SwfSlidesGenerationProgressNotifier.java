@@ -46,7 +46,7 @@ public class SwfSlidesGenerationProgressNotifier {
 			Gson gson= new Gson();
 			String updateMsg = gson.toJson(msg);
 			log.debug("SENDING: " + updateMsg);
-			messagingService.send(MessagingConstants.PRESENTATION_CHANNEL, updateMsg);
+			messagingService.send(MessagingConstants.TO_PRESENTATION_CHANNEL, updateMsg);
 			log.debug("SENT: " + updateMsg);
 		} else {
 			log.warn("MessagingService has not been set");
@@ -96,5 +96,11 @@ public class SwfSlidesGenerationProgressNotifier {
 		MessageBuilder builder = new ConversionUpdateMessage.MessageBuilder(pres);
 		builder.messageKey(ConversionMessageConstants.GENERATING_TEXTFILES_KEY);
 		notifyProgressListener(builder.build().getMessage());	
+	}
+
+	public void sendCreatingPngImagesUpdateMessage(UploadedPresentation pres) {
+		MessageBuilder builder = new ConversionUpdateMessage.MessageBuilder(pres);
+		builder.messageKey(ConversionMessageConstants.GENERATING_PNGIMAGES_KEY);
+		notifyProgressListener(builder.build().getMessage());
 	}
 }

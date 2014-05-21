@@ -51,6 +51,7 @@ package org.bigbluebutton.modules.settings.connectors
 		public function VideoConnector(connectionListener:Function)
 		{	
 			connection = new NetConnection();
+			connection.proxyType = "best";
 			connection.client = this;
 			connection.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
 			connection.addEventListener(NetStatusEvent.NET_STATUS, connectionListener);

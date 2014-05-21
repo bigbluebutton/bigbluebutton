@@ -134,6 +134,29 @@ class PresentationController {
     return null;
   }
   
+  def showPngImage = {
+	  def presentationName = params.presentation_name
+	  def conf = params.conference
+	  def rm = params.room
+	  def slide = params.id
+	  
+	  InputStream is = null;
+	  try {
+  //			def f = confInfo()
+		def pres = presentationService.showPngImage(conf, rm, presentationName, slide)
+		if (pres.exists()) {
+		  def bytes = pres.readBytes()
+		  response.addHeader("Cache-Control", "no-cache")
+		  response.contentType = 'image/png'
+		  response.outputStream << bytes;
+		}
+	  } catch (IOException e) {
+		System.out.println("Error reading file.\n" + e.getMessage());
+	  }
+	  
+	  return null;
+	}
+  
   def showThumbnail = {
     
     def presentationName = params.presentation_name

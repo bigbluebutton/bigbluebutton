@@ -443,5 +443,13 @@ module BigBlueButton
       end
       matched_rec_events
     end
+
+    # Version of the bbb server where it was recorded
+    def self.bbb_version(events_xml)
+      events = Nokogiri::XML(File.open(events_xml))      
+      recording = events.at_xpath('/recording')
+      recording['bbb_version']      
+    end
+
   end
 end

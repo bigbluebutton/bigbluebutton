@@ -30,6 +30,26 @@ trait UsersApp {
     currentPresenter
   }
   
+  def handleUserConnectedToGlobalAudio(msg: UserConnectedToGlobalAudio) {
+    println("*************** Got UserConnectedToGlobalAudio message for [" + msg.name + "] ********************" )
+    val user = users.getUser(msg.userid)
+    user foreach {u =>
+      val uvo = u.copy(listenOnly=true)
+      users.addUser(uvo)
+      outGW.send(new UserListeningOnly(meetingID, recorded, uvo.userID, uvo.listenOnly))        
+    }
+  }
+  
+  def handleUserDisconnectedFromGlobalAudio(msg: UserDisconnectedFromGlobalAudio) {
+    println("*************** Got UserDisconnectedToGlobalAudio message for [" + msg.name + "] ********************" )
+    val user = users.getUser(msg.userid)
+    user foreach {u =>
+      val uvo = u.copy(listenOnly=false)
+      users.addUser(uvo)
+      outGW.send(new UserListeningOnly(meetingID, recorded, uvo.userID, uvo.listenOnly))        
+    }
+  }
+  
   def handleMuteMeetingRequest(msg: MuteMeetingRequest) {
     meetingMuted = msg.mute
     
@@ -39,9 +59,10 @@ trait UsersApp {
   }
   
   def handleValidateAuthToken(msg: ValidateAuthToken) {
+    println("*************** Got ValidateAuthToken message ********************" )
     regUsers.get (msg.userId) match {
-      case Some(u) => outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true))
-      case None => outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, false))
+      case Some(u) => outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true, msg.correlationId))
+      case None => outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, false, msg.correlationId))
     }  
   }
   
@@ -50,7 +71,7 @@ trait UsersApp {
       // Check first if the meeting has ended and the user refreshed the client to re-connect.
       sendMeetingHasEnded(msg.userID)
     } else {
-      val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role)
+      val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken)
       regUsers += msg.userID -> regUser
       outGW.send(new UserRegistered(meetingID, recorded, regUser))      
     }
@@ -166,18 +187,18 @@ trait UsersApp {
     val uvo = new UserVO(msg.userID, msg.extUserID, msg.name, 
                   msg.role, raiseHand=false, presenter=false, 
                   hasStream=false, locked=false, webcamStream="", 
-                  phoneUser=false, vu, permissions.permissions)
+                  phoneUser=false, vu, listenOnly=false, permissions.permissions)
   	
-	users.addUser(uvo)
+	  users.addUser(uvo)
 					
-	outGW.send(new UserJoined(meetingID, recorded, uvo))
+	  outGW.send(new UserJoined(meetingID, recorded, uvo))
 	
-	// Become presenter if the only moderator		
-	if (users.numModerators == 1) {
-	  if (msg.role == Role.MODERATOR) {
-		assignNewPresenter(msg.userID, msg.name, msg.userID)
-	  }	  
-	}
+	  // Become presenter if the only moderator		
+	  if (users.numModerators == 1) {
+	    if (msg.role == Role.MODERATOR) {
+		    assignNewPresenter(msg.userID, msg.name, msg.userID)
+	    }	  
+	  }
   }
 			
   def handleUserLeft(msg: UserLeaving):Unit = {
@@ -210,11 +231,13 @@ trait UsersApp {
           val uvo = new UserVO(webUserId, webUserId, msg.voiceUser.callerName, 
 		                  Role.VIEWER, raiseHand=false, presenter=false, 
 		                  hasStream=false, locked=false, webcamStream="", 
-		                  phoneUser=true, vu, permissions.permissions)
+		                  phoneUser=true, vu, listenOnly=false, permissions.permissions)
 		  	
-		  users.addUser(uvo)
-		  println("New user joined voice for user [" + uvo.name + "] userid=[" + msg.voiceUser.webUserId + "]")
-		  outGW.send(new UserJoined(meetingID, recorded, uvo))
+		      users.addUser(uvo)
+		      println("New user joined voice for user [" + uvo.name + "] userid=[" + msg.voiceUser.webUserId + "]")
+		      outGW.send(new UserJoined(meetingID, recorded, uvo))
+		      
+		      outGW.send(new UserJoinedVoice(meetingID, recorded, voiceBridge, uvo))
         }
       }
   }
@@ -227,7 +250,14 @@ trait UsersApp {
       users.addUser(nu)
             
       println("Received voice user left =[" + user.name + "] wid=[" + msg.userId + "]" )
-      outGW.send(new UserLeftVoice(meetingID, recorded, voiceBridge, nu))        
+      outGW.send(new UserLeftVoice(meetingID, recorded, voiceBridge, nu))    
+      
+      if (user.phoneUser) {
+	      if (users.hasUser(user.userID)) {
+	        val userLeaving = users.removeUser(user.userID)
+	        userLeaving foreach (u => outGW.send(new UserLeft(msg.meetingID, recorded, u)))
+	      }        
+      }
     }    
   }
   

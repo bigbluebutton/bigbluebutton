@@ -43,7 +43,8 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var name:String;
 		[Bindable] public var talking:Boolean = false;
 		[Bindable] public var phoneUser:Boolean = false;
-		
+    [Bindable] public var listenOnly:Boolean = false;
+    
 		[Bindable] public var disableMyCam:Boolean = false;
 		[Bindable] public var disableMyMic:Boolean = false;
 		[Bindable] public var disableMyPrivateChat:Boolean = false;

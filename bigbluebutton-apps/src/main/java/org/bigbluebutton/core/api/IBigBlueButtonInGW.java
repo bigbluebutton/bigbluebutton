@@ -24,13 +24,13 @@ public interface IBigBlueButtonInGW {
 	
 	
 	// Users
-	void validateAuthToken(String meetingId, String userId, String token);
-	void registerUser(String roomName, String userid, String username, String role, String externUserID);
+	void validateAuthToken(String meetingId, String userId, String token, String correlationId);
+	void registerUser(String roomName, String userid, String username, String role, String externUserID, String authToken);
 	void userRaiseHand(String meetingId, String userId);	
 	void lowerHand(String meetingId, String userId, String loweredBy);
 	void shareWebcam(String meetingId, String userId, String stream);
 	void unshareWebcam(String meetingId, String userId);
-  	void setUserStatus(String meetingID, String userID, String status, Object value);
+  void setUserStatus(String meetingID, String userID, String status, Object value);
 	void getUsers(String meetingID, String requesterID);
 	void userLeft(String meetingID, String userID);
 	void userJoin(String meetingID, String userID, String username, String role, String externUserID);
@@ -38,9 +38,10 @@ public interface IBigBlueButtonInGW {
 	void assignPresenter(String meetingID, String newPresenterID, String newPresenterName, String assignedBy);
 	void setRecordingStatus(String meetingId, String userId, Boolean recording);
 	void getRecordingStatus(String meetingId, String userId);
-
+  void userConnectedToGlobalAudio(String voiceConf, String userid, String name);
+  void userDisconnectedFromGlobalAudio(String voiceConf, String userid, String name);
+	
 	// Voice
-	void getVoiceUsers(String meetingID, String requesterID);
 	void muteAllUsers(String meetingID, String requesterID, Boolean mute);
 	void isMeetingMuted(String meetingID, String requesterID);
 	void muteUser(String meetingID, String requesterID, String userID, Boolean mute);
@@ -59,12 +60,12 @@ public interface IBigBlueButtonInGW {
 	// Presentation
 	void clear(String meetingID);
 	void removePresentation(String meetingID, String presentationID);
-	void getPresentationInfo(String meetingID, String requesterID);
+	void getPresentationInfo(String meetingID, String requesterID, String replyTo);
 	void sendCursorUpdate(String meetingID, double xPercent, double yPercent);
 	void resizeAndMoveSlide(String meetingID, double xOffset, double yOffset, double widthRatio, double heightRatio);
 	void gotoSlide(String meetingID, String page);
 	void sharePresentation(String meetingID, String presentationID, boolean share);
-	void getSlideInfo(String meetingID, String requesterID);
+	void getSlideInfo(String meetingID, String requesterID, String replyTo);
 
 	void sendConversionUpdate(String messageKey, String meetingId, 
             String code, String presId, String presName); 
@@ -97,16 +98,16 @@ public interface IBigBlueButtonInGW {
 	void unlockLayout(String meetingID, String requesterID);
 
 	// Chat
-	void getChatHistory(String meetingID, String requesterID);
+	void getChatHistory(String meetingID, String requesterID, String replyTo);
 	void sendPublicMessage(String meetingID, String requesterID, Map<String, String> message);
 	void sendPrivateMessage(String meetingID, String requesterID, Map<String, String> message);
 
 	// Whiteboard
 	void sendWhiteboardAnnotation(String meetingID, String requesterID, java.util.Map<String, Object> annotation);	
-	void requestWhiteboardAnnotationHistory(String meetingID, String requesterID, String whiteboardId);
+	void requestWhiteboardAnnotationHistory(String meetingID, String requesterID, String whiteboardId, String replyTo);
 	void clearWhiteboard(String meetingID, String requesterID, String whiteboardId);
 	void undoWhiteboard(String meetingID, String requesterID, String whiteboardId);
 	void enableWhiteboard(String meetingID, String requesterID, Boolean enable);
-	void isWhiteboardEnabled(String meetingID, String requesterID);
+	void isWhiteboardEnabled(String meetingID, String requesterID, String replyTo);
 	
 }

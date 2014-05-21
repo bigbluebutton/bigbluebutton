@@ -70,7 +70,7 @@ public class OfficeToPdfConversionSuccessFilter {
 			Gson gson = new Gson();
 			String updateMsg = gson.toJson(msg);
 			log.debug("sending: " + updateMsg);
-			messagingService.send(MessagingConstants.PRESENTATION_CHANNEL, updateMsg);
+			messagingService.send(MessagingConstants.TO_PRESENTATION_CHANNEL, updateMsg);
 		} else {
 			log.warn("MessagingService has not been set!.");
 		}

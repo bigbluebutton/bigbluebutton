@@ -21,24 +21,45 @@ package org.bigbluebutton.api;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.*;
-import org.apache.commons.lang.RandomStringUtils;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Playback;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.User;
 import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.messaging.MessageListener;
+import org.bigbluebutton.api.messaging.MessagingConstants;
 import org.bigbluebutton.api.messaging.MessagingService;
+import org.bigbluebutton.api.messaging.ReceivedMessage;
+import org.bigbluebutton.api.messaging.messages.CreateMeeting;
+import org.bigbluebutton.api.messaging.messages.EndMeeting;
+import org.bigbluebutton.api.messaging.messages.IMessage;
+import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
+import org.bigbluebutton.api.messaging.messages.MeetingEnded;
+import org.bigbluebutton.api.messaging.messages.MeetingStarted;
+import org.bigbluebutton.api.messaging.messages.RemoveExpiredMeetings;
+import org.bigbluebutton.api.messaging.messages.UserJoined;
+import org.bigbluebutton.api.messaging.messages.UserLeft;
+import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask;
 import org.bigbluebutton.web.services.KeepAliveService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MeetingService {
+public class MeetingService implements MessageListener {
 	private static Logger log = LoggerFactory.getLogger(MeetingService.class);
+
+	private BlockingQueue<IMessage> receivedMessages = new LinkedBlockingQueue<IMessage>();	
+	private volatile boolean processMessage = false;
+	
+	private final Executor msgProcessorExec = Executors.newSingleThreadExecutor();
 	
 	private final ConcurrentMap<String, Meeting> meetings;	
 	private final ConcurrentMap<String, UserSession> sessions;
@@ -49,8 +70,7 @@ public class MeetingService {
 	private MessagingService messagingService;
 	private ExpiredMeetingCleanupTimerTask cleaner;
 	private boolean removeMeetingWhenEnded = false;
-	private KeepAliveService keepAliveService;
-	
+
 	public MeetingService() {
 		meetings = new ConcurrentHashMap<String, Meeting>();	
 		sessions = new ConcurrentHashMap<String, UserSession>();		
@@ -58,6 +78,10 @@ public class MeetingService {
 	
 	public void addUserSession(String token, UserSession user) {
 		sessions.put(token, user);
+	}
+	
+	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken) {
+		messagingService.registerUser(meetingID, internalUserId, fullname, role, externUserID, authToken);
 	}
 	
 	public UserSession getUserSession(String token) {
@@ -73,40 +97,52 @@ public class MeetingService {
 	 * running meetings.
 	 */
 	public void removeExpiredMeetings() {
-		log.info("Cleaning up expired meetings");
+		log.debug("Trigger cleaning up expired meetings");
+    handle(new RemoveExpiredMeetings());
+	}
+	
+	private void kickOffProcessingOfRecording(Meeting m) {
+  	if (m.isRecord() && m.getNumUsers() == 0) {
+  		log.info("Kick-off processing of recording for meeting [id={} , name={}]", m.getInternalId(), m.getName());		  			
+  		processRecording(m.getInternalId());
+  	}		 		
+	}
+	
+	private void processMeetingForRemoval(Meeting m) {
+		kickOffProcessingOfRecording(m);	  		
+  	destroyMeeting(m.getInternalId());		  		
+		meetings.remove(m.getInternalId());				
+	}
+	
+	private void checkAndRemoveExpiredMeetings() {
+		log.debug("Cleaning up expired meetings");
 		for (Meeting m : meetings.values()) {
 			if (m.hasExpired(defaultMeetingExpireDuration) ) {
-				log.info("Removing expired meeting [id={} , name={}]", m.getInternalId(), m.getName());
-				log.info("Expired meeting [start={} , end={}]", m.getStartTime(), m.getEndTime());
-		  		if (m.isRecord() && m.getNumUsers() == 0) {
-		  			log.debug("[" + m.getInternalId() + "] is recorded. Process it.");		  			
-		  			processRecording(m.getInternalId());
-		  		}		  		
-		  		destroyMeeting(m.getInternalId());		  		
-				meetings.remove(m.getInternalId());				
+				log.info("Meeting [id={} , name={}] has expired.", m.getInternalId(), m.getName());
+				processMeetingForRemoval(m);
 				continue;
 			} else {
-				log.debug("Meeting id=[" + m.getInternalId() + "] has not expired yet.");
+				log.debug("Meeting [id={} , name={}] has not expired yet.", m.getInternalId(), m.getName());
 			}
 			
 			if (m.isForciblyEnded()) {
-				log.info("Meeting id[{}] has been forcefully ended. Destroying.", m.getInternalId());
-				destroyMeeting(m.getInternalId());
+				log.info("Meeting [id={} , name={}] has been forcefully ended.", m.getInternalId(), m.getName());
+				processMeetingForRemoval(m);			
+				continue;
 			}
 			
-			if (m.wasNeverStarted(defaultMeetingCreateJoinDuration)) {
-				log.info("Removing non-joined meeting [{} - {}]", m.getInternalId(), m.getName());
-				destroyMeeting(m.getInternalId());
-				
+			if (m.wasNeverJoined(defaultMeetingCreateJoinDuration)) {
+				log.info("No user has joined the meeting [id={} , name={}]. Removing it.", m.getInternalId(), m.getName());
+				destroyMeeting(m.getInternalId());			
 				meetings.remove(m.getInternalId());
 				continue;
 			}
 			
 			if (m.hasExceededDuration()) {
-				log.info("Forcibly ending meeting [{} - {}]", m.getInternalId(), m.getName());
+				log.info("Meeting [id={} , name={}] has ran past duration. Ending it.", m.getInternalId(), m.getName());
 				endMeeting(m.getInternalId());
 			}			
-		}
+		}		
 	}
 	
 	private void destroyMeeting(String meetingID) {
@@ -119,6 +155,11 @@ public class MeetingService {
 	}
 	
 	public void createMeeting(Meeting m) {
+    handle(new CreateMeeting(m));
+//		handleCreateMeeting(m);
+	}
+
+	private void handleCreateMeeting(Meeting m) {
 		log.debug("Storing Meeting with internal id:" + m.getInternalId());
 		meetings.put(m.getInternalId(), m);
 		if (m.isRecord()) {
@@ -131,9 +172,13 @@ public class MeetingService {
 			messagingService.recordMeetingInfo(m.getInternalId(), metadata);
 		}
 		
-		messagingService.createMeeting(m.getInternalId(), m.getName(), m.isRecord(), m.getTelVoice(), m.getDuration());
+		messagingService.createMeeting(m.getInternalId(), m.getName(), m.isRecord(), m.getTelVoice(), m.getDuration());			
 	}
-
+	
+	private void processCreateMeeting(CreateMeeting message) {
+		handleCreateMeeting(message.meeting);
+	}
+	
 	public String addSubscription(String meetingId, String event, String callbackURL){
 		log.debug("Add a new subscriber");
 		String sid = messagingService.storeSubscription(meetingId, event, callbackURL);
@@ -149,7 +194,7 @@ public class MeetingService {
 	}
 
 	public Meeting getMeeting(String meetingId) {
-		if(meetingId == null)
+		if (meetingId == null)
 			return null;
 		for (String key : meetings.keySet()) {
 			if (key.startsWith(meetingId))
@@ -180,14 +225,16 @@ public class MeetingService {
 				
 				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), 
 						getDurationRecording(r.getPlaybackDuration(), 
-								r.getEndTime(), r.getStartTime())));
+								r.getEndTime(), r.getStartTime()),
+						r.getPlaybackExtensions()));
 				r.setPlaybacks(plays);
 				map.put(r.getId(), r);
 			} else {
 				Recording rec = map.get(r.getId());
 				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), 
 						getDurationRecording(r.getPlaybackDuration(), 
-								r.getEndTime(), r.getStartTime())));
+								r.getEndTime(), r.getStartTime()),
+						r.getPlaybackExtensions()));
 			}
 		}
 		
@@ -220,10 +267,6 @@ public class MeetingService {
 		}
 	}
 	
-	public void setRemoveMeetingWhenEnded(boolean s) {
-		removeMeetingWhenEnded = s;
-	}
-	
 	public void deleteRecordings(ArrayList<String> idList){
 		for(String id:idList){
 			recordingService.delete(id);
@@ -254,23 +297,23 @@ public class MeetingService {
 	}
 	
 	public void endMeeting(String meetingId) {		
-		log.info("Received EndMeeting request from the API for meeting=[{}]", meetingId);
-		messagingService.endMeeting(meetingId);
+		log.info("Received request to end meeting=[{}]", meetingId);
+    handle(new EndMeeting(meetingId));
+	}
+	
+	private void processEndMeeting(EndMeeting message) {
+		log.info("Received EndMeeting request from the API for meeting=[{}]", message.meetingId);
+		messagingService.endMeeting(message.meetingId);
 		
-		Meeting m = getMeeting(meetingId);
+		Meeting m = getMeeting(message.meetingId);
 		if (m != null) {
 			m.setForciblyEnded(true);
 			if (removeMeetingWhenEnded) {
-				if (m.isRecord()) {
-					log.debug("Removing forcibly ended meeting [{}]. Process the recording.",  m.getInternalId());		  			
-					processRecording(m.getInternalId());
-				}
-				destroyMeeting(m.getInternalId());
-				meetings.remove(m.getInternalId());
+				processMeetingForRemoval(m);
 			}
 		} else {
-			log.debug("endMeeting - meeting doesn't exist: " + meetingId);
-		}
+			log.debug("endMeeting - meeting doesn't exist: " + message.meetingId);
+		}		
 	}
 	
 	public void addUserCustomData(String meetingId, String userID, Map<String,String> userCustomData){
@@ -280,6 +323,140 @@ public class MeetingService {
 		}
 	}
 
+	private void meetingStarted(MeetingStarted message) {
+		log.debug("Meeting [{}] has started.", message.meetingId);
+		Meeting m = getMeeting(message.meetingId);
+		if (m != null) {
+			if (m.getStartTime() == 0) {
+				long now = System.currentTimeMillis();
+				log.info("Meeting [{}] has started on [{}]", message.meetingId, now);
+				m.setStartTime(now);
+			} else {
+				log.debug("The meeting [{}] has been started again...", message.meetingId);
+			}
+			return;
+		}
+		log.warn("The meeting [{}] doesn't exist", message.meetingId);
+	}
+
+	private void meetingEnded(MeetingEnded message) {
+		log.debug("Meeting [{}] has ended.", message.meetingId);
+		Meeting m = getMeeting(message.meetingId);
+		if (m != null) {
+			long now = System.currentTimeMillis();
+			log.debug("Meeting [{}] end time [{}].", message.meetingId, now);
+			m.setEndTime(now);
+			return;
+		}
+		log.warn("The meeting " + message.meetingId + " doesn't exist");
+	}
+
+	private void userJoined(UserJoined message) {
+		log.debug("User joined in meeting[{}]", message.meetingId);
+		Meeting m = getMeeting(message.meetingId);
+		if (m != null) {
+			User user = new User(message.userId, message.externalUserId, message.name, message.role);
+			m.userJoined(user);
+			log.debug("New user in meeting [" + message.meetingId + "] user [" + user.getFullname() + "]");
+			return;
+		}
+		log.warn("The meeting " + message.meetingId + " doesn't exist");
+	}
+
+	private void userLeft(UserLeft message) {
+		log.debug("User left from meeting[{}]", message.meetingId);
+		Meeting m = getMeeting(message.meetingId);
+		if (m != null) {
+			User user = m.userLeft(message.userId);
+			if(user != null){
+				log.debug("User removed from meeting [" + message.meetingId + "] user [" + user.getFullname() + "]");
+				return;
+			}
+			log.warn("The participant " + message.userId + " doesn't exist in the meeting " + message.meetingId);
+			return;
+		}
+		log.warn("The meeting " + message.meetingId + " doesn't exist");
+	}
+		
+	private void updatedStatus(UserStatusChanged message) {
+		Meeting m = getMeeting(message.meetingId);
+		if (m != null) {
+			User user = m.getUserById(message.userId);
+			if(user != null){
+				user.setStatus(message.status, message.value);
+				log.debug("Setting new status value in meeting " + message.meetingId + " for participant:"+user.getFullname());
+				return;
+			}
+			log.warn("The participant " + message.userId + " doesn't exist in the meeting " + message.meetingId);
+			return;
+		}
+		log.warn("The meeting " + message.meetingId + " doesn't exist");
+	}
+
+	private void processMessage(IMessage message) {
+		if (message instanceof MeetingDestroyed) {
+			
+		} else if (message instanceof MeetingStarted) {
+			meetingStarted((MeetingStarted)message);
+		} else if (message instanceof MeetingEnded) {
+			log.info("Processing meeting ended request.");
+			meetingEnded((MeetingEnded)message);
+		} else if (message instanceof UserJoined) {
+			log.info("Processing user joined message.");
+      userJoined((UserJoined)message);
+		} else if (message instanceof UserLeft) {
+			log.info("Processing user left message.");
+			userLeft((UserLeft)message);
+		} else if (message instanceof UserStatusChanged) {
+			updatedStatus((UserStatusChanged)message);
+		} else if (message instanceof RemoveExpiredMeetings) {
+			checkAndRemoveExpiredMeetings();
+		} else if (message instanceof CreateMeeting) {
+			processCreateMeeting((CreateMeeting)message);
+		} else if (message instanceof EndMeeting) {
+			log.info("Processing end meeting request.");
+			processEndMeeting((EndMeeting)message);
+		}
+	}
+
+	@Override
+  public void handle(IMessage message) {
+		try {
+			receivedMessages.offer(message, 5, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+		  // TODO Auto-generated catch block
+		  e.printStackTrace();
+	  } 
+    
+  }
+	
+	public void start() {
+		log.info("Starting Meeting Service.");
+		try {
+			processMessage = true;
+			Runnable messageReceiver = new Runnable() {
+			    public void run() {
+			    	while (processMessage) {
+			    		try {
+				    		IMessage msg = receivedMessages.take();
+								processMessage(msg); 			    			
+			    		} catch (InterruptedException e) {
+			    		  // TODO Auto-generated catch block
+			    		  e.printStackTrace();
+			    	  } 
+			    	}
+			    }
+			};
+			msgProcessorExec.execute(messageReceiver);
+		} catch (Exception e) {
+			log.error("Error PRocessing Message");
+		}
+	}
+	
+	public void stop() {
+		processMessage = false;
+	}
+	
 	public void setDefaultMeetingCreateJoinDuration(int expiration) {
 		this.defaultMeetingCreateJoinDuration = expiration;
 	}
@@ -294,8 +471,6 @@ public class MeetingService {
 	
 	public void setMessagingService(MessagingService mess) {
 		messagingService = mess;
-		messagingService.addListener(new MeetingMessageListener());
-		messagingService.start();
 	}
 	
 	public void setExpiredMeetingCleanupTimerTask(ExpiredMeetingCleanupTimerTask c) {
@@ -303,93 +478,8 @@ public class MeetingService {
 		cleaner.setMeetingService(this);
 		cleaner.start();
 	}
-
-	public void setKeepAliveService(KeepAliveService keepAlive){
-		this.keepAliveService = keepAlive;
-	}
 	
-	/**
-	 * Class that listens for messages from bbb-apps.
-	 * @author Richard Alam
-	 *
-	 */
-	private class MeetingMessageListener implements MessageListener {
-		@Override
-		public void meetingStarted(String meetingId) {
-			Meeting m = getMeeting(meetingId);
-			if (m != null) {
-				if (m.getStartTime() == 0) {
-					long now = System.currentTimeMillis();
-					log.info("Meeting [{}] has started on [{}]", meetingId, now);
-					m.setStartTime(now);
-				} else {
-					log.debug("The meeting [{}] has been started again...", meetingId);
-				}
-				m.setEndTime(0);
-				return;
-			}
-			log.warn("The meeting [{}] doesn't exist", meetingId);
-		}
-
-		@Override
-		public void meetingEnded(String meetingId) {
-			Meeting m = getMeeting(meetingId);
-			if (m != null) {
-				long now = System.currentTimeMillis();
-				log.debug("Meeting [{}] end time [{}].", meetingId, now);
-				m.setEndTime(now);
-				return;
-			}
-			log.warn("The meeting " + meetingId + " doesn't exist");
-		}
-
-		@Override
-		public void userJoined(String meetingId, String internalUserId, String externalUserId, String name, String role) {
-			Meeting m = getMeeting(meetingId);
-			if (m != null) {
-				User user = new User(internalUserId, externalUserId, name, role);
-				m.userJoined(user);
-				log.debug("New user in meeting " + meetingId + ":" + user.getFullname());
-				return;
-			}
-			log.warn("The meeting " + meetingId + " doesn't exist");
-		}
-
-		@Override
-		public void userLeft(String meetingId, String internalUserId) {
-			Meeting m = getMeeting(meetingId);
-			if (m != null) {
-				User user = m.userLeft(internalUserId);
-				if(user != null){
-					log.debug("User removed from meeting " + meetingId + ":" + user.getFullname());
-					return;
-				}
-				log.warn("The participant " + internalUserId + " doesn't exist in the meeting " + meetingId);
-				return;
-			}
-			log.warn("The meeting " + meetingId + " doesn't exist");
-		}
-		
-		@Override
-		public void updatedStatus(String meetingId, String internalUserId, String status, String value) {
-			Meeting m = getMeeting(meetingId);
-			if (m != null) {
-				User user = m.getUserById(internalUserId);
-				if(user != null){
-					user.setStatus(status, value);
-					log.debug("Setting new status value in meeting " + meetingId + " for participant:"+user.getFullname());
-					return;
-				}
-				log.warn("The participant " + internalUserId + " doesn't exist in the meeting " + meetingId);
-				return;
-			}
-			log.warn("The meeting " + meetingId + " doesn't exist");
-		}
-
-		@Override
-		public void keepAliveReply(String aliveId){
-			keepAliveService.keepAliveReply(aliveId);
-		}
+	public void setRemoveMeetingWhenEnded(boolean s) {
+		removeMeetingWhenEnded = s;
 	}
-	
 }
