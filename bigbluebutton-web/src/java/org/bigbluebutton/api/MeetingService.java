@@ -44,6 +44,7 @@ import org.bigbluebutton.api.messaging.messages.IMessage;
 import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
 import org.bigbluebutton.api.messaging.messages.MeetingEnded;
 import org.bigbluebutton.api.messaging.messages.MeetingStarted;
+import org.bigbluebutton.api.messaging.messages.RegisterUser;
 import org.bigbluebutton.api.messaging.messages.RemoveExpiredMeetings;
 import org.bigbluebutton.api.messaging.messages.UserJoined;
 import org.bigbluebutton.api.messaging.messages.UserLeft;
@@ -81,7 +82,7 @@ public class MeetingService implements MessageListener {
 	}
 	
 	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken) {
-		messagingService.registerUser(meetingID, internalUserId, fullname, role, externUserID, authToken);
+		handle(new RegisterUser(meetingID, internalUserId, fullname, role, externUserID, authToken));
 	}
 	
 	public UserSession getUserSession(String token) {
@@ -161,6 +162,7 @@ public class MeetingService implements MessageListener {
 
 	private void handleCreateMeeting(Meeting m) {
 		log.debug("Storing Meeting with internal id:" + m.getInternalId());
+		System.out.println(" ******************* Storing Meeting with internal id:" + m.getInternalId());
 		meetings.put(m.getInternalId(), m);
 		if (m.isRecord()) {
 			Map<String,String> metadata = new LinkedHashMap<String,String>();
@@ -177,6 +179,10 @@ public class MeetingService implements MessageListener {
 	
 	private void processCreateMeeting(CreateMeeting message) {
 		handleCreateMeeting(message.meeting);
+	}
+	
+	private void processRegisterUser(RegisterUser message) {
+		messagingService.registerUser(message.meetingID, message.internalUserId, message.fullname, message.role, message.externUserID, message.authToken);
 	}
 	
 	public String addSubscription(String meetingId, String event, String callbackURL){
@@ -416,6 +422,8 @@ public class MeetingService implements MessageListener {
 		} else if (message instanceof EndMeeting) {
 			log.info("Processing end meeting request.");
 			processEndMeeting((EndMeeting)message);
+		} else if (message instanceof RegisterUser) {
+			processRegisterUser((RegisterUser) message);
 		}
 	}
 
@@ -443,7 +451,9 @@ public class MeetingService implements MessageListener {
 			    		} catch (InterruptedException e) {
 			    		  // TODO Auto-generated catch block
 			    		  e.printStackTrace();
-			    	  } 
+			    	  } catch (Exception e) {
+			    	  	log.error("Handling unexpected exception [{}]", e.toString());
+			    	  }
 			    	}
 			    }
 			};
