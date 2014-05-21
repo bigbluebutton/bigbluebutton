@@ -57,52 +57,53 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import flash.events.MouseEvent;
-      import flash.geom.Point;
-      
-      import flexlib.mdi.containers.MDIWindow;
-      import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
-      
-      import mx.collections.ArrayCollection;
-      import mx.containers.TitleWindow;
-      import mx.controls.Alert;
-      import mx.core.FlexGlobals;
-      import mx.core.IFlexDisplayObject;
-      import mx.core.UIComponent;
-      import mx.events.CloseEvent;
-      import mx.managers.PopUpManager;
-      
-      import org.bigbluebutton.common.IBbbModuleWindow;
-      import org.bigbluebutton.common.Images;
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
-      import org.bigbluebutton.common.events.CloseWindowEvent;
-      import org.bigbluebutton.common.events.OpenWindowEvent;
-      import org.bigbluebutton.common.events.ToolbarButtonEvent;
-      import org.bigbluebutton.core.BBB;
-      import org.bigbluebutton.core.events.LockControlEvent;
-      import org.bigbluebutton.core.managers.UserManager;
-      import org.bigbluebutton.main.events.AppVersionEvent;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.ConfigEvent;
-      import org.bigbluebutton.main.events.LogoutEvent;
-      import org.bigbluebutton.main.events.MeetingNotFoundEvent;
-      import org.bigbluebutton.main.events.ModuleLoadEvent;
-      import org.bigbluebutton.main.events.PortTestEvent;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.events.SuccessfulLoginEvent;
-      import org.bigbluebutton.main.model.LayoutOptions;
-      import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-      import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
-      import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
-      import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionEvent;
-      import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionToJoinConferenceEvent;
-      import org.bigbluebutton.modules.phone.events.WebRtcAskUserToChangeMicEvent;
-      import org.bigbluebutton.modules.phone.events.WebRtcEchoTestStartedEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
-      import org.bigbluebutton.util.logging.Logger;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.events.MouseEvent;
+			import flash.geom.Point;
+			
+			import flexlib.mdi.containers.MDIWindow;
+			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
+			
+			import mx.collections.ArrayCollection;
+			import mx.containers.TitleWindow;
+			import mx.controls.Alert;
+			import mx.core.FlexGlobals;
+			import mx.core.IFlexDisplayObject;
+			import mx.core.UIComponent;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			
+			import org.bigbluebutton.common.IBbbModuleWindow;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.events.ToolbarButtonEvent;
+			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.events.AppVersionEvent;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.ConfigEvent;
+			import org.bigbluebutton.main.events.LogoutEvent;
+			import org.bigbluebutton.main.events.MeetingNotFoundEvent;
+			import org.bigbluebutton.main.events.ModuleLoadEvent;
+			import org.bigbluebutton.main.events.PortTestEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+			import org.bigbluebutton.main.model.LayoutOptions;
+			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+			import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
+			import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
+			import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionEvent;
+			import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionToJoinConferenceEvent;
+			import org.bigbluebutton.modules.phone.events.WebRtcAskUserToChangeMicEvent;
+			import org.bigbluebutton.modules.phone.events.WebRtcEchoTestStartedEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.util.logging.Logger;
 	
       private static const LOG:String = "Main::MainApplicationShell - ";
       
@@ -424,8 +425,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
          
       private function handleAskMicPermissionEvent(event:WebRtcAskMicPermissionEvent):void {
- //       showEarbudsHeadsetRequired();
-        
+ //       showEarbudsHeadsetRequired()
+          var echoTest:ChromeWebRTCEchoTest = PopUpManager.createPopUp(mdiCanvas, ChromeWebRTCEchoTest, true) as ChromeWebRTCEchoTest;
+		  PopUpManager.centerPopUp(echoTest);
+        /*
         var browser:String = event.browser;
         if (browser == "Firefox") {
           var ffBrowser:FirefoxMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, FirefoxMicPermissionImage, true) as FirefoxMicPermissionImage;
@@ -454,6 +457,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             
           });          
         }
+		  */
       }
       
       private function handleWebRtcEchoTestStartedEvent(event:WebRtcEchoTestStartedEvent):void {
