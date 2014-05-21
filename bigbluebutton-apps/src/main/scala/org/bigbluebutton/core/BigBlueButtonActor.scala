@@ -35,7 +35,7 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
       }
       case allOthers => {
 		    meetings.get(allOthers.meetingID) match {
-		      case None => //
+		      case None => handleMeetingNotFound(allOthers)
 		      case Some(m) => {
 		       // log.debug("Forwarding message [{}] to meeting [{}]", msg.meetingID)
 		        m ! allOthers
@@ -43,7 +43,12 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
 		    }        
       }
     }
-
+  }
+  
+  private def handleMeetingNotFound(msg: InMessage) {
+    msg match {
+      case vat:ValidateAuthToken => outGW.send(new ValidateAuthTokenReply(vat.meetingID, vat.userId, vat.token, false, vat.correlationId))
+    }
   }
 
   private def handleKeepAliveMessage(msg: KeepAliveMessage):Unit = {
