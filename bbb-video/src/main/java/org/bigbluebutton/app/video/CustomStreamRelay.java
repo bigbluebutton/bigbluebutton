@@ -69,6 +69,8 @@ public class CustomStreamRelay {
 	private String destStreamName;
 	private String publishMode;
 
+	private boolean isDisconnecting;
+
 	/**
 	 * Creates a stream client to consume a stream from an end point and a proxy to relay the stream
 	 * to another end point.
@@ -147,6 +149,7 @@ public class CustomStreamRelay {
 	}
 
 	public void stopRelay() {
+		isDisconnecting = true;
 		client.disconnect();
 		proxy.stop();
 	}
@@ -181,6 +184,7 @@ public class CustomStreamRelay {
 
 	public void startRelay() {
 			
+			isDisconnecting = false;
 			// create a timer
 			timer = new Timer();
 			// create our publisher
@@ -191,8 +195,16 @@ public class CustomStreamRelay {
 			proxy.init();
 			proxy.setConnectionClosedHandler(new Runnable() {
 				public void run() {
-					System.out.println("Publish connection has been closed, source will be disconnected");
-					client.disconnect();
+					System.out.println("onConnectionClosedHandler:: Publish connection has been closed");
+					if(isDisconnecting) {
+						System.out.println("Source will be disconnected");
+						client.disconnect();
+					}
+					else {
+						// Restart proxy
+						System.out.println("Reconnecting source");
+						proxy.start(destStreamName, publishMode, new Object[] {});
+					}
 				}
 			});
 			proxy.setExceptionHandler(new ClientExceptionHandler() {
@@ -227,9 +239,11 @@ public class CustomStreamRelay {
 					System.out.printf("<:%s\n", code);
 					if (StatusCodes.NS_PLAY_STREAMNOTFOUND.equals(code)) {
 						System.out.println("Requested stream was not found");
+						isDisconnecting = true;
 						client.disconnect();
 					} else if (StatusCodes.NS_PLAY_UNPUBLISHNOTIFY.equals(code) || StatusCodes.NS_PLAY_COMPLETE.equals(code)) {
 						System.out.println("Source has stopped publishing or play is complete");
+						isDisconnecting = true;
 						client.disconnect();
 					}
 				}
@@ -239,7 +253,8 @@ public class CustomStreamRelay {
 					System.out.println("Source connection has been closed, proxy will be stopped");
 					//System.exit(2);
 					client.disconnect();
-					proxy.stop();
+					//TODO: Create a timeout mechanism to close the proxy
+					//proxy.stop();
 				}
 			});
 			client.setExceptionHandler(new ClientExceptionHandler() {
