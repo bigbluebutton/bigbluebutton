@@ -179,6 +179,8 @@ trait UsersApp {
   
   def handleGetUsers(msg: GetUsers):Unit = {
 	  outGW.send(new GetUsersReply(msg.meetingID, msg.requesterID, users.getUsers))
+	  // TESTING ONLY
+	  outGW.send(new NewPermissionsSetting(meetingID, permissions))
   }
   
   def handleUserJoin(msg: UserJoining):Unit = {

@@ -39,7 +39,6 @@ case class Permissions(
 )
 
 case class PermissionsSetting(
-  includeModerators: Boolean,
   permissions: Permissions
 )
 

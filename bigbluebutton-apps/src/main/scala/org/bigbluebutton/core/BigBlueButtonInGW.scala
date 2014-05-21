@@ -94,7 +94,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
     val allowPubChat = s.getOrElse("disablePublicChat", true)
     val permissions = new Permissions()
 
-    val ls = new PermissionsSetting(includeMods, permissions)
+    val ls = new PermissionsSetting(permissions)
     bbbGW.accept(new SetLockSettings(meetingID, ls))
   }
   
@@ -111,7 +111,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
     val allowPubChat = s.getOrElse("disablePublicChat", true)
     val permissions = new Permissions()
 
-    val ls = new PermissionsSetting(includeMods, permissions)
+    val ls = new PermissionsSetting(permissions)
     bbbGW.accept(new InitLockSettings(meetingID, locked, ls))
   }
   
