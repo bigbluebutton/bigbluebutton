@@ -31,13 +31,11 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
+			import com.asfusion.mate.events.Dispatcher;			
 			import mx.binding.utils.BindingUtils;
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
-			import mx.events.ListEvent;
-			
+			import mx.events.ListEvent;			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.Role;
@@ -194,12 +192,7 @@
 					}
 					
 					//If it's not a moderator, it always can be locked.
-					//If it's a moderator and moderator locking is eanbled, it can be locked
-					//If it's a moderator and moderator locking is disabeld, it can be unlocked
-					if(	data.role != BBBUser.MODERATOR 
-						|| (data.role == BBBUser.MODERATOR && UserManager.getInstance().getConference().getLockSettings().getAllowModeratorLocking())
-						|| (data.role == BBBUser.MODERATOR && !UserManager.getInstance().getConference().getLockSettings().getAllowModeratorLocking() && data.userLocked == true)
-					){
+					if(	data.role != BBBUser.MODERATOR  && data.userLocked == true){
 						lockImg.visible = !rolledOver;
 						lockImg.includeInLayout = !rolledOver;
 						lockBtn.visible = rolledOver;
@@ -212,24 +205,24 @@
 						lockBtn.includeInLayout = false;
 					}
 					
-                    if (data.hasStream) {
-                        if (data.viewingStream || data.me) {
-                            webcamImg.visible = true;
-                            webcamImg.includeInLayout = true;
-                            webcamBtn.visible = false;
-                            webcamBtn.includeInLayout = false;
-                        } else {
-                            webcamImg.visible = false;
-                            webcamImg.includeInLayout = false;
-                            webcamBtn.visible = true;
-                            webcamBtn.includeInLayout = true;
-                        }
-                    } else {
-                        webcamImg.visible = false;
-                        webcamImg.includeInLayout = true;
-                        webcamBtn.visible = false;
-                        webcamBtn.includeInLayout = false;
-                    }
+          if (data.hasStream) {
+            if (data.viewingStream || data.me) {
+              webcamImg.visible = true;
+              webcamImg.includeInLayout = true;
+              webcamBtn.visible = false;
+              webcamBtn.includeInLayout = false;
+            } else {
+              webcamImg.visible = false;
+              webcamImg.includeInLayout = false;
+              webcamBtn.visible = true;
+              webcamBtn.includeInLayout = true;
+            }
+          } else {
+            webcamImg.visible = false;
+            webcamImg.includeInLayout = true;
+            webcamBtn.visible = false;
+            webcamBtn.includeInLayout = false;
+          }
                     
 					if (!rolledOver) {
             if (!data.voiceJoined && data.listenOnly) {

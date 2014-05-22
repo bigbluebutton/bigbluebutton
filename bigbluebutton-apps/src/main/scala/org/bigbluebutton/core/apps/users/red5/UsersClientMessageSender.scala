@@ -40,6 +40,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    case msg: ValidateAuthTokenReply                 => handleValidateAuthTokenReply(msg)
 	    case msg: UserRegistered                         => handleRegisteredUser(msg)
 	    case msg: UserListeningOnly                      => handleUserListeningOnly(msg)
+	    case msg: NewPermissionsSetting                  => handleNewPermissionsSetting(msg)
 	    case _ => // println("Unhandled message in UsersClientMessageSender")
 	  }
 	}
@@ -71,6 +72,22 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  wuser.put("listenOnly", user.listenOnly:java.lang.Boolean)
 	  
 	  wuser
+	}
+	
+	private def handleNewPermissionsSetting(msg: NewPermissionsSetting) {
+	  val args = new java.util.HashMap[String, Object]();  
+	  args.put("disableCam", msg.settings.permissions.disableCam:java.lang.Boolean);
+	  args.put("disableMic", msg.settings.permissions.disableMic:java.lang.Boolean);
+	  args.put("disablePrivChat", msg.settings.permissions.disablePrivChat:java.lang.Boolean);
+	  args.put("disablePubChat", msg.settings.permissions.disablePubChat:java.lang.Boolean);
+	    
+	  val message = new java.util.HashMap[String, Object]() 
+	  val gson = new Gson();
+  	message.put("msg", gson.toJson(args))
+  	  
+  	println("UsersClientMessageSender - handleNewPermissionsSetting \n" + message.get("msg") + "\n")
+    val m = new BroadcastClientMessage(msg.meetingID, "permissionsSettingsChanged", message);
+	  service.sendMessage(m);	    
 	}
 	
 	private def handleRegisteredUser(msg: UserRegistered) {

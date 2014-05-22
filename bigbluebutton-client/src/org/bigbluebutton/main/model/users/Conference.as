@@ -33,8 +33,8 @@ package org.bigbluebutton.main.model.users {
     public var internalMeetingID:String;
     public var externalUserID:String;
     public var avatarURL:String;
-	public var voiceBridge:String;
-	public var dialNumber:String;
+	  public var voiceBridge:String;
+	  public var dialNumber:String;
 	[Bindable] public var record:Boolean;
     
 	private var lockSettings:LockSettingsVO;
@@ -45,7 +45,7 @@ package org.bigbluebutton.main.model.users {
 		[Bindable] public var users:ArrayCollection = null;			
 		private var sort:Sort;
 		
-	    private var defaultLayout:String;
+	  private var defaultLayout:String;
     
 		public function Conference():void {
 			me = new BBBUser();
@@ -462,7 +462,7 @@ package org.bigbluebutton.main.model.users {
 				disablePublicChat = false;
 			}
 			
-			lockSettings = new LockSettingsVO(allowModeratorLocking, disableCam, disableMic, disablePrivateChat, disablePublicChat);
+			lockSettings = new LockSettingsVO(disableCam, disableMic, disablePrivateChat, disablePublicChat);
 		}
 		
 		public function getMyUser():BBBUser {

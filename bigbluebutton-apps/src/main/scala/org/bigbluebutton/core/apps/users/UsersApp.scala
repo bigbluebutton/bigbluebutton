@@ -179,26 +179,31 @@ trait UsersApp {
   
   def handleGetUsers(msg: GetUsers):Unit = {
 	  outGW.send(new GetUsersReply(msg.meetingID, msg.requesterID, users.getUsers))
+	  // TESTING ONLY
+	  outGW.send(new NewPermissionsSetting(meetingID, permissions))
   }
   
   def handleUserJoin(msg: UserJoining):Unit = {
-    val vu = new VoiceUser(msg.userID, msg.userID, msg.name, msg.name,  
+    val regUser = regUsers.get(msg.userID)
+    regUser foreach { ru =>
+      val vu = new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,  
                            false, false, false, false)
-    val uvo = new UserVO(msg.userID, msg.extUserID, msg.name, 
-                  msg.role, raiseHand=false, presenter=false, 
+      val uvo = new UserVO(msg.userID, ru.externId, ru.name, 
+                  ru.role, raiseHand=false, presenter=false, 
                   hasStream=false, locked=false, webcamStream="", 
                   phoneUser=false, vu, listenOnly=false, permissions.permissions)
   	
-	  users.addUser(uvo)
+	    users.addUser(uvo)
 					
-	  outGW.send(new UserJoined(meetingID, recorded, uvo))
+	    outGW.send(new UserJoined(meetingID, recorded, uvo))
 	
-	  // Become presenter if the only moderator		
-	  if (users.numModerators == 1) {
-	    if (msg.role == Role.MODERATOR) {
-		    assignNewPresenter(msg.userID, msg.name, msg.userID)
-	    }	  
-	  }
+	    // Become presenter if the only moderator		
+	    if (users.numModerators == 1) {
+	      if (ru.role == Role.MODERATOR) {
+		      assignNewPresenter(msg.userID, ru.name, msg.userID)
+	      }	  
+	    }      
+    }
   }
 			
   def handleUserLeft(msg: UserLeaving):Unit = {

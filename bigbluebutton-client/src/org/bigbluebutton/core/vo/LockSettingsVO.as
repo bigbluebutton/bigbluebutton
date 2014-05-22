@@ -20,15 +20,13 @@ package org.bigbluebutton.core.vo
 {
 	public class LockSettingsVO
 	{
-		private var allowModeratorLocking:Boolean;
 		private var disableCam:Boolean;
 		private var disableMic:Boolean;
 		private var disablePrivateChat:Boolean;
 		private var disablePublicChat:Boolean;
 
-		public function LockSettingsVO(pAllowModeratorLocking:Boolean, pDisableCam:Boolean, pDisableMic:Boolean, pDisablePrivateChat:Boolean, pDisablePublicChat:Boolean)
+		public function LockSettingsVO(pDisableCam:Boolean, pDisableMic:Boolean, pDisablePrivateChat:Boolean, pDisablePublicChat:Boolean)
 		{
-			this.allowModeratorLocking = pAllowModeratorLocking;
 			this.disableCam = pDisableCam;
 			this.disableMic = pDisableMic;
 			this.disablePrivateChat = pDisablePrivateChat;
@@ -37,7 +35,6 @@ package org.bigbluebutton.core.vo
 		
 		public function toMap():Object {
 			var map:Object = {
-				allowModeratorLocking: this.allowModeratorLocking,
 				disableCam: this.disableCam,
 				disableMic: this.disableMic,
 				disablePrivateChat: this.disablePrivateChat,
@@ -47,10 +44,6 @@ package org.bigbluebutton.core.vo
 			return map;
 		}
 
-		public function getAllowModeratorLocking():Boolean {
-			return allowModeratorLocking;
-		}
-		
 		public function getDisableCam():Boolean {
 			return disableCam;
 		}

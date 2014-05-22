@@ -21,7 +21,7 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
                    with PollApp with LayoutApp with ChatApp
                    with WhiteboardApp {  
 
-  var permissions = new PermissionsSetting(false, new Permissions())
+  var permissions = new PermissionsSetting(new Permissions())
   var recording = false;
   var muted = false;
   var meetingEnded = false

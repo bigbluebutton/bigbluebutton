@@ -32,14 +32,13 @@ case class CallerId(
 )  
 
 case class Permissions(
-  allowCam: Boolean = true,
-  allowMic: Boolean = true,
-  allowPrivChat: Boolean = true,
-  allowPubChat: Boolean = true
+  disableCam: Boolean = false,
+  disableMic: Boolean = false,
+  disablePrivChat: Boolean = false,
+  disablePubChat: Boolean = false
 )
 
 case class PermissionsSetting(
-  includeModerators: Boolean,
   permissions: Permissions
 )
 

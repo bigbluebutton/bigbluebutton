@@ -27,9 +27,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
 import javax.imageio.ImageIO;
-
 import org.bigbluebutton.api.messaging.converters.messages.CreateMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
@@ -37,10 +35,8 @@ import org.bigbluebutton.api.messaging.converters.messages.KeepAliveMessage;
 import org.bigbluebutton.api.messaging.converters.messages.RegisterUserMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
@@ -58,24 +54,28 @@ public class RedisMessagingService implements MessagingService {
 	public void destroyMeeting(String meetingID) {
 		DestroyMeetingMessage msg = new DestroyMeetingMessage(meetingID);
 		String json = MessageToJson.destroyMeetingMessageToJson(msg);
+		log.info("Sending destory meeting message to bbb-apps:[{}]", json);
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);	
 	}
 	
 	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken) {
 		RegisterUserMessage msg = new RegisterUserMessage(meetingID, internalUserId, fullname, role, externUserID, authToken);
 		String json = MessageToJson.registerUserToJson(msg);
+		log.info("Sending register user message to bbb-apps:[{}]", json);
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);		
 	}
 	
 	public void createMeeting(String meetingID, String meetingName, Boolean recorded, String voiceBridge, Long duration) {
 		CreateMeetingMessage msg = new CreateMeetingMessage(meetingID, meetingName, recorded, voiceBridge, duration);
 		String json = MessageToJson.createMeetingMessageToJson(msg);
+		log.info("Sending create meeting message to bbb-apps:[{}]", json);
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);			
 	}
 	
 	public void endMeeting(String meetingId) {
 		EndMeetingMessage msg = new EndMeetingMessage(meetingId);
 		String json = MessageToJson.endMeetingMessageToJson(msg);
+		log.info("Sending end meeting message to bbb-apps:[{}]", json);
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);	
 	}
 

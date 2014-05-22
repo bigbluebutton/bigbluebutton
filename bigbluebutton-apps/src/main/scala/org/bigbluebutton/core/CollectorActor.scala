@@ -428,9 +428,6 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.USER_ID, msg.userID)
-    payload.put(Constants.NAME, msg.name)
-    payload.put(Constants.ROLE, msg.role.toString())
-    payload.put(Constants.EXT_USER_ID, msg.extUserID)
     
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.USER_JOINING)
