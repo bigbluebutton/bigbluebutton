@@ -18,7 +18,8 @@
  */
 package org.bigbluebutton.modules.users.services
 {
-  import com.asfusion.mate.events.Dispatcher;  
+  import com.asfusion.mate.events.Dispatcher;
+  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
@@ -29,6 +30,8 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.model.MeetingModel;
   import org.bigbluebutton.core.model.users.UsersModel;
   import org.bigbluebutton.core.services.UsersService;
+  import org.bigbluebutton.core.vo.LockSettings;
+  import org.bigbluebutton.core.vo.LockSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
   import org.bigbluebutton.main.events.PresenterStatusEvent;
@@ -120,11 +123,24 @@ package org.bigbluebutton.modules.users.services
         case "user_listening_only":
           handleUserListeningOnly(message);
           break;
+        case "permissionsSettingsChanged":
+          handlePermissionsSettingsChanged(message);
+          break;
       }
     }  
     
     private function handleMeetingHasEnded(msg: Object):void {
       trace(LOG + "*** handleMeetingHasEnded " + msg.msg + " **** \n"); 
+    }
+    
+    private function handlePermissionsSettingsChanged(msg:Object):void {
+      trace(LOG + "*** handlePermissionsSettingsChanged " + msg.msg + " **** \n");
+      var map:Object = JSON.parse(msg.msg);
+      var lockSettings:LockSettingsVO = new LockSettingsVO(map.disableCam,
+                                                           map.disableMic,
+                                                           map.disablePrivChat,
+                                                           map.disablePubChat);
+      UserManager.getInstance().getConference().setLockSettings(lockSettings);
     }
     
     private function sendRecordingStatusUpdate(recording:Boolean):void {

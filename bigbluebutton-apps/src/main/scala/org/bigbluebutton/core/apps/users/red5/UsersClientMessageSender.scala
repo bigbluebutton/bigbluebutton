@@ -76,10 +76,10 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	
 	private def handleNewPermissionsSetting(msg: NewPermissionsSetting) {
 	  val args = new java.util.HashMap[String, Object]();  
-	  args.put("allowCamera", msg.settings.permissions.allowCam:java.lang.Boolean);
-	  args.put("allowMicrophone", msg.settings.permissions.allowMic:java.lang.Boolean);
-	  args.put("allowPublicChat", msg.settings.permissions.allowPubChat:java.lang.Boolean);
-	  args.put("allowPrivateChat", msg.settings.permissions.allowPrivChat:java.lang.Boolean);
+	  args.put("disableCam", msg.settings.permissions.disableCam:java.lang.Boolean);
+	  args.put("disableMic", msg.settings.permissions.disableMic:java.lang.Boolean);
+	  args.put("disablePrivChat", msg.settings.permissions.disablePrivChat:java.lang.Boolean);
+	  args.put("disablePubChat", msg.settings.permissions.disablePubChat:java.lang.Boolean);
 	    
 	  val message = new java.util.HashMap[String, Object]() 
 	  val gson = new Gson();

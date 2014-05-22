@@ -87,12 +87,14 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
     // v => v.booleanValue() -> convert java Boolean to Scala Boolean
     // toMap -> converts from scala mutable map to scala immutable map
     val s = settings.mapValues (v => v.booleanValue() /* convert java Boolean to Scala Boolean */).toMap  
-    val includeMods = s.getOrElse("allowModeratorLocking", true)
-    val allowCam = s.getOrElse("disableCam", true) 
-    val allowMic = s.getOrElse("disableMic", true)
-    val allowPrivChat = s.getOrElse("disablePrivateChat", true)
-    val allowPubChat = s.getOrElse("disablePublicChat", true)
-    val permissions = new Permissions()
+    val disableCam = s.getOrElse("disableCam", false) 
+    val disableMic = s.getOrElse("disableMic", false)
+    val disablePrivChat = s.getOrElse("disablePrivChat", false)
+    val disablePubChat = s.getOrElse("disablePubChat", false)
+    val permissions = new Permissions(disableCam = disableCam,
+                                      disableMic = disableMic,
+                                      disablePrivChat = disablePrivChat,
+                                      disablePubChat = disablePubChat)
 
     val ls = new PermissionsSetting(permissions)
     bbbGW.accept(new SetLockSettings(meetingID, ls))
@@ -104,12 +106,14 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
     // v => v.booleanValue() -> convert java Boolean to Scala Boolean
     // toMap -> converts from scala mutable map to scala immutable map
     val s = settings.mapValues (v => v.booleanValue() /* convert java Boolean to Scala Boolean */).toMap  
-    val includeMods = s.getOrElse("allowModeratorLocking", true)
-    val allowCam = s.getOrElse("disableCam", true) 
-    val allowMic = s.getOrElse("disableMic", true)
-    val allowPrivChat = s.getOrElse("disablePrivateChat", true)
-    val allowPubChat = s.getOrElse("disablePublicChat", true)
-    val permissions = new Permissions()
+    val disableCam = s.getOrElse("disableCam", false) 
+    val disableMic = s.getOrElse("disableMic", false)
+    val disablePrivChat = s.getOrElse("disablePrivChat", false)
+    val disablePubChat = s.getOrElse("disablePubChat", false)
+    val permissions = new Permissions(disableCam = disableCam,
+                                      disableMic = disableMic,
+                                      disablePrivChat = disablePrivChat,
+                                      disablePubChat = disablePubChat)
 
     val ls = new PermissionsSetting(permissions)
     bbbGW.accept(new InitLockSettings(meetingID, locked, ls))
