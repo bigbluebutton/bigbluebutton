@@ -124,6 +124,7 @@ trait UsersApp {
   }
 	      
   def handleSetLockSettings(msg: SetLockSettings) {
+    println("*************** Received new lock settings ********************")
     if (permissions != msg.settings) {
       permissions = msg.settings
       outGW.send(new NewPermissionsSetting(meetingID, permissions))
