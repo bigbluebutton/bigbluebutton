@@ -80,10 +80,12 @@ define [
           }
         }
 
-        validFields = @authToken? and @userId? and @meetingId?
+        #emit the validate_auth_token json message if the fields have been populated
+        if @authToken? and @userId? and @meetingId?
+          @socket.emit "message", message
 
-        #emit the validate token json message
-        @socket.emit "message", message if validFields
+      @socket.on "get_users_reply", (message) =>
+        alert 'will now populate some users' + JSON.stringify message
 
       # Received event to logout yourself
       @socket.on "logout", ->

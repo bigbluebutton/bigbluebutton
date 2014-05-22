@@ -58,7 +58,7 @@ module.exports = class RedisPubSub
     # put the entry in the hash so we can match the response later
     @pendingRequests[correlationId] = entry
     message.header.reply_to = correlationId
-    console.log("\n\n\n\n\nmessage=" + JSON.stringify(message) + "\n\n\n")
+    console.log("\n\nmessage=" + JSON.stringify(message) + "\n\n")
     log.info({ message: message, channel: config.redis.channels.toBBBApps.meeting}, "Publishing a message")
     @pubClient.publish(config.redis.channels.toBBBApps.meeting, JSON.stringify(message))
 
@@ -75,7 +75,7 @@ module.exports = class RedisPubSub
     message = JSON.parse(jsonMsg)
     unless message.header?.name is "keep_alive_reply" #temporarily stop logging the keep_alive_reply message
       log.debug({ pattern: pattern, channel: channel, message: message}, "Received a message from redis")
-    console.log "=="+message.header?.name
+    console.log "=="+JSON.stringify message
 
     # retrieve the request entry
 
@@ -93,6 +93,29 @@ module.exports = class RedisPubSub
         topic: entry.replyTo.topic
         data: message
     else
+      sendToController(message)
+
+    if message.header?.name is 'validate_auth_token_reply'
+      if message.payload?.valid is "true"
+
+        getUsersMessage = {
+          "payload": {
+              "meeting_id": message.payload.meeting_id
+              "requester_id": message.payload.userid
+          },
+          "header": {
+              "timestamp": new Date().getTime(),
+              "reply_to": message.payload.meeting_id + "/" + message.payload.userid
+              "name": "get_users_request"
+          }
+        }
+
+        @pubClient.publish(config.redis.channels.toBBBApps.users, JSON.stringify(getUsersMessage))
+        console.log "just published the getUsersMessage from RedisPubSub"
+
+    if message.header?.name is 'get_users_reply'
+      console.log 'got a reply from bbb-apps: ' + JSON.stringify message
+
       sendToController(message)
 
 sendToController = (message) ->

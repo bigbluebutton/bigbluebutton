@@ -20,7 +20,7 @@ module.exports = class ClientProxy
     @io.sockets.on 'connection', (socket) =>
       log.debug({ client: socket.id }, "Client has connected.")
       socket.on 'message', (jsonMsg) =>
-        log.debug({ message: jsonMsg }, "Received message")
+        log.debug({ message: jsonMsg }, "Received message") # TODO to check whether only 'message' works or 'djhkwa' too
         @_handleMessage(socket, jsonMsg)
       socket.on 'disconnect', =>
         @_handleClientDisconnected socket
@@ -62,6 +62,8 @@ module.exports = class ClientProxy
     switch message.header.name
       when 'validate_auth_token'
         @_handleLoginMessage socket, message
+      when 'get_users_reply'
+        sendMessageToClient socket, message
       else
         log.error({ message: message }, 'Unknown message name.')
 
@@ -77,7 +79,6 @@ module.exports = class ClientProxy
         socket.join(result.payload.user_id)
         socket.join(result.payload.meeting_id)
 
-        socket.emit("UserJoined", result.payload.user_id)
         # assign the userId to this socket. This way we can
         # locate this socket using the userId.
         socket.userId = result?.payload?.user_id
