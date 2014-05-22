@@ -89,10 +89,7 @@ case class RegisterUser(
                        
 case class UserJoining(
     meetingID: String, 
-    userID: String, 
-    name: String, 
-    role: Role, 
-    extUserID: String
+    userID: String
 ) extends InMessage
                        
 case class UserLeaving(

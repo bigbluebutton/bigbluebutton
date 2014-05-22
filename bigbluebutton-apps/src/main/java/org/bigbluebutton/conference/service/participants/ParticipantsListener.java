@@ -57,7 +57,7 @@ public class ParticipantsListener implements MessageHandler{
 					String role = payloadObject.get("role").toString().replace("\"", "");
 					String externUserID = payloadObject.get("external_user_id").toString().replace("\"", "");
 
-					bbbInGW.userJoin(roomName, userID, username, role, externUserID);
+					bbbInGW.userJoin(roomName, userID);
 				}
 				else if(eventName.equalsIgnoreCase("get_users_request")){
 					String requesterID = payloadObject.get("requester_id").toString().replace("\"", "");

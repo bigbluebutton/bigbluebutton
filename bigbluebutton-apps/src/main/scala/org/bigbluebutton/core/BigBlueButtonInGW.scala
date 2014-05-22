@@ -173,9 +173,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
     bbbGW.accept(new UserLeaving(meetingID, userID))
   }
 
-  def userJoin(meetingID: String, userID: String, name: String, role: String, extUserID: String):Unit = {
-    val userRole = if (role == "MODERATOR") Role.MODERATOR else Role.VIEWER
-    bbbGW.accept(new UserJoining(meetingID, userID, name, userRole, extUserID))
+  def userJoin(meetingID: String, userID: String):Unit = {
+    bbbGW.accept(new UserJoining(meetingID, userID))
   }
 
   def assignPresenter(meetingID: String, newPresenterID: String, newPresenterName: String, assignedBy: String):Unit = {
