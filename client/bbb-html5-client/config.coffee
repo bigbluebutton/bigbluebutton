@@ -30,6 +30,7 @@ config.redis.channels = {}
 config.redis.channels.fromBBBApps = "bigbluebutton:from-bbb-apps:*"
 config.redis.channels.toBBBApps = {}
 config.redis.channels.toBBBApps.pattern = "bigbluebutton:to-bbb-apps:*"
+config.redis.channels.toBBBApps.chat = "bigbluebutton:to-bbb-apps:chat"
 config.redis.channels.toBBBApps.meeting = "bigbluebutton:to-bbb-apps:meeting"
 config.redis.channels.toBBBApps.users = "bigbluebutton:to-bbb-apps:users"
 config.redis.internalChannels = {}

@@ -91,6 +91,10 @@ define [
 
         globals.events.trigger("connection:load_users", users)
 
+      @socket.on "get_chat_history_reply", (message) ->
+        alert 'got these messages:' + JSON.stringify message
+        globals.events.trigger("connection:all_messages", message)
+
       # Received event to logout yourself
       @socket.on "logout", ->
         console.log "socket on: logout"

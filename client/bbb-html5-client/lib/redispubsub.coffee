@@ -103,13 +103,13 @@ module.exports = class RedisPubSub
 
         joinMeetingMessage = {
           "payload": {
-              "meeting_id": message.payload.meeting_id
-              "user_id": message.payload.userid
+            "meeting_id": message.payload.meeting_id
+            "user_id": message.payload.userid
           },
           "header": {
-              "timestamp": new Date().getTime(),
-              "reply_to": message.payload.meeting_id + "/" + message.payload.userid
-              "name": "user_joined_event"
+            "timestamp": new Date().getTime()
+            "reply_to": message.payload.meeting_id + "/" + message.payload.userid
+            "name": "user_joined_event"
           }
         }
         # the user joins the meeting
@@ -117,23 +117,45 @@ module.exports = class RedisPubSub
         @pubClient.publish(config.redis.channels.toBBBApps.users, JSON.stringify(joinMeetingMessage))
         console.log "just published the joinMeetingMessage in RedisPubSub"
 
+        #get the list of users in the meeting
         getUsersMessage = {
           "payload": {
-              "meeting_id": message.payload.meeting_id
-              "requester_id": message.payload.userid
+            "meeting_id": message.payload.meeting_id
+            "requester_id": message.payload.userid
           },
           "header": {
-              "timestamp": new Date().getTime(),
-              "reply_to": message.payload.meeting_id + "/" + message.payload.userid
-              "name": "get_users_request"
+            "timestamp": new Date().getTime()
+            "reply_to": message.payload.meeting_id + "/" + message.payload.userid
+            "name": "get_users_request"
           }
         }
 
         @pubClient.publish(config.redis.channels.toBBBApps.users, JSON.stringify(getUsersMessage))
         console.log "just published the getUsersMessage in RedisPubSub"
 
+        #get the chat history
+        getChatHistory = {
+          "payload": {
+            "meeting_id": message.payload.meeting_id
+            "requester_id": message.payload.userid
+          },
+          "header": {
+            "timestamp": new Date().getTime()
+            "reply_to": message.payload.meeting_id + "/" + message.payload.userid
+            "name": "get_chat_history"
+          }
+        }
+
+        @pubClient.publish(config.redis.channels.toBBBApps.chat, JSON.stringify(getChatHistory))
+        console.log "just published the getChatHistory in RedisPubSub"
+
+
     else if message.header?.name is 'get_users_reply'
-      console.log 'got a reply from bbb-apps'
+      console.log 'got a reply from bbb-apps for get users'
+      sendToController(message)
+
+    else if message.header?.name is 'get_chat_history_reply'
+      console.log 'got a reply from bbb-apps for chat history'
       sendToController(message)
 
 sendToController = (message) ->

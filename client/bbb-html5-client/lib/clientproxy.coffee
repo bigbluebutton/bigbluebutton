@@ -62,8 +62,6 @@ module.exports = class ClientProxy
     switch message.header.name
       when 'validate_auth_token'
         @_handleLoginMessage socket, message
-      when 'get_users_reply'
-        sendMessageToClient socket, message
       else
         log.error({ message: message }, 'Unknown message name.')
 
