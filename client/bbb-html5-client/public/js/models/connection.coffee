@@ -70,13 +70,13 @@ define [
 
         message = {
           "payload": {
-              "auth_token": @authToken
-              "userid": @userId
-              "meeting_id": @meetingId
+            "auth_token": @authToken
+            "userid": @userId
+            "meeting_id": @meetingId
           },
           "header": {
-              "timestamp": new Date().getTime()
-              "name": "validate_auth_token"
+            "timestamp": new Date().getTime()
+            "name": "validate_auth_token"
           }
         }
 

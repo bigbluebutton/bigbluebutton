@@ -98,6 +98,24 @@ module.exports = class RedisPubSub
     if message.header?.name is 'validate_auth_token_reply'
       if message.payload?.valid is "true"
 
+        #TODO use the message library for these messages. Perhaps put it in Modules?!
+
+        joinMeetingMessage = {
+          "payload": {
+              "meeting_id": message.payload.meeting_id
+              "user_id": message.payload.userid
+          },
+          "header": {
+              "timestamp": new Date().getTime(),
+              "reply_to": message.payload.meeting_id + "/" + message.payload.userid
+              "name": "user_joined_event"
+          }
+        }
+        # the user joins the meeting
+
+        @pubClient.publish(config.redis.channels.toBBBApps.users, JSON.stringify(joinMeetingMessage))
+        console.log "just published the joinMeetingMessage in RedisPubSub"
+
         getUsersMessage = {
           "payload": {
               "meeting_id": message.payload.meeting_id
@@ -111,7 +129,7 @@ module.exports = class RedisPubSub
         }
 
         @pubClient.publish(config.redis.channels.toBBBApps.users, JSON.stringify(getUsersMessage))
-        console.log "just published the getUsersMessage from RedisPubSub"
+        console.log "just published the getUsersMessage in RedisPubSub"
 
     if message.header?.name is 'get_users_reply'
       console.log 'got a reply from bbb-apps: ' + JSON.stringify message
