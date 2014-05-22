@@ -73,6 +73,7 @@ module.exports = class RedisPubSub
     # TODO: this has to be in a try/catch block, otherwise the server will
     #   crash if the message has a bad format
     message = JSON.parse(jsonMsg)
+
     unless message.header?.name is "keep_alive_reply" #temporarily stop logging the keep_alive_reply message
       log.debug({ pattern: pattern, channel: channel, message: message}, "Received a message from redis")
     console.log "=="+JSON.stringify message
@@ -93,7 +94,7 @@ module.exports = class RedisPubSub
         topic: entry.replyTo.topic
         data: message
     else
-      sendToController(message)
+      #sendToController(message)
 
     if message.header?.name is 'validate_auth_token_reply'
       if message.payload?.valid is "true"
@@ -131,9 +132,8 @@ module.exports = class RedisPubSub
         @pubClient.publish(config.redis.channels.toBBBApps.users, JSON.stringify(getUsersMessage))
         console.log "just published the getUsersMessage in RedisPubSub"
 
-    if message.header?.name is 'get_users_reply'
-      console.log 'got a reply from bbb-apps: ' + JSON.stringify message
-
+    else if message.header?.name is 'get_users_reply'
+      console.log 'got a reply from bbb-apps'
       sendToController(message)
 
 sendToController = (message) ->

@@ -24,7 +24,7 @@ module.exports = class Controller
         log.error({ reason: err, result: result, original: data }, "Authentication failure")
         callback(err, null)
       else
-        if result.payload?.valid #is 'true'
+        if result.payload?.valid
           log.info({ result: result }, "Authentication successful")
           callback(null, result)
         else

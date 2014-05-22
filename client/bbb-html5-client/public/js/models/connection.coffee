@@ -85,7 +85,11 @@ define [
           @socket.emit "message", message
 
       @socket.on "get_users_reply", (message) =>
-        alert 'will now populate some users' + JSON.stringify message
+        users = []
+        for user in message.payload?.users
+          users.push user
+
+        globals.events.trigger("connection:load_users", users)
 
       # Received event to logout yourself
       @socket.on "logout", ->
