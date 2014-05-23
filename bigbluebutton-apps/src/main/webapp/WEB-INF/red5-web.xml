@@ -67,7 +67,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<bean id="connInvokerService" class="org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService" 
 	      init-method="start" destroy-method="stop"/>
-	
+
+  <bean id="lock.service" class="org.bigbluebutton.conference.service.lock.LockService">
+    <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
+  </bean>
+  	
     <bean id="bbbInGW" class="org.bigbluebutton.core.BigBlueButtonInGW">
         <constructor-arg index="0" ref="bbbGW"/>
     </bean>
