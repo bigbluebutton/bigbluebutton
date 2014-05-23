@@ -180,17 +180,7 @@
 						myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.audio_muted, handler:muteAlmostAll});
 				} else
 					myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio, handler:muteAll});
-				
-				if (!roomLocked) {
-					myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockAll'), icon: images.lock_close, handler: lockAll});
-					
-					if (UserManager.getInstance().getConference().getPresenter())
-						myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.lock_close, handler: lockAlmostAll});
-				} else {
-					myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unlockAll'), icon: images.lock_open, handler: unlockAll});
-				}
-				
-				
+								
 				myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: images.lock_open, handler: lockSettings});
 				
 				
