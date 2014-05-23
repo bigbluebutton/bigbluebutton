@@ -24,14 +24,17 @@ public class MessageFromJsonConverter {
 					  return processEndMeetingMessage(payload);
 				  case KeepAliveMessage.KEEP_ALIVE_REQUEST:
 					  return processKeepAlive(payload);
+				  case RegisterUserMessage.REGISTER_USER:
+					  System.out.println("Registering a user");
+					  return RegisterUserMessage.fromJson(message);
 				  case ValidateAuthTokenMessage.VALIDATE_AUTH_TOKEN:
 					  return processValidateAuthTokenMessage(header, payload);
 				  case UserConnectedToGlobalAudio.USER_CONNECTED_TO_GLOBAL_AUDIO:
 					  System.out.println("Converting message to UserConnectedToGlobalAudio");
-				  	return UserConnectedToGlobalAudio.fromJson(message);
+					return UserConnectedToGlobalAudio.fromJson(message);
 				  case UserDisconnectedFromGlobalAudio.USER_DISCONNECTED_FROM_GLOBAL_AUDIO:
 					  System.out.println("Converting message to UserDisconnectedFromGlobalAudio");
-				  	return UserDisconnectedFromGlobalAudio.fromJson(message);
+					return UserDisconnectedFromGlobalAudio.fromJson(message);
 				}
 			}
 		}

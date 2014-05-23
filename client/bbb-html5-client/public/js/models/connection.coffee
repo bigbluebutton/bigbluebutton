@@ -12,10 +12,12 @@ define [
       @socket = null
       @host = window.location.protocol + "//" + window.location.host
 
+      # Grab pieces of info from the URL
       @authToken = @getUrlVars()["auth_token"]
       @userId = @getUrlVars()["user_id"]
       @meetingId = @getUrlVars()["meeting_id"]
-
+      @username = @getUrlVars()["username"]
+      console.log "username=" + @username
 
     disconnect: ->
       if @socket?
@@ -25,22 +27,17 @@ define [
         console.log "tried to disconnect but it's not connected"
 
     connect: ->
-      
       console.log("user_id=" + @userId + " auth_token=" + @authToken + " meeting_id=" + @meetingId)
       unless @socket?
         console.log "connecting to the socket.io server", @host
-        @socket = io.connect()# 2 channels for mass message or indiv (or better??)
+        @socket = io.connect()
 
-        #@individual = io.connect()
-
-        #@group = io.connect()
+        # a1 - just a random 
+        #@socket = io.connect('#{@host}/a1/#{meetingId}/#{userId}') #TODO
 
         @_registerEvents()
       else
         console.log "tried to connect but it's already connected"
-
-    # authenticate: (userId, meetingId) ->
-    #   @socket.emit "message", message
 
     emit: (data) ->
       if @isConnected()
@@ -70,20 +67,30 @@ define [
 
         message = {
           "payload": {
-              "auth_token": @authToken
-              "userid": @userId
-              "meeting_id": @meetingId
+            "auth_token": @authToken
+            "userid": @userId
+            "meeting_id": @meetingId
           },
           "header": {
-              "timestamp": new Date().getTime()
-              "name": "validate_auth_token"
+            "timestamp": new Date().getTime()
+            "name": "validate_auth_token"
           }
         }
 
-        validFields = @authToken? and @userId? and @meetingId?
+        #emit the validate_auth_token json message if the fields have been populated
+        if @authToken? and @userId? and @meetingId?
+          @socket.emit "message", message
 
-        #emit the validate token json message
-        @socket.emit "message", message if validFields
+      @socket.on "get_users_reply", (message) =>
+        users = []
+        for user in message.payload?.users
+          users.push user
+
+        globals.events.trigger("connection:load_users", users)
+
+      @socket.on "get_chat_history_reply", (message) ->
+        alert 'got these messages:' + JSON.stringify message
+        globals.events.trigger("connection:all_messages", message)
 
       # Received event to logout yourself
       @socket.on "logout", ->
@@ -227,22 +234,6 @@ define [
         console.log "socket on: user list change"
         globals.events.trigger("connection:user_list_change", users)
 
-      # TODO: event name with spaces is bad
-      ###@socket.on "loadUsers", (loadUsersEventObject) =>
-        users = loadUsersEventObject.usernames
-        console.log "socket on: loadUsers" + loadUsersEventObject
-        globals.events.trigger("users:loadUsers", users)###
-
-      # Received event for a new user
-      @socket.on "UserJoiningRequest", (message) => #TODO MUST REMOVE WHEN NOT USED ANYMORE
-        #console.log "socket on: UserJoiningRequest"
-        #console.log message
-        #eventObject = JSON.parse(message);
-        console.log "message: " + message
-        userid = message.user.metadata.userid #TODO change to new json structure
-        username = message.user.name #TODO change to new json structure
-        globals.events.trigger("connection:user_join", userid, username)
-
       # Received event for a new user
       @socket.on "user_joined_event", (message) =>
         console.log "message: " + message
@@ -255,11 +246,6 @@ define [
         console.log "message: " + message
         userid = message.payload.user.id
         globals.events.trigger("connection:user_left", userid)
-
-      # Received event when a user leave
-      @socket.on "user leave", (userid) =>
-        console.log "socket on: user leave"
-        globals.events.trigger("connection:user_leave", userid)
 
       # Received event to set the presenter to a user
       # @param  {string} userID publicID of the user that is being set as the current presenter
