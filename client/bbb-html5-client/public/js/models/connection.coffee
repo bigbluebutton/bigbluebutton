@@ -39,9 +39,6 @@ define [
       else
         console.log "tried to connect but it's already connected"
 
-    # authenticate: (userId, meetingId) ->
-    #   @socket.emit "message", message
-
     emit: (data) ->
       if @isConnected()
         @socket.emit("message", data)
@@ -237,27 +234,6 @@ define [
         console.log "socket on: user list change"
         globals.events.trigger("connection:user_list_change", users)
 
-      # TODO: event name with spaces is bad
-      ###@socket.on "loadUsers", (loadUsersEventObject) =>
-        users = loadUsersEventObject.usernames
-        console.log "socket on: loadUsers" + loadUsersEventObject
-        globals.events.trigger("users:loadUsers", users)###
-
-      # Received event for a new user
-      ###@socket.on "UserJoiningRequest", (message) => #TODO MUST REMOVE WHEN NOT USED ANYMORE
-        #console.log "socket on: UserJoiningRequest"
-        #console.log message
-        #eventObject = JSON.parse(message);
-        console.log "message: " + message
-        userid = message.user.metadata.userid #TODO change to new json structure
-        username = message.user.name #TODO change to new json structure
-        globals.events.trigger("connection:user_join", userid, username)###
-
-      @socket.on "UserJoined", (userId) =>
-        alert @username
-        globals.events.trigger("connection:user_join", userId, @username)
-
-
       # Received event for a new user
       @socket.on "user_joined_event", (message) =>
         console.log "message: " + message
@@ -270,11 +246,6 @@ define [
         console.log "message: " + message
         userid = message.payload.user.id
         globals.events.trigger("connection:user_left", userid)
-
-      # Received event when a user leave
-      @socket.on "user leave", (userid) =>
-        console.log "socket on: user leave"
-        globals.events.trigger("connection:user_leave", userid)
 
       # Received event to set the presenter to a user
       # @param  {string} userID publicID of the user that is being set as the current presenter
