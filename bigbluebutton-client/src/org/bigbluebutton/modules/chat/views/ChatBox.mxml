@@ -90,7 +90,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
 			import org.bigbluebutton.modules.chat.events.TranscriptEvent;
 			import org.bigbluebutton.modules.chat.model.ChatMessage;
-			import org.bigbluebutton.modules.chat.model.ChatMessages;
+			import org.bigbluebutton.modules.chat.model.ChatConversation;
 			import org.bigbluebutton.modules.chat.model.ChatOptions;
 			import org.bigbluebutton.modules.chat.views.ChatMessageRenderer;
 			import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
@@ -114,7 +114,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var lastTime:String = "";
 			
 	        [Bindable]
-	        private var chatMessages:ChatMessages = new ChatMessages();
+	        private var chatMessages:ChatConversation = new ChatConversation();
       
 			private var lastCount:Number = 0;			
 			private var scrollTimer:Timer;			
