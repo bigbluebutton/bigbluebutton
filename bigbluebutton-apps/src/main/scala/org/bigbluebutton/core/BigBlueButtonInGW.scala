@@ -89,8 +89,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
     val s = settings.mapValues (v => v.booleanValue() /* convert java Boolean to Scala Boolean */).toMap  
     val disableCam = s.getOrElse("disableCam", false) 
     val disableMic = s.getOrElse("disableMic", false)
-    val disablePrivChat = s.getOrElse("disablePrivChat", false)
-    val disablePubChat = s.getOrElse("disablePubChat", false)
+    val disablePrivChat = s.getOrElse("disablePrivateChat", false)
+    val disablePubChat = s.getOrElse("disablePublicChat", false)
     val permissions = new Permissions(disableCam = disableCam,
                                       disableMic = disableMic,
                                       disablePrivChat = disablePrivChat,
@@ -108,8 +108,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
     val s = settings.mapValues (v => v.booleanValue() /* convert java Boolean to Scala Boolean */).toMap  
     val disableCam = s.getOrElse("disableCam", false) 
     val disableMic = s.getOrElse("disableMic", false)
-    val disablePrivChat = s.getOrElse("disablePrivChat", false)
-    val disablePubChat = s.getOrElse("disablePubChat", false)
+    val disablePrivChat = s.getOrElse("disablePrivateChat", false)
+    val disablePubChat = s.getOrElse("disablePublicChat", false)
     val permissions = new Permissions(disableCam = disableCam,
                                       disableMic = disableMic,
                                       disablePrivChat = disablePrivChat,

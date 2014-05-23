@@ -132,11 +132,15 @@ trait UsersApp {
   }
   
   def handleInitLockSettings(msg: InitLockSettings) {
-    if (permissions != msg.settings || locked != msg.locked) {
-	    permissions = msg.settings   
-	    locked = msg.locked	    
-	    outGW.send(new PermissionsSettingInitialized(msg.meetingID, msg.locked, msg.settings))
+    if (! permissionsInited) {
+      permissionsInited = true
+      if (permissions != msg.settings || locked != msg.locked) {
+	      permissions = msg.settings   
+	      locked = msg.locked	    
+	      outGW.send(new PermissionsSettingInitialized(msg.meetingID, msg.locked, msg.settings))
+      }      
     }
+
   }  
 
   def handleUserRaiseHand(msg: UserRaiseHand) {
