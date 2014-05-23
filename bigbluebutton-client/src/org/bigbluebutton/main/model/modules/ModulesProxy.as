@@ -32,11 +32,10 @@ package org.bigbluebutton.main.model.modules
 		
 		private var modulesManager:ModuleManager;
 		private var portTestProxy:PortTestProxy;
-		
-		private var _user:Object;
-		
 		private var modulesDispatcher:ModulesDispatcher;
 		
+    private var _user:Object;
+    
 		public function ModulesProxy() {
 			modulesDispatcher = new ModulesDispatcher();
 			portTestProxy = new PortTestProxy();
@@ -53,7 +52,7 @@ package org.bigbluebutton.main.model.modules
 		}
 						
 		public function loadModule(name:String):void {
-			LogUtil.debug('Loading ' + name);
+			trace('Loading ' + name);
 			modulesManager.loadModule(name);
 		}
 		

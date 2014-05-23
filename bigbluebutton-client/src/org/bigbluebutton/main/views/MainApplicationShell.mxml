@@ -202,14 +202,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					receivedConfigLocaleVer = true;
 					appVersion = event.appVersion;
 					localeVersion = event.localeVersion;
-//					LogUtil.debug("Received locale version fron config.xml");
+					trace("Received locale version fron config.xml");
 				} else {
 					receivedResourceLocaleVer = true;
-					LogUtil.debug("Received locale version fron locale file.");
+					trace("Received locale version fron locale file.");
 				}
 				
 				if (receivedConfigLocaleVer && receivedResourceLocaleVer) {
-					LogUtil.debug("Comparing locale versions.");
+          trace("Comparing locale versions.");
 					if (!event.suppressLocaleWarning) checkLocaleVersion(localeVersion);
 					if (sendStartModulesEvent) {
             
@@ -220,7 +220,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function sendStartAllModulesEvent():void{
-				LogUtil.debug("Sending start all modules event");
+        trace("Sending start all modules event");
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.START_ALL_MODULES));	
 			}
@@ -310,7 +310,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	   			Alert.okLabel ="OK";
 				var version:String = "old-locales";
 				version = ResourceUtil.getInstance().getString('bbb.mainshell.locale.version');
-				LogUtil.debug("Locale from config=" + localeVersion + ", from locale file=" + version);
+				trace("Locale from config=" + localeVersion + ", from locale file=" + version);
 
 				if ((version == "old-locales") || (version == "") || (version == null)) {
 					wrongLocaleVersion();

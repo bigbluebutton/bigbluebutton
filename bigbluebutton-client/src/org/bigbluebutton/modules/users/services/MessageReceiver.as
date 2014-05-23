@@ -18,8 +18,7 @@
  */
 package org.bigbluebutton.modules.users.services
 {
-  import com.asfusion.mate.events.Dispatcher;
-  
+  import com.asfusion.mate.events.Dispatcher; 
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
