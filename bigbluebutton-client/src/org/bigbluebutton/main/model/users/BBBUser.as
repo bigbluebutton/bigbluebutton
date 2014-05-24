@@ -305,15 +305,13 @@ package org.bigbluebutton.main.model.users
 		public function applyLockSettings():void {
 			var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
 			
-			disableMyCam = userLocked && lockSettings.getDisableCam();
-			disableMyMic = userLocked && lockSettings.getDisableMic();
-			disableMyPrivateChat = userLocked && lockSettings.getDisablePrivateChat();
-			disableMyPublicChat = userLocked && lockSettings.getDisablePublicChat();
+			disableMyCam = lockSettings.getDisableCam();
+			disableMyMic = lockSettings.getDisableMic();
+			disableMyPrivateChat = lockSettings.getDisablePrivateChat();
+			disableMyPublicChat = lockSettings.getDisablePublicChat();
 			
 			var dispatcher:Dispatcher = new Dispatcher();
-			
-			var event:LockControlEvent = new LockControlEvent(LockControlEvent.CHANGED_LOCK_SETTINGS)
-			dispatcher.dispatchEvent(event);
+			dispatcher.dispatchEvent(new LockControlEvent(LockControlEvent.CHANGED_LOCK_SETTINGS));
 			
 			//If it's sharing webcam, stop it
 			if(disableMyCam && hasStream){
