@@ -33,3 +33,6 @@ module.exports = class Controller
 
     # processEndMessage: (data, callback) ->
     #   @clientProxy.endMeeting()
+
+  sendingChat: (data) =>
+    @messageBus.sendingToRedis(config.redis.channels.toBBBApps.chat, data)

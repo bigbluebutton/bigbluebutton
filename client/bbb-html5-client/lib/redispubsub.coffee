@@ -158,8 +158,16 @@ module.exports = class RedisPubSub
       console.log 'got a reply from bbb-apps for chat history'
       sendToController(message)
 
+    else if message.header?.name is 'send_public_chat_message'
+      console.log "just got a public chat message :" + JSON.stringify message
+      sendToController (message)
+
+  publishing: (channel, message) =>
+    @pubClient.publish(channel, JSON.stringify(message))
+
 sendToController = (message) ->
   postal.publish
     channel: config.redis.internalChannels.receive
     topic: "broadcast"
     data: message
+

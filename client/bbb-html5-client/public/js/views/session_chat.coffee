@@ -59,7 +59,8 @@ define [
       globals.events.on "chat:all_messages", (messages) =>
         if messages?
           for msgBlock in messages
-            @_addChatMessage(msgBlock.username, msgBlock.message)
+            @_addChatMessage(msgBlock.from_username, msgBlock.message)
+            #TODO check if public or private message, etc...
         @_scrollToBottom()
 
       globals.events.on "users:user_leave", (userid) =>

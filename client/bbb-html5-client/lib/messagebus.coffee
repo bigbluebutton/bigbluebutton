@@ -38,3 +38,6 @@ module.exports = class MessageBus
       topic: 'broadcast'
       replyTo: replyTo
       data: data
+
+  sendingToRedis: (channel, message) =>
+    @pubSub.publishing(channel, message)
