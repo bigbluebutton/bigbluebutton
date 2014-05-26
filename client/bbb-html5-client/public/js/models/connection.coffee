@@ -81,16 +81,17 @@ define [
           @socket.emit "message", message
 
       @socket.on "get_users_reply", (message) =>
-        users = []
-        for user in message.payload?.users
-          users.push user
+        requesterId = message.payload?.requester_id
+        
+        if(requesterId is @userId)
+          users = []
+          for user in message.payload?.users
+            users.push user
 
-        globals.events.trigger("connection:load_users", users)
+          globals.events.trigger("connection:load_users", users)
 
       @socket.on "get_chat_history_reply", (message) =>
         requesterId = message.payload?.requester_id
-
-        #console.log("my_id=" + @userId + ", while requester_id=" + requesterId)
         if(requesterId is @userId)
           globals.events.trigger("connection:all_messages", message.payload?.chat_history)
 
@@ -245,11 +246,15 @@ define [
         globals.events.trigger("connection:user_list_change", users)
 
       # Received event for a new user
-      @socket.on "user_joined_event", (message) =>
-        console.log "message: " + message
-        userid = message.payload.user.id
-        username = message.payload.user.name
-        globals.events.trigger("connection:user_join", userid, username) #should it be user_joined?! #TODO
+      @socket.on "user_joined_message", (message) =>        
+        requesterId = message.payload?.requester_id
+
+        # the requesting user is currently joining - will get the update in the
+        # userlist due to get_users_reply
+        unless(requesterId is @userId)
+          userid = message.payload.user.id
+          username = message.payload.user.name
+          globals.events.trigger("connection:user_join", userid, username)
 
       # Received event when a user leaves
       @socket.on "user_left_event", (message) =>
