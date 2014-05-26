@@ -76,7 +76,7 @@ module.exports = class RedisPubSub
 
     unless message.header?.name is "keep_alive_reply" #temporarily stop logging the keep_alive_reply message
       log.debug({ pattern: pattern, channel: channel, message: message}, "Received a message from redis")
-    console.log "=="+JSON.stringify message
+    #console.log "=="+JSON.stringify message
 
     # retrieve the request entry
 
@@ -158,8 +158,17 @@ module.exports = class RedisPubSub
       console.log 'got a reply from bbb-apps for chat history'
       sendToController(message)
 
+    else if message.header?.name is 'send_public_chat_message'
+      console.log "just got a public chat message :" + JSON.stringify message
+      sendToController (message)
+
+  publishing: (channel, message) =>
+    console.log '\n Publishing\n'
+    @pubClient.publish(channel, JSON.stringify(message))
+
 sendToController = (message) ->
   postal.publish
     channel: config.redis.internalChannels.receive
     topic: "broadcast"
     data: message
+

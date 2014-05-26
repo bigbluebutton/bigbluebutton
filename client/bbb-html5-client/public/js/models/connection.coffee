@@ -17,7 +17,6 @@ define [
       @userId = @getUrlVars()["user_id"]
       @meetingId = @getUrlVars()["meeting_id"]
       @username = @getUrlVars()["username"]
-      console.log "username=" + @username
 
     disconnect: ->
       if @socket?
@@ -88,9 +87,20 @@ define [
 
         globals.events.trigger("connection:load_users", users)
 
-      @socket.on "get_chat_history_reply", (message) ->
-        alert 'got these messages:' + JSON.stringify message
-        globals.events.trigger("connection:all_messages", message)
+      @socket.on "get_chat_history_reply", (message) =>
+        requesterId = message.payload?.requester_id
+
+        #console.log("my_id=" + @userId + ", while requester_id=" + requesterId)
+        if(requesterId is @userId)
+          globals.events.trigger("connection:all_messages", message.payload?.chat_history)
+
+      # Received event for a new public chat message
+      # @param  {object} message object
+      @socket.on "send_public_chat_message", (message) ->
+        console.log 'got this message:' + JSON.stringify message
+        username = message.payload.message.from_username
+        text = message.payload.message.message
+        globals.events.trigger("connection:msg", username, text)
 
       # Received event to logout yourself
       @socket.on "logout", ->
@@ -253,20 +263,11 @@ define [
         console.log "socket on: setPresenter"
         globals.events.trigger("connection:setPresenter", userid)
 
-      # Received event for a new public chat message
-      # @param  {string} name name of user
-      # @param  {string} msg  message to be displayed
-      @socket.on "SendPublicChatMessage", (msgEvent) =>
-        console.log "socket on: msg" + msgEvent
-        name = msgEvent.chat.from.name
-        msg = msgEvent.chat.text
-        globals.events.trigger("connection:msg", name, msg)
-
       # Received event to update all the messages in the chat box
       # @param  {Array} messages Array of messages in public chat box
-      @socket.on "all_messages", (allMessagesEventObject) =>
-        console.log "socket on: all_messages" + allMessagesEventObject
-        globals.events.trigger("connection:all_messages", allMessagesEventObject)
+      #@socket.on "all_messages", (allMessagesEventObject) =>
+      #  console.log "socket on: all_messages" + allMessagesEventObject
+      #  globals.events.trigger("connection:all_messages", allMessagesEventObject)
 
       @socket.on "share_presentation_event", (data) =>
         console.log "socket on: share_presentation_event"
@@ -287,8 +288,35 @@ define [
     # Emit a message to the server
     # @param  {string} the message
     emitMsg: (msg) ->
+
       console.log "emitting message: " + msg
-      @socket.emit "msg", msg
+
+      object = {
+        "header": {
+          "name": "send_public_chat_message"
+          "timestamp": new Date().getTime()
+          "version": "0.0.1"
+        }
+        "payload": {
+          "meeting_id": @meetingId
+          "requester_id": @userId
+          "message": {
+            "chat_type": "PUBLIC_CHAT"
+            "message": msg
+            "to_username": "public_chat_username"
+            "from_tz_offset": "240"
+            "from_color": "0"
+            "to_userid": "public_chat_userid"
+            "from_userid": @userId
+            "from_time": "1.400869381346E12"
+            "from_username": @username
+            "from_lang": "en"
+          }
+        }
+      }
+      
+      @socket.emit "message", object
+
 
     # Emit the finish of a text shape
     emitTextDone: ->

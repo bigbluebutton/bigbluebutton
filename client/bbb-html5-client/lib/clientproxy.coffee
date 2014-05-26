@@ -58,10 +58,12 @@ module.exports = class ClientProxy
     else
       log.error({ message: message }, "Invalid message.")
 
-  _handleValidMessage: (socket, message) ->
+  _handleValidMessage: (socket, message) =>
     switch message.header.name
       when 'validate_auth_token'
         @_handleLoginMessage socket, message
+      when 'send_public_chat_message'
+        @controller.sendingChat message
       else
         log.error({ message: message }, 'Unknown message name.')
 
