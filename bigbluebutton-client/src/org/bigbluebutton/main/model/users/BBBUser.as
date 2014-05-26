@@ -306,13 +306,11 @@ package org.bigbluebutton.main.model.users
        
 			var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
 			
-      if (role != MODERATOR) {
-			  disableMyCam = lockSettings.getDisableCam();
-			  disableMyMic = lockSettings.getDisableMic();
-			  disableMyPrivateChat = lockSettings.getDisablePrivateChat();
-			  disableMyPublicChat = lockSettings.getDisablePublicChat();
-      }
-      
+			disableMyCam = lockSettings.getDisableCam();
+			disableMyMic = lockSettings.getDisableMic();
+			disableMyPrivateChat = lockSettings.getDisablePrivateChat();
+			disableMyPublicChat = lockSettings.getDisablePublicChat();
+     
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(new LockControlEvent(LockControlEvent.CHANGED_LOCK_SETTINGS));
 			
