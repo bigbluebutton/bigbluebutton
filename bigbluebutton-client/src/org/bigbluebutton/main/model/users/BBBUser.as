@@ -303,28 +303,33 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function applyLockSettings():void {
+       
 			var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
 			
-			disableMyCam = lockSettings.getDisableCam();
-			disableMyMic = lockSettings.getDisableMic();
-			disableMyPrivateChat = lockSettings.getDisablePrivateChat();
-			disableMyPublicChat = lockSettings.getDisablePublicChat();
-			
+      if (role != MODERATOR) {
+			  disableMyCam = lockSettings.getDisableCam();
+			  disableMyMic = lockSettings.getDisableMic();
+			  disableMyPrivateChat = lockSettings.getDisablePrivateChat();
+			  disableMyPublicChat = lockSettings.getDisablePublicChat();
+      }
+      
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(new LockControlEvent(LockControlEvent.CHANGED_LOCK_SETTINGS));
 			
-			//If it's sharing webcam, stop it
-			if(disableMyCam && hasStream){
-				dispatcher.dispatchEvent(new ClosePublishWindowEvent());
-			}
-			
-			//If it's sharing microphone, mute it
-			if(disableMyMic && !UserManager.getInstance().getConference().isMyVoiceMuted()) {
-				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-				e.userid = UserManager.getInstance().getConference().getMyUserId();
-				e.mute = true;
-				dispatcher.dispatchEvent(e);
-			}
+      if (me && role != MODERATOR) {
+  			//If it's sharing webcam, stop it
+  			if (disableMyCam && hasStream){
+  				dispatcher.dispatchEvent(new ClosePublishWindowEvent());
+  			}
+  			
+  			//If it's sharing microphone, mute it
+  			if(disableMyMic && !UserManager.getInstance().getConference().isMyVoiceMuted()) {
+  				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
+  				e.userid = UserManager.getInstance().getConference().getMyUserId();
+  				e.mute = true;
+  				dispatcher.dispatchEvent(e);
+  			}
+      }
 		}
 	}
 }
