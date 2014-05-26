@@ -17,7 +17,6 @@ define [
       @userId = @getUrlVars()["user_id"]
       @meetingId = @getUrlVars()["meeting_id"]
       @username = @getUrlVars()["username"]
-      console.log "username=" + @username
 
     disconnect: ->
       if @socket?
@@ -88,8 +87,12 @@ define [
 
         globals.events.trigger("connection:load_users", users)
 
-      @socket.on "get_chat_history_reply", (message) ->
-        globals.events.trigger("connection:all_messages", message.payload?.chat_history)
+      @socket.on "get_chat_history_reply", (message) =>
+        requesterId = message.payload?.requester_id
+
+        #console.log("my_id=" + @userId + ", while requester_id=" + requesterId)
+        if(requesterId is @userId)
+          globals.events.trigger("connection:all_messages", message.payload?.chat_history)
 
       # Received event for a new public chat message
       # @param  {object} message object

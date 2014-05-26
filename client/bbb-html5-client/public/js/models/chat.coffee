@@ -25,7 +25,7 @@ define [
         globals.events.trigger("chat:msg", name, msg)
 
       globals.events.on "connection:all_messages", (data) ->
-        console.log 'globals.events.on "connection:all_messages", (data) =>' + data
+        console.log 'globals.events.on "connection:all_messages", (data) =>' + JSON.stringify data
         globals.events.trigger("chat:all_messages", data)
 
   ChatModel
