@@ -235,7 +235,7 @@
             }
 
 						
-						if (data.userLocked)
+						if (data.disableMyCam || data.disableMyMic || data.disableMyPrivateChat || data.disableMyPublicChat)
 							lockImg.source = images.locked_20;
 						//else if (moderator)
 						//	lockImg.source = images.unlocked_20;
