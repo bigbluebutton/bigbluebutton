@@ -70,15 +70,16 @@ trait UsersApp {
 
         //should send chat history
         val replyTo = meetingID + '/' + msg.userId
-        println("\n\n\n\nreplyTo=" + replyTo + "\n\n")
-        //self ! getChatHistory(meetingID, msg.userId, replyTo)
+        this ! (new GetChatHistoryRequest(meetingID, msg.userId, replyTo))
 
         //should send get_users_reply
         outGW.send(new GetUsersReply(meetingID, msg.userId, users.getUsers))
 
         //should send the whiteboard
+        //TODO
 
         //should send the presentation
+        //TODO
       }
       case None => outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, false, msg.correlationId))
     }  
