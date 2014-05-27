@@ -237,7 +237,7 @@
             }
 
 						
-						if ((data.role != Role.MODERATOR) && 
+						if ((data.role != Role.MODERATOR && !data.presenter) && 
                 (data.disableMyCam || data.disableMyMic || data.disableMyPrivateChat || data.disableMyPublicChat))
 							lockImg.source = images.locked_20;
 						else

@@ -95,7 +95,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           
           private function lockSettingsChanged(e:Event):void {
             
-            if (UsersUtil.amIModerator()) return; // Settings only affect viewers.
+            if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return; // Settings only affect viewers.
             
             var userManager:UserManager = UserManager.getInstance();
             var conference:Conference = userManager.getConference();
