@@ -485,7 +485,11 @@ package org.bigbluebutton.main.model.users {
 		
 		public function setLockSettings(lockSettings:LockSettingsVO):void {
 			this.lockSettings = lockSettings;
-      getMyUser().applyLockSettings();
+     // getMyUser().applyLockSettings();
+      for (var i:int = 0; i < users.length; i++) {
+        var eachUser:BBBUser = users.getItemAt(i) as BBBUser;
+        eachUser.applyLockSettings();
+      }
 		}
 	}
 }
