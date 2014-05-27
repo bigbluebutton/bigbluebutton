@@ -18,9 +18,24 @@ define [
       @meetingId = @getUrlVars()["meeting_id"]
       @username = @getUrlVars()["username"]
 
-    disconnect: ->
+    disconnect: =>
       if @socket?
         console.log "disconnecting from", @host
+        message = {
+          "payload": {
+            "meeting_id": @meetingId
+            "user": {
+              "user_id": @userId
+            }
+          },
+          "header": {
+            "timestamp": new Date().getTime()
+            "name": "user_left_message"
+            "version": "0.0.1"
+          }
+        }
+        @socket.emit "message", message
+
         @socket.disconnect()
       else
         console.log "tried to disconnect but it's not connected"
@@ -246,21 +261,26 @@ define [
         globals.events.trigger("connection:user_list_change", users)
 
       # Received event for a new user
-      @socket.on "user_joined_message", (message) =>        
+      @socket.on "user_joined_message", (message) =>
         requesterId = message.payload?.requester_id
 
-        # the requesting user is currently joining - will get the update in the
-        # userlist due to get_users_reply
+        # the requesting user will get the update in the userlist through
+        # get_users_reply. Therefore this is only for the rest of the users
         unless(requesterId is @userId)
-          userid = message.payload.user.id
+          userid = message.payload.user.userid
           username = message.payload.user.name
           globals.events.trigger("connection:user_join", userid, username)
 
       # Received event when a user leaves
-      @socket.on "user_left_event", (message) =>
-        console.log "message: " + message
-        userid = message.payload.user.id
+      @socket.on "user_left_message", (message) =>
+        alert('this is user_left_message')
+        #console.log "message: " + message
+        userid = message.payload.user.userid
+
+        #should i add a user-left if the client disconnects?!
+        
         globals.events.trigger("connection:user_left", userid)
+
 
       # Received event to set the presenter to a user
       # @param  {string} userID publicID of the user that is being set as the current presenter

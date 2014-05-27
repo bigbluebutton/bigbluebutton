@@ -63,11 +63,8 @@ define [
             #TODO check if public or private message, etc...
         @_scrollToBottom()
 
-      globals.events.on "users:user_leave", (userid) =>
-        @_removeUserFromChatList(userid, username)
-
       globals.events.on "users:user_left", (userid) =>
-        @_removeUserFromChatList(userid) #do we need username or userid is sufficient?
+        @_removeUserFromChatList(userid)
 
       globals.events.on "users:user_join", (userid, username) =>
         console.log "session_chat - user_join for user:#{username}"
@@ -143,8 +140,8 @@ define [
 
     # Removes a user from the list of users in the chat
     # @param userid [string] the ID of the user
-    # @param userid [string] the name of the user
-    _removeUserFromChatList: (userid, username) ->
+    _removeUserFromChatList: (userid) ->
+      console.log 'I am about to remove the user with ID:' + userid
       $("#chat-user-#{userid}").remove()
 
     # When a user clicks to start a private chat with a user

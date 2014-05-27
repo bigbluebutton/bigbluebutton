@@ -166,6 +166,10 @@ module.exports = class RedisPubSub
       console.log "\njust got a user_joined message :" + JSON.stringify message
       sendToController (message)
 
+    else if message.header?.name is 'user_left_message'
+      console.log "\njust got a user_left_message :" + JSON.stringify message
+      sendToController (message)
+
   publishing: (channel, message) =>
     console.log '\n Publishing\n'
     @pubClient.publish(channel, JSON.stringify(message))
