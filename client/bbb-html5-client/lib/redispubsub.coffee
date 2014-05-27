@@ -97,11 +97,12 @@ module.exports = class RedisPubSub
       #sendToController(message)
 
     if message.header?.name is 'validate_auth_token_reply'
-      if message.payload?.valid is "true"
+      if message.payload?.valid is "true"# and message.payload?.userid is 
 
+        console.log '\n\n\n\n got a validate_auth_token_reply - a valid one\n\n'
         #TODO use the message library for these messages. Perhaps put it in Modules?!
 
-        joinMeetingMessage = {
+        ###joinMeetingMessage = {
           "payload": {
             "meeting_id": message.payload.meeting_id
             "user_id": message.payload.userid
@@ -148,6 +149,7 @@ module.exports = class RedisPubSub
 
         @pubClient.publish(config.redis.channels.toBBBApps.chat, JSON.stringify(getChatHistory))
         console.log "just published the getChatHistory in RedisPubSub"
+        ###
 
 
     else if message.header?.name is 'get_users_reply'

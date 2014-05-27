@@ -61,7 +61,25 @@ trait UsersApp {
   def handleValidateAuthToken(msg: ValidateAuthToken) {
     println("*************** Got ValidateAuthToken message ********************" )
     regUsers.get (msg.userId) match {
-      case Some(u) => outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true, msg.correlationId))
+      case Some(u) => 
+      {
+        outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true, msg.correlationId))
+
+        //join the user
+        handleUserJoin(new UserJoining(meetingID, msg.userId))
+
+        //should send chat history
+        val replyTo = meetingID + '/' + msg.userId
+        println("\n\n\n\nreplyTo=" + replyTo + "\n\n")
+        //self ! getChatHistory(meetingID, msg.userId, replyTo)
+
+        //should send get_users_reply
+        outGW.send(new GetUsersReply(meetingID, msg.userId, users.getUsers))
+
+        //should send the whiteboard
+
+        //should send the presentation
+      }
       case None => outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, false, msg.correlationId))
     }  
   }
