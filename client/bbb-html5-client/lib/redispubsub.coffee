@@ -82,7 +82,7 @@ module.exports = class RedisPubSub
 
     #correlationId = message.header?.reply_to
     correlationId = message.payload?.reply_to or message.header?.reply_to
-    console.log "\ncorrelation_id=" + correlationId
+    #console.log "\ncorrelation_id=" + correlationId
     if correlationId? and @pendingRequests?[correlationId]?
       entry = @pendingRequests[correlationId]
       # make sure the message in the timeout isn't triggered by clearing it
@@ -96,63 +96,16 @@ module.exports = class RedisPubSub
     else
       #sendToController(message)
 
-    if message.header?.name is 'validate_auth_token_reply'
-      if message.payload?.valid is "true"# and message.payload?.userid is 
-
-        console.log '\n\n\n\n got a validate_auth_token_reply - a valid one\n\n'
-        #TODO use the message library for these messages. Perhaps put it in Modules?!
-
-        ###joinMeetingMessage = {
-          "payload": {
-            "meeting_id": message.payload.meeting_id
-            "user_id": message.payload.userid
-          },
-          "header": {
-            "timestamp": new Date().getTime()
-            "reply_to": message.payload.meeting_id + "/" + message.payload.userid
-            "name": "user_joined_event"
-          }
-        }
-        # the user joins the meeting
-
-        @pubClient.publish(config.redis.channels.toBBBApps.users, JSON.stringify(joinMeetingMessage))
-        console.log "just published the joinMeetingMessage in RedisPubSub"
-
-        #get the list of users in the meeting
-        getUsersMessage = {
-          "payload": {
-            "meeting_id": message.payload.meeting_id
-            "requester_id": message.payload.userid
-          },
-          "header": {
-            "timestamp": new Date().getTime()
-            "reply_to": message.payload.meeting_id + "/" + message.payload.userid
-            "name": "get_users_request"
-          }
-        }
-
-        @pubClient.publish(config.redis.channels.toBBBApps.users, JSON.stringify(getUsersMessage))
-        console.log "just published the getUsersMessage in RedisPubSub"
-
-        #get the chat history
-        getChatHistory = {
-          "payload": {
-            "meeting_id": message.payload.meeting_id
-            "requester_id": message.payload.userid
-          },
-          "header": {
-            "timestamp": new Date().getTime()
-            "reply_to": message.payload.meeting_id + "/" + message.payload.userid
-            "name": "get_chat_history"
-          }
-        }
-
-        @pubClient.publish(config.redis.channels.toBBBApps.chat, JSON.stringify(getChatHistory))
-        console.log "just published the getChatHistory in RedisPubSub"
-        ###
 
 
-    else if message.header?.name is 'get_users_reply'
+
+    unless message.header?.name is "keep_alive_reply"
+      console.log "\n\n\n channel=" + channel
+      console.log "correlationId=" + correlationId
+      console.log "pattern=" + pattern
+      console.log "eventType=" + message.header?.name + "\n\n\n"
+
+    if message.header?.name is 'get_users_reply'
       console.log 'got a reply from bbb-apps for get users'
       sendToController(message)
 
