@@ -32,7 +32,6 @@ public class ParticipantsListener implements MessageHandler{
 			if(eventName.equalsIgnoreCase("register_user_request") ||
 				eventName.equalsIgnoreCase("user_left_event") ||
 				eventName.equalsIgnoreCase("user_joined_event") ||
-				eventName.equalsIgnoreCase("get_users_request") ||
 				eventName.equalsIgnoreCase("raise_user_hand_request")){
 
 				String roomName = payloadObject.get("meeting_id").toString().replace("\"", "");
@@ -53,10 +52,6 @@ public class ParticipantsListener implements MessageHandler{
 					String userID = payloadObject.get("user_id").toString().replace("\"", "");
 
 					bbbInGW.userJoin(roomName, userID);
-				}
-				else if(eventName.equalsIgnoreCase("get_users_request")){
-					String requesterID = payloadObject.get("requester_id").toString().replace("\"", "");
-					bbbInGW.getUsers(roomName, requesterID);
 				}
 				else if(eventName.equalsIgnoreCase("raise_user_hand_request")){
 					String userID = payloadObject.get("user_id").toString().replace("\"", "");
