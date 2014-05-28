@@ -71,8 +71,10 @@ package org.bigbluebutton.modules.layout.services
     public function remoteUpdateLayout(locked:Boolean, userID:String, layout:String):void {
       var dispatchedByMe:Boolean = UserManager.getInstance().getConference().amIThisUser(userID);
       
-      LogUtil.debug("LayoutService: received a remote update" + (locked? " from " + (dispatchedByMe? "myself": "a remote user"): ""));
-      LogUtil.debug("Locked? " + (locked? "yes": "no"));
+      trace("LayoutService: received a remote update" + (locked? " from " + (dispatchedByMe? "myself": "a remote user"): ""));
+      trace("Locked? " + (locked? "yes": "no"));
+      
+
       
       if (!_locked && locked) {
         _dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.REMOTE_LOCK_LAYOUT_EVENT));
@@ -83,14 +85,17 @@ package org.bigbluebutton.modules.layout.services
       }
       
       if (locked && !dispatchedByMe) {
-        LogUtil.debug("LayoutService: handling remote layout");
-        LogUtil.debug(layout);
+        trace("LayoutService: handling remote layout= [" + layout + "]");
+        
+        if (layout == "") return;
+        
         var layoutDefinition:LayoutDefinition = new LayoutDefinition();
         layoutDefinition.load(new XML(layout));
         layoutDefinition.name = "[" + ResourceUtil.getInstance().getString('bbb.layout.combo.remote') + "] " + layoutDefinition.name;  
         var redefineLayout:RedefineLayoutEvent = new RedefineLayoutEvent();
         redefineLayout.layout = layoutDefinition;
         redefineLayout.remote = true;
+                
         _dispatcher.dispatchEvent(redefineLayout);
       }
       _locked = locked;

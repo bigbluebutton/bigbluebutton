@@ -596,6 +596,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         ls.disableMic = lsv.getDisableMic();
         ls.disablePrivChat = lsv.getDisablePrivateChat();
         ls.disablePubChat = lsv.getDisablePublicChat();
+        ls.lockedLayout = lsv.getLockedLayout();
         
 				var point1:Point = new Point();
 				point1.x = width/2;

@@ -12,7 +12,7 @@ trait UsersApp {
   
   val outGW: MessageOutGateway
   
-  private val users = new UsersModel
+  val users = new UsersModel
   private var regUsers = new collection.immutable.HashMap[String, RegisteredUser]
   
   private var locked = false
@@ -129,8 +129,14 @@ trait UsersApp {
     if (permissions != msg.settings) {
       permissions = msg.settings
       val au = affectedUsers(msg.settings)
-      outGW.send(new NewPermissionsSetting(meetingID, permissions, au))
+      outGW.send(new NewPermissionsSetting(meetingID, msg.setByUser, permissions, au))
+      
+      changeLayout(msg) 
     }    
+  }
+  
+  private def changeLayout(msg: SetLockSettings) {
+    this ! new LayoutLockSettings(msg.meetingID, msg.setByUser, permissions.permissions.lockedLayout)
   }
   
   def handleInitLockSettings(msg: InitLockSettings) {

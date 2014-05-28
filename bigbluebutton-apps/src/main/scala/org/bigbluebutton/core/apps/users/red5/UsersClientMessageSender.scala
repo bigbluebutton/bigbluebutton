@@ -75,9 +75,9 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  permissions.put("disableMic", user.permissions.disableMic:java.lang.Boolean)
 	  permissions.put("disablePrivChat", user.permissions.disablePrivChat:java.lang.Boolean)
 	  permissions.put("disablePubChat", user.permissions.disablePubChat:java.lang.Boolean)	  
-	  permissions.put("lockLayout", user.permissions.lockLayout:java.lang.Boolean)
+	  permissions.put("lockedLayout", user.permissions.lockedLayout:java.lang.Boolean)
 	  
-      wuser.put("permissions", permissions)
+    wuser.put("permissions", permissions)
   
 	  wuser
 	}
@@ -88,7 +88,8 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  args.put("disableMic", msg.settings.permissions.disableMic:java.lang.Boolean);
 	  args.put("disablePrivChat", msg.settings.permissions.disablePrivChat:java.lang.Boolean);
 	  args.put("disablePubChat", msg.settings.permissions.disablePubChat:java.lang.Boolean);
-
+    args.put("lockedLayout", msg.settings.permissions.lockedLayout:java.lang.Boolean);
+    
 	  var users = new ArrayList[java.util.HashMap[String, Object]];
       msg.applyTo.foreach(uvo => {		
         users.add(buildUserHashMap(uvo))

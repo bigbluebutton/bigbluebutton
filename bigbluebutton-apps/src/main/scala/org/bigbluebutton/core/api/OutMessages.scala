@@ -96,6 +96,7 @@ case class PermissionsSettingInitialized(
     
 case class NewPermissionsSetting(
   meetingID: String, 
+  setByUser: String,
   settings: PermissionsSetting,
   applyTo: Array[UserVO],
   version:String = Versions.V_0_0_1
@@ -349,7 +350,8 @@ case class LockLayoutEvent(
     requesterID: String, 
     layoutID: String, 
     locked: Boolean, 
-    setByUserID: String
+    setByUserID: String,
+    applyTo: Array[UserVO]
 ) extends IOutMessage
 
 case class UnlockLayoutEvent(
@@ -358,7 +360,8 @@ case class UnlockLayoutEvent(
     requesterID: String, 
     layoutID: String, 
     locked: Boolean, 
-    setByUserID: String
+    setByUserID: String,
+    applyTo: Array[UserVO]
 ) extends IOutMessage
 
 // Poll

@@ -29,7 +29,7 @@ object UsersMessageToJsonConverter {
 	  permissions.put("disableMic", user.permissions.disableMic)
 	  permissions.put("disablePrivChat", user.permissions.disablePrivChat)
 	  permissions.put("disablePubChat", user.permissions.disablePubChat)	  
-	  permissions.put("lockLayout", user.permissions.lockLayout)
+	  permissions.put("lockedLayout", user.permissions.lockedLayout)
 	  
       wuser.put("permissions", permissions)
       

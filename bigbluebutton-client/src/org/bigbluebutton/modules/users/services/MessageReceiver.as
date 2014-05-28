@@ -138,7 +138,8 @@ package org.bigbluebutton.modules.users.services
       var lockSettings:LockSettingsVO = new LockSettingsVO(map.disableCam,
                                                            map.disableMic,
                                                            map.disablePrivChat,
-                                                           map.disablePubChat);
+                                                           map.disablePubChat,
+                                                           map.lockedLayout);
       UserManager.getInstance().getConference().setLockSettings(lockSettings);
     }
     

@@ -194,7 +194,13 @@ case class SetLayoutRequest(
     requesterID: String, 
     layoutID: String
 ) extends InMessage
-                            
+
+case class LayoutLockSettings(
+  meetingID: String,
+  requesterId: String,
+  locked: Boolean
+) extends InMessage
+
 case class LockLayoutRequest(
     meetingID: String, 
     requesterID: String, 
