@@ -74,15 +74,11 @@ module.exports = class RedisPubSub
     #   crash if the message has a bad format
     message = JSON.parse(jsonMsg)
 
-    unless message.header?.name is "keep_alive_reply" #temporarily stop logging the keep_alive_reply message
-      log.debug({ pattern: pattern, channel: channel, message: message}, "Received a message from redis")
-    #console.log "=="+JSON.stringify message
+    #log.debug({ pattern: pattern, channel: channel, message: message}, "Received a message from redis")
 
     # retrieve the request entry
 
-    #correlationId = message.header?.reply_to
     correlationId = message.payload?.reply_to or message.header?.reply_to
-    #console.log "\ncorrelation_id=" + correlationId
     if correlationId? and @pendingRequests?[correlationId]?
       entry = @pendingRequests[correlationId]
       # make sure the message in the timeout isn't triggered by clearing it
@@ -97,13 +93,11 @@ module.exports = class RedisPubSub
       #sendToController(message)
 
 
-
-
     unless message.header?.name is "keep_alive_reply"
-      console.log "\n\n\n channel=" + channel
+      console.log "\nchannel=" + channel
       console.log "correlationId=" + correlationId
       console.log "pattern=" + pattern
-      console.log "eventType=" + message.header?.name + "\n\n\n"
+      console.log "eventType=" + message.header?.name + "\n"
 
     if message.header?.name is 'get_users_reply'
       console.log 'got a reply from bbb-apps for get users'
@@ -134,4 +128,3 @@ sendToController = (message) ->
     channel: config.redis.internalChannels.receive
     topic: "broadcast"
     data: message
-
