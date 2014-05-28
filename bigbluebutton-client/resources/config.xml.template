@@ -74,7 +74,11 @@
 			focusTalking = "false"
 			glowColor = "0x4A931D"
 			glowBlurSize = "30.0"
+<<<<<<< HEAD
 			priorityRatio = "0.67"	
+=======
+            priorityRatio="0.67"	
+>>>>>>> feat1212
 		/>
 		
 		<module name="WhiteboardModule" url="http://HOST/client/WhiteboardModule.swf?v=4105" 

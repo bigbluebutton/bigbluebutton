@@ -6,6 +6,7 @@ package org.bigbluebutton.modules.videoconf.views
   import flash.events.Event;
   import flash.events.NetStatusEvent;
   import flash.filters.ConvolutionFilter;
+  import flash.text.TextField;
   import flash.media.Camera;
   import flash.media.Video;
   import flash.net.NetConnection;
@@ -16,45 +17,36 @@ package org.bigbluebutton.modules.videoconf.views
   import org.bigbluebutton.core.model.VideoProfile;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
+  import org.bigbluebutton.main.views.VideoWithWarnings;
   import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
   import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
   import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 
   public class UserVideo extends UserGraphic {
 
-    protected var _camera:Camera;
     protected var _camIndex:int = -1;
 
     protected var _ns:NetStream;
 
     protected var _shuttingDown:Boolean = false;
     protected var _streamName:String;
-    protected var _video:Video = null;
+    protected var _video:VideoWithWarnings=null;
     protected var _videoProfile:VideoProfile;
     protected var _dispatcher:Dispatcher = new Dispatcher();
 
     public function UserVideo() {
-
+      _video = new VideoWithWarnings();
+      _background.addChild(_video);
     }
 
     public function publish(camIndex:int, videoProfile:VideoProfile):void {
-      _videoProfile = videoProfile;
       _camIndex = camIndex;
+      _videoProfile = videoProfile;
+      setOriginalDimensions(_videoProfile.width, _videoProfile.height);
 
-      _camera = Camera.getCamera(camIndex.toString());
-      _camera.setMotionLevel(5, 1000);
-      _camera.setKeyFrameInterval(videoProfile.keyFrameInterval);
-      _camera.setMode(videoProfile.width, videoProfile.height, videoProfile.modeFps);
-      _camera.setQuality(videoProfile.qualityBandwidth, videoProfile.qualityPicture);
-
-      setOriginalDimensions(_camera.width, _camera.height);
-
-      _video = new Video();
-      _video.attachCamera(_camera);
-      _video.smoothing = true;
-      addChild(_video);
+      _video.updateCamera(camIndex, _videoProfile, _background.width, _background.height);
+      
       invalidateDisplayList();
-
       startPublishing();
     }
 
@@ -93,7 +85,7 @@ package org.bigbluebutton.modules.videoconf.views
 
       var e:StartBroadcastEvent = new StartBroadcastEvent();
       e.stream = _streamName;
-      e.camera = _camera;
+      e.camera = _video.getCamera();
       e.videoProfile = _videoProfile;
       _dispatcher.dispatchEvent(e);
     }
@@ -107,18 +99,12 @@ package org.bigbluebutton.modules.videoconf.views
           _ns = null;
         }
 
-        if (_camera) {
-          stopPublishing();
-          _camera = null;
-          if (_video) {
-            _video.attachCamera(null);
-          }
+        if (_video.cameraState()) {
+            stopPublishing();
         }
 
         if (_video) {
-            removeChild(_video);
-            _video.clear();
-            _video = null;
+            _video.disableCamera();
         }
       }
     }
@@ -158,9 +144,7 @@ package org.bigbluebutton.modules.videoconf.views
       }
       setOriginalDimensions(_videoProfile.width, _videoProfile.height);
 
-      _video = new Video(_videoProfile.width, _videoProfile.height);
-      _video.smoothing = true;
-      _video.attachNetStream(_ns);
+      _video.attachNetStream(_ns, _videoProfile, _background.width, _background.height);
       
       if (options.applyConvolutionFilter) {
         var filter:ConvolutionFilter = new ConvolutionFilter();
@@ -170,13 +154,13 @@ package org.bigbluebutton.modules.videoconf.views
         filter.matrix = options.convolutionFilter;
         filter.bias =  options.filterBias;
         filter.divisor = options.filterDivisor;
-        _video.filters = [filter];
+        _video.videoFilters([filter]);
       }
       
       _ns.play(streamName);
-      addChild(_video);
 
       user.addViewingStream(streamName);
+      invalidateDisplayList();
     }
 
     private function onNetStatus(e:NetStatusEvent):void{
