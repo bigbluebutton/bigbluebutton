@@ -13,6 +13,7 @@ package org.bigbluebutton.modules.videoconf.views
     import org.bigbluebutton.main.model.users.BBBUser;
     import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
     import org.bigbluebutton.modules.videoconf.views.UserGraphicHolder;
+    import org.bigbluebutton.common.LogUtil;
 
 
     public class GraphicsWrapper extends Canvas {
@@ -224,6 +225,7 @@ package org.bigbluebutton.modules.videoconf.views
             graphic.userId = userId;
             graphic.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
                 graphic.loadVideo(_options, connection, streamName);
+                validateDisplayList();
             });
             graphic.addEventListener(MouseEvent.CLICK, onVBoxClick); 
             super.addChild(graphic); 
@@ -257,6 +259,7 @@ package org.bigbluebutton.modules.videoconf.views
             graphic.userId = userId;
             graphic.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
                 graphic.loadCamera(_options, camIndex, videoProfile);
+                validateDisplayList();
             });
 
             graphic.addEventListener(MouseEvent.CLICK, onVBoxClick);
@@ -292,6 +295,8 @@ package org.bigbluebutton.modules.videoconf.views
             if (!alreadyPublishing) {
                 addCameraForHelper(userId, camIndex, videoProfile);
             }
+
+
         }
 
         private function removeChildHelper(child:UserGraphicHolder):void {

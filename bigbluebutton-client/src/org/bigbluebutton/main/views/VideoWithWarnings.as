@@ -31,11 +31,10 @@ package org.bigbluebutton.main.views
         private var label:TextField;
         private var _videoProfile:VideoProfile;
         private var _filters:Array=null;
-        private var _showPreviewMsg=false;
+        private var _showPreviewMsg:Boolean=false;
 
-        public function VideoWithWarnings(vp:VideoProfile=null){
+        public function VideoWithWarnings(){
             super();
-            videoProfile = vp;
             label = new TextField();
             label.setTextFormat(new TextFormat());
             label.selectable = false;
@@ -48,10 +47,6 @@ package org.bigbluebutton.main.views
         public function cameraState():Boolean { return _camera != null;}
 
         public function getCamera():Camera { return _camera;}
-
-        public function set videoProfile(vp:VideoProfile):void {_videoProfile = vp;}
-        
-        public function get videoProfile():VideoProfile {return _videoProfile;}
 
         public function videoFilters(f:Array):void { _filters = f;}
 
@@ -81,16 +76,18 @@ package org.bigbluebutton.main.views
             LogUtil.debug("Showing warning: " + text);
         }
         
-        public function updateCamera(camIndex:int, showPreviewMsg:Boolean=false):void {
-
+        public function updateCamera(camIndex:int, vp:VideoProfile, containerWidth:int, containerHeight:int, showPreviewMsg:Boolean=false):void {
+ 
             disableCamera();
+            
             _camera = Camera.getCamera(camIndex.toString());
-
             if (_camera == null) {
                 showWarning('bbb.video.publish.hint.cantOpenCamera');
                 return;
             }
-
+            this.width = containerWidth;
+            this.height = containerHeight;
+            _videoProfile = vp;
             _showPreviewMsg = showPreviewMsg;
             _camera.addEventListener(ActivityEvent.ACTIVITY, onActivityEvent);
             _camera.addEventListener(StatusEvent.STATUS, onStatusEvent);
@@ -104,7 +101,6 @@ package org.bigbluebutton.main.views
                 onCameraAccessAllowed();
 
             displayVideoPreview();
-            invalidateDisplayList();
         }
         
         private function displayVideoPreview():void {
@@ -117,7 +113,7 @@ package org.bigbluebutton.main.views
             if (_camera.width != _videoProfile.width || _camera.height != _videoProfile.height)
                 LogUtil.debug("Resolution " + _videoProfile.width + "x" + _videoProfile.height + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
 
-            addVideo(_camera.width, _camera.height);
+            addVideo();
             attachCamera(_camera);
         }
 
@@ -134,29 +130,36 @@ package org.bigbluebutton.main.views
         override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
             super.updateDisplayList(unscaledWidth, unscaledHeight);
             if(_video){
+                
                 if(unscaledWidth/unscaledHeight > _videoProfile.width/_videoProfile.height){
-                    width = width = _video.width = unscaledHeight / _videoProfile.height * _videoProfile.width;
-                    height = _video.height = unscaledHeight;
+                    _video.width = unscaledHeight / _videoProfile.height * _videoProfile.width;
+                    _video.height = unscaledHeight;
                 } else {
-                    height = _video.height = unscaledWidth * _videoProfile.height / _videoProfile.width;
-                    width = _video.width = unscaledWidth;
+                    _video.height = unscaledWidth * _videoProfile.height / _videoProfile.width;
+                    _video.width = unscaledWidth;
                 }
+                _video.x = (int)((this.width - _video.width)/2); 
+                _video.y = (int)((this.height - _video.height)/2); 
                 resizeText();
             }
         }
 
-        private function addVideo(w:int=320, h:int=240):void{ 
-            _video = new Video(w, h);
+        private function addVideo():void{ 
+            _video = new Video();
             if(_filters)
                 _video.filters=_filters;
             _video.smoothing = true;
             addChild(_video);
             setChildIndex(_video, 0);
+            invalidateDisplayList();
         }
 
-        public function attachNetStream(ns:NetStream):void {
+        public function attachNetStream(ns:NetStream, vp:VideoProfile, containerWidth:int, containerHeight:int):void {
             disableCamera();
-            addVideo(_videoProfile.width, _videoProfile.height);
+            this.width = containerWidth;
+            this.height = containerHeight;
+            _videoProfile = vp;
+            addVideo();
             _video.attachNetStream(ns);
         }
 

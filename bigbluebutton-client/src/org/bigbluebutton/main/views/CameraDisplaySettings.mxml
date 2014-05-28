@@ -35,7 +35,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import mx.managers.PopUpManager;     
 		import mx.core.UIComponent;
 		import org.bigbluebutton.common.Images;
-		import org.bigbluebutton.common.LogUtil;
 		import org.bigbluebutton.core.BBB;
 		import org.bigbluebutton.core.model.VideoProfile;
 		import org.bigbluebutton.core.UsersUtil;
@@ -141,12 +140,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             selectedVideoProfile = cmbVideoProfile.selectedItem.profile as VideoProfile;
             selectedCam = camerasAvaiable.getItemAt(cmbCameraSelector.selectedIndex).index;
             setAspectRatio(selectedVideoProfile.width,selectedVideoProfile.height);
-            _video.videoProfile = selectedVideoProfile;
-            _video.width = _canvas.height * aspectRatio;
-            _video.height = _canvas.height;
-			_video.y = 0;
-			_video.x = (width - _video.width) / 2;
-            _video.updateCamera(selectedCam,true);
+            _video.updateCamera(selectedCam,selectedVideoProfile,_canvas.width, _canvas.height,true);
         }
 
 		private function startPublishing():void {

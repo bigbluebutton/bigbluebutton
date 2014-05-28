@@ -21,7 +21,6 @@ package org.bigbluebutton.modules.videoconf.views
   import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
   import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
   import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
-  import org.bigbluebutton.common.LogUtil;
 
   public class UserVideo extends UserGraphic {
 
@@ -43,15 +42,9 @@ package org.bigbluebutton.modules.videoconf.views
     public function publish(camIndex:int, videoProfile:VideoProfile):void {
       _camIndex = camIndex;
       _videoProfile = videoProfile;
- //     _video.disableCamera();
-      _video.videoProfile = videoProfile;
       setOriginalDimensions(_videoProfile.width, _videoProfile.height);
-      _video.width = (int) (_background.height * _videoProfile.width/_videoProfile.height);
-      _video.height = _background.height;
-      _video.y = 0;
-	  _video.x = 0;
 
-      _video.updateCamera(camIndex); 
+      _video.updateCamera(camIndex, _videoProfile, _background.width, _background.height);
       
       invalidateDisplayList();
       startPublishing();
@@ -151,8 +144,7 @@ package org.bigbluebutton.modules.videoconf.views
       }
       setOriginalDimensions(_videoProfile.width, _videoProfile.height);
 
-      _video.videoProfile = _videoProfile;
-      _video.attachNetStream(_ns);
+      _video.attachNetStream(_ns, _videoProfile, _background.width, _background.height);
       
       if (options.applyConvolutionFilter) {
         var filter:ConvolutionFilter = new ConvolutionFilter();
