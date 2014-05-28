@@ -129,9 +129,7 @@ define [
     # @param userid [string] the name of the user
     _addUserToChatList: (userid, username) ->
       # only add the new element if it doesn't exist yet
-      console.log("_addUserToChatList ", userid, " ", username)
-      console.log "chat-user-#{userid}.length =" + $("#chat-user-#{userid}").length
-      unless $("#chat-user-#{userid}").length > 0
+      if $("#chat-user-#{userid}").length is 0
         data =
           userid: userid
           username: username
@@ -141,7 +139,6 @@ define [
     # Removes a user from the list of users in the chat
     # @param userid [string] the ID of the user
     _removeUserFromChatList: (userid) ->
-      console.log 'I am about to remove the user with ID:' + userid
       $("#chat-user-#{userid}").remove()
 
     # When a user clicks to start a private chat with a user

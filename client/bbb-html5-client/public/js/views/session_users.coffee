@@ -72,7 +72,12 @@ define [
       data =
         username: username
         userID: userID
+
       compiledTemplate = _.template(userTemplate, data)
+
+      # TODO!!!! only add the new element if it doesn't exist yet
+      # this will resolve the problem of users displayed multiple times in the userlist
+
       @$el.children("ul").append compiledTemplate
 
     # Marks a user as selected when clicked.
