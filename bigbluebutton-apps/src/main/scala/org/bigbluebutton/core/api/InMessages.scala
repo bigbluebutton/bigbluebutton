@@ -57,6 +57,7 @@ case class InitLockSettings(
                             
 case class SetLockSettings(
     meetingID: String,  
+    setByUser: String,
     settings: PermissionsSetting
 ) extends InMessage
                            

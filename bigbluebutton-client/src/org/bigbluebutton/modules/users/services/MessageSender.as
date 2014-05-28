@@ -20,6 +20,7 @@ package org.bigbluebutton.modules.users.services
 {
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
+  import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.managers.ConnectionManager;
   import org.bigbluebutton.main.model.users.IMessageListener;
   
