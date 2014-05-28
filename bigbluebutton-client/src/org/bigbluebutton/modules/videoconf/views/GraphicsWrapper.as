@@ -224,12 +224,8 @@ package org.bigbluebutton.modules.videoconf.views
             var graphic:UserGraphicHolder = new UserGraphicHolder();
             graphic.userId = userId;
             graphic.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
-<<<<<<< HEAD
-                graphic.loadVideo(_options, connection, streamName);	
-=======
                 graphic.loadVideo(_options, connection, streamName);
                 validateDisplayList();
->>>>>>> feat1212
             });
             graphic.addEventListener(MouseEvent.CLICK, onVBoxClick); 
             super.addChild(graphic);
