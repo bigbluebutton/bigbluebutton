@@ -70,7 +70,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </EventHandlers>
     
     <EventHandlers type="{LayoutEvent.LOCK_LAYOUT_EVENT}">
-   		<MethodInvoker generator="{LayoutManager}" method="lockLayout" />
+      <MethodInvoker generator="{LayoutManager}" method="lockLayout" />
     </EventHandlers>
 
   <EventHandlers type="{EventConstants.LOCK_LAYOUT_REQ}">
@@ -85,8 +85,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{LayoutService}" method="unlockLayout"/>
   </EventHandlers>
   
+    <EventHandlers type="{LayoutEvent.BROADCAST_LAYOUT_EVENT}">
+      <MethodInvoker generator="{LayoutManager}" method="broadcastLayout" />
+    </EventHandlers>
+
     <EventHandlers type="{UpdateLayoutEvent.UPDATE_LAYOUT_EVENT}">
-   		<MethodInvoker generator="{LayoutService}" method="lockLayout" arguments="{event.layout}" />
+   		<MethodInvoker generator="{LayoutService}" method="broadcastLayout" arguments="{[event.layout, event.locked]}" />
     </EventHandlers>
 
   <EventHandlers type="{SyncLayoutEvent.SYNC_LAYOUT_EVENT}">

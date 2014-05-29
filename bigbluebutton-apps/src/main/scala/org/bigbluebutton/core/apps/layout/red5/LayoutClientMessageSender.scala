@@ -12,7 +12,7 @@ class LayoutClientMessageSender(service: ConnectionInvokerService) extends OutMe
 	  msg match {
 	    case msg:GetCurrentLayoutReply                 => handleGetCurrentLayoutReply(msg)
 	    case msg:SetLayoutEvent                        => handleSetLayoutEvent(msg)
-	    case msg:LockLayoutEvent                       => handleLockLayoutEvent(msg)
+	    case msg:BroadcastLayoutEvent                  => handleBroadcastLayoutEvent(msg)
 	    case msg:UnlockLayoutEvent                     => handleUnlockLayoutEvent(msg)
 	    case _ => // do nothing
 	  }
@@ -38,7 +38,7 @@ class LayoutClientMessageSender(service: ConnectionInvokerService) extends OutMe
 	  service.sendMessage(m);
 	}
 	
-	private def handleLockLayoutEvent(msg: LockLayoutEvent) {
+	private def handleBroadcastLayoutEvent(msg: BroadcastLayoutEvent) {
 	  val message = new java.util.HashMap[String, Object]()  	
 	  message.put("locked", msg.locked:java.lang.Boolean);
 	  message.put("setByUserID", msg.setByUserID);

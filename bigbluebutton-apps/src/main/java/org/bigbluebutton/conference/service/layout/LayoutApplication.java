@@ -31,8 +31,8 @@ public class LayoutApplication {
 		bbbInGW.syncLayout(meetingID, requesterID, layoutID);
 	}
 	
-	public void lockLayout(String meetingID, String requesterID, String layoutID) {
-		bbbInGW.lockLayout(meetingID, requesterID, layoutID);
+	public void broadcastLayout(String meetingID, String requesterID, String layoutID, Boolean locked) {
+		bbbInGW.broadcastLayout(meetingID, requesterID, layoutID, locked);
 	}
 
 	public void unlockLayout(String meetingID, String requesterID) {

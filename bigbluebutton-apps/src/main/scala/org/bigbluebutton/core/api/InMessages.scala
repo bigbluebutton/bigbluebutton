@@ -201,10 +201,11 @@ case class LayoutLockSettings(
   locked: Boolean
 ) extends InMessage
 
-case class LockLayoutRequest(
+case class BroadcastLayoutRequest(
     meetingID: String, 
     requesterID: String, 
-    layoutID: String
+    layoutID: String,
+    locked: Boolean
 ) extends InMessage
                              
 case class UnlockLayoutRequest(

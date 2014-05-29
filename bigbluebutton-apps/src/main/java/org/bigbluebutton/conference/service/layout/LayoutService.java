@@ -43,9 +43,9 @@ public class LayoutService {
 		application.syncLayout(meetingID, getBbbSession().getInternalUserID(), (String) message.get("layout"));
 	}
 	
-	public void lock(Map<String, Object> message) {
+	public void broadcast(Map<String, Object> message) {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
-		application.lockLayout(meetingID, (String) message.get("setByUserID"), (String) message.get("layout"));
+		application.broadcastLayout(meetingID, (String) message.get("setByUserID"), (String) message.get("layout"), (Boolean) message.get("locked"));
 	}
 	
 	public void unlock() {

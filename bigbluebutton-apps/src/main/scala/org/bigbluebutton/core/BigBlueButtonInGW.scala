@@ -349,8 +349,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	  layoutGW.setLayout(meetingID, requesterID, layoutID)
 	}
 		
-	def lockLayout(meetingID: String, requesterID: String, layoutID: String) {
-	  layoutGW.lockLayout(meetingID, requesterID, layoutID)
+	def broadcastLayout(meetingID: String, requesterID: String, layoutID: String, locked: java.lang.Boolean) {
+	  layoutGW.broadcastLayout(meetingID, requesterID, layoutID, locked)
 	}
 	
 	def unlockLayout(meetingID: String, requesterID: String) {
