@@ -14,6 +14,7 @@ package org.bigbluebutton.modules.layout.services
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.modules.layout.events.LayoutEvent;
   import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
+  import org.bigbluebutton.modules.layout.events.RemoteSyncLayoutEvent;
   import org.bigbluebutton.modules.layout.model.LayoutDefinition;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -38,6 +39,9 @@ package org.bigbluebutton.modules.layout.services
         case "remoteUpdateLayout":
           handleRemoteUpdateLayout(message);
           break;
+        case "syncLayout":
+          handleSyncLayout(message);
+          break;
       }
     }
     
@@ -55,13 +59,27 @@ package org.bigbluebutton.modules.layout.services
     }
     
     private function onReceivedFirstLayout(message:Object):void {
-      trace("LayoutService: handling the first layout"); 
+      trace("LayoutService: handling the first layout. locked = [" + message.locked + "] layout = [" + message.layout + "]"); 
       if (message.locked)
         remoteUpdateLayout(message.locked, message.setByUserID, message.layout);
       else
         _dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT));
       
       _dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.LAYOUT_MODULE_STARTED));
+    }
+ 
+    private function handleSyncLayout(message:Object):void {
+      _dispatcher.dispatchEvent(new RemoteSyncLayoutEvent(message.layout));
+      if (message.layout == "") return;
+      
+      var layoutDefinition:LayoutDefinition = new LayoutDefinition();
+      layoutDefinition.load(new XML(message.layout));
+      layoutDefinition.name = "[" + ResourceUtil.getInstance().getString('bbb.layout.combo.remote') + "] " + layoutDefinition.name;  
+      var redefineLayout:RedefineLayoutEvent = new RedefineLayoutEvent();
+      redefineLayout.layout = layoutDefinition;
+      redefineLayout.remote = true;
+      
+      _dispatcher.dispatchEvent(redefineLayout);      
     }
     
     private function handleRemoteUpdateLayout(message:Object):void {
@@ -73,9 +91,7 @@ package org.bigbluebutton.modules.layout.services
       
       trace("LayoutService: received a remote update" + (locked? " from " + (dispatchedByMe? "myself": "a remote user"): ""));
       trace("Locked? " + (locked? "yes": "no"));
-      
-
-      
+           
       if (!_locked && locked) {
         _dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.REMOTE_LOCK_LAYOUT_EVENT));
         _dispatcher.dispatchEvent(new CoreEvent(EventConstants.REMOTE_LOCKED_LAYOUT));

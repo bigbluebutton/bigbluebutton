@@ -344,7 +344,11 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	def setLayout(meetingID: String, requesterID: String, layoutID: String) {
 	  layoutGW.setLayout(meetingID, requesterID, layoutID)
 	}
-	
+
+  def syncLayout(meetingID: String, requesterID: String, layoutID: String) {
+	  layoutGW.setLayout(meetingID, requesterID, layoutID)
+	}
+		
 	def lockLayout(meetingID: String, requesterID: String, layoutID: String) {
 	  layoutGW.lockLayout(meetingID, requesterID, layoutID)
 	}

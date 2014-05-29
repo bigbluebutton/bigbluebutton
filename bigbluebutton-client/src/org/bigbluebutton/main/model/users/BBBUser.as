@@ -49,7 +49,8 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var disableMyMic:Boolean = false;
 		[Bindable] public var disableMyPrivateChat:Boolean = false;
 		[Bindable] public var disableMyPublicChat:Boolean = false;
-		
+    [Bindable] public var lockedLayout:Boolean = false;
+    
 		private var _hasStream:Boolean = false;
 		[Bindable]
 		public function get hasStream():Boolean {
@@ -310,7 +311,8 @@ package org.bigbluebutton.main.model.users
 			disableMyMic = lockSettings.getDisableMic();
 			disableMyPrivateChat = lockSettings.getDisablePrivateChat();
 			disableMyPublicChat = lockSettings.getDisablePublicChat();
-     
+      lockedLayout = lockSettings.getLockedLayout();
+      
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(new LockControlEvent(LockControlEvent.CHANGED_LOCK_SETTINGS));
 			

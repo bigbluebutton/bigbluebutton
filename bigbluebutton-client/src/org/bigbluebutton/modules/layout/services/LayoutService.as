@@ -31,7 +31,11 @@ package org.bigbluebutton.modules.layout.services
 		public function getCurrentLayout():void {
       sender.getCurrentLayout();
 		}
-		
+
+    public function syncLayout(layout:LayoutDefinition):void {
+      sender.syncLayout(layout);
+    }
+    
 		public function lockLayout(layout:LayoutDefinition):void {
       sender.lockLayout(layout);
 		}

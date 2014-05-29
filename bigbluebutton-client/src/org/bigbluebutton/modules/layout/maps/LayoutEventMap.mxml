@@ -29,7 +29,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.layout.events.ConnectionEvent;
       import org.bigbluebutton.modules.layout.events.LayoutEvent;
       import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
+      import org.bigbluebutton.modules.layout.events.RemoteSyncLayoutEvent;
       import org.bigbluebutton.modules.layout.events.StartLayoutModuleEvent;
+      import org.bigbluebutton.modules.layout.events.SyncLayoutEvent;
       import org.bigbluebutton.modules.layout.events.UpdateLayoutEvent;
       import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;
       import org.bigbluebutton.modules.layout.managers.LayoutManager;
@@ -86,11 +88,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <EventHandlers type="{UpdateLayoutEvent.UPDATE_LAYOUT_EVENT}">
    		<MethodInvoker generator="{LayoutService}" method="lockLayout" arguments="{event.layout}" />
     </EventHandlers>
-    
+
+  <EventHandlers type="{SyncLayoutEvent.SYNC_LAYOUT_EVENT}">
+    <MethodInvoker generator="{LayoutService}" method="syncLayout" arguments="{event.layout}" />
+  </EventHandlers>
+  
     <EventHandlers type="{RedefineLayoutEvent.REDEFINE_LAYOUT_EVENT}">
    		<MethodInvoker generator="{LayoutManager}" method="redefineLayout" arguments="{event}" />
     </EventHandlers>
-	
+
+  <EventHandlers type="{LayoutEvent.SYNC_LAYOUT_EVENT}">
+    <MethodInvoker generator="{LayoutManager}" method="syncLayout" />
+  </EventHandlers>
+  
     <EventHandlers type="{LayoutEvent.SAVE_LAYOUTS_EVENT}">
    		<MethodInvoker generator="{LayoutManager}" method="saveLayoutsToFile" />
     </EventHandlers>
@@ -107,6 +117,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{LayoutManager}" method="switchToLayout" arguments="{event.message.layoutName}"/>
   </EventHandlers>
 	
+  <EventHandlers type="{RemoteSyncLayoutEvent.REMOTE_SYNC_LAYOUT_EVENT}">
+    <MethodInvoker generator="{LayoutManager}" method="remoteSyncLayout" arguments="{event}"/>
+  </EventHandlers>
+  
     <EventHandlers type="{LayoutEvent.REMOTE_LOCK_LAYOUT_EVENT}">
    		<MethodInvoker generator="{LayoutManager}" method="remoteLockLayout" />
     </EventHandlers>
