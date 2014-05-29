@@ -19,24 +19,9 @@ define [
       @username = @getUrlVars()["username"]
 
     disconnect: =>
+      alert( " i go through disconnect")
       if @socket?
-        console.log "disconnecting from", @host
-        message = {
-          "payload": {
-            "meeting_id": @meetingId
-            "user": {
-              "user_id": @userId
-            }
-          },
-          "header": {
-            "timestamp": new Date().getTime()
-            "name": "user_left_message"
-            "version": "0.0.1"
-          }
-        }
-        @socket.emit "message", message
-
-        @socket.disconnect()
+        #@socket.disconnect()
       else
         console.log "tried to disconnect but it's not connected"
 
@@ -117,12 +102,6 @@ define [
         username = message.payload.message.from_username
         text = message.payload.message.message
         globals.events.trigger("connection:msg", username, text)
-
-      # Received event to logout yourself
-      @socket.on "logout", ->
-        console.log "socket on: logout"
-        Utils.postToUrl "logout"
-        window.location.replace "./"
 
       # If the server disconnects from the client or vice-versa
       @socket.on "disconnect", ->
@@ -339,9 +318,7 @@ define [
           }
         }
       }
-      
       @socket.emit "message", object
-
 
     # Emit the finish of a text shape
     emitTextDone: ->
@@ -382,7 +359,24 @@ define [
 
     # Logout of the meeting
     emitLogout: ->
-      @socket.emit "logout"
+
+      message = {
+        "payload": {
+          "meeting_id": @meetingId
+          "userid": @userId
+        },
+        "header": {
+          "timestamp": new Date().getTime()
+          "name": "user_leaving_request" #vs user_left_message
+          "version": "0.0.1"
+        }
+      }
+      @socket.emit "message", message
+      @socket.disconnect()
+      #@disconnect()
+      
+      #Utils.postToUrl "logout"
+      #window.location.replace "./"
 
     # Emit panning has stopped
     emitPanStop: ->

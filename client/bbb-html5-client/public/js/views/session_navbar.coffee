@@ -77,6 +77,6 @@ define [
     # Log out of the session
     _logout: ->
       globals.connection.emitLogout()
-      globals.currentAuth = null
+      #globals.currentAuth = null
 
   SessionNavbarView

@@ -74,7 +74,7 @@ module.exports = class RedisPubSub
     #   crash if the message has a bad format
     message = JSON.parse(jsonMsg)
 
-    #log.debug({ pattern: pattern, channel: channel, message: message}, "Received a message from redis")
+    log.debug({ pattern: pattern, channel: channel, message: message}, "Received a message from redis")
 
     # retrieve the request entry
 
@@ -120,7 +120,7 @@ module.exports = class RedisPubSub
       sendToController (message)
 
   publishing: (channel, message) =>
-    console.log '\n Publishing\n'
+    console.log "\n Publishing #{message.header?.name}\n"
     @pubClient.publish(channel, JSON.stringify(message))
 
 sendToController = (message) ->
