@@ -19,7 +19,7 @@ trait LayoutApp {
     
   def handleSetLayoutRequest(msg: SetLayoutRequest) {
     _currentLayoutID = msg.layoutID
-    outGW.send(new SetLayoutEvent(msg.meetingID, recorded, msg.requesterID, _currentLayoutID, _locked, _setByUserID))
+    outGW.send(new SetLayoutEvent(msg.meetingID, recorded, msg.requesterID, _currentLayoutID, _locked, _setByUserID, affectedUsers))
   }
   
   def handleLayoutLockSettings(msg: LayoutLockSettings) {

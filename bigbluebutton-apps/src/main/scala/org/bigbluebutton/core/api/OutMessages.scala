@@ -341,7 +341,8 @@ case class SetLayoutEvent(
     requesterID: String, 
     layoutID: String, 
     locked: Boolean, 
-    setByUserID: String
+    setByUserID: String,
+    applyTo: Array[UserVO]
 ) extends IOutMessage
 
 case class LockLayoutEvent(
