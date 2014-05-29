@@ -264,11 +264,20 @@ package org.bigbluebutton.modules.layout.managers
 			sendLayoutUpdate(_currentLayout);
 		}
 		
+		public function broadcastLayout():void {
+			LogUtil.debug("LayoutManager: layout broadcasted by myself");
+			var e:UpdateLayoutEvent = new UpdateLayoutEvent();
+			e.layout = _currentLayout;
+			e.locked = _locked;
+			_globalDispatcher.dispatchEvent(e);
+		}
+		
 		private function sendLayoutUpdate(layout:LayoutDefinition):void {
 			if (_locked && (UsersUtil.amIModerator() || UsersUtil.amIPresenter())) {
 				LogUtil.debug("LayoutManager: sending layout to remotes");
 				var e:UpdateLayoutEvent = new UpdateLayoutEvent();
 				e.layout = layout;
+				e.locked = _locked;
 				_globalDispatcher.dispatchEvent(e);
 			}
 		}

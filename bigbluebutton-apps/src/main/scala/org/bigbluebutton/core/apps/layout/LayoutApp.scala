@@ -21,10 +21,10 @@ trait LayoutApp {
       outGW.send(new SetLayoutEvent(msg.meetingID, recorded, msg.requesterID, _currentLayoutID, _locked, _setByUserID))
     }
     
-    def handleLockLayoutRequest(msg: LockLayoutRequest) {
-      _locked = true
+    def handleBroadcastLayoutRequest(msg: BroadcastLayoutRequest) {
+      _locked = msg.locked
       _currentLayoutID = msg.layoutID
-      outGW.send(new LockLayoutEvent(msg.meetingID, recorded, msg.requesterID, _currentLayoutID, _locked, _setByUserID))
+      outGW.send(new BroadcastLayoutEvent(msg.meetingID, recorded, msg.requesterID, _currentLayoutID, _locked, _setByUserID))
     }
     
     def handleUnlockLayoutRequest(msg: UnlockLayoutRequest) {

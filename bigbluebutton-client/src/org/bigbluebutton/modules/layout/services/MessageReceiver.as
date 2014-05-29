@@ -10,6 +10,7 @@ package org.bigbluebutton.modules.layout.services
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.managers.UserManager;
+  import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.main.events.ModuleLoadEvent;
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.modules.layout.events.LayoutEvent;
@@ -82,7 +83,7 @@ package org.bigbluebutton.modules.layout.services
         _dispatcher.dispatchEvent(new CoreEvent(EventConstants.REMOTE_UNLOCKED_LAYOUT));
       }
       
-      if (locked && !dispatchedByMe) {
+      if (!dispatchedByMe && !UsersUtil.amIModerator()) {
         LogUtil.debug("LayoutService: handling remote layout");
         LogUtil.debug(layout);
         var layoutDefinition:LayoutDefinition = new LayoutDefinition();

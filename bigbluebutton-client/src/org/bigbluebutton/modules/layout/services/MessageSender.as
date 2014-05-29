@@ -20,13 +20,14 @@ package org.bigbluebutton.modules.layout.services
       );
     }
     
-    public function lockLayout(layout:LayoutDefinition):void {
+    public function broadcastLayout(layout:LayoutDefinition, locked:Boolean):void {
       var message:Object = new Object();
       message["setByUserID"] = UserManager.getInstance().getConference().getMyUserId();
       message["layout"] = layout.toXml().toXMLString();
+      message["locked"] = locked;
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("layout.lock", 
+      _nc.sendMessage("layout.broadcast", 
         function(result:String):void { // On successful result
           LogUtil.debug(result); 
         },	                   

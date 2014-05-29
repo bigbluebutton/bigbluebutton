@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.layout.events
 	{
 		public static const UPDATE_LAYOUT_EVENT:String = 'UPDATE_LAYOUT_EVENT';
 		public var layout:LayoutDefinition;
+		public var locked:Boolean;
 
 		public function UpdateLayoutEvent(type:String=UPDATE_LAYOUT_EVENT, bubbles:Boolean=true, cancelable:Boolean=false)
 		{

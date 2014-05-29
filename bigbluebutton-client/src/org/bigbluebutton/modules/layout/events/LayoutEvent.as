@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.layout.events
 		public static const REMOTE_LOCK_LAYOUT_EVENT:String = 'REMOTE_LOCK_LAYOUT_EVENT';
 		public static const REMOTE_UNLOCK_LAYOUT_EVENT:String = 'REMOTE_UNLOCK_LAYOUT_EVENT';
 
+		public static const BROADCAST_LAYOUT_EVENT:String = 'BROADCAST_LAYOUT_EVENT';
 		public static const LOCK_LAYOUT_EVENT:String = 'LOCK_LAYOUT_EVENT';
 		public static const UNLOCK_LAYOUT_EVENT:String = 'UNLOCK_LAYOUT_EVENT';
 		public static const STOP_LAYOUT_MODULE_EVENT:String = 'STOP_LAYOUT_MODULE_EVENT';

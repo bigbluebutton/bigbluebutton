@@ -52,7 +52,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: SendPrivateMessageRequest     => handleSendPrivateMessageRequest(msg)
         case msg: GetCurrentLayoutRequest       => handleGetCurrentLayoutRequest(msg)
         case msg: SetLayoutRequest              => handleSetLayoutRequest(msg)
-        case msg: LockLayoutRequest             => handleLockLayoutRequest(msg)
+        case msg: BroadcastLayoutRequest        => handleBroadcastLayoutRequest(msg)
         case msg: UnlockLayoutRequest           => handleUnlockLayoutRequest(msg)
         case msg: PreCreatedPoll                => handlePreCreatedPoll(msg)
         case msg: CreatePoll                    => handleCreatePoll(msg)
@@ -144,7 +144,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: SendPrivateMessageEvent       => handleSendPrivateMessageEvent(msg)
         case msg: GetCurrentLayoutReply         => handleGetCurrentLayoutReply(msg)
         case msg: SetLayoutEvent                => handleSetLayoutEvent(msg)
-        case msg: LockLayoutEvent               => handleLockLayoutEvent(msg)
+        case msg: BroadcastLayoutEvent          => handleBroadcastLayoutEvent(msg)
         case msg: UnlockLayoutEvent             => handleUnlockLayoutEvent(msg)
         case msg: GetPollResultReply            => handleGetPollResultReply(msg)
         case msg: GetPollsReplyOutMsg           => handleGetPollsReplyOutMsg(msg)
@@ -644,17 +644,18 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     dispatcher.dispatch(buildJson(header, payload))
   }
   
-  private def handleLockLayoutRequest(msg: LockLayoutRequest) {
+  private def handleBroadcastLayoutRequest(msg: BroadcastLayoutRequest) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
     payload.put(Constants.LAYOUT_ID, msg.layoutID)
+    payload.put(Constants.LOCKED, msg.locked)
     
     val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.LOCK_LAYOUT)
+    header.put(Constants.NAME, MessageNames.BROADCAST_LAYOUT)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
 
-    println("***** DISPATCHING LOCK LAYOUT REQUEST *****************")
+    println("***** DISPATCHING BROADCAST LAYOUT REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1812,7 +1813,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     dispatcher.dispatch(buildJson(header, payload))
   }
   
-  private def handleLockLayoutEvent(msg: LockLayoutEvent) {
+  private def handleBroadcastLayoutEvent(msg: BroadcastLayoutEvent) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
@@ -1822,10 +1823,10 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     payload.put(Constants.SET_BY_USER_ID, msg.setByUserID)
     
     val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.LOCK_LAYOUT_REPLY)
+    header.put(Constants.NAME, MessageNames.BROADCAST_LAYOUT_REPLY)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING LOCK LAYOUT EVENT *****************")
+    println("***** DISPATCHING BROADCAST LAYOUT EVENT *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   

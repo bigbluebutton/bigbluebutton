@@ -73,7 +73,7 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
 	    case msg: UserDisconnectedFromGlobalAudio        => handleUserDisconnectedFromGlobalAudio(msg)
 	    case msg: GetCurrentLayoutRequest                => handleGetCurrentLayoutRequest(msg)
 	    case msg: SetLayoutRequest                       => handleSetLayoutRequest(msg)
-	    case msg: LockLayoutRequest                      => handleLockLayoutRequest(msg)
+	    case msg: BroadcastLayoutRequest                 => handleBroadcastLayoutRequest(msg)
 	    case msg: UnlockLayoutRequest                    => handleUnlockLayoutRequest(msg)
 	    case msg: InitializeMeeting                      => handleInitializeMeeting(msg)
     	case msg: ClearPresentation                      => handleClearPresentation(msg)

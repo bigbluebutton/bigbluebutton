@@ -94,7 +94,7 @@ public interface IBigBlueButtonInGW {
 	// Layout
 	void getCurrentLayout(String meetingID, String requesterID);
 	void setLayout(String meetingID, String requesterID, String layoutID);
-	void lockLayout(String meetingID, String requesterID, String layoutID);
+	void broadcastLayout(String meetingID, String requesterID, String layoutID, Boolean locked);
 	void unlockLayout(String meetingID, String requesterID);
 
 	// Chat

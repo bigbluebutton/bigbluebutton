@@ -32,8 +32,8 @@ package org.bigbluebutton.modules.layout.services
       sender.getCurrentLayout();
 		}
 		
-		public function lockLayout(layout:LayoutDefinition):void {
-      sender.lockLayout(layout);
+		public function broadcastLayout(layout:LayoutDefinition, locked:Boolean):void {
+			sender.broadcastLayout(layout, locked);
 		}
 		
 		public function unlockLayout():void {
