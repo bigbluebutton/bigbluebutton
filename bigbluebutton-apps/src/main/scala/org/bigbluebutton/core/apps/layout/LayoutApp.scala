@@ -22,6 +22,18 @@ trait LayoutApp {
     outGW.send(new SetLayoutEvent(msg.meetingID, recorded, msg.requesterID, _currentLayoutID, _locked, _setByUserID, affectedUsers))
   }
   
+  def handleLayoutLockSettings(msg: LayoutLockSettings) {
+    if (msg.locked) {
+      _locked = true
+      _setByUserID = msg.requesterId
+      outGW.send(new LockLayoutEvent(msg.meetingID, recorded, msg.requesterId, _currentLayoutID, _locked, _setByUserID, affectedUsers))      
+    } else {
+      _locked = false
+      _setByUserID = msg.requesterId
+      outGW.send(new UnlockLayoutEvent(msg.meetingID, recorded, msg.requesterId, _currentLayoutID, _locked, _setByUserID, affectedUsers))      
+    } 
+  }
+  
   def handleBroadcastLayoutRequest(msg: BroadcastLayoutRequest) {
     _locked = msg.locked
     _currentLayoutID = msg.layoutID

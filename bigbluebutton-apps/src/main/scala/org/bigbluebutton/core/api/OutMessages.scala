@@ -355,6 +355,16 @@ case class BroadcastLayoutEvent(
     applyTo: Array[UserVO]
 ) extends IOutMessage
 
+case class LockLayoutEvent(
+    meetingID: String, 
+    recorded: Boolean, 
+    requesterID: String, 
+    layoutID: String, 
+    locked: Boolean, 
+    setByUserID: String,
+    applyTo: Array[UserVO]
+) extends IOutMessage
+
 case class UnlockLayoutEvent(
     meetingID: String, 
     recorded: Boolean, 
