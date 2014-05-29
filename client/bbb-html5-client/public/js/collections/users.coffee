@@ -44,11 +44,6 @@ define [
         ]
         globals.events.trigger("users:user_join", userid, username)
 
-      globals.events.on "connection:user_leave", (userid) =>
-        toDel = @get(userid)
-        @remove(toDel)
-        globals.events.trigger("users:user_leave", userid)
-
       globals.events.on "connection:user_left", (userid) =>
         toDel = @get(userid)
         @remove(toDel)

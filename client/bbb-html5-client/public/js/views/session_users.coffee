@@ -50,9 +50,6 @@ define [
       globals.events.on "users:user_join", (userid, username) =>
         @_addUser(userid, username)
 
-      globals.events.on "users:user_leave", (userid) =>
-        @_removeUserByID(userid)
-
       globals.events.on "users:user_left", (userid) =>
         @_removeUserByID(userid)
 

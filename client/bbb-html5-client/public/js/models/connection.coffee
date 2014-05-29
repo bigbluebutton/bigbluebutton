@@ -251,15 +251,9 @@ define [
           globals.events.trigger("connection:user_join", userid, username)
 
       # Received event when a user leaves
-      @socket.on "user_left_message", (message) =>
-        alert('this is user_left_message')
-        #console.log "message: " + message
+      @socket.on "user_left_message", (message) ->
         userid = message.payload.user.userid
-
-        #should i add a user-left if the client disconnects?!
-        
         globals.events.trigger("connection:user_left", userid)
-
 
       # Received event to set the presenter to a user
       # @param  {string} userID publicID of the user that is being set as the current presenter
@@ -359,7 +353,6 @@ define [
 
     # Logout of the meeting
     emitLogout: ->
-
       message = {
         "payload": {
           "meeting_id": @meetingId
@@ -367,7 +360,7 @@ define [
         },
         "header": {
           "timestamp": new Date().getTime()
-          "name": "user_leaving_request" #vs user_left_message
+          "name": "user_leaving_request"
           "version": "0.0.1"
         }
       }
