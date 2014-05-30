@@ -51,9 +51,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: SendPublicMessageRequest      => handleSendPublicMessageRequest(msg)
         case msg: SendPrivateMessageRequest     => handleSendPrivateMessageRequest(msg)
         case msg: GetCurrentLayoutRequest       => handleGetCurrentLayoutRequest(msg)
-        case msg: SetLayoutRequest              => handleSetLayoutRequest(msg)
         case msg: BroadcastLayoutRequest        => handleBroadcastLayoutRequest(msg)
-        case msg: UnlockLayoutRequest           => handleUnlockLayoutRequest(msg)
         case msg: PreCreatedPoll                => handlePreCreatedPoll(msg)
         case msg: CreatePoll                    => handleCreatePoll(msg)
         case msg: UpdatePoll                    => handleUpdatePoll(msg)
@@ -631,44 +629,28 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     dispatcher.dispatch(buildJson(header, payload))
   }
   
-  private def handleSetLayoutRequest(msg: SetLayoutRequest) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.SET_LAYOUT)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)  
- 
-    println("***** DISPATCHING SET LAYOUT REQUEST *****************")
-    dispatcher.dispatch(buildJson(header, payload))
-  }
-  
   private def handleBroadcastLayoutRequest(msg: BroadcastLayoutRequest) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
-    payload.put(Constants.LAYOUT_ID, msg.layoutID)
-    payload.put(Constants.LOCKED, msg.locked)
-    
+    payload.put(Constants.LAYOUT, msg.layout)
+
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.BROADCAST_LAYOUT)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
 
-    println("***** DISPATCHING BROADCAST LAYOUT REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
-  private def handleUnlockLayoutRequest(msg: UnlockLayoutRequest) {
+  private def handleLockLayoutRequest(msg: LockLayoutRequest) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.USER_ID, msg.setById)
     
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.UNLOCK_LAYOUT)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
 
-    println("***** DISPATCHING UNLOCK LAYOUT REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1390,7 +1372,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.LOCKED, msg.locked)
-    payload.put(Constants.SETTINGS, msg.settings.toString()) //#todo not tested
+    payload.put(Constants.SETTINGS, msg.permissions.toString()) //#todo not tested
 
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.PERMISSION_SETTING_INITIALIZED)
@@ -1403,7 +1385,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   private def handleNewPermissionsSetting(msg: NewPermissionsSetting) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.SETTINGS, msg.settings.toString()) //#todo not tested
+    payload.put(Constants.SETTINGS, msg.permissions.toString()) //#todo not tested
 
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.NEW_PERMISSION_SETTINGS)

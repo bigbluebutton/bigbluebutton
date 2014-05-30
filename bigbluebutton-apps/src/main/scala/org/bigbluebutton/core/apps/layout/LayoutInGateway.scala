@@ -9,15 +9,13 @@ class LayoutInGateway(bbbGW: BigBlueButtonGateway) {
     bbbGW.accept(new GetCurrentLayoutRequest(meetingID, requesterID))
   }
 	
-	def setLayout(meetingID: String, requesterID: String, layoutID: String) {
-	  bbbGW.accept(new SetLayoutRequest(meetingID, requesterID, layoutID))
+	def broadcastLayout(meetingID: String, requesterID: String, layout: String) {
+	  bbbGW.accept(new BroadcastLayoutRequest(meetingID, requesterID, layout))
 	}
 	
-	def broadcastLayout(meetingID: String, requesterID: String, layoutID: String, locked: Boolean) {
-	  bbbGW.accept(new BroadcastLayoutRequest(meetingID, requesterID, layoutID, locked))
-	}
-	
-	def unlockLayout(meetingID: String, requesterID: String) {
-	  bbbGW.accept(new UnlockLayoutRequest(meetingID, requesterID))
+	def lockLayout(meetingID: String, setById: String, 
+	               lock: Boolean, viewersOnly: Boolean,
+                 layout: Option[String]) {
+	  bbbGW.accept(new LockLayoutRequest(meetingID, setById, lock, viewersOnly, layout))
 	}
 }

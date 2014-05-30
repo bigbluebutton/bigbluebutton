@@ -58,14 +58,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
+      import com.asfusion.mate.events.Dispatcher;     
       import flash.events.MouseEvent;
-      import flash.geom.Point;
-      
+      import flash.geom.Point;    
       import flexlib.mdi.containers.MDIWindow;
-      import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
-      
+      import flexlib.mdi.effects.effectsLib.MDIVistaEffects;     
       import mx.collections.ArrayCollection;
       import mx.containers.TitleWindow;
       import mx.controls.Alert;
@@ -73,8 +70,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import mx.core.IFlexDisplayObject;
       import mx.core.UIComponent;
       import mx.events.CloseEvent;
-      import mx.managers.PopUpManager;
-      
+      import mx.managers.PopUpManager;     
       import org.bigbluebutton.common.IBbbModuleWindow;
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
@@ -166,9 +162,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         showFooterOpt = layoutOptions.showFooter;
         if (!showFooterOpt) {
           footerHeight = 0;
-        }
-			
-        
+        }        
       }
 			
 			protected function initializeShell():void {	
@@ -319,9 +313,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}	   			
 	   		}
 
-			private function handleFlashMicSettingsEvent(event:FlashMicSettingsEvent):void {
-//        showEarbudsHeadsetRequired();
-        
+			private function handleFlashMicSettingsEvent(event:FlashMicSettingsEvent):void { 
 				var micSettings:FlashMicSettings = PopUpManager.createPopUp(mdiCanvas, FlashMicSettings, true) as FlashMicSettings;
 				micSettings.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
 					var point1:Point = new Point();
@@ -428,8 +420,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
          
       private function handleAskMicPermissionEvent(event:WebRtcAskMicPermissionEvent):void {
- //       showEarbudsHeadsetRequired();
-        
         var browser:String = event.browser;
         if (browser == "Firefox") {
           var ffBrowser:FirefoxMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, FirefoxMicPermissionImage, true) as FirefoxMicPermissionImage;

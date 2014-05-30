@@ -126,19 +126,13 @@ trait UsersApp {
 	      
   def handleSetLockSettings(msg: SetLockSettings) {
     println("*************** Received new lock settings ********************")
-    if (permissions != msg.settings) {
-      permissions = msg.settings
+    if (!permissionsEqual(msg.settings)) {
+      newPermissions(msg.settings)
       val au = affectedUsers(msg.settings)
       outGW.send(new NewPermissionsSetting(meetingID, msg.setByUser, permissions, au))
-      
-      changeLayout(msg) 
     }    
   }
-  
-  private def changeLayout(msg: SetLockSettings) {
-    this ! new LayoutLockSettings(msg.meetingID, msg.setByUser, permissions.permissions.lockedLayout)
-  }
-  
+    
   def handleInitLockSettings(msg: InitLockSettings) {
     if (! permissionsInited) {
       permissionsInited = true
@@ -151,11 +145,11 @@ trait UsersApp {
     }
   }  
 
-  def affectedUsers(settings: PermissionsSetting):Array[UserVO] = {
+  def affectedUsers(settings: Permissions):Array[UserVO] = {
     val au = ArrayBuffer[UserVO]()
     
     users.getUsers foreach {u =>
-      val nu = u.copy(permissions=settings.permissions)
+      val nu = u.copy(permissions=permissions)
       users.addUser(nu)
         if (! u.presenter && u.role != Role.MODERATOR) {
           au += nu
@@ -215,7 +209,7 @@ trait UsersApp {
       val uvo = new UserVO(msg.userID, ru.externId, ru.name, 
                   ru.role, raiseHand=false, presenter=false, 
                   hasStream=false, locked=false, webcamStream="", 
-                  phoneUser=false, vu, listenOnly=false, permissions.permissions)
+                  phoneUser=false, vu, listenOnly=false, permissions)
   	
 	    users.addUser(uvo)
 					
@@ -260,7 +254,7 @@ trait UsersApp {
           val uvo = new UserVO(webUserId, webUserId, msg.voiceUser.callerName, 
 		                  Role.VIEWER, raiseHand=false, presenter=false, 
 		                  hasStream=false, locked=false, webcamStream="", 
-		                  phoneUser=true, vu, listenOnly=false, permissions.permissions)
+		                  phoneUser=true, vu, listenOnly=false, permissions)
 		  	
 		      users.addUser(uvo)
 		      println("New user joined voice for user [" + uvo.name + "] userid=[" + msg.voiceUser.webUserId + "]")

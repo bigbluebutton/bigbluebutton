@@ -98,8 +98,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
                                       disablePubChat = disablePubChat,
                                       lockedLayout = lockedLayout)
 
-    val ls = new PermissionsSetting(permissions)
-    bbbGW.accept(new SetLockSettings(meetingID, userId, ls))
+    bbbGW.accept(new SetLockSettings(meetingID, userId, permissions))
   }
   
   def initLockSettings(meetingID: String, locked: Boolean, settings: java.util.Map[String, java.lang.Boolean]) {
@@ -119,8 +118,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
                                       disablePubChat = disablePubChat,
                                       lockedLayout = lockedLayout)
 
-    val ls = new PermissionsSetting(permissions)
-    bbbGW.accept(new InitLockSettings(meetingID, locked, ls))
+    bbbGW.accept(new InitLockSettings(meetingID, locked, permissions))
   }
   
   def getLockSettings(meetingId: String, userId: String) {
@@ -341,20 +339,14 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	  layoutGW.getCurrentLayout(meetingID, requesterID)
 	}
 	
-	def setLayout(meetingID: String, requesterID: String, layoutID: String) {
-	  layoutGW.setLayout(meetingID, requesterID, layoutID)
-	}
-
-  def syncLayout(meetingID: String, requesterID: String, layoutID: String) {
-	  layoutGW.setLayout(meetingID, requesterID, layoutID)
-	}
-		
-	def broadcastLayout(meetingID: String, requesterID: String, layoutID: String, locked: java.lang.Boolean) {
-	  layoutGW.broadcastLayout(meetingID, requesterID, layoutID, locked)
+	def broadcastLayout(meetingID: String, requesterID: String, layout: String) {
+	  layoutGW.broadcastLayout(meetingID, requesterID, layout)
 	}
 	
-	def unlockLayout(meetingID: String, requesterID: String) {
-	  layoutGW.unlockLayout(meetingID, requesterID)
+	def lockLayout(meetingId: String, setById: String, 
+	               lock: Boolean, viewersOnly: Boolean,
+                 layout: scala.Option[String]) {
+	    layoutGW.lockLayout(meetingId, setById, lock, viewersOnly, layout)
 	}
 	
 	/*********************************************************************

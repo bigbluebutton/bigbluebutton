@@ -22,10 +22,11 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
                    with WhiteboardApp {  
 
   var permissionsInited = false
-  var permissions = new PermissionsSetting(new Permissions())
+  var permissions = new Permissions()
   var recording = false;
   var muted = false;
   var meetingEnded = false
+
   
   class TimerActor(val timeout: Long, val who: Actor, val reply: String) extends Actor {
     def act {
@@ -72,8 +73,6 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
 	    case msg: UserConnectedToGlobalAudio             => handleUserConnectedToGlobalAudio(msg)
 	    case msg: UserDisconnectedFromGlobalAudio        => handleUserDisconnectedFromGlobalAudio(msg)
 	    case msg: GetCurrentLayoutRequest                => handleGetCurrentLayoutRequest(msg)
-	    case msg: SetLayoutRequest                       => handleSetLayoutRequest(msg)
-	    case msg: LayoutLockSettings                     => handleLayoutLockSettings(msg)
 	    case msg: BroadcastLayoutRequest                 => handleBroadcastLayoutRequest(msg)
 	    case msg: InitializeMeeting                      => handleInitializeMeeting(msg)
     	case msg: ClearPresentation                      => handleClearPresentation(msg)
@@ -165,5 +164,18 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
 
   private def handleGetRecordingStatus(msg: GetRecordingStatus) {
      outGW.send(new GetRecordingStatusReply(meetingID, recorded, msg.userId, recording.booleanValue()))
-  } 
+  }
+  
+  def lockLayout(lock: Boolean) {
+    permissions = permissions.copy(lockedLayout=lock)
+  }
+  
+  def newPermissions(np: Permissions) {
+    permissions = np
+  }
+  
+  def permissionsEqual(other: Permissions):Boolean = {
+    permissions == other
+  }
+  
 }

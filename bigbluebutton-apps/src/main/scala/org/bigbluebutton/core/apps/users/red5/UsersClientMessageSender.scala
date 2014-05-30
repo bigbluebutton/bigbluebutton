@@ -84,11 +84,11 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	
 	private def handleNewPermissionsSetting(msg: NewPermissionsSetting) {
 	  val args = new java.util.HashMap[String, Object]();  
-	  args.put("disableCam", msg.settings.permissions.disableCam:java.lang.Boolean);
-	  args.put("disableMic", msg.settings.permissions.disableMic:java.lang.Boolean);
-	  args.put("disablePrivChat", msg.settings.permissions.disablePrivChat:java.lang.Boolean);
-	  args.put("disablePubChat", msg.settings.permissions.disablePubChat:java.lang.Boolean);
-    args.put("lockedLayout", msg.settings.permissions.lockedLayout:java.lang.Boolean);
+	  args.put("disableCam", msg.permissions.disableCam:java.lang.Boolean);
+	  args.put("disableMic", msg.permissions.disableMic:java.lang.Boolean);
+	  args.put("disablePrivChat", msg.permissions.disablePrivChat:java.lang.Boolean);
+	  args.put("disablePubChat", msg.permissions.disablePubChat:java.lang.Boolean);
+    args.put("lockedLayout", msg.permissions.lockedLayout:java.lang.Boolean);
     
 	  var users = new ArrayList[java.util.HashMap[String, Object]];
       msg.applyTo.foreach(uvo => {		

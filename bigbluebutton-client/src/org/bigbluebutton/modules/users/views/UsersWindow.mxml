@@ -35,8 +35,7 @@
 	<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
+			import com.asfusion.mate.events.Dispatcher;			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
@@ -44,8 +43,7 @@
 			import mx.core.IFlexDisplayObject;
 			import mx.events.ListEvent;
 			import mx.events.MenuEvent;
-			import mx.managers.PopUpManager;
-			
+			import mx.managers.PopUpManager;			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.Role;

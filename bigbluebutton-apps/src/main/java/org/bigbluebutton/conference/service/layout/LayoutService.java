@@ -25,6 +25,7 @@ import org.bigbluebutton.conference.Constants;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.slf4j.Logger;
+import scala.Option;
 
 public class LayoutService {
 	
@@ -37,20 +38,49 @@ public class LayoutService {
 		log.debug("Received get current layout request");
 		application.getCurrentLayout(meetingID, getBbbSession().getInternalUserID());
 	}
-	
-	public void sync(Map<String, Object> message) {
-		String meetingID = Red5.getConnectionLocal().getScope().getName();
-		application.syncLayout(meetingID, getBbbSession().getInternalUserID(), (String) message.get("layout"));
-	}
-	
+		
 	public void broadcast(Map<String, Object> message) {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
-		application.broadcastLayout(meetingID, (String) message.get("setByUserID"), (String) message.get("layout"), (Boolean) message.get("locked"));
+		String newlayout = (String) message.get("layout");
+		Boolean lock = (Boolean) message.get("lock");
+
+		if (newlayout == null || newlayout.isEmpty()) {
+			log.error("Invalid Broadcast Layout message. layout is null or empty.");
+			return;
+		}
+		
+		if (lock == null) {
+			log.error("Invalid Broadcast Layout message. lock in null.");
+			return;
+		}
+			
+		application.broadcastLayout(meetingID, getBbbSession().getInternalUserID(), newlayout);
 	}
 	
-	public void unlock() {
+	public void lock(Map<String, Object> message) {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
-		application.unlockLayout(meetingID, getBbbSession().getInternalUserID());
+		String newlayout = (String) message.get("layout");
+		Boolean lock = (Boolean) message.get("lock");
+		Boolean viewersOnly = (Boolean) message.get("viewersOnly");
+				
+		Option<String> layout;
+		if  (newlayout == null || newlayout.isEmpty()) {
+			layout = Option.empty();
+		} else {
+			layout = scala.Option.apply(newlayout);
+		}
+		
+		if (lock == null) {
+			log.error("Invalid Lock Layout message. lock in null.");
+			return;
+		}
+		
+		if (viewersOnly == null) {
+			log.error("Invalid Lock Layout message. viewersOnly is null");
+			return;
+		}
+		
+		application.lockLayout(meetingID, getBbbSession().getInternalUserID(), lock, viewersOnly, layout);
 	}
 	
 	public void setLayoutApplication(LayoutApplication a) {

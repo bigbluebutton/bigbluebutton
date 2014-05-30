@@ -89,7 +89,7 @@ case object IsAliveMessage extends IOutMessage
 case class PermissionsSettingInitialized(
   meetingID: String, 
   locked: Boolean, 
-  settings: PermissionsSetting,
+  permissions: Permissions,
   applyTo: Array[UserVO],
   version:String = Versions.V_0_0_1
 ) extends IOutMessage
@@ -97,7 +97,7 @@ case class PermissionsSettingInitialized(
 case class NewPermissionsSetting(
   meetingID: String, 
   setByUser: String,
-  settings: PermissionsSetting,
+  permissions: Permissions,
   applyTo: Array[UserVO],
   version:String = Versions.V_0_0_1
 ) extends IOutMessage

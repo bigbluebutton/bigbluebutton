@@ -44,8 +44,11 @@ class LayoutClientMessageSender(service: ConnectionInvokerService) extends OutMe
 	  message.put("setByUserID", msg.setByUserID);
 	  message.put("layout", msg.layoutID);
 	  
-	  var m = new BroadcastClientMessage(msg.meetingID, "remoteUpdateLayout", message);
-	  service.sendMessage(m);
+	  msg.applyTo foreach {u =>
+	    var m = new DirectClientMessage(msg.meetingID, u.userID, "remoteUpdateLayout", message);
+	    service.sendMessage(m);	    
+	  }
+	  
 	}
 	
 	private def handleUnlockLayoutEvent(msg: UnlockLayoutEvent) {
@@ -54,7 +57,9 @@ class LayoutClientMessageSender(service: ConnectionInvokerService) extends OutMe
 	  message.put("setByUserID", msg.setByUserID);
 	  message.put("layout", msg.layoutID);	  
 	  
-	  var m = new BroadcastClientMessage(msg.meetingID, "remoteUpdateLayout", message);
-	  service.sendMessage(m);
+	  msg.applyTo foreach {u =>
+	    var m = new DirectClientMessage(msg.meetingID, u.userID, "remoteUpdateLayout", message);
+	    service.sendMessage(m);	    
+	  };
 	}
 }

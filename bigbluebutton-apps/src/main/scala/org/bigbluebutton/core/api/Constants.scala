@@ -29,6 +29,7 @@ object Constants {
   val ASSIGNED_BY                     = "assigned_by"
   val RECORDING                       = "recording" 
   val LAYOUT_ID                       = "layout_id"
+  val LAYOUT                          = "layout"
   val POLL                            = "poll"
   val POLL_ID                         = "poll_id"
   val FORCE                           = "force"
