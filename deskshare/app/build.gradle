@@ -75,14 +75,14 @@ dependencies {
   providedCompile 'org.apache.mina:mina-integration-jmx:2.0.7@jar'
 	
   // Spring 
-  providedCompile 'org.springframework:spring-web:4.0.0.RELEASE@jar' 
-  providedCompile  'org.springframework:spring-beans:4.0.0.RELEASE@jar'
-  providedCompile 'org.springframework:spring-context:4.0.0.RELEASE@jar'
-  providedCompile 'org.springframework:spring-core:4.0.0.RELEASE@jar'
+  providedCompile 'org.springframework:spring-web:4.0.3.RELEASE@jar' 
+  providedCompile  'org.springframework:spring-beans:4.0.3.RELEASE@jar'
+  providedCompile 'org.springframework:spring-context:4.0.3.RELEASE@jar'
+  providedCompile 'org.springframework:spring-core:4.0.3.RELEASE@jar'
   
   // Red5
-  providedCompile 'org/red5:red5:1.0.2-M1@jar'
-  providedCompile 'org.red5:red5-io:1.0.3@jar'
+  providedCompile 'org/red5:red5:1.0.2@jar'
+	providedCompile 'org.red5:red5-io:1.0.3@jar'
   
   // Logging
   providedCompile 'ch.qos.logback:logback-core:1.0.13@jar'
@@ -94,7 +94,7 @@ dependencies {
 
   // Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
   // Otherwise we get exception on aop utils class not found.
-  providedCompile 'org.springframework:spring-aop:4.0.0.RELEASE@jar'
+  providedCompile 'org.springframework:spring-aop:4.0.3.RELEASE@jar'
   providedCompile 'aopalliance:aopalliance:1.0@jar'
 	        
   // Testing
@@ -106,7 +106,7 @@ dependencies {
   testRuntime 'org.easymock:easymock:2.4@jar'
 	
   // Tunnelling servlet
-  compile 'org.springframework:spring-webmvc:4.0.0.RELEASE@jar'
+  compile 'org.springframework:spring-webmvc:4.0.3.RELEASE@jar'
 		
   compile project(':common')
 	
