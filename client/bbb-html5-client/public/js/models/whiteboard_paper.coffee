@@ -838,6 +838,7 @@ define [
     #Changes the currently displayed page/slide (if any) with this one
     #@param {data} message object containing the "presentation" object
     _displayPage: (data) ->
+      @removeAllImagesFromPaper()
       page = data.payload.currentPage
       @addImageToPaper(page.png_uri, 400, 400) #the dimensions should be modified
 
