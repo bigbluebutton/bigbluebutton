@@ -87,26 +87,23 @@
       dispatcher.dispatchEvent(new FlashMicSettingsEvent(micNames));
     }
         
-    private function startCall():void {
+    private function startCall(mic:Boolean):void {
       /**
       * For echo test even if user has done echo test. This way, user is able to change mics
       * after. (richard mar 28, 2014)
       */
-      // if (options.skipCheck || echoTestDone) {
-      if (options.skipCheck) {
-        trace(LOG + "Calling into voice conference. skipCheck=[" + options.skipCheck + "] echoTestDone=[" + echoTestDone + "]");
-        callIntoVoiceConference();
+      if (mic) {
+        if (options.skipCheck) {
+          trace(LOG + "Calling into voice conference. skipCheck=[" + options.skipCheck + "] echoTestDone=[" + echoTestDone + "]");
+          callIntoVoiceConference();
+        } else {
+          trace(LOG + "Performing echo test. echoTestDone=[" + echoTestDone + "]");
+          doEchoTest();
+        }
       } else {
-        trace(LOG + "Performing echo test. echoTestDone=[" + echoTestDone + "]");
-        doEchoTest();
-      }      
-    }
-    
-    private function autoJoin():void {
-      if (options.autoJoin) {
-        trace(LOG + "Auto joining into conference");
-        startCall();
-      }      
+        trace(LOG + "Flash connecting to listen only voice conference");
+        joinListenOnlyCall();
+      }
     }
        
     private function joinListenOnlyCall():void {
@@ -200,9 +197,7 @@
         usingFlash = false;
       } else {
         usingFlash = true;
-        autoJoin();
       }
-      joinListenOnlyCall();
     }
     
     private function hangup():void {
@@ -282,22 +277,11 @@
       switch (state) {
         case IN_CONFERENCE:
           state = INITED;
-          trace(LOG + "Flash user left voice conference.");
-          dispatcher.dispatchEvent(new FlashLeftVoiceConferenceEvent());
-
-          trace(LOG + "Flash connecting to listen only voice conference");
-          joinListenOnlyCall();
-
           break;
         case ON_LISTEN_ONLY_STREAM:
           state = INITED;
           trace(LOG + "Flash user left the listen only stream.");
-
-          if (usingFlash) {
-              trace(LOG + "Flash reconnecting to the voice conference");
-              startCall();
-          }
-
+		  dispatcher.dispatchEvent(new FlashLeftVoiceConferenceEvent());
           break;
         case IN_ECHO_TEST:
           state = INITED;
@@ -314,12 +298,9 @@
     public function handleJoinVoiceConferenceCommand(event:JoinVoiceConferenceCommand):void {
       trace(LOG + "Handling JoinVoiceConferenceCommand.");
       switch(state) {
-        case ON_LISTEN_ONLY_STREAM:
-          leaveListenOnlyCall();
-          break;
         case INITED:
-          if (usingFlash) {
-            startCall();
+          if (usingFlash || !event.mic) {
+            startCall(event.mic);
           }
           break;
       }
@@ -327,9 +308,8 @@
     
     public function handleLeaveVoiceConferenceCommand(event:LeaveVoiceConferenceCommand):void {
       trace(LOG + "Handling LeaveVoiceConferenceCommand, current state: " + state + ", using flash: " + usingFlash);
-      if (!usingFlash) {
+      if (!usingFlash && state != ON_LISTEN_ONLY_STREAM) {
         // this is the case when the user was connected to webrtc and then leaves the conference
-        joinListenOnlyCall();
         return;
       }
 
@@ -355,7 +335,7 @@
     
     public function handleUseFlashModeCommand():void {
       usingFlash = true;
-      startCall();
+      startCall(true);
     }
   }
 }

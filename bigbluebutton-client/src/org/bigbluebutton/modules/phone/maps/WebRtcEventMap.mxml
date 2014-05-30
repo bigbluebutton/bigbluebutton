@@ -95,7 +95,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </EventHandlers> 
   
   <EventHandlers type="{JoinVoiceConferenceCommand.JOIN_VOICE_CONF}">        
-    <MethodInvoker generator="{WebRtcCallManager}" method="handleJoinVoiceConferenceCommand"/>
+    <MethodInvoker generator="{WebRtcCallManager}" method="handleJoinVoiceConferenceCommand" arguments="{event}"/>
   </EventHandlers> 
   
   <EventHandlers type="{LeaveVoiceConferenceCommand.LEAVE_VOICE_CONF}">        

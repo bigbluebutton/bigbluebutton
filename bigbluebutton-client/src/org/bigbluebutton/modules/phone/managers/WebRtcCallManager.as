@@ -1,10 +1,13 @@
 package org.bigbluebutton.modules.phone.managers
 {
-  import com.asfusion.mate.events.Dispatcher;  
-  import flash.external.ExternalInterface;  
+  import com.asfusion.mate.events.Dispatcher;
+  
+  import flash.external.ExternalInterface;
+  
   import org.bigbluebutton.main.api.JSAPI;
   import org.bigbluebutton.modules.phone.PhoneOptions;
   import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
+  import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
   import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
   import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionEvent;
   import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionToJoinConferenceEvent;
@@ -41,13 +44,6 @@ package org.bigbluebutton.modules.phone.managers
       options = new PhoneOptions();
       if (options.useWebrtcIfAvailable && isWebRtcSupported()) {
         usingWebRtc = true;
-        autoJoin();
-      }
-    }
-
-    private function autoJoin():void {
-      if (options.autoJoin) {
-        handleJoinVoiceConferenceCommand();
       }
     }
     
@@ -111,8 +107,10 @@ package org.bigbluebutton.modules.phone.managers
       dispatcher.dispatchEvent(new WebRtcAskMicPermissionToJoinConferenceEvent(browserType));        
     }
     
-    public function handleJoinVoiceConferenceCommand():void {
-      if (!usingWebRtc) return;
+    public function handleJoinVoiceConferenceCommand(event:JoinVoiceConferenceCommand):void {
+      trace(LOG + "handleJoinVoiceConferenceCommand - usingWebRTC: " + usingWebRtc + ", event.mic: " + event.mic);
+      
+      if (!usingWebRtc || !event.mic) return;
       
       if (options.skipCheck || echoTestDone) {
         joinVoiceConference();
