@@ -179,7 +179,7 @@ package org.bigbluebutton.modules.present.model
           return pres;
         }
       }
-      trace(LOG + "Coulnd not find presentation [" + presId + "].");
+      trace(LOG + "Could not find presentation [" + presId + "].");
       return null;      
     }
   }

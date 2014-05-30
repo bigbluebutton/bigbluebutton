@@ -22,8 +22,6 @@ package org.bigbluebutton.modules.layout.events
 
   public class LayoutEvent extends Event
   {
-    public static const REMOTE_LOCK_LAYOUT_EVENT:String = 'REMOTE_LOCK_LAYOUT_EVENT';
-    public static const REMOTE_UNLOCK_LAYOUT_EVENT:String = 'REMOTE_UNLOCK_LAYOUT_EVENT';
     public static const SYNC_LAYOUT_EVENT:String = 'SYNC_LAYOUT_EVENT';
     public static const BROADCAST_LAYOUT_EVENT:String = 'BROADCAST_LAYOUT_EVENT';
     public static const LOCK_LAYOUT_EVENT:String = 'LOCK_LAYOUT_EVENT';

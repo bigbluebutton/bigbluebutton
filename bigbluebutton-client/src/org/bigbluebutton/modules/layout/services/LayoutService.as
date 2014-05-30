@@ -19,8 +19,9 @@
 package org.bigbluebutton.modules.layout.services
 {
   import flash.events.IEventDispatcher;
-
+  
   import org.bigbluebutton.common.LogUtil;
+  import org.bigbluebutton.modules.layout.events.LockLayoutEvent;
   import org.bigbluebutton.modules.layout.model.LayoutDefinition;
 	
   public class LayoutService
@@ -31,18 +32,17 @@ package org.bigbluebutton.modules.layout.services
     public function getCurrentLayout():void {
       sender.getCurrentLayout();
     }
-
-    public function syncLayout(layout:LayoutDefinition):void {
-      sender.syncLayout(layout);
+		
+    public function broadcastLayout(layout:LayoutDefinition):void {
+      sender.broadcastLayout(layout);
+    }
+		
+    private function handleLockLayoutEvent(e: LockLayoutEvent):void {
+      
     }
     
-		
-    public function broadcastLayout(layout:LayoutDefinition, locked:Boolean):void {
-      sender.broadcastLayout(layout, locked);
-    }
-		
-    public function unlockLayout():void {
-      sender.unlockLayout();
+    private function lockLayout(lock:Boolean, viewersOnly:Boolean, layout:LayoutDefinition=null):void {
+      sender.lockLayout(lock, viewersOnly, layout);
     }
   }
 }

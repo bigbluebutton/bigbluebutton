@@ -45,7 +45,9 @@ package org.bigbluebutton.modules.layout.managers
   import org.bigbluebutton.main.events.ModuleLoadEvent;
   import org.bigbluebutton.main.model.LayoutOptions;
   import org.bigbluebutton.modules.layout.events.LayoutEvent;
+  import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
   import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
+  import org.bigbluebutton.modules.layout.events.LockLayoutEvent;
   import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
   import org.bigbluebutton.modules.layout.events.RemoteSyncLayoutEvent;
   import org.bigbluebutton.modules.layout.events.SyncLayoutEvent;
@@ -67,11 +69,34 @@ package org.bigbluebutton.modules.layout.managers
 		private var _customLayoutsCount:int = 0;
 		private var _serverLayoutsLoaded:Boolean = false;
     private var _comboLayoutCreated:Boolean = false;
+    private var _sendCurrentLayoutUpdateTimer:Timer = new Timer(500,1);
+    private var _applyCurrentLayoutTimer:Timer = new Timer(150,1);
+    
+    /**
+    * If (sync) affects viewers only. 
+    */
+    private var _viewersOnly:Boolean = false;
+    
+    /**
+    * If we sync automatically with other users while the action (move, resize) is done on the
+    * window.
+    */
+    private var _autoSync:Boolean = false;
+    
 		private var _eventsToDelay:Array = new Array(MDIManagerEvent.WINDOW_RESTORE,
 				MDIManagerEvent.WINDOW_MINIMIZE,
 				MDIManagerEvent.WINDOW_MAXIMIZE);
 		
-	
+
+    public function LayoutManager() {
+      _applyCurrentLayoutTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
+        applyLayout(_currentLayout);
+      });
+      _sendCurrentLayoutUpdateTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
+        sendLayoutUpdate(updateCurrentLayout());
+      });
+    }
+    
         /**
          *  There's a race condition when the layouts combo doesn't get populated 
          *  with the server's layouts definition. The problem is that sometimes 
@@ -215,8 +240,7 @@ package org.bigbluebutton.modules.layout.managers
       
     }
     
-		public function applyDefaultLayout():void {   
-      
+		public function applyDefaultLayout():void {         
       var layoutOptions:LayoutOptions = new LayoutOptions();
       layoutOptions.parseOptions();
       var defaultLayout:LayoutDefinition = _layouts.getLayout(layoutOptions.defaultLayout);
@@ -288,6 +312,16 @@ package org.bigbluebutton.modules.layout.managers
 			_detectContainerChange = true;
 		}
 
+    public function handleLockLayoutEvent(e: LockLayoutEvent):void {
+      
+    }
+    
+    
+    public function handleLayoutLockedEvent(e: LayoutLockedEvent):void {
+      _locked = e.locked;
+      checkPermissionsOverWindow();
+    }
+    
 		public function redefineLayout(e:RedefineLayoutEvent):void {
 			var layout:LayoutDefinition = e.layout;
 			applyLayout(layout);
@@ -328,17 +362,35 @@ package org.bigbluebutton.modules.layout.managers
 		}
 		
 		private function onContainerResized(e:ResizeEvent):void {
-
+      /*
+      *	the main canvas has been resized
+      *	while the user is resizing the window, this event is dispatched 
+      *	multiple times, so we use a timer to re-apply the current layout
+      *	only once, when the user finished his action
+      */
+      _applyCurrentLayoutTimer.reset();
+      _applyCurrentLayoutTimer.start();
 		}
 			
 		private function onActionOverWindowFinished(e:MDIManagerEvent):void {
-			if (LayoutDefinition.ignoreWindow(e.window))
-				return;
-				
-			checkPermissionsOverWindow(e.window);
-			if (_detectContainerChange) {
-				_globalDispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.INVALIDATE_LAYOUT_EVENT));
-			}
+      if (LayoutDefinition.ignoreWindow(e.window))
+        return;
+      
+      checkPermissionsOverWindow(e.window);
+      if (_detectContainerChange) {
+        _globalDispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.INVALIDATE_LAYOUT_EVENT));
+        /*
+        * 	some events related to animated actions must be delayed because if it's not the 
+        * 	current layout doesn't get properly updated
+        */
+        if (_eventsToDelay.indexOf(e.type) != -1) {
+          LogUtil.debug("LayoutManager: waiting the end of the animation to update the current layout");
+          _sendCurrentLayoutUpdateTimer.reset();
+          _sendCurrentLayoutUpdateTimer.start();
+        } else {
+          sendLayoutUpdate(updateCurrentLayout());
+        }
+      }
 		}
 		
 		private function updateCurrentLayout(layout:LayoutDefinition=null):LayoutDefinition {

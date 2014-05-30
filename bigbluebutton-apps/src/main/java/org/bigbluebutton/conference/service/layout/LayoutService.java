@@ -42,18 +42,12 @@ public class LayoutService {
 	public void broadcast(Map<String, Object> message) {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String newlayout = (String) message.get("layout");
-		Boolean lock = (Boolean) message.get("lock");
 
 		if (newlayout == null || newlayout.isEmpty()) {
 			log.error("Invalid Broadcast Layout message. layout is null or empty.");
 			return;
 		}
-		
-		if (lock == null) {
-			log.error("Invalid Broadcast Layout message. lock in null.");
-			return;
-		}
-			
+					
 		application.broadcastLayout(meetingID, getBbbSession().getInternalUserID(), newlayout);
 	}
 	

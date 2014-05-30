@@ -141,9 +141,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: SendPublicMessageEvent        => handleSendPublicMessageEvent(msg)
         case msg: SendPrivateMessageEvent       => handleSendPrivateMessageEvent(msg)
         case msg: GetCurrentLayoutReply         => handleGetCurrentLayoutReply(msg)
-        case msg: SetLayoutEvent                => handleSetLayoutEvent(msg)
         case msg: BroadcastLayoutEvent          => handleBroadcastLayoutEvent(msg)
-        case msg: UnlockLayoutEvent             => handleUnlockLayoutEvent(msg)
         case msg: GetPollResultReply            => handleGetPollResultReply(msg)
         case msg: GetPollsReplyOutMsg           => handleGetPollsReplyOutMsg(msg)
         case msg: ClearPollFailed               => handleClearPollFailed(msg)
@@ -1778,23 +1776,6 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     dispatcher.dispatch(buildJson(header, payload))
   }
   
-  private def handleSetLayoutEvent(msg: SetLayoutEvent) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RECORDED, msg.recorded) 
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
-    payload.put(Constants.LAYOUT_ID, msg.layoutID)
-    payload.put(Constants.LOCKED, msg.locked)
-    payload.put(Constants.SET_BY_USER_ID, msg.setByUserID)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.SET_LAYOUT_REPLY)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
-    println("***** DISPATCHING SET LAYOUT EVENT *****************")
-    dispatcher.dispatch(buildJson(header, payload))
-  }
-  
   private def handleBroadcastLayoutEvent(msg: BroadcastLayoutEvent) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
@@ -1812,23 +1793,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     dispatcher.dispatch(buildJson(header, payload))
   }
   
-  private def handleUnlockLayoutEvent(msg: UnlockLayoutEvent) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RECORDED, msg.recorded) 
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
-    payload.put(Constants.LAYOUT_ID, msg.layoutID)
-    payload.put(Constants.LOCKED, msg.locked)
-    payload.put(Constants.SET_BY_USER_ID, msg.setByUserID)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.UNLOCK_LAYOUT_REPLY)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
-    println("***** DISPATCHING UNLOCK LAYOUT EVENT *****************")
-    dispatcher.dispatch(buildJson(header, payload))
-  }
-  
+
   private def handleGetPollResultReply(msg: GetPollResultReply) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)

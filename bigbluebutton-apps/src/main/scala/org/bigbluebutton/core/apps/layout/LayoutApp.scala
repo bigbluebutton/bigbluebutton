@@ -21,6 +21,9 @@ trait LayoutApp {
 	def handleLockLayoutRequest(msg: LockLayoutRequest) {
 	  viewersOnly = msg.viewersOnly
 	  lockLayout(msg.lock)
+	  
+	  outGW.send(new LockLayoutEvent(msg.meetingID, recorded, msg.setById, msg.lock, affectedUsers))
+	  
 	  msg.layout foreach {l=>
 	    currentLayout = l
 	    broadcastSyncLayout(msg.meetingID, msg.setById)

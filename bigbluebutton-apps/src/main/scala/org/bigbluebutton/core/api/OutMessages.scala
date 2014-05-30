@@ -335,16 +335,6 @@ case class GetCurrentLayoutReply(
     setByUserID: String
 ) extends IOutMessage
 
-case class SetLayoutEvent(
-    meetingID: String, 
-    recorded: Boolean, 
-    requesterID: String, 
-    layoutID: String, 
-    locked: Boolean, 
-    setByUserID: String,
-    applyTo: Array[UserVO]
-) extends IOutMessage
-
 case class BroadcastLayoutEvent(
     meetingID: String, 
     recorded: Boolean, 
@@ -358,20 +348,8 @@ case class BroadcastLayoutEvent(
 case class LockLayoutEvent(
     meetingID: String, 
     recorded: Boolean, 
-    requesterID: String, 
-    layoutID: String, 
+    setById: String,
     locked: Boolean, 
-    setByUserID: String,
-    applyTo: Array[UserVO]
-) extends IOutMessage
-
-case class UnlockLayoutEvent(
-    meetingID: String, 
-    recorded: Boolean, 
-    requesterID: String, 
-    layoutID: String, 
-    locked: Boolean, 
-    setByUserID: String,
     applyTo: Array[UserVO]
 ) extends IOutMessage
 

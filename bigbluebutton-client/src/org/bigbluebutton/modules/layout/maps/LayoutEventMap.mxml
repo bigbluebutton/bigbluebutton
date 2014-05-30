@@ -19,10 +19,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
+  <Script>
+    <![CDATA[
+      import org.bigbluebutton.modules.layout.events.LockLayoutEvent;
+      import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
+      import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
+    ]]>
+  </Script>
 	<mx:Script>
 		<![CDATA[
-      import mx.events.FlexEvent;
-      
+      import mx.events.FlexEvent;     
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.modules.layout.events.ComboBoxCreatedEvent;
@@ -89,6 +95,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <MethodInvoker generator="{LayoutManager}" method="broadcastLayout" />
     </EventHandlers>
 
+  <EventHandlers type="{LayoutLockedEvent.LAYOUT_LOCKED}">
+    <MethodInvoker generator="{LayoutManager}" method="handleLayoutLockedEvent" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{LockLayoutEvent.LOCK_LAYOUT}">
+    <MethodInvoker generator="{LayoutService}" method="handleLockLayoutEvent" arguments="{event}" />
+  </EventHandlers>
+  
+  
     <EventHandlers type="{UpdateLayoutEvent.UPDATE_LAYOUT_EVENT}">
    		<MethodInvoker generator="{LayoutService}" method="broadcastLayout" arguments="{[event.layout, event.locked]}" />
     </EventHandlers>
