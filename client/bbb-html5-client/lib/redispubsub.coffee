@@ -103,7 +103,6 @@ module.exports = class RedisPubSub
           pages = presentation.pages
 
           for page in pages
-            console.log "__isCurrent=" + page.current
             if page.current is true
               currentPage = page
 
@@ -111,14 +110,11 @@ module.exports = class RedisPubSub
         message.payload.currentPage = currentPage
         message.payload.presentations = null
         message.header.name = "presentation_page"
-        sendToController(message)
-        console.log "\n\n\nCurrentPage=" + JSON.stringify currentPage
 
       else if message.header?.name is 'presentation_shared_message'
         currentPage = null
         presentation = message.payload?.presentation
         for page in presentation.pages
-          console.log "__isCurrent=" + page.current
           if page.current is true
             currentPage = page
 
@@ -126,11 +122,14 @@ module.exports = class RedisPubSub
         message.payload.currentPage = currentPage
         message.payload.presentation = null
         message.header.name = "presentation_page"
-        sendToController(message)
-        console.log "\n\n\nCurrentPage=" + JSON.stringify currentPage
-      else
-        console.log "  Sending to Controller (In):" + message.header?.name
-        sendToController(message)
+
+      else if message.header?.name is 'presentation_page_changed_message'
+        message.payload.currentPage = message.payload?.page
+        message.payload?.page = null
+        message.header.name = "presentation_page"
+
+      console.log "  Sending to Controller (In):" + message.header?.name
+      sendToController(message)
 
   publishing: (channel, message) =>
     console.log "Publishing #{message.header?.name}"
