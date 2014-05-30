@@ -94,8 +94,23 @@ module.exports = class RedisPubSub
         topic: entry.replyTo.topic
         data: message
     else
-      console.log "  Sending to Controller (In):" + message.header?.name
-      sendToController(message)
+      if message.header?.name is 'get_presentation_info_reply'
+        #filter for the current=true page on the server-side
+        currentPage = null
+        presentations = message.payload?.presentations
+
+        for presentation in presentations
+          pages = presentation.pages
+
+          for page in pages
+            console.log "__isCurrent=" + page.current
+            if page.current is true
+              currentPage = page
+
+        console.log "\n\n\nCurrentPage=" + JSON.stringify currentPage
+      else
+        console.log "  Sending to Controller (In):" + message.header?.name
+        sendToController(message)
 
   publishing: (channel, message) =>
     console.log "Publishing #{message.header?.name}"
