@@ -384,7 +384,6 @@ package org.bigbluebutton.modules.layout.managers
         * 	current layout doesn't get properly updated
         */
         if (_eventsToDelay.indexOf(e.type) != -1) {
-          LogUtil.debug("LayoutManager: waiting the end of the animation to update the current layout");
           _sendCurrentLayoutUpdateTimer.reset();
           _sendCurrentLayoutUpdateTimer.start();
         } else {
@@ -394,7 +393,12 @@ package org.bigbluebutton.modules.layout.managers
 		}
 		
 		private function updateCurrentLayout(layout:LayoutDefinition=null):LayoutDefinition {
-			_currentLayout = (layout != null? layout: LayoutDefinition.getLayout(_canvas, ResourceUtil.getInstance().getString('bbb.layout.combo.customName')));
+      if (layout != null) {
+        _currentLayout = layout;
+      } else {
+        _currentLayout = LayoutDefinition.getLayout(_canvas, ResourceUtil.getInstance().getString('bbb.layout.combo.customName'));
+      }
+
 			return _currentLayout;
 		}
 		

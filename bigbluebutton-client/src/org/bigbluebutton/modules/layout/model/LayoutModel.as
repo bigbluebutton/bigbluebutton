@@ -30,6 +30,7 @@ package org.bigbluebutton.modules.layout.model
         var lay:LayoutDefinition = _layouts.getItemAt(i) as LayoutDefinition;
         l.push(lay.name);
       }
+      return l;
     }
     
   }

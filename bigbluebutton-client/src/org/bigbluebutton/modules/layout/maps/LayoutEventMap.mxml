@@ -19,13 +19,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
-  <Script>
-    <![CDATA[
-      import org.bigbluebutton.modules.layout.events.LockLayoutEvent;
-      import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
-      import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
-    ]]>
-  </Script>
 	<mx:Script>
 		<![CDATA[
       import mx.events.FlexEvent;     
@@ -44,6 +37,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.layout.services.LayoutService;
       import org.bigbluebutton.modules.layout.services.MessageReceiver;
       import org.bigbluebutton.modules.layout.services.MessageSender;
+      import org.bigbluebutton.modules.layout.events.LockLayoutEvent;
+      import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
+      import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
 		]]>
 	</mx:Script>
 
@@ -139,15 +135,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{RemoteSyncLayoutEvent.REMOTE_SYNC_LAYOUT_EVENT}">
     <MethodInvoker generator="{LayoutManager}" method="remoteSyncLayout" arguments="{event}"/>
   </EventHandlers>
-  
-    <EventHandlers type="{LayoutEvent.REMOTE_LOCK_LAYOUT_EVENT}">
-   		<MethodInvoker generator="{LayoutManager}" method="remoteLockLayout" />
-    </EventHandlers>
-	
-    <EventHandlers type="{LayoutEvent.REMOTE_UNLOCK_LAYOUT_EVENT}">
-   		<MethodInvoker generator="{LayoutManager}" method="remoteUnlockLayout" />
-    </EventHandlers>
-	
+  	
     <EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
    		<MethodInvoker generator="{LayoutManager}" method="presenterChanged" />
     </EventHandlers>
