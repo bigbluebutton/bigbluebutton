@@ -267,10 +267,11 @@ define [
       #  console.log "socket on: all_messages" + allMessagesEventObject
       #  globals.events.trigger("connection:all_messages", allMessagesEventObject)
 
-      @socket.on "share_presentation_event", (data) =>
-        console.log "socket on: share_presentation_event"
-        globals.events.trigger("connection:share_presentation_event", data)
-
+      # Change the current slide/page [if any] with the one
+      # contained in the message
+      @socket.on "presentation_page", (message) ->
+        console.log "socket on: presentation_page"
+        globals.events.trigger("connection:display_page", message)
 
     # Emit an update to move the cursor around the canvas
     # @param  {number} x x-coord of the cursor as a percentage of page width

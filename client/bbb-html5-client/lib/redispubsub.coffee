@@ -107,7 +107,13 @@ module.exports = class RedisPubSub
             if page.current is true
               currentPage = page
 
+        #strip off excess data, leaving only the current slide information
+        message.payload.currentPage = currentPage
+        message.payload.presentations = null
+        message.header.name = "presentation_page"
+        sendToController(message)
         console.log "\n\n\nCurrentPage=" + JSON.stringify currentPage
+
       else
         console.log "  Sending to Controller (In):" + message.header?.name
         sendToController(message)
