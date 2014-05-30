@@ -36,6 +36,8 @@ Versions:
 					- Now using Zend coding, naming and style conventions
 					- Refactored methods to accept standardized parameters & match BBB API structure
 					    -- See included samples for usage examples
+   1.4  --  Updated by xaker1
+                    (email : admin [a t ] xaker1 DOT ru)
 */
 
 /* _______________________________________________________________________*/
@@ -60,7 +62,7 @@ class BigBlueButton {
 		$this->_bbbServerBaseUrl 	= CONFIG_SERVER_BASE_URL;		
 	}
 	
-	private function _processXmlResponse($url){
+	private function _processXmlResponse($url, $xml = ''){
 	/* 
 	A private utility method used by other public methods to process XML responses.
 	*/
@@ -71,6 +73,16 @@ class BigBlueButton {
 			curl_setopt( $ch, CURLOPT_URL, $url );
 			curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
 			curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+			if(!empty($xml)){
+				curl_setopt($ch, CURLOPT_HEADER, 0);
+				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+				curl_setopt($ch, CURLOPT_POST, 1);
+				curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                                       'Content-type: application/xml',
+                                       'Content-length: ' . strlen($xml)
+                                     ));
+			}
 			$data = curl_exec( $ch );
 			curl_close( $ch );
 
@@ -79,10 +91,13 @@ class BigBlueButton {
 			else
 				return false;
 		}
+		if(!empty($xml))
+			throw new Exception('Set xml, but curl does not installed.');
+
 		return (simplexml_load_file($url));	
 	}
 	
-	private function _requiredParam($param) {
+	private function _requiredParam($param, $name = '') {
 		/* Process required params and throw errors if we don't get values */
 		if ((isset($param)) && ($param != '')) {
 			return $param;
@@ -91,7 +106,7 @@ class BigBlueButton {
 			throw new Exception('Missing parameter.');
 		}
 		else {
-			throw new Exception(''.$param.' is required.');
+			throw new Exception(''.$name.' is required.');
 		}
 	}
 
@@ -119,8 +134,8 @@ class BigBlueButton {
 		USAGE: 
 		(see $creationParams array in createMeetingArray method.)
 		*/
-		$this->_meetingId = $this->_requiredParam($creationParams['meetingId']);
-		$this->_meetingName = $this->_requiredParam($creationParams['meetingName']);		
+		$this->_meetingId = $this->_requiredParam($creationParams['meetingId'], 'meetingId');
+		$this->_meetingName = $this->_requiredParam($creationParams['meetingName'], 'meetingName');		
 		// Set up the basic creation URL:
 		$creationUrl = $this->_bbbServerBaseUrl."api/create?";
 		// Add params:
@@ -144,7 +159,7 @@ class BigBlueButton {
 		return ( $creationUrl.$params.'&checksum='.sha1("create".$params.$this->_securitySalt) );
 	}
 			
-	public function createMeetingWithXmlResponseArray($creationParams) {
+	public function createMeetingWithXmlResponseArray($creationParams, $xml = '') {
 		/*
 		USAGE: 
 		$creationParams = array(
@@ -162,8 +177,9 @@ class BigBlueButton {
 			'duration' => '0', 			-- Default = 0 which means no set duration in minutes. [number]
 			'meta_category' => '', 		-- Use to pass additional info to BBB server. See API docs to enable.
 		);
+		$xml = '';				-- Use to pass additional xml to BBB server. Example, use to Preupload Slides. See API docs. 
 		*/
-		$xml = $this->_processXmlResponse($this->getCreateMeetingURL($creationParams));
+		$xml = $this->_processXmlResponse($this->getCreateMeetingURL($creationParams), $xml);
 
 		if($xml) {
 			if($xml->meetingID) 
@@ -204,9 +220,9 @@ class BigBlueButton {
 			'webVoiceConf' => ''		-- OPTIONAL - string
 		);
 		*/
-		$this->_meetingId = $this->_requiredParam($joinParams['meetingId']);
-		$this->_username = $this->_requiredParam($joinParams['username']);
-		$this->_password = $this->_requiredParam($joinParams['password']);		
+		$this->_meetingId = $this->_requiredParam($joinParams['meetingId'], 'meetingId');
+		$this->_username = $this->_requiredParam($joinParams['username'], 'username');
+		$this->_password = $this->_requiredParam($joinParams['password'], 'password');		
 		// Establish the basic join URL:
 		$joinUrl = $this->_bbbServerBaseUrl."api/join?";
 		// Add parameters to the URL:
@@ -231,8 +247,8 @@ class BigBlueButton {
 			'password' => 'mp'			-- REQUIRED - The moderator password for the meeting
 		);
 		*/
-		$this->_meetingId = $this->_requiredParam($endParams['meetingId']);
-		$this->_password = $this->_requiredParam($endParams['password']);		
+		$this->_meetingId = $this->_requiredParam($endParams['meetingId'], 'meetingId');
+		$this->_password = $this->_requiredParam($endParams['password'], 'password');		
 		$endUrl = $this->_bbbServerBaseUrl."api/end?";
 		$params = 
 		'meetingID='.urlencode($this->_meetingId).
@@ -272,7 +288,7 @@ class BigBlueButton {
 		/* USAGE: 
 		$meetingId = '1234'		-- REQUIRED - The unique id for the meeting
 		*/
-		$this->_meetingId = $this->_requiredParam($meetingId);	
+		$this->_meetingId = $this->_requiredParam($meetingId, 'meetingId');	
 		$runningUrl = $this->_bbbServerBaseUrl."api/isMeetingRunning?";
 		$params = 
 		'meetingID='.urlencode($this->_meetingId);
@@ -363,8 +379,8 @@ class BigBlueButton {
 			'password' => 'mp'			-- REQUIRED - The moderator password for the meeting
 		);
 		*/
-		$this->_meetingId = $this->_requiredParam($infoParams['meetingId']);
-		$this->_password = $this->_requiredParam($infoParams['password']);	
+		$this->_meetingId = $this->_requiredParam($infoParams['meetingId'], 'meetingId');
+		$this->_password = $this->_requiredParam($infoParams['password'], 'password');	
 		$infoUrl = $this->_bbbServerBaseUrl."api/getMeetingInfo?";
 		$params = 
 		'meetingID='.urlencode($this->_meetingId).
