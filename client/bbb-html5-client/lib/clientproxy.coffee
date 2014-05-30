@@ -49,7 +49,7 @@ module.exports = class ClientProxy
     callback?()
 
   _handleClientDisconnected: (socket) ->
-    console.log "\n\n trying to disconnect"
+    console.log "\ntrying to disconnect"
 
     #if socket.userId?
     #  log.info("User [#{socket.userId}] has disconnected.")

@@ -58,7 +58,7 @@ module.exports = class RedisPubSub
     # put the entry in the hash so we can match the response later
     @pendingRequests[correlationId] = entry
     message.header.reply_to = correlationId
-    console.log("\n\nmessage=" + JSON.stringify(message) + "\n\n")
+    console.log "\n  Waiting for a reply on:" + JSON.stringify(message)
     log.info({ message: message, channel: config.redis.channels.toBBBApps.meeting}, "Publishing a message")
     @pubClient.publish(config.redis.channels.toBBBApps.meeting, JSON.stringify(message))
 
@@ -73,12 +73,16 @@ module.exports = class RedisPubSub
     # TODO: this has to be in a try/catch block, otherwise the server will
     #   crash if the message has a bad format
     message = JSON.parse(jsonMsg)
+    correlationId = message.payload?.reply_to or message.header?.reply_to
 
-    log.debug({ pattern: pattern, channel: channel, message: message}, "Received a message from redis")
+    unless message.header?.name is "keep_alive_reply"
+      console.log "\nchannel=" + channel
+      console.log "correlationId=" + correlationId if correlationId?
+      console.log "eventType=" + message.header?.name + "\n"
+      log.debug({ pattern: pattern, channel: channel, message: message}, "Received a message from redis")
 
     # retrieve the request entry
 
-    correlationId = message.payload?.reply_to or message.header?.reply_to
     if correlationId? and @pendingRequests?[correlationId]?
       entry = @pendingRequests[correlationId]
       # make sure the message in the timeout isn't triggered by clearing it
@@ -90,37 +94,11 @@ module.exports = class RedisPubSub
         topic: entry.replyTo.topic
         data: message
     else
-      #sendToController(message)
-
-
-    unless message.header?.name is "keep_alive_reply"
-      console.log "\nchannel=" + channel
-      console.log "correlationId=" + correlationId
-      console.log "pattern=" + pattern
-      console.log "eventType=" + message.header?.name + "\n"
-
-    if message.header?.name is 'get_users_reply'
-      console.log 'got a reply from bbb-apps for get users'
+      console.log "  Sending to Controller (In):" + message.header?.name
       sendToController(message)
-
-    else if message.header?.name is 'get_chat_history_reply'
-      console.log 'got a reply from bbb-apps for chat history'
-      sendToController(message)
-
-    else if message.header?.name is 'send_public_chat_message'
-      console.log "just got a public chat message :" + JSON.stringify message
-      sendToController (message)
-
-    else if message.header?.name is 'user_joined_message'
-      console.log "\njust got a user_joined message :" + JSON.stringify message
-      sendToController (message)
-
-    else if message.header?.name is 'user_left_message'
-      console.log "\njust got a user_left_message :" + JSON.stringify message
-      sendToController (message)
 
   publishing: (channel, message) =>
-    console.log "\n Publishing #{message.header?.name}\n"
+    console.log "Publishing #{message.header?.name}"
     @pubClient.publish(channel, JSON.stringify(message))
 
 sendToController = (message) ->
