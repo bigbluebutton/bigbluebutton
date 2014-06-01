@@ -1,10 +1,8 @@
 package org.bigbluebutton.modules.polling.managers
 {
 
-	import com.asfusion.mate.events.Dispatcher;
-	
-	import flash.events.IEventDispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
+	import flash.events.IEventDispatcher;	
 	import org.bigbluebutton.modules.polling.events.CreatePollEvent;
 	import org.bigbluebutton.modules.polling.events.GetPollsEvent;
 	import org.bigbluebutton.modules.polling.model.PollingModel;
@@ -28,7 +26,7 @@ package org.bigbluebutton.modules.polling.managers
 		}
 		
     public function handleStartModuleEvent(module:PollingModule):void {
-      
+      trace(LOGNAME + " Started ";
     }
     
     public function handleInitPollModuleEvent():void {

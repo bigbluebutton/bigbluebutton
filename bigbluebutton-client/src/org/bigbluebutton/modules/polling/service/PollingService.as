@@ -38,7 +38,7 @@ package org.bigbluebutton.modules.polling.service
     public var dataService:IPollDataService;
 
 		public function handleStartModuleEvent(module:PollingModule):void {
-
+       trace(LOG + " module started event");
 		}
 		
     public function handleGetPollsEvent(event:GetPollsEvent):void {
