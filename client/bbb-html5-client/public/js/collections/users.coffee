@@ -36,13 +36,13 @@ define [
         globals.events.trigger("users:load_users", users)
 
       globals.events.on "connection:user_join", (userid, username) =>
-        console.log "users.coffee: on(connection:user_join)" + username
-        @add [
-          id : userid
-          userid: userid
-          username: username
-        ]
-        globals.events.trigger("users:user_join", userid, username)
+        unless @get(userid)? #check if the user is already present
+          @add [
+            id : userid
+            userid: userid
+            username: username
+          ]
+          globals.events.trigger("users:user_join", userid, username)
 
       globals.events.on "connection:user_left", (userid) =>
         toDel = @get(userid)
