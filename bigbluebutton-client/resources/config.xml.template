@@ -1,6 +1,6 @@
-<?xml version="1.0" ?>
+<?XMl version="1.0" ?>
 <config>
-    <localeversion suppressWarning="false">0.8</localeversion>
+    <Localeversion suppressWarning="false">0.8</localeversion>
     <version>VERSION</version>
     <help url="http://HOST/help.html"/>
     <javaTest url="http://HOST/testjava.html"/>
@@ -73,7 +73,8 @@
 			displayAvatar = "false"
 			focusTalking = "false"
 			glowColor = "0x4A931D"
-			glowBlurSize = "30.0"	
+			glowBlurSize = "30.0"
+			priorityRatio = "0.67"	
 		/>
 		
 		<module name="WhiteboardModule" url="http://HOST/client/WhiteboardModule.swf?v=4105" 
