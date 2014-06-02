@@ -169,7 +169,8 @@ package org.bigbluebutton.modules.sharednotes.views.components {
 			restoreCursor(lastEnd, oldPosition, oldVerticalPosition);
 			this.validateNow();
 			textField.selectable = true;
-			textField.setSelection(lastBegin, lastEnd);
+			// textField.stage.focus = InteractiveObject(textField);
+			textField.setSelection(lastBegin, lastEnd);	
 			this.validateNow();
 		}
 	}
