@@ -4,11 +4,16 @@ package org.bigbluebutton.modules.phone.managers
   
   import flash.external.ExternalInterface;
   
+  import mx.controls.Alert;
+  import mx.events.CloseEvent;
+  
   import org.bigbluebutton.main.api.JSAPI;
   import org.bigbluebutton.modules.phone.PhoneOptions;
+  import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
   import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
   import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
   import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
+  import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
   import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionEvent;
   import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionToJoinConferenceEvent;
   import org.bigbluebutton.modules.phone.events.WebRtcAskUserToChangeMicEvent;
@@ -21,6 +26,18 @@ package org.bigbluebutton.modules.phone.managers
   {
     private static const LOG:String = "Phone::WebRtcCallManager - ";
     
+	private static const INITED:int = 0;
+	private static const DO_ECHO_TEST:int = 1;
+	private static const CALLING_INTO_ECHO_TEST:int = 2;
+	private static const IN_ECHO_TEST:int = 3;
+	private static const JOIN_VOICE_CONFERENCE:int = 4;
+	private static const CALLING_INTO_CONFERENCE:int = 5;
+	private static const IN_CONFERENCE:int = 6;
+	private static const STOP_ECHO_THEN_JOIN_CONF:int = 7;
+	private static const ECHO_TEST_FAILED:int = 8;
+	
+	private var state:int = INITED;
+	
     private var browserType:String = "unknown";
     private var dispatcher:Dispatcher = new Dispatcher();
     private var echoTestDone:Boolean = false;
@@ -48,6 +65,7 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     private function startWebRtcEchoTest():void {
+	  state = CALLING_INTO_ECHO_TEST;
       ExternalInterface.call("startWebrtcAudioTest");
     }
     
@@ -67,12 +85,14 @@ package org.bigbluebutton.modules.phone.managers
       dispatcher.dispatchEvent(new WebRtcRemoveAskMicPermissionEvent());
     }
     
-    public function handleWebRtcEchoTestStarted():void {     
+    public function handleWebRtcEchoTestStarted():void {
+	  state = DO_ECHO_TEST;
       hideMicPermission();
       dispatcher.dispatchEvent(new WebRtcEchoTestStartedEvent());
     }
     
     public function handleWebRtcEchoTestNoAudioEvent():void {
+	  state = ECHO_TEST_FAILED;
       endEchoTest();
       hideMicPermission();
       if (browserType == "Firefox") {
@@ -83,6 +103,7 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     public function handleWebRtcEchoTestHasAudioEvent():void {
+	  state = STOP_ECHO_THEN_JOIN_CONF;
       endEchoTest();
       /**
        * Force echo test even if user has done echo test. This way, user is able to change mics
@@ -93,16 +114,20 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     public function handleWebRtcConfCallStartedEvent():void {
+	  trace(LOG + "setting state to IN_CONFERENCE");
+	  state = IN_CONFERENCE;
       hideMicPermission();
       dispatcher.dispatchEvent(new WebRtcCallConnectedEvent());
     }
     
     public function handleWebRtcConfCallEndedEvent():void {
+	  state = INITED;
       hideMicPermission();
       dispatcher.dispatchEvent(new WebRtcCallDisconnectedEvent());
     }
     
     private function joinVoiceConference():void {
+	  state = JOIN_VOICE_CONFERENCE;
       ExternalInterface.call("joinWebRtcVoiceConference");
       dispatcher.dispatchEvent(new WebRtcAskMicPermissionToJoinConferenceEvent(browserType));        
     }
@@ -122,18 +147,41 @@ package org.bigbluebutton.modules.phone.managers
     
     public function handleLeaveVoiceConferenceCommand():void {
       if (!usingWebRtc) return;
-      
+      state = INITED;
       ExternalInterface.call("leaveWebRtcVoiceConference");
     }
     
+	public function handleBecomeViewer():void {
+		trace(LOG + "handleBecomeViewer received");
+		if (!usingWebRtc || state != IN_CONFERENCE) return;
+		
+		trace(LOG + "handleBecomeViewer leaving WebRTC and joining listen only stream");
+		ExternalInterface.call("leaveWebRtcVoiceConference");
+		
+		var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
+		command.mic = false;
+		dispatcher.dispatchEvent(command);
+	}
+	
     public function handleUseFlashModeCommand():void {
       usingWebRtc = false;
       hangup();
     }
 
     public function handleWebrtcEchoTestFailedEvent(reason:String):void {
+	  state = INITED;
       endEchoTest();
       hideMicPermission();
+	  var alert:Alert = Alert.show("Could not connect with WebRTC with reason: " + reason + " +. Do you want to try Flash instead?", "WebRTC Connection Failed", Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
+	  //alert.
     }
+	
+	private function handleCallFailedUserResponse(e:CloseEvent):void {
+	  if (e.detail == Alert.YES){
+		  dispatcher.dispatchEvent(new UseFlashModeCommand());
+	  } else {
+		  dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION));
+	  }
+	}
   }
 }
