@@ -68,23 +68,23 @@ trait UsersApp {
         //send the reply
         outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true, msg.correlationId))
 
-        //join the user
-        handleUserJoin(new UserJoining(meetingID, msg.userId))
+        //send the list of users in the meeting
+        outGW.send(new GetUsersReply(meetingID, msg.userId, users.getUsers))
 
         //send chat history
         this ! (new GetChatHistoryRequest(meetingID, msg.userId, replyTo))
 
-        //send the list of users in the meeting
-        outGW.send(new GetUsersReply(meetingID, msg.userId, users.getUsers))
+        //join the user
+        handleUserJoin(new UserJoining(meetingID, msg.userId))
 
         //send the presentation
         this ! (new GetPresentationInfo(meetingID, msg.userId, replyTo))
 
         //send the whiteboard
-        //TODO
+        //this ! (new GetWhiteboardShapesNoIdRequest(meetingID, msg.userId, replyTo))
       }
       case None => outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, false, msg.correlationId))
-    }  
+    }
   }
   
   def handleRegisterUser(msg: RegisterUser) {

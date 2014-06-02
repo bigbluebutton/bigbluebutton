@@ -40,12 +40,13 @@ define [
       globals.events.on "users:user_list_change", (users) =>
         @_removeAllUsers()
         for userBlock in users
+          alert("on user_list_change; adding user:" + JSON.stringify userBlock)
           @_addUser(userBlock.id, userBlock.name)
 
       globals.events.on "users:load_users", (users) =>
         @_removeAllUsers()
         for userBlock in users
-          @_addUser(userBlock.id, userBlock.name)
+          @_addUser(userBlock.userid, userBlock.name)
 
       globals.events.on "users:user_join", (userid, username) =>
         @_addUser(userid, username)
@@ -63,19 +64,22 @@ define [
     # Removes all a user from the list #TODO - for now it does not remove but moves to the left hand side
     _removeUserByID: (userID)->
       @$("#user-"+userID).remove()
+      #@$("#user-"+userID).parent().context.hidden = "true"
+      #console.log @$el.children("ul")
 
     # Add a user to the screen.
     _addUser: (userID, username) ->
-      data =
-        username: username
-        userID: userID
+      if userID? and username?
+        data =
+          username: username
+          userID: userID
 
-      compiledTemplate = _.template(userTemplate, data)
+        compiledTemplate = _.template(userTemplate, data)
 
-      # TODO!!!! only add the new element if it doesn't exist yet
-      # this will resolve the problem of users displayed multiple times in the userlist
+        # TODO!!!! only add the new element if it doesn't exist yet
+        # this will resolve the problem of users displayed multiple times in the userlist
 
-      @$el.children("ul").append compiledTemplate
+        @$el.children("ul").append compiledTemplate
 
     # Marks a user as selected when clicked.
     _userClicked: (e) ->

@@ -46,8 +46,9 @@ define [
 
       globals.events.on "connection:user_left", (userid) =>
         toDel = @get(userid)
-        @remove(toDel)
-        globals.events.trigger("users:user_left", userid)
+        if toDel? # only remove if the user model was found
+          @remove(toDel)
+          globals.events.trigger("users:user_left", userid)
 
       globals.events.on "connection:setPresenter", (userid) =>
         globals.events.trigger("users:setPresenter", userid)

@@ -241,14 +241,9 @@ define [
 
       # Received event for a new user
       @socket.on "user_joined_message", (message) =>
-        requesterId = message.payload?.requester_id
-
-        # the requesting user will get the update in the userlist through
-        # get_users_reply. Therefore this is only for the rest of the users
-        unless(requesterId is @userId)
-          userid = message.payload.user.userid
-          username = message.payload.user.name
-          globals.events.trigger("connection:user_join", userid, username)
+        userid = message.payload.user.userid
+        username = message.payload.user.name
+        globals.events.trigger("connection:user_join", userid, username)
 
       # Received event when a user leaves
       @socket.on "user_left_message", (message) ->
