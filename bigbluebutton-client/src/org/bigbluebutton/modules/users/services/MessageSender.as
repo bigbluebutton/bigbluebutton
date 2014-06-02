@@ -20,6 +20,7 @@ package org.bigbluebutton.modules.users.services
 {
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
+  import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.managers.ConnectionManager;
   import org.bigbluebutton.main.model.users.IMessageListener;
   
@@ -325,29 +326,19 @@ package org.bigbluebutton.modules.users.services
 */
     }
     
-    public function saveLockSettings(newLockSettings:Object):void{
-      
-      return;
-/*      
-      var nc:NetConnection = _module.connection;
-      nc.call(
-        "lock.setLockSettings",// Remote function name
-        new Responder(
-          function(result:Object):void { 
-            
-          },	
-          function(status:Object):void { 
-            LogUtil.error("Error occurred:"); 
-            for (var x:Object in status) { 
-              LogUtil.error(x + " : " + status[x]); 
-            } 
-          }
-        )//new Responder
-        ,
+    public function saveLockSettings(newLockSettings:Object):void{   
+      trace("Sending setLockSettings.");
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "lock.setLockSettings",
+        function(result:String):void { // On successful result
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void { // status - On error occurred
+          LogUtil.error(status); 
+        },
         newLockSettings
-      ); //_netConnection.call
-      
-*/
+      );      
     }
   }
 }

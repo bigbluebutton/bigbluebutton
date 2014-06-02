@@ -174,7 +174,7 @@
 						}
 						
 					} else {
-						if(data.userLocked && UserManager.getInstance().getConference().getLockSettings().getDisableMic()) {
+						if (data.userLocked && UserManager.getInstance().getConference().getLockSettings().getDisableMic()) {
 							muteImg.visible = true;
 							muteImg.includeInLayout = true;
 							muteBtn.visible = false;
@@ -194,12 +194,7 @@
 					}
 					
 					//If it's not a moderator, it always can be locked.
-					//If it's a moderator and moderator locking is eanbled, it can be locked
-					//If it's a moderator and moderator locking is disabeld, it can be unlocked
-					if(	data.role != BBBUser.MODERATOR 
-						|| (data.role == BBBUser.MODERATOR && UserManager.getInstance().getConference().getLockSettings().getAllowModeratorLocking())
-						|| (data.role == BBBUser.MODERATOR && !UserManager.getInstance().getConference().getLockSettings().getAllowModeratorLocking() && data.userLocked == true)
-					){
+					if(	data.role != BBBUser.MODERATOR  && data.userLocked == true){
 						lockImg.visible = !rolledOver;
 						lockImg.includeInLayout = !rolledOver;
 						lockBtn.visible = rolledOver;
@@ -230,7 +225,7 @@
 						webcamBtn.visible = false;
 						webcamBtn.includeInLayout = false;
 					}
-					
+
 					if (!rolledOver) {
 						if (!data.voiceJoined && data.listenOnly) {
 							muteImg.source = images.sound;
@@ -242,10 +237,9 @@
 						}
 						
 						
-						if (data.userLocked)
+						if ((data.role != Role.MODERATOR && !data.presenter) && 
+                (data.disableMyCam || data.disableMyMic || data.disableMyPrivateChat || data.disableMyPublicChat))
 							lockImg.source = images.locked_20;
-							//else if (moderator)
-							//	lockImg.source = images.unlocked_20;
 						else
 							lockImg.source = null;
 					} else {

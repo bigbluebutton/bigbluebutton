@@ -18,18 +18,16 @@ module.exports = class ClientProxy
     @io = socketio.listen(app)
     @io.set('log level', 1)
     @io.sockets.on 'connection', (socket) =>
-      console.log "\n\n\n\n I got a connection message\n\n"
       log.debug({ client: socket.id }, "Client has connected.")
       socket.on 'message', (jsonMsg) =>
-        log.debug({ message: jsonMsg }, "Received message")
+        log.debug({ message: jsonMsg }, "Received message") # TODO to check whether only 'message' works or 'djhkwa' too
         @_handleMessage(socket, jsonMsg)
       socket.on 'disconnect', =>
-        console.log "\n\n\n I got a disconnection message\n\n"
         @_handleClientDisconnected socket
 
   # Sends a message in `data` to all the clients that should receive it.
   sendToClients: (data, callback) ->
-    log.debug({ data: data }, "Sending to client")
+    #log.debug({ data: data }, "Sending to client")
     
     # the channel can be the user_id (send to one user only) or the meeting_id
     # (send to everyone in the meeting)
@@ -42,8 +40,9 @@ module.exports = class ClientProxy
     # clients = @io.sockets.clients(channel)
     # console.log "Found", clients?.length, "clients for the channel", channel
 
-    log.debug({ channel: channel, eventName: eventName, message: data, clientCount: clients?.length },
-      "Sending message to websocket clients")
+    #log.debug({ channel: channel, eventName: eventName, message: data, clientCount: clients?.length },
+    #  "Sending message to websocket clients")
+
     # TODO: if `channel` is undefined, it should not send the message,
     #   instead if is sending to all users
     @io.sockets.in(channel).emit(eventName, data)
@@ -59,15 +58,17 @@ module.exports = class ClientProxy
     else
       log.error({ message: message }, "Invalid message.")
 
-  _handleValidMessage: (socket, message) ->
+  _handleValidMessage: (socket, message) =>
     switch message.header.name
       when 'validate_auth_token'
         @_handleLoginMessage socket, message
+      when 'send_public_chat_message'
+        @controller.sendingChat message
       else
         log.error({ message: message }, 'Unknown message name.')
 
   _handleLoginMessage: (socket, data) ->
-    @controller.processAuthMessage data, (err, result) ->
+    @controller.processAuthMessage(data, (err, result) ->
       if err?
         log.debug({ message: result }, "Sending authentication not OK to user and disconnecting socket")
         sendMessageToClient(socket, result)
@@ -84,6 +85,7 @@ module.exports = class ClientProxy
 
         log.debug({ message: result }, "Sending authentication OK reply to user")
         sendMessageToClient(socket, result)
+    )
 
 sendMessageToClient = (socket, message) ->
   socket.emit(MESSAGE, message)

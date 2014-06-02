@@ -12,10 +12,11 @@ define [
       @socket = null
       @host = window.location.protocol + "//" + window.location.host
 
+      # Grab pieces of info from the URL
       @authToken = @getUrlVars()["auth_token"]
       @userId = @getUrlVars()["user_id"]
       @meetingId = @getUrlVars()["meeting_id"]
-
+      @username = @getUrlVars()["username"]
 
     disconnect: ->
       if @socket?
@@ -25,22 +26,17 @@ define [
         console.log "tried to disconnect but it's not connected"
 
     connect: ->
-      
       console.log("user_id=" + @userId + " auth_token=" + @authToken + " meeting_id=" + @meetingId)
       unless @socket?
         console.log "connecting to the socket.io server", @host
-        @socket = io.connect()# 2 channels for mass message or indiv (or better??)
+        @socket = io.connect()
 
-        #@individual = io.connect()
-
-        #@group = io.connect()
+        # a1 - just a random 
+        #@socket = io.connect('#{@host}/a1/#{meetingId}/#{userId}') #TODO
 
         @_registerEvents()
       else
         console.log "tried to connect but it's already connected"
-
-    # authenticate: (userId, meetingId) ->
-    #   @socket.emit "message", message
 
     emit: (data) ->
       if @isConnected()
@@ -70,20 +66,41 @@ define [
 
         message = {
           "payload": {
-              "auth_token": @authToken
-              "userid": @userId
-              "meeting_id": @meetingId
+            "auth_token": @authToken
+            "userid": @userId
+            "meeting_id": @meetingId
           },
           "header": {
-              "timestamp": new Date().getTime()
-              "name": "validate_auth_token"
+            "timestamp": new Date().getTime()
+            "name": "validate_auth_token"
           }
         }
 
-        validFields = @authToken? and @userId? and @meetingId?
+        #emit the validate_auth_token json message if the fields have been populated
+        if @authToken? and @userId? and @meetingId?
+          @socket.emit "message", message
 
-        #emit the validate token json message
-        @socket.emit "message", message if validFields
+      @socket.on "get_users_reply", (message) =>
+        users = []
+        for user in message.payload?.users
+          users.push user
+
+        globals.events.trigger("connection:load_users", users)
+
+      @socket.on "get_chat_history_reply", (message) =>
+        requesterId = message.payload?.requester_id
+
+        #console.log("my_id=" + @userId + ", while requester_id=" + requesterId)
+        if(requesterId is @userId)
+          globals.events.trigger("connection:all_messages", message.payload?.chat_history)
+
+      # Received event for a new public chat message
+      # @param  {object} message object
+      @socket.on "send_public_chat_message", (message) ->
+        console.log 'got this message:' + JSON.stringify message
+        username = message.payload.message.from_username
+        text = message.payload.message.message
+        globals.events.trigger("connection:msg", username, text)
 
       # Received event to logout yourself
       @socket.on "logout", ->
@@ -227,22 +244,6 @@ define [
         console.log "socket on: user list change"
         globals.events.trigger("connection:user_list_change", users)
 
-      # TODO: event name with spaces is bad
-      ###@socket.on "loadUsers", (loadUsersEventObject) =>
-        users = loadUsersEventObject.usernames
-        console.log "socket on: loadUsers" + loadUsersEventObject
-        globals.events.trigger("users:loadUsers", users)###
-
-      # Received event for a new user
-      @socket.on "UserJoiningRequest", (message) => #TODO MUST REMOVE WHEN NOT USED ANYMORE
-        #console.log "socket on: UserJoiningRequest"
-        #console.log message
-        #eventObject = JSON.parse(message);
-        console.log "message: " + message
-        userid = message.user.metadata.userid #TODO change to new json structure
-        username = message.user.name #TODO change to new json structure
-        globals.events.trigger("connection:user_join", userid, username)
-
       # Received event for a new user
       @socket.on "user_joined_event", (message) =>
         console.log "message: " + message
@@ -256,31 +257,17 @@ define [
         userid = message.payload.user.id
         globals.events.trigger("connection:user_left", userid)
 
-      # Received event when a user leave
-      @socket.on "user leave", (userid) =>
-        console.log "socket on: user leave"
-        globals.events.trigger("connection:user_leave", userid)
-
       # Received event to set the presenter to a user
       # @param  {string} userID publicID of the user that is being set as the current presenter
       @socket.on "setPresenter", (userid) =>
         console.log "socket on: setPresenter"
         globals.events.trigger("connection:setPresenter", userid)
 
-      # Received event for a new public chat message
-      # @param  {string} name name of user
-      # @param  {string} msg  message to be displayed
-      @socket.on "SendPublicChatMessage", (msgEvent) =>
-        console.log "socket on: msg" + msgEvent
-        name = msgEvent.chat.from.name
-        msg = msgEvent.chat.text
-        globals.events.trigger("connection:msg", name, msg)
-
       # Received event to update all the messages in the chat box
       # @param  {Array} messages Array of messages in public chat box
-      @socket.on "all_messages", (allMessagesEventObject) =>
-        console.log "socket on: all_messages" + allMessagesEventObject
-        globals.events.trigger("connection:all_messages", allMessagesEventObject)
+      #@socket.on "all_messages", (allMessagesEventObject) =>
+      #  console.log "socket on: all_messages" + allMessagesEventObject
+      #  globals.events.trigger("connection:all_messages", allMessagesEventObject)
 
       @socket.on "share_presentation_event", (data) =>
         console.log "socket on: share_presentation_event"
@@ -301,8 +288,35 @@ define [
     # Emit a message to the server
     # @param  {string} the message
     emitMsg: (msg) ->
+
       console.log "emitting message: " + msg
-      @socket.emit "msg", msg
+
+      object = {
+        "header": {
+          "name": "send_public_chat_message"
+          "timestamp": new Date().getTime()
+          "version": "0.0.1"
+        }
+        "payload": {
+          "meeting_id": @meetingId
+          "requester_id": @userId
+          "message": {
+            "chat_type": "PUBLIC_CHAT"
+            "message": msg
+            "to_username": "public_chat_username"
+            "from_tz_offset": "240"
+            "from_color": "0"
+            "to_userid": "public_chat_userid"
+            "from_userid": @userId
+            "from_time": "1.400869381346E12"
+            "from_username": @username
+            "from_lang": "en"
+          }
+        }
+      }
+      
+      @socket.emit "message", object
+
 
     # Emit the finish of a text shape
     emitTextDone: ->

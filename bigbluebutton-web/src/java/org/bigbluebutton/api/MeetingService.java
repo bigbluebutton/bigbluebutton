@@ -44,6 +44,7 @@ import org.bigbluebutton.api.messaging.messages.IMessage;
 import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
 import org.bigbluebutton.api.messaging.messages.MeetingEnded;
 import org.bigbluebutton.api.messaging.messages.MeetingStarted;
+import org.bigbluebutton.api.messaging.messages.RegisterUser;
 import org.bigbluebutton.api.messaging.messages.RemoveExpiredMeetings;
 import org.bigbluebutton.api.messaging.messages.UserJoined;
 import org.bigbluebutton.api.messaging.messages.UserLeft;
@@ -60,7 +61,10 @@ public class MeetingService implements MessageListener {
 	private volatile boolean processMessage = false;
 	
 	private final Executor msgProcessorExec = Executors.newSingleThreadExecutor();
-	
+
+	/**
+	 * http://ria101.wordpress.com/2011/12/12/concurrenthashmap-avoid-a-common-misuse/
+	 */
 	private final ConcurrentMap<String, Meeting> meetings;	
 	private final ConcurrentMap<String, UserSession> sessions;
 		
@@ -72,16 +76,17 @@ public class MeetingService implements MessageListener {
 	private boolean removeMeetingWhenEnded = false;
 
 	public MeetingService() {
-		meetings = new ConcurrentHashMap<String, Meeting>();	
-		sessions = new ConcurrentHashMap<String, UserSession>();		
+		meetings = new ConcurrentHashMap<String, Meeting>(8, 0.9f, 1);	
+		sessions = new ConcurrentHashMap<String, UserSession>(8, 0.9f, 1);		
 	}
 	
 	public void addUserSession(String token, UserSession user) {
+		log.debug("Adding user [" + user.fullname + "] token=[" + token + "] to meeting [" + user.meetingID + "]");
 		sessions.put(token, user);
 	}
 	
 	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken) {
-		messagingService.registerUser(meetingID, internalUserId, fullname, role, externUserID, authToken);
+		handle(new RegisterUser(meetingID, internalUserId, fullname, role, externUserID, authToken));
 	}
 	
 	public UserSession getUserSession(String token) {
@@ -89,7 +94,12 @@ public class MeetingService implements MessageListener {
 	}
 	
 	public UserSession removeUserSession(String token) {
-		return sessions.remove(token);
+		log.debug("Removing user token [" + token + "]");
+		UserSession user = sessions.remove(token);
+		if (user != null) {
+			log.debug("Found user [" + user.fullname + "] token=[" + token + "] to meeting [" + user.meetingID + "]");
+		}
+		return user;
 	}
 		
 	/**
@@ -111,7 +121,24 @@ public class MeetingService implements MessageListener {
 	private void processMeetingForRemoval(Meeting m) {
 		kickOffProcessingOfRecording(m);	  		
   	destroyMeeting(m.getInternalId());		  		
-		meetings.remove(m.getInternalId());				
+		meetings.remove(m.getInternalId());		
+		removeUserSessions(m.getInternalId());
+	}
+	
+	private void removeUserSessions(String meetingId) {
+		log.debug("Cleaning up user sessions for meeting [" + meetingId + "]");
+		Iterator<Map.Entry<String, UserSession>> iterator = sessions.entrySet().iterator();
+		while(iterator.hasNext()){
+		   Map.Entry<String, UserSession> entry = iterator.next();		   
+		   UserSession userSession = entry.getValue();
+		   log.debug("Got user [" + userSession.fullname + "] from meeting [" + userSession.conferencename + "]");
+		   if (userSession.meetingID.equals(meetingId)) {
+		  	 log.debug("Removing user [" + userSession.fullname + "] from meeting [" + userSession.conferencename + "]");
+		  	 iterator.remove();
+		   } else {
+		  	 log.debug("Not Removing user [" + userSession.fullname + "] from meeting [" + userSession.conferencename + "]");
+		   }
+		}
 	}
 	
 	private void checkAndRemoveExpiredMeetings() {
@@ -161,6 +188,7 @@ public class MeetingService implements MessageListener {
 
 	private void handleCreateMeeting(Meeting m) {
 		log.debug("Storing Meeting with internal id:" + m.getInternalId());
+		log.debug(" ******************* Storing Meeting with internal id:" + m.getInternalId());
 		meetings.put(m.getInternalId(), m);
 		if (m.isRecord()) {
 			Map<String,String> metadata = new LinkedHashMap<String,String>();
@@ -177,6 +205,10 @@ public class MeetingService implements MessageListener {
 	
 	private void processCreateMeeting(CreateMeeting message) {
 		handleCreateMeeting(message.meeting);
+	}
+	
+	private void processRegisterUser(RegisterUser message) {
+		messagingService.registerUser(message.meetingID, message.internalUserId, message.fullname, message.role, message.externUserID, message.authToken);
 	}
 	
 	public String addSubscription(String meetingId, String event, String callbackURL){
@@ -416,6 +448,8 @@ public class MeetingService implements MessageListener {
 		} else if (message instanceof EndMeeting) {
 			log.info("Processing end meeting request.");
 			processEndMeeting((EndMeeting)message);
+		} else if (message instanceof RegisterUser) {
+			processRegisterUser((RegisterUser) message);
 		}
 	}
 
@@ -443,7 +477,9 @@ public class MeetingService implements MessageListener {
 			    		} catch (InterruptedException e) {
 			    		  // TODO Auto-generated catch block
 			    		  e.printStackTrace();
-			    	  } 
+			    	  } catch (Exception e) {
+			    	  	log.error("Handling unexpected exception [{}]", e.toString());
+			    	  }
 			    	}
 			    }
 			};

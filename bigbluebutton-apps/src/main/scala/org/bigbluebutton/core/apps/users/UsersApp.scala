@@ -1,17 +1,18 @@
  package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.core.api._
-import scala.collection.mutable.HashMap
-import org.bigbluebutton.core.User
-import java.util.ArrayList
-import org.bigbluebutton.core.MeetingActor
+ import scala.collection.mutable.HashMap
+ import org.bigbluebutton.core.User
+ import java.util.ArrayList
+ import org.bigbluebutton.core.MeetingActor
+ import scala.collection.mutable.ArrayBuffer
 
 trait UsersApp {
   this : MeetingActor =>
   
   val outGW: MessageOutGateway
   
-  private val users = new UsersModel
+  val users = new UsersModel
   private var regUsers = new collection.immutable.HashMap[String, RegisteredUser]
   
   private var locked = false
@@ -124,20 +125,45 @@ trait UsersApp {
   }
 	      
   def handleSetLockSettings(msg: SetLockSettings) {
+    println("*************** Received new lock settings ********************")
     if (permissions != msg.settings) {
       permissions = msg.settings
-      outGW.send(new NewPermissionsSetting(meetingID, permissions))
+      val au = affectedUsers(msg.settings)
+      outGW.send(new NewPermissionsSetting(meetingID, msg.setByUser, permissions, au))
+      
+      changeLayout(msg) 
     }    
   }
   
+  private def changeLayout(msg: SetLockSettings) {
+    this ! new LayoutLockSettings(msg.meetingID, msg.setByUser, permissions.permissions.lockedLayout)
+  }
+  
   def handleInitLockSettings(msg: InitLockSettings) {
-    if (permissions != msg.settings || locked != msg.locked) {
-	    permissions = msg.settings   
-	    locked = msg.locked	    
-	    outGW.send(new PermissionsSettingInitialized(msg.meetingID, msg.locked, msg.settings))
+    if (! permissionsInited) {
+      permissionsInited = true
+      if (permissions != msg.settings || locked != msg.locked) {
+	      permissions = msg.settings   
+	      locked = msg.locked	    
+	      val au = affectedUsers(msg.settings)
+	      outGW.send(new PermissionsSettingInitialized(msg.meetingID, msg.locked, msg.settings, au))
+      }      
     }
   }  
 
+  def affectedUsers(settings: PermissionsSetting):Array[UserVO] = {
+    val au = ArrayBuffer[UserVO]()
+    
+    users.getUsers foreach {u =>
+      val nu = u.copy(permissions=settings.permissions)
+      users.addUser(nu)
+        if (! u.presenter && u.role != Role.MODERATOR) {
+          au += nu
+        }
+    }
+    au.toArray
+  }
+  
   def handleUserRaiseHand(msg: UserRaiseHand) {
     users.getUser(msg.userId) foreach {user =>
       val uvo = user.copy(raiseHand=true)
@@ -182,23 +208,26 @@ trait UsersApp {
   }
   
   def handleUserJoin(msg: UserJoining):Unit = {
-    val vu = new VoiceUser(msg.userID, msg.userID, msg.name, msg.name,  
+    val regUser = regUsers.get(msg.userID)
+    regUser foreach { ru =>
+      val vu = new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,  
                            false, false, false, false)
-    val uvo = new UserVO(msg.userID, msg.extUserID, msg.name, 
-                  msg.role, raiseHand=false, presenter=false, 
+      val uvo = new UserVO(msg.userID, ru.externId, ru.name, 
+                  ru.role, raiseHand=false, presenter=false, 
                   hasStream=false, locked=false, webcamStream="", 
                   phoneUser=false, vu, listenOnly=false, permissions.permissions)
   	
-	  users.addUser(uvo)
+	    users.addUser(uvo)
 					
-	  outGW.send(new UserJoined(meetingID, recorded, uvo))
+	    outGW.send(new UserJoined(meetingID, recorded, uvo))
 	
-	  // Become presenter if the only moderator		
-	  if (users.numModerators == 1) {
-	    if (msg.role == Role.MODERATOR) {
-		    assignNewPresenter(msg.userID, msg.name, msg.userID)
-	    }	  
-	  }
+	    // Become presenter if the only moderator		
+	    if (users.numModerators == 1) {
+	      if (ru.role == Role.MODERATOR) {
+		      assignNewPresenter(msg.userID, ru.name, msg.userID)
+	      }	  
+	    }      
+    }
   }
 			
   def handleUserLeft(msg: UserLeaving):Unit = {

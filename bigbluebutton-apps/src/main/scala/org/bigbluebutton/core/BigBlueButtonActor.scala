@@ -35,7 +35,7 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
       }
       case allOthers => {
 		    meetings.get(allOthers.meetingID) match {
-		      case None => //
+		      case None => handleMeetingNotFound(allOthers)
 		      case Some(m) => {
 		       // log.debug("Forwarding message [{}] to meeting [{}]", msg.meetingID)
 		        m ! allOthers
@@ -43,7 +43,19 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
 		    }        
       }
     }
-
+  }
+  
+  private def handleMeetingNotFound(msg: InMessage) {
+    msg match {
+      case vat:ValidateAuthToken => {
+        println("No meeting [" + vat.meetingID + "] for auth token [" + vat.token + "]")
+        outGW.send(new ValidateAuthTokenReply(vat.meetingID, vat.userId, vat.token, false, vat.correlationId))
+      }
+      case _ => {
+        println("No meeting [" + msg.meetingID + "] for message type [" + msg.getClass() + "]")
+        // do nothing
+      }
+    }
   }
 
   private def handleKeepAliveMessage(msg: KeepAliveMessage):Unit = {
@@ -69,6 +81,7 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
   private def handleCreateMeeting(msg: CreateMeeting):Unit = {
     meetings.get(msg.meetingID) match {
       case None => {
+        println("New meeting create request [" + msg.meetingName + "]")
     	  var m = new MeetingActor(msg.meetingID, msg.meetingName, msg.recorded, msg.voiceBridge, msg.duration, outGW)
     	  m.start
     	  meetings += m.meetingID -> m
@@ -77,7 +90,10 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
     	  m ! new InitializeMeeting(m.meetingID, m.recorded)
     	  m ! "StartTimer"
       }
-      case Some(m) => // do nothing
+      case Some(m) => {
+        println("Meeting already created [" + msg.meetingName + "]")
+        // do nothing
+      }
     }
   }
   

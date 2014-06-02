@@ -62,7 +62,8 @@ public class LockService {
 	 * */
 	public void setLockSettings(Map<String, Boolean> newSettings){
 		String meetingId = getBbbSession().getRoom();
-		bbbInGW.sendLockSettings(meetingId, newSettings);
+		String userId = getMyUserId();
+		bbbInGW.sendLockSettings(meetingId, userId, newSettings);
 	}
 	
 	/**

@@ -1,7 +1,7 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 * 
-* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+* Copyright (c) 2014 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
@@ -47,17 +47,26 @@ public class ParticipantsApplication {
 		bbbInGW.setUserStatus(room, userid, status, value);
 	}
 
-	public boolean participantLeft(String roomName, String userid) {
+	public boolean participantJoin(String roomName, String userid) { //is this used?!
+		log.debug("Participant " + userid + " joining room " + roomName);
+		System.out.println("\n\n\n\n participantJoin is being used \n\n\n");
+		bbbInGW.userJoin(roomName, userid);
+		return true;
+	}
+
+	public boolean participantLeft(String roomName, String userid) { //is this used?!
 		log.debug("Participant " + userid + " leaving room " + roomName);
+		System.out.println("\n\n\n\n participantLeft is being used \n\n\n");
 		bbbInGW.userLeft(roomName, userid);
 		return true;
 	}
-	
+
 	public boolean registerUser(String roomName, String userid, String username, String role, String externUserID) {
+		System.out.println("\n\n\n\n registerUser is being used \n\n\n");
 		bbbInGW.registerUser(roomName, userid, username, role, externUserID, userid);
 		return true;
 	}
-		
+
 	public void assignPresenter(String room, String newPresenterID, String newPresenterName, String assignedBy){
 		bbbInGW.assignPresenter(room, newPresenterID, newPresenterName, assignedBy);			
 	}

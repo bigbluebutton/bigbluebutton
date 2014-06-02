@@ -217,7 +217,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 			String meetingId = bbbSession.getRoom();
 			log.debug(APP + ":joinMeeting - [" + meetingId + "] [" + userid + ", " + username + ", " + role + "]");
 			
-			bbbGW.userJoin(meetingId, userid, username, role, bbbSession.getExternUserID());
+			bbbGW.userJoin(meetingId, userid);
 		}
 		
 	}

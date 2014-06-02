@@ -21,7 +21,8 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
                    with PollApp with LayoutApp with ChatApp
                    with WhiteboardApp {  
 
-  var permissions = new PermissionsSetting(false, new Permissions())
+  var permissionsInited = false
+  var permissions = new PermissionsSetting(new Permissions())
   var recording = false;
   var muted = false;
   var meetingEnded = false
@@ -71,6 +72,7 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
 	    case msg: UserConnectedToGlobalAudio             => handleUserConnectedToGlobalAudio(msg)
 	    case msg: UserDisconnectedFromGlobalAudio        => handleUserDisconnectedFromGlobalAudio(msg)
 	    case msg: GetCurrentLayoutRequest                => handleGetCurrentLayoutRequest(msg)
+	    case msg: LayoutLockSettings                     => handleLayoutLockSettings(msg)
 	    case msg: SetLayoutRequest                       => handleSetLayoutRequest(msg)
 	    case msg: LockLayoutRequest                      => handleLockLayoutRequest(msg)
 	    case msg: UnlockLayoutRequest                    => handleUnlockLayoutRequest(msg)

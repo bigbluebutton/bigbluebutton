@@ -35,11 +35,12 @@ package org.bigbluebutton.modules.polling.service
     public var processor:PollDataProcessor;
     
     public function MessageReceiver() {
+      trace(LOG + " registering message listener");
       BBB.initConnectionManager().addMessageListener(this);
     }
 
     public function onMessage(messageName:String, message:Object):void {
-//      trace(LOG + "received message " + messageName);
+      trace(LOG + "received message " + messageName);
 
       switch (messageName) {
         case "pollGetPollsReply":

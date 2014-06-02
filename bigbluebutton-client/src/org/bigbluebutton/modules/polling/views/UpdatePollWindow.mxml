@@ -20,7 +20,7 @@ Notes.mxml is the main view of the SharedNotes application
 -->
 <MDIWindow xmlns="flexlib.mdi.containers.*"
            xmlns:mx="http://www.adobe.com/2006/mxml"
-           width="510" height="600"
+           width="510" height="450"
            xmlns:mate="http://mate.asfusion.com/"
            xmlns:poll="org.bigbluebutton.modules.polling.views.*"
            implements="org.bigbluebutton.common.IBbbModuleWindow"

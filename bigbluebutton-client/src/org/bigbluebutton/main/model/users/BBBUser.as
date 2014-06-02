@@ -49,7 +49,8 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var disableMyMic:Boolean = false;
 		[Bindable] public var disableMyPrivateChat:Boolean = false;
 		[Bindable] public var disableMyPublicChat:Boolean = false;
-		
+    [Bindable] public var lockedLayout:Boolean = false;
+    
 		private var _hasStream:Boolean = false;
 		[Bindable]
 		public function get hasStream():Boolean {
@@ -303,30 +304,32 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function applyLockSettings():void {
+       
 			var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
 			
-			disableMyCam = userLocked && lockSettings.getDisableCam();
-			disableMyMic = userLocked && lockSettings.getDisableMic();
-			disableMyPrivateChat = userLocked && lockSettings.getDisablePrivateChat();
-			disableMyPublicChat = userLocked && lockSettings.getDisablePublicChat();
-			
+			disableMyCam = lockSettings.getDisableCam();
+			disableMyMic = lockSettings.getDisableMic();
+			disableMyPrivateChat = lockSettings.getDisablePrivateChat();
+			disableMyPublicChat = lockSettings.getDisablePublicChat();
+      lockedLayout = lockSettings.getLockedLayout();
+      
 			var dispatcher:Dispatcher = new Dispatcher();
+			dispatcher.dispatchEvent(new LockControlEvent(LockControlEvent.CHANGED_LOCK_SETTINGS));
 			
-			var event:LockControlEvent = new LockControlEvent(LockControlEvent.CHANGED_LOCK_SETTINGS)
-			dispatcher.dispatchEvent(event);
-			
-			//If it's sharing webcam, stop it
-			if(disableMyCam && hasStream){
-				dispatcher.dispatchEvent(new ClosePublishWindowEvent());
-			}
-			
-			//If it's sharing microphone, mute it
-			if(disableMyMic && !UserManager.getInstance().getConference().isMyVoiceMuted()) {
-				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-				e.userid = UserManager.getInstance().getConference().getMyUserId();
-				e.mute = true;
-				dispatcher.dispatchEvent(e);
-			}
+      if (me && role != MODERATOR && !presenter) {
+  			//If it's sharing webcam, stop it
+  			if (disableMyCam && hasStream){
+  				dispatcher.dispatchEvent(new ClosePublishWindowEvent());
+  			}
+  			
+  			//If it's sharing microphone, mute it
+  			if(disableMyMic && !UserManager.getInstance().getConference().isMyVoiceMuted()) {
+  				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
+  				e.userid = UserManager.getInstance().getConference().getMyUserId();
+  				e.mute = true;
+  				dispatcher.dispatchEvent(e);
+  			}
+      }
 		}
 	}
 }

@@ -21,6 +21,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"
   xmlns:views="org.bigbluebutton.main.views.*"
   xmlns:maps="org.bigbluebutton.main.maps.*"
+  xmlns:userMap="org.bigbluebutton.modules.users.maps.*"
   xmlns:apimap="org.bigbluebutton.main.api.maps.*"
   xmlns:coreMap="org.bigbluebutton.core.controllers.maps.*"
   xmlns:mate="http://mate.asfusion.com/"
@@ -189,8 +190,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </mx:Script> 
   
   <apimap:ExternalApiEventMap/>
-  <coreMap:BbbCoreEventMap/>  
+  <coreMap:BbbCoreEventMap/> 
+  <userMap:UsersMainEventMap />
   <maps:ApplicationEventMap />
+
   
   <views:MainApplicationShell id="mainShell"/>	
   

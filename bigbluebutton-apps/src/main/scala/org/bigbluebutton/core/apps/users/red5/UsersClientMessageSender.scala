@@ -14,8 +14,7 @@ import org.bigbluebutton.conference.meeting.messaging.red5.DisconnectAllClientsM
 import org.bigbluebutton.conference.meeting.messaging.red5.DisconnectClientMessage
 
 class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMessageListener2 {
-	private val USERS_SO: String = "participantsSO"; 
-
+	
 	def handleMessage(msg: IOutMessage) {
 	  msg match {
 	    case msg: MeetingEnded                           => handleMeetingEnded(msg)
@@ -40,6 +39,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    case msg: ValidateAuthTokenReply                 => handleValidateAuthTokenReply(msg)
 	    case msg: UserRegistered                         => handleRegisteredUser(msg)
 	    case msg: UserListeningOnly                      => handleUserListeningOnly(msg)
+	    case msg: NewPermissionsSetting                  => handleNewPermissionsSetting(msg)
 	    case _ => // println("Unhandled message in UsersClientMessageSender")
 	  }
 	}
@@ -70,7 +70,40 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  wuser.put("voiceUser", vuser)	  
 	  wuser.put("listenOnly", user.listenOnly:java.lang.Boolean)
 	  
+	  val permissions = new HashMap[String, Object]()
+	  permissions.put("disableCam", user.permissions.disableCam:java.lang.Boolean)
+	  permissions.put("disableMic", user.permissions.disableMic:java.lang.Boolean)
+	  permissions.put("disablePrivChat", user.permissions.disablePrivChat:java.lang.Boolean)
+	  permissions.put("disablePubChat", user.permissions.disablePubChat:java.lang.Boolean)	  
+	  permissions.put("lockedLayout", user.permissions.lockedLayout:java.lang.Boolean)
+	  
+    wuser.put("permissions", permissions)
+  
 	  wuser
+	}
+	
+	private def handleNewPermissionsSetting(msg: NewPermissionsSetting) {
+	  val args = new java.util.HashMap[String, Object]();  
+	  args.put("disableCam", msg.settings.permissions.disableCam:java.lang.Boolean);
+	  args.put("disableMic", msg.settings.permissions.disableMic:java.lang.Boolean);
+	  args.put("disablePrivChat", msg.settings.permissions.disablePrivChat:java.lang.Boolean);
+	  args.put("disablePubChat", msg.settings.permissions.disablePubChat:java.lang.Boolean);
+    args.put("lockedLayout", msg.settings.permissions.lockedLayout:java.lang.Boolean);
+    
+	  var users = new ArrayList[java.util.HashMap[String, Object]];
+      msg.applyTo.foreach(uvo => {		
+        users.add(buildUserHashMap(uvo))
+      })
+		
+      args.put("users", users);
+      
+	  val message = new java.util.HashMap[String, Object]() 
+	  val gson = new Gson();
+  	  message.put("msg", gson.toJson(args))
+  	  
+  	  println("UsersClientMessageSender - handleNewPermissionsSetting \n" + message.get("msg") + "\n")
+      val m = new BroadcastClientMessage(msg.meetingID, "permissionsSettingsChanged", message);
+	  service.sendMessage(m);	    
 	}
 	
 	private def handleRegisteredUser(msg: UserRegistered) {

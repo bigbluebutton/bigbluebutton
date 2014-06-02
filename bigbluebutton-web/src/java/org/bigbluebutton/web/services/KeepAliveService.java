@@ -110,7 +110,9 @@ public class KeepAliveService implements MessageListener {
   				} catch (InterruptedException e) {
   					// TODO Auto-generated catch block
   					e.printStackTrace();
-  				}								
+  				}	catch (Exception e) {
+  					log.error("Catching exception [{}]", e.toString());
+  				}
   			}
   		}
   	};

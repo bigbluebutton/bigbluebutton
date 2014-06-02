@@ -14,6 +14,7 @@ login = (req, resp) ->
   #use the name from the textbox
   console.log "\n\nThe Username passed was=" + JSON.stringify(req.body.name) + "\n\n"
   joinParams.fullName = JSON.stringify req.body.name
+  joinParams.fullName = joinParams.fullName.replace(/['"]/g,'')
 
   #calling createapi
   bbbapi.create(createParams, serverAndSecret, {}, (errorOuter, responseOuter, bodyOuter) ->
@@ -38,7 +39,7 @@ login = (req, resp) ->
             "\nauth_token = " + auth_token
 
             url = "http://192.168.0.203:3000/html5.client?meeting_id=" + meeting_id + "&user_id=" +
-                  user_id + "&auth_token=" + auth_token
+                  user_id + "&auth_token=" + auth_token + "&username=" + joinParams.fullName
 
             json =
             resp.json({

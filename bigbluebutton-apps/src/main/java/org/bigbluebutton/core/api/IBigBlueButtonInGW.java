@@ -16,7 +16,7 @@ public interface IBigBlueButtonInGW {
 	
 	// Lock
 	void initLockSettings(String meetingID, boolean locked, Map<String, Boolean> settings);
-	void sendLockSettings(String meetingID, Map<String, Boolean> settings);
+	void sendLockSettings(String meetingID, String userId, Map<String, Boolean> settings);
 	void getLockSettings(String meetingId, String userId);
 	void isMeetingLocked(String meetingId, String userId);
 	void lockAllUsers(String meetingId, boolean lock, ArrayList<String> dontLockTheseUsers);
@@ -30,16 +30,16 @@ public interface IBigBlueButtonInGW {
 	void lowerHand(String meetingId, String userId, String loweredBy);
 	void shareWebcam(String meetingId, String userId, String stream);
 	void unshareWebcam(String meetingId, String userId);
-  void setUserStatus(String meetingID, String userID, String status, Object value);
+	void setUserStatus(String meetingID, String userID, String status, Object value);
 	void getUsers(String meetingID, String requesterID);
 	void userLeft(String meetingID, String userID);
-	void userJoin(String meetingID, String userID, String username, String role, String externUserID);
+	void userJoin(String meetingID, String userID);
 	void getCurrentPresenter(String meetingID, String requesterID);
 	void assignPresenter(String meetingID, String newPresenterID, String newPresenterName, String assignedBy);
 	void setRecordingStatus(String meetingId, String userId, Boolean recording);
 	void getRecordingStatus(String meetingId, String userId);
-  void userConnectedToGlobalAudio(String voiceConf, String userid, String name);
-  void userDisconnectedFromGlobalAudio(String voiceConf, String userid, String name);
+	void userConnectedToGlobalAudio(String voiceConf, String userid, String name);
+	void userDisconnectedFromGlobalAudio(String voiceConf, String userid, String name);
 	
 	// Voice
 	void muteAllUsers(String meetingID, String requesterID, Boolean mute);
@@ -94,6 +94,7 @@ public interface IBigBlueButtonInGW {
 	// Layout
 	void getCurrentLayout(String meetingID, String requesterID);
 	void setLayout(String meetingID, String requesterID, String layoutID);
+	void syncLayout(String meetingID, String requesterID, String layoutID);
 	void lockLayout(String meetingID, String requesterID, String layoutID);
 	void unlockLayout(String meetingID, String requesterID);
 

@@ -32,8 +32,6 @@
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	<mate:Listener type="{ShortcutEvent.RAISE_HAND}" method="remoteRaiseHand" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_USERS_WINDOW}" method="focusWindow" />
-	<mate:Listener type="{UsersEvent.ROOM_MUTE_STATE}" method="setRoomMute" />
-	<mate:Listener type="{UsersEvent.ROOM_LOCK_STATE}" method="setRoomLock" />
 	<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
 	<mx:Script>
 		<![CDATA[
@@ -179,17 +177,7 @@
 						myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.audio_muted, handler:muteAlmostAll});
 				} else
 					myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio, handler:muteAll});
-				
-				if (!roomLocked) {
-					myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockAll'), icon: images.lock_close, handler: lockAll});
-					
-					if (UserManager.getInstance().getConference().getPresenter())
-						myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.lock_close, handler: lockAlmostAll});
-				} else {
-					myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unlockAll'), icon: images.lock_open, handler: unlockAll});
-				}
-				
-				
+								
 				myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: images.lock_open, handler: lockSettings});
 				
 				
@@ -212,17 +200,6 @@
 				}
 			}
 			
-			private function setRoomMute(e:UsersEvent):void {
-				roomMuted = e.new_state;
-                roomMutedLbl.visible = roomMuted;
-				roomMutedLbl.includeInLayout = roomMuted;
-			}
-			
-			private function setRoomLock(e:UsersEvent):void {
-				roomLocked = e.new_state;
-				roomLockedLbl.visible = roomLocked;
-				roomLockedLbl.includeInLayout = roomLocked;
-			}
 			
 			private function lockSettings():void {
 				LogUtil.traceObject("Action: lockSettings");
@@ -458,10 +435,6 @@
 		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}" selected="{UserManager.getInstance().getConference().isMyHandRaised}"
 					width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip')}" click="raiseHand()"
 					visible="false" tabIndex="{partOptions.baseTabIndex+15}" />
-		<mx:VBox width="100%">
-			<mx:Label id="roomMutedLbl" text="{ResourceUtil.getInstance().getString('bbb.users.settings.roomIsMuted')}" />
-			<mx:Label id="roomLockedLbl" text="{ResourceUtil.getInstance().getString('bbb.users.settings.roomIsLocked')}" />
-		</mx:VBox>
 	</mx:ControlBar>
 	
 </mdi:MDIWindow>

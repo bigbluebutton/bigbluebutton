@@ -53,59 +53,62 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
 	<mate:Listener type="{ShortcutEvent.OPEN_SHORTCUT_WIN}" method="openShortcutHelpWindow" />
-  	<mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
+  <mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
 	<mate:Listener type="{LockControlEvent.OPEN_LOCK_SETTINGS}" method="openLockSettingsWindow" />
+  <mate:Listener type="{InvalidAuthTokenEvent.INVALID_AUTH_TOKEN}" method="handleInvalidAuthToken" />
 	  
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.events.MouseEvent;
-			import flash.geom.Point;
-			
-			import flexlib.mdi.containers.MDIWindow;
-			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
-			
-			import mx.collections.ArrayCollection;
-			import mx.containers.TitleWindow;
-			import mx.controls.Alert;
-			import mx.core.FlexGlobals;
-			import mx.core.IFlexDisplayObject;
-			import mx.core.UIComponent;
-			import mx.events.CloseEvent;
-			import mx.events.FlexEvent;
-			import mx.managers.PopUpManager;
-			
-			import org.bigbluebutton.common.IBbbModuleWindow;
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.common.events.ToolbarButtonEvent;
-			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.core.events.LockControlEvent;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.AppVersionEvent;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.ConfigEvent;
-			import org.bigbluebutton.main.events.LogoutEvent;
-			import org.bigbluebutton.main.events.MeetingNotFoundEvent;
-			import org.bigbluebutton.main.events.ModuleLoadEvent;
-			import org.bigbluebutton.main.events.PortTestEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
-			import org.bigbluebutton.main.model.LayoutOptions;
-			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-			import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
-			import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
-			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
-			import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionEvent;
-			import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionToJoinConferenceEvent;
-			import org.bigbluebutton.modules.phone.events.WebRtcAskUserToChangeMicEvent;
-			import org.bigbluebutton.modules.phone.events.WebRtcEchoTestStartedEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.util.logging.Logger;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import flash.events.MouseEvent;
+      import flash.geom.Point;
+      
+      import flexlib.mdi.containers.MDIWindow;
+      import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
+      
+      import mx.collections.ArrayCollection;
+      import mx.containers.TitleWindow;
+      import mx.controls.Alert;
+      import mx.core.FlexGlobals;
+      import mx.core.IFlexDisplayObject;
+      import mx.core.UIComponent;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      
+      import org.bigbluebutton.common.IBbbModuleWindow;
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
+      import org.bigbluebutton.common.events.CloseWindowEvent;
+      import org.bigbluebutton.common.events.OpenWindowEvent;
+      import org.bigbluebutton.common.events.ToolbarButtonEvent;
+      import org.bigbluebutton.core.BBB;
+      import org.bigbluebutton.core.events.LockControlEvent;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.core.vo.LockSettingsVO;
+      import org.bigbluebutton.main.events.AppVersionEvent;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.ConfigEvent;
+      import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
+      import org.bigbluebutton.main.events.LogoutEvent;
+      import org.bigbluebutton.main.events.MeetingNotFoundEvent;
+      import org.bigbluebutton.main.events.ModuleLoadEvent;
+      import org.bigbluebutton.main.events.PortTestEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+      import org.bigbluebutton.main.model.LayoutOptions;
+      import org.bigbluebutton.main.model.users.Conference;
+      import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+      import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
+      import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
+      import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
+      import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionEvent;
+      import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionToJoinConferenceEvent;
+      import org.bigbluebutton.modules.phone.events.WebRtcAskUserToChangeMicEvent;
+      import org.bigbluebutton.modules.phone.events.WebRtcEchoTestStartedEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
+      import org.bigbluebutton.util.logging.Logger;
 	
       private static const LOG:String = "Main::MainApplicationShell - ";
       
@@ -201,14 +204,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					receivedConfigLocaleVer = true;
 					appVersion = event.appVersion;
 					localeVersion = event.localeVersion;
-//					LogUtil.debug("Received locale version fron config.xml");
+					trace("Received locale version fron config.xml");
 				} else {
 					receivedResourceLocaleVer = true;
-					LogUtil.debug("Received locale version fron locale file.");
+					trace("Received locale version fron locale file.");
 				}
 				
 				if (receivedConfigLocaleVer && receivedResourceLocaleVer) {
-					LogUtil.debug("Comparing locale versions.");
+          trace("Comparing locale versions.");
 					if (!event.suppressLocaleWarning) checkLocaleVersion(localeVersion);
 					if (sendStartModulesEvent) {
             
@@ -219,7 +222,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function sendStartAllModulesEvent():void{
-				LogUtil.debug("Sending start all modules event");
+        trace("Sending start all modules event");
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.START_ALL_MODULES));	
 			}
@@ -309,7 +312,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	   			Alert.okLabel ="OK";
 				var version:String = "old-locales";
 				version = ResourceUtil.getInstance().getString('bbb.mainshell.locale.version');
-				LogUtil.debug("Locale from config=" + localeVersion + ", from locale file=" + version);
+				trace("Locale from config=" + localeVersion + ", from locale file=" + version);
 
 				if ((version == "old-locales") || (version == "") || (version == null)) {
 					wrongLocaleVersion();
@@ -476,7 +479,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function handleMeetingNotFoundEvent(e:MeetingNotFoundEvent):void {
-        showlogoutWindow("Meeting not found.");
+        showlogoutWindow(ResourceUtil.getInstance().getString('bbb.mainshell.meetingNotFound'));
       }
       
       private function showlogoutWindow(reason:String):void {
@@ -559,6 +562,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					//realignButtons();
 				}
 			}
+      
+      private function handleInvalidAuthToken(event:InvalidAuthTokenEvent):void {
+        showlogoutWindow(ResourceUtil.getInstance().getString('bbb.mainshell.invalidAuthToken'));
+      }
 			
 			private function handleRemoveToolbarComponent(event:ToolbarButtonEvent):void {
 				if (addedBtns.contains(event.button as UIComponent))
@@ -586,14 +593,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function openLockSettingsWindow(event:LockControlEvent):void {
+        var conference:Conference = UserManager.getInstance().getConference();
+        var lsv:LockSettingsVO = conference.getLockSettings();
+        
 				var popUp:IFlexDisplayObject = PopUpManager.createPopUp(mdiCanvas, LockSettings, true);
-				var lockSettings:LockSettings = LockSettings(popUp);
-				
+				var ls:LockSettings = LockSettings(popUp);
+        ls.disableCam = lsv.getDisableCam();
+        ls.disableMic = lsv.getDisableMic();
+        ls.disablePrivChat = lsv.getDisablePrivateChat();
+        ls.disablePubChat = lsv.getDisablePublicChat();
+        ls.lockedLayout = lsv.getLockedLayout();
+        
 				var point1:Point = new Point();
 				point1.x = width/2;
 				point1.y = height/2;                
-				lockSettings.x = point1.x - (lockSettings.width/2);
-				lockSettings.y = point1.y - (lockSettings.height/2);	
+        ls.x = point1.x - (ls.width/2);
+        ls.y = point1.y - (ls.height/2);	
 			}
 			
 			

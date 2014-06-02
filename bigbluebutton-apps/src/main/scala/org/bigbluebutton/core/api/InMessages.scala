@@ -57,6 +57,7 @@ case class InitLockSettings(
                             
 case class SetLockSettings(
     meetingID: String,  
+    setByUser: String,
     settings: PermissionsSetting
 ) extends InMessage
                            
@@ -89,10 +90,7 @@ case class RegisterUser(
                        
 case class UserJoining(
     meetingID: String, 
-    userID: String, 
-    name: String, 
-    role: Role, 
-    extUserID: String
+    userID: String
 ) extends InMessage
                        
 case class UserLeaving(
@@ -196,7 +194,13 @@ case class SetLayoutRequest(
     requesterID: String, 
     layoutID: String
 ) extends InMessage
-                            
+
+case class LayoutLockSettings(
+  meetingID: String,
+  requesterId: String,
+  locked: Boolean
+) extends InMessage
+
 case class LockLayoutRequest(
     meetingID: String, 
     requesterID: String, 

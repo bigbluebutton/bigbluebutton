@@ -33,8 +33,8 @@ package org.bigbluebutton.main.model.users {
     public var internalMeetingID:String;
     public var externalUserID:String;
     public var avatarURL:String;
-	public var voiceBridge:String;
-	public var dialNumber:String;
+	  public var voiceBridge:String;
+	  public var dialNumber:String;
 	[Bindable] public var record:Boolean;
     
 	private var lockSettings:LockSettingsVO;
@@ -45,7 +45,7 @@ package org.bigbluebutton.main.model.users {
 		[Bindable] public var users:ArrayCollection = null;			
 		private var sort:Sort;
 		
-	    private var defaultLayout:String;
+	  private var defaultLayout:String;
     
 		public function Conference():void {
 			me = new BBBUser();
@@ -424,7 +424,7 @@ package org.bigbluebutton.main.model.users {
 		public function configLockSettings():void {
 			var config:Config = BBB.initConfigManager().config;
 			
-			var allowModeratorLocking:Boolean, disableCam:Boolean, disableMic:Boolean, disablePrivateChat:Boolean, disablePublicChat:Boolean;
+			var allowModeratorLocking:Boolean, disableCam:Boolean, disableMic:Boolean, disablePrivateChat:Boolean, disablePublicChat:Boolean, lockedLayout:Boolean;
 			
 			var lockConfig:XML;
 			
@@ -462,7 +462,13 @@ package org.bigbluebutton.main.model.users {
 				disablePublicChat = false;
 			}
 			
-			lockSettings = new LockSettingsVO(allowModeratorLocking, disableCam, disableMic, disablePrivateChat, disablePublicChat);
+      try{
+        lockedLayout = (lockConfig.@lockLayoutForLockedUsers.toUpperCase() == "TRUE");
+      }catch(e:Error) {
+        lockedLayout = false;
+      }
+      
+			lockSettings = new LockSettingsVO(disableCam, disableMic, disablePrivateChat, disablePublicChat, lockedLayout);
 		}
 		
 		public function getMyUser():BBBUser {
@@ -485,8 +491,10 @@ package org.bigbluebutton.main.model.users {
 		
 		public function setLockSettings(lockSettings:LockSettingsVO):void {
 			this.lockSettings = lockSettings;
-			
-			getMyUser().applyLockSettings();
+      for (var i:int = 0; i < users.length; i++) {
+        var eachUser:BBBUser = users.getItemAt(i) as BBBUser;
+        eachUser.applyLockSettings();
+      }
 		}
 	}
 }
