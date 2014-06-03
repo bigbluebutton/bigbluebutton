@@ -64,8 +64,6 @@ define [
     # Removes all a user from the list #TODO - for now it does not remove but moves to the left hand side
     _removeUserByID: (userID)->
       @$("#user-"+userID).remove()
-      #@$("#user-"+userID).parent().context.hidden = "true"
-      #console.log @$el.children("ul")
 
     # Add a user to the screen.
     _addUser: (userID, username) ->
