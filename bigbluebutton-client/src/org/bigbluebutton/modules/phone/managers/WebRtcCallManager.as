@@ -7,6 +7,7 @@ package org.bigbluebutton.modules.phone.managers
   import mx.controls.Alert;
   import mx.events.CloseEvent;
   
+  import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.main.api.JSAPI;
   import org.bigbluebutton.modules.phone.PhoneOptions;
   import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
@@ -153,14 +154,16 @@ package org.bigbluebutton.modules.phone.managers
     
 	public function handleBecomeViewer():void {
 		trace(LOG + "handleBecomeViewer received");
-		if (!usingWebRtc || state != IN_CONFERENCE) return;
-		
-		trace(LOG + "handleBecomeViewer leaving WebRTC and joining listen only stream");
-		ExternalInterface.call("leaveWebRtcVoiceConference");
-		
-		var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
-		command.mic = false;
-		dispatcher.dispatchEvent(command);
+		if (options.presenterShareOnly) {
+			if (!usingWebRtc || state != IN_CONFERENCE || UsersUtil.amIModerator()) return;
+			
+			trace(LOG + "handleBecomeViewer leaving WebRTC and joining listen only stream");
+			ExternalInterface.call("leaveWebRtcVoiceConference");
+			
+			var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
+			command.mic = false;
+			dispatcher.dispatchEvent(command);
+		}
 	}
 	
     public function handleUseFlashModeCommand():void {

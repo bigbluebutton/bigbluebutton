@@ -320,13 +320,9 @@
 		trace(LOG + "Handling BecomeViewer, current state: " + state + ", using flash: " + usingFlash);
 		
 		if (options.presenterShareOnly) {
-			if (!usingFlash || state != IN_CONFERENCE) {
-				// this is the case when the user was connected to webrtc and then leaves the conference
-				return;
-			}
+			if (!usingFlash || state != IN_CONFERENCE || UsersUtil.amIModerator()) return;
 			
 			trace(LOG + "handleBecomeViewer leaving flash with mic and joining listen only stream");
-			
 			hangup();
 			
 			var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
