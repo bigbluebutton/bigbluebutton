@@ -202,15 +202,7 @@ define [
 
     # Adds a default welcome message to the chat
     _addWelcomeMessage: ->
-      msg = "You are now connected to the meeting '" + decodeURI(@getUrlVars()["meetingName"]) + "'"
+      msg = "You are now connected to the meeting '#{globals.meetingName}'"
       @_addChatMessage("System", msg)
-
-    # Function borrowed from \dev\bigbluebutton\client\bbb-html5-client\public\js\models\connection.coffee
-    getUrlVars: ->
-      vars = {}
-      parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, (m,key,value) ->
-        vars[key] = value
-      )
-      vars
 
   SessionChatView
