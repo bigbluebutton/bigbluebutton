@@ -45,8 +45,7 @@ login = (req, resp) ->
             json =
             resp.json({
               success: {
-                url: url,
-                p:joinParams
+                url: url
               },
               failure: {
                 message: "Something went terribly wrong"
