@@ -127,21 +127,7 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 	public void start() {		 	
 		System.out.println("Desktop Sharing Applet Starting");
 		super.start();
-		
-		System.out.println("**** JAVA VERSION = [" + getJavaVersionRuntime() + "]");
-		
-		Pattern p = Pattern.compile(JAVA_VERSION_PATTERN);
-		Matcher matcher = p.matcher(getJavaVersionRuntime());
-		if (matcher.matches()) {
-			int jreVersion = Integer.valueOf(matcher.group(1).trim()).intValue();
-			if (jreVersion < MIN_JRE_VERSION) {
-				displayJavaWarning(VERSION_ERROR_MSG);
-			} else {
-				allowDesktopSharing();
-			}
-		} else {
-			displayJavaWarning(VERSION_ERROR_MSG);
-		}
+		allowDesktopSharing();
 	}
 	
 	private void allowDesktopSharing() {
