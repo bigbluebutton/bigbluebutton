@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.phone.managers
   import org.bigbluebutton.modules.phone.events.WebRtcCallDisconnectedEvent;
   import org.bigbluebutton.modules.phone.events.WebRtcEchoTestStartedEvent;
   import org.bigbluebutton.modules.phone.events.WebRtcRemoveAskMicPermissionEvent;
+  import org.bigbluebutton.util.i18n.ResourceUtil;
 
   public class WebRtcCallManager
   {
@@ -175,7 +176,7 @@ package org.bigbluebutton.modules.phone.managers
 	  state = INITED;
       endEchoTest();
       hideMicPermission();
-	  var alert:Alert = Alert.show("Could not connect with WebRTC with reason: " + reason + " +. Do you want to try Flash instead?", "WebRTC Connection Failed", Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
+	  var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [reason]), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
 	  //alert.
     }
 	
