@@ -40,12 +40,13 @@ login = (req, resp) ->
             "\nauth_token = " + auth_token
 
             url = "#{configJson.settings.IP}:3000/html5.client?meeting_id=" + meeting_id + "&user_id=" +
-                  user_id + "&auth_token=" + auth_token + "&username=" + joinParams.fullName 
+                  user_id + "&auth_token=" + auth_token + "&username=" + joinParams.fullName + "&meetingName=" + joinParams.meetingID
 
             json =
             resp.json({
               success: {
-                url: url
+                url: url,
+                p:joinParams
               },
               failure: {
                 message: "Something went terribly wrong"
