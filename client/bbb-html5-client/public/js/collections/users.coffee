@@ -5,7 +5,6 @@ define [
   'cs!models/user'
 ], (_, Backbone, globals, UserModel) ->
 
-  # TODO: this class should actually store UserModel's, for now it is only trigerring events
   UsersCollection = Backbone.Collection.extend
     model: UserModel
 
