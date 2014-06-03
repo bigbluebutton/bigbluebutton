@@ -92,7 +92,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:HBox width="100%">
 			<mx:TextArea borderSkin="{null}"
 						 editable="false"
-						 text="How do you want to join the audio?"
+						 text="{ResourceUtil.getInstance().getString('bbb.audioSelection.title')}"
 						 styleName="micSettingsWindowTitleStyle"
 						 width="100%"
 						 left="0"/>
@@ -101,12 +101,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:HBox width="100%" height="100%">
 			<mx:VBox height="100%" width="30%" horizontalAlign="center">
 				<mx:Image source="@Embed('assets/microphone80.png')" />
-				<mx:Button id="btnMicrophone" label="Microphone" click="onMicClick()" />
+				<mx:Button id="btnMicrophone" label="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnMicrophone.label')}" click="onMicClick()" />
 			</mx:VBox>
 			<mx:VRule height="100%" width="5%" />
 			<mx:VBox height="100%" width="30%" horizontalAlign="center">
 				<mx:Image source="@Embed('assets/speaker80.png')" />
-				<mx:Button id="btnListenOnly" label="Listen Only" click="onListenClick()" />
+				<mx:Button id="btnListenOnly" label="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnListenOnly.label')}" click="onListenClick()" />
 			</mx:VBox>
 			<mx:VRule height="100%" width="5%" />
 			<mx:VBox height="100%" width="30%" horizontalAlign="center">
