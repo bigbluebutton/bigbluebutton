@@ -48,6 +48,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{WebRtcAskUserToChangeMicEvent.WEBRTC_ASK_USER_TO_CHANGE_MIC}" method="handleWebRtcAskUserToChangeMicEvent"  />
   <mate:Listener type="{WebRtcAskMicPermissionToJoinConferenceEvent.WEBRTC_ASK_MIC_PERMISSION_TO_JOIN_VOICE_CONFERENCE}" 
                          method="handleWebRtcAskMicPermissionToJoinConferenceEvent"  />
+	<mate:Listener type="{AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION}" method="handleShowAudioSelectionWindowEvent" />
   
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
@@ -99,6 +100,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.model.LayoutOptions;
       import org.bigbluebutton.main.model.users.Conference;
       import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+      import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
       import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
       import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
       import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionEvent;
@@ -356,7 +358,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				localeWindow.x = point1.x - (localeWindow.width/2);
 				localeWindow.y = point1.y - (localeWindow.height/2);	
       }
-			
+
+      private function handleShowAudioSelectionWindowEvent(event:AudioSelectionWindowEvent):void {
+  	    var audioSelection:IFlexDisplayObject = PopUpManager.createPopUp(mdiCanvas, AudioSelectionWindow, true);
+		PopUpManager.centerPopUp(audioSelection);
+	  }
+
       private function showEarbudsHeadsetRequired():void {
         var earbuds:EarbudsHeadsetRecommendedImage = PopUpManager.createPopUp(mdiCanvas, EarbudsHeadsetRecommendedImage, true) as EarbudsHeadsetRecommendedImage;
         earbuds.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
@@ -428,8 +435,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
          
       private function handleAskMicPermissionEvent(event:WebRtcAskMicPermissionEvent):void {
- //       showEarbudsHeadsetRequired();
-        
+ //       showEarbudsHeadsetRequired()
         var browser:String = event.browser;
         if (browser == "Firefox") {
           var ffBrowser:FirefoxMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, FirefoxMicPermissionImage, true) as FirefoxMicPermissionImage;
