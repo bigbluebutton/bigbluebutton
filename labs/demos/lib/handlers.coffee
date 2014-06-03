@@ -50,7 +50,7 @@ login = (req, resp) ->
               failure: {
                 message: "Something went terribly wrong"
               }
-            })
+            }) 
         )
     )
   )
