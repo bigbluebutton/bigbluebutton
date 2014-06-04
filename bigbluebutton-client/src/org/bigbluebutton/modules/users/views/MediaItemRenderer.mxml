@@ -186,7 +186,7 @@
 							muteBtn.includeInLayout = rolledOver;
 							
 							if(data.talking && !rolledOver){
-								muteImg.filters = [new GlowFilter(0x898989)];
+								muteImg.filters = [new GlowFilter(0xFF0000)];
 							}else{
 								muteImg.filters = [];
 							}
