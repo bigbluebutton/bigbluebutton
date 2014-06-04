@@ -21,6 +21,8 @@ define [
     initialize: ->
       @userListID = "#user-list"
       @model.start()
+      @self = @
+      #globals.events.trigger "getUsers"
 
       # Bind to the event triggered when the client connects to the server
       if globals.connection.isConnected()
@@ -30,6 +32,7 @@ define [
           @_registerEvents()
 
     render: ->
+      
       compiledTemplate = _.template(sessionUsersTemplate)
       @$el.html compiledTemplate
 
@@ -42,6 +45,9 @@ define [
         for userBlock in users
           alert("on user_list_change; adding user:" + JSON.stringify userBlock)
           @_addUser(userBlock.id, userBlock.name)
+
+      globals.events.on "there_you_go", (data) =>
+        alert "that's what i got: " + data
 
       globals.events.on "users:load_users", (users) =>
         @_removeAllUsers()

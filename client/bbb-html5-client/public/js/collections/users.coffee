@@ -23,25 +23,27 @@ define [
 
     _registerEvents: ->
 
-      globals.events.on "connection:user_list_change", (users) =>
-        globals.events.trigger("users:user_list_change", users)
+      #globals.events.on "connection:user_list_change", (users) =>
+      #  globals.events.trigger("users:user_list_change", users)
 
       globals.events.on "connection:load_users", (users) =>
         for userBlock in users
           @add [
-            id : userBlock.id
-            userid: userBlock.id
-            username: userBlock.name
+            new UserModel {id: userBlock.id, userid: userBlock.id, username: userBlock.name}
           ]
+          alert "onload "+@length
         globals.events.trigger("users:load_users", users)
 
       globals.events.on "connection:user_join", (userid, username) =>
+        users = @toJSON()
+        alert ("sending users: " + users)
+        globals.events.trigger("there_you_go", users)
+
         unless @get(userid)? #check if the user is already present
           @add [
-            id : userid
-            userid: userid
-            username: username
+            new UserModel {id: userid, userid: userid, username: username}
           ]
+          alert "on join "+@length
           globals.events.trigger("users:user_join", userid, username)
 
       globals.events.on "connection:user_left", (userid) =>
@@ -52,5 +54,10 @@ define [
 
       globals.events.on "connection:setPresenter", (userid) =>
         globals.events.trigger("users:setPresenter", userid)
+
+      
+
+      render: ->
+        alert "user collection rendering"
 
   UsersCollection
