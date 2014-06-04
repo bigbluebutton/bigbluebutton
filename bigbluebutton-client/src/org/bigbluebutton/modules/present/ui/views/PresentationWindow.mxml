@@ -116,7 +116,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var DEFAULT_X_POSITION:Number = 237;
 			[Bindable] private var DEFAULT_Y_POSITION:Number = 0;
 			
-			[Bindable] private var CONTROL_BAR_HEIGHT:Number = 45;
+			[Bindable] private var CONTROL_BAR_HEIGHT:Number;
 			private static const TOP_WINDOW_BORDER:Number = 30;
 			private static const WIDTH_PADDING:Number = 6;
 
@@ -363,11 +363,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						
 			private function setupPresenter(isPresenter:Boolean):void {
 				uploadPres.visible = isPresenter;				
-        var page:Page = PresentationModel.getInstance().getCurrentPage();
-        if (page != null) {
-          displaySlideNumber(page.num);		
-        }
-        
+				var page:Page = PresentationModel.getInstance().getCurrentPage();
+				if (page != null) {
+					displaySlideNumber(page.num);		
+				}
 				displaySlideNavigationControls(isPresenter);
 			}
 					
@@ -396,6 +395,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				btnSlideNum.visible = show;
 				btnFitToWidth.visible = show;
 				btnFitToPage.visible = show;
+				if(show) {
+					CONTROL_BAR_HEIGHT = 45;
+				} else {
+					CONTROL_BAR_HEIGHT = 0;
+				}
+				fitSlideToWindowMaintainingAspectRatio();
 			}
 			
 			private function addContextMenuItems():void{
