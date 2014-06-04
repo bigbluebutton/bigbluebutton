@@ -18,12 +18,8 @@ define [
       @meetingId = @getUrlVars()["meeting_id"]
       @username = @getUrlVars()["username"]
 
-    disconnect: =>
-      alert( " i go through disconnect")
-      if @socket?
-        #@socket.disconnect()
-      else
-        console.log "tried to disconnect but it's not connected"
+    disconnect: ->
+      alert( " i go through disconnect") # not used right now
 
     connect: ->
       console.log("user_id=" + @userId + " auth_token=" + @authToken + " meeting_id=" + @meetingId)
@@ -57,12 +53,10 @@ define [
         console.log "socket.io received: data"
         globals.events.trigger("message", data)
 
-
       # Immediately say we are connected
       @socket.on "connect", =>
         console.log "socket on: connect"
         globals.events.trigger("connection:connected")
-        #@socket.emit "user connect" # tell the server we have a new user
 
         message = {
           "payload": {
@@ -80,9 +74,11 @@ define [
         if @authToken? and @userId? and @meetingId?
           @socket.emit "message", message
 
+      # Received a list of users from bbb-apps
+      # param {object} message object
       @socket.on "get_users_reply", (message) =>
         requesterId = message.payload?.requester_id
-        
+
         if(requesterId is @userId)
           users = []
           for user in message.payload?.users
@@ -90,6 +86,8 @@ define [
 
           globals.events.trigger("connection:load_users", users)
 
+      # Received a the chat history for a meeting
+      # @param {object} message object
       @socket.on "get_chat_history_reply", (message) =>
         requesterId = message.payload?.requester_id
         if(requesterId is @userId)
@@ -110,22 +108,22 @@ define [
         globals.events.trigger("connection:disconnected")
         @socket = null
 
-      @socket.on "reconnect", ->
-        console.log "socket on: reconnect"
-        globals.events.trigger("connection:reconnect")
+      #@socket.on "reconnect", ->
+      #  console.log "socket on: reconnect"
+      #  globals.events.trigger("connection:reconnect")
 
-      @socket.on "reconnecting", ->
-        console.log "socket on: reconnecting"
-        globals.events.trigger("connection:reconnecting")
+      #@socket.on "reconnecting", ->
+      #  console.log "socket on: reconnecting"
+      #  globals.events.trigger("connection:reconnecting")
 
-      @socket.on "reconnect_failed", ->
-        console.log "socket on: reconnect_failed"
-        globals.events.trigger("connection:reconnect_failed")
+      #@socket.on "reconnect_failed", ->
+      #  console.log "socket on: reconnect_failed"
+      #  globals.events.trigger("connection:reconnect_failed")
 
       # If an error occurs while not connected
       # @param  {string} reason Reason for the error.
-      @socket.on "error", (reason) ->
-        console.error "unable to connect socket.io", reason
+      #@socket.on "error", (reason) -> #TODO
+      #  console.error "unable to connect socket.io", reason
 
       # Received event to update all the slide images
       # @param  {Array} urls list of URLs to be added to the paper (after old images are removed)
@@ -139,9 +137,14 @@ define [
         console.log "socket on: clrPaper"
         globals.events.trigger("connection:clrPaper")
 
+
+
+
+
       # Received event to update all the shapes in the whiteboard
       # @param  {Array} shapes Array of shapes to be drawn
       @socket.on "allShapes", (allShapesEventObject) =>
+        # check for the requester_id
         console.log "socket on: all_shapes" + allShapesEventObject
         globals.events.trigger("connection:all_shapes", allShapesEventObject)
 
@@ -166,27 +169,32 @@ define [
         console.log "socket on: whiteboardDrawPen"+  data
         globals.events.trigger("connection:whiteboardDrawPen", data)
 
+
+
+
+
+
       # Received event to update the cursor coordinates
       # @param  {number} x x-coord of the cursor as a percentage of page width
       # @param  {number} y y-coord of the cursor as a percentage of page height
-      @socket.on "mvCur", (data) =>
-        x = data.cursor.x #TODO change to new json structure
-        y = data.cursor.y #TODO change to new json structure
-        console.log "socket on: mvCur"
-        globals.events.trigger("connection:mvCur", x, y)
+      #@socket.on "mvCur", (data) =>
+      #  x = data.cursor.x #TODO change to new json structure
+      #  y = data.cursor.y #TODO change to new json structure
+      #  console.log "socket on: mvCur"
+      #  globals.events.trigger("connection:mvCur", x, y)
 
       # Received event to update the zoom or move the slide
       # @param  {number} x x-coord of the cursor as a percentage of page width
       # @param  {number} y y-coord of the cursor as a percentage of page height
-      @socket.on "move_and_zoom", (xOffset, yOffset, widthRatio, heightRatio) =>
-        console.log "socket on: move_and_zoom"
-        globals.events.trigger("connection:move_and_zoom", xOffset, yOffset, widthRatio, heightRatio)
+      #@socket.on "move_and_zoom", (xOffset, yOffset, widthRatio, heightRatio) =>
+      #  console.log "socket on: move_and_zoom"
+      #  globals.events.trigger("connection:move_and_zoom", xOffset, yOffset, widthRatio, heightRatio)
 
       # Received event to update the slide image
       # @param  {string} url URL of image to show
-      @socket.on "changeslide", (url) =>
-        console.log "socket on: changeslide"
-        globals.events.trigger("connection:changeslide", url)
+      #@socket.on "changeslide", (url) =>
+      #  console.log "socket on: changeslide"
+      #  globals.events.trigger("connection:changeslide", url)
 
       # Received event to update the viewBox value
       # @param  {string} xperc Percentage of x-offset from top left corner
@@ -194,50 +202,50 @@ define [
       # @param  {string} wperc Percentage of full width of image to be displayed
       # @param  {string} hperc Percentage of full height of image to be displayed
       # TODO: not tested yet
-      @socket.on "viewBox", (xperc, yperc, wperc, hperc) =>
-        console.log "socket on: viewBox"
-        globals.events.trigger("connection:viewBox", xperc, yperc, wperc, hperc)
+      #@socket.on "viewBox", (xperc, yperc, wperc, hperc) =>
+      #  console.log "socket on: viewBox"
+      #  globals.events.trigger("connection:viewBox", xperc, yperc, wperc, hperc)
 
 
       # Received event to update the zoom level of the whiteboard.
       # @param  {number} delta amount of change in scroll wheel
-      @socket.on "zoom", (delta) ->
-        console.log "socket on: zoom"
-        globals.events.trigger("connection:zoom", delta)
+      #@socket.on "zoom", (delta) ->
+      #  console.log "socket on: zoom"
+      #  globals.events.trigger("connection:zoom", delta)
 
       # Received event to update the whiteboard size and position
       # @param  {number} cx x-offset from top left corner as percentage of original width of paper
       # @param  {number} cy y-offset from top left corner as percentage of original height of paper
       # @param  {number} sw slide width as percentage of original width of paper
       # @param  {number} sh slide height as a percentage of original height of paper
-      @socket.on "paper", (cx, cy, sw, sh) ->
-        console.log "socket on: paper"
-        globals.events.trigger("connection:paper", cx, cy, sw, sh)
+      #@socket.on "paper", (cx, cy, sw, sh) ->
+      #  console.log "socket on: paper"
+      #  globals.events.trigger("connection:paper", cx, cy, sw, sh)
 
       # Received event when the panning action finishes
-      @socket.on "panStop", ->
-        console.log "socket on: panStop"
-        globals.events.trigger("connection:panStop")
+      #@socket.on "panStop", ->
+      #  console.log "socket on: panStop"
+      #  globals.events.trigger("connection:panStop")
 
 
       # Received event to denote when the text has been created
-      @socket.on "textDone", ->
-        console.log "socket on: textDone"
-        globals.events.trigger("connection:textDone")
+      #@socket.on "textDone", ->
+      #  console.log "socket on: textDone"
+      #  globals.events.trigger("connection:textDone")
 
       # Received event to update the status of the upload progress
       # @param  {string} message  update message of status of upload progress
       # @param  {boolean} fade    true if you wish the message to automatically disappear after 3 seconds
-      @socket.on "uploadStatus", (message, fade) =>
-        console.log "socket on: uploadStatus"
-        globals.events.trigger("connection:uploadStatus", message, fade)
+      #@socket.on "uploadStatus", (message, fade) =>
+      #  console.log "socket on: uploadStatus"
+      #  globals.events.trigger("connection:uploadStatus", message, fade)
 
       # Received event for a user list change
       # @param  {Array} users Array of names and publicIDs of connected users
       # TODO: event name with spaces is bad
-      @socket.on "user list change", (users) =>
-        console.log "socket on: user list change"
-        globals.events.trigger("connection:user_list_change", users)
+      #@socket.on "user list change", (users) =>
+      #  console.log "socket on: user list change"
+      #  globals.events.trigger("connection:user_list_change", users)
 
       # Received event for a new user
       @socket.on "user_joined_message", (message) =>
@@ -252,9 +260,9 @@ define [
 
       # Received event to set the presenter to a user
       # @param  {string} userID publicID of the user that is being set as the current presenter
-      @socket.on "setPresenter", (userid) =>
-        console.log "socket on: setPresenter"
-        globals.events.trigger("connection:setPresenter", userid)
+      #@socket.on "setPresenter", (userid) =>
+      #  console.log "socket on: setPresenter"
+      #  globals.events.trigger("connection:setPresenter", userid)
 
       # Received event to update all the messages in the chat box
       # @param  {Array} messages Array of messages in public chat box
@@ -271,20 +279,17 @@ define [
     # Emit an update to move the cursor around the canvas
     # @param  {number} x x-coord of the cursor as a percentage of page width
     # @param  {number} y y-coord of the cursor as a percentage of page height
-    emitMoveCursor: (x, y) ->
-      @socket.emit "mvCur", x, y
+    #emitMoveCursor: (x, y) ->
+    #  @socket.emit "mvCur", x, y
 
     # Requests the shapes from the server.
-    emitAllShapes: ->
-      @socket.emit "all_shapes"
+    #emitAllShapes: ->
+    #  @socket.emit "all_shapes"
 
 
-    # Emit a message to the server
-    # @param  {string} the message
+    # Emit a chat message to the server
+    # @param  {string} the chat message
     emitMsg: (msg) ->
-
-      console.log "emitting message: " + msg
-
       object = {
         "header": {
           "name": "send_public_chat_message"
@@ -311,41 +316,41 @@ define [
       @socket.emit "message", object
 
     # Emit the finish of a text shape
-    emitTextDone: ->
-      @socket.emit "textDone"
+    #emitTextDone: ->
+    #  @socket.emit "textDone"
 
     # Emit the creation of a shape
     # @param  {string} shape type of shape
     # @param  {Array} data  all the data required to draw the shape on the client whiteboard
-    emitMakeShape: (shape, data) ->
-      @socket.emit "makeShape", shape, data
+    #emitMakeShape: (shape, data) ->
+    #  @socket.emit "makeShape", shape, data
 
     # Emit the update of a shape
     # @param  {string} shape type of shape
     # @param  {Array} data  all the data required to update the shape on the client whiteboard
-    emitUpdateShape: (shape, data) ->
-      @socket.emit "updShape", shape, data
+    #emitUpdateShape: (shape, data) ->
+    #  @socket.emit "updShape", shape, data
 
     # Emit an update in the whiteboard position/size values
     # @param  {number} cx x-offset from top left corner as percentage of original width of paper
     # @param  {number} cy y-offset from top left corner as percentage of original height of paper
     # @param  {number} sw slide width as percentage of original width of paper
     # @param  {number} sh slide height as a percentage of original height of paper
-    emitPaperUpdate: (cx, cy, sw, sh) ->
-      @socket.emit "paper", cx, cy, sw, sh
+    #emitPaperUpdate: (cx, cy, sw, sh) ->
+    #  @socket.emit "paper", cx, cy, sw, sh
 
     # Update the zoom level for the clients
     # @param  {number} delta amount of change in scroll wheel
-    emitZoom: (delta) ->
-      @socket.emit "zoom", delta
+    #emitZoom: (delta) ->
+    #  @socket.emit "zoom", delta
 
     # Request the next slide
-    emitNextSlide: ->
-      @socket.emit "nextslide"
+    #emitNextSlide: ->
+    #  @socket.emit "nextslide"
 
     # Request the previous slide
-    emitPreviousSlide: ->
-      @socket.emit "prevslide"
+    #emitPreviousSlide: ->
+    #  @socket.emit "prevslide"
 
     # Logout of the meeting
     emitLogout: ->
@@ -362,37 +367,36 @@ define [
       }
       @socket.emit "message", message
       @socket.disconnect()
-      #@disconnect()
-      
+
       #Utils.postToUrl "logout"
       #window.location.replace "./"
 
     # Emit panning has stopped
-    emitPanStop: ->
-      @socket.emit "panStop"
+    #emitPanStop: ->
+    #  @socket.emit "panStop"
 
     # Publish a shape to the server to be saved
     # @param  {string} shape type of shape to be saved
     # @param  {Array} data   information about shape so that it can be recreated later
-    emitPublishShape: (shape, data) ->
-      @socket.emit "saveShape", shape, JSON.stringify(data)
+    #emitPublishShape: (shape, data) ->
+    #  @socket.emit "saveShape", shape, JSON.stringify(data)
 
     # Emit a change in the current tool
     # @param  {string} tool [description]
-    emitChangeTool: (tool) ->
-      @socket.emit "changeTool", tool
+    #emitChangeTool: (tool) ->
+    #  @socket.emit "changeTool", tool
 
     # Tell the server to undo the last shape
-    emitUndo: ->
-      @socket.emit "undo"
+    #emitUndo: ->
+    #  @socket.emit "undo"
 
     # Emit a change in the presenter
-    emitSetPresenter: (id) ->
-      @socket.emit "setPresenter", id
+    #emitSetPresenter: (id) ->
+    #  @socket.emit "setPresenter", id
 
     # Emit signal to clear the canvas
-    emitClearCanvas: (id) ->
-      @socket.emit "clrPaper", id
+    #emitClearCanvas: (id) ->
+    #  @socket.emit "clrPaper", id
 
     # Helper method to get the meeting_id, user_id and auth_token from the url
     getUrlVars: ->
