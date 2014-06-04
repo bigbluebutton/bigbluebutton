@@ -102,15 +102,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dsOptions = new DeskshareOptions();
 				baseIndex = dsOptions.baseTabIndex;
 				javaRequiredString = "bbb.desktopPublish.javaRequiredLabel.unknown";
-				btnFSPublish.enabled = false;
-				btnRegionPublish.enabled = false;
-
+				
 				if (ExternalInterface.available 
 						&& ExternalInterface.call("isJavaEnabled")
 						&& ExternalInterface.call("isJavaVersionAppropriateForDeskshare")) {
 					javaRequiredString = "bbb.desktopPublish.javaRequiredLabel.verified";
-					btnFSPublish.enabled = true;
-					btnRegionPublish.enabled = true;
 				}
 			}
 			
