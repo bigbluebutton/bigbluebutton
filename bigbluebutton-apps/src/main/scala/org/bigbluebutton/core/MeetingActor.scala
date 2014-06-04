@@ -104,7 +104,6 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
       case msg: ShowPollResult                         => handleShowPollResult(msg)
       case msg: SendWhiteboardAnnotationRequest        => handleSendWhiteboardAnnotationRequest(msg)
       case msg: GetWhiteboardShapesRequest             => handleGetWhiteboardShapesRequest(msg)
-      case msg: GetWhiteboardShapesNoIdRequest         => handleGetWhiteboardShapesNoIdRequest(msg)
       case msg: ClearWhiteboardRequest                 => handleClearWhiteboardRequest(msg)
       case msg: UndoWhiteboardRequest                  => handleUndoWhiteboardRequest(msg)
       case msg: EnableWhiteboardRequest                => handleEnableWhiteboardRequest(msg)

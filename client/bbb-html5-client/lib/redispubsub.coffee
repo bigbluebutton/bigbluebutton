@@ -97,6 +97,7 @@ module.exports = class RedisPubSub
       if message.header?.name is 'get_presentation_info_reply'
         #filter for the current=true page on the server-side
         currentPage = null
+        numCurrentPage = null
         presentations = message.payload?.presentations
 
         for presentation in presentations
@@ -105,6 +106,23 @@ module.exports = class RedisPubSub
           for page in pages
             if page.current is true
               currentPage = page
+              numCurrentPage = page.num
+
+        console.log "\n\n\n\n the message is: " + JSON.stringify message
+        console.log "\n" + message.payload?.presentations[0]?.id + "/" + numCurrentPage + "\n\n"
+        #request the whiteboard information
+        requestMessage = {
+          "payload": {
+            "meeting_id": message.payload?.meeting_id
+            "requester_id": message.payload?.requester_id
+            "whiteboard_id": message.payload?.presentations[0]?.id + "/" + numCurrentPage #not sure if always [0]
+          },
+          "header": {
+            "timestamp": new Date().getTime()
+            "name": "get_whiteboard_shapes_request"
+          }
+        }
+        @publishing(config.redis.channels.toBBBApps.whiteboard, requestMessage)
 
         #strip off excess data, leaving only the current slide information
         message.payload.currentPage = currentPage
