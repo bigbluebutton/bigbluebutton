@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="90%" verticalScrollPolicy="off" horizontalScrollPolicy="off" toolTip="{data as String}">
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+		 width="90%" 
+		 verticalScrollPolicy="off" 
+		 horizontalScrollPolicy="off" 
+		 toolTip="{data as String}" 
+		 verticalAlign="middle">
   <mx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
@@ -28,10 +33,10 @@
       }
     ]]>
   </mx:Script>
-  <mx:Label id="presentationNameLabel" width="420" text="{data.name as String}" styleName="presentationNameLabelStyle"/>
+  <mx:Label id="presentationNameLabel" width="{this.width-showBtn.width-deleteBtn.width-30}" text="{data.name as String}" styleName="presentationNameLabelStyle"/>
   <mx:Button id="showBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn')}" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn.toolTip')}" 
-             styleName="presentationUploadShowButtonStyle"
+             styleName="presentationUploadShowButtonStyle" height="26"
              click="showPresentation()" enabled="true"/>
   <mx:Button id="deleteBtn" label="" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.deleteBtn.toolTip')}" 
              styleName="presentationUploadDeleteButtonStyle"
