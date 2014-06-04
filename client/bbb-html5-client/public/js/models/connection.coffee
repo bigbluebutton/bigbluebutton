@@ -127,15 +127,15 @@ define [
 
       # Received event to update all the slide images
       # @param  {Array} urls list of URLs to be added to the paper (after old images are removed)
-      @socket.on "all_slides", (allSlidesEventObject) =>
-        console.log "socket on: all_slides"
-        console.log "allSlidesEventObject: " + allSlidesEventObject
-        globals.events.trigger("connection:all_slides", allSlidesEventObject);
+      #@socket.on "all_slides", (allSlidesEventObject) =>
+      #  console.log "socket on: all_slides"
+      #  console.log "allSlidesEventObject: " + allSlidesEventObject
+      #  globals.events.trigger("connection:all_slides", allSlidesEventObject);
 
       # Received event to clear the whiteboard shapes
-      @socket.on "clrPaper",=>
-        console.log "socket on: clrPaper"
-        globals.events.trigger("connection:clrPaper")
+      #@socket.on "clrPaper",=>
+      #  console.log "socket on: clrPaper"
+      #  globals.events.trigger("connection:clrPaper")
 
 
 
@@ -143,10 +143,10 @@ define [
 
       # Received event to update all the shapes in the whiteboard
       # @param  {Array} shapes Array of shapes to be drawn
-      @socket.on "allShapes", (allShapesEventObject) =>
-        # check for the requester_id
-        console.log "socket on: all_shapes" + allShapesEventObject
-        globals.events.trigger("connection:all_shapes", allShapesEventObject)
+      #@socket.on "allShapes", (allShapesEventObject) =>
+      #  # check for the requester_id
+      #  console.log "socket on: all_shapes" + allShapesEventObject
+      #  globals.events.trigger("connection:all_shapes", allShapesEventObject)
 
       # Received event to update a shape being created
       # @param  {string} shape type of shape being updated
@@ -165,9 +165,9 @@ define [
         globals.events.trigger("connection:whiteboard_draw_event", shape, data)
 
       # Pencil drawings are received as points from the server and painted as lines.
-      @socket.on "whiteboardDrawPen", (data) =>
-        console.log "socket on: whiteboardDrawPen"+  data
-        globals.events.trigger("connection:whiteboardDrawPen", data)
+      #@socket.on "whiteboardDrawPen", (data) =>
+      #  console.log "socket on: whiteboardDrawPen"+  data
+      #  globals.events.trigger("connection:whiteboardDrawPen", data)
 
 
 
@@ -285,7 +285,6 @@ define [
     # Requests the shapes from the server.
     #emitAllShapes: ->
     #  @socket.emit "all_shapes"
-
 
     # Emit a chat message to the server
     # @param  {string} the chat message
