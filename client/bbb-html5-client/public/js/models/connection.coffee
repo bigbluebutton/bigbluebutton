@@ -137,10 +137,6 @@ define [
       #  console.log "socket on: clrPaper"
       #  globals.events.trigger("connection:clrPaper")
 
-
-
-
-
       # Received event to update all the shapes in the whiteboard
       # @param  {Array} shapes Array of shapes to be drawn
       #@socket.on "allShapes", (allShapesEventObject) =>
@@ -148,31 +144,31 @@ define [
       #  console.log "socket on: all_shapes" + allShapesEventObject
       #  globals.events.trigger("connection:all_shapes", allShapesEventObject)
 
+      # Received event to update all the shapes in the whiteboard
+      # @param  {Array} shapes Array of shapes to be drawn
+      #@socket.on "get_whiteboard_shapes_reply", (object) =>
+      #  if @userId is object.payload?.requester_id
+      #    #alert("I am getting some shapes reply" + JSON.stringify object)
+      #    for shape in object.payload?.shapes
+      #      #alert("for a shape:")
+      #      shape_type = shape.shape_type
+      #      globals.events.trigger("connection:whiteboard_draw_event", shape_type, shape.shape) # TODO to change the name
+
+      #      globals.events.trigger("connection:updShape", shape_type, shape.shape)
+
       # Received event to update a shape being created
       # @param  {string} shape type of shape being updated
       # @param  {Array} data   all information to update the shape
-      @socket.on "whiteboard_update_event", (data) =>
-        console.log "socket on: whiteboard_update_event"
-        shape = data.payload.shape_type
-        globals.events.trigger("connection:updShape", shape, data)
-
-      # Received event to create a shape on the whiteboard
-      # @param  {string} shape type of shape being made
-      # @param  {Array} data   all information to make the shape
-      @socket.on "whiteboard_draw_event", (data) =>
-        console.log "socket on: whiteboard_draw_event"
-        shape = data.payload.shape_type
+      @socket.on "send_whiteboard_shape_message", (data) =>
+        alert "send_whiteboard_shape_message" + JSON.stringify data
+        shape = data.payload.shape.shape_type
         globals.events.trigger("connection:whiteboard_draw_event", shape, data)
+        globals.events.trigger("connection:updShape", shape, data)
 
       # Pencil drawings are received as points from the server and painted as lines.
       #@socket.on "whiteboardDrawPen", (data) =>
       #  console.log "socket on: whiteboardDrawPen"+  data
       #  globals.events.trigger("connection:whiteboardDrawPen", data)
-
-
-
-
-
 
       # Received event to update the cursor coordinates
       # @param  {number} x x-coord of the cursor as a percentage of page width
@@ -279,8 +275,8 @@ define [
     # Emit an update to move the cursor around the canvas
     # @param  {number} x x-coord of the cursor as a percentage of page width
     # @param  {number} y y-coord of the cursor as a percentage of page height
-    #emitMoveCursor: (x, y) ->
-    #  @socket.emit "mvCur", x, y
+    emitMoveCursor: (x, y) ->
+      @socket.emit "mvCur", x, y
 
     # Requests the shapes from the server.
     #emitAllShapes: ->
