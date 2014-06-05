@@ -49,6 +49,9 @@ package org.bigbluebutton.modules.phone
 
 		[Bindable]
 		public var showSpeakerButton:Boolean = true;
+		
+		[Bindable]
+		public var showPhoneOption:Boolean = false;
 
 		public function PhoneOptions() {
 			parseOptions();
@@ -86,6 +89,9 @@ package org.bigbluebutton.modules.phone
 				}
 				if (vxml.@showSpeakerButton != undefined) {
 					showSpeakerButton = (vxml.@showSpeakerButton.toString().toUpperCase() == "TRUE");
+				}
+				if (vxml.@showPhoneOption != undefined) {
+					showPhoneOption = (vxml.@showPhoneOption.toString().toUpperCase() == "TRUE");
 				}
 			}
 		}		
