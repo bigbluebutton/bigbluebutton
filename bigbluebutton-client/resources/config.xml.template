@@ -55,6 +55,7 @@
 			showSpeakerButton="false"
 			enabledEchoCancel="true"
 			useWebrtcIfAvailable="true"
+			showPhoneOption="false"
 			echoTestApp="9196"
 			dependsOn="UsersModule"
 		/>
