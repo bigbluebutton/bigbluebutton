@@ -162,6 +162,8 @@ define [
       @socket.on "send_whiteboard_shape_message", (data) =>
         alert "send_whiteboard_shape_message" + JSON.stringify data
         shape = data.payload.shape.shape_type
+        for point in data.payload.shape.shape.points
+          point = point/100 #early attempt to scale down
         globals.events.trigger("connection:whiteboard_draw_event", shape, data)
         globals.events.trigger("connection:updShape", shape, data)
 
@@ -336,8 +338,8 @@ define [
 
     # Update the zoom level for the clients
     # @param  {number} delta amount of change in scroll wheel
-    #emitZoom: (delta) ->
-    #  @socket.emit "zoom", delta
+    emitZoom: (delta) ->
+      @socket.emit "zoom", delta
 
     # Request the next slide
     #emitNextSlide: ->
