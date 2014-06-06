@@ -59,7 +59,6 @@
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			import org.bigbluebutton.main.views.LockSettings;
 			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.main.views.MicSettings;
 			import org.bigbluebutton.modules.users.events.UsersEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.modules.users.model.UsersOptions;

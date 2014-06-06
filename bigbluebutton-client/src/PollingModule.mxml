@@ -80,11 +80,11 @@
 			
 			public function start(attributes:Object):void {	
 				
-				LogUtil.debug(LOGNAME +" started [Username: " + attributes.username + " Role: " +attributes.userrole + " Room:" +attributes.room+ "]" );
+				trace(LOGNAME +" started [Username: " + attributes.username + " Role: " +attributes.userrole + " Room:" +attributes.room+ "]" );
 				
 				_attributes = attributes;
 				//eventMap.module = this;
-				LogUtil.debug(LOGNAME + "inside start() dispatching ModuleEvent");
+				trace(LOGNAME + "inside start() dispatching ModuleEvent");
 				var startEvent:ModuleEvent = new ModuleEvent(ModuleEvent.START);
 				startEvent.module = this;
 				globalDispatcher.dispatchEvent(startEvent);
@@ -94,7 +94,7 @@
 			
 			
 			public function stop():void {
-				LogUtil.debug(LOGNAME + "STOPPING Polling MODULE");	
+				trace(LOGNAME + "STOPPING Polling MODULE");	
 			}
 			
 			public function getMeetingInfo():String{
