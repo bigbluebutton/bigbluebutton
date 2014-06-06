@@ -14,10 +14,13 @@ Meteor.methods({
     var user = {userId: "user1", meetingId: "demo123"};
     //UserSession.set(meetingId + ":" userId, user);
     var userId = Meteor.users.insert(user);
-    this.setUserId = userId;
+    console.log("User id=[" + userId + "]");
+    this.setUserId(userId);
+    console.log(this.userId);
     return userId;        
   },
   showUserId: function() {
     throw new Meteor.Error(422, this.userId);
   }
 });
+
