@@ -97,7 +97,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   
     <EventHandlers type="{UpdateLayoutEvent.UPDATE_LAYOUT_EVENT}">
-   		<MethodInvoker generator="{LayoutService}" method="broadcastLayout" arguments="{[event.layout, event.locked]}" />
+   		<MethodInvoker generator="{LayoutService}" method="broadcastLayout" arguments="{event.layout}" />
     </EventHandlers>
 
   <EventHandlers type="{SyncLayoutEvent.SYNC_LAYOUT_EVENT}">
