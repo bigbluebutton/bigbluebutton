@@ -8,7 +8,7 @@ package org.bigbluebutton.modules.layout.model
     
     private static var instance:LayoutModel = null;
     
-    private var _layouts:ArrayCollection = new ArrayCollection();
+    private var _layouts:LayoutDefinitionFile = null;
     
     public function LayoutModel(enforcer:SingletonEnforcer)
     {
@@ -24,15 +24,28 @@ package org.bigbluebutton.modules.layout.model
       return instance;
     }
     
-    public function getLayoutNames():Array {
-      var l:Array = new Array();
-      for (var i:int = 0; i < _layouts.length; i++) {
-        var lay:LayoutDefinition = _layouts.getItemAt(i) as LayoutDefinition;
-        l.push(lay.name);
-      }
-      return l;
+    public function getDefaultLayout():LayoutDefinition {
+      return _layouts.getDefault();
     }
     
+    public function getLayout(name:String):LayoutDefinition {
+      return _layouts.getLayout(name);
+    }
+    public function addLayouts(layouts: LayoutDefinitionFile):void {
+      _layouts = layouts;
+    }
+    
+    public function addLayout(layout: LayoutDefinition):void {
+      _layouts.push(layout);
+    }
+    
+    public function getLayoutNames():Array {
+      return _layouts.list;
+    }
+    
+    public function toString():String {
+      return _layouts.toXml().toXMLString();
+    }
   }
 }
 

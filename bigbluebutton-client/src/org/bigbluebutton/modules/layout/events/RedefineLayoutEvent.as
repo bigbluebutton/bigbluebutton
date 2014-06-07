@@ -28,9 +28,9 @@ package org.bigbluebutton.modules.layout.events
 		public var layout:LayoutDefinition = null;
 		public var remote:Boolean = false;
 		
-		public function RedefineLayoutEvent(type:String = REDEFINE_LAYOUT_EVENT)
+		public function RedefineLayoutEvent()
 		{
-			super(type, true, false);
+			super(REDEFINE_LAYOUT_EVENT, true, false);
 		}
 
 	}

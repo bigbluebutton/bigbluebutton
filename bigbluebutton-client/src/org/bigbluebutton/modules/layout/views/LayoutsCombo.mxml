@@ -22,13 +22,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			xmlns:mate="http://mate.asfusion.com/"
 			toolTip="{ResourceUtil.getInstance().getString('bbb.layout.combo.toolTip')}"
 			prompt="{ResourceUtil.getInstance().getString('bbb.layout.combo.prompt')}"
-			height="{LayoutButton.BUTTON_SIZE}"
+			height="{LayoutButton.BUTTON_SIZE}" creationComplete="init()"
 			change="onSelectedItemChanged(event)"
-			disabledColor="{getStyle('color')}"
-            rowCount="10" >
+			disabledColor="{getStyle('color')}" rowCount="10" >
 	
 	<mate:Listener type="{LayoutChangedEvent.LAYOUT_CHANGED}" method="onLayoutChanged" />
-	<mate:Listener type="{LayoutsLoadedEvent.LAYOUTS_LOADED_EVENT}" method="populateLayoutsList"/>
+	<mate:Listener type="{LayoutsReadyEvent.LAYOUTS_READY}" method="populateLayoutsList"/>
 	
 	<mx:Script>
 		<![CDATA[
@@ -45,6 +44,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import flexlib.mdi.events.MDIWindowEvent;
       import flexlib.mdi.managers.MDIManager;
       
+      import mx.collections.ArrayCollection;
       import mx.controls.Alert;
       import mx.events.ResizeEvent;
       
@@ -59,6 +59,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.layout.events.LayoutChangedEvent;
       import org.bigbluebutton.modules.layout.events.LayoutEvent;
       import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
+      import org.bigbluebutton.modules.layout.events.LayoutsReadyEvent;
       import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
       import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;
       import org.bigbluebutton.modules.layout.model.LayoutDefinition;
@@ -68,16 +69,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.layout.views.LayoutButton;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 			
+      private static const LOG:String = "Layout::LayoutsCombo - ";
+      
 			private var _dispatcher:Dispatcher = new Dispatcher();
 			
-			private function populateLayoutsList(e:LayoutsLoadedEvent):void {
+      private var layoutNames:ArrayCollection = new ArrayCollection();
+      
+      private function init():void {
+        dataProvider = layoutNames;
+      }
+      
+			private function populateLayoutsList(e:LayoutsReadyEvent):void {
+        trace(LOG + " displaying layout names.");
 				dataProvider.removeAll();
         var layoutNames:Array = LayoutModel.getInstance().getLayoutNames();
         
         var idx:int = 0;
-				for each (var name:String in layoutNames) {
-          var item:Object = {index:idx, label:name};
+				for each (var lay:Object in layoutNames) {
+          var item:Object = {index: idx, label: lay.name, currentLayout: lay.currentLayout };
+          trace(LOG + " layout [" + lay.name + ", current=" + lay.currentLayout + "]");
 					dataProvider.addItem(item);
+          if (lay.currentLayout) selectedIndex = idx;
 				}
 				invalidateDisplayList();
 			}
@@ -95,8 +107,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onSelectedItemChanged(e:Event):void {
 				_dispatcher.dispatchEvent(new ChangeLayoutEvent(e.currentTarget.selectedItem.name));
 			}
-			
-			
+					
 		]]>
 	</mx:Script>
 </mx:ComboBox>

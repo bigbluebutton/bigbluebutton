@@ -58,11 +58,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
    		<MethodInvoker generator="{LayoutManager}" method="setCanvas" arguments="{event.canvas}" />
     <MethodInvoker generator="{LayoutService}" method="getCurrentLayout"/>
     </EventHandlers>
-    
-    <EventHandlers type="{ComboBoxCreatedEvent.COMBOBOX_CREATED_EVENT}">
-   		<MethodInvoker generator="{LayoutManager}" method="onComboLayoutCreated"/>
-    </EventHandlers>
-    
+       
     <EventHandlers type="{LayoutEvent.STOP_LAYOUT_MODULE_EVENT}">
    		<MethodInvoker generator="{LayoutEventMapDelegate}" method="stopModule" />
     </EventHandlers>
@@ -118,10 +114,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
     <EventHandlers type="{LayoutEvent.SAVE_LAYOUTS_EVENT}">
    		<MethodInvoker generator="{LayoutManager}" method="saveLayoutsToFile" />
-    </EventHandlers>
-	
-    <EventHandlers type="{LayoutEvent.LOAD_LAYOUTS_EVENT}">
-   		<MethodInvoker generator="{LayoutManager}" method="loadLayoutsFromFile" />
     </EventHandlers>
 	
     <EventHandlers type="{LayoutEvent.ADD_CURRENT_LAYOUT_EVENT}">

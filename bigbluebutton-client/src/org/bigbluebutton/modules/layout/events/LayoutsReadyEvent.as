@@ -20,16 +20,13 @@ package org.bigbluebutton.modules.layout.events
 {
 	import flash.events.Event;
 
-	import flexlib.mdi.containers.MDICanvas;
-	
-	public class ViewInitializedEvent extends Event
+	public class LayoutsReadyEvent extends Event
 	{
-		public static const VIEW_INITIALIZED_EVENT:String = "VIEW_INITIALIZED_EVENT";
-		public var canvas:MDICanvas = null;
+		public static const LAYOUTS_READY:String = "layouts ready event";
 		
-		public function ViewInitializedEvent()
+		public function LayoutsReadyEvent()
 		{
-			super(VIEW_INITIALIZED_EVENT, true, false);
+			super(LAYOUTS_READY, true, false);
 		}
 
 	}

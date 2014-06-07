@@ -28,9 +28,9 @@ package org.bigbluebutton.modules.layout.events
 		public var layout:LayoutDefinition;
 		public var locked:Boolean;
 
-		public function UpdateLayoutEvent(type:String=UPDATE_LAYOUT_EVENT, bubbles:Boolean=true, cancelable:Boolean=false)
+		public function UpdateLayoutEvent()
 		{
-			super(type, bubbles, cancelable);
+			super(UPDATE_LAYOUT_EVENT, true, false);
 		}
 		
 	}
