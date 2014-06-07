@@ -169,16 +169,6 @@ package org.bigbluebutton.modules.layout.managers
 		
 		public function setCanvas(canvas:MDICanvas):void {
 			_canvas = canvas;
-			/*
-			 * it should be dispatched when the layouts get loaded, but
-			 * the view is not ready at that point to receive the layouts
-			 * and populate the ComboBox
-			 */
-//			if (_layouts != null) {
-//				var e:LayoutsLoadedEvent = new LayoutsLoadedEvent();
-//				e.layouts = _layouts;
-//				_globalDispatcher.dispatchEvent(e);
-//			}
 
 			// this is to detect changes on the container
 			_canvas.windowManager.container.addEventListener(ResizeEvent.RESIZE, onContainerResized);

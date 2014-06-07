@@ -31,23 +31,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
+      import com.asfusion.mate.events.Dispatcher;     
       import flash.events.Event;
       import flash.events.IOErrorEvent;
       import flash.events.ProgressEvent;
       import flash.net.FileReference;
-      
       import flexlib.mdi.containers.MDICanvas;
       import flexlib.mdi.containers.MDIWindow;
       import flexlib.mdi.events.MDIManagerEvent;
       import flexlib.mdi.events.MDIWindowEvent;
       import flexlib.mdi.managers.MDIManager;
-      
       import mx.collections.ArrayCollection;
       import mx.controls.Alert;
       import mx.events.ResizeEvent;
-      
       import org.bigbluebutton.common.IBbbModuleWindow;
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
@@ -72,29 +68,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private static const LOG:String = "Layout::LayoutsCombo - ";
       
 			private var _dispatcher:Dispatcher = new Dispatcher();
-			
-      private var layoutNames:ArrayCollection = new ArrayCollection();
+      [Bindable] private var layoutNames:ArrayCollection = new ArrayCollection();
       
       private function init():void {
         dataProvider = layoutNames;
       }
       
 			private function populateLayoutsList(e:LayoutsReadyEvent):void {
-        trace(LOG + " displaying layout names.");
-				dataProvider.removeAll();
-        var layoutNames:Array = LayoutModel.getInstance().getLayoutNames();
+        trace(LOG + " displaying layout names.");       
+        layoutNames = new ArrayCollection();         
+        var layouts:Array = LayoutModel.getInstance().getLayoutNames();
         
         var idx:int = 0;
-				for each (var lay:Object in layoutNames) {
+				for each (var lay:Object in layouts) {
           var item:Object = {index: idx, label: lay.name, currentLayout: lay.currentLayout };
           trace(LOG + " layout [" + lay.name + ", current=" + lay.currentLayout + "]");
-					dataProvider.addItem(item);
-          if (lay.currentLayout) selectedIndex = idx;
+          layoutNames.addItem(item);
+          if (lay.currentLayout) {
+            selectedIndex = idx;
+          }
+          idx++;
 				}
+      //  dataProvider = layoutNames;
 				invalidateDisplayList();
 			}
 						
 			private function onLayoutChanged(e:LayoutChangedEvent):void {	
+        trace(LOG + " handling LayoutChangedEvent."); 
 				var idx:int = -1;					
 				for each (var obj:Object in dataProvider) {
 					if (obj.label == e.layoutName)
