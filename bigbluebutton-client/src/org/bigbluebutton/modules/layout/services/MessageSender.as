@@ -19,6 +19,23 @@ package org.bigbluebutton.modules.layout.services
         }
       );
     }
+
+    public function syncLayout(layout:LayoutDefinition):void {
+      var message:Object = new Object();
+      message["setByUserID"] = UserManager.getInstance().getConference().getMyUserId();
+      message["layout"] = layout.toXml().toXMLString();
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("layout.sync", 
+        function(result:String):void { // On successful result
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void { // status - On error occurred
+          LogUtil.error(status); 
+        },
+        message
+      );
+    }
     
     public function lockLayout(layout:LayoutDefinition):void {
       var message:Object = new Object();

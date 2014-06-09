@@ -1,17 +1,18 @@
  package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.core.api._
-import scala.collection.mutable.HashMap
-import org.bigbluebutton.core.User
-import java.util.ArrayList
-import org.bigbluebutton.core.MeetingActor
+ import scala.collection.mutable.HashMap
+ import org.bigbluebutton.core.User
+ import java.util.ArrayList
+ import org.bigbluebutton.core.MeetingActor
+ import scala.collection.mutable.ArrayBuffer
 
 trait UsersApp {
   this : MeetingActor =>
   
   val outGW: MessageOutGateway
   
-  private val users = new UsersModel
+  val users = new UsersModel
   private var regUsers = new collection.immutable.HashMap[String, RegisteredUser]
   
   private var locked = false
@@ -145,8 +146,15 @@ trait UsersApp {
     println("*************** Received new lock settings ********************")
     if (permissions != msg.settings) {
       permissions = msg.settings
-      outGW.send(new NewPermissionsSetting(meetingID, permissions))
+      val au = affectedUsers(msg.settings)
+      outGW.send(new NewPermissionsSetting(meetingID, msg.setByUser, permissions, au))
+      
+      changeLayout(msg) 
     }    
+  }
+  
+  private def changeLayout(msg: SetLockSettings) {
+    this ! new LayoutLockSettings(msg.meetingID, msg.setByUser, permissions.permissions.lockedLayout)
   }
   
   def handleInitLockSettings(msg: InitLockSettings) {
@@ -155,12 +163,25 @@ trait UsersApp {
       if (permissions != msg.settings || locked != msg.locked) {
 	      permissions = msg.settings   
 	      locked = msg.locked	    
-	      outGW.send(new PermissionsSettingInitialized(msg.meetingID, msg.locked, msg.settings))
+	      val au = affectedUsers(msg.settings)
+	      outGW.send(new PermissionsSettingInitialized(msg.meetingID, msg.locked, msg.settings, au))
       }      
     }
-
   }  
 
+  def affectedUsers(settings: PermissionsSetting):Array[UserVO] = {
+    val au = ArrayBuffer[UserVO]()
+    
+    users.getUsers foreach {u =>
+      val nu = u.copy(permissions=settings.permissions)
+      users.addUser(nu)
+        if (! u.presenter && u.role != Role.MODERATOR) {
+          au += nu
+        }
+    }
+    au.toArray
+  }
+  
   def handleUserRaiseHand(msg: UserRaiseHand) {
     users.getUser(msg.userId) foreach {user =>
       val uvo = user.copy(raiseHand=true)
@@ -202,8 +223,6 @@ trait UsersApp {
   
   def handleGetUsers(msg: GetUsers):Unit = {
 	  outGW.send(new GetUsersReply(msg.meetingID, msg.requesterID, users.getUsers))
-	  // TESTING ONLY
-	  outGW.send(new NewPermissionsSetting(meetingID, permissions))
   }
   
   def handleUserJoin(msg: UserJoining):Unit = {

@@ -24,13 +24,15 @@ package org.bigbluebutton.core.vo
 		private var disableMic:Boolean;
 		private var disablePrivateChat:Boolean;
 		private var disablePublicChat:Boolean;
+    private var lockedLayout:Boolean;
 
-		public function LockSettingsVO(pDisableCam:Boolean, pDisableMic:Boolean, pDisablePrivateChat:Boolean, pDisablePublicChat:Boolean)
+		public function LockSettingsVO(pDisableCam:Boolean, pDisableMic:Boolean, pDisablePrivateChat:Boolean, pDisablePublicChat:Boolean, pLockLayout: Boolean)
 		{
 			this.disableCam = pDisableCam;
 			this.disableMic = pDisableMic;
 			this.disablePrivateChat = pDisablePrivateChat;
 			this.disablePublicChat = pDisablePublicChat;
+      this.lockedLayout = pLockLayout;
 		}
 		
 		public function toMap():Object {
@@ -38,7 +40,8 @@ package org.bigbluebutton.core.vo
 				disableCam: this.disableCam,
 				disableMic: this.disableMic,
 				disablePrivateChat: this.disablePrivateChat,
-				disablePublicChat: this.disablePublicChat
+				disablePublicChat: this.disablePublicChat,
+        lockedLayout: this.lockedLayout
 			};
 			
 			return map;
@@ -59,5 +62,9 @@ package org.bigbluebutton.core.vo
 		public function getDisablePublicChat():Boolean {
 			return disablePublicChat;
 		}
+    
+    public function getLockedLayout():Boolean {
+      return lockedLayout;
+    }
 	}
 }

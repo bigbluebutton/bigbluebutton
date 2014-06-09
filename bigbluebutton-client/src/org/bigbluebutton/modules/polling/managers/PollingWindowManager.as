@@ -62,14 +62,16 @@ package org.bigbluebutton.modules.polling.managers
     private var toolbarButtonManager:ToolbarButtonManager = new ToolbarButtonManager();
 			
 		public function initialize():void {
+      trace(LOG + " initialized.");
 			_viewModel = new PollingViewModel(model);
       if (UsersUtil.amIPresenter()) {
         toolbarButtonManager.addToolbarButton();
-        initializeModel();
       }
+      initializeModel();
 		}
 		
     private function initializeModel():void {
+      trace(LOG + " initializing model.");
       if (! model.initialized()) {
         dispatcher.dispatchEvent(new GetPollsEvent());
       }

@@ -31,11 +31,13 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;			
+			import com.asfusion.mate.events.Dispatcher;
+			
 			import mx.binding.utils.BindingUtils;
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
-			import mx.events.ListEvent;			
+			import mx.events.ListEvent;
+			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.Role;
@@ -158,21 +160,21 @@
 					
 					
 					if (!data.voiceJoined) {
-            if (data.listenOnly) {
-              muteImg.source = images.sound;
-              muteImg.visible = true;
-              muteImg.includeInLayout = false;
-              muteBtn.visible = false;
-              muteBtn.includeInLayout = false;             
-            } else {
-              muteImg.visible = false;
-              muteImg.includeInLayout = false;
-              muteBtn.visible = false;
-              muteBtn.includeInLayout = true;               
-            }
-
+						if (data.listenOnly) {
+							muteImg.source = images.sound;
+							muteImg.visible = true;
+							muteImg.includeInLayout = true;
+							muteBtn.visible = false;
+							muteBtn.includeInLayout = false;             
+						} else {
+							muteImg.visible = false;
+							muteImg.includeInLayout = false;
+							muteBtn.visible = false;
+							muteBtn.includeInLayout = true;               
+						}
+						
 					} else {
-						if(data.userLocked && UserManager.getInstance().getConference().getLockSettings().getDisableMic()) {
+						if (data.userLocked && UserManager.getInstance().getConference().getLockSettings().getDisableMic()) {
 							muteImg.visible = true;
 							muteImg.includeInLayout = true;
 							muteBtn.visible = false;
@@ -184,7 +186,7 @@
 							muteBtn.includeInLayout = rolledOver;
 							
 							if(data.talking && !rolledOver){
-								muteImg.filters = [new GlowFilter(0x898989)];
+								muteImg.filters = [new GlowFilter(0xFF0000)];
 							}else{
 								muteImg.filters = [];
 							}
@@ -205,40 +207,39 @@
 						lockBtn.includeInLayout = false;
 					}
 					
-          if (data.hasStream) {
-            if (data.viewingStream || data.me) {
-              webcamImg.visible = true;
-              webcamImg.includeInLayout = true;
-              webcamBtn.visible = false;
-              webcamBtn.includeInLayout = false;
-            } else {
-              webcamImg.visible = false;
-              webcamImg.includeInLayout = false;
-              webcamBtn.visible = true;
-              webcamBtn.includeInLayout = true;
-            }
-          } else {
-            webcamImg.visible = false;
-            webcamImg.includeInLayout = true;
-            webcamBtn.visible = false;
-            webcamBtn.includeInLayout = false;
-          }
-                    
-					if (!rolledOver) {
-            if (!data.voiceJoined && data.listenOnly) {
-              muteImg.source = images.sound;
-            } else {
-              if (data.voiceMuted)
-                muteImg.source = images.audio_muted_20;
-              else
-                muteImg.source = images.audio_20;              
-            }
+					if (data.hasStream) {
+						if (data.viewingStream || data.me) {
+							webcamImg.visible = true;
+							webcamImg.includeInLayout = true;
+							webcamBtn.visible = false;
+							webcamBtn.includeInLayout = false;
+						} else {
+							webcamImg.visible = false;
+							webcamImg.includeInLayout = false;
+							webcamBtn.visible = true;
+							webcamBtn.includeInLayout = true;
+						}
+					} else {
+						webcamImg.visible = false;
+						webcamImg.includeInLayout = true;
+						webcamBtn.visible = false;
+						webcamBtn.includeInLayout = false;
+					}
 
+					if (!rolledOver) {
+						if (!data.voiceJoined && data.listenOnly) {
+							muteImg.source = images.sound;
+						} else {
+							if (data.voiceMuted)
+								muteImg.source = images.audio_muted_20;
+							else
+								muteImg.source = images.audio_20;              
+						}
 						
-						if (data.userLocked)
+						
+						if ((data.role != Role.MODERATOR && !data.presenter) && 
+                (data.disableMyCam || data.disableMyMic || data.disableMyPrivateChat || data.disableMyPublicChat))
 							lockImg.source = images.locked_20;
-						//else if (moderator)
-						//	lockImg.source = images.unlocked_20;
 						else
 							lockImg.source = null;
 					} else {

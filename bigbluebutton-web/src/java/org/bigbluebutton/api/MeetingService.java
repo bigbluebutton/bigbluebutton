@@ -61,7 +61,10 @@ public class MeetingService implements MessageListener {
 	private volatile boolean processMessage = false;
 	
 	private final Executor msgProcessorExec = Executors.newSingleThreadExecutor();
-	
+
+	/**
+	 * http://ria101.wordpress.com/2011/12/12/concurrenthashmap-avoid-a-common-misuse/
+	 */
 	private final ConcurrentMap<String, Meeting> meetings;	
 	private final ConcurrentMap<String, UserSession> sessions;
 		
@@ -73,11 +76,12 @@ public class MeetingService implements MessageListener {
 	private boolean removeMeetingWhenEnded = false;
 
 	public MeetingService() {
-		meetings = new ConcurrentHashMap<String, Meeting>();	
-		sessions = new ConcurrentHashMap<String, UserSession>();		
+		meetings = new ConcurrentHashMap<String, Meeting>(8, 0.9f, 1);	
+		sessions = new ConcurrentHashMap<String, UserSession>(8, 0.9f, 1);		
 	}
 	
 	public void addUserSession(String token, UserSession user) {
+		log.debug("Adding user [" + user.fullname + "] token=[" + token + "] to meeting [" + user.meetingID + "]");
 		sessions.put(token, user);
 	}
 	
@@ -90,7 +94,12 @@ public class MeetingService implements MessageListener {
 	}
 	
 	public UserSession removeUserSession(String token) {
-		return sessions.remove(token);
+		log.debug("Removing user token [" + token + "]");
+		UserSession user = sessions.remove(token);
+		if (user != null) {
+			log.debug("Found user [" + user.fullname + "] token=[" + token + "] to meeting [" + user.meetingID + "]");
+		}
+		return user;
 	}
 		
 	/**
@@ -112,7 +121,24 @@ public class MeetingService implements MessageListener {
 	private void processMeetingForRemoval(Meeting m) {
 		kickOffProcessingOfRecording(m);	  		
   	destroyMeeting(m.getInternalId());		  		
-		meetings.remove(m.getInternalId());				
+		meetings.remove(m.getInternalId());		
+		removeUserSessions(m.getInternalId());
+	}
+	
+	private void removeUserSessions(String meetingId) {
+		log.debug("Cleaning up user sessions for meeting [" + meetingId + "]");
+		Iterator<Map.Entry<String, UserSession>> iterator = sessions.entrySet().iterator();
+		while(iterator.hasNext()){
+		   Map.Entry<String, UserSession> entry = iterator.next();		   
+		   UserSession userSession = entry.getValue();
+		   log.debug("Got user [" + userSession.fullname + "] from meeting [" + userSession.conferencename + "]");
+		   if (userSession.meetingID.equals(meetingId)) {
+		  	 log.debug("Removing user [" + userSession.fullname + "] from meeting [" + userSession.conferencename + "]");
+		  	 iterator.remove();
+		   } else {
+		  	 log.debug("Not Removing user [" + userSession.fullname + "] from meeting [" + userSession.conferencename + "]");
+		   }
+		}
 	}
 	
 	private void checkAndRemoveExpiredMeetings() {
@@ -162,7 +188,7 @@ public class MeetingService implements MessageListener {
 
 	private void handleCreateMeeting(Meeting m) {
 		log.debug("Storing Meeting with internal id:" + m.getInternalId());
-		System.out.println(" ******************* Storing Meeting with internal id:" + m.getInternalId());
+		log.debug(" ******************* Storing Meeting with internal id:" + m.getInternalId());
 		meetings.put(m.getInternalId(), m);
 		if (m.isRecord()) {
 			Map<String,String> metadata = new LinkedHashMap<String,String>();

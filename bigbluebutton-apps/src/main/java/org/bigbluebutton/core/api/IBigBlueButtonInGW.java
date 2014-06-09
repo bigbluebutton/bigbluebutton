@@ -16,7 +16,7 @@ public interface IBigBlueButtonInGW {
 	
 	// Lock
 	void initLockSettings(String meetingID, boolean locked, Map<String, Boolean> settings);
-	void sendLockSettings(String meetingID, Map<String, Boolean> settings);
+	void sendLockSettings(String meetingID, String userId, Map<String, Boolean> settings);
 	void getLockSettings(String meetingId, String userId);
 	void isMeetingLocked(String meetingId, String userId);
 	void lockAllUsers(String meetingId, boolean lock, ArrayList<String> dontLockTheseUsers);
@@ -94,6 +94,7 @@ public interface IBigBlueButtonInGW {
 	// Layout
 	void getCurrentLayout(String meetingID, String requesterID);
 	void setLayout(String meetingID, String requesterID, String layoutID);
+	void syncLayout(String meetingID, String requesterID, String layoutID);
 	void lockLayout(String meetingID, String requesterID, String layoutID);
 	void unlockLayout(String meetingID, String requesterID);
 

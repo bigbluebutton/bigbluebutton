@@ -35,7 +35,8 @@ case class Permissions(
   disableCam: Boolean = false,
   disableMic: Boolean = false,
   disablePrivChat: Boolean = false,
-  disablePubChat: Boolean = false
+  disablePubChat: Boolean = false,
+  lockedLayout:Boolean = false
 )
 
 case class PermissionsSetting(

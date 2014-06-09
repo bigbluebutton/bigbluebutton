@@ -81,7 +81,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
     bbbGW.accept(new RegisterUser(meetingID, userID, name, userRole, extUserID, authToken))
   }
   
-  def sendLockSettings(meetingID: String, settings: java.util.Map[String, java.lang.Boolean]) {
+  def sendLockSettings(meetingID: String, userId: String, settings: java.util.Map[String, java.lang.Boolean]) {
     // Convert java.util.Map to scala.collection.immutable.Map
     // settings.mapValues -> convaert java Map to scala mutable Map
     // v => v.booleanValue() -> convert java Boolean to Scala Boolean
@@ -91,13 +91,15 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
     val disableMic = s.getOrElse("disableMic", false)
     val disablePrivChat = s.getOrElse("disablePrivateChat", false)
     val disablePubChat = s.getOrElse("disablePublicChat", false)
+    val lockedLayout = s.getOrElse("lockedLayout", false)
     val permissions = new Permissions(disableCam = disableCam,
                                       disableMic = disableMic,
                                       disablePrivChat = disablePrivChat,
-                                      disablePubChat = disablePubChat)
+                                      disablePubChat = disablePubChat,
+                                      lockedLayout = lockedLayout)
 
     val ls = new PermissionsSetting(permissions)
-    bbbGW.accept(new SetLockSettings(meetingID, ls))
+    bbbGW.accept(new SetLockSettings(meetingID, userId, ls))
   }
   
   def initLockSettings(meetingID: String, locked: Boolean, settings: java.util.Map[String, java.lang.Boolean]) {
@@ -110,10 +112,12 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
     val disableMic = s.getOrElse("disableMic", false)
     val disablePrivChat = s.getOrElse("disablePrivateChat", false)
     val disablePubChat = s.getOrElse("disablePublicChat", false)
+    val lockedLayout = s.getOrElse("lockedLayout", false)
     val permissions = new Permissions(disableCam = disableCam,
                                       disableMic = disableMic,
                                       disablePrivChat = disablePrivChat,
-                                      disablePubChat = disablePubChat)
+                                      disablePubChat = disablePubChat,
+                                      lockedLayout = lockedLayout)
 
     val ls = new PermissionsSetting(permissions)
     bbbGW.accept(new InitLockSettings(meetingID, locked, ls))
@@ -340,7 +344,11 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	def setLayout(meetingID: String, requesterID: String, layoutID: String) {
 	  layoutGW.setLayout(meetingID, requesterID, layoutID)
 	}
-	
+
+  def syncLayout(meetingID: String, requesterID: String, layoutID: String) {
+	  layoutGW.setLayout(meetingID, requesterID, layoutID)
+	}
+		
 	def lockLayout(meetingID: String, requesterID: String, layoutID: String) {
 	  layoutGW.lockLayout(meetingID, requesterID, layoutID)
 	}
