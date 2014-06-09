@@ -12,11 +12,16 @@ define [
 	  	userid: null
 	  	username: null
   	
-    initialize: ->
-    	#alert "creation"
+    initialize:  ->
+      #alert("iiiiiinitialize"+newUserid+" "+newUsername)
+    	console.log "creation"
+      
+    isValid: ->
+      console.log "inside is valid- id: #{@id} userid: #{@userid} username: #{@username}"
+      value = @id? and @userid? and @username?
 
     render: ->
-	  	compiledTemplate = _.template(userTemplate, {userID: @userid, username: @username})
+	  	_.template(userTemplate, {userID: @userid, username: @username})
 
 
   UserModel
