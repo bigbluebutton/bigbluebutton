@@ -48,6 +48,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{WebRtcAskUserToChangeMicEvent.WEBRTC_ASK_USER_TO_CHANGE_MIC}" method="handleWebRtcAskUserToChangeMicEvent"  />
   <mate:Listener type="{WebRtcAskMicPermissionToJoinConferenceEvent.WEBRTC_ASK_MIC_PERMISSION_TO_JOIN_VOICE_CONFERENCE}" 
                          method="handleWebRtcAskMicPermissionToJoinConferenceEvent"  />
+	<mate:Listener type="{AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION}" method="handleShowAudioSelectionWindowEvent" />
   
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
@@ -99,6 +100,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.model.LayoutOptions;
       import org.bigbluebutton.main.model.users.Conference;
       import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+      import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
       import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
       import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
       import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionEvent;
@@ -202,14 +204,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					receivedConfigLocaleVer = true;
 					appVersion = event.appVersion;
 					localeVersion = event.localeVersion;
-//					LogUtil.debug("Received locale version fron config.xml");
+					trace("Received locale version fron config.xml");
 				} else {
 					receivedResourceLocaleVer = true;
-					LogUtil.debug("Received locale version fron locale file.");
+					trace("Received locale version fron locale file.");
 				}
 				
 				if (receivedConfigLocaleVer && receivedResourceLocaleVer) {
-					LogUtil.debug("Comparing locale versions.");
+          trace("Comparing locale versions.");
 					if (!event.suppressLocaleWarning) checkLocaleVersion(localeVersion);
 					if (sendStartModulesEvent) {
             
@@ -220,7 +222,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function sendStartAllModulesEvent():void{
-				LogUtil.debug("Sending start all modules event");
+        trace("Sending start all modules event");
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.START_ALL_MODULES));	
 			}
@@ -310,7 +312,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	   			Alert.okLabel ="OK";
 				var version:String = "old-locales";
 				version = ResourceUtil.getInstance().getString('bbb.mainshell.locale.version');
-				LogUtil.debug("Locale from config=" + localeVersion + ", from locale file=" + version);
+				trace("Locale from config=" + localeVersion + ", from locale file=" + version);
 
 				if ((version == "old-locales") || (version == "") || (version == null)) {
 					wrongLocaleVersion();
@@ -356,7 +358,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				localeWindow.x = point1.x - (localeWindow.width/2);
 				localeWindow.y = point1.y - (localeWindow.height/2);	
       }
-			
+
+      private function handleShowAudioSelectionWindowEvent(event:AudioSelectionWindowEvent):void {
+  	    var audioSelection:IFlexDisplayObject = PopUpManager.createPopUp(mdiCanvas, AudioSelectionWindow, true);
+		PopUpManager.centerPopUp(audioSelection);
+	  }
+
       private function showEarbudsHeadsetRequired():void {
         var earbuds:EarbudsHeadsetRecommendedImage = PopUpManager.createPopUp(mdiCanvas, EarbudsHeadsetRecommendedImage, true) as EarbudsHeadsetRecommendedImage;
         earbuds.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
@@ -428,8 +435,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
          
       private function handleAskMicPermissionEvent(event:WebRtcAskMicPermissionEvent):void {
- //       showEarbudsHeadsetRequired();
-        
+ //       showEarbudsHeadsetRequired()
         var browser:String = event.browser;
         if (browser == "Firefox") {
           var ffBrowser:FirefoxMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, FirefoxMicPermissionImage, true) as FirefoxMicPermissionImage;
@@ -596,6 +602,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         ls.disableMic = lsv.getDisableMic();
         ls.disablePrivChat = lsv.getDisablePrivateChat();
         ls.disablePubChat = lsv.getDisablePublicChat();
+        ls.lockedLayout = lsv.getLockedLayout();
         
 				var point1:Point = new Point();
 				point1.x = width/2;

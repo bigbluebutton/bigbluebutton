@@ -10,6 +10,7 @@ import scala.collection.JavaConversions._
 
 object UsersMessageToJsonConverter {
 	private def userToMap(user: UserVO):java.util.Map[String, Any] = {
+      
 	  val wuser = new scala.collection.mutable.HashMap[String, Any]
 	  wuser += "userid"               -> user.userID
 	  wuser += "extern_userid"        -> user.externUserID
@@ -22,7 +23,16 @@ object UsersMessageToJsonConverter {
 	  wuser += "webcam_stream"        -> user.webcamStream
 	  wuser += "phone_user"           -> user.phoneUser	  
 	  wuser += "listenOnly"           -> user.listenOnly
+
+	  val permissions = new scala.collection.mutable.HashMap[String, Any]
+	  permissions.put("disableCam", user.permissions.disableCam)
+	  permissions.put("disableMic", user.permissions.disableMic)
+	  permissions.put("disablePrivChat", user.permissions.disablePrivChat)
+	  permissions.put("disablePubChat", user.permissions.disablePubChat)	  
+	  permissions.put("lockedLayout", user.permissions.lockedLayout)
 	  
+      wuser.put("permissions", permissions)
+      
 	  val vuser = new scala.collection.mutable.HashMap[String, Any]	  	  
 	  vuser += "userid"               -> user.voiceUser.userId
 	  vuser += "web_userid"           -> user.voiceUser.webUserId
@@ -79,8 +89,18 @@ object UsersMessageToJsonConverter {
   def newPermissionsSettingToJson(msg: NewPermissionsSetting):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.SETTINGS, msg.settings.toString()) //#todo not tested
+    payload.put("disableCam", msg.settings.permissions.disableCam)
+	payload.put("disableMic", msg.settings.permissions.disableMic)
+	payload.put("disablePrivChat", msg.settings.permissions.disablePrivChat)
+	payload.put("disablePubChat", msg.settings.permissions.disablePubChat)
 
+    val users = new java.util.ArrayList[java.util.Map[String, Any]]
+    msg.applyTo.foreach(uvo => {    
+      users.add(userToMap(uvo))
+    })
+		
+    payload.put("users", users)
+    
     val header = Util.buildHeader(MessageNames.NEW_PERMISSION_SETTINGS, msg.version, None)
     Util.buildJson(header, payload)
   }

@@ -24,7 +24,7 @@ package org.bigbluebutton.modules.chat.model
   import org.bigbluebutton.modules.chat.ChatUtil;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
 
-  public class ChatMessages
+  public class ChatConversation
   { 
     [Bindable]
     public var messages:ArrayCollection = new ArrayCollection();

@@ -52,7 +52,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       [Bindable] public var disableMic:Boolean = false;
       [Bindable] public var disablePubChat:Boolean = false;
       [Bindable] public var disablePrivChat:Boolean = false;
-			
+      [Bindable] public var lockedLayout:Boolean = false;
+      
 			override public function move(x:Number, y:Number):void {
 				return;
 			}
@@ -70,7 +71,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var lockSettings:LockSettingsVO = new LockSettingsVO(!enableWebcam.selected,
 					                                                   !enableMicrophone.selected, 
 					                                                   !enablePrivateChat.selected,
-					                                                   !enablePublicChat.selected);
+					                                                   !enablePublicChat.selected,
+                                                             !enableLayout.selected);
 				
 				event.payload = lockSettings.toMap();
 				
@@ -101,7 +103,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:Label styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.enabled')}" fontWeight="bold" />
 		</mx:HBox>
 		<mx:HBox verticalAlign="top" width="100%">
-			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.webcam')}" />
+			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
+                text="{disableCam ? ResourceUtil.getInstance().getString('bbb.lockSettings.webcam.disabled') : ResourceUtil.getInstance().getString('bbb.lockSettings.webcam')}" />
 			<mx:HBox width="30%">
 				<mx:Spacer width="50%" />
 				<mx:CheckBox id="enableWebcam" selected="{!disableCam}" />
@@ -109,7 +112,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			</mx:HBox>
 		</mx:HBox>
 		<mx:HBox verticalAlign="top" width="100%">
-			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.microphone')}" />
+			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
+                text="{disableMic ? ResourceUtil.getInstance().getString('bbb.lockSettings.microphone.disabled') : ResourceUtil.getInstance().getString('bbb.lockSettings.microphone')}" />
 			<mx:HBox width="30%">
 				<mx:Spacer width="50%" />
 				<mx:CheckBox id="enableMicrophone" selected="{!disableMic}"/>
@@ -117,7 +121,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			</mx:HBox>
 		</mx:HBox>
 		<mx:HBox verticalAlign="top" width="100%">
-			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.publicChat')}" />
+			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
+                text="{disablePubChat ? ResourceUtil.getInstance().getString('bbb.lockSettings.publicChat.disabled') : ResourceUtil.getInstance().getString('bbb.lockSettings.publicChat')}" />
 			<mx:HBox width="30%">
 				<mx:Spacer width="50%" />
 				<mx:CheckBox id="enablePublicChat" selected="{!disablePubChat}"/>
@@ -125,14 +130,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			</mx:HBox>
 		</mx:HBox>
 		<mx:HBox verticalAlign="top" width="100%">
-			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.privateChat')}" />
+			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
+                text="{disablePrivChat ? ResourceUtil.getInstance().getString('bbb.lockSettings.privateChat.disabled') : ResourceUtil.getInstance().getString('bbb.lockSettings.privateChat')}" />
 			<mx:HBox width="30%">
 				<mx:Spacer width="50%" />
 				<mx:CheckBox id="enablePrivateChat" selected="{!disablePrivChat}"/>
 				<mx:Spacer width="50%" />
 			</mx:HBox>
 		</mx:HBox>
-		
+    <mx:HBox verticalAlign="top" width="100%">
+      <mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
+                text="{disablePrivChat ? ResourceUtil.getInstance().getString('bbb.lockSettings.layout.disabled') : ResourceUtil.getInstance().getString('bbb.lockSettings.layout')}" />
+      <mx:HBox width="30%">
+        <mx:Spacer width="50%" />
+        <mx:CheckBox id="enableLayout" selected="{!lockedLayout}"/>
+        <mx:Spacer width="50%" />
+      </mx:HBox>
+    </mx:HBox>		
 		<mx:HRule width="100%"/>
 		
 		<mx:Spacer height="20"/>

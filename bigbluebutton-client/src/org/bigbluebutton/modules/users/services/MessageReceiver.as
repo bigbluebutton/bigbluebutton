@@ -18,8 +18,7 @@
  */
 package org.bigbluebutton.modules.users.services
 {
-  import com.asfusion.mate.events.Dispatcher;
-  
+  import com.asfusion.mate.events.Dispatcher; 
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
@@ -139,7 +138,8 @@ package org.bigbluebutton.modules.users.services
       var lockSettings:LockSettingsVO = new LockSettingsVO(map.disableCam,
                                                            map.disableMic,
                                                            map.disablePrivChat,
-                                                           map.disablePubChat);
+                                                           map.disablePubChat,
+                                                           map.lockedLayout);
       UserManager.getInstance().getConference().setLockSettings(lockSettings);
     }
     

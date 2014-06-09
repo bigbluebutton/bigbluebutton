@@ -38,6 +38,11 @@ public class LayoutService {
 		application.getCurrentLayout(meetingID, getBbbSession().getInternalUserID());
 	}
 	
+	public void sync(Map<String, Object> message) {
+		String meetingID = Red5.getConnectionLocal().getScope().getName();
+		application.syncLayout(meetingID, getBbbSession().getInternalUserID(), (String) message.get("layout"));
+	}
+	
 	public void lock(Map<String, Object> message) {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		application.lockLayout(meetingID, (String) message.get("setByUserID"), (String) message.get("layout"));

@@ -75,9 +75,9 @@ package org.bigbluebutton.modules.phone.managers {
     
 		private function useDefaultMic():void {
 		  mic = Microphone.getMicrophone();
-			this.micIndex = mic.index;
       
 			if(mic != null){
+				this.micIndex = mic.index;
 			  trace(LOG + "Setting up default microphone");
 				setupMicrophone();
 				mic.addEventListener(StatusEvent.STATUS, micStatusHandler);

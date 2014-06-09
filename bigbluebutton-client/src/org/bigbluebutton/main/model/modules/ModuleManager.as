@@ -94,7 +94,7 @@ package org.bigbluebutton.main.model.modules
 		private function startModule(name:String):void {
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
-				LogUtil.debug('Starting module ' + name);
+				trace('Starting module ' + name);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
 				m.loadConfigAttributes(conferenceParameters, _protocol);
 				bbb.start(m.attributes);		
@@ -102,7 +102,6 @@ package org.bigbluebutton.main.model.modules
 		}
 
 		private function stopModule(name:String):void {
-			LogUtil.debug('Stopping module ' + name);
       trace('Stopping module ' + name);
       
 			var m:ModuleDescriptor = getModule(name);
@@ -118,7 +117,7 @@ package org.bigbluebutton.main.model.modules
 		}
 						
 		public function loadModule(name:String):void {
-			LogUtil.debug('BBBManager Loading ' + name);
+			trace('BBBManager Loading ' + name);
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
 				if (!m.loaded) {
@@ -137,7 +136,7 @@ package org.bigbluebutton.main.model.modules
 						modulesDispatcher.sendLoadProgressEvent(name, progress);
 					break;	
 					case MODULE_LOAD_READY:
-						LogUtil.debug('Module ' + name + " loaded.");		
+						trace('Module ' + name + " loaded.");		
 						modulesDispatcher.sendModuleLoadReadyEvent(name)	
 					break;				
 				}
@@ -165,13 +164,13 @@ package org.bigbluebutton.main.model.modules
 		public function moduleStarted(name:String, started:Boolean):void {			
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
-				LogUtil.debug('Setting ' + name + ' started to ' + started);
+				trace('Setting ' + name + ' started to ' + started);
 			}	
 		}
 		
 		public function startUserServices():void {
 			configParameters.application = configParameters.application.replace(/rtmp:/gi, _protocol + ":");
-			LogUtil.debug("**** Using " + _protocol + " to connect to " + configParameters.application + "******");
+			trace("**** Using " + _protocol + " to connect to " + configParameters.application + "******");
 			modulesDispatcher.sendStartUserServicesEvent(configParameters.application, configParameters.host, _protocol.toUpperCase() == "RTMPT");
 		}
 		

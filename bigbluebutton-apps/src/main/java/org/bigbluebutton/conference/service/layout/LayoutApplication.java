@@ -27,6 +27,10 @@ public class LayoutApplication {
 		bbbInGW = inGW;
 	}
 	
+	public void syncLayout(String meetingID, String requesterID, String layoutID) {
+		bbbInGW.syncLayout(meetingID, requesterID, layoutID);
+	}
+	
 	public void lockLayout(String meetingID, String requesterID, String layoutID) {
 		bbbInGW.lockLayout(meetingID, requesterID, layoutID);
 	}

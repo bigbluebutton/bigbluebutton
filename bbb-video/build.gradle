@@ -49,8 +49,14 @@ repositories {
             m2compatible = true
             addArtifactPattern "http://repository.springsource.com/maven/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
             addArtifactPattern "http://repository.springsource.com/maven/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
-        }        
-   	}
+    }
+		add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+			name = "Red5"
+			m2compatible = true
+			addArtifactPattern "http://red5.googlecode.com/svn/repository/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
+			addArtifactPattern "http://red5.googlecode.com/svn/repository/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
+		}
+  }
 }
 
 dependencies {	 
@@ -63,25 +69,26 @@ dependencies {
 	providedCompile 'org.apache.mina:mina-integration-jmx:2.0.7@jar'
 	
 	// Spring 
-	providedCompile 'org.springframework:spring-web:3.1.1.RELEASE@jar' 
-	providedCompile  'org.springframework:spring-beans:3.1.1.RELEASE@jar'
-	providedCompile 'org.springframework:spring-context:3.1.1.RELEASE@jar'
-	providedCompile 'org.springframework:spring-core:3.1.1.RELEASE@jar'
+	providedCompile 'org.springframework:spring-web:4.0.3.RELEASE@jar' 
+	providedCompile  'org.springframework:spring-beans:4.0.3.RELEASE@jar'
+	providedCompile 'org.springframework:spring-context:4.0.3.RELEASE@jar'
+	providedCompile 'org.springframework:spring-core:4.0.3.RELEASE@jar'
 	
 	// Red5
-	providedCompile 'org/red5:red5:1.0r4643@jar'
+	providedCompile 'org/red5:red5:1.0.2@jar'
+	providedCompile 'org.red5:red5-io:1.0.3@jar'
 	
 	// Logging
-	providedCompile 'ch.qos.logback:logback-core:1.0.9@jar'
-	providedCompile 'ch.qos.logback:logback-classic:1.0.9@jar'
-	providedCompile 'org.slf4j:log4j-over-slf4j:1.7.2@jar' 
-	providedCompile 'org.slf4j:jcl-over-slf4j:1.7.2@jar'
-	providedCompile 'org.slf4j:jul-to-slf4j:1.7.2@jar'
-    providedCompile 'org.slf4j:slf4j-api:1.7.2@jar'
+	providedCompile 'ch.qos.logback:logback-core:1.0.13@jar'
+	providedCompile 'ch.qos.logback:logback-classic:1.0.13@jar'
+	providedCompile 'org.slf4j:log4j-over-slf4j:1.7.5@jar' 
+	providedCompile 'org.slf4j:jcl-over-slf4j:1.7.5@jar'
+	providedCompile 'org.slf4j:jul-to-slf4j:1.7.5@jar'
+  providedCompile 'org.slf4j:slf4j-api:1.7.5@jar'
 
 	// Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
 	// Otherwise we get exception on aop utils class not found.
-	providedCompile 'org.springframework:spring-aop:3.0.6.RELEASE@jar'
+	providedCompile 'org.springframework:spring-aop:4.0.3.RELEASE@jar'
 	compile 'aopalliance:aopalliance:1.0@jar'
 	
     // Java Concurrency In Practice
