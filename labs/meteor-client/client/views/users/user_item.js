@@ -4,6 +4,12 @@ Template.userItem.helpers({
     a.href = this.url;
     return a.hostname;
   },
+
+  // for now just assume user is a moderator
+  getCurrentUser: function(){
+  	m = Users.findOne({'user.role':"MODERATOR"});
+  	return m;
+  }
 });
 
 Template.userItem.events({

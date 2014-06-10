@@ -24,8 +24,6 @@ Template.usersList.helpers({
   },
 
   getMeetings: function(){
-    console.log("meetings--------------");
-    console.log(Meetings);
     return Meetings.find();
   },
 

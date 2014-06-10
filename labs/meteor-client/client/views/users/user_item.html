@@ -4,13 +4,33 @@
          <h3><a href="{{url}}">{{title}}</a><span>{{domain}}</span></h3>
          <p>Username: {{user.name}}</p>
          <p>{{user.externUserId}}</p>
+
+         {{#if user.presenter}}
+            <p><strong>{{user.name}} is the Presenter</strong></p>
+         {{/if}}
+         
          <hr/>
          <input type="button" class="raiseHand" id="{{user.externUserId}}" value="Raise hand" />
 
          {{#if user.handRaised}}
-           	<p>Hand is raised</p>
-       	{{/if}}
+            <p>{{user.name}}&#39;s is raised</p>
+        {{/if}}
 
+        {{#if user.sharingAudio}}
+            <p>{{user.name}} is sharing Audio</p>
+        {{else}}
+            <p>{{user.name}} is <strong>NOT</strong> sharing Audio</p>
+        {{/if}}
+
+        {{#if user.sharingVideo}}
+            <p>{{user.name}} is sharing Video</p>
+        {{else}}
+            <p>{{user.name}} is <strong>NOT</strong> sharing Video</p>
+        {{/if}}
+
+
+
+        <hr/>
         <!-- If a hand is raised teacher can 'answer' which just turns off the raised hand flag
         can only be done if hand is raised -->
        	<p>Teacher controls:
@@ -19,6 +39,17 @@
        		{{else}}
        			<input type="button" class="lowerHand" id="{{user.externUserId}}" value="Answer Question" disabled/>
    		    {{/if}}
+
+          {{#with getCurrentUser}}
+              {{#if user.permissions.disableCam}}
+                  <input type="button" class="disableCam" id="{{../user.externUserId}}" value="Disable this user's camera"/>
+              {{/if}}
+              {{#if user.permissions.disableMic}}
+                  <input type="button" class="disableMic" id="{{../user.externUserId}}" value="Disable this user's Microphone"/>
+              {{/if}}
+          {{/with}}
+
+          <input type="button" class="setPresenter" id="{{user.externUserId}}" value="Set this user as the presenter"/>
        	</p>
 
        	<input type="button" class="kickUser" id="{{user.externUserId}}" value="Kick from Call" />
