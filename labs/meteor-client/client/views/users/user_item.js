@@ -5,6 +5,7 @@ Template.userItem.helpers({
     return a.hostname;
   },
 });
+
 Template.userItem.events({
 	'click input.raiseHand': function(event){
 		Users.update({_id:this._id}, 

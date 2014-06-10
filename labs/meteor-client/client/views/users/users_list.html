@@ -3,6 +3,7 @@
    	  {{#each getMeetings}}
    	  	<p>Meeting Name: {{meetingName}}</p>
    	  	<p>Users in meeting:</p>
+   	  	<!-- Retrieve all users in the meeting -->
    	  	{{#each getUsersInMeeting meetingName}}
    	  		{{> userItem}}
    	  	{{/each}}

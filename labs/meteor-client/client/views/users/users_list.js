@@ -29,6 +29,8 @@ Template.usersList.helpers({
     return Meetings.find();
   },
 
+  /* should be changed to find all users listed in the meeting and retrieve them,
+  instead of here where we retrieve every user pointing to the meeting */
   getUsersInMeeting: function(meetingName){
     return Users.find({meetingId: meetingName});
   }

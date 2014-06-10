@@ -8,18 +8,20 @@
          <input type="button" class="raiseHand" id="{{user.externUserId}}" value="Raise hand" />
 
          {{#if user.handRaised}}
-         	<p>Hand is raised</p>
-     	{{/if}}
+           	<p>Hand is raised</p>
+       	{{/if}}
 
-     	<p>Teacher controls:
-     		{{#if user.handRaised}}
-     			<input type="button" class="lowerHand" id="{{user.externUserId}}" value="Answer Question"/>
-     		{{else}}
-     			<input type="button" class="lowerHand" id="{{user.externUserId}}" value="Answer Question" disabled/>
- 		    {{/if}}
-     	</p>
+        <!-- If a hand is raised teacher can 'answer' which just turns off the raised hand flag
+        can only be done if hand is raised -->
+       	<p>Teacher controls:
+       		{{#if user.handRaised}}
+       			<input type="button" class="lowerHand" id="{{user.externUserId}}" value="Answer Question"/>
+       		{{else}}
+       			<input type="button" class="lowerHand" id="{{user.externUserId}}" value="Answer Question" disabled/>
+   		    {{/if}}
+       	</p>
 
-     	<input type="button" class="kickUser" id="{{user.externUserId}}" value="Kick from Call" />
+       	<input type="button" class="kickUser" id="{{user.externUserId}}" value="Kick from Call" />
 
       </div>
    </div>
