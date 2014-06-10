@@ -17,5 +17,20 @@ var postsData = [
 ];
 
 Template.usersList.helpers({
-  users: postsData
+  users: function() {
+    console.log (Users);
+    //console.log
+    return Users.find();
+  },
+
+  getMeetings: function(){
+    console.log("meetings--------------");
+    console.log(Meetings);
+    return Meetings.find();
+  },
+
+  getUsersInMeeting: function(meetingName){
+    return Users.find({meetingId: meetingName});
+  }
+
 });

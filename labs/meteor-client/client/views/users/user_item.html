@@ -2,6 +2,25 @@
    <div class="post">
       <div class="post-content">
          <h3><a href="{{url}}">{{title}}</a><span>{{domain}}</span></h3>
+         <p>Username: {{user.name}}</p>
+         <p>{{user.externUserId}}</p>
+         <hr/>
+         <input type="button" class="raiseHand" id="{{user.externUserId}}" value="Raise hand" />
+
+         {{#if user.handRaised}}
+         	<p>Hand is raised</p>
+     	{{/if}}
+
+     	<p>Teacher controls:
+     		{{#if user.handRaised}}
+     			<input type="button" class="lowerHand" id="{{user.externUserId}}" value="Answer Question"/>
+     		{{else}}
+     			<input type="button" class="lowerHand" id="{{user.externUserId}}" value="Answer Question" disabled/>
+ 		    {{/if}}
+     	</p>
+
+     	<input type="button" class="kickUser" id="{{user.externUserId}}" value="Kick from Call" />
+
       </div>
    </div>
 </template>
