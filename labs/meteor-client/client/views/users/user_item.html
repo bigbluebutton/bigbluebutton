@@ -65,13 +65,16 @@
        			<input type="button" class="lowerHand" id="{{user.externUserId}}" value="Answer Question" disabled/>
     		    {{/if}}
 
-          {{#if user.permissions.disableCam}}
-              <input type="button" class="disableCam" id="{{user.externUserId}}" value="Disable webcam"/>
-          {{/if}}
 
-          {{#if user.permissions.disableMic}}
-              <input type="button" class="disableMic" id="{{user.externUserId}}" value="Disable mic"/>
-          {{/if}}
+          {{#with getCurrentUser}}  
+            {{#if user.permissions.disableCam}}
+                <input type="button" class="disableCam" id="{{user.externUserId}}" value="Disable webcam"/>
+            {{/if}}
+
+            {{#if user.permissions.disableMic}}
+                <input type="button" class="disableMic" id="{{user.externUserId}}" value="Disable mic"/>
+            {{/if}}
+          {{/with}}
 
           {{#if user.presenter}}
               <input type="button" class="setPresenter" id="{{user.externUserId}}" value="Set this user as the presenter" disabled/>

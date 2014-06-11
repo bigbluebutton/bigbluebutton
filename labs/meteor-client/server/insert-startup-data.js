@@ -66,8 +66,8 @@ CreateSeedData = function() {
 	      name: "BLUE",
 	      permissions: {
 	        disablePrivChat: false,
-	        disableCam: true,
-	        disableMic: true,
+	        disableCam: false,
+	        disableMic: false,
 	        lockedLayout: false,
 	        disablePubChat: false
 	      },
@@ -101,8 +101,8 @@ CreateSeedData = function() {
 	      name: "Joe",
 	      permissions: {
 	        disablePrivChat: false,
-	        disableCam: true,
-	        disableMic: true,
+	        disableCam: false,
+	        disableMic: false,
 	        lockedLayout: false,
 	        disablePubChat: false
 	      },
