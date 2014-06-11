@@ -30,11 +30,13 @@ package org.bigbluebutton.modules.videoconf.views
 
     protected var _shuttingDown:Boolean = false;
     protected var _streamName:String;
-    protected var _video:VideoWithWarnings=null;
+    protected var _video:VideoWithWarnings = null;
     protected var _videoProfile:VideoProfile;
     protected var _dispatcher:Dispatcher = new Dispatcher();
 
     public function UserVideo() {
+      super();
+
       _video = new VideoWithWarnings();
       _background.addChild(_video);
     }
@@ -191,9 +193,7 @@ package org.bigbluebutton.modules.videoconf.views
     override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
         super.updateDisplayList(unscaledWidth, unscaledHeight);
 
-        if (_video) {
-          resetGraphicDimensions(_video, unscaledWidth, unscaledHeight);
-        }
+        updateDisplayListHelper(unscaledWidth, unscaledHeight, _video);
     }
 
      public function get camIndex():int {

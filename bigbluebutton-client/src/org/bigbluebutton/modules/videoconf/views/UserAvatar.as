@@ -12,6 +12,7 @@ package org.bigbluebutton.modules.videoconf.views
       private var _completed:Boolean;
 
       public function UserAvatar() {
+          super();
       }
 
       public function load(avatarUrl:String):void {
@@ -33,7 +34,7 @@ package org.bigbluebutton.modules.videoconf.views
           super.updateDisplayList(unscaledWidth, unscaledHeight);
 
           if (_completed) {
-              resetGraphicDimensions(_imageLoader, unscaledWidth, unscaledHeight);
+              updateDisplayListHelper(unscaledWidth, unscaledHeight, _imageLoader);
           }
       }
 

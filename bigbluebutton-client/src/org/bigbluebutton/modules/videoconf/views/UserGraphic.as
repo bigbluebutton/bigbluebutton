@@ -8,7 +8,6 @@ package org.bigbluebutton.modules.videoconf.views
     import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 
     public class UserGraphic extends UIComponent {
-
         protected var _user:BBBUser = null;
         protected var _options:VideoConfOptions;
         protected var _origWidth:Number = 320;
@@ -18,19 +17,23 @@ package org.bigbluebutton.modules.videoconf.views
         protected const BORDER_THICKNESS:int = 0;
 
         public function UserGraphic() {
+            super();
+
             _background = new Canvas();
             _background.setStyle("backgroundColor", "white");
             _background.setStyle("borderStyle", "solid");
             _background.setStyle("borderColor", "#000000");
             _background.setStyle("borderThickness", BORDER_THICKNESS);
+            _background.horizontalScrollPolicy = "off";
+            _background.verticalScrollPolicy = "off";
+
             addChild(_background);
         }
 
         override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
             super.updateDisplayList(unscaledWidth, unscaledHeight);
 
-            _background.width = unscaledWidth;
-            _background.height = unscaledHeight;
+            _background.setActualSize(unscaledWidth, unscaledHeight);
         }
 
         protected function setOriginalDimensions(width:Number, height:Number):void {
@@ -43,29 +46,35 @@ package org.bigbluebutton.modules.videoconf.views
             return _origWidth / _origHeight;
         }
 
-        private var _object_x:Number;
-        private var _object_y:Number;
+        protected function updateDisplayListHelper(unscaledWidth:Number, unscaledHeight:Number, object:DisplayObject):void {
+            if (object == null) {
+                return;
+            }
 
-        protected function resetGraphicDimensions(object:DisplayObject, unscaledWidth:Number, unscaledHeight:Number):void {
+            var object_x:Number;
+            var object_y:Number;
+            var object_width:Number;
+            var object_height:Number;
+
             unscaledHeight -= BORDER_THICKNESS * 2;
             unscaledWidth -= BORDER_THICKNESS * 2;
 
             if (unscaledWidth / unscaledHeight > aspectRatio) {
-                object.height = unscaledHeight;
-                object.width = Math.floor(unscaledHeight * aspectRatio);
-                _object_y = BORDER_THICKNESS;
-                _object_x = Math.floor((unscaledWidth - object.width) / 2);
+                object_height = unscaledHeight;
+                object_width = Math.ceil(unscaledHeight * aspectRatio);
+                object_y = BORDER_THICKNESS;
+                object_x = Math.floor((unscaledWidth - object.width) / 2);
             } else {
-                object.width = unscaledWidth;
-                object.height = Math.floor(unscaledWidth / aspectRatio);
-                _object_x = BORDER_THICKNESS;
-                _object_y = Math.floor((unscaledHeight - object.height) / 2);
+                object_width = unscaledWidth;
+                object_height = Math.ceil(unscaledWidth / aspectRatio);
+                object_x = BORDER_THICKNESS;
+                object_y = Math.floor((unscaledHeight - object.height) / 2);
             }
-            object.x = _object_x;
-            object.y = _object_y;
 
-            _background.width = unscaledWidth + BORDER_THICKNESS * 2;
-            _background.height = unscaledHeight + BORDER_THICKNESS * 2;
+            object.x = object_x;
+            object.y = object_y;
+            object.width = object_width;
+            object.height = object_height;
         }
 
         public function set user(value:BBBUser):void {

@@ -10,57 +10,66 @@ package org.bigbluebutton.main.views
     import flash.net.NetStream;
     import flash.system.Security;
     import flash.system.SecurityPanel;
-    import flash.text.TextField;
-    import flash.text.TextFormat;
-    import flash.text.TextFieldAutoSize;
     import flash.utils.Timer;
-    import mx.core.UIComponent;
     import mx.containers.Canvas;
+    import mx.controls.Text;
+    import mx.core.UIComponent;
+    import mx.events.FlexEvent;
     import org.bigbluebutton.common.LogUtil;
     import org.bigbluebutton.core.model.VideoProfile;
     import org.bigbluebutton.util.i18n.ResourceUtil;
 
-    public class VideoWithWarnings extends UIComponent{
+    public class VideoWithWarnings extends VideoWithWarningsBase {
 
         private var hideWarningTimer:Timer = null;
         private var _camera:Camera = null;
         private var _activationTimer:Timer = null;
         private var _waitingForActivation:Boolean = false;
         private var _cameraAccessDenied:Boolean = false;
-        private var _video:Video=null;
-        private var label:TextField;
-        private var _videoProfile:VideoProfile;
-        private var _filters:Array=null;
-        private var _showPreviewMsg:Boolean=false;
+        private var _videoProfile:VideoProfile = null;
+        private var _showPreviewMsg:Boolean = false;
+        private var _video:Video = new Video();
+        private var _creationCompleted:Boolean = false;
 
-        public function VideoWithWarnings(){
+        private var _successCallback:Function = null;
+        private var _failCallback:Function = null;
+
+        public function VideoWithWarnings() {
             super();
-            label = new TextField();
-            label.setTextFormat(new TextFormat());
-            label.selectable = false;
-            label.multiline = true;
-            label.wordWrap = true;
-            label.autoSize = TextFieldAutoSize.CENTER;
-            addChild(label);
+
+            this.addEventListener(FlexEvent.CREATION_COMPLETE , creationCompleteHandler);
         }
 
-        public function cameraState():Boolean { return _camera != null;}
+        private function creationCompleteHandler(e:FlexEvent):void {
+            _video.smoothing = true;
+            _videoHolder.addChild(_video);
 
-        public function getCamera():Camera { return _camera;}
+            _creationCompleted = true;
+        }
 
-        public function videoFilters(f:Array):void { _filters = f;}
+        public function cameraState():Boolean {
+            return _camera != null;
+        }
 
-        private function attachCamera(c:Camera):void {_video.attachCamera(c);}
+        public function getCamera():Camera {
+            return _camera;
+        }
 
-        private function clear():void { _video.clear();}
+        public function videoFilters(f:Array):void {
+            _video.filters = f;
+        }
 
-        private function hideWarning(e:TimerEvent):void { label.visible = false; }
+        private function hideWarning(e:TimerEvent):void {
+            _text.visible = false;
+        }
 
-        private function showWarning(resourceName:String, autoHide:Boolean=false, color:int=0xFF0000):void {
+        private function showMessageHelper(resourceName:String, autoHide:Boolean, styleName:String):void {
             const text:String = ResourceUtil.getInstance().getString(resourceName);
 
-            if (hideWarningTimer != null)
-                hideWarningTimer.stop();
+            if (hideWarningTimer != null) {
+                hideWarningTimer.stop()
+                hideWarningTimer = null;
+            }
 
             if (autoHide) {
                 hideWarningTimer = new Timer(3000, 1);
@@ -68,39 +77,80 @@ package org.bigbluebutton.main.views
                 hideWarningTimer.start();
             }
 
-            // bring the label to front
-            label.text = text;
-            label.textColor=color;
-            label.visible = true;
-            resizeText(); 
-            LogUtil.debug("Showing warning: " + text);
+            _text.text = text;
+            // _text.text = "The quick brown fox jumps over the lazy dog";
+            _text.setStyle("styleName", styleName);
+            _text.visible = true;
+            trace("Showing warning: " + text);
         }
-        
-        public function updateCamera(camIndex:int, vp:VideoProfile, containerWidth:int, containerHeight:int, showPreviewMsg:Boolean=false):void {
- 
-            disableCamera();
-            
-            _camera = Camera.getCamera(camIndex.toString());
-            if (_camera == null) {
-                showWarning('bbb.video.publish.hint.cantOpenCamera');
-                return;
+
+        private function showError(resourceName:String, autoHide:Boolean=false):void {
+            showMessageHelper(resourceName, autoHide, "videoMessageErrorLabelStyle");
+        }
+
+        private function showWarning(resourceName:String, autoHide:Boolean=false):void {
+            showMessageHelper(resourceName, autoHide, "videoMessageWarningLabelStyle");
+        }
+
+        public function set successCallback(f:Function):void {
+            _successCallback = f;
+        }
+
+        public function set failCallback(f:Function):void {
+            _failCallback = f;
+        }
+
+        private function onSuccessCallback():void {
+            if (_showPreviewMsg) {
+                showWarning('bbb.video.publish.hint.videoPreview');
+            } else {
+                _text.visible = false;
+                _text.text = " ";
             }
-            this.width = containerWidth;
-            this.height = containerHeight;
+
+            if (_successCallback != null) {
+                _successCallback();
+            }
+        }
+
+        private function onFailCallback(resourceName:String):void {
+            showError(resourceName);
+            if (_failCallback != null) {
+                _failCallback();
+            }
+        }
+
+        public function updateCamera(camIndex:int, vp:VideoProfile, containerWidth:int, containerHeight:int, showPreviewMsg:Boolean=false):void {
+            disableCamera();
+
             _videoProfile = vp;
             _showPreviewMsg = showPreviewMsg;
-            _camera.addEventListener(ActivityEvent.ACTIVITY, onActivityEvent);
-            _camera.addEventListener(StatusEvent.STATUS, onStatusEvent);
 
-            if (_camera.muted)
-                if (_cameraAccessDenied)
-                    Security.showSettings(SecurityPanel.PRIVACY)
-                else
-                    showWarning('bbb.video.publish.hint.waitingApproval');
-            else
-                onCameraAccessAllowed();
+            _camera = Camera.getCamera(camIndex.toString());
+            if (camIndex == -1) {
+                onFailCallback('bbb.video.publish.hint.noCamera');
+            } else if (_camera == null) {
+                onFailCallback('bbb.video.publish.hint.cantOpenCamera');
+            } else {
+                _camera.addEventListener(ActivityEvent.ACTIVITY, onActivityEvent);
+                _camera.addEventListener(StatusEvent.STATUS, onStatusEvent);
 
-            displayVideoPreview();
+                if (_camera.muted) {
+                    if (_cameraAccessDenied) {
+                        Security.showSettings(SecurityPanel.PRIVACY)
+                    } else {
+                        showWarning('bbb.video.publish.hint.waitingApproval');
+                    }
+                } else {
+                    onCameraAccessAllowed();
+                }
+
+                displayVideoPreview();
+            }
+
+            this.width = containerWidth;
+            this.height = containerHeight;
+            invalidateDisplayList();
         }
         
         private function displayVideoPreview():void {
@@ -111,89 +161,68 @@ package org.bigbluebutton.main.views
             _camera.setQuality(_videoProfile.qualityBandwidth, _videoProfile.qualityPicture);
 
             if (_camera.width != _videoProfile.width || _camera.height != _videoProfile.height)
-                LogUtil.debug("Resolution " + _videoProfile.width + "x" + _videoProfile.height + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
+                trace("Resolution " + _videoProfile.width + "x" + _videoProfile.height + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
 
-            addVideo();
-            attachCamera(_camera);
+            _video.attachCamera(_camera);
         }
 
-        private function resizeText():void
-        {
-            label.width = this.width;
-            var lblFormat:TextFormat = label.getTextFormat();
-            lblFormat.size=17;
-            label.setTextFormat(lblFormat);
-            label.y=(int) (this.height - label.height);
-            label.x=(int) (this.width - label.textWidth)/2;
-        }
+        override protected function updateDisplayList(w:Number, h:Number):void {
+            super.updateDisplayList(w, h);
 
-        override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
-            super.updateDisplayList(unscaledWidth, unscaledHeight);
-            if(_video){
-                
-                if(unscaledWidth/unscaledHeight > _videoProfile.width/_videoProfile.height){
-                    _video.width = unscaledHeight / _videoProfile.height * _videoProfile.width;
-                    _video.height = unscaledHeight;
+            var videoWidth:int;
+            var videoHeight:int;
+
+            if (_creationCompleted && _videoProfile != null) {
+                var ar:Number = _videoProfile.width / _videoProfile.height;
+                if (w / h > ar) {
+                    videoWidth  = Math.ceil(h * ar);
+                    videoHeight = h;
                 } else {
-                    _video.height = unscaledWidth * _videoProfile.height / _videoProfile.width;
-                    _video.width = unscaledWidth;
+                    videoWidth  = w;
+                    videoHeight = Math.ceil(w / ar);
                 }
-                _video.x = (int)((this.width - _video.width)/2); 
-                _video.y = (int)((this.height - _video.height)/2); 
-                resizeText();
+                videoCanvas.width  = _video.width  = videoWidth;
+                videoCanvas.height = _video.height = videoHeight;
             }
-        }
-
-        private function addVideo():void{ 
-            _video = new Video();
-            if(_filters)
-                _video.filters=_filters;
-            _video.smoothing = true;
-            addChild(_video);
-            setChildIndex(_video, 0);
-            invalidateDisplayList();
         }
 
         public function attachNetStream(ns:NetStream, vp:VideoProfile, containerWidth:int, containerHeight:int):void {
             disableCamera();
+            _videoProfile = vp;
+            _video.attachNetStream(ns);
+
             this.width = containerWidth;
             this.height = containerHeight;
-            _videoProfile = vp;
-            addVideo();
-            _video.attachNetStream(ns);
+            invalidateDisplayList();
         }
 
         public function disableCamera():void {
-            if(_video){
-                clear();
-                attachCamera(null);
-                removeChild(_video)
-            }
-            _video = null;
+            _video.clear();
+            _video.attachCamera(null);
             _camera = null;
         }
+
         private function onActivityEvent(e:ActivityEvent):void {
             if (_waitingForActivation && e.activating) {
                 _activationTimer.stop();
-                if(_showPreviewMsg)
-                    showWarning('bbb.video.publish.hint.videoPreview', false, 0xFFFF00);
-                else
-                    label.visible = false;
                 _waitingForActivation = false;
+
+                onSuccessCallback();
             }
         }
 
         private function onStatusEvent(e:StatusEvent):void {
             if (e.code == "Camera.Unmuted") {
                 onCameraAccessAllowed();
-                // this is just to overwrite the message of waiting for approval
-                showWarning('bbb.video.publish.hint.openingCamera');
             } else {
                 onCameraAccessDisallowed();
             }
         }
 
         private function onCameraAccessAllowed():void {
+            // this is just to overwrite the message of waiting for approval
+            showWarning('bbb.video.publish.hint.openingCamera');
+
             _cameraAccessDenied = false;
 
             // set timer to ensure that the camera activates.  If not, it might be in use by another application
@@ -208,12 +237,12 @@ package org.bigbluebutton.main.views
         }
 
         private function onCameraAccessDisallowed():void {
-            showWarning('bbb.video.publish.hint.cameraDenied');
+            onFailCallback('bbb.video.publish.hint.cameraDenied');
             _cameraAccessDenied = true;
         }
 
         private function activationTimeout(e:TimerEvent):void {
-            showWarning('bbb.video.publish.hint.cameraIsBeingUsed');
+            onFailCallback('bbb.video.publish.hint.cameraIsBeingUsed');
         }
     }
 }
