@@ -1,4 +1,5 @@
 Users = new Meteor.Collection('bbb_users');
+Meetings = new Meteor.Collection('meetings');
 
 Meteor.methods({
   authenticate: function(auth) {

@@ -1,7 +1,21 @@
 <template name="usersList">
-   <div class="posts">
-      {{#each users}}
-        {{> userItem}}
+   <div>
+      {{#each getMeetings}}
+         <p>Meeting Name: {{meetingName}}</p>
+         <p>Users in meeting:</p>
+         <!-- Retrieve all users in the meeting -->
+         
+         <h3>User List</h3>
+         <ul id="user-list">
+            {{#each getUsersInMeeting meetingName}}
+               {{> userItem}}
+            {{/each}}
+         </ul>
       {{/each}}
+   </div>
+   <div>
+      <input type="button" class="signin" id="a1a1a1a1a1a1" value="Signin as RED" />
+      <input type="button" class="signin" id="b2b2b2b2b2b2" value="Signin as BLUE" />
+      <input type="button" class="signin" id="c3c3c3c3c3c3" value="Signin as Joe" />
    </div>
 </template>

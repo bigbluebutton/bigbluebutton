@@ -17,5 +17,26 @@ var postsData = [
 ];
 
 Template.usersList.helpers({
-  users: postsData
+  users: function() {
+    console.log (Users);
+    //console.log
+    return Users.find();
+  },
+
+  getMeetings: function(){
+    return Meetings.find();
+  },
+
+  /* should be changed to find all users listed in the meeting and retrieve them,
+  instead of here where we retrieve every user pointing to the meeting */
+  getUsersInMeeting: function(meetingName){
+    return Users.find({meetingId: meetingName});
+  }
+
+});
+
+Template.usersList.events({
+  'click input.signin': function(event){
+    Session.set("userId", event.target.id);
+  }
 });

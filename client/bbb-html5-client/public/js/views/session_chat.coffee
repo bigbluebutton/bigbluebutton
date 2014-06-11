@@ -202,7 +202,7 @@ define [
 
     # Adds a default welcome message to the chat
     _addWelcomeMessage: ->
-      msg = "You are now connected to the meeting '#{globals.currentAuth?.get('meetingID')}'"
+      msg = "You are now connected to the meeting '#{globals.meetingName}'"
       @_addChatMessage("System", msg)
 
   SessionChatView

@@ -1,7 +1,89 @@
 <template name="userItem">
-   <div class="post">
-      <div class="post-content">
-         <h3><a href="{{url}}">{{title}}</a><span>{{domain}}</span></h3>
+    <li class="user-wrapper">
+      <div class="row">
+        <div class="user-role col-md-1" id="user-{{user.externUserId}}"><i class="icon fa fa-user"></i></div>
+        <div class="user-name col-md-5">{{user.name}}</div>
+        <!--<div class="user-video col-md-1"><i class="icon fa fa-video-camera"></i></div>
+        <div class="user-audio col-md-1"><i class="icon fa fa-microphone"></i></div>
+        <div class="user-kick col-md-1"><i class="icon fa fa-sign-out"></i></div>-->
+        <div ><i class="icon fa fa-video-camera"></i></div>
+        <div ><i class="icon fa fa-microphone"></i></div>
+        <div ><i class="icon fa fa-sign-out"></i></div>
+
+        <!-- some user info -->
+         {{#if user.presenter}}
+            <span><strong>{{user.name}} is the Presenter</strong></span>
+         {{/if}}
+
+         {{#if user.sharingAudio}}
+            <span>{{user.name}} is sharing Audio</span>
+        {{else}}
+            <span>{{user.name}} is <strong>NOT</strong> sharing Audio</span>
+        {{/if}}
+        <span>-</span>
+        {{#if user.sharingVideo}}
+            <span>{{user.name}} is sharing Video</span>
+        {{else}}
+            <span>{{user.name}} is <strong>NOT</strong> sharing Video</span>
+        {{/if}}
+
+        <br/>
+        <!-- controls user has access to -->
+        {{#with getCurrentUser}} <!--We need a helper to get the current user, because the current context (this) is the user being displayed-->
+          {{#if compareUserIds this.user.userId ../user.userId}}
+            <p>The current user</p>
+                   
+            <span>User Controls:</span>
+               <input type="button" class="raiseHand" id="{{user.externUserId}}" value="Raise hand" />
+               {{#if user.handRaised}}
+                  <span>{{user.name}}&#39;s hand is raised</span>
+              {{/if}}
+
+            <!-- toggles for own user's mic and cam-->
+            {{#if user.sharingAudio}}
+                <input type="button" class="disableMic" id="{{user.externUserId}}" value="Mute"/>
+            {{else}}
+                <input type="button" class="enableMic" id="{{user.externUserId}}" value="Unmute"/>
+            {{/if}}
+
+            {{#if user.sharingVideo}}
+                <input type="button" class="disableCam" id="{{user.externUserId}}" value="Hide Webcam"/>
+            {{else}}
+                <input type="button" class="enableCam" id="{{user.externUserId}}" value="Share Webcam"/>
+            {{/if}}
+
+          {{/if}}
+
+        {{/with}}
+
+        <!-- If a hand is raised teacher can 'answer' which just turns off the raised hand flag
+        can only be done if hand is raised -->
+       	<p>Teacher controls:
+       		{{#if user.handRaised}}
+       			<input type="button" class="lowerHand" id="{{user.externUserId}}" value="Answer Question"/>
+       		{{else}}
+       			<input type="button" class="lowerHand" id="{{user.externUserId}}" value="Answer Question" disabled/>
+    		    {{/if}}
+
+
+          {{#with getCurrentUser}}  
+            {{#if user.permissions.disableCam}}
+                <input type="button" class="disableCam" id="{{user.externUserId}}" value="Disable webcam"/>
+            {{/if}}
+
+            {{#if user.permissions.disableMic}}
+                <input type="button" class="disableMic" id="{{user.externUserId}}" value="Disable mic"/>
+            {{/if}}
+          {{/with}}
+
+          {{#if user.presenter}}
+              <input type="button" class="setPresenter" id="{{user.externUserId}}" value="Set this user as the presenter" disabled/>
+          {{else}}
+              <input type="button" class="setPresenter" id="{{user.externUserId}}" value="Set this user as the presenter"/>
+          {{/if}}
+          <input type="button" class="kickUser" id="{{user.externUserId}}" value="Kick from Call" />
+       	</p>
       </div>
-   </div>
+    </li>
+    <hr/>
 </template>

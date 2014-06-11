@@ -17,6 +17,7 @@ define [
       @userId = @getUrlVars()["user_id"]
       @meetingId = @getUrlVars()["meeting_id"]
       @username = @getUrlVars()["username"]
+      globals.meetingName = decodeURI(@getUrlVars()["meetingName"])      
 
     disconnect: ->
       alert( " i go through disconnect") # not used right now
