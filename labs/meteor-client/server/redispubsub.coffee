@@ -1,36 +1,3 @@
-###
-class Meteor.RedisPubSub
-  constructor: ->
-    console.log "initializing RedisPubSub"
-  bbb: ->
-    console.log "bbb RedisPubSub"
-###
-
-
-
-###
-  initialize: ->
-    pubClient = redis.createClient()
-    subClient = redis.createClient()
-
-    subClient.on "psubscribe", _onSubscribe
-    subClient.on "pmessage", _onMessage
-
-    console.log("RPC: Subscribing message on channel: #{Meteor.config.redis.channels.fromBBBApps}")
-    subClient.psubscribe(Meteor.config.redis.channels.fromBBBApps)
-
-    Meteor.ClientProxy()
-  ###
-###
-_onMessage = () ->
-  console.log "ON MESSAGE"
-
-_onSubscribe = (channel, count) ->
-  console.log "ON SUBSCRIBE"
-  console.log "Subscribed to #{channel}"
-###
-
-
 
 redis  = Meteor.require 'redis'
 crypto = Meteor.require 'crypto'
