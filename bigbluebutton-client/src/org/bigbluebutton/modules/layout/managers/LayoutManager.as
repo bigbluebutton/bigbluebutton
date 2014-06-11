@@ -195,9 +195,7 @@ package org.bigbluebutton.modules.layout.managers
       if (newLayout == null) return;
 
       trace(LOG + " applying layout [" + newLayout.name + "] to windows.");
-      applyLayout(newLayout);
-//      sendLayoutUpdate(_currentLayout);     
-      
+      applyLayout(newLayout);     
     }
     
 		public function applyDefaultLayout():void {         
@@ -346,9 +344,7 @@ package org.bigbluebutton.modules.layout.managers
         if (_eventsToDelay.indexOf(e.type) != -1) {
           _sendCurrentLayoutUpdateTimer.reset();
           _sendCurrentLayoutUpdateTimer.start();
-        } else {
-          sendLayoutUpdate(updateCurrentLayout());
-        }
+        } 
       }
 		}
 		
