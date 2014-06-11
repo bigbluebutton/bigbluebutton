@@ -7,14 +7,15 @@ Template.userItem.helpers({
 
   // for now just assume user is the first person we find
   getCurrentUser: function(){
-  	var u = Users.findOne({});
+  	id = Session.get("userId") || "a1a1a1a1a1a1";
+  	var u = Users.findOne({"user.userId":id});
   	return u;
   },
 
   // using handlebars' {{equals}} wasn't working for these some reason, so a simple JS function to do it
   compareUserIds: function(u1, u2){
   	return u1 === u2;
-  }
+  },
 });
 
 Template.userItem.events({
@@ -81,5 +82,5 @@ Template.userItem.events({
 				Users.update({_id:this._id}, {$set: {"meetingId": null}});
 			}
 		}
-	}
+	}	
 });

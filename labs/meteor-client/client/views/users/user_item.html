@@ -29,14 +29,14 @@
 
         <br/>
         <!-- controls user has access to -->
-        {{#with getCurrentUser}}
+        {{#with getCurrentUser}} <!--We need a helper to get the current user, because the current context (this) is the user being displayed-->
           {{#if compareUserIds this.user.userId ../user.userId}}
             <p>The current user</p>
-
+                   
             <span>User Controls:</span>
                <input type="button" class="raiseHand" id="{{user.externUserId}}" value="Raise hand" />
                {{#if user.handRaised}}
-                  <span>{{user.name}}&#39;s is raised</span>
+                  <span>{{user.name}}&#39;s hand is raised</span>
               {{/if}}
 
             <!-- toggles for own user's mic and cam-->
@@ -73,9 +73,14 @@
               <input type="button" class="disableMic" id="{{user.externUserId}}" value="Disable mic"/>
           {{/if}}
 
-          <input type="button" class="setPresenter" id="{{user.externUserId}}" value="Set this user as the presenter"/>
+          {{#if user.presenter}}
+              <input type="button" class="setPresenter" id="{{user.externUserId}}" value="Set this user as the presenter" disabled/>
+          {{else}}
+              <input type="button" class="setPresenter" id="{{user.externUserId}}" value="Set this user as the presenter"/>
+          {{/if}}
           <input type="button" class="kickUser" id="{{user.externUserId}}" value="Kick from Call" />
        	</p>
       </div>
     </li>
+    <hr/>
 </template>

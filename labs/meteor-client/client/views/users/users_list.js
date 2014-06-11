@@ -34,3 +34,9 @@ Template.usersList.helpers({
   }
 
 });
+
+Template.usersList.events({
+  'click input.signin': function(event){
+    Session.set("userId", event.target.id);
+  }
+});
