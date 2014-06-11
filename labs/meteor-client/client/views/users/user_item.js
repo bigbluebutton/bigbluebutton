@@ -5,10 +5,15 @@ Template.userItem.helpers({
     return a.hostname;
   },
 
-  // for now just assume user is a moderator
+  // for now just assume user is the first person we find
   getCurrentUser: function(){
-  	var m = Users.findOne({'user.role':"MODERATOR"});
-  	return m;
+  	var u = Users.findOne({});
+  	return u;
+  },
+
+  // using handlebars' {{equals}} wasn't working for these some reason, so a simple JS function to do it
+  compareUserIds: function(u1, u2){
+  	return u1 === u2;
   }
 });
 
@@ -21,6 +26,12 @@ Template.userItem.events({
 	}, 
 	'click input.disableMic': function(event){
 		Users.update({_id:this._id}, {$set: {"user.sharingAudio": false}});
+	}, 
+	'click input.enableMic': function(event){
+		Users.update({_id:this._id},{$set: {"user.sharingAudio": true}});
+	}, 
+	'click input.enableCam': function(event){
+		Users.update({_id:this._id},{$set: {"user.sharingVideo": true}});
 	}, 
 	'click input.lowerHand': function(event){
 		Users.update({_id:this._id}, {$set: {"user.handRaised": false}});
