@@ -9,3 +9,4 @@ insecure
 bootstrap
 coffeescript
 redis
+npm

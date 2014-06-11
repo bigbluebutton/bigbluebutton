@@ -8,8 +8,8 @@ config.maxUsernameLength = 30
 config.maxChatLength = 140
 
 # the path in which an image of a presentation is stored
-#config.presentationImagePath = (meetingID, presentationID, filename) ->
-#  "bigbluebutton/presentation/#{meetingID}/#{meetingID}/#{presentationID}/png/#{filename}"
+config.presentationImagePath = (meetingID, presentationID, filename) ->
+  "bigbluebutton/presentation/#{meetingID}/#{meetingID}/#{presentationID}/png/#{filename}"
 
 ## Application configurations
 config.app = {}
@@ -42,10 +42,13 @@ config.redis.internalChannels.publish = "html5-publish"
 # Logging
 config.log = {}
 
-#config.log.path = if process.env.NODE_ENV == "production"
-#  "/var/log/bigbluebutton/bbbnode.log"
-#else
-#  "./log/development.log"
+config.log.path = if process.env.NODE_ENV == "production"
+  "/var/log/bigbluebutton/bbbnode.log"
+else
+  "./log/development.log"
+
+# Global instance of Modules, created by `app.coffee`
+config.modules = null
 
 
 Meteor.config = config
