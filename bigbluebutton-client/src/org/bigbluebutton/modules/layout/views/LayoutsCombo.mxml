@@ -104,7 +104,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onSelectedItemChanged(e:Event):void {
-				_dispatcher.dispatchEvent(new ChangeLayoutEvent(e.currentTarget.selectedItem.name));
+				_dispatcher.dispatchEvent(new ChangeLayoutEvent(e.currentTarget.selectedItem.label));
 			}
 					
 		]]>

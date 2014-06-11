@@ -190,12 +190,13 @@ package org.bigbluebutton.modules.layout.managers
 		}
 
     public function switchToLayout(name:String):void {
+      trace(LOG + " switching to layout [" + name + "] ");
       var newLayout:LayoutDefinition = _layoutModel.getLayout(name);
       if (newLayout == null) return;
 
-      trace("************** USING [" + newLayout.name + "] as new LAYOUT ***************************");
+      trace(LOG + " applying layout [" + newLayout.name + "] to windows.");
       applyLayout(newLayout);
-      sendLayoutUpdate(_currentLayout);     
+//      sendLayoutUpdate(_currentLayout);     
       
     }
     
