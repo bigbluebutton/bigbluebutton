@@ -38,7 +38,13 @@ trait LayoutApp {
     currentLayout = msg.layout
     broadcastSyncLayout(msg.meetingID, msg.requesterID)
   }
-     
+   
+  def handleLockLayout(lock: Boolean, setById: String) {
+	  outGW.send(new LockLayoutEvent(meetingID, recorded, setById, lock, affectedUsers))
+	  
+	  broadcastSyncLayout(meetingID, setById)     
+  }
+  
   def affectedUsers():Array[UserVO] = {
     if (viewersOnly) {
       val au = ArrayBuffer[UserVO]()   
