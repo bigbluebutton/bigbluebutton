@@ -9,9 +9,9 @@ CreateSeedData = function() {
 	  Meetings.insert({
 	    meetingName: "Classroom1",
 	    users: [
-	      {userId: "24d1tjpraogv"},
-	      {userId: "24d16kfdmbd4"},
-	      {userId: "1111k54k67s4"}
+	      {userId: "a1a1a1a1a1a1"},
+	      {userId: "b2b2b2b2b2b2"},
+	      {userId: "c3c3c3c3c3c3"}
 	    ]
 	  });
 	}
@@ -25,9 +25,9 @@ CreateSeedData = function() {
 	      presenter: true,
 	      sharingAudio: true,
 	      sharingVideo: true,
-	      externUserId: "24d1tjpraogv",
+	      externUserId: "a1a1a1a1a1a1",
 	      webcamStream: "",
-	      userId: "24d1tjpraogv",
+	      userId: "a1a1a1a1a1a1",
 	      name: "RED",
 	      permissions: {
 	        disablePrivChat: false,
@@ -41,10 +41,10 @@ CreateSeedData = function() {
 	      locked: false,
 	      voiceUser: {
 	        talking: false,
-	        webUserId: "24d1tjpraogv",
+	        webUserId: "a1a1a1a1a1a1",
 	        joined: false,
 	        muted: false,
-	        userId: "24d1tjpraogv",
+	        userId: "a1a1a1a1a1a1",
 	        callerNum: "RED",
 	        callerName: "RED",
 	        locked: false
@@ -60,14 +60,14 @@ CreateSeedData = function() {
 	      presenter: false,
 	      sharingAudio: true,
 	      sharingVideo: false,
-	      externUserId: "24d16kfdmbd4",
+	      externUserId: "b2b2b2b2b2b2",
 	      webcamStream: "",
-	      userId: "24d16kfdmbd4",
+	      userId: "b2b2b2b2b2b2",
 	      name: "BLUE",
 	      permissions: {
 	        disablePrivChat: false,
-	        disableCam: false,
-	        disableMic: false,
+	        disableCam: true,
+	        disableMic: true,
 	        lockedLayout: false,
 	        disablePubChat: false
 	      },
@@ -76,10 +76,10 @@ CreateSeedData = function() {
 	      locked: false,
 	      voiceUser: {
 	        talking: false,
-	        webUserId: "24d16kfdmbd4",
+	        webUserId: "b2b2b2b2b2b2",
 	        joined: false,
 	        muted: false,
-	        userId: "24d16kfdmbd4",
+	        userId: "b2b2b2b2b2b2",
 	        callerNum: "BLUE",
 	        callerName: "BLUE",
 	        locked: false
@@ -95,14 +95,14 @@ CreateSeedData = function() {
 	      presenter: false,
 	      sharingAudio: true,
 	      sharingVideo: false,
-	      externUserId: "1111k54k67s4",
+	      externUserId: "c3c3c3c3c3c3",
 	      webcamStream: "",
-	      userId: "1111k54k67s4",
+	      userId: "c3c3c3c3c3c3",
 	      name: "Joe",
 	      permissions: {
 	        disablePrivChat: false,
-	        disableCam: false,
-	        disableMic: false,
+	        disableCam: true,
+	        disableMic: true,
 	        lockedLayout: false,
 	        disablePubChat: false
 	      },
@@ -111,10 +111,10 @@ CreateSeedData = function() {
 	      locked: false,
 	      voiceUser: {
 	        talking: false,
-	        webUserId: "1111k54k67s4",
+	        webUserId: "c3c3c3c3c3c3",
 	        joined: false,
 	        muted: false,
-	        userId: "1111k54k67s4",
+	        userId: "c3c3c3c3c3c3",
 	        callerNum: "Joe",
 	        callerName: "Joe",
 	        locked: false

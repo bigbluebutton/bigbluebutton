@@ -1,36 +1,32 @@
 <template name="userItem">
-   <div class="post">
-      <div class="post-content">
-         <h3><a href="{{url}}">{{title}}</a><span>{{domain}}</span></h3>
-         <p>Username: {{user.name}}</p>
-         <p>{{user.externUserId}}</p>
+    <li class="user-wrapper">
+      <div class="row">
+        <div class="user-role col-md-1" id="user-{{user.externUserId}}"><i class="icon fa fa-user"></i></div>
+        <div class="user-name col-md-5">{{user.name}}</div>
+        <div class="user-video col-md-1"><i class="icon fa fa-video-camera"></i></div>
+        <div class="user-audio col-md-1"><i class="icon fa fa-microphone"></i></div>
+        <div class="user-kick col-md-1"><i class="icon fa fa-sign-out"></i></div>
 
          {{#if user.presenter}}
-            <p><strong>{{user.name}} is the Presenter</strong></p>
+            <span><strong>{{user.name}} is the Presenter</strong></span>
          {{/if}}
-         
-         <hr/>
          <input type="button" class="raiseHand" id="{{user.externUserId}}" value="Raise hand" />
-
          {{#if user.handRaised}}
-            <p>{{user.name}}&#39;s is raised</p>
+            <span>{{user.name}}&#39;s is raised</span>
         {{/if}}
 
         {{#if user.sharingAudio}}
-            <p>{{user.name}} is sharing Audio</p>
+            <span>{{user.name}} is sharing Audio</span>
         {{else}}
-            <p>{{user.name}} is <strong>NOT</strong> sharing Audio</p>
+            <span>{{user.name}} is <strong>NOT</strong> sharing Audio</span>
         {{/if}}
-
+        <span>-</span>
         {{#if user.sharingVideo}}
-            <p>{{user.name}} is sharing Video</p>
+            <span>{{user.name}} is sharing Video</span>
         {{else}}
-            <p>{{user.name}} is <strong>NOT</strong> sharing Video</p>
+            <span>{{user.name}} is <strong>NOT</strong> sharing Video</span>
         {{/if}}
 
-
-
-        <hr/>
         <!-- If a hand is raised teacher can 'answer' which just turns off the raised hand flag
         can only be done if hand is raised -->
        	<p>Teacher controls:
@@ -38,22 +34,18 @@
        			<input type="button" class="lowerHand" id="{{user.externUserId}}" value="Answer Question"/>
        		{{else}}
        			<input type="button" class="lowerHand" id="{{user.externUserId}}" value="Answer Question" disabled/>
-   		    {{/if}}
+    		    {{/if}}
 
-          {{#with getCurrentUser}}
-              {{#if user.permissions.disableCam}}
-                  <input type="button" class="disableCam" id="{{../user.externUserId}}" value="Disable this user's camera"/>
-              {{/if}}
-              {{#if user.permissions.disableMic}}
-                  <input type="button" class="disableMic" id="{{../user.externUserId}}" value="Disable this user's Microphone"/>
-              {{/if}}
-          {{/with}}
+          {{#if user.permissions.disableCam}}
+              <input type="button" class="disableCam" id="{{user.externUserId}}" value="Disable this user's camera"/>
+          {{/if}}
+          {{#if user.permissions.disableMic}}
+              <input type="button" class="disableMic" id="{{user.externUserId}}" value="Disable this user's Microphone"/>
+          {{/if}}
 
           <input type="button" class="setPresenter" id="{{user.externUserId}}" value="Set this user as the presenter"/>
+          <input type="button" class="kickUser" id="{{user.externUserId}}" value="Kick from Call" />
        	</p>
-
-       	<input type="button" class="kickUser" id="{{user.externUserId}}" value="Kick from Call" />
-
       </div>
-   </div>
+    </li>
 </template>

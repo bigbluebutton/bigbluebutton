@@ -7,29 +7,49 @@ Template.userItem.helpers({
 
   // for now just assume user is a moderator
   getCurrentUser: function(){
-  	m = Users.findOne({'user.role':"MODERATOR"});
+  	var m = Users.findOne({'user.role':"MODERATOR"});
   	return m;
   }
 });
 
 Template.userItem.events({
 	'click input.raiseHand': function(event){
-		Users.update({_id:this._id}, 
-			{
-				$set: {"user.handRaised": true}
-			}
-		);
-		console.log (Users);
+		Users.update({_id:this._id}, {$set: {"user.handRaised": true}});
+	}, 
+	'click input.disableCam': function(event){
+		Users.update({_id:this._id},{$set: {"user.sharingVideo": false}});
+	}, 
+	'click input.disableMic': function(event){
+		Users.update({_id:this._id}, {$set: {"user.sharingAudio": false}});
 	}, 
 	'click input.lowerHand': function(event){
-		Users.update({_id:this._id}, 
-			{
-				$set: {"user.handRaised": false}
-			}
-		);
-		console.log (Users);
+		Users.update({_id:this._id}, {$set: {"user.handRaised": false}});
 	},
+	'click input.setPresenter': function(event){
+		/*
+		* Not the best way to go about doing this
+		* The meeting should probably know about the presenter instead of the individual user
+		*/
+
+		// only perform operation is user is not already presenter, prevent extra DB work
+		if(!this.user.presenter){ 
+			// from new user, find meeting
+			var m = Meetings.findOne({meetingName: this.meetingId});
+
+			// unset old user as presenter
+			if(m){
+				var u = Users.findOne({meetingId:m.meetingName, 'user.presenter':true})
+				Users.update({_id:u._id}, {$set: {'user.presenter': false}});
+			}
+			// set newly selected user as presenter
+			Users.update({_id:this._id}, {$set: {"user.presenter": true}});
+		}
+	}, 
 	'click input.kickUser': function(event){
+		/*
+		* Add:
+		*	When user is blown away, if they were presenter remove that from meeting (if kicking the presenter is even possible?)
+		*/
 		var user = this;
 		var meeting = Meetings.findOne({meetingName:this.meetingId});
 
@@ -44,23 +64,10 @@ Template.userItem.events({
 			}
 
 			if(index >= 0) {
-				// remove user from meeting
-				meeting.users.splice(index, 1);
-				// update meeting
-				Meetings.update({_id:meeting._id},
-					{
-						$set: 
-						{
-							users: meeting.users
-						}
-					}
-				);
+				meeting.users.splice(index, 1);// remove user from meeting
+				Meetings.update({_id:meeting._id}, {$set:{users: meeting.users}});// update meeting
 				// remove meeting from user
-				Users.update({_id:this._id}, 
-					{
-						$set: {"meetingId": null}
-					}
-				);
+				Users.update({_id:this._id}, {$set: {"meetingId": null}});
 			}
 		}
 	}

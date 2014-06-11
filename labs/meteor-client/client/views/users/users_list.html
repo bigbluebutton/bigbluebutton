@@ -1,12 +1,16 @@
 <template name="usersList">
-   <div class="posts">
-   	  {{#each getMeetings}}
-   	  	<p>Meeting Name: {{meetingName}}</p>
-   	  	<p>Users in meeting:</p>
-   	  	<!-- Retrieve all users in the meeting -->
-   	  	{{#each getUsersInMeeting meetingName}}
-   	  		{{> userItem}}
-   	  	{{/each}}
-   	  {{/each}}
+   <div>
+      {{#each getMeetings}}
+         <p>Meeting Name: {{meetingName}}</p>
+         <p>Users in meeting:</p>
+         <!-- Retrieve all users in the meeting -->
+         
+         <h3>User List</h3>
+         <ul id="user-list">
+            {{#each getUsersInMeeting meetingName}}
+               {{> userItem}}
+            {{/each}}
+         </ul>
+      {{/each}}
    </div>
 </template>
