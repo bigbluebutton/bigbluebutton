@@ -1,3 +1,5 @@
 {
-  "packages": {}
+  "packages": {
+    "bootstrap-3": {}
+  }
 }
