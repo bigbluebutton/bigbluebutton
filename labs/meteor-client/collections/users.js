@@ -1,5 +1,5 @@
-Users = new Meteor.Collection('bbb_users');
-Meetings = new Meteor.Collection('meetings');
+Meteor.users = new Meteor.Collection('bbb_users');
+this.Meetings = new Meteor.Collection('meetings');
 
 Meteor.methods({
   authenticate: function(auth) {
@@ -18,10 +18,9 @@ Meteor.methods({
     console.log("User id=[" + userId + "]");
     this.setUserId(userId);
     console.log(this.userId);
-    return userId;        
+    return userId;     
   },
   showUserId: function() {
     throw new Meteor.Error(422, this.userId);
   }
 });
-

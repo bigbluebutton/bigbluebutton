@@ -4,9 +4,9 @@ CreateSeedData = function() {
 	// Create Seed Data
 	//
 
-	if(Meetings.find().count() === 0) {
+	if(this.Meetings.find().count() === 0) {
 	  console.log("recreating meeting");
-	  Meetings.insert({
+	  this.Meetings.insert({
 	    meetingName: "Classroom1",
 	    users: [
 	      {userId: "a1a1a1a1a1a1"},
@@ -16,8 +16,8 @@ CreateSeedData = function() {
 	  });
 	}
 
-	if (Users.find().count() === 0) {
-	  Users.insert({
+	if (Meteor.users.find().count() === 0) {
+	  Meteor.users.insert({
 	    meetingId: "Classroom1",
 	    user: {
 	      handRaised: false,
@@ -52,7 +52,7 @@ CreateSeedData = function() {
 	      listenOnly: false      
 	    }
 	  });
-	  Users.insert({
+	  Meteor.users.insert({
 	    meetingId: "Classroom1",
 	    user: {
 	      handRaised: false,
@@ -87,7 +87,7 @@ CreateSeedData = function() {
 	      listenOnly: false      
 	    }
 	  });
-	  Users.insert({
+	  Meteor.users.insert({
 	    meetingId: "Classroom1",
 	    user: {
 	      handRaised: false,

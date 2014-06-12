@@ -3,7 +3,8 @@
   "dependencies": {
     "basePackages": {
       "redis": {},
-      "npm": {}
+      "npm": {},
+      "bootstrap-3": {}
     },
     "packages": {
       "redis": {
@@ -15,6 +16,11 @@
         "git": "https://github.com/arunoda/meteor-npm.git",
         "tag": "v0.2.6",
         "commit": "177ab6118de5bf8cffb19481343d5762ff7a2aaf"
+      },
+      "bootstrap-3": {
+        "git": "https://github.com/mangasocial/meteor-bootstrap-3.git",
+        "tag": "v3.1.1-1",
+        "commit": "63dd38968828bb8963636df93e9a1c45e2dfe67e"
       }
     }
   }

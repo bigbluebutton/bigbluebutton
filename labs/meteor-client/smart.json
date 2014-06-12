@@ -1,6 +1,7 @@
 {
   "packages": {
     "redis": {},
-    "npm": {}
+    "npm": {},
+    "bootstrap-3": {}
   }
 }
