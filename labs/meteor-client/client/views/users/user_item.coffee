@@ -7,7 +7,7 @@ Template.userItem.helpers
   # retrieve account for selected user, or the first mod account if nothing is selected
   getCurrentUser: ->
     id = Session.get("userId") or "a1a1a1a1a1a1"
-    u = Users.findOne("user.userId": id)
+    u = Meteor.users.findOne("user.userId": id)
     u
 
   # using handlebars' {{equals}} wasn't working for these some reason, so heres a simple JS function to do it
@@ -16,52 +16,52 @@ Template.userItem.helpers
 
 Template.userItem.events
   "click input.raiseHand": (event) ->
-    Users.update
+    Meteor.users.update
       _id: @_id
     ,
       $set:
         "user.handRaised": true
 
   "click input.disableCam": (event) ->
-    Users.update
+    Meteor.users.update
       _id: @_id
     ,
       $set:
         "user.sharingVideo": false
 
   "click input.disableMic": (event) ->
-    Users.update
+    Meteor.users.update
       _id: @_id
     ,
       $set:
         "user.sharingAudio": false
 
   "click input.enableMic": (event) ->
-    Users.update
+    Meteor.users.update
       _id: @_id
     ,
       $set:
         "user.sharingAudio": true
 
   "click input.enableCam": (event) ->
-    Users.update
+    Meteor.users.update
       _id: @_id
     ,
       $set:
         "user.sharingVideo": true
 
   "click input.lowerHand": (event) ->
-    Users.update
+    Meteor.users.update
       _id: @_id
     ,
       $set:
         "user.handRaised": false
 
   "click input.setPresenter": (event) ->
-	#
-	# Not the best way to go about doing this
-	# The meeting should probably know about the presenter instead of the individual user
-    #
+	   #
+	   # Not the best way to go about doing this
+	   # The meeting should probably know about the presenter instead of the individual user
+     #
 
     # only perform operation if user is not already presenter, prevent extra DB work
     unless @user.presenter
@@ -69,19 +69,19 @@ Template.userItem.events
       m = Meetings.findOne(meetingName: @meetingId)
       # unset old user as presenter
       if m?
-        u = Users.findOne(
+        u = Meteor.users.findOne(
           meetingId: m.meetingName
           "user.presenter": true
         )
         if u?
-          Users.update
+          Meteor.users.update
             _id: u._id
           ,
             $set:
               "user.presenter": false
 
       # set newly selected user as presenter
-      Users.update
+      Meteor.users.update
         _id: @_id
       ,
         $set:
@@ -112,7 +112,7 @@ Template.userItem.events
           $set:
             users: meeting.users
 
-        Users.update # remove meeting from user
+        Meteor.users.update # remove meeting from user
           _id: @_id
         ,
           $set:

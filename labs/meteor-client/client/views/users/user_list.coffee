@@ -17,7 +17,7 @@ postsData = [
 ]
 Template.usersList.helpers
   users: ->
-    Users.find()
+    Meteor.users.find()
 
   getMeetings: ->
     Meetings.find()
@@ -25,7 +25,7 @@ Template.usersList.helpers
   # should be changed to find all users listed in the meeting and retrieve them,
   #  instead of here where we retrieve every user pointing to the meeting 
   getUsersInMeeting: (meetingName) ->
-    Users.find meetingId: meetingName
+    Meteor.users.find meetingId: meetingName
 
 Template.usersList.events "click input.signin": (event) ->
   Session.set "userId", event.target.id

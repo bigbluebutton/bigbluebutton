@@ -34,9 +34,11 @@
             <p>The current user</p>
                    
             <span>User Controls:</span>
-               <input type="button" class="raiseHand" id="{{user.externUserId}}" value="Raise hand" />
                {{#if user.handRaised}}
+                  <input type="button" class="raiseHand" id="{{user.externUserId}}" value="Raise hand" disabled/>
                   <span>{{user.name}}&#39;s hand is raised</span>
+              {{else}}
+                  <input type="button" class="raiseHand" id="{{user.externUserId}}" value="Raise hand"/>
               {{/if}}
 
             <!-- toggles for own user's mic and cam-->
@@ -51,9 +53,7 @@
             {{else}}
                 <input type="button" class="enableCam" id="{{user.externUserId}}" value="Share Webcam"/>
             {{/if}}
-
           {{/if}}
-
         {{/with}}
 
         <!-- If a hand is raised teacher can 'answer' which just turns off the raised hand flag
@@ -64,7 +64,6 @@
        		{{else}}
        			<input type="button" class="lowerHand" id="{{user.externUserId}}" value="Answer Question" disabled/>
     		    {{/if}}
-
 
           {{#with getCurrentUser}}  
             {{#if user.permissions.disableCam}}
