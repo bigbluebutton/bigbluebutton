@@ -18,15 +18,24 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.*;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
-	import flash.net.navigateToURL;	
+	import flash.net.navigateToURL;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.model.Me;
+	import org.bigbluebutton.core.model.MeBuilder;
+	import org.bigbluebutton.core.model.MeetingBuilder;
+	import org.bigbluebutton.core.model.MeetingModel;
+	import org.bigbluebutton.core.model.users.User;
+	import org.bigbluebutton.core.model.users.UsersModel;
+	import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
         	
 	public class JoinService
@@ -37,13 +46,11 @@ package org.bigbluebutton.main.model.users
 		private var urlLoader:URLLoader;
 		private var _resultListener:Function;
 		
-		public function JoinService()
-		{
+		public function JoinService() {
 			urlLoader = new URLLoader();
 		}
 		
-		public function load(url:String) : void
-		{
+		public function load(url:String):void {
 			var date:Date = new Date();
 //			url += "?a=" + date.time
 			LogUtil.debug("JoinService:load(...) " + url);
@@ -78,26 +85,39 @@ package org.bigbluebutton.main.model.users
 			if (returncode == 'FAILED') {
 				LogUtil.debug("Join FAILED = " + xml);
 							
-				navigateToURL(new URLRequest(xml.logoutURL),'_self')
+        var dispatcher:Dispatcher = new Dispatcher();
+        dispatcher.dispatchEvent(new MeetingNotFoundEvent(xml.logoutURL));
 				
 			} else if (returncode == 'SUCCESS') {
 				LogUtil.debug("Join SUCESS = " + xml);
         trace("JoinService::handleComplete() Join SUCESS = " + xml);
-				var user:Object = {username:xml.fullname, conference:xml.conference, conferenceName:xml.confname, externMeetingID:xml.externMeetingID,
-										meetingID:xml.meetingID, externUserID:xml.externUserID, internalUserId:xml.internalUserID,
-										role:xml.role, room:xml.room, authToken:xml.room, record:xml.record, 
-										webvoiceconf:xml.webvoiceconf, dialnumber:xml.dialnumber,
-										voicebridge:xml.voicebridge, mode:xml.mode, welcome:xml.welcome, logoutUrl:xml.logoutUrl, 
-                    defaultLayout:xml.defaultLayout, avatarURL:xml.avatarURL};
+				var user:Object = {username:xml.fullname, conference:xml.conference, 
+                           conferenceName:xml.confname, externMeetingID:xml.externMeetingID,
+										       meetingID:xml.meetingID, externUserID:xml.externUserID, 
+                           internalUserId:xml.internalUserID,
+										       role:xml.role, room:xml.room, authToken:xml.room, record:xml.record, 
+										       webvoiceconf:xml.webvoiceconf, dialnumber:xml.dialnumber,
+										       voicebridge:xml.voicebridge, mode:xml.mode, welcome:xml.welcome, logoutUrl:xml.logoutUrl, 
+                           defaultLayout:xml.defaultLayout, avatarURL:xml.avatarURL};
 				user.customdata = new Object();
-				if(xml.customdata)
-				{
+       
+				if(xml.customdata) {
 					for each(var cdnode:XML in xml.customdata.elements()){
-						LogUtil.debug("checking user customdata: "+cdnode.name() + " = " + cdnode);
+						LogUtil.debug("checking user customdata: "+ cdnode.name() + " = " + cdnode);
 						user.customdata[cdnode.name()] = cdnode.toString();
 					}
 				}
 				
+        UsersModel.getInstance().me = new MeBuilder(user.internalUserId, user.username).withAvatar(user.avatarURL)
+                                             .withExternalId(user.externUserID).withToken(user.authToken)
+                                             .withLayout(user.defaultLayout).withWelcome(user.welcome)
+                                             .withDialNumber(user.dialnumber).withRole(user.role)
+                                             .withCustomData(user.customData).build();
+                
+        MeetingModel.getInstance().meeting = new MeetingBuilder(user.conference, user.conferenceName)
+                                             .withLayout(user.defaultLayout).withVoiceConf(user.voiceBridge)
+                                             .withExternalId(user.externMeetingID).build();
+        
 				if (_resultListener != null) _resultListener(true, user);
 			}
 				

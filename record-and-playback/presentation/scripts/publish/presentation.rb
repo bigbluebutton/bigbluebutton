@@ -534,9 +534,10 @@ def processSlideEvents
 			slide_start = ( translateTimestamp(slide_timestamp) / 1000 ).round(1)
 			orig_slide_start = ( slide_timestamp.to_f / 1000 ).round(1)
 			slide_number = node.xpath(".//slide")[0].text()
-                        slide_number = slide_number.to_i < 0 ? "0" : slide_number			
-			slide_src = "presentation/#{$presentation_name}/slide-#{slide_number.to_i + 1}.png"
-                        txt_file_path = "presentation/#{$presentation_name}/textfiles/slide-#{slide_number.to_i + 1}.txt"
+                        slide_number = slide_number.to_i < 0 ? "0" : slide_number
+			index_add = $version.nil? ? 1 : 0 			
+			slide_src = "presentation/#{$presentation_name}/slide-#{slide_number.to_i + index_add}.png"
+                        txt_file_path = "presentation/#{$presentation_name}/textfiles/slide-#{slide_number.to_i + index_add}.txt"
                         slide_text = File.exist?("#{$process_dir}/#{txt_file_path}") ? txt_file_path : nil
 			image_url = "#{$process_dir}/#{slide_src}"
 
@@ -825,12 +826,20 @@ $playback = match[2]
 
 puts $meeting_id
 puts $playback
+
+begin
+
 if ($playback == "presentation")
-	logger = Logger.new("/var/log/bigbluebutton/presentation/publish-#{$meeting_id}.log", 'daily' )
-	BigBlueButton.logger = logger
+
 	# This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 	bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 	simple_props = YAML::load(File.open('presentation.yml'))
+
+    log_dir = bbb_props['log_dir']
+
+	logger = Logger.new("#{log_dir}/presentation/publish-#{$meeting_id}.log", 'daily' )
+	BigBlueButton.logger = logger
+
 	BigBlueButton.logger.info("Setting recording dir")
 	recording_dir = bbb_props['recording_dir']
 	BigBlueButton.logger.info("Setting process dir")
@@ -880,7 +889,8 @@ if ($playback == "presentation")
 				BigBlueButton::Events.get_start_and_stop_rec_events("#{$process_dir}/events.xml"))
 
 		recording_time = computeRecordingLength()
-
+		
+		$version = BigBlueButton::Events.bbb_version("#{$process_dir}/events.xml")
 		BigBlueButton.logger.info("Creating metadata.xml")
 		# Create metadata.xml
 		b = Builder::XmlMarkup.new(:indent => 2)
@@ -973,11 +983,25 @@ if ($playback == "presentation")
 			end
 			exit 1
 		end
+        publish_done = File.new("#{recording_dir}/status/published/#{$meeting_id}-presentation.done", "w")
+        publish_done.write("Published #{$meeting_id}")
+        publish_done.close
+
 	else
 		BigBlueButton.logger.info("#{target_dir} is already there")
 	end
 end
 
 
+rescue Exception => e
+        BigBlueButton.logger.error(e.message)
+        e.backtrace.each do |traceline|
+            BigBlueButton.logger.error(traceline)
+        end
+        publish_done = File.new("#{recording_dir}/status/published/#{$meeting_id}-presentation.fail", "w")
+        publish_done.write("Failed Publishing #{$meeting_id}")
+        publish_done.close
 
+        exit 1
+end
 

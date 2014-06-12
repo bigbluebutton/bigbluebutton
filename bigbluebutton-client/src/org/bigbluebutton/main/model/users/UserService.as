@@ -19,17 +19,18 @@
 package org.bigbluebutton.main.model.users
 {
 	import com.asfusion.mate.events.Dispatcher;
-	
 	import flash.events.TimerEvent;
 	import flash.external.ExternalInterface;
 	import flash.net.NetConnection;
-	import flash.utils.Timer;
-	
-	import mx.collections.ArrayCollection;
-	
+	import flash.utils.Timer;	
+	import mx.collections.ArrayCollection;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.events.LockControlEvent;
+	import org.bigbluebutton.core.events.VoiceConfEvent;
 	import org.bigbluebutton.core.managers.ConfigManager;
+	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.managers.UserConfigManager;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.core.model.Config;
@@ -45,16 +46,23 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
+	import org.bigbluebutton.modules.users.services.MessageReceiver;
+	import org.bigbluebutton.modules.users.services.MessageSender;
 
 	public class UserService {
+    private static const LOG:String = "Users::UserService - ";
+    
 		private var joinService:JoinService;
-		private var _userSOService:UsersSOService;
 		private var _conferenceParameters:ConferenceParameters;		
 		private var applicationURI:String;
 		private var hostURI:String;		
 		private var connection:NetConnection;
 		private var dispatcher:Dispatcher;
 		
+    private var _connectionManager:ConnectionManager;
+    private var msgReceiver:MessageReceiver = new MessageReceiver();
+    private var sender:MessageSender = new MessageSender();
+    
 		public function UserService() {
 			dispatcher = new Dispatcher();
 		}
@@ -79,7 +87,9 @@ package org.bigbluebutton.main.model.users
 				UserManager.getInstance().getConference().setMyAuthToken(result.authToken);
 				UserManager.getInstance().getConference().setMyCustomData(result.customdata);
 				UserManager.getInstance().getConference().setDefaultLayout(result.defaultLayout);
-        
+				
+				UserManager.getInstance().getConference().setMyUserid(result.internalUserId);
+				
 				UserManager.getInstance().getConference().externalMeetingID = result.externMeetingID;
 				UserManager.getInstance().getConference().meetingName = result.conferenceName;
 				UserManager.getInstance().getConference().internalMeetingID = result.room;
@@ -123,9 +133,10 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.lockOnStart = lockOnStart;
 				_conferenceParameters.lockSettings = UserManager.getInstance().getConference().getLockSettings().toMap();
 				
-                // assign the meeting name to the document title
-                ExternalInterface.call("setTitle", _conferenceParameters.meetingName);
-                
+        // assign the meeting name to the document title
+        ExternalInterface.call("setTitle", _conferenceParameters.meetingName);
+        
+        trace(LOG + " Got the user info from web api.");       
 				/**
 				 * Temporarily store the parameters in global BBB so we get easy access to it.
 				 */
@@ -135,36 +146,49 @@ package org.bigbluebutton.main.model.users
 				e.conference = UserManager.getInstance().getConference();
 				dispatcher.dispatchEvent(e);
 				
-				connect();
+        connect();
 			}
 		}
 		
-		private function connect():void{
-			_userSOService = new UsersSOService(applicationURI);
-			_userSOService.connect(_conferenceParameters);	
-		}
-		
+    private function connect():void{
+      _connectionManager = BBB.initConnectionManager();
+      _connectionManager.setUri(applicationURI);
+      _connectionManager.connect(_conferenceParameters);
+    }
+	
+    public function logoutUser():void {
+      disconnect(true);
+    }
+    
+    public function disconnect(onUserAction:Boolean):void {
+      _connectionManager.disconnect(onUserAction);
+    }
+      
+    private function queryForRecordingStatus():void {
+      sender.queryForRecordingStatus();
+    }
+    
+    public function changeRecordingStatus(e:BBBEvent):void {
+      trace("UserService::changeRecordingStatus")
+      if (this.isModerator() && !e.payload.remote) {
+        var myUserId: String = UserManager.getInstance().getConference().getMyUserId();
+        sender.changeRecordingStatus(myUserId, e.payload.recording);
+      }
+    }
+       
 		public function userLoggedIn(e:UsersConnectionEvent):void{
-      LogUtil.debug("In UserService:userLoggedIn - Setting my userid to [" + e.userid + "]");
+      trace("In UserService:userLoggedIn - Setting my userid to [" + e.userid + "]");
 			UserManager.getInstance().getConference().setMyUserid(e.userid);
-			_conferenceParameters.connection = e.connection;
 			_conferenceParameters.userid = e.userid;
 			
-			_userSOService.join(e.userid, _conferenceParameters.room);
+      sender.queryForParticipants();     
+      sender.queryForRecordingStatus();
 			
 			var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
 			loadCommand.conferenceParameters = _conferenceParameters;
 			dispatcher.dispatchEvent(loadCommand);		
 		}
-		
-		public function logoutUser():void {
-			_userSOService.disconnect(true);
-		}
-		
-		public function disconnectTest():void{
-			_userSOService.disconnect(false);
-		}
-				
+					
 		public function isModerator():Boolean {
 			return UserManager.getInstance().getConference().amIModerator();
 		}
@@ -174,23 +198,23 @@ package org.bigbluebutton.main.model.users
 		}
 				
 		public function addStream(e:BroadcastStartedEvent):void {
-			_userSOService.addStream(e.userid, e.stream);
+      sender.addStream(e.userid, e.stream);
 		}
 		
 		public function removeStream(e:BroadcastStoppedEvent):void {			
-			_userSOService.removeStream(e.userid, e.stream);
+      sender.removeStream(e.userid, e.stream);
 		}
 		
 		public function raiseHand(e:RaiseHandEvent):void {
-			_userSOService.raiseHand(UserManager.getInstance().getConference().getMyUserId(), e.raised);
+      sender.raiseHand(UserManager.getInstance().getConference().getMyUserId(), e.raised);
 		}
 		
 		public function lowerHand(e:LowerHandEvent):void {
-			if (this.isModerator()) _userSOService.raiseHand(e.userid, false);
+			if (this.isModerator()) sender.raiseHand(e.userid, false);
 		}
 		
 		public function kickUser(e:KickUserEvent):void{
-			if (this.isModerator()) _userSOService.kickUser(e.userid);
+			if (this.isModerator()) sender.kickUser(e.userid);
 		}
 		
 		/**
@@ -201,17 +225,58 @@ package org.bigbluebutton.main.model.users
 		public function assignPresenter(e:RoleChangeEvent):void{
 			var assignTo:String = e.userid;
 			var name:String = e.username;
-			_userSOService.assignPresenter(assignTo, name, 1);
+      sender.assignPresenter(assignTo, name, 1);
 		}
 
-		public function changeRecordingStatus(e:BBBEvent):void {
-			trace("UserService::changeRecordingStatus")
-			if (this.isModerator() && !e.payload.remote) {
-				_userSOService.changeRecordingStatus(
-						UserManager.getInstance().getConference().getMyUserId(), 
-						e.payload.recording
-				);
-			}
-		}
+    public function muteUnmuteUser(command:VoiceConfEvent):void {
+      sender.muteUnmuteUser(command.userid, command.mute);		
+    }
+    
+    public function muteAllUsers(command:VoiceConfEvent):void {	
+      sender.muteAllUsers(true);			
+    }
+    
+    public function unmuteAllUsers(command:VoiceConfEvent):void{
+      sender.muteAllUsers(false);
+    }
+    
+    public function muteAlmostAllUsers(command:VoiceConfEvent):void {	
+      var dontMuteThese:Array = [];
+      
+      var pres:BBBUser = UserManager.getInstance().getConference().getPresenter();
+      if (pres != null) dontMuteThese.push(pres.userID);
+      
+      sender.muteAllUsers(true, dontMuteThese);
+    }
+        
+    public function ejectUser(command:VoiceConfEvent):void {
+      sender.ejectUser(command.userid);			
+    }	
+    
+    //Lock events
+    public function lockAllUsers(command:LockControlEvent):void {
+      sender.setAllUsersLock(true);			
+    }
+    
+    public function unlockAllUsers(command:LockControlEvent):void {	
+      sender.setAllUsersLock(false);			
+    }
+    
+    public function lockAlmostAllUsers(command:LockControlEvent):void {	
+      var pres:BBBUser = UserManager.getInstance().getConference().getPresenter();
+      sender.setAllUsersLock(true, [pres.userID]);
+    }
+    
+    public function lockUser(command:LockControlEvent):void {	
+      sender.setUserLock(command.internalUserID, true);			
+    }
+    
+    public function unlockUser(command:LockControlEvent):void {	
+      sender.setUserLock(command.internalUserID, false);			
+    }
+    
+    public function saveLockSettings(command:LockControlEvent):void {	
+      sender.saveLockSettings(command.payload);			
+    }
 	}
 }

@@ -27,9 +27,9 @@ class LtiService {
     boolean transactional = false
     
     def endPoint = "http://localhost/lti/tool"
-    
     def consumers = "demo:welcome"
     def mode = "simple"
+
     Map<String, String> consumerMap
     
     def retrieveIconEndpoint() {
@@ -87,5 +87,11 @@ class LtiService {
 
     private String encodeBase64(byte[] signBytes) {
         return Base64.encodeBase64URLSafeString(signBytes)
+    }
+
+    def logParameters(Object params) {
+        log.debug "----------------------------------"
+        for( param in params ) log.debug "${param.getKey()}=${param.getValue()}"
+        log.debug "----------------------------------"
     }
 }

@@ -17,7 +17,7 @@ function webrtc_call(username, voiceBridge, server, callback) {
 
     console.log("Browser: " + browser + ", version: " + version);
     if ( !( (browser == "Chrome" && version >= 28) || (browser == "Firefox" && version >= 26) ) ) {
-        callback("Browser version not supported");
+        callback({'status': 'browserError', message: "Browser version not supported"});
         return;
     }
 
@@ -46,46 +46,52 @@ function webrtc_call(username, voiceBridge, server, callback) {
 
   
   bbbAudioConference = new JsSIP.UA(configuration);
+  
   bbbAudioConference.on('newRTCSession', function(e) {
       console.log("New Webrtc session created!");
       currentSession = e.data.session;
     });
+    
   bbbAudioConference.start();
   // Make an audio/video call:
   // HTML5 <video> elements in which local and remote video will be shown
   var selfView =   document.getElementById('local-media');
   var remoteView =  document.getElementById('remote-media');
 
-	
- 
   console.log("Registering callbacks to desired call events..");
   var eventHandlers = {
     'progress': function(e){
-      console.log('call is in progress');
+      console.log('call is in progress: ' + e.data);
+      callback({'status':'progress', 'message': e.data});
     },
     'failed': function(e){
       console.log('call failed with cause: '+ e.data.cause);
+      callback({'status':'failed', 'cause': e.data.cause});
     },
     'ended': function(e){
       console.log('call ended with cause: '+ e.data.cause);
+      callback({'status':'ended', 'cause': e.data.cause});
     },
     'started': function(e){
       var rtcSession = e.sender;
+      var localStream = false;
+      var remoteStream = false;
 
       console.log('BigBlueButton call started');
 
       // Attach local stream to selfView
       if (rtcSession.getLocalStreams().length > 0) {
-        console.log("Got local stream");        
+        console.log("Got local stream");     
+        localStream = true;   
       }
 
       // Attach remote stream to remoteView
       if (rtcSession.getRemoteStreams().length > 0) {
         console.log("Got remote stream");
         remoteView.src = window.URL.createObjectURL(rtcSession.getRemoteStreams()[0]);
+        remoteStream = true;
       }
-
-     callback();
+     callback({'status':'started', 'localStream': localStream, 'remoteStream': remoteStream});
     }
   };
   
@@ -96,9 +102,7 @@ function webrtc_call(username, voiceBridge, server, callback) {
   };
 
   console.log("Calling to " + voiceBridge + "....");
-  bbbAudioConference.call('sip:' + voiceBridge + '@' + server, options);
-   
-   
+  bbbAudioConference.call('sip:' + voiceBridge + '@' + server, options); 
 }
 
 // http://stackoverflow.com/questions/5916900/detect-version-of-browser

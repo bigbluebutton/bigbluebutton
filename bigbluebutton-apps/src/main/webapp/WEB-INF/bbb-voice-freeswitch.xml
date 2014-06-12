@@ -24,21 +24,36 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     xsi:schemaLocation="http://www.springframework.org/schema/beans
             http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 	
-	<beans:bean id="connectionManager" class="org.bigbluebutton.webconference.voice.freeswitch.ConnectionManager" init-method="start" destroy-method="stop">
-		<beans:property name="managerConnection" ref="eslConnection"/>
-  		<beans:property name="conferenceEventListener" ref="conferenceService"/>
+	<beans:bean id="fsEventListener" class="org.bigbluebutton.webconference.voice.FreeswitchConferenceEventListener"
+	               init-method="start" destroy-method="stop"/>
+	 
+	<beans:bean id="connectionManager" class="org.bigbluebutton.webconference.voice.freeswitch.ConnectionManager" 
+	           init-method="start" destroy-method="stop">
+		  <beans:property name="managerConnection" ref="eslConnection"/>
+  		<beans:property name="conferenceEventListener" ref="fsEventListener"/>
   		<beans:property name="eSLEventListener" ref="eslEventListener"/>
 	</beans:bean>
 
 	<beans:bean id="eslEventListener" class="org.bigbluebutton.webconference.voice.freeswitch.ESLEventListener">
-  		<beans:property name="conferenceEventListener" ref="conferenceService"/>
+  		<beans:property name="conferenceEventListener" ref="fsEventListener"/>
 	</beans:bean>
-		
-	<beans:bean id="conferenceServiceProvider" class="org.bigbluebutton.webconference.voice.freeswitch.FreeswitchServiceProvider">
-  		<beans:property name="freeswitchApplication" ref="freeswitchApplication"/>
+  		
+	<beans:bean id="fsmanProxy" class="org.bigbluebutton.freeswitch.FreeswitchManagerProxy">
+	    <beans:constructor-arg index="0" ref="freeswitchApplication"/>
 	</beans:bean>
-	
-	<beans:bean id="freeswitchApplication" class="org.bigbluebutton.webconference.voice.freeswitch.FreeswitchApplication">
+
+  <beans:bean id="fsConfService" class="org.bigbluebutton.freeswitch.FreeswitchConferenceService">
+      <beans:constructor-arg index="0" ref="fsmanProxy"/>
+      <beans:constructor-arg index="1" ref="fsEventListener"/>
+  </beans:bean>
+
+  <beans:bean id="fsInGwWrapper" class="org.bigbluebutton.freeswitch.FsInGwWrapper">
+      <beans:constructor-arg index="0" ref="bbbInGW"/>
+      <beans:constructor-arg index="1" ref="fsConfService"/>
+  </beans:bean>
+    	
+	<beans:bean id="freeswitchApplication" class="org.bigbluebutton.webconference.voice.freeswitch.FreeswitchApplication"
+	                      init-method="start" destroy-method="stop">
 		<beans:property name="connectionManager" ref="connectionManager"/>
     	<beans:property name="icecastProtocol" value="${icecast.protocol}"/>
     	<beans:property name="icecastHost" value="${icecast.host}"/>

@@ -60,6 +60,7 @@ package org.bigbluebutton.modules.videoconf.business
       _url = url;
 			parseOptions();			
 			nc = new NetConnection();
+			nc.proxyType = "best";
 			nc.client = this;
 			nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
 			nc.addEventListener(IOErrorEvent.IO_ERROR, onIOError);

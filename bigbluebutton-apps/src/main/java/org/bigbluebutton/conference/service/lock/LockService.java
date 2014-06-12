@@ -19,15 +19,10 @@
 package org.bigbluebutton.conference.service.lock;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map;
-
 import org.bigbluebutton.conference.BigBlueButtonSession;
 import org.bigbluebutton.conference.Constants;
-import org.bigbluebutton.conference.Room;
-import org.bigbluebutton.conference.RoomsManager;
-import org.bigbluebutton.conference.User;
-import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
+import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.slf4j.Logger;
@@ -35,9 +30,8 @@ import org.slf4j.Logger;
 public class LockService {
 	private static Logger log = Red5LoggerFactory.getLogger( LockService.class, "bigbluebutton" );
 	
-	private ParticipantsApplication application;
-	private final static Boolean lockModerators = true;
-	
+	private IBigBlueButtonInGW bbbInGW;
+
 	/**
 	 * Internal function used to get the session
 	 * */
@@ -45,23 +39,17 @@ public class LockService {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}
 	
-	/**
-	 * Internal function used to set participants application (from xml)
-	 * */
-	public void setParticipantsApplication(ParticipantsApplication a) {
-		log.debug("Setting Participants Applications");
-		application = a;
+	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
+		bbbInGW = inGW;
 	}
 	
 	/**
 	 * Called from client to get lock settings for this room. 
 	 * */
-	public Map<String, Boolean> getLockSettings(){
-		String roomID = getBbbSession().getRoom();
-		RoomsManager rm = application.getRoomsManager();
-		Room room = rm.getRoom(roomID);
-		
-		return room.getLockSettings().toMap();
+	public void getLockSettings(){
+		String meetingId = getBbbSession().getRoom();
+		String userId = getMyUserId();
+		bbbInGW.getLockSettings(meetingId, userId);
 	}
 	
 	/**
@@ -73,23 +61,18 @@ public class LockService {
 	 * Returns the new lock settings for the room. 
 	 * */
 	public void setLockSettings(Map<String, Boolean> newSettings){
-		String roomID = getBbbSession().getRoom();
-		RoomsManager rm = application.getRoomsManager();
-		Room room = rm.getRoom(roomID);
-		
-		room.setLockSettings(new LockSettings(newSettings));
-		//Send notification to clients
+		String meetingId = getBbbSession().getRoom();
+		String userId = getMyUserId();
+		bbbInGW.sendLockSettings(meetingId, userId, newSettings);
 	}
 	
 	/**
 	 * Method called from client on connect to know if the room is locked or not 
 	 * */
-	public boolean isRoomLocked(){
-		String roomID = getBbbSession().getRoom();
-		RoomsManager rm = application.getRoomsManager();
-		Room room = rm.getRoom(roomID);
-		
-		return room.isLocked();
+	public void isRoomLocked(){
+		String meetingId = getBbbSession().getRoom();
+		String userId = getMyUserId();
+		bbbInGW.isMeetingLocked(meetingId, userId);
 	}
 	
 	/**
@@ -98,29 +81,8 @@ public class LockService {
 	 * */
 	public void setAllUsersLock(Boolean lock, ArrayList<String> dontLockTheseUsers){
 		log.debug("setAllUsersLock ({}, {})", new Object[] { lock, dontLockTheseUsers });
-		String roomID = getBbbSession().getRoom();
-		RoomsManager rm = application.getRoomsManager();
-		Room room = rm.getRoom(roomID);
-		room.setLocked(lock);
 		
-		Map<String, User> roomUserMap = application.getParticipants(roomID);
-		Collection<User> allUsers = roomUserMap.values();
-		
-		for(User user : allUsers) {
-			if(lock && user.isModerator() && !room.getLockSettings().getAllowModeratorLocking()){
-				log.debug("setAllUsersLock::Will not set lock for user " + user.getInternalUserID()+" because it's a moderator and allowModeratorLocking is false");
-				continue;
-			}
-			
-			//Don't lock users listed in dontLockTheseUsers array
-			if(lock && dontLockTheseUsers.contains(user.getInternalUserID())){
-				log.debug("setAllUsersLock::Will not lock user " + user.getInternalUserID());
-				continue;
-			} 
-			
-			log.debug("setAllUsersLock::Will lock user " + user.getInternalUserID());
-			application.setParticipantStatus(roomID, user.getInternalUserID(), "locked", lock);
-		}
+		log.error("TODO: Need to implement!");
 	}
 	
 	/**
@@ -128,21 +90,13 @@ public class LockService {
 	 * */
 	public void setUserLock(Boolean lock, String internalUserID){
 		log.debug("setUserLock ({}, {}, {})", new Object[] { lock, internalUserID });
-		String roomID = getBbbSession().getRoom();
-		Map<String, User> roomUserMap = application.getParticipants(roomID);
-		
-		User user = null;
-		
-		if((user = roomUserMap.get(internalUserID)) != null) {
-			RoomsManager rm = application.getRoomsManager();
-			Room room = rm.getRoom(roomID);
-			
-			if(lock && user.isModerator() && !room.getLockSettings().getAllowModeratorLocking()){
-				log.debug("setUserLock::Will not set lock for user " + user.getInternalUserID()+" because it's a moderator and allowModeratorLocking is false");
-				return;
-			}
-			
-			application.setParticipantStatus(roomID, user.getInternalUserID(), "locked", lock);
-		}
+		String meetingId = getBbbSession().getRoom();
+		bbbInGW.lockUser(meetingId, lock, internalUserID);
+	}
+	
+	public String getMyUserId() {
+		BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
+		assert bbbSession != null;
+		return bbbSession.getInternalUserID();
 	}
 }

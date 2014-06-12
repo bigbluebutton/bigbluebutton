@@ -18,8 +18,7 @@
  */
 package org.bigbluebutton.modules.chat.services
 {
-  import flash.events.IEventDispatcher;
-  
+  import flash.events.IEventDispatcher; 
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.modules.chat.ChatConstants;
@@ -28,13 +27,15 @@ package org.bigbluebutton.modules.chat.services
 
   public class ChatMessageService
   {
+    private static const LOG:String = "Chat::ChatMessageService - ";
+    
     public var sender:MessageSender;
     public var receiver:MessageReceiver;
     public var dispatcher:IEventDispatcher;
     
     public function sendPublicMessageFromApi(message:Object):void
     {
-      LogUtil.debug("sendPublicMessageFromApi");
+      trace(LOG + "sendPublicMessageFromApi");
       var msgVO:ChatMessageVO = new ChatMessageVO();
       msgVO.chatType = ChatConstants.PUBLIC_CHAT;
       msgVO.fromUserID = message.fromUserID;
@@ -51,6 +52,7 @@ package org.bigbluebutton.modules.chat.services
     
     public function sendPrivateMessageFromApi(message:Object):void
     {
+      trace(LOG + "sendPrivateMessageFromApi");
       var msgVO:ChatMessageVO = new ChatMessageVO();
       msgVO.chatType = ChatConstants.PUBLIC_CHAT;
       msgVO.fromUserID = message.fromUserID;
@@ -69,24 +71,22 @@ package org.bigbluebutton.modules.chat.services
 
     }
     
-    public function sendPublicMessage(message:ChatMessageVO):void
-    {
+    public function sendPublicMessage(message:ChatMessageVO):void {
       sender.sendPublicMessage(message);
     }
     
-    public function sendPrivateMessage(message:ChatMessageVO):void
-    {
+    public function sendPrivateMessage(message:ChatMessageVO):void {
       sender.sendPrivateMessage(message);
     }
     
-    public function getPublicChatMessages():void
-    {
+    public function getPublicChatMessages():void {
       sender.getPublicChatMessages();
     }
     
     private static const SPACE:String = " ";
     
     public function sendWelcomeMessage():void {
+      trace(LOG + "sendWelcomeMessage");
       var welcome:String = BBB.initUserConfigManager().getWelcomeMessage();
       if (welcome != "") {              
         var msg:ChatMessageVO = new ChatMessageVO();

@@ -103,67 +103,75 @@
 
 	var fsServer = null;
 
-        var callIntoConference = function(callback) {
-            if (!isWebrtcCapable()) {
-                callback("Browser version not supported");
-                return;
-            }
+  var callIntoConference = function(destination, callback) {
+    if (!isWebrtcCapable()) {
+      callback("Browser version not supported");
+      return;
+    }
 
-            BBB.getMyUserInfo(function(userInfo) {
-                console.log("User info callback [myUserID=" + userInfo.myUserID
-                    + ",myUsername=" + userInfo.myUsername + ",myAvatarURL=" + userInfo.myAvatarURL
-                    + ",myRole=" + userInfo.myRole + ",amIPresenter=" + userInfo.amIPresenter
-                    + ",dialNumber=" + userInfo.dialNumber + ",voiceBridge=" + userInfo.voiceBridge + "].");
-                var callerIdName = userInfo.myUserID + "-bbbID-" + userInfo.myUsername;
+    BBB.getMyUserInfo(function(userInfo) {
+      console.log("User info callback [myUserID=" + userInfo.myUserID
+           + ",myUsername=" + userInfo.myUsername + ",myAvatarURL=" + userInfo.myAvatarURL
+           + ",myRole=" + userInfo.myRole + ",amIPresenter=" + userInfo.amIPresenter
+           + ",dialNumber=" + userInfo.dialNumber + ",voiceBridge=" + userInfo.voiceBridge + "].");
+      var callerIdName = userInfo.myUserID + "-bbbID-" + userInfo.myUsername;
 
-                // setup a timer to call the error callback
-                var checkSuccessCallback = function(e) {
-                    if (e.userID == userInfo.myUserID) {
-                        console.info("Received the event from Flash that I've joined the voice conference");
-                        BBB.unlisten('UserJoinedVoiceEvent', checkSuccessCallback);
-                    }
-                }
-
-                BBB.listen('UserJoinedVoiceEvent', checkSuccessCallback);
-
-                console.log(callerIdName);
-                webrtc_call(callerIdName, userInfo.voiceBridge, fsServer, callback);
-            });
+      // setup a timer to call the error callback
+      var checkSuccessCallback = function(e) {
+        if (e.userID == userInfo.myUserID) {
+          console.info("Received the event from Flash that I've joined the voice conference");
+          BBB.unlisten('UserJoinedVoiceEvent', checkSuccessCallback);
         }
+      }
 
-        var joinWebRTCVoiceConference = function(){
-            console.log("Joining to the voice conference");
-            var callback = function(err) {
-                if (err) {
-                    console.info("Failed to call: " + err);
-                } else {
-                    console.info("Success to call");
-                }
-                BBB.joinWebRTCVoiceConferenceCallback(err);
-            }
+      BBB.listen('UserJoinedVoiceEvent', checkSuccessCallback);
+      console.log(callerIdName);
+      webrtc_call(callerIdName, userInfo.voiceBridge, fsServer, callback);
+    });
+  }
 
-            callIntoConference(callback);
-        }
+  var joinWebRtcVoiceConference = function(destination) {
+    console.log("Joining to the voice conference");
+    var callback = function(message) {
+      if (message.status == 'failed') {
+        BBB.webRtcConferenceCallFailed(message.cause);
+      } else if (message.status == 'ended') {
+        BBB.webRtcConferenceCallEnded(message.cause);
+      } else if (message.status = 'started') {
+        BBB.webRtcConferenceCallStarted(message.localStream, message.remoteStream);
+      }     
+    }
 
-        var leaveWebRTCVoiceConference = function(){
-            console.log("Leaving the voice conference");
-            var callback = function(err) {
-                if (err) {
-                    console.info("Failed to hang up: " + err);
-                } else {
-                    console.info("Success to hang up");
-                }
-                BBB.leaveWebRTCVoiceConferenceCallback(err);
-            }
+    callIntoConference(destination, callback);
+  }
 
-            webrtc_hangup(callback);
-        }
+  var leaveWebRtcVoiceConference = function() {
+    console.log("Leaving the voice conference");
+    var callback = function(err) {
+      if (err) {
+        console.info("Failed to hang up: " + err);
+      } else {
+        console.info("Success to hang up");
+      }
+      BBB.leaveWebRTCVoiceConferenceCallback(err);
+    }
+
+    webrtc_hangup(callback);
+  }
 
 	var startWebrtcAudioTest = function(){
 		console.log("Testing webrtc audio");
-		webrtc_call("tester", "9196", fsServer, function(message){
-			console.log("You should hear yourself talking");
-		});
+    var callback = function(message) {
+      if (message.status == 'failed') {
+        BBB.webRtcEchoTestFailed(message.cause);
+      } else if (message.status == 'ended') {
+        BBB.webRtcEchoTestEnded(message.cause);
+      } else if (message.status = 'started') {
+        BBB.webRtcEchoTestStarted(message.localStream, message.remoteStream);
+      }     
+    }
+
+		webrtc_call("tester", "9196", fsServer, callback);
 	}
 
 	var stopWebrtcAudioTest = function(){

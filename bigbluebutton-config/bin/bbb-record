@@ -39,7 +39,8 @@ BASE=/var/bigbluebutton/recording
 STATUS=$BASE/status
 source /etc/bigbluebutton/bigbluebutton-release
 
-SERVLET_DIR=/var/lib/tomcat6/webapps
+SERVLET_CONTAINER=tomcat7
+SERVLET_DIR=/var/lib/$SERVLET_CONTAINER/webapps
 BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 
 RECORDING_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(recording_dir\)/{s/.*recording_dir:[ ]*//;s/;//;p}')
@@ -65,6 +66,15 @@ mark_for_rebuild() {
 
                 if [ -f $STATUS/processed/$MEETING_ID-$type.done ]; then
                         rm $STATUS/processed/$MEETING_ID-$type.done
+
+                if [ -f $STATUS/published/$MEETING_ID-$type.done ]; then
+                        rm $STATUS/published/$MEETING_ID-$type.done
+                fi
+
+                if [ -f $STATUS/published/$MEETING_ID-$type.fail ]; then
+                        rm $STATUS/published/$MEETING_ID-$type.fail
+                fi
+
 #                else
 #                        echo "Warn: Didn't find $STATUS/processed/$MEETING_ID-$type.done"
 #                        exit 1
@@ -340,12 +350,12 @@ if [ $REPUBLISH ]; then
 fi 
 
 if [ $CLEAN ]; then
-	sudo /etc/init.d/bbb-record-core stop
+	sudo /etc/init.d/bbb-record stop
 	for type in $TYPES; do
 		echo " clearning logs in /var/log/bigbluebutton/$type"
 		find /var/log/bigbluebutton/$type -name "*.log" -exec sudo rm '{}' \;
 	done
-	sudo /etc/init.d/bbb-record-core start
+	sudo /etc/init.d/bbb-record start
 fi
 
 if [ $DELETE ]; then
@@ -593,7 +603,7 @@ fi
 done
 	echo
 	echo "--"
-	ps fU tomcat6 -o "%c%a" | grep -v COMMAND | grep -v logging.properties
+	ps fU $SERVLET_CONTAINER -o "%c%a" | grep -v COMMAND | grep -v logging.properties
 
 	echo "--"
 

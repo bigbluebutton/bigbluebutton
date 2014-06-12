@@ -24,15 +24,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	icon="{phoneIcon}" click="startPhone()"
 	mouseOver = "mouseOverHandler(event)"
 	mouseOut = "mouseOutHandler(event)"
+	addedToStage="addedToStageHandler(event)"
+	height="24"
 	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent">
-	
-	<mate:Listener type="{BBBEvent.JOIN_VOICE_CONFERENCE}" method="handleBBBJoinConferenceEvent"/>
-	<mate:Listener type="{BBBEvent.MIC_SETTINGS_CLOSED}" method="handleMicSettingsClosedEvent"/>
-	<mate:Listener type="{BBBEvent.JOIN_VOICE_FOCUS_HEAD}" method="joinVoiceFocusHead"/>
-	
-	<mate:Listener type="{ShortcutEvent.SHARE_MICROPHONE}" method="remoteClick" />
 
+  <mate:Listener type="{FlashLeftVoiceConferenceEvent.LEFT_VOICE_CONFERENCE}" method="handleFlashLeftVoiceConferenceEvent" />
+  <mate:Listener type="{FlashJoinedVoiceConferenceEvent.JOINED_VOICE_CONFERENCE}" method="handleFlashJoinedVoiceConferenceEvent" />
+  <mate:Listener type="{FlashJoinedListenOnlyVoiceConferenceEvent.JOINED_LISTEN_ONLY_VOICE_CONFERENCE}" method="handleFlashJoinedListenOnlyConferenceEvent" />
+  <mate:Listener type="{WebRtcCallConnectedEvent.WEBRTC_CALL_CONNECTED}" method="handleWebRtcCallConnectedEvent" />
+  <mate:Listener type="{WebRtcCallDisconnectedEvent.WEBRTC_CALL_DISCONNECTED}" method="handleWebRtcCallDisconnectedEvent" />
+  <mate:Listener type="{AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION}" method="handleClosedAudioSelectionWindowEvent" />
+  
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -46,11 +49,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.modules.phone.PhoneOptions;
-			import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
-			import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
+			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
+			import org.bigbluebutton.modules.phone.events.FlashJoinedListenOnlyVoiceConferenceEvent;
+			import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
+			import org.bigbluebutton.modules.phone.events.FlashLeftVoiceConferenceEvent;
+			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
+			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
+			import org.bigbluebutton.modules.phone.events.WebRtcCallConnectedEvent;
+			import org.bigbluebutton.modules.phone.events.WebRtcCallDisconnectedEvent;
 			import org.bigbluebutton.modules.phone.views.assets.Images;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
+      private static const LOG:String = "Phone::ToolbarButton - ";
+      
 			private var images:Images = new Images();
 			private var dispatcher:Dispatcher = new Dispatcher();
 			private var mic:Microphone;
@@ -63,17 +74,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] public var phoneOptions:PhoneOptions = new PhoneOptions();
 			
 			private function startPhone():void {
+				trace(LOG + "startPhone 1 enabled=[" + enabled + "] selected=[" + selected + "]");
 				// Disable the button right away to prevent the user from clicking
 				// multiple times.
 				this.enabled = false;
-
-				var event:BBBEvent;
+				trace(LOG + "startPhone 2 enabled=[" + enabled + "] selected=[" + selected + "]");
+        
 				if (this.selected) {
-					event = new BBBEvent("CLICK_TO_JOIN_VOICE_CONFERENCE_EVENT");
+					//trace(LOG + "Sending Join Conference command");
+					//dispatcher.dispatchEvent(new JoinVoiceConferenceCommand());
+					trace(LOG + "Sending Show Audio Selection command");
+					dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));
 				} else {
-					event = new BBBEvent("CLICK_TO_LEAVE_VOICE_CONFERENCE_EVENT");
-				}
-				dispatcher.dispatchEvent(event);
+					trace(LOG + "Sending Leave Conference command");
+					dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
+				}				
 			}
 			
 			public function remoteClick(event:ShortcutEvent):void{
@@ -81,25 +96,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				startPhone();
 			}
 			
-			private function micStatusEventHandler(event:StatusEvent):void {				
-				var joinEvent:BBBEvent;
-				switch(event.code) {
-					case "Microphone.Muted":						
-						LogUtil.warn("Access to microphone has been denied.");
-						joinEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
-						joinEvent.payload['useMicrophone'] = false;
-						dispatcher.dispatchEvent(joinEvent);
-						break;
-					case "Microphone.Unmuted":
-						LogUtil.debug("Access to the microphone has been allowed.");
-						joinEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
-						joinEvent.payload['useMicrophone'] = true;
-						dispatcher.dispatchEvent(joinEvent);
-						break;
-					default:
-						LogUtil.debug("unknown micStatusHandler event: " + event);
-				}
-			}			
 			
 			private function mouseOverHandler(event:MouseEvent):void {
 				if(_currentState == ACTIVE_STATE)
@@ -114,53 +110,73 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				else
 					phoneIcon = images.headsetDefaultIcon;			
 			}
-
-			public function userJoinedConference(joined: Boolean):void {
-				
-
-				if (joined) {
-					this.selected = true;
-					this.enabled = true;
-					_currentState = ACTIVE_STATE;
-					phoneIcon = images.headsetActiveIcon;
-					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');
-				} else {
-					this.selected = false;
-					this.enabled = true;
-					_currentState = DEFAULT_STATE;
-					phoneIcon = images.headsetDefaultIcon;
-					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
-				}
-
-				
-			}
 			
-			private function noMicrophone():Boolean {
-				return ((Microphone.getMicrophone() == null) || (Microphone.names.length == 0) 
-					|| ((Microphone.names.length == 1) && (Microphone.names[0] == "Unknown Microphone")));
+			private function addedToStageHandler(event:Event):void {
+				// when the button is added to the stage display the audio selection window if auto join is true
+				if (phoneOptions.autoJoin) {
+					trace(LOG + "Sending Show Audio Selection command");
+					dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));
+				}
+			}
+
+      private function onUserJoinedConference():void {
+        this.selected = true;
+        this.enabled = true;
+
+        trace(LOG + "onUserJoinedConference enabled=[" + enabled + "] selected=[" + selected + "]");
+        
+        _currentState = ACTIVE_STATE;
+        phoneIcon = images.headsetActiveIcon;
+        this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');	        
+      }
+      
+      private function onUserLeftConference():void {
+        this.selected = false;
+        this.enabled = true;
+        trace(LOG + "onUserLeftConference enabled=[" + enabled + "] selected=[" + selected + "]");
+        
+        _currentState = DEFAULT_STATE;
+        phoneIcon = images.headsetDefaultIcon;
+        this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');        
+      }
+      
+      private function handleFlashJoinedVoiceConferenceEvent(event:FlashJoinedVoiceConferenceEvent):void {
+        trace(LOG + "User has joined the conference using flash");
+        onUserJoinedConference();
+      }
+      	
+      private function handleFlashJoinedListenOnlyConferenceEvent(event:FlashJoinedListenOnlyVoiceConferenceEvent):void {
+        trace(LOG + "User has joined the listen only conference using flash");
+        onUserJoinedConference();
+      }
+      
+      private function handleFlashLeftVoiceConferenceEvent(event:FlashLeftVoiceConferenceEvent):void {
+        trace(LOG + "User has left the conference using flash");
+        onUserLeftConference();
+      }
+      
+      private function handleWebRtcCallConnectedEvent(event: WebRtcCallConnectedEvent):void {
+        trace(LOG + "User has joined the conference using webrtc");
+        onUserJoinedConference();
 			}
 						
-			private function handleCallDisconnectedEvent(event:CallDisconnectedEvent):void {
+			private function handleWebRtcCallDisconnectedEvent(event:WebRtcCallDisconnectedEvent):void {
+        trace(LOG + "User has left the conference using webrtc");
+        onUserLeftConference();
+			}
+			
+			private function handleClosedAudioSelectionWindowEvent(event:AudioSelectionWindowEvent):void {
 				this.selected = false;
 				this.enabled = true;
+				trace(LOG + "onClosedAudioSelection enabled=[" + enabled + "] selected=[" + selected + "]");
+				
 				_currentState = DEFAULT_STATE;
 				phoneIcon = images.headsetDefaultIcon;
 				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
 			}
-			
-			private function handleMicSettingsClosedEvent(event:BBBEvent):void {
-				userJoinedConference(false);
-				this.setFocus();
-			}
-			
-			private function handleBBBJoinConferenceEvent(event:BBBEvent):void {
-				var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
-				joinEvent.payload['useMicrophone'] = false;
-				dispatcher.dispatchEvent(joinEvent);
-			}
-			
+				
 			//For whatever reason the tooltip does not update when localization is changed dynamically. Overrideing it here
-			override protected function resourcesChanged():void{
+			override protected function resourcesChanged():void {
 				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
 			}
 			

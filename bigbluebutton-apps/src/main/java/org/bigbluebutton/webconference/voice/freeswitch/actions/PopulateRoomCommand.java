@@ -20,12 +20,15 @@ package org.bigbluebutton.webconference.voice.freeswitch.actions;
 
 import org.freeswitch.esl.client.transport.message.EslMessage;
 import org.bigbluebutton.webconference.voice.events.ConferenceEventListener;
-import org.bigbluebutton.webconference.voice.events.ParticipantJoinedEvent;
+import org.bigbluebutton.webconference.voice.events.VoiceUserJoinedEvent;
 import org.bigbluebutton.webconference.voice.freeswitch.response.XMLResponseConferenceListParser;
 import org.bigbluebutton.webconference.voice.freeswitch.response.ConferenceMember;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -36,7 +39,7 @@ import org.xml.sax.SAXException;
 public class PopulateRoomCommand extends FreeswitchCommand {
     private static Logger log = Red5LoggerFactory.getLogger(PopulateRoomCommand.class, "bigbluebutton");
 
-    public PopulateRoomCommand(String room, Integer requesterId) {
+    public PopulateRoomCommand(String room, String requesterId) {
             super(room, requesterId);
     }
     
@@ -45,6 +48,8 @@ public class PopulateRoomCommand extends FreeswitchCommand {
         return getRoom() + SPACE + "xml_list";
     }
 
+    private static final Pattern CALLERNAME_PATTERN = Pattern.compile("(.*)-bbbID-(.*)$");
+    
     public void handleResponse(EslMessage response, ConferenceEventListener eventListener) {
 
         //Test for Known Conference
@@ -82,13 +87,23 @@ public class PopulateRoomCommand extends FreeswitchCommand {
             sp.parse(bs, confXML);
 
             //Maybe move this to XMLResponseConferenceListParser, sendConfrenceEvents ?
-            ParticipantJoinedEvent pj;
+            VoiceUserJoinedEvent pj;
 
             for(ConferenceMember member : confXML.getConferenceList()) {
                 log.debug("conf list member [{}] for room [{}].", member.getId(), confXML.getConferenceRoom());
                 //Foreach found member in conference create a JoinedEvent
-                pj = new ParticipantJoinedEvent(member.getId(), confXML.getConferenceRoom(),
-                                member.getCallerId(), member.getCallerIdName(), member.getMuted(), member.getSpeaking());
+                String callerId = member.getCallerId();
+                String callerIdName = member.getCallerIdName();
+                String voiceUserId = callerIdName;
+                
+        		Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
+        		if (matcher.matches()) {			
+        			voiceUserId = matcher.group(1).trim();
+        			callerIdName = matcher.group(2).trim();
+        		} 
+        		
+                pj = new VoiceUserJoinedEvent(voiceUserId, member.getId().toString(), confXML.getConferenceRoom(),
+                		callerId, callerIdName, member.getMuted(), member.getSpeaking());
                 eventListener.handleConferenceEvent(pj);
             }
 

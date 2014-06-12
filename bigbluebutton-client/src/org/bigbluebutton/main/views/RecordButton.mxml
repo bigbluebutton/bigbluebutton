@@ -48,6 +48,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var recordingFlag:Boolean;
 
 			private function confirmChangeRecordingStatus():void {
+        trace("Confirming recording status change!!!!");
+        
 				// need to save the flag in case of any remote update on the recording status
 				recordingFlag = !this.selected;
 

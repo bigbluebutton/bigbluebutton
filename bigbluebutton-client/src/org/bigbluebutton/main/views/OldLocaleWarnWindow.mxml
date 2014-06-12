@@ -56,7 +56,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				else oldLocalesReminder2 = reminder2;
 			}
 			
-            private function redirect():void { 
+      private function redirect():void { 
 				var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
 				var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
 				var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
@@ -65,11 +65,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var urlLoader:URLLoader = new URLLoader();
 				urlLoader.addEventListener(Event.COMPLETE, handleComplete);	
 				urlLoader.load(request);
-            }
-            
+      }
+      
+      public function getLogoutUrl():String {
+        var logoutUrl:String = BBB.initUserConfigManager().getLogoutUrl();
+        if (logoutUrl == null) {
+          var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
+          var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
+          logoutUrl = pageHost + "//" + pageURL;
+        }   
+        return logoutUrl;
+      }
+      
 			private function handleComplete(e:Event):void {	
-				var request:URLRequest = new URLRequest(BBB.initUserConfigManager().getLogoutUrl());
-				LogUtil.debug("Logging out to: " + BBB.initUserConfigManager().getLogoutUrl());
+				var request:URLRequest = new URLRequest(getLogoutUrl());
 				navigateToURL(request, '_self');
 				PopUpManager.removePopUp(this);				
 			}

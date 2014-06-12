@@ -55,8 +55,8 @@ public class DeskShareApplet extends JApplet implements ClientListener {
     public boolean isSharing = false;
     private volatile boolean clientStarted = false;
     private static final String JAVA_VERSION_PATTERN = "1.7.0_([0-9]+)";
-    private final int MIN_JRE_VERSION = 45;
-    private final static String VERSION_ERROR_MSG = "Desktop sharing requires Java 7 update 45 (or later) to run.";
+    private final int MIN_JRE_VERSION = 51;
+    private final static String VERSION_ERROR_MSG = "Desktop sharing requires Java 7 update 51 (or later) to run.";
     
     private class DestroyJob implements PrivilegedExceptionAction {
        public Object run() throws Exception {

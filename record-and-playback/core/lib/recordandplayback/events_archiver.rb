@@ -23,6 +23,7 @@
 require 'rubygems'
 require 'redis'
 require 'builder'
+require 'yaml'
 
 module BigBlueButton  
   # Class to wrap Redis so we can mock
@@ -90,9 +91,10 @@ module BigBlueButton
       result = xml.instruct! :xml, :version => "1.0", :encoding=>"UTF-8"
       
       meeting_metadata = @redis.metadata_for(meeting_id)
+      version = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))["bbb_version"]
 
       if (meeting_metadata != nil)
-          xml.recording(:meeting_id => meeting_id) {
+          xml.recording(:meeting_id => meeting_id, :bbb_version => version) {
             xml.metadata(meeting_metadata)
             msgs = @redis.events_for(meeting_id)                      
             msgs.each do |msg|

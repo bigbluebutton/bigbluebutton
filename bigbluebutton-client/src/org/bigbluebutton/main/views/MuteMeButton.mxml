@@ -72,7 +72,7 @@ $Id: $
 				//rest rolledOver when the data changes because onRollOut wont be called if the row moves
 				if (UserManager.getInstance().getConference().amIThisUser(e.message.userID)) {
 					if(e.message.talking){
-						muteMeBtnImg.filters = [new GlowFilter(0x898989)];
+						muteMeBtnImg.filters = [new GlowFilter(0xFF0000)];
 					}else{
 						muteMeBtnImg.filters = [];
 					}
@@ -139,7 +139,7 @@ $Id: $
 					if(!allowMuteUnmute()) return;
 					
 					var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-					e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();
+					e.userid = UserManager.getInstance().getConference().getMyUserId();
 					e.mute = !UserManager.getInstance().getConference().isMyVoiceMuted();
 					dispatchEvent(e);
 				}

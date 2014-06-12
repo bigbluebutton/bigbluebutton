@@ -22,18 +22,22 @@ package org.bigbluebutton.presentation;
 import java.io.File;
 
 public final class UploadedPresentation {
-	private final String conference;
-	private final String room;
+	private final String meetingId;
+	private final String id;
 	private final String name;
 	private File uploadedFile;
 	private String fileType = "unknown";
 	private int numberOfPages = 0;
 	private boolean lastStepSuccessful = false;
+	private final String baseUrl;
 	
-	public UploadedPresentation(String conference, String room, String name) {
-		this.conference = conference;
-		this.room = room;
+	public UploadedPresentation(String meetingId, String id, 
+			                    String name, 
+			                    String baseUrl) {
+		this.meetingId = meetingId;
+		this.id = id;
 		this.name = name;
+		this.baseUrl = baseUrl;
 	}
 
 	public File getUploadedFile() {
@@ -44,16 +48,20 @@ public final class UploadedPresentation {
 		this.uploadedFile = uploadedFile;
 	}
 
-	public String getConference() {
-		return conference;
+	public String getMeetingId() {
+		return meetingId;
 	}
-
-	public String getRoom() {
-		return room;
+	
+	public String getId() {
+		return id;
 	}
 
 	public String getName() {
 		return name;
+	}
+	
+	public String getBaseUrl() {
+		return baseUrl;
 	}
 
 	public String getFileType() {

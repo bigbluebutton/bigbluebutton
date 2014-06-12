@@ -27,28 +27,19 @@
 	  creationComplete="onCreationComplete()">
 	  
 	  <maps:PollingEventMap id="eventMap"/>
-	  
+    <maps:PollEventMap id="pollEventMap"/>
+  
 	<mx:Script>
 		<![CDATA[
 		
-		  
-		    import mx.controls.Alert;
-			import com.asfusion.mate.events.Dispatcher;
-			import org.bigbluebutton.common.LogUtil;
+      import mx.controls.Alert;
+      import com.asfusion.mate.events.Dispatcher;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.events.OpenWindowEvent;
+      import org.bigbluebutton.common.events.CloseWindowEvent;
+      import org.bigbluebutton.modules.polling.events.ModuleEvent;		
+      import org.bigbluebutton.modules.polling.maps.PollingEventMap;
 			
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-	
-		    import org.bigbluebutton.modules.polling.events.ModuleEvent;
-		    
-			import org.bigbluebutton.modules.polling.views.PollingViewWindow;			
-			import org.bigbluebutton.modules.polling.managers.PollingManager;
-			import org.bigbluebutton.modules.polling.maps.PollingEventMap;
-		
-			
-			
-			
-						
 			private var _moduleName:String = "Polling";			
 			private var _attributes:Object;
 			
@@ -73,13 +64,7 @@
 			public function get username():String {
 				return _attributes.username;
 			}
-			
-			
-		
-			public function get connection():NetConnection {
-				return _attributes.connection;
-			}
-			
+						
 		public function getRoom():String{
 				return _attributes.room;
 			}
@@ -95,11 +80,11 @@
 			
 			public function start(attributes:Object):void {	
 				
-				LogUtil.debug(LOGNAME +" started [Username: " + attributes.username + " Role: " +attributes.userrole + " Room:" +attributes.room+ "]" );
+				trace(LOGNAME +" started [Username: " + attributes.username + " Role: " +attributes.userrole + " Room:" +attributes.room+ "]" );
 				
 				_attributes = attributes;
 				//eventMap.module = this;
-				LogUtil.debug(LOGNAME + "inside start() dispatching ModuleEvent");
+				trace(LOGNAME + "inside start() dispatching ModuleEvent");
 				var startEvent:ModuleEvent = new ModuleEvent(ModuleEvent.START);
 				startEvent.module = this;
 				globalDispatcher.dispatchEvent(startEvent);
@@ -109,7 +94,7 @@
 			
 			
 			public function stop():void {
-				LogUtil.debug(LOGNAME + "STOPPING Polling MODULE");	
+				trace(LOGNAME + "STOPPING Polling MODULE");	
 			}
 			
 			public function getMeetingInfo():String{

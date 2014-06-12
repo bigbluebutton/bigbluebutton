@@ -35,61 +35,83 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
 	<mate:Listener type="{AddUIComponentToMainCanvas.ADD_COMPONENT}" method="addComponentToCanvas" />
 	<mate:Listener type="{AppVersionEvent.APP_VERSION_EVENT}" method="handleApplicationVersionEvent" />	
+  <mate:Listener type="{MeetingNotFoundEvent.MEETING_NOT_FOUND}" method="handleMeetingNotFoundEvent" />
 	<mate:Listener type="{ConnectionFailedEvent.USER_LOGGED_OUT}" method="handleLogout" />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_FAILED}" method="attemptReconnect" />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.UNKNOWN_REASON}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
 	<mate:Listener type="configLoadedEvent" method="initOptions"  />
-	<mate:Listener type="SHOW_MIC_SETTINGS" method="showMicSettings"  />
+	<mate:Listener type="{FlashMicSettingsEvent.FLASH_MIC_SETTINGS}" method="handleFlashMicSettingsEvent"  />
+  <mate:Listener type="{WebRtcEchoTestStartedEvent.WEBRTC_ECHO_TEST_STARTED}" method="handleWebRtcEchoTestStartedEvent"  />
+  <mate:Listener type="{WebRtcAskMicPermissionEvent.ASK_MIC_PERMISSION}" method="handleAskMicPermissionEvent"  />
+  <mate:Listener type="{WebRtcAskUserToChangeMicEvent.WEBRTC_ASK_USER_TO_CHANGE_MIC}" method="handleWebRtcAskUserToChangeMicEvent"  />
+  <mate:Listener type="{WebRtcAskMicPermissionToJoinConferenceEvent.WEBRTC_ASK_MIC_PERMISSION_TO_JOIN_VOICE_CONFERENCE}" 
+                         method="handleWebRtcAskMicPermissionToJoinConferenceEvent"  />
+	<mate:Listener type="{AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION}" method="handleShowAudioSelectionWindowEvent" />
+  
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
 	<mate:Listener type="{ShortcutEvent.OPEN_SHORTCUT_WIN}" method="openShortcutHelpWindow" />
-  	<mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
+  <mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
 	<mate:Listener type="{LockControlEvent.OPEN_LOCK_SETTINGS}" method="openLockSettingsWindow" />
+  <mate:Listener type="{InvalidAuthTokenEvent.INVALID_AUTH_TOKEN}" method="handleInvalidAuthToken" />
 	  
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.events.MouseEvent;
-			import flash.geom.Point;
-			
-			import flexlib.mdi.containers.MDIWindow;
-			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
-			
-			import mx.collections.ArrayCollection;
-			import mx.containers.TitleWindow;
-			import mx.controls.Alert;
-			import mx.core.FlexGlobals;
-			import mx.core.IFlexDisplayObject;
-			import mx.core.UIComponent;
-			import mx.events.CloseEvent;
-			import mx.managers.PopUpManager;
-			
-			import org.bigbluebutton.common.IBbbModuleWindow;
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.common.events.ToolbarButtonEvent;
-			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.core.events.LockControlEvent;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.AppVersionEvent;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.ConfigEvent;
-			import org.bigbluebutton.main.events.LogoutEvent;
-			import org.bigbluebutton.main.events.ModuleLoadEvent;
-			import org.bigbluebutton.main.events.PortTestEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
-			import org.bigbluebutton.main.model.LayoutOptions;
-			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.util.logging.Logger;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import flash.events.MouseEvent;
+      import flash.geom.Point;
+      
+      import flexlib.mdi.containers.MDIWindow;
+      import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
+      
+      import mx.collections.ArrayCollection;
+      import mx.containers.TitleWindow;
+      import mx.controls.Alert;
+      import mx.core.FlexGlobals;
+      import mx.core.IFlexDisplayObject;
+      import mx.core.UIComponent;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      
+      import org.bigbluebutton.common.IBbbModuleWindow;
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
+      import org.bigbluebutton.common.events.CloseWindowEvent;
+      import org.bigbluebutton.common.events.OpenWindowEvent;
+      import org.bigbluebutton.common.events.ToolbarButtonEvent;
+      import org.bigbluebutton.core.BBB;
+      import org.bigbluebutton.core.events.LockControlEvent;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.core.vo.LockSettingsVO;
+      import org.bigbluebutton.main.events.AppVersionEvent;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.ConfigEvent;
+      import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
+      import org.bigbluebutton.main.events.LogoutEvent;
+      import org.bigbluebutton.main.events.MeetingNotFoundEvent;
+      import org.bigbluebutton.main.events.ModuleLoadEvent;
+      import org.bigbluebutton.main.events.PortTestEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+      import org.bigbluebutton.main.model.LayoutOptions;
+      import org.bigbluebutton.main.model.users.Conference;
+      import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+      import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
+      import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
+      import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
+      import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionEvent;
+      import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionToJoinConferenceEvent;
+      import org.bigbluebutton.modules.phone.events.WebRtcAskUserToChangeMicEvent;
+      import org.bigbluebutton.modules.phone.events.WebRtcEchoTestStartedEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
+      import org.bigbluebutton.util.logging.Logger;
 	
+      private static const LOG:String = "Main::MainApplicationShell - ";
+      
 			private var globalDispatcher:Dispatcher;			
 			private var dispState:String; //full-screen?
 			private var images:Images = new Images();
@@ -182,14 +204,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					receivedConfigLocaleVer = true;
 					appVersion = event.appVersion;
 					localeVersion = event.localeVersion;
-//					LogUtil.debug("Received locale version fron config.xml");
+					trace("Received locale version fron config.xml");
 				} else {
 					receivedResourceLocaleVer = true;
-					LogUtil.debug("Received locale version fron locale file.");
+					trace("Received locale version fron locale file.");
 				}
 				
 				if (receivedConfigLocaleVer && receivedResourceLocaleVer) {
-					LogUtil.debug("Comparing locale versions.");
+          trace("Comparing locale versions.");
 					if (!event.suppressLocaleWarning) checkLocaleVersion(localeVersion);
 					if (sendStartModulesEvent) {
             
@@ -200,7 +222,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function sendStartAllModulesEvent():void{
-				LogUtil.debug("Sending start all modules event");
+        trace("Sending start all modules event");
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.START_ALL_MODULES));	
 			}
@@ -290,7 +312,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	   			Alert.okLabel ="OK";
 				var version:String = "old-locales";
 				version = ResourceUtil.getInstance().getString('bbb.mainshell.locale.version');
-				LogUtil.debug("Locale from config=" + localeVersion + ", from locale file=" + version);
+				trace("Locale from config=" + localeVersion + ", from locale file=" + version);
 
 				if ((version == "old-locales") || (version == "") || (version == null)) {
 					wrongLocaleVersion();
@@ -299,8 +321,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}	   			
 	   		}
 
-			private function showMicSettings(event:BBBEvent):void {
-				var micSettings:MicSettings = PopUpManager.createPopUp(mdiCanvas, MicSettings, true) as MicSettings;
+			private function handleFlashMicSettingsEvent(event:FlashMicSettingsEvent):void {
+//        showEarbudsHeadsetRequired();
+        
+				var micSettings:FlashMicSettings = PopUpManager.createPopUp(mdiCanvas, FlashMicSettings, true) as FlashMicSettings;
 				micSettings.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
 					var point1:Point = new Point();
 					// Calculate position of TitleWindow in Application's coordinates. 
@@ -309,13 +333,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					micSettings.x = point1.x - (micSettings.width/2);
 					micSettings.y = point1.y - (micSettings.height/2);
 				});
-
-				if (event.payload != null && event.payload.hasOwnProperty('webrtcCapable')) {
-					micSettings.webrtcCapable = event.payload.webrtcCapable;
-				}
-				if (event.payload != null && event.payload.hasOwnProperty('useWebrtcIfAvailable')) {
-					micSettings.useWebrtcIfAvailable = event.payload.useWebrtcIfAvailable;
-				}
 			}
 			
       private function openVideoPreviewWindow(event:BBBEvent):void {
@@ -341,40 +358,183 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				localeWindow.x = point1.x - (localeWindow.width/2);
 				localeWindow.y = point1.y - (localeWindow.height/2);	
       }
-			
+
+      private function handleShowAudioSelectionWindowEvent(event:AudioSelectionWindowEvent):void {
+  	    var audioSelection:IFlexDisplayObject = PopUpManager.createPopUp(mdiCanvas, AudioSelectionWindow, true);
+		PopUpManager.centerPopUp(audioSelection);
+	  }
+
+      private function showEarbudsHeadsetRequired():void {
+        var earbuds:EarbudsHeadsetRecommendedImage = PopUpManager.createPopUp(mdiCanvas, EarbudsHeadsetRecommendedImage, true) as EarbudsHeadsetRecommendedImage;
+        earbuds.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+          var point1:Point = new Point();
+          // Calculate position of TitleWindow in Application's coordinates. 
+          point1.x = width/2;
+          point1.y = 20;
+          earbuds.x = point1.x - (earbuds.width/2);
+          earbuds.y = point1.y;
+        });        
+      }
+      
+      private function handleWebRtcAskMicPermissionToJoinConferenceEvent(event:WebRtcAskMicPermissionToJoinConferenceEvent):void {
+        var browser:String = event.browser;
+        if (browser == "Firefox") {
+          var ffBrowser:FirefoxMicJoinConfImage = PopUpManager.createPopUp(mdiCanvas, FirefoxMicJoinConfImage, true) as FirefoxMicJoinConfImage;
+          ffBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+            var point1:Point = new Point();
+            // Calculate position of TitleWindow in Application's coordinates. 
+            point1.x = width/2;
+            point1.y = height/2;
+            ffBrowser.x = point1.x - (ffBrowser.width/2);
+            ffBrowser.y = point1.y - (ffBrowser.height/2);
+            ffBrowser.x = 100;
+            ffBrowser.y = 150;
+          }); 
+        } else if (browser == "Chrome") {
+          var chromeBrowser:ChromeMicJoinConfImage = PopUpManager.createPopUp(mdiCanvas, ChromeMicJoinConfImage, true) as ChromeMicJoinConfImage;
+          chromeBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+            var point1:Point = new Point();
+            // Calculate position of TitleWindow in Application's coordinates. 
+            point1.x = width/2;
+            point1.y = height/2;
+            chromeBrowser.x = point1.x - (chromeBrowser.width/2);
+            chromeBrowser.y = point1.y - (chromeBrowser.height/2);
+            
+            chromeBrowser.x = 20;
+            chromeBrowser.y = 20;
+            
+          });          
+        }        
+      }
+          
+      private function handleWebRtcAskUserToChangeMicEvent(event:WebRtcAskUserToChangeMicEvent):void {
+        var browser:String = event.browser;
+        if (browser == "Firefox") {
+          var ffBrowser:FirefoxChangeMicImage = PopUpManager.createPopUp(mdiCanvas, FirefoxChangeMicImage, true) as FirefoxChangeMicImage;
+          ffBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+            var point1:Point = new Point();
+            // Calculate position of TitleWindow in Application's coordinates. 
+            point1.x = width/2;
+            point1.y = height/2;
+            ffBrowser.x = point1.x - (ffBrowser.width/2);
+            ffBrowser.y = point1.y - (ffBrowser.height/2);
+            ffBrowser.x = 100;
+            ffBrowser.y = 150;
+          }); 
+        } else if (browser == "Chrome") {
+          var chromeBrowser:ChromeChangeMicImage = PopUpManager.createPopUp(mdiCanvas, ChromeChangeMicImage, true) as ChromeChangeMicImage;
+          chromeBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+            var point1:Point = new Point();
+            // Calculate position of TitleWindow in Application's coordinates. 
+            point1.x = width;
+            point1.y = 20;
+            chromeBrowser.x = point1.x - (chromeBrowser.width);
+            chromeBrowser.y = point1.y;           
+          });          
+        }        
+      }
+         
+      private function handleAskMicPermissionEvent(event:WebRtcAskMicPermissionEvent):void {
+ //       showEarbudsHeadsetRequired()
+        var browser:String = event.browser;
+        if (browser == "Firefox") {
+          var ffBrowser:FirefoxMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, FirefoxMicPermissionImage, true) as FirefoxMicPermissionImage;
+          ffBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+            var point1:Point = new Point();
+            // Calculate position of TitleWindow in Application's coordinates. 
+            point1.x = width/2;
+            point1.y = height/2;
+            ffBrowser.x = point1.x - (ffBrowser.width/2);
+            ffBrowser.y = point1.y - (ffBrowser.height/2);
+            ffBrowser.x = 100;
+            ffBrowser.y = 150;
+          }); 
+        } else if (browser == "Chrome") {
+          var chromeBrowser:ChromeMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, ChromeMicPermissionImage, true) as ChromeMicPermissionImage;
+          chromeBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+            var point1:Point = new Point();
+            // Calculate position of TitleWindow in Application's coordinates. 
+            point1.x = width/2;
+            point1.y = height/2;
+            chromeBrowser.x = point1.x - (chromeBrowser.width/2);
+            chromeBrowser.y = point1.y - (chromeBrowser.height/2);
+            
+            chromeBrowser.x = 20;
+            chromeBrowser.y = 20;
+            
+          });          
+        }
+      }
+      
+      private function handleWebRtcEchoTestStartedEvent(event:WebRtcEchoTestStartedEvent):void {
+        var webRtcEchoTest:WebRtcEchoTest = PopUpManager.createPopUp(mdiCanvas, WebRtcEchoTest, true) as WebRtcEchoTest;
+        webRtcEchoTest.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+          var point1:Point = new Point();
+          // Calculate position of TitleWindow in Application's coordinates. 
+          point1.x = width/2;
+          point1.y = height/2;
+          webRtcEchoTest.x = point1.x - (webRtcEchoTest.width/2);
+          webRtcEchoTest.y = point1.y - (webRtcEchoTest.height/2);
+        });        
+      }
+      
+      private function handleMeetingNotFoundEvent(e:MeetingNotFoundEvent):void {
+        showlogoutWindow(ResourceUtil.getInstance().getString('bbb.mainshell.meetingNotFound'));
+      }
+      
+      private function showlogoutWindow(reason:String):void {
+        if (layoutOptions!= null && layoutOptions.showLogoutWindow) {
+          if (logoutWindow != null) return;
+          logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, false));
+          
+          var point1:Point = new Point();
+          // Calculate position of TitleWindow in Application's coordinates. 
+          point1.x = width/2;
+          point1.y = height/2;                 
+          logoutWindow.x = point1.x - (logoutWindow.width/2);
+          logoutWindow.y = point1.y - (logoutWindow.height/2);
+          
+          logoutWindow.setReason(reason);
+          mdiCanvas.removeAllWindows(); 				
+        } else {
+          mdiCanvas.removeAllWindows();
+          var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
+          var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
+          trace(LOG + "SingOut to [" + pageHost + "//" + pageURL + "/bigbluebutton/api/signOut]");
+          var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
+          var urlLoader:URLLoader = new URLLoader();
+          urlLoader.addEventListener(Event.COMPLETE, handleLogoutComplete);	
+          urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleLogoutError);
+          urlLoader.load(request);
+        }	        
+      }
+      
+      public function getLogoutUrl():String {
+        var logoutUrl:String = BBB.initUserConfigManager().getLogoutUrl();
+        if (logoutUrl == null) {
+          trace(LOG + "URL=[" + FlexGlobals.topLevelApplication.url + "]");
+          var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
+          var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
+          logoutUrl = pageHost + "//" + pageURL;
+        }      
+        return logoutUrl;
+      }
+      
 			private function handleLogout(e:ConnectionFailedEvent):void {
-				if (layoutOptions.showLogoutWindow) {
-					if (logoutWindow != null) return;
-					logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, false));
-					
-					var point1:Point = new Point();
-					// Calculate position of TitleWindow in Application's coordinates. 
-					point1.x = width/2;
-					point1.y = height/2;                 
-					logoutWindow.x = point1.x - (logoutWindow.width/2);
-					logoutWindow.y = point1.y - (logoutWindow.height/2);
-					
-					if (e is ConnectionFailedEvent) logoutWindow.setReason((e as ConnectionFailedEvent).type);
-					else logoutWindow.setReason("You have logged out of the conference");	
-					
-					mdiCanvas.removeAllWindows(); 				
-				} else {
-					mdiCanvas.removeAllWindows();
-					var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
-					var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
-					var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
-					var urlLoader:URLLoader = new URLLoader();
-					urlLoader.addEventListener(Event.COMPLETE, handleLogoutComplete);	
-					urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleLogoutError);
-					urlLoader.load(request);
-				}				
+        if (e is ConnectionFailedEvent) {
+          showlogoutWindow((e as ConnectionFailedEvent).type);
+        }
+        else showlogoutWindow("You have logged out of the conference");	
 			}
+      
 			private function redirectToLogoutUrl ():void {
-				var request:URLRequest = new URLRequest(BBB.initUserConfigManager().getLogoutUrl());
-				LogUtil.debug("Logging out to: " + BBB.initUserConfigManager().getLogoutUrl());
+        var logoutURL:String = getLogoutUrl();
+				var request:URLRequest = new URLRequest(logoutURL);
+				trace(LOG + "Logging out to: " + logoutURL);
 				navigateToURL(request, '_self');
 			}
 			
+
 			private function handleLogoutError(e:Event):void {
 				LogUtil.debug("Call to signOut URL failed.");
 				redirectToLogoutUrl();
@@ -402,6 +562,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					//realignButtons();
 				}
 			}
+      
+      private function handleInvalidAuthToken(event:InvalidAuthTokenEvent):void {
+        showlogoutWindow(ResourceUtil.getInstance().getString('bbb.mainshell.invalidAuthToken'));
+      }
 			
 			private function handleRemoveToolbarComponent(event:ToolbarButtonEvent):void {
 				if (addedBtns.contains(event.button as UIComponent))
@@ -429,14 +593,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function openLockSettingsWindow(event:LockControlEvent):void {
+        var conference:Conference = UserManager.getInstance().getConference();
+        var lsv:LockSettingsVO = conference.getLockSettings();
+        
 				var popUp:IFlexDisplayObject = PopUpManager.createPopUp(mdiCanvas, LockSettings, true);
-				var lockSettings:LockSettings = LockSettings(popUp);
-				
+				var ls:LockSettings = LockSettings(popUp);
+        ls.disableCam = lsv.getDisableCam();
+        ls.disableMic = lsv.getDisableMic();
+        ls.disablePrivChat = lsv.getDisablePrivateChat();
+        ls.disablePubChat = lsv.getDisablePublicChat();
+        ls.lockedLayout = lsv.getLockedLayout();
+        
 				var point1:Point = new Point();
 				point1.x = width/2;
 				point1.y = height/2;                
-				lockSettings.x = point1.x - (lockSettings.width/2);
-				lockSettings.y = point1.y - (lockSettings.height/2);	
+        ls.x = point1.x - (ls.width/2);
+        ls.y = point1.y - (ls.height/2);	
 			}
 			
 			

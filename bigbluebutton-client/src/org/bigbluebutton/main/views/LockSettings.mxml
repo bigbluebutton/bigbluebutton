@@ -46,8 +46,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var images:Images = new Images();
 			[Bindable] private var cancelIcon:Class = images.cancel;
             
-            [Bindable]private var baseIndex:int = 1;
-			
+      [Bindable] private var baseIndex:int = 1;
+      
+      [Bindable] public var disableCam:Boolean = false;
+      [Bindable] public var disableMic:Boolean = false;
+      [Bindable] public var disablePubChat:Boolean = false;
+      [Bindable] public var disablePrivChat:Boolean = false;
+      [Bindable] public var lockedLayout:Boolean = false;
+      
 			override public function move(x:Number, y:Number):void {
 				return;
 			}
@@ -62,11 +68,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onSaveClicked():void {
 				var event:LockControlEvent = new LockControlEvent(LockControlEvent.SAVE_LOCK_SETTINGS);
 				
-				var lockSettings:LockSettingsVO = new LockSettingsVO(allowModeratorLocking.selected, 
-					!enableWebcam.selected,
-					!enableMicrophone.selected, 
-					!enablePrivateChat.selected,
-					!enablePublicChat.selected);
+				var lockSettings:LockSettingsVO = new LockSettingsVO(!enableWebcam.selected,
+					                                                   !enableMicrophone.selected, 
+					                                                   !enablePrivateChat.selected,
+					                                                   !enablePublicChat.selected,
+                                                             !enableLayout.selected);
 				
 				event.payload = lockSettings.toMap();
 				
@@ -81,14 +87,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			protected function creationCompleteHandler(event:FlexEvent):void
 			{
-				var conference:Conference = UserManager.getInstance().getConference();
-				var lockSettings:LockSettingsVO = conference.getLockSettings();
-				
-				allowModeratorLocking.selected = lockSettings.getAllowModeratorLocking();
-				enableWebcam.selected = !lockSettings.getDisableCam();
-				enableMicrophone.selected = !lockSettings.getDisableMic();
-				enablePrivateChat.selected = !lockSettings.getDisablePrivateChat();
-				enablePublicChat.selected = !lockSettings.getDisablePublicChat();
+
 			}
 			
 		]]>
@@ -104,46 +103,50 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:Label styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.enabled')}" fontWeight="bold" />
 		</mx:HBox>
 		<mx:HBox verticalAlign="top" width="100%">
-			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.webcam')}" />
+			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
+                text="{disableCam ? ResourceUtil.getInstance().getString('bbb.lockSettings.webcam.disabled') : ResourceUtil.getInstance().getString('bbb.lockSettings.webcam')}" />
 			<mx:HBox width="30%">
 				<mx:Spacer width="50%" />
-				<mx:CheckBox id="enableWebcam" />
+				<mx:CheckBox id="enableWebcam" selected="{!disableCam}" />
 				<mx:Spacer width="50%" />
 			</mx:HBox>
 		</mx:HBox>
 		<mx:HBox verticalAlign="top" width="100%">
-			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.microphone')}" />
+			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
+                text="{disableMic ? ResourceUtil.getInstance().getString('bbb.lockSettings.microphone.disabled') : ResourceUtil.getInstance().getString('bbb.lockSettings.microphone')}" />
 			<mx:HBox width="30%">
 				<mx:Spacer width="50%" />
-				<mx:CheckBox id="enableMicrophone"/>
+				<mx:CheckBox id="enableMicrophone" selected="{!disableMic}"/>
 				<mx:Spacer width="50%" />
 			</mx:HBox>
 		</mx:HBox>
 		<mx:HBox verticalAlign="top" width="100%">
-			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.publicChat')}" />
+			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
+                text="{disablePubChat ? ResourceUtil.getInstance().getString('bbb.lockSettings.publicChat.disabled') : ResourceUtil.getInstance().getString('bbb.lockSettings.publicChat')}" />
 			<mx:HBox width="30%">
 				<mx:Spacer width="50%" />
-				<mx:CheckBox id="enablePublicChat"/>
+				<mx:CheckBox id="enablePublicChat" selected="{!disablePubChat}"/>
 				<mx:Spacer width="50%" />
 			</mx:HBox>
 		</mx:HBox>
 		<mx:HBox verticalAlign="top" width="100%">
-			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.privateChat')}" />
+			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
+                text="{disablePrivChat ? ResourceUtil.getInstance().getString('bbb.lockSettings.privateChat.disabled') : ResourceUtil.getInstance().getString('bbb.lockSettings.privateChat')}" />
 			<mx:HBox width="30%">
 				<mx:Spacer width="50%" />
-				<mx:CheckBox id="enablePrivateChat"/>
+				<mx:CheckBox id="enablePrivateChat" selected="{!disablePrivChat}"/>
 				<mx:Spacer width="50%" />
 			</mx:HBox>
 		</mx:HBox>
-		<mx:HBox verticalAlign="top" width="100%">
-			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.moderatorLocking')}" />
-			<mx:HBox width="30%">
-				<mx:Spacer width="50%" />
-				<mx:CheckBox id="allowModeratorLocking"/>
-				<mx:Spacer width="50%" />
-			</mx:HBox>
-		</mx:HBox>
-		
+    <mx:HBox verticalAlign="top" width="100%">
+      <mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
+                text="{disablePrivChat ? ResourceUtil.getInstance().getString('bbb.lockSettings.layout.disabled') : ResourceUtil.getInstance().getString('bbb.lockSettings.layout')}" />
+      <mx:HBox width="30%">
+        <mx:Spacer width="50%" />
+        <mx:CheckBox id="enableLayout" selected="{!lockedLayout}"/>
+        <mx:Spacer width="50%" />
+      </mx:HBox>
+    </mx:HBox>		
 		<mx:HRule width="100%"/>
 		
 		<mx:Spacer height="20"/>

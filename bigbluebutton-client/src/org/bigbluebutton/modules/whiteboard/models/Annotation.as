@@ -23,8 +23,6 @@ package org.bigbluebutton.modules.whiteboard.models
     private var _status:String = AnnotationStatus.DRAW_START;
     private var _type:String = "undefined";
     private var _annotation:Object;
-    private var _presentationID:String;
-    private var _pageNumber:int;
 
     public function Annotation(id:String, type:String, annotation:Object) {
       _id = id;
@@ -56,8 +54,8 @@ package org.bigbluebutton.modules.whiteboard.models
       _status = s;
     }
     
-    public function get presentationID():String {
-      return _annotation.presentationID;
+    public function get whiteboardId():String {
+      return _annotation.whiteboardId;
     }
     
     public function get pageNumber():Number {

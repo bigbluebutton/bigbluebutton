@@ -1,16 +1,17 @@
-//usePlugin 'war'
-usePlugin 'war'
+apply plugin: 'war'
+
 version = '0.8'
 
 repositories {
     mavenCentral()
 }
 
-task resolveDeps(dependsOn: configurations.default.buildArtifacts, type: Copy) {
+task resolveDeps(type: Copy) {
     into('lib')
     from configurations.default
-    from configurations.default.allArtifacts*.file
+    from configurations.default.allArtifacts.file
 }
+
 
 war {
    baseName = 'demo' 

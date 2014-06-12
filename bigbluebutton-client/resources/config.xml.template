@@ -47,11 +47,16 @@
 		
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 
-			autoJoin="true"
+			autoJoin="false"
+			listenOnlyMode="true"
+			presenterShareOnly="false"
 			skipCheck="false"
 			showButton="true"
+			showSpeakerButton="false"
 			enabledEchoCancel="true"
 			useWebrtcIfAvailable="true"
+			showPhoneOption="false"
+			echoTestApp="9196"
 			dependsOn="UsersModule"
 		/>
 
@@ -95,12 +100,10 @@
 			keepToolbarVisible="false"
 		/>
 
-<!--
     <module name="PollingModule" url="http://HOST/client/PollingModule.swf?v=VERSION" 
       uri="rtmp://HOST/bigbluebutton" 
       dependsOn="PresentModule"
     />
--->
     		
 		<module name="PresentModule" url="http://HOST/client/PresentModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
