@@ -27,5 +27,12 @@ Template.usersList.helpers
   getUsersInMeeting: (meetingName) ->
     Meteor.users.find meetingId: meetingName
 
+  getMeetingSize: (mn) ->
+    m = Meetings.findOne({meetingName: mn})
+    if m?
+      m.users?.length
+    else
+      "error"
+
 Template.usersList.events "click input.signin": (event) ->
   Session.set "userId", event.target.id

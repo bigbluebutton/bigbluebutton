@@ -1,3 +1,8 @@
+@getCurrentUserFromSession = ->
+  id = Session.get("userId") or "a1a1a1a1a1a1"
+  u = Meteor.users.findOne("user.userId": id)
+  u
+
 Template.userItem.helpers
   domain: ->
     a = document.createElement("a")
@@ -5,59 +10,61 @@ Template.userItem.helpers
     a.hostname
 
   # retrieve account for selected user, or the first mod account if nothing is selected
-  getCurrentUser: ->
-    id = Session.get("userId") or "a1a1a1a1a1a1"
-    u = Meteor.users.findOne("user.userId": id)
-    u
+  getCurrentUser: =>
+    @window.getCurrentUserFromSession()
+
+  isUserModerator: =>
+    u = @window.getCurrentUserFromSession()
+    u.user.role is "MODERATOR"
 
   # using handlebars' {{equals}} wasn't working for these some reason, so heres a simple JS function to do it
   compareUserIds: (u1, u2) ->
     u1 is u2
 
 Template.userItem.events
-  "click input.raiseHand": (event) ->
+  "click .raiseHand": (event) ->
     Meteor.users.update
       _id: @_id
     ,
       $set:
         "user.handRaised": true
 
-  "click input.disableCam": (event) ->
+  "click .disableCam": (event) ->
     Meteor.users.update
       _id: @_id
     ,
       $set:
         "user.sharingVideo": false
 
-  "click input.disableMic": (event) ->
+  "click .disableMic": (event) ->
     Meteor.users.update
       _id: @_id
     ,
       $set:
         "user.sharingAudio": false
 
-  "click input.enableMic": (event) ->
+  "click .enableMic": (event) ->
     Meteor.users.update
       _id: @_id
     ,
       $set:
         "user.sharingAudio": true
 
-  "click input.enableCam": (event) ->
+  "click .enableCam": (event) ->
     Meteor.users.update
       _id: @_id
     ,
       $set:
         "user.sharingVideo": true
 
-  "click input.lowerHand": (event) ->
+  "click .lowerHand": (event) ->
     Meteor.users.update
       _id: @_id
     ,
       $set:
         "user.handRaised": false
 
-  "click input.setPresenter": (event) ->
+  "click .setPresenter": (event) ->
 	   #
 	   # Not the best way to go about doing this
 	   # The meeting should probably know about the presenter instead of the individual user
@@ -87,7 +94,7 @@ Template.userItem.events
         $set:
           "user.presenter": true
 
-  "click input.kickUser": (event) ->
+  "click .kickUser": (event) ->
   	#
     # Add:
     # When user is blown away, if they were presenter remove that from meeting (if kicking the presenter is even possible?)

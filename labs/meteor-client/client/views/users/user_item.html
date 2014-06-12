@@ -3,13 +3,6 @@
       <div class="row">
         <div class="user-role col-md-1" id="user-{{user.externUserId}}"><i class="icon fa fa-user"></i></div>
         <div class="user-name col-md-5">{{user.name}}</div>
-        <!--<div class="user-video col-md-1"><i class="icon fa fa-video-camera"></i></div>
-        <div class="user-audio col-md-1"><i class="icon fa fa-microphone"></i></div>
-        <div class="user-kick col-md-1"><i class="icon fa fa-sign-out"></i></div>-->
-        <div ><i class="icon fa fa-video-camera"></i></div>
-        <div ><i class="icon fa fa-microphone"></i></div>
-        <div ><i class="icon fa fa-sign-out"></i></div>
-
         <!-- some user info -->
          {{#if user.presenter}}
             <span><strong>{{user.name}} is the Presenter</strong></span>
@@ -35,54 +28,78 @@
                    
             <span>User Controls:</span>
                {{#if user.handRaised}}
-                  <input type="button" class="raiseHand" id="{{user.externUserId}}" value="Raise hand" disabled/>
-                  <span>{{user.name}}&#39;s hand is raised</span>
+                  <button type="submit" id="{{user.externUserId}}" class="raiseHand btn btn-primary" disabled>
+                      <i class="glyphicon glyphicon-hand-up"></i> Hand Raised
+                  </button>
               {{else}}
-                  <input type="button" class="raiseHand" id="{{user.externUserId}}" value="Raise hand"/>
+                  <button type="submit" id="{{user.externUserId}}" class="raiseHand btn btn-primary">
+                      <i class="glyphicon glyphicon-hand-up"></i> Hand Raised
+                  </button>
               {{/if}}
 
             <!-- toggles for own user's mic and cam-->
             {{#if user.sharingAudio}}
-                <input type="button" class="disableMic" id="{{user.externUserId}}" value="Mute"/>
+                <button type="submit" id="{{user.externUserId}}" class="disableMic btn btn-primary">
+                    <i class="glyphicon glyphicon-bullhorn"></i> Mute
+                </button>
             {{else}}
-                <input type="button" class="enableMic" id="{{user.externUserId}}" value="Unmute"/>
+                <button type="submit" id="{{user.externUserId}}" class="enableMic btn btn-primary">
+                    <i class="glyphicon glyphicon-volume-off"></i> Unmute
+                </button>
             {{/if}}
 
             {{#if user.sharingVideo}}
-                <input type="button" class="disableCam" id="{{user.externUserId}}" value="Hide Webcam"/>
+                <button type="submit" id="{{user.externUserId}}" class="disableCam btn btn-primary">
+                    <i class="glyphicon glyphicon-facetime-video"></i> Hide
+                </button>
             {{else}}
-                <input type="button" class="enableCam" id="{{user.externUserId}}" value="Share Webcam"/>
+                <button type="submit" id="{{user.externUserId}}" class="enableCam btn btn-primary">
+                    <i class="glyphicon glyphicon-stop"></i> Share
+                </button>
             {{/if}}
           {{/if}}
         {{/with}}
-
         <!-- If a hand is raised teacher can 'answer' which just turns off the raised hand flag
         can only be done if hand is raised -->
        	<p>Teacher controls:
+        {{#if isUserModerator}}
        		{{#if user.handRaised}}
-       			<input type="button" class="lowerHand" id="{{user.externUserId}}" value="Answer Question"/>
+            <button type="submit" id="{{user.externUserId}}" class="lowerHand btn btn-primary">
+                <i class="glyphicon glyphicon-hand-up"></i> Answer
+            </button>
        		{{else}}
-       			<input type="button" class="lowerHand" id="{{user.externUserId}}" value="Answer Question" disabled/>
+       			<button type="submit" id="{{user.externUserId}}" class="lowerHand btn btn-primary" disabled>
+                <i class="glyphicon glyphicon-hand-up"></i> Answer
+            </button>
     		    {{/if}}
 
           {{#with getCurrentUser}}  
             {{#if user.permissions.disableCam}}
-                <input type="button" class="disableCam" id="{{user.externUserId}}" value="Disable webcam"/>
+                <button type="submit" id="{{user.externUserId}}" class="disableCam btn btn-primary">
+                    <i class="glyphicon glyphicon-facetime-video"></i> Disable
+                </button>
             {{/if}}
-
             {{#if user.permissions.disableMic}}
-                <input type="button" class="disableMic" id="{{user.externUserId}}" value="Disable mic"/>
+                <button type="submit" id="{{user.externUserId}}" class="disableMic btn btn-primary">
+                    <i class="glyphicon glyphicon-bullhorn"></i> Mute
+                </button>
             {{/if}}
           {{/with}}
 
           {{#if user.presenter}}
-              <input type="button" class="setPresenter" id="{{user.externUserId}}" value="Set this user as the presenter" disabled/>
+              <button type="submit" id="{{user.externUserId}}" class="setPresenter btn btn-primary" disabled>
+                    <i class="glyphicon glyphicon-picture"></i> Presenter
+              </button>
           {{else}}
-              <input type="button" class="setPresenter" id="{{user.externUserId}}" value="Set this user as the presenter"/>
+              <button type="submit" id="{{user.externUserId}}" class="setPresenter btn btn-primary">
+                    <i class="glyphicon glyphicon-picture"></i> Set Presenter
+              </button>
           {{/if}}
-          <input type="button" class="kickUser" id="{{user.externUserId}}" value="Kick from Call" />
-       	</p>
+          <button type="submit" id="{{user.externUserId}}" class="kickUser btn btn-primary">
+                    <i class="glyphicon glyphicon-remove-circle"></i> Kick
+          </button>
+       	{{/if}}
+        </p>
       </div>
     </li>
-    <hr/>
 </template>

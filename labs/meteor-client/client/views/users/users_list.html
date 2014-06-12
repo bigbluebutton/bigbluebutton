@@ -2,11 +2,9 @@
    <div>
       {{#each getMeetings}}
          <p>Meeting Name: {{meetingName}}</p>
-         <p>Users in meeting:</p>
-         <!-- Retrieve all users in the meeting -->
-         
-         <h3>User List</h3>
+         <h3>Participants: <i>{{getMeetingSize meetingName}} users</i></h3>
          <ul id="user-list">
+            <!-- Retrieve all users in the meeting -->
             {{#each getUsersInMeeting meetingName}}
                {{> userItem}}
             {{/each}}
