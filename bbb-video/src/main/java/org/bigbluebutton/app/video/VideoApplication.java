@@ -20,6 +20,8 @@ package org.bigbluebutton.app.video;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IConnection;
@@ -85,6 +87,10 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         }
     }
 
+    private Long genTimestamp() {
+    	return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
+    }
+    
     @Override
     public void streamBroadcastClose(IBroadcastStream stream) {
     	IConnection conn = Red5.getConnectionLocal();  
@@ -96,11 +102,11 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     			stream.removeStreamListener(listener);
     		}
     		
-        	long publishDuration = (System.currentTimeMillis() - stream.getCreationTime()) / 1000;
-        	log.info("streamBroadcastClose " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
+       	long publishDuration = (System.currentTimeMillis() - stream.getCreationTime()) / 1000;
+        log.info("streamBroadcastClose " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
     		Map<String, String> event = new HashMap<String, String>();
     		event.put("module", "WEBCAM");
-    		event.put("timestamp", new Long(System.currentTimeMillis()).toString());
+    		event.put("timestamp", genTimestamp().toString());
     		event.put("meetingId", conn.getScope().getName());
     		event.put("stream", stream.getPublishedName());
     		event.put("duration", new Long(publishDuration).toString());

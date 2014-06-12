@@ -17,6 +17,7 @@ import org.bigbluebutton.core.api.SendCursorUpdateOutMsg
 import org.bigbluebutton.conference.service.recorder.presentation.CursorUpdateRecordEvent
 import org.bigbluebutton.core.api.ClearPresentationOutMsg
 import org.bigbluebutton.core.api.PresentationConversionDone
+import org.bigbluebutton.core.api.TimestampGenerator
 
 class PresentationEventRedisRecorder(recorder: RecorderApplication) extends OutMessageListener2 {
   private val GENERATED_SLIDE_KEY = "GENERATED_SLIDE";
@@ -43,7 +44,7 @@ class PresentationEventRedisRecorder(recorder: RecorderApplication) extends OutM
     if (msg.recorded) {
 	    val event = new ConversionCompletedPresentationRecordEvent();
 	    event.setMeetingId(msg.meetingID);
-	    event.setTimestamp(System.currentTimeMillis());
+	    event.setTimestamp(TimestampGenerator.generateTimestamp);
 	    event.setPresentationName(msg.presentation.id);
 	    event.setOriginalFilename(msg.presentation.name);
 	    recorder.record(msg.meetingID, event);       
@@ -55,7 +56,7 @@ class PresentationEventRedisRecorder(recorder: RecorderApplication) extends OutM
 	  if (msg.recorded) {
       val event = new GotoSlidePresentationRecordEvent();
       event.setMeetingId(msg.meetingID);
-		  event.setTimestamp(System.currentTimeMillis());
+		  event.setTimestamp(TimestampGenerator.generateTimestamp);
 		  event.setSlide(msg.page.num);
 		  event.setId(msg.page.id);
 		  event.setNum(msg.page.num);
@@ -75,7 +76,7 @@ class PresentationEventRedisRecorder(recorder: RecorderApplication) extends OutM
 		if (msg.recorded) {
 			val event = new ResizeAndMoveSlidePresentationRecordEvent();
 			event.setMeetingId(msg.meetingID);
-			event.setTimestamp(System.currentTimeMillis());
+			event.setTimestamp(TimestampGenerator.generateTimestamp);
 			event.setId(msg.page.id);
 			event.setNum(msg.page.num);
 			event.setThumbUri(msg.page.thumbUri);
@@ -95,7 +96,7 @@ class PresentationEventRedisRecorder(recorder: RecorderApplication) extends OutM
 		if (msg.recorded) {
 			val event = new RemovePresentationPresentationRecordEvent();
 			event.setMeetingId(msg.meetingID);
-			event.setTimestamp(System.currentTimeMillis());
+			event.setTimestamp(TimestampGenerator.generateTimestamp);
 			event.setPresentationName(msg.presentationID);
 			recorder.record(msg.meetingID, event);			
 		}
@@ -105,7 +106,7 @@ class PresentationEventRedisRecorder(recorder: RecorderApplication) extends OutM
 		if (msg.recorded) {
 			val event = new SharePresentationPresentationRecordEvent();
 			event.setMeetingId(msg.meetingID);
-			event.setTimestamp(System.currentTimeMillis());
+			event.setTimestamp(TimestampGenerator.generateTimestamp);
 			event.setPresentationName(msg.presentation.id);
 			event.setOriginalFilename(msg.presentation.name);
 			event.setShare(true);
@@ -117,7 +118,7 @@ class PresentationEventRedisRecorder(recorder: RecorderApplication) extends OutM
 		if (msg.recorded) {
 			val event = new CursorUpdateRecordEvent();
 			event.setMeetingId(msg.meetingID);
-			event.setTimestamp(System.currentTimeMillis());
+			event.setTimestamp(TimestampGenerator.generateTimestamp);
 			event.setXPercent(msg.xPercent);
 			event.setYPercent(msg.yPercent);
 			

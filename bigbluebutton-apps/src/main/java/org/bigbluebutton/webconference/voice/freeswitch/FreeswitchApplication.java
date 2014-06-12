@@ -87,10 +87,14 @@ public class FreeswitchApplication implements ConferenceServiceProvider {
         queueMessage(mpc);
     }
     
+    private Long genTimestamp() {
+    	return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
+    }
+    
     @Override
     public void record(String room, String meetingid){
     	String RECORD_DIR = "/var/freeswitch/meetings";        
-    	String voicePath = RECORD_DIR + File.separatorChar + meetingid + "-" + System.currentTimeMillis() + ".wav";
+    	String voicePath = RECORD_DIR + File.separatorChar + meetingid + "-" + genTimestamp() + ".wav";
     	
     	RecordConferenceCommand rcc = new RecordConferenceCommand(room, USER, true, voicePath);
     	queueMessage(rcc);

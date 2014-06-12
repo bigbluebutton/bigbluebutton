@@ -41,7 +41,7 @@ class PollEventRedisRecorder(recorder: RecorderApplication) extends OutMessageLi
 				}
 			}
 
-			ev.setTimestamp(System.currentTimeMillis())
+			ev.setTimestamp(TimestampGenerator.generateTimestamp)
 			ev.setMeetingId(msg.meetingID)
 			recorder.record(msg.meetingID, ev)					
 		}
@@ -65,7 +65,7 @@ class PollEventRedisRecorder(recorder: RecorderApplication) extends OutMessageLi
 				}
 			}
 
-			ev.setTimestamp(System.currentTimeMillis())
+			ev.setTimestamp(TimestampGenerator.generateTimestamp)
 			ev.setMeetingId(msg.meetingID)
 			recorder.record(msg.meetingID, ev)	
 		}
@@ -75,7 +75,7 @@ class PollEventRedisRecorder(recorder: RecorderApplication) extends OutMessageLi
 		if(msg.recorded){
 			val ev = new PollRemovedRecordEvent()
 			ev.setPollID(msg.pollID)
-			ev.setTimestamp(System.currentTimeMillis())
+			ev.setTimestamp(TimestampGenerator.generateTimestamp)
 			ev.setMeetingId(msg.meetingID)
 			recorder.record(msg.meetingID, ev)	
 		}
@@ -85,7 +85,7 @@ class PollEventRedisRecorder(recorder: RecorderApplication) extends OutMessageLi
 		if(msg.recorded){
 			val ev = new PollStoppedRecordEvent()
 			ev.setPollID(msg.pollID)
-			ev.setTimestamp(System.currentTimeMillis())
+			ev.setTimestamp(TimestampGenerator.generateTimestamp)
 			ev.setMeetingId(msg.meetingID)
 			recorder.record(msg.meetingID, ev)
 		}
@@ -105,7 +105,7 @@ class PollEventRedisRecorder(recorder: RecorderApplication) extends OutMessageLi
 		if(msg.recorded){
 			val ev = new PollClearedRecordEvent()
 			ev.setPollID(msg.pollID)
-			ev.setTimestamp(System.currentTimeMillis())
+			ev.setTimestamp(TimestampGenerator.generateTimestamp)
 			ev.setMeetingId(msg.meetingID)
 			recorder.record(msg.meetingID, ev)	
 		}	
