@@ -20,6 +20,8 @@ login = (req, resp) ->
   #calling createapi
   bbbapi.create(createParams, serverAndSecret, {}, (errorOuter, responseOuter, bodyOuter) ->
     #console.log JSON.stringify(response)
+    console.log "\n\nouterXML=" + responseOuter.body
+    console.log "\nerrorOuter=" + JSON.stringify errorOuter
     bbbapi.join(joinParams, serverAndSecret, {}, (error, response, body) ->
       if error
           console.log error

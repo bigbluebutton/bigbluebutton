@@ -1,34 +1,23 @@
-
+###
 redis  = Meteor.require 'redis'
 crypto = Meteor.require 'crypto'
 postal = Meteor.require 'postal'
 
 class Meteor.RedisPubSub
 
-  constructor: ->
-    @pubClient = redis.createClient()
-    @subClient = redis.createClient()
+  console.log "initializing"
+  pubClient = redis.createClient()
+  subClient = redis.createClient()
 
-    # hash to store requests waiting for response
-    @pendingRequests = {}
+  #subClient.on "psubscribe", @_onSubscribe
+  #subClient.on "pmessage", @_onMessage
 
-    postal.subscribe
-      channel: Meteor.config.redis.internalChannels.publish
-      topic: 'broadcast'
-      callback: (msg, envelope) =>
-        if envelope.replyTo?
-          @sendAndWaitForReply(msg, envelope)
-        else
-          @send(msg, envelope)
+  #log.info
+  console.log("RPC: Subscribing message on channel: #{Meteor.config.redis.channels.fromBBBApps}")
+  subClient.psubscribe(Meteor.config.redis.channels.fromBBBApps)
 
-    @subClient.on "psubscribe", @_onSubscribe
-    @subClient.on "pmessage", @_onMessage
 
-    #log.info
-    console.log("RPC: Subscribing message on channel: #{Meteor.config.redis.channels.fromBBBApps}")
-    @subClient.psubscribe(Meteor.config.redis.channels.fromBBBApps)
-
-  # Sends a message and waits for a reply
+  #Sends a message and waits for a reply
   sendAndWaitForReply: (message, envelope) ->
     # generate a unique correlation id for this call
     correlationId = crypto.randomBytes(16).toString('hex')
@@ -62,9 +51,6 @@ class Meteor.RedisPubSub
     console.log({ message: message, channel: Meteor.config.redis.channels.toBBBApps.meeting}, "Publishing a message")
     @pubClient.publish(Meteor.config.redis.channels.toBBBApps.meeting, JSON.stringify(message))
 
-  # Send a message without waiting for a reply
-  send: (message, envelope) ->
-    # TODO
 
   _onSubscribe: (channel, count) =>
     #log.info
@@ -151,12 +137,20 @@ class Meteor.RedisPubSub
       console.log "  Sending to Controller (In):" + message.header?.name
       sendToController(message)
 
-  publishing: (channel, message) =>
-    console.log "Publishing #{message.header?.name}"
-    @pubClient.publish(channel, JSON.stringify(message))
-
-sendToController = (message) ->
-  postal.publish
-    channel: Meteor.config.redis.internalChannels.receive
-    topic: "broadcast"
-    data: message
+  sendValidateAuthToken: (meetingId, userId, authToken) =>
+    console.log "\n\n\n\n i am sending a validate_auth_token with " + userId + "" + meetingId
+    message = {
+      "payload": {
+        "auth_token": authToken
+        "userid": userId
+        "meeting_id": meetingId
+      },
+      "header": {
+        "timestamp": new Date().getTime()
+        "name": "validate_auth_token"
+      }
+    }
+    if authToken? and userId? and meetingId?
+      console.log "yes"
+      pubClient.publish(Meteor.config.redis.channels.toBBBApps.meeting, JSON.stringify(message))
+###

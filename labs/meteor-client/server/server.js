@@ -22,3 +22,4 @@ Meteor.startup(function () {
   SetCollectionPermissions();
 
 });
+*/

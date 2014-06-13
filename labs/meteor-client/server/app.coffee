@@ -1,3 +1,4 @@
+###
 if Meteor.isServer
   console.log " I am in the server"
   Meteor.startup ->
@@ -26,3 +27,4 @@ if Meteor.isServer
     Meteor.config.modules.register "ClientProxy", clientProxy
     ###############clientProxy.listen(app)
 
+###

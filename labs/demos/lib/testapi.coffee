@@ -17,8 +17,8 @@ createParams.attendeePW = "ap"
 createParams.moderatorPW = "mp"
 createParams.record = false
 createParams.voiceBridge = 70827
-createParams.name = "Demo Meeting"
-createParams.meetingID = "Demo Meeting"
+createParams.name = "Demo Meeting9"
+createParams.meetingID = "Demo Meeting9"
 
 joinParams = {}
 joinParams.password = "mp"
