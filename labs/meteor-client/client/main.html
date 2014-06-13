@@ -4,17 +4,53 @@
    </head>
    <body>
       <div id="main" class="row-fluid">
-         {{> usersList}}
+         {{#if getInSession "display_usersList"}}
+            {{> usersList}}
+         {{/if}}
+         {{#if getInSession "display_chat"}}
+            {{> chatbar}}
+         {{/if}}
+         {{#if getInSession "display_whiteboard"}}
+            {{> whiteboard}}
+         {{/if}}
       </div>
    </body>
 </template>
 
 <template name="header">
-   <div class="navbar navbar-default navbar-static-top" role="navigation">
-      <!-- <div class="container"> -->
-         <div class="navbar-header">
-            <a class="navbar-brand" href="/">BigBlueButton</a>
+   {{#if getInSession "display_navbar"}}
+      <div class="navbar navbar-default navbar-static-top" role="navigation">
+         <div >
+            {{#with getCurrentUser}}
+               <button type="submit" id="{{user.externUserId}}" class="usersListIcon navbar-brand btn">
+                  <i class="glyphicon glyphicon-user"></i> <!-- UsersList -->
+               </button>
+               <button type="submit" id="{{user.externUserId}}" class="chatBarIcon navbar-brand btn">
+                  <i class="glyphicon glyphicon-comment"></i> <!-- Chat -->
+               </button>
+               <button type="submit" id="{{user.externUserId}}" class="videoFeedIcon navbar-brand btn">
+                  <i class="glyphicon glyphicon-facetime-video"></i> <!-- Video Feed -->
+               </button>
+               <button type="submit" id="{{user.externUserId}}" class="audioFeedIcon navbar-brand btn">
+                  <i class="glyphicon glyphicon-volume-up"></i> <!-- Audio Feed -->
+               </button>
+               <button type="submit" id="" class="hideNavbarIcon navbar-brand pull-right btn">
+                  <i class="glyphicon glyphicon-chevron-up"></i> <!-- Hide Navbar -->
+               </button>
+               <button type="submit" id="{{user.externUserId}}" class="signOutIcon navbar-brand pull-right btn">
+                  <i class="glyphicon glyphicon-log-out"></i> <!-- Sign Out -->
+               </button>
+               <button type="submit" id="" class="settingsIcon navbar-brand pull-right btn">
+                  <i class="glyphicon glyphicon-cog"></i> <!-- Settings -->
+               </button>
+            {{/with}}
          </div>
-      <!-- </div> -->
-   </div>
+      </div>
+   {{else}}
+      <!-- User wants to hide navbar. The button for bringing the navbar back needs to still be available.
+      Perhaps it should appear/disappear in the future on hover? Something to add later. -->
+      <button type="submit" id="" class="hideNavbarIcon navbar-brand pull-right btn">
+         <i class="glyphicon glyphicon-chevron-down"></i>
+      </button>
+   {{/if}}
 </template>
