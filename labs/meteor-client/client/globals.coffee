@@ -24,7 +24,7 @@ Handlebars.registerHelper "getCurrentUser", =>
 
 # toggle state of session variable
 @toggleUsersList = ->
-setInSession "display_usersList", !getInSession "display_usersList" # toggle current state
+	setInSession "display_usersList", !getInSession "display_usersList" # toggle current state
 
 @toggleNavbar = ->
 	setInSession "display_navbar", !getInSession "display_navbar" # toggle current state
