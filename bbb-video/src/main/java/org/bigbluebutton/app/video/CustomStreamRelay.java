@@ -68,6 +68,7 @@ public class CustomStreamRelay {
 	private String sourceStreamName;
 	private String destStreamName;
 	private String publishMode;
+	Map<String, Object> defParams;
 
 	private boolean isDisconnecting;
 
@@ -195,16 +196,8 @@ public class CustomStreamRelay {
 			proxy.init();
 			proxy.setConnectionClosedHandler(new Runnable() {
 				public void run() {
-					System.out.println("onConnectionClosedHandler:: Publish connection has been closed");
-					if(isDisconnecting) {
-						System.out.println("Source will be disconnected");
-						client.disconnect();
-					}
-					else {
-						// Restart proxy
-						System.out.println("Reconnecting source");
-						proxy.start(destStreamName, publishMode, new Object[] {});
-					}
+					System.out.println("Publish connection has been closed, source will be disconnected");
+					client.disconnect();
 				}
 			});
 			proxy.setExceptionHandler(new ClientExceptionHandler() {
@@ -250,11 +243,16 @@ public class CustomStreamRelay {
 			});
 			client.setConnectionClosedHandler(new Runnable() {
 				public void run() {
-					System.out.println("Source connection has been closed, proxy will be stopped");
+					System.out.println("Source connection has been closed");
 					//System.exit(2);
-					client.disconnect();
-					//TODO: Create a timeout mechanism to close the proxy
-					//proxy.stop();
+					if(isDisconnecting) {
+						System.out.println("Proxy will be stopped");
+						client.disconnect();
+						proxy.stop();
+					} else {
+						System.out.println("Reconnecting client...");
+						client.connect(sourceHost, sourcePort, defParams, new ClientConnectCallback());
+					}
 				}
 			});
 			client.setExceptionHandler(new ClientExceptionHandler() {
@@ -267,7 +265,7 @@ public class CustomStreamRelay {
 				}
 			});			
 			// connect the consumer
-			Map<String, Object> defParams = client.makeDefaultConnectionParams(sourceHost, sourcePort, sourceApp);
+			defParams = client.makeDefaultConnectionParams(sourceHost, sourcePort, sourceApp);
 			// add pageurl and swfurl
 			defParams.put("pageUrl", "");
 			defParams.put("swfUrl", "app:/Red5-StreamRelay.swf");
@@ -275,24 +273,25 @@ public class CustomStreamRelay {
 			client.setSwfVerification(true);
 			// connect the client
 			System.out.println("startRelay:: ProxyRelay status is running: " + proxy.isRunning());
-			client.connect(sourceHost, sourcePort, defParams, new IPendingServiceCallback() {
-				public void resultReceived(IPendingServiceCall call) {
-					System.out.println("connectCallback");
-					ObjectMap<?, ?> map = (ObjectMap<?, ?>) call.getResult();
-					String code = (String) map.get("code");
-					if ("NetConnection.Connect.Rejected".equals(code)) {
-						System.out.printf("Rejected: %s\n", map.get("description"));
-						client.disconnect();
-						proxy.stop();
-					} else if ("NetConnection.Connect.Success".equals(code)) {
-						// 1. Wait for onBWDone
-						timer.schedule(new BandwidthStatusTask(), 2000L);
-					} else {
-						System.out.printf("Unhandled response code: %s\n", code);
-					}
-				}
-			});
-			
+			client.connect(sourceHost, sourcePort, defParams, new ClientConnectCallback());
+	}
+
+	private final class ClientConnectCallback implements IPendingServiceCallback{
+		public void resultReceived(IPendingServiceCall call) {
+			System.out.println("connectCallback");
+			ObjectMap<?, ?> map = (ObjectMap<?, ?>) call.getResult();
+			String code = (String) map.get("code");
+			if ("NetConnection.Connect.Rejected".equals(code)) {
+				System.out.printf("Rejected: %s\n", map.get("description"));
+				client.disconnect();
+				proxy.stop();
+			} else if ("NetConnection.Connect.Success".equals(code)) {
+				// 1. Wait for onBWDone
+				timer.schedule(new BandwidthStatusTask(), 2000L);
+			} else {
+				System.out.printf("Unhandled response code: %s\n", code);
+			}
+		}
 	}
 
 	/**
