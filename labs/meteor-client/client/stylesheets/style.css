@@ -108,3 +108,7 @@ background: rgba(0, 0, 0, 0.1);
 .signOutIcon{}
 .hideNavbarIcon{}
 .settingsIcon{}
+
+.navbarIconToggleActive{
+	border-bottom: 4px solid lightblue;
+}
