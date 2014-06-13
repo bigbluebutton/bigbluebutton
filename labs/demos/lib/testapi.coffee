@@ -23,7 +23,7 @@ createParams.meetingID = "Demo Meeting9"
 joinParams = {}
 joinParams.password = "mp"
 joinParams.fullName = "Richard"
-joinParams.meetingID = "Demo Meeting"
+joinParams.meetingID = "Demo Meeting9"
 joinParams.redirect = false
 
 serverAndSecret = {server: bbbServer, secret: sharedSecret}
