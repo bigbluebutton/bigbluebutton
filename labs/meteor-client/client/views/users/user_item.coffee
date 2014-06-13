@@ -1,7 +1,8 @@
+# retrieve account for selected user, or the first mod account if nothing is selected
+# global function
 @getCurrentUserFromSession = ->
   id = Session.get("userId") or "a1a1a1a1a1a1"
-  u = Meteor.users.findOne("user.userId": id)
-  u
+  Meteor.users.findOne("user.userId": id)
 
 Template.userItem.helpers
   domain: ->
@@ -9,13 +10,13 @@ Template.userItem.helpers
     a.href = @url
     a.hostname
 
-  # retrieve account for selected user, or the first mod account if nothing is selected
+  # retrieve account for selected user
   getCurrentUser: =>
     @window.getCurrentUserFromSession()
 
   isUserModerator: =>
-    u = @window.getCurrentUserFromSession()
-    u.user.role is "MODERATOR"
+    id = Session.get("userId") or "a1a1a1a1a1a1"
+    (Meteor.users.findOne {"user.userId": id, "user.role": "MODERATOR"})?
 
   # using handlebars' {{equals}} wasn't working for these some reason, so heres a simple JS function to do it
   compareUserIds: (u1, u2) ->

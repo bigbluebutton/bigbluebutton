@@ -1,15 +1,20 @@
-<head>
-   <title>Demo</title>
-</head>
-<body>
-   <div class="container">
-      <header class="navbar">
-         <div class="navbar-inner">
-            <a class="brand" href="/">Demo</a>
-         </div>
-      </header>
+<template name="main">
+   <head>
+      <title>Demo</title>
+   </head>
+   <body>
       <div id="main" class="row-fluid">
          {{> usersList}}
       </div>
+   </body>
+</template>
+
+<template name="header">
+   <div class="navbar navbar-default navbar-static-top" role="navigation">
+      <!-- <div class="container"> -->
+         <div class="navbar-header">
+            <a class="navbar-brand" href="/">BigBlueButton</a>
+         </div>
+      <!-- </div> -->
    </div>
-</body>
+</template>
