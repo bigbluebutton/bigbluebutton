@@ -7,3 +7,7 @@ standard-app-packages
 autopublish
 insecure
 bootstrap
+less
+coffeescript
+bootstrap-3
+iron-router
