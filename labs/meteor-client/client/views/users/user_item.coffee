@@ -1,18 +1,8 @@
-# retrieve account for selected user, or the first mod account if nothing is selected
-# global function
-@getCurrentUserFromSession = ->
-  id = Session.get("userId") or "a1a1a1a1a1a1"
-  Meteor.users.findOne("user.userId": id)
-
 Template.userItem.helpers
   domain: ->
     a = document.createElement("a")
     a.href = @url
     a.hostname
-
-  # retrieve account for selected user
-  getCurrentUser: =>
-    @window.getCurrentUserFromSession()
 
   isUserModerator: =>
     id = Session.get("userId") or "a1a1a1a1a1a1"
