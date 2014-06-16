@@ -21,6 +21,8 @@ package org.bigbluebutton.app.video;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IConnection;
@@ -51,6 +53,12 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     private Map<String, CustomStreamRelay> remoteStreams = new ConcurrentHashMap<String, CustomStreamRelay>();
     private Map<String, Integer> listenersOnRemoteStream = new ConcurrentHashMap<String, Integer>();
 
+	// Proxy disconnection timer
+	private Timer timer;
+	// Proxy disconnection timeout
+	// TODO: This timeout should be configurable
+	private long timeout = 60000L;
+
 	
     @Override
 	public boolean appStart(IScope app) {
@@ -58,6 +66,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		log.info("oflaDemo appStart");
 		System.out.println("oflaDemo appStart");    	
 		appScope = app;
+		timer = new Timer();
 		return true;
 	}
 
@@ -175,7 +184,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	}
 
     @Override
-    public synchronized void streamPlayItemPlay(ISubscriberStream stream, IPlayItem item, boolean isLive) {
+    public void streamPlayItemPlay(ISubscriberStream stream, IPlayItem item, boolean isLive) {
         // log w3c connect event
         String streamName = item.getName();
         
@@ -183,55 +192,86 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         //SV2/SV3/SV4/streamName
 
 
-        if(streamName.contains("/"))
-            if(remoteStreams.containsKey(streamName) == false) {
-                String[] parts = streamName.split("/");
-                String sourceServer = parts[0];
-                String sourceStreamName = StringUtils.join(parts, '/', 1, parts.length);
-                String destinationServer = Red5.getConnectionLocal().getHost();
-                String destinationStreamName = streamName;
-                String app = "video/"+Red5.getConnectionLocal().getScope().getName();
-				System.out.println("streamPlayItemPlay:: streamName [" + streamName + "]");
-				System.out.println("streamPlayItemPlay:: sourceServer [" + sourceServer + "]");
-				System.out.println("streamPlayItemPlay:: sourceStreamName [" + sourceStreamName + "]");
-				System.out.println("streamPlayItemPlay:: destinationServer [" + destinationServer + "]");
-				System.out.println("streamPlayItemPlay:: destinationStreamName [" + destinationStreamName + "]");
-				System.out.println("streamPlayItemPlay:: app [" + app + "]");
-                
-                CustomStreamRelay remoteRelay = new CustomStreamRelay();
-                remoteRelay.initRelay(new String[]{sourceServer, app, sourceStreamName, destinationServer, app, destinationStreamName, "live"});
-                remoteRelay.startRelay();
-                remoteStreams.put(destinationStreamName, remoteRelay);
-                listenersOnRemoteStream.put(streamName, 1);
-            }
-            else {
-                Integer numberOfListeners = listenersOnRemoteStream.get(streamName) + 1;
-                listenersOnRemoteStream.put(streamName,numberOfListeners);
-            }
-        
-        log.info("W3C x-category:stream x-event:play c-ip:{} x-sname:{} x-name:{}", new Object[] { Red5.getConnectionLocal().getRemoteAddress(), stream.getName(), item.getName() });
-    }
+        if(streamName.contains("/")) {
+			synchronized(remoteStreams) {
+				if(remoteStreams.containsKey(streamName) == false) {
+					String[] parts = streamName.split("/");
+					String sourceServer = parts[0];
+					String sourceStreamName = StringUtils.join(parts, '/', 1, parts.length);
+					String destinationServer = Red5.getConnectionLocal().getHost();
+					String destinationStreamName = streamName;
+					String app = "video/"+Red5.getConnectionLocal().getScope().getName();
+					System.out.println("streamPlayItemPlay:: streamName [" + streamName + "]");
+					System.out.println("streamPlayItemPlay:: sourceServer [" + sourceServer + "]");
+					System.out.println("streamPlayItemPlay:: sourceStreamName [" + sourceStreamName + "]");
+					System.out.println("streamPlayItemPlay:: destinationServer [" + destinationServer + "]");
+					System.out.println("streamPlayItemPlay:: destinationStreamName [" + destinationStreamName + "]");
+					System.out.println("streamPlayItemPlay:: app [" + app + "]");
+
+					CustomStreamRelay remoteRelay = new CustomStreamRelay();
+					remoteRelay.initRelay(new String[]{sourceServer, app, sourceStreamName, destinationServer, app, destinationStreamName, "live"});
+					remoteRelay.startRelay();
+					remoteStreams.put(destinationStreamName, remoteRelay);
+					listenersOnRemoteStream.put(streamName, 1);
+				}
+				else {
+					Integer numberOfListeners = listenersOnRemoteStream.get(streamName) + 1;
+					listenersOnRemoteStream.put(streamName,numberOfListeners);
+				}
+			}
+		}
+		log.info("W3C x-category:stream x-event:play c-ip:{} x-sname:{} x-name:{}", new Object[] { Red5.getConnectionLocal().getRemoteAddress(), stream.getName(), item.getName() });
+	}
 
     @Override
-    public synchronized void streamSubscriberClose(ISubscriberStream stream) {
-        super.streamSubscriberClose(stream);
-        String streamName = stream.getBroadcastStreamPublishName();
-        if(streamName.contains("/"))
-            if(remoteStreams.containsKey(streamName)) {
-                Integer numberOfListeners = listenersOnRemoteStream.get(streamName);
-                if(numberOfListeners != null) {
-                    if(numberOfListeners > 1) {
-                        numberOfListeners = numberOfListeners - 1;
-                        listenersOnRemoteStream.put(streamName, numberOfListeners);
-                    }
-                    else {
-                        listenersOnRemoteStream.remove(streamName);
-                        CustomStreamRelay remoteRelay = remoteStreams.remove(streamName);
-                        remoteRelay.stopRelay();
-                    }
-                }
-
-            }
+    public void streamSubscriberClose(ISubscriberStream stream) {
+		synchronized(remoteStreams) {
+			super.streamSubscriberClose(stream);
+			String streamName = stream.getBroadcastStreamPublishName();
+			log.trace("Subscriber close for stream [{}]", streamName);
+			if(streamName.contains("/")) {
+				if(remoteStreams.containsKey(streamName)) {
+					Integer numberOfListeners = listenersOnRemoteStream.get(streamName);
+					if(numberOfListeners != null) {
+						numberOfListeners = numberOfListeners - 1;
+						listenersOnRemoteStream.put(streamName, numberOfListeners);
+						log.trace("Stream [{}] has {} subscribers left", streamName, numberOfListeners);
+						if(numberOfListeners < 1) {
+							log.info("Starting timeout to close proxy for stream: {}", streamName);
+							timer.schedule(new DisconnectProxyTask(streamName), timeout);
+						}
+					}
+				}
+			}
+		}
     }
 
+	private final class DisconnectProxyTask extends TimerTask {
+		// Stream name that should be disconnected
+		private String streamName;
+
+		public DisconnectProxyTask(String streamName) {
+			this.streamName = streamName;
+		}
+
+		@Override
+		public void run() {
+			// Cancel this task
+			this.cancel();
+			// Check if someone reconnected
+			synchronized(remoteStreams) {
+				Integer numberOfListeners = listenersOnRemoteStream.get(streamName);
+				log.trace("Stream [{}] has {} subscribers", streamName, numberOfListeners);
+				if(numberOfListeners != null) {
+					if(numberOfListeners < 1) {
+						// No one else is connected to this stream, close relay
+						log.info("Stopping relay for stream [{}]", streamName);
+						listenersOnRemoteStream.remove(streamName);
+						CustomStreamRelay remoteRelay = remoteStreams.remove(streamName);
+						remoteRelay.stopRelay();
+					}
+				}
+			}
+		}
+	}
 }
