@@ -1,16 +1,25 @@
 <template name="usersList">
-   <div>
+   <table class="table table-hover users-list-container">
       {{#each getMeetings}}
-         <p>Meeting Name: {{meetingName}}</p>
-         <h3>Participants: <i>{{getMeetingSize meetingName}} users</i></h3>
-         <ul id="user-list">
+         <thead>
+         <tr>
+         <th>
+            Participants: <i>{{getMeetingSize meetingName}} users</i>
+         </th>
+         </tr>
+         </thead>
             <!-- Retrieve all users in the meeting -->
+            <tbody>
             {{#each getUsersInMeeting meetingName}}
-               {{> userItem}}
+               <tr>
+                  <td>
+                  {{> userItem}}
+                  </td>
+               </tr>
             {{/each}}
-         </ul>
+            </tbody>
       {{/each}}
-   </div>
+   </table>
    <div>
       <input type="button" class="signin" id="a1a1a1a1a1a1" value="Signin as RED" />
       <input type="button" class="signin" id="b2b2b2b2b2b2" value="Signin as BLUE" />
