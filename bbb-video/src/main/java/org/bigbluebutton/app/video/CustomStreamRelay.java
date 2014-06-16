@@ -36,8 +36,6 @@ import com.mconf.red5.server.net.rtmp.event.IRTMPEvent;
 import com.mconf.red5.server.net.rtmp.event.Notify;
 import com.mconf.red5.server.net.rtmp.status.StatusCodes;
 import com.mconf.red5.server.stream.message.RTMPMessage;
-import org.red5.server.net.rtmp.event.Ping;
-import com.mconf.red5.server.service.PendingCall;
 
 
 /**
@@ -153,34 +151,6 @@ public class CustomStreamRelay {
 		isDisconnecting = true;
 		client.disconnect();
 		proxy.stop();
-	}
-
-	private class CustomRTMPClient extends RTMPClient {
-		@Override
-		public void play(int streamId, String name, int start, int length) {
-			System.out.println("play stream "+ streamId + ", name: " + name + ", start " + start + ", length " + length );
-			if (conn != null) {
-				// get the channel
-				int channel = getChannelForStreamId(streamId);
-				// send our requested buffer size
-				ping(Ping.CLIENT_BUFFER, streamId, 2000);
-				// send our request for a/v
-				PendingCall receiveAudioCall = new PendingCall("receiveAudio");
-				conn.invoke(receiveAudioCall, channel);
-				PendingCall receiveVideoCall = new PendingCall("receiveVideo");
-				conn.invoke(receiveVideoCall, channel);
-				// call play
-				Object[] params = new Object[1];
-				params[0] = name;
-//				params[1] = start;
-//				params[2] = length;
-				PendingCall pendingCall = new PendingCall("play", params);
-				conn.invoke(pendingCall, channel);
-			} else {
-				System.out.println("Connection was null ?");
-			}
-
-		}
 	}
 
 	public void startRelay() {
@@ -337,8 +307,8 @@ public class CustomStreamRelay {
 				System.out.println("play stream name " + sourceStreamName + " start 0 lenght -1");
 				client.play(streamId, sourceStreamName, 0, -1);
 			} else {
-				System.out.println("play stream name " + sourceStreamName + " start -1 lenght 0");
-				client.play(streamId, sourceStreamName, -1, 0);
+				System.out.println("play stream name " + sourceStreamName);
+				client.play(streamId, sourceStreamName);
 			}
 		}
 
