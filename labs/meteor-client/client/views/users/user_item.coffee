@@ -14,46 +14,22 @@ Template.userItem.helpers
 
 Template.userItem.events
   "click .raiseHand": (event) ->
-    Meteor.users.update
-      _id: @_id
-    ,
-      $set:
-        "user.handRaised": true
+    Meteor.users.update {_id: @_id},{ $set:{ "user.handRaised": true}}
 
   "click .disableCam": (event) ->
-    Meteor.users.update
-      _id: @_id
-    ,
-      $set:
-        "user.sharingVideo": false
+    Meteor.users.update {_id: @_id}, {$set:{ "user.sharingVideo": false}}
 
   "click .disableMic": (event) ->
-    Meteor.users.update
-      _id: @_id
-    ,
-      $set:
-        "user.sharingAudio": false
+    Meteor.users.update { _id: @_id},{ $set:{"user.sharingAudio": false}}
 
   "click .enableMic": (event) ->
-    Meteor.users.update
-      _id: @_id
-    ,
-      $set:
-        "user.sharingAudio": true
+    Meteor.users.update {_id: @_id}, {$set:{"user.sharingAudio": true}}
 
   "click .enableCam": (event) ->
-    Meteor.users.update
-      _id: @_id
-    ,
-      $set:
-        "user.sharingVideo": true
+    Meteor.users.update {_id: @_id}, {$set:{ "user.sharingVideo": true}}
 
   "click .lowerHand": (event) ->
-    Meteor.users.update
-      _id: @_id
-    ,
-      $set:
-        "user.handRaised": false
+    Meteor.users.update {_id: @_id}, {$set:{ "user.handRaised": false}}
 
   "click .setPresenter": (event) ->
 	   #
@@ -72,18 +48,10 @@ Template.userItem.events
           "user.presenter": true
         )
         if u?
-          Meteor.users.update
-            _id: u._id
-          ,
-            $set:
-              "user.presenter": false
+          Meteor.users.update {_id: u._id},{ $set:{ "user.presenter": false}}
 
       # set newly selected user as presenter
-      Meteor.users.update
-        _id: @_id
-      ,
-        $set:
-          "user.presenter": true
+      Meteor.users.update {_id: @_id},{$set:{"user.presenter": true}}
 
   "click .kickUser": (event) ->
   	#
@@ -93,7 +61,7 @@ Template.userItem.events
     user = @
     meeting = Meetings.findOne(meetingName: @meetingId)
     if user? and meeting?
-      # find users index. I couldn't get indexOf() working because the array is of objects
+      # find users index. I couldn't get indexOf() working
       index = -1
       i = 0
 
@@ -115,3 +83,39 @@ Template.userItem.events
         ,
           $set:
             meetingId: null
+
+Template.displayOtherUsersControls.events
+  "click .disableMic": (event) ->
+    event.stopImmediatePropagation()
+    u = Meteor.users.findOne {"user.externUserId": event.currentTarget.id}
+    Meteor.users.update {_id: u._id}, {$set: {"user.sharingAudio": false}}
+  "click .enableMic": (event) ->
+    event.stopImmediatePropagation()
+    u = Meteor.users.findOne {"user.externUserId": event.currentTarget.id}
+    Meteor.users.update {_id: u._id}, {$set: {"user.sharingAudio": true}}
+  "click .disableCam": (event) ->
+    event.stopImmediatePropagation()
+    u = Meteor.users.findOne {"user.externUserId": event.currentTarget.id}
+    Meteor.users.update {_id: u._id}, {$set: {"user.sharingVideo": false}}
+  "click .enableCam": (event) ->
+    event.stopImmediatePropagation()
+    u = Meteor.users.findOne {"user.externUserId": event.currentTarget.id}
+    Meteor.users.update {_id: u._id}, {$set: {"user.sharingVideo": true}}
+
+Template.displayOwnControls.events
+  "click .disableMic": (event) ->
+    event.stopImmediatePropagation()
+    u = Meteor.users.findOne {"user.externUserId": event.currentTarget.id}
+    Meteor.users.update {_id: u._id}, {$set: {"user.sharingAudio": false}}
+  "click .enableMic": (event) ->
+    event.stopImmediatePropagation()
+    u = Meteor.users.findOne {"user.externUserId": event.currentTarget.id}
+    Meteor.users.update {_id: u._id}, {$set: {"user.sharingAudio": true}}
+  "click .disableCam": (event) ->
+    event.stopImmediatePropagation()
+    u = Meteor.users.findOne {"user.externUserId": event.currentTarget.id}
+    Meteor.users.update {_id: u._id}, {$set: {"user.sharingVideo": false}}
+  "click .enableCam": (event) ->
+    event.stopImmediatePropagation()
+    u = Meteor.users.findOne {"user.externUserId": event.currentTarget.id}
+    Meteor.users.update {_id: u._id}, {$set: {"user.sharingVideo": true}}
