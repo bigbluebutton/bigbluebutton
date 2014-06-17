@@ -38,9 +38,10 @@ Template.userItem.events
      #
 
     # only perform operation if user is not already presenter, prevent extra DB work
-    unless @user.presenter
+    unless @isPresenter
       # from new user, find meeting
-      m = Meetings.findOne(meetingName: @meetingId)
+      theUser = Meteor.users.findOne(_id:@_id)
+      m = Meetings.findOne(meetingName: theUser.meetingId)
       # unset old user as presenter
       if m?
         u = Meteor.users.findOne(
@@ -49,9 +50,8 @@ Template.userItem.events
         )
         if u?
           Meteor.users.update {_id: u._id},{ $set:{ "user.presenter": false}}
-
-      # set newly selected user as presenter
-      Meteor.users.update {_id: @_id},{$set:{"user.presenter": true}}
+          # set newly selected user as presenter
+          Meteor.users.update {_id: @_id},{$set:{"user.presenter": true}}
 
   "click .kickUser": (event) ->
   	#
