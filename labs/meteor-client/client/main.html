@@ -22,42 +22,42 @@
       <div class="navbar navbar-default navbar-static-top" role="navigation">
          {{#with getCurrentUser}}
             {{#if getInSession "display_usersList"}}
-               {{> makeButton id=user.externUserId btn_class="navbarIconToggleActive usersListIcon" i_class="user" _id=_id}}
+               {{> makeButton id=user.externUserId btn_class="navbarIconToggleActive usersListIcon navbar-brand" i_class="user" _id=_id}}
             {{else}}
-               {{> makeButton id=user.externUserId btn_class="usersListIcon" i_class="user" _id=_id}}
+               {{> makeButton id=user.externUserId btn_class="usersListIcon navbar-brand" i_class="user" _id=_id}}
             {{/if}}
             
             {{#if getInSession "display_chat"}}
-               {{> makeButton id=user.externUserId btn_class="navbarIconToggleActive chatBarIcon" i_class="comment" _id=_id}}
+               {{> makeButton id=user.externUserId btn_class="navbarIconToggleActive chatBarIcon navbar-brand" i_class="comment" _id=_id}}
             {{else}}
-               {{> makeButton id=user.externUserId btn_class="chatBarIcon" i_class="comment" _id=_id}}
+               {{> makeButton id=user.externUserId btn_class="chatBarIcon navbar-brand" i_class="comment" _id=_id}}
             {{/if}}
 
             {{#if user.sharingVideo}}
-               {{> makeButton id=user.externUserId btn_class="navbarIconToggleActive videoFeedIcon" i_class="facetime-video" sharingVideo=true _id=_id}}
+               {{> makeButton id=user.externUserId btn_class="navbarIconToggleActive videoFeedIcon navbar-brand" i_class="facetime-video" sharingVideo=true _id=_id}}
             {{else}}
-               {{> makeButton id=user.externUserId btn_class="videoFeedIcon" i_class="stop" sharingVideo=false _id=_id}}
+               {{> makeButton id=user.externUserId btn_class="videoFeedIcon navbar-brand" i_class="stop" sharingVideo=false _id=_id}}
             {{/if}}
 
             {{#if user.sharingAudio}}
-               {{> makeButton id=user.externUserId btn_class="navbarIconToggleActive audioFeedIcon" i_class="volume-up" sharingAudio=true _id=_id}}
+               {{> makeButton id=user.externUserId btn_class="navbarIconToggleActive audioFeedIcon navbar-brand" i_class="volume-up" sharingAudio=true _id=_id}}
             {{else}}
-               {{> makeButton id=user.externUserId btn_class="audioFeedIcon" i_class="volume-off" sharingAudio=false _id=_id}}
+               {{> makeButton id=user.externUserId btn_class="audioFeedIcon navbar-brand" i_class="volume-off" sharingAudio=false _id=_id}}
             {{/if}}
 
-            {{> makeButton id="" btn_class="hideNavbarIcon pull-right" i_class="chevron-up"}}
-            {{> makeButton id="user.externUserId" btn_class="signOutIcon pull-right" i_class="log-out"}}
-            {{> makeButton id="user.externUserId" btn_class="settingsIcon pull-right" i_class="cog"}}
+            {{> makeButton id="" btn_class="hideNavbarIcon pull-right navbar-brand" i_class="chevron-up"}}
+            {{> makeButton id="user.externUserId" btn_class="signOutIcon pull-right navbar-brand" i_class="log-out"}}
+            {{> makeButton id="user.externUserId" btn_class="settingsIcon pull-right navbar-brand" i_class="cog"}}
          {{/with}}
       </div>
    {{else}}
       <!-- User wants to hide navbar. The button for bringing the navbar back needs to still be available. Perhaps it should appear/disappear in the future on hover? Something to add later. -->
-      {{> makeButton id="" btn_class="hideNavbarIcon pull-right" i_class="chevron-down"}}
+      {{> makeButton id="" btn_class="hideNavbarIcon pull-right navbar-brand" i_class="chevron-down"}}
    {{/if}}
 </template>
 
 <template name="makeButton">
-   <button type="submit" id="{{id}}" class="{{btn_class}} navbar-brand btn">
+   <button type="submit" id="{{id}}" class="{{btn_class}} btn" {{isDisabled}}>
       <i class="glyphicon glyphicon-{{i_class}}"></i>
    </button>
 </template>
