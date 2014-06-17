@@ -22,5 +22,10 @@ Meteor.methods({
   },
   showUserId: function() {
     throw new Meteor.Error(422, this.userId);
+  },
+  addToCollection: function(userid, meeting_id) {
+    var user = {userId: userid, meetingId: meeting_id};
+    var userId = Meteor.users.insert(user);
+    console.log("added user id=[" + userId + "] :" + JSON.stringify(user));
   }
 });
