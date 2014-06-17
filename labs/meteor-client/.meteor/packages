@@ -6,7 +6,11 @@
 standard-app-packages
 autopublish
 insecure
-bootstrap
 coffeescript
 redis
 npm
+less
+bootstrap-3
+iron-router
+router
+bootstrap
