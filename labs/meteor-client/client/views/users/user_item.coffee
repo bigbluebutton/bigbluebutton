@@ -58,8 +58,9 @@ Template.userItem.events
     # Add:
     # When user is blown away, if they were presenter remove that from meeting (if kicking the presenter is even possible?)
     #		
-    user = @
-    meeting = Meetings.findOne(meetingName: @meetingId)
+    user = Meteor.users.findOne(_id:@_id)
+    meeting = Meetings.findOne(meetingName:user.meetingId)
+
     if user? and meeting?
       # find users index. I couldn't get indexOf() working
       index = -1
