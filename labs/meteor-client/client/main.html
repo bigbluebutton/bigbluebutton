@@ -1,6 +1,6 @@
 <template name="main">
    <head>
-      <title>Demo</title>
+      <title>BigBlueButton Meteor</title>
    </head>
    <body>
       <div id="main" class="row-fluid">
@@ -22,47 +22,42 @@
       <div class="navbar navbar-default navbar-static-top" role="navigation">
          {{#with getCurrentUser}}
             {{#if getInSession "display_usersList"}}
-               <button type="submit" id="{{user.externUserId}}" class="navbarIconToggleActive usersListIcon navbar-brand btn"><i class="glyphicon glyphicon-user"></i></button>
+               {{> makeButton id=user.externUserId btn_class="navbarIconToggleActive usersListIcon" i_class="user" _id=_id}}
             {{else}}
-               <button type="submit" id="{{user.externUserId}}" class="usersListIcon navbar-brand btn"><i class="glyphicon glyphicon-user"></i></button>
+               {{> makeButton id=user.externUserId btn_class="usersListIcon" i_class="user" _id=_id}}
             {{/if}}
             
             {{#if getInSession "display_chat"}}
-               <button type="submit" id="{{user.externUserId}}" class="navbarIconToggleActive chatBarIcon navbar-brand btn"> <i class="glyphicon glyphicon-comment"></i> <!-- Chat --></button>
+               {{> makeButton id=user.externUserId btn_class="navbarIconToggleActive chatBarIcon" i_class="comment" _id=_id}}
             {{else}}
-               <button type="submit" id="{{user.externUserId}}" class="chatBarIcon navbar-brand btn"> <i class="glyphicon glyphicon-comment"></i> <!-- Chat --></button>
+               {{> makeButton id=user.externUserId btn_class="chatBarIcon" i_class="comment" _id=_id}}
             {{/if}}
 
             {{#if user.sharingVideo}}
-               <button type="submit" id="{{user.externUserId}}" class="navbarIconToggleActive videoFeedIcon navbar-brand btn">
-               <i class="glyphicon glyphicon-facetime-video"></i> <!-- Video Feed --></button>
+               {{> makeButton id=user.externUserId btn_class="navbarIconToggleActive videoFeedIcon" i_class="facetime-video" sharingVideo=true _id=_id}}
             {{else}}
-               <button type="submit" id="{{user.externUserId}}" class="videoFeedIcon navbar-brand btn">
-               <i class="glyphicon glyphicon-stop"></i> <!-- Video Feed --></button>
+               {{> makeButton id=user.externUserId btn_class="videoFeedIcon" i_class="stop" sharingVideo=false _id=_id}}
             {{/if}}
 
             {{#if user.sharingAudio}}
-               <button type="submit" id="{{user.externUserId}}" class="navbarIconToggleActive audioFeedIcon navbar-brand btn"> <i class="glyphicon glyphicon-volume-up"></i> <!-- Chat --></button>
+               {{> makeButton id=user.externUserId btn_class="navbarIconToggleActive audioFeedIcon" i_class="volume-up" sharingAudio=true _id=_id}}
             {{else}}
-               <button type="submit" id="{{user.externUserId}}" class="audioFeedIcon navbar-brand btn"> <i class="glyphicon glyphicon-volume-off"></i> <!-- Chat --></button>
+               {{> makeButton id=user.externUserId btn_class="audioFeedIcon" i_class="volume-off" sharingAudio=false _id=_id}}
             {{/if}}
 
-            <button type="submit" id="" class="hideNavbarIcon navbar-brand pull-right btn">
-               <i class="glyphicon glyphicon-chevron-up"></i> <!-- Hide Navbar -->
-            </button>
-            <button type="submit" id="{{user.externUserId}}" class="signOutIcon navbar-brand pull-right btn">
-               <i class="glyphicon glyphicon-log-out"></i> <!-- Sign Out -->
-            </button>
-            <button type="submit" id="" class="settingsIcon navbar-brand pull-right btn">
-               <i class="glyphicon glyphicon-cog"></i> <!-- Settings -->
-            </button>
+            {{> makeButton id="" btn_class="hideNavbarIcon pull-right" i_class="chevron-up"}}
+            {{> makeButton id="user.externUserId" btn_class="signOutIcon pull-right" i_class="log-out"}}
+            {{> makeButton id="user.externUserId" btn_class="settingsIcon pull-right" i_class="cog"}}
          {{/with}}
       </div>
    {{else}}
-      <!-- User wants to hide navbar. The button for bringing the navbar back needs to still be available.
-      Perhaps it should appear/disappear in the future on hover? Something to add later. -->
-      <button type="submit" id="" class="hideNavbarIcon navbar-brand pull-right btn">
-         <i class="glyphicon glyphicon-chevron-down"></i>
-      </button>
+      <!-- User wants to hide navbar. The button for bringing the navbar back needs to still be available. Perhaps it should appear/disappear in the future on hover? Something to add later. -->
+      {{> makeButton id="" btn_class="hideNavbarIcon pull-right" i_class="chevron-down"}}
    {{/if}}
+</template>
+
+<template name="makeButton">
+   <button type="submit" id="{{id}}" class="{{btn_class}} navbar-brand btn">
+      <i class="glyphicon glyphicon-{{i_class}}"></i>
+   </button>
 </template>
