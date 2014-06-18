@@ -5,11 +5,10 @@ Router.map ->
     path: "/meeting_id=*"
     action: () ->
       @redirect('/')
-    onBeforeAction: (url)->
+    onBeforeAction: ()->
       url = location.href
       console.log "\n\nurl=#{url}\n\n"
-      # Here we want to extract the meeting_id, user_id, auth_token, etc
-      # from the uri
+      #extract the meeting_id, user_id, auth_token, etc from the uri
       if url.indexOf("meeting_id") > -1 # if the URL is /meeting_id=...&...
         urlParts = url.split("&");
 
@@ -25,8 +24,7 @@ Router.map ->
         userName = urlParts[3]?.split("=")[1];
         console.log "userName=" + userName
         if meetingId? and userId? and authToken? and userName?
-          Meteor.call("runRedisAndValidate",meetingId, userId, authToken)
-
+          Meteor.call("runRedisAndValidate", meetingId, userId, authToken)
         else
           console.log "unable to extract from the URL some of {meetingId, userName, userId, authToken}"
       else
