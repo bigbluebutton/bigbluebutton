@@ -17,13 +17,13 @@ createParams.attendeePW = "ap"
 createParams.moderatorPW = "mp"
 createParams.record = false
 createParams.voiceBridge = 70827
-createParams.name = "Demo Meeting9"
-createParams.meetingID = "Demo Meeting9"
+createParams.name = "Demo Meeting15"
+createParams.meetingID = "Demo Meeting15"
 
 joinParams = {}
 joinParams.password = "mp"
 joinParams.fullName = "Richard"
-joinParams.meetingID = "Demo Meeting9"
+joinParams.meetingID = "Demo Meeting15"
 joinParams.redirect = false
 
 serverAndSecret = {server: bbbServer, secret: sharedSecret}

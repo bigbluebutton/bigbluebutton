@@ -1,3 +1,9 @@
+Meteor.methods
+  runRedisAndValidate: (meetingId, userId, authToken) ->
+    redisPubSub = new Meteor.RedisPubSub
+    redisPubSub.sendValidateToken(meetingId, userId, authToken)
+
+
 class Meteor.RedisPubSub
   constructor: () ->
     console.log "constructor RedisPubSub"
@@ -11,6 +17,7 @@ class Meteor.RedisPubSub
     #log.info
     console.log("RPC: Subscribing message on channel: #{Meteor.config.redis.channels.fromBBBApps}")
     @subClient.psubscribe(Meteor.config.redis.channels.fromBBBApps)
+    @
 
   # Construct and send a message to bbb-web to validate the user
   sendValidateToken: (meetingId, userId, authToken) ->
@@ -34,7 +41,6 @@ class Meteor.RedisPubSub
       console.log "did not have enough information to send a validate_auth_token message"
 
   _onSubscribe: (channel, count) ->
-    #Meteor.call("addToCollection");
     console.log "Subscribed to #{channel}"
 
   _onMessage: (pattern, channel, jsonMsg) =>
