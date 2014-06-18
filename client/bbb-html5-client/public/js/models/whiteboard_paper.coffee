@@ -23,6 +23,7 @@ define [
 
     # Container must be a DOM element
     initialize: (@container) ->
+      alert("initializing the paper model")
       # a WhiteboardCursorModel
       @cursor = null
 
@@ -278,7 +279,7 @@ define [
           @cursor.undrag()
           @currentLine = @_createTool(tool)
           @cursor.drag(@currentLine.dragOnMove, @currentLine.dragOnStart, @currentLine.dragOnEnd)
-        when "rect"
+        when "rectangle"
           @cursor.undrag()
           @currentRect = @_createTool(tool)
           @cursor.drag(@currentRect.dragOnMove, @currentRect.dragOnStart, @currentRect.dragOnEnd)
@@ -351,6 +352,7 @@ define [
     # Draws an array of shapes to the paper.
     # @param  {array} shapes the array of shapes to draw
     drawListOfShapes: (shapes) ->
+      alert("drawListOfShapes" + shapes.length)
       @currentShapesDefinitions = shapes
       @currentShapes = @raphaelObj.set()
       for shape in shapes
@@ -392,6 +394,7 @@ define [
 
     # Make a shape `shape` with the data in `data`.
     makeShape: (shape, data) ->
+      console.log("shape=" + shape + " data=" + JSON.stringify data)
       tool = null
       switch shape
         when "path", "line"
@@ -409,6 +412,7 @@ define [
         when "triangle"
           @currentTriangle = @_createTool(shape)
           toolModel = @currentTriangle
+          toolModel.draw(tool, data)
           tool = @currentTriangle.make(data)
         when "text"
           @currentText = @_createTool(shape)
@@ -417,7 +421,12 @@ define [
         else
           console.log "shape not recognized at makeShape", shape
       if tool?
-        @currentShapes.push(tool)
+        alert("in currentShapes")
+        if @currentShapes? #rewrite TODO
+          @currentShapes.push(tool)
+        else
+          @currentShapes = []
+          @currentShapes.push(tool)
         @currentShapesDefinitions.push(toolModel.getDefinition())
 
     # Update the cursor position on screen
@@ -515,6 +524,7 @@ define [
 
       globals.events.on "connection:allShapes", (allShapesEventObject) =>
         # TODO: a hackish trick for making compatible the shapes from redis with the node.js
+        alert("on connection:allShapes:" + JSON.stringify allShapesEventObject)
         shapes = allShapesEventObject.shapes
         for shape in shapes
           properties = JSON.parse(shape.data)

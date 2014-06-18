@@ -50,4 +50,5 @@ else
 # Global instance of Modules, created by `app.coffee`
 config.modules = null
 
-module.exports = config
+
+Meteor.config = config

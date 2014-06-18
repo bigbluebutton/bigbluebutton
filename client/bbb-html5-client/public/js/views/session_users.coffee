@@ -72,8 +72,6 @@ define [
     # Removes all a user from the list #TODO - for now it does not remove but moves to the left hand side
     _removeUserByID: (userID)->
       @$("#user-"+userID).remove()
-      #@$("#user-"+userID).parent().context.hidden = "true"
-      #console.log @$el.children("ul")
 
     # Marks a user as selected when clicked.
     _userClicked: (e) ->

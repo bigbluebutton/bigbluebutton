@@ -20,6 +20,8 @@ login = (req, resp) ->
   #calling createapi
   bbbapi.create(createParams, serverAndSecret, {}, (errorOuter, responseOuter, bodyOuter) ->
     #console.log JSON.stringify(response)
+    console.log "\n\nouterXML=" + responseOuter.body
+    console.log "\nerrorOuter=" + JSON.stringify errorOuter
     bbbapi.join(joinParams, serverAndSecret, {}, (error, response, body) ->
       if error
           console.log error
@@ -39,7 +41,7 @@ login = (req, resp) ->
             "\nuser_id = " + user_id +
             "\nauth_token = " + auth_token
 
-            url = "#{configJson.settings.IP}:3000/html5.client?meeting_id=" + meeting_id + "&user_id=" +
+            url = "#{configJson.settings.IP}:3000/meeting_id=" + meeting_id + "&user_id=" +
                   user_id + "&auth_token=" + auth_token + "&username=" + joinParams.fullName + "&meetingName=" + joinParams.meetingID
 
             json =

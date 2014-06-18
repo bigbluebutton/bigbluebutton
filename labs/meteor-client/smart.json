@@ -1,6 +1,9 @@
 {
   "packages": {
+    "redis": {},
+    "npm": {},
     "bootstrap-3": {},
-    "iron-router": {}
+    "iron-router": {},
+    "router": {}
   }
 }

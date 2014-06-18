@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////
 // Startup
 //
-
+/*
 Meteor.startup(function () {
   console.log('server start');
   // cleanup collections
@@ -23,3 +23,4 @@ Meteor.startup(function () {
   SetCollectionPermissions();
 
 });
+*/

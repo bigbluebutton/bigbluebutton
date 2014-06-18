@@ -80,9 +80,6 @@ trait UsersApp {
 
         //send the presentation
         this ! (new GetPresentationInfo(meetingID, msg.userId, replyTo))
-
-        //send the whiteboard
-        //this ! (new GetWhiteboardShapesNoIdRequest(meetingID, msg.userId, replyTo))
       }
       case None => outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, false, msg.correlationId))
     }
