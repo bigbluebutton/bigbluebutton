@@ -2,23 +2,21 @@
    <div class="users-list-container">
       <div class="mygrid-wrapper-div">
          <table class="table table-hover">
-            {{#each getMeetings}}
+            {{#with getMeeting}}
                <thead>
                <th>
-                  Participants: <i>{{getMeetingSize meetingName}} users</i>
+                  Participants: <i>{{getMeetingSize}} users</i>
                </th>
                </thead>
                <!-- Retrieve all users in the meeting -->
                <tbody>
-               {{#each getUsersInMeeting meetingName}}
+               {{#each getUsersInMeeting}}
                   <tr>
-                     <!-- <td> -->
                      {{> userItem}}
-                     <!-- </td> -->
                   </tr>
                {{/each}}
                </tbody>
-            {{/each}}
+            {{/with}}
          </table>
          <div>
             <input type="button" class="signin" id="a1a1a1a1a1a1" value="Signin as RED" />

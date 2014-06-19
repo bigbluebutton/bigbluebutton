@@ -19,16 +19,22 @@ Template.usersList.helpers
   users: ->
     Meteor.users.find()
 
-  getMeetings: ->
-    Meetings.find()
+  getMeeting: ->
+    console.log "meetingid = " + Session.get "meetingId"
+    m = Meetings.findOne {meetingName: Session.get("meetingId")}
+    if m?
+      console.log m
+      m
+    else
+      null
 
   # should be changed to find all users listed in the meeting and retrieve them,
   #  instead of here where we retrieve every user pointing to the meeting 
-  getUsersInMeeting: (meetingName) ->
-    Meteor.users.find meetingId: meetingName
+  getUsersInMeeting: ->
+    Meteor.users.find {meetingId: Session.get("meetingId")}
 
-  getMeetingSize: (mn) ->
-    m = Meetings.findOne({meetingName: mn})
+  getMeetingSize: ->
+    m = Meetings.findOne {meetingName: Session.get("meetingId")}
     if m?
       m.users?.length
     else
