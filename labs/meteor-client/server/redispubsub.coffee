@@ -51,11 +51,17 @@ class Meteor.RedisPubSub
     correlationId = message.payload?.reply_to or message.header?.reply_to
 
     unless message.header?.name is "keep_alive_reply"
-      console.log "\nchannel=" + channel
-      console.log "correlationId=" + correlationId if correlationId?
-      console.log "eventType=" + message.header?.name + "\n"
+      #console.log "\nchannel=" + channel
+      #console.log "correlationId=" + correlationId if correlationId?
+      console.log "eventType=" + message.header?.name #+ "\n"
       #log.debug({ pattern: pattern, channel: channel, message: message}, "Received a message from redis")
       console.log jsonMsg
 
     if message.header?.name is "user_joined_message"
       Meteor.call("addToCollection", message.payload.user.userid, message.payload.meeting_id);
+
+    if message.header?.name is "user_left_message"
+      userId = message.payload?.user?.userid
+      meetingId = message.payload?.meeting_id
+      if userId? and meetingId?
+        Meteor.call("removeFromCollection", meetingId, userId)
