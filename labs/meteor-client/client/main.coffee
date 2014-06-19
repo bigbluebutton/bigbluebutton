@@ -5,8 +5,6 @@ Meteor.startup ->
 	Session.set "display_chatbar", false # false until respective template is created
 	Session.set "display_whiteboard", false # false until respective template is created
 
-	Meteor.subscribe 'users', Session.get('meetingId')
-
 Template.header.events
 	"click .usersListIcon": (event) ->
 		toggleUsersList()

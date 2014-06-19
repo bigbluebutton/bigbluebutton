@@ -5,6 +5,8 @@ Router.map ->
     path: "/meeting_id=*"
     action: () ->
       @redirect('/')
+      Meteor.subscribe 'users', Session.get('meetingId')
+
     onBeforeAction: ()->
       url = location.href
       console.log "\n\nurl=#{url}\n\n"
