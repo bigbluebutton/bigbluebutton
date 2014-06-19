@@ -135,6 +135,10 @@ public class MeetingService {
 		return recs;
 	}
 	
+	public Map<String, Recording> filterRecordingsByMetadata(Map<String, Recording> recordings, Map<String, String> metadataFilters) {
+		return recordingService.filterRecordingsByMetadata(recordings, metadataFilters);
+	}
+	
 	public HashMap<String,Recording> reorderRecordings(ArrayList<Recording> olds){
 		HashMap<String,Recording> map= new HashMap<String, Recording>();
 		for(Recording r:olds){
