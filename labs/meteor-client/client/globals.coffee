@@ -31,3 +31,10 @@ Handlebars.registerHelper "getCurrentUser", =>
 
 @toggleChatbar = ->
 	setInSession "display_chatbar", !getInSession "display_chatbar"
+
+Meteor.methods
+  sendMeetingInfoToClient: (meetingId, userId) ->
+    console.log "---------------------------------on client, meetingId + userId"
+    console.log meetingId
+    console.log userId
+    console.log "---------------------------------"
