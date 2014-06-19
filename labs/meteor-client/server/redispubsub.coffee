@@ -58,10 +58,16 @@ class Meteor.RedisPubSub
       console.log jsonMsg
 
     if message.header?.name is "user_joined_message"
-      Meteor.call("addToCollection", message.payload.user.userid, message.payload.meeting_id);
+      Meteor.call("addToCollection", message.payload.user.userid, message.payload.meeting_id)
 
     if message.header?.name is "user_left_message"
       userId = message.payload?.user?.userid
       meetingId = message.payload?.meeting_id
       if userId? and meetingId?
         Meteor.call("removeFromCollection", meetingId, userId)
+ 
+    if message.header?.name is "get_users_reply"
+      meetingId = message.payload?.meeting_id
+      users = message.payload?.users
+      for user in users
+        Meteor.call("addToCollection", user.userid, meetingId)
