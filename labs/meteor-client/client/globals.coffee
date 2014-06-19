@@ -34,6 +34,8 @@ Handlebars.registerHelper "getCurrentUser", =>
 
 Meteor.methods
   sendMeetingInfoToClient: (meetingId, userId) ->
+    Session.set("userId", userId)
+    Session.set("meetingId", meetingId)
     console.log "---------------------------------on client, meetingId + userId"
     console.log meetingId
     console.log userId

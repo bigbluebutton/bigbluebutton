@@ -1,5 +1,4 @@
-
+# Publish only the users that are in the particular meetingId
+# On the client side we pass the meetingId parameter
 Meteor.publish 'users', (meetingId) ->
-  console.log "\n\nKK" + meetingId + "KK\n\n"
-
   Meteor.users.find({meetingId: meetingId})
