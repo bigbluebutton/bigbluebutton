@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////
 // Startup
 //
-/*
+
 Meteor.startup(function () {
   console.log('server start');
   // cleanup collections
@@ -10,6 +10,7 @@ Meteor.startup(function () {
   if(remove_all_data){
     Meteor.users.remove({});
     this.Meetings.remove({});
+    this.Chats.remove({});
   }
 
   // Add seed data if first time server starting
@@ -22,4 +23,3 @@ Meteor.startup(function () {
   SetCollectionPermissions();
 
 });
-*/

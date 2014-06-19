@@ -2,7 +2,7 @@
 Meteor.startup ->
 	Session.set "display_usersList", true
 	Session.set "display_navbar", true
-	Session.set "display_chat", false # false until respective template is created
+	Session.set "display_chatbar", false # false until respective template is created
 	Session.set "display_whiteboard", false # false until respective template is created
 
 	Meteor.subscribe 'users', 'fd9f3cd6ee945175f276098945d37cd4f46f7b4f-1403121629339'
@@ -11,7 +11,7 @@ Template.header.events
 	"click .usersListIcon": (event) ->
 		toggleUsersList()
 	"click .chatBarIcon": (event) ->
-		alert "chat"
+		toggleChatbar()
 	"click .videoFeedIcon": (event) ->
 		toggleCam @ 
 	"click .audioFeedIcon": (event) ->

@@ -7,7 +7,7 @@
          {{#if getInSession "display_usersList"}}
             {{> usersList}}
          {{/if}}
-         {{#if getInSession "display_chat"}}
+         {{#if getInSession "display_chatbar"}}
             {{> chatbar}}
          {{/if}}
          {{#if getInSession "display_whiteboard"}}
@@ -27,7 +27,7 @@
                {{> makeButton id=user.externUserId btn_class="usersListIcon navbar-brand" i_class="user" _id=_id}}
             {{/if}}
             
-            {{#if getInSession "display_chat"}}
+            {{#if getInSession "display_chatbar"}}
                {{> makeButton id=user.externUserId btn_class="navbarIconToggleActive chatBarIcon navbar-brand" i_class="comment" _id=_id}}
             {{else}}
                {{> makeButton id=user.externUserId btn_class="chatBarIcon navbar-brand" i_class="comment" _id=_id}}

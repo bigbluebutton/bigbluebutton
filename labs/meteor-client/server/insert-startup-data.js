@@ -123,4 +123,15 @@ CreateSeedData = function() {
 	    }
 	  });
 	}
+
+	if(this.Chats.find().count() === 0) {
+	  this.Chats.insert({
+	    chatId: "d4d4d4d4d4d4",
+	    messages: [
+	      {from: "a1a1a1a1a1a1", contents: "Hello"},
+	      {from: "b2b2b2b2b2b2", contents: "Hey"},
+	      {from: "c3c3c3c3c3c3", contents: "Hi"}
+	    ]
+	  });
+	}
 }

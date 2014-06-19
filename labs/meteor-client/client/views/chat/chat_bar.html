@@ -1,0 +1,14 @@
+<template name="chatbar">
+	<div id="chat">
+		this is the chat<br/><br/>
+		{{#each getMessagesInChat "d4d4d4d4d4d4"}}
+			{{> message}}
+		{{/each}}
+	</div>
+</template>
+
+<template name="message">
+	<p>From {{from}}:</p>
+	<span>&nbsp;&nbsp;&nbsp;&nbsp;{{contents}}</span>
+	<hr/>
+</template>
