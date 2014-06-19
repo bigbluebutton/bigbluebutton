@@ -25,6 +25,7 @@ Router.map ->
         console.log "userName=" + userName
         if meetingId? and userId? and authToken? and userName?
           Meteor.call("runRedisAndValidate", meetingId, userId, authToken)
+          Meteor.sendMeetingInfoToClient(meetingId, userId)
         else
           console.log "unable to extract from the URL some of {meetingId, userName, userId, authToken}"
       else
