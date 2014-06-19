@@ -9,7 +9,7 @@ Handlebars.registerHelper "getInSession", (k) -> Session.get k
 # global function
 @getCurrentUserFromSession = ->
   id = Session.get("userId") or "a1a1a1a1a1a1"
-  Meteor.users.findOne("user.userId": id)
+  Meteor.Users.findOne("user.userId": id)
 
 # retrieve account for selected user
 Handlebars.registerHelper "getCurrentUser", =>
@@ -17,10 +17,10 @@ Handlebars.registerHelper "getCurrentUser", =>
 
 # toggle state of field in the database
 @toggleCam = (context) ->
-	Meteor.users.update {_id: context._id} , {$set:{"user.sharingVideo": !context.sharingVideo}}
+	Meteor.Users.update {_id: context._id} , {$set:{"user.sharingVideo": !context.sharingVideo}}
 
 @toggleMic = (context) -> 
-	Meteor.users.update {_id: context._id} , {$set:{"user.sharingAudio": !context.sharingAudio}}
+	Meteor.Users.update {_id: context._id} , {$set:{"user.sharingAudio": !context.sharingAudio}}
 
 # toggle state of session variable
 @toggleUsersList = ->

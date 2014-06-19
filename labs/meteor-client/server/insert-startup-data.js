@@ -16,8 +16,8 @@ CreateSeedData = function() {
 	  });
 	}
 
-	if (Meteor.users.find().count() === 0) {
-	  Meteor.users.insert({
+	if (Meteor.Users.find().count() === 0) {
+	  Meteor.Users.insert({
 	    meetingId: "Classroom1",
 	    user: {
 	      handRaised: false,
@@ -52,7 +52,7 @@ CreateSeedData = function() {
 	      listenOnly: false      
 	    }
 	  });
-	  Meteor.users.insert({
+	  Meteor.Users.insert({
 	    meetingId: "Classroom1",
 	    user: {
 	      handRaised: false,
@@ -87,7 +87,7 @@ CreateSeedData = function() {
 	      listenOnly: false      
 	    }
 	  });
-	  Meteor.users.insert({
+	  Meteor.Users.insert({
 	    meetingId: "Classroom1",
 	    user: {
 	      handRaised: false,

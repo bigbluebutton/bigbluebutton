@@ -8,7 +8,7 @@ Meteor.startup(function () {
   remove_all_data = false;
   
   if(remove_all_data){
-    Meteor.users.remove({});
+    Meteor.Users.remove({});
     this.Meetings.remove({});
     this.Chats.remove({});
   }

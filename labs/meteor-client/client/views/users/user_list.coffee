@@ -17,7 +17,7 @@ postsData = [
 ]
 Template.usersList.helpers
   users: ->
-    Meteor.users.find()
+    Meteor.Users.find()
 
   getMeetings: ->
     Meetings.find()
@@ -25,7 +25,7 @@ Template.usersList.helpers
   # should be changed to find all users listed in the meeting and retrieve them,
   #  instead of here where we retrieve every user pointing to the meeting 
   getUsersInMeeting: (meetingName) ->
-    Meteor.users.find meetingId: meetingName
+    Meteor.Users.find meetingId: meetingName
 
   getMeetingSize: (mn) ->
     m = Meetings.findOne({meetingName: mn})
