@@ -22,7 +22,7 @@ If you want to see how BigBlueButton works, check out these two videos
 After watching the videos, if you want to immediately try out BigBlueButton, the project maintains a live [demo server] (http://demo.bigbluebutton.org) that anyone can join.  
 
 To quickly get started running your own BigBlueButton server
-  * [Install on Ubunt 10.04 32-bit or 64-bit] (http://code.google.com/p/bigbluebutton/wiki/InstallationUbuntu)
+  * [Install on Ubuntu 10.04 32-bit or 64-bit] (http://code.google.com/p/bigbluebutton/wiki/InstallationUbuntu)
   * [Download the BigBlueButton 0.80 Virtual Machine] (http://code.google.com/p/bigbluebutton/wiki/BigBlueButtonVM)
 
 See also [history of project] (http://www.bigbluebutton.org/history/).
