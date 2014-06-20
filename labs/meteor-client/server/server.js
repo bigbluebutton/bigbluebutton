@@ -1,14 +1,14 @@
 ////////////////////////////////////////////////////////////////////
 // Startup
 //
-
+/*
 Meteor.startup(function () {
   console.log('server start');
   // cleanup collections
   remove_all_data = false;
   
   if(remove_all_data){
-    Meteor.users.remove({});
+    Meteor.Users.remove({});
     this.Meetings.remove({});
     this.Chats.remove({});
   }
@@ -23,3 +23,4 @@ Meteor.startup(function () {
   SetCollectionPermissions();
 
 });
+*/

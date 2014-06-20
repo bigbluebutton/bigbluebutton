@@ -17,7 +17,7 @@ postsData = [
 ]
 Template.usersList.helpers
   users: ->
-    Meteor.users.find()
+    Meteor.Users.find()
 
   getMeeting: ->
     console.log "meetingid = " + Session.get "meetingId"
