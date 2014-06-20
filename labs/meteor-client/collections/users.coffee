@@ -23,7 +23,7 @@ Meteor.methods
   #showUserId: ->
   #  throw new Meteor.Error(422, @userId)return
 
-  addToCollection: (userId, meetingId) ->
+  addToCollection: (meetingId, userId) ->
 
     #check if the user is already in the meeting
     unless Meteor.Users.findOne({userId:userId, meetingId: meetingId})?
