@@ -59,9 +59,8 @@ class Meteor.RedisPubSub
 
     if message.header?.name is "user_joined_message"
       meetingId = message.payload.meeting_id
-      userId = message.payload.user.userid
-      username = message.payload.user.name
-      Meteor.call("addToCollection", meetingId, userId, username)
+      user = message.payload.user
+      Meteor.call("addToCollection", meetingId, user)
 
     if message.header?.name is "user_left_message"
       userId = message.payload?.user?.userid
@@ -73,4 +72,4 @@ class Meteor.RedisPubSub
       meetingId = message.payload?.meeting_id
       users = message.payload?.users
       for user in users
-        Meteor.call("addToCollection", meetingId, user.userid, user.name)
+        Meteor.call("addToCollection", meetingId, user)
