@@ -23,19 +23,45 @@ Meteor.methods
   #showUserId: ->
   #  throw new Meteor.Error(422, @userId)return
 
-  addToCollection: (userId, meetingId) ->
+  addToCollection: (meetingId, user) ->
+    userId = user.userid
 
     #check if the user is already in the meeting
-    unless Meteor.Users.findOne({userId:userId, meetingId: meetingId})?
-      user =
-        userId: userId
-        meetingId: meetingId
-      console.log "before:" + Meteor.Users.find().count()
-      userId = Meteor.Users.insert(user)
-      console.log "after:" + Meteor.Users.find().count()
-      console.log "added user id=[" + userId + "] :" + JSON.stringify(user)
+    if Meteor.Users.findOne({userId:userId, meetingId: meetingId})?
+      console.log "redundant entry, do not add to Meteor.Users - #{userId}:#{meetingId}:#{user.name}"
     else
-      console.log "redundant entry, do not add to Meteor.Users - " + userId + ":" + meetingId
+      console.log "before:" + Meteor.Users.find().count()
+      entry =
+        meetingId: meetingId
+        userId: userId
+        user: {
+          userid: user.userid
+          presenter: user.presenter
+          name: user.name
+          phone_user: user.phone_user
+          raise_hand: user.raise_hand
+          has_stream: user.has_stream
+          role: user.role
+          listenOnly: user.listenOnly
+          extern_userid: user.extern_userid
+          permissions: user.permissions
+          locked: user.locked
+          voiceUser: {
+            web_userid: user.voiceUser.web_userid
+            callernum: user.voiceUser.callernum
+            userid: user.voiceUser.userid
+            talking: user.voiceUser.talking
+            joined: user.voiceUser.joined
+            callername: user.voiceUser.callername
+            locked: user.voiceUser.locked
+            muted: user.voiceUser.muted
+          }
+          webcam_stream: user.webcam_stream
+        }
+
+      id = Meteor.Users.insert(entry)
+      console.log "after:" + Meteor.Users.find().count()
+      console.log "added user id=[" + id + "] :" + user.name
 
   removeFromCollection: (meetingId, userId) ->
     console.log "----removing " + userId + "from " + meetingId

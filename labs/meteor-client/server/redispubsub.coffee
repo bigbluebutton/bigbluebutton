@@ -58,7 +58,9 @@ class Meteor.RedisPubSub
       console.log jsonMsg
 
     if message.header?.name is "user_joined_message"
-      Meteor.call("addToCollection", message.payload.user.userid, message.payload.meeting_id)
+      meetingId = message.payload.meeting_id
+      user = message.payload.user
+      Meteor.call("addToCollection", meetingId, user)
 
     if message.header?.name is "user_left_message"
       userId = message.payload?.user?.userid
@@ -70,4 +72,4 @@ class Meteor.RedisPubSub
       meetingId = message.payload?.meeting_id
       users = message.payload?.users
       for user in users
-        Meteor.call("addToCollection", user.userid, meetingId)
+        Meteor.call("addToCollection", meetingId, user)
