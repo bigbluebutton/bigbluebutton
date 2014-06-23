@@ -1,10 +1,12 @@
 <template name="chatbar">
+	{{#if getInSession "display_chatbar"}}
 	<div id="chat">
 		this is the chat<br/><br/>
 		{{#each getMessagesInChat}}
 			{{> message}}
 		{{/each}}
 	</div>
+	{{/if}}
 </template>
 
 <template name="message">
