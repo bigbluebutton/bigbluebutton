@@ -3,6 +3,14 @@ Meteor.methods
     redisPubSub = new Meteor.RedisPubSub
     redisPubSub.sendValidateToken(meetingId, userId, authToken)
 
+  userLogout: (meetingId, userId) ->
+    #remove from the collection
+    Meteor.call("removeFromCollection", meetingId, userId)
+
+    #dispatch a message to redis
+    redisPubSub = new Meteor.RedisPubSub # we should not need to create a new pubsub
+    redisPubSub.sendUserLeavingRequest(meetingId, userId)
+
 
 class Meteor.RedisPubSub
   constructor: () ->
@@ -39,6 +47,24 @@ class Meteor.RedisPubSub
       @pubClient.publish(Meteor.config.redis.channels.toBBBApps.meeting, JSON.stringify(message))
     else
       console.log "did not have enough information to send a validate_auth_token message"
+
+  sendUserLeavingRequest: (meetingId, userId) ->
+    console.log "\n\n sending a user_leaving_request for #{meetingId}:#{userId}"
+    message = {
+      "payload": {
+        "meeting_id": meetingId
+        "userid": userId
+      },
+      "header": {
+        "timestamp": new Date().getTime()
+        "name": "user_leaving_request"
+        "version": "0.0.1"
+      }
+    }
+    if userId? and meetingId?
+      @pubClient.publish(Meteor.config.redis.channels.toBBBApps.meeting, JSON.stringify(message))
+    else
+      console.log "did not have enough information to send a user_leaving_request"
 
   _onSubscribe: (channel, count) ->
     console.log "Subscribed to #{channel}"
