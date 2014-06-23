@@ -8,8 +8,10 @@ Handlebars.registerHelper "getInSession", (k) -> Session.get k
 # retrieve account for selected user, or the first mod account if nothing is selected
 # global function
 @getCurrentUserFromSession = ->
-  id = Session.get("userId") or "a1a1a1a1a1a1"
-  Meteor.Users.findOne("user.userId": id)
+  id = Session.get("userId")
+  u = Meteor.Users.findOne("userId": id)
+  console.log Meteor.Users
+  u
 
 # retrieve account for selected user
 Handlebars.registerHelper "getCurrentUser", =>
@@ -36,7 +38,3 @@ Meteor.methods
   sendMeetingInfoToClient: (meetingId, userId) ->
     Session.set("userId", userId)
     Session.set("meetingId", meetingId)
-    console.log "---------------------------------on client, meetingId + userId"
-    console.log meetingId
-    console.log userId
-    console.log "---------------------------------"
