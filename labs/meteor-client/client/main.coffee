@@ -16,6 +16,7 @@ Template.header.events
 		toggleMic @
 	"click .signOutIcon": (event) ->
 		alert "signout"
+		#Meteor.call("userLogout", meetingId, userId)
 	"click .hideNavbarIcon": (event) ->
 		toggleNavbar()
 	"click .settingsIcon": (event) ->
