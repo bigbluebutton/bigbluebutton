@@ -2,21 +2,19 @@
    <div class="users-list-container">
       <div class="mygrid-wrapper-div">
          <table class="table table-hover">
-            {{#with getMeeting}}
-               <thead>
-               <th>
-                  Participants: <i>{{getMeetingSize}} users</i>
-               </th>
-               </thead>
-               <!-- Retrieve all users in the meeting -->
-               <tbody>
-               {{#each getUsersInMeeting}}
-                  <tr>
-                     {{> userItem}}
-                  </tr>
-               {{/each}}
-               </tbody>
-            {{/with}}
+            <thead>
+            <th>
+               Participants: <i>{{getMeetingSize}} users</i>
+            </th>
+            </thead>
+            <!-- Retrieve all users in the meeting -->
+            <tbody>
+            {{#each getUsersInMeeting}}
+               <tr>
+                  {{> userItem}}
+               </tr>
+            {{/each}}
+            </tbody>
          </table>
       </div>
    </div>
