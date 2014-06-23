@@ -47,8 +47,8 @@ package org.bigbluebutton.modules.videoconf.views
 
         private function calculateCellDimensions(canvasWidth:int, canvasHeight:int, numColumns:int, numRows:int):Object {
             var obj:Object = {
-                width: Math.floor(canvasWidth / numColumns)-1,
-                height: Math.floor(canvasHeight / numRows)-1
+                width: Math.floor(canvasWidth / numColumns)-5,
+                height: Math.floor(canvasHeight / numRows)-5
             }
             if (obj.width / obj.height > cellAspectRatio) {
                 obj.width = Math.floor(obj.height * cellAspectRatio);
@@ -151,6 +151,9 @@ package org.bigbluebutton.modules.videoconf.views
         private function updateDisplayListHelperByPriority(unscaledWidth:Number, unscaledHeight:Number):void {
             if (numChildren == 0) {
                 return;
+            } else if (numChildren == 1) {
+                updateDisplayListHelper(unscaledWidth, unscaledHeight);
+                return;
             }
 
             var bestConf:Object = findPriorityConfiguration(unscaledWidth, unscaledHeight);
@@ -204,11 +207,11 @@ package org.bigbluebutton.modules.videoconf.views
                     if (item.contentAspectRatio > cellAspectRatio) {
                         itemWidth = oWidth;
                         itemHeight = Math.floor(oWidth / item.contentAspectRatio);
-                        cellOffsetY = (oHeight - itemHeight)/2;
+                        //cellOffsetY = (oHeight - itemHeight)/2;
                     } else {
                         itemHeight = oHeight;
                         itemWidth = Math.floor(oHeight * item.contentAspectRatio);
-                        cellOffsetX = (oWidth - itemWidth)/2;
+                        //cellOffsetX = (oWidth - itemWidth)/2;
                     }
                     itemX = (nonPriorityIndex % numColumns) * oWidth + blockX + cellOffsetX;
                     itemY = Math.floor(nonPriorityIndex / numColumns) * oHeight + blockY + cellOffsetY;
