@@ -2,8 +2,8 @@
 Meteor.startup ->
 	Session.set "display_usersList", true
 	Session.set "display_navbar", true
-	Session.set "display_chatbar", false # false until respective template is created
-	Session.set "display_whiteboard", false # false until respective template is created
+	Session.set "display_chatbar", false 
+	Session.set "display_whiteboard", false
 
 Template.header.events
 	"click .usersListIcon": (event) ->
