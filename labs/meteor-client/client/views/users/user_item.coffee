@@ -53,32 +53,35 @@ Template.userItem.events
     # Add:
     # When user is blown away, if they were presenter remove that from meeting (if kicking the presenter is even possible?)
     #		
-    user = Meteor.Users.findOne(_id:@_id)
-    meeting = Meetings.findOne(meetingName:user.meetingId)
+    # user = Meteor.Users.findOne(_id:@_id)
+    # meeting = Meetings.findOne(meetingName:user.meetingId)
 
-    if user? and meeting?
-      # find users index. I couldn't get indexOf() working
-      index = -1
-      i = 0
+    # if user? and meeting?
+    #   # find users index. I couldn't get indexOf() working
+    #   index = -1
+    #   i = 0
 
-      while i < meeting.users.length
-        if meeting.users[i].userId is user.user.externUserId
-          index = i
-          break
-        i++
-      if index >= 0
-        meeting.users.splice index, 1 # remove user from meeting
-        Meetings.update # update meeting
-          _id: meeting._id
-        ,
-          $set:
-            users: meeting.users
+    #   while i < meeting.users.length
+    #     if meeting.users[i].userId is user.user.externUserId
+    #       index = i
+    #       break
+    #     i++
+    #   if index >= 0
+    #     meeting.users.splice index, 1 # remove user from meeting
+    #     Meetings.update # update meeting
+    #       _id: meeting._id
+    #     ,
+    #       $set:
+    #         users: meeting.users
 
-        Meteor.Users.update # remove meeting from user
-          _id: @_id
-        ,
-          $set:
-            meetingId: null
+    #     Meteor.Users.update # remove meeting from user
+    #       _id: @_id
+    #     ,
+    #       $set:
+    #         meetingId: null
+    console.log "kicking user, logging @ here"
+    console.log @
+    Meteor.Users.update({_id:@_id}, {$set: {meetingId: ""}})
 
 Template.displayOtherUsersControls.events
   "click .disableMic": (event) ->
