@@ -37,14 +37,14 @@
 <template name="displayOwnControls">
   <!-- toggles for own user's mic and cam-->
   <td>
-  {{#if user.sharingVideo}}
+  {{#if isUserSharingVideo user}}
     {{> makeButton id=user.externUserId btn_class="disableCam btn-primary" i_class="facetime-video" _id=_id}}
   {{else}}
     {{> makeButton id=user.externUserId btn_class="enableCam btn-primary" i_class="stop" _id=_id}}
   {{/if}}
   </td>
   <td>
-  {{#if user.sharingAudio}}
+  {{#if isUserSharingAudio user}}
     {{> makeButton id=user.externUserId btn_class="disableMic btn-primary" i_class="bullhorn" _id=_id}}
   {{else}}
     {{> makeButton id=user.externUserId btn_class="enableMic btn-primary" i_class="volume-off" _id=_id}}
@@ -59,13 +59,13 @@
   {{#with getCurrentUser}}
     <td>
     {{#if this.user.permissions.disableCam}} <!-- if user viewing has ability to disable -->
-      {{#if ../../user.sharingVideo}}
+      {{#if isUserSharingVideo ../../user}}
           {{> makeButton id=../../user.externUserId btn_class="disableCam btn-primary" i_class="facetime-video" _id=_id}}
       {{else}}
           {{> makeButton id=../../user.externUserId btn_class="enableCam btn-primary" i_class="stop" _id=_id}}
       {{/if}}
     {{else}}
-      {{#if ../../user.sharingVideo}}
+      {{#if isUserSharingVideo ../../user}}
           {{> makeButton id=../../user.externUserId btn_class="disableCam btn-primary" i_class="facetime-video" _id=_id isDisabled="disabled"}}
       {{else}}
           {{> makeButton id=../../user.externUserId btn_class="enableCam btn-primary" i_class="stop" _id=_id isDisabled="disabled"}}
@@ -74,13 +74,13 @@
     </td>
     <td>
     {{#if this.user.permissions.disableMic}} <!-- if user viewing has ability to disable -->
-      {{#if ../../user.sharingAudio}}
+      {{#if isUserSharingAudio ../../user}}
           {{> makeButton id=../../user.externUserId btn_class="disableMic btn-primary" i_class="bullhorn" _id=_id}}
       {{else}}
           {{> makeButton id=../../user.externUserId btn_class="enableMic btn-primary" i_class="volume-off" _id=_id}}
       {{/if}}
     {{else}}
-      {{#if ../../user.sharingAudio}}
+      {{#if isUserSharingAudio ../../user}}
           {{> makeButton id=../../user.externUserId btn_class="disableMic btn-primary" i_class="bullhorn" _id=_id isDisabled="disabled"}}
       {{else}}
           {{> makeButton id=../../user.externUserId btn_class="enableMic btn-primary" i_class="volume-off" _id=_id isDisabled="disabled"}}

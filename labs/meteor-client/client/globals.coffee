@@ -10,7 +10,7 @@ Handlebars.registerHelper "getInSession", (k) -> Session.get k
 @getCurrentUserFromSession = ->
   id = Session.get("userId")
   u = Meteor.Users.findOne("userId": id)
-  console.log Meteor.Users
+  #console.log Meteor.Users
   u
 
 # retrieve account for selected user
@@ -38,4 +38,10 @@ Meteor.methods
   sendMeetingInfoToClient: (meetingId, userId) ->
     Session.set("userId", userId)
     Session.set("meetingId", meetingId)
-    
+
+Handlebars.registerHelper "isUserSharingAudio", (u) ->
+  u.voiceUser.talking
+
+Handlebars.registerHelper "isUserSharingVideo", (u) ->
+  u.webcam_stream.length isnt 0
+
