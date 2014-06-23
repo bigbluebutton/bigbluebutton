@@ -20,3 +20,4 @@ Template.header.events
 		toggleNavbar()
 	"click .settingsIcon": (event) ->
 		alert "settings"
+		

@@ -115,3 +115,4 @@ Template.displayOwnControls.events
     event.stopImmediatePropagation()
     u = Meteor.Users.findOne {"user.externUserId": event.currentTarget.id}
     Meteor.Users.update {_id: u._id}, {$set: {"user.sharingVideo": true}}
+    
