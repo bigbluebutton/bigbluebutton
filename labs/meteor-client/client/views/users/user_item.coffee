@@ -32,58 +32,56 @@ Template.userItem.events
     Meteor.Users.update {_id: @_id}, {$set:{ "user.handRaised": false}}
 
   "click .setPresenter": (event) ->
-	   #
-	   # Not the best way to go about doing this
-	   # The meeting should probably know about the presenter instead of the individual user
-     #
-
-    # only perform operation if user is not already presenter, prevent extra DB work
+    #do nothing if user is already presenter
     unless @isPresenter
-      # from new user, find meeting
-      theUser = Meteor.Users.findOne(_id:@_id)
-      m = Meetings.findOne(meetingName: theUser.meetingId)
-      # unset old user as presenter
-      if m?
-        u = Meteor.Users.findOne(
-          meetingId: m.meetingName
+      # find user account for new presenter
+      selectedUser = Meteor.Users.findOne(_id:@_id)
+
+      if selectedUser? # search for current presenter
+        originalPresenter = Meteor.Users.findOne(
+          meetingId: selectedUser.meetingId
           "user.presenter": true
         )
-        if u?
-          Meteor.Users.update {_id: u._id},{ $set:{ "user.presenter": false}}
-          # set newly selected user as presenter
-          Meteor.Users.update {_id: @_id},{$set:{"user.presenter": true}}
+        if originalPresenter? # unset old presenter
+          Meteor.Users.update {_id: originalPresenter._id},{ $set:{ "user.presenter": false}}
+
+        # set newly selected user as presenter
+        Meteor.Users.update {_id: selectedUser._id},{$set:{"user.presenter": true}}
 
   "click .kickUser": (event) ->
   	#
     # Add:
     # When user is blown away, if they were presenter remove that from meeting (if kicking the presenter is even possible?)
     #		
-    user = Meteor.Users.findOne(_id:@_id)
-    meeting = Meetings.findOne(meetingName:user.meetingId)
+    # user = Meteor.Users.findOne(_id:@_id)
+    # meeting = Meetings.findOne(meetingName:user.meetingId)
 
-    if user? and meeting?
-      # find users index. I couldn't get indexOf() working
-      index = -1
-      i = 0
+    # if user? and meeting?
+    #   # find users index. I couldn't get indexOf() working
+    #   index = -1
+    #   i = 0
 
-      while i < meeting.users.length
-        if meeting.users[i].userId is user.user.externUserId
-          index = i
-          break
-        i++
-      if index >= 0
-        meeting.users.splice index, 1 # remove user from meeting
-        Meetings.update # update meeting
-          _id: meeting._id
-        ,
-          $set:
-            users: meeting.users
+    #   while i < meeting.users.length
+    #     if meeting.users[i].userId is user.user.externUserId
+    #       index = i
+    #       break
+    #     i++
+    #   if index >= 0
+    #     meeting.users.splice index, 1 # remove user from meeting
+    #     Meetings.update # update meeting
+    #       _id: meeting._id
+    #     ,
+    #       $set:
+    #         users: meeting.users
 
-        Meteor.Users.update # remove meeting from user
-          _id: @_id
-        ,
-          $set:
-            meetingId: null
+    #     Meteor.Users.update # remove meeting from user
+    #       _id: @_id
+    #     ,
+    #       $set:
+    #         meetingId: null
+    console.log "kicking user, logging @ here"
+    console.log @
+    Meteor.Users.update({_id:@_id}, {$set: {meetingId: ""}})
 
 Template.displayOtherUsersControls.events
   "click .disableMic": (event) ->
@@ -120,3 +118,4 @@ Template.displayOwnControls.events
     event.stopImmediatePropagation()
     u = Meteor.Users.findOne {"user.externUserId": event.currentTarget.id}
     Meteor.Users.update {_id: u._id}, {$set: {"user.sharingVideo": true}}
+    

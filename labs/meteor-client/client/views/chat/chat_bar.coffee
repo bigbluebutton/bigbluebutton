@@ -1,4 +1,5 @@
 Template.chatbar.helpers
-  getMessagesInChat: (cio) ->
-    c = Chats.findOne {chatId:cio}
+  getMessagesInChat: ->
+    c = Chats.findOne {chatId: Session.get("meetingId") }
     if c? then c.messages else []
+    

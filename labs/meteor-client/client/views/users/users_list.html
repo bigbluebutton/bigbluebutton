@@ -2,29 +2,20 @@
    <div class="users-list-container">
       <div class="mygrid-wrapper-div">
          <table class="table table-hover">
-            {{#each getMeetings}}
-               <thead>
-               <th>
-                  Participants: <i>{{getMeetingSize meetingName}} users</i>
-               </th>
-               </thead>
-               <!-- Retrieve all users in the meeting -->
-               <tbody>
-               {{#each getUsersInMeeting meetingName}}
-                  <tr>
-                     <!-- <td> -->
-                     {{> userItem}}
-                     <!-- </td> -->
-                  </tr>
-               {{/each}}
-               </tbody>
+            <thead>
+            <th>
+               Participants: <i>{{getMeetingSize}} users</i>
+            </th>
+            </thead>
+            <!-- Retrieve all users in the meeting -->
+            <tbody>
+            {{#each getUsersInMeeting}}
+               <tr>
+                  {{> userItem}}
+               </tr>
             {{/each}}
+            </tbody>
          </table>
-         <div>
-            <input type="button" class="signin" id="a1a1a1a1a1a1" value="Signin as RED" />
-            <input type="button" class="signin" id="b2b2b2b2b2b2" value="Signin as BLUE" />
-            <input type="button" class="signin" id="c3c3c3c3c3c3" value="Signin as Joe" />
-         </div>
       </div>
    </div>
 </template>

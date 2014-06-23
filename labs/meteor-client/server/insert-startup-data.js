@@ -7,9 +7,9 @@ CreateSeedData = function() {
 	if(this.Meetings.find().count() === 0) {
 	  console.log("recreating meeting");
 	  this.Meetings.insert({
-	    meetingName: "Classroom1",
+	    meetingName: "84f7752554e276083f40b7ff009396ae9b86d05e-1403025827569",
 	    users: [
-	      {userId: "a1a1a1a1a1a1"},
+	      {userId: "iy2fkyecenuf"},
 	      {userId: "b2b2b2b2b2b2"},
 	      {userId: "c3c3c3c3c3c3"}
 	    ]
@@ -18,16 +18,16 @@ CreateSeedData = function() {
 
 	if (Meteor.Users.find().count() === 0) {
 	  Meteor.Users.insert({
-	    meetingId: "Classroom1",
+	    meetingId: "84f7752554e276083f40b7ff009396ae9b86d05e-1403025827569",
 	    user: {
 	      handRaised: false,
 	      phoneUser: false,
 	      presenter: true,
 	      sharingAudio: true,
 	      sharingVideo: true,
-	      externUserId: "a1a1a1a1a1a1",
+	      externUserId: "iy2fkyecenuf",
 	      webcamStream: "",
-	      userId: "a1a1a1a1a1a1",
+	      userId: "iy2fkyecenuf",
 	      name: "RED",
 	      permissions: {
 	        disablePrivChat: false,
@@ -41,10 +41,10 @@ CreateSeedData = function() {
 	      locked: false,
 	      voiceUser: {
 	        talking: false,
-	        webUserId: "a1a1a1a1a1a1",
+	        webUserId: "iy2fkyecenuf",
 	        joined: false,
 	        muted: false,
-	        userId: "a1a1a1a1a1a1",
+	        userId: "iy2fkyecenuf",
 	        callerNum: "RED",
 	        callerName: "RED",
 	        locked: false
@@ -52,8 +52,10 @@ CreateSeedData = function() {
 	      listenOnly: false      
 	    }
 	  });
+
 	  Meteor.Users.insert({
-	    meetingId: "Classroom1",
+	    meetingId: "84f7752554e276083f40b7ff009396ae9b86d05e-1403025827569",
+
 	    user: {
 	      handRaised: false,
 	      phoneUser: false,
@@ -87,9 +89,10 @@ CreateSeedData = function() {
 	      listenOnly: false      
 	    }
 	  });
+
 	  Meteor.Users.insert({
-	    meetingId: "Classroom1",
-	    user: {
+	    meetingId: "84f7752554e276083f40b7ff009396ae9b86d05e-1403025827569",
+
 	      handRaised: false,
 	      phoneUser: false,
 	      presenter: false,
@@ -120,15 +123,14 @@ CreateSeedData = function() {
 	        locked: false
 	      },
 	      listenOnly: false      
-	    }
 	  });
 	}
 
 	if(this.Chats.find().count() === 0) {
 	  this.Chats.insert({
-	    chatId: "d4d4d4d4d4d4",
+	    chatId: "84f7752554e276083f40b7ff009396ae9b86d05e-1403025827569",
 	    messages: [
-	      {from: "a1a1a1a1a1a1", contents: "Hello"},
+	      {from: "iy2fkyecenuf", contents: "Hello"},
 	      {from: "b2b2b2b2b2b2", contents: "Hey"},
 	      {from: "c3c3c3c3c3c3", contents: "Hi"}
 	    ]
