@@ -16,10 +16,9 @@ CreateSeedData = function() {
 	  });
 	}
 
-	if (Meteor.users.find().count() === 0) {
-	  Meteor.users.insert({
+	if (Meteor.Users.find().count() === 0) {
+	  Meteor.Users.insert({
 	    meetingId: "84f7752554e276083f40b7ff009396ae9b86d05e-1403025827569",
-
 	    user: {
 	      handRaised: false,
 	      phoneUser: false,
@@ -54,7 +53,7 @@ CreateSeedData = function() {
 	    }
 	  });
 
-	  Meteor.users.insert({
+	  Meteor.Users.insert({
 	    meetingId: "84f7752554e276083f40b7ff009396ae9b86d05e-1403025827569",
 
 	    user: {
@@ -91,7 +90,7 @@ CreateSeedData = function() {
 	    }
 	  });
 
-	  Meteor.users.insert({
+	  Meteor.Users.insert({
 	    meetingId: "84f7752554e276083f40b7ff009396ae9b86d05e-1403025827569",
 
 	      handRaised: false,
@@ -124,7 +123,6 @@ CreateSeedData = function() {
 	        locked: false
 	      },
 	      listenOnly: false      
-	    }
 	  });
 	}
 
