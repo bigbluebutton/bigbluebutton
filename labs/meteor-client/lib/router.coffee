@@ -34,3 +34,5 @@ Router.map ->
         console.log "unable to extract the required information for the meeting from the URL"
   @route "main",
     path: "/"
+  @route "logout",
+    path: "logout"
