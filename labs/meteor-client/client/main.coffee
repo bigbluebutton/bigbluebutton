@@ -16,7 +16,7 @@ Template.header.events
 		toggleMic @
 	"click .signOutIcon": (event) ->
 		alert "signout"
-		#Meteor.call("userLogout", meetingId, userId)
+		Meteor.call("userLogout", Session.get("meetingId"), Session.get("userId"))
 	"click .hideNavbarIcon": (event) ->
 		toggleNavbar()
 	"click .settingsIcon": (event) ->
