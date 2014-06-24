@@ -45,3 +45,8 @@ Handlebars.registerHelper "isUserSharingAudio", (u) ->
 Handlebars.registerHelper "isUserSharingVideo", (u) ->
   u.webcam_stream.length isnt 0
 
+# should be changed to find all users listed in the meeting and retrieve them,
+# instead of here where we retrieve every user pointing to the meeting 
+Handlebars.registerHelper "getUsersInMeeting", ->
+  m = Meteor.Users.find {meetingId: Session.get("meetingId")}
+  m
