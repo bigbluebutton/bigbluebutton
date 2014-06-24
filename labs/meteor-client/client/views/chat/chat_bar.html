@@ -8,20 +8,25 @@
 			</ul>
 
 			<div id="chatbar-contents">
+				<div class="mygrid-wrapper-div">
 				{{#if getInSession "display_messageBar"}}
 					{{> messageBar}}
 				{{else}}
 					{{> optionsBar}}
 				{{/if}}
+				</div>
 			</div>
 		</div>
 	{{/if}}
 </template>
 
 <template name="message">
-	<p>From {{from}}:</p>
-	<span>&nbsp;&nbsp;&nbsp;&nbsp;{{contents}}</span>
-	<hr/>
+	<div class="chat-message">		
+		<span class="chat-username">{{from}}</span>
+		<p class="chat-timestamp">{{timestamp}}</p>
+		<p>&nbsp;&nbsp;&nbsp;&nbsp;{{contents}}</p>
+		<br/>
+	</div>
 </template>
 
 <template name="messageBar">
@@ -29,7 +34,7 @@
 		<p>Welcome to [insert meeting name]</p>
 		{{#each getMessagesInChat}}
 			{{> message}}
-		{{/each}}
+		{{/each}} 
 	</div>
 </template>
 
