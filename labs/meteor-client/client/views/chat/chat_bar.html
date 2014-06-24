@@ -1,11 +1,20 @@
 <template name="chatbar">
 	{{#if getInSession "display_chatbar"}}
-	<div id="chat">
-		this is the chat<br/><br/>
-		{{#each getMessagesInChat}}
-			{{> message}}
-		{{/each}}
-	</div>
+		<div id="chat">
+			<h3>Chat</h3>
+			<ul class="nav nav-tabs">
+			  <li class="active publicChatTab"><a href="#" data-toggle="tab">Public</a></li>
+			  <li><a class="optionsChatTab" href="#" data-toggle="tab">Options</a></li>
+			</ul>
+
+			<div id="chatbar-contents">
+				{{#if getInSession "display_messageBar"}}
+					{{> messageBar}}
+				{{else}}
+					{{> optionsBar}}
+				{{/if}}
+			</div>
+		</div>
 	{{/if}}
 </template>
 
@@ -13,4 +22,19 @@
 	<p>From {{from}}:</p>
 	<span>&nbsp;&nbsp;&nbsp;&nbsp;{{contents}}</span>
 	<hr/>
+</template>
+
+<template name="messageBar">
+	<div>
+		<p>Welcome to [insert meeting name]</p>
+		{{#each getMessagesInChat}}
+			{{> message}}
+		{{/each}}
+	</div>
+</template>
+
+<template name="optionsBar">
+	<div>
+		<p>Select a person to chat with privately</p>
+	</div>
 </template>
