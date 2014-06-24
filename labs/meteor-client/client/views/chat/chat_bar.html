@@ -3,10 +3,8 @@
 		<div id="chat">
 			<h3>Chat</h3>
 			<ul class="nav nav-tabs">
-			  <li class="active publicChatTab"><a href="#" data-toggle="tab">Public</a></li>
-			  <li><a class="optionsChatTab" href="#" data-toggle="tab">Options</a></li>
+			  {{> tabButtons}}
 			</ul>
-
 			<div id="chatbar-contents">
 				<div class="mygrid-wrapper-div">
 				{{#if getInSession "display_messageBar"}}
@@ -42,4 +40,14 @@
 	<div>
 		<p>Select a person to chat with privately</p>
 	</div>
+</template>
+
+<template name="tabButtons">
+	{{#if getInSession "display_messageBar"}}
+		<li class="active publicChatTab"><a href="#" data-toggle="tab">Public</a></li>
+  		<li class="optionsChatTab"><a href="#" data-toggle="tab">Options</a></li>
+  	{{else}}
+  		<li class="publicChatTab"><a href="#" data-toggle="tab">Public</a></li>
+  		<li class="active optionsChatTab"><a href="#" data-toggle="tab">Options</a></li>
+  	{{/if}}
 </template>
