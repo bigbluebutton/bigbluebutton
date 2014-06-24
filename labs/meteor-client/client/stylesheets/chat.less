@@ -2,12 +2,12 @@
   position:absolute;
   right: 0;
   top: 65px;
-  width:30%;
+  width:20%;
   background: #fff;
   /*z-index: @z-index-chat;*/
   overflow: hidden;
   border-left:1px solid #ccc;
-  height:94vh;
+  height:600px;
   margin-bottom: 10px;
 
 	h3 { 
@@ -69,6 +69,12 @@
 	color:#333;
 }
 
+.chat-timestamp {
+	font-weight:bold;
+	color:##C0C0C0;
+	float:right;
+}
+
 #chat-messages {
   clear: both;
   overflow-y: auto;
@@ -94,10 +100,16 @@
 
 }
 
-#chatbar-contents{
+#chatbar-contents {
 	padding-left:20px;
-	padding-right:20px;
+	padding-right:5px;
 	padding-top:10px;
 	padding-bottom:10px;
-}
+	height:600px;
 
+	.mygrid-wrapper-div {
+		padding-right:5px;
+	    overflow: scroll;
+	    height: 100%;
+	}
+}
