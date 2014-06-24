@@ -36,3 +36,4 @@ Router.map ->
     path: "/"
   @route "logout",
     path: "logout"
+
