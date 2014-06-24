@@ -4,7 +4,7 @@ Meteor.startup ->
 	Session.set "display_navbar", true
 	Session.set "display_chatbar", true 
 	Session.set "display_whiteboard", false
-	Session.set "display_messageBar", true
+	Session.set "display_publicPane", true
 
 Template.header.events
 	"click .usersListIcon": (event) ->

@@ -7,7 +7,7 @@
 			</ul>
 			<div id="chatbar-contents">
 				<div class="mygrid-wrapper-div">
-				{{#if getInSession "display_messageBar"}}
+				{{#if getInSession "display_publicPane"}}
 					{{> messageBar}}
 				{{else}}
 					{{> optionsBar}}
@@ -43,7 +43,7 @@
 </template>
 
 <template name="tabButtons">
-	{{#if getInSession "display_messageBar"}}
+	{{#if getInSession "display_publicPane"}}
 		<li class="active publicChatTab"><a href="#" data-toggle="tab">Public</a></li>
   		<li class="optionsChatTab"><a href="#" data-toggle="tab">Options</a></li>
   	{{else}}
