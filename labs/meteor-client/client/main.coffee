@@ -16,7 +16,6 @@ Template.header.events
 	"click .audioFeedIcon": (event) ->
 		toggleMic @
 	"click .signOutIcon": (event) ->
-		#alert "signout"
 		Meteor.call("userLogout", Session.get("meetingId"), Session.get("userId"))
 		Session.set "display_navbar", false # needed to hide navbar when the layout template renders
 		Router.go('logout');

@@ -6,7 +6,7 @@
 			  {{> tabButtons}}
 			</ul>
 			<div id="chatbar-contents">
-				<div class="mygrid-wrapper-div">
+				<div id="chatScrollWindow">
 				{{#if getInSession "display_publicPane"}}
 					{{> messageBar}}
 				{{else}}
@@ -29,11 +29,12 @@
 
 <template name="messageBar">
 	<div>
-		<p>Welcome to [insert meeting name]</p>
 		{{#each getMessagesInChat}}
 			{{> message}}
-		{{/each}} 
+		{{/each}}
+		{{> chatGreeting}} 
 	</div>
+	{{scrollToBottom}}
 </template>
 
 <template name="optionsBar">
@@ -50,4 +51,14 @@
   		<li class="publicChatTab"><a href="#" data-toggle="tab">Public</a></li>
   		<li class="active optionsChatTab"><a href="#" data-toggle="tab">Options</a></li>
   	{{/if}}
+</template>
+
+<template name="chatGreeting">
+	<div class="chatGreeting">
+		<p>Welcome to {{getInSession "meetingName"}}!</p>
+		<p>For help on using BigBlueButton see these (short) <a href="http://bigbluebutton.org/videos/">tutorial videos</a>.</p>
+		<p>To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.</p>
+		<br/>
+		<p>This server is running BigBlueButton {{getInSession "bbb_server_version"}}.</p>
+	</div>
 </template>
