@@ -38,6 +38,8 @@ Meteor.methods
   sendMeetingInfoToClient: (meetingId, userId) ->
     Session.set("userId", userId)
     Session.set("meetingId", meetingId)
+    Session.set("meetingName", "Demo Meeting")
+    Session.set("bbb_server_version", "0.90")
 
 Handlebars.registerHelper "isUserSharingAudio", (u) ->
   u.voiceUser.talking
