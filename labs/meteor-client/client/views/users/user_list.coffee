@@ -4,12 +4,7 @@ Template.usersList.helpers
 
   getMeeting: ->
     m = Meetings.findOne {meetingName: Session.get("meetingId")}
-    if m?
-      #console.log m
-      m
-    else
-      #console.log "nothing"
-      null
+    if m? then m else null
 
   getMeetingSize: ->
     m = Meteor.Users.find({meetingId: Session.get("meetingId")}).fetch()

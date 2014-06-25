@@ -24,3 +24,8 @@ Template.header.events
 	"click .settingsIcon": (event) ->
 		alert "settings"
 		
+Handlebars.registerHelper "doFinalStuff", ->
+	console.log "-----Doing Final Stuff-----"
+	userFields = ("Username: #{entry.user.name} - _id: #{entry._id}" for entry in Meteor.Users.find().fetch()) # comprehension is awesome!
+	console.log entry for entry in userFields
+	console.log "---------------------------"

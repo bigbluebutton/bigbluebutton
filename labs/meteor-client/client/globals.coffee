@@ -5,13 +5,9 @@ Handlebars.registerHelper "getInSession", (k) -> Session.get k
 @setInSession = (k, v) -> Session.set k, v
 @getInSession = (k) -> Session.get k
 
-# retrieve account for selected user, or the first mod account if nothing is selected
-# global function
+# retrieve account for selected user
 @getCurrentUserFromSession = ->
-  id = Session.get("userId")
-  u = Meteor.Users.findOne("userId": id)
-  #console.log Meteor.Users
-  u
+  Meteor.Users.findOne("userId": Session.get("userId"))
 
 # retrieve account for selected user
 Handlebars.registerHelper "getCurrentUser", =>

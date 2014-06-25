@@ -40,6 +40,17 @@
 <template name="optionsBar">
 	<div>
 		<p>Select a person to chat with privately</p>
+		<div class="private-chat-user-box">
+		<table class="table table-hover">
+            <tbody class="private-chat-user-entry">
+            {{#each getUsersInMeeting}}
+               <tr>
+                  {{user.name}}
+               </tr>
+            {{/each}}
+            </tbody>
+         </table>
+     	</div>
 	</div>
 </template>
 
