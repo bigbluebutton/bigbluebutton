@@ -1322,7 +1322,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   }
 
   private def handleGetAllMeetingsRequest(msg: GetAllMeetingsRequest) {
-    println("\n\n\n\n handleGetAllMeetingsRequest \n\n\n")
+    println("***** DISPATCHING GET ALL MEETINGS REQUEST *****************")
   }
 
 
@@ -2142,12 +2142,10 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   }
 
   private def handleGetAllMeetingsReply(msg: GetAllMeetingsReply) {
-    println("\n\n\n\n handleGetAllMeetingsReply \n\n\n")
-    //val it = Iterator(msg.meetingIds)
-    //it foreach
+
     println("the meetingIDs we have:")
     msg.meetingIDs.foreach( id => {
-        println("here is some mid: " + id) })
+        println("- " + id) })
 
     val payload = new java.util.HashMap[String, Any]()
     payload.put("meetingIDs", msg.meetingIDs)

@@ -99,9 +99,6 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
   }
 
   private def handleGetAllMeetingsRequest(msg: GetAllMeetingsRequest) {
-    println("\n\n\n I am in BBBActor in handleGetAllMeetingsRequest\n\n")
-    println("keys:" + meetings.keys.toString())
-
     var len = meetings.keys.size
     println("meetings.size=" + meetings.size)
     println("len_=" + len)

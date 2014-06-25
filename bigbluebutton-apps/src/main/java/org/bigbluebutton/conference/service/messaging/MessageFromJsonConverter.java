@@ -36,7 +36,6 @@ public class MessageFromJsonConverter {
 					  System.out.println("Converting message to UserDisconnectedFromGlobalAudio");
 					return UserDisconnectedFromGlobalAudio.fromJson(message);
 				  case GetAllMeetingsRequest.GET_ALL_MEETINGS_REQUEST_EVENT:
-					  System.out.println("\n\n returning a new GetAllMeetingsRequest \n\n\n");
 					return new GetAllMeetingsRequest("the_string_is_not_used_anywhere");
 				}
 			}
