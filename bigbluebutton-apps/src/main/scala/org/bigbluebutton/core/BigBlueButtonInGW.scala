@@ -45,7 +45,12 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
     println("******************** DESTROY MEETING [" + meetingID + "] ***************************** ")
     bbbGW.accept(new DestroyMeeting(meetingID))
   }
-  
+
+  def getAllMeetings(meetingID: String) {
+  	println("******************** GET ALL MEETINGS ***************************** ")
+  	bbbGW.accept(new GetAllMeetingsRequest("meetingId"))
+  }
+
   def isAliveAudit(aliveId:String) {
     bbbGW.acceptKeepAlive(new KeepAliveMessage(aliveId)); 
   }

@@ -16,6 +16,7 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
 	      case msg: CreateMeeting                 => handleCreateMeeting(msg)
 	      case msg: DestroyMeeting                => handleDestroyMeeting(msg)
 	      case msg: KeepAliveMessage              => handleKeepAliveMessage(msg)
+        case msg: GetAllMeetingsRequest         => handleGetAllMeetingsRequest(msg)
 	      case msg: InMessage                     => handleMeetingMessage(msg)
 	      case _ => // do nothing
 	    }
@@ -96,5 +97,19 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
       }
     }
   }
-  
+
+  private def handleGetAllMeetingsRequest(msg: GetAllMeetingsRequest) {
+    println("\n\n\n I am in BBBActor in handleGetAllMeetingsRequest\n\n")
+    println("keys:" + meetings.keys.toString())
+
+    var len = meetings.keys.size
+    println("meetings.size=" + meetings.size)
+    println("len_=" + len)
+
+    val set = meetings.keySet
+    val arr : Array[String] = new Array[String](len)
+    set.copyToArray(arr)
+
+    outGW.send(new GetAllMeetingsReply(arr))
+  }
 }

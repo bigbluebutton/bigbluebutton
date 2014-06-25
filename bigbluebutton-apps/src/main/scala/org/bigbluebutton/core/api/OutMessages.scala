@@ -631,7 +631,10 @@ case class IsWhiteboardEnabledReply(
     replyTo: String,
     version:String = Versions.V_0_0_1
 ) extends IOutMessage
-                       
+
+case class GetAllMeetingsReply(
+    meetingIDs: Array[String]
+) extends IOutMessage
 
 // Value Objects
 case class MeetingVO(
