@@ -2142,20 +2142,9 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   }
 
   private def handleGetAllMeetingsReply(msg: GetAllMeetingsReply) {
-
-    println("the meetingIDs we have:")
-    msg.meetingIDs.foreach( id => {
-        println("- " + id) })
-
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put("meetingIDs", msg.meetingIDs)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.GET_ALL_MEETINGS_REPLY)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    val json = MeetingMessageToJsonConverter.getAllMeetingsReplyToJson(msg)
     println("*****  DISPATCHING GET ALL MEETINGS REPLY OUTMSG *****************")
-    dispatcher.dispatch(buildJson(header, payload))
+    dispatcher.dispatch(json)
   }
 
 }

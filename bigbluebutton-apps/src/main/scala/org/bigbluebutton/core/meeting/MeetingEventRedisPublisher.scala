@@ -23,7 +23,8 @@ class MeetingEventRedisPublisher(service: MessageSender) extends OutMessageListe
       case msg: MeetingDestroyed              => handleMeetingDestroyed(msg)
 	    case msg: KeepAliveMessageReply         => handleKeepAliveMessageReply(msg)
 	    case msg: StartRecording                => handleStartRecording(msg)
-      case msg: StopRecording                 => handleStopRecording(msg)  
+      case msg: StopRecording                 => handleStopRecording(msg) 
+      case msg: GetAllMeetingsReply           => handleGetAllMeetingsReply(msg)
 	    case _ => //println("Unhandled message in MeetingEventRedisPublisher")
 	  }
   }
@@ -84,5 +85,10 @@ class MeetingEventRedisPublisher(service: MessageSender) extends OutMessageListe
   private def handleMeetingHasEnded(msg: MeetingHasEnded) {
     val json = MeetingMessageToJsonConverter.meetingHasEndedToJson(msg)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
-  }  
+  }
+
+  private def handleGetAllMeetingsReply(msg: GetAllMeetingsReply) {
+    val json = MeetingMessageToJsonConverter.getAllMeetingsReplyToJson(msg)
+    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
+  }
 }
