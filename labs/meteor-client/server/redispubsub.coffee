@@ -1,15 +1,13 @@
 Meteor.methods
-  runRedisAndValidate: (meetingId, userId, authToken) ->
-    redisPubSub = new Meteor.RedisPubSub
-    redisPubSub.sendValidateToken(meetingId, userId, authToken)
+  validate: (meetingId, userId, authToken) ->
+    Meteor.redisPubSub.sendValidateToken(meetingId, userId, authToken)
 
   userLogout: (meetingId, userId) ->
     #remove from the collection
     Meteor.call("removeFromCollection", meetingId, userId)
 
     #dispatch a message to redis
-    redisPubSub = new Meteor.RedisPubSub # we should not need to create a new pubsub
-    redisPubSub.sendUserLeavingRequest(meetingId, userId)
+    Meteor.redisPubSub.sendUserLeavingRequest(meetingId, userId)
 
 
 class Meteor.RedisPubSub
@@ -99,22 +97,23 @@ class Meteor.RedisPubSub
       when an HTML5 client joins everything is ready!"
       listOfMeetings = message.payload?.meetingIDs
 
-    # if message.header?.name is "user_joined_message"
-    #   meetingId = message.payload.meeting_id
-    #   user = message.payload.user
-    #   Meteor.call("addToCollection", meetingId, user)
+    if message.header?.name is "get_users_reply" and message.payload?.requester_id is "nodeJSapp"
+      meetingId = message.payload?.meeting_id
+      users = message.payload?.users
+      for user in users
+        Meteor.call("addToCollection", meetingId, user)
 
-    # if message.header?.name is "user_left_message"
-    #   userId = message.payload?.user?.userid
-    #   meetingId = message.payload?.meeting_id
-    #   if userId? and meetingId?
-    #     Meteor.call("removeFromCollection", meetingId, userId)
- 
-    # if message.header?.name is "get_users_reply"
-    #   meetingId = message.payload?.meeting_id
-    #   users = message.payload?.users
-    #   for user in users
-    #     Meteor.call("addToCollection", meetingId, user)
+    if message.header?.name is "user_joined_message"
+      meetingId = message.payload.meeting_id
+      user = message.payload.user
+      Meteor.call("addToCollection", meetingId, user)
+
+    if message.header?.name is "user_left_message"
+      userId = message.payload?.user?.userid
+      meetingId = message.payload?.meeting_id
+      if userId? and meetingId?
+        Meteor.call("removeFromCollection", meetingId, userId)
+
 
   publish: (channel, message) ->
     console.log "Publishing channel=#{channel}, message=#{JSON.stringify(message)}"
