@@ -1,14 +1,85 @@
 <template name="chatbar">
-	<div id="chat">
-		this is the chat<br/><br/>
-		{{#each getMessagesInChat}}
-			{{> message}}
-		{{/each}}
+	{{#if getInSession "display_chatbar"}}
+		<div id="chat">
+			<h3>Chat</h3>
+			<ul class="nav nav-tabs">
+			  {{> tabButtons}}
+			</ul>
+			<div id="chatbar-contents">
+				{{#if getInSession "display_publicPane"}}
+					{{> messageBar}}
+					{{> chatInput}}
+				{{else}}
+					{{> optionsBar}}
+				{{/if}}
+			</div>
+		</div>
+	{{/if}}
+</template>
+
+<!-- Displays and styles an individual message in the chat -->
+<template name="message">
+	<div class="chat-message">		
+		<span class="chat-username">{{from}}</span>
+		<p class="chat-timestamp">{{timestamp}}</p>
+		<p>&nbsp;&nbsp;&nbsp;&nbsp;{{contents}}</p>
+		<br/>
 	</div>
 </template>
 
-<template name="message">
-	<p>From {{from}}:</p>
-	<span>&nbsp;&nbsp;&nbsp;&nbsp;{{contents}}</span>
-	<hr/>
+<!-- Display the actual message bar -->
+<template name="messageBar">
+	<div id="chatScrollWindow">
+		{{#each getMessagesInChat}}
+			{{> message}}
+		{{/each}}
+		{{> chatGreeting}} 
+	</div>
 </template>
+
+<!-- Displays the list of options available -->
+<template name="optionsBar">
+	<p>Select a person to chat with privately</p>
+	<div class="private-chat-user-box">
+		<div id="chatScrollWindow">
+			<table class="table table-hover">
+				<tbody class="private-chat-user-entry">
+					{{#each getUsersInMeeting}}
+						<tr>
+							{{user.name}}
+						</tr>
+					{{/each}}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</template>
+
+<!-- Display buttons on the chat tab, public, options, and all the private chat tabs -->
+<template name="tabButtons">
+	{{#if getInSession "display_publicPane"}}
+		<li class="active publicChatTab"><a href="#" data-toggle="tab">Public</a></li>
+  		<li class="optionsChatTab"><a href="#" data-toggle="tab">Options</a></li>
+  	{{else}}
+  		<li class="publicChatTab"><a href="#" data-toggle="tab">Public</a></li>
+  		<li class="active optionsChatTab"><a href="#" data-toggle="tab">Options</a></li>
+  	{{/if}}
+</template>
+
+<!-- When done displaying previous chat messages, display the BBB greeting -->
+<template name="chatGreeting">
+	<div class="chatGreeting">
+		<p>Welcome to {{getInSession "meetingName"}}!</p>
+		<p>For help on using BigBlueButton see these (short) <a href="http://bigbluebutton.org/videos/" target="_blank">tutorial videos</a>.</p>
+		<p>To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.</p>
+		<br/>
+		<p>This server is running BigBlueButton {{getInSession "bbbServerVersion"}}.</p>
+	</div>
+</template>
+
+<template name="chatInput">
+	<br/>
+	<input type="text" id="newMessageInput" placeholder="Write a message..." />
+</template>
+
+

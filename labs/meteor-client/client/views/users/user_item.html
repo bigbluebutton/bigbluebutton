@@ -1,16 +1,9 @@
 <template name="userItem">
-  <td><span>{{user.name}}</span></td>
-
-  {{#with getCurrentUser}} <!--We need a helper to get the current user, because the current context (this) is the user being displayed-->
-    <!-- Current User -->
+  {{>usernameEntry}}
+  
+  {{#with getCurrentUser}} <!--need a helper to get the current user, because the current context (this) is the user in the list of users being displayed-->
     {{#if compareUserIds this.user.userId ../user.userId}}
-      <td>
-        {{#if user.handRaised}}
-            {{> makeButton id=user.externUserId btn_class="raiseHand btn-primary" i_class="hand-up" _id=_id isDisabled="disabled"}}
-        {{else}}
-            {{> makeButton id=user.externUserId btn_class="raiseHand btn-primary" i_class="hand-up" _id=_id}}
-        {{/if}}
-      </td>
+        {{> handRaiseStatus}}
         {{> displayOwnControls}}
     {{else}}
         {{> displayOtherUsersControls}}
@@ -20,6 +13,20 @@
   {{> displayStandardUserControls}}
 </template>
 
+<!-- ####################################################################################### -->
+<template name="usernameEntry"> <!-- A template now because more information be added/styled -->
+  <td><span>{{user.name}}</span></td>
+</template>
+<!-- ####################################################################################### -->
+<template name="handRaiseStatus">
+  <td>
+  {{#if user.handRaised}}
+      {{> makeButton id=user.externUserId btn_class="raiseHand btn-primary" i_class="hand-up" _id=_id isDisabled="disabled"}}
+  {{else}}
+      {{> makeButton id=user.externUserId btn_class="raiseHand btn-primary" i_class="hand-up" _id=_id}}
+  {{/if}}
+  </td>
+</template>
 <!-- ####################################################################################### -->
 <template name="displayStandardUserControls">
   <td>

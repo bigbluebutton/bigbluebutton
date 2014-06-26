@@ -1,4 +1,5 @@
 <template name="usersList">
+   {{#if getInSession "display_usersList"}}
    <div class="users-list-container">
       <div class="mygrid-wrapper-div">
          <table class="table table-hover">
@@ -8,7 +9,7 @@
             </th>
             </thead>
             <!-- Retrieve all users in the meeting -->
-            <tbody>
+            <tbody class="user-entry">
             {{#each getUsersInMeeting}}
                <tr>
                   {{> userItem}}
@@ -18,4 +19,5 @@
          </table>
       </div>
    </div>
+   {{/if}}
 </template>

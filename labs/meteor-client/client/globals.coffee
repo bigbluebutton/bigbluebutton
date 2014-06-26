@@ -5,13 +5,9 @@ Handlebars.registerHelper "getInSession", (k) -> Session.get k
 @setInSession = (k, v) -> Session.set k, v
 @getInSession = (k) -> Session.get k
 
-# retrieve account for selected user, or the first mod account if nothing is selected
-# global function
+# retrieve account for selected user
 @getCurrentUserFromSession = ->
-  id = Session.get("userId")
-  u = Meteor.Users.findOne("userId": id)
-  #console.log Meteor.Users
-  u
+  Meteor.Users.findOne("userId": Session.get("userId"))
 
 # retrieve account for selected user
 Handlebars.registerHelper "getCurrentUser", =>
@@ -19,10 +15,12 @@ Handlebars.registerHelper "getCurrentUser", =>
 
 # toggle state of field in the database
 @toggleCam = (context) ->
-	Meteor.Users.update {_id: context._id} , {$set:{"user.sharingVideo": !context.sharingVideo}}
+	# Meteor.Users.update {_id: context._id} , {$set:{"user.sharingVideo": !context.sharingVideo}}
+  # Meteor.call('userToggleCam', context._id, !context.sharingVideo)
 
 @toggleMic = (context) -> 
-	Meteor.Users.update {_id: context._id} , {$set:{"user.sharingAudio": !context.sharingAudio}}
+	# Meteor.Users.update {_id: context._id} , {$set:{"user.sharingAudio": !context.sharingAudio}}
+  # Meteor.call('userToggleMic', context._id, !context.sharingAudio)
 
 # toggle state of session variable
 @toggleUsersList = ->
@@ -38,6 +36,9 @@ Meteor.methods
   sendMeetingInfoToClient: (meetingId, userId) ->
     Session.set("userId", userId)
     Session.set("meetingId", meetingId)
+    Session.set("meetingName", "Demo Meeting")
+    Session.set("bbbServerVersion", "0.90")
+    Session.set("userName", "sample user name")
 
 Handlebars.registerHelper "isUserSharingAudio", (u) ->
   u.voiceUser.talking
@@ -45,3 +46,8 @@ Handlebars.registerHelper "isUserSharingAudio", (u) ->
 Handlebars.registerHelper "isUserSharingVideo", (u) ->
   u.webcam_stream.length isnt 0
 
+# should be changed to find all users listed in the meeting and retrieve them,
+# instead of here where we retrieve every user pointing to the meeting 
+Handlebars.registerHelper "getUsersInMeeting", ->
+  m = Meteor.Users.find {meetingId: Session.get("meetingId")}
+  m

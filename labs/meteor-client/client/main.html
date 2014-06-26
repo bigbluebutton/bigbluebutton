@@ -4,17 +4,12 @@
    </head>
    <body>
       <div id="main" class="row-fluid">
-         {{#if getInSession "display_usersList"}}
-            {{> usersList}}
-         {{/if}}
-         {{#if getInSession "display_chatbar"}}
-            {{> chatbar}}
-         {{/if}}
-         {{#if getInSession "display_whiteboard"}}
-            {{> whiteboard}}
-         {{/if}}
+         {{> usersList}}
+         {{> chatbar}}
+         {{> whiteboard}}
       </div>
    </body>
+   {{doFinalStuff}}
 </template>
 
 <template name="header">
@@ -61,3 +56,4 @@
       <i class="glyphicon glyphicon-{{i_class}}"></i>
    </button>
 </template>
+

@@ -1,13 +1,14 @@
 #chat {
+  position:absolute;
   right: 0;
-  /*top: 0;*/
-  bottom: 0vh;
-  width: auto;
+  top: 65px;
+  width:20%;
   background: #fff;
   /*z-index: @z-index-chat;*/
   overflow: hidden;
   border-left:1px solid #ccc;
-	height:94vh;
+  height:640px;
+  margin-bottom: 10px;
 
 	h3 { 
 		background:#f7f7f7;  	
@@ -18,6 +19,20 @@
 	  border-bottom: 1px solid #d7d7d7;
 	  padding: 5px 10px;
 		margin:0;
+	}
+}
+
+#chatbar-contents {
+	padding-left:20px;
+	padding-right:5px;
+	padding-top:10px;
+	padding-bottom:10px;
+	height:75%;
+
+	#chatScrollWindow {
+		padding-right:5px;
+	    overflow: scroll;
+	    height: 100%;
 	}
 }
 
@@ -58,7 +73,6 @@
 	margin-bottom: 10px;
 }
 
-
 .chat-message {
 	font-size: 12px;
 	line-height: 14px;
@@ -67,6 +81,12 @@
 .chat-username {
 	font-weight:bold;
 	color:#333;
+}
+
+.chat-timestamp {
+	font-weight:bold;
+	color:##C0C0C0;
+	float:right;
 }
 
 #chat-messages {
@@ -84,5 +104,44 @@
   top: 60px;
   right:25px;
   left: 0px;
+}
+
+.publicChatTab{
 
 }
+
+.optionsChatTab{
+
+}
+
+.chatGreeting {
+	font-size: 10px;
+	color: blue;
+
+	a{
+		text-decoration: underline;
+	}
+}
+
+.private-chat-user-entry :hover {
+  font-size:12px;
+}
+
+.private-chat-user-entry :hover {
+  background: #0099FF;
+  font-style:italic;
+}
+
+.private-chat-user-box {
+	border: solid 1px grey;
+	height:100%;
+	width: 90%;
+	padding: 5px;
+}
+
+#newMessageInput {
+	width: 95%;
+	height:40px;
+}
+
+

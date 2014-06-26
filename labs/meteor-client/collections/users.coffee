@@ -1,7 +1,3 @@
-Meteor.Users = new Meteor.Collection("bbb_users")
-@Meetings = new Meteor.Collection("meetings")
-@Chats = new Meteor.Collection("chats")
-
 Meteor.methods
   ###
   authenticate: (auth) ->
