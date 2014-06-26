@@ -21,10 +21,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <pubVid:VideoWindowItf
-	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:pubVid="org.bigbluebutton.modules.videoconf.business.*"
 	initialize="init()"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
+	xmlns:common="org.bigbluebutton.common.*"
 	styleNameFocus="videoPublishStyleFocus"
 	styleNameNoFocus="videoPublishStyleNoFocus"
 	creationComplete="onCreationComplete()" 
@@ -99,14 +100,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			static private var _cameraAccessDenied:Boolean = false;
 			
 			[Bindable] public var videoOptions:VideoConfOptions;
-			[Bindable] public var baseIndex:int;
 			
 			[Bindable] public var glowColor:String = ""; 
 			[Bindable] public var glowBlurSize:Number = 0;
 			
 			private function init():void{
 				videoOptions = new VideoConfOptions();
-				baseIndex = videoOptions.baseTabIndex;
 			}
 			
 			private var windowType:String = "PublishWindowType";
@@ -142,10 +141,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 				
 				
-				titleBarOverlay.tabIndex = baseIndex;
+				titleBarOverlay.tabIndex = tabIndexer.startIndex;
 				titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.publish.titleBar');
 				closeBtn.focusEnabled = true;
-				closeBtn.tabIndex = baseIndex+3;
 				
 				addEventListener(MDIWindowEvent.RESIZE_START, onResizeStart);
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEnd);
@@ -461,6 +459,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 		]]>
 	</mx:Script>
+	
+	<common:TabIndexer id="tabIndexer" startIndex="{videoOptions.baseTabIndex + 3}"
+					   tabIndices="{[closeBtn]}"/>
 
   <mx:Glow id="talkingEffect" duration="500" alphaFrom="1.0" alphaTo="0.3" 
            blurXFrom="0.0" blurXTo="{glowBlurSize}" blurYFrom="0.0" blurYTo="{glowBlurSize}" color="{glowColor}"/>

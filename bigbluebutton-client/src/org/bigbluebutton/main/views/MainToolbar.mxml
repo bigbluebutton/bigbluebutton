@@ -23,6 +23,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:ApplicationControlBar xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/" visible="{showToolbar}"
 	enabled="true" xmlns:views="org.bigbluebutton.main.views.*"
+	xmlns:common="org.bigbluebutton.common.*"
 	initialize="init()" creationComplete="onCreationComplete()" >   
 	
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarButtonEvent" />	
@@ -77,8 +78,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public var toolbarOptions:LayoutOptions = new LayoutOptions();
 			
 			[Bindable]
-			private var baseIndex:int;
-			[Bindable]
 			private var numButtons:int;
 			/*
 			 * Because of the de-centralized way buttons are added to the toolbar, there is a large gap between the tab indexes of the main buttons
@@ -95,7 +94,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					AlertAccImpl.enableAccessibility();
 				}
 				
-				baseIndex = 101;
 				numButtons = 0;
                 
                 // Accessibility isn't active till a few second after the client starts to load so we need a delay
@@ -274,7 +272,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						addedBtns.setChildIndex(button, addedBtns.numChildren - 1);
 						//(addedBtns.getChildAt(0) as Button).tabIndex = addedBtns.numChildren - 1;
 					}*/
-					button.tabIndex = baseIndex + 5;
+					button.tabIndex = quickLinksTabIndexer.startIndex + 5;
 					//for (var i:int = 0; i < addedBtns.numChildren; i++){
 					//	(addedBtns.getChildAt(i) as Button).tabIndex = baseIndex + i;
 					//}
@@ -330,30 +328,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
     
+	<common:TabIndexer id="quickLinksTabIndexer" startIndex="101" tabIndices="{[usersLinkBtn, webcamLinkButton, presentationLinkBtn, chatLinkBtn]}"/>
+	
+	<common:TabIndexer id="tabIndexer" startIndex="{quickLinksTabIndexer.startIndex + numButtons + 10}"
+					   tabIndices="{[recordBtn, muteMeBtn, langSelector, shortcutKeysBtn, helpBtn, btnLogout]}"/>
+	
     <mx:HBox id="quickLinks" width="1" includeInLayout="false">
         <mx:LinkButton id="usersLinkBtn" click="onQuickLinkClicked('users')" label="{ResourceUtil.getInstance().getString('bbb.users.quickLink.label')}"
                        accessibilityDescription="{usersLinkBtn.label}" toolTip="{usersLinkBtn.label}"
-                       tabIndex="{baseIndex+1}" height="22" styleName="quickWindowLinkStyle" />
+                       height="22" styleName="quickWindowLinkStyle" />
         <mx:LinkButton id="webcamLinkButton" click="onQuickLinkClicked('webcams')" label="{ResourceUtil.getInstance().getString('bbb.videodock.quickLink.label')}" 
                        accessibilityDescription="{webcamLinkButton.label}" toolTip="{webcamLinkButton.label}"
-                       tabIndex="{baseIndex+2}" height="22" styleName="quickWindowLinkStyle" />
+                       height="22" styleName="quickWindowLinkStyle" />
         <mx:LinkButton id="presentationLinkBtn" click="onQuickLinkClicked('presentation')" label="{ResourceUtil.getInstance().getString('bbb.presentation.quickLink.label')}"
                        accessibilityDescription="{presentationLinkBtn.label}" toolTip="{presentationLinkBtn.label}"
-                       tabIndex="{baseIndex+3}" height="22" styleName="quickWindowLinkStyle" />
+                       height="22" styleName="quickWindowLinkStyle" />
         <mx:LinkButton id="chatLinkBtn" click="onQuickLinkClicked('chat')" label="{ResourceUtil.getInstance().getString('bbb.chat.quickLink.label')}" 
                        accessibilityDescription="{chatLinkBtn.label}" toolTip="{chatLinkBtn.label}"
-                       tabIndex="{baseIndex+4}" height="22" styleName="quickWindowLinkStyle" />
+                       height="22" styleName="quickWindowLinkStyle" />
     </mx:HBox>
 	<mx:HBox id="addedBtns"/>
-	<views:RecordButton id="recordBtn" tabIndex="{baseIndex+numButtons+10}" />
+	<views:RecordButton id="recordBtn" />
 	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}" includeInLayout="{muteMeBtn.includeInLayout}"/>
-	<views:MuteMeButton id="muteMeBtn"  height="20" tabIndex="{baseIndex+numButtons+11}"/>
+	<views:MuteMeButton id="muteMeBtn" height="20"/>
 	<mx:Spacer width="50%"/>
     <mx:Label id="meetingNameLbl" styleName="meetingNameLabelStyle" />
     <mx:Spacer width="50%"/>
 	<views:LanguageSelector id="langSelector" 
 							visible="false" 
-							tabIndex="{baseIndex+numButtons+12}"
 							accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"
 							styleName="languageSelectorStyle" />
 <!--
@@ -361,13 +363,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 	<mx:Button id="shortcutKeysBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" styleName="shortcutButtonStyle"
              click="onShortcutButtonClick()" height="22" 
-             toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}" 
-             tabIndex="{baseIndex+numButtons+13}" />
+             toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}" />
 	<mx:LinkButton id="helpBtn" visible="{showHelpBtn}" label="?" click="onHelpButtonClicked()" height="22" 
-                   styleName="helpLinkButtonStyle" tabIndex="{baseIndex+numButtons+14}" 
+                   styleName="helpLinkButtonStyle" 
                    toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" 
 				   accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"/>
 	<mx:Button label="" id="btnLogout" styleName="logoutButtonStyle"
-                 toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="confirmLogout()" height="22"
-                 tabIndex="{baseIndex+numButtons+15}" />
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="confirmLogout()" height="22" />
 </mx:ApplicationControlBar>
