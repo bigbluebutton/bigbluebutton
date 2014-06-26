@@ -63,6 +63,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.videoconf.business.TalkingButtonOverlay;
       import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
       import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+
+				import flash.net.NetConnection;
+
 			
 			private var ns:NetStream;			
 			private var globalDispatcher:Dispatcher;
@@ -74,12 +77,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] public var glowColor:String = ""; 
 			[Bindable] public var glowBlurSize:Number = 0;
+
+			public var connection2:NetConnection;
 			
 			override public function getWindowType():String {
 				return windowType;
 			}
 			
 			private function onCreationComplete():void{
+
+				
+				//connection2.connect("rtmp://143.54.10.63/video/conferencia");
+
+
 				this.glowColor = videoOptions.glowColor;
 				this.glowBlurSize = videoOptions.glowBlurSize;
 				
@@ -123,12 +133,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
       private function handleMadePresenterEvent(event:MadePresenterEvent):void {
-        trace("******** VideoWindow: HandleMadePresenter event *********");
+        LogUtil.debug("******** VideoWindow: HandleMadePresenter event *********");
         updateControlButtons();
       }
       
       private function handleSwitchedPresenterEvent(event:SwitchedPresenterEvent):void {
-        trace("******** VideoWindow: handleSwitchedPresenterEvent event *********");
+        LogUtil.debug("******** VideoWindow: handleSwitchedPresenterEvent event *********");
         updateControlButtons();
       }
       
@@ -174,6 +184,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			
 			public function startVideo(connection:NetConnection, stream:String):void{
+
 				ns = new NetStream(connection);
 				ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
 				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
@@ -194,7 +205,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				
 				if (videoOptions.smoothVideo) {
-					trace("Smoothing video.")
+					LogUtil.debug("Smoothing video.")
 					_video.smoothing = true;
 				} 
 				
@@ -202,15 +213,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var filter:ConvolutionFilter = new flash.filters.ConvolutionFilter();
 					filter.matrixX = 3;
 					filter.matrixY = 3;
-					trace("Applying convolution filter =[" + videoOptions.convolutionFilter + "]");					
+					LogUtil.debug("Applying convolution filter =[" + videoOptions.convolutionFilter + "]");					
 					filter.matrix = videoOptions.convolutionFilter;
 					filter.bias =  videoOptions.filterBias;
 					filter.divisor = videoOptions.filterDivisor;
 					_video.filters = [filter];					
 				}
-				
 				ns.play(stream);
-				this.streamName = stream;
+				
+				
 				
 				this.width = _video.width + paddingHorizontal;
 				this.height = _video.height + paddingVertical;
@@ -225,7 +236,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function onMetaData(info:Object):void{
-				trace("metadata: width=" + info.width + " height=" + info.height);
+				LogUtil.debug("metadata: width=" + info.width + " height=" + info.height);
 				_video.width = info.width;
 				_video.height = info.height;
 				setAspectRatio(info.width, info.height);
@@ -233,6 +244,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onNetStatus(e:NetStatusEvent):void{
+
+				LogUtil.debug(e.info.code);
 				switch(e.info.code){
 					case "NetStream.Publish.Start":
 						LogUtil.debug("NetStream.Publish.Start for broadcast stream " + streamName);
@@ -253,6 +266,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					case "NetStream.Play.NoSupportedTrackFound":
 						LogUtil.debug("The MP4 doesn't contain any supported tracks");
 						break;
+
 				}
 			}
 			

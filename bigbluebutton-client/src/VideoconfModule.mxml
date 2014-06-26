@@ -46,6 +46,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 			public function get uri():String {
 				return _attributes.uri + "/" + _attributes.room;
+				//return "rtmp://143.54.10.63/videoproxy" + "/" + _attributes.room;
 			}
 			
 			public function get username():String {
