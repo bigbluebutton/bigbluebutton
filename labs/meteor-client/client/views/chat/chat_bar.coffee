@@ -14,11 +14,12 @@ Template.messageBar.getMessagesInChat = [
 	{chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Billy Bob", contents: "a message4", timestamp: "1:03pm"},
 ]
 
-Template.messageBar.helpers
-	"scrollToBottom": ->
-		#$("#chat-messages").scrollTop( $("#chat-public-box").height() )
+# Must be be called when template is finished rendering or will not work
+Template.messageBar.rendered = -> # Scroll down the messages box the amount of its height, which places it at the bottom
+		height = $("#chatScrollWindow").height()
+		$("#chatScrollWindow").scrollTop(height)  
 
-Template.chatbar.events
+Template.tabButtons.events
 	"click .publicChatTab": (event) ->
 		Session.set "display_publicPane", true
 
@@ -33,10 +34,10 @@ Template.chatInput.events
 			messageForServer = { # construct message for server
 				"payload": {
 					"message": {
-						"message": $("#newMessageInput").val(),
+						"message": $ "#newMessageInput".val(),
 						"chatType": "PUBLIC_CHAT",
-						"fromUserID": Session.get("userId"),
-						"fromUsername": Session.get("userName"),
+						"fromUserID": Session.get "userId",
+						"fromUsername": Session.get "userName",
 						"fromTimezoneOffset": "240",
 						"toUsername": "public_chat_username",
 						"toUserID": "public_chat_userid",
@@ -44,16 +45,16 @@ Template.chatInput.events
 						"fromTime": "1.403794169042E12",
 						"fromColor": "0"
 					},
-					"meeting_id": Session.get("meetingId"),
-					"requester_id": Session.get("userId")
+					"meeting_id": Session.get "meetingId",
+					"requester_id": Session.get "userId"
 				},
 				"header": {
 					"timestamp": 1332389433,
 					"name": "send_public_chat_message_request"
 				}
 			}
-			#Meteor.call('sendChatMessagetoServer', messageForServer)
-
+			#Meteor.call 'sendChatMessagetoServer', messageForServer
 			console.log "Sending message to server"
 			console.log JSON.stringify messageForServer
+			$ '#newMessageInput'.val '' # Clear message box
 
