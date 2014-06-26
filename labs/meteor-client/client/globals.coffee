@@ -15,10 +15,12 @@ Handlebars.registerHelper "getCurrentUser", =>
 
 # toggle state of field in the database
 @toggleCam = (context) ->
-	Meteor.Users.update {_id: context._id} , {$set:{"user.sharingVideo": !context.sharingVideo}}
+	# Meteor.Users.update {_id: context._id} , {$set:{"user.sharingVideo": !context.sharingVideo}}
+  # Meteor.call('userToggleCam', context._id, !context.sharingVideo)
 
 @toggleMic = (context) -> 
-	Meteor.Users.update {_id: context._id} , {$set:{"user.sharingAudio": !context.sharingAudio}}
+	# Meteor.Users.update {_id: context._id} , {$set:{"user.sharingAudio": !context.sharingAudio}}
+  # Meteor.call('userToggleMic', context._id, !context.sharingAudio)
 
 # toggle state of session variable
 @toggleUsersList = ->
@@ -35,7 +37,8 @@ Meteor.methods
     Session.set("userId", userId)
     Session.set("meetingId", meetingId)
     Session.set("meetingName", "Demo Meeting")
-    Session.set("bbb_server_version", "0.90")
+    Session.set("bbbServerVersion", "0.90")
+    Session.set("userName", "sample user name")
 
 Handlebars.registerHelper "isUserSharingAudio", (u) ->
   u.voiceUser.talking

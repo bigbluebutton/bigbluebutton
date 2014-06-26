@@ -6,13 +6,12 @@
 			  {{> tabButtons}}
 			</ul>
 			<div id="chatbar-contents">
-				<div id="chatScrollWindow">
 				{{#if getInSession "display_publicPane"}}
 					{{> messageBar}}
+					{{> chatInput}}
 				{{else}}
 					{{> optionsBar}}
 				{{/if}}
-				</div>
 			</div>
 		</div>
 	{{/if}}
@@ -30,7 +29,7 @@
 
 <!-- Display the actual message bar -->
 <template name="messageBar">
-	<div>
+	<div id="chatScrollWindow">
 		{{#each getMessagesInChat}}
 			{{> message}}
 		{{/each}}
@@ -41,19 +40,19 @@
 
 <!-- Displays the list of options available -->
 <template name="optionsBar">
-	<div>
-		<p>Select a person to chat with privately</p>
-		<div class="private-chat-user-box">
-		<table class="table table-hover">
-            <tbody class="private-chat-user-entry">
-            {{#each getUsersInMeeting}}
-               <tr>
-                  {{user.name}}
-               </tr>
-            {{/each}}
-            </tbody>
-         </table>
-     	</div>
+	<p>Select a person to chat with privately</p>
+	<div class="private-chat-user-box">
+		<div id="chatScrollWindow">
+			<table class="table table-hover">
+				<tbody class="private-chat-user-entry">
+					{{#each getUsersInMeeting}}
+						<tr>
+							{{user.name}}
+						</tr>
+					{{/each}}
+				</tbody>
+			</table>
+		</div>
 	</div>
 </template>
 
@@ -78,3 +77,10 @@
 		<p>This server is running BigBlueButton {{getInSession "bbb_server_version"}}.</p>
 	</div>
 </template>
+
+<template name="chatInput">
+	<br/>
+	<input type="text" id="newMessageInput" placeholder="Write a message..." />
+</template>
+
+
