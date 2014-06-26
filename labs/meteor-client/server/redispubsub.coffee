@@ -92,10 +92,12 @@ class Meteor.RedisPubSub
       #console.log "correlationId=" + correlationId if correlationId?
       console.log "eventType=" + message.header?.name #+ "\n"
       #log.debug({ pattern: pattern, channel: channel, message: message}, "Received a message from redis")
-      #console.log jsonMsg
+      console.log jsonMsg
 
-
-    console.log "Meteor received:\n #{jsonMsg}"
+    if message.header?.name is "get_all_meetings_reply"
+      console.log "Let's store some data for the running meetings so that 
+      when an HTML5 client joins everything is ready!"
+      listOfMeetings = message.payload?.meetingIDs
 
     # if message.header?.name is "user_joined_message"
     #   meetingId = message.payload.meeting_id
@@ -120,4 +122,3 @@ class Meteor.RedisPubSub
       console.log "err=" + err
       console.log "res=" + res
     )
-

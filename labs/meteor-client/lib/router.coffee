@@ -26,7 +26,6 @@ Router.map ->
         userName = urlParts[3]?.split("=")[1];
         console.log "userName=" + userName
         if meetingId? and userId? and authToken? and userName?
-          console.log "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
           #Meteor.call("runRedisAndValidate", meetingId, userId, authToken)
           #Meteor.call('sendMeetingInfoToClient', meetingId, userId)
         else

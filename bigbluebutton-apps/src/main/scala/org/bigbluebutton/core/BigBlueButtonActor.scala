@@ -107,6 +107,19 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
     val arr : Array[String] = new Array[String](len)
     set.copyToArray(arr)
 
+    for(i <- 0 until arr.length) {
+      println("for a meeting:" + arr(i))
+      
+      //send the users
+      this ! (new GetUsers(arr(i), "nodeJSapp"))
+
+      //send the presentation
+      this ! (new GetPresentationInfo(arr(i), "nodeJSapp", "nodeJSapp"))
+
+      //send chat history
+      this ! (new GetChatHistoryRequest(arr(i), "nodeJSapp", "nodeJSapp"))
+    }
+
     outGW.send(new GetAllMeetingsReply(arr))
   }
 }
