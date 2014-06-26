@@ -13,19 +13,20 @@ Meteor.methods
 
 
 class Meteor.RedisPubSub
-  constructor: () ->
+  constructor: (callback) ->
     console.log "constructor RedisPubSub"
 
     @pubClient = redis.createClient()
     @subClient = redis.createClient()
+        
+    console.log("RPC: Subscribing message on channel: #{Meteor.config.redis.channels.fromBBBApps}")
 
-    @subClient.on "psubscribe", Meteor.bindEnvironment(@_onSubscribe )
+    #log.info      
+    @subClient.on "psubscribe", Meteor.bindEnvironment(@_onSubscribe)
     @subClient.on "pmessage", Meteor.bindEnvironment(@_onMessage)
 
-    #log.info
-    console.log("RPC: Subscribing message on channel: #{Meteor.config.redis.channels.fromBBBApps}")
     @subClient.psubscribe(Meteor.config.redis.channels.fromBBBApps)
-    @
+    callback @
 
   # Construct and send a message to bbb-web to validate the user
   sendValidateToken: (meetingId, userId, authToken) ->
@@ -66,8 +67,18 @@ class Meteor.RedisPubSub
     else
       console.log "did not have enough information to send a user_leaving_request"
 
-  _onSubscribe: (channel, count) ->
+  _onSubscribe: (channel, count) =>
     console.log "Subscribed to #{channel}"
+
+    #grab data about all active meetings on the server
+    message = {
+      "header": {
+        "name": "get_all_meetings_request"
+      }
+      "payload": {
+      }
+    }
+    @pubClient.publish(Meteor.config.redis.channels.toBBBApps.meeting, JSON.stringify (message))
 
   _onMessage: (pattern, channel, jsonMsg) =>
     # TODO: this has to be in a try/catch block, otherwise the server will
@@ -81,21 +92,32 @@ class Meteor.RedisPubSub
       #console.log "correlationId=" + correlationId if correlationId?
       console.log "eventType=" + message.header?.name #+ "\n"
       #log.debug({ pattern: pattern, channel: channel, message: message}, "Received a message from redis")
-      console.log jsonMsg
+      #console.log jsonMsg
 
-    if message.header?.name is "user_joined_message"
-      meetingId = message.payload.meeting_id
-      user = message.payload.user
-      Meteor.call("addToCollection", meetingId, user)
 
-    if message.header?.name is "user_left_message"
-      userId = message.payload?.user?.userid
-      meetingId = message.payload?.meeting_id
-      if userId? and meetingId?
-        Meteor.call("removeFromCollection", meetingId, userId)
+    console.log "Meteor received:\n #{jsonMsg}"
+
+    # if message.header?.name is "user_joined_message"
+    #   meetingId = message.payload.meeting_id
+    #   user = message.payload.user
+    #   Meteor.call("addToCollection", meetingId, user)
+
+    # if message.header?.name is "user_left_message"
+    #   userId = message.payload?.user?.userid
+    #   meetingId = message.payload?.meeting_id
+    #   if userId? and meetingId?
+    #     Meteor.call("removeFromCollection", meetingId, userId)
  
-    if message.header?.name is "get_users_reply"
-      meetingId = message.payload?.meeting_id
-      users = message.payload?.users
-      for user in users
-        Meteor.call("addToCollection", meetingId, user)
+    # if message.header?.name is "get_users_reply"
+    #   meetingId = message.payload?.meeting_id
+    #   users = message.payload?.users
+    #   for user in users
+    #     Meteor.call("addToCollection", meetingId, user)
+
+  publish: (channel, message) ->
+    console.log "Publishing channel=#{channel}, message=#{JSON.stringify(message)}"
+    @pubClient.publish(channel, JSON.stringify(message), (err, res) ->
+      console.log "err=" + err
+      console.log "res=" + res
+    )
+
