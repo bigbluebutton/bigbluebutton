@@ -33,15 +33,15 @@ Template.chatInput.events
 
       messageForServer = { # construct message for server
         "message": $("#newMessageInput").val()
-        "chatType": "PUBLIC_CHAT"
-        "fromUserID": Session.get "userId"
-        "fromUsername": Session.get "userName"
-        "fromTimezoneOffset": "240"
-        "toUsername": "public_chat_username"
-        "toUserID": "public_chat_userid"
-        "fromLang": "en"
-        "fromTime": "1.403794169042E12"
-        "fromColor": "0"
+        "chat_type": "PUBLIC_CHAT"
+        "from_userid": Session.get "userId"
+        "from_username": Session.get "userName"
+        "from_tz_offset": "240"
+        "to_username": "public_chat_username"
+        "to_userid": "public_chat_userid"
+        "from_lang": "en"
+        "from_time": "1.403794169042E12"
+        "from_color": "0"
       }
       console.log "Sending message to server" + messageForServer.message
       Meteor.call "sendChatMessagetoServer", Session.get("meetingId"), messageForServer

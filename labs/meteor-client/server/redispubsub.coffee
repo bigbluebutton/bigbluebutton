@@ -141,7 +141,7 @@ class Meteor.RedisPubSub
       payload: {
         "message" : chatObject
         "meeting_id": meetingId
-        "requester_id": chatObject.fromUserID
+        "requester_id": chatObject.from_userid
       }
     }
     console.log "\n\n\n\n" + JSON.stringify (message)

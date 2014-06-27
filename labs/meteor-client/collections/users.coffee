@@ -26,7 +26,7 @@ Meteor.methods
     if Meteor.Users.findOne({userId:userId, meetingId: meetingId})?
       console.log "redundant entry, do not add to Meteor.Users - #{userId}:#{meetingId}:#{user.name}"
     else
-      console.log "before:" + Meteor.Users.find().count()
+      console.log "Users.size before:" + Meteor.Users.find().count()
       entry =
         meetingId: meetingId
         userId: userId
