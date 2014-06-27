@@ -35,6 +35,8 @@ public class MessageFromJsonConverter {
 				  case UserDisconnectedFromGlobalAudio.USER_DISCONNECTED_FROM_GLOBAL_AUDIO:
 					  System.out.println("Converting message to UserDisconnectedFromGlobalAudio");
 					return UserDisconnectedFromGlobalAudio.fromJson(message);
+				  case GetAllMeetingsRequest.GET_ALL_MEETINGS_REQUEST_EVENT:
+					return new GetAllMeetingsRequest("the_string_is_not_used_anywhere");
 				}
 			}
 		}
@@ -74,4 +76,6 @@ public class MessageFromJsonConverter {
 		String id = payload.get(Constants.KEEP_ALIVE_ID).getAsString();		
 		return new KeepAliveMessage(id);
 	}
+
+	//private static IMessage processGetAllMeetings(JsonObject)
 }

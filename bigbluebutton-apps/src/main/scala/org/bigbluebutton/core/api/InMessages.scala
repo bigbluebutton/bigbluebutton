@@ -496,3 +496,7 @@ case class IsWhiteboardEnabledRequest(
     requesterID: String,
     replyTo: String
 ) extends InMessage
+
+case class GetAllMeetingsRequest(
+    meetingID: String /** Not used. Just to satisfy trait **/
+    ) extends InMessage

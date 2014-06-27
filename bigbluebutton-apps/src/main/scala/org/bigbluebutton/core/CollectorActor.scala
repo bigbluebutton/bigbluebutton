@@ -100,6 +100,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: UndoWhiteboardRequest         => handleUndoWhiteboardRequest(msg)
         case msg: EnableWhiteboardRequest       => handleEnableWhiteboardRequest(msg)
         case msg: IsWhiteboardEnabledRequest    => handleIsWhiteboardEnabledRequest(msg)
+        case msg: GetAllMeetingsRequest         => handleGetAllMeetingsRequest(msg)
 
         //OUT MESSAGES
         case msg: MeetingCreated                => handleMeetingCreated(msg)
@@ -181,6 +182,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: UndoWhiteboardEvent           => handleUndoWhiteboardEvent(msg)
         case msg: WhiteboardEnabledEvent        => handleWhiteboardEnabledEvent(msg)
         case msg: IsWhiteboardEnabledReply      => handleIsWhiteboardEnabledReply(msg)
+        case msg: GetAllMeetingsReply           => handleGetAllMeetingsReply(msg)
 
         case _ => // do nothing
       }
@@ -1319,6 +1321,12 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     dispatcher.dispatch(buildJson(header, payload))
   }
 
+  private def handleGetAllMeetingsRequest(msg: GetAllMeetingsRequest) {
+    println("***** DISPATCHING GET ALL MEETINGS REQUEST *****************")
+  }
+
+
+
   // OUT MESSAGES
   private def handleMeetingCreated(msg: MeetingCreated) {
     val json = MeetingMessageToJsonConverter.meetingCreatedToJson(msg)
@@ -2132,4 +2140,11 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val json = WhiteboardMessageToJsonConverter.isWhiteboardEnabledReplyToJson(msg)
     dispatcher.dispatch(json)
   }
+
+  private def handleGetAllMeetingsReply(msg: GetAllMeetingsReply) {
+    val json = MeetingMessageToJsonConverter.getAllMeetingsReplyToJson(msg)
+    println("*****  DISPATCHING GET ALL MEETINGS REPLY OUTMSG *****************")
+    dispatcher.dispatch(json)
+  }
+
 }
