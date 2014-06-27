@@ -19,14 +19,14 @@ Meteor.methods
   #showUserId: ->
   #  throw new Meteor.Error(422, @userId)return
 
-  addToCollection: (meetingId, user) ->
+  addUserToCollection: (meetingId, user) ->
     userId = user.userid
 
     #check if the user is already in the meeting
     if Meteor.Users.findOne({userId:userId, meetingId: meetingId})?
       console.log "redundant entry, do not add to Meteor.Users - #{userId}:#{meetingId}:#{user.name}"
     else
-      console.log "before:" + Meteor.Users.find().count()
+      console.log "Users.size before:" + Meteor.Users.find().count()
       entry =
         meetingId: meetingId
         userId: userId
@@ -56,10 +56,9 @@ Meteor.methods
         }
 
       id = Meteor.Users.insert(entry)
-      console.log "after:" + Meteor.Users.find().count()
-      console.log "added user id=[" + id + "] :" + user.name
+      console.log "added user id=[#{id}]:#{user.name}. Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
 
-  removeFromCollection: (meetingId, userId) ->
+  removeUserFromCollection: (meetingId, userId) ->
     console.log "----removing " + userId + "from " + meetingId
     if meetingId? and userId?
       console.log "before:" + Meteor.Users.find().count()

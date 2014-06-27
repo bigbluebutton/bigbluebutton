@@ -6,6 +6,7 @@ Router.map ->
     action: () ->
       @redirect('/')
       Meteor.subscribe 'users', Session.get('meetingId')
+      Meteor.subscribe 'chat', Session.get('meetingId')
 
     onBeforeAction: ()->
       url = location.href
@@ -34,6 +35,6 @@ Router.map ->
         console.log "unable to extract the required information for the meeting from the URL"
   @route "main",
     path: "/"
+
   @route "logout",
     path: "logout"
-

@@ -3,8 +3,9 @@ Meteor.methods
     Meteor.redisPubSub.sendValidateToken(meetingId, userId, authToken)
 
   userLogout: (meetingId, userId) ->
+    console.log "a user is logging out:" + userId
     #remove from the collection
-    Meteor.call("removeFromCollection", meetingId, userId)
+    Meteor.call("removeUserFromCollection", meetingId, userId)
 
     #dispatch a message to redis
     Meteor.redisPubSub.sendUserLeavingRequest(meetingId, userId)
@@ -101,19 +102,28 @@ class Meteor.RedisPubSub
       meetingId = message.payload?.meeting_id
       users = message.payload?.users
       for user in users
-        Meteor.call("addToCollection", meetingId, user)
+        Meteor.call("addUserToCollection", meetingId, user)
 
     if message.header?.name is "user_joined_message"
       meetingId = message.payload.meeting_id
       user = message.payload.user
-      Meteor.call("addToCollection", meetingId, user)
+      Meteor.call("addUserToCollection", meetingId, user)
 
     if message.header?.name is "user_left_message"
       userId = message.payload?.user?.userid
       meetingId = message.payload?.meeting_id
       if userId? and meetingId?
-        Meteor.call("removeFromCollection", meetingId, userId)
+        Meteor.call("removeUserFromCollection", meetingId, userId)
 
+    if message.header?.name is "get_chat_history_reply" and message.payload?.requester_id is "nodeJSapp"
+      meetingId = message.payload?.meeting_id
+      for chatMessage in message.payload?.chat_history
+        Meteor.call("addChatToCollection", meetingId, chatMessage)
+
+    if message.header?.name is "send_public_chat_message"
+      messageObject = message.payload?.message
+      meetingId = message.payload?.meeting_id
+      Meteor.call("addChatToCollection", meetingId, messageObject)
 
   publish: (channel, message) ->
     console.log "Publishing channel=#{channel}, message=#{JSON.stringify(message)}"
@@ -121,3 +131,19 @@ class Meteor.RedisPubSub
       console.log "err=" + err
       console.log "res=" + res
     )
+
+  publishChatMessage: (meetingId, chatObject) =>
+    console.log "publishing a chat message to bbb-apps"
+    message = {
+      header : {
+        "timestamp": new Date().getTime()
+        "name": "send_public_chat_message_request"
+      }
+      payload: {
+        "message" : chatObject
+        "meeting_id": meetingId
+        "requester_id": chatObject.from_userid
+      }
+    }
+    console.log "\n\n\n\n" + JSON.stringify (message)
+    @pubClient.publish(Meteor.config.redis.channels.toBBBApps.chat, JSON.stringify (message))

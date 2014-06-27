@@ -31,10 +31,8 @@ public class ChatMessageListener implements MessageHandler{
 			String eventName = headerObject.get("name").toString();
 			eventName = eventName.replace("\"", "");
 
-			if (eventName.equalsIgnoreCase("public_chat_message_event") ||
-				eventName.equalsIgnoreCase("send_public_chat_message") ||
-				eventName.equalsIgnoreCase("private_chat_message_event") ||
-				eventName.equalsIgnoreCase("send_private_chat_message")){
+			if (eventName.equalsIgnoreCase(MessagingConstants.SEND_PUBLIC_CHAT_MESSAGE_REQUEST) ||
+				eventName.equalsIgnoreCase(MessagingConstants.SEND_PRIVATE_CHAT_MESSAGE_REQUEST)){
 
 				String meetingID = payloadObject.get("meeting_id").toString().replace("\"", "");
 				String requesterID = payloadObject.get("requester_id").toString().replace("\"", "");
@@ -63,19 +61,17 @@ public class ChatMessageListener implements MessageHandler{
 				map.put(ChatKeyUtil.MESSAGE, chatText);
 
 				//public message
-				if(eventName.equalsIgnoreCase("public_chat_message_event") || eventName.equalsIgnoreCase("send_public_chat_message")) //put this string into a constants file
+				if(eventName.equalsIgnoreCase(MessagingConstants.SEND_PUBLIC_CHAT_MESSAGE_REQUEST))
 				{
-					System.out.println("I'm in the case for a public chat message" );
-
-					bbbGW.sendPublicMessage(meetingID, requesterID, map);
+					System.out.println("I'm in the case for a public chat message request");
+					bbbGW.sendPublicMessage(meetingID, requesterID, map); //sending a request
 				}
 
 				//private message
-				else if(eventName.equalsIgnoreCase("private_chat_message_event") || eventName.equalsIgnoreCase("send_private_chat_message")) //put this string into a constants file
+				else if(eventName.equalsIgnoreCase(MessagingConstants.SEND_PRIVATE_CHAT_MESSAGE_REQUEST))
 				{
-					System.out.println("I'm in the case for a private chat message" );
-
-					bbbGW.sendPrivateMessage(meetingID, requesterID, map); //TODO not tested yet
+					System.out.println("I'm in the case for a private chat message request");
+					bbbGW.sendPrivateMessage(meetingID, requesterID, map); //sending a request
 				}
 			}
 		}
