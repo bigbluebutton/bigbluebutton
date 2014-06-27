@@ -101,18 +101,18 @@ class Meteor.RedisPubSub
       meetingId = message.payload?.meeting_id
       users = message.payload?.users
       for user in users
-        Meteor.call("addToCollection", meetingId, user)
+        Meteor.call("addUserToCollection", meetingId, user)
 
     if message.header?.name is "user_joined_message"
       meetingId = message.payload.meeting_id
       user = message.payload.user
-      Meteor.call("addToCollection", meetingId, user)
+      Meteor.call("addUserToCollection", meetingId, user)
 
     if message.header?.name is "user_left_message"
       userId = message.payload?.user?.userid
       meetingId = message.payload?.meeting_id
       if userId? and meetingId?
-        Meteor.call("removeFromCollection", meetingId, userId)
+        Meteor.call("removeUserFromCollection", meetingId, userId)
 
 
   publish: (channel, message) ->
