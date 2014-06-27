@@ -114,6 +114,15 @@ class Meteor.RedisPubSub
       if userId? and meetingId?
         Meteor.call("removeUserFromCollection", meetingId, userId)
 
+    if message.header?.name is "get_chat_history_reply" and message.payload?.requester_id is "nodeJSapp"
+      meetingId = message.payload?.meeting_id
+      for chatMessage in message.payload?.chat_history
+        Meteor.call("addChatToCollection", meetingId, chatMessage)
+
+    if message.header?.name is "send_public_chat_message"
+      messageObject = message.payload?.message
+      meetingId = message.payload?.meeting_id
+      Meteor.call("addChatToCollection", meetingId, messageObject)
 
   publish: (channel, message) ->
     console.log "Publishing channel=#{channel}, message=#{JSON.stringify(message)}"

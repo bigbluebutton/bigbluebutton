@@ -56,7 +56,7 @@ Meteor.methods
         }
 
       id = Meteor.Users.insert(entry)
-      console.log "added user id=[#{id}]:#{user.name}. Users.size is now #{Meteor.Users.find().count()}"
+      console.log "added user id=[#{id}]:#{user.name}. Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
 
   removeUserFromCollection: (meetingId, userId) ->
     console.log "----removing " + userId + "from " + meetingId
