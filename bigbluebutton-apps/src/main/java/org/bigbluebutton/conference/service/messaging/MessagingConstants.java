@@ -51,4 +51,6 @@ public class MessagingConstants {
 	public static final String USER_STATUS_CHANGE_EVENT = "UserStatusChangeEvent";	
 	public static final String SEND_POLLS_EVENT = "SendPollsEvent";
 	public static final String RECORD_STATUS_EVENT = "RecordStatusEvent";
+	public static final String SEND_PUBLIC_CHAT_MESSAGE_REQUEST = "send_public_chat_message_request";
+	public static final String SEND_PRIVATE_CHAT_MESSAGE_REQUEST = "send_private_chat_message_request";
 }
