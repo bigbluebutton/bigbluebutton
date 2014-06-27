@@ -3,8 +3,9 @@ Meteor.methods
     Meteor.redisPubSub.sendValidateToken(meetingId, userId, authToken)
 
   userLogout: (meetingId, userId) ->
+    console.log "a user is logging out:" + userId
     #remove from the collection
-    Meteor.call("removeFromCollection", meetingId, userId)
+    Meteor.call("removeUserFromCollection", meetingId, userId)
 
     #dispatch a message to redis
     Meteor.redisPubSub.sendUserLeavingRequest(meetingId, userId)
