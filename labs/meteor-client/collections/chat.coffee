@@ -19,3 +19,7 @@ Meteor.methods
     id = Meteor.Chat.insert(entry)
     console.log "added chat id=[#{id}]:#{messageObject.message}. Chat.size is now
      #{Meteor.Chat.find({meetingId: meetingId}).count()}"
+
+  sendChatMessagetoServer: (meetingId, messageObject) ->
+    Meteor.redisPubSub.publishChatMessage(meetingId, messageObject)
+    Meteor.call "addChatToCollection", meetingId, messageObject

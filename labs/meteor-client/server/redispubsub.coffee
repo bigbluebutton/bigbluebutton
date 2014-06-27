@@ -130,3 +130,19 @@ class Meteor.RedisPubSub
       console.log "err=" + err
       console.log "res=" + res
     )
+
+  publishChatMessage: (meetingId, chatObject) =>
+    console.log "publishing a chat message to bbb-apps"
+    message = {
+      header : {
+        "timestamp": new Date().getTime()
+        "name": "send_public_chat_message_request"
+      }
+      payload: {
+        "message" : chatObject
+        "meeting_id": meetingId
+        "requester_id": chatObject.fromUserID
+      }
+    }
+    console.log "\n\n\n\n" + JSON.stringify (message)
+    @pubClient.publish(Meteor.config.redis.channels.toBBBApps.meeting, JSON.stringify (message))
