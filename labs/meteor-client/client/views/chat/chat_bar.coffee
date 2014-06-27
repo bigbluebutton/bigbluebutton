@@ -34,7 +34,7 @@ Template.chatInput.events
 			messageForServer = { # construct message for server
 				"payload": {
 					"message": {
-						"message": $ "#newMessageInput".val(),
+						"message": $("#newMessageInput").val(),
 						"chatType": "PUBLIC_CHAT",
 						"fromUserID": Session.get "userId",
 						"fromUsername": Session.get "userName",
@@ -56,5 +56,5 @@ Template.chatInput.events
 			#Meteor.call 'sendChatMessagetoServer', messageForServer
 			console.log "Sending message to server"
 			console.log JSON.stringify messageForServer
-			$ '#newMessageInput'.val '' # Clear message box
+			$('#newMessageInput').val '' # Clear message box
 
