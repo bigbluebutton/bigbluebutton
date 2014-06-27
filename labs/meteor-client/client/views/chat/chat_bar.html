@@ -46,7 +46,11 @@
 				<tbody class="private-chat-user-entry">
 					{{#each getUsersInMeeting}}
 						<tr>
-							{{user.name}}
+							{{#if isCurrentUser userId}}
+						      <strong>{{user.name}} (you)</strong>
+						    {{else}}
+						      {{user.name}}
+						    {{/if}}
 						</tr>
 					{{/each}}
 				</tbody>
