@@ -145,4 +145,4 @@ class Meteor.RedisPubSub
       }
     }
     console.log "\n\n\n\n" + JSON.stringify (message)
-    @pubClient.publish(Meteor.config.redis.channels.toBBBApps.meeting, JSON.stringify (message))
+    @pubClient.publish(Meteor.config.redis.channels.toBBBApps.chat, JSON.stringify (message))
