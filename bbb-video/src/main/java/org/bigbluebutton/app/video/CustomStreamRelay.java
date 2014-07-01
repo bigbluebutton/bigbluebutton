@@ -116,8 +116,7 @@ public class CustomStreamRelay {
 
 	public void initRelay(String... args) {
 		if (args == null || args.length < 7) {
-			System.out
-					.println("Not enough args supplied. Usage: <source uri> <source app> <source stream name> <destination uri> <destination app> <destination stream name> <publish mode>");
+			log.error("Not enough args supplied. Usage: <source uri> <source app> <source stream name> <destination uri> <destination app> <destination stream name> <publish mode>");
 		}
 		else {
 			sourceHost = args[0];
@@ -134,13 +133,13 @@ public class CustomStreamRelay {
 			if (colonIdx > 0) {
 				sourcePort = Integer.valueOf(sourceHost.substring(colonIdx + 1));
 				sourceHost = sourceHost.substring(0, colonIdx);
-				System.out.printf("Source host: %s port: %d\n", sourceHost, sourcePort);
+				log.trace("Source host: %s port: %d\n", sourceHost, sourcePort);
 			}
 			colonIdx = destHost.indexOf(':');
 			if (colonIdx > 0) {
 				destPort = Integer.valueOf(destHost.substring(colonIdx + 1));
 				destHost = destHost.substring(0, colonIdx);
-				System.out.printf("Destination host: %s port: %d\n", destHost, destPort);
+				log.trace("Destination host: %s port: %d\n", destHost, destPort);
 			}
 			
 
@@ -166,7 +165,7 @@ public class CustomStreamRelay {
 			proxy.init();
 			proxy.setConnectionClosedHandler(new Runnable() {
 				public void run() {
-					System.out.println("Publish connection has been closed, source will be disconnected");
+					log.info("Publish connection has been closed, source will be disconnected");
 					client.disconnect();
 				}
 			});
@@ -189,23 +188,21 @@ public class CustomStreamRelay {
 					e.printStackTrace();
 				}
 			} while (!proxy.isPublished());
-			System.out.println("Publishing...");
+			log.info("Publishing...");
 
 			// create the consumer
 			client = new CustomRTMPClient();
 			client.setStreamEventDispatcher(new StreamEventDispatcher());
 			client.setStreamEventHandler(new INetStreamEventHandler() {
 				public void onStreamEvent(Notify notify) {
-					System.out.printf("AQUIonStreamEvent: %s\n", notify);
 					ObjectMap<?, ?> map = (ObjectMap<?, ?>) notify.getCall().getArguments()[0];
 					String code = (String) map.get("code");
-					System.out.printf("<:%s\n", code);
 					if (StatusCodes.NS_PLAY_STREAMNOTFOUND.equals(code)) {
-						System.out.println("Requested stream was not found");
+						log.info("Requested stream was not found");
 						isDisconnecting = true;
 						client.disconnect();
 					} else if (StatusCodes.NS_PLAY_UNPUBLISHNOTIFY.equals(code) || StatusCodes.NS_PLAY_COMPLETE.equals(code)) {
-						System.out.println("Source has stopped publishing or play is complete");
+						log.info("Source has stopped publishing or play is complete");
 						isDisconnecting = true;
 						client.disconnect();
 					}
@@ -213,14 +210,14 @@ public class CustomStreamRelay {
 			});
 			client.setConnectionClosedHandler(new Runnable() {
 				public void run() {
-					System.out.println("Source connection has been closed");
+					log.info("Source connection has been closed");
 					//System.exit(2);
 					if(isDisconnecting) {
-						System.out.println("Proxy will be stopped");
+						log.info("Proxy will be stopped");
 						client.disconnect();
 						proxy.stop();
 					} else {
-						System.out.println("Reconnecting client...");
+						log.info("Reconnecting client...");
 						client.connect(sourceHost, sourcePort, defParams, new ClientConnectCallback());
 					}
 				}
@@ -242,24 +239,24 @@ public class CustomStreamRelay {
 			// indicate for the handshake to generate swf verification data
 			client.setSwfVerification(true);
 			// connect the client
-			System.out.println("startRelay:: ProxyRelay status is running: " + proxy.isRunning());
+			log.trace("startRelay:: ProxyRelay status is running: " + proxy.isRunning());
 			client.connect(sourceHost, sourcePort, defParams, new ClientConnectCallback());
 	}
 
 	private final class ClientConnectCallback implements IPendingServiceCallback{
 		public void resultReceived(IPendingServiceCall call) {
-			System.out.println("connectCallback");
+			log.trace("connectCallback");
 			ObjectMap<?, ?> map = (ObjectMap<?, ?>) call.getResult();
 			String code = (String) map.get("code");
 			if ("NetConnection.Connect.Rejected".equals(code)) {
-				System.out.printf("Rejected: %s\n", map.get("description"));
+				log.warn("Rejected: %s\n", map.get("description"));
 				client.disconnect();
 				proxy.stop();
 			} else if ("NetConnection.Connect.Success".equals(code)) {
 				// 1. Wait for onBWDone
 				timer.schedule(new BandwidthStatusTask(), 2000L);
 			} else {
-				System.out.printf("Unhandled response code: %s\n", code);
+				log.warn("Unhandled response code: %s\n", code);
 			}
 		}
 	}
@@ -270,8 +267,6 @@ public class CustomStreamRelay {
 	private final class StreamEventDispatcher implements IEventDispatcher {
 
 		public void dispatchEvent(IEvent event) {
-			System.out.println("ClientStream.dispachEvent()" + event.toString());
-			System.out.println("dispatchEvent:: ProxyRelay status is running: " + proxy.isRunning());
 			try {
 				proxy.pushMessage(null, RTMPMessage.build((IRTMPEvent) event));
 			} catch (IOException e) {
@@ -287,7 +282,7 @@ public class CustomStreamRelay {
 	private final class SubscribeStreamCallBack implements IPendingServiceCallback {
 
 		public void resultReceived(IPendingServiceCall call) {
-			System.out.println("SubscirbeStreamCallBack::resultReceived: " + call);
+			log.trace("SubscirbeStreamCallBack::resultReceived: " + call);
 		}
 
 	}	
@@ -298,16 +293,15 @@ public class CustomStreamRelay {
 	private final class CreateStreamCallback implements IPendingServiceCallback {
 
 		public void resultReceived(IPendingServiceCall call) {
-			System.out.println("CreateStreamCallBack::resultReceived: " + call);
+			log.trace("CreateStreamCallBack::resultReceived: " + call);
 			int streamId = (Integer) call.getResult();
-			System.out.println("stream id: " + streamId);
+			log.trace("stream id: " + streamId);
 			// send our buffer size request
 			if (sourceStreamName.endsWith(".flv") || sourceStreamName.endsWith(".f4v") || sourceStreamName.endsWith(".mp4")) {
-				System.out.println("THIS IS WRONG");
-				System.out.println("play stream name " + sourceStreamName + " start 0 lenght -1");
+				log.trace("play stream name " + sourceStreamName + " start 0 lenght -1");
 				client.play(streamId, sourceStreamName, 0, -1);
 			} else {
-				System.out.println("play stream name " + sourceStreamName);
+				log.trace("play stream name " + sourceStreamName);
 				client.play(streamId, sourceStreamName);
 			}
 		}
@@ -322,7 +316,7 @@ public class CustomStreamRelay {
 		@Override
 		public void run() {
 			// check for onBWDone
-			System.out.println("Bandwidth check done: " + client.isBandwidthCheckDone());
+			log.info("Bandwidth check done: " + client.isBandwidthCheckDone());
 			// cancel this task
 			this.cancel();
 			// create a task to wait for subscribed
@@ -338,7 +332,7 @@ public class CustomStreamRelay {
 		@Override
 		public void run() {
 			// checking subscribed
-			System.out.println("Subscribed: " + client.isSubscribed());
+			log.info("Subscribed: " + client.isSubscribed());
 			// cancel this task
 			this.cancel();
 			// 3. create stream

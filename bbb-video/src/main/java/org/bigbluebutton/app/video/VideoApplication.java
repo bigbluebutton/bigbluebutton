@@ -42,7 +42,7 @@ import org.slf4j.Logger;
 import org.apache.commons.lang3.StringUtils;
 
 public class VideoApplication extends MultiThreadedApplicationAdapter {
-	private static Logger log = Red5LoggerFactory.getLogger(VideoApplication.class, "video");
+	private static Logger log = Red5LoggerFactory.getLogger(VideoApplication.class);
 	
 	private IScope appScope;
 	private IServerStream serverStream;
@@ -65,7 +65,6 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	public boolean appStart(IScope app) {
 	    super.appStart(app);
 		log.info("oflaDemo appStart");
-		System.out.println("oflaDemo appStart");    	
 		appScope = app;
 		timer = new Timer();
 		return true;
@@ -191,12 +190,12 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 					String destinationServer = Red5.getConnectionLocal().getHost();
 					String destinationStreamName = streamName;
 					String app = "video/"+Red5.getConnectionLocal().getScope().getName();
-					System.out.println("streamPlayItemPlay:: streamName [" + streamName + "]");
-					System.out.println("streamPlayItemPlay:: sourceServer [" + sourceServer + "]");
-					System.out.println("streamPlayItemPlay:: sourceStreamName [" + sourceStreamName + "]");
-					System.out.println("streamPlayItemPlay:: destinationServer [" + destinationServer + "]");
-					System.out.println("streamPlayItemPlay:: destinationStreamName [" + destinationStreamName + "]");
-					System.out.println("streamPlayItemPlay:: app [" + app + "]");
+					log.trace("streamPlayItemPlay:: streamName [" + streamName + "]");
+					log.trace("streamPlayItemPlay:: sourceServer [" + sourceServer + "]");
+					log.trace("streamPlayItemPlay:: sourceStreamName [" + sourceStreamName + "]");
+					log.trace("streamPlayItemPlay:: destinationServer [" + destinationServer + "]");
+					log.trace("streamPlayItemPlay:: destinationStreamName [" + destinationStreamName + "]");
+					log.trace("streamPlayItemPlay:: app [" + app + "]");
 
 					CustomStreamRelay remoteRelay = new CustomStreamRelay();
 					remoteRelay.initRelay(new String[]{sourceServer, app, sourceStreamName, destinationServer, app, destinationStreamName, "live"});

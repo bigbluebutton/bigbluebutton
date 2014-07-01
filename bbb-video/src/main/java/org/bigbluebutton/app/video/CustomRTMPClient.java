@@ -31,8 +31,10 @@ import org.red5.server.net.rtmp.event.Ping;
  */
 
 public class CustomRTMPClient extends RTMPClient {
+	private static Logger log = Red5LoggerFactory.getLogger(CustomRTMPClient.class);
+
 	public void play(int streamId, String name) {
-		System.out.println("play stream "+ streamId + ", name: " + name);
+		log.info("play stream "+ streamId + ", name: " + name);
 		if (conn != null) {
 			// get the channel
 			int channel = getChannelForStreamId(streamId);
@@ -49,7 +51,7 @@ public class CustomRTMPClient extends RTMPClient {
 			PendingCall pendingCall = new PendingCall("play", params);
 			conn.invoke(pendingCall, channel);
 		} else {
-			System.out.println("Connection was null ?");
+			log.warn("Trying to play on a null connection");
 		}
 	}
 }
