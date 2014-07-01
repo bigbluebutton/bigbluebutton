@@ -36,6 +36,8 @@ import org.red5.server.net.rtmp.event.IRTMPEvent;
 import org.red5.server.net.rtmp.event.Notify;
 import org.red5.server.net.rtmp.status.StatusCodes;
 import org.red5.server.stream.message.RTMPMessage;
+import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.Logger;
 
 
 /**
@@ -46,6 +48,7 @@ import org.red5.server.stream.message.RTMPMessage;
 
 
 public class CustomStreamRelay {
+	private static Logger log = Red5LoggerFactory.getLogger(CustomStreamRelay.class);
 
 	// our consumer
 	private CustomRTMPClient client;
