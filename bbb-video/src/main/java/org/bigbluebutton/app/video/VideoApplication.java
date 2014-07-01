@@ -57,10 +57,8 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	// Proxy disconnection timer
 	private Timer timer;
 	// Proxy disconnection timeout
-	// TODO: This timeout should be configurable
-	private long timeout = 60000L;
+	private long relayTimeout;
 
-	
     @Override
 	public boolean appStart(IScope app) {
 	    super.appStart(app);
@@ -172,6 +170,9 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		recordingService = s;
 	}
 
+	public void setRelayTimeout(long timeout) {
+		this.relayTimeout = timeout;
+	}
     @Override
     public void streamPlayItemPlay(ISubscriberStream stream, IPlayItem item, boolean isLive) {
         // log w3c connect event
@@ -227,7 +228,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 						log.trace("Stream [{}] has {} subscribers left", streamName, numberOfListeners);
 						if(numberOfListeners < 1) {
 							log.info("Starting timeout to close proxy for stream: {}", streamName);
-							timer.schedule(new DisconnectProxyTask(streamName), timeout);
+							timer.schedule(new DisconnectProxyTask(streamName), relayTimeout);
 						}
 					}
 				}
