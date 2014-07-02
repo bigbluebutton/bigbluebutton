@@ -22,4 +22,3 @@ Meteor.methods
 
   sendChatMessagetoServer: (meetingId, messageObject) ->
     Meteor.call "publishChatMessage", meetingId, messageObject
-    Meteor.call "addChatToCollection", meetingId, messageObject
