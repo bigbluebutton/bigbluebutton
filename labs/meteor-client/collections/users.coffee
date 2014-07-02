@@ -59,11 +59,9 @@ Meteor.methods
       console.log "added user id=[#{id}]:#{user.name}. Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
 
   removeUserFromCollection: (meetingId, userId) ->
-    console.log "----removing " + userId + "from " + meetingId
-    if meetingId? and userId?
+    if meetingId? and userId? and Meteor.Users.findOne({meetingId: meetingId, userId: userId})?
+      console.log "----removing " + userId + "from " + meetingId
       console.log "before:" + Meteor.Users.find().count()
       id = Meteor.Users.findOne({meetingId: meetingId, userId: userId})
-      Meteor.Users.remove(_id: id._id)
+      Meteor.Users.remove(id._id)
       console.log "after:" + Meteor.Users.find().count()
-    else
-      console.log "at least one of {userId, meetingId} was missing"

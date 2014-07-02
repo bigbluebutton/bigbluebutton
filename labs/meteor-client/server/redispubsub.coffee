@@ -10,6 +10,9 @@ Meteor.methods
     #dispatch a message to redis
     Meteor.redisPubSub.sendUserLeavingRequest(meetingId, userId)
 
+  publishChatMessage: (meetingId, messageObject) ->
+    Meteor.redisPubSub.publishingChatMessage(meetingId, messageObject)
+
 
 class Meteor.RedisPubSub
   constructor: (callback) ->
@@ -62,7 +65,7 @@ class Meteor.RedisPubSub
       }
     }
     if userId? and meetingId?
-      @pubClient.publish(Meteor.config.redis.channels.toBBBApps.meeting, JSON.stringify(message))
+      @pubClient.publish(Meteor.config.redis.channels.toBBBApps.users, JSON.stringify(message))
     else
       console.log "did not have enough information to send a user_leaving_request"
 
@@ -132,7 +135,7 @@ class Meteor.RedisPubSub
       console.log "res=" + res
     )
 
-  publishChatMessage: (meetingId, chatObject) =>
+  publishingChatMessage: (meetingId, chatObject) =>
     console.log "publishing a chat message to bbb-apps"
     message = {
       header : {
@@ -145,5 +148,5 @@ class Meteor.RedisPubSub
         "requester_id": chatObject.from_userid
       }
     }
-    console.log "\n\n\n\n" + JSON.stringify (message)
+    console.log "publishing:" + JSON.stringify (message)
     @pubClient.publish(Meteor.config.redis.channels.toBBBApps.chat, JSON.stringify (message))
