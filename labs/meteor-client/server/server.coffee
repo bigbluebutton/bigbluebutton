@@ -29,6 +29,7 @@ Meteor.startup ->
   Meteor.Users.remove({})
   console.log "cleared Users Collection!"
   Meteor.Chat.remove({})
+  console.log "cleared Chat Collection!"
 
   # create create a PubSub connection, start listening
   Meteor.redisPubSub = new Meteor.RedisPubSub(->
