@@ -21,10 +21,4 @@ Meteor.methods
      #{Meteor.Chat.find({meetingId: meetingId}).count()}"
 
   sendChatMessagetoServer: (meetingId, messageObject) ->
-
-    #Meteor.redisPubSub.publishChatMessage(meetingId, messageObject)
-    #console.log Meteor.redisPubSub
-    # Meteor.call "addChatToCollection", meetingId, messageObject
-
-    # Meteor.call "publishChatMessage", meetingId, messageObject
-
+    Meteor.call "publishChatMessage", meetingId, messageObject

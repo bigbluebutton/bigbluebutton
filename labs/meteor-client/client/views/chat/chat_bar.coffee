@@ -1,18 +1,22 @@
-# Template.messageBar.helpers
-#   getMessagesInChat: ->
-Template.messageBar.getMessagesInChat = [
-  {chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Billy Bob", contents: "a message2", timestamp: "1:01pm"},
-  {chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Sally Sue", contents: "a message3", timestamp: "1:02pm"},
-  {chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Billy Bob", contents: "a message4", timestamp: "1:03pm"},
-  {chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Billy Bob", contents: "a message4", timestamp: "1:03pm"},
-  {chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Billy Bob", contents: "a message4", timestamp: "1:03pm"},
-  {chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Billy Bob", contents: "a message4", timestamp: "1:03pm"},
-  {chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Billy Bob", contents: "a message4", timestamp: "1:03pm"},
-  {chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Billy Bob", contents: "a message4", timestamp: "1:03pm"},
-  {chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Billy Bob", contents: "a message4", timestamp: "1:03pm"},
-  {chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Billy Bob", contents: "a message4", timestamp: "1:03pm"},
-  {chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Billy Bob", contents: "a message4", timestamp: "1:03pm"},
-]
+Template.messageBar.helpers
+  getMessagesInChat: ->
+    messages = Meteor.Chat.find("meetingId": getInSession("currentChatId"))
+    console.log messages
+    messages
+
+# Template.messageBar.getMessagesInChat = [
+  # {chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Billy Bob", contents: "a message2", timestamp: "1:01pm"},
+  # {chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Sally Sue", contents: "a message3", timestamp: "1:02pm"},
+  # {chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Billy Bob", contents: "a message4", timestamp: "1:03pm"},
+  # {chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Billy Bob", contents: "a message4", timestamp: "1:03pm"},
+  # {chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Billy Bob", contents: "a message4", timestamp: "1:03pm"},
+  # {chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Billy Bob", contents: "a message4", timestamp: "1:03pm"},
+  # {chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Billy Bob", contents: "a message4", timestamp: "1:03pm"},
+  # {chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Billy Bob", contents: "a message4", timestamp: "1:03pm"},
+  # {chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Billy Bob", contents: "a message4", timestamp: "1:03pm"},
+  # {chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Billy Bob", contents: "a message4", timestamp: "1:03pm"},
+  # {chatId:"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1403552477306", from: "Billy Bob", contents: "a message4", timestamp: "1:03pm"},
+# ]
 
 # Must be be called when template is finished rendering or will not work
 Template.messageBar.rendered = -> # Scroll down the messages box the amount of its height, which places it at the bottom

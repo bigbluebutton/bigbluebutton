@@ -19,10 +19,10 @@
 
 <!-- Displays and styles an individual message in the chat -->
 <template name="message">
-	<div class="chat-message">		
-		<span class="chat-username">{{from}}</span>
-		<p class="chat-timestamp">{{timestamp}}</p>
-		<p>&nbsp;&nbsp;&nbsp;&nbsp;{{contents}}</p>
+	<div class="chat-message">	
+		<span class="chat-username">{{message.from_username}}</span>
+		<p class="chat-timestamp">{{message.from_time}}</p>
+		<p>&nbsp;&nbsp;&nbsp;&nbsp;{{message.message}}</p>
 		<br/>
 	</div>
 </template>

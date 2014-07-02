@@ -36,6 +36,7 @@ Meteor.methods
   sendMeetingInfoToClient: (meetingId, userId) ->
     Session.set("userId", userId)
     Session.set("meetingId", meetingId)
+    Session.set("currentChatId", meetingId)
     Session.set("meetingName", "Demo Meeting")
     Session.set("bbbServerVersion", "0.90")
     Session.set("userName", "sample user name")
