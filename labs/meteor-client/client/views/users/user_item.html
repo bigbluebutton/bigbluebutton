@@ -15,7 +15,13 @@
 
 <!-- ####################################################################################### -->
 <template name="usernameEntry"> <!-- A template now because more information be added/styled -->
-  <td><span>{{user.name}}</span></td>
+  <td><span>
+    {{#if isCurrentUser userId}}
+      <strong>{{user.name}} (you)</strong>
+    {{else}}
+      {{user.name}}
+    {{/if}}
+  </span></td>
 </template>
 <!-- ####################################################################################### -->
 <template name="handRaiseStatus">

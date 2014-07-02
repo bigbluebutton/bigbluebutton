@@ -36,6 +36,7 @@ Meteor.methods
   sendMeetingInfoToClient: (meetingId, userId) ->
     Session.set("userId", userId)
     Session.set("meetingId", meetingId)
+    Session.set("currentChatId", meetingId)
     Session.set("meetingName", "Demo Meeting")
     Session.set("bbbServerVersion", "0.90")
     Session.set("userName", "sample user name")
@@ -46,7 +47,10 @@ Handlebars.registerHelper "isUserSharingAudio", (u) ->
 Handlebars.registerHelper "isUserSharingVideo", (u) ->
   u.webcam_stream.length isnt 0
 
-# should be changed to find all users listed in the meeting and retrieve them,
-# instead of here where we retrieve every user pointing to the meeting 
+Handlebars.registerHelper "isCurrentUser", (id) ->
+  id is Session.get "userId"
+
+# retrieves all users in the meeting
+# appends the string "(you)" to the current user's name
 Handlebars.registerHelper "getUsersInMeeting", ->
-  Meteor.Users.find()
+  Meteor.Users.find().fetch()
