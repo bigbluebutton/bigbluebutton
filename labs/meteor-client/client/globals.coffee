@@ -49,5 +49,4 @@ Handlebars.registerHelper "isUserSharingVideo", (u) ->
 # should be changed to find all users listed in the meeting and retrieve them,
 # instead of here where we retrieve every user pointing to the meeting 
 Handlebars.registerHelper "getUsersInMeeting", ->
-  m = Meteor.Users.find {meetingId: Session.get("meetingId")}
-  m
+  Meteor.Users.find()
