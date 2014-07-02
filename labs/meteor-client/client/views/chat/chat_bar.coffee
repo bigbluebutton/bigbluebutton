@@ -43,6 +43,6 @@ Template.chatInput.events
         "from_time": "1.403794169042E12"
         "from_color": "0"
       }
-      console.log "Sending message to server" + messageForServer.message
+      console.log "Sending message to server " + messageForServer.message
       Meteor.call "sendChatMessagetoServer", Session.get("meetingId"), messageForServer
       $('#newMessageInput').val '' # Clear message box
