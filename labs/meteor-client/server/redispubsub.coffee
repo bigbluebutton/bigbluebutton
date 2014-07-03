@@ -135,8 +135,8 @@ class Meteor.RedisPubSub
       if Meteor.Meetings.findOne({meetingId: meetingId})?
         console.log "there are #{Meteor.Users.find({meetingId: meetingId}).count()} users in the meeting"
         for user in Meteor.Users.find({meetingId: meetingId}).fetch()
-          console.log "jaja"
-          Meteor.call("removeUserFromCollection", user.userId)
+          Meteor.call("removeUserFromCollection", meetingId, user.userId)
+          #TODO should we clear the chat messages for that meeting?!
         unless message.header?.name is "disconnect_all_users_message"
           Meteor.call("removeMeetingFromCollection", meetingId)
 

@@ -57,6 +57,7 @@ Meteor.methods
 
   removeUserFromCollection: (meetingId, userId) ->
     if meetingId? and userId? and Meteor.Users.findOne({meetingId: meetingId, userId: userId})?
-      console.log "----removing user[" + userId + "] from " + meetingId
       id = Meteor.Users.findOne({meetingId: meetingId, userId: userId})
-      Meteor.Users.remove(id._id)
+      if id?
+        Meteor.Users.remove(id._id)
+        console.log "----removed user[" + userId + "] from " + meetingId
