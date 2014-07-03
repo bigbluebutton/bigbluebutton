@@ -4,7 +4,10 @@ Meteor.startup ->
 	Session.set "display_navbar", true
 	Session.set "display_chatbar", true 
 	Session.set "display_whiteboard", false
-	Session.set "display_publicPane", true
+	Session.set "display_chatPane", true
+	addNewTab "Public", true, "publicChatTab"
+	addNewTab "Options", false, "optionsChatTab"
+	Session.set "chatTabsReactivity", 0 # any value will work here
 
 Template.header.events
 	"click .usersListIcon": (event) ->
@@ -26,7 +29,9 @@ Template.header.events
 		
 # Gets called last in main template, just an easy place to print stuff out
 Handlebars.registerHelper "doFinalStuff", ->
-	# console.log "-----Doing Final Stuff-----"
+	console.log "-----Doing Final Stuff-----"
+	console.log JSON.stringify(ChatbarTabs)
+
 	# userFields = ("Username: #{entry.user.name} - userId: #{entry.userId} - _id: #{entry._id}" for entry in Meteor.Users.find().fetch()) # comprehension is awesome!
 	# console.log entry for entry in userFields
 
