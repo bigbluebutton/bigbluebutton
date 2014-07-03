@@ -109,7 +109,9 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
 
     for(i <- 0 until arr.length) {
       println("for a meeting:" + arr(i))
-      
+
+      println("Meeting Name = " + meetings.get(arr(i)).head.getMeetingName())
+
       //send the users
       this ! (new GetUsers(arr(i), "nodeJSapp"))
 
