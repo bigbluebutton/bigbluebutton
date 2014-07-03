@@ -24,13 +24,11 @@ Router.map ->
         authToken = urlParts[2]?.split("=")[1];
         console.log "authToken=" + authToken
 
-        userName = urlParts[3]?.split("=")[1];
-        console.log "userName=" + userName
-        if meetingId? and userId? and authToken? and userName?
+        if meetingId? and userId? and authToken?
           Meteor.call("validate", meetingId, userId, authToken)
           Meteor.call('sendMeetingInfoToClient', meetingId, userId)
         else
-          console.log "unable to extract from the URL some of {meetingId, userName, userId, authToken}"
+          console.log "unable to extract from the URL some of {meetingId, userId, authToken}"
       else
         console.log "unable to extract the required information for the meeting from the URL"
   @route "main",
