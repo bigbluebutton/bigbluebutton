@@ -18,6 +18,8 @@
 */
 package org.bigbluebutton.webconference.voice;
 
+import java.util.concurrent.TimeUnit;
+
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.bigbluebutton.webconference.voice.events.VoiceConferenceEvent;
 import org.bigbluebutton.webconference.voice.events.VoiceUserJoinedEvent;
@@ -34,6 +36,10 @@ public class VoiceEventRecorder {
 	
 	private RecorderApplication recorder;
 	
+  private Long genTimestamp() {
+  	return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
+  }
+  
 	public void recordConferenceEvent(VoiceConferenceEvent event, String room) {
 		if (event instanceof VoiceUserJoinedEvent) {
 			recordParticipantJoinedEvent(event, room);
@@ -56,7 +62,7 @@ public class VoiceEventRecorder {
 		VoiceStartRecordingEvent sre = (VoiceStartRecordingEvent) event;
 		StartRecordingVoiceRecordEvent evt = new StartRecordingVoiceRecordEvent(sre.startRecord());
 		evt.setMeetingId(room);
-		evt.setTimestamp(System.currentTimeMillis());
+		evt.setTimestamp(genTimestamp());
 		evt.setBridge(event.getRoom());
 		evt.setRecordingTimestamp(sre.getTimestamp());
 		evt.setFilename(sre.getRecordingFilename());
@@ -69,7 +75,7 @@ public class VoiceEventRecorder {
 
 		ParticipantJoinedVoiceRecordEvent evt = new ParticipantJoinedVoiceRecordEvent();
 		evt.setMeetingId(room);
-		evt.setTimestamp(System.currentTimeMillis());
+		evt.setTimestamp(genTimestamp());
 		evt.setBridge(event.getRoom());
 		evt.setParticipant(pje.getUserId().toString());
 		evt.setCallerName(pje.getCallerIdName());
@@ -84,7 +90,7 @@ public class VoiceEventRecorder {
 		
 		ParticipantLeftVoiceRecordEvent evt = new ParticipantLeftVoiceRecordEvent();
 		evt.setMeetingId(room);
-		evt.setTimestamp(System.currentTimeMillis());
+		evt.setTimestamp(genTimestamp());
 		evt.setBridge(event.getRoom());
 		
 		
@@ -98,7 +104,7 @@ public class VoiceEventRecorder {
 		
 		ParticipantMutedVoiceRecordEvent evt = new ParticipantMutedVoiceRecordEvent();
 		evt.setMeetingId(room);
-		evt.setTimestamp(System.currentTimeMillis());
+		evt.setTimestamp(genTimestamp());
 		evt.setBridge(event.getRoom());
 		evt.setParticipant(((VoiceUserMutedEvent)event).getUserId().toString());
 		evt.setMuted(pme.isMuted());
@@ -111,7 +117,7 @@ public class VoiceEventRecorder {
 	
 		ParticipantTalkingVoiceRecordEvent evt = new ParticipantTalkingVoiceRecordEvent();
 		evt.setMeetingId(room);
-		evt.setTimestamp(System.currentTimeMillis());
+		evt.setTimestamp(genTimestamp());
 		evt.setBridge(event.getRoom());
 		evt.setParticipant(((VoiceUserTalkingEvent)event).getUserId().toString());
 		evt.setTalking(pte.isTalking());
@@ -124,7 +130,7 @@ public class VoiceEventRecorder {
 
 		ParticipantLockedVoiceRecordEvent evt = new ParticipantLockedVoiceRecordEvent();
 		evt.setMeetingId(room);
-		evt.setTimestamp(System.currentTimeMillis());
+		evt.setTimestamp(genTimestamp());
 		evt.setBridge(event.getRoom());
 		evt.setParticipant(((VoiceUserLockedEvent)event).getUserId().toString());
 		evt.setLocked(ple.isLocked());

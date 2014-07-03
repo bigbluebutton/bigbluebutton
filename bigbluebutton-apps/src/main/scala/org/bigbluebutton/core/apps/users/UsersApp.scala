@@ -130,6 +130,8 @@ trait UsersApp {
       newPermissions(msg.settings)
       val au = affectedUsers(msg.settings)
       outGW.send(new NewPermissionsSetting(meetingID, msg.setByUser, permissions, au))
+      
+      handleLockLayout(msg.settings.lockedLayout, msg.setByUser)
     }    
   }
     
