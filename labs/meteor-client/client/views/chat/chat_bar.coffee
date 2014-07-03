@@ -24,7 +24,7 @@ Template.chatInput.events
         "message": $("#newMessageInput").val()
         "chat_type": "PUBLIC_CHAT"
         "from_userid": Session.get "userId"
-        "from_username": Session.get "userName"
+        "from_username": Meteor.Users.findOne({userId: Session.get("userId")}).user.name
         "from_tz_offset": "240"
         "to_username": "public_chat_username"
         "to_userid": "public_chat_userid"
