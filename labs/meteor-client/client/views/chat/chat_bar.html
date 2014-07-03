@@ -6,7 +6,7 @@
 			  {{> tabButtons}}
 			</ul>
 			<div id="chatbar-contents">
-				{{#if getInSession "display_publicPane"}}
+				{{#if getInSession "display_chatPane"}}
 					{{> messageBar}}
 					{{> chatInput}}
 				{{else}}
@@ -48,9 +48,9 @@
 	<div class="private-chat-user-box">
 		<div id="chatScrollWindow">
 			<table class="table table-hover">
-				<tbody class="private-chat-user-entry">
+				<tbody class="private-chat-user-list">
 					{{#each getUsersInMeeting}}
-						<tr>
+						<tr class="private-chat-user-entry">
 							{{#if isCurrentUser userId}}
 						      <strong>{{user.name}} (you)</strong>
 						    {{else}}
@@ -66,13 +66,13 @@
 
 <!-- Display buttons on the chat tab, public, options, and all the private chat tabs -->
 <template name="tabButtons">
-	{{#if getInSession "display_publicPane"}}
-		<li class="active publicChatTab"><a href="#" data-toggle="tab">Public</a></li>
-  		<li class="optionsChatTab"><a href="#" data-toggle="tab">Options</a></li>
-  	{{else}}
-  		<li class="publicChatTab"><a href="#" data-toggle="tab">Public</a></li>
-  		<li class="active optionsChatTab"><a href="#" data-toggle="tab">Options</a></li>
-  	{{/if}}
+  	{{#each getChatbarTabs}}
+	  	{{#if isActive}}
+	  		<li class="active {{class}}"><a href="#" data-toggle="tab">{{name}}</a></li>
+  		{{else}}
+  			<li class="{{class}}"><a href="#" data-toggle="tab">{{name}}</a></li>
+  		{{/if}}
+  	{{/each}}
 </template>
 
 <!-- When done displaying previous chat messages, display the BBB greeting -->
