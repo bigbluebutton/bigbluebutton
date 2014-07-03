@@ -14,4 +14,4 @@ Meteor.methods
       id = Meteor.Meetings.findOne({meetingId: meetingId})
       if id?
         Meteor.Meetings.remove(id._id)
-        console.log "removed from Meetings:#{meetingId} now there are only #{} meetings running"
+        console.log "removed from Meetings:#{meetingId} now there are only #{Meteor.Meetings.find().count()} meetings running"
