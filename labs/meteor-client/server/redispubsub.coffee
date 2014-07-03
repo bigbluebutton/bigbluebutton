@@ -99,7 +99,7 @@ class Meteor.RedisPubSub
     if message.header?.name is "get_all_meetings_reply"
       console.log "Let's store some data for the running meetings so that 
       when an HTML5 client joins everything is ready!"
-      listOfMeetings = message.payload?.meetingIDs
+      listOfMeetings = message.payload?.meetings
 
     if message.header?.name is "get_users_reply" and message.payload?.requester_id is "nodeJSapp"
       meetingId = message.payload?.meeting_id
