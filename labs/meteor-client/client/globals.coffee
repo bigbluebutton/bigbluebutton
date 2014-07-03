@@ -1,3 +1,6 @@
+Handlebars.registerHelper 'equals', (a, b) ->
+  a is b
+
 # Allow access through all templates
 Handlebars.registerHelper "setInSession", (k, v) -> Session.set k, v
 Handlebars.registerHelper "getInSession", (k) -> Session.get k
@@ -61,3 +64,33 @@ Handlebars.registerHelper "getUsersInMeeting", ->
   #   newUser
 
   # userList
+
+# -----------------------------------------------------------------------------
+# ----Adds a new tab for private chats-----------------------------------------
+@addNewTab = (n) ->
+  if not checkForDuplicatePrivateChat n
+    for i in ChatbarTabs
+      i.isActive = false
+    ChatbarTabs.push {isActive:true, name:n, class:""}
+    true
+  else 
+    false
+
+@addNewTab = (n, a, c) ->
+  if not checkForDuplicatePrivateChat n
+    if a is true
+      for i in ChatbarTabs
+        i.isActive = false
+    ChatbarTabs.push {isActive:a, name:n, class: c}
+    true
+  else 
+    false
+
+# Returns true if there is a duplicate
+# Returns false if no duplicates detected
+@checkForDuplicatePrivateChat = (n) ->
+  duplicate = false
+  for i in ChatbarTabs
+    if i.name isnt "Public" and i.name isnt "Options" and i.name is n
+      return true # yes, there is a duplicate
+  return false # no, there are no duplicates
