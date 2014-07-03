@@ -100,6 +100,8 @@ class Meteor.RedisPubSub
       console.log "Let's store some data for the running meetings so that 
       when an HTML5 client joins everything is ready!"
       listOfMeetings = message.payload?.meetings
+      for meeting in listOfMeetings
+        Meteor.call("addMeetingToCollection", meeting.meetingID, meeting.meetingName, meeting.recorded)
 
     if message.header?.name is "get_users_reply" and message.payload?.requester_id is "nodeJSapp"
       meetingId = message.payload?.meeting_id
