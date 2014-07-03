@@ -23,10 +23,7 @@ Meteor.methods
     userId = user.userid
 
     #check if the user is already in the meeting
-    if Meteor.Users.findOne({userId:userId, meetingId: meetingId})?
-      console.log "redundant entry, do not add to Meteor.Users - #{userId}:#{meetingId}:#{user.name}"
-    else
-      console.log "Users.size before:" + Meteor.Users.find().count()
+    unless Meteor.Users.findOne({userId:userId, meetingId: meetingId})?
       entry =
         meetingId: meetingId
         userId: userId
@@ -60,8 +57,6 @@ Meteor.methods
 
   removeUserFromCollection: (meetingId, userId) ->
     if meetingId? and userId? and Meteor.Users.findOne({meetingId: meetingId, userId: userId})?
-      console.log "----removing " + userId + "from " + meetingId
-      console.log "before:" + Meteor.Users.find().count()
+      console.log "----removing user[" + userId + "] from " + meetingId
       id = Meteor.Users.findOne({meetingId: meetingId, userId: userId})
       Meteor.Users.remove(id._id)
-      console.log "after:" + Meteor.Users.find().count()

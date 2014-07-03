@@ -71,16 +71,7 @@ class Meteor.RedisPubSub
 
   _onSubscribe: (channel, count) =>
     console.log "Subscribed to #{channel}"
-
-    #grab data about all active meetings on the server
-    message = {
-      "header": {
-        "name": "get_all_meetings_request"
-      }
-      "payload": {
-      }
-    }
-    @pubClient.publish(Meteor.config.redis.channels.toBBBApps.meeting, JSON.stringify (message))
+    @invokeGetAllMeetingsRequest()
 
   _onMessage: (pattern, channel, jsonMsg) =>
     # TODO: this has to be in a try/catch block, otherwise the server will
@@ -104,10 +95,11 @@ class Meteor.RedisPubSub
         Meteor.call("addMeetingToCollection", meeting.meetingID, meeting.meetingName, meeting.recorded)
 
     if message.header?.name is "get_users_reply" and message.payload?.requester_id is "nodeJSapp"
-      meetingId = message.payload?.meeting_id
-      users = message.payload?.users
-      for user in users
-        Meteor.call("addUserToCollection", meetingId, user)
+      unless Meteor.Meetings.findOne({MeetingId: message.payload?.meeting_id})?
+        meetingId = message.payload?.meeting_id
+        users = message.payload?.users
+        for user in users
+          Meteor.call("addUserToCollection", meetingId, user)
 
     if message.header?.name is "user_joined_message"
       meetingId = message.payload.meeting_id
@@ -121,14 +113,32 @@ class Meteor.RedisPubSub
         Meteor.call("removeUserFromCollection", meetingId, userId)
 
     if message.header?.name is "get_chat_history_reply" and message.payload?.requester_id is "nodeJSapp"
-      meetingId = message.payload?.meeting_id
-      for chatMessage in message.payload?.chat_history
-        Meteor.call("addChatToCollection", meetingId, chatMessage)
+      unless Meteor.Meetings.findOne({MeetingId: message.payload?.meeting_id})?
+        meetingId = message.payload?.meeting_id
+        for chatMessage in message.payload?.chat_history
+          Meteor.call("addChatToCollection", meetingId, chatMessage)
 
     if message.header?.name is "send_public_chat_message"
       messageObject = message.payload?.message
       meetingId = message.payload?.meeting_id
       Meteor.call("addChatToCollection", meetingId, messageObject)
+
+    if message.header?.name is "meeting_created_message"
+      # the event message contains very little info, so we will
+      # request for information for all the meetings and in
+      # this way can keep the Meetings collection up to date
+      @invokeGetAllMeetingsRequest()
+
+    if message.header?.name in ["meeting_ended_message", "meeting_destroyed_event", 
+      "end_and_kick_all_message", "disconnect_all_users_message"]
+      meetingId = message.payload?.meeting_id
+      if Meteor.Meetings.findOne({meetingId: meetingId})?
+        console.log "there are #{Meteor.Users.find({meetingId: meetingId}).count()} users in the meeting"
+        for user in Meteor.Users.find({meetingId: meetingId}).fetch()
+          console.log "jaja"
+          Meteor.call("removeUserFromCollection", user.userId)
+        unless message.header?.name is "disconnect_all_users_message"
+          Meteor.call("removeMeetingFromCollection", meetingId)
 
   publish: (channel, message) ->
     console.log "Publishing channel=#{channel}, message=#{JSON.stringify(message)}"
@@ -152,3 +162,14 @@ class Meteor.RedisPubSub
     }
     console.log "publishing:" + JSON.stringify (message)
     @pubClient.publish(Meteor.config.redis.channels.toBBBApps.chat, JSON.stringify (message))
+
+  invokeGetAllMeetingsRequest: =>
+    #grab data about all active meetings on the server
+    message = {
+      "header": {
+        "name": "get_all_meetings_request"
+      }
+      "payload": {
+      }
+    }
+    @pubClient.publish(Meteor.config.redis.channels.toBBBApps.meeting, JSON.stringify (message))
