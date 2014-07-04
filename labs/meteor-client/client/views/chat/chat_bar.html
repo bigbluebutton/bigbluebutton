@@ -67,11 +67,7 @@
 <!-- Display buttons on the chat tab, public, options, and all the private chat tabs -->
 <template name="tabButtons">
   	{{#each getChatbarTabs}}
-	  	{{#if isActive}}
-	  		<li class="active {{class}}"><a href="#" data-toggle="tab">{{name}}</a></li>
-  		{{else}}
-  			<li class="{{class}}"><a href="#" data-toggle="tab">{{name}}</a></li>
-  		{{/if}}
+  		{{{makeTabButton}}}
   	{{/each}}
 </template>
 

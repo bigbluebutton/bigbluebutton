@@ -62,7 +62,7 @@ Template.optionsBar.events
     # only trigger a reaction is new private chat was added
     if addNewTab @user.name, true, "privateChatTab"
       # Hackish way to go about this
-      # Coffeescript variables and arays inside the session are not reactive
+      # Coffeescript variables and arays inside the session are not reactive 
       # So have a session variable that we change everytime we want our dependent templates to be force rendered
       Session.set "chatTabsReactivity", (Session.get "chatTabsReactivity")+1 # change value to cause a refresh for dependencies
       Session.set "display_chatPane", true
@@ -71,4 +71,12 @@ Template.tabButtons.getChatbarTabs = ->
   Session.get "chatTabsReactivity" # pulling from session causes reactive template refresh
   ChatbarTabs
 
+Template.tabButtons.makeTabButton = ->
+  button = '<li class="'
+  button += 'active ' if this.isActive
+  button += "#{this.class}\"><a href=\"#\" data-toggle=\"tab\">#{this.name}"
+  button += '&nbsp;<button class="close closeTab" type="button" >×</button>' if this.name isnt 'Public' and this.name isnt 'Options'
+  button += '</a></li>'
+  console.log button
+  button
 
