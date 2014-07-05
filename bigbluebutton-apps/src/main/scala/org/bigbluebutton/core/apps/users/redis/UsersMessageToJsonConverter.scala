@@ -256,7 +256,18 @@ object UsersMessageToJsonConverter {
 		val header = Util.buildHeader(MessageNames.USER_VOICE_TALKING, msg.version, None)
     Util.buildJson(header, payload)
   }
-  
+
+  def muteVoiceUserToJson(msg: MuteVoiceUser):String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.MUTE, msg.mute) 
+    payload.put(Constants.USER_ID, msg.userId)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    
+		val header = Util.buildHeader(MessageNames.EJECT_VOICE_USER, msg.version, None)
+    Util.buildJson(header, payload)
+  }
+    
   def ejectVoiceUserToJson(msg: EjectVoiceUser):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
