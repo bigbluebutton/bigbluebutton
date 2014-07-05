@@ -91,8 +91,10 @@ package org.bigbluebutton.modules.layout.managers
     public function LayoutManager() {
       _applyCurrentLayoutTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
         applyLayout(_currentLayout);
+        trace(LOG + "Applied layout after user resized browser");
       });
       _sendCurrentLayoutUpdateTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
+        trace(LOG + "Applying layout due to window resize");
         sendLayoutUpdate(updateCurrentLayout());
       });
     }
@@ -320,6 +322,7 @@ package org.bigbluebutton.modules.layout.managers
 		}
 		
 		private function onContainerResized(e:ResizeEvent):void {
+      trace(LOG + "Canvas is changing as user is resizing browser");
       /*
       *	the main canvas has been resized
       *	while the user is resizing the window, this event is dispatched 
@@ -335,17 +338,16 @@ package org.bigbluebutton.modules.layout.managers
         return;
       
       checkPermissionsOverWindow(e.window);
-      if (_detectContainerChange) {
-        _globalDispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.INVALIDATE_LAYOUT_EVENT));
+      trace(LOG + "Window is being resized. Event=[" + e.type + "]");
+      updateCurrentLayout();
         /*
-        * 	some events related to animated actions must be delayed because if it's not the 
+        * 	some events related to animated actions must be delayed because if it's not, the 
         * 	current layout doesn't get properly updated
         */
         if (_eventsToDelay.indexOf(e.type) != -1) {
           _sendCurrentLayoutUpdateTimer.reset();
           _sendCurrentLayoutUpdateTimer.start();
         } 
-      }
 		}
 		
 		private function updateCurrentLayout(layout:LayoutDefinition=null):LayoutDefinition {
