@@ -143,26 +143,38 @@ public class KeepAliveService implements MessageListener {
   }
   	
   private void processPong(KeepAlivePong msg) {
-   	int count = 0;
    	boolean found = false;
 
-   	while (count < pingMessages.size() || !found){
+   	for (int count = 0; count < pingMessages.size(); count++){
    		if (pingMessages.get(count).equals(msg.getId())){
    			pingMessages.remove(count);
    			if (!available) {
    				available = true;
-   				pingMessages.clear();
+   				removeOldPingMessages(msg.getId());
    			  log.info("Received Keep Alive Reply. BBB-Apps has recovered.");
    			}
+   			log.debug("Found ping message [" + msg.getId() + "]");
    			found = true;
+   			break;
    		}
-   		count++;
    	}
    	if (!found){
    		log.info("Received invalid keep alive response from bbb-apps:" + msg.getId());
    	}  		
   }
 
+  private void removeOldPingMessages(String pingId) {
+  	long ts = Long.parseLong(pingId);
+  	for (int i = 0; i < pingMessages.size(); i++) {
+  		String pm = pingMessages.get(i);
+  		if (ts > Long.parseLong(pm)) {
+  			// Old ping message. Remove it. This might be
+  			// ping sent when Red5 was down or restarted.
+  		  pingMessages.remove(i);
+  		}
+  	}
+  }
+  
   private void keepAliveReply(String aliveId) {
    	log.debug("Received keep alive msg reply from bbb-apps. id [{}]", aliveId);
    	KeepAlivePong pong = new KeepAlivePong(aliveId);
