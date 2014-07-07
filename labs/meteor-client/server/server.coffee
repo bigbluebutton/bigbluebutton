@@ -24,6 +24,8 @@ Meteor.startup ->
   console.log "cleared Meetings Collection!"
   Meteor.Shapes.remove({})
   console.log "cleared Shapes Collection!"
+  Meteor.Slides.remove({})
+  console.log "cleared Slides Collection!"
 
 
   # create create a PubSub connection, start listening
