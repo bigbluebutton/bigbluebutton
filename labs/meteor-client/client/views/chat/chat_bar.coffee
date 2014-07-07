@@ -1,7 +1,8 @@
 Template.messageBar.helpers
   getMessagesInChat: ->
+    # we need to know what chat the user is in to pull those messages
     messages = Meteor.Chat.find("meetingId": getInSession("currentChatId"))
-    console.log messages
+    #console.log messages
     messages
 
 # Must be be called when template is finished rendering or will not work
@@ -17,8 +18,15 @@ Template.tabButtons.events
     Session.set "display_chatPane", false
 
   "click .privateChatTab": (event) ->
+    event.preventDefault()
     Session.set "display_chatPane", true
+    Session.set "chatTabsReactivity", (Session.get "chatTabsReactivity")+1 # change value to cause a refresh for dependencies
 
+  "click .close": (event) ->
+    removeTab this.name
+    Session.set "chatTabsReactivity", (Session.get "chatTabsReactivity")+1 # change value to cause a refresh for dependencies
+
+    
 Template.chatInput.events
   'keypress #newMessageInput': (event) ->
     if event.which is 13 # Check for pressing enter to submit message
@@ -68,7 +76,12 @@ Template.optionsBar.events
       Session.set "display_chatPane", true
 
 Template.tabButtons.getChatbarTabs = ->
+  console.log "inside display new tabs"
   Session.get "chatTabsReactivity" # pulling from session causes reactive template refresh
+  console.log "emptying tabs"
+  $("#tabButtonContainer").empty()
+  console.log "new tabs logging"
+  console.log ChatbarTabs
   ChatbarTabs
 
 Template.tabButtons.makeTabButton = ->
@@ -77,6 +90,7 @@ Template.tabButtons.makeTabButton = ->
   button += "#{this.class}\"><a href=\"#\" data-toggle=\"tab\">#{this.name}"
   button += '&nbsp;<button class="close closeTab" type="button" >×</button>' if this.name isnt 'Public' and this.name isnt 'Options'
   button += '</a></li>'
-  console.log button
+  console.log "inisde button: #{this.name}'s active is: #{this.isActive}"
   button
+
 

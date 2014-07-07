@@ -86,6 +86,19 @@ Handlebars.registerHelper "getUsersInMeeting", ->
   else 
     false
 
+@removeTab = (n) ->
+  #console.log "inside remove tab"
+  console.log "looking for name: #{n}"
+  #element = ChatbarTabs.filter (x) -> x.name is n
+  #console.log "found the element #{element}"
+  #ChatbarTabs.splice element, 1
+  ChatbarTabs.splice(index, 1) for index, value of ChatbarTabs when value.name is n
+  #console.log "value still is #{value}"
+  # if value.isActive
+  ChatbarTabs[0].isActive = true
+  console.log "#{ChatbarTabs[0].name}'s active is: #{ChatbarTabs[0].isActive}"
+  # console.log JSON.stringify ChatbarTabs
+
 # Returns true if there is a duplicate
 # Returns false if no duplicates detected
 @checkForDuplicatePrivateChat = (n) ->
@@ -94,3 +107,4 @@ Handlebars.registerHelper "getUsersInMeeting", ->
     if i.name isnt "Public" and i.name isnt "Options" and i.name is n
       return true # yes, there is a duplicate
   return false # no, there are no duplicates
+
