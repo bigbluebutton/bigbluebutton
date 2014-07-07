@@ -79,7 +79,7 @@ Template.tabButtons.getChatbarTabs = ->
   console.log "inside display new tabs"
   Session.get "chatTabsReactivity" # pulling from session causes reactive template refresh
   console.log "emptying tabs"
-  $("#tabButtonContainer").empty()
+  #$("#tabButtonContainer").empty()
   console.log "new tabs logging"
   console.log ChatbarTabs
   ChatbarTabs
