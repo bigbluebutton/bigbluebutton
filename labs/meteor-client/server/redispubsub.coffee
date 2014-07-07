@@ -129,6 +129,40 @@ class Meteor.RedisPubSub
       # this way can keep the Meetings collection up to date
       @invokeGetAllMeetingsRequest()
 
+    if message.header?.name is "get_presentation_info_reply" and message.payload?.requester_id is "nodeJSapp"
+      # to do: grab the whiteboard shapes using the whiteboard_id we have here
+      meetingId = message.payload?.meeting_id
+
+      for presentation in message.payload?.presentations
+        for page in presentation.pages
+          whiteboardId = "#{presentation.id}/#{page.num}" # d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1404411622872/1
+          console.log "the whiteboard_id here is:" + whiteboardId
+
+          # request shapes for the particular slide (or once per presentation?!)
+
+
+          message = {
+            "payload": {
+              "meeting_id": meetingId
+              "requester_id": "nodeJSapp"
+              "whiteboard_id": whiteboardId
+
+            },
+            "header": {
+              "timestamp": new Date().getTime()
+              "name": "get_whiteboard_shapes_request"
+              "version": "0.0.1"
+            }
+          }
+          if whiteboardId? and meetingId?
+            @pubClient.publish(Meteor.config.redis.channels.toBBBApps.whiteboard, JSON.stringify(message))
+          else
+            console.log "did not have enough information to send a user_leaving_request"
+
+    if message.header?.name is "get_whiteboard_shapes_reply" and message.payload?.requester_id is "nodeJSapp"
+      console.log "AAAAAAAAAAAAAAA\n\nget_whiteboard_shapes_reply\nAAAAAAA"
+      #or is ti shapE????
+
     if message.header?.name in ["meeting_ended_message", "meeting_destroyed_event", 
       "end_and_kick_all_message", "disconnect_all_users_message"]
       meetingId = message.payload?.meeting_id
