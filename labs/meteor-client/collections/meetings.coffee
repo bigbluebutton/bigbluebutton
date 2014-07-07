@@ -1,11 +1,12 @@
 Meteor.methods
   addMeetingToCollection: (meetingId, name, recorded) ->
-    console.log "trying to add to Meetings:" + meetingId + '|' + name + "Meetings.size before:" + Meteor.Meetings.find().count()
+    console.log "trying to add to Meetings:#{meetingId}|#{name} Meetings.size before:#{Meteor.Meetings.find().count()}"
 
     #check if the meeting is already in the collection
     unless Meteor.Meetings.findOne({meetingId: meetingId})?
       id = Meteor.Meetings.insert(meetingId: meetingId, meetingName: name, recorded: recorded)
-      console.log "added meeting _id=[#{id}]:meetingId=[#{meetingId}]:name=[#{name}]. Meetings.size is now #{Meteor.Meetings.find().count()}"
+      console.log "added meeting _id=[#{id}]:meetingId=[#{meetingId}]:name=[#{name}].
+       Meetings.size is now #{Meteor.Meetings.find().count()}"
 
   removeMeetingFromCollection: (meetingId) ->
     if Meteor.Meetings.findOne({meetingId: meetingId})?
@@ -14,4 +15,5 @@ Meteor.methods
       id = Meteor.Meetings.findOne({meetingId: meetingId})
       if id?
         Meteor.Meetings.remove(id._id)
-        console.log "removed from Meetings:#{meetingId} now there are only #{Meteor.Meetings.find().count()} meetings running"
+        console.log "removed from Meetings:#{meetingId} now there are only
+         #{Meteor.Meetings.find().count()} meetings running"
