@@ -81,7 +81,14 @@ class Meteor.RedisPubSub
     correlationId = message.payload?.reply_to or message.header?.reply_to
     meetingId = message.payload?.meeting_id
 
-    unless message.header?.name is "keep_alive_reply"
+    ignoredEventTypes = [
+      "keep_alive_reply"
+      "presentation_cursor_updated_message"
+      "page_resized_message"
+      "presentation_page_resized_message"
+    ]
+
+    unless message.header?.name in ignoredEventTypes
       #console.log "\nchannel=" + channel
       #console.log "correlationId=" + correlationId if correlationId?
       console.log "eventType=" + message.header?.name #+ "\n"
