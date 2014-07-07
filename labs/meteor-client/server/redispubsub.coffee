@@ -162,7 +162,13 @@ class Meteor.RedisPubSub
         whiteboardId = shape.wb_id
         Meteor.call("addShapeToCollection", meetingId, whiteboardId, shape)
 
-    if message.header?.name in ["meeting_ended_message", "meeting_destroyed_event", 
+    if message.header?.name is "send_whiteboard_shape_message"
+      meetingId = message.payload?.meeting_id
+      shape = message.payload?.shape
+      whiteboardId = shape?.wb_id
+      Meteor.call("addShapeToCollection", meetingId, whiteboardId, shape)
+
+    if message.header?.name in ["meeting_ended_message", "meeting_destroyed_event",
       "end_and_kick_all_message", "disconnect_all_users_message"]
       meetingId = message.payload?.meeting_id
       if Meteor.Meetings.findOne({meetingId: meetingId})?
