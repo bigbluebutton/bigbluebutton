@@ -22,6 +22,9 @@ Meteor.startup ->
   console.log "cleared Chat Collection!"
   Meteor.Meetings.remove({})
   console.log "cleared Meetings Collection!"
+  Meteor.Shapes.remove({})
+  console.log "cleared Shapes Collection!"
+
 
   # create create a PubSub connection, start listening
   Meteor.redisPubSub = new Meteor.RedisPubSub(->

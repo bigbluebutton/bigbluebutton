@@ -7,6 +7,7 @@ Router.map ->
       @redirect('/')
       Meteor.subscribe 'users', Session.get('meetingId')
       Meteor.subscribe 'chat', Session.get('meetingId')
+      Meteor.subscribe 'shapes', Session.get('meetingId')
 
     onBeforeAction: ()->
       url = location.href
