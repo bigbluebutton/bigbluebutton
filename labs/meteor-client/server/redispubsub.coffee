@@ -79,6 +79,7 @@ class Meteor.RedisPubSub
 
     message = JSON.parse(jsonMsg)
     correlationId = message.payload?.reply_to or message.header?.reply_to
+    meetingId = message.payload?.meeting_id
 
     unless message.header?.name is "keep_alive_reply"
       #console.log "\nchannel=" + channel
@@ -96,31 +97,26 @@ class Meteor.RedisPubSub
 
     if message.header?.name is "get_users_reply" and message.payload?.requester_id is "nodeJSapp"
       unless Meteor.Meetings.findOne({MeetingId: message.payload?.meeting_id})?
-        meetingId = message.payload?.meeting_id
         users = message.payload?.users
         for user in users
           Meteor.call("addUserToCollection", meetingId, user)
 
     if message.header?.name is "user_joined_message"
-      meetingId = message.payload.meeting_id
       user = message.payload.user
       Meteor.call("addUserToCollection", meetingId, user)
 
     if message.header?.name is "user_left_message"
       userId = message.payload?.user?.userid
-      meetingId = message.payload?.meeting_id
       if userId? and meetingId?
         Meteor.call("removeUserFromCollection", meetingId, userId)
 
     if message.header?.name is "get_chat_history_reply" and message.payload?.requester_id is "nodeJSapp"
       unless Meteor.Meetings.findOne({MeetingId: message.payload?.meeting_id})?
-        meetingId = message.payload?.meeting_id
         for chatMessage in message.payload?.chat_history
           Meteor.call("addChatToCollection", meetingId, chatMessage)
 
     if message.header?.name is "send_public_chat_message"
       messageObject = message.payload?.message
-      meetingId = message.payload?.meeting_id
       Meteor.call("addChatToCollection", meetingId, messageObject)
 
     if message.header?.name is "meeting_created_message"
@@ -131,7 +127,6 @@ class Meteor.RedisPubSub
 
     if message.header?.name is "get_presentation_info_reply" and message.payload?.requester_id is "nodeJSapp"
       # to do: grab the whiteboard shapes using the whiteboard_id we have here
-      meetingId = message.payload?.meeting_id
 
       for presentation in message.payload?.presentations
         for page in presentation.pages
@@ -157,20 +152,17 @@ class Meteor.RedisPubSub
             console.log "did not have enough information to send a user_leaving_request"
 
     if message.header?.name is "get_whiteboard_shapes_reply" and message.payload?.requester_id is "nodeJSapp"
-      meetingId = message.payload?.meeting_id
       for shape in message.payload.shapes
         whiteboardId = shape.wb_id
         Meteor.call("addShapeToCollection", meetingId, whiteboardId, shape)
 
     if message.header?.name is "send_whiteboard_shape_message"
-      meetingId = message.payload?.meeting_id
       shape = message.payload?.shape
       whiteboardId = shape?.wb_id
       Meteor.call("addShapeToCollection", meetingId, whiteboardId, shape)
 
     if message.header?.name in ["meeting_ended_message", "meeting_destroyed_event",
       "end_and_kick_all_message", "disconnect_all_users_message"]
-      meetingId = message.payload?.meeting_id
       if Meteor.Meetings.findOne({meetingId: meetingId})?
         console.log "there are #{Meteor.Users.find({meetingId: meetingId}).count()} users in the meeting"
         for user in Meteor.Users.find({meetingId: meetingId}).fetch()
