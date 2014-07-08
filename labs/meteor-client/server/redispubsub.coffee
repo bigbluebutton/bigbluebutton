@@ -133,9 +133,8 @@ class Meteor.RedisPubSub
       @invokeGetAllMeetingsRequest()
 
     if message.header?.name is "presentation_shared_message"
-      presentationId = message.payload?.presentation?.id
       for slide in message.payload?.presentation?.pages
-        Meteor.call("addSlideToCollection", meetingId, presentationId, slide)
+        Meteor.call("addSlideToCollection", meetingId, slide.id, slide)
 
     if message.header?.name is "get_presentation_info_reply" and message.payload?.requester_id is "nodeJSapp"
       # to do: grab the whiteboard shapes using the whiteboard_id we have here
@@ -143,8 +142,7 @@ class Meteor.RedisPubSub
       for presentation in message.payload?.presentations
         for page in presentation.pages
           #add the slide to the collection
-          presentationId = message.payload?.presentation?.id
-          Meteor.call("addSlideToCollection", meetingId, presentationId, page)
+          Meteor.call("addSlideToCollection", meetingId, page.id, page)
 
           #request for shapes
           whiteboardId = "#{presentation.id}/#{page.num}" # d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1404411622872/1
