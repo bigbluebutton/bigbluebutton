@@ -39,9 +39,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.chat.model.ChatOptions;
+			import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
 			import com.asfusion.mate.events.Dispatcher;			
 			import flexlib.mdi.events.MDIWindowEvent;			
-			import mx.controls.Alert;
 			import mx.core.Application;
 			import mx.core.FlexGlobals;
 			import mx.resources.ResourceBundle;
@@ -86,7 +86,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				closeBtn.tabIndex = baseIndex+3;
 
 				resourcesChanged(); // update the window controls once they've been created
+				//Necessary now because of module loading race conditions
+				var t:Timer = new Timer(2000, 1);
+				t.addEventListener(TimerEvent.TIMER, addChatToolbar);
+				t.start();
 			}
+			
+            private function addChatToolbar(event:TimerEvent):void {
+                // Tell the ChatManager to add the toolbar
+                var e:ChatToolbarButtonEvent = new ChatToolbarButtonEvent(ChatToolbarButtonEvent.ADD_TOOLBAR);
+                e.window = this;
+                dispatchEvent(e);
+            }
 			
 			private function loadKeyCombos(modifier:String):void {
 				keyCombos = new Object(); // always start with a fresh array

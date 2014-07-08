@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<mx:HBox xmlns="flexlib.containers.*" 
+		 initialize="init()" 
+		 xmlns:mx="http://www.adobe.com/2006/mxml" 
+		 xmlns:mate="http://mate.asfusion.com/" 
+		 creationComplete="onCreationComplete()"
+		 visible="{toolbarVisible}" 
+		 styleName="whiteboardToolbarStyle"
+		 width="{toolbarWidth}">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			import com.asfusion.mate.events.Listener;
+
+			import mx.controls.Alert;
+			import mx.events.MoveEvent;
+			import mx.events.ResizeEvent;
+			
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.modules.chat.model.ChatOptions;
+			import org.bigbluebutton.modules.chat.views.ChatWindow;
+			import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			[Bindable] public var chatOptions:ChatOptions;
+			[Bindable] private var baseIndex:int;
+			[Bindable] private var toolbarWidth:int;
+			
+			[Bindable] private var toolbarVisible:Boolean = false;
+
+			private var mousedOver:Boolean = false;
+			
+			private var presentationWindow:ChatWindow;
+			//private var globalDispatcher:Dispatcher;
+			
+			public function init():void{
+				chatOptions = new ChatOptions();
+				baseIndex = chatOptions.baseTabIndex;
+			}
+			
+			private function onCreationComplete():void {
+				//globalDispatcher = new globalDispatcher();
+			}
+					   
+			public function positionToolbar(window:ChatWindow = null):void {
+				if(window == null)
+					return;
+
+				trace("Positioning chat toolbar");
+				presentationWindow = window;
+				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
+				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
+				window.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
+				window.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
+				this.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
+				this.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
+				checkVisibility();
+			}
+			
+			private function checkVisibility():void {
+				if (toolbarAllowed() && mousedOver) {
+					setPositionAndDepth();
+					toolbarVisible = true;
+				} else {
+					toolbarVisible = false;
+				}
+			}
+			
+			private function setPositionAndDepth(e:Event = null):void {
+				toolbarWidth = presentationWindow.width - 18;
+				this.x = presentationWindow.x + 9;
+				this.y = presentationWindow.y + presentationWindow.height - 105;
+				parent.setChildIndex(this, parent.numChildren - 1);
+			}
+			
+			public function closeToolbar():void {
+				parent.removeChild(this);
+			}
+			
+			private function handleMouseIn(e:MouseEvent):void {
+				mousedOver = true;
+				checkVisibility();
+			}
+			
+			private function handleMouseOut(e:MouseEvent = null):void {
+				mousedOver = false;
+				checkVisibility();
+			}
+
+			private function toolbarAllowed():Boolean {
+				// Created to make possible to create rules to allow or not the toolbar
+				return true;
+			}
+
+			private function dispatchEvtTest(evt:Event):void{
+				if(dispatchEvent(evt))
+					LogUtil.debug("Event " + evt.type + " dispatched in " + this.name);
+				else
+					LogUtil.debug("Event " + evt.type + " NOT dispatched in " + this.name);
+			}
+
+			public function sendSaveEvent():void{
+				var evt:ChatToolbarButtonEvent = new ChatToolbarButtonEvent(ChatToolbarButtonEvent.SAVE_CHAT_TOOLBAR_EVENT); 
+				dispatchEvtTest(evt);
+			}
+
+			public function sendCopyEvent():void{
+				var evt:ChatToolbarButtonEvent = new ChatToolbarButtonEvent(ChatToolbarButtonEvent.COPY_CHAT_TOOLBAR_EVENT);
+				dispatchEvtTest(evt);
+			}
+			
+			/*
+			private function printObjects():void{
+				var chatWindow:ChatView = presentationWindow.getChildAt(0);
+				LogUtil.debug(chatWindow.chatTabs);
+			}
+			*/
+		]]>
+	</mx:Script>
+
+	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.saveBtn.label')}" id="saveBtn" 
+			   styleName="chatToolbarSaveButtonStyle"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.saveBtn.toolTip')}" 
+			   click="sendSaveEvent()"
+			   tabIndex="{baseIndex+1}"
+			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.accessibilityName')}"/>  
+	
+	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.label')}" id="copyBtn" 
+			   styleName="chatToolbarCopyButtonStyle"
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.toolTip')}" 
+			   click="sendCopyEvent()"
+			   tabIndex="{baseIndex+2}"
+			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.accessibilityName')}"/> 
+</mx:HBox>
