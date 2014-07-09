@@ -2,11 +2,11 @@
 	{{#if getInSession "display_chatbar"}}
 		<div id="chat">
 			<h3>Chat</h3>
-			<ul class="nav nav-tabs">
+			<ul id="tabButtonContainer" class="nav nav-tabs">
 			  {{> tabButtons}}
 			</ul>
 			<div id="chatbar-contents">
-				{{#if getInSession "display_publicPane"}}
+				{{#if getInSession "display_chatPane"}}
 					{{> messageBar}}
 					{{> chatInput}}
 				{{else}}
@@ -29,6 +29,11 @@
 
 <!-- Display the actual message bar -->
 <template name="messageBar">
+	{{#if isUserInPrivateChat}}
+		<p>You are in a Private Chat.</p>
+	{{else}}
+		<p>This Chat is Open to Everyone.</p>
+	{{/if}}
 	<div id="chatScrollWindow">
 		{{#each getMessagesInChat}}
 			{{> message}}
@@ -48,9 +53,9 @@
 	<div class="private-chat-user-box">
 		<div id="chatScrollWindow">
 			<table class="table table-hover">
-				<tbody class="private-chat-user-entry">
+				<tbody class="private-chat-user-list">
 					{{#each getUsersInMeeting}}
-						<tr>
+						<tr class="private-chat-user-entry">
 							{{#if isCurrentUser userId}}
 						      <strong>{{user.name}} (you)</strong>
 						    {{else}}
@@ -66,13 +71,9 @@
 
 <!-- Display buttons on the chat tab, public, options, and all the private chat tabs -->
 <template name="tabButtons">
-	{{#if getInSession "display_publicPane"}}
-		<li class="active publicChatTab"><a href="#" data-toggle="tab">Public</a></li>
-  		<li class="optionsChatTab"><a href="#" data-toggle="tab">Options</a></li>
-  	{{else}}
-  		<li class="publicChatTab"><a href="#" data-toggle="tab">Public</a></li>
-  		<li class="active optionsChatTab"><a href="#" data-toggle="tab">Options</a></li>
-  	{{/if}}
+  	{{#each getChatbarTabs}}
+  		{{{makeTabButton}}}
+  	{{/each}}
 </template>
 
 <!-- When done displaying previous chat messages, display the BBB greeting -->

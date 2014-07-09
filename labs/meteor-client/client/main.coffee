@@ -4,7 +4,8 @@ Meteor.startup ->
 	Session.set "display_navbar", true
 	Session.set "display_chatbar", true 
 	Session.set "display_whiteboard", false
-	Session.set "display_publicPane", true
+	Session.set "display_chatPane", true
+	Session.set 'inChatWith', "PUBLIC_CHAT"
 
 Template.header.events
 	"click .usersListIcon": (event) ->
@@ -27,17 +28,5 @@ Template.header.events
 # Gets called last in main template, just an easy place to print stuff out
 Handlebars.registerHelper "doFinalStuff", ->
 	# console.log "-----Doing Final Stuff-----"
-	# userFields = ("Username: #{entry.user.name} - userId: #{entry.userId} - _id: #{entry._id}" for entry in Meteor.Users.find().fetch()) # comprehension is awesome!
-	# console.log entry for entry in userFields
-
-	# # console.log _.pluck
-	# #us = _.pluck Meteor.Users.find().fetch(), '_id'
-	# #console.log JSON.stringify us
-
-	# info = Meteor.Users.find({}, {fields: "user.name": 1, "userId": 1, "_id", 1}).fetch()
-	# # userFields = ("Username: #{entry.user.name} - userId: #{entry.userId} - _id: #{entry._id}" for entry in Meteor.Users.find().fetch()) # comprehension is awesome!
-	# # console.log entry for entry in userFields
-
-	# console.log "---------------------------"
-
+	
 
