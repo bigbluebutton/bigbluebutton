@@ -65,7 +65,7 @@ Template.optionsBar.events
     duplicate = Meteor.ChatTabs.findOne({'belongsTo':Session.get("userId"), 'userId': @userId})
 
     if not duplicate and @userId isnt currUserId
-      messageForServer = { 
+      messageForServer =
           "message": "Hey #{@user.name}, its #{getUsersName()} lets start a private chat."
           "chat_type": "PRIVATE_CHAT"
           "from_userid": Session.get "userId"
@@ -76,7 +76,6 @@ Template.optionsBar.events
           "from_lang": "en"
           "from_time": "1.403794169042E12"
           "from_color": "0"
-      }
 
       # console.log 'Sending private message to server:'
       # console.log messageForServer

@@ -1,10 +1,10 @@
 Meteor.methods
   addSlideToCollection: (meetingId, presentationId, slideObject) ->
     unless Meteor.Slides.findOne({meetingId: meetingId, presentationId: presentationId})?
-      entry = {
+      entry =
         meetingId: meetingId
         presentationId: presentationId
-        slide: {
+        slide:
           height_ratio: slideObject.height_ratio
           y_offset: slideObject.y_offset
           num: slideObject.num
@@ -16,8 +16,7 @@ Meteor.methods
           width_ratio: slideObject.width_ratio
           swf_uri: slideObject.swf_uri
           thumb_uri: slideObject.thumb_uri
-        }
-      }
+
       id = Meteor.Slides.insert(entry)
       console.log "added slide id =[#{id}]:#{slideObject.id} in #{meetingId}. Now there are
        #{Meteor.Slides.find({meetingId: meetingId}).count()} slides in the meeting"
