@@ -65,7 +65,6 @@ Meteor.methods
 #     else null
 
 
-
 Handlebars.registerHelper "isUserSharingAudio", (u) ->
   u.voiceUser.talking
 
@@ -76,7 +75,6 @@ Handlebars.registerHelper "isCurrentUser", (id) ->
   id is Session.get "userId"
 
 # retrieves all users in the meeting
-# appends the string "(you)" to the current user's name
 Handlebars.registerHelper "getUsersInMeeting", ->
   Meteor.Users.find({})
 
