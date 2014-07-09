@@ -15,4 +15,5 @@ Meteor.publish 'slides', (meetingId) ->
 Meteor.publish 'chatTabs', (userId) ->
   Meteor.ChatTabs.find({'belongsTo': userId})
 
-# should we be publishing Meteor.Meetings? for now we are not
+Meteor.publish 'meetings', (meetingId) ->
+  Meteor.Meetings.find({meetingId: meetingId})
