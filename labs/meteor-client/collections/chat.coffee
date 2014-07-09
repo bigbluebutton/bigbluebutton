@@ -1,6 +1,5 @@
 Meteor.methods
   addChatToCollection: (meetingId, messageObject) ->
-    console.log "Chat.size before -- " + Meteor.Chat.find({meetingId: meetingId}).count()
     entry = {
       meetingId: meetingId
       message: { # or message: messageObject but this is more verbose

@@ -42,7 +42,7 @@ login = (req, resp) ->
             "\nauth_token = " + auth_token
 
             url = "#{configJson.settings.IP}:3000/meeting_id=" + meeting_id + "&user_id=" +
-                  user_id + "&auth_token=" + auth_token + "&username=" + joinParams.fullName + "&meetingName=" + joinParams.meetingID
+                  user_id + "&auth_token=" + auth_token
 
             json =
             resp.json({

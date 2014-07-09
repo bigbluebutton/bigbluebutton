@@ -23,10 +23,7 @@ Template.userItem.events
       selectedUser = Meteor.Users.findOne(_id:@_id)
 
       if selectedUser? # search for current presenter
-        originalPresenter = Meteor.Users.findOne(
-          meetingId: selectedUser.meetingId
-          "user.presenter": true
-        )
+        originalPresenter = Meteor.Users.findOne("user.presenter": true)
         if originalPresenter? # unset old presenter
           Meteor.Users.update {_id: originalPresenter._id},{ $set:{ "user.presenter": false}}
 

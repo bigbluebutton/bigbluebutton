@@ -106,20 +106,31 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
     val set = meetings.keySet
     val arr : Array[String] = new Array[String](len)
     set.copyToArray(arr)
+    val resultArray : Array[MeetingInfo] = new Array[MeetingInfo](len)
 
     for(i <- 0 until arr.length) {
-      println("for a meeting:" + arr(i))
-      
+      val id = arr(i)
+      val name = meetings.get(arr(i)).head.getMeetingName()
+      val recorded = meetings.get(arr(i)).head.getRecordedStatus()
+
+      var info = new MeetingInfo(id, name, recorded)
+      resultArray(i) = info
+
+      //remove later
+      println("for a meeting:" + id)
+      println("Meeting Name = " + meetings.get(id).head.getMeetingName())
+      println("isRecorded = " + meetings.get(id).head.getRecordedStatus())
+
       //send the users
-      this ! (new GetUsers(arr(i), "nodeJSapp"))
+      this ! (new GetUsers(id, "nodeJSapp"))
 
       //send the presentation
-      this ! (new GetPresentationInfo(arr(i), "nodeJSapp", "nodeJSapp"))
+      this ! (new GetPresentationInfo(id, "nodeJSapp", "nodeJSapp"))
 
       //send chat history
-      this ! (new GetChatHistoryRequest(arr(i), "nodeJSapp", "nodeJSapp"))
+      this ! (new GetChatHistoryRequest(id, "nodeJSapp", "nodeJSapp"))
     }
 
-    outGW.send(new GetAllMeetingsReply(arr))
+    outGW.send(new GetAllMeetingsReply(resultArray))
   }
 }

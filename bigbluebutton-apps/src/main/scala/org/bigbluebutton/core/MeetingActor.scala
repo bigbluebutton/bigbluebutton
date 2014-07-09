@@ -26,7 +26,15 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
   var recording = false;
   var muted = false;
   var meetingEnded = false
-  
+
+  def getMeetingName():String = {
+    meetingName
+  }
+
+  def getRecordedStatus():Boolean = {
+    recorded
+  }
+
   class TimerActor(val timeout: Long, val who: Actor, val reply: String) extends Actor {
     def act {
         reactWithin(timeout) {

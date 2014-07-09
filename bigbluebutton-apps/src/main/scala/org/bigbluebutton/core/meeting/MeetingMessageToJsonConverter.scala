@@ -115,7 +115,7 @@ object MeetingMessageToJsonConverter {
 
   def getAllMeetingsReplyToJson(msg: GetAllMeetingsReply):String = {
     val payload = new java.util.HashMap[String, Any]()
-    payload.put("meetingIDs", msg.meetingIDs)
+    payload.put("meetings", msg.meetings)
 
     val header = Util.buildHeader(MessageNames.GET_ALL_MEETINGS_REPLY, msg.version, None)
     Util.buildJson(header, payload)
