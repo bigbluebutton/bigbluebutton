@@ -7,6 +7,11 @@ Router.map ->
       @redirect('/')
       Meteor.subscribe 'users', Session.get('meetingId')
       Meteor.subscribe 'chat', Session.get('meetingId')
+      Meteor.subscribe 'chatTabs', Session.get('userId')
+
+      # I have no idea where to put this
+      Meteor.ChatTabs.insert({isActive:true, name:"Public", class: "publicChatTab", 'belongsTo': Session.get("userId")})
+      Meteor.ChatTabs.insert({isActive:false, name:"Options", class: "optionsChatTab", 'belongsTo': Session.get("userId")})
 
     onBeforeAction: ()->
       url = location.href

@@ -5,3 +5,7 @@ Meteor.publish 'users', (meetingId) ->
 
 Meteor.publish 'chat', (meetingId) ->
   Meteor.Chat.find({meetingId: meetingId})
+
+Meteor.publish 'chatTabs', (userId) ->
+  Meteor.ChatTabs.find({'belongsTo': userId})
+

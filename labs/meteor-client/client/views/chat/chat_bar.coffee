@@ -1,96 +1,102 @@
 Template.messageBar.helpers
   getMessagesInChat: ->
-    # we need to know what chat the user is in to pull those messages
-    messages = Meteor.Chat.find("meetingId": getInSession("currentChatId"))
-    #console.log messages
-    messages
+    friend = chattingWith = Session.get('inChatWith') # the recipient(s) of the messages
+
+    if chattingWith is 'PUBLIC_CHAT'
+      Meteor.Chat.find('message.chat_type': chattingWith) # find all public messages
+    else
+      me = Session.get "userId"
+      Meteor.Chat.find({ # find all messages between current user and recipient
+        'message.chat_type': 'PRIVATE_CHAT',
+        $or: [{'message.from_userid': me, 'message.to_userid': friend},{'message.from_userid': friend, 'message.to_userid': me}]
+      })
+
+  isUserInPrivateChat: -> # true if user is in public chat
+    Session.get('inChatWith') isnt "PUBLIC_CHAT" 
 
 # Must be be called when template is finished rendering or will not work
 Template.messageBar.rendered = -> # Scroll down the messages box the amount of its height, which places it at the bottom
-    height = $("#chatScrollWindow").height()
-    $("#chatScrollWindow").scrollTop(height)  
+    height = $('#chatScrollWindow').height()
+    $('#chatScrollWindow').scrollTop(height)  
 
 Template.tabButtons.events
-  "click .publicChatTab": (event) ->
-    Session.set "display_chatPane", true
+  'click .publicChatTab': (event) ->
+    Session.set 'display_chatPane', true
+    Session.set 'inChatWith', 'PUBLIC_CHAT'
 
-  "click .optionsChatTab": (event) ->
-    Session.set "display_chatPane", false
+  'click .optionsChatTab': (event) ->
+    Session.set 'display_chatPane', false
 
-  "click .privateChatTab": (event) ->
-    event.preventDefault()
-    Session.set "display_chatPane", true
-    Session.set "chatTabsReactivity", (Session.get "chatTabsReactivity")+1 # change value to cause a refresh for dependencies
+  'click .privateChatTab': (event) ->
+    Session.set 'display_chatPane', true
+    Session.set 'inChatWith', @userId
 
-  "click .close": (event) ->
-    removeTab this.name
-    Session.set "chatTabsReactivity", (Session.get "chatTabsReactivity")+1 # change value to cause a refresh for dependencies
-
+  'click .close': (event) -> # user closes private chat
+    toRemove = Meteor.ChatTabs.findOne({name:@name})
+    if toRemove then Meteor.ChatTabs.remove({_id: toRemove._id}) # should probably delete chat history here too?
+    Meteor.call 'invalidateAllTabs', Session.get('userId'), true
+    Session.set 'inChatWith', "PUBLIC_CHAT" # switch over to public chat
     
 Template.chatInput.events
-  'keypress #newMessageInput': (event) ->
+  'keypress #newMessageInput': (event) -> # user pressed a button inside the chatbox
     if event.which is 13 # Check for pressing enter to submit message
+      chattingWith = Session.get 'inChatWith'
 
       messageForServer = { # construct message for server
         "message": $("#newMessageInput").val()
-        "chat_type": "PUBLIC_CHAT"
+        "chat_type": if chattingWith is "PUBLIC_CHAT" then "PUBLIC_CHAT" else "PRIVATE_CHAT"
         "from_userid": Session.get "userId"
-        "from_username": Session.get "userName"
+        "from_username": getUsersName()
         "from_tz_offset": "240"
-        "to_username": "public_chat_username"
-        "to_userid": "public_chat_userid"
+        "to_username": if chattingWith is "PUBLIC_CHAT" then "public_chat_username" else chattingWith
+        "to_userid": if chattingWith is "PUBLIC_CHAT" then "public_chat_userid" else chattingWith
         "from_lang": "en"
         "from_time": "1.403794169042E12"
         "from_color": "0"
       }
-      console.log "Sending message to server: '#{messageForServer.message}'"
+      # console.log 'Sending message to server:'
+      # console.log messageForServer
       Meteor.call "sendChatMessagetoServer", Session.get("meetingId"), messageForServer
       $('#newMessageInput').val '' # Clear message box
-      #sendChatMessagetoServer(null)
-
 
 Template.optionsBar.events
   'click .private-chat-user-entry': (event) -> # clicked a user's name to begin private chat
+    currUserId = Session.get "userId"
+    duplicate = Meteor.ChatTabs.findOne({'belongsTo':Session.get("userId"), 'userId': @userId})
 
-    messageForServer = { 
-        "message": "You are now in a private chat"
-        "chat_type": "PRIVATE_CHAT"
-        "from_userid": Session.get "userId"
-        "from_username": Session.get "userName"
-        "from_tz_offset": "240"
-        "to_username": @user.name
-        "to_userid": @userId
-        "from_lang": "en"
-        "from_time": "1.403794169042E12"
-        "from_color": "0"
-    }
-    console.log "Sending private message to server: '#{messageForServer.message}'"
-    Meteor.call "sendChatMessagetoServer", Session.get("meetingId"), messageForServer
+    if not duplicate and @userId isnt currUserId
+      messageForServer = { 
+          "message": "Hey #{@user.name}, its #{getUsersName()} lets start a private chat."
+          "chat_type": "PRIVATE_CHAT"
+          "from_userid": Session.get "userId"
+          "from_username": getUsersName()
+          "from_tz_offset": "240"
+          "to_username": @user.name
+          "to_userid": @userId
+          "from_lang": "en"
+          "from_time": "1.403794169042E12"
+          "from_color": "0"
+      }
 
-    # only trigger a reaction is new private chat was added
-    if addNewTab @user.name, true, "privateChatTab"
-      # Hackish way to go about this
-      # Coffeescript variables and arays inside the session are not reactive 
-      # So have a session variable that we change everytime we want our dependent templates to be force rendered
-      Session.set "chatTabsReactivity", (Session.get "chatTabsReactivity")+1 # change value to cause a refresh for dependencies
-      Session.set "display_chatPane", true
+      # console.log 'Sending private message to server:'
+      # console.log messageForServer
+      Meteor.call "sendChatMessagetoServer", Session.get("meetingId"), messageForServer
+      Meteor.call "invalidateAllTabs", currUserId, false
+      # Give tab to us
+      Meteor.ChatTabs.insert({belongsTo: currUserId, name: @user.name, isActive: true, class: "privateChatTab", 'userId': @userId})
+      # Give tab to recipient to notify them
+      Meteor.ChatTabs.insert({belongsTo: @userId, name: getUsersName(), isActive: false, class: "privateChatTab", 'userId': currUserId})
+      Session.set "inChatWith", @userId
 
-Template.tabButtons.getChatbarTabs = ->
-  console.log "inside display new tabs"
-  Session.get "chatTabsReactivity" # pulling from session causes reactive template refresh
-  console.log "emptying tabs"
-  #$("#tabButtonContainer").empty()
-  console.log "new tabs logging"
-  console.log ChatbarTabs
-  ChatbarTabs
+Template.tabButtons.helpers
+  getChatbarTabs: ->
+    Meteor.ChatTabs.find({}) 
 
-Template.tabButtons.makeTabButton = ->
-  button = '<li class="'
-  button += 'active ' if this.isActive
-  button += "#{this.class}\"><a href=\"#\" data-toggle=\"tab\">#{this.name}"
-  button += '&nbsp;<button class="close closeTab" type="button" >×</button>' if this.name isnt 'Public' and this.name isnt 'Options'
-  button += '</a></li>'
-  console.log "inisde button: #{this.name}'s active is: #{this.isActive}"
-  button
-
+  makeTabButton: -> # create tab button for private chat or other such as options
+    button = '<li class="'
+    button += 'active ' if @isActive
+    button += "#{@class}\"><a href=\"#\" data-toggle=\"tab\">#{@name}"
+    button += '&nbsp;<button class="close closeTab" type="button" >×</button>' if @name isnt 'Public' and @name isnt 'Options'
+    button += '</a></li>'
+    button
 

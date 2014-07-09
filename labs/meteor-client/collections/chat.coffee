@@ -22,3 +22,10 @@ Meteor.methods
 
   sendChatMessagetoServer: (meetingId, messageObject) ->
     Meteor.call "publishChatMessage", meetingId, messageObject
+
+  invalidateAllTabs: (userId, setFirst=false) -> # make all tabs false
+    Meteor.ChatTabs.update({'belongsTo':userId}, { $set: { isActive:false} }, {multi:true})
+
+    if setFirst # able to specify the first to be active
+      firstRecord = Meteor.ChatTabs.findOne({})
+      Meteor.ChatTabs.update({_id: firstRecord._id}, {$set: isActive:true})

@@ -29,6 +29,11 @@
 
 <!-- Display the actual message bar -->
 <template name="messageBar">
+	{{#if isUserInPrivateChat}}
+		<p>You are in a Private Chat.</p>
+	{{else}}
+		<p>This Chat is Open to Everyone.</p>
+	{{/if}}
 	<div id="chatScrollWindow">
 		{{#each getMessagesInChat}}
 			{{> message}}
