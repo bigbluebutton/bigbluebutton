@@ -27,5 +27,5 @@ Meteor.methods
 
     if setFirst # able to specify the first to be active
       console.log "setting first tab as active"
-      firstRecord = Meteor.ChatTabs.findOne({'belongsTo':userId})
+      firstRecord = Meteor.ChatTabs.findOne({'belongsTo':userId, name:"Public"})
       Meteor.ChatTabs.update({_id: firstRecord._id}, {$set: isActive:true})
