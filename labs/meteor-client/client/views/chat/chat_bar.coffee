@@ -20,23 +20,44 @@ Template.messageBar.rendered = -> # Scroll down the messages box the amount of i
     $('#chatScrollWindow').scrollTop(height)  
 
 Template.tabButtons.events
+  'click .tab': (event) ->
+    # $('.tab').removeClass('active')
+    
+
   'click .publicChatTab': (event) ->
     Session.set 'display_chatPane', true
     Session.set 'inChatWith', 'PUBLIC_CHAT'
+    Meteor.call 'invalidateAllTabs', Session.get('userId'), false
+    toUpdate = Meteor.ChatTabs.findOne({name:"Public"})
+    Meteor.ChatTabs.update({_id: toUpdate._id}, {$set: 'isActive':true})
 
   'click .optionsChatTab': (event) ->
     Session.set 'display_chatPane', false
+    Meteor.call 'invalidateAllTabs', Session.get('userId'), false
+    toUpdate = Meteor.ChatTabs.findOne({name:"Options"})
+    Meteor.ChatTabs.update({_id: toUpdate._id}, {$set: 'isActive':true})
 
   'click .privateChatTab': (event) ->
     Session.set 'display_chatPane', true
     Session.set 'inChatWith', @userId
+    Meteor.call 'invalidateAllTabs', Session.get('userId'), false
+    console.log @name
+    toUpdate = Meteor.ChatTabs.findOne({name:@name})
+    Meteor.ChatTabs.update({_id: toUpdate._id}, {$set: 'isActive':true})
 
   'click .close': (event) -> # user closes private chat
     toRemove = Meteor.ChatTabs.findOne({name:@name})
     if toRemove then Meteor.ChatTabs.remove({_id: toRemove._id}) # should probably delete chat history here too?
-    Meteor.call 'invalidateAllTabs', Session.get('userId'), true
     Session.set 'inChatWith', "PUBLIC_CHAT" # switch over to public chat
+    Meteor.call 'invalidateAllTabs', Session.get('userId'), true
+    # only set public active if they click to remove whats being viewed
+    # if $(event.target.parentElement.parentElement).hasClass('active')
+    #   $(".publicChatTab").addClass("active")
+
+    # # # safety checking, make public active by default if nothing is active
+    # if not $('.tab').hasClass('active') then $(".publicChatTab").addClass("active")
     
+
 Template.chatInput.events
   'keypress #newMessageInput': (event) -> # user pressed a button inside the chatbox
     if event.which is 13 # Check for pressing enter to submit message
@@ -87,16 +108,38 @@ Template.optionsBar.events
       # Give tab to recipient to notify them
       Meteor.ChatTabs.insert({belongsTo: @userId, name: getUsersName(), isActive: false, class: "privateChatTab", 'userId': currUserId})
       Session.set "inChatWith", @userId
+      # $('.tab').removeClass('active')
+      # Todo:
+      #   just need a way to make the newly created tab active
+      #   don't know how to do that right here since it doesn't get created here
+      #   once that's handled, private chat is essentially done
+      # $("#tabButtonContainer").append("<li>fsdfdsf| </li>")
+
+
+
 
 Template.tabButtons.helpers
   getChatbarTabs: ->
-    Meteor.ChatTabs.find({}) 
+    console.log "displaying tabs"
+    t = Meteor.ChatTabs.find({}).fetch()
+    # console.log JSON.stringify t
+    t
 
   makeTabButton: -> # create tab button for private chat or other such as options
-    button = '<li class="'
+    console.log "#{@name} is " + if @isActive then "active" else "not active"
+    button = '<li '
+    button += 'class="'
     button += 'active ' if @isActive
-    button += "#{@class}\"><a href=\"#\" data-toggle=\"tab\">#{@name}"
+    button += "#{@class} tab\"><a href=\"#\" data-toggle=\"tab\">#{@name}"
+
+    if @isActive 
+      button += "(active)" 
+    else 
+      button += "(not active)"
+
     button += '&nbsp;<button class="close closeTab" type="button" >×</button>' if @name isnt 'Public' and @name isnt 'Options'
     button += '</a></li>'
+    console.log "and here it is the button"
+    console.log button
     button
 

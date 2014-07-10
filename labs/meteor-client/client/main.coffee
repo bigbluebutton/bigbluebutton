@@ -27,6 +27,6 @@ Template.header.events
 		
 # Gets called last in main template, just an easy place to print stuff out
 Handlebars.registerHelper "doFinalStuff", ->
-	# console.log "-----Doing Final Stuff-----"
+	console.log "-----Doing Final Stuff-----"
 	
 

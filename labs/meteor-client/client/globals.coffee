@@ -48,22 +48,24 @@ Meteor.methods
   name = Session.get("userName") # check if we actually have one in the session
   if name? then name # great return it, no database query
   else # we need it from the database
-    user = Meteor.Users.findOne({'meetingId': Session.get("meetingId"), 'userId': Session.get("userId")})
+    user = Meteor.Users.findOne({'userId': Session.get("userId")})
     if user?.user?.name
       Session.set "userName", user.user.name # store in session for fast access next time
       user.user.name
     else null
 
-# @getMeetingName = ->
-#   name = Session.get("meetingName") # check if we actually have one in the session
-#   if name? then name # great return it, no database query
-#   else # we need it from the database
-#     meet = Meteor.Meetings.findOne({'meetingId': Session.get("meetingId")})
-#     if meet?.name
-#       Session.set "meetingName", meet?.name # store in session for fast access next time
-#       meet?.name
-#     else null
+@getMeetingName = ->
+  meetName = Session.get("meetingName") # check if we actually have one in the session
+  if meetName? then meetName # great return it, no database query
+  else # we need it from the database
+    meet = Meteor.Meetings.findOne({})
+    if meet?.meetingName
+      Session.set "meetingName", meet?.meetingName # store in session for fast access next time
+      meet?.meetingName
+    else null
 
+Handlebars.registerHelper "getMeetingName", ->
+  window.getMeetingName()
 
 Handlebars.registerHelper "isUserSharingAudio", (u) ->
   u.voiceUser.talking

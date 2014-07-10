@@ -2,9 +2,9 @@
 	{{#if getInSession "display_chatbar"}}
 		<div id="chat">
 			<h3>Chat</h3>
-			<ul id="tabButtonContainer" class="nav nav-tabs">
-			  {{> tabButtons}}
-			</ul>
+			
+		  	{{> tabButtons}}
+			
 			<div id="chatbar-contents">
 				{{#if getInSession "display_chatPane"}}
 					{{> messageBar}}
@@ -71,15 +71,18 @@
 
 <!-- Display buttons on the chat tab, public, options, and all the private chat tabs -->
 <template name="tabButtons">
+	<ul id="tabButtonContainer" class="nav nav-tabs">
   	{{#each getChatbarTabs}}
   		{{{makeTabButton}}}
+  		<!-- {{makeTabButton}} -->
   	{{/each}}
+  	</ul>
 </template>
 
 <!-- When done displaying previous chat messages, display the BBB greeting -->
 <template name="chatGreeting">
 	<div class="chatGreeting">
-		<p>Welcome to {{getInSession "meetingName"}}!</p>
+		<p>Welcome to {{getMeetingName}}!</p>
 		<p>For help on using BigBlueButton see these (short) <a href="http://bigbluebutton.org/videos/" target="_blank">tutorial videos</a>.</p>
 		<p>To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.</p>
 		<br/>
