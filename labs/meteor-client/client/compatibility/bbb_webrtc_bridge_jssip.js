@@ -21,7 +21,7 @@ function webrtc_call(username, voiceBridge, server, callback) {
         return;
     }
 
-    server = server || window.document.location.host;
+    server = server || window.document.location.host.split(':')[0]
     console.log("user " + username + " calling to " +  voiceBridge);
     
     var configuration = {

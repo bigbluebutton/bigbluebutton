@@ -28,5 +28,16 @@ Template.header.events
 		
 # Gets called last in main template, just an easy place to print stuff out
 Handlebars.registerHelper "doFinalStuff", ->
-	console.log "-----Doing Final Stuff-----"
-	console.log "session: " + Session.get "joinedAt"
+    console.log "-----Doing Final Stuff-----"
+    console.log "session: " + Session.get "joinedAt"
+
+Template.main.events
+	"click .joinCall": (event) ->
+		username = "#{Session.get("userId")}-bbbID-#{getUsersName()}"
+		voiceBridge = "70827"
+		server = null
+		callback = (message) -> console.log JSON.stringify message
+		webrtc_call(username, voiceBridge, server, callback)
+
+
+
