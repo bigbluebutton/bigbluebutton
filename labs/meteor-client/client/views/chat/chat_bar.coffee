@@ -1,9 +1,12 @@
 Template.messageBar.helpers
-  getMessagesInChat: ->
+  getMessagesInChat: (beforeJoin=true) ->
     friend = chattingWith = Session.get('inChatWith') # the recipient(s) of the messages
 
-    if chattingWith is 'PUBLIC_CHAT'
-      Meteor.Chat.find('message.chat_type': chattingWith) # find all public messages
+    if chattingWith is 'PUBLIC_CHAT' # find all public messages
+      if beforeJoin
+        Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$lt: String(Session.get("joinedAt"))}})
+      else
+        Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$gt: String(Session.get("joinedAt"))}}) 
     else
       me = Session.get "userId"
       Meteor.Chat.find({ # find all messages between current user and recipient
@@ -71,9 +74,10 @@ Template.chatInput.events
         "to_username": if chattingWith is "PUBLIC_CHAT" then "public_chat_username" else chattingWith
         "to_userid": if chattingWith is "PUBLIC_CHAT" then "public_chat_userid" else chattingWith
         "from_lang": "en"
-        "from_time": "1.403794169042E12"
+        "from_time": getTime()
         "from_color": "0"
       }
+      # console.log "time of join was " + Session.get("joinedAt")
       # console.log 'Sending message to server:'
       # console.log messageForServer
       Meteor.call "sendChatMessagetoServer", Session.get("meetingId"), messageForServer
@@ -94,7 +98,7 @@ Template.optionsBar.events
           "to_username": @user.name
           "to_userid": @userId
           "from_lang": "en"
-          "from_time": "1.403794169042E12"
+          "from_time": getTime()
           "from_color": "0"
       }
 

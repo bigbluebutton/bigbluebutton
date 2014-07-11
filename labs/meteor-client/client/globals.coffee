@@ -79,3 +79,6 @@ Handlebars.registerHelper "isCurrentUser", (id) ->
 # retrieves all users in the meeting
 Handlebars.registerHelper "getUsersInMeeting", ->
   Meteor.Users.find({})
+
+@getTime = -> # returns epoch in ms
+  (new Date).valueOf()

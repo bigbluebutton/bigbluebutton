@@ -6,6 +6,7 @@ Meteor.startup ->
 	Session.set "display_whiteboard", false
 	Session.set "display_chatPane", true
 	Session.set 'inChatWith', "PUBLIC_CHAT"
+	Session.set "joinedAt", getTime()
 
 Template.header.events
 	"click .usersListIcon": (event) ->
@@ -28,5 +29,4 @@ Template.header.events
 # Gets called last in main template, just an easy place to print stuff out
 Handlebars.registerHelper "doFinalStuff", ->
 	console.log "-----Doing Final Stuff-----"
-	
-
+	console.log "session: " + Session.get "joinedAt"
