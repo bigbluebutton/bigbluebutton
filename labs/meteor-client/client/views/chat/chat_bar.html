@@ -35,13 +35,20 @@
 		<p>This Chat is Open to Everyone.</p>
 	{{/if}}
 	<div id="chatScrollWindow">
-		{{#each getMessagesInChat true}} <!-- before they joined meeting -->
-			{{> message}}
-		{{/each}} 
-		{{> chatGreeting}}
-		{{#each getMessagesInChat false}} <!-- after they joined meeting -->
-			{{> message}}
-		{{/each}} 
+		{{#if isUserInPrivateChat}} <!-- If in private chat display greeting, then all messages after join -->
+			{{> chatGreeting}}
+			{{#each getMessagesInChat after}} <!-- before they joined meeting -->
+				{{> message}}
+			{{/each}} 
+		{{else}}
+			{{#each getMessagesInChat true}} <!-- before they joined meeting -->
+				{{> message}}
+			{{/each}} 
+			{{> chatGreeting}}
+			{{#each getMessagesInChat false}} <!-- after they joined meeting -->
+				{{> message}}
+			{{/each}} 
+		{{/if}}
 	</div>
 </template>
 
