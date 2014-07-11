@@ -38,9 +38,10 @@ package org.bigbluebutton.modules.phone.managers
 	private static const STOP_ECHO_THEN_JOIN_CONF:int = 7;
 	private static const ECHO_TEST_FAILED:int = 8;
 	
-	private var state:int = INITED;
+    private var state:int = INITED;
 	
     private var browserType:String = "unknown";
+    private var browserVersion:int = 0;
     private var dispatcher:Dispatcher = new Dispatcher();
     private var echoTestDone:Boolean = false;
     
@@ -48,7 +49,11 @@ package org.bigbluebutton.modules.phone.managers
     private var options:PhoneOptions;
     
     public function WebRtcCallManager() {
-      browserType = JSAPI.getInstance().getBrowserType();
+      var browserInfo:Array = JSAPI.getInstance().getBrowserInfo();
+      if (browserInfo != null) {
+        browserType = browserInfo[0];
+        browserVersion = browserInfo[1];
+      }
     }
     
     private function isWebRtcSupported():Boolean {
@@ -97,11 +102,9 @@ package org.bigbluebutton.modules.phone.managers
 	  state = ECHO_TEST_FAILED;
       endEchoTest();
       hideMicPermission();
-      if (browserType == "Firefox") {
-        startWebRtcEchoTest();
-      }
       
-      dispatcher.dispatchEvent(new WebRtcAskUserToChangeMicEvent(browserType));
+      //dispatcher.dispatchEvent(new WebRtcAskUserToChangeMicEvent(browserType));
+      dispatcher.dispatchEvent(new UseFlashModeCommand());
     }
     
     public function handleWebRtcEchoTestHasAudioEvent():void {
@@ -131,7 +134,7 @@ package org.bigbluebutton.modules.phone.managers
     private function joinVoiceConference():void {
 	  state = JOIN_VOICE_CONFERENCE;
       ExternalInterface.call("joinWebRtcVoiceConference");
-      dispatcher.dispatchEvent(new WebRtcAskMicPermissionToJoinConferenceEvent(browserType));        
+      dispatcher.dispatchEvent(new WebRtcAskMicPermissionToJoinConferenceEvent(browserType, browserVersion));        
     }
     
     public function handleJoinVoiceConferenceCommand(event:JoinVoiceConferenceCommand):void {
@@ -177,15 +180,20 @@ package org.bigbluebutton.modules.phone.managers
       endEchoTest();
       hideMicPermission();
 	  var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [reason]), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
-	  //alert.
     }
-	
-	private function handleCallFailedUserResponse(e:CloseEvent):void {
-	  if (e.detail == Alert.YES){
-		  dispatcher.dispatchEvent(new UseFlashModeCommand());
-	  } else {
-		  dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION));
-	  }
-	}
+    
+    public function handleWebrtcCallFailedEvent(reason:String):void {
+      state = INITED;
+      hideMicPermission();
+      var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [reason]), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
+    }
+    
+    private function handleCallFailedUserResponse(e:CloseEvent):void {
+      if (e.detail == Alert.YES){
+        dispatcher.dispatchEvent(new UseFlashModeCommand());
+      } else {
+        dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION));
+      }
+    }
   }
 }

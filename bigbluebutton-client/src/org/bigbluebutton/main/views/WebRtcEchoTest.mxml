@@ -43,12 +43,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
       private static const LOG:String = "Phone::WebRtcEchoTest - ";
       
-			private var browserType:String;
-			private var startEchoTestTxt:String = "Please allow the browser to access the mic when prompted near the top of the browser.";
+      private var startEchoTestTxt:String = "Please allow the browser to access the mic when prompted near the top of the browser.";
       
-			override public function move(x:Number, y:Number):void {
-				return;
-			}
+      override public function move(x:Number, y:Number):void {
+        return;
+      }
 			
       private function onCancelClicked():void {
         PopUpManager.removePopUp(this);
@@ -58,9 +57,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
       }
       
-			private function onCreationComplete():void {
-        browserType = JSAPI.getInstance().getBrowserType();
-        trace(LOG + "************************* BROWSER TYPE = [" + browserType + "] **********************");
+      private function onCreationComplete():void {
+        
       }
       
       private function yesButtonClicked():void {
