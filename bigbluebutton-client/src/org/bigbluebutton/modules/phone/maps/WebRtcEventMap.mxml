@@ -34,6 +34,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
 			import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;
 			import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
+			import org.bigbluebutton.modules.phone.events.WebRtcCallFailedEvent;
 			import org.bigbluebutton.modules.phone.events.WebRtcCallStartedEvent;
 			import org.bigbluebutton.modules.phone.events.WebRtcConfCallEndedEvent;
 			import org.bigbluebutton.modules.phone.events.WebRtcConfCallStartedEvent;
@@ -105,6 +106,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <EventHandlers type="{WebRtcEchoTestFailedEvent.WEBRTC_ECHO_TEST_FAILED}">
     <MethodInvoker generator="{WebRtcCallManager}" method="handleWebrtcEchoTestFailedEvent" arguments="{event.reason}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{WebRtcCallFailedEvent.WEBRTC_CALL_FAILED}">
+    <MethodInvoker generator="{WebRtcCallManager}" method="handleWebrtcCallFailedEvent" arguments="{event.reason}"/>
   </EventHandlers>
   
   <EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">        

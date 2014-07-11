@@ -34,33 +34,36 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
 	<mx:Script>
 		<![CDATA[
-      import flash.system.Security;
-      import flash.system.SecurityPanel;
-      import flash.ui.Keyboard;
-      
-      import mx.controls.sliderClasses.Slider;
-      import mx.core.IFlexDisplayObject;
-      import mx.events.CloseEvent;
-      import mx.events.ItemClickEvent;
-      import mx.events.SliderEvent;
-      import mx.managers.PopUpManager;
-      
-      import org.bigbluebutton.common.Images;
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.core.BBB;
-      import org.bigbluebutton.core.managers.UserManager;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.modules.phone.PhoneOptions;
-      import org.bigbluebutton.modules.phone.events.CallEchoTestAppEvent;
-      import org.bigbluebutton.modules.phone.events.FlashEchoTestHasAudioEvent;
-      import org.bigbluebutton.modules.phone.events.FlashEchoTestNoAudioEvent;
-      import org.bigbluebutton.modules.phone.events.FlashEchoTestStartedEvent;
-      import org.bigbluebutton.modules.phone.events.FlashEchoTestStoppedEvent;
-      import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
-      import org.bigbluebutton.modules.phone.events.FlashStartEchoTestCommand;
-      import org.bigbluebutton.modules.phone.events.FlashStopEchoTestCommand;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.system.Security;
+			import flash.system.SecurityPanel;
+			import flash.ui.Keyboard;
+			
+			import mx.controls.sliderClasses.Slider;
+			import mx.core.IFlexDisplayObject;
+			import mx.events.CloseEvent;
+			import mx.events.ItemClickEvent;
+			import mx.events.SliderEvent;
+			import mx.managers.PopUpManager;
+			
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.modules.phone.PhoneOptions;
+			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
+			import org.bigbluebutton.modules.phone.events.CallEchoTestAppEvent;
+			import org.bigbluebutton.modules.phone.events.FlashEchoTestHasAudioEvent;
+			import org.bigbluebutton.modules.phone.events.FlashEchoTestNoAudioEvent;
+			import org.bigbluebutton.modules.phone.events.FlashEchoTestStartedEvent;
+			import org.bigbluebutton.modules.phone.events.FlashEchoTestStoppedEvent;
+			import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
+			import org.bigbluebutton.modules.phone.events.FlashStartEchoTestCommand;
+			import org.bigbluebutton.modules.phone.events.FlashStopEchoTestCommand;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
       private static const LOG:String = "Phone::FlashMicSettings - ";
       
@@ -93,7 +96,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return;
 			}
 			
-			private function selectMicrophone(event:Event):void {				        
+			private function selectMicrophone(event:Event):void {
 				testMicrophoneLoopback();
 			}
 			
@@ -225,13 +228,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         doingEchoTest = true;          
         dispatchEvent(new FlashStartEchoTestCommand(mic.index, mic.name));	
       }
-      					
-			private function onCancelClicked():void {        
-				cleanUp();
+      
+      private function onCancelClicked():void {
+        trace(LOG + "onCancelClicked closing popup");
+        cleanUp();
         stopEchoTest();
-				PopUpManager.removePopUp(this);
-			}
-			
+        var dispatcher:Dispatcher = new Dispatcher();
+        dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION));
+        PopUpManager.removePopUp(this);
+      }
+      
       private function stopEchoTest():void {
         if (doingEchoTest) {
           doingEchoTest = false;
@@ -316,7 +322,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             <mx:HBox>
               <mx:ComboBox id="comboMicList" 
                            dataProvider="{microphoneList}" change="selectMicrophone(event)"
-                           height="30" tabIndex="{baseIndex+2}" 
+                           height="30" dropdownWidth="390" width="390" tabIndex="{baseIndex+2}" 
                            toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.comboMicList.toolTip')}" />
               <mx:HSlider id="micRecordVolume" 
                           maximum="100" snapInterval="1"                       
@@ -327,7 +333,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                           toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.micRecordVolume.toolTip')}" />                           
             </mx:HBox>
             <mx:ProgressBar id="micLevel" minimum="0" maximum="100" direction="right" label=""
-                            mode="manual" visible="true" width="450" height="27" trackHeight="25" verticalGap="-20" 
+                            mode="manual" visible="true" width="100%" height="27" trackHeight="25" verticalGap="-20" 
                             tabIndex="{baseIndex+4}" />
         </mx:VBox>
        
@@ -361,7 +367,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <mx:HRule width="100%"/>
         <mx:Spacer height="10"/>
         <mx:HBox width="100%" horizontalAlign="right" horizontalGap="18">
-          <mx:Button id="echoTestButton" label="Echo Test" 
+          <mx:Button id="echoTestButton" label="Next" 
                  click="echoTestButtonClickHandler()" styleName="micSettingsWindowPlaySoundButtonStyle"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound.toolTip')}"/>
           <mx:Button id="playButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound')}" 

@@ -53,6 +53,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.FlashJoinedListenOnlyVoiceConferenceEvent;
 			import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
 			import org.bigbluebutton.modules.phone.events.FlashLeftVoiceConferenceEvent;
+			import org.bigbluebutton.modules.phone.events.FlashStopEchoTestCommand;
 			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
 			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
 			import org.bigbluebutton.modules.phone.events.WebRtcCallConnectedEvent;

@@ -409,7 +409,7 @@ package org.bigbluebutton.main.api
     
     private function handleWebRtcConferenceCallFailed(cause:String):void {
       trace(LOG + "handleWebRtcConferenceCallFailed: cause=[" + cause + "]");
-//      _dispatcher.dispatchEvent(new WebRtcCallProgressEvent(progress));
+      _dispatcher.dispatchEvent(new WebRtcCallFailedEvent(cause));
     }
     
     private function handleWebRtcEchoTestFailed(cause:String):void {

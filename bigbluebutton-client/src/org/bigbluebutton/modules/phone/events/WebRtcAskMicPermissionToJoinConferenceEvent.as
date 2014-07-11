@@ -7,11 +7,13 @@ package org.bigbluebutton.modules.phone.events
     public static const WEBRTC_ASK_MIC_PERMISSION_TO_JOIN_VOICE_CONFERENCE:String = "webrtc ask mic permission to join voice conference event";
     
     public var browser:String = "unknown";
+    public var browserVersion:int = 0;
     
-    public function WebRtcAskMicPermissionToJoinConferenceEvent(browserType:String)
+    public function WebRtcAskMicPermissionToJoinConferenceEvent(browserType:String, browserVersion:int)
     {
       super(WEBRTC_ASK_MIC_PERMISSION_TO_JOIN_VOICE_CONFERENCE, true, false);
       browser = browserType;
+      this.browserVersion = browserVersion; 
     }
   }
 }
