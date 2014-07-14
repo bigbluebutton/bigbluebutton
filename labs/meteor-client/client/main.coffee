@@ -1,12 +1,13 @@
 # These settings can just be stored locally in session, created at start up
 Meteor.startup ->
-	Session.set "display_usersList", true
-	Session.set "display_navbar", true
-	Session.set "display_chatbar", true 
-	Session.set "display_whiteboard", false
-	Session.set "display_chatPane", true
-	Session.set 'inChatWith', "PUBLIC_CHAT"
-	Session.set "joinedAt", getTime()
+	Session.setDefault "display_usersList", true
+	Session.setDefault "display_navbar", true
+	Session.setDefault "display_chatbar", true 
+	Session.setDefault "display_whiteboard", false
+	Session.setDefault "display_chatPane", true
+	Session.setDefault 'inChatWith', "PUBLIC_CHAT"
+	Session.setDefault "joinedAt", getTime()
+	Session.setDefault "isSharingAudio", false
 
 Template.header.events
 	"click .usersListIcon": (event) ->
@@ -30,14 +31,4 @@ Template.header.events
 Handlebars.registerHelper "doFinalStuff", ->
     console.log "-----Doing Final Stuff-----"
     console.log "session: " + Session.get "joinedAt"
-
-Template.main.events
-	"click .joinCall": (event) ->
-		username = "#{Session.get("userId")}-bbbID-#{getUsersName()}"
-		voiceBridge = "70827"
-		server = null
-		callback = (message) -> console.log JSON.stringify message
-		webrtc_call(username, voiceBridge, server, callback)
-
-
 

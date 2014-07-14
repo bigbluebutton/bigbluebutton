@@ -17,13 +17,25 @@ Handlebars.registerHelper "getCurrentUser", =>
 	@window.getCurrentUserFromSession()
 
 # toggle state of field in the database
-@toggleCam = (context) ->
+@toggleCam = (event) ->
 	# Meteor.Users.update {_id: context._id} , {$set:{"user.sharingVideo": !context.sharingVideo}}
   # Meteor.call('userToggleCam', context._id, !context.sharingVideo)
 
-@toggleMic = (context) -> 
-	# Meteor.Users.update {_id: context._id} , {$set:{"user.sharingAudio": !context.sharingAudio}}
-  # Meteor.call('userToggleMic', context._id, !context.sharingAudio)
+@toggleMic = (event) -> 
+  if getInSession "isSharingAudio"
+    callback = -> 
+      setInSession "isSharingAudio", false # update to no longer sharing
+      console.log "left voice conference"
+    webrtc_hangup callback # sign out of call
+  else
+    # create voice call params
+    username = "#{Session.get("userId")}-bbbID-#{getUsersName()}"
+    voiceBridge = "70827"
+    server = null
+    callback = (message) -> 
+      console.log JSON.stringify message
+      setInSession "isSharingAudio", true
+    webrtc_call(username, voiceBridge, server, callback) # make the call
 
 # toggle state of session variable
 @toggleUsersList = ->
@@ -68,7 +80,8 @@ Handlebars.registerHelper "getMeetingName", ->
   window.getMeetingName()
 
 Handlebars.registerHelper "isUserSharingAudio", (u) ->
-  u.voiceUser.talking
+  # u.voiceUser.talking
+  getInSession "isSharingAudio"
 
 Handlebars.registerHelper "isUserSharingVideo", (u) ->
   u.webcam_stream.length isnt 0
