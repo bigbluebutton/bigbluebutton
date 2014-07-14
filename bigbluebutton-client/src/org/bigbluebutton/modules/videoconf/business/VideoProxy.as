@@ -195,7 +195,7 @@ package org.bigbluebutton.modules.videoconf.business
 
 		public function getStreamNamePrefixFor(userID:String):String{
 			// If does not exist
-			if(!streamNamePrefixDict[userID]){
+			if(streamNamePrefixDict[userID] == null){
 				// TODO: change LogUtil.debug(); to trace();
 				LogUtil.debug("VideoProxy:: getStreamNamePrefixFor:: streamPrefix not found. NetConnection might not exist for stream from [" + userID + "]");
 				return "";
