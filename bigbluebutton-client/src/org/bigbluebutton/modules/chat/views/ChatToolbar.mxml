@@ -7,87 +7,59 @@
 		 creationComplete="onCreationComplete()"
 		 visible="{toolbarVisible}" 
 		 styleName="whiteboardToolbarStyle"
-		 width="{toolbarWidth}">
+		 horizontalAlign="center" >
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.core.UIComponent;
 			import com.asfusion.mate.events.Dispatcher;
-			import com.asfusion.mate.events.Listener;
 
-			import mx.controls.Alert;
-			import mx.events.MoveEvent;
-			import mx.events.ResizeEvent;
-			
-			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.modules.chat.model.ChatOptions;
-			import org.bigbluebutton.modules.chat.views.ChatWindow;
 			import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
+			import org.bigbluebutton.modules.chat.model.ChatOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			[Bindable] public var chatOptions:ChatOptions;
 			[Bindable] private var baseIndex:int;
-			[Bindable] private var toolbarWidth:int;
-			
 			[Bindable] private var toolbarVisible:Boolean = false;
 
 			private var mousedOver:Boolean = false;
-			
-			private var presentationWindow:ChatWindow;
-			//private var globalDispatcher:Dispatcher;
+			private var globalDispatcher:Dispatcher;
+			private var _toolbarHideTimer:Timer;
 			
 			public function init():void{
 				chatOptions = new ChatOptions();
 				baseIndex = chatOptions.baseTabIndex;
+
+				_toolbarHideTimer = new Timer(500, 1);
+				_toolbarHideTimer.addEventListener(TimerEvent.TIMER, closeToolbar);
 			}
 			
 			private function onCreationComplete():void {
-				//globalDispatcher = new globalDispatcher();
-			}
-					   
-			public function positionToolbar(window:ChatWindow = null):void {
-				if(window == null)
-					return;
-
-				trace("Positioning chat toolbar");
-				presentationWindow = window;
-				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
-				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
-				window.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
-				window.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
+				globalDispatcher = new Dispatcher();
 				this.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
 				this.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
-				checkVisibility();
 			}
 			
 			private function checkVisibility():void {
-				if (toolbarAllowed() && mousedOver) {
-					setPositionAndDepth();
-					toolbarVisible = true;
-				} else {
-					toolbarVisible = false;
-				}
+				toolbarVisible = (toolbarAllowed() && mousedOver);
+			}
+
+			public function closeToolbar(e:TimerEvent = null):void {
+				mousedOver = false;
+				checkVisibility();
+				//parent.removeChild(this);
 			}
 			
-			private function setPositionAndDepth(e:Event = null):void {
-				toolbarWidth = presentationWindow.width - 18;
-				this.x = presentationWindow.x + 9;
-				this.y = presentationWindow.y + presentationWindow.height - 105;
-				parent.setChildIndex(this, parent.numChildren - 1);
-			}
-			
-			public function closeToolbar():void {
-				parent.removeChild(this);
-			}
-			
-			private function handleMouseIn(e:MouseEvent):void {
+			private function handleMouseIn(e:MouseEvent = null):void {
+				_toolbarHideTimer.reset();
 				mousedOver = true;
 				checkVisibility();
 			}
-			
+
 			private function handleMouseOut(e:MouseEvent = null):void {
-				mousedOver = false;
-				checkVisibility();
+				_toolbarHideTimer.reset();
+				_toolbarHideTimer.start();
 			}
 
 			private function toolbarAllowed():Boolean {
@@ -95,43 +67,35 @@
 				return true;
 			}
 
-			private function dispatchEvtTest(evt:Event):void{
-				if(dispatchEvent(evt))
-					LogUtil.debug("Event " + evt.type + " dispatched in " + this.name);
-				else
-					LogUtil.debug("Event " + evt.type + " NOT dispatched in " + this.name);
-			}
-
 			public function sendSaveEvent():void{
-				var evt:ChatToolbarButtonEvent = new ChatToolbarButtonEvent(ChatToolbarButtonEvent.SAVE_CHAT_TOOLBAR_EVENT); 
-				dispatchEvtTest(evt);
+				var saveEvent:ChatToolbarButtonEvent = new ChatToolbarButtonEvent(ChatToolbarButtonEvent.SAVE_CHAT_TOOLBAR_EVENT); 
+				globalDispatcher.dispatchEvent(saveEvent);
 			}
 
 			public function sendCopyEvent():void{
-				var evt:ChatToolbarButtonEvent = new ChatToolbarButtonEvent(ChatToolbarButtonEvent.COPY_CHAT_TOOLBAR_EVENT);
-				dispatchEvtTest(evt);
+				var copyEvent:ChatToolbarButtonEvent = new ChatToolbarButtonEvent(ChatToolbarButtonEvent.COPY_CHAT_TOOLBAR_EVENT);
+				globalDispatcher.dispatchEvent(copyEvent);
 			}
-			
-			/*
-			private function printObjects():void{
-				var chatWindow:ChatView = presentationWindow.getChildAt(0);
-				LogUtil.debug(chatWindow.chatTabs);
+
+			public function registerListeners(component:UIComponent):void {
+				component.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
+				component.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
 			}
-			*/
 		]]>
 	</mx:Script>
 
-	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.saveBtn.label')}" id="saveBtn" 
+	<mx:Button id="saveBtn" label="{ResourceUtil.getInstance().getString('bbb.chat.saveBtn.label')}" 
 			   styleName="chatToolbarSaveButtonStyle"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.saveBtn.toolTip')}" 
 			   click="sendSaveEvent()"
 			   tabIndex="{baseIndex+1}"
 			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.accessibilityName')}"/>  
 	
-	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.label')}" id="copyBtn" 
+	<mx:Button id="copyBtn" label="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.label')}" 
 			   styleName="chatToolbarCopyButtonStyle"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.toolTip')}" 
 			   click="sendCopyEvent()"
 			   tabIndex="{baseIndex+2}"
-			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.accessibilityName')}"/> 
+			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.accessibilityName')}"/>  
+	
 </mx:HBox>

@@ -86,18 +86,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				closeBtn.tabIndex = baseIndex+3;
 
 				resourcesChanged(); // update the window controls once they've been created
-				//Necessary now because of module loading race conditions
-				var t:Timer = new Timer(2000, 1);
-				t.addEventListener(TimerEvent.TIMER, addChatToolbar);
-				t.start();
 			}
-			
-            private function addChatToolbar(event:TimerEvent):void {
-                // Tell the ChatManager to add the toolbar
-                var e:ChatToolbarButtonEvent = new ChatToolbarButtonEvent(ChatToolbarButtonEvent.ADD_TOOLBAR);
-                e.window = this;
-                dispatchEvent(e);
-            }
 			
 			private function loadKeyCombos(modifier:String):void {
 				keyCombos = new Object(); // always start with a fresh array

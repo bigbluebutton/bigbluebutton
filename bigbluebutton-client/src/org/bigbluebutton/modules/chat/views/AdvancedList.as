@@ -19,54 +19,21 @@
 package org.bigbluebutton.modules.chat.views
 {
 	import mx.controls.List;
-	import flash.events.MouseEvent;
-	import mx.controls.Alert;
-	import org.bigbluebutton.modules.chat.views.ChatToolbar;
-
-  
-  	public class AdvancedList extends List
-  {
-
-	public var toolbar:ChatToolbar;
-
-	public function AdvancedList()
-	{
-	  toolbar = new ChatToolbar();
-	  this.addChild(toolbar);
-	  addEventListener(MouseEvent.MOUSE_OVER, handleMouseEvent);
-	  addEventListener(MouseEvent.MOUSE_OUT, handleMouseEvent);
-	  super();
-	}
+	import org.bigbluebutton.modules.chat.events.ChatEvent;
 	
-	override protected function measure():void
+	public class AdvancedList extends List
 	{
-	  super.measure();
-	  //sovled on forum by Flex HarUI
-	  measuredHeight = measureHeightOfItems() + viewMetrics.top + viewMetrics.bottom;
-	}
+		public function AdvancedList(){
+			super();
+		}
 
-	private function mouseIn(e:MouseEvent):void{
-		toolbar.positionToolbar();
-	}
+		override protected function measure():void
+		{
+		  super.measure();
+		  //sovled on forum by Flex HarUI
+		  measuredHeight = measureHeightOfItems() + viewMetrics.top + viewMetrics.bottom;
 
-	private function mouseOut(e:MouseEvent):void{
-		toolbar.closeToolbar();
-	}
-
-	private function handleMouseEvent(e:MouseEvent):void{
-		/*
-		Alert.show(e.type, "", Alert.OK);
-		return;
-		*/
-		switch(e.type){
-			case MouseEvent.MOUSE_OVER:
-				mouseIn(e);
-				break;
-
-			case MouseEvent.MOUSE_OUT:
-				mouseOut(e)
-				break;
+		  dispatchEvent(new ChatEvent(ChatEvent.RESIZE_CHAT_TOOLBAR));
 		}
 	}
-  }
 }

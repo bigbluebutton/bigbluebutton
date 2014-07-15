@@ -46,11 +46,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.chat.services.ChatSaver;
 			import org.bigbluebutton.modules.chat.services.ChatCopy;
 			import org.bigbluebutton.modules.chat.views.ChatView;
-			import org.bigbluebutton.modules.chat.views.ChatWindow;
-			import org.bigbluebutton.modules.chat.views.ChatToolbar;
-			import org.bigbluebutton.modules.chat.views.ChatBox;
 			import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
-			import org.bigbluebutton.modules.chat.managers.ChatManager;
 		]]>
 	</mx:Script>
 	
@@ -61,7 +57,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{StartChatModuleEvent.START_CHAT_MODULE_EVENT}">        
 		<MethodInvoker generator="{ChatEventMapDelegate}" method="setTranslationOptions" arguments="{event}" />
 		<ObjectBuilder generator="{ChatMessageService}"/>
-		<ObjectBuilder generator="{ChatBox}"/>
 	</EventHandlers>
 		
 	<EventHandlers type="{StopChatModuleEvent.STOP_CHAT_MODULE_EVENT}">        
@@ -95,10 +90,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{TranscriptEvent.TRANSCRIPT_EVENT}" >
 		<MethodInvoker generator="{ChatMessageService}" method="sendWelcomeMessage"/>
 	</EventHandlers>
-		
-	<EventHandlers type="{ChatToolbarButtonEvent.ADD_TOOLBAR}" >
-		<MethodInvoker generator="{ChatManager}" method="positionToolbar" arguments="{event}" />
-	</EventHandlers>
 
 	<EventHandlers type="{ChatSaveEvent.SAVE_CHAT_EVENT}">        
 		<MethodInvoker generator="{ChatSaver}" method="saveChatToFile" arguments="{event}"/>    
@@ -107,15 +98,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{ChatCopyEvent.COPY_CHAT_EVENT}">        
 		<MethodInvoker generator="{ChatCopy}" method="copyAllText" arguments="{event}"/>    
 	</EventHandlers>
-
+	
 	<EventHandlers type="{ChatToolbarButtonEvent.SAVE_CHAT_TOOLBAR_EVENT}">        
-		<MethodInvoker generator="{ChatBox}" method="saveEvent"/>    
+		<MethodInvoker generator="{ChatView}"/>    
 	</EventHandlers>
 
 	<EventHandlers type="{ChatToolbarButtonEvent.COPY_CHAT_TOOLBAR_EVENT}">        
-		<MethodInvoker generator="{ChatBox}" method="copyEvent"/>    
+		<MethodInvoker generator="{ChatView}"/>    
 	</EventHandlers>
-	
+
 	<Injectors target="{ChatMessageService}">
 		<PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
 		<PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
