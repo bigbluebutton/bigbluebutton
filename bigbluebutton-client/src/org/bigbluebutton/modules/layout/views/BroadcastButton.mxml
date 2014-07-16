@@ -42,7 +42,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private var _dispatcher:Dispatcher = new Dispatcher();
 			private var _images:Images = new Images();
-			[Bindable] private var _icon:Class = _images.locked;
+			[Bindable] private var _icon:Class = _images.page_link;
 			
 			private function init():void {
 				if (!UserManager.getInstance().getConference().amIModerator()) {
