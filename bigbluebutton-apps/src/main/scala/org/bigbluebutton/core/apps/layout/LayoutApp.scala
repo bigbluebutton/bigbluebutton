@@ -12,7 +12,7 @@ trait LayoutApp {
   private var setByUser:String = "system";
   private var currentLayout = "";
 	private var layoutLocked = false
-  private var viewersOnly = false
+  private var viewersOnly = true
   
   def handleGetCurrentLayoutRequest(msg: GetCurrentLayoutRequest) {
     outGW.send(new GetCurrentLayoutReply(msg.meetingID, recorded, msg.requesterID, currentLayout, permissions.lockedLayout, setByUser))
@@ -24,7 +24,7 @@ trait LayoutApp {
 	  
 	  outGW.send(new LockLayoutEvent(msg.meetingID, recorded, msg.setById, msg.lock, affectedUsers))
 	  
-	  msg.layout foreach {l=>
+	  msg.layout foreach {l =>
 	    currentLayout = l
 	    broadcastSyncLayout(msg.meetingID, msg.setById)
 	  }	  

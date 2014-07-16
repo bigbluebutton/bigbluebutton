@@ -96,10 +96,6 @@ trait UsersApp {
     }
   }
   
-  def handleLockUserRequest(msg: LockUserRequest) {
-//    users2.lockVoice(msg.userID, msg.lock)
-  }
-  
   def handleEjectUserRequest(msg: EjectUserRequest) {
     println("Received eject user request uid=[" + msg.userID + "]")
     users.getUser(msg.userID) match {
@@ -108,22 +104,7 @@ trait UsersApp {
     }
   }
    
-  def handleLockUser(msg: LockUser) {
-    
-  }
-  
-  def handleLockAllUsers(msg: LockAllUsers) {
-    
-  }
-  
-  def handleGetLockSettings(msg: GetLockSettings) {
-    
-  }
-  
-  def handleIsMeetingLocked(msg: IsMeetingLocked) {
-    
-  }
-	      
+      
   def handleSetLockSettings(msg: SetLockSettings) {
     println("*************** Received new lock settings ********************")
     if (!permissionsEqual(msg.settings)) {
