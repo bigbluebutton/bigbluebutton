@@ -15,18 +15,12 @@ Template.messageBar.helpers
       })
 
   isUserInPrivateChat: -> # true if user is in public chat
-    Session.get('inChatWith') isnt "PUBLIC_CHAT" 
-
-# Must be be called when template is finished rendering or will not work
-Template.messageBar.rendered = -> # Scroll down the messages box the amount of its height, which places it at the bottom
-    height = $('#chatScrollWindow').height()
-    $('#chatScrollWindow').scrollTop(height)  
+    not Session.equals('inChatWith', "PUBLIC_CHAT")
 
 Template.tabButtons.events
   'click .tab': (event) ->
     # $('.tab').removeClass('active')
     
-
   'click .publicChatTab': (event) ->
     Session.set 'display_chatPane', true
     Session.set 'inChatWith', 'PUBLIC_CHAT'
@@ -59,7 +53,6 @@ Template.tabButtons.events
     Meteor.ChatTabs.update({_id: toUpdate._id}, {$set: 'isActive':true})
     event.stopPropogation()
     
-
 Template.chatInput.events
   'keypress #newMessageInput': (event) -> # user pressed a button inside the chatbox
     if event.which is 13 # Check for pressing enter to submit message
@@ -112,32 +105,20 @@ Template.optionsBar.events
       Meteor.ChatTabs.insert({belongsTo: @userId, name: getUsersName(), isActive: false, class: "privateChatTab", 'userId': currUserId})
       Session.set 'display_chatPane', true
       Session.set "inChatWith", @userId
-      # $('.tab').removeClass('active')
-      # Todo:
-      #   just need a way to make the newly created tab active
-      #   don't know how to do that right here since it doesn't get created here
-      #   once that's handled, private chat is essentially done
-      # $("#tabButtonContainer").append("<li>fsdfdsf| </li>")
-
-
 
 
 Template.tabButtons.helpers
   getChatbarTabs: ->
-    console.log "displaying tabs"
     t = Meteor.ChatTabs.find({}).fetch()
     # console.log JSON.stringify t
     t
 
   makeTabButton: -> # create tab button for private chat or other such as options
-    console.log "#{@name} is " + if @isActive then "active" else "not active"
     button = '<li '
     button += 'class="'
     button += 'active ' if @isActive
     button += "#{@class} tab\"><a href=\"#\" data-toggle=\"tab\">#{@name}"
     button += '&nbsp;<button class="close closeTab" type="button" >×</button>' if @name isnt 'Public' and @name isnt 'Options'
     button += '</a></li>'
-    console.log "and here it is the button"
-    console.log button
     button
 

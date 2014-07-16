@@ -9,6 +9,12 @@ Meteor.startup ->
 	Session.setDefault "joinedAt", getTime()
 	Session.setDefault "isSharingAudio", false
 
+Template.main.events
+	'click': (event) ->
+		console.log "clicking"
+		height = $('#chatScrollWindow')[0].scrollHeight
+		$('#chatScrollWindow').scrollTop(height)
+
 Template.header.events
 	"click .usersListIcon": (event) ->
 		toggleUsersList()
