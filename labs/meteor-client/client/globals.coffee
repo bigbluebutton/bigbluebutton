@@ -10,13 +10,11 @@ Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k #Session.g
 
 # retrieve account for selected user
 @getCurrentUserFromSession = ->
-  Meteor.Users.findOne("userId": SessionAmplify.get("userId"))
+  Meteor.Users.findOne("userId": getInSession("userId"))
 
 # retrieve account for selected user
 Handlebars.registerHelper "getCurrentUser", =>
-	# @window.getCurrentUserFromSession()
-  id = SessionAmplify.get("userId")
-  Meteor.Users.findOne("userId": SessionAmplify.get("userId"))
+	@window.getCurrentUserFromSession()
 
 # toggle state of field in the database
 @toggleCam = (event) ->
@@ -31,7 +29,7 @@ Handlebars.registerHelper "getCurrentUser", =>
     webrtc_hangup callback # sign out of call
   else
     # create voice call params
-    username = "#{Session.get("userId")}-bbbID-#{getUsersName()}"
+    username = "#{getInSession("userId")}-bbbID-#{getUsersName()}"
     voiceBridge = "70827"
     server = null
     callback = (message) -> 
@@ -51,38 +49,30 @@ Handlebars.registerHelper "getCurrentUser", =>
 
 Meteor.methods
   sendMeetingInfoToClient: (meetingId, userId) ->
-    console.log "inside sendMeetingInfoToClient"
-    Session.set("userId", userId)
-    Session.set("meetingId", meetingId)
-    Session.set("currentChatId", meetingId)
-    Session.set("meetingName", null)
-    Session.set("bbbServerVersion", "0.90")
-    Session.set("userName", null) 
-
-    SessionAmplify.set("userId", userId)
-    SessionAmplify.set("meetingId", meetingId)
-    SessionAmplify.set("currentChatId", meetingId)
-    SessionAmplify.set("meetingName", null)
-    SessionAmplify.set("bbbServerVersion", "0.90")
-    SessionAmplify.set("userName", null) 
+    setInSession("userId", userId)
+    setInSession("meetingId", meetingId)
+    setInSession("currentChatId", meetingId)
+    setInSession("meetingName", null)
+    setInSession("bbbServerVersion", "0.90")
+    setInSession("userName", null) 
 
 @getUsersName = ->
-  name = Session.get("userName") # check if we actually have one in the session
+  name = getInSession("userName") # check if we actually have one in the session
   if name? then name # great return it, no database query
   else # we need it from the database
-    user = Meteor.Users.findOne({'userId': Session.get("userId")})
+    user = Meteor.Users.findOne({'userId': getInSession("userId")})
     if user?.user?.name
-      Session.set "userName", user.user.name # store in session for fast access next time
+      setInSession "userName", user.user.name # store in session for fast access next time
       user.user.name
     else null
 
 @getMeetingName = ->
-  meetName = Session.get("meetingName") # check if we actually have one in the session
+  meetName = getInSession("meetingName") # check if we actually have one in the session
   if meetName? then meetName # great return it, no database query
   else # we need it from the database
     meet = Meteor.Meetings.findOne({})
     if meet?.meetingName
-      Session.set "meetingName", meet?.meetingName # store in session for fast access next time
+      setInSession "meetingName", meet?.meetingName # store in session for fast access next time
       meet?.meetingName
     else null
 
@@ -97,7 +87,7 @@ Handlebars.registerHelper "isUserSharingVideo", (u) ->
   u.webcam_stream.length isnt 0
 
 Handlebars.registerHelper "isCurrentUser", (id) ->
-  id is Session.get "userId"
+  id is getInSession("userId")
 
 # retrieves all users in the meeting
 Handlebars.registerHelper "getUsersInMeeting", ->

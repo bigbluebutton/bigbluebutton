@@ -1,6 +1,5 @@
 # These settings can just be stored locally in session, created at start up
 Meteor.startup ->
-	console.log "inside startup"
 	`this.SessionAmplify = _.extend({}, Session, {
 		keys: _.object(_.map(amplify.store(), function(value, key) {
 			return [key, JSON.stringify(value)]
@@ -10,15 +9,6 @@ Meteor.startup ->
 			amplify.store(key, value);
 		},
 	});`
-
-	Session.setDefault "display_usersList", true
-	Session.setDefault "display_navbar", true
-	Session.setDefault "display_chatbar", true 
-	Session.setDefault "display_whiteboard", false
-	Session.setDefault "display_chatPane", true
-	Session.setDefault 'inChatWith', "PUBLIC_CHAT"
-	Session.setDefault "joinedAt", getTime()
-	Session.setDefault "isSharingAudio", false
 
 	SessionAmplify.set "display_usersList", true
 	SessionAmplify.set "display_navbar", true
@@ -45,7 +35,7 @@ Template.header.events
 	"click .audioFeedIcon": (event) ->
 		toggleMic @
 	"click .signOutIcon": (event) ->
-		Meteor.call("userLogout", Session.get("meetingId"), Session.get("userId"))
+		Meteor.call("userLogout", getInSession("meetingId"), getInSession("userId"))
 		Session.set "display_navbar", false # needed to hide navbar when the layout template renders
 		Router.go('logout');
 	"click .hideNavbarIcon": (event) ->
@@ -56,4 +46,4 @@ Template.header.events
 # Gets called last in main template, just an easy place to print stuff out
 Handlebars.registerHelper "doFinalStuff", ->
     console.log "-----Doing Final Stuff-----"
-    console.log "session: " + Session.get "joinedAt"
+    console.log "session: " + getInSession("joinedAt")
