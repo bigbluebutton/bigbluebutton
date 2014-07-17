@@ -22,15 +22,15 @@ package org.bigbluebutton.modules.layout.events
 	
 	import org.bigbluebutton.modules.layout.model.LayoutDefinition;
 	
-	public class RedefineLayoutEvent extends Event
+	public class LayoutFromRemoteEvent extends Event
 	{
-		public static const REDEFINE_LAYOUT_EVENT:String = "REDEFINE_LAYOUT_EVENT";
+		public static const LAYOUT_FROM_REMOTE:String = "LAYOUT FROM REMOTE EVENT";
 		public var layout:LayoutDefinition = null;
 		public var remote:Boolean = false;
 		
-		public function RedefineLayoutEvent()
+		public function LayoutFromRemoteEvent()
 		{
-			super(REDEFINE_LAYOUT_EVENT, true, false);
+			super(LAYOUT_FROM_REMOTE, true, false);
 		}
 
 	}

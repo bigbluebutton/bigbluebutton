@@ -8,6 +8,8 @@ package org.bigbluebutton.modules.layout.services
 
   public class MessageSender
   {
+    private static const LOG:String = "Layout::MessageSender - ";
+    
     public function getCurrentLayout():void {
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("layout.getCurrentLayout", 
@@ -21,6 +23,7 @@ package org.bigbluebutton.modules.layout.services
     }
     
     public function broadcastLayout(layout:LayoutDefinition):void {
+      trace(LOG + " - broadcast layout");
       var message:Object = new Object();
       message["layout"] = layout.toXml().toXMLString();
       
@@ -37,6 +40,7 @@ package org.bigbluebutton.modules.layout.services
     }
     
     public function lockLayout(lock:Boolean, viewersOnly:Boolean, layout:LayoutDefinition=null):void {
+      trace(LOG + " - lock layout");
       var message:Object = new Object();
       message["lock"] = lock;
       message["viewersOnly"] = viewersOnly;

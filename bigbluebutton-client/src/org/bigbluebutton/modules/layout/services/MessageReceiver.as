@@ -15,7 +15,7 @@ package org.bigbluebutton.modules.layout.services
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.modules.layout.events.LayoutEvent;
   import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
-  import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
+  import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
   import org.bigbluebutton.modules.layout.events.RemoteSyncLayoutEvent;
   import org.bigbluebutton.modules.layout.model.LayoutDefinition;
   import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -76,7 +76,7 @@ package org.bigbluebutton.modules.layout.services
       var layoutDefinition:LayoutDefinition = new LayoutDefinition();
       layoutDefinition.load(new XML(message.layout));
       layoutDefinition.name = "[" + ResourceUtil.getInstance().getString('bbb.layout.combo.remote') + "] " + layoutDefinition.name;  
-      var redefineLayout:RedefineLayoutEvent = new RedefineLayoutEvent();
+      var redefineLayout:LayoutFromRemoteEvent = new LayoutFromRemoteEvent();
       redefineLayout.layout = layoutDefinition;
       redefineLayout.remote = true;
       

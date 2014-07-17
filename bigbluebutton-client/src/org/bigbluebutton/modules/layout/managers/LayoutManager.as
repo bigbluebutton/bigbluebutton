@@ -45,10 +45,9 @@ package org.bigbluebutton.modules.layout.managers
   import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
   import org.bigbluebutton.modules.layout.events.LayoutsReadyEvent;
   import org.bigbluebutton.modules.layout.events.LockLayoutEvent;
-  import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
+  import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
   import org.bigbluebutton.modules.layout.events.RemoteSyncLayoutEvent;
   import org.bigbluebutton.modules.layout.events.SyncLayoutEvent;
-  import org.bigbluebutton.modules.layout.events.UpdateLayoutEvent;
   import org.bigbluebutton.modules.layout.model.LayoutDefinition;
   import org.bigbluebutton.modules.layout.model.LayoutDefinitionFile;
   import org.bigbluebutton.modules.layout.model.LayoutLoader;
@@ -95,7 +94,8 @@ package org.bigbluebutton.modules.layout.managers
       });
       _sendCurrentLayoutUpdateTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
         trace(LOG + "Applying layout due to window resize");
-        sendLayoutUpdate(updateCurrentLayout());
+        if (_autoSync)
+          sendLayoutUpdate(updateCurrentLayout());
       });
     }
     
@@ -153,11 +153,8 @@ package org.bigbluebutton.modules.layout.managers
 			if (_currentLayout.name == ResourceUtil.getInstance().getString('bbb.layout.combo.customName')) {
 				_currentLayout.name += " " + (++_customLayoutsCount); 
 				_layoutModel.addLayout(_currentLayout);
-//				var layoutsLoaded:LayoutsLoadedEvent = new LayoutsLoadedEvent();
-//				layoutsLoaded.layouts = _layouts;
-//				_globalDispatcher.dispatchEvent(layoutsLoaded);
-				
-				var redefineLayout:RedefineLayoutEvent = new RedefineLayoutEvent();
+        
+				var redefineLayout:LayoutFromRemoteEvent = new LayoutFromRemoteEvent();
 				redefineLayout.layout = _currentLayout;
 				// this is to force LayoutCombo to update the current label
 				redefineLayout.remote = true;
@@ -244,19 +241,15 @@ package org.bigbluebutton.modules.layout.managers
 		}
 		
 		public function broadcastLayout():void {
-			trace(LOG + " layout broadcasted by myself");
-			var e:UpdateLayoutEvent = new UpdateLayoutEvent();
-			e.layout = _currentLayout;
-			e.locked = _locked;
+			trace(LOG + " layout changed by me. Sync others to this new layout.");
+			var e:SyncLayoutEvent = new SyncLayoutEvent(_currentLayout);
 			_globalDispatcher.dispatchEvent(e);
 		}
 		
 		private function sendLayoutUpdate(layout:LayoutDefinition):void {
 			if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) {
-				trace("LayoutManager: sending layout to remotes");
-				var e:UpdateLayoutEvent = new UpdateLayoutEvent();
-				e.layout = layout;
-				e.locked = _locked;
+				trace("LayoutManager: synching layout to remote users");
+				var e:SyncLayoutEvent = new SyncLayoutEvent(layout);
 				_globalDispatcher.dispatchEvent(e);
 			}
 		}
@@ -282,7 +275,7 @@ package org.bigbluebutton.modules.layout.managers
       checkPermissionsOverWindow();
     }
     
-		public function redefineLayout(e:RedefineLayoutEvent):void {
+		public function applyRemoteLayout(e:LayoutFromRemoteEvent):void {
 			var layout:LayoutDefinition = e.layout;
 			applyLayout(layout);
 		}

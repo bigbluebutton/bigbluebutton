@@ -40,6 +40,7 @@ public class LayoutService {
 	}
 		
 	public void broadcast(Map<String, Object> message) {
+		log.debug("Received broadcast layout request");
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String newlayout = (String) message.get("layout");
 
@@ -52,6 +53,7 @@ public class LayoutService {
 	}
 	
 	public void lock(Map<String, Object> message) {
+		log.debug("Received lock layout request");
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String newlayout = (String) message.get("layout");
 		Boolean lock = (Boolean) message.get("lock");

@@ -56,7 +56,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.layout.events.LayoutEvent;
       import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
       import org.bigbluebutton.modules.layout.events.LayoutsReadyEvent;
-      import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
       import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;
       import org.bigbluebutton.modules.layout.model.LayoutDefinition;
       import org.bigbluebutton.modules.layout.model.LayoutDefinitionFile;

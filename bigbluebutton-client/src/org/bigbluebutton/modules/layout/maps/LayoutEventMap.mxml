@@ -31,11 +31,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.layout.events.LayoutEvent;
       import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
       import org.bigbluebutton.modules.layout.events.LockLayoutEvent;
-      import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
+      import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
       import org.bigbluebutton.modules.layout.events.RemoteSyncLayoutEvent;
       import org.bigbluebutton.modules.layout.events.StartLayoutModuleEvent;
       import org.bigbluebutton.modules.layout.events.SyncLayoutEvent;
-      import org.bigbluebutton.modules.layout.events.UpdateLayoutEvent;
       import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;
       import org.bigbluebutton.modules.layout.managers.LayoutManager;
       import org.bigbluebutton.modules.layout.services.LayoutService;
@@ -96,16 +95,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{LayoutService}" method="handleLockLayoutEvent" arguments="{event}" />
   </EventHandlers>
    
-  <EventHandlers type="{UpdateLayoutEvent.UPDATE_LAYOUT_EVENT}">
-  	<MethodInvoker generator="{LayoutService}" method="broadcastLayout" arguments="{event.layout}" />
-  </EventHandlers>
 
   <EventHandlers type="{SyncLayoutEvent.SYNC_LAYOUT_EVENT}">
-    <MethodInvoker generator="{LayoutService}" method="syncLayout" arguments="{event.layout}" />
+    <MethodInvoker generator="{LayoutService}" method="broadcastLayout" arguments="{event.layout}" />
   </EventHandlers>
   
-    <EventHandlers type="{RedefineLayoutEvent.REDEFINE_LAYOUT_EVENT}">
-   		<MethodInvoker generator="{LayoutManager}" method="redefineLayout" arguments="{event}" />
+    <EventHandlers type="{LayoutFromRemoteEvent.LAYOUT_FROM_REMOTE}">
+   		<MethodInvoker generator="{LayoutManager}" method="applyRemoteLayout" arguments="{event}" />
     </EventHandlers>
 
   <EventHandlers type="{LayoutEvent.SYNC_LAYOUT_EVENT}">

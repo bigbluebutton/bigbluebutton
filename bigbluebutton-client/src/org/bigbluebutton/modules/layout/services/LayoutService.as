@@ -26,6 +26,8 @@ package org.bigbluebutton.modules.layout.services
 	
   public class LayoutService
   {
+    private static const LOG:String = "Layout::LayoutService - ";
+    
     public var sender:MessageSender;
     public var receiver:MessageReceiver;
     		
@@ -34,6 +36,7 @@ package org.bigbluebutton.modules.layout.services
     }
 		
     public function broadcastLayout(layout:LayoutDefinition):void {
+      trace(LOG + " - broadcast layout");
       sender.broadcastLayout(layout);
     }
 		
@@ -42,6 +45,7 @@ package org.bigbluebutton.modules.layout.services
     }
     
     private function lockLayout(lock:Boolean, viewersOnly:Boolean, layout:LayoutDefinition=null):void {
+      trace(LOG + " - lock layout");
       sender.lockLayout(lock, viewersOnly, layout);
     }
   }
