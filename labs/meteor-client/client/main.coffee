@@ -1,5 +1,16 @@
 # These settings can just be stored locally in session, created at start up
 Meteor.startup ->
+	console.log "inside startup"
+	`this.SessionAmplify = _.extend({}, Session, {
+		keys: _.object(_.map(amplify.store(), function(value, key) {
+			return [key, JSON.stringify(value)]
+		})),
+		set: function (key, value) {
+			Session.set.apply(this, arguments);
+			amplify.store(key, value);
+		},
+	});`
+
 	Session.setDefault "display_usersList", true
 	Session.setDefault "display_navbar", true
 	Session.setDefault "display_chatbar", true 
@@ -8,6 +19,15 @@ Meteor.startup ->
 	Session.setDefault 'inChatWith', "PUBLIC_CHAT"
 	Session.setDefault "joinedAt", getTime()
 	Session.setDefault "isSharingAudio", false
+
+	SessionAmplify.set "display_usersList", true
+	SessionAmplify.set "display_navbar", true
+	SessionAmplify.set "display_chatbar", true 
+	SessionAmplify.set "display_whiteboard", false
+	SessionAmplify.set "display_chatPane", true
+	SessionAmplify.set 'inChatWith', "PUBLIC_CHAT"
+	SessionAmplify.set "joinedAt", getTime()
+	SessionAmplify.set "isSharingAudio", false
 
 	@myTabs = new WatchValue()
 	@myTabs.updateValue [

@@ -5,11 +5,11 @@ Router.map ->
     path: "/meeting_id=*"
     action: () ->
       @redirect('/')
-      Meteor.subscribe 'users', Session.get('meetingId')
-      Meteor.subscribe 'chat', Session.get('meetingId')
-      Meteor.subscribe 'shapes', Session.get('meetingId')
-      Meteor.subscribe 'slides', Session.get('meetingId')
-      Meteor.subscribe 'meetings', Session.get('meetingId')
+      Meteor.subscribe 'users', getInSession('meetingId')
+      Meteor.subscribe 'chat', getInSession('meetingId')
+      Meteor.subscribe 'shapes', getInSession('meetingId')
+      Meteor.subscribe 'slides', getInSession('meetingId')
+      Meteor.subscribe 'meetings', getInSession('meetingId')
 
     onBeforeAction: ()->
       url = location.href
@@ -36,6 +36,12 @@ Router.map ->
         console.log "unable to extract the required information for the meeting from the URL"
   @route "main",
     path: "/"
+    onBeforeAction: ->
+      Meteor.subscribe 'users', getInSession('meetingId')
+      Meteor.subscribe 'chat', getInSession('meetingId')
+      Meteor.subscribe 'shapes', getInSession('meetingId')
+      Meteor.subscribe 'slides', getInSession('meetingId')
+      Meteor.subscribe 'meetings', getInSession('meetingId')
 
   @route "logout",
     path: "logout"

@@ -2,19 +2,21 @@ Handlebars.registerHelper 'equals', (a, b) -> # equals operator was dropped in M
   a is b
 
 # Allow access through all templates
-Handlebars.registerHelper "setInSession", (k, v) -> Session.set k, v
-Handlebars.registerHelper "getInSession", (k) -> Session.get k
+Handlebars.registerHelper "setInSession", (k, v) -> SessionAmplify.set k,v #Session.set k, v
+Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k #Session.get k
 # Allow access throughout all coffeescript/js files
-@setInSession = (k, v) -> Session.set k, v
-@getInSession = (k) -> Session.get k
+@setInSession = (k, v) -> SessionAmplify.set k,v #Session.set k, v
+@getInSession = (k) -> SessionAmplify.get k
 
 # retrieve account for selected user
 @getCurrentUserFromSession = ->
-  Meteor.Users.findOne("userId": Session.get("userId"))
+  Meteor.Users.findOne("userId": SessionAmplify.get("userId"))
 
 # retrieve account for selected user
 Handlebars.registerHelper "getCurrentUser", =>
-	@window.getCurrentUserFromSession()
+	# @window.getCurrentUserFromSession()
+  id = SessionAmplify.get("userId")
+  Meteor.Users.findOne("userId": SessionAmplify.get("userId"))
 
 # toggle state of field in the database
 @toggleCam = (event) ->
@@ -49,12 +51,20 @@ Handlebars.registerHelper "getCurrentUser", =>
 
 Meteor.methods
   sendMeetingInfoToClient: (meetingId, userId) ->
+    console.log "inside sendMeetingInfoToClient"
     Session.set("userId", userId)
     Session.set("meetingId", meetingId)
     Session.set("currentChatId", meetingId)
     Session.set("meetingName", null)
     Session.set("bbbServerVersion", "0.90")
     Session.set("userName", null) 
+
+    SessionAmplify.set("userId", userId)
+    SessionAmplify.set("meetingId", meetingId)
+    SessionAmplify.set("currentChatId", meetingId)
+    SessionAmplify.set("meetingName", null)
+    SessionAmplify.set("bbbServerVersion", "0.90")
+    SessionAmplify.set("userName", null) 
 
 @getUsersName = ->
   name = Session.get("userName") # check if we actually have one in the session
