@@ -12,8 +12,5 @@ Meteor.publish 'shapes', (meetingId) ->
 Meteor.publish 'slides', (meetingId) ->
   Meteor.Slides.find({meetingId: meetingId})
 
-Meteor.publish 'chatTabs', (userId) ->
-  Meteor.ChatTabs.find({'belongsTo': userId})
-
 Meteor.publish 'meetings', (meetingId) ->
   Meteor.Meetings.find({meetingId: meetingId})

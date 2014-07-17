@@ -18,40 +18,34 @@ Template.messageBar.helpers
     not Session.equals('inChatWith', "PUBLIC_CHAT")
 
 Template.tabButtons.events
-  'click .tab': (event) ->
-    # $('.tab').removeClass('active')
+  'click .tab': (event) -> ;
     
   'click .publicChatTab': (event) ->
     Session.set 'display_chatPane', true
     Session.set 'inChatWith', 'PUBLIC_CHAT'
-    Meteor.call 'invalidateAllTabs', Session.get('userId'), false
-    toUpdate = Meteor.ChatTabs.findOne({name:"Public"})
-    Meteor.ChatTabs.update({_id: toUpdate._id}, {$set: 'isActive':true})
 
   'click .optionsChatTab': (event) ->
     Session.set 'display_chatPane', false
-    Meteor.call 'invalidateAllTabs', Session.get('userId'), false
-    toUpdate = Meteor.ChatTabs.findOne({name:"Options"})
-    Meteor.ChatTabs.update({_id: toUpdate._id}, {$set: 'isActive':true})
 
   'click .privateChatTab': (event) ->
     Session.set 'display_chatPane', true
-    Session.set 'inChatWith', @userId
-    Meteor.call 'invalidateAllTabs', Session.get('userId'), false
-    console.log @name
-    toUpdate = Meteor.ChatTabs.findOne({name:@name})
-    if toUpdate? then Meteor.ChatTabs.update({_id: toUpdate._id}, {$set: 'isActive':true})
-
+    Session.set 'inChatWith', @userId  
+  
   'click .close': (event) -> # user closes private chat
-    toRemove = Meteor.ChatTabs.findOne({name:@name})
-    if toRemove? then Meteor.ChatTabs.remove({_id: toRemove._id}) # should probably delete chat history here too?
-    
+    theName = @name
+    console.log theName
     Session.set 'display_chatPane', true
     Session.set 'inChatWith', 'PUBLIC_CHAT'
-    Meteor.call 'invalidateAllTabs', Session.get('userId'), false
-    toUpdate = Meteor.ChatTabs.findOne({name:"Public"})
-    Meteor.ChatTabs.update({_id: toUpdate._id}, {$set: 'isActive':true})
-    event.stopPropogation()
+
+    origTabs = myTabs.getValue()
+    newTabs = []
+    for x in origTabs
+      if x.name isnt theName
+        x.isActive = (x.name is "Public") # set public chat to default
+        newTabs.push x
+
+    myTabs.updateValue newTabs
+    $(".publicChatTab").addClass('active') # doesn't work when closing the tab that's not currently active :(
     
 Template.chatInput.events
   'keypress #newMessageInput': (event) -> # user pressed a button inside the chatbox
@@ -79,9 +73,9 @@ Template.chatInput.events
 Template.optionsBar.events
   'click .private-chat-user-entry': (event) -> # clicked a user's name to begin private chat
     currUserId = Session.get "userId"
-    duplicate = Meteor.ChatTabs.findOne({'belongsTo':Session.get("userId"), 'userId': @userId})
+    duplicate = (x for x in myTabs.get() when x.userId is @userId)
 
-    if not duplicate and @userId isnt currUserId
+    if duplicate.length<=0 and @userId isnt currUserId
       messageForServer = { 
           "message": "Hey #{@user.name}, its #{getUsersName()} lets start a private chat."
           "chat_type": "PRIVATE_CHAT"
@@ -98,26 +92,30 @@ Template.optionsBar.events
       # console.log 'Sending private message to server:'
       # console.log messageForServer
       Meteor.call "sendChatMessagetoServer", Session.get("meetingId"), messageForServer
-      Meteor.call "invalidateAllTabs", currUserId, false
-      # Give tab to us
-      Meteor.ChatTabs.insert({belongsTo: currUserId, name: @user.name, isActive: true, class: "privateChatTab", 'userId': @userId})
-      # Give tab to recipient to notify them
-      Meteor.ChatTabs.insert({belongsTo: @userId, name: getUsersName(), isActive: false, class: "privateChatTab", 'userId': currUserId})
+
+      t = myTabs.getValue()
+      t = t.map (x) -> x.isActive = false; return x
+      t.push {name: @user.name, isActive: true, class: "privateChatTab", 'userId': @userId }
+      myTabs.updateValue t
+      $(".optionsChatTab").removeClass('active')
+
       Session.set 'display_chatPane', true
       Session.set "inChatWith", @userId
 
-
 Template.tabButtons.helpers
   getChatbarTabs: ->
-    t = Meteor.ChatTabs.find({}).fetch()
-    # console.log JSON.stringify t
-    t
+    console.log myTabs.getValue()
+    myTabs.getValue()
 
   makeTabButton: -> # create tab button for private chat or other such as options
     button = '<li '
     button += 'class="'
     button += 'active ' if @isActive
     button += "#{@class} tab\"><a href=\"#\" data-toggle=\"tab\">#{@name}"
+    # if @isActive
+    #   button += "(active)"
+    # else
+    #   button += "(no act)"
     button += '&nbsp;<button class="close closeTab" type="button" >×</button>' if @name isnt 'Public' and @name isnt 'Options'
     button += '</a></li>'
     button

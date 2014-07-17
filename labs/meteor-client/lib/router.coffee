@@ -9,13 +9,7 @@ Router.map ->
       Meteor.subscribe 'chat', Session.get('meetingId')
       Meteor.subscribe 'shapes', Session.get('meetingId')
       Meteor.subscribe 'slides', Session.get('meetingId')
-      Meteor.subscribe 'chatTabs', Session.get('userId')
       Meteor.subscribe 'meetings', Session.get('meetingId')
-
-      # I have no idea where to put this
-      Meteor.ChatTabs.insert({isActive:true, name:"Public", class: "publicChatTab", 'belongsTo': Session.get("userId")})
-      Meteor.ChatTabs.insert({isActive:false, name:"Options", class: "optionsChatTab", 'belongsTo': Session.get("userId")})
-
 
     onBeforeAction: ()->
       url = location.href

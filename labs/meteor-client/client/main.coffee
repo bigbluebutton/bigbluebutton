@@ -9,11 +9,11 @@ Meteor.startup ->
 	Session.setDefault "joinedAt", getTime()
 	Session.setDefault "isSharingAudio", false
 
-Template.main.events
-	'click': (event) ->
-		console.log "clicking"
-		height = $('#chatScrollWindow')[0].scrollHeight
-		$('#chatScrollWindow').scrollTop(height)
+	@myTabs = new WatchValue()
+	@myTabs.updateValue [
+		{isActive:true, name:"Public", class: "publicChatTab"}
+		{isActive:false, name:"Options", class: "optionsChatTab"}
+	]
 
 Template.header.events
 	"click .usersListIcon": (event) ->
@@ -37,4 +37,3 @@ Template.header.events
 Handlebars.registerHelper "doFinalStuff", ->
     console.log "-----Doing Final Stuff-----"
     console.log "session: " + Session.get "joinedAt"
-

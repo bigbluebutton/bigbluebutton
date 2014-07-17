@@ -26,8 +26,6 @@ Meteor.startup ->
   console.log "cleared Shapes Collection!"
   Meteor.Slides.remove({})
   console.log "cleared Slides Collection!"
-  Meteor.ChatTabs.remove({})
-  console.log "cleared ChatTabs Collection!"
 
   # create create a PubSub connection, start listening
   Meteor.redisPubSub = new Meteor.RedisPubSub(->
