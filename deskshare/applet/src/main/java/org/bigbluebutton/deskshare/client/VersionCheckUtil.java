@@ -30,8 +30,8 @@ public class VersionCheckUtil {
 				if( underbar == -1){
 					rUpdatePart1 = Integer.parseInt(requestedVersioning[2]);
 				}else{
-					rUpdatePart1 = Integer.parseInt(requestedVersioning[2].substring(0,underbar-1));
-					rUpdatePart2 = Integer.parseInt(requestedVersioning[2].substring(underbar+1,requestedVersioning[2].length()-1));	
+					rUpdatePart1 = Integer.parseInt(requestedVersioning[2].substring(0,underbar));
+					rUpdatePart2 = Integer.parseInt(requestedVersioning[2].substring(underbar+1,requestedVersioning[2].length()));	
 				}
 
 				int cUpdatePart1 = 0;
@@ -41,8 +41,8 @@ public class VersionCheckUtil {
 				if( underbar == -1){
 					cUpdatePart1 = Integer.parseInt(clientVersioning[2]);
 				}else{
-					cUpdatePart1 = Integer.parseInt(clientVersioning[2].substring(0,underbar-1));
-					cUpdatePart2 = Integer.parseInt(clientVersioning[2].substring(underbar+1,clientVersioning[2].length()-1));	
+					cUpdatePart1 = Integer.parseInt(clientVersioning[2].substring(0,underbar));
+					cUpdatePart2 = Integer.parseInt(clientVersioning[2].substring(underbar+1,clientVersioning[2].length()));	
 				}
 
 				if(cUpdatePart1 > rUpdatePart1)
