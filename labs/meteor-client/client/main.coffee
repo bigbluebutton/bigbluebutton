@@ -37,16 +37,17 @@ Template.header.events
 	"click .signOutIcon": (event) ->
 		Meteor.call("userLogout", getInSession("meetingId"), getInSession("userId"))
 		setInSession "display_navbar", false # needed to hide navbar when the layout template renders
-		# wipe session
-		Session.keys = {}
-		Session.keyDeps = {}
-		Session.keyDepsDeps = {}
-		# # wipe persisted session
-		SessionAmplify.keys = {}
-		SessionAmplify.keyDeps = {}
-		SessionAmplify.keyDepsDeps = {}
-		Meteor.validUser = false # invalidate user
-		Router.go('logout'); # navigate to logout
+		# wipe important session data
+		setInSession("userId", null)
+		setInSession("meetingId", null)
+		setInSession("currentChatId", null)
+		setInSession("meetingName", null)
+		setInSession("bbbServerVersion", null)
+		setInSession("userName", null) 
+		# invalidate user
+		setInSession("validUser", false) 
+		# navigate to logout
+		Router.go('logout')
 	"click .hideNavbarIcon": (event) ->
 		toggleNavbar()
 	"click .settingsIcon": (event) ->
