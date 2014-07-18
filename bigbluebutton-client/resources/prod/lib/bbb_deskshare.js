@@ -12,6 +12,7 @@ function startApplet(IP, roomNumber, fullScreen, useSVC2)
                 "<param name=\"SCALE\" value=\"0.8\"/>" +
                 "<param name=\"FULL_SCREEN\" value=\"" + fullScreen + "\"/>" +
                 "<param name=\"SVC2\" value=\"" + useSVC2 + "\"/>" +
+                "<param name=\"JavaVersion\" value=\"1.7.0_51\"/>" +
                 "<param name=\"permissions\" value=\"all-permissions\"/>" +
         "</applet>"
      );
