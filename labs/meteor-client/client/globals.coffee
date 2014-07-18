@@ -55,7 +55,7 @@ Meteor.methods
     setInSession("meetingName", null)
     setInSession("bbbServerVersion", "0.90")
     setInSession("userName", null) 
-    Meteor.validUser = true
+    Meteor.validUser = true # got info from server, user is a valid user
 
 @getUsersName = ->
   name = getInSession("userName") # check if we actually have one in the session

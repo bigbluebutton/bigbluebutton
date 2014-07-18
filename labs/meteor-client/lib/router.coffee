@@ -1,4 +1,4 @@
-Meteor.validUser = false
+Meteor.validUser = false # shared non-session variable to determine anywhere whether user is valid
 Router.configure layoutTemplate: 'layout'
 
 Router.map ->
@@ -43,7 +43,7 @@ Router.map ->
       Meteor.subscribe 'shapes', getInSession('meetingId')
       Meteor.subscribe 'slides', getInSession('meetingId')
       Meteor.subscribe 'meetings', getInSession('meetingId')
-      if Meteor.validUser is false
+      if Meteor.validUser is false # Don't let user in if they are not valid
         @redirect("logout")
 
   @route "logout",

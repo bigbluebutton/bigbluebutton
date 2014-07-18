@@ -9,8 +9,6 @@ Meteor.startup ->
 			amplify.store(key, value);
 		},
 	});`
-	if getInSession("userId") is "SIGNED_OUT"
-		Router.go("logout")
 
 	SessionAmplify.set "display_usersList", true
 	SessionAmplify.set "display_navbar", true
@@ -47,8 +45,8 @@ Template.header.events
 		SessionAmplify.keys = {}
 		SessionAmplify.keyDeps = {}
 		SessionAmplify.keyDepsDeps = {}
-		Meteor.validUser = false
-		Router.go('logout');
+		Meteor.validUser = false # invalidate user
+		Router.go('logout'); # navigate to logout
 	"click .hideNavbarIcon": (event) ->
 		toggleNavbar()
 	"click .settingsIcon": (event) ->
@@ -57,4 +55,3 @@ Template.header.events
 # Gets called last in main template, just an easy place to print stuff out
 Handlebars.registerHelper "doFinalStuff", ->
     console.log "-----Doing Final Stuff-----"
-    console.log "session: " + getInSession("joinedAt")

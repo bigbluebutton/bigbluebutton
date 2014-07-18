@@ -1,4 +1,6 @@
 Template.messageBar.helpers
+  # This method returns all messages for the user. It looks at the session to determine whether the user is in
+  #private or public chat. If true is passed, messages returned are from before the user joined. Else, the messages are from after the user joined
   getMessagesInChat: (beforeJoin=true) ->
     friend = chattingWith = getInSession('inChatWith') # the recipient(s) of the messages
 
@@ -103,7 +105,6 @@ Template.optionsBar.events
 
 Template.tabButtons.helpers
   getChatbarTabs: ->
-    console.log myTabs.getValue()
     myTabs.getValue()
 
   makeTabButton: -> # create tab button for private chat or other such as options
