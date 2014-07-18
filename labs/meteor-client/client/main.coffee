@@ -9,6 +9,8 @@ Meteor.startup ->
 			amplify.store(key, value);
 		},
 	});`
+	if getInSession("userId") is "SIGNED_OUT"
+		Router.go("logout")
 
 	SessionAmplify.set "display_usersList", true
 	SessionAmplify.set "display_navbar", true
@@ -36,7 +38,16 @@ Template.header.events
 		toggleMic @
 	"click .signOutIcon": (event) ->
 		Meteor.call("userLogout", getInSession("meetingId"), getInSession("userId"))
-		Session.set "display_navbar", false # needed to hide navbar when the layout template renders
+		setInSession "display_navbar", false # needed to hide navbar when the layout template renders
+		# wipe session
+		Session.keys = {}
+		Session.keyDeps = {}
+		Session.keyDepsDeps = {}
+		# # wipe persisted session
+		SessionAmplify.keys = {}
+		SessionAmplify.keyDeps = {}
+		SessionAmplify.keyDepsDeps = {}
+		Meteor.validUser = false
 		Router.go('logout');
 	"click .hideNavbarIcon": (event) ->
 		toggleNavbar()

@@ -1,3 +1,4 @@
+Meteor.validUser = false
 Router.configure layoutTemplate: 'layout'
 
 Router.map ->
@@ -42,6 +43,9 @@ Router.map ->
       Meteor.subscribe 'shapes', getInSession('meetingId')
       Meteor.subscribe 'slides', getInSession('meetingId')
       Meteor.subscribe 'meetings', getInSession('meetingId')
+      if Meteor.validUser is false
+        @redirect("logout")
 
   @route "logout",
     path: "logout"
+
