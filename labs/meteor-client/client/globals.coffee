@@ -2,28 +2,40 @@ Handlebars.registerHelper 'equals', (a, b) -> # equals operator was dropped in M
   a is b
 
 # Allow access through all templates
-Handlebars.registerHelper "setInSession", (k, v) -> Session.set k, v
-Handlebars.registerHelper "getInSession", (k) -> Session.get k
+Handlebars.registerHelper "setInSession", (k, v) -> SessionAmplify.set k,v #Session.set k, v
+Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k #Session.get k
 # Allow access throughout all coffeescript/js files
-@setInSession = (k, v) -> Session.set k, v
-@getInSession = (k) -> Session.get k
+@setInSession = (k, v) -> SessionAmplify.set k,v #Session.set k, v
+@getInSession = (k) -> SessionAmplify.get k
 
 # retrieve account for selected user
 @getCurrentUserFromSession = ->
-  Meteor.Users.findOne("userId": Session.get("userId"))
+  Meteor.Users.findOne("userId": getInSession("userId"))
 
 # retrieve account for selected user
 Handlebars.registerHelper "getCurrentUser", =>
 	@window.getCurrentUserFromSession()
 
 # toggle state of field in the database
-@toggleCam = (context) ->
+@toggleCam = (event) ->
 	# Meteor.Users.update {_id: context._id} , {$set:{"user.sharingVideo": !context.sharingVideo}}
   # Meteor.call('userToggleCam', context._id, !context.sharingVideo)
 
-@toggleMic = (context) -> 
-	# Meteor.Users.update {_id: context._id} , {$set:{"user.sharingAudio": !context.sharingAudio}}
-  # Meteor.call('userToggleMic', context._id, !context.sharingAudio)
+@toggleMic = (event) -> 
+  if getInSession "isSharingAudio"
+    callback = -> 
+      setInSession "isSharingAudio", false # update to no longer sharing
+      console.log "left voice conference"
+    webrtc_hangup callback # sign out of call
+  else
+    # create voice call params
+    username = "#{getInSession("userId")}-bbbID-#{getUsersName()}"
+    voiceBridge = "70827"
+    server = null
+    callback = (message) -> 
+      console.log JSON.stringify message
+      setInSession "isSharingAudio", true
+    webrtc_call(username, voiceBridge, server, callback) # make the call
 
 # toggle state of session variable
 @toggleUsersList = ->
@@ -37,30 +49,31 @@ Handlebars.registerHelper "getCurrentUser", =>
 
 Meteor.methods
   sendMeetingInfoToClient: (meetingId, userId) ->
-    Session.set("userId", userId)
-    Session.set("meetingId", meetingId)
-    Session.set("currentChatId", meetingId)
-    Session.set("meetingName", null)
-    Session.set("bbbServerVersion", "0.90")
-    Session.set("userName", null) 
+    setInSession("userId", userId)
+    setInSession("meetingId", meetingId)
+    setInSession("currentChatId", meetingId)
+    setInSession("meetingName", null)
+    setInSession("bbbServerVersion", "0.90")
+    setInSession("userName", null) 
+    Meteor.validUser = true # got info from server, user is a valid user
 
 @getUsersName = ->
-  name = Session.get("userName") # check if we actually have one in the session
+  name = getInSession("userName") # check if we actually have one in the session
   if name? then name # great return it, no database query
   else # we need it from the database
-    user = Meteor.Users.findOne({'userId': Session.get("userId")})
+    user = Meteor.Users.findOne({'userId': getInSession("userId")})
     if user?.user?.name
-      Session.set "userName", user.user.name # store in session for fast access next time
+      setInSession "userName", user.user.name # store in session for fast access next time
       user.user.name
     else null
 
 @getMeetingName = ->
-  meetName = Session.get("meetingName") # check if we actually have one in the session
+  meetName = getInSession("meetingName") # check if we actually have one in the session
   if meetName? then meetName # great return it, no database query
   else # we need it from the database
     meet = Meteor.Meetings.findOne({})
     if meet?.meetingName
-      Session.set "meetingName", meet?.meetingName # store in session for fast access next time
+      setInSession "meetingName", meet?.meetingName # store in session for fast access next time
       meet?.meetingName
     else null
 
@@ -68,13 +81,14 @@ Handlebars.registerHelper "getMeetingName", ->
   window.getMeetingName()
 
 Handlebars.registerHelper "isUserSharingAudio", (u) ->
-  u.voiceUser.talking
+  # u.voiceUser.talking
+  getInSession "isSharingAudio"
 
 Handlebars.registerHelper "isUserSharingVideo", (u) ->
   u.webcam_stream.length isnt 0
 
 Handlebars.registerHelper "isCurrentUser", (id) ->
-  id is Session.get "userId"
+  id is getInSession("userId")
 
 # retrieves all users in the meeting
 Handlebars.registerHelper "getUsersInMeeting", ->

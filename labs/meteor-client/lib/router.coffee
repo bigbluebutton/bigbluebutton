@@ -1,3 +1,4 @@
+Meteor.validUser = false # shared non-session variable to determine anywhere whether user is valid
 Router.configure layoutTemplate: 'layout'
 
 Router.map ->
@@ -5,17 +6,11 @@ Router.map ->
     path: "/meeting_id=*"
     action: () ->
       @redirect('/')
-      Meteor.subscribe 'users', Session.get('meetingId')
-      Meteor.subscribe 'chat', Session.get('meetingId')
-      Meteor.subscribe 'shapes', Session.get('meetingId')
-      Meteor.subscribe 'slides', Session.get('meetingId')
-      Meteor.subscribe 'chatTabs', Session.get('userId')
-      Meteor.subscribe 'meetings', Session.get('meetingId')
-
-      # I have no idea where to put this
-      Meteor.ChatTabs.insert({isActive:true, name:"Public", class: "publicChatTab", 'belongsTo': Session.get("userId")})
-      Meteor.ChatTabs.insert({isActive:false, name:"Options", class: "optionsChatTab", 'belongsTo': Session.get("userId")})
-
+      Meteor.subscribe 'users', getInSession('meetingId')
+      Meteor.subscribe 'chat', getInSession('meetingId')
+      Meteor.subscribe 'shapes', getInSession('meetingId')
+      Meteor.subscribe 'slides', getInSession('meetingId')
+      Meteor.subscribe 'meetings', getInSession('meetingId')
 
     onBeforeAction: ()->
       url = location.href
@@ -42,6 +37,15 @@ Router.map ->
         console.log "unable to extract the required information for the meeting from the URL"
   @route "main",
     path: "/"
+    onBeforeAction: ->
+      Meteor.subscribe 'users', getInSession('meetingId')
+      Meteor.subscribe 'chat', getInSession('meetingId')
+      Meteor.subscribe 'shapes', getInSession('meetingId')
+      Meteor.subscribe 'slides', getInSession('meetingId')
+      Meteor.subscribe 'meetings', getInSession('meetingId')
+      if Meteor.validUser is false # Don't let user in if they are not valid
+        @redirect("logout")
 
   @route "logout",
     path: "logout"
+

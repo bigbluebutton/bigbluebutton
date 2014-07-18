@@ -1,12 +1,29 @@
 # These settings can just be stored locally in session, created at start up
 Meteor.startup ->
-	Session.set "display_usersList", true
-	Session.set "display_navbar", true
-	Session.set "display_chatbar", true 
-	Session.set "display_whiteboard", false
-	Session.set "display_chatPane", true
-	Session.set 'inChatWith', "PUBLIC_CHAT"
-	Session.set "joinedAt", getTime()
+	`this.SessionAmplify = _.extend({}, Session, {
+		keys: _.object(_.map(amplify.store(), function(value, key) {
+			return [key, JSON.stringify(value)]
+		})),
+		set: function (key, value) {
+			Session.set.apply(this, arguments);
+			amplify.store(key, value);
+		},
+	});`
+
+	SessionAmplify.set "display_usersList", true
+	SessionAmplify.set "display_navbar", true
+	SessionAmplify.set "display_chatbar", true 
+	SessionAmplify.set "display_whiteboard", false
+	SessionAmplify.set "display_chatPane", true
+	SessionAmplify.set 'inChatWith', "PUBLIC_CHAT"
+	SessionAmplify.set "joinedAt", getTime()
+	SessionAmplify.set "isSharingAudio", false
+
+	@myTabs = new WatchValue()
+	@myTabs.updateValue [
+		{isActive:true, name:"Public", class: "publicChatTab"}
+		{isActive:false, name:"Options", class: "optionsChatTab"}
+	]
 
 Template.header.events
 	"click .usersListIcon": (event) ->
@@ -18,9 +35,18 @@ Template.header.events
 	"click .audioFeedIcon": (event) ->
 		toggleMic @
 	"click .signOutIcon": (event) ->
-		Meteor.call("userLogout", Session.get("meetingId"), Session.get("userId"))
-		Session.set "display_navbar", false # needed to hide navbar when the layout template renders
-		Router.go('logout');
+		Meteor.call("userLogout", getInSession("meetingId"), getInSession("userId"))
+		setInSession "display_navbar", false # needed to hide navbar when the layout template renders
+		# wipe session
+		Session.keys = {}
+		Session.keyDeps = {}
+		Session.keyDepsDeps = {}
+		# # wipe persisted session
+		SessionAmplify.keys = {}
+		SessionAmplify.keyDeps = {}
+		SessionAmplify.keyDepsDeps = {}
+		Meteor.validUser = false # invalidate user
+		Router.go('logout'); # navigate to logout
 	"click .hideNavbarIcon": (event) ->
 		toggleNavbar()
 	"click .settingsIcon": (event) ->
@@ -28,5 +54,4 @@ Template.header.events
 		
 # Gets called last in main template, just an easy place to print stuff out
 Handlebars.registerHelper "doFinalStuff", ->
-	console.log "-----Doing Final Stuff-----"
-	console.log "session: " + Session.get "joinedAt"
+    console.log "-----Doing Final Stuff-----"
