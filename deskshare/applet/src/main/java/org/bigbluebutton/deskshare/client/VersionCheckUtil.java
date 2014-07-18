@@ -32,11 +32,11 @@ public class VersionCheckUtil {
 			return true;
 		else{
 			// Checking Java version
-			if(Integer.parseInt(clientVersioning[1]) > Integer.parseInt(requestedVersioning[1]))
+			if (Integer.parseInt(clientVersioning[1]) > Integer.parseInt(requestedVersioning[1]))
 				return true;
 
 			// Checking update
-			else if(Integer.parseInt(clientVersioning[1]) == Integer.parseInt(requestedVersioning[1])){	
+			else if (Integer.parseInt(clientVersioning[1]) == Integer.parseInt(requestedVersioning[1])){	
 				// non-GA or non-FCS release won't be supported
 				if(clientVersioning[2].indexOf("-") != -1)
 					return false;
@@ -45,35 +45,34 @@ public class VersionCheckUtil {
 				int rUpdatePart2 = 0;
 
 				int underbar = requestedVersioning[2].indexOf("_");
-				if( underbar == -1){
+				if ( underbar == -1){
 					rUpdatePart1 = Integer.parseInt(requestedVersioning[2]);
-				}else{
-					rUpdatePart1 = Integer.parseInt(requestedVersioning[2].substring(0,underbar));
-					rUpdatePart2 = Integer.parseInt(requestedVersioning[2].substring(underbar+1,requestedVersioning[2].length()));	
+				} else {
+					rUpdatePart1 = Integer.parseInt(requestedVersioning[2].substring(0, underbar));
+					rUpdatePart2 = Integer.parseInt(requestedVersioning[2].substring(underbar + 1, requestedVersioning[2].length()));	
 				}
 
 				int cUpdatePart1 = 0;
 				int cUpdatePart2 = 0;
 
 				underbar = clientVersioning[2].indexOf("_");
-				if( underbar == -1){
+				if ( underbar == -1) {
 					cUpdatePart1 = Integer.parseInt(clientVersioning[2]);
-				}else{
-					cUpdatePart1 = Integer.parseInt(clientVersioning[2].substring(0,underbar));
-					cUpdatePart2 = Integer.parseInt(clientVersioning[2].substring(underbar+1,clientVersioning[2].length()));	
+				} else {
+					cUpdatePart1 = Integer.parseInt(clientVersioning[2].substring(0, underbar));
+					cUpdatePart2 = Integer.parseInt(clientVersioning[2].substring(underbar + 1, clientVersioning[2].length()));	
 				}
 
-				if(cUpdatePart1 > rUpdatePart1)
+				if (cUpdatePart1 > rUpdatePart1)
 					return true;
-				else if(cUpdatePart1 == rUpdatePart1)
-				{
-					if(cUpdatePart2 > rUpdatePart2 || cUpdatePart2 == rUpdatePart2)
+				else if (cUpdatePart1 == rUpdatePart1) {
+					if (cUpdatePart2 > rUpdatePart2 || cUpdatePart2 == rUpdatePart2)
 						return true;
 					else
 						return false;
-				}else
+				} else
 					return false;
-			}else
+			} else
 				return false;
 		}
 	}

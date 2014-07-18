@@ -22,4 +22,10 @@ public class VersionCheckUtilTest {
     boolean passed = VersionCheckUtil.validateMinJREVersion("1.7.0_65", "1.7.0_51");
 		Assert.assertTrue(passed, "The version check should pass.");
 	}
+	
+	@Test
+	public void testJava7u65BetaVersion() {
+    boolean fail = VersionCheckUtil.validateMinJREVersion("1.7.0_65-b19", "1.7.0_51");
+		Assert.assertFalse(fail, "Non GS release is unsupported.");
+	}
 }
