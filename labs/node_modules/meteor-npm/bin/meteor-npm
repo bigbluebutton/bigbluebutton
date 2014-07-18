@@ -1,0 +1,49 @@
+#!/usr/bin/env node
+
+var fs = require('fs');
+var rimraf = require('rimraf');
+var mkdirp = require('mkdirp');
+var path = require('path');
+
+//check, whether exists in a meteor project
+if(!fs.existsSync('.meteor/packages')) {
+  console.error('Seems like you are not inside a meteor project');
+  process.exit(1);
+}
+
+//remove packages/npm
+rimraf.sync('packages/npm');
+
+//mkdir packages/npm
+mkdirp.sync('packages/npm');
+
+//copy package.js, packages.json, index.js
+copySync(path.resolve(__dirname, '../package.js'), './packages/npm/package.js');
+copySync(path.resolve(__dirname, '../index.js'), './packages/npm/index.js');
+copySync(path.resolve(__dirname, '../test.js'), './packages/npm/test.js');
+
+//add npm to ./.meteor/packaegs for versions grater than 0.6.5
+var meteorPackages = fs.readFileSync('.meteor/packages', 'utf8');
+if(meteorPackages.match(/\nstandard-app-packages/)) {
+  if(!meteorPackages.match(/\nnpm/)) {
+    var content = 'npm\n';
+    if(!meteorPackages.match(/\n$/)) {
+      content = '\n' + npm;
+    }
+    fs.appendFileSync('.meteor/packages', content);
+  }
+}
+
+//remove npm from packages/.gitignore if exists
+if(fs.existsSync('packages/.gitignore')) {
+  var packagesGitignore = fs.readFileSync('packages/.gitignore', 'utf8');
+  packagesGitignore = packagesGitignore.replace(/npm/, '');
+  fs.writeFileSync('packages/.gitignore', packagesGitignore);
+}
+
+console.log('add npm modules to "packages.json" & have fun!');
+
+function copySync(src, dest) {
+  var content = fs.readFileSync(src, 'utf8');
+  fs.writeFileSync(dest, content);
+}
