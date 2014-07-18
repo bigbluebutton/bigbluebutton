@@ -28,9 +28,9 @@ public class MeetingMessageHandler implements MessageHandler {
 	
 	@Override
 	public void handleMessage(String pattern, String channel, String message) {
-		System.out.println("Checking message: " + pattern + " " + channel + " " + message);
+//		System.out.println("Checking message: " + pattern + " " + channel + " " + message);
 		if (channel.equalsIgnoreCase(MessagingConstants.TO_MEETING_CHANNEL)) {
-			System.out.println("Meeting message: " + channel + " " + message);
+//			System.out.println("Meeting message: " + channel + " " + message);
 			IMessage msg = MessageFromJsonConverter.convert(message);
 			
 			if (msg != null) {
@@ -68,7 +68,7 @@ public class MeetingMessageHandler implements MessageHandler {
 			if (msg != null) {
 				if (msg instanceof KeepAliveMessage) {
 					KeepAliveMessage emm = (KeepAliveMessage) msg;
-					log.info("Received KeepAliveMessage request. Meeting id [{}]", emm.keepAliveId);
+//					log.info("Received KeepAliveMessage request. Meeting id [{}]", emm.keepAliveId);
 					bbbGW.isAliveAudit(emm.keepAliveId);					
 				}
 			}

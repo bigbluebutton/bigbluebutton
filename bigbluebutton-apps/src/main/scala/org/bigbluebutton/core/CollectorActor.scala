@@ -235,7 +235,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.CREATE_MEETING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
     
-    println("***** DISPATCHING CREATE MEETING *****************")
+//    println("***** DISPATCHING CREATE MEETING *****************")
     
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -249,7 +249,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.INITIALIZE_MEETING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
                  
-    println("***** DISPATCHING INITIALIZE MEETING *****************")
+//    println("***** DISPATCHING INITIALIZE MEETING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -261,7 +261,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.DESTROY_MEETING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
                  
-    println("***** DISPATCHING DESTROY MEETING *****************")
+//    println("***** DISPATCHING DESTROY MEETING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -273,7 +273,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.START_MEETING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
                  
-    println("***** DISPATCHING START MEETING *****************")
+//    println("***** DISPATCHING START MEETING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -285,7 +285,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.END_MEETING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
                  
-    println("***** DISPATCHING END MEETING *****************")
+//    println("***** DISPATCHING END MEETING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -305,7 +305,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.END_MEETING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
                     
-    println("***** DISPATCHING LOCK SETTING *****************")
+//    println("***** DISPATCHING LOCK SETTING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -319,7 +319,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.END_MEETING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
                  
-    println("***** DISPATCHING LOCK USER *****************")
+//    println("***** DISPATCHING LOCK USER *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -333,7 +333,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.END_MEETING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)    
 
-    println("***** DISPATCHING LOCK ALL USERS *****************")
+//    println("***** DISPATCHING LOCK ALL USERS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -347,7 +347,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.INIT_LOCK_SETTINGS)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)    
 
-    println("***** DISPATCHING INIT LOCK SETTINGS *****************")
+//    println("***** DISPATCHING INIT LOCK SETTINGS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -360,7 +360,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.SET_LOCK_SETTINGS)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)      
                  
-    println("***** DISPATCHING SET LOCK SETTINGS *****************")
+//    println("***** DISPATCHING SET LOCK SETTINGS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -373,7 +373,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.GET_LOCK_SETTINGS)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)    
                  
-    println("***** DISPATCHING GET LOCK SETTINGS *****************")
+//    println("***** DISPATCHING GET LOCK SETTINGS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -386,7 +386,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.IS_MEETING_LOCKED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)     
                  
-    println("***** DISPATCHING IS MEETING LOCKED *****************")
+//    println("***** DISPATCHING IS MEETING LOCKED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -400,7 +400,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.VALIDATE_AUTH_TOKEN)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
     
-    println("***** DISPATCHING VALIDATE AUTH TOKEN *****************")
+//    println("***** DISPATCHING VALIDATE AUTH TOKEN *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -416,7 +416,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.REGISTER_USER)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
     
-    println("***** DISPATCHING REGISTER USER *****************")
+//    println("***** DISPATCHING REGISTER USER *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -429,7 +429,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.USER_JOINING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING HANDLE USER JOINING *****************")
+//    println("***** DISPATCHING HANDLE USER JOINING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -442,7 +442,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.USER_LEAVING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING HANDLE USER LEAVING *****************")
+//    println("***** DISPATCHING HANDLE USER LEAVING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -461,7 +461,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.REPLY_TO, replyTo)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
     
-    println("***** DISPATCHING HANDLE GET USERS *****************")
+//    println("***** DISPATCHING HANDLE GET USERS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -474,7 +474,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.RAISE_HAND)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
     
-    println("***** DISPATCHING USER RAISE HAND *****************")
+//    println("***** DISPATCHING USER RAISE HAND *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -488,7 +488,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.LOWER_HAND)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
     
-    println("***** DISPATCHING USER LOWER HAND *****************")
+//    println("***** DISPATCHING USER LOWER HAND *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -502,7 +502,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.USER_SHARE_WEBCAM)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)    
     
-    println("***** DISPATCHING USER SHARE WEBCAM *****************")
+//    println("***** DISPATCHING USER SHARE WEBCAM *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -515,7 +515,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.USER_UNSHARE_WEBCAM)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)   
                  
-    println("***** DISPATCHING USER UNSHARE WEBCAM *****************")
+//    println("***** DISPATCHING USER UNSHARE WEBCAM *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -530,7 +530,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.CHANGE_USER_STATUS)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)      
 
-    println("***** DISPATCHING CHANGE USER STATUS *****************")
+//    println("***** DISPATCHING CHANGE USER STATUS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -545,7 +545,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.ASSIGN_PRESENTER)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)     
 
-    println("***** DISPATCHING ASSIGN PRESENTER *****************")
+//    println("***** DISPATCHING ASSIGN PRESENTER *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -559,7 +559,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.SET_RECORDING_STATUS)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)     
 
-    println("***** DISPATCHING SET RECORDING STATUS *****************")
+//    println("***** DISPATCHING SET RECORDING STATUS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -572,7 +572,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.GET_CHAT_HISTORY)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)  
 
-    println("***** DISPATCHING GET CHAT HISTORY REQUEST *****************")
+//    println("***** DISPATCHING GET CHAT HISTORY REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -591,7 +591,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.SEND_PUBLIC_MESSAGE)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)     
  
-    println("***** DISPATCHING SEND PUBLIC MESSAGE REQUEST *****************")
+//    println("***** DISPATCHING SEND PUBLIC MESSAGE REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -610,7 +610,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.SEND_PRIVATE_CHAT_MESSAGE)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)  
     
-    println("***** DISPATCHING SEND PRIVATE MESSAGE REQUEST *****************")
+//    println("***** DISPATCHING SEND PRIVATE MESSAGE REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -623,7 +623,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.GET_CURRENT_LAYOUT)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)  
 
-    println("***** DISPATCHING GET CURRENT LAYOUT REQUEST *****************")
+//    println("***** DISPATCHING GET CURRENT LAYOUT REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -661,7 +661,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.PRECREATED_POLL)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
     
-    println("***** DISPATCHING PRE CREATED POLL *****************")
+//    println("***** DISPATCHING PRE CREATED POLL *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -675,7 +675,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.CREATE_POLL)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
 
-    println("***** DISPATCHING CREATE POLL *****************")
+//    println("***** DISPATCHING CREATE POLL *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -689,7 +689,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.UPDATE_POLL)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
 
-    println("***** DISPATCHING UPDATE POLL *****************")
+//    println("***** DISPATCHING UPDATE POLL *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -702,7 +702,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.GET_POLLS)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
     
-    println("***** DISPATCHING GET POLLS *****************")
+//    println("***** DISPATCHING GET POLLS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -716,7 +716,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.DESTROY_POLL)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
 
-    println("***** DISPATCHING DESTROY POLLS *****************")
+//    println("***** DISPATCHING DESTROY POLLS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -730,7 +730,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.REMOVE_POLL)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
 
-    println("***** DISPATCHING REMOVE POLL *****************")
+//    println("***** DISPATCHING REMOVE POLL *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -744,7 +744,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.SHARE_POLL)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
 
-    println("***** DISPATCHING SHARE POLL *****************")
+//    println("***** DISPATCHING SHARE POLL *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -758,7 +758,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.SHOW_POLL_RESULT)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
  
-    println("***** DISPATCHING SHOW POLL RESULTS *****************")
+//    println("***** DISPATCHING SHOW POLL RESULTS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -772,7 +772,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.HIDE_POLL_RESULT)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
 
-    println("***** DISPATCHING HIDE POLL RESULTS *****************")
+//    println("***** DISPATCHING HIDE POLL RESULTS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -786,7 +786,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.STOP_POLL)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
  
-    println("***** DISPATCHING STOP POLL *****************")
+//    println("***** DISPATCHING STOP POLL *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -800,7 +800,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.START_POLL)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
 
-    println("***** DISPATCHING START POLL *****************")
+//    println("***** DISPATCHING START POLL *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -815,7 +815,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.CLEAR_POLL)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
 
-    println("***** DISPATCHING CLEAR POLL *****************")
+//    println("***** DISPATCHING CLEAR POLL *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -829,7 +829,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.GET_POLL_RESULT)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
 
-    println("***** DISPATCHING GET POLL RESULT *****************")
+//    println("***** DISPATCHING GET POLL RESULT *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -843,7 +843,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.RESPONT_TO_POLL)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
 
-    println("***** DISPATCHING RESPOND TO POLL *****************")
+//    println("***** DISPATCHING RESPOND TO POLL *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -855,7 +855,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.CLEAR_PRESENTATION)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
  
-    println("***** DISPATCHING CLEAR PRESENTATION *****************")
+//    println("***** DISPATCHING CLEAR PRESENTATION *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -868,7 +868,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.REMOVE_PRESENTATION)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
  
-    println("***** DISPATCHING REMOVE PRESENTATION *****************")
+//    println("***** DISPATCHING REMOVE PRESENTATION *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -881,7 +881,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.GET_PRESENTATION_INFO)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
 
-    println("***** DISPATCHING GET PRESENTATION INFO *****************")
+//    println("***** DISPATCHING GET PRESENTATION INFO *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -908,7 +908,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.RESIZE_AND_MOVE_SLIDE)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
 
-    println("***** DISPATCHING RESIZE AND MOVE SLIDE *****************")
+//    println("***** DISPATCHING RESIZE AND MOVE SLIDE *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -921,7 +921,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.GO_TO_SLIDE)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
 
-    println("***** DISPATCHING GO TO SLIDE *****************")
+//    println("***** DISPATCHING GO TO SLIDE *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -935,7 +935,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.SHARE_PRESENTATION)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
 
-    println("***** DISPATCHING SHARE PRESENTATION *****************")
+//    println("***** DISPATCHING SHARE PRESENTATION *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -948,7 +948,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.GET_SLIDE_INFO)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING GET SLIDE INFO *****************")
+//    println("***** DISPATCHING GET SLIDE INFO *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -961,7 +961,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.PREUPLOADED_PRESENTATIONS)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING PREUPLOADED PRESENTATIONS *****************")
+//    println("***** DISPATCHING PREUPLOADED PRESENTATIONS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -977,7 +977,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.PRESENTATION_CONVERSION_UPDATE)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING PRESENTATION CONVERSION UPDATE *****************")
+//    println("***** DISPATCHING PRESENTATION CONVERSION UPDATE *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -995,7 +995,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.PRESENTATION_PAGE_COUNT_ERROR)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING PRESENTATION PAGE COUNT ERROR *****************")
+//    println("***** DISPATCHING PRESENTATION PAGE COUNT ERROR *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1013,7 +1013,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.PRESENTATION_PAGE_GENERATED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING PRESENTATION SLIDE GENERATED *****************")
+//    println("***** DISPATCHING PRESENTATION SLIDE GENERATED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1028,7 +1028,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.PRESENTATION_CONVERSION_COMPLETED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
    
-    println("***** DISPATCHING PRESENTATION CONVERSION COMPLETED *****************")
+//    println("***** DISPATCHING PRESENTATION CONVERSION COMPLETED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1041,7 +1041,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.SEND_VOICE_USERS_REQUEST)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING SEND VOICE USERS REQUEST *****************")
+//    println("***** DISPATCHING SEND VOICE USERS REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1055,7 +1055,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.MUTE_MEETING_REQUEST)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING MUTE MEETING REQUEST *****************")
+//    println("***** DISPATCHING MUTE MEETING REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1068,7 +1068,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.IS_MEETING_MUTED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING IS MEETING MUTED REQUEST *****************")
+//    println("***** DISPATCHING IS MEETING MUTED REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1083,7 +1083,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.MUTE_USER)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING MUTE USER REQUEST *****************")
+//    println("***** DISPATCHING MUTE USER REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1098,7 +1098,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.LOCK_USER)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING LOCK USER REQUEST *****************")
+//    println("***** DISPATCHING LOCK USER REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1112,7 +1112,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.EJECT_USER)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING EJECT USER REQUEST *****************")
+//    println("***** DISPATCHING EJECT USER REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1130,7 +1130,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.VOICE_USER_JOINED_MESSAGE)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING VOICE USER JOINED MESSAGE *****************")
+//    println("***** DISPATCHING VOICE USER JOINED MESSAGE *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1143,7 +1143,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.VOICE_USER_JOINED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING VOICE USER JOINED *****************")
+//    println("***** DISPATCHING VOICE USER JOINED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1156,7 +1156,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.VOICE_USER_LEFT)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING VOICE USER LEFT *****************")
+//    println("***** DISPATCHING VOICE USER LEFT *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1170,7 +1170,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.VOICE_USER_LOCKED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING VOICE USER LOCKED *****************")
+//    println("***** DISPATCHING VOICE USER LOCKED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1198,7 +1198,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.VOICE_USER_TALKING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING VOICE USER TALKING *****************")
+//    println("***** DISPATCHING VOICE USER TALKING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1213,7 +1213,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.VOICE_RECORDING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING VOICE RECORDING *****************")
+//    println("***** DISPATCHING VOICE RECORDING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1227,7 +1227,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.SEND_WHITEBOARD_ANNOTATION)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING SEND WHITEBOARD ANNOTATION REQUEST *****************")
+//    println("***** DISPATCHING SEND WHITEBOARD ANNOTATION REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1241,7 +1241,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.GET_WHITEBOARD_SHAPES)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING SEND WHITEBOARD SHAPES REQUEST *****************")
+//    println("***** DISPATCHING SEND WHITEBOARD SHAPES REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1255,7 +1255,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.CLEAR_WHITEBOARD)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING CLEAR WHITEBOARD REQUEST *****************")
+//    println("***** DISPATCHING CLEAR WHITEBOARD REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1269,7 +1269,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.UNDO_WHITEBOARD)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING UNDO WHITEBOARD REQUEST *****************")
+//    println("***** DISPATCHING UNDO WHITEBOARD REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1283,7 +1283,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.ENABLE_WHITEBOARD)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING ENABLE WHITEBOARD REQUEST *****************")
+//    println("***** DISPATCHING ENABLE WHITEBOARD REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1296,7 +1296,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.IS_WHITEBOARD_ENABLED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING IS WHITEBOARD ENABLED REQUEST *****************")
+//    println("***** DISPATCHING IS WHITEBOARD ENABLED REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
 
@@ -1349,7 +1349,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.DISCONNECT_ALL_USERS)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING DISCONNECT ALL USERS *****************")
+//    println("***** DISPATCHING DISCONNECT ALL USERS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1362,7 +1362,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.DISCONNECT_USER)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING DISCONNECT USER *****************")
+//    println("***** DISPATCHING DISCONNECT USER *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1376,7 +1376,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.PERMISSION_SETTING_INITIALIZED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING PERMISSIONS SETTING INIIALIZED *****************")
+//    println("***** DISPATCHING PERMISSIONS SETTING INIIALIZED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1389,7 +1389,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.NEW_PERMISSION_SETTINGS)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING NEW PERMISSIONS SETTING *****************")
+//    println("***** DISPATCHING NEW PERMISSIONS SETTING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1403,7 +1403,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.USER_LOCKED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING USER LOCKED *****************")
+//    println("***** DISPATCHING USER LOCKED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1417,7 +1417,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.USERS_LOCKED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING USERS LOCKED *****************")
+//    println("***** DISPATCHING USERS LOCKED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1442,7 +1442,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.IS_MEETING_LOCKED_REPLY)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING IS MEETING LOCKED REPLY *****************")
+//    println("***** DISPATCHING IS MEETING LOCKED REPLY *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1456,9 +1456,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.USER_REGISTERED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING USER REGISTERED *****************")
+//    println("***** DISPATCHING USER REGISTERED *****************")
     dispatcher.dispatch(buildJson(header, payload))
-    println("end of USER REGISTERED")
   }
   
   private def handleUserLeft(msg: UserLeft) {
@@ -1469,16 +1468,16 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   private def handlePresenterAssigned(msg: PresenterAssigned) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-	payload.put(Constants.NEW_PRESENTER_ID, msg.presenter.presenterID);
-	payload.put(Constants.NEW_PRESENTER_NAME, msg.presenter.presenterName);
-	payload.put(Constants.ASSIGNED_BY, msg.presenter.assignedBy);
+	  payload.put(Constants.NEW_PRESENTER_ID, msg.presenter.presenterID);
+	  payload.put(Constants.NEW_PRESENTER_NAME, msg.presenter.presenterName);
+	  payload.put(Constants.ASSIGNED_BY, msg.presenter.assignedBy);
     payload.put(Constants.RECORDED, msg.recorded) 
     
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.PRESENTER_ASSIGNED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING PRESENTER ASSIGNED *****************")
+//    println("***** DISPATCHING PRESENTER ASSIGNED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1491,7 +1490,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.END_AND_KICK_ALL)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING END AND KICK ALL *****************")
+//    println("***** DISPATCHING END AND KICK ALL *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1511,7 +1510,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.GET_USERS_REPLY)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
     
-    println("***** DISPATCHING GET USERS REPLY *****************")
+//    println("***** DISPATCHING GET USERS REPLY *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1526,7 +1525,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.VALIDATE_AUTH_TOKEN_REPLY)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING VALIDATE AUTH TOKEN REPLY *****************")
+//    println("***** DISPATCHING VALIDATE AUTH TOKEN REPLY *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1545,7 +1544,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.USER_RAISED_HAND)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING USER RAISED HAND *****************")
+//    println("***** DISPATCHING USER RAISED HAND *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1560,7 +1559,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.USER_LOWERED_HAND)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING USER LOWERED HAND *****************")
+//    println("***** DISPATCHING USER LOWERED HAND *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1575,7 +1574,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.USER_SHARED_WEBCAM)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING USER SHARED WEBCAM *****************")
+//    println("***** DISPATCHING USER SHARED WEBCAM *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1590,7 +1589,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.USER_UNSHARED_WEBCAM)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING USER UNSHARED WEBCAM *****************")
+//    println("***** DISPATCHING USER UNSHARED WEBCAM *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1606,7 +1605,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.USER_STATUS_CHANGED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING USER STATUS CHANGE *****************")
+//    println("***** DISPATCHING USER STATUS CHANGE *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1622,7 +1621,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.MUTE_VOICE_USER)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING MUTE VOICE USER *****************")
+//    println("***** DISPATCHING MUTE VOICE USER *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1637,7 +1636,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.USER_VOICE_MUTED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING USER VOICE MUTED *****************")
+//    println("***** DISPATCHING USER VOICE MUTED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1652,7 +1651,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.USER_VOICE_TALKING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING USER VOICE TALKING *****************")
+//    println("***** DISPATCHING USER VOICE TALKING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1667,7 +1666,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.EJECT_VOICE_USER)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING EJECT VOICE USER *****************")
+//    println("***** DISPATCHING EJECT VOICE USER *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1682,7 +1681,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.USER_JOINED_VOICE)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING USER JOINED VOICE *****************")
+//    println("***** DISPATCHING USER JOINED VOICE *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1697,7 +1696,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.USER_LEFT_VOICE)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING USER LEFT VOICE *****************")
+//    println("***** DISPATCHING USER LEFT VOICE *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1712,7 +1711,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.IS_MEETING_MUTED_REPLY)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING IS MEETING MUTED REPLY *****************")
+//    println("***** DISPATCHING IS MEETING MUTED REPLY *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1726,7 +1725,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.START_RECORDING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING START RECORDING *****************")
+//    println("***** DISPATCHING START RECORDING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1740,7 +1739,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.STOP_RECORDING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING STOP RECORDING *****************")
+//    println("***** DISPATCHING STOP RECORDING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1772,7 +1771,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.GET_CURRENT_LAYOUT_REPLY)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING GET CURRENT LAYOUT REPLY *****************")
+//    println("***** DISPATCHING GET CURRENT LAYOUT REPLY *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1789,7 +1788,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.BROADCAST_LAYOUT_REPLY)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING BROADCAST LAYOUT EVENT *****************")
+//    println("***** DISPATCHING BROADCAST LAYOUT EVENT *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1805,7 +1804,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.GET_POLL_RESULT_REPLY)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING GET POLL RESULT REPLY *****************")
+//    println("***** DISPATCHING GET POLL RESULT REPLY *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1826,7 +1825,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.GET_POLLS_REPLY)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING GET POLLS REPLY OUTMSG *****************")
+//    println("***** DISPATCHING GET POLLS REPLY OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1841,7 +1840,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.CLEAR_POLL_FAILED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING CLEAR POLL FAILED *****************")
+//    println("***** DISPATCHING CLEAR POLL FAILED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1854,7 +1853,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.POLL_CLEARED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING POLL CLEARED OUTMSG *****************")
+//    println("***** DISPATCHING POLL CLEARED OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1867,7 +1866,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.POLL_STARTED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING POLL STARTED OUTMSG *****************")
+//    println("***** DISPATCHING POLL STARTED OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1880,7 +1879,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.POLL_STOPPED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING POLL STOPPED OUTMSG *****************")
+//    println("***** DISPATCHING POLL STOPPED OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1893,7 +1892,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.POLL_REMOVED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING POLL REMOVED OUTMSG *****************")
+//    println("***** DISPATCHING POLL REMOVED OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1907,7 +1906,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.POLL_UPDATED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING POLL UPDATED OUTMSG *****************")
+//    println("***** DISPATCHING POLL UPDATED OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1921,7 +1920,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.POLL_CREATED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING POLL CREATED OUTMSG *****************")
+//    println("***** DISPATCHING POLL CREATED OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1935,7 +1934,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.POLL_RESPONSE)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING POLL RESPONSE OUTMSG *****************")
+//    println("***** DISPATCHING POLL RESPONSE OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1948,7 +1947,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.POLL_HIDE_RESULT)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
  
-    println("***** DISPATCHING POLL HIDE RESULT OUTMSG *****************")
+//    println("***** DISPATCHING POLL HIDE RESULT OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1961,7 +1960,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.NAME, MessageNames.POLL_SHOW_RESULT)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
 
-    println("***** DISPATCHING POLL SHOW RESULT OUTMSG *****************")
+//    println("***** DISPATCHING POLL SHOW RESULT OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
