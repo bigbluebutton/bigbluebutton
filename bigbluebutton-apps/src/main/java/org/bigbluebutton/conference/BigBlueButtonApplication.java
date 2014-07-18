@@ -42,7 +42,6 @@ import org.springframework.context.support.AbstractApplicationContext;
 public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	private static Logger log = Red5LoggerFactory.getLogger(BigBlueButtonApplication.class, "bigbluebutton");
 
-	private ParticipantsApplication participantsApplication;
 	private RecorderApplication recorderApplication;
 	private AbstractApplicationContext appCtx;
 	private ConnectionInvokerService connInvokerService;
@@ -89,95 +88,93 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	@Override
     public boolean appStart(IScope app) {
 		log.debug("***** " + APP + " [ " + " appStart [ " + scope.getName() + "] *********");
-        IContext context = app.getContext();
-        appCtx = (AbstractApplicationContext) context.getApplicationContext();
-        appCtx.addApplicationListener(new ShutdownHookListener());
-        appCtx.registerShutdownHook();
-        super.appStart(app);
+    IContext context = app.getContext();
+    appCtx = (AbstractApplicationContext) context.getApplicationContext();
+    appCtx.addApplicationListener(new ShutdownHookListener());
+    appCtx.registerShutdownHook();
+    super.appStart(app);
         
-        connInvokerService.setAppScope(app);
+    connInvokerService.setAppScope(app);
 
-        return true;
-    }
+    return true;
+	}
     
 	@Override
-    public void appStop(IScope app) {
+	public void appStop(IScope app) {
 		log.debug("***** " + APP + " [ " + " appStop [ " + scope.getName() + "] *********");
-        super.appStop(app);
-    }
+		super.appStop(app);
+	}
     
 	@Override
-    public boolean roomStart(IScope room) {
+	public boolean roomStart(IScope room) {
 		log.debug("***** " + APP + " [ " + " roomStart [ " + scope.getName() + "] *********");
 
 		connInvokerService.addScope(room.getName(), room);
-    	return super.roomStart(room);
-    }	
+		return super.roomStart(room);
+	}	
 	
 	@Override
-    public void roomStop(IScope room) {
+	public void roomStop(IScope room) {
 		log.debug("***** " + APP + " [ " + " roomStop [ " + scope.getName() + "] *********");
 		
-//    	bbbGW.destroyMeeting(room.getName());
-    	
 		recorderApplication.destroyRecordSession(room.getName());
 		connInvokerService.removeScope(room.getName());
 		
 		super.roomStop(room);
-    }
+	}
     	
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
 		
-        String username = ((String) params[0]).toString();
-        String role = ((String) params[1]).toString();
-        String room = ((String)params[2]).toString();
+		String username = ((String) params[0]).toString();
+		String role = ((String) params[1]).toString();
+		String room = ((String)params[2]).toString();
                
-        String voiceBridge = ((String) params[3]).toString();
+		String voiceBridge = ((String) params[3]).toString();
 		
-		boolean record = (Boolean)params[4];
+	boolean record = (Boolean)params[4];
 		
-    	String externalUserID = ((String) params[5]).toString();
-    	String internalUserID = ((String) params[6]).toString();
+		String externalUserID = ((String) params[5]).toString();
+		String internalUserID = ((String) params[6]).toString();
     	
-    	Boolean locked = false;
-    	if(params.length >= 7 && ((Boolean) params[7])) {
-    		locked = true;
-    	}
+		Boolean locked = false;
+		if (params.length >= 7 && ((Boolean) params[7])) {
+			locked = true;
+		}
     	
-    	Boolean muted  = false;
-    	if(params.length >= 8 && ((Boolean) params[8])) {
-    		muted = true;
-    	}
+		Boolean muted  = false;
+		if (params.length >= 8 && ((Boolean) params[8])) {
+			muted = true;
+		}
     	
-    	Map<String, Boolean> lsMap = null;
-    	if(params.length >= 9) {
-    		try{
-    			lsMap = (Map<String, Boolean> ) params[9];
-    		}catch(Exception e){
-    			lsMap = new HashMap<String, Boolean>();
-    		}
-    	}
+		Map<String, Boolean> lsMap = null;
+		if (params.length >= 9) {
+			try {
+				lsMap = (Map<String, Boolean> ) params[9];
+			} catch(Exception e){
+				lsMap = new HashMap<String, Boolean>();
+			}
+		}
     	   	    	
 		if (record == true) {
 			recorderApplication.createRecordSession(room);
 		}
 			
-    	BigBlueButtonSession bbbSession = new BigBlueButtonSession(room, internalUserID,  username, role, 
+		BigBlueButtonSession bbbSession = new BigBlueButtonSession(room, internalUserID,  username, role, 
     			voiceBridge, record, externalUserID, muted);
-        connection.setAttribute(Constants.SESSION, bbbSession);        
-        connection.setAttribute("INTERNAL_USER_ID", internalUserID);
+		connection.setAttribute(Constants.SESSION, bbbSession);        
+		connection.setAttribute("INTERNAL_USER_ID", internalUserID);
         
-        String debugInfo = "internalUserID=" + internalUserID + ",username=" + username + ",role=" +  role + "," + 
+		String debugInfo = "internalUserID=" + internalUserID + ",username=" + username + ",role=" +  role + "," + 
         					",voiceConf=" + voiceBridge + ",room=" + room + ",externalUserid=" + externalUserID;
 		log.debug("User [{}] connected to room [{}]", debugInfo, room); 
 
 		bbbGW.initLockSettings(room, locked, lsMap);
 		
-        connInvokerService.addConnection(bbbSession.getInternalUserID(), connection);
+		connInvokerService.addConnection(bbbSession.getInternalUserID(), connection);
         
-        return super.roomConnect(connection, params);
+		return super.roomConnect(connection, params);
         
 	}
 
@@ -185,12 +182,12 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	public void roomDisconnect(IConnection conn) {
 		log.debug("***** " + APP + " [ " + " roomDisconnect [ " + conn.getScope().getName() + "] *********");
 		
-        String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
-        int remotePort = Red5.getConnectionLocal().getRemotePort();    	
-        String clientId = Red5.getConnectionLocal().getClient().getId();
-    	log.info("***** " + APP + "[clientid=" + clientId + "] disconnnected from " + remoteHost + ":" + remotePort + ".");
+		String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
+		int remotePort = Red5.getConnectionLocal().getRemotePort();    	
+		String clientId = Red5.getConnectionLocal().getClient().getId();
+		log.info("***** " + APP + "[clientid=" + clientId + "] disconnnected from " + remoteHost + ":" + remotePort + ".");
     	
-    	connInvokerService.removeConnection(getBbbSession().getInternalUserID());
+		connInvokerService.removeConnection(getBbbSession().getInternalUserID());
     	
 		BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 		log.info("User [" + bbbSession.getUsername() + "] disconnected from room [" + bbbSession.getRoom() +"]");
@@ -220,10 +217,6 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 			bbbGW.userJoin(meetingId, userid);
 		}
 		
-	}
-	
-	public void setParticipantsApplication(ParticipantsApplication a) {
-		participantsApplication = a;
 	}
 	
 	public void setRecorderApplication(RecorderApplication a) {
