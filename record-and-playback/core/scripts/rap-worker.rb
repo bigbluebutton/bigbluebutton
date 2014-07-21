@@ -205,7 +205,7 @@ begin
   recording_dir = props['recording_dir']
 
   logger = Logger.new("#{log_dir}/bbb-rap-worker.log",'daily' )
-  logger.level = Logger::DEBUG
+  logger.level = Logger::INFO
   BigBlueButton.logger = logger
 
   BigBlueButton.logger.debug("Running rap-worker...")
@@ -214,6 +214,9 @@ begin
   sanity_archived_meeting(recording_dir)
   process_archived_meeting(recording_dir)
   publish_processed_meeting(recording_dir)
+
+  BigBlueButton.logger.debug("rap-worker done")
+
 rescue Exception => e
   BigBlueButton.logger.error(e.message)
   e.backtrace.each do |traceline|
