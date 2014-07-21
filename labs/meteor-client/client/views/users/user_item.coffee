@@ -32,8 +32,9 @@ Template.userItem.events
 
 
   "click .kickUser": (event) ->
-    Meteor.Users.update({_id:@_id}, {$set: {meetingId: ""}})
-    #Meteor.call('userKickUser', @_id)
+    u = Meteor.Users.findOne({_id:@_id})
+    if u?.meetingId? and u?.userId?
+      Meteor.call('removeUserFromCollection', u.meetingId, u.userId)
 
 Template.displayOtherUsersControls.events
   "click .disableMic": (event) ->
