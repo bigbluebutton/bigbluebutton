@@ -34,7 +34,7 @@ function webrtc_call(username, voiceBridge, server, callback) {
          register: false,
       //   register_expires: null,
       //   no_answer_timeout: null,
-         trace_sip: true,
+         trace_sip: false,
          stun_servers: "stun:74.125.134.127:19302",
       //   turn_servers: null,
       //   use_preloaded_route: null,
@@ -91,7 +91,7 @@ function webrtc_call(username, voiceBridge, server, callback) {
         remoteView.src = window.URL.createObjectURL(rtcSession.getRemoteStreams()[0]);
         remoteStream = true;
       }
-     callback({'status':'started', 'localStream': localStream, 'remoteStream': remoteStream});
+      callback({'status':'started', 'localStream': localStream, 'remoteStream': remoteStream});
     }
   };
   

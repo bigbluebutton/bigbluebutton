@@ -2,7 +2,11 @@ package org.bigbluebutton.modules.phone.managers
 {
   import com.asfusion.mate.events.Dispatcher;
   
+  import flash.events.TimerEvent;
   import flash.external.ExternalInterface;
+  import flash.utils.Timer;
+  
+  import flexlib.scheduling.timelineClasses.TimeRangeDescriptorUtil;
   
   import mx.controls.Alert;
   import mx.events.CloseEvent;
@@ -107,6 +111,8 @@ package org.bigbluebutton.modules.phone.managers
       dispatcher.dispatchEvent(new UseFlashModeCommand());
     }
     
+	private var t:Timer;
+	
     public function handleWebRtcEchoTestHasAudioEvent():void {
 	  state = STOP_ECHO_THEN_JOIN_CONF;
       endEchoTest();
@@ -115,7 +121,11 @@ package org.bigbluebutton.modules.phone.managers
        * after. (richard mar 28, 2014)
        */
       //echoTestDone = true;
-      joinVoiceConference();
+	  t = new Timer(1000, 1);
+	  t.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
+      	joinVoiceConference();
+	  });
+	  t.start();
     }
     
     public function handleWebRtcConfCallStartedEvent():void {
