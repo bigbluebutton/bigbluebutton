@@ -33,7 +33,7 @@ class PollClientMessageSender(service: ConnectionInvokerService) extends OutMess
   	  val message = new java.util.HashMap[String, Object]()  	
   	  message.put("msg", gson.toJson(map))
   	  
-	  println("PollClientMessageSender - Handling PollResponseOutMsg \n" + message.get("msg") + "\n")
+//	  println("PollClientMessageSender - Handling PollResponseOutMsg \n" + message.get("msg") + "\n")
 	  
   	  var m = new BroadcastClientMessage(msg.meetingID, "pollResultUpdatedMessage", message);
   	  service.sendMessage(m);	
@@ -51,18 +51,18 @@ class PollClientMessageSender(service: ConnectionInvokerService) extends OutMess
   	  
 	  message.put("msg", gson.toJson(collection))
   	  
-	  println("PollClientMessageSender - Handling GetPollsReplyOutMsg \n" + message.get("msg") + "\n")
+//	  println("PollClientMessageSender - Handling GetPollsReplyOutMsg \n" + message.get("msg") + "\n")
 	  
   	  var m = new DirectClientMessage(msg.meetingID, msg.requesterID, "pollGetPollsReply", message);
   	  service.sendMessage(m);		  
   	}
   	
   	private def handlePollClearedOutMsg(msg: PollClearedOutMsg) {
-  	  println("PollClientMessageSender - Handling PollClearedOutMsg")
+//  	  println("PollClientMessageSender - Handling PollClearedOutMsg")
   	}
   	
   	private def handlePollStartedOutMsg(msg: PollStartedOutMsg) {
-  	  println("PollClientMessageSender - Handling PollStartedOutMsg")
+//  	  println("PollClientMessageSender - Handling PollStartedOutMsg")
   	  
   	  val map = new java.util.HashMap[String, Object]()
   	  map.put("pollID", msg.pollID)
@@ -76,7 +76,7 @@ class PollClientMessageSender(service: ConnectionInvokerService) extends OutMess
   	}
   	
   	private def handlePollStoppedOutMsg(msg: PollStoppedOutMsg) {
-  	  println("PollClientMessageSender - Handling PollStoppedOutMsg")
+//  	  println("PollClientMessageSender - Handling PollStoppedOutMsg")
   	  
   	  val map = new java.util.HashMap[String, Object]()
   	  map.put("pollID", msg.pollID)
@@ -90,7 +90,7 @@ class PollClientMessageSender(service: ConnectionInvokerService) extends OutMess
   	}
   	
   	private def handlePollRemovedOutMsg(msg: PollRemovedOutMsg) {
-  	  println("PollClientMessageSender - Handling PollRemovedOutMsg")
+//  	  println("PollClientMessageSender - Handling PollRemovedOutMsg")
   	  val map = new java.util.HashMap[String, Object]()
   	  map.put("pollID", msg.pollID)
   	  
@@ -103,7 +103,7 @@ class PollClientMessageSender(service: ConnectionInvokerService) extends OutMess
   	}
   	
   	private def handlePollUpdatedOutMsg(msg: PollUpdatedOutMsg) {
-  	  println("PollClientMessageSender - Handling PollUpdatedOutMsg")
+//  	  println("PollClientMessageSender - Handling PollUpdatedOutMsg")
   	  val gson= new Gson();
   	  val message = new java.util.HashMap[String, Object]()
 	  message.put("msg", gson.toJson(msg.pollVO))
@@ -113,7 +113,7 @@ class PollClientMessageSender(service: ConnectionInvokerService) extends OutMess
   	}
   	
   	private def handlePollCreatedOutMsg(msg: PollCreatedOutMsg) {
-  	  println("PollClientMessageSender - Handling PollCreatedOutMsg")
+//  	  println("PollClientMessageSender - Handling PollCreatedOutMsg")
   	  val gson= new Gson();
   	  
 	  val message = new java.util.HashMap[String, Object]()

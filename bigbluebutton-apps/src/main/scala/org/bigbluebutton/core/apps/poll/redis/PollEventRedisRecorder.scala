@@ -49,7 +49,7 @@ class PollEventRedisRecorder(recorder: RecorderApplication) extends OutMessageLi
 	}
 
 	def handlePollUpdatedOutMsg(msg:PollUpdatedOutMsg):Unit = {
-		if(msg.recorded){
+		if (msg.recorded) {
 			val ev = new PollUpdatedRecordEvent();
 			ev.setPollID(msg.pollVO.id)
 			ev.setTitle(msg.pollVO.title)
@@ -72,7 +72,7 @@ class PollEventRedisRecorder(recorder: RecorderApplication) extends OutMessageLi
 	}
 
 	def handlePollRemovedOutMsg(msg:PollRemovedOutMsg):Unit = {
-		if(msg.recorded){
+		if (msg.recorded) {
 			val ev = new PollRemovedRecordEvent()
 			ev.setPollID(msg.pollID)
 			ev.setTimestamp(TimestampGenerator.generateTimestamp)
@@ -82,7 +82,7 @@ class PollEventRedisRecorder(recorder: RecorderApplication) extends OutMessageLi
 	}
 
 	def handlePollStoppedOutMsg(msg:PollStoppedOutMsg):Unit = {
-		if(msg.recorded){
+		if (msg.recorded) {
 			val ev = new PollStoppedRecordEvent()
 			ev.setPollID(msg.pollID)
 			ev.setTimestamp(TimestampGenerator.generateTimestamp)
@@ -92,7 +92,7 @@ class PollEventRedisRecorder(recorder: RecorderApplication) extends OutMessageLi
 	}
 
 	def handlePollStartedOutMsg(msg:PollStartedOutMsg):Unit = {
-		if(msg.recorded){
+		if(msg.recorded) {
 			val ev = new PollStartedRecordEvent()
 			ev.setPollID(msg.pollID)
 			ev.setTimestamp(System.currentTimeMillis())
@@ -102,7 +102,7 @@ class PollEventRedisRecorder(recorder: RecorderApplication) extends OutMessageLi
 	}
 
 	def handlePollClearedOutMsg(msg:PollClearedOutMsg):Unit = {
-		if(msg.recorded){
+		if (msg.recorded) {
 			val ev = new PollClearedRecordEvent()
 			ev.setPollID(msg.pollID)
 			ev.setTimestamp(TimestampGenerator.generateTimestamp)

@@ -33,7 +33,7 @@ class ChatClientMessageSender(service: ConnectionInvokerService) extends OutMess
   	
   	val jsonMsg = gson.toJson(collection)
   	
-  	System.out.println("************ CHAT HISTORY = \n" + jsonMsg + "\n")
+//  	System.out.println("************ CHAT HISTORY = \n" + jsonMsg + "\n")
 	  message.put("msg", jsonMsg)
   	  
 	  val m = new DirectClientMessage(msg.meetingID, msg.requesterID, "ChatRequestMessageHistoryReply", message);
@@ -43,7 +43,7 @@ class ChatClientMessageSender(service: ConnectionInvokerService) extends OutMess
   private def handleSendPublicMessageEvent(msg: SendPublicMessageEvent) { 
     val gson = new Gson()
 	val jsonMsg = gson.toJson(mapAsJavaMap(msg.message))
-	System.out.println("************ PUBLIC CHAT MESSAGE = \n" + jsonMsg + "\n")
+//	System.out.println("************ PUBLIC CHAT MESSAGE = \n" + jsonMsg + "\n")
 	  
 	val m = new BroadcastClientMessage(msg.meetingID, "ChatReceivePublicMessageCommand", mapAsJavaMap(msg.message));
 	service.sendMessage(m);    

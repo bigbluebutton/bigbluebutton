@@ -20,7 +20,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
    
   // Meeting
   def createMeeting2(meetingID: String, meetingName: String, record: Boolean, voiceBridge: String, duration: Long) {
-    println("******************** CREATING MEETING [" + meetingID + "] ***************************** ")
+//    println("******************** CREATING MEETING [" + meetingID + "] ***************************** ")
 	bbbGW.accept(new CreateMeeting(meetingID, meetingName, record, voiceBridge, duration))
 
 	/*
@@ -42,7 +42,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
   }
   
   def destroyMeeting(meetingID: String) {
-    println("******************** DESTROY MEETING [" + meetingID + "] ***************************** ")
+//    println("******************** DESTROY MEETING [" + meetingID + "] ***************************** ")
     bbbGW.accept(new DestroyMeeting(meetingID))
   }
   
@@ -60,7 +60,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
   }
 	
   def endMeeting(meetingID: String) {
-    println("******************** END MEETING [" + meetingID + "] ***************************** ")
+//    println("******************** END MEETING [" + meetingID + "] ***************************** ")
     bbbGW.accept(new EndMeeting(meetingID))
   }
 	
@@ -72,7 +72,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
    * Message Interface for Users
    *************************************************************/
   def validateAuthToken(meetingId: String, userId: String, token: String, correlationId: String) {
-    println("******************** VALIDATE TOKEN [" + token + "] ***************************** ")
+//    println("******************** VALIDATE TOKEN [" + token + "] ***************************** ")
     bbbGW.accept(new ValidateAuthToken(meetingId, userId, token, correlationId))
   }
   
@@ -246,7 +246,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	def sendConversionCompleted(messageKey: String, meetingId: String, 
             code: String, presentationId: String, numPages: Int, 
             presName: String, presBaseUrl: String) {
-	  println("******************** PRESENTATION CONVERSION COMPLETED MESSAGE ***************************** ")
+//	  println("******************** PRESENTATION CONVERSION COMPLETED MESSAGE ***************************** ")
       val pages = generatePresentationPages(presentationId, numPages, presBaseUrl)
 	        
 	  val presentation = new Presentation(id=presentationId, name=presName, pages=pages)

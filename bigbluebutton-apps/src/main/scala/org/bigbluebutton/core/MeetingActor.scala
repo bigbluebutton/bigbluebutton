@@ -83,19 +83,19 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
     	case msg: SharePresentation                      => handleSharePresentation(msg)
     	case msg: GetSlideInfo                           => handleGetSlideInfo(msg)
     	case msg: PreuploadedPresentations               => handlePreuploadedPresentations(msg)
-      case msg: PreCreatedPoll                         => handlePreCreatedPoll(msg)
-      case msg: CreatePoll                             => handleCreatePoll(msg)
-      case msg: UpdatePoll                             => handleUpdatePoll(msg)
-      case msg: DestroyPoll                            => handleDestroyPoll(msg)
-      case msg: RemovePoll                             => handleRemovePoll(msg)
-      case msg: SharePoll                              => handleSharePoll(msg)
-      case msg: StopPoll                               => handleStopPoll(msg)
-      case msg: StartPoll                              => handleStartPoll(msg)
-      case msg: ClearPoll                              => handleClearPoll(msg)
-      case msg: GetPolls                               => handleGetPolls(msg)
-      case msg: RespondToPoll                          => handleRespondToPoll(msg)
-      case msg: HidePollResult                         => handleHidePollResult(msg)
-      case msg: ShowPollResult                         => handleShowPollResult(msg)
+        case msg: PreCreatedPoll                         => handlePreCreatedPoll(msg)
+        case msg: CreatePoll                             => handleCreatePoll(msg)
+        case msg: UpdatePoll                             => handleUpdatePoll(msg)
+        case msg: DestroyPoll                            => handleDestroyPoll(msg)
+        case msg: RemovePoll                             => handleRemovePoll(msg)
+        case msg: SharePoll                              => handleSharePoll(msg)
+        case msg: StopPoll                               => handleStopPoll(msg)
+        case msg: StartPoll                              => handleStartPoll(msg)
+        case msg: ClearPoll                              => handleClearPoll(msg)
+        case msg: GetPolls                               => handleGetPolls(msg)
+        case msg: RespondToPoll                          => handleRespondToPoll(msg)
+        case msg: HidePollResult                         => handleHidePollResult(msg)
+        case msg: ShowPollResult                         => handleShowPollResult(msg)
 	    case msg: SendWhiteboardAnnotationRequest        => handleSendWhiteboardAnnotationRequest(msg)
 	    case msg: GetWhiteboardShapesRequest             => handleGetWhiteboardShapesRequest(msg)
 	    case msg: ClearWhiteboardRequest                 => handleClearWhiteboardRequest(msg)
@@ -118,13 +118,13 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
   }
   
   private def handleStartTimer() {
-    println("***************timer started******************")
+//    println("***************timer started******************")
 //    val timerActor = new TimerActor(2000, self, "Hello")
 //    timerActor.start
   }
   
   private def handleHello() {
-    println("***************hello received on [" + System.currentTimeMillis() + "]******************")
+//    println("***************hello received on [" + System.currentTimeMillis() + "]******************")
     
 //    val timerActor = new TimerActor(2000, self, "Hello")    
 //    timerActor.start

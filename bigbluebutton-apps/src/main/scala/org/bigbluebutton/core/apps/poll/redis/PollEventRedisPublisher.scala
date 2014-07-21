@@ -27,12 +27,12 @@ class PollEventRedisPublisher(service: MessageSender) extends OutMessageListener
   	  val gson = new Gson();
   	  val map = new java.util.HashMap[String, Object]() 
 
-	    map.put("meetingID", msg.meetingID)
-	    map.put("event", "PollResponseEvent")
+	  map.put("meetingID", msg.meetingID)
+	  map.put("event", "PollResponseEvent")
   	  map.put("responder", msg.responder)
   	  map.put("response", msg.response)
 
-	    service.send(MessagingConstants.FROM_POLLING_CHANNEL, gson.toJson(map));	
+	  service.send(MessagingConstants.FROM_POLLING_CHANNEL, gson.toJson(map));	
   	}
   	
   	private def handleGetPollsReplyOutMsg(msg: GetPollsReplyOutMsg) {
@@ -47,16 +47,16 @@ class PollEventRedisPublisher(service: MessageSender) extends OutMessageListener
   	  
 	  message.put("msg", gson.toJson(collection))
   	  
-	  println("PollClientMessageSender - Handling GetPollsReplyOutMsg \n" + message.get("msg") + "\n")
+//	  println("PollClientMessageSender - Handling GetPollsReplyOutMsg \n" + message.get("msg") + "\n")
 	  	  
   	}
   	
   	private def handlePollClearedOutMsg(msg: PollClearedOutMsg) {
-  	  println("PollClientMessageSender - Handling PollClearedOutMsg")
+//  	  println("PollClientMessageSender - Handling PollClearedOutMsg")
   	}
   	
   	private def handlePollStartedOutMsg(msg: PollStartedOutMsg) {
-  	  println("PollClientMessageSender - Handling PollStartedOutMsg")
+//  	  println("PollClientMessageSender - Handling PollStartedOutMsg")
   	  
   	  val gson = new Gson();
   	  val map = new java.util.HashMap[String, Object]()
@@ -68,7 +68,7 @@ class PollEventRedisPublisher(service: MessageSender) extends OutMessageListener
   	}
   	
   	private def handlePollStoppedOutMsg(msg: PollStoppedOutMsg) {
-  	  println("PollClientMessageSender - Handling PollStoppedOutMsg")
+//  	  println("PollClientMessageSender - Handling PollStoppedOutMsg")
   	  
   	  val gson = new Gson();
   	  val map = new java.util.HashMap[String, Object]()
@@ -79,7 +79,7 @@ class PollEventRedisPublisher(service: MessageSender) extends OutMessageListener
   	}
   	
   	private def handlePollRemovedOutMsg(msg: PollRemovedOutMsg) {
-  	  println("PollClientMessageSender - Handling PollRemovedOutMsg")
+//  	  println("PollClientMessageSender - Handling PollRemovedOutMsg")
   	  
   	  val gson = new Gson();
   	  val map = new java.util.HashMap[String, Object]()
@@ -90,7 +90,7 @@ class PollEventRedisPublisher(service: MessageSender) extends OutMessageListener
   	}
   	
   	private def handlePollUpdatedOutMsg(msg: PollUpdatedOutMsg) {
-  	  println("PollClientMessageSender - Handling PollUpdatedOutMsg")
+//  	  println("PollClientMessageSender - Handling PollUpdatedOutMsg")
   	  val gson = new Gson();
 	  val map = new java.util.HashMap[String, Object]()
 	  map.put("meetingID", msg.meetingID)
@@ -101,7 +101,7 @@ class PollEventRedisPublisher(service: MessageSender) extends OutMessageListener
   	}
   	
   	private def handlePollCreatedOutMsg(msg: PollCreatedOutMsg) {
-  	  println("PollClientMessageSender - Handling PollCreatedOutMsg")
+//  	  println("PollClientMessageSender - Handling PollCreatedOutMsg")
   	  val gson = new Gson();
   	  
 	  val map = new java.util.HashMap[String, Object]()
