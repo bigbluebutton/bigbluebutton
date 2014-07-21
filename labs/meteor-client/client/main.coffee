@@ -1,14 +1,17 @@
 # These settings can just be stored locally in session, created at start up
 Meteor.startup ->
-	`this.SessionAmplify = _.extend({}, Session, {
-		keys: _.object(_.map(amplify.store(), function(value, key) {
-			return [key, JSON.stringify(value)]
-		})),
-		set: function (key, value) {
-			Session.set.apply(this, arguments);
-			amplify.store(key, value);
-		},
-	});`
+	@SessionAmplify = _.extend({}, Session,
+	  keys: _.object(_.map(amplify.store(), (value, key) ->
+	    [
+	      key
+	      JSON.stringify(value)
+	    ]
+	  ))
+	  set: (key, value) ->
+	    Session.set.apply this, arguments
+	    amplify.store key, value
+	    return
+	)
 
 	SessionAmplify.set "display_usersList", true
 	SessionAmplify.set "display_navbar", true
