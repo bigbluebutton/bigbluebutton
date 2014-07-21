@@ -43,7 +43,7 @@
     <script src="lib/bbb_blinker.js" language="javascript"></script>
     <script src="lib/bbb_deskshare.js" language="javascript"></script>
     <script src="lib/bbb_api_bridge.js" language="javascript"></script>
-    <script src="lib/jssip-0.4.0-devel.js" language="javascript"></script> 
+    <script src="lib/jssip-0.3.7.js" language="javascript"></script> 
     <script src="lib/bbb_webrtc_bridge_jssip.js" language="javascript"></script> 
 <!--    <script src="lib/sipml5api.js" language="javascript"></script> -->
 <!--    <script src="lib/bbb_webrtc_bridge_sipml5.js" language="javascript"></script> -->
@@ -101,7 +101,7 @@
 
 <script type="text/javascript">
 
-	var fsServer = null;
+  var fsServer = null;
 
   var callIntoConference = function(destination, callback) {
     if (!isWebrtcCapable()) {
@@ -159,8 +159,8 @@
     webrtc_hangup(callback);
   }
 
-	var startWebrtcAudioTest = function(){
-		console.log("Testing webrtc audio");
+  var startWebrtcAudioTest = function(){
+    console.log("Testing webrtc audio");
     var callback = function(message) {
       if (message.status == 'failed') {
         BBB.webRtcEchoTestFailed(message.cause);
@@ -171,15 +171,15 @@
       }     
     }
 
-		webrtc_call("tester", "9196", fsServer, callback);
-	}
+    webrtc_call("tester", "9196", fsServer, callback);
+  }
 
-	var stopWebrtcAudioTest = function(){
-		console.log("Stopping webrtc audio test");
-		webrtc_hangup(function(){
-			console.log("Webrtc audio test stopped");
-		});
-	}
+  var stopWebrtcAudioTest = function(){
+    console.log("Stopping webrtc audio test");
+    webrtc_hangup(function(){
+      console.log("Webrtc audio test stopped");
+    });
+  }
 
 	
 </script>
