@@ -28,7 +28,7 @@ class VoiceInGateway(bbbGW: BigBlueButtonGateway) {
 	                            conference: String, callerIdNum: String, 
 	                            callerIdName: String,
 								muted: Boolean, talking: Boolean) {
-	  println("VoiceInGateway: Got voiceUserJoined message for meeting [" + meetingId + "] user[" + callerIdName + "]")
+//	  println("VoiceInGateway: Got voiceUserJoined message for meeting [" + meetingId + "] user[" + callerIdName + "]")
 	  val voiceUser = new VoiceUser(userId, webUserId, 
 	                                callerIdName, callerIdNum,  
 	                                true, false, muted, talking)
@@ -36,7 +36,7 @@ class VoiceInGateway(bbbGW: BigBlueButtonGateway) {
 	}
 	
 	def voiceUserLeft(meetingId: String, userId: String) {
-	  println("VoiceInGateway: Got voiceUserLeft message for meeting [" + meetingId + "] user[" + userId + "]")
+//	  println("VoiceInGateway: Got voiceUserLeft message for meeting [" + meetingId + "] user[" + userId + "]")
 	  bbbGW.accept(new VoiceUserLeft(meetingId, userId))
 	}
 	

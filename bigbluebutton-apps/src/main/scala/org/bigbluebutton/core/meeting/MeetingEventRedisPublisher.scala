@@ -28,35 +28,35 @@ class MeetingEventRedisPublisher(service: MessageSender) extends OutMessageListe
 	  }
   }
 
-	private def handleMeetingDestroyed(msg: MeetingDestroyed) {
+  private def handleMeetingDestroyed(msg: MeetingDestroyed) {
     val json = MeetingMessageToJsonConverter.meetingDestroyedToJson(msg)
-    System.out.println("****\n" + json)
+//    System.out.println("****\n" + json)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)     
-	}
+  }
 	
   private def handleKeepAliveMessageReply(msg: KeepAliveMessageReply) {
     val json = MeetingMessageToJsonConverter.keepAliveMessageReplyToJson(msg)
     service.send(MessagingConstants.FROM_SYSTEM_CHANNEL, json)
-	}
+  }
 
-	private def handleMeetingCreated(msg:MeetingCreated) {
+  private def handleMeetingCreated(msg:MeetingCreated) {
     val json = MeetingMessageToJsonConverter.meetingCreatedToJson(msg)
-    System.out.println("****\n" + json)
+//    System.out.println("****\n" + json)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)	
-	}
+  }
 
-	private def handleMeetingEnded(msg:MeetingEnded){
+  private def handleMeetingEnded(msg:MeetingEnded){
     val json = MeetingMessageToJsonConverter.meetingEndedToJson(msg)
-    System.out.println("****\n" + json)
+//    System.out.println("****\n" + json)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)	
-	}
+  }
 
-	private def handleStartRecording(msg: StartRecording) {
+  private def handleStartRecording(msg: StartRecording) {
     val json = MeetingMessageToJsonConverter.startRecordingToJson(msg)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
   }
 
-	private def handleStopRecording(msg: StopRecording) {
+  private def handleStopRecording(msg: StopRecording) {
     val json = MeetingMessageToJsonConverter.stopRecordingToJson(msg)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
   }
