@@ -55,47 +55,26 @@ TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g
 mark_for_rebuild() {
 	MEETING_ID=$1
 	echo "Marking for rebuild $MEETING_ID"
-	#set -x
+	if [[ ! -d $BASE/raw/$MEETING_ID ]]; then
+		echo "Raw files for $MEETING_ID do not exist, can't rebuild"
+		exit 1
+	fi
+
+	# Remove the existing 'published' recording files
+	rm -rvf /var/bigbluebutton/published/$type/$MEETING_ID
+	rm -rvf /var/bigbluebutton/unpublished/$type/$MEETING_ID
+
+	# Clear out all the done files
+	rm -vf $STATUS/sanity/$MEETING_ID.done
 	for type in $TYPES; do
-                if [ -d $BASE/process/$type/$MEETING_ID ]; then
-                        rm -rf $BASE/process/$type/$MEETING_ID
-#                else
-#                        echo "Warn: Didn't find $BASE/process/$type/$MEETING_ID"
-#                        exit 1
-                fi
-
-                if [ -f $STATUS/processed/$MEETING_ID-$type.done ]; then
-                        rm $STATUS/processed/$MEETING_ID-$type.done
-
-                if [ -f $STATUS/published/$MEETING_ID-$type.done ]; then
-                        rm $STATUS/published/$MEETING_ID-$type.done
-                fi
-
-                if [ -f $STATUS/published/$MEETING_ID-$type.fail ]; then
-                        rm $STATUS/published/$MEETING_ID-$type.fail
-                fi
-
-#                else
-#                        echo "Warn: Didn't find $STATUS/processed/$MEETING_ID-$type.done"
-#                        exit 1
-                fi
-
-                if [ -d $BASE/publish/$type/$MEETING_ID ]; then
-			rm -rf $BASE/publish/$type/$MEETING_ID
-		fi
-
-                if [ -d /var/bigbluebutton/processed/$type/$MEETING_ID ]; then
-                        rm -rf /var/bigbluebutton/published/$type/$MEETING_ID
-                fi
-
-                if [ -d /var/bigbluebutton/published/$type/$MEETING_ID ]; then
-                        rm -rf /var/bigbluebutton/published/$type/$MEETING_ID
-                fi
-
-                if [ -d /var/bigbluebutton/unpublished/$type/$MEETING_ID ]; then
-                        rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID
-                fi
+		rm -vf $STATUS/published/$MEETING_ID-$type.fail
+		rm -vf $STATUS/published/$MEETING_ID-$type.done
+		rm -vf $STATUS/processed/$MEETING_ID-$type.fail
+		rm -vf $STATUS/processed/$MEETING_ID-$type.done
 	done
+
+	# Restart processing at the 'archived' step
+	touch $STATUS/archived/$MEETING_ID.done
 }
 
 mark_for_republish() { 
