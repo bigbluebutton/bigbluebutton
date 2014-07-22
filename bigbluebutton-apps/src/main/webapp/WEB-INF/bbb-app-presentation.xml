@@ -28,12 +28,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			">
 				
 	<bean id="presentationHandler" class="org.bigbluebutton.conference.service.presentation.PresentationHandler">
-		<property name="presentationApplication"> 
-			<ref local="presentationApplication"/>
-		</property>
-		<property name="recorderApplication"> 
-			<ref bean="recorderApplication"/>
-		</property>
 	</bean>
 	
 	<bean id="presentationApplication" class="org.bigbluebutton.conference.service.presentation.PresentationApplication">
