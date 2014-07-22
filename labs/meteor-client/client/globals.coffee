@@ -2,10 +2,10 @@ Handlebars.registerHelper 'equals', (a, b) -> # equals operator was dropped in M
   a is b
 
 # Allow access through all templates
-Handlebars.registerHelper "setInSession", (k, v) -> SessionAmplify.set k,v #Session.set k, v
-Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k #Session.get k
+Handlebars.registerHelper "setInSession", (k, v) -> SessionAmplify.set k, v 
+Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
 # Allow access throughout all coffeescript/js files
-@setInSession = (k, v) -> SessionAmplify.set k,v #Session.set k, v
+@setInSession = (k, v) -> SessionAmplify.set k, v 
 @getInSession = (k) -> SessionAmplify.get k
 
 # retrieve account for selected user
@@ -81,8 +81,9 @@ Handlebars.registerHelper "getMeetingName", ->
   window.getMeetingName()
 
 Handlebars.registerHelper "isUserSharingAudio", (u) ->
-  # u.voiceUser.talking
-  getInSession "isSharingAudio"
+  # if u?
+  #   u.user.voiceUser?.talking?
+  false
 
 Handlebars.registerHelper "isUserSharingVideo", (u) ->
   u.webcam_stream.length isnt 0
