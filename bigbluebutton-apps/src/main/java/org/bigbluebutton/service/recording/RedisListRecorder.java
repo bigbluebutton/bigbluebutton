@@ -18,7 +18,7 @@ public class RedisListRecorder {
 	private static Logger log = Red5LoggerFactory.getLogger(RedisListRecorder.class, "bigbluebutton");
 	private static final int NTHREADS = 1;
 	private static final Executor exec = Executors.newFixedThreadPool(NTHREADS);
-			
+	private static final Executor runExec = Executors.newFixedThreadPool(NTHREADS);		
 	private BlockingQueue<RecordEvent> messages = new LinkedBlockingQueue<RecordEvent>();
 	private volatile boolean recordEvents = false;
 	
@@ -48,15 +48,20 @@ public class RedisListRecorder {
 		recordEvents = false;
 	}	
 
-	private void recordEvent(RecordEvent message) {
-		Jedis jedis = redisPool.getResource();
-		try {
-      String key = "bbb:recording:" + message.getMeetingID();
-      Gson gson= new Gson(); 		
-			jedis.rpush(key, gson.toJson(message.toMap()));
-		} finally {
-			redisPool.returnResource(jedis);
-		}
+	private void recordEvent(final RecordEvent message) {
+		Runnable task = new Runnable() {
+			public void run() {
+				Jedis jedis = redisPool.getResource();
+				try {
+		      String key = "bbb:recording:" + message.getMeetingID();
+		      Gson gson= new Gson(); 		
+					jedis.rpush(key, gson.toJson(message.toMap()));
+				} finally {
+					redisPool.returnResource(jedis);
+				}				
+			}
+		};
+		runExec.execute(task);
   }
 	
 	public void record(RecordEvent message) {		

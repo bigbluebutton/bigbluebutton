@@ -39,7 +39,8 @@ public class RecorderApplication {
 	
 	private static final int NTHREADS = 1;
 	private static final Executor exec = Executors.newFixedThreadPool(NTHREADS);
-			
+	private static final Executor runExec = Executors.newFixedThreadPool(NTHREADS);
+	
 	private BlockingQueue<RecordEvent> messages;
 	private volatile boolean recordEvents = false;
 
@@ -49,7 +50,6 @@ public class RecorderApplication {
 	
 	public RecorderApplication() {
 		 messages = new LinkedBlockingQueue<RecordEvent>();
-//		recordingSessions = new ConcurrentHashMap<String, String>();
 	}
 
 	public void start() {
@@ -86,18 +86,15 @@ public class RecorderApplication {
 	
 	public void record(String meetingID, RecordEvent message) {
 		messages.offer(message);
-
-		/**
-		 * Comment this out for now. Just setting up for transition on how
-		 * we store the events in Redis (ralam may 6, 2014)
-		 */
-		//redisListRecorder.record(message);
 	}
 
-	private void recordEvent(RecordEvent message) {
-//		if (recordingSessions.containsKey(message.getMeetingID())) {
-			recorder.record(message.getMeetingID(), message);
-//		}		
+	private void recordEvent(final RecordEvent message) {
+		Runnable task = new Runnable() {
+			public void run() {
+			  recorder.record(message.getMeetingID(), message);
+			}
+		};
+		runExec.execute(task);
 	}
 	
 	public void setRecorder(Recorder recorder) {
