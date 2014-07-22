@@ -40,6 +40,7 @@ package org.bigbluebutton.modules.layout.model
     }
     
     public function getLayoutNames():Array {
+      if (_layouts == null) return new Array();
       return _layouts.list;
     }
     
