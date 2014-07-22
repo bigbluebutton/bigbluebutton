@@ -44,7 +44,7 @@ class UsersModel {
   }
   
   def numModerators():Int = {
-	getModerators.length
+	  getModerators.length
   }
 
   def getLoneModerator():Option[UserVO] = {
@@ -56,23 +56,23 @@ class UsersModel {
   }
   
   def unbecomePresenter(userID: String) = {
-	uservos.get(userID) match {
-		case Some(u) => {
-		  val nu = u.copy(presenter = false)
-		  uservos += nu.userID -> nu
-		}
-		case None => // do nothing	
-	}      
+	  uservos.get(userID) match {
+		  case Some(u) => {
+		    val nu = u.copy(presenter = false)
+		    uservos += nu.userID -> nu
+		  }
+		  case None => // do nothing	
+	  }      
   }
   
   def becomePresenter(userID: String) = {
-	uservos.get(userID) match {
-		case Some(u) => {
-		  val nu = u.copy(presenter = true)
-		  uservos += nu.userID -> nu
-		}
-		case None => // do nothing	
-	}      
+	  uservos.get(userID) match {
+		  case Some(u) => {
+		    val nu = u.copy(presenter = true)
+		    uservos += nu.userID -> nu
+		  }
+		  case None => // do nothing	
+	  }      
   }
   
   def getModerators():Array[UserVO] = {

@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.poll
 import org.testng.annotations.BeforeClass
 import org.testng.annotations.Test
 import org.testng.annotations.BeforeMethod
-
+import org.testng.Assert
 
 class PollModelTests {
     val r1 = new ResponseVO("0", "Answer 1")
