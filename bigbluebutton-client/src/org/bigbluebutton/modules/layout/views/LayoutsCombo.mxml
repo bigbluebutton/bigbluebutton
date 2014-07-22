@@ -32,23 +32,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
+      import com.asfusion.mate.events.Dispatcher;     
       import flash.events.Event;
       import flash.events.IOErrorEvent;
       import flash.events.ProgressEvent;
-      import flash.net.FileReference;
-      
+      import flash.net.FileReference;     
       import flexlib.mdi.containers.MDICanvas;
       import flexlib.mdi.containers.MDIWindow;
       import flexlib.mdi.events.MDIManagerEvent;
       import flexlib.mdi.events.MDIWindowEvent;
-      import flexlib.mdi.managers.MDIManager;
-      
+      import flexlib.mdi.managers.MDIManager;     
       import mx.collections.ArrayCollection;
       import mx.controls.Alert;
-      import mx.events.ResizeEvent;
-      
+      import mx.events.ResizeEvent;     
       import org.bigbluebutton.common.IBbbModuleWindow;
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
@@ -78,7 +74,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       [Bindable] private var layoutNames:ArrayCollection = new ArrayCollection();
       
       private function init():void {
+        trace(LOG + "initing");
         dataProvider = layoutNames;
+        populateComboBox();
       }
       
       private function lockSettingsChanged(e:LockControlEvent):void {
@@ -89,12 +87,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
 			private function populateLayoutsList(e:LayoutsReadyEvent):void {
-        trace(LOG + " displaying layout names.");       
+        trace(LOG + " handling layout ready event.");       
+        populateComboBox();
+			}
+      
+      private function populateComboBox():void {
+        trace(LOG + " populating layout combo.");  
         layoutNames = new ArrayCollection();         
         var layouts:Array = LayoutModel.getInstance().getLayoutNames();
         
         var idx:int = 0;
-				for each (var lay:Object in layouts) {
+        for each (var lay:Object in layouts) {
           var item:Object = {index: idx, label: lay.name, currentLayout: lay.currentLayout };
           trace(LOG + " layout [" + lay.name + ", current=" + lay.currentLayout + "]");
           layoutNames.addItem(item);
@@ -102,9 +105,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             selectedIndex = idx;
           }
           idx++;
-				}
-				invalidateDisplayList();
-			}
+        }
+        invalidateDisplayList();        
+      }
 						
 			private function onLayoutChanged(e:LayoutChangedEvent):void {	
         trace(LOG + " handling LayoutChangedEvent."); 
