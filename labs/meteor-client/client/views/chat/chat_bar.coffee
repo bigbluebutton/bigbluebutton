@@ -35,7 +35,6 @@ Template.tabButtons.events
   
   'click .close': (event) -> # user closes private chat
     theName = @name
-    console.log theName
     setInSession 'display_chatPane', true
     setInSession 'inChatWith', 'PUBLIC_CHAT'
 
@@ -52,10 +51,14 @@ Template.tabButtons.events
 Template.chatInput.events
   'keypress #newMessageInput': (event) -> # user pressed a button inside the chatbox
     if event.which is 13 # Check for pressing enter to submit message
+      message = $('#newMessageInput').val() # get the message from the input box
+      unless (message?.length > 0 and (/\S/.test(message))) # check the message has content and it is not whitespace
+        return # do nothing if invalid message
+
       chattingWith = getInSession('inChatWith')
 
       messageForServer = { # construct message for server
-        "message": $("#newMessageInput").val()
+        "message": message
         "chat_type": if chattingWith is "PUBLIC_CHAT" then "PUBLIC_CHAT" else "PRIVATE_CHAT"
         "from_userid": getInSession("userId")
         "from_username": getUsersName()
@@ -78,7 +81,7 @@ Template.optionsBar.events
 
     if duplicate.length<=0 and @userId isnt currUserId
       messageForServer = { 
-          "message": "Hey #{@user.name}, its #{getUsersName()} lets start a private chat."
+          "message": "#{getUsersName()} has joined private chat with #{@user.name}."
           "chat_type": "PRIVATE_CHAT"
           "from_userid": getInSession("userId")
           "from_username": getUsersName()
@@ -116,3 +119,5 @@ Template.tabButtons.helpers
     button += '</a></li>'
     button
 
+Template.message.rendered = -> # When a message has been added and finished rendering, scroll to the bottom of the chat
+  $('#chatScrollWindow').scrollTop($('#chatScrollWindow')[0].scrollHeight)

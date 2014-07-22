@@ -37,7 +37,7 @@
 	<div id="chatScrollWindow">
 		{{#if isUserInPrivateChat}} <!-- If in private chat display greeting, then all messages after join -->
 			{{> chatGreeting}}
-			{{#each getMessagesInChat after}} <!-- before they joined meeting -->
+			{{#each getMessagesInChat}} 
 				{{> message}}
 			{{/each}} 
 		{{else}}
