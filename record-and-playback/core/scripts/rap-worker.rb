@@ -26,6 +26,7 @@ require 'fileutils'
 def archive_recorded_meeting(recording_dir)
   recorded_done_files = Dir.glob("#{recording_dir}/status/recorded/*.done")
 
+  FileUtils.mkdir_p("#{recording_dir}/status/archived")
   recorded_done_files.each do |recorded_done|
     match = /([^\/]*).done$/.match(recorded_done)
     meeting_id = match[1]
@@ -51,6 +52,7 @@ end
 def sanity_archived_meeting(recording_dir)
   archived_done_files = Dir.glob("#{recording_dir}/status/archived/*.done")
 
+  FileUtils.mkdir_p("#{recording_dir}/status/sanity")
   archived_done_files.each do |archived_done|
     match = /([^\/]*).done$/.match(archived_done)
     meeting_id = match[1]
@@ -78,6 +80,7 @@ end
 def process_archived_meeting(recording_dir)
   sanity_done_files = Dir.glob("#{recording_dir}/status/sanity/*.done")
 
+  FileUtils.mkdir_p("#{recording_dir}/status/processed")
   sanity_done_files.each do |sanity_done|
     match = /([^\/]*).done$/.match(sanity_done)
     meeting_id = match[1]
@@ -129,6 +132,7 @@ end
 def publish_processed_meeting(recording_dir)
   processed_done_files = Dir.glob("#{recording_dir}/status/processed/*.done")
 
+  FileUtils.mkdir_p("#{recording_dir}/status/published")
   processed_done_files.each do |processed_done|
     match = /([^\/]*)-([^\/-]*).done$/.match(processed_done)
     meeting_id = match[1]
