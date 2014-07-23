@@ -120,3 +120,17 @@ Template.tabButtons.helpers
     button += '</a></li>'
     button
 
+Template.message.helpers
+  toClockTime: (epochTime) ->
+    local = new Date()
+    offset = local.getTimezoneOffset()
+    epochTime = epochTime - offset * 60000 # 1 min = 60 s = 60,000 ms
+    dateObj = new Date(epochTime)
+    hours = dateObj.getUTCHours()
+    minutes = dateObj.getUTCMinutes()
+    if minutes == 0
+      minutes = 0
+    else if minutes < 10
+      minutes = "0" + minutes
+    hours + ":" + minutes
+
