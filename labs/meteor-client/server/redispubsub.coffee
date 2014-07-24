@@ -95,9 +95,21 @@ class Meteor.RedisPubSub
       #log.debug({ pattern: pattern, channel: channel, message: message}, "Received a message from redis")
       console.log jsonMsg
 
+    if message.header?.name is 'user_voice_talking_message'
+      u = Meteor.Users.findOne({'userId': message.payload?.user?.userid})
+      if u?
+        console.log "setting talking to true\n\n\n\n"
+        Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.talking':true}})
+    else
+      u = Meteor.Users.findOne({'userId': message.payload?.user?.userid})
+      if u?
+        console.log 'setting talking to false\n\n\n\n--------------------------------------------------------------------'
+        console.log jsonMsg
+        console.log '--------------------------------------------------------------------'
+        Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.talking':false}})
+
     if message.header?.name is "get_all_meetings_reply"
-      console.log "Let's store some data for the running meetings so that 
-      when an HTML5 client joins everything is ready!"
+      console.log "Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!"
       listOfMeetings = message.payload?.meetings
       for meeting in listOfMeetings
         Meteor.call("addMeetingToCollection", meeting.meetingID, meeting.meetingName, meeting.recorded)
