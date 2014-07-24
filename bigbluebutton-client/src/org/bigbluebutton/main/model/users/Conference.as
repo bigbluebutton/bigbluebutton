@@ -428,43 +428,43 @@ package org.bigbluebutton.main.model.users {
 			
 			var lockConfig:XML;
 			
-			if(config!=null) {
+			if (config!=null) {
 				lockConfig = config.lock;
 			}
 			
-			try{
+			try {
 				allowModeratorLocking = (lockConfig.@allowModeratorLocking.toUpperCase() == "TRUE");
-			}catch(e:Error) {
+			} catch(e:Error) {
 				allowModeratorLocking = false;
 			}
 			
-			try{
+			try {
 				disableCam = (lockConfig.@disableCamForLockedUsers.toUpperCase() == "TRUE");
-			}catch(e:Error) {
+			} catch(e:Error) {
 				disableCam = false;
 			}
 			
-			try{
+			try {
 				disableMic = (lockConfig.@disableMicForLockedUsers.toUpperCase() == "TRUE");
-			}catch(e:Error) {
+			} catch(e:Error) {
 				disableMic = false;
 			}
 			
-			try{
+			try {
 				disablePrivateChat = (lockConfig.@disablePrivateChatForLockedUsers.toUpperCase() == "TRUE");
-			}catch(e:Error) {
+			} catch(e:Error) {
 				disablePrivateChat = false;
 			}
 			
-			try{
+			try {
 				disablePublicChat = (lockConfig.@disablePublicChatForLockedUsers.toUpperCase() == "TRUE");
-			}catch(e:Error) {
+			} catch(e:Error) {
 				disablePublicChat = false;
 			}
 			
-      try{
+      try {
         lockedLayout = (lockConfig.@lockLayoutForLockedUsers.toUpperCase() == "TRUE");
-      }catch(e:Error) {
+      } catch(e:Error) {
         lockedLayout = false;
       }
       
