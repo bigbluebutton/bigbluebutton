@@ -80,20 +80,6 @@ Meteor.methods
 Handlebars.registerHelper "getMeetingName", ->
   window.getMeetingName()
 
-Handlebars.registerHelper "isCurrentUserTalking", ->
-  u = Meteor.Users.findOne({'userId': getInSession("userId")})
-  if u?
-    console.log u
-    u.user?.voiceUser?.talking
-  false
-
-Handlebars.registerHelper "isCurrentUserSharingAudio", ->
-  getInSession "isSharingAudio"
-
-Handlebars.registerHelper "isUserSharingAudio", (u) ->
-  if u?
-    u.user?.voiceUser?.talking?
-
 Handlebars.registerHelper "isUserSharingVideo", (u) ->
   u.webcam_stream.length isnt 0
 
@@ -106,3 +92,14 @@ Handlebars.registerHelper "getUsersInMeeting", ->
 
 @getTime = -> # returns epoch in ms
   (new Date).valueOf()
+
+Handlebars.registerHelper "isUserTalking", (u) ->
+  console.log "inside isUserTalking"
+  console.log u
+  if u?
+    u.voiceUser?.talking
+  else
+    return false
+
+Handlebars.registerHelper "isUserSharingAudio", ->
+  getInSession "isSharingAudio"

@@ -41,6 +41,12 @@
                {{> makeButton id=user.externUserId btn_class="audioFeedIcon navbar-brand" i_class="volume-off" sharingAudio=false _id=_id}}
             {{/if}}
 
+            {{#if isUserTalking user}}
+               <span>TALKING</span>
+            {{else}}
+               <span>NO TALKING</span>
+            {{/if}}
+
             {{> makeButton id="" btn_class="hideNavbarIcon pull-right navbar-brand" i_class="chevron-up"}}
             {{> makeButton id="user.externUserId" btn_class="signOutIcon pull-right navbar-brand" i_class="log-out"}}
             {{> makeButton id="user.externUserId" btn_class="settingsIcon pull-right navbar-brand" i_class="cog"}}
