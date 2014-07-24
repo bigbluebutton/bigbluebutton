@@ -2,12 +2,8 @@
    {{#if getInSession "display_usersList"}}
    <div class="users-list-container">
       <div class="mygrid-wrapper-div">
+         <span class="userListHeader">Participants: <i>{{getMeetingSize}} Users</i></span>
          <table class="table table-hover">
-            <thead>
-            <th>
-               Participants: <i>{{getMeetingSize}} users</i>
-            </th>
-            </thead>
             <!-- Retrieve all users in the meeting -->
             <tbody class="user-entry">
             {{#each getUsersInMeeting}}
