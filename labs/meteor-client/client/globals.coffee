@@ -26,6 +26,8 @@ Handlebars.registerHelper "getCurrentUser", =>
     callback = -> 
       setInSession "isSharingAudio", false # update to no longer sharing
       console.log "left voice conference"
+      # sometimes we can hangup before the message that the user stopped talking is received so lets set it manually, otherwise they might leave the audio call but still be registered as talking
+      # Meteor.call("hangupUser")
     webrtc_hangup callback # sign out of call
   else
     # create voice call params
