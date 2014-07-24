@@ -347,6 +347,18 @@ public class ParamsProcessorUtil {
 	
 	private String getConfig(String url) {
 		HttpClient client = new HttpClient();
+		log.debug("Getting proxy settings");
+		String proxyHost = System.getProperty("http.proxyHost");
+		int proxyPort = System.getProperty("http.proxyPort") == null ? 0 : Integer.parseInt(System.getProperty("http.proxyPort"));
+		if(proxyHost != null) {
+			if(url.startsWith("https")) {
+				proxyHost = proxyHost.replace("http:", "https:");
+			}
+			client.getHostConfiguration().setProxy(proxyHost, proxyPort);
+			log.debug("Using proxy: "+ proxyHost +":"+proxyPort);
+		} else {
+			log.debug("No proxy found");
+		}
 		GetMethod get = new GetMethod(url);
 		String configXML = "";
 		try {
