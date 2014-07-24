@@ -156,7 +156,35 @@ $Id: $
       private function handleVoiceMutedEvent(event:VoiceConfEvent):void {
         if (UsersUtil.isMe(event.userid)) {
           trace(LOG + "User has been muted/unmuted");
-          updateMuteMeBtn();          
+          if (muteMeRolled) {
+            if (! event.mute) {
+              muteMeBtnImg.source = images.audio;
+              muteMeBtnTxt.visible = true;
+              muteMeBtnTxt.includeInLayout = true;
+              muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.talk");
+              hboxMuteMe.setStyle("paddingTop",0);
+            } else {
+              muteMeBtnImg.source = images.audio_muted;
+              muteMeBtnTxt.visible = true;
+              muteMeBtnTxt.includeInLayout = true;
+              muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.mute");
+              hboxMuteMe.setStyle("paddingTop",0);
+            }
+          } else {
+            if (event.mute) {
+              muteMeBtnImg.source = images.audio_muted;
+              muteMeBtnTxt.visible = true;
+              muteMeBtnTxt.includeInLayout = true;
+              muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.muted");
+              hboxMuteMe.setStyle("paddingTop",0);
+            } else {
+              muteMeBtnImg.source = images.audio;
+              muteMeBtnTxt.visible = false;
+              muteMeBtnTxt.includeInLayout = false;
+              hboxMuteMe.setStyle("paddingTop",2);
+              //muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.unmuted");
+            }
+          }
         }        
       }
       
