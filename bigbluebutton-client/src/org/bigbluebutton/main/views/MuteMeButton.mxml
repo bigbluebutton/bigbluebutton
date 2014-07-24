@@ -38,11 +38,9 @@ $Id: $
 	<mate:Listener type="{ShortcutEvent.MUTE_ME_EVENT}" method="toggleMuteMeState" />
 	<mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalking" />
 	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
-  <mate:Listener type="{FlashLeftVoiceConferenceEvent.LEFT_VOICE_CONFERENCE}" method="handleFlashLeftVoiceConferenceEvent" />
-  <mate:Listener type="{FlashJoinedVoiceConferenceEvent.JOINED_VOICE_CONFERENCE}" method="handleFlashJoinedVoiceConferenceEvent" />
-  <mate:Listener type="{FlashJoinedListenOnlyVoiceConferenceEvent.JOINED_LISTEN_ONLY_VOICE_CONFERENCE}" method="handleFlashJoinedListenOnlyConferenceEvent" />
-  <mate:Listener type="{WebRtcCallConnectedEvent.WEBRTC_CALL_CONNECTED}" method="handleWebRtcCallConnectedEvent" />
-  <mate:Listener type="{WebRtcCallDisconnectedEvent.WEBRTC_CALL_DISCONNECTED}" method="handleWebRtcCallDisconnectedEvent" />
+  <mate:Listener type="{BBBEvent.USER_VOICE_JOINED}" method="handleLeftVoiceConferenceEvent" />
+  <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleJoinedVoiceConferenceEvent" />
+
   
 	<mx:Script>
 		<![CDATA[
@@ -52,18 +50,15 @@ $Id: $
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.events.LocaleChangeEvent;
       import org.bigbluebutton.core.EventConstants;
+      import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.events.CoreEvent;
       import org.bigbluebutton.core.events.LockControlEvent;
       import org.bigbluebutton.core.events.VoiceConfEvent;
       import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.model.users.BBBUser;
       import org.bigbluebutton.main.model.users.Conference;
-      import org.bigbluebutton.modules.phone.events.FlashJoinedListenOnlyVoiceConferenceEvent;
-      import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
-      import org.bigbluebutton.modules.phone.events.FlashLeftVoiceConferenceEvent;
-      import org.bigbluebutton.modules.phone.events.WebRtcCallConnectedEvent;
-      import org.bigbluebutton.modules.phone.events.WebRtcCallDisconnectedEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 			
       private static const LOG:String = "Main::View::MuteMeButton - ";
@@ -96,31 +91,20 @@ $Id: $
 				updateMuteMeBtn();
 			}
 			
-      private function handleFlashJoinedVoiceConferenceEvent(event:FlashJoinedVoiceConferenceEvent):void {
-        trace(LOG + "User has joined the conference using flash");
-        updateMuteMeBtn();
+      private function handleJoinedVoiceConferenceEvent(event:BBBEvent):void {
+        if (UsersUtil.isMe(event.payload.userID)) {
+          trace(LOG + "User has joined the conference using flash");
+          updateMuteMeBtn();          
+        }
       }
-      
-      private function handleFlashJoinedListenOnlyConferenceEvent(event:FlashJoinedListenOnlyVoiceConferenceEvent):void {
-        trace(LOG + "User has joined the listen only conference using flash");
-        updateMuteMeBtn();
+         
+      private function handleLeftVoiceConferenceEvent(event:BBBEvent):void {
+        if (UsersUtil.isMe(event.payload.userID)) {
+          trace(LOG + "User has left the conference using flash");
+          updateMuteMeBtn();          
+        }
       }
-      
-      private function handleFlashLeftVoiceConferenceEvent(event:FlashLeftVoiceConferenceEvent):void {
-        trace(LOG + "User has left the conference using flash");
-        updateMuteMeBtn();
-      }
-      
-      private function handleWebRtcCallConnectedEvent(event: WebRtcCallConnectedEvent):void {
-        trace(LOG + "User has joined the conference using webrtc");
-        updateMuteMeBtn();
-      }
-      
-      private function handleWebRtcCallDisconnectedEvent(event:WebRtcCallDisconnectedEvent):void {
-        trace(LOG + "User has left the conference using webrtc");
-        updateMuteMeBtn();
-      }
-      
+           
 			private function allowMuteUnmute():Boolean {
 				var userManager:UserManager = UserManager.getInstance();
 				var conference:Conference = userManager.getConference();
