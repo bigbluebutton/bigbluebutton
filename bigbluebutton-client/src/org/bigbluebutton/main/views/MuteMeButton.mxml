@@ -40,6 +40,8 @@ $Id: $
 	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
   <mate:Listener type="{BBBEvent.USER_VOICE_JOINED}" method="handleLeftVoiceConferenceEvent" />
   <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleJoinedVoiceConferenceEvent" />
+  <mate:Listener type="{VoiceConfEvent.MUTE_USER}" method="handleVoiceMutedEvent" />
+  
 
   
 	<mx:Script>
@@ -151,6 +153,13 @@ $Id: $
 				}
 			}
 			
+      private function handleVoiceMutedEvent(event:VoiceConfEvent):void {
+        if (UsersUtil.isMe(event.userid)) {
+          trace(LOG + "User has been muted/unmuted");
+          updateMuteMeBtn();          
+        }        
+      }
+      
 			private function toggleMuteMeState(event:ShortcutEvent = null):void{
 				if (UserManager.getInstance().getConference().voiceJoined) {
 					this.setFocus();
