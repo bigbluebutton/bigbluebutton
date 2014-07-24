@@ -30,11 +30,10 @@ Template.userItem.events
         # set newly selected user as presenter
         Meteor.Users.update {_id: selectedUser._id},{$set:{"user.presenter": true}}
 
-
   "click .kickUser": (event) ->
     u = Meteor.Users.findOne({_id:@_id})
     if u?.meetingId? and u?.userId?
-      Meteor.call('removeUserFromCollection', u.meetingId, u.userId)
+      userLogout u.meetingId, u.userId, false
 
 Template.displayOtherUsersControls.events
   "click .disableMic": (event) ->

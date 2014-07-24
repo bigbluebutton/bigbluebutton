@@ -38,19 +38,7 @@ Template.header.events
 	"click .audioFeedIcon": (event) ->
 		toggleMic @
 	"click .signOutIcon": (event) ->
-		Meteor.call("userLogout", getInSession("meetingId"), getInSession("userId"))
-		setInSession "display_navbar", false # needed to hide navbar when the layout template renders
-		# wipe important session data
-		setInSession("userId", null)
-		setInSession("meetingId", null)
-		setInSession("currentChatId", null)
-		setInSession("meetingName", null)
-		setInSession("bbbServerVersion", null)
-		setInSession("userName", null) 
-		# invalidate user
-		setInSession("validUser", false) 
-		# navigate to logout
-		Router.go('logout')
+		userLogout getInSession("meetingId"), getInSession("userId"), true
 	"click .hideNavbarIcon": (event) ->
 		toggleNavbar()
 	"click .settingsIcon": (event) ->

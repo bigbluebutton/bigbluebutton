@@ -13,7 +13,6 @@ Meteor.methods
   publishChatMessage: (meetingId, messageObject) ->
     Meteor.redisPubSub.publishingChatMessage(meetingId, messageObject)
 
-
 class Meteor.RedisPubSub
   constructor: (callback) ->
     console.log "constructor RedisPubSub"
