@@ -4,12 +4,13 @@ Router.map ->
   @route "login",
     path: "/meeting_id=*"
     action: () ->
-      @redirect('/')
-      Meteor.subscribe 'users', getInSession('meetingId')
-      Meteor.subscribe 'chat', getInSession('meetingId')
-      Meteor.subscribe 'shapes', getInSession('meetingId')
-      Meteor.subscribe 'slides', getInSession('meetingId')
-      Meteor.subscribe 'meetings', getInSession('meetingId')
+      self = @
+      Meteor.subscribe 'users', getInSession('meetingId'), ->
+        Meteor.subscribe 'chat', getInSession('meetingId'), ->
+          Meteor.subscribe 'shapes', getInSession('meetingId'), ->
+            Meteor.subscribe 'slides', getInSession('meetingId'), ->
+              Meteor.subscribe 'meetings', getInSession('meetingId'), ->
+                self.redirect('/')
 
     onBeforeAction: ()->
       url = location.href
@@ -37,14 +38,22 @@ Router.map ->
   @route "main",
     path: "/"
     onBeforeAction: ->
-      Meteor.subscribe 'users', getInSession('meetingId')
-      Meteor.subscribe 'chat', getInSession('meetingId')
-      Meteor.subscribe 'shapes', getInSession('meetingId')
-      Meteor.subscribe 'slides', getInSession('meetingId')
-      Meteor.subscribe 'meetings', getInSession('meetingId')
-      if not getInSession("validUser") # Don't let user in if they are not valid
-         @redirect("logout")
+      self = @
+      Meteor.subscribe 'users', getInSession('meetingId'), -> # callback for after users have been loaded on client
+        if not validateCredentials() # Don't let user in if they are not valid
+          console.log "not validated"
+          self.redirect("logout")
+        else
+          console.log "validated user"
+          Meteor.subscribe 'chat', getInSession('meetingId'), ->
+            Meteor.subscribe 'shapes', getInSession('meetingId'), ->
+              Meteor.subscribe 'slides', getInSession('meetingId'), ->
+                Meteor.subscribe 'meetings', getInSession('meetingId')
 
   @route "logout",
     path: "logout"
 
+@validateCredentials = ->
+  u = Meteor.Users.findOne({"userId":getInSession("userId")})
+  # return whether they are a valid user and still have credentials in the database
+  u? and u.meetingId? and u.user?.extern_userid and u.user?.userid #and (1 is 2) # makes validation fail
