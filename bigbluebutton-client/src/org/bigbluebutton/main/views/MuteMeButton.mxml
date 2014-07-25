@@ -78,9 +78,9 @@ $Id: $
 				//rest rolledOver when the data changes because onRollOut wont be called if the row moves
 				if (UserManager.getInstance().getConference().amIThisUser(e.message.userID)) {
 					if (e.message.talking){
-						muteMeBtnImg.filters = [new GlowFilter(0xFF0000)];
+						muteMeBtnImg.filters = [new GlowFilter(0x000000, 1, 6, 6, 2, BitmapFilterQuality.HIGH, false, false)];
 					} else {
-						muteMeBtnImg.filters = [];
+						muteMeBtnImg.filters = [new GlowFilter(0x555555, 1, 6, 6, 2, BitmapFilterQuality.HIGH, true, true)];
 					}
 				}
 			}
