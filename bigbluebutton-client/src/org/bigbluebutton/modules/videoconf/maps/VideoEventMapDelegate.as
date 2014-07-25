@@ -284,7 +284,8 @@ package org.bigbluebutton.modules.videoconf.maps
       if (win != null) {
         trace("VideoEventMapDelegate:: [" + me + "] closeWindow:: Closing [" + win.getWindowType() + "] for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
         win.close();
-		proxy.closePlayConnectionFor(userID);
+		var bbbUser:BBBUser = UsersUtil.getUser(userID);
+		proxy.closePlayConnectionFor(bbbUser.streamName);
         var cwe:CloseWindowEvent = new CloseWindowEvent();
         cwe.window = win;
         _dispatcher.dispatchEvent(cwe);
@@ -299,13 +300,15 @@ package org.bigbluebutton.modules.videoconf.maps
 		// Store the userID
 		pendingVideoWindowsList[userID] = true;
 		// Request the connection
-		proxy.createPlayConnectionFor(userID);
+		var bbbUser:BBBUser = UsersUtil.getUser(userID);
+		proxy.createPlayConnectionFor(bbbUser.streamName);
 	}
 
 	public function handlePlayConnectionReady():void {
 		// Iterate through all pending windows
 		for(var userID:String in pendingVideoWindowsList) {
-			if(proxy.playConnectionIsReadyFor(userID)) {
+			var bbbUser:BBBUser = UsersUtil.getUser(userID);
+			if(proxy.playConnectionIsReadyFor(bbbUser.streamName)) {
 				delete pendingVideoWindowsList[userID];
 				openViewWindowFor(userID);
 			}
@@ -324,8 +327,8 @@ package org.bigbluebutton.modules.videoconf.maps
       closeWindow(userID);
             
       var bbbUser:BBBUser = UsersUtil.getUser(userID);      
-		var streamName:String = proxy.getStreamNamePrefixFor(userID) + bbbUser.streamName;
-		window.startVideo(proxy.getPlayConnectionFor(userID), streamName);
+		var streamName:String = proxy.getStreamNamePrefixFor(bbbUser.streamName) + bbbUser.streamName;
+		window.startVideo(proxy.getPlayConnectionFor(bbbUser.streamName), streamName);
       
       webcamWindows.addWindow(window);        
       openWindow(window);
