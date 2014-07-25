@@ -27,6 +27,12 @@ Meteor.startup ->
   Meteor.Slides.remove({})
   console.log "cleared Slides Collection!"
 
+  Meteor.UsersSub = null
+  Meteor.ChatSub = null
+  Meteor.MeetingsSub = null
+  Meteor.ShapesSub = null
+  Meteor.SlidesSub = null
+
   # create create a PubSub connection, start listening
   Meteor.redisPubSub = new Meteor.RedisPubSub(->
     console.log "created pubsub")

@@ -125,7 +125,5 @@ Handlebars.registerHelper "isUserSharingAudio", ->
   setInSession("bbbServerVersion", null)
   setInSession("userName", null) 
   setInSession "display_navbar", false # needed to hide navbar when the layout template renders
-  # invalidate user
-  setInSession("validUser", false) 
   # navigate to logout
   Router.go('logout')

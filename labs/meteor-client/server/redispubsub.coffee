@@ -10,6 +10,8 @@ Meteor.methods
     #dispatch a message to redis
     Meteor.redisPubSub.sendUserLeavingRequest(meetingId, userId)
 
+    # will have to add some code in here to ensure the user with userId can not get back into the meeting since we cannot clear their client side data
+
   publishChatMessage: (meetingId, messageObject) ->
     Meteor.redisPubSub.publishingChatMessage(meetingId, messageObject)
 
