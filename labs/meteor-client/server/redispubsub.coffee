@@ -166,7 +166,7 @@ class Meteor.RedisPubSub
               "meeting_id": meetingId
               "requester_id": "nodeJSapp"
               "whiteboard_id": whiteboardId
-            "header": {
+            "header":
               "timestamp": new Date().getTime()
               "name": "get_whiteboard_shapes_request"
               "version": "0.0.1"
@@ -222,6 +222,6 @@ class Meteor.RedisPubSub
     message =
       "header":
         "name": "get_all_meetings_request"
-      "payload": undefined #not sure if I need this
+      "payload": {} # I need this, otherwise bbb-apps won't recognize the message
 
     @pubClient.publish(Meteor.config.redis.channels.toBBBApps.meeting, JSON.stringify (message))
