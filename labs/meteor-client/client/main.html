@@ -39,19 +39,18 @@
             {{/if}}
 
             {{#if isUserSharingAudio user}}
-               {{> makeButton id=user.externUserId btn_class="navbarIconToggleActive audioFeedIcon navbar-brand" i_class="volume-up" sharingAudio=true _id=_id}}
+            <!-- Should use much more noticeable icons than just bootstrap's volume-up & volume-down to differentiate talking but it is good for now -->
+               {{#if isUserTalking user}}
+                  {{> makeButton id=user.externUserId btn_class="navbarIconToggleActive audioFeedIcon navbar-brand" i_class="volume-up" sharingAudio=true _id=_id}}
+               {{else}}
+                  {{> makeButton id=user.externUserId btn_class="navbarIconToggleActive audioFeedIcon navbar-brand" i_class="volume-down" sharingAudio=true _id=_id}}
+               {{/if}}
             {{else}}
                {{> makeButton id=user.externUserId btn_class="audioFeedIcon navbar-brand" i_class="volume-off" sharingAudio=false _id=_id}}
             {{/if}}
             {{> makeButton id="" btn_class="hideNavbarIcon pull-right navbar-brand" i_class="chevron-up"}}
             {{> makeButton id="user.externUserId" btn_class="signOutIcon pull-right navbar-brand" i_class="log-out"}}
             {{> makeButton id="user.externUserId" btn_class="settingsIcon pull-right navbar-brand" i_class="cog"}}
-            
-            {{#if isUserTalking user}}
-               <span>TALKING</span>
-            {{else}}
-               <span>NO TALKING</span>
-            {{/if}}
          {{/with}}
       </div>
    {{else}}
