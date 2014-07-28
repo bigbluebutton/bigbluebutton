@@ -36,6 +36,8 @@ Template.header.events
 	"click .videoFeedIcon": (event) ->
 		toggleCam @ 
 	"click .audioFeedIcon": (event) ->
+		toggleVoiceCall @
+	"click .muteIcon": (event) ->
 		toggleMic @
 	"click .signOutIcon": (event) ->
 		userLogout getInSession("meetingId"), getInSession("userId"), true

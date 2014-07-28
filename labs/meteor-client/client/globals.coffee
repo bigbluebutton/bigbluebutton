@@ -21,7 +21,7 @@ Handlebars.registerHelper "getCurrentUser", =>
 	# Meteor.Users.update {_id: context._id} , {$set:{"user.sharingVideo": !context.sharingVideo}}
   # Meteor.call('userToggleCam', context._id, !context.sharingVideo)
 
-@toggleMic = (event) -> 
+@toggleVoiceCall = (event) -> 
   if getInSession "isSharingAudio"
     callback = -> 
       setInSession "isSharingAudio", false # update to no longer sharing
@@ -39,6 +39,13 @@ Handlebars.registerHelper "getCurrentUser", =>
       setInSession "isSharingAudio", true
       Meteor.call("userShareAudio", getInSession("meetingId"),getInSession("userId"))
     webrtc_call(username, voiceBridge, server, callback) # make the call
+
+@toggleMic = (event) ->
+  if getInSession "isSharingAudio" # only allow muting/unmuting if they are in the call
+    console.log "toggling mute"
+    # u = Meteor.Users.findOne({userId:getInSession("userId")})
+    # if u?
+    #   Meteor.call('muteRequest', u.userId, u.meetingId, u.userId, not u.user.voiceUser.muted)
 
 # toggle state of session variable
 @toggleUsersList = ->
