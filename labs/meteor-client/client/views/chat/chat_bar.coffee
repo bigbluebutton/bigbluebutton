@@ -91,7 +91,6 @@ Template.optionsBar.events
           "from_lang": "en"
           "from_time": getTime()
           "from_color": "0"
-      }
 
       # console.log 'Sending private message to server:'
       # console.log messageForServer

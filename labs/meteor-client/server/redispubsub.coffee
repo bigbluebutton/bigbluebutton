@@ -45,18 +45,16 @@ class Meteor.RedisPubSub
   sendValidateToken: (meetingId, userId, authToken) ->
     console.log "\n\n i am sending a validate_auth_token with " + userId + "" + meetingId
 
-    message = {
-      "payload": {
+    message =
+      "payload":
         "auth_token": authToken
         "userid": userId
         "meeting_id": meetingId
-      },
-      "header": {
+      "header":
         "timestamp": new Date().getTime()
         "reply_to": meetingId + "/" + userId
         "name": "validate_auth_token"
-      }
-    }
+
     if authToken? and userId? and meetingId?
       @pubClient.publish(Meteor.config.redis.channels.toBBBApps.meeting, JSON.stringify(message))
     else
@@ -64,17 +62,15 @@ class Meteor.RedisPubSub
 
   sendUserLeavingRequest: (meetingId, userId) ->
     console.log "\n\n sending a user_leaving_request for #{meetingId}:#{userId}"
-    message = {
-      "payload": {
+    message =
+      "payload":
         "meeting_id": meetingId
         "userid": userId
-      },
-      "header": {
+      "header":
         "timestamp": new Date().getTime()
         "name": "user_leaving_request"
         "version": "0.0.1"
-      }
-    }
+
     if userId? and meetingId?
       @pubClient.publish(Meteor.config.redis.channels.toBBBApps.users, JSON.stringify(message))
     else
@@ -165,19 +161,16 @@ class Meteor.RedisPubSub
           whiteboardId = "#{presentation.id}/#{page.num}" # d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1404411622872/1
           console.log "the whiteboard_id here is:" + whiteboardId
 
-          message = {
-            "payload": {
+          message =
+            "payload":
               "meeting_id": meetingId
               "requester_id": "nodeJSapp"
               "whiteboard_id": whiteboardId
-
-            },
             "header": {
               "timestamp": new Date().getTime()
               "name": "get_whiteboard_shapes_request"
               "version": "0.0.1"
-            }
-          }
+
           if whiteboardId? and meetingId?
             @pubClient.publish(Meteor.config.redis.channels.toBBBApps.whiteboard, JSON.stringify(message))
           else
@@ -212,27 +205,23 @@ class Meteor.RedisPubSub
 
   publishingChatMessage: (meetingId, chatObject) =>
     console.log "publishing a chat message to bbb-apps"
-    message = {
-      header : {
+    message =
+      header :
         "timestamp": new Date().getTime()
         "name": "send_public_chat_message_request"
-      }
-      payload: {
+      payload:
         "message" : chatObject
         "meeting_id": meetingId
         "requester_id": chatObject.from_userid
-      }
-    }
+
     console.log "publishing:" + JSON.stringify (message)
     @pubClient.publish(Meteor.config.redis.channels.toBBBApps.chat, JSON.stringify (message))
 
   invokeGetAllMeetingsRequest: =>
     #grab data about all active meetings on the server
-    message = {
-      "header": {
+    message =
+      "header":
         "name": "get_all_meetings_request"
-      }
-      "payload": {
-      }
-    }
+      "payload": undefined #not sure if I need this
+
     @pubClient.publish(Meteor.config.redis.channels.toBBBApps.meeting, JSON.stringify (message))
