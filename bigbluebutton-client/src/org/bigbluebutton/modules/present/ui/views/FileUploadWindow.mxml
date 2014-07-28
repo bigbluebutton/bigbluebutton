@@ -255,6 +255,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
       private function enableControls():void {
         okCancelBtn.visible = true;
+        okCancelBtn.enabled = true;
         selectBtn.enabled = true;
         uploadBtn.enabled = true;
         lblFileName.enabled = true;			
