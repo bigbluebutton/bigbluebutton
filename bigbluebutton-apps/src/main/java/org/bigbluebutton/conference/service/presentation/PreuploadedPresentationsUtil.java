@@ -7,12 +7,14 @@ import java.util.ArrayList;
 
 public class PreuploadedPresentationsUtil {
 
+	private String bbbDir = "/var/bigbluebutton/";
+	
 	public ArrayList<PreuploadedPresentation> getPreuploadedPresentations(String meetingID) {
 		ArrayList<PreuploadedPresentation> preuploadedPresentations = new ArrayList<PreuploadedPresentation>();
 		
 		try {
 			// TODO: this is hard-coded, and not really a great abstraction.  need to fix this up later
-			String folderPath = "/var/bigbluebutton/" + meetingID + "/" + meetingID;
+			String folderPath = bbbDir  + meetingID + "/" + meetingID;
 			File folder = new File(folderPath);
 			//log.debug("folder: {} - exists: {} - isDir: {}", folder.getAbsolutePath(), folder.exists(), folder.isDirectory());
 			if (folder.exists() && folder.isDirectory()) {
@@ -44,4 +46,10 @@ public class PreuploadedPresentationsUtil {
 		
 		return files.length;
 	}
+	
+	public void setBigBlueButtonDirectory(String dir) {
+		if (dir.endsWith("/")) bbbDir = dir;
+		else bbbDir = dir + "/";
+	}
+	
 }
