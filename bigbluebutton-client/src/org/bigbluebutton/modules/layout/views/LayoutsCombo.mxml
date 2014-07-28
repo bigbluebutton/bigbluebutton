@@ -26,7 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			change="onSelectedItemChanged(event)"
 			disabledColor="{getStyle('color')}" rowCount="10" >
 	
-	<mate:Listener type="{LayoutChangedEvent.LAYOUT_CHANGED}" method="onLayoutChanged" />
+	<mate:Listener type="{SwitchedLayoutEvent.SWITCHED_LAYOUT_EVENT}" method="onLayoutChanged" />
 	<mate:Listener type="{LayoutsReadyEvent.LAYOUTS_READY}" method="populateLayoutsList"/>
   <mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
   
@@ -51,6 +51,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.common.events.OpenWindowEvent;
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.events.LockControlEvent;
+      import org.bigbluebutton.core.events.SwitchedLayoutEvent;
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.core.vo.LockSettingsVO;
       import org.bigbluebutton.main.views.MainToolbar;
@@ -110,11 +111,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         invalidateDisplayList();        
       }
 						
-			private function onLayoutChanged(e:LayoutChangedEvent):void {	
-        trace(LOG + " handling LayoutChangedEvent."); 
+			private function onLayoutChanged(e:SwitchedLayoutEvent):void {	
+        trace(LOG + " handling SwitchedLayoutEvent layout=[" + e.layoutID + "]");
+        populateComboBox();
+        
 				var idx:int = -1;					
 				for each (var obj:Object in dataProvider) {
-					if (obj.label == e.layoutName)
+					if (obj.label == e.layoutID)
 						idx = obj.index;
 				}
 				selectedIndex = idx;

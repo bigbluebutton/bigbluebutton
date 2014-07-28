@@ -138,20 +138,6 @@ package org.bigbluebutton.modules.layout.managers
 		}
 				
 		public function addCurrentLayoutToList():void {
-			var remotePrefix:String = "[" + ResourceUtil.getInstance().getString('bbb.layout.combo.remote') + "] ";
-			// starts with
-			var isRemoteLayout:Boolean = (_currentLayout.name.indexOf(remotePrefix) == 0);
-			if (isRemoteLayout) {
-				// remove the remote prefix
-				_currentLayout.name = _currentLayout.name.substring(remotePrefix.length);
-				// if it's a remote custom layout, just remove the counter
-				if (_currentLayout.name.indexOf(ResourceUtil.getInstance().getString('bbb.layout.combo.customName')) == 0)
-					_currentLayout.name = ResourceUtil.getInstance().getString('bbb.layout.combo.customName');
-			}
-			
-			// only add a layout to the list if it's a custom layout
-			if (_currentLayout.name == ResourceUtil.getInstance().getString('bbb.layout.combo.customName')) {
-				_currentLayout.name += " " + (++_customLayoutsCount); 
 				_layoutModel.addLayout(_currentLayout);
         
 				var redefineLayout:LayoutFromRemoteEvent = new LayoutFromRemoteEvent();
@@ -159,7 +145,6 @@ package org.bigbluebutton.modules.layout.managers
 				// this is to force LayoutCombo to update the current label
 				redefineLayout.remote = true;
 				_globalDispatcher.dispatchEvent(redefineLayout);
-			}
 		}
 		
 		public function setCanvas(canvas:MDICanvas):void {
@@ -277,6 +262,7 @@ package org.bigbluebutton.modules.layout.managers
     
 		public function applyRemoteLayout(e:LayoutFromRemoteEvent):void {
 			var layout:LayoutDefinition = e.layout;
+      _layoutModel.addLayout(layout);
 			applyLayout(layout);
 		}
 		
