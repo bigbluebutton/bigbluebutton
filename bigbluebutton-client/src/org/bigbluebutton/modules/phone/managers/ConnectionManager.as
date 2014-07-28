@@ -18,7 +18,8 @@
 */
 
 package org.bigbluebutton.modules.phone.managers {	
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.Event;
 	import flash.events.IEventDispatcher;
@@ -26,8 +27,10 @@ package org.bigbluebutton.modules.phone.managers {
 	import flash.events.SecurityErrorEvent;
 	import flash.external.*;
 	import flash.net.NetConnection;
-	import flash.net.NetStream;	
+	import flash.net.NetStream;
+	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.modules.phone.events.ConnectionStatusEvent;
 	import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
 	import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
@@ -78,6 +81,10 @@ package org.bigbluebutton.modules.phone.managers {
     
 		public function connect():void {				
       closedByUser = false;
+      var isTunnelling:Boolean = BBB.initConnectionManager().isTunnelling;
+      if (isTunnelling) {
+        uri = uri.replace(/rtmp:/gi, "rtmpt:");
+      }
       trace(LOG + "Connecting to uri=[" + uri + "]");
 			NetConnection.defaultObjectEncoding = flash.net.ObjectEncoding.AMF0;	
 			netConnection = new NetConnection();
