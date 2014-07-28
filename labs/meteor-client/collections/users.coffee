@@ -61,3 +61,12 @@ Meteor.methods
       if id?
         Meteor.Users.remove(id._id)
         console.log "----removed user[" + userId + "] from " + meetingId
+
+  userShareAudio: (meetingId, userId) ->
+    if meetingId? and userId? 
+      Meteor.Users.update({meetingId: meetingId, userId: userId}, {$set:{'user.voiceUser.joined':true}})
+
+  userStopAudio: (meetingId, userId) ->
+    if meetingId? and userId? 
+      Meteor.Users.update({meetingId: meetingId, userId: userId}, {$set:{'user.voiceUser.talking':false}})
+      Meteor.Users.update({meetingId: meetingId, userId: userId}, {$set:{'user.voiceUser.joined':false}})

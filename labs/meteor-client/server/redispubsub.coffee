@@ -14,6 +14,14 @@ Meteor.methods
 
     # will have to add some code in here to ensure the user with userId can not get back into the meeting since we cannot clear their client side data
 
+  userKick: (meetingId, userId) ->
+    console.log "#{userId} is being kicked"
+    console.log "a user is logging out:" + userId
+    #remove from the collection
+    Meteor.call("removeUserFromCollection", meetingId, userId)
+    #dispatch a message to redis
+    Meteor.redisPubSub.sendUserLeavingRequest(meetingId, userId)
+
   publishChatMessage: (meetingId, messageObject) ->
     Meteor.redisPubSub.publishingChatMessage(meetingId, messageObject)
 

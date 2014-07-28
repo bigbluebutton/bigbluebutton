@@ -33,22 +33,7 @@ Template.userItem.events
   "click .kickUser": (event) ->
     u = Meteor.Users.findOne({_id:@_id})
     if u?.meetingId? and u?.userId?
-      # kickUser u.meetingId, u.userId
-      ;
-
-Template.displayOtherUsersControls.events
-  "click .disableMic": (event) ->
-    event.stopImmediatePropagation()
-    #Meteor.call('userToggleMic', @_id, false)
-  "click .enableMic": (event) ->
-    event.stopImmediatePropagation()
-    #Meteor.call('userToggleMic', @_id, true)
-  "click .disableCam": (event) ->
-    event.stopImmediatePropagation()
-    #Meteor.call('userToggleCam', @_id, false)
-  "click .enableCam": (event) ->
-    event.stopImmediatePropagation()
-    #Meteor.call('userToggleCam', @_id, true)
+      userKick u.meetingId, u.userId
 
 Template.displayOwnControls.events
   "click .disableMic": (event) ->

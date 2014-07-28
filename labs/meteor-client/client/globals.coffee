@@ -27,7 +27,7 @@ Handlebars.registerHelper "getCurrentUser", =>
       setInSession "isSharingAudio", false # update to no longer sharing
       console.log "left voice conference"
       # sometimes we can hangup before the message that the user stopped talking is received so lets set it manually, otherwise they might leave the audio call but still be registered as talking
-      # Meteor.call("hangupUser")
+      Meteor.call("userStopAudio", getInSession("meetingId"),getInSession("userId"))
     webrtc_hangup callback # sign out of call
   else
     # create voice call params
@@ -37,6 +37,7 @@ Handlebars.registerHelper "getCurrentUser", =>
     callback = (message) -> 
       console.log JSON.stringify message
       setInSession "isSharingAudio", true
+      Meteor.call("userShareAudio", getInSession("meetingId"),getInSession("userId"))
     webrtc_call(username, voiceBridge, server, callback) # make the call
 
 # toggle state of session variable
@@ -92,21 +93,15 @@ Handlebars.registerHelper "isCurrentUser", (id) ->
 Handlebars.registerHelper "getUsersInMeeting", ->
   Meteor.Users.find({})
 
-@getTime = -> # returns epoch in ms
-  (new Date).valueOf()
-
 Handlebars.registerHelper "isUserTalking", (u) ->
-  console.log "inside isUserTalking"
-  console.log u
-  if u?
-    u.voiceUser?.talking
-  else
-    return false
+  if u? then u.voiceUser?.talking
+  else return false
 
-Handlebars.registerHelper "isUserSharingAudio", ->
-  getInSession "isSharingAudio"
-
-# Starts the entire logout procedure. Can be called for signout out or kicking out
+Handlebars.registerHelper "isUserSharingAudio", (u) ->
+  if u? then u.voiceUser?.joined
+  else return false
+ 
+# Starts the entire logout procedure. Can be called for signout out
 # meeting: the meeting the user is in
 # the user's userId
 @userLogout = (meeting, user) ->
@@ -122,3 +117,9 @@ Handlebars.registerHelper "isUserSharingAudio", ->
   setInSession "display_navbar", false # needed to hide navbar when the layout template renders
   
   Router.go('logout') # navigate to logout
+
+@userKick = (meeting, user) ->
+  Meteor.call("userKick", meeting, user)
+
+@getTime = -> # returns epoch in ms
+  (new Date).valueOf()

@@ -1,15 +1,7 @@
 <template name="userItem">
   {{>usernameEntry}}
-  
-  {{#with getCurrentUser}} <!--need a helper to get the current user, because the current context (this) is the user in the list of users being displayed-->
-    {{#if compareUserIds this.user.userId ../user.userId}}
-        {{> handRaiseStatus}}
-        {{> displayOwnControls}}
-    {{else}}
-        {{> displayOtherUsersControls}}
-    {{/if}}
-  {{/with}}
-
+  {{> handRaiseStatus}}
+  {{> displayOwnControls}}
   {{> displayStandardUserControls}}
 </template>
 
@@ -27,9 +19,9 @@
 <template name="handRaiseStatus">
   <td>
   {{#if user.handRaised}}
-      {{> makeButton id=user.externUserId btn_class="raiseHand btn-primary" i_class="hand-up" _id=_id isDisabled="disabled"}}
+      {{> makeButton id=user.externUserId btn_class="raiseHand btn btn-default" i_class="hand-up" _id=_id isDisabled="disabled"}}
   <!-- {{else}}
-      {{> makeButton id=user.externUserId btn_class="raiseHand btn-primary" i_class="hand-up" _id=_id}} -->
+      {{> makeButton id=user.externUserId btn_class="raiseHand btn btn-default" i_class="hand-up" _id=_id}} -->
   {{/if}}
   </td>
 </template>
@@ -37,68 +29,35 @@
 <template name="displayStandardUserControls">
   <td>
   {{#if user.presenter}}
-    {{> makeButton id=user.externUserId btn_class="setPresenter btn-primary" i_class="picture" _id=_id isDisabled="disabled" isPresenter=true}}
+    {{> makeButton id=user.externUserId btn_class="setPresenter btn btn-primary" i_class="picture" _id=_id isDisabled="disabled" isPresenter=true}}
   {{else}}
-    {{> makeButton id=user.externUserId btn_class="setPresenter btn-primary" i_class="picture" _id=_id isPresenter=false}}
+    {{> makeButton id=user.externUserId btn_class="setPresenter btn btn-primary" i_class="picture" _id=_id isPresenter=false}}
   {{/if}}
   </td>
-
-  <td>{{> makeButton id=userId btn_class="kickUser btn-primary" i_class="remove-circle" _id=_id}}</td>
+  <td>{{> makeButton id=userId btn_class="kickUser btn btn-primary" i_class="remove-circle" _id=_id}}</td>
 </template>
 <!-- ####################################################################################### -->
 
 <template name="displayOwnControls">
-  <!-- toggles for own user's mic and cam-->
-  <td>
-  {{#if isUserSharingVideo user}}
-    {{> makeButton id=user.externUserId btn_class="disableCam btn-primary" i_class="facetime-video" _id=_id}}
-  {{else}}
-    {{> makeButton id=user.externUserId btn_class="enableCam btn-primary" i_class="stop" _id=_id}}
-  {{/if}}
-  </td>
-  <td>
-  {{#if isUserSharingAudio user}}
-    {{> makeButton id=user.externUserId btn_class="disableMic btn-primary" i_class="bullhorn" _id=_id}}
-  {{else}}
-    {{> makeButton id=user.externUserId btn_class="enableMic btn-primary" i_class="volume-off" _id=_id}}
-  {{/if}}
-  </td>
-</template>
+    <!-- toggles for own user's mic and cam-->
+    <td>
+    {{#if isUserSharingVideo user}}
+        {{> makeButton id=user.externUserId btn_class="disableCam btn btn-default" i_class="facetime-video" _id=_id isDisabled="disabled"}}
+    {{else}}
+        {{> makeButton id=user.externUserId btn_class="enableCam btn btn-default" i_class="stop" _id=_id isDisabled="disabled"}}
+    {{/if}}
+    </td>
 
-<!-- ####################################################################################### -->
-<template name="displayOtherUsersControls">
-  <!-- toggles for another user's mic and cam-->
-  <!-- if the current user is a mod, display all buttons with the id of the user being displayed -->
-  {{#with getCurrentUser}}
+    <!-- Should use much more noticeable icons than just bootstrap's volume-up & volume-down to differentiate talking but it is good for now -->
     <td>
-    {{#if this.user.permissions.disableCam}} <!-- if user viewing has ability to disable -->
-      {{#if isUserSharingVideo ../../user}}
-          {{> makeButton id=../../user.externUserId btn_class="disableCam btn-primary" i_class="facetime-video" _id=_id}}
-      {{else}}
-          {{> makeButton id=../../user.externUserId btn_class="enableCam btn-primary" i_class="stop" _id=_id}}
-      {{/if}}
+    {{#if isUserSharingAudio user}}
+        {{#if isUserTalking user}}
+            {{> makeButton id=user.externUserId btn_class="btn btn-default" i_class="volume-up" sharingAudio=true _id=_id isDisabled="disabled"}}
+        {{else}}
+            {{> makeButton id=user.externUserId btn_class="btn btn-default" i_class="volume-down" sharingAudio=true _id=_id isDisabled="disabled"}}
+        {{/if}}
     {{else}}
-      {{#if isUserSharingVideo ../../user}}
-          {{> makeButton id=../../user.externUserId btn_class="disableCam btn-primary" i_class="facetime-video" _id=_id isDisabled="disabled"}}
-      {{else}}
-          {{> makeButton id=../../user.externUserId btn_class="enableCam btn-primary" i_class="stop" _id=_id isDisabled="disabled"}}
-      {{/if}}
+        {{> makeButton id=user.externUserId btn_class="btn btn-default" i_class="volume-off" sharingAudio=false _id=_id isDisabled="disabled"}}
     {{/if}}
     </td>
-    <td>
-    {{#if this.user.permissions.disableMic}} <!-- if user viewing has ability to disable -->
-      {{#if isUserSharingAudio ../../user}}
-          {{> makeButton id=../../user.externUserId btn_class="disableMic btn-primary" i_class="bullhorn" _id=_id}}
-      {{else}}
-          {{> makeButton id=../../user.externUserId btn_class="enableMic btn-primary" i_class="volume-off" _id=_id}}
-      {{/if}}
-    {{else}}
-      {{#if isUserSharingAudio ../../user}}
-          {{> makeButton id=../../user.externUserId btn_class="disableMic btn-primary" i_class="bullhorn" _id=_id isDisabled="disabled"}}
-      {{else}}
-          {{> makeButton id=../../user.externUserId btn_class="enableMic btn-primary" i_class="volume-off" _id=_id isDisabled="disabled"}}
-      {{/if}}
-    {{/if}}
-    </td>
-  {{/with}}
 </template>
