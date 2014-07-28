@@ -1278,10 +1278,8 @@ if [ $DEBUG ]; then
 	# Check log files
 	#
 
-set -x
-
 	rm -rf /tmp/t
-	grep ERROR /var/log/bigbluebutton/* > /tmp/t
+	grep --directories=skip ERROR /var/log/bigbluebutton/* > /tmp/t
 	if [ -s /tmp/t ]; then
 		echo "  -- ERRORS found in /var/log/bigbluebutton/* -- "
 		cat /tmp/t
@@ -1289,7 +1287,7 @@ set -x
 	fi
 
 	rm -rf /tmp/t
-	grep Exception /var/log/bigbluebutton/* | grep -v CacheExceptionHandlerFactory > /tmp/t
+	grep --directories=skip Exception /var/log/bigbluebutton/* | grep -v CacheExceptionHandlerFactory > /tmp/t
         if [ -s /tmp/t ]; then
                 echo "  -- ERRORS found in /var/log/bigbluebutton/* -- "
                 cat /tmp/t
@@ -1298,7 +1296,7 @@ set -x
 
 
 	rm -rf /tmp/t
-	grep ERROR $RED5_DIR/log/* > /tmp/t 
+	grep --directories=skip ERROR $RED5_DIR/log/* > /tmp/t 
 	if [ -s /tmp/t ]; then
 		echo "   -- ERRORS found in $RED5_DIR/log/* -- "
 		cat /tmp/t
@@ -1307,7 +1305,7 @@ set -x
 
 
 	rm -rf /tmp/t
-	grep Exception $RED5_DIR/log/* > /tmp/t 
+	grep --directories=skip Exception $RED5_DIR/log/* > /tmp/t 
 	if [ -s /tmp/t ]; then
 		echo "   -- Exceptions found in $RED5_DIR/log/* -- "
 		cat /tmp/t
@@ -1316,7 +1314,7 @@ set -x
 
 
 	rm -rf /tmp/t
-	sudo grep Exception $SERVLET_LOGS/* | grep -v CacheExceptionHandlerFactory > /tmp/t 
+	sudo grep --directories=skip Exception $SERVLET_LOGS/* | grep -v CacheExceptionHandlerFactory > /tmp/t 
 	if [ -s /tmp/t ]; then
 		echo "   -- Exceptions found in $SERVLET_LOGS/ -- "
 		cat /tmp/t
@@ -1334,7 +1332,7 @@ set -x
         fi
 
 	rm -rf /tmp/t
-	sudo grep -i exception /var/log/syslog > /tmp/t 
+	sudo grep --directories=skip -i exception /var/log/syslog > /tmp/t 
 	if [ -s /tmp/t ]; then
 		echo "   -- Errors found in /var/log/syslog -- "
 		cat /tmp/t
@@ -1343,7 +1341,7 @@ set -x
 
 	rm -rf /tmp/t
 	if [ -d /var/log/bigbluebutton ]; then
-		  sudo grep ERROR /var/log/bigbluebutton/* > /tmp/t 
+		  sudo grep --directories=skip ERROR /var/log/bigbluebutton/* > /tmp/t 
 		  if [ -s /tmp/t ]; then
 			echo "   -- Errors found in /var/log/bigbluebutton -- "
 			cat /tmp/t
@@ -1353,7 +1351,7 @@ set -x
 
 	rm -rf /tmp/t
 	if [ -d /var/log/bigbluebutton ]; then
-		  sudo grep -i exception /var/log/bigbluebutton/* > /tmp/t 
+		  sudo grep --directories=skip -i exception /var/log/bigbluebutton/* > /tmp/t 
 		  if [ -s /tmp/t ]; then
 			echo "   -- Exceptions found in /var/log/bigbluebutton -- "
 			cat /tmp/t
