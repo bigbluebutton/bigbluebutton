@@ -128,9 +128,7 @@ Template.message.helpers
     dateObj = new Date(epochTime)
     hours = dateObj.getUTCHours()
     minutes = dateObj.getUTCMinutes()
-    if minutes == 0
-      minutes = 0
-    else if minutes < 10
+    if minutes < 10
       minutes = "0" + minutes
     hours + ":" + minutes
 
