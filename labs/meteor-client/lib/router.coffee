@@ -1,18 +1,18 @@
 # Todo
 # When a user is to be kicked remove their authorization token from servers
 
-Router.configure layoutTemplate: 'layout'
+@Router.configure layoutTemplate: 'layout'
 
-Router.map ->
+@Router.map ->
   @route "login",
     path: "/meeting_id=*"
     action: () ->
       self = @
-      Meteor.UsersSub = Meteor.subscribe 'users', getInSession('meetingId'), ->
-        Meteor.ChatSub = Meteor.subscribe 'chat', getInSession('meetingId'), ->
-          Meteor.ShapesSub = Meteor.subscribe 'shapes', getInSession('meetingId'), ->
-            Meteor.SlidesSub = Meteor.subscribe 'slides', getInSession('meetingId'), ->
-              Meteor.MeetingsSub = Meteor.subscribe 'meetings', getInSession('meetingId'), ->
+      Meteor.subscribe 'users', getInSession('meetingId'), ->
+        Meteor.subscribe 'chat', getInSession('meetingId'), ->
+          Meteor.subscribe 'shapes', getInSession('meetingId'), ->
+            Meteor.subscribe 'slides', getInSession('meetingId'), ->
+              Meteor.subscribe 'meetings', getInSession('meetingId'), ->
                 self.redirect('/')
 
     onBeforeAction: ()->
@@ -42,30 +42,19 @@ Router.map ->
     path: "/"
     onBeforeAction: ->
       self = @
-      Meteor.UsersSub = Meteor.subscribe 'users', getInSession('meetingId'), -> # callback for after users have been loaded on client
+      Meteor.subscribe 'users', getInSession('meetingId'), -> # callback for after users have been loaded on client
         if not validateCredentials() # Don't let user in if they are not valid
           console.log "not validated"
           self.redirect("logout")
         else
           console.log "validated user"
-          Meteor.ChatSub = Meteor.subscribe 'chat', getInSession('meetingId'), ->
-            Meteor.ShapesSub = Meteor.subscribe 'shapes', getInSession('meetingId'), ->
-              Meteor.SlidesSub = Meteor.subscribe 'slides', getInSession('meetingId'), ->
-                Meteor.MeetingsSub = Meteor.subscribe 'meetings', getInSession('meetingId')
+          Meteor.subscribe 'chat', getInSession('meetingId'), ->
+            Meteor.subscribe 'shapes', getInSession('meetingId'), ->
+              Meteor.subscribe 'slides', getInSession('meetingId'), ->
+                Meteor.subscribe 'meetings', getInSession('meetingId')
 
   @route "logout",
     path: "logout"
-    onBeforeAction: ->
-      # destroy subscriptions and collections
-      console.log "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-      console.log "----------------------------------"
-      console.log "destroying subscriptions"
-      Meteor.UsersSub.stop?()
-      Meteor.ChatSub.stop?()
-      Meteor.ShapesSub.stop?()
-      Meteor.SlidesSub.stop?()
-      Meteor.MeetingsSub.stop?()
-      console.log "----------------------------------"
 
 @validateCredentials = ->
   u = Meteor.Users.findOne({"userId":getInSession("userId")})

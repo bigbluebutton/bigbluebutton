@@ -109,15 +109,10 @@ Handlebars.registerHelper "isUserSharingAudio", ->
 # Starts the entire logout procedure. Can be called for signout out or kicking out
 # meeting: the meeting the user is in
 # the user's userId
-# selfSignout: if true, the user is logging themselves out and we should invalidate and redirect them, if false a user is being kicked out and should be notified
-@userLogout = (meeting, user, selfSignout=true) ->
+@userLogout = (meeting, user) ->
   Meteor.call("userLogout", meeting, user)
-  if selfSignout
-    invalidateUser(meeting, user)
 
-# Clear the local user session and redirect them away
-@invalidateUser = (meeting, user) ->
-  # wipe important session data
+  # Clear the local user session and redirect them away
   setInSession("userId", null)
   setInSession("meetingId", null)
   setInSession("currentChatId", null)
@@ -125,5 +120,5 @@ Handlebars.registerHelper "isUserSharingAudio", ->
   setInSession("bbbServerVersion", null)
   setInSession("userName", null) 
   setInSession "display_navbar", false # needed to hide navbar when the layout template renders
-  # navigate to logout
-  Router.go('logout')
+  
+  Router.go('logout') # navigate to logout

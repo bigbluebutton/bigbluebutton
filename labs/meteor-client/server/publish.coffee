@@ -14,3 +14,16 @@ Meteor.publish 'slides', (meetingId) ->
 
 Meteor.publish 'meetings', (meetingId) ->
   Meteor.Meetings.find({meetingId: meetingId})
+
+# Clear all data in subcriptions
+@clearCollections = ->
+    Meteor.Users.remove({})
+    console.log "cleared Users Collection!"
+    Meteor.Chat.remove({})
+    console.log "cleared Chat Collection!"
+    Meteor.Meetings.remove({})
+    console.log "cleared Meetings Collection!"
+    Meteor.Shapes.remove({})
+    console.log "cleared Shapes Collection!"
+    Meteor.Slides.remove({})
+    console.log "cleared Slides Collection!"

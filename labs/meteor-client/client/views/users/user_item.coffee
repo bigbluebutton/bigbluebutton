@@ -33,7 +33,8 @@ Template.userItem.events
   "click .kickUser": (event) ->
     u = Meteor.Users.findOne({_id:@_id})
     if u?.meetingId? and u?.userId?
-      userLogout u.meetingId, u.userId, false
+      # kickUser u.meetingId, u.userId
+      ;
 
 Template.displayOtherUsersControls.events
   "click .disableMic": (event) ->
