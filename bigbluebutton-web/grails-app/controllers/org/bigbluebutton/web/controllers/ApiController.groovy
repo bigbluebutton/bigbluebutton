@@ -609,11 +609,7 @@ class ApiController {
   		return
   	}
   	
-  	if (StringUtils.isEmpty(params.password)) {
-  		invalid("invalidPassword","You must supply the moderator password for this call.");
-  		return
-  	}
-  	
+ 	
   	if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
   		invalid("checksumError", "You did not pass the checksum security check")
   		return
@@ -631,12 +627,6 @@ class ApiController {
     String externalMeetingId = params.meetingID
     if (StringUtils.isEmpty(externalMeetingId)) {
       errors.missingParamError("meetingID");
-    }
-
-    // Do we have a password? If not, complain.
-    String modPW = params.password
-    if (StringUtils.isEmpty(modPW)) {
-      errors.missingParamError("password");
     }
 
     if (errors.hasErrors()) {
@@ -666,18 +656,7 @@ class ApiController {
       respondWithErrors(errors)
       return;
     }
-    
-    if (meeting.getModeratorPassword().equals(modPW) == false) {
-		// BEGIN - backward compatibility
-		invalid("invalidPassword","You must supply the moderator password for this call."); 
-		return;
-		// END - backward compatibility
-		
-	   errors.invalidPasswordError();
-	   respondWithErrors(errors)
-	   return;
-    }
-    
+     
     respondWithConferenceDetails(meeting, null, null, null);
   }
   
