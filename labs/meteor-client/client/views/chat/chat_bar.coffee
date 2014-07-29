@@ -47,6 +47,7 @@ Template.tabButtons.events
 
     myTabs.updateValue newTabs
     $(".publicChatTab").addClass('active') # doesn't work when closing the tab that's not currently active :(
+    Meteor.call("deletePrivateChatMessages", getInSession("userId"), @userId)
     
 Template.chatInput.events
   'keypress #newMessageInput': (event) -> # user pressed a button inside the chatbox

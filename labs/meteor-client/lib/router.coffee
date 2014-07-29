@@ -44,10 +44,8 @@
       self = @
       Meteor.subscribe 'users', getInSession('meetingId'), -> # callback for after users have been loaded on client
         if not validateCredentials() # Don't let user in if they are not valid
-          console.log "not validated"
           self.redirect("logout")
         else
-          console.log "validated user"
           Meteor.subscribe 'chat', getInSession('meetingId'), ->
             Meteor.subscribe 'shapes', getInSession('meetingId'), ->
               Meteor.subscribe 'slides', getInSession('meetingId'), ->
