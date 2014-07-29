@@ -45,6 +45,8 @@ Template.header.events
 		toggleNavbar()
 	"click .settingsIcon": (event) ->
 		alert "settings"
+	"click .raiseHand": (event) -> 
+		Meteor.call('userRaiseHand', @id)
 		
 # Gets called last in main template, just an easy place to print stuff out
 Handlebars.registerHelper "doFinalStuff", ->

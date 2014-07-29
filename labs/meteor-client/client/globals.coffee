@@ -108,7 +108,7 @@ Handlebars.registerHelper "isUserSharingAudio", (u) ->
   if u? then u.voiceUser?.joined
   else return false
  
-# Starts the entire logout procedure. Can be called for signout out
+# Starts the entire logout procedure.
 # meeting: the meeting the user is in
 # the user's userId
 @userLogout = (meeting, user) ->

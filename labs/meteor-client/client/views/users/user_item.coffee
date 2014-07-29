@@ -4,8 +4,6 @@ Template.userItem.helpers
     u1 is u2
 
 Template.userItem.events
-  "click .raiseHand": (event) -> #Meteor.call('userRaiseHand', @_id)
-
   "click .disableCam": (event) -> #Meteor.call('userToggleCam', @_id, false)
 
   "click .disableMic": (event) -> #Meteor.call('userToggleMic', @_id, false)
@@ -13,8 +11,6 @@ Template.userItem.events
   "click .enableMic": (event) -> #Meteor.call('userToggleMic', @_id, true)
 
   "click .enableCam": (event) -> #Meteor.call('userToggleCam', @_id, true)
-
-  "click .lowerHand": (event) -> #Meteor.call('userLowerHand', @_id)
 
   "click .setPresenter": (event) ->
     #do nothing if user is already presenter
