@@ -39,7 +39,7 @@ Meteor.methods
         "version": "0.0.1"
 
     if meetingId? and userId? and requesterId?
-      @pubClient.publish(Meteor.config.redis.channels.toBBBApps.voice, JSON.stringify(message))
+      Meteor.redisPubSub.publish(Meteor.config.redis.channels.toBBBApps.voice, message)
     else
       console.log "did not have enough information to send a mute_user_request"
 
@@ -215,6 +215,7 @@ class Meteor.RedisPubSub
         unless message.header?.name is "disconnect_all_users_message"
           Meteor.call("removeMeetingFromCollection", meetingId)
 
+  # message should be an object
   publish: (channel, message) ->
     console.log "Publishing channel=#{channel}, message=#{JSON.stringify(message)}"
     @pubClient.publish(channel, JSON.stringify(message), (err, res) ->

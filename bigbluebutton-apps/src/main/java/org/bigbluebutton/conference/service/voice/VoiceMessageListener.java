@@ -37,7 +37,7 @@ public class VoiceMessageListener implements MessageHandler{
 				String muteString = payloadObject.get(VoiceKeyUtil.MUTE).toString().replace("\"", "");
 				Boolean mute = Boolean.valueOf(muteString);
 
-				System.out.println("handling mute_user_request\n\n\n\n");
+				System.out.println("handling mute_user_request");
 				bbbGW.muteUser(meetingID, requesterID, userID, mute);
 			}
 		}
