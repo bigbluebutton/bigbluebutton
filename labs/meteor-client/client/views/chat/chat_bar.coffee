@@ -80,8 +80,8 @@ Template.optionsBar.events
     currUserId = getInSession("userId")
     duplicate = (x for x in myTabs.get() when x.userId is @userId)
 
-    if duplicate.length<=0 and @userId isnt currUserId
-      messageForServer = { 
+    if duplicate.length <=0 and @userId isnt currUserId
+      messageForServer =
           "message": "#{getUsersName()} has joined private chat with #{@user.name}."
           "chat_type": "PRIVATE_CHAT"
           "from_userid": getInSession("userId")
@@ -92,7 +92,6 @@ Template.optionsBar.events
           "from_lang": "en"
           "from_time": getTime()
           "from_color": "0"
-      }
 
       # console.log 'Sending private message to server:'
       # console.log messageForServer
