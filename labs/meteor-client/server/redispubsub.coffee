@@ -41,12 +41,12 @@ Meteor.methods
     if meetingId? and userId? and requesterId?
       Meteor.redisPubSub.publish(Meteor.config.redis.channels.toBBBApps.voice, message)
       # modify the collection
+      Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set:{'user.voiceUser.talking':false}})
       numChanged = Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set:{'user.voiceUser.muted':mutedBoolean}})
       if numChanged isnt 1
         console.log "\n\nSomething went wrong!! We were supposed to mute/unmute 1 user!!\n\n"
     else
       console.log "did not have enough information to send a mute_user_request"
-
 
 class Meteor.RedisPubSub
   constructor: (callback) ->
@@ -127,10 +127,9 @@ class Meteor.RedisPubSub
 
     if message.header?.name is 'user_voice_talking_message'
       u = Meteor.Users.findOne({'userId': message.payload?.user?.userid})
-      if u?
+      if u? and not u?.user?.voiceUser?.muted
         console.log "setting talking to #{message?.payload?.user?.voiceUser?.talking}\n\n\n\n"
         Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.talking':message?.payload?.user?.voiceUser?.talking}})
-
 
     if message.header?.name is "get_all_meetings_reply"
       console.log "Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!"
