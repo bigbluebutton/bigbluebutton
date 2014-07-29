@@ -40,6 +40,9 @@ Meteor.methods
 
     if meetingId? and userId? and requesterId?
       Meteor.redisPubSub.publish(Meteor.config.redis.channels.toBBBApps.voice, message)
+      # modify the collection
+      numChanged = Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set:{'user.voiceUser.muted':mutedBoolean}})
+      console.log "numChanged======" + numChanged
     else
       console.log "did not have enough information to send a mute_user_request"
 
@@ -214,19 +217,6 @@ class Meteor.RedisPubSub
           #TODO should we clear the chat messages for that meeting?!
         unless message.header?.name is "disconnect_all_users_message"
           Meteor.call("removeMeetingFromCollection", meetingId)
-
-    # We dispatch a request (mute_user_request) for a user to be muted/unmuted towards BBB-Apps
-    # As a result a mute_voice_user_request is dispatched. We will use this message to
-    # as a confirmation that the user was muted/unmuted
-    if message.header?.name is "mute_voice_user_request"
-      userId = message.payload?.userid
-      requesterId = message.payload?.requester_id
-      mutedBoolean = message.payload?.mute
-
-      # modify the collection
-      numChanged = Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set:{'user.voiceUser.muted':mutedBoolean}})
-
-      console.log "numChanged======" + numChanged
 
   # message should be an object
   publish: (channel, message) ->
