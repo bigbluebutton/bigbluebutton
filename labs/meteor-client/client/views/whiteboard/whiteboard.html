@@ -1,5 +1,8 @@
 <template name="whiteboard">
+	<input type="button" class="drawShapes" value="Draw!" />
 	{{#if getInSession "display_whiteboard"}}
 	<p>The whiteboard</p>
 	{{/if}}
+	<div id="whiteboard-paper">
+	</div>
 </template>
