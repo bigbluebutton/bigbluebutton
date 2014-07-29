@@ -13,7 +13,8 @@
           Meteor.subscribe 'shapes', getInSession('meetingId'), ->
             Meteor.subscribe 'slides', getInSession('meetingId'), ->
               Meteor.subscribe 'meetings', getInSession('meetingId'), ->
-                self.redirect('/')
+                Meteor.subscribe 'presentations', getInSession('meetingId'), ->
+                  self.redirect('/')
 
     onBeforeAction: ()->
       url = location.href
@@ -51,7 +52,8 @@
           Meteor.subscribe 'chat', getInSession('meetingId'), ->
             Meteor.subscribe 'shapes', getInSession('meetingId'), ->
               Meteor.subscribe 'slides', getInSession('meetingId'), ->
-                Meteor.subscribe 'meetings', getInSession('meetingId')
+                Meteor.subscribe 'meetings', getInSession('meetingId'), ->
+                  Meteor.subscribe 'presentations', getInSession('meetingId')
 
   @route "logout",
     path: "logout"
