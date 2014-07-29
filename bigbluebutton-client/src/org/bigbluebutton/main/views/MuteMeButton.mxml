@@ -40,9 +40,7 @@ $Id: $
 	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
   <mate:Listener type="{BBBEvent.USER_VOICE_JOINED}" method="handleLeftVoiceConferenceEvent" />
   <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleJoinedVoiceConferenceEvent" />
-  <mate:Listener type="{VoiceConfEvent.MUTE_USER}" method="handleVoiceMutedEvent" />
-  
-
+  <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleVoiceMutedEvent" />
   
 	<mx:Script>
 		<![CDATA[
@@ -67,8 +65,7 @@ $Id: $
       
 			private var muteMeRolled:Boolean = false;
 			
-			[Bindable]
-			private var images:Images = new Images();
+			[Bindable] private var images:Images = new Images();
 			
 			private function onCreationComplete():void {
         trace(LOG + " initialized");
@@ -111,7 +108,7 @@ $Id: $
 				var userManager:UserManager = UserManager.getInstance();
 				var conference:Conference = userManager.getConference();
 				var me:BBBUser = conference.getMyUser();
-        trace(LOG + "allowMuteUnmute [ voiceJoined=[" + conference.voiceJoined + "], disableMic=[" + me.disableMyMic + "]");
+//        trace(LOG + "allowMuteUnmute [ voiceJoined=[" + conference.voiceJoined + "], disableMic=[" + me.disableMyMic + "]");
 				return (conference.voiceJoined && !me.disableMyMic);
 			}
 			
@@ -153,11 +150,11 @@ $Id: $
 				}
 			}
 			
-      private function handleVoiceMutedEvent(event:VoiceConfEvent):void {
-        if (UsersUtil.isMe(event.userid)) {
+      private function handleVoiceMutedEvent(event:BBBEvent):void {
+        if (UsersUtil.isMe(event.payload.userID)) {
           trace(LOG + "User has been muted/unmuted");
           if (muteMeRolled) {
-            if (! event.mute) {
+            if (! event.payload.muted) {
               muteMeBtnImg.source = images.audio;
               muteMeBtnTxt.visible = true;
               muteMeBtnTxt.includeInLayout = true;
@@ -171,7 +168,7 @@ $Id: $
               hboxMuteMe.setStyle("paddingTop",0);
             }
           } else {
-            if (event.mute) {
+            if (event.payload.muted) {
               muteMeBtnImg.source = images.audio_muted;
               muteMeBtnTxt.visible = true;
               muteMeBtnTxt.includeInLayout = true;
