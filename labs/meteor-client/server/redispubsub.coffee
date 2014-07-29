@@ -42,7 +42,8 @@ Meteor.methods
       Meteor.redisPubSub.publish(Meteor.config.redis.channels.toBBBApps.voice, message)
       # modify the collection
       numChanged = Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set:{'user.voiceUser.muted':mutedBoolean}})
-      console.log "numChanged======" + numChanged
+      if numChanged isnt 1
+        console.log "\n\nSomething went wrong!! We were supposed to mute/unmute 1 user!!\n\n"
     else
       console.log "did not have enough information to send a mute_user_request"
 
