@@ -38,16 +38,16 @@
                {{> makeButton id=user.externUserId btn_class="videoFeedIcon navbar-brand" i_class="stop" sharingVideo=false _id=_id}}
             {{/if}}
 
-            {{{Join/hang up audio call}}}
+            <!-- Join/hang up audio call -->
             {{#if isUserSharingAudio user}}
                {{> makeButton id=user.externUserId btn_class="navbarIconToggleActive audioFeedIcon navbar-brand" i_class="headphones" sharingAudio=true _id=_id}}
             {{else}}
                {{> makeButton id=user.externUserId btn_class="audioFeedIcon navbar-brand" i_class="volume-off" sharingAudio=false _id=_id}}
             {{/if}}
 
-            {{{Mute/unmute user}}}
+            <!-- Mute/unmute user -->
             {{#if isUserSharingAudio user}}
-            {{{Should use much more noticeable icons than just bootstrap's volume-up & volume-down to differentiate talking but it is good for now}}}
+            <!-- Should use much more noticeable icons than just bootstraps volume-up & volume-down to differentiate talking but it is good for now -->
                {{#if isUserTalking user}}
                   {{> makeButton id=user.externUserId btn_class="navbarIconToggleActive muteIcon navbar-brand" i_class="volume-up" sharingAudio=true _id=_id}}
                {{else}}
@@ -67,7 +67,7 @@
          {{/with}}
       </div>
    {{else}}
-      {{{User wants to hide navbar. The button for bringing the navbar back needs to still be available. Perhaps it should appear/disappear in the future on hover? Something to add later.}}}
+      <!-- User wants to hide navbar. The button for bringing the navbar back needs to still be available. Perhaps it should appear/disappear in the future on hover? Something to add later. -->
       {{> makeButton id="" btn_class="hideNavbarIcon pull-right navbar-brand" i_class="chevron-down"}}
    {{/if}}
 </template>
