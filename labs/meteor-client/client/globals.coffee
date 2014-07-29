@@ -43,9 +43,11 @@ Handlebars.registerHelper "getCurrentUser", =>
 @toggleMic = (event) ->
   if getInSession "isSharingAudio" # only allow muting/unmuting if they are in the call
     console.log "toggling mute"
-    # u = Meteor.Users.findOne({userId:getInSession("userId")})
-    # if u?
-    #   Meteor.call('muteRequest', u.userId, u.meetingId, u.userId, not u.user.voiceUser.muted)
+    u = Meteor.Users.findOne({userId:getInSession("userId")})
+    if u?
+      # format: meetingId, userId, requesterId, mutedBoolean
+      # TODO: insert the requesterId - the user who requested the muting of userId (might be a moderator)
+      Meteor.call('publishMuteRequest', u.meetingId, u.userId, u.userId, not u.user.voiceUser.muted)
 
 # toggle state of session variable
 @toggleUsersList = ->

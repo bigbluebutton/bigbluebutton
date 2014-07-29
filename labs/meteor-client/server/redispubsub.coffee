@@ -25,6 +25,25 @@ Meteor.methods
   publishChatMessage: (meetingId, messageObject) ->
     Meteor.redisPubSub.publishingChatMessage(meetingId, messageObject)
 
+  publishMuteRequest: (meetingId, userId, requesterId, mutedBoolean) =>
+    console.log "publishing a user mute #{mutedBoolean} request for #{userId}"
+    message =
+      "payload":
+        "userid": userId
+        "meeting_id": meetingId
+        "mute": mutedBoolean
+        "requester_id": requesterId
+      "header": 
+        "timestamp": new Date().getTime()
+        "name": "mute_user_request"
+        "version": "0.0.1"
+
+    if meetingId? and userId? and requesterId?
+      @pubClient.publish(Meteor.config.redis.channels.toBBBApps.voice, JSON.stringify(message))
+    else
+      console.log "did not have enough information to send a mute_user_request"
+
+
 class Meteor.RedisPubSub
   constructor: (callback) ->
     console.log "constructor RedisPubSub"
