@@ -16,7 +16,6 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-
 package org.bigbluebutton.conference.service.video;
 
 import org.slf4j.Logger;
@@ -25,15 +24,16 @@ import org.red5.logging.Red5LoggerFactory;
 public class VideoService {
 
 	private static Logger log = Red5LoggerFactory.getLogger(VideoService.class, "bigbluebutton");
-	
+
 	private VideoApplication videoApplication;
-	
+
 	public void getStreamPath(String streamName) {
 		log.debug("Stream Path requested for [{}]", streamName);
 		videoApplication.getStreamPath(streamName);
 	}
-	
+
 	public void setVideoApplication(VideoApplication a) {
+		log.debug("Setting video application");
 		this.videoApplication = a;
 	}
 }

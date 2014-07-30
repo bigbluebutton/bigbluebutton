@@ -58,7 +58,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<ref bean="presentationHandler" />
 				<ref bean="voiceHandler" />
 				<ref bean="whiteboardApplication" />
-				<ref bean="videoApplication" />
+				<ref bean="videoHandler" />
     		</set>
   		</property>	  
   		<property name="recorderApplication"> <ref bean="recorderApplication"/></property>	

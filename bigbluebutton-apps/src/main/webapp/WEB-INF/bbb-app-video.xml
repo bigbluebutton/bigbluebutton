@@ -27,6 +27,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			http://www.springframework.org/schema/util/spring-util-2.0.xsd
 			">
 
+	<bean id="videoHandler" class="org.bigbluebutton.conference.service.video.VideoHandler">
+		<property name="videoApplication"> <ref local="videoApplication"/></property>
+	</bean>
+
 	<bean id="videoApplication" class="org.bigbluebutton.conference.service.video.VideoApplication">
 		<property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
 	</bean>
