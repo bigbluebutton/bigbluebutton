@@ -47,6 +47,9 @@ Template.header.events
 		alert "settings"
 	"click .raiseHand": (event) -> 
 		Meteor.call('userRaiseHand', @id)
+
+Template.makeButton.rendered = ->
+   $('button[rel=tooltip]').tooltip()
 		
 # Gets called last in main template, just an easy place to print stuff out
 Handlebars.registerHelper "doFinalStuff", ->
