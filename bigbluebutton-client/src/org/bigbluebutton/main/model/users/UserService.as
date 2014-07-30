@@ -164,12 +164,10 @@ private var sender:MessageSender = new MessageSender();
 			
 			tokenslogoutUrl.push(new Array(LOGOUT_URL_TOKEN_FULLNAME  , confInfo.username));
 			tokenslogoutUrl.push(new Array(LOGOUT_URL_TOKEN_CONFERENCE, confInfo.conference));
-			//logoutUrl = "http://www.ufrgs.br/telessauders/logout_mconf?usuario=" + LOGOUT_URL_TOKEN_FULLNAME + "&conferencia=" + LOGOUT_URL_TOKEN_CONFERENCE + "&usuario2=" + LOGOUT_URL_TOKEN_FULLNAME + "&conferencia2=" + LOGOUT_URL_TOKEN_CONFERENCE;
-			
 			for(var i:int = tokenslogoutUrl.length-1; i >= 0; i--){
-				token = tokenslogoutUrl[i][LOGOUT_URL_INDEX_TOKEN];
+				token = tokenslogoutUrl[i][LOGOUT_URL_INDEX_TOKEN].replace("%", "/%");
 				value = tokenslogoutUrl[i][LOGOUT_URL_INDEX_VALUE];
-				logoutUrl = logoutUrl.split(token).join(value);
+				logoutUrl = logoutUrl.replace(new RegExp(token, "g"), value);
 			}
 			return logoutUrl;
 		}
