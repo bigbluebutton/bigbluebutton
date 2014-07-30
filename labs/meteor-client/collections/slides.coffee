@@ -27,3 +27,16 @@ Meteor.methods
       if id?
         Meteor.Slides.remove(id._id)
         console.log "----removed slide[" + slideId + "] from " + meetingId
+
+  displayThisSlide: (meetingId, newSlideId, slideObject) ->
+    console.log "\n\n\n the newSlideId=" + newSlideId
+    presentationId = newSlideId.split("/")[0] # grab the presentationId part of the slideId
+    console.log "presentationId=" + presentationId
+    # change current to false for the old slide
+    Meteor.Slides.update({presentationId: presentationId, "slide.current": true}, {$set: {"slide.current": false}})
+
+    # for the new slide: remove the version which came with presentation_shared_message from the Collection
+    # to avoid using old data (this message contains everything we need for the new slide)
+    Meteor.call("removeSlideFromCollection", meetingId, newSlideId)
+    # add the new slide to the collection
+    Meteor.call("addSlideToCollection", meetingId, presentationId, slideObject)

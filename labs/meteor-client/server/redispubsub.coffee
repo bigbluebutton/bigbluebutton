@@ -169,9 +169,18 @@ class Meteor.RedisPubSub
       @invokeGetAllMeetingsRequest()
 
     if message.header?.name is "presentation_shared_message"
+      presentationId = message.payload?.presentation?.id
+      # change the currently displayed presentation to presentation.current = false
+      Meteor.Presentations.update({"presentation.current": true},{$set: {"presentation.current": false}})
+
+      #update(if already present) entirely the presentation with the fresh data
+      Meteor.call("removePresentationFromCollection", meetingId, presentationId)
       Meteor.call("addPresentationToCollection", meetingId, message.payload?.presentation)
+
       for slide in message.payload?.presentation?.pages
         Meteor.call("addSlideToCollection", meetingId, message.payload?.presentation?.id, slide)
+        if slide.current
+          Meteor.call("displayThisSlide", meetingId, slide.id, slide)
 
     if message.header?.name is "get_presentation_info_reply" and message.payload?.requester_id is "nodeJSapp"
       # todo: grab the whiteboard shapes using the whiteboard_id we have here
@@ -203,16 +212,8 @@ class Meteor.RedisPubSub
             console.log "did not have enough information to send a user_leaving_request"
 
     if message.header?.name is "presentation_page_changed_message"
-      newSlideId = message.payload?.page?.id
-      presentationId = newSlideId.split("/")[0] # grab the presentationId part of the slideId
-
-      # for the old slide, change current to false
-      Meteor.Slides.update({presentationId: presentationId, "slide.current": true}, {$set: {"slide.current": false}})
-
-      # for the new slide remove it from the Collection to avoid using old data (this message contains everything we need for the new slide)
-      Meteor.call("removeSlideFromCollection", meetingId, newSlideId)
-      # add the new slide to the collection
-      Meteor.call("addSlideToCollection", meetingId, presentationId, message.payload?.page)
+      newSlide = message.payload?.page
+      Meteor.call("displayThisSlide", meetingId, newSlide?.id, newSlide)
 
     if message.header?.name is "get_whiteboard_shapes_reply" and message.payload?.requester_id is "nodeJSapp"
       for shape in message.payload.shapes

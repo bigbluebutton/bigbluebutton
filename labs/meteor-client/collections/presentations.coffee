@@ -10,5 +10,12 @@ Meteor.methods
           current: presentationObject.current
 
       id = Meteor.Presentations.insert(entry)
-      console.log "added presentation id =[#{id}]:#{presentationObject.id} in #{meetingId}. Presentations.size is now 
-      #{Meteor.Presentations.find({meetingId: meetingId}).count()}"
+      console.log "added presentation id =[#{id}]:#{presentationObject.id} in #{meetingId}. Presentations.size is now
+       #{Meteor.Presentations.find({meetingId: meetingId}).count()}"
+
+  removePresentationFromCollection: (meetingId, presentationId) ->
+    if meetingId? and presentationId? and Meteor.Presentations.findOne({meetingId: meetingId, "presentation.id": presentationId})?
+      id = Meteor.Presentations.findOne({meetingId: meetingId, "presentation.id": presentationId})
+      if id?
+        Meteor.Presentations.remove(id._id)
+        console.log "----removed presentation[" + presentationId + "] from " + meetingId
