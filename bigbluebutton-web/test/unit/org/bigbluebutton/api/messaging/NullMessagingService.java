@@ -83,4 +83,17 @@ public class NullMessagingService implements MessagingService {
 	  return null;
   }
 
+	@Override
+  public void registerUser(String meetingID, String internalUserId,
+      String fullname, String role, String externUserID, String authToken) {
+	  // TODO Auto-generated method stub
+	  
+  }
+
+	@Override
+  public void sendKeepAlive(String keepAliveId) {
+	  // TODO Auto-generated method stub
+	  
+  }
+
 }
