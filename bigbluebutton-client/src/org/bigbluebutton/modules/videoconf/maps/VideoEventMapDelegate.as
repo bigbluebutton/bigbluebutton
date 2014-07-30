@@ -55,7 +55,6 @@ package org.bigbluebutton.modules.videoconf.maps
   import org.bigbluebutton.modules.videoconf.views.ToolbarButton;
   import org.bigbluebutton.modules.videoconf.views.VideoWindow;
   import org.flexunit.runner.manipulation.filters.IncludeAllFilter;
-	import org.bigbluebutton.modules.videoconf.events.PlayConnectionReady;
 
 
   public class VideoEventMapDelegate

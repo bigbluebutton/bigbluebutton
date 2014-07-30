@@ -36,12 +36,12 @@ package org.bigbluebutton.modules.videoconf.business
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.main.model.users.BBBUser;
-	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 	import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
 	import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 	import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 	import org.bigbluebutton.modules.videoconf.events.PlayConnectionReady;
+	import org.bigbluebutton.modules.videoconf.services.messaging.MessageSender;
+	import org.bigbluebutton.modules.videoconf.services.messaging.MessageReceiver;
 
 	
 	public class VideoProxy
@@ -53,6 +53,11 @@ package org.bigbluebutton.modules.videoconf.business
 		// NetStream used for stream publishing
 		private var ns:NetStream;
 		private var _url:String;
+
+		// Message sender to request stream path
+		private var msgSender:MessageSender;
+		// Message receiver to receive the stream path
+		private var msgReceiver:MessageReceiver;
 
 		// Dictionary<url,NetConnection> used for stream playing
 		private var playConnectionDict:Dictionary;
@@ -83,6 +88,8 @@ package org.bigbluebutton.modules.videoconf.business
 			playConnectionCountDict = new Dictionary();
 			streamNamePrefixDict = new Dictionary();
 			streamUrlDict = new Dictionary();
+			msgReceiver = new MessageReceiver(this);
+			msgSender = new MessageSender();
 		}
 		
     public function connect():void {
@@ -134,9 +141,14 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 
 		public function createPlayConnectionFor(streamName:String):void {
-			LogUtil.debug("VideoProxy::createPlayConnectionFor:: Creating connection for stream [" + streamName + "]");
-			// TODO: Ask LB for path to current user
-			var connectionPath:String = "10.0.3.203/10.0.3.254/10.0.3.79";
+			LogUtil.debug("VideoProxy::createPlayConnectionFor:: Requesting path for stream [" + streamName + "]");
+
+			// Ask red5 the path to stream
+			msgSender.getStreamPath(streamName);
+		}
+
+		public function handleStreamPathReceived(streamName:String, connectionPath:String):void {
+			LogUtil.debug("VideoProxy::handleStreamPathReceived:: Path for stream [" + streamName + "]: [" + connectionPath + "]");
 			var serverIp:String = connectionPath.split("/")[0];
 			var ipRegex:RegExp = /([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/;
 			var newUrl:String = _url.replace(ipRegex, serverIp);
@@ -163,7 +175,7 @@ package org.bigbluebutton.modules.videoconf.business
 				connection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError);
 				connection.connect(newUrl);
 				// TODO change to trace
-				LogUtil.debug("VideoProxy::createPlayConnectionFor:: Creating NetConnection for [" + newUrl + "]");
+				LogUtil.debug("VideoProxy::handleStreamPathReceived:: Creating NetConnection for [" + newUrl + "]");
 				playConnectionDict[newUrl] = connection;
 				playConnectionCountDict[newUrl] = 0;
 			}
@@ -174,7 +186,7 @@ package org.bigbluebutton.modules.videoconf.business
 					dispatcher.dispatchEvent(new PlayConnectionReady(PlayConnectionReady.PLAY_CONNECTION_READY));
 				}
 				// TODO change to trace
-				LogUtil.debug("VideoProxy::createPlayConnectionFor:: Found NetConnection for [" + newUrl + "]");
+				LogUtil.debug("VideoProxy::handleStreamPathReceived:: Found NetConnection for [" + newUrl + "]");
 			}
 		}
 

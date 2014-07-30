@@ -453,4 +453,11 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	  voiceGW.voiceRecording(meetingId, recordingFile, 
 			            timestamp, recording)
 	}
+
+	/*********************************************************************
+	 * Message Interface for Video
+	 *******************************************************************/
+	 def getStreamPath(meetingId:String, requesterId:String, streamName: String) {
+		 bbbGW.accept(new GetStreamPath(meetingId, requesterId, streamName));
+	 }
 }

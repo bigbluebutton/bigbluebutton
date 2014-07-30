@@ -493,3 +493,10 @@ case class IsWhiteboardEnabledRequest(
     requesterID: String,
     replyTo: String
 ) extends InMessage
+
+// Video
+case class GetStreamPath(
+    meetingID: String,
+    requesterID: String,
+    streamName: String
+) extends InMessage
