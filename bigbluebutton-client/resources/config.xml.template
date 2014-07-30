@@ -52,10 +52,9 @@
 			presenterShareOnly="false"
 			skipCheck="false"
 			showButton="true"
-			showSpeakerButton="false"
 			enabledEchoCancel="true"
 			useWebrtcIfAvailable="true"
-			showPhoneOption="false"
+			showPhoneOption="true"
 			echoTestApp="9196"
 			dependsOn="UsersModule"
 		/>
