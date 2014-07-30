@@ -29,9 +29,7 @@ Meteor.methods
         console.log "----removed slide[" + slideId + "] from " + meetingId
 
   displayThisSlide: (meetingId, newSlideId, slideObject) ->
-    console.log "\n\n\n the newSlideId=" + newSlideId
     presentationId = newSlideId.split("/")[0] # grab the presentationId part of the slideId
-    console.log "presentationId=" + presentationId
     # change current to false for the old slide
     Meteor.Slides.update({presentationId: presentationId, "slide.current": true}, {$set: {"slide.current": false}})
 
