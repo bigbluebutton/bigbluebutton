@@ -204,7 +204,6 @@ class Meteor.RedisPubSub
 
     if message.header?.name is "presentation_page_changed_message"
       newSlideId = message.payload?.page?.id
-      slideObject = message.payload?.page
       presentationId = newSlideId.split("/")[0] # grab the presentationId part of the slideId
 
       # for the old slide, change current to false
@@ -213,7 +212,7 @@ class Meteor.RedisPubSub
       # for the new slide remove it from the Collection to avoid using old data (this message contains everything we need for the new slide)
       Meteor.call("removeSlideFromCollection", meetingId, newSlideId)
       # add the new slide to the collection
-      Meteor.call("addSlideToCollection", meetingId, presentationId, slideObject)
+      Meteor.call("addSlideToCollection", meetingId, presentationId, message.payload?.page)
 
     if message.header?.name is "get_whiteboard_shapes_reply" and message.payload?.requester_id is "nodeJSapp"
       for shape in message.payload.shapes
