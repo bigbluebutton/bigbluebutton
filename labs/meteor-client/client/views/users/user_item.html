@@ -31,10 +31,10 @@
   {{#if user.presenter}}
     {{> makeButton id=user.externUserId btn_class="setPresenter btn btn-primary" i_class="picture" _id=_id isDisabled="disabled" isPresenter=true}}
   {{else}}
-    {{> makeButton id=user.externUserId btn_class="setPresenter btn btn-primary" i_class="picture" _id=_id isPresenter=false}}
+    {{> makeButton id=user.externUserId btn_class="setPresenter btn btn-primary" i_class="picture" _id=_id isPresenter=false rel="tooltip" data_placement="top" title="Set Presenter"}}
   {{/if}}
   </td>
-  <td>{{> makeButton id=userId btn_class="kickUser btn btn-primary" i_class="remove-circle" _id=_id}}</td>
+  <td>{{> makeButton id=userId btn_class="kickUser btn btn-primary" i_class="remove-circle" _id=_id rel="tooltip" data_placement="right" title="Kick User"}}</td>
 </template>
 <!-- ####################################################################################### -->
 
