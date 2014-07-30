@@ -202,6 +202,19 @@ class Meteor.RedisPubSub
           else
             console.log "did not have enough information to send a user_leaving_request"
 
+    if message.header?.name is "presentation_page_changed_message"
+      newSlideId = message.payload?.page?.id
+      slideObject = message.payload?.page
+      presentationId = newSlideId.split("/")[0] # grab the presentationId part of the slideId
+
+      # for the old slide, change current to false
+      Meteor.Slides.update({presentationId: presentationId, "slide.current": true}, {$set: {"slide.current": false}})
+
+      # for the new slide remove it from the Collection to avoid using old data (this message contains everything we need for the new slide)
+      Meteor.call("removeSlideFromCollection", meetingId, newSlideId)
+      # add the new slide to the collection
+      Meteor.call("addSlideToCollection", meetingId, presentationId, slideObject)
+
     if message.header?.name is "get_whiteboard_shapes_reply" and message.payload?.requester_id is "nodeJSapp"
       for shape in message.payload.shapes
         whiteboardId = shape.wb_id

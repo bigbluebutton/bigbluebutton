@@ -20,3 +20,10 @@ Meteor.methods
       id = Meteor.Slides.insert(entry)
       console.log "added slide id =[#{id}]:#{slideObject.id} in #{meetingId}. Now there are
        #{Meteor.Slides.find({meetingId: meetingId}).count()} slides in the meeting"
+
+  removeSlideFromCollection: (meetingId, slideId) ->
+    if meetingId? and slideId? and Meteor.Slides.findOne({meetingId: meetingId, "slide.id": slideId})?
+      id = Meteor.Slides.findOne({meetingId: meetingId, "slide.id": slideId})
+      if id?
+        Meteor.Slides.remove(id._id)
+        console.log "----removed slide[" + slideId + "] from " + meetingId
