@@ -17,3 +17,11 @@ Template.whiteboard.events
       wpm.makeShape(shapeType, data)
       wpm.updateShape(shapeType, data)
       #circle = wpm.circle(100, 100, 80)
+
+Template.whiteboard.slideId = () ->
+  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+  presentationId = currentPresentation?.presentation?.id
+  currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+  console.log "the current slide is:" + currentSlide?.slide?.id
+  currentSlide?.slide?.id
+

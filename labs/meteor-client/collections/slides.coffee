@@ -1,6 +1,6 @@
 Meteor.methods
   addSlideToCollection: (meetingId, presentationId, slideObject) ->
-    unless Meteor.Slides.findOne({meetingId: meetingId, presentationId: presentationId})?
+    unless Meteor.Slides.findOne({meetingId: meetingId, "slide.id": slideObject.id})?
       entry =
         meetingId: meetingId
         presentationId: presentationId

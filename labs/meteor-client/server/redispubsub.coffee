@@ -154,7 +154,7 @@ class Meteor.RedisPubSub
         Meteor.call("removeUserFromCollection", meetingId, userId)
 
     if message.header?.name is "get_chat_history_reply" and message.payload?.requester_id is "nodeJSapp"
-      unless Meteor.Meetings.findOne({MeetingId: message.payload?.meeting_id})?
+      unless Meteor.Meetings.findOne({MeetingId: message.payload?.meeting_id})? # TODO check if MeetingId or meetingId!!
         for chatMessage in message.payload?.chat_history
           Meteor.call("addChatToCollection", meetingId, chatMessage)
 
@@ -171,7 +171,7 @@ class Meteor.RedisPubSub
     if message.header?.name is "presentation_shared_message"
       Meteor.call("addPresentationToCollection", meetingId, message.payload?.presentation)
       for slide in message.payload?.presentation?.pages
-        Meteor.call("addSlideToCollection", meetingId, slide.id, slide)
+        Meteor.call("addSlideToCollection", meetingId, message.payload?.presentation?.id, slide)
 
     if message.header?.name is "get_presentation_info_reply" and message.payload?.requester_id is "nodeJSapp"
       # todo: grab the whiteboard shapes using the whiteboard_id we have here
@@ -181,7 +181,7 @@ class Meteor.RedisPubSub
 
         for page in presentation.pages
           #add the slide to the collection
-          Meteor.call("addSlideToCollection", meetingId, page.id, page)
+          Meteor.call("addSlideToCollection", meetingId, presentation.id, page)
 
           #request for shapes
           whiteboardId = "#{presentation.id}/#{page.num}" # d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1404411622872/1
