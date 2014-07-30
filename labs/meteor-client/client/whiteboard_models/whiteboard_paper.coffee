@@ -55,7 +55,6 @@ class @WhiteboardPaperModel
   # Can't do these things in initialize() because by then some elements
   # are not yet created in the page.
   create: ->
-    alert "create object"
     # paper is embedded within the div#slide of the page.
     console.log ("@container=" + @container)
     @raphaelObj ?= ScaleRaphael(@container, "500", "500")
