@@ -36,7 +36,6 @@ package org.bigbluebutton.modules.videoconf.services.messaging
 		}
 
 		public function onMessage(messageName:String, message:Object):void {
-			LogUtil.debug(LOG + "Recevived ["+messageName+"]");
 			switch (messageName) {
 				case "getStreamPathReply":
 					handleGetStreamPathReply(message);

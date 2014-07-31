@@ -33,6 +33,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<bean id="videoApplication" class="org.bigbluebutton.conference.service.video.VideoApplication">
 		<property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
+		<property name="defaultStreamPath" value="${video.defaultStreamPath}"/>
 	</bean>
 
 	<bean id="video.service" class="org.bigbluebutton.conference.service.video.VideoService">

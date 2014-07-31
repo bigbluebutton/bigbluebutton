@@ -1,8 +1,7 @@
 package org.bigbluebutton.core.apps.video
-// TODO: Check this imports
+
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.MeetingActor
-import com.google.gson.Gson
 
 trait VideoApp {
 	this : MeetingActor =>
@@ -11,8 +10,7 @@ trait VideoApp {
 
 	def handleGetStreamPath(msg: GetStreamPath) {
 		// TODO: Request stream path from bbbWeb here
-		// TODO: Make this configurable
-		val streamPath = "10.0.3.213/10.0.3.225"
+		val streamPath = msg.defaultPath
 		outGW.send(new GetStreamPathReply(msg.meetingID, msg.requesterID, msg.streamName, streamPath))
 	}
 }

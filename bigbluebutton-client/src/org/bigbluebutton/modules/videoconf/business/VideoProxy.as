@@ -149,18 +149,25 @@ package org.bigbluebutton.modules.videoconf.business
 
 		public function handleStreamPathReceived(streamName:String, connectionPath:String):void {
 			LogUtil.debug("VideoProxy::handleStreamPathReceived:: Path for stream [" + streamName + "]: [" + connectionPath + "]");
-			var serverIp:String = connectionPath.split("/")[0];
-			var ipRegex:RegExp = /([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/;
-			var newUrl:String = _url.replace(ipRegex, serverIp);
+
+			var newUrl:String;
+			var streamPrefix:String;
+
+			// Check whether the is through proxy servers or not
+			if(connectionPath == "") {
+				newUrl = _url;
+				streamPrefix = "";
+			}
+			else {
+				var ipRegex:RegExp = /([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/;
+				var serverIp:String = connectionPath.split("/")[0];
+				newUrl = _url.replace(ipRegex, serverIp);
+				streamPrefix = connectionPath.replace(serverIp + "/", "") + "/";
+			}
 
 			// Store URL for this stream
 			streamUrlDict[streamName] = newUrl;
 
-			var streamPrefix:String;
-			if(connectionPath != serverIp) // More than one server -> has prefix
-				streamPrefix = connectionPath.replace(serverIp + "/", "") + "/";
-			else
-				streamPrefix = "";
 			// Set current streamPrefix to use the current path
 			streamNamePrefixDict[streamName] = streamPrefix;
 

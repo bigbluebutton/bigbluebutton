@@ -498,5 +498,6 @@ case class IsWhiteboardEnabledRequest(
 case class GetStreamPath(
     meetingID: String,
     requesterID: String,
-    streamName: String
+    streamName: String,
+    defaultPath: String
 ) extends InMessage

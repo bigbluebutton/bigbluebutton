@@ -30,11 +30,12 @@ public class VideoApplication {
 	private static Logger log = Red5LoggerFactory.getLogger(VideoService.class, "bigbluebutton");
 
 	private IBigBlueButtonInGW bbbInGW;
+	private String defaultStreampath;
 
 	public void getStreamPath(String streamName) {
 		String meetingId = getBbbSession().getRoom();
 		String userId = getBbbSession().getInternalUserID();
-		bbbInGW.getStreamPath(meetingId, userId, streamName);
+		bbbInGW.getStreamPath(meetingId, userId, streamName, defaultStreampath);
 	}
 
 	private BigBlueButtonSession getBbbSession() {
@@ -43,5 +44,9 @@ public class VideoApplication {
 
 	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
 		bbbInGW = inGW;
+	}
+
+	public void setDefaultStreamPath(String path) {
+		this.defaultStreampath = path;
 	}
 }

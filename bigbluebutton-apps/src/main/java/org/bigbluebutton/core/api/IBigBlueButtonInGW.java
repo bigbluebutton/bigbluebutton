@@ -113,6 +113,6 @@ public interface IBigBlueButtonInGW {
 	void isWhiteboardEnabled(String meetingID, String requesterID, String replyTo);
 
 	// Video
-	void getStreamPath(String meetingID, String requesterID, String streamName);
+	void getStreamPath(String meetingID, String requesterID, String streamName, String defaultPath);
 
 }

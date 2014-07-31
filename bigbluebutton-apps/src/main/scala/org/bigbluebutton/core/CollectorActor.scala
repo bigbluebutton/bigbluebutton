@@ -2088,6 +2088,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
     payload.put(Constants.STREAM, msg.streamName)
+    payload.put(Constants.STREAM_PATH_DEFAULT, msg.streamName)
 
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.GET_STREAM_PATH)

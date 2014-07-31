@@ -457,7 +457,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	/*********************************************************************
 	 * Message Interface for Video
 	 *******************************************************************/
-	 def getStreamPath(meetingId:String, requesterId:String, streamName: String) {
-		 bbbGW.accept(new GetStreamPath(meetingId, requesterId, streamName));
+	 def getStreamPath(meetingId:String, requesterId:String, streamName: String, defaultPath:String) {
+		 bbbGW.accept(new GetStreamPath(meetingId, requesterId, streamName, defaultPath));
 	 }
 }
