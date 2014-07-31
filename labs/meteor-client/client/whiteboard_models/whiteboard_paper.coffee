@@ -171,7 +171,7 @@ class @WhiteboardPaperModel
     for url of @slides
       if @slides.hasOwnProperty(url)
         @raphaelObj.getById(@slides[url]?.getId())?.remove()
-        @trigger('paper:image:removed', @slides[url].getId()) # TODO do we need this?
+        #@trigger('paper:image:removed', @slides[url].getId()) # TODO do we need this?
     @slides = {}
     @currentSlide = null
 
