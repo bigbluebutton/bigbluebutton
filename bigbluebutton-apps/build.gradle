@@ -3,7 +3,7 @@ apply plugin: 'java'
 apply plugin: 'war'
 apply plugin: 'eclipse'
 
-version = '0.8'
+version = '0.9.0-dev'
 jar.enabled = true
 
 def appName = 'bigbluebutton'
@@ -116,7 +116,7 @@ dependencies {
   //compileTestScala.classpath = sourceSets.test.compileClasspath + files(sourceSets.test.classesDir)
 		  
    // Freeswitch ESL Client
-   compile 'org/freeswitch:fs-esl-client:0.8.2@jar'
+   compile 'org/freeswitch:fs-esl-client:0.9.0-dev@jar'
    compile 'org.jboss.netty:netty:3.2.1.Final@jar'
    compile 'com.google.code.gson:gson:1.7.1'
    providedCompile 'org.apache.commons:commons-lang3:3.1'
