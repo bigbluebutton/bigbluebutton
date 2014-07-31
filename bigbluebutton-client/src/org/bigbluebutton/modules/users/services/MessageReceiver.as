@@ -376,6 +376,8 @@ package org.bigbluebutton.modules.users.services
           participantJoined(user);
           processUserVoice(user);
         }
+        
+        UserManager.getInstance().getConference().applyLockSettings();
       }	 
     }
     

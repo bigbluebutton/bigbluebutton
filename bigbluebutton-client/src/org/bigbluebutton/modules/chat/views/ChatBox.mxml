@@ -67,15 +67,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
 			import com.adobe.utils.StringUtil;
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.accessibility.AccessibilityProperties;
-			
+			import com.asfusion.mate.events.Dispatcher;		
+			import flash.accessibility.AccessibilityProperties;			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Button;
-			import mx.core.ScrollPolicy;
-			
+			import mx.core.ScrollPolicy;			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
@@ -99,7 +96,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
-			
+      private static const LOG:String = "Chat::ChatBox - ";
+      
       public var publicChat:Boolean = false;
       public var chatWithUserID:String;
       public var chatWithUsername:String
@@ -185,7 +183,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if(Capabilities.hasAccessibility)
 					Accessibility.updateProperties();
 				
-				lockSettingsChanged(null);
+        trace(LOG + " onCreationComplete. Apply lock settings");
+        applyLockSettings();
 			}
 			
 			private function focusChatBox(e:ShortcutEvent):void{
@@ -621,8 +620,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			txtMsgArea.setFocus();
 		}
 			
-			private function lockSettingsChanged(e:Event):void {
-        
+		private function lockSettingsChanged(e:Event):void {
+      applyLockSettings();
+    }
+      
+    private function applyLockSettings():void {  
+      
         if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return; // Settings only affect viewers.
         
 				var userManager:UserManager = UserManager.getInstance();
