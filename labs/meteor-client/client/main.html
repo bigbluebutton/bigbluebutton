@@ -34,9 +34,9 @@
             {{/if}}
 
             {{#if isUserSharingVideo user}}
-               {{> makeButton id=userId btn_class="navbarIconToggleActive videoFeedIcon navbar-brand" i_class="facetime-video" sharingVideo=true _id=_id rel="tooltip" data_placement="bottom" title="Hide Webcams"}}
+               {{> makeButton id=userId btn_class="navbarIconToggleActive videoFeedIcon navbar-brand" i_class="stop" sharingVideo=true _id=_id rel="tooltip" data_placement="bottom" title="Hide Webcams"}}
             {{else}}
-               {{> makeButton id=userId btn_class="videoFeedIcon navbar-brand" i_class="stop" sharingVideo=false _id=_id rel="tooltip" data_placement="bottom" title="Show Webcams"}}
+               {{> makeButton id=userId btn_class="videoFeedIcon navbar-brand" i_class="facetime-video" sharingVideo=false _id=_id rel="tooltip" data_placement="bottom" title="Show Webcams"}}
             {{/if}}
 
             <!-- Join/hang up audio call -->
