@@ -4,7 +4,7 @@ class @WhiteboardPaperModel
 
   # Container must be a DOM element
   constructor: (@container) ->
-    console.log "paper in WhiteboardPaperModel =" + @container
+    # console.log "paper in WhiteboardPaperModel =" + @container
     # a WhiteboardCursorModel
     @cursor = null
 
@@ -323,7 +323,7 @@ class @WhiteboardPaperModel
       if tool?
         @currentShapes.push tool.draw.apply(tool, data)
       else
-        console.log "shape not recognized at drawListOfShapes", shape
+        ;#console.log "shape not recognized at drawListOfShapes", shape
 
     # make sure the cursor is still on top
     @cursor.toFront()
@@ -358,7 +358,7 @@ class @WhiteboardPaperModel
       when "text"
         @currentText.update.apply(@currentText, data)
       else
-        console.log "shape not recognized at updateShape", shape
+        ;#console.log "shape not recognized at updateShape", shape
 
   # Make a shape `shape` with the data in `data`.
   makeShape: (shape, data) ->
@@ -386,7 +386,7 @@ class @WhiteboardPaperModel
         toolModel = @currentText
         tool = @currentText.make.apply(@currentText, data)
       else
-        console.log "shape not recognized at makeShape", shape
+        ;#console.log "shape not recognized at makeShape", shape
     if tool?
       @currentShapes ?= @raphaelObj.set()
       console.log "currentShapes:" + @currentShapes
