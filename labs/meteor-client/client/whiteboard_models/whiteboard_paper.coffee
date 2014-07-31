@@ -278,9 +278,9 @@ class @WhiteboardPaperModel
     @rebuild()
 
     # set to default zoom level
-    globals.connection.emitPaperUpdate 0, 0, 1, 1
+    #globals.connection.emitPaperUpdate 0, 0, 1, 1
     # get the shapes to reprocess
-    globals.connection.emitAllShapes()
+    #globals.connection.emitAllShapes()
 
   # Socket response - Update zoom variables and viewbox
   # @param {number} d the delta value from the scroll event
@@ -307,7 +307,7 @@ class @WhiteboardPaperModel
     zz = 1 - z
     x = (if x > zz then zz else x)
     y = (if y > zz then zz else y)
-    globals.connection.emitPaperUpdate x, y, z, z # send update to all clients
+    #globals.connection.emitPaperUpdate x, y, z, z # send update to all clients
 
   stopPanning: ->
     # nothing to do
@@ -331,7 +331,7 @@ class @WhiteboardPaperModel
   #Changes the currently displayed presentation (if any) with this one
   #@param {object} containing the "presentation" object -id,name,pages[]
   sharePresentation: (data) ->
-    globals.events.trigger("connection:all_slides", data.payload)
+    #globals.events.trigger("connection:all_slides", data.payload)
 
   # Clear all shapes from this paper.
   clearShapes: ->
@@ -477,135 +477,135 @@ class @WhiteboardPaperModel
 
   # Registers listeners for events in the gloval event bus
   _registerEvents: ->
-    globals.events.on "connection:all_slides", (data) =>
-      @removeAllImagesFromPaper()
-      ###
-      urls = data.slides
-      for url in urls
-        @addImageToPaper(url[0], url[1], url[2])
-        #alert "registerEvents url[0]=" + url[0]          
-      ###
+    # globals.events.on "connection:all_slides", (data) =>
+    #   @removeAllImagesFromPaper()
+    #   ###
+    #   urls = data.slides
+    #   for url in urls
+    #     @addImageToPaper(url[0], url[1], url[2])
+    #     #alert "registerEvents url[0]=" + url[0]          
+    #   ###
 
-      urls = data.presentation.pages
-      for url in urls
-        @addImageToPaper(url.png , 200, 200)
-        # alert "registerEvents url[0]=" + url[0]
-      globals.events.trigger("whiteboard:paper:all_slides", urls)
+    #   urls = data.presentation.pages
+    #   for url in urls
+    #     @addImageToPaper(url.png , 200, 200)
+    #     # alert "registerEvents url[0]=" + url[0]
+    #   globals.events.trigger("whiteboard:paper:all_slides", urls)
 
-    globals.events.on "connection:clrPaper", =>
-      @clearShapes()
+    # globals.events.on "connection:clrPaper", =>
+    #   @clearShapes()
 
-    globals.events.on "connection:allShapes", (allShapesEventObject) =>
-      # TODO: a hackish trick for making compatible the shapes from redis with the node.js
-      shapes = allShapesEventObject.shapes
-      for shape in shapes
-        properties = JSON.parse(shape.data)
-        if shape.shape is "path"
-          points = properties[0]
-          strPoints = ""
-          for i in [0..points.length] by 2
-            letter = ""
-            pA = points[i]
-            pB = points[i+1]
-            if i == 0
-              letter = "M"
-            else
-              letter = "L"
-            strPoints += letter + (pA/100) + "," + (pB/100)
-          properties[0] = strPoints
+    # globals.events.on "connection:allShapes", (allShapesEventObject) =>
+    #   # TODO: a hackish trick for making compatible the shapes from redis with the node.js
+    #   shapes = allShapesEventObject.shapes
+    #   for shape in shapes
+    #     properties = JSON.parse(shape.data)
+    #     if shape.shape is "path"
+    #       points = properties[0]
+    #       strPoints = ""
+    #       for i in [0..points.length] by 2
+    #         letter = ""
+    #         pA = points[i]
+    #         pB = points[i+1]
+    #         if i == 0
+    #           letter = "M"
+    #         else
+    #           letter = "L"
+    #         strPoints += letter + (pA/100) + "," + (pB/100)
+    #       properties[0] = strPoints
 
-          shape.data = JSON.stringify properties #TODO
+    #       shape.data = JSON.stringify properties #TODO
 
-      @clearShapes()
-      @drawListOfShapes shapes
+    #   @clearShapes()
+    #   @drawListOfShapes shapes
 
-    globals.events.on "connection:updShape", (shape, data) =>
-      @updateShape shape, data
+    # globals.events.on "connection:updShape", (shape, data) =>
+    #   @updateShape shape, data
 
-    globals.events.on "connection:whiteboard_draw_event", (shape, data) =>
-      @makeShape shape, data
+    # globals.events.on "connection:whiteboard_draw_event", (shape, data) =>
+    #   @makeShape shape, data
 
-    globals.events.on "connection:share_presentation_event", (data) =>
-      @sharePresentation data
+    # globals.events.on "connection:share_presentation_event", (data) =>
+    #   @sharePresentation data
 
-    globals.events.on "connection:whiteboardDrawPen", (startingData) =>
-      type = startingData.payload.shape_type
-      color = startingData.payload.data.line.color
-      thickness = startingData.payload.data.line.weight
-      points = startingData.shape.points
-      if type is "line"
-        for i in [0..points.length - 1]
-          if i is 0
-            #make these compatible with a line
-            console.log "points[i]: " + points[i]
-            lineObject = {
-              shape: {
-                type: "line",
-                coordinate: {
-                  firstX : points[i].x/100,
-                  firstY : points[i].y/100
-                },
-                color: startingData.payload.data.line.color,
-                thickness : startingData.payload.data.line.weight
-              }
-              adding : false #tell the line object that we are NOT adding points but creating a new line
-            }
-            console.log "lineObject: " + lineObject
-            @makeShape type, lineObject
-          else
-            console.log "points[i]: "+ points[i]
-            lineObject = {
-              shape: {
-                type: "line",
-                coordinate: {
-                  firstX : points[i].x/100,
-                  firstY : points[i].y/100
-                },
-                color: startingData.payload.data.line.color,
-                thickness : startingData.payload.data.line.weight
-              }
-              adding : true #tell the line object that we ARE adding points and NOT creating a new line
-            }
-            console.log "lineObject: " + lineObject
-            @updateShape type, lineObject 
+    # globals.events.on "connection:whiteboardDrawPen", (startingData) =>
+    #   type = startingData.payload.shape_type
+    #   color = startingData.payload.data.line.color
+    #   thickness = startingData.payload.data.line.weight
+    #   points = startingData.shape.points
+    #   if type is "line"
+    #     for i in [0..points.length - 1]
+    #       if i is 0
+    #         #make these compatible with a line
+    #         console.log "points[i]: " + points[i]
+    #         lineObject = {
+    #           shape: {
+    #             type: "line",
+    #             coordinate: {
+    #               firstX : points[i].x/100,
+    #               firstY : points[i].y/100
+    #             },
+    #             color: startingData.payload.data.line.color,
+    #             thickness : startingData.payload.data.line.weight
+    #           }
+    #           adding : false #tell the line object that we are NOT adding points but creating a new line
+    #         }
+    #         console.log "lineObject: " + lineObject
+    #         @makeShape type, lineObject
+    #       else
+    #         console.log "points[i]: "+ points[i]
+    #         lineObject = {
+    #           shape: {
+    #             type: "line",
+    #             coordinate: {
+    #               firstX : points[i].x/100,
+    #               firstY : points[i].y/100
+    #             },
+    #             color: startingData.payload.data.line.color,
+    #             thickness : startingData.payload.data.line.weight
+    #           }
+    #           adding : true #tell the line object that we ARE adding points and NOT creating a new line
+    #         }
+    #         console.log "lineObject: " + lineObject
+    #         @updateShape type, lineObject 
 
-    globals.events.on "connection:mvCur", (x, y) =>
-      @moveCursor(x, y)
-      #console.log "x: " + x + " y: " + y
+    # globals.events.on "connection:mvCur", (x, y) =>
+    #   @moveCursor(x, y)
+    #   #console.log "x: " + x + " y: " + y
 
-    globals.events.on "connection:move_and_zoom", (xOffset, yOffset, widthRatio, heightRatio) =>
-      @moveAndZoom(xOffset, yOffset, widthRatio, heightRatio)
+    # globals.events.on "connection:move_and_zoom", (xOffset, yOffset, widthRatio, heightRatio) =>
+    #   @moveAndZoom(xOffset, yOffset, widthRatio, heightRatio)
 
-    globals.events.on "connection:changeslide", (url) =>
-      @showImageFromPaper(url)
+    # globals.events.on "connection:changeslide", (url) =>
+    #   @showImageFromPaper(url)
 
-    globals.events.on "connection:viewBox", (xperc, yperc, wperc, hperc) =>
-      xperc = parseFloat(xperc, 10)
-      yperc = parseFloat(yperc, 10)
-      wperc = parseFloat(wperc, 10)
-      hperc = parseFloat(hperc, 10)
-      @updatePaperFromServer(xperc, yperc, wperc, hperc)
+    # globals.events.on "connection:viewBox", (xperc, yperc, wperc, hperc) =>
+    #   xperc = parseFloat(xperc, 10)
+    #   yperc = parseFloat(yperc, 10)
+    #   wperc = parseFloat(wperc, 10)
+    #   hperc = parseFloat(hperc, 10)
+    #   @updatePaperFromServer(xperc, yperc, wperc, hperc)
 
-    globals.events.on "connection:fitToPage", (value) =>
-      @setFitToPage(value)
+    # globals.events.on "connection:fitToPage", (value) =>
+    #   @setFitToPage(value)
 
-    globals.events.on "connection:zoom", (delta) =>
-      @setZoom(delta)
+    # globals.events.on "connection:zoom", (delta) =>
+    #   @setZoom(delta)
 
-    globals.events.on "connection:paper", (cx, cy, sw, sh) =>
-      @updatePaperFromServer(cx, cy, sw, sh)
+    # globals.events.on "connection:paper", (cx, cy, sw, sh) =>
+    #   @updatePaperFromServer(cx, cy, sw, sh)
 
-    globals.events.on "connection:panStop", =>
-      @stopPanning()
+    # globals.events.on "connection:panStop", =>
+    #   @stopPanning()
 
-    globals.events.on "connection:toolChanged", (tool) =>
-      @setCurrentTool(tool)
+    # globals.events.on "connection:toolChanged", (tool) =>
+    #   @setCurrentTool(tool)
 
-    globals.events.on "connection:textDone", =>
-      @textDone()
+    # globals.events.on "connection:textDone", =>
+    #   @textDone()
 
-    globals.events.on "connection:uploadStatus", (message, fade) =>
-      globals.events.trigger("whiteboard:paper:uploadStatus", message, fade)
+    # globals.events.on "connection:uploadStatus", (message, fade) =>
+    #   globals.events.trigger("whiteboard:paper:uploadStatus", message, fade)
 
 
   # Update the dimensions of the container.
@@ -638,7 +638,7 @@ class @WhiteboardPaperModel
   # @param  {Event} e the event that occurs when scrolling
   # @param  {number} delta the speed/direction at which the scroll occurred
   _zoomSlide: (e, delta) ->
-    globals.connection.emitZoom delta
+    #globals.connection.emitZoom delta
 
   # Called when the cursor is moved over the presentation.
   # Sends cursor moving event to server.
@@ -650,7 +650,7 @@ class @WhiteboardPaperModel
     [sw, sh] = @_currentSlideDimensions()
     xLocal = (e.pageX - @containerOffsetLeft) / sw
     yLocal = (e.pageY - @containerOffsetTop) / sh
-    globals.connection.emitMoveCursor xLocal, yLocal
+    #globals.connection.emitMoveCursor xLocal, yLocal
 
   # When the user is dragging the cursor (click + move)
   # @param  {number} dx the difference between the x value from panGo and now
@@ -681,7 +681,7 @@ class @WhiteboardPaperModel
       y2 = @containerHeight + y
     # cannot pan below the height
     y = (if y2 > sh then sh - (@containerHeight - sy * 2) else y)
-    globals.connection.emitPaperUpdate x / sw, y / sh, null, null
+    #globals.connection.emitPaperUpdate x / sw, y / sh, null, null
 
   # When panning starts
   # @param  {number} x the x value of the cursor
@@ -814,7 +814,8 @@ class @WhiteboardPaperModel
     if url?.match(/http[s]?:/)
       url
     else
-      globals.presentationServer + url
+      console.log "the url did not match the expected format"
+      #globals.presentationServer + url
 
   #Changes the currently displayed page/slide (if any) with this one
   #@param {data} message object containing the "presentation" object

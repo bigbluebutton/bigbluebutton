@@ -4,8 +4,11 @@ Template.whiteboard.png = ->
   currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
   console.log "the current slide is:" + currentSlide?.slide?.id
   if currentSlide?.slide?.png_uri?
-    whiteboardPaperModel.create() #TODO maybe move this to main.coffee
-    whiteboardPaperModel._displayPage(currentSlide?.slide?.png_uri)
+    Template.whiteboard.displaySlide((slide) ->
+      console.log "THIS SLIDE IS DISPLAYED:"# + JSON.stringify slide
+      Template.whiteboard.displayShapeOnSlide();
+      )
+    
 
 Template.whiteboard.helpers
   displayShapeOnSlide: ->
@@ -26,3 +29,13 @@ Template.whiteboard.helpers
 
       whiteboardPaperModel.makeShape(shapeType, data)
       whiteboardPaperModel.updateShape(shapeType, data)
+
+  displaySlide: (callback) ->
+    currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+    presentationId = currentPresentation?.presentation?.id
+    currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+
+    console.log "HOHOOO" + currentSlide?.slide?.png_uri
+    whiteboardPaperModel.create() #TODO maybe move this to main.coffee
+    whiteboardPaperModel._displayPage(currentSlide?.slide?.png_uri)
+    callback(currentSlide?.slide)
