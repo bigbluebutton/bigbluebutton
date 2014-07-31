@@ -203,21 +203,20 @@ trait UsersApp {
 	      if (ru.role == Role.MODERATOR) {
 		      assignNewPresenter(msg.userID, ru.name, msg.userID)
 	      }	  
-	    }      
+	    }   
+      webUserJoined
     }
   }
 			
   def handleUserLeft(msg: UserLeaving):Unit = {
 	 if (users.hasUser(msg.userID)) {
 	  val user = users.removeUser(msg.userID)
-	  user foreach (u => outGW.send(new UserLeft(msg.meetingID, recorded, u)))
+	  user foreach (u => outGW.send(new UserLeft(msg.meetingID, recorded, u)))  
 	  
+    startCheckingIfWeNeedToEndVoiceConf()
 	 }
-   else{
-
-   }
   }
-
+  
   def handleVoiceUserJoined(msg: VoiceUserJoined) = {
       val user = users.getUser(msg.voiceUser.webUserId) match {
         case Some(user) => {

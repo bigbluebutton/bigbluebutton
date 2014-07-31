@@ -150,6 +150,13 @@ case class PresenterAssigned(
   version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
+case class EjectAllVoiceUsers(
+    meetingID: String, 
+    recorded: Boolean,
+    voiceBridge:String,
+  version:String = Versions.V_0_0_1
+) extends IOutMessage
+
 case class EndAndKickAll(
     meetingID: String, 
     recorded: Boolean,
