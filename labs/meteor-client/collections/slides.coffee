@@ -1,6 +1,6 @@
 Meteor.methods
   addSlideToCollection: (meetingId, presentationId, slideObject) ->
-    unless Meteor.Slides.findOne({meetingId: meetingId, presentationId: presentationId})?
+    unless Meteor.Slides.findOne({meetingId: meetingId, "slide.id": slideObject.id})?
       entry =
         meetingId: meetingId
         presentationId: presentationId
@@ -20,3 +20,21 @@ Meteor.methods
       id = Meteor.Slides.insert(entry)
       console.log "added slide id =[#{id}]:#{slideObject.id} in #{meetingId}. Now there are
        #{Meteor.Slides.find({meetingId: meetingId}).count()} slides in the meeting"
+
+  removeSlideFromCollection: (meetingId, slideId) ->
+    if meetingId? and slideId? and Meteor.Slides.findOne({meetingId: meetingId, "slide.id": slideId})?
+      id = Meteor.Slides.findOne({meetingId: meetingId, "slide.id": slideId})
+      if id?
+        Meteor.Slides.remove(id._id)
+        console.log "----removed slide[" + slideId + "] from " + meetingId
+
+  displayThisSlide: (meetingId, newSlideId, slideObject) ->
+    presentationId = newSlideId.split("/")[0] # grab the presentationId part of the slideId
+    # change current to false for the old slide
+    Meteor.Slides.update({presentationId: presentationId, "slide.current": true}, {$set: {"slide.current": false}})
+
+    # for the new slide: remove the version which came with presentation_shared_message from the Collection
+    # to avoid using old data (this message contains everything we need for the new slide)
+    Meteor.call("removeSlideFromCollection", meetingId, newSlideId)
+    # add the new slide to the collection
+    Meteor.call("addSlideToCollection", meetingId, presentationId, slideObject)

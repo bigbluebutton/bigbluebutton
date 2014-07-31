@@ -5,7 +5,11 @@
       "redis": {},
       "npm": {},
       "bootstrap-3": {},
-      "iron-router": {}
+      "iron-router": {},
+      "raphaeljs-package": {
+        "git": "https://github.com/tomconnors/raphaeljs-package.git",
+        "branch": "master"
+      }
     },
     "packages": {
       "redis": {
@@ -27,6 +31,11 @@
         "git": "https://github.com/EventedMind/iron-router.git",
         "tag": "v0.7.1",
         "commit": "d1ffb3f06ea4c112132b030f2eb1a70b81675ecb"
+      },
+      "raphaeljs-package": {
+        "git": "https://github.com/tomconnors/raphaeljs-package.git",
+        "branch": "master",
+        "commit": "85eaef3664ec063e4bcb81be1226d126d4d20539"
       },
       "blaze-layout": {
         "git": "https://github.com/EventedMind/blaze-layout.git",
