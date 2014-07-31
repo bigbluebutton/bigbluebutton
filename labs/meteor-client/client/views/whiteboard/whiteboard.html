@@ -1,13 +1,11 @@
 <template name="whiteboard">
-	<!-- <input type="button" class="drawShapes" value="slide!" />
-	<input type="button" class="drawShapes2" value="shapes!" /> -->
-
 	{{#if getInSession "display_whiteboard"}}
 	<p>The whiteboard</p>
 	{{/if}}
 	<div id="whiteboard-paper" style="position: fixed; top: 10%; left: 30%;">
 		<p>
 			{{png}}
+			{{displayShapeOnSlide}}
 		</p>
 	</div>
 </template>

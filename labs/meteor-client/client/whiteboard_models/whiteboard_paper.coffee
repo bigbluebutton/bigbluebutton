@@ -170,8 +170,8 @@ class @WhiteboardPaperModel
   removeAllImagesFromPaper: ->
     for url of @slides
       if @slides.hasOwnProperty(url)
-        @raphaelObj.getById(@slides[url].getId()).remove()
-        @trigger('paper:image:removed', @slides[url].getId())
+        @raphaelObj.getById(@slides[url]?.getId())?.remove()
+        @trigger('paper:image:removed', @slides[url].getId()) # TODO do we need this?
     @slides = {}
     @currentSlide = null
 
@@ -613,8 +613,8 @@ class @WhiteboardPaperModel
     $container = $('#' + @container)
     @containerWidth = $container.innerWidth()
     @containerHeight = $container.innerHeight()
-    @containerOffsetLeft = $container.offset().left
-    @containerOffsetTop = $container.offset().top
+    @containerOffsetLeft = $container.offset()?.left
+    @containerOffsetTop = $container.offset()?.top
 
 
   # Retrieves an image element from the paper.
