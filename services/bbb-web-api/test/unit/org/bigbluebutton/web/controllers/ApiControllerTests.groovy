@@ -12,7 +12,7 @@ import org.bigbluebutton.api.messaging.NullMessagingService;
 import org.bigbluebutton.api.messaging.MessagingService;
 
 class ApiControllerTests {//extends ControllerUnitTestCase {
-	final String API_VERSION = "0.7"
+	final String API_VERSION = "0.81"
 	final boolean SERVICE_ENABLED = true;
 	final String SALT = 'ab56fda9fc1c2bde2d65ff76134b47ad'
 	final int DEF_MAX_USERS = 20
