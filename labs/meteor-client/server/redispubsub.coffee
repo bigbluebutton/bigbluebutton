@@ -153,7 +153,7 @@ class Meteor.RedisPubSub
         Meteor.call("removeUserFromCollection", meetingId, userId)
 
     if message.header?.name is "get_chat_history_reply" and message.payload?.requester_id is "nodeJSapp"
-      unless Meteor.Meetings.findOne({MeetingId: message.payload?.meeting_id})?
+      unless Meteor.Meetings.findOne({MeetingId: message.payload?.meeting_id})? # TODO check if MeetingId or meetingId!!
         for chatMessage in message.payload?.chat_history
           Meteor.call("addChatToCollection", meetingId, chatMessage)
 
@@ -168,16 +168,28 @@ class Meteor.RedisPubSub
       @invokeGetAllMeetingsRequest()
 
     if message.header?.name is "presentation_shared_message"
+      presentationId = message.payload?.presentation?.id
+      # change the currently displayed presentation to presentation.current = false
+      Meteor.Presentations.update({"presentation.current": true},{$set: {"presentation.current": false}})
+
+      #update(if already present) entirely the presentation with the fresh data
+      Meteor.call("removePresentationFromCollection", meetingId, presentationId)
+      Meteor.call("addPresentationToCollection", meetingId, message.payload?.presentation)
+
       for slide in message.payload?.presentation?.pages
-        Meteor.call("addSlideToCollection", meetingId, slide.id, slide)
+        Meteor.call("addSlideToCollection", meetingId, message.payload?.presentation?.id, slide)
+        if slide.current
+          Meteor.call("displayThisSlide", meetingId, slide.id, slide)
 
     if message.header?.name is "get_presentation_info_reply" and message.payload?.requester_id is "nodeJSapp"
-      # to do: grab the whiteboard shapes using the whiteboard_id we have here
+      # todo: grab the whiteboard shapes using the whiteboard_id we have here
 
       for presentation in message.payload?.presentations
+        Meteor.call("addPresentationToCollection", meetingId, presentation)
+
         for page in presentation.pages
           #add the slide to the collection
-          Meteor.call("addSlideToCollection", meetingId, page.id, page)
+          Meteor.call("addSlideToCollection", meetingId, presentation.id, page)
 
           #request for shapes
           whiteboardId = "#{presentation.id}/#{page.num}" # d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1404411622872/1
@@ -197,6 +209,10 @@ class Meteor.RedisPubSub
             @pubClient.publish(Meteor.config.redis.channels.toBBBApps.whiteboard, JSON.stringify(message))
           else
             console.log "did not have enough information to send a user_leaving_request"
+
+    if message.header?.name is "presentation_page_changed_message"
+      newSlide = message.payload?.page
+      Meteor.call("displayThisSlide", meetingId, newSlide?.id, newSlide)
 
     if message.header?.name is "get_whiteboard_shapes_reply" and message.payload?.requester_id is "nodeJSapp"
       for shape in message.payload.shapes

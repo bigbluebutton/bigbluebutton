@@ -22,3 +22,4 @@ Meteor.methods
 
       id = Meteor.Shapes.insert(entry)
       console.log "added shape id =[#{id}]:#{shapeObject.id} in #{meetingId}"
+
