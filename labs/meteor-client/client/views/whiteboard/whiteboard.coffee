@@ -9,7 +9,6 @@ Template.whiteboard.png = ->
       Template.whiteboard.displayShapeOnSlide();
       )
     
-
 Template.whiteboard.helpers
   displayShapeOnSlide: ->
     currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
@@ -39,7 +38,6 @@ Template.whiteboard.helpers
     presentationId = currentPresentation?.presentation?.id
     currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
 
-    console.log "HOHOOO" + currentSlide?.slide?.png_uri
     whiteboardPaperModel.create() #TODO maybe move this to main.coffee
     whiteboardPaperModel._displayPage(currentSlide?.slide?.png_uri)
     callback(currentSlide?.slide)
