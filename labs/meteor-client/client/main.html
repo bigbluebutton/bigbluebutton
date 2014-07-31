@@ -13,6 +13,7 @@
       </div>
    </body>
    {{doFinalStuff}}
+
    <audio id="remote-media" autoplay="autoplay" ></audio>
 </template>
 
@@ -21,59 +22,59 @@
       <div class="navbar navbar-default navbar-static-top" role="navigation">
          {{#with getCurrentUser}}
             {{#if getInSession "display_usersList"}}
-               {{> makeButton id=userId btn_class="navbarIconToggleActive usersListIcon navbar-brand" i_class="user" _id=_id}}
+               {{> makeButton id=userId btn_class="navbarIconToggleActive usersListIcon navbar-brand" i_class="user" _id=_id rel="tooltip" data_placement="bottom" title="Hide List of Users"}}
             {{else}}
-               {{> makeButton id=userId btn_class="usersListIcon navbar-brand" i_class="user" _id=_id}}
+               {{> makeButton id=userId btn_class="usersListIcon navbar-brand" i_class="user" _id=_id rel="tooltip" data_placement="bottom" title="Show List of Users"}}
             {{/if}}
             
             {{#if getInSession "display_chatbar"}}
-               {{> makeButton id=userId btn_class="navbarIconToggleActive chatBarIcon navbar-brand" i_class="comment" _id=_id}}
+               {{> makeButton id=userId btn_class="navbarIconToggleActive chatBarIcon navbar-brand" i_class="comment" _id=_id rel="tooltip" data_placement="bottom" title="Hide Message Pane"}}
             {{else}}
-               {{> makeButton id=userId btn_class="chatBarIcon navbar-brand" i_class="comment" _id=_id}}
+               {{> makeButton id=userId btn_class="chatBarIcon navbar-brand" i_class="comment" _id=_id rel="tooltip" data_placement="bottom" title="Show Message Pane"}}
             {{/if}}
 
             {{#if isUserSharingVideo user}}
-               {{> makeButton id=userId btn_class="navbarIconToggleActive videoFeedIcon navbar-brand" i_class="facetime-video" sharingVideo=true _id=_id}}
+               {{> makeButton id=userId btn_class="navbarIconToggleActive videoFeedIcon navbar-brand" i_class="stop" sharingVideo=true _id=_id rel="tooltip" data_placement="bottom" title="Hide Webcams"}}
             {{else}}
-               {{> makeButton id=userId btn_class="videoFeedIcon navbar-brand" i_class="stop" sharingVideo=false _id=_id}}
+               {{> makeButton id=userId btn_class="videoFeedIcon navbar-brand" i_class="facetime-video" sharingVideo=false _id=_id rel="tooltip" data_placement="bottom" title="Show Webcams"}}
             {{/if}}
 
             <!-- Join/hang up audio call -->
             {{#if isUserSharingAudio user}}
-               {{> makeButton id=userId btn_class="navbarIconToggleActive audioFeedIcon navbar-brand" i_class="headphones" sharingAudio=true _id=_id}}
+               {{> makeButton id=userId btn_class="navbarIconToggleActive audioFeedIcon navbar-brand" i_class="volume-off" sharingAudio=true _id=_id rel="tooltip" data_placement="bottom" title="Leave Audio Call"}}
             {{else}}
-               {{> makeButton id=userId btn_class="audioFeedIcon navbar-brand" i_class="volume-off" sharingAudio=false _id=_id}}
+               {{> makeButton id=userId btn_class="audioFeedIcon navbar-brand" i_class="headphones" sharingAudio=false _id=_id rel="tooltip" data_placement="bottom" title="Join Audio Call"}}
             {{/if}}
 
             <!-- Mute/unmute user -->
             {{#if isUserSharingAudio user}}
             <!-- Should use much more noticeable icons than just bootstraps volume-up & volume-down to differentiate talking but it is good for now -->
                {{#if isUserTalking user}}
-                  {{> makeButton id=userId btn_class="navbarIconToggleActive muteIcon navbar-brand" i_class="volume-up" sharingAudio=true _id=_id}}
+                  {{> makeButton id=userId btn_class="navbarIconToggleActive muteIcon navbar-brand" i_class="volume-up" sharingAudio=true _id=_id rel="tooltip" data_placement="bottom" title="Mute"}}
                {{else}}
-                  {{> makeButton id=userId btn_class="navbarIconToggleActive muteIcon navbar-brand" i_class="volume-down" sharingAudio=true _id=_id}}
+                  {{> makeButton id=userId btn_class="navbarIconToggleActive muteIcon navbar-brand" i_class="volume-down" sharingAudio=true _id=_id rel="tooltip" data_placement="bottom" title="Unmute"}}
                {{/if}}
             {{/if}}
 
             {{#if user.raise_hand}}
-               {{> makeButton id=userId btn_class="navbarIconToggleActive navbar-brand" i_class="hand-up" isDisabled="disabled"}}
+               {{> makeButton id=userId btn_class="navbarIconToggleActive navbar-brand" i_class="hand-up" isDisabled="disabled" rel="tooltip" data_placement="bottom" title="Your hand is raised"}}
             {{else}}
-               {{> makeButton id=userId btn_class="raiseHand navbar-brand" i_class="hand-up"}}
+               {{> makeButton id=userId btn_class="raiseHand navbar-brand" i_class="hand-up" rel="tooltip" data_placement="bottom" title="Raise your hand"}}
             {{/if}}
 
-            {{> makeButton id="" btn_class="hideNavbarIcon pull-right navbar-brand" i_class="chevron-up"}}
-            {{> makeButton id="userId" btn_class="signOutIcon pull-right navbar-brand" i_class="log-out"}}
-            {{> makeButton id="userId" btn_class="settingsIcon pull-right navbar-brand" i_class="cog"}}
+            {{> makeButton id="" btn_class="hideNavbarIcon pull-right navbar-brand" i_class="chevron-up" rel="tooltip" data_placement="bottom" title="Hide Navbar"}}
+            {{> makeButton id="userId" btn_class="signOutIcon pull-right navbar-brand" i_class="log-out" rel="tooltip" data_placement="bottom" title="Logout"}}
+            {{> makeButton id="userId" btn_class="settingsIcon pull-right navbar-brand" i_class="cog" rel="tooltip" data_placement="bottom" title="Settings"}}
          {{/with}}
       </div>
    {{else}}
       <!-- User wants to hide navbar. The button for bringing the navbar back needs to still be available. Perhaps it should appear/disappear in the future on hover? Something to add later. -->
-      {{> makeButton id="" btn_class="hideNavbarIcon pull-right navbar-brand" i_class="chevron-down"}}
+      {{> makeButton id="" btn_class="hideNavbarIcon pull-right navbar-brand" i_class="chevron-down" rel="tooltip" data_placement="bottom" title="Display Navbar"}}
    {{/if}}
 </template>
 
 <template name="makeButton">
-   <button type="submit" id="{{id}}" class="{{btn_class}} btn" {{isDisabled}}>
+   <button type="submit" id="{{id}}" class="{{btn_class}} btn" {{isDisabled}} rel="{{rel}}" data-placement="{{data_placement}}" title="{{title}}">
       <i class="glyphicon glyphicon-{{i_class}}"></i>
    </button>
 </template>

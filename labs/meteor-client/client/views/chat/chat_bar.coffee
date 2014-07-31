@@ -48,32 +48,41 @@ Template.tabButtons.events
     myTabs.updateValue newTabs
     $(".publicChatTab").addClass('active') # doesn't work when closing the tab that's not currently active :(
     Meteor.call("deletePrivateChatMessages", getInSession("userId"), @userId)
-    
+
+Template.chatInput.rendered  = ->
+   $('input[rel=tooltip]').tooltip()
+   $('button[rel=tooltip]').tooltip()
+
+@sendMessage = ->
+  message = $('#newMessageInput').val() # get the message from the input box
+  unless (message?.length > 0 and (/\S/.test(message))) # check the message has content and it is not whitespace
+    return # do nothing if invalid message
+
+  chattingWith = getInSession('inChatWith')
+
+  messageForServer = { # construct message for server
+    "message": message
+    "chat_type": if chattingWith is "PUBLIC_CHAT" then "PUBLIC_CHAT" else "PRIVATE_CHAT"
+    "from_userid": getInSession("userId")
+    "from_username": getUsersName()
+    "from_tz_offset": "240"
+    "to_username": if chattingWith is "PUBLIC_CHAT" then "public_chat_username" else chattingWith
+    "to_userid": if chattingWith is "PUBLIC_CHAT" then "public_chat_userid" else chattingWith
+    "from_lang": "en"
+    "from_time": getTime()
+    "from_color": "0"
+  }
+  # console.log 'Sending message to server:'
+  # console.log messageForServer
+  Meteor.call "sendChatMessagetoServer", getInSession("meetingId"), messageForServer
+  $('#newMessageInput').val '' # Clear message box
+
 Template.chatInput.events
+  'click #sendMessageButton': (event) ->
+    sendMessage()
   'keypress #newMessageInput': (event) -> # user pressed a button inside the chatbox
     if event.which is 13 # Check for pressing enter to submit message
-      message = $('#newMessageInput').val() # get the message from the input box
-      unless (message?.length > 0 and (/\S/.test(message))) # check the message has content and it is not whitespace
-        return # do nothing if invalid message
-
-      chattingWith = getInSession('inChatWith')
-
-      messageForServer = { # construct message for server
-        "message": message
-        "chat_type": if chattingWith is "PUBLIC_CHAT" then "PUBLIC_CHAT" else "PRIVATE_CHAT"
-        "from_userid": getInSession("userId")
-        "from_username": getUsersName()
-        "from_tz_offset": "240"
-        "to_username": if chattingWith is "PUBLIC_CHAT" then "public_chat_username" else chattingWith
-        "to_userid": if chattingWith is "PUBLIC_CHAT" then "public_chat_userid" else chattingWith
-        "from_lang": "en"
-        "from_time": getTime()
-        "from_color": "0"
-      }
-      # console.log 'Sending message to server:'
-      # console.log messageForServer
-      Meteor.call "sendChatMessagetoServer", getInSession("meetingId"), messageForServer
-      $('#newMessageInput').val '' # Clear message box
+      sendMessage()
 
 Template.optionsBar.events
   'click .private-chat-user-entry': (event) -> # clicked a user's name to begin private chat
