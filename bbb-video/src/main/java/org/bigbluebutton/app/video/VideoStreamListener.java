@@ -48,9 +48,15 @@ import org.red5.server.net.rtmp.event.VideoData;
 public class VideoStreamListener implements IStreamListener {
 	private EventRecordingService recordingService;
 	private volatile boolean firstPacketReceived = false;
+	private String roomId;
 	
   private Long genTimestamp() {
   	return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
+  }
+  
+  public VideoStreamListener(String roomId)
+  {
+	  this.roomId = roomId;
   }
   
 	@Override
@@ -69,12 +75,11 @@ public class VideoStreamListener implements IStreamListener {
 	    		  IConnection conn = Red5.getConnectionLocal(); 
 	    		  Map<String, String> event = new HashMap<String, String>();
 	    		  event.put("module", "WEBCAM");
-	    		  event.put("timestamp", genTimestamp().toString());
-	    		  event.put("meetingId", conn.getScope().getName());
-	    		  event.put("stream", stream.getPublishedName());
-	    		  event.put("eventName", "StartWebcamShareEvent");
-	    			
-	    		  recordingService.record(conn.getScope().getName(), event);
+	    		  event.put("timestamp", genTimestamp().toString());		  
+	      		  event.put("meetingId", roomId);
+	      		  event.put("stream", stream.getPublishedName());
+	    		  event.put("eventName", "StartWebcamShareEvent");	
+	    		  recordingService.record(roomId, event);
 	    	  }
 	      } 
 	}

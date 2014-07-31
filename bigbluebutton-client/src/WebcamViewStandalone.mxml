@@ -122,7 +122,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function getVideoResolution(stream:String):void {
-        var pattern:RegExp = new RegExp("(\\d+x\\d+)-([A-Za-z0-9]+)-\\d+", "");
+        var pattern:RegExp = new RegExp("(\\d+x\\d+)-([A-Za-z0-9]+)-([a-z0-9]+-\\d+)-\\d+", "");
         if (pattern.test(stream)) {
           trace("WebcamViewSA:: The stream name is well formatted [" + stream + "]");
           trace("WebcamViewSA:: Stream resolution is [" + pattern.exec(stream)[1] + "] Userid [" + pattern.exec(stream)[2] + "]");
