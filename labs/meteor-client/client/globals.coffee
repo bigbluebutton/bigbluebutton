@@ -95,3 +95,10 @@ Handlebars.registerHelper "getUsersInMeeting", ->
 
 @getTime = -> # returns epoch in ms
   (new Date).valueOf()
+
+# transform plain text links into HTML tags compatible with Flash client
+@linkify = (str) ->
+  www = /(^|[^\/])(www\.[\S]+($|\b))/img
+  http = /\b(https?:\/\/[0-9a-z+|.,:;\/&?_~%#=@!-]*[0-9a-z+|\/&_~%#=@-])/img
+  str = str.replace http, "<a href='event:$1'><u>$1</u></a>"
+  str = str.replace www, "$1<a href='event:http://$2'><u>$2</u></a>"

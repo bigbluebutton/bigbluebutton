@@ -17,14 +17,14 @@
 	{{/if}}
 </template>
 
-<!-- Displays and styles an individual message in the chat -->
 <template name="message">
-	<div class="chat-message">	
-		<span class="chat-username">{{message.from_username}}</span>
-		<p class="chat-timestamp">{{toClockTime message.from_time}}</p>
-		<p>&nbsp;&nbsp;&nbsp;&nbsp;{{message.message}}</p>
-		<br/>
-	</div>
+        <div class="chat-message">
+                <span class="chat-username">{{message.from_username}}</span>
+                <p class="chat-timestamp">{{toClockTime message.from_time}}</p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;{{{toClickable message.message}}}
+                </p>
+                <br/>
+        </div>
 </template>
 
 <!-- Display the actual message bar -->

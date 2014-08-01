@@ -53,7 +53,7 @@ Template.chatInput.events
       chattingWith = Session.get 'inChatWith'
 
       messageForServer = { # construct message for server
-        "message": $("#newMessageInput").val()
+        "message": linkify $("#newMessageInput").val()
         "chat_type": if chattingWith is "PUBLIC_CHAT" then "PUBLIC_CHAT" else "PRIVATE_CHAT"
         "from_userid": Session.get "userId"
         "from_username": getUsersName()
@@ -132,3 +132,7 @@ Template.message.helpers
       minutes = "0" + minutes
     hours + ":" + minutes
 
+  # make links received from Flash client clickable in HTML
+  toClickable: (str) ->
+    res = str.replace /<a href='event:/gim, "<a target='_blank' href='"
+    res.replace /<a href="event:/gim, '<a target="_blank" href="'
