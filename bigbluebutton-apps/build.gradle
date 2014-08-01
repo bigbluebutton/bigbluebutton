@@ -53,7 +53,8 @@ repositories {
       m2compatible = true
       addArtifactPattern "http://repository.springsource.com/maven/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
       addArtifactPattern "http://repository.springsource.com/maven/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
-    }        
+    }
+    flatDir name: 'fileRepo', dirs: "/home/firstuser/dev/repo"
   }
 }
 
