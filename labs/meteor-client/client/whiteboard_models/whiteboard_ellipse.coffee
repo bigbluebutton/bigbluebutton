@@ -17,16 +17,17 @@ class @WhiteboardEllipseModel extends WhiteboardToolModel
     # @param    {string} colour        the colour of the object
     # @param    {number} thickness the thickness of the object's line(s)
     make: (info) ->
-        x = info.payload.data.coordinate.first_x
-        y = info.payload.data.coordinate.first_y
-        color = info.payload.data.line.color
-        thickness = info.payload.data.line.weight
+        if info?.payload?.data?.coordinate?
+            x = info.payload.data.coordinate.first_x
+            y = info.payload.data.coordinate.first_y
+            color = info.payload.data.line.color
+            thickness = info.payload.data.line.weight
 
-        @obj = @paper.ellipse(x * @gw + @xOffset, y * @gh + @yOffset, 0, 0)
-        @obj.attr Utils.strokeAndThickness(color, thickness)
-        @definition =
-            shape: "ellipse"
-            data: [x, y, y, x, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]
+            @obj = @paper.ellipse(x * @gw + @xOffset, y * @gh + @yOffset, 0, 0)
+            @obj.attr Utils.strokeAndThickness(color, thickness)
+            @definition =
+                shape: "ellipse"
+                data: [x, y, y, x, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]
         @obj
 
     # Update ellipse drawn

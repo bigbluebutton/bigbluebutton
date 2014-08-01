@@ -14,20 +14,20 @@ class @WhiteboardTriangleModel extends WhiteboardToolModel
   # @param  {string} colour    the colour of the object
   # @param  {number} thickness the thickness of the object's line(s)
   make: (info) ->
+    if info?.payload?.data?.coordinate?
+      x = info.payload.data.coordinate.first_x
+      y = info.payload.data.coordinate.first_y
+      color = info.payload.data.line.color
+      thickness = info.payload.data.line.weight
 
-    x = info.payload.data.coordinate.first_x
-    y = info.payload.data.coordinate.first_y
-    color = info.payload.data.line.color
-    thickness = info.payload.data.line.weight
+      path = @_buildPath(x, y, x, y, x, y)
+      @obj = @paper.path(path)
+      @obj.attr Utils.strokeAndThickness(color, thickness)
+      @obj.attr({"stroke-linejoin": "round"})
 
-    path = @_buildPath(x, y, x, y, x, y)
-    @obj = @paper.path(path)
-    @obj.attr Utils.strokeAndThickness(color, thickness)
-    @obj.attr({"stroke-linejoin": "round"})
-
-    @definition =
-      shape: "triangle"
-      data: [x, y, x, y, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]
+      @definition =
+        shape: "triangle"
+        data: [x, y, x, y, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]
 
     @obj
 
@@ -37,24 +37,24 @@ class @WhiteboardTriangleModel extends WhiteboardToolModel
   # @param  {number} x2 the x value of the bottom right corner
   # @param  {number} y2 the y value of the bottom right corner
   update: (info) ->
+    if info?.payload?.data?.coordinate?
+      x1 = info.payload.data.coordinate.first_x
+      y1 = info.payload.data.coordinate.first_y
+      x2 = info.payload.data.coordinate.last_x
+      y2 = info.payload.data.coordinate.last_y
 
-    x1 = info.payload.data.coordinate.first_x
-    y1 = info.payload.data.coordinate.first_y
-    x2 = info.payload.data.coordinate.last_x
-    y2 = info.payload.data.coordinate.last_y
+      if @obj?
+        [xTop, yTop, xBottomLeft, yBottomLeft, xBottomRight, yBottomRight] = @_getCornersFromPoints(x1, y1, x2, y2)
 
-    if @obj?
-      [xTop, yTop, xBottomLeft, yBottomLeft, xBottomRight, yBottomRight] = @_getCornersFromPoints(x1, y1, x2, y2)
+        path = @_buildPath(xTop * @gw + @xOffset, yTop * @gh + @yOffset,
+                           xBottomLeft * @gw + @xOffset, yBottomLeft * @gh + @yOffset,
+                           xBottomRight * @gw + @xOffset, yBottomRight * @gh + @yOffset)
+        @obj.attr path: path
 
-      path = @_buildPath(xTop * @gw + @xOffset, yTop * @gh + @yOffset,
-                         xBottomLeft * @gw + @xOffset, yBottomLeft * @gh + @yOffset,
-                         xBottomRight * @gw + @xOffset, yBottomRight * @gh + @yOffset)
-      @obj.attr path: path
-
-      @definition.data[0] = x1
-      @definition.data[1] = y1
-      @definition.data[2] = x2
-      @definition.data[3] = y2
+        @definition.data[0] = x1
+        @definition.data[1] = y1
+        @definition.data[2] = x2
+        @definition.data[3] = y2
 
   # Draw a triangle on the whiteboard
   # @param  {number} x1 the x value of the top left corner
