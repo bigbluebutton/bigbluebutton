@@ -33,9 +33,9 @@ class @WhiteboardPaperModel
     @shiftPressed = false
     @currentPathCount = 0
 
-    $(window).on "resize.whiteboard_paper", _.bind(@_onWindowResize, @)
-    $(document).on "keydown.whiteboard_paper", _.bind(@_onKeyDown, @)
-    $(document).on "keyup.whiteboard_paper", _.bind(@_onKeyUp, @)
+    # $(window).on "resize.whiteboard_paper", _.bind(@_onWindowResize, @)
+    # $(document).on "keydown.whiteboard_paper", _.bind(@_onKeyDown, @)
+    # $(document).on "keyup.whiteboard_paper", _.bind(@_onKeyUp, @)
 
     # Bind to the event triggered when the client connects to the server
     # if globals.connection.isConnected()

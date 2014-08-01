@@ -28,8 +28,6 @@ Meteor.startup ->
 		{isActive:false, name:"Options", class: "optionsChatTab"}
 	]
 
-	@whiteboardPaperModel = new WhiteboardPaperModel('whiteboard-paper')
-
 Template.header.events
 	"click .usersListIcon": (event) ->
 		toggleUsersList()

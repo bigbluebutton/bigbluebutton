@@ -1,16 +1,26 @@
-Template.whiteboard.png = ->
+Template.whiteboard.rendered = ->
+  alert "rendered - dom is ready"
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
   presentationId = currentPresentation?.presentation?.id
   currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
   console.log "the current slide is:" + currentSlide?.slide?.id
   if currentSlide?.slide?.png_uri?
-    Template.whiteboard.displaySlide((slide) ->
-      console.log "THIS SLIDE IS DISPLAYED:"# + JSON.stringify slide
-      Template.whiteboard.displayShapeOnSlide();
-      )
-    
+
+    Template.whiteboard.createWhiteboardPaper((wpm)->
+      Template.whiteboard.displaySlide(wpm, (currentSlide)->
+        console.log "wpm=" + wpm
+        Template.whiteboard.displayShapeOnSlide()
+        ))
+
 Template.whiteboard.helpers
+  createWhiteboardPaper: (callback) ->
+    console.log "this should happen 1st" + document.getElementById('whiteboard-paper')
+    console.log "whiteboardPaperModel already exists" if whiteboardPaperModel?
+    whiteboardPaperModel = new WhiteboardPaperModel('whiteboard-paper')
+    callback(whiteboardPaperModel)
+
   displayShapeOnSlide: ->
+    console.log "this should happen third"
     currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
     presentationId = currentPresentation?.presentation?.id
     currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
@@ -30,14 +40,16 @@ Template.whiteboard.helpers
       console.log "shapeType=" + shapeType
       console.log "data=" + JSON.stringify data
 
-      whiteboardPaperModel.makeShape(shapeType, data)
-      whiteboardPaperModel.updateShape(shapeType, data)
+      #whiteboardPaperModel.makeShape(shapeType, data)
+      #whiteboardPaperModel.updateShape(shapeType, data)
 
-  displaySlide: (callback) ->
+  displaySlide: (wpm, callback) ->
+    console.log "this should happen second!"
+    console.log "wpm2=" + wpm
     currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
     presentationId = currentPresentation?.presentation?.id
     currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
 
-    whiteboardPaperModel.create() #TODO maybe move this to main.coffee
-    whiteboardPaperModel._displayPage(currentSlide?.slide?.png_uri)
+    wpm.create() #TODO maybe move this to main.coffee
+    wpm._displayPage(currentSlide?.slide?.png_uri)
     callback(currentSlide?.slide)
