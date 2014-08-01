@@ -16,7 +16,7 @@ Meteor.startup ->
 	SessionAmplify.set "display_usersList", true
 	SessionAmplify.set "display_navbar", true
 	SessionAmplify.set "display_chatbar", true 
-	SessionAmplify.set "display_whiteboard", false
+	SessionAmplify.set "display_whiteboard", true
 	SessionAmplify.set "display_chatPane", true
 	SessionAmplify.set 'inChatWith', "PUBLIC_CHAT"
 	SessionAmplify.set "joinedAt", getTime()
@@ -49,6 +49,8 @@ Template.header.events
 		alert "settings"
 	"click .raiseHand": (event) -> 
 		Meteor.call('userRaiseHand', @id)
+	"click .whiteboardIcon": (event) ->
+		toggleWhiteBoard()
 
 Template.makeButton.rendered = ->
    $('button[rel=tooltip]').tooltip()

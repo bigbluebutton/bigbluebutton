@@ -345,7 +345,7 @@ class @WhiteboardPaperModel
   # Updated a shape `shape` with the data in `data`.
   # TODO: check if the objects exist before calling update, if they don't they should be created
   updateShape: (shape, data) ->
-    alert "updating a " + shape
+    # alert "updating a " + shape
     switch shape
       when "line"
         @currentLine.update(data)
@@ -362,7 +362,7 @@ class @WhiteboardPaperModel
 
   # Make a shape `shape` with the data in `data`.
   makeShape: (shape, data) ->
-    alert "making a " + shape
+    # alert "making a " + shape
     tool = null
     switch shape
       when "path", "line"

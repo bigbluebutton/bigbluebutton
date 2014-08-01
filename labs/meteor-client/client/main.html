@@ -56,6 +56,13 @@
                {{/if}}
             {{/if}}
 
+            <!-- whiteboard toggle -->
+            {{#if getInSession "display_whiteboard"}}
+               {{> makeButton btn_class="navbarIconToggleActive whiteboardIcon navbar-brand" i_class="pencil" _id=_id rel="tooltip" data_placement="bottom" title="Hide Whiteboard"}}
+            {{else}}
+               {{> makeButton id=userId btn_class="whiteboardIcon navbar-brand" i_class="pencil" _id=_id rel="tooltip" data_placement="bottom" title="Show Whiteboard"}}
+            {{/if}}
+
             {{#if user.raise_hand}}
                {{> makeButton id=userId btn_class="navbarIconToggleActive navbar-brand" i_class="hand-up" isDisabled="disabled" rel="tooltip" data_placement="bottom" title="Your hand is raised"}}
             {{else}}
