@@ -126,6 +126,12 @@ package org.bigbluebutton.modules.sharednotes.managers
 		public function patchDocument(userid:String, patch:String, beginIndex:Number, endIndex:Number):void {
 			var nc:NetConnection = _connection;
 			nc.call("sharedNotes.patchDocument", null, userid, patch, beginIndex, endIndex);
+		}		
+
+		public function addNote():void {
+			var nc:NetConnection = _connection;
+			nc.call("sharedNotes.addNote", null);
+			LogUtil.debug("AddNote request sent.");
 		}
 
 		public function remoteModificationsCallBack(userid:String, patches:String, beginIndex:Number, endIndex:Number):void {
@@ -136,6 +142,18 @@ package org.bigbluebutton.modules.sharednotes.managers
 				receivePatchEvent.endIndex = endIndex;
 				_dispatcher.dispatchEvent(receivePatchEvent);
 			}
+		}
+		public function initClientDocumentCallBack(noteId:Number, userid:String, document:String):void {
+			//if(UserManager.getInstance().getConference().getMyUserId() == userid) {
+				LogUtil.debug("InitCallBack received.");
+/*
+				var receivePatchEvent:ReceivePatchEvent = new ReceivePatchEvent();
+				receivePatchEvent.patch = patches;
+				receivePatchEvent.beginIndex = beginIndex;
+				receivePatchEvent.endIndex = endIndex;
+				_dispatcher.dispatchEvent(receivePatchEvent);
+*/
+			//}
 		}
 	}
 }

@@ -1,4 +1,5 @@
 /**
+		log.debug("AddNote request received.");
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 *
 * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
