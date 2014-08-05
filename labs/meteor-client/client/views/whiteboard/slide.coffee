@@ -40,9 +40,6 @@ Template.slide.helpers
       console.log "shapeType=" + shapeType
       console.log "data=" + JSON.stringify data
 
-      #whiteboardPaperModel.makeShape(shapeType, data)
-      #whiteboardPaperModel.updateShape(shapeType, data)
-
   displaySlide: (wpm, callback) ->
     console.log "this should happen second!"
     console.log "wpm2=" + wpm
