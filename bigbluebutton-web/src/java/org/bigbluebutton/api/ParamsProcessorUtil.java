@@ -569,16 +569,16 @@ public class ParamsProcessorUtil {
 				encResult = value;
 				
 /*****
- * Seems like Grails 1.3.9 doesn't encode it automatically anymore. So comment this out.
- * We'll remove this later. richard (july 10, 2013)						
-				try {       
+ * Seems like Grails 2.3.6 decodes the string. So we need to re-encode it.
+ * We'll remove this later. richard (aug 5, 2014)						
+*/				try {       
 					// we need to re-encode the values because Grails unencoded it
 					// when it received the 'POST'ed data. Might not need to do in a GET request.
 					encResult = URLEncoder.encode(value, "UTF-8");  
 				} catch (UnsupportedEncodingException e) {       
 					encResult = value;     
 				} 					
-*/
+
 				csbuf.append(encResult);
 			}
 		}
