@@ -47,6 +47,13 @@ Panel {
   color: #e1e2e5;
 }
 
+.recordingLabelStyle {
+  fontWeight: bold;
+  fontSize: 15;
+  fontFamily: Arial;
+  color: #e1e2e5;
+}
+
 Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowChangeResolutionCombo, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle {
   textIndent: 0;
   paddingLeft: 10;
