@@ -1,6 +1,6 @@
 <template name="whiteboard">
 	{{#if getInSession "display_whiteboard"}}
-		{{#each getCurrenctSlide}}
+		{{#each getCurrentSlide}}
 			{{> slide}}
 		{{/each}}
 		<div id="whiteboard-paper" style="position: fixed; top: 10%; left: 30%;">

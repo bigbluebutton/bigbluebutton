@@ -113,7 +113,7 @@ Handlebars.registerHelper "isUserSharingAudio", (u) ->
   if u? then u.voiceUser?.joined
   else return false
 
-Handlebars.registerHelper "getCurrenctSlide", ->
+Handlebars.registerHelper "getCurrentSlide", ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
   presentationId = currentPresentation?.presentation?.id
   Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})

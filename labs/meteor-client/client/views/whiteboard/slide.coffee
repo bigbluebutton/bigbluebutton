@@ -20,10 +20,8 @@ Template.slide.helpers
       shapeType = shape.shape?.shape?.type
       data = shape.shape?.shape # TODO change some of these!!
 
-      data.points[0] = data.points[0] / 100
-      data.points[1] = data.points[1] / 100
-      data.points[2] = data.points[2] / 100
-      data.points[3] = data.points[3] / 100
+      for num in [0..3]
+        data.points[num] = data.points[num] / 100
 
       wpm.makeShape(shapeType, data)
       wpm.updateShape(shapeType, data)
