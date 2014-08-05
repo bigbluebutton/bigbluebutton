@@ -53,8 +53,7 @@ repositories {
       m2compatible = true
       addArtifactPattern "http://repository.springsource.com/maven/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
       addArtifactPattern "http://repository.springsource.com/maven/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
-    }
-    flatDir name: 'fileRepo', dirs: "/home/firstuser/dev/repo"
+    }        
   }
 }
 
@@ -117,7 +116,7 @@ dependencies {
   //compileTestScala.classpath = sourceSets.test.compileClasspath + files(sourceSets.test.classesDir)
 		  
    // Freeswitch ESL Client
-   compile 'org/freeswitch:fs-esl-client:0.9.0-dev@jar'
+   compile 'org/freeswitch:fs-esl-client:0.8.2@jar'
    compile 'org.jboss.netty:netty:3.2.1.Final@jar'
    compile 'com.google.code.gson:gson:1.7.1'
    providedCompile 'org.apache.commons:commons-lang3:3.1'
