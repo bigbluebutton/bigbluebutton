@@ -1,4 +1,4 @@
-###Template.whiteboard.rendered = ->
+Template.slide.rendered = ->
   console.log "rendered - dom is ready"
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
   presentationId = currentPresentation?.presentation?.id
@@ -6,13 +6,13 @@
   console.log "the current slide is:" + currentSlide?.slide?.id
   if currentSlide?.slide?.png_uri?
 
-    Template.whiteboard.createWhiteboardPaper((wpm)->
-      Template.whiteboard.displaySlide(wpm, (currentSlide)->
+    Template.slide.createWhiteboardPaper((wpm)->
+      Template.slide.displaySlide(wpm, (currentSlide)->
         console.log "wpm=" + wpm
-        Template.whiteboard.displayShapeOnSlide()
+        Template.slide.displayShapeOnSlide()
         ))
 
-Template.whiteboard.helpers
+Template.slide.helpers
   createWhiteboardPaper: (callback) ->
     console.log "this should happen 1st" + document.getElementById('whiteboard-paper')
     console.log "whiteboardPaperModel already exists" if whiteboardPaperModel?
@@ -53,4 +53,3 @@ Template.whiteboard.helpers
     wpm.create() #TODO maybe move this to main.coffee
     wpm._displayPage(currentSlide?.slide?.png_uri)
     callback(currentSlide?.slide)
-###

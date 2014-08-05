@@ -109,6 +109,12 @@ Handlebars.registerHelper "isUserTalking", (u) ->
 Handlebars.registerHelper "isUserSharingAudio", (u) ->
   if u? then u.voiceUser?.joined
   else return false
+
+Handlebars.registerHelper "getCurrenctSlide", ->
+  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+  presentationId = currentPresentation?.presentation?.id
+  Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
+
  
 # Starts the entire logout procedure. Can be called for signout out
 # meeting: the meeting the user is in

@@ -2,10 +2,13 @@
 	{{#if getInSession "display_whiteboard"}}
 	<p>The whiteboard</p>
 	{{/if}}
+
+	{{#each getCurrenctSlide}}
+		{{> slide}}
+	{{/each}}
 	<div id="whiteboard-paper" style="position: fixed; top: 10%; left: 30%;">
-		<!-- {{createWhiteboardPaper}} -->
 		<p>
-			{{png}}
+			<!-- {{png}} -->
 		</p>
 	</div>
 </template>
