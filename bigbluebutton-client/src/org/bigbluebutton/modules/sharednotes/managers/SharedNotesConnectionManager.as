@@ -143,7 +143,7 @@ package org.bigbluebutton.modules.sharednotes.managers
 				_dispatcher.dispatchEvent(receivePatchEvent);
 			}
 		}
-		public function initClientDocumentCallBack(noteId:Number, userid:String, document:String):void {
+		public function initClientDocumentCallBack(noteId:String, userid:String, document:String):void {
 			//if(UserManager.getInstance().getConference().getMyUserId() == userid) {
 				LogUtil.debug("InitCallBack received.");
 /*

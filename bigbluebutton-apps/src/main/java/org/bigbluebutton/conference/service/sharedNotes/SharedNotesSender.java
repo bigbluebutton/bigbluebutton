@@ -44,8 +44,9 @@ public class SharedNotesSender implements ISharedNotesRoomListener {
 	}
 
 	@Override
-	public void initClientDocument(String userid, String document) {
+	public void initClientDocument(String noteId, String userid, String document) {
 		List<Object> args = new ArrayList<Object>();
+		args.add(noteId);
 		args.add(userid);
 		args.add(document);
 		so.sendMessage("initClientDocumentCallBack", args);

@@ -20,6 +20,7 @@
 */
 package org.bigbluebutton.conference.service.sharedNotes;
 
+import java.util.UUID;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -124,6 +125,21 @@ public class SharedNotesRoom {
 			}
 		 }
 	}
+
+	public void addNote() {
+		synchronized (syncObject) {
+			String noteId = UUID.randomUUID().toString();
+			for (Iterator<ClientSharedNotes> iter = clients.values().iterator(); iter.hasNext();) {
+				ClientSharedNotes client = (ClientSharedNotes) iter.next();
+				for (Iterator<ISharedNotesRoomListener> iter2 = listeners.values().iterator(); iter2.hasNext();) {
+					ISharedNotesRoomListener listener = (ISharedNotesRoomListener) iter2.next();
+					listener.initClientDocument(noteId, client.getUserid(), _document);
+					log.debug("Sending initClient request.");
+				}
+			}
+		}
+	}  
+
 	private void patchServer(String patch) {
 		LinkedList<Patch> patchObjects = diffPatch.patch_fromText(patch);
    		Object[] result = diffPatch.patch_apply(patchObjects, _document);
