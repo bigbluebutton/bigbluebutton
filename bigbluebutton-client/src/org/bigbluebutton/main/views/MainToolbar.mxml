@@ -328,10 +328,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function onRecordingStatusChanged(event:BBBEvent):void {
             if (event.payload.recording) {
               this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.stop');
-              recordingLabel.text = "recording";
+              recordingLabel.text = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordingLabel.recording');
             } else {
               this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.start');
-              recordingLabel.text = "not recording";
+              recordingLabel.text = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordingLabel.notRecording');
             }
       }
 
@@ -354,7 +354,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </mx:HBox>
 	<mx:HBox id="addedBtns"/>
 	<views:RecordButton id="recordBtn" tabIndex="{baseIndex+numButtons+10}" />
-  <mx:Label id="recordingLabel" text="Recording" styleName="meetingNameLabelStyle" visible="{UserManager.getInstance().getConference().record}" />
+  <mx:Label id="recordingLabel" text="{ResourceUtil.getInstance().getString('bbb.mainToolbar.recordingLabel.notRecording')}" styleName="recordingLabelStyle" visible="{UserManager.getInstance().getConference().record}" />
 	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}" includeInLayout="{muteMeBtn.includeInLayout}"/>
 	<views:MuteMeButton id="muteMeBtn"  height="20" tabIndex="{baseIndex+numButtons+11}"/>
 	<mx:Spacer width="50%"/>
