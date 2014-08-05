@@ -9,7 +9,7 @@ Template.slide.rendered = ->
     Template.slide.createWhiteboardPaper((wpm)->
       Template.slide.displaySlide(wpm, (currentSlide)->
         console.log "wpm=" + wpm
-        Template.slide.displayShapeOnSlide()
+        Template.slide.displayShapeOnSlide(wpm)
         ))
 
 Template.slide.helpers
@@ -19,7 +19,7 @@ Template.slide.helpers
     whiteboardPaperModel = new WhiteboardPaperModel('whiteboard-paper')
     callback(whiteboardPaperModel)
 
-  displayShapeOnSlide: ->
+  displayShapeOnSlide: (wpm) ->
     console.log "this should happen third"
     currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
     presentationId = currentPresentation?.presentation?.id
@@ -39,6 +39,9 @@ Template.slide.helpers
 
       console.log "shapeType=" + shapeType
       console.log "data=" + JSON.stringify data
+
+      wpm.makeShape(shapeType, data)
+      wpm.updateShape(shapeType, data)
 
   displaySlide: (wpm, callback) ->
     console.log "this should happen second!"
