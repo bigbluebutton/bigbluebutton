@@ -68,3 +68,7 @@ Meteor.methods
     if meetingId? and userId? 
       Meteor.Users.update({meetingId: meetingId, userId: userId}, {$set:{'user.voiceUser.talking':false}})
       Meteor.Users.update({meetingId: meetingId, userId: userId}, {$set:{'user.voiceUser.joined':false}})
+
+  userRaiseHand: (userId) ->
+    if userId?
+      Meteor.Users.update({userId:userId}, {$set: {'user.raise_hand':true}})

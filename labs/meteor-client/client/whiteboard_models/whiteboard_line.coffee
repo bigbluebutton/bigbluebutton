@@ -24,23 +24,23 @@ class @WhiteboardLineModel extends WhiteboardToolModel
   # @param  {number} thickness the thickness of the line to be drawn
   make: (info) ->
     console.log "in line MAKE(info): " + info
+    if info?.payload?.data?.coordinate?
+      x = info.payload.data.coordinate.first_x
+      y = info.payload.data.coordinate.first_y
+      color = info.payload.data.line.color
+      thickness = info.payload.data.line.weight
 
-    x = info.payload.data.coordinate.first_x
-    y = info.payload.data.coordinate.first_y
-    color = info.payload.data.line.color
-    thickness = info.payload.data.line.weight
+      x1 = x * @gw + @xOffset
+      y1 = y * @gh + @yOffset
+      path = "M" + x1 + " " + y1 + " L" + x1 + " " + y1
+      pathPercent = "M" + x + " " + y + " L" + x + " " + y
+      @obj = @paper.path(path)
+      @obj.attr Utils.strokeAndThickness(color, thickness)
+      @obj.attr({"stroke-linejoin": "round"})
 
-    x1 = x * @gw + @xOffset
-    y1 = y * @gh + @yOffset
-    path = "M" + x1 + " " + y1 + " L" + x1 + " " + y1
-    pathPercent = "M" + x + " " + y + " L" + x + " " + y
-    @obj = @paper.path(path)
-    @obj.attr Utils.strokeAndThickness(color, thickness)
-    @obj.attr({"stroke-linejoin": "round"})
-
-    @definition =
-      shape: "path"
-      data: [pathPercent, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]
+      @definition =
+        shape: "path"
+        data: [pathPercent, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]
 
     @obj
 
@@ -56,43 +56,43 @@ class @WhiteboardLineModel extends WhiteboardToolModel
   #                              2) undefined
   update: (info) ->
     console.log "in line-UPDATE(info): " + info
+    if info?.payload?.data?.coordinate?
+      x1 = info.payload.data.coordinate.first_x
+      y1 = info.payload.data.coordinate.first_y
+      x2 = info.payload.data.coordinate.last_x
+      y2 = info.payload.data.coordinate.last_y
 
-    x1 = info.payload.data.coordinate.first_x
-    y1 = info.payload.data.coordinate.first_y
-    x2 = info.payload.data.coordinate.last_x
-    y2 = info.payload.data.coordinate.last_y
+      if @obj?
 
-    if @obj?
+        # if adding points from the pencil 
+        if _.isBoolean(info.adding)
+          add = info.adding
 
-      # if adding points from the pencil 
-      if _.isBoolean(info.adding)
-        add = info.adding
+          pathPercent = "L" + x1 + " " + y1
+          @definition.data[0] += pathPercent
 
-        pathPercent = "L" + x1 + " " + y1
-        @definition.data[0] += pathPercent
+          x1 = x1 * @gw + @xOffset
+          y1 = y1 * @gh + @yOffset
 
-        x1 = x1 * @gw + @xOffset
-        y1 = y1 * @gh + @yOffset
+          # if adding to the line
+          if add
+            path = @obj.attrs.path + "L" + x1 + " " + y1
+            @obj.attr path: path
 
-        # if adding to the line
-        if add
-          path = @obj.attrs.path + "L" + x1 + " " + y1
-          @obj.attr path: path
+          # if simply updating the last portion (for drawing a straight line)
+          else
+            @obj.attrs.path.pop()
+            path = @obj.attrs.path.join(" ")
+            path = path + "L" + x1 + " " + y1
+            @obj.attr path: path
 
-        # if simply updating the last portion (for drawing a straight line)
+        # adding lines from the line tool
         else
-          @obj.attrs.path.pop()
-          path = @obj.attrs.path.join(" ")
-          path = path + "L" + x1 + " " + y1
+          path = @_buildPath(x1, y1, x2, y2)
+          @definition.data[0] = path
+
+          path = @_scaleLinePath(path, @gw, @gh, @xOffset, @yOffset)
           @obj.attr path: path
-
-      # adding lines from the line tool
-      else
-        path = @_buildPath(x1, y1, x2, y2)
-        @definition.data[0] = path
-
-        path = @_scaleLinePath(path, @gw, @gh, @xOffset, @yOffset)
-        @obj.attr path: path
 
   # Draw a line on the paper
   # @param  {number,string} x1 1) the x value of the first point

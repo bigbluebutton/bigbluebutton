@@ -57,7 +57,10 @@ Handlebars.registerHelper "getCurrentUser", =>
 	setInSession "display_navbar", !getInSession "display_navbar"
 
 @toggleChatbar = ->
-	setInSession "display_chatbar", !getInSession "display_chatbar"
+  setInSession "display_chatbar", !getInSession "display_chatbar"
+
+@toggleWhiteBoard = ->
+  setInSession "display_whiteboard", !getInSession "display_whiteboard"
 
 Meteor.methods
   sendMeetingInfoToClient: (meetingId, userId) ->
@@ -116,7 +119,7 @@ Handlebars.registerHelper "getCurrenctSlide", ->
   Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
 
  
-# Starts the entire logout procedure. Can be called for signout out
+# Starts the entire logout procedure.
 # meeting: the meeting the user is in
 # the user's userId
 @userLogout = (meeting, user) ->
