@@ -115,8 +115,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function addedToStageHandler(event:Event):void {
 				// when the button is added to the stage display the audio selection window if auto join is true
 				if (phoneOptions.autoJoin) {
-					trace(LOG + "Sending Show Audio Selection command");
-					dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));
+          if (phoneOptions.skipCheck) {
+            var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
+            command.mic = true;
+            dispatcher.dispatchEvent(command);            
+          } else {
+            trace(LOG + "Sending Show Audio Selection command");
+            dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));            
+          }
 				}
 			}
 
