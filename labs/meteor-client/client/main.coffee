@@ -49,6 +49,8 @@ Template.header.events
 		alert "settings"
 	"click .raiseHand": (event) -> 
 		Meteor.call('userRaiseHand', @id)
+	"click .lowerHand": (event) -> 
+		Meteor.call('userLowerHand', @id)
 	"click .whiteboardIcon": (event) ->
 		toggleWhiteBoard()
 

@@ -72,3 +72,7 @@ Meteor.methods
   userRaiseHand: (userId) ->
     if userId?
       Meteor.Users.update({userId:userId}, {$set: {'user.raise_hand':true}})
+
+  userLowerHand: (userId) ->
+    if userId?
+      Meteor.Users.update({userId:userId}, {$set: {'user.raise_hand':false}})

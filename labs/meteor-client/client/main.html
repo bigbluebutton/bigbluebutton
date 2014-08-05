@@ -64,7 +64,7 @@
             {{/if}}
 
             {{#if user.raise_hand}}
-               {{> makeButton id=userId btn_class="navbarIconToggleActive navbar-brand" i_class="hand-up" isDisabled="disabled" rel="tooltip" data_placement="bottom" title="Your hand is raised"}}
+               {{> makeButton id=userId btn_class="lowerHand navbarIconToggleActive navbar-brand" i_class="hand-up" rel="tooltip" data_placement="bottom" title="Lower your hand"}}
             {{else}}
                {{> makeButton id=userId btn_class="raiseHand navbar-brand" i_class="hand-up" rel="tooltip" data_placement="bottom" title="Raise your hand"}}
             {{/if}}
