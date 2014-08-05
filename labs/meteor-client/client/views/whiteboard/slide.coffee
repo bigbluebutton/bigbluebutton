@@ -3,7 +3,6 @@ Template.slide.rendered = ->
   presentationId = currentPresentation?.presentation?.id
   currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
   if currentSlide?.slide?.png_uri?
-
     Template.slide.createWhiteboardPaper (wpm)->
       Template.slide.displaySlide wpm, ->
         Template.slide.displayShapeOnSlide wpm

@@ -1,11 +1,9 @@
 <template name="whiteboard">
 	{{#if getInSession "display_whiteboard"}}
-	<p>The whiteboard</p>
+		{{#each getCurrenctSlide}}
+			{{> slide}}
+		{{/each}}
+		<div id="whiteboard-paper" style="position: fixed; top: 10%; left: 30%;">
+		</div>
 	{{/if}}
-
-	{{#each getCurrenctSlide}}
-		{{> slide}}
-	{{/each}}
-	<div id="whiteboard-paper" style="position: fixed; top: 10%; left: 30%;">
-	</div>
 </template>
