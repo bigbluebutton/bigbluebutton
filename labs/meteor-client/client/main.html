@@ -19,7 +19,7 @@
 
 <template name="header">
    {{#if getInSession "display_navbar"}}
-      <div class="navbar navbar-default navbar-static-top" role="navigation">
+      <div id="navbar" class="navbar navbar-default navbar-static-top" role="navigation">
          {{#with getCurrentUser}}
             {{#if getInSession "display_usersList"}}
                {{> makeButton id=userId btn_class="navbarIconToggleActive usersListIcon navbar-brand" i_class="user" _id=_id rel="tooltip" data_placement="bottom" title="Hide List of Users"}}

@@ -824,4 +824,42 @@ class @WhiteboardPaperModel
     #page = data?.payload?.currentPage
     #pngSlide = "http://www.tux.org/pub/sites/ftp.gnome.org/GNOME/teams/art.gnome.org/backgrounds/ABSTRACT-BlueRidge_1280x1024.png"
     #@addImageToPaper(page.png_uri, 400, 400) # TODO the dimensions should be modified
-    @addImageToPaper(data, 400, 400) # TODO the dimensions should be modified
+    console.log "logging data-----------------------------"
+    console.log JSON.stringify data
+    console.log "finished logging data--------------------"
+
+    # get dimensions for available whiteboard space
+    # get where to start from the left -> either the end of the user's list or the left edge of the screen
+    if getInSession "display_usersList" then xBegin = $("#userListContainer").width()
+    else xBegin = 0
+    # get where to start from the right -> either the beginning of the chat bar or the right edge of the screen
+    if getInSession "display_chatbar" then xEnd = $("#chat").position().left
+    else xEnd = $( document ).width();
+    
+    # find the height to start the top of the image at
+    if getInSession "display_navbar" then yBegin = $("#navbar").height()
+    else yBegin = 0
+    yEnd = $( document ).height();
+
+    # TODO: add some form of padding to the left, right, top, and bottom boundaries
+    # for now just remove 10% to make it look nicer
+    boardWidth = xEnd - xBegin
+    boardHeight = yEnd - yBegin
+
+    currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+    presentationId = currentPresentation?.presentation?.id
+    currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+
+    imageWidth = boardWidth * (currentSlide.slide.width_ratio/100)
+    imageHeight = boardHeight * (currentSlide.slide.height_ratio/100)
+    
+    console.log "xBegin: #{xBegin}"
+    console.log "xEnd: #{xEnd}"
+    console.log "yBegin: #{yBegin}"
+    console.log "yEnd: #{yEnd}"
+    console.log "boardWidth: #{boardWidth}"
+    console.log "boardHeight: #{boardHeight}"
+    console.log "imageWidth: #{imageWidth}"
+    console.log "imageHeight: #{imageHeight}"
+
+    @addImageToPaper(data, imageWidth, imageHeight) # TODO the dimensions should be modified
