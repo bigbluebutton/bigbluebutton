@@ -80,7 +80,7 @@ package org.bigbluebutton.modules.chat
       {
         var value : String = resultArray[i - 1].foundValue;
         var newValue : String;
-        if ( !StringUtils.startsWith(value, 'www' ){
+        if ( !StringUtils.startsWith(value, 'www' ) ){
           newValue = '<a href="event:' + value + '"> <u>' + value + '</u></a> ';
         }
         else{
