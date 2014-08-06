@@ -842,7 +842,7 @@ class @WhiteboardPaperModel
     yEnd = $( document ).height();
 
     # TODO: add some form of padding to the left, right, top, and bottom boundaries
-    # for now just remove 10% to make it look nicer
+    # 
     boardWidth = xEnd - xBegin
     boardHeight = yEnd - yBegin
 
