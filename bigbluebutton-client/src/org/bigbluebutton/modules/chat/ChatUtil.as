@@ -90,5 +90,6 @@ package org.bigbluebutton.modules.chat
       }
 
       return parsedString;
+    }
   }
 }
