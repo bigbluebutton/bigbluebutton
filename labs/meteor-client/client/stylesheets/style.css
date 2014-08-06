@@ -111,3 +111,9 @@ background: rgba(0, 0, 0, 0.1);
 .navbarIconToggleActive{
 	border-bottom: 4px solid lightblue;
 }
+
+.ScrollableWindow {
+    padding-right:5px;
+    overflow: scroll;
+    height: 100%;
+}

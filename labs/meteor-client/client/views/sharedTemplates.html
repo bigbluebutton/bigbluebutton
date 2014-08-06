@@ -1,0 +1,6 @@
+<template name="scrollWindow">
+    {{> yield}}
+    <div class="ScrollableWindow" id="{{id}}">
+        {{> yield region="scrollContents"}}
+    </div>
+</template>

@@ -853,13 +853,13 @@ class @WhiteboardPaperModel
     imageWidth = boardWidth * (currentSlide.slide.width_ratio/100)
     imageHeight = boardHeight * (currentSlide.slide.height_ratio/100)
     
-    console.log "xBegin: #{xBegin}"
-    console.log "xEnd: #{xEnd}"
-    console.log "yBegin: #{yBegin}"
-    console.log "yEnd: #{yEnd}"
-    console.log "boardWidth: #{boardWidth}"
-    console.log "boardHeight: #{boardHeight}"
-    console.log "imageWidth: #{imageWidth}"
-    console.log "imageHeight: #{imageHeight}"
+    # console.log "xBegin: #{xBegin}"
+    # console.log "xEnd: #{xEnd}"
+    # console.log "yBegin: #{yBegin}"
+    # console.log "yEnd: #{yEnd}"
+    # console.log "boardWidth: #{boardWidth}"
+    # console.log "boardHeight: #{boardHeight}"
+    # console.log "imageWidth: #{imageWidth}"
+    # console.log "imageHeight: #{imageHeight}"
 
     @addImageToPaper(data, imageWidth, imageHeight) # TODO the dimensions should be modified

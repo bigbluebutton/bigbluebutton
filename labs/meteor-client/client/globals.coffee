@@ -135,3 +135,9 @@ Handlebars.registerHelper "isUserSharingAudio", (u) ->
 
 @getTime = -> # returns epoch in ms
   (new Date).valueOf()
+
+Handlebars.registerHelper "visibility", (section) ->
+    if getInSession "display_#{section}"
+        style: 'display:block'
+    else
+        style: 'display:none'

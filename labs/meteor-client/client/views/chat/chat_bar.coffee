@@ -1,23 +1,40 @@
 Template.messageBar.helpers
   # This method returns all messages for the user. It looks at the session to determine whether the user is in
   #private or public chat. If true is passed, messages returned are from before the user joined. Else, the messages are from after the user joined
-  getMessagesInChat: (beforeJoin=true) ->
+  getMessagesInChat: () ->
     friend = chattingWith = getInSession('inChatWith') # the recipient(s) of the messages
 
     if chattingWith is 'PUBLIC_CHAT' # find all public messages
-      if beforeJoin
-        Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$lt: String(getInSession("joinedAt"))}})
-      else
-        Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$gt: String(getInSession("joinedAt"))}}) 
+        before = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$lt: String(getInSession("joinedAt"))}}).fetch()
+        after = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$gt: String(getInSession("joinedAt"))}}).fetch()
     else
       me = getInSession("userId")
-      Meteor.Chat.find({ # find all messages between current user and recipient
+      before = Meteor.Chat.find({ # find all messages between current user and recipient
         'message.chat_type': 'PRIVATE_CHAT',
         $or: [{'message.from_userid': me, 'message.to_userid': friend},{'message.from_userid': friend, 'message.to_userid': me}]
-      })
+      }).fetch()
+      after = []
+
+    greeting = [
+      'class': 'chatGreeting',
+      'message':
+        'message': Template.messageBar.getChatGreeting(),
+        'from_username': 'System',
+        'from_time': getTime()
+    ]
+
+    messages = (before.concat greeting).concat after
 
   isUserInPrivateChat: -> # true if user is in public chat
     getInSession('inChatWith') isnt "PUBLIC_CHAT"
+
+  getChatGreeting: ->
+    greeting = 
+    "<p>Welcome to #{getInSession 'meetingName'}!</p>
+    <p>For help on using BigBlueButton see these (short) <a href='http://bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.</p>
+    <p>To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.</p>
+    <br/>
+    <p>This server is running BigBlueButton #{getInSession 'bbbServerVersion'}.</p>"
 
 Template.tabButtons.events
   'click .tab': (event) -> ;
