@@ -18,6 +18,9 @@
  */
 package org.bigbluebutton.modules.chat
 {
+  import flash.xml.XMLNode;
+  import flash.xml.XMLNodeType;
+  
   import org.as3commons.lang.StringUtils;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -47,10 +50,7 @@ package org.bigbluebutton.modules.chat
     }
     
     public static function cleanup(message:String):String{
-      var parsedString:String = StringUtils.replace(message, '<', '&#60;'),
-      parsedString = StringUtils.replace(parsedString, '>', '&#62;')
-      
-      return parsedString;
+		return XML( new XMLNode( XMLNodeType.TEXT_NODE, message ) ).toXMLString();
     }
     
 	public static function parseURLs( message : String ) : String{
