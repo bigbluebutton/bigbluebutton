@@ -202,6 +202,18 @@ DataGrid {
   icon: Embed('assets/images/triangle.png');    
 }
 
+.voiceConfDefaultButtonStyle {
+  icon: Embed('assets/images/headset.png');    
+}
+
+.voiceConfActiveButtonStyle {
+  icon: Embed('assets/images/headset_open.png');    
+}
+
+.voiceConfInactiveButtonStyle {
+  icon: Embed('assets/images/headset_close.png');    
+}
+
 .presentationUploadButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
 .presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle 
 {
