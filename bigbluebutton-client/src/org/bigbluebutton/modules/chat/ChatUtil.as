@@ -83,7 +83,7 @@ package org.bigbluebutton.modules.chat
         else{
 			newValue = '<a href="event:http://' + value + '"> <u>' + value + '</u></a> '; 
         }
-        parsedString = StringUtils.replaceAt(parsedString, newValue, resultArray[i - 1].index, resultArray[i - 1].index + resultArray[i - 1].length)
+        parsedString = StringUtils.replaceAt(parsedString, newValue, resultArray[i].index, resultArray[i].index + resultArray[i].length)
       }
 
       return parsedString;
