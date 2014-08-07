@@ -1,9 +1,12 @@
 <template name="whiteboard">
-	{{#if getInSession "display_whiteboard"}}
-    	<div id="whiteboard-paper" style="position: fixed; top: 10%; left: 30%;">
-    		<p>
-    			{{png}}
-    		</p>
-    	</div>
-    {{/if}}
+    <div id="{{id}}" {{visibility name}}>
+        <h3 class="title">{{title}}</h3>
+        <div id="whiteboard-contents">
+            <div id="whiteboard-paper"  style="">
+                <p>
+                    {{png}}
+                </p>
+            </div>
+        </div>
+    </div>
 </template>

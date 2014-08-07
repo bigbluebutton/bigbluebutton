@@ -4,3 +4,18 @@
         {{> yield region="scrollContents"}}
     </div>
 </template>
+
+<template name="makeButton">
+   <button type="submit" id="{{id}}" class="{{btn_class}} btn" {{isDisabled}} rel="{{rel}}" data-placement="{{data_placement}}" title="{{title}}">
+      <i class="glyphicon glyphicon-{{i_class}}"></i>
+   </button>
+</template>
+
+<template name="moduleTable">
+    {{> yield}}
+    <table class="{{tableClass}}">
+        <tbody class="{{tbodyClass}}">
+            {{> yield region="Contents"}}
+        </tbody>
+    </table>
+</template>

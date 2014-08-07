@@ -6,10 +6,10 @@
       <div>
          {{>header}}
       </div>
-      <div id="main" class="row-fluid">
+      <div id="main" class="mainContainer row-fluid">
          {{> usersList id="users" name="usersList"}}
+         {{> whiteboard id="whiteboardContainer" title="Whiteboard" name="whiteboard"}}
          {{> chatbar id="chat" title="Chat" name="chatbar"}}
-         {{> whiteboard}}
       </div>
    </body>
    {{doFinalStuff}}
@@ -79,10 +79,3 @@
       {{> makeButton id="" btn_class="hideNavbarIcon pull-right navbar-brand" i_class="chevron-down" rel="tooltip" data_placement="bottom" title="Display Navbar"}}
    {{/if}}
 </template>
-
-<template name="makeButton">
-   <button type="submit" id="{{id}}" class="{{btn_class}} btn" {{isDisabled}} rel="{{rel}}" data-placement="{{data_placement}}" title="{{title}}">
-      <i class="glyphicon glyphicon-{{i_class}}"></i>
-   </button>
-</template>
-

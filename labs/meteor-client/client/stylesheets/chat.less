@@ -1,33 +1,18 @@
 #chat {
-  position:absolute;
-  right: 0;
-  top: 65px;
-  width:30%;
+  width:25%;
   background: #fff;
-  /*z-index: @z-index-chat;*/
   overflow: hidden;
   border-left:1px solid #ccc;
   height:660px;
   margin-bottom: 10px;
-
-	h3 { 
-		background:#f7f7f7;  	
-	  font-size: 1em;
-	  line-height: 2em;
-	  font-weight: bold;
-	  color: #666;
-	  border-bottom: 1px solid #d7d7d7;
-	  padding: 5px 10px;
-		margin:0;
-	}
+  min-width:400px;
+  float:left;
+  margin-right: 0px;
 }
 
 #chatbar-contents {
-	padding-left:20px;
-	padding-right:5px;
-	padding-top:2px;
-	padding-bottom:10px;
-	height:70%;
+    margin-bottom:10px;
+	height:75%;
 }
 
 #chat-options-bar {
@@ -51,9 +36,8 @@
 	}
 }
 
-#chat-input-wrapper {
-	position:absolute;
-	bottom:0;
+.chat-input-wrapper {
+    margin-left:20px;
 }
 
 #chat-user-list {
@@ -63,13 +47,23 @@
 	}
 }
 
-.chat-message-wrapper {
-	margin-bottom: 10px;
+.chat-message {
+    font-size: 12px;
+    line-height: 14px;
+    padding-top:5px;
+    padding-bottom:0px;
+    margin-bottom:0px;
+    padding-right:10px;
+    padding-left: 20px;
 }
 
-.chat-message {
-	font-size: 12px;
-	line-height: 14px;
+.chat-entry{
+
+}
+.chat-entry tr:nth-child(even) {
+    background-color: rgb(245,245,245);
+}
+.chat-entry tr:nth-child(odd) {
 }
 
 .chat-username {
@@ -81,23 +75,6 @@
 	font-weight:bold;
 	color:##C0C0C0;
 	float:right;
-}
-
-#chat-messages {
-  clear: both;
-  overflow-y: auto;
-  overflow: auto;
-  overflow-x: hidden;
-  /*position: relative;*/
-  padding: 10px;
-  word-break: break-all;
-
-  /*the code I added to make scroll work*/
-  position: absolute;
-  bottom: 32px;
-  top: 60px;
-  right:25px;
-  left: 0px;
 }
 
 .tab{}
@@ -140,7 +117,6 @@
 
 .private-chat-user-box {
 	border: solid 1px grey;
-	height:100%;
 	width: 90%;
 	padding: 5px;
 }
@@ -148,7 +124,7 @@
 #newMessageInput {
 	width: 80%;
 	height:40px;
-    margin-top: 20px;
+    margin-top: 15px;
 }
 
 #sendMessageButton{
