@@ -240,9 +240,10 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	    val thumbnail = presBaseUrl + "/thumbnail/" + i
 	    val swfUri = presBaseUrl + "/slide/" + i
 	    val txtUri = presBaseUrl + "/textfiles/slide-" + i + ".txt"
-				
+	    val pngUri = presBaseUrl + "/png/" + i
+
 	    val p = new Page(id=id, num=num, thumbUri=thumbnail, swfUri=swfUri,
-	                     txtUri=txtUri, pngUri=thumbnail,
+	                     txtUri=txtUri, pngUri=pngUri,
 	                     current=current)
 	    pages += (p.id -> p)
 	  }
