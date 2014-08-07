@@ -214,6 +214,31 @@ DataGrid {
   icon: Embed('assets/images/headset_close.png');    
 }
 
+.webcamDefaultButtonStyle {
+  icon: Embed('assets/images/webcam.png');    
+}
+
+.webcamOnButtonStyle {
+  icon: Embed('assets/images/webcam_on.png');    
+}
+
+.webcamOffButtonStyle {
+  icon: Embed('assets/images/webcam_close.png');    
+}
+
+.deskshareDefaultButtonStyle {
+  icon: Embed('assets/images/deskshare_icon.png');    
+}
+
+.deskshareOnButtonStyle {
+  icon: Embed('assets/images/deskshare_on.png');    
+}
+
+.deskshareOffButtonStyle {
+  icon: Embed('assets/images/deskshare_close.png');    
+}
+
+
 .presentationUploadButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
 .presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle 
 {
