@@ -123,7 +123,7 @@ class ApiController {
     
     // Translate the external meeting id into an internal meeting id.
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);		
-    Meeting existing = meetingService.getMeeting(internalMeetingId);
+    Meeting existing = meetingService.getNotEndedMeetingWithId(internalMeetingId);
     if (existing != null) {
       log.debug "Existing conference found"
       Map<String, Object> updateParams = paramsProcessorUtil.processUpdateCreateParams(params);
