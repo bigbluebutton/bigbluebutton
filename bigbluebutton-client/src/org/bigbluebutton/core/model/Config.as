@@ -83,11 +83,11 @@ package org.bigbluebutton.core.model
 			a.url = config.skinning.@url;
 			return a
 		}
-					
-		public function get layout():XML {
-			return new XML(config.layout.toXMLString());
-		}
-		
+
+    public function get layout():XML {
+      return new XML(config.layout.toXMLString());
+    }
+    	
 		public function get meeting():XML {
 			return new XML(config.meeting.toXMLString());
 		}

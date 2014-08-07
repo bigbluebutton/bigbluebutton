@@ -40,13 +40,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
+      import com.asfusion.mate.events.Dispatcher;     
       import mx.accessibility.AlertAccImpl;
       import mx.controls.Alert;
       import mx.core.UIComponent;
-      import mx.events.CloseEvent;
-      
+      import mx.events.CloseEvent;     
       import org.bigbluebutton.common.IBbbToolbarComponent;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.events.CloseWindowEvent;
@@ -105,12 +103,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function onCreationComplete():void {
         if (this.width < 800) {
           meetingNameLbl.visible = false;
-          langSelector.visible = false;
           shortcutKeysBtn.visible = false;
           helpBtn.visible = false;      
           muteMeBtn.visible = false;
           meetingNameLbl.width = 0;
-          langSelector.width = 0;
           shortcutKeysBtn.width = 0;
           helpBtn.width = 0;          
         }
@@ -159,8 +155,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
       private function retrieveMeetingName(e:ConferenceCreatedEvent):void {
          if (toolbarOptions.showMeetingName) {
-              var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();
-                    
+              var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();                   
               if (meetingTitle != null) {
                   meetingNameLbl.text = meetingTitle;
                } 
@@ -280,7 +275,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			private function gotConfigParameters(e:ConfigEvent):void{
-				langSelector.visible = e.config.languageEnabled;
 				shortcutKeysBtn.includeInLayout = shortcutKeysBtn.visible = e.config.shortcutKeysShowButton; 
 				DEFAULT_HELP_URL = e.config.helpURL;
 			}
@@ -326,13 +320,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
       
       private function onRecordingStatusChanged(event:BBBEvent):void {
-            if (event.payload.recording) {
-              this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.stop');
-              recordingLabel.text = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordingLabel.recording');
-            } else {
-              this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.start');
-              recordingLabel.text = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordingLabel.notRecording');
-            }
+        if (event.payload.recording) {
+          if (toolbarOptions.showMeetingName) {
+            var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();                   
+            if (meetingTitle != null) {
+              meetingNameLbl.text = meetingTitle;
+            } 
+          }
+          meetingNameLbl.text +=  " " + ResourceUtil.getInstance().getString('bbb.mainToolbar.recordingLabel.recording');
+        } else {
+          if (toolbarOptions.showMeetingName) {
+            var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();                   
+            if (meetingTitle != null) {
+              meetingNameLbl.text = meetingTitle;
+            } 
+          }
+        }
       }
 
 		]]>
@@ -354,17 +357,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </mx:HBox>
 	<mx:HBox id="addedBtns"/>
 	<views:RecordButton id="recordBtn" tabIndex="{baseIndex+numButtons+10}" />
-  <mx:Label id="recordingLabel" text="{ResourceUtil.getInstance().getString('bbb.mainToolbar.recordingLabel.notRecording')}" styleName="recordingLabelStyle" visible="{UserManager.getInstance().getConference().record}" />
 	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}" includeInLayout="{muteMeBtn.includeInLayout}"/>
 	<views:MuteMeButton id="muteMeBtn"  height="20" tabIndex="{baseIndex+numButtons+11}"/>
 	<mx:Spacer width="50%"/>
-    <mx:Label id="meetingNameLbl" styleName="meetingNameLabelStyle" />
-    <mx:Spacer width="50%"/>
-	<views:LanguageSelector id="langSelector" 
-							visible="false" 
-							tabIndex="{baseIndex+numButtons+12}"
-							accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"
-							styleName="languageSelectorStyle" />
+  <mx:Label id="meetingNameLbl" styleName="meetingNameLabelStyle" />
+  <mx:Spacer width="50%"/>
+
 <!--
   <mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
 -->
