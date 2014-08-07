@@ -19,7 +19,9 @@
 package org.bigbluebutton.modules.chat
 {
   import org.bigbluebutton.util.i18n.ResourceUtil;
-
+  import flash.xml.XMLNode;
+  import flash.xml.XMLNodeType;
+  
   public class ChatUtil
   {
     public static function getUserLang():String {
@@ -45,28 +47,46 @@ package org.bigbluebutton.modules.chat
       return hours
     }
     
-    public static function cleanup(message:String):String{
-      var parsedString:String = message.replace('<', '&#60;')
-      parsedString = parsedString.replace('>', '&#62;')
-      
-      return parsedString;
+    public static function cleanup(message:String):String {
+      return XML( new XMLNode( XMLNodeType.TEXT_NODE, message ) ).toXMLString();
     }
     
-    public static function parseURLs(message:String):String{
-      var indexOfHTTP:Number = message.indexOf("http://");
-      var indexOfWWW:Number = message.indexOf("www.");
-      var indexOfHTTPS:Number = message.indexOf("https://");
-      if (indexOfHTTP == -1 && indexOfWWW == -1 && indexOfHTTPS == -1) return message;
-      var words:Array = message.split(" ");
-      var parsedString:String = "";
-      for (var n:Number = 0; n < words.length; n++){
-        var word:String = words[n] as String;
-        if (word.indexOf("http://") != -1) parsedString += '<a href="event:' + word + '"> <u>' + word + '</u></a> ';
-        else if (word.indexOf("https://") != -1) parsedString += '<a href="event:' + word + '"> <u>' + word + '</u></a> ';
-        else if (word.indexOf("www.") != -1) parsedString += '<a href="event:http://' + word + '"> <u>' + word + '</u></a> ';
-        else parsedString += word + ' ';
+    public static function parseURLs(message:String):String {
+      var messageParsed:String = message;
+
+      // Identify http, https, ftp URLS
+      var pattern1:RegExp = /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?/;
+
+      // Identify domains (.com,.org) like example.com
+      var pattern2:RegExp = /[\w\-\_.]*([\w]+\.)(com|org|co|gov|gob|edu|us|net|info|biz|mobi|name|travel|ca)($)*/;
+
+      var pattern:RegExp = new RegExp( "(" + pattern1.source + "|" + pattern2.source + ")", "g");
+
+      var result:Array = pattern.exec(message);
+      var extraCharacters:Number = 0; 
+
+      while (result != null) 
+      {
+          // For result[0], see: http://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/RegExp.html#exec()
+          var matchedURL:String = result[0];
+
+          var matchIdx:Number = result.index + extraCharacters;
+          var matchLastIdx:Number = pattern.lastIndex + extraCharacters;
+
+          var parsedString:String = '<a href="event:' + matchedURL + '"><u>' + matchedURL + '</u></a>';
+          
+          var firstStrPart:String = messageParsed.substring(0, matchIdx);
+          var secondStrPart:String = messageParsed.substring(matchLastIdx, messageParsed.length);
+
+          messageParsed = firstStrPart + parsedString + secondStrPart;
+
+          // we added these extra characters
+          extraCharacters += parsedString.length - (pattern.lastIndex - result.index);
+
+          result = pattern.exec(message); 
       }
-      return parsedString;
+
+      return messageParsed;
     }
   }
 }
