@@ -55,12 +55,10 @@ package org.bigbluebutton.modules.chat
     
 	public static function parseURLs( message : String ) : String{
       var urlPattern : RegExp = /(http|ftp|https|www)(:\/\/[\w\-_]+)?(\.[\w\-_]+)+([\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?/g;
-      var matches : Array = message.match(urlPattern);
 		
       var resultArray : Array = [];
-      var result : Object = urlPattern.exec(message);
-      while (result != null)
-      {
+      var result : Object;
+      while (result = urlPattern.exec(message)){
         var item : Object = new Object();
         item.foundValue = result[0];
         item.index = result.index;
@@ -71,20 +69,19 @@ package org.bigbluebutton.modules.chat
 			
         // We try to find the next match
         urlPattern.lastIndex = item.index + item.length;
-        result = urlPattern.exec(message);
       }
 
 	  // Replacing matched patterns with HTML links
       var parsedString : String = message;
-      for (var i : uint = matches.length; i > 0; i--)
+	  for (var i : int = resultArray.length - 1; i >= 0; i--)
       {
-        var value : String = resultArray[i - 1].foundValue;
+        var value : String = resultArray[i].foundValue;
         var newValue : String;
-        if ( !StringUtils.startsWith(value, 'www' ) ){
-          newValue = '<a href="event:' + value + '"> <u>' + value + '</u></a> ';
+		if (!StringUtils.startsWith(value, 'www')){
+			newValue = '<a href="event:' + value + '"> <u>' + value + '</u></a> ';
         }
         else{
-          newValue = '<a href="event:' + value + '"> <u>' + value + '</u></a> '; 
+			newValue = '<a href="event:http://' + value + '"> <u>' + value + '</u></a> '; 
         }
         parsedString = StringUtils.replaceAt(parsedString, newValue, resultArray[i - 1].index, resultArray[i - 1].index + resultArray[i - 1].length)
       }
