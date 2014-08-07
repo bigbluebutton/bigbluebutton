@@ -30,7 +30,7 @@
 <template name="messageBar">
 	{{#Layout template="moduleTable" tbodyClass="chat-entry"}}
 		{{#contentFor region="Contents"}}
-			{{#each getMessagesInChat}}
+			{{#each getFormattedMessagesForChat}}
 				<tr>{{>message}}</tr>
 			{{/each}}
 		{{/contentFor}}

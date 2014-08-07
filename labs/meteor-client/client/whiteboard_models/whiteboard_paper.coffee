@@ -824,9 +824,6 @@ class @WhiteboardPaperModel
     #page = data?.payload?.currentPage
     #pngSlide = "http://www.tux.org/pub/sites/ftp.gnome.org/GNOME/teams/art.gnome.org/backgrounds/ABSTRACT-BlueRidge_1280x1024.png"
     #@addImageToPaper(page.png_uri, 400, 400) # TODO the dimensions should be modified
-    console.log "logging data-----------------------------"
-    console.log JSON.stringify data
-    console.log "finished logging data--------------------"
 
     # get dimensions for available whiteboard space
     # get where to start from the left -> either the end of the user's list or the left edge of the screen

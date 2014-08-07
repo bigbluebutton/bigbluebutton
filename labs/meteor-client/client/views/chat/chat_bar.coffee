@@ -1,7 +1,7 @@
 Template.messageBar.helpers
   # This method returns all messages for the user. It looks at the session to determine whether the user is in
   #private or public chat. If true is passed, messages returned are from before the user joined. Else, the messages are from after the user joined
-  getMessagesInChat: () ->
+  getFormattedMessagesForChat: () ->
     friend = chattingWith = getInSession('inChatWith') # the recipient(s) of the messages
 
     if chattingWith is 'PUBLIC_CHAT' # find all public messages
@@ -24,6 +24,11 @@ Template.messageBar.helpers
     ]
 
     messages = (before.concat greeting).concat after
+    ###
+    # Now after all messages + the greeting have been inserted into our collection, what we have to do is go through all messages
+    # and modify them to join all sequential messages by users together so each entries will be chat messages by a user in the same time frame
+    # we can use a time frame, so join messages together that are within 5 minutes of eachother, for example
+    ###
 
   isUserInPrivateChat: -> # true if user is in public chat
     getInSession('inChatWith') isnt "PUBLIC_CHAT"
