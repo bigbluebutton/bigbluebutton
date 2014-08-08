@@ -5,6 +5,7 @@ package org.bigbluebutton.modules.phone.events
 	public class WebRTCEchoTestEvent extends Event
 	{
 		public static const WEBRTC_ECHO_TEST_STARTED:String = "WEBRTC_ECHO_TEST_STARTED";
+		public static const WEBRTC_ECHO_TEST_CONNECTING:String = "WEBRTC_ECHO_TEST_CONNECTING";
 		public static const WEBRTC_ECHO_TEST_ENDED:String = "WEBRTC_ECHO_TEST_ENDED";
 		public static const WEBRTC_ECHO_TEST_FAILED:String = "WEBRTC_ECHO_TEST_FAILED";
 		public static const WEBRTC_ECHO_TEST_HAS_AUDIO:String = "WEBRTC_ECHO_TEST_HAS_AUDIO";

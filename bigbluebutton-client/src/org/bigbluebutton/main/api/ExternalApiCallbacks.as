@@ -99,7 +99,9 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("webRTCEchoTestFailed", handleWebRTCEchoTestFailed);
         ExternalInterface.addCallback("webRTCEchoTestEnded", handleWebRTCEchoTestEnded);
         ExternalInterface.addCallback("webRTCEchoTestStarted", handleWebRTCEchoTestStarted);
-        
+		ExternalInterface.addCallback("webRTCMediaRequest", handleWebRTCMediaRequest);
+		ExternalInterface.addCallback("webRTCMediaSuccess", handleWebRTCMediaSuccess);
+		ExternalInterface.addCallback("webRTCMediaFail", handleWebRTCMediaFail);
       }
       
       // Tell out JS counterpart that we are ready.
@@ -395,6 +397,11 @@ package org.bigbluebutton.main.api
       trace(LOG + "handleWebRTCConferenceCallStarted: recieved");
       _dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_STARTED));
     }
+	
+	private function handleWebRTCConferenceCallConnecting():void {
+		trace(LOG + "handleWebRTCConferenceCallConnecting: recieved");
+		_dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_CONNECTING));
+	}
 
     private function handleWebRTCConferenceCallEnded():void {
       trace(LOG + "handleWebRTCConferenceCallEnded: received");
@@ -410,6 +417,11 @@ package org.bigbluebutton.main.api
       trace(LOG + "handleWebRTCEchoTestStarted: recieved");
       _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_STARTED));
     }
+	
+	private function handleWebRTCEchoTestConnecting():void {
+		trace(LOG + "handleWebRTCEchoTestConnecting: recieved");
+		_dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_CONNECTING));
+	}
     
     private function handleWebRTCEchoTestFailed(cause:String):void {
       trace(LOG + "handleWebRTCEchoTestFailed: cause=[" + cause + "]");
@@ -432,7 +444,7 @@ package org.bigbluebutton.main.api
 	}
     
     private function handleWebRTCMediaFail():void {
-      trace(LOG + "handleWebRTCMediaSuccess: received");
+      trace(LOG + "handleWebRTCMediaFail: received");
       _dispatcher.dispatchEvent(new WebRTCMediaEvent(WebRTCMediaEvent.WEBRTC_MEDIA_FAIL));
     }
   }

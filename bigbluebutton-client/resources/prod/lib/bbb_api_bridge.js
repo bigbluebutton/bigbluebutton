@@ -419,6 +419,21 @@
     /**
      *
      */
+     
+    BBB.webRTCConferenceCallStarted = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCConferenceCallStarted();
+      }
+    }
+    
+    BBB.webRTCConferenceCallConnecting = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCConferenceCallConnecting();
+      }
+    }
+     
     BBB.webRTCConferenceCallEnded = function(message) {
       var swfObj = getSwfObj();
       if (swfObj) {
@@ -433,17 +448,24 @@
       }
     }
 
-    BBB.webRTCConferenceCallStarted = function(localStream, remoteStream) {
-      var swfObj = getSwfObj();
-      if (swfObj) {
-        swfObj.webRTCConferenceCallStarted(localStream, remoteStream);
-      }
-    }
-
     BBB.webRTCCallProgressCallback = function(progress) {
       var swfObj = getSwfObj();
       if (swfObj) {
         swfObj.webRTCCallProgressCallback(progress);
+      }
+    }
+
+    BBB.webRTCEchoTestStarted = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCEchoTestStarted();
+      }
+    }
+    
+    BBB.webRTCEchoTestConnecting = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCEchoTestConnecting();
       }
     }
 
@@ -460,13 +482,6 @@
         swfObj.webRTCEchoTestEnded(cause);
       }
     }
-
-    BBB.webRTCEchoTestStarted = function(localStream, remoteStream) {
-      var swfObj = getSwfObj();
-      if (swfObj) {
-        swfObj.webRTCEchoTestStarted(localStream, remoteStream);
-      }
-    }
     
     BBB.webRTCMediaRequest = function() {
       var swfObj = getSwfObj();
@@ -475,6 +490,19 @@
       }
     }
 
+    BBB.webRTCMediaSuccess = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCMediaSuccess();
+      }
+    }
+    
+    BBB.webRTCMediaFail = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCMediaFail();
+      }
+    }
             
     // Third-party JS apps should use this to query if the BBB SWF file is ready to handle calls.
     BBB.isSwfClientReady = function() {

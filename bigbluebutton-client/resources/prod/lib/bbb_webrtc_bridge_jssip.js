@@ -44,7 +44,7 @@ function joinWebRTCVoiceConference() {
 			case 'mediasuccess':
 				BBB.webRTCMediaSuccess();
 				break;
-			case 'mediafailed':
+			case 'mediafail':
 				BBB.webRTCMediaFail();
 				break;
 		}
@@ -62,7 +62,7 @@ function leaveWebRTCVoiceConference() {
 	webrtc_hangup(callback);
 }
 
-function startWebrtcAudioTest(){
+function startWebRTCAudioTest(){
 	console.log("Testing webrtc audio");
 	var callback = function(message) {
 		switch(message.status) {
@@ -84,7 +84,7 @@ function startWebrtcAudioTest(){
 			case 'mediasuccess':
 				BBB.webRTCMediaSuccess();
 				break;
-			case 'mediafailed':
+			case 'mediafail':
 				BBB.webRTCMediaFail();
 				break;
 		}
@@ -93,7 +93,7 @@ function startWebrtcAudioTest(){
 	callIntoConference("9196", callback);
 }
 
-function stopWebrtcAudioTest(){
+function stopWebRTCAudioTest(){
 	console.log("Stopping webrtc audio test");
 	var callback = function(request) {
 		BBB.leaveWebRTCVoiceConferenceCallback();
@@ -112,11 +112,11 @@ function createUA(username, server) {
 	
 	var configuration = {
 		uri: 'sip:' + username + '@' + server,
-		ws_servers: 'ws://' + server + ':5066',
-		display_name: username,
+		wsServers: 'ws://' + server + ':5066',
+		displayName: username,
 		register: false,
-		trace_sip: false,
-		stun_servers: "stun:74.125.134.127:19302",
+		traceSip: false,
+		stunServers: "stun:74.125.134.127:19302",
 	};
 	
 	userAgent = new SIP.UA(configuration);
@@ -162,7 +162,7 @@ function webrtc_call(username, voiceBridge, callback) {
 				make_call(username, voiceBridge, server, callback);
 			}, function(e) {
 				console.error("getUserMedia: failure - " + e);
-				callback({'status':'mediafailed', 'cause': e});
+				callback({'status':'mediafail', 'cause': e});
 			}
 		);
 	}
@@ -173,7 +173,7 @@ function make_call(username, voiceBridge, server, callback) {
 	console.log("Setting options.. ");
 	var options = {
 		stream: userMedia,
-    	render: {
+		render: {
 			remote: {
 				audio: document.getElementById('remote-media')
 			}
