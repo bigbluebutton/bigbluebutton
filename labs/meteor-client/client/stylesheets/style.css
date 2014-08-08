@@ -1,15 +1,10 @@
 body {
-background: #eee;
-color: #666666;
+    background: #eee;
+    color: #666666;
 }
 
-.raiseHand {
-}
-.lowerHand{
-}
-.kickUser{
-}
-
+.raiseHand {}
+.lowerHand{}
 .usersListIcon{}
 .chatBarIcon{}
 .videoFeedIcon{}
@@ -17,10 +12,6 @@ color: #666666;
 .signOutIcon{}
 .hideNavbarIcon{}
 .settingsIcon{}
-
-.navbarIconToggleActive{
-	border-bottom: 4px solid lightblue;
-}
 
 .ScrollableWindow {
     padding-right:5px;
@@ -49,4 +40,38 @@ color: #666666;
     padding-bottom: 5px;
     padding-left: 10px;
     margin:0;
+}
+
+.myNavbar{
+    background: -webkit-linear-gradient(rgb(255,255,255), rgb(182,181,181)); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(     rgb(255,255,255), rgb(182,181,181)); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(   rgb(255,255,255), rgb(182,181,181)); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(        rgb(255,255,255), rgb(182,181,181)); /* Standard syntax (must be last) */
+    min-width:900px;
+}
+.navbarIconToggleActive{
+    border-bottom: 4px solid lightblue;
+}
+.navbarButton {
+    height:40px;
+    width:40px;
+    margin-left: 2px;
+    margin-right: 2px;
+}
+.navbarSection{
+    width:33%;
+    float:left;
+    min-width:300px;
+}
+.navbarUserButtons{
+    padding-left:0.5%;
+}
+.navbarTitle{
+    font-weight:bold;
+    font-size: 16px;
+    text-align:center;
+    padding-top:15px;
+}
+.navbarSettingsButtons{
+    text-align: right;
 }

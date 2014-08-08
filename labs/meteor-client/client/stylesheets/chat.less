@@ -19,21 +19,6 @@
   width:100%;
   position:relative;
   border-bottom:1px solid #ccc;
-
-	button {
-		/*.rounded(0);*/
-	}
-	.btn {
-		padding:0 5px;
-		font-size:12px;
-		line-height:22px;
-		border-top:0;
-		border-bottom:0;
-		border-left:0;
-		border-right:1px solid #ccc;
-		display:block;
-		float:left;
-	}
 }
 
 .chat-input-wrapper {
@@ -42,9 +27,6 @@
 
 #chat-user-list {
 	padding:5px;
-	li {
-		cursor: pointer;
-	}
 }
 
 .chat-message {
@@ -57,13 +39,15 @@
     padding-left: 20px;
 }
 
-.chat-entry{
-
-}
+.tab{}
+.publicChatTab{}
+.optionsChatTab{}
+.privateChatTab{}
+.private-chat-user-entry {}
+.chat-entry{}
+.chat-entry tr:nth-child(odd) {}
 .chat-entry tr:nth-child(even) {
     background-color: rgb(245,245,245);
-}
-.chat-entry tr:nth-child(odd) {
 }
 
 .chat-username {
@@ -77,28 +61,10 @@
 	float:right;
 }
 
-.tab{}
-
-.publicChatTab{
-
-}
-
-.optionsChatTab{
-
-}
-
-.privateChatTab{
-    
-}
-
 .chatGreeting {
 	font-size: 12px;
     line-height: 14px;
 	color: blue;
-
-	a{
-		text-decoration: underline;
-	}
 }
 
 .private-chat-user-list {
@@ -109,10 +75,6 @@
   font-size:14px;
   background: #0099FF;
   font-style:italic;
-}
-
-.private-chat-user-entry {
-  
 }
 
 .private-chat-user-box {

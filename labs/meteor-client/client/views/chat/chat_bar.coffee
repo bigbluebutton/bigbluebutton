@@ -35,7 +35,7 @@ Template.messageBar.helpers
 
   getChatGreeting: ->
     greeting = 
-    "<p>Welcome to #{getInSession 'meetingName'}!</p>
+    "<p>Welcome to #{getMeetingName()}!</p>
     <p>For help on using BigBlueButton see these (short) <a href='http://bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.</p>
     <p>To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.</p>
     <br/>
