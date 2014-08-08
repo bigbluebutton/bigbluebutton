@@ -1,5 +1,5 @@
 Meteor.methods
-  validate: (meetingId, userId, authToken) ->
+  validateAuthToken: (meetingId, userId, authToken) ->
     Meteor.redisPubSub.sendValidateToken(meetingId, userId, authToken)
 
   userLogout: (meetingId, userId) ->
