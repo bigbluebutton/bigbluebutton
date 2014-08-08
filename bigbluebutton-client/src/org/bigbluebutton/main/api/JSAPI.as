@@ -23,20 +23,20 @@ package org.bigbluebutton.main.api
       return instance;
     }
     
-    public function callWithWebRtc(caller:String, destination:String):void {
+    public function callWithWebRTC(caller:String, destination:String):void {
       var payload:Object = new Object();
       payload.destination = destination;
       payload.caller = caller;
-      ExternalInterface.call("callWithWebRtc", payload);
+      ExternalInterface.call("callWithWebRTC", payload);
     }
     
-    public function hangupWebRtcCall():void {
-      ExternalInterface.call("hangupWebRtcCall");
+    public function hangupWebRTCCall():void {
+      ExternalInterface.call("hangupWebRTCCall");
     }
     
-    public function isWebRtcAvailable():Boolean {
+    public function isWebRTCAvailable():Boolean {
       if (ExternalInterface.available) {
-        return ExternalInterface.call("isWebrtcCapable");
+        return ExternalInterface.call("isWebRTCAvailable");
       }
       return false;
     }

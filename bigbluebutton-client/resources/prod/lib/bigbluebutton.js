@@ -44,17 +44,3 @@ navigator.sayswho= (function(){
     if(M && (tem= ua.match(/version\/([\.\d]+)/i))!= null) M[2]= tem[1];
     return M;
 })();
-
-var isWebrtcCapable = function() {
-    var sayswho = navigator.sayswho,
-        browser = sayswho[0],
-        version = +(sayswho[1].split('.')[0]);
-
-    console.log("Browser: " + browser + ", version: " + version);
-//    if (browser != "Chrome" || version < 28) {
-    if ((browser == "Chrome" && version >= 28) || (browser == "Firefox" && version >= 26)) {
-        return true;
-    } else {
-        return false;
-    }
-}

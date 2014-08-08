@@ -1,117 +1,214 @@
 
-var bbbAudioConference;
-var currentSession;
+var callerIdName, conferenceVoiceBridge, userAgent, userMedia, currentSession;
 
-// Hang Up webrtc call
+function callIntoConference(voiceBridge, callback) {
+	if (!callerIdName) {
+		BBB.getMyUserInfo(function(userInfo) {
+			console.log("User info callback [myUserID=" + userInfo.myUserID
+				+ ",myUsername=" + userInfo.myUsername + ",myAvatarURL=" + userInfo.myAvatarURL
+				+ ",myRole=" + userInfo.myRole + ",amIPresenter=" + userInfo.amIPresenter
+				+ ",dialNumber=" + userInfo.dialNumber + ",voiceBridge=" + userInfo.voiceBridge + "].");
+			
+			callerIdName = userInfo.myUserID + "-bbbID-" + userInfo.myUsername;
+			conferenceVoiceBridge = userInfo.voiceBridge
+			voiceBridge = voiceBridge || conferenceVoiceBridge;
+			
+			console.log(callerIdName);
+			webrtc_call(callerIdName, voiceBridge, callback);
+		});
+	} else {
+		voiceBridge = voiceBridge || conferenceVoiceBridge;
+		webrtc_call(callerIdName, voiceBridge, callback);
+	}
+}
+
+function joinWebRTCVoiceConference() {
+	console.log("Joining to the voice conference");
+	var callback = function(message) {
+		switch (message.status) {
+			case 'failed':
+				BBB.webRTCConferenceCallFailed(message.cause);
+				break;
+			case 'ended':
+				BBB.webRTCConferenceCallEnded();
+				break;
+			case 'started':
+				BBB.webRTCConferenceCallStarted();
+				break;
+			case 'connecting':
+				BBB.webRTCConferenceCallConnecting();
+				break;
+			case 'mediarequest':
+				BBB.webRTCMediaRequest();
+				break;
+			case 'mediasuccess':
+				BBB.webRTCMediaSuccess();
+				break;
+			case 'mediafailed':
+				BBB.webRTCMediaFail();
+				break;
+		}
+	}
+	
+	callIntoConference(conferenceVoiceBridge, callback);
+}
+
+function leaveWebRTCVoiceConference() {
+	console.log("Leaving the voice conference");
+	var callback = function(request) {
+		BBB.leaveWebRTCVoiceConferenceCallback();
+	}
+	
+	webrtc_hangup(callback);
+}
+
+function startWebrtcAudioTest(){
+	console.log("Testing webrtc audio");
+	var callback = function(message) {
+		switch(message.status) {
+			case 'failed':
+				BBB.webRTCEchoTestFailed(message.cause);
+				break;
+			case 'ended':
+				BBB.webRTCEchoTestEnded();
+				break;
+			case 'started':
+				BBB.webRTCEchoTestStarted();
+				break;
+			case 'connecting':
+				BBB.webRTCEchoTestConnecting();
+				break;
+			case 'mediarequest':
+				BBB.webRTCMediaRequest();
+				break;
+			case 'mediasuccess':
+				BBB.webRTCMediaSuccess();
+				break;
+			case 'mediafailed':
+				BBB.webRTCMediaFail();
+				break;
+		}
+	}
+	
+	callIntoConference("9196", callback);
+}
+
+function stopWebrtcAudioTest(){
+	console.log("Stopping webrtc audio test");
+	var callback = function(request) {
+		BBB.leaveWebRTCVoiceConferenceCallback();
+	}
+	
+	webrtc_hangup(callback);
+}
+
+function createUA(username, server) {
+	if (userAgent) {
+		console.log("User agent already created");
+		return;
+	}
+	
+	console.log("Creating new user agent");
+	
+	var configuration = {
+		uri: 'sip:' + username + '@' + server,
+		ws_servers: 'ws://' + server + ':5066',
+		display_name: username,
+		register: false,
+		trace_sip: false,
+		stun_servers: "stun:74.125.134.127:19302",
+	};
+	
+	userAgent = new SIP.UA(configuration);
+	
+	userAgent.start();
+};
+
+function getMic(getUserMediaSuccess, getUserMediaFailure) {
+	if (!userMedia) {
+		if (SIP.WebRTC.isSupported()) {
+			SIP.WebRTC.getUserMedia({audio:true, video:false}, getUserMediaSuccess, getUserMediaFailure);
+		} else {
+			console.log("getMic: webrtc not supported");
+			getUserMediaFailure("WebRTC is not supported");
+		}
+	} else {
+		console.log("getMic: media already set");
+		getUserMediaSuccess(userMedia);
+	}
+};
+
+function webrtc_call(username, voiceBridge, callback) {
+	if (!isWebRTCAvailable()) {
+		callback({'status': 'browserError', message: "Browser version not supported"});
+		return;
+	}
+	
+	var server = window.document.location.host;
+	console.log("user " + username + " calling to " +  voiceBridge);
+	
+	if (!userAgent) {
+		createUA(username, server);
+	}
+	
+	if (userMedia) {
+		make_call(username, voiceBridge, server, callback);
+	} else {
+		callback({'status':'mediarequest'});
+		getMic(function(stream) {
+				console.log("getUserMedia: success");
+				userMedia = stream;
+				callback({'status':'mediasuccess'});
+				make_call(username, voiceBridge, server, callback);
+			}, function(e) {
+				console.error("getUserMedia: failure - " + e);
+				callback({'status':'mediafailed', 'cause': e});
+			}
+		);
+	}
+}
+
+function make_call(username, voiceBridge, server, callback) {
+	// Make an audio/video call:
+	console.log("Setting options.. ");
+	var options = {
+		stream: userMedia,
+    	render: {
+			remote: {
+				audio: document.getElementById('remote-media')
+			}
+		}
+	};
+	
+	console.log("Calling to " + voiceBridge + "....");
+	currentSession = userAgent.invite('sip:' + voiceBridge + '@' + server, options); 
+	
+	currentSession.on('failed', function(response, cause){
+		console.log('call failed with cause: '+ cause);
+		callback({'status':'failed', 'cause': cause});
+	});
+	currentSession.on('bye', function(request){
+		console.log('call ended ' + newSession.endTime);
+		callback({'status':'ended'});
+	});
+	currentSession.on('accepted', function(data){
+		console.log('BigBlueButton call started');
+		callback({'status':'started'});
+	});
+	currentSession.on('connecting', function(){
+		console.log('call connecting');
+		callback({'status':'connecting'});
+	});
+}
+
 function webrtc_hangup(callback) {
-      console.log("Terminating current session");
-      currentSession.terminate(); // allows calling multiple times
-      callback();
+	console.log("Hanging up current session");
+	if (callback) {
+	  currentSession.on('bye', callback);
+	}
+	currentSession.bye();
 }
 
-// Call 
-function webrtc_call(username, voiceBridge, server, callback) {
-    var sayswho = navigator.sayswho,
-        browser = sayswho[0],
-        version = +(sayswho[1].split('.')[0]);
-
-    console.log("Browser: " + browser + ", version: " + version);
-    if ( !( (browser == "Chrome" && version >= 28) || (browser == "Firefox" && version >= 26) ) ) {
-        callback({'status': 'browserError', message: "Browser version not supported"});
-        return;
-    }
-
-    server = server || window.document.location.host;
-    console.log("user " + username + " calling to " +  voiceBridge);
-    
-    var configuration = {
-         uri: 'sip:' + escape(username) + '@' + server,
-      //   password: freeswitchPassword,
-      //   ws_servers: 'wss://' + server + ':7443',
-         ws_servers: 'ws://' + server + ':5066',         
-         display_name: username,
-      //   authorization_user: freeswitchUser,
-         register: false,
-      //   register_expires: null,
-      //   no_answer_timeout: null,
-         trace_sip: false,
-         stun_servers: "stun:74.125.134.127:19302",
-      //   turn_servers: null,
-      //   use_preloaded_route: null,
-      //   connection_recovery_min_interval: null,
-      //   connection_recovery_max_interval: null,
-      //   hack_via_tcp: null,
-      //   hack_ip_in_contact: null
-  };
-
-  
-  bbbAudioConference = new JsSIP.UA(configuration);
-  
-  bbbAudioConference.on('newRTCSession', function(e) {
-      console.log("New Webrtc session created!");
-      currentSession = e.data.session;
-    });
-    
-  bbbAudioConference.start();
-  // Make an audio/video call:
-  // HTML5 <video> elements in which local and remote video will be shown
-  var selfView =   document.getElementById('local-media');
-  var remoteView =  document.getElementById('remote-media');
-
-  console.log("Registering callbacks to desired call events..");
-  var eventHandlers = {
-    'progress': function(e){
-      console.log('call is in progress: ' + e.data);
-      callback({'status':'progress', 'message': e.data});
-    },
-    'failed': function(e){
-      console.log('call failed with cause: '+ e.data.cause);
-      callback({'status':'failed', 'cause': e.data.cause});
-    },
-    'ended': function(e){
-      console.log('call ended with cause: '+ e.data.cause);
-      callback({'status':'ended', 'cause': e.data.cause});
-    },
-    'started': function(e){
-      var rtcSession = e.sender;
-      var localStream = false;
-      var remoteStream = false;
-
-      console.log('BigBlueButton call started');
-
-      // Attach local stream to selfView
-      if (rtcSession.getLocalStreams().length > 0) {
-        console.log("Got local stream");     
-        localStream = true;   
-      }
-
-      // Attach remote stream to remoteView
-      if (rtcSession.getRemoteStreams().length > 0) {
-        console.log("Got remote stream");
-        remoteView.src = window.URL.createObjectURL(rtcSession.getRemoteStreams()[0]);
-        remoteStream = true;
-      }
-      callback({'status':'started', 'localStream': localStream, 'remoteStream': remoteStream});
-    }
-  };
-  
-  console.log("Setting options.. ");
-  var options = {
-    'eventHandlers': eventHandlers,
-    'mediaConstraints': {'audio': true, 'video': false}
-  };
-
-  console.log("Calling to " + voiceBridge + "....");
-  bbbAudioConference.call('sip:' + voiceBridge + '@' + server, options); 
+function isWebRTCAvailable() {
+	return SIP.WebRTC.isSupported();
 }
-
-// http://stackoverflow.com/questions/5916900/detect-version-of-browser
-navigator.sayswho= (function(){
-    var ua= navigator.userAgent, 
-        N= navigator.appName, 
-        tem, 
-        M= ua.match(/(opera|chrome|safari|firefox|msie|trident)\/?\s*([\d\.]+)/i) || [];
-    M= M[2]? [M[1], M[2]]:[N, navigator.appVersion, '-?'];
-    if(M && (tem= ua.match(/version\/([\.\d]+)/i))!= null) M[2]= tem[1];
-    return M;
-})();

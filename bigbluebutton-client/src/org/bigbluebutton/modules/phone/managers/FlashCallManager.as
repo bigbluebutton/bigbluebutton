@@ -71,8 +71,8 @@
       connectionManager.setup(uid, UsersUtil.getMyUserID(), uname , UsersUtil.getInternalMeetingID(), options.uri);
     }
     
-    private function isWebRtcSupported():Boolean {
-      return (ExternalInterface.available && ExternalInterface.call("isWebrtcCapable"));
+    private function isWebRTCSupported():Boolean {
+      return (ExternalInterface.available && ExternalInterface.call("isWebRTCAvailable"));
     }
 
     private function isConnected():Boolean {
@@ -193,7 +193,7 @@
     public function initialize():void {      
       printMics();
       options = new PhoneOptions();
-      if (options.useWebrtcIfAvailable && isWebRtcSupported()) {
+      if (options.useWebRTCIfAvailable && isWebRTCSupported()) {
         usingFlash = false;
       } else {
         usingFlash = true;

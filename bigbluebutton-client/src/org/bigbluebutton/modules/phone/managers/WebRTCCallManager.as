@@ -19,18 +19,14 @@ package org.bigbluebutton.modules.phone.managers
   import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
   import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
   import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
-  import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionEvent;
-  import org.bigbluebutton.modules.phone.events.WebRtcAskMicPermissionToJoinConferenceEvent;
-  import org.bigbluebutton.modules.phone.events.WebRtcAskUserToChangeMicEvent;
-  import org.bigbluebutton.modules.phone.events.WebRtcCallConnectedEvent;
-  import org.bigbluebutton.modules.phone.events.WebRtcCallDisconnectedEvent;
-  import org.bigbluebutton.modules.phone.events.WebRtcEchoTestStartedEvent;
-  import org.bigbluebutton.modules.phone.events.WebRtcRemoveAskMicPermissionEvent;
+  import org.bigbluebutton.modules.phone.events.WebRTCAskUserToChangeMicEvent;
+  import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
+  import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
-  public class WebRtcCallManager
+  public class WebRTCCallManager
   {
-    private static const LOG:String = "Phone::WebRtcCallManager - ";
+    private static const LOG:String = "Phone::WebRTCCallManager - ";
     
 	private static const INITED:int = 0;
 	private static const DO_ECHO_TEST:int = 1;
@@ -49,10 +45,10 @@ package org.bigbluebutton.modules.phone.managers
     private var dispatcher:Dispatcher = new Dispatcher();
     private var echoTestDone:Boolean = false;
     
-    private var usingWebRtc:Boolean = false;
+    private var usingWebRTC:Boolean = false;
     private var options:PhoneOptions;
     
-    public function WebRtcCallManager() {
+    public function WebRTCCallManager() {
       var browserInfo:Array = JSAPI.getInstance().getBrowserInfo();
       if (browserInfo != null) {
         browserType = browserInfo[0];
@@ -60,60 +56,53 @@ package org.bigbluebutton.modules.phone.managers
       }
     }
     
-    private function isWebRtcSupported():Boolean {
-      return (ExternalInterface.available && ExternalInterface.call("isWebrtcCapable"));
+    private function isWebRTCSupported():Boolean {
+      return (ExternalInterface.available && ExternalInterface.call("isWebRTCAvailable"));
     }
     
     public function userRequestedHangup():void {
-      if (usingWebRtc) hangup();
+      if (usingWebRTC) hangup();
     }
     
     public function initialize():void {         
       options = new PhoneOptions();
-      if (options.useWebrtcIfAvailable && isWebRtcSupported()) {
-        usingWebRtc = true;
+      if (options.useWebRTCIfAvailable && isWebRTCSupported()) {
+        usingWebRTC = true;
       }
     }
     
-    private function startWebRtcEchoTest():void {
+    private function startWebRTCEchoTest():void {
 	  state = CALLING_INTO_ECHO_TEST;
-      ExternalInterface.call("startWebrtcAudioTest");
+      ExternalInterface.call("startWebRTCAudioTest");
     }
     
     private function endEchoTest():void {
-      ExternalInterface.call("stopWebrtcAudioTest");
+      ExternalInterface.call("stopWebRTCAudioTest");
     }
     
     private function hangup():void {
-      ExternalInterface.call("stopWebrtcAudioTest");
-    }
-    
-    private function askMicPermission():void {      
-      dispatcher.dispatchEvent(new WebRtcAskMicPermissionEvent(browserType));       
+      ExternalInterface.call("stopWebRTCAudioTest");
     }
     
     private function hideMicPermission():void {
-      dispatcher.dispatchEvent(new WebRtcRemoveAskMicPermissionEvent());
+      dispatcher.dispatchEvent(new WebRTCMediaEvent(WebRTCMediaEvent.WEBRTC_MEDIA_FAIL));
     }
     
-    public function handleWebRtcEchoTestStarted():void {
+    public function handleWebRTCEchoTestStarted():void {
 	  state = DO_ECHO_TEST;
-      hideMicPermission();
-      dispatcher.dispatchEvent(new WebRtcEchoTestStartedEvent());
     }
     
-    public function handleWebRtcEchoTestNoAudioEvent():void {
+    public function handleWebRTCEchoTestNoAudioEvent():void {
 	  state = ECHO_TEST_FAILED;
       endEchoTest();
-      hideMicPermission();
       
-      //dispatcher.dispatchEvent(new WebRtcAskUserToChangeMicEvent(browserType));
+      //dispatcher.dispatchEvent(new WebRTCAskUserToChangeMicEvent(browserType));
       dispatcher.dispatchEvent(new UseFlashModeCommand());
     }
     
 	private var t:Timer;
 	
-    public function handleWebRtcEchoTestHasAudioEvent():void {
+    public function handleWebRTCEchoTestHasAudioEvent():void {
 	  state = STOP_ECHO_THEN_JOIN_CONF;
       endEchoTest();
       /**
@@ -128,51 +117,46 @@ package org.bigbluebutton.modules.phone.managers
 	  t.start();
     }
     
-    public function handleWebRtcConfCallStartedEvent():void {
+    public function handleWebRTCCallStartedEvent():void {
 	  trace(LOG + "setting state to IN_CONFERENCE");
 	  state = IN_CONFERENCE;
-      hideMicPermission();
-      dispatcher.dispatchEvent(new WebRtcCallConnectedEvent());
     }
     
-    public function handleWebRtcConfCallEndedEvent():void {
+    public function handleWebRTCCallEndedEvent():void {
 	  state = INITED;
       hideMicPermission();
-      dispatcher.dispatchEvent(new WebRtcCallDisconnectedEvent());
     }
     
     private function joinVoiceConference():void {
 	  state = JOIN_VOICE_CONFERENCE;
-      ExternalInterface.call("joinWebRtcVoiceConference");
-      dispatcher.dispatchEvent(new WebRtcAskMicPermissionToJoinConferenceEvent(browserType, browserVersion));        
+      ExternalInterface.call("joinWebRTCVoiceConference");      
     }
     
     public function handleJoinVoiceConferenceCommand(event:JoinVoiceConferenceCommand):void {
-      trace(LOG + "handleJoinVoiceConferenceCommand - usingWebRTC: " + usingWebRtc + ", event.mic: " + event.mic);
+      trace(LOG + "handleJoinVoiceConferenceCommand - usingWebRTC: " + usingWebRTC + ", event.mic: " + event.mic);
       
-      if (!usingWebRtc || !event.mic) return;
+      if (!usingWebRTC || !event.mic) return;
       
       if (options.skipCheck || echoTestDone) {
         joinVoiceConference();
       } else {
-        startWebRtcEchoTest();
-        askMicPermission();
+        startWebRTCEchoTest();
       }
     }
     
     public function handleLeaveVoiceConferenceCommand():void {
-      if (!usingWebRtc) return;
+      if (!usingWebRTC) return;
       state = INITED;
-      ExternalInterface.call("leaveWebRtcVoiceConference");
+      ExternalInterface.call("leaveWebRTCVoiceConference");
     }
     
 	public function handleBecomeViewer():void {
 		trace(LOG + "handleBecomeViewer received");
 		if (options.presenterShareOnly) {
-			if (!usingWebRtc || state != IN_CONFERENCE || UsersUtil.amIModerator()) return;
+			if (!usingWebRTC || state != IN_CONFERENCE || UsersUtil.amIModerator()) return;
 			
 			trace(LOG + "handleBecomeViewer leaving WebRTC and joining listen only stream");
-			ExternalInterface.call("leaveWebRtcVoiceConference");
+			ExternalInterface.call("leaveWebRTCVoiceConference");
 			
 			var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
 			command.mic = false;
@@ -181,18 +165,18 @@ package org.bigbluebutton.modules.phone.managers
 	}
 	
     public function handleUseFlashModeCommand():void {
-      usingWebRtc = false;
+      usingWebRTC = false;
       hangup();
     }
 
-    public function handleWebrtcEchoTestFailedEvent(reason:String):void {
+    public function handleWebRTCEchoTestFailedEvent(reason:String):void {
 	  state = INITED;
       endEchoTest();
       hideMicPermission();
 	  var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [reason]), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
     }
     
-    public function handleWebrtcCallFailedEvent(reason:String):void {
+    public function handleWebRTCCallFailedEvent(reason:String):void {
       state = INITED;
       hideMicPermission();
       var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [reason]), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);

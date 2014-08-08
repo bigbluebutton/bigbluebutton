@@ -36,7 +36,7 @@ package org.bigbluebutton.modules.phone
 		public var enabledEchoCancel:Boolean = false;
 		
 		[Bindable]
-		public var useWebrtcIfAvailable:Boolean = true;
+		public var useWebRTCIfAvailable:Boolean = true;
 
 		[Bindable]
 		public var echoTestApp:String = "9196";
@@ -75,8 +75,8 @@ package org.bigbluebutton.modules.phone
 				if (vxml.@enabledEchoCancel != undefined) {
 					enabledEchoCancel = (vxml.@enabledEchoCancel.toString().toUpperCase() == "TRUE") ? true : false;
 				}
-				if (vxml.@useWebrtcIfAvailable != undefined) {
-					useWebrtcIfAvailable = (vxml.@useWebrtcIfAvailable.toString().toUpperCase() == "TRUE");
+				if (vxml.@useWebRTCIfAvailable != undefined) {
+					useWebRTCIfAvailable = (vxml.@useWebRTCIfAvailable.toString().toUpperCase() == "TRUE");
 				}
 				if (vxml.@echoTestApp != undefined) {
 					echoTestApp = vxml.@echoTestApp.toString();

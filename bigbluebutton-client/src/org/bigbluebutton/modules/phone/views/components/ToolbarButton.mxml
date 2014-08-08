@@ -32,8 +32,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{FlashLeftVoiceConferenceEvent.LEFT_VOICE_CONFERENCE}" method="handleFlashLeftVoiceConferenceEvent" />
   <mate:Listener type="{FlashJoinedVoiceConferenceEvent.JOINED_VOICE_CONFERENCE}" method="handleFlashJoinedVoiceConferenceEvent" />
   <mate:Listener type="{FlashJoinedListenOnlyVoiceConferenceEvent.JOINED_LISTEN_ONLY_VOICE_CONFERENCE}" method="handleFlashJoinedListenOnlyConferenceEvent" />
-  <mate:Listener type="{WebRtcCallConnectedEvent.WEBRTC_CALL_CONNECTED}" method="handleWebRtcCallConnectedEvent" />
-  <mate:Listener type="{WebRtcCallDisconnectedEvent.WEBRTC_CALL_DISCONNECTED}" method="handleWebRtcCallDisconnectedEvent" />
+  <mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_STARTED}" method="handleWebRTCCallStartedEvent" />
+  <mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_ENDED}" method="handleWebRTCCallEndedEvent" />
   <mate:Listener type="{AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION}" method="handleClosedAudioSelectionWindowEvent" />
   
 	<mx:Script>
@@ -56,8 +56,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.FlashStopEchoTestCommand;
 			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
 			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
-			import org.bigbluebutton.modules.phone.events.WebRtcCallConnectedEvent;
-			import org.bigbluebutton.modules.phone.events.WebRtcCallDisconnectedEvent;
+			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
 			import org.bigbluebutton.modules.phone.views.assets.Images;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -156,12 +155,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         onUserLeftConference();
       }
       
-      private function handleWebRtcCallConnectedEvent(event: WebRtcCallConnectedEvent):void {
+      private function handleWebRTCCallStartedEvent(event: WebRTCCallEvent):void {
         trace(LOG + "User has joined the conference using webrtc");
         onUserJoinedConference();
-			}
+      }
 						
-			private function handleWebRtcCallDisconnectedEvent(event:WebRtcCallDisconnectedEvent):void {
+			private function handleWebRTCCallEndedEvent(event:WebRTCCallEvent):void {
         trace(LOG + "User has left the conference using webrtc");
         onUserLeftConference();
 			}

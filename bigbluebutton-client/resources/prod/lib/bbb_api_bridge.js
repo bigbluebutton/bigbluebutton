@@ -419,52 +419,59 @@
     /**
      *
      */
-    BBB.webRtcConferenceCallEnded = function(message) {
+    BBB.webRTCConferenceCallEnded = function(message) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRtcConferenceCallEnded(message);
+        swfObj.webRTCConferenceCallEnded(message);
       }
     }
 
-    BBB.webRtcConferenceCallFailed = function(message) {
+    BBB.webRTCConferenceCallFailed = function(message) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRtcConferenceCallFailed(message);
+        swfObj.webRTCConferenceCallFailed(message);
       }
     }
 
-    BBB.webRtcConferenceCallStarted = function(localStream, remoteStream) {
+    BBB.webRTCConferenceCallStarted = function(localStream, remoteStream) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRtcConferenceCallStarted(localStream, remoteStream);
+        swfObj.webRTCConferenceCallStarted(localStream, remoteStream);
       }
     }
 
-    BBB.webRtcCallProgressCallback = function(progress) {
+    BBB.webRTCCallProgressCallback = function(progress) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRtcCallProgressCallback(progress);
+        swfObj.webRTCCallProgressCallback(progress);
       }
     }
 
-    BBB.webRtcEchoTestFailed = function(reason) {
+    BBB.webRTCEchoTestFailed = function(reason) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRtcEchoTestFailed(reason);
+        swfObj.webRTCEchoTestFailed(reason);
       }
     }
 
-    BBB.webRtcEchoTestEnded = function(cause) {
+    BBB.webRTCEchoTestEnded = function(cause) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRtcEchoTestEnded(cause);
+        swfObj.webRTCEchoTestEnded(cause);
       }
     }
 
-    BBB.webRtcEchoTestStarted = function(localStream, remoteStream) {
+    BBB.webRTCEchoTestStarted = function(localStream, remoteStream) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRtcEchoTestStarted(localStream, remoteStream);
+        swfObj.webRTCEchoTestStarted(localStream, remoteStream);
+      }
+    }
+    
+    BBB.webRTCMediaRequest = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCMediaRequest();
       }
     }
 
