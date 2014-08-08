@@ -1,10 +1,22 @@
-<template name="userItem">
-  {{>usernameEntry}}
-  {{> displayOwnControls}}
-  {{> displayStandardUserControls}}
+<template name="displayOwnControls">
+    <td>{{#if isUserSharingVideo user}}
+        <span class="userListSettingIcon glyphicon glyphicon-facetime-video"></span>
+    {{/if}}</td>
+
+    <!-- Should use much more noticeable icons than just bootstrap's volume-up & volume-down to differentiate talking but it is good for now -->
+    <td>{{#if isUserSharingAudio user}}
+        {{#if isUserTalking user}}
+            <span class="userListSettingIcon glyphicon glyphicon-volume-up"></span>
+        {{else}}
+            <span class="userListSettingIcon glyphicon glyphicon-volume-down"></span>
+        {{/if}}
+    {{/if}}</td>
 </template>
 
-<!-- ####################################################################################### -->
+<template name="displayStandardUserControls">
+  {{#if user.presenter}}<td><span class="presenterIcon glyphicon glyphicon-picture"></span></td>{{/if}}
+</template>
+
 <template name="usernameEntry"> <!-- A template now because more information be added/styled -->
   <td><span>
     {{#if isCurrentUser userId}}
@@ -15,29 +27,8 @@
   </span></td>
 </template>
 
-<!-- ####################################################################################### -->
-<template name="displayStandardUserControls">
-  {{#if user.presenter}}<td><span class="presenterIcon glyphicon glyphicon-picture"></span></td>{{/if}}
-  <!-- Just to see spacing incase there is not a set presenter -->
-  <!-- <td><span class="userListSettingIcon glyphicon glyphicon-picture"></span></td> -->
-</template>
-<!-- ####################################################################################### -->
-
-<template name="displayOwnControls">
-    <td>{{#if isUserSharingVideo user}}
-        <span class="userListSettingIcon glyphicon glyphicon-facetime-video"></span>
-    <!-- {{else}}
-        <span class="userListSettingIcon glyphicon glyphicon-stop"></span> -->
-    {{/if}}</td>
-
-    <!-- Should use much more noticeable icons than just bootstrap's volume-up & volume-down to differentiate talking but it is good for now -->
-    <td>{{#if isUserSharingAudio user}}
-        {{#if isUserTalking user}}
-            <span class="userListSettingIcon glyphicon glyphicon-volume-up"></span>
-        {{else}}
-            <span class="userListSettingIcon glyphicon glyphicon-volume-down"></span>
-        {{/if}}
-    <!-- {{else}}
-        <span class="userListSettingIcon glyphicon glyphicon-volume-off"></span> -->
-    {{/if}}</td>
+<template name="userItem">
+  {{> usernameEntry}}
+  {{> displayOwnControls}}
+  {{> displayStandardUserControls}}
 </template>

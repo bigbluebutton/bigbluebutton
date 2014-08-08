@@ -1,21 +1,3 @@
-<template name="main">
-   <head>
-      <title>BigBlueButton Meteor</title>
-   </head>
-   <body>
-      <div>
-         {{>header}}
-      </div>
-      <div id="main" class="mainContainer row-fluid">
-         {{> usersList id="users" name="usersList"}}
-         {{> whiteboard id="whiteboardContainer" title="Whiteboard" name="whiteboard"}}
-         {{> chatbar id="chat" title="Chat" name="chatbar"}}
-      </div>
-   </body>
-   {{doFinalStuff}}
-   <audio id="remote-media" autoplay="autoplay"></audio>
-</template>
-
 <template name="header">
    {{#if getInSession "display_navbar"}}
       <div id="navbar" class="myNavbar navbar navbar-default navbar-static-top" role="navigation">
@@ -81,4 +63,22 @@
       <!-- User wants to hide navbar. The button for bringing the navbar back needs to still be available. Perhaps it should appear/disappear in the future on hover? Something to add later. -->
       {{> makeButton id="" btn_class="hideNavbarIcon pull-right navbarButton" i_class="chevron-down" rel="tooltip" data_placement="bottom" title="Display Navbar"}}
    {{/if}}
+</template>
+
+<template name="main">
+   <head>
+      <title>BigBlueButton Meteor</title>
+   </head>
+   <body>
+      <div>
+         {{>header}}
+      </div>
+      <div id="main" class="mainContainer row-fluid">
+         {{> usersList id="users" name="usersList"}}
+         {{> whiteboard id="whiteboardContainer" title="Whiteboard" name="whiteboard"}}
+         {{> chatbar id="chat" title="Chat" name="chatbar"}}
+      </div>
+   </body>
+   {{doFinalStuff}}
+   <audio id="remote-media" autoplay="autoplay"></audio>
 </template>

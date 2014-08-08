@@ -17,6 +17,15 @@
 	</div>
 </template>
 
+<template name="chatInput">
+	<div class="chat-input-wrapper">
+		<input type="text" id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message" />
+		<button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top" title="Click to send your message">
+		Send
+		</button>
+	</div>
+</template>
+
 <!-- Displays and styles an individual message in the chat -->
 <template name="message">
 	<div class="chat-message {{class}}">	
@@ -67,14 +76,3 @@
   	{{/each}}
   	</ul>
 </template>
-
-<template name="chatInput">
-	<div class="chat-input-wrapper">
-		<input type="text" id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message" />
-		<button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top" title="Click to send your message">
-		Send
-		</button>
-	</div>
-</template>
-
-

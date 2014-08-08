@@ -1,96 +1,82 @@
 #chat {
-  width:25%;
-  background: #fff;
-  overflow: hidden;
-  border-left:1px solid #ccc;
-  height:660px;
-  margin-bottom: 10px;
-  min-width:400px;
-  float:left;
-  margin-right: 0px;
-}
-
-#chatbar-contents {
-    margin-bottom:10px;
-	height:75%;
-}
-
-#chat-options-bar {
-  width:100%;
-  position:relative;
-  border-bottom:1px solid #ccc;
-}
-
-.chat-input-wrapper {
-    margin-left:20px;
-}
-
-#chat-user-list {
-	padding:5px;
-}
-
-.chat-message {
+    background: #fff;
+    border-left: 1px solid #ccc;
+    float: left;
+    height: 660px;
+    margin-bottom: 10px;
+    margin-right: 0px;
+    min-width: 400px;
+    overflow: hidden;
+    width: 25%;
+ }
+.chatGreeting {
+    color: blue;
     font-size: 12px;
     line-height: 14px;
-    padding-top:5px;
-    padding-bottom:0px;
-    margin-bottom:0px;
-    padding-right:10px;
-    padding-left: 20px;
 }
-
-.tab{}
-.publicChatTab{}
-.optionsChatTab{}
-.privateChatTab{}
-.private-chat-user-entry {}
+#chatbar-contents {
+    height:75%;
+    margin-bottom:10px;
+}
 .chat-entry{}
 .chat-entry tr:nth-child(odd) {}
 .chat-entry tr:nth-child(even) {
     background-color: rgb(245,245,245);
 }
-
-.chat-username {
-	font-weight:bold;
-	color:#333;
+.chat-input-wrapper {
+    margin-left:20px;
 }
-
-.chat-timestamp {
-	font-weight:bold;
-	color:##C0C0C0;
-	float:right;
-}
-
-.chatGreeting {
-	font-size: 12px;
+.chat-message {
+    font-size: 12px;
     line-height: 14px;
-	color: blue;
+    margin-bottom:0px;
+    padding-top:5px;
+    padding-bottom:0px;
+    padding-right:10px;
+    padding-left: 20px;
 }
-
-.private-chat-user-list {
-  font-size:12px;
+#chat-options-bar {
+    border-bottom:1px solid #ccc;
+    position:relative;
+    width:100%;
 }
-
-.private-chat-user-list :hover {
-  font-size:14px;
-  background: #0099FF;
-  font-style:italic;
+.chat-timestamp {
+    color:##C0C0C0;
+    float:right;
+    font-weight:bold;
 }
-
-.private-chat-user-box {
-	border: solid 1px grey;
-	width: 90%;
-	padding: 5px;
+.chat-username {
+	color:#333;
+    font-weight:bold;
 }
-
+#chat-user-list {
+    padding:5px;
+}
 #newMessageInput {
-	width: 80%;
-	height:40px;
+    height:40px;
     margin-top: 15px;
+    width: 80%;
 }
-
+.optionsChatTab{}
+.privateChatTab{}
+.publicChatTab{}
+.private-chat-user-box {
+    border: solid 1px grey;
+    padding: 5px;
+    width: 90%;
+}
+.private-chat-user-entry {}
+.private-chat-user-list {
+    font-size:12px;
+}
+.private-chat-user-list :hover {
+    background: #0099FF;
+    font-size:14px;
+    font-style:italic;
+}
 #sendMessageButton{
+    height:40px;
     margin-left: 10px;
     margin-top:9px;
-    height:40px;
 }
+.tab{}

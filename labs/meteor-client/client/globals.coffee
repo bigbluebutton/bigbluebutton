@@ -1,25 +1,105 @@
-Handlebars.registerHelper 'equals', (a, b) -> # equals operator was dropped in Meteor's migration from Handlebars to Spacebars
-  a is b
-
-# Allow access through all templates
-Handlebars.registerHelper "setInSession", (k, v) -> SessionAmplify.set k, v 
-Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
-# Allow access throughout all coffeescript/js files
-@setInSession = (k, v) -> SessionAmplify.set k, v 
-@getInSession = (k) -> SessionAmplify.get k
-
 # retrieve account for selected user
 @getCurrentUserFromSession = ->
   Meteor.Users.findOne("userId": getInSession("userId"))
 
+@getInSession = (k) -> SessionAmplify.get k
+
+@getMeetingName = ->
+  meetName = getInSession("meetingName") # check if we actually have one in the session
+  if meetName? then meetName # great return it, no database query
+  else # we need it from the database
+    meet = Meteor.Meetings.findOne({})
+    if meet?.meetingName
+      setInSession "meetingName", meet?.meetingName # store in session for fast access next time
+      meet?.meetingName
+    else null
+
+@getTime = -> # returns epoch in ms
+  (new Date).valueOf()
+
+@getUsersName = ->
+  name = getInSession("userName") # check if we actually have one in the session
+  if name? then name # great return it, no database query
+  else # we need it from the database
+    user = Meteor.Users.findOne({'userId': getInSession("userId")})
+    if user?.user?.name
+      setInSession "userName", user.user.name # store in session for fast access next time
+      user.user.name
+    else null
+
+Handlebars.registerHelper 'equals', (a, b) -> # equals operator was dropped in Meteor's migration from Handlebars to Spacebars
+  a is b
+
 # retrieve account for selected user
 Handlebars.registerHelper "getCurrentUser", =>
-	@window.getCurrentUserFromSession()
+  @window.getCurrentUserFromSession()
 
-# toggle state of field in the database
+# Allow access through all templates
+Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
+
+Handlebars.registerHelper "getMeetingName", ->
+  window.getMeetingName()
+
+# retrieves all users in the meeting
+Handlebars.registerHelper "getUsersInMeeting", ->
+  Meteor.Users.find({})
+
+Handlebars.registerHelper "isCurrentUser", (id) ->
+  id is getInSession("userId")
+
+Handlebars.registerHelper "isUserSharingAudio", (u) ->
+  if u? then u.voiceUser?.joined
+  else return false
+
+Handlebars.registerHelper "isUserSharingVideo", (u) ->
+  u.webcam_stream.length isnt 0
+
+Handlebars.registerHelper "isUserTalking", (u) ->
+  if u? then u.voiceUser?.talking
+  else return false
+
+Handlebars.registerHelper "setInSession", (k, v) -> SessionAmplify.set k, v 
+
+Handlebars.registerHelper "visibility", (section) ->
+    if getInSession "display_#{section}"
+        style: 'display:block'
+    else
+        style: 'display:none'
+
+@setInSession = (k, v) -> SessionAmplify.set k, v 
+
+Meteor.methods
+  sendMeetingInfoToClient: (meetingId, userId) ->
+    setInSession("userId", userId)
+    setInSession("meetingId", meetingId)
+    setInSession("currentChatId", meetingId)
+    setInSession("meetingName", null)
+    setInSession("bbbServerVersion", "0.90")
+    setInSession("userName", null) 
+    setInSession("validUser", true) # got info from server, user is a valid user
+
 @toggleCam = (event) ->
-	# Meteor.Users.update {_id: context._id} , {$set:{"user.sharingVideo": !context.sharingVideo}}
+  # Meteor.Users.update {_id: context._id} , {$set:{"user.sharingVideo": !context.sharingVideo}}
   # Meteor.call('userToggleCam', context._id, !context.sharingVideo)
+
+@toggleChatbar = ->
+  setInSession "display_chatbar", !getInSession "display_chatbar"
+
+@toggleMic = (event) ->
+  if getInSession "isSharingAudio" # only allow muting/unmuting if they are in the call
+    console.log "toggling mute"
+    u = Meteor.Users.findOne({userId:getInSession("userId")})
+    if u?
+      # format: meetingId, userId, requesterId, mutedBoolean
+      # TODO: insert the requesterId - the user who requested the muting of userId (might be a moderator)
+      Meteor.call('publishMuteRequest', u.meetingId, u.userId, u.userId, not u.user.voiceUser.muted)
+
+@toggleNavbar = ->
+  setInSession "display_navbar", !getInSession "display_navbar"
+
+# toggle state of session variable
+@toggleUsersList = ->
+  setInSession "display_usersList", !getInSession "display_usersList"
 
 @toggleVoiceCall = (event) -> 
   if getInSession "isSharingAudio"
@@ -40,79 +120,12 @@ Handlebars.registerHelper "getCurrentUser", =>
       Meteor.call("userShareAudio", getInSession("meetingId"),getInSession("userId"))
     webrtc_call(username, voiceBridge, server, callback) # make the call
 
-@toggleMic = (event) ->
-  if getInSession "isSharingAudio" # only allow muting/unmuting if they are in the call
-    console.log "toggling mute"
-    u = Meteor.Users.findOne({userId:getInSession("userId")})
-    if u?
-      # format: meetingId, userId, requesterId, mutedBoolean
-      # TODO: insert the requesterId - the user who requested the muting of userId (might be a moderator)
-      Meteor.call('publishMuteRequest', u.meetingId, u.userId, u.userId, not u.user.voiceUser.muted)
-
-# toggle state of session variable
-@toggleUsersList = ->
-	setInSession "display_usersList", !getInSession "display_usersList"
-
-@toggleNavbar = ->
-	setInSession "display_navbar", !getInSession "display_navbar"
-
-@toggleChatbar = ->
-  setInSession "display_chatbar", !getInSession "display_chatbar"
-
 @toggleWhiteBoard = ->
   setInSession "display_whiteboard", !getInSession "display_whiteboard"
 
-Meteor.methods
-  sendMeetingInfoToClient: (meetingId, userId) ->
-    setInSession("userId", userId)
-    setInSession("meetingId", meetingId)
-    setInSession("currentChatId", meetingId)
-    setInSession("meetingName", null)
-    setInSession("bbbServerVersion", "0.90")
-    setInSession("userName", null) 
-    setInSession("validUser", true) # got info from server, user is a valid user
+@userKick = (meeting, user) ->
+  Meteor.call("userKick", meeting, user)
 
-@getUsersName = ->
-  name = getInSession("userName") # check if we actually have one in the session
-  if name? then name # great return it, no database query
-  else # we need it from the database
-    user = Meteor.Users.findOne({'userId': getInSession("userId")})
-    if user?.user?.name
-      setInSession "userName", user.user.name # store in session for fast access next time
-      user.user.name
-    else null
-
-@getMeetingName = ->
-  meetName = getInSession("meetingName") # check if we actually have one in the session
-  if meetName? then meetName # great return it, no database query
-  else # we need it from the database
-    meet = Meteor.Meetings.findOne({})
-    if meet?.meetingName
-      setInSession "meetingName", meet?.meetingName # store in session for fast access next time
-      meet?.meetingName
-    else null
-
-Handlebars.registerHelper "getMeetingName", ->
-  window.getMeetingName()
-
-Handlebars.registerHelper "isUserSharingVideo", (u) ->
-  u.webcam_stream.length isnt 0
-
-Handlebars.registerHelper "isCurrentUser", (id) ->
-  id is getInSession("userId")
-
-# retrieves all users in the meeting
-Handlebars.registerHelper "getUsersInMeeting", ->
-  Meteor.Users.find({})
-
-Handlebars.registerHelper "isUserTalking", (u) ->
-  if u? then u.voiceUser?.talking
-  else return false
-
-Handlebars.registerHelper "isUserSharingAudio", (u) ->
-  if u? then u.voiceUser?.joined
-  else return false
- 
 # Starts the entire logout procedure.
 # meeting: the meeting the user is in
 # the user's userId
@@ -129,15 +142,3 @@ Handlebars.registerHelper "isUserSharingAudio", (u) ->
   setInSession "display_navbar", false # needed to hide navbar when the layout template renders
   
   Router.go('logout') # navigate to logout
-
-@userKick = (meeting, user) ->
-  Meteor.call("userKick", meeting, user)
-
-@getTime = -> # returns epoch in ms
-  (new Date).valueOf()
-
-Handlebars.registerHelper "visibility", (section) ->
-    if getInSession "display_#{section}"
-        style: 'display:block'
-    else
-        style: 'display:none'
