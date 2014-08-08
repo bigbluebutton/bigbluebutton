@@ -26,8 +26,8 @@
 <template name="displayOwnControls">
     <td>{{#if isUserSharingVideo user}}
         <span class="userListSettingIcon glyphicon glyphicon-facetime-video"></span>
-    {{else}}
-        <span class="userListSettingIcon glyphicon glyphicon-stop"></span>
+    <!-- {{else}}
+        <span class="userListSettingIcon glyphicon glyphicon-stop"></span> -->
     {{/if}}</td>
 
     <!-- Should use much more noticeable icons than just bootstrap's volume-up & volume-down to differentiate talking but it is good for now -->
@@ -37,7 +37,7 @@
         {{else}}
             <span class="userListSettingIcon glyphicon glyphicon-volume-down"></span>
         {{/if}}
-    {{else}}
-        <span class="userListSettingIcon glyphicon glyphicon-volume-off"></span>
+    <!-- {{else}}
+        <span class="userListSettingIcon glyphicon glyphicon-volume-off"></span> -->
     {{/if}}</td>
 </template>

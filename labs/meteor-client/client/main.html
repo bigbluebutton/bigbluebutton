@@ -13,8 +13,7 @@
       </div>
    </body>
    {{doFinalStuff}}
-
-   <audio id="remote-media" autoplay="autoplay" ></audio>
+   <audio id="remote-media" autoplay="autoplay"></audio>
 </template>
 
 <template name="header">
@@ -70,9 +69,7 @@
                   {{> makeButton id=userId btn_class="raiseHand navbarButton" i_class="hand-up" rel="tooltip" data_placement="bottom" title="Raise your hand"}}
                {{/if}}
             </div>
-
             <div class="navbarTitle navbarSection"><span>{{getMeetingName}}</span></div>
-
             <div class="navbarSettingsButtons navbarSection">
                {{> makeButton id="userId" btn_class="settingsIcon navbarButton" i_class="cog" rel="tooltip" data_placement="bottom" title="Settings"}}
                {{> makeButton id="userId" btn_class="signOutIcon navbarButton" i_class="log-out" rel="tooltip" data_placement="bottom" title="Logout"}}
