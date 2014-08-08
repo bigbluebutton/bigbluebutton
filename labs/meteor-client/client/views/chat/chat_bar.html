@@ -1,6 +1,6 @@
 <template name="chatbar">
-	<div id="{{id}}" {{visibility name}}>
-		<h3 class="title">{{title}}</h3>
+	<div id="{{id}}" {{visibility name}} class="component">
+		<h3 class="title gradientBar">{{title}}</h3>
 		{{> tabButtons}}
 		<div id="chatbar-contents">
 			{{#if getInSession "display_chatPane"}}
@@ -12,8 +12,9 @@
 			{{else}}
 				{{> optionsBar}}
 			{{/if}}
-			{{> chatInput}}
+			
 		</div>
+		{{> chatInput}}
 	</div>
 </template>
 

@@ -1,6 +1,12 @@
+<template name="footer">
+   <div class="myFooter gradientBar navbar navbar-default navbar-fixed-bottom" role="navigation">
+      {{{getFooterString}}}
+   </div>
+</template>
+
 <template name="header">
    {{#if getInSession "display_navbar"}}
-      <div id="navbar" class="myNavbar navbar navbar-default navbar-static-top" role="navigation">
+      <div id="navbar" class="myNavbar gradientBar navbar navbar-default navbar-static-top" role="navigation">
          {{#with getCurrentUser}}
             <div class="navbarUserButtons navbarSection">
                {{#if getInSession "display_usersList"}}
@@ -60,25 +66,24 @@
          {{/with}}
       </div>
    {{else}}
-      <!-- User wants to hide navbar. The button for bringing the navbar back needs to still be available. Perhaps it should appear/disappear in the future on hover? Something to add later. -->
-      {{> makeButton id="" btn_class="hideNavbarIcon pull-right navbarButton" i_class="chevron-down" rel="tooltip" data_placement="bottom" title="Display Navbar"}}
+      <div id="navbar" class="myNavbarMinimized navbar-default navbar-static-top" role="navigation">
+         <!-- User wants to hide navbar. The button for bringing the navbar back needs to still be available. Perhaps it should appear/disappear in the future on hover? Something to add later. -->
+         {{> makeButton btn_class="hideNavbarIcon navbarMinimizedButton" i_class="chevron-down" rel="tooltip" data_placement="bottom" title="Display Navbar"}}
+      </div>
    {{/if}}
 </template>
 
 <template name="main">
-   <head>
-      <title>BigBlueButton Meteor</title>
-   </head>
+   <head><title>BigBlueButton Meteor</title></head>
    <body>
-      <div>
-         {{>header}}
-      </div>
       <div id="main" class="mainContainer row-fluid">
+         <div>{{> header}}</div>
          {{> usersList id="users" name="usersList"}}
          {{> whiteboard id="whiteboardContainer" title="Whiteboard" name="whiteboard"}}
          {{> chatbar id="chat" title="Chat" name="chatbar"}}
+         <audio id="remote-media" autoplay="autoplay"></audio>
+         {{> footer}}
+         {{doFinalStuff}}
       </div>
    </body>
-   {{doFinalStuff}}
-   <audio id="remote-media" autoplay="autoplay"></audio>
 </template>

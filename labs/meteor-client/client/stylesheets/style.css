@@ -4,18 +4,44 @@ body {
     color: #666666;
 }
 .chatBarIcon{}
-.hideNavbarIcon{}
-.lowerHand{}
-.mainContainer{
-    min-width: 1300px;
-    padding-top: 20px;
+.component{
+    background: #fff;
+    border: 1px solid #ccc;
+    float: left;
+    overflow: hidden;
 }
-.myNavbar{
+.gradientBar{
     background: -webkit-linear-gradient(rgb(255,255,255), rgb(182,181,181)); /* For Safari 5.1 to 6.0 */
     background: -o-linear-gradient(     rgb(255,255,255), rgb(182,181,181)); /* For Opera 11.1 to 12.0 */
     background: -moz-linear-gradient(   rgb(255,255,255), rgb(182,181,181)); /* For Firefox 3.6 to 15 */
     background: linear-gradient(        rgb(255,255,255), rgb(182,181,181)); /* Standard syntax (must be last) */
+}
+.hideNavbarIcon{}
+.lowerHand{}
+.mainContainer{
+    min-width: 1300px;
+    overflow: hidden;
+}
+.myFooter{
+    color:black;
+    font-size: 10px;
+    min-height: 0px;
+    padding-bottom:3px;
+    padding-left:0.5%;
+    padding-top:3px;
+}
+.myNavbar{
+    margin-bottom:0.5%;
     min-width:900px;
+}
+.myNavbarMinimized{
+    background: #eee;
+    height:20px;
+    margin-bottom:0.2%;
+    margin-top:0px;
+    min-width:900px;
+    padding-top:0px;
+    text-align:right;
 }
 .navbarButton {
     height:40px;
@@ -25,6 +51,14 @@ body {
 }
 .navbarIconToggleActive{
     border-bottom: 4px solid lightblue;
+}
+.navbarMinimizedButton{
+    height:20px;
+    margin-bottom:0px;
+    margin-left: 2px;
+    margin-right: 20px;
+    margin-top:0px;
+    width:40px;
 }
 .navbarSection{
     float:left;
@@ -52,12 +86,7 @@ body {
 }
 .settingsIcon{}
 .signOutIcon{}
-.title {
-    background: -webkit-linear-gradient(rgb(200,200,200), #f7f7f7); /* For Safari 5.1 to 6.0 */
-    background: -o-linear-gradient(rgb(200,200,200), #f7f7f7); /* For Opera 11.1 to 12.0 */
-    background: -moz-linear-gradient(rgb(200,200,200), #f7f7f7); /* For Firefox 3.6 to 15 */
-    background: linear-gradient(rgb(247,247,247), rgb(201,201,201)); /* Standard syntax (must be last) */
-    
+.title {    
     border-bottom: 1px solid #d7d7d7;
     color: #666;
     font-size:14px;

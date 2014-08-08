@@ -1,11 +1,9 @@
 <template name="whiteboard">
-    <div id="{{id}}" {{visibility name}}>
-        <h3 class="title">{{title}}</h3>
+    <div id="{{id}}" {{visibility name}} class="component">
+        <h3 class="title gradientBar">{{title}}</h3>
         <div id="whiteboard-contents">
             <div id="whiteboard-paper"  style="">
-                <p>
-                    {{png}}
-                </p>
+                <p>{{png}}</p>
             </div>
         </div>
     </div>

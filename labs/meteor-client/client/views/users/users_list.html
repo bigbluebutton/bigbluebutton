@@ -1,6 +1,6 @@
 <template name="usersList">
-   <div id="{{id}}" {{visibility name}}>
-      <h3 class="title">Participants: {{getMeetingSize}} Users</h3>
+   <div id="{{id}}" {{visibility name}} class="component">
+      <h3 class="title gradientBar">Participants: {{getMeetingSize}} Users</h3>
       <div id="user-contents">
          {{#Layout template="scrollWindow" id="publicUserScrollWindow"}}
             {{#contentFor region="scrollContents"}}
