@@ -658,6 +658,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToPage.toolTip')}" 
 			click="onFitToPage(true)"
 			tabIndex="{baseIndex+11}"/>
-    	
+    <!-- This spacer is to prevent the whiteboard toolbar from overlapping the fit-ot-page button -->
+    <mx:Spacer width="30" height="30" id="spacer4"/>	
     </mx:ControlBar>
 </pres:MDIWindow>

@@ -61,7 +61,8 @@ public class MeetingService implements MessageListener {
 	private volatile boolean processMessage = false;
 	
 	private final Executor msgProcessorExec = Executors.newSingleThreadExecutor();
-
+	private final Executor runExec = Executors.newSingleThreadExecutor();
+	
 	/**
 	 * http://ria101.wordpress.com/2011/12/12/concurrenthashmap-avoid-a-common-misuse/
 	 */
@@ -236,6 +237,32 @@ public class MeetingService implements MessageListener {
 		return null;
 	}
 
+	public Collection<Meeting> getMeetingsWithId(String meetingId) {
+		if (meetingId == null) return Collections.<Meeting>emptySet();
+		
+		Collection<Meeting> m = new HashSet<Meeting>();
+		
+		for (String key : meetings.keySet()) {
+			if (key.startsWith(meetingId))
+				m.add(meetings.get(key));
+		}		
+		
+		return m;
+	} 
+	
+	public Meeting getNotEndedMeetingWithId(String meetingId) {
+		if (meetingId == null)
+			return null;
+		for (String key : meetings.keySet()) {
+			if (key.startsWith(meetingId)) {
+				Meeting m = (Meeting) meetings.get(key);
+				if (! m.isForciblyEnded()) return m;
+			}
+		}
+		
+		return null;
+	} 
+	
 	public HashMap<String,Recording> getRecordings(ArrayList<String> idList) {
 		//TODO: this method shouldn't be used 
 		HashMap<String,Recording> recs= reorderRecordings(recordingService.getRecordings(idList));
@@ -425,32 +452,38 @@ public class MeetingService implements MessageListener {
 		log.warn("The meeting " + message.meetingId + " doesn't exist");
 	}
 
-	private void processMessage(IMessage message) {
-		if (message instanceof MeetingDestroyed) {
-			
-		} else if (message instanceof MeetingStarted) {
-			meetingStarted((MeetingStarted)message);
-		} else if (message instanceof MeetingEnded) {
-			log.info("Processing meeting ended request.");
-			meetingEnded((MeetingEnded)message);
-		} else if (message instanceof UserJoined) {
-			log.info("Processing user joined message.");
-      userJoined((UserJoined)message);
-		} else if (message instanceof UserLeft) {
-			log.info("Processing user left message.");
-			userLeft((UserLeft)message);
-		} else if (message instanceof UserStatusChanged) {
-			updatedStatus((UserStatusChanged)message);
-		} else if (message instanceof RemoveExpiredMeetings) {
-			checkAndRemoveExpiredMeetings();
-		} else if (message instanceof CreateMeeting) {
-			processCreateMeeting((CreateMeeting)message);
-		} else if (message instanceof EndMeeting) {
-			log.info("Processing end meeting request.");
-			processEndMeeting((EndMeeting)message);
-		} else if (message instanceof RegisterUser) {
-			processRegisterUser((RegisterUser) message);
-		}
+	private void processMessage(final IMessage message) {
+		Runnable task = new Runnable() {
+	    public void run() {
+	  		if (message instanceof MeetingDestroyed) {
+	  			
+	  		} else if (message instanceof MeetingStarted) {
+	  			meetingStarted((MeetingStarted)message);
+	  		} else if (message instanceof MeetingEnded) {
+	  			log.info("Processing meeting ended request.");
+	  			meetingEnded((MeetingEnded)message);
+	  		} else if (message instanceof UserJoined) {
+	  			log.info("Processing user joined message.");
+	        userJoined((UserJoined)message);
+	  		} else if (message instanceof UserLeft) {
+	  			log.info("Processing user left message.");
+	  			userLeft((UserLeft)message);
+	  		} else if (message instanceof UserStatusChanged) {
+	  			updatedStatus((UserStatusChanged)message);
+	  		} else if (message instanceof RemoveExpiredMeetings) {
+	  			checkAndRemoveExpiredMeetings();
+	  		} else if (message instanceof CreateMeeting) {
+	  			processCreateMeeting((CreateMeeting)message);
+	  		} else if (message instanceof EndMeeting) {
+	  			log.info("Processing end meeting request.");
+	  			processEndMeeting((EndMeeting)message);
+	  		} else if (message instanceof RegisterUser) {
+	  			processRegisterUser((RegisterUser) message);
+	  		}	
+	    }
+		};
+		
+		runExec.execute(task);
 	}
 
 	@Override

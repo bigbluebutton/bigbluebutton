@@ -46,9 +46,6 @@ package org.bigbluebutton.modules.phone
 
 		[Bindable]
 		public var presenterShareOnly:Boolean = false;
-
-		[Bindable]
-		public var showSpeakerButton:Boolean = true;
 		
 		[Bindable]
 		public var showPhoneOption:Boolean = false;
@@ -86,9 +83,6 @@ package org.bigbluebutton.modules.phone
 				}
 				if (vxml.@presenterShareOnly != undefined) {
 					presenterShareOnly = (vxml.@presenterShareOnly.toString().toUpperCase() == "TRUE");
-				}
-				if (vxml.@showSpeakerButton != undefined) {
-					showSpeakerButton = (vxml.@showSpeakerButton.toString().toUpperCase() == "TRUE");
 				}
 				if (vxml.@showPhoneOption != undefined) {
 					showPhoneOption = (vxml.@showPhoneOption.toString().toUpperCase() == "TRUE");

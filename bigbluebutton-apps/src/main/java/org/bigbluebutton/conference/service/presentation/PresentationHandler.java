@@ -18,8 +18,6 @@
 */
 package org.bigbluebutton.conference.service.presentation;
 
-import java.io.File;
-import java.io.FileFilter;
 import org.red5.server.adapter.IApplication;
 import org.red5.server.api.IClient;
 import org.red5.server.api.IConnection;
@@ -27,20 +25,10 @@ import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.scope.IScope;
 import org.red5.server.adapter.ApplicationAdapter;
-import org.red5.server.api.Red5;
-import org.bigbluebutton.conference.BigBlueButtonSession;
-import org.bigbluebutton.conference.Constants;
-import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 
 public class PresentationHandler extends ApplicationAdapter implements IApplication{
 	private static Logger log = Red5LoggerFactory.getLogger( PresentationHandler.class, "bigbluebutton" );
-
-	private static final String PRESENTATION = "PRESENTATION";
-	private static final String PRESENTATION_SO = "presentationSO";   
-	private static final String APP = "PRESENTATION";
-
-	private RecorderApplication recorderApplication;
-	private PresentationApplication presentationApplication;
+    private static String APP = "presentation";
 	
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
@@ -110,17 +98,4 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 		log.debug("***** " + APP + " [ " + " roomStop [ " + scope.getName() + "] *********");
 	}
 	
-	public void setPresentationApplication(PresentationApplication a) {
-		log.debug("Setting presentation application");
-		presentationApplication = a;
-	}
-	
-	public void setRecorderApplication(RecorderApplication a) {
-		log.debug("Setting archive application");
-		recorderApplication = a;
-	}
-	
-	private BigBlueButtonSession getBbbSession() {
-		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
-	}
 }

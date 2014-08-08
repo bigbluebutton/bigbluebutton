@@ -35,9 +35,11 @@ package org.bigbluebutton.main.model.users {
     public var avatarURL:String;
 	  public var voiceBridge:String;
 	  public var dialNumber:String;
-	[Bindable] public var record:Boolean;
+	  [Bindable] public var record:Boolean;
     
-	private var lockSettings:LockSettingsVO;
+    private static const LOG:String = "main.model.users::Conference - ";
+    
+	  private var lockSettings:LockSettingsVO;
 	
     private var _myCamSettings:CameraSettingsVO = new CameraSettingsVO();
     
@@ -424,51 +426,60 @@ package org.bigbluebutton.main.model.users {
 		public function configLockSettings():void {
 			var config:Config = BBB.initConfigManager().config;
 			
-			var allowModeratorLocking:Boolean, disableCam:Boolean, disableMic:Boolean, disablePrivateChat:Boolean, disablePublicChat:Boolean, lockedLayout:Boolean;
+			var allowModeratorLocking:Boolean, 
+          disableCam:Boolean, 
+          disableMic:Boolean, 
+          disablePrivateChat:Boolean, 
+          disablePublicChat:Boolean, 
+          lockedLayout:Boolean;
 			
 			var lockConfig:XML;
 			
-			if(config!=null) {
+			if (config!=null) {
 				lockConfig = config.lock;
 			}
 			
-			try{
+			try {
 				allowModeratorLocking = (lockConfig.@allowModeratorLocking.toUpperCase() == "TRUE");
-			}catch(e:Error) {
+			} catch(e:Error) {
 				allowModeratorLocking = false;
 			}
 			
-			try{
+			try {
 				disableCam = (lockConfig.@disableCamForLockedUsers.toUpperCase() == "TRUE");
-			}catch(e:Error) {
+			} catch(e:Error) {
 				disableCam = false;
 			}
 			
-			try{
+			try {
 				disableMic = (lockConfig.@disableMicForLockedUsers.toUpperCase() == "TRUE");
-			}catch(e:Error) {
+			} catch(e:Error) {
 				disableMic = false;
 			}
 			
-			try{
+			try {
 				disablePrivateChat = (lockConfig.@disablePrivateChatForLockedUsers.toUpperCase() == "TRUE");
-			}catch(e:Error) {
+			} catch(e:Error) {
 				disablePrivateChat = false;
 			}
 			
-			try{
+			try {
 				disablePublicChat = (lockConfig.@disablePublicChatForLockedUsers.toUpperCase() == "TRUE");
-			}catch(e:Error) {
+			} catch(e:Error) {
 				disablePublicChat = false;
 			}
 			
-      try{
+      try {
         lockedLayout = (lockConfig.@lockLayoutForLockedUsers.toUpperCase() == "TRUE");
-      }catch(e:Error) {
+      } catch(e:Error) {
         lockedLayout = false;
       }
       
+      trace(LOG + " init lock settings from config");
+      
 			lockSettings = new LockSettingsVO(disableCam, disableMic, disablePrivateChat, disablePublicChat, lockedLayout);
+      
+      setLockSettings(lockSettings);
 		}
 		
 		public function getMyUser():BBBUser {
@@ -491,10 +502,14 @@ package org.bigbluebutton.main.model.users {
 		
 		public function setLockSettings(lockSettings:LockSettingsVO):void {
 			this.lockSettings = lockSettings;
+      applyLockSettings();
+		}
+    
+    public function applyLockSettings():void {
       for (var i:int = 0; i < users.length; i++) {
         var eachUser:BBBUser = users.getItemAt(i) as BBBUser;
         eachUser.applyLockSettings();
-      }
-		}
+      }      
+    }
 	}
 }

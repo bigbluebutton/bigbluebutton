@@ -45,7 +45,9 @@ import org.slf4j.LoggerFactory;
 
 public class PdfToSwfSlidesGenerationService {
 	private static Logger log = LoggerFactory.getLogger(PdfToSwfSlidesGenerationService.class);
-		
+	
+	private final ExecutorService executor = Executors.newFixedThreadPool(2);
+	
 	private SwfSlidesGenerationProgressNotifier notifier;
 	private PageCounterService counterService;
 	private PageConverter pdfToSwfConverter;
@@ -113,11 +115,9 @@ public class PdfToSwfSlidesGenerationService {
 	private void convertPdfToSwf(UploadedPresentation pres) {
 		int numPages = pres.getNumberOfPages();				
 		List<PdfToSwfSlide> slides = setupSlides(pres, numPages);
-		
-		ExecutorService executor;
+			
 		CompletionService<PdfToSwfSlide> completionService;
-		int numThreads = Runtime.getRuntime().availableProcessors();
-		executor = Executors.newFixedThreadPool(numThreads);
+
 		completionService = new ExecutorCompletionService<PdfToSwfSlide>(executor);			
 		generateSlides(pres, slides, completionService);		
 	}

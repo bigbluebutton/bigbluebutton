@@ -162,13 +162,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					toolbarPaddingTop = 0;
 				}
 				toolbar.displayToolbar();
-				
-				showFooterOpt = layoutOptions.showFooter;
-				if (!showFooterOpt) {
-					footerHeight = 0;
-				}        
-			}
-			
+      
+        showFooterOpt = layoutOptions.showFooter;
+        
+        var locale:Object = BBB.initConfigManager().config.language;
+        langSelector.visible = locale.userSelectionEnabled
+ 
+        if (!showFooterOpt) {
+          footerHeight = 0;
+        }        
+      }
+		
 			protected function initializeShell():void {	
 				globalDispatcher = new Dispatcher();
 
@@ -596,7 +600,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				id="isTunnellingLbl"
 				visible="{isTunneling}"
 				includeInLayout="{isTunneling}" />
-
+    <views:LanguageSelector id="langSelector" 
+                            visible="false" 
+                            accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"
+                            styleName="languageSelectorStyle" />
 		<mx:Button
 				width="20"
 				height="20"

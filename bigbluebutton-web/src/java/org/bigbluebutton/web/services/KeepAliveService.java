@@ -53,6 +53,7 @@ public class KeepAliveService implements MessageListener {
 	
 	private static final int SENDERTHREADS = 1;
 	private static final Executor msgSenderExec = Executors.newFixedThreadPool(SENDERTHREADS);
+	private static final Executor runExec = Executors.newFixedThreadPool(SENDERTHREADS);
 	
 	private BlockingQueue<KeepAliveMessage> messages = new LinkedBlockingQueue<KeepAliveMessage>();
 	
@@ -119,18 +120,24 @@ public class KeepAliveService implements MessageListener {
   	msgSenderExec.execute(sender);		
   } 
   	
-  private void processMessage(KeepAliveMessage msg) {
-  	if (msg instanceof KeepAlivePing) {
-  		processPing((KeepAlivePing) msg);
-  	} else if (msg instanceof KeepAlivePong) {
-  		processPong((KeepAlivePong) msg);
-  	}
+  private void processMessage(final KeepAliveMessage msg) {
+  	Runnable task = new Runnable() {
+  		public void run() {
+  	  	if (msg instanceof KeepAlivePing) {
+  	  		processPing((KeepAlivePing) msg);
+  	  	} else if (msg instanceof KeepAlivePong) {
+  	  		processPong((KeepAlivePong) msg);
+  	  	}  			
+  		}
+  	};
+  	
+    runExec.execute(task);
   }
   	
   private void processPing(KeepAlivePing msg) {
    	if (pingMessages.size() < maxLives) {
      	pingMessages.add(msg.getId());
-     	log.debug("Sending keep alive message to bbb-apps. keep-alive id [{}]", msg.getId());
+//     	log.debug("Sending keep alive message to bbb-apps. keep-alive id [{}]", msg.getId());
      	service.sendKeepAlive(msg.getId());
    	} else {
    		// BBB-Apps has gone down. Mark it as unavailable and clear
@@ -151,9 +158,9 @@ public class KeepAliveService implements MessageListener {
    			if (!available) {
    				available = true;
    				removeOldPingMessages(msg.getId());
-   			  log.info("Received Keep Alive Reply. BBB-Apps has recovered.");
+//   			  log.info("Received Keep Alive Reply. BBB-Apps has recovered.");
    			}
-   			log.debug("Found ping message [" + msg.getId() + "]");
+ //  			log.debug("Found ping message [" + msg.getId() + "]");
    			found = true;
    			break;
    		}

@@ -59,7 +59,7 @@ package org.bigbluebutton.modules.phone.managers {
 		public function StreamManager(connMgr:ConnectionManager) {			
 			dispatcher = new Dispatcher();
       connManager = connMgr;
-      useDefaultMic();
+//      useDefaultMic();
 		}
 	
     public function usePreferredMic(micIndex:int, micName:String):void {

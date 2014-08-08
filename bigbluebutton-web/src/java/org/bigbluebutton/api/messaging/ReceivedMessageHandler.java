@@ -15,7 +15,7 @@ public class ReceivedMessageHandler {
 	private volatile boolean processMessage = false;
 	
 	private final Executor msgProcessorExec = Executors.newSingleThreadExecutor();
-	
+	private final Executor runExec = Executors.newSingleThreadExecutor();
 	
 	private MessageDistributor handler;
 	
@@ -47,14 +47,20 @@ public class ReceivedMessageHandler {
 		}			
 	}
 	
-	private void processMessage(ReceivedMessage msg) {
-		if (handler != null) {
-			log.debug("Let's process this message: " + msg.getMessage());
+	private void processMessage(final ReceivedMessage msg) {
+		Runnable task = new Runnable() {
+	    public void run() {
+	  		if (handler != null) {
+//	  			log.debug("Let's process this message: " + msg.getMessage());
 
-			handler.notifyListeners(msg.getPattern(), msg.getChannel(), msg.getMessage());
-		} else {
-			log.warn("No listeners interested in messages from Redis!");
-		}
+	  			handler.notifyListeners(msg.getPattern(), msg.getChannel(), msg.getMessage());
+	  		} else {
+	  			log.warn("No listeners interested in messages from Redis!");
+	  		}	    	
+	    }
+		};
+		
+		runExec.execute(task);
 	}
 	
 	public void handleMessage(String pattern, String channel, String message) {

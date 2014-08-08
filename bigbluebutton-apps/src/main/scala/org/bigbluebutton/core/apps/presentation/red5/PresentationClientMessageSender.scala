@@ -58,7 +58,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
 	val gson = new Gson();
   	message.put("msg", gson.toJson(args))
   	
-  	println("PresentationClientMessageSender - handlePresentationConversionProgress \n" + message.get("msg") + "\n")
+//  	println("PresentationClientMessageSender - handlePresentationConversionProgress \n" + message.get("msg") + "\n")
 
     val m = new BroadcastClientMessage(msg.meetingID, "conversionUpdateMessageCallback", message);
 	service.sendMessage(m);	
@@ -78,7 +78,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
 	val gson = new Gson();
   	message.put("msg", gson.toJson(args))
   	
-  	println("PresentationClientMessageSender - handlePresentationConversionError \n" + message.get("msg") + "\n")
+//  	println("PresentationClientMessageSender - handlePresentationConversionError \n" + message.get("msg") + "\n")
 
 	val m = new BroadcastClientMessage(msg.meetingID, "pageCountExceededUpdateMessageCallback", message);
     service.sendMessage(m);    
@@ -98,7 +98,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
 	val gson = new Gson();
   	message.put("msg", gson.toJson(args))
   	
-  	println("PresentationClientMessageSender - handlePresentationPageGenerated \n" + message.get("msg") + "\n")
+//  	println("PresentationClientMessageSender - handlePresentationPageGenerated \n" + message.get("msg") + "\n")
 
 	val m = new BroadcastClientMessage(msg.meetingID, "generatedSlideUpdateMessageCallback", message);
     service.sendMessage(m);    
@@ -117,7 +117,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
 	val pages = new ArrayList[Page]()
 	
 	msg.presentation.pages.values foreach {p =>
-      println("PresentationClientMessageSender **** Page [" + p.id + "," + p.num + "]")
+//      println("PresentationClientMessageSender **** Page [" + p.id + "," + p.num + "]")
       pages.add(p)
     }
 	
@@ -129,7 +129,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
 	val gson = new Gson();
   	message.put("msg", gson.toJson(args))
   		
-  	println("PresentationClientMessageSender - handlePresentationConversionDone \n" + message.get("msg") + "\n")
+//  	println("PresentationClientMessageSender - handlePresentationConversionDone \n" + message.get("msg") + "\n")
 
 	val m = new BroadcastClientMessage(msg.meetingID, "conversionCompletedUpdateMessageCallback", message);
     service.sendMessage(m);      
@@ -189,16 +189,16 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
 	val gson = new Gson();
   	message.put("msg", gson.toJson(args))
   	 	
-  	println("***** PresentationClientMessageSender - handleGetPresentationInfoOutMsg to user[" +msg.requesterID + "] message[" + message.get("msg") + "]")
+//  	println("***** PresentationClientMessageSender - handleGetPresentationInfoOutMsg to user[" +msg.requesterID + "] message[" + message.get("msg") + "]")
   	
 	val m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getPresentationInfoReply", message);
 	service.sendMessage(m);	
   }
   
   private def handleSendCursorUpdateOutMsg(msg: SendCursorUpdateOutMsg) {
-	 val args = new java.util.HashMap[String, Object]();
-	 args.put("xPercent", msg.xPercent:java.lang.Double);
-	 args.put("yPercent", msg.yPercent:java.lang.Double);
+	val args = new java.util.HashMap[String, Object]();
+	args.put("xPercent", msg.xPercent:java.lang.Double);
+	args.put("yPercent", msg.yPercent:java.lang.Double);
 
 	val message = new java.util.HashMap[String, Object]() 
 	val gson = new Gson();

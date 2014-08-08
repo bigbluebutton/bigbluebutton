@@ -117,22 +117,22 @@ object PesentationMessageToJsonConverter {
     payload.put(Constants.MEETING_ID, msg.meetingID)
 
     val presentation = new java.util.HashMap[String, Object]();
-	  presentation.put(Constants.ID, msg.presentation.id)
-	  presentation.put(Constants.NAME, msg.presentation.name)
-	  presentation.put(Constants.CURRENT, msg.presentation.current:java.lang.Boolean)      
+	presentation.put(Constants.ID, msg.presentation.id)
+	presentation.put(Constants.NAME, msg.presentation.name)
+	presentation.put(Constants.CURRENT, msg.presentation.current:java.lang.Boolean)      
 	   
 	  // Get the pages for a presentation
     val pages = new java.util.ArrayList[java.util.Map[String, Any]]()	
-	  msg.presentation.pages.values foreach {p =>
+	msg.presentation.pages.values foreach {p =>
      pages.add(pageToMap(p))
     }  
 	  
-	  // store the pages in the presentation 
-	  presentation.put(Constants.PAGES, pages)
+	// store the pages in the presentation 
+	presentation.put(Constants.PAGES, pages)
 	
-	  payload.put(Constants.PRESENTATION, presentation);
+	payload.put(Constants.PRESENTATION, presentation);
 	
-	  val header = Util.buildHeader(MessageNames.PRESENTATION_SHARED, msg.version, None)
+	val header = Util.buildHeader(MessageNames.PRESENTATION_SHARED, msg.version, None)
     Util.buildJson(header, payload)
   }  
   

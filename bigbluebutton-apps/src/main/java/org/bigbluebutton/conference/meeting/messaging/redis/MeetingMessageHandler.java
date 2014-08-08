@@ -36,7 +36,7 @@ public class MeetingMessageHandler implements MessageHandler {
 			if (msg != null) {
 				if (msg instanceof EndMeetingMessage) {
 					EndMeetingMessage emm = (EndMeetingMessage) msg;
-					log.info("Received end meeting request. Meeting id [{}]", emm.meetingId);
+					log.debug("Received end meeting request. Meeting id [{}]", emm.meetingId);
 					bbbGW.endMeeting(emm.meetingId);
 				} else if (msg instanceof CreateMeetingMessage) {
 					CreateMeetingMessage emm = (CreateMeetingMessage) msg;
@@ -46,19 +46,19 @@ public class MeetingMessageHandler implements MessageHandler {
 					bbbGW.registerUser(emm.meetingID, emm.internalUserId, emm.fullname, emm.role, emm.externUserID, emm.authToken);
 				} else if (msg instanceof DestroyMeetingMessage) {
 					DestroyMeetingMessage emm = (DestroyMeetingMessage) msg;
-					log.info("Received destroy meeting request. Meeting id [{}]", emm.meetingId);
+					log.debug("Received destroy meeting request. Meeting id [{}]", emm.meetingId);
 					bbbGW.destroyMeeting(emm.meetingId);
 				} else if (msg instanceof ValidateAuthTokenMessage) {
 					ValidateAuthTokenMessage emm = (ValidateAuthTokenMessage) msg;
-					log.info("Received ValidateAuthTokenMessage token request. Meeting id [{}]", emm.meetingId);
+					log.debug("Received ValidateAuthTokenMessage token request. Meeting id [{}]", emm.meetingId);
 					bbbGW.validateAuthToken(emm.meetingId, emm.userId, emm.token, emm.replyTo);
 				} else if (msg instanceof UserConnectedToGlobalAudio) {
 					UserConnectedToGlobalAudio emm = (UserConnectedToGlobalAudio) msg;
-					log.info("Received UserConnectedToGlobalAudio toekn request. user id [{}]", emm.name);
+					log.debug("Received UserConnectedToGlobalAudio toekn request. user id [{}]", emm.name);
 					bbbGW.userConnectedToGlobalAudio(emm.voiceConf, emm.userid, emm.name);
 				} else if (msg instanceof UserDisconnectedFromGlobalAudio) {
 					UserDisconnectedFromGlobalAudio emm = (UserDisconnectedFromGlobalAudio) msg;
-					log.info("Received UserDisconnectedFromGlobalAudio toekn request. Meeting id [{}]", emm.name);
+					log.debug("Received UserDisconnectedFromGlobalAudio toekn request. Meeting id [{}]", emm.name);
 					bbbGW.userConnectedToGlobalAudio(emm.voiceConf, emm.userid, emm.name);
 				}
 			}
@@ -68,7 +68,7 @@ public class MeetingMessageHandler implements MessageHandler {
 			if (msg != null) {
 				if (msg instanceof KeepAliveMessage) {
 					KeepAliveMessage emm = (KeepAliveMessage) msg;
-//					log.info("Received KeepAliveMessage request. Meeting id [{}]", emm.keepAliveId);
+					log.debug("Received KeepAliveMessage request. Meeting id [{}]", emm.keepAliveId);
 					bbbGW.isAliveAudit(emm.keepAliveId);					
 				}
 			}
