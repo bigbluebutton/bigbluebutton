@@ -55,11 +55,8 @@ function joinWebRTCVoiceConference() {
 
 function leaveWebRTCVoiceConference() {
 	console.log("Leaving the voice conference");
-	var callback = function(request) {
-		BBB.leaveWebRTCVoiceConferenceCallback();
-	}
 	
-	webrtc_hangup(callback);
+	webrtc_hangup();
 }
 
 function startWebRTCAudioTest(){
@@ -95,17 +92,13 @@ function startWebRTCAudioTest(){
 
 function stopWebRTCAudioTest(){
 	console.log("Stopping webrtc audio test");
-	var callback = function(request) {
-		BBB.leaveWebRTCVoiceConferenceCallback();
-	}
 	
-	webrtc_hangup(callback);
+	webrtc_hangup();
 }
 
 function stopWebRTCAudioTestJoinConference(){
 	console.log("Stopping webrtc audio test and joining conference afterwards");
 	var callback = function(request) {
-		BBB.leaveWebRTCVoiceConferenceCallback();
 		joinWebRTCVoiceConference();
 	}
 	
@@ -154,8 +147,7 @@ function webrtc_call(username, voiceBridge, callback) {
 		return;
 	}
 	
-	// CHANGE THIS BACK BEFORE MERGING
-	var server = "dev.bigbluebutton.org"; // window.document.location.host;
+	var server = window.document.location.host;
 	console.log("user " + username + " calling to " +  voiceBridge);
 	
 	if (!userAgent) {
@@ -196,21 +188,24 @@ function make_call(username, voiceBridge, server, callback) {
 	console.log("Calling to " + voiceBridge + "....");
 	currentSession = userAgent.invite('sip:' + voiceBridge + '@' + server, options); 
 	
+	console.log('call connecting');
+	callback({'status':'connecting'});
+	// The connecting event fires before the listener can be added
+	currentSession.on('connecting', function(){
+		//console.log('call connecting');
+		//callback({'status':'connecting'});
+	});
 	currentSession.on('failed', function(response, cause){
 		console.log('call failed with cause: '+ cause);
 		callback({'status':'failed', 'cause': cause});
 	});
 	currentSession.on('bye', function(request){
-		console.log('call ended ' + newSession.endTime);
+		console.log('call ended ' + currentSession.endTime);
 		callback({'status':'ended'});
 	});
 	currentSession.on('accepted', function(data){
 		console.log('BigBlueButton call started');
 		callback({'status':'started'});
-	});
-	currentSession.on('connecting', function(){
-		console.log('call connecting');
-		callback({'status':'connecting'});
 	});
 }
 
