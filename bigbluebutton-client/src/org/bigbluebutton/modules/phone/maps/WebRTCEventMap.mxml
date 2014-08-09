@@ -65,7 +65,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <EventHandlers type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_STARTED}">        
     <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCEchoTestStartedEvent"/>
-  </EventHandlers>  
+  </EventHandlers>
+	
+  <EventHandlers type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_FAILED}">
+    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCEchoTestFailedEvent" arguments="{event.cause}"/>
+  </EventHandlers>
 
   <EventHandlers type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_HAS_AUDIO}">        
     <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCEchoTestHasAudioEvent"/>
@@ -89,7 +93,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <EventHandlers type="{WebRTCCallEvent.WEBRTC_CALL_ENDED}">        
     <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCCallEndedEvent"/>
-  </EventHandlers> 
+  </EventHandlers>
+
+  <EventHandlers type="{WebRTCCallEvent.WEBRTC_CALL_FAILED}">
+    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCCallFailedEvent" arguments="{event.cause}"/>
+  </EventHandlers>
   
   <EventHandlers type="{JoinVoiceConferenceCommand.JOIN_VOICE_CONF}">        
     <MethodInvoker generator="{WebRTCCallManager}" method="handleJoinVoiceConferenceCommand" arguments="{event}"/>
@@ -98,14 +106,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{LeaveVoiceConferenceCommand.LEAVE_VOICE_CONF}">        
     <MethodInvoker generator="{WebRTCCallManager}" method="handleLeaveVoiceConferenceCommand"/>
   </EventHandlers> 
-  
-  <EventHandlers type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_FAILED}">
-    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCEchoTestFailedEvent" arguments="{event.reason}"/>
-  </EventHandlers>
-  
-  <EventHandlers type="{WebRTCCallEvent.WEBRTC_CALL_FAILED}">
-    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCCallFailedEvent" arguments="{event.reason}"/>
-  </EventHandlers>
   
   <EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">        
     <MethodInvoker generator="{WebRTCCallManager}" method="handleBecomeViewer"/>

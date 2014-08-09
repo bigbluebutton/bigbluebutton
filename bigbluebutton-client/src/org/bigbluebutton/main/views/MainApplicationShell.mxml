@@ -43,7 +43,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
 	<mate:Listener type="configLoadedEvent" method="initOptions"  />
 	<mate:Listener type="{FlashMicSettingsEvent.FLASH_MIC_SETTINGS}" method="handleFlashMicSettingsEvent"  />
-	<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_STARTED}" method="handleWebRTCEchoTestStartedEvent"  />
+	<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_CONNECTING}" method="handleWebRTCEchoTestConnectingEvent"  />
 	<mate:Listener type="{WebRTCMediaEvent.WEBRTC_MEDIA_REQUEST}" method="handleWebRTCMediaRequestEvent"  />
 	<mate:Listener type="{WebRTCAskUserToChangeMicEvent.WEBRTC_ASK_USER_TO_CHANGE_MIC}" method="handleWebRTCAskUserToChangeMicEvent"  />
 	<mate:Listener type="{AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION}" method="handleShowAudioSelectionWindowEvent" />
@@ -420,7 +420,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }
       }
       
-      private function handleWebRTCEchoTestStartedEvent(event:WebRTCEchoTestEvent):void {
+      private function handleWebRTCEchoTestConnectingEvent(event:WebRTCEchoTestEvent):void {
         var webRTCEchoTest:WebRTCEchoTest = PopUpManager.createPopUp(mdiCanvas, WebRTCEchoTest, true) as WebRTCEchoTest;
           webRTCEchoTest.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
           var point1:Point = new Point();
