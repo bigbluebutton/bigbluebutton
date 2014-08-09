@@ -102,6 +102,16 @@ function stopWebRTCAudioTest(){
 	webrtc_hangup(callback);
 }
 
+function stopWebRTCAudioTestJoinConference(){
+	console.log("Stopping webrtc audio test and joining conference afterwards");
+	var callback = function(request) {
+		BBB.leaveWebRTCVoiceConferenceCallback();
+		joinWebRTCVoiceConference();
+	}
+	
+	webrtc_hangup(callback);
+}
+
 function createUA(username, server) {
 	if (userAgent) {
 		console.log("User agent already created");
@@ -144,7 +154,8 @@ function webrtc_call(username, voiceBridge, callback) {
 		return;
 	}
 	
-	var server = window.document.location.host;
+	// CHANGE THIS BACK BEFORE MERGING
+	var server = "dev.bigbluebutton.org"; // window.document.location.host;
 	console.log("user " + username + " calling to " +  voiceBridge);
 	
 	if (!userAgent) {
@@ -172,10 +183,12 @@ function make_call(username, voiceBridge, server, callback) {
 	// Make an audio/video call:
 	console.log("Setting options.. ");
 	var options = {
-		stream: userMedia,
-		render: {
-			remote: {
-				audio: document.getElementById('remote-media')
+		media: {
+			stream: userMedia,
+			render: {
+				remote: {
+					audio: document.getElementById('remote-media')
+				}
 			}
 		}
 	};

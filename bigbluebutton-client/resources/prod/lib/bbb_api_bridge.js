@@ -434,10 +434,10 @@
       }
     }
      
-    BBB.webRTCConferenceCallEnded = function(message) {
+    BBB.webRTCConferenceCallEnded = function() {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRTCConferenceCallEnded(message);
+        swfObj.webRTCConferenceCallEnded();
       }
     }
 
@@ -476,10 +476,10 @@
       }
     }
 
-    BBB.webRTCEchoTestEnded = function(cause) {
+    BBB.webRTCEchoTestEnded = function() {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRTCEchoTestEnded(cause);
+        swfObj.webRTCEchoTestEnded();
       }
     }
     

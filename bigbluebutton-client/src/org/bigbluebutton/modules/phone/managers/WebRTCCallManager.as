@@ -79,6 +79,10 @@ package org.bigbluebutton.modules.phone.managers
     private function endEchoTest():void {
       ExternalInterface.call("stopWebRTCAudioTest");
     }
+	
+	private function endEchoTestJoinConference():void {
+		ExternalInterface.call("stopWebRTCAudioTestJoinConference");
+	}
     
     private function hangup():void {
       ExternalInterface.call("stopWebRTCAudioTest");
@@ -88,11 +92,12 @@ package org.bigbluebutton.modules.phone.managers
       dispatcher.dispatchEvent(new WebRTCMediaEvent(WebRTCMediaEvent.WEBRTC_MEDIA_FAIL));
     }
     
-    public function handleWebRTCEchoTestStarted():void {
+    public function handleWebRTCEchoTestStartedEvent():void {
 	  state = DO_ECHO_TEST;
     }
     
     public function handleWebRTCEchoTestNoAudioEvent():void {
+      trace(LOG + "handleWebRTCEchoTestNoAudioEvent");
 	  state = ECHO_TEST_FAILED;
       endEchoTest();
       
@@ -103,18 +108,9 @@ package org.bigbluebutton.modules.phone.managers
 	private var t:Timer;
 	
     public function handleWebRTCEchoTestHasAudioEvent():void {
+      trace(LOG + "handleWebRTCEchoTestHasAudioEvent");
 	  state = STOP_ECHO_THEN_JOIN_CONF;
-      endEchoTest();
-      /**
-       * Force echo test even if user has done echo test. This way, user is able to change mics
-       * after. (richard mar 28, 2014)
-       */
-      //echoTestDone = true;
-	  t = new Timer(1000, 1);
-	  t.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
-      	joinVoiceConference();
-	  });
-	  t.start();
+	  endEchoTestJoinConference();
     }
     
     public function handleWebRTCCallStartedEvent():void {

@@ -93,15 +93,17 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("deletePresentationRequest", handleDeletePresentationRequest);
         ExternalInterface.addCallback("queryListsOfPresentationsRequest", handleQueryListsOfPresentationsRequest);
 
+		ExternalInterface.addCallback("webRTCConferenceCallStarted", handleWebRTCConferenceCallStarted);
+		ExternalInterface.addCallback("webRTCConferenceCallConnecting", handleWebRTCConferenceCallConnecting);
         ExternalInterface.addCallback("webRTCConferenceCallEnded", handleWebRTCConferenceCallEnded);
         ExternalInterface.addCallback("webRTCConferenceCallFailed", handleWebRTCConferenceCallFailed);
-        ExternalInterface.addCallback("webRTCConferenceCallStarted", handleWebRTCConferenceCallStarted);
+        ExternalInterface.addCallback("webRTCEchoTestStarted", handleWebRTCEchoTestStarted);
+        ExternalInterface.addCallback("webRTCEchoTestConnecting", handleWebRTCEchoTestConnecting);
         ExternalInterface.addCallback("webRTCEchoTestFailed", handleWebRTCEchoTestFailed);
         ExternalInterface.addCallback("webRTCEchoTestEnded", handleWebRTCEchoTestEnded);
-        ExternalInterface.addCallback("webRTCEchoTestStarted", handleWebRTCEchoTestStarted);
-		ExternalInterface.addCallback("webRTCMediaRequest", handleWebRTCMediaRequest);
-		ExternalInterface.addCallback("webRTCMediaSuccess", handleWebRTCMediaSuccess);
-		ExternalInterface.addCallback("webRTCMediaFail", handleWebRTCMediaFail);
+        ExternalInterface.addCallback("webRTCMediaRequest", handleWebRTCMediaRequest);
+        ExternalInterface.addCallback("webRTCMediaSuccess", handleWebRTCMediaSuccess);
+        ExternalInterface.addCallback("webRTCMediaFail", handleWebRTCMediaFail);
       }
       
       // Tell out JS counterpart that we are ready.
