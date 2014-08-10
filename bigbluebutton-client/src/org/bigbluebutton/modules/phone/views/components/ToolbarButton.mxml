@@ -115,6 +115,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           if (phoneOptions.skipCheck) {
             var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
             command.mic = true;
+            if (phoneOptions.forceListenOnly) {
+              command.mic = false;
+            }
+            
             dispatcher.dispatchEvent(command);            
           } else {
             trace(LOG + "Sending Show Audio Selection command");

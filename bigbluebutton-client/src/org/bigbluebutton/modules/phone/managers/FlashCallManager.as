@@ -301,8 +301,12 @@
         case INITED:
           if (usingFlash || !event.mic) {
             startCall(event.mic);
+          } else {
+            trace(LOG + "ignoring join voice conf as usingFlash=[" + usingFlash + "] or eventMic=[" + !event.mic + "]");
           }
           break;
+        default:
+          trace("Ignoring join voice as state=[" + state + "]");
       }
     }
     
