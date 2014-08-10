@@ -178,6 +178,11 @@ package org.bigbluebutton.modules.phone.managers
       var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [reason]), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
     }
     
+    public function handleWebRTCMediaFailedEvent():void {
+      state = INITED;
+      var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.mediamessage"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
+    }
+    
     private function handleCallFailedUserResponse(e:CloseEvent):void {
       if (e.detail == Alert.YES){
         dispatcher.dispatchEvent(new UseFlashModeCommand());
