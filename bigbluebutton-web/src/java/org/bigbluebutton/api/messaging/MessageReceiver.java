@@ -17,7 +17,8 @@ public class MessageReceiver {
 	private volatile boolean receiveMessage = false;
 	
 	private final Executor msgReceiverExec = Executors.newSingleThreadExecutor();
-
+	private final Executor runExec = Executors.newSingleThreadExecutor();
+	
 	public void stop() {
 		receiveMessage = false;
 	}
@@ -61,8 +62,14 @@ public class MessageReceiver {
 		}
 
 		@Override
-		public void onPMessage(String pattern, String channel, String message) {
-			handler.handleMessage(pattern, channel, message);			
+		public void onPMessage(final String pattern, final String channel, final String message) {
+			Runnable task = new Runnable() {
+		    public void run() {
+		    	handler.handleMessage(pattern, channel, message);	
+		    }
+			};
+			
+			runExec.execute(task);		
 		}
 
 		@Override

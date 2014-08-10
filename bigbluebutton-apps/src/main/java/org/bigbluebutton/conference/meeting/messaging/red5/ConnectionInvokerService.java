@@ -42,7 +42,8 @@ public class ConnectionInvokerService {
 	
 	private static final int NTHREADS = 1;
 	private static final Executor exec = Executors.newFixedThreadPool(NTHREADS);
-			
+	private static final Executor runExec = Executors.newFixedThreadPool(NTHREADS);
+	
 	private BlockingQueue<ClientMessage> messages;
 	
 	private ConcurrentHashMap<String, IConnection> connections;
@@ -180,29 +181,39 @@ public class ConnectionInvokerService {
 		}
 	}
 	
-	private void sendDirectMessage(DirectClientMessage msg) {
-		IScope meetingScope = getScope(msg.getMeetingID());
-		if (meetingScope != null) {
-			IConnection conn = getConnection(meetingScope, msg.getUserID());
-			if (conn != null) {
-				if (conn.isConnected()) {
+	private void sendDirectMessage(final DirectClientMessage msg) {
+		Runnable sender = new Runnable() {
+			public void run() {
+				IScope meetingScope = getScope(msg.getMeetingID());
+				if (meetingScope != null) {
+					IConnection conn = getConnection(meetingScope, msg.getUserID());
+					if (conn != null) {
+						if (conn.isConnected()) {
+							List<Object> params = new ArrayList<Object>();
+							params.add(msg.getMessageName());
+							params.add(msg.getMessage());
+							ServiceUtils.invokeOnConnection(conn, "onMessageFromServer", params.toArray());
+						}
+					}				
+				}	
+			}
+		};		
+	  runExec.execute(sender);
+	}
+	
+	private void sendBroadcastMessage(final BroadcastClientMessage msg) {
+		Runnable sender = new Runnable() {
+			public void run() {
+				IScope meetingScope = getScope(msg.getMeetingID());
+				if (meetingScope != null) {
 					List<Object> params = new ArrayList<Object>();
 					params.add(msg.getMessageName());
 					params.add(msg.getMessage());
-					ServiceUtils.invokeOnConnection(conn, "onMessageFromServer", params.toArray());
+					ServiceUtils.invokeOnAllScopeConnections(meetingScope, "onMessageFromServer", params.toArray(), null);
 				}
-			}				
-		}		
-	}
-	
-	private void sendBroadcastMessage(BroadcastClientMessage msg) {
-		IScope meetingScope = getScope(msg.getMeetingID());
-		if (meetingScope != null) {
-			List<Object> params = new ArrayList<Object>();
-			params.add(msg.getMessageName());
-			params.add(msg.getMessage());
-			ServiceUtils.invokeOnAllScopeConnections(meetingScope, "onMessageFromServer", params.toArray(), null);
-		}
+			}
+		};	
+		runExec.execute(sender);
 	}
 	
 	private IConnection getConnection(IScope scope, String userID) {

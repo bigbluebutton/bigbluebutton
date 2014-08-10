@@ -13,7 +13,7 @@ class WhiteboardInGateway(bbbGW: BigBlueButtonGateway) {
     val shapeType = annotation.getOrElse("type", null).asInstanceOf[String]
     val status = annotation.getOrElse("status", null).asInstanceOf[String]
     val wbId = annotation.getOrElse("whiteboardId", null).asInstanceOf[String]
-    println("** GOT ANNOTATION status[" + status + "] shape=[" + shapeType + "]");
+//    println("** GOT ANNOTATION status[" + status + "] shape=[" + shapeType + "]");
     
     if (id != null && shapeType != null && status != null && wbId != null) {
       shape = Some(new AnnotationVO(id, status, shapeType, annotation.toMap, wbId))

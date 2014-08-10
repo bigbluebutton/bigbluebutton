@@ -29,6 +29,7 @@ class FreeswitchConferenceService(fsproxy: FreeswitchManagerProxy,
 	    case msg: EjectVoiceUser                => handleEjectVoiceUser(msg)
 	    case msg: UserJoinedVoice               => handleUserJoinedVoice(msg)
 	    case msg: UserLeftVoice                 => handleUserLeftVoice(msg)
+	    case msg: EjectAllVoiceUsers            => handleEjectAllVoiceUsers(msg)
 	    case _ => // do nothing
 	  }
   }
@@ -61,6 +62,10 @@ class FreeswitchConferenceService(fsproxy: FreeswitchManagerProxy,
     fsActor ! msg
   }
   
+  private def handleEjectAllVoiceUsers(msg: EjectAllVoiceUsers) {
+    fsActor ! msg
+  }
+  
   def voiceStartedRecording(conference: String, recordingFile: String, 
                             timestamp: String, recording: java.lang.Boolean) {
     val fsRec = new FsRecording(conference, recordingFile, timestamp, recording)
@@ -70,7 +75,7 @@ class FreeswitchConferenceService(fsproxy: FreeswitchManagerProxy,
   def voiceUserJoined(userId: String, webUserId: String, conference: String, 
 			          callerIdNum: String, callerIdName: String,
 			          muted: java.lang.Boolean, talking: java.lang.Boolean) {
-    println("******** FreeswitchConferenceService received voiceUserJoined vui=[" + userId + "] wui=[" + webUserId + "]")
+//    println("******** FreeswitchConferenceService received voiceUserJoined vui=[" + userId + "] wui=[" + webUserId + "]")
     val vuj = new FsVoiceUserJoined(userId, webUserId, 
                              conference, callerIdNum, 
                              callerIdName, muted, 
@@ -79,7 +84,7 @@ class FreeswitchConferenceService(fsproxy: FreeswitchManagerProxy,
   }
   
   def voiceUserLeft(userId: String, conference: String) {
-    println("******** FreeswitchConferenceService received voiceUserLeft vui=[" + userId + "] conference=[" + conference + "]")
+//    println("******** FreeswitchConferenceService received voiceUserLeft vui=[" + userId + "] conference=[" + conference + "]")
     val vul = new FsVoiceUserLeft(userId, conference)
     fsActor ! vul
   }

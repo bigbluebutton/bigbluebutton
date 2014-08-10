@@ -116,6 +116,7 @@ package org.bigbluebutton.modules.users.services
           break;
         case "recordingStatusChanged":
           handleRecordingStatusChanged(message);
+          break;
         case "joinMeetingReply":
           handleJoinedMeeting(message);
           break;
@@ -259,7 +260,7 @@ package org.bigbluebutton.modules.users.services
         trace(LOG + "Found voice user id[" + voiceUser.userId + "]");
         if (_conference.getMyUserId() == l.userID) {
           trace(LOG + "I am this voice user id[" + voiceUser.userId + "]");
-          _conference.setMyVoiceJoined(false);
+          _conference.muteMyVoice(false);
           _conference.setMyVoiceJoined(false);
         }
         
@@ -312,7 +313,7 @@ package org.bigbluebutton.modules.users.services
         bbbEvent.payload.userID = bu.userID;            
         globalDispatcher.dispatchEvent(bbbEvent);
         
-        if(_conference.getLockSettings().getDisableMic() && !bu.voiceMuted && bu.userLocked && bu.me) {
+        if (_conference.getLockSettings().getDisableMic() && !bu.voiceMuted && bu.userLocked && bu.me) {
           var ev:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
           ev.userid = voiceUser.userId;
           ev.mute = true;
@@ -376,6 +377,8 @@ package org.bigbluebutton.modules.users.services
           participantJoined(user);
           processUserVoice(user);
         }
+        
+        UserManager.getInstance().getConference().applyLockSettings();
       }	 
     }
     

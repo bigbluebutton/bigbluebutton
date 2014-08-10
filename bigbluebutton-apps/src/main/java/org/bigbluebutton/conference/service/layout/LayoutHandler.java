@@ -104,8 +104,6 @@ public class LayoutHandler extends ApplicationAdapter implements IApplication {
 	}
 	
 	public void setLayoutApplication(LayoutApplication a) {
-		System.out.println("****** Setting layout application ********");
-		
 		log.debug("Setting layout application");
 		layoutApplication = a;
 	}

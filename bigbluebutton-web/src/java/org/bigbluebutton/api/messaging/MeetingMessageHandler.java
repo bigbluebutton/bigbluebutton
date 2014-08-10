@@ -40,7 +40,7 @@ public class MeetingMessageHandler implements MessageHandler {
 				
 				if (header.has("name")) {
 					String messageName = header.get("name").getAsString();
-					System.out.println("Received [" + messageName + "] message on channel [" + channel + "].");
+//					System.out.println("Received [" + messageName + "] message on channel [" + channel + "].");
 				  
 					  if(MessagingConstants.MEETING_STARTED_EVENT.equalsIgnoreCase(messageName)) {
 					  	System.out.println("Handling [" + messageName + "] message.");
@@ -72,7 +72,7 @@ public class MeetingMessageHandler implements MessageHandler {
 				
 				if (header.has("name")) {
 					String messageName = header.get("name").getAsString();
-					System.out.println("Received [" + messageName + "] message on channel [" + channel + "].");
+//					System.out.println("Received [" + messageName + "] message on channel [" + channel + "].");
 				  for (MessageListener listener : listeners) {
 					  if (MessagingConstants.KEEP_ALIVE_REPLY.equalsIgnoreCase(messageName)){
 						  String pongId = payload.get("keep_alive_id").getAsString();

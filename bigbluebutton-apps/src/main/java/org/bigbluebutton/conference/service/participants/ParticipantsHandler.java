@@ -127,7 +127,6 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 
 			participantsApplication.registerUser(room, userid, username, role, bbbSession.getExternUserID());
 		}
-		log.warn("Can't send user join as session is null.");
 	}
 	
 	public void setParticipantsApplication(ParticipantsApplication a) {

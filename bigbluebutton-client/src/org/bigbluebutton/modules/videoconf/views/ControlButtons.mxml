@@ -194,7 +194,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var me:BBBUser = conference.getMyUser();
 				
 				var allowMuteUnmuteButton:Boolean = true;
-				if(isMe && me.disableMyMic) {
+				if (isMe && me.disableMyMic) {
 					allowMuteUnmuteButton = false;
 					} else if (UsersUtil.amIModerator() || (controlsForPresenter && UsersUtil.amIPresenter()) ) {
 						var thisUser:BBBUser = UsersUtil.getUser(sharerUserID);

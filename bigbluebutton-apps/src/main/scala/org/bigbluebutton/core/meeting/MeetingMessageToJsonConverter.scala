@@ -20,23 +20,23 @@ object MeetingMessageToJsonConverter {
 
     val header = Util.buildHeader(MessageNames.KEEP_ALIVE_REPLY, msg.version, None)
     Util.buildJson(header, payload)    
-	}
+  }
 
-	def meetingCreatedToJson(msg:MeetingCreated):String = {
-	  val payload = new java.util.HashMap[String, Any]()
+  def meetingCreatedToJson(msg:MeetingCreated):String = {
+	val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
 
     val header = Util.buildHeader(MessageNames.MEETING_CREATED, msg.version, None)
     Util.buildJson(header, payload) 
-	}
+  }
 
-	def meetingEndedToJson(msg:MeetingEnded):String = {
-	  val payload = new java.util.HashMap[String, Any]()
+  def meetingEndedToJson(msg:MeetingEnded):String = {
+	val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
 
     val header = Util.buildHeader(MessageNames.MEETING_ENDED, msg.version, None)
     Util.buildJson(header, payload) 
-	}
+  }
 	
   def voiceRecordingStartedToJson(msg: VoiceRecordingStarted):String = {
     val payload = new java.util.HashMap[String, Any]()

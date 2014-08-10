@@ -19,10 +19,8 @@
 package org.bigbluebutton.modules.videoconf.maps
 {
   import flash.events.IEventDispatcher;
-  import flash.media.Camera;
-  
-  import mx.collections.ArrayCollection;
-  
+  import flash.media.Camera;  
+  import mx.collections.ArrayCollection;  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.common.events.CloseWindowEvent;
   import org.bigbluebutton.common.events.OpenWindowEvent;

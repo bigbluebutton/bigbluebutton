@@ -42,14 +42,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
-      
       import mx.collections.*;
       import mx.events.FlexEvent;
       import mx.events.ValidationResultEvent;
       import mx.managers.PopUpManager;
       import mx.utils.*;
-      import mx.validators.*;
-      
+      import mx.validators.*;   
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.modules.present.commands.UploadFileCommand;
@@ -71,8 +69,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.present.model.PresentationModel;
       import org.bigbluebutton.util.i18n.ResourceUtil;
       
-      private static const LOG:String = "Present::FileUploadWIndow - ";
-      
+      private static const LOG:String = "Present::FileUploadWindow - ";
+        
       [Bindable] private var presentationNamesAC:ArrayCollection;
 	    [BIndable] public var maxFileSize:Number;
 
@@ -152,7 +150,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
         progressReportBox.visible = true;
         progressBar.visible = true;
-		
+        okCancelBtn.visible = true;
+        
+        disableClosing();
+        
+        selectBtn.enabled = false;
+        uploadBtn.enabled = false;		
+        
         if (fileSize > maxFileSizeBytes) {     
           // Hardcode for now to 30M limit. 
           // This should be configurable to match what's allowed in nginx. (ralam feb 23, 2010) 
@@ -163,19 +167,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           var presentationName:String = StringUtil.trim(fileToUpload.name);
           trace(LOG + "Uploading file : " + presentationName);
 
+          progBarLbl.visible = true;
+          
+          lblFileName.enabled = false;
+          
+          presentationNamesLb.visible = false;
+          
           var uploadCmd:UploadFileCommand = new UploadFileCommand();
           uploadCmd.filename = presentationName;
           uploadCmd.file = fileToUpload;
           globalDispatch.dispatchEvent(uploadCmd);
 
-          progBarLbl.visible = true;
-
-          okCancelBtn.visible = true;
-          selectBtn.enabled = false;
-          uploadBtn.enabled = false;
-          lblFileName.enabled = false;
-		  
-          presentationNamesLb.visible = false;
         }       		
       }
 
@@ -194,6 +196,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         fileLbl.visible = false;
         selectBtn.visible = false;
         uploadBtn.visible = false;
+        selectBtn.enabled = false;
+        uploadBtn.enabled = false;	
         lblFileName.visible = false;
       }
 
@@ -209,7 +213,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function handleSupportedDocument(e:ConversionSupportedDocEvent):void {
-        LogUtil.debug("handleSupportedDocument");
+        trace(LOG + "handleSupportedDocument");
         progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.document.supported');
         progressBar.setProgress(0, 100);
         progressBar.validateNow();
@@ -226,7 +230,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function handlePageCountExceeded(e:ConversionPageCountMaxed):void {
-        LogUtil.debug("handlePageCountExceeded");
+        trace(LOG + "handlePageCountExceeded");
         enableControls();
         var message:String = " Maximum supported is " + e.maxPages;
         displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.convert.maxnbpagereach'), message);
@@ -251,6 +255,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
       private function enableControls():void {
         okCancelBtn.visible = true;
+        okCancelBtn.enabled = true;
         selectBtn.enabled = true;
         uploadBtn.enabled = true;
         lblFileName.enabled = true;			
@@ -264,10 +269,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
       private function handleConversionCompleted(e:ConversionCompletedEvent):void{
         okCancelBtn.label = ResourceUtil.getInstance().getString('bbb.presentation.ok');
-        okCancelBtn.visible = true;
+        enableClosing();
         globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
       }
 
+      private function disableClosing():void {
+        okCancelBtn.enabled = false;
+      }
+      
+      private function enableClosing():void {
+        okCancelBtn.enabled = true;
+      }
   ]]>
 
   </mx:Script>

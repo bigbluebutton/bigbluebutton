@@ -16,6 +16,7 @@ public class MessageSender {
 	private volatile boolean sendMessage = false;
 	
 	private final Executor msgSenderExec = Executors.newSingleThreadExecutor();
+	private final Executor runExec = Executors.newSingleThreadExecutor();
 	private BlockingQueue<MessageToSend> messages = new LinkedBlockingQueue<MessageToSend>();
 	
 	public void stop() {
@@ -50,15 +51,21 @@ public class MessageSender {
 		messages.add(msg);
 	}
 	
-	private void publish(String channel, String message) {
-		Jedis jedis = redisPool.getResource();
-		try {
-			jedis.publish(channel, message);
-		} catch(Exception e){
-			log.warn("Cannot publish the message to redis", e);
-		} finally {
-			redisPool.returnResource(jedis);
-		}
+	private void publish(final String channel, final String message) {
+		Runnable task = new Runnable() {
+	    public void run() {
+	  		Jedis jedis = redisPool.getResource();
+	  		try {
+	  			jedis.publish(channel, message);
+	  		} catch(Exception e){
+	  			log.warn("Cannot publish the message to redis", e);
+	  		} finally {
+	  			redisPool.returnResource(jedis);
+	  		}	    	
+	    }
+		};
+		
+		runExec.execute(task);
 	}
 	
 	public void setRedisPool(JedisPool redisPool){

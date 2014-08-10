@@ -81,8 +81,7 @@ public class LockService {
 	 * */
 	public void setAllUsersLock(Boolean lock, ArrayList<String> dontLockTheseUsers){
 		log.debug("setAllUsersLock ({}, {})", new Object[] { lock, dontLockTheseUsers });
-		
-		log.error("TODO: Need to implement!");
+	
 	}
 	
 	/**

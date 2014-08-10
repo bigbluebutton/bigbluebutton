@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 import org.red5.server.api.Red5;
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
-import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.red5.logging.Red5LoggerFactory;
@@ -88,15 +87,15 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	@Override
     public boolean appStart(IScope app) {
 		log.debug("***** " + APP + " [ " + " appStart [ " + scope.getName() + "] *********");
-    IContext context = app.getContext();
-    appCtx = (AbstractApplicationContext) context.getApplicationContext();
-    appCtx.addApplicationListener(new ShutdownHookListener());
-    appCtx.registerShutdownHook();
-    super.appStart(app);
+		IContext context = app.getContext();
+		appCtx = (AbstractApplicationContext) context.getApplicationContext();
+		appCtx.addApplicationListener(new ShutdownHookListener());
+		appCtx.registerShutdownHook();
+		super.appStart(app);
         
-    connInvokerService.setAppScope(app);
+		connInvokerService.setAppScope(app);
 
-    return true;
+		return true;
 	}
     
 	@Override
@@ -133,7 +132,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
                
 		String voiceBridge = ((String) params[3]).toString();
 		
-	boolean record = (Boolean)params[4];
+		boolean record = (Boolean)params[4];
 		
 		String externalUserID = ((String) params[5]).toString();
 		String internalUserID = ((String) params[6]).toString();

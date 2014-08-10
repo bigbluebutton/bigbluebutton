@@ -522,6 +522,9 @@ module BigBlueButton
             '-threads', '2', '-deadline', 'good', '-cpu-used', '3',
             '-c:a', 'libvorbis', '-b:a', '32K',
             '-f', 'webm' ]
+        ],
+        :postprocess => [
+          [ 'mkclean', '--quiet', ':input', ':output' ]
         ]
       }
     ]

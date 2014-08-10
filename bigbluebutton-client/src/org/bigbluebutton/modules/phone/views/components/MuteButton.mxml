@@ -21,7 +21,7 @@
 -->
 
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:mate="http://mate.asfusion.com/"
-	icon="{phoneIcon}" click="startSound()"
+	icon="{phoneIcon}" click="startSound()" label="BOOO!"
 	mouseOver = "mouseOverHandler(event)"
 	mouseOut = "mouseOutHandler(event)"
 	creationComplete = "initMuteButton()"
@@ -33,7 +33,6 @@
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.managers.UserManager;

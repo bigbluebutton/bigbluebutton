@@ -80,7 +80,6 @@ public class LayoutService {
 	}
 	
 	public void setLayoutApplication(LayoutApplication a) {
-		log.debug("Setting layout application");
 		application = a;
 	}
 	
