@@ -36,6 +36,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
+			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCUserChangedMicEvent;
 			import org.bigbluebutton.modules.phone.managers.WebRTCCallManager;
 		]]>
@@ -73,8 +74,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <EventHandlers type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_HAS_AUDIO}">        
     <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCEchoTestHasAudioEvent"/>
-  </EventHandlers> 
+  </EventHandlers>
   
+  <EventHandlers type="{WebRTCMediaEvent.WEBRTC_MEDIA_FAIL}">
+    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCMediaFailedEvent"/>
+  </EventHandlers>
+	
   <EventHandlers type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_NO_AUDIO}">        
     <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCEchoTestNoAudioEvent"/>
   </EventHandlers> 
