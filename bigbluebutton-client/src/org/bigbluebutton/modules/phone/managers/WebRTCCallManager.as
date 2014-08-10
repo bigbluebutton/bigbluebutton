@@ -88,10 +88,6 @@ package org.bigbluebutton.modules.phone.managers
       ExternalInterface.call("stopWebRTCAudioTest");
     }
     
-    private function hideMicPermission():void {
-      dispatcher.dispatchEvent(new WebRTCMediaEvent(WebRTCMediaEvent.WEBRTC_MEDIA_FAIL));
-    }
-    
     public function handleWebRTCEchoTestStartedEvent():void {
 	  state = DO_ECHO_TEST;
     }
@@ -120,7 +116,6 @@ package org.bigbluebutton.modules.phone.managers
     
     public function handleWebRTCCallEndedEvent():void {
 	  state = INITED;
-      hideMicPermission();
     }
     
     private function joinVoiceConference():void {
@@ -168,13 +163,11 @@ package org.bigbluebutton.modules.phone.managers
     public function handleWebRTCEchoTestFailedEvent(reason:String):void {
 	  state = INITED;
       endEchoTest();
-      hideMicPermission();
 	  var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [reason]), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
     }
     
     public function handleWebRTCCallFailedEvent(reason:String):void {
       state = INITED;
-      hideMicPermission();
       var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [reason]), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
     }
     
