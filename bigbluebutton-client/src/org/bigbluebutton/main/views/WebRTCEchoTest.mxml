@@ -48,13 +48,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private static const LOG:String = "Phone::WebRTCEchoTest - ";
 			
-			private var startEchoTestTxt:String = "Please allow the browser to access the mic when prompted near the top of the browser.";
+			private var dotTimer:Timer;
 			
 			override public function move(x:Number, y:Number):void {
 				return;
 			}
 			
 			private function onCancelClicked():void {
+				dotTimer.stop();
 				PopUpManager.removePopUp(this);
 			}
 			
@@ -63,14 +64,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onCreationComplete():void {
-				setCurrentState("connectingecho");
+				setCurrentState("connecting");
+				lblConnectMessage.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.connectingtoecho');
+				dotTimer = new Timer(200, 0);
+				dotTimer.addEventListener(TimerEvent.TIMER, dotAnimate);
+				dotTimer.start();
+			}
+			
+			private function dotAnimate(e:TimerEvent):void {
+				if (lblConnectDots.text.length > 5) {
+					lblConnectDots.text = "";
+				} else {
+					lblConnectDots.text += ".";
+				}
 			}
 			
 			private function yesButtonClicked():void {
 				trace(LOG + "Echo test passed.");
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_HAS_AUDIO));
-				setCurrentState("endingecho");
+				setCurrentState("connecting");
+				lblConnectMessage.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.endingecho');
 			}
 			
 			private function noButtonClicked():void {
@@ -82,14 +96,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function handleWebRTCEchoTestStartedEvent(e:WebRTCEchoTestEvent):void {
 				setCurrentState("started");
+				dotTimer.stop();
 			}
 			
 			private function handleWebRTCEchoTestEndedEvent(e:WebRTCEchoTestEvent):void {
-				setCurrentState("ended");
+				setCurrentState("connecting");
+				lblConnectMessage.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.endedecho');
+				if (!dotTimer.running) dotTimer.start();
 			}
 			
 			private function handleWebRTCCallConnectingEvent(e:WebRTCCallEvent):void {
-				setCurrentState("connectingcall");
+				setCurrentState("connecting");
+				lblConnectMessage.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.connectingtocall');
+				if (!dotTimer.running) dotTimer.start();
 			}
 			
 			private function handleWebRTCCallStartedEvent(e:WebRTCCallEvent):void {
@@ -123,34 +142,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:VBox>
 	
 	<mx:states>
-		<mx:State name="connectingecho">
+		<mx:State name="connecting">
 			<mx:AddChild relativeTo="cnvTitle" position="after">
 				<mx:HBox width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
-					<mx:Label styleName="micSettingsWindowSpeakIntoMicLabelStyle" text="Connecting to echo test ..." />
-				</mx:HBox>
-			</mx:AddChild>
-		</mx:State>
-		
-		<mx:State name="endingecho">
-			<mx:AddChild relativeTo="cnvTitle" position="after">
-				<mx:HBox width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
-					<mx:Label styleName="micSettingsWindowSpeakIntoMicLabelStyle" text="Ending echo test ..." />
-				</mx:HBox>
-			</mx:AddChild>
-		</mx:State>
-		
-		<mx:State name="ended">
-			<mx:AddChild relativeTo="cnvTitle" position="after">
-				<mx:HBox width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
-					<mx:Label styleName="micSettingsWindowSpeakIntoMicLabelStyle" text="Echo test ended." />
-				</mx:HBox>
-			</mx:AddChild>
-		</mx:State>
-		
-		<mx:State name="connectingcall">
-			<mx:AddChild relativeTo="cnvTitle" position="after">
-				<mx:HBox width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
-					<mx:Label styleName="micSettingsWindowSpeakIntoMicLabelStyle" text="Connecting to conference ..." />
+					<mx:Label id="lblConnectMessage" textAlign="right" styleName="micSettingsWindowSpeakIntoMicLabelStyle" text="" />
+					<mx:Label id="lblConnectDots" width="20" textAlign="left" styleName="micSettingsWindowSpeakIntoMicLabelStyle" text="" />
 				</mx:HBox>
 			</mx:AddChild>
 		</mx:State>
