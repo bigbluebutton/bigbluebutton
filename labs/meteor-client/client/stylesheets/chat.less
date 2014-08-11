@@ -1,62 +1,23 @@
 #chat {
-    background: #fff;
+    background-color: #f5f5f5;
     border: 1px solid #ccc;
     float: left;
     min-height:500px;
     overflow: hidden;
     width: 25%;
  }
-#chatbar-contents {
-    height: 70%;
-    margin-right:2px;
-    overflow:hidden;
-}
-#chatbar-footer{
-    position:static;
-    bottom: 0;
-    min-height:50px; 
-    max-height:60px;
-}
-#chatbar-title{
-    position:static;
-    top: 0;
-}
 .chatGreeting {
     color: blue;
     font-size: 12px;
     line-height: 14px;
 }
-.chat-entry{}
-.chat-entry tr:nth-child(odd) {}
-.chat-entry tr:nth-child(even) {
-    background-color: rgb(245,245,245);
-}
 .chat-input-wrapper {
     margin-left:20px;
-
-}
-.chat-message {
-    font-size: 12px;
-    line-height: 14px;
-    margin-bottom:0px;
-    padding-top:5px;
-    padding-bottom:0px;
-    padding-right:10px;
-    padding-left: 20px;
 }
 #chat-options-bar {
     border-bottom:1px solid #ccc;
     position:relative;
     width:100%;
-}
-.chat-timestamp {
-    color:##C0C0C0;
-    float:right;
-    font-weight:bold;
-}
-.chat-username {
-	color:#333;
-    font-weight:bold;
 }
 #chat-user-list {
     padding:5px;
@@ -64,7 +25,7 @@
 #newMessageInput {
     height:40px;
     width: 80%;
-    margin-top:10px;
+    margin-top:6px;
 }
 .optionsChatTab{}
 .privateChatTab{}
@@ -88,3 +49,36 @@
     margin-left: 10px;
 }
 .tab{}
+
+#chatbar-contents{
+    height:90%; 
+    background-color: #fff; 
+    padding-left: 0px; 
+    padding-right: 0px;
+    width:100%; 
+}
+.chat{
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
+}
+.chat li{
+    border-bottom: 1px dotted #B3A9A9;
+    margin: 0px;
+    padding-bottom: 5px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 5px;
+}
+.chat li:nth-child(even) {
+    background-color: rgb(245,245,245);
+}
+.panel-footer{
+    padding-top:0px;
+}
+.chatbody{
+    height:80%;
+    overflow-y: scroll;
+    padding-left: 0px;
+    padding-right: 0px;
+}

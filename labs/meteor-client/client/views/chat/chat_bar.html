@@ -1,24 +1,21 @@
 <template name="chatbar">
 	<div id="{{id}}" {{visibility name}} class="component">
-		<div id="chatbar-title">
-			<h3 class="title gradientBar">{{title}}</h3>
-			{{> tabButtons}}
-		</div>
+	{{#if getInSession "display_chatPane"}}
 		<div id="chatbar-contents">
-			{{#if getInSession "display_chatPane"}}
-				{{#Layout template="scrollWindow" id="chatScrollWindow"}}
-					{{#contentFor region="scrollContents"}}
-						{{> messageBar}}
-					{{/contentFor}}
-					{{/Layout}}
-				{{else}}
-					{{> optionsBar}}
-			{{/if}}
-		</div>
-		<div id="chatbar-footer">
-			{{> chatInput}}
-		</div>
-	</div>
+			<h3 class="title gradientBar"><span class="glyphicon glyphicon-comment"></span> {{title}}</h3>
+			{{>tabButtons}}
+			<div class="chatbody">
+				<ul class="chat">					
+					{{#each getFormattedMessagesForChat}}
+						<li>{{> message}}</li>
+					{{/each}}
+				</ul>
+			</div>
+		</div><div class="panel-footer">{{> chatInput}}</div>
+	{{else}}
+		<!-- {{> optionsBar}} -->
+	{{/if}}
+</div>
 </template>
 
 <template name="chatInput">
@@ -32,22 +29,9 @@
 
 <!-- Displays and styles an individual message in the chat -->
 <template name="message">
-	<div class="chat-message {{class}}">	
-		<span class="chat-username">{{message.from_username}}</span>
-		<p class="chat-timestamp">{{message.from_time}}</p>
-		<p>&nbsp;&nbsp;&nbsp;&nbsp;{{message.message}}</p>
-	</div>
-</template>
-
-<!-- Display the actual message bar -->
-<template name="messageBar">
-	{{#Layout template="moduleTable" tbodyClass="chat-entry"}}
-		{{#contentFor region="Contents"}}
-			{{#each getFormattedMessagesForChat}}
-				<tr>{{>message}}</tr>
-			{{/each}}
-		{{/contentFor}}
-	{{/Layout}}
+	<strong>{{message.from_username}}</strong> 
+	<small class="pull-right">{{message.from_time}} <span class="glyphicon glyphicon-time"></span></small>
+	<div>{{message.message}}</div>
 </template>
 
 <!-- Displays the list of options available -->

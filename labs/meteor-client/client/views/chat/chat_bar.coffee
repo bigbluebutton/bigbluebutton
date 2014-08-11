@@ -33,7 +33,7 @@ Template.chatInput.rendered  = ->
    $('input[rel=tooltip]').tooltip()
    $('button[rel=tooltip]').tooltip()
 
-Template.messageBar.helpers
+Template.chatbar.helpers
   getChatGreeting: ->
     greeting = 
     "<p>Welcome to #{getMeetingName()}!</p>
@@ -61,11 +61,12 @@ Template.messageBar.helpers
     greeting = [
       'class': 'chatGreeting',
       'message':
-        'message': Template.messageBar.getChatGreeting(),
+        'message': Template.chatbar.getChatGreeting(),
         'from_username': 'System',
         'from_time': getTime()
     ]
 
+    console.log messages
     messages = (before.concat greeting).concat after
     ###
     # Now after all messages + the greeting have been inserted into our collection, what we have to do is go through all messages
