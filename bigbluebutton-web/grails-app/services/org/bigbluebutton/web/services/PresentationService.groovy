@@ -140,7 +140,6 @@ class PresentationService {
 		
 		if (presDir.exists()) {
 			File pres = new File(presDir.getAbsolutePath() + File.separatorChar + testUploadedPresentation)
-			log.warn "\n\n333 " + pres.toString();
 			if (pres.exists()) {
 				UploadedPresentation uploadedPres = new UploadedPresentation(testConferenceMock, testRoomMock, testPresentationName);
 				uploadedPres.setUploadedFile(pres);

@@ -21,18 +21,13 @@ Template.slide.helpers
 
 #### SHAPE ####
 Template.shape.rendered = ->
-  # @data is the shape object
-  shape = @data
-
-  shapeType = shape.shape?.shape?.type
-  data2 = shape.shape?.shape # TODO change some of these!!
+  # @data is the shape object coming from the {{#each}} in the html file
+  shapeInfo = @data.shape?.shape
+  shapeType = shapeInfo?.type
 
   for num in [0..3] # the coordinates must be in the range 0 to 1
-    data2.points[num] = data2.points[num] / 100
+    shapeInfo.points[num] = shapeInfo.points[num] / 100
 
   wpm = Template.slide.whiteboardPaperModel
-  wpm.makeShape(shapeType, data2)
-  wpm.updateShape(shapeType, data2)
-
-
-
+  wpm.makeShape(shapeType, shapeInfo)
+  wpm.updateShape(shapeType, shapeInfo)
