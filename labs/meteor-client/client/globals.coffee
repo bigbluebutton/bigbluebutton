@@ -125,6 +125,10 @@ Handlebars.registerHelper "getShapesForSlide", ->
   # try to reuse the lines above
   Meteor.Shapes.find({whiteboardId: currentSlide?.slide?.id}).fetch()
 
+Handlebars.registerHelper "pointerLocation", ->
+  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+  currentPresentation.pointer
+
 # Starts the entire logout procedure.
 # meeting: the meeting the user is in
 # the user's userId

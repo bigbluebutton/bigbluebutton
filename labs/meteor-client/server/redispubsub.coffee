@@ -108,7 +108,6 @@ class Meteor.RedisPubSub
 
     ignoredEventTypes = [
       "keep_alive_reply"
-      "presentation_cursor_updated_message"
       "page_resized_message"
       "presentation_page_resized_message"
     ]
@@ -162,10 +161,10 @@ class Meteor.RedisPubSub
       # this way can keep the Meetings collection up to date
       @invokeGetAllMeetingsRequest()
 
-    if message.header?.name is "presentation_shared_message"
+    if message.header?.name is "presentation_shared_message" # TODO TEST!!!
       presentationId = message.payload?.presentation?.id
       # change the currently displayed presentation to presentation.current = false
-      Meteor.Presentations.update({"presentation.current": true},{$set: {"presentation.current": false}})
+      Meteor.Presentations.update({"presentation.current": true, meetingId: meetingId},{$set: {"presentation.current": false}})
 
       #update(if already present) entirely the presentation with the fresh data
       Meteor.call("removePresentationFromCollection", meetingId, presentationId)
@@ -218,6 +217,13 @@ class Meteor.RedisPubSub
       shape = message.payload?.shape
       whiteboardId = shape?.wb_id
       Meteor.call("addShapeToCollection", meetingId, whiteboardId, shape)
+
+    if message.header?.name is "presentation_cursor_updated_message"
+      x = message.payload?.x_percent
+      y = message.payload?.y_percent
+
+      Meteor.Presentations.update({"presentation.current": true, meetingId: meetingId},{$set: {"pointer.x": x, "pointer.y": y}})
+      console.log "presentation_cursor_updated_message #{x}_#{y}"
 
     if message.header?.name in ["meeting_ended_message", "meeting_destroyed_event",
       "end_and_kick_all_message", "disconnect_all_users_message"]

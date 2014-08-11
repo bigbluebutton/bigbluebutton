@@ -19,6 +19,9 @@ Template.slide.helpers
     wpm.create()
     wpm._displayPage(currentSlide?.slide?.png_uri)
 
+  updatePointerLocation: (pointer) ->
+    console.log "X=#{pointer.x}__Y=#{pointer.y}"
+
 #### SHAPE ####
 Template.shape.rendered = ->
   # @data is the shape object coming from the {{#each}} in the html file
@@ -31,3 +34,5 @@ Template.shape.rendered = ->
   wpm = Template.slide.whiteboardPaperModel
   wpm.makeShape(shapeType, shapeInfo)
   wpm.updateShape(shapeType, shapeInfo)
+
+
