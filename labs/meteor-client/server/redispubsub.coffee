@@ -157,7 +157,7 @@ class Meteor.RedisPubSub
         for chatMessage in message.payload?.chat_history
           Meteor.call("addChatToCollection", meetingId, chatMessage)
 
-    if message.header?.name is "send_public_chat_message"
+    if message.header?.name is "send_public_chat_message" or message.header?.name is "send_private_chat_message"
       messageObject = message.payload?.message
       Meteor.call("addChatToCollection", meetingId, messageObject)
 
@@ -244,10 +244,16 @@ class Meteor.RedisPubSub
 
   publishingChatMessage: (meetingId, chatObject) =>
     console.log "publishing a chat message to bbb-apps"
+
+    eventName = ->
+      if chatObject.chat_type is "PRIVATE_CHAT"
+        "send_private_chat_message_request"
+      else "send_public_chat_message_request"
+
     message =
       header :
         "timestamp": new Date().getTime()
-        "name": "send_public_chat_message_request"
+        "name": eventName()
       payload:
         "message" : chatObject
         "meeting_id": meetingId
