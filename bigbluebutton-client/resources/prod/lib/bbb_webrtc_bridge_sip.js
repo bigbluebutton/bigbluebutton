@@ -113,8 +113,9 @@ function createUA(username, server) {
 	
 	console.log("Creating new user agent");
 	
+	// VERY IMPORTANT - You must escape the username because spaces will cause the connection to fail
 	var configuration = {
-		uri: 'sip:' + username + '@' + server,
+		uri: 'sip:' + escape(username) + '@' + server,
 		wsServers: 'ws://' + server + ':5066',
 		displayName: username,
 		register: false,
