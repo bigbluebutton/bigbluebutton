@@ -9,11 +9,6 @@ Meteor.methods
     #dispatch a message to redis
     Meteor.redisPubSub.sendUserLeavingRequest(meetingId, userId)
 
-    console.log "destroying subscriptions----------------------------------"
-    clearCollections()
-
-    # will have to add some code in here to ensure the user with userId can not get back into the meeting since we cannot clear their client side data
-
   userKick: (meetingId, userId) ->
     console.log "#{userId} is being kicked"
     console.log "a user is logging out:" + userId
