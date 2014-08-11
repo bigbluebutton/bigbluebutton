@@ -195,15 +195,33 @@ def publish_processed_meeting(recording_dir)
 end
 
 def post_archive(meeting_id)
-  BigBlueButton.exec_ret("ruby", "post_scripts/post_archive.rb", "-m", meeting_id)
+  Dir.glob("post_archive/*.rb").sort.each do |post_archive_script|
+    BigBlueButton.logger.info("Running post archive script #{post_archive_script}")
+    ret = BigBlueButton.exec_ret("ruby", post_archive_script, "-m", meeting_id)
+    if ret != 0
+      BigBlueButton.logger.warn("Post archive script #{post_archive_script} failed")
+    end
+  end
 end
 
 def post_process(meeting_id)
-  BigBlueButton.exec_ret("ruby", "post_scripts/post_process.rb", "-m", meeting_id)
+  Dir.glob("post_process/*.rb").sort.each do |post_process_script|
+    BigBlueButton.logger.info("Running post process script #{post_process_script}")
+    ret = BigBlueButton.exec_ret("ruby", post_process_script, "-m", meeting_id)
+    if ret != 0
+      BigBlueButton.logger.warn("Post process script #{post_process_script} failed")
+    end
+  end
 end
 
 def post_publish(meeting_id)
-  BigBlueButton.exec_ret("ruby", "post_scripts/post_publish.rb", "-m", meeting_id)
+  Dir.glob("post_publish/*.rb").sort.each do |post_publish_script|
+    BigBlueButton.logger.info("Running post publish script #{post_publish_script}")
+    ret = BigBlueButton.exec_ret("ruby", post_publish_script, "-m", meeting_id)
+    if ret != 0
+      BigBlueButton.logger.warn("Post publish script #{post_publish_script} failed")
+    end
+  end
 end
 
 begin
