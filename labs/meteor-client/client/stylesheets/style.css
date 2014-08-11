@@ -2,13 +2,15 @@
 body {
     background: #eee;
     color: #666666;
+    position:absolute; top:0; bottom:0; left:0; right:0; height:100%;
 }
+
 .chatBarIcon{}
 .component{
     background: #fff;
     border: 1px solid #ccc;
     float: left;
-    overflow: hidden;
+    height:90%;
 }
 .gradientBar{
     background: -webkit-linear-gradient(rgb(255,255,255), rgb(182,181,181)); /* For Safari 5.1 to 6.0 */
@@ -19,8 +21,7 @@ body {
 .hideNavbarIcon{}
 .lowerHand{}
 .mainContainer{
-    min-width: 1300px;
-    overflow: hidden;
+    height:100%;
 }
 .myFooter{
     color:black;
@@ -81,7 +82,7 @@ body {
 
 .ScrollableWindow {
     height: 100%;
-    overflow: scroll;
+    overflow-y: scroll;
     padding-right:5px;
 }
 .settingsIcon{}

@@ -1,20 +1,23 @@
 <template name="chatbar">
 	<div id="{{id}}" {{visibility name}} class="component">
-		<h3 class="title gradientBar">{{title}}</h3>
-		{{> tabButtons}}
+		<div id="chatbar-title">
+			<h3 class="title gradientBar">{{title}}</h3>
+			{{> tabButtons}}
+		</div>
 		<div id="chatbar-contents">
 			{{#if getInSession "display_chatPane"}}
 				{{#Layout template="scrollWindow" id="chatScrollWindow"}}
 					{{#contentFor region="scrollContents"}}
 						{{> messageBar}}
 					{{/contentFor}}
-				{{/Layout}}
-			{{else}}
-				{{> optionsBar}}
+					{{/Layout}}
+				{{else}}
+					{{> optionsBar}}
 			{{/if}}
-			
 		</div>
-		{{> chatInput}}
+		<div id="chatbar-footer">
+			{{> chatInput}}
+		</div>
 	</div>
 </template>
 

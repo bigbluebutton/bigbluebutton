@@ -1,15 +1,30 @@
 #chat {
-    height: 660px;
+    background: #fff;
+    border: 1px solid #ccc;
+    float: left;
+    min-height:500px;
+    overflow: hidden;
     width: 25%;
  }
+#chatbar-contents {
+    height: 70%;
+    margin-right:2px;
+    overflow:hidden;
+}
+#chatbar-footer{
+    position:static;
+    bottom: 0;
+    min-height:50px; 
+    max-height:60px;
+}
+#chatbar-title{
+    position:static;
+    top: 0;
+}
 .chatGreeting {
     color: blue;
     font-size: 12px;
     line-height: 14px;
-}
-#chatbar-contents {
-    height:72%;
-    margin-bottom:0px;
 }
 .chat-entry{}
 .chat-entry tr:nth-child(odd) {}
@@ -18,7 +33,7 @@
 }
 .chat-input-wrapper {
     margin-left:20px;
-    margin-top:15px;
+
 }
 .chat-message {
     font-size: 12px;
