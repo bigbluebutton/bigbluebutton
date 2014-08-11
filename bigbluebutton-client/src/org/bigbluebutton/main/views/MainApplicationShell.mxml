@@ -600,10 +600,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				id="isTunnellingLbl"
 				visible="{isTunneling}"
 				includeInLayout="{isTunneling}" />
-    <views:LanguageSelector id="langSelector" 
-                            visible="false" 
-                            accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"
-                            styleName="languageSelectorStyle" />
+		<views:LanguageSelector id="langSelector" 
+				visible="false" 
+				accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"
+				styleName="languageSelectorStyle" />
 		<mx:Button
 				width="20"
 				height="20"
@@ -614,16 +614,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				icon="{logs_icon}"
 				click="openLogWindow()"
 				tabIndex="{baseIndex}"/>
-		<mx:Button
-				id="btnNetwork"
-				icon="{statsIcon}"
-				width="20"
-				height="20"
-				mouseOver="openNetworkStatsWindow()"
-				mouseOut="closeNetworkStatsWindow()"
-				tabFocusEnabled="false"
-				visible="{layoutOptions.showNetworkMonitor}"
-				includeInLayout="{layoutOptions.showNetworkMonitor}" />
 		<mx:HBox id="addedBtns" />
 	</mx:ControlBar>
 </mx:VBox>
