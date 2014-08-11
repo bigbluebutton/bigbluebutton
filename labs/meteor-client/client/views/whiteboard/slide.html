@@ -1,4 +1,7 @@
 <template name="slide">
+	{{#each getShapesForSlide}}
+		{{> shape}}
+	{{/each}}
 </template>
 
 <template name="shape">
