@@ -1,21 +1,23 @@
 <template name="chatbar">
 	<div id="{{id}}" {{visibility name}} class="component">
-	{{#if getInSession "display_chatPane"}}
 		<div id="chatbar-contents">
 			<h3 class="title gradientBar"><span class="glyphicon glyphicon-comment"></span> {{title}}</h3>
 			{{>tabButtons}}
-			<div class="chatbody">
-				<ul class="chat">					
-					{{#each getFormattedMessagesForChat}}
-						<li>{{> message}}</li>
-					{{/each}}
-				</ul>
-			</div>
-		</div><div class="panel-footer">{{> chatInput}}</div>
-	{{else}}
-		<!-- {{> optionsBar}} -->
-	{{/if}}
-</div>
+			
+			{{#if getInSession "display_chatPane"}}
+				<div id="chatbody">
+					<ul class="chat">					
+						{{#each getFormattedMessagesForChat}}
+							<li>{{> message}}</li>
+						{{/each}}
+					</ul>
+				</div>
+				<div class="panel-footer">{{> chatInput}}</div>
+			{{else}}
+				{{> optionsBar}}
+			{{/if}}
+		</div>
+	</div>
 </template>
 
 <template name="chatInput">

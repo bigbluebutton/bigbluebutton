@@ -78,7 +78,7 @@ Template.chatbar.helpers
     getInSession('inChatWith') isnt "PUBLIC_CHAT"
 
 Template.message.rendered = -> # When a message has been added and finished rendering, scroll to the bottom of the chat
-  $('#chatScrollWindow').scrollTop($('#chatScrollWindow')[0].scrollHeight)
+  $('#chatbody').scrollTop($('#chatbody')[0].scrollHeight)
 
 Template.optionsBar.events
   'click .private-chat-user-entry': (event) -> # clicked a user's name to begin private chat
