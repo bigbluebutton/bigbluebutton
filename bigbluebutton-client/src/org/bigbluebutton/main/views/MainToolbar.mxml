@@ -320,22 +320,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
       
       private function onRecordingStatusChanged(event:BBBEvent):void {
+        meetingNameLbl.text = "";
+        
         if (event.payload.recording) {
           meetingNameLbl.text =  ResourceUtil.getInstance().getString('bbb.mainToolbar.recordingLabel.recording')
-          if (toolbarOptions.showMeetingName) {
-            var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();                   
-            if (meetingTitle != null) {
-              meetingNameLbl.text += " " + meetingTitle;
-            } 
-          }
-        } else {
-          meetingNameLbl.text = "";
-          if (toolbarOptions.showMeetingName) {
-            var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();                   
-            if (meetingTitle != null) {
-              meetingNameLbl.text += meetingTitle;
-            } 
-          }
+		}
+        
+        if (toolbarOptions.showMeetingName) {
+          var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();                   
+          if (meetingTitle != null) {
+            meetingNameLbl.text += " " + meetingTitle;
+          } 
         }
       }
 
