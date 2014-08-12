@@ -127,9 +127,14 @@ class Meteor.RedisPubSub
 
     if message.header?.name is 'user_voice_talking_message'
       u = Meteor.Users.findOne({'userId': message.payload?.user?.userid})
-      if u? and not u?.user?.voiceUser?.muted
-        console.log "setting talking to #{message?.payload?.user?.voiceUser?.talking}\n\n\n\n"
-        Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.talking':message?.payload?.user?.voiceUser?.talking}})
+      if u?
+        if not u?.user?.voiceUser?.muted
+          console.log "setting talking to #{message?.payload?.user?.voiceUser?.talking}\n\n\n\n"
+          Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.talking':message?.payload?.user?.voiceUser?.talking}})
+          Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.joined':true}})
+        else
+          Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.talking':false}})
+
 
     if message.header?.name is "get_all_meetings_reply"
       console.log "Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!"

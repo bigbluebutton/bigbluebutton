@@ -66,8 +66,8 @@ Template.chatbar.helpers
         'from_time': getTime()
     ]
 
-    console.log messages
     messages = (before.concat greeting).concat after
+    messages
     ###
     # Now after all messages + the greeting have been inserted into our collection, what we have to do is go through all messages
     # and modify them to join all sequential messages by users together so each entries will be chat messages by a user in the same time frame

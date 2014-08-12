@@ -27,9 +27,7 @@ body {
     color:black;
     font-size: 10px;
     min-height: 0px;
-    padding-bottom:3px;
-    padding-left:0.5%;
-    padding-top:3px;
+    max-height: 30px;
 }
 .myNavbar{
     margin-bottom:0.5%;

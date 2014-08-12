@@ -48,14 +48,24 @@ Handlebars.registerHelper "isCurrentUser", (id) ->
   id is getInSession("userId")
 
 Handlebars.registerHelper "isUserSharingAudio", (u) ->
-  if u? then u.voiceUser?.joined
+  if u? 
+    user = Meteor.Users.findOne({userId:u.userid})
+    user.user.voiceUser?.joined
   else return false
 
 Handlebars.registerHelper "isUserSharingVideo", (u) ->
   u.webcam_stream.length isnt 0
 
 Handlebars.registerHelper "isUserTalking", (u) ->
-  if u? then u.voiceUser?.talking
+  if u? 
+    user = Meteor.Users.findOne({userId:u.userid})
+    user.user.voiceUser?.talking
+  else return false
+
+Handlebars.registerHelper "isUserMuted", (u) ->
+  if u? 
+    user = Meteor.Users.findOne({userId:u.userid})
+    user.user.voiceUser?.muted
   else return false
 
 Handlebars.registerHelper "setInSession", (k, v) -> SessionAmplify.set k, v 
@@ -87,7 +97,6 @@ Meteor.methods
 
 @toggleMic = (event) ->
   if getInSession "isSharingAudio" # only allow muting/unmuting if they are in the call
-    console.log "toggling mute"
     u = Meteor.Users.findOne({userId:getInSession("userId")})
     if u?
       # format: meetingId, userId, requesterId, mutedBoolean
@@ -118,6 +127,8 @@ Meteor.methods
       console.log JSON.stringify message
       setInSession "isSharingAudio", true
       Meteor.call("userShareAudio", getInSession("meetingId"),getInSession("userId"))
+      console.log "joined audio call"
+      console.log Meteor.Users.findOne(userId:getInSession("userId"))
     webrtc_call(username, voiceBridge, server, callback) # make the call
 
 @toggleWhiteBoard = ->
