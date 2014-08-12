@@ -19,13 +19,29 @@
 package org.bigbluebutton.modules.videoconf.events
 {
 	import flash.events.Event;
+	import flash.net.NetConnection;
 
 	public class PlayConnectionReady extends Event
 	{
 		public static const PLAY_CONNECTION_READY:String = "a netconnetion is ready";
 
-		public function PlayConnectionReady(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		private var _streamName:String;
+		public function get streamName():String { return _streamName; }
+
+		private var _connection:NetConnection;
+		public function get connection():NetConnection { return _connection; }
+
+		private var _prefix:String;
+		public function get prefix():String { return _prefix; }
+
+		public function PlayConnectionReady(streamName:String, conn:NetConnection, prefix:String)
 		{
+			_streamName = streamName;
+			_connection = conn;
+			_prefix = prefix;
+			var type:String = PLAY_CONNECTION_READY; 
+			var bubbles:Boolean = true;
+			var cancelable:Boolean = false;
 			super(type, bubbles, cancelable);
 		}
 	}

@@ -259,7 +259,19 @@ package org.bigbluebutton.modules.videoconf.views
             super.addChild(graphic);
         }
 
-        private function addVideoForHelper(userId:String, connection:NetConnection, streamName:String):void {
+        private function hasVideo(userId:String, streamName:String):Boolean {
+            for (var i:int = 0; i < numChildren; ++i) {
+                var item:UserGraphicHolder = getChildAt(i) as UserGraphicHolder;
+                if (item.user && item.user.userID == userId && item.visibleComponent is UserVideo && item.video.streamName == streamName) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public function addVideoFor(userId:String, connection:NetConnection, streamName:String):void {
+            // Check if video window is already open
+            if(hasVideo(userId, streamName)) { return; }
             trace("[GraphicsWrapper:addVideoForHelper] streamName " + streamName);
             var graphic:UserGraphicHolder = new UserGraphicHolder();
             graphic.userId = userId;
@@ -271,19 +283,6 @@ package org.bigbluebutton.modules.videoconf.views
             graphic.addEventListener(FlexEvent.REMOVE, onChildRemove);
 
             super.addChild(graphic);
-        }
-
-        public function addVideoFor(userId:String, connection:NetConnection):void {
-            var user:BBBUser = UsersUtil.getUser(userId);
-            if (user == null) return;
-
-            var streamNames:Array = user.streamNames;
-
-            for each (var streamName:String in streamNames) {
-                if (user.viewingStream.indexOf(streamName) == -1) {
-                    addVideoForHelper(user.userID, connection, streamName);
-                }
-            }
         }
 
         private function addCameraForHelper(userId:String, camIndex:int, videoProfile:VideoProfile):void {

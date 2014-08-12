@@ -27,6 +27,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.vo.LockSettingsVO;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 	import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
+	import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	
@@ -266,6 +267,7 @@ package org.bigbluebutton.main.model.users
     
     public function unsharedWebcam(stream: String):void {
       streamNames = streamNames.filter(function(item:*, index:int, array:Array):Boolean { return item != stream });
+      sendStreamStoppedEvent(stream);
       buildStatus();
       verifyMedia();
     }
@@ -297,16 +299,16 @@ package org.bigbluebutton.main.model.users
 					presenter = status.value;
 					break;
 				case "hasStream":
-					var streamInfo:Array = String(status.value).split(/,/); 
+					var streamInfo:Array = String(status.value).split(/,/);
 					/**
 					 * Cannot use this statement as new Boolean(expression)
 					 * return true if the expression is a non-empty string not
 					 * when the string equals "true". See Boolean class def.
-					 * 
+					 *
 					 * hasStream = new Boolean(String(streamInfo[0]));
-					 */					
+					 */
 					var streamNameInfo:Array = String(streamInfo[1]).split(/=/);
-					streamName = streamNameInfo[1]; 
+					streamName = streamNameInfo[1];
 					break;
 				case "raiseHand":
 					raiseHand = status.value as Boolean;
@@ -353,12 +355,17 @@ package org.bigbluebutton.main.model.users
 			n.disableMyPublicChat = user.disableMyPublicChat;
 			return n;		
 		}
-		
+
 		private function sendStreamStartedEvent(stream: String):void{
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(new StreamStartedEvent(userID, name, stream));
 		}
-		
+
+		private function sendStreamStoppedEvent(stream:String):void{
+			var dispatcher:Dispatcher = new Dispatcher();
+			dispatcher.dispatchEvent(new StreamStoppedEvent(userID, name, stream));
+		}
+
 		public function applyLockSettings():void {
        
 			var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
