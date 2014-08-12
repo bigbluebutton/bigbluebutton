@@ -228,7 +228,15 @@ class Meteor.RedisPubSub
       y = message.payload?.y_percent
 
       Meteor.Presentations.update({"presentation.current": true, meetingId: meetingId},{$set: {"pointer.x": x, "pointer.y": y}})
-      console.log "presentation_cursor_updated_message #{x}_#{y}"
+
+    if message.header?.name is "whiteboard_cleared_message"
+      whiteboardId = message.payload?.whiteboard_id
+      # shapesOnSlide = Meteor.Shapes.find({whiteboardId:whiteboardId, meetingId: meetingId}).fetch()
+      # console.log "shapesOnSlide:" + shapesOnSlide.size()
+      
+      Meteor.call("removeAllShapesFromSlide", meetingId, whiteboardId)
+
+
 
     if message.header?.name in ["meeting_ended_message", "meeting_destroyed_event",
       "end_and_kick_all_message", "disconnect_all_users_message"]
