@@ -110,6 +110,7 @@ class Meteor.RedisPubSub
       "keep_alive_reply"
       "page_resized_message"
       "presentation_page_resized_message"
+      "presentation_cursor_updated_message" # just because it's common. we handle it anyway
     ]
 
     unless message.header?.name in ignoredEventTypes

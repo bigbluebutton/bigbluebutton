@@ -57,7 +57,7 @@ class @WhiteboardPaperModel
   create: ->
     # paper is embedded within the div#slide of the page.
     console.log ("@container=" + @container)
-    @raphaelObj ?= ScaleRaphael(@container, "500", "500")
+    @raphaelObj ?= ScaleRaphael(@container, "900", "500")
     @raphaelObj.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
 
     @cursor = new WhiteboardCursorModel(@raphaelObj)
