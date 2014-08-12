@@ -21,6 +21,8 @@ Template.slide.helpers
 
   updatePointerLocation: (pointer) ->
     console.log "X=#{pointer.x}__Y=#{pointer.y}"
+    wpm = Template.slide.whiteboardPaperModel
+    wpm?.moveCursor(pointer.x, pointer.y)
 
 #### SHAPE ####
 Template.shape.rendered = ->
@@ -34,5 +36,10 @@ Template.shape.rendered = ->
   wpm = Template.slide.whiteboardPaperModel
   wpm.makeShape(shapeType, shapeInfo)
   wpm.updateShape(shapeType, shapeInfo)
+
+### POINTER ###
+# Template.pointer.rendered = ->
+#   alert getInSession "presentationPointer"
+
 
 

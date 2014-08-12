@@ -151,3 +151,7 @@ Handlebars.registerHelper "pointerLocation", ->
 
 @getTime = -> # returns epoch in ms
   (new Date).valueOf()
+
+# Deps.autorun -> #this should run once the presentation is available
+#   pointer = Meteor.Presentations.findOne({"presentation.current": true}).pointer
+#   setInSession "presentationPointer", pointer
