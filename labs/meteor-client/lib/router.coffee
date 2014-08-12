@@ -33,7 +33,15 @@
         console.log "authToken=" + authToken
 
         if meetingId? and userId? and authToken?
-          Meteor.call("validate", meetingId, userId, authToken)
+          # Here we need to check whether there is already a user using userId inside meetingId, if there is don't let this user log in, it is a duplicate
+          ###
+          if Meteor.call("validateUserId", meetingId, userId)
+            continue
+          else
+            kick user out
+          ###
+
+          Meteor.call("validateAuthToken", meetingId, userId, authToken)
           Meteor.call('sendMeetingInfoToClient', meetingId, userId)
         else
           console.log "unable to extract from the URL some of {meetingId, userId, authToken}"

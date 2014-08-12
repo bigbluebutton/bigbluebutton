@@ -1,163 +1,87 @@
 #chat {
-  position:absolute;
-  right: 0;
-  top: 65px;
-  width:30%;
-  background: #fff;
-  /*z-index: @z-index-chat;*/
-  overflow: hidden;
-  border-left:1px solid #ccc;
-  height:660px;
-  margin-bottom: 10px;
-
-	h3 { 
-		background:#f7f7f7;  	
-	  font-size: 1em;
-	  line-height: 2em;
-	  font-weight: bold;
-	  color: #666;
-	  border-bottom: 1px solid #d7d7d7;
-	  padding: 5px 10px;
-		margin:0;
-	}
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    float: left;
+    min-height:500px;
+    overflow: hidden;
+    width: 25%;
+ }
+.chatGreeting {
+    color: blue;
+    font-size: 12px;
+    line-height: 14px;
 }
-
-#chatbar-contents {
-	padding-left:20px;
-	padding-right:5px;
-	padding-top:2px;
-	padding-bottom:10px;
-	height:70%;
-
-	#chatScrollWindow {
-		padding-right:5px;
-	    overflow: scroll;
-	    height: 100%;
-	}
+.chat-input-wrapper {
+    margin-left:20px;
 }
-
 #chat-options-bar {
-  width:100%;
-  position:relative;
-  border-bottom:1px solid #ccc;
-
-	button {
-		/*.rounded(0);*/
-	}
-	.btn {
-		padding:0 5px;
-		font-size:12px;
-		line-height:22px;
-		border-top:0;
-		border-bottom:0;
-		border-left:0;
-		border-right:1px solid #ccc;
-		display:block;
-		float:left;
-	}
+    border-bottom:1px solid #ccc;
+    position:relative;
+    width:100%;
 }
-
-#chat-input-wrapper {
-	position:absolute;
-	bottom:0;
-}
-
 #chat-user-list {
-	padding:5px;
-	li {
-		cursor: pointer;
-	}
+    padding:5px;
 }
-
-.chat-message-wrapper {
-	margin-bottom: 10px;
+#newMessageInput {
+    height:40px;
+    width: 80%;
+    margin-top:6px;
 }
-
-.chat-message {
-	font-size: 12px;
-	line-height: 14px;
+.optionsChatTab{}
+.privateChatTab{}
+.publicChatTab{}
+.private-chat-user-box {
+    border: solid 1px grey;
+    padding: 5px;
+    width: 90%;
+    margin-left:15px;
 }
-
-.chat-username {
-	font-weight:bold;
-	color:#333;
+.private-chat-user-entry {}
+.private-chat-user-list {
+    font-size:12px;
 }
-
-.chat-timestamp {
-	font-weight:bold;
-	color:##C0C0C0;
-	float:right;
+.private-chat-user-list :hover {
+    background: #0099FF;
+    font-size:14px;
+    font-style:italic;
 }
-
-#chat-messages {
-  clear: both;
-  overflow-y: auto;
-  overflow: auto;
-  overflow-x: hidden;
-  /*position: relative;*/
-  padding: 10px;
-  word-break: break-all;
-
-  /*the code I added to make scroll work*/
-  position: absolute;
-  bottom: 32px;
-  top: 60px;
-  right:25px;
-  left: 0px;
+#sendMessageButton{
+    height:40px;
+    margin-left: 10px;
 }
-
 .tab{}
 
-.publicChatTab{
-
+#chatbar-contents{
+    background-color: #fff; 
+    height:90%; 
+    padding-left: 0px; 
+    padding-right: 0px;
+    width:100%; 
 }
-
-.optionsChatTab{
-
+.chat{
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
 }
-
-.privateChatTab{
-    
+.chat li{
+    border-bottom: 1px dotted #B3A9A9;
+    margin: 0px;
+    padding-bottom: 5px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 5px;
 }
-
-.chatGreeting {
-	font-size: 10px;
-	color: blue;
-
-	a{
-		text-decoration: underline;
-	}
+.chat li:nth-child(even) {
+    background-color: rgb(245,245,245);
 }
-
-.private-chat-user-list {
-  font-size:12px;
+.panel-footer{
+    padding-top:0px;
+    position:relative;
+    bottom:0px;
 }
-
-.private-chat-user-list :hover {
-  font-size:14px;
-  background: #0099FF;
-  font-style:italic;
-}
-
-.private-chat-user-entry {
-  
-}
-
-.private-chat-user-box {
-	border: solid 1px grey;
-	height:100%;
-	width: 90%;
-	padding: 5px;
-}
-
-#newMessageInput {
-	width: 80%;
-	height:40px;
-    margin-top: 20px;
-}
-
-#sendMessageButton{
-    margin-left: 10px;
-    margin-top:9px;
-    height:40px;
+#chatbody{
+    height:80%;
+    overflow-y: scroll;
+    padding-left: 0px;
+    padding-right: 0px;
 }

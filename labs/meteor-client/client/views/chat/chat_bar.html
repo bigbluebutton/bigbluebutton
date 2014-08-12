@@ -1,76 +1,60 @@
 <template name="chatbar">
-	{{#if getInSession "display_chatbar"}}
-		<div id="chat">
-			<h3>Chat</h3>
+	<div id="{{id}}" {{visibility name}} class="component">
+		<div id="chatbar-contents">
+			<h3 class="title gradientBar"><span class="glyphicon glyphicon-comment"></span> {{title}}</h3>
+			{{>tabButtons}}
 			
-		  	{{> tabButtons}}
-			
-			<div id="chatbar-contents">
-				{{#if getInSession "display_chatPane"}}
-					{{> messageBar}}
-					{{> chatInput}}
-				{{else}}
-					{{> optionsBar}}
-				{{/if}}
-			</div>
+			{{#if getInSession "display_chatPane"}}
+				<div id="chatbody">
+					<ul class="chat">					
+						{{#each getFormattedMessagesForChat}}
+							<li>{{> message}}</li>
+						{{/each}}
+					</ul>
+				</div>
+				<div class="panel-footer">{{> chatInput}}</div>
+			{{else}}
+				{{> optionsBar}}
+			{{/if}}
 		</div>
-	{{/if}}
+	</div>
+</template>
+
+<template name="chatInput">
+	<div class="chat-input-wrapper">
+		<input type="text" id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message" />
+		<button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top" title="Click to send your message">
+		Send
+		</button>
+	</div>
 </template>
 
 <!-- Displays and styles an individual message in the chat -->
 <template name="message">
-	<div class="chat-message">	
-		<span class="chat-username">{{message.from_username}}</span>
-		<p class="chat-timestamp">{{message.from_time}}</p>
-		<p>&nbsp;&nbsp;&nbsp;&nbsp;{{message.message}}</p>
-		<br/>
-	</div>
-</template>
-
-<!-- Display the actual message bar -->
-<template name="messageBar">
-	{{#if isUserInPrivateChat}}
-		<p>You are in a Private Chat.</p>
-	{{else}}
-		<p>This Chat is Open to Everyone.</p>
-	{{/if}}
-	<div id="chatScrollWindow">
-		{{#if isUserInPrivateChat}} <!-- If in private chat display greeting, then all messages after join -->
-			{{> chatGreeting}}
-			{{#each getMessagesInChat}} 
-				{{> message}}
-			{{/each}} 
-		{{else}}
-			{{#each getMessagesInChat true}} <!-- before they joined meeting -->
-				{{> message}}
-			{{/each}} 
-			{{> chatGreeting}}
-			{{#each getMessagesInChat false}} <!-- after they joined meeting -->
-				{{> message}}
-			{{/each}} 
-		{{/if}}
-	</div>
+	<strong>{{message.from_username}}</strong> 
+	<small class="pull-right">{{message.from_time}} <span class="glyphicon glyphicon-time"></span></small>
+	<div>{{message.message}}</div>
 </template>
 
 <!-- Displays the list of options available -->
 <template name="optionsBar">
 	<p>Select a person to chat with privately</p>
 	<div class="private-chat-user-box">
-		<div id="chatScrollWindow">
-			<table class="table table-hover">
-				<tbody class="private-chat-user-list">
-					{{#each getUsersInMeeting}}
-						<tr class="private-chat-user-entry">
-							{{#if isCurrentUser userId}}
-						      <strong>{{user.name}} (you)</strong>
-						    {{else}}
-						      {{user.name}}
-						    {{/if}}
-						</tr>
-					{{/each}}
-				</tbody>
-			</table>
-		</div>
+		{{#Layout template="scrollWindow" id="privateChatUserScrollWindow"}}
+			{{#contentFor region="scrollContents"}}
+				<table class="table table-hover">
+					<tbody class="private-chat-user-list">
+						{{#each getUsersInMeeting}}
+							<tr class="private-chat-user-entry">
+								{{#unless isCurrentUser userId}}
+							      {{user.name}}
+							    {{/unless}}
+							</tr>
+						{{/each}}
+					</tbody>
+				</table>
+			{{/contentFor}}
+		{{/Layout}}
 	</div>
 </template>
 
@@ -82,23 +66,3 @@
   	{{/each}}
   	</ul>
 </template>
-
-<!-- When done displaying previous chat messages, display the BBB greeting -->
-<template name="chatGreeting">
-	<div class="chatGreeting">
-		<p>Welcome to {{getMeetingName}}!</p>
-		<p>For help on using BigBlueButton see these (short) <a href="http://bigbluebutton.org/videos/" target="_blank">tutorial videos</a>.</p>
-		<p>To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.</p>
-		<br/>
-		<p>This server is running BigBlueButton {{getInSession "bbbServerVersion"}}.</p>
-	</div>
-</template>
-
-<template name="chatInput">
-	<input type="text" id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message" />
-	<button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top" title="Click to send your message">
-      Send
-   </button>
-</template>
-
-

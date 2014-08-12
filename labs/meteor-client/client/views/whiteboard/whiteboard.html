@@ -1,9 +1,14 @@
 <template name="whiteboard">
-	{{#if getInSession "display_whiteboard"}}
-		{{#each getCurrentSlide}}
-			{{> slide}}
-		{{/each}}
-		<div id="whiteboard-paper" style="position: fixed; top: 10%; left: 30%;">
-		</div>
-	{{/if}}
+    <div id="{{id}}" {{visibility name}} class="component">
+        <h3 class="title gradientBar">{{title}}</h3>
+        <div id="whiteboard-contents">
+        	{{#if getInSession "display_whiteboard"}}
+        		{{#each getCurrentSlide}}
+				{{> slide}}
+			{{/each}}
+            <div id="whiteboard-paper"  style="">
+            </div>
+            {{/if}}
+        </div>
+    </div>
 </template>

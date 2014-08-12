@@ -821,4 +821,39 @@ class @WhiteboardPaperModel
   #@param {data} message object containing the "presentation" object
   _displayPage: (data) ->
     @removeAllImagesFromPaper()
-    @addImageToPaper(data, 900, 900) # TODO the dimensions should be modified
+
+    # get dimensions for available whiteboard space
+    # get where to start from the left -> either the end of the user's list or the left edge of the screen
+    if getInSession "display_usersList" then xBegin = $("#userListContainer").width()
+    else xBegin = 0
+    # get where to start from the right -> either the beginning of the chat bar or the right edge of the screen
+    if getInSession "display_chatbar" then xEnd = $("#chat").position().left
+    else xEnd = $( document ).width();
+    
+    # find the height to start the top of the image at
+    if getInSession "display_navbar" then yBegin = $("#navbar").height()
+    else yBegin = 0
+    yEnd = $( document ).height();
+
+    # TODO: add some form of padding to the left, right, top, and bottom boundaries
+    # 
+    boardWidth = xEnd - xBegin
+    boardHeight = yEnd - yBegin
+
+    currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+    presentationId = currentPresentation?.presentation?.id
+    currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+
+    imageWidth = boardWidth * (currentSlide.slide.width_ratio/100)
+    imageHeight = boardHeight * (currentSlide.slide.height_ratio/100)
+    
+    # console.log "xBegin: #{xBegin}"
+    # console.log "xEnd: #{xEnd}"
+    # console.log "yBegin: #{yBegin}"
+    # console.log "yEnd: #{yEnd}"
+    # console.log "boardWidth: #{boardWidth}"
+    # console.log "boardHeight: #{boardHeight}"
+    # console.log "imageWidth: #{imageWidth}"
+    # console.log "imageHeight: #{imageHeight}"
+
+    @addImageToPaper(data, imageWidth, imageHeight) # TODO the dimensions should be modified
