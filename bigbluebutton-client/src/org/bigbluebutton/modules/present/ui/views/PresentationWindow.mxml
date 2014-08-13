@@ -369,24 +369,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 				displaySlideNavigationControls(isPresenter);
 			}
-					
-			private function handlePresentationChangedEvent(e:PresentationChangedEvent):void {	
-        var newPresName:String =  PresentationModel.getInstance().getCurrentPresentationName();
-        
-      	slideView.setSlides();    		            		
-				slideView.visible = true;		
-	      var page:Page = PresentationModel.getInstance().getCurrentPage();
-        if (page != null) {
-          displaySlideNumber(page.num);
-        }
-					      
-				if (UsersUtil.amIPresenter()) {
-					displaySlideNavigationControls(true);					
-				} else {
-          displaySlideNavigationControls(false)
-				}
-				onResetZoom();
-			}
+            private function handlePresentationChangedEvent(e:PresentationChangedEvent) : void {
+				currentPresentation = PresentationModel.getInstance().getCurrentPresentationName();
+
+                slideView.setSlides();
+                slideView.visible = true;
+                var page : Page = PresentationModel.getInstance().getCurrentPage();
+                if (page != null) {
+                    displaySlideNumber(page.num);
+                }
+
+                if (UsersUtil.amIPresenter()) {
+                    displaySlideNavigationControls(true);
+                }
+                else {
+                    displaySlideNavigationControls(false)
+                }
+                onResetZoom();
+            }
+
 			
 			private function displaySlideNavigationControls(show:Boolean):void {
 				backButton.visible = show;
