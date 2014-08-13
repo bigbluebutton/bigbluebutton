@@ -23,6 +23,12 @@ Panel {
   titleStyleName: "mypanelTitle";
 }
 
+ToolTip {
+	borderSkin      : ClassReference("org.bigbluebutton.skins.ToolTipSkin");
+	backgroundAlpha : 0.9;
+	cornerRadius    : 3;
+}
+
 .mypanelTitle {
   color: #444444;
   fontFamily: Arial;
