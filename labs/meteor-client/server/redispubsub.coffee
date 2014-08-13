@@ -20,11 +20,6 @@ Meteor.methods
     #dispatch a message to redis
     Meteor.redisPubSub.sendUserLeavingRequest(meetingId, userId)
 
-    console.log "destroying subscriptions----------------------------------"
-    clearCollections()
-
-    # will have to add some code in here to ensure the user with userId can not get back into the meeting since we cannot clear their client side data
-
   userKick: (meetingId, userId) ->
     console.log "#{userId} is being kicked"
     console.log "a user is logging out:" + userId
@@ -124,7 +119,6 @@ class Meteor.RedisPubSub
 
     ignoredEventTypes = [
       "keep_alive_reply"
-      "presentation_cursor_updated_message"
       "page_resized_message"
       "presentation_page_resized_message"
     ]
@@ -173,7 +167,7 @@ class Meteor.RedisPubSub
         for chatMessage in message.payload?.chat_history
           Meteor.call("addChatToCollection", meetingId, chatMessage)
 
-    if message.header?.name is "send_public_chat_message"
+    if message.header?.name is "send_public_chat_message" or message.header?.name is "send_private_chat_message"
       messageObject = message.payload?.message
       Meteor.call("addChatToCollection", meetingId, messageObject)
 
@@ -183,10 +177,10 @@ class Meteor.RedisPubSub
       # this way can keep the Meetings collection up to date
       @invokeGetAllMeetingsRequest()
 
-    if message.header?.name is "presentation_shared_message"
+    if message.header?.name is "presentation_shared_message" # TODO TEST!!!
       presentationId = message.payload?.presentation?.id
       # change the currently displayed presentation to presentation.current = false
-      Meteor.Presentations.update({"presentation.current": true},{$set: {"presentation.current": false}})
+      Meteor.Presentations.update({"presentation.current": true, meetingId: meetingId},{$set: {"presentation.current": false}})
 
       #update(if already present) entirely the presentation with the fresh data
       Meteor.call("removePresentationFromCollection", meetingId, presentationId)
@@ -240,6 +234,13 @@ class Meteor.RedisPubSub
       whiteboardId = shape?.wb_id
       Meteor.call("addShapeToCollection", meetingId, whiteboardId, shape)
 
+    if message.header?.name is "presentation_cursor_updated_message"
+      x = message.payload?.x_percent
+      y = message.payload?.y_percent
+
+      Meteor.Presentations.update({"presentation.current": true, meetingId: meetingId},{$set: {"pointer.x": x, "pointer.y": y}})
+      console.log "presentation_cursor_updated_message #{x}_#{y}"
+
     if message.header?.name in ["meeting_ended_message", "meeting_destroyed_event",
       "end_and_kick_all_message", "disconnect_all_users_message"]
       if Meteor.Meetings.findOne({meetingId: meetingId})?
@@ -260,10 +261,16 @@ class Meteor.RedisPubSub
 
   publishingChatMessage: (meetingId, chatObject) =>
     console.log "publishing a chat message to bbb-apps"
+
+    eventName = ->
+      if chatObject.chat_type is "PRIVATE_CHAT"
+        "send_private_chat_message_request"
+      else "send_public_chat_message_request"
+
     message =
       header :
         "timestamp": new Date().getTime()
-        "name": "send_public_chat_message_request"
+        "name": eventName()
       payload:
         "message" : chatObject
         "meeting_id": meetingId

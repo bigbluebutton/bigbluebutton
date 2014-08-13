@@ -3,7 +3,10 @@
         <h3 class="title gradientBar">{{title}}</h3>
         <div id="whiteboard-contents">
             <div id="whiteboard-paper"  style="">
-                <p>{{png}}</p>
+                <!-- <p>{{png}}</p> -->
+                {{#each getCurrentSlide}}
+                    {{> slide}}
+                {{/each}}
             </div>
         </div>
     </div>
