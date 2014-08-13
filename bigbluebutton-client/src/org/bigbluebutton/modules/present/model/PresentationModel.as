@@ -79,7 +79,7 @@ package org.bigbluebutton.modules.present.model
     public function getCurrentPresentationName():String {
       for (var i:int = 0; i < _presentations.length; i++) {
         var pres: Presentation = _presentations.getItemAt(i) as Presentation;
-        if (pres.current) return pres.id;
+        if (pres.current) return pres.name;
       }   
       
       return null;
