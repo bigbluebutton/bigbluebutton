@@ -2,7 +2,7 @@ apply plugin: 'scala'
 apply plugin: 'java'
 apply plugin: 'war'
 
-version = '0.71'
+version = '0.9.0'
 
 jar.enabled = true
 
