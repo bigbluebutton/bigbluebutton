@@ -63,7 +63,7 @@ public class PdfToSwfSlidesGenerationService {
 	public void generateSlides(UploadedPresentation pres) {
 		log.debug("Generating slides");		
 		determineNumberOfPages(pres);
-		log.debug("Determined number of pages " + pres.getNumberOfPages());
+		log.info("Determined number of pages. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "], numPages=[" + pres.getNumberOfPages() + "]");
 		if (pres.getNumberOfPages() > 0) {
 			convertPdfToSwf(pres);
 //			createPngImages(pres);
@@ -97,21 +97,23 @@ public class PdfToSwfSlidesGenerationService {
 	}
 	
 	private void createThumbnails(UploadedPresentation pres) {
-		log.debug("Creating thumbnails.");
+		log.info("Creating thumbnails. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "]");
 		notifier.sendCreatingThumbnailsUpdateMessage(pres);
 		thumbnailCreator.createThumbnails(pres);
 	}
 	
 	private void createTextFiles(UploadedPresentation pres) {
-		log.debug("Creating textfiles for accessibility.");
+		log.info("Creating textfiles for accessibility. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "]");
 		notifier.sendCreatingTextFilesUpdateMessage(pres);
 		textFileCreator.createTextFiles(pres);
 	}
+	
 	private void createPngImages(UploadedPresentation pres) {
-		log.debug("Creating PNG images.");
+		log.info("Creating PNG images. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "]");
 		notifier.sendCreatingPngImagesUpdateMessage(pres);
 		pngImageCreator.createPngImages(pres);
 	}
+	
 	private void convertPdfToSwf(UploadedPresentation pres) {
 		int numPages = pres.getNumberOfPages();				
 		List<PdfToSwfSlide> slides = setupSlides(pres, numPages);
@@ -149,7 +151,7 @@ public class PdfToSwfSlidesGenerationService {
 					slidesCompleted++;
 					notifier.sendConversionUpdateMessage(slidesCompleted, pres);
 				} else {
-					log.info("Timedout waiting for page to finish conversion.");
+					log.warn("Timedout waiting for page to finish conversion. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "]");
 				}
 			} catch (InterruptedException e) {
 				log.error("InterruptedException while creating slide " + pres.getName());
@@ -160,7 +162,8 @@ public class PdfToSwfSlidesGenerationService {
 				
 		for (final PdfToSwfSlide slide : slides) {
 			if (! slide.isDone()){
-				log.warn("Creating blank slide for " + slide.getPageNumber());
+				log.warn("Creating blank slide. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "], page=[" + slide.getPageNumber() + "]");
+
 				slide.generateBlankSlide();				
 				notifier.sendConversionUpdateMessage(slidesCompleted++, pres);
 			}	
