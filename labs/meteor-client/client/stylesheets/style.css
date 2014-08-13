@@ -85,6 +85,9 @@ body {
 }
 .settingsIcon{}
 .signOutIcon{}
+.tab{
+    height:40px;
+}
 .title {    
     border-bottom: 1px solid #d7d7d7;
     color: #666;

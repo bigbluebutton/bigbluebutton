@@ -2,8 +2,7 @@
 	<div id="{{id}}" {{visibility name}} class="component">
 		<div id="chatbar-contents">
 			<h3 class="title gradientBar"><span class="glyphicon glyphicon-comment"></span> {{title}}</h3>
-			{{>tabButtons}}
-			
+			<div style="overflow-y: scroll; height:40px">{{>tabButtons}}</div>
 			{{#if getInSession "display_chatPane"}}
 				<div id="chatbody">
 					<ul class="chat">					
