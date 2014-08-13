@@ -167,7 +167,7 @@ subprojects {
 	}
         
     group = 'org.bigbluebutton'
-    version = '0.9.0-dev'
+    version = '0.9'
     manifest.mainAttributes(provider: 'bigbluebutton')
 }
 
