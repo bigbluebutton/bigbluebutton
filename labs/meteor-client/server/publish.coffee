@@ -3,8 +3,8 @@
 Meteor.publish 'users', (meetingId) ->
   Meteor.Users.find({meetingId: meetingId})
 
-Meteor.publish 'chat', (meetingId) ->
-  Meteor.Chat.find({meetingId: meetingId})
+Meteor.publish 'chat', (meetingId, me) ->
+  Meteor.Chat.find({$or: [ {'message.chat_type': 'PUBLIC_CHAT', 'meetingId': meetingId},{'message.from_userid': me, 'meetingId': meetingId},{'message.to_userid': me, 'meetingId': meetingId}] })
 
 Meteor.publish 'shapes', (meetingId) ->
   Meteor.Shapes.find({meetingId: meetingId})

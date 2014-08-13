@@ -5,13 +5,16 @@
 
   chattingWith = getInSession('inChatWith')
 
+  if chattingWith isnt "PUBLIC_CHAT" 
+    dest = Meteor.Users.findOne("userId": chattingWith)
+
   messageForServer = { # construct message for server
     "message": message
     "chat_type": if chattingWith is "PUBLIC_CHAT" then "PUBLIC_CHAT" else "PRIVATE_CHAT"
     "from_userid": getInSession("userId")
     "from_username": getUsersName()
     "from_tz_offset": "240"
-    "to_username": if chattingWith is "PUBLIC_CHAT" then "public_chat_username" else chattingWith
+    "to_username": if chattingWith is "PUBLIC_CHAT" then "public_chat_username" else dest.user.name
     "to_userid": if chattingWith is "PUBLIC_CHAT" then "public_chat_userid" else chattingWith
     "from_lang": "en"
     "from_time": getTime()
@@ -74,19 +77,15 @@ Template.chatbar.helpers
     # we can use a time frame, so join messages together that are within 5 minutes of eachother, for example
     ###
 
-  isUserInPrivateChat: -> # true if user is in public chat
-    getInSession('inChatWith') isnt "PUBLIC_CHAT"
-
 Template.message.rendered = -> # When a message has been added and finished rendering, scroll to the bottom of the chat
   $('#chatbody').scrollTop($('#chatbody')[0].scrollHeight)
 
 Template.optionsBar.events
   'click .private-chat-user-entry': (event) -> # clicked a user's name to begin private chat
-    currUserId = getInSession("userId")
-    duplicate = (x for x in myTabs.get() when x.userId is @userId)
+    setInSession 'display_chatPane', true
+    setInSession "inChatWith", @userId
 
-    if duplicate.length <=0 and @userId isnt currUserId
-      messageForServer =
+    messageForServer =
           "message": "#{getUsersName()} has joined private chat with #{@user.name}."
           "chat_type": "PRIVATE_CHAT"
           "from_userid": getInSession("userId")
@@ -98,58 +97,37 @@ Template.optionsBar.events
           "from_time": getTime()
           "from_color": "0"
 
-      # console.log 'Sending private message to server:'
-      # console.log messageForServer
-      Meteor.call "sendChatMessagetoServer", getInSession("meetingId"), messageForServer
-
-      t = myTabs.getValue()
-      t = t.map (x) -> x.isActive = false; return x
-      t.push {name: @user.name, isActive: true, class: "privateChatTab", 'userId': @userId }
-      myTabs.updateValue t
-      $(".optionsChatTab").removeClass('active')
-
-      setInSession 'display_chatPane', true
-      setInSession "inChatWith", @userId
+    Meteor.call "sendChatMessagetoServer", getInSession("meetingId"), messageForServer
 
 Template.tabButtons.events
   'click .close': (event) -> # user closes private chat
-    theName = @name
-    setInSession 'display_chatPane', true
     setInSession 'inChatWith', 'PUBLIC_CHAT'
-
-    origTabs = myTabs.getValue()
-    newTabs = []
-    for x in origTabs
-      if x.name isnt theName
-        x.isActive = (x.name is "Public") # set public chat to default
-        newTabs.push x
-
-    myTabs.updateValue newTabs
-    $(".publicChatTab").addClass('active') # doesn't work when closing the tab that's not currently active :(
+    setInSession 'display_chatPane', true
     Meteor.call("deletePrivateChatMessages", getInSession("userId"), @userId)
+    return false # stops propogation/prevents default
 
   'click .optionsChatTab': (event) ->
     setInSession 'display_chatPane', false
 
   'click .privateChatTab': (event) ->
     setInSession 'display_chatPane', true
-    setInSession 'inChatWith', @userId  
+    console.log ".private"
 
   'click .publicChatTab': (event) ->
     setInSession 'display_chatPane', true
-    setInSession 'inChatWith', 'PUBLIC_CHAT'
 
-  'click .tab': (event) -> ;
+  'click .tab': (event) -> 
+    setInSession "inChatWith", @userId
   
 Template.tabButtons.helpers
   getChatbarTabs: ->
-    myTabs.getValue()
+    tabs = makeTabs()
 
   makeTabButton: -> # create tab button for private chat or other such as options
     button = '<li '
     button += 'class="'
-    button += 'active ' if @isActive
-    button += "#{@class} tab\"><a href=\"#\" data-toggle=\"tab\">#{@name}"
+    button += 'active ' if getInSession("inChatWith") is @userId
+    button += "tab #{@class}\"><a href=\"#\" data-toggle=\"tab\">#{@name}"
     button += '&nbsp;<button class="close closeTab" type="button" >×</button>' if @name isnt 'Public' and @name isnt 'Options'
     button += '</a></li>'
     button

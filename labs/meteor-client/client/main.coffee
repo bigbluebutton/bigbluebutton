@@ -63,6 +63,8 @@ Meteor.startup ->
 	SessionAmplify.set 'inChatWith', "PUBLIC_CHAT"
 	SessionAmplify.set "joinedAt", getTime()
 	SessionAmplify.set "isSharingAudio", false
+	SessionAmplify.set "inChatWith", 'PUBLIC_CHAT'
+	SessionAmplify.set "intreteChatWith", 'ttttttttt'
 
 	@myTabs = new WatchValue()
 	@myTabs.updateValue [

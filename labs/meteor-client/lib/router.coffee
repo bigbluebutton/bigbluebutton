@@ -9,7 +9,7 @@
     action: () ->
       self = @
       Meteor.subscribe 'users', getInSession('meetingId'), ->
-        Meteor.subscribe 'chat', getInSession('meetingId'), ->
+        Meteor.subscribe 'chat', getInSession('meetingId'), getInSession("userId"), ->
           Meteor.subscribe 'shapes', getInSession('meetingId'), ->
             Meteor.subscribe 'slides', getInSession('meetingId'), ->
               Meteor.subscribe 'meetings', getInSession('meetingId'), ->
@@ -55,7 +55,7 @@
         if not validateCredentials() # Don't let user in if they are not valid
           self.redirect("logout")
         else
-          Meteor.subscribe 'chat', getInSession('meetingId'), ->
+          Meteor.subscribe 'chat', getInSession('meetingId'), getInSession("userId"), ->
             Meteor.subscribe 'shapes', getInSession('meetingId'), ->
               Meteor.subscribe 'slides', getInSession('meetingId'), ->
                 Meteor.subscribe 'meetings', getInSession('meetingId'), ->
