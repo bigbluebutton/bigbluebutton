@@ -49,28 +49,27 @@ Template.chatbar.helpers
   #private or public chat. If true is passed, messages returned are from before the user joined. Else, the messages are from after the user joined
   getFormattedMessagesForChat: () ->
     friend = chattingWith = getInSession('inChatWith') # the recipient(s) of the messages
+    after = before = greeting = []
 
     if chattingWith is 'PUBLIC_CHAT' # find all public messages
         before = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$lt: String(getInSession("joinedAt"))}}).fetch()
         after = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$gt: String(getInSession("joinedAt"))}}).fetch()
+
+        greeting = [
+          'class': 'chatGreeting',
+          'message':
+            'message': Template.chatbar.getChatGreeting(),
+            'from_username': 'System',
+            'from_time': getTime()
+        ]
     else
       me = getInSession("userId")
-      before = Meteor.Chat.find({ # find all messages between current user and recipient
+      after = Meteor.Chat.find({ # find all messages between current user and recipient
         'message.chat_type': 'PRIVATE_CHAT',
         $or: [{'message.from_userid': me, 'message.to_userid': friend},{'message.from_userid': friend, 'message.to_userid': me}]
-      }).fetch()
-      after = []
-
-    greeting = [
-      'class': 'chatGreeting',
-      'message':
-        'message': Template.chatbar.getChatGreeting(),
-        'from_username': 'System',
-        'from_time': getTime()
-    ]
+      }).fetch()   
 
     messages = (before.concat greeting).concat after
-    messages
     ###
     # Now after all messages + the greeting have been inserted into our collection, what we have to do is go through all messages
     # and modify them to join all sequential messages by users together so each entries will be chat messages by a user in the same time frame
