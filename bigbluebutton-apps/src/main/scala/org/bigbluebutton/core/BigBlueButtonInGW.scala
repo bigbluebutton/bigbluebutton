@@ -399,6 +399,10 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
 	 *******************************************************************/
 	val voiceGW = new VoiceInGateway(bbbGW)
 	
+	def muteAllExceptPresenter(meetingID: String, requesterID: String, mute: java.lang.Boolean) {
+	  voiceGW.muteAllExceptPresenter(meetingID, requesterID, mute)
+	}
+	
 	def muteAllUsers(meetingID: String, requesterID: String, mute: java.lang.Boolean) {
 	  voiceGW.muteAllUsers(meetingID, requesterID, mute)
 	}

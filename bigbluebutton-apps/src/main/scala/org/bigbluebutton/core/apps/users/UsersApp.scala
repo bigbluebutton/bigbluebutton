@@ -51,12 +51,17 @@ trait UsersApp {
     }
   }
   
+  def handleMuteAllExceptPresenterRequest(msg: MuteAllExceptPresenterRequest) {
+    usersWhoAreNotPresenter foreach {u =>
+      outGW.send(new MuteVoiceUser(meetingID, recorded, msg.requesterID, u.userID, msg.mute))
+    }       
+  }
+    
   def handleMuteMeetingRequest(msg: MuteMeetingRequest) {
     meetingMuted = msg.mute
-    
-//    users2.unlockedUsers map ({ u =>
-//      outGW.send(new MuteVoiceUser(meetingID, recorded, msg.requesterID, u.voice.id, msg.mute))
-//    })
+    users.getUsers foreach {u =>
+        outGW.send(new MuteVoiceUser(meetingID, recorded, msg.requesterID, u.userID, msg.mute)) 
+    }
   }
   
   def handleValidateAuthToken(msg: ValidateAuthToken) {
@@ -128,6 +133,17 @@ trait UsersApp {
     }
   }  
 
+  def usersWhoAreNotPresenter():Array[UserVO] = {
+    val au = ArrayBuffer[UserVO]()
+    
+    users.getUsers foreach {u =>
+        if (! u.presenter) {
+          au += u
+        }
+    }
+    au.toArray    
+  }
+  
   def affectedUsers(settings: Permissions):Array[UserVO] = {
     val au = ArrayBuffer[UserVO]()
     

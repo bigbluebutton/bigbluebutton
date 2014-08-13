@@ -57,14 +57,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
+			import com.asfusion.mate.events.Dispatcher;			
 			import flash.events.MouseEvent;
-			import flash.geom.Point;
-			
+			import flash.geom.Point;		
 			import flexlib.mdi.containers.MDIWindow;
-			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
-			
+			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;			
 			import mx.collections.ArrayCollection;
 			import mx.containers.TitleWindow;
 			import mx.controls.Alert;
@@ -73,8 +70,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.core.UIComponent;
 			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
-			import mx.managers.PopUpManager;
-			
+			import mx.managers.PopUpManager;			
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;

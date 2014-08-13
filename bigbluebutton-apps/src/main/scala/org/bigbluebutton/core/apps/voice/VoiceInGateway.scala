@@ -4,7 +4,12 @@ import org.bigbluebutton.core.BigBlueButtonGateway
 import org.bigbluebutton.core.api._
 
 class VoiceInGateway(bbbGW: BigBlueButtonGateway) {
-	def muteAllUsers(meetingID: String, requesterID: String, mute: Boolean) {
+	
+  def muteAllExceptPresenter(meetingID: String, requesterID: String, mute: Boolean) {
+    bbbGW.accept(new MuteAllExceptPresenterRequest(meetingID, requesterID, mute))
+  }
+  
+  def muteAllUsers(meetingID: String, requesterID: String, mute: Boolean) {
 	  bbbGW.accept(new MuteMeetingRequest(meetingID, requesterID, mute))
 	}
 	
