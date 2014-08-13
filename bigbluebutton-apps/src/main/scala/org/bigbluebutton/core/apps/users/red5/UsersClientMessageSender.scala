@@ -152,7 +152,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  
 	  val message = new java.util.HashMap[String, Object]() 
 	  val gson = new Gson();
-  	  message.put("msg", gson.toJson(args))
+  	message.put("msg", gson.toJson(args))
   	  
 //  	  println("UsersClientMessageSender - handleRecordingStatusChanged \n" + message.get("msg") + "\n")
       val m = new BroadcastClientMessage(msg.meetingID, "recordingStatusChanged", message);

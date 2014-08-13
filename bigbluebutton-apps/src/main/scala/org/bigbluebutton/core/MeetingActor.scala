@@ -12,6 +12,7 @@ import org.bigbluebutton.core.apps.layout.LayoutApp
 import org.bigbluebutton.core.apps.chat.ChatApp
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp
 import scala.actors.TIMEOUT
+import java.util.concurrent.TimeUnit
 
 case object StopMeetingActor
                       
@@ -26,7 +27,10 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
   var recording = false;
   var muted = false;
   var meetingEnded = false
-
+  
+  val TIMER_INTERVAL = 30000
+  var hasLastWebUserLeft = false
+  var lastWebUserLeftOn:Long = 0
   
   class TimerActor(val timeout: Long, val who: Actor, val reply: String) extends Actor {
     def act {
@@ -41,6 +45,7 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
 	  react {
 	    case "StartTimer"                                => handleStartTimer
 	    case "Hello"                                     => handleHello
+	    case "MonitorNumberOfWebUsers"                   => handleMonitorNumberOfWebUsers()
 	    case msg: ValidateAuthToken                      => handleValidateAuthToken(msg)
 	    case msg: RegisterUser                           => handleRegisterUser(msg)
 	    case msg: VoiceUserJoined                        => handleVoiceUserJoined(msg)
@@ -128,6 +133,41 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
     
 //    val timerActor = new TimerActor(2000, self, "Hello")    
 //    timerActor.start
+  }
+  
+  def webUserJoined() {
+    if (users.numWebUsers > 0) {
+      lastWebUserLeftOn = 0
+	  }      
+  }
+  
+  def startCheckingIfWeNeedToEndVoiceConf() {
+    if (users.numWebUsers == 0) {
+      lastWebUserLeftOn = timeNowInMinutes
+	    println("*************** MonitorNumberOfWebUsers started ******************")
+      scheduleEndVoiceConference()
+	  }
+  }
+  
+  def handleMonitorNumberOfWebUsers() {
+    if (users.numWebUsers == 0 && lastWebUserLeftOn > 0) {
+      if (timeNowInMinutes - lastWebUserLeftOn > 2) {
+        println("*************** MonitorNumberOfWebUsers [Ject all from voice] ******************")
+        outGW.send(new EjectAllVoiceUsers(meetingID, recorded, voiceBridge))
+      } else {
+        scheduleEndVoiceConference()
+      }
+    }
+  }
+  
+  private def scheduleEndVoiceConference() {
+    println("*************** MonitorNumberOfWebUsers monitor ******************")
+    val timerActor = new TimerActor(TIMER_INTERVAL, self, "MonitorNumberOfWebUsers")
+    timerActor.start    
+  }
+  
+  def timeNowInMinutes():Long = {
+    TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
   }
   
   def sendMeetingHasEnded(userId: String) {

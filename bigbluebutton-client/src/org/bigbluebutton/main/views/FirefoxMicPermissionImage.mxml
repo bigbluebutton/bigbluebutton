@@ -33,20 +33,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     x="20"
     y="-20">
   
-  <mate:Listener type="{WebRtcRemoveAskMicPermissionEvent.REMOVE_MIC_PERMISSION}" method="handleRemoveAskMicPermissionEvent" />
+	<mate:Listener type="{WebRTCMediaEvent.WEBRTC_MEDIA_SUCCESS}" method="handleWebRTCMediaSuccessEvent" />
+	<mate:Listener type="{WebRTCMediaEvent.WEBRTC_MEDIA_FAIL}" method="handleWebRTCMediaFailEvent" />
   
 	<mx:Script>
 		<![CDATA[
-      import mx.core.FlexGlobals;
-      import mx.managers.PopUpManager;      
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.core.BBB;
-      import org.bigbluebutton.modules.phone.events.WebRtcRemoveAskMicPermissionEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+			import mx.core.FlexGlobals;
+			import mx.managers.PopUpManager;
+			
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 
-      private function handleRemoveAskMicPermissionEvent(e:WebRtcRemoveAskMicPermissionEvent):void {
-        PopUpManager.removePopUp(this);
-      }
+			private function handleWebRTCMediaSuccessEvent(e:WebRTCMediaEvent):void {
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function handleWebRTCMediaFailEvent(e:WebRTCMediaEvent):void {
+				PopUpManager.removePopUp(this);
+			}
 		
 		]]>
 	</mx:Script>

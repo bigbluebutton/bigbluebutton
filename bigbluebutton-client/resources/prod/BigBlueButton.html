@@ -43,10 +43,8 @@
     <script src="lib/bbb_blinker.js" language="javascript"></script>
     <script src="lib/bbb_deskshare.js" language="javascript"></script>
     <script src="lib/bbb_api_bridge.js" language="javascript"></script>
-    <script src="lib/jssip-0.3.7.js" language="javascript"></script> 
-    <script src="lib/bbb_webrtc_bridge_jssip.js" language="javascript"></script> 
-<!--    <script src="lib/sipml5api.js" language="javascript"></script> -->
-<!--    <script src="lib/bbb_webrtc_bridge_sipml5.js" language="javascript"></script> -->
+    <script src="lib/sip-0.6.1.js" language="javascript"></script> 
+    <script src="lib/bbb_webrtc_bridge_sip.js" language="javascript"></script> 
     <script>
       window.chatLinkClicked = function(url) {
         window.open(url, '_blank');
@@ -57,12 +55,7 @@
 
   <body>
 <div>
-<!-- <button onclick="hangUp()">Hang up</button>
- <button onclick="callIntoConference()">Call</button>-->
-<audio id="audio-remote" autoplay="autoplay" />
-
-<audio id="local-media" autoplay="autoplay" />
-<audio id="remote-media" autoplay="autoplay" />
+<audio id="remote-media" autoplay="autoplay"></audio>
 </div>
 
     <div id="content">
@@ -98,89 +91,3 @@
     });
   </script>
 </html>
-
-<script type="text/javascript">
-
-  var fsServer = null;
-
-  var callIntoConference = function(destination, callback) {
-    if (!isWebrtcCapable()) {
-      callback("Browser version not supported");
-      return;
-    }
-
-    BBB.getMyUserInfo(function(userInfo) {
-      console.log("User info callback [myUserID=" + userInfo.myUserID
-           + ",myUsername=" + userInfo.myUsername + ",myAvatarURL=" + userInfo.myAvatarURL
-           + ",myRole=" + userInfo.myRole + ",amIPresenter=" + userInfo.amIPresenter
-           + ",dialNumber=" + userInfo.dialNumber + ",voiceBridge=" + userInfo.voiceBridge + "].");
-      var callerIdName = userInfo.myUserID + "-bbbID-" + userInfo.myUsername;
-
-      // setup a timer to call the error callback
-      var checkSuccessCallback = function(e) {
-        if (e.userID == userInfo.myUserID) {
-          console.info("Received the event from Flash that I've joined the voice conference");
-          BBB.unlisten('UserJoinedVoiceEvent', checkSuccessCallback);
-        }
-      }
-
-      BBB.listen('UserJoinedVoiceEvent', checkSuccessCallback);
-      console.log(callerIdName);
-      webrtc_call(callerIdName, userInfo.voiceBridge, fsServer, callback);
-    });
-  }
-
-  var joinWebRtcVoiceConference = function(destination) {
-    console.log("Joining to the voice conference");
-    var callback = function(message) {
-      if (message.status == 'failed') {
-        BBB.webRtcConferenceCallFailed(message.cause);
-      } else if (message.status == 'ended') {
-        BBB.webRtcConferenceCallEnded(message.cause);
-      } else if (message.status = 'started') {
-        BBB.webRtcConferenceCallStarted(message.localStream, message.remoteStream);
-      }     
-    }
-
-    callIntoConference(destination, callback);
-  }
-
-  var leaveWebRtcVoiceConference = function() {
-    console.log("Leaving the voice conference");
-    var callback = function(err) {
-      if (err) {
-        console.info("Failed to hang up: " + err);
-      } else {
-        console.info("Success to hang up");
-      }
-      BBB.leaveWebRTCVoiceConferenceCallback(err);
-    }
-
-    webrtc_hangup(callback);
-  }
-
-  var startWebrtcAudioTest = function(){
-    console.log("Testing webrtc audio");
-    var callback = function(message) {
-      if (message.status == 'failed') {
-        BBB.webRtcEchoTestFailed(message.cause);
-      } else if (message.status == 'ended') {
-        BBB.webRtcEchoTestEnded(message.cause);
-      } else if (message.status = 'started') {
-        BBB.webRtcEchoTestStarted(message.localStream, message.remoteStream);
-      }     
-    }
-
-    webrtc_call("tester", "9196", fsServer, callback);
-  }
-
-  var stopWebrtcAudioTest = function(){
-    console.log("Stopping webrtc audio test");
-    webrtc_hangup(function(){
-      console.log("Webrtc audio test stopped");
-    });
-  }
-
-	
-</script>
-

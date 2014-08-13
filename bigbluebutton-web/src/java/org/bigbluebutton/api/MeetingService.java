@@ -237,6 +237,32 @@ public class MeetingService implements MessageListener {
 		return null;
 	}
 
+	public Collection<Meeting> getMeetingsWithId(String meetingId) {
+		if (meetingId == null) return Collections.<Meeting>emptySet();
+		
+		Collection<Meeting> m = new HashSet<Meeting>();
+		
+		for (String key : meetings.keySet()) {
+			if (key.startsWith(meetingId))
+				m.add(meetings.get(key));
+		}		
+		
+		return m;
+	} 
+	
+	public Meeting getNotEndedMeetingWithId(String meetingId) {
+		if (meetingId == null)
+			return null;
+		for (String key : meetings.keySet()) {
+			if (key.startsWith(meetingId)) {
+				Meeting m = (Meeting) meetings.get(key);
+				if (! m.isForciblyEnded()) return m;
+			}
+		}
+		
+		return null;
+	} 
+	
 	public HashMap<String,Recording> getRecordings(ArrayList<String> idList) {
 		//TODO: this method shouldn't be used 
 		HashMap<String,Recording> recs= reorderRecordings(recordingService.getRecordings(idList));

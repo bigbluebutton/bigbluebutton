@@ -35,9 +35,11 @@ package org.bigbluebutton.main.model.users {
     public var avatarURL:String;
 	  public var voiceBridge:String;
 	  public var dialNumber:String;
-	[Bindable] public var record:Boolean;
+	  [Bindable] public var record:Boolean;
     
-	private var lockSettings:LockSettingsVO;
+    private static const LOG:String = "main.model.users::Conference - ";
+    
+	  private var lockSettings:LockSettingsVO;
 	
     private var _myCamSettings:CameraSettingsVO = new CameraSettingsVO();
     
@@ -424,7 +426,12 @@ package org.bigbluebutton.main.model.users {
 		public function configLockSettings():void {
 			var config:Config = BBB.initConfigManager().config;
 			
-			var allowModeratorLocking:Boolean, disableCam:Boolean, disableMic:Boolean, disablePrivateChat:Boolean, disablePublicChat:Boolean, lockedLayout:Boolean;
+			var allowModeratorLocking:Boolean, 
+          disableCam:Boolean, 
+          disableMic:Boolean, 
+          disablePrivateChat:Boolean, 
+          disablePublicChat:Boolean, 
+          lockedLayout:Boolean;
 			
 			var lockConfig:XML;
 			
@@ -468,7 +475,11 @@ package org.bigbluebutton.main.model.users {
         lockedLayout = false;
       }
       
+      trace(LOG + " init lock settings from config");
+      
 			lockSettings = new LockSettingsVO(disableCam, disableMic, disablePrivateChat, disablePublicChat, lockedLayout);
+      
+      setLockSettings(lockSettings);
 		}
 		
 		public function getMyUser():BBBUser {
@@ -491,10 +502,14 @@ package org.bigbluebutton.main.model.users {
 		
 		public function setLockSettings(lockSettings:LockSettingsVO):void {
 			this.lockSettings = lockSettings;
+      applyLockSettings();
+		}
+    
+    public function applyLockSettings():void {
       for (var i:int = 0; i < users.length; i++) {
         var eachUser:BBBUser = users.getItemAt(i) as BBBUser;
         eachUser.applyLockSettings();
-      }
-		}
+      }      
+    }
 	}
 }

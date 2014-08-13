@@ -116,6 +116,7 @@ package org.bigbluebutton.modules.users.services
           break;
         case "recordingStatusChanged":
           handleRecordingStatusChanged(message);
+          break;
         case "joinMeetingReply":
           handleJoinedMeeting(message);
           break;
@@ -376,6 +377,8 @@ package org.bigbluebutton.modules.users.services
           participantJoined(user);
           processUserVoice(user);
         }
+        
+        UserManager.getInstance().getConference().applyLockSettings();
       }	 
     }
     

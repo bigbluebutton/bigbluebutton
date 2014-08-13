@@ -27,7 +27,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	creationComplete="onCreationComplete()">
 	
 	<maps:PhoneEventMap id="phoneLocalEventMap"/>
-  <maps:WebRtcEventMap id="webRtcEventMap"/>
+  <maps:WebRTCEventMap id="webRTCEventMap"/>
   <maps:FlashCallEventMap id="flashCallEventMap"/>
   
 	<mx:Script>

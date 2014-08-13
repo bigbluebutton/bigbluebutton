@@ -36,31 +36,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShortcutEvent.FOCUS_SHORTCUT_BUTTON}" method="focusShortcutButton" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_LOGOUT_BUTTON}" method="focusLogoutButton" />
 	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="retrieveMeetingName" />
-	
+  <mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
+  
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;		
-			import mx.core.UIComponent;		
-			import org.bigbluebutton.common.IBbbToolbarComponent;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.common.events.ToolbarButtonEvent;
-			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.core.services.BandwidthMonitor;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.ConfigEvent;
-			import org.bigbluebutton.main.events.LogoutEvent;
-			import org.bigbluebutton.main.events.SettingsEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
-			import org.bigbluebutton.main.model.LayoutOptions;
-			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
-			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import mx.controls.Alert;
-			import mx.accessibility.AlertAccImpl;
-			import mx.events.CloseEvent;
+      import com.asfusion.mate.events.Dispatcher;     
+      import mx.accessibility.AlertAccImpl;
+      import mx.controls.Alert;
+      import mx.core.UIComponent;
+      import mx.events.CloseEvent;     
+      import org.bigbluebutton.common.IBbbToolbarComponent;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.events.CloseWindowEvent;
+      import org.bigbluebutton.common.events.OpenWindowEvent;
+      import org.bigbluebutton.common.events.ToolbarButtonEvent;
+      import org.bigbluebutton.core.BBB;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.core.services.BandwidthMonitor;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.ConfigEvent;
+      import org.bigbluebutton.main.events.LogoutEvent;
+      import org.bigbluebutton.main.events.SettingsEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+      import org.bigbluebutton.main.model.LayoutOptions;
+      import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
+      import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
 			
@@ -101,12 +103,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function onCreationComplete():void {
         if (this.width < 800) {
           meetingNameLbl.visible = false;
-          langSelector.visible = false;
           shortcutKeysBtn.visible = false;
           helpBtn.visible = false;      
           muteMeBtn.visible = false;
           meetingNameLbl.width = 0;
-          langSelector.width = 0;
           shortcutKeysBtn.width = 0;
           helpBtn.width = 0;          
         }
@@ -155,8 +155,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
       private function retrieveMeetingName(e:ConferenceCreatedEvent):void {
          if (toolbarOptions.showMeetingName) {
-              var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();
-                    
+              var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();                   
               if (meetingTitle != null) {
                   meetingNameLbl.text = meetingTitle;
                } 
@@ -276,7 +275,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			private function gotConfigParameters(e:ConfigEvent):void{
-				langSelector.visible = e.config.languageEnabled;
 				shortcutKeysBtn.includeInLayout = shortcutKeysBtn.visible = e.config.shortcutKeysShowButton; 
 				DEFAULT_HELP_URL = e.config.helpURL;
 			}
@@ -320,6 +318,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function focusLogoutButton(e:ShortcutEvent):void{
 				btnLogout.setFocus();
 			}
+      
+      private function onRecordingStatusChanged(event:BBBEvent):void {
+        meetingNameLbl.text = "";
+        
+        if (event.payload.recording) {
+          meetingNameLbl.text =  ResourceUtil.getInstance().getString('bbb.mainToolbar.recordingLabel.recording')
+		}
+        
+        if (toolbarOptions.showMeetingName) {
+          var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();                   
+          if (meetingTitle != null) {
+            meetingNameLbl.text += " " + meetingTitle;
+          } 
+        }
+      }
 
 		]]>
 	</mx:Script>
@@ -343,13 +356,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}" includeInLayout="{muteMeBtn.includeInLayout}"/>
 	<views:MuteMeButton id="muteMeBtn"  height="20" tabIndex="{baseIndex+numButtons+11}"/>
 	<mx:Spacer width="50%"/>
-    <mx:Label id="meetingNameLbl" styleName="meetingNameLabelStyle" />
-    <mx:Spacer width="50%"/>
-	<views:LanguageSelector id="langSelector" 
-							visible="false" 
-							tabIndex="{baseIndex+numButtons+12}"
-							accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"
-							styleName="languageSelectorStyle" />
+  <mx:Label id="meetingNameLbl" styleName="meetingNameLabelStyle" />
+  <mx:Spacer width="50%"/>
+
 <!--
   <mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
 -->

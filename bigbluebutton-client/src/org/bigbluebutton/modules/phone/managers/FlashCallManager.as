@@ -71,8 +71,8 @@
       connectionManager.setup(uid, UsersUtil.getMyUserID(), uname , UsersUtil.getInternalMeetingID(), options.uri);
     }
     
-    private function isWebRtcSupported():Boolean {
-      return (ExternalInterface.available && ExternalInterface.call("isWebrtcCapable"));
+    private function isWebRTCSupported():Boolean {
+      return (ExternalInterface.available && ExternalInterface.call("isWebRTCAvailable"));
     }
 
     private function isConnected():Boolean {
@@ -193,7 +193,7 @@
     public function initialize():void {      
       printMics();
       options = new PhoneOptions();
-      if (options.useWebrtcIfAvailable && isWebRtcSupported()) {
+      if (options.useWebRTCIfAvailable && isWebRTCSupported()) {
         usingFlash = false;
       } else {
         usingFlash = true;
@@ -301,8 +301,12 @@
         case INITED:
           if (usingFlash || !event.mic) {
             startCall(event.mic);
+          } else {
+            trace(LOG + "ignoring join voice conf as usingFlash=[" + usingFlash + "] or eventMic=[" + !event.mic + "]");
           }
           break;
+        default:
+          trace("Ignoring join voice as state=[" + state + "]");
       }
     }
     

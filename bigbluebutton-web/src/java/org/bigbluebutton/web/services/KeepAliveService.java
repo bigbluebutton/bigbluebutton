@@ -137,7 +137,7 @@ public class KeepAliveService implements MessageListener {
   private void processPing(KeepAlivePing msg) {
    	if (pingMessages.size() < maxLives) {
      	pingMessages.add(msg.getId());
-     	log.debug("Sending keep alive message to bbb-apps. keep-alive id [{}]", msg.getId());
+//     	log.debug("Sending keep alive message to bbb-apps. keep-alive id [{}]", msg.getId());
      	service.sendKeepAlive(msg.getId());
    	} else {
    		// BBB-Apps has gone down. Mark it as unavailable and clear
@@ -158,9 +158,9 @@ public class KeepAliveService implements MessageListener {
    			if (!available) {
    				available = true;
    				removeOldPingMessages(msg.getId());
-   			  log.info("Received Keep Alive Reply. BBB-Apps has recovered.");
+//   			  log.info("Received Keep Alive Reply. BBB-Apps has recovered.");
    			}
-   			log.debug("Found ping message [" + msg.getId() + "]");
+ //  			log.debug("Found ping message [" + msg.getId() + "]");
    			found = true;
    			break;
    		}

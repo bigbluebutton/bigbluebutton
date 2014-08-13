@@ -51,7 +51,7 @@ public class ReceivedMessageHandler {
 		Runnable task = new Runnable() {
 	    public void run() {
 	  		if (handler != null) {
-	  			log.debug("Let's process this message: " + msg.getMessage());
+//	  			log.debug("Let's process this message: " + msg.getMessage());
 
 	  			handler.notifyListeners(msg.getPattern(), msg.getChannel(), msg.getMessage());
 	  		} else {

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <layouts>
-  <layout name="Default"  default="true">
+  <layout name="Default Layout"  default="true">
     <window name="NotesWindow" hidden="true" width="0.7" height="1" x="0" y="0" draggable="false" resizable="false"/>
     <window name="BroadcastWindow" hidden="true" draggable="false" resizable="false"/>
     <window name="PresentationWindow" width="0.5137481910274964" height="0.9946808510638298" x="0.18017366136034732" y="0" />

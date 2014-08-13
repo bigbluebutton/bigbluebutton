@@ -39,11 +39,20 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
 	    case msg: FsVoiceUserTalking                 => handleFsVoiceUserTalking(msg)
 	    case msg: UserJoinedVoice                    => handleUserJoinedVoice(msg)
 	    case msg: UserLeftVoice                      => handleUserLeftVoice(msg)
+	    case msg: EjectAllVoiceUsers                 => handleEjectAllVoiceUsers(msg)
 	    case _ => // do nothing
 	  }
 	}
   }  
   
+  private def handleEjectAllVoiceUsers(msg: EjectAllVoiceUsers) {
+    val fsconf = confs.values find (c => c.meetingId == msg.meetingID)
+    
+    fsconf foreach (fc => {
+      fsproxy.ejectUsers(fc.conferenceNum)
+    })    
+  }
+    
   private def handleMeetingCreated(msg: MeetingCreated) {
     if (! confs.contains(msg.meetingID)) {
 //      println("FSConference rx meeting created for meeting id[" + msg.meetingID + "]")

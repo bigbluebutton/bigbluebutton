@@ -280,7 +280,7 @@ package org.bigbluebutton.modules.present.services.messaging
     }	
       
     private function handleGetPresentationInfoReply(msg:Object) : void {
-      trace(LOG + "*** handleGetPresentationInfoReply " + msg.msg + " **** \n");
+//      trace(LOG + "*** handleGetPresentationInfoReply " + msg.msg + " **** \n");
       var map:Object = JSON.parse(msg.msg);
       
       var presenterMap:Object = map.presenter as Object;

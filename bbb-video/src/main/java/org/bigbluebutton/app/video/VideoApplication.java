@@ -96,26 +96,32 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     
     @Override
     public void streamBroadcastClose(IBroadcastStream stream) {
-    	IConnection conn = Red5.getConnectionLocal();  
-    	super.streamBroadcastClose(stream);
-    	
-    	if (recordVideoStream) {
-    		IStreamListener listener = streamListeners.remove(roomId + "-" + stream.getPublishedName());
-    		if (listener != null) {
-    			stream.removeStreamListener(listener);
-    		}
-    		
-       	long publishDuration = (System.currentTimeMillis() - stream.getCreationTime()) / 1000;
-        log.info("streamBroadcastClose " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
-    		Map<String, String> event = new HashMap<String, String>();
-    		event.put("module", "WEBCAM");
-    		event.put("timestamp", genTimestamp().toString());
-    		event.put("meetingId", roomId);
-    		event.put("stream", stream.getPublishedName());
-    		event.put("duration", new Long(publishDuration).toString());
-    		event.put("eventName", "StopWebcamShareEvent");	
-    		recordingService.record(roomId, event);
-    	}
+      super.streamBroadcastClose(stream);   	
+      if (recordVideoStream) {
+        IConnection conn = Red5.getConnectionLocal();
+        String scopeName;
+        if (conn != null) {
+  	       scopeName = roomId;
+        } else {
+  	       log.info("Connection local was null, using scope name from the stream: {}", stream);
+  	       scopeName = stream.getScope().getName();
+        }
+        IStreamListener listener = streamListeners.remove(scopeName + "-" + stream.getPublishedName());
+        if (listener != null) {
+          stream.removeStreamListener(listener);
+        }
+        
+        long publishDuration = (System.currentTimeMillis() - stream.getCreationTime()) / 1000;
+        log.info("streamBroadcastClose " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + scopeName);
+        Map<String, String> event = new HashMap<String, String>();
+        event.put("module", "WEBCAM");
+        event.put("timestamp", genTimestamp().toString());
+        event.put("meetingId", scopeName);
+        event.put("stream", stream.getPublishedName());
+        event.put("duration", new Long(publishDuration).toString());
+        event.put("eventName", "StopWebcamShareEvent");
+        recordingService.record(scopeName, event);    		
+      }
     }
     
     /**
