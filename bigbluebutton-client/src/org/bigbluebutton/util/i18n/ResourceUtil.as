@@ -46,7 +46,7 @@ package org.bigbluebutton.util.i18n
 	public class ResourceUtil extends EventDispatcher {
 		private static var instance:ResourceUtil = null;
 		public static const LOCALES_FILE:String = "client/conf/locales.xml";
-		public static const VERSION:String = "0.8";
+		public static const VERSION:String = "0.9.0";
     
 		private var inited:Boolean = false;
 		

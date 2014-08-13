@@ -4,7 +4,7 @@
   <groupId>bigbluebutton</groupId>
   <artifactId>bbb-api-demo</artifactId>
   <packaging>war</packaging>
-  <version>0.8-PRE</version>
+  <version>0.9.0</version>
   <name>bbb-api-demo Maven Webapp</name>
   <url>http://maven.apache.org</url>
   <dependencies>
