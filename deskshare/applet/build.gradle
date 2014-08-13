@@ -26,7 +26,7 @@ jar.doFirst {
 	* Combine the common classes into the applet's jar because we
 	* do not want to sign and manage 2 jar files.
 	**/'''
-	jar.from zipTree('../common/build/libs/bbb-deskshare-common-0.9.jar')
+	jar.from zipTree('../common/build/libs/bbb-deskshare-common-0.9.0.jar')
 }
 
 jar {
