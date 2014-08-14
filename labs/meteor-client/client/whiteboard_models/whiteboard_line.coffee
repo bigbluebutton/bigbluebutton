@@ -23,24 +23,23 @@ class @WhiteboardLineModel extends WhiteboardToolModel
   # @param  {string} colour    the colour of the shape to be drawn
   # @param  {number} thickness the thickness of the line to be drawn
   make: (info) ->
-    console.log "in line MAKE(info): " + info
-    if info?.payload?.data?.coordinate?
-      x = info.payload.data.coordinate.first_x
-      y = info.payload.data.coordinate.first_y
-      color = info.payload.data.line.color
-      thickness = info.payload.data.line.weight
+    console.log "in line MAKE(info): "
+    console.log info
+    if info?.points?
+      x = info.points[0]
+      y = info.points[1]
+      color = info.color
+      thickness = info.thickness
 
       x1 = x * @gw + @xOffset
       y1 = y * @gh + @yOffset
       path = "M" + x1 + " " + y1 + " L" + x1 + " " + y1
       pathPercent = "M" + x + " " + y + " L" + x + " " + y
       @obj = @paper.path(path)
-      @obj.attr Utils.strokeAndThickness(color, thickness)
+      @obj.attr Meteor.call("strokeAndThickness", color, thickness)
       @obj.attr({"stroke-linejoin": "round"})
 
-      @definition =
-        shape: "path"
-        data: [pathPercent, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]
+      @definition = [pathPercent, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]
 
     @obj
 
@@ -55,12 +54,13 @@ class @WhiteboardLineModel extends WhiteboardToolModel
   # @param  {number}         y2  1) the y of the second point
   #                              2) undefined
   update: (info) ->
-    console.log "in line-UPDATE(info): " + info
-    if info?.payload?.data?.coordinate?
-      x1 = info.payload.data.coordinate.first_x
-      y1 = info.payload.data.coordinate.first_y
-      x2 = info.payload.data.coordinate.last_x
-      y2 = info.payload.data.coordinate.last_y
+    console.log "in line-UPDATE(info): "
+    console.log info
+    if info?.points?
+      x1 = info.points[0]
+      y1 = info.points[1]
+      x2 = info.points[2]
+      y2 = info.points[3]
 
       if @obj?
 
@@ -89,7 +89,7 @@ class @WhiteboardLineModel extends WhiteboardToolModel
         # adding lines from the line tool
         else
           path = @_buildPath(x1, y1, x2, y2)
-          @definition.data[0] = path
+          @definition[0] = path
 
           path = @_scaleLinePath(path, @gw, @gh, @xOffset, @yOffset)
           @obj.attr path: path
