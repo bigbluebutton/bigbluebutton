@@ -79,35 +79,25 @@
       ]]>    
   </mx:Script>
   <mx:HBox width="100%" height="25" horizontalAlign="left">
-    <mx:Spacer width="3"/>
-    <mx:Label text="Take Poll" styleName="micSettingsWindowTitleStyle"/>
+    <mx:Label text="Take Poll" styleName="micSettingsWindowTitleStyle" paddingLeft="3"/>
   </mx:HBox>
   
   <mx:VBox width="90%" height="90%" horizontalAlign="left" borderStyle="solid" borderThickness="1">
 
     <mx:HBox width="100%" height="20" horizontalAlign="left">
-      <mx:Spacer width="3"/>
-      <mx:Label id="titleLabel" text="Title" styleName="presentationNamesLabelStyle"/>
+      <mx:Label id="titleLabel" text="Title" styleName="presentationNamesLabelStyle" paddingLeft="3"/>
     </mx:HBox>  
-    <mx:Spacer height="5"/>
-    <mx:HBox width="96%" height="25">
-      <mx:Spacer width="10"/>
-      <mx:Label id="titleTextLabel" text="{_title}" fontSize="12" styleName="presentationNamesLabelStyle"/>
+    <mx:HBox width="96%" height="25" paddingTop="5">
+      <mx:Label id="titleTextLabel" text="{_title}" fontSize="12" styleName="presentationNamesLabelStyle" paddingLeft="10"/>
     </mx:HBox>
-    <mx:Spacer height="3"/>
     
-    <poll:QuestionRenderer viewModel="{viewModel}" pollID="{pollID}" responseCollector="{responseCollector}"/>
-    
-    <mx:Spacer height="5"/>
+    <poll:QuestionRenderer viewModel="{viewModel}" pollID="{pollID}" responseCollector="{responseCollector}" paddingTop="3" paddingBottom="5"/>
     
   </mx:VBox>
   
-  <mx:HBox width="100%" height="35" horizontalAlign="right">
-    <mx:Button label="Submit" styleName="presentationUploadShowButtonStyle" click="onSubmit()"/>
-    <mx:Spacer width="5"/>
-    <mx:Button label="Don't Submit" styleName="presentationUploadShowButtonStyle" click="close()"/>
-    <mx:Spacer width="5"/>
+  <mx:HBox width="100%" height="35" horizontalAlign="right" paddingBottom="5">
+    <mx:Button label="Submit" styleName="presentationUploadShowButtonStyle" click="onSubmit()" paddingRight="5"/>
+    <mx:Button label="Don't Submit" styleName="presentationUploadShowButtonStyle" click="close()" paddingRight="5"/>
   </mx:HBox>  
   
-  <mx:Spacer height="5"/>
 </mx:Panel>

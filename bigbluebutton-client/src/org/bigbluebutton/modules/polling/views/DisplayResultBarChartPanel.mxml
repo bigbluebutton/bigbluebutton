@@ -39,13 +39,10 @@
     ]]>
     </mx:Script>
   <mx:VBox width="100%" height="100%">
-    <mx:Spacer height="5"/>
-    <mx:HBox width="100%" height="25" horizontalAlign="center">
-      <mx:Spacer width="3"/>
-      <mx:Label text="{_question}" fontSize="12" styleName="micSettingsWindowTitleStyle"/>
+    <mx:HBox width="100%" height="25" horizontalAlign="center" paddingTop="5">
+      <mx:Label text="{_question}" fontSize="12" styleName="micSettingsWindowTitleStyle" paddingLeft="3"/>
     </mx:HBox>
-    <mx:Spacer height="5"/>
-    <mx:VBox width="100%" height="100%" horizontalAlign="center">
+    <mx:VBox width="100%" height="100%" horizontalAlign="center" paddingTop="5">
       <mx:ColumnChart id="barChart" dataProvider="{_responses}" showDataTips="true" width="100%" height="100%">
         <mx:horizontalAxis>
           <mx:CategoryAxis dataProvider="{_responses}" categoryField="response" />
@@ -55,8 +52,7 @@
         </mx:series>
       </mx:ColumnChart>
       <mx:HBox width="100%" horizontalAlign="center" borderStyle="none">
-        <mx:Spacer width="5"/>        
-        <mx:Legend dataProvider="{barChart}"/>  
+        <mx:Legend dataProvider="{barChart}" paddingLeft="5"/>  
       </mx:HBox> 
     </mx:VBox>  
   </mx:VBox>

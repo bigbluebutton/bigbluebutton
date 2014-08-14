@@ -95,8 +95,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					 tabIndex="{baseIndex}" width="100%" left="0"/>
 		<mx:HRule width="100%"/>
 		
-		<mx:Spacer height="20"/>
-		<mx:HBox verticalAlign="top" width="100%">
+		<mx:HBox verticalAlign="top" width="100%" paddingTop="20">
 			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.feature')}" fontWeight="bold" />
 			<mx:Label styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.enabled')}" fontWeight="bold" />
 		</mx:HBox>

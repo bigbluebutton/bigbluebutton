@@ -53,40 +53,30 @@
     
     <mx:VBox width="100%" height="50%" borderStyle="solid" borderThickness="1">
       <mx:HBox width="100%" height="20" horizontalAlign="left">
-        <mx:Spacer width="3"/>
-        <mx:Label id="pollsLabel" text="Select a poll from the list." styleName="presentationNamesLabelStyle"/>
+        <mx:Label id="pollsLabel" text="Select a poll from the list." styleName="presentationNamesLabelStyle" paddingLeft="3"/>
       </mx:HBox>  
-      <mx:Spacer height="5"/>
-      <mx:HBox width="96%" height="150">
-        <mx:Spacer width="10"/>
+      <mx:HBox width="96%" height="150" paddingTop="5" paddingBottom="3">
         <mx:List id="pollsList" width="100%" height="100%" alternatingItemColors="[#EFEFEF, #FEFEFE]" allowMultipleSelection="false"
                  itemRenderer="org.bigbluebutton.modules.polling.views.CreatedPollsRenderer"
-                 dragEnabled="false" dataProvider="{_polls}">
+                 dragEnabled="false" dataProvider="{_polls}" paddingLeft="10">
         </mx:List>
       </mx:HBox>
-      <mx:Spacer height="3"/>
    </mx:VBox>
    
-   <mx:Spacer height="5"/>
-   
-    <mx:HBox width="100%" height="25" horizontalAlign="left">
+    <mx:HBox width="100%" height="25" horizontalAlign="left" paddingTop="5">
       <mx:Label text="Custom Poll" styleName="micSettingsWindowTitleStyle"/>
     </mx:HBox>
     
     <mx:VBox width="100%" height="15%" borderStyle="solid" borderThickness="1">
       <mx:HBox width="100%" height="25"> 
-        <mx:Spacer width="5"/>
-        <mx:Label id="customPollsLabel" text="Create a custom poll" styleName="presentationNamesLabelStyle"/>
+        <mx:Label id="customPollsLabel" text="Create a custom poll" styleName="presentationNamesLabelStyle" paddingLeft="5"/>
       </mx:HBox>  
-      <mx:HBox width="100%" height="30" horizontalAlign="center">
+      <mx:HBox width="100%" height="30" horizontalAlign="center" paddingBottom="3">
         <mx:Button label="Create Custom Poll" height="25" click="createPoll()"/>
       </mx:HBox> 
-      <mx:Spacer height="3"/>
     </mx:VBox>
 
-    <mx:Spacer height="5"/>
-    
-    <mx:HBox width="100%" height="35" horizontalAlign="right">
+    <mx:HBox width="100%" height="35" horizontalAlign="right" paddingTop="5">
       <mx:Button label="Close" styleName="presentationUploadShowButtonStyle" click="close()"/>
     </mx:HBox>
   </mx:VBox>
