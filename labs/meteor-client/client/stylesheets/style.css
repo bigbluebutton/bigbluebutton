@@ -22,6 +22,7 @@ body {
 .lowerHand{}
 .mainContainer{
     height:100%;
+    padding-top:60px;
 }
 .myFooter{
     color:black;

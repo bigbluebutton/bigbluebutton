@@ -6,7 +6,7 @@
 
 <template name="header">
    {{#if getInSession "display_navbar"}}
-      <div id="navbar" class="myNavbar gradientBar navbar navbar-default navbar-static-top" role="navigation">
+      <div id="navbar" class="myNavbar gradientBar navbar navbar-default navbar-fixed-top" role="navigation">
          {{#with getCurrentUser}}
             <div class="navbarUserButtons navbarSection">
 				{{#if getInSession "display_usersList"}}
@@ -99,6 +99,6 @@
 	{{#if meetingIsRecording}}
 		<button class="recordingStatusTrue" rel="tooltip" data-placement="bottom" title="This Meeting is Being Recorded"><span class="glyphicon glyphicon-record"></span> Recording</button>
 	{{else}}
-		<button class="recordingStatusFalse" rel="tooltip" data-placement="bottom" title="This Meeting is Not Being Recorded"><span class="glyphicon glyphicon-record"></span> No</button>
+		<button class="recordingStatusFalse" rel="tooltip" data-placement="bottom" title="This Meeting is Not Being Recorded"><span class="glyphicon glyphicon-record"></span></button>
 	{{/if}}
 </template>
