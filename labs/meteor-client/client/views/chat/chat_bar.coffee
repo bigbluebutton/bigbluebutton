@@ -39,11 +39,13 @@ Template.chatInput.rendered  = ->
 Template.chatbar.helpers
   getChatGreeting: ->
     greeting = 
-    "<p>Welcome to #{getMeetingName()}!</p>
+    "<div class='chatGreeting'>
+    <p>Welcome to #{getMeetingName()}!</p>
     <p>For help on using BigBlueButton see these (short) <a href='http://bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.</p>
     <p>To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.</p>
     <br/>
-    <p>This server is running BigBlueButton #{getInSession 'bbbServerVersion'}.</p>"
+    <p>This server is running BigBlueButton #{getInSession 'bbbServerVersion'}.</p>
+    </div>"
 
   # This method returns all messages for the user. It looks at the session to determine whether the user is in
   #private or public chat. If true is passed, messages returned are from before the user joined. Else, the messages are from after the user joined
@@ -128,6 +130,6 @@ Template.tabButtons.helpers
     button += 'class="'
     button += 'active ' if getInSession("inChatWith") is @userId
     button += "tab #{@class}\"><a href=\"#\" data-toggle=\"tab\">#{@name}"
-    button += '&nbsp;<button class="close closeTab" type="button" >×</button>' if @name isnt 'Public' and @name isnt 'Options'
+    button += '&nbsp;<button class="close closeTab" type="button" >×</button>' if @class is 'privateChatTab'
     button += '</a></li>'
     button

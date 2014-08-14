@@ -32,7 +32,7 @@
 <template name="message">
 	<strong>{{message.from_username}}</strong> 
 	<small class="pull-right">{{message.from_time}} <span class="glyphicon glyphicon-time"></span></small>
-	<div>{{message.message}}</div>
+	<div>{{{message.message}}}</div> <!-- Messages must be safely filtered and stripped -->
 </template>
 
 <!-- Displays the list of options available -->
@@ -60,8 +60,8 @@
 <!-- Display buttons on the chat tab, public, options, and all the private chat tabs -->
 <template name="tabButtons">
 	<ul id="tabButtonContainer" class="nav nav-tabs">
-  	{{#each getChatbarTabs}}
-  		{{{makeTabButton}}}
-  	{{/each}}
-  	</ul>
+		{{#each getChatbarTabs}}
+			{{{makeTabButton}}}
+		{{/each}}
+	</ul>
 </template>
