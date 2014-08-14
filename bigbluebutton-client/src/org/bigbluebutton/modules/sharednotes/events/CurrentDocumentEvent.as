@@ -24,7 +24,7 @@ package org.bigbluebutton.modules.sharednotes.events
 	public class CurrentDocumentEvent extends Event
 	{
 		public static const CURRENT_DOCUMENT:String = 'CURRENT_DOCUMENT';
-		public var document:String;
+		public var document:Object;
 				
 		public function CurrentDocumentEvent(type:String = CURRENT_DOCUMENT, bubbles:Boolean=true, cancelable:Boolean=false)
 		{

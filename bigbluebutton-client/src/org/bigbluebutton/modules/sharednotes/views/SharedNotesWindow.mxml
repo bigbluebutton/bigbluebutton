@@ -73,6 +73,7 @@
 			private var _initialDocument:String = "";
 			private var _undoHistory:ArrayCollection = new ArrayCollection();
 			private var _redoHistory:Array = new Array();
+			public var noteId:String="MAIN_WINDOW";
 
 			private var options:SharedNotesOptions = new SharedNotesOptions();
 
@@ -116,12 +117,14 @@
 
 			private function sendPatch():void {
 				var clientText:String = new String(textArea.textFieldText); // a snapshot of the client text
+                LogUtil.debug("SEND PATCH" + clientText + "::" + _document);
 				if (_document != clientText) {
 					textArea.editable = false;
 					onSyncing();
 					trace("ADD LOCAL");
 					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
-					sendPatchEvent.patch = DiffPatch.diff(_document, clientText);
+					sendPatchEvent.noteId = noteId;
+                    sendPatchEvent.patch = DiffPatch.diff(_document, clientText);
 					sendPatchEvent.beginIndex = textArea.selectionBeginIndex;
 					sendPatchEvent.endIndex = textArea.selectionEndIndex;
 					//patchHistory.push(messageToSend.patchData);
@@ -133,10 +136,8 @@
 				}
 			}
 
-			
-
 			private function receivePatch(e:ReceivePatchEvent):void {
-				if (e.patch != "") {
+				if (e.patch != "" && e.noteId==noteId) {
 					var result:String = DiffPatch.patch(e.patch, _document);
 					_document = result;
 					textArea.patchClientText(e.patch, e.beginIndex, e.endIndex);
@@ -239,9 +240,9 @@
 			private function addRemoteDocument(e:CurrentDocumentEvent):void {
 				icoSynced.visible = true;
 				icoSyncing.visible = false;
-				textArea.text = e.document;
-				_document = e.document;
-				_initialDocument = e.document;
+				_document = e.document[noteId];
+				textArea.text = _document;
+				_initialDocument = _document;
 				
 			}
 			private function onTextChange(e:Event):void {

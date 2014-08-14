@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.sharednotes.events
 		public var patch:String;
 		public var beginIndex:Number;
 		public var endIndex:Number;
+		public var noteId:String;
 						
 		public function ReceivePatchEvent(type:String = RECEIVE_PATCH_EVENT, bubbles:Boolean=true, cancelable:Boolean=false)
 		{

@@ -24,14 +24,15 @@ package org.bigbluebutton.conference.service.sharedNotes;
 import name.fraser.neil.plaintext.diff_match_patch;
 import name.fraser.neil.plaintext.diff_match_patch.Patch;
 import java.util.LinkedList;
+import java.util.Map;
 
 public class ClientSharedNotes {
 	
-	private String document;
+	private Map<String, String> document;
 	private String userid;
 	private diff_match_patch diffPatch = new diff_match_patch();
 
-	public ClientSharedNotes(String userid, String document) {
+	public ClientSharedNotes(String userid, Map<String, String> document) {
 		this.userid = userid;
 		this.document = document;
 	}
@@ -40,19 +41,23 @@ public class ClientSharedNotes {
 		return userid;
 	}
 
-	public String getDocument() {
+	public Map<String,String> getDocument() {
 		return document;
 	}
 
-	public void setDocument(String document) {
-		this.document = document;
+	public String getDocument(String noteId) {
+		return document.get(noteId);
 	}
 
-	public void patchClient(String patch) {
+    public void setDocument(String noteId, String document) {
+		this.document.put(noteId, document);
+	}
+
+	public void patchClient(String noteId, String patch) {
 		 LinkedList<Patch> patchObjects = diffPatch.patch_fromText(patch);
-		 Object[] result = diffPatch.patch_apply(patchObjects, document);
+		 Object[] result = diffPatch.patch_apply(patchObjects, getDocument(noteId));
 		 String patchedDocument = result[0].toString();
-		 document = patchedDocument;
+		 setDocument(noteId,patchedDocument);
     	}
 
 }

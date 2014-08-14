@@ -35,12 +35,11 @@ package org.bigbluebutton.modules.sharednotes.maps
 	public class SharedNotesEventMapDelegate {
 		private var sharedNotesButton:ToolbarButton = null;
 		private var globalDispatcher:Dispatcher;
-		private var window:SharedNotesWindow;
+		private var window:Array;
 		private var options:SharedNotesOptions = new SharedNotesOptions();
 		
 		public function SharedNotesEventMapDelegate() {
 			globalDispatcher = new Dispatcher();
-			window = new SharedNotesWindow();
 			
 			if(options.showButton) {
 				sharedNotesButton = new ToolbarButton();
@@ -55,16 +54,21 @@ package org.bigbluebutton.modules.sharednotes.maps
 		}
 
 		public function showWindow():void {
-			window.visible = true;
+			for (var i:String in window)
+                window[i].visible = true;
 		}
 
 		public function hideWindow():void {
-			window.visible = false;
+			for (var i:String in window)
+			    window[i].visible = false;
 		}
 
 		public function addWindow():void {
+            var noteId:String = "TEST";
+			var w:SharedNotesWindow = new SharedNotesWindow();
+            w.noteId = noteId;
 			var openEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-			openEvent.window = window;
+			openEvent.window = w;
 			globalDispatcher.dispatchEvent(openEvent);
 		}
 		
@@ -76,7 +80,7 @@ package org.bigbluebutton.modules.sharednotes.maps
 				globalDispatcher.dispatchEvent(event);	
 			}
 			if(!options.autoStart)
-				window.visible = false;
+				window.hideWindow();
 	   	
 		}
 		

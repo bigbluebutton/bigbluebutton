@@ -20,6 +20,7 @@
 package org.bigbluebutton.conference.service.sharedNotes;
 
 import java.util.List;
+import java.util.Map;
 
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
@@ -31,16 +32,21 @@ public class SharedNotesService {
 	
 	private SharedNotesApplication application;
 
-	public String currentDocument(String userid) {
+	public Map<String,String>  currentDocument(String userid) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 		return application.currentDocument(roomName, userid);
 	}
 	
-	public void patchDocument(String userId, String patch, Integer beginIndex, Integer endIndex) {
+	public void patchDocument(String noteId, String userId, String patch, Integer beginIndex, Integer endIndex) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.patchDocument(roomName, userId, patch, beginIndex, endIndex);
+		application.patchDocument(roomName, noteId,userId, patch, beginIndex, endIndex);
 	}
-	
+
+	public void addNote() {
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		application.addNote(roomName);
+	}
+
 	public void setSharedNotesApplication(SharedNotesApplication a) {
 		log.debug("Setting sharedNotes application");
 		application = a;

@@ -50,7 +50,7 @@
 	<EventHandlers type="{StartSharedNotesModuleEvent.START_SHAREDNOTES_MODULE_EVENT}">        
 		<MethodInvoker generator="{SharedNotesManager}" method="setModuleAttributes" arguments="{event.attributes}" />
 		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="addToolbarButton"/>
-		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="addWindow"/>
+		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="addWindow" />
 		<MethodInvoker generator="{SharedNotesManager}" method="getCurrentDocument"/>
    	</EventHandlers>
     

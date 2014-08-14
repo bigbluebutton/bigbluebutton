@@ -47,9 +47,12 @@ package org.bigbluebutton.modules.sharednotes.managers {
 		}
 
 		public function patchDocument(e:SendPatchEvent):void {
-			connectionManager.patchDocument(UserManager.getInstance().getConference().getMyUserId(), e.patch, e.beginIndex, e.endIndex);
+			connectionManager.patchDocument(e.noteId, UserManager.getInstance().getConference().getMyUserId(), e.patch, e.beginIndex, e.endIndex);
 		}
+        public function addNote():void{
+            connectionManager.addNote();
 
+        }
 		public function getCurrentDocument():void {
 			connectionManager.currentDocument(UserManager.getInstance().getConference().getMyExternalUserID());
 		}

@@ -98,7 +98,7 @@ package org.bigbluebutton.modules.sharednotes.managers
 				new Responder(
 					function(result:Object):void {
 						var currentDocumentEvent:CurrentDocumentEvent = new CurrentDocumentEvent();
-						currentDocumentEvent.document = result.toString();
+						currentDocumentEvent.document = result;
 						_dispatcher.dispatchEvent(currentDocumentEvent);
 					},
 					function(status:Object):void {
@@ -123,37 +123,35 @@ package org.bigbluebutton.modules.sharednotes.managers
 			
 		}
 
-		public function patchDocument(userid:String, patch:String, beginIndex:Number, endIndex:Number):void {
+		public function patchDocument(noteId:String, userid:String, patch:String, beginIndex:Number, endIndex:Number):void {
 			var nc:NetConnection = _connection;
-			nc.call("sharedNotes.patchDocument", null, userid, patch, beginIndex, endIndex);
+			nc.call("sharedNotes.patchDocument", null, noteId, userid, patch, beginIndex, endIndex);
 		}		
 
-		public function addNote():void {
-			var nc:NetConnection = _connection;
+        public function addNote():void{
+            var nc:NetConnection = _connection;
 			nc.call("sharedNotes.addNote", null);
-			LogUtil.debug("AddNote request sent.");
-		}
 
-		public function remoteModificationsCallBack(userid:String, patches:String, beginIndex:Number, endIndex:Number):void {
+        }
+
+        public function initClientDocumentCallBack(noteId:String, userid:String):void{
+            
+			if(UserManager.getInstance().getConference().getMyUserId() == userid) {
+			    LogUtil.debug("NoteId: " + noteId + " userId " + userid);
+            }
+        }
+
+		public function remoteModificationsCallBack(noteId:String, userid:String, patches:String, beginIndex:Number, endIndex:Number):void {
+
+			LogUtil.debug(UserManager.getInstance().getConference().getMyUserId() + " NoteId: " + noteId + " userId " + userid + "::" + patches);
 			if(UserManager.getInstance().getConference().getMyUserId() == userid) {
 				var receivePatchEvent:ReceivePatchEvent = new ReceivePatchEvent();
+				receivePatchEvent.noteId = noteId;
 				receivePatchEvent.patch = patches;
 				receivePatchEvent.beginIndex = beginIndex;
 				receivePatchEvent.endIndex = endIndex;
 				_dispatcher.dispatchEvent(receivePatchEvent);
 			}
-		}
-		public function initClientDocumentCallBack(noteId:String, userid:String, document:String):void {
-			//if(UserManager.getInstance().getConference().getMyUserId() == userid) {
-				LogUtil.debug("InitCallBack received.");
-/*
-				var receivePatchEvent:ReceivePatchEvent = new ReceivePatchEvent();
-				receivePatchEvent.patch = patches;
-				receivePatchEvent.beginIndex = beginIndex;
-				receivePatchEvent.endIndex = endIndex;
-				_dispatcher.dispatchEvent(receivePatchEvent);
-*/
-			//}
 		}
 	}
 }

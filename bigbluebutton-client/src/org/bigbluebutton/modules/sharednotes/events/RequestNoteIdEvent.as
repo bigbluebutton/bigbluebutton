@@ -21,15 +21,13 @@ package org.bigbluebutton.modules.sharednotes.events
 {
 	import flash.events.Event;
 
-	public class SendPatchEvent extends Event
+	public class ToolbarButtonWindowEvent extends Event
 	{
-		public static const SEND_PATCH_EVENT:String = 'SEND_PATCH_EVENT';
-		public var patch:String;
-		public var beginIndex:Number;
-		public var endIndex:Number;
-		public var noteId:String;
+		public static const SHOW_WINDOW:String = 'SHOW_WINDOW';
+		public static const HIDE_WINDOW:String = 'HIDE_WINDOW';
+		public static const ADD_WINDOW:String = 'ADD_WINDOW';
 				
-		public function SendPatchEvent(type:String = SEND_PATCH_EVENT, bubbles:Boolean=true, cancelable:Boolean=false)
+		public function ToolbarButtonWindowEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
 		}

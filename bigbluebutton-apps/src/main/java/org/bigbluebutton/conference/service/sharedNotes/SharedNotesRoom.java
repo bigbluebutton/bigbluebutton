@@ -25,11 +25,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import name.fraser.neil.plaintext.diff_match_patch;
 import name.fraser.neil.plaintext.diff_match_patch.Patch;
 import name.fraser.neil.plaintext.diff_match_patch.Diff;
 import java.util.LinkedList;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import net.jcip.annotations.ThreadSafe;
 
@@ -45,15 +48,16 @@ public class SharedNotesRoom {
 
 	private final String name;
 	private final Map<String, ISharedNotesRoomListener> listeners;
-	private final Map<String, ClientSharedNotes> clients;
-	private String _document = "";
+	private final Set<String> clients;
+	private Map<String,String> documents = new ConcurrentHashMap<String, String>();
 	private static final Object syncObject = new Object();
 	private diff_match_patch diffPatch = new diff_match_patch();
 
 	public SharedNotesRoom(String name) {
 		this.name = name;
 		this.listeners = new ConcurrentHashMap<String, ISharedNotesRoomListener>();
-		this.clients = new ConcurrentHashMap<String, ClientSharedNotes>();
+		this.clients = new ConcurrentSkipListSet<String>();
+        documents.put("MAIN_WINDOW","");
 	}
 
 	public String getName() {
@@ -68,17 +72,18 @@ public class SharedNotesRoom {
 	}
 
 	public void addRoomClient(String userid) {
-		if (! clients.containsKey(userid)) {
+		if (! clients.contains(userid)) {
 			synchronized (syncObject) {
-				clients.put(userid, new ClientSharedNotes(userid, _document));
+				clients.add(userid);
 			}
 			
 		}
+
 	}
 
 	public void removeRoomClient(String userid) {
 		synchronized (syncObject) {
-			if (! clients.containsKey(userid)) {
+			if (! clients.contains(userid)) {
 				clients.remove(userid);
 			}
 		}
@@ -89,65 +94,56 @@ public class SharedNotesRoom {
 		listeners.remove(listener);	
 	}
 
-	public String currentDocument(String userid) {
-		String document = "";
-		synchronized (syncObject) {
-			ClientSharedNotes client = clients.get(userid);
-			if(client != null)
-				document = client.getDocument();
-		}
-		return document;
+	public Map<String,String> currentDocument(String userid) {
+		return documents;
 	}
 
-	public boolean patchClient(String userid, String patch, Integer beginIndex, Integer endIndex) {
+    public void addNote(){
+        String noteId = UUID.randomUUID().toString();
+        synchronized (syncObject) {	
+            documents.put(noteId, "");
+            for (Iterator<String> iter = clients.iterator(); iter.hasNext();) {
+                String userId = (String) iter.next();
+                for (Iterator<ISharedNotesRoomListener> iter2 = listeners.values().iterator(); iter2.hasNext();)             {
+                    ISharedNotesRoomListener listener = (ISharedNotesRoomListener) iter2.next();
+                    listener.initClientDocument(noteId, userId);
+                }
+            }
+        }
+    }
+
+	public boolean patchClient(String noteId, String userid, String patch, Integer beginIndex, Integer endIndex) {
 		synchronized (syncObject) {	
-			if(clients.containsKey(userid)) {
-				ClientSharedNotes client = clients.get(userid);
-				client.patchClient(patch);
-				patchServer(patch);
-				sendModificationsToClients(beginIndex, endIndex);
+			if(clients.contains(userid)) {	
+				patchServer(noteId,patch);
+				sendModificationsToClients(userid, noteId, patch, beginIndex, endIndex);
 			}
 		}
 		return true;
 	}
 
-
-	private void sendModificationsToClients(Integer beginIndex, Integer endIndex) {
-		 for (Iterator<ClientSharedNotes> iter = clients.values().iterator(); iter.hasNext();) {
-			ClientSharedNotes client = (ClientSharedNotes) iter.next();
-			LinkedList<Diff> diffs = diffPatch.diff_main(client.getDocument(), _document);
-			client.setDocument(_document);
-			LinkedList<Patch> patchObjects = diffPatch.patch_make(diffs);
-			String patches = diffPatch.patch_toText(patchObjects);
-			for (Iterator<ISharedNotesRoomListener> iter2 = listeners.values().iterator(); iter2.hasNext();) {
-				ISharedNotesRoomListener listener = (ISharedNotesRoomListener) iter2.next();
-				listener.remoteModifications(client.getUserid(), patches, beginIndex, endIndex);
-			}
-		 }
-	}
-
-	public void addNote() {
-		synchronized (syncObject) {
-			String noteId = UUID.randomUUID().toString();
-			for (Iterator<ClientSharedNotes> iter = clients.values().iterator(); iter.hasNext();) {
-				ClientSharedNotes client = (ClientSharedNotes) iter.next();
-				for (Iterator<ISharedNotesRoomListener> iter2 = listeners.values().iterator(); iter2.hasNext();) {
-					ISharedNotesRoomListener listener = (ISharedNotesRoomListener) iter2.next();
-					listener.initClientDocument(noteId, client.getUserid(), _document);
-					log.debug("Sending initClient request.");
-				}
-			}
-		}
-	}  
-
-	private void patchServer(String patch) {
+    private void patchServer(String noteId, String patch) {
+        String _document = documents.get(noteId);
 		LinkedList<Patch> patchObjects = diffPatch.patch_fromText(patch);
    		Object[] result = diffPatch.patch_apply(patchObjects, _document);
-		_document = result[0].toString();
+		documents.put(noteId, result[0].toString());
 	}
 
-	public void patchDocument(String userid, String patch, Integer beginIndex, Integer endIndex) {
-		patchClient(userid, patch, beginIndex, endIndex);
+	private void sendModificationsToClients(String srcUser, String noteId, String patch, Integer beginIndex, Integer endIndex) {
+         String _document = documents.get(noteId);
+		 for (Iterator<String> iter = clients.iterator(); iter.hasNext();) {
+            String userId = (String) iter.next();
+            if(!userId.equals(srcUser)){
+                for (Iterator<ISharedNotesRoomListener> iter2 = listeners.values().iterator(); iter2.hasNext();)             {
+                    ISharedNotesRoomListener listener = (ISharedNotesRoomListener) iter2.next();
+                    listener.remoteModifications(noteId, userId, patch, beginIndex, endIndex);
+                }
+		    }
+        }
+	}
+
+	public void patchDocument(String noteId, String userid, String patch, Integer beginIndex, Integer endIndex) {
+		patchClient(noteId, userid, patch, beginIndex, endIndex);
 	}
 }
 
