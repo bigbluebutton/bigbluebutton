@@ -7,7 +7,11 @@ trait VoiceApp {
   this : MeetingActor =>
   
   val outGW: MessageOutGateway
-     
+
+  def handleMuteAllExceptPresenterRequest(msg: MuteAllExceptPresenterRequest) {
+      
+  }
+  
   def handleMuteMeetingRequest(msg: MuteMeetingRequest) {
       
   }

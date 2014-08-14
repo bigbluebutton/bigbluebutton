@@ -172,7 +172,11 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		bbbGW.initLockSettings(room, locked, lsMap);
 		
 		connInvokerService.addConnection(bbbSession.getInternalUserID(), connection);
-        
+
+		log.info("User connected: sessionId=[" + Red5.getConnectionLocal().getSessionId() + "], encoding=[" + Red5.getConnectionLocal().getType() +
+				"(persistent=RTMP,polling=RTMPT)], meetingId= [" + bbbSession.getRoom() + "], userId=[" + bbbSession.getInternalUserID() + "] username=[" + bbbSession.getUsername() +"]");
+
+		
 		return super.roomConnect(connection, params);
         
 	}
@@ -189,7 +193,8 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		connInvokerService.removeConnection(getBbbSession().getInternalUserID());
     	
 		BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
-		log.info("User [" + bbbSession.getUsername() + "] disconnected from room [" + bbbSession.getRoom() +"]");
+		log.info("User disconnected: sessionId=[" + Red5.getConnectionLocal().getSessionId() + "], encoding=[" + Red5.getConnectionLocal().getType() +
+				"(persistent=RTMP,polling=RTMPT)], meetingId= [" + bbbSession.getRoom() + "], userId=[" + bbbSession.getInternalUserID() + "] username=[" + bbbSession.getUsername() +"]");
 		
 		bbbGW.userLeft(bbbSession.getRoom(), getBbbSession().getInternalUserID());
 		

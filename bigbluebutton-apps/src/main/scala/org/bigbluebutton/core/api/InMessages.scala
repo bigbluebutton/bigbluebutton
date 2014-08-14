@@ -384,6 +384,11 @@ case class PresentationConversionCompleted(
 case class SendVoiceUsersRequest(
     meetingID: String, 
     requesterID: String) extends InMessage
+
+case class MuteAllExceptPresenterRequest(
+    meetingID: String, 
+    requesterID: String, 
+    mute: Boolean) extends InMessage
     
 case class MuteMeetingRequest(
     meetingID: String, 

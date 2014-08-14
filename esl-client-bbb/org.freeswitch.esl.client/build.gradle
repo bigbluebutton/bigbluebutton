@@ -1,7 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
-version = '0.8.2'
+version = '0.9.0'
 jar.enabled = true
 
 def appName = 'fs-esl-client'

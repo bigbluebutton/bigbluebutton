@@ -188,8 +188,7 @@ public class MeetingService implements MessageListener {
 	}
 
 	private void handleCreateMeeting(Meeting m) {
-		log.debug("Storing Meeting with internal id:" + m.getInternalId());
-		log.debug(" ******************* Storing Meeting with internal id:" + m.getInternalId());
+		log.info("Storing Meeting with internalId=[" + m.getInternalId() + "], externalId=[" + m.getExternalId() + "], name=[" + m.getName() + "], duration=[" + m.getDuration() + "], record=[" + m.isRecord() + "]");
 		meetings.put(m.getInternalId(), m);
 		if (m.isRecord()) {
 			Map<String,String> metadata = new LinkedHashMap<String,String>();
@@ -443,7 +442,7 @@ public class MeetingService implements MessageListener {
 			User user = m.getUserById(message.userId);
 			if(user != null){
 				user.setStatus(message.status, message.value);
-				log.debug("Setting new status value in meeting " + message.meetingId + " for participant:"+user.getFullname());
+				log.debug("Setting new status value in meeting " + message.meetingId + " for participant:" + user.getFullname());
 				return;
 			}
 			log.warn("The participant " + message.userId + " doesn't exist in the meeting " + message.meetingId);

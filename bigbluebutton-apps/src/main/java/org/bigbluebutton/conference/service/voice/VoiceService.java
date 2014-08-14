@@ -51,13 +51,11 @@ public class VoiceService {
 	}
 */	
 	
-	public void muteAllUsers(boolean mute, List<Integer> dontMuteThese) {
-		String conference = getBbbSession().getVoiceBridge();    	
-    	log.debug("Mute all users in room[" + conference + "], dontLockThese list size = " + dontMuteThese.size());
-    	
-    	log.error("TODO: Implement this");
-    	
-//    	conferenceService.muteAllBut(conference, mute, dontMuteThese);
+	public void muteAllUsersExceptPresenter(Map<String, Object> msg) {
+  		String meetingID = Red5.getConnectionLocal().getScope().getName();
+  		String requesterID = getBbbSession().getInternalUserID();	
+  		Boolean muteAll = (Boolean) msg.get("mute");
+  		bbbInGW.muteAllExceptPresenter(meetingID, requesterID, muteAll);
 	}
 	
 	public void muteAllUsers(Map<String, Object> msg) {
