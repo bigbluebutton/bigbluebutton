@@ -41,7 +41,7 @@ Template.chatbar.helpers
     greeting = 
     "<div class='chatGreeting'>
     <p>Welcome to #{getMeetingName()}!</p>
-    <p>For help on using BigBlueButton see these (short) <a href='http://bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.</p>
+    <p>For help on using BigBlueButton see these (short) <a href='http://www.bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.</p>
     <p>To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.</p>
     <br/>
     <p>This server is running BigBlueButton #{getInSession 'bbbServerVersion'}.</p>

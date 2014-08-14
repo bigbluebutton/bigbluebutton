@@ -1,3 +1,8 @@
+.chat{
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
+}
 #chat {
     background-color: #f5f5f5;
     border: 1px solid #ccc;
@@ -5,7 +10,31 @@
     min-height:500px;
     overflow: hidden;
     width: 25%;
- }
+}
+.chat li{
+    border-bottom: 1px dotted #B3A9A9;
+    margin: 0px;
+    padding-bottom: 5px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 5px;
+}
+.chat li:nth-child(even) {
+    background-color: rgb(245,245,245);
+}
+ #chatbar-contents{
+    background-color: #fff; 
+    height:90%; 
+    padding-left: 0px; 
+    padding-right: 0px;
+    width:100%; 
+}
+#chatbody{
+    height:80%;
+    overflow-y: scroll;
+    padding-left: 0px;
+    padding-right: 0px;
+}
 .chatGreeting {
     color: blue;
     line-height: 14px;
@@ -28,6 +57,11 @@
     margin-top:6px;
 }
 .optionsChatTab{}
+.panel-footer{
+    padding-top:0px;
+    position:relative;
+    bottom:0px;
+}
 .privateChatTab{}
 .publicChatTab{}
 .private-chat-user-box {
@@ -50,38 +84,3 @@
     margin-left: 10px;
 }
 .tab{}
-
-#chatbar-contents{
-    background-color: #fff; 
-    height:90%; 
-    padding-left: 0px; 
-    padding-right: 0px;
-    width:100%; 
-}
-.chat{
-    list-style: none;
-    margin: 0px;
-    padding: 0px;
-}
-.chat li{
-    border-bottom: 1px dotted #B3A9A9;
-    margin: 0px;
-    padding-bottom: 5px;
-    padding-left: 15px;
-    padding-right: 15px;
-    padding-top: 5px;
-}
-.chat li:nth-child(even) {
-    background-color: rgb(245,245,245);
-}
-.panel-footer{
-    padding-top:0px;
-    position:relative;
-    bottom:0px;
-}
-#chatbody{
-    height:80%;
-    overflow-y: scroll;
-    padding-left: 0px;
-    padding-right: 0px;
-}

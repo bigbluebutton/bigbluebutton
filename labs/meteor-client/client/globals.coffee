@@ -65,6 +65,9 @@ Handlebars.registerHelper "getUsersInMeeting", ->
 Handlebars.registerHelper "isCurrentUser", (id) ->
   id is getInSession("userId")
 
+Handlebars.registerHelper "meetingIsRecording", ->
+	Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
+
 Handlebars.registerHelper "isUserSharingAudio", (u) ->
   if u? 
     user = Meteor.Users.findOne({userId:u.userid})

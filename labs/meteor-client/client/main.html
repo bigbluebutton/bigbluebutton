@@ -9,57 +9,59 @@
       <div id="navbar" class="myNavbar gradientBar navbar navbar-default navbar-static-top" role="navigation">
          {{#with getCurrentUser}}
             <div class="navbarUserButtons navbarSection">
-               {{#if getInSession "display_usersList"}}
-                  {{> makeButton id=userId btn_class="navbarIconToggleActive usersListIcon navbarButton" i_class="user" _id=_id rel="tooltip" data_placement="bottom" title="Hide List of Users"}}
-               {{else}}
-                  {{> makeButton id=userId btn_class="usersListIcon navbarButton" i_class="user" _id=_id rel="tooltip" data_placement="bottom" title="Show List of Users"}}
-               {{/if}}
-               
-               {{#if getInSession "display_chatbar"}}
-                  {{> makeButton id=userId btn_class="navbarIconToggleActive chatBarIcon navbarButton" i_class="comment" _id=_id rel="tooltip" data_placement="bottom" title="Hide Message Pane"}}
-               {{else}}
-                  {{> makeButton id=userId btn_class="chatBarIcon navbarButton" i_class="comment" _id=_id rel="tooltip" data_placement="bottom" title="Show Message Pane"}}
-               {{/if}}
+				{{#if getInSession "display_usersList"}}
+				  {{> makeButton id=userId btn_class="navbarIconToggleActive usersListIcon navbarButton" i_class="user" _id=_id rel="tooltip" data_placement="bottom" title="Hide List of Users"}}
+				{{else}}
+				  {{> makeButton id=userId btn_class="usersListIcon navbarButton" i_class="user" _id=_id rel="tooltip" data_placement="bottom" title="Show List of Users"}}
+				{{/if}}
 
-               {{#if isUserSharingVideo user}}
-                  {{> makeButton id=userId btn_class="navbarIconToggleActive videoFeedIcon navbarButton" i_class="stop" sharingVideo=true _id=_id rel="tooltip" data_placement="bottom" title="Hide Webcams"}}
-               {{else}}
-                  {{> makeButton id=userId btn_class="videoFeedIcon navbarButton" i_class="facetime-video" sharingVideo=false _id=_id rel="tooltip" data_placement="bottom" title="Show Webcams"}}
-               {{/if}}
+				{{#if getInSession "display_chatbar"}}
+				  {{> makeButton id=userId btn_class="navbarIconToggleActive chatBarIcon navbarButton" i_class="comment" _id=_id rel="tooltip" data_placement="bottom" title="Hide Message Pane"}}
+				{{else}}
+				  {{> makeButton id=userId btn_class="chatBarIcon navbarButton" i_class="comment" _id=_id rel="tooltip" data_placement="bottom" title="Show Message Pane"}}
+				{{/if}}
 
-               <!-- Join/hang up audio call -->
-               {{#if isUserSharingAudio user}}
-                  {{> makeButton id=userId btn_class="navbarIconToggleActive audioFeedIcon navbarButton" i_class="volume-off" sharingAudio=true _id=_id rel="tooltip" data_placement="bottom" title="Leave Audio Call"}}
-               {{else}}
-                  {{> makeButton id=userId btn_class="audioFeedIcon navbarButton" i_class="headphones" sharingAudio=false _id=_id rel="tooltip" data_placement="bottom" title="Join Audio Call"}}
-               {{/if}}
+				<!-- whiteboard toggle -->
+				{{#if getInSession "display_whiteboard"}}
+				  {{> makeButton btn_class="navbarIconToggleActive whiteboardIcon navbarButton" i_class="pencil" _id=_id rel="tooltip" data_placement="bottom" title="Hide Whiteboard"}}
+				{{else}}
+				  {{> makeButton id=userId btn_class="whiteboardIcon navbarButton" i_class="pencil" _id=_id rel="tooltip" data_placement="bottom" title="Show Whiteboard"}}
+				{{/if}}
 
-               <!-- Mute/unmute user -->
-               {{#if isUserSharingAudio user}}
-               <!-- Should use much more noticeable icons than just bootstraps volume-up & volume-down to differentiate talking but it is good for now -->
-                  {{#if isUserMuted user}}
-                        {{> makeButton id=userid btn_class="muteIcon navbarButton" i_class="volume-off" sharingAudio=true _id=_id rel="tooltip" data_placement="bottom" title="Unute"}}
-                  {{else}}
-                        {{#if isUserTalking user}}
-                           {{> makeButton id=userid btn_class="navbarIconToggleActive muteIcon navbarButton" i_class="volume-up" sharingAudio=true _id=_id rel="tooltip" data_placement="bottom" title="Mute"}}
-                        {{else}}
-                           {{> makeButton id=userId btn_class="navbarIconToggleActive muteIcon navbarButton" i_class="volume-down" sharingAudio=true _id=_id rel="tooltip" data_placement="bottom" title="Mute"}}
-                        {{/if}}
-                  {{/if}}
-               {{/if}}
+				{{#if isUserSharingVideo user}}
+				  {{> makeButton id=userId btn_class="navbarIconToggleActive videoFeedIcon navbarButton" i_class="stop" sharingVideo=true _id=_id rel="tooltip" data_placement="bottom" title="Hide Webcams"}}
+				{{else}}
+				  {{> makeButton id=userId btn_class="videoFeedIcon navbarButton" i_class="facetime-video" sharingVideo=false _id=_id rel="tooltip" data_placement="bottom" title="Show Webcams"}}
+				{{/if}}
 
-               <!-- whiteboard toggle -->
-               {{#if getInSession "display_whiteboard"}}
-                  {{> makeButton btn_class="navbarIconToggleActive whiteboardIcon navbarButton" i_class="pencil" _id=_id rel="tooltip" data_placement="bottom" title="Hide Whiteboard"}}
-               {{else}}
-                  {{> makeButton id=userId btn_class="whiteboardIcon navbarButton" i_class="pencil" _id=_id rel="tooltip" data_placement="bottom" title="Show Whiteboard"}}
-               {{/if}}
+				<!-- Join/hang up audio call -->
+				{{#if isUserSharingAudio user}}
+				  {{> makeButton id=userId btn_class="navbarIconToggleActive audioFeedIcon navbarButton" i_class="volume-off" sharingAudio=true _id=_id rel="tooltip" data_placement="bottom" title="Leave Audio Call"}}
+				{{else}}
+				  {{> makeButton id=userId btn_class="audioFeedIcon navbarButton" i_class="headphones" sharingAudio=false _id=_id rel="tooltip" data_placement="bottom" title="Join Audio Call"}}
+				{{/if}}
 
-               {{#if user.raise_hand}}
-                  {{> makeButton id=userId btn_class="lowerHand navbarIconToggleActive navbarButton" i_class="hand-up" rel="tooltip" data_placement="bottom" title="Lower your hand"}}
-               {{else}}
-                  {{> makeButton id=userId btn_class="raiseHand navbarButton" i_class="hand-up" rel="tooltip" data_placement="bottom" title="Raise your hand"}}
-               {{/if}}
+				<!-- Mute/unmute user -->
+				{{#if isUserSharingAudio user}}
+				<!-- Should use much more noticeable icons than just bootstraps volume-up & volume-down to differentiate talking but it is good for now -->
+				  {{#if isUserMuted user}}
+				        {{> makeButton id=userid btn_class="muteIcon navbarButton" i_class="volume-off" sharingAudio=true _id=_id rel="tooltip" data_placement="bottom" title="Unute"}}
+				  {{else}}
+				        {{#if isUserTalking user}}
+				           {{> makeButton id=userid btn_class="navbarIconToggleActive muteIcon navbarButton" i_class="volume-up" sharingAudio=true _id=_id rel="tooltip" data_placement="bottom" title="Mute"}}
+				        {{else}}
+				           {{> makeButton id=userId btn_class="navbarIconToggleActive muteIcon navbarButton" i_class="volume-down" sharingAudio=true _id=_id rel="tooltip" data_placement="bottom" title="Mute"}}
+				        {{/if}}
+				  {{/if}}
+				{{/if}}
+
+				{{#if user.raise_hand}}
+				  {{> makeButton id=userId btn_class="lowerHand navbarIconToggleActive navbarButton" i_class="hand-up" rel="tooltip" data_placement="bottom" title="Lower your hand"}}
+				{{else}}
+				  {{> makeButton id=userId btn_class="raiseHand navbarButton" i_class="hand-up" rel="tooltip" data_placement="bottom" title="Raise your hand"}}
+				{{/if}}
+
+				{{> recordingStatus}}
             </div>
             <div class="navbarTitle navbarSection"><span>{{getMeetingName}}</span></div>
             <div class="navbarSettingsButtons navbarSection">
@@ -90,4 +92,13 @@
          {{doFinalStuff}}
       </div>
    </body>
+</template>
+
+<template name="recordingStatus">
+	<!-- Recording status of the meeting -->
+	{{#if meetingIsRecording}}
+		<button class="recordingStatusTrue" rel="tooltip" data-placement="bottom" title="This Meeting is Being Recorded"><span class="glyphicon glyphicon-record"></span> Recording</button>
+	{{else}}
+		<button class="recordingStatusFalse" rel="tooltip" data-placement="bottom" title="This Meeting is Not Being Recorded"><span class="glyphicon glyphicon-record"></span> No</button>
+	{{/if}}
 </template>
