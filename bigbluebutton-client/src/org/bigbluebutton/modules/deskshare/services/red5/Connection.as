@@ -40,7 +40,8 @@ package org.bigbluebutton.modules.deskshare.services.red5
 
 	
 	public class Connection {
-   
+    public static const LOG:String = "Deskshare::Connection - ";
+    
 		private var nc:NetConnection;
 		private var uri:String;
     private const connectionTimeout:int = 5000;
@@ -63,13 +64,13 @@ package org.bigbluebutton.modules.deskshare.services.red5
           if (result != null && (result.publishing as Boolean)){
             width = result.width as Number;
             height = result.height as Number;
-            trace("Desk Share stream is streaming [" + width + "," + height + "]");
+            trace(LOG +  "Desk Share stream is streaming [" + width + "," + height + "]");
             var event:ViewStreamEvent = new ViewStreamEvent(ViewStreamEvent.START);
             event.videoWidth = width;
             event.videoHeight = height;
             dispatcher.dispatchEvent(event);
           } else {
-            trace("No deskshare stream being published");
+            trace(LOG + "No deskshare stream being published");
             var connEvent:ConnectionEvent = new ConnectionEvent();
             connEvent.status = ConnectionEvent.NO_DESKSHARE_STREAM;
             dispatcher.dispatchEvent(connEvent);
@@ -79,7 +80,7 @@ package org.bigbluebutton.modules.deskshare.services.red5
           var checkFailedEvent:ConnectionEvent = new ConnectionEvent();
           checkFailedEvent.status = ConnectionEvent.FAIL_CHECK_FOR_DESKSHARE_STREAM;
           dispatcher.dispatchEvent(checkFailedEvent);         
-          trace("Error while trying to call remote mathod on server");
+          trace(LOG + "Error while trying to call remote mathod on server");
         }
       );
     }
@@ -94,14 +95,14 @@ package org.bigbluebutton.modules.deskshare.services.red5
       nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
       
 			if (getURI().length == 0){
-				LogUtil.error("please provide a valid URI connection string. URI Connection String missing");
+				LogUtil.error(LOG + "please provide a valid URI connection string. URI Connection String missing");
 				return;
 			} else if (nc.connected){
-				LogUtil.error("You are already connected to " + getURI());
+				LogUtil.error(LOG + "You are already connected to " + getURI());
 				return;
 			}
       
-      trace("Trying to connect to [" + getURI() + "] retry=[" + retry + "]");
+      trace(LOG + "Trying to connect to [" + getURI() + "] retry=[" + retry + "]");
       if (! (retryCount > 0)) {
         var ce:ConnectionEvent = new ConnectionEvent();
         ce.status = ConnectionEvent.CONNECTING;
@@ -120,7 +121,7 @@ package org.bigbluebutton.modules.deskshare.services.red5
 		}
 		
     private function connectTimeoutHandler(e:TimerEvent):void {
-      trace("Connection attempt to [" + getURI() + "] timedout. Retrying.");
+      trace(LOG + "Connection attempt to [" + getURI() + "] timedout. Retrying.");
       retryTimer.stop();
       retryTimer = null;
       
@@ -168,7 +169,7 @@ package org.bigbluebutton.modules.deskshare.services.red5
 		}
 		
 		private function netStatusHandler(event:NetStatusEvent):void {	
-      trace("Connected to [" + getURI() + "]. [" + event.info.code + "]");
+      trace(LOG + "Connected to [" + getURI() + "]. [" + event.info.code + "]");
       
       if (retryTimer) {
         retryCount = 0;
@@ -198,8 +199,9 @@ package org.bigbluebutton.modules.deskshare.services.red5
 				break;
 				
 				case "NetConnection.Connect.Closed":
+          trace(LOG + "Deskshare connection closed.");
           ce.status = ConnectionEvent.CLOSED;
-          dispatcher.dispatchEvent(ce);
+//          dispatcher.dispatchEvent(ce);
 				break;
 				
 				case "NetConnection.Connect.InvalidApp":
@@ -214,6 +216,7 @@ package org.bigbluebutton.modules.deskshare.services.red5
 				
 				case "NetConnection.Connect.NetworkChange":
 					LogUtil.info("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
+          trace(LOG + "Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
 					break;
 					
 				default :
@@ -244,7 +247,7 @@ package org.bigbluebutton.modules.deskshare.services.red5
      * 
      */		
     private function checkIfStreamIsPublishing(room: String):void{
-      trace("checking if desk share stream is publishing");
+      trace(LOG + "checking if desk share stream is publishing");
       var event:ConnectionEvent = new ConnectionEvent();
       event.status = ConnectionEvent.CHECK_FOR_DESKSHARE_STREAM;
       dispatcher.dispatchEvent(event);
@@ -257,7 +260,7 @@ package org.bigbluebutton.modules.deskshare.services.red5
     }
     
     public function connectionSuccessHandler():void{
-      trace("Successully connection to " + uri);
+      trace(LOG + "Successully connection to " + uri);
       var deskSOName:String = room + "-deskSO";
       deskSO = SharedObject.getRemote(deskSOName, uri, false);
       deskSO.client = this;
@@ -272,10 +275,12 @@ package org.bigbluebutton.modules.deskshare.services.red5
     
     public function connectionFailedHandler(e:ConnectionEvent):void{
       LogUtil.error("connection failed to " + uri + " with message " + e.toString());
+      trace(LOG + "connection failed to " + uri + " with message " + e.toString());
     }
     
     public function connectionRejectedHandler(e:ConnectionEvent):void{
       LogUtil.error("connection rejected " + uri + " with message " + e.toString());
+      trace(LOG + "connection rejected " + uri + " with message " + e.toString());
     }
     
     
@@ -284,7 +289,7 @@ package org.bigbluebutton.modules.deskshare.services.red5
      * 
      */		
     public function appletStarted(videoWidth:Number, videoHeight:Number):void{
-      trace("Got applet started");
+      trace(LOG + "Got applet started");
       var event:AppletStartedEvent = new AppletStartedEvent();
       event.videoWidth = videoWidth;
       event.videoHeight = videoHeight;
@@ -304,7 +309,7 @@ package org.bigbluebutton.modules.deskshare.services.red5
     }
     
     public function sendStartedViewingNotification(stream:String):void{
-      trace("Sending start viewing to server");
+      trace(LOG + "Sending start viewing to server");
       nc.call("deskshare.startedToViewStream", null, stream);
     }
     
@@ -314,7 +319,7 @@ package org.bigbluebutton.modules.deskshare.services.red5
      * 
      */		
     public function startViewing(videoWidth:Number, videoHeight:Number):void{
-      trace("startViewing invoked by server");
+      trace(LOG + "startViewing invoked by server");
       
       var event:ViewStreamEvent = new ViewStreamEvent(ViewStreamEvent.START);
       event.videoWidth = videoWidth;
@@ -327,11 +332,11 @@ package org.bigbluebutton.modules.deskshare.services.red5
      * 
      */		
     public function sendStopViewingNotification():void{
-      trace("Sending stop viewing notification to other clients.");
+      trace(LOG + "Sending stop viewing notification to other clients.");
       try{
         deskSO.send("stopViewing");
       } catch(e:Error){
-        trace("could not send stop viewing notification");
+        trace(LOG + "could not send stop viewing notification");
       }
     }
     
@@ -348,7 +353,7 @@ package org.bigbluebutton.modules.deskshare.services.red5
      * 
      */		
     public function stopViewing():void{
-      trace("Received dekskshareStreamStopped");
+      trace(LOG + "Received dekskshareStreamStopped");
       dispatcher.dispatchEvent(new ViewStreamEvent(ViewStreamEvent.STOP));
     }
     
