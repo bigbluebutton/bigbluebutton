@@ -85,4 +85,12 @@ public class SharedNotesApplication {
 	public String currentDocument(String roomName, String userid) {
 		return roomsManager.currentDocument(roomName, userid);
 	}
+
+	public void createAdditionalNotes(String room) {
+		roomsManager.createAdditionalNotes(room);
+	}
+
+	public void destroyAdditionalNotes(String room, String notesId) {
+		roomsManager.destroyAdditionalNotes(room, notesId);
+	}
 }

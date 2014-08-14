@@ -20,38 +20,38 @@
 package org.bigbluebutton.modules.sharednotes.managers {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import flash.media.Microphone;
-	
-	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.core.BBB;
-	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.sharednotes.events.SendPatchEvent;
+	import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 	
 	public class SharedNotesManager {		
 		private var connectionManager:SharedNotesConnectionManager;
 		private var attributes:Object;
 		
-		
 		public function SharedNotesManager() {
-			//Init SharedNotesService		
+
 		}
 
 		public function setModuleAttributes(attributes:Object):void {
 			this.attributes = attributes;
 			connectionManager = new SharedNotesConnectionManager(attributes.connection);
-		}
-
-		public function joinSharedNotes():void {
 			connectionManager.join(attributes.uri + "/" + attributes.room);
 		}
 
 		public function patchDocument(e:SendPatchEvent):void {
-			connectionManager.patchDocument(UserManager.getInstance().getConference().getMyUserId(), e.patch, e.beginIndex, e.endIndex);
+			connectionManager.patchDocument(e.patch, e.beginIndex, e.endIndex);
 		}
 
 		public function getCurrentDocument():void {
-			connectionManager.currentDocument(UserManager.getInstance().getConference().getMyExternalUserID());
+			connectionManager.currentDocument();
+		}
+
+		public function createAdditionalNotes(e:SharedNotesEvent):void {
+			connectionManager.createAdditionalNotes();
+		}
+
+		public function destroyAdditionalNotes(notesId:String):void {
+			trace("SharedNotesManager: destroying notes " + notesId);
+			connectionManager.destroyAdditionalNotes(notesId);
 		}
 	}
 }

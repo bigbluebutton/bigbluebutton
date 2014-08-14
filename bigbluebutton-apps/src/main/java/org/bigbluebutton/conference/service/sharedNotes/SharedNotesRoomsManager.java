@@ -120,4 +120,22 @@ public class SharedNotesRoomsManager {
 			return null;
 		}
 	}
+
+	public void createAdditionalNotes(String room) {
+		SharedNotesRoom r = getRoom(room);
+		if (r != null) {
+			r.createAdditionalNotes();
+		} else {
+			log.warn("createAdditionalNotes: sending message to a non-existing room " + room);
+		}
+	}
+
+	public void destroyAdditionalNotes(String room, String notesId) {
+		SharedNotesRoom r = getRoom(room);
+		if (r != null) {
+			r.destroyAdditionalNotes(notesId);
+		} else {
+			log.warn("destroyAdditionalNotes: sending message to a non-existing room " + room);
+		}
+	}
 }

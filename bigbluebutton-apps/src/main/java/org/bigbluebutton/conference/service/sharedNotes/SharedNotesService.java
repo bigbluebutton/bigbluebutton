@@ -40,7 +40,17 @@ public class SharedNotesService {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 		application.patchDocument(roomName, userId, patch, beginIndex, endIndex);
 	}
-	
+
+	public void createAdditionalNotes() {
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		application.createAdditionalNotes(roomName);
+	}
+
+	public void destroyAdditionalNotes(String notesId) {
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		application.destroyAdditionalNotes(roomName, notesId);
+	}
+
 	public void setSharedNotesApplication(SharedNotesApplication a) {
 		log.debug("Setting sharedNotes application");
 		application = a;

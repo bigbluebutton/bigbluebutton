@@ -49,10 +49,10 @@ public class ClientSharedNotes {
 	}
 
 	public void patchClient(String patch) {
-		 LinkedList<Patch> patchObjects = diffPatch.patch_fromText(patch);
-		 Object[] result = diffPatch.patch_apply(patchObjects, document);
-		 String patchedDocument = result[0].toString();
-		 document = patchedDocument;
-    	}
+		LinkedList<Patch> patchObjects = diffPatch.patch_fromText(patch);
+		Object[] result = diffPatch.patch_apply(patchObjects, document);
+		String patchedDocument = result[0].toString();
+		document = patchedDocument;
+	}
 
 }

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import name.fraser.neil.plaintext.diff_match_patch;
 import name.fraser.neil.plaintext.diff_match_patch.Patch;
@@ -131,6 +132,22 @@ public class SharedNotesRoom {
 
 	public void patchDocument(String userid, String patch, Integer beginIndex, Integer endIndex) {
 		patchClient(userid, patch, beginIndex, endIndex);
+	}
+
+	public void createAdditionalNotes() {
+		String notesId = UUID.randomUUID().toString();
+
+		for (Map.Entry<String, ISharedNotesRoomListener> entry : listeners.entrySet()) {
+			ISharedNotesRoomListener listener = entry.getValue();
+			listener.createAdditionalNotes(notesId);
+		}
+	}
+
+	public void destroyAdditionalNotes(String notesId) {
+		for (Map.Entry<String, ISharedNotesRoomListener> entry : listeners.entrySet()) {
+			ISharedNotesRoomListener listener = entry.getValue();
+			listener.destroyAdditionalNotes(notesId);
+		}
 	}
 }
 

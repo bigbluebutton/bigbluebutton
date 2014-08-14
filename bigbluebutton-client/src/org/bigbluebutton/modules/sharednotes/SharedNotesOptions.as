@@ -16,6 +16,9 @@ package org.bigbluebutton.modules.sharednotes
 		[Bindable]
 		public var showButton:Boolean = false;
 
+		[Bindable]
+		public var enableMultipleNotes:Boolean = false;
+
 		
 		public function SharedNotesOptions()
 		{
@@ -32,6 +35,9 @@ package org.bigbluebutton.modules.sharednotes
 				}
 				if (vxml.@showButton != undefined) {
 					showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (vxml.@enableMultipleNotes != undefined) {
+					enableMultipleNotes = (vxml.@enableMultipleNotes.toString().toUpperCase() == "TRUE") ? true : false;
 				}
 			}
 		}

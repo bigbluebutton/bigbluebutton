@@ -130,8 +130,7 @@
 		<module name="SharedNotesModule" url="SharedNotesModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton"
 			refreshDelay="500"
-			autoStart="true"
-			showButton="false"
+			enableMultipleNotes="true"
 			dependsOn="UsersModule"
 			position="bottom-left"
 		/>
