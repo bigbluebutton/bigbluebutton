@@ -1,5 +1,6 @@
 packages
-build
+build/
 npm-debug.log
+../node_modules/
 ../node_modules/hiredis/
 ../node_modules/redis/

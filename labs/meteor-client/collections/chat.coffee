@@ -1,8 +1,8 @@
 Meteor.methods
   addChatToCollection: (meetingId, messageObject) ->
-    entry = {
+    entry =
       meetingId: meetingId
-      message: { # or message: messageObject but this is more verbose
+      message:
         chat_type: messageObject.chat_type
         message: messageObject.message
         to_username: messageObject.to_username
@@ -13,12 +13,10 @@ Meteor.methods
         from_time: messageObject.from_time
         from_username: messageObject.from_username
         from_lang: messageObject.from_lang
-      }
-    }
+
     id = Meteor.Chat.insert(entry)
     console.log "added chat id=[#{id}]:#{messageObject.message}. Chat.size is now
      #{Meteor.Chat.find({meetingId: meetingId}).count()}"
 
   sendChatMessagetoServer: (meetingId, messageObject) ->
     Meteor.call "publishChatMessage", meetingId, messageObject
-

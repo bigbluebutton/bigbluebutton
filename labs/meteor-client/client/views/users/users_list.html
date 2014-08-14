@@ -1,23 +1,18 @@
 <template name="usersList">
-   {{#if getInSession "display_usersList"}}
-   <div class="users-list-container">
-      <div class="mygrid-wrapper-div">
-         <table class="table table-hover">
-            <thead>
-            <th>
-               Participants: <i>{{getMeetingSize}} users</i>
-            </th>
-            </thead>
-            <!-- Retrieve all users in the meeting -->
-            <tbody class="user-entry">
-            {{#each getUsersInMeeting}}
-               <tr>
-                  {{> userItem}}
-               </tr>
-            {{/each}}
-            </tbody>
-         </table>
+   <div id="{{id}}" {{visibility name}} class="component">
+      <h3 class="title gradientBar">Participants: {{getMeetingSize}} Users</h3>
+      <div id="user-contents">
+         {{#Layout template="scrollWindow" id="publicUserScrollWindow"}}
+            {{#contentFor region="scrollContents"}}
+               {{#Layout template="moduleTable" tableClass="table table-hover" tbodyClass="user-entry"}}
+                  {{#contentFor region="Contents"}}
+                     {{#each getUsersInMeeting}}
+                        <tr>{{>userItem}}</tr>
+                     {{/each}}
+                  {{/contentFor}}
+               {{/Layout}}
+            {{/contentFor}}
+         {{/Layout}}
       </div>
    </div>
-   {{/if}}
 </template>

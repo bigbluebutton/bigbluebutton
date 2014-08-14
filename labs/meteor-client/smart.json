@@ -3,6 +3,9 @@
     "redis": {},
     "npm": {},
     "bootstrap-3": {},
-    "iron-router": {}
+    "iron-router": {},
+    "raphaeljs-package": {
+      "git": "https://github.com/tomconnors/raphaeljs-package.git"
+    }
   }
 }

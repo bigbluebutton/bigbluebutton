@@ -1,19 +1,13 @@
-# These settings can just be stored locally in session, created at start up
-Meteor.startup ->
-	Session.setDefault "display_usersList", true
-	Session.setDefault "display_navbar", true
-	Session.setDefault "display_chatbar", true 
-	Session.setDefault "display_whiteboard", false
-	Session.setDefault "display_chatPane", true
-	Session.setDefault 'inChatWith', "PUBLIC_CHAT"
-	Session.setDefault "joinedAt", getTime()
-	Session.setDefault "isSharingAudio", false
-
-	@myTabs = new WatchValue()
-	@myTabs.updateValue [
-		{isActive:true, name:"Public", class: "publicChatTab"}
-		{isActive:false, name:"Options", class: "optionsChatTab"}
-	]
+Template.footer.helpers
+	getFooterString: ->
+		# info = Meteor.call('getServerInfo')
+		year = "YEAR" #info.getBuildYear()
+		month = "MONTH" #info.getBuildMonth()
+		day = "DAY" #info.getBuildDay()
+		version = "VERSION_XXXX" #info.getBuildVersion()
+		copyrightYear = (new Date()).getFullYear()
+		link = "<a href='http://bigbluebutton.org/' target='_blank'>http://bigbluebutton.org</a>"
+		foot = "(c) #{copyrightYear} BigBlueButton Inc. [build #{version}-#{year}-#{month}-#{day}] - For more information visit #{link}"
 
 Template.header.events
 	"click .usersListIcon": (event) ->
@@ -23,17 +17,88 @@ Template.header.events
 	"click .videoFeedIcon": (event) ->
 		toggleCam @ 
 	"click .audioFeedIcon": (event) ->
+		toggleVoiceCall @
+	"click .muteIcon": (event) ->
 		toggleMic @
 	"click .signOutIcon": (event) ->
-		Meteor.call("userLogout", Session.get("meetingId"), Session.get("userId"))
-		Session.set "display_navbar", false # needed to hide navbar when the layout template renders
-		Router.go('logout');
+		userLogout getInSession("meetingId"), getInSession("userId"), true
 	"click .hideNavbarIcon": (event) ->
 		toggleNavbar()
 	"click .settingsIcon": (event) ->
 		alert "settings"
+	"click .raiseHand": (event) -> 
+		Meteor.call('userRaiseHand', @id)
+	"click .lowerHand": (event) -> 
+		Meteor.call('userLowerHand', @id)
+	"click .whiteboardIcon": (event) ->
+		toggleWhiteBoard()
+
+Template.makeButton.rendered = ->
+   $('button[rel=tooltip]').tooltip()
 		
 # Gets called last in main template, just an easy place to print stuff out
 Handlebars.registerHelper "doFinalStuff", ->
     console.log "-----Doing Final Stuff-----"
-    console.log "session: " + Session.get "joinedAt"
+
+# These settings can just be stored locally in session, created at start up
+Meteor.startup ->
+	@SessionAmplify = _.extend({}, Session,
+	  keys: _.object(_.map(amplify.store(), (value, key) ->
+	    [
+	      key
+	      JSON.stringify(value)
+	    ]
+	  ))
+	  set: (key, value) ->
+	    Session.set.apply this, arguments
+	    amplify.store key, value
+	    return
+	)
+
+	SessionAmplify.set "display_usersList", true
+	SessionAmplify.set "display_navbar", true
+	SessionAmplify.set "display_chatbar", true
+	SessionAmplify.set "display_whiteboard", true
+	SessionAmplify.set "display_chatPane", true
+	SessionAmplify.set 'inChatWith', "PUBLIC_CHAT"
+	SessionAmplify.set "joinedAt", getTime()
+	SessionAmplify.set "isSharingAudio", false
+	SessionAmplify.set "inChatWith", 'PUBLIC_CHAT'
+	SessionAmplify.set "intreteChatWith", 'ttttttttt'
+
+	@myTabs = new WatchValue()
+	@myTabs.updateValue [
+		{isActive:true, name:"Public", class: "publicChatTab"}
+		{isActive:false, name:"Options", class: "optionsChatTab"}
+	]
+
+	@whiteboardPaperModel = new WhiteboardPaperModel('whiteboard-paper')
+
+Template.header.events
+	"click .usersListIcon": (event) ->
+		toggleUsersList()
+	"click .chatBarIcon": (event) ->
+		toggleChatbar()
+	"click .videoFeedIcon": (event) ->
+		toggleCam @ 
+	"click .audioFeedIcon": (event) ->
+		toggleVoiceCall @
+	"click .muteIcon": (event) ->
+		toggleMic @
+	"click .signOutIcon": (event) ->
+		userLogout getInSession("meetingId"), getInSession("userId"), true
+	"click .hideNavbarIcon": (event) ->
+		toggleNavbar()
+	"click .settingsIcon": (event) ->
+		alert "settings"
+	"click .raiseHand": (event) -> 
+		Meteor.call('userRaiseHand', @id)
+	"click .whiteboardIcon": (event) ->
+		toggleWhiteBoard()
+
+Template.makeButton.rendered = ->
+   $('button[rel=tooltip]').tooltip()
+		
+# Gets called last in main template, just an easy place to print stuff out
+Handlebars.registerHelper "doFinalStuff", ->
+    console.log "-----Doing Final Stuff-----"

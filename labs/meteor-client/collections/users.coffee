@@ -27,7 +27,7 @@ Meteor.methods
       entry =
         meetingId: meetingId
         userId: userId
-        user: {
+        user:
           userid: user.userid
           presenter: user.presenter
           name: user.name
@@ -39,7 +39,7 @@ Meteor.methods
           extern_userid: user.extern_userid
           permissions: user.permissions
           locked: user.locked
-          voiceUser: {
+          voiceUser:
             web_userid: user.voiceUser.web_userid
             callernum: user.voiceUser.callernum
             userid: user.voiceUser.userid
@@ -48,9 +48,7 @@ Meteor.methods
             callername: user.voiceUser.callername
             locked: user.voiceUser.locked
             muted: user.voiceUser.muted
-          }
           webcam_stream: user.webcam_stream
-        }
 
       id = Meteor.Users.insert(entry)
       console.log "added user id=[#{id}]:#{user.name}. Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
@@ -61,3 +59,23 @@ Meteor.methods
       if id?
         Meteor.Users.remove(id._id)
         console.log "----removed user[" + userId + "] from " + meetingId
+
+  userShareAudio: (meetingId, userId) ->
+    if meetingId? and userId? 
+      Meteor.Users.update({meetingId: meetingId, userId: userId}, {$set:{'user.voiceUser.joined':true}})
+      Meteor.Users.update({meetingId: meetingId, userId: userId}, {$set:{'user.voiceUser.talking':false}})
+      Meteor.Users.update({meetingId: meetingId, userId: userId}, {$set:{'user.voiceUser.muted':false}})
+
+  userStopAudio: (meetingId, userId) ->
+    if meetingId? and userId? 
+      Meteor.Users.update({meetingId: meetingId, userId: userId}, {$set:{'user.voiceUser.talking':false}})
+      Meteor.Users.update({meetingId: meetingId, userId: userId}, {$set:{'user.voiceUser.joined':false}})
+      Meteor.Users.update({meetingId: meetingId, userId: userId}, {$set:{'user.voiceUser.muted':false}})
+
+  userRaiseHand: (userId) ->
+    if userId?
+      Meteor.Users.update({userId:userId}, {$set: {'user.raise_hand':true}})
+
+  userLowerHand: (userId) ->
+    if userId?
+      Meteor.Users.update({userId:userId}, {$set: {'user.raise_hand':false}})
