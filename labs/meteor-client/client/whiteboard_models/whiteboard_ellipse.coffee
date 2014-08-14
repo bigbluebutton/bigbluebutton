@@ -2,14 +2,11 @@
 class @WhiteboardEllipseModel extends WhiteboardToolModel
 
     constructor: (@paper) ->
-        super @paper
+      super @paper
 
-        # the defintion of this shape, kept so we can redraw the shape whenever needed
-        # format: top left x, top left y, bottom right x, bottom right y, stroke color, thickness
-        @definition = [0, 0, 0, 0, "#000", "0px"]
-
-        # @ellipseX = null
-        # @ellipseY = null
+      # the defintion of this shape, kept so we can redraw the shape whenever needed
+      # format: top left x, top left y, bottom right x, bottom right y, stroke color, thickness
+      @definition = [0, 0, 0, 0, "#000", "0px"]
 
     # Make an ellipse on the whiteboard
     # @param    {[type]} x                 the x value of the top left corner
@@ -17,18 +14,19 @@ class @WhiteboardEllipseModel extends WhiteboardToolModel
     # @param    {string} colour        the colour of the object
     # @param    {number} thickness the thickness of the object's line(s)
     make: (info) ->
-        if info?.payload?.data?.coordinate?
-            x = info.payload.data.coordinate.first_x
-            y = info.payload.data.coordinate.first_y
-            color = info.payload.data.line.color
-            thickness = info.payload.data.line.weight
+      console.log "Whiteboard - Making ellipse: "
+      console.log info
+      if info?.points?
+        x = info.points[0]
+        y = info.points[1]
+        color = info.color
+        thickness = info.thickness
 
-            @obj = @paper.ellipse(x * @gw + @xOffset, y * @gh + @yOffset, 0, 0)
-            @obj.attr Utils.strokeAndThickness(color, thickness)
-            @definition =
-                shape: "ellipse"
-                data: [x, y, y, x, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]
-        @obj
+        @obj = @paper.ellipse(x * @gw + @xOffset, y * @gh + @yOffset, 0, 0)
+        @obj.attr Meteor.call("strokeAndThickness", color, thickness)
+        @definition = [x, y, y, x, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]
+
+      @obj
 
     # Update ellipse drawn
     # @param    {number} x1 the x value of the top left corner in percent of current slide size
@@ -37,59 +35,55 @@ class @WhiteboardEllipseModel extends WhiteboardToolModel
     # @param    {number} y2 the y value of the bottom right corner in percent of current slide size
     # @param    {boolean} square (draw a circle or not
     update: (info) ->
-        x1 = info.payload.data.coordinate.first_x
-        y1 = info.payload.data.coordinate.first_y
-        x2 = info.payload.data.coordinate.last_x
-        y2 = info.payload.data.coordinate.last_y
-        circle = info.payload.data.square
-        
+      console.log info
+      if info?.points?
+        x1 = info.points[0]
+        y1 = info.points[1]
+        x2 = info.points[2]
+        y2 = info.points[3]
+
+        circle = !info.square
+
         if @obj?
+          [x1, x2] = [x2, x1] if x2 < x1
 
-            [x1, x2] = [x2, x1] if x2 < x1
+          if y2 < y1
+            [y1, y2] = [y2, y1]
+            reversed = true
 
-            
-
-            
-            if y2 < y1
-                [y1, y2] = [y2, y1]
-                reversed = true
-
-            if circle
-                if reversed #if reveresed, the y1 coordinate gets updated, not the y2 coordinate
-                    y1 = y2 - (x2 - x1) * @gw / @gh
-                else
-                    y2 = y1 + (x2 - x1) * @gw / @gh
+          if circle
+            if reversed # if reveresed, the y1 coordinate gets updated, not the y2 coordinate
+              y1 = y2 - (x2 - x1) * @gw / @gh
+            else
+              y2 = y1 + (x2 - x1) * @gw / @gh
 
             #if the control key is pressed then the width and height of the ellipse are equal (a circle)
             #we calculate this by making the y2 coord equal to the y1 coord plus the width of x2-x1 and corrected for the slide size
-            
-
-            coords = 
-                x1: x1
-                x2: x2
-                y1: y1
-                y2: y2
+            coords =
+              x1: x1
+              x2: x2
+              y1: y1
+              y2: y2
 
             console.log(coords)
 
             rx = (x2 - x1) / 2
             ry = (y2 - y1) / 2
 
-       
-            r= 
-                rx: rx * @gw
-                ry: ry * @gh
-                cx: (rx + x1) * @gw + @xOffset
-                cy: (ry + y1) * @gh + @yOffset
-            console.log "------------>", r
+            r =
+              rx: rx * @gw
+              ry: ry * @gh
+              cx: (rx + x1) * @gw + @xOffset
+              cy: (ry + y1) * @gh + @yOffset
+
             @obj.attr(r)
 
-            console.log( "@gw: " + @gw + "\n@gh: " + @gh + "\n@xOffset: " + @xOffset + "\n@yOffset: " + @yOffset );            
+            console.log( "@gw: " + @gw + "\n@gh: " + @gh + "\n@xOffset: " + @xOffset + "\n@yOffset: " + @yOffset );
             # we need to update all these values, specially for when shapes are drawn backwards
-            @definition.data[0] = x1
-            @definition.data[1] = y1
-            @definition.data[2] = x2
-            @definition.data[3] = y2
+            @definition[0] = x1
+            @definition[1] = y1
+            @definition[2] = x2
+            @definition[3] = y2
 
     # Draw an ellipse on the whiteboard
     # @param    {number} x1 the x value of the top left corner
