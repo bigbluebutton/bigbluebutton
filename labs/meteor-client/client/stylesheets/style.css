@@ -9,7 +9,9 @@ body {
     right:0;
     top:0;   
 }
-
+.btn{
+    background-color:#F5F5F5;
+}
 .chatBarIcon{}
 .component{
     background: #fff;
@@ -38,6 +40,7 @@ body {
 .myNavbar{
     margin-bottom:0.5%;
     min-width:900px;
+    padding-top:5px;
 }
 .myNavbarMinimized{
     background: #eee;
