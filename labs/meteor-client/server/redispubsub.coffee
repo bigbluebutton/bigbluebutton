@@ -54,6 +54,33 @@ Meteor.methods
     else
       console.log "did not have enough information to send a mute_user_request"
 
+  userRaiseHand: (meetingId, userId, raisedStatus) ->
+    console.log "publishing a userRaiseHand event: #{userId}-raised=#{raisedStatus}"
+    eventName = (raised) ->
+      if raised
+        return "user_raised_hand_message"
+      else
+        return "user_lowered_hand_message"
+
+    if meetingId? and userId? and raisedStatus?
+      message =
+        "payload":
+          "userid": userId
+          "meeting_id": meetingId
+          "raise_hand": raisedStatus
+        "header":
+          "timestamp": new Date().getTime()
+          "name": eventName(raisedStatus)
+          "version": "0.0.1"
+
+      #publish to pubsub
+      Meteor.redisPubSub.publish(Meteor.config.redis.channels.toBBBApps.users, message)
+      console.log "just published for userRaisedHand" + JSON.stringify message
+
+      #update Users collection
+      Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set: {'user.raise_hand': raisedStatus}})
+
+
 class Meteor.RedisPubSub
   constructor: (callback) ->
     console.log "constructor RedisPubSub"

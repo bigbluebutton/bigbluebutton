@@ -71,11 +71,3 @@ Meteor.methods
       Meteor.Users.update({meetingId: meetingId, userId: userId}, {$set:{'user.voiceUser.talking':false}})
       Meteor.Users.update({meetingId: meetingId, userId: userId}, {$set:{'user.voiceUser.joined':false}})
       Meteor.Users.update({meetingId: meetingId, userId: userId}, {$set:{'user.voiceUser.muted':false}})
-
-  userRaiseHand: (userId) ->
-    if userId?
-      Meteor.Users.update({userId:userId}, {$set: {'user.raise_hand':true}})
-
-  userLowerHand: (userId) ->
-    if userId?
-      Meteor.Users.update({userId:userId}, {$set: {'user.raise_hand':false}})
