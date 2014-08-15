@@ -96,8 +96,10 @@
                 if(_notesId == "MAIN_WINDOW"){
 				    btnNew.visible = btnNew.includeInLayout = true;
     				_dispatcher.dispatchEvent(new GetCurrentDocumentEvent());
+				    title = ResourceUtil.getInstance().getString('bbb.sharedNotes.title');
                 } else {
 				    btnNew.visible = btnNew.includeInLayout = false;
+			        title = ResourceUtil.getInstance().getString('bbb.sharedNotes.title') + " " + _notesId;
                 }
 			}
 
@@ -171,12 +173,6 @@
 			
 			override public function close(event:MouseEvent=null):void {
 				super.close(event);
-			}
-
-			override protected function resourcesChanged():void {
-				super.resourcesChanged();
-
-				title = ResourceUtil.getInstance().getString('bbb.sharedNotes.title');
 			}
 
 		]]>

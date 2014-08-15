@@ -12,8 +12,6 @@ package org.bigbluebutton.modules.sharednotes.views
 
 	public class AdditionalSharedNotesWindow extends SharedNotesWindow
 	{
-		private static var windowsAcc:int = 1;
-		private var _windowId:int = windowsAcc++;
 
 		public function AdditionalSharedNotesWindow(notesId:String) {
 			trace("AdditionalSharedNotesWindow: in-constructor additional notes " + notesId);
@@ -46,10 +44,5 @@ package org.bigbluebutton.modules.sharednotes.views
 			return MainCanvas.POPUP;
 		}
 
-		override protected function resourcesChanged():void {
-			super.resourcesChanged();
-
-			title = ResourceUtil.getInstance().getString('bbb.sharedNotes.title') + " " + _windowId;
-		}
 	}
 }

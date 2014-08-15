@@ -60,14 +60,6 @@
 		<MethodInvoker generator="{SharedNotesManager}" method="disconnectFromSharedNotes"/>
 	</EventHandlers>
 
-	<EventHandlers type="{ToolbarButtonWindowEvent.SHOW_WINDOW}">       
-    		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="showWindow"/> 
-	</EventHandlers>
-
-	<EventHandlers type="{ToolbarButtonWindowEvent.HIDE_WINDOW}">       
-    		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="hideWindow"/> 
-	</EventHandlers>
-
 	<EventHandlers type="{GetCurrentDocumentEvent.GET_CURRENT_DOCUMENT}">       
     		<MethodInvoker generator="{SharedNotesManager}" method="getCurrentDocument"/> 
 	</EventHandlers>

@@ -52,12 +52,14 @@ public class SharedNotesRoom {
 	private Map<String,String> documents = new ConcurrentHashMap<String, String>();
 	private static final Object syncObject = new Object();
 	private diff_match_patch diffPatch = new diff_match_patch();
+    private Integer noteCounter;
 
 	public SharedNotesRoom(String name) {
 		this.name = name;
 		this.listeners = new ConcurrentHashMap<String, ISharedNotesRoomListener>();
 		this.clients = new ConcurrentSkipListSet<String>();
-        documents.put("MAIN_WINDOW","");
+        this.documents.put("MAIN_WINDOW","");
+        this.noteCounter=1;
 	}
 
 	public String getName() {
@@ -133,8 +135,8 @@ public class SharedNotesRoom {
 	}
 
 	public void createAdditionalNotes() {
-		String noteId = UUID.randomUUID().toString();
         synchronized (syncObject) {	
+		    String noteId = (noteCounter++).toString();
             documents.put(noteId, "");
 
 		for (Map.Entry<String, ISharedNotesRoomListener> entry : listeners.entrySet()) {
