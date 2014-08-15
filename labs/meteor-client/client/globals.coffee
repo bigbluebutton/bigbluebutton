@@ -89,6 +89,9 @@ Handlebars.registerHelper "isUserMuted", (u) ->
     user.user.voiceUser?.muted
   else return false
 
+Handlebars.registerHelper "messageFontSize", ->
+	style: "font-size: #{getInSession("messageFontSize")}px;"
+
 Handlebars.registerHelper "setInSession", (k, v) -> SessionAmplify.set k, v 
 
 Handlebars.registerHelper "visibility", (section) ->
@@ -122,6 +125,7 @@ Meteor.methods
     setInSession("bbbServerVersion", "0.90")
     setInSession("userName", null) 
     setInSession("validUser", true) # got info from server, user is a valid user
+    setInSession "messageFontSize", 14
 
 @toggleCam = (event) ->
   # Meteor.Users.update {_id: context._id} , {$set:{"user.sharingVideo": !context.sharingVideo}}
