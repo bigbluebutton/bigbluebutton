@@ -36,3 +36,15 @@ Meteor.methods
           Meteor.Shapes.remove(id._id)
           console.log "----removed shape[" + s.shape.id + "] from " + whiteboardId
           console.log "remaining shapes on the slide:" + Meteor.Shapes.find({meetingId: meetingId, whiteboardId: whiteboardId}).fetch().length
+
+  removeShapeFromSlide: (meetingId, whiteboardId, shapeId) ->
+    console.log "remove a shape from slide:" + shapeId
+    shapeToRemove = Meteor.Shapes.findOne({meetingId: meetingId, whiteboardId: whiteboardId, "shape.id": shapeId})
+    if meetingId? and whiteboardId? and shapeId? and shapeToRemove?
+      console.log "found the shape to be removed"
+      Meteor.Shapes.remove(shapeToRemove._id)
+      console.log "----removed shape[" + shapeId + "] from " + whiteboardId
+      console.log "remaining shapes on the slide:" + Meteor.Shapes.find({meetingId: meetingId, whiteboardId: whiteboardId}).count()
+
+
+

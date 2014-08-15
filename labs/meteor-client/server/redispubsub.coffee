@@ -237,6 +237,11 @@ class Meteor.RedisPubSub
       
       Meteor.call("removeAllShapesFromSlide", meetingId, whiteboardId)
 
+    if message.header?.name is "undo_whiteboard_request"
+      whiteboardId = message.payload?.whiteboard_id
+      shapeId = message.payload?.shape_id
+
+      Meteor.call("removeShapeFromSlide", meetingId, whiteboardId, shapeId)
 
 
     if message.header?.name in ["meeting_ended_message", "meeting_destroyed_event",
