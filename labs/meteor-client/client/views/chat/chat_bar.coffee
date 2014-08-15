@@ -101,6 +101,9 @@ Template.optionsBar.events
                 "from_color": "0"
             Meteor.call "sendChatMessagetoServer", getInSession("meetingId"), messageForServer
 
+Template.optionsBar.rendered = ->
+	$('div[rel=tooltip]').tooltip()
+
 Template.tabButtons.events
   'click .close': (event) -> # user closes private chat
     setInSession 'inChatWith', 'PUBLIC_CHAT'

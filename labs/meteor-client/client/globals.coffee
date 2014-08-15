@@ -146,35 +146,33 @@ Meteor.methods
   setInSession "display_usersList", !getInSession "display_usersList"
 
 @toggleVoiceCall = (event) -> 
-  if getInSession "isSharingAudio"
-    callback = -> 
-      setInSession "isSharingAudio", false # update to no longer sharing
-      console.log "left voice conference"
-      # sometimes we can hangup before the message that the user stopped talking is received so lets set it manually, otherwise they might leave the audio call but still be registered as talking
-      Meteor.call("userStopAudio", getInSession("meetingId"),getInSession("userId"))
-    webrtc_hangup callback # sign out of call
-  else
-    # create voice call params
-    username = "#{getInSession("userId")}-bbbID-#{getUsersName()}"
-    voiceBridge = "70827"
-    server = null
-    callback = (message) -> 
-      console.log JSON.stringify message
-      setInSession "isSharingAudio", true
-      Meteor.call("userShareAudio", getInSession("meetingId"),getInSession("userId"))
-      console.log "joined audio call"
-      console.log Meteor.Users.findOne(userId:getInSession("userId"))
-    webrtc_call(username, voiceBridge, server, callback) # make the call
+	if getInSession "isSharingAudio"
+		hangupCallback = -> 
+			console.log "left voice conference"
+			# sometimes we can hangup before the message that the user stopped talking is received so lets set it manually, otherwise they might leave the audio call but still be registered as talking
+			Meteor.call("userStopAudio", getInSession("meetingId"),getInSession("userId"))
+			setInSession "isSharingAudio", false # update to no longer sharing
+		webrtc_hangup hangupCallback # sign out of call
+	else
+		# create voice call params
+		username = "#{getInSession("userId")}-bbbID-#{getUsersName()}"
+		# voiceBridge = "70827"
+		voiceBridge = "70828"
+		server = null
+		joinCallback = (message) -> 
+			console.log JSON.stringify message
+			Meteor.call("userShareAudio", getInSession("meetingId"),getInSession("userId"))
+			console.log "joined audio call"
+			console.log Meteor.Users.findOne(userId:getInSession("userId"))
+			setInSession "isSharingAudio", true
+		webrtc_call(username, voiceBridge, server, joinCallback) # make the call
+	return false
 
 @toggleWhiteBoard = ->
   setInSession "display_whiteboard", !getInSession "display_whiteboard"
 
 @userKick = (meeting, user) ->
   Meteor.call("userKick", meeting, user)
-
-Handlebars.registerHelper "isUserSharingAudio", (u) ->
-  if u? then u.voiceUser?.joined
-  else return false
 
 Handlebars.registerHelper "getCurrentSlide", ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
