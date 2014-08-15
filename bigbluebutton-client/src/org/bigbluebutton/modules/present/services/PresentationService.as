@@ -9,6 +9,8 @@ package org.bigbluebutton.modules.present.services
   import org.bigbluebutton.modules.present.events.PageChangedEvent;
   import org.bigbluebutton.modules.present.events.PageMovedEvent;
   import org.bigbluebutton.modules.present.events.PresentationChangedEvent;
+  import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+  import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.present.model.Page;
   import org.bigbluebutton.modules.present.model.Presentation;
   import org.bigbluebutton.modules.present.model.PresentationModel;
@@ -149,5 +151,18 @@ package org.bigbluebutton.modules.present.services
         trace(LOG + "Switching presentation but presentation [" + presVO.id + "] is not current [" + presVO.isCurrent() + "]");
       }
     }
+	
+	public function removePresentation(presentationID:String):void {
+		var removedEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.PRESENTATION_REMOVED_EVENT);
+		removedEvent.presentationName = presentationID;
+		dispatcher.dispatchEvent(removedEvent);
+		
+		if(presentationID == model.getCurrentPresentation().id) {
+			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CLEAR_PRESENTATION);
+			dispatcher.dispatchEvent(uploadEvent);
+		}
+		
+		model.removePresentation(presentationID);
+	}
   }
 }

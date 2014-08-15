@@ -78,6 +78,9 @@ trait PresentationApp {
            sharePresentation(msg.presentationID, false);
         }
       })
+      
+      outGW.send(new RemovePresentationOutMsg(msg.meetingID, recorded, msg.presentationID))
+      
     }
     
     def handleGetPresentationInfo(msg: GetPresentationInfo) {

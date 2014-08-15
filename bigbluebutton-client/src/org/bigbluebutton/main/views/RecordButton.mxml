@@ -34,19 +34,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	mouseOut="onRecordButtonMouseOut(event)" >
 
 	<mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
-	
+	<mate:Listener type="{FlashJoinedVoiceConferenceEvent.JOINED_VOICE_CONFERENCE}" method="handleFlashJoinedVoiceConference" />
+	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_STARTED}" method="handleWebRTCCallStarted" />
 	<mx:Script>
 		<![CDATA[
-
 			import com.asfusion.mate.events.Dispatcher;
+			
 			import mx.controls.Alert;
 			import mx.events.CloseEvent;
-			import org.bigbluebutton.main.events.BBBEvent;
+			
 			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
+			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var recordingFlag:Boolean;
-
+			private var firstAudioJoin:Boolean = true;
+			
 			private function confirmChangeRecordingStatus():void {
         trace("Confirming recording status change!!!!");
         
@@ -116,6 +121,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
+			private function handleFlashJoinedVoiceConference(e:FlashJoinedVoiceConferenceEvent):void {
+				showRecordingNotification();
+			}
+			
+			private function handleWebRTCCallStarted(e:WebRTCCallEvent):void {
+				showRecordingNotification();
+			}
+			
+			private function showRecordingNotification():void {
+				if (firstAudioJoin && this.visible && !this.selected && UserManager.getInstance().getConference().amIModerator()) {
+					var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.message1") + "\n\n" + ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.message2"), ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.title"), Alert.OK, this);
+					
+					var newX:Number = this.x;
+					var newY:Number = this.y + this.height + 5;
+					
+					alert.validateNow();
+					alert.move(newX, newY);
+					
+					firstAudioJoin = false;
+				}
+			}
+			
 			private function onRecordButtonMouseOver(event:MouseEvent):void {
 				if (UserManager.getInstance().getConference().amIModerator()) {
 					this.styleName = this.selected? "recordButtonStyleStop": "recordButtonStyleStart";

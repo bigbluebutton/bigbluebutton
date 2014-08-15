@@ -197,10 +197,12 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     private function handleRemovePresentationCallback(msg:Object):void {
-      trace(LOG + "***TODO: handleRemovePresentationCallback " + msg.msg + " **** \n");
-      var e:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.PRESENTATION_REMOVED_EVENT);
-      e.presentationName = msg.presentationID;
-//      dispatcher.dispatchEvent(e);
+      trace(LOG + "***DOING: handleRemovePresentationCallback " + msg.msg + " **** \n");
+	  var map:Object = JSON.parse(msg.msg);
+	  
+	  if(map.hasOwnProperty("presentationID")) {
+        service.removePresentation(map.presentationID);
+	  }
     }
     
     private function handleConversionCompletedUpdateMessageCallback(msg:Object) : void {

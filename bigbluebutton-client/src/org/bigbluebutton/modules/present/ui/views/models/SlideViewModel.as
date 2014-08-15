@@ -190,8 +190,8 @@ package org.bigbluebutton.modules.present.ui.views.models
 		}
 		
 		public function onMove(deltaX:Number, deltaY:Number):void {
-			_calcPageX += deltaX;
-			_calcPageY += deltaY;
+			_calcPageX += deltaX / MYSTERY_NUM;
+			_calcPageY += deltaY / MYSTERY_NUM;
 			
 			onResizeMove();	
 			calcViewedRegion();

@@ -588,8 +588,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:Label
 				htmlText="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}"
 				id="copyrightLabel2"
-				selectable="false" />
-		<mx:Spacer width="20"/>
+				selectable="false" paddingRight="20"/>
 		<mx:Spacer width="100%" id="spacer" />
 		<mx:Label
 				text="[Tunnelling]"

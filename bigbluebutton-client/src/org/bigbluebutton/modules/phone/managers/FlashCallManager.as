@@ -1,13 +1,16 @@
  package org.bigbluebutton.modules.phone.managers
 {
-  import com.asfusion.mate.events.Dispatcher;  
+  import com.asfusion.mate.events.Dispatcher;
+  
   import flash.external.ExternalInterface;
-  import flash.media.Microphone;  
+  import flash.media.Microphone;
+  
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.model.MeetingModel;
   import org.bigbluebutton.modules.phone.PhoneOptions;
   import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
   import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
+  import org.bigbluebutton.modules.phone.events.FlashEchoTestFailedEvent;
   import org.bigbluebutton.modules.phone.events.FlashEchoTestHasAudioEvent;
   import org.bigbluebutton.modules.phone.events.FlashEchoTestNoAudioEvent;
   import org.bigbluebutton.modules.phone.events.FlashEchoTestStartedEvent;
@@ -225,7 +228,12 @@
       trace(LOG + "handling FlashStopEchoTestCommand, current state: " + state);
       if (state == IN_ECHO_TEST) {
          hangup();
-      }      
+      }
+      else if (state == CALLING_INTO_ECHO_TEST)
+      {
+         state = INITED;
+         hangup();
+      }
     }
     
     public function handleFlashEchoTestHasAudioEvent(event:FlashEchoTestHasAudioEvent):void {
@@ -277,6 +285,7 @@
       switch (state) {
         case IN_CONFERENCE:
           state = INITED;
+          dispatcher.dispatchEvent(new FlashLeftVoiceConferenceEvent());
           break;
         case ON_LISTEN_ONLY_STREAM:
           state = INITED;
@@ -292,6 +301,11 @@
           trace(LOG + "Flash echo test stopped, now joining the voice conference.");
           callIntoVoiceConference();
           break;
+        case CALLING_INTO_ECHO_TEST:
+          state = INITED;
+          trace(LOG + "Unsuccessfully called into the echo test application.");
+          dispatcher.dispatchEvent(new FlashEchoTestFailedEvent());
+          break;
       }
     }
     
@@ -305,6 +319,7 @@
             trace(LOG + "ignoring join voice conf as usingFlash=[" + usingFlash + "] or eventMic=[" + !event.mic + "]");
           }
           break;
+		
         default:
           trace("Ignoring join voice as state=[" + state + "]");
       }
@@ -316,7 +331,6 @@
         // this is the case when the user was connected to webrtc and then leaves the conference
         return;
       }
-
       hangup();
     }
     
