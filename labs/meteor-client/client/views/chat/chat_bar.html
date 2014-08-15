@@ -6,8 +6,8 @@
 			{{#if getInSession "display_chatPane"}}
 				<div id="chatbody">
 					<ul class="chat">					
-						{{#each getFormattedMessagesForChat}}
-							<li {{messageFontSize}}>{{> message}}</li>
+						{{#each getCombinedMessagesForChat}}
+							<li>{{> message}}</li>
 						{{/each}}
 					</ul>
 				</div>
@@ -36,8 +36,8 @@
 <!-- Displays and styles an individual message in the chat -->
 <template name="message">
 	<strong>{{message.from_username}}</strong> 
-	<small class="pull-right">{{message.from_time}} <span class="glyphicon glyphicon-time"></span></small>
-	<div>{{{message.message}}}</div> <!-- Messages must be safely filtered and stripped -->
+	<small class="pull-right">{{toClockTime message.from_time}} {{#if message.from_time}}<span class="glyphicon glyphicon-time"></span>{{/if}}</small>
+	<div>{{{toClickable message.message}}}</div> <!-- Messages must be safely filtered and stripped -->
 </template>
 
 <!-- Displays the list of options available -->

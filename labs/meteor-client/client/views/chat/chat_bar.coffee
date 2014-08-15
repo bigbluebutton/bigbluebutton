@@ -1,5 +1,5 @@
 @sendMessage = ->
-  message = $('#newMessageInput').val() # get the message from the input box
+  message = linkify $('#newMessageInput').val() # get the message from the input box
   unless (message?.length > 0 and (/\S/.test(message))) # check the message has content and it is not whitespace
     return # do nothing if invalid message
 
@@ -78,6 +78,26 @@ Template.chatbar.helpers
 		# we can use a time frame, so join messages together that are within 5 minutes of eachother, for example
 		###
 
+  # gets messages and groups them by username (username doesn't repeat in successive messages)
+  # timestamps in messages from the same user doesn't repeat
+  getCombinedMessagesForChat: () ->
+    msgs = Template.chatbar.getFormattedMessagesForChat()
+    prev_time = msgs[0].message.from_time
+    prev_userid = msgs[0].message.from_userid
+    for i in [0...msgs.length]
+      if i != 0
+        if prev_userid == msgs[i].message.from_userid
+          msgs[i].message.from_username = ''
+          if Template.message.toClockTime(msgs[i].message.from_time) == Template.message.toClockTime(prev_time)
+            prev_time = msgs[i].message.from_time
+            msgs[i].message.from_time = null
+          else
+            prev_time = msgs[i].message.from_time
+        else
+          prev_time = msgs[i].message.from_time
+        prev_userid = msgs[i].message.from_userid
+    msgs
+    
 Template.message.rendered = -> # When a message has been added and finished rendering, scroll to the bottom of the chat
   $('#chatbody').scrollTop($('#chatbody')[0].scrollHeight)
 
@@ -143,3 +163,22 @@ Template.tabButtons.helpers
     button += '&nbsp;<button class="close closeTab" type="button" >×</button>' if @class is 'privateChatTab'
     button += '</a></li>'
     button
+
+Template.message.helpers
+  toClockTime: (epochTime) ->
+    if epochTime == null
+      return ""
+    local = new Date()
+    offset = local.getTimezoneOffset()
+    epochTime = epochTime - offset * 60000 # 1 min = 60 s = 60,000 ms
+    dateObj = new Date(epochTime)
+    hours = dateObj.getUTCHours()
+    minutes = dateObj.getUTCMinutes()
+    if minutes < 10
+      minutes = "0" + minutes
+    hours + ":" + minutes
+
+  # make links received from Flash client clickable in HTML
+  toClickable: (str) ->
+    res = str.replace /<a href='event:/gim, "<a target='_blank' href='"
+    res.replace /<a href="event:/gim, '<a target="_blank" href="'
