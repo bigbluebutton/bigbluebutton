@@ -254,6 +254,13 @@ class Meteor.RedisPubSub
 
       Meteor.call("removeShapeFromSlide", meetingId, whiteboardId, shapeId)
 
+    if message.header?.name is "presenter_assigned_message"
+      newPresenterId = message.payload?.new_presenter_id
+      if newPresenterId?
+        # reset the previous presenter
+        Meteor.Users.update({"user.presenter": true, meetingId: meetingId},{$set: {"user.presenter": false}})
+        # set the new presenter
+        Meteor.Users.update({"user.userid": newPresenterId, meetingId: meetingId},{$set: {"user.presenter": true}})
 
     if message.header?.name in ["meeting_ended_message", "meeting_destroyed_event",
       "end_and_kick_all_message", "disconnect_all_users_message"]
