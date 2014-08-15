@@ -82,13 +82,20 @@ Template.chatbar.helpers
   # timestamps in messages from the same user doesn't repeat
   getCombinedMessagesForChat: () ->
     msgs = Template.chatbar.getFormattedMessagesForChat()
-    mirror = Template.chatbar.getFormattedMessagesForChat()
+    prev_time = msgs[0].message.from_time
+    prev_userid = msgs[0].message.from_userid
     for i in [0...msgs.length]
       if i != 0
-        if msgs[i - 1].message.from_userid == msgs[i].message.from_userid
+        if prev_userid == msgs[i].message.from_userid
           msgs[i].message.from_username = ''
-          if Template.message.toClockTime(mirror[i].message.from_time) == Template.message.toClockTime(mirror[i - 1].message.from_time)
+          if Template.message.toClockTime(msgs[i].message.from_time) == Template.message.toClockTime(prev_time)
+            prev_time = msgs[i].message.from_time
             msgs[i].message.from_time = null
+          else
+            prev_time = msgs[i].message.from_time
+        else
+          prev_time = msgs[i].message.from_time
+        prev_userid = msgs[i].message.from_userid
     msgs
     
 Template.message.rendered = -> # When a message has been added and finished rendering, scroll to the bottom of the chat
