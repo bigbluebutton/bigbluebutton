@@ -95,8 +95,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					 tabIndex="{baseIndex}" width="100%" left="0"/>
 		<mx:HRule width="100%"/>
 		
-		<mx:Spacer height="20"/>
-		<mx:HBox verticalAlign="top" width="100%">
+		<mx:HBox verticalAlign="top" width="100%" paddingTop="20">
 			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.feature')}" fontWeight="bold" />
 			<mx:Label styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.enabled')}" fontWeight="bold" />
 		</mx:HBox>
@@ -147,9 +146,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </mx:HBox>		
 		<mx:HRule width="100%"/>
 		
-		<mx:Spacer height="20"/>
-		
-		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="18">
+		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="18" paddingTop="20">
 			<mx:Button id="saveBtn" label="{ResourceUtil.getInstance().getString('bbb.lockSettings.save')}" 
 					   click="onSaveClicked()" tabIndex="{baseIndex+8}"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.lockSettings.save.toolTip')}"/>
