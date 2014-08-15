@@ -2,6 +2,7 @@
 class @WhiteboardTriangleModel extends WhiteboardToolModel
 
   constructor: (@paper) ->
+    console.log "Whiteboard - Creating rectangle"
     super @paper
 
     # the defintion of this shape, kept so we can redraw the shape whenever needed
@@ -14,20 +15,18 @@ class @WhiteboardTriangleModel extends WhiteboardToolModel
   # @param  {string} colour    the colour of the object
   # @param  {number} thickness the thickness of the object's line(s)
   make: (info) ->
-    if info?.payload?.data?.coordinate?
-      x = info.payload.data.coordinate.first_x
-      y = info.payload.data.coordinate.first_y
-      color = info.payload.data.line.color
-      thickness = info.payload.data.line.weight
+    if info?.points?
+      x = info.points[0]
+      y = info.points[1]
+      color = info.color
+      thickness = info.thickness
 
       path = @_buildPath(x, y, x, y, x, y)
       @obj = @paper.path(path)
-      @obj.attr Utils.strokeAndThickness(color, thickness)
+      @obj.attr Meteor.call("strokeAndThickness", color, thickness)
       @obj.attr({"stroke-linejoin": "round"})
 
-      @definition =
-        shape: "triangle"
-        data: [x, y, x, y, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]
+      @definition = [x, y, x, y, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]
 
     @obj
 
@@ -37,11 +36,12 @@ class @WhiteboardTriangleModel extends WhiteboardToolModel
   # @param  {number} x2 the x value of the bottom right corner
   # @param  {number} y2 the y value of the bottom right corner
   update: (info) ->
-    if info?.payload?.data?.coordinate?
-      x1 = info.payload.data.coordinate.first_x
-      y1 = info.payload.data.coordinate.first_y
-      x2 = info.payload.data.coordinate.last_x
-      y2 = info.payload.data.coordinate.last_y
+    console.log "Whiteboard - updating triangle points"
+    if info?.points?
+      x1 = info.points[0]
+      y1 = info.points[1]
+      x2 = info.points[2]
+      y2 = info.points[3]
 
       if @obj?
         [xTop, yTop, xBottomLeft, yBottomLeft, xBottomRight, yBottomRight] = @_getCornersFromPoints(x1, y1, x2, y2)
@@ -51,10 +51,10 @@ class @WhiteboardTriangleModel extends WhiteboardToolModel
                            xBottomRight * @gw + @xOffset, yBottomRight * @gh + @yOffset)
         @obj.attr path: path
 
-        @definition.data[0] = x1
-        @definition.data[1] = y1
-        @definition.data[2] = x2
-        @definition.data[3] = y2
+        @definition[0] = x1
+        @definition[1] = y1
+        @definition[2] = x2
+        @definition[3] = y2
 
   # Draw a triangle on the whiteboard
   # @param  {number} x1 the x value of the top left corner
