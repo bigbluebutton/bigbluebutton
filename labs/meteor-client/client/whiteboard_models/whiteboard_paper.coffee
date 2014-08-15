@@ -4,7 +4,6 @@ class @WhiteboardPaperModel
 
   # Container must be a DOM element
   constructor: (@container) ->
-    # console.log "paper in WhiteboardPaperModel =" + @container
     # a WhiteboardCursorModel
     @cursor = null
 
@@ -56,7 +55,6 @@ class @WhiteboardPaperModel
   # are not yet created in the page.
   create: ->
     # paper is embedded within the div#slide of the page.
-    console.log ("@container=" + @container)
     @raphaelObj ?= ScaleRaphael(@container, "900", "500")
     @raphaelObj.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
 
@@ -843,9 +841,10 @@ class @WhiteboardPaperModel
     presentationId = currentPresentation?.presentation?.id
     currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
 
-    imageWidth = boardWidth * (currentSlide.slide.width_ratio/100)
-    imageHeight = boardHeight * (currentSlide.slide.height_ratio/100)
-    
+    # TODO currentSlide undefined in some cases - will check later why
+    imageWidth = boardWidth * (currentSlide?.slide.width_ratio/100) or 500
+    imageHeight = boardHeight * (currentSlide?.slide.height_ratio/100) or 500
+
     # console.log "xBegin: #{xBegin}"
     # console.log "xEnd: #{xEnd}"
     # console.log "yBegin: #{yBegin}"
