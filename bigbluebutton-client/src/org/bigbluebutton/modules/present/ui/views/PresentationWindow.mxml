@@ -479,11 +479,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
       
 			private function clearPresentation(e:UploadEvent):void{
-				slideView.visible = false;		
+				slideView.visible = false;
 				slideView.slideLoader.source = null; 
 				slideView.setSelectedSlide(0);
 				btnSlideNum.label = "";
-				displaySlideNavigationControls(false);
+				
+				backButton.visible = false;
+				forwardButton.visible = false;
+				zoomSlider.visible = false;
+				btnSlideNum.visible = false;
+				btnFitToWidth.visible = false;
+				btnFitToPage.visible = false;
 
 				// Change the title of the window.
 				currentPresentation = ResourceUtil.getInstance().getString('bbb.presentation.title');				
