@@ -79,15 +79,19 @@ public class SharedNotesApplication {
 		roomsManager = r;
 	}
 
-    public void addNote(String room) {
-		roomsManager.addNote(room);
-	}
-
 	public void patchDocument(String room, String noteId, String userId, String patch, Integer beginIndex, Integer endIndex) {
 		roomsManager.patchDocument(room, noteId, userId, patch, beginIndex, endIndex);
 	}
 
 	public Map<String,String> currentDocument(String roomName, String userid) {
 		return roomsManager.currentDocument(roomName, userid);
+	}
+
+	public void createAdditionalNotes(String room) {
+		roomsManager.createAdditionalNotes(room);
+	}
+
+	public void destroyAdditionalNotes(String room, String notesId) {
+		roomsManager.destroyAdditionalNotes(room, notesId);
 	}
 }

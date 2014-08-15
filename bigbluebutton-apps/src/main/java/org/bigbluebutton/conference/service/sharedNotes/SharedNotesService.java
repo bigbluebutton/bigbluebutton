@@ -42,9 +42,14 @@ public class SharedNotesService {
 		application.patchDocument(roomName, noteId,userId, patch, beginIndex, endIndex);
 	}
 
-	public void addNote() {
+	public void createAdditionalNotes() {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.addNote(roomName);
+		application.createAdditionalNotes(roomName);
+	}
+
+	public void destroyAdditionalNotes(String notesId) {
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		application.destroyAdditionalNotes(roomName, notesId);
 	}
 
 	public void setSharedNotesApplication(SharedNotesApplication a) {

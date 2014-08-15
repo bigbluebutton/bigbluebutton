@@ -28,8 +28,6 @@ package org.bigbluebutton.modules.sharednotes.views.components {
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
 	import flash.net.FileReference;
-	import flexlib.mdi.containers.MDICanvas;
-	import mx.controls.Alert;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	import flash.geom.*;
 	import flash.text.*;
@@ -42,7 +40,6 @@ package org.bigbluebutton.modules.sharednotes.views.components {
 	public class PatchableTextArea extends TextArea {
 		private var _patch : String = "";
 		private var _patchChanged : Boolean = false;
-		private var _canvas:MDICanvas = null;
 		private var lastBegin:int = 0;
 		private var lastEnd:int = 0;
 		
@@ -63,10 +60,6 @@ package org.bigbluebutton.modules.sharednotes.views.components {
 		{			
 			super.commitProperties();
 		}
-		
-		public function setCanvas(canvas:MDICanvas):void {
-			_canvas = canvas;
-		}	
 
 		public function get textFieldText():String {
 			return textField.text;
@@ -76,7 +69,7 @@ package org.bigbluebutton.modules.sharednotes.views.components {
 			var filename:String = title.replace(/\s+/g, '-').toLowerCase();
 			var _fileRef:FileReference = new FileReference();
 			_fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
-				Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK, _canvas);
+				dispatchEvent(new Event("SHARED_NOTES_SAVED"));
 			});
 
 			var cr:String = String.fromCharCode(13);
@@ -149,8 +142,8 @@ package org.bigbluebutton.modules.sharednotes.views.components {
 			if(results[0][0] == lastBegin && results[0][1] > lastEnd) {
 				var str1:String = this.text.substring(lastBegin,lastEnd);
 				var str2:String = results[1].substring(lastBegin,lastEnd);
-				LogUtil.debug("STRING 1: " + str1);
-				LogUtil.debug("STRING 2: " + str2);
+				trace("STRING 1: " + str1);
+				trace("STRING 2: " + str2);
 				
 				if(str1 != str2) {
 					lastEnd = results[0][1];

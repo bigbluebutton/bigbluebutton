@@ -98,20 +98,6 @@ public class SharedNotesRoom {
 		return documents;
 	}
 
-    public void addNote(){
-        String noteId = UUID.randomUUID().toString();
-        synchronized (syncObject) {	
-            documents.put(noteId, "");
-            for (Iterator<String> iter = clients.iterator(); iter.hasNext();) {
-                String userId = (String) iter.next();
-                for (Iterator<ISharedNotesRoomListener> iter2 = listeners.values().iterator(); iter2.hasNext();)             {
-                    ISharedNotesRoomListener listener = (ISharedNotesRoomListener) iter2.next();
-                    listener.initClientDocument(noteId, userId);
-                }
-            }
-        }
-    }
-
 	public boolean patchClient(String noteId, String userid, String patch, Integer beginIndex, Integer endIndex) {
 		synchronized (syncObject) {	
 			if(clients.contains(userid)) {	
@@ -142,8 +128,28 @@ public class SharedNotesRoom {
         }
 	}
 
-	public void patchDocument(String noteId, String userid, String patch, Integer beginIndex, Integer endIndex) {
+	public void patchDocument(String noteId, String userid, String patch, Integer beginIndex, Integer endIndex){
 		patchClient(noteId, userid, patch, beginIndex, endIndex);
+	}
+
+	public void createAdditionalNotes() {
+		String noteId = UUID.randomUUID().toString();
+        synchronized (syncObject) {	
+            documents.put(noteId, "");
+
+		for (Map.Entry<String, ISharedNotesRoomListener> entry : listeners.entrySet()) {
+			ISharedNotesRoomListener listener = entry.getValue();
+			listener.createAdditionalNotes(noteId);
+		}}
+	}
+
+	public void destroyAdditionalNotes(String notesId) {
+        synchronized (syncObject) {	
+            documents.remove(notesId);
+		for (Map.Entry<String, ISharedNotesRoomListener> entry : listeners.entrySet()) {
+			ISharedNotesRoomListener listener = entry.getValue();
+			listener.destroyAdditionalNotes(notesId);
+		}}
 	}
 }
 

@@ -21,73 +21,81 @@
 package org.bigbluebutton.modules.sharednotes.maps
 {
 	import com.asfusion.mate.events.Dispatcher;
-	
+
 	import org.bigbluebutton.common.events.ToolbarButtonEvent;
 	import org.bigbluebutton.core.BBB;
-	import org.bigbluebutton.modules.sharednotes.views.ToolbarButton;
 	import org.bigbluebutton.modules.sharednotes.views.SharedNotesWindow;
+	import org.bigbluebutton.modules.sharednotes.views.AdditionalSharedNotesWindow;
+	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.modules.sharednotes.SharedNotesOptions;
 	import org.bigbluebutton.modules.sharednotes.events.JoinSharedNotesEvent;
 	import org.bigbluebutton.modules.sharednotes.events.GetCurrentDocumentEvent;
+	import org.bigbluebutton.modules.sharednotes.events.CurrentDocumentEvent;
+	import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 	import org.bigbluebutton.common.LogUtil;
 	
 	public class SharedNotesEventMapDelegate {
-		private var sharedNotesButton:ToolbarButton = null;
+		public static const NAME:String = "SharedNotesController";
+
 		private var globalDispatcher:Dispatcher;
-		private var window:Array;
+
+		private var windows:Array = [];
+		private var window:SharedNotesWindow;
+
 		private var options:SharedNotesOptions = new SharedNotesOptions();
 		
 		public function SharedNotesEventMapDelegate() {
 			globalDispatcher = new Dispatcher();
-			
-			if(options.showButton) {
-				sharedNotesButton = new ToolbarButton();
-			} else {
-				if(options.autoStart) {
-					showWindow();
-					globalDispatcher.dispatchEvent(new JoinSharedNotesEvent());
-					globalDispatcher.dispatchEvent(new GetCurrentDocumentEvent());
-				}
-					
-			}
+		    window = new SharedNotesWindow();	
 		}
+        
+        public function addRemoteDocuments(e:CurrentDocumentEvent):void{
+            window.addRemoteDocument(e.document);
+            for(var id:String in e.document){
+                LogUtil.debug("NoteId:" + id +":"+e.document[id] + ":" + e.type);
+                if(id != window.noteId && !windows.hasOwnProperty(id)){
+                    createAdditionalNotes(id);
+                    windows[id].addRemoteDocument(e.document);
+                }
+            }
+        }
 
-		public function showWindow():void {
-			for (var i:String in window)
-                window[i].visible = true;
-		}
-
-		public function hideWindow():void {
-			for (var i:String in window)
-			    window[i].visible = false;
-		}
-
-		public function addWindow():void {
-            var noteId:String = "TEST";
-			var w:SharedNotesWindow = new SharedNotesWindow();
-            w.noteId = noteId;
+		public function addMainWindow():void {
 			var openEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-			openEvent.window = w;
+			openEvent.window = window;
+            window.visible=true;
 			globalDispatcher.dispatchEvent(openEvent);
 		}
-		
-		public function addToolbarButton():void {
-			LogUtil.debug("ADD BUTTON " + options.showButton);
-			if(options.showButton) {
-				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
-				event.button = sharedNotesButton;
-				globalDispatcher.dispatchEvent(event);	
+
+		public function createAdditionalNotes(notesId:String):void {
+			trace(NAME + ": creating additional notes " + notesId);
+
+			var newWindow:AdditionalSharedNotesWindow = new AdditionalSharedNotesWindow(notesId);
+			windows[notesId] = newWindow;
+            newWindow.visible=true;
+
+			var openEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+			openEvent.window = newWindow;
+			globalDispatcher.dispatchEvent(openEvent);
+		}
+
+		public function destroyAdditionalNotes(notesId:String):void {
+			trace(NAME + ": destroying additional notes, notesId: " + notesId);
+
+			var destroyWindow:AdditionalSharedNotesWindow = windows[notesId];
+			if (destroyWindow != null) {
+				trace(NAME + ": notes found, removing window");
+
+				var closeEvent:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
+				closeEvent.window = destroyWindow;
+				globalDispatcher.dispatchEvent(closeEvent);
+
+				trace(NAME + ": removing from windows list");
+				windows.splice(notesId, 1);
 			}
-			if(!options.autoStart)
-				window.hideWindow();
-	   	
+			   	
 		}
 		
-		public function removeToolbarButton():void {
-			var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.REMOVE);
-			event.button = sharedNotesButton;
-			globalDispatcher.dispatchEvent(event);
-		}
 	}
 }

@@ -32,16 +32,18 @@ package org.bigbluebutton.modules.sharednotes.managers
 	import flash.utils.Timer;
 	
 	import mx.controls.Alert;
+	import mx.utils.ObjectUtil;
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	import org.bigbluebutton.modules.sharednotes.events.CurrentDocumentEvent;
+	import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 	import org.bigbluebutton.modules.sharednotes.events.ReceivePatchEvent;
 	
 	public class SharedNotesConnectionManager
 	{
-		public static const NAME:String = "SharedNotesSharedObjectService";
+		public static const NAME:String = "SharedNotesService";
 		
 		private var _sharedNotesSO:SharedObject;
 		private var _connection:NetConnection;
@@ -57,22 +59,26 @@ package org.bigbluebutton.modules.sharednotes.managers
 			_connection = connection;
 			_dispatcher = new Dispatcher();
 		}
-						
+		
 		public function join(uri:String):void
 		{
 			_sharedNotesSO = SharedObject.getRemote("sharedNotesSO", uri, false);
 			_sharedNotesSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
 			_sharedNotesSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
-			_sharedNotesSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);	
+			_sharedNotesSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
 			_sharedNotesSO.client = this;
-			_sharedNotesSO.connect(_connection);					
+			_sharedNotesSO.connect(_connection);
 		}
 		
 		public function leave():void
 		{
-		    	if (_sharedNotesSO != null) {
-		    		_sharedNotesSO.close();
-		    	}
+			if (_sharedNotesSO != null) {
+				_sharedNotesSO.close();
+			}
+		}
+
+		private function get myUserId():String {
+			return UserManager.getInstance().getConference().getMyUserId();
 		}
 
 		private function netStatusHandler(event:NetStatusEvent):void
@@ -82,16 +88,16 @@ package org.bigbluebutton.modules.sharednotes.managers
 			switch ( statusCode ) 
 			{
 				case "NetConnection.Connect.Success":
-					LogUtil.debug("SUCESS");
+					trace(NAME + ": connected!");
 					break;
 				default:
-					LogUtil.debug("ERROR");
+					trace(NAME + ": unknown error while connecting");
 					break;
 			}
 			
 		}
 		
-		public function currentDocument(userid:String):void {
+		public function currentDocument():void {
 			var nc:NetConnection = _connection;
 			nc.call(
 				"sharedNotes.currentDocument",
@@ -102,25 +108,22 @@ package org.bigbluebutton.modules.sharednotes.managers
 						_dispatcher.dispatchEvent(currentDocumentEvent);
 					},
 					function(status:Object):void {
-						LogUtil.error("SharedNotesSharedObjectService:currentDocument - An error occurred"); 
+						trace(NAME + ":currentDocument - An error occurred"); 
 						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
+							trace(x + " : " + status[x]); 
 						} 
 					}
 				),
-				userid
+				myUserId
 			);
 		}
 
-		
-		
 		private function asyncErrorHandler(event:AsyncErrorEvent):void {
-			LogUtil.debug("SharedNotesService: sharedNotesSO asynchronous error (" + event + ")");
+			trace(NAME + ": sharedNotesSO asynchronous error (" + event + ")");
 		}
 		
 		private function sharedObjectSyncHandler(event:SyncEvent):void {
-			LogUtil.debug("SharedNotesService: sharedNotesSO connection established");
-			
+			trace(NAME + ": sharedNotesSO connection established");
 		}
 
 		public function patchDocument(noteId:String, userid:String, patch:String, beginIndex:Number, endIndex:Number):void {
@@ -128,23 +131,49 @@ package org.bigbluebutton.modules.sharednotes.managers
 			nc.call("sharedNotes.patchDocument", null, noteId, userid, patch, beginIndex, endIndex);
 		}		
 
-        public function addNote():void{
-            var nc:NetConnection = _connection;
-			nc.call("sharedNotes.addNote", null);
 
-        }
+	
+		private var debugResponder:Responder = new Responder(
+				function(result:Object):void {
+					trace("Success!");
+					if (result != null) {
+						trace(ObjectUtil.toString(result));
+					}
+				},
+				function(status:Object):void {
+					trace("An error occurred:");
+					trace(ObjectUtil.toString(status));
+				}
+			);
 
-        public function initClientDocumentCallBack(noteId:String, userid:String):void{
-            
-			if(UserManager.getInstance().getConference().getMyUserId() == userid) {
-			    LogUtil.debug("NoteId: " + noteId + " userId " + userid);
-            }
-        }
+		public function createAdditionalNotes():void {
+			trace(NAME + ": sending request to create additional notes");
+			_connection.call("sharedNotes.createAdditionalNotes", debugResponder);
+		}
+
+		public function createAdditionalNotesCallback(notesId:String):void {
+			trace(NAME + ": received callback for createAdditionalNotes, notesId " + notesId);
+			var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REPLY_EVENT);
+			e.payload.notesId = notesId;
+			_dispatcher.dispatchEvent(e);
+		}
+
+		public function destroyAdditionalNotes(notesId:String):void {
+			trace(NAME + ": sending request to destroy additional notes " + notesId);
+			_connection.call("sharedNotes.destroyAdditionalNotes", debugResponder, notesId);
+		}
+
+		public function destroyAdditionalNotesCallback(notesId:String):void {
+			trace(NAME + ": received callback for destroyAdditionalNotes, notesId " + notesId);
+			var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.DESTROY_ADDITIONAL_NOTES_REPLY_EVENT);
+			e.payload.notesId = notesId;
+			_dispatcher.dispatchEvent(e);
+		}
 
 		public function remoteModificationsCallBack(noteId:String, userid:String, patches:String, beginIndex:Number, endIndex:Number):void {
 
-			LogUtil.debug(UserManager.getInstance().getConference().getMyUserId() + " NoteId: " + noteId + " userId " + userid + "::" + patches);
-			if(UserManager.getInstance().getConference().getMyUserId() == userid) {
+			LogUtil.debug(myUserId + " NoteId: " + noteId + " userId " + userid + "::" + patches);
+			if(myUserId == userid) {
 				var receivePatchEvent:ReceivePatchEvent = new ReceivePatchEvent();
 				receivePatchEvent.noteId = noteId;
 				receivePatchEvent.patch = patches;

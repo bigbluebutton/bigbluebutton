@@ -29,8 +29,10 @@
 			import org.bigbluebutton.modules.sharednotes.managers.SharedNotesManager;
 			import org.bigbluebutton.modules.sharednotes.events.ToolbarButtonWindowEvent;
 			import org.bigbluebutton.modules.sharednotes.events.GetCurrentDocumentEvent;
+			import org.bigbluebutton.modules.sharednotes.events.CurrentDocumentEvent;
 			import org.bigbluebutton.modules.sharednotes.events.SendPatchEvent;
 			import org.bigbluebutton.modules.sharednotes.events.JoinSharedNotesEvent;
+			import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 			import mx.events.FlexEvent;
 
 		]]>
@@ -49,8 +51,7 @@
 	
 	<EventHandlers type="{StartSharedNotesModuleEvent.START_SHAREDNOTES_MODULE_EVENT}">        
 		<MethodInvoker generator="{SharedNotesManager}" method="setModuleAttributes" arguments="{event.attributes}" />
-		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="addToolbarButton"/>
-		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="addWindow" />
+		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="addMainWindow"/>
 		<MethodInvoker generator="{SharedNotesManager}" method="getCurrentDocument"/>
    	</EventHandlers>
     
@@ -70,13 +71,28 @@
 	<EventHandlers type="{GetCurrentDocumentEvent.GET_CURRENT_DOCUMENT}">       
     		<MethodInvoker generator="{SharedNotesManager}" method="getCurrentDocument"/> 
 	</EventHandlers>
+    
+    <EventHandlers type="{CurrentDocumentEvent.CURRENT_DOCUMENT}">       
+    		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="addRemoteDocuments" arguments="{event}"/> 
+	</EventHandlers>
 
 	<EventHandlers type="{SendPatchEvent.SEND_PATCH_EVENT}">       
     		<MethodInvoker generator="{SharedNotesManager}" method="patchDocument" arguments="{event}"/> 
 	</EventHandlers>
 
-	<EventHandlers type="{JoinSharedNotesEvent.JOIN_SHARED_NOTES_EVENT}">       
-    		<MethodInvoker generator="{SharedNotesManager}" method="joinSharedNotes"/> 
-	</EventHandlers>	
+	<EventHandlers type="{SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REQUEST_EVENT}">
+		<MethodInvoker generator="{SharedNotesManager}" method="createAdditionalNotes" arguments="{event}"/>
+	</EventHandlers>
 
+	<EventHandlers type="{SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REPLY_EVENT}">
+		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="createAdditionalNotes" arguments="{event.payload.notesId}"/>
+	</EventHandlers>
+
+	<EventHandlers type="{SharedNotesEvent.	DESTROY_ADDITIONAL_NOTES_REQUEST_EVENT}">
+		<MethodInvoker generator="{SharedNotesManager}" method="destroyAdditionalNotes" arguments="{event.payload.notesId}"/>
+	</EventHandlers>
+
+	<EventHandlers type="{SharedNotesEvent.DESTROY_ADDITIONAL_NOTES_REPLY_EVENT}">
+		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="destroyAdditionalNotes" arguments="{event.payload.notesId}"/>
+	</EventHandlers>
 </EventMap>
