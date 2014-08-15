@@ -54,50 +54,43 @@ Template.chatbar.helpers
 		after = before = greeting = []
 
 		if chattingWith is 'PUBLIC_CHAT' # find all public messages
-		    before = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$lt: String(getInSession("joinedAt"))}}).fetch()
-		    after = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$gt: String(getInSession("joinedAt"))}}).fetch()
+			before = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$lt: String(getInSession("joinedAt"))}}).fetch()
+			after = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$gt: String(getInSession("joinedAt"))}}).fetch()
 
-		    greeting = [
-		      'class': 'chatGreeting',
-		      'message':
-		        'message': Template.chatbar.getChatGreeting(),
-		        'from_username': 'System',
-		        'from_time': getTime()
-		    ]
+			greeting = [
+				'class': 'chatGreeting',
+				'message':
+					'message': Template.chatbar.getChatGreeting(),
+					'from_username': 'System',
+					'from_time': getTime()
+			]
 		else
-		  me = getInSession("userId")
-		  after = Meteor.Chat.find({ # find all messages between current user and recipient
-		    'message.chat_type': 'PRIVATE_CHAT',
-		    $or: [{'message.from_userid': me, 'message.to_userid': friend},{'message.from_userid': friend, 'message.to_userid': me}]
-		  }).fetch()   
+			me = getInSession("userId")
+			after = Meteor.Chat.find({ # find all messages between current user and recipient
+			'message.chat_type': 'PRIVATE_CHAT',
+			$or: [{'message.from_userid': me, 'message.to_userid': friend},{'message.from_userid': friend, 'message.to_userid': me}]
+			}).fetch()   
 
 		messages = (before.concat greeting).concat after
-		###
-		# Now after all messages + the greeting have been inserted into our collection, what we have to do is go through all messages
-		# and modify them to join all sequential messages by users together so each entries will be chat messages by a user in the same time frame
-		# we can use a time frame, so join messages together that are within 5 minutes of eachother, for example
-		###
 
-  # gets messages and groups them by username (username doesn't repeat in successive messages)
-  # timestamps in messages from the same user doesn't repeat
-  getCombinedMessagesForChat: () ->
-    msgs = Template.chatbar.getFormattedMessagesForChat()
-    prev_time = msgs[0].message.from_time
-    prev_userid = msgs[0].message.from_userid
-    for i in [0...msgs.length]
-      if i != 0
-        if prev_userid == msgs[i].message.from_userid
-          msgs[i].message.from_username = ''
-          if Template.message.toClockTime(msgs[i].message.from_time) == Template.message.toClockTime(prev_time)
-            prev_time = msgs[i].message.from_time
-            msgs[i].message.from_time = null
-          else
-            prev_time = msgs[i].message.from_time
-        else
-          prev_time = msgs[i].message.from_time
-        prev_userid = msgs[i].message.from_userid
-    msgs
-    
+	getCombinedMessagesForChat: ->
+		msgs = Template.chatbar.getFormattedMessagesForChat()
+		prev_time = msgs[0].message.from_time
+		prev_userid = msgs[0].message.from_userid
+		for i in [0...msgs.length]
+			if i != 0
+				if prev_userid == msgs[i].message.from_userid
+					msgs[i].message.from_username = ''
+					if Template.message.toClockTime(msgs[i].message.from_time) == Template.message.toClockTime(prev_time)
+						prev_time = msgs[i].message.from_time
+						msgs[i].message.from_time = null
+					else
+						prev_time = msgs[i].message.from_time
+				else
+					prev_time = msgs[i].message.from_time
+			prev_userid = msgs[i].message.from_userid
+		msgs
+  
 Template.message.rendered = -> # When a message has been added and finished rendering, scroll to the bottom of the chat
   $('#chatbody').scrollTop($('#chatbody')[0].scrollHeight)
 
