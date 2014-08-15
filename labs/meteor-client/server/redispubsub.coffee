@@ -262,6 +262,16 @@ class Meteor.RedisPubSub
         # set the new presenter
         Meteor.Users.update({"user.userid": newPresenterId, meetingId: meetingId},{$set: {"user.presenter": true}})
 
+    if message.header?.name is "user_raised_hand_message"
+      userId = message.payload?.userid
+      # update the user
+      Meteor.Users.update({"user.userid": userId, meetingId: meetingId},{$set: {"user.raise_hand": true}}) #not sure why but message.payload?.raise_hand is awlays false
+
+    if message.header?.name is "user_lowered_hand_message"
+      userId = message.payload?.userid
+      # update the user
+      Meteor.Users.update({"user.userid": userId, meetingId: meetingId},{$set: {"user.raise_hand": false}}) #not sure why but message.payload?.raise_hand is awlays false
+
     if message.header?.name in ["meeting_ended_message", "meeting_destroyed_event",
       "end_and_kick_all_message", "disconnect_all_users_message"]
       if Meteor.Meetings.findOne({meetingId: meetingId})?
