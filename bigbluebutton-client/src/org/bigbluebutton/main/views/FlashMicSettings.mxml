@@ -169,7 +169,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
       private function setupForMicLoopbackTest():void {        
         setCurrentState(FLASH_MIC_SETTING_STATE);
-        
+		
         var tempArr:Array = new Array();
         tempArr.push("0%", ResourceUtil.getInstance().getString('bbb.micSettings.micRecordVolume.label'),"100%");
         micRecordVolume.labels = tempArr;		        
@@ -305,6 +305,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function noButtonClicked():void {
         trace(LOG + "Echo test failed.");
         dispatchEvent(new FlashEchoTestNoAudioEvent());
+        testMicrophoneLoopback();
         setupForMicLoopbackTest();
       }
             
