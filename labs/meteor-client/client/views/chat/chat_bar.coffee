@@ -79,14 +79,16 @@ Template.chatbar.helpers
     ###
 
   # gets messages and groups them by username (username doesn't repeat in successive messages)
+  # timestamps in messages from the same user doesn't repeat
   getCombinedMessagesForChat: () ->
     msgs = Template.chatbar.getFormattedMessagesForChat()
-    prev_time = null
+    mirror = Template.chatbar.getFormattedMessagesForChat()
     for i in [0...msgs.length]
       if i != 0
-        if prev_id == msgs[i].message.from_userid
+        if msgs[i - 1].message.from_userid == msgs[i].message.from_userid
           msgs[i].message.from_username = ''
-      prev_id = msgs[i].message.from_userid
+          if Template.message.toClockTime(mirror[i].message.from_time) == Template.message.toClockTime(mirror[i - 1].message.from_time)
+            msgs[i].message.from_time = null
     msgs
     
 Template.message.rendered = -> # When a message has been added and finished rendering, scroll to the bottom of the chat
@@ -147,6 +149,8 @@ Template.tabButtons.helpers
 
 Template.message.helpers
   toClockTime: (epochTime) ->
+    if epochTime == null
+      return ""
     local = new Date()
     offset = local.getTimezoneOffset()
     epochTime = epochTime - offset * 60000 # 1 min = 60 s = 60,000 ms
