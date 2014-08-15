@@ -4,7 +4,6 @@ class @WhiteboardPaperModel
 
   # Container must be a DOM element
   constructor: (@container) ->
-    # console.log "paper in WhiteboardPaperModel =" + @container
     # a WhiteboardCursorModel
     @cursor = null
 
@@ -56,8 +55,7 @@ class @WhiteboardPaperModel
   # are not yet created in the page.
   create: ->
     # paper is embedded within the div#slide of the page.
-    console.log ("@container=" + @container)
-    @raphaelObj ?= ScaleRaphael(@container, "500", "500")
+    @raphaelObj ?= ScaleRaphael(@container, "900", "500")
     @raphaelObj.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
 
     @cursor = new WhiteboardCursorModel(@raphaelObj)
@@ -318,12 +316,14 @@ class @WhiteboardPaperModel
     @currentShapesDefinitions = shapes
     @currentShapes = @raphaelObj.set()
     for shape in shapes
-      data = if _.isString(shape.data) then JSON.parse(shape.data) else shape.data
-      tool = @_createTool(shape.shape)
+      shapeType = shape?.shape?.shape_type
+      dataBlock = shape?.shape?.shape
+      data = if _.isString(dataBlock) then JSON.parse(dataBlock) else dataBlock
+      tool = @_createTool(shapeType)
       if tool?
         @currentShapes.push tool.draw.apply(tool, data)
       else
-        ;#console.log "shape not recognized at drawListOfShapes", shape
+        console.log "shape not recognized at drawListOfShapes", shape
 
     # make sure the cursor is still on top
     @cursor.toFront()
@@ -345,7 +345,6 @@ class @WhiteboardPaperModel
   # Updated a shape `shape` with the data in `data`.
   # TODO: check if the objects exist before calling update, if they don't they should be created
   updateShape: (shape, data) ->
-    # alert "updating a " + shape
     switch shape
       when "line"
         @currentLine.update(data)
@@ -358,11 +357,10 @@ class @WhiteboardPaperModel
       when "text"
         @currentText.update.apply(@currentText, data)
       else
-        ;#console.log "shape not recognized at updateShape", shape
+        console.log "shape not recognized at updateShape", shape
 
   # Make a shape `shape` with the data in `data`.
   makeShape: (shape, data) ->
-    # alert "making a " + shape
     tool = null
     switch shape
       when "path", "line"
@@ -386,10 +384,9 @@ class @WhiteboardPaperModel
         toolModel = @currentText
         tool = @currentText.make.apply(@currentText, data)
       else
-        ;#console.log "shape not recognized at makeShape", shape
+        console.log "shape not recognized at makeShape", shape
     if tool?
       @currentShapes ?= @raphaelObj.set()
-      console.log "currentShapes:" + @currentShapes
       @currentShapes.push(tool)
       @currentShapesDefinitions.push(toolModel.getDefinition())
 
@@ -822,10 +819,6 @@ class @WhiteboardPaperModel
   _displayPage: (data) ->
     @removeAllImagesFromPaper()
 
-    #page = data?.payload?.currentPage
-    #pngSlide = "http://www.tux.org/pub/sites/ftp.gnome.org/GNOME/teams/art.gnome.org/backgrounds/ABSTRACT-BlueRidge_1280x1024.png"
-    #@addImageToPaper(page.png_uri, 400, 400) # TODO the dimensions should be modified
-
     # get dimensions for available whiteboard space
     # get where to start from the left -> either the end of the user's list or the left edge of the screen
     if getInSession "display_usersList" then xBegin = $("#userListContainer").width()
@@ -848,9 +841,10 @@ class @WhiteboardPaperModel
     presentationId = currentPresentation?.presentation?.id
     currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
 
-    imageWidth = boardWidth * (currentSlide.slide.width_ratio/100)
-    imageHeight = boardHeight * (currentSlide.slide.height_ratio/100)
-    
+    # TODO currentSlide undefined in some cases - will check later why
+    imageWidth = boardWidth * (currentSlide?.slide.width_ratio/100) or 500
+    imageHeight = boardHeight * (currentSlide?.slide.height_ratio/100) or 500
+
     # console.log "xBegin: #{xBegin}"
     # console.log "xEnd: #{xEnd}"
     # console.log "yBegin: #{yBegin}"

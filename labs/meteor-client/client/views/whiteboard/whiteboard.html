@@ -2,12 +2,13 @@
     <div id="{{id}}" {{visibility name}} class="component">
         <h3 class="title gradientBar"><span class="glyphicon glyphicon-pencil"></span> {{title}}</h3>
         <div id="whiteboard-contents">
+        	{{#if getInSession "display_whiteboard"}}
+        		{{#each getCurrentSlide}}
+				{{> slide}}
+			{{/each}}
             <div id="whiteboard-paper"  style="">
-                <!-- <p>{{png}}</p> -->
-                {{#each getCurrentSlide}}
-                    {{> slide}}
-                {{/each}}
             </div>
+            {{/if}}
         </div>
     </div>
 </template>

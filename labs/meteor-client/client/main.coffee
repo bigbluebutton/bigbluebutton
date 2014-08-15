@@ -75,4 +75,3 @@ Meteor.startup ->
 		{isActive:false, name:"Options", class: "optionsChatTab"}
 	]
 
-	@whiteboardPaperModel = new WhiteboardPaperModel('whiteboard-paper')
