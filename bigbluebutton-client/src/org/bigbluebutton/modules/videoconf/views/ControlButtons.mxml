@@ -227,13 +227,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </mx:Script>
   <mx:Button id="muteUnmuteBtn" visible="false" click="onMuteUnmuteClicked(event)"
              width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}" styleName="videoUnmutedButtonStyle"/>
-  <mx:Spacer width="2"/>
   <mx:Button id="switchPresenter" visible="false" click="onSwitchPresenterClicked(event)"
-             width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}" styleName="videoSwitchPresenterButtonStyle"/>
-  <mx:Spacer width="2"/>
+             width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}" styleName="videoSwitchPresenterButtonStyle" paddingTop="2"/>
   <mx:Button id="ejectUserBtn" visible="false" click="onKickUserClicked(event)"
-             width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}" styleName="videoEjectUserButtonStyle"/>
-  <mx:Spacer width="2"/>
+             width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}" styleName="videoEjectUserButtonStyle" paddingTop="2"/>
   <mx:Button id="privateChatBtn" click="onPrivateChatClicked(event)"
-             width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}" styleName="videoPrivateChatButtonStyle"/>
+             width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}" styleName="videoPrivateChatButtonStyle" paddingTop="2"/>
 </mx:HBox>

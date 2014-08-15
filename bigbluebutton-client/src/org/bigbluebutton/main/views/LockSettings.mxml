@@ -146,9 +146,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </mx:HBox>		
 		<mx:HRule width="100%"/>
 		
-		<mx:Spacer height="20"/>
-		
-		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="18">
+		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="18" paddingTop="20">
 			<mx:Button id="saveBtn" label="{ResourceUtil.getInstance().getString('bbb.lockSettings.save')}" 
 					   click="onSaveClicked()" tabIndex="{baseIndex+8}"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.lockSettings.save.toolTip')}"/>
