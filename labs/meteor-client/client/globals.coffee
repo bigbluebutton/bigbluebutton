@@ -161,7 +161,7 @@ Meteor.methods
 		# create voice call params
 		username = "#{getInSession("userId")}-bbbID-#{getUsersName()}"
 		# voiceBridge = "70827"
-		voiceBridge = "70828"
+		voiceBridge = "70827"
 		server = null
 		joinCallback = (message) -> 
 			console.log JSON.stringify message
@@ -174,9 +174,6 @@ Meteor.methods
 
 @toggleWhiteBoard = ->
   setInSession "display_whiteboard", !getInSession "display_whiteboard"
-
-@userKick = (meeting, user) ->
-  Meteor.call("userKick", meeting, user)
 
 Handlebars.registerHelper "getCurrentSlide", ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
