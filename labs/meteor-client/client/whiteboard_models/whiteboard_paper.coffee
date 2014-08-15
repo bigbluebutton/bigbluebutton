@@ -318,12 +318,14 @@ class @WhiteboardPaperModel
     @currentShapesDefinitions = shapes
     @currentShapes = @raphaelObj.set()
     for shape in shapes
-      data = if _.isString(shape.data) then JSON.parse(shape.data) else shape.data
-      tool = @_createTool(shape.shape)
+      shapeType = shape?.shape?.shape_type
+      dataBlock = shape?.shape?.shape
+      data = if _.isString(dataBlock) then JSON.parse(dataBlock) else dataBlock
+      tool = @_createTool(shapeType)
       if tool?
         @currentShapes.push tool.draw.apply(tool, data)
       else
-        ;#console.log "shape not recognized at drawListOfShapes", shape
+        console.log "shape not recognized at drawListOfShapes", shape
 
     # make sure the cursor is still on top
     @cursor.toFront()
@@ -345,7 +347,6 @@ class @WhiteboardPaperModel
   # Updated a shape `shape` with the data in `data`.
   # TODO: check if the objects exist before calling update, if they don't they should be created
   updateShape: (shape, data) ->
-    # alert "updating a " + shape
     switch shape
       when "line"
         @currentLine.update(data)
@@ -358,11 +359,10 @@ class @WhiteboardPaperModel
       when "text"
         @currentText.update.apply(@currentText, data)
       else
-        ;#console.log "shape not recognized at updateShape", shape
+        console.log "shape not recognized at updateShape", shape
 
   # Make a shape `shape` with the data in `data`.
   makeShape: (shape, data) ->
-    # alert "making a " + shape
     tool = null
     switch shape
       when "path", "line"
@@ -386,10 +386,9 @@ class @WhiteboardPaperModel
         toolModel = @currentText
         tool = @currentText.make.apply(@currentText, data)
       else
-        ;#console.log "shape not recognized at makeShape", shape
+        console.log "shape not recognized at makeShape", shape
     if tool?
       @currentShapes ?= @raphaelObj.set()
-      console.log "currentShapes:" + @currentShapes
       @currentShapes.push(tool)
       @currentShapesDefinitions.push(toolModel.getDefinition())
 

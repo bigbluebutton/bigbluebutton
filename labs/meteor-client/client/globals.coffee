@@ -147,7 +147,7 @@ Handlebars.registerHelper "getShapesForSlide", ->
   presentationId = currentPresentation?.presentation?.id
   currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
   # try to reuse the lines above
-  Meteor.Shapes.find({whiteboardId: currentSlide?.slide?.id}).fetch()
+  Meteor.Shapes.find({whiteboardId: currentSlide?.slide?.id})
 
 Handlebars.registerHelper "pointerLocation", ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
