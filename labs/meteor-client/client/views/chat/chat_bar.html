@@ -6,7 +6,7 @@
 			{{#if getInSession "display_chatPane"}}
 				<div id="chatbody">
 					<ul class="chat">					
-						{{#each getFormattedMessagesForChat}}
+						{{#each getCombinedMessagesForChat}}
 							<li>{{> message}}</li>
 						{{/each}}
 					</ul>

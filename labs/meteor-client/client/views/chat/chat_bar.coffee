@@ -78,6 +78,17 @@ Template.chatbar.helpers
     # we can use a time frame, so join messages together that are within 5 minutes of eachother, for example
     ###
 
+  # gets messages and groups them by username (username doesn't repeat in successive messages)
+  getCombinedMessagesForChat: () ->
+    msgs = Template.chatbar.getFormattedMessagesForChat()
+    prev_time = null
+    for i in [0...msgs.length]
+      if i != 0
+        if prev_id == msgs[i].message.from_userid
+          msgs[i].message.from_username = ''
+      prev_id = msgs[i].message.from_userid
+    msgs
+    
 Template.message.rendered = -> # When a message has been added and finished rendering, scroll to the bottom of the chat
   $('#chatbody').scrollTop($('#chatbody')[0].scrollHeight)
 
