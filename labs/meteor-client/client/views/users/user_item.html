@@ -18,21 +18,21 @@
 </template>
 
 <template name="displayStandardUserControls">
-  <td>{{#if user.presenter}}<span class="userListSettingIcon glyphicon glyphicon-picture"></span>{{/if}}</td>
+	<td>{{#if user.presenter}}<span class="userListSettingIcon glyphicon glyphicon-picture"></span>{{/if}}</td>
 </template>
 
 <template name="usernameEntry"> <!-- A template now because more information be added/styled -->
-  <td><span>
-    {{#if isCurrentUser userId}}
-      <strong>{{user.name}} (you)</strong>
-    {{else}}
-      {{user.name}}
-    {{/if}}
-  </span></td>
+	<td><p class="userNameEntry">
+		{{#if isCurrentUser userId}}
+			<strong>{{user.name}} (you)</strong>
+		{{else}}
+			{{user.name}}
+		{{/if}}
+	</p></td>
 </template>
 
 <template name="userItem">
-  {{> usernameEntry}}
-  {{> displayOwnControls}}
-  {{> displayStandardUserControls}}
+	{{> usernameEntry}}
+	{{> displayOwnControls}}
+	{{> displayStandardUserControls}}
 </template>

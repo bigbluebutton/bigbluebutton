@@ -2,8 +2,7 @@
 	<div id="{{id}}" {{visibility name}} class="component">
 		<div id="chatbar-contents">
 			<h3 class="title gradientBar"><span class="glyphicon glyphicon-comment"></span> {{title}}</h3>
-			{{>tabButtons}}
-			
+			<div style="overflow-y: scroll; height:40px">{{>tabButtons}}</div>
 			{{#if getInSession "display_chatPane"}}
 				<div id="chatbody">
 					<ul class="chat">					
@@ -33,12 +32,12 @@
 <template name="message">
 	<strong>{{message.from_username}}</strong> 
 	<small class="pull-right">{{message.from_time}} <span class="glyphicon glyphicon-time"></span></small>
-	<div>{{message.message}}</div>
+	<div>{{{message.message}}}</div> <!-- Messages must be safely filtered and stripped -->
 </template>
 
 <!-- Displays the list of options available -->
 <template name="optionsBar">
-	<p>Select a person to chat with privately</p>
+	<p>&nbsp;&nbsp;Select a person to chat with privately</p>
 	<div class="private-chat-user-box">
 		{{#Layout template="scrollWindow" id="privateChatUserScrollWindow"}}
 			{{#contentFor region="scrollContents"}}
@@ -61,8 +60,8 @@
 <!-- Display buttons on the chat tab, public, options, and all the private chat tabs -->
 <template name="tabButtons">
 	<ul id="tabButtonContainer" class="nav nav-tabs">
-  	{{#each getChatbarTabs}}
-  		{{{makeTabButton}}}
-  	{{/each}}
-  	</ul>
+		{{#each getChatbarTabs}}
+			{{{makeTabButton}}}
+		{{/each}}
+	</ul>
 </template>

@@ -33,9 +33,12 @@ Template.header.events
 	"click .whiteboardIcon": (event) ->
 		toggleWhiteBoard()
 
+Template.recordingStatus.rendered = ->
+	$('button[rel=tooltip]').tooltip()
+
 Template.makeButton.rendered = ->
-   $('button[rel=tooltip]').tooltip()
-		
+	$('button[rel=tooltip]').tooltip()
+
 # Gets called last in main template, just an easy place to print stuff out
 Handlebars.registerHelper "doFinalStuff", ->
     console.log "-----Doing Final Stuff-----"
@@ -63,6 +66,8 @@ Meteor.startup ->
 	SessionAmplify.set 'inChatWith', "PUBLIC_CHAT"
 	SessionAmplify.set "joinedAt", getTime()
 	SessionAmplify.set "isSharingAudio", false
+	SessionAmplify.set "inChatWith", 'PUBLIC_CHAT'
+	SessionAmplify.set "intreteChatWith", 'ttttttttt'
 
 	@myTabs = new WatchValue()
 	@myTabs.updateValue [

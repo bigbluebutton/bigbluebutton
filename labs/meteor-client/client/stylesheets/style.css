@@ -22,6 +22,7 @@ body {
 .lowerHand{}
 .mainContainer{
     height:100%;
+    padding-top:60px;
 }
 .myFooter{
     color:black;
@@ -77,7 +78,18 @@ body {
     padding-left:0.5%;
 }
 .raiseHand {}
-
+.recordingStatusTrue{
+    color:green;
+    background:none!important; 
+    border:none; 
+    padding:0!important;
+}
+.recordingStatusFalse{
+    color:maroon;
+    background:none!important; 
+    border:none; 
+    padding:0!important;
+}
 .ScrollableWindow {
     height: 100%;
     overflow-y: scroll;
@@ -85,6 +97,9 @@ body {
 }
 .settingsIcon{}
 .signOutIcon{}
+.tab{
+    height:40px;
+}
 .title {    
     border-bottom: 1px solid #d7d7d7;
     color: #666;

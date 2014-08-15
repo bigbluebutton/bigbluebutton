@@ -1,4 +1,15 @@
 Meteor.methods
+  deletePrivateChatMessages: (user1, user2) ->
+    console.log "deleting chat conversation"
+    Meteor.Chat.remove({ # find all and remove private messages between the 2 users
+        'message.chat_type': 'PRIVATE_CHAT',
+        $or: [{'message.from_userid': user1, 'message.to_userid': user2},{'message.from_userid': user2, 'message.to_userid': user1}]
+    })
+    ###
+    # TODO: Messages are now wiped from Meteor server
+    # add code here to send request to redis to delete messages there as well or else all messages will be re populated
+    ###
+
   validateAuthToken: (meetingId, userId, authToken) ->
     Meteor.redisPubSub.sendValidateToken(meetingId, userId, authToken)
 
