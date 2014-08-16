@@ -158,7 +158,7 @@ package org.bigbluebutton.modules.users.services
     }
 
     public function muteAllUsers(mute:Boolean):void {
-      trace(LOG + "Sending muteAllUsersExceptPresenter. mute=[" + mute + "]");
+      trace(LOG + "Sending muteAllUsers. mute=[" + mute + "]");
       var message:Object = new Object();
       message["mute"] = mute;
     
