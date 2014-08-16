@@ -13,6 +13,7 @@ package org.bigbluebutton.modules.phone.managers
   
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.main.api.JSAPI;
+  import org.bigbluebutton.modules.phone.PhoneModel;
   import org.bigbluebutton.modules.phone.PhoneOptions;
   import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
   import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
@@ -23,24 +24,14 @@ package org.bigbluebutton.modules.phone.managers
   import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCEchoTestStartedEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
+  import org.bigbluebutton.modules.phone.models.Constants;
+  import org.bigbluebutton.modules.phone.models.WebRTCModel;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
   public class WebRTCCallManager
   {
     private static const LOG:String = "Phone::WebRTCCallManager - ";
     
-	private static const INITED:int = 0;
-	private static const DO_ECHO_TEST:int = 1;
-	private static const CALLING_INTO_ECHO_TEST:int = 2;
-	private static const IN_ECHO_TEST:int = 3;
-	private static const JOIN_VOICE_CONFERENCE:int = 4;
-	private static const CALLING_INTO_CONFERENCE:int = 5;
-	private static const IN_CONFERENCE:int = 6;
-	private static const STOP_ECHO_THEN_JOIN_CONF:int = 7;
-	private static const ECHO_TEST_FAILED:int = 8;
-	
-    private var state:int = INITED;
-	
     private var browserType:String = "unknown";
     private var browserVersion:int = 0;
     private var dispatcher:Dispatcher = new Dispatcher();
@@ -48,6 +39,8 @@ package org.bigbluebutton.modules.phone.managers
     
     private var usingWebRTC:Boolean = false;
     private var options:PhoneOptions;
+    
+    private var model:WebRTCModel = PhoneModel.getInstance().webRTCModel;
     
     public function WebRTCCallManager() {
       var browserInfo:Array = JSAPI.getInstance().getBrowserInfo();
@@ -73,7 +66,7 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     private function startWebRTCEchoTest():void {
-	  state = CALLING_INTO_ECHO_TEST;
+	    model.state = Constants.CALLING_INTO_ECHO_TEST;
       ExternalInterface.call("startWebRTCAudioTest");
     }
     
@@ -90,16 +83,15 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     public function handleWebRTCEchoTestStartedEvent():void {
-	    state = DO_ECHO_TEST;
+      model.state = Constants.DO_ECHO_TEST;
       dispatcher.dispatchEvent(new WebRTCEchoTestStartedEvent());
     }
     
     public function handleWebRTCEchoTestNoAudioEvent():void {
       trace(LOG + "handleWebRTCEchoTestNoAudioEvent");
-	    state = ECHO_TEST_FAILED;
+      model.state = Constants.ECHO_TEST_FAILED;
       endEchoTest();
       
-      //dispatcher.dispatchEvent(new WebRTCAskUserToChangeMicEvent(browserType));
       dispatcher.dispatchEvent(new UseFlashModeCommand());
     }
     
@@ -107,21 +99,21 @@ package org.bigbluebutton.modules.phone.managers
 	
     public function handleWebRTCEchoTestHasAudioEvent():void {
       trace(LOG + "handleWebRTCEchoTestHasAudioEvent");
-	    state = STOP_ECHO_THEN_JOIN_CONF;
+      model.state = Constants.STOP_ECHO_THEN_JOIN_CONF;
 	    endEchoTestJoinConference();
     }
     
     public function handleWebRTCCallStartedEvent():void {
 	    trace(LOG + "setting state to IN_CONFERENCE");
-	    state = IN_CONFERENCE;
+      model.state = Constants.IN_CONFERENCE;
     }
     
     public function handleWebRTCCallEndedEvent():void {
-	    state = INITED;
+      model.state = Constants.INITED;
     }
     
     private function joinVoiceConference():void {
-	    state = JOIN_VOICE_CONFERENCE;
+      model.state = Constants.JOIN_VOICE_CONFERENCE;
       ExternalInterface.call("joinWebRTCVoiceConference");      
     }
     
@@ -139,14 +131,14 @@ package org.bigbluebutton.modules.phone.managers
     
     public function handleLeaveVoiceConferenceCommand():void {
       if (!usingWebRTC) return;
-      state = INITED;
+      model.state = Constants.INITED;
       ExternalInterface.call("leaveWebRTCVoiceConference");
     }
     
 	  public function handleBecomeViewer():void {
 		  trace(LOG + "handleBecomeViewer received");
 		  if (options.presenterShareOnly) {
-			  if (!usingWebRTC || state != IN_CONFERENCE || UsersUtil.amIModerator()) return;
+			  if (!usingWebRTC || model.state != Constants.IN_CONFERENCE || UsersUtil.amIModerator()) return;
 			
 			  trace(LOG + "handleBecomeViewer leaving WebRTC and joining listen only stream");
 			  ExternalInterface.call("leaveWebRTCVoiceConference");
@@ -163,18 +155,18 @@ package org.bigbluebutton.modules.phone.managers
     }
 
     public function handleWebRTCEchoTestFailedEvent(reason:String):void {
-	  state = INITED;
+      model.state = Constants.INITED;
       endEchoTest();
 	  var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [reason]), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
     }
     
     public function handleWebRTCCallFailedEvent(reason:String):void {
-      state = INITED;
+      model.state = Constants.INITED;
       var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [reason]), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
     }
     
     public function handleWebRTCMediaFailedEvent():void {
-      state = INITED;
+      model.state = Constants.INITED;
       var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.mediamessage"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
     }
     

@@ -41,10 +41,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.BBB;
       import org.bigbluebutton.main.api.JSAPI;
       import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.modules.phone.PhoneModel;
       import org.bigbluebutton.modules.phone.PhoneOptions;
       import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
       import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
       import org.bigbluebutton.modules.phone.events.WebRTCEchoTestStartedEvent;
+      import org.bigbluebutton.modules.phone.models.Constants;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOG:String = "Phone::WebRTCEchoTest - ";
@@ -70,6 +72,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dotTimer = new Timer(200, 0);
 				dotTimer.addEventListener(TimerEvent.TIMER, dotAnimate);
 				dotTimer.start();
+        
+        var testState:String = PhoneModel.getInstance().webRTCModel.state;
+        if (testState == Constants.DO_ECHO_TEST) {
+          webRTCEchoTestStarted();
+        }
 			}
 			
 			private function dotAnimate(e:TimerEvent):void {
@@ -96,24 +103,36 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function handleWebRTCEchoTestStartedEvent(e:WebRTCEchoTestStartedEvent):void {
-				setCurrentState("started");
-				dotTimer.stop();
+        webRTCEchoTestStarted();
 			}
 			
+      private function webRTCEchoTestStarted():void {
+        setCurrentState("started");
+        dotTimer.stop();        
+      }
+      
 			private function handleWebRTCEchoTestEndedEvent(e:WebRTCEchoTestEvent):void {
-				setCurrentState("connecting");
-				lblConnectMessage.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.endedecho');
-				if (!dotTimer.running) dotTimer.start();
+        webRTCEchoTestEnded();
 			}
+      
+      private function webRTCEchoTestEnded():void {
+        setCurrentState("connecting");
+        lblConnectMessage.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.endedecho');
+        if (!dotTimer.running) dotTimer.start();        
+      }
 			
 			private function handleWebRTCCallConnectingEvent(e:WebRTCCallEvent):void {
 				setCurrentState("connecting");
 				lblConnectMessage.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.connectingtocall');
 				if (!dotTimer.running) dotTimer.start();
 			}
+      
+      private function webRTCCallStarted():void {
+        onCancelClicked();
+      }
 			
 			private function handleWebRTCCallStartedEvent(e:WebRTCCallEvent):void {
-				onCancelClicked();
+        webRTCCallStarted();
 			}
 			
 			private function onHelpButtonClicked():void {
