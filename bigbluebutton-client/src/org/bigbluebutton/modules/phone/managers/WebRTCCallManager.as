@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.phone.managers
   import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
   import org.bigbluebutton.modules.phone.events.WebRTCAskUserToChangeMicEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
+  import org.bigbluebutton.modules.phone.events.WebRTCEchoTestStartedEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -80,46 +81,47 @@ package org.bigbluebutton.modules.phone.managers
       ExternalInterface.call("stopWebRTCAudioTest");
     }
 	
-	private function endEchoTestJoinConference():void {
-		ExternalInterface.call("stopWebRTCAudioTestJoinConference");
-	}
+	  private function endEchoTestJoinConference():void {
+		  ExternalInterface.call("stopWebRTCAudioTestJoinConference");
+	  }
     
     private function hangup():void {
       ExternalInterface.call("stopWebRTCAudioTest");
     }
     
     public function handleWebRTCEchoTestStartedEvent():void {
-	  state = DO_ECHO_TEST;
+	    state = DO_ECHO_TEST;
+      dispatcher.dispatchEvent(new WebRTCEchoTestStartedEvent());
     }
     
     public function handleWebRTCEchoTestNoAudioEvent():void {
       trace(LOG + "handleWebRTCEchoTestNoAudioEvent");
-	  state = ECHO_TEST_FAILED;
+	    state = ECHO_TEST_FAILED;
       endEchoTest();
       
       //dispatcher.dispatchEvent(new WebRTCAskUserToChangeMicEvent(browserType));
       dispatcher.dispatchEvent(new UseFlashModeCommand());
     }
     
-	private var t:Timer;
+	  private var t:Timer;
 	
     public function handleWebRTCEchoTestHasAudioEvent():void {
       trace(LOG + "handleWebRTCEchoTestHasAudioEvent");
-	  state = STOP_ECHO_THEN_JOIN_CONF;
-	  endEchoTestJoinConference();
+	    state = STOP_ECHO_THEN_JOIN_CONF;
+	    endEchoTestJoinConference();
     }
     
     public function handleWebRTCCallStartedEvent():void {
-	  trace(LOG + "setting state to IN_CONFERENCE");
-	  state = IN_CONFERENCE;
+	    trace(LOG + "setting state to IN_CONFERENCE");
+	    state = IN_CONFERENCE;
     }
     
     public function handleWebRTCCallEndedEvent():void {
-	  state = INITED;
+	    state = INITED;
     }
     
     private function joinVoiceConference():void {
-	  state = JOIN_VOICE_CONFERENCE;
+	    state = JOIN_VOICE_CONFERENCE;
       ExternalInterface.call("joinWebRTCVoiceConference");      
     }
     
@@ -141,19 +143,19 @@ package org.bigbluebutton.modules.phone.managers
       ExternalInterface.call("leaveWebRTCVoiceConference");
     }
     
-	public function handleBecomeViewer():void {
-		trace(LOG + "handleBecomeViewer received");
-		if (options.presenterShareOnly) {
-			if (!usingWebRTC || state != IN_CONFERENCE || UsersUtil.amIModerator()) return;
+	  public function handleBecomeViewer():void {
+		  trace(LOG + "handleBecomeViewer received");
+		  if (options.presenterShareOnly) {
+			  if (!usingWebRTC || state != IN_CONFERENCE || UsersUtil.amIModerator()) return;
 			
-			trace(LOG + "handleBecomeViewer leaving WebRTC and joining listen only stream");
-			ExternalInterface.call("leaveWebRTCVoiceConference");
+			  trace(LOG + "handleBecomeViewer leaving WebRTC and joining listen only stream");
+			  ExternalInterface.call("leaveWebRTCVoiceConference");
 			
-			var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
-			command.mic = false;
-			dispatcher.dispatchEvent(command);
-		}
-	}
+			  var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
+			  command.mic = false;
+			  dispatcher.dispatchEvent(command);
+		  }
+	  }
 	
     public function handleUseFlashModeCommand():void {
       usingWebRTC = false;
