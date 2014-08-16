@@ -45,6 +45,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{FlashMicSettingsEvent.FLASH_MIC_SETTINGS}" method="handleFlashMicSettingsEvent"  />
 	<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_CONNECTING}" method="handleWebRTCEchoTestConnectingEvent"  />
 	<mate:Listener type="{WebRTCMediaEvent.WEBRTC_MEDIA_REQUEST}" method="handleWebRTCMediaRequestEvent"  />
+	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_STARTED}" method="handleWebRTCCallStartedEvent" />
+	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_ENDED}" method="handleWebRTCCallEndedEvent" />
 	<mate:Listener type="{WebRTCAskUserToChangeMicEvent.WEBRTC_ASK_USER_TO_CHANGE_MIC}" method="handleWebRTCAskUserToChangeMicEvent"  />
 	<mate:Listener type="{AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION}" method="handleShowAudioSelectionWindowEvent" />
   
@@ -57,11 +59,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;			
+			import com.asfusion.mate.events.Dispatcher;
+			
 			import flash.events.MouseEvent;
-			import flash.geom.Point;		
+			import flash.geom.Point;
+			
 			import flexlib.mdi.containers.MDIWindow;
-			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;			
+			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
+			
 			import mx.collections.ArrayCollection;
 			import mx.containers.TitleWindow;
 			import mx.controls.Alert;
@@ -70,7 +75,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.core.UIComponent;
 			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
-			import mx.managers.PopUpManager;			
+			import mx.managers.PopUpManager;
+			
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -99,6 +105,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
 			import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCAskUserToChangeMicEvent;
+			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -512,6 +519,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					//realignButtons();
 				}
 			}
+			
+			private function handleWebRTCCallStartedEvent(e:WebRTCCallEvent):void {
+				lblWebRTC.visible = lblWebRTC.includeInLayout = true;
+			}
+			
+			private function handleWebRTCCallEndedEvent(e:WebRTCCallEvent):void {
+				lblWebRTC.visible = lblWebRTC.includeInLayout = false;
+			}
       
       private function handleInvalidAuthToken(event:InvalidAuthTokenEvent):void {
         showlogoutWindow(ResourceUtil.getInstance().getString('bbb.mainshell.invalidAuthToken'));
@@ -590,8 +605,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				id="copyrightLabel2"
 				selectable="false" paddingRight="20"/>
 		<mx:Spacer width="100%" id="spacer" />
+		<mx:Label 
+				id="lblWebRTC"
+				text="{'['+ResourceUtil.getInstance().getString('bbb.mainshell.notification.webrtc')+']'}"
+				visible="false"
+				includeInLayout="false" />
 		<mx:Label
-				text="[Tunnelling]"
+				text="{'['+ResourceUtil.getInstance().getString('bbb.mainshell.notification.tunnelling')+']'}"
 				id="isTunnellingLbl"
 				visible="{isTunneling}"
 				includeInLayout="{isTunneling}" />
