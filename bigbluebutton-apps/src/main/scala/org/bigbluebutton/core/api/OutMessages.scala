@@ -49,6 +49,14 @@ case class MeetingCreated(
     version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
+case class MeetingMuted(
+    meetingID: String, 
+    recorded: Boolean, 
+    meetingMuted: Boolean,
+    meetingMutedExceptPresenter: Boolean,
+    version:String = Versions.V_0_0_1    
+) extends IOutMessage
+
 case class MeetingEnded(
     meetingID: String, 
     recorded: Boolean, 

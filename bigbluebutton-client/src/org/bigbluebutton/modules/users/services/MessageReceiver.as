@@ -18,7 +18,8 @@
  */
 package org.bigbluebutton.modules.users.services
 {
-  import com.asfusion.mate.events.Dispatcher; 
+  import com.asfusion.mate.events.Dispatcher;
+  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
@@ -47,6 +48,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.present.model.PresentationModel;
+  import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
   
   public class MessageReceiver implements IMessageListener
   {
@@ -78,6 +80,9 @@ package org.bigbluebutton.modules.users.services
         case "meetingHasEnded":
           handleMeetingHasEnded(message);
           break;
+        case "meetingMuted":
+          handleMeetingMuted(message);
+          break;        
         case "participantJoined":
           handleParticipantJoined(message);
           break;
@@ -161,6 +166,16 @@ package org.bigbluebutton.modules.users.services
       var e:UsersConnectionEvent = new UsersConnectionEvent(UsersConnectionEvent.CONNECTION_SUCCESS);
       e.userid = userid;
       dispatcher.dispatchEvent(e);      
+    }
+    
+    private function handleMeetingMuted(msg:Object):void {
+      trace(LOG + "*** handleMeetingMuted " + msg.msg + " **** \n");
+      var map:Object = JSON.parse(msg.msg);
+      if (map.hasOwnProperty("meetingMuted") && map.hasOwnProperty("meetingMutedExceptPresenter")) {
+        MeetingModel.getInstance().meetingMuted = map.meetingMuted;
+        MeetingModel.getInstance().meetingMutedExceptPresenter = map.meetingMutedExceptPresenter;
+        dispatcher.dispatchEvent(new MeetingMutedEvent());
+      }
     }
     
     private function handleGetRecordingStatusReply(msg: Object):void {

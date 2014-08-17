@@ -6,6 +6,9 @@ package org.bigbluebutton.core.model
     
     private var _meeting: Meeting;
     
+    private var _meetingMuted:Boolean = false;
+    private var _meetingMutedExceptPresenter:Boolean = false;
+    
     public function MeetingModel(enforcer: MeetingModelSingletonEnforcer)
     {
       if (enforcer == null){
@@ -31,6 +34,24 @@ package org.bigbluebutton.core.model
     public function set recording(record: Boolean):void {
       _meeting.isRecording = record;
     }
+    
+    public function set meetingMuted(muted:Boolean):void {
+      _meetingMuted = muted;
+    }
+    
+    public function get meetingMuted():Boolean {
+      return _meetingMuted;
+    }
+    
+    public function set meetingMutedExceptPresenter(muted:Boolean):void {
+      _meetingMutedExceptPresenter = muted;
+    }
+    
+    public function get meetingMutedExceptPresenter():Boolean {
+      return _meetingMutedExceptPresenter;
+    }
+    
+    
   }
 }
 
