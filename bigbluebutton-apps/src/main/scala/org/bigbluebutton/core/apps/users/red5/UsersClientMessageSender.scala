@@ -40,6 +40,8 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    case msg: UserRegistered                         => handleRegisteredUser(msg)
 	    case msg: UserListeningOnly                      => handleUserListeningOnly(msg)
 	    case msg: NewPermissionsSetting                  => handleNewPermissionsSetting(msg)
+	    case msg: MeetingMuted                           => handleMeetingMuted(msg)
+	    
 	    case _ => // println("Unhandled message in UsersClientMessageSender")
 	  }
 	}
@@ -112,7 +114,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 
 	  val message = new java.util.HashMap[String, Object]() 
 	  val gson = new Gson();
-  	  message.put("msg", gson.toJson(args))
+  	message.put("msg", gson.toJson(args))
   	  
  // 	  println("UsersClientMessageSender - handleRegisteredUser \n" + message.get("msg") + "\n")
 	}
@@ -124,10 +126,10 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  
 	  val message = new java.util.HashMap[String, Object]() 
 	  val gson = new Gson();
-  	  message.put("msg", gson.toJson(args))
+  	message.put("msg", gson.toJson(args))
   	  
 //  	  println("UsersClientMessageSender - handleValidateAuthTokenReply \n" + message.get("msg") + "\n")
-      val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenReply", message);
+    val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenReply", message);
 	  service.sendMessage(m);	    
 	}
 	
@@ -264,7 +266,21 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  var m = new DisconnectClientMessage(msg.meetingID, msg.userId)
 	  service.sendMessage(m);	  
 	}
+	
+	private def handleMeetingMuted(msg: MeetingMuted) {
+	  var args = new HashMap[String, Object]();	
+	  args.put("meetingMuted", msg.meetingMuted:java.lang.Boolean);
+		args.put("meetingMutedExceptPresenter", msg.meetingMutedExceptPresenter:java.lang.Boolean);
 		
+	  var message = new HashMap[String, Object]();
+	  val gson = new Gson();
+  	message.put("msg", gson.toJson(args))
+  	    
+	  var m = new BroadcastClientMessage(msg.meetingID, "meetingMuted", message);
+	  service.sendMessage(m);	  
+	}
+	
+	
 	private def handleMeetingEnded(msg: MeetingEnded):Unit = {
 	  var args = new HashMap[String, Object]();	
 	  args.put("status", "Meeting has been ended.");

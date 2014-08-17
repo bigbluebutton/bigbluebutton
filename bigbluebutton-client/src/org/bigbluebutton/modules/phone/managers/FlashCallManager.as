@@ -1,10 +1,8 @@
  package org.bigbluebutton.modules.phone.managers
 {
-  import com.asfusion.mate.events.Dispatcher;
-  
+  import com.asfusion.mate.events.Dispatcher; 
   import flash.external.ExternalInterface;
-  import flash.media.Microphone;
-  
+  import flash.media.Microphone; 
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.model.MeetingModel;
   import org.bigbluebutton.modules.phone.PhoneOptions;

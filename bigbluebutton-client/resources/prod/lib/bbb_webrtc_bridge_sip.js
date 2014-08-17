@@ -120,7 +120,8 @@ function createUA(username, server) {
 		displayName: username,
 		register: false,
 		traceSip: false,
-		stunServers: "stun:74.125.134.127:19302",
+                userAgentString: "BigBlueButton",
+                stunServers: "stun:stun.freeswitch.org"
 	};
 	
 	userAgent = new SIP.UA(configuration);
