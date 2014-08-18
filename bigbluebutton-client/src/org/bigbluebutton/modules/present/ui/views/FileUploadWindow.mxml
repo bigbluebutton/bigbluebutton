@@ -318,11 +318,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                       styleName="presentationUploadProgressBarStyle"
                       labelPlacement="center" width="460" visible="false"/>
     </mx:HBox>
-	<mx:HBox width="100%" height="100%" paddingLeft="5">
-	     <mx:HBox width="328" height="100%" styleName="presentationUploadFileFormatHintBoxStyle">
+	<mx:Box width="100%" height="100%" paddingLeft="5" paddingRight="5">
+		<mx:Box width="100%" height="100%" verticalAlign="middle" styleName="presentationUploadFileFormatHintBoxStyle">
 	        <mx:Text width="100%" id="fileFormatHintLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.fileFormatHint')}" styleName="presentationUploadFileFormatHintTextStyle"/>
-	     </mx:HBox>
-    </mx:HBox>
+		</mx:Box>
+    </mx:Box>
     <mx:Label id="presentationNamesLb" text="{ResourceUtil.getInstance().getString('bbb.fileupload.presentationNamesLbl')}" styleName="presentationNamesLabelStyle" paddingLeft="5"/>
     <mx:Canvas width="100%" height="130" verticalScrollPolicy="off">
       <mx:List width="100%" height="120" left="5" top="5" right="5" id="uploadedFilesList" alternatingItemColors="[#EFEFEF, #FEFEFE]" allowMultipleSelection="false"
