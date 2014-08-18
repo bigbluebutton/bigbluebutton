@@ -29,7 +29,8 @@ Template.header.events
 	"click .raiseHand": (event) ->
 		Meteor.call('userRaiseHand', getInSession("meetingId"), @id)
 	"click .lowerHand": (event) ->
-		loweredBy = @id # TODO! this must be the userid of the person lowering the hand - instructor/student
+		# loweredBy = @id # TODO! this must be the userid of the person lowering the hand - instructor/student
+		loweredBy = getInSession("userId")
 		Meteor.call('userLowerHand', getInSession("meetingId"), @id, loweredBy)
 	"click .whiteboardIcon": (event) ->
 		toggleWhiteBoard()
