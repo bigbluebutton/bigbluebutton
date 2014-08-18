@@ -54,23 +54,40 @@ Meteor.methods
     else
       console.log "did not have enough information to send a mute_user_request"
 
-  userRaiseHand: (meetingId, userId, raisedStatus) ->
-    console.log "publishing a userRaiseHand event: #{userId}-raised=#{raisedStatus}"
-    eventName = (raised) ->
-      if raised
-        return "user_raised_hand_message"
-      else
-        return "user_lowered_hand_message"
+  userLowerHand: (meetingId, userId, loweredBy) ->
+    console.log "publishing a userLowerHand event: #{userId}--by=#{loweredBy}"
 
-    if meetingId? and userId? and raisedStatus?
+    if meetingId? and userId? and loweredBy?
       message =
         "payload":
           "userid": userId
           "meeting_id": meetingId
-          "raise_hand": raisedStatus
+          "raise_hand": false
+          "lowered_by": loweredBy
         "header":
           "timestamp": new Date().getTime()
-          "name": eventName(raisedStatus)
+          "name": "user_lowered_hand_message"
+          "version": "0.0.1"
+
+      #publish to pubsub
+      Meteor.redisPubSub.publish(Meteor.config.redis.channels.toBBBApps.users, message)
+      console.log "just published for userLowerHand" + JSON.stringify message
+
+      #update Users collection
+      Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set: {'user.raise_hand': false}})
+
+  userRaiseHand: (meetingId, userId) ->
+    console.log "publishing a userRaiseHand event: #{userId}"
+
+    if meetingId? and userId?
+      message =
+        "payload":
+          "userid": userId
+          "meeting_id": meetingId
+          "raise_hand": true
+        "header":
+          "timestamp": new Date().getTime()
+          "name": "user_raised_hand_message"
           "version": "0.0.1"
 
       #publish to pubsub
@@ -78,8 +95,7 @@ Meteor.methods
       console.log "just published for userRaisedHand" + JSON.stringify message
 
       #update Users collection
-      Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set: {'user.raise_hand': raisedStatus}})
-
+      Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set: {'user.raise_hand': true}})
 
 class Meteor.RedisPubSub
   constructor: (callback) ->

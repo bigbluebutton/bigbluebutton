@@ -21,7 +21,6 @@ public class ParticipantsListener implements MessageHandler{
 	@Override
 	public void handleMessage(String pattern, String channel, String message) {
 		if (channel.equalsIgnoreCase(MessagingConstants.TO_USERS_CHANNEL)) {
-			System.out.println("AntonChannel=(participants)" + channel);
 
 			JsonParser parser = new JsonParser();
 			JsonObject obj = (JsonObject) parser.parse(message);
@@ -31,7 +30,8 @@ public class ParticipantsListener implements MessageHandler{
 			String eventName =  headerObject.get("name").toString().replace("\"", "");
 
 			if(eventName.equalsIgnoreCase("user_leaving_request") ||
-				eventName.equalsIgnoreCase("raise_user_hand_request")){
+				eventName.equalsIgnoreCase("user_raised_hand_message") ||
+				eventName.equalsIgnoreCase("user_lowered_hand_message")){
 
 				String roomName = payloadObject.get("meeting_id").toString().replace("\"", "");
 				String userID = payloadObject.get("userid").toString().replace("\"", "");
@@ -39,16 +39,12 @@ public class ParticipantsListener implements MessageHandler{
 				if(eventName.equalsIgnoreCase("user_leaving_request")){
 					bbbInGW.userLeft(roomName, userID);
 				}
-				else if(eventName.equalsIgnoreCase("raise_user_hand_request")){
-					boolean raise = Boolean.parseBoolean(payloadObject.get("raise").toString().replace("\"", ""));
-
-					if(raise){
-						bbbInGW.userRaiseHand(roomName, userID);
-					}
-					else {
-						String requesterID = payloadObject.get("requester_id").toString().replace("\"", "");
-						bbbInGW.lowerHand(roomName, userID, requesterID);
-					}
+				else if(eventName.equalsIgnoreCase("user_raised_hand_message")){
+					bbbInGW.userRaiseHand(roomName, userID);
+				}
+				else if(eventName.equalsIgnoreCase("user_lowered_hand_message")){
+					String requesterID = payloadObject.get("lowered_by").toString().replace("\"", "");
+					bbbInGW.lowerHand(roomName, userID, requesterID);
 				}
 			}
 		}
