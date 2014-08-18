@@ -348,7 +348,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <wbBtns:PanZoomButton id="panzoomBtn" 
     					  tabIndex="{baseIndex}" 
     					  visible="{showWhiteboardToolbar}"/>
-	<wbBtns:ScribbleButton id="scribbleBtn" paddingLeft="{showWhiteboardToolbar ? 10 : 0}"
+    <mx:Spacer height="10" visible="{showWhiteboardToolbar}"/>
+	<wbBtns:ScribbleButton id="scribbleBtn" 
 						   tabIndex="{baseIndex+1}" 
 						   visible="{showWhiteboardToolbar}"/>
 	<wbBtns:RectangleButton id="rectangleBtn" 
@@ -367,15 +368,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   tabIndex="{baseIndex+6}" 
 					   visible="{showWhiteboardToolbar}"/>
 		
+	<mx:Spacer height="5" visible="{showWhiteboardToolbar}"/>
 	<wbBtns:ClearButton id="clearBtn" 
 						tabIndex="{baseIndex+7}" 
-						visible="{showWhiteboardToolbar}"
-						paddingLeft="{showWhiteboardToolbar ? 5 : 0}"/>
+						visible="{showWhiteboardToolbar}"/>
 	<wbBtns:UndoButton id="undoBtn" 
 					   tabIndex="{baseIndex+8}" 
-					   visible="{showWhiteboardToolbar}"
-					   paddingRight="{showWhiteboardToolbar ? 5 : 0}"/>
+					   visible="{showWhiteboardToolbar}"/>
 	
+	<mx:Spacer height="5" visible="{showWhiteboardToolbar}"/>
 	
 	<!--
 	Properties that were removed from original color picker:
