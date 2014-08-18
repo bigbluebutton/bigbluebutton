@@ -35,8 +35,20 @@
 
 <!-- Displays and styles an individual message in the chat -->
 <template name="message">
-	<strong>{{message.from_username}}</strong> 
-	<small class="pull-right">{{toClockTime message.from_time}} {{#if message.from_time}}<span class="glyphicon glyphicon-time"></span>{{/if}}</small>
+	<table style="width:100%">
+		<tr>
+			<td>
+				{{#if message.from_username}}
+					<div class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{message.from_username}}">
+						<strong>{{message.from_username}}</strong>
+					</div>
+				{{/if}}
+			</td>
+			<td style="text-align:right">
+				{{#if message.from_time}}<small class="pull-right">{{toClockTime message.from_time}} <span class="glyphicon glyphicon-time"></span></small>{{/if}}
+			</td>
+		</tr>
+	</table>
 	<div>{{{toClickable message.message}}}</div> <!-- Messages must be safely filtered and stripped -->
 </template>
 
