@@ -6,20 +6,20 @@ package org.bigbluebutton.modules.sharednotes.views
 	import mx.controls.Alert;
 	import mx.events.CloseEvent;
 
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.main.views.MainCanvas;
 	import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public class AdditionalSharedNotesWindow extends SharedNotesWindow
 	{
-
 		public function AdditionalSharedNotesWindow(n:String) {
 			super();
 
 			trace("AdditionalSharedNotesWindow: in-constructor additional notes " + n);
 			_notesId = n;
 
-			showCloseButton = true;
+			showCloseButton = UsersUtil.amIModerator();
 			width = 240;
 			height = 240;
 

@@ -47,6 +47,7 @@
 			import mx.utils.ObjectUtil;
 			import flexlib.mdi.containers.MDICanvas;
 			
+			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.main.views.MainCanvas;
@@ -93,6 +94,7 @@
 					sendPatch();
 				});
 				if(noteId == "MAIN_WINDOW"){
+					btnNew.visible = btnNew.includeInLayout = options.enableMultipleNotes && UsersUtil.amIModerator();
 					_dispatcher.dispatchEvent(new GetCurrentDocumentEvent());
 				}
 
