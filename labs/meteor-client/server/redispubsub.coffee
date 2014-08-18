@@ -54,6 +54,49 @@ Meteor.methods
     else
       console.log "did not have enough information to send a mute_user_request"
 
+  userLowerHand: (meetingId, userId, loweredBy) ->
+    console.log "publishing a userLowerHand event: #{userId}--by=#{loweredBy}"
+
+    if meetingId? and userId? and loweredBy?
+      message =
+        "payload":
+          "userid": userId
+          "meeting_id": meetingId
+          "raise_hand": false
+          "lowered_by": loweredBy
+        "header":
+          "timestamp": new Date().getTime()
+          "name": "user_lowered_hand_message"
+          "version": "0.0.1"
+
+      #publish to pubsub
+      Meteor.redisPubSub.publish(Meteor.config.redis.channels.toBBBApps.users, message)
+      console.log "just published for userLowerHand" + JSON.stringify message
+
+      #update Users collection
+      Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set: {'user.raise_hand': false}})
+
+  userRaiseHand: (meetingId, userId) ->
+    console.log "publishing a userRaiseHand event: #{userId}"
+
+    if meetingId? and userId?
+      message =
+        "payload":
+          "userid": userId
+          "meeting_id": meetingId
+          "raise_hand": true
+        "header":
+          "timestamp": new Date().getTime()
+          "name": "user_raised_hand_message"
+          "version": "0.0.1"
+
+      #publish to pubsub
+      Meteor.redisPubSub.publish(Meteor.config.redis.channels.toBBBApps.users, message)
+      console.log "just published for userRaisedHand" + JSON.stringify message
+
+      #update Users collection
+      Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set: {'user.raise_hand': true}})
+
 class Meteor.RedisPubSub
   constructor: (callback) ->
     console.log "constructor RedisPubSub"
@@ -254,6 +297,23 @@ class Meteor.RedisPubSub
 
       Meteor.call("removeShapeFromSlide", meetingId, whiteboardId, shapeId)
 
+    if message.header?.name is "presenter_assigned_message"
+      newPresenterId = message.payload?.new_presenter_id
+      if newPresenterId?
+        # reset the previous presenter
+        Meteor.Users.update({"user.presenter": true, meetingId: meetingId},{$set: {"user.presenter": false}})
+        # set the new presenter
+        Meteor.Users.update({"user.userid": newPresenterId, meetingId: meetingId},{$set: {"user.presenter": true}})
+
+    if message.header?.name is "user_raised_hand_message"
+      userId = message.payload?.userid
+      # update the user
+      Meteor.Users.update({"user.userid": userId, meetingId: meetingId},{$set: {"user.raise_hand": true}}) #not sure why but message.payload?.raise_hand is awlays false
+
+    if message.header?.name is "user_lowered_hand_message"
+      userId = message.payload?.userid
+      # update the user
+      Meteor.Users.update({"user.userid": userId, meetingId: meetingId},{$set: {"user.raise_hand": false}}) #not sure why but message.payload?.raise_hand is awlays false
 
     if message.header?.name in ["meeting_ended_message", "meeting_destroyed_event",
       "end_and_kick_all_message", "disconnect_all_users_message"]

@@ -26,10 +26,11 @@ Template.header.events
 		toggleNavbar()
 	"click .settingsIcon": (event) ->
 		alert "settings"
-	"click .raiseHand": (event) -> 
-		Meteor.call('userRaiseHand', @id)
-	"click .lowerHand": (event) -> 
-		Meteor.call('userLowerHand', @id)
+	"click .raiseHand": (event) ->
+		Meteor.call('userRaiseHand', getInSession("meetingId"), @id)
+	"click .lowerHand": (event) ->
+		loweredBy = @id # TODO! this must be the userid of the person lowering the hand - instructor/student
+		Meteor.call('userLowerHand', getInSession("meetingId"), @id, loweredBy)
 	"click .whiteboardIcon": (event) ->
 		toggleWhiteBoard()
 
