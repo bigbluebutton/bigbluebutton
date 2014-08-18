@@ -48,6 +48,11 @@
 Handlebars.registerHelper 'equals', (a, b) -> # equals operator was dropped in Meteor's migration from Handlebars to Spacebars
   a is b
 
+Handlebars.registerHelper "getCurrentSlide", ->
+  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+  presentationId = currentPresentation?.presentation?.id
+  Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
+
 # retrieve account for selected user
 Handlebars.registerHelper "getCurrentUser", =>
   @window.getCurrentUserFromSession()
@@ -57,6 +62,13 @@ Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
 
 Handlebars.registerHelper "getMeetingName", ->
   window.getMeetingName()
+
+Handlebars.registerHelper "getShapesForSlide", ->
+  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+  presentationId = currentPresentation?.presentation?.id
+  currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+  # try to reuse the lines above
+  Meteor.Shapes.find({whiteboardId: currentSlide?.slide?.id})
 
 # retrieves all users in the meeting
 Handlebars.registerHelper "getUsersInMeeting", ->
@@ -89,6 +101,13 @@ Handlebars.registerHelper "isUserMuted", (u) ->
     user.user.voiceUser?.muted
   else return false
 
+Handlebars.registerHelper "messageFontSize", ->
+	style: "font-size: #{getInSession("messageFontSize")}px;"
+
+Handlebars.registerHelper "pointerLocation", ->
+  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+  currentPresentation.pointer
+
 Handlebars.registerHelper "setInSession", (k, v) -> SessionAmplify.set k, v 
 
 Handlebars.registerHelper "visibility", (section) ->
@@ -96,6 +115,13 @@ Handlebars.registerHelper "visibility", (section) ->
         style: 'display:block'
     else
         style: 'display:none'
+
+# transform plain text links into HTML tags compatible with Flash client
+@linkify = (str) ->
+  www = /(^|[^\/])(www\.[\S]+($|\b))/img
+  http = /\b(https?:\/\/[0-9a-z+|.,:;\/&?_~%#=@!-]*[0-9a-z+|\/&_~%#=@-])/img
+  str = str.replace http, "<a href='event:$1'><u>$1</u></a>"
+  str = str.replace www, "$1<a href='event:http://$2'><u>$2</u></a>"
 
 # Creates a 'tab' object for each person in chat with
 # adds public and options tabs to the menu
@@ -122,6 +148,7 @@ Meteor.methods
     setInSession("bbbServerVersion", "0.90")
     setInSession("userName", null) 
     setInSession("validUser", true) # got info from server, user is a valid user
+    setInSession "messageFontSize", 14
 
 @toggleCam = (event) ->
   # Meteor.Users.update {_id: context._id} , {$set:{"user.sharingVideo": !context.sharingVideo}}
@@ -146,47 +173,30 @@ Meteor.methods
   setInSession "display_usersList", !getInSession "display_usersList"
 
 @toggleVoiceCall = (event) -> 
-  if getInSession "isSharingAudio"
-    callback = -> 
-      setInSession "isSharingAudio", false # update to no longer sharing
-      console.log "left voice conference"
-      # sometimes we can hangup before the message that the user stopped talking is received so lets set it manually, otherwise they might leave the audio call but still be registered as talking
-      Meteor.call("userStopAudio", getInSession("meetingId"),getInSession("userId"))
-    webrtc_hangup callback # sign out of call
-  else
-    # create voice call params
-    username = "#{getInSession("userId")}-bbbID-#{getUsersName()}"
-    voiceBridge = "70827"
-    server = null
-    callback = (message) -> 
-      console.log JSON.stringify message
-      setInSession "isSharingAudio", true
-      Meteor.call("userShareAudio", getInSession("meetingId"),getInSession("userId"))
-      console.log "joined audio call"
-      console.log Meteor.Users.findOne(userId:getInSession("userId"))
-    webrtc_call(username, voiceBridge, server, callback) # make the call
+	if getInSession "isSharingAudio"
+		hangupCallback = -> 
+			console.log "left voice conference"
+			# sometimes we can hangup before the message that the user stopped talking is received so lets set it manually, otherwise they might leave the audio call but still be registered as talking
+			Meteor.call("userStopAudio", getInSession("meetingId"),getInSession("userId"))
+			setInSession "isSharingAudio", false # update to no longer sharing
+		webrtc_hangup hangupCallback # sign out of call
+	else
+		# create voice call params
+		username = "#{getInSession("userId")}-bbbID-#{getUsersName()}"
+		# voiceBridge = "70827"
+		voiceBridge = "70827"
+		server = null
+		joinCallback = (message) -> 
+			console.log JSON.stringify message
+			Meteor.call("userShareAudio", getInSession("meetingId"),getInSession("userId"))
+			console.log "joined audio call"
+			console.log Meteor.Users.findOne(userId:getInSession("userId"))
+			setInSession "isSharingAudio", true
+		webrtc_call(username, voiceBridge, server, joinCallback) # make the call
+	return false
 
 @toggleWhiteBoard = ->
   setInSession "display_whiteboard", !getInSession "display_whiteboard"
-
-@userKick = (meeting, user) ->
-  Meteor.call("userKick", meeting, user)
-
-Handlebars.registerHelper "getCurrentSlide", ->
-  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-  presentationId = currentPresentation?.presentation?.id
-  Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
-
-Handlebars.registerHelper "getShapesForSlide", ->
-  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-  presentationId = currentPresentation?.presentation?.id
-  currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
-  # try to reuse the lines above
-  Meteor.Shapes.find({whiteboardId: currentSlide?.slide?.id})
-
-Handlebars.registerHelper "pointerLocation", ->
-  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-  currentPresentation.pointer
 
 # Starts the entire logout procedure.
 # meeting: the meeting the user is in

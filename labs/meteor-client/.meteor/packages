@@ -4,14 +4,12 @@
 # but you can also edit it by hand.
 
 standard-app-packages
-insecure
 coffeescript
 redis
 npm
 less
 bootstrap-3
 iron-router
-bootstrap
 underscore
 amplify
 raphaeljs-package

@@ -1,17 +1,25 @@
 #users {
 	margin-left: 0.5%;
+	min-width:230px;
 	padding-bottom: 10px;
 	width: 12%;
- }
+}
 #user-contents {
 	padding-bottom: 10px;
- }
- .userNameEntry{
-	height:20px; 
-	overflow:hidden;
-	width:90px; 
-	word-wrap:break-word; 
- }
+	height:95%;
+}
+.userNameEntry{
+	height:20px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	width: 90px;
+}
 .user-entry tr:nth-child(even) {background-color: rgb(245,245,245);}
 .user-entry tr:hover {font-weight: bold;}
 .userListSettingIcon {}
+
+.userNameContainer{
+	border-right: 1px solid #ccc;
+	padding-right:0px;
+}

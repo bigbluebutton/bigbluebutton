@@ -80,25 +80,25 @@
 </template>
 
 <template name="main">
-   <head><title>BigBlueButton Meteor</title></head>
-   <body>
-      <div id="main" class="mainContainer row-fluid">
-         <div>{{> header}}</div>
-         {{> usersList id="users" name="usersList"}}
-         {{> whiteboard id="whiteboardContainer" title="Whiteboard" name="whiteboard"}}
-         {{> chatbar id="chat" title="Chat" name="chatbar"}}
-         <audio id="remote-media" autoplay="autoplay"></audio>
-         {{> footer}}
-         {{doFinalStuff}}
-      </div>
-   </body>
+	<head><title>BigBlueButton Meteor</title></head>
+	<body>
+		<div id="main" class="mainContainer row-fluid">
+			<div>{{> header}}</div>
+			{{> usersList id="users" name="usersList"}}
+			{{> whiteboard id="whiteboardContainer" title="Whiteboard" name="whiteboard"}}
+			{{> chatbar id="chat" title="Chat" name="chatbar"}}
+			<audio id="remote-media" autoplay="autoplay"></audio>
+			{{> footer}}
+			{{doFinalStuff}}
+		</div>
+	</body>
 </template>
 
 <template name="recordingStatus">
 	<!-- Recording status of the meeting -->
 	{{#if meetingIsRecording}}
-		<button class="recordingStatusTrue" rel="tooltip" data-placement="bottom" title="This Meeting is Being Recorded"><span class="glyphicon glyphicon-record"></span> Recording</button>
+		<button class="recordingStatus recordingStatusTrue" rel="tooltip" data-placement="bottom" title="This Meeting is Being Recorded"><span class="glyphicon glyphicon-record"></span> Recording</button>
 	{{else}}
-		<button class="recordingStatusFalse" rel="tooltip" data-placement="bottom" title="This Meeting is Not Being Recorded"><span class="glyphicon glyphicon-record"></span></button>
+		<button class="recordingStatus recordingStatusFalse" rel="tooltip" data-placement="bottom" title="This Meeting is Not Being Recorded"><span class="glyphicon glyphicon-record"></span></button>
 	{{/if}}
 </template>
