@@ -1,4 +1,4 @@
-<template name="displayOwnControls">
+<template name="displayUserIcons">
     <td>{{#if isUserSharingVideo user}}
         <span class="userListSettingIcon glyphicon glyphicon-facetime-video"></span>
     {{/if}}</td>
@@ -15,25 +15,27 @@
             {{/if}}
           {{/if}}
     {{/if}}</td>
-</template>
 
-<template name="displayStandardUserControls">
     <td>{{#if user.presenter}}<span class="userListSettingIcon glyphicon glyphicon-picture"></span>{{/if}}</td>
+
+    <td>{{#if user.raise_hand}}<span class="userListSettingIcon glyphicon glyphicon-hand-up"></span>{{/if}}</td>
 </template>
 
 <template name="usernameEntry"> <!-- A template now because more information be added/styled -->
-    <td class="userNameContainer">
-        <p class="userNameEntry">
-            {{#if isCurrentUser userId}}
-                <strong>{{user.name}} (you)</strong>
-            {{else}}
-                {{user.name}}
-            {{/if}}</p>
-    </td>
+	<td class="userNameContainer">
+		{{#if isCurrentUser userId}}
+			<p class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}} (you)">
+				<strong>{{user.name}} (you)</strong>
+			</p>
+		{{else}}
+			<p class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}}">
+				{{user.name}}
+			</p>
+		{{/if}}
+	</td>
 </template>
 
 <template name="userItem">
     {{> usernameEntry}}
-    {{> displayOwnControls}}
-    {{> displayStandardUserControls}}
+    {{> displayUserIcons}}
 </template>
