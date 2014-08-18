@@ -174,9 +174,8 @@ package org.bigbluebutton.modules.users.services
     private function handleMeetingMuted(msg:Object):void {
       trace(LOG + "*** handleMeetingMuted " + msg.msg + " **** \n");
       var map:Object = JSON.parse(msg.msg);
-      if (map.hasOwnProperty("meetingMuted") && map.hasOwnProperty("meetingMutedExceptPresenter")) {
+      if (map.hasOwnProperty("meetingMuted")) {
         MeetingModel.getInstance().meetingMuted = map.meetingMuted;
-        MeetingModel.getInstance().meetingMutedExceptPresenter = map.meetingMutedExceptPresenter;
         dispatcher.dispatchEvent(new MeetingMutedEvent());
       }
     }
@@ -190,6 +189,8 @@ package org.bigbluebutton.modules.users.services
                                                  perm.disablePrivChat, perm.disablePubChat, perm.lockedLayout);
       UserManager.getInstance().getConference().setLockSettings(lockSettings);
       MeetingModel.getInstance().meetingMuted = map.meetingMuted;
+      
+      UserManager.getInstance().getConference().applyLockSettings();
     }
     
     private function handleGetRecordingStatusReply(msg: Object):void {

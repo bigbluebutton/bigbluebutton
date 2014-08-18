@@ -9,7 +9,6 @@ package org.bigbluebutton.core.model
     private var _meeting: Meeting;
     
     private var _meetingMuted:Boolean = false;
-    private var _meetingMutedExceptPresenter:Boolean = false;
     private var _lockSettings:LockSettingsVO;
     
     public function MeetingModel(enforcer: MeetingModelSingletonEnforcer)
@@ -45,16 +44,7 @@ package org.bigbluebutton.core.model
     public function get meetingMuted():Boolean {
       return _meetingMuted;
     }
-    
-    public function set meetingMutedExceptPresenter(muted:Boolean):void {
-      _meetingMutedExceptPresenter = muted;
-    }
-    
-    public function get meetingMutedExceptPresenter():Boolean {
-      return _meetingMutedExceptPresenter;
-    }
-    
-    
+        
   }
 }
 

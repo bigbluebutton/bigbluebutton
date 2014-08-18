@@ -294,7 +294,6 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	private def handleMeetingMuted(msg: MeetingMuted) {
 	  var args = new HashMap[String, Object]();	
 	  args.put("meetingMuted", msg.meetingMuted:java.lang.Boolean);
-		args.put("meetingMutedExceptPresenter", msg.meetingMutedExceptPresenter:java.lang.Boolean);
 		
 	  var message = new HashMap[String, Object]();
 	  val gson = new Gson();

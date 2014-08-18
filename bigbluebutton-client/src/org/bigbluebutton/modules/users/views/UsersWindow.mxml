@@ -126,7 +126,7 @@
 				
 				resourcesChanged();
 				
-				roomMuted = MeetingModel.getInstance().meetingMuted || MeetingModel.getInstance().meetingMutedExceptPresenter;
+				roomMuted = MeetingModel.getInstance().meetingMuted;
 				var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
 				roomLocked = lockSettings.getDisableCam() || lockSettings.getDisableMic() || lockSettings.getDisablePrivateChat() 
 					|| lockSettings.getDisablePublicChat() || lockSettings.getLockedLayout();
@@ -267,7 +267,7 @@
 			}
 			
 			private function handleMeetingMuted(e:MeetingMutedEvent):void {
-				roomMuted = MeetingModel.getInstance().meetingMuted || MeetingModel.getInstance().meetingMutedExceptPresenter;
+				roomMuted = MeetingModel.getInstance().meetingMuted;
 			}
 			
 			private function muteAll():void {

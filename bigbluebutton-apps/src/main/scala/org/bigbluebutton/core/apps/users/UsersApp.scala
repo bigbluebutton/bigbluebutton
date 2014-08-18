@@ -17,7 +17,6 @@ trait UsersApp {
   
   private var locked = false
   private var meetingMuted = false
-  private var meetingMutedExceptPresenter = false
   
   private var currentPresenter = new Presenter("system", "system", "system")
   
@@ -54,8 +53,8 @@ trait UsersApp {
   }
   
   def handleMuteAllExceptPresenterRequest(msg: MuteAllExceptPresenterRequest) {
-    meetingMutedExceptPresenter = msg.mute
-    outGW.send(new MeetingMuted(meetingID, recorded, meetingMuted, meetingMutedExceptPresenter))
+    meetingMuted = msg.mute
+    outGW.send(new MeetingMuted(meetingID, recorded, meetingMuted))
     
     usersWhoAreNotPresenter foreach {u =>
       outGW.send(new MuteVoiceUser(meetingID, recorded, msg.requesterID, u.userID, msg.mute))
@@ -64,7 +63,7 @@ trait UsersApp {
     
   def handleMuteMeetingRequest(msg: MuteMeetingRequest) {
     meetingMuted = msg.mute
-    outGW.send(new MeetingMuted(meetingID, recorded, meetingMuted, meetingMutedExceptPresenter))
+    outGW.send(new MeetingMuted(meetingID, recorded, meetingMuted))
     users.getUsers foreach {u =>
         outGW.send(new MuteVoiceUser(meetingID, recorded, msg.requesterID, u.userID, msg.mute)) 
     }
