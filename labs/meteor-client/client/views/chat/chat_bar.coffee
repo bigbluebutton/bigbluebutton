@@ -79,9 +79,9 @@ Template.chatbar.helpers
 		prev_userid = msgs[0].message.from_userid
 		for i in [0...msgs.length]
 			if i != 0
-				if prev_userid == msgs[i].message.from_userid
+				if prev_userid is msgs[i].message.from_userid
 					msgs[i].message.from_username = ''
-					if Template.message.toClockTime(msgs[i].message.from_time) == Template.message.toClockTime(prev_time)
+					if Template.message.toClockTime(msgs[i].message.from_time) is Template.message.toClockTime(prev_time)
 						prev_time = msgs[i].message.from_time
 						msgs[i].message.from_time = null
 					else
@@ -159,7 +159,7 @@ Template.tabButtons.helpers
 
 Template.message.helpers
   toClockTime: (epochTime) ->
-    if epochTime == null
+    if epochTime is null
       return ""
     local = new Date()
     offset = local.getTimezoneOffset()

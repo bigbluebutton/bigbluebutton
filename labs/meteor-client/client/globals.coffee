@@ -48,6 +48,11 @@
 Handlebars.registerHelper 'equals', (a, b) -> # equals operator was dropped in Meteor's migration from Handlebars to Spacebars
   a is b
 
+Handlebars.registerHelper "getCurrentSlide", ->
+  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+  presentationId = currentPresentation?.presentation?.id
+  Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
+
 # retrieve account for selected user
 Handlebars.registerHelper "getCurrentUser", =>
   @window.getCurrentUserFromSession()
@@ -57,6 +62,13 @@ Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
 
 Handlebars.registerHelper "getMeetingName", ->
   window.getMeetingName()
+
+Handlebars.registerHelper "getShapesForSlide", ->
+  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+  presentationId = currentPresentation?.presentation?.id
+  currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+  # try to reuse the lines above
+  Meteor.Shapes.find({whiteboardId: currentSlide?.slide?.id})
 
 # retrieves all users in the meeting
 Handlebars.registerHelper "getUsersInMeeting", ->
@@ -92,6 +104,10 @@ Handlebars.registerHelper "isUserMuted", (u) ->
 Handlebars.registerHelper "messageFontSize", ->
 	style: "font-size: #{getInSession("messageFontSize")}px;"
 
+Handlebars.registerHelper "pointerLocation", ->
+  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+  currentPresentation.pointer
+
 Handlebars.registerHelper "setInSession", (k, v) -> SessionAmplify.set k, v 
 
 Handlebars.registerHelper "visibility", (section) ->
@@ -99,6 +115,13 @@ Handlebars.registerHelper "visibility", (section) ->
         style: 'display:block'
     else
         style: 'display:none'
+
+# transform plain text links into HTML tags compatible with Flash client
+@linkify = (str) ->
+  www = /(^|[^\/])(www\.[\S]+($|\b))/img
+  http = /\b(https?:\/\/[0-9a-z+|.,:;\/&?_~%#=@!-]*[0-9a-z+|\/&_~%#=@-])/img
+  str = str.replace http, "<a href='event:$1'><u>$1</u></a>"
+  str = str.replace www, "$1<a href='event:http://$2'><u>$2</u></a>"
 
 # Creates a 'tab' object for each person in chat with
 # adds public and options tabs to the menu
@@ -175,22 +198,6 @@ Meteor.methods
 @toggleWhiteBoard = ->
   setInSession "display_whiteboard", !getInSession "display_whiteboard"
 
-Handlebars.registerHelper "getCurrentSlide", ->
-  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-  presentationId = currentPresentation?.presentation?.id
-  Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
-
-Handlebars.registerHelper "getShapesForSlide", ->
-  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-  presentationId = currentPresentation?.presentation?.id
-  currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
-  # try to reuse the lines above
-  Meteor.Shapes.find({whiteboardId: currentSlide?.slide?.id})
-
-Handlebars.registerHelper "pointerLocation", ->
-  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-  currentPresentation.pointer
-
 # Starts the entire logout procedure.
 # meeting: the meeting the user is in
 # the user's userId
@@ -207,13 +214,3 @@ Handlebars.registerHelper "pointerLocation", ->
   setInSession "display_navbar", false # needed to hide navbar when the layout template renders
   
   Router.go('logout') # navigate to logout
-
-@getTime = -> # returns epoch in ms
-  (new Date).valueOf()
-
-# transform plain text links into HTML tags compatible with Flash client
-@linkify = (str) ->
-  www = /(^|[^\/])(www\.[\S]+($|\b))/img
-  http = /\b(https?:\/\/[0-9a-z+|.,:;\/&?_~%#=@!-]*[0-9a-z+|\/&_~%#=@-])/img
-  str = str.replace http, "<a href='event:$1'><u>$1</u></a>"
-  str = str.replace www, "$1<a href='event:http://$2'><u>$2</u></a>"
