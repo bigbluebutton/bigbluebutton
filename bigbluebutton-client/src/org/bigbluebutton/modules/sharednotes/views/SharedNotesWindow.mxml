@@ -69,14 +69,13 @@
 			private var _connection:NetConnection;
 			protected var _dispatcher:Dispatcher = new Dispatcher();
 			private var _document:String = "";
-		    protected var _notesId:String="MAIN_WINDOW";
+			protected var _notesId:String="MAIN_WINDOW";
 
 			private var options:SharedNotesOptions = new SharedNotesOptions();
 
 			private var sendUpdateTimer:Timer;
 			
 			public function onCreationComplete():void {
-
 				sendUpdateTimer = new Timer(options.refreshDelay, 1);
 
 				textArea.addEventListener("SHARED_NOTES_SAVED", function(e:Event):void {
@@ -93,22 +92,19 @@
 				sendUpdateTimer.addEventListener(TimerEvent.TIMER, function(e:Event):void {
 					sendPatch();
 				});
-                if(_notesId == "MAIN_WINDOW"){
-				    btnNew.visible = btnNew.includeInLayout = true;
-    				_dispatcher.dispatchEvent(new GetCurrentDocumentEvent());
-				    title = ResourceUtil.getInstance().getString('bbb.sharedNotes.title');
-                } else {
-				    btnNew.visible = btnNew.includeInLayout = false;
-			        title = ResourceUtil.getInstance().getString('bbb.sharedNotes.title') + " " + _notesId;
-                }
+				if(noteId == "MAIN_WINDOW"){
+					_dispatcher.dispatchEvent(new GetCurrentDocumentEvent());
+				}
+
+				updateTitle();
 			}
 
             public function get noteId():String{
-                return this._notesId;
+                return _notesId;
             }
 
             public function addRemoteDocument(notes:Object):void{
-			    _document = notes[_notesId];
+			    _document = notes[noteId];
                 
                 LogUtil.debug("ADD REMOTE DOC: " + _document);
                 textArea.text = _document;
@@ -122,7 +118,7 @@
 					onSyncing();
 					trace("ADD LOCAL");
 					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
-					sendPatchEvent.noteId = _notesId;
+					sendPatchEvent.noteId = noteId;
                     sendPatchEvent.patch = DiffPatch.diff(_document, clientText);
 					sendPatchEvent.beginIndex = textArea.selectionBeginIndex;
 					sendPatchEvent.endIndex = textArea.selectionEndIndex;
@@ -137,7 +133,7 @@
 			private function receivePatch(e:ReceivePatchEvent):void {
 				trace("SharedNotesWindow: patch received");
 				trace("=====\n" + e.patch + "\n=====");
-				if (e.patch != "" && e.noteId==_notesId) {
+				if (e.patch != "" && e.noteId==noteId) {
 					var result:String = DiffPatch.patch(e.patch, _document);
 					trace("SharedNotesWindow: before the patch\n" + _document);
 					trace("SharedNotesWindow: after the patch\n" + result);
@@ -173,6 +169,16 @@
 			
 			override public function close(event:MouseEvent=null):void {
 				super.close(event);
+			}
+
+			override protected function resourcesChanged():void {
+				super.resourcesChanged();
+
+				updateTitle();
+			}
+
+			protected function updateTitle():void {
+				title = ResourceUtil.getInstance().getString('bbb.sharedNotes.title');
 			}
 
 		]]>

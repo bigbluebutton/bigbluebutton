@@ -13,15 +13,25 @@ package org.bigbluebutton.modules.sharednotes.views
 	public class AdditionalSharedNotesWindow extends SharedNotesWindow
 	{
 
-		public function AdditionalSharedNotesWindow(notesId:String) {
-			trace("AdditionalSharedNotesWindow: in-constructor additional notes " + notesId);
-			_notesId = notesId;
+		public function AdditionalSharedNotesWindow(n:String) {
+			super();
+
+			trace("AdditionalSharedNotesWindow: in-constructor additional notes " + n);
+			_notesId = n;
 
 			showCloseButton = true;
 			width = 240;
 			height = 240;
 
 			closeBtn.addEventListener(MouseEvent.CLICK, onCloseBtnClick);
+		}
+
+		override public function onCreationComplete():void {
+			super.onCreationComplete();
+
+			trace("AdditionalSharedNotesWindow: [2] in-constructor additional notes " + noteId);
+
+			btnNew.visible = btnNew.includeInLayout = false;
 		}
 
 		private function onCloseBtnClick(e:MouseEvent):void {
@@ -33,7 +43,7 @@ package org.bigbluebutton.modules.sharednotes.views
 			if (e.detail == Alert.YES) {
 				showCloseButton = false;
 
-				trace("AdditionalSharedNotesWindow: requesting to destroy notes " + _notesId);
+				trace("AdditionalSharedNotesWindow: requesting to destroy notes " + noteId);
 				var destroyNotesEvent:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.DESTROY_ADDITIONAL_NOTES_REQUEST_EVENT);
 				destroyNotesEvent.payload.notesId = _notesId;
 				_dispatcher.dispatchEvent(destroyNotesEvent);
@@ -44,5 +54,8 @@ package org.bigbluebutton.modules.sharednotes.views
 			return MainCanvas.POPUP;
 		}
 
+		override protected function updateTitle():void {
+			title = ResourceUtil.getInstance().getString('bbb.sharedNotes.title') + " " + noteId;
+		}
 	}
 }

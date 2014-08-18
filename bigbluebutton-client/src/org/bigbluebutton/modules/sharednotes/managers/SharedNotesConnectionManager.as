@@ -129,10 +129,8 @@ package org.bigbluebutton.modules.sharednotes.managers
 		public function patchDocument(noteId:String, userid:String, patch:String, beginIndex:Number, endIndex:Number):void {
 			var nc:NetConnection = _connection;
 			nc.call("sharedNotes.patchDocument", null, noteId, userid, patch, beginIndex, endIndex);
-		}		
+		}
 
-
-	
 		private var debugResponder:Responder = new Responder(
 				function(result:Object):void {
 					trace("Success!");

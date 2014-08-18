@@ -22,6 +22,8 @@ package org.bigbluebutton.modules.sharednotes.maps
 {
 	import com.asfusion.mate.events.Dispatcher;
 
+	import mx.utils.ObjectUtil;
+
 	import org.bigbluebutton.common.events.ToolbarButtonEvent;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.modules.sharednotes.views.SharedNotesWindow;
@@ -47,7 +49,7 @@ package org.bigbluebutton.modules.sharednotes.maps
 		
 		public function SharedNotesEventMapDelegate() {
 			globalDispatcher = new Dispatcher();
-		    window = new SharedNotesWindow();	
+			window = new SharedNotesWindow();
 		}
         
         public function addRemoteDocuments(e:CurrentDocumentEvent):void{
@@ -64,8 +66,13 @@ package org.bigbluebutton.modules.sharednotes.maps
 		public function addMainWindow():void {
 			var openEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 			openEvent.window = window;
-            window.visible=true;
 			globalDispatcher.dispatchEvent(openEvent);
+		}
+
+		private function get windowsAsString():String {
+			return ObjectUtil.toString(windows).split("\n").filter(function(element:*, index:int, arr:Array):Boolean {
+				return element.substring(0, 4) != "    ";
+			}).join("\n");
 		}
 
 		public function createAdditionalNotes(notesId:String):void {
@@ -73,7 +80,6 @@ package org.bigbluebutton.modules.sharednotes.maps
 
 			var newWindow:AdditionalSharedNotesWindow = new AdditionalSharedNotesWindow(notesId);
 			windows[notesId] = newWindow;
-            newWindow.visible=true;
 
 			var openEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 			openEvent.window = newWindow;
@@ -92,9 +98,8 @@ package org.bigbluebutton.modules.sharednotes.maps
 				globalDispatcher.dispatchEvent(closeEvent);
 
 				trace(NAME + ": removing from windows list");
-				windows.splice(notesId, 1);
+				delete windows[notesId];
 			}
-			   	
 		}
 		
 	}
