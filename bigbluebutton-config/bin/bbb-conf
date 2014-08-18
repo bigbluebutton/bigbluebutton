@@ -319,7 +319,7 @@ enable_webrtc(){
 	sed -i "s@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@<param name=\"ws-binding\"  value=\":5066\"/>@g" /opt/freeswitch/conf/sip_profiles/external.xml
 
 	echo 
-	echo "WebRTC enabled.  To apply settings to your server, do
+	echo "WebRTC enabled.  To apply settings to your server, do"
 	echo 
 	echo "   sudo bbb-conf --clean"
 	echo 
@@ -340,7 +340,7 @@ disable_webrtc(){
 	sed -i "s@<param name=\"ws-binding\"  value=\":5066\"/>@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@g" /opt/freeswitch/conf/sip_profiles/external.xml
 
 	echo 
-	echo "WebRTC disabled.  To apply settings to your server, do
+	echo "WebRTC disabled.  To apply settings to your server, do"
 	echo 
 	echo "   sudo bbb-conf --clean"
 	echo 
