@@ -35,7 +35,10 @@ package org.bigbluebutton.modules.sharednotes.views
 		}
 
 		private function onCloseBtnClick(e:MouseEvent):void {
-			var alert:Alert = Alert.show("This action will destroy these notes for everyone, and there's no way to undo. Are you sure you want to close these notes?", "Closing shared notes", Alert.YES | Alert.NO, parent as Sprite, alertClose, null, Alert.YES);
+			var alert:Alert = Alert.show(
+					ResourceUtil.getInstance().getString('bbb.sharedNotes.additionalNotes.closeWarning.message'),
+					ResourceUtil.getInstance().getString('bbb.sharedNotes.additionalNotes.closeWarning.title'),
+					Alert.YES | Alert.NO, parent as Sprite, alertClose, null, Alert.YES);
 			e.stopPropagation();
 		}
 
