@@ -41,9 +41,20 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    case msg: UserListeningOnly                      => handleUserListeningOnly(msg)
 	    case msg: NewPermissionsSetting                  => handleNewPermissionsSetting(msg)
 	    case msg: MeetingMuted                           => handleMeetingMuted(msg)
+	    case msg: MeetingState                           => handleMeetingState(msg)
 	    
 	    case _ => // println("Unhandled message in UsersClientMessageSender")
 	  }
+	}
+	
+	private def buildPermissionsHashMap(perms: Permissions):java.util.HashMap[String, java.lang.Boolean] = {
+	  val args = new java.util.HashMap[String, java.lang.Boolean]();  
+	  args.put("disableCam", perms.disableCam:java.lang.Boolean);
+	  args.put("disableMic", perms.disableMic:java.lang.Boolean);
+	  args.put("disablePrivChat", perms.disablePrivChat:java.lang.Boolean);
+	  args.put("disablePubChat", perms.disablePubChat:java.lang.Boolean);
+    args.put("lockedLayout", perms.lockedLayout:java.lang.Boolean);
+    args
 	}
 	
 	private def buildUserHashMap(user: UserVO):java.util.HashMap[String, Object] = {
@@ -90,7 +101,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  args.put("disableMic", msg.permissions.disableMic:java.lang.Boolean);
 	  args.put("disablePrivChat", msg.permissions.disablePrivChat:java.lang.Boolean);
 	  args.put("disablePubChat", msg.permissions.disablePubChat:java.lang.Boolean);
-      args.put("lockedLayout", msg.permissions.lockedLayout:java.lang.Boolean);
+    args.put("lockedLayout", msg.permissions.lockedLayout:java.lang.Boolean);
     
 	  var users = new ArrayList[java.util.HashMap[String, Object]];
       msg.applyTo.foreach(uvo => {		
@@ -267,6 +278,19 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  service.sendMessage(m);	  
 	}
 	
+	private def handleMeetingState(msg: MeetingState) {
+	  var args = new HashMap[String, Object]();	
+	  args.put("permissions", buildPermissionsHashMap(msg.permissions));
+		args.put("meetingMuted", msg.meetingMuted:java.lang.Boolean);
+		
+	  val message = new java.util.HashMap[String, Object]() 
+	  val gson = new Gson();
+  	message.put("msg", gson.toJson(args))
+
+  	var jmr = new DirectClientMessage(msg.meetingID, msg.userId, "meetingState", message);
+  	service.sendMessage(jmr);	  
+	}
+	
 	private def handleMeetingMuted(msg: MeetingMuted) {
 	  var args = new HashMap[String, Object]();	
 	  args.put("meetingMuted", msg.meetingMuted:java.lang.Boolean);
@@ -308,7 +332,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 		
 	  val message = new java.util.HashMap[String, Object]() 
 	  val gson = new Gson();
-  	  message.put("msg", gson.toJson(args))
+  	message.put("msg", gson.toJson(args))
 		
 //  	  println("UsersClientMessageSender - handleAssignPresenter \n" + message.get("msg") + "\n")
   	    
@@ -322,19 +346,21 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 		
 	  val message = new java.util.HashMap[String, Object]() 
 	  val gson = new Gson();
-  	  message.put("msg", gson.toJson(args))
+  	message.put("msg", gson.toJson(args))
 
-//  	    println("UsersClientMessageSender - joinMeetingReply \n" + message.get("msg") + "\n")
+//  println("UsersClientMessageSender - joinMeetingReply \n" + message.get("msg") + "\n")
 			
-  	  var jmr = new DirectClientMessage(msg.meetingID, msg.user.userID, "joinMeetingReply", message);
-  	  service.sendMessage(jmr);
+  	var jmr = new DirectClientMessage(msg.meetingID, msg.user.userID, "joinMeetingReply", message);
+  	service.sendMessage(jmr);
   	  
-//  	    println("UsersClientMessageSender - handleUserJoined \n" + message.get("msg") + "\n")
+//  println("UsersClientMessageSender - handleUserJoined \n" + message.get("msg") + "\n")
   	    
-  	  var m = new BroadcastClientMessage(msg.meetingID, "participantJoined", message);
-  	  service.sendMessage(m);
+  	var m = new BroadcastClientMessage(msg.meetingID, "participantJoined", message);
+  	service.sendMessage(m);
 	}
 
+	
+	
 	private def handleUserLeft(msg: UserLeft):Unit = {
 	  var args = new HashMap[String, Object]();	
 	  args.put("user", buildUserHashMap(msg.user));

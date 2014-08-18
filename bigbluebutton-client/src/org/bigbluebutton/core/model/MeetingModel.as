@@ -1,5 +1,7 @@
 package org.bigbluebutton.core.model
 {
+  import org.bigbluebutton.core.vo.LockSettingsVO;
+
   public class MeetingModel
   {
     private static var instance:MeetingModel = null;
@@ -8,6 +10,7 @@ package org.bigbluebutton.core.model
     
     private var _meetingMuted:Boolean = false;
     private var _meetingMutedExceptPresenter:Boolean = false;
+    private var _lockSettings:LockSettingsVO;
     
     public function MeetingModel(enforcer: MeetingModelSingletonEnforcer)
     {

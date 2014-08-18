@@ -1,11 +1,11 @@
- package org.bigbluebutton.core.apps.users
+package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.core.api._
- import scala.collection.mutable.HashMap
- import org.bigbluebutton.core.User
- import java.util.ArrayList
- import org.bigbluebutton.core.MeetingActor
- import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.HashMap
+import org.bigbluebutton.core.User
+import java.util.ArrayList
+import org.bigbluebutton.core.MeetingActor
+import scala.collection.mutable.ArrayBuffer
 
 trait UsersApp {
   this : MeetingActor =>
@@ -220,6 +220,8 @@ trait UsersApp {
 					
 	    outGW.send(new UserJoined(meetingID, recorded, uvo))
 	
+	    outGW.send(new MeetingState(meetingID, recorded, uvo.userID, permissions, meetingMuted))
+	    
 	    // Become presenter if the only moderator		
 	    if (users.numModerators == 1) {
 	      if (ru.role == Role.MODERATOR) {

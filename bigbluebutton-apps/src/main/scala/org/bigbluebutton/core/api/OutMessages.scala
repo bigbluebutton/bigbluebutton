@@ -64,6 +64,15 @@ case class MeetingEnded(
     version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
+case class MeetingState(
+    meetingID: String, 
+    recorded: Boolean, 
+    userId: String,
+    permissions: Permissions,
+    meetingMuted: Boolean,
+    version:String = Versions.V_0_0_1    
+) extends IOutMessage
+
 case class MeetingHasEnded(
   meetingID: String,
   userId: String,
