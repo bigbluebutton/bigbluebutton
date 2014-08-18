@@ -213,7 +213,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	
 	  val message = new java.util.HashMap[String, Object]() 
 	  val gson = new Gson();
-  	  message.put("msg", gson.toJson(args))
+  	message.put("msg", gson.toJson(args))
   	
 //  	  println("UsersClientMessageSender - handleUserLeftVoice \n" + message.get("msg") + "\n")
 //  	log.debug("UsersClientMessageSender - handleUserLeftVoice \n" + message.get("msg") + "\n")

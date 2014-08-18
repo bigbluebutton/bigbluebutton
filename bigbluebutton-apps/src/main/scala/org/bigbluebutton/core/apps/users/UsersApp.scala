@@ -247,6 +247,9 @@ trait UsersApp {
           users.addUser(nu)
 //          println("Received user joined voice for user [" + nu.name + "] userid=[" + msg.voiceUser.webUserId + "]" )
           outGW.send(new UserJoinedVoice(meetingID, recorded, voiceBridge, nu))
+          
+          if (meetingMuted)
+            outGW.send(new MuteVoiceUser(meetingID, recorded, nu.userID, nu.userID, meetingMuted))
         }
         case None => {
           // No current web user. This means that the user called in through
@@ -266,6 +269,8 @@ trait UsersApp {
 		      outGW.send(new UserJoined(meetingID, recorded, uvo))
 		      
 		      outGW.send(new UserJoinedVoice(meetingID, recorded, voiceBridge, uvo))
+		      if (meetingMuted)
+            outGW.send(new MuteVoiceUser(meetingID, recorded, uvo.userID, uvo.userID, meetingMuted))
         }
       }
   }
