@@ -147,8 +147,6 @@ Meteor.methods
     setInSession("meetingName", null)
     setInSession("bbbServerVersion", "0.90")
     setInSession("userName", null) 
-    setInSession("validUser", true) # got info from server, user is a valid user
-    setInSession "messageFontSize", 14
 
 @toggleCam = (event) ->
   # Meteor.Users.update {_id: context._id} , {$set:{"user.sharingVideo": !context.sharingVideo}}

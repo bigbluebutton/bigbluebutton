@@ -29,7 +29,8 @@ Template.header.events
 	"click .raiseHand": (event) ->
 		Meteor.call('userRaiseHand', getInSession("meetingId"), @id)
 	"click .lowerHand": (event) ->
-		loweredBy = @id # TODO! this must be the userid of the person lowering the hand - instructor/student
+		# loweredBy = @id # TODO! this must be the userid of the person lowering the hand - instructor/student
+		loweredBy = getInSession("userId")
 		Meteor.call('userLowerHand', getInSession("meetingId"), @id, loweredBy)
 	"click .whiteboardIcon": (event) ->
 		toggleWhiteBoard()
@@ -59,12 +60,13 @@ Meteor.startup ->
 	    return
 	)
 
-	SessionAmplify.set "display_usersList", true
-	SessionAmplify.set "display_navbar", true
-	SessionAmplify.set "display_chatbar", true
-	SessionAmplify.set "display_whiteboard", true
-	SessionAmplify.set "display_chatPane", true
-	SessionAmplify.set 'inChatWith', "PUBLIC_CHAT"
-	SessionAmplify.set "joinedAt", getTime()
-	SessionAmplify.set "isSharingAudio", false
-	SessionAmplify.set "inChatWith", 'PUBLIC_CHAT'
+	setInSession "display_usersList", true
+	setInSession "display_navbar", true
+	setInSession "display_chatbar", true
+	setInSession "display_whiteboard", true
+	setInSession "display_chatPane", true
+	setInSession 'inChatWith', "PUBLIC_CHAT"
+	setInSession "joinedAt", getTime()
+	setInSession "isSharingAudio", false
+	setInSession "inChatWith", 'PUBLIC_CHAT'
+	setInSession "messageFontSize", 12

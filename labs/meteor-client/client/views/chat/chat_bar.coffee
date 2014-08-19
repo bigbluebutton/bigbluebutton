@@ -18,10 +18,10 @@
     "to_userid": if chattingWith is "PUBLIC_CHAT" then "public_chat_userid" else chattingWith
     "from_lang": "en"
     "from_time": getTime()
-    "from_color": "0"
+    "from_color": "0x000000"
+    # "from_color": "0x#{getInSession("messageColor")}"
   }
-  # console.log 'Sending message to server:'
-  # console.log messageForServer
+
   Meteor.call "sendChatMessagetoServer", getInSession("meetingId"), messageForServer
   $('#newMessageInput').val '' # Clear message box
 
@@ -38,14 +38,10 @@ Template.chatInput.rendered  = ->
 
 Template.chatbar.helpers
 	getChatGreeting: ->
-		greeting = 
-		"<div class='chatGreeting'>
-		<p>Welcome to #{getMeetingName()}!</p>
-		<p>For help on using BigBlueButton see these (short) <a href='http://www.bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.</p>
-		<p>To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.</p>
-		<br/>
-		<p>This server is running BigBlueButton #{getInSession 'bbbServerVersion'}.</p>
-		</div>"
+		greeting = "Welcome to #{getMeetingName()}!\n\n
+		For help on using BigBlueButton see these (short) <a href='http://www.bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.\n\n
+		To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.\n\n\n
+		This server is running BigBlueButton #{getInSession 'bbbServerVersion'}."
 
 	# This method returns all messages for the user. It looks at the session to determine whether the user is in
 	#private or public chat. If true is passed, messages returned are from before the user joined. Else, the messages are from after the user joined
@@ -58,11 +54,11 @@ Template.chatbar.helpers
 			after = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$gt: String(getInSession("joinedAt"))}}).fetch()
 
 			greeting = [
-				'class': 'chatGreeting',
 				'message':
 					'message': Template.chatbar.getChatGreeting(),
 					'from_username': 'System',
 					'from_time': getTime()
+					'from_color': '0x3399FF' # A nice blue in hex
 			]
 		else
 			me = getInSession("userId")
@@ -158,20 +154,44 @@ Template.tabButtons.helpers
     button
 
 Template.message.helpers
-  toClockTime: (epochTime) ->
-    if epochTime is null
-      return ""
-    local = new Date()
-    offset = local.getTimezoneOffset()
-    epochTime = epochTime - offset * 60000 # 1 min = 60 s = 60,000 ms
-    dateObj = new Date(epochTime)
-    hours = dateObj.getUTCHours()
-    minutes = dateObj.getUTCMinutes()
-    if minutes < 10
-      minutes = "0" + minutes
-    hours + ":" + minutes
+	activateBreakLines: (str) ->
+		res = str
+		res = res.replace /\n/gim, '<br/>'
+		res = res.replace /\r/gim, '<br/>'
+	
+	getHexColor: (c) ->
+		if parseInt(c).toString(16).length is 4
+			"#00#{parseInt(c).toString(16)}"
+		else
+			"##{parseInt(c).toString(16)}"
 
-  # make links received from Flash client clickable in HTML
-  toClickable: (str) ->
-    res = str.replace /<a href='event:/gim, "<a target='_blank' href='"
-    res.replace /<a href="event:/gim, '<a target="_blank" href="'
+	# make links received from Flash client clickable in HTML
+	toClickable: (str) ->
+		res = str
+		# res = str.replace /&lt;a href='event:/gim, "<a target='_blank' href='"
+		# res = res.replace /&lt;a&gt;/gim, '</a>'		
+
+		# res = res.replace /&lt;u&gt;/gim, '<u>'
+		# res = res.replace /&lt;\/u&gt;/gim, '</u>'
+		res
+
+	toClockTime: (epochTime) ->
+		if epochTime is null
+			return ""
+		local = new Date()
+		offset = local.getTimezoneOffset()
+		epochTime = epochTime - offset * 60000 # 1 min = 60 s = 60,000 ms
+		dateObj = new Date(epochTime)
+		hours = dateObj.getUTCHours()
+		minutes = dateObj.getUTCMinutes()
+		if minutes < 10
+			minutes = "0" + minutes
+		hours + ":" + minutes
+
+	sanitizeAndFormat: (str) ->
+		res = str
+		# First, replace replace all tags with the ascii equivalent
+		res = res.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+		res = Template.message.toClickable(res)
+		res = Template.message.activateBreakLines(res)
