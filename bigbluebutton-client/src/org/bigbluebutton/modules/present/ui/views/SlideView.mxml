@@ -267,7 +267,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public function onZoomSlide(zoom:Number):void {
 				if (slideLoader.content == null) return;
-				zoomSlide(zoom, slideLoader.content.width/2, slideLoader.content.height/2);
+				zoomSlide(zoom, (((slideLoader.content.width/2)*SlideViewModel.HUNDRED_PERCENT)/zoom), (((slideLoader.content.height/2)*SlideViewModel.HUNDRED_PERCENT)/zoom));
 			}
 			
 			private function zoomSlide(zoom:Number, mouseX:Number, mouseY:Number):void {
