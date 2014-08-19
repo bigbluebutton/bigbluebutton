@@ -225,6 +225,8 @@ uncomment () {
 }
 
 stop_bigbluebutton () {
+	/etc/init.d/monit stop
+
 	/etc/init.d/bbb-red5 stop
 	/etc/init.d/${SERVLET_CONTAINER} stop
 	/etc/init.d/nginx stop
@@ -260,17 +262,11 @@ start_bigbluebutton () {
 	fi
 	echo
 
-	if [ -f /etc/init.d/bbb-openoffice-headless ]; then	
-		/etc/init.d/bbb-openoffice-headless start
-	fi
-	
 	/etc/init.d/nginx start
 	/etc/init.d/bbb-red5 start
 	/etc/init.d/${SERVLET_CONTAINER} start
 
-	if [ -f /etc/init.d/bbb-record-core ]; then
-		/etc/init.d/bbb-record-core start
-	fi
+	/etc/init.d/monit start
 
 
 	#
