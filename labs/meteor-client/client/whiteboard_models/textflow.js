@@ -50,112 +50,109 @@ somewhere in the source-code-comment or the "about" of your project and give cre
 */
 
 Meteor.methods({
-    'textFlow': function(myText,textToAppend,maxWidth,x,ddy,justified){
-        alert("got here111!");
-        //main function
-        function textFlowHelper(myText,textToAppend,maxWidth,x,ddy,justified) {
-                //extract and add line breaks for start
-                var dashArray = new Array();
-                var dashFound = true;
-                var indexPos = 0;
-                var cumulY = 0;
-                while (dashFound == true) {
-                        var result = myText.indexOf("-",indexPos);
-                        if (result == -1) {
-                                //could not find a dash
-                                dashFound = false;
-                        }
-                        else {
-                                dashArray.push(result);
-                                indexPos = result + 1;
-                        }
-                }
-                //split the text at all spaces and dashes
-                var words = myText.split(/[\s-]/);
-                var line = "";
-                var dy = 0;
-                var curNumChars = 0;
-                var computedTextLength = 0;
-                var myTextNode;
-                var tspanEl;
-                var lastLineBreak = 0;
-
-                for (i=0;i<words.length;i++) {
-                        var word = words[i];
-                        curNumChars += word.length + 1;
-                        if (computedTextLength > maxWidth || i == 0) {
-                                if (computedTextLength > maxWidth) {
-                                     var tempText = tspanEl.firstChild.nodeValue;
-                                     tempText = tempText.slice(0,(tempText.length - words[i-1].length - 2)); //the -2 is because we also strip off white space
-                                     tspanEl.firstChild.nodeValue = tempText;
-                                     if (justified) {
-                                       //determine the number of words in this line
-                                       var nrWords = tempText.split(/\s/).length;
-                                       computedTextLength = tspanEl.getComputedTextLength();
-                                       var additionalWordSpacing = (maxWidth - computedTextLength) / (nrWords - 1);
-                                       tspanEl.setAttributeNS(null,"word-spacing",additionalWordSpacing);
-                                       //alternatively one could use textLength and lengthAdjust, however, currently this is not too well supported in SVG UA's
-                                     }
-                                }
-                                tspanEl = document.createElementNS(svgNS,"tspan");
-                                tspanEl.setAttributeNS(null,"x",x);
-                                tspanEl.setAttributeNS(null,"dy",dy);
-                                myTextNode = document.createTextNode(line);
-                                tspanEl.appendChild(myTextNode);
-                                textToAppend.appendChild(tspanEl);
-
-                                if(checkDashPosition(dashArray,curNumChars-1)) {
-                                   line = word + "-";
-                                }
-                                else {
-                                   line = word + " ";
-                                }
-                                if (i != 0) {
-                                   line = words[i-1] + " " + line;
-                                }
-                                dy = ddy;
-                                cumulY += dy;
-                         }
-                        else {
-                                if(checkDashPosition(dashArray,curNumChars-1)) {
-                                        line += word + "-";
-                                }
-                                else {
-                                        line += word + " ";
-                                }
-                        }
-                        tspanEl.firstChild.nodeValue = line;
-                        computedTextLength = tspanEl.getComputedTextLength();
-                        if (i == words.length - 1) {
-                          if (computedTextLength > maxWidth) {
-                            var tempText = tspanEl.firstChild.nodeValue;
-                            tspanEl.firstChild.nodeValue = tempText.slice(0,(tempText.length - words[i].length - 1));
-                            tspanEl = document.createElementNS(svgNS,"tspan");
-                            tspanEl.setAttributeNS(null,"x",x);
-                            tspanEl.setAttributeNS(null,"dy",dy);
-                            myTextNode = document.createTextNode(words[i]);
-                            tspanEl.appendChild(myTextNode);
-                            textToAppend.appendChild(tspanEl);
-                          }
-
-                        }
-                }
-                return cumulY;
+  //'textFlow': function(myText, textToAppend, maxWidth, x, ddy, justified) {
+  'textFlow': function(myText, maxWidth, x, ddy, justified) {
+    alert("got here111!");
+    //main function
+    //function textFlowHelper(myText, textToAppend, maxWidth, x, ddy, justified) {
+    function textFlowHelper(myText, maxWidth, x, ddy, justified) {
+      //extract and add line breaks for start
+      var dashArray = new Array();
+      var dashFound = true;
+      var indexPos = 0;
+      var cumulY = 0;
+      alert( getElementById('whiteboard-paper'));
+      while (dashFound == true) {
+        var result = myText.indexOf("-", indexPos);
+        if (result == -1) {
+          //could not find a dash
+          dashFound = false;
+        } else {
+          dashArray.push(result);
+          indexPos = result + 1;
         }
+      }
+      //split the text at all spaces and dashes
+      var words = myText.split(/[\s-]/);
+      var line = "";
+      var dy = 0;
+      var curNumChars = 0;
+      var computedTextLength = 0;
+      var myTextNode;
+      var tspanEl;
+      var lastLineBreak = 0;
 
-        //this function checks if there should be a dash at the given position, instead of a blank
-        function checkDashPosition(dashArray,pos) {
-                var result = false;
-                for (var i=0;i<dashArray.length;i++) {
-                        if (dashArray[i] == pos) {
-                                result = true;
-                        }
-                }
-                return result;
+      for (i = 0; i < words.length; i++) {
+        var word = words[i];
+        curNumChars += word.length + 1;
+        if (computedTextLength > maxWidth || i == 0) {
+          if (computedTextLength > maxWidth) {
+            var tempText = tspanEl.firstChild.nodeValue;
+            tempText = tempText.slice(0, (tempText.length - words[i - 1].length - 2)); //the -2 is because we also strip off white space
+            tspanEl.firstChild.nodeValue = tempText;
+            if (justified) {
+              //determine the number of words in this line
+              var nrWords = tempText.split(/\s/).length;
+              computedTextLength = tspanEl.getComputedTextLength();
+              var additionalWordSpacing = (maxWidth - computedTextLength) / (nrWords - 1);
+              tspanEl.setAttributeNS(null, "word-spacing", additionalWordSpacing);
+              //alternatively one could use textLength and lengthAdjust, however, currently this is not too well supported in SVG UA's
+            }
+          }
+          tspanEl = document.createElementNS(svgNS, "tspan");
+          tspanEl.setAttributeNS(null, "x", x);
+          tspanEl.setAttributeNS(null, "dy", dy);
+          myTextNode = document.createTextNode(line);
+          tspanEl.appendChild(myTextNode);
+          textToAppend.appendChild(tspanEl);
+
+          if (checkDashPosition(dashArray, curNumChars - 1)) {
+            line = word + "-";
+          } else {
+            line = word + " ";
+          }
+          if (i != 0) {
+            line = words[i - 1] + " " + line;
+          }
+          dy = ddy;
+          cumulY += dy;
+        } else {
+          if (checkDashPosition(dashArray, curNumChars - 1)) {
+            line += word + "-";
+          } else {
+            line += word + " ";
+          }
         }
+        tspanEl.firstChild.nodeValue = line;
+        computedTextLength = tspanEl.getComputedTextLength();
+        if (i == words.length - 1) {
+          if (computedTextLength > maxWidth) {
+            var tempText = tspanEl.firstChild.nodeValue;
+            tspanEl.firstChild.nodeValue = tempText.slice(0, (tempText.length - words[i].length - 1));
+            tspanEl = document.createElementNS(svgNS, "tspan");
+            tspanEl.setAttributeNS(null, "x", x);
+            tspanEl.setAttributeNS(null, "dy", dy);
+            myTextNode = document.createTextNode(words[i]);
+            tspanEl.appendChild(myTextNode);
+            textToAppend.appendChild(tspanEl);
+          }
 
-      return textFlowHelper(myText,textToAppend,maxWidth,x,ddy,justified);
+        }
+      }
+      return cumulY;
     }
+
+    //this function checks if there should be a dash at the given position, instead of a blank
+    function checkDashPosition(dashArray, pos) {
+      var result = false;
+      for (var i = 0; i < dashArray.length; i++) {
+        if (dashArray[i] == pos) {
+          result = true;
+        }
+      }
+      return result;
+    }
+
+    return textFlowHelper(myText, textToAppend, maxWidth, x, ddy, justified);
+  }
 });
-
-
