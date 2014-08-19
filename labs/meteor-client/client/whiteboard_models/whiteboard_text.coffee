@@ -7,11 +7,7 @@ class @WhiteboardTextModel extends WhiteboardToolModel
     # format: x, y, width, height, colour, fontSize, calcFontSize, text
     @definition = [0, 0, 0, 0, "#000", 0, 0, ""]
 
-    # @textX = null
-    # @textY = null
-
   # Make a text on the whiteboard
-  #make: (x, y, width, height, colour, fontSize, calcFontSize, text) ->
   make: (startingData) ->
     console.log "making a text:" + JSON.stringify startingData
 
@@ -44,12 +40,8 @@ class @WhiteboardTextModel extends WhiteboardToolModel
     @obj.node.style["textAnchor"] = "start"  # for firefox, 'cause they like to be different
     @obj
 
-  # Update triangle drawn
-  # @param  {number} x1 the x value of the top left corner
-  # @param  {number} y1 the y value of the top left corner
-  # @param  {number} x2 the x value of the bottom right corner
-  # @param  {number} y2 the y value of the bottom right corner
-  #update: (x, y, width, height, colour, fontSize, calcFontSize, text) ->
+  # Update text shape drawn
+  # @param  {object} the object containing the shape info
   update: (startingData) ->
     console.log "updating text" + JSON.stringify startingData
 
