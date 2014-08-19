@@ -71,7 +71,7 @@ function patchClientText(patches, text, selectionStart, selectionEnd) {
   dmp.Match_Threshold = 0.6;
 
   var oldClientText = text
-  oldClientText = oldClientText + "2OI3nfi#213fcouef*od(1";
+  oldClientText = oldClientText + "``````````````````````";
   var cursor = captureCursor_(oldClientText, selectionStart, selectionEnd);
   // Pack the cursor offsets into an array to be adjusted.
   // See http://neil.fraser.name/writing/cursor/
