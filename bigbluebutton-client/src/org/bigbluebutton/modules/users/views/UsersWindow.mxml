@@ -33,9 +33,12 @@
 	<mate:Listener type="{ShortcutEvent.RAISE_HAND}" method="remoteRaiseHand" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_USERS_WINDOW}" method="focusWindow" />
 	<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
+	<mate:Listener type="{MeetingMutedEvent.MEETING_MUTED}" method="handleMeetingMuted" />
+	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="handleChangedLockSettingsEvent" />
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;			
+			import com.asfusion.mate.events.Dispatcher;
+			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
@@ -43,7 +46,8 @@
 			import mx.core.IFlexDisplayObject;
 			import mx.events.ListEvent;
 			import mx.events.MenuEvent;
-			import mx.managers.PopUpManager;			
+			import mx.managers.PopUpManager;
+			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.Role;
@@ -51,6 +55,8 @@
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
 			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.core.model.MeetingModel;
+			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
@@ -59,6 +65,7 @@
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			import org.bigbluebutton.main.views.LockSettings;
 			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
 			import org.bigbluebutton.modules.users.events.UsersEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
@@ -69,7 +76,10 @@
 			private var keyCombos:Object;
 			private var modifier:String;
 			
+			[Bindable]
 			private var roomMuted:Boolean = false;
+			
+			[Bindable]
 			private var roomLocked:Boolean = false;
 			
 			private var myMenu:Menu;
@@ -115,6 +125,11 @@
 				changeButtons(UserManager.getInstance().getConference().amIPresenter);
 				
 				resourcesChanged();
+				
+				roomMuted = MeetingModel.getInstance().meetingMuted;
+				var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
+				roomLocked = lockSettings.getDisableCam() || lockSettings.getDisableMic() || lockSettings.getDisablePrivateChat() 
+					|| lockSettings.getDisablePublicChat() || lockSettings.getLockedLayout();
 				
 				titleBarOverlay.tabIndex = partOptions.baseTabIndex;
 				minimizeBtn.tabIndex = partOptions.baseTabIndex+1;
@@ -198,6 +213,11 @@
 				}
 			}
 			
+			private function handleChangedLockSettingsEvent(e:LockControlEvent):void {
+				var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
+				roomLocked = lockSettings.getDisableCam() || lockSettings.getDisableMic() || lockSettings.getDisablePrivateChat() 
+								|| lockSettings.getDisablePublicChat() || lockSettings.getLockedLayout();
+			}
 			
 			private function lockSettings():void {
 				LogUtil.traceObject("Action: lockSettings");
@@ -246,6 +266,9 @@
 				}
 			}
 			
+			private function handleMeetingMuted(e:MeetingMutedEvent):void {
+				roomMuted = MeetingModel.getInstance().meetingMuted;
+			}
 			
 			private function muteAll():void {
 				if (amIModerator) {
@@ -433,6 +456,10 @@
 		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}" selected="{UserManager.getInstance().getConference().isMyHandRaised}"
 					width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip')}" click="raiseHand()"
 					visible="false" tabIndex="{partOptions.baseTabIndex+15}" />
+		<mx:VBox>
+			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomMuted.text')}" visible="{roomMuted}" includeInLayout="{roomMuted}" />
+			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomLocked.text')}" visible="{roomLocked}" includeInLayout="{roomLocked}" />
+		</mx:VBox>
 	</mx:ControlBar>
 	
 </mdi:MDIWindow>

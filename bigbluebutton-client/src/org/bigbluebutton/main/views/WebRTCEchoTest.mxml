@@ -147,7 +147,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:Canvas id="cnvTitle" width="100%">
 			<mx:TextArea borderSkin="{null}"
 						 editable="false"
-						 text="Audio Echo Test"
+						 text="{ResourceUtil.getInstance().getString('bbb.micSettings.title')}"
 						 styleName="micSettingsWindowTitleStyle"
 						 width="400"
 						 left="0"/>

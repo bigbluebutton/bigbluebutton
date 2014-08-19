@@ -82,7 +82,10 @@ package org.bigbluebutton.modules.users.services
           break;
         case "meetingMuted":
           handleMeetingMuted(message);
-          break;        
+          break;   
+        case "meetingState":
+          handleMeetingState(message);
+          break;  
         case "participantJoined":
           handleParticipantJoined(message);
           break;
@@ -171,11 +174,23 @@ package org.bigbluebutton.modules.users.services
     private function handleMeetingMuted(msg:Object):void {
       trace(LOG + "*** handleMeetingMuted " + msg.msg + " **** \n");
       var map:Object = JSON.parse(msg.msg);
-      if (map.hasOwnProperty("meetingMuted") && map.hasOwnProperty("meetingMutedExceptPresenter")) {
+      if (map.hasOwnProperty("meetingMuted")) {
         MeetingModel.getInstance().meetingMuted = map.meetingMuted;
-        MeetingModel.getInstance().meetingMutedExceptPresenter = map.meetingMutedExceptPresenter;
         dispatcher.dispatchEvent(new MeetingMutedEvent());
       }
+    }
+    
+    private function handleMeetingState(msg:Object):void {
+      trace(LOG + "*** handleMeetingState " + msg.msg + " **** \n");
+      var map:Object = JSON.parse(msg.msg);  
+      var perm:Object = map.permissions;
+      
+      var lockSettings:LockSettingsVO = new LockSettingsVO(perm.disableCam, perm.disableMic,
+                                                 perm.disablePrivChat, perm.disablePubChat, perm.lockedLayout);
+      UserManager.getInstance().getConference().setLockSettings(lockSettings);
+      MeetingModel.getInstance().meetingMuted = map.meetingMuted;
+      
+      UserManager.getInstance().getConference().applyLockSettings();
     }
     
     private function handleGetRecordingStatusReply(msg: Object):void {

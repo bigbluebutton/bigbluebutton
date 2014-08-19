@@ -170,10 +170,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           var presentationName:String = StringUtil.trim(fileToUpload.name);
           trace(LOG + "Uploading file : " + presentationName);
 
-          progBarLbl.visible = true;
-          
-          lblFileName.enabled = false;
-          
+          progBarLbl.visible = true;          
+          lblFileName.enabled = false;         
           presentationNamesLb.visible = false;
           
           var uploadCmd:UploadFileCommand = new UploadFileCommand();
@@ -310,19 +308,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                  toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.uploadBtn.toolTip')}"  click="startUpload()"
                  enabled="false" icon="{bulletGoIcon}"/>
     </mx:HBox>
-    <mx:HBox id="progressReportBox" width="100%" paddingLeft="10" paddingTop="5" paddingBottom="10" includeInLayout="false" visible="false">
+    <mx:HBox id="progressReportBox" width="100%" paddingLeft="10" paddingTop="5" paddingBottom="10" includeInLayout="true" visible="false">
       <mx:Label id="progBarLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}" 
-                styleName="presentationUploadProgressBarLabelStyle"
-                visible="false"/>
+                styleName="presentationUploadProgressBarLabelStyle" visible="false"/>
       <mx:ProgressBar id="progressBar" mode="manual" label="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}"
-                      styleName="presentationUploadProgressBarStyle"
-                      labelPlacement="center" width="460" visible="false"/>
+                      styleName="presentationUploadProgressBarStyle" labelPlacement="center" width="460" visible="false"/>
     </mx:HBox>
-	<mx:HBox width="100%" height="100%" paddingLeft="5">
-	     <mx:HBox width="328" height="100%" styleName="presentationUploadFileFormatHintBoxStyle">
+	<mx:Box width="100%" height="100%" paddingLeft="5" paddingRight="5">
+		<mx:Box width="100%" height="100%" verticalAlign="middle" styleName="presentationUploadFileFormatHintBoxStyle">
 	        <mx:Text width="100%" id="fileFormatHintLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.fileFormatHint')}" styleName="presentationUploadFileFormatHintTextStyle"/>
-	     </mx:HBox>
-    </mx:HBox>
+		</mx:Box>
+    </mx:Box>
     <mx:Label id="presentationNamesLb" text="{ResourceUtil.getInstance().getString('bbb.fileupload.presentationNamesLbl')}" styleName="presentationNamesLabelStyle" paddingLeft="5"/>
     <mx:Canvas width="100%" height="130" verticalScrollPolicy="off">
       <mx:List width="100%" height="120" left="5" top="5" right="5" id="uploadedFilesList" alternatingItemColors="[#EFEFEF, #FEFEFE]" allowMultipleSelection="false"

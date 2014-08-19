@@ -318,9 +318,11 @@ enable_webrtc(){
 	# Enable port 5066 in freeswitch
 	sed -i "s@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@<param name=\"ws-binding\"  value=\":5066\"/>@g" /opt/freeswitch/conf/sip_profiles/external.xml
 
-	echo "Recommend you do"
+	echo 
+	echo "WebRTC enabled.  To apply settings to your server, do"
+	echo 
 	echo "   sudo bbb-conf --clean"
-	echo "to restart BigBlueButton."
+	echo 
 }
 
 disable_webrtc(){
@@ -337,9 +339,11 @@ disable_webrtc(){
 	# Disable port 5066 in freeswitch
 	sed -i "s@<param name=\"ws-binding\"  value=\":5066\"/>@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@g" /opt/freeswitch/conf/sip_profiles/external.xml
 
-	echo "Recommend you do"
+	echo 
+	echo "WebRTC disabled.  To apply settings to your server, do"
+	echo 
 	echo "   sudo bbb-conf --clean"
-	echo "to restart BigBlueButton."
+	echo 
 }
 
 

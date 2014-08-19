@@ -169,7 +169,7 @@ package org.bigbluebutton.main.model.users
     }
     
     public function changeRecordingStatus(e:BBBEvent):void {
-      trace("UserService::changeRecordingStatus")
+      trace(LOG + "changeRecordingStatus")
       if (this.isModerator() && !e.payload.remote) {
         var myUserId: String = UserManager.getInstance().getConference().getMyUserId();
         sender.changeRecordingStatus(myUserId, e.payload.recording);
@@ -177,7 +177,7 @@ package org.bigbluebutton.main.model.users
     }
        
 		public function userLoggedIn(e:UsersConnectionEvent):void{
-      trace("In UserService:userLoggedIn - Setting my userid to [" + e.userid + "]");
+      trace(LOG + "userLoggedIn - Setting my userid to [" + e.userid + "]");
 			UserManager.getInstance().getConference().setMyUserid(e.userid);
 			_conferenceParameters.userid = e.userid;
 			
