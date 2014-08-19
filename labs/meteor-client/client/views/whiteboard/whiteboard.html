@@ -1,14 +1,10 @@
 <template name="whiteboard">
-    <div id="{{id}}" {{visibility name}} class="component">
-        <h3 class="title gradientBar"><span class="glyphicon glyphicon-pencil"></span> {{title}}</h3>
-        <div id="whiteboard-contents">
-        	{{#if getInSession "display_whiteboard"}}
-        		{{#each getCurrentSlide}}
+	<div id="{{id}}" {{visibility name}} class="component">
+		<h3 id="whiteboard-navbar" class="title gradientBar"><span class="glyphicon glyphicon-pencil"></span> {{title}}</h3>
+		<div id="whiteboard-paper">
+			{{#each getCurrentSlide}}
 				{{> slide}}
 			{{/each}}
-            <div id="whiteboard-paper"  style="">
-            </div>
-            {{/if}}
-        </div>
-    </div>
+		</div>
+	</div>
 </template>

@@ -32,6 +32,11 @@ class @WhiteboardPaperModel
     @shiftPressed = false
     @currentPathCount = 0
 
+    # $container = $('#whiteboard-paper')
+    # @containerWidth = $container.innerWidth()
+    # @containerHeight = $container.innerHeight()
+    @_updateContainerDimensions()
+
     # $(window).on "resize.whiteboard_paper", _.bind(@_onWindowResize, @)
     # $(document).on "keydown.whiteboard_paper", _.bind(@_onKeyDown, @)
     # $(document).on "keyup.whiteboard_paper", _.bind(@_onKeyUp, @)
@@ -55,7 +60,19 @@ class @WhiteboardPaperModel
   # are not yet created in the page.
   create: ->
     # paper is embedded within the div#slide of the page.
-    @raphaelObj ?= ScaleRaphael(@container, "900", "500")
+    # @raphaelObj ?= ScaleRaphael(@container, "900", "500")
+
+    h = $("#"+@container).height()
+    w = $("#"+@container).width()
+    console.log "h: #{h}"
+    console.log "w: #{w}"
+
+    # @raphaelObj ?= ScaleRaphael(@container, "900", "500")
+    @raphaelObj ?= ScaleRaphael(@container, w, h)
+
+    # $container = $('#whiteboard-contents')
+    @raphaelObj ?= ScaleRaphael(@container, $container.innerHeight(), $container.innerWidth())
+
     @raphaelObj.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
 
     @cursor = new WhiteboardCursorModel(@raphaelObj)
@@ -125,6 +142,7 @@ class @WhiteboardPaperModel
       sh = height / max
       cx = (@containerWidth / 2) - (width / 2)
       cy = (@containerHeight / 2) - (height / 2)
+
       img = @raphaelObj.image(url, cx, cy, width, height)
       originalWidth = width
       originalHeight = height
@@ -341,7 +359,6 @@ class @WhiteboardPaperModel
       @currentShapes = []
       @currentShapesDefinitions = []
 
-
   # Updated a shape `shape` with the data in `data`.
   # TODO: check if the objects exist before calling update, if they don't they should be created
   updateShape: (shape, data) ->
@@ -556,9 +573,12 @@ class @WhiteboardPaperModel
 
   # Update the dimensions of the container.
   _updateContainerDimensions: ->
-    $container = $('#' + @container)
+    console.log "update Container Dimensions"
+
+    $container = $('#whiteboard-paper')
     @containerWidth = $container.innerWidth()
     @containerHeight = $container.innerHeight()
+
     @containerOffsetLeft = $container.offset()?.left
     @containerOffsetTop = $container.offset()?.top
 
@@ -696,8 +716,6 @@ class @WhiteboardPaperModel
       @raphaelObj.setViewBox(newXPos, newyPos, newWidth, newHeight,true)
 
 
-
-
   # when pressing down on a key at anytime
   _onKeyDown: (event) ->
     unless event
@@ -770,29 +788,32 @@ class @WhiteboardPaperModel
 
     # get dimensions for available whiteboard space
     # get where to start from the left -> either the end of the user's list or the left edge of the screen
-    if getInSession "display_usersList" then xBegin = $("#userListContainer").width()
-    else xBegin = 0
-    # get where to start from the right -> either the beginning of the chat bar or the right edge of the screen
-    if getInSession "display_chatbar" then xEnd = $("#chat").position().left
-    else xEnd = $( document ).width();
+    # if getInSession "display_usersList" then xBegin = $("#userListContainer").width()
+    # else xBegin = 0
+    # # get where to start from the right -> either the beginning of the chat bar or the right edge of the screen
+    # if getInSession "display_chatbar" then xEnd = $("#chat").position().left
+    # else xEnd = $( document ).width();
     
-    # find the height to start the top of the image at
-    if getInSession "display_navbar" then yBegin = $("#navbar").height()
-    else yBegin = 0
-    yEnd = $( document ).height();
+    # # find the height to start the top of the image at
+    # if getInSession "display_navbar" then yBegin = $("#navbar").height()
+    # else yBegin = 0
+    # yEnd = $( document ).height();
 
-    # TODO: add some form of padding to the left, right, top, and bottom boundaries
-    # 
-    boardWidth = xEnd - xBegin
-    boardHeight = yEnd - yBegin
+    # # TODO: add some form of padding to the left, right, top, and bottom boundaries
+    # # 
+    # boardWidth = xEnd - xBegin
+    # boardHeight = yEnd - yBegin
+
+    boardWidth = @containerWidth
+    boardHeight = @containerHeight
 
     currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
     presentationId = currentPresentation?.presentation?.id
     currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
 
     # TODO currentSlide undefined in some cases - will check later why
-    imageWidth = boardWidth * (currentSlide?.slide.width_ratio/100) or 500
-    imageHeight = boardHeight * (currentSlide?.slide.height_ratio/100) or 500
+    imageWidth = boardWidth * (currentSlide?.slide.width_ratio/100) or boardWidth
+    imageHeight = boardHeight * (currentSlide?.slide.height_ratio/100) or boardHeight
 
     # console.log "xBegin: #{xBegin}"
     # console.log "xEnd: #{xEnd}"
@@ -800,7 +821,8 @@ class @WhiteboardPaperModel
     # console.log "yEnd: #{yEnd}"
     # console.log "boardWidth: #{boardWidth}"
     # console.log "boardHeight: #{boardHeight}"
-    # console.log "imageWidth: #{imageWidth}"
-    # console.log "imageHeight: #{imageHeight}"
+    console.log "imageWidth: #{imageWidth}"
+    console.log "imageHeight: #{imageHeight}"
 
-    @addImageToPaper(data, imageWidth, imageHeight) # TODO the dimensions should be modified
+    # @addImageToPaper(data, imageWidth, imageHeight) # TODO the dimensions should be modified
+    @addImageToPaper(data, imageWidth, imageHeight)
