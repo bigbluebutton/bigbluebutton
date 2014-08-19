@@ -2,7 +2,7 @@
 class @WhiteboardCursorModel
 
   constructor: (@paper, @radius=null, @color=null) ->
-    @radius ?= 3
+    @radius ?= 6
     @color ?= "#ff6666" # a pinkish red
     @cursor = null
     @paper
