@@ -156,6 +156,7 @@ Template.tabButtons.helpers
 Template.message.helpers
 	activateBreakLines: (str) ->
 		res = str.replace /\n/gim, '<br/>'
+		res = str.replace /\r/gim, '<br/>'
 	
 	getHexColor: (c) ->
 		if parseInt(c).toString(16).length is 4
