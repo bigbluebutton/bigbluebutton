@@ -173,7 +173,6 @@ class @WhiteboardTextModel extends WhiteboardToolModel
 
   #this function checks if there should be a dash at the given position, instead of a blank
   checkDashPosition = (dashArray, pos) ->
-    alert "checkDashPosition"
     result = false
     i = 0
 

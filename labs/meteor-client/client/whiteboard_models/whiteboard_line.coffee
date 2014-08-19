@@ -23,8 +23,7 @@ class @WhiteboardLineModel extends WhiteboardToolModel
   # @param  {string} colour    the colour of the shape to be drawn
   # @param  {number} thickness the thickness of the line to be drawn
   make: (info) ->
-    console.log "in line MAKE(info): "
-    console.log info
+
     if info?.points?
       x = info.points[0]
       y = info.points[1]
@@ -54,8 +53,7 @@ class @WhiteboardLineModel extends WhiteboardToolModel
   # @param  {number}         y2  1) the y of the second point
   #                              2) undefined
   update: (info) ->
-    console.log "in line-UPDATE(info): "
-    console.log info
+
     if info?.points?
       x1 = info.points[0]
       y1 = info.points[1]
