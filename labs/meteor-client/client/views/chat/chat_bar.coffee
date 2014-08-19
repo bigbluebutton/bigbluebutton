@@ -39,8 +39,8 @@ Template.chatInput.rendered  = ->
 Template.chatbar.helpers
 	getChatGreeting: ->
 		greeting = "Welcome to #{getMeetingName()}!\n\n
-		For help on using BigBlueButton see these (short) <a href='http://www.bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.\n
-		To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.\n\n
+		For help on using BigBlueButton see these (short) <a href='http://www.bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.\n\n
+		To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.\n\n\n
 		This server is running BigBlueButton #{getInSession 'bbbServerVersion'}."
 
 	# This method returns all messages for the user. It looks at the session to determine whether the user is in
