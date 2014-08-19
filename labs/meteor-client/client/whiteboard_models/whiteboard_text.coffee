@@ -68,7 +68,7 @@ class @WhiteboardTextModel extends WhiteboardToolModel
       @definition.data = [x, y, maxWidth, height, colour, fontSize, calcFontSize, myText]
 
       calcFontSize = (calcFontSize/100 * @gh)
-      x = ((x * @gw) + @xOffset)/100
+      x = (x * @gw)/100 + @xOffset
       maxWidth = maxWidth/100 * @gw
 
       @obj.attr
