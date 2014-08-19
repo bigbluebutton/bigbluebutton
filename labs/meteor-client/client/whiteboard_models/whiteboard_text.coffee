@@ -24,10 +24,6 @@ class @WhiteboardTextModel extends WhiteboardToolModel
     calcFontSize = startingData.calcedFontSize
     text = startingData.text
 
-    #backgroundColor?!
-
-
-
     @definition =
       shape: "text"
       data: [x, y, width, height, colour, fontSize, calcFontSize, text]
@@ -59,24 +55,21 @@ class @WhiteboardTextModel extends WhiteboardToolModel
 
     x = startingData.x
     y = startingData.y
-    width = startingData.textBoxWidth
+    maxWidth = startingData.textBoxWidth
     height = startingData.textBoxHeight
     colour = startingData.fontColor
     fontSize = startingData.fontSize
     calcFontSize = startingData.calcedFontSize
-    text = startingData.text
+    myText = startingData.text
 
     svgNS = "http://www.w3.org/2000/svg"
 
     if @obj?
-      @definition.data = [x, y, width, height, colour, fontSize, calcFontSize, text]
+      @definition.data = [x, y, maxWidth, height, colour, fontSize, calcFontSize, myText]
 
       calcFontSize = (calcFontSize/100 * @gh)
       x = ((x * @gw) + @xOffset)/100
-      width = width/100 * @gw
-
-      #colour = Utils.strokeAndThickness(colour)["stroke"]
-      
+      maxWidth = maxWidth/100 * @gw
 
       @obj.attr
         fill: "#000" #Meteor.call("strokeAndThickness",colour, false)
@@ -84,15 +77,6 @@ class @WhiteboardTextModel extends WhiteboardToolModel
       cell = @obj.node
       while cell? and cell.hasChildNodes()
         cell.removeChild(cell.firstChild)
-      #Meteor.call("textFlow", text, cell, width, x, calcFontSize, false)
-      #Meteor.call("textFlow", text, width, x, calcFontSize, false)
-
-      myText = text
-      textToAppend = cell
-      maxWidth = width
-      ddy = calcFontSize
-      justified = false
-
 
       #extract and add line breaks for start
       dashArray = new Array()
@@ -127,27 +111,20 @@ class @WhiteboardTextModel extends WhiteboardToolModel
             tempText = tspanEl.firstChild.nodeValue
             tempText = tempText.slice(0, (tempText.length - words[i - 1].length - 2)) #the -2 is because we also strip off white space
             tspanEl.firstChild.nodeValue = tempText
-            if justified
-              
-              #determine the number of words in this line
-              nrWords = tempText.split(/\s/).length
-              computedTextLength = tspanEl.getComputedTextLength()
-              additionalWordSpacing = (maxWidth - computedTextLength) / (nrWords - 1)
-              tspanEl.setAttributeNS null, "word-spacing", additionalWordSpacing
-          
+
           #alternatively one could use textLength and lengthAdjust, however, currently this is not too well supported in SVG UA's
           tspanEl = document.createElementNS(svgNS, "tspan")
           tspanEl.setAttributeNS null, "x", x
           tspanEl.setAttributeNS null, "dy", dy
           myTextNode = document.createTextNode(line)
           tspanEl.appendChild myTextNode
-          textToAppend.appendChild tspanEl
+          cell.appendChild tspanEl
           if checkDashPosition(dashArray, curNumChars - 1)
             line = word + "-"
           else
             line = word + " "
           line = words[i - 1] + " " + line  unless i is 0
-          dy = ddy
+          dy = calcFontSize
           cumulY += dy
         else
           if checkDashPosition(dashArray, curNumChars - 1)
@@ -165,10 +142,9 @@ class @WhiteboardTextModel extends WhiteboardToolModel
             tspanEl.setAttributeNS null, "dy", dy
             myTextNode = document.createTextNode(words[i])
             tspanEl.appendChild myTextNode
-            textToAppend.appendChild tspanEl
+            cell.appendChild tspanEl
         i++
       cumulY
-
 
 
   #this function checks if there should be a dash at the given position, instead of a blank
@@ -180,24 +156,6 @@ class @WhiteboardTextModel extends WhiteboardToolModel
       result = true  if dashArray[i] is pos
       i++
     result
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   # Draw a text on the whiteboard
