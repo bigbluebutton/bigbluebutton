@@ -38,10 +38,10 @@ Template.chatInput.rendered  = ->
 
 Template.chatbar.helpers
 	getChatGreeting: ->
-		greeting = "<div><p>Welcome to #{getMeetingName()}!</p>
-		<p>For help on using BigBlueButton see these (short) <a href='http://www.bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.</p>
-		<p>To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.</p>
-		<br/><p>This server is running BigBlueButton #{getInSession 'bbbServerVersion'}.</p></div>"
+		greeting = "Welcome to #{getMeetingName()}!\n\n
+		For help on using BigBlueButton see these (short) <a href='http://www.bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.\n
+		To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.\n\n
+		This server is running BigBlueButton #{getInSession 'bbbServerVersion'}."
 
 	# This method returns all messages for the user. It looks at the session to determine whether the user is in
 	#private or public chat. If true is passed, messages returned are from before the user joined. Else, the messages are from after the user joined
@@ -154,6 +154,24 @@ Template.tabButtons.helpers
     button
 
 Template.message.helpers
+	activateBreakLines: (str) ->
+		res = str.replace /\n/gim, '<br/>'
+	
+	getHexColor: (c) ->
+		if parseInt(c).toString(16).length is 4
+			"#00#{parseInt(c).toString(16)}"
+		else
+			"##{parseInt(c).toString(16)}"
+
+	# make links received from Flash client clickable in HTML
+	toClickable: (str) ->
+		# res = str.replace /&lt;a href='event:/gim, "<a target='_blank' href='"
+		# res = res.replace /&lt;a&gt;/gim, '</a>'		
+
+		# res = res.replace /&lt;u&gt;/gim, '<u>'
+		# res = res.replace /&lt;\/u&gt;/gim, '</u>'
+		str
+
 	toClockTime: (epochTime) ->
 		if epochTime is null
 			return ""
@@ -167,13 +185,9 @@ Template.message.helpers
 			minutes = "0" + minutes
 		hours + ":" + minutes
 
-	# make links received from Flash client clickable in HTML
-	toClickable: (str) ->
-		res = str.replace /<a href='event:/gim, "<a target='_blank' href='"
-		res.replace /<a href="event:/gim, '<a target="_blank" href="'
+	sanitizeAndFormat: (str) ->
+		# First, replace replace all tags with the ascii equivalent
+		res = str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-	getHexColor: (c) ->
-		if parseInt(c).toString(16).length is 4
-			"#00#{parseInt(c).toString(16)}"
-		else
-			"##{parseInt(c).toString(16)}"
+		res = Template.message.toClickable(res)
+		res = Template.message.activateBreakLines(res)
