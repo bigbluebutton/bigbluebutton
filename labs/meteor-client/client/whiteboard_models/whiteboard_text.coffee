@@ -66,22 +66,139 @@ class @WhiteboardTextModel extends WhiteboardToolModel
     calcFontSize = startingData.calcedFontSize
     text = startingData.text
 
+    svgNS = "http://www.w3.org/2000/svg"
+
     if @obj?
       @definition.data = [x, y, width, height, colour, fontSize, calcFontSize, text]
 
       calcFontSize = (calcFontSize/100 * @gh)
-      x = (x * @gw) + @xOffset
+      x = ((x * @gw) + @xOffset)/100
       width = width/100 * @gw
+
       #colour = Utils.strokeAndThickness(colour)["stroke"]
       
 
       @obj.attr
-        fill: Meteor.call("strokeAndThickness",colour, false)
+        fill: "#000" #Meteor.call("strokeAndThickness",colour, false)
         "font-size": calcFontSize
       cell = @obj.node
       while cell? and cell.hasChildNodes()
         cell.removeChild(cell.firstChild)
-      Meteor.call("textFlow", text, cell, width, x, calcFontSize, false)
+      #Meteor.call("textFlow", text, cell, width, x, calcFontSize, false)
+      #Meteor.call("textFlow", text, width, x, calcFontSize, false)
+
+      myText = text
+      textToAppend = cell
+      maxWidth = width
+      ddy = calcFontSize
+      justified = false
+
+
+      #extract and add line breaks for start
+      dashArray = new Array()
+      dashFound = true
+      indexPos = 0
+      cumulY = 0
+      while dashFound is true
+        result = myText.indexOf("-", indexPos)
+        if result is -1
+          
+          #could not find a dash
+          dashFound = false
+        else
+          dashArray.push result
+          indexPos = result + 1
+      
+      #split the text at all spaces and dashes
+      words = myText.split(/[\s-]/)
+      line = ""
+      dy = 0
+      curNumChars = 0
+      computedTextLength = 0
+      myTextNode = undefined
+      tspanEl = undefined
+      lastLineBreak = 0
+      i = 0
+      while i < words.length
+        word = words[i]
+        curNumChars += word.length + 1
+        if computedTextLength > maxWidth or i is 0
+          if computedTextLength > maxWidth
+            tempText = tspanEl.firstChild.nodeValue
+            tempText = tempText.slice(0, (tempText.length - words[i - 1].length - 2)) #the -2 is because we also strip off white space
+            tspanEl.firstChild.nodeValue = tempText
+            if justified
+              
+              #determine the number of words in this line
+              nrWords = tempText.split(/\s/).length
+              computedTextLength = tspanEl.getComputedTextLength()
+              additionalWordSpacing = (maxWidth - computedTextLength) / (nrWords - 1)
+              tspanEl.setAttributeNS null, "word-spacing", additionalWordSpacing
+          
+          #alternatively one could use textLength and lengthAdjust, however, currently this is not too well supported in SVG UA's
+          tspanEl = document.createElementNS(svgNS, "tspan")
+          tspanEl.setAttributeNS null, "x", x
+          tspanEl.setAttributeNS null, "dy", dy
+          myTextNode = document.createTextNode(line)
+          tspanEl.appendChild myTextNode
+          textToAppend.appendChild tspanEl
+          if checkDashPosition(dashArray, curNumChars - 1)
+            line = word + "-"
+          else
+            line = word + " "
+          line = words[i - 1] + " " + line  unless i is 0
+          dy = ddy
+          cumulY += dy
+        else
+          if checkDashPosition(dashArray, curNumChars - 1)
+            line += word + "-"
+          else
+            line += word + " "
+        tspanEl.firstChild.nodeValue = line
+        computedTextLength = tspanEl.getComputedTextLength()
+        if i is words.length - 1
+          if computedTextLength > maxWidth
+            tempText = tspanEl.firstChild.nodeValue
+            tspanEl.firstChild.nodeValue = tempText.slice(0, (tempText.length - words[i].length - 1))
+            tspanEl = document.createElementNS(svgNS, "tspan")
+            tspanEl.setAttributeNS null, "x", x
+            tspanEl.setAttributeNS null, "dy", dy
+            myTextNode = document.createTextNode(words[i])
+            tspanEl.appendChild myTextNode
+            textToAppend.appendChild tspanEl
+        i++
+      cumulY
+
+
+
+  #this function checks if there should be a dash at the given position, instead of a blank
+  checkDashPosition = (dashArray, pos) ->
+    alert "checkDashPosition"
+    result = false
+    i = 0
+
+    while i < dashArray.length
+      result = true  if dashArray[i] is pos
+      i++
+    result
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   # Draw a text on the whiteboard
