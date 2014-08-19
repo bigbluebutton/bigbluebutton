@@ -476,56 +476,6 @@ class @WhiteboardPaperModel
 
   # Registers listeners for events in the gloval event bus
   _registerEvents: ->
-    # globals.events.on "connection:all_slides", (data) =>
-    #   @removeAllImagesFromPaper()
-    #   ###
-    #   urls = data.slides
-    #   for url in urls
-    #     @addImageToPaper(url[0], url[1], url[2])
-    #     #alert "registerEvents url[0]=" + url[0]          
-    #   ###
-
-    #   urls = data.presentation.pages
-    #   for url in urls
-    #     @addImageToPaper(url.png , 200, 200)
-    #     # alert "registerEvents url[0]=" + url[0]
-    #   globals.events.trigger("whiteboard:paper:all_slides", urls)
-
-    # globals.events.on "connection:clrPaper", =>
-    #   @clearShapes()
-
-    # globals.events.on "connection:allShapes", (allShapesEventObject) =>
-    #   # TODO: a hackish trick for making compatible the shapes from redis with the node.js
-    #   shapes = allShapesEventObject.shapes
-    #   for shape in shapes
-    #     properties = JSON.parse(shape.data)
-    #     if shape.shape is "path"
-    #       points = properties[0]
-    #       strPoints = ""
-    #       for i in [0..points.length] by 2
-    #         letter = ""
-    #         pA = points[i]
-    #         pB = points[i+1]
-    #         if i == 0
-    #           letter = "M"
-    #         else
-    #           letter = "L"
-    #         strPoints += letter + (pA/100) + "," + (pB/100)
-    #       properties[0] = strPoints
-
-    #       shape.data = JSON.stringify properties #TODO
-
-    #   @clearShapes()
-    #   @drawListOfShapes shapes
-
-    # globals.events.on "connection:updShape", (shape, data) =>
-    #   @updateShape shape, data
-
-    # globals.events.on "connection:whiteboard_draw_event", (shape, data) =>
-    #   @makeShape shape, data
-
-    # globals.events.on "connection:share_presentation_event", (data) =>
-    #   @sharePresentation data
 
     # globals.events.on "connection:whiteboardDrawPen", (startingData) =>
     #   type = startingData.payload.shape_type
@@ -568,9 +518,6 @@ class @WhiteboardPaperModel
     #         console.log "lineObject: " + lineObject
     #         @updateShape type, lineObject 
 
-    # globals.events.on "connection:mvCur", (x, y) =>
-    #   @moveCursor(x, y)
-    #   #console.log "x: " + x + " y: " + y
 
     # globals.events.on "connection:move_and_zoom", (xOffset, yOffset, widthRatio, heightRatio) =>
     #   @moveAndZoom(xOffset, yOffset, widthRatio, heightRatio)

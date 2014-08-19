@@ -28,7 +28,6 @@ class @WhiteboardTextModel extends WhiteboardToolModel
     x = (x * @gw) + @xOffset
     y = (y * @gh) + @yOffset + calcFontSize
     width = width/100 * @gw
-    #colour = Utils.strokeAndThickness(colour)["stroke"]
     colour = Meteor.call("strokeAndThickness",colour, false)
 
     @obj = @paper.text(x/100, y/100, "")
