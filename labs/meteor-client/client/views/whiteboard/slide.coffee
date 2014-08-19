@@ -31,11 +31,12 @@ Template.slide.helpers
 
     shapes = Meteor.Shapes.find({whiteboardId: currentSlide?.slide?.id}).fetch()
     for s in shapes
-      shapeInfo = s.shape?.shape
+      shapeInfo = s.shape?.shape or @data.shape
       shapeType = shapeInfo?.type
 
-      for num in [0..3] # the coordinates must be in the range 0 to 1
-        shapeInfo.points[num] = shapeInfo.points[num] / 100
+      if shapeType isnt "text"
+        for num in [0..3] # the coordinates must be in the range 0 to 1
+          shapeInfo.points[num] = shapeInfo.points[num] / 100
       wpm.makeShape(shapeType, shapeInfo)
       wpm.updateShape(shapeType, shapeInfo)
 
@@ -43,11 +44,12 @@ Template.slide.helpers
 #### SHAPE ####
 Template.shape.rendered = ->
   # @data is the shape object coming from the {{#each}} in the html file
-  shapeInfo = @data.shape?.shape
+  shapeInfo = @data.shape?.shape or @data.shape
   shapeType = shapeInfo?.type
 
-  for num in [0..3] # the coordinates must be in the range 0 to 1
-    shapeInfo.points[num] = shapeInfo.points[num] / 100
+  if shapeType isnt "text"
+    for num in [0..3] # the coordinates must be in the range 0 to 1
+      shapeInfo.points[num] = shapeInfo.points[num] / 100
 
   wpm = Template.slide.whiteboardPaperModel
   wpm.makeShape(shapeType, shapeInfo)

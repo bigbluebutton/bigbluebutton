@@ -355,7 +355,8 @@ class @WhiteboardPaperModel
       when "triangle"
         @currentTriangle.update(data)
       when "text"
-        @currentText.update.apply(@currentText, data)
+        #@currentText.update.apply(@currentText, data)
+        @currentText.update(data)
       else
         console.log "shape not recognized at updateShape", shape
 
@@ -382,7 +383,8 @@ class @WhiteboardPaperModel
       when "text"
         @currentText = @_createTool(shape)
         toolModel = @currentText
-        tool = @currentText.make.apply(@currentText, data)
+        #tool = @currentText.make.apply(@currentText, data)
+        tool = @currentText.make(data)
       else
         console.log "shape not recognized at makeShape", shape
     if tool?

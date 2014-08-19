@@ -3,7 +3,6 @@ class @WhiteboardTextModel extends WhiteboardToolModel
 
   constructor: (@paper) ->
     super @paper
-
     # the defintion of this shape, kept so we can redraw the shape whenever needed
     # format: x, y, width, height, colour, fontSize, calcFontSize, text
     @definition = [0, 0, 0, 0, "#000", 0, 0, ""]
@@ -12,20 +11,37 @@ class @WhiteboardTextModel extends WhiteboardToolModel
     # @textY = null
 
   # Make a text on the whiteboard
-  make: (x, y, width, height, colour, fontSize, calcFontSize, text) ->
+  #make: (x, y, width, height, colour, fontSize, calcFontSize, text) ->
+  make: (startingData) ->
+    console.log "making a text:" + JSON.stringify startingData
+
+    x = startingData.x
+    y = startingData.y
+    width = startingData.textBoxWidth
+    height = startingData.textBoxHeight
+    colour = startingData.fontColor
+    fontSize = startingData.fontSize
+    calcFontSize = startingData.calcedFontSize
+    text = startingData.text
+
+    #backgroundColor?!
+
+
+
     @definition =
       shape: "text"
       data: [x, y, width, height, colour, fontSize, calcFontSize, text]
 
-    calcFontSize = (calcFontSize/100 * @gh)
+    #calcFontSize = (calcFontSize/100 * @gh)
     x = (x * @gw) + @xOffset
     y = (y * @gh) + @yOffset + calcFontSize
     width = width/100 * @gw
-    colour = Utils.strokeAndThickness(colour)["stroke"]
+    #colour = Utils.strokeAndThickness(colour)["stroke"]
+    colour = Meteor.call("strokeAndThickness",colour, false)
 
-    @obj = @paper.text(x, y, "")
+    @obj = @paper.text(x/100, y/100, "")
     @obj.attr
-      fill: colour
+      fill: Meteor.call("strokeAndThickness",colour, false)
       "font-family": "Arial" # TODO: make dynamic
       "font-size": calcFontSize
     @obj.node.style["text-anchor"] = "start" # force left align
@@ -37,43 +53,57 @@ class @WhiteboardTextModel extends WhiteboardToolModel
   # @param  {number} y1 the y value of the top left corner
   # @param  {number} x2 the x value of the bottom right corner
   # @param  {number} y2 the y value of the bottom right corner
-  update: (x, y, width, height, colour, fontSize, calcFontSize, text) ->
+  #update: (x, y, width, height, colour, fontSize, calcFontSize, text) ->
+  update: (startingData) ->
+    console.log "updating text" + JSON.stringify startingData
+
+    x = startingData.x
+    y = startingData.y
+    width = startingData.textBoxWidth
+    height = startingData.textBoxHeight
+    colour = startingData.fontColor
+    fontSize = startingData.fontSize
+    calcFontSize = startingData.calcedFontSize
+    text = startingData.text
+
     if @obj?
       @definition.data = [x, y, width, height, colour, fontSize, calcFontSize, text]
 
       calcFontSize = (calcFontSize/100 * @gh)
       x = (x * @gw) + @xOffset
       width = width/100 * @gw
-      colour = Utils.strokeAndThickness(colour)["stroke"]
+      #colour = Utils.strokeAndThickness(colour)["stroke"]
+      
 
       @obj.attr
-        fill: colour
+        fill: Meteor.call("strokeAndThickness",colour, false)
         "font-size": calcFontSize
       cell = @obj.node
       while cell? and cell.hasChildNodes()
         cell.removeChild(cell.firstChild)
-      textFlow(text, cell, width, x, calcFontSize, false)
+      Meteor.call("textFlow", text, cell, width, x, calcFontSize, false)
 
 
   # Draw a text on the whiteboard
   # @param  {string} colour    the colour of the object
   # @param  {number} thickness the thickness of the object's line(s)
-  draw: (x, y, width, height, colour, fontSize, calcFontSize, text) ->
-    calcFontSize = (calcFontSize/100 * @gh)
-    x = x * @gw + @xOffset
-    y = (y * @gh) + @yOffset + calcFontSize
-    width = width/100 * @gw
-    colour = Utils.strokeAndThickness(colour)["stroke"]
+  # draw: (x, y, width, height, colour, fontSize, calcFontSize, text) ->
+  #   calcFontSize = (calcFontSize/100 * @gh)
+  #   x = x * @gw + @xOffset
+  #   y = (y * @gh) + @yOffset + calcFontSize
+  #   width = width/100 * @gw
+  #   #colour = Utils.strokeAndThickness(colour)["stroke"]
+    
 
-    el = @paper.text(x, y, "")
-    el.attr
-      fill: colour
-      "font-family": "Arial" # TODO: make dynamic
-      "font-size": calcFontSize
-    el.node.style["text-anchor"] = "start" # force left align
-    el.node.style["textAnchor"] = "start"  # for firefox, 'cause they like to be different
-    textFlow(text, el.node, width, x, calcFontSize, false)
-    el
+  #   el = @paper.text(x, y, "")
+  #   el.attr
+  #     fill: Meteor.call("strokeAndThickness",colour, false)
+  #     "font-family": "Arial" # TODO: make dynamic
+  #     "font-size": calcFontSize
+  #   el.node.style["text-anchor"] = "start" # force left align
+  #   el.node.style["textAnchor"] = "start"  # for firefox, 'cause they like to be different
+  #   Meteor.call("textFlow", text, el.node, width, x, calcFontSize, false)
+  #   el
 
   # When first dragging the mouse to create the textbox size
   # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
