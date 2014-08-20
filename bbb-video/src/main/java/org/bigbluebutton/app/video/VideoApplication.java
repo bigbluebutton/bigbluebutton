@@ -42,7 +42,7 @@ import org.slf4j.Logger;
 import org.apache.commons.lang3.StringUtils;
 
 public class VideoApplication extends MultiThreadedApplicationAdapter {
-	private static Logger log = Red5LoggerFactory.getLogger(VideoApplication.class);
+	private static Logger log = Red5LoggerFactory.getLogger(VideoApplication.class, "video");
 	
 	private IScope appScope;
 	private IServerStream serverStream;
@@ -105,7 +105,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     	super.streamBroadcastStart(stream);
     	log.info("streamBroadcastStart " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
 
-        if (recordVideoStream &&  stream.getPublishedName().contains("/") == false) {
+        if (recordVideoStream && !stream.getPublishedName().contains("/")) {
 	    	recordStream(stream);
 	    	VideoStreamListener listener = new VideoStreamListener(); 
 	        listener.setEventRecordingService(recordingService);
@@ -183,10 +183,6 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         // log w3c connect event
         String streamName = item.getName();
         
-        //rtmp://SV1/video/conferencia
-        //SV2/SV3/SV4/streamName
-
-
         if(streamName.contains("/")) {
 			synchronized(remoteStreams) {
 				if(remoteStreams.containsKey(streamName) == false) {
