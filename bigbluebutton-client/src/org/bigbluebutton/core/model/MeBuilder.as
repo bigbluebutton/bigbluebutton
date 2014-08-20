@@ -2,16 +2,16 @@ package org.bigbluebutton.core.model
 {
   public class MeBuilder
   {
-    internal var id: String;
-    internal var name: String;
-    internal var externalId: String;
-    internal var token: String;
-    internal var welcome: String;
-    internal var avatarUrl: String;
-    internal var layout: String;
-    internal var logoutUrl: String;
-    internal var dialNumber: String;
-    internal var role: String;
+    internal var id:String;
+    internal var name:String;
+    internal var externalId:String;
+    internal var token:String;
+    internal var welcome:String;
+    internal var avatarURL:String;
+    internal var layout:String;
+    internal var logoutURL:String;
+    internal var dialNumber:String;
+    internal var role:String;
     internal var customData:Object;
     
     public function MeBuilder(id: String, name: String) {
@@ -35,7 +35,7 @@ package org.bigbluebutton.core.model
     }
     
     public function withAvatar(value: String):MeBuilder {
-      avatarUrl = value;
+      avatarURL = value;
       return this;
     }
     
@@ -44,8 +44,8 @@ package org.bigbluebutton.core.model
       return this;
     }
     
-    public function withLogoutUrl(value: String):MeBuilder {
-      logoutUrl = value;
+    public function withLogoutURL(value: String):MeBuilder {
+      logoutURL = value;
       return this;
     }
     
