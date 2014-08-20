@@ -52,6 +52,7 @@ trait UsersApp {
     }
   }
   
+
   def handleMuteAllExceptPresenterRequest(msg: MuteAllExceptPresenterRequest) {
     meetingMuted = msg.mute
     outGW.send(new MeetingMuted(meetingID, recorded, meetingMuted))
@@ -72,9 +73,27 @@ trait UsersApp {
   def handleValidateAuthToken(msg: ValidateAuthToken) {
 //    println("*************** Got ValidateAuthToken message ********************" )
     regUsers.get (msg.userId) match {
-      case Some(u) => outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true, msg.correlationId))
+      case Some(u) =>
+      {
+        val replyTo = meetingID + '/' + msg.userId
+
+        //send the reply
+        outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true, msg.correlationId))
+
+        //send the list of users in the meeting
+        outGW.send(new GetUsersReply(meetingID, msg.userId, users.getUsers))
+
+        //send chat history
+        this ! (new GetChatHistoryRequest(meetingID, msg.userId, replyTo))
+
+        //join the user
+        handleUserJoin(new UserJoining(meetingID, msg.userId))
+
+        //send the presentation
+        this ! (new GetPresentationInfo(meetingID, msg.userId, replyTo))
+      }
       case None => outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, false, msg.correlationId))
-    }  
+    }
   }
   
   def handleRegisterUser(msg: RegisterUser) {
@@ -113,8 +132,23 @@ trait UsersApp {
       case None => // do nothing
     }
   }
-   
-      
+
+  def handleLockUser(msg: LockUser) {
+    
+  }
+  
+  def handleLockAllUsers(msg: LockAllUsers) {
+    
+  }
+  
+  def handleGetLockSettings(msg: GetLockSettings) {
+    
+  }
+  
+  def handleIsMeetingLocked(msg: IsMeetingLocked) {
+    
+  }
+
   def handleSetLockSettings(msg: SetLockSettings) {
 //    println("*************** Received new lock settings ********************")
     if (!permissionsEqual(msg.settings)) {

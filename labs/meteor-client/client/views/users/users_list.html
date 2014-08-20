@@ -1,0 +1,18 @@
+<template name="usersList">
+   <div id="{{id}}" {{visibility name}} class="component">
+      <h3 class="title gradientBar"><span class="glyphicon glyphicon-user"></span> Participants: {{getMeetingSize}} Users</h3>
+      <div id="user-contents">
+         {{#Layout template="scrollWindow" id="publicUserScrollWindow"}}
+            {{#contentFor region="scrollContents"}}
+               {{#Layout template="moduleTable" tableClass="table table-hover" tbodyClass="user-entry"}}
+                  {{#contentFor region="Contents"}}
+                     {{#each getUsersInMeeting}}
+                        <tr>{{>userItem}}</tr>
+                     {{/each}}
+                  {{/contentFor}}
+               {{/Layout}}
+            {{/contentFor}}
+         {{/Layout}}
+      </div>
+   </div>
+</template>

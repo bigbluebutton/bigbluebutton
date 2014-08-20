@@ -58,7 +58,7 @@ module.exports = class RedisPubSub
     # put the entry in the hash so we can match the response later
     @pendingRequests[correlationId] = entry
     message.header.reply_to = correlationId
-    console.log("\n\nmessage=" + JSON.stringify(message) + "\n\n")
+    console.log "\n  Waiting for a reply on:" + JSON.stringify(message)
     log.info({ message: message, channel: config.redis.channels.toBBBApps.meeting}, "Publishing a message")
     @pubClient.publish(config.redis.channels.toBBBApps.meeting, JSON.stringify(message))
 
@@ -73,16 +73,16 @@ module.exports = class RedisPubSub
     # TODO: this has to be in a try/catch block, otherwise the server will
     #   crash if the message has a bad format
     message = JSON.parse(jsonMsg)
+    correlationId = message.payload?.reply_to or message.header?.reply_to
 
-    unless message.header?.name is "keep_alive_reply" #temporarily stop logging the keep_alive_reply message
+    unless message.header?.name is "keep_alive_reply"
+      console.log "\nchannel=" + channel
+      console.log "correlationId=" + correlationId if correlationId?
+      console.log "eventType=" + message.header?.name + "\n"
       log.debug({ pattern: pattern, channel: channel, message: message}, "Received a message from redis")
-    #console.log "=="+JSON.stringify message
 
     # retrieve the request entry
 
-    #correlationId = message.header?.reply_to
-    correlationId = message.payload?.reply_to or message.header?.reply_to
-    console.log "\ncorrelation_id=" + correlationId
     if correlationId? and @pendingRequests?[correlationId]?
       entry = @pendingRequests[correlationId]
       # make sure the message in the timeout isn't triggered by clearing it
@@ -94,76 +94,63 @@ module.exports = class RedisPubSub
         topic: entry.replyTo.topic
         data: message
     else
-      #sendToController(message)
+      if message.header?.name is 'get_presentation_info_reply'
+        #filter for the current=true page on the server-side
+        currentPage = null
+        numCurrentPage = null
+        presentations = message.payload?.presentations
 
-    if message.header?.name is 'validate_auth_token_reply'
-      if message.payload?.valid is "true"
+        for presentation in presentations
+          pages = presentation.pages
 
-        #TODO use the message library for these messages. Perhaps put it in Modules?!
+          for page in pages
+            if page.current is true
+              currentPage = page
+              numCurrentPage = page.num
 
-        joinMeetingMessage = {
+        console.log "\n\n\n\n the message is: " + JSON.stringify message
+        console.log "\n" + message.payload?.presentations[0]?.id + "/" + numCurrentPage + "\n\n"
+        #request the whiteboard information
+        requestMessage = {
           "payload": {
-            "meeting_id": message.payload.meeting_id
-            "user_id": message.payload.userid
+            "meeting_id": message.payload?.meeting_id
+            "requester_id": message.payload?.requester_id
+            "whiteboard_id": message.payload?.presentations[0]?.id + "/" + numCurrentPage #not sure if always [0]
           },
           "header": {
             "timestamp": new Date().getTime()
-            "reply_to": message.payload.meeting_id + "/" + message.payload.userid
-            "name": "user_joined_event"
+            "name": "get_whiteboard_shapes_request"
           }
         }
-        # the user joins the meeting
+        @publishing(config.redis.channels.toBBBApps.whiteboard, requestMessage)
 
-        @pubClient.publish(config.redis.channels.toBBBApps.users, JSON.stringify(joinMeetingMessage))
-        console.log "just published the joinMeetingMessage in RedisPubSub"
+        #strip off excess data, leaving only the current slide information
+        message.payload.currentPage = currentPage
+        message.payload.presentations = null
+        message.header.name = "presentation_page"
 
-        #get the list of users in the meeting
-        getUsersMessage = {
-          "payload": {
-            "meeting_id": message.payload.meeting_id
-            "requester_id": message.payload.userid
-          },
-          "header": {
-            "timestamp": new Date().getTime()
-            "reply_to": message.payload.meeting_id + "/" + message.payload.userid
-            "name": "get_users_request"
-          }
-        }
+      else if message.header?.name is 'presentation_shared_message'
+        currentPage = null
+        presentation = message.payload?.presentation
+        for page in presentation.pages
+          if page.current is true
+            currentPage = page
 
-        @pubClient.publish(config.redis.channels.toBBBApps.users, JSON.stringify(getUsersMessage))
-        console.log "just published the getUsersMessage in RedisPubSub"
+        #strip off excess data, leaving only the current slide information
+        message.payload.currentPage = currentPage
+        message.payload.presentation = null
+        message.header.name = "presentation_page"
 
-        #get the chat history
-        getChatHistory = {
-          "payload": {
-            "meeting_id": message.payload.meeting_id
-            "requester_id": message.payload.userid
-          },
-          "header": {
-            "timestamp": new Date().getTime()
-            "reply_to": message.payload.meeting_id + "/" + message.payload.userid
-            "name": "get_chat_history"
-          }
-        }
+      else if message.header?.name is 'presentation_page_changed_message'
+        message.payload.currentPage = message.payload?.page
+        message.payload?.page = null
+        message.header.name = "presentation_page"
 
-        @pubClient.publish(config.redis.channels.toBBBApps.chat, JSON.stringify(getChatHistory))
-        console.log "just published the getChatHistory in RedisPubSub"
-
-
-    else if message.header?.name is 'get_users_reply'
-      console.log 'got a reply from bbb-apps for get users'
+      console.log "  Sending to Controller (In):" + message.header?.name
       sendToController(message)
-
-    else if message.header?.name is 'get_chat_history_reply'
-      console.log 'got a reply from bbb-apps for chat history'
-      sendToController(message)
-
-    else if message.header?.name is 'send_public_chat_message'
-      console.log "just got a public chat message :" + JSON.stringify message
-      sendToController (message)
 
   publishing: (channel, message) =>
-    console.log '\n Publishing\n'
+    console.log "Publishing #{message.header?.name}"
     @pubClient.publish(channel, JSON.stringify(message))
 
 sendToController = (message) ->
@@ -171,4 +158,3 @@ sendToController = (message) ->
     channel: config.redis.internalChannels.receive
     topic: "broadcast"
     data: message
-

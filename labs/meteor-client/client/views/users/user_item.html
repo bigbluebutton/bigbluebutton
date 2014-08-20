@@ -1,0 +1,41 @@
+<template name="displayUserIcons">
+    <td>{{#if isUserSharingVideo user}}
+        <span class="userListSettingIcon glyphicon glyphicon-facetime-video"></span>
+    {{/if}}</td>
+
+    <!-- Should use much more noticeable icons than just bootstrap's volume-up & volume-down to differentiate talking but it is good for now -->
+    <td>{{#if isUserSharingAudio user}}
+          {{#if isUserMuted user}}
+            <span class="userListSettingIcon glyphicon glyphicon-volume-off"></span>
+          {{else}}
+            {{#if isUserTalking user}}
+                <span class="userListSettingIcon glyphicon glyphicon-volume-up"></span>
+            {{else}}
+                <span class="userListSettingIcon glyphicon glyphicon-volume-down"></span>
+            {{/if}}
+          {{/if}}
+    {{/if}}</td>
+
+    <td>{{#if user.presenter}}<span class="userListSettingIcon glyphicon glyphicon-picture"></span>{{/if}}</td>
+
+    <td>{{#if user.raise_hand}}<span class="userListSettingIcon glyphicon glyphicon-hand-up"></span>{{/if}}</td>
+</template>
+
+<template name="usernameEntry"> <!-- A template now because more information be added/styled -->
+	<td class="userNameContainer">
+		{{#if isCurrentUser userId}}
+			<p class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}} (you)">
+				<strong>{{user.name}} (you)</strong>
+			</p>
+		{{else}}
+			<p class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}}">
+				{{user.name}}
+			</p>
+		{{/if}}
+	</td>
+</template>
+
+<template name="userItem">
+    {{> usernameEntry}}
+    {{> displayUserIcons}}
+</template>

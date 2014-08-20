@@ -5,7 +5,6 @@ define [
   'cs!models/user'
 ], (_, Backbone, globals, UserModel) ->
 
-  # TODO: this class should actually store UserModel's, for now it is only trigerring events
   UsersCollection = Backbone.Collection.extend
     model: UserModel
 
@@ -23,38 +22,41 @@ define [
 
     _registerEvents: ->
 
-      globals.events.on "connection:user_list_change", (users) =>
-        globals.events.trigger("users:user_list_change", users)
-
       globals.events.on "connection:load_users", (users) =>
+        #alert "load users"
         for userBlock in users
           @add [
-            id : userBlock.id
-            userid: userBlock.id
-            username: userBlock.name
+            new UserModel {id: userBlock.id, userid: userBlock.id, username: userBlock.name}
           ]
         globals.events.trigger("users:load_users", users)
 
-      globals.events.on "connection:user_join", (userid, username) =>
-        console.log "users.coffee: on(connection:user_join)" + username
-        @add [
-          id : userid
-          userid: userid
-          username: username
-        ]
-        globals.events.trigger("users:user_join", userid, username)
+      #globals.events.on "getUsers", =>
+        #users = @toJSON()
+        #globals.events.trigger("receiveUsers", users)      
 
-      globals.events.on "connection:user_leave", (userid) =>
-        toDel = @get(userid)
-        @remove(toDel)
-        globals.events.trigger("users:user_leave", userid)
+      globals.events.on "connection:user_join", (newUserid, newUsername) =>
+        unless @get(newUserid)? #check if the user is already present
+          #newUser = new UserModel {id: newUserid, userid: newUserid, username: newUsername}
+          newUser = new UserModel() 
+          newUser.id = newUserid
+          newUser.userid = newUserid
+          newUser.username = newUsername
+
+          @add [
+            newUser
+          ]
+          globals.events.trigger("user:add_new_user", newUser)
 
       globals.events.on "connection:user_left", (userid) =>
         toDel = @get(userid)
-        @remove(toDel)
-        globals.events.trigger("users:user_left", userid)
+        if toDel? # only remove if the user model was found
+          @remove(toDel)
+          globals.events.trigger("users:user_left", userid)
 
       globals.events.on "connection:setPresenter", (userid) =>
         globals.events.trigger("users:setPresenter", userid)
+
+      render: ->
+        alert "user collection rendering"
 
   UsersCollection

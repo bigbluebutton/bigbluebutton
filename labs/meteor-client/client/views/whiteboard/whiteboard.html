@@ -1,0 +1,10 @@
+<template name="whiteboard">
+	<div id="{{id}}" {{visibility name}} class="component">
+		<h3 id="whiteboard-navbar" class="title gradientBar"><span class="glyphicon glyphicon-pencil"></span> {{title}}</h3>
+		<div id="whiteboard-paper">
+			{{#each getCurrentSlide}}
+				{{> slide}}
+			{{/each}}
+		</div>
+	</div>
+</template>

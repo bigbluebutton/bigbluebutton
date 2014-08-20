@@ -36,3 +36,7 @@ module.exports = class Controller
 
   sendingChat: (data) =>
     @messageBus.sendingToRedis(config.redis.channels.toBBBApps.chat, data)
+
+
+  sendingUsersMessage: (data) =>
+    @messageBus.sendingToRedis(config.redis.channels.toBBBApps.users, data)

@@ -1,0 +1,107 @@
+<template name="chatbar">
+	<div id="{{id}}" {{visibility name}} class="component">
+		<div id="chatbar-contents">
+			<h3 class="title gradientBar"><span class="glyphicon glyphicon-comment"></span> {{title}}</h3>
+			<div style="overflow-y: scroll; height:40px">{{>tabButtons}}</div>
+			{{#if getInSession "display_chatPane"}}
+				<div id="chatbody">
+					<ul class="chat">					
+						{{#each getCombinedMessagesForChat}}
+							<li {{messageFontSize}}>{{> message}}</li>
+						{{/each}}
+					</ul>
+				</div>
+				<div class="panel-footer">{{> chatInput}}</div>
+			{{else}}
+				{{> optionsBar}}
+			{{/if}}
+		</div>
+	</div>
+</template>
+
+<template name="chatInput">
+	<div class="chat-input-wrapper">
+		<input type="text" id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message" />
+		<button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top" title="Click to send your message">
+		Send
+		</button>
+	</div>
+</template>
+
+<template name="chatOptions">
+	<p>Chat Options:</p>
+	{{> optionsFontSize}}
+</template>
+
+<!-- Displays and styles an individual message in the chat -->
+<template name="message">
+	<table style="width:100%">
+		<tr>
+			<td>
+				{{#if message.from_username}}
+					<div class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{message.from_username}}">
+						<strong>{{message.from_username}}</strong>
+					</div>
+				{{/if}}
+			</td>
+			<td style="text-align:right">
+				{{#if message.from_time}}<small class="pull-right">{{toClockTime message.from_time}} <span class="glyphicon glyphicon-time"></span></small>{{/if}}
+			</td>
+		</tr>
+	</table>
+	<div style="color:{{getHexColor message.from_color}}">{{{sanitizeAndFormat message.message}}}</div> <!-- Messages must be safely filtered and stripped -->
+</template>
+
+<!-- Displays the list of options available -->
+<template name="optionsBar">
+	<div class="optionsBar">
+		<p>Select a person to chat with privately</p>
+		<div class="private-chat-user-box" rel="tooltip" data-placement="top" title="Select a participant to open a private chat">
+			{{#Layout template="scrollWindow" id="privateChatUserScrollWindow"}}
+				{{#contentFor region="scrollContents"}}
+					<table class="table table-hover">
+						<tbody class="private-chat-user-list">
+							{{#each getUsersInMeeting}}
+								<tr class="private-chat-user-entry">
+									{{#unless isCurrentUser userId}}
+								      {{user.name}}
+								    {{/unless}}
+								</tr>
+							{{/each}}
+						</tbody>
+					</table>
+				{{/contentFor}}
+			{{/Layout}}
+		</div>
+		<br/>
+		{{> chatOptions}}
+	</div>
+</template>
+
+<template name="optionsFontSize">
+	<div class="dropdown" style="float:left">
+		<span {{messageFontSize}}>Chat Message Font Size: </span>
+		<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
+			Font Size ({{getInSession "messageFontSize"}})
+			<span class="caret"></span>
+		</button>
+
+		<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1" style="height:80px; overflow-y:scroll; right:0px;">
+			<li role="presentation"><a class="fontSizeSelector" id="8" role="menuitem" tabindex="-1" href="#">8</a></li>
+			<li role="presentation"><a class="fontSizeSelector" id="10" role="menuitem" tabindex="-1" href="#">10</a></li>
+			<li role="presentation"><a class="fontSizeSelector" id="12" role="menuitem" tabindex="-1" href="#">12</a></li>
+			<li role="presentation"><a class="fontSizeSelector" id="14" role="menuitem" tabindex="-1" href="#">14</a></li>
+			<li role="presentation"><a class="fontSizeSelector" id="16" role="menuitem" tabindex="-1" href="#">16</a></li>
+			<li role="presentation"><a class="fontSizeSelector" id="18" role="menuitem" tabindex="-1" href="#">18</a></li>
+		</ul>
+	</div>
+</template>
+
+<!-- Display buttons on the chat tab, public, options, and all the private chat tabs -->
+<template name="tabButtons">
+	<ul id="tabButtonContainer" class="nav nav-tabs">
+		{{#each getChatbarTabs}}
+			{{{makeTabButton}}}
+		{{/each}}
+	</ul>
+</template>

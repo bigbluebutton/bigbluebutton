@@ -66,7 +66,7 @@ public class PdfToSwfSlidesGenerationService {
 		log.info("Determined number of pages. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "], numPages=[" + pres.getNumberOfPages() + "]");
 		if (pres.getNumberOfPages() > 0) {
 			convertPdfToSwf(pres);
-//			createPngImages(pres);
+			createPngImages(pres);
 			createTextFiles(pres);
 			createThumbnails(pres);
 			notifier.sendConversionCompletedMessage(pres);

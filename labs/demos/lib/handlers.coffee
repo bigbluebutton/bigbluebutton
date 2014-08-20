@@ -2,6 +2,7 @@ xml2js  = require 'xml2js'
 
 bbbapi  = require './bbbapi'
 testapi = require './testapi'
+configJson = require './../config.json'
 
 index = (request, response) ->
   response.sendfile('./views/index.html')
@@ -19,6 +20,8 @@ login = (req, resp) ->
   #calling createapi
   bbbapi.create(createParams, serverAndSecret, {}, (errorOuter, responseOuter, bodyOuter) ->
     #console.log JSON.stringify(response)
+    console.log "\n\nouterXML=" + responseOuter.body
+    console.log "\nerrorOuter=" + JSON.stringify errorOuter
     bbbapi.join(joinParams, serverAndSecret, {}, (error, response, body) ->
       if error
           console.log error
@@ -38,8 +41,8 @@ login = (req, resp) ->
             "\nuser_id = " + user_id +
             "\nauth_token = " + auth_token
 
-            url = "http://192.168.0.203:3000/html5.client?meeting_id=" + meeting_id + "&user_id=" +
-                  user_id + "&auth_token=" + auth_token + "&username=" + joinParams.fullName
+            url = "#{configJson.settings.IP}:3000/meeting_id=" + meeting_id + "&user_id=" +
+                  user_id + "&auth_token=" + auth_token
 
             json =
             resp.json({
@@ -49,7 +52,7 @@ login = (req, resp) ->
               failure: {
                 message: "Something went terribly wrong"
               }
-            })
+            }) 
         )
     )
   )

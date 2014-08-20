@@ -24,16 +24,16 @@ define [
     # @param  {string} colour    the colour of the object
     # @param  {number} thickness the thickness of the object's line(s)
     make: (startingData) ->
-      console.log "make startingData"+ startingData
-      x = startingData.payload.data.coordinate.first_x
-      y = startingData.payload.data.coordinate.first_y
-      color = startingData.payload.data.line.color
-      thickness = startingData.payload.data.line.weight
+      console.log "make startingData"#+ JSON.stringify startingData
+      x = startingData.payload.shape.shape.points[0]
+      y = startingData.payload.shape.shape.points[1]
+      color = startingData.payload.shape.shape.color
+      thickness = startingData.payload.shape.shape.thickness
 
       @obj = @paper.rect(x * @gw + @xOffset, y * @gh + @yOffset, 0, 0, 1)
       @obj.attr Utils.strokeAndThickness(color, thickness)
       @definition =
-        shape: "rect"
+        shape: "rectangle"
         data: [x, y, 0, 0, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]
       @obj
 
@@ -44,11 +44,11 @@ define [
     # @param  {number} y2 the y value of the bottom right corner
     # @param  {boolean} square (draw a square or not)
     update: (startingData) -> 
-      x1 = startingData.payload.data.coordinate.first_x
-      y1 = startingData.payload.data.coordinate.first_y
-      x2 = startingData.payload.data.coordinate.last_x
-      y2 = startingData.payload.data.coordinate.last_y
-      square = startingData.payload.data.square
+      x1 = startingData.payload.shape.shape.points[0]
+      y1 = startingData.payload.shape.shape.points[1]
+      x2 = startingData.payload.shape.shape.points[2]
+      y2 = startingData.payload.shape.shape.points[3]
+      square = startingData.payload.shape.shape.square
       if @obj?
         [x1, x2] = [x2, x1] if x2 < x1
         [x1, x2] = [x2, x1] if x2 < x1

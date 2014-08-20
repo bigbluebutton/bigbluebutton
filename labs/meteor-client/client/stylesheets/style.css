@@ -1,0 +1,123 @@
+.audioFeedIcon{}
+body {
+    background: #eee;
+    bottom:0;
+    color: #666666;
+    height:100%;
+    left:0;
+    position:absolute;
+    right:0;
+    top:0;   
+}
+.btn{
+    background-color:#F5F5F5;
+}
+.chatBarIcon{}
+.component{
+    background: #fff;
+    border: 1px solid #ccc;
+    float: left;
+    height:90%;
+}
+.gradientBar{
+    background: -webkit-linear-gradient(rgb(255,255,255), rgb(182,181,181)); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(     rgb(255,255,255), rgb(182,181,181)); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(   rgb(255,255,255), rgb(182,181,181)); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(        rgb(255,255,255), rgb(182,181,181)); /* Standard syntax (must be last) */
+}
+.hideNavbarIcon{}
+.lowerHand{}
+.mainContainer{
+    height:100%;
+    padding-top:60px;
+}
+.myFooter{
+    color:black;
+    font-size: 12px;
+    min-height: 0px;
+    max-height: 30px;
+}
+.myNavbar{
+    margin-bottom:0.5%;
+    min-width:900px;
+    padding-top:5px;
+}
+.myNavbarMinimized{
+    background: #eee;
+    height:20px;
+    margin-bottom:0.2%;
+    margin-top:0px;
+    min-width:900px;
+    padding-top:0px;
+    text-align:right;
+}
+.navbarButton {
+    height:40px;
+    margin-left: 2px;
+    margin-right: 2px;
+    width:40px;
+}
+.navbarIconToggleActive{
+    border-bottom: 4px solid lightblue;
+}
+.navbarMinimizedButton{
+    height:20px;
+    margin-bottom:0px;
+    margin-left: 2px;
+    margin-right: 20px;
+    margin-top:0px;
+    width:40px;
+}
+.navbarSection{
+    float:left;
+    min-width:300px;
+    width:33%;
+}
+.navbarSettingsButtons{
+    text-align: right;
+}
+.navbarTitle{
+    font-size: 16px;
+    font-weight:bold;
+    padding-top:15px;
+    text-align:center;
+}
+.navbarUserButtons{
+    padding-left:0.5%;
+}
+.raiseHand {}
+.recordingStatus{
+    background:none!important; 
+    border:none; 
+    padding:0!important;
+    margin-left: 10px;
+}
+.recordingStatusTrue{
+    color:green;
+}
+.recordingStatusFalse{
+    color:maroon;
+}
+.ScrollableWindow {
+    height: 100%;
+    overflow-y: scroll;
+    padding-right:5px;
+}
+.settingsIcon{}
+.signOutIcon{}
+.tab{
+    height:40px;
+}
+.title {    
+    border-bottom: 1px solid #d7d7d7;
+    color: #666;
+    font-size:14px;
+    font-weight: bold;
+    line-height: 2em;
+    margin:0;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    padding-top: 5px;
+}
+.usersListIcon{}
+.videoFeedIcon{}

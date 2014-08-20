@@ -14,6 +14,7 @@ import org.bigbluebutton.conference.service.messaging.RegisterUserMessage;
 import org.bigbluebutton.conference.service.messaging.UserConnectedToGlobalAudio;
 import org.bigbluebutton.conference.service.messaging.UserDisconnectedFromGlobalAudio;
 import org.bigbluebutton.conference.service.messaging.ValidateAuthTokenMessage;
+import org.bigbluebutton.conference.service.messaging.GetAllMeetingsRequest;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 
@@ -54,12 +55,17 @@ public class MeetingMessageHandler implements MessageHandler {
 					bbbGW.validateAuthToken(emm.meetingId, emm.userId, emm.token, emm.replyTo);
 				} else if (msg instanceof UserConnectedToGlobalAudio) {
 					UserConnectedToGlobalAudio emm = (UserConnectedToGlobalAudio) msg;
-					log.debug("Received UserConnectedToGlobalAudio toekn request. user id [{}]", emm.name);
+					log.info("Received UserConnectedToGlobalAudio token request. user id [{}]", emm.name);
 					bbbGW.userConnectedToGlobalAudio(emm.voiceConf, emm.userid, emm.name);
 				} else if (msg instanceof UserDisconnectedFromGlobalAudio) {
 					UserDisconnectedFromGlobalAudio emm = (UserDisconnectedFromGlobalAudio) msg;
-					log.debug("Received UserDisconnectedFromGlobalAudio toekn request. Meeting id [{}]", emm.name);
+					log.debug("Received UserDisconnectedFromGlobalAudio token request. Meeting id [{}]", emm.name);
 					bbbGW.userDisconnectedFromGlobalAudio(emm.voiceConf, emm.userid, emm.name);
+				}
+				else if (msg instanceof GetAllMeetingsRequest) {
+					GetAllMeetingsRequest emm = (GetAllMeetingsRequest) msg;
+					log.info("Received GetAllMeetingsRequest");
+					bbbGW.getAllMeetings("no_need_of_a_meeting_id");
 				}
 			}
 		} else if (channel.equalsIgnoreCase(MessagingConstants.TO_SYSTEM_CHANNEL)) {

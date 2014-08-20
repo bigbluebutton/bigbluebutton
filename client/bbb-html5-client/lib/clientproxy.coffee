@@ -20,7 +20,7 @@ module.exports = class ClientProxy
     @io.sockets.on 'connection', (socket) =>
       log.debug({ client: socket.id }, "Client has connected.")
       socket.on 'message', (jsonMsg) =>
-        log.debug({ message: jsonMsg }, "Received message") # TODO to check whether only 'message' works or 'djhkwa' too
+        log.debug({ message: jsonMsg }, "Received message")
         @_handleMessage(socket, jsonMsg)
       socket.on 'disconnect', =>
         @_handleClientDisconnected socket
@@ -49,8 +49,10 @@ module.exports = class ClientProxy
     callback?()
 
   _handleClientDisconnected: (socket) ->
-    if socket.userId?
-      log.info("User [#{socket.userId}] has disconnected.")
+    console.log "\ntrying to disconnect"
+
+    #if socket.userId?
+    #  log.info("User [#{socket.userId}] has disconnected.")
 
   _handleMessage: (socket, message) ->
     if message.header?.name?
@@ -64,6 +66,8 @@ module.exports = class ClientProxy
         @_handleLoginMessage socket, message
       when 'send_public_chat_message'
         @controller.sendingChat message
+      when 'user_leaving_request'
+        @controller.sendingUsersMessage message
       else
         log.error({ message: message }, 'Unknown message name.')
 
