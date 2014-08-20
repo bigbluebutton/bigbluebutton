@@ -235,8 +235,8 @@ stop_bigbluebutton () {
 		$FREESWITCH_INIT_D stop
 	fi
         
-	if [ -f /etc/init.d/bbb-openoffice-headless ]; then
-		/etc/init.d/bbb-openoffice-headless stop
+	if [ -f /etc/init.d/bbb-office ]; then
+		/etc/init.d/bbb-office stop
 	fi
 
 	if [ -f /etc/init.d/bbb-record-core ]; then
@@ -246,7 +246,6 @@ stop_bigbluebutton () {
 }
 
 start_bigbluebutton () {
-
 	$FREESWITCH_INIT_D start
 	
 	FREESWITCH_ESL_IP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
@@ -266,8 +265,8 @@ start_bigbluebutton () {
 	/etc/init.d/bbb-red5 start
 	/etc/init.d/${SERVLET_CONTAINER} start
 
+	# monit will start libreoffice and bbb-rap-worker
 	/etc/init.d/monit start
-
 
 	#
 	# At this point the red5 and servlet container applications are starting up.
@@ -912,7 +911,7 @@ check_state() {
 	#
 	FFMPEG_VERSION=$(ffmpeg -version 2>/dev/null | grep ffmpeg | cut -d ' ' -f3)
 	case "$FFMPEG_VERSION" in
-	2.0|2.0.*)
+	2.3.*)
 		# This is the current supported version; OK.
 		;;
 	'')
