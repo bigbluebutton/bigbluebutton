@@ -401,8 +401,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             // Calculate position of TitleWindow in Application's coordinates. 
             point1.x = width/2;
             point1.y = height/2;
-            ffBrowser.x = point1.x - (ffBrowser.width/2);
-            ffBrowser.y = point1.y - (ffBrowser.height/2);
             ffBrowser.x = 100;
             ffBrowser.y = 150;
           }); 
@@ -413,12 +411,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             // Calculate position of TitleWindow in Application's coordinates. 
             point1.x = width/2;
             point1.y = height/2;
-            chromeBrowser.x = point1.x - (chromeBrowser.width/2);
-            chromeBrowser.y = point1.y - (chromeBrowser.height/2);
-            
+            if (Capabilities.os.indexOf("Mac") >= 0) {
+            chromeBrowser.x = (mdiCanvas.width - chromeBrowser.width);
+            }
+            else {
             chromeBrowser.x = 20;
+            }
             chromeBrowser.y = 20;
-            
           });          
         }
       }
