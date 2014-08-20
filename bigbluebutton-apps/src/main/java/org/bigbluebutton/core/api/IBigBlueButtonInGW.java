@@ -3,6 +3,7 @@ package org.bigbluebutton.core.api;
 import java.util.ArrayList;
 import java.util.Map;
 
+
 public interface IBigBlueButtonInGW {
 
 	void isAliveAudit(String aliveID);
@@ -43,6 +44,7 @@ public interface IBigBlueButtonInGW {
 	void userDisconnectedFromGlobalAudio(String voiceConf, String userid, String name);
 	
 	// Voice
+	void muteAllExceptPresenter(String meetingID, String requesterID, Boolean mute);
 	void muteAllUsers(String meetingID, String requesterID, Boolean mute);
 	void isMeetingMuted(String meetingID, String requesterID);
 	void muteUser(String meetingID, String requesterID, String userID, Boolean mute);
@@ -94,10 +96,10 @@ public interface IBigBlueButtonInGW {
 	
 	// Layout
 	void getCurrentLayout(String meetingID, String requesterID);
-	void setLayout(String meetingID, String requesterID, String layoutID);
-	void syncLayout(String meetingID, String requesterID, String layoutID);
-	void lockLayout(String meetingID, String requesterID, String layoutID);
-	void unlockLayout(String meetingID, String requesterID);
+	void broadcastLayout(String meetingID, String requesterID, String layout);
+	void lockLayout(String meetingID, String setById, 
+                  boolean lock, boolean viewersOnly,
+                  scala.Option<String> layout);
 
 	// Chat
 	void getChatHistory(String meetingID, String requesterID, String replyTo);

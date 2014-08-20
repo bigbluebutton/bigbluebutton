@@ -225,6 +225,8 @@ uncomment () {
 }
 
 stop_bigbluebutton () {
+	/etc/init.d/monit stop
+
 	/etc/init.d/bbb-red5 stop
 	/etc/init.d/${SERVLET_CONTAINER} stop
 	/etc/init.d/nginx stop
@@ -233,8 +235,8 @@ stop_bigbluebutton () {
 		$FREESWITCH_INIT_D stop
 	fi
         
-	if [ -f /etc/init.d/bbb-openoffice-headless ]; then
-		/etc/init.d/bbb-openoffice-headless stop
+	if [ -f /etc/init.d/bbb-office ]; then
+		/etc/init.d/bbb-office stop
 	fi
 
 	if [ -f /etc/init.d/bbb-record-core ]; then
@@ -244,7 +246,6 @@ stop_bigbluebutton () {
 }
 
 start_bigbluebutton () {
-
 	$FREESWITCH_INIT_D start
 	
 	FREESWITCH_ESL_IP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
@@ -260,18 +261,12 @@ start_bigbluebutton () {
 	fi
 	echo
 
-	if [ -f /etc/init.d/bbb-openoffice-headless ]; then	
-		/etc/init.d/bbb-openoffice-headless start
-	fi
-	
 	/etc/init.d/nginx start
 	/etc/init.d/bbb-red5 start
 	/etc/init.d/${SERVLET_CONTAINER} start
 
-	if [ -f /etc/init.d/bbb-record-core ]; then
-		/etc/init.d/bbb-record-core start
-	fi
-
+	# monit will start libreoffice and bbb-rap-worker
+	/etc/init.d/monit start
 
 	#
 	# At this point the red5 and servlet container applications are starting up.
@@ -318,9 +313,11 @@ enable_webrtc(){
 	# Enable port 5066 in freeswitch
 	sed -i "s@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@<param name=\"ws-binding\"  value=\":5066\"/>@g" /opt/freeswitch/conf/sip_profiles/external.xml
 
-	echo "Recommend you do"
+	echo 
+	echo "WebRTC enabled.  To apply settings to your server, do"
+	echo 
 	echo "   sudo bbb-conf --clean"
-	echo "to restart BigBlueButton."
+	echo 
 }
 
 disable_webrtc(){
@@ -337,9 +334,11 @@ disable_webrtc(){
 	# Disable port 5066 in freeswitch
 	sed -i "s@<param name=\"ws-binding\"  value=\":5066\"/>@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@g" /opt/freeswitch/conf/sip_profiles/external.xml
 
-	echo "Recommend you do"
+	echo 
+	echo "WebRTC disabled.  To apply settings to your server, do"
+	echo 
 	echo "   sudo bbb-conf --clean"
-	echo "to restart BigBlueButton."
+	echo 
 }
 
 
@@ -647,7 +646,7 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 	 	if [ ! -f $file ]; then	
 		 	echo "# Error: File not found: $file"
 		else
-			if grep -q "^[^=]*=[ ]*$" $file; then
+                        if cat $file | grep -v redis.pass | grep -q "^[^=]*=[ ]*$"; then
         			echo "# The following properties in $file have no value:"
         			echo "#     $(grep '^[^=#]*=[ ]*$' $file | sed 's/=//g')"
 			fi
@@ -912,7 +911,7 @@ check_state() {
 	#
 	FFMPEG_VERSION=$(ffmpeg -version 2>/dev/null | grep ffmpeg | cut -d ' ' -f3)
 	case "$FFMPEG_VERSION" in
-	2.0|2.0.*)
+	2.3.*)
 		# This is the current supported version; OK.
 		;;
 	'')
@@ -1278,10 +1277,8 @@ if [ $DEBUG ]; then
 	# Check log files
 	#
 
-set -x
-
 	rm -rf /tmp/t
-	grep ERROR /var/log/bigbluebutton/* > /tmp/t
+	grep --directories=skip ERROR /var/log/bigbluebutton/* > /tmp/t
 	if [ -s /tmp/t ]; then
 		echo "  -- ERRORS found in /var/log/bigbluebutton/* -- "
 		cat /tmp/t
@@ -1289,7 +1286,7 @@ set -x
 	fi
 
 	rm -rf /tmp/t
-	grep Exception /var/log/bigbluebutton/* | grep -v CacheExceptionHandlerFactory > /tmp/t
+	grep --directories=skip Exception /var/log/bigbluebutton/* | grep -v CacheExceptionHandlerFactory > /tmp/t
         if [ -s /tmp/t ]; then
                 echo "  -- ERRORS found in /var/log/bigbluebutton/* -- "
                 cat /tmp/t
@@ -1298,7 +1295,7 @@ set -x
 
 
 	rm -rf /tmp/t
-	grep ERROR $RED5_DIR/log/* > /tmp/t 
+	grep --directories=skip ERROR $RED5_DIR/log/* > /tmp/t 
 	if [ -s /tmp/t ]; then
 		echo "   -- ERRORS found in $RED5_DIR/log/* -- "
 		cat /tmp/t
@@ -1307,7 +1304,7 @@ set -x
 
 
 	rm -rf /tmp/t
-	grep Exception $RED5_DIR/log/* > /tmp/t 
+	grep --directories=skip Exception $RED5_DIR/log/* > /tmp/t 
 	if [ -s /tmp/t ]; then
 		echo "   -- Exceptions found in $RED5_DIR/log/* -- "
 		cat /tmp/t
@@ -1316,7 +1313,7 @@ set -x
 
 
 	rm -rf /tmp/t
-	sudo grep Exception $SERVLET_LOGS/* | grep -v CacheExceptionHandlerFactory > /tmp/t 
+	sudo grep --directories=skip Exception $SERVLET_LOGS/* | grep -v CacheExceptionHandlerFactory > /tmp/t 
 	if [ -s /tmp/t ]; then
 		echo "   -- Exceptions found in $SERVLET_LOGS/ -- "
 		cat /tmp/t
@@ -1334,7 +1331,7 @@ set -x
         fi
 
 	rm -rf /tmp/t
-	sudo grep -i exception /var/log/syslog > /tmp/t 
+	sudo grep --directories=skip -i exception /var/log/syslog > /tmp/t 
 	if [ -s /tmp/t ]; then
 		echo "   -- Errors found in /var/log/syslog -- "
 		cat /tmp/t
@@ -1343,7 +1340,7 @@ set -x
 
 	rm -rf /tmp/t
 	if [ -d /var/log/bigbluebutton ]; then
-		  sudo grep ERROR /var/log/bigbluebutton/* > /tmp/t 
+		  sudo grep --directories=skip ERROR /var/log/bigbluebutton/* > /tmp/t 
 		  if [ -s /tmp/t ]; then
 			echo "   -- Errors found in /var/log/bigbluebutton -- "
 			cat /tmp/t
@@ -1353,7 +1350,7 @@ set -x
 
 	rm -rf /tmp/t
 	if [ -d /var/log/bigbluebutton ]; then
-		  sudo grep -i exception /var/log/bigbluebutton/* > /tmp/t 
+		  sudo grep --directories=skip -i exception /var/log/bigbluebutton/* > /tmp/t 
 		  if [ -s /tmp/t ]; then
 			echo "   -- Exceptions found in /var/log/bigbluebutton -- "
 			cat /tmp/t

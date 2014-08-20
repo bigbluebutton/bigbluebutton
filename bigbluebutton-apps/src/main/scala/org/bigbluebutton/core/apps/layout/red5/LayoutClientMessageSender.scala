@@ -11,9 +11,8 @@ class LayoutClientMessageSender(service: ConnectionInvokerService) extends OutMe
 	def handleMessage(msg: IOutMessage) {
 	  msg match {
 	    case msg:GetCurrentLayoutReply                 => handleGetCurrentLayoutReply(msg)
-	    case msg:SetLayoutEvent                        => handleSetLayoutEvent(msg)
+	    case msg:BroadcastLayoutEvent                  => handleBroadcastLayoutEvent(msg)
 	    case msg:LockLayoutEvent                       => handleLockLayoutEvent(msg)
-	    case msg:UnlockLayoutEvent                     => handleUnlockLayoutEvent(msg)
 	    case _ => // do nothing
 	  }
 	}  
@@ -21,40 +20,33 @@ class LayoutClientMessageSender(service: ConnectionInvokerService) extends OutMe
 	private def handleGetCurrentLayoutReply(msg: GetCurrentLayoutReply) {
 	  val message = new java.util.HashMap[String, Object]()  	
 	  message.put("locked", msg.locked:java.lang.Boolean);
-	  message.put("setByUserID", msg.setByUserID);
+	  message.put("setById", msg.setByUserID);
 	  message.put("layout", msg.layoutID);
   	  
     var m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getCurrentLayoutResponse", message);
   	service.sendMessage(m);	  
 	}
-	
-	private def handleSetLayoutEvent(msg: SetLayoutEvent) {
-	  val message = new java.util.HashMap[String, Object]()  	
-	  message.put("locked", msg.locked:java.lang.Boolean);
-	  message.put("setByUserID", msg.setByUserID);
-	  message.put("layout", msg.layoutID);	  
-	  
-	  var m = new BroadcastClientMessage(msg.meetingID, "syncLayout", message);
-	  service.sendMessage(m);
-	}
-	
-	private def handleLockLayoutEvent(msg: LockLayoutEvent) {
+		
+	private def handleBroadcastLayoutEvent(msg: BroadcastLayoutEvent) {
 	  val message = new java.util.HashMap[String, Object]()  	
 	  message.put("locked", msg.locked:java.lang.Boolean);
 	  message.put("setByUserID", msg.setByUserID);
 	  message.put("layout", msg.layoutID);
 	  
-	  var m = new BroadcastClientMessage(msg.meetingID, "remoteUpdateLayout", message);
-	  service.sendMessage(m);
+	  msg.applyTo foreach {u =>
+	    var m = new DirectClientMessage(msg.meetingID, u.userID, "syncLayout", message);
+	    service.sendMessage(m);	    
+	  }  
 	}
 	
-	private def handleUnlockLayoutEvent(msg: UnlockLayoutEvent) {
+	private def handleLockLayoutEvent(msg: LockLayoutEvent) {
 	  val message = new java.util.HashMap[String, Object]()  	
 	  message.put("locked", msg.locked:java.lang.Boolean);
-	  message.put("setByUserID", msg.setByUserID);
-	  message.put("layout", msg.layoutID);	  
-	  
-	  var m = new BroadcastClientMessage(msg.meetingID, "remoteUpdateLayout", message);
-	  service.sendMessage(m);
+	  message.put("setById", msg.setById);
+    
+	  msg.applyTo foreach {u =>
+	    var m = new DirectClientMessage(msg.meetingID, u.userID, "layoutLocked", message);
+	    service.sendMessage(m);	    
+	  };
 	}
 }

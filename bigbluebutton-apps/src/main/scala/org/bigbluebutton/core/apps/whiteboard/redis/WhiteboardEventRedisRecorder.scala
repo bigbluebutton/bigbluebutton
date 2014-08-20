@@ -51,7 +51,7 @@ class WhiteboardEventRedisRecorder(recorder: RecorderApplication) extends OutMes
 	    	    
 		val event = new ModifyTextWhiteboardRecordEvent()
 		event.setMeetingId(msg.meetingID)
-		event.setTimestamp(System.currentTimeMillis())
+		event.setTimestamp(TimestampGenerator.generateTimestamp)
 		event.setPresentation(getPresentationId(msg.whiteboardId))
 		event.setPageNumber(getPageNum(msg.whiteboardId))
 		event.setWhiteboardId(msg.whiteboardId)
@@ -60,7 +60,7 @@ class WhiteboardEventRedisRecorder(recorder: RecorderApplication) extends OutMes
 	  } else {
 		val event = new AddShapeWhiteboardRecordEvent()
 		event.setMeetingId(msg.meetingID)
-		event.setTimestamp(System.currentTimeMillis())
+		event.setTimestamp(TimestampGenerator.generateTimestamp)
 		event.setPresentation(getPresentationId(msg.whiteboardId))
 		event.setPageNumber(getPageNum(msg.whiteboardId))
 		event.setWhiteboardId(msg.whiteboardId);
@@ -72,7 +72,7 @@ class WhiteboardEventRedisRecorder(recorder: RecorderApplication) extends OutMes
 	private def handleClearWhiteboardEvent(msg: ClearWhiteboardEvent) {
 		val event = new ClearPageWhiteboardRecordEvent()
 		event.setMeetingId(msg.meetingID)
-		event.setTimestamp(System.currentTimeMillis())	
+		event.setTimestamp(TimestampGenerator.generateTimestamp)	
 		event.setPresentation(getPresentationId(msg.whiteboardId))
 		event.setPageNumber(getPageNum(msg.whiteboardId))
 		event.setWhiteboardId(msg.whiteboardId)
@@ -82,7 +82,7 @@ class WhiteboardEventRedisRecorder(recorder: RecorderApplication) extends OutMes
 	private def handleUndoWhiteboardEvent(msg: UndoWhiteboardEvent) {
 		val event = new UndoShapeWhiteboardRecordEvent()
 		event.setMeetingId(msg.meetingID)
-		event.setTimestamp(System.currentTimeMillis())	
+		event.setTimestamp(TimestampGenerator.generateTimestamp)	
 		event.setPresentation(getPresentationId(msg.whiteboardId))
 		event.setPageNumber(getPageNum(msg.whiteboardId))
 		event.setWhiteboardId(msg.whiteboardId)

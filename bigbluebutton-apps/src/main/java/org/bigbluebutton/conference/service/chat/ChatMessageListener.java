@@ -60,18 +60,12 @@ public class ChatMessageListener implements MessageHandler{
 				map.put(ChatKeyUtil.TO_USERNAME, toUsername);
 				map.put(ChatKeyUtil.MESSAGE, chatText);
 
-				//public message
-				if(eventName.equalsIgnoreCase(MessagingConstants.SEND_PUBLIC_CHAT_MESSAGE_REQUEST))
-				{
-					System.out.println("I'm in the case for a public chat message request");
-					bbbGW.sendPublicMessage(meetingID, requesterID, map); //sending a request
-				}
-
-				//private message
-				else if(eventName.equalsIgnoreCase(MessagingConstants.SEND_PRIVATE_CHAT_MESSAGE_REQUEST))
-				{
-					System.out.println("I'm in the case for a private chat message request");
-					bbbGW.sendPrivateMessage(meetingID, requesterID, map); //sending a request
+				if(eventName.equalsIgnoreCase("public_chat_message_event") 
+						|| eventName.equalsIgnoreCase("send_public_chat_message")) {
+					bbbGW.sendPublicMessage(meetingID, requesterID, map);
+				}	else if(eventName.equalsIgnoreCase("private_chat_message_event")
+						|| eventName.equalsIgnoreCase("send_private_chat_message")) {
+					bbbGW.sendPrivateMessage(meetingID, requesterID, map); 
 				}
 			}
 		}

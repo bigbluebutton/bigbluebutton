@@ -157,8 +157,7 @@ package org.bigbluebutton.core
       }
       LogUtil.warn("Could not find externUserID for userID [" + userID + "]");
       trace("Could not find externUserID for userID [" + userID + "]");
-      throw new Error("Could not find externUserID for userID [" + userID + "]");
-      return null;
+      return "";
     }
     
     public static function externalUserIDToInternalUserID(externUserID:String):String {

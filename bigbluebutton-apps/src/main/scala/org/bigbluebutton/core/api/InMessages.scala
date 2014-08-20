@@ -53,12 +53,12 @@ case class LockAllUsers(
 case class InitLockSettings(
   meetingID: String, 
   locked: Boolean, 
-  settings: PermissionsSetting) extends InMessage
+  settings: Permissions) extends InMessage
                             
 case class SetLockSettings(
     meetingID: String,  
     setByUser: String,
-    settings: PermissionsSetting
+    settings: Permissions
 ) extends InMessage
                            
 case class GetLockSettings(
@@ -195,23 +195,20 @@ case class SetLayoutRequest(
     layoutID: String
 ) extends InMessage
 
-case class LayoutLockSettings(
-  meetingID: String,
-  requesterId: String,
-  locked: Boolean
+case class LockLayoutRequest(
+  meetingID: String, 
+  setById: String,
+  lock: Boolean,
+  viewersOnly: Boolean,
+  layout: Option[String]
 ) extends InMessage
 
-case class LockLayoutRequest(
+case class BroadcastLayoutRequest(
     meetingID: String, 
     requesterID: String, 
-    layoutID: String
+    layout: String
 ) extends InMessage
                              
-case class UnlockLayoutRequest(
-    meetingID: String, 
-    requesterID: String
-) extends InMessage
-
 // Poll
 case class PreCreatedPoll(
     meetingID: String, 
@@ -387,6 +384,11 @@ case class PresentationConversionCompleted(
 case class SendVoiceUsersRequest(
     meetingID: String, 
     requesterID: String) extends InMessage
+
+case class MuteAllExceptPresenterRequest(
+    meetingID: String, 
+    requesterID: String, 
+    mute: Boolean) extends InMessage
     
 case class MuteMeetingRequest(
     meetingID: String, 

@@ -12,6 +12,7 @@ import org.bigbluebutton.core.apps.layout.LayoutApp
 import org.bigbluebutton.core.apps.chat.ChatApp
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp
 import scala.actors.TIMEOUT
+import java.util.concurrent.TimeUnit
 
 case object StopMeetingActor
                       
@@ -22,7 +23,7 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
                    with WhiteboardApp {  
 
   var permissionsInited = false
-  var permissions = new PermissionsSetting(new Permissions())
+  var permissions = new Permissions()
   var recording = false;
   var muted = false;
   var meetingEnded = false
@@ -34,6 +35,10 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
   def getRecordedStatus():Boolean = {
     recorded
   }
+  
+  val TIMER_INTERVAL = 30000
+  var hasLastWebUserLeft = false
+  var lastWebUserLeftOn:Long = 0
 
   class TimerActor(val timeout: Long, val who: Actor, val reply: String) extends Actor {
     def act {
@@ -48,6 +53,7 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
     react {
       case "StartTimer"                                => handleStartTimer
       case "Hello"                                     => handleHello
+      case "MonitorNumberOfWebUsers"                   => handleMonitorNumberOfWebUsers()
       case msg: ValidateAuthToken                      => handleValidateAuthToken(msg)
       case msg: RegisterUser                           => handleRegisterUser(msg)
       case msg: VoiceUserJoined                        => handleVoiceUserJoined(msg)
@@ -64,25 +70,19 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
       case msg: UserShareWebcam                        => handleUserShareWebcam(msg)
       case msg: UserUnshareWebcam                      => handleUserunshareWebcam(msg)
       case msg: MuteMeetingRequest                     => handleMuteMeetingRequest(msg)
+      case msg: MuteAllExceptPresenterRequest          => handleMuteAllExceptPresenterRequest(msg)
       case msg: IsMeetingMutedRequest                  => handleIsMeetingMutedRequest(msg)
       case msg: MuteUserRequest                        => handleMuteUserRequest(msg)
-      case msg: LockUserRequest                        => handleLockUserRequest(msg)
       case msg: EjectUserRequest                       => handleEjectUserRequest(msg)
       case msg: SetLockSettings                        => handleSetLockSettings(msg)
       case msg: InitLockSettings                       => handleInitLockSettings(msg)
-      case msg: LockUser                               => handleLockUser(msg)
-      case msg: LockAllUsers                           => handleLockAllUsers(msg)
-      case msg: GetLockSettings                        => handleGetLockSettings(msg)
-      case msg: IsMeetingLocked                        => handleIsMeetingLocked(msg)
       case msg: GetChatHistoryRequest                  => handleGetChatHistoryRequest(msg) 
       case msg: SendPublicMessageRequest               => handleSendPublicMessageRequest(msg)
       case msg: SendPrivateMessageRequest              => handleSendPrivateMessageRequest(msg)
       case msg: UserConnectedToGlobalAudio             => handleUserConnectedToGlobalAudio(msg)
       case msg: UserDisconnectedFromGlobalAudio        => handleUserDisconnectedFromGlobalAudio(msg)
       case msg: GetCurrentLayoutRequest                => handleGetCurrentLayoutRequest(msg)
-      case msg: SetLayoutRequest                       => handleSetLayoutRequest(msg)
-      case msg: LockLayoutRequest                      => handleLockLayoutRequest(msg)
-      case msg: UnlockLayoutRequest                    => handleUnlockLayoutRequest(msg)
+      case msg: BroadcastLayoutRequest                 => handleBroadcastLayoutRequest(msg)
       case msg: InitializeMeeting                      => handleInitializeMeeting(msg)
       case msg: ClearPresentation                      => handleClearPresentation(msg)
       case msg: PresentationConversionUpdate           => handlePresentationConversionUpdate(msg)
@@ -125,23 +125,58 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
       case _ => // do nothing
     }
   }
-  } 
+  }
   
   def hasMeetingEnded():Boolean = {
     meetingEnded
   }
   
   private def handleStartTimer() {
-    println("***************timer started******************")
+//    println("***************timer started******************")
 //    val timerActor = new TimerActor(2000, self, "Hello")
 //    timerActor.start
   }
   
   private def handleHello() {
-    println("***************hello received on [" + System.currentTimeMillis() + "]******************")
+//    println("***************hello received on [" + System.currentTimeMillis() + "]******************")
     
 //    val timerActor = new TimerActor(2000, self, "Hello")    
 //    timerActor.start
+  }
+  
+  def webUserJoined() {
+    if (users.numWebUsers > 0) {
+      lastWebUserLeftOn = 0
+    }      
+  }
+  
+  def startCheckingIfWeNeedToEndVoiceConf() {
+    if (users.numWebUsers == 0) {
+      lastWebUserLeftOn = timeNowInMinutes
+      println("*************** MonitorNumberOfWebUsers started ******************")
+      scheduleEndVoiceConference()
+    }
+  }
+  
+  def handleMonitorNumberOfWebUsers() {
+    if (users.numWebUsers == 0 && lastWebUserLeftOn > 0) {
+      if (timeNowInMinutes - lastWebUserLeftOn > 2) {
+        println("*************** MonitorNumberOfWebUsers [Ject all from voice] ******************")
+        outGW.send(new EjectAllVoiceUsers(meetingID, recorded, voiceBridge))
+      } else {
+        scheduleEndVoiceConference()
+      }
+    }
+  }
+  
+  private def scheduleEndVoiceConference() {
+    println("*************** MonitorNumberOfWebUsers monitor ******************")
+    val timerActor = new TimerActor(TIMER_INTERVAL, self, "MonitorNumberOfWebUsers")
+    timerActor.start    
+  }
+  
+  def timeNowInMinutes():Long = {
+    TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
   }
   
   def sendMeetingHasEnded(userId: String) {
@@ -173,5 +208,18 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
 
   private def handleGetRecordingStatus(msg: GetRecordingStatus) {
      outGW.send(new GetRecordingStatusReply(meetingID, recorded, msg.userId, recording.booleanValue()))
-  } 
+  }
+  
+  def lockLayout(lock: Boolean) {
+    permissions = permissions.copy(lockedLayout=lock)
+  }
+  
+  def newPermissions(np: Permissions) {
+    permissions = np
+  }
+  
+  def permissionsEqual(other: Permissions):Boolean = {
+    permissions == other
+  }
+  
 }

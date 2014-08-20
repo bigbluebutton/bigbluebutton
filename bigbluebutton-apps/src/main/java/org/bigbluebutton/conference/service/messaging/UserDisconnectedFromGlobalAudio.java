@@ -51,7 +51,6 @@ public class UserDisconnectedFromGlobalAudio implements IMessage {
 				}
 			}
 		}
-		System.out.println("Failed to parse UserDisconnectedFromGlobalAudio");
 		return null;
 	}
 }

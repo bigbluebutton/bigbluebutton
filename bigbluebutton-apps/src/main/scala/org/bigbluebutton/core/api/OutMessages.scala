@@ -49,11 +49,27 @@ case class MeetingCreated(
     version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
+case class MeetingMuted(
+    meetingID: String, 
+    recorded: Boolean, 
+    meetingMuted: Boolean,
+    version:String = Versions.V_0_0_1    
+) extends IOutMessage
+
 case class MeetingEnded(
     meetingID: String, 
     recorded: Boolean, 
     voiceBridge: String,
     version:String = Versions.V_0_0_1
+) extends IOutMessage
+
+case class MeetingState(
+    meetingID: String, 
+    recorded: Boolean, 
+    userId: String,
+    permissions: Permissions,
+    meetingMuted: Boolean,
+    version:String = Versions.V_0_0_1    
 ) extends IOutMessage
 
 case class MeetingHasEnded(
@@ -89,7 +105,7 @@ case object IsAliveMessage extends IOutMessage
 case class PermissionsSettingInitialized(
   meetingID: String, 
   locked: Boolean, 
-  settings: PermissionsSetting,
+  permissions: Permissions,
   applyTo: Array[UserVO],
   version:String = Versions.V_0_0_1
 ) extends IOutMessage
@@ -97,7 +113,7 @@ case class PermissionsSettingInitialized(
 case class NewPermissionsSetting(
   meetingID: String, 
   setByUser: String,
-  settings: PermissionsSetting,
+  permissions: Permissions,
   applyTo: Array[UserVO],
   version:String = Versions.V_0_0_1
 ) extends IOutMessage
@@ -147,6 +163,13 @@ case class PresenterAssigned(
     meetingID: String, 
     recorded: Boolean, 
     presenter: Presenter,
+  version:String = Versions.V_0_0_1
+) extends IOutMessage
+
+case class EjectAllVoiceUsers(
+    meetingID: String, 
+    recorded: Boolean,
+    voiceBridge:String,
   version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
@@ -335,7 +358,7 @@ case class GetCurrentLayoutReply(
     setByUserID: String
 ) extends IOutMessage
 
-case class SetLayoutEvent(
+case class BroadcastLayoutEvent(
     meetingID: String, 
     recorded: Boolean, 
     requesterID: String, 
@@ -348,20 +371,8 @@ case class SetLayoutEvent(
 case class LockLayoutEvent(
     meetingID: String, 
     recorded: Boolean, 
-    requesterID: String, 
-    layoutID: String, 
+    setById: String,
     locked: Boolean, 
-    setByUserID: String,
-    applyTo: Array[UserVO]
-) extends IOutMessage
-
-case class UnlockLayoutEvent(
-    meetingID: String, 
-    recorded: Boolean, 
-    requesterID: String, 
-    layoutID: String, 
-    locked: Boolean, 
-    setByUserID: String,
     applyTo: Array[UserVO]
 ) extends IOutMessage
 

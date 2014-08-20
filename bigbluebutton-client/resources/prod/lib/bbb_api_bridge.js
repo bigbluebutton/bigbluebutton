@@ -419,55 +419,90 @@
     /**
      *
      */
-    BBB.webRtcConferenceCallEnded = function(message) {
+     
+    BBB.webRTCConferenceCallStarted = function() {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRtcConferenceCallEnded(message);
+        swfObj.webRTCConferenceCallStarted();
+      }
+    }
+    
+    BBB.webRTCConferenceCallConnecting = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCConferenceCallConnecting();
+      }
+    }
+     
+    BBB.webRTCConferenceCallEnded = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCConferenceCallEnded();
       }
     }
 
-    BBB.webRtcConferenceCallFailed = function(message) {
+    BBB.webRTCConferenceCallFailed = function(message) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRtcConferenceCallFailed(message);
+        swfObj.webRTCConferenceCallFailed(message);
       }
     }
 
-    BBB.webRtcConferenceCallStarted = function(localStream, remoteStream) {
+    BBB.webRTCCallProgressCallback = function(progress) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRtcConferenceCallStarted(localStream, remoteStream);
+        swfObj.webRTCCallProgressCallback(progress);
       }
     }
 
-    BBB.webRtcCallProgressCallback = function(progress) {
+    BBB.webRTCEchoTestStarted = function() {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRtcCallProgressCallback(progress);
+        swfObj.webRTCEchoTestStarted();
+      }
+    }
+    
+    BBB.webRTCEchoTestConnecting = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCEchoTestConnecting();
       }
     }
 
-    BBB.webRtcEchoTestFailed = function(reason) {
+    BBB.webRTCEchoTestFailed = function(reason) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRtcEchoTestFailed(reason);
+        swfObj.webRTCEchoTestFailed(reason);
       }
     }
 
-    BBB.webRtcEchoTestEnded = function(cause) {
+    BBB.webRTCEchoTestEnded = function() {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRtcEchoTestEnded(cause);
+        swfObj.webRTCEchoTestEnded();
+      }
+    }
+    
+    BBB.webRTCMediaRequest = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCMediaRequest();
       }
     }
 
-    BBB.webRtcEchoTestStarted = function(localStream, remoteStream) {
+    BBB.webRTCMediaSuccess = function() {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRtcEchoTestStarted(localStream, remoteStream);
+        swfObj.webRTCMediaSuccess();
       }
     }
-
+    
+    BBB.webRTCMediaFail = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCMediaFail();
+      }
+    }
             
     // Third-party JS apps should use this to query if the BBB SWF file is ready to handle calls.
     BBB.isSwfClientReady = function() {

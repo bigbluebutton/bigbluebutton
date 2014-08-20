@@ -40,8 +40,21 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    case msg: UserRegistered                         => handleRegisteredUser(msg)
 	    case msg: UserListeningOnly                      => handleUserListeningOnly(msg)
 	    case msg: NewPermissionsSetting                  => handleNewPermissionsSetting(msg)
+	    case msg: MeetingMuted                           => handleMeetingMuted(msg)
+	    case msg: MeetingState                           => handleMeetingState(msg)
+	    
 	    case _ => // println("Unhandled message in UsersClientMessageSender")
 	  }
+	}
+	
+	private def buildPermissionsHashMap(perms: Permissions):java.util.HashMap[String, java.lang.Boolean] = {
+	  val args = new java.util.HashMap[String, java.lang.Boolean]();  
+	  args.put("disableCam", perms.disableCam:java.lang.Boolean);
+	  args.put("disableMic", perms.disableMic:java.lang.Boolean);
+	  args.put("disablePrivChat", perms.disablePrivChat:java.lang.Boolean);
+	  args.put("disablePubChat", perms.disablePubChat:java.lang.Boolean);
+    args.put("lockedLayout", perms.lockedLayout:java.lang.Boolean);
+    args
 	}
 	
 	private def buildUserHashMap(user: UserVO):java.util.HashMap[String, Object] = {
@@ -77,18 +90,18 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  permissions.put("disablePubChat", user.permissions.disablePubChat:java.lang.Boolean)	  
 	  permissions.put("lockedLayout", user.permissions.lockedLayout:java.lang.Boolean)
 	  
-    wuser.put("permissions", permissions)
+      wuser.put("permissions", permissions)
   
 	  wuser
 	}
 	
 	private def handleNewPermissionsSetting(msg: NewPermissionsSetting) {
 	  val args = new java.util.HashMap[String, Object]();  
-	  args.put("disableCam", msg.settings.permissions.disableCam:java.lang.Boolean);
-	  args.put("disableMic", msg.settings.permissions.disableMic:java.lang.Boolean);
-	  args.put("disablePrivChat", msg.settings.permissions.disablePrivChat:java.lang.Boolean);
-	  args.put("disablePubChat", msg.settings.permissions.disablePubChat:java.lang.Boolean);
-    args.put("lockedLayout", msg.settings.permissions.lockedLayout:java.lang.Boolean);
+	  args.put("disableCam", msg.permissions.disableCam:java.lang.Boolean);
+	  args.put("disableMic", msg.permissions.disableMic:java.lang.Boolean);
+	  args.put("disablePrivChat", msg.permissions.disablePrivChat:java.lang.Boolean);
+	  args.put("disablePubChat", msg.permissions.disablePubChat:java.lang.Boolean);
+    args.put("lockedLayout", msg.permissions.lockedLayout:java.lang.Boolean);
     
 	  var users = new ArrayList[java.util.HashMap[String, Object]];
       msg.applyTo.foreach(uvo => {		
@@ -101,7 +114,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  val gson = new Gson();
   	  message.put("msg", gson.toJson(args))
   	  
-  	  println("UsersClientMessageSender - handleNewPermissionsSetting \n" + message.get("msg") + "\n")
+//  	  println("UsersClientMessageSender - handleNewPermissionsSetting \n" + message.get("msg") + "\n")
       val m = new BroadcastClientMessage(msg.meetingID, "permissionsSettingsChanged", message);
 	  service.sendMessage(m);	    
 	}
@@ -112,9 +125,9 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 
 	  val message = new java.util.HashMap[String, Object]() 
 	  val gson = new Gson();
-  	  message.put("msg", gson.toJson(args))
+  	message.put("msg", gson.toJson(args))
   	  
-  	  println("UsersClientMessageSender - handleRegisteredUser \n" + message.get("msg") + "\n")
+ // 	  println("UsersClientMessageSender - handleRegisteredUser \n" + message.get("msg") + "\n")
 	}
 	
 	private def handleValidateAuthTokenReply(msg: ValidateAuthTokenReply) {
@@ -124,10 +137,10 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  
 	  val message = new java.util.HashMap[String, Object]() 
 	  val gson = new Gson();
-  	  message.put("msg", gson.toJson(args))
+  	message.put("msg", gson.toJson(args))
   	  
-  	  println("UsersClientMessageSender - handleValidateAuthTokenReply \n" + message.get("msg") + "\n")
-      val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenReply", message);
+//  	  println("UsersClientMessageSender - handleValidateAuthTokenReply \n" + message.get("msg") + "\n")
+    val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenReply", message);
 	  service.sendMessage(m);	    
 	}
 	
@@ -140,7 +153,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  val gson = new Gson();
   	  message.put("msg", gson.toJson(args))
   	  
-  	  println("UsersClientMessageSender - handleGetRecordingStatusReply \n" + message.get("msg") + "\n")
+//  	  println("UsersClientMessageSender - handleGetRecordingStatusReply \n" + message.get("msg") + "\n")
       val m = new DirectClientMessage(msg.meetingID, msg.userId, "getRecordingStatusReply", message);
 	  service.sendMessage(m);	  
 	}
@@ -152,9 +165,9 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  
 	  val message = new java.util.HashMap[String, Object]() 
 	  val gson = new Gson();
-  	  message.put("msg", gson.toJson(args))
+  	message.put("msg", gson.toJson(args))
   	  
-  	  println("UsersClientMessageSender - handleRecordingStatusChanged \n" + message.get("msg") + "\n")
+//  	  println("UsersClientMessageSender - handleRecordingStatusChanged \n" + message.get("msg") + "\n")
       val m = new BroadcastClientMessage(msg.meetingID, "recordingStatusChanged", message);
 	  service.sendMessage(m);	
 	}
@@ -170,7 +183,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  val gson = new Gson();
   	  message.put("msg", gson.toJson(args))
   	
-  	  println("UsersClientMessageSender - handleUserVoiceMuted \n" + message.get("msg") + "\n")
+//  	  println("UsersClientMessageSender - handleUserVoiceMuted \n" + message.get("msg") + "\n")
 //  	log.debug("UsersClientMessageSender - handlePresentationConversionProgress \n" + message.get("msg") + "\n")
       val m = new BroadcastClientMessage(msg.meetingID, "voiceUserMuted", message);
 	  service.sendMessage(m);		  
@@ -187,7 +200,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  val gson = new Gson();
   	  message.put("msg", gson.toJson(args))
   	
-  	  println("UsersClientMessageSender - handleUserVoiceTalking \n" + message.get("msg") + "\n")
+ // 	  println("UsersClientMessageSender - handleUserVoiceTalking \n" + message.get("msg") + "\n")
 //  	log.debug("UsersClientMessageSender - handlePresentationConversionProgress \n" + message.get("msg") + "\n")
       val m = new BroadcastClientMessage(msg.meetingID, "voiceUserTalking", message);
 	  service.sendMessage(m);	  
@@ -200,9 +213,9 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	
 	  val message = new java.util.HashMap[String, Object]() 
 	  val gson = new Gson();
-  	  message.put("msg", gson.toJson(args))
+  	message.put("msg", gson.toJson(args))
   	
-  	  println("UsersClientMessageSender - handleUserLeftVoice \n" + message.get("msg") + "\n")
+//  	  println("UsersClientMessageSender - handleUserLeftVoice \n" + message.get("msg") + "\n")
 //  	log.debug("UsersClientMessageSender - handleUserLeftVoice \n" + message.get("msg") + "\n")
       val m = new BroadcastClientMessage(msg.meetingID, "userLeftVoice", message);
 	  service.sendMessage(m);	  
@@ -217,7 +230,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  val gson = new Gson();
   	  message.put("msg", gson.toJson(args))
   	
-  	  println("UsersClientMessageSender - handleUserJoinedVoice \n" + message.get("msg") + "\n")
+//  	  println("UsersClientMessageSender - handleUserJoinedVoice \n" + message.get("msg") + "\n")
 //  	log.debug("UsersClientMessageSender - handlePresentationConversionProgress \n" + message.get("msg") + "\n")
       val m = new BroadcastClientMessage(msg.meetingID, "userJoinedVoice", message);
 	  service.sendMessage(m);		
@@ -238,7 +251,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
       val gson = new Gson()
   	  message.put("msg", gson.toJson(args))
 		
-      println("UsersClientMessageSender - handleGetUsersReply \n" + message.get("msg") + "\n")
+//      println("UsersClientMessageSender - handleGetUsersReply \n" + message.get("msg") + "\n")
 			
       var m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getUsersReply", message)
   	  service.sendMessage(m)
@@ -252,19 +265,45 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  val gson = new Gson();
   	  message.put("msg", gson.toJson(args))
 	  
-	  println("UsersClientMessageSender - handleMeetingHasEnded \n" + message.get("msg") + "\n")
+//	  println("UsersClientMessageSender - handleMeetingHasEnded \n" + message.get("msg") + "\n")
 	  
 	  var m = new DirectClientMessage(msg.meetingID, msg.userId, "meetingHasEnded", message)
 	  service.sendMessage(m);
 	}
 	
 	private def handleDisconnectUser(msg: DisconnectUser) {
-	  println("UsersClientMessageSender - handleDisconnectUser mid=[" + msg.meetingID + "], uid=[" + msg.userId + "]\n")
+//	  println("UsersClientMessageSender - handleDisconnectUser mid=[" + msg.meetingID + "], uid=[" + msg.userId + "]\n")
 	  
 	  var m = new DisconnectClientMessage(msg.meetingID, msg.userId)
 	  service.sendMessage(m);	  
 	}
+	
+	private def handleMeetingState(msg: MeetingState) {
+	  var args = new HashMap[String, Object]();	
+	  args.put("permissions", buildPermissionsHashMap(msg.permissions));
+		args.put("meetingMuted", msg.meetingMuted:java.lang.Boolean);
 		
+	  val message = new java.util.HashMap[String, Object]() 
+	  val gson = new Gson();
+  	message.put("msg", gson.toJson(args))
+
+  	var jmr = new DirectClientMessage(msg.meetingID, msg.userId, "meetingState", message);
+  	service.sendMessage(jmr);	  
+	}
+	
+	private def handleMeetingMuted(msg: MeetingMuted) {
+	  var args = new HashMap[String, Object]();	
+	  args.put("meetingMuted", msg.meetingMuted:java.lang.Boolean);
+		
+	  var message = new HashMap[String, Object]();
+	  val gson = new Gson();
+  	message.put("msg", gson.toJson(args))
+  	    
+	  var m = new BroadcastClientMessage(msg.meetingID, "meetingMuted", message);
+	  service.sendMessage(m);	  
+	}
+	
+	
 	private def handleMeetingEnded(msg: MeetingEnded):Unit = {
 	  var args = new HashMap[String, Object]();	
 	  args.put("status", "Meeting has been ended.");
@@ -273,7 +312,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  val gson = new Gson();
   	  message.put("msg", gson.toJson(args))
   	    
-	  println("UsersClientMessageSender - handleMeetingEnded \n" + msg.meetingID + "\n")
+//	  println("UsersClientMessageSender - handleMeetingEnded \n" + msg.meetingID + "\n")
 	  
 	  var m = new BroadcastClientMessage(msg.meetingID, "meetingEnded", message);
 	  service.sendMessage(m);
@@ -286,52 +325,53 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 
 	private def handleAssignPresenter(msg:PresenterAssigned):Unit = {
 	  var args = new HashMap[String, Object]();	
-		args.put("newPresenterID", msg.presenter.presenterID);
-		args.put("newPresenterName", msg.presenter.presenterName);
-		args.put("assignedBy", msg.presenter.assignedBy);
+	  args.put("newPresenterID", msg.presenter.presenterID);
+	  args.put("newPresenterName", msg.presenter.presenterName);
+	  args.put("assignedBy", msg.presenter.assignedBy);
 		
-	    val message = new java.util.HashMap[String, Object]() 
-	    val gson = new Gson();
-  	    message.put("msg", gson.toJson(args))
+	  val message = new java.util.HashMap[String, Object]() 
+	  val gson = new Gson();
+  	message.put("msg", gson.toJson(args))
 		
-  	    println("UsersClientMessageSender - handleAssignPresenter \n" + message.get("msg") + "\n")
+//  	  println("UsersClientMessageSender - handleAssignPresenter \n" + message.get("msg") + "\n")
   	    
-		var m = new BroadcastClientMessage(msg.meetingID, "assignPresenterCallback", message);
-		service.sendMessage(m);		
+	  var m = new BroadcastClientMessage(msg.meetingID, "assignPresenterCallback", message);
+	  service.sendMessage(m);		
 	}
 	
 	private def handleUserJoined(msg: UserJoined):Unit = {
-	  	var args = new HashMap[String, Object]();	
-		args.put("user", buildUserHashMap(msg.user));
+	  var args = new HashMap[String, Object]();	
+	  args.put("user", buildUserHashMap(msg.user));
 		
-	    val message = new java.util.HashMap[String, Object]() 
-	    val gson = new Gson();
-  	    message.put("msg", gson.toJson(args))
+	  val message = new java.util.HashMap[String, Object]() 
+	  val gson = new Gson();
+  	message.put("msg", gson.toJson(args))
 
-  	    println("UsersClientMessageSender - joinMeetingReply \n" + message.get("msg") + "\n")
+//  println("UsersClientMessageSender - joinMeetingReply \n" + message.get("msg") + "\n")
 			
-        var jmr = new DirectClientMessage(msg.meetingID, msg.user.userID, "joinMeetingReply", message);
-  	    service.sendMessage(jmr);
+  	var jmr = new DirectClientMessage(msg.meetingID, msg.user.userID, "joinMeetingReply", message);
+  	service.sendMessage(jmr);
   	  
-  	    println("UsersClientMessageSender - handleUserJoined \n" + message.get("msg") + "\n")
+//  println("UsersClientMessageSender - handleUserJoined \n" + message.get("msg") + "\n")
   	    
-		var m = new BroadcastClientMessage(msg.meetingID, "participantJoined", message);
-		service.sendMessage(m);
+  	var m = new BroadcastClientMessage(msg.meetingID, "participantJoined", message);
+  	service.sendMessage(m);
 	}
 
-
+	
+	
 	private def handleUserLeft(msg: UserLeft):Unit = {
-	  	var args = new HashMap[String, Object]();	
-		args.put("user", buildUserHashMap(msg.user));
+	  var args = new HashMap[String, Object]();	
+	  args.put("user", buildUserHashMap(msg.user));
 		
-	    val message = new java.util.HashMap[String, Object]() 
-	    val gson = new Gson();
-  	    message.put("msg", gson.toJson(args))
+	  val message = new java.util.HashMap[String, Object]() 
+	  val gson = new Gson();
+  	  message.put("msg", gson.toJson(args))
   	    
-		println("UsersClientMessageSender - handleUserLeft \n" + message.get("msg") + "\n")
+//		println("UsersClientMessageSender - handleUserLeft \n" + message.get("msg") + "\n")
 		
-		var m = new BroadcastClientMessage(msg.meetingID, "participantLeft", message);
-		service.sendMessage(m);
+  	  var m = new BroadcastClientMessage(msg.meetingID, "participantLeft", message);
+  	  service.sendMessage(m);
 	}
 
     def handleUserRaisedHand(msg: UserRaisedHand) {
@@ -342,7 +382,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    val gson = new Gson();
   	    message.put("msg", gson.toJson(args))
   	    
-		println("UsersClientMessageSender - handleUserRaisedHand \n" + message.get("msg") + "\n")
+//		println("UsersClientMessageSender - handleUserRaisedHand \n" + message.get("msg") + "\n")
 		
 		var m = new BroadcastClientMessage(msg.meetingID, "userRaisedHand", message);
 		service.sendMessage(m);      
@@ -357,7 +397,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    val gson = new Gson();
   	    message.put("msg", gson.toJson(args))
   	    
-		println("UsersClientMessageSender - handleUserLoweredHand \n" + message.get("msg") + "\n")
+//		println("UsersClientMessageSender - handleUserLoweredHand \n" + message.get("msg") + "\n")
 		
 		var m = new BroadcastClientMessage(msg.meetingID, "userLoweredHand", message);
 		service.sendMessage(m);      
@@ -372,7 +412,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    val gson = new Gson();
   	    message.put("msg", gson.toJson(args))
   	    
-		println("UsersClientMessageSender - handleUserSharedWebcam \n" + message.get("msg") + "\n")
+//		println("UsersClientMessageSender - handleUserSharedWebcam \n" + message.get("msg") + "\n")
 		
 		var m = new BroadcastClientMessage(msg.meetingID, "userSharedWebcam", message);
 		service.sendMessage(m);	  
@@ -386,7 +426,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    val gson = new Gson();
   	    message.put("msg", gson.toJson(args))
   	    
-		println("UsersClientMessageSender - handleUserUnshareWebcam \n" + message.get("msg") + "\n")
+//		println("UsersClientMessageSender - handleUserUnshareWebcam \n" + message.get("msg") + "\n")
 		
 		var m = new BroadcastClientMessage(msg.meetingID, "userUnsharedWebcam", message);
 		service.sendMessage(m);	  
@@ -402,7 +442,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    val gson = new Gson();
   	    message.put("msg", gson.toJson(args))
   	    
-  	    println("UsersClientMessageSender - handleUserStatusChange \n" + message.get("msg") + "\n")
+//  	    println("UsersClientMessageSender - handleUserStatusChange \n" + message.get("msg") + "\n")
   	    
 		var m = new BroadcastClientMessage(msg.meetingID, "participantStatusChange", message);
 		service.sendMessage(m);
@@ -410,16 +450,16 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	
 	private def handleUserListeningOnly(msg: UserListeningOnly) {
 	  var args = new HashMap[String, Object]();	
-		args.put("userId", msg.userID);
-		args.put("listenOnly", msg.listenOnly:java.lang.Boolean);
+	  args.put("userId", msg.userID);
+	  args.put("listenOnly", msg.listenOnly:java.lang.Boolean);
 	
-    val message = new java.util.HashMap[String, Object]() 
-    val gson = new Gson();
- 	    message.put("msg", gson.toJson(args))
+	  val message = new java.util.HashMap[String, Object]() 
+	  val gson = new Gson();
+ 	  message.put("msg", gson.toJson(args))
   	    
-    println("UsersClientMessageSender - handleUserListeningOnly \n" + message.get("msg") + "\n")
+//    println("UsersClientMessageSender - handleUserListeningOnly \n" + message.get("msg") + "\n")
   	    
-		var m = new BroadcastClientMessage(msg.meetingID, "user_listening_only", message);
-		service.sendMessage(m);	  
+ 	  var m = new BroadcastClientMessage(msg.meetingID, "user_listening_only", message);
+ 	  service.sendMessage(m);	  
 	}
 }

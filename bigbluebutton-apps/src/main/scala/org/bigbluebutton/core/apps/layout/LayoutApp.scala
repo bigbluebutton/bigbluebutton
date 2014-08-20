@@ -9,49 +9,55 @@ trait LayoutApp {
   
   val outGW: MessageOutGateway
   
-	private var _locked:Boolean = false;
-	private var _setByUserID:String = "system";
-	private var _currentLayoutID = "";
-	    
+  private var setByUser:String = "system";
+  private var currentLayout = "";
+	private var layoutLocked = false
+  private var viewersOnly = true
+  
   def handleGetCurrentLayoutRequest(msg: GetCurrentLayoutRequest) {
-    outGW.send(new GetCurrentLayoutReply(msg.meetingID, recorded, msg.requesterID, _currentLayoutID, _locked, _setByUserID))
-  }
-    
-  def handleSetLayoutRequest(msg: SetLayoutRequest) {
-    _currentLayoutID = msg.layoutID
-    outGW.send(new SetLayoutEvent(msg.meetingID, recorded, msg.requesterID, _currentLayoutID, _locked, _setByUserID, affectedUsers))
+    outGW.send(new GetCurrentLayoutReply(msg.meetingID, recorded, msg.requesterID, currentLayout, permissions.lockedLayout, setByUser))
   }
   
-  def handleLayoutLockSettings(msg: LayoutLockSettings) {
-    if (msg.locked) {
-      _locked = true
-      _setByUserID = msg.requesterId
-      outGW.send(new LockLayoutEvent(msg.meetingID, recorded, msg.requesterId, _currentLayoutID, _locked, _setByUserID, affectedUsers))      
-    } else {
-      _locked = false
-      _setByUserID = msg.requesterId
-      outGW.send(new UnlockLayoutEvent(msg.meetingID, recorded, msg.requesterId, _currentLayoutID, _locked, _setByUserID, affectedUsers))      
-    } 
+	def handleLockLayoutRequest(msg: LockLayoutRequest) {
+	  viewersOnly = msg.viewersOnly
+	  lockLayout(msg.lock)
+	  
+	  outGW.send(new LockLayoutEvent(msg.meetingID, recorded, msg.setById, msg.lock, affectedUsers))
+	  
+	  msg.layout foreach {l =>
+	    currentLayout = l
+	    broadcastSyncLayout(msg.meetingID, msg.setById)
+	  }	  
+	}
+		
+	private def broadcastSyncLayout(meetingId: String, setById: String) {
+	  outGW.send(new BroadcastLayoutEvent(meetingId, recorded, setById, currentLayout, permissions.lockedLayout, setByUser, affectedUsers))
+	}
+	
+  def handleBroadcastLayoutRequest(msg: BroadcastLayoutRequest) {
+    currentLayout = msg.layout
+    broadcastSyncLayout(msg.meetingID, msg.requesterID)
+  }
+   
+  def handleLockLayout(lock: Boolean, setById: String) {
+	  outGW.send(new LockLayoutEvent(meetingID, recorded, setById, lock, affectedUsers))
+	  
+	  broadcastSyncLayout(meetingID, setById)     
   }
   
   def affectedUsers():Array[UserVO] = {
-    val au = ArrayBuffer[UserVO]()   
-    users.getUsers foreach {u =>
-        if (! u.presenter && u.role != Role.MODERATOR) {
-          au += u
-        }
+    if (viewersOnly) {
+      val au = ArrayBuffer[UserVO]()   
+	    users.getUsers foreach {u =>
+	      if (! u.presenter && u.role != Role.MODERATOR) {
+	        au += u
+	      }
+	    }
+	    au.toArray       
+    } else {
+      users.getUsers
     }
-    au.toArray
+
   }
     
-  def handleLockLayoutRequest(msg: LockLayoutRequest) {
-    _locked = true
-    _currentLayoutID = msg.layoutID
-    outGW.send(new LockLayoutEvent(msg.meetingID, recorded, msg.requesterID, _currentLayoutID, _locked, _setByUserID, affectedUsers))
-  }
-    
-  def handleUnlockLayoutRequest(msg: UnlockLayoutRequest) {
-    _locked = false
-    outGW.send(new UnlockLayoutEvent(msg.meetingID, recorded, msg.requesterID, _currentLayoutID, _locked, _setByUserID, affectedUsers))
-  }
 }

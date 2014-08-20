@@ -20,7 +20,7 @@
   $Id: $
 --> 
 
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:Box xmlns:mx="http://www.adobe.com/2006/mxml"
 	verticalScrollPolicy="off" horizontalScrollPolicy="off">
 	<mx:Script>
 		<![CDATA[
@@ -31,4 +31,4 @@
 		fontWeight="{data.me ? 'bold' : 'normal'}"
 		color="{data.me ? 0x003399 : 0x000000}"
 		toolTip="{data.name}"/>
-</mx:HBox>
+</mx:Box>

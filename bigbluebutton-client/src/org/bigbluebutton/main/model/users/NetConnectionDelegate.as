@@ -212,7 +212,7 @@ package org.bigbluebutton.main.model.users
 			try {	
 				var uri:String = _applicationURI + "/" + _conferenceParameters.room;
 				
-				LogUtil.debug(LOG + "::Connecting to " + uri + " [" + _conferenceParameters.username + "," + _conferenceParameters.role + "," + 
+				trace(LOG + "::Connecting to " + uri + " [" + _conferenceParameters.username + "," + _conferenceParameters.role + "," + 
 					_conferenceParameters.conference + "," + _conferenceParameters.record + "," + _conferenceParameters.room + "]");	
 				_netConnection.connect(uri, _conferenceParameters.username, _conferenceParameters.role,
 											_conferenceParameters.room, _conferenceParameters.voicebridge, 
@@ -265,7 +265,7 @@ package org.bigbluebutton.main.model.users
 
 			switch (statusCode) {
 				case "NetConnection.Connect.Success":
-					LogUtil.debug(LOG + ":Connection to viewers application succeeded.");
+					trace(LOG + ":Connection to viewers application succeeded.");
           
 					// uncomment this to turn on the bandwidth check
 //					startMonitoringBandwidth();
@@ -275,19 +275,19 @@ package org.bigbluebutton.main.model.users
 			
 				case "NetConnection.Connect.Failed":					
 					if (tried_tunneling) {
-						LogUtil.debug(LOG + ":Connection to viewers application failed...even when tunneling");
+            trace(LOG + ":Connection to viewers application failed...even when tunneling");
 						sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_FAILED);
 					} else {
 						disconnect(false);
-						LogUtil.debug(LOG + ":Connection to viewers application failed...try tunneling");
+            trace(LOG + ":Connection to viewers application failed...try tunneling");
 						var rtmptRetryTimer:Timer = new Timer(1000, 1);
-            			rtmptRetryTimer.addEventListener("timer", rtmptRetryTimerHandler);
-            			rtmptRetryTimer.start();						
+            rtmptRetryTimer.addEventListener("timer", rtmptRetryTimerHandler);
+            rtmptRetryTimer.start();						
 					}									
 					break;
 					
 				case "NetConnection.Connect.Closed":	
-					LogUtil.debug(LOG + ":Connection to viewers application closed");		
+          trace(LOG + "Connection to viewers application closed");
 //          if (logoutOnUserCommand) {
             sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_CLOSED);		
 //          } else {
@@ -298,48 +298,48 @@ package org.bigbluebutton.main.model.users
 					break;
 					
 				case "NetConnection.Connect.InvalidApp":	
-					LogUtil.debug(LOG + ":viewers application not found on server");			
+          trace(LOG + ":viewers application not found on server");			
 					sendConnectionFailedEvent(ConnectionFailedEvent.INVALID_APP);				
 					break;
 					
 				case "NetConnection.Connect.AppShutDown":
-					LogUtil.debug(LOG + ":viewers application has been shutdown");
+          trace(LOG + ":viewers application has been shutdown");
 					sendConnectionFailedEvent(ConnectionFailedEvent.APP_SHUTDOWN);	
 					break;
 					
 				case "NetConnection.Connect.Rejected":
-					LogUtil.debug(LOG + ":Connection to the server rejected. Uri: " + _applicationURI + ". Check if the red5 specified in the uri exists and is running" );
+          trace(LOG + ":Connection to the server rejected. Uri: " + _applicationURI + ". Check if the red5 specified in the uri exists and is running" );
 					sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_REJECTED);		
 					break;
 				
 				case "NetConnection.Connect.NetworkChange":
-					LogUtil.info("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
+          trace(LOG + "Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
 					break;
 					
 				default :
-				   LogUtil.debug(LOG + ":Default status to the viewers application" );
+          trace(LOG + ":Default status to the viewers application" );
 				   sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 				   break;
 			}
 		}
 		
     private function autoReconnectTimerHandler(event:TimerEvent):void {
-      LogUtil.debug(LOG + "autoReconnectTimerHandler: " + event);
+      trace(LOG + "autoReconnectTimerHandler: " + event);
       connect(_conferenceParameters, tried_tunneling);
     }
         
 		private function rtmptRetryTimerHandler(event:TimerEvent):void {
-      LogUtil.debug(LOG + "rtmptRetryTimerHandler: " + event);
+      trace(LOG + "rtmptRetryTimerHandler: " + event);
       connect(_conferenceParameters, true);
     }
 			
 		protected function netSecurityError(event: SecurityErrorEvent):void {
-			LogUtil.debug("Security error - " + event.text);
+      trace(LOG + "Security error - " + event.text);
 			sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 		}
 		
 		protected function netIOError(event: IOErrorEvent):void {
-			LogUtil.debug("Input/output error - " + event.text);
+      trace(LOG + "Input/output error - " + event.text);
 			sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 		}
 			
@@ -347,8 +347,6 @@ package org.bigbluebutton.main.model.users
       trace(LOG + "Asynchronous code error - " + event.toString() );
       
 			LogUtil.debug("Asynchronous code error - " + event.toString() );
-      throw new Error("Encountered connection error");
-      
 			sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 		}	
 			

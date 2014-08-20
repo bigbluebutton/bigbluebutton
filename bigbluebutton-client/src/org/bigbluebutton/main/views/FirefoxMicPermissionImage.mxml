@@ -33,33 +33,37 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     x="20"
     y="-20">
   
-  <mate:Listener type="{WebRtcRemoveAskMicPermissionEvent.REMOVE_MIC_PERMISSION}" method="handleRemoveAskMicPermissionEvent" />
+	<mate:Listener type="{WebRTCMediaEvent.WEBRTC_MEDIA_SUCCESS}" method="handleWebRTCMediaSuccessEvent" />
+	<mate:Listener type="{WebRTCMediaEvent.WEBRTC_MEDIA_FAIL}" method="handleWebRTCMediaFailEvent" />
   
 	<mx:Script>
 		<![CDATA[
-      import mx.core.FlexGlobals;
-      import mx.managers.PopUpManager;      
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.core.BBB;
-      import org.bigbluebutton.modules.phone.events.WebRtcRemoveAskMicPermissionEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+			import mx.core.FlexGlobals;
+			import mx.managers.PopUpManager;
+			
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 
-      private function handleRemoveAskMicPermissionEvent(e:WebRtcRemoveAskMicPermissionEvent):void {
-        PopUpManager.removePopUp(this);
-      }
+			private function handleWebRTCMediaSuccessEvent(e:WebRTCMediaEvent):void {
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function handleWebRTCMediaFailEvent(e:WebRTCMediaEvent):void {
+				PopUpManager.removePopUp(this);
+			}
 		
 		]]>
 	</mx:Script>
   
   <mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
-    <mx:Canvas width="100%">
-      <mx:TextArea borderSkin="{null}"
-                   editable="false"
-                   text="Firefox Microphone Permissions"
-                   styleName="micSettingsWindowTitleStyle"
-                   width="400"
-                   left="0"/>
-    </mx:Canvas>
+     <mx:TextArea borderSkin="{null}"
+                  editable="false"
+                  text="Firefox Microphone Permissions"
+                  styleName="micSettingsWindowTitleStyle"
+                  width="400"
+                  left="0"/>
     <mx:HBox width="100%">      
       <mx:Text width="100%" text="Choose your mic and then click Share."
                styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		

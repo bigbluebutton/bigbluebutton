@@ -49,7 +49,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</bean>
 
 	<bean id="web.handler" class="org.bigbluebutton.conference.BigBlueButtonApplication">
-		<property name="participantsApplication"> <ref bean="participantsApplication"/></property>		
 		<property name="applicationListeners">
     		<set>
 				<ref bean="participantsHandler" />
@@ -74,6 +73,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   	
     <bean id="bbbInGW" class="org.bigbluebutton.core.BigBlueButtonInGW">
         <constructor-arg index="0" ref="bbbGW"/>
+        <constructor-arg index="1" ref="preuploadedPresentationsUtil"/>
+    </bean>
+    
+    <bean id="preuploadedPresentationsUtil" class="org.bigbluebutton.conference.service.presentation.PreuploadedPresentationsUtil">
+      <property name="bigBlueButtonDirectory" value="${default.BigBlueButtonDirectory}"/>
     </bean>
               
     <bean id="bbbGW" class="org.bigbluebutton.core.BigBlueButtonGateway">

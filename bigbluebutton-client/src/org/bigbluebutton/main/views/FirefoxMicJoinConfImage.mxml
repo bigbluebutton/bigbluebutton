@@ -33,7 +33,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     x="20"
     y="-20">
   
-  <mate:Listener type="{WebRtcRemoveAskMicPermissionEvent.REMOVE_MIC_PERMISSION}" method="handleRemoveAskMicPermissionEvent" />
+  <mate:Listener type="{WebRTCRemoveAskMicPermissionEvent.REMOVE_MIC_PERMISSION}" method="handleRemoveAskMicPermissionEvent" />
   
 	<mx:Script>
 		<![CDATA[
@@ -42,10 +42,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.BBB;
       import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-      import org.bigbluebutton.modules.phone.events.WebRtcRemoveAskMicPermissionEvent;
+      import org.bigbluebutton.modules.phone.events.WebRTCRemoveAskMicPermissionEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 
-      private function handleRemoveAskMicPermissionEvent(e:WebRtcRemoveAskMicPermissionEvent):void {
+      private function handleRemoveAskMicPermissionEvent(e:WebRTCRemoveAskMicPermissionEvent):void {
         PopUpManager.removePopUp(this);
       }
 		
@@ -53,14 +53,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
   
   <mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
-    <mx:Canvas width="100%">
-      <mx:TextArea borderSkin="{null}"
-                   editable="false"
-                   text="Joining Voice Conference"
-                   styleName="micSettingsWindowTitleStyle"
-                   width="400"
-                   left="0"/>
-    </mx:Canvas>
+     <mx:TextArea borderSkin="{null}"
+                  editable="false"
+                  text="Joining Voice Conference"
+                  styleName="micSettingsWindowTitleStyle"
+                  width="400"
+                  left="0"/>
     <mx:HBox width="100%">      
       <mx:Text width="100%" text="Click Share so Firefox can use mic in the conference."
                styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		

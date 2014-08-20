@@ -36,7 +36,7 @@ package org.bigbluebutton.modules.phone
 		public var enabledEchoCancel:Boolean = false;
 		
 		[Bindable]
-		public var useWebrtcIfAvailable:Boolean = true;
+		public var useWebRTCIfAvailable:Boolean = true;
 
 		[Bindable]
 		public var echoTestApp:String = "9196";
@@ -46,13 +46,12 @@ package org.bigbluebutton.modules.phone
 
 		[Bindable]
 		public var presenterShareOnly:Boolean = false;
-
-		[Bindable]
-		public var showSpeakerButton:Boolean = true;
 		
 		[Bindable]
 		public var showPhoneOption:Boolean = false;
 
+    public var forceListenOnly:Boolean = false;
+    
 		public function PhoneOptions() {
 			parseOptions();
 		}
@@ -75,8 +74,8 @@ package org.bigbluebutton.modules.phone
 				if (vxml.@enabledEchoCancel != undefined) {
 					enabledEchoCancel = (vxml.@enabledEchoCancel.toString().toUpperCase() == "TRUE") ? true : false;
 				}
-				if (vxml.@useWebrtcIfAvailable != undefined) {
-					useWebrtcIfAvailable = (vxml.@useWebrtcIfAvailable.toString().toUpperCase() == "TRUE");
+				if (vxml.@useWebRTCIfAvailable != undefined) {
+					useWebRTCIfAvailable = (vxml.@useWebRTCIfAvailable.toString().toUpperCase() == "TRUE");
 				}
 				if (vxml.@echoTestApp != undefined) {
 					echoTestApp = vxml.@echoTestApp.toString();
@@ -84,11 +83,11 @@ package org.bigbluebutton.modules.phone
 				if (vxml.@listenOnlyMode != undefined) {
 					listenOnlyMode = (vxml.@listenOnlyMode.toString().toUpperCase() == "TRUE");
 				}
-				if (vxml.@presenterShareOnly != undefined) {
+        if (vxml.@forceListenOnly != undefined) {
+          forceListenOnly = (vxml.@forceListenOnly.toString().toUpperCase() == "TRUE");
+        }
+        if (vxml.@presenterShareOnly != undefined) {
 					presenterShareOnly = (vxml.@presenterShareOnly.toString().toUpperCase() == "TRUE");
-				}
-				if (vxml.@showSpeakerButton != undefined) {
-					showSpeakerButton = (vxml.@showSpeakerButton.toString().toUpperCase() == "TRUE");
 				}
 				if (vxml.@showPhoneOption != undefined) {
 					showPhoneOption = (vxml.@showPhoneOption.toString().toUpperCase() == "TRUE");

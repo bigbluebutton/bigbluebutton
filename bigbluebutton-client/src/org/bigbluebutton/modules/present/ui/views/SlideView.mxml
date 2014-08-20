@@ -267,7 +267,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public function onZoomSlide(zoom:Number):void {
 				if (slideLoader.content == null) return;
-				zoomSlide(zoom, slideLoader.content.width/2, slideLoader.content.height/2);
+				zoomSlide(zoom, (((slideLoader.content.width/2)*SlideViewModel.HUNDRED_PERCENT)/zoom), (((slideLoader.content.height/2)*SlideViewModel.HUNDRED_PERCENT)/zoom));
 			}
 			
 			private function zoomSlide(zoom:Number, mouseX:Number, mouseY:Number):void {
@@ -305,7 +305,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         trace(LOG + "Got a page changed event for page [" + e.pageId + "]");
         var page:Page = PresentationModel.getInstance().getPage(e.pageId);
         if (page != null) {
-          positionPage(page);
+          if (! UsersUtil.amIPresenter()) {
+            // if we are presenter, we don't need to reposition our view of the page
+            positionPage(page);
+          }  
         }       
 			}
 			

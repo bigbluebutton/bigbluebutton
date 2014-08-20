@@ -18,7 +18,8 @@
  */
 package org.bigbluebutton.modules.users.services
 {
-  import com.asfusion.mate.events.Dispatcher; 
+  import com.asfusion.mate.events.Dispatcher;
+  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
@@ -47,6 +48,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.present.model.PresentationModel;
+  import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
   
   public class MessageReceiver implements IMessageListener
   {
@@ -78,6 +80,12 @@ package org.bigbluebutton.modules.users.services
         case "meetingHasEnded":
           handleMeetingHasEnded(message);
           break;
+        case "meetingMuted":
+          handleMeetingMuted(message);
+          break;   
+        case "meetingState":
+          handleMeetingState(message);
+          break;  
         case "participantJoined":
           handleParticipantJoined(message);
           break;
@@ -116,6 +124,7 @@ package org.bigbluebutton.modules.users.services
           break;
         case "recordingStatusChanged":
           handleRecordingStatusChanged(message);
+          break;
         case "joinMeetingReply":
           handleJoinedMeeting(message);
           break;
@@ -160,6 +169,28 @@ package org.bigbluebutton.modules.users.services
       var e:UsersConnectionEvent = new UsersConnectionEvent(UsersConnectionEvent.CONNECTION_SUCCESS);
       e.userid = userid;
       dispatcher.dispatchEvent(e);      
+    }
+    
+    private function handleMeetingMuted(msg:Object):void {
+      trace(LOG + "*** handleMeetingMuted " + msg.msg + " **** \n");
+      var map:Object = JSON.parse(msg.msg);
+      if (map.hasOwnProperty("meetingMuted")) {
+        MeetingModel.getInstance().meetingMuted = map.meetingMuted;
+        dispatcher.dispatchEvent(new MeetingMutedEvent());
+      }
+    }
+    
+    private function handleMeetingState(msg:Object):void {
+      trace(LOG + "*** handleMeetingState " + msg.msg + " **** \n");
+      var map:Object = JSON.parse(msg.msg);  
+      var perm:Object = map.permissions;
+      
+      var lockSettings:LockSettingsVO = new LockSettingsVO(perm.disableCam, perm.disableMic,
+                                                 perm.disablePrivChat, perm.disablePubChat, perm.lockedLayout);
+      UserManager.getInstance().getConference().setLockSettings(lockSettings);
+      MeetingModel.getInstance().meetingMuted = map.meetingMuted;
+      
+      UserManager.getInstance().getConference().applyLockSettings();
     }
     
     private function handleGetRecordingStatusReply(msg: Object):void {
@@ -259,7 +290,7 @@ package org.bigbluebutton.modules.users.services
         trace(LOG + "Found voice user id[" + voiceUser.userId + "]");
         if (_conference.getMyUserId() == l.userID) {
           trace(LOG + "I am this voice user id[" + voiceUser.userId + "]");
-          _conference.setMyVoiceJoined(false);
+          _conference.muteMyVoice(false);
           _conference.setMyVoiceJoined(false);
         }
         
@@ -312,7 +343,7 @@ package org.bigbluebutton.modules.users.services
         bbbEvent.payload.userID = bu.userID;            
         globalDispatcher.dispatchEvent(bbbEvent);
         
-        if(_conference.getLockSettings().getDisableMic() && !bu.voiceMuted && bu.userLocked && bu.me) {
+        if (_conference.getLockSettings().getDisableMic() && !bu.voiceMuted && bu.userLocked && bu.me) {
           var ev:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
           ev.userid = voiceUser.userId;
           ev.mute = true;
@@ -376,6 +407,8 @@ package org.bigbluebutton.modules.users.services
           participantJoined(user);
           processUserVoice(user);
         }
+        
+        UserManager.getInstance().getConference().applyLockSettings();
       }	 
     }
     

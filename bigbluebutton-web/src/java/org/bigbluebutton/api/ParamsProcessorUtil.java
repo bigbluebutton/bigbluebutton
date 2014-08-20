@@ -19,7 +19,6 @@
 
 package org.bigbluebutton.api;
 
-import javax.servlet.ServletRequest;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -31,6 +30,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
@@ -259,6 +261,31 @@ public class ParamsProcessorUtil {
 	    return newParams;
 	}
 	
+	private static final Pattern META_VAR_PATTERN = Pattern.compile("meta_[a-zA-Z][a-zA-Z0-9-]*$");	
+	public static Boolean isMetaValid(String param) {
+		Matcher metaMatcher = META_VAR_PATTERN.matcher(param);
+    if (metaMatcher.matches()) {
+    	return true;
+    }	
+		return false;
+	}
+	
+	public static String removeMetaString(String param) {
+		return StringUtils.removeStart(param, "meta_");
+	}
+	
+	public static Map<String, String> processMetaParam(Map<String, String> params) {
+    Map<String, String> metas = new HashMap<String, String>();
+    for (String key: params.keySet()) {
+    	if (isMetaValid(key)){
+    		String metaName = removeMetaString(key);
+    		metas.put(metaName, params.get(key));
+		  }   
+    }
+    
+    return metas;
+	}
+	
 	public Meeting processCreateParams(Map<String, String> params) {
 	    String meetingName = params.get("name");
 	    if(meetingName == null){
@@ -299,15 +326,7 @@ public class ParamsProcessorUtil {
 	    
 	    // Collect metadata for this meeting that the third-party app wants to store if meeting is recorded.
 	    Map<String, String> meetingInfo = new HashMap<String, String>();
-	    for (String key: params.keySet()) {
-	    	if (key.contains("meta")&&key.indexOf("meta")==0){
-	    		String[] meta = key.split("_");
-			    if(meta.length == 2){
-			    	log.debug("Got metadata {} = {}", key, params.get(key));
-			    	meetingInfo.put(meta[1].toLowerCase(), params.get(key));
-			    }
-			}   
-	    }
+	    meetingInfo = processMetaParam(params);
 	    	    
 	    // Create a unique internal id by appending the current time. This way, the 3rd-party
 	    // app can reuse the external meeting id.
@@ -550,16 +569,16 @@ public class ParamsProcessorUtil {
 				encResult = value;
 				
 /*****
- * Seems like Grails 1.3.9 doesn't encode it automatically anymore. So comment this out.
- * We'll remove this later. richard (july 10, 2013)						
-				try {       
+ * Seems like Grails 2.3.6 decodes the string. So we need to re-encode it.
+ * We'll remove this later. richard (aug 5, 2014)						
+*/				try {       
 					// we need to re-encode the values because Grails unencoded it
 					// when it received the 'POST'ed data. Might not need to do in a GET request.
 					encResult = URLEncoder.encode(value, "UTF-8");  
 				} catch (UnsupportedEncodingException e) {       
 					encResult = value;     
 				} 					
-*/
+
 				csbuf.append(encResult);
 			}
 		}

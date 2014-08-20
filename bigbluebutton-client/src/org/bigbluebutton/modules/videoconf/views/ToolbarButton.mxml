@@ -20,7 +20,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{camIcon}" 
+<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" styleName="webcamDefaultButtonStyle" 
 		   xmlns:mate="http://mate.asfusion.com/"
 		   click="openPublishWindow()" creationComplete="init()" 
 		   mouseOver = "mouseOverHandler(event)"
@@ -51,9 +51,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			
-			private var images:Images = new Images();
-			[Bindable] public var camIcon:Class = images.webcam;
 
 			public const OFF_STATE:Number = 0;
 			public const ON_STATE:Number = 1;
@@ -78,7 +75,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function init():void{
 				dispatcher = new Dispatcher();
 				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
-				camIcon = images.webcam;
+        this.styleName = "webcamDefaultButtonStyle";
 				this.enabled = true;
 				this.selected = false;
 				_currentState = OFF_STATE;
@@ -98,14 +95,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if(status == START_PUBLISHING) {
 					_currentState = ON_STATE;
 					//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop');
-					camIcon = images.webcamOn;
+          this.styleName = "webcamOnButtonStyle";
 					this.enabled = true;
 					this.selected = true;
 				}
 				else {
 					_currentState = OFF_STATE;
-					//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
-					camIcon = images.webcam;
+          this.styleName = "webcamDefaultButtonStyle";
 					this.enabled = true;
 					this.selected = false;
 				}
@@ -116,15 +112,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if(_currentState == ON_STATE) {
 					trace("Close window");
 					_currentState = OFF_STATE;
-					//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
-					camIcon = images.webcam;
+          this.styleName = "webcamDefaultButtonStyle";
 					this.selected = false;
 					dispatchEvent(new ClosePublishWindowEvent());				
 				} else {
 					trace("Share camera");
 					_currentState = ON_STATE;
-					//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop');
-					camIcon = images.webcamOn;
+          this.styleName = "webcamOnButtonStyle";
 					this.selected = true;
 					dispatchEvent(new ShareCameraRequestEvent());
 				}			
@@ -136,22 +130,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					this.enabled = true;
 					this.selected = false;
 					_currentState = OFF_STATE;
-					camIcon = images.webcam;
+          this.styleName = "webcamDefaultButtonStyle";
 				}
 			}
 
 			private function mouseOverHandler(event:MouseEvent):void {
 				if(_currentState == ON_STATE)
-					camIcon = images.webcamClose;
-				else
-					camIcon = images.webcamOn;			
+        this.styleName = "webcamOffButtonStyle";
+				else	
+          this.styleName = "webcamOnButtonStyle";
 			}
 
 			private function mouseOutHandler(event:MouseEvent):void {
 				if(_currentState == ON_STATE)
-					camIcon = images.webcamOn;
-				else
-					camIcon = images.webcam;			
+        this.styleName = "webcamOnButtonStyle";
+				else	
+          this.styleName = "webcamDefaultButtonStyle";
 			}
 
 

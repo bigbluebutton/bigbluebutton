@@ -2,6 +2,7 @@ package org.bigbluebutton.webconference.voice.freeswitch;
 
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -147,7 +148,7 @@ public class ESLEventListener implements IEslEventListener {
     	if (action.equals(START_RECORDING_EVENT)) {
             VoiceStartRecordingEvent sre = new VoiceStartRecordingEvent(confName, true);
             sre.setRecordingFilename(getRecordFilenameFromEvent(event));
-            sre.setTimestamp(getRecordTimestampFromEvent(event));
+            sre.setTimestamp(genTimestamp().toString());
             
             if (log.isDebugEnabled())
             	log.debug("Processing conference event - action: {} time: {} file: {}", new Object[] {action,  sre.getTimestamp(), sre.getRecordingFilename()});
@@ -156,7 +157,7 @@ public class ESLEventListener implements IEslEventListener {
     	} else if (action.equals(STOP_RECORDING_EVENT)) {
         	VoiceStartRecordingEvent srev = new VoiceStartRecordingEvent(confName, false);
             srev.setRecordingFilename(getRecordFilenameFromEvent(event));
-            srev.setTimestamp(getRecordTimestampFromEvent(event));
+            srev.setTimestamp(genTimestamp().toString());
             
             if (log.isDebugEnabled())
             	log.debug("Processing conference event - action: {} time: {} file: {}", new Object[] {action,  srev.getTimestamp(), srev.getRecordingFilename()});
@@ -168,7 +169,10 @@ public class ESLEventListener implements IEslEventListener {
     	}
     }
 
-
+    private Long genTimestamp() {
+    	return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
+    }
+    
 	@Override
 	public void eventReceived(EslEvent event) {
 		System.out.println("ESL Event Listener received event=[" + event.getEventName() + "]");

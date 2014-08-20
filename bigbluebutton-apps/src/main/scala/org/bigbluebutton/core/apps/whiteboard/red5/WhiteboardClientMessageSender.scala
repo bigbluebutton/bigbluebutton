@@ -29,7 +29,7 @@ class WhiteboardClientMessageSender(service: ConnectionInvokerService) extends O
 	val gson = new Gson();
   	message.put("msg", gson.toJson(args))
   	
-	println("WhiteboardClientMessageSender - handleWhiteboardEnabledEvent \n" + message.get("msg") + "\n")	
+//	println("WhiteboardClientMessageSender - handleWhiteboardEnabledEvent \n" + message.get("msg") + "\n")	
 	
 	val m = new BroadcastClientMessage(msg.meetingID, "WhiteboardEnableWhiteboardCommand", message)
 	service.sendMessage(m)
@@ -43,7 +43,7 @@ class WhiteboardClientMessageSender(service: ConnectionInvokerService) extends O
 	val gson = new Gson();
   	message.put("msg", gson.toJson(args))
   	
-	println("WhiteboardClientMessageSender - handleIsWhiteboardEnabledReply \n" + message.get("msg") + "\n")		
+//	println("WhiteboardClientMessageSender - handleIsWhiteboardEnabledReply \n" + message.get("msg") + "\n")		
 	
 	val m = new DirectClientMessage(msg.meetingID, msg.requesterID, "WhiteboardIsWhiteboardEnabledReply", message)
 	service.sendMessage(m)
@@ -71,7 +71,7 @@ class WhiteboardClientMessageSender(service: ConnectionInvokerService) extends O
 	val gson = new Gson();
   	message.put("msg", gson.toJson(args))
   	
-	println("WhiteboardClientMessageSender - handleSendWhiteboardAnnotationHistoryReply \n" + message.get("msg") + "\n")	
+//	println("WhiteboardClientMessageSender - handleSendWhiteboardAnnotationHistoryReply \n" + message.get("msg") + "\n")	
 	
 	val m = new DirectClientMessage(msg.meetingID, msg.requesterID, "WhiteboardRequestAnnotationHistoryReply", message)
 	service.sendMessage(m)
@@ -93,7 +93,7 @@ class WhiteboardClientMessageSender(service: ConnectionInvokerService) extends O
 	val gson = new Gson();
   	message.put("msg", gson.toJson(args))
   	
-	println("WhiteboardClientMessageSender - handleSendWhiteboardAnnotationEvent \n" + message.get("msg") + "\n")
+//	println("WhiteboardClientMessageSender - handleSendWhiteboardAnnotationEvent \n" + message.get("msg") + "\n")
 	
 	val m = new BroadcastClientMessage(msg.meetingID, "WhiteboardNewAnnotationCommand", message)
 	service.sendMessage(m)
@@ -107,7 +107,7 @@ class WhiteboardClientMessageSender(service: ConnectionInvokerService) extends O
 	val gson = new Gson();
   	message.put("msg", gson.toJson(args))
   	
-	println("WhiteboardClientMessageSender - handleClearWhiteboardEvent \n" + message.get("msg") + "\n")
+//	println("WhiteboardClientMessageSender - handleClearWhiteboardEvent \n" + message.get("msg") + "\n")
 		
 	val m = new BroadcastClientMessage(msg.meetingID, "WhiteboardClearCommand", message);
 	service.sendMessage(m);	
@@ -122,7 +122,7 @@ class WhiteboardClientMessageSender(service: ConnectionInvokerService) extends O
 	val gson = new Gson();
   	message.put("msg", gson.toJson(args))
   	
-	println("WhiteboardClientMessageSender - handleUndoWhiteboardEvent \n" + message.get("msg") + "\n")
+//	println("WhiteboardClientMessageSender - handleUndoWhiteboardEvent \n" + message.get("msg") + "\n")
 		
 	val m = new BroadcastClientMessage(msg.meetingID, "WhiteboardUndoCommand", message);
 	service.sendMessage(m);

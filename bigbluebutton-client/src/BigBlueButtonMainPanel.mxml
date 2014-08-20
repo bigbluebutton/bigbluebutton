@@ -34,21 +34,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <mx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;    
-      import flash.events.Event;      
-      import mx.managers.HistoryManager;
-      import mx.utils.URLUtil;      
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
-      import org.bigbluebutton.core.BBB;
-      import org.bigbluebutton.core.EventBroadcaster;
-      import org.bigbluebutton.core.managers.ConfigManager2;
-      import org.bigbluebutton.main.api.ExternalApiCallbacks;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.model.ShortcutOptions;
-      import org.bigbluebutton.main.views.MainApplicationShell;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+		import com.asfusion.mate.events.Dispatcher;
+		
+		import flash.events.Event;
+		
+		import mx.managers.HistoryManager;
+		import mx.managers.ToolTipManager;
+		import mx.utils.URLUtil;
+		
+		import org.bigbluebutton.common.LogUtil;
+		import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
+		import org.bigbluebutton.core.BBB;
+		import org.bigbluebutton.core.EventBroadcaster;
+		import org.bigbluebutton.core.managers.ConfigManager2;
+		import org.bigbluebutton.main.api.ExternalApiCallbacks;
+		import org.bigbluebutton.main.events.BBBEvent;
+		import org.bigbluebutton.main.events.ShortcutEvent;
+		import org.bigbluebutton.main.model.ShortcutOptions;
+		import org.bigbluebutton.main.views.MainApplicationShell;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
       private var langResources:ResourceUtil = null;
       
       private var globalModifier:String;
@@ -66,6 +70,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var globalDispatcher:Dispatcher = new Dispatcher();
       
       protected function init():void {
+        setupTooltips();
         setupAPI();
         EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
         BBB.initConfigManager();
@@ -105,6 +110,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         return serverName;
       }
+		
+	  /**
+	   * Tooltip effect
+	   */
+      private function setupTooltips() : void {
+		  ToolTipManager.scrubDelay = 50;
+		  ToolTipManager.showDelay = 50;
+		  ToolTipManager.hideDelay = 3000;
+		  ToolTipManager.showEffect = fadeIn;
+		  ToolTipManager.hideEffect = fadeOut;
+	  }
       
       /**
        * Shortcut Keys
@@ -189,6 +205,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     ]]>
   </mx:Script> 
   
+  <mx:Fade id="fadeIn" alphaFrom="0" alphaTo="1" duration="250"/>
+  <mx:Fade id="fadeOut" alphaFrom="1" alphaTo="0" duration="250"/>
+	
   <apimap:ExternalApiEventMap/>
   <coreMap:BbbCoreEventMap/> 
   <userMap:UsersMainEventMap />

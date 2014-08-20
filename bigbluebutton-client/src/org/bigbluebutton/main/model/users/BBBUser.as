@@ -323,7 +323,7 @@ package org.bigbluebutton.main.model.users
   			}
   			
   			//If it's sharing microphone, mute it
-  			if(disableMyMic && !UserManager.getInstance().getConference().isMyVoiceMuted()) {
+  			if (disableMyMic && !UserManager.getInstance().getConference().isMyVoiceMuted()) {
   				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
   				e.userid = UserManager.getInstance().getConference().getMyUserId();
   				e.mute = true;

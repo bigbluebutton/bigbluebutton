@@ -14,13 +14,11 @@ import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.apps.presentation.Page
 import org.bigbluebutton.core.apps.presentation.Presentation
 
-class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW {
-
-  val presUtil = new PreuploadedPresentationsUtil()
+class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresentationsUtil) extends IBigBlueButtonInGW {
    
   // Meeting
   def createMeeting2(meetingID: String, meetingName: String, record: Boolean, voiceBridge: String, duration: Long) {
-    println("******************** CREATING MEETING [" + meetingID + "] ***************************** ")
+//    println("******************** CREATING MEETING [" + meetingID + "] ***************************** ")
 	bbbGW.accept(new CreateMeeting(meetingID, meetingName, record, voiceBridge, duration))
 
 	/*
@@ -42,7 +40,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
   }
   
   def destroyMeeting(meetingID: String) {
-    println("******************** DESTROY MEETING [" + meetingID + "] ***************************** ")
+//    println("******************** DESTROY MEETING [" + meetingID + "] ***************************** ")
     bbbGW.accept(new DestroyMeeting(meetingID))
   }
 
@@ -65,7 +63,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
   }
 	
   def endMeeting(meetingID: String) {
-    println("******************** END MEETING [" + meetingID + "] ***************************** ")
+//    println("******************** END MEETING [" + meetingID + "] ***************************** ")
     bbbGW.accept(new EndMeeting(meetingID))
   }
 	
@@ -77,7 +75,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
    * Message Interface for Users
    *************************************************************/
   def validateAuthToken(meetingId: String, userId: String, token: String, correlationId: String) {
-    println("******************** VALIDATE TOKEN [" + token + "] ***************************** ")
+//    println("******************** VALIDATE TOKEN [" + token + "] ***************************** ")
     bbbGW.accept(new ValidateAuthToken(meetingId, userId, token, correlationId))
   }
   
@@ -103,8 +101,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
                                       disablePubChat = disablePubChat,
                                       lockedLayout = lockedLayout)
 
-    val ls = new PermissionsSetting(permissions)
-    bbbGW.accept(new SetLockSettings(meetingID, userId, ls))
+    bbbGW.accept(new SetLockSettings(meetingID, userId, permissions))
   }
   
   def initLockSettings(meetingID: String, locked: Boolean, settings: java.util.Map[String, java.lang.Boolean]) {
@@ -124,8 +121,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
                                       disablePubChat = disablePubChat,
                                       lockedLayout = lockedLayout)
 
-    val ls = new PermissionsSetting(permissions)
-    bbbGW.accept(new InitLockSettings(meetingID, locked, ls))
+    bbbGW.accept(new InitLockSettings(meetingID, locked, permissions))
   }
   
   def getLockSettings(meetingId: String, userId: String) {
@@ -254,7 +250,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	def sendConversionCompleted(messageKey: String, meetingId: String, 
             code: String, presentationId: String, numPages: Int, 
             presName: String, presBaseUrl: String) {
-	  println("******************** PRESENTATION CONVERSION COMPLETED MESSAGE ***************************** ")
+//	  println("******************** PRESENTATION CONVERSION COMPLETED MESSAGE ***************************** ")
       val pages = generatePresentationPages(presentationId, numPages, presBaseUrl)
 	        
 	  val presentation = new Presentation(id=presentationId, name=presName, pages=pages)
@@ -347,20 +343,14 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	  layoutGW.getCurrentLayout(meetingID, requesterID)
 	}
 	
-	def setLayout(meetingID: String, requesterID: String, layoutID: String) {
-	  layoutGW.setLayout(meetingID, requesterID, layoutID)
-	}
-
-  def syncLayout(meetingID: String, requesterID: String, layoutID: String) {
-	  layoutGW.setLayout(meetingID, requesterID, layoutID)
-	}
-		
-	def lockLayout(meetingID: String, requesterID: String, layoutID: String) {
-	  layoutGW.lockLayout(meetingID, requesterID, layoutID)
+	def broadcastLayout(meetingID: String, requesterID: String, layout: String) {
+	  layoutGW.broadcastLayout(meetingID, requesterID, layout)
 	}
 	
-	def unlockLayout(meetingID: String, requesterID: String) {
-	  layoutGW.unlockLayout(meetingID, requesterID)
+	def lockLayout(meetingId: String, setById: String, 
+	               lock: Boolean, viewersOnly: Boolean,
+                 layout: scala.Option[String]) {
+	    layoutGW.lockLayout(meetingId, setById, lock, viewersOnly, layout)
 	}
 	
 	/*********************************************************************
@@ -414,6 +404,10 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
 	 * Message Interface for Voice
 	 *******************************************************************/
 	val voiceGW = new VoiceInGateway(bbbGW)
+	
+	def muteAllExceptPresenter(meetingID: String, requesterID: String, mute: java.lang.Boolean) {
+	  voiceGW.muteAllExceptPresenter(meetingID, requesterID, mute)
+	}
 	
 	def muteAllUsers(meetingID: String, requesterID: String, mute: java.lang.Boolean) {
 	  voiceGW.muteAllUsers(meetingID, requesterID, mute)

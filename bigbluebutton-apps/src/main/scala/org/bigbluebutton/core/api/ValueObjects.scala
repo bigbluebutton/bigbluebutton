@@ -39,10 +39,6 @@ case class Permissions(
   lockedLayout:Boolean = false
 )
 
-case class PermissionsSetting(
-  permissions: Permissions
-)
-
 case class RegisteredUser (
     id: String, 
     externId: String,

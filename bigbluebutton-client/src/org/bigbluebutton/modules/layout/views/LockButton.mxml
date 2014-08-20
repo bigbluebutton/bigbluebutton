@@ -27,9 +27,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   click="onClick(event)"
 		   enabled="{UserManager.getInstance().getConference().amIModerator()}">
 	
-	<mate:Listener type="{LayoutEvent.REMOTE_LOCK_LAYOUT_EVENT}" method="onLockLayoutEvent" />
-	<mate:Listener type="{LayoutEvent.REMOTE_UNLOCK_LAYOUT_EVENT}" method="onUnlockLayoutEvent" />
-
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;

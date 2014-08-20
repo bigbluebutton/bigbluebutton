@@ -1,10 +1,15 @@
 package org.bigbluebutton.core.model
 {
+  import org.bigbluebutton.core.vo.LockSettingsVO;
+
   public class MeetingModel
   {
     private static var instance:MeetingModel = null;
     
     private var _meeting: Meeting;
+    
+    private var _meetingMuted:Boolean = false;
+    private var _lockSettings:LockSettingsVO;
     
     public function MeetingModel(enforcer: MeetingModelSingletonEnforcer)
     {
@@ -31,6 +36,15 @@ package org.bigbluebutton.core.model
     public function set recording(record: Boolean):void {
       _meeting.isRecording = record;
     }
+    
+    public function set meetingMuted(muted:Boolean):void {
+      _meetingMuted = muted;
+    }
+    
+    public function get meetingMuted():Boolean {
+      return _meetingMuted;
+    }
+        
   }
 }
 

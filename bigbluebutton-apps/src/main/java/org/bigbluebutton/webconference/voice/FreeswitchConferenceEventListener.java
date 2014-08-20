@@ -34,10 +34,10 @@ import org.bigbluebutton.webconference.voice.events.VoiceStartRecordingEvent;
 public class FreeswitchConferenceEventListener implements ConferenceEventListener {
 	private static final int SENDERTHREADS = 1;
 	private static final Executor msgSenderExec = Executors.newFixedThreadPool(SENDERTHREADS);
-	
+	private static final Executor runExec = Executors.newFixedThreadPool(SENDERTHREADS);
 	private BlockingQueue<VoiceConferenceEvent> messages = new LinkedBlockingQueue<VoiceConferenceEvent>();
 
-    private volatile boolean sendMessages = false;
+  private volatile boolean sendMessages = false;
 	private IVoiceConferenceService vcs;
 	
 	public void setVoiceConferenceService(IVoiceConferenceService vcs) {
@@ -53,30 +53,36 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
 		}
     }
     			
-	private void sendMessageToBigBlueButton(VoiceConferenceEvent event) {
-		if (event instanceof VoiceUserJoinedEvent) {
-			System.out.println("************** FreeswitchConferenceEventListener received voiceUserJoined ");
-			VoiceUserJoinedEvent evt = (VoiceUserJoinedEvent) event;
-			vcs.voiceUserJoined(evt.getVoiceUserId(), evt.getUserId(), evt.getRoom(), 
-					evt.getCallerIdNum(), evt.getCallerIdName(),
-					evt.getMuted(), evt.getSpeaking());
-		} else if (event instanceof VoiceUserLeftEvent) {
-			System.out.println("************** FreeswitchConferenceEventListener received VoiceUserLeftEvent ");
-			VoiceUserLeftEvent evt = (VoiceUserLeftEvent) event;
-			vcs.voiceUserLeft(evt.getUserId(), evt.getRoom());
-		} else if (event instanceof VoiceUserMutedEvent) {
-			System.out.println("************** FreeswitchConferenceEventListener VoiceUserMutedEvent ");
-			VoiceUserMutedEvent evt = (VoiceUserMutedEvent) event;
-			vcs.voiceUserMuted(evt.getUserId(), evt.getRoom(), evt.isMuted());
-		} else if (event instanceof VoiceUserTalkingEvent) {
-			System.out.println("************** FreeswitchConferenceEventListener VoiceUserTalkingEvent ");
-			VoiceUserTalkingEvent evt = (VoiceUserTalkingEvent) event;
-			vcs.voiceUserTalking(evt.getUserId(), evt.getRoom(), evt.isTalking());
-		} else if (event instanceof VoiceStartRecordingEvent) {
-			VoiceStartRecordingEvent evt = (VoiceStartRecordingEvent) event;
-			System.out.println("************** FreeswitchConferenceEventListener VoiceStartRecordingEvent recording=[" + evt.startRecord() + "]");
-			vcs.voiceStartedRecording(evt.getRoom(), evt.getRecordingFilename(), evt.getTimestamp(), evt.startRecord());
-		} 		
+	private void sendMessageToBigBlueButton(final VoiceConferenceEvent event) {
+		Runnable task = new Runnable() {
+			public void run() {
+				if (event instanceof VoiceUserJoinedEvent) {
+//				System.out.println("************** FreeswitchConferenceEventListener received voiceUserJoined ");
+				VoiceUserJoinedEvent evt = (VoiceUserJoinedEvent) event;
+				vcs.voiceUserJoined(evt.getVoiceUserId(), evt.getUserId(), evt.getRoom(), 
+						evt.getCallerIdNum(), evt.getCallerIdName(),
+						evt.getMuted(), evt.getSpeaking());
+			} else if (event instanceof VoiceUserLeftEvent) {
+//				System.out.println("************** FreeswitchConferenceEventListener received VoiceUserLeftEvent ");
+				VoiceUserLeftEvent evt = (VoiceUserLeftEvent) event;
+				vcs.voiceUserLeft(evt.getUserId(), evt.getRoom());
+			} else if (event instanceof VoiceUserMutedEvent) {
+				System.out.println("************** FreeswitchConferenceEventListener VoiceUserMutedEvent ");
+				VoiceUserMutedEvent evt = (VoiceUserMutedEvent) event;
+				vcs.voiceUserMuted(evt.getUserId(), evt.getRoom(), evt.isMuted());
+			} else if (event instanceof VoiceUserTalkingEvent) {
+//				System.out.println("************** FreeswitchConferenceEventListener VoiceUserTalkingEvent ");
+				VoiceUserTalkingEvent evt = (VoiceUserTalkingEvent) event;
+				vcs.voiceUserTalking(evt.getUserId(), evt.getRoom(), evt.isTalking());
+			} else if (event instanceof VoiceStartRecordingEvent) {
+				VoiceStartRecordingEvent evt = (VoiceStartRecordingEvent) event;
+//				System.out.println("************** FreeswitchConferenceEventListener VoiceStartRecordingEvent recording=[" + evt.startRecord() + "]");
+				vcs.voiceStartedRecording(evt.getRoom(), evt.getRecordingFilename(), evt.getTimestamp(), evt.startRecord());
+			} 				
+			}
+		};
+		
+		runExec.execute(task);
 	}
 	
 	public void start() {

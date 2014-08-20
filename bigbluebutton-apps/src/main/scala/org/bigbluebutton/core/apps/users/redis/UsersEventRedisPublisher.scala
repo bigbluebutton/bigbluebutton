@@ -32,7 +32,8 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
         case msg: UserStatusChange              => handleUserStatusChange(msg)
         case msg: UserVoiceMuted                => handleUserVoiceMuted(msg)
         case msg: UserVoiceTalking              => handleUserVoiceTalking(msg)
-        case msg: EjectVoiceUser                => handleEjectVoiceUser(msg)
+        case msg: MuteVoiceUser                 => handleMuteVoiceUser(msg)
+	      case msg: EjectVoiceUser                => handleEjectVoiceUser(msg)
         case msg: UserJoinedVoice               => handleUserJoinedVoice(msg)
         case msg: UserLeftVoice                 => handleUserLeftVoice(msg)
         case msg: IsMeetingMutedReply           => handleIsMeetingMutedReply(msg)
@@ -65,7 +66,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
     val json = UsersMessageToJsonConverter.userLockedToJson(msg)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)  
   }
-  
+    
   private def handleUsersLocked(msg: UsersLocked) {
     val json = UsersMessageToJsonConverter.usersLockedToJson(msg)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)  
@@ -130,7 +131,12 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
     val json = UsersMessageToJsonConverter.userVoiceTalking(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
-  
+
+  private def handleMuteVoiceUser(msg: MuteVoiceUser) {
+    val json = UsersMessageToJsonConverter.muteVoiceUserToJson(msg)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)    
+  }
+    
   private def handleEjectVoiceUser(msg: EjectVoiceUser) {
     val json = UsersMessageToJsonConverter.ejectVoiceUserToJson(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
@@ -158,7 +164,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
   
   private def handleValidateAuthTokenReply(msg: ValidateAuthTokenReply) {    
     val json = UsersMessageToJsonConverter.validateAuthTokenReplyToJson(msg)
-    println("************** Publishing [" + json + "] *******************")
+//    println("************** Publishing [" + json + "] *******************")
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)  		
   }
   

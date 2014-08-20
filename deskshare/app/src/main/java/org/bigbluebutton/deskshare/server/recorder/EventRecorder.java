@@ -18,6 +18,8 @@
 */
 package org.bigbluebutton.deskshare.server.recorder;
 
+import java.util.concurrent.TimeUnit;
+
 import org.bigbluebutton.deskshare.server.recorder.event.AbstractDeskshareRecordEvent;
 import org.bigbluebutton.deskshare.server.recorder.event.RecordEvent;
 import org.bigbluebutton.deskshare.server.recorder.event.RecordStartedEvent;
@@ -35,6 +37,10 @@ public class EventRecorder implements RecordStatusListener {
 		this.port = port;		
 	}
 	
+  private Long genTimestamp() {
+  	return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
+  }
+  
 	private void record(String session, RecordEvent message) {
 		Jedis jedis = new Jedis(host, port);
 		Long msgid = jedis.incr("global:nextRecordedMsgId");
@@ -45,7 +51,7 @@ public class EventRecorder implements RecordStatusListener {
 	@Override
 	public void notify(RecordEvent event) {
 		if ((event instanceof RecordStoppedEvent) || (event instanceof RecordStartedEvent)) {
-			event.setTimestamp(System.currentTimeMillis());
+			event.setTimestamp(genTimestamp());
 			event.setMeetingId(((AbstractDeskshareRecordEvent)event).getSession());
 			record(((AbstractDeskshareRecordEvent)event).getSession(), event);
 		}

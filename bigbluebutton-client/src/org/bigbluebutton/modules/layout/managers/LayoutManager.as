@@ -18,8 +18,7 @@
 */
 package org.bigbluebutton.modules.layout.managers
 {
-  import com.asfusion.mate.events.Dispatcher;
-  
+  import com.asfusion.mate.events.Dispatcher;  
   import flash.events.Event;
   import flash.events.EventDispatcher;
   import flash.events.TimerEvent;
@@ -27,15 +26,12 @@ package org.bigbluebutton.modules.layout.managers
   import flash.net.URLLoader;
   import flash.net.URLRequest;
   import flash.utils.Dictionary;
-  import flash.utils.Timer;
-  
+  import flash.utils.Timer; 
   import flexlib.mdi.containers.MDICanvas;
   import flexlib.mdi.containers.MDIWindow;
-  import flexlib.mdi.events.MDIManagerEvent;
-  
+  import flexlib.mdi.events.MDIManagerEvent; 
   import mx.controls.Alert;
-  import mx.events.ResizeEvent;
-  
+  import mx.events.ResizeEvent;  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.EventBroadcaster;
   import org.bigbluebutton.core.UsersUtil;
@@ -45,19 +41,23 @@ package org.bigbluebutton.modules.layout.managers
   import org.bigbluebutton.main.events.ModuleLoadEvent;
   import org.bigbluebutton.main.model.LayoutOptions;
   import org.bigbluebutton.modules.layout.events.LayoutEvent;
+  import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
   import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
-  import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
+  import org.bigbluebutton.modules.layout.events.LayoutsReadyEvent;
+  import org.bigbluebutton.modules.layout.events.LockLayoutEvent;
+  import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
   import org.bigbluebutton.modules.layout.events.RemoteSyncLayoutEvent;
   import org.bigbluebutton.modules.layout.events.SyncLayoutEvent;
-  import org.bigbluebutton.modules.layout.events.UpdateLayoutEvent;
   import org.bigbluebutton.modules.layout.model.LayoutDefinition;
   import org.bigbluebutton.modules.layout.model.LayoutDefinitionFile;
   import org.bigbluebutton.modules.layout.model.LayoutLoader;
+  import org.bigbluebutton.modules.layout.model.LayoutModel;
   import org.bigbluebutton.modules.layout.model.WindowLayout;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public class LayoutManager extends EventDispatcher {
-		private var _layouts:LayoutDefinitionFile = null;
+    private static const LOG:String = "Layout::LayoutManager - ";
+    
 		private var _canvas:MDICanvas = null;
 		private var _globalDispatcher:Dispatcher = new Dispatcher();
 		private var _locked:Boolean = false;
@@ -66,121 +66,89 @@ package org.bigbluebutton.modules.layout.managers
 		private var _containerDeactivated:Boolean = false;
 		private var _customLayoutsCount:int = 0;
 		private var _serverLayoutsLoaded:Boolean = false;
-    private var _comboLayoutCreated:Boolean = false;
+    private var _sendCurrentLayoutUpdateTimer:Timer = new Timer(500,1);
+    private var _applyCurrentLayoutTimer:Timer = new Timer(150,1);
+    
+    private var _layoutModel:LayoutModel = LayoutModel.getInstance();
+    
+    /**
+    * If (sync) affects viewers only. 
+    */
+    private var _viewersOnly:Boolean = false;
+    
+    /**
+    * If we sync automatically with other users while the action (move, resize) is done on the
+    * window.
+    */
+    private var _autoSync:Boolean = false;
+    
 		private var _eventsToDelay:Array = new Array(MDIManagerEvent.WINDOW_RESTORE,
 				MDIManagerEvent.WINDOW_MINIMIZE,
 				MDIManagerEvent.WINDOW_MAXIMIZE);
 		
-	
-        /**
-         *  There's a race condition when the layouts combo doesn't get populated 
-         *  with the server's layouts definition. The problem is that sometimes 
-         *  the layouts is loaded before the combo get created, and sometimes the 
-         *  combo is created first. We use two booleans to sync it and only dispatch 
-         *  the layouts to populate the list when both are created.
-         */
+
+    public function LayoutManager() {
+      _applyCurrentLayoutTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
+        applyLayout(_currentLayout);
+        trace(LOG + "Applied layout after user resized browser");
+      });
+      _sendCurrentLayoutUpdateTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
+        trace(LOG + "Applying layout due to window resize");
+        if (_autoSync)
+          sendLayoutUpdate(updateCurrentLayout());
+      });
+    }
+    
+    /**
+     *  There's a race condition when the layouts combo doesn't get populated 
+     *  with the server's layouts definition. The problem is that sometimes 
+     *  the layouts is loaded before the combo get created, and sometimes the 
+     *  combo is created first. We use two booleans to sync it and only dispatch 
+     *  the layouts to populate the list when both are created.
+     */
 		public function loadServerLayouts(layoutUrl:String):void {
-			LogUtil.debug("LayoutManager: loading server layouts from " + layoutUrl);
+			trace(LOG + " loading server layouts from " + layoutUrl);
 			var loader:LayoutLoader = new LayoutLoader();
 			loader.addEventListener(LayoutsLoadedEvent.LAYOUTS_LOADED_EVENT, function(e:LayoutsLoadedEvent):void {
 				if (e.success) {
-					_layouts = e.layouts;
+					_layoutModel.addLayouts(e.layouts);
 
-                    if (_comboLayoutCreated) {
-                        broadcastLayouts();
-                    }
+          broadcastLayouts();
 					_serverLayoutsLoaded = true;
 
-					LogUtil.debug("LayoutManager: layouts loaded successfully");
+					trace(LOG + " layouts loaded successfully");
 				} else {
-					LogUtil.error("LayoutManager: layouts not loaded (" + e.error.message + ")");
+					trace(LOG + " layouts not loaded (" + e.error.message + ")");
 				}
 			});
 			loader.loadFromUrl(layoutUrl);
 		}
 
-		public function onComboLayoutCreated():void {
-			if (_serverLayoutsLoaded) {
-                broadcastLayouts();
-			}
-            _comboLayoutCreated = true;
-		}
-
-        private function broadcastLayouts():void {
-            var layoutsLoaded:LayoutsLoadedEvent = new LayoutsLoadedEvent();
-            layoutsLoaded.layouts = _layouts;
-            _globalDispatcher.dispatchEvent(layoutsLoaded);
-        }
+    private function broadcastLayouts():void {
+      var layoutsReady:LayoutsReadyEvent = new LayoutsReadyEvent();
+      _globalDispatcher.dispatchEvent(layoutsReady);
+    }
 		
 		public function saveLayoutsToFile():void {
 			var _fileRef:FileReference = new FileReference();
 			_fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
 				Alert.show(ResourceUtil.getInstance().getString('bbb.layout.save.complete'), "", Alert.OK, _canvas);
 			});
-			_fileRef.save(_layouts.toXml().toXMLString(), "layouts.xml");
+			_fileRef.save(_layoutModel.toString(), "layouts.xml");
 		}
-		
-		public function loadLayoutsFromFile():void {
-			var loader:LayoutLoader = new LayoutLoader();
-			loader.addEventListener(LayoutsLoadedEvent.LAYOUTS_LOADED_EVENT, function(e:LayoutsLoadedEvent):void {
-				if (e.success) {
-					_layouts = e.layouts;
-
-                    broadcastLayouts();
-					
-					/*
-					 *	it will update the ComboBox label, and will go back to this class
-					 * 	to apply the default layout
-					 */
-					_globalDispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT));
-					
-					Alert.show(ResourceUtil.getInstance().getString('bbb.layout.load.complete'), "", Alert.OK, _canvas);
-				} else
-					Alert.show(ResourceUtil.getInstance().getString('bbb.layout.load.failed'), "", Alert.OK, _canvas);
-			});
-			loader.loadFromLocalFile();
-		}
-		
-		public function addCurrentLayoutToList():void {
-			var remotePrefix:String = "[" + ResourceUtil.getInstance().getString('bbb.layout.combo.remote') + "] ";
-			// starts with
-			var isRemoteLayout:Boolean = (_currentLayout.name.indexOf(remotePrefix) == 0);
-			if (isRemoteLayout) {
-				// remove the remote prefix
-				_currentLayout.name = _currentLayout.name.substring(remotePrefix.length);
-				// if it's a remote custom layout, just remove the counter
-				if (_currentLayout.name.indexOf(ResourceUtil.getInstance().getString('bbb.layout.combo.customName')) == 0)
-					_currentLayout.name = ResourceUtil.getInstance().getString('bbb.layout.combo.customName');
-			}
-			
-			// only add a layout to the list if it's a custom layout
-			if (_currentLayout.name == ResourceUtil.getInstance().getString('bbb.layout.combo.customName')) {
-				_currentLayout.name += " " + (++_customLayoutsCount); 
-				_layouts.push(_currentLayout);
-				var layoutsLoaded:LayoutsLoadedEvent = new LayoutsLoadedEvent();
-				layoutsLoaded.layouts = _layouts;
-				_globalDispatcher.dispatchEvent(layoutsLoaded);
 				
-				var redefineLayout:RedefineLayoutEvent = new RedefineLayoutEvent();
+		public function addCurrentLayoutToList():void {
+				_layoutModel.addLayout(_currentLayout);
+        
+				var redefineLayout:LayoutFromRemoteEvent = new LayoutFromRemoteEvent();
 				redefineLayout.layout = _currentLayout;
 				// this is to force LayoutCombo to update the current label
 				redefineLayout.remote = true;
 				_globalDispatcher.dispatchEvent(redefineLayout);
-			}
 		}
 		
 		public function setCanvas(canvas:MDICanvas):void {
 			_canvas = canvas;
-			/*
-			 * it should be dispatched when the layouts get loaded, but
-			 * the view is not ready at that point to receive the layouts
-			 * and populate the ComboBox
-			 */
-			if (_layouts != null) {
-				var e:LayoutsLoadedEvent = new LayoutsLoadedEvent();
-				e.layouts = _layouts;
-				_globalDispatcher.dispatchEvent(e);
-			}
 
 			// this is to detect changes on the container
 			_canvas.windowManager.container.addEventListener(ResizeEvent.RESIZE, onContainerResized);
@@ -206,32 +174,30 @@ package org.bigbluebutton.modules.layout.managers
 		}
 
     public function switchToLayout(name:String):void {
-      var newLayout:LayoutDefinition = _layouts.getLayout(name);
+      trace(LOG + " switching to layout [" + name + "] ");
+      var newLayout:LayoutDefinition = _layoutModel.getLayout(name);
       if (newLayout == null) return;
 
-      trace("************** USING [" + newLayout.name + "] as new LAYOUT ***************************");
-      applyLayout(newLayout);
-      sendLayoutUpdate(_currentLayout);     
-      
+      trace(LOG + " applying layout [" + newLayout.name + "] to windows.");
+      applyLayout(newLayout);     
     }
     
-		public function applyDefaultLayout():void {   
-      
+		public function applyDefaultLayout():void {         
       var layoutOptions:LayoutOptions = new LayoutOptions();
       layoutOptions.parseOptions();
-      var defaultLayout:LayoutDefinition = _layouts.getLayout(layoutOptions.defaultLayout);
+      var defaultLayout:LayoutDefinition = _layoutModel.getLayout(layoutOptions.defaultLayout);
            
       var sessionDefaulLayout:String = UserManager.getInstance().getConference().getDefaultLayout();
             
       if (sessionDefaulLayout != "NOLAYOUT") {
-        var sesLayout:LayoutDefinition = _layouts.getLayout(sessionDefaulLayout);
+        var sesLayout:LayoutDefinition = _layoutModel.getLayout(sessionDefaulLayout);
         if (sesLayout != null) {
           defaultLayout = sesLayout;
         }
       }
       
       if (defaultLayout == null) {
-        defaultLayout = _layouts.getDefault();
+        defaultLayout = _layoutModel.getDefaultLayout();
       }
       
       trace("************** USING [" + defaultLayout.name + "] as default LAYOUT ***************************");
@@ -255,15 +221,20 @@ package org.bigbluebutton.modules.layout.managers
       
 		public function lockLayout():void {
 			_locked = true;
-			LogUtil.debug("LayoutManager: layout locked by myself");
+			trace(LOG + " layout locked by myself");
 			sendLayoutUpdate(_currentLayout);
+		}
+		
+		public function broadcastLayout():void {
+			trace(LOG + " layout changed by me. Sync others to this new layout.");
+			var e:SyncLayoutEvent = new SyncLayoutEvent(_currentLayout);
+			_globalDispatcher.dispatchEvent(e);
 		}
 		
 		private function sendLayoutUpdate(layout:LayoutDefinition):void {
 			if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) {
-				trace("LayoutManager: sending layout to remotes");
-				var e:UpdateLayoutEvent = new UpdateLayoutEvent();
-				e.layout = layout;
+				trace("LayoutManager: synching layout to remote users");
+				var e:SyncLayoutEvent = new SyncLayoutEvent(layout);
 				_globalDispatcher.dispatchEvent(e);
 			}
 		}
@@ -279,25 +250,36 @@ package org.bigbluebutton.modules.layout.managers
 			_detectContainerChange = true;
 		}
 
-		public function redefineLayout(e:RedefineLayoutEvent):void {
+    public function handleLockLayoutEvent(e: LockLayoutEvent):void {
+      
+    }
+    
+    
+    public function handleLayoutLockedEvent(e: LayoutLockedEvent):void {
+      _locked = e.locked;
+      checkPermissionsOverWindow();
+    }
+    
+		public function applyRemoteLayout(e:LayoutFromRemoteEvent):void {
 			var layout:LayoutDefinition = e.layout;
+      _layoutModel.addLayout(layout);
 			applyLayout(layout);
 		}
 		
 		public function remoteLockLayout():void {
-			LogUtil.debug("LayoutManager: remote lock received");
+			trace(LOG + " remote lock received");
 			_locked = true;
 			checkPermissionsOverWindow();
 		}
 		
     public function remoteSyncLayout(event:RemoteSyncLayoutEvent):void {
-      LogUtil.debug("LayoutManager: remote lock received");
+      trace(LOG + " remote lock received");
       
       checkPermissionsOverWindow();
     }
     
 		public function remoteUnlockLayout():void {
-			LogUtil.debug("LayoutManager: remote unlock received");
+			trace(LOG + " remote unlock received");
 			_locked = false;
 			checkPermissionsOverWindow();
 		}
@@ -319,21 +301,41 @@ package org.bigbluebutton.modules.layout.managers
 		}
 		
 		private function onContainerResized(e:ResizeEvent):void {
-
+      trace(LOG + "Canvas is changing as user is resizing browser");
+      /*
+      *	the main canvas has been resized
+      *	while the user is resizing the window, this event is dispatched 
+      *	multiple times, so we use a timer to re-apply the current layout
+      *	only once, when the user finished his action
+      */
+      _applyCurrentLayoutTimer.reset();
+      _applyCurrentLayoutTimer.start();
 		}
 			
 		private function onActionOverWindowFinished(e:MDIManagerEvent):void {
-			if (LayoutDefinition.ignoreWindow(e.window))
-				return;
-				
-			checkPermissionsOverWindow(e.window);
-			if (_detectContainerChange) {
-				_globalDispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.INVALIDATE_LAYOUT_EVENT));
-			}
+      if (LayoutDefinition.ignoreWindow(e.window))
+        return;
+      
+      checkPermissionsOverWindow(e.window);
+      trace(LOG + "Window is being resized. Event=[" + e.type + "]");
+      updateCurrentLayout();
+        /*
+        * 	some events related to animated actions must be delayed because if it's not, the 
+        * 	current layout doesn't get properly updated
+        */
+        if (_eventsToDelay.indexOf(e.type) != -1) {
+          _sendCurrentLayoutUpdateTimer.reset();
+          _sendCurrentLayoutUpdateTimer.start();
+        } 
 		}
 		
 		private function updateCurrentLayout(layout:LayoutDefinition=null):LayoutDefinition {
-			_currentLayout = (layout != null? layout: LayoutDefinition.getLayout(_canvas, ResourceUtil.getInstance().getString('bbb.layout.combo.customName')));
+      if (layout != null) {
+        _currentLayout = layout;
+      } else {
+        _currentLayout = LayoutDefinition.getLayout(_canvas, ResourceUtil.getInstance().getString('bbb.layout.combo.customName'));
+      }
+
 			return _currentLayout;
 		}
 		
