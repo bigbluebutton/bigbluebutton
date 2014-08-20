@@ -36,6 +36,7 @@ import org.bigbluebutton.presentation.UploadedPresentation
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import org.bigbluebutton.api.ApiErrors;
+import org.bigbluebutton.api.ClientConfigService;
 import org.bigbluebutton.api.ParamsProcessorUtil;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -56,6 +57,7 @@ class ApiController {
   MeetingService meetingService;
   PresentationService presentationService
   ParamsProcessorUtil paramsProcessorUtil
+	ClientConfigService configService
   
   /* general methods */
   def index = {
@@ -307,23 +309,24 @@ class ApiController {
 	
 	//Return a Map with the user custom data
 	Map<String,String> userCustomData = paramsProcessorUtil.getUserCustomData(params);
-	userCustomData.put("foo", "fooval");
-	userCustomData.put("bar", "barvalue");
-	
+
 	//Currently, it's associated with the externalUserID
 	if (userCustomData.size() > 0)
 		meetingService.addUserCustomData(meeting.getInternalId(), externUserID, userCustomData);
     
 	String configxml = null;
-	
+		
 	if (! StringUtils.isEmpty(params.configToken)) {
 		Config conf = meeting.getConfig(params.configToken);
 		if (conf == null) {
-			errors.noConfigFoundForToken(params.configToken);
-			respondWithErrors(errors);
+			// Check if this config is one of our pre-built config
+			configxml = configService.getConfig(params.configToken)
+			if (configxml == null) {
+				// Default to the default config.
+				configxml = conf.config;
+			}
 		} else {
 			configxml = conf.config;
-			println ("USING PREFERRED CONFIG")
 		}
 	} else {
 		Config conf = meeting.getDefaultConfig();
@@ -332,7 +335,6 @@ class ApiController {
 			respondWithErrors(errors);
 		} else {
 			configxml = conf.config;
-			println ("USING DEFAULT CONFIG")
 		}
 	}
 	
