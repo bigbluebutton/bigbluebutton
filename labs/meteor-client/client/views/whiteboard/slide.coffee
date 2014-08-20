@@ -1,14 +1,14 @@
 Template.slide.rendered = ->
-	height = $('#whiteboard').height()
-	console.log "height = #{height}"
-	$('#whiteboard-paper').height((height-$("#whiteboard-navbar").height()-10)+'px')
+  height = $('#whiteboard').height()
+  console.log "height = #{height}"
+  $('#whiteboard-paper').height((height-$("#whiteboard-navbar").height()-10)+'px')
 
-	currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-	presentationId = currentPresentation?.presentation?.id
-	currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
-	if currentSlide?.slide?.png_uri?
-		Template.slide.createWhiteboardPaper (wpm) ->
-			Template.slide.displaySlide wpm
+  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+  presentationId = currentPresentation?.presentation?.id
+  currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+  if currentSlide?.slide?.png_uri?
+    Template.slide.createWhiteboardPaper (wpm) ->
+      Template.slide.displaySlide wpm
 
 Template.slide.helpers
   createWhiteboardPaper: (callback) ->
