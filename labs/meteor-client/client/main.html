@@ -48,7 +48,7 @@
 				{{#if isUserSharingAudio user}}
 				<!-- Should use much more noticeable icons than just bootstraps volume-up & volume-down to differentiate talking but it is good for now -->
 				  {{#if isUserMuted user}}
-				        {{> makeButton id=userid btn_class="muteIcon navbarButton" i_class="volume-off" sharingAudio=true _id=_id rel="tooltip" data_placement="bottom" title="Unute"}}
+				        {{> makeButton id=userid btn_class="muteIcon navbarButton" i_class="volume-off" sharingAudio=true _id=_id rel="tooltip" data_placement="bottom" title="Unmute"}}
 				  {{else}}
 				        {{#if isUserTalking user}}
 				           {{> makeButton id=userid btn_class="navbarIconToggleActive muteIcon navbarButton" i_class="volume-up" sharingAudio=true _id=_id rel="tooltip" data_placement="bottom" title="Mute"}}
