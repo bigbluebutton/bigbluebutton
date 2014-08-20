@@ -18,13 +18,15 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.*;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
 	import flash.net.navigateToURL;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.model.Me;
@@ -89,33 +91,33 @@ package org.bigbluebutton.main.model.users
         dispatcher.dispatchEvent(new MeetingNotFoundEvent(result.response.logoutURL));			
 			} else if (returncode == 'SUCCESS') {
 				trace("Join SUCESS = " + JSON.stringify(result));
-        var user:Object = new Object();
-        user.username = result.response.fullname;
-        user.conference = result.response.conference; 
-        user.conferenceName = result.response.confname;
-        user.externMeetingID = result.response.externMeetingID;
-        user.meetingID = result.response.meetingID;
-        user.externUserID = result.response.externUserID;
-        user.internalUserId = result.response.internalUserID;
-        user.role = result.response.role;
-        user.room = result.response.room;
-        user.authToken = result.response.room;
-        user.record = result.response.record;
-        user.webvoiceconf = result.response.webvoiceconf;
-        user.dialnumber = result.response.dialnumber;
-        user.voicebridge = result.response.voicebridge;
-        user.mode = result.response.mode;
-        user.welcome = result.response.welcome;
-        user.logoutUrl = result.response.logoutUrl;
-        user.defaultLayout = result.response.defaultLayout;
-        user.avatarURL = result.response.avatarURL
+        var response:Object = new Object();
+        response.username = result.response.fullname;
+        response.conference = result.response.conference; 
+        response.conferenceName = result.response.confname;
+        response.externMeetingID = result.response.externMeetingID;
+        response.meetingID = result.response.meetingID;
+        response.externUserID = result.response.externUserID;
+        response.internalUserId = result.response.internalUserID;
+        response.role = result.response.role;
+        response.room = result.response.room;
+        response.authToken = result.response.room;
+        response.record = result.response.record;
+        response.webvoiceconf = result.response.webvoiceconf;
+        response.dialnumber = result.response.dialnumber;
+        response.voicebridge = result.response.voicebridge;
+        response.mode = result.response.mode;
+        response.welcome = result.response.welcome;
+        response.logoutUrl = result.response.logoutUrl;
+        response.defaultLayout = result.response.defaultLayout;
+        response.avatarURL = result.response.avatarURL
         
         if (result.response.hasOwnProperty("modOnlyMessage")) {
-          user.modOnlyMessage = result.response.modOnlyMessage;
-          MeetingModel.getInstance().modOnlyMessage = user.modOnlyMessage;
+          response.modOnlyMessage = result.response.modOnlyMessage;
+          MeetingModel.getInstance().modOnlyMessage = response.modOnlyMessage;
         }
           
-				user.customdata = new Object();
+        response.customdata = new Object();
        
 				if (result.response.customdata) {
           var cdata:Array = result.response.customdata as Array;
@@ -125,22 +127,25 @@ package org.bigbluebutton.main.model.users
             for (var id:String in item) {
               var value:String = item[id] as String;
               trace(id + " = " + value);
-              user.customdata[id] = value;
+              response.customdata[id] = value;
             }                        
           }
 				}
-				
-        UsersModel.getInstance().me = new MeBuilder(user.internalUserId, user.username).withAvatar(user.avatarURL)
-                                             .withExternalId(user.externUserID).withToken(user.authToken)
-                                             .withLayout(user.defaultLayout).withWelcome(user.welcome)
-                                             .withDialNumber(user.dialnumber).withRole(user.role)
-                                             .withCustomData(user.customData).build();
+				        
+        UsersModel.getInstance().me = new MeBuilder(response.internalUserId, response.username).withAvatar(response.avatarURL)
+                                             .withExternalId(response.externUserID).withToken(response.authToken)
+                                             .withLayout(response.defaultLayout).withWelcome(response.welcome)
+                                             .withDialNumber(response.dialnumber).withRole(response.role)
+                                             .withCustomData(response.customData).build();
                 
-        MeetingModel.getInstance().meeting = new MeetingBuilder(user.conference, user.conferenceName)
-                                             .withLayout(user.defaultLayout).withVoiceConf(user.voiceBridge)
-                                             .withExternalId(user.externMeetingID).build();
+        MeetingModel.getInstance().meeting = new MeetingBuilder(response.conference, response.conferenceName)
+                                             .withDefaultLayout(response.defaultLayout).withVoiceConf(response.voiceBridge)
+                                             .withExternalId(response.externMeetingID).withRecorded(response.record.toUpperCase() == "TRUE")
+                                             .withDefaultAvatarUrl(response.avatarURL).withDialNumber(response.dialNumber)
+                                             .withWelcomeMessage(response.welcome).withModOnlyMessage(response.modOnlyMessage)
+                                             .build();
         
-				if (_resultListener != null) _resultListener(true, user);
+				if (_resultListener != null) _resultListener(true, response);
 			}
 				
 		}
