@@ -148,7 +148,11 @@ class ApiController {
     }
      
     Meeting newMeeting = paramsProcessorUtil.processCreateParams(params);      
-		      
+		
+		if (! StringUtils.isEmpty(params.moderatorOnlyMessage)) {
+			newMeeting.setModeratorOnlyMessage(params.moderatorOnlyMessage);
+		}
+		
     meetingService.createMeeting(newMeeting);
     
     // See if the request came with pre-uploading of presentation.
@@ -303,9 +307,12 @@ class ApiController {
 	
 	//Return a Map with the user custom data
 	Map<String,String> userCustomData = paramsProcessorUtil.getUserCustomData(params);
+	userCustomData.put("foo", "fooval");
+	userCustomData.put("bar", "barvalue");
+	
 	//Currently, it's associated with the externalUserID
-	if(userCustomData.size()>0)
-		meetingService.addUserCustomData(meeting.getInternalId(),externUserID,userCustomData);
+	if (userCustomData.size() > 0)
+		meetingService.addUserCustomData(meeting.getInternalId(), externUserID, userCustomData);
     
 	String configxml = null;
 	
@@ -1312,46 +1319,52 @@ class ApiController {
 
       response.addHeader("Cache-Control", "no-cache")
       withFormat {        
-        xml {
-          render(contentType:"text/xml") {
-            response() {
-              returncode("FAILED")
-              message("Could not find conference.")
-              logoutURL(logoutUrl)
+        json {
+          render(contentType: "application/json") {
+            response = {
+              returncode = "FAILED"
+              message = "Could not find conference."
+              logoutURL = logoutUrl
             }
           }
         }
       }
     } else {
+		
+		Map<String,String> userCustomData = paramsProcessorUtil.getUserCustomData(params);
+		
       log.info("Found conference for " + us.fullname)
       response.addHeader("Cache-Control", "no-cache")
       withFormat {        
-        xml {
-          render(contentType:"text/xml") {
-            response() {
-              returncode("SUCCESS")
-              fullname(us.fullname)
-              confname(us.conferencename)
-              meetingID(us.meetingID)
-              externMeetingID(us.externMeetingID)
-              externUserID(us.externUserID)
-              internalUserID(us.internalUserId)
-              role(us.role)
-              conference(us.conference)
-              room(us.room)
-              voicebridge(us.voicebridge)
-              dialnumber(meeting.getDialNumber())
-              webvoiceconf(us.webvoiceconf)
-              mode(us.mode)
-              record(us.record)
-              welcome(us.welcome)
-              logoutUrl(us.logoutUrl)
-              defaultLayout(us.defaultLayout)
-              avatarURL(us.avatarURL)
-              customdata(){
-                meeting.getUserCustomData(us.externUserID).each{ k,v ->
-                 "$k"("$v")
-                }
+        json {
+          render(contentType: "application/json") {
+            response = {
+              returncode = "SUCCESS"
+              fullname = us.fullname
+              confname = us.conferencename
+              meetingID = us.meetingID
+              externMeetingID = us.externMeetingID
+              externUserID = us.externUserID
+              internalUserID = us.internalUserId
+              role = us.role
+              conference = us.conference
+              room = us.room 
+              voicebridge = us.voicebridge
+              dialnumber = meeting.getDialNumber()
+              webvoiceconf = us.webvoiceconf
+              mode = us.mode
+              record = us.record
+              welcome = us.welcome
+							if (! StringUtils.isEmpty(meeting.moderatorOnlyMessage))
+							  modOnlyMessage = meeting.moderatorOnlyMessage
+              logoutUrl = us.logoutUrl
+              defaultLayout = us.defaultLayout
+              avatarURL = us.avatarURL
+              customdata = array {
+								userCustomData.each { k, v ->
+									// Somehow we need to prepend something (custdata) for the JSON to work
+									custdata "$k" : v
+								}
               }
             }
           }

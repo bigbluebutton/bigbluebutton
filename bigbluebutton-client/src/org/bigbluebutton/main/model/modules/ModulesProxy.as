@@ -19,12 +19,9 @@
 package org.bigbluebutton.main.model.modules
 {
 	import com.asfusion.mate.events.Dispatcher;
-	
 	import mx.controls.Alert;
-	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.PortTestEvent;
-	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.PortTestProxy;
 	

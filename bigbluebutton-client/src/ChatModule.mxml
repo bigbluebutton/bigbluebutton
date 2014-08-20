@@ -28,8 +28,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<maps:ChatEventMap id="chatLocalEventMap"/>
 	
-	<mate:Listener type="{TranscriptEvent.TRANSCRIPT_EVENT}" method="handleTranscriptLoadedEvent"/>
-	
 	<mx:Script>
 		<![CDATA[
       import com.asfusion.mate.events.Dispatcher;
@@ -122,24 +120,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				trace("Received PRIVATE CHAT MESSAGE EVENT");
 			}
 			
-			private function handleTranscriptLoadedEvent(event:Event):void {
-				LogUtil.debug("Handling TranscriptLoadedEvent");
-				var welcome:String = _attributes.welcome as String;
-				if (welcome != "") {
-//					var welcomeEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-//					var chatobj:ChatMessageVO = new ChatMessageVO();
-//					chatobj.message = welcome;
-//					chatobj.username = " ";
-//					chatobj.color = "0";
-//					chatobj.time = ChatUtil.getCurrentTime();
-//					chatobj.language = "en";
-//					chatobj.userid = "";
-					
-		//			welcomeEvent.chatobj = chatobj;
-//					var globalDispatcher:Dispatcher = new Dispatcher();
-		//			globalDispatcher.dispatchEvent(welcomeEvent);
-				}	
-			}
 		]]>
 	</mx:Script>
 </mx:Module>
