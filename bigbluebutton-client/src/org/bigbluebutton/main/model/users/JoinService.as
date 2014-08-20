@@ -18,15 +18,13 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.*;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
 	import flash.net.navigateToURL;
-	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.model.Me;
@@ -40,6 +38,8 @@ package org.bigbluebutton.main.model.users
         	
 	public class JoinService
 	{  
+    private static const LOG:String = "Users::JoinService - ";
+    
 		private var request:URLRequest = new URLRequest();
 		private var vars:URLVariables = new URLVariables();
 		
@@ -54,13 +54,13 @@ package org.bigbluebutton.main.model.users
 			var date:Date = new Date();
 //			url += "?a=" + date.time
 			LogUtil.debug("JoinService:load(...) " + url);
-            request = new URLRequest(url);
-            request.method = URLRequestMethod.GET;		
+      request = new URLRequest(url);
+      request.method = URLRequestMethod.GET;		
             
 			urlLoader.addEventListener(Event.COMPLETE, handleComplete);
 			urlLoader.addEventListener(HTTPStatusEvent.HTTP_STATUS, httpStatusHandler);
 			urlLoader.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
-            urlLoader.load(request);	
+      urlLoader.load(request);	
 		}
 
 		public function addJoinResultListener(listener:Function):void {
@@ -79,33 +79,55 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		private function handleComplete(e:Event):void {			
-			var xml:XML = new XML(e.target.data)
-
-			var returncode:String = xml.returncode;
+      var result:Object = JSON.parse(e.target.data);
+      trace(LOG + "Enter response = " + JSON.stringify(result));
+            
+			var returncode:String = result.response.returncode;
 			if (returncode == 'FAILED') {
-				LogUtil.debug("Join FAILED = " + xml);
-							
+				trace(LOG + "Join FAILED = " + JSON.stringify(result));						
         var dispatcher:Dispatcher = new Dispatcher();
-        dispatcher.dispatchEvent(new MeetingNotFoundEvent(xml.logoutURL));
-				
+        dispatcher.dispatchEvent(new MeetingNotFoundEvent(result.response.logoutURL));			
 			} else if (returncode == 'SUCCESS') {
-				LogUtil.debug("Join SUCESS = " + xml);
-        trace("JoinService::handleComplete() Join SUCESS = " + xml);
-				var user:Object = {username:xml.fullname, conference:xml.conference, 
-                           conferenceName:xml.confname, externMeetingID:xml.externMeetingID,
-										       meetingID:xml.meetingID, externUserID:xml.externUserID, 
-                           internalUserId:xml.internalUserID,
-										       role:xml.role, room:xml.room, authToken:xml.room, record:xml.record, 
-										       webvoiceconf:xml.webvoiceconf, dialnumber:xml.dialnumber,
-										       voicebridge:xml.voicebridge, mode:xml.mode, welcome:xml.welcome, logoutUrl:xml.logoutUrl, 
-                           defaultLayout:xml.defaultLayout, avatarURL:xml.avatarURL};
+				trace("Join SUCESS = " + JSON.stringify(result));
+        var user:Object = new Object();
+        user.username = result.response.fullname;
+        user.conference = result.response.conference; 
+        user.conferenceName = result.response.confname;
+        user.externMeetingID = result.response.externMeetingID;
+        user.meetingID = result.response.meetingID;
+        user.externUserID = result.response.externUserID;
+        user.internalUserId = result.response.internalUserID;
+        user.role = result.response.role;
+        user.room = result.response.room;
+        user.authToken = result.response.room;
+        user.record = result.response.record;
+        user.webvoiceconf = result.response.webvoiceconf;
+        user.dialnumber = result.response.dialnumber;
+        user.voicebridge = result.response.voicebridge;
+        user.mode = result.response.mode;
+        user.welcome = result.response.welcome;
+        user.logoutUrl = result.response.logoutUrl;
+        user.defaultLayout = result.response.defaultLayout;
+        user.avatarURL = result.response.avatarURL
+        
+        if (result.response.hasOwnProperty("modOnlyMessage")) {
+          user.modOnlyMessage = result.response.modOnlyMessage;
+          MeetingModel.getInstance().modOnlyMessage = user.modOnlyMessage;
+        }
+          
 				user.customdata = new Object();
        
-				if(xml.customdata) {
-					for each(var cdnode:XML in xml.customdata.elements()){
-						LogUtil.debug("checking user customdata: "+ cdnode.name() + " = " + cdnode);
-						user.customdata[cdnode.name()] = cdnode.toString();
-					}
+				if (result.response.customdata) {
+          var cdata:Array = result.response.customdata as Array;
+          trace(LOG + "num custom data = " + cdata.length);
+          for each (var item:Object in cdata) {
+            trace(LOG + item.toString());
+            for (var id:String in item) {
+              var value:String = item[id] as String;
+              trace(id + " = " + value);
+              user.customdata[id] = value;
+            }                        
+          }
 				}
 				
         UsersModel.getInstance().me = new MeBuilder(user.internalUserId, user.username).withAvatar(user.avatarURL)

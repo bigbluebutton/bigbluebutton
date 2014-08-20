@@ -10,6 +10,7 @@ package org.bigbluebutton.core.model
     
     private var _meetingMuted:Boolean = false;
     private var _lockSettings:LockSettingsVO;
+    private var _modOnlyMessage:String = null;
     
     public function MeetingModel(enforcer: MeetingModelSingletonEnforcer)
     {
@@ -44,7 +45,14 @@ package org.bigbluebutton.core.model
     public function get meetingMuted():Boolean {
       return _meetingMuted;
     }
-        
+    
+    public function set modOnlyMessage(msg:String):void {
+      _modOnlyMessage = msg;
+    }
+    
+    public function get modOnlyMessage():String {
+      return _modOnlyMessage;
+    }
   }
 }
 

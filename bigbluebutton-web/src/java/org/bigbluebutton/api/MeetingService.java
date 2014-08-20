@@ -376,8 +376,8 @@ public class MeetingService implements MessageListener {
 	
 	public void addUserCustomData(String meetingId, String userID, Map<String,String> userCustomData){
 		Meeting m = getMeeting(meetingId);
-		if(m != null){
-			m.addUserCustomData(userID,userCustomData);
+		if (m != null){
+			m.addUserCustomData(userID, userCustomData);
 		}
 	}
 

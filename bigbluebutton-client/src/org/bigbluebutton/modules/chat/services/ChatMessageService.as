@@ -18,9 +18,11 @@
  */
 package org.bigbluebutton.modules.chat.services
 {
-  import flash.events.IEventDispatcher; 
+  import flash.events.IEventDispatcher;
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
+  import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.core.model.MeetingModel;
   import org.bigbluebutton.modules.chat.ChatConstants;
   import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
@@ -105,6 +107,26 @@ package org.bigbluebutton.modules.chat.services
         pcEvent.message = msg;
         dispatcher.dispatchEvent(pcEvent);
       }	
+      
+      if (UsersUtil.amIModerator()) {
+        if (MeetingModel.getInstance().modOnlyMessage != null) {
+          var msg:ChatMessageVO = new ChatMessageVO();
+          msg.chatType = ChatConstants.PUBLIC_CHAT;
+          msg.fromUserID = SPACE;
+          msg.fromUsername = SPACE;
+          msg.fromColor = "86187";
+          msg.fromLang = "en";
+          msg.fromTime = new Date().getTime();
+          msg.fromTimezoneOffset = new Date().getTimezoneOffset();
+          msg.toUserID = SPACE;
+          msg.toUsername = SPACE;
+          msg.message = MeetingModel.getInstance().modOnlyMessage;
+          
+          var pcEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
+          pcEvent.message = msg;
+          dispatcher.dispatchEvent(pcEvent);          
+        }
+      }
     }
   }
 }

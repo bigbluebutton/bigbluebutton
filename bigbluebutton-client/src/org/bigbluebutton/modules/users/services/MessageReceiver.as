@@ -47,7 +47,6 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.modules.present.events.NavigationEvent;
   import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
-  import org.bigbluebutton.modules.present.model.PresentationModel;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
   
   public class MessageReceiver implements IMessageListener

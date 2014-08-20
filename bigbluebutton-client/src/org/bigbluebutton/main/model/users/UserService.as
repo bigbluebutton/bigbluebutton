@@ -19,11 +19,14 @@
 package org.bigbluebutton.main.model.users
 {
 	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.TimerEvent;
 	import flash.external.ExternalInterface;
 	import flash.net.NetConnection;
-	import flash.utils.Timer;	
-	import mx.collections.ArrayCollection;	
+	import flash.utils.Timer;
+	
+	import mx.collections.ArrayCollection;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
@@ -34,6 +37,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.managers.UserConfigManager;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.core.model.Config;
+	import org.bigbluebutton.core.model.MeetingModel;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
@@ -99,6 +103,8 @@ package org.bigbluebutton.main.model.users
 				UserManager.getInstance().getConference().dialNumber = result.dialnumber;
 				UserManager.getInstance().getConference().record = (result.record != "false");
 				
+        
+        
 				_conferenceParameters = new ConferenceParameters();
 				_conferenceParameters.meetingName = result.conferenceName;
 				_conferenceParameters.externMeetingID = result.externMeetingID;

@@ -44,6 +44,7 @@ public class Meeting {
 	private String moderatorPass;
 	private String viewerPass;
 	private String welcomeMsg;
+	private String modOnlyMessage;
 	private String logoutUrl;
 	private int maxUsers;
 	private boolean record;
@@ -74,6 +75,7 @@ public class Meeting {
    	metadata = builder.metadata;
    	createdTime = builder.createdTime;
    	userCustomData = new HashMap<String, Object>();
+
 		users = new ConcurrentHashMap<String, User>();
 		
 		configs = new ConcurrentHashMap<String, Config>();
@@ -136,6 +138,14 @@ public class Meeting {
 	
 	public long getEndTime() {
 		return endTime;
+	}
+	
+	public void setModeratorOnlyMessage(String msg) {
+		modOnlyMessage = msg;
+	}
+	
+	public String getModeratorOnlyMessage() {
+		return modOnlyMessage;
 	}
 	
 	public void setEndTime(long t) {
