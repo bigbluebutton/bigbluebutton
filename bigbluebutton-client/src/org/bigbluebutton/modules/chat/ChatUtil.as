@@ -54,7 +54,7 @@ package org.bigbluebutton.modules.chat
     }
     
 	public static function parseURLs( message : String ) : String{
-      var urlPattern : RegExp = /(http|ftp|https|www)(:\/\/[\w\-_]+)?(\.[\w\-_]+)+([\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?/g;
+      var urlPattern : RegExp = /(http|ftp|https|www)(:\/\/[^\s\-_]+)?(\.[^\s\-]+)+([\w\-\.,@?^=%&:\/~\+#]*[^\s\-\@?^=%&\/~\+#\(\)])?/g;
 		
       var resultArray : Array = [];
       var result : Object;
