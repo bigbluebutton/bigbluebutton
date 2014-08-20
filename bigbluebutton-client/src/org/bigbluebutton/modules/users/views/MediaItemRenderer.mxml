@@ -100,7 +100,7 @@
 			}
 			
 			private function onRollOut(e:UsersRollEvent):void{
-				if (moderator && (e.userID == data.userID)) {
+				if (moderator && rolledOver) {
 					rolledOver = false;
 					updateButtons();
 				}
