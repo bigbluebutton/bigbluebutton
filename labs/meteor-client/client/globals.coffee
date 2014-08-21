@@ -221,3 +221,17 @@ Meteor.methods
   setInSession "display_navbar", false # needed to hide navbar when the layout template renders
   
   Router.go('logout') # navigate to logout
+
+# color can be a number (a hex converted to int) or a string (e.g. "#ffff00")
+@formatColor = (color) ->
+  color ?= "0" # default value
+  if !color.toString().match(/\#.*/)
+    color = colourToHex(color)
+  color
+
+# thickness can be a number (e.g. "2") or a string (e.g. "2px")
+@formatThickness = (thickness) ->
+  thickness ?= "1" # default value
+  if !thickness.toString().match(/.*px$/)
+    "#" + thickness + "px" # leading "#" - to be compatible with Firefox
+  thickness
