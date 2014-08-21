@@ -2,7 +2,6 @@
 class @WhiteboardTriangleModel extends WhiteboardToolModel
 
   constructor: (@paper) ->
-    console.log "Whiteboard - Creating rectangle"
     super @paper
 
     # the defintion of this shape, kept so we can redraw the shape whenever needed
@@ -36,7 +35,6 @@ class @WhiteboardTriangleModel extends WhiteboardToolModel
   # @param  {number} x2 the x value of the bottom right corner
   # @param  {number} y2 the y value of the bottom right corner
   update: (info) ->
-    console.log "Whiteboard - updating triangle points"
     if info?.points?
       x1 = info.points[0]
       y1 = info.points[1]
