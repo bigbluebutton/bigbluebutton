@@ -25,40 +25,69 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
          implements="org.bigbluebutton.modules.chat.views.IChatTab"
          creationComplete="init()">
   
-  <mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+    <mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+    <mate:Listener type="{UserJoinedEvent.JOINED}" method="handleUserJoined" />
+    <mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeft" />
   
     <mx:Script>
         <![CDATA[
-          import com.asfusion.mate.events.Dispatcher;
-          
-          import flexlib.controls.textClasses.StringBoundaries;
-          
-          import mx.collections.ArrayCollection;
-          
-          import org.bigbluebutton.core.EventConstants;
-          import org.bigbluebutton.core.UsersUtil;
-          import org.bigbluebutton.core.events.CoreEvent;
-          import org.bigbluebutton.core.events.LockControlEvent;
-          import org.bigbluebutton.core.managers.UserManager;
-          import org.bigbluebutton.main.model.users.BBBUser;
-          import org.bigbluebutton.main.model.users.Conference;
-          import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
-          import org.bigbluebutton.modules.chat.model.ChatOptions;
-          import org.bigbluebutton.util.i18n.ResourceUtil;
+            import com.asfusion.mate.events.Dispatcher;
+            
+            import flexlib.controls.textClasses.StringBoundaries;
+            
+            import mx.collections.ArrayCollection;
+            
+            import org.bigbluebutton.core.EventConstants;
+            import org.bigbluebutton.core.UsersUtil;
+            import org.bigbluebutton.core.events.CoreEvent;
+            import org.bigbluebutton.core.events.LockControlEvent;
+            import org.bigbluebutton.core.managers.UserManager;
+            import org.bigbluebutton.main.events.UserJoinedEvent;
+            import org.bigbluebutton.main.events.UserLeftEvent;
+            import org.bigbluebutton.main.model.users.BBBUser;
+            import org.bigbluebutton.main.model.users.Conference;
+            import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+            import org.bigbluebutton.modules.chat.model.ChatOptions;
+            import org.bigbluebutton.util.i18n.ResourceUtil;
             
             [Bindable] public var users:ArrayCollection;
             [Bindable] public var chatView:ChatView;
             [Bindable] private var fontSizes:Array = ['8', '10', '12', '14', '16', '18'];
             
-            [Bindable] public var chatOptions:ChatOptions = new ChatOptions();		
+            [Bindable] public var chatOptions:ChatOptions = new ChatOptions();        
             
             private function init():void{
-                users = UserManager.getInstance().getConference().users;
+                var tempUsers:ArrayCollection = UserManager.getInstance().getConference().users;
+                users = new ArrayCollection();
+                
+                for (var i:int = 0; i < tempUsers.length; i++) {
+                    var u:BBBUser = tempUsers[i];
+                    if (!(u.me || u.phoneUser)) {
+                        users.addItem({userID: u.userID, name: u.name});
+                    }
+                }
             }
             
             public function accessibleClick(event:KeyboardEvent):void{
                 if (event.keyCode == 32){
                     openPrivateChat(event);
+                }
+            }
+            
+            private function handleUserJoined(event:UserJoinedEvent):void {
+                var u:BBBUser = UserManager.getInstance().getConference().getUser(event.userID);
+                if (u != null) {
+                    if (!(u.me || u.phoneUser)) {
+                        users.addItem({userID: u.userID, name: u.name});
+                    }
+                }
+            }
+            
+            private function handleUserLeft(event:UserLeftEvent):void {
+                for (var i:int = 0; i < users.length; i++) {
+                    if (users[i].userID == event.userID) {
+                        users.removeItemAt(i);
+                    }
                 }
             }
             
@@ -74,7 +103,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 var chatWithUserID:String = usersList.selectedItem.userID;
                 
                 // Don't want to be chatting with ourself.
-                if (UsersUtil.isMe(chatWithUserID)) return;
+                //if (UsersUtil.isMe(chatWithUserID)) return;
                 
                 usersList.selectedIndex = -1;
                 
@@ -122,5 +151,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 </mx:HBox>
             </mx:VBox>
         </mx:VBox>
-    </mx:HBox>	
+    </mx:HBox>
 </mx:VBox>
