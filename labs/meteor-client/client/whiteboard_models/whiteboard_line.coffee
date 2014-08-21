@@ -35,7 +35,8 @@ class @WhiteboardLineModel extends WhiteboardToolModel
       path = "M" + x1 + " " + y1 + " L" + x1 + " " + y1
       pathPercent = "M" + x + " " + y + " L" + x + " " + y
       @obj = @paper.path(path)
-      @obj.attr Meteor.call("strokeAndThickness", color, thickness)
+      @obj.attr "stroke", formatColor(color)
+      @obj.attr "stroke-width", formatThickness(thickness)
       @obj.attr({"stroke-linejoin": "round"})
 
       @definition = [pathPercent, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]

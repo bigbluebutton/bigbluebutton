@@ -23,7 +23,8 @@ class @WhiteboardEllipseModel extends WhiteboardToolModel
         thickness = info.thickness
 
         @obj = @paper.ellipse(x * @gw + @xOffset, y * @gh + @yOffset, 0, 0)
-        @obj.attr Meteor.call("strokeAndThickness", color, thickness)
+        @obj.attr "stroke", formatColor(color)
+        @obj.attr "stroke-width", formatThickness(thickness)
         @definition = [x, y, y, x, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]
 
       @obj
