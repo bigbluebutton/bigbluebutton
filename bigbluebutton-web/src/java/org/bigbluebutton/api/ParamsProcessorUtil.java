@@ -278,6 +278,7 @@ public class ParamsProcessorUtil {
     Map<String, String> metas = new HashMap<String, String>();
     for (String key: params.keySet()) {
     	if (isMetaValid(key)){
+    		// Need to lowercase to maintain backward compatibility with 0.81
     		String metaName = removeMetaString(key).toLowerCase();
     		metas.put(metaName, params.get(key));
 		  }   
