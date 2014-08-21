@@ -24,8 +24,8 @@ Template.header.events
 		userLogout getInSession("meetingId"), getInSession("userId"), true
 	"click .hideNavbarIcon": (event) ->
 		toggleNavbar()
-	"click .settingsIcon": (event) ->
-		alert "settings"
+	# "click .settingsIcon": (event) ->
+	# 	alert "settings"
 	"click .raiseHand": (event) ->
 		Meteor.call('userRaiseHand', getInSession("meetingId"), @id)
 	"click .lowerHand": (event) ->

@@ -1,3 +1,9 @@
+# Convert a color `value` as integer to a hex color (e.g. 255 to #0000ff)
+@colourToHex = (value) ->
+	hex = parseInt(value).toString(16)
+	hex = "0" + hex while hex.length < 6
+	"##{hex}"
+
 # retrieve account for selected user
 @getCurrentUserFromSession = ->
   Meteor.Users.findOne("userId": getInSession("userId"))
@@ -44,6 +50,9 @@
       setInSession "userName", user.user.name # store in session for fast access next time
       user.user.name
     else null
+
+Handlebars.registerHelper "colourToHex", (value) =>
+	@window.colourToHex(value)
 
 Handlebars.registerHelper 'equals', (a, b) -> # equals operator was dropped in Meteor's migration from Handlebars to Spacebars
   a is b

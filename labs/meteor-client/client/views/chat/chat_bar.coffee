@@ -71,8 +71,8 @@ Template.chatbar.helpers
 
 	getCombinedMessagesForChat: ->
 		msgs = Template.chatbar.getFormattedMessagesForChat()
-		prev_time = msgs[0].message.from_time
-		prev_userid = msgs[0].message.from_userid
+		prev_time = msgs[0]?.message.from_time
+		prev_userid = msgs[0]?.message.from_userid
 		for i in [0...msgs.length]
 			if i != 0
 				if prev_userid is msgs[i].message.from_userid
@@ -145,35 +145,26 @@ Template.tabButtons.helpers
     tabs = makeTabs()
 
   makeTabButton: -> # create tab button for private chat or other such as options
+    safeClass = @class.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    safeName = @name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
     button = '<li '
     button += 'class="'
     button += 'active ' if getInSession("inChatWith") is @userId
-    button += "tab #{@class}\"><a href=\"#\" data-toggle=\"tab\">#{@name}"
+    button += "tab #{safeClass}\"><a href=\"#\" data-toggle=\"tab\">#{safeName}"
     button += '&nbsp;<button class="close closeTab" type="button" >×</button>' if @class is 'privateChatTab'
     button += '</a></li>'
     button
 
 Template.message.helpers
 	activateBreakLines: (str) ->
-		res = str
-		res = res.replace /\n/gim, '<br/>'
+		res = str.replace /\n/gim, '<br/>'
 		res = res.replace /\r/gim, '<br/>'
 	
-	getHexColor: (c) ->
-		if parseInt(c).toString(16).length is 4
-			"#00#{parseInt(c).toString(16)}"
-		else
-			"##{parseInt(c).toString(16)}"
-
 	# make links received from Flash client clickable in HTML
 	toClickable: (str) ->
-		res = str
-		# res = str.replace /&lt;a href='event:/gim, "<a target='_blank' href='"
-		# res = res.replace /&lt;a&gt;/gim, '</a>'		
-
-		# res = res.replace /&lt;u&gt;/gim, '<u>'
-		# res = res.replace /&lt;\/u&gt;/gim, '</u>'
-		res
+        res = str.replace /<a href='event:/gim, "<a target='_blank' href='"
+        res = res.replace /<a href="event:/gim, '<a target="_blank" href="'
 
 	toClockTime: (epochTime) ->
 		if epochTime is null
@@ -189,9 +180,8 @@ Template.message.helpers
 		hours + ":" + minutes
 
 	sanitizeAndFormat: (str) ->
-		res = str
-		# First, replace replace all tags with the ascii equivalent
-		res = res.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-
-		res = Template.message.toClickable(res)
-		res = Template.message.activateBreakLines(res)
+        # First, replace replace all tags with the ascii equivalent (excluding those involved in anchor tags)
+        res = str.replace(/&/g, '&amp;').replace(/<(?![au\/])/g, '&lt;').replace(/\/([^au])>/g, '$1&gt;').replace(/([^=])"(?!>)/g, '$1&quot;');
+        
+        res = Template.message.toClickable res
+        res = Template.message.activateBreakLines res
