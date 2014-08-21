@@ -158,8 +158,7 @@ Template.tabButtons.helpers
 
 Template.message.helpers
 	activateBreakLines: (str) ->
-		res = str
-		res = res.replace /\n/gim, '<br/>'
+		res = str.replace /\n/gim, '<br/>'
 		res = res.replace /\r/gim, '<br/>'
 	
 	getHexColor: (c) ->
@@ -170,13 +169,8 @@ Template.message.helpers
 
 	# make links received from Flash client clickable in HTML
 	toClickable: (str) ->
-		res = str
-		# res = str.replace /&lt;a href='event:/gim, "<a target='_blank' href='"
-		# res = res.replace /&lt;a&gt;/gim, '</a>'		
-
-		# res = res.replace /&lt;u&gt;/gim, '<u>'
-		# res = res.replace /&lt;\/u&gt;/gim, '</u>'
-		res
+        res = str.replace /<a href='event:/gim, "<a target='_blank' href='"
+        res = res.replace /<a href="event:/gim, '<a target="_blank" href="'
 
 	toClockTime: (epochTime) ->
 		if epochTime is null
@@ -192,9 +186,8 @@ Template.message.helpers
 		hours + ":" + minutes
 
 	sanitizeAndFormat: (str) ->
-		res = str
-		# First, replace replace all tags with the ascii equivalent
-		res = res.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-
-		res = Template.message.toClickable(res)
-		res = Template.message.activateBreakLines(res)
+        # First, replace replace all tags with the ascii equivalent (excluding those involved in anchor tags)
+        res = str.replace(/&/g, '&amp;').replace(/<(?![au\/])/g, '&lt;').replace(/([^au])>/g, '$1&gt;').replace(/([^=])"(?!>)/g, '$1&quot;');
+        
+        res = Template.message.toClickable res
+        res = Template.message.activateBreakLines res
