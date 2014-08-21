@@ -34,9 +34,3 @@ Meteor.methods
       stroke: if stroke.toString().match(/\#.*/) then stroke else  colourToHex(stroke)
       "stroke-width": if thickness.toString().match(/.*px$/) then thickness else "#{thickness}px"
     r
-
-  # Convert a color `value` as integer to a hex color (e.g. 255 to #0000ff)
-  colourToHex = (value) ->
-    hex = value.toString(16)
-    hex = "0" + hex while hex.length < 6
-    "##{hex}"

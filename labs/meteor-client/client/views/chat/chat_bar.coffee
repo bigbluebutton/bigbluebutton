@@ -161,12 +161,6 @@ Template.message.helpers
 		res = str.replace /\n/gim, '<br/>'
 		res = res.replace /\r/gim, '<br/>'
 	
-	getHexColor: (c) ->
-		if parseInt(c).toString(16).length is 4
-			"#00#{parseInt(c).toString(16)}"
-		else
-			"##{parseInt(c).toString(16)}"
-
 	# make links received from Flash client clickable in HTML
 	toClickable: (str) ->
         res = str.replace /<a href='event:/gim, "<a target='_blank' href='"
