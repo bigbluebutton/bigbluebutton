@@ -187,7 +187,7 @@ Template.message.helpers
 
 	sanitizeAndFormat: (str) ->
         # First, replace replace all tags with the ascii equivalent (excluding those involved in anchor tags)
-        res = str.replace(/&/g, '&amp;').replace(/<(?![au\/])/g, '&lt;').replace(/([^au])>/g, '$1&gt;').replace(/([^=])"(?!>)/g, '$1&quot;');
+        res = str.replace(/&/g, '&amp;').replace(/<(?![au\/])/g, '&lt;').replace(/\/([^au])>/g, '$1&gt;').replace(/([^=])"(?!>)/g, '$1&quot;');
         
         res = Template.message.toClickable res
         res = Template.message.activateBreakLines res
