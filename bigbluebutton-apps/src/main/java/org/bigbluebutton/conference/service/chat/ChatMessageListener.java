@@ -60,12 +60,10 @@ public class ChatMessageListener implements MessageHandler{
 				map.put(ChatKeyUtil.TO_USERNAME, toUsername);
 				map.put(ChatKeyUtil.MESSAGE, chatText);
 
-				if(eventName.equalsIgnoreCase("public_chat_message_event") 
-						|| eventName.equalsIgnoreCase("send_public_chat_message")) {
+				if(eventName.equalsIgnoreCase(MessagingConstants.SEND_PUBLIC_CHAT_MESSAGE_REQUEST)) {
 					bbbGW.sendPublicMessage(meetingID, requesterID, map);
-				}	else if(eventName.equalsIgnoreCase("private_chat_message_event")
-						|| eventName.equalsIgnoreCase("send_private_chat_message")) {
-					bbbGW.sendPrivateMessage(meetingID, requesterID, map); 
+				}	else if(eventName.equalsIgnoreCase(MessagingConstants.SEND_PRIVATE_CHAT_MESSAGE_REQUEST)) {
+					bbbGW.sendPrivateMessage(meetingID, requesterID, map);
 				}
 			}
 		}
