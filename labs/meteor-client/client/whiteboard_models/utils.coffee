@@ -23,14 +23,3 @@ Meteor.methods
 
     $('body').append form
     form.submit()
-
-  # @param {string,int} stroke    stroke color, can be a number (a hex converted to int) or a
-  #                               string (e.g. "#ffff00")
-  # @param {string,ing} thickness thickness as a number or string (e.g. "2" or "2px")
-  strokeAndThickness: (stroke, thickness) ->
-    stroke ?= "0"
-    thickness ?= "1"
-    r =
-      stroke: if stroke.toString().match(/\#.*/) then stroke else  colourToHex(stroke)
-      "stroke-width": if thickness.toString().match(/.*px$/) then thickness else "#{thickness}px"
-    r
