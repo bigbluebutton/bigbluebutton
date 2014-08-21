@@ -7,10 +7,6 @@ config.appName = 'BigBlueButton HTML5 Client'
 config.maxUsernameLength = 30
 config.maxChatLength = 140
 
-# the path in which an image of a presentation is stored
-config.presentationImagePath = (meetingID, presentationID, filename) ->
-  "bigbluebutton/presentation/#{meetingID}/#{meetingID}/#{presentationID}/png/#{filename}"
-
 ## Application configurations
 config.app = {}
 
@@ -35,10 +31,6 @@ config.redis.channels.toBBBApps.meeting = "bigbluebutton:to-bbb-apps:meeting"
 config.redis.channels.toBBBApps.users = "bigbluebutton:to-bbb-apps:users"
 config.redis.channels.toBBBApps.voice = "bigbluebutton:to-bbb-apps:voice"
 config.redis.channels.toBBBApps.whiteboard = "bigbluebutton:to-bbb-apps:whiteboard"
-config.redis.internalChannels = {}
-config.redis.internalChannels.receive = "html5-receive"
-config.redis.internalChannels.reply = "html5-reply"
-config.redis.internalChannels.publish = "html5-publish"
 
 # Logging
 config.log = {}
