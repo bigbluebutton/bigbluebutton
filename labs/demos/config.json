@@ -1,7 +1,7 @@
 {
     "settings": {
-        "IP": "http://192.168.0.232",
+        "IP": "http://192.168.0.119",
         "PORT": "4000",
-        "salt": "c7faeb82a786bd71134b61833b0ec4af"
+        "salt": "97d777d100aed03b60b06420a0dd9dd5"
     }
-} 
+}
