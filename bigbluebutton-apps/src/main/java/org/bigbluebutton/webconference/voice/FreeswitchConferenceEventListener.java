@@ -57,13 +57,13 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
 		Runnable task = new Runnable() {
 			public void run() {
 				if (event instanceof VoiceUserJoinedEvent) {
-//				System.out.println("************** FreeswitchConferenceEventListener received voiceUserJoined ");
+				System.out.println("************** FreeswitchConferenceEventListener received voiceUserJoined ");
 				VoiceUserJoinedEvent evt = (VoiceUserJoinedEvent) event;
 				vcs.voiceUserJoined(evt.getVoiceUserId(), evt.getUserId(), evt.getRoom(), 
 						evt.getCallerIdNum(), evt.getCallerIdName(),
 						evt.getMuted(), evt.getSpeaking());
 			} else if (event instanceof VoiceUserLeftEvent) {
-//				System.out.println("************** FreeswitchConferenceEventListener received VoiceUserLeftEvent ");
+				System.out.println("************** FreeswitchConferenceEventListener received VoiceUserLeftEvent ");
 				VoiceUserLeftEvent evt = (VoiceUserLeftEvent) event;
 				vcs.voiceUserLeft(evt.getUserId(), evt.getRoom());
 			} else if (event instanceof VoiceUserMutedEvent) {
@@ -71,12 +71,12 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
 				VoiceUserMutedEvent evt = (VoiceUserMutedEvent) event;
 				vcs.voiceUserMuted(evt.getUserId(), evt.getRoom(), evt.isMuted());
 			} else if (event instanceof VoiceUserTalkingEvent) {
-//				System.out.println("************** FreeswitchConferenceEventListener VoiceUserTalkingEvent ");
+				System.out.println("************** FreeswitchConferenceEventListener VoiceUserTalkingEvent ");
 				VoiceUserTalkingEvent evt = (VoiceUserTalkingEvent) event;
 				vcs.voiceUserTalking(evt.getUserId(), evt.getRoom(), evt.isTalking());
 			} else if (event instanceof VoiceStartRecordingEvent) {
 				VoiceStartRecordingEvent evt = (VoiceStartRecordingEvent) event;
-//				System.out.println("************** FreeswitchConferenceEventListener VoiceStartRecordingEvent recording=[" + evt.startRecord() + "]");
+				System.out.println("************** FreeswitchConferenceEventListener VoiceStartRecordingEvent recording=[" + evt.startRecord() + "]");
 				vcs.voiceStartedRecording(evt.getRoom(), evt.getRecordingFilename(), evt.getTimestamp(), evt.startRecord());
 			} 				
 			}

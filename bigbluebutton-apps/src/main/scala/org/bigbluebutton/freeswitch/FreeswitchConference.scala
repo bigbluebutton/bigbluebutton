@@ -8,6 +8,8 @@ class FreeswitchConference(val conferenceNum: String,
 
   private var users = new scala.collection.immutable.HashMap[String, UserVO]
   
+  private var recording:Boolean = false
+  
   def addUser(user: UserVO) {
     users += user.userID -> user
   }
@@ -30,4 +32,16 @@ class FreeswitchConference(val conferenceNum: String,
   }
   
   def numUsers = users.size
+  
+  def recordingStarted() {
+    recording = true;
+  }
+  
+  def recordingStopped() {
+    recording = false
+  }
+  
+  def isRecording():Boolean = {
+    recording
+  }
 }

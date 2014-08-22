@@ -78,10 +78,10 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     val fsconf = confs.values find (c => c.meetingId == msg.meetingID)
     
     fsconf foreach {fc => 
-//      println("Web user has joined voice. mid[" + fc.meetingId + "] wid=[" + msg.user.userID + "], vid=[" + msg.user.voiceUser.userId + "]")
+      println("Web user has joined voice. mid[" + fc.meetingId + "] wid=[" + msg.user.userID + "], vid=[" + msg.user.voiceUser.userId + "]")
       fc.addUser(msg.user)
       if (fc.numUsersInVoiceConference == 1 && fc.recorded) {
-        println("Meeting is recorded. Tell FreeSWITCH to start recording.")
+        println("Meeting is recorded. Tell FreeSWITCH to start recording. mid[" + fc.meetingId + "]")
         fsproxy.startRecording(fc.conferenceNum, fc.meetingId)
       }
     }
@@ -94,9 +94,9 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     
     fsconf foreach {fc => 
       fc.addUser(msg.user)
-//      println("Web user has left voice. mid[" + fc.meetingId + "] wid=[" + msg.user.userID + "], vid=[" + msg.user.voiceUser.userId + "]")
+      println("Web user has left voice. mid[" + fc.meetingId + "] wid=[" + msg.user.userID + "], vid=[" + msg.user.voiceUser.userId + "]")
       if (fc.numUsersInVoiceConference == 0 && fc.recorded) {
-        println("Meeting is recorded. No more users in voice conference. Tell FreeSWITCH to stop recording.")
+        println("Meeting is recorded. No more users in voice conference. Tell FreeSWITCH to stop recording. mid[" + fc.meetingId + "]")
         fsproxy.stopRecording(fc.conferenceNum)
       }
     }
@@ -153,7 +153,16 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
   private def handleFsRecording(msg: FsRecording) {
     val fsconf = confs.values find (c => c.conferenceNum == msg.conference)
     fsconf foreach {fc => 
-      bbbInGW.voiceRecording(fc.meetingId, msg.recordingFile, msg.timestamp, msg.recording) 
+      // Need to filter recording events here to not have duplicate events
+      if (! fc.isRecording && msg.recording) {
+        // 
+        fc.recordingStarted
+        bbbInGW.voiceRecording(fc.meetingId, msg.recordingFile, msg.timestamp, msg.recording)
+      } else if (fc.isRecording && ! msg.recording) {
+        fc.recordingStopped
+        bbbInGW.voiceRecording(fc.meetingId, msg.recordingFile, msg.timestamp, msg.recording)
+      }
+       
     }
   }
   
