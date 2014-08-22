@@ -9,7 +9,7 @@ class @WhiteboardTextModel extends WhiteboardToolModel
 
   # Make a text on the whiteboard
   make: (startingData) ->
-    console.log "making a text:" + JSON.stringify startingData
+    #console.log "making text:" + JSON.stringify startingData
 
     x = startingData.x
     y = startingData.y
@@ -42,7 +42,7 @@ class @WhiteboardTextModel extends WhiteboardToolModel
   # Update text shape drawn
   # @param  {object} the object containing the shape info
   update: (startingData) ->
-    console.log "updating text" + JSON.stringify startingData
+    #console.log "updating text" + JSON.stringify startingData
 
     x = startingData.x
     y = startingData.y
@@ -53,8 +53,6 @@ class @WhiteboardTextModel extends WhiteboardToolModel
     calcFontSize = startingData.calcedFontSize
     myText = startingData.text
 
-    svgNS = "http://www.w3.org/2000/svg"
-
     if @obj?
       @definition.data = [x, y, maxWidth, height, colour, fontSize, calcFontSize, myText]
 
@@ -63,27 +61,29 @@ class @WhiteboardTextModel extends WhiteboardToolModel
       maxWidth = maxWidth/100 * @gw
 
       @obj.attr
-        fill: "#000" #Meteor.call("strokeAndThickness",colour, false)
+        fill: "#000"
         "font-size": calcFontSize
       cell = @obj.node
       while cell? and cell.hasChildNodes()
         cell.removeChild(cell.firstChild)
+
+      # used code from textFlow lib http://www.carto.net/papers/svg/textFlow/
+      # but had to merge it here because "cell" was bigger than what the stack could take
 
       #extract and add line breaks for start
       dashArray = new Array()
       dashFound = true
       indexPos = 0
       cumulY = 0
+      svgNS = "http://www.w3.org/2000/svg"
       while dashFound is true
         result = myText.indexOf("-", indexPos)
         if result is -1
-          
           #could not find a dash
           dashFound = false
         else
           dashArray.push result
           indexPos = result + 1
-      
       #split the text at all spaces and dashes
       words = myText.split(/[\s-]/)
       line = ""
@@ -92,7 +92,6 @@ class @WhiteboardTextModel extends WhiteboardToolModel
       computedTextLength = 0
       myTextNode = undefined
       tspanEl = undefined
-      lastLineBreak = 0
       i = 0
       while i < words.length
         word = words[i]
@@ -142,7 +141,6 @@ class @WhiteboardTextModel extends WhiteboardToolModel
   checkDashPosition = (dashArray, pos) ->
     result = false
     i = 0
-
     while i < dashArray.length
       result = true  if dashArray[i] is pos
       i++
