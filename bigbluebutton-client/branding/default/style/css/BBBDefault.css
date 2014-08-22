@@ -36,7 +36,7 @@ ToolTip {
 }
 
 .whiteboardToolbarStyle {
-  backgroundColor: #CCCCCC;
+  backgroundColor: #FF0000FF;
   cornerRadius: 5;
   borderStyle: solid;
   borderThickness: 1;
