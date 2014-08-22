@@ -5,6 +5,7 @@ body {
     color: #666666;
     height:100%;
     left:0;
+    min-width: 768px;
     position:absolute;
     right:0;
     top:0;   
