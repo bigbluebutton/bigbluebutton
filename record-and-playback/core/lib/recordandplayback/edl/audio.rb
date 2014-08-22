@@ -96,7 +96,7 @@ module BigBlueButton
             BigBlueButton.logger.info "  Using input #{audio[:filename]}"
             ffmpeg_inputs << {
               :filename => audio[:filename],
-              :seek => entry[:timestamp]
+              :seek => audio[:timestamp]
             }
 
             filter = "[#{input_index}] "
