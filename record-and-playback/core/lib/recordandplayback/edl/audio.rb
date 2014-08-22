@@ -134,7 +134,7 @@ module BigBlueButton
           ffmpeg_filter << " concat=n=#{output_index}:a=1:v=0"
         else
           # Only one input, no need for concat filter
-          ffmpeg_filter << " ; [out#{i}] anull"
+          ffmpeg_filter << " ; [out0] anull"
         end
 
         ffmpeg_cmd += ['-filter_complex', ffmpeg_filter]
