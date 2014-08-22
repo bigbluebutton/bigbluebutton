@@ -127,10 +127,15 @@ module BigBlueButton
         end
         ffmpeg_filter = ffmpeg_filters.join(' ; ')
 
-        # Add the final concat filter
-        ffmpeg_filter << " ; "
-        (0...output_index).each { |i| ffmpeg_filter << "[out#{i}]" }
-        ffmpeg_filter << " concat=n=#{output_index}:a=1:v=0"
+        if output_index > 1
+          # Add the final concat filter
+          ffmpeg_filter << " ; "
+          (0...output_index).each { |i| ffmpeg_filter << "[out#{i}]" }
+          ffmpeg_filter << " concat=n=#{output_index}:a=1:v=0"
+        else
+          # Only one input, no need for concat filter
+          ffmpeg_filter << " ; [out0] anull"
+        end
 
         ffmpeg_cmd += ['-filter_complex', ffmpeg_filter]
 
