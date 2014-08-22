@@ -52,6 +52,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var recordingFlag:Boolean;
 			private var firstAudioJoin:Boolean = true;
 			
+			[Embed(source="/org/bigbluebutton/common/assets/images/record.png")]
+			private var recordReminderIcon:Class;
+
 			private function confirmChangeRecordingStatus():void {
         trace("Confirming recording status change!!!!");
         
@@ -132,6 +135,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function showRecordingNotification():void {
 				if (firstAudioJoin && this.visible && !this.selected && UserManager.getInstance().getConference().amIModerator()) {
 					var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.message1") + "\n\n" + ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.message2"), ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.title"), Alert.OK, this);
+					alert.titleIcon = recordReminderIcon;
 					
 					var newX:Number = this.x;
 					var newY:Number = this.y + this.height + 5;
