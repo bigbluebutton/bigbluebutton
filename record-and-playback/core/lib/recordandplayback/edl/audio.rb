@@ -94,17 +94,28 @@ module BigBlueButton
 
           if audio
             BigBlueButton.logger.info "  Using input #{audio[:filename]}"
-            ffmpeg_inputs << {
-              :filename => audio[:filename],
-              :seek => audio[:timestamp]
-            }
 
             filter = "[#{input_index}] "
 
             if entry[:original_duration] and ((entry[:original_duration] - audioinfo[audio[:filename]][:duration]).to_f / entry[:original_duration]).abs < 0.05
               speed = audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]
               BigBlueButton.logger.warn "  Audio file length mismatch, adjusting speed to #{speed}"
-              filter << "atempo=#{speed},"
+
+              # Have to calculate the start point after the atempo filter in this case,
+              # since it can affect the audio start time.
+              # Also reset the pts to start at 0, so the duration trim works correctly.
+              filter << "atempo=#{speed},atrim=start=#{ms_to_s(audio[:timestamp])},"
+              filter << "asetpts=PTS-STARTPTS,"
+
+              ffmpeg_inputs << {
+                :filename => audio[:filename],
+                :seek => 0
+              }
+            else
+              ffmpeg_inputs << {
+                :filename => audio[:filename],
+                :seek => audio[:timestamp]
+              }
             end
 
             filter << "#{FFMPEG_AFORMAT},apad,atrim=end=#{ms_to_s(duration)} [out#{output_index}]"
