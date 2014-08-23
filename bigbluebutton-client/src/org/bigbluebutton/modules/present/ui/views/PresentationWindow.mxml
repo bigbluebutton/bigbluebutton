@@ -72,7 +72,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import mx.containers.TitleWindow;
       import mx.core.Application;
       import mx.effects.Move;
-      import mx.events.ListEvent;
       import mx.events.ResizeEvent;
       import mx.managers.PopUpManager;
       import mx.rpc.events.*;     
@@ -149,7 +148,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 
 				bindKeyboardEvents();
 				this.addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
-				slideView.addEventListener(ListEvent.ITEM_ROLL_OVER, onItemRollOver);
 				resourcesChanged();
 				
 				titleBarOverlay.tabIndex = baseIndex;
@@ -246,10 +244,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				fitSlideToWindowMaintainingAspectRatio();
 				//Remove focus from the maximize button in case the user presses the space bar, the window doesn't get maximized again.	
 				stage.focus = this; 
-			}
-			
-			private function onItemRollOver(e:ListEvent):void{
-				this.displaySlideNumber(e.columnIndex + 1);
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {

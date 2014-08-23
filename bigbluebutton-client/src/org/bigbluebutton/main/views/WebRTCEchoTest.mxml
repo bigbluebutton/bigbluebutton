@@ -20,7 +20,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				xmlns:mate="http://mate.asfusion.com/" 
-				width="600" height="350" 
+				width="600" height="380" 
 				creationComplete="onCreationComplete()" 
 				styleName="micSettingsWindowStyle"
 				showCloseButton="false" 
