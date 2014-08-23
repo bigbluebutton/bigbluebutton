@@ -40,13 +40,13 @@ module BigBlueButton
 
       ogg_format = {
         :extension => 'ogg',
-        :parameters => [ [ '-c:a', 'libvorbis', '-b:a', '32K', '-f', 'ogg' ] ]
+        :parameters => [ [ '-c:a', 'libvorbis', '-b:a', '48K', '-f', 'ogg' ] ]
       }
       BigBlueButton::EDL.encode(wav_file, nil, ogg_format, file_basename)
 
       webm_format = {
         :extension => 'webm',
-        :parameters => [ [ '-c:a', 'libvorbis', '-b:a', '32K', '-f', 'webm' ] ]
+        :parameters => [ [ '-c:a', 'libvorbis', '-b:a', '48K', '-f', 'webm' ] ]
       }
       BigBlueButton::EDL.encode(wav_file, nil, webm_format, file_basename)
     end

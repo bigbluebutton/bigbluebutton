@@ -34,6 +34,10 @@ public class ParticipantsApplication {
 		bbbInGW.lowerHand(meetingId, userId, loweredBy);
 	}
 	
+	public void ejectUserFromMeeting(String meetingId, String userId, String ejectedBy) {
+		bbbInGW.ejectUserFromMeeting(meetingId, userId, ejectedBy);
+	}
+	
 	public void shareWebcam(String meetingId, String userId, String stream) {
 		bbbInGW.shareWebcam(meetingId, userId, stream);		
 	}

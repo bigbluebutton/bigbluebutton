@@ -106,10 +106,14 @@ trait UsersApp {
     }
   }
   
-  def handleEjectUserRequest(msg: EjectUserRequest) {
+  def handleEjectUserRequest(msg: EjectUserFromVoiceRequest) {
 //    println("Received eject user request uid=[" + msg.userID + "]")
-    users.getUser(msg.userID) match {
-      case Some(u) => outGW.send(new EjectVoiceUser(meetingID, recorded, msg.requesterID, u.userID))
+    users.getUser(msg.userId) match {
+      case Some(u) => {
+        if (u.voiceUser.joined) {
+          outGW.send(new EjectVoiceUser(meetingID, recorded, msg.ejectedBy, u.userID))
+        }      
+      }
       case None => // do nothing
     }
   }
@@ -175,6 +179,21 @@ trait UsersApp {
       val uvo = user.copy(raiseHand=false)
       users.addUser(uvo)
       outGW.send(new UserLoweredHand(meetingID, recorded, uvo.userID, msg.loweredBy))
+    }    
+  }
+  
+  def handleEjectUserFromMeeting(msg: EjectUserFromMeeting) {
+    users.getUser(msg.userId) foreach {user =>
+      if (user.voiceUser.joined) {
+        outGW.send(new EjectVoiceUser(meetingID, recorded, msg.ejectedBy, msg.userId))
+      }
+      
+      users.removeUser(msg.userId)
+      
+      outGW.send(new UserEjectedFromMeeting(meetingID, recorded, msg.userId, msg.ejectedBy))
+      outGW.send(new DisconnectUser(meetingID, msg.userId))
+      
+      outGW.send(new UserLeft(msg.meetingID, recorded, user))
     }    
   }
 

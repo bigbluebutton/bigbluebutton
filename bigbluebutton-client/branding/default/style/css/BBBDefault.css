@@ -378,7 +378,7 @@ DataGrid {
   fontWeight: bold;
 }
 
-.presentationUploadChooseFileLabelStyle, .presentationNamesLabelStyle {
+.presentationNamesLabelStyle {
   fontFamily: Arial;
   fontSize: 14;  
   fontWeight: bold;
@@ -438,10 +438,6 @@ DataGrid {
 }
 
 .presentationUploadFileFormatHintBoxStyle {
-	borderColor: #707070;
-	borderAlpha: 1;
-	borderThickness: 2;
-	borderStyle: "solid";
 	backgroundColor: #D4D4D4;
 	dropShadowEnabled: false;
 	paddingLeft: 10;

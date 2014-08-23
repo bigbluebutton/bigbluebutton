@@ -159,6 +159,8 @@ case class UserLeft(
   version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
+case class UserEjectedFromMeeting(meetingID: String, recorded: Boolean, userId: String, ejectedBy: String, version:String = Versions.V_0_0_1) extends IOutMessage
+
 case class PresenterAssigned(
     meetingID: String, 
     recorded: Boolean, 

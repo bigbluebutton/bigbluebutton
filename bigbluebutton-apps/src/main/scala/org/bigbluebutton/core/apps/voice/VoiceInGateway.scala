@@ -25,10 +25,10 @@ class VoiceInGateway(bbbGW: BigBlueButtonGateway) {
 	  bbbGW.accept(new LockUserRequest(meetingID, requesterID, userID, lock))
 	}
 	
-	def ejectUser(meetingID: String, requesterID: String, userID: String) {
-	  bbbGW.accept(new EjectUserRequest(meetingID, requesterID, userID))
+	def ejectUserFromVoice(meetingID: String, userId: String, ejectedBy: String) {
+	  bbbGW.accept(new EjectUserFromVoiceRequest(meetingID, userId, ejectedBy))
 	}
-	
+			
 	def voiceUserJoined(meetingId: String, userId: String, webUserId: String, 
 	                            conference: String, callerIdNum: String, 
 	                            callerIdName: String,

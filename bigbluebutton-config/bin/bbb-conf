@@ -170,8 +170,8 @@ usage() {
         echo "   --zip                            Zip up log files for reporting an error"
         echo
         echo "Testing:"
-        echo "   --enablewebrtc                   Enables webrtc feature in the server"
-        echo "   --disablewebrtc                  Disables webrtc feature in the server"
+        echo "   --enablewebrtc                   Enables WebRTC audio in the server"
+        echo "   --disablewebrtc                  Disables WebRTC audio in the server"
 
         echo
 }
@@ -283,6 +283,8 @@ start_bigbluebutton () {
                 done
         fi
 
+	sleep 2
+
 	BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
         if ! wget http://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
                 echo "Startup unsuccessful: could not connect to http://$BBB_WEB/bigbluebutton/api"
@@ -300,42 +302,42 @@ display_bigbluebutton_status () {
 }
 
 enable_webrtc(){
-	# Set server ip address in freeswitch
+	# Set server ip address in FreeSWITCH
 	sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=$IP\"/>@g"  /opt/freeswitch/conf/vars.xml
 
 	# Set server ip address in red5 sip app. For flash client.
 	sed -i "s/bbb.sip.app.ip=.*/bbb.sip.app.ip=$IP/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
 	sed -i "s/freeswitch.ip=.*/freeswitch.ip=$IP/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
 
-	# Enable webrtc in the client
+	# Enable WebRTC in the client
 	sed -i "s@useWebrtcIfAvailable=\".*\"@useWebrtcIfAvailable=\"true\"@g" /var/www/bigbluebutton/client/conf/config.xml
 
-	# Enable port 5066 in freeswitch
+	# Enable port 5066 in FreeSWITCH
 	sed -i "s@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@<param name=\"ws-binding\"  value=\":5066\"/>@g" /opt/freeswitch/conf/sip_profiles/external.xml
 
 	echo 
-	echo "WebRTC enabled.  To apply settings to your server, do"
+	echo "WebRTC audio enabled.  To apply settings to your server, do"
 	echo 
 	echo "   sudo bbb-conf --clean"
 	echo 
 }
 
 disable_webrtc(){
-	# Set 127.0.0.1 in freeswitch
+	# Set 127.0.0.1 in FreeSWITCH
 	sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=127.0.0.1\"/>@g"  /opt/freeswitch/conf/vars.xml
 
 	# Set 127.0.0.1 in red5 sip app. For flash client.
 	sed -i "s/bbb.sip.app.ip=.*/bbb.sip.app.ip=127.0.0.1/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
 	sed -i "s/freeswitch.ip=.*/freeswitch.ip=127.0.0.1/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
 
-	# Disable webrtc in the client
+	# Disable WebRTC in the client
 	sed -i "s@useWebrtcIfAvailable=\".*\"@useWebrtcIfAvailable=\"false\"@g" /var/www/bigbluebutton/client/conf/config.xml
 
-	# Disable port 5066 in freeswitch
+	# Disable port 5066 in FreeSWITCH
 	sed -i "s@<param name=\"ws-binding\"  value=\":5066\"/>@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@g" /opt/freeswitch/conf/sip_profiles/external.xml
 
 	echo 
-	echo "WebRTC disabled.  To apply settings to your server, do"
+	echo "WebRTC audio disabled.  To apply settings to your server, do"
 	echo 
 	echo "   sudo bbb-conf --clean"
 	echo 
@@ -1177,7 +1179,7 @@ if [ $CHECK ]; then
 	echo "/opt/freeswitch/conf/sip_profiles/external.xml (FreeSWITCH)"
 	echo "                    websocket port: $WEBRTC_SOCKET"	
 	WEBRTC_ENABLED=$(grep -i webrtc /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
-	echo "                    webrtc enabled: $WEBRTC_ENABLED"	
+	echo "                    WebRTC enabled: $WEBRTC_ENABLED"	
 
 #        HOST=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/recordingHost/{s/.*recordingHost="http:\/\///;s/"//;p}')
 #        echo "          host for bbb-web interface: $HOST"

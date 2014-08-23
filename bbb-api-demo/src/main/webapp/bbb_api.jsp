@@ -49,7 +49,7 @@
 //    - metadata
 //    - xml (for pre-upload of slides)
 //
-public String createMeeting(String meetingID, String welcome, String moderatorPassword, String viewerPassword, Integer voiceBridge, String logoutURL) {
+public String createMeeting(String meetingID, String welcome, String moderatorPassword, String moderatorWelcomeMsg, String viewerPassword, Integer voiceBridge, String logoutURL) {
 	String base_url_create = BigBlueButtonURL + "api/create?";
 
 	String welcome_param = "";
@@ -59,6 +59,7 @@ public String createMeeting(String meetingID, String welcome, String moderatorPa
 	String moderator_password_param = "&moderatorPW=mp";
 	String voice_bridge_param = "";
 	String logoutURL_param = "";
+	String moderatorWelcomeMsg_param = "";
 
 	if ((welcome != null) && !welcome.equals("")) {
 		welcome_param = "&welcome=" + urlEncode(welcome);
@@ -66,6 +67,10 @@ public String createMeeting(String meetingID, String welcome, String moderatorPa
 
 	if ((moderatorPassword != null) && !moderatorPassword.equals("")) {
 		moderator_password_param = "&moderatorPW=" + urlEncode(moderatorPassword);
+	}
+
+	if ((moderatorWelcomeMsg != null) && !moderatorWelcomeMsg.equals("")) {
+		moderatorWelcomeMsg_param = "&moderatorOnlyMessage=" + urlEncode(moderatorWelcomeMsg);
 	}
 
 	if ((viewerPassword != null) && !viewerPassword.equals("")) {
@@ -92,7 +97,7 @@ public String createMeeting(String meetingID, String welcome, String moderatorPa
 	String create_parameters = "name=" + urlEncode(meetingID)
 		+ "&meetingID=" + urlEncode(meetingID) + welcome_param
 		+ attendee_password_param + moderator_password_param
-		+ voice_bridge_param + logoutURL_param;
+		+ moderatorWelcomeMsg_param + voice_bridge_param + logoutURL_param;
 
 	Document doc = null;
 
@@ -131,7 +136,7 @@ public String getJoinMeetingURL(String username, String meetingID, String passwo
 
 	String join_parameters = "meetingID=" + urlEncode(meetingID)
 		+ "&fullName=" + urlEncode(username) + "&password="
-		+ urlEncode(password) + clientURL_param;
+		+ urlEncode(password) +  clientURL_param;
 
 	return base_url_join + join_parameters + "&checksum="
 		+ checksum("join" + join_parameters + salt);
