@@ -766,7 +766,7 @@ check_state() {
         if ! ps aux | grep -v grep | grep '[/]usr/lib/openoffice/program/soffice.bin' > /dev/null; then
                 if ! ps aux | grep -v grep | grep '[/]usr/lib/libreoffice/program/soffice.bin' > /dev/null; then
                         print_header
-                        NOT_RUNNING_APPS="${NOT_RUNNING_APPS} OpenOffice or LibreOffice"
+                        NOT_RUNNING_APPS="${NOT_RUNNING_APPS} LibreOffice (check again in a minute as monit may not have started it yet)"
                 fi
         else
                 RUNNING_APPS="${RUNNING_APPS} OpenOffice"
@@ -1082,8 +1082,8 @@ check_state() {
                 echo
         fi
 
-        if (( $MEM < 1975 )); then
-		echo "# Warning: You are running BigBlueButton on a server with less than 2G of memory.  Your"
+        if (( $MEM < 3975 )); then
+		echo "# Warning: You are running BigBlueButton on a server with less than 4G of memory.  Your"
 		echo "# performance may suffer."
                 echo
 	fi
