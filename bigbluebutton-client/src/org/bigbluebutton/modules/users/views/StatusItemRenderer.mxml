@@ -92,7 +92,7 @@
 	  			if (data != null) {
 	  				if (rolledOver && data.raiseHand) {
 						roleBtn.setStyle("icon", images.hand_new);
-						roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.lowerHand');
+						roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.lowerHand') + " - " + data.raiseHandTime.hours + ":" + data.raiseHandTime.minutes + ":" + data.raiseHandTime.seconds;
 						roleImg.visible = false;
 						roleBtn.visible = true;
 						roleBtn.enabled = true;
@@ -104,7 +104,7 @@
 						roleBtn.enabled = true;
 					} else if (data.raiseHand) {
 						roleImg.source = images.hand_new;
-						roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.handRaised');
+						roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.handRaised') + " - " + data.raiseHandTime.hours + ":" + data.raiseHandTime.minutes + ":" + data.raiseHandTime.seconds;
 						roleImg.visible = true;
 						roleBtn.visible = false;
 						roleBtn.enabled = false;

@@ -169,10 +169,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }
 			}
 			
-			private function changeIndex(e:ListEvent):void {
-				dispatchEvent(e);
-			}
-			
 			private var prevMouseX:Number;
 			private	var prevMouseY:Number;
 			
@@ -526,7 +522,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                          completeEffect="Fade" />
    		
    <mx:HorizontalList id="thumbnailView" itemRenderer="org.bigbluebutton.modules.present.ui.views.Thumbnail" 
-                       itemRollOver="changeIndex(event)" 
     	                 visible="false" width="100%" height="100" 
                        y="{this.height - 100}" change="changeSlide()" />
 		      		 

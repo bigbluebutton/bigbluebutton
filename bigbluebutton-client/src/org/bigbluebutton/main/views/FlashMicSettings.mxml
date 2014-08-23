@@ -20,7 +20,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				xmlns:mate="http://mate.asfusion.com/" 
-				width="600" height="400" 
+				width="600" height="380" 
 				creationComplete="onCreationComplete()" 
 				styleName="micSettingsWindowStyle"
 				showCloseButton="false" 
@@ -406,14 +406,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           			   height="22" click="onHelpButtonClicked()" tabIndex="{baseIndex+1}"
           			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
 		    </mx:Canvas>
-        <mx:HBox width="100%">
+        <mx:HBox width="100%" id="displayMicNextToThis">
           <mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.recommendHeadset')}"
                    styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		
           <mx:Image source="@Embed('assets/headset-earbuds.png')"/>          
         </mx:HBox>
-	  
-        <mx:HRule id="displayMicNextToThis" width="100%"/>
-
     
     
         <!-- Play Sound, Join and Cancel buttons -->
