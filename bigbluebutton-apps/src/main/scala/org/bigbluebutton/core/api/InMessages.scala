@@ -113,7 +113,9 @@ case class UserLowerHand(
     userId: String, 
     loweredBy: String
 ) extends InMessage
-                         
+
+case class EjectUserFromMeeting(meetingID: String, userId: String, ejectedBy: String) extends InMessage
+
 case class UserShareWebcam(
     meetingID: String, 
     userId: String, 
@@ -411,10 +413,10 @@ case class LockUserRequest(
     userID: String, 
     lock: Boolean) extends InMessage
     
-case class EjectUserRequest(
+case class EjectUserFromVoiceRequest(
     meetingID: String, 
-    requesterID: String, 
-    userID: String) extends InMessage
+    userId: String, 
+    ejectedBy: String) extends InMessage
     
 case class VoiceUserJoinedMessage(
     meetingID: String,

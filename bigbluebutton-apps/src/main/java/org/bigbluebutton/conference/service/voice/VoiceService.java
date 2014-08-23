@@ -89,11 +89,11 @@ public class VoiceService {
 		bbbInGW.lockUser(meetingID, requesterID, userid, lock); 
 	}
 	
-	public void kickUSer(Map<String, Object> msg) {
-		String userid = (String) msg.get("userId");
+	public void ejectUserFromVoice(Map<String, Object> msg) {
+		String userId = (String) msg.get("userId");
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
-		String requesterID = getBbbSession().getInternalUserID();		
-		bbbInGW.ejectUser(meetingID, requesterID, userid); 	
+		String ejectedBy = getBbbSession().getInternalUserID();		
+		bbbInGW.ejectUserFromVoice(meetingID, userId, ejectedBy); 	
 		
 	}
 		

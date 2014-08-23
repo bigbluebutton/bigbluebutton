@@ -84,7 +84,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: IsMeetingMutedRequest         => handleIsMeetingMutedRequest(msg)
         case msg: MuteUserRequest               => handleMuteUserRequest(msg)
         case msg: LockUserRequest               => handleLockUserRequest(msg)
-        case msg: EjectUserRequest              => handleEjectUserRequest(msg)
+        case msg: EjectUserFromVoiceRequest     => handleEjectUserFromVoiceRequest(msg)
         case msg: VoiceUserJoinedMessage        => handleVoiceUserJoinedMessage(msg)
         case msg: VoiceUserJoined               => handleVoiceUserJoined(msg)
         case msg: VoiceUserLeft                 => handleVoiceUserLeft(msg)
@@ -1102,11 +1102,11 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     dispatcher.dispatch(buildJson(header, payload))
   }
   
-  private def handleEjectUserRequest(msg: EjectUserRequest) {
+  private def handleEjectUserFromVoiceRequest(msg: EjectUserFromVoiceRequest) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.REQUESTER_ID, msg.requesterID) 
-    payload.put(Constants.USER_ID, msg.userID)
+    payload.put(Constants.REQUESTER_ID, msg.ejectedBy) 
+    payload.put(Constants.USER_ID, msg.userId)
     
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.EJECT_USER)
