@@ -313,6 +313,10 @@ package org.bigbluebutton.modules.deskshare.services.red5
       nc.call("deskshare.startedToViewStream", null, stream);
     }
     
+    public function stopSharingDesktop(meetingId: String, stream: String):void {
+      nc.call("deskshare.stopSharingDesktop", null, meetingId);
+    }
+    
     /**
      * Called by the server when a notification is received to start viewing the broadcast stream .
      * This method is called on successful execution of sendStartViewingNotification()
