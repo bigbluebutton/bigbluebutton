@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.bigbluebutton.deskshare.common.Dimension;
 import org.bigbluebutton.deskshare.server.session.ISessionManagerGateway;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -48,11 +49,14 @@ public class HttpTunnelStreamController extends MultiActionController {
 			handleCaptureStartRequest(request, response);
 		} else if (1 == captureRequest) {
 			handleCaptureUpdateRequest(request, response);
+			if (isSharingStopped(request, response)) {
+				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			}			
 		} else if (2 == captureRequest) {
 			handleCaptureEndRequest(request, response);
 		} else if (3 == captureRequest) {
 			handleUpdateMouseLocationRequest(request, response);
-		} else {
+		} else {		
 			System.out.println("****Cannot handle screen capture event " + captureRequest);
 		}
 		return null;
@@ -70,6 +74,11 @@ public class HttpTunnelStreamController extends MultiActionController {
 			hasSessionManager = true;
 		}
 		sessionManager.updateMouseLocation(room, loc, Integer.parseInt(seqNum));		
+	}
+	
+	private Boolean isSharingStopped(HttpServletRequest request, HttpServletResponse response) throws Exception {		
+		String room = request.getParameterValues("room")[0];
+		return sessionManager.isSharingStopped(room);
 	}
 	
 	private void handleCaptureStartRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {		
