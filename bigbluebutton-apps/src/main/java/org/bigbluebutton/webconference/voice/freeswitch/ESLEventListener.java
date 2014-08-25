@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.bigbluebutton.webconference.voice.events.ConferenceEventListener;
 import org.bigbluebutton.webconference.voice.events.VoiceUserJoinedEvent;
 import org.bigbluebutton.webconference.voice.events.VoiceUserLeftEvent;
@@ -59,7 +58,7 @@ public class ESLEventListener implements IEslEventListener {
 
         String voiceUserId = callerIdName;
         
-        System.out.println("******************** Received Conference Join Event from FreeSWITCH user[" + callerIdName + "]");
+        log.info("User joined voice conference, user=[" + callerIdName + "], conf=[" + confName + "]");
         
         Matcher gapMatcher = GLOBAL_AUDION_PATTERN.matcher(callerIdName);
         if (gapMatcher.matches()) {
@@ -80,7 +79,7 @@ public class ESLEventListener implements IEslEventListener {
     @Override
     public void conferenceEventLeave(String uniqueId, String confName, int confSize, EslEvent event) {   	
         Integer memberId = this.getMemberIdFromEvent(event);
-        System.out.println("******************** Received Conference Leave Event from FreeSWITCH user[" + memberId.toString() + "]");
+        log.info("User left voice conference, user=[" + memberId.toString() + "], conf=[" + confName + "]");
         VoiceUserLeftEvent pl = new VoiceUserLeftEvent(memberId.toString(), confName);
         conferenceEventListener.handleConferenceEvent(pl);
     }
@@ -89,6 +88,7 @@ public class ESLEventListener implements IEslEventListener {
     public void conferenceEventMute(String uniqueId, String confName, int confSize, EslEvent event) {
         Integer memberId = this.getMemberIdFromEvent(event);
         System.out.println("******************** Received Conference Muted Event from FreeSWITCH user[" + memberId.toString() + "]");
+        log.info("User muted voice conference, user=[" + memberId.toString() + "], conf=[" + confName + "]");
         VoiceUserMutedEvent pm = new VoiceUserMutedEvent(memberId.toString(), confName, true);
         conferenceEventListener.handleConferenceEvent(pm);
     }
@@ -97,6 +97,7 @@ public class ESLEventListener implements IEslEventListener {
     public void conferenceEventUnMute(String uniqueId, String confName, int confSize, EslEvent event) {
         Integer memberId = this.getMemberIdFromEvent(event);
         System.out.println("******************** Received ConferenceUnmuted Event from FreeSWITCH user[" + memberId.toString() + "]");
+        log.info("User unmuted voice conference, user=[" + memberId.toString() + "], conf=[" + confName + "]");
         VoiceUserMutedEvent pm = new VoiceUserMutedEvent(memberId.toString(), confName, false);
         conferenceEventListener.handleConferenceEvent(pm);
     }
@@ -150,8 +151,7 @@ public class ESLEventListener implements IEslEventListener {
             sre.setRecordingFilename(getRecordFilenameFromEvent(event));
             sre.setTimestamp(genTimestamp().toString());
             
-            if (log.isDebugEnabled())
-            	log.debug("******************** Processing conference event - action: {} time: {} file: {}", new Object[] {action,  sre.getTimestamp(), sre.getRecordingFilename()});
+            log.info("Voice conference recording started. file=[" + getRecordFilenameFromEvent(event) + "], conf=[" + confName + "]");
             
             conferenceEventListener.handleConferenceEvent(sre);    		
     	} else if (action.equals(STOP_RECORDING_EVENT)) {
@@ -159,9 +159,7 @@ public class ESLEventListener implements IEslEventListener {
             srev.setRecordingFilename(getRecordFilenameFromEvent(event));
             srev.setTimestamp(genTimestamp().toString());
             
-            if (log.isDebugEnabled())
-            	log.debug("******************** Processing conference event - action: {} time: {} file: {}", new Object[] {action,  srev.getTimestamp(), srev.getRecordingFilename()});
-            
+            log.info("Voice conference recording stopped. file=[" + getRecordFilenameFromEvent(event) + "], conf=[" + confName + "]");           
             conferenceEventListener.handleConferenceEvent(srev);    		
     	} else {
         	if (log.isDebugEnabled())
