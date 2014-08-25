@@ -617,6 +617,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<views:LanguageSelector id="langSelector" 
 				visible="false" 
 				height="20"
+				width="180"
 				accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"
 				styleName="languageSelectorStyle" />
 		<mx:Button

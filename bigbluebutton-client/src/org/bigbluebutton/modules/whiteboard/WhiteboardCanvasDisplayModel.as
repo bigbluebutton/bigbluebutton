@@ -469,15 +469,6 @@ package org.bigbluebutton.modules.whiteboard
       if (event.keyCode  == Keyboard.DELETE || event.keyCode  == Keyboard.BACKSPACE || event.keyCode  == Keyboard.ENTER) { 
         var sendStatus:String = TextObject.TEXT_UPDATED;
         var tobj:TextObject = event.target as TextObject;  
-        
-        // if the enter key is pressed, commit the text
-        if (event.keyCode  == Keyboard.ENTER) {
-          wbCanvas.stage.focus = null;
-          tobj.stage.focus = null;
-                    
-                    // The ENTER/RETURN key has been pressed. Publish the text.                   
-                    sendStatus = TextObject.TEXT_PUBLISHED;
-        }
         sendTextToServer(sendStatus, tobj);  
       }         
     }
