@@ -275,6 +275,9 @@
           trace(LOG + "Successfully called into the echo test application.");
           dispatcher.dispatchEvent(new FlashEchoTestStartedEvent());
           break;
+        default:
+          trace(LOG + "unhandled state: " + state);
+          break;
       }      
     }
 
@@ -303,6 +306,9 @@
           state = INITED;
           trace(LOG + "Unsuccessfully called into the echo test application.");
           dispatcher.dispatchEvent(new FlashEchoTestFailedEvent());
+          break;
+        default:
+          trace(LOG + "unhandled state: " + state);
           break;
       }
     }
@@ -359,6 +365,9 @@
             break;
           case CALL_TO_LISTEN_ONLY_STREAM:
             callToListenOnlyStream();
+            break;
+          default:
+            trace(LOG + "unhandled state: " + state);
             break;
         }
       }
