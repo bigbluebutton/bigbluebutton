@@ -40,6 +40,6 @@
              click="showPresentation()" enabled="true"/>
   <mx:Button id="deleteBtn" label="" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.deleteBtn.toolTip')}" 
              styleName="presentationUploadDeleteButtonStyle"
-             click="deletePresentation()" enabled="true"/>
+             click="deletePresentation()" visible="{String(data.name) != 'default.pdf'}"/>
   
 </mx:HBox>
