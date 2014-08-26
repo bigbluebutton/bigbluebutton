@@ -19,7 +19,7 @@ class FreeswitchConference(val conferenceNum: String,
   }
   
   def getWebUser(webUserId: String):Option[UserVO] = {
-    users.values find (u => (u.externUserID == webUserId))  
+    users.values find (u => (u.userID == webUserId))  
   }
   
   def getVoiceUser(voiceUserId: String):Option[UserVO] = {
