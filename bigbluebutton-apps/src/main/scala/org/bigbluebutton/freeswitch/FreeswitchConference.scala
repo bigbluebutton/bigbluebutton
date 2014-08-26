@@ -17,7 +17,11 @@ class FreeswitchConference(val conferenceNum: String,
   def removeUser(user: UserVO) {
     users -= user.userID
   }
-  
+
+  def getWebUserUsingExtId(webUserId: String):Option[UserVO] = {
+    users.values find (u => (u.externUserID == webUserId))  
+  }
+    
   def getWebUser(webUserId: String):Option[UserVO] = {
     users.values find (u => (u.userID == webUserId))  
   }
