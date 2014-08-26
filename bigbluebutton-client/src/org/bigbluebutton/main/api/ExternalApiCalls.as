@@ -141,20 +141,18 @@ package org.bigbluebutton.main.api
     }
     
     public function handleBroadcastStartedEvent(event:BroadcastStartedEvent):void {
-      var vidConf:VideoConfOptions = new VideoConfOptions();
-      
       var payload:Object = new Object();
       payload.eventName = EventConstants.BROADCASTING_CAM_STARTED;
       payload.isPresenter = UsersUtil.amIPresenter();
       payload.streamName = event.stream;
       payload.isPublishing = event.camSettings.isPublishing;
       payload.camIndex = event.camSettings.camIndex;
-      payload.camWidth = event.camSettings.camWidth;
-      payload.camHeight = event.camSettings.camHeight;
-      payload.camKeyFrameInterval = vidConf.camKeyFrameInterval;
-      payload.camModeFps = vidConf.camModeFps;
-      payload.camQualityBandwidth = vidConf.camQualityBandwidth;
-      payload.camQualityPicture = vidConf.camQualityPicture;
+      payload.camWidth = event.camSettings.videoProfile.width;
+      payload.camHeight = event.camSettings.videoProfile.height;
+      payload.camKeyFrameInterval = event.camSettings.videoProfile.keyFrameInterval;
+      payload.camModeFps = event.camSettings.videoProfile.modeFps;
+      payload.camQualityBandwidth = event.camSettings.videoProfile.qualityBandwidth;
+      payload.camQualityPicture = event.camSettings.videoProfile.qualityPicture;
       payload.avatarURL = UsersUtil.getAvatarURL();
       
       broadcastEvent(payload);         
@@ -162,18 +160,17 @@ package org.bigbluebutton.main.api
     
     public function handleAmISharingCamQueryEvent(event:AmISharingWebcamQueryEvent):void {
       var camSettings:CameraSettingsVO = UsersUtil.amIPublishing();
-      var vidConf:VideoConfOptions = new VideoConfOptions();
       
       var payload:Object = new Object();
       payload.eventName = EventConstants.AM_I_SHARING_CAM_RESP;
       payload.isPublishing = camSettings.isPublishing;
       payload.camIndex = camSettings.camIndex;
-      payload.camWidth = camSettings.camWidth;
-      payload.camHeight = camSettings.camHeight;
-      payload.camKeyFrameInterval = vidConf.camKeyFrameInterval;
-      payload.camModeFps = vidConf.camModeFps;
-      payload.camQualityBandwidth = vidConf.camQualityBandwidth;
-      payload.camQualityPicture = vidConf.camQualityPicture;
+      payload.camWidth = camSettings.videoProfile.width;
+      payload.camHeight = camSettings.videoProfile.height;
+      payload.camKeyFrameInterval = camSettings.videoProfile.keyFrameInterval;
+      payload.camModeFps = camSettings.videoProfile.modeFps;
+      payload.camQualityBandwidth = camSettings.videoProfile.qualityBandwidth;
+      payload.camQualityPicture = camSettings.videoProfile.qualityPicture;
       payload.avatarURL = UsersUtil.getAvatarURL();
       
       broadcastEvent(payload);        

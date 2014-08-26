@@ -19,15 +19,22 @@
 package org.bigbluebutton.modules.videoconf.maps
 {
   import flash.events.IEventDispatcher;
-  import flash.media.Camera;  
-  import mx.collections.ArrayCollection;  
+  import flash.media.Camera;
+  
+  import mx.collections.ArrayCollection;
+  import mx.collections.ArrayList;
+  import mx.events.FlexEvent;
+  import mx.utils.ObjectUtil;
+  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.common.events.CloseWindowEvent;
   import org.bigbluebutton.common.events.OpenWindowEvent;
   import org.bigbluebutton.common.events.ToolbarButtonEvent;
+  import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.ConnectAppEvent;
   import org.bigbluebutton.core.managers.UserManager;
+  import org.bigbluebutton.core.model.VideoProfile;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -45,31 +52,39 @@ package org.bigbluebutton.modules.videoconf.maps
   import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
   import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
   import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
+  import org.bigbluebutton.modules.videoconf.events.StopShareCameraRequestEvent;
   import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
   import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
   import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
   import org.bigbluebutton.modules.videoconf.views.AvatarWindow;
+  import org.bigbluebutton.modules.videoconf.views.GraphicsWrapper;
   import org.bigbluebutton.modules.videoconf.views.PublishWindow;
-  import org.bigbluebutton.modules.videoconf.views.ToolbarButton;
+  import org.bigbluebutton.modules.videoconf.views.ToolbarPopupButton;
+  import org.bigbluebutton.modules.videoconf.views.UserAvatar;
+  import org.bigbluebutton.modules.videoconf.views.UserGraphic;
+  import org.bigbluebutton.modules.videoconf.views.UserGraphicHolder;
+  import org.bigbluebutton.modules.videoconf.views.UserVideo;
+  import org.bigbluebutton.modules.videoconf.views.VideoDock;
   import org.bigbluebutton.modules.videoconf.views.VideoWindow;
-  import org.flexunit.runner.manipulation.filters.IncludeAllFilter;
 
   public class VideoEventMapDelegate
   {
     private var options:VideoConfOptions = new VideoConfOptions();
     private var uri:String;
     
-    private var webcamWindows:WindowManager = new WindowManager();
-    
-    private var button:ToolbarButton = new ToolbarButton();	
+    private var button:ToolbarPopupButton = new ToolbarPopupButton();
     private var proxy:VideoProxy;
-    private var streamName:String;
     
     private var _dispatcher:IEventDispatcher;
     private var _ready:Boolean = false;
     private var _isPublishing:Boolean = false;
-	  private var _isPreviewWebcamOpen:Boolean = false;
-	  private var _isWaitingActivation:Boolean = false;
+    private var _isPreviewWebcamOpen:Boolean = false;
+    private var _isWaitingActivation:Boolean = false;
+
+    private var _videoDock:VideoDock;
+    private var _graphics:GraphicsWrapper = new GraphicsWrapper();
+    private var streamList:ArrayList = new ArrayList();
+    private var numberOfWindows:Object = new Object();
     
     public function VideoEventMapDelegate(dispatcher:IEventDispatcher)
     {
@@ -83,6 +98,13 @@ package org.bigbluebutton.modules.videoconf.maps
     public function start(uri:String):void {
       trace("VideoEventMapDelegate:: [" + me + "] Video Module Started.");
       this.uri = uri;
+
+      _videoDock = new VideoDock();
+      var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+      windowEvent.window = _videoDock;
+      _dispatcher.dispatchEvent(windowEvent);
+
+      _videoDock.addChild(_graphics);
     }
         
     public function viewCamera(userID:String, stream:String, name:String, mock:Boolean = false):void {
@@ -91,7 +113,7 @@ package org.bigbluebutton.modules.videoconf.maps
       if (!_ready) return;
       trace("VideoEventMapDelegate:: [" + me + "] Viewing [" + userID + " stream [" + stream + "]");
       if (! UserManager.getInstance().getConference().amIThisUser(userID)) {
-        openViewWindowFor(userID);			
+        openViewWindowFor(userID);
       }      
     }
 
@@ -134,7 +156,7 @@ package org.bigbluebutton.modules.videoconf.maps
         
         var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
         event.button = button;
-		    event.module="Webcam";
+        event.module="Webcam";
         _dispatcher.dispatchEvent(event);
       }
     }
@@ -143,7 +165,14 @@ package org.bigbluebutton.modules.videoconf.maps
       if (options.skipCamSettingsCheck) {
         skipCameraSettingsCheck();
       } else {
-        _dispatcher.dispatchEvent(new ShareCameraRequestEvent());	
+        var dp:Object = [];
+        for(var i:int = 0; i < Camera.names.length; i++) {
+          dp.push({label: Camera.names[i], status: button.OFF_STATE});    
+        }
+        button.enabled = false;
+        var shareCameraRequestEvent:ShareCameraRequestEvent = new ShareCameraRequestEvent();
+        shareCameraRequestEvent.camerasArray = dp;
+        _dispatcher.dispatchEvent(shareCameraRequestEvent);
       }
     }
 
@@ -158,35 +187,17 @@ package org.bigbluebutton.modules.videoconf.maps
       return null;
     }
     
-    private function getDefaultResolution(resolutions:String):Array {
-      var res:Array = resolutions.split(",");  
-      if (res.length > 0) {
-        var resStr:Array = (res[0] as String).split("x");
-        var resInts:Array = [Number(resStr[0]), Number(resStr[1])];
-        return resInts;
-      } else {
-        return [Number("320"), Number("240")];
-      }
-    }
-        
-    private function skipCameraSettingsCheck():void {     
+    private function skipCameraSettingsCheck(camIndex:int = -1):void {
+      if (camIndex == -1) {
         var cam:Camera = changeDefaultCamForMac();
         if (cam == null) {
           cam = Camera.getCamera();
         }
-        
-        var videoOptions:VideoConfOptions = new VideoConfOptions();
-        
-        var resolutions:Array = getDefaultResolution(videoOptions.resolutions);
-        var camWidth:Number = resolutions[0];
-        var camHeight:Number = resolutions[1];
-        trace("Skipping cam check. Using default resolution [" + camWidth + "x" + camHeight + "]");
-        cam.setMode(camWidth, camHeight, videoOptions.camModeFps);
-        cam.setMotionLevel(5, 1000);
-        cam.setKeyFrameInterval(videoOptions.camKeyFrameInterval);
-        
-        cam.setQuality(videoOptions.camQualityBandwidth, videoOptions.camQualityPicture);
-        initCameraWithSettings(cam.index, cam.width, cam.height);     
+        camIndex = cam.index;
+      }
+      
+      var videoProfile:VideoProfile = BBB.defaultVideoProfile;
+      initCameraWithSettings(camIndex, videoProfile);
     }
     
     private function openWebcamWindows():void {
@@ -206,7 +217,7 @@ package org.bigbluebutton.modules.videoconf.maps
       if (! UsersUtil.isMe(userID) && UsersUtil.hasWebcamStream(userID)) {
         trace("VideoEventMapDelegate:: [" + me + "] openWebcamWindowFor:: Not ME and user = [" + userID + "] is publishing.");
         
-        if (webcamWindows.hasWindow(userID)) {
+        if (hasWindow(userID)) {
           trace("VideoEventMapDelegate:: [" + me + "] openWebcamWindowFor:: user = [" + userID + "] has a window open. Close it.");
           closeWindow(userID);
         }
@@ -227,148 +238,157 @@ package org.bigbluebutton.modules.videoconf.maps
       }
     }
     
-    private function openAvatarWindowFor(userID:String):void {      
+    private function openAvatarWindowFor(userID:String):void {
       if (! UsersUtil.hasUser(userID)) return;
       
-      var window:AvatarWindow = new AvatarWindow();
-      window.userID = userID;
-      window.title = UsersUtil.getUserName(userID);
-     
-      trace("VideoEventMapDelegate:: [" + me + "] openAvatarWindowFor:: Closing window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
-      closeWindow(userID);
-            
-      webcamWindows.addWindow(window);        
-      
-      trace("VideoEventMapDelegate:: [" + me + "] openAvatarWindowFor:: Opening AVATAR window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
-      
-      openWindow(window);
-      dockWindow(window);          
+      closeAllAvatarWindows(userID);
+
+      _graphics.addAvatarFor(userID);
     }
     
-    private function openPublishWindowFor(userID:String, camIndex:int, camWidth:int, camHeight:int):void {
-      var publishWindow:PublishWindow = new PublishWindow();
-      publishWindow.userID = userID;
-      publishWindow.title = UsersUtil.getUserName(userID);
-      publishWindow.camIndex = camIndex;
-      publishWindow.setResolution(camWidth, camHeight);
-      publishWindow.videoOptions = options;
-      publishWindow.quality = options.videoQuality;
-      publishWindow.resolutions = options.resolutions.split(",");
-      
+    private function closeAllAvatarWindows(userID:String):void {
+      _graphics.removeAvatarFor(userID);
+    }
+    
+    private function openPublishWindowFor(userID:String, camIndex:int, videoProfile:VideoProfile):void {
+      closeAllAvatarWindows(userID);
 
-      trace("VideoEventMapDelegate:: [" + me + "] openPublishWindowFor:: Closing window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
-      closeWindow(userID);
+      _graphics.addCameraFor(userID, camIndex, videoProfile);
+    }
 
-      webcamWindows.addWindow(publishWindow);
-      
-      trace("VideoEventMapDelegate:: [" + me + "] openPublishWindowFor:: Opening PUBLISH window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
-      
-      openWindow(publishWindow);     
-      dockWindow(publishWindow);  
+    private function hasWindow(userID:String):Boolean {
+      return _graphics.hasGraphicsFor(userID);
     }
     
     private function closeWindow(userID:String):void {
-      if (! webcamWindows.hasWindow(userID)) {
-        trace("VideoEventMapDelegate:: [" + me + "] closeWindow:: No window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
-        return;
-      }
-      
-      var win:VideoWindowItf = webcamWindows.removeWindow(userID);
-      if (win != null) {
-        trace("VideoEventMapDelegate:: [" + me + "] closeWindow:: Closing [" + win.getWindowType() + "] for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
-        win.close();
-        var cwe:CloseWindowEvent = new CloseWindowEvent();
-        cwe.window = win;
-        _dispatcher.dispatchEvent(cwe);
-      } else {
-        trace("VideoEventMapDelegate:: [" + me + "] closeWindow:: Not Closing. No window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
-      }
+      _graphics.removeGraphicsFor(userID);
+    }
+
+    private function closePublishWindowWithStream(userID:String, stream:String):int {
+      return _graphics.removeVideoByStreamName(userID, stream);
     }
     
     private function openViewWindowFor(userID:String):void {
       trace("VideoEventMapDelegate:: [" + me + "] openViewWindowFor:: Opening VIEW window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
       
-      var window:VideoWindow = new VideoWindow();
-      window.userID = userID;
-      window.videoOptions = options;       
-      window.resolutions = options.resolutions.split(",");
-      window.title = UsersUtil.getUserName(userID);
-      
-      closeWindow(userID);
-            
-      var bbbUser:BBBUser = UsersUtil.getUser(userID);      
-      window.startVideo(proxy.connection, bbbUser.streamName);
-      
-      webcamWindows.addWindow(window);        
-      openWindow(window);
-      dockWindow(window);  
+      var bbbUser:BBBUser = UsersUtil.getUser(userID);
+      if (bbbUser.streamName != "") {
+        closeAllAvatarWindows(userID);
+      }
+      _graphics.addVideoFor(userID, proxy.connection);
     }
-    
-    private function openWindow(window:VideoWindowItf):void {
-      var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-      windowEvent.window = window;
-      _dispatcher.dispatchEvent(windowEvent);      
-    }
-    
-    private function dockWindow(window:VideoWindowItf):void {
-      // this event will dock the window, if it's enabled
-      var openVideoEvent:OpenVideoWindowEvent = new OpenVideoWindowEvent();
-      openVideoEvent.window = window;
-      _dispatcher.dispatchEvent(openVideoEvent);         
-    }
-    
+
     public function connectToVideoApp():void {
       proxy = new VideoProxy(uri);
       proxy.connect();
     }
     
     public function startPublishing(e:StartBroadcastEvent):void{
-	  LogUtil.debug("VideoEventMapDelegate:: [" + me + "] startPublishing:: Publishing stream to: " + proxy.connection.uri + "/" + e.stream);
-      streamName = e.stream;
+      LogUtil.debug("VideoEventMapDelegate:: [" + me + "] startPublishing:: Publishing stream to: " + proxy.connection.uri + "/" + e.stream);
       proxy.startPublishing(e);
       
-	  _isWaitingActivation = false;
+      _isWaitingActivation = false;
       _isPublishing = true;
       UsersUtil.setIAmPublishing(true);
       
       var broadcastEvent:BroadcastStartedEvent = new BroadcastStartedEvent();
-      broadcastEvent.stream = e.stream;
+      if(streamList.length == 0) {
+        streamList.addItem(e.stream);
+        broadcastEvent.stream = e.stream;
+      } else {
+        streamList.addItem(e.stream);
+        var myPattern:RegExp = /,/g;
+        broadcastEvent.stream = streamList.toString().replace(myPattern, "|");
+      }
       broadcastEvent.userid = UsersUtil.getMyUserID();
       broadcastEvent.isPresenter = UsersUtil.amIPresenter();
       broadcastEvent.camSettings = UsersUtil.amIPublishing();
       
       _dispatcher.dispatchEvent(broadcastEvent);
-	  if (proxy.videoOptions.showButton) {
-		  button.publishingStatus(button.START_PUBLISHING);
-	  }
+      if (proxy.videoOptions.showButton) {
+        button.publishingStatus(button.START_PUBLISHING);
+      }
     }
        
     public function stopPublishing(e:StopBroadcastEvent):void{
       trace("VideoEventMapDelegate:: [" + me + "] Stop publishing. ready = [" + _ready + "]"); 
-      stopBroadcasting();    
+      if(streamList.length <= 1) {
+        streamList.removeItem(e.stream);
+        setStopLastBroadcasting();
+        stopBroadcasting(e.stream);
+      } else {
+        stopOneStreamBroadCasting(e.stream);
+        streamList.removeItem(e.stream);
+        var broadcastStartEvent:BroadcastStartedEvent = new BroadcastStartedEvent();
+        var myPattern:RegExp = /,/g;
+        broadcastStartEvent.stream = streamList.toString().replace(myPattern, "|");
+        broadcastStartEvent.userid = UsersUtil.getMyUserID();
+        broadcastStartEvent.isPresenter = UsersUtil.amIPresenter();
+        UsersUtil.setIAmPublishing(true);
+        broadcastStartEvent.camSettings = UsersUtil.amIPublishing();
+        _dispatcher.dispatchEvent(broadcastStartEvent);
+      }
+      button.setCamAsInactive(e.camId);
     }
-    
-    private function stopBroadcasting():void {
-      trace("Stopping broadcast of webcam");
-      
-      proxy.stopBroadcasting();
-      
+
+    private function stopAllBroadcasting():void {
+      trace("[VideoEventMapDelegate:stopAllBroadcasting]");
+      setStopLastBroadcasting();
+      streamList = new ArrayList();
+      proxy.stopAllBroadcasting();
+
+      var userID:String = UsersUtil.getMyUserID();
+      _graphics.removeGraphicsFor(userID);
+
+      var broadcastEvent:BroadcastStoppedEvent = new BroadcastStoppedEvent();
+      broadcastEvent.stream = "";
+      broadcastEvent.userid = UsersUtil.getMyUserID();
+      broadcastEvent.avatarURL = UsersUtil.getAvatarURL();
+      _dispatcher.dispatchEvent(broadcastEvent);
+
+      if (proxy.videoOptions.showButton) {
+        //Make toolbar button enabled again
+        button.setAllCamAsInactive();
+      }
+      if (options.displayAvatar) {
+        trace("VideoEventMapDelegate:: [" + me + "] Opening avatar");
+        openAvatarWindowFor(UsersUtil.getMyUserID());              
+      }
+    }
+
+    private function setStopLastBroadcasting():void {
+      trace("[VideoEventMapDelegate:setStopLastBroadcasting]");
       _isPublishing = false;
       UsersUtil.setIAmPublishing(false);
+    }
+
+    private function stopOneStreamBroadCasting(stream:String):void {
+      proxy.stopBroadcasting(stream);
+      var camId:int = closePublishWindowWithStream(UsersUtil.getMyUserID(), stream);
+      
+      if (proxy.videoOptions.showButton) {
+        //Make toolbar button enabled again
+        button.publishingStatus(button.STOP_PUBLISHING, camId);
+      }
+    }
+    
+    private function stopBroadcasting(stream:String):void {
+      trace("Stopping broadcast of webcam");
+      
+      proxy.stopBroadcasting(stream);
+      
       var broadcastEvent:BroadcastStoppedEvent = new BroadcastStoppedEvent();
-      broadcastEvent.stream = streamName;
+      broadcastEvent.stream = "";
       broadcastEvent.userid = UsersUtil.getMyUserID();
       broadcastEvent.avatarURL = UsersUtil.getAvatarURL();
       _dispatcher.dispatchEvent(broadcastEvent);
       
-      
-	  
-	  if (proxy.videoOptions.showButton) {
-		  //Make toolbar button enabled again
-		  button.publishingStatus(button.STOP_PUBLISHING);
-	  }
-      
-      closeWindow(UsersUtil.getMyUserID());
+      var camId:int = closePublishWindowWithStream(UsersUtil.getMyUserID(), stream);
+
+      if (proxy.videoOptions.showButton) {
+        //Make toolbar button enabled again
+        button.publishingStatus(button.STOP_PUBLISHING, camId);
+      }
       
       if (options.displayAvatar) {
         trace("VideoEventMapDelegate:: [" + me + "] Opening avatar");
@@ -377,38 +397,46 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function handleClosePublishWindowEvent(event:ClosePublishWindowEvent):void {
-			trace("Closing publish window");
+      trace("Closing publish window");
       if (_isPublishing) {
-        stopBroadcasting();
+        stopAllBroadcasting();
       }
-			trace("Resetting flags for publish window.");
-			// Reset flags to determine if we are publishing or previewing webcam.
-			_isPublishing = false;
-			_isWaitingActivation = false;
     }
     
     public function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {     
+      trace("[VideoEventMapDelegate:handleShareCameraRequestEvent]");
       if (options.skipCamSettingsCheck) {
-        skipCameraSettingsCheck();
+        skipCameraSettingsCheck(int(event.defaultCamera));
       } else {
-    	  trace("Webcam: "+_isPublishing + " " + _isPreviewWebcamOpen + " " + _isWaitingActivation);
-    	  if (!_isPublishing && !_isPreviewWebcamOpen && !_isWaitingActivation) {
-          openWebcamPreview(event.publishInClient);
-        }   			
+        openWebcamPreview(event.publishInClient, event.defaultCamera, event.camerasArray);
       }
     }
-	
-	public function handleCamSettingsClosedEvent(event:BBBEvent):void{
-		_isPreviewWebcamOpen = false;
-	}
+
+    public function handleStopAllShareCameraRequestEvent(event:StopShareCameraRequestEvent):void {
+      trace("[VideoEventMapDelegate:handleStopAllShareCameraRequestEvent]");
+      stopAllBroadcasting();
+    }
+
+    public function handleStopShareCameraRequestEvent(event:StopShareCameraRequestEvent):void {
+      trace("[VideoEventMapDelegate:handleStopShareCameraRequestEvent]");
+      var userID:String = UsersUtil.getMyUserID();
+      var camIndex:int = event.camId;
+
+      _graphics.removeVideoByCamIndex(userID, camIndex);
+    }
     
-    private function openWebcamPreview(publishInClient:Boolean):void {
+    public function handleCamSettingsClosedEvent(event:BBBEvent):void{
+      _isPreviewWebcamOpen = false;
+    }
+    
+    private function openWebcamPreview(publishInClient:Boolean, defaultCamera:String, camerasArray:Object):void {
       var openEvent:BBBEvent = new BBBEvent(BBBEvent.OPEN_WEBCAM_PREVIEW);
       openEvent.payload.publishInClient = publishInClient;
-      openEvent.payload.resolutions = options.resolutions;
+      openEvent.payload.defaultCamera = defaultCamera;
+      openEvent.payload.camerasArray = camerasArray;
       
-	  _isPreviewWebcamOpen = true;
-	  
+    _isPreviewWebcamOpen = true;
+    
       _dispatcher.dispatchEvent(openEvent);
     }
     
@@ -421,10 +449,10 @@ package org.bigbluebutton.modules.videoconf.maps
     public function closeAllWindows():void{
       trace("VideoEventMapDelegate:: closing all windows");
       if (_isPublishing) {
-        stopBroadcasting();
+        stopAllBroadcasting();
       }
       
-      _dispatcher.dispatchEvent(new CloseAllWindowsEvent());
+      _graphics.shutdown();
     }
     
     public function switchToPresenter(event:MadePresenterEvent):void{
@@ -442,7 +470,7 @@ package org.bigbluebutton.modules.videoconf.maps
         LogUtil.debug("****************** Switching to viewer. Show video button?=[" + UsersUtil.amIPresenter() + "]");
         displayToolbarButton();
         if (_isPublishing && options.presenterShareOnly) {
-          stopBroadcasting();
+          stopAllBroadcasting();
         }
       }
     }
@@ -456,28 +484,31 @@ package org.bigbluebutton.modules.videoconf.maps
     
     public function handleCameraSetting(event:BBBEvent):void {      
       var cameraIndex:int = event.payload.cameraIndex;
-      var camWidth:int = event.payload.cameraWidth;
-      var camHeight:int = event.payload.cameraHeight;     
-      trace("VideoEventMapDelegate::handleCameraSettings [" + cameraIndex + "," + camWidth + "," + camHeight + "]");
-      initCameraWithSettings(cameraIndex, camWidth, camHeight);
+      var videoProfile:VideoProfile = event.payload.videoProfile;
+      trace("VideoEventMapDelegate::handleCameraSettings [" + cameraIndex + "," + videoProfile.id + "]");
+      initCameraWithSettings(cameraIndex, videoProfile);
     }
     
-    private function initCameraWithSettings(camIndex:int, camWidth:int, camHeight:int):void {
+    private function initCameraWithSettings(camIndex:int, videoProfile:VideoProfile):void {
       var camSettings:CameraSettingsVO = new CameraSettingsVO();
       camSettings.camIndex = camIndex;
-      camSettings.camWidth = camWidth;
-      camSettings.camHeight = camHeight;
+      camSettings.videoProfile = videoProfile;
       
       UsersUtil.setCameraSettings(camSettings);
       
       _isWaitingActivation = true;
-      openPublishWindowFor(UsersUtil.getMyUserID(), camIndex, camWidth, camHeight);       
+      button.setCamAsActive(camIndex);
+      openPublishWindowFor(UsersUtil.getMyUserID(), camIndex, videoProfile);
+    }
+
+    private function closeViewWindowWithStream(userID:String, stream:String):void {
+      _graphics.removeVideoByStreamName(userID, stream);
     }
     
     public function handleStoppedViewingWebcamEvent(event:StoppedViewingWebcamEvent):void {
       trace("VideoEventMapDelegate::handleStoppedViewingWebcamEvent [" + me + "] received StoppedViewingWebcamEvent for user [" + event.webcamUserID + "]");
       
-      closeWindow(event.webcamUserID);
+      closeViewWindowWithStream(event.webcamUserID, event.streamName);
             
       if (options.displayAvatar && UsersUtil.hasUser(event.webcamUserID) && ! UsersUtil.isUserLeaving(event.webcamUserID)) {
         trace("VideoEventMapDelegate::handleStoppedViewingWebcamEvent [" + me + "] Opening avatar for user [" + event.webcamUserID + "]");

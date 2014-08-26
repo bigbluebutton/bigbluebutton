@@ -27,6 +27,9 @@ package org.bigbluebutton.main.events
     // The userID of the webcam being viewed.
     public var webcamUserID:String;
     
+    // The streamName of the user
+    public var streamName:String;
+    
     public function StoppedViewingWebcamEvent(bubbles:Boolean=true, cancelable:Boolean=false)
     {
       super(STOPPED_VIEWING_WEBCAM, bubbles, cancelable);
