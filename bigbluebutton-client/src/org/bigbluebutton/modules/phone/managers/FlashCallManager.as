@@ -291,7 +291,7 @@
         case ON_LISTEN_ONLY_STREAM:
           state = INITED;
           trace(LOG + "Flash user left the listen only stream.");
-		  dispatcher.dispatchEvent(new FlashLeftVoiceConferenceEvent());
+		      dispatcher.dispatchEvent(new FlashLeftVoiceConferenceEvent());
           break;
         case IN_ECHO_TEST:
           state = INITED;
