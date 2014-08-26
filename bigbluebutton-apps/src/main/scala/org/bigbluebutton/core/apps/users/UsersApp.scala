@@ -34,7 +34,7 @@ trait UsersApp {
   
   def handleUserConnectedToGlobalAudio(msg: UserConnectedToGlobalAudio) {
 //    println("*************** Got UserConnectedToGlobalAudio message for [" + msg.name + "] ********************" )
-    val user = users.getUser(msg.userid)
+    val user = users.getUserWithExternalId(msg.userid)
     user foreach {u =>
       val uvo = u.copy(listenOnly=true)
       users.addUser(uvo)
@@ -44,7 +44,7 @@ trait UsersApp {
   
   def handleUserDisconnectedFromGlobalAudio(msg: UserDisconnectedFromGlobalAudio) {
     println("*************** Got UserDisconnectedToGlobalAudio message for [" + msg.name + "] ********************" )
-    val user = users.getUser(msg.userid)
+    val user = users.getUserWithExternalId(msg.userid)
     user foreach {u =>
       val uvo = u.copy(listenOnly=false)
       users.addUser(uvo)

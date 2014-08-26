@@ -167,11 +167,10 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     }
   }
   
-  private def sendNonWebUserJoined(meetingId: String, webUserId: String, 
-      msg: FsVoiceUserJoined) {
-          logger.info("FreeswitchConferenceActor:: Sending FsVoiceUserJoined for conference [" + 
+  private def sendNonWebUserJoined(meetingId: String, webUserId: String, msg: FsVoiceUserJoined) {
+    logger.info("FreeswitchConferenceActor:: Sending FsVoiceUserJoined for conference [" + 
                 msg.conference + "] user=[" + msg.callerIdName + "] userid=[" + webUserId + "]")
-     bbbInGW.voiceUserJoined(meetingId, msg.userId, 
+    bbbInGW.voiceUserJoined(meetingId, msg.userId, 
 	              webUserId, msg.conference, msg.callerIdNum, msg.callerIdName,
 	              msg.muted, msg.speaking)    
   }
@@ -182,11 +181,11 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     val fsconf = confs.values find (c => c.conferenceNum == msg.conference)
     
     fsconf foreach (fc => {
-	    fc.getWebUser(msg.webUserId) match {
+	    fc.getWebUserUsingExtId(msg.webUserId) match {
 	      case Some(user) => {
           logger.info("FreeswitchConferenceActor:: Found webuser for this user for conference [" + 
                 msg.conference + "] user=[" + msg.callerIdName + "] wid=[" + msg.webUserId + "]")	     
-	        sendNonWebUserJoined(fc.meetingId, user.voiceUser.webUserId, msg)
+	        sendNonWebUserJoined(fc.meetingId, user.userID, msg)
 	      }
 	      case None => {
           logger.info("FreeswitchConferenceActor:: Did not find webuser for this user for conference [" + 
