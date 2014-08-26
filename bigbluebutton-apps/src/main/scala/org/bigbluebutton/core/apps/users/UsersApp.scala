@@ -36,7 +36,8 @@ trait UsersApp {
 //    println("*************** Got UserConnectedToGlobalAudio message for [" + msg.name + "] ********************" )
     val user = users.getUserWithExternalId(msg.userid)
     user foreach {u =>
-      val uvo = u.copy(listenOnly=true)
+      val vu = u.voiceUser.copy(talking=false)
+      val uvo = u.copy(listenOnly=true, voiceUser=vu)
       users.addUser(uvo)
       outGW.send(new UserListeningOnly(meetingID, recorded, uvo.userID, uvo.listenOnly))        
     }
@@ -315,7 +316,8 @@ trait UsersApp {
   
   def handleVoiceUserMuted(msg: VoiceUserMuted) {
     users.getUser(msg.userId) foreach {user =>
-      val nv = user.voiceUser.copy(muted=msg.muted)
+      val talking = if (msg.muted) false else user.voiceUser.talking
+      val nv = user.voiceUser.copy(muted=msg.muted, talking=talking)
       val nu = user.copy(voiceUser=nv)
       users.addUser(nu)
 //      println("Received voice muted=[" + msg.muted + "] wid=[" + msg.userId + "]" )
