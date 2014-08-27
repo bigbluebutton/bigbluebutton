@@ -26,6 +26,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
 	  react {
 	    case msg: MeetingCreated                     => handleMeetingCreated(msg)
 	    case msg: MeetingEnded                       => handleMeetingEnded(msg)
+	    case msg: MeetingDestroyed                   => handleMeetingDestroyed(msg)
 	    case msg: UserJoined                         => handleUserJoined(msg)
 	    case msg: UserLeft                           => handleUserLeft(msg)
 	    case msg: MuteVoiceUser                      => handleMuteVoiceUser(msg)
@@ -56,7 +57,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     
   private def handleMeetingCreated(msg: MeetingCreated) {
     if (! confs.contains(msg.meetingID)) {
-      logger.info("FSConference rx meeting created for meeting id[" + msg.meetingID + "]")
+      logger.info("Meeting created [" + msg.meetingID + "] with voice conf [" + msg.voiceBridge + "]")
       val fsconf = new FreeswitchConference(msg.voiceBridge,
                                             msg.meetingID, 
                                             msg.recorded)
@@ -70,10 +71,23 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     val fsconf = confs.values find (c => c.meetingId == msg.meetingID)
     
     fsconf foreach (fc => {
+      logger.info("Meeting ended [" + msg.meetingID + "]")
       fsproxy.ejectUsers(fc.conferenceNum)
       confs -= fc.meetingId
     })
   }
+
+  private def handleMeetingDestroyed(msg: MeetingDestroyed) {
+    val fsconf = confs.values find (c => c.meetingId == msg.meetingID)
+    
+    fsconf foreach (fc => {
+      logger.info("Meeting destroyed [" + msg.meetingID + "]")
+      fsproxy.ejectUsers(fc.conferenceNum)
+      confs -= fc.meetingId
+    })
+  }
+    
+  
   
   private def handleUserJoinedVoice(msg: UserJoinedVoice) {
     val fsconf = confs.values find (c => c.meetingId == msg.meetingID)

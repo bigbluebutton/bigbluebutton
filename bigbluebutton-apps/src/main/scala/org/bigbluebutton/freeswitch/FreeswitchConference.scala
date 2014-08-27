@@ -21,7 +21,6 @@ class FreeswitchConference(val conferenceNum: String,
 
   def getWebUserUsingExtId(webUserId: String):Option[UserVO] = {
     users.values find {u => 
-      logger.debug("***************** [" + u.externUserID + "=" + webUserId + "] is " + (u.externUserID == webUserId))
       (u.externUserID == webUserId)    
     }  
   }
