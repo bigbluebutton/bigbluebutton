@@ -178,6 +178,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     val fsconf = confs.values find (c => c.conferenceNum == msg.conference)
     
     fsconf foreach (fc => {
+      logger.debug("Conference [" + msg.conference + "] has [" + fc.numUsers + "]")
 	    fc.getWebUserUsingExtId(msg.webUserId) match {
 	      case Some(user) => {
           logger.info("The user is also in the web client. [" + 
