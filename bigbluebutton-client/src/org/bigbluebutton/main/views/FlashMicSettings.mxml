@@ -297,9 +297,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         trace(LOG + "Echo test passed.");    
         cleanUp();
         dispatchEvent(new FlashEchoTestHasAudioEvent());
-        var dispatcher:Dispatcher = new Dispatcher();
-        dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION));
-        PopUpManager.removePopUp(this);
       }
       
       private function noButtonClicked():void {
