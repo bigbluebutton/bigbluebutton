@@ -15,7 +15,6 @@
     You should have received a copy of the GNU Lesser General Public License along
     with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 */    
-
 modules = {
     application {
         resource url:'js/application.js'
