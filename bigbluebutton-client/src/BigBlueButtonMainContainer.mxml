@@ -18,18 +18,16 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
   xmlns:views="org.bigbluebutton.main.views.*"
   xmlns:maps="org.bigbluebutton.main.maps.*"
   xmlns:userMap="org.bigbluebutton.modules.users.maps.*"
   xmlns:apimap="org.bigbluebutton.main.api.maps.*"
   xmlns:coreMap="org.bigbluebutton.core.controllers.maps.*"
   xmlns:mate="http://mate.asfusion.com/"
-  layout="absolute" 
   width="100%" height="100%"
-  borderStyle="none" horizontalAlign="center"
-  headerHeight="0" borderThicknessBottom="0" borderThicknessLeft="0"
-  borderThicknessRight="0" borderThicknessTop="0"
+  horizontalScrollPolicy="off"
+  verticalScrollPolicy="off"
   creationComplete="init()">
   
   <mx:Script>
@@ -218,4 +216,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <mate:Listener type="{ShortcutEvent.FOCUS_AWAY_EVENT}" method="loseFocusFromApp" />
   
-</mx:Panel>
+</mx:Canvas>
