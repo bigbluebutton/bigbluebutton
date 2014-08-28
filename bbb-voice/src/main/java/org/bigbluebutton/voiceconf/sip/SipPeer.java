@@ -195,13 +195,15 @@ public class SipPeer implements SipRegisterAgentListener {
     	CallAgent ca = callManager.get(clientId);
         if (ca != null) {
            ca.startTalkStream(broadcastStream, scope);
-        }
+        } 
     }
     
     public void stopTalkStream(String clientId, IBroadcastStream broadcastStream, IScope scope) {
     	CallAgent ca = callManager.get(clientId);
         if (ca != null) {
            ca.stopTalkStream(broadcastStream, scope);
+        } else {
+        	log.info("Can't stop talk stream as stream may have already been stopped.");
         }
     }
 

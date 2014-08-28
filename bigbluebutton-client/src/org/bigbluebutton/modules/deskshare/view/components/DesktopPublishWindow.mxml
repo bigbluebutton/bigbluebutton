@@ -111,8 +111,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
 				cursor.graphics.drawCircle(0,0,3);		
 					
-				setCurrentState("dispFullRegionControlBar");
-				
+				if (isUsingChromeOnMac()) {
+				   setCurrentState("chromeOnMacWarningState");
+				}
+				else {
+				   setCurrentState("dispFullRegionControlBar");
+				}
 				resourcesChanged();
 				
 				titleBarOverlay.tabIndex = baseIndex;
@@ -362,6 +366,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var CHECK_JAVA_URL:String = BBB.initConfigManager().config.javaTest.url;        
         navigateToURL(new URLRequest(CHECK_JAVA_URL));
       }
+			private function isUsingChromeOnMac():Boolean {
+				return ((ExternalInterface.call("determineBrowser")[0] == "Chrome") && (Capabilities.os.indexOf("Mac") >= 0));
+			}
 		]]>
 	</mx:Script>
 
@@ -406,13 +413,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                                    toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.javaTestLinkLabel.tooltip')}" 
                                    accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.desktopPublish.javaTestLinkLabel.tooltip.accessibility')}"/>
                   </mx:VBox>
-                </mx:ControlBar>           
-
-              
+                </mx:ControlBar>
             </mx:AddChild>
         </mx:State>	
+		<mx:State name="chromeOnMacWarningState">
+			<mx:AddChild>
+				<mx:VBox id="chromeOnMacWarningBottomBar" horizontalAlign="center" width="100%" height="100%" verticalAlign="bottom">
+					<mx:HBox>
+						<mx:Button id="chromeOnMacWarningCloseButton"
+								   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}"
+								   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.label')}"
+								   visible="true"
+								   enabled="true"
+								   click="stopSharing()"
+								   />
+						<mx:Spacer width="100%"/>
+					</mx:HBox>
+					<mx:HBox horizontalAlign="center" width="300" styleName="desktopShareUsingChromeOnMacHintBoxStyle">
+						<mx:Text id="chromeOnMacWarningLbl" width="100%" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.desktopPublish.chromeOnMacUnsupportedHint')}"
+								 styleName="desktopShareUsingChromeOnMacHintTextStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.chromeOnMacUnsupportedHint')}" />
+					</mx:HBox>
+				</mx:VBox>
+			</mx:AddChild>
+		</mx:State>
 	</dspub:states>
-
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
 
 </dspub:MDIWindow>

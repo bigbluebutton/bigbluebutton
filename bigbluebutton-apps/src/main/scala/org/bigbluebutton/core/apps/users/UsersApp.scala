@@ -265,7 +265,7 @@ trait UsersApp {
         case Some(user) => {
           val nu = user.copy(voiceUser=msg.voiceUser)
           users.addUser(nu)
-//          println("Received user joined voice for user [" + nu.name + "] userid=[" + msg.voiceUser.webUserId + "]" )
+          logger.info("Received user joined voice for user [" + nu.name + "] userid=[" + msg.voiceUser.webUserId + "]" )
           outGW.send(new UserJoinedVoice(meetingID, recorded, voiceBridge, nu))
           
           if (meetingMuted)
@@ -285,7 +285,7 @@ trait UsersApp {
 		                  phoneUser=true, vu, listenOnly=false, permissions)
 		  	
 		      users.addUser(uvo)
-		      println("New user joined voice for user [" + uvo.name + "] userid=[" + msg.voiceUser.webUserId + "]")
+		      logger.info("New user joined voice for user [" + uvo.name + "] userid=[" + msg.voiceUser.webUserId + "]")
 		      outGW.send(new UserJoined(meetingID, recorded, uvo))
 		      
 		      outGW.send(new UserJoinedVoice(meetingID, recorded, voiceBridge, uvo))

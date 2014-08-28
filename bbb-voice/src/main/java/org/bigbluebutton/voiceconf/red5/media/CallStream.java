@@ -97,7 +97,7 @@ public class CallStream implements StreamObserver {
 
     public void stop() {
     	log.debug("Stopping call stream");
-        userListenStream.stop();
+      userListenStream.stop();
     }
 
 	@Override

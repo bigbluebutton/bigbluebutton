@@ -1,10 +1,11 @@
 package org.bigbluebutton.freeswitch
 
 import org.bigbluebutton.core.api.UserVO
+import org.bigbluebutton.core.util._
 
 class FreeswitchConference(val conferenceNum: String, 
                            val meetingId: String,
-                           val recorded: Boolean) {
+                           val recorded: Boolean) extends LogHelper {
 
   private var users = new scala.collection.immutable.HashMap[String, UserVO]
   
@@ -19,7 +20,9 @@ class FreeswitchConference(val conferenceNum: String,
   }
 
   def getWebUserUsingExtId(webUserId: String):Option[UserVO] = {
-    users.values find (u => (u.externUserID == webUserId))  
+    users.values find {u => 
+      (u.externUserID == webUserId)    
+    }  
   }
     
   def getWebUser(webUserId: String):Option[UserVO] = {

@@ -23,6 +23,8 @@ class FreeswitchConferenceService(fsproxy: FreeswitchManagerProxy,
   def handleMessage(msg: IOutMessage) {
 	  msg match {
 	    case msg: MeetingCreated                => handleMeetingCreated(msg)
+	    case msg: MeetingEnded                  => handleMeetingEnded(msg)
+	    case msg: MeetingDestroyed              => handleMeetingDestroyed(msg)
 	    case msg: UserJoined                    => handleUserJoined(msg)
 	    case msg: UserLeft                      => handleUserLeft(msg)
 	    case msg: MuteVoiceUser                 => handleMuteVoiceUser(msg)
@@ -61,6 +63,15 @@ class FreeswitchConferenceService(fsproxy: FreeswitchManagerProxy,
   private def handleMeetingCreated(msg: MeetingCreated) {
     fsActor ! msg
   }
+  
+  private def handleMeetingEnded(msg: MeetingEnded) {
+    fsActor ! msg
+  }
+    
+  private def handleMeetingDestroyed(msg: MeetingDestroyed) {
+    fsActor ! msg
+  }
+    
   
   private def handleEjectAllVoiceUsers(msg: EjectAllVoiceUsers) {
     fsActor ! msg

@@ -18,7 +18,8 @@
 */
 
 package org.bigbluebutton.modules.phone.managers {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.ActivityEvent;
 	import flash.events.AsyncErrorEvent;
 	import flash.events.IEventDispatcher;
@@ -29,9 +30,11 @@ package org.bigbluebutton.modules.phone.managers {
 	import flash.media.MicrophoneEnhancedOptions;
 	import flash.media.SoundCodec;
 	import flash.net.NetConnection;
-	import flash.net.NetStream;	
+	import flash.net.NetStream;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.main.api.JSLog;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.phone.PhoneOptions;
 	import org.bigbluebutton.modules.phone.events.FlashMicAccessAllowedEvent;
@@ -67,7 +70,8 @@ package org.bigbluebutton.modules.phone.managers {
       this.micName = micName;
       mic = Microphone.getMicrophone(micIndex);
       if(mic != null){
-        trace(LOG + "Setting up preferred microphone");
+        trace(LOG + "Setting up preferred microphone [" + micName + "]");
+        JSLog.debug(LOG + "Setting up preferred microphone [" + micName + "]");
         setupMicrophone();
         mic.addEventListener(StatusEvent.STATUS, micStatusHandler);
       }
@@ -78,7 +82,8 @@ package org.bigbluebutton.modules.phone.managers {
       
 			if(mic != null){
 				this.micIndex = mic.index;
-			  trace(LOG + "Setting up default microphone");
+			  trace(LOG + "Setting up default microphone [" + micName + "]");
+        JSLog.debug(LOG + "Setting up default microphone [" + micName + "]");
 				setupMicrophone();
 				mic.addEventListener(StatusEvent.STATUS, micStatusHandler);
 			}
@@ -134,6 +139,7 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 										
 		public function callConnected(playStreamName:String, publishStreamName:String, codec:String, listenOnlyCall:Boolean):void {
+      JSLog.debug(LOG + "setting up streams. [" + playStreamName + "] : [" + publishStreamName + "] : [" + codec + "]");
       trace(LOG + "setting up streams. [" + playStreamName + "] : [" + publishStreamName + "] : [" + codec + "]");
 			isCallConnected = true;
 			audioCodec = codec;
@@ -142,7 +148,8 @@ package org.bigbluebutton.modules.phone.managers {
 			if (mic != null && !listenOnlyCall) {
 				setupOutgoingStream();
 			} else {
-				trace(LOG + "not setting up an outgoing stream because I'm in listen only mode");
+        JSLog.debug(LOG + "not setting up an outgoing stream because I'm in listen only mode");
+        trace(LOG + "not setting up an outgoing stream because I'm in listen only mode");
 			}
 
 			setupPlayStatusHandler();
@@ -151,6 +158,7 @@ package org.bigbluebutton.modules.phone.managers {
 				publish(publishStreamName);
 			} else {
 				trace(LOG + "not publishing any stream because I'm in listen only mode");
+        JSLog.debug(LOG + "not publishing any stream because I'm in listen only mode");
 			}
 		}
 		
@@ -162,12 +170,14 @@ package org.bigbluebutton.modules.phone.managers {
 			if (mic != null) {
         outgoingStream.publish(publishStreamName, "live");
       } else {
+        JSLog.debug(LOG + " publish: No Microphone to publish");
         trace(LOG + " publish: No Microphone to publish");
         dispatcher.dispatchEvent(new FlashMicUnavailableEvent());
       }     
 		}
 		
 		private function setupIncomingStream():void {
+      JSLog.debug(LOG + " setting up incoming stream");
       trace(LOG + " setting up incoming stream");
 			incomingStream = new NetStream(connManager.getConnection());
 			incomingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
@@ -186,6 +196,7 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 		
 		private function setupOutgoingStream():void {
+      JSLog.debug(LOG + " setting up outgoing stream");
       trace(LOG + " setting up outgoing stream");
 			outgoingStream = new NetStream(connManager.getConnection());
 			outgoingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
@@ -208,26 +219,32 @@ package org.bigbluebutton.modules.phone.managers {
 			trace(LOG + "Stopping Stream(s)");
 			if(incomingStream != null) {
 				trace(LOG + "--Stopping Incoming Stream");
+        JSLog.debug(LOG + "--Stopping Incoming Stream");
         incomingStream.close(); 
 			} else {
 				trace(LOG + "--Incoming Stream Null");
+        JSLog.debug(LOG + "--Incoming Stream Null");
 			}
 			
 			if(outgoingStream != null) {
 				trace(LOG + "--Stopping Outgoing Stream");
+        JSLog.debug(LOG + "--Stopping Outgoing Stream");
 				outgoingStream.attachAudio(null);
 				outgoingStream.close();
 			} else {
 				trace(LOG + "--Outgoing Stream Null");
+        JSLog.debug(LOG + "--Outgoing Stream Null");
 			}
 				
 			isCallConnected = false;
 			trace(LOG + "Stopped Stream(s)");
+      JSLog.debug(LOG + "Stopped Stream(s)");
 		}
 
 		private function netStatus (evt:NetStatusEvent ):void {		 
 			var event:PlayStreamStatusEvent = new PlayStreamStatusEvent();
-			trace(LOG + "******* evt.info.code  " + evt.info.code);
+      JSLog.debug(LOG + "******* evt.info.code  " + evt.info.code);
+      trace(LOG + "******* evt.info.code  " + evt.info.code);
 			switch(evt.info.code) {			
 				case "NetStream.Play.StreamNotFound":
 					event.status = PlayStreamStatusEvent.PLAY_STREAM_STATUS_EVENT;

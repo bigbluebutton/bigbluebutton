@@ -25,6 +25,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 layout="absolute" 
                 preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader">
    
-  <views:BigBlueButtonMainPanel id="bbbShell"/>
+  <views:BigBlueButtonMainContainer id="bbbShell"/>
  
 </mx:Application>

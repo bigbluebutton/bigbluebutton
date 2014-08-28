@@ -243,6 +243,8 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     public void stopTalkStream(IBroadcastStream broadcastStream, IScope scope) {
     	if (callStream != null) {
     		callStream.stopTalkStream(broadcastStream, scope);   	
+    	} else {
+    		log.info("Can't stop talk stream as stream may have already stopped.");
     	}
     }
 
