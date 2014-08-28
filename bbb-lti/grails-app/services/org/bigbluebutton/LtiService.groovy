@@ -26,15 +26,11 @@ import org.apache.commons.codec.binary.Base64
 @Transactional
 class LtiService {
 
-    def endPoint = "http://localhost/lti/tool"
+    def endPoint = "localhost"
     def consumers = "demo:welcome"
     def mode = "simple"
 
     Map<String, String> consumerMap
-
-    def retrieveIconEndpoint() {
-        return endPoint.replaceFirst("tool", "images/icon.ico")
-    }
 
     def retrieveBasicLtiEndpoint() {
         return endPoint
@@ -91,4 +87,36 @@ class LtiService {
         for( param in params ) log.debug "${param.getKey()}=${param.getValue()}"
         log.debug "----------------------------------"
     }
+	
+	def boolean isSSLEnabled(String query) {
+		def sslEnabled = false
+
+		try {
+			// open connection
+			StringBuilder urlStr = new StringBuilder(query)
+			URL url = new URL(urlStr.toString())
+			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection()
+			httpConnection.setUseCaches(false)
+			httpConnection.setDoOutput(true)
+			httpConnection.setRequestMethod("GET")
+			httpConnection.connect()
+
+			int responseCode = httpConnection.getResponseCode()
+			if (responseCode == HttpURLConnection.HTTP_OK) {
+				sslEnabled = true
+			} else {
+				log.debug("HTTPERROR: Message=" + "BBB server responded with HTTP status code " + responseCode)
+			}
+
+		} catch(IOException e) {
+			log.debug("IOException: Message=" + e.getMessage())
+		} catch(IllegalArgumentException e) {
+			log.debug("IllegalArgumentException: Message=" + e.getMessage())
+		} catch(Exception e) {
+			log.debug("Exception: Message=" + e.getMessage())
+		}
+
+		return sslEnabled
+	}
+
 }

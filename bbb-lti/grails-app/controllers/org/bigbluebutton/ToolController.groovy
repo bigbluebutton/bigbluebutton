@@ -48,6 +48,7 @@ class ToolController {
         if( ltiService.consumerMap == null) ltiService.initConsumerMap()
         log.debug CONTROLLER_NAME + "#index"
 
+        def endPoint = (request.isSecure()?"https":"http") + "://" + ltiService.endPoint + "/" + grailsApplication.metadata['app.name'] + "/" + params.get("controller") + (params.get("format") != null? "." + params.get("format"): "")
         setLocalization(params)
 
         params.put(REQUEST_METHOD, request.getMethod().toUpperCase())
@@ -63,7 +64,7 @@ class ToolController {
                 def consumer = ltiService.getConsumer(params.get(Parameter.CONSUMER_ID))
                 if (consumer != null) {
                     log.debug "Found consumer with key " + consumer.get("key") //+ " and sharedSecret " + consumer.get("secret")
-                    if (checkValidSignature(params.get(REQUEST_METHOD), ltiService.endPoint, consumer.get("secret"), sanitizedParams, params.get(Parameter.OAUTH_SIGNATURE))) {
+                    if (checkValidSignature(params.get(REQUEST_METHOD), endPoint, consumer.get("secret"), sanitizedParams, params.get(Parameter.OAUTH_SIGNATURE))) {
                         log.debug  "The message has a valid signature."
 
                         if( !"extended".equals(ltiService.mode) ) {
@@ -187,9 +188,7 @@ class ToolController {
             }
 
             render(view: "index", model: ['params': sessionParams, 'recordingList': recordings, 'ismoderator': bigbluebuttonService.isModerator(sessionParams)])
-
         }
-
     }
 
     def delete() {
@@ -235,19 +234,15 @@ class ToolController {
     }
 
     private void setLocalization(params){
-
         String locale = params.get(Parameter.LAUNCH_LOCALE)
         locale = (locale == null || locale.equals("")?"en":locale)
-        log.debug "Locale code =" + locale
         String[] localeCodes = locale.split("_")
         //Localize the default welcome message
-        if( localeCodes.length > 1 )
+        if( localeCodes.length > 1 ) {
             session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0], localeCodes[1])
-        else
+        } else {
             session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0])
-
-        log.debug "Locale has been set to " + locale
-
+        }
     }
 
     private Object doJoinMeeting(params) {
@@ -367,6 +362,12 @@ class ToolController {
     }
 
     private String getCartridgeXML(){
+		def lti_endpoint = ltiService.retrieveBasicLtiEndpoint() + '/' + grailsApplication.metadata['app.name']
+		def launch_url = 'http://' + lti_endpoint + '/tool'
+		def secure_launch_url = 'https://' + lti_endpoint + '/tool'
+		def icon = 'http://' + lti_endpoint + '/images/icon.ico'
+		def secure_icon = 'https://' + lti_endpoint + '/images/icon.ico'
+		def isSSLEnabled = ltiService.isSSLEnabled('https://' + lti_endpoint + '/tool/test')
         def cartridge = '' +
                 '<?xml version="1.0" encoding="UTF-8"?>' +
                 '<cartridge_basiclti_link xmlns="http://www.imsglobal.org/xsd/imslticc_v1p0"' +
@@ -379,9 +380,11 @@ class ToolController {
                 '                             http://www.imsglobal.org/xsd/imslticm_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticm_v1p0.xsd' +
                 '                             http://www.imsglobal.org/xsd/imslticp_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticp_v1p0.xsd">' +
                 '    <blti:title>BigBlueButton</blti:title>' +
-                '    <blti:description>Single Sign On into BigBlueButton</blti:description>' +
-                '    <blti:launch_url>' + ltiService.retrieveBasicLtiEndpoint() + '</blti:launch_url>' +
-                '    <blti:icon>' + ltiService.retrieveIconEndpoint() + '</blti:icon>' +
+                '    <blti:description>BigBlueButton is an open source web conferencing system for on-line learning. The LTI integration enables teachers to (a) embed BigBlueButton virtual classes within their course to provide on-line office hours, small group collaboration, and on-line lectures, (b) record sessions, and (c) manage recorded sessions.</blti:description>' +
+                '    <blti:launch_url>' + launch_url + '</blti:launch_url>' +
+                (isSSLEnabled? '    <blti:secure_launch_url>' + secure_launch_url + '</blti:secure_launch_url>': '') +
+                '    <blti:icon>' + icon + '</blti:icon>' +
+                (isSSLEnabled? '    <blti:secure_icon>' + secure_icon + '</blti:secure_icon>': '') +
                 '    <blti:vendor>' +
                 '        <lticp:code>BBB</lticp:code>' +
                 '        <lticp:name>BigBlueButton</lticp:name>' +

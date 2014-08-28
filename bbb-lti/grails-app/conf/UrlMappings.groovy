@@ -14,17 +14,16 @@
 
     You should have received a copy of the GNU Lesser General Public License along
     with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-*/    
+*/
 class UrlMappings {
-
-	static mappings = {
+    static mappings = {
         "/$controller/$action?/$id?(.$format)?"{
             constraints {
                 // apply constraints here
             }
         }
 
-        "/"(view:"/index")
+        "/"(controller: "tool")
         "500"(view:'/error')
-	}
+    }
 }
