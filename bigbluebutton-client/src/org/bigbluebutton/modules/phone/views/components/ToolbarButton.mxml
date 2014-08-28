@@ -124,7 +124,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             dispatcher.dispatchEvent(command);            
           } else {
             trace(LOG + "Sending Show Audio Selection command");
-            trace(LOG + "Sending Show Audio Selection command");
+            JSLog.debug(LOG + "Sending Show Audio Selection command");
             dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));            
           }
 				}
