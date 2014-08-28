@@ -1,3 +1,4 @@
+package org.bigbluebutton
 /* 
     BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 
@@ -15,41 +16,39 @@
     You should have received a copy of the GNU Lesser General Public License along
     with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 */
-package org.bigbluebutton
 
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStreamReader
-import java.io.StringReader
-import java.net.HttpURLConnection
-import java.net.URL
-import java.text.MessageFormat
-import java.util.ArrayList
-import java.util.HashMap
-import java.util.List
-import java.util.Map
-import java.util.Random
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
-import javax.xml.parsers.DocumentBuilder
-import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.parsers.ParserConfigurationException
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
-import org.w3c.dom.Document
-import org.w3c.dom.Node
-import org.w3c.dom.NodeList
-import org.xml.sax.InputSource
-import org.xml.sax.SAXException
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
-import org.apache.commons.codec.digest.DigestUtils
+import org.apache.commons.codec.digest.DigestUtils;
 
 import org.bigbluebutton.api.Proxy
 import org.bigbluebutton.lti.Role
 import org.bigbluebutton.lti.Parameter
 
-import grails.transaction.Transactional
-
-@Transactional
 class BigbluebuttonService {
+
+    boolean transactional = false
 
     def url = "http://test-install.blindsidenetworks.com/bigbluebutton"
     def salt = "8cd8ef52e8e101574e400365b55e11a6"
@@ -69,7 +68,6 @@ class BigbluebuttonService {
 
         //Instantiate bbbProxy and initialize it with default url and salt
         bbbProxy = new Proxy(url, salt)
-
     }
 
     public String getJoinURL(params, welcome, mode){
@@ -112,8 +110,8 @@ class BigbluebuttonService {
             String returnCode = (String) createResponse.get("returncode")
             String messageKey = (String) createResponse.get("messageKey")
             if ( Proxy.APIRESPONSE_SUCCESS.equals(returnCode) ||
-                (Proxy.APIRESPONSE_FAILED.equals(returnCode) && (Proxy.MESSAGEKEY_IDNOTUNIQUE.equals(messageKey) || Proxy.MESSAGEKEY_DUPLICATEWARNING.equals(messageKey)) ) ){
-                    joinURL = bbbProxy.getJoinURL( userFullName, meetingID, isModerator? moderatorPW: attendeePW, (String) createResponse.get("createTime"), userID);
+                (Proxy.APIRESPONSE_FAILED.equals(returnCode) &&  (Proxy.MESSAGEKEY_IDNOTUNIQUE.equals(messageKey) || Proxy.MESSAGEKEY_DUPLICATEWARNING.equals(messageKey)) ) ){
+                joinURL = bbbProxy.getJoinURL( userFullName, meetingID, isModerator? moderatorPW: attendeePW, (String) createResponse.get("createTime"), userID);
             }
         }
 
@@ -227,7 +225,6 @@ class BigbluebuttonService {
                 userFullName = isModerator? "Moderator" : "Attendee"
             }
         }
-
         return userFullName
     }
 
@@ -238,7 +235,7 @@ class BigbluebuttonService {
     private String getValidatedUserId(String userId){
         return (userId == null)? "": userId
     }
-
+    
     private Integer getValidatedBBBVoiceBridge(String voiceBridge){
         return (voiceBridge != null )? voiceBridge.toInteger(): 0
     }
@@ -301,16 +298,14 @@ class BigbluebuttonService {
                     String line = reader.readLine();
                     while (line != null) {
                         if( !line.startsWith("<?xml version=\"1.0\"?>"))
-                        xml.append(line.trim());
+                            xml.append(line.trim());
                         line = reader.readLine();
                     }
                 } finally {
-                    if ( reader != null ) {
-                        reader.close()
-                    }
-                    if ( isr != null ) {
-                        isr.close()
-                    }
+                    if (reader != null)
+                        reader.close();
+                    if (isr != null)
+                        isr.close();
                 }
                 httpConnection.disconnect();
 
@@ -332,11 +327,9 @@ class BigbluebuttonService {
                 }
 
                 return response;
-
             } else {
                 log.debug("doAPICall.HTTPERROR: Message=" + "BBB server responded with HTTP status code " + responseCode);
             }
-
         } catch(IOException e) {
             log.debug("doAPICall.IOException: Message=" + e.getMessage());
         } catch(SAXException e) {
