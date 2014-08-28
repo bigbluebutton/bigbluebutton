@@ -246,17 +246,17 @@ class ToolController {
         log.debug "Localized default welcome message: [" + welcome + "]"
 
 		// Check for [custom_]welcome parameter being passed from the LTI
-		if (params.get(Parameter.CUSTOM_WELCOME) != null) {
+		if ( params.containsKey(Parameter.CUSTOM_WELCOME) && params.get(Parameter.CUSTOM_WELCOME) != null ) {
 			welcome = params.get(Parameter.CUSTOM_WELCOME) + "<br>"
 			log.debug "Overriding default welcome message with: [" + welcome + "]"
 		}
 
-        if ( Boolean.parseBoolean(params.get(Parameter.CUSTOM_RECORD)) ) {
+        if ( params.containsKey(Parameter.CUSTOM_RECORD) && Boolean.parseBoolean(params.get(Parameter.CUSTOM_RECORD)) ) {
             welcome += "<br><b>" + message(code: "bigbluebutton.welcome.record") + "</b><br>"
             log.debug "Adding record warning to welcome message, welcome is now: [" + welcome + "]"
         }
 
-        if ( Integer.parseInt(params.get(Parameter.CUSTOM_DURATION)) > 0 ) {
+        if ( params.containsKey(Parameter.CUSTOM_DURATION) && Integer.parseInt(params.get(Parameter.CUSTOM_DURATION)) > 0 ) {
             welcome += "<br><b>" + message(code: "bigbluebutton.welcome.duration", args: [params.get(Parameter.CUSTOM_DURATION)]) + "</b><br>"
             log.debug "Adding duration warning to welcome message, welcome is now: [" + welcome + "]"
         }
@@ -282,11 +282,11 @@ class ToolController {
      * @param the HTTP request parameters
      * @return the key:val pairs needed for Basic LTI
      */
-    private Properties sanitizePrametersForBaseString(Object params) {
-
+    private Properties sanitizePrametersForBaseString(params) {
+        log.debug params
         Properties reqProp = new Properties();
-        for (String key : ((Map<String, String>)params).keySet()) {
-            if (key == "action" || key == "controller") {
+        for (String key : params.keySet()) {
+            if (key == "action" || key == "controller" || key == "format") {
                 // Ignore as these are the grails controller and action tied to this request.
                 continue
             } else if (key == "oauth_signature") {
@@ -297,7 +297,7 @@ class ToolController {
                 continue
             }
 
-            reqProp.setProperty(key, ((Map<String, String>)params).get(key));
+            reqProp.setProperty(key, params.get(key));
         }
 
         return reqProp
