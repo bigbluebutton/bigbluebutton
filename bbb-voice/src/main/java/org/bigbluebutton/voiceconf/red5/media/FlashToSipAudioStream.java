@@ -75,8 +75,8 @@ public class FlashToSipAudioStream {
 			}
 		};
 				
-	    broadcastStream.addStreamListener(mInputListener);    
-	    rtpSender = new RtpStreamSender(srcSocket, connInfo);
+	  broadcastStream.addStreamListener(mInputListener);    
+	  rtpSender = new RtpStreamSender(srcSocket, connInfo);
 		rtpSender.connect();
 		transcoder.start();
 	}
