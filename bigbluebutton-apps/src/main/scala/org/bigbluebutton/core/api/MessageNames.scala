@@ -78,6 +78,7 @@ object MessageNames {
   val UNDO_WHITEBOARD                      = "undo_whiteboard_request"
   val ENABLE_WHITEBOARD                    = "enable_whiteboard_request"
   val IS_WHITEBOARD_ENABLED                = "is_whiteboard_enabled_request"
+  val GET_STREAM_PATH                      = "get_stream_path_request"
 
   // OUT MESSAGES
   val MEETING_CREATED                      = "meeting_created_message"
@@ -158,5 +159,6 @@ object MessageNames {
   val MEETING_DESTROYED_EVENT              = "meeting_destroyed_event"
   val KEEP_ALIVE_REPLY                     = "keep_alive_reply"
   val USER_LISTEN_ONLY                     = "user_listening_only"
+  val GET_STREAM_PATH_REPLY                = "get_stream_path_reply"
   
 }

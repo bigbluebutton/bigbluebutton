@@ -39,6 +39,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+  			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.managers.UserManager;
@@ -110,13 +111,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function openPublishWindow():void{
 				if(_currentState == ON_STATE) {
-					trace("Close window");
+					LogUtil.debug("Close window");
 					_currentState = OFF_STATE;
           this.styleName = "webcamDefaultButtonStyle";
 					this.selected = false;
 					dispatchEvent(new ClosePublishWindowEvent());				
 				} else {
-					trace("Share camera");
+					LogUtil.debug("Share camera");
 					_currentState = ON_STATE;
           this.styleName = "webcamOnButtonStyle";
 					this.selected = true;

@@ -54,6 +54,7 @@ package org.bigbluebutton.modules.videoconf.maps
   import org.bigbluebutton.modules.videoconf.views.VideoWindow;
   import org.flexunit.runner.manipulation.filters.IncludeAllFilter;
 
+
   public class VideoEventMapDelegate
   {
     private var options:VideoConfOptions = new VideoConfOptions();
@@ -70,6 +71,9 @@ package org.bigbluebutton.modules.videoconf.maps
     private var _isPublishing:Boolean = false;
 	  private var _isPreviewWebcamOpen:Boolean = false;
 	  private var _isWaitingActivation:Boolean = false;
+
+	// Store userID of windows waiting for a NetConnection
+	private var pendingVideoWindowsList:Object = new Object();
     
     public function VideoEventMapDelegate(dispatcher:IEventDispatcher)
     {
@@ -91,7 +95,7 @@ package org.bigbluebutton.modules.videoconf.maps
       if (!_ready) return;
       trace("VideoEventMapDelegate:: [" + me + "] Viewing [" + userID + " stream [" + stream + "]");
       if (! UserManager.getInstance().getConference().amIThisUser(userID)) {
-        openViewWindowFor(userID);			
+			initPlayConnectionFor(userID);
       }      
     }
 
@@ -211,7 +215,7 @@ package org.bigbluebutton.modules.videoconf.maps
           closeWindow(userID);
         }
         trace("VideoEventMapDelegate:: [" + me + "] openWebcamWindowFor:: View user's = [" + userID + "] webcam.");
-        openViewWindowFor(userID);
+			initPlayConnectionFor(userID);
       } else {
         if (UsersUtil.isMe(userID) && options.autoStart) {
           trace("VideoEventMapDelegate:: [" + me + "] openWebcamWindowFor:: It's ME and AutoStart. Start publishing.");
@@ -277,6 +281,8 @@ package org.bigbluebutton.modules.videoconf.maps
       if (win != null) {
         trace("VideoEventMapDelegate:: [" + me + "] closeWindow:: Closing [" + win.getWindowType() + "] for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
         win.close();
+		var bbbUser:BBBUser = UsersUtil.getUser(userID);
+		proxy.closePlayConnectionFor(bbbUser.streamName);
         var cwe:CloseWindowEvent = new CloseWindowEvent();
         cwe.window = win;
         _dispatcher.dispatchEvent(cwe);
@@ -284,6 +290,27 @@ package org.bigbluebutton.modules.videoconf.maps
         trace("VideoEventMapDelegate:: [" + me + "] closeWindow:: Not Closing. No window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
       }
     }
+
+	private function initPlayConnectionFor(userID:String):void {
+		//TODO: Change to trace
+		LogUtil.debug("VideoEventMapDelegate:: initPlayConnectionFor : [" + userID + "]");
+		// Store the userID
+		pendingVideoWindowsList[userID] = true;
+		// Request the connection
+		var bbbUser:BBBUser = UsersUtil.getUser(userID);
+		proxy.createPlayConnectionFor(bbbUser.streamName);
+	}
+
+	public function handlePlayConnectionReady():void {
+		// Iterate through all pending windows
+		for(var userID:String in pendingVideoWindowsList) {
+			var bbbUser:BBBUser = UsersUtil.getUser(userID);
+			if(proxy.playConnectionIsReadyFor(bbbUser.streamName)) {
+				delete pendingVideoWindowsList[userID];
+				openViewWindowFor(userID);
+			}
+		}
+	}
     
     private function openViewWindowFor(userID:String):void {
       trace("VideoEventMapDelegate:: [" + me + "] openViewWindowFor:: Opening VIEW window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
@@ -297,7 +324,8 @@ package org.bigbluebutton.modules.videoconf.maps
       closeWindow(userID);
             
       var bbbUser:BBBUser = UsersUtil.getUser(userID);      
-      window.startVideo(proxy.connection, bbbUser.streamName);
+		var streamName:String = proxy.getStreamNamePrefixFor(bbbUser.streamName) + bbbUser.streamName;
+		window.startVideo(proxy.getPlayConnectionFor(bbbUser.streamName), streamName);
       
       webcamWindows.addWindow(window);        
       openWindow(window);
@@ -323,7 +351,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function startPublishing(e:StartBroadcastEvent):void{
-	  LogUtil.debug("VideoEventMapDelegate:: [" + me + "] startPublishing:: Publishing stream to: " + proxy.connection.uri + "/" + e.stream);
+	  LogUtil.debug("VideoEventMapDelegate:: [" + me + "] startPublishing:: Publishing stream to: " + proxy.publishConnection.uri + "/" + e.stream);
       streamName = e.stream;
       proxy.startPublishing(e);
       

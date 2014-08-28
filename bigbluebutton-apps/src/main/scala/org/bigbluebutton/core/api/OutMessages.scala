@@ -652,4 +652,10 @@ case class MeetingVO(
     recorded: Boolean
 )
 
-
+// Video
+case class GetStreamPathReply(
+    meetingID: String,
+    requesterID: String,
+    streamName: String,
+    streamPath: String
+) extends IOutMessage

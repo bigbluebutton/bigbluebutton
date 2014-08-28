@@ -11,6 +11,7 @@ import org.bigbluebutton.core.apps.presentation.PresentationApp
 import org.bigbluebutton.core.apps.layout.LayoutApp
 import org.bigbluebutton.core.apps.chat.ChatApp
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp
+import org.bigbluebutton.core.apps.video.VideoApp
 import scala.actors.TIMEOUT
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.core.util._
@@ -21,7 +22,7 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
                    val voiceBridge: String, duration: Long, val outGW: MessageOutGateway) 
                    extends Actor with UsersApp with PresentationApp
                    with PollApp with LayoutApp with ChatApp
-                   with WhiteboardApp with LogHelper {  
+                   with WhiteboardApp with LogHelper with VideoApp {
 
   var permissionsInited = false
   var permissions = new Permissions()
@@ -113,7 +114,8 @@ class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boo
 	    case msg: SetRecordingStatus                     => handleSetRecordingStatus(msg)
 	    case msg: GetRecordingStatus                     => handleGetRecordingStatus(msg)
 	    case msg: VoiceRecording                         => handleVoiceRecording(msg)
-	    
+	    case msg: GetStreamPath                          => handleGetStreamPath(msg)
+
 	    case msg: EndMeeting                             => handleEndMeeting(msg)
 	    case StopMeetingActor                            => exit
 	    case _ => // do nothing

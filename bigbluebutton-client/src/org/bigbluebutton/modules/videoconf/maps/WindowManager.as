@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.videoconf.maps
   
   import mx.collections.ArrayCollection;
   
+  import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
   import org.bigbluebutton.modules.videoconf.views.AvatarWindow;
@@ -36,13 +37,13 @@ package org.bigbluebutton.modules.videoconf.maps
     
     public function addWindow(window:VideoWindowItf):void {      
       webcamWindows.addItem(window);
-      trace("[" + me + "] addWindow:: userID = [" + window.userID + "] numWindows = [" + webcamWindows.length + "]");
+      LogUtil.debug("[" + me + "] addWindow:: userID = [" + window.userID + "] numWindows = [" + webcamWindows.length + "]");
     }
     
     public function removeWindow(userID:String):VideoWindowItf {
       for (var i:int = 0; i < webcamWindows.length; i++) {
         var win:VideoWindowItf = webcamWindows.getItemAt(i) as VideoWindowItf;
-        trace("[" + me + "] removeWindow:: [" + win.userID + " == " + userID + "] equal = [" + (win.userID == userID) + "]");
+        LogUtil.debug("[" + me + "] removeWindow:: [" + win.userID + " == " + userID + "] equal = [" + (win.userID == userID) + "]");
         if (win.userID == userID) {
           return webcamWindows.removeItemAt(i) as VideoWindowItf;
         }
@@ -52,10 +53,10 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function hasWindow(userID:String):Boolean {
-      trace("[" + me + "] hasWindow:: user [" + userID + "] numWindows = [" + webcamWindows.length + "]");
+      LogUtil.debug("[" + me + "] hasWindow:: user [" + userID + "] numWindows = [" + webcamWindows.length + "]");
       for (var i:int = 0; i < webcamWindows.length; i++) {
         var win:VideoWindowItf = webcamWindows.getItemAt(i) as VideoWindowItf;
-        trace("[" + me + "] hasWindow:: [" + win.userID + " == " + userID + "] equal = [" + (win.userID == userID) + "]");
+        LogUtil.debug("[" + me + "] hasWindow:: [" + win.userID + " == " + userID + "] equal = [" + (win.userID == userID) + "]");
         if (win.userID == userID) {          
           return true;
         }
@@ -67,7 +68,7 @@ package org.bigbluebutton.modules.videoconf.maps
     public function getWindow(userID:String):VideoWindowItf {
       for (var i:int = 0; i < webcamWindows.length; i++) {
         var win:VideoWindowItf = webcamWindows.getItemAt(i) as VideoWindowItf;
-        trace("[" + me + "] getWindow:: [" + win.userID + " == " + userID + "] equal = [" + (win.userID == userID) + "]");
+        LogUtil.debug("[" + me + "] getWindow:: [" + win.userID + " == " + userID + "] equal = [" + (win.userID == userID) + "]");
         if (win.userID == userID) return win;
       }      
       
