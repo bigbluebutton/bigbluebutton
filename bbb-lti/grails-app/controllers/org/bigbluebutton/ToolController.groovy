@@ -15,6 +15,7 @@
     You should have received a copy of the GNU Lesser General Public License along
     with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 */
+package org.bigbluebutton
 
 import java.util.ArrayList
 import java.util.HashMap
@@ -29,27 +30,30 @@ import net.oauth.signature.OAuthSignatureMethod
 import net.oauth.signature.HMAC_SHA1
 import org.bigbluebutton.lti.Parameter
 
-import BigbluebuttonService
-import LtiService
-
 class ToolController {
     private static final String CONTROLLER_NAME = 'ToolController'
     private static final String RESP_CODE_SUCCESS = 'SUCCESS'
     private static final String RESP_CODE_FAILED = 'FAILED'
     private static final String REQUEST_METHOD = "request_method";
-    
+
     LtiService ltiService
     BigbluebuttonService bigbluebuttonService
-    
-    def index = {
+
+    def test() {
+        ltiService.logParameters(params)
+        render(text: "<xml></xml>", contentType: "text/xml", encoding: "UTF-8")
+    }
+
+    def index() {
         if( ltiService.consumerMap == null) ltiService.initConsumerMap()
         log.debug CONTROLLER_NAME + "#index"
 
+        def endPoint = (request.isSecure()?"https":"http") + "://" + ltiService.endPoint + "/" + grailsApplication.metadata['app.name'] + "/" + params.get("controller") + (params.get("format") != null? "." + params.get("format"): "")
         setLocalization(params)
-        
+
         params.put(REQUEST_METHOD, request.getMethod().toUpperCase())
         ltiService.logParameters(params)
-        
+
         if( request.post ){
             Map<String, String> result = new HashMap<String, String>()
             ArrayList<String> missingParams = new ArrayList<String>()
@@ -60,9 +64,9 @@ class ToolController {
                 def consumer = ltiService.getConsumer(params.get(Parameter.CONSUMER_ID))
                 if (consumer != null) {
                     log.debug "Found consumer with key " + consumer.get("key") //+ " and sharedSecret " + consumer.get("secret")
-                    if (checkValidSignature(params.get(REQUEST_METHOD), ltiService.endPoint, consumer.get("secret"), sanitizedParams, params.get(Parameter.OAUTH_SIGNATURE))) {
+                    if (checkValidSignature(params.get(REQUEST_METHOD), endPoint, consumer.get("secret"), sanitizedParams, params.get(Parameter.OAUTH_SIGNATURE))) {
                         log.debug  "The message has a valid signature."
-                        
+
                         if( !"extended".equals(ltiService.mode) ) {
                             log.debug  "LTI service running in simple mode."
                             result = doJoinMeeting(params)
@@ -73,18 +77,18 @@ class ToolController {
                                 result = doJoinMeeting(params)
                             }
                         }
-                        
+
                     } else {
                         log.debug  "The message has NOT a valid signature."
                         result.put("resultMessageKey", "InvalidSignature")
                         result.put("resultMessage", "Invalid signature (" + params.get(Parameter.OAUTH_SIGNATURE) + ").")
                     }
-                    
+
                 } else {
                     result.put("resultMessageKey", "ConsumerNotFound")
                     result.put("resultMessage", "Consumer with id = " + params.get(Parameter.CONSUMER_ID) + " was not found.")
                 }
-    
+
             } else {
                 String missingStr = ""
                 for(String str:missingParams) {
@@ -121,7 +125,7 @@ class ToolController {
         }
     }
 
-    def join = {
+    def join() {
         if( ltiService.consumerMap == null) ltiService.initConsumerMap()
         log.debug CONTROLLER_NAME + "#join"
         Map<String, String> result
@@ -136,7 +140,7 @@ class ToolController {
             result = new HashMap<String, String>()
             result.put("resultMessageKey", "InvalidSession")
             result.put("resultMessage", "Invalid session. User can not execute this action.")
-        } 
+        }
 
         if( result.containsKey("resultMessageKey")) {
             log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
@@ -145,7 +149,7 @@ class ToolController {
 
     }
 
-    def publish = {
+    def publish() {
         log.debug CONTROLLER_NAME + "#publish"
         Map<String, String> result
 
@@ -162,10 +166,10 @@ class ToolController {
         } else {
             log.debug "params: " + params
             log.debug "sessionParams: " + sessionParams
-            
+
             //Execute the publish command
             result = bigbluebuttonService.doPublishRecordings(params)
-        } 
+        }
 
         if( result.containsKey("resultMessageKey")) {
             log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
@@ -182,14 +186,12 @@ class ToolController {
                 /// Add duration
                 recording.put("duration", duration )
             }
-            
+
             render(view: "index", model: ['params': sessionParams, 'recordingList': recordings, 'ismoderator': bigbluebuttonService.isModerator(sessionParams)])
-
         }
-
     }
 
-    def delete = {
+    def delete() {
         log.debug CONTROLLER_NAME + "#delete"
         Map<String, String> result
 
@@ -206,7 +208,7 @@ class ToolController {
         } else {
             log.debug "params: " + params
             log.debug "sessionParams: " + sessionParams
-            
+
             //Execute the delete command
             result = bigbluebuttonService.doDeleteRecordings(params)
         }
@@ -232,33 +234,29 @@ class ToolController {
     }
 
     private void setLocalization(params){
-
         String locale = params.get(Parameter.LAUNCH_LOCALE)
         locale = (locale == null || locale.equals("")?"en":locale)
-        log.debug "Locale code =" + locale
         String[] localeCodes = locale.split("_")
         //Localize the default welcome message
-        if( localeCodes.length > 1 )
+        if( localeCodes.length > 1 ) {
             session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0], localeCodes[1])
-        else
+        } else {
             session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0])
-                    
-        log.debug "Locale has been set to " + locale
-
+        }
     }
 
     private Object doJoinMeeting(params) {
         Map<String, String> result = new HashMap<String, String>()
-                    
+
         setLocalization(params)
         String welcome = message(code: "bigbluebutton.welcome.header", args: ["\"{0}\"", "\"{1}\""]) + "<br>"
         log.debug "Localized default welcome message: [" + welcome + "]"
 
-		// Check for [custom_]welcome parameter being passed from the LTI
-		if (params.get(Parameter.CUSTOM_WELCOME) != null) {
-			welcome = params.get(Parameter.CUSTOM_WELCOME) + "<br>"
-			log.debug "Overriding default welcome message with: [" + welcome + "]"
-		}
+        // Check for [custom_]welcome parameter being passed from the LTI
+        if (params.get(Parameter.CUSTOM_WELCOME) != null) {
+            welcome = params.get(Parameter.CUSTOM_WELCOME) + "<br>"
+            log.debug "Overriding default welcome message with: [" + welcome + "]"
+        }
 
         if ( Boolean.parseBoolean(params.get(Parameter.CUSTOM_RECORD)) ) {
             welcome += "<br><b>" + message(code: "bigbluebutton.welcome.record") + "</b><br>"
@@ -266,7 +264,9 @@ class ToolController {
         }
 
         if ( Integer.parseInt(params.get(Parameter.CUSTOM_DURATION)) > 0 ) {
-            welcome += "<br><b>" + message(code: "bigbluebutton.welcome.duration", args: [params.get(Parameter.CUSTOM_DURATION)]) + "</b><br>"
+            welcome += "<br><b>" + message(code: "bigbluebutton.welcome.duration", args: [
+                params.get(Parameter.CUSTOM_DURATION)
+            ]) + "</b><br>"
             log.debug "Adding duration warning to welcome message, welcome is now: [" + welcome + "]"
         }
 
@@ -275,24 +275,24 @@ class ToolController {
 
         String destinationURL = bigbluebuttonService.getJoinURL(params, welcome, ltiService.mode)
         log.debug "redirecting to " + destinationURL
-                    
+
         if( destinationURL != null ) {
             redirect(url:destinationURL)
         } else {
             result.put("resultMessageKey", "BigBlueButtonServerError")
             result.put("resultMessage", "The join could not be completed")
         }
-        
+
         return result
     }
-        
+
     /**
      * Assemble all parameters passed that is required to sign the request.
      * @param the HTTP request parameters
      * @return the key:val pairs needed for Basic LTI
      */
     private Properties sanitizePrametersForBaseString(Object params) {
-        
+
         Properties reqProp = new Properties();
         for (String key : ((Map<String, String>)params).keySet()) {
             if (key == "action" || key == "controller") {
@@ -348,11 +348,11 @@ class ToolController {
      * @return - TRUE if the signatures matches the calculated signature
      */
     private boolean checkValidSignature(String method, String URL, String conSecret, Object postProp, String signature) {
-		log.debug( "Starting checkValidSignature()" )
+        log.debug( "Starting checkValidSignature()" )
         OAuthMessage oam = new OAuthMessage(method, URL, ((Properties)postProp).entrySet())
-		log.debug( "OAuthMessage oam = " + oam.toString() )
+        log.debug( "OAuthMessage oam = " + oam.toString() )
         HMAC_SHA1 hmac = new HMAC_SHA1()
-		log.debug( "HMAC_SHA1 hmac = " + hmac.toString() )
+        log.debug( "HMAC_SHA1 hmac = " + hmac.toString() )
         hmac.setConsumerSecret(conSecret)
 
         log.debug("Base Message String = [ " + hmac.getBaseString(oam) + " ]\n")
@@ -360,36 +360,41 @@ class ToolController {
         log.debug("Calculated: " + calculatedSignature + " Received: " + signature)
         return calculatedSignature.equals(signature)
     }
-    
+
     private String getCartridgeXML(){
+		def lti_endpoint = ltiService.retrieveBasicLtiEndpoint() + '/' + grailsApplication.metadata['app.name']
+		def launch_url = 'http://' + lti_endpoint + '/tool'
+		def secure_launch_url = 'https://' + lti_endpoint + '/tool'
+		def icon = 'http://' + lti_endpoint + '/images/icon.ico'
+		def secure_icon = 'https://' + lti_endpoint + '/images/icon.ico'
+		def isSSLEnabled = ltiService.isSSLEnabled('https://' + lti_endpoint + '/tool/test')
         def cartridge = '' +
-        '<?xml version="1.0" encoding="UTF-8"?>' +
-        '<cartridge_basiclti_link xmlns="http://www.imsglobal.org/xsd/imslticc_v1p0"' +
-        '       xmlns:blti = "http://www.imsglobal.org/xsd/imsbasiclti_v1p0"' +
-        '       xmlns:lticm ="http://www.imsglobal.org/xsd/imslticm_v1p0"' +
-        '       xmlns:lticp ="http://www.imsglobal.org/xsd/imslticp_v1p0"' +
-        '       xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance"' +
-        '       xsi:schemaLocation = "http://www.imsglobal.org/xsd/imslticc_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticc_v1p0.xsd' +
-        '                             http://www.imsglobal.org/xsd/imsbasiclti_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imsbasiclti_v1p0.xsd' +
-        '                             http://www.imsglobal.org/xsd/imslticm_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticm_v1p0.xsd' +
-        '                             http://www.imsglobal.org/xsd/imslticp_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticp_v1p0.xsd">' +
-        '    <blti:title>BigBlueButton</blti:title>' +
-        '    <blti:description>Single Sign On into BigBlueButton</blti:description>' +
-        '    <blti:launch_url>' + ltiService.retrieveBasicLtiEndpoint() + '</blti:launch_url>' +
-        '    <blti:icon>' + ltiService.retrieveIconEndpoint() + '</blti:icon>' +
-        '    <blti:vendor>' +
-        '        <lticp:code>BBB</lticp:code>' +
-        '        <lticp:name>BigBlueButton</lticp:name>' +
-        '        <lticp:description>Open source web conferencing system for distance learning.</lticp:description>' +
-        '        <lticp:url>http://www.bigbluebutton.org/</lticp:url>' +
-        '    </blti:vendor>' +
-        '    <cartridge_bundle identifierref="BLTI001_Bundle"/>' +
-        '    <cartridge_icon identifierref="BLTI001_Icon"/>' +
-        '</cartridge_basiclti_link>'
-        
+                '<?xml version="1.0" encoding="UTF-8"?>' +
+                '<cartridge_basiclti_link xmlns="http://www.imsglobal.org/xsd/imslticc_v1p0"' +
+                '       xmlns:blti = "http://www.imsglobal.org/xsd/imsbasiclti_v1p0"' +
+                '       xmlns:lticm ="http://www.imsglobal.org/xsd/imslticm_v1p0"' +
+                '       xmlns:lticp ="http://www.imsglobal.org/xsd/imslticp_v1p0"' +
+                '       xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance"' +
+                '       xsi:schemaLocation = "http://www.imsglobal.org/xsd/imslticc_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticc_v1p0.xsd' +
+                '                             http://www.imsglobal.org/xsd/imsbasiclti_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imsbasiclti_v1p0.xsd' +
+                '                             http://www.imsglobal.org/xsd/imslticm_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticm_v1p0.xsd' +
+                '                             http://www.imsglobal.org/xsd/imslticp_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticp_v1p0.xsd">' +
+                '    <blti:title>BigBlueButton</blti:title>' +
+                '    <blti:description>BigBlueButton is an open source web conferencing system for on-line learning. The LTI integration enables teachers to (a) embed BigBlueButton virtual classes within their course to provide on-line office hours, small group collaboration, and on-line lectures, (b) record sessions, and (c) manage recorded sessions.</blti:description>' +
+                '    <blti:launch_url>' + launch_url + '</blti:launch_url>' +
+                (isSSLEnabled? '    <blti:secure_launch_url>' + secure_launch_url + '</blti:secure_launch_url>': '') +
+                '    <blti:icon>' + icon + '</blti:icon>' +
+                (isSSLEnabled? '    <blti:secure_icon>' + secure_icon + '</blti:secure_icon>': '') +
+                '    <blti:vendor>' +
+                '        <lticp:code>BBB</lticp:code>' +
+                '        <lticp:name>BigBlueButton</lticp:name>' +
+                '        <lticp:description>Open source web conferencing system for distance learning.</lticp:description>' +
+                '        <lticp:url>http://www.bigbluebutton.org/</lticp:url>' +
+                '    </blti:vendor>' +
+                '    <cartridge_bundle identifierref="BLTI001_Bundle"/>' +
+                '    <cartridge_icon identifierref="BLTI001_Icon"/>' +
+                '</cartridge_basiclti_link>'
+
         return cartridge
-        
     }
-
-
 }
