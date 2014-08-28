@@ -221,7 +221,7 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 			
 		override public function close(event:MouseEvent = null):void{
-      LogUtil.debug("VideoWIndowItf close window event");
+      trace("VideoWIndowItf close window event");
       
 			var e:CloseWindowEvent = new CloseWindowEvent();
 			e.window = this;

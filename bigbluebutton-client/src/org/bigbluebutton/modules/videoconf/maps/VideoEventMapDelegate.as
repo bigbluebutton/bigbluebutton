@@ -215,7 +215,7 @@ package org.bigbluebutton.modules.videoconf.maps
           closeWindow(userID);
         }
         trace("VideoEventMapDelegate:: [" + me + "] openWebcamWindowFor:: View user's = [" + userID + "] webcam.");
-			initPlayConnectionFor(userID);
+        initPlayConnectionFor(userID);
       } else {
         if (UsersUtil.isMe(userID) && options.autoStart) {
           trace("VideoEventMapDelegate:: [" + me + "] openWebcamWindowFor:: It's ME and AutoStart. Start publishing.");

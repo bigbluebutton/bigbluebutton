@@ -133,12 +133,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
       private function handleMadePresenterEvent(event:MadePresenterEvent):void {
-        LogUtil.debug("******** VideoWindow: HandleMadePresenter event *********");
+        trace("******** VideoWindow: HandleMadePresenter event *********");
         updateControlButtons();
       }
       
       private function handleSwitchedPresenterEvent(event:SwitchedPresenterEvent):void {
-        LogUtil.debug("******** VideoWindow: handleSwitchedPresenterEvent event *********");
+        trace("******** VideoWindow: handleSwitchedPresenterEvent event *********");
         updateControlButtons();
       }
       
@@ -205,7 +205,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				
 				if (videoOptions.smoothVideo) {
-					LogUtil.debug("Smoothing video.")
+					trace("Smoothing video.")
 					_video.smoothing = true;
 				} 
 				
@@ -213,7 +213,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var filter:ConvolutionFilter = new flash.filters.ConvolutionFilter();
 					filter.matrixX = 3;
 					filter.matrixY = 3;
-					LogUtil.debug("Applying convolution filter =[" + videoOptions.convolutionFilter + "]");					
+					trace("Applying convolution filter =[" + videoOptions.convolutionFilter + "]");					
 					filter.matrix = videoOptions.convolutionFilter;
 					filter.bias =  videoOptions.filterBias;
 					filter.divisor = videoOptions.filterDivisor;
@@ -236,7 +236,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function onMetaData(info:Object):void{
-				LogUtil.debug("metadata: width=" + info.width + " height=" + info.height);
+				trace("metadata: width=" + info.width + " height=" + info.height);
 				_video.width = info.width;
 				_video.height = info.height;
 				setAspectRatio(info.width, info.height);

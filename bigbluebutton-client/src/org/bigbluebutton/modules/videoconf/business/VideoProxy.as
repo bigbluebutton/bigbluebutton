@@ -305,7 +305,7 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 		public function stopBroadcasting():void{
-      LogUtil.debug("Closing netstream for webcam publishing");
+      trace("Closing netstream for webcam publishing");
       
 			if (ns != null) {
 				ns.attachCamera(null);
@@ -316,7 +316,7 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 		public function disconnect():void {
-      LogUtil.debug("VideoProxy:: disconnecting from Video application");
+      trace("VideoProxy:: disconnecting from Video application");
       stopBroadcasting();
 			// Close publish NetConnection
 			if (nc != null) nc.close();
@@ -341,7 +341,7 @@ package org.bigbluebutton.modules.videoconf.business
 			if (rest.length > 0) p_bw = rest[0]; 
 			// your application should do something here 
 			// when the bandwidth check is complete 
-			LogUtil.debug("bandwidth = " + p_bw + " Kbps."); 
+			trace("bandwidth = " + p_bw + " Kbps."); 
 		}
 		
 

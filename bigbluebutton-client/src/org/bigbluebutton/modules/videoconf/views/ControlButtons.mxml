@@ -127,13 +127,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     private function displayEjectButton(controlsForPresenter:Boolean):void {
 			var userOption:UsersOptions = new UsersOptions();
 			if (! userOption.allowKickUser) {
-				LogUtil.debug("Kicking user not allowed");
+				trace("Kicking user not allowed");
 				// User kicking not enabled. Just return;
 				ejectUserBtn.visible = false;
 				return;
 			}
 			
-			LogUtil.debug("Kicking user allowed [" + userOption.allowKickUser + "]");
+			trace("Kicking user allowed [" + userOption.allowKickUser + "]");
 			
       /**
        * Display button if:

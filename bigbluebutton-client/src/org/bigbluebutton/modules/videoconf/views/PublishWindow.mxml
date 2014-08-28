@@ -167,12 +167,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function handleMadePresenterEvent(event:MadePresenterEvent):void {
-				LogUtil.debug("******** PublishWindow: HandleMadePresenter event *********");
+				trace("******** PublishWindow: HandleMadePresenter event *********");
 				updateControlButtons();
 			}
 			
 			private function handleSwitchedPresenterEvent(event:SwitchedPresenterEvent):void {
-				LogUtil.debug("******** PublishWindow: handleSwitchedPresenterEvent event *********");
+				trace("******** PublishWindow: handleSwitchedPresenterEvent event *********");
 				updateControlButtons();
 			}
 			
@@ -236,7 +236,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_camera.setQuality(videoOptions.camQualityBandwidth, videoOptions.camQualityPicture);
 				
 				if (_camera.width != camWidth || _camera.height != camHeight) {
-					LogUtil.debug("Resolution " + camWidth + "x" + camHeight + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
+					trace("Resolution " + camWidth + "x" + camHeight + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
 					setResolution(_camera.width, _camera.height);
 				}				
 				
@@ -262,12 +262,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function onActivityEvent(e:ActivityEvent):void {        
 				if (_waitingForActivation && e.activating) {
-					LogUtil.debug("Cam activity event:  waitingForActivation = [" + _waitingForActivation + "] activating = [" + e.activating + "]");
+					trace("Cam activity event:  waitingForActivation = [" + _waitingForActivation + "] activating = [" + e.activating + "]");
 					_activationTimer.stop();
 					showWarning('bbb.video.publish.hint.videoPreview', false, "0xFFFF00");
 					_waitingForActivation = false;
 					
-					LogUtil.debug("Starting auto-publisher timer.");             
+					trace("Starting auto-publisher timer.");             
 					autoPublishTimer = new Timer(3000, 1);
 					autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
 					autoPublishTimer.start();
@@ -333,23 +333,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var _isClosing:Boolean = false;
 			
 			override public function close(event:MouseEvent=null):void{
-				LogUtil.debug("PublishWindow:: closing");
+				trace("PublishWindow:: closing");
 				
 				if (!_isClosing) {
 					_isClosing = true;
 					stopPublishing();
-					LogUtil.debug("Dispatching ClosePublishWindowEvent event");
+					trace("Dispatching ClosePublishWindowEvent event");
 					var gDispatcher:Dispatcher = new Dispatcher();
 					gDispatcher.dispatchEvent(new ClosePublishWindowEvent());
 				}				
 			}
 			
 			private function stopCamera():void {
-				LogUtil.debug("PublishWindow:: stopping camera");
+				trace("PublishWindow:: stopping camera");
 				
 				_camera = null;
 				if (_video != null) {
-					LogUtil.debug("PublishWindow:: removing video from display");
+					trace("PublishWindow:: removing video from display");
 					_videoHolder.removeChild(_video);
 					
 					_video.attachCamera(null);
@@ -360,7 +360,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function stopPublishing():void{
-				LogUtil.debug("PublishWindow::stopPublishing");
+				trace("PublishWindow::stopPublishing");
 				stopCamera();
 				var e:StopBroadcastEvent = new StopBroadcastEvent()
 				e.stream = streamName;
@@ -431,7 +431,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function closeWindow(e:CloseAllWindowsEvent):void{
-				LogUtil.debug("PublishWindow::closeWindow");
+				trace("PublishWindow::closeWindow");
 				stopCamera();
 			}
 			

@@ -188,12 +188,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 			
       private function handleMadePresenterEvent(event:MadePresenterEvent):void {
-        LogUtil.debug("******** Avatar: HandleMadePresenter event *********");
+        trace("******** Avatar: HandleMadePresenter event *********");
         updateControlButtons();
       }
       
       private function handleSwitchedPresenterEvent(event:SwitchedPresenterEvent):void {
-        LogUtil.debug("******** Avatar: handleSwitchedPresenterEvent event *********");
+        trace("******** Avatar: handleSwitchedPresenterEvent event *********");
         updateControlButtons();
       }
       
@@ -239,7 +239,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function closeThisWindow():void {
-				LogUtil.debug("* Closing avatar window for user [" + userID + "] *");
+				trace("* Closing avatar window for user [" + userID + "] *");
 			}
 			
 			
