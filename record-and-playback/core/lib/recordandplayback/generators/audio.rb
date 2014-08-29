@@ -237,6 +237,7 @@ module BigBlueButton
           filename = event.at_xpath('filename').text
           filename = "#{audio_dir}/#{File.basename(filename)}"
           if audio_edl.last[:audio] && audio_edl.last[:audio][:filename] == filename
+            audio_edl.last[:original_duration] = timestamp - audio_edl.last[:timestamp]
             audio_edl << {
               :timestamp => timestamp,
               :audio => nil

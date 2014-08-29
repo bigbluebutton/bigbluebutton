@@ -1,3 +1,4 @@
+package org.bigbluebutton
 /* 
     BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 
@@ -15,7 +16,6 @@
     You should have received a copy of the GNU Lesser General Public License along
     with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 */
-package org.bigbluebutton
 
 import java.util.ArrayList
 import java.util.HashMap
@@ -39,25 +39,24 @@ class ToolController {
     LtiService ltiService
     BigbluebuttonService bigbluebuttonService
 
-    def test() {
-        ltiService.logParameters(params)
+    def test = {
+        log.debug CONTROLLER_NAME + "#test"
         render(text: "<xml></xml>", contentType: "text/xml", encoding: "UTF-8")
     }
 
-    def index() {
-        if( ltiService.consumerMap == null) ltiService.initConsumerMap()
+    def index = {
         log.debug CONTROLLER_NAME + "#index"
+        if( ltiService.consumerMap == null) ltiService.initConsumerMap()
 
-        def endPoint = (request.isSecure()?"https":"http") + "://" + ltiService.endPoint + "/" + grailsApplication.metadata['app.name'] + "/" + params.get("controller") + (params.get("format") != null? "." + params.get("format"): "")
         setLocalization(params)
 
         params.put(REQUEST_METHOD, request.getMethod().toUpperCase())
         ltiService.logParameters(params)
 
         if( request.post ){
+            def endPoint = (request.isSecure()?"https":"http") + "://" + ltiService.endPoint + "/" + grailsApplication.metadata['app.name'] + "/" + params.get("controller") + (params.get("format") != null? "." + params.get("format"): "")
             Map<String, String> result = new HashMap<String, String>()
             ArrayList<String> missingParams = new ArrayList<String>()
-            log.debug "Checking for required parameters"
 
             if (hasAllRequiredParams(params, missingParams)) {
                 def sanitizedParams = sanitizePrametersForBaseString(params)
@@ -77,13 +76,11 @@ class ToolController {
                                 result = doJoinMeeting(params)
                             }
                         }
-
                     } else {
                         log.debug  "The message has NOT a valid signature."
                         result.put("resultMessageKey", "InvalidSignature")
                         result.put("resultMessage", "Invalid signature (" + params.get(Parameter.OAUTH_SIGNATURE) + ").")
                     }
-
                 } else {
                     result.put("resultMessageKey", "ConsumerNotFound")
                     result.put("resultMessage", "Consumer with id = " + params.get(Parameter.CONSUMER_ID) + " was not found.")
@@ -115,17 +112,14 @@ class ToolController {
                     /// Add duration
                     recording.put("duration", duration )
                 }
-
                 render(view: "index", model: ['params': params, 'recordingList': recordings, 'ismoderator': bigbluebuttonService.isModerator(params)])
             }
-
         } else {
             render(text: getCartridgeXML(), contentType: "text/xml", encoding: "UTF-8")
-
         }
     }
 
-    def join() {
+    def join = {
         if( ltiService.consumerMap == null) ltiService.initConsumerMap()
         log.debug CONTROLLER_NAME + "#join"
         Map<String, String> result
@@ -146,10 +140,9 @@ class ToolController {
             log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
             render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
         }
-
     }
 
-    def publish() {
+    def publish = {
         log.debug CONTROLLER_NAME + "#publish"
         Map<String, String> result
 
@@ -191,7 +184,7 @@ class ToolController {
         }
     }
 
-    def delete() {
+    def delete = {
         log.debug CONTROLLER_NAME + "#delete"
         Map<String, String> result
 
@@ -238,11 +231,10 @@ class ToolController {
         locale = (locale == null || locale.equals("")?"en":locale)
         String[] localeCodes = locale.split("_")
         //Localize the default welcome message
-        if( localeCodes.length > 1 ) {
+        if( localeCodes.length > 1 )
             session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0], localeCodes[1])
-        } else {
+        else
             session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0])
-        }
     }
 
     private Object doJoinMeeting(params) {
@@ -252,21 +244,19 @@ class ToolController {
         String welcome = message(code: "bigbluebutton.welcome.header", args: ["\"{0}\"", "\"{1}\""]) + "<br>"
         log.debug "Localized default welcome message: [" + welcome + "]"
 
-        // Check for [custom_]welcome parameter being passed from the LTI
-        if (params.get(Parameter.CUSTOM_WELCOME) != null) {
-            welcome = params.get(Parameter.CUSTOM_WELCOME) + "<br>"
-            log.debug "Overriding default welcome message with: [" + welcome + "]"
-        }
+		// Check for [custom_]welcome parameter being passed from the LTI
+		if ( params.containsKey(Parameter.CUSTOM_WELCOME) && params.get(Parameter.CUSTOM_WELCOME) != null ) {
+			welcome = params.get(Parameter.CUSTOM_WELCOME) + "<br>"
+			log.debug "Overriding default welcome message with: [" + welcome + "]"
+		}
 
-        if ( Boolean.parseBoolean(params.get(Parameter.CUSTOM_RECORD)) ) {
+        if ( params.containsKey(Parameter.CUSTOM_RECORD) && Boolean.parseBoolean(params.get(Parameter.CUSTOM_RECORD)) ) {
             welcome += "<br><b>" + message(code: "bigbluebutton.welcome.record") + "</b><br>"
             log.debug "Adding record warning to welcome message, welcome is now: [" + welcome + "]"
         }
 
-        if ( Integer.parseInt(params.get(Parameter.CUSTOM_DURATION)) > 0 ) {
-            welcome += "<br><b>" + message(code: "bigbluebutton.welcome.duration", args: [
-                params.get(Parameter.CUSTOM_DURATION)
-            ]) + "</b><br>"
+        if ( params.containsKey(Parameter.CUSTOM_DURATION) && Integer.parseInt(params.get(Parameter.CUSTOM_DURATION)) > 0 ) {
+            welcome += "<br><b>" + message(code: "bigbluebutton.welcome.duration", args: [params.get(Parameter.CUSTOM_DURATION)]) + "</b><br>"
             log.debug "Adding duration warning to welcome message, welcome is now: [" + welcome + "]"
         }
 
@@ -291,11 +281,10 @@ class ToolController {
      * @param the HTTP request parameters
      * @return the key:val pairs needed for Basic LTI
      */
-    private Properties sanitizePrametersForBaseString(Object params) {
-
+    private Properties sanitizePrametersForBaseString(params) {
         Properties reqProp = new Properties();
-        for (String key : ((Map<String, String>)params).keySet()) {
-            if (key == "action" || key == "controller") {
+        for (String key : params.keySet()) {
+            if (key == "action" || key == "controller" || key == "format") {
                 // Ignore as these are the grails controller and action tied to this request.
                 continue
             } else if (key == "oauth_signature") {
@@ -306,9 +295,8 @@ class ToolController {
                 continue
             }
 
-            reqProp.setProperty(key, ((Map<String, String>)params).get(key));
+            reqProp.setProperty(key, params.get(key));
         }
-
         return reqProp
     }
 
@@ -318,20 +306,22 @@ class ToolController {
      * @param missingParams - a list of missing parameters
      * @return - true if all required parameters have been passed in
      */
-    private boolean hasAllRequiredParams(Object params, Object missingParams) {
+    private boolean hasAllRequiredParams(Map<String, String> params, ArrayList<String> missingParams) {
+        log.debug "Checking for required parameters"
+
         boolean hasAllParams = true
-        if (! ((Map<String, String>)params).containsKey(Parameter.CONSUMER_ID)) {
-            ((ArrayList<String>)missingParams).add(Parameter.CONSUMER_ID);
+        if ( !params.containsKey(Parameter.CONSUMER_ID) ) {
+            missingParams.add(Parameter.CONSUMER_ID);
             hasAllParams = false;
         }
 
-        if (! ((Map<String, String>)params).containsKey(Parameter.OAUTH_SIGNATURE)) {
-            ((ArrayList<String>)missingParams).add(Parameter.OAUTH_SIGNATURE);
+        if ( !params.containsKey(Parameter.OAUTH_SIGNATURE)) {
+            missingParams.add(Parameter.OAUTH_SIGNATURE);
             hasAllParams = false;
         }
 
-        if (! ((Map<String, String>)params).containsKey(Parameter.RESOURCE_LINK_ID)) {
-            ((ArrayList<String>)missingParams).add(Parameter.RESOURCE_LINK_ID);
+        if ( !params.containsKey(Parameter.RESOURCE_LINK_ID) ) {
+            missingParams.add(Parameter.RESOURCE_LINK_ID);
             hasAllParams = false;
         }
 
@@ -347,27 +337,37 @@ class ToolController {
      * @param signature - the passed in signature calculated from the client
      * @return - TRUE if the signatures matches the calculated signature
      */
-    private boolean checkValidSignature(String method, String URL, String conSecret, Object postProp, String signature) {
-        log.debug( "Starting checkValidSignature()" )
-        OAuthMessage oam = new OAuthMessage(method, URL, ((Properties)postProp).entrySet())
-        log.debug( "OAuthMessage oam = " + oam.toString() )
-        HMAC_SHA1 hmac = new HMAC_SHA1()
-        log.debug( "HMAC_SHA1 hmac = " + hmac.toString() )
-        hmac.setConsumerSecret(conSecret)
+    private boolean checkValidSignature(String method, String url, String conSecret, Properties postProp, String signature) {
+        def validSignature = false
 
-        log.debug("Base Message String = [ " + hmac.getBaseString(oam) + " ]\n")
-        String calculatedSignature = hmac.getSignature(hmac.getBaseString(oam))
-        log.debug("Calculated: " + calculatedSignature + " Received: " + signature)
-        return calculatedSignature.equals(signature)
+        try {
+            OAuthMessage oam = new OAuthMessage(method, url, postProp.entrySet())
+            //log.debug "OAuthMessage oam = " + oam.toString()
+
+            HMAC_SHA1 hmac = new HMAC_SHA1()
+            //log.debug "HMAC_SHA1 hmac = " + hmac.toString()
+
+            hmac.setConsumerSecret(conSecret)
+
+            log.debug "Base Message String = [ " + hmac.getBaseString(oam) + " ]\n"
+            String calculatedSignature = hmac.getSignature(hmac.getBaseString(oam))
+            log.debug "Calculated: " + calculatedSignature + " Received: " + signature
+
+            validSignature = calculatedSignature.equals(signature)
+        } catch( Exception e ) {
+            log.debug "Exception error: " + e.message
+        }
+
+        return validSignature
     }
 
     private String getCartridgeXML(){
-		def lti_endpoint = ltiService.retrieveBasicLtiEndpoint() + '/' + grailsApplication.metadata['app.name']
-		def launch_url = 'http://' + lti_endpoint + '/tool'
-		def secure_launch_url = 'https://' + lti_endpoint + '/tool'
-		def icon = 'http://' + lti_endpoint + '/images/icon.ico'
-		def secure_icon = 'https://' + lti_endpoint + '/images/icon.ico'
-		def isSSLEnabled = ltiService.isSSLEnabled('https://' + lti_endpoint + '/tool/test')
+        def lti_endpoint = ltiService.retrieveBasicLtiEndpoint() + '/' + grailsApplication.metadata['app.name']
+        def launch_url = 'http://' + lti_endpoint + '/tool'
+        def secure_launch_url = 'https://' + lti_endpoint + '/tool'
+        def icon = 'http://' + lti_endpoint + '/images/icon.ico'
+        def secure_icon = 'https://' + lti_endpoint + '/images/icon.ico'
+        def isSSLEnabled = ltiService.isSSLEnabled('https://' + lti_endpoint + '/tool/test')
         def cartridge = '' +
                 '<?xml version="1.0" encoding="UTF-8"?>' +
                 '<cartridge_basiclti_link xmlns="http://www.imsglobal.org/xsd/imslticc_v1p0"' +
@@ -380,7 +380,7 @@ class ToolController {
                 '                             http://www.imsglobal.org/xsd/imslticm_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticm_v1p0.xsd' +
                 '                             http://www.imsglobal.org/xsd/imslticp_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticp_v1p0.xsd">' +
                 '    <blti:title>BigBlueButton</blti:title>' +
-                '    <blti:description>BigBlueButton is an open source web conferencing system for on-line learning. The LTI integration enables teachers to (a) embed BigBlueButton virtual classes within their course to provide on-line office hours, small group collaboration, and on-line lectures, (b) record sessions, and (c) manage recorded sessions.</blti:description>' +
+                '    <blti:description>Single Sign On into BigBlueButton</blti:description>' +
                 '    <blti:launch_url>' + launch_url + '</blti:launch_url>' +
                 (isSSLEnabled? '    <blti:secure_launch_url>' + secure_launch_url + '</blti:secure_launch_url>': '') +
                 '    <blti:icon>' + icon + '</blti:icon>' +
