@@ -85,7 +85,7 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
     	  var m = new MeetingActor(msg.meetingID, msg.meetingName, msg.recorded, msg.voiceBridge, msg.duration, outGW)
     	  m.start
     	  meetings += m.meetingID -> m
-    	  outGW.send(new MeetingCreated(m.meetingID, m.recorded, m.voiceBridge))
+    	  outGW.send(new MeetingCreated(m.meetingID, m.recorded, m.meetingName, m.voiceBridge, msg.duration))
     	  
     	  m ! new InitializeMeeting(m.meetingID, m.recorded)
     	  m ! "StartTimer"
