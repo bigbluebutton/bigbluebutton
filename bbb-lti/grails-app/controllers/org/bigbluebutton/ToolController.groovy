@@ -57,7 +57,6 @@ class ToolController {
             def endPoint = (request.isSecure()?"https":"http") + "://" + ltiService.endPoint + "/" + grailsApplication.metadata['app.name'] + "/" + params.get("controller") + (params.get("format") != null? "." + params.get("format"): "")
             Map<String, String> result = new HashMap<String, String>()
             ArrayList<String> missingParams = new ArrayList<String>()
-            log.debug "Checking for required parameters"
 
             if (hasAllRequiredParams(params, missingParams)) {
                 def sanitizedParams = sanitizePrametersForBaseString(params)
@@ -283,7 +282,6 @@ class ToolController {
      * @return the key:val pairs needed for Basic LTI
      */
     private Properties sanitizePrametersForBaseString(params) {
-        log.debug params
         Properties reqProp = new Properties();
         for (String key : params.keySet()) {
             if (key == "action" || key == "controller" || key == "format") {
@@ -299,7 +297,6 @@ class ToolController {
 
             reqProp.setProperty(key, params.get(key));
         }
-
         return reqProp
     }
 
@@ -309,20 +306,22 @@ class ToolController {
      * @param missingParams - a list of missing parameters
      * @return - true if all required parameters have been passed in
      */
-    private boolean hasAllRequiredParams(Object params, Object missingParams) {
+    private boolean hasAllRequiredParams(Map<String, String> params, ArrayList<String> missingParams) {
+        log.debug "Checking for required parameters"
+
         boolean hasAllParams = true
-        if (! ((Map<String, String>)params).containsKey(Parameter.CONSUMER_ID)) {
-            ((ArrayList<String>)missingParams).add(Parameter.CONSUMER_ID);
+        if ( !params.containsKey(Parameter.CONSUMER_ID) ) {
+            missingParams.add(Parameter.CONSUMER_ID);
             hasAllParams = false;
         }
 
-        if (! ((Map<String, String>)params).containsKey(Parameter.OAUTH_SIGNATURE)) {
-            ((ArrayList<String>)missingParams).add(Parameter.OAUTH_SIGNATURE);
+        if ( !params.containsKey(Parameter.OAUTH_SIGNATURE)) {
+            missingParams.add(Parameter.OAUTH_SIGNATURE);
             hasAllParams = false;
         }
 
-        if (! ((Map<String, String>)params).containsKey(Parameter.RESOURCE_LINK_ID)) {
-            ((ArrayList<String>)missingParams).add(Parameter.RESOURCE_LINK_ID);
+        if ( !params.containsKey(Parameter.RESOURCE_LINK_ID) ) {
+            missingParams.add(Parameter.RESOURCE_LINK_ID);
             hasAllParams = false;
         }
 
@@ -338,18 +337,28 @@ class ToolController {
      * @param signature - the passed in signature calculated from the client
      * @return - TRUE if the signatures matches the calculated signature
      */
-    private boolean checkValidSignature(String method, String URL, String conSecret, Object postProp, String signature) {
-		log.debug( "Starting checkValidSignature()" )
-        OAuthMessage oam = new OAuthMessage(method, URL, ((Properties)postProp).entrySet())
-		log.debug( "OAuthMessage oam = " + oam.toString() )
-        HMAC_SHA1 hmac = new HMAC_SHA1()
-		log.debug( "HMAC_SHA1 hmac = " + hmac.toString() )
-        hmac.setConsumerSecret(conSecret)
+    private boolean checkValidSignature(String method, String url, String conSecret, Properties postProp, String signature) {
+        def validSignature = false
 
-        log.debug("Base Message String = [ " + hmac.getBaseString(oam) + " ]\n")
-        String calculatedSignature = hmac.getSignature(hmac.getBaseString(oam))
-        log.debug("Calculated: " + calculatedSignature + " Received: " + signature)
-        return calculatedSignature.equals(signature)
+        try {
+            OAuthMessage oam = new OAuthMessage(method, url, postProp.entrySet())
+            //log.debug "OAuthMessage oam = " + oam.toString()
+
+            HMAC_SHA1 hmac = new HMAC_SHA1()
+            //log.debug "HMAC_SHA1 hmac = " + hmac.toString()
+
+            hmac.setConsumerSecret(conSecret)
+
+            log.debug "Base Message String = [ " + hmac.getBaseString(oam) + " ]\n"
+            String calculatedSignature = hmac.getSignature(hmac.getBaseString(oam))
+            log.debug "Calculated: " + calculatedSignature + " Received: " + signature
+
+            validSignature = calculatedSignature.equals(signature)
+        } catch( Exception e ) {
+            log.debug "Exception error: " + e.message
+        }
+
+        return validSignature
     }
 
     private String getCartridgeXML(){
