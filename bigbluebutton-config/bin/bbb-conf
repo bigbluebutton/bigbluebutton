@@ -267,6 +267,9 @@ start_bigbluebutton () {
 
 	# monit will start libreoffice and bbb-rap-worker
 	/etc/init.d/monit start
+	echo
+	echo "Note: monit will automatically start bbb-record-core and LibreOffice within 60 seconds."
+	echo
 
 	#
 	# At this point the red5 and servlet container applications are starting up.
