@@ -1428,7 +1428,7 @@ if [ -n "$HOST" ]; then
 		echo "Assigning $HOST for LTI integration in ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties"
         	sed -i "s/bigbluebuttonURL=http:\/\/.*/bigbluebuttonURL=http:\/\/$HOST\/bigbluebutton/g" \
                 	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
-        	sed -i "s/ltiEndPoint=localhost/ltiEndPoint=$HOST/g" \
+        	sed -i "s/ltiEndPoint=.*/ltiEndPoint=$HOST/g" \
                 	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
 	fi
 
