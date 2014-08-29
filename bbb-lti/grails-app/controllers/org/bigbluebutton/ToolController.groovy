@@ -66,7 +66,8 @@ class ToolController {
                     if (checkValidSignature(params.get(REQUEST_METHOD), endPoint, consumer.get("secret"), sanitizedParams, params.get(Parameter.OAUTH_SIGNATURE))) {
                         log.debug  "The message has a valid signature."
 
-                        if( !"extended".equals(ltiService.mode) ) {
+                        def mode = params.containsKey(Parameter.CUSTOM_MODE)? params.get(Parameter.CUSTOM_MODE): ltiService.mode
+                        if( !"extended".equals(mode) ) {
                             log.debug  "LTI service running in simple mode."
                             result = doJoinMeeting(params)
                         } else {
