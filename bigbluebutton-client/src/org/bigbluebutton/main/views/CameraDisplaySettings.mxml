@@ -26,11 +26,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 showCloseButton="false" close="onCancelClicked()" keyDown="handleKeyDown(event)">
   <mx:Script>
     <![CDATA[
-		import com.asfusion.mate.events.Dispatcher;     
-		import flash.ui.Keyboard;      
+		import com.asfusion.mate.events.Dispatcher;
+		
+		import flash.ui.Keyboard;
+		
 		import mx.events.CloseEvent;
 		import mx.events.ItemClickEvent;
-		import mx.managers.PopUpManager;     
+		import mx.managers.PopUpManager;
+		
 		import org.bigbluebutton.common.Images;
 		import org.bigbluebutton.common.LogUtil;
 		import org.bigbluebutton.core.UsersUtil;
@@ -52,6 +55,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		public var camWidth:Number = 320;
 		public var camHeight:Number = 240;
+		public var chromePermissionDenied:Boolean;
 		private var _camera:Camera = null;
 		
 		// Timer used to enable the start publishing button, only after get any activity on the camera. 
@@ -121,11 +125,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			_camera.addEventListener(StatusEvent.STATUS, onStatusEvent);
 			
 			if (_camera.muted) {
-				if (_cameraAccessDenied) {
+				if (_cameraAccessDenied && !chromePermissionDenied) {
 					//onCameraAccessDisallowed();
 					//return;
 					Security.showSettings(SecurityPanel.PRIVACY)
-				} else {
+				} else if (chromePermissionDenied) {
+					_videoHolder.showWarning('bbb.video.publish.hint.cameraDenied');
+				}else {
 					_videoHolder.showWarning('bbb.video.publish.hint.waitingApproval');
 				}
 			} else {
@@ -134,7 +140,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				onCameraAccessAllowed();
 			}
 			
-			displayVideoPreview();
+			if(!chromePermissionDenied) {
+			 	displayVideoPreview();
+			}
 		}
 		
 		private function displayVideoPreview():void {

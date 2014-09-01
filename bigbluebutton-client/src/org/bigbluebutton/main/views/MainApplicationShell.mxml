@@ -49,6 +49,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_ENDED}" method="handleWebRTCCallEndedEvent" />
 	<mate:Listener type="{WebRTCAskUserToChangeMicEvent.WEBRTC_ASK_USER_TO_CHANGE_MIC}" method="handleWebRTCAskUserToChangeMicEvent"  />
 	<mate:Listener type="{AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION}" method="handleShowAudioSelectionWindowEvent" />
+	<mate:Listener type="{WebRTCWebcamRequestEvent.WEBRTC_WEBCAM_REQUEST}" method="handleWebRTCWebcamRequestEvent" />
   
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
@@ -108,6 +109,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
+			import org.bigbluebutton.modules.videoconf.events.WebRTCWebcamRequestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.util.logging.Logger;
 	
@@ -340,6 +342,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var camSettings:CameraDisplaySettings = CameraDisplaySettings(PopUpManager.createPopUp(mdiCanvas, CameraDisplaySettings, true));		
         camSettings.resolutions = (event.payload.resolutions as String).split(",");
         camSettings.publishInClient = event.payload.publishInClient;
+        camSettings.chromePermissionDenied = event.payload.chromePermissionDenied;
         
         var point1:Point = new Point();
         // Calculate position of TitleWindow in Application's coordinates. 
@@ -433,6 +436,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           webRTCEchoTest.y = point1.y - (webRTCEchoTest.height/2);
         });        
       }
+
+      private function handleWebRTCWebcamRequestEvent(event:WebRTCWebcamRequestEvent):void {
+        trace("handleWebRTCWebcamRequestEvent called");
+        var chromeBrowser:ChromeWebcamPermissionImage = PopUpManager.createPopUp(mdiCanvas, ChromeWebcamPermissionImage , true) as ChromeWebcamPermissionImage;
+          chromeBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+          var point1:Point = new Point();
+          // Calculate position of TitleWindow in Application's coordinates.
+          point1.x = width/2;
+          point1.y = height/2;
+          if (Capabilities.os.indexOf("Mac") >= 0) {
+            chromeBrowser.x = (mdiCanvas.width - chromeBrowser.width);
+		  }
+          else {
+		    chromeBrowser.x = 20;
+		  }
+	      chromeBrowser.y = 20;
+         });
+     }
       
       private function handleMeetingNotFoundEvent(e:MeetingNotFoundEvent):void {
         showlogoutWindow(ResourceUtil.getInstance().getString('bbb.mainshell.meetingNotFound'));
