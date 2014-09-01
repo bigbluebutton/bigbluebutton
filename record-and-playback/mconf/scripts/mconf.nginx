@@ -1,3 +1,4 @@
+
 #
 # BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 #
@@ -15,21 +16,7 @@
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
-
-
-source "http://rubygems.org"
-
-gem "rspec", "2.0.0", :require => "spec"
-gem "cucumber", "0.9.2"
-gem "redis", "2.1.1"
-#gem "SystemTimer", "1.2.3"
-gem "nokogiri", "1.4.4"
-gem "resque", "1.15.0"
-gem "mime-types"
-gem "streamio-ffmpeg"
-gem "rubyzip"
-gem "curb"
-gem "builder"
-gem "trollop"
-gem "open4"
-gem "fastimage"
+        location /mconf/ {
+                root    /var/bigbluebutton/published;
+                index  index.html index.htm;
+        }
