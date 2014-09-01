@@ -26,6 +26,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
 	  react {
 	    case msg: MeetingCreated                     => handleMeetingCreated(msg)
 	    case msg: MeetingEnded                       => handleMeetingEnded(msg)
+	    case msg: MeetingDestroyed                   => handleMeetingDestroyed(msg)
 	    case msg: UserJoined                         => handleUserJoined(msg)
 	    case msg: UserLeft                           => handleUserLeft(msg)
 	    case msg: MuteVoiceUser                      => handleMuteVoiceUser(msg)
@@ -56,7 +57,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     
   private def handleMeetingCreated(msg: MeetingCreated) {
     if (! confs.contains(msg.meetingID)) {
-      logger.info("FSConference rx meeting created for meeting id[" + msg.meetingID + "]")
+      logger.info("Meeting created [" + msg.meetingID + "] with voice conf [" + msg.voiceBridge + "]")
       val fsconf = new FreeswitchConference(msg.voiceBridge,
                                             msg.meetingID, 
                                             msg.recorded)
@@ -70,10 +71,23 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     val fsconf = confs.values find (c => c.meetingId == msg.meetingID)
     
     fsconf foreach (fc => {
+      logger.info("Meeting ended [" + msg.meetingID + "]")
       fsproxy.ejectUsers(fc.conferenceNum)
       confs -= fc.meetingId
     })
   }
+
+  private def handleMeetingDestroyed(msg: MeetingDestroyed) {
+    val fsconf = confs.values find (c => c.meetingId == msg.meetingID)
+    
+    fsconf foreach (fc => {
+      logger.info("Meeting destroyed [" + msg.meetingID + "]")
+      fsproxy.ejectUsers(fc.conferenceNum)
+      confs -= fc.meetingId
+    })
+  }
+    
+  
   
   private def handleUserJoinedVoice(msg: UserJoinedVoice) {
     val fsconf = confs.values find (c => c.meetingId == msg.meetingID)
@@ -107,7 +121,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     val fsconf = confs.values find (c => c.meetingId == msg.meetingID)
     
     fsconf foreach (fc => {
-      logger.info("Web user id joining meeting id[" + fc.meetingId + "] wid=[" + msg.user.userID + "]")
+      logger.info("Web user id joining meeting id[" + fc.meetingId + "] wid=[" + msg.user.userID + "], extId=[" + msg.user.externUserID + "]")
       fc.addUser(msg.user)
     })
   }
@@ -162,33 +176,31 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
       } else if (fc.isRecording && ! msg.recording) {
         fc.recordingStopped
         bbbInGW.voiceRecording(fc.meetingId, msg.recordingFile, msg.timestamp, msg.recording)
-      }
-       
+      }     
     }
   }
   
   private def sendNonWebUserJoined(meetingId: String, webUserId: String, msg: FsVoiceUserJoined) {
-    logger.info("FreeswitchConferenceActor:: Sending FsVoiceUserJoined for conference [" + 
-                msg.conference + "] user=[" + msg.callerIdName + "] userid=[" + webUserId + "]")
     bbbInGW.voiceUserJoined(meetingId, msg.userId, 
 	              webUserId, msg.conference, msg.callerIdNum, msg.callerIdName,
 	              msg.muted, msg.speaking)    
   }
   
   private def handleFsVoiceUserJoined(msg: FsVoiceUserJoined) {
-     logger.info("FreeswitchConferenceActor:: Received FsVoiceUserJoined for conference [" + 
+     logger.info("A user has joined the voice conference [" + 
                 msg.conference + "] user=[" + msg.callerIdName + "] wid=[" + msg.webUserId + "]")
     val fsconf = confs.values find (c => c.conferenceNum == msg.conference)
     
     fsconf foreach (fc => {
+      logger.debug("Meeting [" + fc.meetingId + "] has [" + fc.numUsers + "]")
 	    fc.getWebUserUsingExtId(msg.webUserId) match {
 	      case Some(user) => {
-          logger.info("FreeswitchConferenceActor:: Found webuser for this user for conference [" + 
+          logger.info("The user is also in the web client. [" + 
                 msg.conference + "] user=[" + msg.callerIdName + "] wid=[" + msg.webUserId + "]")	     
 	        sendNonWebUserJoined(fc.meetingId, user.userID, msg)
 	      }
 	      case None => {
-          logger.info("FreeswitchConferenceActor:: Did not find webuser for this user for conference [" + 
+          logger.info("User is not a web user. Must be a phone caller. [" + 
                 msg.conference + "] user=[" + msg.callerIdName + "] wid=[" + msg.webUserId + "]")	
 	         sendNonWebUserJoined(fc.meetingId, msg.userId, msg)
 	      }

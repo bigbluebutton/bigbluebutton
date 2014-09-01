@@ -17,7 +17,7 @@ import org.bigbluebutton.core.util._
 
 case object StopMeetingActor
                       
-class MeetingActor(val meetingID: String, meetingName: String, val recorded: Boolean, 
+class MeetingActor(val meetingID: String, val meetingName: String, val recorded: Boolean, 
                    val voiceBridge: String, duration: Long, val outGW: MessageOutGateway) 
                    extends Actor with UsersApp with PresentationApp
                    with PollApp with LayoutApp with ChatApp

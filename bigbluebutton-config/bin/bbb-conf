@@ -267,6 +267,9 @@ start_bigbluebutton () {
 
 	# monit will start libreoffice and bbb-rap-worker
 	/etc/init.d/monit start
+	echo
+	echo "Note: monit will automatically start bbb-record-core and LibreOffice within 60 seconds."
+	echo
 
 	#
 	# At this point the red5 and servlet container applications are starting up.
@@ -497,7 +500,7 @@ while [ $# -gt 0 ]; do
 	if [ "$1" = "--lti" -o "$1" = "-lti" ]; then
 		if [ -z "$SALT" ]; then
 			if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-				LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiEndPoint/{s/^.*=//;p}')
+				LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
 				CUSTOMER=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiConsumer/{s/^.*=//;s/:.*//p}')
 				SECRET=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiConsumer/{s/^[^:]*://;p}')
 				echo
@@ -505,7 +508,7 @@ while [ $# -gt 0 ]; do
 				echo "  Customer: $CUSTOMER"
 				echo "    Secret: $SECRET"
 				echo
-				ICON_URL=$( echo $LTI_URL | sed 's/tool.xml/images\/icon.ico/')
+				ICON_URL=$( echo $LTI_URL | sed 's/tool/images\/icon.ico/')
 				echo "  Icon URL: $ICON_URL"
 				echo
 				echo
@@ -1104,7 +1107,7 @@ check_state() {
 	fi
 
 	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiEndPoint/{s/^.*=//;p}')
+		LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
 		echo "# Warning: The IMS Learning Tools Integration (LTI) is accessible from:"
 		echo "#"
 		echo "#    $LTI_URL"
@@ -1425,7 +1428,7 @@ if [ -n "$HOST" ]; then
 		echo "Assigning $HOST for LTI integration in ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties"
         	sed -i "s/bigbluebuttonURL=http:\/\/.*/bigbluebuttonURL=http:\/\/$HOST\/bigbluebutton/g" \
                 	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
-        	sed -i "s/ltiEndPoint=http:\/\/.*/ltiEndPoint=http:\/\/$HOST\/lti\/tool.xml/g" \
+        	sed -i "s/ltiEndPoint=.*/ltiEndPoint=$HOST/g" \
                 	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
 	fi
 

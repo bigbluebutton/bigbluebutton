@@ -35,6 +35,7 @@ package org.bigbluebutton.modules.present.business
 	
 	public class FileUploadService {
 		public static const ID:String = "FileUploadService";
+		private static const LOG:String = "Present::FileUploadService - ";
 
 		public static const UPLOAD_PROGRESS:String = "UPLOAD_PROGRESS";
 		public static const UPLOAD_COMPLETED:String = "UPLOAD_COMPLETED";
@@ -120,7 +121,8 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */
 		private function onUploadIoError(event:IOErrorEvent):void {
-			if(event["text"] != "Error #2038"){ //upload works despite of this error.
+			if(event.errorID != 2038){ //upload works despite of this error.
+				trace(LOG + "onUploadIoError text: " + event.text + ", errorID: " + event.errorID);
 				dispatcher.dispatchEvent(new UploadIoErrorEvent());
 			}
 			

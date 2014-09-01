@@ -434,8 +434,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
 	  
 	  voiceGW.voiceUserJoined(meetingId, userId, webUserId, 
 	                            conference, callerIdNum, 
-	                            callerIdName,
-								muted, speaking)
+	                            callerIdName, muted, speaking)
 	}
 	
 	def voiceUserLeft(meetingId: String, userId: String) {

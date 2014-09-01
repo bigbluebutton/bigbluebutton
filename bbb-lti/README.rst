@@ -38,7 +38,7 @@ Deployment
 =============
 Place the war file into the tomcat webapps directory and restart tomcat
         
-    sudo cp lti-0.1.war /var/lib/tomcat6/webapps/lti.war
+    sudo cp target/lti-0.2.war /var/lib/tomcat6/webapps/lti.war
        
 Configure the properties
         
@@ -52,7 +52,7 @@ Edit the URL and Salt of the BigBlueButton server you are going to connect to (N
         
 Edit the LTI basic information
     
-    ltiEndPoint=http://yourbigbluebuttonserver.com/lti/tool.xml
+    ltiEndPoint=yourbigbluebuttonserver.com
         
     ltiConsumers=demo:welcome,consumer1:secret1
     

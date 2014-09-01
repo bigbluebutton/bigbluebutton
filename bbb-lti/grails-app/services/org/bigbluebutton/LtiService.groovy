@@ -1,3 +1,4 @@
+package org.bigbluebutton
 /* 
     BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 
@@ -94,4 +95,36 @@ class LtiService {
         for( param in params ) log.debug "${param.getKey()}=${param.getValue()}"
         log.debug "----------------------------------"
     }
+
+    def boolean isSSLEnabled(String query) {
+        def sslEnabled = false
+
+        try {
+            // open connection
+            StringBuilder urlStr = new StringBuilder(query)
+            URL url = new URL(urlStr.toString())
+            HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection()
+            httpConnection.setUseCaches(false)
+            httpConnection.setDoOutput(true)
+            httpConnection.setRequestMethod("GET")
+            httpConnection.connect()
+
+            int responseCode = httpConnection.getResponseCode()
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                sslEnabled = true
+            } else {
+                log.debug("HTTPERROR: Message=" + "BBB server responded with HTTP status code " + responseCode)
+            }
+
+        } catch(IOException e) {
+            log.debug("IOException: Message=" + e.getMessage())
+        } catch(IllegalArgumentException e) {
+            log.debug("IllegalArgumentException: Message=" + e.getMessage())
+        } catch(Exception e) {
+            log.debug("Exception: Message=" + e.getMessage())
+        }
+
+        return sslEnabled
+    }
+
 }
