@@ -25,7 +25,7 @@ require 'fileutils'
 require 'builder'
 require 'mime/types'
 require 'digest/md5'
-require 'zip/zip'
+require 'zip'
 
 module BigBlueButton
 
@@ -33,7 +33,7 @@ module BigBlueButton
     def self.zip_directory (directory, zipped_file)
       BigBlueButton.logger.info("Task: Zipping directory... #{zipped_file} #{directory}")
       #files = [webcam, deskshare, dublincore, manifest]
-      Zip::ZipFile.open(zipped_file, Zip::ZipFile::CREATE) do |zipfile|
+      Zip::File.open(zipped_file, Zip::File::CREATE) do |zipfile|
         Dir["#{directory}/**/**"].reject{|f|f==zipped_file}.each do |file|  
           zipfile.add(file.sub(directory+'/', ''), file) 
         end
@@ -41,7 +41,7 @@ module BigBlueButton
     end
     
     def self.unzip(unzip_dir, zipfile)
-      Zip::ZipFile.open(zipfile) do |zip_file|
+      Zip::File.open(zipfile) do |zip_file|
         zip_file.each do |f|
           f_path=File.join(unzip_dir, f.name)
           FileUtils.mkdir_p(File.dirname(f_path))

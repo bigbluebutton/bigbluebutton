@@ -25,7 +25,6 @@ require 'cgi'
 require 'digest/md5'
 
 bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
-mconf_props = YAML::load(File.open('mconf.yml'))
 
 recording_dir = bbb_props['recording_dir']
 playback_host = bbb_props['playback_host']
@@ -36,12 +35,12 @@ done_files = Dir.glob("#{recording_dir}/status/processed/*.done")
 done_files.each do |df|
   match = /(.*)-(.*).done/.match df.sub(/.+\//, "")
   meeting_id = match[1]
-  if (match[2] == "mconf")
-    BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/mconf/publish-#{meeting_id}.log", 'daily' )
+  if (match[2] == "mconf_encrypted")
+    BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/mconf_encrypted/publish-#{meeting_id}.log", 'daily' )
 
-    meeting_process_dir = "#{recording_dir}/process/mconf/#{meeting_id}"
-    meeting_publish_dir = "#{recording_dir}/publish/mconf/#{meeting_id}"
-    meeting_published_dir = "#{recording_dir}/published/mconf/#{meeting_id}"
+    meeting_process_dir = "#{recording_dir}/process/mconf_encrypted/#{meeting_id}"
+    meeting_publish_dir = "#{recording_dir}/publish/mconf_encrypted/#{meeting_id}"
+    meeting_published_dir = "#{recording_dir}/published/mconf_encrypted/#{meeting_id}"
     meeting_raw_dir = "#{recording_dir}/raw/#{meeting_id}"
     meeting_raw_presentation_dir = "#{raw_presentation_src}/#{meeting_id}"
 
@@ -123,9 +122,9 @@ done_files.each do |df|
           b.end_time(BigBlueButton::Events.last_event_timestamp("#{meeting_process_dir}/events.xml"))
           b.download {
             b.format("encrypted")
-            b.link("http://#{playback_host}/mconf/#{meeting_id}/#{meeting_id}.dat")
+            b.link("http://#{playback_host}/mconf_encrypted/#{meeting_id}/#{meeting_id}.dat")
             b.md5(md5sum)
-            b.key("http://#{playback_host}/mconf/#{meeting_id}/#{key_filename}")
+            b.key("http://#{playback_host}/mconf_encrypted/#{meeting_id}/#{key_filename}")
           }
           b.meta {
             BigBlueButton::Events.get_meeting_metadata("#{meeting_process_dir}/events.xml").each { |k,v| b.method_missing(k,v) }
@@ -136,14 +135,14 @@ done_files.each do |df|
         metadata_xml.write(metaxml)
         metadata_xml.close
 
-        BigBlueButton.logger.info("Publishing mconf")
+        BigBlueButton.logger.info("Publishing mconf_encrypted")
 
         # Now publish this recording    
-        if not FileTest.directory?("#{published_dir}/mconf")
-          FileUtils.mkdir_p "#{published_dir}/mconf"
+        if not FileTest.directory?("#{published_dir}/mconf_encrypted")
+          FileUtils.mkdir_p "#{published_dir}/mconf_encrypted"
         end
         BigBlueButton.logger.info("Publishing files")
-        FileUtils.cp_r(meeting_publish_dir, "#{published_dir}/mconf")
+        FileUtils.cp_r(meeting_publish_dir, "#{published_dir}/mconf_encrypted")
 
         BigBlueButton.logger.info("Removing processed files: #{meeting_process_dir}")
         FileUtils.rm_r meeting_process_dir, :force => true
@@ -159,7 +158,7 @@ done_files.each do |df|
                          Dir.glob("/var/freeswitch/meetings/#{meeting_id}*.wav") ], :force => true
 
         # Remove all the recording flags
-        FileUtils.rm_f [ "#{recording_dir}/status/processed/#{meeting_id}-mconf.done",
+        FileUtils.rm_f [ "#{recording_dir}/status/processed/#{meeting_id}-mconf_encrypted.done",
                          "#{recording_dir}/status/sanity/#{meeting_id}.done",
                          "#{recording_dir}/status/recorded/#{meeting_id}.done",
                          "#{recording_dir}/status/archived/#{meeting_id}.done" ]

@@ -1,3 +1,4 @@
+#!/usr/bin/ruby
 # Set encoding to utf-8
 # encoding: UTF-8
 #
@@ -26,11 +27,11 @@ require 'rexml/document'
 require 'open-uri'
 require 'digest/md5'
 
-BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/decrypt.log",'daily' )
+BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/mconf_decrypter.log",'daily' )
 #BigBlueButton.logger = Logger.new(STDOUT)
 
 bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
-mconf_props = YAML::load(File.open('mconf.yml'))
+mconf_props = YAML::load(File.open('mconf-decrypter.yml'))
 
 # these properties must be global variables (starting with $)
 $private_key = mconf_props['private_key']
@@ -46,10 +47,11 @@ def fetchRecordings(url)
     doc = Nokogiri::XML(Net::HTTP.get_response(URI.parse(url)).body)
     returncode = doc.xpath("//returncode")
     if returncode.empty? or returncode.text != "SUCCESS"
-      raise "getRecordings didn't return success:\n#{doc.to_xml(:indent => 2)}"
+      BigBlueButton.logger.error "getRecordings didn't return success:\n#{doc.to_xml(:indent => 2)}"
+      return false
     end
   rescue
-    BigBlueButton.logger.debug("Exception occurred: #{$!}")
+    BigBlueButton.logger.error("Exception occurred: #{$!}")
     return false
   end
 
@@ -78,9 +80,15 @@ def fetchRecordings(url)
             BigBlueButton.logger.debug("md5_value = #{md5_value}")
 
             BigBlueButton.logger.info("Downloading the encrypted file to #{encrypted_file}")
-            writeOut = open(encrypted_file, "wb")
-            writeOut.write(open(file_url).read)
-            writeOut.close
+
+            begin
+              writeOut = open(encrypted_file, "wb")
+              writeOut.write(open(file_url).read)
+              writeOut.close
+            rescue Exception => e
+              BigBlueButton.logger.error "Failed to download the encrypted file: #{e.to_s}"
+              next
+            end
 
             md5_calculated = Digest::MD5.file(encrypted_file)
 
@@ -97,13 +105,15 @@ def fetchRecordings(url)
               if key_file != decrypted_key_file
                 BigBlueButton.logger.debug("Locating private key")
                 if not File.exists?("#{$private_key}")
-                  raise "Couldn't find the private key on #{$private_key}"
+                  BigBlueButton.logger.error "Couldn't find the private key on #{$private_key}"
+                  next
                 end
                 BigBlueButton.logger.debug("Decrypting recording key")
                 command = "openssl rsautl -decrypt -inkey #{$private_key} < #{key_file} > #{decrypted_key_file}"
-                status = BigBlueButton.execute(command)
+                status = BigBlueButton.execute(command, false)
                 if not status.success?
-                  raise "Couldn't decrypt the random key with the server private key"
+                  BigBlueButton.logger.error "Couldn't decrypt the random key with the server private key"
+                  next
                 end
                 FileUtils.rm_r "#{key_file}"
               else
@@ -112,9 +122,10 @@ def fetchRecordings(url)
 
               BigBlueButton.logger.debug("Decrypting the recording file")
               command = "openssl enc -aes-256-cbc -d -pass file:#{decrypted_key_file} < #{encrypted_file} > #{decrypted_file}"
-              status = BigBlueButton.execute(command)
+              status = BigBlueButton.execute(command, false)
               if not status.success?
-                raise "Couldn't decrypt the recording file using the random key"
+                BigBlueButton.logger.error "Couldn't decrypt the recording file using the random key"
+                next
               end
        
               BigBlueButton::MconfProcessor.unzip("#{$raw_dir}/#{meeting_id}", decrypted_file)

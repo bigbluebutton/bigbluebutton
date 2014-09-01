@@ -31,7 +31,7 @@ end
 meeting_id = opts[:meeting_id]
 
 #Mconf process log file
-logger = Logger.new("/var/log/bigbluebutton/mconf/process-#{meeting_id}.log", 'daily' )
+logger = Logger.new("/var/log/bigbluebutton/mconf_encrypted/process-#{meeting_id}.log", 'daily' )
 BigBlueButton.logger = logger
 
 # This script lives in scripts/archive/steps while bigbluebutton.yml lives in scripts/
@@ -42,7 +42,7 @@ raw_presentation_src = props['raw_presentation_src']
 
 meeting_raw_dir = "#{recording_dir}/raw/#{meeting_id}"
 meeting_raw_presentation_dir = "#{raw_presentation_src}/#{meeting_id}"
-meeting_process_dir = "#{recording_dir}/process/mconf/#{meeting_id}"
+meeting_process_dir = "#{recording_dir}/process/mconf_encrypted/#{meeting_id}"
 
 if not FileTest.directory?(meeting_process_dir)
   FileUtils.mkdir_p "#{meeting_process_dir}"
@@ -55,7 +55,7 @@ if not FileTest.directory?(meeting_process_dir)
 #  BigBlueButton.logger.info("Copying the recording presentation from #{meeting_raw_presentation_dir}/#{meeting_id} to #{meeting_process_dir}/presentation_raw")
 #  FileUtils.cp_r Dir.glob("#{meeting_raw_presentation_dir}/#{meeting_id}/*"), "#{meeting_process_dir}/presentation_raw" 
 
-  process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-mconf.done", "w")
+  process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-mconf_encrypted.done", "w")
   process_done.write("Processed #{meeting_id}")
   process_done.close
 end

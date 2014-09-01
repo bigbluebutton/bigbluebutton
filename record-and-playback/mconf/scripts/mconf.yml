@@ -1,2 +1,0 @@
-get_recordings_url: http://143.54.10.52/bigbluebutton/api/getRecordings?checksum=39ebeadb772553a206d43857f6287b4536b1c32c
-private_key: /home/mconf/dev/bigbluebutton/record-and-playback/key.pem

@@ -1,0 +1,2 @@
+get_recordings_url: http://localhost/bigbluebutton/api/getRecordings?checksum=39ebeadb772553a206d43857f6287b4536b1c32c
+private_key: /usr/local/bigbluebutton/core/scripts/private.pem

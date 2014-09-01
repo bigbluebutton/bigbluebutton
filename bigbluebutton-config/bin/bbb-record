@@ -329,12 +329,12 @@ if [ $REPUBLISH ]; then
 fi 
 
 if [ $CLEAN ]; then
-	sudo /etc/init.d/bbb-record stop
+	sudo /etc/init.d/bbb-record-core stop
 	for type in $TYPES; do
 		echo " clearning logs in /var/log/bigbluebutton/$type"
 		find /var/log/bigbluebutton/$type -name "*.log" -exec sudo rm '{}' \;
 	done
-	sudo /etc/init.d/bbb-record start
+	sudo /etc/init.d/bbb-record-core start
 fi
 
 if [ $DELETE ]; then
