@@ -778,7 +778,7 @@ class @WhiteboardPaperModel
     if url?.match(/http[s]?:/)
       url
     else
-      console.log "the url did not match the expected format"
+      console.log "the url did not match the expected format:#{url}"
       #globals.presentationServer + url
 
   #Changes the currently displayed page/slide (if any) with this one
@@ -814,7 +814,7 @@ class @WhiteboardPaperModel
     # TODO currentSlide undefined in some cases - will check later why
     imageWidth = boardWidth * (currentSlide?.slide.width_ratio/100) or boardWidth
     imageHeight = boardHeight * (currentSlide?.slide.height_ratio/100) or boardHeight
-
+    #alert("_displayPage")
     # console.log "xBegin: #{xBegin}"
     # console.log "xEnd: #{xEnd}"
     # console.log "yBegin: #{yBegin}"
