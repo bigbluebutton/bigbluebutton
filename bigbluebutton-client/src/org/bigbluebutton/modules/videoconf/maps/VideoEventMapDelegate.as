@@ -399,7 +399,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
-        if (ExternalInterface.call("determineBrowser")[0] == "Chrome") {
+        if ((ExternalInterface.call("determineBrowser")[0] == "Chrome") && (ExternalInterface.call("isWebRTCAvailable") == true)) {
            requestWebRTCWebcam(); 
         } else {
         startSharingWebcam(event.publishInClient);

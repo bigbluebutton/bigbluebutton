@@ -308,6 +308,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if(chromePermissionDenied)
 				{
 					showWarning('bbb.video.publish.hint.cameraDenied');
+					return;
 				}
 				else
 				{
