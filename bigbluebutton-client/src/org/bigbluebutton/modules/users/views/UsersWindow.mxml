@@ -132,6 +132,9 @@
 				minimizeBtn.tabIndex = partOptions.baseTabIndex+1;
 				maximizeRestoreBtn.tabIndex = partOptions.baseTabIndex+2;
 				closeBtn.tabIndex = partOptions.baseTabIndex+3;
+				
+				stage.addEventListener(MouseEvent.MOUSE_OVER, handleStageMouseOver);
+				usersGrid.addEventListener(MouseEvent.MOUSE_OVER, handleUsersGridMouseOver);
 			}
 			
 			public function getPrefferedPosition():String{
@@ -155,6 +158,35 @@
 				raiseHandBtn.visible = raiseHandBtn.includeInLayout = partOptions.enableRaiseHand;
 			}
 			
+			/*
+			 * Work around for a bug with the users grid. When you click on one of the buttons in an item renderer the client 
+			 * locks up briefly and any mouse movements while the client is locked up are ignored. This means that roll outs 
+			 * aren't fired if the mouse is moved quickly while the client is updating. This block of code watches for 
+			 * anything outside of the usersGrid being rolled over and notifies the item renders that they should reset.
+			 * 
+			 *  - Chad
+			 */
+			private var rolledOver:Boolean = false;
+			private var o:Object;
+			
+			private function handleUsersGridMouseOver(e:MouseEvent):void {
+				rolledOver = true;
+				o = e.target;
+			}
+			
+			private function handleStageMouseOver(e:MouseEvent):void {
+				if (rolledOver && o != e.target) {
+					rolledOver = false;
+					o = null;
+					var rollEvent:UsersRollEvent = new UsersRollEvent(UsersRollEvent.USER_ROLL_OUT, null);
+					dispatcher.dispatchEvent(rollEvent);
+				}
+			}
+			
+			/*
+			 * End of the work around.
+			 */
+			
 			private function onItemRollOver(event:ListEvent):void{
 				var item:IListItemRenderer = event.itemRenderer;
 				var user:BBBUser = item.data as BBBUser;
@@ -170,11 +202,9 @@
 			}
 			
 			private function raiseHand():void{
-				if (UserManager.getInstance().getConference().getMyRole() == Role.VIEWER) {
-					var e:RaiseHandEvent = new RaiseHandEvent(RaiseHandEvent.RAISE_HAND);
-					e.raised = !UserManager.getInstance().getConference().isMyHandRaised;
-					dispatchEvent(e);
-				}
+				var e:RaiseHandEvent = new RaiseHandEvent(RaiseHandEvent.RAISE_HAND);
+				e.raised = !UserManager.getInstance().getConference().isMyHandRaised;
+				dispatchEvent(e);
 			}
 			
 			private function openSettings():void {
@@ -448,11 +478,11 @@
     </mx:DataGrid>
 	
 	<mx:ControlBar width="100%">
+		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}" selected="{UserManager.getInstance().getConference().isMyHandRaised}"
+				   width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip')}" click="raiseHand()"
+				   visible="true" tabIndex="{partOptions.baseTabIndex+15}" />
 		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
 					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" click="openSettings()" visible="true" tabIndex="{partOptions.baseTabIndex+10}" />
-		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}" selected="{UserManager.getInstance().getConference().isMyHandRaised}"
-					width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip')}" click="raiseHand()"
-					visible="true" tabIndex="{partOptions.baseTabIndex+15}" />
 		<mx:VBox>
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomMuted.text')}" visible="{roomMuted}" includeInLayout="{roomMuted}" />
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomLocked.text')}" visible="{roomLocked}" includeInLayout="{roomLocked}" />

@@ -276,7 +276,7 @@ DataGrid {
   fontWeight: bold;
 }
 
-.presentationUploadChooseFileLabelStyle, .presentationNamesLabelStyle {
+.presentationNamesLabelStyle {
   fontFamily: Arial;
   fontSize: 14;  
   fontWeight: bold;

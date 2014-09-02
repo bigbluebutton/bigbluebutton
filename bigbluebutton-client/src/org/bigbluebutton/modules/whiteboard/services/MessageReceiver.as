@@ -98,10 +98,10 @@ package org.bigbluebutton.modules.whiteboard.services
       var map:Object = JSON.parse(message.msg);
       var shape:Object = map.shape as Object;
       var an:Object = shape.shape as Object;
-      trace(LOG + "*** handleNewAnnotationCommand shape id=[" + shape.id + "] type=[" + shape.type + "] status=[" + shape.status + "] **** \n"); 
+//      trace(LOG + "*** handleNewAnnotationCommand shape id=[" + shape.id + "] type=[" + shape.type + "] status=[" + shape.status + "] **** \n"); 
       
       trace(LOG + "*** handleNewAnnotationCommand an color=[" + an.color + "] thickness=[" + an.thickness + "] points=[" + an.points + "]**** \n");
-      trace(LOG + "*** handleNewAnnotationCommand an a=[" + an + "] **** \n");
+//      trace(LOG + "*** handleNewAnnotationCommand an a=[" + an + "] **** \n");
       
       var annotation:Annotation = new Annotation(shape.id, shape.type, an);
       annotation.status = shape.status;

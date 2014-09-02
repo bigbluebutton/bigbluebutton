@@ -170,8 +170,8 @@ usage() {
         echo "   --zip                            Zip up log files for reporting an error"
         echo
         echo "Testing:"
-        echo "   --enablewebrtc                   Enables webrtc feature in the server"
-        echo "   --disablewebrtc                  Disables webrtc feature in the server"
+        echo "   --enablewebrtc                   Enables WebRTC audio in the server"
+        echo "   --disablewebrtc                  Disables WebRTC audio in the server"
 
         echo
 }
@@ -267,6 +267,9 @@ start_bigbluebutton () {
 
 	# monit will start libreoffice and bbb-rap-worker
 	/etc/init.d/monit start
+	echo
+	echo "Note: monit will automatically start bbb-record-core and LibreOffice within 60 seconds."
+	echo
 
 	#
 	# At this point the red5 and servlet container applications are starting up.
@@ -282,6 +285,8 @@ start_bigbluebutton () {
                         sleep 1
                 done
         fi
+
+	sleep 2
 
 	BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
         if ! wget http://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
@@ -300,42 +305,42 @@ display_bigbluebutton_status () {
 }
 
 enable_webrtc(){
-	# Set server ip address in freeswitch
+	# Set server ip address in FreeSWITCH
 	sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=$IP\"/>@g"  /opt/freeswitch/conf/vars.xml
 
 	# Set server ip address in red5 sip app. For flash client.
 	sed -i "s/bbb.sip.app.ip=.*/bbb.sip.app.ip=$IP/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
 	sed -i "s/freeswitch.ip=.*/freeswitch.ip=$IP/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
 
-	# Enable webrtc in the client
+	# Enable WebRTC in the client
 	sed -i "s@useWebrtcIfAvailable=\".*\"@useWebrtcIfAvailable=\"true\"@g" /var/www/bigbluebutton/client/conf/config.xml
 
-	# Enable port 5066 in freeswitch
+	# Enable port 5066 in FreeSWITCH
 	sed -i "s@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@<param name=\"ws-binding\"  value=\":5066\"/>@g" /opt/freeswitch/conf/sip_profiles/external.xml
 
 	echo 
-	echo "WebRTC enabled.  To apply settings to your server, do"
+	echo "WebRTC audio enabled.  To apply settings to your server, do"
 	echo 
 	echo "   sudo bbb-conf --clean"
 	echo 
 }
 
 disable_webrtc(){
-	# Set 127.0.0.1 in freeswitch
+	# Set 127.0.0.1 in FreeSWITCH
 	sed -i "s@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=.*\"/>@<X-PRE-PROCESS cmd=\"set\" data=\"local_ip_v4=127.0.0.1\"/>@g"  /opt/freeswitch/conf/vars.xml
 
 	# Set 127.0.0.1 in red5 sip app. For flash client.
 	sed -i "s/bbb.sip.app.ip=.*/bbb.sip.app.ip=127.0.0.1/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
 	sed -i "s/freeswitch.ip=.*/freeswitch.ip=127.0.0.1/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
 
-	# Disable webrtc in the client
+	# Disable WebRTC in the client
 	sed -i "s@useWebrtcIfAvailable=\".*\"@useWebrtcIfAvailable=\"false\"@g" /var/www/bigbluebutton/client/conf/config.xml
 
-	# Disable port 5066 in freeswitch
+	# Disable port 5066 in FreeSWITCH
 	sed -i "s@<param name=\"ws-binding\"  value=\":5066\"/>@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@g" /opt/freeswitch/conf/sip_profiles/external.xml
 
 	echo 
-	echo "WebRTC disabled.  To apply settings to your server, do"
+	echo "WebRTC audio disabled.  To apply settings to your server, do"
 	echo 
 	echo "   sudo bbb-conf --clean"
 	echo 
@@ -495,7 +500,7 @@ while [ $# -gt 0 ]; do
 	if [ "$1" = "--lti" -o "$1" = "-lti" ]; then
 		if [ -z "$SALT" ]; then
 			if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-				LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiEndPoint/{s/^.*=//;p}')
+				LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
 				CUSTOMER=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiConsumer/{s/^.*=//;s/:.*//p}')
 				SECRET=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiConsumer/{s/^[^:]*://;p}')
 				echo
@@ -503,7 +508,7 @@ while [ $# -gt 0 ]; do
 				echo "  Customer: $CUSTOMER"
 				echo "    Secret: $SECRET"
 				echo
-				ICON_URL=$( echo $LTI_URL | sed 's/tool.xml/images\/icon.ico/')
+				ICON_URL=$( echo $LTI_URL | sed 's/tool/images\/icon.ico/')
 				echo "  Icon URL: $ICON_URL"
 				echo
 				echo
@@ -764,7 +769,7 @@ check_state() {
         if ! ps aux | grep -v grep | grep '[/]usr/lib/openoffice/program/soffice.bin' > /dev/null; then
                 if ! ps aux | grep -v grep | grep '[/]usr/lib/libreoffice/program/soffice.bin' > /dev/null; then
                         print_header
-                        NOT_RUNNING_APPS="${NOT_RUNNING_APPS} OpenOffice or LibreOffice"
+                        NOT_RUNNING_APPS="${NOT_RUNNING_APPS} LibreOffice (check again in a minute as monit may not have started it yet)"
                 fi
         else
                 RUNNING_APPS="${RUNNING_APPS} OpenOffice"
@@ -1080,8 +1085,8 @@ check_state() {
                 echo
         fi
 
-        if (( $MEM < 1975 )); then
-		echo "# Warning: You are running BigBlueButton on a server with less than 2G of memory.  Your"
+        if (( $MEM < 3975 )); then
+		echo "# Warning: You are running BigBlueButton on a server with less than 4G of memory.  Your"
 		echo "# performance may suffer."
                 echo
 	fi
@@ -1102,7 +1107,7 @@ check_state() {
 	fi
 
 	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiEndPoint/{s/^.*=//;p}')
+		LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
 		echo "# Warning: The IMS Learning Tools Integration (LTI) is accessible from:"
 		echo "#"
 		echo "#    $LTI_URL"
@@ -1177,7 +1182,7 @@ if [ $CHECK ]; then
 	echo "/opt/freeswitch/conf/sip_profiles/external.xml (FreeSWITCH)"
 	echo "                    websocket port: $WEBRTC_SOCKET"	
 	WEBRTC_ENABLED=$(grep -i webrtc /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
-	echo "                    webrtc enabled: $WEBRTC_ENABLED"	
+	echo "                    WebRTC enabled: $WEBRTC_ENABLED"	
 
 #        HOST=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/recordingHost/{s/.*recordingHost="http:\/\///;s/"//;p}')
 #        echo "          host for bbb-web interface: $HOST"
@@ -1423,7 +1428,7 @@ if [ -n "$HOST" ]; then
 		echo "Assigning $HOST for LTI integration in ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties"
         	sed -i "s/bigbluebuttonURL=http:\/\/.*/bigbluebuttonURL=http:\/\/$HOST\/bigbluebutton/g" \
                 	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
-        	sed -i "s/ltiEndPoint=http:\/\/.*/ltiEndPoint=http:\/\/$HOST\/lti\/tool.xml/g" \
+        	sed -i "s/ltiEndPoint=.*/ltiEndPoint=$HOST/g" \
                 	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
 	fi
 

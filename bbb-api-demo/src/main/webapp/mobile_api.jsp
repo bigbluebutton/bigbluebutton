@@ -172,7 +172,7 @@
         String meetingID = request.getParameter("meetingID");
         if (meetingID == null) return error(E_MISSING_PARAM_MEETINGID);
         
-        return createMeeting(meetingID, "", "", "", 0, BigBlueButtonURL);
+        return createMeeting(meetingID, "", "", "", "", 0, BigBlueButtonURL);
 	}
 	
 	// it's just for testing purposes

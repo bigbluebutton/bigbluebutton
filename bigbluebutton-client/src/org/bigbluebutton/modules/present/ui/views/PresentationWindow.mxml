@@ -72,7 +72,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import mx.containers.TitleWindow;
       import mx.core.Application;
       import mx.effects.Move;
-      import mx.events.ListEvent;
       import mx.events.ResizeEvent;
       import mx.managers.PopUpManager;
       import mx.rpc.events.*;     
@@ -149,7 +148,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 
 				bindKeyboardEvents();
 				this.addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
-				slideView.addEventListener(ListEvent.ITEM_ROLL_OVER, onItemRollOver);
 				resourcesChanged();
 				
 				titleBarOverlay.tabIndex = baseIndex;
@@ -246,10 +244,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				fitSlideToWindowMaintainingAspectRatio();
 				//Remove focus from the maximize button in case the user presses the space bar, the window doesn't get maximized again.	
 				stage.focus = this; 
-			}
-			
-			private function onItemRollOver(e:ListEvent):void{
-				this.displaySlideNumber(e.columnIndex + 1);
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
@@ -415,11 +409,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var previousButton:ContextMenuItem = new ContextMenuItem(PREVIOUS_BUTTON);
 				previousButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler);
 				contextMenu.customItems.push(previousButton);
-				
-				var gotoPageButton:ContextMenuItem = new ContextMenuItem(GOTO_PAGE_BUTTON);
-				gotoPageButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler);
-				contextMenu.customItems.push(gotoPageButton);
-				
+								
 				this.contextMenu = contextMenu;
 			}
 			
@@ -431,22 +421,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					case PREVIOUS_BUTTON:
 						gotoPreviousSlide();
 						break;
-					case GOTO_PAGE_BUTTON:
-						showPageDialog();
-						break;
 				}
 			}
-			
-			private function showPageDialog():void{
-				if (pageDialog != null) PopUpManager.removePopUp(pageDialog);
-				pageDialog = new GotoPageDialog();
-				pageDialog.totalSlides = PresentationModel.getInstance().getNumberOfPages();
-				pageDialog.x = this.x + this.width/2 - pageDialog.width/2;
-				pageDialog.y = this.y + this.height/2 - pageDialog.height/2;
-				pageDialog.window = this;
-				PopUpManager.addPopUp(pageDialog, this, false);
-			}
-			
+						
 			private function notifyOthersOfSharingPresentation(presentationName:String):void {
 				var shareEvent:PresenterCommands = new PresenterCommands(PresenterCommands.SHARE_PRESENTATION_COMMAND);
 					shareEvent.presentationName = presentationName;
@@ -645,7 +622,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     	<mx:Button id="backButton" visible="false" width="45" height="30" styleName="presentationBackButtonStyle"
     		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip')}" click="gotoPreviousSlide()"
     		tabIndex="{baseIndex+6}"/>
-    	<mx:Button id="btnSlideNum" visible="false" label="" click="showThumbnails()" doubleClick="showPageDialog()" 
+    	<mx:Button id="btnSlideNum" visible="false" label="" click="showThumbnails()"
 			toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.btnSlideNum.toolTip')}"
 			tabIndex="{baseIndex+7}"/>
     	<mx:Button id="forwardButton" visible="false" width="45" height="30" styleName="presentationForwardButtonStyle"

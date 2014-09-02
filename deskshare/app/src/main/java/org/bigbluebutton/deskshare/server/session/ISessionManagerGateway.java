@@ -35,4 +35,6 @@ public interface ISessionManagerGateway {
 	public void updateBlock(String room, int position, byte[] blockData, boolean keyframe, int seqNum);
 	
 	public void updateMouseLocation(String room, Point loc, int seqNum);
+	
+	public boolean isSharingStopped(String meetingId);
 }

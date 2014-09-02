@@ -20,7 +20,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				xmlns:mate="http://mate.asfusion.com/" 
-				width="600" height="400" 
+				width="600" height="380" 
 				creationComplete="onCreationComplete()" 
 				styleName="micSettingsWindowStyle"
 				showCloseButton="false" 
@@ -35,19 +35,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
+			import com.asfusion.mate.events.Dispatcher;		
 			import flash.system.Security;
 			import flash.system.SecurityPanel;
-			import flash.ui.Keyboard;
-			
+			import flash.ui.Keyboard;		
 			import mx.controls.sliderClasses.Slider;
 			import mx.core.IFlexDisplayObject;
 			import mx.events.CloseEvent;
 			import mx.events.ItemClickEvent;
 			import mx.events.SliderEvent;
-			import mx.managers.PopUpManager;
-			
+			import mx.managers.PopUpManager;	
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.BBB;
@@ -107,7 +104,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
       private function reInitialize():void {
         my_nc = new NetConnection();
-	my_nc.proxyType = "best";
+	      my_nc.proxyType = "best";
         my_nc.connect(null);
         nsStream = new NetStream(my_nc);
         if (mic != null) {
@@ -283,6 +280,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					mic = null;
 				}
 			}
+      
 			     
 			private function changeRecordVolume(event:SliderEvent):void {
 				var currentSlider:Slider=Slider(event.currentTarget);
@@ -297,9 +295,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
      
       private function yesButtonClicked():void {
-        trace(LOG + "Echo test passed.");
+        trace(LOG + "Echo test passed.");    
+        cleanUp();
         dispatchEvent(new FlashEchoTestHasAudioEvent());
-        onCancelClicked();
+        var dispatcher:Dispatcher = new Dispatcher();
+        dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION));
+        PopUpManager.removePopUp(this);
       }
       
       private function noButtonClicked():void {
@@ -406,14 +407,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           			   height="22" click="onHelpButtonClicked()" tabIndex="{baseIndex+1}"
           			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
 		    </mx:Canvas>
-        <mx:HBox width="100%">
+        <mx:HBox width="100%" id="displayMicNextToThis">
           <mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.recommendHeadset')}"
                    styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		
           <mx:Image source="@Embed('assets/headset-earbuds.png')"/>          
         </mx:HBox>
-	  
-        <mx:HRule id="displayMicNextToThis" width="100%"/>
-
     
     
         <!-- Play Sound, Join and Cancel buttons -->

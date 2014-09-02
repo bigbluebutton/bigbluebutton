@@ -3,6 +3,7 @@ package org.bigbluebutton.freeswitch
 import scala.actors.Actor
 import scala.actors.Actor._
 import org.bigbluebutton.core.api._
+import org.bigbluebutton.core.util._
 
 case class FsVoiceUserJoined(userId: String, webUserId: String, 
                              conference: String, callerIdNum: String, 
@@ -16,8 +17,8 @@ case class FsVoiceUserTalking(userId: String, conference: String, talking: Boole
 case class FsRecording(conference: String, recordingFile: String, 
                             timestamp: String, recording: Boolean)
 
-class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBlueButtonInGW) extends Actor {
-
+class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBlueButtonInGW) extends Actor with LogHelper {
+ 
   private var confs = new scala.collection.immutable.HashMap[String, FreeswitchConference]
   
   def act() = {
@@ -25,6 +26,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
 	  react {
 	    case msg: MeetingCreated                     => handleMeetingCreated(msg)
 	    case msg: MeetingEnded                       => handleMeetingEnded(msg)
+	    case msg: MeetingDestroyed                   => handleMeetingDestroyed(msg)
 	    case msg: UserJoined                         => handleUserJoined(msg)
 	    case msg: UserLeft                           => handleUserLeft(msg)
 	    case msg: MuteVoiceUser                      => handleMuteVoiceUser(msg)
@@ -55,7 +57,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     
   private def handleMeetingCreated(msg: MeetingCreated) {
     if (! confs.contains(msg.meetingID)) {
-//      println("FSConference rx meeting created for meeting id[" + msg.meetingID + "]")
+      logger.info("Meeting created [" + msg.meetingID + "] with voice conf [" + msg.voiceBridge + "]")
       val fsconf = new FreeswitchConference(msg.voiceBridge,
                                             msg.meetingID, 
                                             msg.recorded)
@@ -69,19 +71,32 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     val fsconf = confs.values find (c => c.meetingId == msg.meetingID)
     
     fsconf foreach (fc => {
+      logger.info("Meeting ended [" + msg.meetingID + "]")
       fsproxy.ejectUsers(fc.conferenceNum)
       confs -= fc.meetingId
     })
   }
+
+  private def handleMeetingDestroyed(msg: MeetingDestroyed) {
+    val fsconf = confs.values find (c => c.meetingId == msg.meetingID)
+    
+    fsconf foreach (fc => {
+      logger.info("Meeting destroyed [" + msg.meetingID + "]")
+      fsproxy.ejectUsers(fc.conferenceNum)
+      confs -= fc.meetingId
+    })
+  }
+    
+  
   
   private def handleUserJoinedVoice(msg: UserJoinedVoice) {
     val fsconf = confs.values find (c => c.meetingId == msg.meetingID)
     
     fsconf foreach {fc => 
-//      println("Web user has joined voice. mid[" + fc.meetingId + "] wid=[" + msg.user.userID + "], vid=[" + msg.user.voiceUser.userId + "]")
+      logger.info("Web user has joined voice. mid[" + fc.meetingId + "] wid=[" + msg.user.userID + "], vid=[" + msg.user.voiceUser.userId + "]")
       fc.addUser(msg.user)
       if (fc.numUsersInVoiceConference == 1 && fc.recorded) {
-        println("Meeting is recorded. Tell FreeSWITCH to start recording.")
+        logger.info("Meeting is recorded. Tell FreeSWITCH to start recording. mid[" + fc.meetingId + "]")
         fsproxy.startRecording(fc.conferenceNum, fc.meetingId)
       }
     }
@@ -94,9 +109,9 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     
     fsconf foreach {fc => 
       fc.addUser(msg.user)
-//      println("Web user has left voice. mid[" + fc.meetingId + "] wid=[" + msg.user.userID + "], vid=[" + msg.user.voiceUser.userId + "]")
+      logger.info("Web user has left voice. mid[" + fc.meetingId + "] wid=[" + msg.user.userID + "], vid=[" + msg.user.voiceUser.userId + "]")
       if (fc.numUsersInVoiceConference == 0 && fc.recorded) {
-        println("Meeting is recorded. No more users in voice conference. Tell FreeSWITCH to stop recording.")
+        logger.info("Meeting is recorded. No more users in voice conference. Tell FreeSWITCH to stop recording. mid[" + fc.meetingId + "]")
         fsproxy.stopRecording(fc.conferenceNum)
       }
     }
@@ -106,7 +121,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     val fsconf = confs.values find (c => c.meetingId == msg.meetingID)
     
     fsconf foreach (fc => {
-//      println("Web user id joining meeting id[" + fc.meetingId + "] wid=[" + msg.user.userID + "]")
+      logger.info("Web user id joining meeting id[" + fc.meetingId + "] wid=[" + msg.user.userID + "], extId=[" + msg.user.externUserID + "]")
       fc.addUser(msg.user)
     })
   }
@@ -121,11 +136,11 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
   
   private def handleMuteVoiceUser(msg: MuteVoiceUser) {
     val fsconf = confs.values find (c => c.meetingId == msg.meetingID)
-//    println("Mute user request for wid[" + msg.userId + "] mute=[" + msg.mute + "]")    
+    logger.debug("Mute user request for wid[" + msg.userId + "] mute=[" + msg.mute + "]")    
     fsconf foreach (fc => {
       val user = fc.getWebUser(msg.userId)
       user foreach (u => {
-        println("Muting user wid[" + msg.userId + "] mute=[" + msg.mute + "]") 
+        logger.debug("Muting user wid[" + msg.userId + "] mute=[" + msg.mute + "]") 
         fsproxy.muteUser(fc.conferenceNum, u.voiceUser.userId, msg.mute)
       })
     })    
@@ -153,37 +168,43 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
   private def handleFsRecording(msg: FsRecording) {
     val fsconf = confs.values find (c => c.conferenceNum == msg.conference)
     fsconf foreach {fc => 
-      bbbInGW.voiceRecording(fc.meetingId, msg.recordingFile, msg.timestamp, msg.recording) 
+      // Need to filter recording events here to not have duplicate events
+      if (! fc.isRecording && msg.recording) {
+        // 
+        fc.recordingStarted
+        bbbInGW.voiceRecording(fc.meetingId, msg.recordingFile, msg.timestamp, msg.recording)
+      } else if (fc.isRecording && ! msg.recording) {
+        fc.recordingStopped
+        bbbInGW.voiceRecording(fc.meetingId, msg.recordingFile, msg.timestamp, msg.recording)
+      }     
     }
   }
   
-  private def sendNonWebUserJoined(meetingId: String, webUserId: String, 
-      msg: FsVoiceUserJoined) {
-//     println("FreeswitchConferenceActor:: Sending FsVoiceUserJoined for conference [" + 
-//                msg.conference + "] user=[" + msg.callerIdName + "] userid=[" + webUserId + "]")
-     bbbInGW.voiceUserJoined(meetingId, msg.userId, 
+  private def sendNonWebUserJoined(meetingId: String, webUserId: String, msg: FsVoiceUserJoined) {
+    bbbInGW.voiceUserJoined(meetingId, msg.userId, 
 	              webUserId, msg.conference, msg.callerIdNum, msg.callerIdName,
 	              msg.muted, msg.speaking)    
   }
   
   private def handleFsVoiceUserJoined(msg: FsVoiceUserJoined) {
-//    println("FreeswitchConferenceActor:: Received FsVoiceUserJoined for conference [" + 
-//                msg.conference + "] user=[" + msg.callerIdName + "] wid=[" + msg.webUserId + "]")
+     logger.info("A user has joined the voice conference [" + 
+                msg.conference + "] user=[" + msg.callerIdName + "] wid=[" + msg.webUserId + "]")
     val fsconf = confs.values find (c => c.conferenceNum == msg.conference)
     
     fsconf foreach (fc => {
-	  fc.getWebUser(msg.webUserId) match {
-	   case Some(user) => {
-//         println("FreeswitchConferenceActor:: Found webuser for this user for conference [" + 
-//                msg.conference + "] user=[" + msg.callerIdName + "] wid=[" + msg.webUserId + "]")	     
-	     sendNonWebUserJoined(fc.meetingId, user.voiceUser.webUserId, msg)
-	   }
-	   case None => {
-//	     println("FreeswitchConferenceActor:: Did not find webuser for this user for conference [" + 
-//                msg.conference + "] user=[" + msg.callerIdName + "] wid=[" + msg.webUserId + "]")	
-	     sendNonWebUserJoined(fc.meetingId, msg.userId, msg)
-	   }
-	  }
+      logger.debug("Meeting [" + fc.meetingId + "] has [" + fc.numUsers + "]")
+	    fc.getWebUserUsingExtId(msg.webUserId) match {
+	      case Some(user) => {
+          logger.info("The user is also in the web client. [" + 
+                msg.conference + "] user=[" + msg.callerIdName + "] wid=[" + msg.webUserId + "]")	     
+	        sendNonWebUserJoined(fc.meetingId, user.userID, msg)
+	      }
+	      case None => {
+          logger.info("User is not a web user. Must be a phone caller. [" + 
+                msg.conference + "] user=[" + msg.callerIdName + "] wid=[" + msg.webUserId + "]")	
+	         sendNonWebUserJoined(fc.meetingId, msg.userId, msg)
+	      }
+	    }
     })
   }
   

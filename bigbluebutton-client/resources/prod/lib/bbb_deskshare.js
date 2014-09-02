@@ -28,7 +28,6 @@ function setScreenCoordinates(x, y) {
 }
 
 function stopApplet(){
-        document.DeskShareApplet.destroy();
         removeFrame();
 }
 

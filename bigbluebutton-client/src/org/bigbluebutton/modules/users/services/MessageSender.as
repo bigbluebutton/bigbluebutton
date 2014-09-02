@@ -29,16 +29,18 @@ package org.bigbluebutton.modules.users.services
 
     public function kickUser(userID:String):void {
       var message:Object = new Object();
-      message["userID"] = userID;
+      message["userId"] = userID;
+      message["ejectedBy"] = UsersUtil.getMyUserID();
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("participants.kickUser", 
+      _nc.sendMessage("participants.ejectUserFromMeeting", 
         function(result:String):void { // On successful result
           LogUtil.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
           LogUtil.error(status); 
-        }
+        },
+        message
       );
     }
     
@@ -217,11 +219,10 @@ package org.bigbluebutton.modules.users.services
       trace("Sending ejectUser. id=[" + userid + "]");
       var message:Object = new Object();
       message["userId"] = userid;
-
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage(
-        "voice.kickUSer",
+        "voice.ejectUserFromVoice",
         function(result:String):void { // On successful result
           LogUtil.debug(result); 
         },	                   

@@ -17,24 +17,26 @@
 package net.oauth;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URISyntaxException;
-import java.net.URL;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import net.oauth.ParameterStyle;
+
+import net.oauth.client.OAuthClient;
 import net.oauth.http.HttpMessage;
+import net.oauth.http.HttpMessageDecoder;
 import net.oauth.signature.OAuthSignatureMethod;
 
 /**
@@ -55,9 +57,13 @@ public class OAuthMessage {
 
     public OAuthMessage(String method, String URL, Collection<? extends Map.Entry> parameters,
             InputStream bodyAsStream) {
+        this(method, URL, parameters, bodyAsStream, null);
+    }
+
+    public OAuthMessage(String method, String URL, Collection<? extends Map.Entry> parameters,
+            InputStream bodyAsStream, String contentType) {
         this.method = method;
         this.URL = URL;
-        this.bodyAsStream = bodyAsStream;
         if (parameters == null) {
             this.parameters = new ArrayList<Map.Entry<String, String>>();
         } else {
@@ -67,6 +73,40 @@ public class OAuthMessage {
                         toString(p.getKey()), toString(p.getValue())));
             }
         }
+
+        ByteArrayInputStream bais = null;
+        byte[] body = null;
+        if( bodyAsStream != null ) {
+            try{
+                body = getBodyAsByteArray(bodyAsStream);
+
+                Collection<Map.Entry<String, String>> headers = getHeaders();
+                headers.add(new OAuth.Parameter(HttpMessage.CONTENT_LENGTH, String.valueOf(body.length)));
+                headers.add(new OAuth.Parameter(HttpMessage.CONTENT_TYPE, contentType != null? contentType: "null"));
+
+                bais = new ByteArrayInputStream(body);
+            }catch(Exception e){
+            }
+        }
+        this.bodyAsStream = bais;
+        this.bodyAsByteArray = body;
+
+    }
+
+    private byte[] getBodyAsByteArray(InputStream bodyAsStream) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        int reads;
+
+        try {
+            reads = bodyAsStream.read();
+            while(reads != -1){
+                baos.write(reads);
+                reads = bodyAsStream.read();
+            }
+        } finally {
+            bodyAsStream.close();
+        }
+        return baos.toByteArray();
     }
 
     public String method;
@@ -77,6 +117,7 @@ public class OAuthMessage {
     private boolean parametersAreComplete = false;
     private final List<Map.Entry<String, String>> headers = new ArrayList<Map.Entry<String, String>>();
     private final InputStream bodyAsStream;
+    private final byte[] bodyAsByteArray;
     
     public String toString() {
         return "OAuthMessage(" + method + ", " + URL + ", " + parameters + ")";
@@ -110,7 +151,7 @@ public class OAuthMessage {
         parameters.add(parameter);
         parameterMap = null;
     }
-    
+
     public void addParameters(
             Collection<? extends Map.Entry<String, String>> parameters) {
         this.parameters.addAll(parameters);
@@ -188,14 +229,12 @@ public class OAuthMessage {
 
     /**
      * Read the body of the HTTP request or response and convert it to a String.
-     * This method isn't repeatable, since it consumes and closes getBodyAsStream.
      * 
      * @return the body, or null to indicate there is no body.
      */
     public final String readBodyAsString() throws IOException
     {
-        InputStream body = getBodyAsStream();
-        return readAll(body, getBodyEncoding());
+        return getBodyAsString();
     }
 
     /**
@@ -209,6 +248,20 @@ public class OAuthMessage {
      */
     public InputStream getBodyAsStream() throws IOException {
         return bodyAsStream;
+    }
+
+    /**
+     * @return the body, or null to indicate there is no body.
+     */
+    public byte[] getBodyAsByteArray(){
+        return bodyAsByteArray;
+    }
+
+    /**
+     * @return the body, or null to indicate there is no body.
+     */
+    public String getBodyAsString(){
+        return new String(bodyAsByteArray);
     }
 
     /** Construct a verbose description of this message and its origins. */
@@ -286,7 +339,24 @@ public class OAuthMessage {
         if (pMap.get(OAuth.OAUTH_VERSION) == null) {
         	addParameter(OAuth.OAUTH_VERSION, OAuth.VERSION_1_0);
         }
+        if (pMap.get(OAuth.OAUTH_BODY_HASH) == null && bodyAsStream != null) {
+            addParameter(OAuth.OAUTH_BODY_HASH, getBodyHash() );
+        }
         this.sign(accessor);
+    }
+
+    public String getBodyHash()
+            throws OAuthException{
+        byte[] output;
+        try{
+            MessageDigest md = MessageDigest.getInstance("SHA1");
+            md.update(bodyAsByteArray);
+            output = OAuthSignatureMethod.base64Encode(md.digest()).getBytes();
+        }catch(Exception e){
+            throw new OAuthException("Could not compute body hash: " + e.getMessage());
+        }
+
+        return new String(output);
     }
 
     /**
@@ -304,52 +374,10 @@ public class OAuthMessage {
      * 
      * @param style
      *            where to put the OAuth parameters, within the HTTP request
+     * @deprecated use HttpMessage.newRequest
      */
-    public HttpMessage toHttpRequest(ParameterStyle style) throws IOException {
-        final boolean isPost = POST.equalsIgnoreCase(method);
-        InputStream body = getBodyAsStream();
-        if (style == ParameterStyle.BODY && !(isPost && body == null)) {
-            style = ParameterStyle.QUERY_STRING;
-        }
-        String url = this.URL;
-        final List<Map.Entry<String, String>> headers = new ArrayList<Map.Entry<String, String>>(getHeaders());
-        switch (style) {
-        case QUERY_STRING:
-            url = OAuth.addParameters(url, getParameters());
-            break;
-        case BODY: {
-            byte[] form = OAuth.formEncode(getParameters()).getBytes(getBodyEncoding());
-            headers.add(new OAuth.Parameter(HttpMessage.CONTENT_TYPE, OAuth.FORM_ENCODED));
-            headers.add(new OAuth.Parameter(HttpMessage.CONTENT_LENGTH, form.length + ""));
-            body = new ByteArrayInputStream(form);
-            break;
-        }
-        case AUTHORIZATION_HEADER:
-            headers.add(new OAuth.Parameter("Authorization", getAuthorizationHeader(null)));
-            // Find the non-OAuth parameters:
-            List<Map.Entry<String, String>> others = getParameters();
-            if (others != null && !others.isEmpty()) {
-                others = new ArrayList<Map.Entry<String, String>>(others);
-                for (Iterator<Map.Entry<String, String>> p = others.iterator(); p.hasNext();) {
-                    if (p.next().getKey().startsWith("oauth_")) {
-                        p.remove();
-                    }
-                }
-                // Place the non-OAuth parameters elsewhere in the request:
-                if (isPost && body == null) {
-                    byte[] form = OAuth.formEncode(others).getBytes(getBodyEncoding());
-                    headers.add(new OAuth.Parameter(HttpMessage.CONTENT_TYPE, OAuth.FORM_ENCODED));
-                    headers.add(new OAuth.Parameter(HttpMessage.CONTENT_LENGTH, form.length + ""));
-                    body = new ByteArrayInputStream(form);
-                } else {
-                    url = OAuth.addParameters(url, others);
-                }
-            }
-            break;
-        }
-        HttpMessage httpRequest = new HttpMessage(method, new URL(url), body);
-        httpRequest.headers.addAll(headers);
-        return httpRequest;
+    public HttpMessage toHttpRequest(OAuthClient.ParameterStyle style) throws IOException {
+        return HttpMessage.newRequest(this, style.getReplacement());
     }
 
     /**
@@ -374,6 +402,8 @@ public class OAuthMessage {
         StringBuilder into = new StringBuilder();
         if (realm != null) {
             into.append(" realm=\"").append(OAuth.percentEncode(realm)).append('"');
+        } else {
+            into.append(" realm=\"\"");
         }
         beforeGetParameter();
         if (parameters != null) {
@@ -381,7 +411,6 @@ public class OAuthMessage {
                 String name = toString(parameter.getKey());
                 if (name.startsWith("oauth_")) {
                     if (into.length() > 0) into.append(",");
-                    into.append(" ");
                     into.append(OAuth.percentEncode(name)).append("=\"");
                     into.append(OAuth.percentEncode(toString(parameter.getValue()))).append('"');
                 }
