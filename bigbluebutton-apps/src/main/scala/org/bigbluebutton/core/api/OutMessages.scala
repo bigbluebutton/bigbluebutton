@@ -45,7 +45,9 @@ case class GetRecordingStatusReply(
 case class MeetingCreated(
     meetingID: String, 
     recorded: Boolean, 
+    name: String,
     voiceBridge: String,
+    duration: Long,
     version:String = Versions.V_0_0_1
 ) extends IOutMessage
 

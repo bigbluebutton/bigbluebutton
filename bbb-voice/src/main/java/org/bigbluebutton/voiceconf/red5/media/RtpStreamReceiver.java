@@ -115,7 +115,6 @@ public class RtpStreamReceiver {
         	}
         }
         log.debug("Rtp Receiver stopped. Packet Received = " + packetReceivedCounter + "." );
-        if (listener != null) listener.onStoppedReceiving();
     }
     
     private boolean shouldDropDelayedPacket(RtpPacket rtpPacket) {

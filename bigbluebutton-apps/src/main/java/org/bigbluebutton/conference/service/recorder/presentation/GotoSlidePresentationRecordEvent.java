@@ -35,7 +35,12 @@ public class GotoSlidePresentationRecordEvent extends
 	}
 	
 	public void setNum(int num) {
-		eventMap.put("num", Integer.toString(num));
+		/**
+		 * Subtract 1 from the page number to be zero-based to be
+		 * compatible with 0.81 and earlier. (ralam Sept 2, 2014)
+		 */
+//		System.out.println("GOTO_SLIDE_EVENT real pagenum=[" + num + "] rec pagenum=[" + (num - 1) + "]");
+		eventMap.put("num", Integer.toString(num - 1));
 	}
 	
 	public void setCurrent(boolean current) {

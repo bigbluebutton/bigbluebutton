@@ -6,6 +6,7 @@ object Constants {
   val PAYLOAD                         = "payload"
   val MEETING_ID                      = "meeting_id"
   val TIMESTAMP                       = "timestamp"
+  val CURRENT_TIME                    = "current_time"
   val USER_ID                         = "userid"
   val RECORDED                        = "recorded"
   val MEETING_NAME                    = "meeting_name"

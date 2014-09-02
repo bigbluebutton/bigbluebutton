@@ -13,6 +13,7 @@ object Util {
     header.put(Constants.NAME, name)
     header.put(VERSION, version)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
     replyTo.foreach(rep => header.put(Constants.REPLY_TO, rep))
     
     header

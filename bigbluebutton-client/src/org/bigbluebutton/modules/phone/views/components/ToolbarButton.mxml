@@ -24,7 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
            styleName="voiceConfDefaultButtonStyle" click="startPhone()"
 	mouseOver = "mouseOverHandler(event)"
 	mouseOut = "mouseOutHandler(event)"
-	addedToStage="addedToStageHandler(event)"
+	creationComplete="onCreationComplete()"
 	height="24"
 	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent">
@@ -111,7 +111,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           this.styleName = "voiceConfDefaultButtonStyle";			
 			}
 			
-			private function addedToStageHandler(event:Event):void {
+			private function onCreationComplete():void {
 				// when the button is added to the stage display the audio selection window if auto join is true
 				if (phoneOptions.autoJoin) {
           if (phoneOptions.skipCheck) {
@@ -124,7 +124,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             dispatcher.dispatchEvent(command);            
           } else {
             trace(LOG + "Sending Show Audio Selection command");
-            trace(LOG + "Sending Show Audio Selection command");
+            JSLog.debug(LOG + "Sending Show Audio Selection command");
             dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));            
           }
 				}

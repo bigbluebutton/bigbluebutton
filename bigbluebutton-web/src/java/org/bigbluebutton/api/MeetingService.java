@@ -367,7 +367,10 @@ public class MeetingService implements MessageListener {
 		if (m != null) {
 			m.setForciblyEnded(true);
 			if (removeMeetingWhenEnded) {
-				processMeetingForRemoval(m);
+		          processRecording(m.getInternalId());
+			  destroyMeeting(m.getInternalId());		  		
+		          meetings.remove(m.getInternalId());		
+		          removeUserSessions(m.getInternalId());
 			}
 		} else {
 			log.debug("endMeeting - meeting doesn't exist: " + message.meetingId);
