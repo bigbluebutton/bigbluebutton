@@ -151,7 +151,6 @@ package org.bigbluebutton.modules.phone.managers
 	
     public function handleUseFlashModeCommand():void {
       usingWebRTC = false;
-      hangup();
     }
 
     public function handleWebRTCEchoTestFailedEvent(reason:String):void {
