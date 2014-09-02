@@ -280,7 +280,7 @@ public class Meeting {
 	}
 	
 	public boolean hasExpired(int expiry) {
-		return (hasStarted() && userHasJoined && isEmpty() && hasBeenEmptyFor(expiry) && !meetingInfinite());
+		return (hasStarted() && userHasJoined && isEmpty() && hasBeenEmptyFor(expiry));
 	}
 	
 	public boolean hasExceededDuration() {
