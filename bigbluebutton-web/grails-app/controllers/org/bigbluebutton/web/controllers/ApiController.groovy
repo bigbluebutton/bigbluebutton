@@ -20,6 +20,7 @@ package org.bigbluebutton.web.controllers
 
 import javax.servlet.ServletRequest;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -739,10 +740,13 @@ class ApiController {
                       meetingID(m.getExternalId())
 				              meetingName(m.getName())
 				              createTime(m.getCreateTime())
+											createDate(formatPrettyDate(m.getCreateTime()))
                       attendeePW(m.getViewerPassword())
                       moderatorPW(m.getModeratorPassword())
                       hasBeenForciblyEnded(m.isForciblyEnded() ? "true" : "false")
                       running(m.isRunning() ? "true" : "false")
+											duration(m.duration)
+											hasUserJoined(m.hasUserJoined())
                     }
                   }
                 }
@@ -1780,6 +1784,13 @@ class ApiController {
     }
   }
 
+	def formatPrettyDate(timestamp) {
+//		SimpleDateFormat ft = new SimpleDateFormat ("E yyyy.MM.dd 'at' hh:mm:ss a zzz");
+//		return ft.format(new Date(timestamp))	
+		
+		return new Date(timestamp).toString()	
+	}
+	
   def respondWithConferenceDetails(meeting, room, msgKey, msg) {
     response.addHeader("Cache-Control", "no-cache")
     withFormat {				
@@ -1787,15 +1798,18 @@ class ApiController {
         render(contentType:"text/xml") {
           response() {
             returncode(RESP_CODE_SUCCESS)
-			meetingName(meeting.getName())
+			      meetingName(meeting.getName())
             meetingID(meeting.getExternalId())
-			createTime(meeting.getCreateTime())
-			voiceBridge(meeting.getTelVoice())
-			dialNumber(meeting.getDialNumber())
+			      createTime(meeting.getCreateTime())
+						createDate(formatPrettyDate(meeting.getCreateTime()))
+			      voiceBridge(meeting.getTelVoice())
+			      dialNumber(meeting.getDialNumber())
             attendeePW(meeting.getViewerPassword())
             moderatorPW(meeting.getModeratorPassword())
             running(meeting.isRunning() ? "true" : "false")
-			recording(meeting.isRecord() ? "true" : "false")
+						duration(meeting.duration)
+						hasUserJoined(meeting.hasUserJoined())
+			      recording(meeting.isRecord() ? "true" : "false")
             hasBeenForciblyEnded(meeting.isForciblyEnded() ? "true" : "false")
             startTime(meeting.getStartTime())
             endTime(meeting.getEndTime())
@@ -1841,6 +1855,9 @@ class ApiController {
             attendeePW(meeting.getViewerPassword())
             moderatorPW(meeting.getModeratorPassword())
             createTime(meeting.getCreateTime())
+						createDate(formatPrettyDate(meeting.getCreateTime()))
+						hasUserJoined(meeting.hasUserJoined())
+						duration(meeting.duration)
             hasBeenForciblyEnded(meeting.isForciblyEnded() ? "true" : "false")
             messageKey(msgKey == null ? "" : msgKey)
             message(msg == null ? "" : msg)
