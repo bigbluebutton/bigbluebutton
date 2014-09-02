@@ -114,5 +114,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
              color="gray" right="0" />       
   </mx:Canvas>
   <mx:Text id="txtMessage" htmlText="{rolledOver ? data.senderText : data.translatedText}" link="onLinkClick(event)" color="{data.senderColor}"
-           rollOver="onRollOver()" rollOut="onRollOut()" keyUp="onKeyDown(event)" paddingLeft="5" width="100%" selectable="true"/>
+           rollOver="onRollOver()" rollOut="onRollOut()" keyDown="onKeyDown(event)" paddingLeft="5" width="100%" selectable="true"/>
 </mx:VBox>
