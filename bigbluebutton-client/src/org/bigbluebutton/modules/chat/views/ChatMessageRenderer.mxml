@@ -28,6 +28,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
 			import mx.binding.utils.ChangeWatcher;
+			import mx.core.UITextField;
+			import mx.core.mx_internal;
 			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.modules.chat.model.ChatMessage;
@@ -96,9 +98,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				rolledOver = false;
 			}
 			
-			private function onKeyUp(event:KeyboardEvent):void{
-				if(event.ctrlKey && event.keyCode == "c".charCodeAt(0)){
-					System.setClipboard(txtMessage.textSnapshot.getSelectedText());
+			private function onKeyDown(event:KeyboardEvent):void{
+				if(event.ctrlKey == true && event.keyCode == Keyboard.C){
+					System.setClipboard(UITextField(txtMessage.mx_internal::getTextField()).selectedText);
 				}
 			}
 						
@@ -112,5 +114,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
              color="gray" right="0" />       
   </mx:Canvas>
   <mx:Text id="txtMessage" htmlText="{rolledOver ? data.senderText : data.translatedText}" link="onLinkClick(event)" color="{data.senderColor}"
-           rollOver="onRollOver()" rollOut="onRollOut()" keyUp="onKeyUp(event)" paddingLeft="5" width="100%" selectable="true"/>
+           rollOver="onRollOver()" rollOut="onRollOut()" keyUp="onKeyDown(event)" paddingLeft="5" width="100%" selectable="true"/>
 </mx:VBox>
