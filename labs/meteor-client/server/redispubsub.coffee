@@ -229,6 +229,7 @@ class Meteor.RedisPubSub
       # the event message contains very little info, so we will
       # request for information for all the meetings and in
       # this way can keep the Meetings collection up to date
+      console.log "just received a meeting_created_message\n\n\n"
       @invokeGetAllMeetingsRequest()
 
     if message.header?.name is "presentation_shared_message" # TODO TEST!!!
