@@ -481,6 +481,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				c.width = slideLoader.width;
 				c.height = slideLoader.height;
 				fitSlideToLoader();
+				c.addEventListener(MouseEvent.MOUSE_DOWN, handleWhiteboardCanvasClick);
+				slideLoader.addEventListener(MouseEvent.MOUSE_DOWN, handleWhiteboardCanvasClick);
+			}
+			
+			private function handleWhiteboardCanvasClick(e:MouseEvent):void {
+				if (thumbnailView.visible) thumbnailView.visible = false;
 			}
 			
 			public function moveCanvas(x:Number, y:Number):void{
