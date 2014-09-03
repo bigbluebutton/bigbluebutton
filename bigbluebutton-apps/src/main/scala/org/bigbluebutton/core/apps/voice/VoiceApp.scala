@@ -28,7 +28,7 @@ trait VoiceApp {
       
   }
     
-  def handleEjectUserRequest(msg: EjectUserRequest) {
+  def handleEjectUserRequest(msg: EjectUserFromVoiceRequest) {
       
   }
 }

@@ -163,7 +163,7 @@ class Meteor.RedisPubSub
     ignoredEventTypes = [
       "keep_alive_reply"
       "page_resized_message"
-      "presentation_page_resized_message"
+      # "presentation_page_resized_message"
       "presentation_cursor_updated_message" # just because it's common. we handle it anyway
     ]
 
@@ -229,6 +229,7 @@ class Meteor.RedisPubSub
       # the event message contains very little info, so we will
       # request for information for all the meetings and in
       # this way can keep the Meetings collection up to date
+      console.log "just received a meeting_created_message\n\n\n"
       @invokeGetAllMeetingsRequest()
 
     if message.header?.name is "presentation_shared_message" # TODO TEST!!!
@@ -314,6 +315,15 @@ class Meteor.RedisPubSub
         Meteor.Users.update({"user.presenter": true, meetingId: meetingId},{$set: {"user.presenter": false}})
         # set the new presenter
         Meteor.Users.update({"user.userid": newPresenterId, meetingId: meetingId},{$set: {"user.presenter": true}})
+
+    if message.header?.name is "presentation_page_resized_message"
+      console.log "handling presentation_page_resized_message"
+      slideId = message.payload?.page?.id
+      heightRatio = message.payload?.page?.height_ratio
+      widthRatio = message.payload?.page?.width_ratio
+      xOffset = message.payload?.page?.x_offset
+      yOffset = message.payload?.page?.y_offset
+      console.log "__#{slideId}___#{heightRatio}___#{widthRatio}___#{xOffset}__#{yOffset}__"
 
     if message.header?.name is "user_raised_hand_message"
       userId = message.payload?.userid

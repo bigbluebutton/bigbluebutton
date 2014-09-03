@@ -158,6 +158,10 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
     bbbGW.accept(new UserLowerHand(meetingId, userId, loweredBy))
   }
   
+  def ejectUserFromMeeting(meetingId: String, userId: String, ejectedBy: String) {
+    bbbGW.accept(new EjectUserFromMeeting(meetingId, userId, ejectedBy))
+  }
+  
   def shareWebcam(meetingId: String, userId: String, stream: String) {
     bbbGW.accept(new UserShareWebcam(meetingId, userId, stream))
   }
@@ -425,10 +429,10 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
 	  voiceGW.lockUser(meetingID, requesterID, userID, lock)
 	}
 	
-	def ejectUser(meetingID: String, requesterID: String, userID: String) {
-	  voiceGW.ejectUser(meetingID, requesterID, userID)
-	}
-	
+	def ejectUserFromVoice(meetingId: String, userId: String, ejectedBy: String) {
+	  voiceGW.ejectUserFromVoice(meetingId, userId, ejectedBy)
+  }
+	  
 	def voiceUserJoined(meetingId: String, userId: String, webUserId: String, 
 	                            conference: String, callerIdNum: String, 
 	                            callerIdName: String,
@@ -436,8 +440,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
 	  
 	  voiceGW.voiceUserJoined(meetingId, userId, webUserId, 
 	                            conference, callerIdNum, 
-	                            callerIdName,
-								muted, speaking)
+	                            callerIdName, muted, speaking)
 	}
 	
 	def voiceUserLeft(meetingId: String, userId: String) {

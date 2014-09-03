@@ -82,6 +82,8 @@ package org.bigbluebutton.modules.whiteboard.models
         wb.addAnnotation(an);
       }  
     }
+    
+    
     public function addAnnotationFromHistory(whiteboardId:String, annotation:Array):void {                
       trace(LOG + "addAnnotationFromHistory: wb id=[" + whiteboardId + "]");
       var wb:Whiteboard = getWhiteboard(whiteboardId);

@@ -84,7 +84,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: IsMeetingMutedRequest         => handleIsMeetingMutedRequest(msg)
         case msg: MuteUserRequest               => handleMuteUserRequest(msg)
         case msg: LockUserRequest               => handleLockUserRequest(msg)
-        case msg: EjectUserRequest              => handleEjectUserRequest(msg)
+        case msg: EjectUserFromVoiceRequest     => handleEjectUserFromVoiceRequest(msg)
         case msg: VoiceUserJoinedMessage        => handleVoiceUserJoinedMessage(msg)
         case msg: VoiceUserJoined               => handleVoiceUserJoined(msg)
         case msg: VoiceUserLeft                 => handleVoiceUserLeft(msg)
@@ -236,6 +236,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.CREATE_MEETING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
     
 //    println("***** DISPATCHING CREATE MEETING *****************")
     
@@ -250,7 +251,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.INITIALIZE_MEETING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-                 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING INITIALIZE MEETING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -262,7 +264,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.DESTROY_MEETING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-                 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING DESTROY MEETING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -274,7 +277,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.START_MEETING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-                 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING START MEETING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -286,7 +290,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.END_MEETING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-                 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING END MEETING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -306,7 +311,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.END_MEETING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-                    
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING LOCK SETTING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -320,7 +326,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.END_MEETING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-                 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING LOCK USER *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -334,7 +341,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.END_MEETING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)    
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING LOCK ALL USERS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -348,7 +356,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.INIT_LOCK_SETTINGS)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)    
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING INIT LOCK SETTINGS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -361,7 +370,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.SET_LOCK_SETTINGS)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)      
-                 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING SET LOCK SETTINGS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -374,7 +384,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.GET_LOCK_SETTINGS)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)    
-                 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+      
 //    println("***** DISPATCHING GET LOCK SETTINGS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -387,7 +398,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.IS_MEETING_LOCKED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)     
-                 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING IS MEETING LOCKED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -401,6 +413,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.VALIDATE_AUTH_TOKEN)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
     
 //    println("***** DISPATCHING VALIDATE AUTH TOKEN *****************")
     dispatcher.dispatch(buildJson(header, payload))
@@ -417,6 +430,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.REGISTER_USER)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)    
     
 //    println("***** DISPATCHING REGISTER USER *****************")
     dispatcher.dispatch(buildJson(header, payload))
@@ -430,7 +444,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.USER_JOINING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING HANDLE USER JOINING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -443,7 +458,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.USER_LEAVING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING HANDLE USER LEAVING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -462,6 +478,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val replyTo = msg.meetingID + "/" + msg.requesterID
     header.put(Constants.REPLY_TO, replyTo)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
     
 //    println("***** DISPATCHING HANDLE GET USERS *****************")
     dispatcher.dispatch(buildJson(header, payload))
@@ -475,6 +492,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.RAISE_HAND)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
     
 //    println("***** DISPATCHING USER RAISE HAND *****************")
     dispatcher.dispatch(buildJson(header, payload))
@@ -489,6 +507,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.LOWER_HAND)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
     
 //    println("***** DISPATCHING USER LOWER HAND *****************")
     dispatcher.dispatch(buildJson(header, payload))
@@ -503,6 +522,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.USER_SHARE_WEBCAM)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)    
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
     
 //    println("***** DISPATCHING USER SHARE WEBCAM *****************")
     dispatcher.dispatch(buildJson(header, payload))
@@ -516,7 +536,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.USER_UNSHARE_WEBCAM)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)   
-                 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING USER UNSHARE WEBCAM *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -531,7 +552,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.CHANGE_USER_STATUS)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)      
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING CHANGE USER STATUS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -546,7 +568,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.ASSIGN_PRESENTER)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)     
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING ASSIGN PRESENTER *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -560,7 +583,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.SET_RECORDING_STATUS)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)     
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING SET RECORDING STATUS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -573,7 +597,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.GET_CHAT_HISTORY)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)  
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING GET CHAT HISTORY REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -592,7 +617,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.SEND_PUBLIC_MESSAGE)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)     
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING SEND PUBLIC MESSAGE REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -611,6 +637,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.SEND_PRIVATE_CHAT_MESSAGE)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)  
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
     
 //    println("***** DISPATCHING SEND PRIVATE MESSAGE REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
@@ -624,7 +651,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.GET_CURRENT_LAYOUT)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)  
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING GET CURRENT LAYOUT REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -638,7 +666,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.BROADCAST_LAYOUT)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -650,7 +679,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.UNLOCK_LAYOUT)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -662,6 +692,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.PRECREATED_POLL)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
     
 //    println("***** DISPATCHING PRE CREATED POLL *****************")
     dispatcher.dispatch(buildJson(header, payload))
@@ -676,7 +707,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.CREATE_POLL)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING CREATE POLL *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -690,7 +722,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.UPDATE_POLL)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING UPDATE POLL *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -703,6 +736,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.GET_POLLS)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
     
 //    println("***** DISPATCHING GET POLLS *****************")
     dispatcher.dispatch(buildJson(header, payload))
@@ -717,7 +751,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.DESTROY_POLL)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING DESTROY POLLS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -731,7 +766,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.REMOVE_POLL)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING REMOVE POLL *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -745,7 +781,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.SHARE_POLL)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING SHARE POLL *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -759,7 +796,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.SHOW_POLL_RESULT)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING SHOW POLL RESULTS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -773,7 +811,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.HIDE_POLL_RESULT)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING HIDE POLL RESULTS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -787,7 +826,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.STOP_POLL)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING STOP POLL *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -801,7 +841,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.START_POLL)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING START POLL *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -816,7 +857,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.CLEAR_POLL)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING CLEAR POLL *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -830,7 +872,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.GET_POLL_RESULT)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING GET POLL RESULT *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -844,7 +887,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.RESPONT_TO_POLL)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING RESPOND TO POLL *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -856,7 +900,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.CLEAR_PRESENTATION)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING CLEAR PRESENTATION *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -869,7 +914,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.REMOVE_PRESENTATION)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING REMOVE PRESENTATION *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -882,7 +928,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.GET_PRESENTATION_INFO)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING GET PRESENTATION INFO *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -909,7 +956,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.RESIZE_AND_MOVE_SLIDE)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING RESIZE AND MOVE SLIDE *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -922,7 +970,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.GO_TO_SLIDE)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING GO TO SLIDE *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -936,7 +985,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.SHARE_PRESENTATION)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp) 
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING SHARE PRESENTATION *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -949,7 +999,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.GET_SLIDE_INFO)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING GET SLIDE INFO *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -962,7 +1013,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.PREUPLOADED_PRESENTATIONS)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING PREUPLOADED PRESENTATIONS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -978,7 +1030,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.PRESENTATION_CONVERSION_UPDATE)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING PRESENTATION CONVERSION UPDATE *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -996,7 +1049,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.PRESENTATION_PAGE_COUNT_ERROR)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING PRESENTATION PAGE COUNT ERROR *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1014,7 +1068,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.PRESENTATION_PAGE_GENERATED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING PRESENTATION SLIDE GENERATED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1029,7 +1084,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.PRESENTATION_CONVERSION_COMPLETED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-   
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING PRESENTATION CONVERSION COMPLETED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1042,7 +1098,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.SEND_VOICE_USERS_REQUEST)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING SEND VOICE USERS REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1056,7 +1113,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.MUTE_MEETING_REQUEST)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING MUTE MEETING REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1069,7 +1127,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.IS_MEETING_MUTED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING IS MEETING MUTED REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1084,7 +1143,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.MUTE_USER)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING MUTE USER REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1099,21 +1159,23 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.LOCK_USER)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING LOCK USER REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
-  private def handleEjectUserRequest(msg: EjectUserRequest) {
+  private def handleEjectUserFromVoiceRequest(msg: EjectUserFromVoiceRequest) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.REQUESTER_ID, msg.requesterID) 
-    payload.put(Constants.USER_ID, msg.userID)
+    payload.put(Constants.REQUESTER_ID, msg.ejectedBy) 
+    payload.put(Constants.USER_ID, msg.userId)
     
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.EJECT_USER)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING EJECT USER REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1131,7 +1193,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.VOICE_USER_JOINED_MESSAGE)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING VOICE USER JOINED MESSAGE *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1144,7 +1207,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.VOICE_USER_JOINED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING VOICE USER JOINED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1157,7 +1221,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.VOICE_USER_LEFT)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING VOICE USER LEFT *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1171,7 +1236,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.VOICE_USER_LOCKED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING VOICE USER LOCKED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1185,7 +1251,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.VOICE_USER_MUTED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
     println("***** DISPATCHING VOICE USER MUTED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1199,7 +1266,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.VOICE_USER_TALKING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING VOICE USER TALKING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1214,7 +1282,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.VOICE_RECORDING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING VOICE RECORDING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1228,7 +1297,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.SEND_WHITEBOARD_ANNOTATION)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING SEND WHITEBOARD ANNOTATION REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1242,7 +1312,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.GET_WHITEBOARD_SHAPES)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING SEND WHITEBOARD SHAPES REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1256,7 +1327,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.CLEAR_WHITEBOARD)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING CLEAR WHITEBOARD REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1270,7 +1342,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.UNDO_WHITEBOARD)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING UNDO WHITEBOARD REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1284,7 +1357,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.ENABLE_WHITEBOARD)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING ENABLE WHITEBOARD REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1297,7 +1371,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.IS_WHITEBOARD_ENABLED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING IS WHITEBOARD ENABLED REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1356,7 +1431,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.DISCONNECT_ALL_USERS)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING DISCONNECT ALL USERS *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1369,7 +1445,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.DISCONNECT_USER)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING DISCONNECT USER *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1383,7 +1460,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.PERMISSION_SETTING_INITIALIZED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING PERMISSIONS SETTING INIIALIZED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1396,7 +1474,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.NEW_PERMISSION_SETTINGS)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING NEW PERMISSIONS SETTING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1410,7 +1489,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.USER_LOCKED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING USER LOCKED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1424,7 +1504,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.USERS_LOCKED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING USERS LOCKED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1437,7 +1518,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.GET_PERMISSION_SETTINGS_REPLY)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1449,7 +1531,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.IS_MEETING_LOCKED_REPLY)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING IS MEETING LOCKED REPLY *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1463,7 +1546,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.USER_REGISTERED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING USER REGISTERED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1484,7 +1568,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.PRESENTER_ASSIGNED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING PRESENTER ASSIGNED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1497,7 +1582,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.END_AND_KICK_ALL)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING END AND KICK ALL *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1517,6 +1603,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.GET_USERS_REPLY)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
     
 //    println("***** DISPATCHING GET USERS REPLY *****************")
     dispatcher.dispatch(buildJson(header, payload))
@@ -1532,7 +1619,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.VALIDATE_AUTH_TOKEN_REPLY)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING VALIDATE AUTH TOKEN REPLY *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1551,7 +1639,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.USER_RAISED_HAND)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING USER RAISED HAND *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1566,7 +1655,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.USER_LOWERED_HAND)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING USER LOWERED HAND *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1581,7 +1671,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.USER_SHARED_WEBCAM)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING USER SHARED WEBCAM *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1596,7 +1687,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.USER_UNSHARED_WEBCAM)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING USER UNSHARED WEBCAM *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1612,7 +1704,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.USER_STATUS_CHANGED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING USER STATUS CHANGE *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1628,7 +1721,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.MUTE_VOICE_USER)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING MUTE VOICE USER *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1643,7 +1737,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.USER_VOICE_MUTED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING USER VOICE MUTED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1658,7 +1753,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.USER_VOICE_TALKING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING USER VOICE TALKING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1673,7 +1769,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.EJECT_VOICE_USER)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING EJECT VOICE USER *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1688,7 +1785,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.USER_JOINED_VOICE)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING USER JOINED VOICE *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1703,7 +1801,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.USER_LEFT_VOICE)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING USER LEFT VOICE *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1718,7 +1817,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.IS_MEETING_MUTED_REPLY)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING IS MEETING MUTED REPLY *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1732,7 +1832,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.START_RECORDING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING START RECORDING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1746,7 +1847,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.STOP_RECORDING)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING STOP RECORDING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1778,7 +1880,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.GET_CURRENT_LAYOUT_REPLY)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING GET CURRENT LAYOUT REPLY *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1795,7 +1898,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.BROADCAST_LAYOUT_REPLY)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING BROADCAST LAYOUT EVENT *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1811,7 +1915,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.GET_POLL_RESULT_REPLY)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING GET POLL RESULT REPLY *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1832,7 +1937,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.GET_POLLS_REPLY)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING GET POLLS REPLY OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1847,7 +1953,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.CLEAR_POLL_FAILED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING CLEAR POLL FAILED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1860,7 +1967,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.POLL_CLEARED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING POLL CLEARED OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1873,7 +1981,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.POLL_STARTED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING POLL STARTED OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1886,7 +1995,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.POLL_STOPPED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING POLL STOPPED OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1899,7 +2009,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.POLL_REMOVED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING POLL REMOVED OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1913,7 +2024,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.POLL_UPDATED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING POLL UPDATED OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1927,7 +2039,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.POLL_CREATED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING POLL CREATED OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1941,7 +2054,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.POLL_RESPONSE)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING POLL RESPONSE OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1954,7 +2068,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.POLL_HIDE_RESULT)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
- 
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING POLL HIDE RESULT OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
@@ -1967,7 +2082,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.POLL_SHOW_RESULT)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
 //    println("***** DISPATCHING POLL SHOW RESULT OUTMSG *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }

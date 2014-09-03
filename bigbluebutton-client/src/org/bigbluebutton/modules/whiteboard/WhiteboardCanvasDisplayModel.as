@@ -388,14 +388,16 @@ package org.bigbluebutton.modules.whiteboard
         }
     
     public function zoomCanvas(width:Number, height:Number, zoom:Number):void{
-	  zoomPercentage = zoom / 100;
+	    zoomPercentage = zoom / 100;
       shapeFactory.setParentDim(width, height);  
       this.width = width;
       this.height = height;
 
-            for (var i:int = 0; i < this._annotationsList.length; i++){
-                redrawGraphic(this._annotationsList[i] as GraphicObject, i);
-            }      
+      trace(LOG + "Number of shapes in page=[" + this._annotationsList.length + "]");
+      for (var i:int = 0; i < this._annotationsList.length; i++){
+        trace(LOG + "Redrawing shape=[" + i + "]");
+          redrawGraphic(this._annotationsList[i] as GraphicObject, i);
+      }      
     }
         
     /* called when a user is made presenter, automatically make all the textfields currently on the page editable, so that they can edit it. */
@@ -428,16 +430,19 @@ package org.bigbluebutton.modules.whiteboard
                 if (o != null) {
                     var dobj:DrawObject = shapeFactory.makeDrawObject(o, whiteboardModel);  
                     if (dobj != null) {
+                      trace(LOG + "Drawing shape=[" + gobj.id + "]");
                         dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
                         wbCanvas.addGraphic(dobj);
                         _annotationsList[objIndex] = dobj;              
                     }          
+                } else {
+                  trace(LOG + "Could not redraw shape=[" + gobj.id + "]");
                 }
             } else if(gobj.type == WhiteboardConstants.TYPE_TEXT) {
                 var origTobj:TextObject = gobj as TextObject;                
                 var an:Annotation = whiteboardModel.getAnnotation(origTobj.id);
                 if (an == null) {
-                    LogUtil.error("Text with id [" + origTobj.id + "] is missing.");
+                    trace("Text with id [" + origTobj.id + "] is missing.");
                 } else {
                   wbCanvas.removeGraphic(origTobj as DisplayObject);
                   //          addNormalText(an);
@@ -469,15 +474,6 @@ package org.bigbluebutton.modules.whiteboard
       if (event.keyCode  == Keyboard.DELETE || event.keyCode  == Keyboard.BACKSPACE || event.keyCode  == Keyboard.ENTER) { 
         var sendStatus:String = TextObject.TEXT_UPDATED;
         var tobj:TextObject = event.target as TextObject;  
-        
-        // if the enter key is pressed, commit the text
-        if (event.keyCode  == Keyboard.ENTER) {
-          wbCanvas.stage.focus = null;
-          tobj.stage.focus = null;
-                    
-                    // The ENTER/RETURN key has been pressed. Publish the text.                   
-                    sendStatus = TextObject.TEXT_PUBLISHED;
-        }
         sendTextToServer(sendStatus, tobj);  
       }         
     }

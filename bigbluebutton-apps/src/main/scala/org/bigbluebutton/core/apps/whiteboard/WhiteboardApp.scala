@@ -20,6 +20,8 @@ trait WhiteboardApp {
     val wbId = msg.annotation.wbId
     val shape = msg.annotation
     
+    initWhiteboard(wbId)
+    
 //    println("Received whiteboard shape. status=[" + status + "], shapeType=[" + shapeType + "]")
 
     if (WhiteboardKeyUtil.TEXT_CREATED_STATUS == status) {
@@ -27,22 +29,21 @@ trait WhiteboardApp {
       wbModel.addAnnotation(wbId, shape)
     } else if ((WhiteboardKeyUtil.PENCIL_TYPE == shapeType) 
             && (WhiteboardKeyUtil.DRAW_START_STATUS == status)) {
-        println("Received pencil draw start status")
-        wbModel.addAnnotation(wbId, shape)
+//        println("Received pencil draw start status")
+		  wbModel.addAnnotation(wbId, shape)
     } else if ((WhiteboardKeyUtil.DRAW_END_STATUS == status) 
            && ((WhiteboardKeyUtil.RECTANGLE_TYPE == shapeType) 
             || (WhiteboardKeyUtil.ELLIPSE_TYPE == shapeType)
-            || (WhiteboardKeyUtil.TRIANGLE_TYPE == shapeType)
-            || (WhiteboardKeyUtil.LINE_TYPE == shapeType))) {	
-        println("Received [" + shapeType +"] draw end status")
-        wbModel.addAnnotation(wbId, shape)
+	        || (WhiteboardKeyUtil.TRIANGLE_TYPE == shapeType)
+	        || (WhiteboardKeyUtil.LINE_TYPE == shapeType))) {	
+//        println("Received [" + shapeType +"] draw end status")
+		  wbModel.addAnnotation(wbId, shape)
     } else if (WhiteboardKeyUtil.TEXT_TYPE == shapeType) {
-        println("Received [" + shapeType +"] modify text status")
-        wbModel.modifyText(wbId, shape)
-    } else {
-        println("Received UNKNOWN whiteboard shape!!!!. status=[" + status + "], shapeType=[" + shapeType + "]")
-  }
-      
+//	    println("Received [" + shapeType +"] modify text status")
+	    wbModel.modifyText(wbId, shape)
+	} else {
+//	    println("Received UNKNOWN whiteboard shape!!!!. status=[" + status + "], shapeType=[" + shapeType + "]")
+	}  
     wbModel.getWhiteboard(wbId) foreach {wb =>
 //        println("WhiteboardApp::handleSendWhiteboardAnnotationRequest - num shapes [" + wb.shapes.length + "]")
         outGW.send(new SendWhiteboardAnnotationEvent(meetingID, recorded, 
@@ -50,7 +51,13 @@ trait WhiteboardApp {
     }
         
   }
-        
+    
+  private def initWhiteboard(wbId: String) {
+    if (! wbModel.hasWhiteboard(wbId)) {
+     wbModel.createWhiteboard(wbId)        
+    }
+  }
+  
   def handleGetWhiteboardShapesRequest(msg: GetWhiteboardShapesRequest) {
       //println("WB: Received page history [" + msg.whiteboardId + "]")
       wbModel.history(msg.whiteboardId) foreach {wb =>

@@ -45,7 +45,9 @@ case class GetRecordingStatusReply(
 case class MeetingCreated(
     meetingID: String, 
     recorded: Boolean, 
+    name: String,
     voiceBridge: String,
+    duration: Long,
     version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
@@ -158,6 +160,8 @@ case class UserLeft(
     user:UserVO,
   version:String = Versions.V_0_0_1
 ) extends IOutMessage
+
+case class UserEjectedFromMeeting(meetingID: String, recorded: Boolean, userId: String, ejectedBy: String, version:String = Versions.V_0_0_1) extends IOutMessage
 
 case class PresenterAssigned(
     meetingID: String, 

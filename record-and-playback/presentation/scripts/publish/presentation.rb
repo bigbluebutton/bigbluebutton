@@ -535,9 +535,8 @@ def processSlideEvents
 			orig_slide_start = ( slide_timestamp.to_f / 1000 ).round(1)
 			slide_number = node.xpath(".//slide")[0].text()
                         slide_number = slide_number.to_i < 0 ? "0" : slide_number
-			index_add = $version.nil? ? 1 : 0 			
-			slide_src = "presentation/#{$presentation_name}/slide-#{slide_number.to_i + index_add}.png"
-                        txt_file_path = "presentation/#{$presentation_name}/textfiles/slide-#{slide_number.to_i + index_add}.txt"
+			slide_src = "presentation/#{$presentation_name}/slide-#{slide_number.to_i}.png"
+                        txt_file_path = "presentation/#{$presentation_name}/textfiles/slide-#{slide_number.to_i}.txt"
                         slide_text = File.exist?("#{$process_dir}/#{txt_file_path}") ? txt_file_path : nil
 			image_url = "#{$process_dir}/#{slide_src}"
 
@@ -889,9 +888,21 @@ if ($playback == "presentation")
 				BigBlueButton::Events.get_start_and_stop_rec_events("#{$process_dir}/events.xml"))
 
 		recording_time = computeRecordingLength()
+
+		# presentation_url = "/slides/" + $meeting_id + "/presentation"
+		@doc = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
+
+		$meeting_start = @doc.xpath("//event")[0][:timestamp]
+		$meeting_end = @doc.xpath("//event").last()[:timestamp]
 		
 		$version = BigBlueButton::Events.bbb_version("#{$process_dir}/events.xml")
 		BigBlueButton.logger.info("Creating metadata.xml")
+
+                # Get the real-time start and end timestamp
+                match = /.*-(\d+)$/.match($meeting_id)
+                real_start_time = match[1]
+                real_end_time = (real_start_time.to_i + ($meeting_end.to_i - $meeting_start.to_i)).to_s
+
 		# Create metadata.xml
 		b = Builder::XmlMarkup.new(:indent => 2)
 
@@ -900,8 +911,8 @@ if ($playback == "presentation")
 			b.state("available")
 			b.published(true)
 			# Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
-			b.start_time(BigBlueButton::Events.first_event_timestamp("#{$process_dir}/events.xml"))
-			b.end_time(BigBlueButton::Events.last_event_timestamp("#{$process_dir}/events.xml"))
+			b.start_time(real_start_time)
+			b.end_time(real_end_time)
 			b.playback {
 				b.format("presentation")
 				b.link("http://#{playback_host}/playback/presentation/playback.html?meetingId=#{$meeting_id}")
@@ -918,11 +929,6 @@ if ($playback == "presentation")
 		BigBlueButton.logger.info("Generating xml for slides and chat")
 	
 		#Create slides.xml
-		# presentation_url = "/slides/" + $meeting_id + "/presentation"
-		@doc = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
-
-		$meeting_start = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0][:timestamp]
-		$meeting_end = @doc.xpath("//event[@eventname='EndAndKickAllEvent']").last()[:timestamp]
 
 		# Gathering all the events from the events.xml
 		$slides_events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent']")
@@ -932,8 +938,8 @@ if ($playback == "presentation")
 		$cursor_events = @doc.xpath("//event[@eventname='CursorMoveEvent']")
 		$clear_page_events = @doc.xpath("//event[@eventname='ClearPageEvent']") # for clearing the svg image
 		$undo_events = @doc.xpath("//event[@eventname='UndoShapeEvent']") # for undoing shapes.
-		$join_time = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0][:timestamp].to_f
-		$end_time = @doc.xpath("//event[@eventname='EndAndKickAllEvent']")[0][:timestamp].to_f
+		$join_time = $meeting_start.to_f
+		$end_time = $meeting_end.to_f
 
 		calculateRecordEventsOffset()
 		

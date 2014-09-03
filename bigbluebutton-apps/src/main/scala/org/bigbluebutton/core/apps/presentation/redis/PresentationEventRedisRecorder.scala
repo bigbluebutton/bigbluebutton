@@ -54,8 +54,8 @@ class PresentationEventRedisRecorder(recorder: RecorderApplication) extends OutM
   		
   private def handleGotoSlideOutMsg(msg: GotoSlideOutMsg) {
 	if (msg.recorded) {
-      val event = new GotoSlidePresentationRecordEvent();
-      event.setMeetingId(msg.meetingID);
+    val event = new GotoSlidePresentationRecordEvent();
+    event.setMeetingId(msg.meetingID);
 	  event.setTimestamp(TimestampGenerator.generateTimestamp);
 	  event.setSlide(msg.page.num);
 	  event.setId(msg.page.id);
@@ -109,7 +109,7 @@ class PresentationEventRedisRecorder(recorder: RecorderApplication) extends OutM
       event.setTimestamp(TimestampGenerator.generateTimestamp);
       event.setPresentationName(msg.presentation.id);
       event.setOriginalFilename(msg.presentation.name);
-	  event.setShare(true);
+	    event.setShare(true);
       recorder.record(msg.meetingID, event);			
     }
   }

@@ -55,6 +55,13 @@ public class ParticipantsService {
 		application.lowerHand(scope.getName(), userId, loweredBy);
 	}
 	
+	public void ejectUserFromMeeting(Map<String, String> msg) {
+		String userId = (String) msg.get("userId");
+		String ejectedBy = (String) msg.get("ejectedBy");
+		IScope scope = Red5.getConnectionLocal().getScope();
+		application.ejectUserFromMeeting(scope.getName(), userId, ejectedBy);
+	}
+	
 	public void shareWebcam(String stream) {
 		IScope scope = Red5.getConnectionLocal().getScope();
 		String userId = getBbbSession().getInternalUserID();

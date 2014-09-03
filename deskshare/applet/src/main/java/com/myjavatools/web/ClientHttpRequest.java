@@ -21,7 +21,7 @@ import java.util.Iterator;
  * @version 1.0
  */
 public class ClientHttpRequest {
-  URLConnection connection;
+  public URLConnection connection;
   OutputStream os = null;
   Map cookies = new HashMap();
 

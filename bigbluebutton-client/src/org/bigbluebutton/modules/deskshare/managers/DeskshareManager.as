@@ -61,7 +61,12 @@ package org.bigbluebutton.modules.deskshare.managers
 			viewWindowManager.stopViewing();		
 			service.disconnect();
 		}
-					
+		
+    public function handleStreamStoppedEvent():void {
+      LogUtil.debug("Sending deskshare stopped command");
+      service.stopSharingDesktop(module.getRoom(), module.getRoom());
+    }
+    
 		public function handleStreamStartedEvent(videoWidth:Number, videoHeight:Number):void {
 			LogUtil.debug("Sending startViewing command");
 			service.sendStartViewingNotification(videoWidth, videoHeight);
@@ -125,5 +130,7 @@ package org.bigbluebutton.modules.deskshare.managers
 			LogUtil.debug("Received start vieweing command");
 			viewWindowManager.startViewing(module.getRoom(), videoWidth, videoHeight);
 		}
+    
+    
 	}
 }

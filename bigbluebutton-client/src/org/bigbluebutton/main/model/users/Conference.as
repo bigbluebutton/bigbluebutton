@@ -65,22 +65,33 @@ package org.bigbluebutton.main.model.users {
 			else if (b.presenter)
 				return 1;*/
 			if (a.role == Role.MODERATOR && b.role == Role.MODERATOR) {
-				// do nothing go to the end and check names
+				if (a.raiseHand && b.raiseHand) {
+					if (a.raiseHandTime < b.raiseHandTime) 
+						return -1;
+					else
+						return 1;
+				} else if (a.raiseHand)
+					return -1;
+				else if (b.raiseHand)
+					return 1;
 			} else if (a.role == Role.MODERATOR)
 				return -1;
 			else if (b.role == Role.MODERATOR)
 				return 1;
 			else if (a.raiseHand && b.raiseHand) {
-				// do nothing go to the end and check names
+				if (a.raiseHandTime < b.raiseHandTime) 
+					return -1;
+				else
+					return 1;
 			} else if (a.raiseHand)
 				return -1;
 			else if (b.raiseHand)
 				return 1;
-			else if (a.phoneUser && b.phoneUser) {
+			else if (!a.phoneUser && !b.phoneUser) {
 				
-			} else if (a.phoneUser)
+			} else if (!a.phoneUser)
 				return -1;
-			else if (b.phoneUser)
+			else if (!b.phoneUser)
 				return 1;
 			
 			/* 

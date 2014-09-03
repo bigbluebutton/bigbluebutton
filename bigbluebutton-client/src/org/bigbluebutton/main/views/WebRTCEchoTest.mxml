@@ -20,7 +20,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				xmlns:mate="http://mate.asfusion.com/" 
-				width="600" height="350" 
+				width="600" height="380" 
 				creationComplete="onCreationComplete()" 
 				styleName="micSettingsWindowStyle"
 				showCloseButton="false" 
@@ -30,7 +30,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{WebRTCEchoTestStartedEvent.WEBRTC_ECHO_TEST_STARTED}" method="handleWebRTCEchoTestStartedEvent" />
 	<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_ENDED}" method="handleWebRTCEchoTestEndedEvent" />
 	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_CONNECTING}" method="handleWebRTCCallConnectingEvent" />
-	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_STARTED}" method="handleWebRTCCallStartedEvent" />
+	<mate:Listener type="{WebRTCJoinedVoiceConferenceEvent.JOINED_VOICE_CONFERENCE}" method="handleWebRTCCallStartedEvent" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -40,12 +40,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       import org.bigbluebutton.core.BBB;
       import org.bigbluebutton.main.api.JSAPI;
+      import org.bigbluebutton.main.api.JSLog;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.modules.phone.PhoneModel;
       import org.bigbluebutton.modules.phone.PhoneOptions;
       import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
       import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
       import org.bigbluebutton.modules.phone.events.WebRTCEchoTestStartedEvent;
+      import org.bigbluebutton.modules.phone.events.WebRTCJoinedVoiceConferenceEvent;
       import org.bigbluebutton.modules.phone.models.Constants;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -59,6 +61,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onCancelClicked():void {
+        JSLog.debug(LOG + "onCancelClicked .");
 				dotTimer.stop();
 				PopUpManager.removePopUp(this);
 			}
@@ -90,6 +93,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function yesButtonClicked():void {
 				trace(LOG + "Echo test passed.");
+        JSLog.debug(LOG + "Echo test passed.");
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_HAS_AUDIO));
 				setCurrentState("connecting");
@@ -98,6 +102,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function noButtonClicked():void {
 				trace(LOG + "Echo test failed.");
+        JSLog.debug(LOG + "Echo test failed.");
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_NO_AUDIO));
 				onCancelClicked();
@@ -129,10 +134,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
       
       private function webRTCCallStarted():void {
+        JSLog.debug(LOG + "webRTCCallStarted.");
         onCancelClicked();
       }
 			
-			private function handleWebRTCCallStartedEvent(e:WebRTCCallEvent):void {
+			private function handleWebRTCCallStartedEvent(e:WebRTCJoinedVoiceConferenceEvent):void {
+        JSLog.debug(LOG + "handleWebRTCCallStartedEvent .");
         webRTCCallStarted();
 			}
 			

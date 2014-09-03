@@ -38,7 +38,11 @@ class UsersModel {
   def numWebUsers():Int = {
     uservos.values filter (u => u.phoneUser == false) size
   }
-  
+
+  def getUserWithExternalId(userID:String):Option[UserVO] = {
+    uservos.values find (u => u.externUserID == userID) 
+  }
+    
   def getUser(userID:String):Option[UserVO] = {
     uservos.values find (u => u.userID == userID) 
   }
