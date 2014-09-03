@@ -70,3 +70,4 @@ Meteor.startup ->
 	setInSession "isSharingAudio", false
 	setInSession "inChatWith", 'PUBLIC_CHAT'
 	setInSession "messageFontSize", 12
+	setInSession "isMuted", false

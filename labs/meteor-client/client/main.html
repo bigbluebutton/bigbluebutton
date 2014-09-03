@@ -39,29 +39,26 @@
 
 				<!-- Join/hang up audio call -->
 				{{#if isCurrentUserSharingAudio}}
-				  {{> makeButton btn_class="navbarIconToggleActive audioFeedIcon navbarButton" i_class="volume-off" sharingAudio=true _id=_id rel="tooltip" data_placement="bottom" title="Leave Audio Call"}}
+					{{> makeButton btn_class="navbarIconToggleActive audioFeedIcon navbarButton" i_class="volume-off" sharingAudio=true rel="tooltip" data_placement="bottom" title="Leave Audio Call"}}
+
+					{{#if isCurrentUserMuted}}
+						{{> makeButton btn_class="muteIcon navbarButton" i_class="volume-off" sharingAudio=true rel="tooltip" data_placement="bottom" title="Unmute"}}
+					{{else}}
+						{{#if isUserTalking user}}
+							{{> makeButton btn_class="navbarIconToggleActive muteIcon navbarButton" i_class="volume-up" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}}
+						{{else}}
+							{{> makeButton btn_class="navbarIconToggleActive muteIcon navbarButton" i_class="volume-down" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}}
+						{{/if}}
+					{{/if}}
+
 				{{else}}
-				  {{> makeButton btn_class="audioFeedIcon navbarButton" i_class="headphones" sharingAudio=false rel="tooltip" data_placement="bottom" title="Join Audio Call"}}
+					{{> makeButton btn_class="audioFeedIcon navbarButton" i_class="headphones" sharingAudio=false rel="tooltip" data_placement="bottom" title="Join Audio Call"}}
 				{{/if}}
 
-				<!-- Mute/unmute user -->
-				{{#if isUserSharingAudio user}}
-				<!-- Should use much more noticeable icons than just bootstraps volume-up & volume-down to differentiate talking but it is good for now -->
-				  {{#if isUserMuted user}}
-				        {{> makeButton id=userid btn_class="muteIcon navbarButton" i_class="volume-off" sharingAudio=true _id=_id rel="tooltip" data_placement="bottom" title="Unmute"}}
-				  {{else}}
-				        {{#if isUserTalking user}}
-				           {{> makeButton btn_class="navbarIconToggleActive muteIcon navbarButton" i_class="volume-up" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}}
-				        {{else}}
-				           {{> makeButton btn_class="navbarIconToggleActive muteIcon navbarButton" i_class="volume-down" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}}
-				        {{/if}}
-				  {{/if}}
-				{{/if}}
-
-				{{#if user.raise_hand}}
-				  {{> makeButton btn_class="lowerHand navbarIconToggleActive navbarButton" i_class="hand-up" rel="tooltip" data_placement="bottom" title="Lower your hand"}}
+				{{#if isCurrentUserRaisingHand}}
+					{{> makeButton btn_class="lowerHand navbarIconToggleActive navbarButton" i_class="hand-up" rel="tooltip" data_placement="bottom" title="Lower your hand"}}
 				{{else}}
-				  {{> makeButton btn_class="raiseHand navbarButton" i_class="hand-up" rel="tooltip" data_placement="bottom" title="Raise your hand"}}
+					{{> makeButton btn_class="raiseHand navbarButton" i_class="hand-up" rel="tooltip" data_placement="bottom" title="Raise your hand"}}
 				{{/if}}
 
 				{{> recordingStatus}}

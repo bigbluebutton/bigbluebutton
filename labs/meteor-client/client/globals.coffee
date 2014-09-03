@@ -89,6 +89,13 @@ Handlebars.registerHelper "isCurrentUser", (id) ->
 Handlebars.registerHelper "meetingIsRecording", ->
 	Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
 
+Handlebars.registerHelper "isCurrentUserMuted", ->
+	getInSession "isMuted"
+
+Handlebars.registerHelper "isCurrentUserRaisingHand", ->
+	user = Meteor.Users.findOne({userId:getInSession("userId")})
+	user.user.raise_hand
+
 Handlebars.registerHelper "isCurrentUserSharingAudio", ->
 	user = Meteor.Users.findOne({userId:getInSession("userId")})
 	user.user.voiceUser?.joined
@@ -179,6 +186,7 @@ Meteor.methods
       # format: meetingId, userId, requesterId, mutedBoolean
       # TODO: insert the requesterId - the user who requested the muting of userId (might be a moderator)
       Meteor.call('publishMuteRequest', u.meetingId, u.userId, u.userId, not u.user.voiceUser.muted)
+      setInSession "isMuted", not u.user.voiceUser.muted
 
 @toggleNavbar = ->
   setInSession "display_navbar", !getInSession "display_navbar"
