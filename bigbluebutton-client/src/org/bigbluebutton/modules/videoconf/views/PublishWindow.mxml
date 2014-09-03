@@ -60,6 +60,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.CoreEvent;
 			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.core.model.VideoProfile;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
@@ -78,11 +79,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var defaultHeight:Number = 240;
 			
 			
-			public var camIndex:int = 0;
-			private var camWidth:Number = 320;
-			private var camHeight:Number = 240;
+			public var camIndex:int = -1;
+			public var selectedVideoProfile:VideoProfile;
 			private var _camera:Camera = null;
-			public var quality:Number = 0;
 			
 			// Timer to auto-publish webcam. We need this timer to delay
 			// the auto-publishing until after the Viewers's window has loaded
@@ -120,8 +119,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.glowBlurSize = videoOptions.glowBlurSize;
 				
 				_videoHolder = new UIComponent();
-				_videoHolder.width = camWidth;
-				_videoHolder.height = camHeight;
+				_videoHolder.width = defaultWidth;
+				_videoHolder.height = defaultHeight;
 				this.addChild(_videoHolder);				
 				
 				this.minWidth = _minWidth;
@@ -180,6 +179,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				updateControlButtons();
 			}
 			
+			public function getStreamName():String {
+				return this.streamName;
+			}
+			
 			private function handleUserVoiceMutedEvent(event:BBBEvent):void {
 				if (event.payload.userID ==  userID) {
 					userMuted(event.payload.muted);
@@ -207,7 +210,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					return;
 				}
 				
-				_camera = Camera.getCamera();
+				_camera = Camera.getCamera(String(camIndex));
 				if (_camera == null) {
 					showWarning('bbb.video.publish.hint.cantOpenCamera');
 					return;
@@ -231,14 +234,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_camera.addEventListener(ActivityEvent.ACTIVITY, onActivityEvent);
 				_camera.addEventListener(StatusEvent.STATUS, onStatusEvent);
 				
-				_camera.setKeyFrameInterval(videoOptions.camKeyFrameInterval);
-				_camera.setMode(camWidth, camHeight, videoOptions.camModeFps);
-				_camera.setQuality(videoOptions.camQualityBandwidth, videoOptions.camQualityPicture);
+				_camera.setKeyFrameInterval(selectedVideoProfile.keyFrameInterval);
+				_camera.setMode(selectedVideoProfile.width, selectedVideoProfile.height, selectedVideoProfile.modeFps);
+				_camera.setQuality(selectedVideoProfile.qualityBandwidth, selectedVideoProfile.qualityPicture);
 				
-				if (_camera.width != camWidth || _camera.height != camHeight) {
-					trace("Resolution " + camWidth + "x" + camHeight + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
-					setResolution(_camera.width, _camera.height);
-				}				
+				setResolution();
 				
 				_video = new Video();
 				_video.attachCamera(_camera);
@@ -316,9 +316,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				showWarning('bbb.video.publish.hint.publishing', true, "0xFFFF00");
 				
+				defaultWidth = originalWidth;
+				defaultHeight = originalHeight;
+
 				var e:StartBroadcastEvent = new StartBroadcastEvent();
 				e.stream = this.streamName;
 				e.camera = _camera;
+				e.videoProfile = selectedVideoProfile;
 				dispatchEvent(e);
 				
 				// Store the userid for the publisher. This allows us to control
@@ -338,9 +342,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (!_isClosing) {
 					_isClosing = true;
 					stopPublishing();
-					trace("Dispatching ClosePublishWindowEvent event");
-					var gDispatcher:Dispatcher = new Dispatcher();
-					gDispatcher.dispatchEvent(new ClosePublishWindowEvent());
 				}				
 			}
 			
@@ -364,6 +365,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				stopCamera();
 				var e:StopBroadcastEvent = new StopBroadcastEvent()
 				e.stream = streamName;
+				e.camId = camIndex;
 				dispatchEvent(e);
 			}
 			
@@ -371,7 +373,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				super.onResize();
 				
-				if (_videoHolder != null) {
+				if (_videoHolder != null && _video != null) {
 					
 					fitVideoToWindow();
 					
@@ -382,19 +384,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function fitVideoToWindow():void {
-				if (_videoHolder.width - PADDING_HORIZONTAL < _videoHolder.height - PADDING_VERTICAL) {
-					fitToHeightAndAdjustWidthToMaintainAspectRatio();         			
-				} else {
-					fitToWidthAndAdjustHeightToMaintainAspectRatio();	
-				}				
+				if (_video != null || _videoHolder != null) {
+					if (_videoHolder.width - PADDING_HORIZONTAL < _videoHolder.height - PADDING_VERTICAL) {
+						fitToHeightAndAdjustWidthToMaintainAspectRatio();         			
+					} else {
+						fitToWidthAndAdjustHeightToMaintainAspectRatio();	
+					}				
+				}
 			}
 			
 			private function videoIsSmallerThanWindow():Boolean {
-				return (camWidth < _videoHolder.width - PADDING_HORIZONTAL) && (camHeight < _videoHolder.height - PADDING_VERTICAL);
+				return (selectedVideoProfile.width < _videoHolder.width - PADDING_HORIZONTAL) && (selectedVideoProfile.height < _videoHolder.height - PADDING_VERTICAL);
 			}
 			
 			private function fitToWidthAndAdjustHeightToMaintainAspectRatio():void {
-				var aspect:Number = camHeight / camWidth;
+				var aspect:Number = selectedVideoProfile.height / selectedVideoProfile.width;
 				_video.width = _videoHolder.width - PADDING_HORIZONTAL;
 				
 				// Maintain aspect-ratio
@@ -402,17 +406,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function fitToHeightAndAdjustWidthToMaintainAspectRatio():void {
-				var aspect:Number = camWidth / camHeight;
+				var aspect:Number = selectedVideoProfile.width / selectedVideoProfile.height;
 				_video.height = _videoHolder.height - PADDING_VERTICAL;
 				
 				// Maintain aspect-ratio
 				_video.width = _video.height * aspect;				
 			}
 			
-			public function setResolution(width:int, height:int):void {
-				camWidth = width;
-				camHeight = height;
-				setAspectRatio(camWidth, camHeight);
+			public function setResolution():void {
+				originalWidth = selectedVideoProfile.width;
+				originalHeight = selectedVideoProfile.height;
+				setAspectRatio(selectedVideoProfile.width, selectedVideoProfile.height);
 				
 				/**
 				 * Add timestamp to create a unique stream name. This way we can record	 	
@@ -421,8 +425,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var d:Date = new Date();
 				var curTime:Number = d.getTime();	
 				var uid:String = UserManager.getInstance().getConference().getMyUserId();
-				var res:String = camWidth + "x" + camHeight;
-				this.streamName = res.concat("-" + uid) + "-" + curTime;
+				this.streamName = selectedVideoProfile.id + "-" + uid + "-" + curTime;
+				trace("Using as streamName " + this.streamName);
 			}
 			
 			private function isPresenter():Boolean{

@@ -37,10 +37,12 @@ package org.bigbluebutton.modules.videoconf.business
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.DragWindowEvent;
+	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.EventConstants;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.events.CoreEvent;
 	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.core.model.VideoProfile;
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.events.KickUserEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
@@ -63,7 +65,9 @@ package org.bigbluebutton.modules.videoconf.business
 		protected var _minHeight:int = 120 + PADDING_VERTICAL;
 		protected var aspectRatio:Number = 1;
 		protected var keepAspect:Boolean = false;
-	
+		protected var originalWidth:Number;
+		protected var originalHeight:Number;
+		
 		protected var mousePositionOnDragStart:Point;
 		
 		public var streamName:String;
@@ -74,8 +78,6 @@ package org.bigbluebutton.modules.videoconf.business
 
     protected var _controlButtons:ControlButtons = new ControlButtons();
 		
-    [Bindable] public var resolutions:Array;
-
 	protected var videoConfOptions:VideoConfOptions = new VideoConfOptions();
 
     public function getWindowType():String {
@@ -86,19 +88,23 @@ package org.bigbluebutton.modules.videoconf.business
       _controlButtons.updateControlButtons();
     }
     
-		protected function getVideoResolution(stream:String):Array {
-			var pattern:RegExp = new RegExp("(\\d+x\\d+)-([A-Za-z0-9]+)-\\d+", "");
+		protected function getVideoProfile(stream:String):VideoProfile {
+			trace("Parsing stream name [" + stream + "]");
+			var pattern:RegExp = new RegExp("([A-Za-z0-9]+)-([A-Za-z0-9]+)-\\d+", "");
 			if (pattern.test(stream)) {
-				LogUtil.debug("The stream name is well formatted [" + stream + "]");
-        var uid:String = UserManager.getInstance().getConference().getMyUserId();
-        LogUtil.debug("Stream resolution is [" + pattern.exec(stream)[1] + "]");
-        LogUtil.debug("Userid [" + pattern.exec(stream)[2] + "]");
-        userID = pattern.exec(stream)[2];
-        addControlButtons();
-        return pattern.exec(stream)[1].split("x");
+				trace("The stream name is well formatted");
+				trace("Video profile resolution is [" + pattern.exec(stream)[1] + "]");
+				trace("Userid [" + pattern.exec(stream)[2] + "]");
+				userID = pattern.exec(stream)[2];
+				addControlButtons();
+				return BBB.getVideoProfileById(pattern.exec(stream)[1]);
 			} else {
-				LogUtil.error("The stream name doesn't follow the pattern <width>x<height>-<userId>-<timestamp>. However, the video resolution will be set to the lowest defined resolution in the config.xml: " + resolutions[0]);
-				return resolutions[0].split("x");
+				trace("Bad stream name format");
+				var profile:VideoProfile = BBB.defaultVideoProfile;
+				if (profile == null) {
+					profile = BBB.fallbackVideoProfile;
+				}
+				return profile;
 			}
 		}
 		    

@@ -55,6 +55,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.events.CoreEvent;
       import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.core.model.VideoProfile;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
@@ -131,6 +132,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         trace("******** VideoWindow: handleSwitchedPresenterEvent event *********");
         updateControlButtons();
       }
+
+      public function getStreamName():String {
+	return this.streamName;
+      }
       
       private function handleNewRoleEvent(event:Event):void {
         updateControlButtons();
@@ -150,10 +155,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					_closing = true;
 					var stopEvent:StoppedViewingWebcamEvent = new StoppedViewingWebcamEvent();
 					stopEvent.webcamUserID = userID;
+					stopEvent.streamName = streamName;
 					globalDispatcher.dispatchEvent(stopEvent); 
                     
                     if (UserManager.getInstance().getConference().hasUser(userID)) {
-                        UserManager.getInstance().getConference().getUser(userID).viewingStream = false;
+                        UserManager.getInstance().getConference().getUser(userID).removeViewingStream(streamName);
                     }
 				}
 				
@@ -182,14 +188,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				ns.receiveVideo(true);
 				ns.receiveAudio(false);
 				
-				var res:Array = getVideoResolution(stream);
-				if (res == null) // error
+				var pro:VideoProfile = getVideoProfile(stream);
+				trace("Remote video profile: " + pro.toString());
+				if (pro == null) // error
 					return;
-				_video = new Video(Number(res[0]), Number(res[1]));
-				_video.width = Number(res[0]);
-				_video.height = Number(res[1]);
-        _video.smoothing = true;
-				setAspectRatio(Number(res[0]), Number(res[1])); 
+				_video = new Video(pro.width, pro.height);
+				_video.width = originalWidth = pro.width;
+				_video.height = originalHeight = pro.height;
+				_video.smoothing = true;
+				setAspectRatio(pro.width, pro.height); 
 				_video.attachNetStream(ns);
 				
 				
@@ -216,7 +223,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.height = _video.height + paddingVertical;
                 
                 if (UserManager.getInstance().getConference().hasUser(userID)) {
-                    UserManager.getInstance().getConference().getUser(userID).viewingStream = true;
+                    UserManager.getInstance().getConference().getUser(userID).addViewingStream(streamName);
                 }
 			}
 			
