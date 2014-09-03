@@ -154,8 +154,8 @@ package org.bigbluebutton.main.api
       var obj:Object = new Object();
       var isUserPublishing:Boolean = false;
       
-      var streamName:String = UsersUtil.getWebcamStream(UsersUtil.externalUserIDToInternalUserID(userID));
-      if (streamName != null) {
+      var streamNames:Array = UsersUtil.getWebcamStream(UsersUtil.externalUserIDToInternalUserID(userID));
+      if (streamNames && streamNames.length > 0) {
         isUserPublishing = true; 
       }
       
@@ -163,7 +163,7 @@ package org.bigbluebutton.main.api
       obj.uri = vidConf.uri + "/" + UsersUtil.getInternalMeetingID();
       obj.userID = userID;
       obj.isUserPublishing = isUserPublishing;
-      obj.streamName = streamName;
+      obj.streamNames = streamNames;
       obj.avatarURL = UsersUtil.getAvatarURL();
       
       return obj;

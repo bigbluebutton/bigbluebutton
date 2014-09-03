@@ -42,8 +42,8 @@ public class ParticipantsApplication {
 		bbbInGW.shareWebcam(meetingId, userId, stream);		
 	}
 	
-	public void unshareWebcam(String meetingId, String userId) {
-		bbbInGW.unshareWebcam(meetingId, userId);
+	public void unshareWebcam(String meetingId, String userId, String stream) {
+		bbbInGW.unshareWebcam(meetingId, userId, stream);
 	}
 	
 	public void setParticipantStatus(String room, String userid, String status, Object value) {

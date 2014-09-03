@@ -273,19 +273,11 @@ package org.bigbluebutton.modules.videoconf.views
             super.addChild(graphic);
         }
 
-        private function getUserStreamNames(user:BBBUser):Array {
-            if (user.streamName == null || user.streamName == "") {
-                return new Array();
-            } else {
-                return user.streamName.split("|");
-            }
-        }
-
         public function addVideoFor(userId:String, connection:NetConnection):void {
             var user:BBBUser = UsersUtil.getUser(userId);
             if (user == null) return;
 
-            var streamNames:Array = getUserStreamNames(user);
+            var streamNames:Array = user.streamNames;
 
             for each (var streamName:String in streamNames) {
                 if (user.viewingStream.indexOf(streamName) == -1) {

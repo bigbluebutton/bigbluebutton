@@ -272,7 +272,7 @@ package org.bigbluebutton.modules.videoconf.maps
       trace("VideoEventMapDelegate:: [" + me + "] openViewWindowFor:: Opening VIEW window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
       
       var bbbUser:BBBUser = UsersUtil.getUser(userID);
-      if (bbbUser.streamName != "") {
+      if (bbbUser.hasStream) {
         closeAllAvatarWindows(userID);
       }
       _graphics.addVideoFor(userID, proxy.connection);
@@ -292,14 +292,8 @@ package org.bigbluebutton.modules.videoconf.maps
       UsersUtil.setIAmPublishing(true);
       
       var broadcastEvent:BroadcastStartedEvent = new BroadcastStartedEvent();
-      if(streamList.length == 0) {
-        streamList.addItem(e.stream);
-        broadcastEvent.stream = e.stream;
-      } else {
-        streamList.addItem(e.stream);
-        var myPattern:RegExp = /,/g;
-        broadcastEvent.stream = streamList.toString().replace(myPattern, "|");
-      }
+      streamList.addItem(e.stream);
+      broadcastEvent.stream = e.stream;
       broadcastEvent.userid = UsersUtil.getMyUserID();
       broadcastEvent.isPresenter = UsersUtil.amIPresenter();
       broadcastEvent.camSettings = UsersUtil.amIPublishing();
@@ -313,21 +307,12 @@ package org.bigbluebutton.modules.videoconf.maps
     public function stopPublishing(e:StopBroadcastEvent):void{
       trace("VideoEventMapDelegate:: [" + me + "] Stop publishing. ready = [" + _ready + "]"); 
       if(streamList.length <= 1) {
-        streamList.removeItem(e.stream);
         setStopLastBroadcasting();
-        stopBroadcasting(e.stream);
       } else {
-        stopOneStreamBroadCasting(e.stream);
-        streamList.removeItem(e.stream);
-        var broadcastStartEvent:BroadcastStartedEvent = new BroadcastStartedEvent();
-        var myPattern:RegExp = /,/g;
-        broadcastStartEvent.stream = streamList.toString().replace(myPattern, "|");
-        broadcastStartEvent.userid = UsersUtil.getMyUserID();
-        broadcastStartEvent.isPresenter = UsersUtil.amIPresenter();
         UsersUtil.setIAmPublishing(true);
-        broadcastStartEvent.camSettings = UsersUtil.amIPublishing();
-        _dispatcher.dispatchEvent(broadcastStartEvent);
       }
+      streamList.removeItem(e.stream);
+      stopBroadcasting(e.stream);
       button.setCamAsInactive(e.camId);
     }
 
@@ -362,23 +347,13 @@ package org.bigbluebutton.modules.videoconf.maps
       UsersUtil.setIAmPublishing(false);
     }
 
-    private function stopOneStreamBroadCasting(stream:String):void {
-      proxy.stopBroadcasting(stream);
-      var camId:int = closePublishWindowWithStream(UsersUtil.getMyUserID(), stream);
-      
-      if (proxy.videoOptions.showButton) {
-        //Make toolbar button enabled again
-        button.publishingStatus(button.STOP_PUBLISHING, camId);
-      }
-    }
-    
     private function stopBroadcasting(stream:String):void {
-      trace("Stopping broadcast of webcam");
+      trace("Stopping broadcast of stream [" + stream + "]");
       
       proxy.stopBroadcasting(stream);
       
       var broadcastEvent:BroadcastStoppedEvent = new BroadcastStoppedEvent();
-      broadcastEvent.stream = "";
+      broadcastEvent.stream = stream;
       broadcastEvent.userid = UsersUtil.getMyUserID();
       broadcastEvent.avatarURL = UsersUtil.getAvatarURL();
       _dispatcher.dispatchEvent(broadcastEvent);
@@ -390,7 +365,7 @@ package org.bigbluebutton.modules.videoconf.maps
         button.publishingStatus(button.STOP_PUBLISHING, camId);
       }
       
-      if (options.displayAvatar) {
+      if (streamList.length == 0 && options.displayAvatar) {
         trace("VideoEventMapDelegate:: [" + me + "] Opening avatar");
         openAvatarWindowFor(UsersUtil.getMyUserID());              
       }      
