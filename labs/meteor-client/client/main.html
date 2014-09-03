@@ -5,11 +5,10 @@
 </template>
 
 <template name="header">
-   {{#if getInSession "display_navbar"}}
-      <div id="navbar" class="myNavbar gradientBar navbar navbar-default navbar-fixed-top" role="navigation">
-         {{#with getCurrentUser}}
-            <div class="navbarUserButtons navbarSection">
-                <!-- display/hide users list toggle -->
+	{{#if getInSession "display_navbar"}}
+		<div id="navbar" class="myNavbar gradientBar navbar navbar-default navbar-fixed-top" role="navigation">
+			<div class="navbarUserButtons navbarSection">
+				<!-- display/hide users list toggle -->
 				{{#if getInSession "display_usersList"}}
 				  {{> makeButton btn_class="navbarIconToggleActive usersListIcon navbarButton" i_class="user" rel="tooltip" data_placement="bottom" title="Hide List of Users"}}
 				{{else}}
@@ -44,7 +43,7 @@
 					{{#if isCurrentUserMuted}}
 						{{> makeButton btn_class="muteIcon navbarButton" i_class="volume-off" sharingAudio=true rel="tooltip" data_placement="bottom" title="Unmute"}}
 					{{else}}
-						{{#if isUserTalking user}}
+						{{#if isCurrentUserTalking}}
 							{{> makeButton btn_class="navbarIconToggleActive muteIcon navbarButton" i_class="volume-up" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}}
 						{{else}}
 							{{> makeButton btn_class="navbarIconToggleActive muteIcon navbarButton" i_class="volume-down" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}}
@@ -62,16 +61,15 @@
 				{{/if}}
 
 				{{> recordingStatus}}
-            </div>
-            <div class="navbarTitle navbarSection"><span>{{getMeetingName}}</span></div>
-            <div class="navbarSettingsButtons navbarSection">
+			</div>
+			<div class="navbarTitle navbarSection"><span>{{getMeetingName}}</span></div>
+			<div class="navbarSettingsButtons navbarSection">
                <!-- {{> makeButton id="userId" btn_class="settingsIcon navbarButton" i_class="cog" rel="tooltip" data_placement="bottom" title="Settings"}} -->
                {{> makeButton btn_class="signOutIcon navbarButton" i_class="log-out" rel="tooltip" data_placement="bottom" title="Logout"}}
                {{> makeButton btn_class="hideNavbarIcon navbarButton" i_class="chevron-up" rel="tooltip" data_placement="bottom" title="Hide Navbar"}}
-            </div>
-         {{/with}}
-      </div>
-   {{else}}
+			</div>
+		</div>
+	{{else}}
       <div id="navbar" class="myNavbarMinimized navbar-default navbar-static-top" role="navigation">
          <!-- User wants to hide navbar. The button for bringing the navbar back needs to still be available. Perhaps it should appear/disappear in the future on hover? Something to add later. -->
          {{> makeButton btn_class="hideNavbarIcon navbarMinimizedButton" i_class="chevron-down" rel="tooltip" data_placement="bottom" title="Display Navbar"}}
