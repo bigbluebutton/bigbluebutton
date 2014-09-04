@@ -19,6 +19,7 @@ body {
     border: 1px solid #ccc;
     float: left;
     height:90%;
+    margin-top: 10px;
 }
 .gradientBar{
     background: -webkit-linear-gradient(rgb(255,255,255), rgb(182,181,181)); /* For Safari 5.1 to 6.0 */
@@ -30,7 +31,6 @@ body {
 .lowerHand{}
 .mainContainer{
     height:100%;
-    padding-top:60px;
 }
 .myFooter{
     color:black;
@@ -58,16 +58,29 @@ body {
     margin-right: 2px;
     width:40px;
 }
+.navbarFiller{
+	height:50px;
+	width:100%; 
+}
 .navbarIconToggleActive{
     border-bottom: 4px solid lightblue;
 }
-.navbarMinimizedButton{
-    height:20px;
-    margin-bottom:0px;
-    margin-left: 2px;
-    margin-right: 20px;
-    margin-top:0px;
-    width:40px;
+#navbarMinimizedButton{
+	margin-bottom:0px;
+	margin-left: 2px;
+	margin-right: 20px;
+	margin-top:0px;
+	position: absolute;
+	right: 0;
+	top:0;
+}
+.navbarMinimizedButtonSmall{
+	height:10px;
+	width:40px;
+}
+.navbarMinimizedButtonLarge{
+	height:50px;
+	width:40px;
 }
 .navbarSection{
     float:left;
