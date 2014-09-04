@@ -331,6 +331,11 @@ class Meteor.RedisPubSub
       # update the user
       Meteor.Users.update({"user.userid": userId, meetingId: meetingId},{$set: {"user.raise_hand": false}}) #not sure why but message.payload?.raise_hand is awlays false
 
+    if message.header?.name is "recording_status_changed_message"
+      intendedForRecording = message.payload?.recorded
+      currentlyBeingRecorded = message.payload?.recording
+      Meteor.Meetings.update({meetingId: meetingId, intendedForRecording: intendedForRecording}, {$set: {currentlyBeingRecorded: currentlyBeingRecorded}})
+
     if message.header?.name in ["meeting_ended_message", "meeting_destroyed_event",
       "end_and_kick_all_message", "disconnect_all_users_message"]
       if Meteor.Meetings.findOne({meetingId: meetingId})?
