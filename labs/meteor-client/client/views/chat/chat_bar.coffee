@@ -19,18 +19,25 @@
     "from_lang": "en"
     "from_time": getTime()
     "from_color": "0x000000"
-    # "from_color": "0x#{getInSession("messageColor")}"
+    # "from_color": "0x#{getInSession("messageColor")}" # uncomment when there is a color picker
   }
 
   Meteor.call "sendChatMessagetoServer", getInSession("meetingId"), messageForServer
   $('#newMessageInput').val '' # Clear message box
 
 Template.chatInput.events
-  'click #sendMessageButton': (event) ->
-    sendMessage()
-  'keypress #newMessageInput': (event) -> # user pressed a button inside the chatbox
-    if event.which is 13 # Check for pressing enter to submit message
-      sendMessage()
+	'click #sendMessageButton': (event) ->
+		sendMessage()
+	
+	'keypress #newMessageInput': (event) -> # user pressed a button inside the chatbox
+		if event.shiftKey and event.which is 13
+			$("#newMessageInput").append("\n")
+			return
+		
+		if event.which is 13 # Check for pressing enter to submit message
+			sendMessage()
+			$('#newMessageInput').val("")
+			return false
 
 Template.chatInput.rendered  = ->
    $('input[rel=tooltip]').tooltip()
@@ -158,7 +165,7 @@ Template.tabButtons.helpers
 
 Template.message.helpers
 	activateBreakLines: (str) ->
-		res = str.replace /\n/gim, '<br/>'
+		res = str.replace /\\n/gim, '<br/>'
 		res = res.replace /\r/gim, '<br/>'
 	
 	# make links received from Flash client clickable in HTML

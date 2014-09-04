@@ -52,10 +52,6 @@ Template.main.helpers
 Template.makeButton.rendered = ->
 	$('button[rel=tooltip]').tooltip()
 
-# Gets called last in main template, just an easy place to print stuff out
-Handlebars.registerHelper "doFinalStuff", ->
-    console.log "-----Doing Final Stuff-----"
-
 # These settings can just be stored locally in session, created at start up
 Meteor.startup ->
 	@SessionAmplify = _.extend({}, Session,
