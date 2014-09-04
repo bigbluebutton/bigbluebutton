@@ -199,7 +199,8 @@ class Meteor.RedisPubSub
       console.log "Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!"
       listOfMeetings = message.payload?.meetings
       for meeting in listOfMeetings
-        Meteor.call("addMeetingToCollection", meeting.meetingID, meeting.meetingName, meeting.recorded)
+        # we currently do not have voice_conf or duration in this message.
+        Meteor.call("addMeetingToCollection", meeting.meetingID, meeting.meetingName, meeting.recorded, "", "")
 
     if message.header?.name is "get_users_reply" and message.payload?.requester_id is "nodeJSapp"
       unless Meteor.Meetings.findOne({MeetingId: message.payload?.meeting_id})?
@@ -226,11 +227,11 @@ class Meteor.RedisPubSub
       Meteor.call("addChatToCollection", meetingId, messageObject)
 
     if message.header?.name is "meeting_created_message"
-      # the event message contains very little info, so we will
-      # request for information for all the meetings and in
-      # this way can keep the Meetings collection up to date
-      console.log "just received a meeting_created_message\n\n\n"
-      @invokeGetAllMeetingsRequest()
+      meetingName = message.payload?.name
+      recorded = message.payload?.recorded
+      voiceConf = message.payload?.voice_conf
+      duration = message.payload?.duration
+      Meteor.call("addMeetingToCollection", meetingId, meetingName, recorded, voiceConf, duration)
 
     if message.header?.name is "presentation_shared_message" # TODO TEST!!!
       presentationId = message.payload?.presentation?.id
