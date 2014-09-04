@@ -228,12 +228,12 @@ class Meteor.RedisPubSub
 
     if message.header?.name is "meeting_created_message"
       meetingName = message.payload?.name
-      recorded = message.payload?.recorded
+      intendedForRecording = message.payload?.recorded
       voiceConf = message.payload?.voice_conf
       duration = message.payload?.duration
-      Meteor.call("addMeetingToCollection", meetingId, meetingName, recorded, voiceConf, duration)
+      Meteor.call("addMeetingToCollection", meetingId, meetingName, intendedForRecording, voiceConf, duration)
 
-    if message.header?.name is "presentation_shared_message" # TODO TEST!!!
+    if message.header?.name is "presentation_shared_message"
       presentationId = message.payload?.presentation?.id
       # change the currently displayed presentation to presentation.current = false
       Meteor.Presentations.update({"presentation.current": true, meetingId: meetingId},{$set: {"presentation.current": false}})
@@ -248,8 +248,6 @@ class Meteor.RedisPubSub
           Meteor.call("displayThisSlide", meetingId, slide.id, slide)
 
     if message.header?.name is "get_presentation_info_reply" and message.payload?.requester_id is "nodeJSapp"
-      # todo: grab the whiteboard shapes using the whiteboard_id we have here
-
       for presentation in message.payload?.presentations
         Meteor.call("addPresentationToCollection", meetingId, presentation)
 
@@ -298,9 +296,6 @@ class Meteor.RedisPubSub
 
     if message.header?.name is "whiteboard_cleared_message"
       whiteboardId = message.payload?.whiteboard_id
-      # shapesOnSlide = Meteor.Shapes.find({whiteboardId:whiteboardId, meetingId: meetingId}).fetch()
-      # console.log "shapesOnSlide:" + shapesOnSlide.size()
-      
       Meteor.call("removeAllShapesFromSlide", meetingId, whiteboardId)
 
     if message.header?.name is "undo_whiteboard_request"
