@@ -4,7 +4,8 @@ Template.footer.helpers
 		year = "YEAR" #info.getBuildYear()
 		month = "MONTH" #info.getBuildMonth()
 		day = "DAY" #info.getBuildDay()
-		version = "VERSION_XXXX" #info.getBuildVersion()
+		# version = "VERSION_XXXX" #info.getBuildVersion()
+		version = getInSession "bbbServerVersion"
 		copyrightYear = (new Date()).getFullYear()
 		link = "<a href='http://bigbluebutton.org/' target='_blank'>http://bigbluebutton.org</a>"
 		foot = "(c) #{copyrightYear} BigBlueButton Inc. [build #{version}-#{year}-#{month}-#{day}] - For more information visit #{link}"
@@ -27,16 +28,20 @@ Template.header.events
 	# "click .settingsIcon": (event) ->
 	# 	alert "settings"
 	"click .raiseHand": (event) ->
-		Meteor.call('userRaiseHand', getInSession("meetingId"), @id)
+		Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"))
 	"click .lowerHand": (event) ->
 		# loweredBy = @id # TODO! this must be the userid of the person lowering the hand - instructor/student
 		loweredBy = getInSession("userId")
-		Meteor.call('userLowerHand', getInSession("meetingId"), @id, loweredBy)
+		Meteor.call('userLowerHand', getInSession("meetingId"), getInSession("userId"), loweredBy)
 	"click .whiteboardIcon": (event) ->
 		toggleWhiteBoard()
 
 Template.recordingStatus.rendered = ->
 	$('button[rel=tooltip]').tooltip()
+
+Template.main.helpers
+	setTitle: ->
+		document.title = "BigBlueButton HTML5"
 
 Template.makeButton.rendered = ->
 	$('button[rel=tooltip]').tooltip()
@@ -70,3 +75,4 @@ Meteor.startup ->
 	setInSession "isSharingAudio", false
 	setInSession "inChatWith", 'PUBLIC_CHAT'
 	setInSession "messageFontSize", 12
+	setInSession "isMuted", false
