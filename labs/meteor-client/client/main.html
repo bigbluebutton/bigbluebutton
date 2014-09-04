@@ -78,7 +78,7 @@
 </template>
 
 <template name="main">
-	<head><title>BigBlueButton Meteor</title></head>
+	{{setTitle}}
 	<body>
 		<div id="main" class="mainContainer row-fluid">
 			<div>{{> header}}</div>
@@ -94,9 +94,13 @@
 
 <template name="recordingStatus">
 	<!-- Recording status of the meeting -->
-	{{#if meetingIsRecording}}
-		<button class="recordingStatus recordingStatusTrue" rel="tooltip" data-placement="bottom" title="This Meeting is Being Recorded"><span class="glyphicon glyphicon-record"></span> Recording</button>
-	{{else}}
-		<button class="recordingStatus recordingStatusFalse" rel="tooltip" data-placement="bottom" title="This Meeting is Not Being Recorded"><span class="glyphicon glyphicon-record"></span></button>
-	{{/if}}
+	{{#with getCurrentMeeting}}
+		{{#if intendedForRecording}} 
+			{{#if currentlyBeingRecorded}}
+				<button class="recordingStatus recordingStatusTrue" rel="tooltip" data-placement="bottom" title="This Meeting is Being Recorded"><span class="glyphicon glyphicon-record"></span> Recording</button>
+			{{else}}
+				<button class="recordingStatus recordingStatusFalse" rel="tooltip" data-placement="bottom" title="This Meeting is Not Currently Being Recorded"><span class="glyphicon glyphicon-record"></span></button>
+			{{/if}}
+		{{/if}}
+	{{/with}}
 </template>

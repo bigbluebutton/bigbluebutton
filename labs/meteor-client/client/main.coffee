@@ -4,7 +4,8 @@ Template.footer.helpers
 		year = "YEAR" #info.getBuildYear()
 		month = "MONTH" #info.getBuildMonth()
 		day = "DAY" #info.getBuildDay()
-		version = "VERSION_XXXX" #info.getBuildVersion()
+		# version = "VERSION_XXXX" #info.getBuildVersion()
+		version = getInSession "bbbServerVersion"
 		copyrightYear = (new Date()).getFullYear()
 		link = "<a href='http://bigbluebutton.org/' target='_blank'>http://bigbluebutton.org</a>"
 		foot = "(c) #{copyrightYear} BigBlueButton Inc. [build #{version}-#{year}-#{month}-#{day}] - For more information visit #{link}"
@@ -37,6 +38,10 @@ Template.header.events
 
 Template.recordingStatus.rendered = ->
 	$('button[rel=tooltip]').tooltip()
+
+Template.main.helpers
+	setTitle: ->
+		document.title = "BigBlueButton HTML5"
 
 Template.makeButton.rendered = ->
 	$('button[rel=tooltip]').tooltip()

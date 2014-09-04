@@ -57,6 +57,9 @@ Handlebars.registerHelper "colourToHex", (value) =>
 Handlebars.registerHelper 'equals', (a, b) -> # equals operator was dropped in Meteor's migration from Handlebars to Spacebars
   a is b
 
+Handlebars.registerHelper "getCurrentMeeting", ->
+	Meteor.Meetings.findOne()
+
 Handlebars.registerHelper "getCurrentSlide", ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
   presentationId = currentPresentation?.presentation?.id
