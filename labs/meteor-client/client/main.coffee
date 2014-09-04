@@ -39,6 +39,10 @@ Template.header.events
 Template.recordingStatus.rendered = ->
 	$('button[rel=tooltip]').tooltip()
 
+Template.main.helpers
+	setTitle: ->
+		document.title = "BigBlueButton HTML5"
+
 Template.makeButton.rendered = ->
 	$('button[rel=tooltip]').tooltip()
 
