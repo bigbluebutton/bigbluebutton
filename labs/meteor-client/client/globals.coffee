@@ -210,7 +210,8 @@ Meteor.methods
 	else
 		# create voice call params
 		username = "#{getInSession("userId")}-bbbID-#{getUsersName()}"
-		# voiceBridge = "70827"
+		# voicePin = Meteor.Meetings.findOne()?.voiceConf
+		# voiceBridge = if voicePin? then voicePin else "0"
 		voiceBridge = "70827"
 		server = null
 		joinCallback = (message) -> 
