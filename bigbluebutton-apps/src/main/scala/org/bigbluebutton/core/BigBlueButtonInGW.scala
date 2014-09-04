@@ -458,4 +458,11 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
 	  voiceGW.voiceRecording(meetingId, recordingFile, 
 			            timestamp, recording)
 	}
+
+	/*********************************************************************
+	 * Message Interface for Video
+	 *******************************************************************/
+	 def getStreamPath(meetingId:String, requesterId:String, streamName: String, defaultPath:String) {
+		 bbbGW.accept(new GetStreamPath(meetingId, requesterId, streamName, defaultPath));
+	 }
 }

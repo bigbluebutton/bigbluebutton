@@ -39,6 +39,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.videoconf.events.VideoModuleStartEvent;
       import org.bigbluebutton.modules.videoconf.events.VideoModuleStopEvent;
       import org.bigbluebutton.modules.users.events.ViewCameraEvent;
+	import org.bigbluebutton.modules.videoconf.events.PlayConnectionReady;
 		]]>
 	</mx:Script>
 	
@@ -125,6 +126,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{VideoEventMapDelegate}" method="handleCamSettingsClosedEvent"  arguments="{event}"/>
   </EventHandlers>
   
+	<EventHandlers type="{PlayConnectionReady.PLAY_CONNECTION_READY}">
+		<MethodInvoker generator="{VideoEventMapDelegate}" method="handlePlayConnectionReady" />
+	</EventHandlers>
   <!-- ~~~~~~~~~~~~~~~~~~    INJECTORS     ~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   
 </EventMap>

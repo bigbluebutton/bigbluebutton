@@ -98,6 +98,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: UndoWhiteboardRequest         => handleUndoWhiteboardRequest(msg)
         case msg: EnableWhiteboardRequest       => handleEnableWhiteboardRequest(msg)
         case msg: IsWhiteboardEnabledRequest    => handleIsWhiteboardEnabledRequest(msg)
+        case msg: GetStreamPath                 => handleGetStreamPath(msg)
 
         //OUT MESSAGES
         case msg: MeetingCreated                => handleMeetingCreated(msg)
@@ -2194,5 +2195,20 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   private def handleIsWhiteboardEnabledReply(msg: IsWhiteboardEnabledReply) {
     val json = WhiteboardMessageToJsonConverter.isWhiteboardEnabledReplyToJson(msg)
     dispatcher.dispatch(json)
+  }
+
+  private def handleGetStreamPath(msg: GetStreamPath) {
+    val payload = new java.util.HashMap[String, Any]()
+
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.STREAM, msg.streamName)
+    payload.put(Constants.STREAM_PATH_DEFAULT, msg.streamName)
+
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.GET_STREAM_PATH)
+
+    println("***** DISPATCHING GET STREAM PATH *****************")
+    dispatcher.dispatch(buildJson(header, payload))
   }
 }

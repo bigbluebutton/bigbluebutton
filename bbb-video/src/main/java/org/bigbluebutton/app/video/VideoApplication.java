@@ -21,20 +21,28 @@ package org.bigbluebutton.app.video;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
+import org.red5.server.api.scope.IBasicScope;
+import org.red5.server.api.scope.IBroadcastScope;
+import org.red5.server.api.scope.ScopeType;
 import org.red5.server.api.stream.IBroadcastStream;
+import org.red5.server.api.stream.IPlayItem;
 import org.red5.server.api.stream.IServerStream;
 import org.red5.server.api.stream.IStreamListener;
+import org.red5.server.api.stream.ISubscriberStream;
 import org.red5.server.stream.ClientBroadcastStream;
 import org.slf4j.Logger;
+import org.apache.commons.lang3.StringUtils;
 
 public class VideoApplication extends MultiThreadedApplicationAdapter {
-	private static Logger log = Red5LoggerFactory.getLogger(VideoApplication.class, "video");
+	private static Logger log = Red5LoggerFactory.getLogger(VideoApplication.class);
 	
 	private IScope appScope;
 	private IServerStream serverStream;
@@ -42,13 +50,21 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	private boolean recordVideoStream = false;
 	private EventRecordingService recordingService;
 	private final Map<String, IStreamListener> streamListeners = new HashMap<String, IStreamListener>();
-	
+
+    private Map<String, CustomStreamRelay> remoteStreams = new ConcurrentHashMap<String, CustomStreamRelay>();
+    private Map<String, Integer> listenersOnRemoteStream = new ConcurrentHashMap<String, Integer>();
+
+	// Proxy disconnection timer
+	private Timer timer;
+	// Proxy disconnection timeout
+	private long relayTimeout;
+
     @Override
 	public boolean appStart(IScope app) {
 	    super.appStart(app);
 		log.info("oflaDemo appStart");
-		System.out.println("oflaDemo appStart");    	
 		appScope = app;
+		timer = new Timer();
 		return true;
 	}
 
@@ -72,13 +88,24 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     	super.streamPublishStart(stream);
     }
     
+
+    public IBroadcastScope getBroadcastScope(IScope scope, String name) {
+    IBasicScope basicScope = scope.getBasicScope(ScopeType.BROADCAST, name);
+    if (!(basicScope instanceof IBroadcastScope)) {
+        return null;
+    } else {
+        return (IBroadcastScope) basicScope;
+    }
+}
+
+
     @Override
     public void streamBroadcastStart(IBroadcastStream stream) {
     	IConnection conn = Red5.getConnectionLocal();  
     	super.streamBroadcastStart(stream);
     	log.info("streamBroadcastStart " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
 
-        if (recordVideoStream) {
+        if (recordVideoStream &&  stream.getPublishedName().contains("/") == false) {
 	    	recordStream(stream);
 	    	VideoStreamListener listener = new VideoStreamListener(); 
 	        listener.setEventRecordingService(recordingService);
@@ -147,5 +174,99 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	public void setEventRecordingService(EventRecordingService s) {
 		recordingService = s;
 	}
-	
+
+	public void setRelayTimeout(long timeout) {
+		this.relayTimeout = timeout;
+	}
+    @Override
+    public void streamPlayItemPlay(ISubscriberStream stream, IPlayItem item, boolean isLive) {
+        // log w3c connect event
+        String streamName = item.getName();
+        
+        //rtmp://SV1/video/conferencia
+        //SV2/SV3/SV4/streamName
+
+
+        if(streamName.contains("/")) {
+			synchronized(remoteStreams) {
+				if(remoteStreams.containsKey(streamName) == false) {
+					String[] parts = streamName.split("/");
+					String sourceServer = parts[0];
+					String sourceStreamName = StringUtils.join(parts, '/', 1, parts.length);
+					String destinationServer = Red5.getConnectionLocal().getHost();
+					String destinationStreamName = streamName;
+					String app = "video/"+Red5.getConnectionLocal().getScope().getName();
+					log.trace("streamPlayItemPlay:: streamName [" + streamName + "]");
+					log.trace("streamPlayItemPlay:: sourceServer [" + sourceServer + "]");
+					log.trace("streamPlayItemPlay:: sourceStreamName [" + sourceStreamName + "]");
+					log.trace("streamPlayItemPlay:: destinationServer [" + destinationServer + "]");
+					log.trace("streamPlayItemPlay:: destinationStreamName [" + destinationStreamName + "]");
+					log.trace("streamPlayItemPlay:: app [" + app + "]");
+
+					CustomStreamRelay remoteRelay = new CustomStreamRelay();
+					remoteRelay.initRelay(new String[]{sourceServer, app, sourceStreamName, destinationServer, app, destinationStreamName, "live"});
+					remoteRelay.startRelay();
+					remoteStreams.put(destinationStreamName, remoteRelay);
+					listenersOnRemoteStream.put(streamName, 1);
+				}
+				else {
+					Integer numberOfListeners = listenersOnRemoteStream.get(streamName) + 1;
+					listenersOnRemoteStream.put(streamName,numberOfListeners);
+				}
+			}
+		}
+		log.info("W3C x-category:stream x-event:play c-ip:{} x-sname:{} x-name:{}", new Object[] { Red5.getConnectionLocal().getRemoteAddress(), stream.getName(), item.getName() });
+	}
+
+    @Override
+    public void streamSubscriberClose(ISubscriberStream stream) {
+		synchronized(remoteStreams) {
+			super.streamSubscriberClose(stream);
+			String streamName = stream.getBroadcastStreamPublishName();
+			log.trace("Subscriber close for stream [{}]", streamName);
+			if(streamName.contains("/")) {
+				if(remoteStreams.containsKey(streamName)) {
+					Integer numberOfListeners = listenersOnRemoteStream.get(streamName);
+					if(numberOfListeners != null) {
+						numberOfListeners = numberOfListeners - 1;
+						listenersOnRemoteStream.put(streamName, numberOfListeners);
+						log.trace("Stream [{}] has {} subscribers left", streamName, numberOfListeners);
+						if(numberOfListeners < 1) {
+							log.info("Starting timeout to close proxy for stream: {}", streamName);
+							timer.schedule(new DisconnectProxyTask(streamName), relayTimeout);
+						}
+					}
+				}
+			}
+		}
+    }
+
+	private final class DisconnectProxyTask extends TimerTask {
+		// Stream name that should be disconnected
+		private String streamName;
+
+		public DisconnectProxyTask(String streamName) {
+			this.streamName = streamName;
+		}
+
+		@Override
+		public void run() {
+			// Cancel this task
+			this.cancel();
+			// Check if someone reconnected
+			synchronized(remoteStreams) {
+				Integer numberOfListeners = listenersOnRemoteStream.get(streamName);
+				log.trace("Stream [{}] has {} subscribers", streamName, numberOfListeners);
+				if(numberOfListeners != null) {
+					if(numberOfListeners < 1) {
+						// No one else is connected to this stream, close relay
+						log.info("Stopping relay for stream [{}]", streamName);
+						listenersOnRemoteStream.remove(streamName);
+						CustomStreamRelay remoteRelay = remoteStreams.remove(streamName);
+						remoteRelay.stopRelay();
+					}
+				}
+			}
+		}
+	}
 }
