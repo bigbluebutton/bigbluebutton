@@ -89,19 +89,38 @@ Handlebars.registerHelper "isCurrentUser", (id) ->
 Handlebars.registerHelper "meetingIsRecording", ->
 	Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
 
+Handlebars.registerHelper "isCurrentUserMuted", ->
+	getInSession "isMuted"
+
+Handlebars.registerHelper "isCurrentUserRaisingHand", ->
+	user = Meteor.Users.findOne({userId:getInSession("userId")})
+	user?.user?.raise_hand
+
+Handlebars.registerHelper "isCurrentUserSharingAudio", ->
+	user = Meteor.Users.findOne({userId:getInSession("userId")})
+	user?.user?.voiceUser?.joined
+
+Handlebars.registerHelper "isCurrentUserSharingVideo", ->
+	user = Meteor.Users.findOne({userId:getInSession("userId")})
+	user?.user?.webcam_stream?.length isnt 0
+
+Handlebars.registerHelper "isCurrentUserTalking", ->
+	user = Meteor.Users.findOne({userId:getInSession("userId")})
+	user?.user?.voiceUser?.talking
+
 Handlebars.registerHelper "isUserSharingAudio", (u) ->
   if u? 
     user = Meteor.Users.findOne({userId:u.userid})
-    user.user.voiceUser?.joined
+    user?.user?.voiceUser?.joined
   else return false
 
 Handlebars.registerHelper "isUserSharingVideo", (u) ->
-  u.webcam_stream.length isnt 0
+  u.webcam_stream?.length isnt 0
 
 Handlebars.registerHelper "isUserTalking", (u) ->
   if u? 
     user = Meteor.Users.findOne({userId:u.userid})
-    user.user.voiceUser?.talking
+    user.user?.voiceUser?.talking
   else return false
 
 Handlebars.registerHelper "isUserMuted", (u) ->
@@ -171,6 +190,7 @@ Meteor.methods
       # format: meetingId, userId, requesterId, mutedBoolean
       # TODO: insert the requesterId - the user who requested the muting of userId (might be a moderator)
       Meteor.call('publishMuteRequest', u.meetingId, u.userId, u.userId, not u.user.voiceUser.muted)
+      setInSession "isMuted", not u.user.voiceUser.muted
 
 @toggleNavbar = ->
   setInSession "display_navbar", !getInSession "display_navbar"
@@ -190,7 +210,8 @@ Meteor.methods
 	else
 		# create voice call params
 		username = "#{getInSession("userId")}-bbbID-#{getUsersName()}"
-		# voiceBridge = "70827"
+		# voicePin = Meteor.Meetings.findOne()?.voiceConf
+		# voiceBridge = if voicePin? then voicePin else "0"
 		voiceBridge = "70827"
 		server = null
 		joinCallback = (message) -> 

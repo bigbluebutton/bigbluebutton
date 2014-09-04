@@ -27,11 +27,11 @@ Template.header.events
 	# "click .settingsIcon": (event) ->
 	# 	alert "settings"
 	"click .raiseHand": (event) ->
-		Meteor.call('userRaiseHand', getInSession("meetingId"), @id)
+		Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"))
 	"click .lowerHand": (event) ->
 		# loweredBy = @id # TODO! this must be the userid of the person lowering the hand - instructor/student
 		loweredBy = getInSession("userId")
-		Meteor.call('userLowerHand', getInSession("meetingId"), @id, loweredBy)
+		Meteor.call('userLowerHand', getInSession("meetingId"), getInSession("userId"), loweredBy)
 	"click .whiteboardIcon": (event) ->
 		toggleWhiteBoard()
 
@@ -70,3 +70,4 @@ Meteor.startup ->
 	setInSession "isSharingAudio", false
 	setInSession "inChatWith", 'PUBLIC_CHAT'
 	setInSession "messageFontSize", 12
+	setInSession "isMuted", false

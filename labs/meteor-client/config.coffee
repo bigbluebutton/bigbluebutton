@@ -35,7 +35,7 @@ config.redis.channels.toBBBApps.whiteboard = "bigbluebutton:to-bbb-apps:whiteboa
 # Logging
 config.log = {}
 
-config.log.path = if process?.env?.NODE_ENV == "production"
+config.log.path = if process?.env?.NODE_ENV is "production"
   "/var/log/bigbluebutton/bbbnode.log"
 else
   "./log/development.log"
