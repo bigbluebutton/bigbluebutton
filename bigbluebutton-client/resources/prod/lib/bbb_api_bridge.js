@@ -503,6 +503,27 @@
         swfObj.webRTCMediaFail();
       }
     }
+    
+    BBB.webRTCWebcamRequest = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCWebcamRequest();
+      }
+    }
+
+    BBB.webRTCWebcamRequestSuccess = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCWebcamRequestSuccess();
+      }
+    }
+    
+    BBB.webRTCWebcamRequestFail = function(reason) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCWebcamRequestFail(reason);
+      }
+    }
             
     // Third-party JS apps should use this to query if the BBB SWF file is ready to handle calls.
     BBB.isSwfClientReady = function() {

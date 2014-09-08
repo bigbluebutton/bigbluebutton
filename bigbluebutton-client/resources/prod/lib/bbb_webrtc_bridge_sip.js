@@ -1,5 +1,5 @@
 
-var callerIdName, conferenceVoiceBridge, userAgent, userMedia, currentSession;
+var callerIdName, conferenceVoiceBridge, userAgent, userMicMedia, userWebcamMedia, currentSession;
 
 function callIntoConference(voiceBridge, callback) {
 	if (!callerIdName) {
@@ -105,6 +105,41 @@ function stopWebRTCAudioTestJoinConference(){
 	webrtc_hangup(callback);
 }
 
+function requestWebRTCWebcam(){
+	var callback = function(message) {
+		switch(message.status) {
+			case 'mediarequest':
+				BBB.webRTCWebcamRequest();
+				break;
+			case 'mediasuccess':
+				BBB.webRTCWebcamRequestSuccess();
+				break;
+			case 'mediafail':
+				BBB.webRTCWebcamRequestFail(message.cause);
+				break;
+		}
+	}
+	
+	makeWebRTCWebcamRequest(callback);
+}
+
+function makeWebRTCWebcamRequest(callback)
+{
+	console.log("Requesting webcam permissions on Chrome ");
+	
+	callback({'status':'mediarequest'});
+	
+	getUserWebcamMedia(function(stream) {
+			console.log("getUserWebcamMedia: success");
+			userWebcamMedia = stream;
+			callback({'status':'mediasuccess'});
+		}, function(error) {
+		    console.error("getUserWebcamMedia: failure - " + error.name);
+			callback({'status':'mediafail', 'cause': error.name});
+		}
+	);	
+}
+
 function createUA(username, server) {
 	if (userAgent) {
 		console.log("User agent already created");
@@ -129,17 +164,31 @@ function createUA(username, server) {
 	userAgent.start();
 };
 
-function getMic(getUserMediaSuccess, getUserMediaFailure) {
-	if (!userMedia) {
+function getUserWebcamMedia(getUserWebcamMediaSuccess, getUserWebcamMediaFailure) {
+	if (userWebcamMedia == undefined) {
 		if (SIP.WebRTC.isSupported()) {
-			SIP.WebRTC.getUserMedia({audio:true, video:false}, getUserMediaSuccess, getUserMediaFailure);
+			SIP.WebRTC.getUserMedia({audio:false, video:true}, getUserWebcamMediaSuccess, getUserWebcamMediaFailure);
 		} else {
-			console.log("getMic: webrtc not supported");
-			getUserMediaFailure("WebRTC is not supported");
+			console.log("getUserWebcamMedia: webrtc not supported");
+			getUserWebcamMediaFailure("WebRTC is not supported");
 		}
 	} else {
-		console.log("getMic: media already set");
-		getUserMediaSuccess(userMedia);
+		console.log("getUserWebcamMedia: webcam already set");
+		getUserWebcamMediaSuccess(userWebcamMedia);
+	}
+};
+
+function getUserMicMedia(getUserMicMediaSuccess, getUserMicMediaFailure) {
+	if (userMicMedia == undefined) {
+		if (SIP.WebRTC.isSupported()) {
+			SIP.WebRTC.getUserMedia({audio:true, video:false}, getUserMicMediaSuccess, getUserMicMediaFailure);
+		} else {
+			console.log("getUserMicMedia: webrtc not supported");
+			getUserMicMediaFailure("WebRTC is not supported");
+		}
+	} else {
+		console.log("getUserMicMedia: mic already set");
+		getUserMicMediaSuccess(userMicMedia);
 	}
 };
 
@@ -156,17 +205,17 @@ function webrtc_call(username, voiceBridge, callback) {
 		createUA(username, server);
 	}
 	
-	if (userMedia) {
+	if (userMicMedia !== undefined) {
 		make_call(username, voiceBridge, server, callback);
 	} else {
 		callback({'status':'mediarequest'});
-		getMic(function(stream) {
-				console.log("getUserMedia: success");
-				userMedia = stream;
+		getUserMicMedia(function(stream) {
+				console.log("getUserMicMedia: success");
+				userMicMedia = stream;
 				callback({'status':'mediasuccess'});
 				make_call(username, voiceBridge, server, callback);
 			}, function(e) {
-				console.error("getUserMedia: failure - " + e);
+				console.error("getUserMicMedia: failure - " + e);
 				callback({'status':'mediafail', 'cause': e});
 			}
 		);
@@ -178,7 +227,7 @@ function make_call(username, voiceBridge, server, callback) {
 	console.log("Setting options.. ");
 	var options = {
 		media: {
-			stream: userMedia,
+			stream: userMicMedia,
 			render: {
 				remote: {
 					audio: document.getElementById('remote-media')
