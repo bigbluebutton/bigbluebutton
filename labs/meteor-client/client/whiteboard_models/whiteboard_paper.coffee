@@ -824,5 +824,12 @@ class @WhiteboardPaperModel
     console.log "imageWidth: #{imageWidth}"
     console.log "imageHeight: #{imageHeight}"
 
-    # @addImageToPaper(data, imageWidth, imageHeight) # TODO the dimensions should be modified
-    @addImageToPaper(data, imageWidth, imageHeight)
+    pic = new Image()
+    _this = this
+    pic.onload = ->
+      if this.width <= this.height # natural dimensions
+        # square => boardHeight is the shortest side
+        _this.addImageToPaper(data, boardHeight * this.width / this.height, boardHeight)
+      else
+        _this.addImageToPaper(data, boardWidth, boardWidth * this.height / this.width)
+    pic.src = data
