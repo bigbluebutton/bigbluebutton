@@ -150,7 +150,7 @@ function createUA(username, server) {
 	
 	// VERY IMPORTANT - You must escape the username because spaces will cause the connection to fail
 	var configuration = {
-		uri: 'sip:' + escape(username) + '@' + server,
+		uri: 'sip:' + encodeURIComponent(username) + '@' + server,
 		wsServers: 'ws://' + server + ':5066',
 		displayName: username,
 		register: false,
