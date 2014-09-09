@@ -43,7 +43,7 @@ class @WhiteboardEllipseModel extends WhiteboardToolModel
         x2 = info.points[2]
         y2 = info.points[3]
 
-        circle = !info.square
+        circle = info.square
 
         if @obj?
           [x1, x2] = [x2, x1] if x2 < x1
@@ -52,39 +52,39 @@ class @WhiteboardEllipseModel extends WhiteboardToolModel
             [y1, y2] = [y2, y1]
             reversed = true
 
+          #if the control key is pressed then the width and height of the ellipse are equal (a circle)
+          #we calculate this by making the y2 coord equal to the y1 coord plus the width of x2-x1 and corrected for the slide size
           if circle
             if reversed # if reveresed, the y1 coordinate gets updated, not the y2 coordinate
               y1 = y2 - (x2 - x1) * @gw / @gh
             else
               y2 = y1 + (x2 - x1) * @gw / @gh
 
-            #if the control key is pressed then the width and height of the ellipse are equal (a circle)
-            #we calculate this by making the y2 coord equal to the y1 coord plus the width of x2-x1 and corrected for the slide size
-            coords =
-              x1: x1
-              x2: x2
-              y1: y1
-              y2: y2
+          coords =
+            x1: x1
+            x2: x2
+            y1: y1
+            y2: y2
 
-            console.log(coords)
+          console.log(coords)
 
-            rx = (x2 - x1) / 2
-            ry = (y2 - y1) / 2
+          rx = (x2 - x1) / 2
+          ry = (y2 - y1) / 2
 
-            r =
-              rx: rx * @gw
-              ry: ry * @gh
-              cx: (rx + x1) * @gw + @xOffset
-              cy: (ry + y1) * @gh + @yOffset
+          r =
+            rx: rx * @gw
+            ry: ry * @gh
+            cx: (rx + x1) * @gw + @xOffset
+            cy: (ry + y1) * @gh + @yOffset
 
-            @obj.attr(r)
+          @obj.attr(r)
 
-            console.log( "@gw: " + @gw + "\n@gh: " + @gh + "\n@xOffset: " + @xOffset + "\n@yOffset: " + @yOffset );
-            # we need to update all these values, specially for when shapes are drawn backwards
-            @definition[0] = x1
-            @definition[1] = y1
-            @definition[2] = x2
-            @definition[3] = y2
+          console.log( "@gw: " + @gw + "\n@gh: " + @gh + "\n@xOffset: " + @xOffset + "\n@yOffset: " + @yOffset );
+          # we need to update all these values, specially for when shapes are drawn backwards
+          @definition[0] = x1
+          @definition[1] = y1
+          @definition[2] = x2
+          @definition[3] = y2
 
     # Draw an ellipse on the whiteboard
     # @param    {number} x1 the x value of the top left corner

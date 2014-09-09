@@ -38,6 +38,7 @@ class @WhiteboardLineModel extends WhiteboardToolModel
       @obj.attr "stroke", formatColor(color)
       @obj.attr "stroke-width", formatThickness(thickness)
       @obj.attr({"stroke-linejoin": "round"})
+      @obj.attr "stroke-linecap", "round"
 
       @definition = [pathPercent, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]
 

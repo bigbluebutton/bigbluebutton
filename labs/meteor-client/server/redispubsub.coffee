@@ -199,7 +199,8 @@ class Meteor.RedisPubSub
       console.log "Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!"
       listOfMeetings = message.payload?.meetings
       for meeting in listOfMeetings
-        Meteor.call("addMeetingToCollection", meeting.meetingID, meeting.meetingName, meeting.recorded)
+        # we currently do not have voice_conf or duration in this message.
+        Meteor.call("addMeetingToCollection", meeting.meetingID, meeting.meetingName, meeting.recorded, "", "")
 
     if message.header?.name is "get_users_reply" and message.payload?.requester_id is "nodeJSapp"
       unless Meteor.Meetings.findOne({MeetingId: message.payload?.meeting_id})?
@@ -226,13 +227,13 @@ class Meteor.RedisPubSub
       Meteor.call("addChatToCollection", meetingId, messageObject)
 
     if message.header?.name is "meeting_created_message"
-      # the event message contains very little info, so we will
-      # request for information for all the meetings and in
-      # this way can keep the Meetings collection up to date
-      console.log "just received a meeting_created_message\n\n\n"
-      @invokeGetAllMeetingsRequest()
+      meetingName = message.payload?.name
+      intendedForRecording = message.payload?.recorded
+      voiceConf = message.payload?.voice_conf
+      duration = message.payload?.duration
+      Meteor.call("addMeetingToCollection", meetingId, meetingName, intendedForRecording, voiceConf, duration)
 
-    if message.header?.name is "presentation_shared_message" # TODO TEST!!!
+    if message.header?.name is "presentation_shared_message"
       presentationId = message.payload?.presentation?.id
       # change the currently displayed presentation to presentation.current = false
       Meteor.Presentations.update({"presentation.current": true, meetingId: meetingId},{$set: {"presentation.current": false}})
@@ -247,8 +248,6 @@ class Meteor.RedisPubSub
           Meteor.call("displayThisSlide", meetingId, slide.id, slide)
 
     if message.header?.name is "get_presentation_info_reply" and message.payload?.requester_id is "nodeJSapp"
-      # todo: grab the whiteboard shapes using the whiteboard_id we have here
-
       for presentation in message.payload?.presentations
         Meteor.call("addPresentationToCollection", meetingId, presentation)
 
@@ -297,9 +296,6 @@ class Meteor.RedisPubSub
 
     if message.header?.name is "whiteboard_cleared_message"
       whiteboardId = message.payload?.whiteboard_id
-      # shapesOnSlide = Meteor.Shapes.find({whiteboardId:whiteboardId, meetingId: meetingId}).fetch()
-      # console.log "shapesOnSlide:" + shapesOnSlide.size()
-      
       Meteor.call("removeAllShapesFromSlide", meetingId, whiteboardId)
 
     if message.header?.name is "undo_whiteboard_request"
@@ -334,6 +330,11 @@ class Meteor.RedisPubSub
       userId = message.payload?.userid
       # update the user
       Meteor.Users.update({"user.userid": userId, meetingId: meetingId},{$set: {"user.raise_hand": false}}) #not sure why but message.payload?.raise_hand is awlays false
+
+    if message.header?.name is "recording_status_changed_message"
+      intendedForRecording = message.payload?.recorded
+      currentlyBeingRecorded = message.payload?.recording
+      Meteor.Meetings.update({meetingId: meetingId, intendedForRecording: intendedForRecording}, {$set: {currentlyBeingRecorded: currentlyBeingRecorded}})
 
     if message.header?.name in ["meeting_ended_message", "meeting_destroyed_event",
       "end_and_kick_all_message", "disconnect_all_users_message"]
