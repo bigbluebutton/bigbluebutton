@@ -144,12 +144,6 @@ done_files.each do |df|
         BigBlueButton.logger.info("Publishing files")
         FileUtils.cp_r(meeting_publish_dir, "#{published_dir}/mconf_encrypted")
 
-        BigBlueButton.logger.info("Removing processed files: #{meeting_process_dir}")
-        FileUtils.rm_r meeting_process_dir, :force => true
-
-        BigBlueButton.logger.info("Removing published files: #{meeting_publish_dir}")
-        FileUtils.rm_r meeting_publish_dir, :force => true
-
         # it doesn't work since video and deskshare files are owned by red5, 
         # freeswitch files are owned by freeswitch, and this script is ran by
         # tomcat6, so it can just remove files owned by tomcat6
@@ -158,8 +152,7 @@ done_files.each do |df|
                          Dir.glob("/var/freeswitch/meetings/#{meeting_id}*.wav") ], :force => true
 
         # Remove all the recording flags
-        FileUtils.rm_f [ "#{recording_dir}/status/processed/#{meeting_id}-mconf_encrypted.done",
-                         "#{recording_dir}/status/sanity/#{meeting_id}.done",
+        FileUtils.rm_f [ "#{recording_dir}/status/sanity/#{meeting_id}.done",
                          "#{recording_dir}/status/recorded/#{meeting_id}.done",
                          "#{recording_dir}/status/archived/#{meeting_id}.done" ]
 
@@ -168,6 +161,10 @@ done_files.each do |df|
         FileUtils.rm_r meeting_raw_dir, :force => true
         BigBlueButton.logger.info("Removing the recording presentation: #{meeting_raw_presentation_dir}")
         FileUtils.rm_r meeting_raw_presentation_dir, :force => true
+
+        publish_done = File.new("#{recording_dir}/status/published/#{meeting_id}-mconf_encrypted.done", "w")
+        publish_done.write("Published #{meeting_id}")
+        publish_done.close
       end
     end
   end

@@ -18,7 +18,7 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
 
-set -e
+set -xe
 
 sudo cp core/Gemfile /usr/local/bigbluebutton/core/Gemfile
 sudo rm -rf /usr/local/bigbluebutton/core/lib
