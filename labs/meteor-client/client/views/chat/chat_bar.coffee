@@ -110,15 +110,12 @@ Template.chatbar.helpers
 							msgs[i].message.message += "\\n#{msgs[j].message.message}" # Combine the messages
 							msgs.splice(j,1) # Delete the message from the collection
 							deleted=true
-						else
-							console.log "not same users"
-					else
-						break # This is the break point in the chat, don't merge
-					# -------------------------------------------------------------------------------
+						#
+					else break # This is the break point in the chat, don't merge
+					#
 					len = msgs.length
-					if not deleted
-						j++
-			# -------------------------------------------------------------------------------
+					++j if not deleted
+			#
 			++i
 			len = msgs.length
 
