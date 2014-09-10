@@ -45,9 +45,9 @@ Template.chatInput.rendered  = ->
 
 Template.chatbar.helpers
 	getChatGreeting: ->
-		greeting = "Welcome to #{getMeetingName()}!\n\n
-		For help on using BigBlueButton see these (short) <a href='http://www.bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.\n\n
-		To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.\n\n\n
+		greeting = "Welcome to #{getMeetingName()}!\\n\\n
+		For help on using BigBlueButton see these (short) <a href='http://www.bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.\\n\\n
+		To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.\\n\\n\\n
 		This server is running BigBlueButton #{getInSession 'bbbServerVersion'}."
 
 	# This method returns all messages for the user. It looks at the session to determine whether the user is in
@@ -98,20 +98,18 @@ Template.chatbar.helpers
 		i = 0
 		while i < len # Must be do while, for loop compiles and stores the length of array which can change inside the loop!
 			if msgs[i].message.from_userid isnt 'System' # skip system messages
-				# console.log "from #{msgs[i].message.from_userid}: #{msgs[i].message.message}"
 				j = i+1 # Start looking at messages right after the current one
+
 				while j < len
 					deleted = false
 					if msgs[j].message.from_userid isnt 'System' # Ignore system messages
-						# console.log "--------from #{msgs[j].message.from_userid}: #{msgs[j].message.message}"
+						# Check if the time discrepancy between the two messages exceeds window for grouping
+						# if msgs[j].time - msgs[i].time > 1 minute
 
 						if msgs[i].message.from_userid is msgs[j].message.from_userid # Both messages are from the same user
-							# console.log "--------same users"
-							# console.log "--------combining #{msgs[i].message.message} with #{msgs[j].message.message}"
 							msgs[i].message.message += "\\n#{msgs[j].message.message}" # Combine the messages
 							msgs.splice(j,1) # Delete the message from the collection
 							deleted=true
-							# msgs[j].message.message=""
 						else
 							console.log "not same users"
 					else
@@ -125,9 +123,11 @@ Template.chatbar.helpers
 			len = msgs.length
 
 		msgs
-  
+
+# This has broken yet again, because now messages are grouped together so when a new message from the same user is added,
+# Meteor automatically updates and inserts it into the DOM element without triggering the rendered function
 Template.message.rendered = -> # When a message has been added and finished rendering, scroll to the bottom of the chat
-  $('#chatbody').scrollTop($('#chatbody')[0].scrollHeight)
+	$('#chatbody').scrollTop($('#chatbody')[0].scrollHeight)
 
 Template.optionsBar.events
     'click .private-chat-user-entry': (event) -> # clicked a user's name to begin private chat
