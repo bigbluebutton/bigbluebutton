@@ -64,7 +64,8 @@ Template.chatbar.helpers
 				'message':
 					'message': Template.chatbar.getChatGreeting(),
 					'from_username': 'System',
-					'from_time': getTime()
+					'from_time': getTime(),
+					'from_userid': 'System',
 					'from_color': '0x3399FF' # A nice blue in hex
 			]
 		else
@@ -92,6 +93,37 @@ Template.chatbar.helpers
 				else
 					prev_time = msgs[i].message.from_time
 			prev_userid = msgs[i].message.from_userid
+		# ------------------------------------------------------------------------------------
+		len = msgs.length # get length of messages
+		i = 0
+		while i < len # Must be do while, for loop compiles and stores the length of array which can change inside the loop!
+			if msgs[i].message.from_userid isnt 'System' # skip system messages
+				# console.log "from #{msgs[i].message.from_userid}: #{msgs[i].message.message}"
+				j = i+1 # Start looking at messages right after the current one
+				while j < len
+					deleted = false
+					if msgs[j].message.from_userid isnt 'System' # Ignore system messages
+						# console.log "--------from #{msgs[j].message.from_userid}: #{msgs[j].message.message}"
+
+						if msgs[i].message.from_userid is msgs[j].message.from_userid # Both messages are from the same user
+							# console.log "--------same users"
+							# console.log "--------combining #{msgs[i].message.message} with #{msgs[j].message.message}"
+							msgs[i].message.message += "\\n#{msgs[j].message.message}" # Combine the messages
+							msgs.splice(j,1) # Delete the message from the collection
+							deleted=true
+							# msgs[j].message.message=""
+						else
+							console.log "not same users"
+					else
+						break # This is the break point in the chat, don't merge
+					# -------------------------------------------------------------------------------
+					len = msgs.length
+					if not deleted
+						j++
+			# -------------------------------------------------------------------------------
+			++i
+			len = msgs.length
+
 		msgs
   
 Template.message.rendered = -> # When a message has been added and finished rendering, scroll to the bottom of the chat

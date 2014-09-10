@@ -7,7 +7,9 @@
 				<div id="chatbody">
 					<ul class="chat">					
 						{{#each getCombinedMessagesForChat}}
-							<li {{messageFontSize}}>{{> message}}</li>
+							{{#if message}}
+								<li {{messageFontSize}}>{{> message}}</li>
+							{{/if}}
 						{{/each}}
 					</ul>
 				</div>
