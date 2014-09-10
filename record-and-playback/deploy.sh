@@ -18,18 +18,13 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
 
-set -e
+set -xe
 
 sudo cp core/Gemfile /usr/local/bigbluebutton/core/Gemfile
 sudo rm -rf /usr/local/bigbluebutton/core/lib
 sudo cp -r core/lib /usr/local/bigbluebutton/core/
 sudo rm -rf /usr/local/bigbluebutton/core/scripts
 sudo cp -r core/scripts /usr/local/bigbluebutton/core/
-sudo rm -rf /etc/bigbluebutton/god
-sudo cp -r core/god/god /etc/bigbluebutton/
-sudo rm -f /etc/init.d/bbb-record-core
-sudo cp core/god/initd.god /etc/init.d/bbb-record-core
-sudo chmod 0755 /etc/init.d/bbb-record-core
 sudo rm -rf /var/bigbluebutton/playback/*
 
 function deploy_format() {
@@ -40,12 +35,19 @@ function deploy_format() {
         scripts_dir="$format/scripts"
         if [ -d $playback_dir ]; then sudo cp -r $playback_dir /var/bigbluebutton/playback/; fi
         if [ -d $scripts_dir ]; then sudo cp -r $scripts_dir/* /usr/local/bigbluebutton/core/scripts/; fi
-        sudo mkdir -p /var/log/bigbluebutton/$format
+        sudo mkdir -p /var/log/bigbluebutton/$format /var/bigbluebutton/published/$format /var/bigbluebutton/recording/publish/$format
     done
 }
 
-# deploy_format "slides"
-deploy_format "presentation"
+RECORDING_SERVER=false
+if $RECORDING_SERVER ; then
+    deploy_format "presentation"
+    deploy_format "mconf_decrypter"
+    sudo mv /usr/local/bigbluebutton/core/scripts/mconf-recording-decrypter.initd /etc/init.d/mconf-recording-decrypter
+    sudo mv /usr/local/bigbluebutton/core/scripts/mconf-recording-decrypter.monit /etc/monit/conf.d/mconf-recording-decrypter
+else
+    deploy_format "mconf_encrypted"
+fi
 
 sudo mkdir -p /var/bigbluebutton/playback/
 sudo mkdir -p /var/bigbluebutton/recording/raw/
@@ -57,7 +59,7 @@ sudo mkdir -p /var/bigbluebutton/recording/status/processed/
 sudo mkdir -p /var/bigbluebutton/recording/status/sanity/
 
 sudo mv /usr/local/bigbluebutton/core/scripts/*.nginx /etc/bigbluebutton/nginx/
-sudo chown -R tomcat6:tomcat6 /var/bigbluebutton/ /var/log/bigbluebutton/
+sudo chown -R tomcat7:tomcat7 /var/bigbluebutton/ /var/log/bigbluebutton/
 sudo chown -R red5:red5 /var/bigbluebutton/deskshare/
 sudo chown -R freeswitch:daemon /var/bigbluebutton/meetings/
 
