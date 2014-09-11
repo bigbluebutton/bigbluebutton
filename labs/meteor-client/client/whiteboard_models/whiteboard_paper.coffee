@@ -362,6 +362,21 @@ class @WhiteboardPaperModel
   # Updated a shape `shape` with the data in `data`.
   # TODO: check if the objects exist before calling update, if they don't they should be created
   updateShape: (shape, data) ->
+    console.log "FUNCTION updateShape"
+    ###currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+    presentationId = currentPresentation?.presentation?.id
+    slidesCursor = Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
+    console.log "slidesCursor:"
+    console.log slidesCursor
+    
+    slidesCursor.observe
+      added: (document) ->
+        console.log "ADDED:"
+        console.log document.slide.width_ratio
+      changed: (newDocument, oldDocument) ->
+        console.log "CHANGED:"
+        console.log newDocument.slide.width_ratio###
+        
     switch shape
       when "line"
         @currentLine.update(data)
@@ -823,6 +838,17 @@ class @WhiteboardPaperModel
     # console.log "boardHeight: #{boardHeight}"
     console.log "imageWidth: #{imageWidth}"
     console.log "imageHeight: #{imageHeight}"
+    
+    currentSlideCursor = Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
+    _raphaelObj = @raphaelObj
+    
+    currentSlideCursor.observe # watching the current slide changes
+      changed: (newDoc, oldDoc) ->
+        newX = - newDoc.slide.x_offset * 2 * boardWidth / 100
+        newY = - newDoc.slide.y_offset * 2 * boardHeight / 100
+        newWidth = boardWidth * newDoc.slide.width_ratio / 100
+        newHeight = boardHeight * newDoc.slide.height_ratio / 100
+        _raphaelObj.setViewBox(newX, newY, newWidth, newHeight) # zooms and pans
 
     pic = new Image()
     _this = this
