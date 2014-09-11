@@ -79,21 +79,6 @@ Template.chatbar.helpers
 
 	getCombinedMessagesForChat: ->
 		msgs = Template.chatbar.getFormattedMessagesForChat()
-		prev_time = msgs[0]?.message.from_time
-		prev_userid = msgs[0]?.message.from_userid
-		for i in [0...msgs.length]
-			if i != 0
-				if prev_userid is msgs[i].message.from_userid
-					msgs[i].message.from_username = ''
-					if Template.message.toClockTime(msgs[i].message.from_time) is Template.message.toClockTime(prev_time)
-						prev_time = msgs[i].message.from_time
-						msgs[i].message.from_time = null
-					else
-						prev_time = msgs[i].message.from_time
-				else
-					prev_time = msgs[i].message.from_time
-			prev_userid = msgs[i].message.from_userid
-		# ------------------------------------------------------------------------------------
 		len = msgs.length # get length of messages
 		i = 0
 		while i < len # Must be a do while, for loop compiles and stores the length of array which can change inside the loop!
@@ -105,12 +90,13 @@ Template.chatbar.helpers
 					if msgs[j].message.from_userid isnt 'System' # Ignore system messages
 						# Check if the time discrepancy between the two messages exceeds window for grouping
 						if (parseFloat(msgs[j].message.from_time)-parseFloat(msgs[i].message.from_time)) >= 60000 # 60 seconds/1 minute
-							break
+							break # Messages are too far between, so them seperated and stop joining here
 
 						if msgs[i].message.from_userid is msgs[j].message.from_userid # Both messages are from the same user
 							msgs[i].message.message += "\\n#{msgs[j].message.message}" # Combine the messages
 							msgs.splice(j,1) # Delete the message from the collection
 							deleted=true
+						else break # Messages are from different people, move on
 						#
 					else break # This is the break point in the chat, don't merge
 					#
