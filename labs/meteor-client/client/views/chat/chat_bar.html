@@ -11,7 +11,7 @@
 								<li {{messageFontSize}}>{{> message}}</li>
 							{{/if}}
 						{{/each}}
-						<li></li> <!-- Intentionally blank, fixes issue what last message being cut off while scrolling -->
+						<li style="padding-top: 0px; padding-bottom: 0px;"></li> <!-- Intentionally blank, fixes issue what last message being cut off while scrolling -->
 					</ul>
 				</div>
 				<div class="panel-footer">{{> chatInput}}</div>
