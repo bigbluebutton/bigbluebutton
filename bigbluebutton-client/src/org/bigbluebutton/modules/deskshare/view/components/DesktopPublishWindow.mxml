@@ -109,6 +109,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} else {
 					javaRequiredString = "bbb.desktopPublish.javaRequiredLabel.unknown";
 				}
+				if (isUsingChromeOnMac()) {
+				   setCurrentState("chromeOnMacWarningState");
+				}
+				else {
+				   setCurrentState("dispFullRegionControlBar");
+				}
 			}
 			
 			private function onCreationComplete():void {
@@ -117,13 +123,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				cursor = new Sprite();
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
 				cursor.graphics.drawCircle(0,0,3);		
-
-				if (isUsingChromeOnMac()) {
-				   setCurrentState("chromeOnMacWarningState");
-				}
-				else {
-				   setCurrentState("dispFullRegionControlBar");
-				}
 
 				resourcesChanged();
 				
@@ -358,7 +357,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function adjustWindowSize():void {
-				this.height = container.measuredHeight + this.borderMetrics.top + this.borderMetrics.bottom;
+				this.height = container.measuredHeight + this.borderMetrics.top + this.borderMetrics.bottom + checkJavaBtn.height;
 			}
 			
       private function onCheckYourJavaClicked():void {
