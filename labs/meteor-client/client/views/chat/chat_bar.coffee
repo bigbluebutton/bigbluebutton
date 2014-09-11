@@ -122,6 +122,10 @@ Template.chatbar.helpers
 
 		msgs
 
+# When chatbar gets rendered, scroll to the bottom
+Template.chatbar.rendered = ->
+	$('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
+	false
 # Scrolls the message container to the bottom. The number of pixels to scroll down is the height of the container
 Handlebars.registerHelper "autoscroll", ->
 	$('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
