@@ -825,22 +825,25 @@ class @WhiteboardPaperModel
     console.log "imageHeight: #{imageHeight}"
     
     currentSlideCursor = Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
-    _raphaelObj = @raphaelObj
     
+    _this = this
     currentSlideCursor.observe # watching the current slide changes
       changed: (newDoc, oldDoc) ->
         newX = - newDoc.slide.x_offset * 2 * boardWidth / 100
         newY = - newDoc.slide.y_offset * 2 * boardHeight / 100
         newWidth = boardWidth * newDoc.slide.width_ratio / 100
         newHeight = boardHeight * newDoc.slide.height_ratio / 100
-        _raphaelObj.setViewBox(newX, newY, newWidth, newHeight) # zooms and pans
+        _this.raphaelObj.setViewBox(newX, newY, newWidth, newHeight, true) # zooms and pans
 
     pic = new Image()
-    _this = this
     pic.onload = ->
       if this.width <= this.height # natural dimensions
         # square => boardHeight is the shortest side
-        _this.addImageToPaper(data, boardHeight * this.width / this.height, boardHeight)
+        adjustedWidth = boardHeight * this.width / this.height
+        $('#whiteboard-paper').attr('style', 'width:' + adjustedWidth + 'px')
+        _this.addImageToPaper(data, adjustedWidth, boardHeight)
       else
-        _this.addImageToPaper(data, boardWidth, boardWidth * this.height / this.width)
+        adjustedHeight = boardWidth * this.height / this.width
+        $('#whiteboard-paper').attr('style', 'height:' + adjustedHeight + 'px')
+        _this.addImageToPaper(data, boardWidth, adjustedHeight)
     pic.src = data
