@@ -43,7 +43,6 @@ class @WhiteboardRectModel extends WhiteboardToolModel
     square = startingData.square
     if @obj?
       [x1, x2] = [x2, x1] if x2 < x1
-      [x1, x2] = [x2, x1] if x2 < x1
 
       if y2 < y1
           [y1, y2] = [y2, y1]
