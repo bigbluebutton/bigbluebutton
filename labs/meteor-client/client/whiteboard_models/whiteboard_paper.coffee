@@ -362,21 +362,6 @@ class @WhiteboardPaperModel
   # Updated a shape `shape` with the data in `data`.
   # TODO: check if the objects exist before calling update, if they don't they should be created
   updateShape: (shape, data) ->
-    console.log "FUNCTION updateShape"
-    ###currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-    presentationId = currentPresentation?.presentation?.id
-    slidesCursor = Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
-    console.log "slidesCursor:"
-    console.log slidesCursor
-    
-    slidesCursor.observe
-      added: (document) ->
-        console.log "ADDED:"
-        console.log document.slide.width_ratio
-      changed: (newDocument, oldDocument) ->
-        console.log "CHANGED:"
-        console.log newDocument.slide.width_ratio###
-        
     switch shape
       when "line"
         @currentLine.update(data)
