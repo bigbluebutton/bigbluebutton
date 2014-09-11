@@ -47,7 +47,7 @@ Template.recordingStatus.rendered = ->
 
 Template.main.helpers
 	setTitle: ->
-		document.title = "BigBlueButton HTML5"
+		document.title = "BigBlueButton #{window.getMeetingName() ? 'HTML5'}"
 
 Template.makeButton.rendered = ->
 	$('button[rel=tooltip]').tooltip()
