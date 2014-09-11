@@ -778,7 +778,7 @@ class @WhiteboardPaperModel
     if url?.match(/http[s]?:/)
       url
     else
-      console.log "the url did not match the expected format:#{url}"
+      console.log "The url '#{url}'' did not match the expected format of: http/s"
       #globals.presentationServer + url
 
   #Changes the currently displayed page/slide (if any) with this one
