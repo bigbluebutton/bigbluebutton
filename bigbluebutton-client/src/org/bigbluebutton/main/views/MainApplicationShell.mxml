@@ -100,6 +100,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.users.Conference;
+			import org.bigbluebutton.main.model.NetworkStatsData;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
@@ -154,6 +155,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var isTunneling:Boolean = false;
 			
+			[Bindable] private var _bandwidthConsumedUp:String = "-";
+			[Bindable] private var _bandwidthConsumedDown:String = "-";
+			private var _updateBandwidthTimer:Timer = new Timer(1000);
 			private var confirmingLogout:Boolean = false;
       
 			public function initOptions(e:Event):void {
@@ -175,6 +179,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (!showFooterOpt) {
           footerHeight = 0;
         }        
+
+				_updateBandwidthTimer.addEventListener(TimerEvent.TIMER, updateBandwidthTimerHandler);
+				_updateBandwidthTimer.start();
       }
 		
 			protected function initializeShell():void {	
@@ -526,24 +533,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					addedBtns.removeChild(event.button as UIComponent);
 			}
 
-			private var networkStatsWindow:NetworkStatsWindow = new NetworkStatsWindow();
+			private var networkStatsWindow:NetworkStatsWindow = null;
 
-			private function openNetworkStatsWindow(e:Event = null):void {
-				/*var btnPosition:Point = new Point(btnNetwork.x, btnNetwork.y);
-				var btnPositionOnGlobal:Point = btnNetwork.localToGlobal(btnPosition);
-				var windowPosition:Point = networkStatsWindow.globalToLocal(btnPositionOnGlobal);
-				
-				windowPosition.x += btnNetwork.width + 10;
-				windowPosition.y -= networkStatsWindow.height - 10;
+			private function openNetworkStatsWindow():void {
+				if (networkStatsWindow == null) {
+					networkStatsWindow = new NetworkStatsWindow();
+				}
 
-				networkStatsWindow.x = windowPosition.x;
-				networkStatsWindow.y = windowPosition.y;*/
-
-				networkStatsWindow.appear();
+				mdiCanvas.windowManager.add(networkStatsWindow);
+				mdiCanvas.windowManager.absPos(networkStatsWindow, mdiCanvas.width - networkStatsWindow.width, mdiCanvas.height - networkStatsWindow.height);
+				mdiCanvas.windowManager.bringToFront(networkStatsWindow);
 			}
-			
-			private function closeNetworkStatsWindow(e:Event = null):void {
-				networkStatsWindow.disappear();
+
+			private function updateBandwidthTimerHandler(e:TimerEvent):void {
+				_bandwidthConsumedDown = NetworkStatsData.getInstance().formattedCurrentConsumedDownBW;
+				_bandwidthConsumedUp = NetworkStatsData.getInstance().formattedCurrentConsumedUpBW;
 			}
 			
 			private function openLockSettingsWindow(event:LockControlEvent):void {
@@ -620,6 +624,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				icon="{logs_icon}"
 				click="openLogWindow()"
 				tabIndex="{baseIndex}"/>
+		<mx:Label
+				text="[{ResourceUtil.getInstance().getString('bbb.bwmonitor.upload.short')}: {_bandwidthConsumedUp} | {ResourceUtil.getInstance().getString('bbb.bwmonitor.download.short')}: {_bandwidthConsumedDown}]"
+				id="lblNetworkStats"
+				visible="{layoutOptions.showNetworkMonitor}" />
+		<mx:Button
+				id="btnNetwork"
+				icon="{statsIcon}"
+				width="20"
+				height="20"
+				click="openNetworkStatsWindow()"
+				visible="{layoutOptions.showNetworkMonitor}" />
 		<mx:HBox id="addedBtns" />
 	</mx:ControlBar>
 </mx:VBox>
