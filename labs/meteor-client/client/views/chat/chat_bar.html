@@ -11,6 +11,7 @@
 								<li {{messageFontSize}}>{{> message}}</li>
 							{{/if}}
 						{{/each}}
+						<li></li>
 					</ul>
 				</div>
 				<div class="panel-footer">{{> chatInput}}</div>
@@ -52,6 +53,7 @@
 		</tr>
 	</table>
 	<div style="color:{{colourToHex message.from_color}}">{{{sanitizeAndFormat message.message}}}</div> <!-- Messages must be safely filtered and stripped -->
+	{{autoscroll}}
 </template>
 
 <!-- Displays the list of options available -->

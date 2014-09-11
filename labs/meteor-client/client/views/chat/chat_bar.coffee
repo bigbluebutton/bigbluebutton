@@ -122,10 +122,10 @@ Template.chatbar.helpers
 
 		msgs
 
-# This has broken yet again, because now messages are grouped together so when a new message from the same user is added,
-# Meteor automatically updates and inserts it into the DOM element without triggering the rendered function
-# Template.message.rendered = -> # When a message has been added and finished rendering, scroll to the bottom of the chat
-	# $('#chatbody').scrollTop($('#chatbody')[0].scrollHeight)
+# Scrolls the message container to the bottom. The number of pixels to scroll down is the height of the container
+Handlebars.registerHelper "autoscroll", ->
+	$('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
+	""
 
 Template.optionsBar.events
     'click .private-chat-user-entry': (event) -> # clicked a user's name to begin private chat
