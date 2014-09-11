@@ -125,7 +125,7 @@ Template.chatbar.helpers
 # Scrolls the message container to the bottom. The number of pixels to scroll down is the height of the container
 Handlebars.registerHelper "autoscroll", ->
 	$('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
-	""
+	false
 
 Template.optionsBar.events
     'click .private-chat-user-entry': (event) -> # clicked a user's name to begin private chat

@@ -11,7 +11,7 @@
 								<li {{messageFontSize}}>{{> message}}</li>
 							{{/if}}
 						{{/each}}
-						<li></li>
+						<li></li> <!-- Intentionally blank, fixes issue what last message being cut off while scrolling -->
 					</ul>
 				</div>
 				<div class="panel-footer">{{> chatInput}}</div>
@@ -53,7 +53,7 @@
 		</tr>
 	</table>
 	<div style="color:{{colourToHex message.from_color}}">{{{sanitizeAndFormat message.message}}}</div> <!-- Messages must be safely filtered and stripped -->
-	{{autoscroll}}
+	{{autoscroll}} <!-- Scroll to the bottom after inserting a new message -->
 </template>
 
 <!-- Displays the list of options available -->
