@@ -21,7 +21,7 @@ class @WhiteboardRectModel extends WhiteboardToolModel
 
     @obj = @paper.rect(x * @gw + @xOffset, y * @gh + @yOffset, 0, 0, 1)
     @obj.attr "stroke", formatColor(color)
-    @obj.attr "stroke-width", formatThickness(thickness)
+    @obj.attr "stroke-width", zoomStroke(formatThickness(thickness))
     @definition =
       shape: "rect"
       data: [x, y, 0, 0, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]

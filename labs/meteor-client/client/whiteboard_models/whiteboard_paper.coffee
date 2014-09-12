@@ -833,10 +833,17 @@ class @WhiteboardPaperModel
         newY = - newDoc.slide.y_offset * 2 * boardHeight / 100
         newWidth = boardWidth * newDoc.slide.width_ratio / 100
         newHeight = boardHeight * newDoc.slide.height_ratio / 100
+        
         _this.raphaelObj.setViewBox(newX, newY, newWidth, newHeight) # zooms and pans
-
+        
+        oldRatio = (oldDoc.slide.width_ratio + oldDoc.slide.height_ratio) / 2
+        newRatio = (newDoc.slide.width_ratio + newDoc.slide.height_ratio) / 2
+        _this.currentShapes?.forEach (shape) ->
+          shape.attr "stroke-width", shape.attr('stroke-width') * oldRatio  / newRatio
+        
     pic = new Image()
     pic.onload = ->
+      # TODO: borders of the very first slide are still an issue
       if this.width <= this.height # natural dimensions
         # square => boardHeight is the shortest side
         adjustedWidth = boardHeight * this.width / this.height

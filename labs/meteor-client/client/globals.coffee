@@ -259,3 +259,11 @@ Meteor.methods
   if !thickness.toString().match(/.*px$/)
     "#" + thickness + "px" # leading "#" - to be compatible with Firefox
   thickness
+
+# applies zooming to the stroke thickness
+@zoomStroke = (thickness) ->
+  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+  presentationId = currentPresentation?.presentation?.id
+  currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+  ratio = (currentSlide?.slide.width_ratio + currentSlide?.slide.height_ratio) / 2
+  thickness * 100 / ratio
