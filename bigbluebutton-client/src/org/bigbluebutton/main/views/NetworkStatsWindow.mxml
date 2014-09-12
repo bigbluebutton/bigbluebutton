@@ -64,6 +64,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_updateTimer.start();
 				
 				height = panel.measuredHeight + borderMetrics.top + borderMetrics.bottom;
+				runBandwidthMeasurement();
 			}
 			
 	        private function timerHandler(e:TimerEvent):void {
