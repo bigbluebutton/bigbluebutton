@@ -39,7 +39,7 @@ public class ExternalProcessExecutor {
         Timer timer = null;
         Process p = null;
         try {
-            timer = new Timer(true);
+            timer = new Timer(false);
             InterruptTimerTask interrupter = new InterruptTimerTask(Thread.currentThread());
             timer.schedule(interrupter, timeoutMillis);
             p = Runtime.getRuntime().exec(COMMAND);
