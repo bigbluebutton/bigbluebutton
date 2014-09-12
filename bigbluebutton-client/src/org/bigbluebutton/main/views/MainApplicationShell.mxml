@@ -72,9 +72,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.controls.Alert;
 			import mx.core.FlexGlobals;
 			import mx.core.IFlexDisplayObject;
+			import mx.core.IToolTip;
 			import mx.core.UIComponent;
 			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
+			import mx.events.ToolTipEvent;
 			import mx.managers.PopUpManager;
 			
 			import org.bigbluebutton.common.IBbbModuleWindow;
@@ -158,6 +160,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var _bandwidthConsumedUp:String = "-";
 			[Bindable] private var _bandwidthConsumedDown:String = "-";
 			private var _updateBandwidthTimer:Timer = new Timer(1000);
+			private var _bandwidthToolTip:IToolTip;
 			private var confirmingLogout:Boolean = false;
       
 			public function initOptions(e:Event):void {
@@ -179,9 +182,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (!showFooterOpt) {
           footerHeight = 0;
         }        
-
-				_updateBandwidthTimer.addEventListener(TimerEvent.TIMER, updateBandwidthTimerHandler);
-				_updateBandwidthTimer.start();
+				initBandwidthToolTip();
       }
 		
 			protected function initializeShell():void {	
@@ -545,9 +546,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				mdiCanvas.windowManager.bringToFront(networkStatsWindow);
 			}
 
+			private function updateBwToolTip():void {
+				if(_bandwidthToolTip) {
+					_bandwidthToolTip.text = ResourceUtil.getInstance().getString('bbb.bwmonitor.upload.short') + ": " + _bandwidthConsumedUp +
+						" | " + ResourceUtil.getInstance().getString('bbb.bwmonitor.download.short')+": "+_bandwidthConsumedDown;
+				}
+			}
+
+			private function initBandwidthToolTip():void {
+				_updateBandwidthTimer.addEventListener(TimerEvent.TIMER, updateBandwidthTimerHandler);
+				_updateBandwidthTimer.start();
+				btnNetwork.addEventListener(ToolTipEvent.TOOL_TIP_SHOW, bwToolTipShowHandler);
+				btnNetwork.addEventListener(ToolTipEvent.TOOL_TIP_END, bwToolTipEndHandler);
+			}
+
+			private function bwToolTipShowHandler(e:ToolTipEvent):void {
+				// The ToolTip must be stored so it's text can be updated
+				_bandwidthToolTip = e.toolTip;
+				updateBwToolTip();
+			}
+
+			private function bwToolTipEndHandler(e:ToolTipEvent):void {
+				_bandwidthToolTip = null;
+			}
+
 			private function updateBandwidthTimerHandler(e:TimerEvent):void {
 				_bandwidthConsumedDown = NetworkStatsData.getInstance().formattedCurrentConsumedDownBW;
 				_bandwidthConsumedUp = NetworkStatsData.getInstance().formattedCurrentConsumedUpBW;
+				updateBwToolTip();
 			}
 			
 			private function openLockSettingsWindow(event:LockControlEvent):void {
@@ -624,15 +650,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				icon="{logs_icon}"
 				click="openLogWindow()"
 				tabIndex="{baseIndex}"/>
-		<mx:Label
-				text="[{ResourceUtil.getInstance().getString('bbb.bwmonitor.upload.short')}: {_bandwidthConsumedUp} | {ResourceUtil.getInstance().getString('bbb.bwmonitor.download.short')}: {_bandwidthConsumedDown}]"
-				id="lblNetworkStats"
-				visible="{layoutOptions.showNetworkMonitor}" />
 		<mx:Button
 				id="btnNetwork"
 				icon="{statsIcon}"
 				width="20"
 				height="20"
+				toolTip="dummy text"
 				click="openNetworkStatsWindow()"
 				visible="{layoutOptions.showNetworkMonitor}" />
 		<mx:HBox id="addedBtns" />
