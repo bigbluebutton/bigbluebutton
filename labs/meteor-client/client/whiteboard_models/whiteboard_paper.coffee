@@ -833,7 +833,7 @@ class @WhiteboardPaperModel
         newY = - newDoc.slide.y_offset * 2 * boardHeight / 100
         newWidth = boardWidth * newDoc.slide.width_ratio / 100
         newHeight = boardHeight * newDoc.slide.height_ratio / 100
-        _this.raphaelObj.setViewBox(newX, newY, newWidth, newHeight, true) # zooms and pans
+        _this.raphaelObj.setViewBox(newX, newY, newWidth, newHeight) # zooms and pans
 
     pic = new Image()
     pic.onload = ->
