@@ -140,7 +140,7 @@ function makeWebRTCWebcamRequest(callback)
 	);	
 }
 
-function createUA(username, server) {
+function createUA(username, server, callback) {
 	if (userAgent) {
 		console.log("User agent already created");
 		return;
@@ -148,18 +148,28 @@ function createUA(username, server) {
 	
 	console.log("Creating new user agent");
 	
-	// VERY IMPORTANT - You must escape the username because spaces will cause the connection to fail
+	/* VERY IMPORTANT 
+	 *	- You must escape the username because spaces will cause the connection to fail
+	 *	- We are connecting to the websocket through an nginx redirect instead of directly to 5066
+	 */
 	var configuration = {
 		uri: 'sip:' + encodeURIComponent(username) + '@' + server,
-		wsServers: 'ws://' + server + ':5066',
+		wsServers: 'ws://' + server + '/ws',
 		displayName: username,
 		register: false,
 		traceSip: false,
-                userAgentString: "BigBlueButton",
-                stunServers: "stun:stun.freeswitch.org"
+		userAgentString: "BigBlueButton",
+		stunServers: "stun:stun.freeswitch.org"
 	};
 	
 	userAgent = new SIP.UA(configuration);
+	userAgent.on('disconnected', function() {
+		if (userAgent) {
+			userAgent.stop();
+			userAgent = null;
+			callback({'status':'failed', 'cause': 'Could not make a WebSocket Connection'});
+		}
+	});
 	
 	userAgent.start();
 };
@@ -202,7 +212,7 @@ function webrtc_call(username, voiceBridge, callback) {
 	console.log("user " + username + " calling to " +  voiceBridge);
 	
 	if (!userAgent) {
-		createUA(username, server);
+		createUA(username, server, callback);
 	}
 	
 	if (userMicMedia !== undefined) {
