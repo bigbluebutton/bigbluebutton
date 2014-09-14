@@ -1085,7 +1085,7 @@ check_state() {
                 echo
         fi
 
-        if (( $MEM < 3975 )); then
+        if (( $MEM < 3940 )); then
 		echo "# Warning: You are running BigBlueButton on a server with less than 4G of memory.  Your"
 		echo "# performance may suffer."
                 echo
