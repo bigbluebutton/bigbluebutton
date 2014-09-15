@@ -37,19 +37,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.core.events.LockControlEvent;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.main.model.users.BBBUser;
-			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.main.views.MainToolbar;
-			import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
-			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.events.LockControlEvent;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.model.users.BBBUser;
+      import org.bigbluebutton.main.model.users.Conference;
+      import org.bigbluebutton.main.views.MainToolbar;
+      import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
+      import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 
 			public const OFF_STATE:Number = 0;
@@ -64,6 +65,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var dispatcher:Dispatcher;
 			
 			public function lockSettingsChanged(e:*):void{
+        if (UsersUtil.amIModerator()  || UsersUtil.amIPresenter()){
+          // Ignore lock setting changes as 
+          // or presenter we are moderator.
+          return; 
+        }
+        
 				var userManager:UserManager = UserManager.getInstance();
 				var conference:Conference = userManager.getConference();
 				var me:BBBUser = conference.getMyUser();
