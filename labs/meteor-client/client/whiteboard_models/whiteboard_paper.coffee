@@ -806,10 +806,8 @@ class @WhiteboardPaperModel
 
     boardWidth = @containerWidth
     boardHeight = @containerHeight
-
-    currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-    presentationId = currentPresentation?.presentation?.id
-    currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+    
+    currentSlide = getCurrentSlideDoc()
 
     # TODO currentSlide undefined in some cases - will check later why
     imageWidth = boardWidth * (currentSlide?.slide.width_ratio/100) or boardWidth
@@ -824,8 +822,10 @@ class @WhiteboardPaperModel
     console.log "imageWidth: #{imageWidth}"
     console.log "imageHeight: #{imageHeight}"
     
+    currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+    presentationId = currentPresentation?.presentation?.id
     currentSlideCursor = Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
-    
+
     _this = this
     currentSlideCursor.observe # watching the current slide changes
       changed: (newDoc, oldDoc) ->
