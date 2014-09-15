@@ -56,6 +56,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
 	<mate:Listener type="{LockControlEvent.OPEN_LOCK_SETTINGS}" method="openLockSettingsWindow" />
 	<mate:Listener type="{InvalidAuthTokenEvent.INVALID_AUTH_TOKEN}" method="handleInvalidAuthToken" />
+
+	<mate:Listener type="{NetworkStatsEvent.OPEN_NETSTATS_WIN}" method="openNetworkStatsWindow" />
 	  
 	<mx:Script>
 		<![CDATA[
@@ -72,11 +74,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.controls.Alert;
 			import mx.core.FlexGlobals;
 			import mx.core.IFlexDisplayObject;
-			import mx.core.IToolTip;
 			import mx.core.UIComponent;
 			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
-			import mx.events.ToolTipEvent;
 			import mx.managers.PopUpManager;
 			
 			import org.bigbluebutton.common.IBbbModuleWindow;
@@ -95,6 +95,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.ConfigEvent;
 			import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
+			import org.bigbluebutton.main.events.NetworkStatsEvent;
 			import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
@@ -102,7 +103,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.main.model.NetworkStatsData;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
@@ -137,8 +137,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var fullscreen_icon:Class = images.full_screen;
 			[Bindable] private var logs_icon:Class = images.table;
 			[Bindable] private var reset_layout_icon:Class = images.layout;
-			[Bindable] private var statsIcon:Class = images.bandwidth;
-      
+
 			private var receivedConfigLocaleVer:Boolean = false;
 			private var receivedResourceLocaleVer:Boolean = false;
 			
@@ -157,10 +156,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var isTunneling:Boolean = false;
 			
-			[Bindable] private var _bandwidthConsumedUp:String = "-";
-			[Bindable] private var _bandwidthConsumedDown:String = "-";
-			private var _updateBandwidthTimer:Timer = new Timer(1000);
-			private var _bandwidthToolTip:IToolTip;
 			private var confirmingLogout:Boolean = false;
       
 			public function initOptions(e:Event):void {
@@ -182,7 +177,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (!showFooterOpt) {
           footerHeight = 0;
         }        
-				initBandwidthToolTip();
       }
 		
 			protected function initializeShell():void {	
@@ -536,7 +530,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private var networkStatsWindow:NetworkStatsWindow = null;
 
-			private function openNetworkStatsWindow():void {
+			private function openNetworkStatsWindow(e:Event = null):void {
 				if (networkStatsWindow == null) {
 					networkStatsWindow = new NetworkStatsWindow();
 				}
@@ -546,36 +540,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				mdiCanvas.windowManager.bringToFront(networkStatsWindow);
 			}
 
-			private function updateBwToolTip():void {
-				if(_bandwidthToolTip) {
-					_bandwidthToolTip.text = ResourceUtil.getInstance().getString('bbb.bwmonitor.upload.short') + ": " + _bandwidthConsumedUp +
-						" | " + ResourceUtil.getInstance().getString('bbb.bwmonitor.download.short')+": "+_bandwidthConsumedDown;
-				}
-			}
-
-			private function initBandwidthToolTip():void {
-				_updateBandwidthTimer.addEventListener(TimerEvent.TIMER, updateBandwidthTimerHandler);
-				_updateBandwidthTimer.start();
-				btnNetwork.addEventListener(ToolTipEvent.TOOL_TIP_SHOW, bwToolTipShowHandler);
-				btnNetwork.addEventListener(ToolTipEvent.TOOL_TIP_END, bwToolTipEndHandler);
-			}
-
-			private function bwToolTipShowHandler(e:ToolTipEvent):void {
-				// The ToolTip must be stored so it's text can be updated
-				_bandwidthToolTip = e.toolTip;
-				updateBwToolTip();
-			}
-
-			private function bwToolTipEndHandler(e:ToolTipEvent):void {
-				_bandwidthToolTip = null;
-			}
-
-			private function updateBandwidthTimerHandler(e:TimerEvent):void {
-				_bandwidthConsumedDown = NetworkStatsData.getInstance().formattedCurrentConsumedDownBW;
-				_bandwidthConsumedUp = NetworkStatsData.getInstance().formattedCurrentConsumedUpBW;
-				updateBwToolTip();
-			}
-			
 			private function openLockSettingsWindow(event:LockControlEvent):void {
         var conference:Conference = UserManager.getInstance().getConference();
         var lsv:LockSettingsVO = conference.getLockSettings();
@@ -650,14 +614,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				icon="{logs_icon}"
 				click="openLogWindow()"
 				tabIndex="{baseIndex}"/>
-		<mx:Button
-				id="btnNetwork"
-				icon="{statsIcon}"
-				width="20"
-				height="20"
-				toolTip="dummy text"
-				click="openNetworkStatsWindow()"
-				visible="{layoutOptions.showNetworkMonitor}" />
 		<mx:HBox id="addedBtns" />
 	</mx:ControlBar>
 </mx:VBox>
