@@ -33,21 +33,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				x="20"
 				y="-20">
 	
-	<mate:Listener type="{WebRTCWebcamRequestEvent.WEBRTC_WEBCAM_SUCCESS}" method="handleWebRTCWebcamRequestSuccessEvent" />
-	<mate:Listener type="{WebRTCWebcamRequestEvent.WEBRTC_WEBCAM_FAIL}" method="handleWebRTCWebcamRequestFailEvent" />
+	<mate:Listener type="{BBBEvent.CAM_SETTINGS_CLOSED}" method="handleCameraSettingsClosedEvent" />
+	<mate:Listener type="{BroadcastStartedEvent.BROADCAST_STARTED_EVENT}" method="handleBroadcastStartedEvent" />
 	
 	<mx:Script>
 		<![CDATA[
 			import mx.managers.PopUpManager;
 			
-			import org.bigbluebutton.modules.videoconf.events.WebRTCWebcamRequestEvent;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			private function handleWebRTCWebcamRequestSuccessEvent(e:WebRTCWebcamRequestEvent):void {
+			private function handleBroadcastStartedEvent(e:BroadcastStartedEvent):void {
 				PopUpManager.removePopUp(this);
 			}
 			
-			private function handleWebRTCWebcamRequestFailEvent(e:WebRTCWebcamRequestEvent):void {
+			private function handleCameraSettingsClosedEvent(e:BBBEvent):void {
 				PopUpManager.removePopUp(this);
 			}
 			

@@ -49,7 +49,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_ENDED}" method="handleWebRTCCallEndedEvent" />
 	<mate:Listener type="{WebRTCAskUserToChangeMicEvent.WEBRTC_ASK_USER_TO_CHANGE_MIC}" method="handleWebRTCAskUserToChangeMicEvent"  />
 	<mate:Listener type="{AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION}" method="handleShowAudioSelectionWindowEvent" />
-	<mate:Listener type="{WebRTCWebcamRequestEvent.WEBRTC_WEBCAM_REQUEST}" method="handleWebRTCWebcamRequestEvent" />
+	<mate:Listener type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}" method="handleShareCameraRequestEvent" />
   
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
@@ -109,7 +109,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
-			import org.bigbluebutton.modules.videoconf.events.WebRTCWebcamRequestEvent;
+			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.util.logging.Logger;
 	
@@ -157,6 +157,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var isTunneling:Boolean = false;
 			
 			private var confirmingLogout:Boolean = false;
+			var chromeBrowser:ChromeWebcamPermissionImage = null;
       
 			public function initOptions(e:Event):void {
 				UserManager.getInstance().getConference().configLockSettings();
@@ -427,9 +428,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         });        
       }
 
-      private function handleWebRTCWebcamRequestEvent(event:WebRTCWebcamRequestEvent):void {
-        trace("handleWebRTCWebcamRequestEvent called");
-        var chromeBrowser:ChromeWebcamPermissionImage = PopUpManager.createPopUp(mdiCanvas, ChromeWebcamPermissionImage , true) as ChromeWebcamPermissionImage;
+      private function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
+          if (ExternalInterface.call("determineBrowser")[0] == "Chrome" && chromeBrowser == null ) {
+          chromeBrowser = PopUpManager.createPopUp(mdiCanvas, ChromeWebcamPermissionImage , true) as ChromeWebcamPermissionImage;
           chromeBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
           var point1:Point = new Point();
           // Calculate position of TitleWindow in Application's coordinates.
@@ -443,6 +444,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		  }
 	      chromeBrowser.y = 20;
          });
+       }
      }
       
       private function handleMeetingNotFoundEvent(e:MeetingNotFoundEvent):void {

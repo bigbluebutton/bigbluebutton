@@ -398,25 +398,17 @@ package org.bigbluebutton.modules.videoconf.maps
 			_isWaitingActivation = false;
     }
     
-    public function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
-        if ((ExternalInterface.call("determineBrowser")[0] == "Chrome") && (ExternalInterface.call("isWebRTCAvailable") == true)) {
-           requestWebRTCWebcam(); 
-        } else {
-        startSharingWebcam(event.publishInClient);
-        }
+    public function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {		
+		if (options.skipCamSettingsCheck) {
+			skipCameraSettingsCheck();
+		} else {
+			trace("Webcam: "+_isPublishing + " " + _isPreviewWebcamOpen + " " + _isWaitingActivation);
+			if (!_isPublishing && !_isPreviewWebcamOpen && !_isWaitingActivation) {
+				openWebcamPreview(event.publishInClient);
+			}
+		}
     }
 
-    public function startSharingWebcam(publishInClient:Boolean = false):void {
-        if (options.skipCamSettingsCheck) {
-             skipCameraSettingsCheck();
-        } else {
-        trace("Webcam: "+_isPublishing + " " + _isPreviewWebcamOpen + " " + _isWaitingActivation);
-        if (!_isPublishing && !_isPreviewWebcamOpen && !_isWaitingActivation) {
-             openWebcamPreview(publishInClient);
-           }
-        }
-    }
-	
 	public function handleCamSettingsClosedEvent(event:BBBEvent):void{
 		_isPreviewWebcamOpen = false;
 	}
@@ -503,23 +495,6 @@ package org.bigbluebutton.modules.videoconf.maps
         trace("VideoEventMapDelegate::handleStoppedViewingWebcamEvent [" + me + "] Opening avatar for user [" + event.webcamUserID + "]");
         openAvatarWindowFor(event.webcamUserID);              
       }        
-    }
-
-	public function requestWebRTCWebcam():void {
-		ExternalInterface.call("requestWebRTCWebcam");
-	}
-
-	public function handleWebRTCWebcamRequestFailEvent(event:WebRTCWebcamRequestEvent):void {
-        LogUtil.debug("handleWebRTCWebcamRequestFailEvent: " + event.cause);
-        if(event.cause == PERMISSION_DENIED_ERROR)
-        {
-            _chromeWebcamPermissionDenied = true;
-        }
-        startSharingWebcam();
-	}
-
-    public function handleWebRTCWebcamRequestSuccessEvent(event:WebRTCWebcamRequestEvent):void {
-       startSharingWebcam();
     }
   }
 }
