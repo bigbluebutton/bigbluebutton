@@ -79,9 +79,14 @@ class PresentationService {
 	
 	def processUploadedPresentation = {uploadedPres ->	
 		// Run conversion on another thread.
-		new Timer(uploadedPres.getName(), false).runAfter(1000) 
-		{
-			documentConversionService.processDocument(uploadedPres)
+		Timer t = new Timer(uploadedPres.getName(), false)
+		
+		t.runAfter(1000) {
+			try {
+				documentConversionService.processDocument(uploadedPres)
+			} finally {
+		    t.cancel()
+			} 
 		}
 	}
  	
