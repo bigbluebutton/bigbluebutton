@@ -47,6 +47,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
   import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
+  import org.bigbluebutton.modules.videoconf.events.WebRTCWebcamRequestEvent;
   import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 
   public class ExternalApiCallbacks {
@@ -104,6 +105,9 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("webRTCMediaRequest", handleWebRTCMediaRequest);
         ExternalInterface.addCallback("webRTCMediaSuccess", handleWebRTCMediaSuccess);
         ExternalInterface.addCallback("webRTCMediaFail", handleWebRTCMediaFail);
+        ExternalInterface.addCallback("webRTCWebcamRequest", handleWebRTCWebcamRequest);
+        ExternalInterface.addCallback("webRTCWebcamRequestSuccess", handleWebRTCWebcamRequestSuccess);
+        ExternalInterface.addCallback("webRTCWebcamRequestFail", handleWebRTCWebcamRequestFail);
       }
       
       // Tell out JS counterpart that we are ready.
@@ -444,10 +448,28 @@ package org.bigbluebutton.main.api
       trace(LOG + "handleWebRTCMediaSuccess: received");
       _dispatcher.dispatchEvent(new WebRTCMediaEvent(WebRTCMediaEvent.WEBRTC_MEDIA_SUCCESS));
 	}
-    
+
     private function handleWebRTCMediaFail():void {
       trace(LOG + "handleWebRTCMediaFail: received");
       _dispatcher.dispatchEvent(new WebRTCMediaEvent(WebRTCMediaEvent.WEBRTC_MEDIA_FAIL));
     }
+
+	private function handleWebRTCWebcamRequestFail(cause:String):void
+	{
+		trace(LOG + "handleWebRTCWebcamFail: received");
+		_dispatcher.dispatchEvent(new WebRTCWebcamRequestEvent(WebRTCWebcamRequestEvent.WEBRTC_WEBCAM_FAIL, cause));
+	}
+
+	private function handleWebRTCWebcamRequestSuccess():void
+	{
+		trace(LOG + "handleWebRTCWebcamSuccess: received");
+		_dispatcher.dispatchEvent(new WebRTCWebcamRequestEvent(WebRTCWebcamRequestEvent.WEBRTC_WEBCAM_SUCCESS));
+	}
+
+	private function handleWebRTCWebcamRequest():void
+	{
+		trace(LOG + "handleWebRTCWebcamRequest: received");
+		_dispatcher.dispatchEvent(new WebRTCWebcamRequestEvent(WebRTCWebcamRequestEvent.WEBRTC_WEBCAM_REQUEST));
+	}
   }
 }

@@ -357,6 +357,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
       private function becomePresenter():void {
+        // need to calculate slide zoom percantage left by a previous presenter
+        zoomPercentage = (SlideViewModel.HUNDRED_PERCENT / slideModel.viewedRegionH) * SlideViewModel.HUNDRED_PERCENT;
+
         addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
         slideLoader.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
         slideLoader.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);

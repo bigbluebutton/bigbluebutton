@@ -31,11 +31,7 @@ public class ResizeAndMoveSlidePresentationRecordEvent extends
 	}
 	
 	public void setNum(int num) {
-		/**
-		 * Subtract 1 from the page number to be zero-based to be
-		 * compatible with 0.81 and earlier. (ralam Sept 2, 2014)
-		 */
-		eventMap.put("num", Integer.toString(num - 1));
+		eventMap.put("num", Integer.toString(num));
 	}
 	
 	public void setCurrent(boolean current) {

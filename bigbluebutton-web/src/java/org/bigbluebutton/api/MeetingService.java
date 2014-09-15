@@ -490,13 +490,7 @@ public class MeetingService implements MessageListener {
 
 	@Override
   public void handle(IMessage message) {
-		try {
-			receivedMessages.offer(message, 5, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-		  // TODO Auto-generated catch block
-		  e.printStackTrace();
-	  } 
-    
+			receivedMessages.add(message);    
   }
 	
 	public void start() {
@@ -518,6 +512,7 @@ public class MeetingService implements MessageListener {
 			    	}
 			    }
 			};
+			
 			msgProcessorExec.execute(messageReceiver);
 		} catch (Exception e) {
 			log.error("Error PRocessing Message");
@@ -526,6 +521,7 @@ public class MeetingService implements MessageListener {
 	
 	public void stop() {
 		processMessage = false;
+		cleaner.stop();
 	}
 	
 	public void setDefaultMeetingCreateJoinDuration(int expiration) {

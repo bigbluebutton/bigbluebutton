@@ -318,6 +318,8 @@ enable_webrtc(){
 	# Enable port 5066 in FreeSWITCH
 	sed -i "s@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@<param name=\"ws-binding\"  value=\":5066\"/>@g" /opt/freeswitch/conf/sip_profiles/external.xml
 
+        sed -i "s/proxy_pass .*/proxy_pass http:\/\/$IP:5066;/g" /etc/bigbluebutton/nginx/sip.nginx
+
 	echo 
 	echo "WebRTC audio enabled.  To apply settings to your server, do"
 	echo 
@@ -338,6 +340,8 @@ disable_webrtc(){
 
 	# Disable port 5066 in FreeSWITCH
 	sed -i "s@<param name=\"ws-binding\"  value=\":5066\"/>@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@g" /opt/freeswitch/conf/sip_profiles/external.xml
+
+        sed -i "s/proxy_pass .*/proxy_pass http:\/\/127.0.0.1:5066;/g" /etc/bigbluebutton/nginx/sip.nginx
 
 	echo 
 	echo "WebRTC audio disabled.  To apply settings to your server, do"
@@ -1085,7 +1089,7 @@ check_state() {
                 echo
         fi
 
-        if (( $MEM < 3975 )); then
+        if (( $MEM < 3940 )); then
 		echo "# Warning: You are running BigBlueButton on a server with less than 4G of memory.  Your"
 		echo "# performance may suffer."
                 echo
