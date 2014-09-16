@@ -69,6 +69,14 @@ Handlebars.registerHelper "getCurrentSlide", ->
 Handlebars.registerHelper "getCurrentUser", =>
   @window.getCurrentUserFromSession()
 
+Handlebars.registerHelper "getHandRaiseStats", ->
+	numRaised = Meteor.Users.find({'user.raise_hand':true}).fetch().length
+	total = Meteor.Users.find().fetch().length
+	percentageRaised = numRaised/total
+	if numRaised > 0
+		"#{numRaised} Hands Raised (#{percentageRaised}% of Attendees)"
+	else false
+
 # Allow access through all templates
 Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
 
