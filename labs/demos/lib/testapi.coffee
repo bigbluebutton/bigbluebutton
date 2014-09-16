@@ -21,7 +21,7 @@ createParams.name = tempName
 createParams.meetingID = tempName
 
 joinParams = {}
-joinParams.password = "ap"
+joinParams.password = "mp"
 joinParams.fullName = "Richard"
 joinParams.meetingID = tempName
 joinParams.redirect = false
