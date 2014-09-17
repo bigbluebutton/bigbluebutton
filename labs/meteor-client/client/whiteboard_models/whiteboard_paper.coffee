@@ -254,11 +254,11 @@ class @WhiteboardPaperModel
     @currentTool = tool
     console.log "setting current tool to", tool
     switch tool
-      when "path", "line"
+      when "line"
         @cursor.undrag()
         @currentLine = @_createTool(tool)
         @cursor.drag(@currentLine.dragOnMove, @currentLine.dragOnStart, @currentLine.dragOnEnd)
-      when "rect"
+      when "rectangle"
         @cursor.undrag()
         @currentRect = @_createTool(tool)
         @cursor.drag(@currentRect.dragOnMove, @currentRect.dragOnStart, @currentRect.dragOnEnd)
@@ -363,6 +363,8 @@ class @WhiteboardPaperModel
   # TODO: check if the objects exist before calling update, if they don't they should be created
   updateShape: (shape, data) ->
     switch shape
+      when "pencil"
+        @currentPencil.update(data)
       when "line"
         @currentLine.update(data)
       when "rectangle"
@@ -372,7 +374,6 @@ class @WhiteboardPaperModel
       when "triangle"
         @currentTriangle.update(data)
       when "text"
-        #@currentText.update.apply(@currentText, data)
         @currentText.update(data)
       else
         console.log "shape not recognized at updateShape", shape
@@ -381,6 +382,10 @@ class @WhiteboardPaperModel
   makeShape: (shape, data) ->
     tool = null
     switch shape
+      when "pencil"
+        @currentPencil = @_createTool(shape)
+        toolModel = @currentPencil
+        tool = @currentPencil.make(data)
       when "path", "line"
         @currentLine = @_createTool(shape)
         toolModel = @currentLine
@@ -461,7 +466,6 @@ class @WhiteboardPaperModel
 
     #set parameters to raphael viewbox
     @raphaelObj.setViewBox(newXPos , newyPos,  newWidth , newHeight , true)
-
 
     # update the rectangle elements which create the border when page is zoomed
     @borders.left.attr( {width:newXPos, height: @containerHeight} )
@@ -748,6 +752,8 @@ class @WhiteboardPaperModel
   # Wrapper method to create a tool for the whiteboard
   _createTool: (type) ->
     switch type
+      when "pencil"
+        model = WhiteboardLineModel
       when "path", "line"
         model = WhiteboardLineModel
       when "rectangle"

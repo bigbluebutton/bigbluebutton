@@ -39,7 +39,8 @@ Template.slide.helpers
       shapeType = shapeInfo?.type
 
       if shapeType isnt "text"
-        for num in [0..3] # the coordinates must be in the range 0 to 1
+        len = shapeInfo.points.length
+        for num in [0..len] # the coordinates must be in the range 0 to 1
           shapeInfo?.points[num] = shapeInfo?.points[num] / 100
       wpm.makeShape(shapeType, shapeInfo)
       wpm.updateShape(shapeType, shapeInfo)
@@ -52,7 +53,8 @@ Template.shape.rendered = ->
   shapeType = shapeInfo?.type
 
   if shapeType isnt "text"
-    for num in [0..3] # the coordinates must be in the range 0 to 1
+    len = shapeInfo.points.length
+    for num in [0..len] # the coordinates must be in the range 0 to 1
       shapeInfo.points[num] = shapeInfo.points[num] / 100
 
   wpm = Template.slide.whiteboardPaperModel
