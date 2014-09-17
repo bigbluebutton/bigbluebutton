@@ -157,7 +157,9 @@ package org.bigbluebutton.modules.present.services
 		removedEvent.presentationName = presentationID;
 		dispatcher.dispatchEvent(removedEvent);
 		
-		if(presentationID == model.getCurrentPresentation().id) {
+		var currPresentation:Presentation = model.getCurrentPresentation();
+		
+		if(currPresentation && presentationID == currPresentation.id) {
 			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CLEAR_PRESENTATION);
 			dispatcher.dispatchEvent(uploadEvent);
 		}
