@@ -76,9 +76,8 @@ Handlebars.registerHelper "getMeetingName", ->
   window.getMeetingName()
 
 Handlebars.registerHelper "getShapesForSlide", ->
-  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-  presentationId = currentPresentation?.presentation?.id
-  currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+  currentSlide = getCurrentSlideDoc()
+    
   # try to reuse the lines above
   Meteor.Shapes.find({whiteboardId: currentSlide?.slide?.id})
 
@@ -259,3 +258,14 @@ Meteor.methods
   if !thickness.toString().match(/.*px$/)
     "#" + thickness + "px" # leading "#" - to be compatible with Firefox
   thickness
+    
+# applies zooming to the stroke thickness
+@zoomStroke = (thickness) ->
+  currentSlide = @getCurrentSlideDoc()
+  ratio = (currentSlide?.slide.width_ratio + currentSlide?.slide.height_ratio) / 2
+  thickness * 100 / ratio
+
+@getCurrentSlideDoc = -> # returns only one document
+  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+  presentationId = currentPresentation?.presentation?.id
+  currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})

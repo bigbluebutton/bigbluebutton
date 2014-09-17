@@ -3,9 +3,8 @@ Template.slide.rendered = ->
   console.log "height = #{height}"
   $('#whiteboard-paper').height((height-$("#whiteboard-navbar").height()-10)+'px')
 
-  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-  presentationId = currentPresentation?.presentation?.id
-  currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+  currentSlide = getCurrentSlideDoc()
+    
   if currentSlide?.slide?.png_uri?
     Template.slide.createWhiteboardPaper (wpm) ->
       Template.slide.displaySlide wpm
@@ -16,9 +15,7 @@ Template.slide.helpers
     callback(Template.slide.whiteboardPaperModel)
 
   displaySlide: (wpm) ->
-    currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-    presentationId = currentPresentation?.presentation?.id
-    currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+    currentSlide = getCurrentSlideDoc()
 
     wpm.create()
     wpm._displayPage(currentSlide?.slide?.png_uri)
@@ -28,9 +25,8 @@ Template.slide.helpers
     wpm?.moveCursor(pointer.x, pointer.y)
 
   manuallyDisplayShapes: ->
-    currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-    presentationId = currentPresentation?.presentation?.id
-    currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+    currentSlide = getCurrentSlideDoc()
+    
     wpm = Template.slide.whiteboardPaperModel
 
     shapes = Meteor.Shapes.find({whiteboardId: currentSlide?.slide?.id}).fetch()

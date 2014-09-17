@@ -33,8 +33,9 @@ class @WhiteboardLineModel extends WhiteboardToolModel
       pathPercent = "M" + x + " " + y + " L" + x + " " + y
       @obj = @paper.path(path)
       @obj.attr "stroke", formatColor(color)
-      @obj.attr "stroke-width", formatThickness(thickness)
+      @obj.attr "stroke-width", zoomStroke(formatThickness(thickness))
       @obj.attr({"stroke-linejoin": "round"})
+      @obj.attr "stroke-linecap", "round"
 
       @definition = [pathPercent, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]
 

@@ -772,10 +772,8 @@ class @WhiteboardPaperModel
 
     boardWidth = @containerWidth
     boardHeight = @containerHeight
-
-    currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-    presentationId = currentPresentation?.presentation?.id
-    currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+    
+    currentSlide = getCurrentSlideDoc()
 
     # TODO currentSlide undefined in some cases - will check later why
     imageWidth = boardWidth * (currentSlide?.slide.width_ratio/100) or boardWidth
@@ -789,6 +787,36 @@ class @WhiteboardPaperModel
     # console.log "boardHeight: #{boardHeight}"
     console.log "imageWidth: #{imageWidth}"
     console.log "imageHeight: #{imageHeight}"
+    
+    currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+    presentationId = currentPresentation?.presentation?.id
+    currentSlideCursor = Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
 
-    # @addImageToPaper(data, imageWidth, imageHeight) # TODO the dimensions should be modified
-    @addImageToPaper(data, imageWidth, imageHeight)
+    _this = this
+    currentSlideCursor.observe # watching the current slide changes
+      changed: (newDoc, oldDoc) ->
+        newX = - newDoc.slide.x_offset * 2 * boardWidth / 100
+        newY = - newDoc.slide.y_offset * 2 * boardHeight / 100
+        newWidth = boardWidth * newDoc.slide.width_ratio / 100
+        newHeight = boardHeight * newDoc.slide.height_ratio / 100
+        
+        _this.raphaelObj.setViewBox(newX, newY, newWidth, newHeight) # zooms and pans
+        
+        oldRatio = (oldDoc.slide.width_ratio + oldDoc.slide.height_ratio) / 2
+        newRatio = (newDoc.slide.width_ratio + newDoc.slide.height_ratio) / 2
+        _this.currentShapes?.forEach (shape) ->
+          shape.attr "stroke-width", shape.attr('stroke-width') * oldRatio  / newRatio
+        
+    pic = new Image()
+    pic.onload = ->
+      # TODO: borders of the very first slide are still an issue
+      if this.width <= this.height # natural dimensions
+        # square => boardHeight is the shortest side
+        adjustedWidth = boardHeight * this.width / this.height
+        $('#whiteboard-paper').attr('style', 'width:' + adjustedWidth + 'px')
+        _this.addImageToPaper(data, adjustedWidth, boardHeight)
+      else
+        adjustedHeight = boardWidth * this.height / this.width
+        $('#whiteboard-paper').attr('style', 'height:' + adjustedHeight + 'px')
+        _this.addImageToPaper(data, boardWidth, adjustedHeight)
+    pic.src = data

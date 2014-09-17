@@ -319,7 +319,10 @@ class Meteor.RedisPubSub
       widthRatio = message.payload?.page?.width_ratio
       xOffset = message.payload?.page?.x_offset
       yOffset = message.payload?.page?.y_offset
-      console.log "__#{slideId}___#{heightRatio}___#{widthRatio}___#{xOffset}__#{yOffset}__"
+      presentationId = slideId.split("/")[0]
+      Meteor.Slides.update({presentationId: presentationId, "slide.current": true},
+        {$set: {"slide.height_ratio": heightRatio, "slide.width_ratio": widthRatio, "slide.x_offset": xOffset, "slide.y_offset": yOffset}})
+      console.log "__#{presentationId}___#{slideId}___#{heightRatio}___#{widthRatio}___#{xOffset}__#{yOffset}__"
 
     if message.header?.name is "user_raised_hand_message"
       userId = message.payload?.userid
