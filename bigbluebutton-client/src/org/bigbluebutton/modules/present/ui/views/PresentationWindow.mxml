@@ -361,7 +361,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (page != null) {
 					displaySlideNumber(page.num);		
 				}
-				displaySlideNavigationControls(isPresenter);
+				displaySlideNavigationControls(isPresenter, !!page);
 			}
             private function handlePresentationChangedEvent(e:PresentationChangedEvent) : void {
 				currentPresentation = PresentationModel.getInstance().getCurrentPresentationName();
@@ -374,23 +374,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 }
 
                 if (UsersUtil.amIPresenter()) {
-                    displaySlideNavigationControls(true);
+                    displaySlideNavigationControls(true, !!page);
                 }
                 else {
-                    displaySlideNavigationControls(false)
+                    displaySlideNavigationControls(false, !!page)
                 }
                 onResetZoom();
             }
 
 			
-			private function displaySlideNavigationControls(show:Boolean):void {
-				backButton.visible = show;
-				forwardButton.visible = show;
-				zoomSlider.visible = show;
-				btnSlideNum.visible = show;
-				btnFitToWidth.visible = show;
-				btnFitToPage.visible = show;
-				if(show) {
+			private function displaySlideNavigationControls(isPresenter:Boolean, activePresentation:Boolean):void {
+				var showButtons:Boolean = isPresenter && activePresentation;
+				
+				backButton.visible = showButtons;
+				forwardButton.visible = showButtons;
+				zoomSlider.visible = showButtons;
+				btnSlideNum.visible = showButtons;
+				btnFitToWidth.visible = showButtons;
+				btnFitToPage.visible = showButtons;
+				
+				if(isPresenter) {
 					CONTROL_BAR_HEIGHT = 45;
 				} else {
 					CONTROL_BAR_HEIGHT = 0;
