@@ -99,7 +99,6 @@ public class CaptureRegionFrame {
 		final CirclePanel movePanel = new CirclePanel();
 		movePanel.setPreferredSize(new Dimension(MOVE_BAR_SIZE,MOVE_BAR_SIZE));
 		movePanel.setLayout(new GridBagLayout());
-		movePanel.setOpaque(false);
 		BufferedImage moveCursorImage = null;
 
 		try {
