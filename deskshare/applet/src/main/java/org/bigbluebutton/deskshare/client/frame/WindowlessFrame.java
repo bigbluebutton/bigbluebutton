@@ -251,7 +251,6 @@ class WindowlessFrame implements Serializable {
 			super(frame);
 			super.setAlwaysOnTop(true);
 			frame.setAlwaysOnTop(true);
-			setBackground(new Color(0, 255, 0, 0));
 			mOffsetLocator = ol;
 			add(content);
 			pack();
