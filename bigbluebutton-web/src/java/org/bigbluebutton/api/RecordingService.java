@@ -23,6 +23,9 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.bigbluebutton.api.domain.Recording;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +76,28 @@ public class RecordingService {
 		}
 		
 		return recs;
+	}
+	
+	public boolean recordingMatchesMetadata(Recording recording, Map<String, String> metadataFilters) {
+		for (Map.Entry<String, String> filter : metadataFilters.entrySet()) {
+			String metadataValue = recording.getMetadata().get(filter.getKey());
+			if (metadataValue != null && metadataValue.equals(filter.getValue())) {
+				// the recording has the metadata specified
+				// AND the value is the same as the filter
+			} else {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public Map<String, Recording> filterRecordingsByMetadata(Map<String, Recording> recordings, Map<String, String> metadataFilters) {
+		Map<String, Recording> resultRecordings = new HashMap<String, Recording>();
+		for (Map.Entry<String, Recording> entry : recordings.entrySet()) {
+			if (recordingMatchesMetadata(entry.getValue(), metadataFilters))
+				resultRecordings.put(entry.getKey(), entry.getValue());
+		}
+		return resultRecordings;
 	}
 	
 	public boolean existAnyRecording(ArrayList<String> idList){
