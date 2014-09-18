@@ -56,7 +56,7 @@ Template.chatbar.helpers
           'message':
             'message': Template.chatbar.getChatGreeting(),
             'from_username': 'System',
-            'from_time': getTime()
+            'from_time': getTime() # this should be using the time when the user entered
             'from_color': '0x3399FF' # A nice blue in hex
         ]
       else

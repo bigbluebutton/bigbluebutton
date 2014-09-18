@@ -206,10 +206,12 @@ class Meteor.RedisPubSub
       unless Meteor.Meetings.findOne({MeetingId: message.payload?.meeting_id})?
         users = message.payload?.users
         for user in users
+          user.timeOfJoining = message.header?.current_time # TODO this might need to be removed
           Meteor.call("addUserToCollection", meetingId, user)
 
     if message.header?.name is "user_joined_message"
       user = message.payload.user
+      user.timeOfJoining = message.header?.current_time
       Meteor.call("addUserToCollection", meetingId, user)
 
     if message.header?.name is "user_left_message"
