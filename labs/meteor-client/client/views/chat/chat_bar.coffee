@@ -57,7 +57,7 @@ Template.chatbar.helpers
         'message':
           'message': Template.chatbar.getChatGreeting(),
           'from_username': 'System',
-          'from_time': getTime()
+          'from_time': Meteor.Users.findOne({"user.userid": getInSession("userId")})?.user?.time_of_joining)
           'from_color': '0x3399FF' # A nice blue in hex
       ]
     else
