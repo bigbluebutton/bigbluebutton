@@ -37,56 +37,55 @@ Template.chatInput.rendered  = ->
    $('button[rel=tooltip]').tooltip()
 
 Template.chatbar.helpers
-	getChatGreeting: ->
-		greeting = "Welcome to #{getMeetingName()}!\n\n
-		For help on using BigBlueButton see these (short) <a href='http://www.bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.\n\n
-		To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.\n\n\n
-		This server is running BigBlueButton #{getInSession 'bbbServerVersion'}."
+  getChatGreeting: ->
+    greeting = "Welcome to #{getMeetingName()}!\n\n
+    For help on using BigBlueButton see these (short) <a href='http://www.bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.\n\n
+    To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.\n\n\n
+    This server is running BigBlueButton #{getInSession 'bbbServerVersion'}."
 
-	# This method returns all messages for the user. It looks at the session to determine whether the user is in
-	#private or public chat. If true is passed, messages returned are from before the user joined. Else, the messages are from after the user joined
-	getFormattedMessagesForChat: () ->
-		friend = chattingWith = getInSession('inChatWith') # the recipient(s) of the messages
-		after = before = greeting = []
+    # This method returns all messages for the user. It looks at the session to determine whether the user is in
+    #private or public chat. If true is passed, messages returned are from before the user joined. Else, the messages are from after the user joined
+    getFormattedMessagesForChat: () ->
+      friend = chattingWith = getInSession('inChatWith') # the recipient(s) of the messages
+      after = before = greeting = []
+      if chattingWith is 'PUBLIC_CHAT' # find all public messages
+        before = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$lt: String(getInSession("joinedAt"))}}).fetch()
+        after = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$gt: String(getInSession("joinedAt"))}}).fetch()
 
-		if chattingWith is 'PUBLIC_CHAT' # find all public messages
-			before = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$lt: String(getInSession("joinedAt"))}}).fetch()
-			after = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$gt: String(getInSession("joinedAt"))}}).fetch()
+        greeting = [
+          'message':
+            'message': Template.chatbar.getChatGreeting(),
+            'from_username': 'System',
+            'from_time': getTime()
+            'from_color': '0x3399FF' # A nice blue in hex
+        ]
+      else
+        me = getInSession("userId")
+        after = Meteor.Chat.find({ # find all messages between current user and recipient
+        'message.chat_type': 'PRIVATE_CHAT',
+        $or: [{'message.from_userid': me, 'message.to_userid': friend},{'message.from_userid': friend, 'message.to_userid': me}]
+        }).fetch()
 
-			greeting = [
-				'message':
-					'message': Template.chatbar.getChatGreeting(),
-					'from_username': 'System',
-					'from_time': getTime()
-					'from_color': '0x3399FF' # A nice blue in hex
-			]
-		else
-			me = getInSession("userId")
-			after = Meteor.Chat.find({ # find all messages between current user and recipient
-			'message.chat_type': 'PRIVATE_CHAT',
-			$or: [{'message.from_userid': me, 'message.to_userid': friend},{'message.from_userid': friend, 'message.to_userid': me}]
-			}).fetch()   
+      messages = (before.concat greeting).concat after
 
-		messages = (before.concat greeting).concat after
+    getCombinedMessagesForChat: ->
+      msgs = Template.chatbar.getFormattedMessagesForChat()
+      prev_time = msgs[0]?.message.from_time
+      prev_userid = msgs[0]?.message.from_userid
+      for i in [0...msgs.length]
+        if i != 0
+          if prev_userid is msgs[i].message.from_userid
+            msgs[i].message.from_username = ''
+            if Template.message.toClockTime(msgs[i].message.from_time) is Template.message.toClockTime(prev_time)
+              prev_time = msgs[i].message.from_time
+              msgs[i].message.from_time = null
+            else
+              prev_time = msgs[i].message.from_time
+          else
+              prev_time = msgs[i].message.from_time
+        prev_userid = msgs[i].message.from_userid
+      msgs
 
-	getCombinedMessagesForChat: ->
-		msgs = Template.chatbar.getFormattedMessagesForChat()
-		prev_time = msgs[0]?.message.from_time
-		prev_userid = msgs[0]?.message.from_userid
-		for i in [0...msgs.length]
-			if i != 0
-				if prev_userid is msgs[i].message.from_userid
-					msgs[i].message.from_username = ''
-					if Template.message.toClockTime(msgs[i].message.from_time) is Template.message.toClockTime(prev_time)
-						prev_time = msgs[i].message.from_time
-						msgs[i].message.from_time = null
-					else
-						prev_time = msgs[i].message.from_time
-				else
-					prev_time = msgs[i].message.from_time
-			prev_userid = msgs[i].message.from_userid
-		msgs
-  
 Template.message.rendered = -> # When a message has been added and finished rendering, scroll to the bottom of the chat
   $('#chatbody').scrollTop($('#chatbody')[0].scrollHeight)
 
@@ -111,14 +110,14 @@ Template.optionsBar.events
             Meteor.call "sendChatMessagetoServer", getInSession("meetingId"), messageForServer
 
 Template.optionsBar.rendered = ->
-	$('div[rel=tooltip]').tooltip()
+  $('div[rel=tooltip]').tooltip()
 
 Template.optionsFontSize.events
-	"click .fontSizeSelector": (event) ->
-		selectedFontSize = parseInt(event.target.id)
-		if selectedFontSize
-			setInSession "messageFontSize", selectedFontSize
-		else setInSession "messageFontSize", 12
+  "click .fontSizeSelector": (event) ->
+    selectedFontSize = parseInt(event.target.id)
+    if selectedFontSize
+      setInSession "messageFontSize", selectedFontSize
+    else setInSession "messageFontSize", 12
 
 Template.tabButtons.events
   'click .close': (event) -> # user closes private chat
@@ -157,31 +156,32 @@ Template.tabButtons.helpers
     button
 
 Template.message.helpers
-	activateBreakLines: (str) ->
-		res = str.replace /\n/gim, '<br/>'
-		res = res.replace /\r/gim, '<br/>'
+  activateBreakLines: (str) ->
+    res = str.replace /\n/gim, '<br/>'
+    res = res.replace /\r/gim, '<br/>'
 	
-	# make links received from Flash client clickable in HTML
-	toClickable: (str) ->
-        res = str.replace /<a href='event:/gim, "<a target='_blank' href='"
-        res = res.replace /<a href="event:/gim, '<a target="_blank" href="'
+  # make links received from Flash client clickable in HTML
+  toClickable: (str) ->
+    res = str.replace /<a href='event:/gim, "<a target='_blank' href='"
+    res = res.replace /<a href="event:/gim, '<a target="_blank" href="'
 
-	toClockTime: (epochTime) ->
-		if epochTime is null
-			return ""
-		local = new Date()
-		offset = local.getTimezoneOffset()
-		epochTime = epochTime - offset * 60000 # 1 min = 60 s = 60,000 ms
-		dateObj = new Date(epochTime)
-		hours = dateObj.getUTCHours()
-		minutes = dateObj.getUTCMinutes()
-		if minutes < 10
-			minutes = "0" + minutes
-		hours + ":" + minutes
+  toClockTime: (epochTime) ->
+    if epochTime is null
+      return ""
+    local = new Date()
+    offset = local.getTimezoneOffset()
+    epochTime = epochTime - offset * 60000 # 1 min = 60 s = 60,000 ms
+    dateObj = new Date(epochTime)
+    hours = dateObj.getUTCHours()
+    minutes = dateObj.getUTCMinutes()
+    if minutes < 10
+      minutes = "0" + minutes
+      hours + ":" + minutes
 
-	sanitizeAndFormat: (str) ->
-        # First, replace replace all tags with the ascii equivalent (excluding those involved in anchor tags)
-        res = str.replace(/&/g, '&amp;').replace(/<(?![au\/])/g, '&lt;').replace(/\/([^au])>/g, '$1&gt;').replace(/([^=])"(?!>)/g, '$1&quot;');
-        
-        res = Template.message.toClickable res
-        res = Template.message.activateBreakLines res
+  sanitizeAndFormat: (str) ->
+    # First, replace replace all tags with the ascii equivalent (excluding those involved in anchor tags)
+    res = str.replace(/&/g, '&amp;').replace(/<(?![au\/])/g, '&lt;').replace(/\/([^au])>/g, '$1&gt;').replace(/([^=])"(?!>)/g, '$1&quot;')
+
+    res = Template.message.toClickable res
+    res = Template.message.activateBreakLines res
+
