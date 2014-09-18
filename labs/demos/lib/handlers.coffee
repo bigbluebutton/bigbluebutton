@@ -14,10 +14,10 @@ login = (req, resp) ->
 
   #use the name from the textbox
   console.log "\n\nThe Username passed was=" + JSON.stringify(req.body.name) + "The Meetingname passed was=" + JSON.stringify(req.body.meetingName) + "\n\n"
-  joinParams.fullName = JSON.stringify req.body.name
-  joinParams.fullName = joinParams.fullName.replace(/['"]/g,'') # strip quotes
-  passedMeetingName = JSON.stringify req.body.meetingName
-  passedMeetingName = passedMeetingName.replace(/['"]/g,'') # stip quotes
+
+  # grab the username and the meeting name passed in. Strip the surrounding quotes
+  joinParams.fullName = (JSON.stringify req.body.name)?.replace(/['"]/g,'')
+  passedMeetingName = (JSON.stringify req.body.meetingName)?.replace(/['"]/g,'')
 
   # use the meeting name from the form to [create if not existing and] join the meeting with such name
   joinParams.meetingID = passedMeetingName
