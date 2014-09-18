@@ -50,14 +50,14 @@ Template.chatbar.helpers
     after = before = greeting = []
 
     if chattingWith is 'PUBLIC_CHAT' # find all public messages
-      before = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$lt: String(getInSession("joinedAt"))}}).fetch()
-      after = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$gt: String(getInSession("joinedAt"))}}).fetch()
+      before = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$lt: String(Meteor.Users.findOne({"user.userid": getInSession("userId")})?.user?.time_of_joining)}}).fetch()
+      after = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$gt: String(Meteor.Users.findOne({"user.userid": getInSession("userId")})?.user?.time_of_joining)}}).fetch()
 
       greeting = [
         'message':
           'message': Template.chatbar.getChatGreeting(),
           'from_username': 'System',
-          'from_time': Meteor.Users.findOne({"user.userid": getInSession("userId")})?.user?.time_of_joining)
+          'from_time': Meteor.Users.findOne({"user.userid": getInSession("userId")})?.user?.time_of_joining
           'from_color': '0x3399FF' # A nice blue in hex
       ]
     else
