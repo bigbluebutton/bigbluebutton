@@ -5,7 +5,7 @@
 
   chattingWith = getInSession('inChatWith')
 
-  if chattingWith isnt "PUBLIC_CHAT" 
+  if chattingWith isnt "PUBLIC_CHAT"
     dest = Meteor.Users.findOne("userId": chattingWith)
 
   messageForServer = { # construct message for server
@@ -43,71 +43,72 @@ Template.chatbar.helpers
     To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.\n\n\n
     This server is running BigBlueButton #{getInSession 'bbbServerVersion'}."
 
-    # This method returns all messages for the user. It looks at the session to determine whether the user is in
-    #private or public chat. If true is passed, messages returned are from before the user joined. Else, the messages are from after the user joined
-    getFormattedMessagesForChat: () ->
-      friend = chattingWith = getInSession('inChatWith') # the recipient(s) of the messages
-      after = before = greeting = []
-      if chattingWith is 'PUBLIC_CHAT' # find all public messages
-        before = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$lt: String(getInSession("joinedAt"))}}).fetch()
-        after = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$gt: String(getInSession("joinedAt"))}}).fetch()
+  # This method returns all messages for the user. It looks at the session to determine whether the user is in
+  #private or public chat. If true is passed, messages returned are from before the user joined. Else, the messages are from after the user joined
+  getFormattedMessagesForChat: () ->
+    friend = chattingWith = getInSession('inChatWith') # the recipient(s) of the messages
+    after = before = greeting = []
 
-        greeting = [
-          'message':
-            'message': Template.chatbar.getChatGreeting(),
-            'from_username': 'System',
-            'from_time': getTime() # this should be using the time when the user entered
-            'from_color': '0x3399FF' # A nice blue in hex
-        ]
-      else
-        me = getInSession("userId")
-        after = Meteor.Chat.find({ # find all messages between current user and recipient
-        'message.chat_type': 'PRIVATE_CHAT',
-        $or: [{'message.from_userid': me, 'message.to_userid': friend},{'message.from_userid': friend, 'message.to_userid': me}]
-        }).fetch()
+    if chattingWith is 'PUBLIC_CHAT' # find all public messages
+      before = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$lt: String(getInSession("joinedAt"))}}).fetch()
+      after = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$gt: String(getInSession("joinedAt"))}}).fetch()
 
-      messages = (before.concat greeting).concat after
+      greeting = [
+        'message':
+          'message': Template.chatbar.getChatGreeting(),
+          'from_username': 'System',
+          'from_time': getTime()
+          'from_color': '0x3399FF' # A nice blue in hex
+      ]
+    else
+      me = getInSession("userId")
+      after = Meteor.Chat.find({ # find all messages between current user and recipient
+      'message.chat_type': 'PRIVATE_CHAT',
+      $or: [{'message.from_userid': me, 'message.to_userid': friend},{'message.from_userid': friend, 'message.to_userid': me}]
+      }).fetch()
 
-    getCombinedMessagesForChat: ->
-      msgs = Template.chatbar.getFormattedMessagesForChat()
-      prev_time = msgs[0]?.message.from_time
-      prev_userid = msgs[0]?.message.from_userid
-      for i in [0...msgs.length]
-        if i != 0
-          if prev_userid is msgs[i].message.from_userid
-            msgs[i].message.from_username = ''
-            if Template.message.toClockTime(msgs[i].message.from_time) is Template.message.toClockTime(prev_time)
-              prev_time = msgs[i].message.from_time
-              msgs[i].message.from_time = null
-            else
-              prev_time = msgs[i].message.from_time
+    messages = (before.concat greeting).concat after
+
+  getCombinedMessagesForChat: ->
+    msgs = Template.chatbar.getFormattedMessagesForChat()
+    prev_time = msgs[0]?.message.from_time
+    prev_userid = msgs[0]?.message.from_userid
+    for i in [0...msgs.length]
+      if i != 0
+        if prev_userid is msgs[i].message.from_userid
+          msgs[i].message.from_username = ''
+          if Template.message.toClockTime(msgs[i].message.from_time) is Template.message.toClockTime(prev_time)
+            prev_time = msgs[i].message.from_time
+            msgs[i].message.from_time = null
           else
-              prev_time = msgs[i].message.from_time
-        prev_userid = msgs[i].message.from_userid
-      msgs
+            prev_time = msgs[i].message.from_time
+        else
+          prev_time = msgs[i].message.from_time
+      prev_userid = msgs[i].message.from_userid
+    msgs
 
 Template.message.rendered = -> # When a message has been added and finished rendering, scroll to the bottom of the chat
   $('#chatbody').scrollTop($('#chatbody')[0].scrollHeight)
 
 Template.optionsBar.events
-    'click .private-chat-user-entry': (event) -> # clicked a user's name to begin private chat
-        setInSession 'display_chatPane', true
-        setInSession "inChatWith", @userId
-        me = getInSession("userId")
+  'click .private-chat-user-entry': (event) -> # clicked a user's name to begin private chat
+    setInSession 'display_chatPane', true
+    setInSession "inChatWith", @userId
+    me = getInSession("userId")
 
-        if Meteor.Chat.find({'message.chat_type': 'PRIVATE_CHAT', $or: [{'message.from_userid': me, 'message.to_userid': @userId},{'message.from_userid': @userId, 'message.to_userid': me}]}).fetch().length is 0
-            messageForServer =
-                "message": "#{getUsersName()} has joined private chat with #{@user.name}."
-                "chat_type": "PRIVATE_CHAT"
-                "from_userid": me
-                "from_username": getUsersName()
-                "from_tz_offset": "240"
-                "to_username": @user.name
-                "to_userid": @userId
-                "from_lang": "en"
-                "from_time": getTime()
-                "from_color": "0"
-            Meteor.call "sendChatMessagetoServer", getInSession("meetingId"), messageForServer
+    if Meteor.Chat.find({'message.chat_type': 'PRIVATE_CHAT', $or: [{'message.from_userid': me, 'message.to_userid': @userId},{'message.from_userid': @userId, 'message.to_userid': me}]}).fetch().length is 0
+      messageForServer =
+        "message": "#{getUsersName()} has joined private chat with #{@user.name}."
+        "chat_type": "PRIVATE_CHAT"
+        "from_userid": me
+        "from_username": getUsersName()
+        "from_tz_offset": "240"
+        "to_username": @user.name
+        "to_userid": @userId
+        "from_lang": "en"
+        "from_time": getTime()
+        "from_color": "0"
+      Meteor.call "sendChatMessagetoServer", getInSession("meetingId"), messageForServer
 
 Template.optionsBar.rendered = ->
   $('div[rel=tooltip]').tooltip()
@@ -136,16 +137,16 @@ Template.tabButtons.events
   'click .publicChatTab': (event) ->
     setInSession 'display_chatPane', true
 
-  'click .tab': (event) -> 
+  'click .tab': (event) ->
     setInSession "inChatWith", @userId
-  
+
 Template.tabButtons.helpers
   getChatbarTabs: ->
     tabs = makeTabs()
 
   makeTabButton: -> # create tab button for private chat or other such as options
-    safeClass = @class.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    safeName = @name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    safeClass = @class.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+    safeName = @name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
     button = '<li '
     button += 'class="'
@@ -159,7 +160,7 @@ Template.message.helpers
   activateBreakLines: (str) ->
     res = str.replace /\n/gim, '<br/>'
     res = res.replace /\r/gim, '<br/>'
-	
+  
   # make links received from Flash client clickable in HTML
   toClickable: (str) ->
     res = str.replace /<a href='event:/gim, "<a target='_blank' href='"
@@ -176,7 +177,7 @@ Template.message.helpers
     minutes = dateObj.getUTCMinutes()
     if minutes < 10
       minutes = "0" + minutes
-      hours + ":" + minutes
+    hours + ":" + minutes
 
   sanitizeAndFormat: (str) ->
     # First, replace replace all tags with the ascii equivalent (excluding those involved in anchor tags)
