@@ -20,6 +20,9 @@
       meet?.meetingName
     else null
 
+@getTimeOfJoining = ->
+  Meteor.Users.findOne({"user.userid": getInSession("userId")})?.user?.time_of_joining
+
 # Finds the names of all people the current user is in a private conversation with
 #  Removes yourself and duplicates if they exist
 @getPrivateChatees = ->
@@ -114,6 +117,12 @@ Handlebars.registerHelper "isUserSharingAudio", (u) ->
   if u? 
     user = Meteor.Users.findOne({userId:u.userid})
     user?.user?.voiceUser?.joined
+  else return false
+
+Handlebars.registerHelper "isUserListenOnly", (u) ->
+  if u?
+    user = Meteor.Users.findOne({userId:u.userid})
+    user?.user?.listenOnly
   else return false
 
 Handlebars.registerHelper "isUserSharingVideo", (u) ->

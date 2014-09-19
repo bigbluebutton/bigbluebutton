@@ -168,39 +168,26 @@ class Meteor.RedisPubSub
     ]
 
     unless message.header?.name in ignoredEventTypes
-      #console.log "\nchannel=" + channel
-      #console.log "correlationId=" + correlationId if correlationId?
       console.log "eventType=" + message.header?.name #+ "\n"
-      #log.debug({ pattern: pattern, channel: channel, message: message}, "Received a message from redis")
       console.log jsonMsg
 
-    if message.header?.name is 'user_voice_talking_message'
-      u = Meteor.Users.findOne({'userId': message.payload?.user?.userid, 'meetingId': meetingId})
-      if u?
-        if not u?.user?.voiceUser?.muted
-          console.log "setting talking to #{message?.payload?.user?.voiceUser?.talking}"
-          Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.talking':message?.payload?.user?.voiceUser?.talking}})
-          Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.joined':true}})
-        else
-          Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.talking':false}})
+    # handle voice events
+    if message.header?.name in ['user_left_voice_message', 'user_joined_voice_message', 'user_voice_talking_message', 'user_voice_muted_message']
+      voiceUser = message.payload?.user?.voiceUser
+      @updateVoiceUser(meetingId, voiceUser)
 
-    if message.header?.name is 'user_voice_muted_message'
-      u = Meteor.Users.findOne({'userId': message.payload?.user?.userid, 'meetingId': meetingId})
-      console.log "\n\n\n got a muted event and the user is #{u}"
-
-      if u?
-        # make sure the user is not currently in talking mode
-        Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.talking': false}})
-        # update to muted
-        Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.muted':message?.payload?.user?.voiceUser?.muted}})
-      else console.log "ERROR!! did not find a matching user to mute!!"
+    # listen only
+    if message.header?.name is 'user_listening_only'
+      u = Meteor.Users.findOne({userId: message.payload?.userid, meetingId: meetingId})
+      Meteor.Users.update({_id:u._id}, {$set: {'user.listenOnly':message.payload?.listen_only}})
+      # most likely we don't need to ensure that the user's voiceUser's {talking, joined, muted, locked} are false by default #TODO?
 
     if message.header?.name is "get_all_meetings_reply"
       console.log "Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!"
       listOfMeetings = message.payload?.meetings
       for meeting in listOfMeetings
         # we currently do not have voice_conf or duration in this message.
-        Meteor.call("addMeetingToCollection", meeting.meetingID, meeting.meetingName, meeting.recorded, "", "")
+        Meteor.call("addMeetingToCollection", meeting.meetingID, meeting.meetingName, meeting.recorded, meeting.voiceBridge, meeting.duration)
 
     if message.header?.name is "get_users_reply" and message.payload?.requester_id is "nodeJSapp"
       unless Meteor.Meetings.findOne({MeetingId: message.payload?.meeting_id})?
@@ -226,9 +213,6 @@ class Meteor.RedisPubSub
 
     if message.header?.name is "send_public_chat_message" or message.header?.name is "send_private_chat_message"
       messageObject = message.payload?.message
-
-      #use current_time instead of from_time for sorting the chat messages. We had issues with from_time
-      messageObject.from_time = message.header?.current_time
       Meteor.call("addChatToCollection", meetingId, messageObject)
 
     if message.header?.name is "meeting_created_message"
@@ -354,6 +338,18 @@ class Meteor.RedisPubSub
         unless message.header?.name is "disconnect_all_users_message"
           Meteor.call("removeMeetingFromCollection", meetingId)
 
+  #update a voiceUser
+  updateVoiceUser: (meetingId, voiceUserObject) ->
+    console.log "I am updating the voiceUserObject with the following: " + JSON.stringify voiceUserObject
+    u = Meteor.Users.findOne({userId: voiceUserObject?.web_userid, meetingId: meetingId})
+    if u?
+      Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.talking':voiceUserObject?.talking}})# talking
+      Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.joined':voiceUserObject?.joined}})# joined
+      Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.locked':voiceUserObject?.locked}})# locked
+      Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.muted':voiceUserObject?.muted}})# muted
+    else
+      console.log "ERROR! did not find such voiceUser!"
+
   # message should be an object
   publish: (channel, message) ->
     console.log "Publishing channel=#{channel}, message=#{JSON.stringify(message)}"
@@ -390,3 +386,4 @@ class Meteor.RedisPubSub
       "payload": {} # I need this, otherwise bbb-apps won't recognize the message
 
     @pubClient.publish(Meteor.config.redis.channels.toBBBApps.meeting, JSON.stringify (message))
+
