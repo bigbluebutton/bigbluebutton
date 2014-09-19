@@ -195,6 +195,10 @@ class Meteor.RedisPubSub
         Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.muted':message?.payload?.user?.voiceUser?.muted}})
       else console.log "ERROR!! did not find a matching user to mute!!"
 
+    if message.header?.name is 'user_left_voice_message'
+      voiceUser = message.payload?.user?.voiceUser
+      @updateVoiceUser(meetingId, voiceUser)
+
     if message.header?.name is "get_all_meetings_reply"
       console.log "Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!"
       listOfMeetings = message.payload?.meetings
@@ -350,6 +354,18 @@ class Meteor.RedisPubSub
           #TODO should we clear the chat messages for that meeting?!
         unless message.header?.name is "disconnect_all_users_message"
           Meteor.call("removeMeetingFromCollection", meetingId)
+
+  #update a voiceUser
+  updateVoiceUser: (meetingId, voiceUserObject) ->
+    console.log "I am updating the voiceUserObject with the following: " + JSON.stringify voiceUserObject
+    u = Meteor.Users.findOne({userId: voiceUserObject?.userid, meetingId: meetingId})
+    if u?
+      Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.talking':voiceUserObject?.talking}})# talking
+      Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.joined':voiceUserObject?.joined}})# joined
+      Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.locked':voiceUserObject?.locked}})# locked
+      Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.muted':voiceUserObject?.muted}})# muted
+    else
+      console.log "ERROR! did not find such voiceUser!"
 
   # message should be an object
   publish: (channel, message) ->
