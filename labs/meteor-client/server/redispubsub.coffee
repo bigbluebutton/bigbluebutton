@@ -200,7 +200,7 @@ class Meteor.RedisPubSub
       listOfMeetings = message.payload?.meetings
       for meeting in listOfMeetings
         # we currently do not have voice_conf or duration in this message.
-        Meteor.call("addMeetingToCollection", meeting.meetingID, meeting.meetingName, meeting.recorded, "", "")
+        Meteor.call("addMeetingToCollection", meeting.meetingID, meeting.meetingName, meeting.recorded, meeting.voiceBridge, meeting.duration)
 
     if message.header?.name is "get_users_reply" and message.payload?.requester_id is "nodeJSapp"
       unless Meteor.Meetings.findOne({MeetingId: message.payload?.meeting_id})?

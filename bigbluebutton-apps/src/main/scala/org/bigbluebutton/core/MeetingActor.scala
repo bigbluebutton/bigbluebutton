@@ -29,12 +29,20 @@ class MeetingActor(val meetingID: String, val meetingName: String, val recorded:
   var muted = false;
   var meetingEnded = false
 
+  def getDuration():Long = {
+    duration
+  }
+
   def getMeetingName():String = {
     meetingName
   }
 
   def getRecordedStatus():Boolean = {
     recorded
+  }
+
+  def getVoiceBridgeNumber():String = {
+    voiceBridge
   }
   
   val TIMER_INTERVAL = 30000
