@@ -20,6 +20,9 @@
       meet?.meetingName
     else null
 
+@getTimeOfJoining = ->
+  Meteor.Users.findOne({"user.userid": getInSession("userId")})?.user?.time_of_joining
+
 # Finds the names of all people the current user is in a private conversation with
 #  Removes yourself and duplicates if they exist
 @getPrivateChatees = ->
