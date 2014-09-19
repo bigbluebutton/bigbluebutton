@@ -17,7 +17,7 @@ login = (req, resp) ->
 
   # grab the username and the meeting name passed in. Strip the surrounding quotes
   joinParams.fullName = (JSON.stringify req.body.name)?.replace(/['"]/g,'')
-  passedMeetingName = (JSON.stringify req.body.meetingName)?.replace(/['"]/g,'')
+  passedMeetingName = (JSON.stringify req.body.meetingName)?.replace(/["]/g,'')
 
   # use the meeting name from the form to [create if not existing and] join the meeting with such name
   joinParams.meetingID = passedMeetingName
