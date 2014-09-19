@@ -4,9 +4,10 @@
     {{/if}}</td>
 
     <!-- Should use much more noticeable icons than just bootstrap's volume-up & volume-down to differentiate talking but it is good for now -->
-    <td>{{#if isUserSharingAudio user}}
+    <td>
+        {{#if isUserSharingAudio user}}
           {{#if isUserMuted user}}
-            <span class="userListSettingIcon glyphicon glyphicon-volume-off"></span>
+            <span class="userListSettingIcon glyphicon glyphicon-volume-off" title="Muted"></span>
           {{else}}
             {{#if isUserTalking user}}
                 <span class="userListSettingIcon glyphicon glyphicon-volume-up"></span>
@@ -14,7 +15,12 @@
                 <span class="userListSettingIcon glyphicon glyphicon-volume-down"></span>
             {{/if}}
           {{/if}}
-    {{/if}}</td>
+        {{/if}}
+        <!-- listen only: -->
+        {{#if isUserListenOnly user}}
+          <span class="userListSettingIcon glyphicon glyphicon-headphones" title="Listening only"></span>
+        {{/if}}
+    </td>
 
     <td>{{#if user.presenter}}<span class="userListSettingIcon glyphicon glyphicon-picture"></span>{{/if}}</td>
 

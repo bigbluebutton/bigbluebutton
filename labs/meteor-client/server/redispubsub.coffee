@@ -176,6 +176,12 @@ class Meteor.RedisPubSub
       voiceUser = message.payload?.user?.voiceUser
       @updateVoiceUser(meetingId, voiceUser)
 
+    # listen only
+    if message.header?.name is 'user_listening_only'
+      u = Meteor.Users.findOne({userId: message.payload?.userid, meetingId: meetingId})
+      Meteor.Users.update({_id:u._id}, {$set: {'user.listenOnly':message.payload?.listen_only}})
+      # most likely we don't need to ensure that the user's voiceUser's {talking, joined, muted, locked} are false by default #TODO?
+
     if message.header?.name is "get_all_meetings_reply"
       console.log "Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!"
       listOfMeetings = message.payload?.meetings
@@ -380,3 +386,4 @@ class Meteor.RedisPubSub
       "payload": {} # I need this, otherwise bbb-apps won't recognize the message
 
     @pubClient.publish(Meteor.config.redis.channels.toBBBApps.meeting, JSON.stringify (message))
+

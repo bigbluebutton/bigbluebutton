@@ -119,6 +119,12 @@ Handlebars.registerHelper "isUserSharingAudio", (u) ->
     user?.user?.voiceUser?.joined
   else return false
 
+Handlebars.registerHelper "isUserListenOnly", (u) ->
+  if u?
+    user = Meteor.Users.findOne({userId:u.userid})
+    user?.user?.listenOnly
+  else return false
+
 Handlebars.registerHelper "isUserSharingVideo", (u) ->
   u.webcam_stream?.length isnt 0
 
