@@ -168,34 +168,11 @@ class Meteor.RedisPubSub
     ]
 
     unless message.header?.name in ignoredEventTypes
-      #console.log "\nchannel=" + channel
-      #console.log "correlationId=" + correlationId if correlationId?
       console.log "eventType=" + message.header?.name #+ "\n"
-      #log.debug({ pattern: pattern, channel: channel, message: message}, "Received a message from redis")
       console.log jsonMsg
 
-    if message.header?.name is 'user_voice_talking_message'
-      u = Meteor.Users.findOne({'userId': message.payload?.user?.userid, 'meetingId': meetingId})
-      if u?
-        if not u?.user?.voiceUser?.muted
-          console.log "setting talking to #{message?.payload?.user?.voiceUser?.talking}"
-          Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.talking':message?.payload?.user?.voiceUser?.talking}})
-          Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.joined':true}})
-        else
-          Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.talking':false}})
-
-    if message.header?.name is 'user_voice_muted_message'
-      u = Meteor.Users.findOne({'userId': message.payload?.user?.userid, 'meetingId': meetingId})
-      console.log "\n\n\n got a muted event and the user is #{u}"
-
-      if u?
-        # make sure the user is not currently in talking mode
-        Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.talking': false}})
-        # update to muted
-        Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.muted':message?.payload?.user?.voiceUser?.muted}})
-      else console.log "ERROR!! did not find a matching user to mute!!"
-
-    if message.header?.name is 'user_left_voice_message'
+    # handle voice events
+    if message.header?.name in ['user_left_voice_message', 'user_joined_voice_message', 'user_voice_talking_message', 'user_voice_muted_message']
       voiceUser = message.payload?.user?.voiceUser
       @updateVoiceUser(meetingId, voiceUser)
 
@@ -358,7 +335,7 @@ class Meteor.RedisPubSub
   #update a voiceUser
   updateVoiceUser: (meetingId, voiceUserObject) ->
     console.log "I am updating the voiceUserObject with the following: " + JSON.stringify voiceUserObject
-    u = Meteor.Users.findOne({userId: voiceUserObject?.userid, meetingId: meetingId})
+    u = Meteor.Users.findOne({userId: voiceUserObject?.web_userid, meetingId: meetingId})
     if u?
       Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.talking':voiceUserObject?.talking}})# talking
       Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.joined':voiceUserObject?.joined}})# joined
