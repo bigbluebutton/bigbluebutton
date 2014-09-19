@@ -214,7 +214,7 @@ Meteor.methods
 		username = "#{getInSession("userId")}-bbbID-#{getUsersName()}"
 		# voicePin = Meteor.Meetings.findOne()?.voiceConf
 		# voiceBridge = if voicePin? then voicePin else "0"
-		voiceBridge = "70827"
+		voiceBridge = Meteor.Meetings.findOne({}).voiceConf # need to know this info for all meetings #TODO
 		server = null
 		joinCallback = (message) -> 
 			console.log JSON.stringify message
@@ -269,3 +269,4 @@ Meteor.methods
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
   presentationId = currentPresentation?.presentation?.id
   currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+
