@@ -783,7 +783,7 @@ class @WhiteboardPaperModel
 
   #Changes the currently displayed page/slide (if any) with this one
   #@param {data} message object containing the "presentation" object
-  _displayPage: (data) ->
+  _displayPage: (data, originalWidth, originalHeight) ->
     @removeAllImagesFromPaper()
 
     # get dimensions for available whiteboard space
@@ -840,17 +840,13 @@ class @WhiteboardPaperModel
         newRatio = (newDoc.slide.width_ratio + newDoc.slide.height_ratio) / 2
         _this.currentShapes?.forEach (shape) ->
           shape.attr "stroke-width", shape.attr('stroke-width') * oldRatio  / newRatio
-        
-    pic = new Image()
-    pic.onload = ->
-      # TODO: borders of the very first slide are still an issue
-      if this.width <= this.height # natural dimensions
-        # square => boardHeight is the shortest side
-        adjustedWidth = boardHeight * this.width / this.height
-        $('#whiteboard-paper').attr('style', 'width:' + adjustedWidth + 'px')
-        _this.addImageToPaper(data, adjustedWidth, boardHeight)
-      else
-        adjustedHeight = boardWidth * this.height / this.width
-        $('#whiteboard-paper').attr('style', 'height:' + adjustedHeight + 'px')
-        _this.addImageToPaper(data, boardWidth, adjustedHeight)
-    pic.src = data
+    
+    if originalWidth <= originalHeight
+      # square => boardHeight is the shortest side
+      adjustedWidth = boardHeight * originalWidth / originalHeight
+      $('#whiteboard-paper').attr('style', 'width:' + adjustedWidth + 'px')
+      @addImageToPaper(data, adjustedWidth, boardHeight)
+    else
+      adjustedHeight = boardWidth * originalHeight / originalWidth
+      $('#whiteboard-paper').attr('style', 'height:' + adjustedHeight + 'px')
+      @addImageToPaper(data, boardWidth, adjustedHeight)
