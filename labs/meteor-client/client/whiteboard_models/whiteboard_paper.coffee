@@ -356,7 +356,6 @@ class @WhiteboardPaperModel
     if @currentShapes?
       @currentShapes.forEach (element) ->
         element.remove()
-      @cursor.remove()
       @currentShapes = []
       @currentShapesDefinitions = []
 
