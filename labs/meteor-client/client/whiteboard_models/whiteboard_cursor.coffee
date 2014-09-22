@@ -38,3 +38,6 @@ class @WhiteboardCursorModel
 
   _onMouseWheel: (e, delta) ->
     @trigger("cursor:mousewheel", e, delta)
+
+  remove: () ->
+    @cursor.remove()

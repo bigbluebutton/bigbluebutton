@@ -8,6 +8,7 @@ Template.whiteboard.rendered = ->
 
     wpm = Template.slide.whiteboardPaperModel
     wpm.clearShapes()
+    wpm.clearCursor()
     wpm._updateContainerDimensions()
     wpm = Template.slide.whiteboardPaperModel
     Template.slide.displaySlide(wpm)
