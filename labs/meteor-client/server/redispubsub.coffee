@@ -213,6 +213,10 @@ class Meteor.RedisPubSub
 
     if message.header?.name is "send_public_chat_message" or message.header?.name is "send_private_chat_message"
       messageObject = message.payload?.message
+
+      # use current_time instead of message.from_time so that the chats from Flash and HTML5 have uniform times
+      messageObject.from_time = message.header?.current_time
+
       Meteor.call("addChatToCollection", meetingId, messageObject)
 
     if message.header?.name is "meeting_created_message"
