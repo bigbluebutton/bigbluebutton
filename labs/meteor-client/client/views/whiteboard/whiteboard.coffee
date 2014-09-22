@@ -3,6 +3,7 @@ Template.whiteboard.rendered = ->
     height = $('#whiteboard').height()
     console.log "height = #{height}"
     $('#whiteboard-paper').height((height-$("#whiteboard-navbar").height()-10)+'px')
+    $('#whiteboard-paper').width($('#whiteboard-navbar').width())
 
     # $('#svggroup').html('')
 
