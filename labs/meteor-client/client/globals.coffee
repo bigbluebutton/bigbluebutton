@@ -50,7 +50,11 @@
       setInSession "userName", user.user.name # store in session for fast access next time
       user.user.name
     else null
-
+        
+@getPresentationFilename = ->
+  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+  currentPresentation?.presentation?.name
+        
 Handlebars.registerHelper "colourToHex", (value) =>
 	@window.colourToHex(value)
 
@@ -74,6 +78,9 @@ Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
 
 Handlebars.registerHelper "getMeetingName", ->
   window.getMeetingName()
+    
+Handlebars.registerHelper "getWhiteboardTitle", ->
+  "Whiteboard: " + getPresentationFilename()
 
 Handlebars.registerHelper "getShapesForSlide", ->
   currentSlide = getCurrentSlideDoc()
