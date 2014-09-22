@@ -7,8 +7,11 @@
 				<div id="chatbody">
 					<ul class="chat">					
 						{{#each getCombinedMessagesForChat}}
-							<li {{messageFontSize}}>{{> message}}</li>
+							{{#if message}}
+								<li {{messageFontSize}}>{{> message}}</li>
+							{{/if}}
 						{{/each}}
+						<bottomEntry></bottomEntry> <!-- Intentionally blank, fixes issue what last message being cut off while scrolling -->
 					</ul>
 				</div>
 				<div class="panel-footer">{{> chatInput}}</div>
@@ -21,7 +24,7 @@
 
 <template name="chatInput">
 	<div class="chat-input-wrapper">
-		<input type="text" id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message" />
+		<textarea id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message"></textarea>
 		<button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top" title="Click to send your message">
 		Send
 		</button>
@@ -39,7 +42,7 @@
 		<tr>
 			<td>
 				{{#if message.from_username}}
-					<div class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{message.from_username}}">
+					<div {{messageFontSize}} class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{message.from_username}}">
 						<strong>{{message.from_username}}</strong>
 					</div>
 				{{/if}}
@@ -50,6 +53,7 @@
 		</tr>
 	</table>
 	<div style="color:{{colourToHex message.from_color}}">{{{sanitizeAndFormat message.message}}}</div> <!-- Messages must be safely filtered and stripped -->
+	{{autoscroll}} <!-- Scroll to the bottom after inserting a new message -->
 </template>
 
 <!-- Displays the list of options available -->

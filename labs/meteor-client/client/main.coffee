@@ -35,6 +35,12 @@ Template.header.events
 		Meteor.call('userLowerHand', getInSession("meetingId"), getInSession("userId"), loweredBy)
 	"click .whiteboardIcon": (event) ->
 		toggleWhiteBoard()
+	"mouseover #navbarMinimizedButton": (event) ->
+		$("#navbarMinimizedButton").removeClass("navbarMinimizedButtonSmall")
+		$("#navbarMinimizedButton").addClass("navbarMinimizedButtonLarge")
+	"mouseout #navbarMinimizedButton": (event) ->
+		$("#navbarMinimizedButton").removeClass("navbarMinimizedButtonLarge")
+		$("#navbarMinimizedButton").addClass("navbarMinimizedButtonSmall")
 
 Template.recordingStatus.rendered = ->
 	$('button[rel=tooltip]').tooltip()
@@ -45,10 +51,6 @@ Template.main.helpers
 
 Template.makeButton.rendered = ->
 	$('button[rel=tooltip]').tooltip()
-
-# Gets called last in main template, just an easy place to print stuff out
-Handlebars.registerHelper "doFinalStuff", ->
-    console.log "-----Doing Final Stuff-----"
 
 # These settings can just be stored locally in session, created at start up
 Meteor.startup ->
