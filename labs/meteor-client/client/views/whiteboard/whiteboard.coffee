@@ -7,9 +7,7 @@ Template.whiteboard.rendered = ->
     # $('#svggroup').html('')
 
     wpm = Template.slide.whiteboardPaperModel
-    wpm.clearShapes()
-    wpm._updateContainerDimensions()
-    wpm = Template.slide.whiteboardPaperModel
-    Template.slide.displaySlide(wpm)
-    Template.slide.manuallyDisplayShapes()
+    wpm.clearCursor()
+    Template.slide.createWhiteboardPaper (wpm) ->
+      Template.slide.displaySlide wpm
   );
