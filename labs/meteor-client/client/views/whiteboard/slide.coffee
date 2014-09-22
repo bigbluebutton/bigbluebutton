@@ -18,7 +18,13 @@ Template.slide.helpers
     currentSlide = getCurrentSlideDoc()
 
     wpm.create()
-    wpm._displayPage(currentSlide?.slide?.png_uri)
+    
+    # loading the image to find its original dimensions
+    pic = new Image()
+    pic.onload = ->
+      wpm._displayPage(currentSlide?.slide?.png_uri, this.width, this.height)
+      Template.slide.manuallyDisplayShapes()
+    pic.src = currentSlide?.slide?.png_uri
 
   updatePointerLocation: (pointer) ->
     wpm = Template.slide.whiteboardPaperModel
