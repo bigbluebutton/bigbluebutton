@@ -52,7 +52,7 @@ Template.chatbar.helpers
 
   # This method returns all messages for the user. It looks at the session to determine whether the user is in
   #private or public chat. If true is passed, messages returned are from before the user joined. Else, the messages are from after the user joined
-  getFormattedMessagesForChat: () ->
+  getFormattedMessagesForChat: ->
     friend = chattingWith = getInSession('inChatWith') # the recipient(s) of the messages
     after = before = greeting = []
 
