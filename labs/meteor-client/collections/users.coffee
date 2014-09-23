@@ -148,7 +148,7 @@ Meteor.methods
     #remove from the collection
     Meteor.call("removeUserFromCollection", meetingId, userId)
     #dispatch a message to redis
-    Meteor.redisPubSub.sendUserLeavingRequest(meetingId, userId)
+    Meteor.call('sendUserLeavingRequest', meetingId, userId)
 
   userKick: (meetingId, userId) ->
     console.log "#{userId} is being kicked"
@@ -156,5 +156,5 @@ Meteor.methods
     #remove from the collection
     Meteor.call("removeUserFromCollection", meetingId, userId)
     #dispatch a message to redis
-    Meteor.redisPubSub.sendUserLeavingRequest(meetingId, userId)
+    Meteor.call('sendUserLeavingRequest', meetingId, userId)
 
