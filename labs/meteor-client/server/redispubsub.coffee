@@ -1,7 +1,23 @@
 Meteor.methods
 
+  # Construct and send a message to bbb-web to validate the user
   validateAuthToken: (meetingId, userId, authToken) ->
-    Meteor.redisPubSub.sendValidateToken(meetingId, userId, authToken)
+    console.log "\n\n sending a validate_auth_token with userid=#{userId} meetingid=#{meetingId}"
+
+    message =
+      "payload":
+        "auth_token": authToken
+        "userid": userId
+        "meeting_id": meetingId
+      "header":
+        "timestamp": new Date().getTime()
+        "reply_to": meetingId + "/" + userId
+        "name": "validate_auth_token"
+
+    if authToken? and userId? and meetingId?
+      Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.meeting, message)
+    else
+      console.log "did not have enough information to send a validate_auth_token message"
 
   # message should be an object
   publish: (channel, message) ->
@@ -30,25 +46,6 @@ class Meteor.RedisPubSub
 
     @subClient.psubscribe(Meteor.config.redis.channels.fromBBBApps)
     callback @
-
-  # Construct and send a message to bbb-web to validate the user
-  sendValidateToken: (meetingId, userId, authToken) ->
-    console.log "\n\n i am sending a validate_auth_token with " + userId + "" + meetingId
-
-    message =
-      "payload":
-        "auth_token": authToken
-        "userid": userId
-        "meeting_id": meetingId
-      "header":
-        "timestamp": new Date().getTime()
-        "reply_to": meetingId + "/" + userId
-        "name": "validate_auth_token"
-
-    if authToken? and userId? and meetingId?
-      Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.meeting, message)
-    else
-      console.log "did not have enough information to send a validate_auth_token message"
 
   _onSubscribe: (channel, count) =>
     console.log "Subscribed to #{channel}"
