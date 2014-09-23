@@ -47,6 +47,8 @@ class @WhiteboardPaperModel
     # else
     #   globals.events.on "connection:connected", =>
     #     @_registerEvents()
+    
+    @zoomObserver = null
 
   # Override the close() to unbind events.
   unbindEvents: ->
@@ -830,8 +832,10 @@ class @WhiteboardPaperModel
     presentationId = currentPresentation?.presentation?.id
     currentSlideCursor = Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
 
+    if @zoomObserver isnt null
+      @zoomObserver.stop()
     _this = this
-    currentSlideCursor.observe # watching the current slide changes
+    @zoomObserver = currentSlideCursor.observe # watching the current slide changes
       changed: (newDoc, oldDoc) ->
         newX = - newDoc.slide.x_offset * 2 * boardWidth / 100
         newY = - newDoc.slide.y_offset * 2 * boardHeight / 100
