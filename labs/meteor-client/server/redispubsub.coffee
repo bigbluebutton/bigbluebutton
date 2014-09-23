@@ -1,35 +1,18 @@
 Meteor.methods
-  deletePrivateChatMessages: (user1, user2) ->
-    console.log "deleting chat conversation"
-    Meteor.Chat.remove({ # find all and remove private messages between the 2 users
-        'message.chat_type': 'PRIVATE_CHAT',
-        $or: [{'message.from_userid': user1, 'message.to_userid': user2},{'message.from_userid': user2, 'message.to_userid': user1}]
-    })
-    ###
-    # TODO: Messages are now wiped from Meteor server
-    # add code here to send request to redis to delete messages there as well or else all messages will be re populated
-    ###
 
   validateAuthToken: (meetingId, userId, authToken) ->
     Meteor.redisPubSub.sendValidateToken(meetingId, userId, authToken)
 
-  publishChatMessage: (meetingId, messageObject) ->
-    Meteor.redisPubSub.publishingChatMessage(meetingId, messageObject)
-
-  sendUserLeavingRequest: (meetingId, userId) ->
-    console.log "\n\n sending a user_leaving_request for #{meetingId}:#{userId}"
-    message =
-      "payload":
-        "meeting_id": meetingId
-        "userid": userId
-      "header":
-        "timestamp": new Date().getTime()
-        "name": "user_leaving_request"
-        "version": "0.0.1"
-    if userId? and meetingId?
-      Meteor.redisPubSub.publish(Meteor.config.redis.channels.toBBBApps.users, message)
+  # message should be an object
+  publish: (channel, message) ->
+    console.log "Publishing channel=#{channel}, message=#{JSON.stringify(message)}"
+    if Meteor.redisPubSub?
+      Meteor.redisPubSub.pubClient?.publish(channel, JSON.stringify(message), (err, res) ->
+        if err
+          console.log "err=" + err
+      )
     else
-      console.log "did not have enough information to send a user_leaving_request"
+      console.log "\n ERROR!! Meteor.redisPubSub was undefined\n"
 
 
 class Meteor.RedisPubSub
@@ -63,7 +46,7 @@ class Meteor.RedisPubSub
         "name": "validate_auth_token"
 
     if authToken? and userId? and meetingId?
-      @pubClient.publish(Meteor.config.redis.channels.toBBBApps.meeting, JSON.stringify(message))
+      Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.meeting, message)
     else
       console.log "did not have enough information to send a validate_auth_token message"
 
@@ -182,7 +165,7 @@ class Meteor.RedisPubSub
               "version": "0.0.1"
 
           if whiteboardId? and meetingId?
-            @pubClient.publish(Meteor.config.redis.channels.toBBBApps.whiteboard, JSON.stringify(message))
+            Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.whiteboard, message)
           else
             console.log "did not have enough information to send a user_leaving_request"
 
@@ -203,7 +186,6 @@ class Meteor.RedisPubSub
     if message.header?.name is "presentation_cursor_updated_message"
       x = message.payload?.x_percent
       y = message.payload?.y_percent
-
       Meteor.Presentations.update({"presentation.current": true, meetingId: meetingId},{$set: {"pointer.x": x, "pointer.y": y}})
 
     if message.header?.name is "whiteboard_cleared_message"
@@ -213,7 +195,6 @@ class Meteor.RedisPubSub
     if message.header?.name is "undo_whiteboard_request"
       whiteboardId = message.payload?.whiteboard_id
       shapeId = message.payload?.shape_id
-
       Meteor.call("removeShapeFromSlide", meetingId, whiteboardId, shapeId)
 
     if message.header?.name is "presenter_assigned_message"
@@ -259,42 +240,11 @@ class Meteor.RedisPubSub
         unless message.header?.name is "disconnect_all_users_message"
           Meteor.call("removeMeetingFromCollection", meetingId)
 
-
-
-  # message should be an object
-  publish: (channel, message) ->
-    console.log "Publishing channel=#{channel}, message=#{JSON.stringify(message)}"
-    @pubClient.publish(channel, JSON.stringify(message), (err, res) ->
-      console.log "err=" + err
-      console.log "res=" + res
-    )
-
-  publishingChatMessage: (meetingId, chatObject) =>
-    console.log "publishing a chat message to bbb-apps"
-
-    eventName = ->
-      if chatObject.chat_type is "PRIVATE_CHAT"
-        "send_private_chat_message_request"
-      else "send_public_chat_message_request"
-
-    message =
-      header :
-        "timestamp": new Date().getTime()
-        "name": eventName()
-      payload:
-        "message" : chatObject
-        "meeting_id": meetingId
-        "requester_id": chatObject.from_userid
-
-    console.log "publishing:" + JSON.stringify (message)
-    @pubClient.publish(Meteor.config.redis.channels.toBBBApps.chat, JSON.stringify (message))
-
   invokeGetAllMeetingsRequest: =>
     #grab data about all active meetings on the server
     message =
       "header":
         "name": "get_all_meetings_request"
       "payload": {} # I need this, otherwise bbb-apps won't recognize the message
-
-    @pubClient.publish(Meteor.config.redis.channels.toBBBApps.meeting, JSON.stringify (message))
+    Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.meeting, message)
 

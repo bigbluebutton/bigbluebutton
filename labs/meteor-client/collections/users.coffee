@@ -59,7 +59,7 @@ Meteor.methods
         "version": "0.0.1"
 
     if meetingId? and userId?
-      Meteor.redisPubSub.publish(Meteor.config.redis.channels.toBBBApps.voice, message)
+      Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.voice, message)
       Meteor.call('updateVoiceUser',meetingId, {web_userid: userId, talking:false, joined: false, muted:false})
     else
       console.log "did not have enough information to send a mute_user_request"
@@ -94,7 +94,7 @@ Meteor.methods
         "version": "0.0.1"
 
     if meetingId? and userId? and requesterId?
-      Meteor.redisPubSub.publish(Meteor.config.redis.channels.toBBBApps.voice, message)
+      Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.voice, message)
       # modify the collection
       Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set:{'user.voiceUser.talking':false}})
       numChanged = Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set:{'user.voiceUser.muted':mutedBoolean}})
@@ -120,7 +120,7 @@ Meteor.methods
           "version": "0.0.1"
 
       #publish to pubsub
-      Meteor.redisPubSub.publish(Meteor.config.redis.channels.toBBBApps.users, message)
+      Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.users, message)
       #update Users collection
       Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set: {'user.raise_hand': false}})
 
@@ -139,7 +139,7 @@ Meteor.methods
           "version": "0.0.1"
 
       #publish to pubsub
-      Meteor.redisPubSub.publish(Meteor.config.redis.channels.toBBBApps.users, message)
+      Meteor.call('publish',Meteor.config.redis.channels.toBBBApps.users, message)
       #update Users collection
       Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set: {'user.raise_hand': true}})
 
@@ -158,3 +158,17 @@ Meteor.methods
     #dispatch a message to redis
     Meteor.call('sendUserLeavingRequest', meetingId, userId)
 
+  sendUserLeavingRequest: (meetingId, userId) ->
+    console.log "\n\n sending a user_leaving_request for #{meetingId}:#{userId}"
+    message =
+      "payload":
+        "meeting_id": meetingId
+        "userid": userId
+      "header":
+        "timestamp": new Date().getTime()
+        "name": "user_leaving_request"
+        "version": "0.0.1"
+    if userId? and meetingId?
+      Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.users, message)
+    else
+      console.log "did not have enough information to send a user_leaving_request"

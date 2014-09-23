@@ -20,5 +20,26 @@ Meteor.methods
     console.log "added chat id=[#{id}]:#{messageObject.message}. Chat.size is now
      #{Meteor.Chat.find({meetingId: meetingId}).count()}"
 
-  sendChatMessagetoServer: (meetingId, messageObject) ->
-    Meteor.call "publishChatMessage", meetingId, messageObject
+  sendChatMessagetoServer: (meetingId, chatObject) ->
+    eventName = ->
+      if chatObject.chat_type is "PRIVATE_CHAT"
+        "send_private_chat_message_request"
+      else "send_public_chat_message_request"
+
+    message =
+      header :
+        "timestamp": new Date().getTime()
+        "name": eventName()
+      payload:
+        "message" : chatObject
+        "meeting_id": meetingId
+        "requester_id": chatObject.from_userid
+    Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.chat, message)
+
+  deletePrivateChatMessages: (user1, user2) ->
+    console.log "deleting chat conversation"
+    Meteor.Chat.remove({ # find all and remove private messages between the 2 users
+        'message.chat_type': 'PRIVATE_CHAT',
+        $or: [{'message.from_userid': user1, 'message.to_userid': user2},{'message.from_userid': user2, 'message.to_userid': user1}]
+    })
+
