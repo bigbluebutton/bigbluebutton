@@ -83,7 +83,7 @@ class Meteor.RedisPubSub
     ignoredEventTypes = [
       "keep_alive_reply"
       "page_resized_message"
-      # "presentation_page_resized_message"
+      "presentation_page_resized_message"
       "presentation_cursor_updated_message" # just because it's common. we handle it anyway
     ]
 
@@ -226,7 +226,6 @@ class Meteor.RedisPubSub
         Meteor.Users.update({"user.userid": newPresenterId, meetingId: meetingId},{$set: {"user.presenter": true}})
 
     if message.header?.name is "presentation_page_resized_message"
-      console.log "handling presentation_page_resized_message"
       slideId = message.payload?.page?.id
       heightRatio = message.payload?.page?.height_ratio
       widthRatio = message.payload?.page?.width_ratio
@@ -235,7 +234,6 @@ class Meteor.RedisPubSub
       presentationId = slideId.split("/")[0]
       Meteor.Slides.update({presentationId: presentationId, "slide.current": true},
         {$set: {"slide.height_ratio": heightRatio, "slide.width_ratio": widthRatio, "slide.x_offset": xOffset, "slide.y_offset": yOffset}})
-      console.log "__#{presentationId}___#{slideId}___#{heightRatio}___#{widthRatio}___#{xOffset}__#{yOffset}__"
 
     if message.header?.name is "user_raised_hand_message"
       userId = message.payload?.userid
