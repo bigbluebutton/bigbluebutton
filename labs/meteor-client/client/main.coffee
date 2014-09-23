@@ -22,7 +22,10 @@ Template.header.events
   "click .muteIcon": (event) ->
     toggleMic @
   "click .signOutIcon": (event) ->
-    userLogout getInSession("meetingId"), getInSession("userId"), true
+    response = confirm('Are you sure you want to exit?')
+    if response
+      userLogout getInSession("meetingId"), getInSession("userId"), true
+
   "click .hideNavbarIcon": (event) ->
     toggleNavbar()
   # "click .settingsIcon": (event) ->
