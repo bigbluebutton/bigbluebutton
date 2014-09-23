@@ -45,14 +45,14 @@ Template.chatInput.rendered  = ->
 
 Template.chatbar.helpers
   getChatGreeting: ->
-    greeting = "Welcome to #{getMeetingName()}!\n\n
-    For help on using BigBlueButton see these (short) <a href='http://www.bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.\n\n
-    To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.\n\n\n
+    greeting = "Welcome to #{getMeetingName()}!\r\r
+    For help on using BigBlueButton see these (short) <a href='http://www.bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.\r\r
+    To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.\r\r\r
     This server is running BigBlueButton #{getInSession 'bbbServerVersion'}."
 
   # This method returns all messages for the user. It looks at the session to determine whether the user is in
   #private or public chat. If true is passed, messages returned are from before the user joined. Else, the messages are from after the user joined
-  getFormattedMessagesForChat: () ->
+  getFormattedMessagesForChat: ->
     friend = chattingWith = getInSession('inChatWith') # the recipient(s) of the messages
     after = before = greeting = []
 

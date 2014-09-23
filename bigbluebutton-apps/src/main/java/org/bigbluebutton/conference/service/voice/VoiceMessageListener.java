@@ -40,6 +40,14 @@ public class VoiceMessageListener implements MessageHandler{
 				System.out.println("handling mute_user_request");
 				bbbGW.muteUser(meetingID, requesterID, userID, mute);
 			}
+			else if (eventName.equalsIgnoreCase(MessagingConstants.USER_LEFT_VOICE_REQUEST)){
+
+				String meetingID = payloadObject.get("meeting_id").toString().replace("\"", "");
+				String userID = payloadObject.get("userid").toString().replace("\"", "");
+
+				System.out.println("handling user_left_voice_request");
+				bbbGW.voiceUserLeft(meetingID, userID);
+			}
 		}
 	}
 }
