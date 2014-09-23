@@ -54,6 +54,22 @@ Meteor.methods
     else
       console.log "did not have enough information to send a mute_user_request"
 
+  publishUserLeftVoiceRequest: (meetingId, userId) =>
+    console.log "publishing a user left voice request for #{userId} in #{meetingId}"
+    message =
+      "payload":
+        "userid": userId
+        "meeting_id": meetingId
+      "header":
+        "timestamp": new Date().getTime()
+        "name": "user_left_voice_request"
+        "version": "0.0.1"
+
+    if meetingId? and userId?
+      Meteor.redisPubSub.publish(Meteor.config.redis.channels.toBBBApps.voice, message)
+    else
+      console.log "did not have enough information to send a mute_user_request"
+
   userLowerHand: (meetingId, userId, loweredBy) ->
     console.log "publishing a userLowerHand event: #{userId}--by=#{loweredBy}"
 
