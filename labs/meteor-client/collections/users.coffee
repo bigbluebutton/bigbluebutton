@@ -152,7 +152,6 @@ Meteor.methods
 
   userKick: (meetingId, userId) ->
     console.log "#{userId} is being kicked"
-    console.log "a user is logging out:" + userId
     #remove from the collection
     Meteor.call("removeUserFromCollection", meetingId, userId)
     #dispatch a message to redis

@@ -38,7 +38,7 @@ class Meteor.RedisPubSub
     @pubClient = redis.createClient()
     @subClient = redis.createClient()
         
-    console.log("RPC: Subscribing message on channel: #{Meteor.config.redis.channels.fromBBBApps}")
+    console.log("Subscribing message on channel: #{Meteor.config.redis.channels.fromBBBApps}")
 
     #log.info      
     @subClient.on "psubscribe", Meteor.bindEnvironment(@_onSubscribe)
@@ -49,7 +49,13 @@ class Meteor.RedisPubSub
 
   _onSubscribe: (channel, count) =>
     console.log "Subscribed to #{channel}"
-    @invokeGetAllMeetingsRequest()
+
+    #grab data about all active meetings on the server
+    message =
+      "header":
+        "name": "get_all_meetings_request"
+      "payload": {} # I need this, otherwise bbb-apps won't recognize the message
+    Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.meeting, message)
 
   _onMessage: (pattern, channel, jsonMsg) =>
     # TODO: this has to be in a try/catch block, otherwise the server will
@@ -236,12 +242,3 @@ class Meteor.RedisPubSub
           #TODO should we clear the chat messages for that meeting?!
         unless message.header?.name is "disconnect_all_users_message"
           Meteor.call("removeMeetingFromCollection", meetingId)
-
-  invokeGetAllMeetingsRequest: =>
-    #grab data about all active meetings on the server
-    message =
-      "header":
-        "name": "get_all_meetings_request"
-      "payload": {} # I need this, otherwise bbb-apps won't recognize the message
-    Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.meeting, message)
-

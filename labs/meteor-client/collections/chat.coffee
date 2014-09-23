@@ -21,6 +21,7 @@ Meteor.methods
      #{Meteor.Chat.find({meetingId: meetingId}).count()}"
 
   sendChatMessagetoServer: (meetingId, chatObject) ->
+    # check if this is a private or a public chat message
     eventName = ->
       if chatObject.chat_type is "PRIVATE_CHAT"
         "send_private_chat_message_request"
