@@ -29,7 +29,9 @@ Meteor.methods
       console.log "added textShape id =[#{id}]:#{shapeObject.id} in #{meetingId} || now there are #{numShapesOnSlide} shapes on the slide"
 
     else
-      if shapeObject?.status is "DRAW_END" #the mouse button was released - the drawing is complete
+      # the mouse button was released - the drawing is complete
+      # TODO: pencil messages currently don't send draw_end and are labeled all as DRAW_START
+      if shapeObject?.status is "DRAW_END" or (shapeObject?.status is "DRAW_START" and shapeObject?.shape_type is "pencil")
         entry =
           meetingId: meetingId
           whiteboardId: whiteboardId

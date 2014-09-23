@@ -13,9 +13,16 @@ login = (req, resp) ->
   serverAndSecret = testapi.serverAndSecret
 
   #use the name from the textbox
-  console.log "\n\nThe Username passed was=" + JSON.stringify(req.body.name) + "\n\n"
-  joinParams.fullName = JSON.stringify req.body.name
-  joinParams.fullName = joinParams.fullName.replace(/['"]/g,'')
+  console.log "\n\nThe Username passed was=" + JSON.stringify(req.body.name) + "The Meetingname passed was=" + JSON.stringify(req.body.meetingName) + "\n\n"
+
+  # grab the username and the meeting name passed in. Strip the surrounding quotes
+  joinParams.fullName = (JSON.stringify req.body.name)?.replace(/['"]/g,'')
+  passedMeetingName = (JSON.stringify req.body.meetingName)?.replace(/["]/g,'')
+
+  # use the meeting name from the form to [create if not existing and] join the meeting with such name
+  joinParams.meetingID = passedMeetingName
+  createParams.name = passedMeetingName
+  createParams.meetingID = passedMeetingName
 
   #calling createapi
   bbbapi.create(createParams, serverAndSecret, {}, (errorOuter, responseOuter, bodyOuter) ->

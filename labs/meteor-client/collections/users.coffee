@@ -39,6 +39,7 @@ Meteor.methods
           extern_userid: user.extern_userid
           permissions: user.permissions
           locked: user.locked
+          time_of_joining: user.timeOfJoining
           voiceUser:
             web_userid: user.voiceUser.web_userid
             callernum: user.voiceUser.callernum

@@ -14,9 +14,6 @@ class @WhiteboardLineModel extends WhiteboardToolModel
     # format: svg path, stroke color, thickness
     @definition = ["", "#000", "0px"]
 
-    # @lineX = null
-    # @lineY = null
-
   # Creates a line in the paper
   # @param  {number} x         the x value of the line start point as a percentage of the original width
   # @param  {number} y         the y value of the line start point as a percentage of the original height
@@ -63,36 +60,12 @@ class @WhiteboardLineModel extends WhiteboardToolModel
       y2 = info.points[3]
 
       if @obj?
+        path = @_buildPath(info.points)
 
-        # if adding points from the pencil 
-        if _.isBoolean(info.adding)
-          add = info.adding
+        @definition[0] = path
 
-          pathPercent = "L" + x1 + " " + y1
-          @definition.data[0] += pathPercent
-
-          x1 = x1 * @gw + @xOffset
-          y1 = y1 * @gh + @yOffset
-
-          # if adding to the line
-          if add
-            path = @obj.attrs.path + "L" + x1 + " " + y1
-            @obj.attr path: path
-
-          # if simply updating the last portion (for drawing a straight line)
-          else
-            @obj.attrs.path.pop()
-            path = @obj.attrs.path.join(" ")
-            path = path + "L" + x1 + " " + y1
-            @obj.attr path: path
-
-        # adding lines from the line tool
-        else
-          path = @_buildPath(x1, y1, x2, y2)
-          @definition[0] = path
-
-          path = @_scaleLinePath(path, @gw, @gh, @xOffset, @yOffset)
-          @obj.attr path: path
+        path = @_scaleLinePath(path, @gw, @gh, @xOffset, @yOffset)
+        @obj.attr path: path
 
   # Draw a line on the paper
   # @param  {number,string} x1 1) the x value of the first point
@@ -110,19 +83,19 @@ class @WhiteboardLineModel extends WhiteboardToolModel
   draw: (x1, y1, x2, y2, colour, thickness) ->
 
     # if the drawing is from the pencil tool, it comes as a path first
-    if _.isString(x1)
-      colour = y1
-      thickness = x2
-      path = x1
+    # if _.isString(x1)
+    #   colour = y1
+    #   thickness = x2
+    #   path = x1
 
-    # if the drawing is from the line tool, it comes with two points
-    else
-      path = @_buildPath(x1, y1, x2, y2)
+    # # if the drawing is from the line tool, it comes with two points
+    # else
+    #   path = @_buildPath(points)
 
-    line = @paper.path(@_scaleLinePath(path, @gw, @gh, @xOffset, @yOffset))
-    line.attr Utils.strokeAndThickness(colour, thickness)
-    line.attr({"stroke-linejoin": "round"})
-    line
+    # line = @paper.path(@_scaleLinePath(path, @gw, @gh, @xOffset, @yOffset))
+    # line.attr Utils.strokeAndThickness(colour, thickness)
+    # line.attr({"stroke-linejoin": "round"})
+    # line
 
   # When dragging for drawing lines starts
   # @param  {number} x the x value of the cursor
@@ -185,8 +158,19 @@ class @WhiteboardLineModel extends WhiteboardToolModel
     #     [ @_scaleLinePath(path.join(","), 1 / @gw, 1 / @gh),
     #       @currentColour, @currentThickness ]
 
-  _buildPath: (x1, y1, x2, y2) ->
-    "M#{x1} #{y1}L#{x2} #{y2}"
+  _buildPath: (points) ->
+    path = ""
+
+    if points and points.length >= 2
+      path += "M #{points[0]} #{points[1]}"
+      i = 2
+
+      while i < points.length
+        path += "L#{points[i]} #{points[i + 1]}"
+        i += 2
+
+      path += "Z"
+      path
 
   # Scales a path string to fit within a width and height of the new paper size
   # @param  {number} w width of the shape as a percentage of the original width

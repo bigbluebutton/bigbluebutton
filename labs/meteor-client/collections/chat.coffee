@@ -1,6 +1,6 @@
 Meteor.methods
   addChatToCollection: (meetingId, messageObject) ->
-    # manually convert time from 1.408645053653E12 to 1408645053653 if necessary
+    # manually convert time from 1.408645053653E12 to 1408645053653 if necessary (this is the time_from that the Flash client outputs)
     messageObject.from_time = (messageObject.from_time).toString().split('.').join("").split("E")[0]
     entry =
       meetingId: meetingId

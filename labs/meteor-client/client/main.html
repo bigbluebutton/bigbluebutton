@@ -69,11 +69,9 @@
                {{> makeButton btn_class="hideNavbarIcon navbarButton" i_class="chevron-up" rel="tooltip" data_placement="bottom" title="Hide Navbar"}}
 			</div>
 		</div>
+		<div class="navbarFiller"></div>
 	{{else}}
-      <div id="navbar" class="myNavbarMinimized navbar-default navbar-static-top" role="navigation">
-         <!-- User wants to hide navbar. The button for bringing the navbar back needs to still be available. Perhaps it should appear/disappear in the future on hover? Something to add later. -->
-         {{> makeButton btn_class="hideNavbarIcon navbarMinimizedButton" i_class="chevron-down" rel="tooltip" data_placement="bottom" title="Display Navbar"}}
-      </div>
+         {{> makeButton id="navbarMinimizedButton" btn_class="hideNavbarIcon navbarMinimizedButtonSmall" i_class="chevron-down" rel="tooltip" data_placement="bottom" title="Display Navbar"}}
    {{/if}}
 </template>
 
@@ -87,7 +85,6 @@
 			{{> chatbar id="chat" title="Chat" name="chatbar"}}
 			<audio id="remote-media" autoplay="autoplay"></audio>
 			{{> footer}}
-			{{doFinalStuff}}
 		</div>
 	</body>
 </template>
