@@ -31,11 +31,10 @@ Template.header.events
   # "click .settingsIcon": (event) ->
   #   alert "settings"
   "click .raiseHand": (event) ->
+    console.log "navbar raise own hand from client"
     Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"))
   "click .lowerHand": (event) ->
-    # loweredBy = @id # TODO! this must be the userid of the person lowering the hand - instructor/student
-    loweredBy = getInSession("userId")
-    Meteor.call('userLowerHand', getInSession("meetingId"), getInSession("userId"), loweredBy)
+    Meteor.call('userLowerHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"))
   "click .whiteboardIcon": (event) ->
     toggleWhiteBoard()
   "mouseover #navbarMinimizedButton": (event) ->

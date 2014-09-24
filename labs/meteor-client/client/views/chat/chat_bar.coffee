@@ -125,7 +125,6 @@ Template.chatbar.helpers
         #currentTab = document.getElementsByClassName("active")[0].getElementsByTagName("a")[0].id #TODO how can I simplify this?!?
       })
 
-
 # When chatbar gets rendered, scroll to the bottom
 Template.chatbar.rendered = ->
   Template.chatbar.markNewAsUnread()
