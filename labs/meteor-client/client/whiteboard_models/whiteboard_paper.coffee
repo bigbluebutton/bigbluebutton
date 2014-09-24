@@ -821,9 +821,9 @@ class @WhiteboardPaperModel
     if originalWidth <= originalHeight
       # square => boardHeight is the shortest side
       adjustedWidth = boardHeight * originalWidth / originalHeight
-      $('#whiteboard-paper').attr('style', 'width:' + adjustedWidth + 'px')
+      $('#whiteboard-paper').width(adjustedWidth)
       @addImageToPaper(data, adjustedWidth, boardHeight)
     else
       adjustedHeight = boardWidth * originalHeight / originalWidth
-      $('#whiteboard-paper').attr('style', 'height:' + adjustedHeight + 'px')
+      $('#whiteboard-paper').height(adjustedHeight)
       @addImageToPaper(data, boardWidth, adjustedHeight)
