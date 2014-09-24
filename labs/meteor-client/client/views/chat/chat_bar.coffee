@@ -32,7 +32,7 @@ Template.chatInput.events
 
   'keypress #newMessageInput': (event) -> # user pressed a button inside the chatbox
     if event.shiftKey and event.which is 13
-      $("#newMessageInput").append("\n")
+      $("#newMessageInput").append("\r") # Change newline character
       return
     
     if event.which is 13 # Check for pressing enter to submit message
