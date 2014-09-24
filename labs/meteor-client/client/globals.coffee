@@ -23,24 +23,6 @@
 @getTimeOfJoining = ->
   Meteor.Users.findOne({"user.userid": getInSession("userId")})?.user?.time_of_joining
 
-# Finds the names of all people the current user is in a private conversation with
-#  Removes yourself and duplicates if they exist
-@getPrivateChatees = ->
-  me = getInSession("userId")
-  users = Meteor.Users.find().fetch()
-  people = Meteor.Chat.find({$or: [{'message.from_userid': me, 'message.chat_type': 'PRIVATE_CHAT'},{'message.to_userid': me, 'message.chat_type': 'PRIVATE_CHAT'}] }).fetch()
-  formattedUsers = null
-  formattedUsers = (u for u in users when (do -> 
-    return false if u.userId is me
-    found = false
-    for chatter in people
-      if u.userId is chatter.message.to_userid or u.userId is chatter.message.from_userid
-        found = true
-    found
-    )
-  )
-  if formattedUsers? then formattedUsers else []
-
 @getTime = -> # returns epoch in ms
   (new Date).valueOf()
 
@@ -161,21 +143,6 @@ Handlebars.registerHelper "visibility", (section) ->
   http = /\b(https?:\/\/[0-9a-z+|.,:;\/&?_~%#=@!-]*[0-9a-z+|\/&_~%#=@-])/img
   str = str.replace http, "<a href='event:$1'><u>$1</u></a>"
   str = str.replace www, "$1<a href='event:http://$2'><u>$2</u></a>"
-
-# Creates a 'tab' object for each person in chat with
-# adds public and options tabs to the menu
-@makeTabs = ->
-  privTabs = getPrivateChatees().map (u, index) ->
-      newObj = {
-        userId: u.userId
-        name: u.user.name
-        gotMail: false
-        class: "privateChatTab"
-      }
-  tabs = [
-    {userId: "PUBLIC_CHAT", name: "Public", gotMail: false, class: "publicChatTab"},
-    {userId: "OPTIONS", name: "Options", gotMail: false, class: "optionsChatTab"}
-  ].concat privTabs
 
 @setInSession = (k, v) -> SessionAmplify.set k, v 
 

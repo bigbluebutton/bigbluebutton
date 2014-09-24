@@ -187,7 +187,39 @@ Template.tabButtons.events
   
 Template.tabButtons.helpers
   getChatbarTabs: ->
-    tabs = makeTabs()
+    # Finds the names of all people the current user is in a private conversation with
+    #  Removes yourself and duplicates if they exist
+    getPrivateChatees = ->
+      me = getInSession("userId")
+      users = Meteor.Users.find().fetch()
+      people = Meteor.Chat.find({$or: [{'message.from_userid': me, 'message.chat_type': 'PRIVATE_CHAT'},{'message.to_userid': me, 'message.chat_type': 'PRIVATE_CHAT'}] }).fetch()
+      formattedUsers = null
+      formattedUsers = (u for u in users when (do -> 
+        return false if u.userId is me
+        found = false
+        for chatter in people
+          if u.userId is chatter.message.to_userid or u.userId is chatter.message.from_userid
+            found = true
+        found
+        )
+      )
+      if formattedUsers? then formattedUsers else []
+
+
+    # Creates a 'tab' object for each person in chat with
+    # adds public and options tabs to the menu
+    privTabs = getPrivateChatees().map (u, index) ->
+        newObj = {
+          userId: u.userId
+          name: u.user.name
+          gotMail: false
+          class: "privateChatTab"
+        }
+    tabs = [
+      {userId: "PUBLIC_CHAT", name: "Public", gotMail: false, class: "publicChatTab"},
+      {userId: "OPTIONS", name: "Options", gotMail: false, class: "optionsChatTab"}
+    ].concat privTabs
+    tabs
 
   makeTabButton: -> # create tab button for private chat or other such as options
     safeClass = @class.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
