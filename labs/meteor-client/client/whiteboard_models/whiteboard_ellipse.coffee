@@ -24,7 +24,7 @@ class @WhiteboardEllipseModel extends WhiteboardToolModel
 
         @obj = @paper.ellipse(x * @gw + @xOffset, y * @gh + @yOffset, 0, 0)
         @obj.attr "stroke", formatColor(color)
-        @obj.attr "stroke-width", formatThickness(thickness)
+        @obj.attr "stroke-width", zoomStroke(formatThickness(thickness))
         @definition = [x, y, y, x, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]
 
       @obj

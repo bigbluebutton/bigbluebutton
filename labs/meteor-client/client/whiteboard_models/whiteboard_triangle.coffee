@@ -23,7 +23,7 @@ class @WhiteboardTriangleModel extends WhiteboardToolModel
       path = @_buildPath(x, y, x, y, x, y)
       @obj = @paper.path(path)
       @obj.attr "stroke", formatColor(color)
-      @obj.attr "stroke-width", formatThickness(thickness)
+      @obj.attr "stroke-width", zoomStroke(formatThickness(thickness))
       @obj.attr({"stroke-linejoin": "round"})
 
       @definition = [x, y, x, y, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]

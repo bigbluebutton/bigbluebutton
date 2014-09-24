@@ -9,24 +9,21 @@ class @WhiteboardPaperModel
 
     # all slides in the presentation indexed by url
     @slides = {}
-    # the slide being shown
-    @currentSlide = null
 
     @fitToPage = true
     @panX = null
     @panY = null
 
+    @current = {}
+
+    # the slide being shown
+    @current.slide = null
+
     # a raphaeljs set with all the shapes in the current slide
-    @currentShapes = null
+    @current.shapes = null
     # a list of shapes as passed to this client when it receives `all_slides`
     # (se we are able to redraw the shapes whenever needed)
-    @currentShapesDefinitions = []
-    # pointers to the current shapes being drawn
-    @currentLine = null
-    @currentRect = null
-    @currentEllipse = null
-    @currentTriangle = null
-    @currentText = null
+    @current.shapeDefinitions = []
 
     @zoomLevel = 1
     @shiftPressed = false
@@ -98,7 +95,7 @@ class @WhiteboardPaperModel
   # Re-add the images to the paper that are found
   # in the slides array (an object of urls and dimensions).
   rebuild: ->
-    @currentSlide = null
+    @current.slide = null
     for url of @slides
       if @slides.hasOwnProperty(url)
         @addImageToPaper url, @slides[url].getWidth(), @slides[url].getHeight()
@@ -114,13 +111,13 @@ class @WhiteboardPaperModel
       #       will change quite a bit
       # slides
       slidesTmp = _.clone(@slides)
-      urlTmp = @currentSlide
+      urlTmp = @current.slide
       @removeAllImagesFromPaper()
       @slides = slidesTmp
       @rebuild()
       @showImageFromPaper(urlTmp?.url)
       # drawings
-      tmp = _.clone(@currentShapesDefinitions)
+      tmp = _.clone(@current.shapeDefinitions)
       @clearShapes()
       @drawListOfShapes(tmp)
 
@@ -165,10 +162,10 @@ class @WhiteboardPaperModel
     # y-offset from top left corner as percentage of original height of paper
     @slides[url] = new WhiteboardSlideModel(img.id, url, img, originalWidth, originalHeight, sw, sh, cx, cy)
 
-    unless @currentSlide?
+    unless @current.slide?
       img.toBack()
-      @currentSlide = @slides[url]
-    else if @currentSlide.url is url
+      @current.slide = @slides[url]
+    else if @current.slide.url is url
       img.toBack()
     else
       img.hide()
@@ -189,7 +186,7 @@ class @WhiteboardPaperModel
         @raphaelObj.getById(@slides[url]?.getId())?.remove()
         @trigger('paper:image:removed', @slides[url].getId()) # Removes the previous image preventing images from being redrawn over each other repeatedly
     @slides = {}
-    @currentSlide = null
+    @current.slide = null
 
   # Shows an image from the paper.
   # The url must be in the slides array.
@@ -197,16 +194,16 @@ class @WhiteboardPaperModel
   showImageFromPaper: (url) ->
     # TODO: temporary solution
     url = @_slideUrl(url)
-    if not @currentSlide? or (@slides[url]? and @currentSlide.url isnt url)
-      @_hideImageFromPaper(@currentSlide.url) if @currentSlide?
+    if not @current.slide? or (@slides[url]? and @current.slide.url isnt url)
+      @_hideImageFromPaper(@current.slide.url) if @current.slide?
       next = @_getImageFromPaper(url)
       if next
         next.show()
         next.toFront()
-        @currentShapes.forEach (element) ->
+        @current.shapes.forEach (element) ->
           element.toFront()
         @cursor.toFront()
-      @currentSlide = @slides[url]
+      @current.slide = @slides[url]
 
   # Updates the paper from the server values.
   # @param  {number} cx_ the x-offset value as a percentage of the original width
@@ -254,14 +251,14 @@ class @WhiteboardPaperModel
     @currentTool = tool
     console.log "setting current tool to", tool
     switch tool
-      when "path", "line"
+      when "line"
         @cursor.undrag()
-        @currentLine = @_createTool(tool)
-        @cursor.drag(@currentLine.dragOnMove, @currentLine.dragOnStart, @currentLine.dragOnEnd)
-      when "rect"
+        @current.line = @_createTool(tool)
+        @cursor.drag(@current.line.dragOnMove, @current.line.dragOnStart, @current.line.dragOnEnd)
+      when "rectangle"
         @cursor.undrag()
-        @currentRect = @_createTool(tool)
-        @cursor.drag(@currentRect.dragOnMove, @currentRect.dragOnStart, @currentRect.dragOnEnd)
+        @current.rectangle = @_createTool(tool)
+        @cursor.drag(@current.rectangle.dragOnMove, @current.rectangle.dragOnStart, @current.rectangle.dragOnEnd)
 
       # TODO: the shapes below are still in the old format
       # when "panzoom"
@@ -331,15 +328,15 @@ class @WhiteboardPaperModel
   # Draws an array of shapes to the paper.
   # @param  {array} shapes the array of shapes to draw
   drawListOfShapes: (shapes) ->
-    @currentShapesDefinitions = shapes
-    @currentShapes = @raphaelObj.set()
+    @current.shapeDefinitions = shapes
+    @current.shapes = @raphaelObj.set()
     for shape in shapes
       shapeType = shape?.shape?.shape_type
       dataBlock = shape?.shape?.shape
       data = if _.isString(dataBlock) then JSON.parse(dataBlock) else dataBlock
       tool = @_createTool(shapeType)
       if tool?
-        @currentShapes.push tool.draw.apply(tool, data)
+        @current.shapes.push tool.draw.apply(tool, data)
       else
         console.log "shape not recognized at drawListOfShapes", shape
 
@@ -353,61 +350,33 @@ class @WhiteboardPaperModel
 
   # Clear all shapes from this paper.
   clearShapes: ->
-    if @currentShapes?
-      @currentShapes.forEach (element) ->
+    if @current.shapes?
+      @current.shapes.forEach (element) ->
         element.remove()
       @currentShapes = []
       @currentShapesDefinitions = []
+    @clearCursor()
+    
+  clearCursor: ->
+    @cursor?.remove()
 
   # Updated a shape `shape` with the data in `data`.
   # TODO: check if the objects exist before calling update, if they don't they should be created
   updateShape: (shape, data) ->
-    switch shape
-      when "line"
-        @currentLine.update(data)
-      when "rectangle"
-        @currentRect.update(data)
-      when "ellipse"
-        @currentEllipse.update(data)
-      when "triangle"
-        @currentTriangle.update(data)
-      when "text"
-        #@currentText.update.apply(@currentText, data)
-        @currentText.update(data)
-      else
-        console.log "shape not recognized at updateShape", shape
+    @current[shape].update(data)
 
   # Make a shape `shape` with the data in `data`.
   makeShape: (shape, data) ->
     tool = null
-    switch shape
-      when "path", "line"
-        @currentLine = @_createTool(shape)
-        toolModel = @currentLine
-        tool = @currentLine.make(data)
-      when "rectangle"
-        @currentRect = @_createTool(shape)
-        toolModel = @currentRect
-        tool = @currentRect.make(data)
-      when "ellipse"
-        @currentEllipse = @_createTool(shape)
-        toolModel = @currentEllipse
-        tool = @currentEllipse.make(data)
-      when "triangle"
-        @currentTriangle = @_createTool(shape)
-        toolModel = @currentTriangle
-        tool = @currentTriangle.make(data)
-      when "text"
-        @currentText = @_createTool(shape)
-        toolModel = @currentText
-        #tool = @currentText.make.apply(@currentText, data)
-        tool = @currentText.make(data)
-      else
-        console.log "shape not recognized at makeShape", shape
+
+    @current[shape] = @_createTool(shape)
+    toolModel = @current[shape]
+    tool = @current[shape].make(data)
+
     if tool?
-      @currentShapes ?= @raphaelObj.set()
-      @currentShapes.push(tool)
-      @currentShapesDefinitions.push(toolModel.getDefinition())
+      @current.shapes ?= @raphaelObj.set()
+      @current.shapes.push(tool)
+      @current.shapeDefinitions.push(toolModel.getDefinition())
 
   # Update the cursor position on screen
   # @param  {number} x the x value of the cursor as a percentage of the width
@@ -442,8 +411,8 @@ class @WhiteboardPaperModel
 
     #get the actual size of the slide, depending on the limiting factor (container width or container height)
 
-    actualWidth = @currentSlide.displayWidth
-    actualHeight = @currentSlide.displayHeight
+    actualWidth = @current.slide.displayWidth
+    actualHeight = @current.slide.displayHeight
     #console.log("actualWidth:" + actualWidth + " actualHeight: " + actualHeight)
 
     #calculate parameters to pass
@@ -461,7 +430,6 @@ class @WhiteboardPaperModel
 
     #set parameters to raphael viewbox
     @raphaelObj.setViewBox(newXPos , newyPos,  newWidth , newHeight , true)
-
 
     # update the rectangle elements which create the border when page is zoomed
     @borders.left.attr( {width:newXPos, height: @containerHeight} )
@@ -737,17 +705,19 @@ class @WhiteboardPaperModel
         @shiftPressed = false
 
   _currentSlideDimensions: ->
-    if @currentSlide? then @currentSlide.getDimensions() else [0, 0]
+    if @current.slide? then @current.slide.getDimensions() else [0, 0]
 
   _currentSlideOriginalDimensions: ->
-    if @currentSlide? then @currentSlide.getOriginalDimensions() else [0, 0]
+    if @current.slide? then @current.slide.getOriginalDimensions() else [0, 0]
 
   _currentSlideOffsets: ->
-    if @currentSlide? then @currentSlide.getOffsets() else [0, 0]
+    if @current.slide? then @current.slide.getOffsets() else [0, 0]
 
   # Wrapper method to create a tool for the whiteboard
   _createTool: (type) ->
     switch type
+      when "pencil"
+        model = WhiteboardLineModel
       when "path", "line"
         model = WhiteboardLineModel
       when "rectangle"
@@ -783,7 +753,7 @@ class @WhiteboardPaperModel
 
   #Changes the currently displayed page/slide (if any) with this one
   #@param {data} message object containing the "presentation" object
-  _displayPage: (data) ->
+  _displayPage: (data, originalWidth, originalHeight) ->
     @removeAllImagesFromPaper()
 
     # get dimensions for available whiteboard space
@@ -806,10 +776,8 @@ class @WhiteboardPaperModel
 
     boardWidth = @containerWidth
     boardHeight = @containerHeight
-
-    currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-    presentationId = currentPresentation?.presentation?.id
-    currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+    
+    currentSlide = getCurrentSlideDoc()
 
     # TODO currentSlide undefined in some cases - will check later why
     imageWidth = boardWidth * (currentSlide?.slide.width_ratio/100) or boardWidth
@@ -823,13 +791,32 @@ class @WhiteboardPaperModel
     # console.log "boardHeight: #{boardHeight}"
     console.log "imageWidth: #{imageWidth}"
     console.log "imageHeight: #{imageHeight}"
+    
+    currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+    presentationId = currentPresentation?.presentation?.id
+    currentSlideCursor = Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
 
-    pic = new Image()
     _this = this
-    pic.onload = ->
-      if this.width <= this.height # natural dimensions
-        # square => boardHeight is the shortest side
-        _this.addImageToPaper(data, boardHeight * this.width / this.height, boardHeight)
-      else
-        _this.addImageToPaper(data, boardWidth, boardWidth * this.height / this.width)
-    pic.src = data
+    currentSlideCursor.observe # watching the current slide changes
+      changed: (newDoc, oldDoc) ->
+        newX = - newDoc.slide.x_offset * 2 * boardWidth / 100
+        newY = - newDoc.slide.y_offset * 2 * boardHeight / 100
+        newWidth = boardWidth * newDoc.slide.width_ratio / 100
+        newHeight = boardHeight * newDoc.slide.height_ratio / 100
+        
+        _this.raphaelObj.setViewBox(newX, newY, newWidth, newHeight) # zooms and pans
+        
+        oldRatio = (oldDoc.slide.width_ratio + oldDoc.slide.height_ratio) / 2
+        newRatio = (newDoc.slide.width_ratio + newDoc.slide.height_ratio) / 2
+        _this.currentShapes?.forEach (shape) ->
+          shape.attr "stroke-width", shape.attr('stroke-width') * oldRatio  / newRatio
+    
+    if originalWidth <= originalHeight
+      # square => boardHeight is the shortest side
+      adjustedWidth = boardHeight * originalWidth / originalHeight
+      $('#whiteboard-paper').attr('style', 'width:' + adjustedWidth + 'px')
+      @addImageToPaper(data, adjustedWidth, boardHeight)
+    else
+      adjustedHeight = boardWidth * originalHeight / originalWidth
+      $('#whiteboard-paper').attr('style', 'height:' + adjustedHeight + 'px')
+      @addImageToPaper(data, boardWidth, adjustedHeight)

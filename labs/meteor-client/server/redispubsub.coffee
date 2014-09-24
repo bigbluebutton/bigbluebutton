@@ -1,121 +1,8 @@
 Meteor.methods
-  deletePrivateChatMessages: (user1, user2) ->
-    console.log "deleting chat conversation"
-    Meteor.Chat.remove({ # find all and remove private messages between the 2 users
-        'message.chat_type': 'PRIVATE_CHAT',
-        $or: [{'message.from_userid': user1, 'message.to_userid': user2},{'message.from_userid': user2, 'message.to_userid': user1}]
-    })
-    ###
-    # TODO: Messages are now wiped from Meteor server
-    # add code here to send request to redis to delete messages there as well or else all messages will be re populated
-    ###
-
-  validateAuthToken: (meetingId, userId, authToken) ->
-    Meteor.redisPubSub.sendValidateToken(meetingId, userId, authToken)
-
-  userLogout: (meetingId, userId) ->
-    console.log "a user is logging out:" + userId
-    #remove from the collection
-    Meteor.call("removeUserFromCollection", meetingId, userId)
-    #dispatch a message to redis
-    Meteor.redisPubSub.sendUserLeavingRequest(meetingId, userId)
-
-  userKick: (meetingId, userId) ->
-    console.log "#{userId} is being kicked"
-    console.log "a user is logging out:" + userId
-    #remove from the collection
-    Meteor.call("removeUserFromCollection", meetingId, userId)
-    #dispatch a message to redis
-    Meteor.redisPubSub.sendUserLeavingRequest(meetingId, userId)
-
-  publishChatMessage: (meetingId, messageObject) ->
-    Meteor.redisPubSub.publishingChatMessage(meetingId, messageObject)
-
-  publishMuteRequest: (meetingId, userId, requesterId, mutedBoolean) =>
-    console.log "publishing a user mute #{mutedBoolean} request for #{userId}"
-    message =
-      "payload":
-        "userid": userId
-        "meeting_id": meetingId
-        "mute": mutedBoolean
-        "requester_id": requesterId
-      "header": 
-        "timestamp": new Date().getTime()
-        "name": "mute_user_request"
-        "version": "0.0.1"
-
-    if meetingId? and userId? and requesterId?
-      Meteor.redisPubSub.publish(Meteor.config.redis.channels.toBBBApps.voice, message)
-      # modify the collection
-      Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set:{'user.voiceUser.talking':false}})
-      numChanged = Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set:{'user.voiceUser.muted':mutedBoolean}})
-      if numChanged isnt 1
-        console.log "\n\nSomething went wrong!! We were supposed to mute/unmute 1 user!!\n\n"
-    else
-      console.log "did not have enough information to send a mute_user_request"
-
-  userLowerHand: (meetingId, userId, loweredBy) ->
-    console.log "publishing a userLowerHand event: #{userId}--by=#{loweredBy}"
-
-    if meetingId? and userId? and loweredBy?
-      message =
-        "payload":
-          "userid": userId
-          "meeting_id": meetingId
-          "raise_hand": false
-          "lowered_by": loweredBy
-        "header":
-          "timestamp": new Date().getTime()
-          "name": "user_lowered_hand_message"
-          "version": "0.0.1"
-
-      #publish to pubsub
-      Meteor.redisPubSub.publish(Meteor.config.redis.channels.toBBBApps.users, message)
-      console.log "just published for userLowerHand" + JSON.stringify message
-
-      #update Users collection
-      Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set: {'user.raise_hand': false}})
-
-  userRaiseHand: (meetingId, userId) ->
-    console.log "publishing a userRaiseHand event: #{userId}"
-
-    if meetingId? and userId?
-      message =
-        "payload":
-          "userid": userId
-          "meeting_id": meetingId
-          "raise_hand": true
-        "header":
-          "timestamp": new Date().getTime()
-          "name": "user_raised_hand_message"
-          "version": "0.0.1"
-
-      #publish to pubsub
-      Meteor.redisPubSub.publish(Meteor.config.redis.channels.toBBBApps.users, message)
-      console.log "just published for userRaisedHand" + JSON.stringify message
-
-      #update Users collection
-      Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set: {'user.raise_hand': true}})
-
-class Meteor.RedisPubSub
-  constructor: (callback) ->
-    console.log "constructor RedisPubSub"
-
-    @pubClient = redis.createClient()
-    @subClient = redis.createClient()
-        
-    console.log("RPC: Subscribing message on channel: #{Meteor.config.redis.channels.fromBBBApps}")
-
-    #log.info      
-    @subClient.on "psubscribe", Meteor.bindEnvironment(@_onSubscribe)
-    @subClient.on "pmessage", Meteor.bindEnvironment(@_onMessage)
-
-    @subClient.psubscribe(Meteor.config.redis.channels.fromBBBApps)
-    callback @
 
   # Construct and send a message to bbb-web to validate the user
-  sendValidateToken: (meetingId, userId, authToken) ->
-    console.log "\n\n i am sending a validate_auth_token with " + userId + "" + meetingId
+  validateAuthToken: (meetingId, userId, authToken) ->
+    console.log "\n\n sending a validate_auth_token with userid=#{userId} meetingid=#{meetingId}"
 
     message =
       "payload":
@@ -128,29 +15,47 @@ class Meteor.RedisPubSub
         "name": "validate_auth_token"
 
     if authToken? and userId? and meetingId?
-      @pubClient.publish(Meteor.config.redis.channels.toBBBApps.meeting, JSON.stringify(message))
+      Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.meeting, message)
     else
       console.log "did not have enough information to send a validate_auth_token message"
 
-  sendUserLeavingRequest: (meetingId, userId) ->
-    console.log "\n\n sending a user_leaving_request for #{meetingId}:#{userId}"
-    message =
-      "payload":
-        "meeting_id": meetingId
-        "userid": userId
-      "header":
-        "timestamp": new Date().getTime()
-        "name": "user_leaving_request"
-        "version": "0.0.1"
-
-    if userId? and meetingId?
-      @pubClient.publish(Meteor.config.redis.channels.toBBBApps.users, JSON.stringify(message))
+  # message should be an object
+  publish: (channel, message) ->
+    console.log "Publishing channel=#{channel}, message=#{JSON.stringify(message)}"
+    if Meteor.redisPubSub?
+      Meteor.redisPubSub.pubClient?.publish(channel, JSON.stringify(message), (err, res) ->
+        if err
+          console.log "err=" + err
+      )
     else
-      console.log "did not have enough information to send a user_leaving_request"
+      console.log "\n ERROR!! Meteor.redisPubSub was undefined\n"
+
+
+class Meteor.RedisPubSub
+  constructor: (callback) ->
+    console.log "constructor RedisPubSub"
+
+    @pubClient = redis.createClient()
+    @subClient = redis.createClient()
+        
+    console.log("Subscribing message on channel: #{Meteor.config.redis.channels.fromBBBApps}")
+
+    #log.info      
+    @subClient.on "psubscribe", Meteor.bindEnvironment(@_onSubscribe)
+    @subClient.on "pmessage", Meteor.bindEnvironment(@_onMessage)
+
+    @subClient.psubscribe(Meteor.config.redis.channels.fromBBBApps)
+    callback @
 
   _onSubscribe: (channel, count) =>
     console.log "Subscribed to #{channel}"
-    @invokeGetAllMeetingsRequest()
+
+    #grab data about all active meetings on the server
+    message =
+      "header":
+        "name": "get_all_meetings_request"
+      "payload": {} # I need this, otherwise bbb-apps won't recognize the message
+    Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.meeting, message)
 
   _onMessage: (pattern, channel, jsonMsg) =>
     # TODO: this has to be in a try/catch block, otherwise the server will
@@ -163,53 +68,42 @@ class Meteor.RedisPubSub
     ignoredEventTypes = [
       "keep_alive_reply"
       "page_resized_message"
-      # "presentation_page_resized_message"
+      "presentation_page_resized_message"
       "presentation_cursor_updated_message" # just because it's common. we handle it anyway
     ]
 
     unless message.header?.name in ignoredEventTypes
-      #console.log "\nchannel=" + channel
-      #console.log "correlationId=" + correlationId if correlationId?
       console.log "eventType=" + message.header?.name #+ "\n"
-      #log.debug({ pattern: pattern, channel: channel, message: message}, "Received a message from redis")
       console.log jsonMsg
 
-    if message.header?.name is 'user_voice_talking_message'
-      u = Meteor.Users.findOne({'userId': message.payload?.user?.userid, 'meetingId': meetingId})
-      if u?
-        if not u?.user?.voiceUser?.muted
-          console.log "setting talking to #{message?.payload?.user?.voiceUser?.talking}"
-          Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.talking':message?.payload?.user?.voiceUser?.talking}})
-          Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.joined':true}})
-        else
-          Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.talking':false}})
+    # handle voice events
+    if message.header?.name in ['user_left_voice_message', 'user_joined_voice_message', 'user_voice_talking_message', 'user_voice_muted_message']
+      voiceUser = message.payload?.user?.voiceUser
+      Meteor.call('updateVoiceUser', meetingId, voiceUser)
 
-    if message.header?.name is 'user_voice_muted_message'
-      u = Meteor.Users.findOne({'userId': message.payload?.user?.userid, 'meetingId': meetingId})
-      console.log "\n\n\n got a muted event and the user is #{u}"
-
-      if u?
-        # make sure the user is not currently in talking mode
-        Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.talking': false}})
-        # update to muted
-        Meteor.Users.update({_id:u._id}, {$set: {'user.voiceUser.muted':message?.payload?.user?.voiceUser?.muted}})
-      else console.log "ERROR!! did not find a matching user to mute!!"
+    # listen only
+    if message.header?.name is 'user_listening_only'
+      u = Meteor.Users.findOne({userId: message.payload?.userid, meetingId: meetingId})
+      Meteor.Users.update({_id:u._id}, {$set: {'user.listenOnly':message.payload?.listen_only}})
+      # most likely we don't need to ensure that the user's voiceUser's {talking, joined, muted, locked} are false by default #TODO?
 
     if message.header?.name is "get_all_meetings_reply"
       console.log "Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!"
       listOfMeetings = message.payload?.meetings
       for meeting in listOfMeetings
         # we currently do not have voice_conf or duration in this message.
-        Meteor.call("addMeetingToCollection", meeting.meetingID, meeting.meetingName, meeting.recorded, "", "")
+        Meteor.call("addMeetingToCollection", meeting.meetingID, meeting.meetingName, meeting.recorded, meeting.voiceBridge, meeting.duration)
 
     if message.header?.name is "get_users_reply" and message.payload?.requester_id is "nodeJSapp"
       unless Meteor.Meetings.findOne({MeetingId: message.payload?.meeting_id})?
         users = message.payload?.users
         for user in users
+          user.timeOfJoining = message.header?.current_time # TODO this might need to be removed
           Meteor.call("addUserToCollection", meetingId, user)
 
     if message.header?.name is "user_joined_message"
       user = message.payload.user
+      user.timeOfJoining = message.header?.current_time
       Meteor.call("addUserToCollection", meetingId, user)
 
     if message.header?.name is "user_left_message"
@@ -218,12 +112,16 @@ class Meteor.RedisPubSub
         Meteor.call("removeUserFromCollection", meetingId, userId)
 
     if message.header?.name is "get_chat_history_reply" and message.payload?.requester_id is "nodeJSapp"
-      unless Meteor.Meetings.findOne({MeetingId: message.payload?.meeting_id})? # TODO check if MeetingId or meetingId!!
+      unless Meteor.Meetings.findOne({MeetingId: message.payload?.meeting_id})?
         for chatMessage in message.payload?.chat_history
           Meteor.call("addChatToCollection", meetingId, chatMessage)
 
     if message.header?.name is "send_public_chat_message" or message.header?.name is "send_private_chat_message"
       messageObject = message.payload?.message
+
+      # use current_time instead of message.from_time so that the chats from Flash and HTML5 have uniform times
+      messageObject.from_time = message.header?.current_time
+
       Meteor.call("addChatToCollection", meetingId, messageObject)
 
     if message.header?.name is "meeting_created_message"
@@ -270,7 +168,7 @@ class Meteor.RedisPubSub
               "version": "0.0.1"
 
           if whiteboardId? and meetingId?
-            @pubClient.publish(Meteor.config.redis.channels.toBBBApps.whiteboard, JSON.stringify(message))
+            Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.whiteboard, message)
           else
             console.log "did not have enough information to send a user_leaving_request"
 
@@ -291,7 +189,6 @@ class Meteor.RedisPubSub
     if message.header?.name is "presentation_cursor_updated_message"
       x = message.payload?.x_percent
       y = message.payload?.y_percent
-
       Meteor.Presentations.update({"presentation.current": true, meetingId: meetingId},{$set: {"pointer.x": x, "pointer.y": y}})
 
     if message.header?.name is "whiteboard_cleared_message"
@@ -301,7 +198,6 @@ class Meteor.RedisPubSub
     if message.header?.name is "undo_whiteboard_request"
       whiteboardId = message.payload?.whiteboard_id
       shapeId = message.payload?.shape_id
-
       Meteor.call("removeShapeFromSlide", meetingId, whiteboardId, shapeId)
 
     if message.header?.name is "presenter_assigned_message"
@@ -313,13 +209,14 @@ class Meteor.RedisPubSub
         Meteor.Users.update({"user.userid": newPresenterId, meetingId: meetingId},{$set: {"user.presenter": true}})
 
     if message.header?.name is "presentation_page_resized_message"
-      console.log "handling presentation_page_resized_message"
       slideId = message.payload?.page?.id
       heightRatio = message.payload?.page?.height_ratio
       widthRatio = message.payload?.page?.width_ratio
       xOffset = message.payload?.page?.x_offset
       yOffset = message.payload?.page?.y_offset
-      console.log "__#{slideId}___#{heightRatio}___#{widthRatio}___#{xOffset}__#{yOffset}__"
+      presentationId = slideId.split("/")[0]
+      Meteor.Slides.update({presentationId: presentationId, "slide.current": true},
+        {$set: {"slide.height_ratio": heightRatio, "slide.width_ratio": widthRatio, "slide.x_offset": xOffset, "slide.y_offset": yOffset}})
 
     if message.header?.name is "user_raised_hand_message"
       userId = message.payload?.userid
@@ -345,40 +242,3 @@ class Meteor.RedisPubSub
           #TODO should we clear the chat messages for that meeting?!
         unless message.header?.name is "disconnect_all_users_message"
           Meteor.call("removeMeetingFromCollection", meetingId)
-
-  # message should be an object
-  publish: (channel, message) ->
-    console.log "Publishing channel=#{channel}, message=#{JSON.stringify(message)}"
-    @pubClient.publish(channel, JSON.stringify(message), (err, res) ->
-      console.log "err=" + err
-      console.log "res=" + res
-    )
-
-  publishingChatMessage: (meetingId, chatObject) =>
-    console.log "publishing a chat message to bbb-apps"
-
-    eventName = ->
-      if chatObject.chat_type is "PRIVATE_CHAT"
-        "send_private_chat_message_request"
-      else "send_public_chat_message_request"
-
-    message =
-      header :
-        "timestamp": new Date().getTime()
-        "name": eventName()
-      payload:
-        "message" : chatObject
-        "meeting_id": meetingId
-        "requester_id": chatObject.from_userid
-
-    console.log "publishing:" + JSON.stringify (message)
-    @pubClient.publish(Meteor.config.redis.channels.toBBBApps.chat, JSON.stringify (message))
-
-  invokeGetAllMeetingsRequest: =>
-    #grab data about all active meetings on the server
-    message =
-      "header":
-        "name": "get_all_meetings_request"
-      "payload": {} # I need this, otherwise bbb-apps won't recognize the message
-
-    @pubClient.publish(Meteor.config.redis.channels.toBBBApps.meeting, JSON.stringify (message))

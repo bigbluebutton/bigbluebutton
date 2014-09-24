@@ -20,6 +20,9 @@
       meet?.meetingName
     else null
 
+@getTimeOfJoining = ->
+  Meteor.Users.findOne({"user.userid": getInSession("userId")})?.user?.time_of_joining
+
 # Finds the names of all people the current user is in a private conversation with
 #  Removes yourself and duplicates if they exist
 @getPrivateChatees = ->
@@ -84,9 +87,8 @@ Handlebars.registerHelper "getMeetingName", ->
   window.getMeetingName()
 
 Handlebars.registerHelper "getShapesForSlide", ->
-  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-  presentationId = currentPresentation?.presentation?.id
-  currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+  currentSlide = getCurrentSlideDoc()
+    
   # try to reuse the lines above
   Meteor.Shapes.find({whiteboardId: currentSlide?.slide?.id})
 
@@ -123,6 +125,12 @@ Handlebars.registerHelper "isUserSharingAudio", (u) ->
   if u? 
     user = Meteor.Users.findOne({userId:u.userid})
     user?.user?.voiceUser?.joined
+  else return false
+
+Handlebars.registerHelper "isUserListenOnly", (u) ->
+  if u?
+    user = Meteor.Users.findOne({userId:u.userid})
+    user?.user?.listenOnly
   else return false
 
 Handlebars.registerHelper "isUserSharingVideo", (u) ->
@@ -169,11 +177,12 @@ Handlebars.registerHelper "visibility", (section) ->
       newObj = {
         userId: u.userId
         name: u.user.name
+        gotMail: false
         class: "privateChatTab"
       }
   tabs = [
-    {userId: "PUBLIC_CHAT", name: "Public", class: "publicChatTab"},
-    {userId: "OPTIONS", name: "Options", class: "optionsChatTab"}
+    {userId: "PUBLIC_CHAT", name: "Public", gotMail: false, class: "publicChatTab"},
+    {userId: "OPTIONS", name: "Options", gotMail: false, class: "optionsChatTab"}
   ].concat privTabs
 
 @setInSession = (k, v) -> SessionAmplify.set k, v 
@@ -223,7 +232,7 @@ Meteor.methods
 		username = "#{getInSession("userId")}-bbbID-#{getUsersName()}"
 		# voicePin = Meteor.Meetings.findOne()?.voiceConf
 		# voiceBridge = if voicePin? then voicePin else "0"
-		voiceBridge = "70827"
+		voiceBridge = Meteor.Meetings.findOne({}).voiceConf # need to know this info for all meetings #TODO
 		server = null
 		joinCallback = (message) -> 
 			console.log JSON.stringify message
@@ -267,3 +276,15 @@ Meteor.methods
   if !thickness.toString().match(/.*px$/)
     "#" + thickness + "px" # leading "#" - to be compatible with Firefox
   thickness
+    
+# applies zooming to the stroke thickness
+@zoomStroke = (thickness) ->
+  currentSlide = @getCurrentSlideDoc()
+  ratio = (currentSlide?.slide.width_ratio + currentSlide?.slide.height_ratio) / 2
+  thickness * 100 / ratio
+
+@getCurrentSlideDoc = -> # returns only one document
+  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+  presentationId = currentPresentation?.presentation?.id
+  currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+

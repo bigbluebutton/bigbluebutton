@@ -3,9 +3,8 @@ Template.slide.rendered = ->
   console.log "height = #{height}"
   $('#whiteboard-paper').height((height-$("#whiteboard-navbar").height()-10)+'px')
 
-  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-  presentationId = currentPresentation?.presentation?.id
-  currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+  currentSlide = getCurrentSlideDoc()
+    
   if currentSlide?.slide?.png_uri?
     Template.slide.createWhiteboardPaper (wpm) ->
       Template.slide.displaySlide wpm
@@ -16,21 +15,24 @@ Template.slide.helpers
     callback(Template.slide.whiteboardPaperModel)
 
   displaySlide: (wpm) ->
-    currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-    presentationId = currentPresentation?.presentation?.id
-    currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+    currentSlide = getCurrentSlideDoc()
 
     wpm.create()
-    wpm._displayPage(currentSlide?.slide?.png_uri)
+    
+    # loading the image to find its original dimensions
+    pic = new Image()
+    pic.onload = ->
+      wpm._displayPage(currentSlide?.slide?.png_uri, this.width, this.height)
+      Template.slide.manuallyDisplayShapes()
+    pic.src = currentSlide?.slide?.png_uri
 
   updatePointerLocation: (pointer) ->
     wpm = Template.slide.whiteboardPaperModel
     wpm?.moveCursor(pointer.x, pointer.y)
 
   manuallyDisplayShapes: ->
-    currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-    presentationId = currentPresentation?.presentation?.id
-    currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+    currentSlide = getCurrentSlideDoc()
+    
     wpm = Template.slide.whiteboardPaperModel
 
     shapes = Meteor.Shapes.find({whiteboardId: currentSlide?.slide?.id}).fetch()
@@ -39,7 +41,8 @@ Template.slide.helpers
       shapeType = shapeInfo?.type
 
       if shapeType isnt "text"
-        for num in [0..3] # the coordinates must be in the range 0 to 1
+        len = shapeInfo.points.length
+        for num in [0..len] # the coordinates must be in the range 0 to 1
           shapeInfo?.points[num] = shapeInfo?.points[num] / 100
       wpm.makeShape(shapeType, shapeInfo)
       wpm.updateShape(shapeType, shapeInfo)
@@ -52,7 +55,8 @@ Template.shape.rendered = ->
   shapeType = shapeInfo?.type
 
   if shapeType isnt "text"
-    for num in [0..3] # the coordinates must be in the range 0 to 1
+    len = shapeInfo.points.length
+    for num in [0..len] # the coordinates must be in the range 0 to 1
       shapeInfo.points[num] = shapeInfo.points[num] / 100
 
   wpm = Template.slide.whiteboardPaperModel

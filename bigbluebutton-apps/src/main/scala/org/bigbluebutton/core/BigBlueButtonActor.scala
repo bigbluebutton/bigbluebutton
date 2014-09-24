@@ -110,16 +110,20 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
 
     for(i <- 0 until arr.length) {
       val id = arr(i)
+      val duration = meetings.get(arr(i)).head.getDuration()
       val name = meetings.get(arr(i)).head.getMeetingName()
       val recorded = meetings.get(arr(i)).head.getRecordedStatus()
+      val voiceBridge = meetings.get(arr(i)).head.getVoiceBridgeNumber()
 
-      var info = new MeetingInfo(id, name, recorded)
+      var info = new MeetingInfo(id, name, recorded, voiceBridge, duration)
       resultArray(i) = info
 
       //remove later
       println("for a meeting:" + id)
       println("Meeting Name = " + meetings.get(id).head.getMeetingName())
       println("isRecorded = " + meetings.get(id).head.getRecordedStatus())
+      println("voiceBridge = " + voiceBridge)
+      println("duration = " + duration)
 
       //send the users
       this ! (new GetUsers(id, "nodeJSapp"))
