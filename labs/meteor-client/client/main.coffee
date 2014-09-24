@@ -75,7 +75,6 @@ Meteor.startup ->
   setInSession "display_chatbar", true
   setInSession "display_whiteboard", true
   setInSession "display_chatPane", true
-  setInSession 'inChatWith', "PUBLIC_CHAT"
   setInSession "joinedAt", getTime()
   setInSession "isSharingAudio", false
   setInSession "inChatWith", 'PUBLIC_CHAT'

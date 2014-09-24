@@ -107,9 +107,27 @@ Template.chatbar.helpers
 
     msgs
 
+  markNewAsUnread: ->
+    #if the current tab is not the same as the tab we just published in
+    Meteor.Chat.find({}).observe({
+      added: (chatMessage) =>
+        destinationTab = ->
+          if chatMessage.message?.chat_type is "PUBLIC_CHAT"
+            "PUBLIC_CHAT"
+          else
+            chatMessage.message?.from_userid
+        console.log "destination=" + destinationTab()
+
+        if destinationTab() isnt getInSession "inChatWith"
+          console.log "there should be flashing on:" + destinationTab()
+
+        #currentTab = document.getElementsByClassName("active")[0].getElementsByTagName("a")[0].id #TODO how can I simplify this?!?
+      })
+
 
 # When chatbar gets rendered, scroll to the bottom
 Template.chatbar.rendered = ->
+  Template.chatbar.markNewAsUnread()
   $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
   false
 # Scrolls the message container to the bottom. The number of pixels to scroll down is the height of the container
@@ -178,7 +196,7 @@ Template.tabButtons.helpers
     button = '<li '
     button += 'class="'
     button += 'active ' if getInSession("inChatWith") is @userId
-    button += "tab #{safeClass}\"><a href=\"#\" data-toggle=\"tab\">#{safeName}"
+    button += "tab #{safeClass}\"><a href=\"#\" data-toggle=\"tab\" id=\"#{safeName}\" \>#{safeName}"
     button += '&nbsp;<button class="close closeTab" type="button" >×</button>' if @class is 'privateChatTab'
     button += '</a></li>'
     button

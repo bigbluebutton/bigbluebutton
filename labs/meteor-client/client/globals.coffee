@@ -169,11 +169,12 @@ Handlebars.registerHelper "visibility", (section) ->
       newObj = {
         userId: u.userId
         name: u.user.name
+        gotMail: false
         class: "privateChatTab"
       }
   tabs = [
-    {userId: "PUBLIC_CHAT", name: "Public", class: "publicChatTab"},
-    {userId: "OPTIONS", name: "Options", class: "optionsChatTab"}
+    {userId: "PUBLIC_CHAT", name: "Public", gotMail: false, class: "publicChatTab"},
+    {userId: "OPTIONS", name: "Options", gotMail: false, class: "optionsChatTab"}
   ].concat privTabs
 
 @setInSession = (k, v) -> SessionAmplify.set k, v 
