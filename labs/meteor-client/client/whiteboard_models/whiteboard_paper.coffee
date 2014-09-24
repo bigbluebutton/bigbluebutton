@@ -123,6 +123,9 @@ class @WhiteboardPaperModel
       @clearShapes()
       @drawListOfShapes(tmp)
 
+  scale: (width, height) ->
+    @raphaelObj?.changeSize(width, height)
+  
   # Add an image to the paper.
   # @param {string} url the URL of the image to add to the paper
   # @param {number} width   the width of the image (in pixels)

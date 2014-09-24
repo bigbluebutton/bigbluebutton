@@ -1,14 +1,43 @@
 Template.whiteboard.rendered = ->
   $(window).resize( ->
-    height = $('#whiteboard').height()
-    console.log "height = #{height}"
-    $('#whiteboard-paper').height((height-$("#whiteboard-navbar").height()-10)+'px')
-    $('#whiteboard-paper').width($('#whiteboard-navbar').width())
-
-    # $('#svggroup').html('')
-
-    wpm = Template.slide.whiteboardPaperModel
-    wpm.clearCursor()
-    Template.slide.createWhiteboardPaper (wpm) ->
-      Template.slide.displaySlide wpm
+    currentSlide = getCurrentSlideDoc()
+    
+    pic = new Image()
+    pic.onload = -> 
+      originalWidth = this.width
+      originalHeight = this.height
+      
+      boardWidth = $("#whiteboard-navbar").width()
+      
+      boardHeight = $("#whiteboard").height() - $("#whiteboard-navbar").height() - 10
+      
+      if originalWidth <= originalHeight
+        adjustedWidth = boardHeight * originalWidth / originalHeight
+        $('#whiteboard-paper').width(adjustedWidth)
+        if boardWidth < adjustedWidth
+          adjustedHeight = boardHeight * boardWidth / adjustedWidth
+          adjustedWidth = boardWidth
+        else
+          adjustedHeight = boardHeight
+        $("#whiteboard-paper").height(adjustedHeight)
+      else
+        adjustedHeight = boardWidth * originalHeight / originalWidth
+        $('#whiteboard-paper').height(adjustedHeight)
+        if boardHeight < adjustedHeight
+          adjustedWidth = boardWidth * boardHeight / adjustedHeight
+          adjustedHeight = boardHeight
+        else
+          adjustedWidth = boardWidth
+        $("#whiteboard-paper").width(adjustedWidth)
+      
+      wpm = Template.slide.whiteboardPaperModel
+      wpm.clearShapes()
+      wpm.clearCursor()
+      Template.slide.manuallyDisplayShapes()
+      
+      #wpm._updateContainerDimensions()
+      
+      wpm.scale(adjustedWidth, adjustedHeight)
+      
+    pic.src = currentSlide?.slide?.png_uri
   );
