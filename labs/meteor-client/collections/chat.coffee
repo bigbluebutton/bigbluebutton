@@ -27,15 +27,21 @@ Meteor.methods
         "send_private_chat_message_request"
       else "send_public_chat_message_request"
 
-    message =
-      header :
-        "timestamp": new Date().getTime()
-        "name": eventName()
-      payload:
-        "message" : chatObject
-        "meeting_id": meetingId
-        "requester_id": chatObject.from_userid
-    Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.chat, message)
+    # translate the userId to the user's _id
+    u = Meteor.Users.findOne({'userId':chatObject.from_userid})
+    if u?
+      chatObject.from_userid = u._id 
+      # console.log "This is the message we're sending"
+      # console.log JSON.stringify chatObject
+      message =
+        header :
+          "timestamp": new Date().getTime()
+          "name": eventName()
+        payload:
+          "message" : chatObject
+          "meeting_id": meetingId
+          "requester_id": chatObject.from_userid
+      Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.chat, message)
 
   deletePrivateChatMessages: (user1, user2) ->
     console.log "deleting chat conversation"

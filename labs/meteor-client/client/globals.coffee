@@ -34,7 +34,8 @@
     return false if u.userId is me
     found = false
     for chatter in people
-      if u.userId is chatter.message.to_userid or u.userId is chatter.message.from_userid
+      # if u.userId is chatter.message.to_userid or u.userId is chatter.message.from_userid
+      if u._id is chatter.message.to_userid or u._id is chatter.message.from_userid
         found = true
     found
     )

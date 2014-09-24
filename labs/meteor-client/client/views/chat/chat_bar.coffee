@@ -138,10 +138,12 @@ Handlebars.registerHelper "autoscroll", ->
 Template.optionsBar.events
   'click .private-chat-user-entry': (event) -> # clicked a user's name to begin private chat
     setInSession 'display_chatPane', true
-    setInSession "inChatWith", @userId
+    # setInSession "inChatWith", @userId
+    setInSession "inChatWith", @_id
     me = getInSession("userId")
 
-    if Meteor.Chat.find({'message.chat_type': 'PRIVATE_CHAT', $or: [{'message.from_userid': me, 'message.to_userid': @userId},{'message.from_userid': @userId, 'message.to_userid': me}]}).fetch().length is 0
+    # if Meteor.Chat.find({'message.chat_type': 'PRIVATE_CHAT', $or: [{'message.from_userid': me, 'message.to_userid': @userId},{'message.from_userid': @userId, 'message.to_userid': me}]}).fetch().length is 0
+    if Meteor.Chat.find({'message.chat_type': 'PRIVATE_CHAT', $or: [{'message.from_userid': me, 'message.to_userid': @_id},{'message.from_userid': @_id, 'message.to_userid': me}]}).fetch().length is 0
       messageForServer =
         "message": "#{getUsersName()} has joined private chat with #{@user.name}."
         "chat_type": "PRIVATE_CHAT"
@@ -149,7 +151,8 @@ Template.optionsBar.events
         "from_username": getUsersName()
         "from_tz_offset": "240"
         "to_username": @user.name
-        "to_userid": @userId
+        # "to_userid": @userId
+        "to_userid": @_id
         "from_lang": "en"
         "from_time": getTime()
         "from_color": "0"
@@ -183,7 +186,8 @@ Template.tabButtons.events
     setInSession 'display_chatPane', true
 
   'click .tab': (event) -> 
-    setInSession "inChatWith", @userId
+    # setInSession "inChatWith", @userId
+    setInSession "inChatWith", @_id
   
 Template.tabButtons.helpers
   getChatbarTabs: ->
@@ -195,7 +199,8 @@ Template.tabButtons.helpers
 
     button = '<li '
     button += 'class="'
-    button += 'active ' if getInSession("inChatWith") is @userId
+    # button += 'active ' if getInSession("inChatWith") is @userId
+    button += 'active ' if getInSession("inChatWith") is @_id
     button += "tab #{safeClass}\"><a href=\"#\" data-toggle=\"tab\" id=\"#{safeName}\" \>#{safeName}"
     button += '&nbsp;<button class="close closeTab" type="button" >×</button>' if @class is 'privateChatTab'
     button += '</a></li>'
