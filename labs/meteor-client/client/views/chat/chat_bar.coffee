@@ -137,21 +137,6 @@ Template.optionsBar.events
   'click .private-chat-user-entry': (event) -> # clicked a user's name to begin private chat
     setInSession 'display_chatPane', true
     setInSession "inChatWith", @userId
-    me = getInSession("userId")
-
-    if Meteor.Chat.find({'message.chat_type': 'PRIVATE_CHAT', $or: [{'message.from_userid': me, 'message.to_userid': @userId},{'message.from_userid': @userId, 'message.to_userid': me}]}).fetch().length is 0
-      messageForServer =
-        "message": "#{getUsersName()} has joined private chat with #{@user.name}."
-        "chat_type": "PRIVATE_CHAT"
-        "from_userid": me
-        "from_username": getUsersName()
-        "from_tz_offset": "240"
-        "to_username": @user.name
-        "to_userid": @userId
-        "from_lang": "en"
-        "from_time": getTime()
-        "from_color": "0"
-      Meteor.call "sendChatMessagetoServer", getInSession("meetingId"), messageForServer
 
 Template.optionsBar.rendered = ->
   $('div[rel=tooltip]').tooltip()

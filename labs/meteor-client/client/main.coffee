@@ -1,14 +1,12 @@
 Template.footer.helpers
   getFooterString: ->
     # info = Meteor.call('getServerInfo')
-    year = "YEAR" #info.getBuildYear()
-    month = "MONTH" #info.getBuildMonth()
-    day = "DAY" #info.getBuildDay()
+    dateOfBuild = getInSession 'dateOfBuild'
     # version = "VERSION_XXXX" #info.getBuildVersion()
     version = getInSession "bbbServerVersion"
     copyrightYear = (new Date()).getFullYear()
     link = "<a href='http://bigbluebutton.org/' target='_blank'>http://bigbluebutton.org</a>"
-    foot = "(c) #{copyrightYear} BigBlueButton Inc. [build #{version}-#{year}-#{month}-#{day}] - For more information visit #{link}"
+    foot = "(c) #{copyrightYear} BigBlueButton Inc. [build #{version} - #{dateOfBuild}] - For more information visit #{link}"
 
 Template.header.events
   "click .usersListIcon": (event) ->
@@ -80,3 +78,5 @@ Meteor.startup ->
   setInSession "inChatWith", 'PUBLIC_CHAT'
   setInSession "messageFontSize", 12
   setInSession "isMuted", false
+  setInSession "dateOfBuild", Meteor.config?.dateOfBuild or "UNKNOWN DATE"
+  setInSession "bbbServerVersion", Meteor.config?.bbbServerVersion or "UNKNOWN VERSION"
