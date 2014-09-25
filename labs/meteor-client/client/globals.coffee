@@ -257,8 +257,9 @@ Meteor.methods
 @chatTabs.insert({ userId: "OPTIONS", name: "Options", gotMail: false, class: "tab"})
 console.log "now chatTabs.size is " + @chatTabs.find().count()
 
-@getChatbarTabs2 = ->
-  console.log "i'm in getChatbarTabs2"
+
+@populateChatTabs = ->
+  console.log "i'm in populateChatTabs"
   me = getInSession("userId")
   users = Meteor.Users.find().fetch()
   myPrivateChats = Meteor.Chat.find({$or: [{'message.from_userid': me, 'message.chat_type': 'PRIVATE_CHAT'},{'message.to_userid': me, 'message.chat_type': 'PRIVATE_CHAT'}] }).fetch()
@@ -269,20 +270,18 @@ console.log "now chatTabs.size is " + @chatTabs.find().count()
       uniqueArray.push({userId: chat.message.from_userid, username: chat.message.from_username})
     if chat.message.from_userid is me
       uniqueArray.push({userId: chat.message.to_userid, username: chat.message.to_username})
-  console.log "uniqArray1.size=" + uniqueArray.length
 
   #for id in uniqueArray
   uniqueArray = uniqueArray.filter((itm, i, a) ->
       i is a.indexOf(itm)
     )
   for u in uniqueArray
-    chatTabs.insert({ userId: u.userId, name: u.username, gotMail: false, class: "tab"})
-
-  console.log "uniqArray2.size=" + uniqueArray.length
-
+    unless chatTabs.findOne({userId: u.userId})?
+      chatTabs.insert({ userId: u.userId, name: u.username, gotMail: false, class: "privateChatTab"})
 
 
-Handlebars.registerHelper "getChatbarTabs1", ->
+
+Handlebars.registerHelper "grabChatTabs", ->
   chatTabs.find().fetch()
 
 

@@ -118,7 +118,7 @@ Template.chatbar.helpers
             chatMessage.message?.from_userid
         console.log "size=" + chatTabs.find().count()
     
-        getChatbarTabs2()
+        populateChatTabs()
 
         #Meteor.call('addChatTab', "aaa", "bbb", "ccc")
         console.log "destination=" + destinationTab()
@@ -126,8 +126,8 @@ Template.chatbar.helpers
         if destinationTab() isnt getInSession "inChatWith"
           console.log "there should be flashing on:" + destinationTab()
 
-          myElement = document.querySelector(".tab")
-          myElement?.style.backgroundColor = "#D93600"
+          #myElement = document.querySelector(".tab")
+          #myElement?.style.backgroundColor = "#D93600"
 
 
 
@@ -179,7 +179,16 @@ Template.tabButtons.events
   'click .close': (event) -> # user closes private chat
     setInSession 'inChatWith', 'PUBLIC_CHAT'
     setInSession 'display_chatPane', true
+    id = chatTabs.findOne({userId: @userId})
+    console.log "id is:" + JSON.stringify id
+    if id?
+      chatTabs.remove(id)
+
     Meteor.call("deletePrivateChatMessages", getInSession("userId"), @userId)
+
+
+
+
     return false # stops propogation/prevents default
 
   'click .optionsChatTab': (event) ->
@@ -197,32 +206,6 @@ Template.tabButtons.events
 
  
 Template.tabButtons.helpers
-  # getChatbarTabs2: ->
-  #   console.log "i'm in getChatbarTabs2"
-  #   me = getInSession("userId")
-  #   users = Meteor.Users.find().fetch()
-  #   myPrivateChats = Meteor.Chat.find({$or: [{'message.from_userid': me, 'message.chat_type': 'PRIVATE_CHAT'},{'message.to_userid': me, 'message.chat_type': 'PRIVATE_CHAT'}] }).fetch()
-
-  #   uniqueArray = []
-  #   for chat in myPrivateChats
-  #     if chat.message.to_userid is me
-  #       uniqueArray.push({userId: chat.message.from_userid, username: chat.message.from_username})
-  #     if chat.message.from_userid is me
-  #       uniqueArray.push({userId: chat.message.to_userid, username: chat.message.to_username})
-  #   console.log "uniqArray1.size=" + uniqueArray.length
-
-  #   #for id in uniqueArray
-  #   uniqueArray = uniqueArray.filter((itm, i, a) ->
-  #       i is a.indexOf(itm)
-  #     )
-  #   for u in uniqueArray
-  #     chatTabs.insert({ userId: u.userId, name: u.username, gotMail: false, class: "tab"})
-
-  #   console.log "uniqArray2.size=" + uniqueArray.length
-
-
-
-
   makeTabButton: -> # create tab button for private chat or other such as options
     console.log "making tab " + JSON.stringify @
     safeClass = @class.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -231,7 +214,7 @@ Template.tabButtons.helpers
     button = '<li '
     button += 'class="'
     button += 'active ' if getInSession("inChatWith") is @userId
-    button += 'gotUnreadMail ' if @gotMail
+    #button += 'gotUnreadMail ' if @gotMail
     button += "tab #{safeClass}\"><a href=\"#\" data-toggle=\"tab\" id=\"#{safeName}\" \>#{safeName}"
     button += '&nbsp;<button class="close closeTab" type="button" >×</button>' if @class is 'privateChatTab'
     button += '</a></li>'
