@@ -44,6 +44,11 @@ class @WhiteboardPaperModel
     # else
     #   globals.events.on "connection:connected", =>
     #     @_registerEvents()
+    
+    @zoomObserver = null
+    
+    @adjustedWidth = 0
+    @adjustedHeight = 0
 
   # Override the close() to unbind events.
   unbindEvents: ->
@@ -72,8 +77,7 @@ class @WhiteboardPaperModel
 
     @raphaelObj.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
 
-    @cursor = new WhiteboardCursorModel(@raphaelObj)
-    @cursor.draw()
+    @createCursor()
     #@cursor.on "cursor:mousewheel", _.bind(@_zoomSlide, @)
 
     if @slides
@@ -121,6 +125,9 @@ class @WhiteboardPaperModel
       @clearShapes()
       @drawListOfShapes(tmp)
 
+  scale: (width, height) ->
+    @raphaelObj?.changeSize(width, height)
+  
   # Add an image to the paper.
   # @param {string} url the URL of the image to add to the paper
   # @param {number} width   the width of the image (in pixels)
@@ -356,9 +363,13 @@ class @WhiteboardPaperModel
       @currentShapes = []
       @currentShapesDefinitions = []
     @clearCursor()
-    
+  
   clearCursor: ->
     @cursor?.remove()
+    
+  createCursor: ->
+    @cursor = new WhiteboardCursorModel(@raphaelObj)
+    @cursor.draw()
 
   # Updated a shape `shape` with the data in `data`.
   # TODO: check if the objects exist before calling update, if they don't they should be created
@@ -459,6 +470,13 @@ class @WhiteboardPaperModel
     #update cursor to appear the same size even when page is zoomed in
     @cursor.setRadius( 3 * widthRatio / 100 )
 
+  zoomAndPan: (widthRatio, heightRatio, xOffset, yOffset) ->
+    newX = - xOffset * 2 * @adjustedWidth / 100
+    newY = - yOffset * 2 * @adjustedHeight / 100
+    newWidth = @adjustedWidth * widthRatio / 100
+    newHeight = @adjustedHeight * heightRatio / 100
+    @raphaelObj.setViewBox(newX, newY, newWidth, newHeight) # zooms and pans
+    
   # Registers listeners for events in the gloval event bus
   _registerEvents: ->
 
@@ -549,7 +567,6 @@ class @WhiteboardPaperModel
 
     @containerOffsetLeft = $container.offset()?.left
     @containerOffsetTop = $container.offset()?.top
-
 
   # Retrieves an image element from the paper.
   # The url must be in the slides array.
@@ -796,27 +813,37 @@ class @WhiteboardPaperModel
     presentationId = currentPresentation?.presentation?.id
     currentSlideCursor = Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
 
+    if @zoomObserver isnt null
+      @zoomObserver.stop()
     _this = this
-    currentSlideCursor.observe # watching the current slide changes
+    @zoomObserver = currentSlideCursor.observe # watching the current slide changes
       changed: (newDoc, oldDoc) ->
-        newX = - newDoc.slide.x_offset * 2 * boardWidth / 100
-        newY = - newDoc.slide.y_offset * 2 * boardHeight / 100
-        newWidth = boardWidth * newDoc.slide.width_ratio / 100
-        newHeight = boardHeight * newDoc.slide.height_ratio / 100
+        if originalWidth <= originalHeight
+          @adjustedWidth = boardHeight * originalWidth / originalHeight
+          @adjustedHeight = boardHeight
+        else
+          @adjustedHeight = boardWidth * originalHeight / originalWidth
+          @adjustedWidth = boardWidth
         
-        _this.raphaelObj.setViewBox(newX, newY, newWidth, newHeight) # zooms and pans
+        _this.zoomAndPan(newDoc.slide.width_ratio, newDoc.slide.height_ratio,
+          newDoc.slide.x_offset, newDoc.slide.y_offset)
         
         oldRatio = (oldDoc.slide.width_ratio + oldDoc.slide.height_ratio) / 2
         newRatio = (newDoc.slide.width_ratio + newDoc.slide.height_ratio) / 2
-        _this.currentShapes?.forEach (shape) ->
+        _this?.currentShapes?.forEach (shape) ->
           shape.attr "stroke-width", shape.attr('stroke-width') * oldRatio  / newRatio
     
     if originalWidth <= originalHeight
       # square => boardHeight is the shortest side
-      adjustedWidth = boardHeight * originalWidth / originalHeight
-      $('#whiteboard-paper').attr('style', 'width:' + adjustedWidth + 'px')
-      @addImageToPaper(data, adjustedWidth, boardHeight)
+      @adjustedWidth = boardHeight * originalWidth / originalHeight
+      $('#whiteboard-paper').width(@adjustedWidth)
+      @addImageToPaper(data, @adjustedWidth, boardHeight)
+      @adjustedHeight = boardHeight
     else
-      adjustedHeight = boardWidth * originalHeight / originalWidth
-      $('#whiteboard-paper').attr('style', 'height:' + adjustedHeight + 'px')
-      @addImageToPaper(data, boardWidth, adjustedHeight)
+      @adjustedHeight = boardWidth * originalHeight / originalWidth
+      $('#whiteboard-paper').height(@adjustedHeight)
+      @addImageToPaper(data, boardWidth, @adjustedHeight)
+      @adjustedWidth = boardWidth
+    
+    @zoomAndPan(currentSlide.slide.width_ratio, currentSlide.slide.height_ratio,
+      currentSlide.slide.x_offset, currentSlide.slide.y_offset)

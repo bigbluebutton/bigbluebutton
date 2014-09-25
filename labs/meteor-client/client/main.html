@@ -81,7 +81,7 @@
 		<div id="main" class="mainContainer row-fluid">
 			<div>{{> header}}</div>
 			{{> usersList id="users" name="usersList"}}
-			{{> whiteboard id="whiteboard" title="Whiteboard" name="whiteboard"}}
+			{{> whiteboard id="whiteboard" title=getWhiteboardTitle name="whiteboard"}}
 			{{> chatbar id="chat" title="Chat" name="chatbar"}}
 			<audio id="remote-media" autoplay="autoplay"></audio>
 			{{> footer}}
