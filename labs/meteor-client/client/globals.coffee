@@ -253,8 +253,8 @@ Meteor.methods
 
 #start a clientside-only collection keeping track of the chat tabs
 @chatTabs = new Meteor.Collection(null)
-@chatTabs.insert({ userId: "PUBLIC_CHAT", name: "Public", gotMail: false, class: "tab"})
-@chatTabs.insert({ userId: "OPTIONS", name: "Options", gotMail: false, class: "tab"})
+@chatTabs.insert({ userId: "PUBLIC_CHAT", name: "Public", gotMail: false, class: "publicChatTab"})
+@chatTabs.insert({ userId: "OPTIONS", name: "Options", gotMail: false, class: "optionsChatTab"})
 console.log "now chatTabs.size is " + @chatTabs.find().count()
 
 
