@@ -137,6 +137,9 @@ Handlebars.registerHelper "visibility", (section) ->
     else
         style: 'display:none'
 
+Handlebars.registerHelper "getChatbarTabs1", ->
+    chatTabs.find().fetch()
+
 # transform plain text links into HTML tags compatible with Flash client
 @linkify = (str) ->
   www = /(^|[^\/])(www\.[\S]+($|\b))/img
@@ -246,4 +249,42 @@ Meteor.methods
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
   presentationId = currentPresentation?.presentation?.id
   currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+
+
+#start a clientside-only collection keeping track of the chat tabs
+@chatTabs = new Meteor.Collection(null)
+@chatTabs.insert({ userId: "PUBLIC_CHAT", name: "Public", gotMail: false, class: "tab"})
+@chatTabs.insert({ userId: "OPTIONS", name: "Options", gotMail: false, class: "tab"})
+console.log "now chatTabs.size is " + @chatTabs.find().count()
+
+@getChatbarTabs2 = ->
+  console.log "i'm in getChatbarTabs2"
+  me = getInSession("userId")
+  users = Meteor.Users.find().fetch()
+  myPrivateChats = Meteor.Chat.find({$or: [{'message.from_userid': me, 'message.chat_type': 'PRIVATE_CHAT'},{'message.to_userid': me, 'message.chat_type': 'PRIVATE_CHAT'}] }).fetch()
+
+  uniqueArray = []
+  for chat in myPrivateChats
+    if chat.message.to_userid is me
+      uniqueArray.push({userId: chat.message.from_userid, username: chat.message.from_username})
+    if chat.message.from_userid is me
+      uniqueArray.push({userId: chat.message.to_userid, username: chat.message.to_username})
+  console.log "uniqArray1.size=" + uniqueArray.length
+
+  #for id in uniqueArray
+  uniqueArray = uniqueArray.filter((itm, i, a) ->
+      i is a.indexOf(itm)
+    )
+  for u in uniqueArray
+    chatTabs.insert({ userId: u.userId, name: u.username, gotMail: false, class: "tab"})
+
+  console.log "uniqArray2.size=" + uniqueArray.length
+
+
+
+Handlebars.registerHelper "getChatbarTabs1", ->
+  chatTabs.find().fetch()
+
+
+
 

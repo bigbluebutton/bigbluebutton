@@ -116,10 +116,20 @@ Template.chatbar.helpers
             "PUBLIC_CHAT"
           else
             chatMessage.message?.from_userid
+        console.log "size=" + chatTabs.find().count()
+    
+        getChatbarTabs2()
+
+        #Meteor.call('addChatTab', "aaa", "bbb", "ccc")
         console.log "destination=" + destinationTab()
 
         if destinationTab() isnt getInSession "inChatWith"
           console.log "there should be flashing on:" + destinationTab()
+
+          myElement = document.querySelector(".tab")
+          myElement?.style.backgroundColor = "#D93600"
+
+
 
         #currentTab = document.getElementsByClassName("active")[0].getElementsByTagName("a")[0].id #TODO how can I simplify this?!?
       })
@@ -184,50 +194,44 @@ Template.tabButtons.events
 
   'click .tab': (event) -> 
     setInSession "inChatWith", @userId
-  
+
+ 
 Template.tabButtons.helpers
-  getChatbarTabs: ->
-    # Finds the names of all people the current user is in a private conversation with
-    #  Removes yourself and duplicates if they exist
-    getPrivateChatees = ->
-      me = getInSession("userId")
-      users = Meteor.Users.find().fetch()
-      people = Meteor.Chat.find({$or: [{'message.from_userid': me, 'message.chat_type': 'PRIVATE_CHAT'},{'message.to_userid': me, 'message.chat_type': 'PRIVATE_CHAT'}] }).fetch()
-      formattedUsers = null
-      formattedUsers = (u for u in users when (do -> 
-        return false if u.userId is me
-        found = false
-        for chatter in people
-          if u.userId is chatter.message.to_userid or u.userId is chatter.message.from_userid
-            found = true
-        found
-        )
-      )
-      if formattedUsers? then formattedUsers else []
+  # getChatbarTabs2: ->
+  #   console.log "i'm in getChatbarTabs2"
+  #   me = getInSession("userId")
+  #   users = Meteor.Users.find().fetch()
+  #   myPrivateChats = Meteor.Chat.find({$or: [{'message.from_userid': me, 'message.chat_type': 'PRIVATE_CHAT'},{'message.to_userid': me, 'message.chat_type': 'PRIVATE_CHAT'}] }).fetch()
+
+  #   uniqueArray = []
+  #   for chat in myPrivateChats
+  #     if chat.message.to_userid is me
+  #       uniqueArray.push({userId: chat.message.from_userid, username: chat.message.from_username})
+  #     if chat.message.from_userid is me
+  #       uniqueArray.push({userId: chat.message.to_userid, username: chat.message.to_username})
+  #   console.log "uniqArray1.size=" + uniqueArray.length
+
+  #   #for id in uniqueArray
+  #   uniqueArray = uniqueArray.filter((itm, i, a) ->
+  #       i is a.indexOf(itm)
+  #     )
+  #   for u in uniqueArray
+  #     chatTabs.insert({ userId: u.userId, name: u.username, gotMail: false, class: "tab"})
+
+  #   console.log "uniqArray2.size=" + uniqueArray.length
 
 
-    # Creates a 'tab' object for each person in chat with
-    # adds public and options tabs to the menu
-    privTabs = getPrivateChatees().map (u, index) ->
-        newObj = {
-          userId: u.userId
-          name: u.user.name
-          gotMail: false
-          class: "privateChatTab"
-        }
-    tabs = [
-      {userId: "PUBLIC_CHAT", name: "Public", gotMail: false, class: "publicChatTab"},
-      {userId: "OPTIONS", name: "Options", gotMail: false, class: "optionsChatTab"}
-    ].concat privTabs
-    tabs
+
 
   makeTabButton: -> # create tab button for private chat or other such as options
+    console.log "making tab " + JSON.stringify @
     safeClass = @class.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     safeName = @name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
     button = '<li '
     button += 'class="'
     button += 'active ' if getInSession("inChatWith") is @userId
+    button += 'gotUnreadMail ' if @gotMail
     button += "tab #{safeClass}\"><a href=\"#\" data-toggle=\"tab\" id=\"#{safeName}\" \>#{safeName}"
     button += '&nbsp;<button class="close closeTab" type="button" >×</button>' if @class is 'privateChatTab'
     button += '</a></li>'
