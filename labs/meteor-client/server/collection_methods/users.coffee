@@ -143,17 +143,9 @@ Meteor.methods
 				#update Users collection
 				Meteor.Users.update({userId:requester.userId, meetingId: meetingId, _id: requester._id}, {$set: {'user.raise_hand': false}})
 
-	userRaiseHand: (meetingId, userId) ->
-		console.log "here"
-		u = Meteor.Users.findOne({userId: userId})
+	userRaiseHand: (meetingId, userId, user_id) ->
+		u = Meteor.Users.findOne({meetingId: meetingId, _id: user_id, userId: userId})
 		if u?
-			console.log "got u"
-			# Allow if person is raising their own hand
-			# unless u._id is user_id # user needs to pass both userId and _id
-				# return
-
-			console.log "raising own hand"
-
 			console.log "publishing a userRaiseHand event: #{u._id}"
 
 			if meetingId? and userId?
@@ -170,14 +162,14 @@ Meteor.methods
 				#publish to pubsub
 				Meteor.call('publish',Meteor.config.redis.channels.toBBBApps.users, message)
 				#update Users collection
-				Meteor.Users.update({userId:userId, meetingId: meetingId, _id: u._id}, {$set: {'user.raise_hand': true}})
+				Meteor.Users.update({userId:u.userId, meetingId: meetingId, _id: u._id}, {$set: {'user.raise_hand': true}})
 
-	userLogout: (meetingId, userId) ->
+	userLogout: (meetingId, userId, user_id) ->
 		console.log "a user is logging out:" + userId
-		#remove from the collection
-		Meteor.call("removeUserFromCollection", meetingId, userId)
-		#dispatch a message to redis
-		sendUserLeavingRequest meetingId, userId
+		u = Meteor.Users.findOne({meetingId: meetingId, _id: user_id, userId: userId})
+		if u? 
+			#remove from the collection and dispatch a message to redis
+			removeUserFromMeeting meetingId, u
 
 	# userToBeKicked: the _id of the user who was selected to be kicked
 	# kickerUserId: the userId of the user kicking another user
@@ -186,29 +178,28 @@ Meteor.methods
 		kicker = Meteor.Users.findOne({meetingId: meetingId, _id: kicker_id, userId: kickerUserId})
 		toKick = Meteor.Users.findOne({meetingId: meetingId, _id: userToBeKicked})
 		if kicker? and toKick? and kicker.presenter
-			console.log "#{toKick.userId} is being kicked"
-
-			#remove from the collection
-			Meteor.Users.remove(toKick._id)
-			console.log "----removed user[" + toKick + "] from " + meetingId
-
-			#dispatch a message to redis
-			sendUserLeavingRequest meetingId, userToBeKicked
+			#remove from the collection and dispatch a message to redis
+			removeUserFromMeeting meetingId, toKick
 
 # --------------------------------------------------------------------------------------------
 # Private methods on server
 # --------------------------------------------------------------------------------------------
-@sendUserLeavingRequest = (meetingId, user) ->
-	console.log "\n\n sending a user_leaving_request for #{meetingId}:#{userId}"
+@removeUserFromMeeting = (meetingId, user) ->
+	console.log "#{toKick.userId} is being kicked"
+	console.log "----removed user[" + toKick + "] from " + meetingId
+	Meteor.Users.remove(user._id)
+
+	console.log "\n\n sending a user_leaving_request for #{meetingId}:#{user._id}"
 	message =
 		"payload":
 			"meeting_id": meetingId
-			"userid": userId
+			"userid": user.userId
 		"header":
 			"timestamp": new Date().getTime()
 			"name": "user_leaving_request"
 			"version": "0.0.1"
-	if userId? and meetingId?
+
+	if user.userId? and meetingId?
 		Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.users, message)
 	else
-		  console.log "did not have enough information to send a user_leaving_request"
+		console.log "did not have enough information to send a user_leaving_request"
