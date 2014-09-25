@@ -806,10 +806,17 @@ class @WhiteboardPaperModel
     _this = this
     @zoomObserver = currentSlideCursor.observe # watching the current slide changes
       changed: (newDoc, oldDoc) ->
-        newX = - newDoc.slide.x_offset * 2 * boardWidth / 100
-        newY = - newDoc.slide.y_offset * 2 * boardHeight / 100
-        newWidth = boardWidth * newDoc.slide.width_ratio / 100
-        newHeight = boardHeight * newDoc.slide.height_ratio / 100
+        if originalWidth <= originalHeight
+          adjustedWidth = boardHeight * originalWidth / originalHeight
+          adjustedHeight = boardHeight
+        else
+          adjustedHeight = boardWidth * originalHeight / originalWidth
+          adjustedWidth = boardWidth
+        
+        newX = - newDoc.slide.x_offset * 2 * adjustedWidth / 100
+        newY = - newDoc.slide.y_offset * 2 * adjustedHeight / 100
+        newWidth = adjustedWidth * newDoc.slide.width_ratio / 100
+        newHeight = adjustedHeight * newDoc.slide.height_ratio / 100
         
         _this.raphaelObj.setViewBox(newX, newY, newWidth, newHeight) # zooms and pans
         
