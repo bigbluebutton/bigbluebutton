@@ -111,7 +111,7 @@ Template.chatbar.helpers
     #if the current tab is not the same as the tab we just published in
     Meteor.Chat.find({}).observe({
       added: (chatMessage) =>
-        destinationTab = ->
+        findDestinationTab = ->
           if chatMessage.message?.chat_type is "PUBLIC_CHAT"
             "PUBLIC_CHAT"
           else
@@ -119,13 +119,14 @@ Template.chatbar.helpers
         console.log "size=" + chatTabs.find().count()
     
         populateChatTabs()
-
+        destinationTab = findDestinationTab()
         #Meteor.call('addChatTab', "aaa", "bbb", "ccc")
-        console.log "destination=" + destinationTab()
+        console.log "destination=" + destinationTab
 
-        if destinationTab() isnt getInSession "inChatWith"
-          console.log "there should be flashing on:" + destinationTab()
+        if destinationTab isnt getInSession "inChatWith"
+          console.log "there should be flashing on:" + destinationTab
 
+          chatTabs.update({userId: destinationTab}, {$set: {gotMail: true}})
           #myElement = document.querySelector(".tab")
           #myElement?.style.backgroundColor = "#D93600"
 
@@ -204,6 +205,10 @@ Template.tabButtons.events
   'click .tab': (event) -> 
     setInSession "inChatWith", @userId
 
+  'click .gotUnreadMail': (event) ->
+    chatTabs.update({userId: @userId}, {$set: {gotMail: false}})
+
+
  
 Template.tabButtons.helpers
   makeTabButton: -> # create tab button for private chat or other such as options
@@ -214,7 +219,7 @@ Template.tabButtons.helpers
     button = '<li '
     button += 'class="'
     button += 'active ' if getInSession("inChatWith") is @userId
-    #button += 'gotUnreadMail ' if @gotMail
+    button += 'gotUnreadMail ' if @gotMail
     button += "tab #{safeClass}\"><a href=\"#\" data-toggle=\"tab\" id=\"#{safeName}\" \>#{safeName}"
     button += '&nbsp;<button class="close closeTab" type="button" >×</button>' if @class is 'privateChatTab'
     button += '</a></li>'
