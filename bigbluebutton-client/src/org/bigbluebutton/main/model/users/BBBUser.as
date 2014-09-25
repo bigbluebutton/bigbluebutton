@@ -97,6 +97,10 @@ package org.bigbluebutton.main.model.users
 			_role = r;
 			verifyUserStatus();
 		}
+
+		public function get moderator():Boolean {
+			return _role == MODERATOR;
+		}
 		
 		[Bindable] public var room:String = "";
 		[Bindable] public var authToken:String = "";

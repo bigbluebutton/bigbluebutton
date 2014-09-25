@@ -421,7 +421,16 @@ package org.bigbluebutton.main.model.users {
 			
 			users.refresh();		
 		}
-    
+
+		public function newUserRole(userID:String, role:String):void {
+			var aUser:BBBUser = getUser(userID);
+			if (aUser != null) {
+				aUser.role = role;
+			}
+
+			users.refresh();
+		}
+
 		public function getUserIDs():ArrayCollection {
 			var uids:ArrayCollection = new ArrayCollection();
 			for (var i:int = 0; i < users.length; i++) {

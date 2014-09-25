@@ -30,6 +30,7 @@
 	<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
 	<mate:Listener type="{UsersRollEvent.USER_ROLL_OUT}" method="onRollOut" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -42,6 +43,7 @@
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.main.model.users.events.LowerHandEvent;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -51,7 +53,7 @@
   			private var moderator:Boolean = false;
   			
   			private function onCreationComplete():void {
-  				moderator = UserManager.getInstance().getConference().amIModerator();
+  				refreshRole(UserManager.getInstance().getConference().amIModerator());
   				
   				/* I was trying to the binds through actionscript, but every time the itemrenderer was recycled 
   				 * the binds would stop functioning. I think it might have been because I was using strong 
@@ -142,6 +144,17 @@
 					rolledOver = false;
 					updateButton();
 				}
+			}
+
+			private function onChangeMyRole(e:ChangeMyRole):void {
+				rolledOver = false;
+				updateButton();
+				
+				refreshRole(e.role == Role.MODERATOR);
+			}
+
+			private function refreshRole(amIModerator:Boolean):void {
+				moderator = amIModerator;
 			}
   			
   			private function roleBtnClicked():void {

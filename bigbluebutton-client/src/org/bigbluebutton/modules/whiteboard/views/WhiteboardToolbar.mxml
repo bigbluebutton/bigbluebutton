@@ -37,6 +37,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="graphicObjSelected" />
   <mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="graphicObjDeselected" />
   <mate:Listener type="{WhiteboardButtonEvent.WHITEBOARD_BUTTON_PRESSED}" method="handleWhiteboardButtonPressed"/>
+  <mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
   <mate:Listener type="{NavigationEvent.GOTO_PAGE}" method="handleSlideChange" />
   <mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleSlideLoaded" />
   <mate:Listener type="{UploadEvent.PRESENTATION_READY}" method="handlePresentationSwitch" />
@@ -75,6 +76,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
 			import org.bigbluebutton.modules.present.events.NavigationEvent;
@@ -257,6 +259,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     //Do an initial check to see if the toolbar should be visible
                     checkVisibility();
                 }
+			}
+
+			private function refreshRole(e:ChangeMyRole):void {
+				checkVisibility();
 			}
 			
             private function checkVisibility(e:MadePresenterEvent = null):void {

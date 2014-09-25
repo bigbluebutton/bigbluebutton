@@ -44,6 +44,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 	import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
+	import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 	import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
 	import org.bigbluebutton.main.model.users.events.KickUserEvent;
 	import org.bigbluebutton.main.model.users.events.LowerHandEvent;
@@ -221,6 +222,10 @@ package org.bigbluebutton.main.model.users
 		
 		public function kickUser(e:KickUserEvent):void{
 			if (this.isModerator()) sender.kickUser(e.userid);
+		}
+
+		public function changeRole(e:ChangeRoleEvent):void {
+			if (this.isModerator()) sender.changeRole(e.userid, e.role);
 		}
 		
 		/**

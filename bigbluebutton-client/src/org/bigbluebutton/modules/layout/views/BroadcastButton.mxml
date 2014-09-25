@@ -48,10 +48,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (!UserManager.getInstance().getConference().amIModerator()) {
 					this.visible = false;
 				}
+				else {
+					this.visible = true;
+					this.enabled = true;
+				}
 			}
 			
 			private function onClick(e:Event):void {
 				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.BROADCAST_LAYOUT_EVENT));
+			}
+
+			public function refreshRole(amIModerator:Boolean):void {
+				this.visible = amIModerator;
+				this.enabled = amIModerator;
 			}
 		]]>
 	</mx:Script>

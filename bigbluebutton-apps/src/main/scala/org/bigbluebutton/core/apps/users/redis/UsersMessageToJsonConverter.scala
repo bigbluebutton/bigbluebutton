@@ -185,6 +185,16 @@ object UsersMessageToJsonConverter {
 		val header = Util.buildHeader(MessageNames.USER_STATUS_CHANGED, msg.version, None)
     Util.buildJson(header, payload)
 	}
+
+  def userRoleChangeToJson(msg: UserRoleChange):String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userID)
+    payload.put(Constants.ROLE, msg.role)
+
+    val header = Util.buildHeader(MessageNames.USER_ROLE_CHANGED, msg.version, None)
+    Util.buildJson(header, payload)
+  }
     
   def userSharedWebcamToJson(msg: UserSharedWebcam):String = {
     val payload = new java.util.HashMap[String, Any]()

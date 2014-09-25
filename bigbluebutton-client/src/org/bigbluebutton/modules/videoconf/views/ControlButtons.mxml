@@ -22,6 +22,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
          xmlns:mate="http://mate.asfusion.com/"
          creationComplete="onCreationComplete()">
 	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
   <mx:Script>
     <![CDATA[
 		import com.asfusion.mate.events.Dispatcher;
@@ -37,6 +38,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.core.managers.UserManager;
 		import org.bigbluebutton.main.model.users.BBBUser;
 		import org.bigbluebutton.main.model.users.Conference;
+		import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 		import org.bigbluebutton.main.model.users.events.KickUserEvent;
 		import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 		import org.bigbluebutton.modules.chat.model.ChatOptions;
@@ -71,6 +73,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         } else {
           muteUnmuteBtn.styleName = "videoUnmutedButtonStyle";
         }
+      }
+
+      private function refreshRole(e:ChangeMyRole):void {
+        updateControlButtons();
       }
       
       public function updateControlButtons():void {

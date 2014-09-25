@@ -104,4 +104,12 @@ public class ParticipantsService {
         return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
     }
 
+	public void setParticipantRole(Map<String, String> msg) {
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		String userId = (String) msg.get("userId");
+		String role = (String) msg.get("role");
+		log.debug("Setting participant role " + roomName + " " + userId + " " + role);
+		application.setParticipantRole(roomName, userId, role);
+	}
+
 }

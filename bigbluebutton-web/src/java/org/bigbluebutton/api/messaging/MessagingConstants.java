@@ -47,6 +47,7 @@ public class MessagingConstants {
 	public static final String USER_JOINED_EVENT             = "user_joined_message";
 	public static final String USER_LEFT_EVENT               = "user_left_message";
 	public static final String USER_STATUS_CHANGE_EVENT      = "user_status_changed_message";
+	public static final String USER_ROLE_CHANGE_EVENT        = "user_role_changed_message";
 	
 			
 	public static final String SEND_POLLS_EVENT = "SendPollsEvent";

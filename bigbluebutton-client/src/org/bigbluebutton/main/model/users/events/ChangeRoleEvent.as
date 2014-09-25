@@ -16,23 +16,22 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
+package org.bigbluebutton.main.model.users.events
+{
+	import flash.events.Event;
 
-class BigBlueButtonFilters {
-
-	def keepAliveService
-
-  def filters = {
-    corsFilter(uri:'/presentation/upload') {
-  	  before = {
-  	  	response.setHeader("Access-Control-Allow-Origin", "${grailsApplication.config.accessControlAllowOrigin}")
-  	  }
-  	}
-  	serviceUnavailable(controller:'api',action:'(create|join|isMeetingRunning|end|getMeetingInfo|getMeetings|enter|signOut)') {
-  		before = {
-        System.out.println("enter filter")
-  			if (keepAliveService.isDown())
-  				response.sendError(503, "BigBlueButton")
-  		}
-  	}
-  }
+	public class ChangeRoleEvent extends Event
+	{
+		public static const CHANGE_ROLE_EVENT:String = "CHANGE_ROLE_EVENT";
+		
+		public var userid:String;
+		public var role:String;
+		
+		public function ChangeRoleEvent(userid:String, role:String)
+		{
+			this.userid = userid;
+			this.role = role;
+			super(CHANGE_ROLE_EVENT, true, false);
+		}
+	}
 }
