@@ -114,25 +114,29 @@ Meteor.methods
 		else
 			console.log "did not have enough information to send a mute_user_request"
 
-  	# Raise & Lower hand
-	userLowerHand: (meetingId, userId, loweredBy) ->
-		requester = Meteor.Users.findOne({userId: loweredBy})
+	# meetingId: the meetingId which both users are in 
+	# user_id: the _id of the user to have their hand lowered
+	# loweredByUserId: userId of person lowering
+	# loweredBy_id: _id of person lowering
+	userLowerHand: (meetingId, user_id, loweredByUserId, loweredBy_id) ->
+		requester = Meteor.Users.findOne({'meetingId': meetingId, 'userId': loweredByUserId, '_id': loweredBy_id})
 		if requester?
 			# Allow if person lowering the hand is the presenter, or they're lowering their own hand
-			unless requester.user.presenter or requester._id is userId
+			unless requester.user.presenter or loweredBy_id is user_id
 				return
 
-			# console.log "publishing a userLowerHand event: #{userId}--by=#{loweredBy}"
 			console.log "publishing a userLowerHand event: #{userId}--by=#{requester._id}"
 
-			if meetingId? and userId? and loweredBy?
+			# update Users collection
+			toLower = Meteor.Users.findOne({'meetingId': meetingId, '_id': user_id})
+
+			if Meteor.Users.update(_id: toLower._id, {$set: {'user.raise_hand': false}}) is 1
 				message =
 					"payload":
-						"userid": userId
+						"userid": toLower.userId
 						"meeting_id": meetingId
 						"raise_hand": false
-						"lowered_by": loweredBy
-						# "lowered_by": requester._id
+						"lowered_by": loweredByUserId
 					"header":
 						"timestamp": new Date().getTime()
 						"name": "user_lowered_hand_message"
@@ -140,29 +144,37 @@ Meteor.methods
 
 				#publish to pubsub
 				Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.users, message)
-				#update Users collection
-				Meteor.Users.update({userId:requester.userId, meetingId: meetingId, _id: requester._id}, {$set: {'user.raise_hand': false}})
 
-	userRaiseHand: (meetingId, userId, user_id) ->
-		u = Meteor.Users.findOne({meetingId: meetingId, _id: user_id, userId: userId})
-		if u?
-			console.log "publishing a userRaiseHand event: #{u._id}"
+	# meetingId: the meetingId which both users are in 
+	# user_id: the _id of the user to have their hand raised
+	# loweredByUserId: userId of person raising
+	# loweredBy_id: _id of person raising
+	userRaiseHand: (meetingId, user_id, loweredByUserId, loweredBy_id) ->
+		requester = Meteor.Users.findOne({'meetingId': meetingId, 'userId': loweredByUserId, '_id': loweredBy_id})
+		if requester?
+			# Allow if person raising the hand is the presenter, or they're raising their own hand
+			unless requester.user.presenter or loweredBy_id is user_id
+				return
 
-			if meetingId? and userId?
+			console.log "publishing a userLowerHand event: #{userId}--by=#{requester._id}"
+
+			# update Users collection
+			toLower = Meteor.Users.findOne({'meetingId': meetingId, '_id': user_id})
+
+			if Meteor.Users.update(_id: toLower._id, {$set: {'user.raise_hand': true}}) is 1
 				message =
-				"payload":
-					"userid": userId
-					"meeting_id": meetingId
-					"raise_hand": true
-				"header":
-					"timestamp": new Date().getTime()
-					"name": "user_raised_hand_message"
-					"version": "0.0.1"
+					"payload":
+						"userid": toLower.userId
+						"meeting_id": meetingId
+						"raise_hand": true
+						"lowered_by": loweredByUserId
+					"header":
+						"timestamp": new Date().getTime()
+						"name": "user_raised_hand_message"
+						"version": "0.0.1"
 
 				#publish to pubsub
-				Meteor.call('publish',Meteor.config.redis.channels.toBBBApps.users, message)
-				#update Users collection
-				Meteor.Users.update({userId:u.userId, meetingId: meetingId, _id: u._id}, {$set: {'user.raise_hand': true}})
+				Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.users, message)
 
 	userLogout: (meetingId, userId, user_id) ->
 		console.log "a user is logging out:" + userId
