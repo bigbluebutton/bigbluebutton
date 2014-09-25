@@ -1,38 +1,4 @@
 Meteor.methods
-	addUserToCollection: (meetingId, user) ->
-		userId = user.userid
-		#check if the user is already in the meeting
-		unless Meteor.Users.findOne({userId:userId, meetingId: meetingId})?
-			entry =
-				meetingId: meetingId
-				userId: userId
-				user:
-					userid: user.userid
-					presenter: user.presenter
-					name: user.name
-					phone_user: user.phone_user
-					raise_hand: user.raise_hand
-					has_stream: user.has_stream
-					role: user.role
-					listenOnly: user.listenOnly
-					extern_userid: user.extern_userid
-					permissions: user.permissions
-					locked: user.locked
-					time_of_joining: user.timeOfJoining
-					voiceUser:
-						web_userid: user.voiceUser.web_userid
-						callernum: user.voiceUser.callernum
-						userid: user.voiceUser.userid
-						talking: user.voiceUser.talking
-						joined: user.voiceUser.joined
-						callername: user.voiceUser.callername
-						locked: user.voiceUser.locked
-						muted: user.voiceUser.muted
-					webcam_stream: user.webcam_stream
-
-		id = Meteor.Users.insert(entry)
-		console.log "added user id=[#{id}]:#{user.name}. Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
-
 	# I did not simply loop through all users and call the 'publishMuteRequest' because that function
 	# always validates the credentials of the requester. This is a waste of resources when applying it to every user.
 	# We can validate the muter first, then mute all users individually
@@ -55,7 +21,7 @@ Meteor.methods
 						"name": "mute_user_request"
 						"version": "0.0.1"
 
-				Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.voice, message)
+				publish Meteor.config.redis.channels.toBBBApps.voice, message)
 				Meteor.Users.update({_id: mutee._id}, {$set:{'user.voiceUser.talking':false, 'user.voiceUser.muted':true}}, {multi: false})
 
 	userShareAudio: (meetingId, userId, user_id) ->
@@ -76,7 +42,7 @@ Meteor.methods
 					"name": "user_left_voice_request"
 					"version": "0.0.1"
 
-			Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.voice, message)
+			publish Meteor.config.redis.channels.toBBBApps.voice, message)
 			updateVoiceUser {'user_id': user_id, talking:false, joined: true, muted:false}
 		else
 			console.log "did not have enough information to send a mute_user_request"
@@ -99,7 +65,7 @@ Meteor.methods
 					"name": "mute_user_request"
 					"version": "0.0.1"
 
-			Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.voice, message)
+			publish Meteor.config.redis.channels.toBBBApps.voice, message)
 			Meteor.Users.update({_id: mutee._id}, {$set:{'user.voiceUser.talking':false, 'user.voiceUser.muted':true}}, {multi: false})
 			# 
 		else
@@ -134,7 +100,7 @@ Meteor.methods
 					"version": "0.0.1"
 
 			#publish to pubsub
-			Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.users, message)
+			publish Meteor.config.redis.channels.toBBBApps.users, message)
 
 	# meetingId: the meetingId which both users are in 
 	# user_id: the _id of the user to have their hand raised
@@ -165,7 +131,7 @@ Meteor.methods
 					"version": "0.0.1"
 
 			#publish to pubsub
-			Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.users, message)
+			publish Meteor.config.redis.channels.toBBBApps.users, message)
 
 	userLogout: (meetingId, userId, user_id) ->
 		console.log "a user is logging out:" + userId
@@ -207,12 +173,12 @@ Meteor.methods
 				"version": "0.0.1"
 
 		if user.userId? and meetingId?
-			Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.users, message)
+			publish Meteor.config.redis.channels.toBBBApps.users, message)
 		else
 			console.log "did not have enough information to send a user_leaving_request"
 
 #update a voiceUser - a helper method
-updateVoiceUser: (voiceUserObject) ->
+@updateVoiceUser = (voiceUserObject) ->
 	if voiceUserObject?.user_id?
 		console.log "I am updating the voiceUserObject with the following: " + JSON.stringify voiceUserObject
 
@@ -228,3 +194,38 @@ updateVoiceUser: (voiceUserObject) ->
 				Meteor.Users.update({_id:voiceUserObject.user_id}, {$set: {'user.voiceUser.muted':voiceUserObject.muted}})# muted
 		else
 			console.log "ERROR! did not find such voiceUser!"
+
+@addUserToCollection = (meetingId, user) ->
+	userId = user.userid
+	#check if the user is already in the meeting
+	unless Meteor.Users.findOne({userId:userId, meetingId: meetingId})?
+		entry =
+			meetingId: meetingId
+			userId: userId
+			user:
+				userid: user.userid
+				presenter: user.presenter
+				name: user.name
+				phone_user: user.phone_user
+				raise_hand: user.raise_hand
+				has_stream: user.has_stream
+				role: user.role
+				listenOnly: user.listenOnly
+				extern_userid: user.extern_userid
+				permissions: user.permissions
+				locked: user.locked
+				time_of_joining: user.timeOfJoining
+				voiceUser:
+					web_userid: user.voiceUser.web_userid
+					callernum: user.voiceUser.callernum
+					userid: user.voiceUser.userid
+					talking: user.voiceUser.talking
+					joined: user.voiceUser.joined
+					callername: user.voiceUser.callername
+					locked: user.voiceUser.locked
+					muted: user.voiceUser.muted
+				webcam_stream: user.webcam_stream
+
+	id = Meteor.Users.insert(entry)
+	console.log "added user id=[#{id}]:#{user.name}. Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
+

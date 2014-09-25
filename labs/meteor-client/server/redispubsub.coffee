@@ -15,21 +15,9 @@ Meteor.methods
         "name": "validate_auth_token"
 
     if authToken? and userId? and meetingId?
-      Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.meeting, message)
+      publish Meteor.config.redis.channels.toBBBApps.meeting, message)
     else
       console.log "did not have enough information to send a validate_auth_token message"
-
-  # message should be an object
-  publish: (channel, message) ->
-    console.log "Publishing channel=#{channel}, message=#{JSON.stringify(message)}"
-    if Meteor.redisPubSub?
-      Meteor.redisPubSub.pubClient?.publish(channel, JSON.stringify(message), (err, res) ->
-        if err
-          console.log "err=" + err
-      )
-    else
-      console.log "\n ERROR!! Meteor.redisPubSub was undefined\n"
-
 
 class Meteor.RedisPubSub
   constructor: (callback) ->
@@ -55,7 +43,7 @@ class Meteor.RedisPubSub
       "header":
         "name": "get_all_meetings_request"
       "payload": {} # I need this, otherwise bbb-apps won't recognize the message
-    Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.meeting, message)
+    publish Meteor.config.redis.channels.toBBBApps.meeting, message)
 
   _onMessage: (pattern, channel, jsonMsg) =>
     # TODO: this has to be in a try/catch block, otherwise the server will
@@ -168,7 +156,7 @@ class Meteor.RedisPubSub
               "version": "0.0.1"
 
           if whiteboardId? and meetingId?
-            Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.whiteboard, message)
+            publish Meteor.config.redis.channels.toBBBApps.whiteboard, message)
           else
             console.log "did not have enough information to send a user_leaving_request"
 
@@ -242,3 +230,18 @@ class Meteor.RedisPubSub
           #TODO should we clear the chat messages for that meeting?!
         unless message.header?.name is "disconnect_all_users_message"
           Meteor.call("removeMeetingFromCollection", meetingId)
+
+# --------------------------------------------------------------------------------------------
+# Private methods on server
+# --------------------------------------------------------------------------------------------
+
+# message should be an object
+@publish = (channel, message) ->
+	console.log "Publishing channel=#{channel}, message=#{JSON.stringify(message)}"
+	if Meteor.redisPubSub?
+		Meteor.redisPubSub.pubClient?.publish(channel, JSON.stringify(message), (err, res) ->
+			if err
+				console.log "err=" + err
+		)
+	else
+		console.log "\n ERROR!! Meteor.redisPubSub was undefined\n"

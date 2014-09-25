@@ -41,14 +41,21 @@ Meteor.methods
           "message" : chatObject
           "meeting_id": meetingId
           "requester_id": chatObject.from_userid
-      Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.chat, message)
+     publish Meteor.config.redis.channels.toBBBApps.chat, message)
 
 # --------------------------------------------------------------------------------------------
 # Private methods on server
 # --------------------------------------------------------------------------------------------
-@deletePrivateChatMessages = (user1, user2) ->
-  console.log "deleting chat conversation"
-  Meteor.Chat.remove({ # find all and remove private messages between the 2 users
-      'message.chat_type': 'PRIVATE_CHAT',
-      $or: [{'message.from_userid': user1, 'message.to_userid': user2},{'message.from_userid': user2, 'message.to_userid': user1}]
-  })
+@deletePrivateChatMessages = (requesterUserId, requester_id, user1_id, user2_id) ->
+	requester = Meteor.Users.findOne({_id: requester_id, userId: requesterUserId})
+	u1 = Meteor.Users.findOne({_id: user1_id})
+	u2 = Meteor.Users.findOne({_id: user2_id})
+
+	if requester? and u1? and u2?
+		# Delete messages if the requester is a moderator, or one of the participants
+		if requester.role is "MODERATOR" or (requester._id is u1._id or requester._id is u2._id)
+			console.log "deleting chat conversation"
+			Meteor.Chat.remove({ # find all and remove private messages between the 2 users
+				'message.chat_type': 'PRIVATE_CHAT',
+				$or: [{'message.from_userid': u1._id, 'message.to_userid': u2._id},{'message.from_userid': u2._id, 'message.to_userid': u1._id}]
+			})
