@@ -33,12 +33,30 @@ Meteor.methods
 		id = Meteor.Users.insert(entry)
 		console.log "added user id=[#{id}]:#{user.name}. Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
 
-	MuteAllUsers: (id) ->
+	# I did not simply loop through all users and call the 'publishMuteRequest' because that function
+	# always validates the credentials of the requester. This is a waste of resources when applying it to every user.
+	# We can validate the muter first, then mute all users individually
+	MuteAllUsers: (meetingId, requesterUserId, requester_id) ->
 		console.log "MuteAllUsers server method"
-		users = Meteor.Users.find({}).fetch()
-		for u in users
-			if u.userId isnt id
-				Meteor.call 'publishMuteRequest', u.meetingId, u.user.userid, id, true
+		muter = Meteor.Users.findOne({'meetingId': meetingId, 'userId': requesterUserId, _id: requester_id})
+
+		if muter?.presenter? and muter.presenter
+			users = Meteor.Users.find({}).fetch()
+		
+			for mutee in users
+				message =
+					"payload":
+						"userid": mutee.userId
+						"meeting_id": meetingId
+						"mute": mutedBoolean
+						"requester_id": muter.userId
+					"header": 
+						"timestamp": new Date().getTime()
+						"name": "mute_user_request"
+						"version": "0.0.1"
+
+				Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.voice, message)
+				Meteor.Users.update({_id: mutee._id}, {$set:{'user.voiceUser.talking':false, 'user.voiceUser.muted':true}}, {multi: false})
 
 	userShareAudio: (meetingId, userId, user_id) ->
 		updateVoiceUser meetingId, {'user_id': user_id, 'talking':false, 'joined': true, 'muted':false}
@@ -63,6 +81,7 @@ Meteor.methods
 		else
 			console.log "did not have enough information to send a mute_user_request"
 
+	# Verifies muter exists, provided proper credentials, and has permission to mute the user
 	publishMuteRequest: (meetingId, mutee_id, requesterUserId, requester_id, mutedBoolean) ->
 		console.log "publishing a user mute #{mutedBoolean} request for #{mutee_id}"
 		
@@ -81,8 +100,7 @@ Meteor.methods
 					"version": "0.0.1"
 
 			Meteor.call('publish', Meteor.config.redis.channels.toBBBApps.voice, message)
-			Meteor.Users.update({_id: mutee._id}, {$set:{'user.voiceUser.talking':false}}, {multi: false})
-			Meteor.Users.update({_id: mutee._id}, {$set:{'user.voiceUser.muted':mutedBoolean}}, {multi: false})
+			Meteor.Users.update({_id: mutee._id}, {$set:{'user.voiceUser.talking':false, 'user.voiceUser.muted':true}}, {multi: false})
 			# 
 		else
 			console.log "did not have enough information to send a mute_user_request"
