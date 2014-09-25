@@ -23,24 +23,6 @@
 @getTimeOfJoining = ->
   Meteor.Users.findOne({"user.userid": getInSession("userId")})?.user?.time_of_joining
 
-# Finds the names of all people the current user is in a private conversation with
-#  Removes yourself and duplicates if they exist
-@getPrivateChatees = ->
-  me = getInSession("userId")
-  users = Meteor.Users.find().fetch()
-  people = Meteor.Chat.find({$or: [{'message.from_userid': me, 'message.chat_type': 'PRIVATE_CHAT'},{'message.to_userid': me, 'message.chat_type': 'PRIVATE_CHAT'}] }).fetch()
-  formattedUsers = null
-  formattedUsers = (u for u in users when (do -> 
-    return false if u.userId is me
-    found = false
-    for chatter in people
-      if u.userId is chatter.message.to_userid or u.userId is chatter.message.from_userid
-        found = true
-    found
-    )
-  )
-  if formattedUsers? then formattedUsers else []
-
 @getTime = -> # returns epoch in ms
   (new Date).valueOf()
 
@@ -53,7 +35,11 @@
       setInSession "userName", user.user.name # store in session for fast access next time
       user.user.name
     else null
-
+        
+@getPresentationFilename = ->
+  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+  currentPresentation?.presentation?.name
+        
 Handlebars.registerHelper "colourToHex", (value) =>
 	@window.colourToHex(value)
 
@@ -77,6 +63,9 @@ Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
 
 Handlebars.registerHelper "getMeetingName", ->
   window.getMeetingName()
+    
+Handlebars.registerHelper "getWhiteboardTitle", ->
+  "Whiteboard: " + getPresentationFilename()
 
 Handlebars.registerHelper "getShapesForSlide", ->
   currentSlide = getCurrentSlideDoc()
@@ -155,26 +144,15 @@ Handlebars.registerHelper "visibility", (section) ->
     else
         style: 'display:none'
 
+Handlebars.registerHelper "getChatbarTabs1", ->
+    chatTabs.find().fetch()
+
 # transform plain text links into HTML tags compatible with Flash client
 @linkify = (str) ->
   www = /(^|[^\/])(www\.[\S]+($|\b))/img
   http = /\b(https?:\/\/[0-9a-z+|.,:;\/&?_~%#=@!-]*[0-9a-z+|\/&_~%#=@-])/img
   str = str.replace http, "<a href='event:$1'><u>$1</u></a>"
   str = str.replace www, "$1<a href='event:http://$2'><u>$2</u></a>"
-
-# Creates a 'tab' object for each person in chat with
-# adds public and options tabs to the menu
-@makeTabs = ->
-  privTabs = getPrivateChatees().map (u, index) ->
-      newObj = {
-        userId: u.userId
-        name: u.user.name
-        class: "privateChatTab"
-      }
-  tabs = [
-    {userId: "PUBLIC_CHAT", name: "Public", class: "publicChatTab"},
-    {userId: "OPTIONS", name: "Options", class: "optionsChatTab"}
-  ].concat privTabs
 
 @setInSession = (k, v) -> SessionAmplify.set k, v 
 
@@ -279,3 +257,34 @@ Meteor.methods
   presentationId = currentPresentation?.presentation?.id
   currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
 
+
+#start a clientside-only collection keeping track of the chat tabs
+@chatTabs = new Meteor.Collection(null)
+#insert the basic tabs
+@chatTabs.insert({ userId: "PUBLIC_CHAT", name: "Public", gotMail: false, class: "publicChatTab"})
+@chatTabs.insert({ userId: "OPTIONS", name: "Options", gotMail: false, class: "optionsChatTab"})
+
+#check the chat history of the user and add tabs for the private chats
+@populateChatTabs = ->
+  me = getInSession("userId")
+  users = Meteor.Users.find().fetch()
+  myPrivateChats = Meteor.Chat.find({$or: [{'message.from_userid': me, 'message.chat_type': 'PRIVATE_CHAT'},{'message.to_userid': me, 'message.chat_type': 'PRIVATE_CHAT'}] }).fetch()
+
+  uniqueArray = []
+  for chat in myPrivateChats
+    if chat.message.to_userid is me
+      uniqueArray.push({userId: chat.message.from_userid, username: chat.message.from_username})
+    if chat.message.from_userid is me
+      uniqueArray.push({userId: chat.message.to_userid, username: chat.message.to_username})
+
+  #keep unique entries only
+  uniqueArray = uniqueArray.filter((itm, i, a) ->
+      i is a.indexOf(itm)
+    )
+  #insert the unique entries in the collection
+  for u in uniqueArray
+    unless chatTabs.findOne({userId: u.userId})?
+      chatTabs.insert({ userId: u.userId, name: u.username, gotMail: false, class: "privateChatTab"})
+
+Handlebars.registerHelper "grabChatTabs", ->
+  chatTabs.find().fetch()

@@ -107,9 +107,25 @@ Template.chatbar.helpers
 
     msgs
 
+  detectUnreadChat: ->
+    #if the current tab is not the same as the tab we just published in
+    Meteor.Chat.find({}).observe({
+      added: (chatMessage) =>
+        findDestinationTab = ->
+          if chatMessage.message?.chat_type is "PUBLIC_CHAT"
+            "PUBLIC_CHAT"
+          else
+            chatMessage.message?.from_userid
+
+        populateChatTabs() # check if we need to open a new tab
+        destinationTab = findDestinationTab()
+        if destinationTab isnt getInSession "inChatWith"
+          chatTabs.update({userId: destinationTab}, {$set: {gotMail: true}})
+      })
 
 # When chatbar gets rendered, scroll to the bottom
 Template.chatbar.rendered = ->
+  Template.chatbar.detectUnreadChat()
   $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
   false
 # Scrolls the message container to the bottom. The number of pixels to scroll down is the height of the container
@@ -151,7 +167,14 @@ Template.tabButtons.events
   'click .close': (event) -> # user closes private chat
     setInSession 'inChatWith', 'PUBLIC_CHAT'
     setInSession 'display_chatPane', true
+    id = chatTabs.findOne({userId: @userId})
+    console.log "id is:" + JSON.stringify id
+    if id?
+      chatTabs.remove(id)
+
     Meteor.call("deletePrivateChatMessages", getInSession("userId"), @userId)
+
+
     return false # stops propogation/prevents default
 
   'click .optionsChatTab': (event) ->
@@ -166,11 +189,13 @@ Template.tabButtons.events
 
   'click .tab': (event) -> 
     setInSession "inChatWith", @userId
-  
-Template.tabButtons.helpers
-  getChatbarTabs: ->
-    tabs = makeTabs()
 
+  'click .gotUnreadMail': (event) ->
+    chatTabs.update({userId: @userId}, {$set: {gotMail: false}})
+
+
+ 
+Template.tabButtons.helpers
   makeTabButton: -> # create tab button for private chat or other such as options
     safeClass = @class.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     safeName = @name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -178,7 +203,8 @@ Template.tabButtons.helpers
     button = '<li '
     button += 'class="'
     button += 'active ' if getInSession("inChatWith") is @userId
-    button += "tab #{safeClass}\"><a href=\"#\" data-toggle=\"tab\">#{safeName}"
+    button += 'gotUnreadMail ' if @gotMail
+    button += "tab #{safeClass}\"><a href=\"#\" data-toggle=\"tab\" id=\"#{safeName}\" \>#{safeName}"
     button += '&nbsp;<button class="close closeTab" type="button" >×</button>' if @class is 'privateChatTab'
     button += '</a></li>'
     button

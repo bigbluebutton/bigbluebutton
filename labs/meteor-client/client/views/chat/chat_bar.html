@@ -103,8 +103,9 @@
 
 <!-- Display buttons on the chat tab, public, options, and all the private chat tabs -->
 <template name="tabButtons">
+	<!-- {{getChatbarTabs2}} -->
 	<ul id="tabButtonContainer" class="nav nav-tabs">
-		{{#each getChatbarTabs}}
+		{{#each grabChatTabs}}
 			{{{makeTabButton}}}
 		{{/each}}
 	</ul>
