@@ -107,7 +107,7 @@ Template.chatbar.helpers
 
     msgs
 
-  markNewAsUnread: ->
+  detectUnreadChat: ->
     #if the current tab is not the same as the tab we just published in
     Meteor.Chat.find({}).observe({
       added: (chatMessage) =>
@@ -116,29 +116,16 @@ Template.chatbar.helpers
             "PUBLIC_CHAT"
           else
             chatMessage.message?.from_userid
-        console.log "size=" + chatTabs.find().count()
-    
-        populateChatTabs()
+
+        populateChatTabs() # check if we need to open a new tab
         destinationTab = findDestinationTab()
-        #Meteor.call('addChatTab', "aaa", "bbb", "ccc")
-        console.log "destination=" + destinationTab
-
         if destinationTab isnt getInSession "inChatWith"
-          console.log "there should be flashing on:" + destinationTab
-
           chatTabs.update({userId: destinationTab}, {$set: {gotMail: true}})
-          #myElement = document.querySelector(".tab")
-          #myElement?.style.backgroundColor = "#D93600"
-
-
-
-        #currentTab = document.getElementsByClassName("active")[0].getElementsByTagName("a")[0].id #TODO how can I simplify this?!?
       })
-
 
 # When chatbar gets rendered, scroll to the bottom
 Template.chatbar.rendered = ->
-  Template.chatbar.markNewAsUnread()
+  Template.chatbar.detectUnreadChat()
   $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
   false
 # Scrolls the message container to the bottom. The number of pixels to scroll down is the height of the container
@@ -188,8 +175,6 @@ Template.tabButtons.events
     Meteor.call("deletePrivateChatMessages", getInSession("userId"), @userId)
 
 
-
-
     return false # stops propogation/prevents default
 
   'click .optionsChatTab': (event) ->
@@ -212,7 +197,6 @@ Template.tabButtons.events
  
 Template.tabButtons.helpers
   makeTabButton: -> # create tab button for private chat or other such as options
-    console.log "making tab " + JSON.stringify @
     safeClass = @class.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     safeName = @name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 

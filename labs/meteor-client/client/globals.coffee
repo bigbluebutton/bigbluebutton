@@ -253,13 +253,12 @@ Meteor.methods
 
 #start a clientside-only collection keeping track of the chat tabs
 @chatTabs = new Meteor.Collection(null)
+#insert the basic tabs
 @chatTabs.insert({ userId: "PUBLIC_CHAT", name: "Public", gotMail: false, class: "publicChatTab"})
 @chatTabs.insert({ userId: "OPTIONS", name: "Options", gotMail: false, class: "optionsChatTab"})
-console.log "now chatTabs.size is " + @chatTabs.find().count()
 
-
+#check the chat history of the user and add tabs for the private chats
 @populateChatTabs = ->
-  console.log "i'm in populateChatTabs"
   me = getInSession("userId")
   users = Meteor.Users.find().fetch()
   myPrivateChats = Meteor.Chat.find({$or: [{'message.from_userid': me, 'message.chat_type': 'PRIVATE_CHAT'},{'message.to_userid': me, 'message.chat_type': 'PRIVATE_CHAT'}] }).fetch()
@@ -271,19 +270,14 @@ console.log "now chatTabs.size is " + @chatTabs.find().count()
     if chat.message.from_userid is me
       uniqueArray.push({userId: chat.message.to_userid, username: chat.message.to_username})
 
-  #for id in uniqueArray
+  #keep unique entries only
   uniqueArray = uniqueArray.filter((itm, i, a) ->
       i is a.indexOf(itm)
     )
+  #insert the unique entries in the collection
   for u in uniqueArray
     unless chatTabs.findOne({userId: u.userId})?
       chatTabs.insert({ userId: u.userId, name: u.username, gotMail: false, class: "privateChatTab"})
 
-
-
 Handlebars.registerHelper "grabChatTabs", ->
   chatTabs.find().fetch()
-
-
-
-
