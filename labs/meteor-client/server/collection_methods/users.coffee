@@ -21,7 +21,7 @@ Meteor.methods
 						"name": "mute_user_request"
 						"version": "0.0.1"
 
-				publish Meteor.config.redis.channels.toBBBApps.voice, message)
+				publish Meteor.config.redis.channels.toBBBApps.voice, message
 				Meteor.Users.update({_id: mutee._id}, {$set:{'user.voiceUser.talking':false, 'user.voiceUser.muted':true}}, {multi: false})
 
 	userShareAudio: (meetingId, userId, user_id) ->
@@ -42,7 +42,7 @@ Meteor.methods
 					"name": "user_left_voice_request"
 					"version": "0.0.1"
 
-			publish Meteor.config.redis.channels.toBBBApps.voice, message)
+			publish Meteor.config.redis.channels.toBBBApps.voice, message
 			updateVoiceUser {'user_id': user_id, talking:false, joined: true, muted:false}
 		else
 			console.log "did not have enough information to send a mute_user_request"
@@ -65,7 +65,7 @@ Meteor.methods
 					"name": "mute_user_request"
 					"version": "0.0.1"
 
-			publish Meteor.config.redis.channels.toBBBApps.voice, message)
+			publish Meteor.config.redis.channels.toBBBApps.voice, message
 			Meteor.Users.update({_id: mutee._id}, {$set:{'user.voiceUser.talking':false, 'user.voiceUser.muted':true}}, {multi: false})
 			# 
 		else
@@ -100,7 +100,7 @@ Meteor.methods
 					"version": "0.0.1"
 
 			#publish to pubsub
-			publish Meteor.config.redis.channels.toBBBApps.users, message)
+			publish Meteor.config.redis.channels.toBBBApps.users, message
 
 	# meetingId: the meetingId which both users are in 
 	# user_id: the _id of the user to have their hand raised
@@ -131,7 +131,7 @@ Meteor.methods
 					"version": "0.0.1"
 
 			#publish to pubsub
-			publish Meteor.config.redis.channels.toBBBApps.users, message)
+			publish Meteor.config.redis.channels.toBBBApps.users, message
 
 	userLogout: (meetingId, userId, user_id) ->
 		console.log "a user is logging out:" + userId
@@ -173,7 +173,7 @@ Meteor.methods
 				"version": "0.0.1"
 
 		if user.userId? and meetingId?
-			publish Meteor.config.redis.channels.toBBBApps.users, message)
+			publish Meteor.config.redis.channels.toBBBApps.users, message
 		else
 			console.log "did not have enough information to send a user_leaving_request"
 
@@ -228,4 +228,3 @@ Meteor.methods
 
 	id = Meteor.Users.insert(entry)
 	console.log "added user id=[#{id}]:#{user.name}. Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
-

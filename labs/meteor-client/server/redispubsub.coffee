@@ -1,4 +1,8 @@
 Meteor.methods
+  # 
+  # I dont know if this is okay to be server side. We need to call it from the router, but I don't know if any harm can be caused
+  # by the client calling this
+  # 
 
   # Construct and send a message to bbb-web to validate the user
   validateAuthToken: (meetingId, userId, authToken) ->
@@ -15,7 +19,7 @@ Meteor.methods
         "name": "validate_auth_token"
 
     if authToken? and userId? and meetingId?
-      publish Meteor.config.redis.channels.toBBBApps.meeting, message)
+      publish Meteor.config.redis.channels.toBBBApps.meeting, message
     else
       console.log "did not have enough information to send a validate_auth_token message"
 
@@ -43,7 +47,7 @@ class Meteor.RedisPubSub
       "header":
         "name": "get_all_meetings_request"
       "payload": {} # I need this, otherwise bbb-apps won't recognize the message
-    publish Meteor.config.redis.channels.toBBBApps.meeting, message)
+    publish Meteor.config.redis.channels.toBBBApps.meeting, message
 
   _onMessage: (pattern, channel, jsonMsg) =>
     # TODO: this has to be in a try/catch block, otherwise the server will
@@ -67,7 +71,7 @@ class Meteor.RedisPubSub
     # handle voice events
     if message.header?.name in ['user_left_voice_message', 'user_joined_voice_message', 'user_voice_talking_message', 'user_voice_muted_message']
       voiceUser = message.payload?.user?.voiceUser
-      Meteor.call('updateVoiceUser', meetingId, voiceUser)
+      updateVoiceUser meetingId, voiceUser
 
     # listen only
     if message.header?.name is 'user_listening_only'
@@ -80,29 +84,29 @@ class Meteor.RedisPubSub
       listOfMeetings = message.payload?.meetings
       for meeting in listOfMeetings
         # we currently do not have voice_conf or duration in this message.
-        Meteor.call("addMeetingToCollection", meeting.meetingID, meeting.meetingName, meeting.recorded, meeting.voiceBridge, meeting.duration)
+        addMeetingToCollection meeting.meetingID, meeting.meetingName, meeting.recorded, meeting.voiceBridge, meeting.duration
 
     if message.header?.name is "get_users_reply" and message.payload?.requester_id is "nodeJSapp"
       unless Meteor.Meetings.findOne({MeetingId: message.payload?.meeting_id})?
         users = message.payload?.users
         for user in users
           user.timeOfJoining = message.header?.current_time # TODO this might need to be removed
-          Meteor.call("addUserToCollection", meetingId, user)
+          addUserToCollection meetingId, user
 
     if message.header?.name is "user_joined_message"
       user = message.payload.user
       user.timeOfJoining = message.header?.current_time
-      Meteor.call("addUserToCollection", meetingId, user)
+      addUserToCollection meetingId, user
 
     if message.header?.name is "user_left_message"
       userId = message.payload?.user?.userid
       if userId? and meetingId?
-        Meteor.call("removeUserFromCollection", meetingId, userId)
+        removeUserFromMeeting meetingId, userId
 
     if message.header?.name is "get_chat_history_reply" and message.payload?.requester_id is "nodeJSapp"
       unless Meteor.Meetings.findOne({MeetingId: message.payload?.meeting_id})?
         for chatMessage in message.payload?.chat_history
-          Meteor.call("addChatToCollection", meetingId, chatMessage)
+          addChatToCollection meetingId, chatMessage
 
     if message.header?.name is "send_public_chat_message" or message.header?.name is "send_private_chat_message"
       messageObject = message.payload?.message
@@ -110,14 +114,14 @@ class Meteor.RedisPubSub
       # use current_time instead of message.from_time so that the chats from Flash and HTML5 have uniform times
       messageObject.from_time = message.header?.current_time
 
-      Meteor.call("addChatToCollection", meetingId, messageObject)
+      addChatToCollection meetingId, messageObject
 
     if message.header?.name is "meeting_created_message"
       meetingName = message.payload?.name
       intendedForRecording = message.payload?.recorded
       voiceConf = message.payload?.voice_conf
       duration = message.payload?.duration
-      Meteor.call("addMeetingToCollection", meetingId, meetingName, intendedForRecording, voiceConf, duration)
+      addMeetingToCollection meetingId, meetingName, intendedForRecording, voiceConf, duration
 
     if message.header?.name is "presentation_shared_message"
       presentationId = message.payload?.presentation?.id
@@ -156,7 +160,7 @@ class Meteor.RedisPubSub
               "version": "0.0.1"
 
           if whiteboardId? and meetingId?
-            publish Meteor.config.redis.channels.toBBBApps.whiteboard, message)
+            publish Meteor.config.redis.channels.toBBBApps.whiteboard, message
           else
             console.log "did not have enough information to send a user_leaving_request"
 
@@ -226,10 +230,10 @@ class Meteor.RedisPubSub
       if Meteor.Meetings.findOne({meetingId: meetingId})?
         console.log "there are #{Meteor.Users.find({meetingId: meetingId}).count()} users in the meeting"
         for user in Meteor.Users.find({meetingId: meetingId}).fetch()
-          Meteor.call("removeUserFromCollection", meetingId, user.userId)
+          removeUserFromMeeting meetingId, user.userId
           #TODO should we clear the chat messages for that meeting?!
         unless message.header?.name is "disconnect_all_users_message"
-          Meteor.call("removeMeetingFromCollection", meetingId)
+          removeMeetingFromCollection meetingId
 
 # --------------------------------------------------------------------------------------------
 # Private methods on server
