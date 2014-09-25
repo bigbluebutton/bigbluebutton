@@ -5,11 +5,9 @@ Meteor.publish 'users', (meetingId) ->
   Meteor.Users.find({meetingId: meetingId})
 
 Meteor.publish 'chat', (meetingId, me) ->
-  console.log "\n\n\n\n\n\n\nhere is me: #{me}"
   # console.log JSON.stringify(Meteor.Chat.find({}, {fields: {'message.message':1}}).fetch())
-  console.log (Meteor.Chat.find().fetch())
-  # Meteor.Chat.find({$or: [ {'message.chat_type': 'PUBLIC_CHAT', 'meetingId': meetingId},{'message.from_userid': me, 'meetingId': meetingId},{'message.to_userid': me, 'meetingId': meetingId}] })
-  Meteor.Chat.find()
+  Meteor.Chat.find({$or: [ {'message.chat_type': 'PUBLIC_CHAT', 'meetingId': meetingId},{'message.from_userid': me, 'meetingId': meetingId},{'message.to_userid': me, 'meetingId': meetingId}] })
+  # Meteor.Chat.find()
 
 Meteor.publish 'shapes', (meetingId) ->
   Meteor.Shapes.find({meetingId: meetingId})
