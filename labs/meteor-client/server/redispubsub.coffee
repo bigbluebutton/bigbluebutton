@@ -133,7 +133,7 @@ class Meteor.RedisPubSub
       Meteor.call("addPresentationToCollection", meetingId, message.payload?.presentation)
 
       for slide in message.payload?.presentation?.pages
-        Meteor.call("addSlideToCollection", meetingId, message.payload?.presentation?.id, slide)
+        addSlideToCollection meetingId, message.payload?.presentation?.id, slide
         if slide.current
           Meteor.call("displayThisSlide", meetingId, slide.id, slide)
 
@@ -143,7 +143,7 @@ class Meteor.RedisPubSub
 
         for page in presentation.pages
           #add the slide to the collection
-          Meteor.call("addSlideToCollection", meetingId, presentation.id, page)
+          addSlideToCollection meetingId, presentation.id, page
 
           #request for shapes
           whiteboardId = "#{presentation.id}/#{page.num}" # d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1404411622872/1
