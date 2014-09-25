@@ -39,5 +39,7 @@ Template.whiteboard.rendered = ->
       
       wpm.scale(adjustedWidth, adjustedHeight)
       
+      wpm.createCursor()
+      
     pic.src = currentSlide?.slide?.png_uri
   );

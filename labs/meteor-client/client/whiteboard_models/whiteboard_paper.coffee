@@ -74,8 +74,7 @@ class @WhiteboardPaperModel
 
     @raphaelObj.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
 
-    @cursor = new WhiteboardCursorModel(@raphaelObj)
-    @cursor.draw()
+    @createCursor()
     #@cursor.on "cursor:mousewheel", _.bind(@_zoomSlide, @)
 
     if @slides
@@ -361,9 +360,13 @@ class @WhiteboardPaperModel
       @currentShapes = []
       @currentShapesDefinitions = []
     @clearCursor()
-    
+  
   clearCursor: ->
     @cursor?.remove()
+    
+  createCursor: ->
+    @cursor = new WhiteboardCursorModel(@raphaelObj)
+    @cursor.draw()
 
   # Updated a shape `shape` with the data in `data`.
   # TODO: check if the objects exist before calling update, if they don't they should be created
