@@ -106,7 +106,8 @@ class LtiService {
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection()
             httpConnection.setUseCaches(false)
             httpConnection.setDoOutput(true)
-            httpConnection.setRequestMethod("GET")
+            httpConnection.setRequestMethod("HEAD")
+            httpConnection.setConnectTimeout(5000)
             httpConnection.connect()
 
             int responseCode = httpConnection.getResponseCode()
