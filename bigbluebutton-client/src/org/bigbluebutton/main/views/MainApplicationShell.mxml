@@ -536,7 +536,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				mdiCanvas.windowManager.add(networkStatsWindow);
-				mdiCanvas.windowManager.absPos(networkStatsWindow, mdiCanvas.width - networkStatsWindow.width, mdiCanvas.height - networkStatsWindow.height);
+				mdiCanvas.windowManager.absPos(networkStatsWindow, mdiCanvas.width - networkStatsWindow.width, 0);
 				mdiCanvas.windowManager.bringToFront(networkStatsWindow);
 			}
 
