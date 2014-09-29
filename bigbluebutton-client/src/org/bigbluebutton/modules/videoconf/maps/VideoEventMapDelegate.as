@@ -114,8 +114,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     private function displayToolbarButton():void {
-      button.isPresenter = true;
-      
+      button.isPresenter = UsersUtil.amIPresenter();
       if (options.presenterShareOnly) {
         if (UsersUtil.amIPresenter()) {
           button.isPresenter = true;
