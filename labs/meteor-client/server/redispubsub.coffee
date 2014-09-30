@@ -129,17 +129,17 @@ class Meteor.RedisPubSub
       Meteor.Presentations.update({"presentation.current": true, meetingId: meetingId},{$set: {"presentation.current": false}})
 
       #update(if already present) entirely the presentation with the fresh data
-      Meteor.call("removePresentationFromCollection", meetingId, presentationId)
-      Meteor.call("addPresentationToCollection", meetingId, message.payload?.presentation)
+      removePresentationFromCollection meetingId, presentationId
+      addPresentationToCollection meetingId, message.payload?.presentation
 
       for slide in message.payload?.presentation?.pages
         addSlideToCollection meetingId, message.payload?.presentation?.id, slide
         if slide.current
-          Meteor.call("displayThisSlide", meetingId, slide.id, slide)
+          displayThisSlide meetingId, slide.id, slide
 
     if message.header?.name is "get_presentation_info_reply" and message.payload?.requester_id is "nodeJSapp"
       for presentation in message.payload?.presentations
-        Meteor.call("addPresentationToCollection", meetingId, presentation)
+        addPresentationToCollection meetingId, presentation
 
         for page in presentation.pages
           #add the slide to the collection
@@ -166,17 +166,17 @@ class Meteor.RedisPubSub
 
     if message.header?.name is "presentation_page_changed_message"
       newSlide = message.payload?.page
-      Meteor.call("displayThisSlide", meetingId, newSlide?.id, newSlide)
+      displayThisSlide meetingId, newSlide?.id, newSlide
 
     if message.header?.name is "get_whiteboard_shapes_reply" and message.payload?.requester_id is "nodeJSapp"
       for shape in message.payload.shapes
         whiteboardId = shape.wb_id
-        Meteor.call("addShapeToCollection", meetingId, whiteboardId, shape)
+        addShapeToCollection meetingId, whiteboardId, shape
 
     if message.header?.name is "send_whiteboard_shape_message"
       shape = message.payload?.shape
       whiteboardId = shape?.wb_id
-      Meteor.call("addShapeToCollection", meetingId, whiteboardId, shape)
+      addShapeToCollection meetingId, whiteboardId, shape
 
     if message.header?.name is "presentation_cursor_updated_message"
       x = message.payload?.x_percent
@@ -185,12 +185,12 @@ class Meteor.RedisPubSub
 
     if message.header?.name is "whiteboard_cleared_message"
       whiteboardId = message.payload?.whiteboard_id
-      Meteor.call("removeAllShapesFromSlide", meetingId, whiteboardId)
+      removeAllShapesFromSlide meetingId, whiteboardId
 
     if message.header?.name is "undo_whiteboard_request"
       whiteboardId = message.payload?.whiteboard_id
       shapeId = message.payload?.shape_id
-      Meteor.call("removeShapeFromSlide", meetingId, whiteboardId, shapeId)
+      removeShapeFromSlide meetingId, whiteboardId, shapeId
 
     if message.header?.name is "presenter_assigned_message"
       newPresenterId = message.payload?.new_presenter_id

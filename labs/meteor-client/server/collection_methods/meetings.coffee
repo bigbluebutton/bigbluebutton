@@ -22,3 +22,6 @@
 		if id?
 			Meteor.Meetings.remove(id._id)
 			console.log "removed from Meetings:#{meetingId} now there are only #{Meteor.Meetings.find().count()} meetings running"
+# --------------------------------------------------------------------------------------------
+# end Private methods on server
+# --------------------------------------------------------------------------------------------

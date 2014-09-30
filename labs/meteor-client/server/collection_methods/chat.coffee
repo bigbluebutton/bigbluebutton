@@ -62,3 +62,6 @@ Meteor.methods
 
 	id = Meteor.Chat.insert(entry)
 	console.log "added chat id=[#{id}]:#{messageObject.message}. Chat.size is now #{Meteor.Chat.find({meetingId: meetingId}).count()}"
+# --------------------------------------------------------------------------------------------
+# end Private methods on server
+# --------------------------------------------------------------------------------------------

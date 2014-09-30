@@ -10,6 +10,7 @@ Meteor.methods
 			users = Meteor.Users.find({}).fetch()
 		
 			for mutee in users
+				# check if user isnt muted, then continue. If they are already muted you can skip them
 				message =
 					"payload":
 						"userid": mutee.userId
@@ -22,7 +23,7 @@ Meteor.methods
 						"version": "0.0.1"
 
 				publish Meteor.config.redis.channels.toBBBApps.voice, message
-				Meteor.Users.update({_id: mutee._id}, {$set:{'user.voiceUser.talking':false, 'user.voiceUser.muted':true}}, {multi: false})
+				# Meteor.Users.update({_id: mutee._id}, {$set:{'user.voiceUser.talking':false, 'user.voiceUser.muted':true}}, {multi: false})
 
 	userShareAudio: (meetingId, userId, user_id) ->
 		updateVoiceUser meetingId, {'user_id': user_id, 'talking':false, 'joined': true, 'muted':false}
@@ -85,9 +86,9 @@ Meteor.methods
 			console.log "publishing a userLowerHand event: #{userId}--by=#{requester._id}"
 
 			# update Users collection
-			toLower = Meteor.Users.findOne({'meetingId': meetingId, '_id': user_id})
+			# toLower = Meteor.Users.findOne({'meetingId': meetingId, '_id': user_id})
 
-			Meteor.Users.update(_id: toLower._id, {$set: {'user.raise_hand': false}}, {multi: false})
+			# Meteor.Users.update(_id: toLower._id, {$set: {'user.raise_hand': false}}, {multi: false})
 			message =
 				"payload":
 					"userid": toLower.userId
@@ -116,12 +117,12 @@ Meteor.methods
 			console.log "publishing a userLowerHand event: #{userId}--by=#{requester._id}"
 
 			# update Users collection
-			toLower = Meteor.Users.findOne({'meetingId': meetingId, '_id': user_id})
+			# toRaise = Meteor.Users.findOne({'meetingId': meetingId, '_id': user_id})
 
-			Meteor.Users.update(_id: toLower._id, {$set: {'user.raise_hand': true}}, {multi: false})
+			# Meteor.Users.update(_id: toRaise._id, {$set: {'user.raise_hand': true}}, {multi: false})
 			message =
 				"payload":
-					"userid": toLower.userId
+					"userid": toRaise.userId
 					"meeting_id": meetingId
 					"raise_hand": true
 					"lowered_by": loweredByUserId
