@@ -829,6 +829,9 @@ Alert {
 }
 
 .bandwidthButtonStyle {
+  paddingTop: 0;
+  paddingBottom: 0;
+  height: 22;
   icon:   Embed('assets/images/bandwidth.png');
 }
 
