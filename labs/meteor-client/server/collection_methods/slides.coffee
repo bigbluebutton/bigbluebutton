@@ -1,17 +1,15 @@
 # --------------------------------------------------------------------------------------------
 # Private methods on server
 # --------------------------------------------------------------------------------------------
-@displayThisSlide = (meetingId, newSlideId, slideObject, requesterUserId, requester_id) ->
-	requester = Meteor.Users.findOne({'meetingId': meetingId, 'userId': requesterUserId, '_id': requester_id})
-	if requester? and requester.presenter
-		presentationId = newSlideId.split("/")[0] # grab the presentationId part of the slideId
-		# change current to false for the old slide
-		Meteor.Slides.update({presentationId: presentationId, "slide.current": true}, {$set: {"slide.current": false}})
-		# for the new slide: remove the version which came with presentation_shared_message from the Collection
-		# to avoid using old data (this message contains everything we need for the new slide)
-		Meteor.call("removeSlideFromCollection", meetingId, newSlideId)
-		# add the new slide to the collection
-		Meteor.call("addSlideToCollection", meetingId, presentationId, slideObject)
+@displayThisSlide = (meetingId, newSlideId, slideObject) ->
+	presentationId = newSlideId.split("/")[0] # grab the presentationId part of the slideId
+	# change current to false for the old slide
+	Meteor.Slides.update({presentationId: presentationId, "slide.current": true}, {$set: {"slide.current": false}})
+	# for the new slide: remove the version which came with presentation_shared_message from the Collection
+	# to avoid using old data (this message contains everything we need for the new slide)
+	Meteor.call("removeSlideFromCollection", meetingId, newSlideId)
+	# add the new slide to the collection
+	Meteor.call("addSlideToCollection", meetingId, presentationId, slideObject)
 
 
 @addSlideToCollection = (meetingId, presentationId, slideObject) ->

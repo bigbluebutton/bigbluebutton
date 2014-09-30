@@ -1,3 +1,8 @@
+# --------------------------------------------------------------------------------------------
+# Public methods on server
+# All these method must first authenticate the user before it calls the private function counterpart below
+# which sends the request to bbbApps
+# --------------------------------------------------------------------------------------------
 Meteor.methods
 	# I did not simply loop through all users and call the 'publishMuteRequest' because that function
 	# always validates the credentials of the requester. This is a waste of resources when applying it to every user.
@@ -27,7 +32,7 @@ Meteor.methods
 
 	userShareAudio: (meetingId, userId, user_id) ->
 		updateVoiceUser meetingId, {'user_id': user_id, 'talking':false, 'joined': true, 'muted':false}
-		#TODO should we also send a message to bbb-apps about it?
+		#TODO we need to send a message to bbb-apps about it
 
 	userStopAudio: (meetingId, userId, user_id, requesterUserId, requester_id) ->
 		console.log "publishing a user left voice request for #{userId} in #{meetingId}"
