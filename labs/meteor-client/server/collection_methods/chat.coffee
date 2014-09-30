@@ -1,26 +1,30 @@
 Meteor.methods
-  sendChatMessagetoServer: (meetingId, chatObject) ->
-    # check if this is a private or a public chat message
-    eventName = ->
-      if chatObject.chat_type is "PRIVATE_CHAT"
-        "send_private_chat_message_request"
-      else "send_public_chat_message_request"
+	sendChatMessagetoServer: (meetingId, chatObject, requester_id, requesterUserId) ->
+		requester = Meteor.Users.findOne({_id: requester_id, userId: requesterUserId})
+		
+		if requester? and requester.userId is chatObject.from_userid
+			# check if this is a private or a public chat message
+			eventName = ->
+				if chatObject.chat_type is "PRIVATE_CHAT"
+					"send_private_chat_message_request"
+				else "send_public_chat_message_request"
 
-    # translate the userId to the user's _id
-    u = Meteor.Users.findOne({'userId':chatObject.from_userid})
-    if u?
-      chatObject.from_userid = u._id 
-      # console.log "This is the message we're sending"
-      # console.log JSON.stringify chatObject
-      message =
-        header :
-          "timestamp": new Date().getTime()
-          "name": eventName()
-        payload:
-          "message" : chatObject
-          "meeting_id": meetingId
-          "requester_id": chatObject.from_userid
-     publish Meteor.config.redis.channels.toBBBApps.chat, message
+			# translate the userId to the user's _id
+			u = Meteor.Users.findOne({'userId':chatObject.from_userid})
+			if u?
+				chatObject.from_userid = u._id 
+				# console.log "This is the message we're sending"
+				# console.log JSON.stringify chatObject
+				message =
+					header :
+						"timestamp": new Date().getTime()
+						"name": eventName()
+					payload:
+						"message" : chatObject
+						"meeting_id": meetingId
+						"requester_id": chatObject.from_userid
+				#
+				publish Meteor.config.redis.channels.toBBBApps.chat, message
 
 # --------------------------------------------------------------------------------------------
 # Private methods on server

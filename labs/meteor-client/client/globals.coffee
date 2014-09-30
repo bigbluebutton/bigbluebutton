@@ -154,7 +154,7 @@ Handlebars.registerHelper "messageFontSize", ->
 
 Handlebars.registerHelper "pointerLocation", ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-  currentPresentation.pointer
+  currentPresentation?.pointer
 
 Handlebars.registerHelper "setInSession", (k, v) -> SessionAmplify.set k, v 
 
