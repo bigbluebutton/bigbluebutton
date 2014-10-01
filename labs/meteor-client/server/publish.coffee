@@ -1,13 +1,10 @@
 # Publish only the users that are in the particular meetingId
 # On the client side we pass the meetingId parameter
 Meteor.publish 'users', (meetingId) ->
-  # Meteor.Users.find({meetingId: meetingId}, {fields: { 'userId': 0, 'user.userid': 0, 'user.voiceUser.userid': 0, 'user.voiceUser.web_userid': 0 }})
-  Meteor.Users.find({meetingId: meetingId})
+  Meteor.Users.find({meetingId: meetingId}, {fields: { 'userId': 0, 'user.userid': 0, 'user.voiceUser.userid': 0, 'user.voiceUser.web_userid': 0 }})
 
 Meteor.publish 'chat', (meetingId, me) ->
-  # console.log JSON.stringify(Meteor.Chat.find({}, {fields: {'message.message':1}}).fetch())
   Meteor.Chat.find({$or: [ {'message.chat_type': 'PUBLIC_CHAT', 'meetingId': meetingId},{'message.from_userid': me, 'meetingId': meetingId},{'message.to_userid': me, 'meetingId': meetingId}] })
-  # Meteor.Chat.find()
 
 Meteor.publish 'shapes', (meetingId) ->
   Meteor.Shapes.find({meetingId: meetingId})
