@@ -93,7 +93,8 @@ package org.bigbluebutton.modules.phone.managers
       model.state = Constants.ECHO_TEST_FAILED;
       endEchoTest();
       
-      dispatcher.dispatchEvent(new UseFlashModeCommand());
+      dispatcher.dispatchEvent(new WebRTCAskUserToChangeMicEvent(browserType));
+      //dispatcher.dispatchEvent(new UseFlashModeCommand());
     }
     
 	  private var t:Timer;
@@ -155,7 +156,7 @@ package org.bigbluebutton.modules.phone.managers
 	  }
 	
     public function handleUseFlashModeCommand():void {
-      usingWebRTC = false;
+      //usingWebRTC = false;
     }
 
     public function handleWebRTCEchoTestFailedEvent(reason:String):void {
