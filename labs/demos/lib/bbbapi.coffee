@@ -2,10 +2,13 @@ request = require 'request'
 sha1    = require 'js-sha1'
 
 urlEncode = (value) ->
-  encodeURIComponent(value).replace(/%20/g, '+').replace(/[!'()]/g, escape).replace(/\*/g, "%2A") 
+  encodeURIComponent(value)
+  .replace(/%20/g, '+')
+  .replace(/[!'()]/g, escape)
+  .replace(/\*/g, "%2A")
 
 sortKeys = (params) ->
-  keys = [];
+  keys = []
   for own propName of params
     keys.push(propName)
 
@@ -40,7 +43,7 @@ create = (params, bbb, options, callback) ->
   console.log(reqStr)
 
   request(reqStr, (error, response, body) ->
-    callback error, response, body 
+    callback error, response, body
   )
 
 join = (params, bbb, options, callback) ->
@@ -54,7 +57,7 @@ join = (params, bbb, options, callback) ->
   console.log(reqStr)
 
   request(reqStr, (error, response, body) ->
-    callback error, response, body 
+    callback error, response, body
   )
 
 exports.create = create

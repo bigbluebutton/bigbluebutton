@@ -14,7 +14,7 @@ myModule.controller('MainCtrl', function($scope, $http, $location, $window) {
 				$window.location.href = res.success.url;
 			});
 		});
-	}
+	};
 });
 
 

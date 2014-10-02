@@ -8,7 +8,12 @@ sharedSecret = config.settings.salt
 
 console.log "will be creating a meeting on server: " + bbbServer
 
-str = "name=Demo+Meeting&meetingID=Demo+Meeting&voiceBridge=70827&attendeePW=ap&moderatorPW=mp&record=false"
+str = "name=Demo+Meeting" +
+      "&meetingID=Demo+Meeting" +
+      "&voiceBridge=70827" +
+      "&attendeePW=ap" +
+      "&moderatorPW=mp" +
+      "&record=false"
 
 console.log(sha1("create" + str + sharedSecret))
 tempName = "Demo Meeting"
