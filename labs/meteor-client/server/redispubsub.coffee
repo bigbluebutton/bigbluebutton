@@ -79,6 +79,7 @@ class Meteor.RedisPubSub
         u = Meteor.Users.findOne({userId: message.payload.userid, meetingId: meetingId})
         updateVoiceUser {'user_id': u._id, 'listenOnly': message.payload.listen_only}
         # most likely we don't need to ensure that the user's voiceUser's {talking, joined, muted, locked} are false by default #TODO?
+        return
 
       if message.header.name is "get_all_meetings_reply"
         console.log "Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!"
@@ -86,6 +87,7 @@ class Meteor.RedisPubSub
         for meeting in listOfMeetings
           # we currently do not have voice_conf or duration in this message.
           addMeetingToCollection meeting.meetingID, meeting.meetingName, meeting.recorded, meeting.voiceBridge, meeting.duration
+        return
 
       if message.header.name is "get_users_reply" and message.payload.requester_id is "nodeJSapp"
         unless Meteor.Meetings.findOne({MeetingId: message.payload.meeting_id})?
@@ -93,27 +95,32 @@ class Meteor.RedisPubSub
           for user in users
             user.timeOfJoining = message.header.current_time # TODO this might need to be removed
             addUserToCollection meetingId, user
+        return
 
       if message.header.name is "user_joined_message"
         user = message.payload.user
         user.timeOfJoining = message.header.current_time
         addUserToCollection meetingId, user
+        return
 
       if message.header.name is "user_left_message"
         userId = message.payload.user?.userid
         if userId? and meetingId?
           removeUserFromMeeting meetingId, userId
+        return
 
       if message.header.name is "get_chat_history_reply" and message.payload.requester_id is "nodeJSapp"
         unless Meteor.Meetings.findOne({MeetingId: message.payload.meeting_id})?
           for chatMessage in message.payload.chat_history
             addChatToCollection meetingId, chatMessage
+        return
 
       if message.header.name is "send_public_chat_message" or message.header.name is "send_private_chat_message"
         messageObject = message.payload.message
         # use current_time instead of message.from_time so that the chats from Flash and HTML5 have uniform times
         messageObject.from_time = message.header.current_time
         addChatToCollection meetingId, messageObject
+        return
 
       if message.header.name is "meeting_created_message"
         meetingName = message.payload.name
@@ -121,6 +128,7 @@ class Meteor.RedisPubSub
         voiceConf = message.payload.voice_conf
         duration = message.payload.duration
         addMeetingToCollection meetingId, meetingName, intendedForRecording, voiceConf, duration
+        return
 
       if message.header.name is "presentation_shared_message"
         presentationId = message.payload.presentation?.id
@@ -135,6 +143,7 @@ class Meteor.RedisPubSub
           addSlideToCollection meetingId, message.payload.presentation?.id, slide
           if slide.current
             displayThisSlide meetingId, slide.id, slide
+        return
 
       if message.header.name is "get_presentation_info_reply" and message.payload.requester_id is "nodeJSapp"
         for presentation in message.payload.presentations
@@ -162,34 +171,41 @@ class Meteor.RedisPubSub
               publish Meteor.config.redis.channels.toBBBApps.whiteboard, message
             else
               console.log "did not have enough information to send a user_leaving_request"
+        return
 
       if message.header.name is "presentation_page_changed_message"
         newSlide = message.payload.page
         displayThisSlide meetingId, newSlide?.id, newSlide
+        return
 
       if message.header.name is "get_whiteboard_shapes_reply" and message.payload.requester_id is "nodeJSapp"
         for shape in message.payload.shapes
           whiteboardId = shape.wb_id
           addShapeToCollection meetingId, whiteboardId, shape
+        return
 
       if message.header.name is "send_whiteboard_shape_message"
         shape = message.payload.shape
         whiteboardId = shape?.wb_id
         addShapeToCollection meetingId, whiteboardId, shape
+        return
 
       if message.header.name is "presentation_cursor_updated_message"
         x = message.payload.x_percent
         y = message.payload.y_percent
         Meteor.Presentations.update({"presentation.current": true, meetingId: meetingId},{$set: {"pointer.x": x, "pointer.y": y}})
+        return
 
       if message.header.name is "whiteboard_cleared_message"
         whiteboardId = message.payload.whiteboard_id
         removeAllShapesFromSlide meetingId, whiteboardId
+        return
 
       if message.header.name is "undo_whiteboard_request"
         whiteboardId = message.payload.whiteboard_id
         shapeId = message.payload.shape_id
         removeShapeFromSlide meetingId, whiteboardId, shapeId
+        return
 
       if message.header.name is "presenter_assigned_message"
         newPresenterId = message.payload.new_presenter_id
@@ -198,6 +214,7 @@ class Meteor.RedisPubSub
           Meteor.Users.update({"user.presenter": true, meetingId: meetingId},{$set: {"user.presenter": false}})
           # set the new presenter
           Meteor.Users.update({"user.userid": newPresenterId, meetingId: meetingId},{$set: {"user.presenter": true}})
+        return
 
       if message.header.name is "presentation_page_resized_message"
         slideId = message.payload.page?.id
@@ -207,21 +224,25 @@ class Meteor.RedisPubSub
         yOffset = message.payload.page?.y_offset
         presentationId = slideId.split("/")[0]
         Meteor.Slides.update({presentationId: presentationId, "slide.current": true}, {$set: {"slide.height_ratio": heightRatio, "slide.width_ratio": widthRatio, "slide.x_offset": xOffset, "slide.y_offset": yOffset}})
+        return
 
       if message.header.name is "user_raised_hand_message"
         userId = message.payload.userid
         # update the user
         Meteor.Users.update({"user.userid": userId, meetingId: meetingId},{$set: {"user.raise_hand": true}}) #not sure why but message.payload.raise_hand is awlays false
+        return
 
       if message.header.name is "user_lowered_hand_message"
         userId = message.payload.userid
         # update the user
         Meteor.Users.update({"user.userid": userId, meetingId: meetingId},{$set: {"user.raise_hand": false}}) #not sure why but message.payload.raise_hand is awlays false
+        return
 
       if message.header.name is "recording_status_changed_message"
         intendedForRecording = message.payload.recorded
         currentlyBeingRecorded = message.payload.recording
         Meteor.Meetings.update({meetingId: meetingId, intendedForRecording: intendedForRecording}, {$set: {currentlyBeingRecorded: currentlyBeingRecorded}})
+        return
 
       if message.header.name in ["meeting_ended_message", "meeting_destroyed_event",
         "end_and_kick_all_message", "disconnect_all_users_message"]
@@ -232,6 +253,7 @@ class Meteor.RedisPubSub
             #TODO should we clear the chat messages for that meeting?!
           unless message.header.name is "disconnect_all_users_message"
             removeMeetingFromCollection meetingId
+        return
 
 # --------------------------------------------------------------------------------------------
 # Private methods on server
