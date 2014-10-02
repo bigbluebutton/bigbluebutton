@@ -18,8 +18,8 @@ module.exports = function(grunt) {
         src: [
           '**/*.coffee',
           '!node_modules/**/*',
-          '!.meteor/**/*',
-          '!packages/**/*'
+          '!app/.meteor/**/*',
+          '!app/packages/**/*'
         ]
       }
     }
