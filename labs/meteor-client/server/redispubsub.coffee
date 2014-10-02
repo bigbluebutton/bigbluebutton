@@ -76,7 +76,7 @@ class Meteor.RedisPubSub
     # listen only
     if message.header?.name is 'user_listening_only'
       u = Meteor.Users.findOne({userId: message.payload?.userid, meetingId: meetingId})
-      Meteor.Users.update({_id:u._id}, {$set: {'user.listenOnly':message.payload?.listen_only}})
+      updateVoiceUser {'user_id': u._id, 'listenOnly': message.payload?.listen_only}
       # most likely we don't need to ensure that the user's voiceUser's {talking, joined, muted, locked} are false by default #TODO?
 
     if message.header?.name is "get_all_meetings_reply"
@@ -110,10 +110,8 @@ class Meteor.RedisPubSub
 
     if message.header?.name is "send_public_chat_message" or message.header?.name is "send_private_chat_message"
       messageObject = message.payload?.message
-
       # use current_time instead of message.from_time so that the chats from Flash and HTML5 have uniform times
       messageObject.from_time = message.header?.current_time
-
       addChatToCollection meetingId, messageObject
 
     if message.header?.name is "meeting_created_message"
@@ -207,8 +205,7 @@ class Meteor.RedisPubSub
       xOffset = message.payload?.page?.x_offset
       yOffset = message.payload?.page?.y_offset
       presentationId = slideId.split("/")[0]
-      Meteor.Slides.update({presentationId: presentationId, "slide.current": true},
-        {$set: {"slide.height_ratio": heightRatio, "slide.width_ratio": widthRatio, "slide.x_offset": xOffset, "slide.y_offset": yOffset}})
+      Meteor.Slides.update({presentationId: presentationId, "slide.current": true}, {$set: {"slide.height_ratio": heightRatio, "slide.width_ratio": widthRatio, "slide.x_offset": xOffset, "slide.y_offset": yOffset}})
 
     if message.header?.name is "user_raised_hand_message"
       userId = message.payload?.userid
