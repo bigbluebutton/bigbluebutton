@@ -57,20 +57,13 @@
     path: "/"
     onBeforeAction: ->
       self = @
+      # Have to check on the server whether the credentials the user has are valid on db, without being able to spam requests for credentials
       Meteor.subscribe 'users', getInSession('meetingId'), -> # callback for after users have been loaded on client
-        if not validateCredentials() # Don't let user in if they are not valid
-          self.redirect("logout")
-        else
-          Meteor.subscribe 'chat', getInSession('meetingId'), getInSession("userId"), ->
-            Meteor.subscribe 'shapes', getInSession('meetingId'), ->
-              Meteor.subscribe 'slides', getInSession('meetingId'), ->
-                Meteor.subscribe 'meetings', getInSession('meetingId'), ->
-                  Meteor.subscribe 'presentations', getInSession('meetingId')
+        Meteor.subscribe 'chat', getInSession('meetingId'), getInSession("userId"), ->
+          Meteor.subscribe 'shapes', getInSession('meetingId'), ->
+            Meteor.subscribe 'slides', getInSession('meetingId'), ->
+              Meteor.subscribe 'meetings', getInSession('meetingId'), ->
+                Meteor.subscribe 'presentations', getInSession('meetingId')
 
   @route "logout",
     path: "logout"
-
-@validateCredentials = ->
-  u = Meteor.Users.findOne({"userId":getInSession("userId")})
-  # return whether they are a valid user and still have credentials in the database
-  u? and u.meetingId? and u.user?.extern_userid and u.user?.userid #and (1 is 2) # makes validation fail
