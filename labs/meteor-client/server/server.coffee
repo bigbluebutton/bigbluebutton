@@ -11,6 +11,15 @@ Meteor.startup(function () {
 
 });
 ###
+Meteor.methods
+  getMyInfo: (uId) ->
+    u = Meteor.Users.findOne("userId": uId)
+    if u?
+      {
+        userId: u.userId
+        DBID: u._id
+        name: u.user.name
+      }
 
 Meteor.startup ->
   console.log "server start"
