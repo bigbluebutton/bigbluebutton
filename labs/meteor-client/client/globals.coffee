@@ -43,7 +43,7 @@
   (new Date).valueOf()
 
 @getTimeOfJoining = ->
-  Meteor.Users.findOne({"user.userid": getInSession("userId")})?.user?.time_of_joining
+  Meteor.Users.findOne(_id: getInSession "DBID")?.user?.time_of_joining
 
 @getUsersName = ->
   name = getInSession("userName") # check if we actually have one in the session
