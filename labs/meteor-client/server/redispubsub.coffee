@@ -64,7 +64,7 @@ class Meteor.RedisPubSub
       "presentation_cursor_updated_message" # just because it's common. we handle it anyway
     ]
 
-    if message.header? and message.payload?
+    if message?.header? and message?.payload?
       unless message.header.name in ignoredEventTypes
         console.log "eventType=" + message.header.name #+ "\n"
         console.log jsonMsg
