@@ -14,6 +14,12 @@
             Meteor.subscribe 'slides', getInSession('meetingId'), ->
               Meteor.subscribe 'meetings', getInSession('meetingId'), ->
                 Meteor.subscribe 'presentations', getInSession('meetingId'), ->
+                  
+                  # Obtain user info here. for testing. should be moved somewhere else later
+                  Meteor.call "getMyInfo", getInSession("userId"), (error, result) ->
+                    setInSession("DBID", result.DBID)
+                    setInSession("userName", result.name)
+                  
                   self.redirect('/')
 
     onBeforeAction: ()->
