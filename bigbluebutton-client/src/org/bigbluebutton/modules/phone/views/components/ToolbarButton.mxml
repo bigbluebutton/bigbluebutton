@@ -185,10 +185,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handleFlashLeftVoiceConferenceEvent(event:FlashLeftVoiceConferenceEvent):void {
         trace(LOG + "User has left the conference using flash");
         JSLog.debug(LOG + "User has left the conference using flash");
-        var micLeft:Boolean = false;
-        if (_currentState == ACTIVE_STATE) {
-          micLeft = true;
-        }
+        var micLeft:Boolean = (_currentState == ACTIVE_STATE);
         onUserLeftConference();
         if (phoneOptions.autoJoin && phoneOptions.forceListenOnly && micLeft) {
           joinDefaultListenOnlyMode();
