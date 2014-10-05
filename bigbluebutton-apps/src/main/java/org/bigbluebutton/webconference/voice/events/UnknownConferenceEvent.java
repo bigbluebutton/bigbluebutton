@@ -18,10 +18,10 @@
 */
 package org.bigbluebutton.webconference.voice.events;
 
-public class UnknownConferenceEvent extends ConferenceEvent {
+public class UnknownConferenceEvent extends VoiceConferenceEvent {
 
-	public UnknownConferenceEvent(Integer participantId, String room) {
-		super(participantId, room);
+	public UnknownConferenceEvent(String participantId, String room) {
+		super(room);
 	}
 
 }

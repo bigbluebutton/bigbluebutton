@@ -1,0 +1,77 @@
+README
+
+This instructions below are for testing by running scripts manually:
+
+1. Create some temp scratch dirs:
+    mkdir -p ~/temp/log/presentation ~/temp/recording/{process,publish,raw} ~/temp/recording/status/{recorded,archived,processed,sanity} ~/temp/published
+
+2. Edit core/scripts/bigbluebutton.yml and comment out the PRODUCTION dirs while uncommenting the DEVELOPMENT dir. The dir should match what you created above.
+
+raw_audio_src: /var/freeswitch/meetings
+raw_video_src: /usr/share/red5/webapps/video/streams
+raw_deskshare_src: /var/bigbluebutton/deskshare
+raw_presentation_src: /var/bigbluebutton
+redis_host: 127.0.0.1
+redis_port: 6379
+
+
+# For PRODUCTION
+log_dir: /var/log/bigbluebutton
+recording_dir: /var/bigbluebutton/recording
+published_dir: /var/bigbluebutton/published
+playback_host: 10.0.3.203
+
+# For DEVELOPMENT
+# This allows us to run the scripts manually
+#scripts_dir: /home/ubuntu/dev/bigbluebutton/record-and-playback/core/scripts
+#log_dir: /home/ubuntu/temp/log
+#recording_dir: /home/ubuntu/temp/recording
+#published_dir: /home/ubuntu/temp/published
+#playback_host: 192.168.22.137
+
+3. Create a recording using BigBlueButton. After logging out, it should have created a <meeting-id>.done file in
+   /var/bigbluebutton/recording/status/recorded dir. Make note of this meeting-id as we use that to tell the script
+   which recording to process.
+
+4. Before running the scripts, we have to make sure our scripts have the PATHs setup correctly.
+   Edit presentation/scripts/process/presentation.rb and uncomment the DEVELOPMENT PATH while
+   commenting the PRODUCTION PATH. We need to do this so the script will be able to find the
+   core library.
+
+5. Now we run the archive step. Go to record-and-playback/core/scripts dir and type
+     ruby archive/archive.rb -m <meeting-id>
+
+6. If everything goes well, you should have the raw files in ~/temp/recording/raw/<meeting-id>
+   You can also check the logs at ~/temp/log/archive-<meeting-id>.log
+
+   You should also have an entry in ~/temp/recording/status/archived dir
+
+7. Then we need to do a sanity check if the raw recordings are complete. Type
+     ruby sanity/sanity.rb -m <meeting-id>
+
+   Check the log in ~/temp/log/sanity.log
+
+   You should also have an entry in ~/temp/recording/status/sanity dir
+
+8. Assuming the recording passed the sanity check, it's time to process the recording.
+     cd record-and-playback/presentation/scripts
+     ruby process/presentation.rb -m <meeting-id>
+
+     You can monitor the progress by tailing the log at ~/temp/log/presentation/process-<meeting-id>.log
+
+9. Assuming that everything goes well. We can now run the publish script. However, we need to cheat a little bit.
+   The publish script will be looking for a "processing_time" file which contains information on how long the
+   processing took. Unfortunately, that file is created by the rap-worker.rb script which we don't run.
+
+   So we create that file manually at 
+    vi  ~/temp/recording/process/presentation/<meeting-d>/processing_time
+
+   Enter any number (e.g. 46843) and save the file.
+
+10. Now run the publish script
+      ruby publish/presentation.rb -m <meeting-id>-presentation
+
+    Notice we appended "presentation" to the meeting-id, this will tell the script to publish using the "presentation" format.
+
+
+

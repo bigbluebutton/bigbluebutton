@@ -73,7 +73,7 @@ package org.bigbluebutton.modules.broadcast.services
     private function handleBroadcastWhatIsTheCurrentStreamRequest(message:Object):void {
       var event:BBBEvent = new BBBEvent("BroadcastWhatIsTheCurrentStreamRequest");
       event.payload["messageID"] = "BroadcastWhatIsTheCurrentStreamRequest";   
-      event.payload["requestedBy"] = message.requestedByUserID;
+      event.payload["requestedBy"] = message.requestedBy;
 
       dispatcher.dispatchEvent(event);      
     }
@@ -81,7 +81,7 @@ package org.bigbluebutton.modules.broadcast.services
     private function handleBroadcastWhatIsTheCurrentStreamReply(message:Object):void {
       var event:BBBEvent = new BBBEvent("BroadcastWhatIsTheCurrentStreamReply");
       event.payload["messageID"] = "BroadcastWhatIsTheCurrentStreamReply";   
-      event.payload["requestedBy"] = message.requestedByUserID;
+      event.payload["requestedBy"] = message.requestedBy;
       event.payload["streamID"] = message.streamID;
       
       dispatcher.dispatchEvent(event);

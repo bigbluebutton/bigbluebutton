@@ -46,16 +46,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
 			import flexlib.mdi.events.MDIWindowEvent;
 			
 			import mx.core.UIComponent;
 			import mx.events.ResizeEvent;
-			import com.asfusion.mate.events.Dispatcher;
+			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.EventConstants;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.CoreEvent;
@@ -67,12 +70,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.business.TalkingButtonOverlay;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+			import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
 				
 			[Bindable] private var defaultWidth:Number = 320;
 			[Bindable] private var defaultHeight:Number = 240;
@@ -83,6 +86,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var camHeight:Number = 240;
 			private var _camera:Camera = null;
 			public var quality:Number = 0;
+			public var chromePermissionDenied:Boolean = false;
 			
 			// Timer to auto-publish webcam. We need this timer to delay
 			// the auto-publishing until after the Viewers's window has loaded
@@ -257,7 +261,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}				
 				
 				_videoHolder.addChild(_video);
-				
 			}
 			
 			private function onActivityEvent(e:ActivityEvent):void {        
@@ -302,7 +305,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function activationTimeout(e:TimerEvent):void {
-				showWarning('bbb.video.publish.hint.cameraIsBeingUsed');
+				if(chromePermissionDenied)
+				{
+					showWarning('bbb.video.publish.hint.cameraDenied');
+					return;
+				}
+				else
+				{
+					showWarning('bbb.video.publish.hint.cameraIsBeingUsed');
+				}
 				// it will try to reopen the camera after the timeout
 				updateCamera();
 			}   			
@@ -470,7 +481,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Fade id="dissolveOut" duration="1000" alphaFrom="1.0" alphaTo="0.0"/>
 
 	<mx:Fade id="dissolveIn" duration="1000" alphaFrom="0.0" alphaTo="1.0"/>
-	<mx:Text id="lblWarning" width="100%" textAlign="right" fontSize="14" fontWeight="bold" y="{this.height - lblWarning.height - 30}" 
+	<mx:Text id="lblWarning" width="100%" textAlign="center" fontSize="14" fontWeight="bold" y="{this.height - lblWarning.height - 30}"
            visible="false" selectable="false" hideEffect="{dissolveOut}" showEffect="{dissolveIn}"/>
 	
 	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />

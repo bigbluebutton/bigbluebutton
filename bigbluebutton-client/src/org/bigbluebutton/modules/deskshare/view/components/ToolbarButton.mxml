@@ -22,7 +22,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:mate="http://mate.asfusion.com/"
-	icon="{deskShareIcon}" 
+	styleName="deskshareDefaultButtonStyle"
+	height="24"
 	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip.start')}"
 	click="startDeskShare()"
 	mouseOver = "mouseOverHandler(event)"
@@ -44,12 +45,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.deskshare.events.StopSharingButtonEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.main.events.ShortcutEvent;
-			
-			private var images:Images = new Images();
-			
-			[Bindable] public var deskShareIcon:Class = images.deskShareIcon;
-
-
 
 			public const OFF_STATE:Number = 0;
 			public const ON_STATE:Number = 1;
@@ -69,14 +64,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					this.selected = true;
 					this.enabled = true;
 					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip.stop');
-					deskShareIcon = images.deskShareIconOn;
+          styleName="deskshareOnButtonStyle"
 				}
 				else {
 					_currentState = OFF_STATE;
 					this.selected = false;
 					this.enabled = true;
 					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip.start');
-					deskShareIcon = images.deskShareIcon;
+          styleName="deskshareDefaultButtonStyle"
 				}
 
 			}
@@ -91,7 +86,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					this.selected = true;
 					this.enabled = true;
 					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip.stop');
-					deskShareIcon = images.deskShareIconOn;
+          styleName="deskshareOnButtonStyle"
 					_currentState = ON_STATE;
 					dispatchEvent(new ShareEvent(ShareEvent.START_SHARING));
 				}
@@ -99,7 +94,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					this.selected = false;
 					this.enabled = true;
 					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip.start');
-					deskShareIcon = images.deskShareIcon;
+          styleName="deskshareDefaultButtonStyle"
 					_currentState = ON_STATE;
 					var stopSharingButtonEvent:StopSharingButtonEvent = new StopSharingButtonEvent(StopSharingButtonEvent.STOP_SHARING);
 					dispatcher.dispatchEvent(stopSharingButtonEvent);
@@ -107,21 +102,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			//OLD - CAN BE DELETED
 			public function stopDeskshare():void {
-				deskShareIcon = images.deskShareIcon;
+        styleName="deskshareDefaultButtonStyle"
 			}
 
 			private function mouseOverHandler(event:MouseEvent):void {
 				if(_currentState == ON_STATE)
-					deskShareIcon = images.deskshareClose;
-				else
-					deskShareIcon = images.deskShareIconOn;			
+          styleName="deskshareOffButtonStyle"
+				else		
+          styleName="deskshareOnButtonStyle"
 			}
 
 			private function mouseOutHandler(event:MouseEvent):void {
 				if(_currentState == ON_STATE)
-					deskShareIcon = images.deskShareIconOn;
-				else
-					deskShareIcon = images.deskShareIcon;			
+        styleName="deskshareOnButtonStyle"
+				else	
+          styleName="deskshareDefaultButtonStyle"
 			}
 
 

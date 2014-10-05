@@ -50,14 +50,12 @@ package org.bigbluebutton.core
     public static const NEW_PRIVATE_CHAT:String           = 'NewPrivateChatEvent';
     public static const NEW_PUBLIC_CHAT:String            = 'NewPublicChatEvent';
     public static const SWITCHED_LAYOUT:String            = 'SwitchedLayoutEvent';
-    public static const REMOTE_LOCKED_LAYOUT:String       = 'RemoteLockedLayoutEvent';
-    public static const REMOTE_UNLOCKED_LAYOUT:String     = 'RemoteUnlockedLayoutEvent';
     public static const USER_JOINED_VOICE:String          = 'UserJoinedVoiceEvent';
     public static const USER_LEFT_VOICE:String            = 'UserLeftVoiceEvent';
     public static const USER_KICKED_OUT:String            = 'UserKickedOutEvent';
     public static const USER_MUTED_VOICE:String           = 'UserVoiceMutedEvent';
     public static const USER_TALKING:String               = 'UserTalkingEvent';
-    public static const USER_LOCKED_VOICE:String          = 'UserLockedVoiceEvent';
+    public static const USER_LOCKED:String          	  = 'UserLockedEvent';
     public static const START_PRIVATE_CHAT:String         = "StartPrivateChatEvent";
     public static const GET_MY_USER_INFO_REP:String       = "GetMyUserInfoResponse";
     public static const IS_USER_PUBLISHING_CAM_RESP:String = "IsUserPublishingCamResponse";

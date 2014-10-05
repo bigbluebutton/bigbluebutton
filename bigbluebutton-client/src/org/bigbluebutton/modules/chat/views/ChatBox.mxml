@@ -53,47 +53,51 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShortcutEvent.GOLATEST_MESSAGE}" method="goToLatestMessage" />
 	<mate:Listener type="{ShortcutEvent.GOFIRST_MESSAGE}" method="goToFirstMessage" />
 	<mate:Listener type="{ShortcutEvent.GOREAD_MESSAGE}" method="goToLatestReadMessage" />
-  	<mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
-  	<mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
-  	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_INPUT}" method="focusChatInput" />
-  	<mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent"/>
-  	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_BOX}" method="focusChatBox" />
-  	<!--mate:Listener type="{ShortcutEvent.CHANGE_FONT_COLOUR}" method="focusColourPicker" /-->
-  	<mate:Listener type="{ShortcutEvent.SEND_MESSAGE}" method="remoteSendMessage" />
-  	
-  	<mate:Listener type="{ShortcutEvent.CHAT_DEBUG}" method="chatDebugInfo" />
+  <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
+  <mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
+  <mate:Listener type="{ShortcutEvent.FOCUS_CHAT_INPUT}" method="focusChatInput" />
+  <mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent"/>
+  <mate:Listener type="{ShortcutEvent.FOCUS_CHAT_BOX}" method="focusChatBox" />
+  <mate:Listener type="{ShortcutEvent.CHANGE_FONT_COLOUR}" method="focusColourPicker" />
+  <mate:Listener type="{ShortcutEvent.SEND_MESSAGE}" method="remoteSendMessage" />
+  <mate:Listener type="{ShortcutEvent.CHAT_DEBUG}" method="chatDebugInfo" />
+	
+	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
 
 	<mx:Script>
 		<![CDATA[
-      import com.adobe.utils.StringUtil;
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import mx.binding.utils.BindingUtils;
-      import mx.collections.ArrayCollection;
-      import mx.controls.Button;
-      import mx.core.ScrollPolicy;
+			import com.adobe.utils.StringUtil;
+			import com.asfusion.mate.events.Dispatcher;		
+			import flash.accessibility.AccessibilityProperties;			
+			import mx.binding.utils.BindingUtils;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Button;
+			import mx.core.ScrollPolicy;			
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.events.UserLeftEvent;
+			import org.bigbluebutton.main.model.users.BBBUser;
+			import org.bigbluebutton.main.model.users.Conference;
+			import org.bigbluebutton.modules.chat.ChatConstants;
+			import org.bigbluebutton.modules.chat.ChatUtil;
+			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+			import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
+			import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+			import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
+			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
+			import org.bigbluebutton.modules.chat.events.TranscriptEvent;
+			import org.bigbluebutton.modules.chat.model.ChatConversation;
+			import org.bigbluebutton.modules.chat.model.ChatMessage;
+			import org.bigbluebutton.modules.chat.model.ChatOptions;
+			import org.bigbluebutton.modules.chat.views.ChatMessageRenderer;
+			import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 
-      import flash.accessibility.AccessibilityProperties;
+      private static const LOG:String = "Chat::ChatBox - ";
       
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.events.UserJoinedEvent;
-      import org.bigbluebutton.main.events.UserLeftEvent;
-      import org.bigbluebutton.modules.chat.ChatConstants;
-      import org.bigbluebutton.modules.chat.ChatUtil;
-      import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
-      import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.TranscriptEvent;
-      import org.bigbluebutton.modules.chat.model.ChatMessage;
-      import org.bigbluebutton.modules.chat.model.ChatMessages;
-      import org.bigbluebutton.modules.chat.views.ChatMessageRenderer;
-      import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
-			
       public var publicChat:Boolean = false;
       public var chatWithUserID:String;
       public var chatWithUsername:String
@@ -110,8 +114,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var lastSenderId:String = "";
 			private var lastTime:String = "";
 			
-	        [Bindable]
-	        private var chatMessages:ChatMessages = new ChatMessages();
+	    [Bindable]
+	    private var chatMessages:ChatConversation = new ChatConversation();
       
 			private var lastCount:Number = 0;			
 			private var scrollTimer:Timer;			
@@ -139,6 +143,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 		      [Bindable]
 		      private var chatListHeight:Number = 100;
+			
+			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();	
       
 			private function onCreationComplete():void {    
         		bindToHeightToDetermineHeightOfMessageList();
@@ -176,15 +182,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				if(Capabilities.hasAccessibility)
 					Accessibility.updateProperties();
+				
+        trace(LOG + " onCreationComplete. Apply lock settings");
+        applyLockSettings();
 			}
 			
 			private function focusChatBox(e:ShortcutEvent):void{
 				focusManager.setFocus(chatMessagesList);
 			}
 			
-			/*private function focusColourPicker(e:ShortcutEvent):void{
+			private function focusColourPicker(e:ShortcutEvent):void{
 				focusManager.setFocus(cmpColorPicker);
-			}*/
+			}
 			
 			private function remoteSendMessage(e:ShortcutEvent):void{
 				focusManager.setFocus(sendBtn);
@@ -424,7 +433,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (currentMessage < 0){
 					currentMessage = 0;
 					latestMessage = 0;
-					chatMessagesList.accessibilityProperties.description = chatMessages.messages.getItemAt(currentMessage).toString();
+					if (chatMessages.messages.length > 0)
+						chatMessagesList.accessibilityProperties.description = chatMessages.messages.getItemAt(currentMessage).toString();
 				}
 				if (e.otherUserID == chatWithUserID){
 					chatMessagesList.accessibilityProperties.description += " ";
@@ -541,7 +551,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         cm.chatType = ChatConstants.PUBLIC_CHAT;
         cm.fromUserID = UsersUtil.getMyUserID();
         cm.fromUsername = UsersUtil.getMyUsername();
-        cm.fromColor = "0" //default the message colour to black now cmpColorPicker.selectedColor.toString();
+		// get the color value from ColorPicker
+        cm.fromColor =  cmpColorPicker.selectedColor.toString();
         cm.fromLang = ChatUtil.getUserLang();
         // Get the current UTC time and the timezone for this sender.
         // The receiver will have to convert this to local time.
@@ -561,7 +572,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         cm.chatType = ChatConstants.PRIVATE_CHAT;
         cm.fromUserID = UsersUtil.getMyUserID();
         cm.fromUsername = UsersUtil.getMyUsername();
-        cm.fromColor = "0" //default the message colour to black now cmpColorPicker.selectedColor.toString();
+		// get the color value from ColorPicker
+        cm.fromColor = cmpColorPicker.selectedColor.toString();
         cm.fromLang = ChatUtil.getUserLang();
         
         // Get the current UTC time and the timezone for this sender.
@@ -585,6 +597,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  }
       
       private function sendMessages():void {
+		  if(!sendBtn.enabled) {
+			  txtMsgArea.text = StringUtil.trim(txtMsgArea.text);
+			  return;
+		  }
+		  
         // Trim the message. This will trim the '/n' char so we don't send a message when the
         // user just hits the enter key
         var msgToSend:String = StringUtil.trim(txtMsgArea.text);
@@ -602,6 +619,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		private function focusChatInput(e:ShortcutEvent):void{
 			txtMsgArea.setFocus();
 		}
+			
+		private function lockSettingsChanged(e:Event):void {
+      applyLockSettings();
+    }
+      
+    private function applyLockSettings():void {  
+      
+        if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return; // Settings only affect viewers.
+        
+				var userManager:UserManager = UserManager.getInstance();
+				var conference:Conference = userManager.getConference();
+				var me:BBBUser = conference.getMyUser();
+				
+				if (publicChat) {
+          txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPublicChat;
+				} else {
+          txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPrivateChat;
+				}
+			}
 		]]>
 		
 	</mx:Script>
@@ -614,25 +650,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
              accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />    
   </mx:HBox>
   
-  <mx:HBox id="chatCtrlBar" width="100%" height="50" styleName="chatControlBarStyle" verticalScrollPolicy="off"
+  <mx:HBox id="chatCtrlBar" width="100%" height="60" styleName="chatControlBarStyle" verticalScrollPolicy="off"
            paddingLeft="5" paddingRight="5">		
-    <mx:TextArea id="txtMsgArea" width="100%"
+    <mx:TextArea id="txtMsgArea" width="100%" height="100%"
                  styleName="chatControlBarTextMsgStyle" 
                  toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"
                  tabIndex="{baseIndex+1}"
-				 accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.input.accessibilityName')}"
-				 />
-    <mx:VBox verticalScrollPolicy="off">
-      <mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn" 
+				 accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.input.accessibilityName')}" />
+    <mx:VBox verticalScrollPolicy="off" verticalAlign="middle" height="100%" >
+      <mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn"
                  styleName="chatControlBarSendButtonStyle"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" 
                  click="sendMessages()"
                  tabIndex="{baseIndex+2}"
                  accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.accessibilityName')}"/>  
-      <!--mx:ColorPicker id="cmpColorPicker" showTextField="false" 
-                 toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
-                 selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"
-                 tabIndex="{baseIndex+3}"/-->
+		<mx:ColorPicker id="cmpColorPicker" showTextField="false" width="100%" visible="{chatOptions.colorPickerIsVisible}" includeInLayout="{chatOptions.colorPickerIsVisible}" 
+						toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
+						selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"
+						tabIndex="{baseIndex+3}" />
     </mx:VBox>
   </mx:HBox>	
 </mx:VBox>

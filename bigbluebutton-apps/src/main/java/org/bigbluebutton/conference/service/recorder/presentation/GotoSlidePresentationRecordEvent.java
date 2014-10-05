@@ -27,6 +27,55 @@ public class GotoSlidePresentationRecordEvent extends
 	}
 	
 	public void setSlide(int slide) {
-		eventMap.put("slide", Integer.toString(slide));
+		/**
+		 * Subtract 1 from the page number to be zero-based to be
+		 * compatible with 0.81 and earlier. (ralam Sept 2, 2014)
+		 */
+		eventMap.put("slide", Integer.toString(slide - 1));
+	}
+	
+	public void setId(String id) {
+		eventMap.put("id", id);
+	}
+	
+	public void setNum(int num) {
+
+		eventMap.put("num", Integer.toString(num));
+	}
+	
+	public void setCurrent(boolean current) {
+		eventMap.put("current", Boolean.toString(current));
+	}
+	
+	public void setThumbUri(String thumbUri) {
+		eventMap.put("thumbUri", thumbUri);
+	}
+	
+	public void setSwfUri(String swfUri) {
+		eventMap.put("swfUri", swfUri);
+	}
+	
+	public void setTxtUri(String txtUri) {
+		eventMap.put("txtUri", txtUri);
+	}
+	
+	public void setPngUri(String pngUri) {
+		eventMap.put("pngUri", pngUri);
+	}
+	
+	public void setXOffset(double offset) {
+		eventMap.put("xOffset", Double.toString(offset));
+	}
+
+	public void setYOffset(double offset) {
+		eventMap.put("yOffset", Double.toString(offset));
+	}
+	
+	public void setWidthRatio(double ratio) {
+		eventMap.put("widthRatio", Double.toString(ratio));
+	}
+
+	public void setHeightRatio(double ratio) {
+		eventMap.put("heightRatio", Double.toString(ratio));
 	}
 }

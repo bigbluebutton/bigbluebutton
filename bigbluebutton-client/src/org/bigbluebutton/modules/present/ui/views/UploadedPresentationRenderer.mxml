@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="90%">
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+		 width="90%" 
+		 verticalScrollPolicy="off" 
+		 horizontalScrollPolicy="off" 
+		 toolTip="{data as String}" 
+		 verticalAlign="middle">
   <mx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;      
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
       import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
       import org.bigbluebutton.modules.present.events.UploadEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -10,30 +17,29 @@
       private var globalDispatch:Dispatcher = new Dispatcher();
       
       private function showPresentation():void {
-        trace("FileUploadWindow::showPresentation() " + data);   
-        var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
-        readyEvent.presentationName = data as String;
-        globalDispatch.dispatchEvent(readyEvent);
+        trace("FileUploadWindow::showPresentation() " + data.id);   
+        var changePresCommand:ChangePresentationCommand = new ChangePresentationCommand(data.id);
+        globalDispatch.dispatchEvent(changePresCommand);
         
         globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
       }
       
       private function deletePresentation():void {
-        trace("FileUploadWindow.mxml::deletePresentation() " + data);
+        trace("FileUploadWindow.mxml::deletePresentation() " + data.id);
 
         var rEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.REMOVE_PRESENTATION_EVENT);
-        rEvent.presentationName = data as String;
+        rEvent.presentationName = data.id as String;
         dispatchEvent(rEvent);
       }
     ]]>
   </mx:Script>
-  <mx:Label id="presentationNameLabel" text="{data as String}" styleName="presentationNameLabelStyle" width="80%"/>
+  <mx:Label id="presentationNameLabel" width="{this.width-showBtn.width-deleteBtn.width-30}" text="{data.name as String}" styleName="presentationNameLabelStyle"/>
   <mx:Button id="showBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn')}" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn.toolTip')}" 
-             styleName="presentationUploadShowButtonStyle"
-             click="showPresentation()" enabled="true"/>
+             styleName="presentationUploadShowButtonStyle" height="26"
+             click="showPresentation()" enabled="{!data.current}"/>
   <mx:Button id="deleteBtn" label="" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.deleteBtn.toolTip')}" 
              styleName="presentationUploadDeleteButtonStyle"
-             click="deletePresentation()" enabled="true"/>
+             click="deletePresentation()" visible="{String(data.name) != 'default.pdf'}"/>
   
 </mx:HBox>

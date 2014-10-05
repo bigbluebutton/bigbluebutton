@@ -1,10 +1,11 @@
-usePlugin 'java'
+apply plugin: 'java'
+
 sourceCompatibility=1.6
 targetCompatibility=1.6
 
 ant.importBuild 'build.xml'
 
-version = 'unsigned-0.8.1'
+version = 'unsigned-0.9.0'
 archivesBaseName = 'bbb-deskshare-applet' 
 
 dependencies {	   
@@ -25,8 +26,7 @@ jar.doFirst {
 	* Combine the common classes into the applet's jar because we
 	* do not want to sign and manage 2 jar files.
 	**/'''
-
-   jar.merge('../common/build/libs/bbb-deskshare-common-0.8.jar')
+	jar.from zipTree('../common/build/libs/bbb-deskshare-common-0.9.0.jar')
 }
 
 jar {

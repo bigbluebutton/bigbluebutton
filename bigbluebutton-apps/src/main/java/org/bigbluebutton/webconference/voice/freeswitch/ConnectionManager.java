@@ -112,8 +112,10 @@ public class ConnectionManager  {
 	}
 	
 	public void mute(MuteParticipantCommand mpc) {
+		System.out.println("Got mute request from FSApplication.");
 		Client c = manager.getESLClient();
 		if (c.canSend()) {
+			System.out.println("Issuing command to FS ESL.");
 	        c.sendAsyncApiCommand( mpc.getCommand(), mpc.getCommandArgs());			
 		}
 	}

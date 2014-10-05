@@ -20,8 +20,7 @@
 
 package org.bigbluebutton.modules.phone.maps
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import org.bigbluebutton.common.events.ToolbarButtonEvent;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.modules.phone.PhoneOptions;
@@ -37,12 +36,6 @@ package org.bigbluebutton.modules.phone.maps
 			phoneButton = new ToolbarButton();
 			globalDispatcher = new Dispatcher();
 			phoneOptions = new PhoneOptions();
-			var vxml:XML = BBB.getConfigForModule("PhoneModule");
-			if (vxml != null) {
-				phoneOptions.showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
-				phoneOptions.autoJoin = (vxml.@autoJoin.toString().toUpperCase() == "TRUE") ? true : false;
-				phoneOptions.skipCheck = (vxml.@skipCheck.toString().toUpperCase() == "TRUE") ? true : false;
-			}			
 		}
 
 		public function addToolbarButton():void {
@@ -51,9 +44,9 @@ package org.bigbluebutton.modules.phone.maps
 		   	if (phoneOptions.showButton) {
 			   	// Use the GLobal Dispatcher so that this message will be heard by the
 			   	// main application.		   	
-				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
-				event.button = phoneButton;
-				globalDispatcher.dispatchEvent(event);		   	
+				  var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
+				  event.button = phoneButton;
+				  globalDispatcher.dispatchEvent(event);		   	
 			   	buttonOpen = true;		   		
 		   	}
 		}
@@ -62,23 +55,21 @@ package org.bigbluebutton.modules.phone.maps
 			if (buttonOpen) {
 				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.REMOVE);
 				event.button = phoneButton;
-				globalDispatcher.dispatchEvent(event);
-			   	
-			   	buttonOpen = false;				
+				globalDispatcher.dispatchEvent(event);			   	
+			  buttonOpen = false;				
 			}
-
 		}
 		
-		public function disableToolbarButton():void {
-			phoneButton.selected = true;
-			phoneButton.enabled = true;
-			phoneButton.userJoinedConference(true);
+		public function disableToolbarButton(listenOnlyCall:Boolean):void {
+			if (!listenOnlyCall) {
+				phoneButton.selected = true;
+				phoneButton.enabled = true;
+			}
 		}
 		
 		public function enableToolbarButton():void {
 			phoneButton.selected = false;
 			phoneButton.enabled = true;
-			phoneButton.userJoinedConference(false);
 		}
 	}
 }

@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import groovy.util.slurpersupport.GPathResult;
 
 public class Recording {
 	private String id;
@@ -40,6 +41,8 @@ public class Recording {
 	private String state;
 	private String playbackLink;
 	private String playbackFormat;
+	private String playbackDuration;
+	private GPathResult playbackExtensions;
 	
 	
 	public String getId() {
@@ -96,6 +99,22 @@ public class Recording {
 	
 	public void setPlaybackFormat(String playbackFormat) {
 		this.playbackFormat = playbackFormat;
+	}
+	
+	public String getPlaybackDuration() {
+		return playbackDuration;
+	}
+	
+	public void setPlaybackDuration(String playbackDuration) {
+		this.playbackDuration = playbackDuration;
+	}
+
+	public GPathResult getPlaybackExtensions() {
+		return playbackExtensions;
+	}
+
+	public void setPlaybackExtensions(GPathResult playbackExtensions) {
+		this.playbackExtensions = playbackExtensions;
 	}
 	
 	public Map<String, String> getMetadata() {

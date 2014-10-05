@@ -245,3 +245,12 @@ br{
 	z-index: 10;
 }
 
+#load-recording-msg {
+	text-align: center;
+	height: 50px;
+	width: 200px;
+	position: absolute;
+	left: 50%;
+	margin-left: -100px;
+	top:60%;
+}

@@ -23,6 +23,12 @@ Panel {
   titleStyleName: "mypanelTitle";
 }
 
+ToolTip {
+	borderSkin      : ClassReference("org.bigbluebutton.skins.ToolTipSkin");
+	backgroundAlpha : 0.9;
+	cornerRadius    : 3;
+}
+
 .mypanelTitle {
   color: #444444;
   fontFamily: Arial;
@@ -47,7 +53,14 @@ Panel {
   color: #e1e2e5;
 }
 
-Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowChangeResolutionCombo, .languageSelectorStyle, .testJavaLinkButtonStyle {
+.recordingLabelStyle {
+  fontWeight: bold;
+  fontSize: 15;
+  fontFamily: Arial;
+  color: #e1e2e5;
+}
+
+Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowChangeResolutionCombo, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle {
   textIndent: 0;
   paddingLeft: 10;
   paddingRight: 10;
@@ -195,6 +208,43 @@ DataGrid {
   icon: Embed('assets/images/triangle.png');    
 }
 
+.voiceConfDefaultButtonStyle {
+  icon: Embed('assets/images/headset.png');    
+}
+
+.voiceConfActiveButtonStyle {
+  icon: Embed('assets/images/headset_open.png');    
+}
+
+.voiceConfInactiveButtonStyle {
+  icon: Embed('assets/images/headset_close.png');    
+}
+
+.webcamDefaultButtonStyle {
+  icon: Embed('assets/images/webcam.png');    
+}
+
+.webcamOnButtonStyle {
+  icon: Embed('assets/images/webcam_on.png');    
+}
+
+.webcamOffButtonStyle {
+  icon: Embed('assets/images/webcam_close.png');    
+}
+
+.deskshareDefaultButtonStyle {
+  icon: Embed('assets/images/deskshare_icon.png');    
+}
+
+.deskshareOnButtonStyle {
+  icon: Embed('assets/images/deskshare_on.png');    
+}
+
+.deskshareOffButtonStyle {
+  icon: Embed('assets/images/deskshare_close.png');    
+}
+
+
 .presentationUploadButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
 .presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle 
 {
@@ -266,6 +316,16 @@ DataGrid {
   fontFamily: Arial;
 }
 
+.deskshareControlButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;  
+  cornerRadius: 17;
+}
+
 .videoMuteButtonStyle, .videoUnmutedButtonStyle, .videoSwitchPresenterButtonStyle, .videoEjectUserButtonStyle, .videoPrivateChatButtonStyle {
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
@@ -328,7 +388,7 @@ DataGrid {
   fontWeight: bold;
 }
 
-.presentationUploadChooseFileLabelStyle, .presentationNamesLabelStyle {
+.presentationNamesLabelStyle {
   fontFamily: Arial;
   fontSize: 14;  
   fontWeight: bold;
@@ -384,7 +444,18 @@ DataGrid {
 }
 
 .presentationNameLabelStyle {
-  
+
+}
+
+.presentationUploadFileFormatHintBoxStyle, .desktopShareUsingChromeOnMacHintBoxStyle {
+	backgroundColor: #D4D4D4;
+	dropShadowEnabled: false;
+	paddingLeft: 10;
+	paddingRight: 10
+}
+
+.presentationUploadFileFormatHintTextStyle, .desktopShareUsingChromeOnMacHintTextStyle {
+	fontWeight: bold;
 }
 
 .cameraDisplaySettingsWindowStyle {
@@ -435,7 +506,7 @@ DataGrid {
   fontWeight: bold;    
 }
 
-.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .micSettingsWindowMicNameLabelStyle {
+.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .micSettingsWindowMicNameLabelStyle, .webcamPermissionSettingsTextStyle {
   fontFamily: Arial;
   fontSize: 12;    
 }
@@ -479,7 +550,17 @@ DataGrid {
 }
 
 .micSettingsWindowHelpButtonStyle {
-  icon:   Embed('assets/images/questionmark.png');
+	paddingLeft: 4;
+	paddingRight: 4;
+	paddingTop: 2;
+	paddingBottom: 2;
+	fontSize: 16;
+	rollOverColor: #cccccc;
+	selectionColor: #999999;
+	color: #504f3d;
+	textRollOverColor: #ffffff;
+	textSelectedColor: #ffffff;
+	fontWeight: bold;
 }
 
 MDIWindow { /*None of the following properties are overridden by the MDIWindow class*/
@@ -697,10 +778,52 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 }
 
 Alert {
-	borderColor: #DFDFDF;
-	backgroundColor: #EFEFEF;
+  borderColor: #DFDFDF;
+  backgroundColor: #EFEFEF;
+  borderAlpha: 1;
+  shadowDistance: 1;
+  dropShadowColor: #FFFFFF;
+  color: #000000;
+}
+
+.lockSettingsDefaultLabelStyle {
+	fontFamily: Arial;
+	fontSize: 14;  
+	fontWeight: bold;    
+}
+
+.lockSettingsWindowStyle {
+	borderColor: #b9babc;
 	borderAlpha: 1;
-	shadowDistance: 1;
-	dropShadowColor: #FFFFFF;
-	color: #000000;
+	borderThicknessLeft: 10;
+	borderThicknessTop: 0;
+	borderThicknessBottom: 10;
+	borderThicknessRight: 10;
+	roundedBottomCorners: true;
+	cornerRadius: 5;
+	headerHeight: 20;
+	backgroundAlpha: 1;
+	headerColors: #b9babc, #b9babc;
+	footerColors: #b9babc, #b9babc;
+	backgroundColor: #EFEFEF;
+	dropShadowEnabled: true;
+	titleStyleName: "micSettingsWindowTitleStyle";
+}
+
+.lockSettingsWindowTitleStyle {
+	fontFamily: Arial;
+	fontSize: 20;  
+	fontWeight: bold;
+}
+
+.recordButtonStyleNormal {
+  icon:   Embed('assets/images/control-record.png');
+}
+
+.recordButtonStyleStart {
+  icon:   Embed('assets/images/control-record-start.png');
+}
+
+.recordButtonStyleStop {
+  icon:   Embed('assets/images/control-record-stop.png');
 }

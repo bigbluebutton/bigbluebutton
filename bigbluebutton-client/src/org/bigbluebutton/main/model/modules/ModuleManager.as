@@ -34,6 +34,8 @@ package org.bigbluebutton.main.model.modules
 	
 	public class ModuleManager
 	{
+    private static const LOG:String = "Core::ModuleManager - ";
+    
 		public static const MODULE_LOAD_READY:String = "MODULE_LOAD_READY";
 		public static const MODULE_LOAD_PROGRESS:String = "MODULE_LOAD_PROGRESS";
 		
@@ -94,7 +96,7 @@ package org.bigbluebutton.main.model.modules
 		private function startModule(name:String):void {
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
-				LogUtil.debug('Starting module ' + name);
+				trace(LOG + 'Starting module ' + name);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
 				m.loadConfigAttributes(conferenceParameters, _protocol);
 				bbb.start(m.attributes);		
@@ -102,8 +104,7 @@ package org.bigbluebutton.main.model.modules
 		}
 
 		private function stopModule(name:String):void {
-			LogUtil.debug('Stopping module ' + name);
-      trace('Stopping module ' + name);
+      trace(LOG + 'Stopping module ' + name);
       
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
@@ -118,7 +119,7 @@ package org.bigbluebutton.main.model.modules
 		}
 						
 		public function loadModule(name:String):void {
-			LogUtil.debug('BBBManager Loading ' + name);
+			trace(LOG + 'BBBManager Loading ' + name);
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
 				if (!m.loaded) {
@@ -137,7 +138,7 @@ package org.bigbluebutton.main.model.modules
 						modulesDispatcher.sendLoadProgressEvent(name, progress);
 					break;	
 					case MODULE_LOAD_READY:
-						LogUtil.debug('Module ' + name + " loaded.");		
+						trace(LOG + 'Module ' + name + " loaded.");		
 						modulesDispatcher.sendModuleLoadReadyEvent(name)	
 					break;				
 				}
@@ -165,13 +166,13 @@ package org.bigbluebutton.main.model.modules
 		public function moduleStarted(name:String, started:Boolean):void {			
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
-				LogUtil.debug('Setting ' + name + ' started to ' + started);
+				trace(LOG + 'Setting ' + name + ' started to ' + started);
 			}	
 		}
 		
 		public function startUserServices():void {
 			configParameters.application = configParameters.application.replace(/rtmp:/gi, _protocol + ":");
-			LogUtil.debug("**** Using " + _protocol + " to connect to " + configParameters.application + "******");
+			trace(LOG + "**** Using " + _protocol + " to connect to " + configParameters.application + "******");
 			modulesDispatcher.sendStartUserServicesEvent(configParameters.application, configParameters.host, _protocol.toUpperCase() == "RTMPT");
 		}
 		

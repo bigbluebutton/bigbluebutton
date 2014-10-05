@@ -70,11 +70,11 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 				ao["square"] = false;
 			}
 			
-      var pn:Object = wbModel.getCurrentPresentationAndPage();
-      if (pn != null) {
-        ao["presentationID"] = pn.presentationID;
-        ao["pageNumber"] = pn.currentPageNumber;
+      var wbId:String = wbModel.getCurrentWhiteboardId();
+      if (wbId != null) {
+        ao["whiteboardId"] = wbId;
       }
+      
       
 			return new Annotation(_id, _type, ao);
 		}

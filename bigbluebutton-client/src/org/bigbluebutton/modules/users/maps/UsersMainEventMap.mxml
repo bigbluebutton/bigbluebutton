@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/" >
+	<mx:Script>
+		<![CDATA[
+      import mx.events.FlexEvent;    
+      import org.bigbluebutton.core.events.LockControlEvent;
+      import org.bigbluebutton.core.events.VoiceConfEvent;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.LogoutEvent;
+      import org.bigbluebutton.main.events.UserServicesEvent;
+      import org.bigbluebutton.main.model.users.UserService;
+      import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
+      import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
+      import org.bigbluebutton.main.model.users.events.KickUserEvent;
+      import org.bigbluebutton.main.model.users.events.LowerHandEvent;
+      import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
+      import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+      import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
+		]]>
+	</mx:Script>
+	
+	
+	<EventHandlers type="{FlexEvent.APPLICATION_COMPLETE}" >
+    <ObjectBuilder generator="{UserService}" cache="global" />
+	</EventHandlers>
+	
+  <EventHandlers type="{LogoutEvent.USER_LOGGED_OUT}" >
+    <MethodInvoker generator="{UserService}" method="logoutUser" />
+  </EventHandlers>
+
+  <EventHandlers type="{LogoutEvent.DISCONNECT_TEST}" >
+    <MethodInvoker generator="{UserService}" method="disconnectTest" />
+  </EventHandlers>
+  
+  <EventHandlers type="{UserServicesEvent.START_USER_SERVICES}" >
+    <MethodInvoker generator="{UserService}" method="startService" arguments="{event}" />
+  </EventHandlers>
+  
+  <EventHandlers type="{UsersConnectionEvent.CONNECTION_SUCCESS}" >
+    <MethodInvoker generator="{UserService}" method="userLoggedIn" arguments="{event}" />
+  </EventHandlers>
+  
+  <!-- Viewers Stuff -->
+  <EventHandlers type="{RaiseHandEvent.RAISE_HAND}" >
+    <MethodInvoker generator="{UserService}" method="raiseHand" arguments="{event}" />
+  </EventHandlers>
+  
+  <EventHandlers type="{LowerHandEvent.LOWER_HAND_EVENT}" >
+    <MethodInvoker generator="{UserService}" method="lowerHand" arguments="{event}" />
+  </EventHandlers>
+  
+  <EventHandlers type="{BroadcastStartedEvent.BROADCAST_STARTED_EVENT}" >
+    <MethodInvoker generator="{UserService}" method="addStream" arguments="{event}" />
+  </EventHandlers>
+  
+  <EventHandlers type="{BroadcastStoppedEvent.BROADCAST_STOPPED}" >
+    <MethodInvoker generator="{UserService}" method="removeStream" arguments="{event}" />
+  </EventHandlers>
+  <!-- End Viewers Stuff -->
+  
+  <EventHandlers type="{KickUserEvent.KICK_USER}" >
+    <MethodInvoker generator="{UserService}" method="kickUser" arguments="{event}" />
+  </EventHandlers>
+  
+  <EventHandlers type="{BBBEvent.CHANGE_RECORDING_STATUS}">
+    <MethodInvoker generator="{UserService}" method="changeRecordingStatus" arguments="{event}" />
+  </EventHandlers>
+  
+  <EventHandlers type="{KickUserEvent.KICK_USER}" >
+    <MethodInvoker generator="{UserService}" method="kickUser" arguments="{event}" />
+  </EventHandlers>
+  
+  
+  <EventHandlers type="{VoiceConfEvent.EJECT_USER}" >
+    <MethodInvoker generator="{UserService}" method="ejectUser" arguments="{event}" />
+  </EventHandlers>
+  
+  <EventHandlers type="{VoiceConfEvent.MUTE_USER}" >
+    <MethodInvoker generator="{UserService}" method="muteUnmuteUser" arguments="{event}" />
+  </EventHandlers>
+  
+  <EventHandlers type="{VoiceConfEvent.MUTE_ALL}" >
+    <MethodInvoker generator="{UserService}" method="muteAllUsers" arguments="{event}" />
+  </EventHandlers>
+  
+  <EventHandlers type="{VoiceConfEvent.UNMUTE_ALL}" >
+    <MethodInvoker generator="{UserService}" method="unmuteAllUsers" arguments="{event}" />
+  </EventHandlers>
+  
+  <EventHandlers type="{VoiceConfEvent.MUTE_ALMOST_ALL}" >
+    <MethodInvoker generator="{UserService}" method="muteAllUsersExceptPresenter" arguments="{event}" />
+  </EventHandlers>
+  
+  <!-- Lock Events -->
+  <EventHandlers type="{LockControlEvent.LOCK_ALL}" >
+    <MethodInvoker generator="{UserService}" method="lockAllUsers" arguments="{event}" />
+  </EventHandlers>
+  
+  <EventHandlers type="{LockControlEvent.UNLOCK_ALL}" >
+    <MethodInvoker generator="{UserService}" method="unlockAllUsers" arguments="{event}" />
+  </EventHandlers>
+  
+  <EventHandlers type="{LockControlEvent.LOCK_ALMOST_ALL}" >
+    <MethodInvoker generator="{UserService}" method="lockAlmostAllUsers" arguments="{event}" />
+  </EventHandlers>
+  
+  <EventHandlers type="{LockControlEvent.LOCK_USER}" >
+    <MethodInvoker generator="{UserService}" method="lockUser" arguments="{event}" />
+  </EventHandlers>
+  
+  <EventHandlers type="{LockControlEvent.UNLOCK_USER}" >
+    <MethodInvoker generator="{UserService}" method="unlockUser" arguments="{event}" />
+  </EventHandlers>
+  
+  <EventHandlers type="{LockControlEvent.SAVE_LOCK_SETTINGS}" >
+    <MethodInvoker generator="{UserService}" method="saveLockSettings" arguments="{event}" />
+  </EventHandlers>
+  
+  <EventHandlers type="{RoleChangeEvent.ASSIGN_PRESENTER}">
+    <MethodInvoker generator="{UserService}" method="assignPresenter" arguments="{event}" />
+  </EventHandlers>
+</EventMap>

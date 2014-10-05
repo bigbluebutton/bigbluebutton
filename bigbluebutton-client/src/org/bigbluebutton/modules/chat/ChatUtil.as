@@ -18,6 +18,10 @@
  */
 package org.bigbluebutton.modules.chat
 {
+  import flash.xml.XMLNode;
+  import flash.xml.XMLNodeType;
+  
+  import org.as3commons.lang.StringUtils;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
   public class ChatUtil
@@ -46,26 +50,42 @@ package org.bigbluebutton.modules.chat
     }
     
     public static function cleanup(message:String):String{
-      var parsedString:String = message.replace('<', '&#60;')
-      parsedString = parsedString.replace('>', '&#62;')
-      
-      return parsedString;
+		return XML( new XMLNode( XMLNodeType.TEXT_NODE, message ) ).toXMLString();
     }
     
-    public static function parseURLs(message:String):String{
-      var indexOfHTTP:Number = message.indexOf("http://");
-      var indexOfWWW:Number = message.indexOf("www.");
-      var indexOfHTTPS:Number = message.indexOf("https://");
-      if (indexOfHTTP == -1 && indexOfWWW == -1 && indexOfHTTPS == -1) return message;
-      var words:Array = message.split(" ");
-      var parsedString:String = "";
-      for (var n:Number = 0; n < words.length; n++){
-        var word:String = words[n] as String;
-        if (word.indexOf("http://") != -1) parsedString += '<a href="event:' + word + '"> <u>' + word + '</u></a> ';
-        else if (word.indexOf("https://") != -1) parsedString += '<a href="event:' + word + '"> <u>' + word + '</u></a> ';
-        else if (word.indexOf("www.") != -1) parsedString += '<a href="event:http://' + word + '"> <u>' + word + '</u></a> ';
-        else parsedString += word + ' ';
+	public static function parseURLs( message : String ) : String{
+      var urlPattern : RegExp = /(http|ftp|https|www)(:\/\/[^\s\-_]+)?(\.[^\s\-]+)+([\w\-\.,@?^=%&:\/~\+#]*[^\s\-\@?^=%&\/~\+#\(\)])?/g;
+		
+      var resultArray : Array = [];
+      var result : Object;
+      while (result = urlPattern.exec(message)){
+        var item : Object = new Object();
+        item.foundValue = result[0];
+        item.index = result.index;
+        item.length = item.foundValue.length;
+
+        // We push the last result into resultArray
+        resultArray.push(item);
+			
+        // We try to find the next match
+        urlPattern.lastIndex = item.index + item.length;
       }
+
+	  // Replacing matched patterns with HTML links
+      var parsedString : String = message;
+	  for (var i : int = resultArray.length - 1; i >= 0; i--)
+      {
+        var value : String = resultArray[i].foundValue;
+        var newValue : String;
+		if (!StringUtils.startsWith(value, 'www')){
+			newValue = '<a href="event:' + value + '"> <u>' + value + '</u></a> ';
+        }
+        else{
+			newValue = '<a href="event:http://' + value + '"> <u>' + value + '</u></a> '; 
+        }
+        parsedString = StringUtils.replaceAt(parsedString, newValue, resultArray[i].index, resultArray[i].index + resultArray[i].length)
+      }
+
       return parsedString;
     }
   }

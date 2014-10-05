@@ -24,8 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
-			import flexlib.mdi.containers.MDIWindow;
-			
+			import flexlib.mdi.containers.MDIWindow;		
 			import mx.controls.Alert;
 			import mx.utils.ArrayUtil;
 			import org.bigbluebutton.common.IBbbModuleWindow;
@@ -186,8 +185,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						if (y < 0) y = 1;
 						break;
 					case DESKTOP_SHARING_PUBLISH:
-						y = (this.height - win.height);
-						x = 1;
+						y = (this.height - win.height) - 23;
+						x = 8;
 						break;
 					case DESKTOP_SHARING_VIEW:
 						x = 1;

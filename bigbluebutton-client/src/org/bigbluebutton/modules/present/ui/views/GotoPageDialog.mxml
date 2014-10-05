@@ -39,7 +39,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if( !isNaN( Number( txtPageNum.text ) ) ){
 					var page:Number = parseInt(txtPageNum.text);
 					if( page > 0 && page <= totalSlides ){
-						dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, page-1));
+						dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, page));
 					}
 				}
 				PopUpManager.removePopUp(this);

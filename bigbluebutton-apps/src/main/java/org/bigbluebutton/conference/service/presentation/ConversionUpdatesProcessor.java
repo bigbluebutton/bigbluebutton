@@ -18,7 +18,6 @@
 */
 package org.bigbluebutton.conference.service.presentation;
 
-import java.util.Map;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 public class ConversionUpdatesProcessor {
@@ -26,12 +25,35 @@ public class ConversionUpdatesProcessor {
 
 	private PresentationApplication presentationApplication;
 	
-	public void process(Map message) {
-		presentationApplication.sendUpdateMessage(message);
+	public void sendConversionUpdate(String messageKey, String conference, 
+                      String code, String presId, String presName) {
+		presentationApplication.sendConversionUpdate(messageKey, conference,
+              code, presId, presName);
+    }
+	
+	public void sendPageCountError(String messageKey, String conference, 
+            String code, String presId, int numberOfPages,
+            int maxNumberPages, String presName) {
+		presentationApplication.sendPageCountError(messageKey, conference, 
+	            code, presId, numberOfPages,
+	            maxNumberPages, presName);
+	}
+	
+	public void sendSlideGenerated(String messageKey, String conference, 
+            String code, String presId, int numberOfPages,
+            int pagesCompleted, String presName) {
+		presentationApplication.sendSlideGenerated(messageKey, conference, 
+	            code, presId, numberOfPages, pagesCompleted, presName);
+	}
+	
+	public void sendConversionCompleted(String messageKey, String conference, 
+            String code, String presId, Integer numberOfPages, String presName,
+            String presBaseUrl) {
+		presentationApplication.sendConversionCompleted(messageKey, conference, 
+	            code, presId, numberOfPages, presName, presBaseUrl);
 	}
 	
 	public void setPresentationApplication(PresentationApplication a) {
-		log.debug("Setting presentation application");
 		presentationApplication = a;
 	}	
 }

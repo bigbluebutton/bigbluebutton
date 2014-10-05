@@ -18,57 +18,28 @@
 */
 package org.bigbluebutton.conference.service.layout;
 
-import java.util.List;
+import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 
-import org.red5.logging.Red5LoggerFactory;
-import org.slf4j.Logger;
+import scala.Option;
 
-public class LayoutApplication {
-
-	private static Logger log = Red5LoggerFactory.getLogger( LayoutApplication.class, "bigbluebutton" );	
-		
-	private LayoutRoomsManager roomsManager;
-	public LayoutHandler handler;
+public class LayoutApplication {	
+	private IBigBlueButtonInGW bbbInGW;
 	
-	public boolean createRoom(String name) {
-		roomsManager.addRoom(new LayoutRoom(name));
-		return true;
+	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
+		bbbInGW = inGW;
 	}
 	
-	public boolean destroyRoom(String name) {
-		if (roomsManager.hasRoom(name)) {
-			roomsManager.removeRoom(name);
-		}
-		return true;
-	}
-	
-	public boolean hasRoom(String name) {
-		return roomsManager.hasRoom(name);
-	}
-	
-	public boolean addRoomListener(String room, ILayoutRoomListener listener) {
-		if (roomsManager.hasRoom(room)){
-			roomsManager.addRoomListener(room, listener);
-			return true;
-		}
-		log.warn("Adding listener to a non-existant room " + room);
-		return false;
-	}
-	
-	public void setRoomsManager(LayoutRoomsManager r) {
-		log.debug("Setting room manager");
-		roomsManager = r;
+	public void broadcastLayout(String meetingID, String requesterID, String layout) {
+		bbbInGW.broadcastLayout(meetingID, requesterID, layout);
 	}
 
-	public void lockLayout(String room, String userId, String layout) {
-		roomsManager.lockLayout(room, userId, layout);
+	public void lockLayout(String meetingId, String setById, 
+                           Boolean lock, Boolean viewersOnly,
+                           Option<String> layout) {
+		bbbInGW.lockLayout(meetingId, setById, lock, viewersOnly, layout); 
 	}
 
-	public void unlockLayout(String room) {
-		roomsManager.unlockLayout(room);
-	}
-
-	public List<Object> currentLayout(String roomName) {
-		return roomsManager.currentLayout(roomName);
+	public void getCurrentLayout(String meetingID, String requesterID) {
+		bbbInGW.getCurrentLayout(meetingID, requesterID);
 	}
 }

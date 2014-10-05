@@ -42,6 +42,8 @@ package org.bigbluebutton.modules.notes.services
   
   public class RetrieveNotesService
   {
+    private static const LOG:String = "RetrieveNotesService - ";
+    
     private var _options:NotesOptions;
     private var _request:URLRequest = new URLRequest();
     private var _vars:URLVariables;
@@ -62,6 +64,8 @@ package org.bigbluebutton.modules.notes.services
     }
        
     public function retrieveNotes():void {
+      trace(LOG + " retrieveNotes");
+      
       //_request.url = _options.saveURL + "/notes";
       _request.url = _options.saveURL;
       _request.method = URLRequestMethod.GET;

@@ -32,22 +32,25 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 	private static Logger log = LoggerFactory.getLogger(RecordingServiceHelperImp.class);
 	/*
 	<recording>
-		<id>Demo Meeting-3243244</id>
+		<id>6e35e3b2778883f5db637d7a5dba0a427f692e91-1398363221956</id>
 		<state>available</state>
 		<published>true</published>
-		<start_time>3553545445</start_time>
-		<end_time>5674545234</end_time>
+		<start_time>1398363223514</start_time>
+		<end_time>1398363348994</end_time>
 		<playback>
-			<format>simple</format>
-			<link>http://server.com/simple/playback?recordingID=Demo Meeting-3243244</link>
+			<format>presentation</format>
+			<link>http://example.com/playback/presentation/playback.html?meetingID=6e35e3b2778883f5db637d7a5dba0a427f692e91-1398363221956</link>
+			<processing_time>5429</processing_time>
+			<duration>101014</duration>
+			<extension>
+				... Any XML element, to be passed through into playback format element.
+			</extension>
 		</playback>
 		<meta>
-			<title>Test Recording 2</title>
-			<subject>English 232 session</subject>
-			<description>Second  test recording</description>
-			<creator>Omar Shammas</creator>
-			<contributor>Blindside</contributor>
-			<language>en_US</language>
+			<meetingId>English 101</meetingId>
+			<meetingName>English 101</meetingName>
+			<description>Test recording</description>
+			<title>English 101</title>
 		</meta>
 	</recording>
 	*/
@@ -64,6 +67,8 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 			builder.playback {
 				builder.format(info.getPlaybackFormat())
 				builder.link(info.getPlaybackLink())	
+				builder.duration(info.getPlaybackDuration())
+				builder.extension(info.getPlaybackExtensions())
 			}
 			Map<String,String> metainfo = info.getMetadata();
 			builder.meta{
@@ -97,6 +102,8 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 		r.setEndTime(rec.end_time.text());
 		r.setPlaybackFormat(rec.playback.format.text());
 		r.setPlaybackLink(rec.playback.link.text());
+		r.setPlaybackDuration(rec.playback.duration.text());
+		r.setPlaybackExtensions(rec.playback.extension.children());
 		
 		Map<String, String> meta = new HashMap<String, String>();		
 		rec.meta.children().each { anode ->

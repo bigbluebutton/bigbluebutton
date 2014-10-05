@@ -27,190 +27,33 @@
 	xmlns:mate="http://mate.asfusion.com/"	
 	toolTip="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent"
-	initialize="init();" 
-	click="createAndShow();"
+	click="openMainPollingWindow();"
 	icon="{pollIcon}"
 	accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.buttonName')}"
 	>
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.main.views.MainToolbar;
-			import org.bigbluebutton.main.events.ShortcutEvent ;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-	    	import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
-			import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
-			import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
-			import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
-			import org.bigbluebutton.modules.polling.events.ReviewResultsEvent;
-			
-			import org.bigbluebutton.modules.polling.model.ValueObject;
-			import org.bigbluebutton.modules.polling.model.PollObject;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.model.users.Conference;
-			
-			import mx.collections.ArrayCollection;
-			import mx.controls.Menu;
-			import mx.events.MenuEvent;
-			import flash.events.FocusEvent;
-			
-			import org.bigbluebutton.modules.polling.model.PollObject;
+    
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.main.views.MainToolbar;
+      import org.bigbluebutton.modules.polling.events.PollMainWindowEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
-			
-			[Bindable] private var myMenuData:ArrayCollection;
-			
+					
 			[Bindable] 
 			[Embed(source="../../../common/assets/images/poll_icon.png")]  
 			public var pollIcon:Class;			
-						
-			public static const LOGNAME:String = "[Polling (views) : ToolbarButton] ";
-			private var conference:Conference;
-			private var myMenu:Menu = new Menu();
-			private const REAL_BUTTON_ID:String = "BigBlueButton.mainShell.toolbar.addedBtns.pollButton";
-			
-			
-			[Bindable] public var roomID:String;
-			[Bindable] public var titleList:Array;
-			[Bindable] public var pollList:ArrayCollection;
-			
-			// #################################################################
-			public function init():void {	
-				LogUtil.debug("Initializing Polling toolbar button.");
-				myMenuData = new ArrayCollection();
-				pollList = new ArrayCollection();			
-				listInitialize();
-				renderMenu();
-				conference = UserManager.getInstance().getConference();
-				
-				this.addEventListener(FocusEvent.FOCUS_IN, updateMenuByEvent);
-            }
-			
-			public function remoteOpenPollingMenu(e:ShortcutEvent = null):void{
-				//LogUtil.debug("Opening poll menu by --SHORTCUT-- [remoteOpenPollingMenu()]");
-				createAndShow();
-				//LogUtil.debug("Finished opening menu by shortcut. [/remoteOpenPollingMenu()]");
-			}
-			
-			private function createAndShow():void{
-				renderMenu();
-				myMenu.hide();
-				myMenu = Menu.createMenu(null, myMenuData, false);
-				myMenu.iconField="icon";
-				var xPos:int = this.x;
-				var yPos:int = this.y;
-				var heightVal:int = this.height;
-				myMenu.show(xPos + 10, yPos + heightVal + 10);
-            	myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClick);
-			}
-			// #################################################################
-
-			public function listInitialize(calledFromShortcut:Boolean = false):void{
-				LogUtil.debug("Entering listInitialize [listInitialize()]");
-				titleList = new Array();
-				if (myMenuData != null)
-					myMenuData.removeAll();
-				if (pollList != null)
-					pollList.removeAll();
-				
-				var pevent:PollGetTitlesEvent;
-				if (calledFromShortcut){
-					pevent = new PollGetTitlesEvent(PollGetTitlesEvent.REMOTE_CHECK);
-				}
-				else{
-					pevent = new PollGetTitlesEvent(PollGetTitlesEvent.INIT);
-				}
-				
-				try{
-					dispatchEvent(pevent);
-					LogUtil.debug("GetTitlesEvent dispatched");
-				}
-				catch (e:*){LogUtil.debug("GetTitlesEvent failed");}
-				LogUtil.debug("Leaving listInitialize [/listInitialize()]");
-			}
-						
-			private function renderMenu():void{
-				myMenuData.removeAll();
-				myMenuData.addItem(new ValueObject("create", ResourceUtil.getInstance().getString('bbb.polling.createPoll')));
-				for (var i:int = 0; i < pollList.length; i++){
-					if (pollList[i] != null){
-						var keyString:String = pollList[i].room +"-"+ pollList[i].title;
-						var menuEntry:ValueObject = new ValueObject(keyString, pollList[i].title);
-						menuEntry.poll = pollList[i];
-						if (!pollList[i].status){
-							menuEntry.label = "X-" + menuEntry.label;
-						}else{
-							menuEntry.icon = "pollIcon";
-						}
-						myMenuData.addItem(menuEntry);
-					}
-				}
-			}
-			
-			private function updateMenuByEvent(e:FocusEvent):void{
-				updateMenu();
-			}
-			
-			public function updateMenuByShortcut(e:ShortcutEvent = null):void{
-				conference = UserManager.getInstance().getConference();
-				if (conference.amIPresenter){
-					var message:String = ResourceUtil.getInstance().getString('bbb.polling.buttonNameShortcut');
-					ExternalInterface.call("addAlert", message);
-					updateMenu(true);
-				}
-			}
-			
-			public function notifyPosition():void{
-				var message:String = ResourceUtil.getInstance().getString('bbb.polling.buttonName');
-				ExternalInterface.call("addAlert", message);
-			}
-			
-			private function updateMenu(calledFromShortcut:Boolean = false):void{
-				LogUtil.debug("Caught poll click in button, heading towards listInitialize()");
-				listInitialize(calledFromShortcut);
-			}
-			
-      private function menuClick(event:MenuEvent):void {            	
-				if(event.index == 0){
-            	  	openPollingInstructions();
-            	}else{
-            		var poll:PollObject = myMenuData.getItemAt(event.index).poll;
-            		if (poll.status){
-            			// Poll has not been used yet, open instructions window
-            			var openPollEvent:OpenSavedPollEvent = new OpenSavedPollEvent(OpenSavedPollEvent.OPEN);
-            			openPollEvent.poll = poll;
-            			dispatchEvent(openPollEvent);
-            		}else{
-            			// Poll has been closed, show results
-            			var reviewEvent:ReviewResultsEvent = new ReviewResultsEvent(ReviewResultsEvent.REVIEW);
-            			reviewEvent.poll = poll;
-            			dispatchEvent(reviewEvent);
-            		}
-            	}
-				stage.dispatchEvent(new MenuEvent(MenuEvent.MENU_HIDE));
-        	}
-						
 								
+    								
 			public function getAlignment():String{
 				return MainToolbar.ALIGN_RIGHT;
 			}
 			
-			
-			private function openPollingInstructions():void {
-				dispatchEvent(new PollingInstructionsWindowEvent(PollingInstructionsWindowEvent.OPEN));
-				this.enabled=false;
+			private function openMainPollingWindow():void {
+				dispatchEvent(new PollMainWindowEvent(PollMainWindowEvent.OPEN_WINDOW));
 			}
-			
-			private function remoteSwitch(e:ShortcutEvent):void{
-				if (this.toString() != REAL_BUTTON_ID){
-					updateMenuByShortcut(e);
-				}
-				else{
-					remoteOpenPollingMenu(e);
-				}
-			}
+
 		]]>
 	</mx:Script>  
 </mx:Button>  

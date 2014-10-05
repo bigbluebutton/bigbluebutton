@@ -24,7 +24,7 @@ package org.bigbluebutton.core.events
 	{
 		public static const MUTE_ALL:String = "VOICECONF_MUTE_ALL";
 		public static const UNMUTE_ALL:String = "VOICECONF_UNMUTE_ALL";
-    public static const LOCK_MUTE_USER:String = "LOCK_MUTE_USER";
+		public static const LOCK_MUTE_USER:String = "LOCK_MUTE_USER";
 		public static const MUTE_ALMOST_ALL:String = "VOICECONF_MUTE_ALMOST_ALL";
 		
 		public static const MUTE_USER:String = "VOICECONF_MUTE_USER";
@@ -32,9 +32,9 @@ package org.bigbluebutton.core.events
 		
 		public static const EJECT_USER:String = "VOICECONF_EJECT_USER";
 		
-		public var userid:int;
+		public var userid:String;
 		public var mute:Boolean;
-    public var lock:Boolean;
+		public var lock:Boolean;
 		
 		public function VoiceConfEvent(type:String)
 		{

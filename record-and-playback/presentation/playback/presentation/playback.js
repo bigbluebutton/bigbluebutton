@@ -19,11 +19,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 */
 
 goToSlide = function(time) {
+  console.log("==Going to slide");
   var pop = Popcorn("#video");
   pop.currentTime(time);
 }
 
 getUrlParameters = function() {
+  console.log("==Getting url parameters");
   var map = {};
   var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
     map[key] = value;
@@ -35,6 +37,7 @@ getUrlParameters = function() {
  * From: http://stackoverflow.com/questions/1634748/how-can-i-delete-a-query-string-parameter-in-javascript/4827730#4827730
  */
 removeUrlParameter = function(url, param) {
+  console.log("==Removing url params");
   var urlparts= url.split('?');
   if (urlparts.length>=2) {
     var prefix= encodeURIComponent(param)+'=';
@@ -78,6 +81,7 @@ secondsToYouTubeFormat = function(secs) {
   if (hours > 0)   {time += hours+"h";}
   if (minutes > 0) {time += minutes+"m";}
   if (seconds > 0) {time += seconds+"s";}
+  if (secs == 0) {time = "0s";}
 
   return time;
 }
@@ -133,6 +137,7 @@ setTitleOnThumbnail = function($thumb) {
  * mouse over/out functions, etc.
  */
 setEventsOnThumbnail = function($thumb) {
+  //console.log("== Setting event on thumbnail," ,$thumb);
   // Popcorn event to mark a thumbnail when its slide is being shown
   var timeIn = $thumb.attr("data-in");
   var timeOut = $thumb.attr("data-out");
@@ -177,6 +182,7 @@ $("input[name='autoscrollEnabled']").live('change', function() {
 });
 
 animateToCurrentSlide = function(force) {
+  console.log("==Animating to current slide");
   force = typeof force !== 'undefined' ? force : false;
 
   if (force || isAutoscrollEnabled()) {
@@ -203,6 +209,7 @@ getCurrentSlide = function() {
  * Generates the list of thumbnails using shapes.svg
  */
 generateThumbnails = function() {
+  console.log("== Generating thumbnails");
   var xmlhttp;
   if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
     xmlhttp = new XMLHttpRequest();
@@ -225,6 +232,7 @@ generateThumbnails = function() {
   xmlList = xmlDoc.getElementsByTagName("image");
   var slideCount = 0;
   
+  console.log("== Setting title on thumbnails");
   for (var i = 0; i < xmlList.length; i++) {
     var element = xmlList[i];
     
@@ -234,7 +242,6 @@ generateThumbnails = function() {
     if (src.match(/\/presentation\/.*slide-.*\.png/)) {
       var timeInList = xmlList[i].getAttribute("in").split(" ");
       var timeOutList = xmlList[i].getAttribute("out").split(" ");
-
       for (var j = 0; j < timeInList.length; j++) {
         var timeIn = Math.floor(timeInList[j]);
         var timeOut = Math.floor(timeOutList[j]);
@@ -258,7 +265,6 @@ generateThumbnails = function() {
         hiddenDesc.attr("id", img.attr("id") + "description");
         hiddenDesc.attr("class", "visually-hidden");
         hiddenDesc.html("Slide " + ++slideCount + " " + secondsToHHMMSSText(timeIn));
-        
 
         // a wrapper around the img and label
         var div = $(document.createElement('div'));
@@ -268,6 +274,11 @@ generateThumbnails = function() {
         div.append(img);
         div.append(label);
         div.append(hiddenDesc);
+
+        if (parseFloat(timeIn) == 0 ) {
+          div.addClass("active");
+          $(".thumbnail-label", div).show();
+        }
 
         imagesList.push(timeIn);
         elementsMap[timeIn] = div;
@@ -285,6 +296,7 @@ generateThumbnails = function() {
 }
 
 google_frame_warning = function(){
+  console.log("==Google frame warning");
   var message = "To support this playback please install 'Google Chrome Frame', or use other browser: Firefox, Safari, Chrome, Opera";
   var line = document.createElement("p");
   var link = document.createElement("a");
@@ -298,15 +310,15 @@ google_frame_warning = function(){
   
 function checkUrl(url)
 {
-    console.log("Checking Url")
+    console.log("==Checking Url",url)
     var http = new XMLHttpRequest();
     http.open('HEAD', url, false);
     http.send();
-    return http.status!=404;
+    return http.status==200;
 }
 
 load_video = function(){
-   console.log("Loading video")
+   console.log("==Loading video")
    //document.getElementById("video").style.visibility = "hidden"  
    var video = document.createElement("video")   
    video.setAttribute('id','video');  
@@ -365,16 +377,43 @@ load_audio = function() {
 }
 
 load_script = function(file){
-  console.log("Loading script "+ file)
+  console.log("==Loading script "+ file)
   script = document.createElement('script');
   script.src = file;
   script.type = 'text/javascript';
   document.getElementsByTagName('body').item(0).appendChild(script);
 }
 
+load_spinner = function(){
+  console.log("==Loading spinner");
+  var opts = {
+    lines: 13, // The number of lines to draw
+    length: 24, // The length of each line
+    width: 4, // The line thickness
+    radius: 24, // The radius of the inner circle
+    corners: 1, // Corner roundness (0..1)
+    rotate: 24, // The rotation offset
+    direction: 1, // 1: clockwise, -1: counterclockwise
+    color: '#000', // #rgb or #rrggbb or array of colors
+    speed: 1, // Rounds per second
+    trail: 87, // Afterglow percentage
+    shadow: false, // Whether to render a shadow
+    hwaccel: false, // Whether to use hardware acceleration
+    className: 'spinner', // The CSS class to assign to the spinner
+    zIndex: 2e9, // The z-index (defaults to 2000000000)
+    top: '50%', // Top position relative to parent
+    left: '50%' // Left position relative to parent
+  };
+  var target = document.getElementById('spinner');
+  spinner = new Spinner(opts).spin(target);
+}
+
+
 document.addEventListener( "DOMContentLoaded", function() {
+  console.log("==DOM content loaded");
   var appName = navigator.appName;
   var appVersion = navigator.appVersion;
+  var spinner;
   //var video = document.getElementById("webcam");
 
   if (appName == "Microsoft Internet Explorer" && navigator.userAgent.match("chromeframe") == false ) {
@@ -392,15 +431,22 @@ document.addEventListener( "DOMContentLoaded", function() {
       load_audio();
   }
   
+  load_spinner();
+  console.log("==Hide playback content");
+  $("#playback-content").css('visibility', 'hidden');
   //load_audio();
   load_script("lib/writing.js");
   //generateThumbnails();
 
   //load up the acorn controls
+  console.log("==Loading acorn media player ");
   jQuery('#video').acornMediaPlayer({
     theme: 'darkglass',
     volumeSlider: 'vertical'
   });
+  
+ 
+
 }, false);
 
 var secondsToWait = 0;

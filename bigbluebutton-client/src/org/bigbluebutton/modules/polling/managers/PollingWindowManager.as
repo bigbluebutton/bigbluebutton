@@ -18,200 +18,169 @@
 */
 
 package org.bigbluebutton.modules.polling.managers
-{
-	import com.asfusion.mate.events.Dispatcher;
-	
-	import mx.collections.ArrayCollection;
-	import org.bigbluebutton.common.IBbbModuleWindow;
-	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.common.events.CloseWindowEvent;
-	import org.bigbluebutton.common.events.OpenWindowEvent;
-	
-	import org.bigbluebutton.modules.polling.service.PollingService;
-	
-	import org.bigbluebutton.modules.polling.views.PollingViewWindow;
-	import org.bigbluebutton.modules.polling.views.PollingStatsWindow;
-	import org.bigbluebutton.modules.polling.views.PollingInstructionsWindow;
-	
-	import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
-	import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
-	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
-	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
-	import org.bigbluebutton.modules.polling.events.StopPollEvent;
-	import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
-	import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
-	import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
-	import org.bigbluebutton.modules.polling.events.ReviewResultsEvent;
-	import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
-	
-	import mx.managers.IFocusManager;
-	import flash.utils.Timer;
-	import flash.events.TimerEvent;
-	import flash.events.FocusEvent;
-	
-	import org.bigbluebutton.modules.polling.model.PollObject;
-			
+{	
+  import flash.events.IEventDispatcher;
+  
+  import org.bigbluebutton.common.IBbbModuleWindow;
+  import org.bigbluebutton.common.LogUtil;
+  import org.bigbluebutton.common.events.CloseWindowEvent;
+  import org.bigbluebutton.common.events.OpenWindowEvent;
+  import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.main.events.MadePresenterEvent;
+  import org.bigbluebutton.modules.polling.events.GetPollsEvent;
+  import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
+  import org.bigbluebutton.modules.polling.events.PollEvent;
+  import org.bigbluebutton.modules.polling.events.PollMainWindowEvent;
+  import org.bigbluebutton.modules.polling.events.PollResultWindowEvent;
+  import org.bigbluebutton.modules.polling.events.PollUpdateWindowEvent;
+  import org.bigbluebutton.modules.polling.events.StopPollEvent;
+  import org.bigbluebutton.modules.polling.events.TakePollWindowEvent;
+  import org.bigbluebutton.modules.polling.model.PollingModel;
+  import org.bigbluebutton.modules.polling.model.PollingViewModel;
+  import org.bigbluebutton.modules.polling.service.PollingService;
+  import org.bigbluebutton.modules.polling.views.CreatePollWindow;
+  import org.bigbluebutton.modules.polling.views.DisplayResultWindow;
+  import org.bigbluebutton.modules.polling.views.PollCreateWindow;
+  import org.bigbluebutton.modules.polling.views.PollMainWindow;
+  import org.bigbluebutton.modules.polling.views.TakePollWindow;
+  import org.bigbluebutton.modules.polling.views.UpdatePollWindow;
+
 	public class PollingWindowManager {	
+    private static const LOG:String = "Poll::PollingWindowManager - ";
+		
+		// Injected by Mate
+		public var model:PollingModel;
+		public var dispatcher:IEventDispatcher;
+		
+		private var _viewModel:PollingViewModel;
+		
+		private var updatePollWindow:UpdatePollWindow;
+		private var takePollWindow:TakePollWindow;
+		private var pollMainWindow:PollMainWindow;
+		private var createPollWindow:CreatePollWindow = new CreatePollWindow();
+		private var resultsWindow:DisplayResultWindow;
+    private var toolbarButtonManager:ToolbarButtonManager = new ToolbarButtonManager();
 			
-		private var pollingWindow:PollingViewWindow;
-		private var statsWindow:PollingStatsWindow;
-		private var instructionsWindow:PollingInstructionsWindow;
-		private var service:PollingService;
-		private var isViewing:Boolean = false;
-		private var globalDispatcher:Dispatcher;
-		
-		private var votingOpen:Boolean = false;
-		
-		public var appFM:IFocusManager;
-		
-		private var instructionsFocusTimer:Timer = new Timer(250);
-		private var statsFocusTimer:Timer = new Timer(250);
-		
-		public static const LOGNAME:String = "[Polling::PollingWindowManager] ";
-		
-		public function PollingWindowManager(service:PollingService) {
-		  LogUtil.debug(LOGNAME +" Built PollingWindowManager");	
-		  this.service = service;
-		  globalDispatcher = new Dispatcher();
-		}
-				
-		//PollingInstructionsWindow.mxml Window Event Handlerscx 
-		//##########################################################################
-		public function handleOpenPollingInstructionsWindow(e:PollingInstructionsWindowEvent):void{
-			instructionsWindow = new PollingInstructionsWindow();
-			// Use the PollGetTitlesEvent to fetch a list of already-used titles
-			var getTitlesEvent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.CHECK);
-			globalDispatcher.dispatchEvent(getTitlesEvent);
-			openWindow(instructionsWindow);
-			
-			instructionsFocusTimer.addEventListener(TimerEvent.TIMER, moveInstructionsFocus);
-			instructionsFocusTimer.start();
+		public function initialize():void {
+      trace(LOG + " initialized.");
+			_viewModel = new PollingViewModel(model);
+      if (UsersUtil.amIPresenter()) {
+        toolbarButtonManager.addToolbarButton();
+      }
+      initializeModel();
 		}
 		
-		private function moveInstructionsFocus(event:TimerEvent):void{
-			appFM.setFocus(instructionsWindow.titleBarOverlay);
-			instructionsFocusTimer.stop();
+    private function initializeModel():void {
+      trace(LOG + " initializing model.");
+      if (! model.initialized()) {
+        dispatcher.dispatchEvent(new GetPollsEvent());
+      }
+    }
+    
+    public function handleMadePresenterEvent(e:MadePresenterEvent):void{
+      toolbarButtonManager.addToolbarButton();
+      initializeModel();
+    }
+    
+    public function handleMadeViewerEvent(e:MadePresenterEvent):void{
+      toolbarButtonManager.removeToolbarButton();
+      initializeModel();
+    }
+    
+		public function handleOpenPollMainWindowEvent():void {
+      toolbarButtonManager.disableToolbarButton();
+      pollMainWindow = new PollMainWindow();
+			pollMainWindow.viewModel = _viewModel;      
+			openWindow(pollMainWindow);     
 		}
-		
-		public function handleOpenPollingInstructionsWindowWithExistingPoll(e:OpenSavedPollEvent):void{
-			instructionsWindow = new PollingInstructionsWindow();
-			// Use the PollGetTitlesEvent to fetch a list of already-used titles
-			var getTitlesEvent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.CHECK);
-			globalDispatcher.dispatchEvent(getTitlesEvent);
-			if (e.poll != null){
-				instructionsWindow.incomingPoll = new PollObject();
-				instructionsWindow.incomingPoll = e.poll;
-				instructionsWindow.editing = true;
-			}		
-			openWindow(instructionsWindow);
-			
-			instructionsFocusTimer.addEventListener(TimerEvent.TIMER, moveInstructionsFocus);
-			instructionsFocusTimer.start();
-		}
-		
-		public function handleClosePollingInstructionsWindow(e:PollingInstructionsWindowEvent):void{
-			closeWindow(instructionsWindow);
-		}
-		
-		// Checking the polling status to prevent a presenter from publishing two polls at a time
-		  public function handleCheckStatusEvent(e:PollingStatusCheckEvent):void{
-			  e.allowed = !service.getPollingStatus();
-			  instructionsWindow.publishingAllowed = e.allowed;
-		  }
-		  
-		  public function handleCheckTitlesInInstructions(e:PollGetTitlesEvent):void{
-			  instructionsWindow.invalidTitles = e.titleList;
-		  }
-		  
-		  public function handleReturnWebKeyEvent(e:GenerateWebKeyEvent):void
-		  {
-		  	  var transferURL:String = e.webHostIP + "/p/" + e.poll.webKey;
-		  	  LogUtil.debug("Returning poll URL to Statistics window: " + transferURL);			  
-			  statsWindow.webPollUrl = transferURL;
+    
+    public function handleClosePollMainWindowEvent():void {
+      toolbarButtonManager.enableToolbarButton();
+      closeWindow(pollMainWindow);
+    }
 
-			  statsWindow.setUrlBoxText();
+    public function handleOpenCreatePollWindowEvent():void {
+      openWindow(createPollWindow);  
+    }
+    
+    public function handleCloseEditPollEvent():void {
+      closeWindow(updatePollWindow);
+    }
+    
+    public function handleCloseCreatePollWindowEvent():void {
+      closeWindow(createPollWindow);
+    }
+    
+    public function handleClosePollResultWindowEvent():void {
+      closeWindow(resultsWindow);  
+    }
+    
+    public function handlePollStartedEvent(event:PollEvent):void {
+      if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) {
+        openPollResultsWindow(event.pollID);
+      } else {
+        openTakePollWindow(event.pollID);
+      }
+    }
+    
+    public function handlePollStoppedEvent(event:PollEvent):void {
+      if (! UsersUtil.amIModerator() && ! UsersUtil.amIPresenter()) {
+        if (! _viewModel.hasUserResponded(event.pollID)) {
+          closeWindow(takePollWindow);
+          openPollResultsWindow(event.pollID);
+        }
+      }
+    }
+    
+    public function handleUserRespondedEvent(event:PollEvent):void {
+      openPollResultsWindow(event.pollID);
+    }
+    
+		public function handleCloseTakePollWindowEvent():void {
+      closeWindow(takePollWindow);
+		}
+		
+    private function openTakePollWindow(pollID:String):void {
+      takePollWindow =  new TakePollWindow();
+      takePollWindow.viewModel = _viewModel;
+      takePollWindow.pollID = pollID;
+      
+      openWindow(takePollWindow);      
+    }
+    
+    private function openPollResultsWindow(pollID:String):void {
+      resultsWindow  = new DisplayResultWindow();
+      resultsWindow.viewModel = _viewModel;
+      resultsWindow.pollID = pollID;
+      
+      openWindow(resultsWindow);      
+    }
+    
+    public function handleOpenPollResultWindowEvent(event:PollEvent):void {
+      openPollResultsWindow(event.pollID);
+    }
+		
+    public function handleEditPollRequestEvent(event:PollEvent):void {
+      updatePollWindow = new UpdatePollWindow();
+      updatePollWindow.viewModel = _viewModel;
+      updatePollWindow.pollID = event.pollID;
+      
+      openWindow(updatePollWindow);
+    }
+    
 
-			  if (!e.repost){
-				  instructionsWindow._webKey = e.poll.webKey;
-			  } else{
-				  statsWindow.trackingPoll.webKey = e.poll.webKey;
-			  }
-		  }
-
-		// Action makers (function that actually act on the windows )
-		//#############################################################################
-		private function openWindow(window:IBbbModuleWindow):void{
+		private function openWindow(window:IBbbModuleWindow):void {
 			var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 			windowEvent.window = window;
 			if (windowEvent.window != null)
-				globalDispatcher.dispatchEvent(windowEvent);
+				dispatcher.dispatchEvent(windowEvent);
 		}
 		
-		private function closeWindow(window:IBbbModuleWindow):void{
+		private function closeWindow(window:IBbbModuleWindow):void {
 			var windowEvent:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
 			windowEvent.window = window;
-			globalDispatcher.dispatchEvent(windowEvent);
+      dispatcher.dispatchEvent(windowEvent);
 		}
-		//#################################################################################
 
-
-		// PollingViewWindow.mxml Window Handlers 
-		//#########################################################################
-		public function handleOpenPollingViewWindow(e:PollingViewWindowEvent):void{
-			if (!votingOpen){
-				votingOpen = true;
-				pollingWindow = new PollingViewWindow();
-				pollingWindow.title = e.poll.title;
-				pollingWindow.question = e.poll.question;
-				pollingWindow.isMultiple = e.poll.isMultiple;
-				pollingWindow.answers = e.poll.answers;
-				openWindow(pollingWindow);
-			}
-		}
-		
-		public function handleClosePollingViewWindow(e:PollingViewWindowEvent):void{
-			votingOpen = false;
-			closeWindow(pollingWindow);
-		}
-		
-		public function handleStopPolling(e:StopPollEvent):void{
-			service.setPolling(false);
-		}
-		//##########################################################################
-		
-		
-		// PollingStatsWindow.mxml Window Handlers 
-		//#########################################################################
-		public function handleOpenPollingStatsWindow(e:PollingStatsWindowEvent):void{
-			statsWindow = new PollingStatsWindow();
-			statsWindow.trackingPoll = e.poll;
-			openWindow(statsWindow);
-			service.setPolling(true);
-			
-			statsFocusTimer.addEventListener(TimerEvent.TIMER, focusStatsWindow);
-			statsFocusTimer.start();
-		}
-		
-		private function focusStatsWindow(event:TimerEvent):void{
-			statsWindow.focusManager.setFocus(statsWindow.titleBarOverlay);
-			statsFocusTimer.stop();
-		}
-		
-		public function handleClosePollingStatsWindow(e:PollingStatsWindowEvent):void{
-			closeWindow(statsWindow);
-		}
-		
-		public function handleRefreshPollingStatsWindow(e:PollRefreshEvent):void{
-			statsWindow.refreshWindow(e.poll.votes, e.poll.totalVotes, e.poll.didNotVote);
-		}
-		
-		public function handleReviewResultsEvent(e:ReviewResultsEvent):void{
-			statsWindow = new PollingStatsWindow();
-			statsWindow.trackingPoll = e.poll;
-			statsWindow.viewingClosedPoll = true;
-			statsWindow.reviewing = true;
-			openWindow(statsWindow);
-		}
-		//##########################################################################
 	}
 }

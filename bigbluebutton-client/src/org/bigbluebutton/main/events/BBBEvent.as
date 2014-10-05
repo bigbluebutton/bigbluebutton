@@ -26,7 +26,6 @@ package org.bigbluebutton.main.events {
 		public static const RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT:String = 'RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT';
 		public static const SEND_PUBLIC_CHAT_MESSAGE_EVENT:String = 'SEND_PUBLIC_CHAT_MESSAGE_EVENT';
 		public static const JOIN_VOICE_CONFERENCE:String = 'BBB_JOIN_VOICE_CONFERENCE';
-		public static const PRESENTATION_CONVERTED:String = 'BBB_PRESENTATION_CONVERTED';
 		public static const START_VIDEO_CONNECTION:String = 'BBB_START_VIDEO_CONNECTION';
 		public static const START_VIDEO_STREAM:String = 'BBB_START_VIDEO_STREAM';
 		public static const VIDEO_STARTED:String = 'BBB_VIDEO_STARTED';
@@ -34,7 +33,7 @@ package org.bigbluebutton.main.events {
 		public static const DESKSHARE_STARTED:String = 'BBB_DESKSHARE_STARTED';
     public static const USER_VOICE_JOINED:String = 'user voice joined event';
 		public static const USER_VOICE_MUTED:String = "user voice muted event";
-    public static const USER_VOICE_LOCKED:String = "user voice locked event";
+    public static const USER_LOCKED:String = "user locked event";
     public static const USER_VOICE_LEFT:String = "user voice left event";
     public static const USER_VOICE_TALKING:String = "user voice talking event";
     public static const CAMERA_SETTING:String = "camera settings event";
@@ -42,6 +41,7 @@ package org.bigbluebutton.main.events {
 	public static const MIC_SETTINGS_CLOSED:String = "MIC_SETTINGS_CLOSED";
 	public static const CAM_SETTINGS_CLOSED:String = "CAM_SETTINGS_CLOSED";
 	public static const JOIN_VOICE_FOCUS_HEAD:String = "JOIN_VOICE_FOCUS_HEAD";
+	public static const CHANGE_RECORDING_STATUS:String = "CHANGE_RECORDING_STATUS";
    
 		public var message:String;
 		public var payload:Object = new Object();

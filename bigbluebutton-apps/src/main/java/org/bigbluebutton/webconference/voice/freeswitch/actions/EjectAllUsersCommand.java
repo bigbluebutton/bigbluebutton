@@ -20,7 +20,7 @@ package org.bigbluebutton.webconference.voice.freeswitch.actions;
 
 public class EjectAllUsersCommand extends FreeswitchCommand {
     
-    public EjectAllUsersCommand(String room, Integer requesterId) {
+    public EjectAllUsersCommand(String room, String requesterId) {
             super(room, requesterId);
     }
 

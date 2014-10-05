@@ -20,9 +20,10 @@
 module BigBlueButton
   module EDL
     module Audio
-      SOX = ['sox', '-q']
-      SOX_WF_AUDIO_ARGS = ['-b', '16', '-c', '1', '-e', 'signed', '-r', '16000', '-L']
-      SOX_WF_ARGS = [*SOX_WF_AUDIO_ARGS, '-t', 'wav']
+      FFMPEG_AEVALSRC = "aevalsrc=s=48000:c=stereo:exprs=0|0"
+      FFMPEG_AFORMAT = "aformat=sample_fmts=s16:sample_rates=48000:channel_layouts=stereo"
+      FFMPEG_WF_CODEC = 'pcm_s16le'
+      FFMPEG_WF_ARGS = ['-c:a', FFMPEG_WF_CODEC, '-f', 'wav']
       WF_EXT = 'wav'
 
       def self.dump(edl)
@@ -44,7 +45,7 @@ module BigBlueButton
         sections = []
         audioinfo = {}
 
-        corrupt_audios = Set.new        
+        corrupt_audios = Set.new
 
         BigBlueButton.logger.info "Pre-processing EDL"
         for i in 0...(edl.length - 1)
@@ -81,54 +82,80 @@ module BigBlueButton
           dump(edl)
         end
 
-        BigBlueButton.logger.info "Generating sections"
+        input_index = 0
+        output_index = 0
+        ffmpeg_inputs = []
+        ffmpeg_filters = []
+        BigBlueButton.logger.info "Generating ffmpeg command"
         for i in 0...(edl.length - 1)
-
-          sox_cmd = SOX
           entry = edl[i]
           audio = entry[:audio]
-          duration = edl[i][:next_timestamp] - edl[i][:timestamp]
-          filename =  "#{output_basename}.temp-%03d.#{WF_EXT}" % i
+          duration = entry[:next_timestamp] - entry[:timestamp]
 
           if audio
             BigBlueButton.logger.info "  Using input #{audio[:filename]}"
-            sox_cmd += ['-m', *SOX_WF_AUDIO_ARGS, '-n', audio[:filename]]
-          else
-            BigBlueButton.logger.info "  Generating silence"
-            sox_cmd += [*SOX_WF_AUDIO_ARGS, '-n']
-          end
 
-          BigBlueButton.logger.info "  Outputting to #{filename}"
-          sox_cmd += [*SOX_WF_ARGS, filename]
-          sections << filename
+            filter = "[#{input_index}] "
 
-          if audio
-            # If the audio file length is within 5% of where it should be,
-            # adjust the speed to match up timing.
-            # TODO: This should be part of the import logic somehow, since
-            # render can be run after cutting.
-            if ((duration - audioinfo[audio[:filename]][:duration]).to_f / duration).abs < 0.05
-              speed = audioinfo[audio[:filename]][:duration].to_f / duration
+            if entry[:original_duration] and ((entry[:original_duration] - audioinfo[audio[:filename]][:duration]).to_f / entry[:original_duration]).abs < 0.05
+              speed = audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]
               BigBlueButton.logger.warn "  Audio file length mismatch, adjusting speed to #{speed}"
-              sox_cmd += ['speed', speed.to_s, 'rate', '-h', audioinfo[audio[:filename]][:sample_rate].to_s]
+
+              # Have to calculate the start point after the atempo filter in this case,
+              # since it can affect the audio start time.
+              # Also reset the pts to start at 0, so the duration trim works correctly.
+              filter << "atempo=#{speed},atrim=start=#{ms_to_s(audio[:timestamp])},"
+              filter << "asetpts=PTS-STARTPTS,"
+
+              ffmpeg_inputs << {
+                :filename => audio[:filename],
+                :seek => 0
+              }
+            else
+              ffmpeg_inputs << {
+                :filename => audio[:filename],
+                :seek => audio[:timestamp]
+              }
             end
 
-            BigBlueButton.logger.info "  Trimming from #{audio[:timestamp]} to #{audio[:timestamp] + duration}"
-            sox_cmd += ['trim', "#{ms_to_s(audio[:timestamp])}", "#{ms_to_s(audio[:timestamp] + duration)}"]
-          else
-            BigBlueButton.logger.info "  Trimming to #{duration}"
-            sox_cmd += ['trim', '0.000', "#{ms_to_s(duration)}"]
-          end
+            filter << "#{FFMPEG_AFORMAT},apad,atrim=end=#{ms_to_s(duration)} [out#{output_index}]"
+            ffmpeg_filters << filter
 
-          exitstatus = BigBlueButton.exec_ret(*sox_cmd)
-          raise "sox failed, exit code #{exitstatus}" if exitstatus != 0
+            input_index += 1
+            output_index += 1
+          else
+            BigBlueButton.logger.info "  Generating silence"
+
+            ffmpeg_filters << "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT},atrim=end=#{ms_to_s(duration)} [out#{output_index}]"
+
+            output_index += 1
+          end
         end
 
+        ffmpeg_cmd = [*FFMPEG]
+        ffmpeg_inputs.each do |input|
+          ffmpeg_cmd += ['-ss', ms_to_s(input[:seek]), '-i', input[:filename]]
+        end
+        ffmpeg_filter = ffmpeg_filters.join(' ; ')
+
+        if output_index > 1
+          # Add the final concat filter
+          ffmpeg_filter << " ; "
+          (0...output_index).each { |i| ffmpeg_filter << "[out#{i}]" }
+          ffmpeg_filter << " concat=n=#{output_index}:a=1:v=0"
+        else
+          # Only one input, no need for concat filter
+          ffmpeg_filter << " ; [out0] anull"
+        end
+
+        ffmpeg_cmd += ['-filter_complex', ffmpeg_filter]
+
         output = "#{output_basename}.#{WF_EXT}"
-        BigBlueButton.logger.info "Concatenating sections to #{output}"
-        sox_cmd = [*SOX, *sections, *SOX_WF_ARGS, output]
-        exitstatus = BigBlueButton.exec_ret(*sox_cmd)
-        raise "sox failed, exit code #{exitstatus}" if exitstatus != 0
+        ffmpeg_cmd += [*FFMPEG_WF_ARGS, output]
+
+        BigBlueButton.logger.info "Running audio processing..."
+        exitstatus = BigBlueButton.exec_ret(*ffmpeg_cmd)
+        raise "ffmpeg failed, exit code #{exitstatus}" if exitstatus != 0
 
         output
       end
@@ -138,6 +165,9 @@ module BigBlueButton
       def self.audio_info(filename)
         IO.popen([*FFPROBE, filename]) do |probe|
           info = JSON.parse(probe.read, :symbolize_names => true)
+          if !info[:streams]
+            return {}
+          end
           info[:audio] = info[:streams].find { |stream| stream[:codec_type] == 'audio' }
 
           if info[:audio]

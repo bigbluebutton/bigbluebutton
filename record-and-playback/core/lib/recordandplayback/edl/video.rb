@@ -24,7 +24,8 @@ module BigBlueButton
   module EDL
     module Video
       FFMPEG_WF_CODEC = 'mpeg2video'
-      FFMPEG_WF_ARGS = ['-an', '-codec', FFMPEG_WF_CODEC, '-q:v', '2', '-pix_fmt', 'yuv420p', '-r', '24', '-f', 'mpegts']
+      FFMPEG_WF_FRAMERATE = '24'
+      FFMPEG_WF_ARGS = ['-an', '-codec', FFMPEG_WF_CODEC, '-q:v', '2', '-g', '240', '-pix_fmt', 'yuv420p', '-r', FFMPEG_WF_FRAMERATE, '-f', 'mpegts']
       WF_EXT = 'ts'
 
       def self.dump(edl)
@@ -257,8 +258,12 @@ module BigBlueButton
       def self.video_info(filename)
         IO.popen([*FFPROBE, filename]) do |probe|
           info = JSON.parse(probe.read, :symbolize_names => true)
-          info[:video] = info[:streams].find { |stream| stream[:codec_type] == 'video' }
-          info[:audio] = info[:streams].find { |stream| stream[:codec_type] == 'audio' }
+          return {} if !info
+
+          if info[:streams]
+            info[:video] = info[:streams].find { |stream| stream[:codec_type] == 'video' }
+            info[:audio] = info[:streams].find { |stream| stream[:codec_type] == 'audio' }
+          end
 
           if info[:video]
             info[:width] = info[:video][:width].to_i
@@ -271,7 +276,11 @@ module BigBlueButton
           end
 
           # Convert the duration to milliseconds
-          info[:duration] = (info[:format][:duration].to_r * 1000).to_i
+          if info[:format]
+            info[:duration] = (info[:format][:duration].to_r * 1000).to_i
+          else
+            info[:duration] = 0
+          end
 
           return info
         end
@@ -297,8 +306,8 @@ module BigBlueButton
       end
 
       def self.composite_cut(output, cut, layout, videoinfo)
-        stop_ts = cut[:next_timestamp] - cut[:timestamp]
-        BigBlueButton.logger.info "  Cut start time #{cut[:timestamp]}, duration #{stop_ts}"
+        duration = cut[:next_timestamp] - cut[:timestamp]
+        BigBlueButton.logger.info "  Cut start time #{cut[:timestamp]}, duration #{duration}"
 
         ffmpeg_inputs = []
         ffmpeg_filter = "color=c=white:s=#{layout[:width]}x#{layout[:height]}:r=24"
@@ -365,17 +374,11 @@ module BigBlueButton
 
             BigBlueButton.logger.debug "      start timestamp: #{video[:timestamp]}"
 
-            # Seeking can be pretty inaccurate.
-            # Seek to before the video start; we'll do accurate trimming in
-            # a filter.
-            seek = video[:timestamp] - 30000
-            seek = 0 if seek < 0
-
             ffmpeg_inputs << {
               :filename => video[:filename],
-              :seek => seek
+              :seek => video[:timestamp]
             }
-            ffmpeg_filter << "[in#{index}]; [#{index}]fps=24,select=gte(t\\,#{ms_to_s(video[:timestamp])}),setpts=PTS-STARTPTS,scale=#{scale_width}:#{scale_height}"
+            ffmpeg_filter << "[in#{index}]; [#{index}]fps=24,scale=#{scale_width}:#{scale_height}"
             if layout_area[:pad]
               ffmpeg_filter << ",pad=w=#{tile_width}:h=#{tile_height}:x=#{offset_x}:y=#{offset_y}:color=white"
               offset_x = 0
@@ -392,11 +395,13 @@ module BigBlueButton
           end
         end
 
+        ffmpeg_filter << ",trim=end=#{ms_to_s(duration)}"
+
         ffmpeg_cmd = [*FFMPEG]
         ffmpeg_inputs.each do |input|
-          ffmpeg_cmd += ['-ss', ms_to_s(input[:seek]), '-itsoffset', ms_to_s(input[:seek]), '-i', input[:filename]]
+          ffmpeg_cmd += ['-ss', ms_to_s(input[:seek]), '-i', input[:filename]]
         end
-        ffmpeg_cmd += ['-to', ms_to_s(stop_ts), '-filter_complex', ffmpeg_filter, *FFMPEG_WF_ARGS, '-']
+        ffmpeg_cmd += ['-filter_complex', ffmpeg_filter, *FFMPEG_WF_ARGS, '-']
 
         File.open(output, 'a') do |outio|
           exitstatus = BigBlueButton.exec_redirect_ret(outio, *ffmpeg_cmd)

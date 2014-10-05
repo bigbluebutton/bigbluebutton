@@ -19,9 +19,14 @@
 package org.bigbluebutton.conference.service.recorder;
 
 import org.slf4j.Logger;
+import org.bigbluebutton.service.recording.RedisListRecorder;
 import org.red5.logging.Red5LoggerFactory;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 
@@ -32,41 +37,73 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RecorderApplication {
 	private static Logger log = Red5LoggerFactory.getLogger(RecorderApplication.class, "bigbluebutton");
 	
-	private final Map<String, String> recordingSessions;
+	private static final int NTHREADS = 1;
+	private static final Executor exec = Executors.newFixedThreadPool(NTHREADS);
+	private static final Executor runExec = Executors.newFixedThreadPool(NTHREADS);
+	
+	private BlockingQueue<RecordEvent> messages;
+	private volatile boolean recordEvents = false;
+
+  private RedisListRecorder redisListRecorder;
+  
 	private Recorder recorder;
 	
 	public RecorderApplication() {
-		recordingSessions = new ConcurrentHashMap<String, String>();
-		log.debug("Instantiated ArchiveApplication");
+		 messages = new LinkedBlockingQueue<RecordEvent>();
+	}
+
+	public void start() {
+		recordEvents = true;
+		Runnable sender = new Runnable() {
+			public void run() {
+				while (recordEvents) {
+					RecordEvent message;
+					try {
+						message = messages.take();
+						recordEvent(message);	
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+									
+				}
+			}
+		};
+		exec.execute(sender);		
 	}
 	
-	/**
-	 * Destroy a Record Session
-	 * @param sessionName a bigbluebutton session 
-	 */
-	public void destroyRecordSession(String sessionName) {
-		recordingSessions.remove(sessionName);
+	public void stop() {
+		recordEvents = false;
+	}
+
+	public void destroyRecordSession(String meetingID) {
+//		recordingSessions.remove(meetingID);
 	}
 	
-	/**
-	 * Creates a record session if there wasn't one created already.
-	 * @param conference name of a BigBlueButton conference
-	 * @param room name of a room
-	 * @param sessionName name of a session
-	 */
-	public void createRecordSession(String sessionName) {
-		recordingSessions.put(sessionName, sessionName);
+	public void createRecordSession(String meetingID) {
+//		recordingSessions.put(meetingID, meetingID);
 	}
 	
-	public void record(String session, RecordEvent message) {
-		if (recordingSessions.containsKey(session)) {
-			recorder.record(session, message);
-		}
+	public void record(String meetingID, RecordEvent message) {
+		messages.offer(message);
+	}
+
+	private void recordEvent(final RecordEvent message) {
+		Runnable task = new Runnable() {
+			public void run() {
+			  recorder.record(message.getMeetingID(), message);
+			}
+		};
+		runExec.execute(task);
 	}
 	
 	public void setRecorder(Recorder recorder) {
 		this.recorder = recorder;
 		log.debug("setting recorder");
+	}
+	
+	public void setRedisListRecorder(RedisListRecorder rec) {
+		redisListRecorder = rec;
 	}
 }
 
