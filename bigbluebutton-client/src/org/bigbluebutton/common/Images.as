@@ -78,9 +78,6 @@ package org.bigbluebutton.common
     
     [Embed(source="assets/images/vdoc_bg.jpg")]
     public var video_dock_bg:Class;
-        
-    [Embed(source="assets/images/bandwidth.png")]
-    public var bandwidth:Class;
     
     [Embed(source="assets/images/statistics.png")]
     public var stats:Class;
@@ -306,6 +303,9 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/grid_icon.png")]
 		public var grid_icon:Class;	
+		
+		[Embed(source="assets/images/arrow_refresh_small.png")]
+		public var refreshSmall:Class;
 		
 		[Embed(source="assets/images/moderator_white.png")]
 		public var moderator_white:Class;
