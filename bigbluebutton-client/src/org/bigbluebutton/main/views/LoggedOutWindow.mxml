@@ -23,7 +23,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
     title="{ResourceUtil.getInstance().getString('bbb.logout.title')}" showCloseButton="false" creationComplete="init()"
     verticalScrollPolicy="off" horizontalScrollPolicy="off"
-    x="168" y="86" layout="vertical" width="400" height="100" horizontalAlign="center">
+    x="168" y="86" layout="vertical" width="400" height="200" horizontalAlign="center">
 	<mx:Script>
 		<![CDATA[
       import mx.core.FlexGlobals;
@@ -107,9 +107,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						break;
 				}
 			}
+			
+			private function reconnect():void {
+				ExternalInterface.call("document.location.reload", true);
+			}
 		]]>
 	</mx:Script>
-
-	<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.logout.button.label')}" click="redirect()"/>
-	<mx:Label text="{message}"/>
+	<mx:VBox width="100%" height="100%" horizontalAlign="center">
+		<mx:Text text="{message}"/>
+		<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.logout.button.label')}" click="redirect()"/>
+		<mx:HRule />
+		<mx:Text width="380" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.logout.refresh.message')}" />
+		<mx:Button id="reconnectBtn" label="{ResourceUtil.getInstance().getString('bbb.logout.refresh.label')}" click="reconnect()" />
+	</mx:VBox>
 </mx:TitleWindow> 

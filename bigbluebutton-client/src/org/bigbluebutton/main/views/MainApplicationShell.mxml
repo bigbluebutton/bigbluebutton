@@ -157,7 +157,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var isTunneling:Boolean = false;
 			
 			private var confirmingLogout:Boolean = false;
-			var chromeBrowser:ChromeWebcamPermissionImage = null;
+			private var chromeBrowser:ChromeWebcamPermissionImage = null;
       
 			public function initOptions(e:Event):void {
 				UserManager.getInstance().getConference().configLockSettings();
