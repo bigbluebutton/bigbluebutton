@@ -46,18 +46,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var phoneOptions:PhoneOptions = new PhoneOptions;
 			
 			private function onCreationComplete():void {
-				if (!phoneOptions.listenOnlyMode) btnListenOnly.enabled = false;
-				if (phoneOptions.presenterShareOnly && !UsersUtil.amIPresenter() && !UsersUtil.amIModerator()) btnMicrophone.enabled = false;
-				
-				if (phoneOptions.showPhoneOption) {
-					txtPhone.text=ResourceUtil.getInstance().getString('bbb.audioSelection.txtPhone.text', [UserManager.getInstance().getConference().dialNumber, UserManager.getInstance().getConference().voiceBridge]);
+				if (phoneOptions.autoJoin && phoneOptions.forceListenOnly) {
+					onMicClick();
 				} else {
-					vrulePhone.visible = vrulePhone.includeInLayout = false;
-					vboxPhone.visible = vboxPhone.includeInLayout = false;
-					this.width = 445;
-					this.height = 300;
-					vboxMic.percentWidth = 50;
-					vboxListen.percentWidth = 50;
+					if (!phoneOptions.listenOnlyMode) btnListenOnly.enabled = false;
+					if (phoneOptions.presenterShareOnly && !UsersUtil.amIPresenter() && !UsersUtil.amIModerator()) btnMicrophone.enabled = false;
+					
+					if (phoneOptions.showPhoneOption) {
+						txtPhone.text=ResourceUtil.getInstance().getString('bbb.audioSelection.txtPhone.text', [UserManager.getInstance().getConference().dialNumber, UserManager.getInstance().getConference().voiceBridge]);
+					} else {
+						vrulePhone.visible = vrulePhone.includeInLayout = false;
+						vboxPhone.visible = vboxPhone.includeInLayout = false;
+						this.width = 445;
+						this.height = 300;
+						vboxMic.percentWidth = 50;
+						vboxListen.percentWidth = 50;
+					}
 				}
 			}
 			

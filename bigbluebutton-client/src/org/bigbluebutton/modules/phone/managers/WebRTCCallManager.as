@@ -39,7 +39,7 @@ package org.bigbluebutton.modules.phone.managers
     private var echoTestDone:Boolean = false;
     
     private var usingWebRTC:Boolean = false;
-    private var options:PhoneOptions;
+    private var options:PhoneOptions = new PhoneOptions();
     
     private var model:WebRTCModel = PhoneModel.getInstance().webRTCModel;
     
@@ -60,7 +60,6 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     public function initialize():void {         
-      options = new PhoneOptions();
       if (options.useWebRTCIfAvailable && isWebRTCSupported()) {
         usingWebRTC = true;
       }
@@ -123,6 +122,7 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     public function handleJoinVoiceConferenceCommand(event:JoinVoiceConferenceCommand):void {
+      initialize();
       trace(LOG + "handleJoinVoiceConferenceCommand - usingWebRTC: " + usingWebRTC + ", event.mic: " + event.mic);
       
       if (!usingWebRTC || !event.mic) return;

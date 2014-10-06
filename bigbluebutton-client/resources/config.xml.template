@@ -52,7 +52,7 @@
 			uri="rtmp://HOST/sip" 
 			autoJoin="true"
 			listenOnlyMode="true"
-			forceListenOnly="false"
+			forceListenOnly="true"
 			presenterShareOnly="false"
 			skipCheck="false"
 			showButton="true"
