@@ -55,6 +55,9 @@ package org.bigbluebutton.main.model
 		public var shortcutKeysShowButton:Boolean;
 		public var skinning:String = "";
 		public var showDebug:Boolean = false;
+		public var copyright:String = "";
+		public var logo:String = "";
+		public var background:String = "";
 		
 		private var loadedListener:Function;
 		private var dispatcher:Dispatcher = new Dispatcher();
@@ -111,6 +114,10 @@ package org.bigbluebutton.main.model
 			if (xml.skinning.@enabled == "true") skinning = xml.skinning.@url;
 
 			if (xml.debug.@showDebugWindow == "true") showDebug = true;
+
+			copyright = xml.branding.@copyright;
+			logo = xml.branding.@logo;
+			background = xml.branding.@background;
 		}
 		
 		public function getModulesXML():XMLList{
