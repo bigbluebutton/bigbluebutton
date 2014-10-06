@@ -30,6 +30,7 @@ package org.bigbluebutton.main.views
         private var _showPreviewMsg:Boolean = false;
         private var _video:Video = new Video();
         private var _creationCompleted:Boolean = false;
+        private var _chromePermissionDenied:Boolean = false;
 
         private var _successCallback:Function = null;
         private var _failCallback:Function = null;
@@ -38,6 +39,10 @@ package org.bigbluebutton.main.views
             super();
 
             this.addEventListener(FlexEvent.CREATION_COMPLETE , creationCompleteHandler);
+        }
+
+        public function set chromePermissionDenied(value:Boolean):void {
+            _chromePermissionDenied = value;
         }
 
         private function creationCompleteHandler(e:FlexEvent):void {
@@ -136,8 +141,10 @@ package org.bigbluebutton.main.views
                 _camera.addEventListener(StatusEvent.STATUS, onStatusEvent);
 
                 if (_camera.muted) {
-                    if (_cameraAccessDenied) {
+                    if (_cameraAccessDenied && !_chromePermissionDenied) {
                         Security.showSettings(SecurityPanel.PRIVACY)
+                    } else if (_chromePermissionDenied) {
+                        showWarning('bbb.video.publish.hint.cameraDenied');
                     } else {
                         showWarning('bbb.video.publish.hint.waitingApproval');
                     }

@@ -285,11 +285,11 @@ package org.bigbluebutton.modules.videoconf.views
             super.addChild(graphic);
         }
 
-        private function addCameraForHelper(userId:String, camIndex:int, videoProfile:VideoProfile):void {
+        private function addCameraForHelper(userId:String, camIndex:int, videoProfile:VideoProfile, chromePermissionDenied:Boolean):void {
             var graphic:UserGraphicHolder = new UserGraphicHolder();
             graphic.userId = userId;
             graphic.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
-                graphic.loadCamera(_options, camIndex, videoProfile);
+                graphic.loadCamera(_options, camIndex, videoProfile, chromePermissionDenied);
                 onChildAdd(event);
             });
             graphic.addEventListener(MouseEvent.CLICK, onVBoxClick);
@@ -326,7 +326,7 @@ package org.bigbluebutton.modules.videoconf.views
             }
         }
 
-        public function addCameraFor(userId:String, camIndex:int, videoProfile:VideoProfile):void {
+        public function addCameraFor(userId:String, camIndex:int, videoProfile:VideoProfile, chromeWebcamPermissionDenied:Boolean = false):void {
             if (! UsersUtil.hasUser(userId)) return;
 
             var alreadyPublishing:Boolean = false;
@@ -339,7 +339,7 @@ package org.bigbluebutton.modules.videoconf.views
             }
 
             if (!alreadyPublishing) {
-                addCameraForHelper(userId, camIndex, videoProfile);
+                addCameraForHelper(userId, camIndex, videoProfile, chromeWebcamPermissionDenied);
             }
         }
 

@@ -59,6 +59,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		[Bindable] private var camerasAvailable:ArrayList = new ArrayList();
 		public const OFF_STATE:Number = 0;
 		public const ON_STATE:Number = 1;
+
+		[Bindable] public var chromePermissionDenied:Boolean = false;
 		
         [Bindable]private var baseIndex:int; 
         private var selectedCam:int;
@@ -208,7 +210,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:Spacer height="1"/>
     
 		<mx:Box id="_canvas" width="100%" height="75%" horizontalAlign="center" verticalAlign="middle">
-    	    <view:VideoWithWarnings id="_video"/>
+    	    <view:VideoWithWarnings id="_video" chromePermissionDenied="{chromePermissionDenied}" />
         </mx:Box>
         
 		<mx:HBox width="100%" height="10%" horizontalAlign="center" horizontalGap="13" paddingRight="5"> 	

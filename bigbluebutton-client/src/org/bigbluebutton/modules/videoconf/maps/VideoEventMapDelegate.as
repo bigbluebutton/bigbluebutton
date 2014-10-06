@@ -18,13 +18,16 @@
  */
 package org.bigbluebutton.modules.videoconf.maps
 {
+  import com.asfusion.mate.utils.debug.Debugger;
+  import com.asfusion.mate.utils.debug.DebuggerUtil;
+  
   import flash.events.IEventDispatcher;
+  import flash.external.ExternalInterface;
   import flash.media.Camera;
   
   import mx.collections.ArrayCollection;
   import mx.collections.ArrayList;
   import mx.events.FlexEvent;
-  import mx.utils.ObjectUtil;
   
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.common.events.CloseWindowEvent;
@@ -56,6 +59,7 @@ package org.bigbluebutton.modules.videoconf.maps
   import org.bigbluebutton.modules.videoconf.events.StopShareCameraRequestEvent;
   import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
   import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
+  import org.bigbluebutton.modules.videoconf.events.WebRTCWebcamRequestEvent;
   import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
   import org.bigbluebutton.modules.videoconf.views.AvatarWindow;
   import org.bigbluebutton.modules.videoconf.views.GraphicsWrapper;
@@ -67,10 +71,12 @@ package org.bigbluebutton.modules.videoconf.maps
   import org.bigbluebutton.modules.videoconf.views.UserVideo;
   import org.bigbluebutton.modules.videoconf.views.VideoDock;
   import org.bigbluebutton.modules.videoconf.views.VideoWindow;
-
+  import org.flexunit.runner.manipulation.filters.IncludeAllFilter;
 
   public class VideoEventMapDelegate
   {
+    static private var PERMISSION_DENIED_ERROR:String = "PermissionDeniedError";
+
     private var options:VideoConfOptions = new VideoConfOptions();
     private var uri:String;
     
@@ -82,6 +88,7 @@ package org.bigbluebutton.modules.videoconf.maps
     private var _isPublishing:Boolean = false;
     private var _isPreviewWebcamOpen:Boolean = false;
     private var _isWaitingActivation:Boolean = false;
+    private var _chromeWebcamPermissionDenied:Boolean = false;
 
     private var _videoDock:VideoDock;
     private var _graphics:GraphicsWrapper = new GraphicsWrapper();
@@ -263,7 +270,7 @@ package org.bigbluebutton.modules.videoconf.maps
     private function openPublishWindowFor(userID:String, camIndex:int, videoProfile:VideoProfile):void {
       closeAllAvatarWindows(userID);
 
-      _graphics.addCameraFor(userID, camIndex, videoProfile);
+      _graphics.addCameraFor(userID, camIndex, videoProfile, _chromeWebcamPermissionDenied);
     }
 
     private function hasWindow(userID:String):Boolean {
@@ -412,7 +419,7 @@ package org.bigbluebutton.modules.videoconf.maps
     
     public function handleClosePublishWindowEvent(event:ClosePublishWindowEvent):void {
       trace("Closing publish window");
-      if (_isPublishing) {
+      if (_isPublishing || _chromeWebcamPermissionDenied) {
         stopAllBroadcasting();
       }
     }
@@ -448,6 +455,7 @@ package org.bigbluebutton.modules.videoconf.maps
       openEvent.payload.publishInClient = publishInClient;
       openEvent.payload.defaultCamera = defaultCamera;
       openEvent.payload.camerasArray = camerasArray;
+      openEvent.payload.chromePermissionDenied = _chromeWebcamPermissionDenied;
       
     _isPreviewWebcamOpen = true;
     

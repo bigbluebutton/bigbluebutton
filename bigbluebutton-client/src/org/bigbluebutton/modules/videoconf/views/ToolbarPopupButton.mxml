@@ -47,6 +47,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.styles.IStyleManager2;
 			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -75,6 +76,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var dispatcher:Dispatcher;
 
 			public function lockSettingsChanged(e:*):void{
+				if (UsersUtil.amIModerator()  || UsersUtil.amIPresenter()){
+					// Ignore lock setting changes as 
+					// or presenter we are moderator.
+					return; 
+				}
+
 				var userManager:UserManager = UserManager.getInstance();
 				var conference:Conference = userManager.getConference();
 				var me:BBBUser = conference.getMyUser();

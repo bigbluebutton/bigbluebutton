@@ -28,7 +28,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 import org.bigbluebutton.presentation.PageConverter;
 import org.bigbluebutton.presentation.ImageToSwfSlide;
 import org.bigbluebutton.presentation.PngImageCreator;
@@ -42,8 +41,7 @@ public class ImageToSwfSlidesGenerationService {
 	private static Logger log = LoggerFactory.getLogger(ImageToSwfSlidesGenerationService.class);
 	
 	private ExecutorService executor;
-	private CompletionService<ImageToSwfSlide> completionService;
-	
+	private CompletionService<ImageToSwfSlide> completionService;	
 	private SwfSlidesGenerationProgressNotifier notifier;
 	private PageConverter jpgToSwfConverter;
 	private PageConverter pngToSwfConverter;

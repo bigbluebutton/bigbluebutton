@@ -155,6 +155,9 @@
 			}
 			
 			private function updateButtons(voiceMuted:Boolean = false):void {
+				// reset the mute image filter so the talking indicator doesn't stick
+				muteImg.filters = null;
+				
 				if (data != null) {
 					kickUserBtn.visible = !data.me && rolledOver && options.allowKickUser;
 					

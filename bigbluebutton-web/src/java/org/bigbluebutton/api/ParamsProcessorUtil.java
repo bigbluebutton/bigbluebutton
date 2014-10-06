@@ -65,6 +65,8 @@ public class ParamsProcessorUtil {
 	private int defaultMeetingDuration;
 	private boolean disableRecordingDefault;
 	
+	private String defaultConfigXML = null;
+	
 	private String substituteKeywords(String message, String dialNumber, String telVoice, String meetingName) {
 	    String welcomeMessage = message;
 	    
@@ -362,7 +364,11 @@ public class ParamsProcessorUtil {
 	}
 	
 	public String getDefaultConfigXML() {
-		return getConfig(defaultConfigURL);
+		if (defaultConfigXML == null) {
+			defaultConfigXML = getConfig(defaultConfigURL);
+		}
+		
+		return defaultConfigXML;
 	}
 	
 	private String getConfig(String url) {
@@ -370,14 +376,19 @@ public class ParamsProcessorUtil {
 		GetMethod get = new GetMethod(url);
 		String configXML = "";
 		try {
-			client.executeMethod(get);
-			configXML = get.getResponseBodyAsString();
+			int status = client.executeMethod(get);
+			if (status == 200) {
+				configXML = get.getResponseBodyAsString();
+			} else {
+				return null;
+			}
+			
 		} catch (HttpException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return null;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return null;
+		} finally {
+			get.releaseConnection();
 		}
 		  		  
 		return configXML;

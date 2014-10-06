@@ -126,10 +126,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{RemovePresentationEvent.REMOVE_PRESENTATION_EVENT}">
 		<MethodInvoker generator="{PresentProxy}" method="removePresentation" arguments="{event}" />
 	</EventHandlers>
- 
-	<EventHandlers type="{RemovePresentationEvent.PRESENTATION_REMOVED_EVENT}">
-		<MethodInvoker generator="{PresentManager}" method="removePresentation" arguments="{event}" />
-	</EventHandlers>
 	
   <EventHandlers type="{ChangePresentationCommand.CHANGE_PRESENTATION}">
     <MethodInvoker generator="{PresentProxy}" method="handleChangePresentationCommand" arguments="{event}" />

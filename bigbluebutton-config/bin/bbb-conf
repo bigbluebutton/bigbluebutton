@@ -92,7 +92,15 @@ VOICE_CONFERENCE="bbb-voice-freeswitch.xml"
 #
 # Determine IP so it works on multilingual installations
 #
-IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | head -1 | cut -d: -f2 | awk '{ print $1}')
+
+if [[ `sudo ifconfig` == *venet0:0* ]]; then
+	# IP detection for OpenVZ environment
+	IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | tail -1 | cut -d: -f2 | awk '{ print $1}')
+else
+	# IP detection for regular environment
+	IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | head -1 | cut -d: -f2 | awk '{ print $1}')
+fi
+
 MEM=`free -m | grep Mem | awk '{ print $2}'`
 
 
@@ -318,6 +326,8 @@ enable_webrtc(){
 	# Enable port 5066 in FreeSWITCH
 	sed -i "s@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@<param name=\"ws-binding\"  value=\":5066\"/>@g" /opt/freeswitch/conf/sip_profiles/external.xml
 
+        sed -i "s/proxy_pass .*/proxy_pass http:\/\/$IP:5066;/g" /etc/bigbluebutton/nginx/sip.nginx
+
 	echo 
 	echo "WebRTC audio enabled.  To apply settings to your server, do"
 	echo 
@@ -338,6 +348,8 @@ disable_webrtc(){
 
 	# Disable port 5066 in FreeSWITCH
 	sed -i "s@<param name=\"ws-binding\"  value=\":5066\"/>@<!--<param name=\"ws-binding\"  value=\":5066\"/>-->@g" /opt/freeswitch/conf/sip_profiles/external.xml
+
+        sed -i "s/proxy_pass .*/proxy_pass http:\/\/127.0.0.1:5066;/g" /etc/bigbluebutton/nginx/sip.nginx
 
 	echo 
 	echo "WebRTC audio disabled.  To apply settings to your server, do"
@@ -644,8 +656,8 @@ check_configuration() {
 	# Look for properties with no values set
 	#
 	CONFIG_FILES="$RED5_DIR/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties \
-${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties \
-$RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
+	${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties \
+	$RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 
 	for file in $CONFIG_FILES ; do
 	 	if [ ! -f $file ]; then	
@@ -1026,7 +1038,7 @@ check_state() {
 
 		BBB_SIP_APP_IP=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/^bbb.sip.app.ip=/{s/.*=//;s/;//;p}')
 		if [ $BBB_SIP_APP_IP != "127.0.0.1" ]; then
-			if [ $BBB_SIP_APP_IP != $IP ]; then
+			if [ "$BBB_SIP_APP_IP" != $IP ]; then
 				echo "# Warning: The setting of ($BBB_SIP_APP_IP) for bbb.sip.app.ip in"
 				echo "#"
 				echo "#    /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
@@ -1038,7 +1050,7 @@ check_state() {
 			fi
 
 			SIP_IP=$(netstat -ant | grep 5060 | head -n1 | awk -F" " '{print $4}' | cut -d: -f1)
-			if [ $BBB_SIP_APP_IP != $SIP_IP ]; then
+			if [ "$BBB_SIP_APP_IP" != $SIP_IP ]; then
 				echo "# Error: FreeSWITCH is listening on IP address $SIP_IP for SIP calls, but "
 				echo "# The IP address ($BBB_SIP_APP_IP) set bbb.sip.app.ip."
 				echo "#"
@@ -1085,7 +1097,7 @@ check_state() {
                 echo
         fi
 
-        if (( $MEM < 3975 )); then
+        if (( $MEM < 3940 )); then
 		echo "# Warning: You are running BigBlueButton on a server with less than 4G of memory.  Your"
 		echo "# performance may suffer."
                 echo

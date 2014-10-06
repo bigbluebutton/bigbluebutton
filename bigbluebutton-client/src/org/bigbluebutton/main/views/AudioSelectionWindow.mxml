@@ -54,7 +54,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} else {
 					vrulePhone.visible = vrulePhone.includeInLayout = false;
 					vboxPhone.visible = vboxPhone.includeInLayout = false;
-					this.width = 440;
+					this.width = 445;
 					this.height = 300;
 					vboxMic.percentWidth = 50;
 					vboxListen.percentWidth = 50;
@@ -99,8 +99,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" horizontalAlign="right">
-		<mx:HBox width="100%">
-			<mx:TextArea borderSkin="{null}"
+		<mx:HBox width="100%" height="100%">
+			<mx:TextArea borderSkin="{null}" verticalScrollPolicy="off" height="100%"
 						 editable="false"
 						 text="{ResourceUtil.getInstance().getString('bbb.audioSelection.title')}"
 						 styleName="micSettingsWindowTitleStyle"
