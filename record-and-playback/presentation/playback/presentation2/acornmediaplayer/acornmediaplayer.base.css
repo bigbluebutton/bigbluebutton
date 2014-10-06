@@ -1,0 +1,222 @@
+/*
+ * Acorn Media Player - jQuery plugin 1.0
+ *
+ * Copyright (C) 2010 Cristian I. Colceriu
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html
+ *
+ * www.ghinda.net
+ * contact@ghinda.net
+ *
+ * Base stylesheet
+ *
+ */
+
+/* Main elements */
+.acorn-player, .acorn-controls {
+	position: relative;
+}
+.acorn-timer {
+	cursor: default;
+}
+.acorn-buffer {
+	width: 0px;
+}
+/* <video> */
+.acorn-player video {
+	background-color: #000;
+}
+/* <audio> */
+.acorn-player.audio-player {
+	width: 500px;
+}
+.acorn-player.audio-player audio {
+	display: none;
+}
+/* Captions and Transcript */
+.acorn-transcript {	
+	clear: both;
+	display: none;
+	
+	overflow: auto;
+	height: 15em;
+}
+.acorn-transcript-button {
+	display: none;
+}
+/* 
+ * Show the timings in square brackets before each "subtitle" in the transcript.
+ * Borrowed and adapted from Bruce Lawson's “Accessible HTML5 Video with JavaScripted captions”
+ * http://dev.opera.com/articles/view/accessible-html5-video-with-javascripted-captions/
+ */
+.acorn-transcript span {
+	display: block;
+	float: left;
+	width: 100%;
+	line-height: 1.5em;
+	
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+.acorn-transcript span:hover {
+	background-color: #cadde7 !important;
+	
+	font-weight: bold;
+}
+.acorn-transcript span:nth-of-type(even) {
+	background-color: #efefef;
+}
+.acorn-transcript [data-begin]:before {
+	display: block;
+	float: left;
+	content: " [" attr(data-begin) "s-" attr(data-end)"s]   ";
+	width: 15%;
+	padding: 0.2em 1.5em 0.2em 0.2em;	
+}
+.acorn-caption {
+	display: none;
+	position: absolute;
+	bottom: 75px;
+	width: 100%;
+	
+	text-align: center;
+}
+.acorn-caption-button {
+	display: none;
+}
+.acorn-caption-selector {
+	position: absolute;
+	display: none;
+	width: 170px;
+	padding: 5px;
+	height: 75px;
+	margin-bottom: 10px;
+	overflow: auto;
+	
+	background-color: #000;
+	border: 3px solid #fff;
+
+	z-index: 3;
+	
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	
+	-moz-box-shadow: 0px 1px 5px #000;
+	-webkit-box-shadow: 0px 1px 5px #000;
+	box-shadow: 0px 1px 5px #000;
+}
+.acorn-caption-selector label {
+	display: block;
+	
+	font-weight: bold;
+	color: #fff;
+}
+.acorn-caption-selector ul, .acorn-caption-selector li {
+	list-style-type: none;
+	margin: 0px;
+	padding: 0px;
+}
+/* Fullscreen Mode */
+.fullscreen-video {
+	position: fixed !important;
+	top: 0px;
+	left: 0px;
+	z-index: 99999 !important;
+	
+	background-color: #000;
+}
+.acorn-controls.fullscreen-controls {
+	position: fixed !important;
+	z-index: 100000 !important;
+}
+/* Loading */
+.show-loading .loading-media {
+	visibility: visible;
+}
+
+.loading-media {
+	visibility: hidden;
+	position: absolute;
+	left: 25%;
+	top: 50%;
+	width: 20px;
+	height: 20px;
+	margin-top: -10px;
+	margin-lefT: -10px;
+	
+	background-color: #000;
+	border: 5px solid #fff;
+	border-top: 5px solid rgba(0,0,0,0);
+	border-left: 5px solid rgba(0,0,0,0);
+	border-radius: 20px;
+	
+	animation: spin 1s infinite linear;
+	-o-animation: spin 1s infinite linear;
+	-moz-animation: spin 1s infinite linear;
+	-webkit-animation: spin 1s infinite linear;
+}
+
+@-o-keyframes spin {
+	0% { -o-transform:rotate(0deg); }
+	100% { -o-transform:rotate(360deg); }
+}
+@-ms-keyframes spin {
+	0% { -ms-transform:rotate(0deg); }
+	100% { -ms-transform:rotate(360deg); }
+}
+@-moz-keyframes spin {
+	0% { -moz-transform:rotate(0deg); }
+	100% { -moz-transform:rotate(360deg); }
+}
+@-webkit-keyframes spin {
+	0% { -webkit-transform:rotate(0deg); }
+	100% { -webkit-transform:rotate(360deg); }
+}
+@keyframes spin {
+	0% { transform:rotate(0deg); }
+	100% { transform:rotate(360deg); }
+}
+
+/* Controls overlay while loading */
+.show-loading .acorn-controls:after {
+	content: '';
+	position: absolute;
+	top: -2px; /* Slider handle goes above */
+	padding-bottom: 2px;
+	left: 0;
+	z-index: 10;
+	width: 100%;
+	height: 100%;
+	
+	background: #000;
+	opacity: 0.9;
+}
+
+/* Styles needed for the jQuery UI slider
+ * We're declaring these so we don't have to use jQuery UI's stylesheet
+ */
+a.ui-slider-handle {
+	position: absolute;
+	display: block;
+	margin-left: -0.6em;
+	z-index: 2;
+	cursor: default;
+	outline: none;
+}
+.ui-slider {
+	position: relative;
+}
+.ui-slider-range {
+	position: absolute;
+	display: block;
+	width: 100%;
+	height: 100%;
+	left: 0;
+	bottom: 0;
+	border: none;
+	z-index: 1;
+}
