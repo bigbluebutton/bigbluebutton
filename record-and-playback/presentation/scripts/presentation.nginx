@@ -16,6 +16,10 @@
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
 
+	location /playback/presentation/playback.html {
+		return 301 /playback/presentation/0.81/playback.html?$query_string;
+	}
+
         location /playback/presentation {
                 root    /var/bigbluebutton;
                 index  index.html index.htm;
