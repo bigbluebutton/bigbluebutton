@@ -55,6 +55,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private static var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
 			
 			private var dotTimer:Timer;
+			private var userClosed:Boolean = false;
 			
 			override public function move(x:Number, y:Number):void {
 				return;
@@ -92,8 +93,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function yesButtonClicked():void {
+				userClosed = true;
 				trace(LOG + "Echo test passed.");
-        JSLog.debug(LOG + "Echo test passed.");
+				JSLog.debug(LOG + "Echo test passed.");
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_HAS_AUDIO));
 				setCurrentState("connecting");
@@ -101,8 +103,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function noButtonClicked():void {
+				userClosed = true;
 				trace(LOG + "Echo test failed.");
-        JSLog.debug(LOG + "Echo test failed.");
+				JSLog.debug(LOG + "Echo test failed.");
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_NO_AUDIO));
 				onCancelClicked();
@@ -124,7 +127,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function webRTCEchoTestEnded():void {
         setCurrentState("connecting");
         lblConnectMessage.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.endedecho');
-        if (!dotTimer.running) dotTimer.start();        
+        if (!dotTimer.running) dotTimer.start();
+        
+        if (!userClosed) {
+          onCancelClicked();
+		  var dispatcher:Dispatcher = new Dispatcher();
+		  dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_ENDED_UNEXPECTEDLY));
+        }
       }
 			
 			private function handleWebRTCCallConnectingEvent(e:WebRTCCallEvent):void {
