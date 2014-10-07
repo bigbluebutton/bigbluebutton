@@ -91,7 +91,6 @@ Meteor.methods
 			unless requester.user.presenter or loweredBy_id is toLowerUser_Id or requester.role is "MODERATOR"
 				return
 
-			console.log "publishing a userLowerHand event: #{userId}--by=#{requester._id}"
 			toLower = Meteor.Users.findOne({'meetingId': meetingId, '_id': toLowerUser_Id})
 			if toLower?
 				message =
@@ -119,7 +118,6 @@ Meteor.methods
 			unless requester.user.presenter or raisedBy_id is user_id or requester.role is "MODERATOR"
 				return
 
-			console.log "publishing a userRaiseHand event: #{userId}--by=#{requester._id}"
 			toRaise = Meteor.Users.findOne({'meetingId': meetingId, '_id': user_id})
 			if toRaise?
 				message =

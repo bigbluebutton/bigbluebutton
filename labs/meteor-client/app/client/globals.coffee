@@ -18,7 +18,7 @@
     if meet?.meetingName
       setInSession "meetingName", meet?.meetingName # store in session for fast access next time
       meet?.meetingName
-    else null
+    else "your meeting"
 
 @getTime = -> # returns epoch in ms
   (new Date).valueOf()
@@ -85,8 +85,8 @@ Handlebars.registerHelper "getShapesForSlide", ->
 Handlebars.registerHelper "getUsersInMeeting", ->
   Meteor.Users.find({})
 
-Handlebars.registerHelper "isCurrentUser", (id) ->
-  id is getInSession("userId")
+Handlebars.registerHelper "isCurrentUser", (_id) ->
+  _id is getInSession("DBID")
 
 Handlebars.registerHelper "meetingIsRecording", ->
 	Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
@@ -95,7 +95,7 @@ Handlebars.registerHelper "isCurrentUserMuted", ->
 	getInSession "isMuted"
 
 Handlebars.registerHelper "isCurrentUserRaisingHand", ->
-	user = Meteor.Users.findOne({userId:getInSession("userId")})
+	user = Meteor.Users.findOne({_id:getInSession("DBID")})
 	user?.user?.raise_hand
 
 Handlebars.registerHelper "isCurrentUserSharingAudio", ->

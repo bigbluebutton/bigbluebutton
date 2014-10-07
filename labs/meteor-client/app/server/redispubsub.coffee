@@ -229,14 +229,16 @@ class Meteor.RedisPubSub
 
       if message.header.name is "user_raised_hand_message"
         userId = message.payload.userid
-        # update the user
-        Meteor.Users.update({"user.userid": userId, meetingId: meetingId},{$set: {"user.raise_hand": true}}) #not sure why but message.payload.raise_hand is awlays false
+        meetingId = message.payload.meeting_id
+        if userId? and meetingId?
+          Meteor.Users.update({"user.userid": userId},{$set: {"user.raise_hand": true}})
         return
 
       if message.header.name is "user_lowered_hand_message"
         userId = message.payload.userid
-        # update the user
-        Meteor.Users.update({"user.userid": userId, meetingId: meetingId},{$set: {"user.raise_hand": false}}) #not sure why but message.payload.raise_hand is awlays false
+        meetingId = message.payload.meeting_id
+        if userId? and meetingId?
+          Meteor.Users.update({"user.userid": userId, meetingId: meetingId},{$set: {"user.raise_hand": false}})
         return
 
       if message.header.name is "recording_status_changed_message"

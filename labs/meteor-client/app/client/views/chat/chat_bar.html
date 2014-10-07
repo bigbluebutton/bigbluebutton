@@ -11,7 +11,7 @@
 								<li {{messageFontSize}}>{{> message}}</li>
 							{{/if}}
 						{{/each}}
-						<bottomEntry></bottomEntry> <!-- Intentionally blank, fixes issue what last message being cut off while scrolling -->
+						<bottomEntry></bottomEntry> <!-- Intentionally blank, fixes issue of last message being cut off while scrolling -->
 					</ul>
 				</div>
 				<div class="panel-footer">{{> chatInput}}</div>
@@ -67,7 +67,7 @@
 						<tbody class="private-chat-user-list">
 							{{#each getUsersInMeeting}}
 								<tr class="private-chat-user-entry">
-									{{#unless isCurrentUser userId}}
+									{{#unless isCurrentUser _id}}
 								      {{user.name}}
 								    {{/unless}}
 								</tr>

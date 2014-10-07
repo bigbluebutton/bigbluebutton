@@ -12,6 +12,10 @@ Meteor.startup(function () {
 });
 ###
 Meteor.methods
+  # If we can change this to a format where we know what to send the user that'd
+  # be much, much better than the user passing in the first part of their
+  # credentials and us looking up and suplying them with the second part.
+  # It'd be much more secure.
   getMyInfo: (uId) ->
     u = Meteor.Users.findOne("userId": uId)
     if u?
