@@ -170,7 +170,8 @@ Meteor.methods
     setInSession("meetingId", meetingId)
     setInSession("currentChatId", meetingId)
     setInSession("meetingName", null)
-    setInSession("bbbServerVersion", "0.90")
+    setInSession("bbbServerVersion", Meteor.config.bbbServerVersion)
+    setInSession("dateOfBuild", Meteor.config.dateOfBuild)
     setInSession("userName", null) 
 
 @toggleCam = (event) ->
