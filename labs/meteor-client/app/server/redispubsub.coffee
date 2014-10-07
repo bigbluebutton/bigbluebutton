@@ -73,6 +73,7 @@ class Meteor.RedisPubSub
       if message.header.name in ['user_left_voice_message', 'user_joined_voice_message', 'user_voice_talking_message', 'user_voice_muted_message']
         voiceUser = message.payload.user?.voiceUser
         updateVoiceUser meetingId, voiceUser
+        return
 
       # listen only
       if message.header.name is 'user_listening_only'

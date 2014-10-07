@@ -159,8 +159,7 @@ Meteor.methods
 # Only callable from server
 # You must need a user's public and private id
 @removeUserFromMeeting = (meetingId, userId, user_id) ->
-	console.log "#{toKick.userId} is being kicked"
-	console.log "----removed user[" + toKick + "] from " + meetingId
+	console.log "----removed user[" + userId + "] from " + meetingId
 	u = Meteor.Users.findOne({'userId': userId, _id: user_id})
 	if u?
 		Meteor.Users.remove(user._id) # Should this only happen once we get the server's response?
