@@ -107,7 +107,7 @@ Handlebars.registerHelper "isCurrentUserMuted", ->
 	getInSession "isMuted"
 
 Handlebars.registerHelper "isCurrentUserRaisingHand", ->
-	user = Meteor.Users.findOne({userId:getInSession("userId")})
+	user = Meteor.Users.findOne({_id:getInSession("DBID")})
 	user?.user?.raise_hand
 
 Handlebars.registerHelper "isCurrentUserSharingAudio", ->
