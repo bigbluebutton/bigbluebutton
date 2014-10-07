@@ -2,7 +2,6 @@ Template.footer.helpers
   getFooterString: ->
     # info = Meteor.call('getServerInfo')
     dateOfBuild = getInSession 'dateOfBuild'
-    # version = "VERSION_XXXX" #info.getBuildVersion()
     version = getInSession "bbbServerVersion"
     copyrightYear = (new Date()).getFullYear()
     link = "<a href='http://bigbluebutton.org/' target='_blank'>http://bigbluebutton.org</a>"

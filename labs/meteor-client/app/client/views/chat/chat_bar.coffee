@@ -79,7 +79,7 @@ Template.chatbar.helpers
           'from_color': '0x3399FF' # A nice blue in hex
       ]
     else
-      me = getInSession("userId")
+      me = getInSession("DBID")
       after = Meteor.Chat.find({ # find all messages between current user and recipient
       'message.chat_type': 'PRIVATE_CHAT',
       $or: [{'message.from_userid': me, 'message.to_userid': friend},{'message.from_userid': friend, 'message.to_userid': me}]
@@ -105,7 +105,7 @@ Template.chatbar.helpers
             if msgs[i].message.from_userid is msgs[j].message.from_userid # Both messages are from the same user
               msgs[i].message.message += "\\n#{msgs[j].message.message}" # Combine the messages
               msgs.splice(j,1) # Delete the message from the collection
-              deleted=true
+              deleted = true
             else break # Messages are from different people, move on
             #
           else break # This is the break point in the chat, don't merge
