@@ -187,8 +187,7 @@ Template.tabButtons.events
     setInSession 'display_chatPane', true
 
   'click .tab': (event) -> 
-    # setInSession "inChatWith", @userId
-    setInSession "inChatWith", @_id
+    setInSession "inChatWith", if @userId is "PUBLIC_CHAT" then @userId else @_id
   
 Template.tabButtons.helpers
   getChatbarTabs: ->
