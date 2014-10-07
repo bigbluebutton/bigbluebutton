@@ -137,8 +137,7 @@ Meteor.methods
 	userLogout: (meetingId, userId) ->
 		console.log "a user is logging out from #{meetingId}:" + userId
 		u = Meteor.Users.findOne({meetingId: meetingId, userId: userId})
-		if u? 
-			console.log "u------------------" + JSON.stringify u
+		if u?
 			#remove from the collection and dispatch a message to redis
 			requestUserLeaving meetingId, u.userId, u._id
 
@@ -175,19 +174,17 @@ Meteor.methods
 @requestUserLeaving = (meetingId, userId, user_id) ->
 	u = Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId, _id: user_id})
 	if u?
-		Meteor.Users.remove(u._id) # Should this only happen once we get the server's response?
-		console.log "----removed user[#{userId} | #{u._id}] from " + meetingId
 		message =
 			"payload":
 				"meeting_id": meetingId
-				"userid": userId
+				"userid": u.userId
 			"header":
 				"timestamp": new Date().getTime()
 				"name": "user_leaving_request"
 				"version": "0.0.1"
 		console.log "sending a user_leaving_request for #{meetingId}:#{u._id}"
 
-		if userId? and meetingId?
+		if u.userId? and meetingId?
 			publish Meteor.config.redis.channels.toBBBApps.users, message
 		else
 			console.log "did not have enough information to send a user_leaving_request"
