@@ -154,28 +154,46 @@ Meteor.methods
 # --------------------------------------------------------------------------------------------
 # Private methods on server
 # --------------------------------------------------------------------------------------------
+
 # Only callable from server
-# You must need a user's public and private id
-@removeUserFromMeeting = (meetingId, userId, user_id) ->
-	console.log "----removed user[" + userId + "] from " + meetingId
-	u = Meteor.Users.findOne({'userId': userId, _id: user_id})
+# Received information from BBB-Apps that a user left
+# Need to update the collection
+@removeUserFromMeeting = (meetingId, userId) ->
+	u = Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId})
 	if u?
-		Meteor.Users.remove(user._id) # Should this only happen once we get the server's response?
+		Meteor.Users.remove(u._id)
+		console.log "----removed user[" + userId + "] from " + meetingId
+	else
+		console.log "did not find a user [userId] to delete in meetingid:#{meetingId}"
 
-		console.log "\n\n sending a user_leaving_request for #{meetingId}:#{user._id}"
-		message =
-			"payload":
-				"meeting_id": meetingId
-				"userid": user.userId
-			"header":
-				"timestamp": new Date().getTime()
-				"name": "user_leaving_request"
-				"version": "0.0.1"
+# @removeUserFromMeeting = (meetingId, userId, user_id) ->
+# 	console.log "----removed user[#{userId} | #{u._id}] from " + meetingId
+# 	u = Meteor.Users.findOne({'userId': userId, _id: user_id})
+# 	if u?
+# 		Meteor.Users.remove(user._id) # Should this only happen once we get the server's response?
 
-		if user.userId? and meetingId?
-			publish Meteor.config.redis.channels.toBBBApps.users, message
-		else
-			console.log "did not have enough information to send a user_leaving_request"
+# 		console.log "\n\n sending a user_leaving_request for #{meetingId}:#{user._id}"
+# 		message =
+# 			"payload":
+# 				"meeting_id": meetingId
+# 				"userid": user.userId
+# 			"header":
+# 				"timestamp": new Date().getTime()
+# 				"name": "user_leaving_request"
+# 				"version": "0.0.1"
+
+# 		if user.userId? and meetingId?
+# 			publish Meteor.config.redis.channels.toBBBApps.users, message
+# 		else
+# 			console.log "did not have enough information to send a user_leaving_request"
+
+
+
+
+
+
+
+
 
 #update a voiceUser - a helper method
 @updateVoiceUser = (voiceUserObject) ->
