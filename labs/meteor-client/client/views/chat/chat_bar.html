@@ -67,7 +67,7 @@
 						<tbody class="private-chat-user-list">
 							{{#each getUsersInMeeting}}
 								<tr class="private-chat-user-entry">
-									{{#unless isCurrentUser userId}}
+									{{#unless isCurrentUser _id}}
 								      {{user.name}}
 								    {{/unless}}
 								</tr>
