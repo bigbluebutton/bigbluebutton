@@ -147,7 +147,7 @@ Handlebars.registerHelper "autoscroll", ->
 Template.optionsBar.events
   'click .private-chat-user-entry': (event) -> # clicked a user's name to begin private chat
     setInSession 'display_chatPane', true
-    setInSession "inChatWith", @userId
+    setInSession "inChatWith", @_id
 
 Template.optionsBar.rendered = ->
   $('div[rel=tooltip]').tooltip()
