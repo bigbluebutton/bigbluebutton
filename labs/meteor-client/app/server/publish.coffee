@@ -5,7 +5,6 @@ Meteor.publish 'users', (meetingId) ->
 
 Meteor.publish 'chat', (meetingId, userid) ->
   me = Meteor.Users.findOne({meetingId: meetingId, userId: userid})._id
-  console.log "\n\n\n\n\nmeetingId: #{meetingId}\n me:#{me}"
   Meteor.Chat.find({$or: [
     {'message.chat_type': 'PUBLIC_CHAT', 'meetingId': meetingId},
     {'message.from_userid': me, 'meetingId': meetingId},

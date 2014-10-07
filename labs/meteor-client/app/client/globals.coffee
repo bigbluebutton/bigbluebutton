@@ -273,11 +273,7 @@ Meteor.methods
 
 #check the chat history of the user and add tabs for the private chats
 @populateChatTabs = ->
-  me = getInSession("userId")
-  #console.log "me=" + me
   mydbid = getInSession "DBID"
-
-  #console.log "DBID=" + mydbid
   users = Meteor.Users.find().fetch()
 
   # assuming that I only have access only to private messages where I am the sender or the recipient
@@ -286,10 +282,6 @@ Meteor.methods
   uniqueArray = []
   for chat in myPrivateChats
     if chat.message.to_userid is mydbid
-
-
-
-      #userId -> dbid
       uniqueArray.push({userId: chat.message.from_userid, username: chat.message.from_username})
     if chat.message.from_userid is mydbid
       uniqueArray.push({userId: chat.message.to_userid, username: chat.message.to_username})

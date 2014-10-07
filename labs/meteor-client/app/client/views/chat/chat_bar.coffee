@@ -15,7 +15,6 @@
   chattingWith = getInSession('inChatWith')
 
   if chattingWith isnt "PUBLIC_CHAT"
-    # dest = Meteor.Users.findOne("userId": chattingWith)
     dest = Meteor.Users.findOne(_id: chattingWith)
 
   messageForServer = { # construct message for server
@@ -32,7 +31,6 @@
     # "from_color": "0x#{getInSession("messageColor")}"
   }
 
-  console.log JSON.stringify messageForServer
   Meteor.call "sendChatMessagetoServer", getInSession("meetingId"), messageForServer, getInSession("userId")
   $('#newMessageInput').val '' # Clear message box
 
@@ -164,7 +162,6 @@ Template.tabButtons.events
     setInSession 'inChatWith', 'PUBLIC_CHAT'
     setInSession 'display_chatPane', true
     id = chatTabs.findOne({userId: @userId})
-    console.log "id is:" + JSON.stringify id
     if id?
       chatTabs.remove(id)
 
@@ -178,7 +175,6 @@ Template.tabButtons.events
 
   'click .privateChatTab': (event) ->
     setInSession 'display_chatPane', true
-    console.log ".private"
 
   'click .publicChatTab': (event) ->
     setInSession 'display_chatPane', true
