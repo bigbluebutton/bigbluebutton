@@ -14,10 +14,16 @@
             Meteor.subscribe 'slides', getInSession('meetingId'), ->
               Meteor.subscribe 'meetings', getInSession('meetingId'), ->
                 Meteor.subscribe 'presentations', getInSession('meetingId'), ->
+                  
+                  # Obtain user info here. for testing. should be moved somewhere else later
+                  Meteor.call "getMyInfo", getInSession("userId"), (error, result) ->
+                    setInSession("DBID", result.DBID)
+                    setInSession("userName", result.name)
+                  
                   self.redirect('/')
 
     onBeforeAction: ()->
-      url = location.href
+      url = location.href 
       console.log "\n\nurl=#{url}\n\n"
       #extract the meeting_id, user_id, auth_token, etc from the uri
       if url.indexOf("meeting_id") > -1 # if the URL is /meeting_id=...&...
@@ -33,17 +39,9 @@
         console.log "authToken=" + authToken
 
         if meetingId? and userId? and authToken?
-          # Here we need to check whether there is already a user using userId inside meetingId, if there is don't let this user log in, it is a duplicate
-          ###
-          if Meteor.call("validateUserId", meetingId, userId)
-            continue
-          else
-            kick user out
-          ###
-
           Meteor.call("validateAuthToken", meetingId, userId, authToken)
           Meteor.call('sendMeetingInfoToClient', meetingId, userId)
-        else
+        else  
           console.log "unable to extract from the URL some of {meetingId, userId, authToken}"
       else
         console.log "unable to extract the required information for the meeting from the URL"
@@ -51,20 +49,17 @@
     path: "/"
     onBeforeAction: ->
       self = @
+      # Have to check on the server whether the credentials the user has are valid on db, without being able to spam requests for credentials
       Meteor.subscribe 'users', getInSession('meetingId'), -> # callback for after users have been loaded on client
-        if not validateCredentials() # Don't let user in if they are not valid
-          self.redirect("logout")
-        else
-          Meteor.subscribe 'chat', getInSession('meetingId'), getInSession("userId"), ->
-            Meteor.subscribe 'shapes', getInSession('meetingId'), ->
-              Meteor.subscribe 'slides', getInSession('meetingId'), ->
-                Meteor.subscribe 'meetings', getInSession('meetingId'), ->
-                  Meteor.subscribe 'presentations', getInSession('meetingId')
+        Meteor.subscribe 'chat', getInSession('meetingId'), getInSession("userId"), ->
+          Meteor.subscribe 'shapes', getInSession('meetingId'), ->
+            Meteor.subscribe 'slides', getInSession('meetingId'), ->
+              Meteor.subscribe 'meetings', getInSession('meetingId'), ->
+                Meteor.subscribe 'presentations', getInSession('meetingId'), ->
+                  # Obtain user info here. for testing. should be moved somewhere else later
+                  Meteor.call "getMyInfo", getInSession("userId"), (error, result) ->
+                    setInSession("DBID", result.DBID)
+                    setInSession("userName", result.name)
 
   @route "logout",
     path: "logout"
-
-@validateCredentials = ->
-  u = Meteor.Users.findOne({"userId":getInSession("userId")})
-  # return whether they are a valid user and still have credentials in the database
-  u? and u.meetingId? and u.user?.extern_userid and u.user?.userid #and (1 is 2) # makes validation fail

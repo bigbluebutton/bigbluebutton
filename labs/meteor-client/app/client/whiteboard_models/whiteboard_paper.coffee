@@ -88,11 +88,11 @@ class @WhiteboardPaperModel
       @raphaelObj.renderfix()
 
     # initializing border around slide to cover up areas which shouldnt show
-    @borders = {}
-    for border in ['left', 'right', 'top', 'bottom']
-      @borders[border] = @raphaelObj.rect(0, 0, 0, 0)
-      @borders[border].attr("fill", "#ababab")
-      @borders[border].attr( {stroke:"#ababab"} )
+    # @borders = {}
+    # for border in ['left', 'right', 'top', 'bottom']
+    #   @borders[border] = @raphaelObj.rect(0, 0, 0, 0)
+    #   @borders[border].attr("fill", "#ababab")
+    #   @borders[border].attr( {stroke:"#ababab"} )
 
     @raphaelObj
 
@@ -191,7 +191,7 @@ class @WhiteboardPaperModel
     for url of @slides
       if @slides.hasOwnProperty(url)
         @raphaelObj.getById(@slides[url]?.getId())?.remove()
-        #@trigger('paper:image:removed', @slides[url].getId()) # TODO do we need this?
+        @trigger('paper:image:removed', @slides[url].getId()) # Removes the previous image preventing images from being redrawn over each other repeatedly
     @slides = {}
     @current.slide = null
 
@@ -765,7 +765,7 @@ class @WhiteboardPaperModel
     if url?.match(/http[s]?:/)
       url
     else
-      console.log "the url did not match the expected format:#{url}"
+      console.log "The url '#{url}'' did not match the expected format of: http/s"
       #globals.presentationServer + url
 
   #Changes the currently displayed page/slide (if any) with this one

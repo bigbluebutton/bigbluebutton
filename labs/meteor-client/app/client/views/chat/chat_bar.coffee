@@ -6,12 +6,13 @@
   chattingWith = getInSession('inChatWith')
 
   if chattingWith isnt "PUBLIC_CHAT"
-    dest = Meteor.Users.findOne("userId": chattingWith)
+    # dest = Meteor.Users.findOne("userId": chattingWith)
+    dest = Meteor.Users.findOne(_id: chattingWith)
 
   messageForServer = { # construct message for server
     "message": message
     "chat_type": if chattingWith is "PUBLIC_CHAT" then "PUBLIC_CHAT" else "PRIVATE_CHAT"
-    "from_userid": getInSession("userId")
+    "from_userid": getInSession("DBID")
     "from_username": getUsersName()
     "from_tz_offset": "240"
     "to_username": if chattingWith is "PUBLIC_CHAT" then "public_chat_username" else dest.user.name
@@ -22,7 +23,8 @@
     # "from_color": "0x#{getInSession("messageColor")}"
   }
 
-  Meteor.call "sendChatMessagetoServer", getInSession("meetingId"), messageForServer
+  console.log JSON.stringify messageForServer
+  Meteor.call "sendChatMessagetoServer", getInSession("meetingId"), messageForServer, getInSession("userId")
   $('#newMessageInput').val '' # Clear message box
 
 Template.chatInput.events
@@ -31,7 +33,7 @@ Template.chatInput.events
 
   'keypress #newMessageInput': (event) -> # user pressed a button inside the chatbox
     if event.shiftKey and event.which is 13
-      $("#newMessageInput").append("\n")
+      $("#newMessageInput").append("\r") # Change newline character
       return
     
     if event.which is 13 # Check for pressing enter to submit message
@@ -48,7 +50,7 @@ Template.chatbar.helpers
     greeting = "Welcome to #{getMeetingName()}!\r\r
     For help on using BigBlueButton see these (short) <a href='http://www.bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.\r\r
     To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.\r\r\r
-    This server is running BigBlueButton #{getInSession 'bbbServerVersion'}."
+    This server is running BigBlueButton #{getInSession 'bbbServerVersion'}.\r\r"
 
   # This method returns all messages for the user. It looks at the session to determine whether the user is in
   #private or public chat. If true is passed, messages returned are from before the user joined. Else, the messages are from after the user joined
@@ -177,7 +179,6 @@ Template.tabButtons.events
 
   'click .gotUnreadMail': (event) ->
     chatTabs.update({userId: @userId}, {$set: {gotMail: false}})
-
 
  
 Template.tabButtons.helpers

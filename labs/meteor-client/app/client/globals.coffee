@@ -20,11 +20,11 @@
       meet?.meetingName
     else null
 
-@getTimeOfJoining = ->
-  Meteor.Users.findOne({"user.userid": getInSession("userId")})?.user?.time_of_joining
-
 @getTime = -> # returns epoch in ms
   (new Date).valueOf()
+
+@getTimeOfJoining = ->
+  Meteor.Users.findOne(_id: getInSession "DBID")?.user?.time_of_joining
 
 @getUsersName = ->
   name = getInSession("userName") # check if we actually have one in the session
@@ -57,6 +57,14 @@ Handlebars.registerHelper "getCurrentSlide", ->
 # retrieve account for selected user
 Handlebars.registerHelper "getCurrentUser", =>
   @window.getCurrentUserFromSession()
+
+Handlebars.registerHelper "getHandRaiseStats", ->
+	numRaised = Meteor.Users.find({'user.raise_hand':true}).fetch().length
+	total = Meteor.Users.find().fetch().length
+	percentageRaised = numRaised/total
+	if numRaised > 0
+		"#{numRaised} Hands Raised (#{percentageRaised}% of Attendees)"
+	else false
 
 # Allow access through all templates
 Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
@@ -134,7 +142,7 @@ Handlebars.registerHelper "messageFontSize", ->
 
 Handlebars.registerHelper "pointerLocation", ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-  currentPresentation.pointer
+  currentPresentation?.pointer
 
 Handlebars.registerHelper "setInSession", (k, v) -> SessionAmplify.set k, v 
 
