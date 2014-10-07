@@ -27,7 +27,7 @@ Meteor.methods
 					header :
 						"timestamp": new Date().getTime()
 						"name": eventName()
-					payload:
+					payload: 
 						"message" : transformedChatObject
 						"meeting_id": meetingId
 						"requester_id": transformedChatObject.from_userid
@@ -35,7 +35,7 @@ Meteor.methods
 				console.log JSON.stringify transformedChatObject
 				publish Meteor.config.redis.channels.toBBBApps.chat, message
 				# 
-		else
+		else 
 			console.log "requester no exists"
 
 # --------------------------------------------------------------------------------------------

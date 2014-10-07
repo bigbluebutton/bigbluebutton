@@ -204,7 +204,7 @@ Meteor.methods
 	userId = user.userid
 	#check if the user is already in the meeting
 	unless Meteor.Users.findOne({userId:userId, meetingId: meetingId})?
-		entry =
+		entry = 
 			meetingId: meetingId
 			userId: userId
 			user:

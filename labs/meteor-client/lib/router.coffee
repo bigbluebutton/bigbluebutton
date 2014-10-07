@@ -23,7 +23,7 @@
                   self.redirect('/')
 
     onBeforeAction: ()->
-      url = location.href
+      url = location.href 
       console.log "\n\nurl=#{url}\n\n"
       #extract the meeting_id, user_id, auth_token, etc from the uri
       if url.indexOf("meeting_id") > -1 # if the URL is /meeting_id=...&...
@@ -39,17 +39,9 @@
         console.log "authToken=" + authToken
 
         if meetingId? and userId? and authToken?
-          # Here we need to check whether there is already a user using userId inside meetingId, if there is don't let this user log in, it is a duplicate
-          ###
-          if Meteor.call("validateUserId", meetingId, userId)
-            continue
-          else
-            kick user out
-          ###
-
           Meteor.call("validateAuthToken", meetingId, userId, authToken)
           Meteor.call('sendMeetingInfoToClient', meetingId, userId)
-        else
+        else  
           console.log "unable to extract from the URL some of {meetingId, userId, authToken}"
       else
         console.log "unable to extract the required information for the meeting from the URL"
@@ -63,7 +55,11 @@
           Meteor.subscribe 'shapes', getInSession('meetingId'), ->
             Meteor.subscribe 'slides', getInSession('meetingId'), ->
               Meteor.subscribe 'meetings', getInSession('meetingId'), ->
-                Meteor.subscribe 'presentations', getInSession('meetingId')
+                Meteor.subscribe 'presentations', getInSession('meetingId'), ->
+                  # Obtain user info here. for testing. should be moved somewhere else later
+                  Meteor.call "getMyInfo", getInSession("userId"), (error, result) ->
+                    setInSession("DBID", result.DBID)
+                    setInSession("userName", result.name)
 
   @route "logout",
     path: "logout"
