@@ -18,7 +18,7 @@
     if meet?.meetingName
       setInSession "meetingName", meet?.meetingName # store in session for fast access next time
       meet?.meetingName
-    else null
+    else "your meeting"
 
 # Finds the names of all people the current user is in a private conversation with
 #  Removes yourself and duplicates if they exist
