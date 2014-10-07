@@ -44,7 +44,7 @@
 
 <template name="usernameEntry">
 	<td class="userNameContainer">
-		{{#if isCurrentUser userId}}
+		{{#if isCurrentUser _id}}
 			<p class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}} (you)">
 				<strong>{{user.name}} (you)</strong>
 			</p>
