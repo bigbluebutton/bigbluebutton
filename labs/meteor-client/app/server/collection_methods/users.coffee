@@ -134,12 +134,13 @@ Meteor.methods
 				# publish to pubsub
 				publish Meteor.config.redis.channels.toBBBApps.users, message
 
-	userLogout: (meetingId, userId, user_id) ->
-		console.log "a user is logging out:" + userId
-		u = Meteor.Users.findOne({meetingId: meetingId, _id: user_id, userId: userId})
+	userLogout: (meetingId, userId) ->
+		console.log "a user is logging out from #{meetingId}:" + userId
+		u = Meteor.Users.findOne({meetingId: meetingId, userId: userId})
 		if u? 
+			console.log "u------------------" + JSON.stringify u
 			#remove from the collection and dispatch a message to redis
-			removeUserFromMeeting meetingId, u.userId, u.user_id
+			requestUserLeaving meetingId, u.userId, u._id
 
 	# userToBeKicked: the _id of the user who was selected to be kicked
 	# kickerUserId: the userId of the user kicking another user
@@ -149,7 +150,7 @@ Meteor.methods
 		toKick = Meteor.Users.findOne({meetingId: meetingId, _id: userToBeKicked})
 		if kicker? and toKick? and kicker.presenter
 			#remove from the collection and dispatch a message to redis
-			removeUserFromMeeting meetingId, toKick.userId, toKick.user_id
+			requestUserLeaving meetingId, toKick.userId, toKick.user_id
 
 # --------------------------------------------------------------------------------------------
 # Private methods on server
@@ -158,6 +159,7 @@ Meteor.methods
 # Only callable from server
 # Received information from BBB-Apps that a user left
 # Need to update the collection
+# params: meetingid, userid as defined in BBB-Apps
 @removeUserFromMeeting = (meetingId, userId) ->
 	u = Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId})
 	if u?
@@ -166,33 +168,29 @@ Meteor.methods
 	else
 		console.log "did not find a user [userId] to delete in meetingid:#{meetingId}"
 
-# @removeUserFromMeeting = (meetingId, userId, user_id) ->
-# 	console.log "----removed user[#{userId} | #{u._id}] from " + meetingId
-# 	u = Meteor.Users.findOne({'userId': userId, _id: user_id})
-# 	if u?
-# 		Meteor.Users.remove(user._id) # Should this only happen once we get the server's response?
 
-# 		console.log "\n\n sending a user_leaving_request for #{meetingId}:#{user._id}"
-# 		message =
-# 			"payload":
-# 				"meeting_id": meetingId
-# 				"userid": user.userId
-# 			"header":
-# 				"timestamp": new Date().getTime()
-# 				"name": "user_leaving_request"
-# 				"version": "0.0.1"
+# Corresponds to a valid action on the HTML clientside
+# After authorization, publish a user_leaving_request in redis
+# params: meetingid, userid as defined in BBB-Apps, the _id user identifier in mongo
+@requestUserLeaving = (meetingId, userId, user_id) ->
+	u = Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId, _id: user_id})
+	if u?
+		Meteor.Users.remove(u._id) # Should this only happen once we get the server's response?
+		console.log "----removed user[#{userId} | #{u._id}] from " + meetingId
+		message =
+			"payload":
+				"meeting_id": meetingId
+				"userid": userId
+			"header":
+				"timestamp": new Date().getTime()
+				"name": "user_leaving_request"
+				"version": "0.0.1"
+		console.log "sending a user_leaving_request for #{meetingId}:#{u._id}"
 
-# 		if user.userId? and meetingId?
-# 			publish Meteor.config.redis.channels.toBBBApps.users, message
-# 		else
-# 			console.log "did not have enough information to send a user_leaving_request"
-
-
-
-
-
-
-
+		if userId? and meetingId?
+			publish Meteor.config.redis.channels.toBBBApps.users, message
+		else
+			console.log "did not have enough information to send a user_leaving_request"
 
 
 #update a voiceUser - a helper method
