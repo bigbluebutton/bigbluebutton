@@ -97,8 +97,8 @@ Handlebars.registerHelper "getShapesForSlide", ->
 Handlebars.registerHelper "getUsersInMeeting", ->
   Meteor.Users.find({})
 
-Handlebars.registerHelper "isCurrentUser", (id) ->
-  id is getInSession("userId")
+Handlebars.registerHelper "isCurrentUser", (_id) ->
+  _id is getInSession("DBID")
 
 Handlebars.registerHelper "meetingIsRecording", ->
 	Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
