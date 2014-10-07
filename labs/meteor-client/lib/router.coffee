@@ -8,21 +8,6 @@
     path: "/meeting_id=*"
     action: () ->
       self = @
-      Meteor.subscribe 'users', getInSession('meetingId'), ->
-        Meteor.subscribe 'chat', getInSession('meetingId'), getInSession("userId"), ->
-          Meteor.subscribe 'shapes', getInSession('meetingId'), ->
-            Meteor.subscribe 'slides', getInSession('meetingId'), ->
-              Meteor.subscribe 'meetings', getInSession('meetingId'), ->
-                Meteor.subscribe 'presentations', getInSession('meetingId'), ->
-                  
-                  # Obtain user info here. for testing. should be moved somewhere else later
-                  Meteor.call "getMyInfo", getInSession("userId"), (error, result) ->
-                    setInSession("DBID", result.DBID)
-                    setInSession("userName", result.name)
-                  
-                  self.redirect('/')
-
-    onBeforeAction: ()->
       url = location.href 
       console.log "\n\nurl=#{url}\n\n"
       #extract the meeting_id, user_id, auth_token, etc from the uri
@@ -41,6 +26,7 @@
         if meetingId? and userId? and authToken?
           Meteor.call("validateAuthToken", meetingId, userId, authToken)
           Meteor.call('sendMeetingInfoToClient', meetingId, userId)
+          self.redirect('/')
         else  
           console.log "unable to extract from the URL some of {meetingId, userId, authToken}"
       else
