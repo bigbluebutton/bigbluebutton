@@ -66,6 +66,12 @@ Meteor.startup ->
       return
   )
 
+  Meteor.autorun ->
+    if Meteor.status().connected
+      console.log("connected")
+    else
+      console.log "disconnected"
+
   setInSession "display_usersList", true
   setInSession "display_navbar", true
   setInSession "display_chatbar", true
