@@ -142,6 +142,13 @@ def publish_processed_meeting(recording_dir)
     meeting_id = match[1]
     process_type = match[2]
 
+    # Since we publish all formats for a recording at once, we want to skip duplicates
+    # if there were multiple publish format done files for the same recording
+    if !File.exists?(processed_done)
+      BigBlueButton.logger.info("Processed done file for #{meeting_id} #{process_type} gone, assuming already processed")
+      next
+    end
+
     publish_succeeded = true
 
     Dir.glob("publish/*.rb").sort.each do |publish_script|
@@ -175,13 +182,13 @@ def publish_processed_meeting(recording_dir)
 
     if publish_succeeded
       post_publish(meeting_id)
-      processed_done_files.each do |processed_done|
-        FileUtils.rm(processed_done)
-      end
+      # Clean up the process done files
       # Also clean up the publish and process work files
       Dir.glob("process/*.rb").sort.each do |process_script|
         match2 = /([^\/]*).rb$/.match(process_script)
         process_type = match2[1]
+        this_processed_done = "#{recording_dir}/status/processed/#{meeting_id}-#{process_type}.done"
+        FileUtils.rm(this_processed_done)
         FileUtils.rm_rf("#{recording_dir}/process/#{process_type}/#{meeting_id}")
       end
       Dir.glob("publish/*.rb").sort.each do |publish_script|
