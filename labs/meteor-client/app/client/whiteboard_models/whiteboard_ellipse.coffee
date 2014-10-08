@@ -14,8 +14,8 @@ class @WhiteboardEllipseModel extends WhiteboardToolModel
     # @param    {string} colour        the colour of the object
     # @param    {number} thickness the thickness of the object's line(s)
     make: (info) ->
-      console.log "Whiteboard - Making ellipse: "
-      console.log info
+      #console.log "Whiteboard - Making ellipse: "
+      #console.log info
       if info?.points?
         x = info.points[0]
         y = info.points[1]
@@ -36,7 +36,7 @@ class @WhiteboardEllipseModel extends WhiteboardToolModel
     # @param    {number} y2 the y value of the bottom right corner in percent of current slide size
     # @param    {boolean} square (draw a circle or not
     update: (info) ->
-      console.log info
+      #console.log info
       if info?.points?
         x1 = info.points[0]
         y1 = info.points[1]
@@ -66,7 +66,7 @@ class @WhiteboardEllipseModel extends WhiteboardToolModel
             y1: y1
             y2: y2
 
-          console.log(coords)
+          #console.log(coords)
 
           rx = (x2 - x1) / 2
           ry = (y2 - y1) / 2
@@ -79,7 +79,7 @@ class @WhiteboardEllipseModel extends WhiteboardToolModel
 
           @obj.attr(r)
 
-          console.log( "@gw: " + @gw + "\n@gh: " + @gh + "\n@xOffset: " + @xOffset + "\n@yOffset: " + @yOffset );
+          #console.log( "@gw: " + @gw + "\n@gh: " + @gh + "\n@xOffset: " + @xOffset + "\n@yOffset: " + @yOffset );
           # we need to update all these values, specially for when shapes are drawn backwards
           @definition[0] = x1
           @definition[1] = y1

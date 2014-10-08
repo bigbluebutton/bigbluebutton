@@ -66,8 +66,8 @@ class @WhiteboardPaperModel
 
     h = $("#"+@container).height()
     w = $("#"+@container).width()
-    console.log "h: #{h}"
-    console.log "w: #{w}"
+    #console.log "h: #{h}"
+    #console.log "w: #{w}"
 
     # @raphaelObj ?= ScaleRaphael(@container, "900", "500")
     @raphaelObj ?= ScaleRaphael(@container, w, h)
@@ -559,7 +559,7 @@ class @WhiteboardPaperModel
 
   # Update the dimensions of the container.
   _updateContainerDimensions: ->
-    console.log "update Container Dimensions"
+    #console.log "update Container Dimensions"
 
     $container = $('#whiteboard-paper')
     @containerWidth = $container.innerWidth()
