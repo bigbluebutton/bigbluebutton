@@ -18,20 +18,22 @@
  */
 package org.bigbluebutton.modules.chat.views
 {
-  import mx.controls.List;
-  
-  public class AdvancedList extends List
-  {
-    public function AdvancedList()
-    {
-      super();
-    }
-    
-    override protected function measure():void
-    {
-      super.measure();
-      //sovled on forum by Flex HarUI
-      measuredHeight = measureHeightOfItems() + viewMetrics.top + viewMetrics.bottom;
-    }
-  }
+	import mx.controls.List;
+	import org.bigbluebutton.modules.chat.events.ChatEvent;
+	
+	public class AdvancedList extends List
+	{
+		public function AdvancedList(){
+			super();
+		}
+
+		override protected function measure():void
+		{
+		  super.measure();
+		  //sovled on forum by Flex HarUI
+		  measuredHeight = measureHeightOfItems() + viewMetrics.top + viewMetrics.bottom;
+
+		  dispatchEvent(new ChatEvent(ChatEvent.RESIZE_CHAT_TOOLBAR));
+		}
+	}
 }

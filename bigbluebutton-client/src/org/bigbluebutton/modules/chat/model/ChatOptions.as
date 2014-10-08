@@ -36,6 +36,8 @@ package org.bigbluebutton.modules.chat.model
 		public var position:String = "top-right";
 		
 		[Bindable] public var baseTabIndex:int;
+
+		public var keepToolbarVisible:Boolean = false;
 		
 		[Bindable]
 		public var colorPickerIsVisible:Boolean = false;
