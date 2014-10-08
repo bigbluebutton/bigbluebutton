@@ -1,12 +1,11 @@
-### 
---------------------------------------------------------------------------------------------------------------------
- If a function's last line is the statement false that represents the function returning false
- A function such as a click handler will continue along with the propogation and default behaivour if not stopped
- Returning false stops propogation/prevents default. You cannot always use the event object to call these methods
- Because most Meteor event handlers set the event object to the exact context of the event which does not 
- allow you to simply call these methods.
---------------------------------------------------------------------------------------------------------------------
-###
+# --------------------------------------------------------------------------------------------------------------------
+# If a function's last line is the statement false that represents the function returning false
+# A function such as a click handler will continue along with the propogation and default behaivour if not stopped
+# Returning false stops propogation/prevents default. You cannot always use the event object to call these methods
+# Because most Meteor event handlers set the event object to the exact context of the event which does not 
+# allow you to simply call these methods.
+# --------------------------------------------------------------------------------------------------------------------
+
 @sendMessage = ->
   message = linkify $('#newMessageInput').val() # get the message from the input box
   unless (message?.length > 0 and (/\S/.test(message))) # check the message has content and it is not whitespace
@@ -195,7 +194,7 @@ Template.tabButtons.helpers
     button += 'class="'
     button += 'active ' if getInSession("inChatWith") is @userId
     button += 'gotUnreadMail ' if @gotMail
-    button += "tab #{safeClass}\"><a href=\"#\" data-toggle=\"tab\" id=\"#{safeName}\" \>#{safeName}"
+    button += "tab #{safeClass}\"><a href=\"#\" data-toggle=\"tab\" id=\"#{safeName}\" >#{safeName}"
     button += '&nbsp;<button class="close closeTab" type="button" >×</button>' if @class is 'privateChatTab'
     button += '</a></li>'
     button
