@@ -52,7 +52,7 @@ Meteor.methods
 					"version": "0.0.1"
 
 			publish Meteor.config.redis.channels.toBBBApps.voice, message
-			updateVoiceUser {'user_id': user_id, talking:false, joined: true, muted:false}
+			updateVoiceUser {'user_id': user_id, talking:false, joined: false, muted:false}
 		else
 			console.log "did not have enough information to send a mute_user_request"
 

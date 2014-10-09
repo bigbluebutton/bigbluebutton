@@ -99,26 +99,26 @@ Handlebars.registerHelper "isCurrentUserRaisingHand", ->
 	user?.user?.raise_hand
 
 Handlebars.registerHelper "isCurrentUserSharingAudio", ->
-	user = Meteor.Users.findOne({userId:getInSession("userId")})
+	user = Meteor.Users.findOne({_id:getInSession("DBID")})
 	user?.user?.voiceUser?.joined
 
 Handlebars.registerHelper "isCurrentUserSharingVideo", ->
-	user = Meteor.Users.findOne({userId:getInSession("userId")})
+	user = Meteor.Users.findOne({_id:getInSession("DBID")})
 	user?.user?.webcam_stream?.length isnt 0
 
 Handlebars.registerHelper "isCurrentUserTalking", ->
-	user = Meteor.Users.findOne({userId:getInSession("userId")})
+	user = Meteor.Users.findOne({_id:getInSession("DBID")})
 	user?.user?.voiceUser?.talking
 
 Handlebars.registerHelper "isUserSharingAudio", (u) ->
   if u? 
-    user = Meteor.Users.findOne({userId:u.userid})
+    user = Meteor.Users.findOne({_id:u._id})
     user?.user?.voiceUser?.joined
   else return false
 
 Handlebars.registerHelper "isUserListenOnly", (u) ->
   if u?
-    user = Meteor.Users.findOne({userId:u.userid})
+    user = Meteor.Users.findOne({_id:u._id})
     user?.user?.listenOnly
   else return false
 
@@ -127,7 +127,7 @@ Handlebars.registerHelper "isUserSharingVideo", (u) ->
 
 Handlebars.registerHelper "isUserTalking", (u) ->
   if u? 
-    user = Meteor.Users.findOne({userId:u.userid})
+    user = Meteor.Users.findOne({_id:u._id})
     user.user?.voiceUser?.talking
   else return false
 
