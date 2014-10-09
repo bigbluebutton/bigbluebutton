@@ -146,6 +146,11 @@ Template.optionsBar.events
     setInSession 'display_chatPane', true
     setInSession "inChatWith", @_id
 
+Template.optionsBar.helpers
+  thereArePeopletoChatWith: -> # Subtract 1 for the current user. Returns whether there are other people in the chat
+    # TODO: Add a check for the count to only include users who are allowed to private chat
+    (Meteor.Users.find({'meetingId': getInSession("meetingId")}).count()-1) >= 1
+
 Template.optionsBar.rendered = ->
   $('div[rel=tooltip]').tooltip()
 
