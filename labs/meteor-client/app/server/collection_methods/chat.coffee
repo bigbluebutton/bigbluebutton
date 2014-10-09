@@ -62,8 +62,8 @@ Meteor.methods
 
 	if (fromUser? and toUser?) or forPublic
 		# translate ids from flash to html5
-		transformedChatObject.from_userid = fromUser._id
-		transformedChatObject.to_userid = if forPublic then 'public_chat_userid' else toUser._id
+		transformedChatObject.from_userid = fromUser?._id
+		transformedChatObject.to_userid = if forPublic then 'public_chat_userid' else toUser?._id
 
 		if transformedChatObject.from_userid? and transformedChatObject.to_userid?
 			entry =
