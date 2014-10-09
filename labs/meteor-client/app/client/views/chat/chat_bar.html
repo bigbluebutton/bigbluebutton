@@ -59,24 +59,28 @@
 <!-- Displays the list of options available -->
 <template name="optionsBar">
 	<div class="optionsBar">
-		<p>Select a person to chat with privately</p>
-		<div class="private-chat-user-box" rel="tooltip" data-placement="top" title="Select a participant to open a private chat">
-			{{#Layout template="scrollWindow" id="privateChatUserScrollWindow"}}
-				{{#contentFor region="scrollContents"}}
-					<table class="table table-hover">
-						<tbody class="private-chat-user-list">
-							{{#each getUsersInMeeting}}
-								<tr class="private-chat-user-entry">
-									{{#unless isCurrentUser _id}}
-								      {{user.name}}
-								    {{/unless}}
-								</tr>
-							{{/each}}
-						</tbody>
-					</table>
-				{{/contentFor}}
-			{{/Layout}}
-		</div>
+		{{#if thereArePeopletoChatWith}} <!-- There are people we can chat with, display the user list -->
+			<p>Select a person to chat with privately</p>
+			<div class="private-chat-user-box" rel="tooltip" data-placement="top" title="Select a participant to open a private chat">
+				{{#Layout template="scrollWindow" id="privateChatUserScrollWindow"}}
+					{{#contentFor region="scrollContents"}}
+						<table class="table table-hover">
+							<tbody class="private-chat-user-list">
+								{{#each getUsersInMeeting}}
+									<tr class="private-chat-user-entry">
+										{{#unless isCurrentUser _id}}
+									      {{user.name}}
+									    {{/unless}}
+									</tr>
+								{{/each}}
+							</tbody>
+						</table>
+					{{/contentFor}}
+				{{/Layout}}
+			</div>
+		{{else}}
+			<p>There are no participants to chat with right now.</p>
+		{{/if}}
 		<br/>
 		{{> chatOptions}}
 	</div>

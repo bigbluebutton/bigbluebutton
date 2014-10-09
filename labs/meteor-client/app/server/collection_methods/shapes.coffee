@@ -27,7 +27,7 @@
         background: shapeObject.shape.background
 
     id = Meteor.Shapes.insert(entry)
-    numShapesOnSlide = Meteor.Shapes.find({meetingId: meetingId, whiteboardId: whiteboardId}).fetch().length
+    numShapesOnSlide = Meteor.Shapes.find({meetingId: meetingId, whiteboardId: whiteboardId}).count()
     console.log "added textShape id =[#{id}]:#{shapeObject.id} in #{meetingId} || now there are #{numShapesOnSlide} shapes on the slide"
 
   else
@@ -54,7 +54,7 @@
             color: shapeObject.shape.color
 
       id = Meteor.Shapes.insert(entry)
-      numShapesOnSlide = Meteor.Shapes.find({meetingId: meetingId, whiteboardId: whiteboardId}).fetch().length
+      numShapesOnSlide = Meteor.Shapes.find({meetingId: meetingId, whiteboardId: whiteboardId}).count()
       console.log "added shape id =[#{id}]:#{shapeObject.id} in #{meetingId} || now there are #{numShapesOnSlide} shapes on the slide"
 
 @removeAllShapesFromSlide = (meetingId, whiteboardId) ->
