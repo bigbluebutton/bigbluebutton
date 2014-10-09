@@ -6,7 +6,7 @@
 
 # retrieve account for selected user
 @getCurrentUserFromSession = ->
-  Meteor.Users.findOne("userId": getInSession("userId"))
+  Meteor.Users.findOne("_id": getInSession("userId"))
 
 @getInSession = (k) -> SessionAmplify.get k
 
@@ -30,7 +30,7 @@
   name = getInSession("userName") # check if we actually have one in the session
   if name? then name # great return it, no database query
   else # we need it from the database
-    user = Meteor.Users.findOne({'userId': getInSession("userId")})
+    user = Meteor.Users.findOne({'_id': getInSession("DBID")})
     if user?.user?.name
       setInSession "userName", user.user.name # store in session for fast access next time
       user.user.name
@@ -133,7 +133,7 @@ Handlebars.registerHelper "isUserTalking", (u) ->
 
 Handlebars.registerHelper "isUserMuted", (u) ->
   if u? 
-    user = Meteor.Users.findOne({userId:u.userid})
+    user = Meteor.Users.findOne({_id:u._id})
     user.user.voiceUser?.muted
   else return false
 
