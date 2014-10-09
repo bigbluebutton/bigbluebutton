@@ -170,7 +170,7 @@ Meteor.methods
     setInSession("meetingId", meetingId)
     setInSession("currentChatId", meetingId)
     setInSession("meetingName", null)
-    setInSession("userName", null) 
+    setInSession("userName", null)
 
 @toggleCam = (event) ->
   # Meteor.Users.update {_id: context._id} , {$set:{"user.sharingVideo": !context.sharingVideo}}
@@ -209,11 +209,8 @@ Meteor.methods
 		voiceBridge = Meteor.Meetings.findOne({}).voiceConf 
 		server = null
 		joinCallback = (message) -> 
-			# console.log JSON.stringify message
 			# userShareAudio: (meetingId, userId, user_id) ->
 			Meteor.call("userShareAudio", getInSession("meetingId"), getInSession("userId"), getInSession("DBID"))
-			# console.log "joined audio call"
-			# console.log Meteor.Users.findOne(userId:getInSession("userId"))
 			setInSession "isSharingAudio", true
 		webrtc_call(username, voiceBridge, server, joinCallback) # make the call
 	return false

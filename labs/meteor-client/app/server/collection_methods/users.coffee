@@ -58,15 +58,7 @@ Meteor.methods
 
 	# Verifies muter exists, provided proper credentials, and has permission to mute the user
 	publishMuteRequest: (meetingId, mutee_id, requesterUserId, requester_id, mutedBoolean) ->
-		console.log "------------------------------mute request params"
-		console.log "meetingId = #{meetingId}"
-		console.log "mutee_id = #{mutee_id}"
-		console.log "requesterUserId = #{requesterUserId}"
-		console.log "requester_id = #{requester_id}"
-		console.log "mutedBoolean = #{mutedBoolean}"
-		console.log "end ------------------------------mute request params"
-		# console.log "publishing a user mute #{mutedBoolean} request for #{mutee_id}"
-		
+		console.log "publishing a user mute #{mutedBoolean} request for #{mutee_id}"
 		mutee = Meteor.Users.findOne({'meetingId': meetingId, _id: mutee_id})
 		muter = Meteor.Users.findOne({'meetingId': meetingId, 'userId': requesterUserId, _id: requester_id})
 		if mutee? and muter?
