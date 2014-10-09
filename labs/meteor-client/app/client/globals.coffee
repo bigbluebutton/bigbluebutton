@@ -59,8 +59,8 @@ Handlebars.registerHelper "getCurrentUser", =>
   @window.getCurrentUserFromSession()
 
 Handlebars.registerHelper "getHandRaiseStats", ->
-	numRaised = Meteor.Users.find({'user.raise_hand':true}).fetch().length
-	total = Meteor.Users.find().fetch().length
+	numRaised = Meteor.Users.find({'user.raise_hand':true}).count()
+	total = Meteor.Users.find().count()
 	percentageRaised = numRaised/total
 	if numRaised > 0
 		"#{numRaised} Hands Raised (#{percentageRaised}% of Attendees)"
