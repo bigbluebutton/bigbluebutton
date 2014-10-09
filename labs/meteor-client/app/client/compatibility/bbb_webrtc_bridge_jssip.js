@@ -28,7 +28,7 @@ function webrtc_call(username, voiceBridge, server, callback) {
          uri: 'sip:' + escape(username) + '@' + server,
       //   password: freeswitchPassword,
       //   ws_servers: 'wss://' + server + ':7443',
-         ws_servers: 'ws://' + server + ':5066',         
+         ws_servers: 'ws://' + server + '/ws',        
          display_name: username,
       //   authorization_user: freeswitchUser,
          register: false,
