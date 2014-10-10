@@ -10,28 +10,28 @@ Meteor.methods
 	# always validates the credentials of the requester. This is a waste of resources when applying it to every user.
 	# We can validate the muter first, then mute all users individually
 	# Perhaps there should be a way to send a mute request to bbbApps for several users, instead of an individual request for each user (bandwidth)
-	MuteAllUsers: (meetingId, requesterUserId, requester_id) ->
-		console.log "MuteAllUsers server method"
-		muter = Meteor.Users.findOne({'meetingId': meetingId, 'userId': requesterUserId, _id: requester_id})
+	# MuteAllUsers: (meetingId, requesterUserId, requester_id) ->
+	# 	console.log "MuteAllUsers server method"
+	# 	muter = Meteor.Users.findOne({'meetingId': meetingId, 'userId': requesterUserId, _id: requester_id})
 
-		if muter?.presenter? and muter.presenter # or if they are a moderator?
-			users = Meteor.Users.find({}).fetch()
+	# 	if muter?.presenter? and muter.presenter # or if they are a moderator?
+	# 		users = Meteor.Users.find({}).fetch()
 		
-			for mutee in users
-				# check if user isnt muted, then continue. If they are already muted you can skip them
-				message =
-					"payload":
-						"userid": mutee.userId
-						"meeting_id": meetingId
-						"mute": mutedBoolean
-						"requester_id": muter.userId
-					"header": 
-						"timestamp": new Date().getTime()
-						"name": "mute_user_request"
-						"version": "0.0.1"
+	# 		for mutee in users
+	# 			# check if user isnt muted, then continue. If they are already muted you can skip them
+	# 			message =
+	# 				"payload":
+	# 					"userid": mutee.userId
+	# 					"meeting_id": meetingId
+	# 					"mute": mutedBoolean
+	# 					"requester_id": muter.userId
+	# 				"header": 
+	# 					"timestamp": new Date().getTime()
+	# 					"name": "mute_user_request"
+	# 					"version": "0.0.1"
 
-				publish Meteor.config.redis.channels.toBBBApps.voice, message
-				updateVoiceUser {'user_id': mutee._id, talking:false, muted:true}
+	# 			publish Meteor.config.redis.channels.toBBBApps.voice, message
+	# 			updateVoiceUser {'user_id': mutee._id, talking:false, muted:true}
 
 	userShareAudio: (meetingId, userId, user_id) ->
 		updateVoiceUser {'user_id': user_id, 'talking':false, 'joined': true, 'muted':false}
@@ -190,22 +190,23 @@ Meteor.methods
 
 
 #update a voiceUser - a helper method
-@updateVoiceUser = (voiceUserObject) ->
-	if voiceUserObject?.user_id?
+@updateVoiceUser = (meetingId, voiceUserObject) ->
+	console.log "aaaaaaaaaaaaaaaaaaaa:" + JSON.stringify voiceUserObject
+	if voiceUserObject?.userid?
 		console.log "I am updating the voiceUserObject with the following: " + JSON.stringify voiceUserObject
 
-		u = Meteor.Users.findOne _id: voiceUserObject.user_id
+		u = Meteor.Users.findOne userId: voiceUserObject.web_userid
 		if u?
 			if voiceUserObject.talking?
-				Meteor.Users.update({_id:voiceUserObject.user_id}, {$set: {'user.voiceUser.talking':voiceUserObject.talking}}, {multi: false}) # talking
+				Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.voiceUser.talking':voiceUserObject.talking}}, {multi: false}) # talking
 			if voiceUserObject.joined?
-				Meteor.Users.update({_id:voiceUserObject.user_id}, {$set: {'user.voiceUser.joined':voiceUserObject.joined}}, {multi: false}) # joined
+				Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.voiceUser.joined':voiceUserObject.joined}}, {multi: false}) # joined
 			if voiceUserObject.locked?
-				Meteor.Users.update({_id:voiceUserObject.user_id}, {$set: {'user.voiceUser.locked':voiceUserObject.locked}}, {multi: false}) # locked
+				Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.voiceUser.locked':voiceUserObject.locked}}, {multi: false}) # locked
 			if voiceUserObject.muted?
-				Meteor.Users.update({_id:voiceUserObject.user_id}, {$set: {'user.voiceUser.muted':voiceUserObject.muted}}, {multi: false}) # muted
+				Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.voiceUser.muted':voiceUserObject.muted}}, {multi: false}) # muted
 			if voiceUserObject.listenOnly?
-				Meteor.Users.update({_id:voiceUserObject.user_id}, {$set: {'user.listenOnly':voiceUserObject.listenOnly}}, {multi: false}) # muted
+				Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.listenOnly':voiceUserObject.listenOnly}}, {multi: false}) # muted
 		else
 			console.log "ERROR! did not find such voiceUser!"
 

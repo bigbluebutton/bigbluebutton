@@ -1,18 +1,18 @@
 <template name="displayUserIcons">
-    <td>{{#if isUserSharingVideo user}}
+    <td>{{#if isUserSharingVideo _id}}
         <span class="userListSettingIcon glyphicon glyphicon-facetime-video" rel="tooltip" data-placement="bottom" title="{{user.name}} is sharing their webcam"></span>
     {{/if}}</td>
 
     <!-- Should use much more noticeable icons than just bootstrap's volume-up & volume-down to differentiate talking but it is good for now -->
-    <td>{{#if isUserSharingAudio user}}
-          {{#if isCurrentUser userId}}
-            {{#if isUserMuted user}}
+    <td>{{#if isUserSharingAudio _id}}
+          {{#if isCurrentUser _id}}
+            {{#if isUserMuted _id}}
               <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-off" rel="tooltip" data-placement="bottom" title="Unmute yourself"></span>
             {{else}}
               <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-down" rel="tooltip" data-placement="bottom" title="Mute yourself"></span>
             {{/if}}
           {{else}}
-            {{#if isUserMuted user}}
+            {{#if isUserMuted _id}}
               <span class="userListSettingIcon glyphicon glyphicon-volume-off" rel="tooltip" data-placement="bottom" title="{{user.name}} is muted"></span>
             {{else}}
               {{#if isUserTalking user}}
