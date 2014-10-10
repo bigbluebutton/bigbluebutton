@@ -100,7 +100,7 @@ Template.chatbar.helpers
               break # Messages are too far between, so them seperated and stop joining here
 
             if msgs[i].message.from_userid is msgs[j].message.from_userid # Both messages are from the same user
-              msgs[i].message.message += "\\n#{msgs[j].message.message}" # Combine the messages
+              msgs[i].message.message += "\r#{msgs[j].message.message}" # Combine the messages
               msgs.splice(j,1) # Delete the message from the collection
               deleted = true
             else break # Messages are from different people, move on
@@ -171,7 +171,6 @@ Template.tabButtons.events
 
     Meteor.call("deletePrivateChatMessages", getInSession("userId"), @userId)
 
-
     return false # stops propogation/prevents default
 
   'click .optionsChatTab': (event) ->
@@ -189,7 +188,6 @@ Template.tabButtons.events
   'click .gotUnreadMail': (event) ->
     chatTabs.update({userId: @userId}, {$set: {gotMail: false}})
 
- 
 Template.tabButtons.helpers
   makeTabButton: -> # create tab button for private chat or other such as options
     safeClass = @class.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
