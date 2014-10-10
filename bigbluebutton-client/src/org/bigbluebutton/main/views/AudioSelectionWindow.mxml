@@ -22,7 +22,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				xmlns:mate="http://mate.asfusion.com/"
 				width="700" height="350" 
-				creationComplete="onCreationComplete()" 
+				initialize="init()" 
 				styleName="micSettingsWindowStyle"
 				showCloseButton="false">
 	
@@ -47,7 +47,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var baseIndex:int = 1;
 			
-			private function onCreationComplete():void {
+			private function init():void {
 				if (!phoneOptions.listenOnlyMode) btnListenOnly.enabled = false;
 				if (phoneOptions.presenterShareOnly && !UsersUtil.amIPresenter() && !UsersUtil.amIModerator()) btnMicrophone.enabled = false;
 				
