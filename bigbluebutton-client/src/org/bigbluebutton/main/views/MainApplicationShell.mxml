@@ -454,7 +454,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function showlogoutWindow(reason:String):void {
         if (layoutOptions!= null && layoutOptions.showLogoutWindow) {
           if (logoutWindow != null) return;
-          logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, false));
+          logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, true));
           
           var point1:Point = new Point();
           // Calculate position of TitleWindow in Application's coordinates. 
@@ -526,7 +526,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function handleAddToolbarComponent(event:ToolbarButtonEvent):void {
 				if (event.location == ToolbarButtonEvent.BOTTOM_TOOLBAR) {
-					(event.button as UIComponent).tabIndex = baseIndex;
+					(event.button as UIComponent).tabIndex = baseIndex + addedBtns.numChildren + 10;
 					addedBtns.addChild(event.button as UIComponent);
 					//realignButtons();
 				}
@@ -632,7 +632,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				height="20"
 				width="180"
 				accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"
-				styleName="languageSelectorStyle" />
+				styleName="languageSelectorStyle"
+				tabIndex="{baseIndex}"/>
 		<mx:Button
 				width="20"
 				height="20"
@@ -642,7 +643,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				id="logBtn"
 				icon="{logs_icon}"
 				click="openLogWindow()"
-				tabIndex="{baseIndex}"/>
+				tabIndex="{baseIndex+1}"/>
 		<mx:HBox id="addedBtns" />
 	</mx:ControlBar>
 </mx:VBox>
