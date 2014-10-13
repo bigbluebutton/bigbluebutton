@@ -1,5 +1,5 @@
 
-var callerIdName, conferenceVoiceBridge, userAgent, userMicMedia, userWebcamMedia, currentSession;
+var callerIdName, conferenceVoiceBridge, userAgent, userMicMedia, userWebcamMedia, currentSession, callTimeout, callActive, callFailCounter, callPurposefullyEnded, uaConnected;
 
 function callIntoConference(voiceBridge, callback) {
 	if (!callerIdName) {
@@ -156,18 +156,30 @@ function createUA(username, server, callback) {
 		uri: 'sip:' + encodeURIComponent(username) + '@' + server,
 		wsServers: 'ws://' + server + '/ws',
 		displayName: username,
+		level: 3,
 		register: false,
-		traceSip: false,
+		traceSip: true,
+		autostart: false,
 		userAgentString: "BigBlueButton",
 		stunServers: "stun:stun.freeswitch.org"
 	};
 	
+	uaConnected = false;
+	
 	userAgent = new SIP.UA(configuration);
+	userAgent.on('connected', function() {
+		uaConnected = true;
+	});
 	userAgent.on('disconnected', function() {
 		if (userAgent) {
 			userAgent.stop();
 			userAgent = null;
-			callback({'status':'failed', 'cause': 'Could not make a WebSocket Connection'});
+			
+			if (uaConnected) {
+				callback({'status':'failed', 'cause': 'WebSocket disconnected'});
+			} else {
+				callback({'status':'failed', 'cause': 'Could not make a WebSocket connection'});
+			}
 		}
 	});
 	
@@ -204,7 +216,7 @@ function getUserMicMedia(getUserMicMediaSuccess, getUserMicMediaFailure) {
 
 function webrtc_call(username, voiceBridge, callback) {
 	if (!isWebRTCAvailable()) {
-		callback({'status': 'browserError', message: "Browser version not supported"});
+		callback({'status': 'failed', message: "Browser version not supported"});
 		return;
 	}
 	
@@ -216,14 +228,14 @@ function webrtc_call(username, voiceBridge, callback) {
 	}
 	
 	if (userMicMedia !== undefined) {
-		make_call(username, voiceBridge, server, callback);
+		make_call(username, voiceBridge, server, callback, false);
 	} else {
 		callback({'status':'mediarequest'});
 		getUserMicMedia(function(stream) {
 				console.log("getUserMicMedia: success");
 				userMicMedia = stream;
 				callback({'status':'mediasuccess'});
-				make_call(username, voiceBridge, server, callback);
+				make_call(username, voiceBridge, server, callback, false);
 			}, function(e) {
 				console.error("getUserMicMedia: failure - " + e);
 				callback({'status':'mediafail', 'cause': e});
@@ -232,7 +244,21 @@ function webrtc_call(username, voiceBridge, callback) {
 	}
 }
 
-function make_call(username, voiceBridge, server, callback) {
+function make_call(username, voiceBridge, server, callback, recall) {
+	if (!userAgent.isConnected()) {
+		console.log("Trying to make call, but UserAgent hasn't connected yet. Delaying call");
+		userAgent.once('connected', function() {
+			console.log("UserAgent has now connected, retrying the call");
+			make_call(username, voiceBridge, server, callback, recall);
+		});
+		return;
+	}
+
+	if (currentSession) {
+		console.log('Active call detected ignoring second make_call');
+		return;
+	}
+
 	// Make an audio/video call:
 	console.log("Setting options.. ");
 	var options = {
@@ -246,31 +272,75 @@ function make_call(username, voiceBridge, server, callback) {
 		}
 	};
 	
+	callTimeout = setTimeout(function() {
+		console.log('Ten seconds without updates, retrying the call');
+		make_call(username, voiceBridge, server, callback, true);
+	}, 10000);
+	
+	callActive = false;
+	callPurposefullyEnded = false;
+	callFailCounter = 0;
 	console.log("Calling to " + voiceBridge + "....");
 	currentSession = userAgent.invite('sip:' + voiceBridge + '@' + server, options); 
 	
-	console.log('call connecting');
-	callback({'status':'connecting'});
+	// Only send the callback if it's the first try
+	if (recall === false) {
+		console.log('call connecting');
+		callback({'status':'connecting'});
+	} else {
+		console.log('call connecting again');
+	}
+	
 	// The connecting event fires before the listener can be added
 	currentSession.on('connecting', function(){
 		//console.log('call connecting');
 		//callback({'status':'connecting'});
 	});
+	currentSession.on('progress', function(response){
+		console.log('call progress: ' + response);
+		clearTimeout(callTimeout);
+	});
 	currentSession.on('failed', function(response, cause){
 		console.log('call failed with cause: '+ cause);
-		callback({'status':'failed', 'cause': cause});
+		
+		if (callActive === false) {
+			callback({'status':'failed', 'cause': cause});
+		} else if (currentSession) {
+			//currentSession.bye();
+			currentSession = null;
+			userAgent.stop();
+		}
+		clearTimeout(callTimeout);
 	});
 	currentSession.on('bye', function(request){
-		console.log('call ended ' + currentSession.endTime);
-		callback({'status':'ended'});
+		callActive = false;
+		
+		if (currentSession) {
+			console.log('call ended ' + currentSession.endTime);
+			
+			if (callPurposefullyEnded === true) {
+				callback({'status':'ended'});
+			} else {
+				callback({'status':'failed', 'cause':'Call ended unexpectedly'});
+			}
+			clearTimeout(callTimeout);
+			currentSession = null;
+		} else {
+			console.log('bye event already received');
+		}
 	});
 	currentSession.on('accepted', function(data){
+		callActive = true;
+		
 		console.log('BigBlueButton call started');
 		callback({'status':'started'});
+		clearTimeout(callTimeout);
 	});
 }
 
 function webrtc_hangup(callback) {
+	callPurposefullyEnded = true;
+
 	console.log("Hanging up current session");
 	if (callback) {
 	  currentSession.on('bye', callback);
