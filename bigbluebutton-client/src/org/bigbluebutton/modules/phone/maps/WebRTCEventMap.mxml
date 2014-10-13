@@ -64,6 +64,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{WebRTCCallManager}" method="userRequestedHangup"/>
   </EventHandlers>
   
+  <EventHandlers type="{ConnectionFailedEvent.CONNECTION_CLOSED}">
+    <MethodInvoker generator="{WebRTCCallManager}" method="userRequestedHangup"/>
+  </EventHandlers>
+  
   <EventHandlers type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_STARTED}">        
     <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCEchoTestStartedEvent"/>
   </EventHandlers>

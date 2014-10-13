@@ -35,6 +35,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
 	<mate:Listener type="{WebRTCMediaEvent.WEBRTC_MEDIA_SUCCESS}" method="handleWebRTCMediaSuccessEvent" />
 	<mate:Listener type="{WebRTCMediaEvent.WEBRTC_MEDIA_FAIL}" method="handleWebRTCMediaFailEvent" />
+	<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_FAILED}" method="handleWebRTCEchoTestFailedEvent" />
   
 	<mx:Script>
 		<![CDATA[
@@ -43,6 +44,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -51,6 +53,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function handleWebRTCMediaFailEvent(e:WebRTCMediaEvent):void {
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function handleWebRTCEchoTestFailedEvent(e:WebRTCEchoTestEvent):void {
 				PopUpManager.removePopUp(this);
 			}
 		
@@ -62,7 +68,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                   editable="false"
                   text="{ResourceUtil.getInstance().getString('bbb.micPermissions.firefox.title')}"
                   styleName="micSettingsWindowTitleStyle"
-                  width="400"
+                  width="440" height="100%" verticalScrollPolicy="off"
                   left="0"/>
     <mx:HBox width="100%">      
       <mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micPermissions.firefox.message1')}"

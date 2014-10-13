@@ -10,6 +10,7 @@ package org.bigbluebutton.modules.phone.events
 		public static const WEBRTC_ECHO_TEST_FAILED:String = "WEBRTC_ECHO_TEST_FAILED";
 		public static const WEBRTC_ECHO_TEST_HAS_AUDIO:String = "WEBRTC_ECHO_TEST_HAS_AUDIO";
 		public static const WEBRTC_ECHO_TEST_NO_AUDIO:String = "WEBRTC_ECHO_TEST_NO_AUDIO";
+		public static const WEBRTC_ECHO_TEST_ENDED_UNEXPECTEDLY:String = "WEBRTC_ECHO_TEST_ENDED_UNEXPECTEDLY";
 		
 		public var cause:String;
 		
