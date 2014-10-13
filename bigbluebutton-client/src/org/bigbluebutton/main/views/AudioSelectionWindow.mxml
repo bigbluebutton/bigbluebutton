@@ -23,6 +23,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				xmlns:mate="http://mate.asfusion.com/"
 				width="700" height="350" 
 				initialize="init()" 
+				creationComplete="checkListenOnlyMode()"
 				styleName="micSettingsWindowStyle"
 				showCloseButton="false">
 	
@@ -48,22 +49,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var baseIndex:int = 1;
 			
 			private function init():void {
+				if (!phoneOptions.listenOnlyMode) btnListenOnly.enabled = false;
+				if (phoneOptions.presenterShareOnly && !UsersUtil.amIPresenter() && !UsersUtil.amIModerator()) btnMicrophone.enabled = false;
+			
+				if (phoneOptions.showPhoneOption) {
+					txtPhone.text=ResourceUtil.getInstance().getString('bbb.audioSelection.txtPhone.text', [UserManager.getInstance().getConference().dialNumber, UserManager.getInstance().getConference().voiceBridge]);
+				} else {
+					vrulePhone.visible = vrulePhone.includeInLayout = false;
+					vboxPhone.visible = vboxPhone.includeInLayout = false;
+					this.width = 450;
+					this.height = 325;
+					vboxMic.percentWidth = 50;
+					vboxListen.percentWidth = 50;
+				}
+			}
+
+			private function checkListenOnlyMode():void {
 				if (phoneOptions.autoJoin && phoneOptions.forceListenOnly) {
 					onMicClick();
-				} else {
-					if (!phoneOptions.listenOnlyMode) btnListenOnly.enabled = false;
-					if (phoneOptions.presenterShareOnly && !UsersUtil.amIPresenter() && !UsersUtil.amIModerator()) btnMicrophone.enabled = false;
-				
-					if (phoneOptions.showPhoneOption) {
-						txtPhone.text=ResourceUtil.getInstance().getString('bbb.audioSelection.txtPhone.text', [UserManager.getInstance().getConference().dialNumber, UserManager.getInstance().getConference().voiceBridge]);
-					} else {
-						vrulePhone.visible = vrulePhone.includeInLayout = false;
-						vboxPhone.visible = vboxPhone.includeInLayout = false;
-						this.width = 450;
-						this.height = 325;
-						vboxMic.percentWidth = 50;
-						vboxListen.percentWidth = 50;
-					}
 				}
 			}
 			
