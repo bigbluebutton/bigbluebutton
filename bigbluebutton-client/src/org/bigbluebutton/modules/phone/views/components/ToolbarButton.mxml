@@ -80,9 +80,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				trace(LOG + "startPhone 2 enabled=[" + enabled + "] selected=[" + selected + "]");
         JSLog.debug(LOG + "startPhone 2 enabled=[" + enabled + "] selected=[" + selected + "]");
 				if (this.selected) {
-          if (phoneOptions.autoJoin && phoneOptions.forceListenOnly) {
-            dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
-          }
+					if (phoneOptions.autoJoin && phoneOptions.forceListenOnly) {
+						dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
+					}
 					//trace(LOG + "Sending Join Conference command");
 					//dispatcher.dispatchEvent(new JoinVoiceConferenceCommand());
 					trace(LOG + "Sending Show Audio Selection command");
@@ -184,10 +184,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handleFlashLeftVoiceConferenceEvent(event:FlashLeftVoiceConferenceEvent):void {
         trace(LOG + "User has left the conference using flash");
         JSLog.debug(LOG + "User has left the conference using flash");
-        var micLeft:Boolean = false;
-        if (_currentState == ACTIVE_STATE) {
-          micLeft = true;
-        }
+        var micLeft:Boolean = (_currentState == ACTIVE_STATE);
         onUserLeftConference();
         if (phoneOptions.autoJoin && phoneOptions.forceListenOnly && micLeft) {
           joinDefaultListenOnlyMode();
@@ -217,9 +214,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_currentState = DEFAULT_STATE;
         this.styleName = "voiceConfDefaultButtonStyle";
 				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
-        if (phoneOptions.autoJoin && phoneOptions.forceListenOnly) {
-          joinDefaultListenOnlyMode();
-        }
+				if (phoneOptions.autoJoin && phoneOptions.forceListenOnly) {
+					joinDefaultListenOnlyMode();
+				}
 			}
 				
 			//For whatever reason the tooltip does not update when localization is changed dynamically. Overrideing it here
