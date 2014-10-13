@@ -116,6 +116,10 @@ package org.bigbluebutton.core
     public static function amIModerator():Boolean {
       return UserManager.getInstance().getConference().amIModerator();
     }
+
+    public static function myFirstConnection():Boolean {
+      return UserManager.getInstance().getConference().myFirstConnection();
+    }
     
     public static function amIPresenter():Boolean {
       return UserManager.getInstance().getConference().amIPresenter;
@@ -177,6 +181,5 @@ package org.bigbluebutton.core
       }
       return null;
     }
-    
   }
 }

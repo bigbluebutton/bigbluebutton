@@ -35,6 +35,7 @@ package org.bigbluebutton.main.model.users {
     public var avatarURL:String;
 	  public var voiceBridge:String;
 	  public var dialNumber:String;
+	  public var firstConnection:Boolean = true;
 	  [Bindable] public var record:Boolean;
     
     private static const LOG:String = "main.model.users::Conference - ";
@@ -286,6 +287,13 @@ package org.bigbluebutton.main.model.users {
     
 		public function amIModerator():Boolean {
 			return me.role == Role.MODERATOR;
+		}
+
+		public function myFirstConnection():Boolean {
+			if (firstConnection) {
+				firstConnection = false;
+				return true;
+			} else return false;
 		}
 
 		public function muteMyVoice(mute:Boolean):void {

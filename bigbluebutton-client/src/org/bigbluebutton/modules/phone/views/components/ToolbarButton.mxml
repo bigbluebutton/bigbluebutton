@@ -117,9 +117,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onCreationComplete():void {
 				// when the button is added to the stage display the audio selection window if auto join is true
 				if (phoneOptions.autoJoin) {
+          // Enter microphone at start
           if (phoneOptions.forceListenOnly) {
             var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
-            command.mic = false;
+            command.mic = true;
             dispatcher.dispatchEvent(command);            
           } else {
             trace(LOG + "Sending Show Audio Selection command");

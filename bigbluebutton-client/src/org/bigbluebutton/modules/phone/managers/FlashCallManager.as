@@ -97,7 +97,7 @@
       * after. (richard mar 28, 2014)
       */
       if (mic) {
-        if (options.skipCheck) {
+        if (options.skipCheck || UsersUtil.myFirstConnection()) {
           JSLog.debug(LOG + "Calling into voice conference. skipCheck=[" + options.skipCheck + "] echoTestDone=[" + echoTestDone + "]");
           trace(LOG + "Calling into voice conference. skipCheck=[" + options.skipCheck + "] echoTestDone=[" + echoTestDone + "]");
           callIntoVoiceConference();
