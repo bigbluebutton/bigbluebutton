@@ -120,7 +120,7 @@ private var sender:MessageSender = new MessageSender();
 			_conferenceParameters.meetingID = result.meetingID;
 			_conferenceParameters.externUserID = result.externUserID;
 			_conferenceParameters.internalUserID = result.internalUserId;
-			_conferenceParameters.logoutUrl = replaceTokenslogoutUrl(result);
+			_conferenceParameters.logoutUrl = replaceTokensLogoutUrl(result);
 			_conferenceParameters.record = (result.record != "false");
 			var muteOnStart:Boolean;
 			try {
