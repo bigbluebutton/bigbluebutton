@@ -58,14 +58,6 @@ Handlebars.registerHelper "getCurrentSlide", ->
 Handlebars.registerHelper "getCurrentUser", =>
   @window.getCurrentUserFromSession()
 
-Handlebars.registerHelper "getHandRaiseStats", ->
-	numRaised = Meteor.Users.find({'user.raise_hand':true}).count()
-	total = Meteor.Users.find().count()
-	percentageRaised = numRaised/total
-	if numRaised > 0
-		"#{numRaised} Hands Raised (#{percentageRaised}% of Attendees)"
-	else false
-
 # Allow access through all templates
 Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
 
@@ -145,9 +137,6 @@ Handlebars.registerHelper "visibility", (section) ->
         style: 'display:block'
     else
         style: 'display:none'
-
-Handlebars.registerHelper "getChatbarTabs1", ->
-    chatTabs.find().fetch()
 
 # transform plain text links into HTML tags compatible with Flash client
 @linkify = (str) ->
@@ -253,7 +242,6 @@ Meteor.methods
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
   presentationId = currentPresentation?.presentation?.id
   currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
-
 
 #start a clientside-only collection keeping track of the chat tabs
 @chatTabs = new Meteor.Collection(null)
