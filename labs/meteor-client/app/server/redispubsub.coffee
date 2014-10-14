@@ -77,8 +77,7 @@ class Meteor.RedisPubSub
 
       # listen only
       if message.header.name is 'user_listening_only'
-        u = Meteor.Users.findOne({userId: message.payload.userid, meetingId: meetingId})
-        updateVoiceUser {'user_id': u._id, 'listenOnly': message.payload.listen_only}
+        updateVoiceUser meetingId, {'web_userid': message.payload.userid, 'listenOnly': message.payload.listen_only}
         # most likely we don't need to ensure that the user's voiceUser's {talking, joined, muted, locked} are false by default #TODO?
         return
 

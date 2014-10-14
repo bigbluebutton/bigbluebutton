@@ -33,28 +33,31 @@ Meteor.methods
 	# 			publish Meteor.config.redis.channels.toBBBApps.voice, message
 	# 			updateVoiceUser {'user_id': mutee._id, talking:false, muted:true}
 
-	userShareAudio: (meetingId, userId, user_id) ->
-		updateVoiceUser {'user_id': user_id, 'talking':false, 'joined': true, 'muted':false}
-		#TODO we need to send a message to bbb-apps about it
+	# userShareAudio: (meetingId, userId, user_id) ->
+	# 	u = Meteor.Users.findOne({meetingId: meetingId, userId: userId})
+	# 	if user_id is u._id
+			
+	# 		updateVoiceUser meetingId, {'web_userid': userId, 'talking':false, 'joined': true, 'muted':false}
+	# 	#TODO we need to send a message to bbb-apps about it
 
-	userStopAudio: (meetingId, userId, user_id, requesterUserId, requester_id) ->
-		console.log "publishing a user left voice request for #{userId} in #{meetingId}"
-		user = Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId, '_id': user_id})
-		requester = Meteor.Users.findOne({'meetingId': meetingId, 'userId': requesterUserId, '_id': requester_id})
-		if user? and requester? and ((user._id is requester._id) or requester.presenter)
-			message =
-				"payload":
-					"userid": user.userId
-					"meeting_id": user.meetingId
-				"header":
-					"timestamp": new Date().getTime()
-					"name": "user_left_voice_request"
-					"version": "0.0.1"
+	# userStopAudio: (meetingId, userId, user_id, requesterUserId, requester_id) ->
+	# 	console.log "publishing a user left voice request for #{userId} in #{meetingId}"
+	# 	user = Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId, '_id': user_id})
+	# 	requester = Meteor.Users.findOne({'meetingId': meetingId, 'userId': requesterUserId, '_id': requester_id})
+	# 	if user? and requester? and ((user._id is requester._id) or requester.presenter)
+	# 		message =
+	# 			"payload":
+	# 				"userid": user.userId
+	# 				"meeting_id": user.meetingId
+	# 			"header":
+	# 				"timestamp": new Date().getTime()
+	# 				"name": "user_left_voice_request"
+	# 				"version": "0.0.1"
 
-			publish Meteor.config.redis.channels.toBBBApps.voice, message
-			updateVoiceUser {'user_id': user_id, talking:false, joined: false, muted:false}
-		else
-			console.log "did not have enough information to send a mute_user_request"
+	# 		publish Meteor.config.redis.channels.toBBBApps.voice, message
+	# 		updateVoiceUser meetingId, {'user_id': user_id, talking:false, joined: false, muted:false}
+	# 	else
+	# 		console.log "did not have enough information to send a mute_user_request"
 
 	# Verifies muter exists, provided proper credentials, and has permission to mute the user
 	publishMuteRequest: (meetingId, mutee_id, requesterUserId, requester_id, mutedBoolean) ->
@@ -74,7 +77,7 @@ Meteor.methods
 					"version": "0.0.1"
 
 			publish Meteor.config.redis.channels.toBBBApps.voice, message
-			updateVoiceUser {'user_id': mutee._id, talking:false, muted:mutedBoolean}
+			updateVoiceUser meetingId, {'user_id': mutee._id, talking:false, muted:mutedBoolean}
 			# 
 		else
 			console.log "did not have enough information to send a mute_user_request"
@@ -192,23 +195,21 @@ Meteor.methods
 #update a voiceUser - a helper method
 @updateVoiceUser = (meetingId, voiceUserObject) ->
 	console.log "aaaaaaaaaaaaaaaaaaaa:" + JSON.stringify voiceUserObject
-	if voiceUserObject?.userid?
-		console.log "I am updating the voiceUserObject with the following: " + JSON.stringify voiceUserObject
-
-		u = Meteor.Users.findOne userId: voiceUserObject.web_userid
-		if u?
-			if voiceUserObject.talking?
-				Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.voiceUser.talking':voiceUserObject.talking}}, {multi: false}) # talking
-			if voiceUserObject.joined?
-				Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.voiceUser.joined':voiceUserObject.joined}}, {multi: false}) # joined
-			if voiceUserObject.locked?
-				Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.voiceUser.locked':voiceUserObject.locked}}, {multi: false}) # locked
-			if voiceUserObject.muted?
-				Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.voiceUser.muted':voiceUserObject.muted}}, {multi: false}) # muted
-			if voiceUserObject.listenOnly?
-				Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.listenOnly':voiceUserObject.listenOnly}}, {multi: false}) # muted
-		else
-			console.log "ERROR! did not find such voiceUser!"
+	u = Meteor.Users.findOne userId: voiceUserObject.web_userid
+	if u?
+		if voiceUserObject.talking?
+			Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.voiceUser.talking':voiceUserObject.talking}}, {multi: false}) # talking
+		if voiceUserObject.joined?
+			Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.voiceUser.joined':voiceUserObject.joined}}, {multi: false}) # joined
+		if voiceUserObject.locked?
+			Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.voiceUser.locked':voiceUserObject.locked}}, {multi: false}) # locked
+		if voiceUserObject.muted?
+			Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.voiceUser.muted':voiceUserObject.muted}}, {multi: false}) # muted
+		if voiceUserObject.listenOnly?
+			console.log "updating for listenOnly: " + voiceUserObject.listenOnly
+			Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.listenOnly':voiceUserObject.listenOnly}}, {multi: false}) # muted
+	else
+		console.log "ERROR! did not find such voiceUser!"
 
 @addUserToCollection = (meetingId, user) ->
 	userId = user.userid
