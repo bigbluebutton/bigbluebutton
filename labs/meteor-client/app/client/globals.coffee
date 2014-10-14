@@ -100,42 +100,36 @@ Handlebars.registerHelper "isCurrentUserRaisingHand", ->
 
 Handlebars.registerHelper "isCurrentUserSharingAudio", ->
 	user = Meteor.Users.findOne({_id:getInSession("DBID")})
-	user?.user?.voiceUser?.joined
+	return user?.voiceUser?.joined
 
 Handlebars.registerHelper "isCurrentUserSharingVideo", ->
 	user = Meteor.Users.findOne({_id:getInSession("DBID")})
-	user?.user?.webcam_stream?.length isnt 0
+	user?.webcam_stream?.length isnt 0
 
 Handlebars.registerHelper "isCurrentUserTalking", ->
 	user = Meteor.Users.findOne({_id:getInSession("DBID")})
-	user?.user?.voiceUser?.talking
+	return user?.voiceUser?.talking
 
-Handlebars.registerHelper "isUserSharingAudio", (u) ->
-  if u? 
-    user = Meteor.Users.findOne({_id:u._id})
-    user?.user?.voiceUser?.joined
-  else return false
+Handlebars.registerHelper "isUserSharingAudio", (_id) ->
+  user = Meteor.Users.findOne({_id:_id})
+  console.log user?.user?.voiceUser?.joined
+  return user.user?.voiceUser?.joined
 
-Handlebars.registerHelper "isUserListenOnly", (u) ->
-  if u?
-    user = Meteor.Users.findOne({_id:u._id})
-    user?.user?.listenOnly
-  else return false
+Handlebars.registerHelper "isUserListenOnly", (_id) ->
+    user = Meteor.Users.findOne({_id:_id})
+    return user?.user?.listenOnly
 
-Handlebars.registerHelper "isUserSharingVideo", (u) ->
-  u.webcam_stream?.length isnt 0
+Handlebars.registerHelper "isUserSharingVideo", (_id) ->
+  user = Meteor.Users.findOne({_id:_id})
+  return user.user?.webcam_stream?.length isnt 0
 
-Handlebars.registerHelper "isUserTalking", (u) ->
-  if u? 
-    user = Meteor.Users.findOne({_id:u._id})
-    user.user?.voiceUser?.talking
-  else return false
+Handlebars.registerHelper "isUserTalking", (_id) ->
+    user = Meteor.Users.findOne({_id:_id})
+    return user?.user?.voiceUser?.talking
 
-Handlebars.registerHelper "isUserMuted", (u) ->
-  if u? 
-    user = Meteor.Users.findOne({_id:u._id})
-    user.user.voiceUser?.muted
-  else return false
+Handlebars.registerHelper "isUserMuted", (_id) ->
+  user = Meteor.Users.findOne({_id:_id}) #for reactivity
+  return user?.user?.voiceUser?.muted
 
 Handlebars.registerHelper "messageFontSize", ->
 	style: "font-size: #{getInSession("messageFontSize")}px;"
