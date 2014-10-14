@@ -92,7 +92,7 @@ Handlebars.registerHelper "meetingIsRecording", ->
 	Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
 
 Handlebars.registerHelper "isCurrentUserMuted", ->
-	getInSession "isMuted"
+  return currentUserIsMuted()
 
 Handlebars.registerHelper "isCurrentUserRaisingHand", ->
   user = Meteor.Users.findOne({_id:getInSession("DBID")})
@@ -173,13 +173,13 @@ Meteor.methods
 @toggleChatbar = ->
   setInSession "display_chatbar", !getInSession "display_chatbar"
 
+@currentUserIsMuted = ->
+  return Meteor.Users.findOne({_id: getInSession "DBID"})?.user?.voiceUser?.muted
+
 @toggleMic = (event) ->
-  if getInSession "isSharingAudio" # only allow muting/unmuting if they are in the call
-    u = Meteor.Users.findOne({_id:getInSession("DBID")})
-    if u?
-      # publishMuteRequest: (meetingId, mutee_id, requesterUserId, requester_id, mutedBoolean) ->
-      Meteor.call('publishMuteRequest', getInSession("meetingId"),u._id, getInSession("userId"), u._id, not u.user.voiceUser.muted)
-      setInSession "isMuted", not u.user.voiceUser.muted
+  u = Meteor.Users.findOne({_id:getInSession("DBID")})
+  if u?
+    Meteor.call('publishMuteRequest', getInSession("meetingId"),u._id, getInSession("userId"), u._id, not u.user.voiceUser.muted)
 
 @toggleNavbar = ->
   setInSession "display_navbar", !getInSession "display_navbar"
@@ -190,23 +190,26 @@ Meteor.methods
 
 @toggleVoiceCall = (event) -> 
 	if getInSession "isSharingAudio"
-		hangupCallback = -> 
-			console.log "left voice conference"
-			# sometimes we can hangup before the message that the user stopped talking is received so lets set it manually, otherwise they might leave the audio call but still be registered as talking
-			# userStopAudio: (meetingId, userId, user_id, requesterUserId, requester_id) ->
-			#Meteor.call("userStopAudio", getInSession("meetingId"), getInSession("userId"), getInSession("DBID"), getInSession("userId"), getInSession("DBID"))
-			#setInSession "isSharingAudio", false # update to no longer sharing
-		webrtc_hangup hangupCallback # sign out of call
+    console.log "left voice conference"
+    # sometimes we can hangup before the message that the user stopped talking
+    # is received so lets set it manually, otherwise they might leave the audio
+    # call but still be registered as talking
+    Meteor.call("userStopAudio", getInSession("meetingId"), getInSession("userId"), getInSession("DBID"), getInSession("userId"), getInSession("DBID"))
+		# hangupCallback = -> 
+		# 	console.log "left voice conference"
+		# 	# sometimes we can hangup before the message that the user stopped talking is received so lets set it manually, otherwise they might leave the audio call but still be registered as talking
+		# 	userStopAudio: (meetingId, userId, user_id, requesterUserId, requester_id) ->
+		# 	  Meteor.call("userStopAudio", getInSession("meetingId"), getInSession("userId"), getInSession("DBID"), getInSession("userId"), getInSession("DBID"))
+		# 	#setInSession "isSharingAudio", false # update to no longer sharing
+		# webrtc_hangup hangupCallback # sign out of call
 	else
 		# create voice call params
 		username = "#{getInSession("userId")}-bbbID-#{getUsersName()}"
 		voiceBridge = Meteor.Meetings.findOne({}).voiceConf 
 		server = null
 		joinCallback = (message) ->
-      console.log "in"
-			# userShareAudio: (meetingId, userId, user_id) ->
-			#Meteor.call("userShareAudio", getInSession("meetingId"), getInSession("userId"), getInSession("DBID"))
-			#setInSession "isSharingAudio", true
+      #setInSession "isSharingAudio", true
+      console.log "started webrtc_call"
 		webrtc_call(username, voiceBridge, server, joinCallback) # make the call
 	return false
 

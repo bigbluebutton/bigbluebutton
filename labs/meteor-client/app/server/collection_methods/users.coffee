@@ -6,58 +6,29 @@
 # immediately, since they do not require permission for things such as muting themsevles. 
 # --------------------------------------------------------------------------------------------
 Meteor.methods
-	# I did not simply loop through all users and call the 'publishMuteRequest' because that function
-	# always validates the credentials of the requester. This is a waste of resources when applying it to every user.
-	# We can validate the muter first, then mute all users individually
-	# Perhaps there should be a way to send a mute request to bbbApps for several users, instead of an individual request for each user (bandwidth)
-	# MuteAllUsers: (meetingId, requesterUserId, requester_id) ->
-	# 	console.log "MuteAllUsers server method"
-	# 	muter = Meteor.Users.findOne({'meetingId': meetingId, 'userId': requesterUserId, _id: requester_id})
+	userStopAudio: (meetingId, userId, user_id, requesterUserId, requester_id) ->
+		console.log "meetingId: #{meetingId}\n
+					userId: #{userId}\n
+					user_id: #{user_id}\n
+					requesterUserId: #{requesterUserId}\n
+					requester_id: #{requester_id}"
+		console.log "publishing a user left voice request for #{userId} in #{meetingId}"
+		user = Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId, '_id': user_id})
+		requester = Meteor.Users.findOne({'meetingId': meetingId, 'userId': requesterUserId, '_id': requester_id})
+		if user? and requester? and ((user._id is requester._id) or requester.presenter)
+			message =
+				"payload":
+					"userid": user.userId
+					"meeting_id": user.meetingId
+				"header":
+					"timestamp": new Date().getTime()
+					"name": "user_left_voice_request"
+					"version": "0.0.1"
 
-	# 	if muter?.presenter? and muter.presenter # or if they are a moderator?
-	# 		users = Meteor.Users.find({}).fetch()
-		
-	# 		for mutee in users
-	# 			# check if user isnt muted, then continue. If they are already muted you can skip them
-	# 			message =
-	# 				"payload":
-	# 					"userid": mutee.userId
-	# 					"meeting_id": meetingId
-	# 					"mute": mutedBoolean
-	# 					"requester_id": muter.userId
-	# 				"header": 
-	# 					"timestamp": new Date().getTime()
-	# 					"name": "mute_user_request"
-	# 					"version": "0.0.1"
-
-	# 			publish Meteor.config.redis.channels.toBBBApps.voice, message
-	# 			updateVoiceUser {'user_id': mutee._id, talking:false, muted:true}
-
-	# userShareAudio: (meetingId, userId, user_id) ->
-	# 	u = Meteor.Users.findOne({meetingId: meetingId, userId: userId})
-	# 	if user_id is u._id
-			
-	# 		updateVoiceUser meetingId, {'web_userid': userId, 'talking':false, 'joined': true, 'muted':false}
-	# 	#TODO we need to send a message to bbb-apps about it
-
-	# userStopAudio: (meetingId, userId, user_id, requesterUserId, requester_id) ->
-	# 	console.log "publishing a user left voice request for #{userId} in #{meetingId}"
-	# 	user = Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId, '_id': user_id})
-	# 	requester = Meteor.Users.findOne({'meetingId': meetingId, 'userId': requesterUserId, '_id': requester_id})
-	# 	if user? and requester? and ((user._id is requester._id) or requester.presenter)
-	# 		message =
-	# 			"payload":
-	# 				"userid": user.userId
-	# 				"meeting_id": user.meetingId
-	# 			"header":
-	# 				"timestamp": new Date().getTime()
-	# 				"name": "user_left_voice_request"
-	# 				"version": "0.0.1"
-
-	# 		publish Meteor.config.redis.channels.toBBBApps.voice, message
-	# 		updateVoiceUser meetingId, {'user_id': user_id, talking:false, joined: false, muted:false}
-	# 	else
-	# 		console.log "did not have enough information to send a mute_user_request"
+			publish Meteor.config.redis.channels.toBBBApps.voice, message
+			updateVoiceUser meetingId, {'user_id': user_id, talking:false, joined: false, muted:false}
+		else
+			console.log "did not have enough information to send a mute_user_request"
 
 	# Verifies muter exists, provided proper credentials, and has permission to mute the user
 	publishMuteRequest: (meetingId, mutee_id, requesterUserId, requester_id, mutedBoolean) ->
