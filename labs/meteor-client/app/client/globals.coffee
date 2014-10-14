@@ -108,7 +108,7 @@ Handlebars.registerHelper "isCurrentUserSharingVideo", ->
 
 Handlebars.registerHelper "isCurrentUserTalking", ->
   user = Meteor.Users.findOne({_id:getInSession("DBID")})
-  return user?.voiceUser?.talking
+  return user?.user?.voiceUser?.talking
 
 Handlebars.registerHelper "isUserSharingAudio", (_id) ->
   user = Meteor.Users.findOne({_id:_id})

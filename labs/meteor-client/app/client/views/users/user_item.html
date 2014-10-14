@@ -9,7 +9,11 @@
             {{#if isUserMuted _id}}
               <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-off" rel="tooltip" data-placement="bottom" title="Unmute yourself"></span>
             {{else}}
-              <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-down" rel="tooltip" data-placement="bottom" title="Mute yourself"></span>
+              {{#if isCurrentUserTalking}}
+                  <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-up" rel="tooltip" data-placement="bottom" title="is talking"></span>
+              {{else}}
+                  <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-down" rel="tooltip" data-placement="bottom" title="is not talking"></span>
+              {{/if}}
             {{/if}}
           {{else}}
             {{#if isUserMuted _id}}
