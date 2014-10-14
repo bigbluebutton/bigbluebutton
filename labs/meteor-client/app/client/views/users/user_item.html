@@ -15,7 +15,7 @@
             {{#if isUserMuted _id}}
               <span class="userListSettingIcon glyphicon glyphicon-volume-off" rel="tooltip" data-placement="bottom" title="{{user.name}} is muted"></span>
             {{else}}
-              {{#if isUserTalking user}}
+              {{#if isUserTalking _id}}
                   <span class="userListSettingIcon glyphicon glyphicon-volume-up" rel="tooltip" data-placement="bottom" title="{{user.name}} is talking"></span>
               {{else}}
                   <span class="userListSettingIcon glyphicon glyphicon-volume-down" rel="tooltip" data-placement="bottom" title="{{user.name}} is not talking"></span>
