@@ -6,33 +6,6 @@
 # immediately, since they do not require permission for things such as muting themsevles. 
 # --------------------------------------------------------------------------------------------
 Meteor.methods
-	# I did not simply loop through all users and call the 'publishMuteRequest' because that function
-	# always validates the credentials of the requester. This is a waste of resources when applying it to every user.
-	# We can validate the muter first, then mute all users individually
-	# Perhaps there should be a way to send a mute request to bbbApps for several users, instead of an individual request for each user (bandwidth)
-	# MuteAllUsers: (meetingId, requesterUserId, requester_id) ->
-	# 	console.log "MuteAllUsers server method"
-	# 	muter = Meteor.Users.findOne({'meetingId': meetingId, 'userId': requesterUserId, _id: requester_id})
-
-	# 	if muter?.presenter? and muter.presenter # or if they are a moderator?
-	# 		users = Meteor.Users.find({}).fetch()
-		
-	# 		for mutee in users
-	# 			# check if user isnt muted, then continue. If they are already muted you can skip them
-	# 			message =
-	# 				"payload":
-	# 					"userid": mutee.userId
-	# 					"meeting_id": meetingId
-	# 					"mute": mutedBoolean
-	# 					"requester_id": muter.userId
-	# 				"header": 
-	# 					"timestamp": new Date().getTime()
-	# 					"name": "mute_user_request"
-	# 					"version": "0.0.1"
-
-	# 			publish Meteor.config.redis.channels.toBBBApps.voice, message
-	# 			updateVoiceUser {'user_id': mutee._id, talking:false, muted:true}
-
 	userShareAudio: (meetingId, userId, user_id) ->
 		updateVoiceUser {'user_id': user_id, 'talking':false, 'joined': true, 'muted':false}
 		#TODO we need to send a message to bbb-apps about it
@@ -140,16 +113,6 @@ Meteor.methods
 			#remove from the collection and dispatch a message to redis
 			requestUserLeaving meetingId, u.userId, u._id
 
-	# userToBeKicked: the _id of the user who was selected to be kicked
-	# kickerUserId: the userId of the user kicking another user
-	# kicker_id: the _id of the user kicking another user
-	userKick: (meetingId, userToBeKicked, kickerUserId, kicker_id) ->
-		kicker = Meteor.Users.findOne({meetingId: meetingId, _id: kicker_id, userId: kickerUserId})
-		toKick = Meteor.Users.findOne({meetingId: meetingId, _id: userToBeKicked})
-		if kicker? and toKick? and kicker.presenter
-			#remove from the collection and dispatch a message to redis
-			requestUserLeaving meetingId, toKick.userId, toKick.user_id
-
 # --------------------------------------------------------------------------------------------
 # Private methods on server
 # --------------------------------------------------------------------------------------------
@@ -165,7 +128,6 @@ Meteor.methods
 		console.log "----removed user[" + userId + "] from " + meetingId
 	else
 		console.log "did not find a user [userId] to delete in meetingid:#{meetingId}"
-
 
 # Corresponds to a valid action on the HTML clientside
 # After authorization, publish a user_leaving_request in redis
@@ -187,7 +149,6 @@ Meteor.methods
 			publish Meteor.config.redis.channels.toBBBApps.users, message
 		else
 			console.log "did not have enough information to send a user_leaving_request"
-
 
 #update a voiceUser - a helper method
 @updateVoiceUser = (meetingId, voiceUserObject) ->
