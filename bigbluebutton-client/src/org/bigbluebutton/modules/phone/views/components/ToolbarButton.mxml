@@ -120,7 +120,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           // Enter microphone at start
           if (phoneOptions.forceListenOnly) {
             var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
-            command.mic = true;
+            command.mic = false;
             dispatcher.dispatchEvent(command);            
           } else {
             trace(LOG + "Sending Show Audio Selection command");
