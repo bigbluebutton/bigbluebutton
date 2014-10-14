@@ -112,7 +112,6 @@ Handlebars.registerHelper "isCurrentUserTalking", ->
 
 Handlebars.registerHelper "isUserSharingAudio", (_id) ->
   user = Meteor.Users.findOne({_id:_id})
-  console.log user?.user?.voiceUser?.joined
   return user.user?.voiceUser?.joined
 
 Handlebars.registerHelper "isUserListenOnly", (_id) ->

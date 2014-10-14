@@ -7,12 +7,6 @@
 # --------------------------------------------------------------------------------------------
 Meteor.methods
 	userStopAudio: (meetingId, userId, user_id, requesterUserId, requester_id) ->
-		console.log "meetingId: #{meetingId}\n
-					userId: #{userId}\n
-					user_id: #{user_id}\n
-					requesterUserId: #{requesterUserId}\n
-					requester_id: #{requester_id}"
-		console.log "publishing a user left voice request for #{userId} in #{meetingId}"
 		user = Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId, '_id': user_id})
 		requester = Meteor.Users.findOne({'meetingId': meetingId, 'userId': requesterUserId, '_id': requester_id})
 		if user? and requester? and ((user._id is requester._id) or requester.presenter)
@@ -165,7 +159,6 @@ Meteor.methods
 
 #update a voiceUser - a helper method
 @updateVoiceUser = (meetingId, voiceUserObject) ->
-	console.log "aaaaaaaaaaaaaaaaaaaa:" + JSON.stringify voiceUserObject
 	u = Meteor.Users.findOne userId: voiceUserObject.web_userid
 	if u?
 		if voiceUserObject.talking?
@@ -177,7 +170,6 @@ Meteor.methods
 		if voiceUserObject.muted?
 			Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.voiceUser.muted':voiceUserObject.muted}}, {multi: false}) # muted
 		if voiceUserObject.listenOnly?
-			console.log "updating for listenOnly: " + voiceUserObject.listenOnly
 			Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.listenOnly':voiceUserObject.listenOnly}}, {multi: false}) # muted
 	else
 		console.log "ERROR! did not find such voiceUser!"
