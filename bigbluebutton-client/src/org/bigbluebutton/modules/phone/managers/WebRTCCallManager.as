@@ -127,7 +127,7 @@ package org.bigbluebutton.modules.phone.managers
       
       if (!usingWebRTC || !event.mic) return;
       
-      if (options.skipCheck || echoTestDone) {
+      if (UsersUtil.skipCheck() || echoTestDone) {
         joinVoiceConference();
       } else {
         startWebRTCEchoTest();

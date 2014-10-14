@@ -43,6 +43,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import flash.system.SecurityPanel;     
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.BBB;
+      import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.main.api.JSLog;
       import org.bigbluebutton.main.events.BBBEvent;
@@ -80,7 +81,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				trace(LOG + "startPhone 2 enabled=[" + enabled + "] selected=[" + selected + "]");
         JSLog.debug(LOG + "startPhone 2 enabled=[" + enabled + "] selected=[" + selected + "]");
 				if (this.selected) {
-					if (phoneOptions.autoJoin && phoneOptions.forceListenOnly) {
+					if (defaultListenOnlyMode()) {
 						dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
 					}
 					//trace(LOG + "Sending Join Conference command");
@@ -94,6 +95,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
 				}				
 			}
+
+      private function defaultListenOnlyMode():Boolean {
+        return (phoneOptions.listenOnlyMode && phoneOptions.forceListenOnly);
+      }
 			
 			public function remoteClick(event:ShortcutEvent):void {
 				this.selected = true;
@@ -115,19 +120,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onCreationComplete():void {
+        var command:JoinVoiceConferenceCommand;
+        // Init skipCheck auxiliary
+        UsersUtil.setSkipCheck(phoneOptions.skipCheck);
 				// when the button is added to the stage display the audio selection window if auto join is true
 				if (phoneOptions.autoJoin) {
           // Enter microphone at start
-          if (phoneOptions.forceListenOnly) {
-            var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
-            command.mic = false;
+          if (phoneOptions.skipCheck) {
+            command = new JoinVoiceConferenceCommand();
+            command.mic = true;
             dispatcher.dispatchEvent(command);            
           } else {
             trace(LOG + "Sending Show Audio Selection command");
             JSLog.debug(LOG + "Sending Show Audio Selection command");
-            dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));            
+            dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));
           }
-				}
+				} else if (defaultListenOnlyMode()) {
+          command = new JoinVoiceConferenceCommand();
+          command.mic = false;
+          dispatcher.dispatchEvent(command);
+        }
 			}
 
       private function onUserJoinedConference():void {
@@ -187,7 +199,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         JSLog.debug(LOG + "User has left the conference using flash");
         var micLeft:Boolean = (_currentState == ACTIVE_STATE);
         onUserLeftConference();
-        if (phoneOptions.autoJoin && phoneOptions.forceListenOnly && micLeft) {
+        if (defaultListenOnlyMode() && micLeft) {
           joinDefaultListenOnlyMode();
         }
       }
@@ -202,7 +214,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         JSLog.debug(LOG + "User has left the conference using webrtc");
         trace(LOG + "User has left the conference using webrtc");
         onUserLeftConference();
-        if (phoneOptions.autoJoin && phoneOptions.forceListenOnly) {
+        if (defaultListenOnlyMode()) {
           joinDefaultListenOnlyMode();
         }
 			}
@@ -215,7 +227,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_currentState = DEFAULT_STATE;
         this.styleName = "voiceConfDefaultButtonStyle";
 				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
-				if (phoneOptions.autoJoin && phoneOptions.forceListenOnly) {
+				if (defaultListenOnlyMode()) {
 					joinDefaultListenOnlyMode();
 				}
 			}

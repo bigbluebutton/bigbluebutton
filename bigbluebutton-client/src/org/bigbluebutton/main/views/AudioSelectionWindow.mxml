@@ -65,7 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function checkListenOnlyMode():void {
-				if (phoneOptions.autoJoin && phoneOptions.forceListenOnly) {
+				if (phoneOptions.listenOnlyMode && phoneOptions.forceListenOnly) {
 					onMicClick();
 				}
 			}
