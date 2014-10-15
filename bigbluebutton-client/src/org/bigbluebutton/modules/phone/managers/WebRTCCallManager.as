@@ -127,7 +127,7 @@ package org.bigbluebutton.modules.phone.managers
       
       if (!usingWebRTC || !event.mic) return;
       
-      if (UsersUtil.skipCheck() || echoTestDone) {
+      if ((options.skipCheck && PhoneOptions.firstAudioJoin) || echoTestDone) {
         joinVoiceConference();
       } else {
         startWebRTCEchoTest();
@@ -155,7 +155,7 @@ package org.bigbluebutton.modules.phone.managers
 	  }
 	
     public function handleUseFlashModeCommand():void {
-      //usingWebRTC = false;
+      usingWebRTC = false;
     }
 
     public function handleWebRTCEchoTestFailedEvent(reason:String):void {

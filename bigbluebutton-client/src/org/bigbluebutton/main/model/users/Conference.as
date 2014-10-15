@@ -49,17 +49,6 @@ package org.bigbluebutton.main.model.users {
 		
 	  private var defaultLayout:String;
     
-		private var _skipCheck:Boolean;
-		public function setSkipCheck(b:Boolean):void {
-			_skipCheck = b;
-		}
-		public function skipCheck():Boolean {
-			if (_skipCheck) {
-				_skipCheck = false;
-				return true;
-			} else return false;
-		}
-
 		public function Conference():void {
 			me = new BBBUser();
 			users = new ArrayCollection();

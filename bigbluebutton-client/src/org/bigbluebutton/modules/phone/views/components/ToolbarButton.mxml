@@ -43,8 +43,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import flash.system.SecurityPanel;     
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.BBB;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.main.api.JSLog;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
@@ -83,12 +81,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (this.selected) {
 					if (defaultListenOnlyMode()) {
 						dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
+
+						trace(LOG + "Sending Join Conference command");
+						JSLog.debug(LOG + "Sending Join Conference command");
+						var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
+						command.mic = true;
+						dispatcher.dispatchEvent(command);
+					} else {
+						trace(LOG + "Sending Show Audio Selection command");
+						JSLog.debug(LOG + "Sending Show Audio Selection command");
+						dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));
 					}
-					//trace(LOG + "Sending Join Conference command");
-					//dispatcher.dispatchEvent(new JoinVoiceConferenceCommand());
-					trace(LOG + "Sending Show Audio Selection command");
-          JSLog.debug(LOG + "Sending Show Audio Selection command");
-					dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));
 				} else {
 					trace(LOG + "Sending Leave Conference command");
           JSLog.debug(LOG + "Sending Leave Conference command");
@@ -96,9 +99,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}				
 			}
 
-      private function defaultListenOnlyMode():Boolean {
-        return (phoneOptions.listenOnlyMode && phoneOptions.forceListenOnly);
-      }
+			private function defaultListenOnlyMode():Boolean {
+				return (phoneOptions.listenOnlyMode && phoneOptions.forceListenOnly);
+			}
 			
 			public function remoteClick(event:ShortcutEvent):void{
 				this.selected = true;
@@ -121,14 +124,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onCreationComplete():void {
-        var command:JoinVoiceConferenceCommand;
-        // Init skipCheck auxiliary
-        UsersUtil.setSkipCheck(phoneOptions.skipCheck);
 				// when the button is added to the stage display the audio selection window if auto join is true
 				if (phoneOptions.autoJoin) {
-          // Enter microphone at start
-          if (phoneOptions.skipCheck) {
-            command = new JoinVoiceConferenceCommand();
+          if (defaultListenOnlyMode()) {
+            var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
             command.mic = true;
             dispatcher.dispatchEvent(command);            
           } else {
@@ -137,13 +136,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));            
           }
 				} else if (defaultListenOnlyMode()) {
-          command = new JoinVoiceConferenceCommand();
-          command.mic = false;
-          dispatcher.dispatchEvent(command);
-        }
+					joinDefaultListenOnlyMode();
+				}
 			}
 
       private function onUserJoinedConference():void {
+        PhoneOptions.firstAudioJoin = false;
+
         this.selected = true;
         this.enabled = true;
 
@@ -151,9 +150,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         trace(LOG + "onUserJoinedConference enabled=[" + enabled + "] selected=[" + selected + "]");
         _currentState = ACTIVE_STATE;
         this.styleName = "voiceConfActiveButtonStyle";
-        this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');     
+        this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');	        
       }
-
+      
       private function onUserJoinedListenOnlyConference():void {
         this.selected = false;
         this.enabled = true;

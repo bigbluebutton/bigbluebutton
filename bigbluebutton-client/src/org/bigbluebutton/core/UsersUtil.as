@@ -177,13 +177,6 @@ package org.bigbluebutton.core
       }
       return null;
     }
-
-    public static function setSkipCheck(b:Boolean):void {
-      UserManager.getInstance().getConference().setSkipCheck(b);
-    }
-
-    public static function skipCheck():Boolean {
-      return UserManager.getInstance().getConference().skipCheck();
-    }
+    
   }
 }
