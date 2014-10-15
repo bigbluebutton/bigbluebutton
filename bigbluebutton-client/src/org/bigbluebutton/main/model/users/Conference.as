@@ -28,38 +28,27 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.core.vo.LockSettingsVO;
 	
 	public class Conference {		
-		public var meetingName:String;
-		public var externalMeetingID:String;
-		public var internalMeetingID:String;
-		public var externalUserID:String;
-		public var avatarURL:String;
-		public var voiceBridge:String;
-		public var dialNumber:String;
-		[Bindable] public var record:Boolean;
-
-		private static const LOG:String = "main.model.users::Conference - ";
-
-		private var lockSettings:LockSettingsVO;
-
-		private var _myCamSettings:CameraSettingsVO = new CameraSettingsVO();
-
+    public var meetingName:String;
+    public var externalMeetingID:String;
+    public var internalMeetingID:String;
+    public var externalUserID:String;
+    public var avatarURL:String;
+	  public var voiceBridge:String;
+	  public var dialNumber:String;
+	  [Bindable] public var record:Boolean;
+    
+    private static const LOG:String = "main.model.users::Conference - ";
+    
+	  private var lockSettings:LockSettingsVO;
+	
+    private var _myCamSettings:CameraSettingsVO = new CameraSettingsVO();
+    
 		[Bindable] private var me:BBBUser = null;		
 		[Bindable] public var users:ArrayCollection = null;			
 		private var sort:Sort;
-
-		private var defaultLayout:String;
-
-		private var _skipCheck:Boolean;
-		public function setSkipCheck(b:Boolean):void {
-			_skipCheck = b;
-		}
-		public function skipCheck():Boolean {
-			if (_skipCheck) {
-				_skipCheck = false;
-				return true;
-			} else return false;
-		}
-
+		
+	  private var defaultLayout:String;
+    
 		public function Conference():void {
 			me = new BBBUser();
 			users = new ArrayCollection();

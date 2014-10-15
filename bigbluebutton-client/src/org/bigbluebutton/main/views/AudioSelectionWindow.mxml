@@ -23,7 +23,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				xmlns:mate="http://mate.asfusion.com/"
 				width="700" height="350" 
 				initialize="init()" 
-				creationComplete="checkListenOnlyMode()"
 				styleName="micSettingsWindowStyle"
 				showCloseButton="false">
 	
@@ -51,7 +50,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function init():void {
 				if (!phoneOptions.listenOnlyMode) btnListenOnly.enabled = false;
 				if (phoneOptions.presenterShareOnly && !UsersUtil.amIPresenter() && !UsersUtil.amIModerator()) btnMicrophone.enabled = false;
-			
+				
 				if (phoneOptions.showPhoneOption) {
 					txtPhone.text=ResourceUtil.getInstance().getString('bbb.audioSelection.txtPhone.text', [UserManager.getInstance().getConference().dialNumber, UserManager.getInstance().getConference().voiceBridge]);
 				} else {
@@ -61,12 +60,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					this.height = 325;
 					vboxMic.percentWidth = 50;
 					vboxListen.percentWidth = 50;
-				}
-			}
-
-			private function checkListenOnlyMode():void {
-				if (phoneOptions.listenOnlyMode && phoneOptions.forceListenOnly) {
-					onMicClick();
 				}
 			}
 			

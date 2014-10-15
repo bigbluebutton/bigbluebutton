@@ -21,6 +21,8 @@ package org.bigbluebutton.modules.phone
 	import org.bigbluebutton.core.BBB;
 	
 	public class PhoneOptions {
+		static public var firstAudioJoin:Boolean = true;
+
     public var uri:String = "unknown";
     
 		[Bindable]
