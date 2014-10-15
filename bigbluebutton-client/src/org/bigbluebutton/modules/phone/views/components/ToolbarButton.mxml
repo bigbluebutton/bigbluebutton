@@ -154,26 +154,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function onUserJoinedListenOnlyConference():void {
-        if (defaultListenOnlyMode()) {
-          this.selected = false;
-          this.enabled = true;
+        this.selected = false;
+        this.enabled = true;
 
-          trace(LOG + "onUserJoinedListenOnlyConference enabled=[" + enabled + "] selected=[" + selected + "]");
-          JSLog.debug(LOG + "onUserJoinedListenOnlyConference enabled=[" + enabled + "] selected=[" + selected + "]");
-          _currentState = DEFAULT_STATE;
-          this.styleName = "voiceConfDefaultButtonStyle";
-          this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');    
-          JSLog.debug(LOG + "onUserJoinedListenOnlyConference enabled=[" + enabled + "] selected=[" + selected + "]");
-        } else {
-          this.selected = true;
-          this.enabled = true;
-
-          JSLog.debug(LOG + "onUserJoinedConference enabled=[" + enabled + "] selected=[" + selected + "]");
-          trace(LOG + "onUserJoinedConference enabled=[" + enabled + "] selected=[" + selected + "]");
-          _currentState = ACTIVE_STATE;
-          this.styleName = "voiceConfActiveButtonStyle";
-          this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');
-        }
+        trace(LOG + "onUserJoinedListenOnlyConference enabled=[" + enabled + "] selected=[" + selected + "]");
+        JSLog.debug(LOG + "onUserJoinedListenOnlyConference enabled=[" + enabled + "] selected=[" + selected + "]");
+        _currentState = DEFAULT_STATE;
+        this.styleName = "voiceConfDefaultButtonStyle";
+        this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');    
+        JSLog.debug(LOG + "onUserJoinedListenOnlyConference enabled=[" + enabled + "] selected=[" + selected + "]");
       }
       
       private function onUserLeftConference():void {
@@ -202,7 +191,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handleFlashJoinedListenOnlyConferenceEvent(event:FlashJoinedListenOnlyVoiceConferenceEvent):void {
         trace(LOG + "User has joined the listen only conference using flash");
         JSLog.debug(LOG + "User has joined the listen only conference using flash");
-        onUserJoinedListenOnlyConference();
+        if (defaultListenOnlyMode()) {
+          onUserJoinedListenOnlyConference();
+        } else {
+          onUserJoinedConference();
+        }
       }
       
       private function handleFlashLeftVoiceConferenceEvent(event:FlashLeftVoiceConferenceEvent):void {
