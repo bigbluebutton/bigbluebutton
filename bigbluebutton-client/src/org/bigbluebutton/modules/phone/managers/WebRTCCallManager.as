@@ -127,7 +127,7 @@ package org.bigbluebutton.modules.phone.managers
       
       if (!usingWebRTC || !event.mic) return;
       
-      if (options.skipCheck || echoTestDone) {
+      if ((options.skipCheck && PhoneOptions.firstAudioJoin) || echoTestDone) {
         joinVoiceConference();
       } else {
         startWebRTCEchoTest();
@@ -162,6 +162,11 @@ package org.bigbluebutton.modules.phone.managers
       model.state = Constants.INITED;
       endEchoTest();
 	  var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [reason]), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
+    }
+    
+    public function handleWebRTCEchoTestEndedUnexpectedly():void {
+      model.state = Constants.INITED;
+      var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.endedunexpectedly"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
     }
     
     public function handleWebRTCCallFailedEvent(reason:String):void {
