@@ -158,10 +158,15 @@ package org.bigbluebutton.modules.phone.managers
       usingWebRTC = false;
     }
 
-    public function handleWebRTCEchoTestFailedEvent(reason:String):void {
+    public function handleWebRTCEchoTestFailedEvent(errorCode:Number):void {
       model.state = Constants.INITED;
       endEchoTest();
-	  var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [reason]), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
+	  var errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError." + errorCode);
+	  if (errorString == null) {
+		  errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.unknown", [errorCode]);
+	  }
+	  
+	  var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
     }
     
     public function handleWebRTCEchoTestEndedUnexpectedly():void {
@@ -169,9 +174,13 @@ package org.bigbluebutton.modules.phone.managers
       var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.endedunexpectedly"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
     }
     
-    public function handleWebRTCCallFailedEvent(reason:String):void {
+    public function handleWebRTCCallFailedEvent(errorCode:Number):void {
       model.state = Constants.INITED;
-      var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [reason]), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
+	  var errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError." + errorCode);
+	  if (errorString == null) {
+		  errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.unknown", [errorCode]);
+	  }
+      var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
     }
     
     public function handleWebRTCMediaFailedEvent():void {
