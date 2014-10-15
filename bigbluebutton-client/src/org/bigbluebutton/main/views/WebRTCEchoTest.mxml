@@ -29,7 +29,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mate:Listener type="{WebRTCEchoTestStartedEvent.WEBRTC_ECHO_TEST_STARTED}" method="handleWebRTCEchoTestStartedEvent" />
 	<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_ENDED}" method="handleWebRTCEchoTestEndedEvent" />
+	<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_FAILED}" method="handleWebRTCEchoTestFailedEvent" />
 	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_CONNECTING}" method="handleWebRTCCallConnectingEvent" />
+	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_FAILED}" method="handleWebRTCCallFailedEvent" />
 	<mate:Listener type="{WebRTCJoinedVoiceConferenceEvent.JOINED_VOICE_CONFERENCE}" method="handleWebRTCCallStartedEvent" />
 	
 	<mx:Script>
@@ -136,10 +138,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }
       }
 			
+			private function handleWebRTCEchoTestFailedEvent(e:WebRTCEchoTestEvent):void {
+				onCancelClicked();
+			}
+			
 			private function handleWebRTCCallConnectingEvent(e:WebRTCCallEvent):void {
 				setCurrentState("connecting");
 				lblConnectMessage.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.connectingtocall');
 				if (!dotTimer.running) dotTimer.start();
+			}
+			
+			private function handleWebRTCCallFailedEvent(e:WebRTCCallEvent):void {
+				onCancelClicked();
 			}
       
       private function webRTCCallStarted():void {
