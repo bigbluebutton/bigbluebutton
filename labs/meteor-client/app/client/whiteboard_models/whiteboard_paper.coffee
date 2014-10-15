@@ -136,6 +136,7 @@ class @WhiteboardPaperModel
   addImageToPaper: (url, width, height) ->
     @_updateContainerDimensions()
 
+    # TODO: we need to modify the following if-else logic
     if @fitToPage
       # solve for the ratio of what length is going to fit more than the other
       max = Math.max(width / @containerWidth, height / @containerHeight)
@@ -147,7 +148,7 @@ class @WhiteboardPaperModel
       cx = (@containerWidth / 2) - (width / 2)
       cy = (@containerHeight / 2) - (height / 2)
 
-      img = @raphaelObj.image(url, cx, cy, width, height)
+      img = @raphaelObj.image(url, cx = 0, cy, width, height)
       originalWidth = width
       originalHeight = height
     else
