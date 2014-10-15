@@ -51,41 +51,48 @@ Template.chatInput.rendered  = ->
    $('input[rel=tooltip]').tooltip()
    $('button[rel=tooltip]').tooltip()
 
-Template.chatbar.helpers
-  getChatGreeting: ->
-    greeting = "Welcome to #{getMeetingName()}!\r\r
+
+
+# This method returns all messages for the user. It looks at the session to determine whether the user is in
+#private or public chat. If true is passed, messages returned are from before the user joined. Else, the messages are from after the user joined
+@getFormattedMessagesForChat = ->
+  friend = chattingWith = getInSession('inChatWith') # the recipient(s) of the messages
+  after = before = greeting = []
+
+  if chattingWith is 'PUBLIC_CHAT' # find all public messages
+    before = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$lt: String(getTimeOfJoining())}}).fetch()
+    after = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$gt: String(getTimeOfJoining())}}).fetch()
+
+    greeting = [
+      'message':
+        'message': greeting
+        'from_username': 'System',
+        'from_time': getTimeOfJoining()
+        'from_color': '0x3399FF' # A nice blue in hex
+    ]
+  else
+    me = getInSession("DBID")
+    after = Meteor.Chat.find({ # find all messages between current user and recipient
+    'message.chat_type': 'PRIVATE_CHAT',
+    $or: [{'message.from_userid': me, 'message.to_userid': friend},{'message.from_userid': friend, 'message.to_userid': me}]
+    }).fetch()
+
+  messages = (before.concat greeting).concat after
+
+#@greeting = "Welcome to #{window.getMeetingName()}!\r\r
+@greeting = "Welcome to -------------!\r\r
     For help on using BigBlueButton see these (short) <a href='http://www.bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.\r\r
     To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.\r\r\r
-    This server is running BigBlueButton #{getInSession 'bbbServerVersion'}.\r\r"
+    This server is running BigBlueButton ----------------------------------.\r\r"
+    #This server is running BigBlueButton #{getInSession 'bbbServerVersion'}.\r\r"
 
-  # This method returns all messages for the user. It looks at the session to determine whether the user is in
-  #private or public chat. If true is passed, messages returned are from before the user joined. Else, the messages are from after the user joined
-  getFormattedMessagesForChat: ->
-    friend = chattingWith = getInSession('inChatWith') # the recipient(s) of the messages
-    after = before = greeting = []
+Template.chatbar.helpers
+  getChatGreeting: ->
+    return greeting
 
-    if chattingWith is 'PUBLIC_CHAT' # find all public messages
-      before = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$lt: String(getTimeOfJoining())}}).fetch()
-      after = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$gt: String(getTimeOfJoining())}}).fetch()
-
-      greeting = [
-        'message':
-          'message': Template.chatbar.getChatGreeting(),
-          'from_username': 'System',
-          'from_time': getTimeOfJoining()
-          'from_color': '0x3399FF' # A nice blue in hex
-      ]
-    else
-      me = getInSession("DBID")
-      after = Meteor.Chat.find({ # find all messages between current user and recipient
-      'message.chat_type': 'PRIVATE_CHAT',
-      $or: [{'message.from_userid': me, 'message.to_userid': friend},{'message.from_userid': friend, 'message.to_userid': me}]
-      }).fetch()
-
-    messages = (before.concat greeting).concat after
 
   getCombinedMessagesForChat: ->
-    msgs = Template.chatbar.getFormattedMessagesForChat()
+    msgs = getFormattedMessagesForChat()
     len = msgs.length # get length of messages
     i = 0
     while i < len # Must be a do while, for loop compiles and stores the length of array which can change inside the loop!
