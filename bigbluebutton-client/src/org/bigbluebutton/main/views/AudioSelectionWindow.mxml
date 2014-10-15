@@ -51,7 +51,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function init():void {
 				if (!phoneOptions.listenOnlyMode) btnListenOnly.enabled = false;
 				if (phoneOptions.presenterShareOnly && !UsersUtil.amIPresenter() && !UsersUtil.amIModerator()) btnMicrophone.enabled = false;
-			
+				
 				if (phoneOptions.showPhoneOption) {
 					txtPhone.text=ResourceUtil.getInstance().getString('bbb.audioSelection.txtPhone.text', [UserManager.getInstance().getConference().dialNumber, UserManager.getInstance().getConference().voiceBridge]);
 				} else {

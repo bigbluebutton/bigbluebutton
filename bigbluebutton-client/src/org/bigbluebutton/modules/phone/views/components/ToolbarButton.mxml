@@ -100,10 +100,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         return (phoneOptions.listenOnlyMode && phoneOptions.forceListenOnly);
       }
 			
-			public function remoteClick(event:ShortcutEvent):void {
+			public function remoteClick(event:ShortcutEvent):void{
 				this.selected = true;
 				startPhone();
 			}
+			
 			
 			private function mouseOverHandler(event:MouseEvent):void {
 				if(_currentState == ACTIVE_STATE)
@@ -133,7 +134,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           } else {
             trace(LOG + "Sending Show Audio Selection command");
             JSLog.debug(LOG + "Sending Show Audio Selection command");
-            dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));
+            dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));            
           }
 				} else if (defaultListenOnlyMode()) {
           command = new JoinVoiceConferenceCommand();
