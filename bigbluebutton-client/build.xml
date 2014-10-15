@@ -83,6 +83,7 @@
 				debug="${DEBUG}" 
 				mxml.compatibility-version="3.0.0" 
 				swf-version="13" 
+				default-background-color="0xFFFFFF"
 				optimize="true">
 			</mxmlc>
 		</sequential>
@@ -176,6 +177,7 @@
 				<include-resource-bundles>skins</include-resource-bundles> 
 				<include-resource-bundles>styles</include-resource-bundles>
 				<source-path path-element="${FLEX_HOME}/frameworks"/>
+				<default-background-color>0xFFFFFF</default-background-color>
 			</mxmlc>
 		</sequential>
 	</macrodef>
@@ -301,6 +303,7 @@
 				<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="${DEBUG}" mxml.compatibility-version="3.0.0" swf-version="13" optimize="true" link-report="linker-report.xml">
 					<target-player>11</target-player>
 					<load-config filename="@{flex}/frameworks/flex-config.xml" />
+					<default-background-color>0xFFFFFF</default-background-color>
 					<source-path path-element="@{flex}/frameworks" />
 					
 					<!--
@@ -369,7 +372,7 @@
 				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<source-path path-element="@{flex}/frameworks" />
 				<static-link-runtime-shared-libraries>${STATIC_RSL}</static-link-runtime-shared-libraries>
-
+				<default-background-color>0xFFFFFF</default-background-color>
 				<compiler.library-path dir="@{flex}/frameworks" append="true">
 					<include name="libs" />
 					<include name="../bundles/{locale}" />
