@@ -1,51 +1,52 @@
 Template.slide.rendered = ->
   currentSlide = getCurrentSlideDoc()
-  pic = new Image()
-  pic.onload = ->
-    originalWidth = this.width
-    originalHeight = this.height
-
-    boardWidth = $("#whiteboard").width()
-    boardHeight = $("#whiteboard").height() - $("#whiteboard-navbar").height() - 10
-
-    if originalWidth <= originalHeight
-      adjustedWidth = boardHeight * originalWidth / originalHeight
-      $('#whiteboard-paper').width(adjustedWidth)
-      if boardWidth < adjustedWidth
-        adjustedHeight = boardHeight * boardWidth / adjustedWidth
-        adjustedWidth = boardWidth
-      else
-        adjustedHeight = boardHeight
-      $("#whiteboard-paper").height(adjustedHeight)
-    else
-      adjustedHeight = boardWidth * originalHeight / originalWidth
-      $('#whiteboard-paper').height(adjustedHeight)
-      if boardHeight < adjustedHeight
-        adjustedWidth = boardWidth * boardHeight / adjustedHeight
-        adjustedHeight = boardHeight
-      else
-        adjustedWidth = boardWidth
-      $("#whiteboard-paper").width(adjustedWidth)
-
-    height = $('#whiteboard').height()
-    $('#whiteboard-paper').height((height-$("#whiteboard-navbar").height()-10)+'px')
-
-    if currentSlide?.slide?.png_uri?
-      Template.slide.createWhiteboardPaper (wpm) ->
-        Template.slide.displaySlide wpm, originalWidth, originalHeight
-
-  pic.src = currentSlide?.slide?.png_uri
+  if currentSlide?.slide?.png_uri?
+    Template.slide.createWhiteboardPaper (wpm) ->
+      Template.slide.displaySlide wpm
 
 Template.slide.helpers
   createWhiteboardPaper: (callback) ->
     Template.slide.whiteboardPaperModel = new WhiteboardPaperModel('whiteboard-paper')
     callback(Template.slide.whiteboardPaperModel)
 
-  displaySlide: (wpm, originalWidth, originalHeight) ->
+  displaySlide: (wpm) ->
     currentSlide = getCurrentSlideDoc()
     wpm.create()
-    wpm._displayPage(currentSlide?.slide?.png_uri, originalWidth, originalHeight)
-    Template.slide.manuallyDisplayShapes()
+    pic = new Image()
+    pic.onload = ->
+      originalWidth = this.width
+      originalHeight = this.height
+
+      boardWidth = $("#whiteboard").width()
+      boardHeight = $("#whiteboard").height() - $("#whiteboard-navbar").height() - 10
+
+      if originalWidth <= originalHeight
+        adjustedWidth = boardHeight * originalWidth / originalHeight
+        $('#whiteboard-paper').width(adjustedWidth)
+        if boardWidth < adjustedWidth
+          adjustedHeight = boardHeight * boardWidth / adjustedWidth
+          adjustedWidth = boardWidth
+        else
+          adjustedHeight = boardHeight
+        $("#whiteboard-paper").height(adjustedHeight)
+      else
+        adjustedHeight = boardWidth * originalHeight / originalWidth
+        $('#whiteboard-paper').height(adjustedHeight)
+        if boardHeight < adjustedHeight
+          adjustedWidth = boardWidth * boardHeight / adjustedHeight
+          adjustedHeight = boardHeight
+        else
+          adjustedWidth = boardWidth
+        $("#whiteboard-paper").width(adjustedWidth)
+
+      height = $('#whiteboard').height()
+      $('#whiteboard-paper').height((height-$("#whiteboard-navbar").height()-10)+'px')
+
+      wpm._displayPage(currentSlide?.slide?.png_uri, originalWidth, originalHeight)
+      Template.slide.manuallyDisplayShapes()
+      wpm.scale(adjustedWidth, adjustedHeight)
+
+    pic.src = currentSlide?.slide?.png_uri
 
   updatePointerLocation: (pointer) ->
     wpm = Template.slide.whiteboardPaperModel
@@ -87,5 +88,5 @@ Template.shape.rendered = ->
 Template.shape.destroyed = ->
   wpm = Template.slide.whiteboardPaperModel
   wpm.clearShapes()
-  Template.slide.displaySlide(wpm)
+  #Template.slide.displaySlide(wpm)
   Template.slide.manuallyDisplayShapes()
