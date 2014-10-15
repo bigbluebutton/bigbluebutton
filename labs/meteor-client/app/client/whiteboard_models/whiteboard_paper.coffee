@@ -10,7 +10,6 @@ class @WhiteboardPaperModel
     # all slides in the presentation indexed by url
     @slides = {}
 
-    @fitToPage = true
     @panX = null
     @panY = null
 
@@ -136,39 +135,21 @@ class @WhiteboardPaperModel
   addImageToPaper: (url, width, height) ->
     @_updateContainerDimensions()
 
-    # TODO: we need to modify the following if-else logic
-    if @fitToPage
-      # solve for the ratio of what length is going to fit more than the other
-      max = Math.max(width / @containerWidth, height / @containerHeight)
-      # fit it all in appropriately
-      # TODO: temporary solution
-      url = @_slideUrl(url)
-      sw = width / max
-      sh = height / max
-      cx = (@containerWidth / 2) - (width / 2)
-      cy = (@containerHeight / 2) - (height / 2)
-
-      img = @raphaelObj.image(url, cx = 0, cy, width, height)
-      originalWidth = width
-      originalHeight = height
-    else
-      # fit to width
-      alert "no fit"
-      # assume it will fit width ways
-      sw = width / wr
-      sh = height / wr
-      wr = width / @containerWidth
-      originalWidth = sw
-      originalHeight = sh
-      sw = width / wr
-      sh = height / wr
-      img = @raphaelObj.image(url, cx = 0, cy = 0, sw, sh)
+    # solve for the ratio of what length is going to fit more than the other
+    max = Math.max(width / @containerWidth, height / @containerHeight)
+    # fit it all in appropriately
+    url = @_slideUrl(url)
+    sw = width / max
+    sh = height / max
+    #cx = (@containerWidth / 2) - (width / 2)
+    #cy = (@containerHeight / 2) - (height / 2)
+    img = @raphaelObj.image(url, cx = 0, cy = 0, width, height)
 
     # sw slide width as percentage of original width of paper
     # sh slide height as a percentage of original height of paper
     # x-offset from top left corner as percentage of original width of paper
     # y-offset from top left corner as percentage of original height of paper
-    @slides[url] = new WhiteboardSlideModel(img.id, url, img, originalWidth, originalHeight, sw, sh, cx, cy)
+    @slides[url] = new WhiteboardSlideModel(img.id, url, img, width, height, sw, sh, cx, cy)
 
     unless @current.slide?
       img.toBack()
