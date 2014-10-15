@@ -28,6 +28,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		xmlns:maps="org.bigbluebutton.main.maps.*"
 		xmlns:api="org.bigbluebutton.main.api.*"
 		width="100%" height="100%" 
+		backgroundColor="white" styleName="mainVBox"
 		creationComplete="initializeShell()" 
 		xmlns:common="org.bigbluebutton.common.*">
 		
