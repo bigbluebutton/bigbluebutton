@@ -78,12 +78,10 @@ Template.chatInput.rendered  = ->
   messages = (before.concat greeting).concat after
 
 @getGreeting = ->
-  #@greeting = "Welcome to #{window.getMeetingName()}!\r\r
-  "Welcome to -------------!\r\r
+  "Welcome to #{window.getMeetingName()}!\r\r
   For help on using BigBlueButton see these (short) <a href='http://www.bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.\r\r
   To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.\r\r\r
-  This server is running BigBlueButton ----------------------------------.\r\r"
-  #This server is running BigBlueButton #{getInSession 'bbbServerVersion'}.\r\r"
+  This server is running BigBlueButton #{getInSession 'bbbServerVersion'}.\r\r"
 
 Template.chatbar.helpers
   getCombinedMessagesForChat: ->
@@ -233,6 +231,5 @@ Template.message.helpers
     if typeof str is 'string'
       # First, replace replace all tags with the ascii equivalent (excluding those involved in anchor tags)
       res = str.replace(/&/g, '&amp;').replace(/<(?![au\/])/g, '&lt;').replace(/\/([^au])>/g, '$1&gt;').replace(/([^=])"(?!>)/g, '$1&quot;');
-      
       res = toClickable res
       res = activateBreakLines res
