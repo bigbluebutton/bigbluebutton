@@ -173,7 +173,7 @@ class Meteor.WhiteboardPaperModel
     for url of @slides
       if @slides.hasOwnProperty(url)
         @raphaelObj.getById(@slides[url]?.getId())?.remove()
-        @trigger('paper:image:removed', @slides[url].getId()) # Removes the previous image preventing images from being redrawn over each other repeatedly
+        #@trigger('paper:image:removed', @slides[url].getId()) # Removes the previous image preventing images from being redrawn over each other repeatedly
     @slides = {}
     @current.slide = null
 
