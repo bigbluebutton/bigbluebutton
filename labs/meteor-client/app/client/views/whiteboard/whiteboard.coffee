@@ -29,17 +29,16 @@ Template.whiteboard.rendered = ->
         else
           adjustedWidth = boardWidth
         $("#whiteboard-paper").width(adjustedWidth)
-      
-      wpm = Template.slide.whiteboardPaperModel
-      wpm.clearShapes()
-      wpm.clearCursor()
-      Template.slide.manuallyDisplayShapes()
-      
+
+      wpm = @whiteboardPaperModel
+      wpm?.clearShapes()
+      wpm?.clearCursor()
+      manuallyDisplayShapes()
+
       #wpm._updateContainerDimensions()
-      
-      wpm.scale(adjustedWidth, adjustedHeight)
-      
-      wpm.createCursor()
-      
+
+      wpm?.scale(adjustedWidth, adjustedHeight)
+      wpm?.createCursor()
+
     pic.src = currentSlide?.slide?.png_uri
   );
