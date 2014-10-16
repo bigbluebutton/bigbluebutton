@@ -2,45 +2,16 @@
   "meteor": {},
   "dependencies": {
     "basePackages": {
-      "redis": {},
-      "npm": {},
-      "bootstrap-3": {},
-      "iron-router": {},
       "raphaeljs-package": {
         "git": "https://github.com/tomconnors/raphaeljs-package.git",
         "branch": "master"
       }
     },
     "packages": {
-      "redis": {
-        "git": "https://github.com/stevemanuel/meteor-redis.git",
-        "tag": "v0.1.3",
-        "commit": "8af9aaab84f4a87358ccb4616592a373661f712b"
-      },
-      "npm": {
-        "git": "https://github.com/arunoda/meteor-npm.git",
-        "tag": "v0.2.6",
-        "commit": "177ab6118de5bf8cffb19481343d5762ff7a2aaf"
-      },
-      "bootstrap-3": {
-        "git": "https://github.com/mangasocial/meteor-bootstrap-3.git",
-        "tag": "v3.2.0-1",
-        "commit": "17a63902fc6cf1096c5289d963c66cf28b474727"
-      },
-      "iron-router": {
-        "git": "https://github.com/EventedMind/iron-router.git",
-        "tag": "v0.7.1",
-        "commit": "d1ffb3f06ea4c112132b030f2eb1a70b81675ecb"
-      },
       "raphaeljs-package": {
         "git": "https://github.com/tomconnors/raphaeljs-package.git",
         "branch": "master",
         "commit": "85eaef3664ec063e4bcb81be1226d126d4d20539"
-      },
-      "blaze-layout": {
-        "git": "https://github.com/EventedMind/blaze-layout.git",
-        "tag": "v0.2.4",
-        "commit": "b40e9b0612329288d75cf52ad14a7da64bb8618f"
       }
     }
   }

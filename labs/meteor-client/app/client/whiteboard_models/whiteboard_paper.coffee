@@ -1,6 +1,6 @@
 # "Paper" which is the Raphael term for the entire SVG object on the webpage.
 # This class deals with this SVG component only.
-class @WhiteboardPaperModel
+class Meteor.WhiteboardPaperModel
 
   # Container must be a DOM element
   constructor: (@container) ->

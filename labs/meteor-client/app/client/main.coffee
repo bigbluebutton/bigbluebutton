@@ -78,9 +78,7 @@ Meteor.startup ->
   setInSession "display_whiteboard", true
   setInSession "display_chatPane", true
   setInSession "joinedAt", getTime()
-  setInSession "isSharingAudio", false
   setInSession "inChatWith", 'PUBLIC_CHAT'
   setInSession "messageFontSize", 12
-  setInSession "isMuted", false
   setInSession "dateOfBuild", Meteor.config?.dateOfBuild or "UNKNOWN DATE"
   setInSession "bbbServerVersion", Meteor.config?.bbbServerVersion or "UNKNOWN VERSION"
