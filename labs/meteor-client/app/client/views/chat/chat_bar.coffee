@@ -51,8 +51,6 @@ Template.chatInput.rendered  = ->
    $('input[rel=tooltip]').tooltip()
    $('button[rel=tooltip]').tooltip()
 
-
-
 # This method returns all messages for the user. It looks at the session to determine whether the user is in
 #private or public chat. If true is passed, messages returned are from before the user joined. Else, the messages are from after the user joined
 @getFormattedMessagesForChat = ->
@@ -90,7 +88,6 @@ Template.chatbar.helpers
   getChatGreeting: ->
     return greeting
 
-
   getCombinedMessagesForChat: ->
     msgs = getFormattedMessagesForChat()
     len = msgs.length # get length of messages
@@ -122,25 +119,25 @@ Template.chatbar.helpers
 
     msgs
 
-  detectUnreadChat: ->
-    #if the current tab is not the same as the tab we just published in
-    Meteor.Chat.find({}).observe({
-      added: (chatMessage) =>
-        findDestinationTab = ->
-          if chatMessage.message?.chat_type is "PUBLIC_CHAT"
-            "PUBLIC_CHAT"
-          else
-            chatMessage.message?.from_userid
+@detectUnreadChat = ->
+  #if the current tab is not the same as the tab we just published in
+  Meteor.Chat.find({}).observe({
+    added: (chatMessage) =>
+      findDestinationTab = ->
+        if chatMessage.message?.chat_type is "PUBLIC_CHAT"
+          "PUBLIC_CHAT"
+        else
+          chatMessage.message?.from_userid
 
-        populateChatTabs() # check if we need to open a new tab
-        destinationTab = findDestinationTab()
-        if destinationTab isnt getInSession "inChatWith"
-          chatTabs.update({userId: destinationTab}, {$set: {gotMail: true}})
-      })
+      populateChatTabs() # check if we need to open a new tab
+      destinationTab = findDestinationTab()
+      if destinationTab isnt getInSession "inChatWith"
+        chatTabs.update({userId: destinationTab}, {$set: {gotMail: true}})
+    })
 
 # When chatbar gets rendered, scroll to the bottom
 Template.chatbar.rendered = ->
-  Template.chatbar.detectUnreadChat()
+  detectUnreadChat()
   $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
   false
 # Scrolls the message container to the bottom. The number of pixels to scroll down is the height of the container
@@ -209,16 +206,16 @@ Template.tabButtons.helpers
     button += '</a></li>'
     button
 
-Template.message.helpers
-  activateBreakLines: (str) ->
-    res = str.replace /\\n/gim, '<br/>'
-    res = res.replace /\r/gim, '<br/>'
-  
-  # make links received from Flash client clickable in HTML
-  toClickable: (str) ->
-    res = str.replace /<a href='event:/gim, "<a target='_blank' href='"
-    res = res.replace /<a href="event:/gim, '<a target="_blank" href="'
+@activateBreakLines = (str) ->
+  res = str?.replace? /\\n/gim, '<br/>'
+  res = res?.replace? /\r/gim, '<br/>'
 
+# make links received from Flash client clickable in HTML
+@toClickable = (str) ->
+  res = str?.replace? /<a href='event:/gim, "<a target='_blank' href='"
+  res = res?.replace? /<a href="event:/gim, '<a target="_blank" href="'
+
+Template.message.helpers
   toClockTime: (epochTime) ->
     if epochTime is null
       return ""
@@ -233,8 +230,9 @@ Template.message.helpers
     hours + ":" + minutes
 
   sanitizeAndFormat: (str) ->
-    # First, replace replace all tags with the ascii equivalent (excluding those involved in anchor tags)
-    res = str.replace(/&/g, '&amp;').replace(/<(?![au\/])/g, '&lt;').replace(/\/([^au])>/g, '$1&gt;').replace(/([^=])"(?!>)/g, '$1&quot;');
-    
-    res = Template.message.toClickable res
-    res = Template.message.activateBreakLines res
+    if str?
+      # First, replace replace all tags with the ascii equivalent (excluding those involved in anchor tags)
+      res = str.replace?(/&/g, '&amp;').replace?(/<(?![au\/])/g, '&lt;').replace?(/\/([^au])>/g, '$1&gt;').replace?(/([^=])"(?!>)/g, '$1&quot;');
+      
+      res = toClickable res
+      res = activateBreakLines res
