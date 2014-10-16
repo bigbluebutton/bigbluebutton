@@ -4,11 +4,11 @@ Template.slide.rendered = ->
     createWhiteboardPaper (wpm) ->
       displaySlide wpm
 
-Template.slide.helpers
-  @createWhiteboardPaper = (callback) =>
-    @whiteboardPaperModel = new Meteor.WhiteboardPaperModel('whiteboard-paper')
-    callback(@whiteboardPaperModel)
+@createWhiteboardPaper = (callback) =>
+  @whiteboardPaperModel = new Meteor.WhiteboardPaperModel('whiteboard-paper')
+  callback(@whiteboardPaperModel)
 
+Template.slide.helpers
   displaySlide: (wpm) ->
     currentSlide = getCurrentSlideDoc()
     wpm.create()
