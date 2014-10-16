@@ -4,12 +4,14 @@ Meteor.publish 'users', (meetingId) ->
   Meteor.Users.find({meetingId: meetingId}, {fields: { 'userId': 0, 'user.userid': 0, 'user.extern_userid': 0, 'user.voiceUser.userid': 0, 'user.voiceUser.web_userid': 0 }})
 
 Meteor.publish 'chat', (meetingId, userid) ->
-  me = Meteor.Users.findOne({meetingId: meetingId, userId: userid})._id
-  Meteor.Chat.find({$or: [
-    {'message.chat_type': 'PUBLIC_CHAT', 'meetingId': meetingId},
-    {'message.from_userid': me, 'meetingId': meetingId},
-    {'message.to_userid': me, 'meetingId': meetingId}
-    ]})
+  me = Meteor.Users.findOne({meetingId: meetingId, userId: userid})
+  if me?
+    me = me._id
+    Meteor.Chat.find({$or: [
+      {'message.chat_type': 'PUBLIC_CHAT', 'meetingId': meetingId},
+      {'message.from_userid': me, 'meetingId': meetingId},
+      {'message.to_userid': me, 'meetingId': meetingId}
+      ]})
 
 Meteor.publish 'shapes', (meetingId) ->
   Meteor.Shapes.find({meetingId: meetingId})
