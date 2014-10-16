@@ -30,6 +30,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		-->
 		<ObjectBuilder generator="{ModulesProxy}" cache="global" />
 		<ObjectBuilder generator="{ConfigManager}" cache="global" />
+		<ObjectBuilder generator="{GuestManager}" cache="global" />
 		<!--
 		Disabling temporarily the stream monitor
 		-->
@@ -40,6 +41,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{ModulesProxy}" method="testRTMP" />
 	</EventHandlers>
 
+
+	<EventHandlers type="{AddGuestEvent.ADD_GUEST}" >
+		<MethodInvoker generator="{GuestManager}" method="addGuest" arguments="{event}" />
+	</EventHandlers>
+
 	<EventHandlers type="{PortTestEvent.PORT_TEST_SUCCESS}" >
 		<MethodInvoker generator="{ModulesProxy}" method="portTestSuccess" arguments="{event.protocol}" />
 	</EventHandlers>
@@ -47,15 +53,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{PortTestEvent.PORT_TEST_FAILED}" >
 		<MethodInvoker generator="{ModulesProxy}" method="testRTMPT" arguments="{event.protocol}" />
 	</EventHandlers>
-
+<!--
   <EventHandlers type="{SuccessfulLoginEvent.USER_LOGGED_IN}" >
     <MethodInvoker generator="{ModulesProxy}" method="loadAllModules" arguments="{event.conferenceParameters}" />
+    <MethodInvoker generator="{UserService}" method="getAllGuests" arguments="{event}" />
   </EventHandlers>
-  
-	<EventHandlers type="{LogoutEvent.USER_LOGGED_OUT}" >
-		<MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
-	</EventHandlers>
-		
+  -->
+
 	<EventHandlers type="{ConfigEvent.CONFIG_EVENT}" >
 		<MethodInvoker generator="{ConfigManager}" method="setConfig" arguments="{event.config}" />
 		<MethodInvoker generator="{SkinningService}" method="loadSkins" arguments="{event.config.skinning}" />
@@ -78,7 +82,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     import org.bigbluebutton.core.managers.ConfigManager;
     import org.bigbluebutton.core.services.SkinningService;
     import org.bigbluebutton.core.services.StreamMonitor;
+    import org.bigbluebutton.main.events.BBBEvent;
     import org.bigbluebutton.main.events.ConfigEvent;
+      import org.bigbluebutton.main.events.AddGuestEvent;
     import org.bigbluebutton.main.events.LogoutEvent;
     import org.bigbluebutton.main.events.ModuleLoadEvent;
     import org.bigbluebutton.main.events.PortTestEvent;
@@ -86,7 +92,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     import org.bigbluebutton.main.events.SuccessfulLoginEvent;
     import org.bigbluebutton.main.model.PortTestProxy;
     import org.bigbluebutton.main.model.modules.ModulesProxy;
-		
+    import org.bigbluebutton.main.model.GuestManager;
+
 	]]>
 	</mx:Script>
 	

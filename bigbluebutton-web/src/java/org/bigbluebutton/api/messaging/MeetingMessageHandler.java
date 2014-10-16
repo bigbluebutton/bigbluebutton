@@ -99,9 +99,10 @@ public class MeetingMessageHandler implements MessageHandler {
 							String externuserid = user.get("extern_userid").getAsString();
 							String username = user.get("name").getAsString();
 							String role = user.get("role").getAsString();
+							Boolean guest = user.get("guest").getAsBoolean();
 							
 							for (MessageListener listener : listeners) {
-								listener.handle(new UserJoined(meetingId, userid, externuserid, username, role));
+								listener.handle(new UserJoined(meetingId, userid, externuserid, username, role, guest));
 							}
 						} else if(MessagingConstants.USER_STATUS_CHANGE_EVENT.equalsIgnoreCase(messageName)) {
 						 	System.out.println("Handling [" + messageName + "] message.");

@@ -106,6 +106,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						message = ResourceUtil.getInstance().getString('bbb.logout.usercommand');
 						redirect(); // we know that the disconnect was requested so automatically redirect
 						break;
+					case ConnectionFailedEvent.GUEST_KICKED_OUT:
+						message = ResourceUtil.getInstance().getString('bbb.logout.guestkickedout');
+						break;
 				}
 			}
 			

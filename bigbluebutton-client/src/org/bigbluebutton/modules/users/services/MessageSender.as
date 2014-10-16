@@ -357,5 +357,33 @@ package org.bigbluebutton.modules.users.services
         newLockSettings
       );      
     }
+
+    public function queryForGuestPolicy():void {
+
+    }
+
+    public function setGuestPolicy(policy:String):void {
+
+    }
+
+    public function queryForGuestsWaiting():void {
+
+    }
+
+    public function guestDisconnect():void {
+
+    }
+
+    public function askToEnter():void {
+
+    }
+
+    public function responseToGuest(userId:String, response:Boolean):void {
+
+    }
+
+    public function responseToAllGuests(response:Boolean):void {
+
+    }
   }
 }

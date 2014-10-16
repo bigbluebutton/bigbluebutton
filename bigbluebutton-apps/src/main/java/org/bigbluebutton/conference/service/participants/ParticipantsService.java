@@ -104,4 +104,37 @@ public class ParticipantsService {
         return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
     }
 
+	//TODO: does using internalUserId here make any sense?
+	public void askingToEnter() {
+		String userId = getBbbSession().getInternalUserID();
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		application.askingToEnter(roomName, userId);
+	}
+
+	public void getGuestPolicy() {
+		String requesterId = getBbbSession().getInternalUserID();
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		application.getGuestPolicy(roomName, requesterId);
+	}
+
+	public void newGuestPolicy(String guestPolicy) {
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		application.newGuestPolicy(roomName, guestPolicy);
+	}
+
+	public void askingForGuestWaiting() {
+		String userId = getBbbSession().getInternalUserID();
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		application.askingForGuestWaiting(roomName, userId);
+	}
+
+	public void responseToAllGuests(Boolean resp) {
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		application.responseToAllGuests(roomName, resp);
+	}
+
+	public void responseToGuest(String userId, Boolean resp) {
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		application.responseToGuest(roomName, userId, resp);
+	}
 }

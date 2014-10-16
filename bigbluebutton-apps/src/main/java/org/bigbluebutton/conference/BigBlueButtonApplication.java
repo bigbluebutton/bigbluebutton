@@ -136,6 +136,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		
 		String externalUserID = ((String) params[5]).toString();
 		String internalUserID = ((String) params[6]).toString();
+		boolean guest = ((Boolean) params[7]);
     	
 		Boolean locked = false;
 		if (params.length >= 7 && ((Boolean) params[7])) {
@@ -161,7 +162,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		}
 			
 		BigBlueButtonSession bbbSession = new BigBlueButtonSession(room, internalUserID,  username, role, 
-    			voiceBridge, record, externalUserID, muted);
+    			voiceBridge, record, externalUserID, muted, guest);
 		connection.setAttribute(Constants.SESSION, bbbSession);        
 		connection.setAttribute("INTERNAL_USER_ID", internalUserID);
         
