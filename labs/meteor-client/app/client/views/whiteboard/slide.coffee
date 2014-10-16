@@ -8,55 +8,43 @@ Template.slide.rendered = ->
   @whiteboardPaperModel = new Meteor.WhiteboardPaperModel('whiteboard-paper')
   callback(@whiteboardPaperModel)
 
-Template.slide.helpers
-  displaySlide: (wpm) ->
-    currentSlide = getCurrentSlideDoc()
-    wpm.create()
-    pic = new Image()
-    pic.onload = ->
-      originalWidth = this.width
-      originalHeight = this.height
-
-      boardWidth = $("#whiteboard").width()
-      boardHeight = $("#whiteboard").height() - $("#whiteboard-navbar").height() - 10
-
-      if originalWidth <= originalHeight
-        adjustedWidth = boardHeight * originalWidth / originalHeight
-        $('#whiteboard-paper').width(adjustedWidth)
-        if boardWidth < adjustedWidth
-          adjustedHeight = boardHeight * boardWidth / adjustedWidth
-          adjustedWidth = boardWidth
-        else
-          adjustedHeight = boardHeight
-        $("#whiteboard-paper").height(adjustedHeight)
-      else
-        adjustedHeight = boardWidth * originalHeight / originalWidth
-        $('#whiteboard-paper').height(adjustedHeight)
-        if boardHeight < adjustedHeight
-          adjustedWidth = boardWidth * boardHeight / adjustedHeight
-          adjustedHeight = boardHeight
-        else
-          adjustedWidth = boardWidth
-        $("#whiteboard-paper").width(adjustedWidth)
-
-      height = $('#whiteboard').height()
-      $('#whiteboard-paper').height((height-$("#whiteboard-navbar").height()-10)+'px')
-
-      wpm._displayPage(currentSlide?.slide?.png_uri, originalWidth, originalHeight)
-      Template.slide.manuallyDisplayShapes()
-      wpm.scale(adjustedWidth, adjustedHeight)
-
-    pic.src = currentSlide?.slide?.png_uri
-
 @displaySlide= (wpm) ->
   currentSlide = getCurrentSlideDoc()
-  wpm?.create()
-
-  # loading the image to find its original dimensions
+  wpm.create()
   pic = new Image()
   pic.onload = ->
-    wpm?._displayPage(currentSlide?.slide?.png_uri, this.width, this.height)
+    originalWidth = this.width
+    originalHeight = this.height
+
+    boardWidth = $("#whiteboard").width()
+    boardHeight = $("#whiteboard").height() - $("#whiteboard-navbar").height() - 10
+
+    if originalWidth <= originalHeight
+      adjustedWidth = boardHeight * originalWidth / originalHeight
+      $('#whiteboard-paper').width(adjustedWidth)
+      if boardWidth < adjustedWidth
+        adjustedHeight = boardHeight * boardWidth / adjustedWidth
+        adjustedWidth = boardWidth
+      else
+        adjustedHeight = boardHeight
+      $("#whiteboard-paper").height(adjustedHeight)
+    else
+      adjustedHeight = boardWidth * originalHeight / originalWidth
+      $('#whiteboard-paper').height(adjustedHeight)
+      if boardHeight < adjustedHeight
+        adjustedWidth = boardWidth * boardHeight / adjustedHeight
+        adjustedHeight = boardHeight
+      else
+        adjustedWidth = boardWidth
+      $("#whiteboard-paper").width(adjustedWidth)
+
+    height = $('#whiteboard').height()
+    $('#whiteboard-paper').height((height-$("#whiteboard-navbar").height()-10)+'px')
+
+    wpm._displayPage(currentSlide?.slide?.png_uri, originalWidth, originalHeight)
     manuallyDisplayShapes()
+    wpm.scale(adjustedWidth, adjustedHeight)
+
   pic.src = currentSlide?.slide?.png_uri
 
 @manuallyDisplayShapes = ->
