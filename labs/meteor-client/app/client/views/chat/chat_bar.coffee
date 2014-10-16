@@ -63,7 +63,7 @@ Template.chatInput.rendered  = ->
 
     greeting = [
       'message':
-        'message': greeting
+        'message': getGreeting()
         'from_username': 'System',
         'from_time': getTimeOfJoining()
         'from_color': '0x3399FF' # A nice blue in hex
@@ -77,17 +77,15 @@ Template.chatInput.rendered  = ->
 
   messages = (before.concat greeting).concat after
 
-#@greeting = "Welcome to #{window.getMeetingName()}!\r\r
-@greeting = "Welcome to -------------!\r\r
-    For help on using BigBlueButton see these (short) <a href='http://www.bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.\r\r
-    To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.\r\r\r
-    This server is running BigBlueButton ----------------------------------.\r\r"
-    #This server is running BigBlueButton #{getInSession 'bbbServerVersion'}.\r\r"
+@getGreeting = ->
+  #@greeting = "Welcome to #{window.getMeetingName()}!\r\r
+  "Welcome to -------------!\r\r
+  For help on using BigBlueButton see these (short) <a href='http://www.bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.\r\r
+  To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.\r\r\r
+  This server is running BigBlueButton ----------------------------------.\r\r"
+  #This server is running BigBlueButton #{getInSession 'bbbServerVersion'}.\r\r"
 
 Template.chatbar.helpers
-  getChatGreeting: ->
-    return greeting
-
   getCombinedMessagesForChat: ->
     msgs = getFormattedMessagesForChat()
     len = msgs.length # get length of messages
