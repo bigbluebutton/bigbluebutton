@@ -101,18 +101,36 @@ package org.bigbluebutton.modules.users.services
         );        
       }  
     }
-    
+   
+
+    public function changeStatus(userID:String, status:String):void {
+        var _nc:ConnectionManager = BBB.initConnectionManager();
+        var message:Object = new Object();
+        message["userID"] = userID;  
+        message["status"] = "mood";
+        message["value"] = status;
+        _nc.sendMessage("participants.setParticipantStatus", 
+            function(result:String):void { // On successful result
+                LogUtil.debug(result); 
+            },	                   
+            function(status:String):void { // status - On error occurred
+                LogUtil.error(status); 
+            },
+            message
+        );  
+    }
+
     public function addStream(userID:String, streamName:String):void {
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("participants.shareWebcam", 
-        function(result:String):void { // On successful result
-          LogUtil.debug(result); 
-        },	                   
-        function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
-        },
-        streamName
-      );
+        var _nc:ConnectionManager = BBB.initConnectionManager();
+        _nc.sendMessage("participants.shareWebcam", 
+                function(result:String):void { // On successful result
+                LogUtil.debug(result); 
+                },	                   
+                function(status:String):void { // status - On error occurred
+                LogUtil.error(status); 
+                },
+                streamName
+                );
     }
     
     public function removeStream(userID:String, streamName:String):void {      

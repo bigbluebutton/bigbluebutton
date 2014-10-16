@@ -49,7 +49,6 @@
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
-			import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.modules.users.events.ViewCameraEvent;
 			import org.bigbluebutton.modules.users.model.UsersOptions;

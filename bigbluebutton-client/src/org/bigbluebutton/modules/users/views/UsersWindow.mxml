@@ -30,7 +30,6 @@
 	showCloseButton="false">
 
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-	<mate:Listener type="{ShortcutEvent.RAISE_HAND}" method="remoteRaiseHand" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_USERS_WINDOW}" method="focusWindow" />
 	<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
 	<mate:Listener type="{MeetingMutedEvent.MEETING_MUTED}" method="handleMeetingMuted" />
@@ -59,9 +58,9 @@
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
+			import org.bigbluebutton.main.model.users.Conference;
+			import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
-			import org.bigbluebutton.main.model.users.events.LowerHandEvent;
-			import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			import org.bigbluebutton.main.views.LockSettings;
 			import org.bigbluebutton.main.views.MainCanvas;
@@ -83,6 +82,7 @@
 			private var roomLocked:Boolean = false;
 			
 			private var myMenu:Menu;
+			private var menuStatus:Menu;
 			
 			[Bindable]
 			public var partOptions:UsersOptions;
@@ -105,13 +105,15 @@
 			
 			private var myMenuData:Array = [];
 			
+			private var myMenuStaticHeight:Number = 301;
+
 			private function onCreationComplete():void {
 				dispatcher = new Dispatcher();
 			
 				users = UserManager.getInstance().getConference().users;
 				amIModerator = UserManager.getInstance().getConference().amIModerator();
 				
-				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
+				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton;
 				
 				BindingUtils.bindSetter(updateNumberofUsers, users, "length");
 				
@@ -155,7 +157,7 @@
 			}
 			
 			private function changeButtons(presenter:Boolean):void {
-				raiseHandBtn.visible = raiseHandBtn.includeInLayout = partOptions.enableRaiseHand;
+			//	raiseHandBtn.visible = raiseHandBtn.includeInLayout = partOptions.enableRaiseHand;
 			}
 			
 			/*
@@ -201,13 +203,13 @@
 				dispatcher.dispatchEvent(rollEvent);
 			}
 			
-			private function raiseHand():void{
+		/*	private function raiseHand():void{
 				var e:RaiseHandEvent = new RaiseHandEvent(RaiseHandEvent.RAISE_HAND);
 				e.raised = !UserManager.getInstance().getConference().isMyHandRaised;
 				dispatchEvent(e);
 			}
 			
-			private function openSettings():void {
+		private function openSettings():void {
 				myMenuData = [];
 				myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lowerAllHands'), icon: images.hand_new, handler:lowerHands});
 				
@@ -221,19 +223,84 @@
 				myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: images.lock_open, handler: lockSettings});
 				
 				
+				var e:ChangeStatusEvent;
+				var userID:String = UserManager.getInstance().getConference().getMyUserId();
+				if (UserManager.getInstance().getConference().getMyMood() == ChangeStatusEvent.RAISE_HAND) {
+					e = new ChangeStatusEvent(userID, ChangeStatusEvent.CLEAR_STATUS);
+				} else {
+					e = new ChangeStatusEvent(userID, ChangeStatusEvent.RAISE_HAND);
+				}
+				dispatchEvent(e);
+			}*/
+
+			private function clearAllStatus():void {
+				for (var i:int = 0; i < users.length; i++) {
+					var p:BBBUser = users.getItemAt(i) as BBBUser;
+					if (p.hasMood) dispatchEvent( new ChangeStatusEvent(p.userID, ChangeStatusEvent.CLEAR_STATUS) );
+				}
+			}
+			
+			private function openSettings():void {
+				// everyone can see the audio settings
+				var myMenuData:Array = [];
+
+				if(UserManager.getInstance().getConference().amIModerator()) {
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.settings.clearAllStatus'), icon: images.delete_icon, callback: clearAllStatus} );
+					if (!roomMuted) {
+						myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted, callback: muteAll} );
+						if (UserManager.getInstance().getConference().getPresenter())
+							myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.audio_muted, callback: muteAlmostAll} );
+					} else {
+						myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio, callback: muteAll} );
+					}
+				}
+
+				if(partOptions.enableRaiseHand) {
+					if (myMenuData.length > 0) {
+						myMenuData.push( {type: "separator"} );
+					}
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.clearStatus'), icon: images.delete_icon, callback: function():void { changeStatus(ChangeStatusEvent.CLEAR_STATUS); }} );
+				/*	myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.raiseHand'), icon: images.hand_new, callback: function():void { changeStatus(ChangeStatusEvent.RAISE_HAND); }} );*/
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.agree'), icon: images.agree, callback: function():void { changeStatus(ChangeStatusEvent.AGREE); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.disagree'), icon: images.disagree, callback: function():void { changeStatus(ChangeStatusEvent.DISAGREE); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakLouder'), icon: images.speak_louder, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_LOUDER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakSofter'), icon: images.speak_lower, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_LOWER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakFaster'), icon: images.speak_faster, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_FASTER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakSlower'), icon: images.speak_slower, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_SLOWER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.beRightBack'), icon: images.be_right_back, callback: function():void { changeStatus(ChangeStatusEvent.BE_RIGHT_BACK); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.laughter'), icon: images.laughter, callback: function():void { changeStatus(ChangeStatusEvent.LAUGHTER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.sad'), icon: images.sad, callback: function():void { changeStatus(ChangeStatusEvent.SAD); }} );
+				}
+
 				// make sure the previous menu is closed before opening a new one
 				// This could be improved to include a flag that tells if the menu is open,
 				// but it would require an extra listener for the MenuCloseEvent.
 				if (myMenu) myMenu.hide();
 				
 				myMenu = Menu.createMenu(null, myMenuData, true);
-				
 				myMenu.variableRowHeight = true;
 				myMenu.show(this.x + settingsBtn.x + settingsBtn.width + 2, this.y + this.height);
+				var settingsBtnPos:Point = settingsBtn.localToGlobal(new Point(0,0));
+
+				var myMenuPos:Point = new Point();
+				myMenuPos.x = settingsBtnPos.x;
+				myMenuPos.y = settingsBtnPos.y + settingsBtn.height;
+				if (myMenuPos.y + myMenuStaticHeight > stage.stageHeight) {
+					myMenuPos.x += settingsBtn.width;
+					myMenuPos.y = stage.stageHeight - myMenuStaticHeight;
+				}
+
 				myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
+				myMenu.addEventListener(MenuEvent.MENU_SHOW, menuShowHandler);
+				myMenu.show(myMenuPos.x, myMenuPos.y);
 				myMenu.setFocus();
 			}
-			
+
+			private function menuShowHandler(e:MenuEvent):void {
+				myMenuStaticHeight = e.currentTarget.height;
+				trace("New menu height is " + myMenuStaticHeight);
+			}
+
 			private function menuClickHandler(e:MenuEvent):void {
 				if(myMenuData[e.index] != undefined && myMenuData[e.index].handler != undefined) {
 					myMenuData[e.index].handler();
@@ -295,6 +362,17 @@
 			
 			private function handleMeetingMuted(e:MeetingMutedEvent):void {
 				roomMuted = MeetingModel.getInstance().meetingMuted;
+			//	e.item.callback();
+			}
+
+			private function changeStatus(status:String):void {
+				var e:ChangeStatusEvent = new ChangeStatusEvent(UserManager.getInstance().getConference().getMyUserId(), status);
+				dispatchEvent(e);
+			}
+
+			private function setRoomMute(e:UsersEvent):void {
+			//	roomMuted = e.mute_state;
+                roomMutedLbl.visible = roomMuted;
 			}
 			
 			private function muteAll():void {
@@ -319,13 +397,6 @@
 						roomMuted = true;
 					}
 				}
-			}
-			
-			private function lowerHands():void {
-				for (var i:int = 0; i < users.length; i++) {
-					var p:BBBUser = users.getItemAt(i) as BBBUser;
-					if (p.raiseHand) dispatchEvent(new LowerHandEvent(p.userID));
-        		}
 			}
 			
 			override protected function resourcesChanged():void{
@@ -397,7 +468,7 @@
 			}
 			
 			public function remoteRaiseHand(e:ShortcutEvent):void{
-				raiseHand();
+			//	raiseHand();
 			}
 			
 			private function remoteMinimize():void{
@@ -478,15 +549,14 @@
     </mx:DataGrid>
 	
 	<mx:ControlBar width="100%">
-		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}" selected="{UserManager.getInstance().getConference().isMyHandRaised}"
+<!--		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}" selected="{UserManager.getInstance().getConference().isMyHandRaised}"
 				   width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip')}" click="raiseHand()"
-				   visible="true" tabIndex="{partOptions.baseTabIndex+15}" />
+                   visible="true" tabIndex="{partOptions.baseTabIndex+15}" />-->
 		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
 					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" click="openSettings()" visible="true" tabIndex="{partOptions.baseTabIndex+10}" />
-		<mx:VBox>
-			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomMuted.text')}" visible="{roomMuted}" includeInLayout="{roomMuted}" />
-			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomLocked.text')}" visible="{roomLocked}" includeInLayout="{roomLocked}" />
-		</mx:VBox>
+
+		<mx:Label id="roomMutedLbl" text="{ResourceUtil.getInstance().getString('bbb.users.settings.muteAll')}" />
+		<mx:Spacer width="100%"/>
 	</mx:ControlBar>
 	
 </mdi:MDIWindow>

@@ -77,7 +77,15 @@ public class ParticipantsService {
 	public void setParticipantStatus(Map<String, Object> msg) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 
-		application.setParticipantStatus(roomName, (String) msg.get("userID"), (String) msg.get("status"), (Object) msg.get("value"));
+		String userid = (String) msg.get("userID");
+        String status = (String) msg.get("status");
+        Object value = (Object) msg.get("value");
+		if (status.equals("mood")) {
+			value = ((String) value) + "," + System.currentTimeMillis();
+		}
+
+		log.debug("Setting participant status " + roomName + " " + userid + " " + status + " " + value);
+		application.setParticipantStatus(roomName, userid, status, value);
 	}
 	
 	public void setParticipantsApplication(ParticipantsApplication a) {
