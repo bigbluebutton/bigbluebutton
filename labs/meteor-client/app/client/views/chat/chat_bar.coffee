@@ -71,8 +71,8 @@ Template.chatInput.rendered  = ->
   else
     me = getInSession("DBID")
     after = Meteor.Chat.find({ # find all messages between current user and recipient
-    'message.chat_type': 'PRIVATE_CHAT',
-    $or: [{'message.from_userid': me, 'message.to_userid': friend},{'message.from_userid': friend, 'message.to_userid': me}]
+      'message.chat_type': 'PRIVATE_CHAT',
+      $or: [{'message.from_userid': me, 'message.to_userid': friend},{'message.from_userid': friend, 'message.to_userid': me}]
     }).fetch()
 
   messages = (before.concat greeting).concat after
@@ -205,13 +205,15 @@ Template.tabButtons.helpers
     button
 
 @activateBreakLines = (str) ->
-  res = str?.replace? /\\n/gim, '<br/>'
-  res = res?.replace? /\r/gim, '<br/>'
+  if typeof str is 'string'
+    res = str.replace /\\n/gim, '<br/>'
+    res = res.replace /\r/gim, '<br/>'
 
 # make links received from Flash client clickable in HTML
 @toClickable = (str) ->
-  res = str?.replace? /<a href='event:/gim, "<a target='_blank' href='"
-  res = res?.replace? /<a href="event:/gim, '<a target="_blank" href="'
+  if typeof str is 'string'
+    res = str.replace /<a href='event:/gim, "<a target='_blank' href='"
+    res = res.replace /<a href="event:/gim, '<a target="_blank" href="'
 
 Template.message.helpers
   toClockTime: (epochTime) ->
@@ -228,9 +230,9 @@ Template.message.helpers
     hours + ":" + minutes
 
   sanitizeAndFormat: (str) ->
-    if str?
+    if typeof str is 'string'
       # First, replace replace all tags with the ascii equivalent (excluding those involved in anchor tags)
-      res = str.replace?(/&/g, '&amp;').replace?(/<(?![au\/])/g, '&lt;').replace?(/\/([^au])>/g, '$1&gt;').replace?(/([^=])"(?!>)/g, '$1&quot;');
+      res = str.replace(/&/g, '&amp;').replace(/<(?![au\/])/g, '&lt;').replace(/\/([^au])>/g, '$1&gt;').replace(/([^=])"(?!>)/g, '$1&quot;');
       
       res = toClickable res
       res = activateBreakLines res
