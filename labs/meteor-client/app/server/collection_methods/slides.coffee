@@ -31,7 +31,7 @@
 				thumb_uri: slideObject.thumb_uri
 
 		id = Meteor.Slides.insert(entry)
-		console.log "added slide id =[#{id}]:#{slideObject.id} in #{meetingId}. Now there are #{Meteor.Slides.find({meetingId: meetingId}).count()} slides in the meeting"
+		#console.log "added slide id =[#{id}]:#{slideObject.id} in #{meetingId}. Now there are #{Meteor.Slides.find({meetingId: meetingId}).count()} slides in the meeting"
 
 @removeSlideFromCollection = (meetingId, slideId) ->
 	if meetingId? and slideId? and Meteor.Slides.findOne({meetingId: meetingId, "slide.id": slideId})?
