@@ -10,7 +10,6 @@ class @WhiteboardPaperModel
     # all slides in the presentation indexed by url
     @slides = {}
 
-    @fitToPage = true
     @panX = null
     @panY = null
 
@@ -44,9 +43,9 @@ class @WhiteboardPaperModel
     # else
     #   globals.events.on "connection:connected", =>
     #     @_registerEvents()
-    
+
     @zoomObserver = null
-    
+
     @adjustedWidth = 0
     @adjustedHeight = 0
 
@@ -127,7 +126,7 @@ class @WhiteboardPaperModel
 
   scale: (width, height) ->
     @raphaelObj?.changeSize(width, height)
-  
+
   # Add an image to the paper.
   # @param {string} url the URL of the image to add to the paper
   # @param {number} width   the width of the image (in pixels)
@@ -136,38 +135,21 @@ class @WhiteboardPaperModel
   addImageToPaper: (url, width, height) ->
     @_updateContainerDimensions()
 
-    if @fitToPage
-      # solve for the ratio of what length is going to fit more than the other
-      max = Math.max(width / @containerWidth, height / @containerHeight)
-      # fit it all in appropriately
-      # TODO: temporary solution
-      url = @_slideUrl(url)
-      sw = width / max
-      sh = height / max
-      cx = (@containerWidth / 2) - (width / 2)
-      cy = (@containerHeight / 2) - (height / 2)
-
-      img = @raphaelObj.image(url, cx, cy, width, height)
-      originalWidth = width
-      originalHeight = height
-    else
-      # fit to width
-      alert "no fit"
-      # assume it will fit width ways
-      sw = width / wr
-      sh = height / wr
-      wr = width / @containerWidth
-      originalWidth = sw
-      originalHeight = sh
-      sw = width / wr
-      sh = height / wr
-      img = @raphaelObj.image(url, cx = 0, cy = 0, sw, sh)
+    # solve for the ratio of what length is going to fit more than the other
+    max = Math.max(width / @containerWidth, height / @containerHeight)
+    # fit it all in appropriately
+    url = @_slideUrl(url)
+    sw = width / max
+    sh = height / max
+    #cx = (@containerWidth / 2) - (width / 2)
+    #cy = (@containerHeight / 2) - (height / 2)
+    img = @raphaelObj.image(url, cx = 0, cy = 0, width, height)
 
     # sw slide width as percentage of original width of paper
     # sh slide height as a percentage of original height of paper
     # x-offset from top left corner as percentage of original width of paper
     # y-offset from top left corner as percentage of original height of paper
-    @slides[url] = new WhiteboardSlideModel(img.id, url, img, originalWidth, originalHeight, sw, sh, cx, cy)
+    @slides[url] = new WhiteboardSlideModel(img.id, url, img, width, height, sw, sh, cx, cy)
 
     unless @current.slide?
       img.toBack()
@@ -363,10 +345,11 @@ class @WhiteboardPaperModel
       @currentShapes = []
       @currentShapesDefinitions = []
     @clearCursor()
-  
+    @createCursor()
+
   clearCursor: ->
     @cursor?.remove()
-    
+
   createCursor: ->
     @cursor = new WhiteboardCursorModel(@raphaelObj)
     @cursor.draw()
@@ -476,7 +459,7 @@ class @WhiteboardPaperModel
     newWidth = @adjustedWidth * widthRatio / 100
     newHeight = @adjustedHeight * heightRatio / 100
     @raphaelObj.setViewBox(newX, newY, newWidth, newHeight) # zooms and pans
-    
+
   # Registers listeners for events in the gloval event bus
   _registerEvents: ->
 
@@ -519,7 +502,7 @@ class @WhiteboardPaperModel
     #           adding : true #tell the line object that we ARE adding points and NOT creating a new line
     #         }
     #         console.log "lineObject: " + lineObject
-    #         @updateShape type, lineObject 
+    #         @updateShape type, lineObject
 
 
     # globals.events.on "connection:move_and_zoom", (xOffset, yOffset, widthRatio, heightRatio) =>
@@ -780,20 +763,20 @@ class @WhiteboardPaperModel
     # # get where to start from the right -> either the beginning of the chat bar or the right edge of the screen
     # if getInSession "display_chatbar" then xEnd = $("#chat").position().left
     # else xEnd = $( document ).width();
-    
+
     # # find the height to start the top of the image at
     # if getInSession "display_navbar" then yBegin = $("#navbar").height()
     # else yBegin = 0
     # yEnd = $( document ).height();
 
     # # TODO: add some form of padding to the left, right, top, and bottom boundaries
-    # # 
+    # #
     # boardWidth = xEnd - xBegin
     # boardHeight = yEnd - yBegin
 
     boardWidth = @containerWidth
     boardHeight = @containerHeight
-    
+
     currentSlide = getCurrentSlideDoc()
 
     # TODO currentSlide undefined in some cases - will check later why
@@ -808,7 +791,7 @@ class @WhiteboardPaperModel
     # console.log "boardHeight: #{boardHeight}"
     console.log "imageWidth: #{imageWidth}"
     console.log "imageHeight: #{imageHeight}"
-    
+
     currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
     presentationId = currentPresentation?.presentation?.id
     currentSlideCursor = Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
@@ -824,15 +807,15 @@ class @WhiteboardPaperModel
         else
           @adjustedHeight = boardWidth * originalHeight / originalWidth
           @adjustedWidth = boardWidth
-        
+
         _this.zoomAndPan(newDoc.slide.width_ratio, newDoc.slide.height_ratio,
           newDoc.slide.x_offset, newDoc.slide.y_offset)
-        
+
         oldRatio = (oldDoc.slide.width_ratio + oldDoc.slide.height_ratio) / 2
         newRatio = (newDoc.slide.width_ratio + newDoc.slide.height_ratio) / 2
         _this?.currentShapes?.forEach (shape) ->
           shape.attr "stroke-width", shape.attr('stroke-width') * oldRatio  / newRatio
-    
+
     if originalWidth <= originalHeight
       # square => boardHeight is the shortest side
       @adjustedWidth = boardHeight * originalWidth / originalHeight
@@ -844,6 +827,6 @@ class @WhiteboardPaperModel
       $('#whiteboard-paper').height(@adjustedHeight)
       @addImageToPaper(data, boardWidth, @adjustedHeight)
       @adjustedWidth = boardWidth
-    
+
     @zoomAndPan(currentSlide.slide.width_ratio, currentSlide.slide.height_ratio,
       currentSlide.slide.x_offset, currentSlide.slide.y_offset)

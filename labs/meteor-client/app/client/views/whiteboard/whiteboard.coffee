@@ -7,7 +7,7 @@ Template.whiteboard.rendered = ->
       originalWidth = this.width
       originalHeight = this.height
       
-      boardWidth = $("#whiteboard-navbar").width()
+      boardWidth = $("#whiteboard").width()
       
       boardHeight = $("#whiteboard").height() - $("#whiteboard-navbar").height() - 10
       
