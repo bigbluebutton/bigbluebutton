@@ -83,7 +83,7 @@ trait UsersApp {
       // Check first if the meeting has ended and the user refreshed the client to re-connect.
       sendMeetingHasEnded(msg.userID)
     } else {
-      val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken)
+      val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken, msg.guest)
       regUsers += msg.userID -> regUser
       outGW.send(new UserRegistered(meetingID, recorded, regUser))      
     }

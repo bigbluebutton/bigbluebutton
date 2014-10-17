@@ -28,6 +28,7 @@ class MeetingActor(val meetingID: String, val meetingName: String, val recorded:
   var recording = false;
   var muted = false;
   var meetingEnded = false
+  var guestPolicy = GuestPolicy.ALWAYS_ASK
   
   val TIMER_INTERVAL = 30000
   var hasLastWebUserLeft = false
@@ -113,6 +114,12 @@ class MeetingActor(val meetingID: String, val meetingName: String, val recorded:
 	    case msg: SetRecordingStatus                     => handleSetRecordingStatus(msg)
 	    case msg: GetRecordingStatus                     => handleGetRecordingStatus(msg)
 	    case msg: VoiceRecording                         => handleVoiceRecording(msg)
+	    case msg: UserRequestToEnter                     => handleUserRequestToEnter(msg)
+	    case msg: GetGuestPolicy                         => handleGetGuestPolicy(msg)
+	    case msg: SetGuestPolicy                         => handleSetGuestPolicy(msg)
+	    case msg: GetGuestsWaiting                       => handleGetGuestsWaiting(msg)
+	    case msg: ResponseToGuest                        => handleResponseToGuest(msg)
+	    case msg: ResponseToAllGuests                    => handleResponseToAllGuests(msg)
 	    
 	    case msg: EndMeeting                             => handleEndMeeting(msg)
 	    case StopMeetingActor                            => exit
@@ -203,7 +210,31 @@ class MeetingActor(val meetingID: String, val meetingName: String, val recorded:
   private def handleGetRecordingStatus(msg: GetRecordingStatus) {
      outGW.send(new GetRecordingStatusReply(meetingID, recorded, msg.userId, recording.booleanValue()))
   }
-  
+
+  private def handleUserRequestToEnter(msg: UserRequestToEnter) {
+      //TODO
+  }
+
+  private def handleGetGuestPolicy(msg: GetGuestPolicy) {
+      outGW.send(new GetGuestPolicyReply(msg.meetingID, msg.requesterID, guestPolicy.toString()))
+  }
+
+  private def handleSetGuestPolicy(msg: SetGuestPolicy) {
+      outGW.send(new GuestPolicyChanged(msg.meetingID, guestPolicy.toString()))
+  }
+
+  private def handleGetGuestsWaiting(msg: GetGuestsWaiting) {
+      //TODO
+  }
+
+  private def handleResponseToGuest(msg: ResponseToGuest) {
+      //TODO
+  }
+
+  private def handleResponseToAllGuests(msg: ResponseToAllGuests) {
+      //TODO
+  }
+
   def lockLayout(lock: Boolean) {
     permissions = permissions.copy(lockedLayout=lock)
   }

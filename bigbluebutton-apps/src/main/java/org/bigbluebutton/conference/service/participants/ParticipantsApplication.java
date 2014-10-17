@@ -99,8 +99,8 @@ public class ParticipantsApplication {
 		bbbInGW.setGuestPolicy(meetingId, guestPolicy);
 	}
 
-	public void askingForGuestWaiting(String meetingId, String userId) {
-		bbbInGW.getGuestsWaiting(meetingId, userId);
+	public void askingForGuestWaiting(String meetingId, String requesterId) {
+		bbbInGW.getGuestsWaiting(meetingId, requesterId);
 	}
 
 	public void responseToGuest(String meetingId, String userId, Boolean resp) {
