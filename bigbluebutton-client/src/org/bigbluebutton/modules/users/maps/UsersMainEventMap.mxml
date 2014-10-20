@@ -32,6 +32,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.AddGuestEvent;
       import org.bigbluebutton.main.events.RemoveGuestRequestEvent;
       import org.bigbluebutton.main.events.ResponseModeratorEvent;
+      import org.bigbluebutton.main.events.SuccessfulLoginEvent;
       import org.bigbluebutton.main.events.UserServicesEvent;
       import org.bigbluebutton.main.events.WaitModeratorEvent;
       import org.bigbluebutton.main.model.GuestManager;
@@ -49,6 +50,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<EventHandlers type="{FlexEvent.APPLICATION_COMPLETE}" >
     <ObjectBuilder generator="{UserService}" cache="global" />
+    <ObjectBuilder generator="{GuestManager}" cache="global" />
 	</EventHandlers>
 	
   <EventHandlers type="{LogoutEvent.USER_LOGGED_OUT}" >
@@ -149,6 +151,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <!-- End Lock Events -->
 
   <!-- Guest Events -->
+  <EventHandlers type="{SuccessfulLoginEvent.USER_LOGGED_IN}" >
+    <MethodInvoker generator="{UserService}" method="getAllGuests" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{AddGuestEvent.ADD_GUEST}" >
+    <MethodInvoker generator="{GuestManager}" method="addGuest" arguments="{event}" />
+  </EventHandlers>
+
   <EventHandlers type="{LogoutEvent.GUEST_KICKED_OUT}" >
     <MethodInvoker generator="{UserService}" method="guestDisconnect" />
     <MethodInvoker generator="{UserService}" method="logoutUser" />

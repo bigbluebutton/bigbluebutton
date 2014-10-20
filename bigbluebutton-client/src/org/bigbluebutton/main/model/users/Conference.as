@@ -372,8 +372,8 @@ package org.bigbluebutton.main.model.users {
 			me.role = role;
 		}
 
-		public function isGuest():Boolean {
-			return me.guest;		
+		public function amIGuest():Boolean {
+			return me.guest;
 		}
 
 		public function setGuest(guest:Boolean):void {

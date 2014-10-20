@@ -471,6 +471,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
   private def handleGuestRequestedToEnter(msg: GuestRequestedToEnter) {
     var args = new HashMap[String, Object]();
     args.put("userId", msg.userID);
+    args.put("name", msg.name);
 
     val message = new java.util.HashMap[String, Object]()
     val gson = new Gson();
@@ -526,6 +527,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 
   private def handleResponseToGuest(msg: ResponseToGuest) {
     var args = new HashMap[String, Object]();
+    args.put("userId", msg.guestID);
     args.put("response", msg.response:java.lang.Boolean);
 
     val message = new java.util.HashMap[String, Object]()
@@ -534,7 +536,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 
 //    println("UsersClientMessageSender - handleResponseToGuest \n" + message.get("msg") + "\n")
 
-    val m = new DirectClientMessage(msg.meetingID, msg.guestID, "response_to_guest", message);
+    val m = new BroadcastClientMessage(msg.meetingID, "response_to_guest", message);
     service.sendMessage(m);
   }
 }

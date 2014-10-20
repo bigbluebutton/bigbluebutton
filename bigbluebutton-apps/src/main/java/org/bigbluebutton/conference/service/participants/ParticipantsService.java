@@ -117,12 +117,12 @@ public class ParticipantsService {
 		application.getGuestPolicy(roomName, requesterId);
 	}
 
-	public void newGuestPolicy(String guestPolicy) {
+	public void setGuestPolicy(String guestPolicy) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 		application.newGuestPolicy(roomName, guestPolicy);
 	}
 
-	public void askingForGuestWaiting() {
+	public void getGuestsWaiting() {
 		String userId = getBbbSession().getInternalUserID();
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 		application.askingForGuestWaiting(roomName, userId);
@@ -133,8 +133,8 @@ public class ParticipantsService {
 		application.responseToAllGuests(roomName, resp);
 	}
 
-	public void responseToGuest(String userId, Boolean resp) {
+	public void responseToGuest(Map<String, Object> msg) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.responseToGuest(roomName, userId, resp);
+		application.responseToGuest(roomName, (String) msg.get("guestID"), (Boolean) msg.get("response"));
 	}
 }

@@ -28,7 +28,7 @@ class MeetingActor(val meetingID: String, val meetingName: String, val recorded:
   var recording = false;
   var muted = false;
   var meetingEnded = false
-  var guestPolicy = GuestPolicy.ALWAYS_ASK
+  var guestPolicy = GuestPolicy.ASK_MODERATOR
   
   val TIMER_INTERVAL = 30000
   var hasLastWebUserLeft = false
@@ -216,6 +216,7 @@ class MeetingActor(val meetingID: String, val meetingName: String, val recorded:
   }
 
   private def handleSetGuestPolicy(msg: SetGuestPolicy) {
+    guestPolicy = msg.policy
     outGW.send(new GuestPolicyChanged(msg.meetingID, recorded, guestPolicy.toString()))
   }
 

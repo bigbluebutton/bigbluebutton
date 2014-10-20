@@ -650,7 +650,8 @@ case class IsWhiteboardEnabledReply(
 case class GuestRequestedToEnter (
     meetingID: String,
     recorded: Boolean,
-    userID: String
+    userID: String,
+    name: String
 ) extends IOutMessage
 
 case class GetGuestPolicyReply(

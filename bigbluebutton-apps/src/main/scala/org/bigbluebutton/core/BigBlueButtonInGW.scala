@@ -208,11 +208,11 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
 
   def setGuestPolicy(meetingID: String, guestPolicy: String) {
     val policy = guestPolicy.toUpperCase() match {
-      case "ALLOW_ALL" => GuestPolicy.ALLOW_ALL
-      case "DENY_ALL" => GuestPolicy.DENY_ALL
-      case "ALWAYS_ASK" => GuestPolicy.ALWAYS_ASK
+      case "ALWAYS_ACCEPT" => GuestPolicy.ALWAYS_ACCEPT
+      case "ALWAYS_DENY" => GuestPolicy.ALWAYS_DENY
+      case "ASK_MODERATOR" => GuestPolicy.ASK_MODERATOR
       //default
-      case undef => GuestPolicy.ALWAYS_ASK
+      case undef => GuestPolicy.ASK_MODERATOR
     }
     bbbGW.accept(new SetGuestPolicy(meetingID, policy))
   }

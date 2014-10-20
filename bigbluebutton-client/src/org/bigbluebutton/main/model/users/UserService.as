@@ -196,7 +196,7 @@ package org.bigbluebutton.main.model.users
       sender.queryForRecordingStatus();
       sender.queryForGuestPolicy();
 
-			if(UserManager.getInstance().getConference().isGuest() == false) {	
+			if(UsersUtil.amIGuest() == false) {
 				var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
 				loadCommand.conferenceParameters = _conferenceParameters;
 				dispatcher.dispatchEvent(loadCommand);		

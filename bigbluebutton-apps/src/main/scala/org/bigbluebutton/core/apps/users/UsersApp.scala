@@ -367,17 +367,28 @@ trait UsersApp {
   }
 
   def handleUserRequestToEnter(msg: UserRequestToEnter) {
-    if(users.hasUser(msg.userID)) {
-      guestsWaiting = guestsWaiting + msg.userID;
-      outGW.send(new GuestRequestedToEnter(meetingID, recorded, msg.userID))
+    users.getUser(msg.userID) match {
+      case Some(user) => {
+        guestsWaiting = guestsWaiting + msg.userID;
+        outGW.send(new GuestRequestedToEnter(meetingID, recorded, msg.userID, user.name))
+      }
+      case None => {
+//      println("handleUserRequestToEnter user [" + msg.userId + "] not found.")
+      }
     }
   }
 
   def handleGetGuestsWaiting(msg: GetGuestsWaiting) {
     // XXX: this check is really necessary?
     if(users.hasUser(msg.requesterID)) {
-      val guests = guestsWaiting mkString(",");
-      outGW.send(new GetGuestsWaitingReply(meetingID, recorded, msg.requesterID, guests))
+      var message = "";
+      guestsWaiting foreach {guest => {
+        users.getUser(guest) match {
+          case Some(user) => message = message + user.userID + ":" + user.name
+          case None => {}
+        }
+      }}
+      outGW.send(new GetGuestsWaitingReply(meetingID, recorded, msg.requesterID, message))
     }
   }
 

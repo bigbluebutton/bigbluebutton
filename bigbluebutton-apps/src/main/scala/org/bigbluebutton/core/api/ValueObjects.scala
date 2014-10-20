@@ -8,9 +8,9 @@ object Role extends Enumeration {
 
 object GuestPolicy extends Enumeration {
   type GuestPolicy = Value
-  val ALLOW_ALL = Value("ALLOW_ALL")
-  val DENY_ALL = Value("DENY_ALL")
-  val ALWAYS_ASK = Value("ALWAYS_ASK")
+  val ALWAYS_ACCEPT = Value("ALWAYS_ACCEPT")
+  val ALWAYS_DENY = Value("ALWAYS_DENY")
+  val ASK_MODERATOR = Value("ASK_MODERATOR")
 }
 
 case class Presenter(
@@ -100,7 +100,7 @@ case class MeetingConfig(name: String,
   duration: MeetingDuration,
   defaultAvatarURL: String, 
   defaultConfigToken: String,
-  guestPolicy: GuestPolicy.GuestPolicy=GuestPolicy.ALWAYS_ASK)
+  guestPolicy: GuestPolicy.GuestPolicy=GuestPolicy.ASK_MODERATOR)
 
 case class MeetingName(name: String)
     

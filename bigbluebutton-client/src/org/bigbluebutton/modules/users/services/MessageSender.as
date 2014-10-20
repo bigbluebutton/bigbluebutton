@@ -359,31 +359,99 @@ package org.bigbluebutton.modules.users.services
     }
 
     public function queryForGuestPolicy():void {
-
+      trace(LOG + "queryForGuestPolicy");
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.getGuestPolicy",
+         function(result:String):void { // On successful result
+           LogUtil.debug(result);
+         },
+         function(status:String):void { // status - On error occurred
+           LogUtil.error(status);
+         }
+       );
     }
 
     public function setGuestPolicy(policy:String):void {
-
+      trace(LOG + "setGuestPolicy - new policy:[" + policy + "]");
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.setGuestPolicy",
+         function(result:String):void { // On successful result
+           LogUtil.debug(result);
+         },
+         function(status:String):void { // status - On error occurred
+           LogUtil.error(status);
+         },
+         policy
+       );
     }
 
     public function queryForGuestsWaiting():void {
-
+      trace(LOG + "queryForGuestsWaiting");
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.getGuestsWaiting",
+         function(result:String):void { // On successful result
+           LogUtil.debug(result);
+         },
+         function(status:String):void { // status - On error occurred
+           LogUtil.error(status);
+         }
+       );
     }
 
     public function guestDisconnect():void {
-
+        //TODO: Still need this?
     }
 
     public function askToEnter():void {
-
+      trace(LOG + "askToEnter - userID:[" + UsersUtil.getMyUserID() + "]");
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.askingToEnter",
+         function(result:String):void { // On successful result
+           LogUtil.debug(result);
+         },
+         function(status:String):void { // status - On error occurred
+           LogUtil.error(status);
+         }
+       );
     }
 
     public function responseToGuest(userId:String, response:Boolean):void {
+      trace(LOG + "responseToGuest - guestID:[" + userId + "] response:[" + response + "]");
 
+      var message:Object = new Object();
+      message["guestID"] = userId;
+      message["response"] = response;
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.responseToGuest",
+         function(result:String):void { // On successful result
+           LogUtil.debug(result);
+         },
+         function(status:String):void { // status - On error occurred
+           LogUtil.error(status);
+         },
+         message
+       );
     }
 
     public function responseToAllGuests(response:Boolean):void {
-
+      trace(LOG + "responseToAllGuests - response:[" + response + "]");
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.responseToAllGuests",
+         function(result:String):void { // On successful result
+           LogUtil.debug(result);
+         },
+         function(status:String):void { // status - On error occurred
+           LogUtil.error(status);
+         },
+         response
+       );
     }
   }
 }
