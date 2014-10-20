@@ -17,26 +17,13 @@ import org.bigbluebutton.core.apps.presentation.Presentation
 class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresentationsUtil) extends IBigBlueButtonInGW {
    
   // Meeting
-  def createMeeting2(meetingID: String, meetingName: String, record: Boolean, voiceBridge: String, duration: Long) {
+  def createMeeting2(meetingID: String, meetingName: String, record: Boolean, 
+          voiceBridge: String, duration: Long, autoStartRecording: Boolean, 
+          allowStartStopRecording: Boolean) {
 //    println("******************** CREATING MEETING [" + meetingID + "] ***************************** ")
-	bbbGW.accept(new CreateMeeting(meetingID, meetingName, record, voiceBridge, duration))
-
-	/*
-	val pres = presUtil.getPreuploadedPresentations(meetingID);
-	if (!pres.isEmpty()) {
-	  var presentations = new scala.collection.immutable.HashMap[String, Presentation]
-	  
-	  pres foreach {p =>
-	    val pages = generatePresentationPages(p.numPages)
-	    val presentation = new Presentation(id=p.id, name=p.id, pages=pages)
-	    presentations += presentation.id -> presentation
-	  }
-	  
-	  
-	  bbbGW.accept(new PreuploadedPresentations(meetingID, presentations.values.toSeq))
-	}
-	
-	*/
+  	bbbGW.accept(new CreateMeeting(meetingID, meetingName, record, 
+	                   voiceBridge, duration, autoStartRecording,
+	                   allowStartStopRecording))
   }
   
   def destroyMeeting(meetingID: String) {

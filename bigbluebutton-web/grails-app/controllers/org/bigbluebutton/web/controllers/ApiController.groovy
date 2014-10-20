@@ -1360,6 +1360,7 @@ class ApiController {
               webvoiceconf = us.webvoiceconf
               mode = us.mode
               record = us.record
+							allowStartStopRecording = meeting.getAllowStartStopRecording()
               welcome = us.welcome
 							if (! StringUtils.isEmpty(meeting.moderatorOnlyMessage))
 							  modOnlyMessage = meeting.moderatorOnlyMessage
