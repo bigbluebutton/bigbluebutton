@@ -101,3 +101,37 @@ bottomEntry{
     background-color: #D7D7D7
 }
 .tab{}
+
+
+
+
+
+#tabsList {
+    display: table;
+    table-layout: fixed;
+    text-align: center;
+    border-spacing: 6px; /* space between each tab */
+    width: 456px;
+    height: auto;
+    /*background-color:aqua;*/
+    margin: 0;
+    padding: 0;
+}
+#tabsList li {
+    display: table-cell;
+    width: auto;
+    height: auto;
+    vertical-align: bottom;
+}
+#tabsList a {
+    display: block;
+    min-height: 100%;
+    padding: 4px 10px;
+    /*background-color: lime;*/
+    /*color: blue;*/
+    border-radius: 6px 6px 0 0;
+    overflow: hidden;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

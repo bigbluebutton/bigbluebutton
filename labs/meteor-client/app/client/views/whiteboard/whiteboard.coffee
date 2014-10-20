@@ -1,16 +1,16 @@
 Template.whiteboard.rendered = ->
   $(window).resize( ->
     currentSlide = getCurrentSlideDoc()
-    
+
     pic = new Image()
-    pic.onload = -> 
+    pic.onload = ->
       originalWidth = this.width
       originalHeight = this.height
-      
+
       boardWidth = $("#whiteboard").width()
-      
+
       boardHeight = $("#whiteboard").height() - $("#whiteboard-navbar").height() - 10
-      
+
       if originalWidth <= originalHeight
         adjustedWidth = boardHeight * originalWidth / originalHeight
         $('#whiteboard-paper').width(adjustedWidth)
@@ -30,15 +30,15 @@ Template.whiteboard.rendered = ->
           adjustedWidth = boardWidth
         $("#whiteboard-paper").width(adjustedWidth)
 
-      wpm = @whiteboardPaperModel
-      wpm?.clearShapes()
-      wpm?.clearCursor()
+      wpm = whiteboardPaperModel
+      wpm.clearShapes()
+      wpm.clearCursor()
       manuallyDisplayShapes()
 
       #wpm._updateContainerDimensions()
 
-      wpm?.scale(adjustedWidth, adjustedHeight)
-      wpm?.createCursor()
+      wpm.scale(adjustedWidth, adjustedHeight)
+      wpm.createCursor()
 
     pic.src = currentSlide?.slide?.png_uri
   );
