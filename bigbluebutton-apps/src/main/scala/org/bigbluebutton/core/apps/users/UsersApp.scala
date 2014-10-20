@@ -6,6 +6,7 @@ import org.bigbluebutton.core.User
 import java.util.ArrayList
 import org.bigbluebutton.core.MeetingActor
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.immutable.ListSet
 
 trait UsersApp {
   this : MeetingActor =>
@@ -19,7 +20,9 @@ trait UsersApp {
   private var meetingMuted = false
   
   private var currentPresenter = new Presenter("system", "system", "system")
-  
+
+  private var guestsWaiting = new collection.immutable.ListSet[String]
+
   def hasUser(userID: String):Boolean = {
     users.hasUser(userID)
   }
@@ -361,5 +364,34 @@ trait UsersApp {
   	  }
 
     }
+  }
+
+  def handleUserRequestToEnter(msg: UserRequestToEnter) {
+    if(users.hasUser(msg.userID)) {
+      guestsWaiting = guestsWaiting + msg.userID;
+      outGW.send(new GuestRequestedToEnter(meetingID, recorded, msg.userID))
+    }
+  }
+
+  def handleGetGuestsWaiting(msg: GetGuestsWaiting) {
+    // XXX: this check is really necessary?
+    if(users.hasUser(msg.requesterID)) {
+      val guests = guestsWaiting mkString(",");
+      outGW.send(new GetGuestsWaitingReply(meetingID, recorded, msg.requesterID, guests))
+    }
+  }
+
+  def handleRespondToGuest(msg: RespondToGuest) {
+    if(guestsWaiting.contains(msg.guestID)) {
+      guestsWaiting = guestsWaiting - msg.guestID
+      outGW.send(new ResponseToGuest(meetingID, recorded, msg.guestID, msg.response))
+    }
+  }
+
+  def handleRespondToAllGuests(msg: RespondToAllGuests) {
+    guestsWaiting foreach {guest =>
+      outGW.send(new ResponseToGuest(meetingID, recorded, guest, msg.response))
+    }
+    guestsWaiting = new collection.immutable.ListSet[String]
   }
 }

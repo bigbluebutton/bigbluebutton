@@ -222,11 +222,11 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
   }
 
   def responseToGuest(meetingID: String, guestID: String, response: java.lang.Boolean) {
-    bbbGW.accept(new ResponseToGuest(meetingID, guestID, response))
+    bbbGW.accept(new RespondToGuest(meetingID, guestID, response))
   }
 
   def responseToAllGuests(meetingID: String, response: java.lang.Boolean) {
-    bbbGW.accept(new ResponseToAllGuests(meetingID, response))
+    bbbGW.accept(new RespondToAllGuests(meetingID, response))
   }
 
 	/**************************************************************************************

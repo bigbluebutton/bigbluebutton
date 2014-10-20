@@ -118,8 +118,8 @@ class MeetingActor(val meetingID: String, val meetingName: String, val recorded:
 	    case msg: GetGuestPolicy                         => handleGetGuestPolicy(msg)
 	    case msg: SetGuestPolicy                         => handleSetGuestPolicy(msg)
 	    case msg: GetGuestsWaiting                       => handleGetGuestsWaiting(msg)
-	    case msg: ResponseToGuest                        => handleResponseToGuest(msg)
-	    case msg: ResponseToAllGuests                    => handleResponseToAllGuests(msg)
+	    case msg: RespondToGuest                         => handleRespondToGuest(msg)
+	    case msg: RespondToAllGuests                     => handleRespondToAllGuests(msg)
 	    
 	    case msg: EndMeeting                             => handleEndMeeting(msg)
 	    case StopMeetingActor                            => exit
@@ -211,28 +211,12 @@ class MeetingActor(val meetingID: String, val meetingName: String, val recorded:
      outGW.send(new GetRecordingStatusReply(meetingID, recorded, msg.userId, recording.booleanValue()))
   }
 
-  private def handleUserRequestToEnter(msg: UserRequestToEnter) {
-      //TODO
-  }
-
   private def handleGetGuestPolicy(msg: GetGuestPolicy) {
-      outGW.send(new GetGuestPolicyReply(msg.meetingID, msg.requesterID, guestPolicy.toString()))
+    outGW.send(new GetGuestPolicyReply(msg.meetingID, recorded, msg.requesterID, guestPolicy.toString()))
   }
 
   private def handleSetGuestPolicy(msg: SetGuestPolicy) {
-      outGW.send(new GuestPolicyChanged(msg.meetingID, guestPolicy.toString()))
-  }
-
-  private def handleGetGuestsWaiting(msg: GetGuestsWaiting) {
-      //TODO
-  }
-
-  private def handleResponseToGuest(msg: ResponseToGuest) {
-      //TODO
-  }
-
-  private def handleResponseToAllGuests(msg: ResponseToAllGuests) {
-      //TODO
+    outGW.send(new GuestPolicyChanged(msg.meetingID, recorded, guestPolicy.toString()))
   }
 
   def lockLayout(lock: Boolean) {

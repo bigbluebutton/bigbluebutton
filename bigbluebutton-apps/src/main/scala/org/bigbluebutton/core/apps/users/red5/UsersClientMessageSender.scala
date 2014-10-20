@@ -42,6 +42,11 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    case msg: NewPermissionsSetting                  => handleNewPermissionsSetting(msg)
 	    case msg: MeetingMuted                           => handleMeetingMuted(msg)
 	    case msg: MeetingState                           => handleMeetingState(msg)
+	    case msg: GuestRequestedToEnter                  => handleGuestRequestedToEnter(msg)
+	    case msg: GetGuestPolicyReply                    => handleGetGuestPolicyReply(msg)
+	    case msg: GuestPolicyChanged                     => handleGuestPolicyChanged(msg)
+	    case msg: GetGuestsWaitingReply                  => handleGetGuestsWaitingReply(msg)
+	    case msg: ResponseToGuest                        => handleResponseToGuest(msg)
 	    
 	    case _ => // println("Unhandled message in UsersClientMessageSender")
 	  }
@@ -462,4 +467,74 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
  	  var m = new BroadcastClientMessage(msg.meetingID, "user_listening_only", message);
  	  service.sendMessage(m);	  
 	}
+
+  private def handleGuestRequestedToEnter(msg: GuestRequestedToEnter) {
+    var args = new HashMap[String, Object]();
+    args.put("userId", msg.userID);
+
+    val message = new java.util.HashMap[String, Object]()
+    val gson = new Gson();
+    message.put("msg", gson.toJson(args))
+
+//    println("UsersClientMessageSender - handleGuestRequestedToEnter \n" + message.get("msg") + "\n")
+
+    var m = new BroadcastClientMessage(msg.meetingID, "user_requested_to_enter", message);
+    service.sendMessage(m);
+  }
+
+  private def handleGetGuestPolicyReply(msg: GetGuestPolicyReply) {
+    var args = new HashMap[String, Object]();
+    args.put("guestPolicy", msg.policy.toString());
+
+    val message = new java.util.HashMap[String, Object]()
+    val gson = new Gson();
+    message.put("msg", gson.toJson(args))
+
+//    println("UsersClientMessageSender - handleGetGuestPolicyReply \n" + message.get("msg") + "\n")
+
+    val m = new DirectClientMessage(msg.meetingID, msg.requesterID,"get_guest_policy_reply", message);
+    service.sendMessage(m);
+  }
+
+  private def handleGuestPolicyChanged(msg: GuestPolicyChanged) {
+    var args = new HashMap[String, Object]();
+    args.put("guestPolicy", msg.policy.toString());
+
+    val message = new java.util.HashMap[String, Object]()
+    val gson = new Gson();
+    message.put("msg", gson.toJson(args))
+
+//    println("UsersClientMessageSender - handleGuestPolicyChanged \n" + message.get("msg") + "\n")
+
+    var m = new BroadcastClientMessage(msg.meetingID, "guest_policy_changed", message);
+    service.sendMessage(m);
+  }
+
+  private def handleGetGuestsWaitingReply(msg: GetGuestsWaitingReply) {
+    var args = new HashMap[String, Object]();
+    args.put("guestsWaiting", msg.guestsWaiting);
+
+    val message = new java.util.HashMap[String, Object]()
+    val gson = new Gson();
+    message.put("msg", gson.toJson(args))
+
+//    println("UsersClientMessageSender - handleGetGuestsWaitingReply \n" + message.get("msg") + "\n")
+
+    val m = new DirectClientMessage(msg.meetingID, msg.requesterID, "get_guests_waiting_reply", message);
+    service.sendMessage(m);
+  }
+
+  private def handleResponseToGuest(msg: ResponseToGuest) {
+    var args = new HashMap[String, Object]();
+    args.put("response", msg.response:java.lang.Boolean);
+
+    val message = new java.util.HashMap[String, Object]()
+    val gson = new Gson();
+    message.put("msg", gson.toJson(args))
+
+//    println("UsersClientMessageSender - handleResponseToGuest \n" + message.get("msg") + "\n")
+
+    val m = new DirectClientMessage(msg.meetingID, msg.guestID, "response_to_guest", message);
+    service.sendMessage(m);
+  }
 }

@@ -102,8 +102,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: GetGuestPolicy                => handleGetGuestPolicy(msg)
         case msg: SetGuestPolicy                => handleSetGuestPolicy(msg)
         case msg: GetGuestsWaiting              => handleGetGuestsWaiting(msg)
-        case msg: ResponseToGuest               => handleResponseToGuest(msg)
-        case msg: ResponseToAllGuests           => handleResponseToAllGuests(msg)
+        case msg: RespondToGuest                => handleRespondToGuest(msg)
+        case msg: RespondToAllGuests            => handleRespondToAllGuests(msg)
 
         //OUT MESSAGES
         case msg: MeetingCreated                => handleMeetingCreated(msg)
@@ -2259,7 +2259,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     dispatcher.dispatch(buildJson(header, payload))
   }
 
-  private def handleResponseToGuest(msg: ResponseToGuest) {
+  private def handleRespondToGuest(msg: RespondToGuest) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.USER_ID, msg.guestID)
@@ -2274,7 +2274,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     dispatcher.dispatch(buildJson(header, payload))
   }
 
-  private def handleResponseToAllGuests(msg: ResponseToAllGuests) {
+  private def handleRespondToAllGuests(msg: RespondToAllGuests) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RESPONSE, msg.response.toString())

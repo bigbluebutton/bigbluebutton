@@ -208,13 +208,13 @@ case class GetGuestsWaiting(
     requesterID: String
 ) extends InMessage
 
-case class ResponseToGuest(
+case class RespondToGuest(
     meetingID: String,
     guestID: String,
     response: Boolean
 ) extends InMessage
 
-case class ResponseToAllGuests(
+case class RespondToAllGuests(
     meetingID: String,
     response: Boolean
 ) extends InMessage

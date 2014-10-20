@@ -647,15 +647,37 @@ case class IsWhiteboardEnabledReply(
     version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
+case class GuestRequestedToEnter (
+    meetingID: String,
+    recorded: Boolean,
+    userID: String
+) extends IOutMessage
+
 case class GetGuestPolicyReply(
     meetingID: String,
+    recorded: Boolean,
     requesterID: String,
     policy: String
 ) extends IOutMessage
 
 case class GuestPolicyChanged(
     meetingID: String,
+    recorded: Boolean,
     policy: String
+) extends IOutMessage
+
+case class GetGuestsWaitingReply(
+    meetingID: String,
+    recorded: Boolean,
+    requesterID: String,
+    guestsWaiting: String
+) extends IOutMessage
+
+case class ResponseToGuest(
+    meetingID: String,
+    recorded: Boolean,
+    guestID: String,
+    response: Boolean
 ) extends IOutMessage
 
 // Value Objects
