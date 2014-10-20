@@ -10,23 +10,37 @@ body {
     right:0;
     top:0;   
 }
+
+
+.navbar { 
+	min-height: 40px !important;
+}
+
+
 .btn{
     background-color:#F5F5F5;
 }
 .chatBarIcon{}
-.component{
+
+.component {
     background: #fff;
     border: 1px solid #ccc;
     float: left;
-    height:90%;
+    height:80%;
     margin-top: 10px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
 }
-.gradientBar{
-    background: -webkit-linear-gradient(rgb(255,255,255), rgb(182,181,181)); /* For Safari 5.1 to 6.0 */
-    background: -o-linear-gradient(     rgb(255,255,255), rgb(182,181,181)); /* For Opera 11.1 to 12.0 */
-    background: -moz-linear-gradient(   rgb(255,255,255), rgb(182,181,181)); /* For Firefox 3.6 to 15 */
-    background: linear-gradient(        rgb(255,255,255), rgb(182,181,181)); /* Standard syntax (must be last) */
+
+.gradientBar {
+ /*   background: -webkit-linear-gradient(rgb(255,255,255), rgb(182,181,181)); /* For Safari 5.1 to 6.0 */
+ /*   background: -o-linear-gradient(     rgb(255,255,255), rgb(182,181,181)); /* For Opera 11.1 to 12.0 */
+ /*   background: -moz-linear-gradient(   rgb(255,255,255), rgb(182,181,181)); /* For Firefox 3.6 to 15 */
+ /*   background: linear-gradient(        rgb(255,255,255), rgb(182,181,181)); /* Standard syntax (must be last) */
 }
+
+
 .hideNavbarIcon{}
 .lowerHand{}
 .mainContainer{
@@ -34,15 +48,38 @@ body {
 }
 .myFooter{
     color:black;
-    font-size: 12px;
-    min-height: 0px;
-    max-height: 30px;
+	font-size: 8px;
+	text-align: center;
+	max-height: 20px;
+	padding-top: 13px;
 }
+
 .myNavbar{
     margin-bottom:0.5%;
     min-width:900px;
-    padding-top:5px;
 }
+
+.myNavbar.gradientBar, .myNavbar .btn{
+    background: -webkit-linear-gradient(rgb(72,76,85), rgb(65,68,77)); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(     rgb(72,76,85), rgb(65,68,77)); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(   rgb(72,76,85), rgb(65,68,77)); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(        rgb(72,76,85), rgb(65,68,77)); /* Standard syntax (must be last) */
+}
+
+.myNavbar .btn.navbarIconToggleActive { 
+ 	background: #40434c;
+    border-bottom: 4px solid #54a7db;
+}
+
+.myNavbar .btn { 
+	border-right:1px solid #32353e;
+	border-left:1px solid #60636a;
+}
+
+.myNavbar .btn i { 
+	color:#fff;
+}
+
 .myNavbarMinimized{
     background: #eee;
     height:20px;
@@ -53,18 +90,18 @@ body {
     text-align:right;
 }
 .navbarButton {
-    height:40px;
-    margin-left: 2px;
-    margin-right: 2px;
-    width:40px;
+    height:50px;
+    width:70px;
 }
 .navbarFiller{
 	height:50px;
 	width:100%; 
 }
-.navbarIconToggleActive{
-    border-bottom: 4px solid lightblue;
+
+.navbarIconToggleActive i {
+	color:#cccdd1;
 }
+
 #navbarMinimizedButton{
 	margin-bottom:0px;
 	margin-left: 2px;
@@ -83,22 +120,53 @@ body {
 	width:40px;
 }
 .navbarSection{
-    float:left;
     min-width:300px;
     width:33%;
 }
-.navbarSettingsButtons{
-    text-align: right;
+.navbarUserButtons{
+
 }
+
+.navbarUserButtons .btn { 
+	display: block;
+	float:left;
+	border-radius:0;
+}
+
 .navbarTitle{
+	display: block;
+	float:left;
     font-size: 16px;
     font-weight:bold;
-    padding-top:15px;
+    padding-top:13px;
     text-align:center;
+    color:#fff;
 }
-.navbarUserButtons{
-    padding-left:0.5%;
+
+.navbarSettingsButtons{
+	float:right;
 }
+
+.navbarSettingsButtons .btn{
+	display: block;
+	float:right;
+}
+
+
+
+/* Chat Module */ 
+.panel-footer { 
+	padding:0;
+}
+.chat-input-wrapper {
+	margin:0;
+}
+
+#newMessageInput { 
+	width:75%;
+}
+
+
 .raiseHand {}
 .recordingStatus{
     background:none!important; 
@@ -115,7 +183,6 @@ body {
 .ScrollableWindow {
     height: 100%;
     overflow-y: scroll;
-    padding-right:5px;
 }
 .settingsIcon{}
 .signOutIcon{}
@@ -134,4 +201,31 @@ body {
     padding-top: 5px;
 }
 .usersListIcon{}
+
+
+
+
 .videoFeedIcon{}
+
+
+
+#whiteboard { 
+	padding:0 !important;
+}
+
+#whiteboard-paper {
+	background-color: white !important;
+	height: auto !important;
+}
+
+#whiteboard-paper #svggroup { 
+	display:block;
+	width:100% !important;
+	height:100% !important;
+}
+
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td  { 
+	border-top:0px;
+}
+
+
