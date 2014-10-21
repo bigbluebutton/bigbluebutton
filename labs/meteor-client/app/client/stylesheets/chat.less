@@ -13,7 +13,6 @@ bottomEntry{
     border: 1px solid #ccc;
     float: left;
     min-height:500px;
-    /*min-width:300px;*/
     overflow: hidden;
     width: 25%;
     margin-right: 0.5%;
@@ -106,45 +105,49 @@ bottomEntry{
 
 /*=================================================================================================================*/
 #tabsList {
-    display: table;
-    table-layout: fixed;
-    text-align: center;
-    border-spacing: 3px; /* space between each tab */
-    width: 500px;
-    background-color:darkgrey;
-    margin: 0;
-    padding: 0;
-}
-#tabsList li {
-    display: table-cell;
-    width: auto;
-    height: auto;
-    vertical-align: bottom;
-    list-style-type: none;
+	border-spacing: 3px; /* space between each tab */
+	display: table;
+	margin: 0;
+	padding: 0;
+	table-layout: fixed;
+	text-align: center;
+	width: 100%;
 }
 #tabsList a {
-    display: block;
-    min-height: 100%;
-    padding: 4px 10px;
-    background-color: lightgrey;
-    color: #428bca;
-    border-radius: 10px 10px 0 0;
-    overflow: hidden;
-    text-decoration: none;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+	background-color: #C9E6FF;
+	border-radius: 10px 10px 0 0;
+	color: darkblue;
+	display: block;
+	min-height: 100%;
+	overflow: hidden;
+	padding: 4px 10px;
+	text-decoration: none;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
-.closeTab{
-  font-weight: bold;
-    color: #000;
-    text-shadow: 0 1px 0 #fff;
-    -webkit-appearance: none;
-    padding: 0;
-    cursor: pointer;
-    background: transparent;
-    border: 0;
-    float:left;
+#tabsList li {
+	display: table-cell;
+	height: auto;
+	list-style-type: none;
+	vertical-align: bottom;
+	width: auto;
 }
-.nav-tabs > li {
-    float:none;
+
+.closeTab {
+	background: transparent;
+	border: 0;
+	color: #000;
+	cursor: pointer;
+	float:left;
+	font-weight: bold;
+	padding: 0;
+	text-shadow: 0 1px 0 #fff;
+	-webkit-appearance: none;
+}
+#tabsList > li {
+	float:none;
+}
+#tabsList > li.active > a, #tabsList > li.active > a:hover, #tabsList > li.active > a:focus {
+	border: 2px solid #79C1FF;
+	border-bottom-color: transparent;
 }
