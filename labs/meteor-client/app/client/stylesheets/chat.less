@@ -101,22 +101,17 @@ bottomEntry{
     background-color: #D7D7D7
 }
 .tab{}
-.closeTab{
-    float: left;
-}
 
 
 
-
+/*=================================================================================================================*/
 #tabsList {
     display: table;
     table-layout: fixed;
     text-align: center;
-    /*border-spacing: 12px; */
-
-    width: 456px;
-    height: 20px;
-    /*background-color:aqua;*/
+    border-spacing: 3px; /* space between each tab */
+    width: 500px;
+    background-color:darkgrey;
     margin: 0;
     padding: 0;
 }
@@ -125,16 +120,31 @@ bottomEntry{
     width: auto;
     height: auto;
     vertical-align: bottom;
+    list-style-type: none;
 }
 #tabsList a {
     display: block;
     min-height: 100%;
     padding: 4px 10px;
-    /*background-color: lime;*/
-    /*color: blue;*/
-    border-radius: 6px 6px 0 0;
+    background-color: lightgrey;
+    color: #428bca;
+    border-radius: 10px 10px 0 0;
     overflow: hidden;
     text-decoration: none;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+.closeTab{
+  font-weight: bold;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    -webkit-appearance: none;
+    padding: 0;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    float:left;
+}
+.nav-tabs > li {
+    float:none;
 }
