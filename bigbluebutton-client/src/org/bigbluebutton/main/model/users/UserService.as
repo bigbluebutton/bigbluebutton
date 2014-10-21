@@ -163,13 +163,13 @@ private var sender:MessageSender = new MessageSender();
 			var value:String;
 			
 			tokenslogoutUrl.push(new Array(LOGOUT_URL_TOKEN_FULLNAME  , confInfo.username));
-			tokenslogoutUrl.push(new Array(LOGOUT_URL_TOKEN_CONFERENCE, confInfo.conference));
+			tokenslogoutUrl.push(new Array(LOGOUT_URL_TOKEN_CONFERENCE, confInfo.conferenceName));
 			for(var i:int = tokenslogoutUrl.length-1; i >= 0; i--){
-				token = tokenslogoutUrl[i][LOGOUT_URL_INDEX_TOKEN].replace("%", "/%");
+				token = tokenslogoutUrl[i][LOGOUT_URL_INDEX_TOKEN];
 				value = tokenslogoutUrl[i][LOGOUT_URL_INDEX_VALUE];
 				logoutUrl = logoutUrl.replace(new RegExp(token, "g"), value);
-			}
-			return logoutUrl;
+			} 
+			return logoutUrl; 
 		}
 		
     private function connect():void{
