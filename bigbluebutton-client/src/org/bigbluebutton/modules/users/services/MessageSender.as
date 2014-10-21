@@ -401,6 +401,21 @@ package org.bigbluebutton.modules.users.services
        );
     }
 
+    public function kickGuest(userId:String):void {
+      trace(LOG + "kickGuest userID:[" + userId + "]");
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.kickGuest",
+         function(result:String):void { // On successful result
+           LogUtil.debug(result);
+         },
+         function(status:String):void { // status - On error occurred
+           LogUtil.error(status);
+         },
+         userId
+      );
+    }
+
     public function guestDisconnect():void {
         //TODO: Still need this?
     }

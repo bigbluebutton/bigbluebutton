@@ -681,6 +681,12 @@ case class ResponseToGuest(
     response: Boolean
 ) extends IOutMessage
 
+case class GuestKicked(
+    meetingID: String,
+    recorded: Boolean,
+    guestID: String
+) extends IOutMessage
+
 // Value Objects
 case class MeetingVO(
     id: String, 

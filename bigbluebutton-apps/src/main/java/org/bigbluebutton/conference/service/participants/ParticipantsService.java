@@ -137,4 +137,9 @@ public class ParticipantsService {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 		application.responseToGuest(roomName, (String) msg.get("guestID"), (Boolean) msg.get("response"));
 	}
+
+	public void kickGuest(String guestId) {
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		application.kickGuest(roomName, guestId);
+	}
 }

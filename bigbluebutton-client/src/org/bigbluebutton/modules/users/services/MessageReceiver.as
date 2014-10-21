@@ -34,6 +34,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.vo.LockSettingsVO;
   import org.bigbluebutton.main.events.AddGuestEvent;
   import org.bigbluebutton.main.events.BBBEvent;
+  import org.bigbluebutton.main.events.LogoutEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
   import org.bigbluebutton.main.events.ModeratorRespEvent;
   import org.bigbluebutton.main.events.PresenterStatusEvent;
@@ -136,7 +137,7 @@ package org.bigbluebutton.modules.users.services
         case "permissionsSettingsChanged":
           handlePermissionsSettingsChanged(message);
           break;
-        case "user_resquested_to_enter":
+        case "user_requested_to_enter":
           handleGuestRequestedToEnter(message);
           break;
         case "get_guest_policy_reply":
@@ -150,6 +151,9 @@ package org.bigbluebutton.modules.users.services
           break;
         case "response_to_guest":
           handleResponseToGuest(message);
+          break;
+        case "guest_kicked":
+          handleGuestKicked(message);
           break;
       }
     }  
@@ -582,7 +586,7 @@ package org.bigbluebutton.modules.users.services
     }
 
     public function handleGuestRequestedToEnter(msg:Object):void {
-      trace(LOG + "*** handleResponseToGuest " + msg.msg + " **** \n");
+      trace(LOG + "*** handleRequestedToEnter " + msg.msg + " **** \n");
       var map:Object = JSON.parse(msg.msg);
       if(UsersUtil.amIModerator() && UsersUtil.amIWaitForModerator() == false) {
         var e:AddGuestEvent = new AddGuestEvent();
@@ -623,23 +627,24 @@ package org.bigbluebutton.modules.users.services
     public function handleResponseToGuest(msg:Object):void {
       trace(LOG + "*** handleResponseToGuest " + msg.msg + " **** \n");
       var map:Object = JSON.parse(msg.msg);
+      var dispatcher:Dispatcher = new Dispatcher();
 
-      if(UsersUtil.getMyUserID == map.userId && UsersUtil.amIWaitForModerator()) {
+      if(UsersUtil.getMyUserID() == map.userId && UsersUtil.amIWaitForModerator()) {
         UsersUtil.setWaitForModerator(false);
-        if(map.response == false)
-          trace("TODO");
-//          kickGuest(userid);
+        if(map.response == false) {
+          var kickEvent:BBBEvent = new BBBEvent(BBBEvent.KICK_GUEST);
+          kickEvent.payload.userId = map.userId;
+          dispatcher.dispatchEvent(kickEvent);
+        }
         else {
           var allowCommand:ModeratorRespEvent = new ModeratorRespEvent(ModeratorRespEvent.GUEST_ALLOWED);
-          var dispatcherCommand:Dispatcher = new Dispatcher();
-          dispatcherCommand.dispatchEvent(allowCommand);
+          dispatcher.dispatchEvent(allowCommand);
         }
       }
 
       if(UsersUtil.amIModerator()) {
         var e:RemoveGuestRequestEvent = new RemoveGuestRequestEvent(RemoveGuestRequestEvent.GUEST_EVENT);
         e.userid = map.userId;
-        var dispatcher:Dispatcher = new Dispatcher();
         dispatcher.dispatchEvent(e);
       }
     }
@@ -660,6 +665,16 @@ package org.bigbluebutton.modules.users.services
             dispatcher.dispatchEvent(addGuestEvent);
           }
         }
+      }
+    }
+
+    public function handleGuestKicked(msg:Object):void {
+      trace(LOG + "*** handleGuestKicked " + msg.msg + " **** \n");
+      var map:Object = JSON.parse(msg.msg);
+
+      if (UsersUtil.getMyUserID() == map.guestId){
+        var dispatcher:Dispatcher = new Dispatcher();
+        dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.GUEST_KICKED_OUT));
       }
     }
   }

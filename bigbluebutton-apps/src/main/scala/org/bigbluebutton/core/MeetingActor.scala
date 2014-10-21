@@ -120,6 +120,7 @@ class MeetingActor(val meetingID: String, val meetingName: String, val recorded:
 	    case msg: GetGuestsWaiting                       => handleGetGuestsWaiting(msg)
 	    case msg: RespondToGuest                         => handleRespondToGuest(msg)
 	    case msg: RespondToAllGuests                     => handleRespondToAllGuests(msg)
+	    case msg: KickGuest                              => handleKickGuest(msg)
 	    
 	    case msg: EndMeeting                             => handleEndMeeting(msg)
 	    case StopMeetingActor                            => exit

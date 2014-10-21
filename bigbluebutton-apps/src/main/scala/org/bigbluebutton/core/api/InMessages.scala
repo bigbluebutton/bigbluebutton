@@ -219,6 +219,11 @@ case class RespondToAllGuests(
     response: Boolean
 ) extends InMessage
 
+case class KickGuest(
+    meetingID: String,
+    guestID: String
+) extends InMessage
+
 // Layout
 case class GetCurrentLayoutRequest(
     meetingID: String, 

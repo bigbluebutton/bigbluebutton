@@ -229,6 +229,10 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
     bbbGW.accept(new RespondToAllGuests(meetingID, response))
   }
 
+  def kickGuest(meetingID: String, guestID: String) {
+    bbbGW.accept(new KickGuest(meetingID, guestID))
+  }
+
 	/**************************************************************************************
 	 * Message Interface for Presentation
 	 **************************************************************************************/

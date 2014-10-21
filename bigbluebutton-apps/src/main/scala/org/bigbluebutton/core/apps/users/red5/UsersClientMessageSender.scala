@@ -47,6 +47,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    case msg: GuestPolicyChanged                     => handleGuestPolicyChanged(msg)
 	    case msg: GetGuestsWaitingReply                  => handleGetGuestsWaitingReply(msg)
 	    case msg: ResponseToGuest                        => handleResponseToGuest(msg)
+	    case msg: GuestKicked                            => handleGuestKicked(msg)
 	    
 	    case _ => // println("Unhandled message in UsersClientMessageSender")
 	  }
@@ -537,6 +538,20 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 //    println("UsersClientMessageSender - handleResponseToGuest \n" + message.get("msg") + "\n")
 
     val m = new BroadcastClientMessage(msg.meetingID, "response_to_guest", message);
+    service.sendMessage(m);
+  }
+
+  private def handleGuestKicked(msg: GuestKicked) {
+    var args = new HashMap[String, Object]();
+    args.put("guestId", msg.guestID);
+
+    val message = new java.util.HashMap[String, Object]()
+    val gson = new Gson();
+    message.put("msg", gson.toJson(args))
+
+//    println("UsersClientMessageSender - handleGuestKicked \n" + message.get("msg") + "\n")
+
+    val m = new BroadcastClientMessage(msg.meetingID, "guest_kicked", message);
     service.sendMessage(m);
   }
 }

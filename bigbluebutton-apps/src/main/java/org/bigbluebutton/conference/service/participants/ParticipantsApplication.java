@@ -110,4 +110,8 @@ public class ParticipantsApplication {
 	public void responseToAllGuests(String meetingId, Boolean resp) {
 		bbbInGW.responseToAllGuests(meetingId, resp);
 	}
+
+	public void kickGuest(String meetingId, String guestId) {
+		bbbInGW.kickGuest(meetingId, guestId);
+	}
 }

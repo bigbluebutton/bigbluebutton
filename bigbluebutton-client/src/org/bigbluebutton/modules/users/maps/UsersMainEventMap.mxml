@@ -95,11 +95,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{UserService}" method="changeRecordingStatus" arguments="{event}" />
   </EventHandlers>
   
-  <EventHandlers type="{KickUserEvent.KICK_USER}" >
-    <MethodInvoker generator="{UserService}" method="kickUser" arguments="{event}" />
-  </EventHandlers>
-  
-  
   <EventHandlers type="{VoiceConfEvent.EJECT_USER}" >
     <MethodInvoker generator="{UserService}" method="ejectUser" arguments="{event}" />
   </EventHandlers>
@@ -199,6 +194,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <EventHandlers type="{BBBEvent.BROADCAST_GUEST_POLICY}" >
     <MethodInvoker generator="{UserService}" method="newGuestPolicy" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{BBBEvent.KICK_GUEST}" >
+    <MethodInvoker generator="{UserService}" method="kickGuest" arguments="{event}" />
   </EventHandlers>
   <!-- End Guest Events -->
 </EventMap>

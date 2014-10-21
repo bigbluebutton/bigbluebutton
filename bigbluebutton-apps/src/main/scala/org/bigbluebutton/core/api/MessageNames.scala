@@ -170,5 +170,6 @@ object MessageNames {
   val GET_GUESTS_WAITING_REPLY             = "get_guests_waiting_reply"
   val RESPONSE_TO_GUEST                    = "response_to_guest"
   val RESPONSE_TO_ALL_GUESTS               = "response_to_all_guests"
+  val GUEST_KICKED                         = "guest_kicked"
 
 }

@@ -405,4 +405,9 @@ trait UsersApp {
     }
     guestsWaiting = new collection.immutable.ListSet[String]
   }
+
+  def handleKickGuest(msg: KickGuest) {
+    guestsWaiting = guestsWaiting - msg.guestID;
+    outGW.send(new GuestKicked(meetingID, recorded, msg.guestID))
+  }
 }

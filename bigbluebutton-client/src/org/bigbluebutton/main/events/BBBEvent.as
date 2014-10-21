@@ -55,6 +55,8 @@ package org.bigbluebutton.main.events {
 		public static const BROADCAST_GUEST_POLICY:String = "BBB_BROADCAST_GUEST_POLICY";
 		public static const RETRIEVE_GUEST_POLICY:String = "BBB_RETRIEVE_GUEST_POLICY";
 
+		public static const KICK_GUEST:String = "KICK_GUEST";
+
 		public var message:String;
 		public var payload:Object = new Object();
 		

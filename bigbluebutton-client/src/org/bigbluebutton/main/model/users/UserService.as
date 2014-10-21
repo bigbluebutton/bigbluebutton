@@ -272,6 +272,10 @@ package org.bigbluebutton.main.model.users
 //			_userSOService.responseToAllGuests(e.resp);
 		}
 
+		public function kickGuest(e:BBBEvent):void {
+			sender.kickGuest(e.payload.userId);
+		}
+
 		public function lowerHand(e:LowerHandEvent):void {
 			if (this.isModerator()) sender.raiseHand(e.userid, false);
 		}

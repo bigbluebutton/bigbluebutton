@@ -104,6 +104,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: GetGuestsWaiting              => handleGetGuestsWaiting(msg)
         case msg: RespondToGuest                => handleRespondToGuest(msg)
         case msg: RespondToAllGuests            => handleRespondToAllGuests(msg)
+        case msg: KickGuest                     => handleKickGuest(msg)
 
         //OUT MESSAGES
         case msg: MeetingCreated                => handleMeetingCreated(msg)
@@ -183,6 +184,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: UndoWhiteboardEvent           => handleUndoWhiteboardEvent(msg)
         case msg: WhiteboardEnabledEvent        => handleWhiteboardEnabledEvent(msg)
         case msg: IsWhiteboardEnabledReply      => handleIsWhiteboardEnabledReply(msg)
+		//TODO: Handle guest outMessages
 
         case _ => // do nothing
       }
@@ -2278,6 +2280,20 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RESPONSE, msg.response.toString())
+
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.RESPONSE_TO_ALL_GUESTS)
+    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+
+//    println("***** DISPATCHING RESPONSE TO ALL GUESTS *****************")
+    dispatcher.dispatch(buildJson(header, payload))
+  }
+
+  private def handleKickGuest(msg: KickGuest) {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.guestID)
 
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.RESPONSE_TO_ALL_GUESTS)
