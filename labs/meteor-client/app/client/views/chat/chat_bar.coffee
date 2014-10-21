@@ -165,6 +165,7 @@ Template.tabButtons.events
   'click .close': (event) -> # user closes private chat
     setInSession 'inChatWith', 'PUBLIC_CHAT'
     setInSession 'display_chatPane', true
+    console.log "userId: #{@userId}"
     id = chatTabs.findOne({userId: @userId})
     if id?
       chatTabs.remove(id)
