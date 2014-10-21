@@ -43,8 +43,7 @@ public class MeetingMessageHandler implements MessageHandler {
 					bbbGW.createMeeting2(emm.id, emm.name, emm.record, emm.voiceBridge, emm.duration);
 				} else if (msg instanceof RegisterUserMessage) {
 					RegisterUserMessage emm = (RegisterUserMessage) msg;
-					//TODO: Change this
-					bbbGW.registerUser(emm.meetingID, emm.internalUserId, emm.fullname, emm.role, emm.externUserID, emm.authToken, false);
+					bbbGW.registerUser(emm.meetingID, emm.internalUserId, emm.fullname, emm.role, emm.externUserID, emm.authToken, emm.guest);
 				} else if (msg instanceof DestroyMeetingMessage) {
 					DestroyMeetingMessage emm = (DestroyMeetingMessage) msg;
 					log.debug("Received destroy meeting request. Meeting id [{}]", emm.meetingId);

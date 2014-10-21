@@ -84,6 +84,7 @@ object MessageNames {
   val GET_GUESTS_WAITING                   = "get_guests_waiting"
   val RESPOND_TO_GUEST                     = "respond_to_guest"
   val RESPOND_TO_ALL_GUESTS                = "respond_to_all_guests"
+  val KICK_GUEST                           = "kick_guest"
 
   // OUT MESSAGES
   val MEETING_CREATED                      = "meeting_created_message"
@@ -164,7 +165,7 @@ object MessageNames {
   val MEETING_DESTROYED_EVENT              = "meeting_destroyed_event"
   val KEEP_ALIVE_REPLY                     = "keep_alive_reply"
   val USER_LISTEN_ONLY                     = "user_listening_only"
-  val USER_REQUESTED_TO_ENTER              = "user_requested_to_enter"
+  val GUEST_REQUESTED_TO_ENTER             = "guest_requested_to_enter"
   var GET_GUEST_POLICY_REPLY               = "get_guest_policy_reply"
   val GUEST_POLICY_CHANGED                 = "guest_policy_changed"
   val GET_GUESTS_WAITING_REPLY             = "get_guests_waiting_reply"

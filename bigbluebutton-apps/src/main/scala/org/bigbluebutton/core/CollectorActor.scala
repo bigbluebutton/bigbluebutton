@@ -184,7 +184,12 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: UndoWhiteboardEvent           => handleUndoWhiteboardEvent(msg)
         case msg: WhiteboardEnabledEvent        => handleWhiteboardEnabledEvent(msg)
         case msg: IsWhiteboardEnabledReply      => handleIsWhiteboardEnabledReply(msg)
-		//TODO: Handle guest outMessages
+        case msg: GuestRequestedToEnter         => handleGuestRequestedToEnter(msg)
+        case msg: GetGuestPolicyReply           => handleGetGuestPolicyReply(msg)
+        case msg: GuestPolicyChanged            => handleGuestPolicyChanged(msg)
+        case msg: GetGuestsWaitingReply         => handleGetGuestsWaitingReply(msg)
+        case msg: ResponseToGuest               => handleResponseToGuest(msg)
+        case msg: GuestKicked                   => handleGuestKicked(msg)
 
         case _ => // do nothing
       }
@@ -2276,31 +2281,105 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     dispatcher.dispatch(buildJson(header, payload))
   }
 
-  private def handleRespondToAllGuests(msg: RespondToAllGuests) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RESPONSE, msg.response.toString())
-
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.RESPONSE_TO_ALL_GUESTS)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
-
-//    println("***** DISPATCHING RESPONSE TO ALL GUESTS *****************")
-    dispatcher.dispatch(buildJson(header, payload))
-  }
-
   private def handleKickGuest(msg: KickGuest) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.USER_ID, msg.guestID)
 
     val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.RESPONSE_TO_ALL_GUESTS)
+    header.put(Constants.NAME, MessageNames.KICK_GUEST)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
     header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
 
-//    println("***** DISPATCHING RESPONSE TO ALL GUESTS *****************")
+//    println("***** DISPATCHING KICK GUEST *****************")
+    dispatcher.dispatch(buildJson(header, payload))
+  }
+
+  private def handleGuestRequestedToEnter(msg: GuestRequestedToEnter) {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userID)
+    payload.put(Constants.NAME, msg.name)
+
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.GUEST_REQUESTED_TO_ENTER)
+    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+
+//    println("***** DISPATCHING GUEST REQUESTED TO ENTER *****************")
+    dispatcher.dispatch(buildJson(header, payload))
+  }
+
+  private def handleGetGuestPolicyReply(msg: GetGuestPolicyReply) {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.POLICY, msg.policy)
+
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.GET_GUEST_POLICY_REPLY)
+    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+
+//    println("***** DISPATCHING GET GUEST POLICY REPLY *****************")
+    dispatcher.dispatch(buildJson(header, payload))
+  }
+
+  private def handleGuestPolicyChanged(msg: GuestPolicyChanged) {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.POLICY, msg.policy)
+
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.GUEST_POLICY_CHANGED)
+    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+
+//    println("***** DISPATCHING GUEST POLICY CHANGED *****************")
+    dispatcher.dispatch(buildJson(header, payload))
+  }
+
+  private def handleGetGuestsWaitingReply(msg: GetGuestsWaitingReply) {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.GUESTS_WAITING, msg.guestsWaiting)
+
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.GET_GUESTS_WAITING_REPLY)
+    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+
+//    println("***** DISPATCHING GET GUESTS WAITING REPLY *****************")
+    dispatcher.dispatch(buildJson(header, payload))
+  }
+
+  private def handleResponseToGuest(msg: ResponseToGuest) {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.guestID)
+    payload.put(Constants.RESPONSE, msg.response)
+
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.RESPONSE_TO_GUEST)
+    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+
+//    println("***** DISPATCHING RESPONSE TO GUEST *****************")
+    dispatcher.dispatch(buildJson(header, payload))
+  }
+
+  private def handleGuestKicked(msg: GuestKicked) {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.guestID)
+
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.GUEST_KICKED)
+    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+
+//    println("***** DISPATCHING GUEST KICKED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
 }
