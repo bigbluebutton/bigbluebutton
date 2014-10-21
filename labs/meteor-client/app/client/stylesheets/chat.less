@@ -57,6 +57,17 @@ bottomEntry{
 #chat-user-list {
     padding:5px;
 }
+.closeTab {
+	background: transparent;
+	border: 0;
+	color: #000;
+	cursor: pointer;
+	float:left;
+	font-weight: bold;
+	padding: 0;
+	text-shadow: 0 1px 0 #fff;
+	-webkit-appearance: none;
+}
 .gotUnreadMail{
     background: #F9DF6B;
 }
@@ -99,11 +110,6 @@ bottomEntry{
     margin-left: 10px;
     background-color: #D7D7D7
 }
-.tab{}
-
-
-
-/*=================================================================================================================*/
 #tabsList {
 	border-spacing: 3px; /* space between each tab */
 	display: table;
@@ -125,24 +131,15 @@ bottomEntry{
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
+#tabsList:before, #tabsList:after {
+	content: none;
+}
 #tabsList li {
 	display: table-cell;
 	height: auto;
 	list-style-type: none;
 	vertical-align: bottom;
 	width: auto;
-}
-
-.closeTab {
-	background: transparent;
-	border: 0;
-	color: #000;
-	cursor: pointer;
-	float:left;
-	font-weight: bold;
-	padding: 0;
-	text-shadow: 0 1px 0 #fff;
-	-webkit-appearance: none;
 }
 #tabsList > li {
 	float:none;
