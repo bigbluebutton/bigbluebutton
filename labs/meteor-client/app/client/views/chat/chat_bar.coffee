@@ -175,16 +175,22 @@ Template.tabButtons.events
     return false # stops propogation/prevents default
 
   'click .optionsChatTab': (event) ->
+    console.log "options"
+    setInSession "inChatWith", "OPTIONS"
     setInSession 'display_chatPane', false
 
   'click .privateChatTab': (event) ->
+    console.log "private: @ "
+    console.log @
     setInSession 'display_chatPane', true
 
   'click .publicChatTab': (event) ->
+    console.log "public"
+    setInSession "inChatWith", "PUBLIC_CHAT"
     setInSession 'display_chatPane', true
 
   'click .tab': (event) -> 
-    setInSession "inChatWith", @userId
+    console.log "tab"
 
   'click .gotUnreadMail': (event) ->
     chatTabs.update({userId: @userId}, {$set: {gotMail: false}})
