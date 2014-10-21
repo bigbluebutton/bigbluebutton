@@ -2,12 +2,7 @@
 	<div id="{{id}}" {{visibility name}} class="component">
 		<div id="chatbar-contents">
 			<h3 class="title gradientBar"><span class="glyphicon glyphicon-comment"></span> {{title}}</h3>
-			<!-- ==================================================================================== -->
-			<!-- <div style="overflow-y: scroll; height:40px">{{>tabButtons}}</div> -->
-			{{>tabButtons}}
-			
-
-			<!-- ==================================================================================== -->
+			{{>tabButtons}} <!-- Display public/options tabs, and private chat tabs -->
 			{{#if getInSession "display_chatPane"}}
 				<div id="chatbody">
 					<ul class="chat">					
@@ -112,16 +107,9 @@
 
 <!-- Display buttons on the chat tab, public, options, and all the private chat tabs -->
 <template name="tabButtons">
-	<!-- <ul id="tabButtonContainer" class="nav nav-tabs"> -->
-		<!-- {{#each grabChatTabs}} -->
-			<!-- {{{makeTabButton}}} -->
-		<!-- {{/each}} -->
-	<!-- </ul> -->
-
 	<ul id="tabsList" class="nav nav-tabs">
 		{{#each grabChatTabs}}
 			{{{makeTabButton}}}
 		{{/each}}
 	</ul>
-
 </template>
