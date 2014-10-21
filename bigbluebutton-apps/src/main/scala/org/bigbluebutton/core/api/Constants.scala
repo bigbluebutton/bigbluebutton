@@ -90,6 +90,5 @@ object Constants {
   val LISTEN_ONLY                     = "listen_only"
   val GUEST                           = "guest"
   val GUEST_POLICY                    = "guest_policy"
-  val POLICY                          = "policy"
-  val GUESTS_WAITING                  = "guests_WAITING"
+  val GUESTS_WAITING                  = "guests_waiting"
 }

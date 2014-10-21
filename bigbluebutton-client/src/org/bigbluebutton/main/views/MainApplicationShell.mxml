@@ -93,8 +93,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.common.events.SettingsComponentEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
-			import org.bigbluebutton.common.Role;
-			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.managers.UserManager;
@@ -137,7 +135,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var logs:Logger = new Logger();
 	
 			private var logWindow:LogWindow;
-			private var waitWindow:WaitingWindow = null;	
+			private var waitWindow:WaitingWindow = null;
 			private var guestWindow:GuestWindow = null;
 			private var scWindow:ShortcutHelpWindow;
 			private var logoutWindow:LoggedOutWindow;

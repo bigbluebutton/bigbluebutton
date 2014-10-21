@@ -103,7 +103,6 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: SetGuestPolicy                => handleSetGuestPolicy(msg)
         case msg: GetGuestsWaiting              => handleGetGuestsWaiting(msg)
         case msg: RespondToGuest                => handleRespondToGuest(msg)
-        case msg: RespondToAllGuests            => handleRespondToAllGuests(msg)
         case msg: KickGuest                     => handleKickGuest(msg)
 
         //OUT MESSAGES
@@ -2273,11 +2272,11 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     payload.put(Constants.RESPONSE, msg.response.toString())
 
     val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.RESPONSE_TO_GUEST)
+    header.put(Constants.NAME, MessageNames.RESPOND_TO_GUEST)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
     header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
 
-//    println("***** DISPATCHING RESPONSE TO GUEST *****************")
+//    println("***** DISPATCHING RESPOND TO GUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
 
@@ -2314,7 +2313,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
-    payload.put(Constants.POLICY, msg.policy)
+    payload.put(Constants.GUEST_POLICY, msg.policy)
 
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.GET_GUEST_POLICY_REPLY)
@@ -2328,7 +2327,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   private def handleGuestPolicyChanged(msg: GuestPolicyChanged) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.POLICY, msg.policy)
+    payload.put(Constants.GUEST_POLICY, msg.policy)
 
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.GUEST_POLICY_CHANGED)

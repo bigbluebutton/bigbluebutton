@@ -223,19 +223,16 @@ package org.bigbluebutton.main.model.users
 
 		public function newGuestPolicy(event:BBBEvent):void {
 			sender.setGuestPolicy(event.payload['guestPolicy']);
-//			_userSOService.newGuestPolicy(event.payload['guestPolicy']);
 		}
 
 		public function getAllGuests(e:SuccessfulLoginEvent):void {
 			if(UserManager.getInstance().getConference().amIModerator()) {
 				sender.queryForGuestsWaiting();
-//				_userSOService.askForGuestWaiting(numberId);
 			}
 		}
 
 		public function guestDisconnect():void {
 			sender.guestDisconnect();
-//			_userSOService.guestDisconnect();
 		}
 
 		public function isModerator():Boolean {
@@ -257,19 +254,17 @@ package org.bigbluebutton.main.model.users
 		public function raiseHand(e:RaiseHandEvent):void {
       sender.raiseHand(UserManager.getInstance().getConference().getMyUserId(), e.raised);
 		}
-		
+
 		public function askToEnter(e:WaitModeratorEvent):void {
 			sender.askToEnter();
-//			_userSOService.askToEnter(UserManager.getInstance().getConference().getMyUserId());
 		}
+
 		public function responseToGuest(e:ResponseModeratorEvent):void {
 			sender.responseToGuest(e.userid, e.resp);
-//			_userSOService.responseToGuest(e.userid, e.resp);
 		}
 
 		public function responseToAllGuests(e:ResponseModeratorEvent):void {
 			sender.responseToAllGuests(e.resp);
-//			_userSOService.responseToAllGuests(e.resp);
 		}
 
 		public function kickGuest(e:BBBEvent):void {

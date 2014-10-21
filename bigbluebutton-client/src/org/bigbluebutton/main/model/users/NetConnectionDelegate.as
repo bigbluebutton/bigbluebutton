@@ -249,8 +249,7 @@ package org.bigbluebutton.main.model.users
       		_netConnection.close();
     	}
 					
-		protected function netStatus( event : NetStatusEvent ) : void 
-		{
+		protected function netStatus(event:NetStatusEvent):void {
 			handleResult( event );
 		}
 		

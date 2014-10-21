@@ -379,7 +379,6 @@ trait UsersApp {
   }
 
   def handleGetGuestsWaiting(msg: GetGuestsWaiting) {
-    // XXX: this check is really necessary?
     if(users.hasUser(msg.requesterID)) {
       var message = "";
       guestsWaiting foreach {guest => {
