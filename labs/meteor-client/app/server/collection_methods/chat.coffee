@@ -53,7 +53,6 @@ Meteor.methods
 	# 
 
 @addChatToCollection = (meetingId, messageObject) ->
-	console.log "-------------addChatToCollection---------------------"
 	transformedChatObject = messageObject
 
 	# manually convert time from 1.408645053653E12 to 1408645053653 if necessary (this is the time_from that the Flash client outputs)
@@ -84,7 +83,7 @@ Meteor.methods
 					from_lang: transformedChatObject.from_lang
 
 			id = Meteor.Chat.insert(entry)
-			console.log "added chat id=[#{id}]:#{transformedChatObject.message}. Chat.size is now #{Meteor.Chat.find({meetingId: meetingId}).count()}"
+			#console.log "added chat id=[#{id}]:#{transformedChatObject.message}. Chat.size is now #{Meteor.Chat.find({meetingId: meetingId}).count()}"
 # --------------------------------------------------------------------------------------------
 # end Private methods on server
 # --------------------------------------------------------------------------------------------
