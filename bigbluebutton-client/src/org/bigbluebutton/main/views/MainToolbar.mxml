@@ -41,7 +41,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{SettingsComponentEvent.ADD}" method="addSettingsComponent" />
 	<mate:Listener type="{SettingsComponentEvent.REMOVE}" method="removeSettingsComponent"/>
   <mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
-  
+	<mate:Listener type="{WaitModeratorEvent.USER_LOGGED_IN}" method="refreshSettingsBtn" />
+	<mate:Listener type="{ModeratorRespEvent.GUEST_ALLOWED}" method="refreshSettingsBtn" />
+
 	<mx:Script>
 		<![CDATA[
       import com.asfusion.mate.events.Dispatcher;     
@@ -59,12 +61,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.BBB;
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.core.services.BandwidthMonitor;
+      import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.ConfigEvent;
       import org.bigbluebutton.main.events.LogoutEvent;
+      import org.bigbluebutton.main.events.ModeratorRespEvent;
       import org.bigbluebutton.main.events.SettingsEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+      import org.bigbluebutton.main.events.WaitModeratorEvent;
       import org.bigbluebutton.main.model.LayoutOptions;
       import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
       import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
@@ -173,7 +178,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           }
           // need to put it here because on init() the conference object 
           // still doesn't have the updated information
-          showConfigurationsButton = UserManager.getInstance().getConference().amIModerator();
+          refreshSettingsBtn(null);
+      }
+
+      private function refreshSettingsBtn(e:*):void {
+          showConfigurationsButton = UsersUtil.amIModerator() && !UsersUtil.amIWaitForModerator();
       }
 
 			public function addButton(name:String):Button{
@@ -395,11 +404,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			styleName="settingsButtonStyle"
 			height="22"
 	/>
-	<views:LanguageSelector id="langSelector"
-							visible="false"
-							tabIndex="{baseIndex+numButtons+11}"
-							accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"
-							styleName="languageSelectorStyle" />
 <!--
   <mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
 -->
