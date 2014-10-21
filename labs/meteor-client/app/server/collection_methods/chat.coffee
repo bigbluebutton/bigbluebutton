@@ -38,6 +38,9 @@ Meteor.methods
 		else 
 			console.log "requester no exists"
 
+	deletePrivateChatMessages: (userId, contact_id) ->
+		# if authorized pass through
+		deletePrivateChatMessages(userId, contact_id)
 # --------------------------------------------------------------------------------------------
 # Private methods on server
 # --------------------------------------------------------------------------------------------
