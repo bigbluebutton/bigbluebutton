@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   width="400"
+			   height="300">
+
+	<fx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+
+			protected function closeButton_clickHandler(event:MouseEvent):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+		]]>
+	</fx:Script>
+
+
+	<s:BorderContainer width="100%"
+					   height="100%">
+		<s:layout>
+			<s:VerticalLayout paddingLeft="5"
+							  paddingRight="5"
+							  paddingTop="5"
+							  paddingBottom="5"/>
+		</s:layout>
+		<mx:TextArea borderSkin="{null}"
+					 editable="false"
+					 text="{resourceManager.getString('resources', 'bbbsystemcheck.errorOccured')}"
+					 styleName="windowTitleStyle"
+					 width="400"
+					 left="0"/>
+		<s:BorderContainer width="100%"
+						   height="100%">
+			<s:layout>
+				<s:VerticalLayout paddingLeft="5"
+								  paddingRight="5"
+								  paddingTop="5"
+								  paddingBottom="5"/>
+			</s:layout>
+			<mx:Text width="100%"
+					 id="errorText"/>
+		</s:BorderContainer>
+		<s:BorderContainer width="100%"
+						   height="100%">
+			<s:layout>
+				<s:HorizontalLayout horizontalAlign="right"
+									paddingLeft="5"
+									paddingRight="5"
+									paddingTop="5"
+									paddingBottom="5"/>
+			</s:layout>
+			<s:Button width="50"
+					  height="50"
+					  content="{resourceManager.getString('resources', 'bbbsystemcheck.closeButton')}"
+					  click="closeButton_clickHandler(event)"/>
+		</s:BorderContainer>
+	</s:BorderContainer>
+
+</s:TitleWindow>
