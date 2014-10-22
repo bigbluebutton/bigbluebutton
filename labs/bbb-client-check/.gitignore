@@ -5,4 +5,5 @@ bin-release/
 .project
 org.eclipse.core.resources.prefs
 org.eclipse.ltk.core.refactoring.prefs
+FlexPrettyPrintCommand.prefs
 
