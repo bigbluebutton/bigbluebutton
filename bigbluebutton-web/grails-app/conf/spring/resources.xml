@@ -51,6 +51,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <bean id="recordingServiceHelper" class="org.bigbluebutton.api.RecordingServiceHelperImp"/>
   
+  <bean id="presDownloadService" class="org.bigbluebutton.presentation.PresentationUrlDownloadService"/>
+  
   <bean id="recordingService" class="org.bigbluebutton.api.RecordingService" >
     <property name="recordingStatusDir" value="${recordStatusDir}"/>  
     <property name="publishedDir" value="${publishedDir}"/>
