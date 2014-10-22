@@ -148,15 +148,18 @@ class MeetingActor(val meetingID: String, val meetingName: String, val recorded:
   
   def startRecordingIfAutoStart() {
     if (!recording && autoStartRecording && users.numWebUsers == 1) {
+      logger.info("Auto start recording for meeting=[" + meetingID + "]")
      recording = true
      outGW.send(new RecordingStatusChanged(meetingID, recorded, "system", recording))          
     }
   }
   
   def stopAutoStartedRecording() {
-    if (recording && autoStartRecording && users.numWebUsers == 0) {
-     recording = false
-     outGW.send(new RecordingStatusChanged(meetingID, recorded, "system", recording))          
+    if (recording && autoStartRecording 
+        && users.numWebUsers == 0) {
+      logger.info("Last web user left. Auto stopping recording for meeting=[{}", meetingID)
+      recording = false
+      outGW.send(new RecordingStatusChanged(meetingID, recorded, "system", recording))          
     }    
   }
   
