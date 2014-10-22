@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+	ADOBE SYSTEMS INCORPORATED
+	Copyright 2008 Adobe Systems Incorporated
+	All Rights Reserved.
+
+	NOTICE: Adobe permits you to use, modify, and distribute this file
+	in accordance with the terms of the license agreement accompanying it.
+
+-->
+
+<!--- The default skin class for the Spark Application component.
+
+	   @see spark.components.Application
+
+	  @langversion 3.0
+	  @playerversion Flash 10
+	  @playerversion AIR 1.5
+	  @productversion Flex 4
+-->
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:fb="http://ns.adobe.com/flashbuilder/2009"
+		alpha.disabled="0.5"
+		alpha.disabledWithControlBar="0.5">
+
+	<fx:Metadata>
+		<![CDATA[ 
+        /** 
+         * A strongly typed property that references the component to which this skin is applied.
+         */
+        [HostComponent("spark.components.Application")]
+    ]]>
+	</fx:Metadata>
+
+	<fx:Script fb:purpose="styling">
+		<![CDATA[
+			/**
+			 *  @private
+			 */
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
+			{
+				bgRectFill.color=0xEFEFEF;
+				bgRectFill.alpha=1;
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+			}
+		]]>
+	</fx:Script>
+
+	<s:states>
+		<s:State name="normal"/>
+		<s:State name="disabled"/>
+		<s:State name="normalWithControlBar"/>
+		<s:State name="disabledWithControlBar"/>
+	</s:states>
+
+	<!-- fill -->
+	<!---
+		A rectangle with a solid color fill that forms the background of the application.
+		The color of the fill is set to the Application's backgroundColor property.
+	-->
+	<s:Rect id="backgroundRect"
+			left="0"
+			right="0"
+			top="0"
+			bottom="0">
+		<s:fill>
+			<!--- @private -->
+			<s:SolidColor id="bgRectFill"
+						  color="#FFFFFF"/>
+		</s:fill>
+	</s:Rect>
+
+	<s:Group left="0"
+			 right="0"
+			 top="0"
+			 bottom="0">
+		<s:layout>
+			<s:VerticalLayout gap="0"
+							  horizontalAlign="justify"/>
+		</s:layout>
+
+		<!---
+			@private
+			Application Control Bar
+		-->
+		<s:Group id="topGroup"
+				 minWidth="0"
+				 minHeight="0"
+				 includeIn="normalWithControlBar, disabledWithControlBar">
+
+			<!-- layer 0: control bar highlight -->
+			<s:Rect left="0"
+					right="0"
+					top="0"
+					bottom="1">
+				<s:stroke>
+					<s:LinearGradientStroke rotation="90"
+											weight="1">
+						<s:GradientEntry color="0xFFFFFF"/>
+						<s:GradientEntry color="0xD8D8D8"/>
+					</s:LinearGradientStroke>
+				</s:stroke>
+			</s:Rect>
+
+			<!-- layer 1: control bar fill -->
+			<s:Rect left="1"
+					right="1"
+					top="1"
+					bottom="2">
+				<s:fill>
+					<s:LinearGradient rotation="90">
+						<s:GradientEntry color="0x32343b"/>
+						<s:GradientEntry color="0x32343b"/>
+					</s:LinearGradient>
+				</s:fill>
+			</s:Rect>
+
+			<!-- layer 2: control bar divider line -->
+			<s:Rect left="0"
+					right="0"
+					bottom="0"
+					height="1"
+					alpha="0.55">
+				<s:fill>
+					<s:SolidColor color="0x000000"/>
+				</s:fill>
+			</s:Rect>
+
+			<!-- layer 3: control bar -->
+			<!--- @copy spark.components.Application#controlBarGroup -->
+			<s:Group id="controlBarGroup"
+					 left="0"
+					 right="0"
+					 top="1"
+					 bottom="1"
+					 minWidth="0"
+					 minHeight="0">
+				<s:layout>
+					<s:HorizontalLayout paddingLeft="10"
+										paddingRight="10"
+										paddingTop="7"
+										paddingBottom="7"
+										gap="10"/>
+				</s:layout>
+			</s:Group>
+		</s:Group>
+
+		<!--- @copy spark.components.SkinnableContainer#contentGroup -->
+		<s:Group id="contentGroup"
+				 width="100%"
+				 height="100%"
+				 minWidth="0"
+				 minHeight="0"/>
+
+	</s:Group>
+
+</s:Skin>
