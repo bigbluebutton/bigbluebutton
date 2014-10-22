@@ -238,3 +238,12 @@ Template.message.helpers
       res = str.replace(/&/g, '&amp;').replace(/<(?![au\/])/g, '&lt;').replace(/\/([^au])>/g, '$1&gt;').replace(/([^=])"(?!>)/g, '$1&quot;');
       res = toClickable res
       res = activateBreakLines res
+
+Template.notificationSettings.events
+	"click #chatNotificationOn": (event) ->
+		console.log "on"
+		setInSession "displayChatNotifications", true
+
+	"click #chatNotificationOff": (event) ->
+		console.log "off"
+		setInSession "displayChatNotifications", false
