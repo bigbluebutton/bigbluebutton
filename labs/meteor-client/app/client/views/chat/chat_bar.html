@@ -34,6 +34,8 @@
 <template name="chatOptions">
 	<p>Chat Options:</p>
 	{{> optionsFontSize}}
+	<br/><br/>
+	{{> notificationSettings}}
 </template>
 
 <!-- Displays and styles an individual message in the chat -->
@@ -54,6 +56,16 @@
 	</table>
 	<div style="color:{{colourToHex message.from_color}}">{{{sanitizeAndFormat message.message}}}</div> <!-- Messages must be safely filtered and stripped -->
 	{{autoscroll}} <!-- Scroll to the bottom after inserting a new message -->
+</template>
+
+<template name="notificationSettings">
+	New Message Notifications: 
+	<form>
+		<input type="radio" name="chatNotification" id="chatNotificationOn" value="chatNotificationOn" checked="checked" />
+		<label for="chatNotificationOn">On</label>
+		<input type="radio" name="chatNotification" id="chatNotificationOff" value="chatNotificationOff" />
+		<label for="chatNotificationOff">Off</label>
+	</form>
 </template>
 
 <!-- Displays the list of options available -->
