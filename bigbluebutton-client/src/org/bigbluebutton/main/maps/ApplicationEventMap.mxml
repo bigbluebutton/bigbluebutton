@@ -69,8 +69,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{ModulesProxy}" method="startAllModules" />
   </EventHandlers>
 
+  <EventHandlers type="{LogoutEvent.GUEST_KICKED_OUT}" >
+    <MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
+  </EventHandlers>
 
-  
 	<mx:Script>
 	<![CDATA[
     import mx.events.FlexEvent;

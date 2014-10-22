@@ -358,15 +358,16 @@ package org.bigbluebutton.main.model.users
 		}	
 			
 		private function sendConnectionFailedEvent(reason:String):void{
-			if (this.logoutOnUserCommand){
-				sendUserLoggedOutEvent();
-				return;
-			}
 			if (this.guestKickedOutCommand) {
 				sendGuestUserKickedOutEvent();
 				return;
 			}
-			
+
+			if (this.logoutOnUserCommand){
+				sendUserLoggedOutEvent();
+				return;
+			}
+
 			var e:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
 			dispatcher.dispatchEvent(e);
 			

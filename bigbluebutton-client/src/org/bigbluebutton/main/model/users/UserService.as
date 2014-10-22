@@ -232,7 +232,7 @@ package org.bigbluebutton.main.model.users
 		}
 
 		public function guestDisconnect():void {
-			sender.guestDisconnect();
+			_connectionManager.guestDisconnect();
 		}
 
 		public function isModerator():Boolean {
