@@ -197,7 +197,7 @@ Template.tabButtons.helpers
 		button = ''
 		button += '<li class=\"'
 		button += 'active ' if getInSession("inChatWith") is @userId
-		button += 'gotUnreadMail ' if @gotMail
+		button += 'gotUnreadMail ' if @gotMail and getInSession("displayChatNotifications")
 		button += "tab #{safeClass}"
 		button += '\">'
 		button += "<a href='#' data-toggle='tab' id=\"#{safeName}\">"
