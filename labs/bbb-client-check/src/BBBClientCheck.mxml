@@ -3,7 +3,7 @@
 			   xmlns:s="library://ns.adobe.com/flex/spark"
 			   xmlns:mx="library://ns.adobe.com/flex/mx"
 			   xmlns:view="org.bigbluebutton.clientcheck.view.*"
-			   width="50%"
+			   width="100%"
 			   height="100%"
 			   preinitialize="preinitializeHandler(event)"
 			   xmlns:mainview="org.bigbluebutton.clientcheck.view.mainview.*">
