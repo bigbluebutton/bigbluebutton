@@ -119,7 +119,7 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 			String role = bbbSession.getRole();
 			String room = bbbSession.getRoom();
 			Boolean guest = bbbSession.isGuest();
-			log.debug(APP + ":participantJoin - [" + room + "] [" + userid + ", " + username + ", " + role + "]");
+			log.debug(APP + ":participantJoin - [" + room + "] [" + userid + ", " + username + ", " + role + ", " + guest + "]");
 			
 			Map<String, Boolean> status = new HashMap<String, Boolean>();
 			status.put("raiseHand", false);

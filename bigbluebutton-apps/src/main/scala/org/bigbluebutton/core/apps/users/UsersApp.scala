@@ -234,7 +234,7 @@ trait UsersApp {
       val vu = new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,  
                            false, false, false, false)
       val uvo = new UserVO(msg.userID, ru.externId, ru.name, 
-                  ru.role, raiseHand=false, presenter=false, 
+                  ru.role, ru.guest, raiseHand=false, presenter=false, 
                   hasStream=false, locked=false, webcamStream="", 
                   phoneUser=false, vu, listenOnly=false, permissions)
   	
@@ -256,6 +256,7 @@ trait UsersApp {
 			
   def handleUserLeft(msg: UserLeaving):Unit = {
 	 if (users.hasUser(msg.userID)) {
+	  guestsWaiting = guestsWaiting - msg.userID
 	  val user = users.removeUser(msg.userID)
 	  user foreach (u => outGW.send(new UserLeft(msg.meetingID, recorded, u)))  
 	  
@@ -283,7 +284,7 @@ trait UsersApp {
                                  msg.voiceUser.callerName, msg.voiceUser.callerNum,
                                  true, false, false, false)
           val uvo = new UserVO(webUserId, webUserId, msg.voiceUser.callerName, 
-		                  Role.VIEWER, raiseHand=false, presenter=false, 
+		                  Role.VIEWER, guest=false, raiseHand=false, presenter=false, 
 		                  hasStream=false, locked=false, webcamStream="", 
 		                  phoneUser=true, vu, listenOnly=false, permissions)
 		  	

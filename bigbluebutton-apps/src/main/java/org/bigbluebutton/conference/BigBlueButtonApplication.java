@@ -136,7 +136,6 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		
 		String externalUserID = ((String) params[5]).toString();
 		String internalUserID = ((String) params[6]).toString();
-		boolean guest = ((Boolean) params[7]);
     	
 		Boolean locked = false;
 		if (params.length >= 7 && ((Boolean) params[7])) {
@@ -156,6 +155,9 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 				lsMap = new HashMap<String, Boolean>();
 			}
 		}
+		//TODO: Where this parameters come from?
+		// Where should guest be?
+		boolean guest = false;//((Boolean) params[7]);
     	   	    	
 		if (record == true) {
 			recorderApplication.createRecordSession(room);

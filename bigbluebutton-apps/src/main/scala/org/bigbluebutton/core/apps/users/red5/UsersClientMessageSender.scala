@@ -80,6 +80,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  wuser.put("externUserID", user.externUserID)
 	  wuser.put("name", user.name)
 	  wuser.put("role", user.role.toString())
+	  wuser.put("guest", user.guest:java.lang.Boolean)
 	  wuser.put("raiseHand", user.raiseHand:java.lang.Boolean)
 	  wuser.put("presenter", user.presenter:java.lang.Boolean)
 	  wuser.put("hasStream", user.hasStream:java.lang.Boolean)

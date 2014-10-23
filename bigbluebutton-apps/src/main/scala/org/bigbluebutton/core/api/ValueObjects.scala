@@ -71,6 +71,7 @@ case class UserVO(
   externUserID: String, 
   name: String, 
   role: Role.Role, 
+  guest: Boolean,
   raiseHand: Boolean, 
   presenter: Boolean, 
   hasStream: Boolean, 

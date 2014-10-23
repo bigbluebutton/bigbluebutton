@@ -389,7 +389,13 @@ package org.bigbluebutton.modules.users.services
       // Flag that the user is leaving the meeting so that apps (such as avatar) doesn't hang
       // around when the user already left.
       user.isLeavingFlag = true;
-      
+
+      if(user.amIGuest()) {
+        var e:RemoveGuestRequestEvent = new RemoveGuestRequestEvent(RemoveGuestRequestEvent.GUEST_EVENT);
+        e.userid = user.userID;
+        dispatcher.dispatchEvent(e);
+      }
+
       var joinEvent:UserLeftEvent = new UserLeftEvent(UserLeftEvent.LEFT);
       joinEvent.userID = user.userID;
       dispatcher.dispatchEvent(joinEvent);	
@@ -543,6 +549,8 @@ package org.bigbluebutton.modules.users.services
       user.userID = joinedUser.userId;
       user.name = joinedUser.name;
       user.role = joinedUser.role;
+      user.guest = joinedUser.guest;
+      user.acceptedJoin = !user.guest;
       user.externUserID = joinedUser.externUserID;
       user.isLeavingFlag = false;
       user.listenOnly = joinedUser.listenOnly;
