@@ -165,6 +165,7 @@ Template.tabButtons.events
   'click .close': (event) -> # user closes private chat
     setInSession 'inChatWith', 'PUBLIC_CHAT'
     setInSession 'display_chatPane', true
+    console.log "userId: #{@userId}"
     id = chatTabs.findOne({userId: @userId})
     if id?
       chatTabs.remove(id)
@@ -193,36 +194,17 @@ Template.tabButtons.helpers
 		safeClass = @class.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 		safeName = @name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-		# button = '<li '
-		# button += 'class="'
-		# button += 'active ' if getInSession("inChatWith") is @userId
-		# button += 'gotUnreadMail ' if @gotMail
-		# button += "tab #{safeClass}\"><a href=\"#\" data-toggle=\"tab\" id=\"#{safeName}\" >#{safeName}"
-		# button += '&nbsp;<button class="close closeTab" type="button" >×</button>' if @class is 'privateChatTab'
-		# button += '</a></li>'
-		# button
-
 		button = ''
 		button += '<li class=\"'
-		# console.log button
 		button += 'active ' if getInSession("inChatWith") is @userId
-		# console.log button
-		button += 'gotUnreadMail ' if @gotMail
-		# console.log button
+		button += 'gotUnreadMail ' if @gotMail and getInSession("displayChatNotifications")
 		button += "tab #{safeClass}"
-		# console.log button
 		button += '\">'
-		# console.log button
 		button += "<a href='#' data-toggle='tab' id=\"#{safeName}\">"
-		# console.log button
-		button += "<button class=\"close closeTab\" type=\"button\"><sup><b>X</b></sup></button>&nbsp; " if @class is 'privateChatTab'
-		# console.log button
+		button += "<button class=\"close closeTab\" type=\"button\"><sup><b>X</b></sup></button> " if @class is 'privateChatTab'
 		button += "#{safeName}"
-		# console.log button
 		button += '</a>'
-		# console.log button
 		button += '</li>'
-		# console.log button
 		button
 
 @activateBreakLines = (str) ->
@@ -256,3 +238,12 @@ Template.message.helpers
       res = str.replace(/&/g, '&amp;').replace(/<(?![au\/])/g, '&lt;').replace(/\/([^au])>/g, '$1&gt;').replace(/([^=])"(?!>)/g, '$1&quot;');
       res = toClickable res
       res = activateBreakLines res
+
+Template.notificationSettings.events
+	"click #chatNotificationOn": (event) ->
+		console.log "on"
+		setInSession "displayChatNotifications", true
+
+	"click #chatNotificationOff": (event) ->
+		console.log "off"
+		setInSession "displayChatNotifications", false

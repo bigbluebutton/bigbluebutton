@@ -2,12 +2,7 @@
 	<div id="{{id}}" {{visibility name}} class="component">
 		<div id="chatbar-contents">
 			<h3 class="title gradientBar"><span class="glyphicon glyphicon-comment"></span> {{title}}</h3>
-			<!-- ==================================================================================== -->
-			<!-- <div style="overflow-y: scroll; height:40px">{{>tabButtons}}</div> -->
-			{{>tabButtons}}
-			
-
-			<!-- ==================================================================================== -->
+			{{>tabButtons}} <!-- Display public/options tabs, and private chat tabs -->
 			{{#if getInSession "display_chatPane"}}
 				<div id="chatbody">
 					<ul class="chat">					
@@ -39,6 +34,8 @@
 <template name="chatOptions">
 	<p>Chat Options:</p>
 	{{> optionsFontSize}}
+	<br/><br/>
+	{{> notificationSettings}}
 </template>
 
 <!-- Displays and styles an individual message in the chat -->
@@ -59,6 +56,16 @@
 	</table>
 	<div style="color:{{colourToHex message.from_color}}">{{{sanitizeAndFormat message.message}}}</div> <!-- Messages must be safely filtered and stripped -->
 	{{autoscroll}} <!-- Scroll to the bottom after inserting a new message -->
+</template>
+
+<template name="notificationSettings">
+	New Message Notifications: 
+	<form>
+		<input type="radio" name="chatNotification" id="chatNotificationOn" value="chatNotificationOn" checked="checked" />
+		<label for="chatNotificationOn">On</label>
+		<input type="radio" name="chatNotification" id="chatNotificationOff" value="chatNotificationOff" />
+		<label for="chatNotificationOff">Off</label>
+	</form>
 </template>
 
 <!-- Displays the list of options available -->
@@ -112,16 +119,9 @@
 
 <!-- Display buttons on the chat tab, public, options, and all the private chat tabs -->
 <template name="tabButtons">
-	<!-- <ul id="tabButtonContainer" class="nav nav-tabs"> -->
-		<!-- {{#each grabChatTabs}} -->
-			<!-- {{{makeTabButton}}} -->
-		<!-- {{/each}} -->
-	<!-- </ul> -->
-
 	<ul id="tabsList" class="nav nav-tabs">
 		{{#each grabChatTabs}}
 			{{{makeTabButton}}}
 		{{/each}}
 	</ul>
-
 </template>
