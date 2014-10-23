@@ -14,4 +14,7 @@ iron:router
 blaze
 nemo64:bootstrap
 less
+sanjo:jasmine
+velocity:core
+velocity:html-reporter
 
