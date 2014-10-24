@@ -21,6 +21,8 @@ package org.bigbluebutton.app.video;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
@@ -42,6 +44,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	private boolean recordVideoStream = false;
 	private EventRecordingService recordingService;
 	private final Map<String, IStreamListener> streamListeners = new HashMap<String, IStreamListener>();
+	private String roomId;
 	
     @Override
 	public boolean appStart(IScope app) {
@@ -80,10 +83,10 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
         if (recordVideoStream) {
 	    	recordStream(stream);
-	    	VideoStreamListener listener = new VideoStreamListener(); 
+	    	VideoStreamListener listener = new VideoStreamListener(roomId); 
 	        listener.setEventRecordingService(recordingService);
 	        stream.addStreamListener(listener); 
-	        streamListeners.put(conn.getScope().getName() + "-" + stream.getPublishedName(), listener);
+	        streamListeners.put(roomId + "-" + stream.getPublishedName(), listener);
         }
     }
 
@@ -98,7 +101,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         IConnection conn = Red5.getConnectionLocal();
         String scopeName;
         if (conn != null) {
-  	       scopeName = conn.getScope().getName();
+  	       scopeName = roomId;
         } else {
   	       log.info("Connection local was null, using scope name from the stream: {}", stream);
   	       scopeName = stream.getScope().getName();
@@ -126,19 +129,38 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
      * @param stream
      */
     private void recordStream(IBroadcastStream stream) {
-    	IConnection conn = Red5.getConnectionLocal();   
-    	long now = System.currentTimeMillis();
+    	IConnection conn = Red5.getConnectionLocal();
     	String recordingStreamName = stream.getPublishedName(); // + "-" + now; /** Comment out for now...forgot why I added this - ralam */
      
     	try {    		
     		log.info("Recording stream " + recordingStreamName );
     		ClientBroadcastStream cstream = (ClientBroadcastStream) this.getBroadcastStream(conn.getScope(), stream.getPublishedName());
-    		cstream.saveAs(recordingStreamName, false);
+    		roomId = getRoomId(recordingStreamName);
+    		cstream.saveAs(roomId + "/" + recordingStreamName, false);
     	} catch(Exception e) {
     		log.error("ERROR while recording stream " + e.getMessage());
     		e.printStackTrace();
     	}    	
     }
+    
+	/**
+	 * Get room id from the stream name
+	 * 
+	 * @param streamName		Stream Name
+	 * @return					Parsed room id 
+	 */
+	private String getRoomId(String streamName) {
+		// Stream name pattern is <width>x<height>-<userId>-<roomId>-<timestamp>
+		Pattern streamNamePattern = Pattern.compile("\\d+x\\d+-[a-z0-9]+-([a-z0-9]+-\\d+)-\\d+");
+		Matcher roomIdMatcher = streamNamePattern.matcher(streamName);
+		
+		if (roomIdMatcher.matches()) {
+			return roomIdMatcher.group(1);
+		}
+
+		log.error("Stream name " + streamName + " has invalid format. Expected pattern is <width>x<height>-<userId>-<roomId>-<timestamp>. Unable to get room id");
+		return "";
+	}
 
 	public void setRecordVideoStream(boolean recordVideoStream) {
 		this.recordVideoStream = recordVideoStream;

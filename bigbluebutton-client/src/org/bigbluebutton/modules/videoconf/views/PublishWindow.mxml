@@ -433,7 +433,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var curTime:Number = d.getTime();	
 				var uid:String = UserManager.getInstance().getConference().getMyUserId();
 				var res:String = camWidth + "x" + camHeight;
-				this.streamName = res.concat("-" + uid) + "-" + curTime;
+				this.streamName = res.concat("-" + uid) + "-" + roomID + "-" + curTime;
 			}
 			
 			private function isPresenter():Boolean{
