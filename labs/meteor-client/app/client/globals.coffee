@@ -1,8 +1,8 @@
 # Convert a color `value` as integer to a hex color (e.g. 255 to #0000ff)
 @colourToHex = (value) ->
-	hex = parseInt(value).toString(16)
-	hex = "0" + hex while hex.length < 6
-	"##{hex}"
+  hex = parseInt(value).toString(16)
+  hex = "0" + hex while hex.length < 6
+  "##{hex}"
 
 # retrieve account for selected user
 @getCurrentUserFromSession = ->
@@ -39,15 +39,15 @@
 @getPresentationFilename = ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
   currentPresentation?.presentation?.name
-        
+
 Handlebars.registerHelper "colourToHex", (value) =>
-	@window.colourToHex(value)
+  @window.colourToHex(value)
 
 Handlebars.registerHelper 'equals', (a, b) -> # equals operator was dropped in Meteor's migration from Handlebars to Spacebars
   a is b
 
 Handlebars.registerHelper "getCurrentMeeting", ->
-	Meteor.Meetings.findOne()
+  Meteor.Meetings.findOne()
 
 Handlebars.registerHelper "getCurrentSlide", ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
@@ -81,7 +81,7 @@ Handlebars.registerHelper "isCurrentUser", (_id) ->
   _id is getInSession("DBID")
 
 Handlebars.registerHelper "meetingIsRecording", ->
-	Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
+  Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
 
 Handlebars.registerHelper "isCurrentUserMuted", ->
   return currentUserIsMuted()
@@ -95,8 +95,8 @@ Handlebars.registerHelper "isCurrentUserSharingAudio", ->
   return user?.user?.voiceUser?.joined
 
 Handlebars.registerHelper "isCurrentUserSharingVideo", ->
-	user = Meteor.Users.findOne({_id:getInSession("DBID")})
-	user?.webcam_stream?.length isnt 0
+  user = Meteor.Users.findOne({_id:getInSession("DBID")})
+  user?.webcam_stream?.length isnt 0
 
 Handlebars.registerHelper "isCurrentUserTalking", ->
   user = Meteor.Users.findOne({_id:getInSession("DBID")})
@@ -107,35 +107,35 @@ Handlebars.registerHelper "isUserSharingAudio", (_id) ->
   return user.user?.voiceUser?.joined
 
 Handlebars.registerHelper "isUserListenOnly", (_id) ->
-    user = Meteor.Users.findOne({_id:_id})
-    return user?.user?.listenOnly
+  user = Meteor.Users.findOne({_id:_id})
+  return user?.user?.listenOnly
 
 Handlebars.registerHelper "isUserSharingVideo", (_id) ->
   user = Meteor.Users.findOne({_id:_id})
   return user.user?.webcam_stream?.length isnt 0
 
 Handlebars.registerHelper "isUserTalking", (_id) ->
-    user = Meteor.Users.findOne({_id:_id})
-    return user?.user?.voiceUser?.talking
+  user = Meteor.Users.findOne({_id:_id})
+  return user?.user?.voiceUser?.talking
 
 Handlebars.registerHelper "isUserMuted", (_id) ->
   user = Meteor.Users.findOne({_id:_id})
   return user?.user?.voiceUser?.muted
 
 Handlebars.registerHelper "messageFontSize", ->
-	style: "font-size: #{getInSession("messageFontSize")}px;"
+  style: "font-size: #{getInSession("messageFontSize")}px;"
 
 Handlebars.registerHelper "pointerLocation", ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
   currentPresentation?.pointer
 
-Handlebars.registerHelper "setInSession", (k, v) -> SessionAmplify.set k, v 
+Handlebars.registerHelper "setInSession", (k, v) -> SessionAmplify.set k, v
 
 Handlebars.registerHelper "visibility", (section) ->
-    if getInSession "display_#{section}"
-        style: 'display:block'
-    else
-        style: 'display:none'
+  if getInSession "display_#{section}"
+    style: 'display:block'
+  else
+    style: 'display:none'
 
 # transform plain text links into HTML tags compatible with Flash client
 @linkify = (str) ->
@@ -144,7 +144,7 @@ Handlebars.registerHelper "visibility", (section) ->
   str = str.replace http, "<a href='event:$1'><u>$1</u></a>"
   str = str.replace www, "$1<a href='event:http://$2'><u>$2</u></a>"
 
-@setInSession = (k, v) -> SessionAmplify.set k, v 
+@setInSession = (k, v) -> SessionAmplify.set k, v
 
 @currentUserIsMuted = ->
   return Meteor.Users.findOne({_id: getInSession "DBID"})?.user?.voiceUser?.muted
@@ -179,17 +179,17 @@ Meteor.methods
 @toggleUsersList = ->
   setInSession "display_usersList", !getInSession "display_usersList"
 
-@toggleVoiceCall = (event) -> 
+@toggleVoiceCall = (event) ->
   if isSharingAudio()
     # hangup and inform bbb-apps
     Meteor.call("userStopAudio", getInSession("meetingId"), getInSession("userId"), getInSession("DBID"), getInSession("userId"), getInSession("DBID"))
-    hangupCallback = -> 
-     	console.log "left voice conference"
+    hangupCallback = ->
+      console.log "left voice conference"
     webrtc_hangup hangupCallback # sign out of call
   else
     # create voice call params
     username = "#{getInSession("userId")}-bbbID-#{getUsersName()}"
-    voiceBridge = Meteor.Meetings.findOne({}).voiceConf 
+    voiceBridge = Meteor.Meetings.findOne({}).voiceConf
     server = null
     joinCallback = (message) ->
       console.log "started webrtc_call"
@@ -211,9 +211,9 @@ Meteor.methods
   setInSession("currentChatId", null)
   setInSession("meetingName", null)
   setInSession("bbbServerVersion", null)
-  setInSession("userName", null) 
+  setInSession("userName", null)
   setInSession "display_navbar", false # needed to hide navbar when the layout template renders
-  
+
   Router.go('logout') # navigate to logout
 
 # color can be a number (a hex converted to int) or a string (e.g. "#ffff00")
