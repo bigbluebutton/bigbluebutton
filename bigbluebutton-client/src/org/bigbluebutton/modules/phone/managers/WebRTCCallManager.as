@@ -52,6 +52,8 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     private function isWebRTCSupported():Boolean {
+      trace(LOG + "- isWebRTCSupported - ExternalInterface.available=[" + ExternalInterface.available 
+        + "], isWebRTCAvailable=[" + ExternalInterface.call("isWebRTCAvailable") + "]");
       return (ExternalInterface.available && ExternalInterface.call("isWebRTCAvailable"));
     }
     
@@ -60,10 +62,20 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     public function initialize():void {         
+
+    }
+    
+    
+    private function checkIfToUseWebRTC():Boolean {
       options = new PhoneOptions();
-      if (options.useWebRTCIfAvailable && isWebRTCSupported()) {
-        usingWebRTC = true;
-      }
+      var webRTCSupported:Boolean = isWebRTCSupported();
+      
+      trace(LOG + "- checkIfToUseWebRTC - useWebRTCIfAvailable=[" + options.useWebRTCIfAvailable 
+        + "], isWebRTCSupported=[" + webRTCSupported + "]");
+      if (options.useWebRTCIfAvailable && webRTCSupported) {
+        return true;
+      }      
+      return false;
     }
     
     private function startWebRTCEchoTest():void {
@@ -124,6 +136,8 @@ package org.bigbluebutton.modules.phone.managers
     
     public function handleJoinVoiceConferenceCommand(event:JoinVoiceConferenceCommand):void {
       trace(LOG + "handleJoinVoiceConferenceCommand - usingWebRTC: " + usingWebRTC + ", event.mic: " + event.mic);
+      
+      usingWebRTC = checkIfToUseWebRTC();
       
       if (!usingWebRTC || !event.mic) return;
       

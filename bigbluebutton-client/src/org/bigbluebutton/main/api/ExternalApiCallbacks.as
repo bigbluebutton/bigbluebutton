@@ -37,6 +37,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.main.model.users.events.KickUserEvent;
   import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+  import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
   import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
   import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
@@ -381,8 +382,7 @@ package org.bigbluebutton.main.api
     
     private function handleJoinVoiceRequest():void {
       trace("handleJoinVoiceRequest");
-      var showMicEvent:BBBEvent = new BBBEvent("SHOW_MIC_SETTINGS");
-      _dispatcher.dispatchEvent(showMicEvent);
+      _dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));
     }
     
     private function handleLeaveVoiceRequest():void {
