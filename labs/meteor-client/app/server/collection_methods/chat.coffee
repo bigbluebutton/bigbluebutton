@@ -4,12 +4,12 @@ Meteor.methods
 		# and they pass their userId to this method as a param
 		transformedChatObject = chatObject
 
-		console.log "requesterUserId: #{requesterUserId} | from_userid: #{transformedChatObject.from_userid}"
+		Meteor.log.info "requesterUserId: #{requesterUserId} | from_userid: #{transformedChatObject.from_userid}"
 		requester = Meteor.Users.findOne({_id: transformedChatObject.from_userid, userId: requesterUserId})
 		forPublic = transformedChatObject.to_userid is 'public_chat_userid'
 
 		if requester? # User exists, and is valid
-			console.log "requester exists"
+			Meteor.log.info "requester exists"
 			# check if this is a private or a public chat message
 			eventName = ->
 				if transformedChatObject.chat_type is "PRIVATE_CHAT"
@@ -32,11 +32,10 @@ Meteor.methods
 						"meeting_id": meetingId
 						"requester_id": transformedChatObject.from_userid
 				#
-				console.log JSON.stringify transformedChatObject
+				Meteor.log.info transformedChatObject
 				publish Meteor.config.redis.channels.toBBBApps.chat, message
-				# 
-		else 
-			console.log "requester no exists"
+		else
+			Meteor.log.info "requester no exists"
 
 	deletePrivateChatMessages: (userId, contact_id) ->
 		# if authorized pass through
@@ -77,7 +76,7 @@ Meteor.methods
 					from_lang: transformedChatObject.from_lang
 
 			id = Meteor.Chat.insert(entry)
-			#console.log "added chat id=[#{id}]:#{transformedChatObject.message}. Chat.size is now #{Meteor.Chat.find({meetingId: meetingId}).count()}"
+			#Meteor.log.info "added chat id=[#{id}]:#{transformedChatObject.message}. Chat.size is now #{Meteor.Chat.find({meetingId: meetingId}).count()}"
 # --------------------------------------------------------------------------------------------
 # end Private methods on server
 # --------------------------------------------------------------------------------------------

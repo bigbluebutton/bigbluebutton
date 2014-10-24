@@ -41,7 +41,16 @@ config.log = {}
 config.log.path = if process?.env?.NODE_ENV is "production"
   "/var/log/bigbluebutton/bbbnode.log"
 else
-  "./log/development.log"
+  # logs in the directory immediatly before the meteor app
+  __meteor_bootstrap__.serverDir + '../../../../../../../log/development.log'
+
+# Setting up a logger in Meteor.log
+winston = Meteor.require 'winston'
+file = config.log.path
+transports = [ new winston.transports.Console(), new winston.transports.File { filename: file } ]
+
+Meteor.log = new winston.Logger
+  transports: transports
 
 # Global instance of Modules, created by `app.coffee`
 config.modules = null

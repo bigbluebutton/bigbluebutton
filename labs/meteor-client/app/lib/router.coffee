@@ -8,6 +8,7 @@
     path: "/meeting_id=*"
     action: () ->
       self = @
+
       url = location.href
       console.log "\n\nurl=#{url}\n\n"
       #extract the meeting_id, user_id, auth_token, etc from the uri
@@ -39,8 +40,7 @@
                   alert "did not find the user in the collection"
         else
           console.log "unable to extract from the URL some of {meetingId, userId, authToken}"
-      else
-        console.log "unable to extract the required information for the meeting from the URL"
+
   @route "main",
     path: "/"
     onBeforeAction: ->

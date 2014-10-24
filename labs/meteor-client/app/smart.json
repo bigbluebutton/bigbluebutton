@@ -4,5 +4,8 @@
       "git": "https://github.com/tomconnors/raphaeljs-package.git"
     },
     "external-file-loader": {}
+    "winston": {
+      "git": "https://github.com/tomrogers3/meteor-winston.git"
+    }
   }
 }

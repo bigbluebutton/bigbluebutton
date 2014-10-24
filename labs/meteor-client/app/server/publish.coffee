@@ -43,14 +43,14 @@ Meteor.publish 'presentations', (meetingId) ->
 # Clear all data in subcriptions
 @clearCollections = ->
     Meteor.Users.remove({})
-    console.log "cleared Users Collection!"
+    Meteor.log.info "cleared Users Collection!"
     Meteor.Chat.remove({})
-    console.log "cleared Chat Collection!"
+    Meteor.log.info "cleared Chat Collection!"
     Meteor.Meetings.remove({})
-    console.log "cleared Meetings Collection!"
+    Meteor.log.info "cleared Meetings Collection!"
     Meteor.Shapes.remove({})
-    console.log "cleared Shapes Collection!"
+    Meteor.log.info "cleared Shapes Collection!"
     Meteor.Slides.remove({})
-    console.log "cleared Slides Collection!"
+    Meteor.log.info "cleared Slides Collection!"
     Meteor.Presentations.remove({})
-    console.log "cleared Presentations Collection!"
+    Meteor.log.info "cleared Presentations Collection!"

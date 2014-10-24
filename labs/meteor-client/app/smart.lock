@@ -7,6 +7,10 @@
         "branch": "master"
       },
       "external-file-loader": {}
+      "winston": {
+        "git": "https://github.com/tomrogers3/meteor-winston.git",
+        "branch": "master"
+      }
     },
     "packages": {
       "raphaeljs-package": {
@@ -18,6 +22,10 @@
         "git": "https://github.com/davidd8/meteor-external-file-loader.git",
         "tag": "v0.1.4",
         "commit": "352694a7cf906b8241161c2fd1435161c1d5409f"
+      "winston": {
+        "git": "https://github.com/tomrogers3/meteor-winston.git",
+        "branch": "master",
+        "commit": "f3c080d0f54957e7122b00998b3aa20752ccdd90"
       }
     }
   }

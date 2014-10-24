@@ -16,4 +16,5 @@ nemo64:bootstrap
 less
 francocatena:status
 external-file-loader
+winston
 
