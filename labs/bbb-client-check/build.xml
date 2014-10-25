@@ -98,7 +98,7 @@
 	</target>
 	<target name="Resolve-Dependency"
 			description="Generate HTML wrapper">
-		<copy file="html-template/index.template.html"
+		<copy file="html-template/BBBClientCheck.html"
 			  tofile="${html.output}/BBBClientCheck.html"/>
 		<copy file="html-template/swfobject.js"
 			  tofile="${html.output}/swfobject.js"/>

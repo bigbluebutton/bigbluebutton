@@ -6,4 +6,4 @@ bin-release/
 org.eclipse.core.resources.prefs
 org.eclipse.ltk.core.refactoring.prefs
 FlexPrettyPrintCommand.prefs
-
+index.template.html
