@@ -12,6 +12,7 @@ package org.bigbluebutton.core.model
     internal var defaultLayout:String;    
     internal var welcomeMessage:String;
     internal var modOnlyMessage:String;
+    internal var allowStartStopRecording: Boolean;
     
     public function MeetingBuilder(id: String, name: String) {
       this.id = id;
@@ -40,6 +41,11 @@ package org.bigbluebutton.core.model
     
     public function withRecorded(value: Boolean):MeetingBuilder {
       recorded = value;
+      return this;
+    }
+   
+    public function withAllowStartStopRecording(value: Boolean):MeetingBuilder {
+      allowStartStopRecording = value;
       return this;
     }
     

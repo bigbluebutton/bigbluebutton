@@ -441,10 +441,10 @@
       }
     }
 
-    BBB.webRTCConferenceCallFailed = function(message) {
+    BBB.webRTCConferenceCallFailed = function(errorcode) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRTCConferenceCallFailed(message);
+        swfObj.webRTCConferenceCallFailed(errorcode);
       }
     }
 

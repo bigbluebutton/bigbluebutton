@@ -18,7 +18,9 @@ case class CreateMeeting
   meetingName: String,
   recorded: Boolean, 
   voiceBridge: String,
-  duration: Long
+  duration: Long,
+  autoStartRecording: Boolean,
+  allowStartStopRecording: Boolean
 ) extends InMessage
                          
 case class InitializeMeeting(

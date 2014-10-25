@@ -31,6 +31,8 @@ public class MessageToJson {
 		payload.put(Constants.RECORDED, msg.record);
 		payload.put(Constants.VOICE_CONF, msg.voiceBridge);
 		payload.put(Constants.DURATION, msg.duration);
+		payload.put(Constants.AUTO_START_RECORDING, msg.autoStartRecording);
+		payload.put(Constants.ALLOW_START_STOP_RECORDING, msg.allowStartStopRecording);
 		
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(CreateMeetingMessage.CREATE_MEETING_REQUEST_EVENT, CreateMeetingMessage.VERSION, null);
 		return MessageBuilder.buildJson(header, payload);				

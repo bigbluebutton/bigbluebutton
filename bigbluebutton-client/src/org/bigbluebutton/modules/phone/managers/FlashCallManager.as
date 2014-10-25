@@ -378,6 +378,7 @@
         return;
       }
       hangup();
+      initialize();
     }
     
 	public function handleBecomeViewer():void {

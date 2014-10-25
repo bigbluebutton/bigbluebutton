@@ -251,6 +251,7 @@ trait UsersApp {
 	      }	  
 	    }   
       webUserJoined
+      startRecordingIfAutoStart()
     }
   }
 			
@@ -260,6 +261,7 @@ trait UsersApp {
 	  user foreach (u => outGW.send(new UserLeft(msg.meetingID, recorded, u)))  
 	  
     startCheckingIfWeNeedToEndVoiceConf()
+    stopAutoStartedRecording()
 	 }
   }
   

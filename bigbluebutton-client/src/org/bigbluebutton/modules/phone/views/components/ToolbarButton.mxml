@@ -191,7 +191,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handleFlashJoinedListenOnlyConferenceEvent(event:FlashJoinedListenOnlyVoiceConferenceEvent):void {
         trace(LOG + "User has joined the listen only conference using flash");
         JSLog.debug(LOG + "User has joined the listen only conference using flash");
-        onUserJoinedListenOnlyConference();
+        if (defaultListenOnlyMode()) {
+          onUserJoinedListenOnlyConference();
+        } else {
+          onUserJoinedConference();
+        }
       }
       
       private function handleFlashLeftVoiceConferenceEvent(event:FlashLeftVoiceConferenceEvent):void {

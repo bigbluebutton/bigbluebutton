@@ -9,13 +9,13 @@ package org.bigbluebutton.modules.phone.events
 		public static const WEBRTC_CALL_ENDED:String = "WEBRTC_CALL_ENDED";
 		public static const WEBRTC_CALL_FAILED:String = "WEBRTC_CALL_FAILED";
 		
-		public var cause:String;
+		public var errorCode:Number;
 		
-		public function WebRTCCallEvent(type:String, cause:String=null, bubbles:Boolean=false, cancelable:Boolean=false)
+		public function WebRTCCallEvent(type:String, errorCode:Number=0, bubbles:Boolean=false, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
 			
-			this.cause = cause;
+			this.errorCode = errorCode;
 		}
 	}
 }
