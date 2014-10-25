@@ -1049,17 +1049,22 @@ check_state() {
 				echo 
 			fi
 
-			SIP_IP=$(netstat -ant | grep 5060 | head -n1 | awk -F" " '{print $4}' | cut -d: -f1)
-			if [ "$BBB_SIP_APP_IP" != $SIP_IP ]; then
-				echo "# Error: FreeSWITCH is listening on IP address $SIP_IP for SIP calls, but "
-				echo "# The IP address ($BBB_SIP_APP_IP) set bbb.sip.app.ip."
-				echo "#"
-				echo "# If your audio is not working (users click the  headset icon "
-				echo "# and don't appear in the Listeners window, ensure FreeSWITCH uses"
-				echo "# the local loopback 127.0.0.1 address.  See"
-				echo "#   http://code.google.com/p/bigbluebutton/wiki/FAQ#Users_do_not_appear_in_the_listeners_window"
-				echo 
-			fi
+                        SIP_IP=$(netstat -ant | grep 5060 | head -n1 | awk -F" " '{print $4}' | cut -d: -f1)
+                        if [ -z $SIP_IP ]; then
+                                echo "# Error: Could not detect FreeSWITCH listening on port 5060"
+                                echo 
+                        else
+                            if [ "$BBB_SIP_APP_IP" != $SIP_IP ]; then
+                                echo "# Error: FreeSWITCH is listening on IP address $SIP_IP for SIP calls, but "
+                                echo "# The IP address ($BBB_SIP_APP_IP) set bbb.sip.app.ip."
+                                echo "#"
+                                echo "# If your audio is not working (users click the  headset icon "
+                                echo "# and don't appear in the Listeners window, ensure FreeSWITCH uses"
+                                echo "# the local loopback 127.0.0.1 address.  See"
+                                echo "#   http://code.google.com/p/bigbluebutton/wiki/FAQ#Users_do_not_appear_in_the_listeners_window"
+                                echo 
+                            fi
+                        fi
 		fi
 
 	if [ -d ${SERVLET_DIR}/lti ]; then
