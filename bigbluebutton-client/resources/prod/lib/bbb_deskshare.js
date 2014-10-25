@@ -1,5 +1,6 @@
 function startApplet(IP, roomNumber, fullScreen, useSVC2)
 {
+        console.log("Starting deskshare applet.");
         var div = document.createElement("div");
         div.id = "deskshare";
 
@@ -20,7 +21,12 @@ function startApplet(IP, roomNumber, fullScreen, useSVC2)
 
 function removeFrame () {
         var div = document.getElementById("deskshare");
-        div.parentNode.removeChild(div);
+        if (div.parentNode) {
+          // Need to set the innerHTML otherwise the applet will restart in IE.
+          // see https://code.google.com/p/bigbluebutton/issues/detail?id=1776
+          div.innerHTML = "";
+          div.parentNode.removeChild(div);
+        }
 }
 
 function setScreenCoordinates(x, y) {
@@ -28,6 +34,7 @@ function setScreenCoordinates(x, y) {
 }
 
 function stopApplet(){
+        console.log("Stopping deskshare applet.");
         removeFrame();
 }
 

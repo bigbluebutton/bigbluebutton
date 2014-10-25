@@ -9,12 +9,18 @@ public class CreateMeetingMessage implements IMessage {
 	public final Boolean record;
 	public final String voiceBridge;
 	public final Long duration;
+	public final Boolean autoStartRecording;
+	public final Boolean allowStartStopRecording;
 	
-	public CreateMeetingMessage(String id, String name, Boolean record, String voiceBridge, Long duration) {
+	public CreateMeetingMessage(String id, String name, Boolean record, String voiceBridge, 
+			                        Long duration, Boolean autoStartRecording, 
+			                        Boolean allowStartStopRecording) {
 		this.id = id;
 		this.name = name;
 		this.record = record;
 		this.voiceBridge = voiceBridge;
 		this.duration = duration;	
+		this.autoStartRecording = autoStartRecording;
+		this.allowStartStopRecording = allowStartStopRecording;
 	}
 }

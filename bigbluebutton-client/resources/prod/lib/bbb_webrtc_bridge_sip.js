@@ -27,7 +27,7 @@ function joinWebRTCVoiceConference() {
 	var callback = function(message) {
 		switch (message.status) {
 			case 'failed':
-				BBB.webRTCConferenceCallFailed(message.cause);
+				BBB.webRTCConferenceCallFailed(message.errorcode);
 				break;
 			case 'ended':
 				BBB.webRTCConferenceCallEnded();
@@ -64,7 +64,7 @@ function startWebRTCAudioTest(){
 	var callback = function(message) {
 		switch(message.status) {
 			case 'failed':
-				BBB.webRTCEchoTestFailed(message.cause);
+				BBB.webRTCEchoTestFailed(message.errorcode);
 				break;
 			case 'ended':
 				BBB.webRTCEchoTestEnded();
@@ -176,9 +176,9 @@ function createUA(username, server, callback) {
 			userAgent = null;
 			
 			if (uaConnected) {
-				callback({'status':'failed', 'cause': 'WebSocket disconnected'});
+				callback({'status':'failed', 'errorcode': 1001}); // WebSocket disconnected
 			} else {
-				callback({'status':'failed', 'cause': 'Could not make a WebSocket connection'});
+				callback({'status':'failed', 'errorcode': 1002}); // Could not make a WebSocket connection
 			}
 		}
 	});
@@ -216,7 +216,7 @@ function getUserMicMedia(getUserMicMediaSuccess, getUserMicMediaFailure) {
 
 function webrtc_call(username, voiceBridge, callback) {
 	if (!isWebRTCAvailable()) {
-		callback({'status': 'failed', message: "Browser version not supported"});
+		callback({'status': 'failed', 'errorcode': 1003}); // Browser version not supported
 		return;
 	}
 	
@@ -303,12 +303,19 @@ function make_call(username, voiceBridge, server, callback, recall) {
 	currentSession.on('failed', function(response, cause){
 		console.log('call failed with cause: '+ cause);
 		
-		if (callActive === false) {
-			callback({'status':'failed', 'cause': cause});
-		} else if (currentSession) {
-			//currentSession.bye();
-			currentSession = null;
-			userAgent.stop();
+		if (currentSession) {
+			if (callActive === false) {
+				callback({'status':'failed', 'errorcode': 1004}); // Failure on call
+				currentSession = null;
+				var userAgentTemp = userAgent;
+				userAgent = null;
+				userAgentTemp.stop();
+			} else {
+				callActive = false;
+				//currentSession.bye();
+				currentSession = null;
+				userAgent.stop();
+			}
 		}
 		clearTimeout(callTimeout);
 	});
@@ -321,7 +328,7 @@ function make_call(username, voiceBridge, server, callback, recall) {
 			if (callPurposefullyEnded === true) {
 				callback({'status':'ended'});
 			} else {
-				callback({'status':'failed', 'cause':'Call ended unexpectedly'});
+				callback({'status':'failed', 'errorcode': 1005}); // Call ended unexpectedly
 			}
 			clearTimeout(callTimeout);
 			currentSession = null;

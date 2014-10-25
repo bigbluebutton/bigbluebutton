@@ -12,6 +12,7 @@ package org.bigbluebutton.core.model
     private var _defaultLayout:String;
     private var _welcomeMessage:String;
     private var _modOnlyMessage:String;
+    private var _allowStartStopRecording:Boolean;
     
     public var isRecording: Boolean = false;
     
@@ -27,6 +28,7 @@ package org.bigbluebutton.core.model
       _defaultLayout = build.defaultLayout;
       _welcomeMessage = build.welcomeMessage;
       _modOnlyMessage = build.modOnlyMessage;
+      _allowStartStopRecording = build.allowStartStopRecording;
     }
     
     public function get name():String {
@@ -59,6 +61,10 @@ package org.bigbluebutton.core.model
     
     public function get recorded():Boolean {
       return _recorded;
+    }
+    
+    public function get allowStartStopRecording():Boolean {
+      return _allowStartStopRecording;
     }
   }
 }

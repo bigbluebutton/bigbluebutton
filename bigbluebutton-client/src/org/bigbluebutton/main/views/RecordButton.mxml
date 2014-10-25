@@ -26,7 +26,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	styleName="recordButtonStyleNormal"
 	click="confirmChangeRecordingStatus()"
 	height="24"
-	toolTip="{UserManager.getInstance().getConference().amIModerator()? ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.start'): ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.notRecording')}"
+	toolTip="{UserManager.getInstance().getConference().amIModerator() 
+              ? ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.start')
+              : ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.notRecording')}"
 	enabled="false"
 	visible="{UserManager.getInstance().getConference().record}"
 	includeInLayout="{UserManager.getInstance().getConference().record}" 
@@ -38,16 +40,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_STARTED}" method="handleWebRTCCallStarted" />
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import mx.controls.Alert;
-			import mx.events.CloseEvent;
-			
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
-			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import mx.controls.Alert;
+      import mx.events.CloseEvent;
+      
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.core.model.MeetingModel;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
+      import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var recordingFlag:Boolean;
 			private var firstAudioJoin:Boolean = true;
@@ -105,7 +108,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					this.selected = event.payload.recording;
 					this.styleName = this.selected? "recordButtonStyleStart": "recordButtonStyleNormal";
 
-					if (UserManager.getInstance().getConference().amIModerator()) {
+					if (UserManager.getInstance().getConference().amIModerator() && MeetingModel.getInstance().meeting.allowStartStopRecording) {
 						this.enabled = true;
 						if (event.payload.recording) {
 							this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.stop');
@@ -133,7 +136,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function showRecordingNotification():void {
-				if (firstAudioJoin && this.visible && !this.selected && UserManager.getInstance().getConference().amIModerator()) {
+				if (firstAudioJoin && this.visible && !this.selected 
+            && UserManager.getInstance().getConference().amIModerator()
+            && MeetingModel.getInstance().meeting.allowStartStopRecording) {
 					var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.message1") + "\n\n" + ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.message2"), ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.title"), Alert.OK, this);
 					alert.titleIcon = recordReminderIcon;
 					

@@ -200,7 +200,8 @@ public class MeetingService implements MessageListener {
 			messagingService.recordMeetingInfo(m.getInternalId(), metadata);
 		}
 		
-		messagingService.createMeeting(m.getInternalId(), m.getName(), m.isRecord(), m.getTelVoice(), m.getDuration());			
+		messagingService.createMeeting(m.getInternalId(), m.getName(), m.isRecord(), 
+				 m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording());			
 	}
 	
 	private void processCreateMeeting(CreateMeeting message) {

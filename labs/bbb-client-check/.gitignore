@@ -1,0 +1,9 @@
+bin-debug/
+bin-release/
+.actionScriptProperties
+.flexProperties
+.project
+org.eclipse.core.resources.prefs
+org.eclipse.ltk.core.refactoring.prefs
+FlexPrettyPrintCommand.prefs
+
