@@ -65,9 +65,9 @@ class Meteor.RedisPubSub
     ]
 
     if message?.header? and message?.payload?
-      unless message.header.name in ignoredEventTypes
-        console.log "eventType=" + message.header.name #+ "\n"
-        console.log jsonMsg
+      #unless message.header.name in ignoredEventTypes
+      #  console.log "eventType=" + message.header.name #+ "\n"
+      #  console.log jsonMsg
 
       # handle voice events
       if message.header.name in ['user_left_voice_message', 'user_joined_voice_message', 'user_voice_talking_message', 'user_voice_muted_message']
@@ -155,7 +155,6 @@ class Meteor.RedisPubSub
 
             #request for shapes
             whiteboardId = "#{presentation.id}/#{page.num}" # d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1404411622872/1
-            console.log "the whiteboard_id here is:" + whiteboardId
 
             message =
               "payload":
@@ -263,7 +262,7 @@ class Meteor.RedisPubSub
 
 # message should be an object
 @publish = (channel, message) ->
-	console.log "Publishing channel=#{channel}, message=#{JSON.stringify(message)}"
+	#console.log "Publishing channel=#{channel}, message=#{JSON.stringify(message)}"
 	if Meteor.redisPubSub?
 		Meteor.redisPubSub.pubClient.publish(channel, JSON.stringify(message), (err, res) ->
 			if err

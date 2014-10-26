@@ -38,10 +38,16 @@ Meteor.methods
 		else 
 			console.log "requester no exists"
 
+	deletePrivateChatMessages: (userId, contact_id) ->
+		# if authorized pass through
+		requester = Meteor.Users.findOne({userId: userId})
+		contact = Meteor.Users.findOne({_id: contact_id})
+		deletePrivateChatMessages(requester.userId, contact.userId)
 # --------------------------------------------------------------------------------------------
 # Private methods on server
 # --------------------------------------------------------------------------------------------
 @deletePrivateChatMessages = (user1Id, user2Id) ->
+	console.log "Deleting messages between #{user1Id} & #{user2Id}"
 	Meteor.Chat.remove({ # find all and remove private messages between the 2 users
 		'message.chat_type': 'PRIVATE_CHAT',
 		$or: [{'message.from_userid': user1Id, 'message.to_userid': user2Id},{'message.from_userid': user2Id, 'message.to_userid': user1Id}]
@@ -50,7 +56,6 @@ Meteor.methods
 	# 
 
 @addChatToCollection = (meetingId, messageObject) ->
-	console.log "-------------addChatToCollection---------------------"
 	transformedChatObject = messageObject
 
 	# manually convert time from 1.408645053653E12 to 1408645053653 if necessary (this is the time_from that the Flash client outputs)
@@ -81,7 +86,7 @@ Meteor.methods
 					from_lang: transformedChatObject.from_lang
 
 			id = Meteor.Chat.insert(entry)
-			console.log "added chat id=[#{id}]:#{transformedChatObject.message}. Chat.size is now #{Meteor.Chat.find({meetingId: meetingId}).count()}"
+			#console.log "added chat id=[#{id}]:#{transformedChatObject.message}. Chat.size is now #{Meteor.Chat.find({meetingId: meetingId}).count()}"
 # --------------------------------------------------------------------------------------------
 # end Private methods on server
 # --------------------------------------------------------------------------------------------

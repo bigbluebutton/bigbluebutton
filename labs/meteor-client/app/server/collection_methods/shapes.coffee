@@ -2,7 +2,7 @@
 # Private methods on server
 # --------------------------------------------------------------------------------------------
 @addShapeToCollection = (meetingId, whiteboardId, shapeObject) ->
-  console.log "shapeObject=" + JSON.stringify shapeObject
+  #console.log "shapeObject=" + JSON.stringify shapeObject
   if shapeObject?.shape_type is "text" and shapeObject.status is "textPublished"
     console.log "we are dealing with a text shape"
 
@@ -28,7 +28,7 @@
 
     id = Meteor.Shapes.insert(entry)
     numShapesOnSlide = Meteor.Shapes.find({meetingId: meetingId, whiteboardId: whiteboardId}).count()
-    console.log "added textShape id =[#{id}]:#{shapeObject.id} in #{meetingId} || now there are #{numShapesOnSlide} shapes on the slide"
+    #console.log "added textShape id =[#{id}]:#{shapeObject.id} in #{meetingId} || now there are #{numShapesOnSlide} shapes on the slide"
 
   else
     # the mouse button was released - the drawing is complete
@@ -55,7 +55,7 @@
 
       id = Meteor.Shapes.insert(entry)
       numShapesOnSlide = Meteor.Shapes.find({meetingId: meetingId, whiteboardId: whiteboardId}).count()
-      console.log "added shape id =[#{id}]:#{shapeObject.id} in #{meetingId} || now there are #{numShapesOnSlide} shapes on the slide"
+      #console.log "added shape id =[#{id}]:#{shapeObject.id} in #{meetingId} || now there are #{numShapesOnSlide} shapes on the slide"
 
 @removeAllShapesFromSlide = (meetingId, whiteboardId) ->
   console.log "removeAllShapesFromSlide__" + whiteboardId

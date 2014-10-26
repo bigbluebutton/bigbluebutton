@@ -64,8 +64,9 @@ Template.slide.rendered = ->
 
 Template.slide.helpers
   updatePointerLocation: (pointer) ->
-    wpm = whiteboardPaperModel
-    wpm.moveCursor(pointer.x, pointer.y)
+    if whiteboardPaperModel?
+      wpm = whiteboardPaperModel
+      wpm?.moveCursor(pointer.x, pointer.y)
 
 #### SHAPE ####
 Template.shape.rendered = ->
@@ -78,12 +79,14 @@ Template.shape.rendered = ->
     for num in [0..len] # the coordinates must be in the range 0 to 1
       shapeInfo.points[num] = shapeInfo.points[num] / 100
 
-  wpm = whiteboardPaperModel
-  wpm?.makeShape(shapeType, shapeInfo)
-  wpm?.updateShape(shapeType, shapeInfo)
+  if whiteboardPaperModel?
+    wpm = whiteboardPaperModel
+    wpm?.makeShape(shapeType, shapeInfo)
+    wpm?.updateShape(shapeType, shapeInfo)
 
 Template.shape.destroyed = ->
-  wpm = whiteboardPaperModel
-  wpm?.clearShapes()
-  displaySlide(wpm)
-  manuallyDisplayShapes()
+  if whiteboardPaperModel?
+    wpm = whiteboardPaperModel
+    wpm.clearShapes()
+    displaySlide(wpm)
+    manuallyDisplayShapes()
