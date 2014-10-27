@@ -96,6 +96,11 @@ class BigbluebuttonService {
             duration = getValidatedBBBDuration(params.get(Parameter.CUSTOM_DURATION))
         }
 
+        Boolean allModerators = Boolean.valueOf(false)
+        if ( params.containsKey(Parameter.CUSTOM_ALL_MODERATORS) ) {
+            allModerators = Boolean.parseBoolean(params.get(Parameter.CUSTOM_ALL_MODERATORS))
+        }
+
         String[] values = [meetingName, courseTitle]
         String welcomeMsg = MessageFormat.format(welcome, values)
 
@@ -111,7 +116,7 @@ class BigbluebuttonService {
             String messageKey = (String) createResponse.get("messageKey")
             if ( Proxy.APIRESPONSE_SUCCESS.equals(returnCode) ||
                 (Proxy.APIRESPONSE_FAILED.equals(returnCode) &&  (Proxy.MESSAGEKEY_IDNOTUNIQUE.equals(messageKey) || Proxy.MESSAGEKEY_DUPLICATEWARNING.equals(messageKey)) ) ){
-                joinURL = bbbProxy.getJoinURL( userFullName, meetingID, isModerator? moderatorPW: attendeePW, (String) createResponse.get("createTime"), userID);
+                joinURL = bbbProxy.getJoinURL( userFullName, meetingID, (isModerator || allModerators)? moderatorPW: attendeePW, (String) createResponse.get("createTime"), userID);
             }
         }
 
