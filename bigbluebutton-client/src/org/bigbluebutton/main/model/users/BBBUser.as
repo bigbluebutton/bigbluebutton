@@ -20,17 +20,20 @@ package org.bigbluebutton.main.model.users
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import mx.collections.ArrayCollection;
+	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.events.LockControlEvent;
 	import org.bigbluebutton.core.events.VoiceConfEvent;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.core.vo.LockSettingsVO;
-	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
-	import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
 	import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
+	import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
+	
 	public class BBBUser {
 		public static const MODERATOR:String = "MODERATOR";
 		public static const VIEWER:String = "VIEWER";
@@ -76,7 +79,7 @@ package org.bigbluebutton.main.model.users
 			_presenter = p;
 			verifyUserStatus();
 		}
-		
+
 		private var _mood:String = ChangeStatusEvent.CLEAR_STATUS;
 		public function get hasMood():Boolean {
 			return _mood != ChangeStatusEvent.CLEAR_STATUS;
@@ -94,7 +97,6 @@ package org.bigbluebutton.main.model.users
 			return _mood == ChangeStatusEvent.RAISE_HAND;
 		}
 		public function set raiseHand(r:Boolean):void {
-			//verifyUserStatus();
 			mood = (r? ChangeStatusEvent.RAISE_HAND: ChangeStatusEvent.CLEAR_STATUS);
 		}
 
@@ -120,6 +122,7 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var room:String = "";
 		[Bindable] public var authToken:String = "";
 		[Bindable] public var selected:Boolean = false;
+		[Bindable] public var voiceUserid:Number = 0;
 		
 		private var _voiceMuted:Boolean = false;
 		[Bindable]
@@ -143,7 +146,6 @@ package org.bigbluebutton.main.model.users
 		
 		[Bindable] public var userLocked:Boolean = false;
 		[Bindable] public var status:String = "";
-		[Bindable] public var voiceLocked:Boolean = false;
 		[Bindable] public var customdata:Object = {};
 		
 		/*
@@ -222,57 +224,23 @@ package org.bigbluebutton.main.model.users
 		 
 		private var _status:StatusCollection = new StatusCollection();
 			
-		public function buildStatus():void{
-			var showingWebcam:String = "";
-			var isPresenter:String = "";
-			var handRaised:String = "";
-			if (hasStream)
-				showingWebcam = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.streamIcon.toolTip');
-			if (presenter)
-				isPresenter = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.presIcon.toolTip');
-			if (raiseHand)
-				handRaised = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.raiseHand.toolTip');
-			
-			status = showingWebcam + isPresenter + handRaised;
-		}
-	
 		public function addStatus(status:Status):void {
 			_status.addStatus(status);
 		}
 		
-    public function userRaiseHand(raised: Boolean):void {
-      raiseHand = raised;
-      if (me) {
-        UserManager.getInstance().getConference().isMyHandRaised = raised;
-      }
-      buildStatus();
-    }
-    
-    public function sharedWebcam(stream: String):void {
-      hasStream = true;
-      streamName = stream;
-      if (hasStream) sendStreamStartedEvent();
-      buildStatus();
-    }
-    
-    public function unsharedWebcam():void {
-      hasStream = false;
-      streamName = "";  
-      buildStatus();
-    }
-    
-    public function presenterStatusChanged(presenter: Boolean):void {
-      this.presenter = presenter;
-      buildStatus();
-    }
-    
-    public function lockStatusChanged(locked: Boolean):void {
-      userLocked = locked;
-      if(me)
-        applyLockSettings();
-      buildStatus();
-    }
-    
+        public function sharedWebcam(stream: String):void {
+            hasStream = true;
+            streamName = stream;
+            if (hasStream) sendStreamStartedEvent();
+        }
+        public function unsharedWebcam():void {
+            hasStream = false;
+            streamName = "";
+        }
+        public function presenterStatusChanged(presenter: Boolean):void {
+            this.presenter = presenter;
+        }
+
 		public function changeStatus(status:Status):void {
 			//_status.changeStatus(status);
 			switch (status.name) {
@@ -318,7 +286,6 @@ package org.bigbluebutton.main.model.users
 					mood = moodValue;
 					break;
 			}
-			//buildStatus();
 		}
 		
 		public function removeStatus(name:String):void {

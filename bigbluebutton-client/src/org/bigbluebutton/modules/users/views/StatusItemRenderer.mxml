@@ -41,8 +41,7 @@
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.managers.UserManager;
-
-			import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
+            import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -201,9 +200,9 @@
 					updateButton();
 				}
 			}
-
+			
 			private function onRollOut(e:UsersRollEvent):void{
-				if (moderator && rolledOver) {
+				if (moderator) {
 					rolledOver = false;
 					updateButton();
 				}

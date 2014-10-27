@@ -30,6 +30,7 @@
 	showCloseButton="false">
 
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	<mate:Listener type="{ShortcutEvent.RAISE_HAND}" method="remoteRaiseHand" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_USERS_WINDOW}" method="focusWindow" />
 	<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
 	<mate:Listener type="{MeetingMutedEvent.MEETING_MUTED}" method="handleMeetingMuted" />
@@ -38,10 +39,14 @@
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import flash.system.Security;
+			import flash.system.SecurityPanel;
+			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
 			import mx.controls.listClasses.IListItemRenderer;
+			import mx.events.DataGridEvent;
 			import mx.core.IFlexDisplayObject;
 			import mx.events.ListEvent;
 			import mx.events.MenuEvent;
@@ -67,8 +72,12 @@
 			import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
 			import org.bigbluebutton.modules.users.events.UsersEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
+			import org.bigbluebutton.core.events.VoiceConfEvent;
+			import org.bigbluebutton.modules.users.events.UsersEvent;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.util.i18n.ResourceUtil;		
+			
+			import org.bigbluebutton.common.LogUtil;
 			
 			private var dispatcher:Dispatcher;
 			
@@ -82,7 +91,6 @@
 			private var roomLocked:Boolean = false;
 			
 			private var myMenu:Menu;
-			private var menuStatus:Menu;
 			
 			[Bindable]
 			public var partOptions:UsersOptions;
@@ -103,9 +111,8 @@
 			
 			private var muteMeRolled:Boolean = false;
 			
-			private var myMenuData:Array = [];
-			
 			private var myMenuStaticHeight:Number = 301;
+			private var myMenuData:Array = [];
 
 			private function onCreationComplete():void {
 				dispatcher = new Dispatcher();
@@ -113,8 +120,9 @@
 				users = UserManager.getInstance().getConference().users;
 				amIModerator = UserManager.getInstance().getConference().amIModerator();
 				
-				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton;
+				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
 				
+				BindingUtils.bindSetter(changeButtons, UserManager.getInstance().getConference(), "amIPresenter");
 				BindingUtils.bindSetter(updateNumberofUsers, users, "length");
 				
 				this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
@@ -122,6 +130,8 @@
 				
 				modifier = ExternalInterface.call("determineModifier");
 				loadKeyCombos(modifier);
+				
+				changeButtons(UserManager.getInstance().getConference().amIPresenter);
 				
 				resourcesChanged();
 				
@@ -135,8 +145,6 @@
 				maximizeRestoreBtn.tabIndex = partOptions.baseTabIndex+2;
 				closeBtn.tabIndex = partOptions.baseTabIndex+3;
 				
-				stage.addEventListener(MouseEvent.MOUSE_OVER, handleStageMouseOver);
-				usersGrid.addEventListener(MouseEvent.MOUSE_OVER, handleUsersGridMouseOver);
 			}
 			
 			public function getPrefferedPosition():String{
@@ -157,38 +165,9 @@
 			}
 			
 			private function changeButtons(presenter:Boolean):void {
-			//	raiseHandBtn.visible = raiseHandBtn.includeInLayout = partOptions.enableRaiseHand;
+				//raiseHandBtn.visible = raiseHandBtn.includeInLayout = partOptions.enableRaiseHand && !(presenter || amIModerator);
 			}
-			
-			/*
-			 * Work around for a bug with the users grid. When you click on one of the buttons in an item renderer the client 
-			 * locks up briefly and any mouse movements while the client is locked up are ignored. This means that roll outs 
-			 * aren't fired if the mouse is moved quickly while the client is updating. This block of code watches for 
-			 * anything outside of the usersGrid being rolled over and notifies the item renders that they should reset.
-			 * 
-			 *  - Chad
-			 */
-			private var rolledOver:Boolean = false;
-			private var o:Object;
-			
-			private function handleUsersGridMouseOver(e:MouseEvent):void {
-				rolledOver = true;
-				o = e.target;
-			}
-			
-			private function handleStageMouseOver(e:MouseEvent):void {
-				if (rolledOver && o != e.target) {
-					rolledOver = false;
-					o = null;
-					var rollEvent:UsersRollEvent = new UsersRollEvent(UsersRollEvent.USER_ROLL_OUT, null);
-					dispatcher.dispatchEvent(rollEvent);
-				}
-			}
-			
-			/*
-			 * End of the work around.
-			 */
-			
+		
 			private function onItemRollOver(event:ListEvent):void{
 				var item:IListItemRenderer = event.itemRenderer;
 				var user:BBBUser = item.data as BBBUser;
@@ -203,26 +182,7 @@
 				dispatcher.dispatchEvent(rollEvent);
 			}
 			
-		/*	private function raiseHand():void{
-				var e:RaiseHandEvent = new RaiseHandEvent(RaiseHandEvent.RAISE_HAND);
-				e.raised = !UserManager.getInstance().getConference().isMyHandRaised;
-				dispatchEvent(e);
-			}
-			
-		private function openSettings():void {
-				myMenuData = [];
-				myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lowerAllHands'), icon: images.hand_new, handler:lowerHands});
-				
-				if (!roomMuted) {
-					myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted, handler: muteAll});
-					if (UserManager.getInstance().getConference().getPresenter())
-						myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.audio_muted, handler:muteAlmostAll});
-				} else
-					myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio, handler:muteAll});
-								
-				myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: images.lock_open, handler: lockSettings});
-				
-				
+			private function raiseHand():void{
 				var e:ChangeStatusEvent;
 				var userID:String = UserManager.getInstance().getConference().getMyUserId();
 				if (UserManager.getInstance().getConference().getMyMood() == ChangeStatusEvent.RAISE_HAND) {
@@ -231,7 +191,7 @@
 					e = new ChangeStatusEvent(userID, ChangeStatusEvent.RAISE_HAND);
 				}
 				dispatchEvent(e);
-			}*/
+			}
 
 			private function clearAllStatus():void {
 				for (var i:int = 0; i < users.length; i++) {
@@ -260,7 +220,7 @@
 						myMenuData.push( {type: "separator"} );
 					}
 					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.clearStatus'), icon: images.delete_icon, callback: function():void { changeStatus(ChangeStatusEvent.CLEAR_STATUS); }} );
-				/*	myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.raiseHand'), icon: images.hand_new, callback: function():void { changeStatus(ChangeStatusEvent.RAISE_HAND); }} );*/
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.raiseHand'), icon: images.hand_new, callback: function():void { changeStatus(ChangeStatusEvent.RAISE_HAND); }} );
 					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.agree'), icon: images.agree, callback: function():void { changeStatus(ChangeStatusEvent.AGREE); }} );
 					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.disagree'), icon: images.disagree, callback: function():void { changeStatus(ChangeStatusEvent.DISAGREE); }} );
 					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakLouder'), icon: images.speak_louder, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_LOUDER); }} );
@@ -278,8 +238,8 @@
 				if (myMenu) myMenu.hide();
 				
 				myMenu = Menu.createMenu(null, myMenuData, true);
+				
 				myMenu.variableRowHeight = true;
-				myMenu.show(this.x + settingsBtn.x + settingsBtn.width + 2, this.y + this.height);
 				var settingsBtnPos:Point = settingsBtn.localToGlobal(new Point(0,0));
 
 				var myMenuPos:Point = new Point();
@@ -291,26 +251,23 @@
 				}
 
 				myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
-				myMenu.addEventListener(MenuEvent.MENU_SHOW, menuShowHandler);
 				myMenu.show(myMenuPos.x, myMenuPos.y);
 				myMenu.setFocus();
 			}
-
-			private function menuShowHandler(e:MenuEvent):void {
-				myMenuStaticHeight = e.currentTarget.height;
-				trace("New menu height is " + myMenuStaticHeight);
-			}
-
+			
 			private function menuClickHandler(e:MenuEvent):void {
-				if(myMenuData[e.index] != undefined && myMenuData[e.index].handler != undefined) {
-					myMenuData[e.index].handler();
-				}
+				e.item.callback();
 			}
 			
 			private function handleChangedLockSettingsEvent(e:LockControlEvent):void {
 				var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
 				roomLocked = lockSettings.getDisableCam() || lockSettings.getDisableMic() || lockSettings.getDisablePrivateChat() 
 								|| lockSettings.getDisablePublicChat() || lockSettings.getLockedLayout();
+            }
+
+			private function changeStatus(status:String):void {
+				var e:ChangeStatusEvent = new ChangeStatusEvent(UserManager.getInstance().getConference().getMyUserId(), status);
+				dispatchEvent(e);
 			}
 			
 			private function lockSettings():void {
@@ -362,17 +319,6 @@
 			
 			private function handleMeetingMuted(e:MeetingMutedEvent):void {
 				roomMuted = MeetingModel.getInstance().meetingMuted;
-			//	e.item.callback();
-			}
-
-			private function changeStatus(status:String):void {
-				var e:ChangeStatusEvent = new ChangeStatusEvent(UserManager.getInstance().getConference().getMyUserId(), status);
-				dispatchEvent(e);
-			}
-
-			private function setRoomMute(e:UsersEvent):void {
-			//	roomMuted = e.mute_state;
-                roomMutedLbl.visible = roomMuted;
 			}
 			
 			private function muteAll():void {
@@ -426,7 +372,6 @@
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.users.kick') as String)] = KICK_USER;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.users.mute') as String)] = MUTE_USER;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.users.muteall') as String)] = MUTE_ALL_USER;
-				//TODO Include shortcuts to lock control
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.maximize') as String)] = ShortcutEvent.MAXIMIZE_USERS;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.minimize') as String)] = ShortcutEvent.MINIMIZE_USERS;
 			}
@@ -468,7 +413,7 @@
 			}
 			
 			public function remoteRaiseHand(e:ShortcutEvent):void{
-			//	raiseHand();
+				raiseHand();
 			}
 			
 			private function remoteMinimize():void{
@@ -549,14 +494,12 @@
     </mx:DataGrid>
 	
 	<mx:ControlBar width="100%">
-<!--		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}" selected="{UserManager.getInstance().getConference().isMyHandRaised}"
-				   width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip')}" click="raiseHand()"
-                   visible="true" tabIndex="{partOptions.baseTabIndex+15}" />-->
 		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
 					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" click="openSettings()" visible="true" tabIndex="{partOptions.baseTabIndex+10}" />
-
-		<mx:Label id="roomMutedLbl" text="{ResourceUtil.getInstance().getString('bbb.users.settings.muteAll')}" />
-		<mx:Spacer width="100%"/>
+		<mx:VBox>
+			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomMuted.text')}" visible="{roomMuted}" includeInLayout="{roomMuted}" />
+			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomLocked.text')}" visible="{roomLocked}" includeInLayout="{roomLocked}" />
+		</mx:VBox>
 	</mx:ControlBar>
 	
 </mdi:MDIWindow>

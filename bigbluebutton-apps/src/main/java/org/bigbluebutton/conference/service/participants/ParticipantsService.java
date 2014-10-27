@@ -20,15 +20,22 @@
 package org.bigbluebutton.conference.service.participants;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+
 import org.bigbluebutton.conference.BigBlueButtonSession;
 import org.bigbluebutton.conference.Constants;
 
-
 public class ParticipantsService {
+
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsService.class, "bigbluebutton" );	
 	private ParticipantsApplication application;
 
@@ -40,19 +47,6 @@ public class ParticipantsService {
 	public void getParticipants() {
 		IScope scope = Red5.getConnectionLocal().getScope();
 		application.getUsers(scope.getName(), getBbbSession().getInternalUserID());
-	}
-	
-	public void userRaiseHand() {
-		IScope scope = Red5.getConnectionLocal().getScope();
-		String userId = getBbbSession().getInternalUserID();
-		application.userRaiseHand(scope.getName(), userId);
-	}
-	
-	public void lowerHand(Map<String, String> msg) {
-		String userId = (String) msg.get("userId");
-		String loweredBy = (String) msg.get("loweredBy");
-		IScope scope = Red5.getConnectionLocal().getScope();
-		application.lowerHand(scope.getName(), userId, loweredBy);
 	}
 	
 	public void ejectUserFromMeeting(Map<String, String> msg) {
@@ -89,6 +83,7 @@ public class ParticipantsService {
 	}
 	
 	public void setParticipantsApplication(ParticipantsApplication a) {
+		log.debug("Setting Participants Applications");
 		application = a;
 	}
 	

@@ -24,7 +24,7 @@ package org.bigbluebutton.common
 
     [Embed(source="assets/images/page_link.png")]
     public var page_link:Class;
-    
+	
 	[Embed(source="assets/images/status/agree.png")]
 	public var agree:Class;
 	

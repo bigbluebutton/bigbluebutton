@@ -22,6 +22,8 @@ package org.bigbluebutton.main.api
   
   import flash.external.ExternalInterface;
   
+  import mx.controls.Alert;
+  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
@@ -113,7 +115,8 @@ package org.bigbluebutton.main.api
       // Tell out JS counterpart that we are ready.
       if (ExternalInterface.available) {
         ExternalInterface.call("BBB.swfClientIsReady");
-      }        
+      }  
+      
     }
 
     private function handleQueryListsOfPresentationsRequest():void {    
@@ -185,9 +188,9 @@ package org.bigbluebutton.main.api
       obj.myAvatarURL = UsersUtil.getAvatarURL();
       obj.myRole = UsersUtil.getMyRole();
       obj.amIPresenter = UsersUtil.amIPresenter();
-	    obj.dialNumber = UsersUtil.getDialNumber();
-	    obj.voiceBridge = UsersUtil.getVoiceBridge();
-	    obj.customdata = UsersUtil.getCustomData();
+	  obj.dialNumber = UsersUtil.getDialNumber();
+	  obj.voiceBridge = UsersUtil.getVoiceBridge();
+	  obj.customdata = UsersUtil.getCustomData();
       
       return obj;
     }

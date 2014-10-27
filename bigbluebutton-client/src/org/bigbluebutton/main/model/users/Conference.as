@@ -34,9 +34,9 @@ package org.bigbluebutton.main.model.users {
     public var internalMeetingID:String;
     public var externalUserID:String;
     public var avatarURL:String;
-	  public var voiceBridge:String;
-	  public var dialNumber:String;
-	  [Bindable] public var record:Boolean;
+	public var voiceBridge:String;
+	public var dialNumber:String;
+	[Bindable] public var record:Boolean;
     
     private static const LOG:String = "main.model.users::Conference - ";
     
@@ -48,7 +48,7 @@ package org.bigbluebutton.main.model.users {
 		[Bindable] public var users:ArrayCollection = null;			
 		private var sort:Sort;
 		
-	  private var defaultLayout:String;
+	    private var defaultLayout:String;
     
 		public function Conference():void {
 			me = new BBBUser();
@@ -87,7 +87,7 @@ package org.bigbluebutton.main.model.users {
 				// do nothing go check names
 			} else if (a.phoneUser)
 				return -1;
-			else if (!b.phoneUser)
+			else if (b.phoneUser)
 				return 1;
 
 			/* 
@@ -375,43 +375,29 @@ package org.bigbluebutton.main.model.users {
 		public function removeAllParticipants():void {
 			users.removeAll();
 		}		
+
+        public function sharedWebcam(userId: String, stream: String):void {
+            var aUser:BBBUser = getUser(userId);	
+            if (aUser != null) {
+                aUser.sharedWebcam(stream)
+            }	
+            users.refresh();
+        }
+        public function unsharedWebcam(userId: String):void {
+            var aUser:BBBUser = getUser(userId);	
+            if (aUser != null) {
+                aUser.unsharedWebcam()
+            }	
+            users.refresh();
+        }
+        public function presenterStatusChanged(userId: String, presenter: Boolean):void {
+            var aUser:BBBUser = getUser(userId);	
+            if (aUser != null) {
+                aUser.presenterStatusChanged(presenter)
+            }	
+            users.refresh();
+        }
 	
-    public function raiseHand(userId: String, raised: Boolean):void {
-      var aUser:BBBUser = getUser(userId);			
-      if (aUser != null) {
-        aUser.userRaiseHand(raised)
-      }	
-      
-      users.refresh();      
-    }
-    
-    public function sharedWebcam(userId: String, stream: String):void {
-      var aUser:BBBUser = getUser(userId);			
-      if (aUser != null) {
-        aUser.sharedWebcam(stream)
-      }	
-      
-      users.refresh();      
-    }
-    
-    public function unsharedWebcam(userId: String):void {
-      var aUser:BBBUser = getUser(userId);			
-      if (aUser != null) {
-        aUser.unsharedWebcam()
-      }	
-      
-      users.refresh();       
-    }
-    
-    public function presenterStatusChanged(userId: String, presenter: Boolean):void {
-      var aUser:BBBUser = getUser(userId);			
-      if (aUser != null) {
-        aUser.presenterStatusChanged(presenter)
-      }	
-      
-      users.refresh();          
-    }
-    
 		public function newUserStatus(userID:String, status:String, value:Object):void {
 			var aUser:BBBUser = getUser(userID);			
 			if (aUser != null) {
