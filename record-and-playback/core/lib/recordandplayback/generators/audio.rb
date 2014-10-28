@@ -98,7 +98,7 @@ module BigBlueButton
         #    Volume adjustment:        1.215
       command = "sox #{file} -n stat 2>&1"
       # Try "sox --i -D file" as it is much shorter
-      BigBlueButton.logger.info("Task: Getting length of audio")
+      BigBlueButton.logger.info("Task: Getting length of audio [#{command}]")
       output = BigBlueButton.execute(command).output
       if output.to_s =~ /Length(.+)/
         stats = $1
@@ -237,6 +237,7 @@ module BigBlueButton
           filename = event.at_xpath('filename').text
           filename = "#{audio_dir}/#{File.basename(filename)}"
           if audio_edl.last[:audio] && audio_edl.last[:audio][:filename] == filename
+            audio_edl.last[:original_duration] = timestamp - audio_edl.last[:timestamp]
             audio_edl << {
               :timestamp => timestamp,
               :audio => nil

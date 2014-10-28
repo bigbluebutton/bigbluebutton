@@ -61,6 +61,7 @@ package org.bigbluebutton.core.services
     private function connect():void {
       nc = new NetConnection();
       nc.objectEncoding = flash.net.ObjectEncoding.AMF0;
+      nc.proxyType = "best";
       nc.client = this;
       nc.addEventListener(NetStatusEvent.NET_STATUS, onStatus);	
       nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);	
@@ -78,7 +79,7 @@ package org.bigbluebutton.core.services
       {
         case "NetConnection.Connect.Success":
           LogUtil.debug("Starting to monitor bandwidth between client and server");
-          monitor();
+ //         monitor();
           break;
         default:
           LogUtil.debug("Cannot establish the connection to measure bandwidth");

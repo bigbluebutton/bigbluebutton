@@ -1,0 +1,16 @@
+{
+  "name": "html5LangingPage",
+  "version": "0.0.2",
+  "private": true,
+  "scripts": {
+    "start": "coffee index.coffee"
+  },
+  "dependencies": {
+    "express": "4.1.2",
+    "hapi": "4.1.0",
+    "js-sha1": "0.1.1",
+    "xml2js": "0.4.2",
+    "request": "2.34.0",
+    "connect": "2.15.0"
+  }
+}

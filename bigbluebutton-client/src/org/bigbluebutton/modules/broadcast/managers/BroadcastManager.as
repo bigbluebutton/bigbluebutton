@@ -120,16 +120,21 @@ package org.bigbluebutton.modules.broadcast.managers
 		}
 		
 		public function handleWhatIsTheCurrentStreamRequest(event:BBBEvent):void {
-			trace("BroadcastManager:: Received " + event.payload["messageID"] );
+			trace("BroadcastManager:: handleWhatIsTheCurrentStreamRequest " + event.payload["requestedBy"] );
 			var isPresenter:Boolean = UserManager.getInstance().getConference().amIPresenter;
 			if (isPresenter && curStream != null) {
+        trace("MessageSender:: sendWhatIsTheCurrentStreamReply [" + event.payload["requestedBy"] 
+          + "," +  curStream.getStreamId() + "]");
 				broadcastService.sendWhatIsTheCurrentStreamReply(event.payload["requestedBy"], curStream.getStreamId());
 			}
 		}
 		
 		public function handleWhatIsTheCurrentStreamReply(event:BBBEvent):void {
-			trace("BroadcastManager:: Received " + event.payload["messageID"] );
+			trace("BroadcastManager:: handleWhatIsTheCurrentStreamReply [" + event.payload["requestedBy"] 
+        + "," +  event.payload["streamID"] + "]");
 			var amIRequester:Boolean = UserManager.getInstance().getConference().amIThisUser(event.payload["requestedBy"]);
+      trace("BroadcastManager:: handleWhatIsTheCurrentStreamReply [my id=" + UserManager.getInstance().getConference().getMyUserId() 
+        + ", requester=" + event.payload["requestedBy"] + "]");
 			if (amIRequester) {
 				var streamId:String = event.payload["streamID"];
 				var info:Object = streams.getStreamNameAndUrl(streamId);

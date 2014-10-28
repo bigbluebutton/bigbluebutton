@@ -23,6 +23,12 @@ Panel {
   titleStyleName: "mypanelTitle";
 }
 
+ToolTip {
+	borderSkin      : ClassReference("org.bigbluebutton.skins.ToolTipSkin");
+	backgroundAlpha : 0.9;
+	cornerRadius    : 3;
+}
+
 .mypanelTitle {
   color: #444444;
   fontFamily: Arial;
@@ -270,7 +276,7 @@ DataGrid {
   fontWeight: bold;
 }
 
-.presentationUploadChooseFileLabelStyle, .presentationNamesLabelStyle {
+.presentationNamesLabelStyle {
   fontFamily: Arial;
   fontSize: 14;  
   fontWeight: bold;
@@ -347,7 +353,7 @@ DataGrid {
   titleStyleName: "micSettingsWindowTitleStyle";
 }
 
-.micSettingsWindowTitleStyle {
+.micSettingsWindowTitleStyle, webcamSettingsWindowTitleStyle {
   fontFamily: Arial;
   fontSize: 20;  
   fontWeight: bold;
@@ -359,7 +365,7 @@ DataGrid {
   fontWeight: bold;    
 }
 
-.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .micSettingsWindowMicNameLabelStyle {
+.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .micSettingsWindowMicNameLabelStyle, .webcamPermissionSettingsTextStyle {
   fontFamily: Arial;
   fontSize: 12;    
 }

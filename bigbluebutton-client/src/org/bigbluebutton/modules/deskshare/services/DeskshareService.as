@@ -18,8 +18,10 @@
 */
 package org.bigbluebutton.modules.deskshare.services
 {
-	import com.asfusion.mate.events.Dispatcher;	
-	import flash.net.NetConnection;	
+	import com.asfusion.mate.events.Dispatcher;
+	
+	import flash.net.NetConnection;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.deskshare.services.red5.Connection;
 	
@@ -75,5 +77,10 @@ package org.bigbluebutton.modules.deskshare.services
     public function sendStartedViewingNotification(stream:String):void{
       conn.sendStartedViewingNotification(stream);
     }
+    
+    public function stopSharingDesktop(meetingId: String, stream: String):void {
+      conn.stopSharingDesktop(meetingId, stream);
+    }
+    
 	}
 }

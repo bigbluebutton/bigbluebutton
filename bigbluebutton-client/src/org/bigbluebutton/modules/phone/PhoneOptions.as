@@ -21,6 +21,8 @@ package org.bigbluebutton.modules.phone
 	import org.bigbluebutton.core.BBB;
 	
 	public class PhoneOptions {
+    public var uri:String = "unknown";
+    
 		[Bindable]
 		public var showButton:Boolean = true;
 
@@ -34,8 +36,22 @@ package org.bigbluebutton.modules.phone
 		public var enabledEchoCancel:Boolean = false;
 		
 		[Bindable]
-		public var useWebrtcIfAvailable:Boolean = true;
+		public var useWebRTCIfAvailable:Boolean = true;
 
+		[Bindable]
+		public var echoTestApp:String = "9196";
+
+		[Bindable]
+		public var listenOnlyMode:Boolean = true;
+
+		[Bindable]
+		public var presenterShareOnly:Boolean = false;
+		
+		[Bindable]
+		public var showPhoneOption:Boolean = false;
+
+    public var forceListenOnly:Boolean = false;
+    
 		public function PhoneOptions() {
 			parseOptions();
 		}
@@ -43,6 +59,9 @@ package org.bigbluebutton.modules.phone
 		public function parseOptions():void {
 			var vxml:XML = BBB.getConfigForModule("PhoneModule");
 			if (vxml != null) {
+        if (vxml.@uri != undefined) {
+          uri = vxml.@uri.toString();
+        }
 				if (vxml.@showButton != undefined) {
 					showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
 				}
@@ -55,8 +74,23 @@ package org.bigbluebutton.modules.phone
 				if (vxml.@enabledEchoCancel != undefined) {
 					enabledEchoCancel = (vxml.@enabledEchoCancel.toString().toUpperCase() == "TRUE") ? true : false;
 				}
-				if (vxml.@useWebrtcIfAvailable != undefined) {
-					useWebrtcIfAvailable = (vxml.@useWebrtcIfAvailable.toString().toUpperCase() == "TRUE");
+				if (vxml.@useWebRTCIfAvailable != undefined) {
+					useWebRTCIfAvailable = (vxml.@useWebRTCIfAvailable.toString().toUpperCase() == "TRUE");
+				}
+				if (vxml.@echoTestApp != undefined) {
+					echoTestApp = vxml.@echoTestApp.toString();
+				}
+				if (vxml.@listenOnlyMode != undefined) {
+					listenOnlyMode = (vxml.@listenOnlyMode.toString().toUpperCase() == "TRUE");
+				}
+        if (vxml.@forceListenOnly != undefined) {
+          forceListenOnly = (vxml.@forceListenOnly.toString().toUpperCase() == "TRUE");
+        }
+        if (vxml.@presenterShareOnly != undefined) {
+					presenterShareOnly = (vxml.@presenterShareOnly.toString().toUpperCase() == "TRUE");
+				}
+				if (vxml.@showPhoneOption != undefined) {
+					showPhoneOption = (vxml.@showPhoneOption.toString().toUpperCase() == "TRUE");
 				}
 			}
 		}		

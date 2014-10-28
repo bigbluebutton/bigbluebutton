@@ -533,10 +533,10 @@ def processSlideEvents
 			slide_timestamp =  node[:timestamp]
 			slide_start = ( translateTimestamp(slide_timestamp) / 1000 ).round(1)
 			orig_slide_start = ( slide_timestamp.to_f / 1000 ).round(1)
-			slide_number = node.xpath(".//slide")[0].text()
-                        slide_number = slide_number.to_i < 0 ? "0" : slide_number			
-			slide_src = "presentation/#{$presentation_name}/slide-#{slide_number.to_i + 1}.png"
-                        txt_file_path = "presentation/#{$presentation_name}/textfiles/slide-#{slide_number.to_i + 1}.txt"
+			slide_number = node.xpath(".//slide")[0].text().to_i
+                        slide_number = slide_number < 0 ? 0 : slide_number
+			slide_src = "presentation/#{$presentation_name}/slide-#{slide_number + 1}.png"
+                        txt_file_path = "presentation/#{$presentation_name}/textfiles/slide-#{slide_number + 1}.txt"
                         slide_text = File.exist?("#{$process_dir}/#{txt_file_path}") ? txt_file_path : nil
 			image_url = "#{$process_dir}/#{slide_src}"
 
@@ -825,12 +825,20 @@ $playback = match[2]
 
 puts $meeting_id
 puts $playback
+
+begin
+
 if ($playback == "presentation")
-	logger = Logger.new("/var/log/bigbluebutton/presentation/publish-#{$meeting_id}.log", 'daily' )
-	BigBlueButton.logger = logger
+
 	# This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 	bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 	simple_props = YAML::load(File.open('presentation.yml'))
+
+    log_dir = bbb_props['log_dir']
+
+	logger = Logger.new("#{log_dir}/presentation/publish-#{$meeting_id}.log", 'daily' )
+	BigBlueButton.logger = logger
+
 	BigBlueButton.logger.info("Setting recording dir")
 	recording_dir = bbb_props['recording_dir']
 	BigBlueButton.logger.info("Setting process dir")
@@ -881,7 +889,20 @@ if ($playback == "presentation")
 
 		recording_time = computeRecordingLength()
 
+		# presentation_url = "/slides/" + $meeting_id + "/presentation"
+		@doc = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
+
+		$meeting_start = @doc.xpath("//event")[0][:timestamp]
+		$meeting_end = @doc.xpath("//event").last()[:timestamp]
+		
+		$version = BigBlueButton::Events.bbb_version("#{$process_dir}/events.xml")
 		BigBlueButton.logger.info("Creating metadata.xml")
+
+                # Get the real-time start and end timestamp
+                match = /.*-(\d+)$/.match($meeting_id)
+                real_start_time = match[1]
+                real_end_time = (real_start_time.to_i + ($meeting_end.to_i - $meeting_start.to_i)).to_s
+
 		# Create metadata.xml
 		b = Builder::XmlMarkup.new(:indent => 2)
 
@@ -890,8 +911,8 @@ if ($playback == "presentation")
 			b.state("available")
 			b.published(true)
 			# Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
-			b.start_time(BigBlueButton::Events.first_event_timestamp("#{$process_dir}/events.xml"))
-			b.end_time(BigBlueButton::Events.last_event_timestamp("#{$process_dir}/events.xml"))
+			b.start_time(real_start_time)
+			b.end_time(real_end_time)
 			b.playback {
 				b.format("presentation")
 				b.link("http://#{playback_host}/playback/presentation/playback.html?meetingId=#{$meeting_id}")
@@ -908,11 +929,6 @@ if ($playback == "presentation")
 		BigBlueButton.logger.info("Generating xml for slides and chat")
 	
 		#Create slides.xml
-		# presentation_url = "/slides/" + $meeting_id + "/presentation"
-		@doc = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
-
-		$meeting_start = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0][:timestamp]
-		$meeting_end = @doc.xpath("//event[@eventname='EndAndKickAllEvent']").last()[:timestamp]
 
 		# Gathering all the events from the events.xml
 		$slides_events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent']")
@@ -922,8 +938,8 @@ if ($playback == "presentation")
 		$cursor_events = @doc.xpath("//event[@eventname='CursorMoveEvent']")
 		$clear_page_events = @doc.xpath("//event[@eventname='ClearPageEvent']") # for clearing the svg image
 		$undo_events = @doc.xpath("//event[@eventname='UndoShapeEvent']") # for undoing shapes.
-		$join_time = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0][:timestamp].to_f
-		$end_time = @doc.xpath("//event[@eventname='EndAndKickAllEvent']")[0][:timestamp].to_f
+		$join_time = $meeting_start.to_f
+		$end_time = $meeting_end.to_f
 
 		calculateRecordEventsOffset()
 		
@@ -973,11 +989,25 @@ if ($playback == "presentation")
 			end
 			exit 1
 		end
+        publish_done = File.new("#{recording_dir}/status/published/#{$meeting_id}-presentation.done", "w")
+        publish_done.write("Published #{$meeting_id}")
+        publish_done.close
+
 	else
 		BigBlueButton.logger.info("#{target_dir} is already there")
 	end
 end
 
 
+rescue Exception => e
+        BigBlueButton.logger.error(e.message)
+        e.backtrace.each do |traceline|
+            BigBlueButton.logger.error(traceline)
+        end
+        publish_done = File.new("#{recording_dir}/status/published/#{$meeting_id}-presentation.fail", "w")
+        publish_done.write("Failed Publishing #{$meeting_id}")
+        publish_done.close
 
+        exit 1
+end
 

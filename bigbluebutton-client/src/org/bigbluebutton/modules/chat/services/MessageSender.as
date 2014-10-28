@@ -18,8 +18,7 @@
  */
 package org.bigbluebutton.modules.chat.services
 {
-  import flash.events.IEventDispatcher;
-  
+  import flash.events.IEventDispatcher; 
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.managers.ConnectionManager;
@@ -27,11 +26,13 @@ package org.bigbluebutton.modules.chat.services
 
   public class MessageSender
   {
+    private static const LOG:String = "Chat::MessageSender - ";
+    
     public var dispatcher:IEventDispatcher;
     
     public function getPublicChatMessages():void
     {  
-      LogUtil.debug("Sending [chat.getPublicMessages] to server.");
+      trace(LOG + "Sending [chat.getPublicMessages] to server.");
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("chat.sendPublicChatHistory", 
         function(result:String):void { // On successful result
@@ -45,7 +46,7 @@ package org.bigbluebutton.modules.chat.services
     
     public function sendPublicMessage(message:ChatMessageVO):void
     {  
-      LogUtil.debug("Sending [chat.sendPublicMessage] to server. [" + message.message + "]");
+      trace(LOG + "Sending [chat.sendPublicMessage] to server. [" + message.message + "]");
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("chat.sendPublicMessage", 
         function(result:String):void { // On successful result
@@ -60,8 +61,8 @@ package org.bigbluebutton.modules.chat.services
     
     public function sendPrivateMessage(message:ChatMessageVO):void
     {  
-      LogUtil.debug("Sending [chat.sendPrivateMessage] to server.");
-      LogUtil.debug("Sending fromUserID [" + message.fromUserID + "] to toUserID [" + message.toUserID + "]");
+      trace(LOG + "Sending [chat.sendPrivateMessage] to server.");
+      trace(LOG + "Sending fromUserID [" + message.fromUserID + "] to toUserID [" + message.toUserID + "]");
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("chat.sendPrivateMessage", 
         function(result:String):void { // On successful result

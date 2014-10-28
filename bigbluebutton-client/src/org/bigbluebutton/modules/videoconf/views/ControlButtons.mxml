@@ -109,7 +109,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var bu:BBBUser = UsersUtil.getUser(sharerUserID);
         if (bu != null) {
           var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);        
-          e.userid = bu.voiceUserid;
+          e.userid = bu.userID;
           e.mute = ! bu.voiceMuted; 
           var gd:Dispatcher = new Dispatcher();
           gd.dispatchEvent(e);          
@@ -193,24 +193,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var conference:Conference = userManager.getConference();
 				var me:BBBUser = conference.getMyUser();
 				
-				var allowMuteUnmuteButton:Boolean = true;
-				if(isMe && me.disableMyMic) {
-					allowMuteUnmuteButton = false;
-					} else if (UsersUtil.amIModerator() || (controlsForPresenter && UsersUtil.amIPresenter()) ) {
-						var thisUser:BBBUser = UsersUtil.getUser(sharerUserID);
-						if(thisUser.userLocked && conference.getLockSettings().getDisableMic()) {
-							allowMuteUnmuteButton = false;
-							}
-						}
-				if ( allowMuteUnmuteButton ) {
-					muteUnmuteBtn.visible = true;
-					muteUnmuteBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.muteButton.toolTip', [UsersUtil.getUserName(sharerUserID)]);
-					return;
-					}
-				}
-			muteUnmuteBtn.visible = false;
-			}
-		}
+        var allowMuteUnmuteButton:Boolean = false;
+        if (isMe && !me.disableMyMic) {
+          allowMuteUnmuteButton = true;
+        } else if (UsersUtil.amIModerator() || (controlsForPresenter && UsersUtil.amIPresenter()) ) {
+          allowMuteUnmuteButton = true;
+          
+          var thisUser:BBBUser = UsersUtil.getUser(sharerUserID);
+          if (thisUser.userLocked && conference.getLockSettings().getDisableMic()) {
+            allowMuteUnmuteButton = false;
+          }
+        }
+        
+        if (allowMuteUnmuteButton) {
+          muteUnmuteBtn.visible = true;
+          muteUnmuteBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.muteButton.toolTip', [UsersUtil.getUserName(sharerUserID)]);
+        } else {
+          muteUnmuteBtn.visible = false;
+			  }
+		  }
+    }
+  }
 		
 	private function showPrivateChatButton():void {
         var chatOptions:ChatOptions = new ChatOptions();
@@ -227,13 +230,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </mx:Script>
   <mx:Button id="muteUnmuteBtn" visible="false" click="onMuteUnmuteClicked(event)"
              width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}" styleName="videoUnmutedButtonStyle"/>
-  <mx:Spacer width="2"/>
   <mx:Button id="switchPresenter" visible="false" click="onSwitchPresenterClicked(event)"
-             width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}" styleName="videoSwitchPresenterButtonStyle"/>
-  <mx:Spacer width="2"/>
+             width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}" styleName="videoSwitchPresenterButtonStyle" paddingTop="2"/>
   <mx:Button id="ejectUserBtn" visible="false" click="onKickUserClicked(event)"
-             width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}" styleName="videoEjectUserButtonStyle"/>
-  <mx:Spacer width="2"/>
+             width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}" styleName="videoEjectUserButtonStyle" paddingTop="2"/>
   <mx:Button id="privateChatBtn" click="onPrivateChatClicked(event)"
-             width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}" styleName="videoPrivateChatButtonStyle"/>
+             width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}" styleName="videoPrivateChatButtonStyle" paddingTop="2"/>
 </mx:HBox>

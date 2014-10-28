@@ -32,9 +32,9 @@
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	<mate:Listener type="{ShortcutEvent.RAISE_HAND}" method="remoteRaiseHand" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_USERS_WINDOW}" method="focusWindow" />
-	<mate:Listener type="{UsersEvent.ROOM_MUTE_STATE}" method="setRoomMute" />
-	<mate:Listener type="{UsersEvent.ROOM_LOCK_STATE}" method="setRoomLock" />
 	<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
+	<mate:Listener type="{MeetingMutedEvent.MEETING_MUTED}" method="handleMeetingMuted" />
+	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="handleChangedLockSettingsEvent" />
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -55,6 +55,8 @@
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
 			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.core.model.MeetingModel;
+			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
@@ -63,7 +65,7 @@
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			import org.bigbluebutton.main.views.LockSettings;
 			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.main.views.MicSettings;
+			import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
 			import org.bigbluebutton.modules.users.events.UsersEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
@@ -74,7 +76,10 @@
 			private var keyCombos:Object;
 			private var modifier:String;
 			
+			[Bindable]
 			private var roomMuted:Boolean = false;
+			
+			[Bindable]
 			private var roomLocked:Boolean = false;
 			
 			private var myMenu:Menu;
@@ -108,7 +113,6 @@
 				
 				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
 				
-				BindingUtils.bindSetter(changeButtons, UserManager.getInstance().getConference(), "amIPresenter");
 				BindingUtils.bindSetter(updateNumberofUsers, users, "length");
 				
 				this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
@@ -117,14 +121,20 @@
 				modifier = ExternalInterface.call("determineModifier");
 				loadKeyCombos(modifier);
 				
-				changeButtons(UserManager.getInstance().getConference().amIPresenter);
-				
 				resourcesChanged();
+				
+				roomMuted = MeetingModel.getInstance().meetingMuted;
+				var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
+				roomLocked = lockSettings.getDisableCam() || lockSettings.getDisableMic() || lockSettings.getDisablePrivateChat() 
+					|| lockSettings.getDisablePublicChat() || lockSettings.getLockedLayout();
 				
 				titleBarOverlay.tabIndex = partOptions.baseTabIndex;
 				minimizeBtn.tabIndex = partOptions.baseTabIndex+1;
 				maximizeRestoreBtn.tabIndex = partOptions.baseTabIndex+2;
 				closeBtn.tabIndex = partOptions.baseTabIndex+3;
+				
+				stage.addEventListener(MouseEvent.MOUSE_OVER, handleStageMouseOver);
+				usersGrid.addEventListener(MouseEvent.MOUSE_OVER, handleUsersGridMouseOver);
 			}
 			
 			public function getPrefferedPosition():String{
@@ -145,8 +155,37 @@
 			}
 			
 			private function changeButtons(presenter:Boolean):void {
-				raiseHandBtn.visible = raiseHandBtn.includeInLayout = partOptions.enableRaiseHand && !(presenter || amIModerator);
+				raiseHandBtn.visible = raiseHandBtn.includeInLayout = partOptions.enableRaiseHand;
 			}
+			
+			/*
+			 * Work around for a bug with the users grid. When you click on one of the buttons in an item renderer the client 
+			 * locks up briefly and any mouse movements while the client is locked up are ignored. This means that roll outs 
+			 * aren't fired if the mouse is moved quickly while the client is updating. This block of code watches for 
+			 * anything outside of the usersGrid being rolled over and notifies the item renders that they should reset.
+			 * 
+			 *  - Chad
+			 */
+			private var rolledOver:Boolean = false;
+			private var o:Object;
+			
+			private function handleUsersGridMouseOver(e:MouseEvent):void {
+				rolledOver = true;
+				o = e.target;
+			}
+			
+			private function handleStageMouseOver(e:MouseEvent):void {
+				if (rolledOver && o != e.target) {
+					rolledOver = false;
+					o = null;
+					var rollEvent:UsersRollEvent = new UsersRollEvent(UsersRollEvent.USER_ROLL_OUT, null);
+					dispatcher.dispatchEvent(rollEvent);
+				}
+			}
+			
+			/*
+			 * End of the work around.
+			 */
 			
 			private function onItemRollOver(event:ListEvent):void{
 				var item:IListItemRenderer = event.itemRenderer;
@@ -163,11 +202,9 @@
 			}
 			
 			private function raiseHand():void{
-				if (UserManager.getInstance().getConference().getMyRole() == Role.VIEWER) {
-					var e:RaiseHandEvent = new RaiseHandEvent(RaiseHandEvent.RAISE_HAND);
-					e.raised = !UserManager.getInstance().getConference().isMyHandRaised;
-					dispatchEvent(e);
-				}
+				var e:RaiseHandEvent = new RaiseHandEvent(RaiseHandEvent.RAISE_HAND);
+				e.raised = !UserManager.getInstance().getConference().isMyHandRaised;
+				dispatchEvent(e);
 			}
 			
 			private function openSettings():void {
@@ -180,17 +217,7 @@
 						myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.audio_muted, handler:muteAlmostAll});
 				} else
 					myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio, handler:muteAll});
-				
-				if (!roomLocked) {
-					myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockAll'), icon: images.lock_close, handler: lockAll});
-					
-					if (UserManager.getInstance().getConference().getPresenter())
-						myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.lock_close, handler: lockAlmostAll});
-				} else {
-					myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unlockAll'), icon: images.lock_open, handler: unlockAll});
-				}
-				
-				
+								
 				myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: images.lock_open, handler: lockSettings});
 				
 				
@@ -213,16 +240,10 @@
 				}
 			}
 			
-			private function setRoomMute(e:UsersEvent):void {
-				roomMuted = e.new_state;
-                roomMutedLbl.visible = roomMuted;
-				roomMutedLbl.includeInLayout = roomMuted;
-			}
-			
-			private function setRoomLock(e:UsersEvent):void {
-				roomLocked = e.new_state;
-				roomLockedLbl.visible = roomLocked;
-				roomLockedLbl.includeInLayout = roomLocked;
+			private function handleChangedLockSettingsEvent(e:LockControlEvent):void {
+				var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
+				roomLocked = lockSettings.getDisableCam() || lockSettings.getDisableMic() || lockSettings.getDisablePrivateChat() 
+								|| lockSettings.getDisablePublicChat() || lockSettings.getLockedLayout();
 			}
 			
 			private function lockSettings():void {
@@ -272,6 +293,9 @@
 				}
 			}
 			
+			private function handleMeetingMuted(e:MeetingMutedEvent):void {
+				roomMuted = MeetingModel.getInstance().meetingMuted;
+			}
 			
 			private function muteAll():void {
 				if (amIModerator) {
@@ -454,14 +478,14 @@
     </mx:DataGrid>
 	
 	<mx:ControlBar width="100%">
+		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}" selected="{UserManager.getInstance().getConference().isMyHandRaised}"
+				   width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip')}" click="raiseHand()"
+				   visible="true" tabIndex="{partOptions.baseTabIndex+15}" />
 		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
 					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" click="openSettings()" visible="true" tabIndex="{partOptions.baseTabIndex+10}" />
-		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}" selected="{UserManager.getInstance().getConference().isMyHandRaised}"
-					width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip')}" click="raiseHand()"
-					visible="false" tabIndex="{partOptions.baseTabIndex+15}" />
-		<mx:VBox width="100%">
-			<mx:Label id="roomMutedLbl" text="{ResourceUtil.getInstance().getString('bbb.users.settings.roomIsMuted')}" />
-			<mx:Label id="roomLockedLbl" text="{ResourceUtil.getInstance().getString('bbb.users.settings.roomIsLocked')}" />
+		<mx:VBox>
+			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomMuted.text')}" visible="{roomMuted}" includeInLayout="{roomMuted}" />
+			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomLocked.text')}" visible="{roomLocked}" includeInLayout="{roomLocked}" />
 		</mx:VBox>
 	</mx:ControlBar>
 	

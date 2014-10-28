@@ -26,7 +26,7 @@ require 'builder'
 require 'streamio-ffmpeg'
 require 'mime/types'
 require 'digest/md5'
-require 'zip/zip'
+require 'zip'
 
 module BigBlueButton
   class MediaFormatException < StandardError

@@ -27,9 +27,9 @@ package org.bigbluebutton.modules.layout.events
 		public static const VIEW_INITIALIZED_EVENT:String = "VIEW_INITIALIZED_EVENT";
 		public var canvas:MDICanvas = null;
 		
-		public function ViewInitializedEvent(type:String = VIEW_INITIALIZED_EVENT)
+		public function ViewInitializedEvent()
 		{
-			super(type, true, false);
+			super(VIEW_INITIALIZED_EVENT, true, false);
 		}
 
 	}

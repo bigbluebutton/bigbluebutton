@@ -44,12 +44,12 @@ public class BlockStreamEventMessageHandler extends IoHandlerAdapter {
     }
     
     private void closeSession(IoSession session) {
-		String room = (String)session.getAttribute(ROOM, null);
-		if (room != null) {
-			log.info("Closing session [" + room + "]. ");
-		} else {
-			log.info("Cannot determine session to close.");
-		}
+			String room = (String)session.getAttribute(ROOM, null);
+			if (room != null) {
+				log.info("Closing session [" + room + "]. ");
+			} else {
+				log.info("Cannot determine session to close.");
+			}
     	CloseFuture future = session.close(true);   	    	
     }    
 
@@ -64,6 +64,13 @@ public class BlockStreamEventMessageHandler extends IoHandlerAdapter {
 //    		System.out.println("Got CaptureUpdateBlockEvent");
     		CaptureUpdateBlockEvent event = (CaptureUpdateBlockEvent) message;
     		sessionManager.updateBlock(event.getRoom(), event.getPosition(), event.getVideoData(), event.isKeyFrame(), event.getSequenceNum());
+    		if (sessionManager.isSharingStopped(event.getRoom())) {
+    			// The flash client told us to stop sharing. Force stopping by closing connection from applet.
+    			// We're changing how to tell the applet to stop sharing as AS ExternalInterface to JS to Applet calls
+    			// generates a popup dialog that users may or may not see causing the browser to hang. (ralam aug 24, 2014)
+    			log.info("Sharing has stopped for meeting [" + event.getRoom() + "]. Closing connection.");
+    			session.close(true);
+    		}
     	} else if (message instanceof CaptureEndBlockEvent) {
     		CaptureEndBlockEvent event = (CaptureEndBlockEvent) message;
     		sessionManager.removeSession(event.getRoom(), event.getSequenceNum());

@@ -25,6 +25,7 @@ import org.bigbluebutton.voiceconf.sip.SipPeerManager;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
+import org.bigbluebutton.voiceconf.sip.GlobalCall;
 
 public class Service {
     private static Logger log = Red5LoggerFactory.getLogger(Service.class, "sip");
@@ -33,6 +34,27 @@ public class Service {
 	
 	private MessageFormat callExtensionPattern = new MessageFormat("{0}");
     	
+	public Boolean call(String peerId, String callerName, String destination, Boolean listenOnly) {
+		if (listenOnly) {
+			if (GlobalCall.reservePlaceToCreateGlobal(destination)) {
+				String extension = callExtensionPattern.format(new String[] { destination });
+				try {
+					sipPeerManager.call(peerId, destination, "GLOBAL_AUDIO_" + destination, extension);
+					Red5.getConnectionLocal().setAttribute("VOICE_CONF_PEER", peerId);
+				} catch (PeerNotFoundException e) {
+					log.error("PeerNotFound {}", peerId);
+					return false;
+				}
+			}
+			sipPeerManager.connectToGlobalStream(peerId, getClientId(), callerName, destination);
+			Red5.getConnectionLocal().setAttribute("VOICE_CONF_PEER", peerId);
+			return true;
+		} else {
+			Boolean result = call(peerId, callerName, destination);
+			return result;
+		}
+	}
+
 	public Boolean call(String peerId, String callerName, String destination) {
     	String clientId = Red5.getConnectionLocal().getClient().getId();
     	String userid = getUserId();

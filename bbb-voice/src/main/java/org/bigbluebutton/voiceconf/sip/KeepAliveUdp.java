@@ -145,13 +145,11 @@ public class KeepAliveUdp extends Thread
    {  try   
       {  while(!stop)
          {  sendToken();
-            //System.out.print(".");
             Thread.sleep(delta_time);
             if (expire>0 && System.currentTimeMillis()>expire) halt(); 
          }
       }
       catch (Exception e) { e.printStackTrace(); }
-      //System.out.println("o");
       udp_socket=null;
    }
    

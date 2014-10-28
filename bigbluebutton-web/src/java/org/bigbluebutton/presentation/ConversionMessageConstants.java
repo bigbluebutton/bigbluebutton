@@ -33,5 +33,7 @@ public class ConversionMessageConstants {
 	public static final String GENERATED_THUMBNAIL_KEY = "GENERATED_THUMBNAIL";
 	public static final String GENERATING_TEXTFILES_KEY = "GENERATING_TEXTFILES";
 	public static final String GENERATED_TEXTFILES_KEY = "GENERATED_TEXTFILES";
+	public static final String GENERATING_PNGIMAGES_KEY = "GENERATING_PNGIMAGES";
+	public static final String GENERATED_PNGIMAGES_KEY = "GENERATED_PNGIMAGES";
 	public static final String CONVERSION_COMPLETED_KEY = "CONVERSION_COMPLETED";
 }

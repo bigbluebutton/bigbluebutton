@@ -26,6 +26,34 @@ public class ResizeAndMoveSlidePresentationRecordEvent extends
 		setEvent("ResizeAndMoveSlideEvent");
 	}
 	
+	public void setId(String id) {
+		eventMap.put("id", id);
+	}
+	
+	public void setNum(int num) {
+		eventMap.put("num", Integer.toString(num));
+	}
+	
+	public void setCurrent(boolean current) {
+		eventMap.put("current", Boolean.toString(current));
+	}
+	
+	public void setThumbUri(String thumbUri) {
+		eventMap.put("thumbUri", thumbUri);
+	}
+	
+	public void setSwfUri(String swfUri) {
+		eventMap.put("swfUri", swfUri);
+	}
+	
+	public void setTxtUri(String txtUri) {
+		eventMap.put("txtUri", txtUri);
+	}
+	
+	public void setPngUri(String pngUri) {
+		eventMap.put("pngUri", pngUri);
+	}
+	
 	public void setXOffset(double offset) {
 		eventMap.put("xOffset", Double.toString(offset));
 	}

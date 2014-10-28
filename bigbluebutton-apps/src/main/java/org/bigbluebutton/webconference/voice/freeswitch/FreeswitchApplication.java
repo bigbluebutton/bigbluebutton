@@ -19,134 +19,187 @@
 package org.bigbluebutton.webconference.voice.freeswitch;
 
 import java.io.File;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Observable;
-import java.util.logging.Level;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import org.bigbluebutton.webconference.voice.ConferenceServiceProvider;
-import org.bigbluebutton.webconference.voice.events.ConferenceEventListener;
-import org.bigbluebutton.webconference.voice.events.ParticipantJoinedEvent;
-import org.bigbluebutton.webconference.voice.events.ParticipantLeftEvent;
-import org.bigbluebutton.webconference.voice.events.ParticipantMutedEvent;
-import org.bigbluebutton.webconference.voice.events.ParticipantTalkingEvent;
-import org.bigbluebutton.webconference.voice.events.StartRecordingEvent;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.BroadcastConferenceCommand;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.EjectAllUsersCommand;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.EjectParticipantCommand;
+import org.bigbluebutton.webconference.voice.freeswitch.actions.FreeswitchCommand;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.PopulateRoomCommand;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.MuteParticipantCommand;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.RecordConferenceCommand;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
-
 public class FreeswitchApplication implements ConferenceServiceProvider {
-    private static Logger log = Red5LoggerFactory.getLogger(FreeswitchApplication.class, "bigbluebutton");
-
-    private ConnectionManager manager;
+	private static Logger log = Red5LoggerFactory.getLogger( FreeswitchApplication.class, "bigbluebutton" );
+	
+	private static final int SENDERTHREADS = 1;
+	private static final Executor msgSenderExec = Executors.newFixedThreadPool(SENDERTHREADS);
+	private static final Executor runExec = Executors.newFixedThreadPool(SENDERTHREADS);
+	private BlockingQueue<FreeswitchCommand> messages = new LinkedBlockingQueue<FreeswitchCommand>();
+  private ConnectionManager manager;
     
-    private String icecastProtocol = "shout";
-    private String icecastHost = "localhost";
-    private int icecastPort = 8000;
-    private String icecastUsername = "source";
-    private String icecastPassword = "hackme";
-    private String icecastStreamExtension = ".mp3";
-    private Boolean icecastBroadcast = false;
+  private String icecastProtocol = "shout";
+  private String icecastHost = "localhost";
+  private int icecastPort = 8000;
+  private String icecastUsername = "source";
+  private String icecastPassword = "hackme";
+  private String icecastStreamExtension = ".mp3";
+  private Boolean icecastBroadcast = false;
     
-    private final Integer USER = 0; /* not used for now */
+  private final String USER = "0"; /* not used for now */
   
-    @Override
-    public void populateRoom(String room) {    
-    	PopulateRoomCommand prc = new PopulateRoomCommand(room, USER);
-    	manager.getUsers(prc);
-    }
-
-    @Override
-    public void mute(String room, Integer participant, Boolean mute) {
-        MuteParticipantCommand mpc = new MuteParticipantCommand(room, participant, mute, USER);
-        manager.mute(mpc);
-    }
-
-    @Override
-    public void eject(String room, Integer participant) {
-        EjectParticipantCommand mpc = new EjectParticipantCommand(room, participant, USER);
-        manager.eject(mpc);
-    }
-
-    @Override
-    public void ejectAll(String room) {
-        EjectAllUsersCommand mpc = new EjectAllUsersCommand(room, USER);
-        manager.ejectAll(mpc);
-    }
+  private volatile boolean sendMessages = false;
     
-    @Override
-    public void record(String room, String meetingid){
-    	String RECORD_DIR = "/var/freeswitch/meetings";        
-    	String voicePath = RECORD_DIR + File.separatorChar + meetingid + "-" + System.currentTimeMillis() + ".wav";
-    	
-    	RecordConferenceCommand rcc = new RecordConferenceCommand(room, USER, true, voicePath);
-    	
-    	manager.record(rcc);
-    }
-
-    @Override
-    public void broadcast(String room, String meetingid) {        
-        if (icecastBroadcast) {
-        	broadcastToIcecast(room, meetingid);
-        }
-    }
+  private void queueMessage(FreeswitchCommand command) {
+  	try {
+			messages.offer(command, 5, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+  }
     
-    private void broadcastToIcecast(String room, String meetingid) {
-    	String shoutPath = icecastProtocol + "://" + icecastUsername + ":" + icecastPassword + "@" + icecastHost + ":" + icecastPort 
+  @Override
+  public void populateRoom(String room) {    
+  	PopulateRoomCommand prc = new PopulateRoomCommand(room, USER);
+   	queueMessage(prc);
+  }
+
+  public void mute(String room, String participant, Boolean mute) {
+    MuteParticipantCommand mpc = new MuteParticipantCommand(room, participant, mute, USER);
+    queueMessage(mpc);
+  }
+
+  public void eject(String room, String participant) {
+    EjectParticipantCommand mpc = new EjectParticipantCommand(room, participant, USER);       
+    queueMessage(mpc);
+  }
+
+  @Override
+  public void ejectAll(String room) {
+    EjectAllUsersCommand mpc = new EjectAllUsersCommand(room, USER);
+    queueMessage(mpc);
+  }
+    
+  private Long genTimestamp() {
+  	return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
+  }
+    
+  @Override
+  public void record(String room, String meetingid){
+  	String RECORD_DIR = "/var/freeswitch/meetings";        
+   	String voicePath = RECORD_DIR + File.separatorChar + meetingid + "-" + genTimestamp() + ".wav";
+    	
+   	RecordConferenceCommand rcc = new RecordConferenceCommand(room, USER, true, voicePath);
+   	queueMessage(rcc);
+  }
+
+  @Override
+  public void broadcast(String room, String meetingid) {        
+    if (icecastBroadcast) {
+      	broadcastToIcecast(room, meetingid);
+    }
+  }
+    
+  private void broadcastToIcecast(String room, String meetingid) {
+   	String shoutPath = icecastProtocol + "://" + icecastUsername + ":" + icecastPassword + "@" + icecastHost + ":" + icecastPort 
     			+ File.separatorChar + meetingid + "." + icecastStreamExtension;       
     	
-        BroadcastConferenceCommand rcc = new BroadcastConferenceCommand(room, USER, true, shoutPath);
-        manager.broadcast(rcc);
-    }
+    BroadcastConferenceCommand rcc = new BroadcastConferenceCommand(room, USER, true, shoutPath);
+    queueMessage(rcc);
+  }
     
-    public void setConnectionManager(ConnectionManager manager) {
-        this.manager = manager;
-    }
+  public void setConnectionManager(ConnectionManager manager) {
+    this.manager = manager;
+  }
     
-    public void setIcecastProtocol(String protocol) {
-    	icecastProtocol = protocol;
-    }
+  public void setIcecastProtocol(String protocol) {
+  	icecastProtocol = protocol;
+  }
     
-    public void setIcecastHost(String host) {
-    	icecastHost = host;
-    }
+  public void setIcecastHost(String host) {
+  	icecastHost = host;
+  }
     
-    public void setIcecastPort(int port) {
-    	icecastPort = port;
-    }
+  public void setIcecastPort(int port) {
+  	icecastPort = port;
+  }
     
-    public void setIcecastUsername(String username) {
-    	icecastUsername = username;
-    }
+  public void setIcecastUsername(String username) {
+   	icecastUsername = username;
+  }
     
-    public void setIcecastPassword(String password) {
-    	icecastPassword = password;
-    }
+  public void setIcecastPassword(String password) {
+   	icecastPassword = password;
+  }
     
-    public void setIcecastBroadcast(Boolean broadcast) {
-    	icecastBroadcast = broadcast;
-    }
+  public void setIcecastBroadcast(Boolean broadcast) {
+   	icecastBroadcast = broadcast;
+  }
 
-    public void setIcecastStreamExtension(String ext) {
-    	icecastStreamExtension = ext;
-    }
+  public void setIcecastStreamExtension(String ext) {
+  	icecastStreamExtension = ext;
+  }
 
-	@Override
-	public boolean startup() {
-		// NO OP
-		return false;
-	}
-
-	@Override
-	public void shutdown() {
-		// NO OP
+	private void sendMessageToFreeswitch(final FreeswitchCommand command) {
+		Runnable task = new Runnable() {
+			public void run() {
+				if (command instanceof PopulateRoomCommand) {
+					PopulateRoomCommand cmd = (PopulateRoomCommand) command;
+					log.debug("Sending PopulateRoomCommand for conference = [" + cmd.getRoom() + "]");
+					manager.getUsers(cmd);
+				} else if (command instanceof MuteParticipantCommand) {
+					MuteParticipantCommand cmd = (MuteParticipantCommand) command;
+					log.debug("Sending MuteParticipantCommand for conference = [" + cmd.getRoom() + "]");
+					System.out.println("Sending MuteParticipantCommand for conference = [" + cmd.getRoom() + "]");
+					manager.mute(cmd);
+				} else if (command instanceof EjectParticipantCommand) {
+					EjectParticipantCommand cmd = (EjectParticipantCommand) command;
+					log.debug("Sending EjectParticipantCommand for conference = [" + cmd.getRoom() + "]");
+					manager.eject(cmd);
+				} else if (command instanceof EjectAllUsersCommand) {
+					EjectAllUsersCommand cmd = (EjectAllUsersCommand) command;
+					log.debug("Sending EjectAllUsersCommand for conference = [" + cmd.getRoom() + "]");
+					manager.ejectAll(cmd);
+				} else if (command instanceof RecordConferenceCommand) {
+					manager.record((RecordConferenceCommand) command);
+				} else if (command instanceof BroadcastConferenceCommand) {
+					manager.broadcast((BroadcastConferenceCommand) command);
+				}						
+			}
+		};
 		
+		runExec.execute(task);	
 	}
-    
+	
+	public void start() {
+		sendMessages = true;
+		Runnable sender = new Runnable() {
+			public void run() {
+				while (sendMessages) {
+					FreeswitchCommand message;
+					try {
+						message = messages.take();
+						sendMessageToFreeswitch(message);	
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+									
+				}
+			}
+		};
+		msgSenderExec.execute(sender);		
+	}
+	
+	public void stop() {
+		sendMessages = false;
+	}
 
 }

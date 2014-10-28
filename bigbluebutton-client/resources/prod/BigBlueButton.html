@@ -37,16 +37,15 @@
       attributes.tabIndex = 0;
       swfobject.embedSWF("BigBlueButton.swf?v=VERSION", "altFlash", "100%", "100%", "11.0.0", "expressInstall.swf", flashvars, params, attributes);
     </script>
-    <script src="lib/jquery-1.5.1.min.js" language="javascript"></script>
-    <script src="lib/bigbluebutton.js" language="javascript"></script>
-    <script src="lib/bbb_localization.js" language="javascript"></script>
-    <script src="lib/bbb_blinker.js" language="javascript"></script>
-    <script src="lib/bbb_deskshare.js" language="javascript"></script>
-    <script src="lib/bbb_api_bridge.js" language="javascript"></script>
-    <script src="lib/jssip-devel.js" language="javascript"></script> 
-    <script src="lib/bbb_webrtc_bridge_jssip.js" language="javascript"></script> 
-<!--    <script src="lib/sipml5api.js" language="javascript"></script> -->
-<!--    <script src="lib/bbb_webrtc_bridge_sipml5.js" language="javascript"></script> -->
+    <script src="lib/jquery-1.5.1.min.js?v=VERSION" language="javascript"></script>
+    <script src="lib/bbblogger.js?v=VERSION" language="javascript"></script>
+    <script src="lib/bigbluebutton.js?v=VERSION" language="javascript"></script>
+    <script src="lib/bbb_localization.js?v=VERSION" language="javascript"></script>
+    <script src="lib/bbb_blinker.js?v=VERSION" language="javascript"></script>
+    <script src="lib/bbb_deskshare.js?v=VERSION" language="javascript"></script>
+    <script src="lib/bbb_api_bridge.js?v=VERSION" language="javascript"></script>
+    <script src="lib/sip.js?v=VERSION" language="javascript"></script> 
+    <script src="lib/bbb_webrtc_bridge_sip.js?v=VERSION" language="javascript"></script> 
     <script>
       window.chatLinkClicked = function(url) {
         window.open(url, '_blank');
@@ -57,12 +56,7 @@
 
   <body>
 <div>
-<!-- <button onclick="hangUp()">Hang up</button>
- <button onclick="callIntoConference()">Call</button>-->
-<audio id="audio-remote" autoplay="autoplay" />
-
-<audio id="local-media" autoplay="autoplay" />
-<audio id="remote-media" autoplay="autoplay" />
+<audio id="remote-media" autoplay="autoplay"></audio>
 </div>
 
     <div id="content">
@@ -98,81 +92,3 @@
     });
   </script>
 </html>
-
-<script type="text/javascript">
-
-	var fsServer = null;
-
-        var callIntoConference = function(callback) {
-            if (!isWebrtcCapable()) {
-                callback("Browser version not supported");
-                return;
-            }
-
-            BBB.getMyUserInfo(function(userInfo) {
-                console.log("User info callback [myUserID=" + userInfo.myUserID
-                    + ",myUsername=" + userInfo.myUsername + ",myAvatarURL=" + userInfo.myAvatarURL
-                    + ",myRole=" + userInfo.myRole + ",amIPresenter=" + userInfo.amIPresenter
-                    + ",dialNumber=" + userInfo.dialNumber + ",voiceBridge=" + userInfo.voiceBridge + "].");
-                var callerIdName = userInfo.myUserID + "-bbbID-" + userInfo.myUsername;
-
-                // setup a timer to call the error callback
-                var checkSuccessCallback = function(e) {
-                    if (e.userID == userInfo.myUserID) {
-                        console.info("Received the event from Flash that I've joined the voice conference");
-                        BBB.unlisten('UserJoinedVoiceEvent', checkSuccessCallback);
-                    }
-                }
-
-                BBB.listen('UserJoinedVoiceEvent', checkSuccessCallback);
-
-                console.log(callerIdName);
-                webrtc_call(callerIdName, userInfo.voiceBridge, fsServer, callback);
-            });
-        }
-
-        var joinWebRTCVoiceConference = function(){
-            console.log("Joining to the voice conference");
-            var callback = function(err) {
-                if (err) {
-                    console.info("Failed to call: " + err);
-                } else {
-                    console.info("Success to call");
-                }
-                BBB.joinWebRTCVoiceConferenceCallback(err);
-            }
-
-            callIntoConference(callback);
-        }
-
-        var leaveWebRTCVoiceConference = function(){
-            console.log("Leaving the voice conference");
-            var callback = function(err) {
-                if (err) {
-                    console.info("Failed to hang up: " + err);
-                } else {
-                    console.info("Success to hang up");
-                }
-                BBB.leaveWebRTCVoiceConferenceCallback(err);
-            }
-
-            webrtc_hangup(callback);
-        }
-
-	var startWebrtcAudioTest = function(){
-		console.log("Testing webrtc audio");
-		webrtc_call("tester", "9196", fsServer, function(message){
-			console.log("You should hear yourself talking");
-		});
-	}
-
-	var stopWebrtcAudioTest = function(){
-		console.log("Stopping webrtc audio test");
-		webrtc_hangup(function(){
-			console.log("Webrtc audio test stopped");
-		});
-	}
-
-	
-</script>
-

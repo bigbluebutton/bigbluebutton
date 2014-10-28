@@ -339,8 +339,6 @@ module BigBlueButton
         else
           edl_entry[:duration] = edl[i+1][:timestamp] - edl_entry[:timestamp]
         end
-        # the original_duration is used to calculate the speed of the output file
-        edl_entry[:original_duration] = edl_entry[:duration]
       end
 
       BigBlueButton.logger.debug "edl with duration:\n#{BigBlueButton.hash_to_str(edl)}"
@@ -443,5 +441,13 @@ module BigBlueButton
       end
       matched_rec_events
     end
+
+    # Version of the bbb server where it was recorded
+    def self.bbb_version(events_xml)
+      events = Nokogiri::XML(File.open(events_xml))      
+      recording = events.at_xpath('/recording')
+      recording['bbb_version']      
+    end
+
   end
 end

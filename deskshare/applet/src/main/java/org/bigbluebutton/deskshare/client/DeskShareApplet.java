@@ -25,8 +25,6 @@ import javax.swing.JOptionPane;
 import java.io.IOException;
 import java.net.URL;
 import java.security.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.awt.Image;
 
 public class DeskShareApplet extends JApplet implements ClientListener {
@@ -34,7 +32,8 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 	
 	private static final long serialVersionUID = 1L;
 
-	String hostValue = "localhost";
+	  String hostValue = "localhost";
+	  String minJreVersion = "1.7.0_51";
     Integer portValue = new Integer(9123);
     String roomValue = "85115";
     Integer cWidthValue = new Integer(800);
@@ -54,24 +53,25 @@ public class DeskShareApplet extends JApplet implements ClientListener {
     
     public boolean isSharing = false;
     private volatile boolean clientStarted = false;
-    private static final String JAVA_VERSION_PATTERN = "1.7.0_([0-9]+)";
-    private final int MIN_JRE_VERSION = 45;
-    private final static String VERSION_ERROR_MSG = "Desktop sharing requires Java 7 update 45 (or later) to run.";
+    private final static String VERSION_ERROR_MSG = "You have an unsupported Java version.";
     
     private class DestroyJob implements PrivilegedExceptionAction {
        public Object run() throws Exception {
-		System.out.println("Desktop Sharing Applet Destroy");
-		if (clientStarted) {
-			client.stop();	
-		}
-               	return null;
+		     System.out.println("Desktop Sharing Applet Destroy");
+		     if (clientStarted) {
+			     client.stop();	
+		     }
+         return null;
        }
     }
     
     @Override
 	public void init() {		
-    	System.out.println("Desktop Sharing Applet Initializing");
-    	
+    System.out.println("Desktop Sharing Applet Initializing");
+    
+    String javaVersion = getParameter("JavaVersion");
+    if (javaVersion != null && javaVersion != "") minJreVersion = javaVersion;
+    
 		hostValue = getParameter("IP");
 		String port = getParameter("PORT");
 		if (port != null) portValue = Integer.parseInt(port);
@@ -127,22 +127,15 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 	public void start() {		 	
 		System.out.println("Desktop Sharing Applet Starting");
 		super.start();
+		String javaRuntimeVersion = getJavaVersionRuntime();
+		System.out.println("**** JAVA VERSION = [" + javaRuntimeVersion + "]");
 		
-		System.out.println("**** JAVA VERSION = [" + getJavaVersionRuntime() + "]");
-		
-		Pattern p = Pattern.compile(JAVA_VERSION_PATTERN);
-		Matcher matcher = p.matcher(getJavaVersionRuntime());
-		if (matcher.matches()) {
-			int jreVersion = Integer.valueOf(matcher.group(1).trim()).intValue();
-			if (jreVersion < MIN_JRE_VERSION) {
-				displayJavaWarning(VERSION_ERROR_MSG);
-			} else {
-				allowDesktopSharing();
-			}
-		} else {
-			displayJavaWarning(VERSION_ERROR_MSG);
-		}
+		if (VersionCheckUtil.validateMinJREVersion(javaRuntimeVersion, minJreVersion))
+			allowDesktopSharing();
+		else
+			displayJavaWarning("Unsupported Java version [" + javaRuntimeVersion + "]. Minimum version required [" + minJreVersion + "]");
 	}
+
 	
 	private void allowDesktopSharing() {
 		client = new DeskshareClient.NewBuilder().host(hostValue).port(portValue)

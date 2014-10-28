@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="onCreationComplete()" >
+  <mx:Script>
+    <![CDATA[
+      import mx.controls.CheckBox;
+      import mx.controls.RadioButton;
+      import mx.controls.RadioButtonGroup;
+      import mx.events.ItemClickEvent;
+      
+      import org.bigbluebutton.modules.polling.model.PollVO;
+      import org.bigbluebutton.modules.polling.model.PollingViewModel;
+      import org.bigbluebutton.modules.polling.model.QuestionVO;
+      import org.bigbluebutton.modules.polling.model.Response;
+		
+      public var viewModel:PollingViewModel;
+      public var pollID:String;
+      
+      private var _qvo:QuestionVO;
+      private var _poll:PollVO;
+      
+      [Bindable] public var responseCollector:ResponseCollector;
+      
+      [Bindable] private var _question:String;
+      [Bindable] private var _responses:Array;
+      
+      private function onCreationComplete():void {
+        trace("******************************* QUESTION RENDERER CREATION COMPLETE ********************************");
+        _poll = viewModel.getPoll(pollID);
+        _qvo = _poll.questions[0] as QuestionVO;
+        _question = _qvo.question;
+        _responses = _qvo.answers;
+        
+        if (_qvo.multiResponse) {
+          renderMultiSelectResponse();
+        } else {
+          renderMultiChoiceResponse();
+        }
+      }
+      
+      private var _checkboxes:Array = new Array();
+      
+      private function renderMultiSelectResponse():void {
+        for (var i:int = 0; i < _responses.length; i++) {
+          var r:Response = _responses[i] as Response;
+          var cb:CheckBox = new CheckBox();
+          cb.addEventListener(MouseEvent.CLICK, modifyCart);
+          cb.id = r.id;
+          cb.label = r.response;
+          _checkboxes.push(cb);
+          answersBox.addChild(cb);
+        }
+      }
+      
+
+      private function renderMultiChoiceResponse():void {      
+        for (var i:int = 0; i < _responses.length; i++) {
+          var r:Response = _responses[i] as Response;
+          var cb:RadioButton = new RadioButton();
+          cb.groupName = "rbGroup";
+          cb.id = r.id;
+          cb.label = r.response;
+          answersBox.addChild(cb);
+        }        
+      }
+      
+      // This event handler adds and deletes items from the shopping cart.
+      private function modifyCart(event:Event):void 
+      {
+        var sr:Array = new Array();
+        
+        for (var i:int = 0; i < _responses.length; i++) {
+          var r:Response = _responses[i] as Response;
+          var cb:CheckBox = _checkboxes[i] as CheckBox;
+          if (cb.selected) {
+//            trace("Selected [" + cb.id + "]");
+            sr.push(cb.id);
+          }
+        }        
+        
+        responseCollector.addResponse(new Responses(_qvo.id, sr));
+      }
+      
+      private function handleCard(event:ItemClickEvent):void {
+//        trace("Chose [" + event.index + "] + value = [" + rbGroup.selection.id + "]");
+        var sr:Array = new Array();
+        sr.push(rbGroup.selection.id);
+        responseCollector.addResponse(new Responses(_qvo.id, sr));
+      }
+    ]]>
+    
+  </mx:Script>
+  <mx:HBox width="100%" height="20" horizontalAlign="left">
+    <mx:Label id="questionLabel" text="Question" styleName="presentationNamesLabelStyle" paddingLeft="3"/>
+  </mx:HBox>  
+  <mx:HBox width="96%" height="30" paddingTop="5">
+    <mx:Label id="questionTextLabel" text="{_question}" fontSize="12" styleName="presentationNamesLabelStyle" paddingLeft="10"/>
+  </mx:HBox>
+  
+  <mx:HBox width="100%" height="20" horizontalAlign="left" paddingTop="3">
+    <mx:Label id="answersLabel" text="Answers" styleName="presentationNamesLabelStyle" paddingLeft="3"/>
+  </mx:HBox> 
+  <mx:HBox>
+    <mx:VBox id="answersBox" paddingLeft="10">
+      <mx:RadioButtonGroup id="rbGroup" itemClick="handleCard(event);"/>
+      <!--  Placeholder for the responses   -->
+    </mx:VBox>    
+  </mx:HBox>
+  
+</mx:VBox>

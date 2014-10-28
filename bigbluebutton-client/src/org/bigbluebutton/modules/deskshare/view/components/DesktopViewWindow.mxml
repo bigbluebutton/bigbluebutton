@@ -152,8 +152,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				ns.play(stream);	
 				this.stream = stream;
 				this.title = "Viewing Remote Desktop";
+       
 			}
 			
+      protected function updateButtonsPosition():void {
+        if (this.width < bottomBar.width) {
+          bottomBar.visible = false;
+        }
+        
+        if (bottomBar.visible == false) {
+          bottomBar.y = bottomBar.x = 0;
+        } else {
+          bottomBar.y = (this.height - bottomBar.height) / 2;
+          bottomBar.x = (this.width - bottomBar.width) / 2;
+        }
+      }
+      
 			public function stopViewing():void {
 				ns.close();
 				closeWindow();				
@@ -297,8 +311,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Move id="cursorMove" target="{cursorImg}"/>
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
 		
-	<mx:ControlBar id="bottomBar" height="35" horizontalAlign="center">
-		<mx:Button id="btnActualSize" 
+	<mx:HBox id="bottomBar" visible="true" height="30" horizontalAlign="center" paddingTop="0" paddingBottom="0" width="100%" >
+		<mx:Button id="btnActualSize" paddingTop="0" paddingBottom="0" styleName="deskshareControlButtonStyle"
 				   toggle="true" 
 				   click="determineHowToDisplayVideo()" 
 				   selected="false"
@@ -306,5 +320,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				   label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
 				   toolTip="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
 				   tabIndex="{baseIndex+4}"/>
-	</mx:ControlBar>
+	</mx:HBox>
 </MDIWindow>

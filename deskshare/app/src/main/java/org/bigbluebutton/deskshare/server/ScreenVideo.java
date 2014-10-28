@@ -20,7 +20,7 @@ package org.bigbluebutton.deskshare.server;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.stream.IVideoStreamCodec;
+import org.red5.codec.IVideoStreamCodec;
 import org.slf4j.Logger;
 
 public class ScreenVideo implements IVideoStreamCodec {

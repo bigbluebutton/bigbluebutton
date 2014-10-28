@@ -19,7 +19,6 @@
 package org.bigbluebutton.core.managers {
 	import mx.collections.ArrayCollection;
 	import org.bigbluebutton.main.model.users.Conference;
-	import org.bigbluebutton.main.model.users.BBBUser;
 
 	/**
 	 * The UserManager allows you to interact with the user data of those currently logged in to the conference.

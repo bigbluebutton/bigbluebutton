@@ -19,6 +19,7 @@
 
 package org.bigbluebutton.presentation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,10 +38,12 @@ public class ConversionUpdateMessage {
 		private Map<String, Object> message = new HashMap<String, Object>();
 		
 		public MessageBuilder(UploadedPresentation pres) {
-			message.put("conference", pres.getConference());
-			message.put("room", pres.getRoom());
+			message.put("conference", pres.getMeetingId());
+			message.put("room", pres.getMeetingId());
 			message.put("returnCode", "CONVERT");
-			message.put("presentationName", pres.getName());
+			message.put("presentationName", pres.getId());
+			message.put("presentationId", pres.getId());
+			message.put("filename", pres.getName());
     	}
 		
 		public MessageBuilder entry(String key, Object value) {
@@ -72,9 +75,37 @@ public class ConversionUpdateMessage {
 			message.put("slidesInfo", slidesInfo);
 			return this;
 		} 
+		
+		public MessageBuilder presBaseUrl(UploadedPresentation pres) {
+			message.put("presentationBaseUrl", generateBasePresUrl(pres));
+			return this;
+		} 
 				
 		public ConversionUpdateMessage build() {
 			return new ConversionUpdateMessage(this);
+		}
+		
+		public MessageBuilder generatePages(UploadedPresentation pres) {
+			String basePresUrl = generateBasePresUrl(pres);
+			ArrayList<Map<String, String>> pages = new ArrayList<Map<String, String>>();
+			
+			for (int i = 1; i <= pres.getNumberOfPages(); i++) {
+				Map<String, String> page = new HashMap<String, String>();
+				page.put("num", new Integer(i).toString());
+				page.put("thumb", basePresUrl + "/thumbnail/" + i);
+				page.put("swf", basePresUrl + "/slide/" + i);
+				page.put("text", basePresUrl + "/textfiles/" + i);
+				
+				pages.add(page);
+			}
+			
+			message.put("pages", pages);
+			
+			return this;
+		}
+		
+		private String generateBasePresUrl(UploadedPresentation pres) {
+			return pres.getBaseUrl() + "/" + pres.getMeetingId() + "/" + pres.getMeetingId() + "/" + pres.getId();
 		}
 	}
 }

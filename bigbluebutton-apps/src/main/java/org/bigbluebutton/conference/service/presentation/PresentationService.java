@@ -17,103 +17,129 @@
 *
 */
 package org.bigbluebutton.conference.service.presentation;
-import java.util.ArrayList;
-import java.util.HashMap;
+
 import java.util.Map;
+
 import org.slf4j.Logger;
-import org.red5.logging.Red5LoggerFactory;import org.red5.server.api.Red5;import org.red5.server.api.scope.IScope;
-import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
+import org.red5.logging.Red5LoggerFactory;
+import org.red5.server.api.Red5;
+import org.red5.server.api.scope.IScope;
+import org.bigbluebutton.conference.BigBlueButtonSession;
+import org.bigbluebutton.conference.Constants;
 
 public class PresentationService {	
 	private static Logger log = Red5LoggerFactory.getLogger( PresentationService.class, "bigbluebutton" );
 	
-	private ParticipantsApplication participantsApplication;
 	private PresentationApplication presentationApplication;
 
-	public void removePresentation(String name) {
-		log.debug("removePresentation " + name);
+	public void removePresentation(Map<String, Object> msg) {
+		String presentationID = (String) msg.get("presentationID");
+		
 		IScope scope = Red5.getConnectionLocal().getScope();
-		presentationApplication.removePresentation(scope.getName(), name);
+		presentationApplication.removePresentation(scope.getName(), presentationID);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public Map<String, Object> getPresentationInfo() {
-		log.debug("Getting presentation information.");
+	public void getSlideInfo() {
 		IScope scope = Red5.getConnectionLocal().getScope();
-		ArrayList<String> curPresenter = participantsApplication.getCurrentPresenter(scope.getName());
-		int curSlide = presentationApplication.getCurrentSlide(scope.getName());
-		Boolean isSharing = presentationApplication.getSharingPresentation(scope.getName());
-		String currentPresentation = presentationApplication.getCurrentPresentation(scope.getName());
-		Map<String, Object> presentersSettings = presentationApplication.getPresenterSettings(scope.getName());
-		ArrayList<String> presentationNames = presentationApplication.getPresentations(scope.getName());
+		log.debug("Getting slide info for meeting [{}]", scope.getName());
+		presentationApplication.getSlideInfo(scope.getName(), getBbbSession().getInternalUserID());		
+	}
+	
+	public void clear() {
+		IScope scope = Red5.getConnectionLocal().getScope();
+		presentationApplication.clear(scope.getName());
+	}
+	
+	public void getPresentationInfo() {
+		IScope scope = Red5.getConnectionLocal().getScope();
+		log.debug("Getting presentation info for meeting [{}]", scope.getName());
+		presentationApplication.getPresentationInfo(scope.getName(), getBbbSession().getInternalUserID());
+	}
+	
+	public void gotoSlide(Map<String, Object> msg) {
+		String pageId = (String) msg.get("page");
 		
-		Map<String, Object> presenter = new HashMap<String, Object>();		
-		if (curPresenter != null) {
-			presenter.put("hasPresenter", true);
-			presenter.put("user", curPresenter.get(0));
-			presenter.put("name", curPresenter.get(1));
-			presenter.put("assignedBy",curPresenter.get(2));
-			log.debug("Presenter: " + curPresenter.get(0) + " " + curPresenter.get(1) + " " + curPresenter.get(2));
+		IScope scope = Red5.getConnectionLocal().getScope();
+		log.debug("Got GotoSlide for meeting [{}] page=[{}]", scope.getName(), pageId);
+
+		presentationApplication.gotoSlide(scope.getName(), pageId);
+	}
+	
+	public void sharePresentation(Map<String, Object> msg) {
+		String presentationID = (String) msg.get("presentationID");
+		Boolean share = (Boolean) msg.get("share");
+		
+		IScope scope = Red5.getConnectionLocal().getScope();
+		presentationApplication.sharePresentation(scope.getName(), presentationID, share);
+	}
+	
+	public void sendCursorUpdate(Map<String, Object> msg) {
+		IScope scope = Red5.getConnectionLocal().getScope();
+		
+		Double xPercent;
+		if (msg.get("xPercent") instanceof Integer) {
+			Integer tempXOffset = (Integer) msg.get("xPercent");
+			xPercent = tempXOffset.doubleValue();
 		} else {
-			presenter.put("hasPresenter", false);
+			xPercent = (Double) msg.get("xPercent");
 		}
-				
-		Map<String, Object> presentation = new HashMap<String, Object>();
-		if (isSharing.booleanValue()) {
-			presentation.put("sharing", true);
-			presentation.put("slide", curSlide);
-			presentation.put("currentPresentation", currentPresentation);
-			if (presentersSettings!=null) {
-				presentation.put("xOffset", presentersSettings.get("xOffset"));
-				presentation.put("yOffset", presentersSettings.get("yOffset"));
-				presentation.put("widthRatio", presentersSettings.get("widthRatio"));
-				presentation.put("heightRatio", presentersSettings.get("heightRatio"));
-			}
-			log.debug("Presentation: presentation=" + currentPresentation + " slide=" + curSlide);
+
+		Double yPercent;
+		
+		if (msg.get("yPercent") instanceof Integer) {
+			Integer tempYOffset = (Integer) msg.get("yPercent");
+			yPercent = tempYOffset.doubleValue();
 		} else {
-			presentation.put("sharing", false);
+			yPercent = (Double) msg.get("yPercent");
 		}
 		
-		Map<String, Object> presentationInfo = new HashMap<String, Object>();
-		presentationInfo.put("presenter", presenter);
-		presentationInfo.put("presentation", presentation);
-		presentationInfo.put("presentations", presentationNames);
-		
-		log.info("getPresentationInfo::service - Sending presentation information...");
-		return presentationInfo;
-	}
-	
-	public void gotoSlide(int slideNum) {
-		log.debug("Request to go to slide " + slideNum);
-		IScope scope = Red5.getConnectionLocal().getScope();
-		presentationApplication.gotoSlide(scope.getName(), slideNum);
-	}
-	
-	public void sharePresentation(String presentationName, Boolean share) {
-		log.debug("Request to go to sharePresentation " + presentationName + " " + share);
-		IScope scope = Red5.getConnectionLocal().getScope();
-		presentationApplication.sharePresentation(scope.getName(), presentationName, share);
-	}
-	
-	public void sendCursorUpdate(Double xPercent,Double yPercent) {
-		log.debug("Request update cursor[" + xPercent + "," + yPercent + "]" );
-		IScope scope = Red5.getConnectionLocal().getScope();
 		presentationApplication.sendCursorUpdate(scope.getName(), xPercent, yPercent);
 	}
 	
-	public void resizeAndMoveSlide(Double xOffset,Double yOffset,Double widthRatio,Double heightRatio) {
-		log.debug("Request to resize and move slide[" + xOffset + "," + yOffset + "," + widthRatio + "," + heightRatio);
+	public void resizeAndMoveSlide(Map<String, Object> msg) {
+		Double xOffset;
+		if (msg.get("xOffset") instanceof Integer) {
+			Integer tempXOffset = (Integer) msg.get("xOffset");
+			xOffset = tempXOffset.doubleValue();
+		} else {
+			xOffset = (Double) msg.get("xOffset");
+		}
+
+		Double yOffset;
+		
+		if (msg.get("yOffset") instanceof Integer) {
+			Integer tempYOffset = (Integer) msg.get("yOffset");
+			yOffset = tempYOffset.doubleValue();
+		} else {
+			yOffset = (Double) msg.get("yOffset");
+		}
+		 
+		Double widthRatio;
+		if (msg.get("widthRatio") instanceof Integer) {
+			Integer tempWRatio = (Integer) msg.get("widthRatio");
+			widthRatio = tempWRatio.doubleValue();
+		} else {
+			widthRatio = (Double) msg.get("widthRatio");
+		}
+				
+		
+		Double heightRatio;
+		if (msg.get("heightRatio") instanceof Integer) {
+			Integer tempHRatio = (Integer) msg.get("heightRatio");
+			heightRatio = tempHRatio.doubleValue();
+		} else {
+			heightRatio = (Double) msg.get("heightRatio");
+		}
+		
 		IScope scope = Red5.getConnectionLocal().getScope();
 		presentationApplication.resizeAndMoveSlide(scope.getName(), xOffset, yOffset, widthRatio, heightRatio);
 	}
 
-	public void setParticipantsApplication(ParticipantsApplication a) {
-	    log.debug("Setting participants application");
-	    participantsApplication = a;
+	public void setPresentationApplication(PresentationApplication a) {
+		presentationApplication = a;
 	}
 	
-	public void setPresentationApplication(PresentationApplication a) {
-		log.debug("Setting Presentation Applications");
-		presentationApplication = a;
+	private BigBlueButtonSession getBbbSession() {
+		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}
 }

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
+          xmlns:poll="org.bigbluebutton.modules.polling.views.*"
+          borderStyle="none" horizontalAlign="center" 
+          headerHeight="0" borderThicknessBottom="0" borderThicknessLeft="0"
+          borderThicknessRight="0" borderThicknessTop="0" creationComplete="onCreationComplete()">
+  <mx:Script>
+      <![CDATA[
+        import org.bigbluebutton.modules.polling.events.RespondEvent;
+        import org.bigbluebutton.modules.polling.events.TakePollWindowEvent;
+        import org.bigbluebutton.modules.polling.model.PollVO;
+        import org.bigbluebutton.modules.polling.model.PollingViewModel;
+        import org.bigbluebutton.modules.polling.model.QuestionVO;
+        import org.bigbluebutton.modules.polling.vo.PollResponseVO;
+       
+        [Bindable] private var baseIndex:int;
+        
+        [Bindable] public var viewModel:PollingViewModel;
+        [Bindable] public var pollID:String;
+		  
+        private var poll:PollVO;
+        
+        [Bindable] private var _title:String;
+
+
+        [Bindable] private var responseCollector:ResponseCollector;
+        
+        private function onCreationComplete():void {
+		      poll = viewModel.getPoll(pollID);
+          _title = poll.title;
+		  
+          responseCollector = new ResponseCollector(pollID);
+        }
+                   
+        private function isDuplicateAnswers(arr:Array):Boolean{
+          var x:uint;
+          var y:uint;
+          for (x = 0; x < arr.length ; x++){
+            for (y = x + 1; y < arr.length; y++){
+              if (arr[x] === arr[y]){
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+        
+        //trimming return and whitespaces at the end of each array element
+        private function makeAnswersPretty(arr:Array):Array{
+          var i:uint;
+          var trim:RegExp = /^\s+|\s+$/g;
+          for (i = 0; i < arr.length; i++){
+            arr[i] = arr[i].replace(trim, "");
+            if(!arr[i]) //if user puts just return or space and return - this array elements will be deleted
+              arr.splice(i,1);
+          }
+          return arr;
+        }
+        
+        private function onSubmit():void 
+        {
+          var respVO:PollResponseVO = new PollResponseVO(pollID);
+          
+          var resps:Array = responseCollector.responses;
+          for (var i:int = 0; i < resps.length; i++) {
+            var r:Responses = resps[i] as Responses;
+            respVO.addResponse(r);
+          }
+          
+          var event:RespondEvent = new RespondEvent(respVO);
+          dispatchEvent(event);
+          
+          close();
+        }
+        
+        private function close():void {
+          dispatchEvent(new TakePollWindowEvent());		
+        }
+      ]]>    
+  </mx:Script>
+  <mx:HBox width="100%" height="25" horizontalAlign="left">
+    <mx:Label text="Take Poll" styleName="micSettingsWindowTitleStyle" paddingLeft="3"/>
+  </mx:HBox>
+  
+  <mx:VBox width="90%" height="90%" horizontalAlign="left" borderStyle="solid" borderThickness="1">
+
+    <mx:HBox width="100%" height="20" horizontalAlign="left">
+      <mx:Label id="titleLabel" text="Title" styleName="presentationNamesLabelStyle" paddingLeft="3"/>
+    </mx:HBox>  
+    <mx:HBox width="96%" height="25" paddingTop="5">
+      <mx:Label id="titleTextLabel" text="{_title}" fontSize="12" styleName="presentationNamesLabelStyle" paddingLeft="10"/>
+    </mx:HBox>
+    
+    <poll:QuestionRenderer viewModel="{viewModel}" pollID="{pollID}" responseCollector="{responseCollector}" paddingTop="3" paddingBottom="5"/>
+    
+  </mx:VBox>
+  
+  <mx:HBox width="100%" height="35" horizontalAlign="right" paddingBottom="5">
+    <mx:Button label="Submit" styleName="presentationUploadShowButtonStyle" click="onSubmit()" paddingRight="5"/>
+    <mx:Button label="Don't Submit" styleName="presentationUploadShowButtonStyle" click="close()" paddingRight="5"/>
+  </mx:HBox>  
+  
+</mx:Panel>

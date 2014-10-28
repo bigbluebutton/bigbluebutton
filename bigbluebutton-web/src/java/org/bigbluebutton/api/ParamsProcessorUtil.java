@@ -19,7 +19,6 @@
 
 package org.bigbluebutton.api;
 
-import javax.servlet.ServletRequest;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -31,6 +30,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
@@ -62,6 +64,10 @@ public class ParamsProcessorUtil {
 	private String defaultConfigURL;
 	private int defaultMeetingDuration;
 	private boolean disableRecordingDefault;
+	private boolean autoStartRecording;
+	private boolean allowStartStopRecording;
+	
+	private String defaultConfigXML = null;
 	
 	private String substituteKeywords(String message, String dialNumber, String telVoice, String meetingName) {
 	    String welcomeMessage = message;
@@ -259,6 +265,32 @@ public class ParamsProcessorUtil {
 	    return newParams;
 	}
 	
+	private static final Pattern META_VAR_PATTERN = Pattern.compile("meta_[a-zA-Z][a-zA-Z0-9-]*$");	
+	public static Boolean isMetaValid(String param) {
+		Matcher metaMatcher = META_VAR_PATTERN.matcher(param);
+    if (metaMatcher.matches()) {
+    	return true;
+    }	
+		return false;
+	}
+	
+	public static String removeMetaString(String param) {
+		return StringUtils.removeStart(param, "meta_");
+	}
+	
+	public static Map<String, String> processMetaParam(Map<String, String> params) {
+    Map<String, String> metas = new HashMap<String, String>();
+    for (String key: params.keySet()) {
+    	if (isMetaValid(key)){
+    		// Need to lowercase to maintain backward compatibility with 0.81
+    		String metaName = removeMetaString(key).toLowerCase();
+    		metas.put(metaName, params.get(key));
+		  }   
+    }
+    
+    return metas;
+	}
+	
 	public Meeting processCreateParams(Map<String, String> params) {
 	    String meetingName = params.get("name");
 	    if(meetingName == null){
@@ -289,25 +321,35 @@ public class ParamsProcessorUtil {
 	    int meetingDuration = processMeetingDuration(params.get("duration"));
 	    String welcomeMessage = processWelcomeMessage(params.get("welcome"));
 	    welcomeMessage = substituteKeywords(welcomeMessage, dialNumber, telVoice, meetingName);
-	    	    
+	   
 	    String internalMeetingId = convertToInternalMeetingId(externalMeetingId);
 	    
 	    // Check if this is a test meeting. NOTE: This should not belong here. Extract this out.				
 	    if (isTestMeeting(telVoice)) {
 	      internalMeetingId = getIntMeetingIdForTestMeeting(telVoice);
 	    }
+	   
+	    boolean autoStartRec = autoStartRecording;
+	    if (!StringUtils.isEmpty(params.get("autoStartRecording"))) {
+				try {
+					autoStartRec = Boolean.parseBoolean(params.get("autoStartRecording"));
+				} catch(Exception ex){ 
+					log.warn("Invalid param [autoStartRecording] for meeting=[" + internalMeetingId + "]");
+				}
+	    }
+
+	    boolean allowStartStoptRec = allowStartStopRecording;
+	    if (!StringUtils.isEmpty(params.get("allowStartStopRecording"))) {
+				try {
+					allowStartStoptRec = Boolean.parseBoolean(params.get("allowStartStopRecording"));
+				} catch(Exception ex){ 
+					log.warn("Invalid param [allowStartStopRecording] for meeting=[" + internalMeetingId + "]");
+				}
+	    }
 	    
 	    // Collect metadata for this meeting that the third-party app wants to store if meeting is recorded.
 	    Map<String, String> meetingInfo = new HashMap<String, String>();
-	    for (String key: params.keySet()) {
-	    	if (key.contains("meta")&&key.indexOf("meta")==0){
-	    		String[] meta = key.split("_");
-			    if(meta.length == 2){
-			    	log.debug("Got metadata {} = {}", key, params.get(key));
-			    	meetingInfo.put(meta[1].toLowerCase(), params.get(key));
-			    }
-			}   
-	    }
+	    meetingInfo = processMetaParam(params);
 	    	    
 	    // Create a unique internal id by appending the current time. This way, the 3rd-party
 	    // app can reuse the external meeting id.
@@ -319,7 +361,7 @@ public class ParamsProcessorUtil {
 	        .withName(meetingName).withMaxUsers(maxUsers).withModeratorPass(modPass)
 	        .withViewerPass(viewerPass).withRecording(record).withDuration(meetingDuration)
 	        .withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
-	        .withDefaultAvatarURL(defaultAvatarURL)
+	        .withDefaultAvatarURL(defaultAvatarURL).withAutoStartRecording(autoStartRec).withAllowStartStopRecording(allowStartStoptRec)
 	        .withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build();
 	    
 	    String configXML = getDefaultConfigXML();
@@ -342,7 +384,11 @@ public class ParamsProcessorUtil {
 	}
 	
 	public String getDefaultConfigXML() {
-		return getConfig(defaultConfigURL);
+		if (defaultConfigXML == null) {
+			defaultConfigXML = getConfig(defaultConfigURL);
+		}
+		
+		return defaultConfigXML;
 	}
 	
 	private String getConfig(String url) {
@@ -350,14 +396,19 @@ public class ParamsProcessorUtil {
 		GetMethod get = new GetMethod(url);
 		String configXML = "";
 		try {
-			client.executeMethod(get);
-			configXML = get.getResponseBodyAsString();
+			int status = client.executeMethod(get);
+			if (status == 200) {
+				configXML = get.getResponseBodyAsString();
+			} else {
+				return null;
+			}
+			
 		} catch (HttpException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return null;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return null;
+		} finally {
+			get.releaseConnection();
 		}
 		  		  
 		return configXML;
@@ -547,7 +598,12 @@ public class ParamsProcessorUtil {
 				csbuf.append("=");
 				String encResult;
 
-				try {       
+				encResult = value;
+				
+/*****
+ * Seems like Grails 2.3.6 decodes the string. So we need to re-encode it.
+ * We'll remove this later. richard (aug 5, 2014)						
+*/				try {       
 					// we need to re-encode the values because Grails unencoded it
 					// when it received the 'POST'ed data. Might not need to do in a GET request.
 					encResult = URLEncoder.encode(value, "UTF-8");  
@@ -562,17 +618,23 @@ public class ParamsProcessorUtil {
 
 		String baseString = csbuf.toString();
 
-   // System.out.println( "POST basestring = [" + baseString + "]");
-
+		System.out.println( "POST basestring = [" + baseString + "]");
+		
+		log.debug("POST basestring = [" + baseString + "]");
+		
 		String cs = DigestUtils.shaHex(baseString);
- 		//System.out.println("our checksum: [" + cs + "], client: [" + checksum + "]");
-		//log.debug("our checksum: [{}], client: [{}]", cs, checksum);
+		
+ 		System.out.println("our checksum: [" + cs + "], client: [" + checksum + "]");
+ 		
+		log.debug("our checksum: [{}], client: [{}]", cs, checksum);
 
 		if (cs == null || cs.equals(checksum) == false) {
+			System.out.println("our checksum: [" + cs + "], client: [" + checksum + "]");
 			log.info("checksumError: request did not pass the checksum security check");
 			return false;
 		}
 		log.debug("checksum ok: request passed the checksum security check");
+		
 		return true;
 	}
 
@@ -642,6 +704,14 @@ public class ParamsProcessorUtil {
 
 	public void setDisableRecordingDefault(boolean disabled) {
 		this.disableRecordingDefault = disabled;
+	}
+	
+	public void setAutoStartRecording(boolean start) {
+		this.autoStartRecording = start;
+	}
+
+	public void setAllowStartStopRecording(boolean allowStartStopRecording) {
+		this.allowStartStopRecording = allowStartStopRecording;
 	}
 	
 	public void setdefaultAvatarURL(String url) {

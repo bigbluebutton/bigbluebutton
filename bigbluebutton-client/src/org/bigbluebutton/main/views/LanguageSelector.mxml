@@ -27,12 +27,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<mx:itemRenderer >
 		<mx:Component >
-			<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+			<mx:Box xmlns:mx="http://www.adobe.com/2006/mxml"
 					mouseOver="highlightItem()" 
 					mouseOut="removeHighlightItem()"
 					enabled="true"
 					width="100%"
-					paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
+					paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0"
+					horizontalScrollPolicy="off">
 				<mx:Script>
 					<![CDATA[
 						import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -48,11 +49,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						}
 					]]>
 				</mx:Script>
-				<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
-						paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" id="boxCont" width="100%" backgroundColor="{data == ResourceUtil.getInstance().getPreferredLocaleName() ? 0x7FCEFF : 0xFFFFFF}">
-					<mx:Label paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" text="{data}" width="90"/>
-				</mx:HBox>
-			</mx:HBox>
+				<mx:Box paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" id="boxCont" width="100%" horizontalScrollPolicy="off" backgroundColor="{data == ResourceUtil.getInstance().getPreferredLocaleName() ? 0x7FCEFF : 0xFFFFFF}">
+					<mx:Label paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" text="{data}" width="150"/>
+				</mx:Box>
+			</mx:Box>
 		</mx:Component>
 	</mx:itemRenderer>
 

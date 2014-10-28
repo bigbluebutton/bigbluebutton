@@ -44,12 +44,14 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var name:String;
 		[Bindable] public var talking:Boolean = false;
 		[Bindable] public var phoneUser:Boolean = false;
-		
+    [Bindable] public var listenOnly:Boolean = false;
+    
 		[Bindable] public var disableMyCam:Boolean = false;
 		[Bindable] public var disableMyMic:Boolean = false;
 		[Bindable] public var disableMyPrivateChat:Boolean = false;
 		[Bindable] public var disableMyPublicChat:Boolean = false;
-		
+    [Bindable] public var lockedLayout:Boolean = false;
+    
 		private var _hasStream:Boolean = false;
 		[Bindable]
 		public function get hasStream():Boolean {
@@ -74,6 +76,7 @@ package org.bigbluebutton.main.model.users
 			verifyUserStatus();
 		}
 		
+		public var raiseHandTime:Date;
 		private var _raiseHand:Boolean = false;
 		[Bindable]
 		public function get raiseHand():Boolean {
@@ -81,6 +84,7 @@ package org.bigbluebutton.main.model.users
 		}
 		public function set raiseHand(r:Boolean):void {
 			_raiseHand = r;
+			raiseHandTime = (r ? new Date() : null);
 			verifyUserStatus();
 		}
 		
@@ -97,7 +101,6 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var room:String = "";
 		[Bindable] public var authToken:String = "";
 		[Bindable] public var selected:Boolean = false;
-		[Bindable] public var voiceUserid:Number = 0;
 		
 		private var _voiceMuted:Boolean = false;
 		[Bindable]
@@ -185,6 +188,39 @@ package org.bigbluebutton.main.model.users
 			_status.addStatus(status);
 		}
 		
+    public function userRaiseHand(raised: Boolean):void {
+      raiseHand = raised;
+      if (me) {
+        UserManager.getInstance().getConference().isMyHandRaised = raised;
+      }
+      buildStatus();
+    }
+    
+    public function sharedWebcam(stream: String):void {
+      hasStream = true;
+      streamName = stream;
+      if (hasStream) sendStreamStartedEvent();
+      buildStatus();
+    }
+    
+    public function unsharedWebcam():void {
+      hasStream = false;
+      streamName = "";  
+      buildStatus();
+    }
+    
+    public function presenterStatusChanged(presenter: Boolean):void {
+      this.presenter = presenter;
+      buildStatus();
+    }
+    
+    public function lockStatusChanged(locked: Boolean):void {
+      userLocked = locked;
+      if(me)
+        applyLockSettings();
+      buildStatus();
+    }
+    
 		public function changeStatus(status:Status):void {
 			//_status.changeStatus(status);
 			if (status.name == "presenter") {
@@ -258,7 +294,6 @@ package org.bigbluebutton.main.model.users
 			n.voiceJoined = user.voiceJoined;
 			n.userLocked = user.userLocked;
 			n.voiceMuted = user.voiceMuted;
-			n.voiceUserid = user.voiceUserid;
 			n.disableMyCam = user.disableMyCam;
 			n.disableMyMic = user.disableMyMic;
 			n.disableMyPrivateChat = user.disableMyPrivateChat;
@@ -272,30 +307,32 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function applyLockSettings():void {
+       
 			var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
 			
-			disableMyCam = userLocked && lockSettings.getDisableCam();
-			disableMyMic = userLocked && lockSettings.getDisableMic();
-			disableMyPrivateChat = userLocked && lockSettings.getDisablePrivateChat();
-			disableMyPublicChat = userLocked && lockSettings.getDisablePublicChat();
-			
+			disableMyCam = lockSettings.getDisableCam();
+			disableMyMic = lockSettings.getDisableMic();
+			disableMyPrivateChat = lockSettings.getDisablePrivateChat();
+			disableMyPublicChat = lockSettings.getDisablePublicChat();
+      lockedLayout = lockSettings.getLockedLayout();
+      
 			var dispatcher:Dispatcher = new Dispatcher();
+			dispatcher.dispatchEvent(new LockControlEvent(LockControlEvent.CHANGED_LOCK_SETTINGS));
 			
-			var event:LockControlEvent = new LockControlEvent(LockControlEvent.CHANGED_LOCK_SETTINGS)
-			dispatcher.dispatchEvent(event);
-			
-			//If it's sharing webcam, stop it
-			if(disableMyCam && hasStream){
-				dispatcher.dispatchEvent(new ClosePublishWindowEvent());
-			}
-			
-			//If it's sharing microphone, mute it
-			if(disableMyMic && !UserManager.getInstance().getConference().isMyVoiceMuted()) {
-				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-				e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();
-				e.mute = true;
-				dispatcher.dispatchEvent(e);
-			}
+      if (me && role != MODERATOR && !presenter) {
+  			//If it's sharing webcam, stop it
+  			if (disableMyCam && hasStream){
+  				dispatcher.dispatchEvent(new ClosePublishWindowEvent());
+  			}
+  			
+  			//If it's sharing microphone, mute it
+  			if (disableMyMic && !UserManager.getInstance().getConference().isMyVoiceMuted()) {
+  				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
+  				e.userid = UserManager.getInstance().getConference().getMyUserId();
+  				e.mute = true;
+  				dispatcher.dispatchEvent(e);
+  			}
+      }
 		}
 	}
 }
