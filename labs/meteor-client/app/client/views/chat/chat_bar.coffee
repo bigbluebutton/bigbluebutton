@@ -213,8 +213,6 @@ Template.tabButtons.events
     if id?
       chatTabs.remove(id)
 
-    Meteor.call("deletePrivateChatMessages", getInSession("userId"), @userId)
-
     return false # stops propogation/prevents default
 
   'click .gotUnreadMail': (event) ->
