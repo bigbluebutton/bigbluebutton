@@ -1,7 +1,12 @@
 <template name="chatbar">
 	<div id="{{id}}" {{visibility name}} class="component">
 		<div id="chatbar-contents">
-			<h3 class="title gradientBar"><span class="glyphicon glyphicon-comment"></span> {{title}}</h3>
+            <h3 class="title gradientBar">
+                <span class="glyphicon glyphicon-comment"></span> 
+                {{title}}
+                {{> extraConversations}}
+            </h3>
+
 			{{>tabButtons}} <!-- Display public/options tabs, and private chat tabs -->
 			{{#if getInSession "display_chatPane"}}
 				<div id="chatbody">
@@ -34,6 +39,33 @@
 <template name="chatOptions">
 	<p>Chat Options:</p>
 	{{> optionsFontSize}}
+</template>
+
+<template name="extraConversations">
+    {{#if tooManyConversations}}
+        <div class="btn-group">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Scrollable Menu <span class="caret"></span></button>
+            <ul class="dropdown-menu extraConversationScrollableMenu" role="menu">
+                <!-- <li class="extraConversation"><a href="#">Action</a></li>
+                <li class="extraConversation"><a href="#">Another action</a></li>
+                <li class="extraConversation"><a href="#">Something else here</a></li>
+                <li class="extraConversation"><a href="#">Action</a></li>
+                <li class="extraConversation"><a href="#">Another action</a></li>
+                <li class="extraConversation"><a href="#">Something else here</a></li>
+                <li class="extraConversation"><a href="#">Action</a></li>
+                <li class="extraConversation"><a href="#">Another action</a></li>
+                <li class="extraConversation"><a href="#">Something else here</a></li>
+                <li class="extraConversation"><a href="#">Action</a></li>
+                <li class="extraConversation"><a href="#">Another action</a></li>
+                <li class="extraConversation"><a href="#">Something else here</a></li>
+                <li class="extraConversation"><a href="#">Action</a></li>
+                <li class="extraConversation"><a href="#">Another action</a></li> -->
+                {{#each getExtraConversations}}
+                    <li class="extraConversation" id="{{safeName name}}"><a href="#">{{safeName name}}</a></li>
+                {{/each}}
+            </ul>
+        </div>
+    {{/if}}
 </template>
 
 <!-- Displays and styles an individual message in the chat -->
