@@ -61,6 +61,9 @@ package org.bigbluebutton.main.model
 		 */		
 		public var voicebridge:String;
 
+		/**
+		 * Flag used to enter as a guest
+		 */
 		public var guest:Boolean;
 		
 		/**

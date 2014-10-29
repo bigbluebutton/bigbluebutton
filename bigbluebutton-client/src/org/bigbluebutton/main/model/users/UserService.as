@@ -114,7 +114,7 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.externMeetingID = result.externMeetingID;
 				_conferenceParameters.conference = result.conference;
 				_conferenceParameters.username = result.username;
-				_conferenceParameters.guest = result.guest;
+				_conferenceParameters.guest = (result.guest.toUpperCase() == "TRUE");
 				_conferenceParameters.role = result.role;
 				_conferenceParameters.room = result.room;
 				_conferenceParameters.webvoiceconf = result.webvoiceconf;

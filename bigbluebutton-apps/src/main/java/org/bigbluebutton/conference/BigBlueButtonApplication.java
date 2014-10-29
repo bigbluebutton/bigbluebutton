@@ -155,10 +155,12 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 				lsMap = new HashMap<String, Boolean>();
 			}
 		}
-		//TODO: Where this parameters come from?
-		// Where should guest be?
-		boolean guest = false;//((Boolean) params[7]);
-    	   	    	
+
+		Boolean guest  = false;
+		if (params.length >= 10 && ((Boolean) params[10])) {
+			guest = true;
+		}
+
 		if (record == true) {
 			recorderApplication.createRecordSession(room);
 		}
