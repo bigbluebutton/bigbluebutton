@@ -124,7 +124,7 @@ Meteor.methods
 	u = Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId})
 	if u?
 		Meteor.Users.remove(u._id)
-		console.log "----removed user[" + userId + "] from " + meetingId
+		console.log "----removed user[" + userId + "] from " + meetingId + " dbid:" + u._id
 	else
 		console.log "did not find a user [userId] to delete in meetingid:#{meetingId}"
 

@@ -44,7 +44,7 @@ Meteor.publish 'users', (meetingId, userid) ->
       })
 
   else #subscribing before the user was added to the collection
-    #Meteor.call "validateAuthToken", meetingId, userid, userid
+    Meteor.call "validateAuthToken", meetingId, userid, userid
     console.log "there was no such user #{userid}  in #{meetingId}"
 
 
@@ -52,10 +52,13 @@ Meteor.publish 'users', (meetingId, userid) ->
     # here we need to wait for the user to be added to the Users collection
     # then we can return the cursor
 
-    Meteor.Users.find({meetingId: meetingId}).observe({
-      added: ->
-        console.log "finally user with id:#{userid} joined"
-        return Meteor.Users.find({meetingId: meetingId}, {fields: { 'userId': 0, 'user.userid': 0, 'user.extern_userid': 0, 'user.voiceUser.userid': 0, 'user.voiceUser.web_userid': 0 }})
+    Meteor.Users.find({meetingId: meetingId}).observeChanges({
+      added: (id, user) ->
+        if user?.user?.userid is userid
+          console.log "finally user with id:#{userid} joined"
+          return Meteor.Users.find({meetingId: meetingId}, {fields: { 'userId': 0, 'user.userid': 0, 'user.extern_userid': 0, 'user.voiceUser.userid': 0, 'user.voiceUser.web_userid': 0 }})
+        else
+          console.log "i was not looking for #{user.user.userid}"
     })
 
 

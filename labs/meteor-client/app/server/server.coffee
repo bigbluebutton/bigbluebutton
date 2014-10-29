@@ -19,6 +19,7 @@ Meteor.methods
   getMyInfo: (uId) ->
     u = Meteor.Users.findOne("userId": uId)
     if u?
+      console.log "__server::getMyInfo " + u.userId + " DBID:" +  u._id + "  name:" + u.user.name
       {
         userId: u.userId
         DBID: u._id
