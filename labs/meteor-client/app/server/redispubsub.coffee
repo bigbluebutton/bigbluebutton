@@ -1,8 +1,8 @@
 Meteor.methods
-  # 
+  #
   # I dont know if this is okay to be server side. We need to call it from the router, but I don't know if any harm can be caused
   # by the client calling this
-  # 
+  #
 
   # Construct and send a message to bbb-web to validate the user
   validateAuthToken: (meetingId, userId, authToken) ->
@@ -29,10 +29,10 @@ class Meteor.RedisPubSub
 
     @pubClient = redis.createClient()
     @subClient = redis.createClient()
-        
+
     console.log("Subscribing message on channel: #{Meteor.config.redis.channels.fromBBBApps}")
 
-    #log.info      
+    #log.info
     @subClient.on "psubscribe", Meteor.bindEnvironment(@_onSubscribe)
     @subClient.on "pmessage", Meteor.bindEnvironment(@_onMessage)
 
@@ -65,9 +65,9 @@ class Meteor.RedisPubSub
     ]
 
     if message?.header? and message?.payload?
-      #unless message.header.name in ignoredEventTypes
-      #  console.log "eventType=" + message.header.name #+ "\n"
-      #  console.log jsonMsg
+      unless message.header.name in ignoredEventTypes
+        console.log "eventType=" + message.header.name #+ "\n"
+        console.log jsonMsg
 
       # handle voice events
       if message.header.name in ['user_left_voice_message', 'user_joined_voice_message', 'user_voice_talking_message', 'user_voice_muted_message']
