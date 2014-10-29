@@ -156,7 +156,6 @@ function createUA(username, server, callback) {
 		uri: 'sip:' + encodeURIComponent(username) + '@' + server,
 		wsServers: 'ws://' + server + '/ws',
 		displayName: username,
-		level: 3,
 		register: false,
 		traceSip: true,
 		autostart: false,
@@ -273,8 +272,12 @@ function make_call(username, voiceBridge, server, callback, recall) {
 	};
 	
 	callTimeout = setTimeout(function() {
-		console.log('Ten seconds without updates, retrying the call');
-		make_call(username, voiceBridge, server, callback, true);
+		console.log('Ten seconds without updates sending timeout code');
+		callback({'status':'failed', 'errorcode': 1006}); // Failure on call
+		currentSession = null;
+		var userAgentTemp = userAgent;
+		userAgent = null;
+		userAgentTemp.stop();
 	}, 10000);
 	
 	callActive = false;
@@ -341,6 +344,16 @@ function make_call(username, voiceBridge, server, callback, recall) {
 		
 		console.log('BigBlueButton call started');
 		callback({'status':'started'});
+		clearTimeout(callTimeout);
+	});
+	currentSession.mediaHandler.on('iceFailed', function() {
+		console.log('received ice negotiation failed');
+		callback({'status':'failed', 'errorcode': 1007}); // Failure on call
+		currentSession = null;
+		var userAgentTemp = userAgent;
+		userAgent = null;
+		userAgentTemp.stop();
+		
 		clearTimeout(callTimeout);
 	});
 }
