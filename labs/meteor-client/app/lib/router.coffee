@@ -19,7 +19,7 @@
 
         if meetingId? and userId? and authToken?
           Meteor.call("validateAuthToken", meetingId, userId, authToken)
-          Meteor.call('sendMeetingInfoToClient', meetingId, userId)
+          #Meteor.call('sendMeetingInfoToClient', meetingId, userId)
           self.redirect('/')
         else
           console.log "unable to extract from the URL some of {meetingId, userId, authToken}"
@@ -29,8 +29,11 @@
     path: "/"
     onBeforeAction: ->
       self = @
+      console.log "meetingId:" + getInSession 'meetingId'
+      console.log "userId:" + getInSession 'userId'
+      Meteor.call('sendMeetingInfoToClient', getInSession('meetingId'),getInSession('userId'))
       # Have to check on the server whether the credentials the user has are valid on db, without being able to spam requests for credentials
-      Meteor.subscribe 'users', getInSession('meetingId'), -> # callback for after users have been loaded on client
+      Meteor.subscribe 'users', getInSession('meetingId'), getInSession("userId"), -> # callback for after users have been loaded on client
         Meteor.subscribe 'chat', getInSession('meetingId'), getInSession("userId"), ->
           Meteor.subscribe 'shapes', getInSession('meetingId'), ->
             Meteor.subscribe 'slides', getInSession('meetingId'), ->

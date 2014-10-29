@@ -1,7 +1,20 @@
 # Publish only the users that are in the particular meetingId
 # On the client side we pass the meetingId parameter
-Meteor.publish 'users', (meetingId) ->
-  Meteor.Users.find({meetingId: meetingId}, {fields: { 'userId': 0, 'user.userid': 0, 'user.extern_userid': 0, 'user.voiceUser.userid': 0, 'user.voiceUser.web_userid': 0 }})
+Meteor.publish 'users', (meetingId, userid) ->
+  console.log "publishing users for #{meetingId}, #{userid}"
+
+  if Meteor.Users.find({meetingId: meetingId, userId: userid})?
+    console.log "found it from the first time"
+    return Meteor.Users.find({meetingId: meetingId}, {fields: { 'userId': 0, 'user.userid': 0, 'user.extern_userid': 0, 'user.voiceUser.userid': 0, 'user.voiceUser.web_userid': 0 }})
+  else
+    Meteor.Users.find({meetingId: meetingId}).observe({
+      added: ->
+        console.log "finally user with id:#{userid} joined"
+        return Meteor.Users.find({meetingId: meetingId}, {fields: { 'userId': 0, 'user.userid': 0, 'user.extern_userid': 0, 'user.voiceUser.userid': 0, 'user.voiceUser.web_userid': 0 }})
+    })
+
+
+
 
 Meteor.publish 'chat', (meetingId, userid) ->
   me = Meteor.Users.findOne({meetingId: meetingId, userId: userid})
