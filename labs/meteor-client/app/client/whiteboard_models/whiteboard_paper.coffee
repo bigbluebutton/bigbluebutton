@@ -789,8 +789,8 @@ class Meteor.WhiteboardPaperModel
     # console.log "yEnd: #{yEnd}"
     # console.log "boardWidth: #{boardWidth}"
     # console.log "boardHeight: #{boardHeight}"
-    console.log "imageWidth: #{imageWidth}"
-    console.log "imageHeight: #{imageHeight}"
+    #console.log "imageWidth: #{imageWidth}"
+    #console.log "imageHeight: #{imageHeight}"
 
     currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
     presentationId = currentPresentation?.presentation?.id
