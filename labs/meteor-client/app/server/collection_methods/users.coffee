@@ -186,7 +186,7 @@ Meteor.methods
 				permissions: user.permissions
 				locked: user.locked
 				time_of_joining: user.timeOfJoining
-				user_is_online: false # TODO consider other default value
+				connection_status: "" # TODO consider other default value
 				voiceUser:
 					web_userid: user.voiceUser.web_userid
 					callernum: user.voiceUser.callernum

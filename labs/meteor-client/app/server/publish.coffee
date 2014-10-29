@@ -3,10 +3,55 @@
 Meteor.publish 'users', (meetingId, userid) ->
   console.log "publishing users for #{meetingId}, #{userid}"
 
-  if Meteor.Users.find({meetingId: meetingId, userId: userid})?
-    console.log "found it from the first time"
-    return Meteor.Users.find({meetingId: meetingId}, {fields: { 'userId': 0, 'user.userid': 0, 'user.extern_userid': 0, 'user.voiceUser.userid': 0, 'user.voiceUser.web_userid': 0 }})
-  else
+  if Meteor.Users.findOne({'meetingId': meetingId, 'userId': userid})?
+    console.log "found it from the first time #{userid}"
+
+    u = Meteor.Users.findOne({'userId': userid, 'meetingId': meetingId})
+    console.log "u =" + JSON.stringify u
+    username = u?.user?.name or "UNKNOWN"
+    Meteor.Users.update({'meetingId':meetingId, 'userId': userid}, {$set:{'user.connection_status': "online"}})
+    console.log "username of the subscriber: " + username + ", connection_status becomes online"
+
+    @_session.socket.on("close", Meteor.bindEnvironment(=>
+      console.log "\na user lost connection: session.id=#{@_session.id}
+       userId = #{userid}, username=#{username}, meeting=#{meetingId}"
+      Meteor.Users.update({'meetingId':meetingId, 'userId': userid}, {$set:{'user.connection_status': "offline"}})
+      console.log "username of the user losing connection: " + username + ", connection_status: becomes offline"
+
+      setTimeout(Meteor.bindEnvironment(=>
+        console.log "will check if a user with bbb userid #{userid} is online(managed to reconnect)"
+        result = Meteor.Users.findOne({'userId': userid, 'meetingId': meetingId})?.user?.connection_status
+        console.log "the result here is #{result}"
+        if result is "online"
+          console.log "user #{userid} (#{username}) managed to reconnect in meeting #{meetingId}"
+        else
+          console.log "user #{userid} (#{username}) failed to reconnect in meeting #{meetingId} and will be kicked out of the meeting"
+          #requestUserLeaving(meetingId,  userid, u?._id)
+          Meteor.call "userLogout", meetingId, userid
+        )
+      , 10000) #TODO pick this from config.coffee
+      )
+    )
+
+    Meteor.Users.find(
+      {meetingId: meetingId},
+      {fields:{
+        'userId': 0,
+        'user.userid': 0,
+        'user.extern_userid': 0,
+        'user.voiceUser.userid': 0,
+        'user.voiceUser.web_userid': 0}
+      })
+
+  else #subscribing before the user was added to the collection
+    #Meteor.call "validateAuthToken", meetingId, userid, userid
+    console.log "there was no such user #{userid}  in #{meetingId}"
+
+
+    # TODO
+    # here we need to wait for the user to be added to the Users collection
+    # then we can return the cursor
+
     Meteor.Users.find({meetingId: meetingId}).observe({
       added: ->
         console.log "finally user with id:#{userid} joined"

@@ -155,6 +155,7 @@ Handlebars.registerHelper "visibility", (section) ->
 Meteor.methods
   sendMeetingInfoToClient: (meetingId, userId) ->
     setInSession("userId", userId)
+    console.log "inside globals, sendMeetingInfoToClient (before: #{getInSession("meetingId")}, #{getInSession('userId')}). now: #{meetingId}, #{userId}"
     setInSession("meetingId", meetingId)
     setInSession("currentChatId", meetingId)
     setInSession("meetingName", null)
