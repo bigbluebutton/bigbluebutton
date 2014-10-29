@@ -88,5 +88,4 @@ Template.shape.destroyed = ->
   if whiteboardPaperModel?
     wpm = whiteboardPaperModel
     wpm.clearShapes()
-    displaySlide(wpm)
     manuallyDisplayShapes()
