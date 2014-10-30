@@ -16,15 +16,19 @@ Meteor.methods
   # be much, much better than the user passing in the first part of their
   # credentials and us looking up and suplying them with the second part.
   # It'd be much more secure.
-  getMyInfo: (uId) ->
+  #getMyInfo: (uId) ->
+  #  u = Meteor.Users.findOne("userId": uId)
+  #  if u?
+  #    console.log "__server::getMyInfo " + u.userId + " DBID:" +  u._id + "  name:" + u.user.name
+  #    return  {userId: u.userId, DBID: u._id, name: u.user.name}
+  
+  getMyInfo2: (uId) ->
     u = Meteor.Users.findOne("userId": uId)
     if u?
-      console.log "__server::getMyInfo " + u.userId + " DBID:" +  u._id + "  name:" + u.user.name
-      {
-        userId: u.userId
-        DBID: u._id
-        name: u.user.name
-      }
+      console.log "__2server::getMyInfo " + u.userId + " DBID:" +  u._id + "  name:" + u.user.name
+      return ({userId: u.userId, DBID: u._id, name: u.user.name})
+    else
+      console.log "there was no such user #{uId}"
 
 Meteor.startup ->
   console.log "server start"

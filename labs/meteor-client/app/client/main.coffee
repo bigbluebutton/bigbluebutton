@@ -51,6 +51,12 @@ Template.main.helpers
 Template.makeButton.rendered = ->
   $('button[rel=tooltip]').tooltip()
 
+@grabAllDBID = ->
+  array = []
+  for u in Meteor.Users.find().fetch()
+    array.push(u._id)
+  return array
+
 # These settings can just be stored locally in session, created at start up
 Meteor.startup ->
   @SessionAmplify = _.extend({}, Session,
@@ -68,13 +74,34 @@ Meteor.startup ->
 
   Meteor.autorun ->
     if Meteor.status().connected
-      console.log("connected")
-      console.log "currently my dbid is" + getInSession('DBID')
-      console.log "userId here is " +  getInSession('userId')
-      console.log "and in the collection it is:"
-      console.log  Meteor.Users.find().fetch()
-    else
-      console.log "disconnected"
+      console.log("c0onnected")
+      uid = getInSession("userId")
+      console.log uid
+      # Obtain user info here. for testing. should be moved somewhere else later
+      #Meteor.call "getMyInfo2", uid, ((result) -> console.log "resultaa")
+      Meteor.call "getMyInfo2", uid, (error, result) ->
+        if error? then console.log "error:" + error
+        else
+          console.log result
+          setInSession("DBID", result.DBID)
+          setInSession("userName", result.name)
+
+          Meteor.subscribe 'users', getInSession('meetingId'), getInSession("userId"), -> # callback for after users have been loaded on client
+            Meteor.subscribe 'chat', getInSession('meetingId'), getInSession("userId"), ->
+              Meteor.subscribe 'shapes', getInSession('meetingId'), ->
+                Meteor.subscribe 'slides', getInSession('meetingId'), ->
+                  Meteor.subscribe 'meetings', getInSession('meetingId'), ->
+                    Meteor.subscribe 'presentations', getInSession('meetingId'), ->
+                      Meteor.call('sendMeetingInfoToClient', getInSession('meetingId'), getInSession("userId")) # the dbid may have changed #TODO
+
+
+
+
+
+
+      #console.log "before, the users in the session are:" + grabAllDBID()
+      #Meteor.subscribe 'users', getInSession('meetingId'), getInSession("userId"), -> 
+      #  console.log "after, the users in the session are:" + grabAllDBID()
 
   setInSession "display_usersList", true
   setInSession "display_navbar", true

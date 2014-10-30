@@ -147,7 +147,9 @@ Handlebars.registerHelper "isDisconnected", ->
   str = str.replace http, "<a href='event:$1'><u>$1</u></a>"
   str = str.replace www, "$1<a href='event:http://$2'><u>$2</u></a>"
 
-@setInSession = (k, v) -> SessionAmplify.set k, v
+@setInSession = (k, v) ->
+  if k is "DBID" then  console.log "setInSession #{k}, #{v}"
+  SessionAmplify.set k, v
 
 @currentUserIsMuted = ->
   return Meteor.Users.findOne({_id: getInSession "DBID"})?.user?.voiceUser?.muted
@@ -158,7 +160,7 @@ Handlebars.registerHelper "isDisconnected", ->
 Meteor.methods
   sendMeetingInfoToClient: (meetingId, userId) ->
     setInSession("userId", userId)
-    console.log "inside globals, sendMeetingInfoToClient (before: #{getInSession("meetingId")}, #{getInSession('userId')}). now: #{meetingId}, #{userId}"
+    #console.log "inside globals, sendMeetingInfoToClient (before: #{getInSession("meetingId")}, #{getInSession('userId')}). now: #{meetingId}, #{userId}"
     setInSession("meetingId", meetingId)
     setInSession("currentChatId", meetingId)
     setInSession("meetingName", null)
