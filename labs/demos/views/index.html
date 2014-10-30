@@ -7,13 +7,13 @@
     </head>
     <body>
         <div ng-controller="MainCtrl">
-            <form name="form" ng-submit="postUsername()">
+            <form ng-submit="postUsername()">
                 <label>Username:</label>
                 <input type="text" ng-model="username" placeholder="Enter a name here" required>
                 <label>Meeting name:</label>
                 <input type="text" ng-model="meetingName" placeholder="Enter a meeting name">
                 <label>(e.x. Demo Meeting)</label><br/>
-                <input type="submit" value="Send" ng-disabled="form.$invalid"><br/><br/>
+                <input type="submit" value="Send"><br/><br/>
             </form>
         </div>
     </body>
