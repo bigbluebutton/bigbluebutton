@@ -3,9 +3,10 @@
 Meteor.publish 'users', (meetingId, userid) ->
   console.log "publishing users for #{meetingId}, #{userid}"
 
-  if Meteor.Users.findOne({'meetingId': meetingId, 'userId': userid})?
+  u = Meteor.Users.findOne({'userId': userid, 'meetingId': meetingId})
+  if u?
     console.log "found it from the first time #{userid}"
-    u = Meteor.Users.findOne({'userId': userid, 'meetingId': meetingId})
+    username = u?.user?.name or "UNKNOWN"
     Meteor.Users.update({'meetingId':meetingId, 'userId': userid}, {$set:{'user.connection_status': "online"}})
     console.log "username of the subscriber: " + username + ", connection_status becomes online"
 

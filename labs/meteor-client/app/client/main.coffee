@@ -69,6 +69,10 @@ Meteor.startup ->
   Meteor.autorun ->
     if Meteor.status().connected
       console.log("connected")
+      console.log "currently my dbid is" + getInSession('DBID')
+      console.log "userId here is " +  getInSession('userId')
+      console.log "and in the collection it is:"
+      console.log  Meteor.Users.find().fetch()
     else
       console.log "disconnected"
 

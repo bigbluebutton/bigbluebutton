@@ -34,12 +34,12 @@
       Meteor.call('sendMeetingInfoToClient', getInSession('meetingId'),getInSession('userId'))
       # Have to check on the server whether the credentials the user has are valid on db, without being able to spam requests for credentials
       Meteor.subscribe 'users', getInSession('meetingId'), getInSession("userId"), -> # callback for after users have been loaded on client
-        Meteor.call('sendMeetingInfoToClient', getInSession('meetingId'), getInSession("userId")) # the dbid may have changed #TODO
         Meteor.subscribe 'chat', getInSession('meetingId'), getInSession("userId"), ->
           Meteor.subscribe 'shapes', getInSession('meetingId'), ->
             Meteor.subscribe 'slides', getInSession('meetingId'), ->
               Meteor.subscribe 'meetings', getInSession('meetingId'), ->
                 Meteor.subscribe 'presentations', getInSession('meetingId'), ->
+                  Meteor.call('sendMeetingInfoToClient', getInSession('meetingId'), getInSession("userId")) # the dbid may have changed #TODO
                   # Obtain user info here. for testing. should be moved somewhere else later
                   Meteor.call "getMyInfo", getInSession("userId"), (error, result) ->
                     console.log result
