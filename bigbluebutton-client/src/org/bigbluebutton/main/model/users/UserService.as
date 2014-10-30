@@ -216,7 +216,11 @@ package org.bigbluebutton.main.model.users
 		public function removeStream(e:BroadcastStoppedEvent):void {			
       		sender.removeStream(e.userid, e.stream);
 		}
-		
+	
+        public function changeStatus(e:ChangeStatusEvent):void {
+            sender.changeStatus(e.userId, e.getStatusName());
+        }
+	
 		public function kickUser(e:KickUserEvent):void{
 			if (this.isModerator()) sender.kickUser(e.userid);
 		}
