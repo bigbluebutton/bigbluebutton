@@ -80,7 +80,6 @@ Meteor.startup ->
       Meteor.call "getMyInfo", uid, (error, result) ->
         if error? then console.log "error:" + error
         else
-          console.log result
           setInSession("DBID", result.DBID)
           setInSession("userName", result.name)
 
@@ -91,6 +90,9 @@ Meteor.startup ->
                   Meteor.subscribe 'meetings', getInSession('meetingId'), ->
                     Meteor.subscribe 'presentations', getInSession('meetingId'), ->
                       Meteor.call('sendMeetingInfoToClient', getInSession('meetingId'), getInSession("userId")) # the dbid may have changed #TODO
+                      Meteor.call "getMyInfo", getInSession("userId"), (error, result) ->
+                        setInSession("DBID", result.DBID)
+                        setInSession("userName", result.name)
 
   setInSession "display_usersList", true
   setInSession "display_navbar", true
