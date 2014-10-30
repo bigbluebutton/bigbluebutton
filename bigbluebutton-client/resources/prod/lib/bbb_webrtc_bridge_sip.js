@@ -296,8 +296,7 @@ function make_call(username, voiceBridge, server, callback, recall) {
 	
 	// The connecting event fires before the listener can be added
 	currentSession.on('connecting', function(){
-		//console.log('call connecting');
-		//callback({'status':'connecting'});
+		clearTimeout(callTimeout);
 	});
 	currentSession.on('progress', function(response){
 		console.log('call progress: ' + response);
