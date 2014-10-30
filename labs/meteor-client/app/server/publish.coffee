@@ -1,10 +1,7 @@
 # Publish only the users that are in the particular meetingId
 # On the client side we pass the meetingId parameter
 Meteor.publish 'users', (meetingId, userid) ->
-  array = []
-  for u in Meteor.Users.find({'meetingId':meetingId}).fetch()
-    array.push(u._id)
-  console.log "publishing users for #{meetingId}, #{userid}    " + array
+  console.log "publishing users for #{meetingId}, #{userid}"
 
   u = Meteor.Users.findOne({'userId': userid, 'meetingId': meetingId})
   if u?
@@ -52,7 +49,6 @@ Meteor.publish 'users', (meetingId, userid) ->
         if user?.user?.userid is userid
           console.log "finally user with id:#{userid} joined:" + Meteor.Users.findOne({'meetingId':meetingId, 'userId': userid})._id
           self.added('users', id, user)
-          #return Meteor.Users.find({meetingId: meetingId}, {fields: { 'userId': 0, 'user.userid': 0, 'user.extern_userid': 0, 'user.voiceUser.userid': 0, 'user.voiceUser.web_userid': 0 }})
     })
     self.ready()
     self.onStop(->handle.stop())
@@ -69,19 +65,15 @@ Meteor.publish 'chat', (meetingId, userid) ->
       ]})
 
 Meteor.publish 'shapes', (meetingId) ->
-  console.log "publishing shapes for #{meetingId}"
   Meteor.Shapes.find({meetingId: meetingId})
 
 Meteor.publish 'slides', (meetingId) ->
-  console.log "publishing slides for #{meetingId}"
   Meteor.Slides.find({meetingId: meetingId})
 
 Meteor.publish 'meetings', (meetingId) ->
-  console.log "publishing meetings for #{meetingId}"
   Meteor.Meetings.find({meetingId: meetingId})
 
 Meteor.publish 'presentations', (meetingId) ->
-  console.log "publishing presentations for #{meetingId}"
   Meteor.Presentations.find({meetingId: meetingId})
 
 # Clear all data in subcriptions

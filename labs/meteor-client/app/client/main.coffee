@@ -74,12 +74,10 @@ Meteor.startup ->
 
   Meteor.autorun ->
     if Meteor.status().connected
-      console.log("c0onnected")
+      console.log("connected")
       uid = getInSession("userId")
-      console.log uid
       # Obtain user info here. for testing. should be moved somewhere else later
-      #Meteor.call "getMyInfo2", uid, ((result) -> console.log "resultaa")
-      Meteor.call "getMyInfo2", uid, (error, result) ->
+      Meteor.call "getMyInfo", uid, (error, result) ->
         if error? then console.log "error:" + error
         else
           console.log result
@@ -93,15 +91,6 @@ Meteor.startup ->
                   Meteor.subscribe 'meetings', getInSession('meetingId'), ->
                     Meteor.subscribe 'presentations', getInSession('meetingId'), ->
                       Meteor.call('sendMeetingInfoToClient', getInSession('meetingId'), getInSession("userId")) # the dbid may have changed #TODO
-
-
-
-
-
-
-      #console.log "before, the users in the session are:" + grabAllDBID()
-      #Meteor.subscribe 'users', getInSession('meetingId'), getInSession("userId"), -> 
-      #  console.log "after, the users in the session are:" + grabAllDBID()
 
   setInSession "display_usersList", true
   setInSession "display_navbar", true
