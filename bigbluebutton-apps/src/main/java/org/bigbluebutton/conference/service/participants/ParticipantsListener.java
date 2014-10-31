@@ -32,8 +32,7 @@ public class ParticipantsListener implements MessageHandler{
 			if(eventName.equalsIgnoreCase("register_user_request") ||
 				eventName.equalsIgnoreCase("user_left_event") ||
 				eventName.equalsIgnoreCase("user_joined_event") ||
-				eventName.equalsIgnoreCase("get_users_request") ||
-				eventName.equalsIgnoreCase("raise_user_hand_request")){
+				eventName.equalsIgnoreCase("get_users_request")){
 
 				String roomName = payloadObject.get("meeting_id").toString().replace("\"", "");
 
@@ -57,18 +56,6 @@ public class ParticipantsListener implements MessageHandler{
 				else if(eventName.equalsIgnoreCase("get_users_request")){
 					String requesterID = payloadObject.get("requester_id").toString().replace("\"", "");
 					bbbInGW.getUsers(roomName, requesterID);
-				}
-				else if(eventName.equalsIgnoreCase("raise_user_hand_request")){
-					String userID = payloadObject.get("user_id").toString().replace("\"", "");
-					boolean raise = Boolean.parseBoolean(payloadObject.get("raise").toString().replace("\"", ""));
-
-					if(raise){
-						bbbInGW.userRaiseHand(roomName, userID);
-					}
-					else {
-						String requesterID = payloadObject.get("requester_id").toString().replace("\"", "");
-						bbbInGW.lowerHand(roomName, userID, requesterID);
-					}
 				}
 			}
 		}

@@ -26,14 +26,6 @@ public class ParticipantsApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsApplication.class, "bigbluebutton" );	
 	private IBigBlueButtonInGW bbbInGW;
 
-	public void userRaiseHand(String meetingId, String userId) {
-		bbbInGW.userRaiseHand(meetingId, userId);
-	}
-	
-	public void lowerHand(String meetingId, String userId, String loweredBy) {
-		bbbInGW.lowerHand(meetingId, userId, loweredBy);
-	}
-	
 	public void ejectUserFromMeeting(String meetingId, String userId, String ejectedBy) {
 		bbbInGW.ejectUserFromMeeting(meetingId, userId, ejectedBy);
 	}

@@ -389,7 +389,7 @@ package org.bigbluebutton.modules.users.services
     }
     
     private function handleGetUsersReply(msg:Object):void {
-      trace(LOG + "*** handleGetUsersReply " + msg.msg + " **** \n");      
+      LogUtil.debug(LOG + "*** handleGetUsersReply " + msg.msg + " **** \n");
       var map:Object = JSON.parse(msg.msg);
       var users:Object = map.users as Array;
       
@@ -485,6 +485,18 @@ package org.bigbluebutton.modules.users.services
       UserManager.getInstance().getConference().unsharedWebcam(map.userId);
     }
     
+    public function participantStatusChange(userID:String, status:String, value:Object):void {
+      trace(LOG + "Received status change [" + userID + "," + status + "," + value + "]")			
+      UserManager.getInstance().getConference().newUserStatus(userID, status, value);
+      
+      if (status == "presenter"){
+        var e:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.PRESENTER_NAME_CHANGE);
+        e.userID = userID;
+        
+        dispatcher.dispatchEvent(e);
+      }		
+    }
+    
     public function participantJoined(joinedUser:Object):void {      
       trace(LOG + "*** participantJoined [" + joinedUser.userId + "] **** \n");
       var user:BBBUser = new BBBUser();
@@ -507,7 +519,11 @@ package org.bigbluebutton.modules.users.services
       }
       
       UserManager.getInstance().getConference().presenterStatusChanged(user.userID, joinedUser.presenter);
-           
+
+      participantStatusChange(user.userID, "hasStream", joinedUser.hasStream);
+      participantStatusChange(user.userID, "presenter", joinedUser.presenter);
+      participantStatusChange(user.userID, "mood", joinedUser.mood);
+
       var joinEvent:UserJoinedEvent = new UserJoinedEvent(UserJoinedEvent.JOINED);
       joinEvent.userID = user.userID;
       dispatcher.dispatchEvent(joinEvent);	

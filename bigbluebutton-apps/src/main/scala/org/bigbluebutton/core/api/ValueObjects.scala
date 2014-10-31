@@ -58,12 +58,13 @@ case class Voice(
   talking: Boolean
 )
 
+
 case class UserVO(
   userID: String, 
   externUserID: String, 
   name: String, 
   role: Role.Role, 
-  raiseHand: Boolean, 
+  mood: String, 
   presenter: Boolean, 
   hasStream: Boolean, 
   locked: Boolean, 
