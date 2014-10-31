@@ -116,4 +116,12 @@ public interface IBigBlueButtonInGW {
 	void enableWhiteboard(String meetingID, String requesterID, Boolean enable);
 	void isWhiteboardEnabled(String meetingID, String requesterID, String replyTo);
 	
+	// Shared notes
+	void patchDocument(String meetingID, String requesterID, String noteID,
+			String patch, int beginIndex, int endIndex);
+	void getCurrentDocument(String meetingID, String requesterID);
+	void createAdditionalNotes(String meetingID, String requesterID);
+	void destroyAdditionalNotes(String meetingID, String requesterID,
+			String noteID);
+	
 }

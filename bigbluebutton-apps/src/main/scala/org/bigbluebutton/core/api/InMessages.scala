@@ -502,3 +502,30 @@ case class IsWhiteboardEnabledRequest(
     requesterID: String,
     replyTo: String
 ) extends InMessage
+
+// Shared notes
+case class PatchDocumentRequest(
+    meetingID: String, 
+    requesterID: String,
+    noteID: String,
+    patch: String,
+    beginIndex: Int,
+    endIndex: Int
+) extends InMessage
+
+case class GetCurrentDocumentRequest(
+    meetingID: String, 
+    requesterID: String
+) extends InMessage
+
+case class CreateAdditionalNotesRequest(
+    meetingID: String, 
+    requesterID: String
+) extends InMessage
+
+case class DestroyAdditionalNotesRequest(
+    meetingID: String, 
+    requesterID: String,
+    noteID: String
+) extends InMessage
+
