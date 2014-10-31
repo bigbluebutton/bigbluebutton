@@ -17,7 +17,13 @@ Template.slide.rendered = ->
     originalHeight = this.height
 
     boardWidth = $("#whiteboard").width()
-    boardHeight = $("#whiteboard").height() - $("#whiteboard-navbar").height() - 10
+
+    whiteboardBottom = $("#whiteboard").offset().top + $("#whiteboard").height()
+    footerTop = $(".myFooter").offset().top
+    if footerTop < whiteboardBottom
+      boardHeight = footerTop - $("#whiteboard").offset().top - $("#whiteboard-navbar").height() - 10
+    else
+      boardHeight = $("#whiteboard").height() - $("#whiteboard-navbar").height() - 10
 
     if originalWidth <= originalHeight
       adjustedWidth = boardHeight * originalWidth / originalHeight
