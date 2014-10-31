@@ -44,9 +44,6 @@ Template.slide.rendered = ->
         adjustedWidth = boardWidth
       $("#whiteboard-paper").width(adjustedWidth)
 
-    height = $('#whiteboard').height()
-    $('#whiteboard-paper').height((height-$("#whiteboard-navbar").height()-10)+'px')
-
     wpm._displayPage(currentSlide?.slide?.png_uri, originalWidth, originalHeight)
     manuallyDisplayShapes()
     wpm.scale(adjustedWidth, adjustedHeight)
