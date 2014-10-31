@@ -157,14 +157,13 @@ Handlebars.registerHelper "isDisconnected", ->
 @isSharingAudio = ->
   return Meteor.Users.findOne({_id: getInSession "DBID"})?.user?.voiceUser?.joined
 
-Meteor.methods
-  sendMeetingInfoToClient: (meetingId, userId) ->
+@sendMeetingInfoToClient = (meetingId, userId) ->
     setInSession("userId", userId)
-    #console.log "inside globals, sendMeetingInfoToClient (before: #{getInSession("meetingId")}, #{getInSession('userId')}). now: #{meetingId}, #{userId}"
     setInSession("meetingId", meetingId)
-    setInSession("currentChatId", meetingId)
+    setInSession("currentChatId", meetingId) #TODO check if this is needed
     setInSession("meetingName", null)
     setInSession("userName", null)
+
 
 @toggleCam = (event) ->
   # Meteor.Users.update {_id: context._id} , {$set:{"user.sharingVideo": !context.sharingVideo}}
