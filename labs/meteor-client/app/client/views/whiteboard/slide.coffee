@@ -13,40 +13,10 @@ Template.slide.rendered = ->
   wpm.create()
   pic = new Image()
   pic.onload = ->
-    originalWidth = this.width
-    originalHeight = this.height
-
-    boardWidth = $("#whiteboard").width()
-
-    whiteboardBottom = $("#whiteboard").offset().top + $("#whiteboard").height()
-    footerTop = $(".myFooter").offset().top
-    if footerTop < whiteboardBottom
-      boardHeight = footerTop - $("#whiteboard").offset().top - $("#whiteboard-navbar").height() - 10
-    else
-      boardHeight = $("#whiteboard").height() - $("#whiteboard-navbar").height() - 10
-
-    if originalWidth <= originalHeight
-      adjustedWidth = boardHeight * originalWidth / originalHeight
-      $('#whiteboard-paper').width(adjustedWidth)
-      if boardWidth < adjustedWidth
-        adjustedHeight = boardHeight * boardWidth / adjustedWidth
-        adjustedWidth = boardWidth
-      else
-        adjustedHeight = boardHeight
-      $("#whiteboard-paper").height(adjustedHeight)
-    else
-      adjustedHeight = boardWidth * originalHeight / originalWidth
-      $('#whiteboard-paper').height(adjustedHeight)
-      if boardHeight < adjustedHeight
-        adjustedWidth = boardWidth * boardHeight / adjustedHeight
-        adjustedHeight = boardHeight
-      else
-        adjustedWidth = boardWidth
-      $("#whiteboard-paper").width(adjustedWidth)
-
-    wpm._displayPage(currentSlide?.slide?.png_uri, originalWidth, originalHeight)
+    adjustedDimensions = scaleSlide(this.width, this.height)
+    wpm._displayPage(currentSlide?.slide?.png_uri, this.width, this.height)
     manuallyDisplayShapes()
-    wpm.scale(adjustedWidth, adjustedHeight)
+    wpm.scale(adjustedDimensions.width, adjustedDimensions.height)
 
   pic.src = currentSlide?.slide?.png_uri
 
@@ -64,6 +34,37 @@ Template.slide.rendered = ->
         shapeInfo?.points[num] = shapeInfo?.points[num] / 100
     wpm?.makeShape(shapeType, shapeInfo)
     wpm?.updateShape(shapeType, shapeInfo)
+
+@scaleSlide = (originalWidth, originalHeight) ->
+  boardWidth = $("#whiteboard").width()
+
+  whiteboardBottom = $("#whiteboard").offset().top + $("#whiteboard").height()
+  footerTop = $(".myFooter").offset().top
+  if footerTop < whiteboardBottom
+    boardHeight = footerTop - $("#whiteboard").offset().top - $("#whiteboard-navbar").height() - 10
+  else
+    boardHeight = $("#whiteboard").height() - $("#whiteboard-navbar").height() - 10
+
+  if originalWidth <= originalHeight
+    adjustedWidth = boardHeight * originalWidth / originalHeight
+    $('#whiteboard-paper').width(adjustedWidth)
+    if boardWidth < adjustedWidth
+      adjustedHeight = boardHeight * boardWidth / adjustedWidth
+      adjustedWidth = boardWidth
+    else
+      adjustedHeight = boardHeight
+    $("#whiteboard-paper").height(adjustedHeight)
+  else
+    adjustedHeight = boardWidth * originalHeight / originalWidth
+    $('#whiteboard-paper').height(adjustedHeight)
+    if boardHeight < adjustedHeight
+      adjustedWidth = boardWidth * boardHeight / adjustedHeight
+      adjustedHeight = boardHeight
+    else
+      adjustedWidth = boardWidth
+    $("#whiteboard-paper").width(adjustedWidth)
+
+  { width: adjustedWidth, height: adjustedHeight }
 
 Template.slide.helpers
   updatePointerLocation: (pointer) ->
