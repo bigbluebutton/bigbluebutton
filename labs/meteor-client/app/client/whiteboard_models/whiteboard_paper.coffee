@@ -774,6 +774,7 @@ class Meteor.WhiteboardPaperModel
     # boardWidth = xEnd - xBegin
     # boardHeight = yEnd - yBegin
 
+    @_updateContainerDimensions()
     boardWidth = @containerWidth
     boardHeight = @containerHeight
 
