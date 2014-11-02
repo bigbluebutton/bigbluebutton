@@ -127,7 +127,12 @@ Handlebars.registerHelper "messageFontSize", ->
 
 Handlebars.registerHelper "pointerLocation", ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-  currentPresentation?.pointer
+  presentationId = currentPresentation?.presentation?.id
+  currentSlideDoc = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+  pointer = currentPresentation?.pointer
+  pointer.x = (- currentSlideDoc.slide.x_offset * 2 + currentSlideDoc.slide.width_ratio * pointer.x) / 100
+  pointer.y = (- currentSlideDoc.slide.y_offset * 2 + currentSlideDoc.slide.height_ratio * pointer.y) / 100
+  pointer
 
 Handlebars.registerHelper "setInSession", (k, v) -> SessionAmplify.set k, v 
 
