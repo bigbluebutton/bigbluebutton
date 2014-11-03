@@ -24,8 +24,6 @@ package org.bigbluebutton.modules.present.events
 		public static const OPEN_DOWNLOAD_WINDOW:String = "OPEN_DOWNLOAD_WINDOW";
 		public static const CLOSE_DOWNLOAD_WINDOW:String = "CLOSE_DOWNLOAD_WINDOW";
 		public static const DOWNLOAD_PRESENTATION:String = "DOWNLOAD_PRESENTATION";
-		public static const UPDATE_FILE_NAMES:String = "UPDATE_FILE_NAMES";
-		public static const ADD_NEW_FILENAME:String = "ADD_NEW_FILENAME";
 
 		public var fileNameToDownload:String;	
 		

@@ -34,18 +34,18 @@ package org.bigbluebutton.modules.present.managers
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
-	import org.bigbluebutton.modules.present.events.DownloadEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
+	import org.bigbluebutton.modules.present.events.DownloadEvent;
 	import org.bigbluebutton.modules.present.model.PresentationModel;
-		import org.bigbluebutton.modules.present.ui.views.FileDownloadWindow;
 	import org.bigbluebutton.modules.present.ui.views.FileUploadWindow;
+	import org.bigbluebutton.modules.present.ui.views.FileDownloadWindow;
 	import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 	
 	public class PresentManager
 	{
 		private var globalDispatcher:Dispatcher;
-		private var downloadWindow:FileDownloadWindow;
 		private var uploadWindow:FileUploadWindow;
+		private var downloadWindow:FileDownloadWindow;
 		private var presentWindow:PresentationWindow;
 		
 		public function PresentManager() {
@@ -71,25 +71,6 @@ package org.bigbluebutton.modules.present.managers
 			event.window = window;
 			globalDispatcher.dispatchEvent(event);
 		}
-
-		public function handleOpenDownloadWindow():void{
-			if (downloadWindow != null) return;
-		
-			downloadWindow = new FileDownloadWindow();
-
-			var width:int = Application(FlexGlobals.topLevelApplication).systemManager.screen.width;
-			var height:int = Application(FlexGlobals.topLevelApplication).systemManager.screen.height;
-
-			downloadWindow.x = (width - downloadWindow.width) / 2;
-			downloadWindow.y = (height - downloadWindow.height) / 2;
-	
-			mx.managers.PopUpManager.addPopUp(downloadWindow, presentWindow, true);
-		}
-		
-		public function handleCloseDownloadWindow():void{
-			PopUpManager.removePopUp(downloadWindow);
-			downloadWindow = null;
-		}
 	
 		public function handleOpenUploadWindow(e:UploadEvent):void{
 			if (uploadWindow != null) return;
@@ -108,6 +89,25 @@ package org.bigbluebutton.modules.present.managers
 		public function handleCloseUploadWindow():void{
 			PopUpManager.removePopUp(uploadWindow);
 			uploadWindow = null;
+		}
+
+		public function handleOpenDownloadWindow():void {
+			if (downloadWindow != null) return;
+			
+			downloadWindow = new FileDownloadWindow();
+
+			var width:int = Application(FlexGlobals.topLevelApplication).systemManager.screen.width;
+			var height:int = Application(FlexGlobals.topLevelApplication).systemManager.screen.height;
+			
+			downloadWindow.x = (width - downloadWindow.width) / 2;
+			downloadWindow.y = (height - downloadWindow.height) / 2;
+			
+			mx.managers.PopUpManager.addPopUp(downloadWindow, presentWindow, true);
+		}
+
+		public function handleCloseDownloadWindow():void {
+			PopUpManager.removePopUp(downloadWindow);
+			downloadWindow = null;
 		}
 	}
 }

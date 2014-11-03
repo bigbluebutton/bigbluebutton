@@ -39,7 +39,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import mx.validators.*;			
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
-      import org.bigbluebutton.modules.present.events.DownloadEvent
+      import org.bigbluebutton.modules.present.events.DownloadEvent;
+      import org.bigbluebutton.modules.present.model.PresentationModel;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 
       [Bindable] private var downloadablePresentations:ArrayCollection;

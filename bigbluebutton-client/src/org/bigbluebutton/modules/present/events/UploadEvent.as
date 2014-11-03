@@ -33,7 +33,6 @@ package org.bigbluebutton.modules.present.events
 		public var data:Object;
 		public var completedSlides:Number;
 		public var totalSlides:Number;
-		public var isDownloadable:Boolean;
 		public var percentageComplete:Number;
 		public var maximumSupportedNumberOfSlides:int;
 		public var maxFileSize:Number;

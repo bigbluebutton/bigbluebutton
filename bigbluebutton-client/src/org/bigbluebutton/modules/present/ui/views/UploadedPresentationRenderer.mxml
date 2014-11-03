@@ -42,7 +42,7 @@
     ]]>
   </mx:Script>
   <mx:Label id="presentationNameLabel" width="{this.width-showBtn.width-deleteBtn.width-30}" text="{data.name as String}" styleName="presentationNameLabelStyle"/>
-  <mx:Image id="isDownloadable" visible="{data.isDownloadable as Boolean}" 
+  <mx:Image id="isDownloadable" visible="{data.downloadable as Boolean}"
              toolTip="{ResourceUtil.getInstance().getString('bbb.filedownload.thisFileIsDownloadable')}"
              verticalAlign="middle" />
   <mx:Button id="showBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn')}" 
