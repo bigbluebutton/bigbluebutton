@@ -271,7 +271,10 @@ package org.bigbluebutton.common
 	public var pollIcon:Class;		
 
 		[Embed(source="assets/images/disk.png")]
-		public var disk:Class;		
+		public var disk:Class;
+
+		[Embed(source="assets/images/disk_grayscale.png")]
+		public var disk_grayscale:Class;		
 
 		[Embed(source="assets/images/folder.png")]
 		public var folder:Class;		
