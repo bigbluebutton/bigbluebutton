@@ -49,6 +49,9 @@ class Meteor.WhiteboardPaperModel
     @adjustedWidth = 0
     @adjustedHeight = 0
 
+    @widthRatio = 100
+    @heightRatio = 100
+
   # Override the close() to unbind events.
   unbindEvents: ->
     $(window).off "resize.whiteboard_paper"
@@ -165,6 +168,9 @@ class Meteor.WhiteboardPaperModel
 
     # TODO: other places might also required an update in these dimensions
     @_updateContainerDimensions()
+
+    @_updateZoomRatios()
+    @cursor.setRadius(6 * @widthRatio / 100)
 
     img
 
@@ -352,6 +358,7 @@ class Meteor.WhiteboardPaperModel
 
   createCursor: ->
     @cursor = new WhiteboardCursorModel(@raphaelObj)
+    @cursor.setRadius(6 * @widthRatio / 100)
     @cursor.draw()
 
   # Updated a shape `shape` with the data in `data`.
@@ -550,6 +557,11 @@ class Meteor.WhiteboardPaperModel
 
     @containerOffsetLeft = $container.offset()?.left
     @containerOffsetTop = $container.offset()?.top
+
+  _updateZoomRatios: ->
+    currentSlideDoc = getCurrentSlideDoc()
+    @widthRatio = currentSlideDoc.slide.width_ratio
+    @heightRatio = currentSlideDoc.slide.height_ratio
 
   # Retrieves an image element from the paper.
   # The url must be in the slides array.
@@ -816,6 +828,8 @@ class Meteor.WhiteboardPaperModel
         newRatio = (newDoc.slide.width_ratio + newDoc.slide.height_ratio) / 2
         _this?.currentShapes?.forEach (shape) ->
           shape.attr "stroke-width", shape.attr('stroke-width') * oldRatio  / newRatio
+
+        _this.cursor.setRadius(6 * newDoc.slide.width_ratio / 100)
 
     if originalWidth <= originalHeight
       # square => boardHeight is the shortest side
