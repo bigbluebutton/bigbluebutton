@@ -23,6 +23,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    case msg: DisconnectUser                         => handleDisconnectUser(msg)
 	    case msg: PresenterAssigned                      => handleAssignPresenter(msg)
 	    case msg: UserJoined                             => handleUserJoined(msg)
+	    case msg: JoinMeetingReply                       => handleJoinMeetingReply(msg)
 	    case msg: UserLeft                               => handleUserLeft(msg)
 	    case msg: UserStatusChange                       => handleUserStatusChange(msg)
 	    case msg: UserRaisedHand                         => handleUserRaisedHand(msg)
@@ -354,19 +355,25 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  val gson = new Gson();
   	message.put("msg", gson.toJson(args))
 
-//  println("UsersClientMessageSender - joinMeetingReply \n" + message.get("msg") + "\n")
-			
-  	var jmr = new DirectClientMessage(msg.meetingID, msg.user.userID, "joinMeetingReply", message);
-  	service.sendMessage(jmr);
-  	  
 //  println("UsersClientMessageSender - handleUserJoined \n" + message.get("msg") + "\n")
   	    
   	var m = new BroadcastClientMessage(msg.meetingID, "participantJoined", message);
   	service.sendMessage(m);
 	}
 
-	
-	
+	private def handleJoinMeetingReply(msg: JoinMeetingReply):Unit = {
+		var args = new HashMap[String, Object]();
+		args.put("user", buildUserHashMap(msg.user));
+
+		val message = new java.util.HashMap[String, Object]()
+		val gson = new Gson();
+		message.put("msg", gson.toJson(args))
+
+//  println("UsersClientMessageSender - joinMeetingReply \n" + message.get("msg") + "\n")
+		var jmr = new DirectClientMessage(msg.meetingID, msg.user.userID, "joinMeetingReply", message);
+		service.sendMessage(jmr);
+	}
+
 	private def handleUserLeft(msg: UserLeft):Unit = {
 	  var args = new HashMap[String, Object]();	
 	  args.put("user", buildUserHashMap(msg.user));

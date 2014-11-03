@@ -86,8 +86,8 @@ public class MeetingService implements MessageListener {
 		sessions.put(token, user);
 	}
 	
-	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken) {
-		handle(new RegisterUser(meetingID, internalUserId, fullname, role, externUserID, authToken));
+	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken, String guest) {
+		handle(new RegisterUser(meetingID, internalUserId, fullname, role, externUserID, authToken, guest));
 	}
 	
 	public UserSession getUserSession(String token) {

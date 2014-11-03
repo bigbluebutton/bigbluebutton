@@ -382,25 +382,27 @@ package org.bigbluebutton.modules.users.services
       
       UsersService.getInstance().userLeft(webUser);
       
-      var user:BBBUser = UserManager.getInstance().getConference().getUser(webUserId);
-      
-      trace(LOG + "Notify others that user [" + user.userID + ", " + user.name + "] is leaving!!!!");
-      
-      // Flag that the user is leaving the meeting so that apps (such as avatar) doesn't hang
-      // around when the user already left.
-      user.isLeavingFlag = true;
-
-      if(user.amIGuest()) {
+      if(webUser.guest) {
         var e:RemoveGuestRequestEvent = new RemoveGuestRequestEvent(RemoveGuestRequestEvent.GUEST_EVENT);
-        e.userid = user.userID;
+        e.userid = webUser.userID;
         dispatcher.dispatchEvent(e);
       }
 
-      var joinEvent:UserLeftEvent = new UserLeftEvent(UserLeftEvent.LEFT);
-      joinEvent.userID = user.userID;
-      dispatcher.dispatchEvent(joinEvent);	
-      
-      UserManager.getInstance().getConference().removeUser(webUserId);	        
+      var user:BBBUser = UserManager.getInstance().getConference().getUser(webUserId);
+      // If the user is null, it was a rejected guest
+      if(user != null) {
+        trace(LOG + "Notify others that user [" + user.userID + ", " + user.name + "] is leaving!!!!");
+
+        // Flag that the user is leaving the meeting so that apps (such as avatar) doesn't hang
+        // around when the user already left.
+        user.isLeavingFlag = true;
+
+        var joinEvent:UserLeftEvent = new UserLeftEvent(UserLeftEvent.LEFT);
+        joinEvent.userID = user.userID;
+        dispatcher.dispatchEvent(joinEvent);
+
+        UserManager.getInstance().getConference().removeUser(webUserId);
+      }
     }
     
     public function handleParticipantJoined(msg:Object):void {
