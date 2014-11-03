@@ -183,6 +183,19 @@ package org.bigbluebutton.modules.present.model
       trace(LOG + "Could not find presentation [" + presId + "].");
       return null;      
     }
+
+    public function getDownloadablePresentations():ArrayCollection {
+      var presos:ArrayCollection = new ArrayCollection();
+      
+      for (var i:int = 0; i < _presentations.length; i++) {
+        var pres: Presentation = _presentations.getItemAt(i) as Presentation;
+        if (pres.downloadable) {
+          presos.addItem(pres);
+        }
+      }
+      
+      return presos;
+    }
   }
 }
 

@@ -42,7 +42,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.present.events.DownloadEvent
       import org.bigbluebutton.util.i18n.ResourceUtil;
 
-      [Bindable] public var fileNamesToDownload:ArrayCollection;
+      [Bindable] private var downloadablePresentations:ArrayCollection;
  
       override public function move(x:Number, y:Number):void
       {
@@ -50,7 +50,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function initData():void {
-  
+        downloadablePresentations = PresentationModel.getInstance().getDownloadablePresentations();
       }
 
   ]]>
@@ -72,7 +72,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <mx:Spacer width="10"/>
       <mx:List id="presentationNamesList" width="90%" height="200" alternatingItemColors="[#EFEFEF, #FEFEFE]" allowMultipleSelection="false"
                itemRenderer="org.bigbluebutton.modules.present.ui.views.DownloadPresentationRenderer"
-               dragEnabled="false" dataProvider="{fileNamesToDownload}">
+               dragEnabled="false" dataProvider="{downloadablePresentations}">
       </mx:List>
     </mx:HBox>
     <mx:Spacer height="5"/>

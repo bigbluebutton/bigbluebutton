@@ -1,7 +1,8 @@
 package org.bigbluebutton.core.apps.presentation
 
 case class Presentation(id: String, name: String, current: Boolean = false, 
-                        pages: scala.collection.immutable.HashMap[String, Page])
+                        pages: scala.collection.immutable.HashMap[String, Page],
+                        downloadable: Boolean)
                         
 case class Page(id: String, num: Int,  
                 thumbUri: String = "",

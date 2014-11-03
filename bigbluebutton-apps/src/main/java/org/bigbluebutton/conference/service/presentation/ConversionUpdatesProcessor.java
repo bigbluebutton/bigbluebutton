@@ -19,7 +19,8 @@
 package org.bigbluebutton.conference.service.presentation;
 
 import org.slf4j.Logger;
-import org.red5.logging.Red5LoggerFactory;
+import org.red5.logging.Red5LoggerFactory;
+
 public class ConversionUpdatesProcessor {
 	private static Logger log = Red5LoggerFactory.getLogger(ConversionUpdatesProcessor.class, "bigbluebutton");
 
@@ -48,9 +49,9 @@ public class ConversionUpdatesProcessor {
 	
 	public void sendConversionCompleted(String messageKey, String conference, 
             String code, String presId, Integer numberOfPages, String presName,
-            String presBaseUrl) {
+            String presBaseUrl, Boolean presDownloadable) {
 		presentationApplication.sendConversionCompleted(messageKey, conference, 
-	            code, presId, numberOfPages, presName, presBaseUrl);
+	            code, presId, numberOfPages, presName, presBaseUrl, presDownloadable);
 	}
 	
 	public void setPresentationApplication(PresentationApplication a) {
