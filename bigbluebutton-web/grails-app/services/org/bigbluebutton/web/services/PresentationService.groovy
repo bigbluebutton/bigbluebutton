@@ -160,7 +160,7 @@ class PresentationService {
 	def getFile = {conf, room, presentationName ->
 		println "download request for $presentationName"
 		def fileDirectory = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
-		"download")
+"download")
 		//list the files of the download directory ; it must have only 1 file to download
 		def list = fileDirectory.listFiles()
 		//new File(pdfFile)
