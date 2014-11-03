@@ -83,7 +83,7 @@
 					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK);
 				});
 
-				textArea.addEventListener(KeyboardEvent.KEY_DOWN, function(e:Event):void {
+				textArea.addEventListener(TextEvent.TEXT_INPUT, function(e:Event):void {
 					if (!sendUpdateTimer.running) {
 						sendUpdateTimer.reset();
 						sendUpdateTimer.start();
