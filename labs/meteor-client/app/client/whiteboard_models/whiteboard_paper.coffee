@@ -368,6 +368,8 @@ class Meteor.WhiteboardPaperModel
 
   # Make a shape `shape` with the data in `data`.
   makeShape: (shape, data) ->
+    data.thickness *= @adjustedWidth / 1000
+
     tool = null
 
     @current[shape] = @_createTool(shape)
@@ -466,6 +468,10 @@ class Meteor.WhiteboardPaperModel
     newWidth = @adjustedWidth * widthRatio / 100
     newHeight = @adjustedHeight * heightRatio / 100
     @raphaelObj.setViewBox(newX, newY, newWidth, newHeight) # zooms and pans
+
+  setAdjustedDimensions: (width, height) ->
+    @adjustedWidth = width
+    @adjustedHeight = height
 
   # Registers listeners for events in the gloval event bus
   _registerEvents: ->

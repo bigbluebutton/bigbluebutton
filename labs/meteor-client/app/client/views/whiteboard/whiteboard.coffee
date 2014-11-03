@@ -7,6 +7,7 @@ Template.whiteboard.rendered = ->
       adjustedDimensions = scaleSlide(this.width, this.height)
 
       wpm = whiteboardPaperModel
+      wpm.setAdjustedDimensions(adjustedDimensions.width, adjustedDimensions.height)
       wpm.clearShapes()
       wpm.clearCursor()
       manuallyDisplayShapes()
