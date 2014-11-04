@@ -1,115 +1,131 @@
-bottomEntry{
-    border: none;
-    padding-bottom: 0px;
-    padding-top: 0px;
+bottomEntry {
+	border: none;
+	padding-bottom: 0px;
+	padding-top: 0px;
 }
-.chat{
-    list-style: none;
-    margin: 0px;
-    padding: 0px;
+
+.chat {
+	list-style: none;
+	margin: 0px;
+	padding: 0px;
 }
+
 #chat {
-    background-color: #f5f5f5;
-    border: 1px solid #ccc;
-    float: left;
-    min-height:500px;
-    overflow: hidden;
-    width: 25%;
-    margin-right: 0.5%;
+	background-color: #f5f5f5;
+	border: 1px solid #ccc;
+	float: left;
+	margin-right: 0.5%;
+	min-height: 500px;
+	overflow: hidden;
+	width: 25%;
 }
-.chat li{
-    border-bottom: 1px dotted #B3A9A9;
-    margin: 0px;
-    padding-bottom: 5px;
-    padding-left: 15px;
-    padding-right: 15px;
-    padding-top: 5px;
-    word-wrap:break-word;
+
+.chat li {
+	border-bottom: 1px dotted #B3A9A9;
+	margin: 0px;
+	padding-bottom: 5px;
+	padding-left: 15px;
+	padding-right: 15px;
+	padding-top: 5px;
+	word-wrap: break-word;
 }
-.chat li:nth-child(even) {
-    background-color: rgb(245,245,245);
+
+.chat li:nth-child(even) {background-color: rgb(245,245,245);}
+
+.chatBarIcon {}
+
+#chatbar-contents {
+	background-color: #fff;
+	height: 90%;
+	padding-left: 0px;
+	padding-right: 0px;
+	width: 100%;
 }
- #chatbar-contents{
-    background-color: #fff; 
-    height:90%; 
-    padding-left: 0px; 
-    padding-right: 0px;
-    width:100%; 
+
+#chatbody {
+	height: 80%;
+	overflow-y: scroll;
+	padding-left: 0px;
+	padding-right: 0px;
 }
-#chatbody{
-    height:80%;
-    overflow-y: scroll;
-    padding-left: 0px;
-    padding-right: 0px;
-}
+
 .chatGreeting {
-    color: blue;
-    margin-top:5px;
+	color: blue;
+	margin-top: 5px;
 }
-.chat-input-wrapper {
-    margin-left:20px;
-}
+
+.chat-input-wrapper {margin-left: 20px;}
+
 #chat-options-bar {
-    border-bottom:1px solid #ccc;
-    position:relative;
-    width:100%;
+	border-bottom: 1px solid #ccc;
+	position: relative;
+	width: 100%;
 }
-#chat-user-list {
-    padding:5px;
-}
+
+#chat-user-list {padding: 5px;}
+
 .closeTab {
 	background: transparent;
 	border: 0;
 	color: #000;
 	cursor: pointer;
-	float:left;
+	float: left;
 	font-weight: bold;
 	padding: 0;
 	text-shadow: 0 1px 0 #fff;
 	-webkit-appearance: none;
 }
 .gotUnreadMail{
-    background: #F9DF6B;
+    background: #F9DF6B !important;
 }
+
 #newMessageInput {
-    height:40px;
-    width: 80%;
-    margin-top:6px;
-    padding:5px;
-    resize: none;
+	height: 40px;
+	margin-top: 6px;
+	padding: 5px;
+	resize: none;
+	width: 80%;
 }
-.optionsBar{
-    padding-top:15px;
-    padding-left: 15px;
-    height:100%;
+
+.optionsBar {
+	height: 100%;
+	padding-left: 15px;
+	padding-top: 15px;
 }
-.panel-footer{
-    padding-top:0px;
-    position:relative;
-    bottom:0px;
+
+.panel-footer {
+	bottom: 0px;
+	padding-top: 0px;
+	position: relative;
 }
-.privateChatTab{}
-.publicChatTab{}
+
+.privateChatTab {}
+
 .private-chat-user-box {
-    border: left 1px grey;
-    padding: 5px;
-    width: 90%;
-    height:60%;
+	border: left 1px grey;
+	height: 60%;
+	padding: 5px;
+	width: 90%;
 }
+
 .private-chat-user-entry {}
-.private-chat-user-list {
-    font-size:12px;
-}
+
+.private-chat-user-list {font-size: 12px;}
+
 .private-chat-user-list :hover {
-    background: #0099FF;
-    font-size:14px;
-    font-style:italic;
+	background: #0099FF;
+	font-size: 14px;
+	font-style: italic;
 }
-#sendMessageButton{
-    height:40px;
-    margin-left: 10px;
-    background-color: #D7D7D7
+
+.publicChatTab {}
+
+#sendMessageButton {
+	background-color: #D7D7D7;
+	height: 40px;
+	margin-left: 10px;
 }
+
 #tabsList {
 	border-spacing: 3px; /* space between each tab */
 	display: table;
@@ -119,6 +135,7 @@ bottomEntry{
 	text-align: center;
 	width: 100%;
 }
+
 #tabsList a {
 	background-color: #C9E6FF;
 	border-radius: 10px 10px 0 0;
@@ -131,9 +148,9 @@ bottomEntry{
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
-#tabsList:before, #tabsList:after {
-	content: none;
-}
+
+#tabsList:before, #tabsList:after {content: none;}
+
 #tabsList li {
 	display: table-cell;
 	height: auto;
@@ -141,10 +158,10 @@ bottomEntry{
 	vertical-align: bottom;
 	width: auto;
 }
-#tabsList > li {
-	float:none;
-}
+
+#tabsList > li {float: none;}
+
 #tabsList > li.active > a, #tabsList > li.active > a:hover, #tabsList > li.active > a:focus {
-	border: 2px solid #79C1FF;
 	border-bottom-color: transparent;
+	border: 2px solid #79C1FF;
 }

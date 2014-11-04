@@ -17,6 +17,7 @@ deps@1.0.5
 ejson@1.0.4
 fastclick@1.0.1
 follower-livedata@1.0.2
+francocatena:status@0.9.9
 geojson-utils@1.0.1
 html-tools@1.0.2
 htmljs@1.0.2
@@ -37,8 +38,9 @@ minifiers@1.1.1
 minimongo@1.0.4
 mobile-status-bar@1.0.1
 mongo@1.0.7
-mrt:bootstrap-3@0.3.8
 mrt:redis@0.1.3
+nemo64:bootstrap-data@3.2.0-rc2
+nemo64:bootstrap@3.2.3
 observe-sequence@1.0.3
 ordered-dict@1.0.1
 random@1.0.1
@@ -52,6 +54,8 @@ session@1.0.3
 spacebars-compiler@1.0.3
 spacebars@1.0.3
 standard-app-packages@1.0.3
+tap:http-methods@0.0.23
+tap:i18n@1.0.7
 templating@1.0.8
 tracker@1.0.3
 ui@1.0.4

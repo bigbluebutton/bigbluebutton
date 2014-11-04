@@ -79,12 +79,16 @@
 	{{setTitle}}
 	<body>
 		<div id="main" class="mainContainer row-fluid">
+ 		{{#if isDisconnected}}
+			{{>status}}
+		{{else}}
 			<div>{{> header}}</div>
 			{{> usersList id="users" name="usersList"}}
 			{{> whiteboard id="whiteboard" title=getWhiteboardTitle name="whiteboard"}}
 			{{> chatbar id="chat" title="Chat" name="chatbar"}}
 			<audio id="remote-media" autoplay="autoplay"></audio>
 			{{> footer}}
+		{{/if}}
 		</div>
 	</body>
 </template>

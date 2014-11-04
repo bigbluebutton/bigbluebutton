@@ -124,7 +124,7 @@ Meteor.methods
 	u = Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId})
 	if u?
 		Meteor.Users.remove(u._id)
-		console.log "----removed user[" + userId + "] from " + meetingId
+		console.log "----removed user[" + userId + "] from " + meetingId + " dbid:" + u._id
 	else
 		console.log "did not find a user [userId] to delete in meetingid:#{meetingId}"
 
@@ -186,6 +186,7 @@ Meteor.methods
 				permissions: user.permissions
 				locked: user.locked
 				time_of_joining: user.timeOfJoining
+				connection_status: "" # TODO consider other default value
 				voiceUser:
 					web_userid: user.voiceUser.web_userid
 					callernum: user.voiceUser.callernum
@@ -197,5 +198,5 @@ Meteor.methods
 					muted: user.voiceUser.muted
 				webcam_stream: user.webcam_stream
 
-	id = Meteor.Users.insert(entry)
-	console.log "added user id=[#{id}]:#{user.name}. Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
+		id = Meteor.Users.insert(entry)
+		console.log "added user id=[#{id}]:#{user.name}. Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
