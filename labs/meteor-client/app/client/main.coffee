@@ -9,14 +9,19 @@ Template.footer.helpers
 
 Template.header.events
   "click .usersListIcon": (event) ->
+    $(".tooltip").hide()
     toggleUsersList()
   "click .chatBarIcon": (event) ->
+    $(".tooltip").hide()
     toggleChatbar()
   "click .videoFeedIcon": (event) ->
-    toggleCam @ 
+    $(".tooltip").hide()
+    toggleCam @
   "click .audioFeedIcon": (event) ->
+    $(".tooltip").hide()
     toggleVoiceCall @
   "click .muteIcon": (event) ->
+    $(".tooltip").hide()
     toggleMic @
   "click .signOutIcon": (event) ->
     response = confirm('Are you sure you want to exit?')
@@ -24,15 +29,19 @@ Template.header.events
       userLogout getInSession("meetingId"), getInSession("userId"), true
 
   "click .hideNavbarIcon": (event) ->
+    $(".tooltip").hide()
     toggleNavbar()
   # "click .settingsIcon": (event) ->
   #   alert "settings"
   "click .raiseHand": (event) ->
     console.log "navbar raise own hand from client"
+    $(".tooltip").hide()
     Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("DBID"), getInSession("userId"), getInSession("DBID") )
   "click .lowerHand": (event) ->
+    $(".tooltip").hide()
     Meteor.call('userLowerHand', getInSession("meetingId"), getInSession("DBID"), getInSession("userId"), getInSession("DBID") )
   "click .whiteboardIcon": (event) ->
+    $(".tooltip").hide()
     toggleWhiteBoard()
   "mouseover #navbarMinimizedButton": (event) ->
     $("#navbarMinimizedButton").removeClass("navbarMinimizedButtonSmall")

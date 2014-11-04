@@ -7,10 +7,11 @@ standard-app-packages
 coffeescript
 mrt:redis@0.1.3
 arunoda:npm@0.2.6
-less
 underscore
 amplify
 raphaeljs-package
 iron:router
 blaze
-mrt:bootstrap-3
+nemo64:bootstrap
+less
+

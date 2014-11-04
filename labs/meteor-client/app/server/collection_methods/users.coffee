@@ -197,5 +197,5 @@ Meteor.methods
 					muted: user.voiceUser.muted
 				webcam_stream: user.webcam_stream
 
-	id = Meteor.Users.insert(entry)
-	console.log "added user id=[#{id}]:#{user.name}. Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
+		id = Meteor.Users.insert(entry)
+		console.log "added user id=[#{id}]:#{user.name}. Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
