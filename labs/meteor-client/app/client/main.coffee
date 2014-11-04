@@ -82,3 +82,4 @@ Meteor.startup ->
   setInSession "messageFontSize", 12
   setInSession "dateOfBuild", Meteor.config?.dateOfBuild or "UNKNOWN DATE"
   setInSession "bbbServerVersion", Meteor.config?.bbbServerVersion or "UNKNOWN VERSION"
+  setInSession "displayChatNotifications", true

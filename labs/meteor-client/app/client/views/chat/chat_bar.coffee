@@ -237,25 +237,60 @@ Template.tabButtons.events
     console.log "tab"
 
 Template.tabButtons.helpers
-  makeTabButton: -> # create tab button for private chat or other such as options
-    safeClass = safeString(@class)
-    safeName = safeString(@name)
+	makeTabButton: -> # create tab button for private chat or other such as options
+		safeClass = @class.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+		safeName = @name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-    button = ''
-    button += '<li class=\"'
-    button += 'active ' if getInSession("inChatWith") is @userId
-    button += 'gotUnreadMail ' if @gotMail
-    button += "tab #{safeClass}"
-    button += '\">'
-    button += "<a href='#' data-toggle='tab' id=\"#{safeName}\">"
-    button += "<button class=\"close closeTab\" type=\"button\"><sup><b>X</b></sup></button> " if @class is 'privateChatTab'
-    button += "#{safeName}"
-    button += '</a>'
-    button += '</li>'
-    button
+		button = ''
+		button += '<li class=\"'
+		button += 'active ' if getInSession("inChatWith") is @userId
+		button += 'gotUnreadMail ' if @gotMail and getInSession("displayChatNotifications")
+		button += "tab #{safeClass}"
+		button += '\">'
+		button += "<a href='#' data-toggle='tab' id=\"#{safeName}\">"
+		button += "<button class=\"close closeTab\" type=\"button\"><sup><b>X</b></sup></button> " if @class is 'privateChatTab'
+		button += "#{safeName}"
+		button += '</a>'
+		button += '</li>'
+		button
+
+@activateBreakLines = (str) ->
+  if typeof str is 'string'
+    res = str.replace /\\n/gim, '<br/>'
+    res = res.replace /\r/gim, '<br/>'
 
 # make links received from Flash client clickable in HTML
 @toClickable = (str) ->
   if typeof str is 'string'
     res = str.replace /<a href='event:/gim, "<a target='_blank' href='"
     res = res.replace /<a href="event:/gim, '<a target="_blank" href="'
+
+Template.message.helpers
+  toClockTime: (epochTime) ->
+    if epochTime is null
+      return ""
+    local = new Date()
+    offset = local.getTimezoneOffset()
+    epochTime = epochTime - offset * 60000 # 1 min = 60 s = 60,000 ms
+    dateObj = new Date(epochTime)
+    hours = dateObj.getUTCHours()
+    minutes = dateObj.getUTCMinutes()
+    if minutes < 10
+      minutes = "0" + minutes
+    hours + ":" + minutes
+
+  sanitizeAndFormat: (str) ->
+    if typeof str is 'string'
+      # First, replace replace all tags with the ascii equivalent (excluding those involved in anchor tags)
+      res = str.replace(/&/g, '&amp;').replace(/<(?![au\/])/g, '&lt;').replace(/\/([^au])>/g, '$1&gt;').replace(/([^=])"(?!>)/g, '$1&quot;');
+      res = toClickable res
+      res = activateBreakLines res
+
+Template.notificationSettings.events
+	"click #chatNotificationOn": (event) ->
+		console.log "on"
+		setInSession "displayChatNotifications", true
+
+	"click #chatNotificationOff": (event) ->
+		console.log "off"
+		setInSession "displayChatNotifications", false
