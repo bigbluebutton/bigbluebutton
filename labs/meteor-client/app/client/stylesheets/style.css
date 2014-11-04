@@ -155,16 +155,10 @@ body {
 
 
 /* Chat Module */ 
-.panel-footer { 
-	padding:0;
-}
 .chat-input-wrapper {
 	margin:0;
 }
 
-#newMessageInput { 
-	width:75%;
-}
 
 
 .raiseHand {}
@@ -227,5 +221,30 @@ body {
 .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td  { 
 	border-top:0px;
 }
+
+
+
+/* Chat Module Styles */
+
+#tabsList { 
+	border-spacing:0px
+}
+
+#tabsList li a { 
+	border-top:0;
+	border-radius:0;
+	margin:0;
+}
+
+
+#tabsList li:first-child a {
+	border-left:0;
+} 
+
+#chat { 
+	background:#fff;
+}
+
+
 
 
