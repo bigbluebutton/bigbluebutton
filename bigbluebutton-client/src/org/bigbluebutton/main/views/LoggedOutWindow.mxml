@@ -133,7 +133,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
 	<mx:states>
 		<mx:State name="{DISPLAY_MESSAGE_ONLY_STATE}">
-			<mx:SetProperty target="{this}" name="height" value="{mainContainer.getExplicitOrMeasuredHeight()}"/>
+			<mx:SetProperty target="{this}" name="height" value="{110}"/>
 		</mx:State>
 		<mx:State name="{DISPLAY_RECONNECT_BUTTON_STATE}">
 			<mx:AddChild relativeTo="okBtn" position="after">
