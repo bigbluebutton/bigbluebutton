@@ -151,10 +151,38 @@ Template.chatInput.rendered  = ->
    $('button[rel=tooltip]').tooltip()
 
 Template.extraConversations.events
-  "click .extraConversation": (event) ->
-    console.log "extra conversation"
-    console.log "#{@name} #{@userId}"
-    # put this conversation in the 3rd position in the chat tabs collection (after public and options)
+	"click .extraConversation": (event) ->
+		console.log "extra conversation"
+		user = @
+		console.log user
+		console.log "#{user.name} #{user.userId}"
+		# put this conversation in the 3rd position in the chat tabs collection (after public and options)
+		# Take all the tabs and turn into an array
+		tabArray = chatTabs.find().fetch()
+
+		# find the index of the selected tab
+		index = do ->
+			for value, idx in tabArray
+				if value.userId is user.userId
+					selected = value
+					return idx
+			null
+
+		if index?
+			# take object
+			selected = tabArray[index]
+
+			if selected?
+				# remove it
+				tabArray.splice(index, 1)
+				# insert it at the 3rd index
+				tabArray.splice(2, 0, selected)
+				# clear collection
+				chatTabs.remove({})
+
+				# store entire array back into the collection
+				for value in tabArray
+					chatTabs.insert value
 
 Template.extraConversations.helpers
   getExtraConversations: ->
@@ -238,26 +266,22 @@ Template.tabButtons.events
 
 Template.tabButtons.helpers
 	makeTabButton: -> # create tab button for private chat or other such as options
-		safeClass = @class.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-		safeName = @name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+		safeClass = safeString(@class)
+		safeName = safeString(@name)
 
 		button = ''
 		button += '<li class=\"'
 		button += 'active ' if getInSession("inChatWith") is @userId
-		button += 'gotUnreadMail ' if @gotMail and getInSession("displayChatNotifications")
 		button += "tab #{safeClass}"
 		button += '\">'
-		button += "<a href='#' data-toggle='tab' id=\"#{safeName}\">"
+		button += "<a href='#' data-toggle='tab' id=\"#{safeName}\""
+		button += 'class=\'gotUnreadMail\' ' if @gotMail and getInSession("displayChatNotifications")
+		button += ">"
 		button += "<button class=\"close closeTab\" type=\"button\"><sup><b>X</b></sup></button> " if @class is 'privateChatTab'
 		button += "#{safeName}"
 		button += '</a>'
 		button += '</li>'
 		button
-
-@activateBreakLines = (str) ->
-  if typeof str is 'string'
-    res = str.replace /\\n/gim, '<br/>'
-    res = res.replace /\r/gim, '<br/>'
 
 # make links received from Flash client clickable in HTML
 @toClickable = (str) ->
