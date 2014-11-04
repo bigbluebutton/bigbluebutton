@@ -384,7 +384,7 @@ package org.bigbluebutton.modules.users.services
       
       if(webUser.guest) {
         var e:RemoveGuestRequestEvent = new RemoveGuestRequestEvent(RemoveGuestRequestEvent.GUEST_EVENT);
-        e.userid = webUser.userID;
+        e.userid = webUser.userId;
         dispatcher.dispatchEvent(e);
       }
 
