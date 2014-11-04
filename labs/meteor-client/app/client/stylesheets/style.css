@@ -1,250 +1,187 @@
-.audioFeedIcon{}
+.audioFeedIcon {}
+
 body {
-    background: #eee;
-    bottom:0;
-    color: #666666;
-    height:100%;
-    left:0;
-    min-width: 768px;
-    position:absolute;
-    right:0;
-    top:0;   
-}
-
-
-.navbar { 
-	min-height: 40px !important;
-}
-
-
-.btn{
-    background-color:#F5F5F5;
-}
-.chatBarIcon{}
-
-.component {
-    background: #fff;
-    border: 1px solid #ccc;
-    float: left;
-    height:80%;
-    margin-top: 10px;
-	-webkit-border-radius: 4px;
-	-moz-border-radius: 4px;
-	border-radius: 4px;
-}
-
-.gradientBar {
- /*   background: -webkit-linear-gradient(rgb(255,255,255), rgb(182,181,181)); /* For Safari 5.1 to 6.0 */
- /*   background: -o-linear-gradient(     rgb(255,255,255), rgb(182,181,181)); /* For Opera 11.1 to 12.0 */
- /*   background: -moz-linear-gradient(   rgb(255,255,255), rgb(182,181,181)); /* For Firefox 3.6 to 15 */
- /*   background: linear-gradient(        rgb(255,255,255), rgb(182,181,181)); /* Standard syntax (must be last) */
-}
-
-
-.hideNavbarIcon{}
-.lowerHand{}
-.mainContainer{
-    height:100%;
-}
-.myFooter{
-    color:black;
-	font-size: 8px;
-	text-align: center;
-	max-height: 20px;
-	padding-top: 13px;
-}
-
-.myNavbar{
-    margin-bottom:0.5%;
-    min-width:900px;
-}
-
-.myNavbar.gradientBar, .myNavbar .btn{
-    background: -webkit-linear-gradient(rgb(72,76,85), rgb(65,68,77)); /* For Safari 5.1 to 6.0 */
-    background: -o-linear-gradient(     rgb(72,76,85), rgb(65,68,77)); /* For Opera 11.1 to 12.0 */
-    background: -moz-linear-gradient(   rgb(72,76,85), rgb(65,68,77)); /* For Firefox 3.6 to 15 */
-    background: linear-gradient(        rgb(72,76,85), rgb(65,68,77)); /* Standard syntax (must be last) */
-}
-
-.myNavbar .btn.navbarIconToggleActive { 
- 	background: #40434c;
-    border-bottom: 4px solid #54a7db;
-}
-
-.myNavbar .btn { 
-	border-right:1px solid #32353e;
-	border-left:1px solid #60636a;
-}
-
-.myNavbar .btn i { 
-	color:#fff;
-}
-
-.myNavbarMinimized{
-    background: #eee;
-    height:20px;
-    margin-bottom:0.2%;
-    margin-top:0px;
-    min-width:900px;
-    padding-top:0px;
-    text-align:right;
-}
-.navbarButton {
-    height:50px;
-    width:70px;
-}
-.navbarFiller{
-	height:50px;
-	width:100%; 
-}
-
-.navbarIconToggleActive i {
-	color:#cccdd1;
-}
-
-#navbarMinimizedButton{
-	margin-bottom:0px;
-	margin-left: 2px;
-	margin-right: 20px;
-	margin-top:0px;
+	background: #eee;
+	bottom: 0;
+	color: #666666;
+	height: 100%;
+	left: 0;
+	min-width: 768px;
 	position: absolute;
 	right: 0;
-	top:0;
-}
-.navbarMinimizedButtonSmall{
-	height:10px;
-	width:40px;
-}
-.navbarMinimizedButtonLarge{
-	height:50px;
-	width:40px;
-}
-.navbarSection{
-    min-width:300px;
-    width:33%;
-}
-.navbarUserButtons{
-
+	top: 0;
 }
 
-.navbarUserButtons .btn { 
+.btn {background-color: #F5F5F5;}
+
+.component {
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	background: #fff;
+	border-radius: 4px;
+	border: 1px solid #ccc;
+	float: left;
+	height: 80%;
+	margin-top: 10px;
+}
+
+.extraConversationScrollableMenu {
+	height: auto;
+	max-height: 200px;
+	overflow-x: hidden;
+}
+
+.hideNavbarIcon {}
+
+.lowerHand {}
+
+.mainContainer {height: 100%;}
+
+.myFooter {
+	color: black;
+	font-size: 10px;
+	max-height: 20px;
+	padding-top: 13px;
+	text-align: center;
+}
+
+.myNavbar {
+	margin-bottom: 0.5%;
+	min-width: 900px;
+}
+
+.myNavbar.gradientBar, .myNavbar .btn {
+	background: -moz-linear-gradient( rgb(72,76,85), rgb(65,68,77)); /* For Firefox 3.6 to 15 */
+	background: -o-linear-gradient( rgb(72,76,85), rgb(65,68,77)); /* For Opera 11.1 to 12.0 */
+	background: -webkit-linear-gradient(rgb(72,76,85), rgb(65,68,77)); /* For Safari 5.1 to 6.0 */
+	background: linear-gradient( rgb(72,76,85), rgb(65,68,77)); /* Standard syntax (must be last) */
+}
+
+.myNavbar .btn.navbarIconToggleActive {
+	background: #40434c;
+	border-bottom: 4px solid #54a7db;
+}
+
+.myNavbar .btn {
+	border-left: 1px solid #60636a;
+	border-right: 1px solid #32353e;
+}
+
+.myNavbar .btn i {color: #fff;}
+
+.myNavbarMinimized {
+	background: #eee;
+	height: 20px;
+	margin-bottom: 0.2%;
+	margin-top: 0px;
+	min-width: 900px;
+	padding-top: 0px;
+	text-align: right;
+}
+
+.navbar {min-height: 40px !important;}
+
+.navbarButton {
+	height: 50px;
+	width: 70px;
+}
+
+.navbarFiller {
+	height: 50px;
+	width: 100%;
+}
+
+.navbarIconToggleActive i {color: #cccdd1;}
+
+#navbarMinimizedButton {
+	margin-bottom: 0px;
+	margin-left: 2px;
+	margin-right: 20px;
+	margin-top: 0px;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+
+.navbarMinimizedButtonSmall {
+	height: 10px;
+	width: 40px;
+}
+
+.navbarMinimizedButtonLarge {
+	height: 50px;
+	width: 40px;
+}
+
+.navbarSection {
+	min-width: 300px;
+	width: 33%;
+}
+
+.navbarSettingsButtons {float: right;}
+
+.navbarSettingsButtons .btn {
 	display: block;
-	float:left;
-	border-radius:0;
+	float: right;
 }
 
-.navbarTitle{
+.navbarTitle {
+	color: #fff;
 	display: block;
-	float:left;
-    font-size: 16px;
-    font-weight:bold;
-    padding-top:13px;
-    text-align:center;
-    color:#fff;
+	float: left;
+	font-size: 16px;
+	font-weight: bold;
+	padding-top: 13px;
+	text-align: center;
 }
 
-.navbarSettingsButtons{
-	float:right;
-}
+.navbarUserButtons {}
 
-.navbarSettingsButtons .btn{
+.navbarUserButtons .btn {
+	border-radius: 0;
 	display: block;
-	float:right;
+	float: left;
 }
 
-
-
-/* Chat Module */ 
-.chat-input-wrapper {
-	margin:0;
-}
-
-
+.panel-footer {padding: 0;}
 
 .raiseHand {}
-.recordingStatus{
-    background:none!important; 
-    border:none; 
-    padding:0!important;
-    margin-left: 10px;
+
+.recordingStatus {
+	background: none!important;
+	border: none;
+	margin-left: 10px;
+	padding: 0!important;
 }
-.recordingStatusTrue{
-    color:green;
-}
-.recordingStatusFalse{
-    color:maroon;
-}
+
+.recordingStatusFalse {color: maroon;}
+
+.recordingStatusTrue {color: green;}
+
 .ScrollableWindow {
-    height: 100%;
-    overflow-y: scroll;
-}
-.settingsIcon{}
-.signOutIcon{}
-.tab{
-    height:40px;
-}
-.title {    
-    border-bottom: 1px solid #d7d7d7;
-    color: #666;
-    font-size:14px;
-    font-weight: bold;
-    line-height: 2em;
-    margin:0;
-    padding-bottom: 5px;
-    padding-left: 10px;
-    padding-top: 5px;
-}
-.usersListIcon{}
-
-
-
-
-.videoFeedIcon{}
-
-
-
-#whiteboard { 
-	padding:0 !important;
+	height: 100%;
+	overflow-y: scroll;
 }
 
-#whiteboard-paper {
-	background-color: white !important;
-	height: auto !important;
+.settingsIcon {}
+
+.signOutIcon {}
+
+.tab {height: 40px;}
+
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {border-top: 0px;}
+
+.title {
+	border-bottom: 1px solid #d7d7d7;
+	color: #666;
+	font-size: 14px;
+	font-weight: bold;
+	line-height: 2em;
+	margin: 0;
+	padding-bottom: 5px;
+	padding-left: 10px;
+	padding-top: 5px;
 }
 
-#whiteboard-paper #svggroup { 
-	display:block;
-	width:100% !important;
-	height:100% !important;
-}
-
-.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td  { 
-	border-top:0px;
-}
-
-
-
-/* Chat Module Styles */
-
-#tabsList { 
-	border-spacing:0px
-}
-
-#tabsList li a { 
-	border-top:0;
-	border-radius:0;
-	margin:0;
-}
-
-
-#tabsList li:first-child a {
-	border-left:0;
-} 
-
-#chat { 
-	background:#fff;
-}
-
-
-
+.videoFeedIcon {}
 

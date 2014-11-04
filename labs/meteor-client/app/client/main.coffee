@@ -9,14 +9,19 @@ Template.footer.helpers
 
 Template.header.events
   "click .usersListIcon": (event) ->
+    $(".tooltip").hide()
     toggleUsersList()
   "click .chatBarIcon": (event) ->
+    $(".tooltip").hide()
     toggleChatbar()
   "click .videoFeedIcon": (event) ->
-    toggleCam @ 
+    $(".tooltip").hide()
+    toggleCam @
   "click .audioFeedIcon": (event) ->
+    $(".tooltip").hide()
     toggleVoiceCall @
   "click .muteIcon": (event) ->
+    $(".tooltip").hide()
     toggleMic @
   "click .signOutIcon": (event) ->
     response = confirm('Are you sure you want to exit?')
@@ -24,15 +29,19 @@ Template.header.events
       userLogout getInSession("meetingId"), getInSession("userId"), true
 
   "click .hideNavbarIcon": (event) ->
+    $(".tooltip").hide()
     toggleNavbar()
   # "click .settingsIcon": (event) ->
   #   alert "settings"
   "click .raiseHand": (event) ->
     console.log "navbar raise own hand from client"
+    $(".tooltip").hide()
     Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("DBID"), getInSession("userId"), getInSession("DBID") )
   "click .lowerHand": (event) ->
+    $(".tooltip").hide()
     Meteor.call('userLowerHand', getInSession("meetingId"), getInSession("DBID"), getInSession("userId"), getInSession("DBID") )
   "click .whiteboardIcon": (event) ->
+    $(".tooltip").hide()
     toggleWhiteBoard()
   "mouseover #navbarMinimizedButton": (event) ->
     $("#navbarMinimizedButton").removeClass("navbarMinimizedButtonSmall")
@@ -50,6 +59,12 @@ Template.main.helpers
 
 Template.makeButton.rendered = ->
   $('button[rel=tooltip]').tooltip()
+
+@grabAllDBID = ->
+  array = []
+  for u in Meteor.Users.find().fetch()
+    array.push(u._id)
+  return array
 
 # These settings can just be stored locally in session, created at start up
 Meteor.startup ->
@@ -69,8 +84,21 @@ Meteor.startup ->
   Meteor.autorun ->
     if Meteor.status().connected
       console.log("connected")
-    else
-      console.log "disconnected"
+      uid = getInSession("userId")
+      # Obtain user info here. for testing. should be moved somewhere else later
+      Meteor.call "getMyInfo", uid, (error, result) -> #TODO should try to get rid of this?
+        if error? then console.log "error:" + error
+        else
+          Meteor.subscribe 'users', getInSession('meetingId'), getInSession("userId"), -> # callback for after users have been loaded on client
+            Meteor.subscribe 'chat', getInSession('meetingId'), getInSession("userId"), ->
+              Meteor.subscribe 'shapes', getInSession('meetingId'), ->
+                Meteor.subscribe 'slides', getInSession('meetingId'), ->
+                  Meteor.subscribe 'meetings', getInSession('meetingId'), ->
+                    Meteor.subscribe 'presentations', getInSession('meetingId'), ->
+                      Meteor.call "getMyInfo", getInSession("userId"), (error, result) ->
+                        console.log "managed to reconnect successfully"
+                        setInSession("DBID", result.DBID)
+                        setInSession("userName", result.name)
 
   setInSession "display_usersList", true
   setInSession "display_navbar", true
@@ -82,3 +110,4 @@ Meteor.startup ->
   setInSession "messageFontSize", 12
   setInSession "dateOfBuild", Meteor.config?.dateOfBuild or "UNKNOWN DATE"
   setInSession "bbbServerVersion", Meteor.config?.bbbServerVersion or "UNKNOWN VERSION"
+  setInSession "displayChatNotifications", true

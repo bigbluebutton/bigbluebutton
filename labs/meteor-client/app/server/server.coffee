@@ -19,12 +19,9 @@ Meteor.methods
   getMyInfo: (uId) ->
     u = Meteor.Users.findOne("userId": uId)
     if u?
-      {
-        userId: u.userId
-        DBID: u._id
-        name: u.user.name
-      }
-
+      console.log "__server::getMyInfo " + u.userId + " DBID:" +  u._id + "  name:" + u.user.name
+      return  {userId: u.userId, DBID: u._id, name: u.user.name}
+  
 Meteor.startup ->
   console.log "server start"
   
