@@ -67,7 +67,7 @@ class Meteor.RedisPubSub
     if message?.header? and message?.payload?
       unless message.header.name in ignoredEventTypes
         console.log "eventType=" + message.header.name #+ "\n"
-        console.log jsonMsg
+        #console.log jsonMsg
 
       # handle voice events
       if message.header.name in ['user_left_voice_message', 'user_joined_voice_message', 'user_voice_talking_message', 'user_voice_muted_message']

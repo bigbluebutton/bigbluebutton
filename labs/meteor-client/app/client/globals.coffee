@@ -121,9 +121,12 @@ Handlebars.registerHelper "isCurrentUserTalking", ->
   user = Meteor.Users.findOne({_id:getInSession("DBID")})
   return user?.user?.voiceUser?.talking
 
+Handlebars.registerHelper "isDisconnected", ->
+  return !Meteor.status().connected
+
 Handlebars.registerHelper "isUserListenOnly", (_id) ->
-    user = Meteor.Users.findOne({_id:_id})
-    return user?.user?.listenOnly
+  user = Meteor.Users.findOne({_id:_id})
+  return user?.user?.listenOnly
 
 Handlebars.registerHelper "isUserMuted", (_id) ->
   user = Meteor.Users.findOne({_id:_id})
@@ -138,8 +141,8 @@ Handlebars.registerHelper "isUserSharingVideo", (_id) ->
   return user.user?.webcam_stream?.length isnt 0
 
 Handlebars.registerHelper "isUserTalking", (_id) ->
-    user = Meteor.Users.findOne({_id:_id})
-    return user?.user?.voiceUser?.talking
+  user = Meteor.Users.findOne({_id:_id})
+  return user?.user?.voiceUser?.talking
 
 Handlebars.registerHelper "meetingIsRecording", ->
   Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
@@ -159,13 +162,13 @@ Handlebars.registerHelper "pointerLocation", ->
 Handlebars.registerHelper "safeName", (str) ->
   safeString(str)
 
-Handlebars.registerHelper "setInSession", (k, v) -> SessionAmplify.set k, v 
+Handlebars.registerHelper "setInSession", (k, v) -> SessionAmplify.set k, v
 
 Handlebars.registerHelper "visibility", (section) ->
-    if getInSession "display_#{section}"
-        style: 'display:block'
-    else
-        style: 'display:none'
+  if getInSession "display_#{section}"
+    style: 'display:block'
+  else
+    style: 'display:none'
 
 @isSharingAudio = ->
   return Meteor.Users.findOne({_id: getInSession "DBID"})?.user?.voiceUser?.joined
@@ -177,11 +180,14 @@ Handlebars.registerHelper "visibility", (section) ->
   str = str.replace http, "<a href='event:$1'><u>$1</u></a>"
   str = str.replace www, "$1<a href='event:http://$2'><u>$2</u></a>"
 
-Meteor.methods
-  sendMeetingInfoToClient: (meetingId, userId) ->
+@setInSession = (k, v) ->
+  if k is "DBID" then  console.log "setInSession #{k}, #{v}"
+  SessionAmplify.set k, v
+
+@sendMeetingInfoToClient = (meetingId, userId) ->
     setInSession("userId", userId)
     setInSession("meetingId", meetingId)
-    setInSession("currentChatId", meetingId)
+    setInSession("currentChatId", meetingId) #TODO check if this is needed
     setInSession("meetingName", null)
     setInSession("userName", null)
 
@@ -234,22 +240,22 @@ Meteor.methods
 @toggleUsersList = ->
   setInSession "display_usersList", !getInSession "display_usersList"
 
-@toggleVoiceCall = (event) -> 
-  if isSharingAudio()
-    # hangup and inform bbb-apps
-    Meteor.call("userStopAudio", getInSession("meetingId"), getInSession("userId"), getInSession("DBID"), getInSession("userId"), getInSession("DBID"))
-    hangupCallback = -> 
-      console.log "left voice conference"
-    webrtc_hangup hangupCallback # sign out of call
-  else
-    # create voice call params
-    username = "#{getInSession("userId")}-bbbID-#{getUsersName()}"
-    voiceBridge = Meteor.Meetings.findOne({}).voiceConf 
-    server = null
-    joinCallback = (message) ->
-      console.log "started webrtc_call"
-    webrtc_call(username, voiceBridge, server, joinCallback) # make the call
-  return false
+@toggleVoiceCall = (event) ->
+	if isSharingAudio()
+		# hangup and inform bbb-apps
+		Meteor.call("userStopAudio", getInSession("meetingId"), getInSession("userId"), getInSession("DBID"), getInSession("userId"), getInSession("DBID"))
+		hangupCallback = ->
+			console.log "left voice conference"
+		webrtc_hangup hangupCallback # sign out of call
+	else
+		# create voice call params
+		username = "#{getInSession("userId")}-bbbID-#{getUsersName()}"
+		voiceBridge = Meteor.Meetings.findOne({}).voiceConf
+		server = null
+		joinCallback = (message) ->
+			console.log "started webrtc_call"
+		webrtc_call(username, voiceBridge, server, joinCallback) # make the call
+	return false
 
 @toggleWhiteBoard = ->
   setInSession "display_whiteboard", !getInSession "display_whiteboard"
@@ -266,9 +272,9 @@ Meteor.methods
   setInSession("currentChatId", null)
   setInSession("meetingName", null)
   setInSession("bbbServerVersion", null)
-  setInSession("userName", null) 
+  setInSession("userName", null)
   setInSession "display_navbar", false # needed to hide navbar when the layout template renders
-  
+
   Router.go('logout') # navigate to logout
 
 # applies zooming to the stroke thickness
