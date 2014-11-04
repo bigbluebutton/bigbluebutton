@@ -254,6 +254,7 @@ Template.tabButtons.events
   'click .privateChatTab': (event) ->
     console.log "private: @ "
     console.log @
+    setInSession "inChatWith", @userId
     setInSession 'display_chatPane', true
 
   'click .publicChatTab': (event) ->
