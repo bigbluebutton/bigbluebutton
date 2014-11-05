@@ -84,7 +84,7 @@ class PresentationController {
 
 			if(isDownloadable) {
 				log.debug "@Creating download directory..."
-				File downloadDir = presentationService.downloadPresentationDirectory(uploadDir.absolutePath)
+				File downloadDir = Util.downloadPresentationDirectory(uploadDir.absolutePath)
 				if (downloadDir != null) {
 					def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
 					def downloadableFileName = presFilename.replaceAll(notValidCharsRegExp, '-')
