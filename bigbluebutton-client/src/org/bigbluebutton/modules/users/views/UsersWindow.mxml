@@ -120,8 +120,7 @@
 				users = UserManager.getInstance().getConference().users;
 				amIModerator = UserManager.getInstance().getConference().amIModerator();
 				
-				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
-				
+				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton;
 				BindingUtils.bindSetter(changeButtons, UserManager.getInstance().getConference(), "amIPresenter");
 				BindingUtils.bindSetter(updateNumberofUsers, users, "length");
 				
