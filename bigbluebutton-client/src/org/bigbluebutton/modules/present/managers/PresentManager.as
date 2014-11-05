@@ -94,15 +94,14 @@ package org.bigbluebutton.modules.present.managers
 		public function handleOpenDownloadWindow():void {
 			if (downloadWindow != null) return;
 			
-			downloadWindow = new FileDownloadWindow();
+			downloadWindow = FileDownloadWindow(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileDownloadWindow, true));
 
-			var width:int = Application(FlexGlobals.topLevelApplication).systemManager.screen.width;
-			var height:int = Application(FlexGlobals.topLevelApplication).systemManager.screen.height;
+			var point1:Point = new Point();
+			point1.x = FlexGlobals.topLevelApplication.width / 2;
+			point1.y = FlexGlobals.topLevelApplication.height / 2;  
 			
-			downloadWindow.x = (width - downloadWindow.width) / 2;
-			downloadWindow.y = (height - downloadWindow.height) / 2;
-			
-			mx.managers.PopUpManager.addPopUp(downloadWindow, presentWindow, true);
+			downloadWindow.x = point1.x - (downloadWindow.width/2);
+			downloadWindow.y = point1.y - (downloadWindow.height/2);
 		}
 
 		public function handleCloseDownloadWindow():void {
