@@ -116,7 +116,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var DEFAULT_X_POSITION:Number = 237;
 			[Bindable] private var DEFAULT_Y_POSITION:Number = 0;
 			
-			[Bindable] private var CONTROL_BAR_HEIGHT:Number;
+			[Bindable] private var CONTROL_BAR_HEIGHT:Number = 45;
 			private static const TOP_WINDOW_BORDER:Number = 30;
 			private static const WIDTH_PADDING:Number = 6;
 
@@ -395,11 +395,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				btnFitToWidth.visible = showButtons;
 				btnFitToPage.visible = showButtons;
 				
-				if(isPresenter) {
-					CONTROL_BAR_HEIGHT = 45;
-				} else {
-					CONTROL_BAR_HEIGHT = 0;
-				}
 				fitSlideToWindowMaintainingAspectRatio();
 			}
 			
