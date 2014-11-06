@@ -266,17 +266,17 @@ Template.tabButtons.events
     console.log "tab"
 
 Template.tabButtons.helpers
-  isTabActive: (userId) ->
-    getInSession("inChatWith") is userId ? "active" : ""
-
-  makeSafe: (string) ->
-    safeString(string)
-
   hasGotUnreadMailClass: (gotMail) ->
     if gotMail and getInSession("displayChatNotifications")
       return "gotUnreadMail"
     else
       return ""
+
+  isTabActive: (userId) ->
+    getInSession("inChatWith") is userId ? "active" : ""
+
+  makeSafe: (string) ->
+    safeString(string)
 
 # make links received from Flash client clickable in HTML
 @toClickable = (str) ->
@@ -306,10 +306,10 @@ Template.message.helpers
       res = activateBreakLines res
 
 Template.notificationSettings.events
-	"click #chatNotificationOn": (event) ->
-		console.log "on"
-		setInSession "displayChatNotifications", true
+  "click #chatNotificationOff": (event) ->
+    console.log "off"
+    setInSession "displayChatNotifications", false
 
-	"click #chatNotificationOff": (event) ->
-		console.log "off"
-		setInSession "displayChatNotifications", false
+  "click #chatNotificationOn": (event) ->
+    console.log "on"
+    setInSession "displayChatNotifications", true

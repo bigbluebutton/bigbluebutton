@@ -180,17 +180,6 @@ Handlebars.registerHelper "visibility", (section) ->
   str = str.replace http, "<a href='event:$1'><u>$1</u></a>"
   str = str.replace www, "$1<a href='event:http://$2'><u>$2</u></a>"
 
-@setInSession = (k, v) ->
-  if k is "DBID" then  console.log "setInSession #{k}, #{v}"
-  SessionAmplify.set k, v
-
-@sendMeetingInfoToClient = (meetingId, userId) ->
-    setInSession("userId", userId)
-    setInSession("meetingId", meetingId)
-    setInSession("currentChatId", meetingId) #TODO check if this is needed
-    setInSession("meetingName", null)
-    setInSession("userName", null)
-
 # check the chat history of the user and add tabs for the private chats
 @populateChatTabs = ->
   mydbid = getInSession "DBID"
@@ -215,10 +204,21 @@ Handlebars.registerHelper "visibility", (section) ->
     unless chatTabs.findOne({userId: u.userId})?
       chatTabs.insert({ userId: u.userId, name: u.username, gotMail: false, class: "privateChatTab"})
 
+@setInSession = (k, v) ->
+  if k is "DBID" then  console.log "setInSession #{k}, #{v}"
+  SessionAmplify.set k, v
+
+@sendMeetingInfoToClient = (meetingId, userId) ->
+    setInSession("userId", userId)
+    setInSession("meetingId", meetingId)
+    setInSession("currentChatId", meetingId) #TODO check if this is needed
+    setInSession("meetingName", null)
+    setInSession("userName", null)
+
 @setInSession = (k, v) -> SessionAmplify.set k, v 
 
 @safeString = (str) ->
-  if typeof str is 'string' and 1 is 1
+  if typeof str is 'string'
     str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 @toggleCam = (event) ->
