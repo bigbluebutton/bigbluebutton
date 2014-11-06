@@ -1,5 +1,5 @@
 /*
- * SIP version 0.6.2
+ * SIP version 0.6.3
  * Copyright (c) 2014-2014 Junction Networks, Inc <http://www.onsip.com>
  * Homepage: http://sipjs.com
  * License: http://sipjs.com/license/
@@ -37,7 +37,7 @@ module.exports={
   "name": "sip.js",
   "title": "SIP.js",
   "description": "A simple, intuitive, and powerful JavaScript signaling library",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "main": "src/index.js",
   "browser": {
     "./src/Grammar/index.js": "./src/Grammar/dist/Grammar.js",
@@ -2483,12 +2483,6 @@ var Hacks = module.exports = {
       return typeof mozRTCPeerConnection !== 'undefined';
     },
 
-    cannotHandleRelayCandidates: function (message) {
-      if (this.isFirefox() && message.body) {
-        message.body = message.body.replace(/relay/g, 'host generation 0');
-      }
-    },
-
     cannotHandleExtraWhitespace: function (message) {
       if (this.isFirefox() && message.body) {
         message.body = message.body.replace(/ \r\n/g, "\r\n");
@@ -3524,7 +3518,7 @@ _dereq_('./EventEmitter')(SIP);
 SIP.C = _dereq_('./Constants')(SIP.name, SIP.version);
 SIP.Exceptions = _dereq_('./Exceptions');
 SIP.Timers = _dereq_('./Timers')(environment.timers);
-_dereq_('./Transport')(SIP, environment.WebSocket);
+SIP.Transport = environment.Transport(SIP, environment.WebSocket);
 _dereq_('./Parser')(SIP);
 _dereq_('./SIPMessage')(SIP);
 _dereq_('./URI')(SIP);
@@ -3548,7 +3542,7 @@ SIP.Grammar = _dereq_('./Grammar')(SIP);
 return SIP;
 };
 
-},{"../package.json":1,"./ClientContext":2,"./Constants":3,"./Dialogs":5,"./DigestAuthentication":6,"./EventEmitter":7,"./Exceptions":8,"./Grammar":9,"./Hacks":11,"./LoggerFactory":12,"./MediaHandler":13,"./NameAddrHeader":14,"./Parser":15,"./RegisterContext":16,"./RequestSender":17,"./SIPMessage":19,"./SanityCheck":20,"./ServerContext":21,"./Session":22,"./Subscription":24,"./Timers":25,"./Transactions":26,"./Transport":27,"./UA":28,"./URI":29,"./Utils":30,"./WebRTC":31}],19:[function(_dereq_,module,exports){
+},{"../package.json":1,"./ClientContext":2,"./Constants":3,"./Dialogs":5,"./DigestAuthentication":6,"./EventEmitter":7,"./Exceptions":8,"./Grammar":9,"./Hacks":11,"./LoggerFactory":12,"./MediaHandler":13,"./NameAddrHeader":14,"./Parser":15,"./RegisterContext":16,"./RequestSender":17,"./SIPMessage":19,"./SanityCheck":20,"./ServerContext":21,"./Session":22,"./Subscription":24,"./Timers":25,"./Transactions":26,"./UA":28,"./URI":29,"./Utils":30,"./WebRTC":31}],19:[function(_dereq_,module,exports){
 /**
  * @fileoverview SIP Message
  */
@@ -5346,7 +5340,6 @@ InviteServerContext = function(ua, request) {
   }
 
   //TODO: move this into media handler
-  SIP.Hacks.Firefox.cannotHandleRelayCandidates(request);
   SIP.Hacks.Firefox.cannotHandleExtraWhitespace(request);
   SIP.Hacks.AllBrowsers.maskDtls(request);
 
@@ -5811,7 +5804,6 @@ InviteServerContext.prototype = {
         if (!this.hasAnswer) {
           if(request.body && request.getHeader('content-type') === 'application/sdp') {
             // ACK contains answer to an INVITE w/o SDP negotiation
-            SIP.Hacks.Firefox.cannotHandleRelayCandidates(request);
             SIP.Hacks.Firefox.cannotHandleExtraWhitespace(request);
             SIP.Hacks.AllBrowsers.maskDtls(request);
 
@@ -6170,7 +6162,6 @@ InviteClientContext.prototype = {
             return;
           }
 
-          SIP.Hacks.Firefox.cannotHandleRelayCandidates(response);
           SIP.Hacks.Firefox.cannotHandleExtraWhitespace(response);
           SIP.Hacks.AllBrowsers.maskDtls(response);
 
@@ -6288,7 +6279,6 @@ InviteClientContext.prototype = {
           break;
         }
 
-        SIP.Hacks.Firefox.cannotHandleRelayCandidates(response);
         SIP.Hacks.Firefox.cannotHandleExtraWhitespace(response);
         SIP.Hacks.AllBrowsers.maskDtls(response);
 
@@ -8011,7 +8001,7 @@ Transport.prototype = {
 };
 
 Transport.C = C;
-SIP.Transport = Transport;
+return Transport;
 };
 
 },{}],28:[function(_dereq_,module,exports){
@@ -8892,6 +8882,7 @@ UA.prototype.loadConfig = function(configuration) {
       // Hacks
       hackViaTcp: false,
       hackIpInContact: false,
+      hackWssInTransport: false,
 
       //autostarting
       autostart: true,
@@ -9023,7 +9014,7 @@ UA.prototype.loadConfig = function(configuration) {
   this.contact = {
     pub_gruu: null,
     temp_gruu: null,
-    uri: new SIP.URI('sip', SIP.Utils.createRandomToken(8), settings.viaHost, null, {transport: 'ws'}),
+    uri: new SIP.URI('sip', SIP.Utils.createRandomToken(8), settings.viaHost, null, {transport: ((settings.hackWssInTransport)?'wss':'ws')}),
     toString: function(options){
       options = options || {};
 
@@ -9033,7 +9024,7 @@ UA.prototype.loadConfig = function(configuration) {
         contact = '<';
 
       if (anonymous) {
-        contact += (this.temp_gruu || 'sip:anonymous@anonymous.invalid;transport=ws').toString();
+        contact += (this.temp_gruu || ('sip:anonymous@anonymous.invalid;transport='+(settings.hackWssInTransport)?'wss':'ws')).toString();
       } else {
         contact += (this.pub_gruu || this.uri).toString();
       }
@@ -9103,6 +9094,7 @@ UA.configuration_skeleton = (function() {
       "displayName",
       "hackViaTcp", // false.
       "hackIpInContact", //false
+      "hackWssInTransport", //false
       "instanceId",
       "noAnswerTimeout", // 30 seconds.
       "password",
@@ -9275,6 +9267,12 @@ UA.configuration_check = {
     hackIpInContact: function(hackIpInContact) {
       if (typeof hackIpInContact === 'boolean') {
         return hackIpInContact;
+      }
+    },
+
+    hackWssInTransport: function(hackWssInTransport) {
+      if (typeof hackWssInTransport === 'boolean') {
+        return hackWssInTransport;
       }
     },
 
@@ -10247,6 +10245,8 @@ var MediaHandler = function(session, options) {
     'userMediaFailed',
     'iceGathering',
     'iceComplete',
+	'iceConnected',
+	'iceCompleted',
     'iceFailed',
     'iceDisconnected',
     'iceClosed',
@@ -10285,7 +10285,9 @@ var MediaHandler = function(session, options) {
   /* Change 'url' to 'urls' whenever this issue is solved:
    * https://code.google.com/p/webrtc/issues/detail?id=2096
    */
-  servers.push({'url': stunServers});
+  [].concat(stunServers).forEach(function (server) {
+    servers.push({'url': server});
+  });
 
   length = turnServers.length;
   for (idx = 0; idx < length; idx++) {
@@ -10346,6 +10348,14 @@ var MediaHandler = function(session, options) {
 
     if (this.iceConnectionState === 'closed') {
         self.emit('iceClosed', this);
+    }
+
+	if (this.iceConnectionState === 'connected') {
+        self.emit('iceConnected', this);
+    }
+
+    if (this.iceConnectionState === 'completed') {
+        self.emit('iceCompleted', this);
     }
 
     //Bria state changes are always connected -> disconnected -> connected on accept, so session gets terminated
@@ -10767,6 +10777,9 @@ MediaStreamManager.render = function render (streams, elements) {
   }
 
   function attachAndPlay (element, stream) {
+    if (typeof element === 'function') {
+      element = element();
+    }
     (environment.attachMediaStream || attachMediaStream)(element, stream);
     ensureMediaPlaying(element);
   }
@@ -10808,7 +10821,7 @@ MediaStreamManager.render = function render (streams, elements) {
 };
 
 MediaStreamManager.prototype = Object.create(SIP.EventEmitter.prototype, {
-  'acquire': {value: function acquire (mediaHint) {
+  'acquire': {writable: true, value: function acquire (mediaHint) {
     mediaHint = Object.keys(mediaHint || {}).length ? mediaHint : this.mediaHint;
 
     var saveSuccess = function (isHintStream, streams) {
@@ -10860,7 +10873,7 @@ MediaStreamManager.prototype = Object.create(SIP.EventEmitter.prototype, {
     }
   }},
 
-  'release': {value: function release (streams) {
+  'release': {writable: true, value: function release (streams) {
     streams = [].concat(streams);
     streams.forEach(function (stream) {
       var streamId = MediaStreamManager.streamId(stream);
@@ -10894,6 +10907,7 @@ function getPrefixedProperty (object, name) {
 
 module.exports = {
   WebSocket: global.WebSocket,
+  Transport: _dereq_('./Transport'),
   open: global.open,
   Promise: global.Promise,
   timers: global,
@@ -10917,7 +10931,7 @@ module.exports = {
 };
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],35:[function(_dereq_,module,exports){
+},{"./Transport":27}],35:[function(_dereq_,module,exports){
 module.exports = _dereq_('./SIP')(_dereq_('./environment'));
 
 },{"./SIP":18,"./environment":34}]},{},[35])
