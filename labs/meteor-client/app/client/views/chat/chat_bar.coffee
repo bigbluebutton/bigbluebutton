@@ -2,7 +2,7 @@
 # If a function's last line is the statement false that represents the function returning false
 # A function such as a click handler will continue along with the propogation and default behaivour if not stopped
 # Returning false stops propogation/prevents default. You cannot always use the event object to call these methods
-# Because most Meteor event handlers set the event object to the exact context of the event which does not 
+# Because most Meteor event handlers set the event object to the exact context of the event which does not
 # allow you to simply call these methods.
 # --------------------------------------------------------------------------------------------------------------------
 
@@ -140,7 +140,7 @@ Template.chatInput.events
     if event.shiftKey and event.which is 13
       $("#newMessageInput").append("\r") # Change newline character
       return
-    
+
     if event.which is 13 # Check for pressing enter to submit message
       sendMessage()
       $('#newMessageInput').val("")
@@ -262,27 +262,21 @@ Template.tabButtons.events
     setInSession "inChatWith", "PUBLIC_CHAT"
     setInSession 'display_chatPane', true
 
-  'click .tab': (event) -> 
+  'click .tab': (event) ->
     console.log "tab"
 
 Template.tabButtons.helpers
-	makeTabButton: -> # create tab button for private chat or other such as options
-		safeClass = safeString(@class)
-		safeName = safeString(@name)
+  isTabActive: (userId) ->
+    getInSession("inChatWith") is userId ? "active" : ""
 
-		button = ''
-		button += '<li class=\"'
-		button += 'active ' if getInSession("inChatWith") is @userId
-		button += "tab #{safeClass}"
-		button += '\">'
-		button += "<a href='#' data-toggle='tab' id=\"#{safeName}\""
-		button += 'class=\'gotUnreadMail\' ' if @gotMail and getInSession("displayChatNotifications")
-		button += ">"
-		button += "<button class=\"close closeTab\" type=\"button\"><sup><b>X</b></sup></button> " if @class is 'privateChatTab'
-		button += "#{safeName}"
-		button += '</a>'
-		button += '</li>'
-		button
+  makeSafe: (string) ->
+    safeString(string)
+
+  hasGotUnreadMailClass: (gotMail) ->
+    if gotMail and getInSession("displayChatNotifications")
+      return "gotUnreadMail"
+    else
+      return ""
 
 # make links received from Flash client clickable in HTML
 @toClickable = (str) ->
