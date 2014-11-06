@@ -30,7 +30,7 @@ class LtiService {
     def endPoint = "http://localhost/lti/tool"
     def consumers = "demo:welcome"
     def mode = "simple"
-
+	def lmsProtocol = "http"
     Map<String, String> consumerMap
     
     def retrieveIconEndpoint() {

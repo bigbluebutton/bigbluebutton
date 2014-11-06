@@ -22,6 +22,7 @@ import java.util.HashMap
 import java.util.List
 import java.util.Map
 import java.util.Properties
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.codec.digest.DigestUtils
 
@@ -52,12 +53,20 @@ class ToolController {
 
         params.put(REQUEST_METHOD, request.getMethod().toUpperCase())
         ltiService.logParameters(params)
-
         if( request.post ){
-            def endPoint = (request.isSecure()?"https":"http") + "://" + ltiService.endPoint + "/" + grailsApplication.metadata['app.name'] + "/" + params.get("controller") + (params.get("format") != null? "." + params.get("format"): "")
+        // this next line is borrowed from earlier version of code
+        // it will almost always resolve as http, since the URL of request at this point
+        // is http://127.0.0.1:8080/lti/grails/tool.dispatch
+        // assuming the stock /etc/bigbluebutton/nginx/lti.nginx is in play 
+        // (nginx proxy_pass to tomcat7 on port 8080
+        	def protocol=request.isSecure()?"https":"http";
+    	//  so, better to read id from lti.properties file
+	    	log.debug "ltiService.lmsProtocol=" + ltiService.lmsProtocol ; 
+        	if (ltiService.lmsProtocol != null && (ltiService.lmsProtocol=="http" || ltiService.lmsProtocol == "https") ) protocol=ltiService.lmsProtocol; 
+            def endPoint = protocol + "://" + ltiService.endPoint + "/" + grailsApplication.metadata['app.name'] + "/" + params.get("controller") + (params.get("format") != null? "." + params.get("format"): "")
             Map<String, String> result = new HashMap<String, String>()
             ArrayList<String> missingParams = new ArrayList<String>()
-
+			log.debug "lmsProtocol " + protocol + " endPoint " + endPoint;
             if (hasAllRequiredParams(params, missingParams)) {
                 def sanitizedParams = sanitizePrametersForBaseString(params)
                 def consumer = ltiService.getConsumer(params.get(Parameter.CONSUMER_ID))
@@ -340,7 +349,6 @@ class ToolController {
      */
     private boolean checkValidSignature(String method, String url, String conSecret, Properties postProp, String signature) {
         def validSignature = false
-
         try {
             OAuthMessage oam = new OAuthMessage(method, url, postProp.entrySet())
             //log.debug "OAuthMessage oam = " + oam.toString()
