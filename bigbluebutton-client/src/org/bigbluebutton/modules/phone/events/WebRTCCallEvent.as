@@ -8,6 +8,7 @@ package org.bigbluebutton.modules.phone.events
 		public static const WEBRTC_CALL_CONNECTING:String = "WEBRTC_CALL_CONNECTING";
 		public static const WEBRTC_CALL_ENDED:String = "WEBRTC_CALL_ENDED";
 		public static const WEBRTC_CALL_FAILED:String = "WEBRTC_CALL_FAILED";
+		public static const WEBRTC_CALL_WAITING_FOR_ICE:String = "WEBRTC_CALL_WAITING_FOR_ICE";
 		
 		public var errorCode:Number;
 		
