@@ -70,18 +70,18 @@ dependencies {
   providedCompile 'javax.servlet:servlet-api:2.5@jar'
 	
   // Mina  
-  providedCompile 'org.apache.mina:mina-core:2.0.7@jar'
-  providedCompile 'org.apache.mina:mina-integration-beans:2.0.7@jar'
-  providedCompile 'org.apache.mina:mina-integration-jmx:2.0.7@jar'
+  providedCompile 'org.apache.mina:mina-core:2.0.8@jar'
+  providedCompile 'org.apache.mina:mina-integration-beans:2.0.8@jar'
+  providedCompile 'org.apache.mina:mina-integration-jmx:2.0.8@jar'
 	
   // Spring 
-  providedCompile 'org.springframework:spring-web:4.0.6.RELEASE@jar' 
-  providedCompile  'org.springframework:spring-beans:4.0.6.RELEASE@jar'
-  providedCompile 'org.springframework:spring-context:4.0.6.RELEASE@jar'
-  providedCompile 'org.springframework:spring-core:4.0.6.RELEASE@jar'
+  providedCompile 'org.springframework:spring-web:4.0.7.RELEASE@jar' 
+  providedCompile  'org.springframework:spring-beans:4.0.7.RELEASE@jar'
+  providedCompile 'org.springframework:spring-context:4.0.7.RELEASE@jar'
+  providedCompile 'org.springframework:spring-core:4.0.7.RELEASE@jar'
   
 	// Red5
-	providedCompile 'org/red5:red5-server:1.0.3-RELEASE@jar'
+	providedCompile 'org/red5:red5-server:1.0.4-SNAPSHOT@jar'
 	providedCompile 'org.red5:red5-io:1.0.4-SNAPSHOT@jar'
 	
 	// Logging
@@ -95,7 +95,7 @@ dependencies {
 
   // Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
   // Otherwise we get exception on aop utils class not found.
-  providedCompile 'org.springframework:spring-aop:4.0.6.RELEASE@jar'
+  providedCompile 'org.springframework:spring-aop:4.0.7.RELEASE@jar'
   providedCompile 'aopalliance:aopalliance:1.0@jar'
 	        
   // Testing
@@ -107,7 +107,7 @@ dependencies {
   testRuntime 'org.easymock:easymock:2.4@jar'
 	
   // Tunnelling servlet
-  compile 'org.springframework:spring-webmvc:4.0.3.RELEASE@jar'
+  compile 'org.springframework:spring-webmvc:4.0.7.RELEASE@jar'
 		
   compile project(':common')
 	
@@ -133,6 +133,7 @@ dependencies {
   //redis
   compile 'redis.clients:jedis:1.5.1'
   providedCompile 'commons-pool:commons-pool:1.5.6'
+	compile 'com.google.code.gson:gson:1.7.1'
 }
 
 test {

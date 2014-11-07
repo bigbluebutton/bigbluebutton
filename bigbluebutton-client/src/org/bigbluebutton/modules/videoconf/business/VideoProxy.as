@@ -18,7 +18,8 @@
 */
 package org.bigbluebutton.modules.videoconf.business
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.IOErrorEvent;
 	import flash.events.NetStatusEvent;
@@ -34,6 +35,7 @@ package org.bigbluebutton.modules.videoconf.business
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
@@ -70,7 +72,7 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
     public function connect():void {
-      nc.connect(_url);
+      nc.connect(_url, UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID());
     }
     
 		private function onAsyncError(event:AsyncErrorEvent):void{

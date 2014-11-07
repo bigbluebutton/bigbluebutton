@@ -34,6 +34,7 @@ package org.bigbluebutton.modules.deskshare.services.red5
 	import mx.events.MetadataEvent;
 	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
 	import org.bigbluebutton.modules.deskshare.events.CursorEvent;
 	import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
@@ -109,9 +110,8 @@ package org.bigbluebutton.modules.deskshare.services.red5
         
         dispatcher.dispatchEvent(ce);        
       }
-
-      
-			nc.connect(getURI());
+   
+			nc.connect(getURI(), UsersUtil.getInternalMeetingID());
       
       if (!retry) {
         retryTimer = new Timer(connectionTimeout, 1);

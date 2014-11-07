@@ -18,9 +18,9 @@
 */
 package org.bigbluebutton.voiceconf.red5;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
-
 import org.slf4j.Logger;
 import org.bigbluebutton.voiceconf.sip.PeerNotFoundException;
 import org.bigbluebutton.voiceconf.sip.SipPeerManager;
@@ -32,17 +32,18 @@ import org.red5.server.api.scope.IScope;
 import org.red5.server.api.service.IServiceCapableConnection;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.stream.ClientBroadcastStream;
+import com.google.gson.Gson;
 
 public class Application extends MultiThreadedApplicationAdapter {
-    private static Logger log = Red5LoggerFactory.getLogger(Application.class, "sip");
+	private static Logger log = Red5LoggerFactory.getLogger(Application.class, "sip");
 
-    private SipPeerManager sipPeerManager;
-    private ClientConnectionManager clientConnManager;
+  private SipPeerManager sipPeerManager;
+  private ClientConnectionManager clientConnManager;
     
-    private String sipServerHost = "localhost";
-    private String sipClientRtpIp = "";
-    private int sipPort = 5070;
-    private int startAudioPort = 3000;
+  private String sipServerHost = "localhost";
+  private String sipClientRtpIp = "";
+  private int sipPort = 5070;
+  private int startAudioPort = 3000;
 	private int stopAudioPort = 3029;
 	private String password = "secret";
 	private String username;
@@ -55,15 +56,15 @@ public class Application extends MultiThreadedApplicationAdapter {
     	callStreamFactory = new CallStreamFactory();
     	callStreamFactory.setScope(scope);
     	sipPeerManager.setCallStreamFactory(callStreamFactory);
-        sipPeerManager.setClientConnectionManager(clientConnManager);
-        sipPeerManager.createSipPeer("default", sipClientRtpIp, sipServerHost, sipPort, startAudioPort, stopAudioPort);
-        try {
-			sipPeerManager.register("default", username, password);
-		} catch (PeerNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        return super.appStart(scope);
+      sipPeerManager.setClientConnectionManager(clientConnManager);
+      sipPeerManager.createSipPeer("default", sipClientRtpIp, sipServerHost, sipPort, startAudioPort, stopAudioPort);
+      try {
+      	sipPeerManager.register("default", username, password);
+      } catch (PeerNotFoundException e) {
+      	// TODO Auto-generated catch block
+      	e.printStackTrace();
+      }
+      return super.appStart(scope);
     }
 
     @Override
@@ -75,48 +76,96 @@ public class Application extends MultiThreadedApplicationAdapter {
 
     @Override
     public boolean appConnect(IConnection conn, Object[] params) {
-    	String userid = ((String) params[0]).toString();
-        String username = ((String) params[1]).toString();
-        String clientId = Red5.getConnectionLocal().getClient().getId();
-        String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
-        int remotePort = Red5.getConnectionLocal().getRemotePort();
+    	String meetingId = ((String) params[0]).toString();
+    	String userId = ((String) params[1]).toString();
+      String username = ((String) params[2]).toString();
+      String clientId = Red5.getConnectionLocal().getClient().getId();
+      String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
+      int remotePort = Red5.getConnectionLocal().getRemotePort();
         
-        if ((userid == null) || ("".equals(userid))) userid = "unknown-userid";
-        if ((username == null) || ("".equals(username))) username = "UNKNOWN-CALLER";
-        Red5.getConnectionLocal().setAttribute("USERID", userid);
-        Red5.getConnectionLocal().setAttribute("USERNAME", username);
+      if ((userId == null) || ("".equals(userId))) userId = "unknown-userid";
+      if ((username == null) || ("".equals(username))) username = "UNKNOWN-CALLER";
+      Red5.getConnectionLocal().setAttribute("MEETING_ID", meetingId);
+      Red5.getConnectionLocal().setAttribute("USERID", userId);
+      Red5.getConnectionLocal().setAttribute("USERNAME", username);
         
-        log.info("{} [clientid={}] has connected to the voice conf app.", username + "[uid=" + userid + "]", clientId);
-        log.info("[clientid={}] connected from {}.", clientId, remoteHost + ":" + remotePort);
-        
-        clientConnManager.createClient(clientId, userid, username, (IServiceCapableConnection) Red5.getConnectionLocal());
-        return super.appConnect(conn, params);
+      log.info("{} [clientid={}] has connected to the voice conf app.", username + "[uid=" + userId + "]", clientId);
+      log.info("[clientid={}] connected from {}.", clientId, remoteHost + ":" + remotePort);
+      
+  		String connType = getConnectionType(Red5.getConnectionLocal().getType());
+  		String userFullname = username;
+  		String connId = Red5.getConnectionLocal().getSessionId();
+  		
+  		Map<String, Object> logData = new HashMap<String, Object>();
+  		logData.put("meetingId", meetingId);
+  		logData.put("connType", connType);
+  		logData.put("connId", connId);
+  		logData.put("userId", userId);
+  		logData.put("username", userFullname);
+  		logData.put("event", "user_joining_bbb_voice");
+  		logData.put("description", "User joining BBB Voice.");
+  		
+  		Gson gson = new Gson();
+      String logStr =  gson.toJson(logData);
+  		
+  		log.info("User joining bbb-voice: data={}", logStr);
+      
+      clientConnManager.createClient(clientId, userId, username, (IServiceCapableConnection) Red5.getConnectionLocal());
+      return super.appConnect(conn, params);
     }
+    
+  	private String getConnectionType(String connType) {
+  		if ("persistent".equals(connType.toLowerCase())) {
+  			return "RTMP";
+  		} else if("polling".equals(connType.toLowerCase())) {
+  			return "RTMPT";
+  		} else {
+  			return connType.toUpperCase();
+  		}
+  	}
 
     @Override
     public void appDisconnect(IConnection conn) {
     	String clientId = Red5.getConnectionLocal().getClient().getId();
-    	String userid = getUserId();
+    	String userId = getUserId();
     	String username = getUsername();
     	
-        String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
-        int remotePort = Red5.getConnectionLocal().getRemotePort();    	
+      String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
+      int remotePort = Red5.getConnectionLocal().getRemotePort();    	
     	log.info("[clientid={}] disconnnected from {}.", clientId, remoteHost + ":" + remotePort);
-        log.debug("{} [clientid={}] is leaving the voice conf app. Removing from ConnectionManager.", username + "[uid=" + userid + "]", clientId);
+      log.debug("{} [clientid={}] is leaving the voice conf app. Removing from ConnectionManager.", username + "[uid=" + userId + "]", clientId);
     	
-        clientConnManager.removeClient(clientId);
+  		String connType = getConnectionType(Red5.getConnectionLocal().getType());
+  		String userFullname = username;
+  		String connId = Red5.getConnectionLocal().getSessionId();
+  		
+  		Map<String, Object> logData = new HashMap<String, Object>();
+  		logData.put("meetingId", getMeetingId());
+  		logData.put("connType", connType);
+  		logData.put("connId", connId);
+  		logData.put("userId", userId);
+  		logData.put("username", userFullname);
+  		logData.put("event", "user_leaving_bbb_voice");
+  		logData.put("description", "User leaving BBB Voice.");
+  		
+  		Gson gson = new Gson();
+      String logStr =  gson.toJson(logData);
+  		
+  		log.info("User leaving bbb-voice: data={}", logStr);
+      
+      clientConnManager.removeClient(clientId);
 
-        String peerId = (String) Red5.getConnectionLocal().getAttribute("VOICE_CONF_PEER");
-        if (peerId != null) {
-			try {
-				log.debug("Forcing hang up {} [clientid={}] in case the user is still in the conference.", username + "[uid=" + userid + "]", clientId);
-				sipPeerManager.hangup(peerId, clientId);
-			} catch (PeerNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-        }
-        super.appDisconnect(conn);
+      String peerId = (String) Red5.getConnectionLocal().getAttribute("VOICE_CONF_PEER");
+      if (peerId != null) {
+				try {
+					log.debug("Forcing hang up {} [clientid={}] in case the user is still in the conference.", username + "[uid=" + userId + "]", clientId);
+					sipPeerManager.hangup(peerId, clientId);
+				} catch (PeerNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+      }
+      super.appDisconnect(conn);
     }
     
     @Override
@@ -217,6 +266,12 @@ public class Application extends MultiThreadedApplicationAdapter {
 		String userid = (String) Red5.getConnectionLocal().getAttribute("USERID");
 		if ((userid == null) || ("".equals(userid))) userid = "unknown-userid";
 		return userid;
+	}
+	
+	private String getMeetingId() {
+		String meetingId = (String) Red5.getConnectionLocal().getAttribute("MEETING_ID");
+		if ((meetingId == null) || ("".equals(meetingId))) meetingId = "unknown-meetingid";
+		return meetingId;
 	}
 	
 	private String getUsername() {

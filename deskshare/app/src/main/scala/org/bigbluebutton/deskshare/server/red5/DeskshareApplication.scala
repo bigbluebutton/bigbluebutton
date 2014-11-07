@@ -35,6 +35,7 @@ import java.io.File
 import java.util.concurrent.CountDownLatch
 import org.red5.server.api.scope.{IScope}
 import org.red5.server.util.ScopeUtils
+import com.google.gson.Gson
 
 class DeskshareApplication(streamManager: StreamManager, deskShareServer: DeskShareServer) extends MultiThreadedAppAdapter {
 	private val deathSwitch = new CountDownLatch(1)
@@ -64,6 +65,7 @@ class DeskshareApplication(streamManager: StreamManager, deskShareServer: DeskSh
 	
 	override def appConnect(conn: IConnection, params: Array[Object]): Boolean = {
 		logger.debug("deskShare appConnect to scope " + conn.getScope().getContextPath());
+		var meetingId = params(0).asInstanceOf[String]
 		super.appConnect(conn, params);
 	}
 	
