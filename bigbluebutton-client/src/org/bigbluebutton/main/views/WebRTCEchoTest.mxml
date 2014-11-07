@@ -77,7 +77,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function onCreationComplete():void {
 				setCurrentState("connecting");
-				lblConnectMessage.text = lblConnectMessageMock.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.connectingtoecho');
+				lblConnectMessage.text = lblConnectMessageMock.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.connecting');
 				dotTimer = new Timer(200, 0);
 				dotTimer.addEventListener(TimerEvent.TIMER, dotAnimate);
 				dotTimer.start();
@@ -100,10 +100,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				userClosed = true;
 				trace(LOG + "Echo test passed.");
 				JSLog.debug(LOG + "Echo test passed.");
-				var dispatcher:Dispatcher = new Dispatcher();
-				dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_HAS_AUDIO));
 				setCurrentState("connecting");
 				lblConnectMessage.text = lblConnectMessageMock.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.endingecho');
+				
+				var dispatcher:Dispatcher = new Dispatcher();
+				dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_HAS_AUDIO));
 			}
 			
 			private function noButtonClicked():void {
@@ -152,7 +153,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function handleWebRTCCallConnectingEvent(e:WebRTCCallEvent):void {
 				setCurrentState("connecting");
-				lblConnectMessage.text = lblConnectMessageMock.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.connectingtocall');
+				lblConnectMessage.text = lblConnectMessageMock.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.connecting');
 				if (!dotTimer.running) dotTimer.start();
 			}
 			
