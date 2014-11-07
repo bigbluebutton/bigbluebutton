@@ -22,7 +22,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				xmlns:mate="http://mate.asfusion.com/"
 				width="700" height="350" 
-				creationComplete="onCreationComplete()" 
+				initialize="init()" 
 				styleName="micSettingsWindowStyle"
 				showCloseButton="false">
 	
@@ -45,7 +45,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var phoneOptions:PhoneOptions = new PhoneOptions;
 			
-			private function onCreationComplete():void {
+			[Bindable] private var baseIndex:int = 1;
+			
+			private function init():void {
 				if (!phoneOptions.listenOnlyMode) btnListenOnly.enabled = false;
 				if (phoneOptions.presenterShareOnly && !UsersUtil.amIPresenter() && !UsersUtil.amIModerator()) btnMicrophone.enabled = false;
 				
@@ -54,8 +56,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} else {
 					vrulePhone.visible = vrulePhone.includeInLayout = false;
 					vboxPhone.visible = vboxPhone.includeInLayout = false;
-					this.width = 440;
-					this.height = 300;
+					this.width = 450;
+					this.height = 325;
 					vboxMic.percentWidth = 50;
 					vboxListen.percentWidth = 50;
 				}
@@ -99,24 +101,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" horizontalAlign="right">
-		<mx:HBox width="100%">
-			<mx:TextArea borderSkin="{null}"
-						 editable="false"
+		<mx:HBox width="100%" height="60">
+			<mx:TextArea borderSkin="{null}" verticalScrollPolicy="off" 
+						 editable="false" tabIndex="{baseIndex}"
 						 text="{ResourceUtil.getInstance().getString('bbb.audioSelection.title')}"
 						 styleName="micSettingsWindowTitleStyle"
-						 width="100%"
-						 left="0"/>
+						 width="100%" height="100%" />
 		</mx:HBox>
 		<mx:HRule width="100%" />
 		<mx:HBox width="100%" height="100%">
 			<mx:VBox id="vboxMic" height="100%" width="30%" horizontalAlign="center">
 				<mx:Image source="@Embed('assets/microphone80.png')" />
-				<mx:Button id="btnMicrophone" label="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnMicrophone.label')}" click="onMicClick()" />
+				<mx:Button id="btnMicrophone" tabIndex="{baseIndex+1}" click="onMicClick()"
+						   label="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnMicrophone.label')}"
+						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnMicrophone.toolTip')}"/>
 			</mx:VBox>
 			<mx:VRule id="vruleListen" height="100%" width="5%" />
 			<mx:VBox id="vboxListen" height="100%" width="30%" horizontalAlign="center">
 				<mx:Image source="@Embed('assets/speaker80.png')" />
-				<mx:Button id="btnListenOnly" label="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnListenOnly.label')}" click="onListenClick()" />
+				<mx:Button id="btnListenOnly" tabIndex="{baseIndex+2}" click="onListenClick()"
+						   label="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnListenOnly.label')}"
+						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnListenOnly.toolTip')}" />
 			</mx:VBox>
 			<mx:VRule id="vrulePhone" height="100%" width="5%" />
 			<mx:VBox id="vboxPhone" height="100%" width="30%" horizontalAlign="center">
@@ -125,7 +130,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			</mx:VBox>
 		</mx:HBox>
 		<mx:HRule width="100%" />
-		<mx:Button id="cancelBtn" label="Cancel"
-				   click="onCancelClicked()" styleName="micSettingsWindowPlaySoundButtonStyle" />
+		<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel')}" accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel.toolTip')}"
+				   tabIndex="{baseIndex+3}" click="onCancelClicked()" styleName="micSettingsWindowPlaySoundButtonStyle" />
 	</mx:VBox>
 </mx:TitleWindow>

@@ -51,6 +51,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <bean id="recordingServiceHelper" class="org.bigbluebutton.api.RecordingServiceHelperImp"/>
   
+  <bean id="presDownloadService" class="org.bigbluebutton.presentation.PresentationUrlDownloadService"/>
+  
   <bean id="recordingService" class="org.bigbluebutton.api.RecordingService" >
     <property name="recordingStatusDir" value="${recordStatusDir}"/>  
     <property name="publishedDir" value="${publishedDir}"/>
@@ -81,6 +83,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <property name="defaultClientUrl" value="${defaultClientUrl}"/>
     <property name="defaultMeetingDuration" value="${defaultMeetingDuration}"/>
     <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
+    <property name="autoStartRecording" value="${autoStartRecording}"/>
+    <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
     <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
     <property name="defaultConfigURL" value="${defaultConfigURL}"/>
   </bean>

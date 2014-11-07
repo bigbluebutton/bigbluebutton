@@ -36,6 +36,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import com.google.gson.Gson;
 
@@ -43,31 +44,28 @@ public class KeepAliveService implements MessageListener {
 	private static Logger log = LoggerFactory.getLogger(KeepAliveService.class);
 	private final String KEEP_ALIVE_REQUEST = "KEEP_ALIVE_REQUEST";
 	private MessagingService service;
-	private Timer cleanupTimer;
 	private long runEvery = 10000;
 	private int maxLives = 5;
-	private KeepAliveTask task = null;
+	private KeepAliveTask task = new KeepAliveTask();
 	private volatile boolean processMessages = false;
-	private ArrayList<String> pingMessages;
-	volatile boolean available = true;
+	private ArrayList<String> pingMessages = new ArrayList<String>();
+	volatile boolean available = false;
 	
-	private static final int SENDERTHREADS = 1;
-	private static final Executor msgSenderExec = Executors.newFixedThreadPool(SENDERTHREADS);
-	private static final Executor runExec = Executors.newFixedThreadPool(SENDERTHREADS);
+	private static final Executor msgSenderExec = Executors.newFixedThreadPool(1);
+	private static final Executor runExec = Executors.newFixedThreadPool(1);
+	
+	private ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1);
 	
 	private BlockingQueue<KeepAliveMessage> messages = new LinkedBlockingQueue<KeepAliveMessage>();
 	
-	public void start() {
-		cleanupTimer = new Timer("keep-alive-task", true);
-		task = new KeepAliveTask();
-		pingMessages = new ArrayList<String>();
-		cleanupTimer.scheduleAtFixedRate(task, 5000, runEvery);
+	public void start() {	
+		scheduledThreadPool.scheduleWithFixedDelay(task, 5000, runEvery, TimeUnit.MILLISECONDS);
 		processKeepAliveMessage();
 	}
 	
 	public void stop() {
 		processMessages = false;
-		cleanupTimer.cancel();	
+		scheduledThreadPool.shutdownNow();
 	}
 	
 	public void setRunEvery(long v) {
@@ -78,7 +76,7 @@ public class KeepAliveService implements MessageListener {
 		this.service = service;
 	}
 	
-	class KeepAliveTask extends TimerTask {
+	class KeepAliveTask implements Runnable {
     public void run() {
      	String aliveId = Long.toString(System.currentTimeMillis());
      	KeepAlivePing ping = new KeepAlivePing(aliveId);
@@ -91,12 +89,7 @@ public class KeepAliveService implements MessageListener {
   }
     
   private void queueMessage(KeepAliveMessage msg) {
-   	try {
-		  messages.offer(msg, 5, TimeUnit.SECONDS);
-	  } catch (InterruptedException e) {
-		  // TODO Auto-generated catch block
-		  e.printStackTrace();
-	  }    	
+		  messages.add(msg);
   }
     
   private void processKeepAliveMessage() {
