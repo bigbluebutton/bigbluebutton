@@ -16,6 +16,7 @@ object UsersMessageToJsonConverter {
 	  wuser += "extern_userid"        -> user.externUserID
 	  wuser += "name"                 -> user.name
 	  wuser += "role"                 -> user.role.toString()
+	  wuser += "guest"                -> user.guest
 	  wuser += "raise_hand"           -> user.raiseHand
 	  wuser += "presenter"            -> user.presenter
 	  wuser += "has_stream"           -> user.hasStream
@@ -55,7 +56,8 @@ object UsersMessageToJsonConverter {
 	  wuser += "name"                 -> user.name
 	  wuser += "role"                 -> user.role.toString()	  
 	  wuser += "authToken"            -> user.authToken
-	  
+	  wuser += "guest"                -> user.guest
+
 	  mapAsJavaMap(wuser)
 	}
 

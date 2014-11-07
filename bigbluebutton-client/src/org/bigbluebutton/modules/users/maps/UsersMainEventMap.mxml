@@ -28,7 +28,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.events.VoiceConfEvent;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.LogoutEvent;
+	  <!--TODO: Move guest events to user events? -->
+      import org.bigbluebutton.main.events.AddGuestEvent;
+      import org.bigbluebutton.main.events.RemoveGuestRequestEvent;
+      import org.bigbluebutton.main.events.ResponseModeratorEvent;
+      import org.bigbluebutton.main.events.SuccessfulLoginEvent;
       import org.bigbluebutton.main.events.UserServicesEvent;
+      import org.bigbluebutton.main.events.WaitModeratorEvent;
+      import org.bigbluebutton.main.model.GuestManager;
       import org.bigbluebutton.main.model.users.UserService;
       import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
       import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
@@ -43,6 +50,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<EventHandlers type="{FlexEvent.APPLICATION_COMPLETE}" >
     <ObjectBuilder generator="{UserService}" cache="global" />
+    <ObjectBuilder generator="{GuestManager}" cache="global" />
 	</EventHandlers>
 	
   <EventHandlers type="{LogoutEvent.USER_LOGGED_OUT}" >
@@ -86,11 +94,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{BBBEvent.CHANGE_RECORDING_STATUS}">
     <MethodInvoker generator="{UserService}" method="changeRecordingStatus" arguments="{event}" />
   </EventHandlers>
-  
-  <EventHandlers type="{KickUserEvent.KICK_USER}" >
-    <MethodInvoker generator="{UserService}" method="kickUser" arguments="{event}" />
-  </EventHandlers>
-  
   
   <EventHandlers type="{VoiceConfEvent.EJECT_USER}" >
     <MethodInvoker generator="{UserService}" method="ejectUser" arguments="{event}" />
@@ -140,4 +143,61 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{RoleChangeEvent.ASSIGN_PRESENTER}">
     <MethodInvoker generator="{UserService}" method="assignPresenter" arguments="{event}" />
   </EventHandlers>
+  <!-- End Lock Events -->
+
+  <!-- Guest Events -->
+  <EventHandlers type="{SuccessfulLoginEvent.USER_LOGGED_IN}" >
+    <MethodInvoker generator="{UserService}" method="getAllGuests" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{AddGuestEvent.ADD_GUEST}" >
+    <MethodInvoker generator="{GuestManager}" method="addGuest" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{LogoutEvent.GUEST_KICKED_OUT}" >
+    <MethodInvoker generator="{UserService}" method="guestDisconnect" />
+    <MethodInvoker generator="{UserService}" method="logoutUser" />
+  </EventHandlers>
+
+  <EventHandlers type="LOAD_MODULE_GUEST_AUTO_ACCEPT">
+    <MethodInvoker generator="{UserService}" method="loadModulesCommand"/>
+  </EventHandlers>
+
+  <EventHandlers type="{WaitModeratorEvent.USER_LOGGED_IN}" >
+    <MethodInvoker generator="{UserService}" method="askToEnter" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{ResponseModeratorEvent.RESPONSE}" >
+    <MethodInvoker generator="{UserService}" method="responseToGuest" arguments="{event}" />
+    <MethodInvoker generator="{GuestManager}" method="removeGuest" arguments="{event.userid}" />
+  </EventHandlers>
+
+  <EventHandlers type="{RemoveGuestRequestEvent.GUEST_EVENT}" >
+    <MethodInvoker generator="{GuestManager}" method="removeGuest" arguments="{event.userid}" />
+  </EventHandlers>
+
+  <EventHandlers type="{ResponseModeratorEvent.RESPONSE_ALL}" >
+    <MethodInvoker generator="{UserService}" method="responseToAllGuests" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{BBBEvent.ASK_TO_ACCEPT_GUEST}" >
+    <MethodInvoker generator="{UserService}" method="askToAccept" />
+  </EventHandlers>
+
+  <EventHandlers type="{BBBEvent.ACCEPT_GUEST}" >
+    <MethodInvoker generator="{UserService}" method="acceptGuest" />
+  </EventHandlers>
+
+  <EventHandlers type="{BBBEvent.DENY_GUEST}" >
+    <MethodInvoker generator="{UserService}" method="denyGuest" />
+  </EventHandlers>
+
+  <EventHandlers type="{BBBEvent.BROADCAST_GUEST_POLICY}" >
+    <MethodInvoker generator="{UserService}" method="newGuestPolicy" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{BBBEvent.KICK_GUEST}" >
+    <MethodInvoker generator="{UserService}" method="kickGuest" arguments="{event}" />
+  </EventHandlers>
+  <!-- End Guest Events -->
 </EventMap>

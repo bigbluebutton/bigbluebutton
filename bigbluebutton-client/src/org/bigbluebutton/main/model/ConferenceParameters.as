@@ -60,6 +60,11 @@ package org.bigbluebutton.main.model
 		 * Voice conference bridge that external SIP clients use. Usually the same as webvoiceconf 
 		 */		
 		public var voicebridge:String;
+
+		/**
+		 * Flag used to enter as a guest
+		 */
+		public var guest:Boolean;
 		
 		/**
 		 *  The welcome string, as passed in through the API /create call.

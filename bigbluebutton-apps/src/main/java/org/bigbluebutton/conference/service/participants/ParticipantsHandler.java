@@ -118,14 +118,15 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 			String username = bbbSession.getUsername();
 			String role = bbbSession.getRole();
 			String room = bbbSession.getRoom();
-			log.debug(APP + ":participantJoin - [" + room + "] [" + userid + ", " + username + ", " + role + "]");
+			Boolean guest = bbbSession.isGuest();
+			log.debug(APP + ":participantJoin - [" + room + "] [" + userid + ", " + username + ", " + role + ", " + guest + "]");
 			
 			Map<String, Boolean> status = new HashMap<String, Boolean>();
 			status.put("raiseHand", false);
 			status.put("presenter", false);
 			status.put("hasStream", false);	
 
-			participantsApplication.registerUser(room, userid, username, role, bbbSession.getExternUserID());
+			participantsApplication.registerUser(room, userid, username, role, bbbSession.getExternUserID(), guest);
 		}
 	}
 	

@@ -62,8 +62,8 @@ public class ParticipantsApplication {
 		return true;
 	}
 
-	public boolean registerUser(String roomName, String userid, String username, String role, String externUserID) {
-		bbbInGW.registerUser(roomName, userid, username, role, externUserID, userid);
+	public boolean registerUser(String roomName, String userid, String username, String role, String externUserID, Boolean guest) {
+		bbbInGW.registerUser(roomName, userid, username, role, externUserID, userid, guest);
 		return true;
 	}
 
@@ -85,5 +85,33 @@ public class ParticipantsApplication {
 
 	public void getRecordingStatus(String meetingId, String userId) {
 		bbbInGW.getRecordingStatus(meetingId, userId);
+	}
+
+	public void askingToEnter(String meetingId, String userId) {
+		bbbInGW.userRequestToEnter(meetingId, userId);
+	}
+
+	public void getGuestPolicy(String meetingId, String requesterId) {
+		bbbInGW.getGuestPolicy(meetingId, requesterId);
+	}
+
+	public void newGuestPolicy(String meetingId, String guestPolicy) {
+		bbbInGW.setGuestPolicy(meetingId, guestPolicy);
+	}
+
+	public void askingForGuestWaiting(String meetingId, String requesterId) {
+		bbbInGW.getGuestsWaiting(meetingId, requesterId);
+	}
+
+	public void responseToGuest(String meetingId, String userId, Boolean resp) {
+		bbbInGW.responseToGuest(meetingId, userId, resp);
+	}
+
+	public void responseToAllGuests(String meetingId, Boolean resp) {
+		bbbInGW.responseToAllGuests(meetingId, resp);
+	}
+
+	public void kickGuest(String meetingId, String guestId) {
+		bbbInGW.kickGuest(meetingId, guestId);
 	}
 }

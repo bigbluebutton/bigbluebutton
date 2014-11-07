@@ -41,7 +41,7 @@ package org.bigbluebutton.main.model.users
     
 		[Bindable] public var me:Boolean = false;
 		[Bindable] public var userID:String = "UNKNOWN USER";
-    [Bindable] public var externUserID:String = "UNKNOWN USER";
+   		[Bindable] public var externUserID:String = "UNKNOWN USER";
 		[Bindable] public var name:String;
 		[Bindable] public var talking:Boolean = false;
 		[Bindable] public var phoneUser:Boolean = false;
@@ -53,6 +53,10 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var disableMyPublicChat:Boolean = false;
     [Bindable] public var lockedLayout:Boolean = false;
     
+		[Bindable] public var waitingForMod:Boolean = false;
+		[Bindable] public var guest:Boolean;
+		[Bindable] public var acceptedJoin:Boolean = false;
+
 		[Bindable]
 		public function get hasStream():Boolean {
 			return streamNames.length > 0;
@@ -209,6 +213,10 @@ package org.bigbluebutton.main.model.users
 				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.viewer');
 		}
 		
+		public function amIGuest():Boolean {
+			return guest;
+		}
+
 		/*
 		* This variable is for accessibility for the Users Window. It can't be manually set
 		* and only changes when one of the relevant media variables changes. Use the verifyMedia
@@ -353,6 +361,8 @@ package org.bigbluebutton.main.model.users
 			n.disableMyMic = user.disableMyMic;
 			n.disableMyPrivateChat = user.disableMyPrivateChat;
 			n.disableMyPublicChat = user.disableMyPublicChat;
+			n.guest = user.guest;
+
 			return n;		
 		}
 

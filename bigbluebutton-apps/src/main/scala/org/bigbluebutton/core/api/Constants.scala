@@ -90,4 +90,7 @@ object Constants {
   val LISTEN_ONLY                     = "listen_only"
   val STREAM_PATH                     = "stream_path"
   val STREAM_PATH_DEFAULT             = "stream_path_default"
+  val GUEST                           = "guest"
+  val GUEST_POLICY                    = "guest_policy"
+  val GUESTS_WAITING                  = "guests_waiting"
 }

@@ -49,6 +49,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					numModules++;
 				}
 				this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading', [numModules]);
+				this.visible = true;
 			}
 			
 			private function moduleLoadProgress(e:ModuleLoadEvent):void{

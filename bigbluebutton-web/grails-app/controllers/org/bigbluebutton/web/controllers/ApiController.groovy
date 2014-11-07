@@ -204,6 +204,12 @@ class ApiController {
       errors.missingParamError("checksum");
     }
 
+    String guest;
+    if (!StringUtils.isEmpty(params.guest) && params.guest.equalsIgnoreCase("true"))
+      guest = "true";
+    else
+      guest = "false";
+
     // Do we have a name for the user joining? If none, complain.
     String fullName = params.fullName
     if (StringUtils.isEmpty(fullName)) {
@@ -360,6 +366,7 @@ class ApiController {
   us.mode = "LIVE"
   us.record = meeting.isRecord()
   us.welcome = meeting.getWelcomeMessage()
+  us.guest = guest
 	us.logoutUrl = meeting.getLogoutUrl();
 	us.configXML = configxml;
 			
@@ -382,7 +389,7 @@ class ApiController {
 	meetingService.addUserSession(session['user-token'], us);
 	
 	// Register user into the meeting.
-	meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.internalUserId /* authToken for now */)
+	meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.internalUserId /* authToken for now */, us.guest)
 	
 	log.info("Session user token for " + us.fullname + " [" + session['user-token'] + "]")	
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
@@ -1354,6 +1361,7 @@ class ApiController {
               externUserID = us.externUserID
               internalUserID = us.internalUserId
               role = us.role
+              guest = us.guest
               conference = us.conference
               room = us.room 
               voicebridge = us.voicebridge

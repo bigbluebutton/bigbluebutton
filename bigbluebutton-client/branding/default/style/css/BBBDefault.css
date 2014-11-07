@@ -95,7 +95,7 @@ ToolTip {
   fontFamily: Arial;
 }
 
-Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowProfileComboStyle, .cameraDisplaySettingsWindowCameraSelector, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle {
+Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowProfileComboStyle, .cameraDisplaySettingsWindowCameraSelector, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle, .settingsButtonStyle {
   textIndent: 0;
   paddingLeft: 10;
   paddingRight: 10;
@@ -163,6 +163,10 @@ Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraD
   paddingLeft: 0;
   paddingRight: 0;
   icon: Embed('assets/images/logout.png');
+}
+
+.settingsButtonStyle {
+  icon: Embed('assets/images/wrench.png');
 }
 
 DataGrid {
@@ -798,27 +802,6 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
   disabledSkin:  Embed('assets/images/3_minimizeButton.png');
 }
 
-/*
-https://www.iconfinder.com/icons/172512/mute_icon#size=128
-*/
-.muteOverlayBtn
-{
-  upSkin:        Embed('assets/images/audio_20_white.png');
-  overSkin:      Embed('assets/images/audio_20_white.png');
-  downSkin:      Embed('assets/images/audio_20_white.png');
-  disabledSkin:  Embed('assets/images/audio_20_white.png');
-}
-
-/*
-https://www.iconfinder.com/icons/172499/low_volume_icon#size=128
-*/
-.unmuteOverlayBtn
-{
-  upSkin:        Embed('assets/images/audio_muted_20_white.png');
-  overSkin:      Embed('assets/images/audio_muted_20_white.png');
-  downSkin:      Embed('assets/images/audio_muted_20_white.png');
-  disabledSkin:  Embed('assets/images/audio_muted_20_white.png');
-}
 
 .resizeHndlr 
 {
@@ -834,12 +817,12 @@ https://www.iconfinder.com/icons/172499/low_volume_icon#size=128
 }
 
 Alert {
-	borderColor: #DFDFDF;
-	backgroundColor: #EFEFEF;
-	borderAlpha: 1;
-	shadowDistance: 1;
-	dropShadowColor: #FFFFFF;
-	color: #000000;
+  borderColor: #DFDFDF;
+  backgroundColor: #EFEFEF;
+  borderAlpha: 1;
+  shadowDistance: 1;
+  dropShadowColor: #FFFFFF;
+  color: #000000;
 }
 
 .lockSettingsDefaultLabelStyle {
@@ -883,11 +866,3 @@ Alert {
 .recordButtonStyleStop {
   icon:   Embed('assets/images/control-record-stop.png');
 }
-
-.bandwidthButtonStyle {
-  paddingTop: 0;
-  paddingBottom: 0;
-  height: 22;
-  icon:   Embed('assets/images/bandwidth.png');
-}
-
