@@ -392,7 +392,7 @@ trait UsersApp {
       var message = "";
       guestsWaiting foreach {guest => {
         users.getUser(guest) match {
-          case Some(user) => message = message + user.userID + ":" + user.name
+          case Some(user) => message = message + user.userID + ":" + user.name + ","
           case None => {}
         }
       }}
