@@ -448,6 +448,13 @@
       }
     }
 
+    BBB.webRTCConferenceCallWaitingForICE = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCConferenceCallWaitingForICE();
+      }
+    }
+
     BBB.webRTCCallProgressCallback = function(progress) {
       var swfObj = getSwfObj();
       if (swfObj) {
@@ -475,6 +482,14 @@
         swfObj.webRTCEchoTestFailed(reason);
       }
     }
+    
+    BBB.webRTCEchoTestWaitingForICE = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCEchoTestWaitingForICE();
+      }
+    }
+    
 
     BBB.webRTCEchoTestEnded = function() {
       var swfObj = getSwfObj();

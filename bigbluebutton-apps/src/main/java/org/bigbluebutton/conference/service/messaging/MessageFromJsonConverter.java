@@ -55,7 +55,7 @@ public class MessageFromJsonConverter {
 		String voiceBridge = payload.get(Constants.VOICE_CONF).getAsString();
 		Long duration = payload.get(Constants.DURATION).getAsLong();
 		Boolean autoStartRecording = payload.get(Constants.AUTO_START_RECORDING).getAsBoolean();
-		Boolean allowStartStopRecording = payload.get(Constants.AUTO_START_RECORDING).getAsBoolean();
+		Boolean allowStartStopRecording = payload.get(Constants.ALLOW_START_STOP_RECORDING).getAsBoolean();
 		
 		return new CreateMeetingMessage(id, name, record, voiceBridge, 
 				          duration, autoStartRecording, allowStartStopRecording);
