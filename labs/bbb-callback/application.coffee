@@ -1,6 +1,7 @@
 request = require("request")
 redis = require("redis")
 
+config = require("./config")
 Callbacks = require("./callbacks")
 
 # Class that defines the application.
@@ -22,10 +23,9 @@ module.exports = class Application
       console.log "---------------------------------------------------------"
       console.log "Application: got message [", channel, "]", message
       try
-        message = JSON.parse(message)
-
-        # TODO: filter the messages we want to process
-        @_processMessage(message) if message?
+        message = JSON.parse message
+        if message? and @_filterMessage channel, message
+          @_processMessage message
 
       catch e
         # TODO: handle the error properly
@@ -33,11 +33,18 @@ module.exports = class Application
 
     @subscriber.psubscribe "bigbluebutton:*"
 
+  # Returns whether the message read from redis should genrate a callback
+  # call or not.
+  _filterMessage: (channel, message) ->
+    for event in config.events
+      if channel? and message.header?.name? and
+         event.channel.match(channel) and event.name.match(message.header?.name)
+          return true
+    false
+
   _processMessage: (message) ->
     @callbacks.getCallbackUrls (error, callbackUrls) =>
       console.log "Application: got callback urls:", callbackUrls
       callbackUrls.forEach (callbackUrl) ->
         if callbackUrl.isActive()
-          # TODO: the external meeting ID is not on redis yet
-          # message.meetingID = rep.externalMeetingID
           callbackUrl.enqueue(message)

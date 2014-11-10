@@ -17,6 +17,10 @@ module.exports = class CallbackURL
   # use another class to manage the queue and make the callback calls
   enqueue: (message) ->
     console.log "CallbackURL: enqueueing message", message
+
+    # TODO: the external meeting ID is not on redis yet
+    # message.meetingID = rep.externalMeetingID
+
     requestOptions =
       uri: @url
       method: "POST"
