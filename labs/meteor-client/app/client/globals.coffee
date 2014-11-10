@@ -249,12 +249,10 @@ Handlebars.registerHelper "visibility", (section) ->
 		webrtc_hangup hangupCallback # sign out of call
 	else
 		# create voice call params
-		username = "#{getInSession("userId")}-bbbID-#{getUsersName()}"
 		voiceBridge = Meteor.Meetings.findOne({}).voiceConf
-		server = null
 		joinCallback = (message) ->
 			console.log "started webrtc_call"
-		webrtc_call(username, voiceBridge, server, joinCallback) # make the call
+		callIntoConference(voiceBridge, joinCallback) # make the call
 	return false
 
 @toggleWhiteBoard = ->
