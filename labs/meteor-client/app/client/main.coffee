@@ -9,7 +9,7 @@ loadLib = (libname) ->
   successCallback = ->
 
   retryMessageCallback = (param) ->
-    console.log "Failed to load #{JSON.stringify(param)}"
+    Meteor.log.info "Failed to load library", param
 
   Meteor.Loader.loadJs("http://#{window.location.hostname}/client/lib/#{libname}", successCallback, 10000).fail(retryMessageCallback)
 
@@ -42,7 +42,6 @@ Meteor.startup ->
   #     Meteor.call "getMyInfo", uid, (error, result) -> #TODO should try to get rid of this?
   #       if error? then console.log "error:" + error
   #       else
-          
 
   setInSession "display_usersList", true
   setInSession "display_navbar", true
@@ -87,7 +86,7 @@ Template.header.events
     toggleMic @
 
   "click .raiseHand": (event) ->
-    console.log "navbar raise own hand from client"
+    Meteor.log.info "navbar raise own hand from client"
     $(".tooltip").hide()
     Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("DBID"), getInSession("userId"), getInSession("DBID") )
     # "click .settingsIcon": (event) ->

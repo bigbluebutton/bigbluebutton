@@ -17,4 +17,5 @@ less
 francocatena:status
 external-file-loader
 winston
+winston-client
 

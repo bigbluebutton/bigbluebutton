@@ -6,11 +6,9 @@
         "git": "https://github.com/tomconnors/raphaeljs-package.git",
         "branch": "master"
       },
-      "external-file-loader": {}
-      "winston": {
-        "git": "https://github.com/tomrogers3/meteor-winston.git",
-        "branch": "master"
-      }
+      "external-file-loader": {},
+      "winston": {},
+      "winston-client": {}
     },
     "packages": {
       "raphaeljs-package": {
@@ -22,10 +20,16 @@
         "git": "https://github.com/davidd8/meteor-external-file-loader.git",
         "tag": "v0.1.4",
         "commit": "352694a7cf906b8241161c2fd1435161c1d5409f"
+      },
       "winston": {
         "git": "https://github.com/tomrogers3/meteor-winston.git",
-        "branch": "master",
-        "commit": "f3c080d0f54957e7122b00998b3aa20752ccdd90"
+        "tag": "v0.0.3",
+        "commit": "60dc02303ca003ef05254f94fbb9bfd40915d5d3"
+      },
+      "winston-client": {
+        "git": "https://github.com/farpoint/meteor-winston-client.git",
+        "tag": "v0.0.4",
+        "commit": "bc9959bf320e7745052d42e84038b27eec0b1a68"
       }
     }
   }
