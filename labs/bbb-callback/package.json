@@ -1,17 +1,18 @@
 {
   "name": "bbb-callbacks",
-  "version": "0.8.1",
-  "description": "a module that allows to do API callbacks",
+  "version": "0.9.0",
+  "description": "A module for BigBlueButton for API callbacks",
   "keywords": [
     "bigbluebutton",
     "Web API",
     "callbacks"
   ],
   "dependencies" : {
-    "redis": "0.8.3",
-    "request": "2.27.0"
+    "redis": "0.12.1",
+    "request": "2.47.0",
+    "coffee-script": "1.8.0"
   },
   "engines": {
-    "node": "0.8.21"
+    "node": "0.10.26"
   }
 }
