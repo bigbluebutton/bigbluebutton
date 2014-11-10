@@ -27,13 +27,12 @@ class LtiService {
 
     boolean transactional = false
 
-    def endPoint = "localhost"
+    def endPoint = "http://localhost/lti/tool"
     def consumers = "demo:welcome"
     def mode = "simple"
-	def lmsProtocol = "http"
 
 	def ssl_enabled
-
+ 	
     Map<String, String> consumerMap
     
     def retrieveIconEndpoint() {
