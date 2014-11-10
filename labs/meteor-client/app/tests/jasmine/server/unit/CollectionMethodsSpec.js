@@ -34,13 +34,10 @@ describe("Collections", function () {
   //----------------------------------------------------------------------
 
   it("should be handled correctly by insert() on calling addChatToCollection() in case of private chat", function () {
-
-    //spyOn(Meteor.Users, "findOne").and.returnValue({ _id: "dbid001" });
     spyOn(Meteor.Users, "findOne").and.callFake(function(doc) {
       if(doc.userId == "user001") return { _id: "dbid001" };
       else if(doc.userId == "user002") return { _id: "dbid002" };
     });
-
     spyOn(Meteor.Chat, "insert");
 
     addChatToCollection("meeting001", {
@@ -56,7 +53,6 @@ describe("Collections", function () {
       from_lang: "en"
     });
 
-    //expect(Meteor.Chat.insert).toHaveBeenCalled();
     expect(Meteor.Chat.insert).toHaveBeenCalledWith({
       meetingId: "meeting001",
       message: {
@@ -65,8 +61,8 @@ describe("Collections", function () {
         to_username: "Anton",
         from_tz_offset: "240",
         from_color: "0x000000",
-        to_userid: "dbid002", // not "dbid002"
-        from_userid: "dbid001", // not "dbid001"
+        to_userid: "dbid002",//not "user002"
+        from_userid: "dbid001",//not "user001"
         from_time: "123",
         from_username: "Maxim",
         from_lang: "en"
@@ -79,7 +75,6 @@ describe("Collections", function () {
       if(doc.userId == "user001") return { _id: "dbid001" };
       else if(doc.userId == "user002") return { _id: "dbid002" };
     });
-
     spyOn(Meteor.Chat, "insert");
 
     addChatToCollection("meeting001", {
