@@ -1,36 +1,44 @@
-request = require("request")
+CallbackEmitter = require("./callback_emitter")
 
 # The representation of a callback URL and its properties, taken from redis.
 module.exports = class CallbackURL
 
-  # constructor: ->
+  constructor: ->
+    @queue = []
+    @emitter = null
 
   mapFromRedis: (redisData) ->
     @url = redisData?.callbackURL
     @externalMeetingID = redisData?.externalMeetingID
     @active = redisData?.active
 
+  # TODO: not sure why this is necessary, but comes from the data in redis
   isActive: ->
     @active
 
-  # TODO: use a queue and enqueue the message instead of sending it
-  # use another class to manage the queue and make the callback calls
+  # Puts a new message in the queue. Will also trigger a processing in the queue so this
+  # message might be processed instantly.
   enqueue: (message) ->
     console.log "CallbackURL: enqueueing message", message
+    @queue.push message
+    @_processQueue()
 
-    # TODO: the external meeting ID is not on redis yet
-    # message.meetingID = rep.externalMeetingID
+  # Gets the first message in the queue and start an emitter to send it. Will only do it
+  # if there is no emitter running already and if there is a message in the queue.
+  _processQueue: ->
+    message = @queue[0]
+    return unless message? or @emitter?
 
-    requestOptions =
-      uri: @url
-      method: "POST"
-      json: message
+    @emitter = new CallbackEmitter(@url, message)
+    @emitter.start()
 
-    request requestOptions, (error, response, body) ->
-      if not error and response.statusCode is 200
-        console.log "Error calling url: [" + requestOptions.uri + "]"
-        console.log "Error: [" + JSON.stringify(error) + "]"
-        console.log "Response: [" + JSON.stringify(response) + "]"
-      else
-        console.log "Passed calling url: [" + requestOptions.uri + "]"
-        console.log "Response: [" + JSON.stringify(response) + "]"
+    @emitter.on "success", =>
+      delete @emitter
+      @queue.shift() # pop the first message just sent
+      @_processQueue() # go to the next message
+
+    # TODO: do what on error?
+    @emitter.on "error", (error) =>
+      delete @emitter
+      @queue.shift() # pop the first message just sent
+      @_processQueue() # go to the next message

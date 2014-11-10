@@ -33,7 +33,7 @@ module.exports = class Application
 
     @subscriber.psubscribe "bigbluebutton:*"
 
-  # Returns whether the message read from redis should genrate a callback
+  # Returns whether the message read from redis should generate a callback
   # call or not.
   _filterMessage: (channel, message) ->
     for event in config.events
