@@ -123,4 +123,59 @@ describe("Collections", function () {
         { "message.from_userid": "user002", "message.to_userid": "user001" }]
     });
   });
+
+  //----------------------------------------------------------------------
+  // meetings.coffee
+  //----------------------------------------------------------------------
+
+  it("should not be updated on calling addMeetingToCollection() if the meeting is already in the collection", function () {
+    spyOn(Meteor.Meetings, "findOne").and.callFake(function(doc) {
+      if(doc.meetingId == "meeting001") return { meetingId: "meeting001" };
+      else return undefined;
+    });
+    spyOn(Meteor.Meetings, "insert");
+
+    addMeetingToCollection("meeting001", "Demo Meeting", false, "12345", "0");
+
+    expect(Meteor.Meetings.insert).not.toHaveBeenCalled();
+  });
+
+  it("should be handled correctly by insert() on calling addMeetingToCollection() with a brand new meeting", function () {
+    spyOn(Meteor.Meetings, "findOne").and.returnValue(undefined);//collection is empty
+    spyOn(Meteor.Meetings, "insert");
+
+    addMeetingToCollection("meeting001", "Demo Meeting", false, "12345", "0");
+
+    expect(Meteor.Meetings.insert).toHaveBeenCalledWith({
+      meetingId: "meeting001",
+      meetingName: "Demo Meeting",
+      intendedForRecording: false,
+      currentlyBeingRecorded: false,//default value
+      voiceConf: "12345",
+      duration: "0"
+    });
+  });
+
+  it("should not be touched on calling removeMeetingFromCollection() if there is no wanted meeting in the collection", function () {
+    spyOn(Meteor.Meetings, "findOne").and.returnValue(undefined);//collection is empty
+    spyOn(Meteor.Meetings, "remove");
+
+    removeMeetingFromCollection("meeting001");
+
+    expect(Meteor.Meetings.remove).not.toHaveBeenCalled();
+  });
+
+  //TODO: emulate a find() call
+  /*it("should be correctly updated after the removeMeetingFromCollection() call", function () {
+    spyOn(Meteor.Meetings, "findOne").and.callFake(function(doc) {
+      if(doc.meetingId == "meeting001") return { _id: "id001", meetingId: "meeting001" };
+      else return undefined;
+    });
+
+    spyOn(Meteor.Meetings, "remove");
+
+    removeMeetingFromCollection("meeting001");
+
+    expect(Meteor.Meetings.remove).toHaveBeenCalled();
+  });*/
 });
