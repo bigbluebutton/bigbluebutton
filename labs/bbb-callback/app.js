@@ -2,6 +2,6 @@
 
 require("coffee-script/register");
 
-Application = require('./app.coffee');
+Application = require('./application.coffee');
 application = new Application();
 application.start();
