@@ -15,6 +15,7 @@ case class KeepAliveMessage
 case class CreateMeeting
 (
   meetingID: String, 
+  externalMeetingID: String, 
   meetingName: String,
   recorded: Boolean, 
   voiceBridge: String,

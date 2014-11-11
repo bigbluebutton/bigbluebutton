@@ -226,6 +226,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   private def handleCreateMeeting(msg: CreateMeeting) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)    
+    payload.put(Constants.EXTERNAL_MEETING_ID, msg.externalMeetingID)    
     payload.put(Constants.MEETING_NAME, msg.meetingName)
     payload.put(Constants.RECORDED, msg.recorded)
     payload.put(Constants.VOICE_CONF, msg.voiceBridge)

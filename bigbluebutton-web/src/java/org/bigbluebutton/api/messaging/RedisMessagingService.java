@@ -65,10 +65,10 @@ public class RedisMessagingService implements MessagingService {
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);		
 	}
 	
-	public void createMeeting(String meetingID, String meetingName, Boolean recorded, 
+	public void createMeeting(String meetingID, String externalMeetingID, String meetingName, Boolean recorded, 
 			                      String voiceBridge, Long duration, 
 			                      Boolean autoStartRecording, Boolean allowStartStopRecording) {
-		CreateMeetingMessage msg = new CreateMeetingMessage(meetingID, meetingName, 
+		CreateMeetingMessage msg = new CreateMeetingMessage(meetingID, externalMeetingID, meetingName, 
 				                                  recorded, voiceBridge, duration, 
 				                                  autoStartRecording, allowStartStopRecording);
 		String json = MessageToJson.createMeetingMessageToJson(msg);

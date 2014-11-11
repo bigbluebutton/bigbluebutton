@@ -17,11 +17,11 @@ import org.bigbluebutton.core.apps.presentation.Presentation
 class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresentationsUtil) extends IBigBlueButtonInGW {
    
   // Meeting
-  def createMeeting2(meetingID: String, meetingName: String, record: Boolean, 
+  def createMeeting2(meetingID: String, externalMeetingID:String, meetingName: String, record: Boolean, 
           voiceBridge: String, duration: Long, autoStartRecording: Boolean, 
           allowStartStopRecording: Boolean) {
 //    println("******************** CREATING MEETING [" + meetingID + "] ***************************** ")
-  	bbbGW.accept(new CreateMeeting(meetingID, meetingName, record, 
+  	bbbGW.accept(new CreateMeeting(meetingID, externalMeetingID, meetingName, record, 
 	                   voiceBridge, duration, autoStartRecording,
 	                   allowStartStopRecording))
   }
