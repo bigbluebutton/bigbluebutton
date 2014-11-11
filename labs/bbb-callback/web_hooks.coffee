@@ -20,7 +20,7 @@ module.exports = class WebHooks
 
   start: ->
     @_subscribeToEvents()
-    # @_subscribeToMeetings()
+    @_subscribeToMeetings()
 
   # Subscribe to the events on pubsub that might need to be sent in callback calls.
   _subscribeToEvents: ->
@@ -56,36 +56,36 @@ module.exports = class WebHooks
       console.log "WebHooks: enqueuing a message in the hook:", hook.callbackURL
       hook.enqueue message
 
-  # TODO: enable this once we have the external meeting ID on redis
-  # # Subscribe to the meeting events on pubsub to keep track of the mapping
-  # # of meeting IDs.
-  # _subscribeToMeetings: ->
-  #   @subscriberMeetings.on "subscribe", (channel, count) ->
-  #     console.log "WebHooks: subscribed to meetings channel ", channel
+  # Subscribe to the meeting events on pubsub to keep track of the mapping
+  # of meeting IDs.
+  _subscribeToMeetings: ->
+    @subscriberMeetings.on "subscribe", (channel, count) ->
+      console.log "WebHooks: subscribed to meetings channel ", channel
 
-  #   @subscriberMeetings.on "message", (channel, message) =>
-  #     console.log "WebHooks: got message on meetings channel [#{channel}]", message
-  #     try
-  #       message = JSON.parse(message)
-  #       if message.header?.name is "meeting_created_message"
-  #         @_addMeetingMapping(message.payload?.meeting_id, message.payload?.external_meeting_id)
-  #       else if message.header?.name is "meeting_destroyed_event"
-  #         @_removeMeetingMapping(message.payload?.meeting_id)
+    @subscriberMeetings.on "message", (channel, message) =>
+      console.log "WebHooks: got message on meetings channel [#{channel}]", message
+      try
+        message = JSON.parse(message)
+        if message.header?.name is "meeting_created_message"
+          @_addMeetingMapping(message.payload?.meeting_id, message.payload?.external_meeting_id)
+        else if message.header?.name is "meeting_destroyed_event"
+          @_removeMeetingMapping(message.payload?.meeting_id)
 
-  #     catch e
-  #       console.log "WebHooks: error processing the message", message, ":", e
+      catch e
+        console.log "WebHooks: error processing the message", message, ":", e
 
-  #   @subscriberMeetings.subscribe config.hooks.meetingsChannel
+    @subscriberMeetings.subscribe config.hooks.meetingsChannel
 
-  # _addMeetingMapping: (meetingID, externalMeetingID) ->
-  #   unless @meetingMappíngs[meetingID]?
-  #     @meetingMappings[meetingID] = externalMeetingID
-  #     console.log "WebHooks: added meeting mapping to the list", meetingID, "=", @meetingMappings[meetingID]
+  _addMeetingMapping: (meetingID, externalMeetingID) ->
+    unless meetingID in _.keys(@meetingMappings)
+      @meetingMappings[meetingID] = externalMeetingID
+      console.log "WebHooks: added meeting mapping to the list", meetingID, "=", @meetingMappings[meetingID]
 
-  # _removeMeetingMapping: (meetingID) ->
-  #   if @meetingMapping[meetingID]?
-  #     console.log "WebHooks: removing meeting mapping from the list", meetingID, "=", @meetingMappings[meetingID]
-  #     delete @meetingMappings[meetingID]
+  _removeMeetingMapping: (meetingID) ->
+    if meetingID in _.keys(@meetingMappings)
+      console.log "WebHooks: removing meeting mapping from the list", meetingID, "=", @meetingMappings[meetingID]
+      delete @meetingMappings[meetingID]
+      @meetingMappings[meetingID] = null
 
   # TODO: enable the methods below again when we persist hooks to redis again
   # # Gets all hooks from redis.

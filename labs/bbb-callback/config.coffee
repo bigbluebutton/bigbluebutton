@@ -7,7 +7,7 @@ config = {}
 # BigBlueButton configs
 config.bbb = {}
 # TODO: move secret to a config_local file
-config.bbb.sharedSecret = "0009786e5fdca882747c29081db64ecd"
+config.bbb.sharedSecret = "33e06642a13942004fd83b3ba6e4104a"
 config.bbb.apiPath = "/bigbluebutton/api"
 
 # Web server configs
