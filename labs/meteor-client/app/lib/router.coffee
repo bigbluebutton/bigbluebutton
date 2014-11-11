@@ -20,7 +20,20 @@
         if meetingId? and userId? and authToken?
           Meteor.call("validateAuthToken", meetingId, userId, authToken)
           if Meteor.isClient then sendMeetingInfoToClient(meetingId, userId)
-          self.redirect('/')
+          Meteor.subscribe 'users', meetingId, userId, ->
+            console.log "now I have access to the users from the client. my userid is #{userId}"
+
+            Meteor.call "getMyInfo", userId, (error, result) ->
+              if result.error?
+                alert result.error
+                # redirect towards a different page
+              else
+                console.log "onBeforeAction2"
+                setInSession("DBID", result.DBID)
+                setInSession("userName", result.name)
+                me = Meteor.Users.findOne({_id:result.DBID})
+                console.log "me=" + JSON.stringify me
+                self.redirect('/') #we are sure the user has dbid, userid and exists in the collection
         else
           console.log "unable to extract from the URL some of {meetingId, userId, authToken}"
       else
@@ -36,11 +49,7 @@
           Meteor.subscribe 'shapes', meetingId, ->
             Meteor.subscribe 'slides', meetingId, ->
               Meteor.subscribe 'meetings', meetingId, ->
-                Meteor.subscribe 'presentations', meetingId, ->
-                  Meteor.call "getMyInfo", userId, (error, result) ->
-                    #console.log "managed to reconnect successfully"
-                    setInSession("DBID", result.DBID)
-                    setInSession("userName", result.name)
+                Meteor.subscribe 'presentations', meetingId
 
   @route "logout",
     path: "logout"
