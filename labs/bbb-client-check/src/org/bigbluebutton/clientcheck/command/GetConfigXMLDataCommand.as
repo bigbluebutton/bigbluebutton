@@ -23,7 +23,7 @@ package org.bigbluebutton.clientcheck.command
 		[Inject]
 		public var config:IXMLConfig;
 
-		private var CONFIG_XML:String="client/client-check/conf/config.xml";
+		private var CONFIG_XML:String="check/conf/config.xml";
 		private var _urlRequest:URLRequest;
 
 		public override function execute():void
