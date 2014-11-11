@@ -3,16 +3,8 @@
 	<downloadFilePath url="test_image.jpg"/>
 	<ports>
 		<port>
-			<name>Port 1935</name>
-			<number>1935</number>
-		</port>
-		<port>
 			<name>Port 9123</name>
 			<number>9123</number>
-		</port>
-		<port>
-			<name>Port 80</name>
-			<number>80</number>
 		</port>
 	</ports>
 	<rtmpapps>
