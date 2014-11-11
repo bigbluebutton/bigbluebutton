@@ -328,4 +328,77 @@ describe("Collections", function () {
       }
     });
   });
+
+
+  //----------------------------------------------------------------------
+  // presentation.coffee
+  //----------------------------------------------------------------------
+
+  it("should be handled correctly by insert() on calling addPresentationToCollection()", function (){
+    spyOn(Meteor.Presentations, "findOne").and.returnValue(undefined)
+
+    spyOn(Meteor.Presentations, "insert");
+
+    addPresentationToCollection("meeting001", {
+      id: "presentation001",
+      name: "Presentation 001",
+      current: true
+    });
+
+    expect(Meteor.Presentations.insert).toHaveBeenCalledWith({
+      meetingId: "meeting001",
+      presentation: {
+        id: "presentation001",
+        name: "Presentation 001",
+        current: true
+      },
+      pointer: {
+        x: 0.0,
+        y: 0.0
+      }
+    });
+  });
+
+  it("should be handled correctly on calling addPresentationToCollection() when presentation is already in the collection", function (){
+    spyOn(Meteor.Presentations, "findOne").and.returnValue({ _id: "dbid001" });
+
+    spyOn(Meteor.Presentations, "insert");
+
+    addPresentationToCollection("meeting001", {
+      id: "presentation001",
+      name: "Presentation 001",
+      current: true
+    });
+
+    expect(Meteor.Presentations.insert).not.toHaveBeenCalledWith({
+      meetingId: "meeting001",
+      presentation: {
+        id: "presentation001",
+        name: "Presentation 001",
+        current: true
+      },
+      pointer: {
+        x: 0.0,
+        y: 0.0
+      }
+    });
+  });
+
+  it("should be handled correctly by remove() on calling removePresentationFromCollection", function (){
+    spyOn(Meteor.Presentations, "findOne").and.returnValue({ _id: "dbid001" });
+    spyOn(Meteor.Presentations, "remove");
+
+    removePresentationFromCollection("meeting0001", "presentation001");
+
+    expect(Meteor.Presentations.remove).toHaveBeenCalled();
+  });
+
+  it("should be handled correctly by remove() on calling removePresentationFromCollection", function (){
+    spyOn(Meteor.Presentations, "findOne").and.returnValue(undefined);
+    spyOn(Meteor.Presentations, "remove");
+
+    removePresentationFromCollection("meeting0001", "presentation001");
+
+    expect(Meteor.Presentations.remove).not.toHaveBeenCalled();
+  });
 });
