@@ -1,12 +1,15 @@
 EventEmitter = require('events').EventEmitter
 request = require("request")
 
+config = require("./config")
+Utils = require("./utils")
+
 # Class that emits a callback. Will try several times until the callback is
 # properly emitted and stop when successful (or after a given number of tries).
 # Emits "success" on success and "error" when gave up trying to emit the callback.
 module.exports = class CallbackEmitter extends EventEmitter
 
-  constructor: (@url, @message) ->
+  constructor: (@callbackURL, @message) ->
 
   start: ->
     @_scheduleNext 0
@@ -23,13 +26,19 @@ module.exports = class CallbackEmitter extends EventEmitter
     , timeout)
 
   _emitMessage: (callback) ->
-    # TODO: the external meeting ID is not on redis yet
-    # message.meetingID = rep.externalMeetingID
+    # basic data structure
+    data =
+      timestamp: new Date().getTime()
+      event: @message
+
+    # add a checksum to the post data
+    checksum = Utils.checksum("#{@callbackURL}#{JSON.stringify(data)}#{config.bbb.sharedSecret}")
+    data.checksum = checksum
 
     requestOptions =
-      uri: @url
+      uri: @callbackURL
       method: "POST"
-      json: @message
+      json: data
 
     request requestOptions, (error, response, body) ->
       if error?
