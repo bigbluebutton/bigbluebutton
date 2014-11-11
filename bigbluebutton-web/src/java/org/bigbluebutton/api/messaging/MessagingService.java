@@ -25,7 +25,7 @@ import java.util.Map;
 public interface MessagingService {	
 	void recordMeetingInfo(String meetingId, Map<String, String> info);
 	void destroyMeeting(String meetingID);
-	void createMeeting(String meetingID, String meetingName, Boolean recorded, 
+	void createMeeting(String meetingID, String externalMeetingID, String meetingName, Boolean recorded, 
 			      String voiceBridge, Long duration, Boolean autoStartRecording,
 			      Boolean allowStartStopRecording);
 	void endMeeting(String meetingId);

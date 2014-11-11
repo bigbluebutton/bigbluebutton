@@ -55,7 +55,7 @@ public class NullMessagingService implements MessagingService {
 	  
   }
 
-  public void createMeeting(String meetingID, String meetingName,
+  public void createMeeting(String meetingID, String externalMeetingID, String meetingName,
       Boolean recorded, String voiceBridge, Long duration) {
 	  // TODO Auto-generated method stub
 	  
