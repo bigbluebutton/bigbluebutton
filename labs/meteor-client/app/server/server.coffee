@@ -21,6 +21,8 @@ Meteor.methods
     if u?
       console.log "__server::getMyInfo " + u.userId + " DBID:" +  u._id + "  name:" + u.user.name
       return  {userId: u.userId, DBID: u._id, name: u.user.name}
+    else
+      console.log "__server::getMyInfo - could not find user with uId=#{uId}"
   
 Meteor.startup ->
   console.log "server start"

@@ -97,6 +97,10 @@ class Meteor.RedisPubSub
             addUserToCollection meetingId, user
         return
 
+      if message.header.name is "validate_auth_token_reply"
+        console.log "validate_auth_token_reply--#{JSON.stringify message}"
+        return
+
       if message.header.name is "user_joined_message"
         user = message.payload.user
         user.timeOfJoining = message.header.current_time
