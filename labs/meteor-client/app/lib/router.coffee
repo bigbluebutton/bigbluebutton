@@ -27,6 +27,20 @@
         console.log "unable to extract the required information for the meeting from the URL"
   @route "main",
     path: "/"
+    onBeforeAction: ->
+      meetingId = getInSession('meetingId')
+      userId = getInSession("userId")
+      console.log "on /: meetingId=#{meetingId} userId=#{userId}"
+      Meteor.subscribe 'users', meetingId, userId, -> # callback for after users have been loaded on client
+        Meteor.subscribe 'chat', meetingId, userId, ->
+          Meteor.subscribe 'shapes', meetingId, ->
+            Meteor.subscribe 'slides', meetingId, ->
+              Meteor.subscribe 'meetings', meetingId, ->
+                Meteor.subscribe 'presentations', meetingId, ->
+                  Meteor.call "getMyInfo", userId, (error, result) ->
+                    #console.log "managed to reconnect successfully"
+                    setInSession("DBID", result.DBID)
+                    setInSession("userName", result.name)
 
   @route "logout",
     path: "logout"
