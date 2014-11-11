@@ -5,13 +5,19 @@
       "raphaeljs-package": {
         "git": "https://github.com/tomconnors/raphaeljs-package.git",
         "branch": "master"
-      }
+      },
+      "external-file-loader": {}
     },
     "packages": {
       "raphaeljs-package": {
         "git": "https://github.com/tomconnors/raphaeljs-package.git",
         "branch": "master",
         "commit": "85eaef3664ec063e4bcb81be1226d126d4d20539"
+      },
+      "external-file-loader": {
+        "git": "https://github.com/davidd8/meteor-external-file-loader.git",
+        "tag": "v0.1.4",
+        "commit": "352694a7cf906b8241161c2fd1435161c1d5409f"
       }
     }
   }

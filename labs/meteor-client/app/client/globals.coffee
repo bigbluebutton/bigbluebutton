@@ -241,19 +241,20 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession "display_usersList", !getInSession "display_usersList"
 
 @toggleVoiceCall = (event) ->
-	if isSharingAudio()
-		# hangup and inform bbb-apps
-		Meteor.call("userStopAudio", getInSession("meetingId"), getInSession("userId"), getInSession("DBID"), getInSession("userId"), getInSession("DBID"))
-		hangupCallback = ->
-			console.log "left voice conference"
-		webrtc_hangup hangupCallback # sign out of call
-	else
-		# create voice call params
-		voiceBridge = Meteor.Meetings.findOne({}).voiceConf
-		joinCallback = (message) ->
-			console.log "started webrtc_call"
-		callIntoConference(voiceBridge, joinCallback) # make the call
-	return false
+  if isSharingAudio()
+    # hangup and inform bbb-apps
+    Meteor.call("userStopAudio", getInSession("meetingId"), getInSession("userId"), getInSession("DBID"), getInSession("userId"), getInSession("DBID"))
+    hangupCallback = ->
+      console.log "left voice conference"
+
+    BBB.leaveVoiceConference hangupCallback
+  else
+    # create voice call params
+    joinCallback = (message) ->
+      console.log "started webrtc_call"
+
+    BBB.joinVoiceConference joinCallback # make the call
+  return false
 
 @toggleWhiteBoard = ->
   setInSession "display_whiteboard", !getInSession "display_whiteboard"

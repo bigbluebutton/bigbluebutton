@@ -15,6 +15,7 @@ ctl@1.0.2
 ddp@1.0.10
 deps@1.0.5
 ejson@1.0.4
+external-file-loader@0.0.0
 fastclick@1.0.1
 follower-livedata@1.0.2
 francocatena:status@0.9.9
