@@ -17,6 +17,7 @@ config.server.port = 3005
 # Web hooks configs
 config.hooks = {}
 config.hooks.pchannel = "bigbluebutton:*"
+config.hooks.meetingsChannel = "bigbluebutton:from-bbb-apps:meeting"
 
 # Filters to the events we want to generate callback calls for
 config.hooks.events = [

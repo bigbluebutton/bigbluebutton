@@ -32,16 +32,16 @@ module.exports = class WebServer
 
   _subscribe: (req, res, next) ->
     urlObj = url.parse(req.url, true)
-    callbackUrl = urlObj.query["callbackURL"]
+    callbackURL = urlObj.query["callbackURL"]
     meetingID = urlObj.query["meetingID"]
 
     # TODO: if meetingID is set in the url, check if the meeting exists, otherwise
     #   invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
 
-    unless callbackUrl?
+    unless callbackURL?
       respondWithXML(res, config.api.responses.missingParamCallbackURL)
     else
-      Hook.addSubscription callbackUrl, meetingID, (error, hook) ->
+      Hook.addSubscription callbackURL, meetingID, (error, hook) ->
         if hook?
           msg = config.api.responses.subscribeSuccess(hook.id)
         else

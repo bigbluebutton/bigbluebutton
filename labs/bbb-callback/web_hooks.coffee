@@ -14,12 +14,16 @@ module.exports = class WebHooks
     @subscriberEvents = redis.createClient()
     @client = redis.createClient()
 
-    # TODO: TEMPORARY
+    # To map internal and external meeting IDs
+    @meetingMappings = {}
     @subscriberMeetings = redis.createClient()
-    @meetings = []
-    @_subscribeToMeetings()
 
   start: ->
+    @_subscribeToEvents()
+    # @_subscribeToMeetings()
+
+  # Subscribe to the events on pubsub that might need to be sent in callback calls.
+  _subscribeToEvents: ->
     @subscriberEvents.on "psubscribe", (channel, count) ->
       console.log "WebHooks: subscribed to " + channel
 
@@ -47,79 +51,73 @@ module.exports = class WebHooks
   # Processes an event received from redis. Will get all hook URLs that
   # should receive this event and start the process to perform the callback.
   _processEvent: (message) ->
-    @_getHookUrls (error, hookUrls) ->
-      console.log "WebHooks: got hook urls:", hookUrls
-      hookUrls.forEach (hook) ->
-        hook.enqueue message
+    hooks = Hook.allSync()
+    hooks.forEach (hook) ->
+      console.log "WebHooks: enqueuing a message in the hook:", hook.callbackURL
+      hook.enqueue message
 
-  # Gets all hook URLs on redis and
-  # Calls `callback(errors, result)` when done. `result` is an array of `Hook` objects.
-  # TODO: Once the hooks are stored in memory we won't need to get them from redis anymore
-  _getHookUrls: (callback) ->
-    tasks = []
-    @meetings.forEach (meetingId) =>
-      console.log "WebHooks: checking hooks for the meeting", meetingId
-      tasks.push (done) =>
+  # TODO: enable this once we have the external meeting ID on redis
+  # # Subscribe to the meeting events on pubsub to keep track of the mapping
+  # # of meeting IDs.
+  # _subscribeToMeetings: ->
+  #   @subscriberMeetings.on "subscribe", (channel, count) ->
+  #     console.log "WebHooks: subscribed to meetings channel ", channel
 
-        @client.lrange "meeting:#{meetingId}:subscriptions", 0, -1, (error, subscriptions) =>
-          # TODO: treat error
-          @_getHookUrlsForSubscriptions meetingId, subscriptions, done
+  #   @subscriberMeetings.on "message", (channel, message) =>
+  #     console.log "WebHooks: got message on meetings channel [#{channel}]", message
+  #     try
+  #       message = JSON.parse(message)
+  #       if message.header?.name is "meeting_created_message"
+  #         @_addMeetingMapping(message.payload?.meeting_id, message.payload?.external_meeting_id)
+  #       else if message.header?.name is "meeting_destroyed_event"
+  #         @_removeMeetingMapping(message.payload?.meeting_id)
 
-    async.series tasks, (errors, result) ->
-      result = _.flatten result
-      console.log "Hooks#_getHookUrls: returning", result
-      callback?(errors, result)
+  #     catch e
+  #       console.log "WebHooks: error processing the message", message, ":", e
 
-  # Get the hook URLs for a list of subscriptions.
-  _getHookUrlsForSubscriptions: (meetingId, subscriptions, callback) ->
-    tasks = []
-    subscriptions.forEach (sid, index) =>
+  #   @subscriberMeetings.subscribe config.hooks.meetingsChannel
 
-      tasks.push (done) =>
-        @client.hgetall "meeting:#{meetingId}:subscription:#{sid}", (error, redisData) ->
-          # TODO: treat error
-          console.log "WebHooks: creating hook url for", redisData
-          hook = new Hook()
-          hook.mapFromRedis redisData
-          done null, hook
+  # _addMeetingMapping: (meetingID, externalMeetingID) ->
+  #   unless @meetingMappíngs[meetingID]?
+  #     @meetingMappings[meetingID] = externalMeetingID
+  #     console.log "WebHooks: added meeting mapping to the list", meetingID, "=", @meetingMappings[meetingID]
 
-    async.series tasks, (errors, result) ->
-      console.log "Hooks#_getHookUrlsForSubscriptions: returning", result
-      callback?(errors, result)
+  # _removeMeetingMapping: (meetingID) ->
+  #   if @meetingMapping[meetingID]?
+  #     console.log "WebHooks: removing meeting mapping from the list", meetingID, "=", @meetingMappings[meetingID]
+  #     delete @meetingMappings[meetingID]
 
+  # TODO: enable the methods below again when we persist hooks to redis again
+  # # Gets all hooks from redis.
+  # # Calls `callback(errors, result)` when done. `result` is an array of `Hook` objects.
+  # _getHooksFromRedis: (callback) ->
+  #   tasks = []
+  #   @meetings.forEach (meetingID) =>
+  #     console.log "WebHooks: checking hooks for the meeting", meetingID
+  #     tasks.push (done) =>
 
-  # TODO: TEMPORARY CODE BELOW
-  # For now we have to check for all meetings created and store their internal
-  # meeting ID so we can read from redis the hooks registered for these meetings.
-  # In the future we might still need to get this events, but only to store the
-  # meetings' externalID.
+  #       @client.lrange "meeting:#{meetingID}:subscriptions", 0, -1, (error, subscriptions) =>
+  #         # TODO: treat error
+  #         @_getHooksFromRedisForSubscriptions meetingID, subscriptions, done
 
-  _subscribeToMeetings: ->
-    @subscriberMeetings.on "subscribe", (channel, count) ->
-      console.log "WebHooks: subscribed to " + channel
-    @subscriberMeetings.on "message", (channel, message) =>
-      console.log "WebHooks: got message [#{channel}]", message
-      try
-        message = JSON.parse(message)
-        if message.header?.name is "meeting_created_message"
-          @_addMeeting(message.payload?.meeting_id)
+  #   async.series tasks, (errors, result) ->
+  #     result = _.flatten result
+  #     console.log "Hooks#_getHooksFromRedis: returning", result
+  #     callback?(errors, result)
 
-        # TODO: if left here, will not emit a callback for the meeting_destroyed_event
-        # else if message.header?.name is "meeting_destroyed_event"
-        #   @_removeMeeting(message.payload?.meeting_id)
+  # # Get the hook URLs for a list of subscriptions.
+  # _getHooksFromRedisForSubscriptions: (meetingID, subscriptions, callback) ->
+  #   tasks = []
+  #   subscriptions.forEach (sid, index) =>
 
-      catch e
-        console.log "Application: error processing the message", message, ":", e
+  #     tasks.push (done) =>
+  #       @client.hgetall "meeting:#{meetingID}:subscription:#{sid}", (error, redisData) ->
+  #         # TODO: treat error
+  #         console.log "WebHooks: creating hook url for", redisData
+  #         hook = new Hook()
+  #         hook.mapFromRedis redisData
+  #         done null, hook
 
-    @subscriberMeetings.subscribe "bigbluebutton:from-bbb-apps:meeting"
-
-  _addMeeting: (meetingId) ->
-    unless _.contains(@meetings, meetingId)
-      console.log "WebHooks: adding meeting to the list", meetingId
-      @meetings.push meetingId
-
-  _removeMeeting: (meetingId) ->
-    index = @meetings.indexOf(meetingId)
-    if index > -1
-      console.log "WebHooks: removing meeting from the list", meetingId
-      @meetings.splice index, 1
+  #   async.series tasks, (errors, result) ->
+  #     console.log "Hooks#_getHooksFromRedisForSubscriptions: returning", result
+  #     callback?(errors, result)

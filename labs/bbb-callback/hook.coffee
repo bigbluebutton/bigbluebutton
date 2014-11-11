@@ -2,7 +2,7 @@ CallbackEmitter = require("./callback_emitter")
 
 # The database of hooks.
 db = {}
-nextId = 0
+nextId = 1
 
 # The representation of a hook and its properties. Stored in memory and persisted
 # to redis.
@@ -14,7 +14,7 @@ module.exports = class Hook
 
   constructor: ->
     @id = null
-    @callbackUrl = null
+    @callbackURL = null
     @externalMeetingID = null
     @queue = []
     @emitter = null
@@ -28,7 +28,7 @@ module.exports = class Hook
 
   # TODO: review
   mapFromRedis: (redisData) ->
-    @callbackUrl = redisData?.callbackURL
+    @callbackURL = redisData?.callbackURL
     @externalMeetingID = redisData?.externalMeetingID
     @id = redisData?.subscriptionID
 
@@ -45,7 +45,7 @@ module.exports = class Hook
     message = @queue[0]
     return unless message? or @emitter?
 
-    @emitter = new CallbackEmitter(@callbackUrl, message)
+    @emitter = new CallbackEmitter(@callbackURL, message)
     @emitter.start()
 
     @emitter.on "success", =>
@@ -59,10 +59,10 @@ module.exports = class Hook
       @queue.shift() # pop the first message just sent
       @_processQueue() # go to the next message
 
-  @addSubscription = (callbackUrl, meetingID=null, callback) ->
+  @addSubscription = (callbackURL, meetingID=null, callback) ->
     hook = new Hook()
     hook.id = nextId++
-    hook.callbackUrl = callbackUrl
+    hook.callbackURL = callbackURL
     hook.externalMeetingID = meetingID
     hook.saveSync()
     callback?(null, hook)
