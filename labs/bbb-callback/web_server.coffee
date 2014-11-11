@@ -42,7 +42,9 @@ module.exports = class WebServer
       respondWithXML(res, config.api.responses.missingParamCallbackURL)
     else
       Hook.addSubscription callbackURL, meetingID, (error, hook) ->
-        if hook?
+        if error? # the only error for now is for duplicated callbackURL
+          msg = config.api.responses.subscribeDuplicated(hook.id)
+        else if hook?
           msg = config.api.responses.subscribeSuccess(hook.id)
         else
           msg = config.api.responses.subscribeFailure

@@ -26,11 +26,10 @@ module.exports = class Hook
   destroySync: ->
     Hook.destroySync @id
 
-  # TODO: review
-  mapFromRedis: (redisData) ->
-    @callbackURL = redisData?.callbackURL
-    @externalMeetingID = redisData?.externalMeetingID
-    @id = redisData?.subscriptionID
+  # mapFromRedis: (redisData) ->
+  #   @callbackURL = redisData?.callbackURL
+  #   @externalMeetingID = redisData?.externalMeetingID
+  #   @id = redisData?.subscriptionID
 
   # Puts a new message in the queue. Will also trigger a processing in the queue so this
   # message might be processed instantly.
@@ -60,12 +59,16 @@ module.exports = class Hook
       @_processQueue() # go to the next message
 
   @addSubscription = (callbackURL, meetingID=null, callback) ->
-    hook = new Hook()
-    hook.id = nextId++
-    hook.callbackURL = callbackURL
-    hook.externalMeetingID = meetingID
-    hook.saveSync()
-    callback?(null, hook)
+    hook = Hook.findByCallbackURLSync(callbackURL)
+    if hook?
+      callback?(new Error("There is already a subscription for this callback URL"), hook)
+    else
+      hook = new Hook()
+      hook.id = nextId++
+      hook.callbackURL = callbackURL
+      hook.externalMeetingID = meetingID
+      hook.saveSync()
+      callback?(null, hook)
 
   @removeSubscription = (subscriptionID, callback) ->
     hook = Hook.getSync(subscriptionID)
@@ -106,3 +109,8 @@ module.exports = class Hook
     for id of db
       delete db[id]
     db = {}
+
+  @findByCallbackURLSync = (callbackURL) ->
+    for id of db
+      if db[id].callbackURL is callbackURL
+        return db[id]

@@ -47,6 +47,13 @@ config.api.responses.subscribeSuccess = (id) ->
    </response>"
 config.api.responses.subscribeFailure =
   config.api.responses.failure("subscribeEventError", "An error happened while storing your subscription. Check the logs.")
+config.api.responses.subscribeDuplicated = (id) ->
+  "<response> \
+     <returncode>SUCCESS</returncode> \
+     <subscriptionID>#{id}</subscriptionID> \
+     <messageKey>duplicateWarning</messageKey> \
+     <message>There is already a subscription for this callback URL.</message>
+   </response>"
 
 config.api.responses.unsubscribeSuccess =
   "<response> \
