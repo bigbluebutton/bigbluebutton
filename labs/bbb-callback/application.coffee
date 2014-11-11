@@ -4,7 +4,8 @@ redis = require("redis")
 config = require("./config")
 Callbacks = require("./callbacks")
 
-# Class that defines the application.
+# Class that defines the application. Listens for events on redis and starts the
+# process to perform the callback calls.
 module.exports = class Application
 
   constructor: ->
@@ -12,24 +13,20 @@ module.exports = class Application
     @callbacks = new Callbacks()
 
   start: ->
-    @_subscribe()
-
-  _subscribe: ->
 
     @subscriber.on "psubscribe", (channel, count) ->
       console.log "Application: subscribed to " + channel
 
     @subscriber.on "pmessage", (pattern, channel, message) =>
-      console.log "---------------------------------------------------------"
-      console.log "Application: got message [", channel, "]", message
       try
         message = JSON.parse message
         if message? and @_filterMessage channel, message
-          @_processMessage message
+          console.log "\n"
+          console.log "Application: processing message [#{channel}]", message
+          @_processEvent message
 
       catch e
-        # TODO: handle the error properly
-        console.log e
+        console.log "Application: error processing the message", message, ":", e
 
     @subscriber.psubscribe "bigbluebutton:*"
 
@@ -42,7 +39,9 @@ module.exports = class Application
           return true
     false
 
-  _processMessage: (message) ->
+  # Processes an event received from redis. Will get all callback URLs that
+  # should receive this event and start the process to perform the callback.
+  _processEvent: (message) ->
     @callbacks.getCallbackUrls (error, callbackUrls) =>
       console.log "Application: got callback urls:", callbackUrls
       callbackUrls.forEach (callbackUrl) ->

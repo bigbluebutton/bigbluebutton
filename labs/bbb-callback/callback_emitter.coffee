@@ -32,13 +32,11 @@ module.exports = class CallbackEmitter extends EventEmitter
       json: @message
 
     request requestOptions, (error, response, body) ->
-      # TODO: inverted logic? WAT?
-      if not error and response.statusCode is 200
-        console.log "Error calling url: [" + requestOptions.uri + "]"
-        console.log "Error: [" + JSON.stringify(error) + "]"
-        console.log "Response: [" + JSON.stringify(response) + "]"
+      if error?
+        console.log "Error calling url:",requestOptions.uri
+        console.log "Error:", error
+        console.log "Response:", response
         callback error, false
       else
-        console.log "Passed calling url: [" + requestOptions.uri + "]"
-        console.log "Response: [" + JSON.stringify(response) + "]"
+        console.log "Successful callback call to:", requestOptions.uri
         callback null, true

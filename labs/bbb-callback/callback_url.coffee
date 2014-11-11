@@ -11,6 +11,7 @@ module.exports = class CallbackURL
     @url = redisData?.callbackURL
     @externalMeetingID = redisData?.externalMeetingID
     @active = redisData?.active
+    @subscriptionID = redisData?.subscriptionID
 
   # TODO: not sure why this is necessary, but comes from the data in redis
   isActive: ->
@@ -19,7 +20,7 @@ module.exports = class CallbackURL
   # Puts a new message in the queue. Will also trigger a processing in the queue so this
   # message might be processed instantly.
   enqueue: (message) ->
-    console.log "CallbackURL: enqueueing message", message
+    console.log "CallbackURL: enqueueing message", JSON.stringify(message)
     @queue.push message
     @_processQueue()
 
@@ -37,7 +38,7 @@ module.exports = class CallbackURL
       @queue.shift() # pop the first message just sent
       @_processQueue() # go to the next message
 
-    # TODO: do what on error?
+    # TODO: do what on error? maybe remove this callback url entirely?
     @emitter.on "error", (error) =>
       delete @emitter
       @queue.shift() # pop the first message just sent
