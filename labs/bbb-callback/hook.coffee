@@ -1,7 +1,7 @@
 CallbackEmitter = require("./callback_emitter")
 
 # The representation of a callback URL and its properties, taken from redis.
-module.exports = class CallbackURL
+module.exports = class Hook
 
   constructor: ->
     @queue = []
@@ -20,7 +20,7 @@ module.exports = class CallbackURL
   # Puts a new message in the queue. Will also trigger a processing in the queue so this
   # message might be processed instantly.
   enqueue: (message) ->
-    console.log "CallbackURL: enqueueing message", JSON.stringify(message)
+    console.log "Hook: enqueueing message", message
     @queue.push message
     @_processQueue()
 
