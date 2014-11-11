@@ -42,7 +42,7 @@ module.exports = class Hook
   # if there is no emitter running already and if there is a message in the queue.
   _processQueue: ->
     message = @queue[0]
-    return unless message? or @emitter?
+    return if not message? or @emitter?
 
     @emitter = new CallbackEmitter(@callbackURL, message)
     @emitter.start()

@@ -34,8 +34,8 @@ config.api.responses = {}
 config.api.responses.failure = (key, msg) ->
   "<response> \
      <returncode>FAILED</returncode> \
-     <messageKey>" + key + "</messageKey> \
-     <message>" + msg + "</message> \
+     <messageKey>#{key}</messageKey> \
+     <message>#{msg}</message> \
    </response>"
 config.api.responses.checksumError =
   config.api.responses.failure("checksumError", "You did not pass the checksum security check.")
@@ -52,7 +52,7 @@ config.api.responses.subscribeDuplicated = (id) ->
      <returncode>SUCCESS</returncode> \
      <subscriptionID>#{id}</subscriptionID> \
      <messageKey>duplicateWarning</messageKey> \
-     <message>There is already a subscription for this callback URL.</message>
+     <message>There is already a subscription for this callback URL.</message> \
    </response>"
 
 config.api.responses.unsubscribeSuccess =
