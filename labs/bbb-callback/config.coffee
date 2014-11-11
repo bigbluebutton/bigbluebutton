@@ -8,6 +8,17 @@ config = {}
 config.bbb = {}
 # TODO: move secret to a config_local file
 config.bbb.sharedSecret = "0009786e5fdca882747c29081db64ecd"
+config.bbb.apiPath = "/bigbluebutton/api"
+
+config.bbb.responses = {}
+config.bbb.responses.failure = (key, msg) ->
+  "<response> \
+     <returncode>FAILED</returncode> \
+     <messageKey>" + key + "</messageKey> \
+     <message>" + msg + "</message> \
+   </response>"
+config.bbb.responses.checksumError =
+  config.bbb.responses.failure("checksumError", "You did not pass the checksum security check.")
 
 # Web server configs
 config.server = {}
