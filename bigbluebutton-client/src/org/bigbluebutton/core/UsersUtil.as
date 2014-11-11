@@ -76,10 +76,10 @@ package org.bigbluebutton.core
       return false;
     }
     
-    public static function getWebcamStream(userID:String):String {
+    public static function getWebcamStream(userID:String):Array {
       var u:BBBUser = getUser(userID);
       if (u != null && u.hasStream) {
-        return u.streamName;
+        return u.streamNames;
       }
       
       return null;
