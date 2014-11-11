@@ -9,6 +9,7 @@
 			  value="${basedir}"/>
 	<property name="SRC_DIR"
 			  value="${BASE_DIR}/src"/>
+	<property name="TEST_IMAGE_URL" value="http://upload.wikimedia.org/wikipedia/commons/a/a2/Polycyclic_Aromatic_Hydrocarbons_In_Space.jpg" />
 	<taskdef resource="flexTasks.tasks"
 			 classpath="${FLEX_HOME}/ant/lib/flexTasks.jar"/>
 	<macrodef name="create-rsl">
@@ -98,6 +99,7 @@
 	</target>
 	<target name="Resolve-Dependency"
 			description="Generate HTML wrapper">
+		<get src="${TEST_IMAGE_URL}" dest="${html.output}/test_image.jpg" skipexisting="true" />
 		<copy file="html-template/BBBClientCheck.html"
 			  tofile="${html.output}/BBBClientCheck.html"/>
 		<copy file="html-template/swfobject.js"
