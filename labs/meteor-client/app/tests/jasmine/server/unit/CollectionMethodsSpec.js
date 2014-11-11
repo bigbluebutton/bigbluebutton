@@ -173,4 +173,159 @@ describe("Collections", function () {
 
     expect(Meteor.Meetings.remove).toHaveBeenCalled();
   });*/
+
+  //----------------------------------------------------------------------
+  // shapes.coffee
+  //----------------------------------------------------------------------
+
+  it('should be handled correctly by insert() on calling addShapeToCollection() with a text', function () {
+    spyOn(Meteor.Shapes, 'find').and.returnValue({
+      count: function() {
+        return 1;
+      }
+    });
+    spyOn(Meteor.Shapes, 'insert');
+
+    addShapeToCollection('meeting001', 'whiteboard001', {
+      shape_type: 'text',
+      status: 'textPublished',
+      shape: {
+        type: 'text',
+        textBoxHeight: 24.5,
+        backgroundColor: 16777215,
+        fontColor: 0,
+        status: 'textPublished',
+        dataPoints: '36.5,55.0',
+        x: 36.5,
+        textBoxWidth: 36.0,
+        whiteboardId: 'whiteboard001',
+        fontSize: 18,
+        id: 'shape001',
+        y: 55.0,
+        calcedFontSize: 3.6,
+        text: 'Hello World!',
+        background: true
+      }
+    });
+
+    expect(Meteor.Shapes.insert).toHaveBeenCalledWith({
+      meetingId: 'meeting001',
+      whiteboardId: 'whiteboard001',
+      shape: {
+        type: 'text',
+        textBoxHeight: 24.5,
+        backgroundColor: 16777215,
+        fontColor: 0,
+        status: 'textPublished',
+        dataPoints: '36.5,55.0',
+        x: 36.5,
+        textBoxWidth: 36.0,
+        whiteboardId: 'whiteboard001',
+        fontSize: 18,
+        id: 'shape001',
+        y: 55.0,
+        calcedFontSize: 3.6,
+        text: 'Hello World!',
+        background: true
+      }
+    });
+  });
+
+  it('should be handled correctly by insert() on calling addShapeToCollection() with a finished standard shape', function () {
+    spyOn(Meteor.Shapes, 'find').and.returnValue({
+      count: function() {
+        return 1;
+      }
+    });
+    spyOn(Meteor.Shapes, 'insert');
+
+    addShapeToCollection('meeting001', 'whiteboard001', {
+      wb_id: 'whiteboard001',
+      shape_type: 'rectangle',
+      status: 'DRAW_END',
+      id: 'shape001',
+      shape: {
+        type: 'rectangle',
+        status: 'DRAW_END',
+        points: [60.0, 17.0, 73.0, 57.5],
+        whiteboardId: 'whiteboard001',
+        id: 'shape001',
+        square: false,
+        transparency: false,
+        thickness: 10,
+        color: 0
+      }
+    });
+
+    expect(Meteor.Shapes.insert).toHaveBeenCalledWith({
+      meetingId: 'meeting001',
+      whiteboardId: 'whiteboard001',
+      shape: {
+        wb_id: 'whiteboard001',
+        shape_type: 'rectangle',
+        status: 'DRAW_END',
+        id: 'shape001',
+        shape: {
+          type: 'rectangle',
+          status: 'DRAW_END',
+          points: [60.0, 17.0, 73.0, 57.5],
+          whiteboardId: 'whiteboard001',
+          id: 'shape001',
+          square: false,
+          transparency: false,
+          thickness: 10,
+          color: 0
+        }
+      }
+    });
+  });
+
+  it('should be handled correctly by insert() on calling addShapeToCollection() with a pencil being used', function () {
+    spyOn(Meteor.Shapes, 'find').and.returnValue({
+      count: function() {
+        return 1;
+      }
+    });
+    spyOn(Meteor.Shapes, 'insert');
+
+    addShapeToCollection('meeting001', 'whiteboard001', {
+      wb_id: 'whiteboard001',
+      shape_type: 'pencil',
+      status: 'DRAW_START',
+      id: 'shape001',
+      shape: {
+        type: 'pencil',
+        status: 'DRAW_START',
+        points: [35.8, 63.6, 36.1, 63.4, 36.2, 63.2],
+        whiteboardId: 'whiteboard001',
+        id: 'shape001',
+        square: undefined,
+        transparency: false,
+        thickness: 10,
+        color: 0
+      }
+    });
+
+    expect(Meteor.Shapes.insert).toHaveBeenCalledWith({
+      meetingId: 'meeting001',
+      whiteboardId: 'whiteboard001',
+      shape: {
+        wb_id: 'whiteboard001',
+        shape_type: 'pencil',
+        status: 'DRAW_START',
+        id: 'shape001',
+        shape: {
+          type: 'pencil',
+          status: 'DRAW_START',
+          points: [35.8, 63.6, 36.1, 63.4, 36.2, 63.2],
+          whiteboardId: 'whiteboard001',
+          id: 'shape001',
+          square: undefined,
+          transparency: false,
+          thickness: 10,
+          color: 0
+        }
+      }
+    });
+  });
 });
