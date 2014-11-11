@@ -10,16 +10,6 @@ config.bbb = {}
 config.bbb.sharedSecret = "0009786e5fdca882747c29081db64ecd"
 config.bbb.apiPath = "/bigbluebutton/api"
 
-config.bbb.responses = {}
-config.bbb.responses.failure = (key, msg) ->
-  "<response> \
-     <returncode>FAILED</returncode> \
-     <messageKey>" + key + "</messageKey> \
-     <message>" + msg + "</message> \
-   </response>"
-config.bbb.responses.checksumError =
-  config.bbb.responses.failure("checksumError", "You did not pass the checksum security check.")
-
 # Web server configs
 config.server = {}
 config.server.port = 3005
@@ -37,5 +27,39 @@ config.hooks.events = [
   { channel: "bigbluebutton:from-bbb-apps:users", name: "user_left_message" }
   # { channel: "bigbluebutton:from-bbb-apps:meeting", name: "user_registered_message" },
 ]
+
+config.api = {}
+config.api.responses = {}
+config.api.responses.failure = (key, msg) ->
+  "<response> \
+     <returncode>FAILED</returncode> \
+     <messageKey>" + key + "</messageKey> \
+     <message>" + msg + "</message> \
+   </response>"
+config.api.responses.checksumError =
+  config.api.responses.failure("checksumError", "You did not pass the checksum security check.")
+
+config.api.responses.subscribeSuccess = (id) ->
+  "<response> \
+     <returncode>SUCCESS</returncode> \
+     <subscriptionID>#{id}</subscriptionID> \
+   </response>"
+config.api.responses.subscribeFailure =
+  config.api.responses.failure("subscribeEventError", "An error happened while storing your subscription. Check the logs.")
+
+config.api.responses.unsubscribeSuccess =
+  "<response> \
+     <returncode>SUCCESS</returncode> \
+     <unsubscribed>true</unsubscribed> \
+   </response>"
+config.api.responses.unsubscribeFailure =
+  config.api.responses.failure("unsubscribeEventError", "An error happened while unsubscribing. Check the logs.")
+config.api.responses.unsubscribeNoSubscription =
+  config.api.responses.failure("unsubscribeMissingSubscription", "The subscription informed was not found.")
+
+config.api.responses.missingParamCallbackURL =
+  config.api.responses.failure("missingParamCallbackURL", "You must specify a callbackURL in the parameters.")
+config.api.responses.missingParamSubscriptionID =
+  config.api.responses.failure("missingParamSubscriptionID", "You must specify a subscriptionID in the parameters.")
 
 module.exports = config

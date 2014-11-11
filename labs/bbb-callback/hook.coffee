@@ -1,21 +1,36 @@
 CallbackEmitter = require("./callback_emitter")
 
-# The representation of a callback URL and its properties, taken from redis.
+# The database of hooks.
+db = {}
+nextId = 0
+
+# The representation of a hook and its properties. Stored in memory and persisted
+# to redis.
+# TODO: at some point the queue needs to be cleared, or we need a size limit on it
 module.exports = class Hook
 
+  # @initialize = ->
+  #   # get hooks from redis
+
   constructor: ->
+    @id = null
+    @callbackUrl = null
+    @externalMeetingID = null
     @queue = []
     @emitter = null
 
-  mapFromRedis: (redisData) ->
-    @url = redisData?.callbackURL
-    @externalMeetingID = redisData?.externalMeetingID
-    @active = redisData?.active
-    @subscriptionID = redisData?.subscriptionID
+  saveSync: ->
+    db[@id] = this
+    db[@id]
 
-  # TODO: not sure why this is necessary, but comes from the data in redis
-  isActive: ->
-    @active
+  destroySync: ->
+    Hook.destroySync @id
+
+  # TODO: review
+  mapFromRedis: (redisData) ->
+    @callbackUrl = redisData?.callbackURL
+    @externalMeetingID = redisData?.externalMeetingID
+    @id = redisData?.subscriptionID
 
   # Puts a new message in the queue. Will also trigger a processing in the queue so this
   # message might be processed instantly.
@@ -30,7 +45,7 @@ module.exports = class Hook
     message = @queue[0]
     return unless message? or @emitter?
 
-    @emitter = new CallbackEmitter(@url, message)
+    @emitter = new CallbackEmitter(@callbackUrl, message)
     @emitter.start()
 
     @emitter.on "success", =>
@@ -43,3 +58,51 @@ module.exports = class Hook
       delete @emitter
       @queue.shift() # pop the first message just sent
       @_processQueue() # go to the next message
+
+  @addSubscription = (callbackUrl, meetingID=null, callback) ->
+    hook = new Hook()
+    hook.id = nextId++
+    hook.callbackUrl = callbackUrl
+    hook.externalMeetingID = meetingID
+    hook.saveSync()
+    callback?(null, hook)
+
+  @removeSubscription = (subscriptionID, callback) ->
+    hook = Hook.getSync(subscriptionID)
+    if hook?
+      hook.destroySync()
+      callback?(null, true)
+    else
+      callback?(null, false)
+
+  @countSync = ->
+    Object.keys(db).length
+
+  @getSync = (id) ->
+    db[id]
+
+  @firstSync = ->
+    keys = Object.keys(db)
+    if keys.length > 0
+      db[keys[0]]
+    else
+      null
+
+  @allSync = ->
+    arr = Object.keys(db).reduce((arr, id) ->
+      arr.push db[id]
+      arr
+    , [])
+    arr
+
+  @destroySync = (id) ->
+    if db[id]
+      delete db[id]
+      true
+    else
+      false
+
+  @clearSync = ->
+    for id of db
+      delete db[id]
+    db = {}

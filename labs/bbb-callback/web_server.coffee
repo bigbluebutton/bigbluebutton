@@ -3,6 +3,7 @@ sha1 = require("sha1")
 url = require("url")
 
 config = require("./config")
+Hook = require("./hook")
 
 # Web server that listens for API calls and process them.
 module.exports = class WebServer
@@ -30,12 +31,41 @@ module.exports = class WebServer
     @app.get "/bigbluebutton/api/hooks/list", @_validateChecksum, @_list
 
   _subscribe: (req, res, next) ->
-    res.send "Subscribed!"
+    urlObj = url.parse(req.url, true)
+    callbackUrl = urlObj.query["callbackURL"]
+    meetingID = urlObj.query["meetingID"]
+
+    # TODO: if meetingID is set in the url, check if the meeting exists, otherwise
+    #   invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
+
+    unless callbackUrl?
+      respondWithXML(res, config.api.responses.missingParamCallbackURL)
+    else
+      Hook.addSubscription callbackUrl, meetingID, (error, hook) ->
+        if hook?
+          msg = config.api.responses.subscribeSuccess(hook.id)
+        else
+          msg = config.api.responses.subscribeFailure
+        respondWithXML(res, msg)
 
   _unsubscribe: (req, res, next) ->
-    res.send "Unsubscribed!"
+    urlObj = url.parse(req.url, true)
+    subscriptionID = urlObj.query["subscriptionID"]
+
+    unless subscriptionID?
+      respondWithXML(res, config.api.responses.missingParamSubscriptionID)
+    else
+      Hook.removeSubscription subscriptionID, (error, result) ->
+        if error?
+          msg = config.api.responses.unsubscribeFailure
+        else if !result
+          msg = config.api.responses.unsubscribeNoSubscription
+        else
+          msg = config.api.responses.unsubscribeSuccess
+        respondWithXML(res, msg)
 
   _list: (req, res, next) ->
+    # TODO: implement
     res.send "Listing subscriptions!"
 
   # Validates the checksum in the request `req`.
@@ -50,7 +80,7 @@ module.exports = class WebServer
     else
       console.log "checksum check failed, sending a checksumError response"
       res.setHeader("Content-Type", "text/xml")
-      res.send(config.bbb.responses.checksumError)
+      res.send cleanupXML(config.api.responses.checksumError)
 
   # Calculates the checksum given a url `fullUrl` and a `salt`.
   _checksum: (fullUrl, salt) ->
@@ -87,6 +117,10 @@ module.exports = class WebServer
     urlObj = url.parse(fullUrl, true)
     urlObj.pathname.substr (config.bbb.apiPath + "/").length
 
+respondWithXML = (res, msg) ->
+  res.setHeader("Content-Type", "text/xml")
+  res.send cleanupXML(msg)
+
 # Returns a simple string with a description of the client that made
 # the request. It includes the IP address and the user agent.
 clientDataSimple = (req) ->
@@ -107,3 +141,7 @@ ipFromRequest = (req) ->
   ipAddress ||= req.connection?.remoteAddress
   ipAddress ||= "127.0.0.1"
   ipAddress
+
+# Cleans up a string with an XML in it removing spaces and new lines from between the tags.
+cleanupXML = (string) ->
+  string.trim().replace(/>\s*/g, '>')

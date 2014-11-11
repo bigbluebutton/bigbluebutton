@@ -47,11 +47,10 @@ module.exports = class WebHooks
   # Processes an event received from redis. Will get all hook URLs that
   # should receive this event and start the process to perform the callback.
   _processEvent: (message) ->
-    @_getHookUrls (error, hookUrls) =>
+    @_getHookUrls (error, hookUrls) ->
       console.log "WebHooks: got hook urls:", hookUrls
-      hookUrls.forEach (hookUrl) ->
-        if hookUrl.isActive()
-          hookUrl.enqueue(message)
+      hookUrls.forEach (hook) ->
+        hook.enqueue message
 
   # Gets all hook URLs on redis and
   # Calls `callback(errors, result)` when done. `result` is an array of `Hook` objects.
