@@ -20,7 +20,7 @@
     <window name="ViewersWindow" hidden="true" draggable="false" resizable="false" />
     <window name="ListenersWindow" hidden="true" draggable="false" resizable="false"/>
   </layout>
-  <layout name="bbb.layout.name.meeting">
+  <layout name="bbb.layout.name.webcamsfocus">
     <window name="NotesWindow" hidden="true" width="0.7" height="1" x="0" y="0" draggable="false" resizable="false"/>
     <window name="BroadcastWindow" hidden="true" draggable="false" resizable="false"/>
     <window name="VideoDock" width="0.6570188133140377" height="0.9960106382978723" x="0" y="0" />
@@ -28,7 +28,7 @@
     <window name="UsersWindow" hidden="true" />
     <window name="PresentationWindow" width="0.34008683068017365" height="0.4601063829787234" x="0.658465991316932" y="0.535904255319149" />
   </layout>
-  <layout name="bbb.layout.name.webinar">
+  <layout name="bbb.layout.name.presentfocus">
     <window name="NotesWindow" hidden="true" width="0.7" height="1" x="0" y="0" draggable="false" resizable="false"/>
     <window name="BroadcastWindow" hidden="true" draggable="false" resizable="false"/>
     <window name="UsersWindow" minimized="true" />
@@ -40,9 +40,9 @@
     <window name="NotesWindow" hidden="true" width="0.7" height="1" x="0" y="0" draggable="false" resizable="false"/>
     <window name="BroadcastWindow" hidden="true" draggable="false" resizable="false"/>
     <window name="ChatWindow" width="0.4597222222222222" height="0.9958677685950413" x="0.2263888888888889" y="0" />
-    <window name="UsersWindow" width="0.22152777777777777" height="0.9178852643419573" x="0" y="0" minWidth="280" />
+    <window name="UsersWindow" width="0.22152777777777777" height="0.9958677685950413" x="0" y="0" minWidth="280" />
     <window name="PresentationWindow" width="0.3104166666666667" height="0.5537190082644629" x="0.6895833333333333" y="0" />
-    <window name="VideoDock" width="0.30972222222222223" height="0.4256198347107438" x="0.6902777777777778" y="0.568870523415978" />
+    <window name="VideoDock" width="0.30972222222222223" height="0.4357198347107438" x="0.6902777777777778" y="0.558870523415978" />
   </layout>	
   <layout name="bbb.layout.name.lecture">
     <window name="NotesWindow" hidden="true" width="0.7" height="1" x="0" y="0" draggable="false" resizable="false"/>
