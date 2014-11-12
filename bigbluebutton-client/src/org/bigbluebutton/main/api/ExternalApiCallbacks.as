@@ -99,10 +99,12 @@ package org.bigbluebutton.main.api
 		ExternalInterface.addCallback("webRTCConferenceCallConnecting", handleWebRTCConferenceCallConnecting);
         ExternalInterface.addCallback("webRTCConferenceCallEnded", handleWebRTCConferenceCallEnded);
         ExternalInterface.addCallback("webRTCConferenceCallFailed", handleWebRTCConferenceCallFailed);
+		ExternalInterface.addCallback("webRTCConferenceCallWaitingForICE", handleWebRTCConferenceCallWaitingForICE);
         ExternalInterface.addCallback("webRTCEchoTestStarted", handleWebRTCEchoTestStarted);
         ExternalInterface.addCallback("webRTCEchoTestConnecting", handleWebRTCEchoTestConnecting);
         ExternalInterface.addCallback("webRTCEchoTestFailed", handleWebRTCEchoTestFailed);
         ExternalInterface.addCallback("webRTCEchoTestEnded", handleWebRTCEchoTestEnded);
+		ExternalInterface.addCallback("webRTCEchoTestWaitingForICE", handleWebRTCEchoTestWaitingForICE);
         ExternalInterface.addCallback("webRTCMediaRequest", handleWebRTCMediaRequest);
         ExternalInterface.addCallback("webRTCMediaSuccess", handleWebRTCMediaSuccess);
         ExternalInterface.addCallback("webRTCMediaFail", handleWebRTCMediaFail);
@@ -418,6 +420,11 @@ package org.bigbluebutton.main.api
       trace(LOG + "handleWebRTCConferenceCallFailed: errorCode=[" + errorCode + "]");
       _dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_FAILED, errorCode));
     }
+	
+	private function handleWebRTCConferenceCallWaitingForICE():void {
+		trace(LOG + "handleWebRTCConferenceCallWaitingForICE: received");
+		_dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_WAITING_FOR_ICE));
+	}
     
     private function handleWebRTCEchoTestStarted():void {
       trace(LOG + "handleWebRTCEchoTestStarted: recieved");
@@ -438,6 +445,11 @@ package org.bigbluebutton.main.api
       trace(LOG + "handleWebRTCEchoTestEnded: received");
       _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_ENDED));
     }
+	
+	private function handleWebRTCEchoTestWaitingForICE():void {
+		trace(LOG + "handleWebRTCEchoTestWaitingForICE: received");
+		_dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_WAITING_FOR_ICE));
+	}
     
     private function handleWebRTCMediaRequest():void {
       trace(LOG + "handleWebRTCMediaRequest: received");
