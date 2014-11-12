@@ -6,7 +6,7 @@ Meteor.methods
 
   # Construct and send a message to bbb-web to validate the user
   validateAuthToken: (meetingId, userId, authToken) ->
-    console.log "\n\n sending a validate_auth_token with userid=#{userId} meetingid=#{meetingId}"
+    console.log "\n\n sending a validate_auth_token with userid=#{userId}, authToken=#{authToken} meetingid=#{meetingId}"
 
     message =
       "payload":
@@ -95,6 +95,10 @@ class Meteor.RedisPubSub
           for user in users
             user.timeOfJoining = message.header.current_time # TODO this might need to be removed
             addUserToCollection meetingId, user
+        return
+
+      if message.header.name is "validate_auth_token_reply"
+        console.log "validate_auth_token_reply--#{JSON.stringify message}"
         return
 
       if message.header.name is "user_joined_message"

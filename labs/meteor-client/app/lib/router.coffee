@@ -20,13 +20,45 @@
         if meetingId? and userId? and authToken?
           Meteor.call("validateAuthToken", meetingId, userId, authToken)
           if Meteor.isClient then sendMeetingInfoToClient(meetingId, userId)
-          self.redirect('/')
+          Meteor.subscribe 'users', meetingId, userId, ->
+            console.log "now I have access to the users from the client. my userid is #{userId}"
+
+            Meteor.call "getMyInfo", userId, (error, result) ->
+              if result.error?
+                alert result.error
+                # redirect towards a different page
+              else
+                console.log "onBeforeAction2"
+                setInSession("DBID", result.DBID)
+                setInSession("userName", result.name)
+                me = Meteor.Users.findOne({_id:result.DBID})
+                console.log "me=" + JSON.stringify me
+                if me?
+                  self.redirect('/') #we are sure the user has dbid, userid and exists in the collection
+                else
+                  alert "did not find the user in the collection"
         else
           console.log "unable to extract from the URL some of {meetingId, userId, authToken}"
       else
         console.log "unable to extract the required information for the meeting from the URL"
   @route "main",
     path: "/"
+    onBeforeAction: ->
+      meetingId = getInSession('meetingId')
+      userId = getInSession("userId")
+      console.log "on /: meetingId=#{meetingId} userId=#{userId} DBID=#{getInSession('DBID')}"
+      Meteor.subscribe 'chat', meetingId, userId, ->
+        Meteor.subscribe 'shapes', meetingId, ->
+          Meteor.subscribe 'slides', meetingId, ->
+            Meteor.subscribe 'meetings', meetingId, ->
+              Meteor.subscribe 'presentations', meetingId, ->
+                Meteor.subscribe 'users', meetingId, userId
+
+      Meteor.call "getMyInfo", userId, (error, result) ->
+        unless result.error?
+          console.log "on /, this is my info #{JSON.stringify result}"
+          setInSession("DBID", result.DBID)
+          setInSession("userName", result.name)
 
   @route "logout",
     path: "logout"
