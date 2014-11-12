@@ -18,7 +18,7 @@ sanjo:jasmine
 velocity:core
 velocity:html-reporter
 francocatena:status
-external-file-loader
-winston
-winston-client
+mrt:external-file-loader@0.1.4
+mrt:winston@0.0.3
+brentjanderson:winston-client@0.0.4
 
