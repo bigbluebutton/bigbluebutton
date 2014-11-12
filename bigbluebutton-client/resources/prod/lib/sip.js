@@ -2526,6 +2526,15 @@ var Hacks = module.exports = {
         }
       }
       return sdp;
+    },
+
+    hackCLinInIP: function (sdp) {
+      /* Starting in Firefox 34 they have set the c line to 0.0.0.0 which
+       * means "hold" according to legacy SIP standards and Freeswitch
+       * interprets it according to the SIP standards. We replace the
+       * 0.0.0.0 with any other IP so that the call continues.
+       */
+      return sdp.replace("c=IN IP4 0.0.0.0", "c=IN IP4 127.0.0.1");
     }
   },
 
@@ -6036,6 +6045,9 @@ InviteClientContext.prototype = {
           if (self.isCanceled || self.status === C.STATUS_TERMINATED) {
             return;
           }
+
+          offer = SIP.Hacks.Firefox.hackCLinInIP(offer);
+
           self.hasOffer = true;
           self.request.body = offer;
           self.status = C.STATUS_INVITE_SENT;

@@ -19,6 +19,11 @@
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
 import java.util.Random;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import org.bigbluebutton.voiceconf.red5.media.FlashToSipAudioStream.TranscodedAudioListener;
 import org.red5.app.sip.codecs.Codec;
@@ -36,9 +41,16 @@ public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
 	private Codec audioCodec;
 	private long timestamp = 0;
 	private final static int TS_INCREMENT = 320; // Determined from PCAP traces.
+	
+	private final Executor exec = Executors.newSingleThreadExecutor();
+	private Runnable audioDataProcessor;
+	private volatile boolean processAudioData = false;
+	private BlockingQueue<SpeexRtpAudioData> audioDataQ;
+	
 	private TranscodedAudioListener transcodedAudioListener;
 	
 	public SpeexFlashToSipTranscoderImp(Codec audioCodec) {
+		audioDataQ = new LinkedBlockingQueue<SpeexRtpAudioData>();
 		this.audioCodec = audioCodec;
         Random rgen = new Random();
         timestamp = rgen.nextInt(1000);
@@ -49,7 +61,13 @@ public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
 		// Just copy the audio data removing the codec id which is the first-byte
 		// represented by the startOffset var.
 		System.arraycopy(audioData, startOffset, transcodedAudio, 0, length);
-		transcodedAudioListener.handleTranscodedAudioData(transcodedAudio, timestamp += TS_INCREMENT);
+		
+		SpeexRtpAudioData srad = new SpeexRtpAudioData(transcodedAudio, timestamp += TS_INCREMENT);
+		try {
+			audioDataQ.offer(srad, 100, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			log.warn("Failed to add speex audio data into queue.");
+		}
 	}
 	
 	public int getCodecId() {
@@ -73,14 +91,33 @@ public class SpeexFlashToSipTranscoderImp implements FlashToSipTranscoder {
 	public void setTranscodedAudioListener(TranscodedAudioListener transcodedAudioListener) {
 		this.transcodedAudioListener = transcodedAudioListener;		
 	}
-
-	@Override
-	public void start() {
-		// do nothing. just implement the interface.
+	
+	private void processAudioData() {
+		while (processAudioData) {		
+			SpeexRtpAudioData srad;
+			try {
+				srad = audioDataQ.take();
+				transcodedAudioListener.handleTranscodedAudioData(srad.audioData, srad.timestamp);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}  
+		}
 	}
+
+    @Override
+    public void start() {
+    	processAudioData = true;	 
+	    audioDataProcessor = new Runnable() {
+    		public void run() {
+    			processAudioData();   			
+    		}
+    	};
+    	exec.execute(audioDataProcessor);
+    }
 	
 	@Override
-	public void stop() {
-		// do nothing. just implement the interface.
-	}
+    public void stop() {
+    	processAudioData = false;
+    }
 }
