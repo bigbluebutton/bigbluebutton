@@ -1,4 +1,4 @@
 location /check {
-    root /home/ubuntu/dev/bigbluebutton/labs/bbb-client-check;
-    index index.html index.htm;
+	root /var/www/bigbluebutton
+	index index.html index.htm;
 }
