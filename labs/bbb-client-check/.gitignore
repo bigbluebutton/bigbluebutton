@@ -1,5 +1,4 @@
-bin-debug/
-bin-release/
+check/
 .actionScriptProperties
 .flexProperties
 .project
@@ -8,4 +7,3 @@ org.eclipse.ltk.core.refactoring.prefs
 FlexPrettyPrintCommand.prefs
 index.template.html
 conf/config.xml
-
