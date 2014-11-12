@@ -26,11 +26,11 @@ Meteor.methods
       return {error: "did not find that user"}
   
 Meteor.startup ->
-  console.log "server start"
-  
+  Meteor.log.info "server start"
+
   #remove all data
   clearCollections()
 
   # create create a PubSub connection, start listening
   Meteor.redisPubSub = new Meteor.RedisPubSub(->
-    console.log "created pubsub")
+    Meteor.log.info "created pubsub")

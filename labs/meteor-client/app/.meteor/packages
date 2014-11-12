@@ -16,4 +16,6 @@ nemo64:bootstrap
 less
 francocatena:status
 mrt:external-file-loader@0.1.4
+winston
+winston-client
 

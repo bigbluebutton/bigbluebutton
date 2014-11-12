@@ -5,13 +5,31 @@
       "raphaeljs-package": {
         "git": "https://github.com/tomconnors/raphaeljs-package.git",
         "branch": "master"
-      }
+      },
+      "external-file-loader": {},
+      "winston": {},
+      "winston-client": {}
     },
     "packages": {
       "raphaeljs-package": {
         "git": "https://github.com/tomconnors/raphaeljs-package.git",
         "branch": "master",
         "commit": "85eaef3664ec063e4bcb81be1226d126d4d20539"
+      },
+      "external-file-loader": {
+        "git": "https://github.com/davidd8/meteor-external-file-loader.git",
+        "tag": "v0.1.4",
+        "commit": "352694a7cf906b8241161c2fd1435161c1d5409f"
+      },
+      "winston": {
+        "git": "https://github.com/tomrogers3/meteor-winston.git",
+        "tag": "v0.0.3",
+        "commit": "60dc02303ca003ef05254f94fbb9bfd40915d5d3"
+      },
+      "winston-client": {
+        "git": "https://github.com/farpoint/meteor-winston-client.git",
+        "tag": "v0.0.4",
+        "commit": "bc9959bf320e7745052d42e84038b27eec0b1a68"
       }
     }
   }
