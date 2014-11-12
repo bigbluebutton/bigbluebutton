@@ -47,14 +47,14 @@ if Meteor.isServer
      process.env.PWD + '/../log/development.log'
 
   # Setting up a logger in Meteor.log
-  winston = Meteor.require 'winston'
+  winston = Winston #Meteor.require 'winston'
   file = config.log.path
   transports = [ new winston.transports.Console(), new winston.transports.File { filename: file } ]
 
   Meteor.log = new winston.Logger
     transports: transports
-else
-  Meteor.log = Winston
+# else
+#   Meteor.log = Winston
 
 # Global instance of Modules, created by `app.coffee`
 config.modules = null

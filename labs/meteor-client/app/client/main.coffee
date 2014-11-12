@@ -9,7 +9,8 @@ loadLib = (libname) ->
   successCallback = ->
 
   retryMessageCallback = (param) ->
-    Meteor.log.info "Failed to load library", param
+    #Meteor.log.info "Failed to load library", param
+    console.log "Failed to load library", param
 
   Meteor.Loader.loadJs("http://#{window.location.hostname}/client/lib/#{libname}", successCallback, 10000).fail(retryMessageCallback)
 
@@ -86,7 +87,8 @@ Template.header.events
     toggleMic @
 
   "click .raiseHand": (event) ->
-    Meteor.log.info "navbar raise own hand from client"
+    #Meteor.log.info "navbar raise own hand from client"
+    console.log "navbar raise own hand from client"
     $(".tooltip").hide()
     Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("DBID"), getInSession("userId"), getInSession("DBID") )
     # "click .settingsIcon": (event) ->
