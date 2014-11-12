@@ -46,15 +46,6 @@ Meteor.methods
 # --------------------------------------------------------------------------------------------
 # Private methods on server
 # --------------------------------------------------------------------------------------------
-@deletePrivateChatMessages = (user1Id, user2Id) ->
-	console.log "Deleting messages between #{user1Id} & #{user2Id}"
-	Meteor.Chat.remove({ # find all and remove private messages between the 2 users
-		'message.chat_type': 'PRIVATE_CHAT',
-		$or: [{'message.from_userid': user1Id, 'message.to_userid': user2Id},{'message.from_userid': user2Id, 'message.to_userid': user1Id}]
-	})
-	# send a message to redis out about deleting conversation between these 2 users
-	# 
-
 @addChatToCollection = (meetingId, messageObject) ->
 	transformedChatObject = messageObject
 

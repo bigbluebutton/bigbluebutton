@@ -4,6 +4,28 @@
 	hex = "0" + hex while hex.length < 6
 	"##{hex}"
 
+@currentUserIsMuted = ->
+  return Meteor.Users.findOne({_id: getInSession "DBID"})?.user?.voiceUser?.muted
+
+# color can be a number (a hex converted to int) or a string (e.g. "#ffff00")
+@formatColor = (color) ->
+  color ?= "0" # default value
+  if !color.toString().match(/\#.*/)
+    color = colourToHex(color)
+  color
+
+# thickness can be a number (e.g. "2") or a string (e.g. "2px")
+@formatThickness = (thickness) ->
+  thickness ?= "1" # default value
+  if !thickness.toString().match(/.*px$/)
+    "#" + thickness + "px" # leading "#" - to be compatible with Firefox
+  thickness
+
+@getCurrentSlideDoc = -> # returns only one document
+  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+  presentationId = currentPresentation?.presentation?.id
+  currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+
 # retrieve account for selected user
 @getCurrentUserFromSession = ->
   Meteor.Users.findOne("_id": getInSession("userId"))
@@ -35,19 +57,19 @@
       setInSession "userName", user.user.name # store in session for fast access next time
       user.user.name
     else null
-        
+
 @getPresentationFilename = ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
   currentPresentation?.presentation?.name
-        
+
 Handlebars.registerHelper "colourToHex", (value) =>
-	@window.colourToHex(value)
+  @window.colourToHex(value)
 
 Handlebars.registerHelper 'equals', (a, b) -> # equals operator was dropped in Meteor's migration from Handlebars to Spacebars
   a is b
 
 Handlebars.registerHelper "getCurrentMeeting", ->
-	Meteor.Meetings.findOne()
+  Meteor.Meetings.findOne()
 
 Handlebars.registerHelper "getCurrentSlide", ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
@@ -63,13 +85,10 @@ Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
 
 Handlebars.registerHelper "getMeetingName", ->
   window.getMeetingName()
-    
-Handlebars.registerHelper "getWhiteboardTitle", ->
-  "Whiteboard: " + getPresentationFilename()
 
 Handlebars.registerHelper "getShapesForSlide", ->
   currentSlide = getCurrentSlideDoc()
-    
+
   # try to reuse the lines above
   Meteor.Shapes.find({whiteboardId: currentSlide?.slide?.id})
 
@@ -77,11 +96,11 @@ Handlebars.registerHelper "getShapesForSlide", ->
 Handlebars.registerHelper "getUsersInMeeting", ->
   Meteor.Users.find({})
 
+Handlebars.registerHelper "getWhiteboardTitle", ->
+  "Whiteboard: " + getPresentationFilename()
+
 Handlebars.registerHelper "isCurrentUser", (_id) ->
   _id is getInSession("DBID")
-
-Handlebars.registerHelper "meetingIsRecording", ->
-	Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
 
 Handlebars.registerHelper "isCurrentUserMuted", ->
   return currentUserIsMuted()
@@ -95,47 +114,64 @@ Handlebars.registerHelper "isCurrentUserSharingAudio", ->
   return user?.user?.voiceUser?.joined
 
 Handlebars.registerHelper "isCurrentUserSharingVideo", ->
-	user = Meteor.Users.findOne({_id:getInSession("DBID")})
-	user?.webcam_stream?.length isnt 0
+  user = Meteor.Users.findOne({_id:getInSession("DBID")})
+  user?.webcam_stream?.length isnt 0
 
 Handlebars.registerHelper "isCurrentUserTalking", ->
   user = Meteor.Users.findOne({_id:getInSession("DBID")})
   return user?.user?.voiceUser?.talking
 
+Handlebars.registerHelper "isDisconnected", ->
+  return !Meteor.status().connected
+
+Handlebars.registerHelper "isUserListenOnly", (_id) ->
+  user = Meteor.Users.findOne({_id:_id})
+  return user?.user?.listenOnly
+
+Handlebars.registerHelper "isUserMuted", (_id) ->
+  user = Meteor.Users.findOne({_id:_id})
+  return user?.user?.voiceUser?.muted
+
 Handlebars.registerHelper "isUserSharingAudio", (_id) ->
   user = Meteor.Users.findOne({_id:_id})
   return user.user?.voiceUser?.joined
-
-Handlebars.registerHelper "isUserListenOnly", (_id) ->
-    user = Meteor.Users.findOne({_id:_id})
-    return user?.user?.listenOnly
 
 Handlebars.registerHelper "isUserSharingVideo", (_id) ->
   user = Meteor.Users.findOne({_id:_id})
   return user.user?.webcam_stream?.length isnt 0
 
 Handlebars.registerHelper "isUserTalking", (_id) ->
-    user = Meteor.Users.findOne({_id:_id})
-    return user?.user?.voiceUser?.talking
-
-Handlebars.registerHelper "isUserMuted", (_id) ->
   user = Meteor.Users.findOne({_id:_id})
-  return user?.user?.voiceUser?.muted
+  return user?.user?.voiceUser?.talking
+
+Handlebars.registerHelper "meetingIsRecording", ->
+  Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
 
 Handlebars.registerHelper "messageFontSize", ->
-	style: "font-size: #{getInSession("messageFontSize")}px;"
+  style: "font-size: #{getInSession("messageFontSize")}px;"
 
 Handlebars.registerHelper "pointerLocation", ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-  currentPresentation?.pointer
+  presentationId = currentPresentation?.presentation?.id
+  currentSlideDoc = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+  pointer = currentPresentation?.pointer
+  pointer.x = (- currentSlideDoc.slide.x_offset * 2 + currentSlideDoc.slide.width_ratio * pointer.x) / 100
+  pointer.y = (- currentSlideDoc.slide.y_offset * 2 + currentSlideDoc.slide.height_ratio * pointer.y) / 100
+  pointer
 
-Handlebars.registerHelper "setInSession", (k, v) -> SessionAmplify.set k, v 
+Handlebars.registerHelper "safeName", (str) ->
+  safeString(str)
+
+Handlebars.registerHelper "setInSession", (k, v) -> SessionAmplify.set k, v
 
 Handlebars.registerHelper "visibility", (section) ->
-    if getInSession "display_#{section}"
-        style: 'display:block'
-    else
-        style: 'display:none'
+  if getInSession "display_#{section}"
+    style: 'display:block'
+  else
+    style: 'display:none'
+
+@isSharingAudio = ->
+  return Meteor.Users.findOne({_id: getInSession "DBID"})?.user?.voiceUser?.joined
 
 # transform plain text links into HTML tags compatible with Flash client
 @linkify = (str) ->
@@ -144,110 +180,18 @@ Handlebars.registerHelper "visibility", (section) ->
   str = str.replace http, "<a href='event:$1'><u>$1</u></a>"
   str = str.replace www, "$1<a href='event:http://$2'><u>$2</u></a>"
 
-@setInSession = (k, v) -> SessionAmplify.set k, v 
+@setInSession = (k, v) ->
+  if k is "DBID" then  console.log "setInSession #{k}, #{v}"
+  SessionAmplify.set k, v
 
-@currentUserIsMuted = ->
-  return Meteor.Users.findOne({_id: getInSession "DBID"})?.user?.voiceUser?.muted
-
-@isSharingAudio = ->
-  return Meteor.Users.findOne({_id: getInSession "DBID"})?.user?.voiceUser?.joined
-
-Meteor.methods
-  sendMeetingInfoToClient: (meetingId, userId) ->
+@sendMeetingInfoToClient = (meetingId, userId) ->
     setInSession("userId", userId)
     setInSession("meetingId", meetingId)
-    setInSession("currentChatId", meetingId)
+    setInSession("currentChatId", meetingId) #TODO check if this is needed
     setInSession("meetingName", null)
     setInSession("userName", null)
 
-@toggleCam = (event) ->
-  # Meteor.Users.update {_id: context._id} , {$set:{"user.sharingVideo": !context.sharingVideo}}
-  # Meteor.call('userToggleCam', context._id, !context.sharingVideo)
-
-@toggleChatbar = ->
-  setInSession "display_chatbar", !getInSession "display_chatbar"
-
-@toggleMic = (event) ->
-  u = Meteor.Users.findOne({_id:getInSession("DBID")})
-  if u?
-    Meteor.call('publishMuteRequest', getInSession("meetingId"),u._id, getInSession("userId"), u._id, not u.user.voiceUser.muted)
-
-@toggleNavbar = ->
-  setInSession "display_navbar", !getInSession "display_navbar"
-
-# toggle state of session variable
-@toggleUsersList = ->
-  setInSession "display_usersList", !getInSession "display_usersList"
-
-@toggleVoiceCall = (event) -> 
-  if isSharingAudio()
-    # hangup and inform bbb-apps
-    Meteor.call("userStopAudio", getInSession("meetingId"), getInSession("userId"), getInSession("DBID"), getInSession("userId"), getInSession("DBID"))
-    hangupCallback = -> 
-     	console.log "left voice conference"
-    webrtc_hangup hangupCallback # sign out of call
-  else
-    # create voice call params
-    username = "#{getInSession("userId")}-bbbID-#{getUsersName()}"
-    voiceBridge = Meteor.Meetings.findOne({}).voiceConf 
-    server = null
-    joinCallback = (message) ->
-      console.log "started webrtc_call"
-    webrtc_call(username, voiceBridge, server, joinCallback) # make the call
-  return false
-
-@toggleWhiteBoard = ->
-  setInSession "display_whiteboard", !getInSession "display_whiteboard"
-
-# Starts the entire logout procedure.
-# meeting: the meeting the user is in
-# the user's userId
-@userLogout = (meeting, user) ->
-  Meteor.call("userLogout", meeting, user)
-
-  # Clear the local user session and redirect them away
-  setInSession("userId", null)
-  setInSession("meetingId", null)
-  setInSession("currentChatId", null)
-  setInSession("meetingName", null)
-  setInSession("bbbServerVersion", null)
-  setInSession("userName", null) 
-  setInSession "display_navbar", false # needed to hide navbar when the layout template renders
-  
-  Router.go('logout') # navigate to logout
-
-# color can be a number (a hex converted to int) or a string (e.g. "#ffff00")
-@formatColor = (color) ->
-  color ?= "0" # default value
-  if !color.toString().match(/\#.*/)
-    color = colourToHex(color)
-  color
-
-# thickness can be a number (e.g. "2") or a string (e.g. "2px")
-@formatThickness = (thickness) ->
-  thickness ?= "1" # default value
-  if !thickness.toString().match(/.*px$/)
-    "#" + thickness + "px" # leading "#" - to be compatible with Firefox
-  thickness
-    
-# applies zooming to the stroke thickness
-@zoomStroke = (thickness) ->
-  currentSlide = @getCurrentSlideDoc()
-  ratio = (currentSlide?.slide.width_ratio + currentSlide?.slide.height_ratio) / 2
-  thickness * 100 / ratio
-
-@getCurrentSlideDoc = -> # returns only one document
-  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-  presentationId = currentPresentation?.presentation?.id
-  currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
-
-#start a clientside-only collection keeping track of the chat tabs
-@chatTabs = new Meteor.Collection(null)
-#insert the basic tabs
-@chatTabs.insert({ userId: "PUBLIC_CHAT", name: "Public", gotMail: false, class: "publicChatTab"})
-@chatTabs.insert({ userId: "OPTIONS", name: "Options", gotMail: false, class: "optionsChatTab"})
-
-#check the chat history of the user and add tabs for the private chats
+# check the chat history of the user and add tabs for the private chats
 @populateChatTabs = ->
   mydbid = getInSession "DBID"
   users = Meteor.Users.find().fetch()
@@ -271,5 +215,76 @@ Meteor.methods
     unless chatTabs.findOne({userId: u.userId})?
       chatTabs.insert({ userId: u.userId, name: u.username, gotMail: false, class: "privateChatTab"})
 
-Handlebars.registerHelper "grabChatTabs", ->
-  chatTabs.find().fetch()
+@setInSession = (k, v) -> SessionAmplify.set k, v 
+
+@safeString = (str) ->
+  if typeof str is 'string' and 1 is 1
+    str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+@toggleCam = (event) ->
+  # Meteor.Users.update {_id: context._id} , {$set:{"user.sharingVideo": !context.sharingVideo}}
+  # Meteor.call('userToggleCam', context._id, !context.sharingVideo)
+
+@toggleChatbar = ->
+  setInSession "display_chatbar", !getInSession "display_chatbar"
+
+@toggleMic = (event) ->
+  u = Meteor.Users.findOne({_id:getInSession("DBID")})
+  if u?
+    Meteor.call('publishMuteRequest', getInSession("meetingId"),u._id, getInSession("userId"), u._id, not u.user.voiceUser.muted)
+
+@toggleNavbar = ->
+  setInSession "display_navbar", !getInSession "display_navbar"
+
+# toggle state of session variable
+@toggleUsersList = ->
+  setInSession "display_usersList", !getInSession "display_usersList"
+
+@toggleVoiceCall = (event) ->
+	if isSharingAudio()
+		# hangup and inform bbb-apps
+		Meteor.call("userStopAudio", getInSession("meetingId"), getInSession("userId"), getInSession("DBID"), getInSession("userId"), getInSession("DBID"))
+		hangupCallback = ->
+			console.log "left voice conference"
+		webrtc_hangup hangupCallback # sign out of call
+	else
+		# create voice call params
+		username = "#{getInSession("userId")}-bbbID-#{getUsersName()}"
+		voiceBridge = Meteor.Meetings.findOne({}).voiceConf
+		server = null
+		joinCallback = (message) ->
+			console.log "started webrtc_call"
+		webrtc_call(username, voiceBridge, server, joinCallback) # make the call
+	return false
+
+@toggleWhiteBoard = ->
+  setInSession "display_whiteboard", !getInSession "display_whiteboard"
+
+# Starts the entire logout procedure.
+# meeting: the meeting the user is in
+# the user's userId
+@userLogout = (meeting, user) ->
+  Meteor.call("userLogout", meeting, user)
+
+  # Clear the local user session and redirect them away
+  setInSession("userId", null)
+  setInSession("meetingId", null)
+  setInSession("currentChatId", null)
+  setInSession("meetingName", null)
+  setInSession("bbbServerVersion", null)
+  setInSession("userName", null)
+  setInSession "display_navbar", false # needed to hide navbar when the layout template renders
+
+  Router.go('logout') # navigate to logout
+
+# applies zooming to the stroke thickness
+@zoomStroke = (thickness) ->
+  currentSlide = @getCurrentSlideDoc()
+  ratio = (currentSlide?.slide.width_ratio + currentSlide?.slide.height_ratio) / 2
+  thickness * 100 / ratio
+
+# start a clientside-only collection keeping track of the chat tabs
+@chatTabs = new Meteor.Collection(null)
+# insert the basic tabs
+@chatTabs.insert({ userId: "PUBLIC_CHAT", name: "Public", gotMail: false, class: "publicChatTab"})
+@chatTabs.insert({ userId: "OPTIONS", name: "Options", gotMail: false, class: "optionsChatTab"})

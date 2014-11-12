@@ -33,7 +33,15 @@
         {{/if}}
     </td>
 
-    <td>{{#if user.presenter}}<span class="userListSettingIcon glyphicon glyphicon-picture" rel="tooltip" data-placement="bottom" title="{{user.name}} is the presenter"></span>{{/if}}</td>
+    <td>
+        {{#if user.presenter}}
+            <span class="userListSettingIcon glyphicon glyphicon-picture" rel="tooltip" data-placement="bottom" title="{{user.name}} is the presenter"></span>
+        {{else}}
+            {{#if equals user.role "MODERATOR"}}
+                <span class="userListSettingIcon glyphicon glyphicon-user" rel="tooltip" data-placement="bottom" title="{{user.name}} is a moderator"></span>
+            {{/if}}
+        {{/if}}
+    </td>
 
     <td>
         {{#if user.raise_hand}}

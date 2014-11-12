@@ -1,11 +1,16 @@
 <template name="chatbar">
 	<div id="{{id}}" {{visibility name}} class="component">
 		<div id="chatbar-contents">
-			<h3 class="title gradientBar"><span class="glyphicon glyphicon-comment"></span> {{title}}</h3>
+            <h3 class="title gradientBar">
+                <span class="glyphicon glyphicon-comment"></span>
+                {{title}}
+                {{> extraConversations}}
+            </h3>
+
 			{{>tabButtons}} <!-- Display public/options tabs, and private chat tabs -->
 			{{#if getInSession "display_chatPane"}}
 				<div id="chatbody">
-					<ul class="chat">					
+					<ul class="chat">
 						{{#each getCombinedMessagesForChat}}
 							{{#if message}}
 								<li {{messageFontSize}}>{{> message}}</li>
@@ -38,6 +43,19 @@
 	{{> notificationSettings}}
 </template>
 
+<template name="extraConversations">
+    {{#if tooManyConversations}}
+        <div class="btn-group">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Scrollable Menu <span class="caret"></span></button>
+            <ul class="dropdown-menu extraConversationScrollableMenu" role="menu">
+                {{#each getExtraConversations}}
+                    <li class="extraConversation" id="{{safeName name}}"><a href="#">{{safeName name}}</a></li>
+                {{/each}}
+            </ul>
+        </div>
+    {{/if}}
+</template>
+
 <!-- Displays and styles an individual message in the chat -->
 <template name="message">
 	<table style="width:100%">
@@ -59,7 +77,7 @@
 </template>
 
 <template name="notificationSettings">
-	New Message Notifications: 
+	New Message Notifications:
 	<form>
 		<input type="radio" name="chatNotification" id="chatNotificationOn" value="chatNotificationOn" checked="checked" />
 		<label for="chatNotificationOn">On</label>
@@ -119,9 +137,16 @@
 
 <!-- Display buttons on the chat tab, public, options, and all the private chat tabs -->
 <template name="tabButtons">
-	<ul id="tabsList" class="nav nav-tabs">
-		{{#each grabChatTabs}}
-			{{{makeTabButton}}}
-		{{/each}}
-	</ul>
+  <ul id="tabsList" class="nav nav-tabs">
+    {{#each grabChatTabs}}
+      <li class="{{isTabActive userId}} tab {{makeSafe class}}">
+        <a href='#' data-toggle='tab' id="#{{makeSafe name}}" class="{{hasGotUnreadMailClass gotMail}}">
+          {{#if equals class "privateChatTab"}}
+            <button class="close closeTab" type="button"><sup><b>X</b></sup></button>
+          {{/if}}
+          {{makeSafe name}}
+        </a>
+      </li>
+    {{/each}}
+  </ul>
 </template>
