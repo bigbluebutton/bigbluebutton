@@ -29,12 +29,15 @@ Meteor.publish 'shapes', (meetingId) ->
   Meteor.Shapes.find({meetingId: meetingId})
 
 Meteor.publish 'slides', (meetingId) ->
+  console.log "publishing slides for #{meetingId}"
   Meteor.Slides.find({meetingId: meetingId})
 
 Meteor.publish 'meetings', (meetingId) ->
+  console.log "publishing meetings for #{meetingId}"
   Meteor.Meetings.find({meetingId: meetingId})
 
 Meteor.publish 'presentations', (meetingId) ->
+  console.log "publishing presentations for #{meetingId}"
   Meteor.Presentations.find({meetingId: meetingId})
 
 # Clear all data in subcriptions

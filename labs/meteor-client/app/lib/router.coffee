@@ -47,12 +47,12 @@
       meetingId = getInSession('meetingId')
       userId = getInSession("userId")
       console.log "on /: meetingId=#{meetingId} userId=#{userId} DBID=#{getInSession('DBID')}"
-      Meteor.subscribe 'users', meetingId, userId, ->
-        Meteor.subscribe 'chat', meetingId, userId, ->
-          Meteor.subscribe 'shapes', meetingId, ->
-            Meteor.subscribe 'slides', meetingId, ->
-              Meteor.subscribe 'meetings', meetingId, ->
-                Meteor.subscribe 'presentations', meetingId
+      Meteor.subscribe 'chat', meetingId, userId, ->
+        Meteor.subscribe 'shapes', meetingId, ->
+          Meteor.subscribe 'slides', meetingId, ->
+            Meteor.subscribe 'meetings', meetingId, ->
+              Meteor.subscribe 'presentations', meetingId, ->
+                Meteor.subscribe 'users', meetingId, userId
 
       Meteor.call "getMyInfo", userId, (error, result) ->
         unless result.error?
