@@ -3,33 +3,36 @@ redis = require("redis")
 
 config = require("./config")
 
-# The database of mappings. Format:
-# { internalMeetingID: externalMeetingID }
+# The database of mappings. Uses the externalID as key because it changes less than
+# the internal ID (e.g. the internalID can change for different meetings in the same
+# room). Format:
+#   { externalMeetingID: internalMeetingID }
 db = {}
 
 # A simple model to store mappings for meeting IDs.
 module.exports = class MeetingIDMap
 
   @addOrUpdateMapping = (internalMeetingID, externalMeetingID) ->
-    db[internalMeetingID] = externalMeetingID
-    console.log "MeetingIDMap: added or changed meeting mapping to the list { #{internalMeetingID}: #{db[internalMeetingID]} }"
+    db[externalMeetingID] = internalMeetingID
+    console.log "MeetingIDMap: added or changed meeting mapping to the list { #{externalMeetingID}: #{db[externalMeetingID]} }"
     MeetingIDMap.updateRedis()
 
   @removeMapping = (internalMeetingID) ->
-    if internalMeetingID in _.keys(db)
-      console.log "MeetingIDMap: removing meeting mapping from the list { #{internalMeetingID}: #{db[internalMeetingID]} }"
-      delete db[internalMeetingID]
-      db[internalMeetingID] = null
-      MeetingIDMap.updateRedis()
+    for external, internal of db
+      if internalMeetingID is internal
+        console.log "MeetingIDMap: removing meeting mapping from the list { #{external}: #{db[external]} }"
+        delete db[external]
+        db[external] = null
+        MeetingIDMap.updateRedis()
 
   @getInternalMeetingID = (externalMeetingID) ->
-    for internal, external of db
-      if external is externalMeetingID
-        return internal
-    null
+    db[externalMeetingID]
 
   @getExternalMeetingID = (internalMeetingID) ->
-    db[internalMeetingID]
+    for external, internal of db
+      if internal is internalMeetingID
+        return external
+    null
 
   @initialize = (callback) ->
     MeetingIDMap.resync(callback)
