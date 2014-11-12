@@ -26,6 +26,8 @@ require 'rubygems'
 require 'yaml'
 require 'fileutils'
 
+# Number of seconds to delay archiving (red5 race condition workaround)
+ARCHIVE_DELAY_SECONDS = 120
 
 def archive_recorded_meeting(recording_dir)
   recorded_done_files = Dir.glob("#{recording_dir}/status/recorded/*.done")
@@ -34,6 +36,11 @@ def archive_recorded_meeting(recording_dir)
   recorded_done_files.each do |recorded_done|
     match = /([^\/]*).done$/.match(recorded_done)
     meeting_id = match[1]
+    
+    if File.mtime(recorded_done) + ARCHIVE_DELAY_SECONDS > Time.now
+      BigBlueButton.logger.info("Temporarily skipping #{meeting_id} for Red5 race workaround")
+      next
+    end
 
     archived_done = "#{recording_dir}/status/archived/#{meeting_id}.done"
     next if File.exists?(archived_done)
