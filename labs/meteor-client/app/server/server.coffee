@@ -16,7 +16,7 @@ Meteor.methods
   # be much, much better than the user passing in the first part of their
   # credentials and us looking up and suplying them with the second part.
   # It'd be much more secure.
-  getMyInfo: (uId) ->
+  getMyInfo: (uId) -> #TODO add meetingId
     u = Meteor.Users.findOne("userId": uId)
     if u?
       console.log "__server::getMyInfo " + u.userId + " DBID:" +  u._id + "  name:" + u.user.name

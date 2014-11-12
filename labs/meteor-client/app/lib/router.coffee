@@ -33,7 +33,10 @@
                 setInSession("userName", result.name)
                 me = Meteor.Users.findOne({_id:result.DBID})
                 console.log "me=" + JSON.stringify me
-                self.redirect('/') #we are sure the user has dbid, userid and exists in the collection
+                if me?
+                  self.redirect('/') #we are sure the user has dbid, userid and exists in the collection
+                else
+                  alert "did not find the user in the collection"
         else
           console.log "unable to extract from the URL some of {meetingId, userId, authToken}"
       else
@@ -43,13 +46,19 @@
     onBeforeAction: ->
       meetingId = getInSession('meetingId')
       userId = getInSession("userId")
-      console.log "on /: meetingId=#{meetingId} userId=#{userId}"
-      Meteor.subscribe 'users', meetingId, userId, -> # callback for after users have been loaded on client
+      console.log "on /: meetingId=#{meetingId} userId=#{userId} DBID=#{getInSession('DBID')}"
+      Meteor.subscribe 'users', meetingId, userId, ->
         Meteor.subscribe 'chat', meetingId, userId, ->
           Meteor.subscribe 'shapes', meetingId, ->
             Meteor.subscribe 'slides', meetingId, ->
               Meteor.subscribe 'meetings', meetingId, ->
                 Meteor.subscribe 'presentations', meetingId
+
+      Meteor.call "getMyInfo", userId, (error, result) ->
+        unless result.error?
+          console.log "on /, this is my info #{JSON.stringify result}"
+          setInSession("DBID", result.DBID)
+          setInSession("userName", result.name)
 
   @route "logout",
     path: "logout"
