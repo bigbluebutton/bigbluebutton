@@ -63,16 +63,19 @@ module.exports = class Hook
     @_processQueue()
 
   toRedis: ->
-    {
+    r =
       "hookID": @id,
-      "externalMeetingID": @externalMeetingID,
       "callbackURL": @callbackURL
-    }
+    r.externalMeetingID = @externalMeetingID if @externalMeetingID?
+    r
 
   fromRedis: (redisData) ->
-    @callbackURL = redisData?.callbackURL
-    @externalMeetingID = redisData?.externalMeetingID
-    @id = parseInt(redisData?.hookID)
+    @id = parseInt(redisData.hookID)
+    @callbackURL = redisData.callbackURL
+    if redisData.externalMeetingID?
+      @externalMeetingID = redisData.externalMeetingID
+    else
+      @externalMeetingID = null
 
   # Gets the first message in the queue and start an emitter to send it. Will only do it
   # if there is no emitter running already and if there is a message in the queue.
@@ -88,11 +91,10 @@ module.exports = class Hook
       @queue.shift() # pop the first message just sent
       @_processQueue() # go to the next message
 
-    # TODO: do what on error? maybe remove this callback url entirely?
-    @emitter.on "error", (error) =>
-      delete @emitter
-      @queue.shift() # pop the first message just sent
-      @_processQueue() # go to the next message
+    # gave up trying to perform the callback, remove the hook forever
+    @emitter.on "stopped", (error) =>
+      console.log "Hook: too many failed attempts to perform a callback call, removing the hook", JSON.stringify(hook)
+      @destroy()
 
   @addSubscription = (callbackURL, meetingID=null, callback) ->
     hook = Hook.findByCallbackURLSync(callbackURL)

@@ -10,11 +10,10 @@ db = {}
 # A simple model to store mappings for meeting IDs.
 module.exports = class MeetingIDMap
 
-  @addMapping = (internalMeetingID, externalMeetingID) ->
-    unless internalMeetingID in _.keys(db)
-      db[internalMeetingID] = externalMeetingID
-      console.log "MeetingIDMap: added meeting mapping to the list { #{internalMeetingID}: #{db[internalMeetingID]} }"
-      MeetingIDMap.updateRedis()
+  @addOrUpdateMapping = (internalMeetingID, externalMeetingID) ->
+    db[internalMeetingID] = externalMeetingID
+    console.log "MeetingIDMap: added or changed meeting mapping to the list { #{internalMeetingID}: #{db[internalMeetingID]} }"
+    MeetingIDMap.updateRedis()
 
   @removeMapping = (internalMeetingID) ->
     if internalMeetingID in _.keys(db)
@@ -44,7 +43,10 @@ module.exports = class MeetingIDMap
       callback?(error, mappings)
 
   @fromRedis = (mappings) ->
-    db = mappings
+    if mappings?
+      db = mappings
+    else
+      db = {}
 
   @updateRedis = (callback) ->
     client = redis.createClient()

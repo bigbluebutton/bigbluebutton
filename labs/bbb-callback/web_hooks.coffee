@@ -74,7 +74,7 @@ module.exports = class WebHooks
       try
         message = JSON.parse(message)
         if message.header?.name is "meeting_created_message"
-          MeetingIDMap.addMapping(message.payload?.meeting_id, message.payload?.external_meeting_id)
+          MeetingIDMap.addOrUpdateMapping(message.payload?.meeting_id, message.payload?.external_meeting_id)
         else if message.header?.name is "meeting_destroyed_event"
           MeetingIDMap.removeMapping(message.payload?.meeting_id)
 

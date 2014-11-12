@@ -4,31 +4,48 @@ request = require("request")
 config = require("./config")
 Utils = require("./utils")
 
-# Class that emits a callback. Will try several times until the callback is
+# Use to perform a callback. Will try several times until the callback is
 # properly emitted and stop when successful (or after a given number of tries).
-# Emits "success" on success and "error" when gave up trying to emit the callback.
+# Used to emit a single callback. Destroy it and create a new class for a new callback.
+# Emits "success" on success, "failure" on error and "stopped" when gave up trying
+# to perform the callback.
 module.exports = class CallbackEmitter extends EventEmitter
 
   constructor: (@callbackURL, @message) ->
+    @nextInterval = 0
+    @timestap = 0
 
   start: ->
+    @timestap = new Date().getTime()
+    @nextInterval = 0
     @_scheduleNext 0
 
   _scheduleNext: (timeout) ->
     setTimeout( =>
       @_emitMessage (error, result) =>
-        # TODO: treat error
-        if result
+        if not error? and result
           @emit "success"
         else
-          # TODO: increase the timeout periodically and stop at some point, emitting "error"
-          @_scheduleNext 1000
+          @emit "failure", error
+
+          # get the next interval we have to wait and schedule a new try
+          interval = config.hooks.retryIntervals[@nextInterval]
+          if interval?
+            console.log "xx> Trying the callback again in #{interval/1000.0} secs"
+            @nextInterval++
+            @_scheduleNext(interval)
+
+          # no intervals anymore, time to give up
+          else
+            @nextInterval = 0
+            @emit "stopped"
+
     , timeout)
 
   _emitMessage: (callback) ->
     # basic data structure
     data =
-      timestamp: new Date().getTime()
+      timestamp: @timestamp
       event: @message
 
     # add a checksum to the post data
@@ -42,9 +59,9 @@ module.exports = class CallbackEmitter extends EventEmitter
 
     request requestOptions, (error, response, body) ->
       if error?
-        console.log "X=> Error in the callback call to: [#{requestOptions.uri}] for #{simplifiedEvent(data.event)}"
-        console.log "Error:", error
-        console.log "Response:", response
+        console.log "xx> Error in the callback call to: [#{requestOptions.uri}] for #{simplifiedEvent(data.event)}"
+        console.log "xx> Error:", error
+        # console.log "xx> Response:", response
         callback error, false
       else
         console.log "==> Successful callback call to: [#{requestOptions.uri}] for #{simplifiedEvent(data.event)}"

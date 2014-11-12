@@ -29,6 +29,12 @@ config.hooks.events = [
   # { channel: "bigbluebutton:from-bbb-apps:meeting", name: "user_registered_message" },
 ]
 
+# Retry intervals for failed attempts for perform callback calls.
+# In ms. Totals to around 5min.
+config.hooks.retryIntervals = [
+  100, 500, 1000, 2000, 4000, 8000, 10000, 30000, 60000, 60000, 60000, 60000
+]
+
 # Redis
 config.redis = {}
 config.redis.keys = {}
