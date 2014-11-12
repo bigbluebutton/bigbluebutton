@@ -15,5 +15,5 @@ blaze
 nemo64:bootstrap
 less
 francocatena:status
-external-file-loader
+mrt:external-file-loader@0.1.4
 

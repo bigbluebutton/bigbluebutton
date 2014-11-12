@@ -15,7 +15,6 @@ ctl@1.0.2
 ddp@1.0.10
 deps@1.0.5
 ejson@1.0.4
-external-file-loader@0.0.0
 fastclick@1.0.1
 follower-livedata@1.0.2
 francocatena:status@0.9.9
@@ -39,6 +38,7 @@ minifiers@1.1.1
 minimongo@1.0.4
 mobile-status-bar@1.0.1
 mongo@1.0.7
+mrt:external-file-loader@0.1.4
 mrt:redis@0.1.3
 nemo64:bootstrap-data@3.2.0-rc2
 nemo64:bootstrap@3.2.3
