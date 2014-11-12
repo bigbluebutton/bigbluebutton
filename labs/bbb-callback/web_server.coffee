@@ -1,3 +1,4 @@
+_ = require("lodash")
 express = require("express")
 url = require("url")
 
@@ -71,9 +72,13 @@ module.exports = class WebServer
     meetingID = urlObj.query["meetingID"]
 
     if meetingID?
-      hooks = Hook.allForMeetingSync(meetingID)
-    else
+      # all the hooks that receive events from this meeting
       hooks = Hook.allGlobalSync()
+      hooks = hooks.concat(Hook.findByExternalMeetingIDSync(meetingID))
+      hooks = _.sortBy(hooks, (hook) -> hook.id)
+    else
+      # no meetingID, return all hooks
+      hooks = Hook.allSync()
 
     msg = "<response><returncode>SUCCESS</returncode><hooks>"
     hooks.forEach (hook) ->

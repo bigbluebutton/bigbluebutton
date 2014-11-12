@@ -42,7 +42,7 @@ module.exports = class CallbackEmitter extends EventEmitter
 
     request requestOptions, (error, response, body) ->
       if error?
-        console.log "Error calling url:",requestOptions.uri
+        console.log "X=> Error in the callback call to: [#{requestOptions.uri}] for #{simplifiedEvent(data.event)}"
         console.log "Error:", error
         console.log "Response:", response
         callback error, false

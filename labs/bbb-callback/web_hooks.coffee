@@ -5,6 +5,7 @@ request = require("request")
 
 config = require("./config")
 Hook = require("./hook")
+MeetingIDMap = require("./meeting_id_map")
 
 # Web hooks will listen for events on redis coming from BigBlueButton and
 # perform HTTP calls with them to all registered hooks.
@@ -15,7 +16,6 @@ module.exports = class WebHooks
     @client = redis.createClient()
 
     # To map internal and external meeting IDs
-    @meetingMappings = {}
     @subscriberMeetings = redis.createClient()
 
   start: ->
@@ -51,16 +51,14 @@ module.exports = class WebHooks
   # Processes an event received from redis. Will get all hook URLs that
   # should receive this event and start the process to perform the callback.
   _processEvent: (message) ->
-    hooks = Hook.allSync(message)
+    hooks = Hook.allGlobalSync()
 
     # filter the hooks that need to receive this event
     # only global hooks or hooks for this specific meeting
-    idFromMessage = message.payload?.meeting_id # always the internal meetingID
+    idFromMessage = message.payload?.meeting_id
     if idFromMessage?
-      externalMeetingID = @meetingMappings[idFromMessage]
-      hooks = Hook.allForMeetingSync(externalMeetingID)
-    else
-      hooks = Hook.allGlobalSync(externalMeetingID)
+      eMeetingID = MeetingIDMap.getExternalMeetingID(idFromMessage)
+      hooks = hooks.concat(Hook.findByExternalMeetingIDSync(eMeetingID))
 
     hooks.forEach (hook) ->
       console.log "WebHooks: enqueueing a message in the hook:", hook.callbackURL
@@ -77,25 +75,14 @@ module.exports = class WebHooks
       try
         message = JSON.parse(message)
         if message.header?.name is "meeting_created_message"
-          @_addMeetingMapping(message.payload?.meeting_id, message.payload?.external_meeting_id)
+          MeetingIDMap.addMapping(message.payload?.meeting_id, message.payload?.external_meeting_id)
         else if message.header?.name is "meeting_destroyed_event"
-          @_removeMeetingMapping(message.payload?.meeting_id)
+          MeetingIDMap.removeMapping(message.payload?.meeting_id)
 
       catch e
         console.log "WebHooks: error processing the message", JSON.stringify(message), ":", e
 
     @subscriberMeetings.subscribe config.hooks.meetingsChannel
-
-  _addMeetingMapping: (meetingID, externalMeetingID) ->
-    unless meetingID in _.keys(@meetingMappings)
-      @meetingMappings[meetingID] = externalMeetingID
-      console.log "WebHooks: added meeting mapping to the list { #{meetingID}: #{@meetingMappings[meetingID]} }"
-
-  _removeMeetingMapping: (meetingID) ->
-    if meetingID in _.keys(@meetingMappings)
-      console.log "WebHooks: removing meeting mapping from the list { #{meetingID}: #{@meetingMappings[meetingID]} }"
-      delete @meetingMappings[meetingID]
-      @meetingMappings[meetingID] = null
 
   # TODO: enable the methods below again when we persist hooks to redis again
   # # Gets all hooks from redis.

@@ -1,6 +1,7 @@
 _ = require("lodash")
 
 CallbackEmitter = require("./callback_emitter")
+MeetingIDMap = require("./meeting_id_map")
 
 # The database of hooks.
 db = {}
@@ -76,7 +77,7 @@ module.exports = class Hook
     if hook?
       callback?(new Error("There is already a subscription for this callback URL"), hook)
     else
-      msg = "Hook: adding a subscription with callback URL [#{callbackURL}]"
+      msg = "Hook: adding a hook with callback URL [#{callbackURL}]"
       msg += " for the meeting [#{meetingID}]" if meetingID?
       console.log msg
 
@@ -85,6 +86,7 @@ module.exports = class Hook
       hook.callbackURL = callbackURL
       hook.externalMeetingID = meetingID
       hook.saveSync()
+
       callback?(null, hook)
 
   @removeSubscription = (hookID, callback) ->
@@ -112,11 +114,10 @@ module.exports = class Hook
     else
       null
 
-  @allForMeetingSync = (externalMeetingID) ->
+  @findByExternalMeetingIDSync = (externalMeetingID) ->
     hooks = Hook.allSync()
     _.filter(hooks, (hook) ->
-      hook.isGlobal() or
-        (externalMeetingID? and externalMeetingID is hook.targetMeetingID())
+      (externalMeetingID? and externalMeetingID is hook.externalMeetingID)
     )
 
   @allGlobalSync = ->
