@@ -12,10 +12,10 @@ amplify
 raphaeljs-package
 iron:router
 blaze
-nemo64:bootstrap
 less
+sanjo:jasmine
 francocatena:status
 mrt:external-file-loader@0.1.4
-winston
-winston-client
-
+brentjanderson:winston-client@0.0.4
+mizzao:bootstrap-3
+duongthienduc:meteor-winston
