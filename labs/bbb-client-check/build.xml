@@ -9,6 +9,7 @@
 			  value="${basedir}"/>
 	<property name="SRC_DIR"
 			  value="${BASE_DIR}/src"/>
+	<property name="TEST_IMAGE_URL" value="http://upload.wikimedia.org/wikipedia/commons/a/a2/Polycyclic_Aromatic_Hydrocarbons_In_Space.jpg" />
 	<taskdef resource="flexTasks.tasks"
 			 classpath="${FLEX_HOME}/ant/lib/flexTasks.jar"/>
 	<macrodef name="create-rsl">
@@ -28,19 +29,19 @@
 	</macrodef>
 	<target name="Extract-rsls">
 		<!-- Third parties RSLs -->
-		<create-rsl rsl-dir="bin-release/rsls/"
+		<create-rsl rsl-dir="check/rsls/"
 					swc-dir="${BASE_DIR}/libs/"
 					swc-name="robotlegs-framework-v2.2.1"/>
-		<create-rsl rsl-dir="bin-release/rsls/"
+		<create-rsl rsl-dir="check/rsls/"
 					swc-dir="${BASE_DIR}/libs/"
 					swc-name="as3-signals-v0.9-BETA"/>
-		<create-rsl rsl-dir="bin-release/rsls/"
+		<create-rsl rsl-dir="check/rsls/"
 					swc-dir="${BASE_DIR}/libs/"
 					swc-name="as3-signals-utilities-async-v0.9-BETA"/>
-		<create-rsl rsl-dir="bin-release/rsls/"
+		<create-rsl rsl-dir="check/rsls/"
 					swc-dir="${BASE_DIR}/libs/"
 					swc-name="robotlegs-extensions-SignalCommandMap-v1.0.0b1"/>
-		<create-rsl rsl-dir="bin-release/rsls/"
+		<create-rsl rsl-dir="check/rsls/"
 					swc-dir="${BASE_DIR}/libs/"
 					swc-name="localelib"/>
 	</target>
@@ -48,13 +49,13 @@
 			description="Compile MXML file to release SWF application.">
 		<echo>Compiling source...</echo>
 		<mxmlc file="${SRC_DIR}/BBBClientCheck.mxml"
-			   output="bin-release/BBBClientCheck.swf"
+			   output="check/BBBClientCheck.swf"
 			   debug="false"
 			   locale="en_US"
 			   actionscript-file-encoding="UTF-8"
 			   incremental="false">
 			<static-link-runtime-shared-libraries>false</static-link-runtime-shared-libraries>
-			<source-path>${SRC_DIR}/locale/{locale}</source-path>
+			<source-path>locale/{locale}</source-path>
 			<source-path path-element="src"/>
 			<include-resource-bundles>resources</include-resource-bundles>
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
@@ -90,7 +91,7 @@
 		</mxmlc>
 		<antcall target="Resolve-Dependency">
 			<param name="html.output"
-				   value="bin-release"/>
+				   value="check"/>
 		</antcall>
 	</target>
 	<target name="Build-Release">
@@ -98,8 +99,9 @@
 	</target>
 	<target name="Resolve-Dependency"
 			description="Generate HTML wrapper">
-		<copy file="html-template/BBBClientCheck.html"
-			  tofile="${html.output}/BBBClientCheck.html"/>
+		<get src="${TEST_IMAGE_URL}" dest="${html.output}/test_image.jpg" skipexisting="true" />
+		<copy file="html-template/index.html"
+			  tofile="${html.output}/index.html"/>
 		<copy file="html-template/swfobject.js"
 			  tofile="${html.output}/swfobject.js"/>
 		<copy file="${SRC_DIR}/AppStyle.css"
@@ -115,6 +117,26 @@
 		</copy>
 	</target>
 	<target name="build"
-			depends="Extract-rsls, Build-Release"
+			depends="Create-Config, Extract-rsls, Build-Release"
 			description="Launcher for building whole release process"/>
+
+	<target name="Get-IP">
+		<exec executable="bash" outputproperty="IP">
+			<arg value="-c"/>
+			<arg value="ifconfig | grep -v '127.0.0.1' | grep -E '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*' | tail -1 | cut -d: -f2 | awk '{ print $1}'"/>
+		</exec>
+	</target>
+
+	<target name="Init" depends="Get-IP">
+		<available file="conf/config.xml" property="config.xml.exists" />
+	</target>
+
+	<target name="Create-Config" depends="Init" unless="${config.xml.exists}">
+		<copy file="resources/config.xml.template" tofile="conf/config.xml" />
+		<exec executable="sed">
+			<arg value="-i"/>
+			<arg value="s:HOST:${IP}:g"/>
+			<arg value="conf/config.xml"/>
+		</exec>
+	</target>
 </project>

@@ -32,10 +32,7 @@ package org.bigbluebutton.clientcheck.service
 			{
 				_netConnection=new NetConnection();
 				_netConnection.client={};
-				_netConnection.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
-				_netConnection.addEventListener(AsyncErrorEvent.ASYNC_ERROR, netASyncError);
-				_netConnection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, netSecurityError);
-				_netConnection.addEventListener(IOErrorEvent.IO_ERROR, netIOError);
+				registerListeners(_netConnection);
 
 				if (systemConfiguration.rtmpApps[i].applicationUri)
 				{
@@ -61,6 +58,24 @@ package org.bigbluebutton.clientcheck.service
 			}
 		}
 
+		private function registerListeners(nc:NetConnection):void
+		{
+			nc.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
+			nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, netASyncError);
+			nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, netSecurityError);
+			nc.addEventListener(IOErrorEvent.IO_ERROR, netIOError);
+		}
+
+		private function unregisterListeners(nc:NetConnection):void
+		{
+			nc.removeEventListener(NetStatusEvent.NET_STATUS, netStatus);
+			nc.removeEventListener(AsyncErrorEvent.ASYNC_ERROR, netASyncError);
+			nc.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, netSecurityError);
+			nc.removeEventListener(IOErrorEvent.IO_ERROR, netIOError);
+
+			nc.close();
+		}
+
 		private function notifyErrorOccured(event:Event):void
 		{
 			var rtmpAppItem:RTMPAppTest=getRTMPAppItemByURI(event.currentTarget.uri);
@@ -81,6 +96,7 @@ package org.bigbluebutton.clientcheck.service
 				}
 
 				rtmpAppItem.testSuccessfull=false;
+				unregisterListeners(event.target as NetConnection);
 			}
 		}
 
@@ -114,6 +130,7 @@ package org.bigbluebutton.clientcheck.service
 						rtmpAppItem.testSuccessfull=false;
 						break;
 				}
+				unregisterListeners(event.target as NetConnection);
 			}
 			else
 			{

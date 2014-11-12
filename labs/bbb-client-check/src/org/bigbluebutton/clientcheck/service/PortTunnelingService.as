@@ -2,6 +2,7 @@ package org.bigbluebutton.clientcheck.service
 {
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
+	import flash.events.SecurityErrorEvent;
 	import flash.net.Socket;
 	
 	import org.bigbluebutton.clientcheck.model.CustomSocket;
@@ -27,6 +28,7 @@ package org.bigbluebutton.clientcheck.service
 					_sockets.push(_socket); 
 					_socket.addEventListener(Event.CONNECT, socketConnectHandler);
 					_socket.addEventListener(IOErrorEvent.IO_ERROR, socketIoErrorHandler);
+					_socket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, socketSecurityErrorHandler);
 					_socket.connect(systemConfiguration.serverName, systemConfiguration.ports[i].portNumber);  
 				}
 				catch (error:Error)
@@ -58,11 +60,7 @@ package org.bigbluebutton.clientcheck.service
 		
 		protected function socketIoErrorHandler(event:IOErrorEvent):void
 		{
-			var port:PortTest=getPortItemByPortName(event.currentTarget.port);
-			port.testResult=event.type;
-			port.testSuccessfull=false;
-			
-			getSocketItemByPortName(event.currentTarget.port).close();
+			genericErrorHandler(event);
 		}
 		
 		protected function socketConnectHandler(event:Event):void
@@ -70,6 +68,18 @@ package org.bigbluebutton.clientcheck.service
 			var port:PortTest=getPortItemByPortName(event.currentTarget.port);
 			port.testResult=event.type;
 			port.testSuccessfull=true;
+			
+			getSocketItemByPortName(event.currentTarget.port).close();
+		}
+
+		protected function socketSecurityErrorHandler(event:SecurityErrorEvent):void {
+			genericErrorHandler(event);
+		}
+
+		protected function genericErrorHandler(event:Event):void {
+			var port:PortTest=getPortItemByPortName(event.currentTarget.port);
+			port.testResult=event.type;
+			port.testSuccessfull=false;
 			
 			getSocketItemByPortName(event.currentTarget.port).close();
 		}
