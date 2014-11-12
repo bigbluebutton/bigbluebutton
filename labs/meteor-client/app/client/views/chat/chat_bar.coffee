@@ -81,7 +81,7 @@ Handlebars.registerHelper "grabChatTabs", ->
     "message": message
     "chat_type": if chattingWith is "PUBLIC_CHAT" then "PUBLIC_CHAT" else "PRIVATE_CHAT"
     "from_userid": getInSession("DBID")
-    "from_username": getUsersName()
+    "from_username": BBB.getMyUserName()
     "from_tz_offset": "240"
     "to_username": if chattingWith is "PUBLIC_CHAT" then "public_chat_username" else dest.user.name
     "to_userid": if chattingWith is "PUBLIC_CHAT" then "public_chat_userid" else chattingWith
