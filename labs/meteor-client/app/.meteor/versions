@@ -1,3 +1,4 @@
+alanning:package-stubber@0.0.9
 amplify@1.0.0
 application-configuration@1.0.3
 arunoda:npm@0.2.6
@@ -51,6 +52,7 @@ reactive-var@1.0.3
 reload@1.1.1
 retry@1.0.1
 routepolicy@1.0.2
+sanjo:jasmine@0.4.15
 session@1.0.3
 spacebars-compiler@1.0.3
 spacebars@1.0.3
@@ -62,6 +64,8 @@ tracker@1.0.3
 ui@1.0.4
 underscore@1.0.1
 url@1.0.1
+velocity:core@0.2.14
+velocity:html-reporter@0.2.4
 webapp-hashing@1.0.1
 webapp@1.1.3
 winston-client@0.0.0
