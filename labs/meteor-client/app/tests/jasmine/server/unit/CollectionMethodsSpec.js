@@ -178,6 +178,7 @@ describe("Collections", function () {
   // shapes.coffee
   //----------------------------------------------------------------------
 
+  // addShapeToCollection()
   it('should be handled correctly by insert() on calling addShapeToCollection() with a text', function () {
     spyOn(Meteor.Shapes, 'find').and.returnValue({
       count: function() {
@@ -230,7 +231,6 @@ describe("Collections", function () {
       }
     });
   });
-
   it('should be handled correctly by insert() on calling addShapeToCollection() with a finished standard shape', function () {
     spyOn(Meteor.Shapes, 'find').and.returnValue({
       count: function() {
@@ -279,7 +279,6 @@ describe("Collections", function () {
       }
     });
   });
-
   it('should be handled correctly by insert() on calling addShapeToCollection() with a pencil being used', function () {
     spyOn(Meteor.Shapes, 'find').and.returnValue({
       count: function() {
@@ -329,6 +328,159 @@ describe("Collections", function () {
     });
   });
 
+  // removeAllShapesFromSlide()
+  it('should not be touched on calling removeAllShapesFromSlide() with undefined meetingId', function () {
+    spyOn(Meteor.Shapes, 'remove');
+    removeAllShapesFromSlide(undefined, 'whiteboard001');
+    expect(Meteor.Shapes.remove).not.toHaveBeenCalled();
+  });
+  it('should not be touched on calling removeAllShapesFromSlide() with undefined whiteboardId', function () {
+    spyOn(Meteor.Shapes, 'remove');
+    removeAllShapesFromSlide('meeting001', undefined);
+    expect(Meteor.Shapes.remove).not.toHaveBeenCalled();
+  });
+  it('should not be touched on calling removeAllShapesFromSlide() if there is no shapes on the whiteboard', function () {
+    spyOn(Meteor.Shapes, 'find').and.returnValue(undefined);
+    spyOn(Meteor.Shapes, 'remove');
+    removeAllShapesFromSlide('meeting001', 'whiteboard001');
+    expect(Meteor.Shapes.remove).not.toHaveBeenCalled();
+  });
+  it('should be cleared on calling removeAllShapesFromSlide() if there are shapes on the whiteboard', function () {
+    spyOn(Meteor.Shapes, 'find').and.callFake(function(doc) {
+      if(doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001')
+        return {
+          fetch: function() {
+            return [{shape: {id: 'shape001'}}];
+          }
+        };
+      else return undefined;
+    });
+    spyOn(Meteor.Shapes, 'findOne').and.callFake(function(doc) {
+      if(doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001' && doc['shape.id'] === 'shape001')
+        return {
+          _id: 'doc001'
+        };
+      else return undefined;
+    });
+    spyOn(Meteor.Shapes, 'remove');
+    removeAllShapesFromSlide('meeting001', 'whiteboard001');
+    expect(Meteor.Shapes.remove).toHaveBeenCalledWith('doc001');
+  });
+
+  // removeShapeFromSlide()
+  it('should not be touched on calling removeShapeFromSlide() with undefined meetingId', function () {
+    spyOn(Meteor.Shapes, 'find').and.callFake(function(doc) {
+      if(doc.meetingId === undefined && doc.whiteboardId === 'whiteboard001')
+        return {
+          count: function() {
+            return 0;
+          }
+        };
+      else return undefined;
+    });
+    spyOn(Meteor.Shapes, 'findOne').and.callFake(function(doc) {
+      if(doc.meetingId === undefined && doc.whiteboardId === 'whiteboard001' && doc['shape.id'] === 'shape001')
+        return {
+          _id: 'doc001'
+        };
+      else return undefined;
+    });
+    spyOn(Meteor.Shapes, 'remove');
+
+    removeShapeFromSlide(undefined, 'whiteboard001', 'shape001');
+
+    expect(Meteor.Shapes.remove).not.toHaveBeenCalled();
+  });
+  it('should not be touched on calling removeShapeFromSlide() with undefined whiteboardId', function () {
+    spyOn(Meteor.Shapes, 'find').and.callFake(function(doc) {
+      if(doc.meetingId === 'meeting001' && doc.whiteboardId === undefined)
+        return {
+          count: function() {
+            return 0;
+          }
+        };
+      else return undefined;
+    });
+    spyOn(Meteor.Shapes, 'findOne').and.callFake(function(doc) {
+      if(doc.meetingId === 'meeting001' && doc.whiteboardId === undefined && doc['shape.id'] === 'shape001')
+        return {
+          _id: 'doc001'
+        };
+      else return undefined;
+    });
+    spyOn(Meteor.Shapes, 'remove');
+
+    removeShapeFromSlide('meeting001', undefined, 'shape001');
+
+    expect(Meteor.Shapes.remove).not.toHaveBeenCalled();
+  });
+  it('should not be touched on calling removeShapeFromSlide() with undefined shapeId', function () {
+    spyOn(Meteor.Shapes, 'find').and.callFake(function(doc) {
+      if(doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001')
+        return {
+          count: function() {
+            return 0;
+          }
+        };
+      else return undefined;
+    });
+    spyOn(Meteor.Shapes, 'findOne').and.callFake(function(doc) {
+      if(doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001' && doc['shape.id'] === undefined)
+        return {
+          _id: 'doc001'
+        };
+      else return undefined;
+    });
+    spyOn(Meteor.Shapes, 'remove');
+
+    removeShapeFromSlide('meeting001', 'whiteboard001', undefined);
+
+    expect(Meteor.Shapes.remove).not.toHaveBeenCalled();
+  });
+  it('should not be touched on calling removeShapeFromSlide() if there is no wanted shape on the whiteboard', function () {
+    spyOn(Meteor.Shapes, 'find').and.callFake(function(doc) {
+      if(doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001')
+        return {
+          count: function() {
+            return 0;
+          }
+        };
+      else return undefined;
+    });
+    spyOn(Meteor.Shapes, 'findOne').and.callFake(function(doc) {
+      if(doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001' && doc['shape.id'] === 'shape001')
+        return undefined;
+      else return {
+        _id: 'doc001'
+      };
+    });
+    spyOn(Meteor.Shapes, 'remove');
+
+    removeShapeFromSlide('meeting001', 'whiteboard001', undefined);
+
+    expect(Meteor.Shapes.remove).not.toHaveBeenCalled();
+  });
+  it('should be updated correctly on calling removeShapeFromSlide() with an existing shape', function () {
+    spyOn(Meteor.Shapes, 'find').and.callFake(function(doc) {
+      if(doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001')
+        return {
+          count: function() {
+            return 0;
+          }
+        };
+      else return undefined;
+    });
+    spyOn(Meteor.Shapes, 'findOne').and.callFake(function(doc) {
+      if(doc.meetingId === 'meeting001' && doc.whiteboardId === 'whiteboard001' && doc['shape.id'] === 'shape001')
+        return {
+          _id: 'doc001'
+        };
+      else return undefined;
+    });
+    spyOn(Meteor.Shapes, 'remove');
+    removeShapeFromSlide('meeting001', 'whiteboard001', 'shape001');
+    expect(Meteor.Shapes.remove).toHaveBeenCalledWith('doc001');
+  });
 
   //----------------------------------------------------------------------
   // presentation.coffee
