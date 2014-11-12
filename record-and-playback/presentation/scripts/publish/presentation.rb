@@ -915,7 +915,7 @@ if ($playback == "presentation")
 			b.end_time(real_end_time)
 			b.playback {
 				b.format("presentation")
-				b.link("http://#{playback_host}/playback/presentation/playback.html?meetingId=#{$meeting_id}")
+				b.link("http://#{playback_host}/playback/presentation/0.9.0/playback.html?meetingId=#{$meeting_id}")
 				b.processing_time("#{processing_time}")
 				b.duration("#{recording_time}")
 			}
