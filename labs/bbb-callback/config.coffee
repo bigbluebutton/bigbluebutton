@@ -29,6 +29,13 @@ config.hooks.events = [
   # { channel: "bigbluebutton:from-bbb-apps:meeting", name: "user_registered_message" },
 ]
 
+# Redis
+config.redis = {}
+config.redis.keys = {}
+config.redis.keys.hook = (id) -> "bigbluebutton:webhooks:hook:#{id}"
+config.redis.keys.hooks = "bigbluebutton:webhooks:hooks"
+config.redis.keys.mappings = "bigbluebutton:webhooks:mappings"
+
 config.api = {}
 config.api.responses = {}
 config.api.responses.failure = (key, msg) ->

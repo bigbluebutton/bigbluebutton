@@ -13,7 +13,6 @@ module.exports = class WebHooks
 
   constructor: ->
     @subscriberEvents = redis.createClient()
-    @client = redis.createClient()
 
     # To map internal and external meeting IDs
     @subscriberMeetings = redis.createClient()
@@ -83,38 +82,3 @@ module.exports = class WebHooks
         console.log "WebHooks: error processing the message", JSON.stringify(message), ":", e
 
     @subscriberMeetings.subscribe config.hooks.meetingsChannel
-
-  # TODO: enable the methods below again when we persist hooks to redis again
-  # # Gets all hooks from redis.
-  # # Calls `callback(errors, result)` when done. `result` is an array of `Hook` objects.
-  # _getHooksFromRedis: (callback) ->
-  #   tasks = []
-  #   @meetings.forEach (meetingID) =>
-  #     console.log "WebHooks: checking hooks for the meeting", meetingID
-  #     tasks.push (done) =>
-
-  #       @client.lrange "meeting:#{meetingID}:subscriptions", 0, -1, (error, subscriptions) =>
-  #         # TODO: treat error
-  #         @_getHooksFromRedisForSubscriptions meetingID, subscriptions, done
-
-  #   async.series tasks, (errors, result) ->
-  #     result = _.flatten result
-  #     console.log "Hooks#_getHooksFromRedis: returning", result
-  #     callback?(errors, result)
-
-  # # Get the hook URLs for a list of subscriptions.
-  # _getHooksFromRedisForSubscriptions: (meetingID, subscriptions, callback) ->
-  #   tasks = []
-  #   subscriptions.forEach (sid, index) =>
-
-  #     tasks.push (done) =>
-  #       @client.hgetall "meeting:#{meetingID}:subscription:#{sid}", (error, redisData) ->
-  #         # TODO: treat error
-  #         console.log "WebHooks: creating hook url for", redisData
-  #         hook = new Hook()
-  #         hook.mapFromRedis redisData
-  #         done null, hook
-
-  #   async.series tasks, (errors, result) ->
-  #     console.log "Hooks#_getHooksFromRedisForSubscriptions: returning", result
-  #     callback?(errors, result)

@@ -1,11 +1,14 @@
 _ = require("lodash")
+async = require("async")
+redis = require("redis")
 
+config = require("./config")
 CallbackEmitter = require("./callback_emitter")
 MeetingIDMap = require("./meeting_id_map")
 
 # The database of hooks.
 db = {}
-nextId = 1
+nextID = 1
 
 # The representation of a hook and its properties. Stored in memory and persisted
 # to redis.
@@ -15,22 +18,34 @@ nextId = 1
 # TODO: at some point the queue needs to be cleared, or we need a size limit on it
 module.exports = class Hook
 
-  # @initialize = ->
-  #   # get hooks from redis
-
   constructor: ->
     @id = null
     @callbackURL = null
     @externalMeetingID = null
     @queue = []
     @emitter = null
+    @redisClient = redis.createClient()
 
-  saveSync: ->
-    db[@id] = this
-    db[@id]
+  save: (callback) ->
+    @redisClient.hmset config.redis.keys.hook(@id), @toRedis(), (error, reply) =>
+      console.log "Hook: error saving hook to redis!", error, reply if error?
+      @redisClient.sadd config.redis.keys.hooks, @id, (error, reply) =>
+        console.log "Hook: error saving hookID to the list of hooks!", error, reply if error?
 
-  destroySync: ->
-    Hook.destroySync @id
+        db[@id] = this
+        callback?(error, db[@id])
+
+  destroy: (callback) ->
+    @redisClient.srem config.redis.keys.hooks, @id, (error, reply) =>
+      console.log "Hook: error removing hookID from the list of hooks!", error, reply if error?
+      @redisClient.del config.redis.keys.hook(@id), (error) =>
+        console.log "Hook: error removing hook from redis!", error if error?
+
+        if db[@id]
+          delete db[@id]
+          callback?(error, true)
+        else
+          callback?(error, false)
 
   # Is this a global hook?
   isGlobal: ->
@@ -40,17 +55,24 @@ module.exports = class Hook
   targetMeetingID: ->
     @externalMeetingID
 
-  # mapFromRedis: (redisData) ->
-  #   @callbackURL = redisData?.callbackURL
-  #   @externalMeetingID = redisData?.externalMeetingID
-  #   @id = redisData?.subscriptionID
-
   # Puts a new message in the queue. Will also trigger a processing in the queue so this
   # message might be processed instantly.
   enqueue: (message) ->
     console.log "Hook: enqueueing message", JSON.stringify(message)
     @queue.push message
     @_processQueue()
+
+  toRedis: ->
+    {
+      "hookID": @id,
+      "externalMeetingID": @externalMeetingID,
+      "callbackURL": @callbackURL
+    }
+
+  fromRedis: (redisData) ->
+    @callbackURL = redisData?.callbackURL
+    @externalMeetingID = redisData?.externalMeetingID
+    @id = parseInt(redisData?.hookID)
 
   # Gets the first message in the queue and start an emitter to send it. Will only do it
   # if there is no emitter running already and if there is a message in the queue.
@@ -82,12 +104,10 @@ module.exports = class Hook
       console.log msg
 
       hook = new Hook()
-      hook.id = nextId++
+      hook.id = nextID++
       hook.callbackURL = callbackURL
       hook.externalMeetingID = meetingID
-      hook.saveSync()
-
-      callback?(null, hook)
+      hook.save (error, hook) -> callback?(error, hook)
 
   @removeSubscription = (hookID, callback) ->
     hook = Hook.getSync(hookID)
@@ -96,8 +116,7 @@ module.exports = class Hook
       msg += " for the meeting [#{hook.externalMeetingID}]" if hook.externalMeetingID?
       console.log msg
 
-      hook.destroySync()
-      callback?(null, true)
+      hook.destroy (error, removed) -> callback?(error, removed)
     else
       callback?(null, false)
 
@@ -131,13 +150,6 @@ module.exports = class Hook
     , [])
     arr
 
-  @destroySync = (id) ->
-    if db[id]
-      delete db[id]
-      true
-    else
-      false
-
   @clearSync = ->
     for id of db
       delete db[id]
@@ -147,3 +159,34 @@ module.exports = class Hook
     for id of db
       if db[id].callbackURL is callbackURL
         return db[id]
+
+  @initialize = (callback) ->
+    Hook.resync(callback)
+
+  # Gets all hooks from redis to populate the local database.
+  # Calls `callback()` when done.
+  @resync = (callback) ->
+    client = redis.createClient()
+    tasks = []
+
+    client.smembers config.redis.keys.hooks, (error, hooks) =>
+      console.log "Hook: error getting list of hooks from redis", error if error?
+
+      hooks.forEach (id) =>
+        tasks.push (done) =>
+          client.hgetall config.redis.keys.hook(id), (error, hookData) ->
+            console.log "Hook: error getting information for a hook from redis", error if error?
+
+            if hookData?
+              hook = new Hook()
+              hook.fromRedis hookData
+              hook.save (error, hook) ->
+                nextID = hook.id + 1 if hook.id >= nextID
+                done(null, hook)
+            else
+              done(null, null)
+
+      async.series tasks, (errors, result) ->
+        hooks = _.map(Hook.allSync(), (hook) -> "[#{hook.id}] #{hook.callbackURL}")
+        console.log "Hook: finished resync, hooks registered:", hooks
+        callback?()
