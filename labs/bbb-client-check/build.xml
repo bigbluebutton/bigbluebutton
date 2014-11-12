@@ -117,7 +117,7 @@
 		</copy>
 	</target>
 	<target name="build"
-			depends="Init, Extract-rsls, Build-Release"
+			depends="Create-Config, Extract-rsls, Build-Release"
 			description="Launcher for building whole release process"/>
 
 	<target name="Get-IP">
