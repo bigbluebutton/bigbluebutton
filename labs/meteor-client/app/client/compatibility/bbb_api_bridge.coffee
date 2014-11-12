@@ -24,6 +24,15 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
       res
 
   ###
+    Queryies the user object via it's id
+  ###
+  BBB.getUser = (_id) ->
+    Meteor.Users.findOne({_id: _id})
+
+  BBB.getCurrentUser = () ->
+    BBB.getUser(getInSession("DBID"))
+
+  ###
   Query if the current user is sharing webcam.
 
   Param:
@@ -33,6 +42,7 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   for AM_I_SHARING_CAM_RESP (see below).
   ###
   BBB.amISharingWebcam = (callback) ->
+    BBB.isUserSharingWebcam BBB.getCurrentUser()?._id
 
   ###
 
@@ -44,7 +54,20 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   if you want to be informed through an event. You have to register for
   IS_USER_PUBLISHING_CAM_RESP (see below).
   ###
-  BBB.isUserSharingWebcam = (userID, callback) ->
+  BBB.isUserSharingWebcam = (_id, callback) ->
+    BBB.getUser(_id)?.user?.webcam_stream?.length isnt 0
+
+  BBB.amITalking = (callback) ->
+    BBB.isUserTalking BBB.getCurrentUser()?._id
+
+  BBB.isUserTalking = (_id, callback) ->
+    BBB.getUser(_id)?.user?.voiceUser?.talking
+
+  BBB.amISharingAudio = (callback) ->
+    BBB.isUserSharingAudio BBB.getCurrentUser()?._id
+
+  BBB.isUserSharingAudio = (_id) ->
+    BBB.getUser(_id)?.user?.voiceUser?.joined
 
   ###
   Raise user's hand.
@@ -73,6 +96,7 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   for AM_I_PRESENTER_RESP (see below).
   ###
   BBB.amIPresenter = (callback) ->
+    returnOrCallback false, callback
 
   ###
   Eject a user.
@@ -97,6 +121,7 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   for GET_MY_ROLE_RESP (see below).
   ###
   BBB.getMyRole = (callback) ->
+    returnOrCallback "VIEWER", callback
 
   ###
   Query the current user's id.
@@ -107,12 +132,25 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   BBB.getMyUserID = (callback) ->
     returnOrCallback getInSession("userId"), callback
 
-  BBB.getMyUsername = (callback) ->
-    returnOrCallback getInSession("userName"), callback
+  BBB.getMyUserName = (callback) ->
+    name = getInSession "userName" # check if we actually have one in the session
+
+    if name?
+      name # great return it, no database query
+    else # we need it from the database
+      user = BBB.getCurrentUser()
+
+      if user?
+        name = BBB.getUserName(user._id)
+        setInSession "userName", name # store in session for fast access next time
+        name
 
   BBB.getMyVoiceBridge = (callback) ->
     res = Meteor.Meetings.findOne({}).voiceConf
     returnOrCallback res, callback
+
+  BBB.getUserName = (_id, callback) ->
+    returnOrCallback BBB.getUser(_id)?.user?.name, callback
 
   ###
   Query the current user's role.
@@ -123,10 +161,10 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   BBB.getMyUserInfo = (callback) ->
     result =
       myUserID: BBB.getMyUserID()
-      myUsername: BBB.getMyUsername()
+      myUsername: BBB.getMyUserName()
       myAvatarURL: null
-      myRole: "VIEWER"
-      amIPresenter: false
+      myRole: BBB.getMyRole()
+      amIPresenter: BBB.amIPresenter()
       voiceBridge: BBB.getMyVoiceBridge()
       dialNumber: null
 
@@ -166,6 +204,18 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   Stop share user's webcam.
   ###
   BBB.stopSharingCamera = ->
+
+  ###
+    Indicates if a user is muted
+  ###
+  BBB.isUserMuted = (id) ->
+    BBB.getUser(id)?.user?.voiceUser?.muted
+
+  ###
+    Indicates if the current user is muted
+  ###
+  BBB.amIMuted = ->
+    BBB.isUserMuted(BBB.getCurrentUser()._id)
 
   ###
   Mute the current user.
