@@ -36,6 +36,7 @@ require 'recordandplayback/generators/audio_processor'
 require 'recordandplayback/generators/presentation'
 require 'open4'
 require 'pp'
+require 'absolute_time'
 
 module BigBlueButton
   class MissingDirectoryException < RuntimeError
@@ -85,6 +86,14 @@ module BigBlueButton
     logger = Logger.new(STDOUT)
     logger.level = Logger::INFO
     @logger = logger
+  end
+
+  def self.redis_publisher=(publisher)
+    @redis_publisher = publisher
+  end
+
+  def self.redis_publisher
+    return @redis_publisher
   end
   
   def self.dir_exists?(dir)
@@ -141,5 +150,9 @@ module BigBlueButton
 
   def self.hash_to_str(hash)
     return PP.pp(hash, "")
+  end
+
+  def self.monotonic_clock()
+    return (AbsoluteTime.now * 1000).to_i
   end
 end
