@@ -47,5 +47,9 @@ module.exports = class CallbackEmitter extends EventEmitter
         console.log "Response:", response
         callback error, false
       else
-        console.log "Successful callback call to:", requestOptions.uri
+        console.log "==> Successful callback call to: [#{requestOptions.uri}] for #{simplifiedEvent(data.event)}"
         callback null, true
+
+# A simple string that identifies the event
+simplifiedEvent = (event) ->
+  "event: { name: #{event.header?.name}, timestamp: #{event.header?.timestamp} }"

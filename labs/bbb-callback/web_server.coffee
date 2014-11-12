@@ -18,12 +18,12 @@ module.exports = class WebServer
       console.log "Could not bind to port", port
       console.log "Aborting."
       process.exit(1)
-    console.log "*** Server listening on port", port, "in", @app.settings.env.toUpperCase(), "mode"
+    console.log "== Server listening on port", port, "in", @app.settings.env.toUpperCase(), "mode"
 
   _registerRoutes: ->
     # Request logger
     @app.all "*", (req, res, next) ->
-      console.log "*", req.method, "request to", req.url, "from:", clientDataSimple(req)
+      console.log "<==", req.method, "request to", req.url, "from:", clientDataSimple(req)
       next()
 
     @app.get "/bigbluebutton/api/hooks/subscribe", @_validateChecksum, @_subscribe

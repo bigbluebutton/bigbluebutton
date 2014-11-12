@@ -31,7 +31,7 @@ module.exports = class WebHooks
       try
         message = JSON.parse message
         if message? and @_filterMessage channel, message
-          console.log "\nWebHooks: processing message [#{channel}]", message
+          console.log "WebHooks: processing message on [#{channel}]:", JSON.stringify(message)
           @_processEvent message
 
       catch e
@@ -51,9 +51,25 @@ module.exports = class WebHooks
   # Processes an event received from redis. Will get all hook URLs that
   # should receive this event and start the process to perform the callback.
   _processEvent: (message) ->
-    hooks = Hook.allSync()
+    hooks = Hook.allSync(message)
+
+    # get the meeting ID from the message and try to find the external meeting ID
+    # from our mappings
+    idFromMessage = message.payload?.meeting_id
+    if idFromMessage?
+      extMeetingID = @meetingMappings[idFromMessage]
+    else
+      extMeetingID = null
+
+    # filter the hooks that need to receive this event
+    # only global hooks or hooks for this specific meeting
+    hooks = _.filter(hooks, (hook) ->
+      hook.isGlobal() or
+        (extMeetingID? and extMeetingID is hook.targetMeetingID())
+    )
+
     hooks.forEach (hook) ->
-      console.log "WebHooks: enqueuing a message in the hook:", hook.callbackURL
+      console.log "WebHooks: enqueueing a message in the hook:", hook.callbackURL
       hook.enqueue message
 
   # Subscribe to the meeting events on pubsub to keep track of the mapping
@@ -79,11 +95,11 @@ module.exports = class WebHooks
   _addMeetingMapping: (meetingID, externalMeetingID) ->
     unless meetingID in _.keys(@meetingMappings)
       @meetingMappings[meetingID] = externalMeetingID
-      console.log "WebHooks: added meeting mapping to the list", meetingID, "=", @meetingMappings[meetingID]
+      console.log "WebHooks: added meeting mapping to the list { #{meetingID}: #{@meetingMappings[meetingID]} }"
 
   _removeMeetingMapping: (meetingID) ->
     if meetingID in _.keys(@meetingMappings)
-      console.log "WebHooks: removing meeting mapping from the list", meetingID, "=", @meetingMappings[meetingID]
+      console.log "WebHooks: removing meeting mapping from the list { #{meetingID}: #{@meetingMappings[meetingID]} }"
       delete @meetingMappings[meetingID]
       @meetingMappings[meetingID] = null
 

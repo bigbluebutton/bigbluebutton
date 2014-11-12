@@ -6,6 +6,9 @@ nextId = 1
 
 # The representation of a hook and its properties. Stored in memory and persisted
 # to redis.
+# Hooks can be global, receiving callback calls for events from all meetings on the
+# server, or for a specific meeting. If an `externalMeetingID` is set in the hook,
+# it will only receive calls related to this meeting, otherwise it will be global.
 # TODO: at some point the queue needs to be cleared, or we need a size limit on it
 module.exports = class Hook
 
@@ -26,6 +29,14 @@ module.exports = class Hook
   destroySync: ->
     Hook.destroySync @id
 
+  # Is this a global hook?
+  isGlobal: ->
+    not @externalMeetingID?
+
+  # The meeting from which this hook should receive events.
+  targetMeetingID: ->
+    @externalMeetingID
+
   # mapFromRedis: (redisData) ->
   #   @callbackURL = redisData?.callbackURL
   #   @externalMeetingID = redisData?.externalMeetingID
@@ -34,7 +45,7 @@ module.exports = class Hook
   # Puts a new message in the queue. Will also trigger a processing in the queue so this
   # message might be processed instantly.
   enqueue: (message) ->
-    console.log "Hook: enqueueing message", message
+    console.log "Hook: enqueueing message", JSON.stringify(message)
     @queue.push message
     @_processQueue()
 
@@ -63,6 +74,10 @@ module.exports = class Hook
     if hook?
       callback?(new Error("There is already a subscription for this callback URL"), hook)
     else
+      msg = "Hook: adding a subscription with callback URL [#{callbackURL}]"
+      msg += " for the meeting [#{meetingID}]" if meetingID?
+      console.log msg
+
       hook = new Hook()
       hook.id = nextId++
       hook.callbackURL = callbackURL
@@ -73,6 +88,10 @@ module.exports = class Hook
   @removeSubscription = (subscriptionID, callback) ->
     hook = Hook.getSync(subscriptionID)
     if hook?
+      msg = "Hook: removing the hook with callback URL [#{hook.callbackURL}]"
+      msg += " for the meeting [#{hook.externalMeetingID}]" if hook.externalMeetingID?
+      console.log msg
+
       hook.destroySync()
       callback?(null, true)
     else
