@@ -55,7 +55,7 @@
 			   actionscript-file-encoding="UTF-8"
 			   incremental="false">
 			<static-link-runtime-shared-libraries>false</static-link-runtime-shared-libraries>
-			<source-path>${SRC_DIR}/locale/{locale}</source-path>
+			<source-path>locale/{locale}</source-path>
 			<source-path path-element="src"/>
 			<include-resource-bundles>resources</include-resource-bundles>
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
@@ -100,8 +100,8 @@
 	<target name="Resolve-Dependency"
 			description="Generate HTML wrapper">
 		<get src="${TEST_IMAGE_URL}" dest="${html.output}/test_image.jpg" skipexisting="true" />
-		<copy file="html-template/BBBClientCheck.html"
-			  tofile="${html.output}/BBBClientCheck.html"/>
+		<copy file="html-template/index.html"
+			  tofile="${html.output}/index.html"/>
 		<copy file="html-template/swfobject.js"
 			  tofile="${html.output}/swfobject.js"/>
 		<copy file="${SRC_DIR}/AppStyle.css"
