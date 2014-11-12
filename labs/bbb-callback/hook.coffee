@@ -1,3 +1,5 @@
+_ = require("lodash")
+
 CallbackEmitter = require("./callback_emitter")
 
 # The database of hooks.
@@ -85,8 +87,8 @@ module.exports = class Hook
       hook.saveSync()
       callback?(null, hook)
 
-  @removeSubscription = (subscriptionID, callback) ->
-    hook = Hook.getSync(subscriptionID)
+  @removeSubscription = (hookID, callback) ->
+    hook = Hook.getSync(hookID)
     if hook?
       msg = "Hook: removing the hook with callback URL [#{hook.callbackURL}]"
       msg += " for the meeting [#{hook.externalMeetingID}]" if hook.externalMeetingID?
@@ -109,6 +111,17 @@ module.exports = class Hook
       db[keys[0]]
     else
       null
+
+  @allForMeetingSync = (externalMeetingID) ->
+    hooks = Hook.allSync()
+    _.filter(hooks, (hook) ->
+      hook.isGlobal() or
+        (externalMeetingID? and externalMeetingID is hook.targetMeetingID())
+    )
+
+  @allGlobalSync = ->
+    hooks = Hook.allSync()
+    _.filter(hooks, (hook) -> hook.isGlobal())
 
   @allSync = ->
     arr = Object.keys(db).reduce((arr, id) ->

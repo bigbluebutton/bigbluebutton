@@ -26,11 +26,11 @@ module.exports = class WebServer
       console.log "<==", req.method, "request to", req.url, "from:", clientDataSimple(req)
       next()
 
-    @app.get "/bigbluebutton/api/hooks/subscribe", @_validateChecksum, @_subscribe
-    @app.get "/bigbluebutton/api/hooks/unsubscribe", @_validateChecksum, @_unsubscribe
+    @app.get "/bigbluebutton/api/hooks/create", @_validateChecksum, @_create
+    @app.get "/bigbluebutton/api/hooks/destroy", @_validateChecksum, @_destroy
     @app.get "/bigbluebutton/api/hooks/list", @_validateChecksum, @_list
 
-  _subscribe: (req, res, next) ->
+  _create: (req, res, next) ->
     urlObj = url.parse(req.url, true)
     callbackURL = urlObj.query["callbackURL"]
     meetingID = urlObj.query["meetingID"]
@@ -43,27 +43,27 @@ module.exports = class WebServer
     else
       Hook.addSubscription callbackURL, meetingID, (error, hook) ->
         if error? # the only error for now is for duplicated callbackURL
-          msg = config.api.responses.subscribeDuplicated(hook.id)
+          msg = config.api.responses.hookDuplicated(hook.id)
         else if hook?
-          msg = config.api.responses.subscribeSuccess(hook.id)
+          msg = config.api.responses.hookSuccess(hook.id)
         else
-          msg = config.api.responses.subscribeFailure
+          msg = config.api.responses.hookFailure
         respondWithXML(res, msg)
 
-  _unsubscribe: (req, res, next) ->
+  _destroy: (req, res, next) ->
     urlObj = url.parse(req.url, true)
-    subscriptionID = urlObj.query["subscriptionID"]
+    hookID = urlObj.query["hookID"]
 
-    unless subscriptionID?
-      respondWithXML(res, config.api.responses.missingParamSubscriptionID)
+    unless hookID?
+      respondWithXML(res, config.api.responses.missingParamHookID)
     else
-      Hook.removeSubscription subscriptionID, (error, result) ->
+      Hook.removeSubscription hookID, (error, result) ->
         if error?
-          msg = config.api.responses.unsubscribeFailure
+          msg = config.api.responses.destroyFailure
         else if !result
-          msg = config.api.responses.unsubscribeNoSubscription
+          msg = config.api.responses.destroyNoHook
         else
-          msg = config.api.responses.unsubscribeSuccess
+          msg = config.api.responses.destroySuccess
         respondWithXML(res, msg)
 
   _list: (req, res, next) ->

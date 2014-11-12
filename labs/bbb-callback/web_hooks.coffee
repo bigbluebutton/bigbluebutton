@@ -53,20 +53,14 @@ module.exports = class WebHooks
   _processEvent: (message) ->
     hooks = Hook.allSync(message)
 
-    # get the meeting ID from the message and try to find the external meeting ID
-    # from our mappings
-    idFromMessage = message.payload?.meeting_id
-    if idFromMessage?
-      extMeetingID = @meetingMappings[idFromMessage]
-    else
-      extMeetingID = null
-
     # filter the hooks that need to receive this event
     # only global hooks or hooks for this specific meeting
-    hooks = _.filter(hooks, (hook) ->
-      hook.isGlobal() or
-        (extMeetingID? and extMeetingID is hook.targetMeetingID())
-    )
+    idFromMessage = message.payload?.meeting_id # always the internal meetingID
+    if idFromMessage?
+      externalMeetingID = @meetingMappings[idFromMessage]
+      hooks = Hook.allForMeetingSync(externalMeetingID)
+    else
+      hooks = Hook.allGlobalSync(externalMeetingID)
 
     hooks.forEach (hook) ->
       console.log "WebHooks: enqueueing a message in the hook:", hook.callbackURL
@@ -88,7 +82,7 @@ module.exports = class WebHooks
           @_removeMeetingMapping(message.payload?.meeting_id)
 
       catch e
-        console.log "WebHooks: error processing the message", message, ":", e
+        console.log "WebHooks: error processing the message", JSON.stringify(message), ":", e
 
     @subscriberMeetings.subscribe config.hooks.meetingsChannel
 

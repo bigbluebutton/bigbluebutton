@@ -40,34 +40,34 @@ config.api.responses.failure = (key, msg) ->
 config.api.responses.checksumError =
   config.api.responses.failure("checksumError", "You did not pass the checksum security check.")
 
-config.api.responses.subscribeSuccess = (id) ->
+config.api.responses.hookSuccess = (id) ->
   "<response> \
      <returncode>SUCCESS</returncode> \
-     <subscriptionID>#{id}</subscriptionID> \
+     <hookID>#{id}</hookID> \
    </response>"
-config.api.responses.subscribeFailure =
-  config.api.responses.failure("subscribeEventError", "An error happened while storing your subscription. Check the logs.")
-config.api.responses.subscribeDuplicated = (id) ->
+config.api.responses.hookFailure =
+  config.api.responses.failure("createHookError", "An error happened while creating your hook. Check the logs.")
+config.api.responses.hookDuplicated = (id) ->
   "<response> \
      <returncode>SUCCESS</returncode> \
-     <subscriptionID>#{id}</subscriptionID> \
+     <hookID>#{id}</hookID> \
      <messageKey>duplicateWarning</messageKey> \
-     <message>There is already a subscription for this callback URL.</message> \
+     <message>There is already a hook for this callback URL.</message> \
    </response>"
 
-config.api.responses.unsubscribeSuccess =
+config.api.responses.destroySuccess =
   "<response> \
      <returncode>SUCCESS</returncode> \
-     <unsubscribed>true</unsubscribed> \
+     <removed>true</removed> \
    </response>"
-config.api.responses.unsubscribeFailure =
-  config.api.responses.failure("unsubscribeEventError", "An error happened while unsubscribing. Check the logs.")
-config.api.responses.unsubscribeNoSubscription =
-  config.api.responses.failure("unsubscribeMissingSubscription", "The subscription informed was not found.")
+config.api.responses.destroyFailure =
+  config.api.responses.failure("destroyHookError", "An error happened while removing your hook. Check the logs.")
+config.api.responses.destroyNoHook =
+  config.api.responses.failure("destroyMissingHook", "The hook informed was not found.")
 
 config.api.responses.missingParamCallbackURL =
   config.api.responses.failure("missingParamCallbackURL", "You must specify a callbackURL in the parameters.")
-config.api.responses.missingParamSubscriptionID =
-  config.api.responses.failure("missingParamSubscriptionID", "You must specify a subscriptionID in the parameters.")
+config.api.responses.missingParamHookID =
+  config.api.responses.failure("missingParamHookID", "You must specify a hookID in the parameters.")
 
 module.exports = config
