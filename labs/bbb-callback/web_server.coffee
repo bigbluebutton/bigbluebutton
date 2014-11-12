@@ -67,8 +67,24 @@ module.exports = class WebServer
         respondWithXML(res, msg)
 
   _list: (req, res, next) ->
-    # TODO: implement
-    res.send "Listing subscriptions!"
+    urlObj = url.parse(req.url, true)
+    meetingID = urlObj.query["meetingID"]
+
+    if meetingID?
+      hooks = Hook.allForMeetingSync(meetingID)
+    else
+      hooks = Hook.allGlobalSync()
+
+    msg = "<response><returncode>SUCCESS</returncode><hooks>"
+    hooks.forEach (hook) ->
+      msg += "<hook>"
+      msg +=   "<hookID>#{hook.id}</hookID>"
+      msg +=   "<callbackURL>#{hook.callbackURL}</callbackURL>"
+      msg +=   "<meetingID>#{hook.externalMeetingID}</meetingID>" unless hook.isGlobal()
+      msg += "</hook>"
+    msg += "</hooks></response>"
+
+    respondWithXML(res, msg)
 
   # Validates the checksum in the request `req`.
   # If it doesn't match BigBlueButton's shared secret, will send an XML response
@@ -85,8 +101,10 @@ module.exports = class WebServer
       res.send cleanupXML(config.api.responses.checksumError)
 
 respondWithXML = (res, msg) ->
+  msg = cleanupXML(msg)
+  console.log "==> respond with:", msg
   res.setHeader("Content-Type", "text/xml")
-  res.send cleanupXML(msg)
+  res.send msg
 
 # Returns a simple string with a description of the client that made
 # the request. It includes the IP address and the user agent.
