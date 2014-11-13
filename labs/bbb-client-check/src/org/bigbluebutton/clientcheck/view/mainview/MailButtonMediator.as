@@ -35,7 +35,7 @@ package org.bigbluebutton.clientcheck.view.mainview
 		 */
 		private function mouseClickHandler(e:MouseEvent):void
 		{
-			var mailMsg:URLRequest = new URLRequest('mailto:' + config.getAdmMail());
+			var mailMsg:URLRequest = new URLRequest('mailto:' + config.getMail());
 			var variables:URLVariables = new URLVariables();
 			variables.subject = "BigBlueButton Client Check";
 			variables.body = dp.getAllDataAsString();

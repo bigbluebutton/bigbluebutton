@@ -67,7 +67,9 @@ package org.bigbluebutton.clientcheck.view.mainview
 
 		private static var FAILED:String="Fail";
 		private static var SUCCEED:String="Succeed";
-		private static var LOADING:String="Loading..."
+		private static var LOADING:String="Loading...";
+
+		private static var VERSION:String="Version";
 
 		override public function initialize():void
 		{
@@ -156,6 +158,8 @@ package org.bigbluebutton.clientcheck.view.mainview
 					dp.addData({Item: systemConfiguration.ports[j].portName, Result: null, Status: LOADING});
 				}
 			}
+			dp.addData({Item: VERSION, Result: config.getVersion(), Status: SUCCEED});
+
 		}
 
 		/**

@@ -10,6 +10,7 @@ package org.bigbluebutton.clientcheck.model
 		function get serverUrl():Object;
 		function getPorts():XMLList;
 		function getRTMPApps():XMLList;
-		function getAdmMail():String;
+		function getVersion():String;
+		function getMail():String;
 	}
 }
