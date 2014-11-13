@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:GridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+					xmlns:s="library://ns.adobe.com/flex/spark"
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					clipAndEnableScrolling="true">
+
+	<fx:Script>
+		<![CDATA[
+			override public function prepare(hasBeenRecycled:Boolean):void
+			{
+				lblData.text = data[column.dataField];
+			}
+
+			override public function set data(value:Object):void
+			{
+				super.data=value;
+
+				switch (value.Status) {
+					case StatusENUM.SUCCEED:
+					case StatusENUM.LOADING:
+						colorRect.visible = false;
+						break;
+					case StatusENUM.WARNING:
+						colorRect.visible = true;
+						solid.color = 0xFFFF00;
+						break;
+					case StatusENUM.FAILED:
+						colorRect.visible = true;
+						solid.color = 0xFF0000;
+						break;
+					default:
+						colorRect.visible = false;
+						break;
+				}
+			}
+		]]>
+	</fx:Script>
+
+	<s:Rect id="colorRect" top="0" bottom="0" right="0" left="0">
+		<s:fill>
+			<s:SolidColor id="solid" alpha="0.4"/>
+		</s:fill>
+	</s:Rect>
+
+	<s:Label id="lblData"
+			 top="9"
+			 left="7"/>
+
+</s:GridItemRenderer>
