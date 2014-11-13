@@ -5,7 +5,7 @@ request = require("request")
 
 config = require("./config")
 Hook = require("./hook")
-MeetingIDMap = require("./meeting_id_map")
+IDMapping = require("./id_mapping")
 
 # Web hooks will listen for events on redis coming from BigBlueButton and
 # perform HTTP calls with them to all registered hooks.
@@ -31,7 +31,7 @@ module.exports = class WebHooks
         message = JSON.parse(message)
         if message?
           id = message.payload?.meeting_id
-          MeetingIDMap.reportActivity(id)
+          IDMapping.reportActivity(id)
 
           if @_filterMessage(channel, message)
             console.log "WebHooks: processing message on [#{channel}]:", JSON.stringify(message)
@@ -60,7 +60,7 @@ module.exports = class WebHooks
     # only global hooks or hooks for this specific meeting
     idFromMessage = message.payload?.meeting_id
     if idFromMessage?
-      eMeetingID = MeetingIDMap.getExternalMeetingID(idFromMessage)
+      eMeetingID = IDMapping.getExternalMeetingID(idFromMessage)
       hooks = hooks.concat(Hook.findByExternalMeetingIDSync(eMeetingID))
 
     hooks.forEach (hook) ->
@@ -78,9 +78,9 @@ module.exports = class WebHooks
       try
         message = JSON.parse(message)
         if message.header?.name is "meeting_created_message"
-          MeetingIDMap.addOrUpdateMapping(message.payload?.meeting_id, message.payload?.external_meeting_id)
+          IDMapping.addOrUpdateMapping(message.payload?.meeting_id, message.payload?.external_meeting_id)
         else if message.header?.name is "meeting_destroyed_event"
-          MeetingIDMap.removeMapping(message.payload?.meeting_id)
+          IDMapping.removeMapping(message.payload?.meeting_id)
 
       catch e
         console.log "WebHooks: error processing the message", JSON.stringify(message), ":", e

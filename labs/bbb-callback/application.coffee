@@ -1,6 +1,6 @@
 config = require("./config")
 Hook = require("./hook")
-MeetingIDMap = require("./meeting_id_map")
+IDMapping = require("./id_mapping")
 WebHooks = require("./web_hooks")
 WebServer = require("./web_server")
 
@@ -14,6 +14,6 @@ module.exports = class Application
 
   start: ->
     Hook.initialize =>
-      MeetingIDMap.initialize =>
+      IDMapping.initialize =>
         @webServer.start(config.server.port)
         @webHooks.start()

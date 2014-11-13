@@ -4,7 +4,7 @@ redis = require("redis")
 
 config = require("./config")
 CallbackEmitter = require("./callback_emitter")
-MeetingIDMap = require("./meeting_id_map")
+IDMapping = require("./id_mapping")
 
 # The database of hooks.
 # Used always from memory, but saved to redis for persistence.

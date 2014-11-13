@@ -24,7 +24,7 @@ db = {}
 nextID = 1
 
 # A simple model to store mappings for meeting IDs.
-module.exports = class MeetingIDMap
+module.exports = class IDMapping
 
   constructor: ->
     @id = null
@@ -72,27 +72,27 @@ module.exports = class MeetingIDMap
     JSON.stringify(@toRedis())
 
   @addOrUpdateMapping = (internalMeetingID, externalMeetingID, callback) ->
-    mapping = new MeetingIDMap()
+    mapping = new IDMapping()
     mapping.id = nextID++
     mapping.internalMeetingID = internalMeetingID
     mapping.externalMeetingID = externalMeetingID
     mapping.lastActivity = new Date().getTime()
     mapping.save (error, result) ->
-      console.log "MeetingIDMap: added or changed meeting mapping to the list #{externalMeetingID}:", mapping.print()
+      console.log "IDMapping: added or changed meeting mapping to the list #{externalMeetingID}:", mapping.print()
       callback?(error, result)
 
   @removeMapping = (internalMeetingID, callback) ->
     for external, mapping of db
       if mapping.internalMeetingID is internalMeetingID
         mapping.destroy (error, result) ->
-          console.log "MeetingIDMap: removing meeting mapping from the list #{external}:", mapping.print()
+          console.log "IDMapping: removing meeting mapping from the list #{external}:", mapping.print()
           callback?(error, result)
 
   @getInternalMeetingID = (externalMeetingID) ->
     db[externalMeetingID].internalMeetingID
 
   @getExternalMeetingID = (internalMeetingID) ->
-    mapping = MeetingIDMap.findByInternalMeetingID(internalMeetingID)
+    mapping = IDMapping.findByInternalMeetingID(internalMeetingID)
     mapping?.externalMeetingID
 
   @findByInternalMeetingID = (internalMeetingID) ->
@@ -111,7 +111,7 @@ module.exports = class MeetingIDMap
 
   # Sets the last activity of the mapping for `internalMeetingID` to now.
   @reportActivity = (internalMeetingID) ->
-    mapping = MeetingIDMap.findByInternalMeetingID(internalMeetingID)
+    mapping = IDMapping.findByInternalMeetingID(internalMeetingID)
     if mapping?
       mapping.lastActivity = new Date().getTime()
       mapping.save()
@@ -120,18 +120,18 @@ module.exports = class MeetingIDMap
   # are "expired", that had their last activity too long ago.
   @cleanup = ->
     now = new Date().getTime()
-    all = MeetingIDMap.allSync()
+    all = IDMapping.allSync()
     toRemove = _.filter(all, (mapping) ->
       mapping.lastActivity < now - config.mappings.timeout
     )
     unless _.isEmpty(toRemove)
-      console.log "MeetingIDMap: expiring the mappings:", _.map(toRemove, (map) -> map.print())
+      console.log "IDMapping: expiring the mappings:", _.map(toRemove, (map) -> map.print())
       toRemove.forEach (mapping) -> mapping.destroy()
 
   # Initializes global methods for this model.
   @initialize = (callback) ->
-    MeetingIDMap.resync(callback)
-    MeetingIDMap.cleanupInterval = setInterval(MeetingIDMap.cleanup, config.mappings.cleanupInterval)
+    IDMapping.resync(callback)
+    IDMapping.cleanupInterval = setInterval(IDMapping.cleanup, config.mappings.cleanupInterval)
 
   # Gets all mappings from redis to populate the local database.
   # Calls `callback()` when done.
@@ -148,7 +148,7 @@ module.exports = class MeetingIDMap
             console.log "Hook: error getting information for a mapping from redis", error if error?
 
             if mappingData?
-              mapping = new MeetingIDMap()
+              mapping = new IDMapping()
               mapping.fromRedis(mappingData)
               mapping.save (error, hook) ->
                 nextID = mapping.id + 1 if mapping.id >= nextID
@@ -157,6 +157,6 @@ module.exports = class MeetingIDMap
               done(null, null)
 
       async.series tasks, (errors, result) ->
-        mappings = _.map(MeetingIDMap.allSync(), (m) -> m.print())
-        console.log "MeetingIDMap: finished resync, mappings registered:", mappings
+        mappings = _.map(IDMapping.allSync(), (m) -> m.print())
+        console.log "IDMapping: finished resync, mappings registered:", mappings
         callback?()
