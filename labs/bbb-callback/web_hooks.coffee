@@ -28,10 +28,14 @@ module.exports = class WebHooks
 
     @subscriberEvents.on "pmessage", (pattern, channel, message) =>
       try
-        message = JSON.parse message
-        if message? and @_filterMessage channel, message
-          console.log "WebHooks: processing message on [#{channel}]:", JSON.stringify(message)
-          @_processEvent message
+        message = JSON.parse(message)
+        if message?
+          id = message.payload?.meeting_id
+          MeetingIDMap.reportActivity(id)
+
+          if @_filterMessage(channel, message)
+            console.log "WebHooks: processing message on [#{channel}]:", JSON.stringify(message)
+            @_processEvent(message)
 
       catch e
         console.log "WebHooks: error processing the message", message, ":", e

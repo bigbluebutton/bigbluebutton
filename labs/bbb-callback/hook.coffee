@@ -7,6 +7,13 @@ CallbackEmitter = require("./callback_emitter")
 MeetingIDMap = require("./meeting_id_map")
 
 # The database of hooks.
+# Used always from memory, but saved to redis for persistence.
+#
+# Format:
+#   { id: Hook }
+# Format on redis:
+#   * a SET "...:hooks" with all ids
+#   * a HASH "...:hook:<id>" for each hook with some of its attributes
 db = {}
 nextID = 1
 
@@ -181,7 +188,7 @@ module.exports = class Hook
 
             if hookData?
               hook = new Hook()
-              hook.fromRedis hookData
+              hook.fromRedis(hookData)
               hook.save (error, hook) ->
                 nextID = hook.id + 1 if hook.id >= nextID
                 done(null, hook)

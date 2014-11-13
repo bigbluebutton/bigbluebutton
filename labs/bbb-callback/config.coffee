@@ -35,12 +35,18 @@ config.hooks.retryIntervals = [
   100, 500, 1000, 2000, 4000, 8000, 10000, 30000, 60000, 60000, 60000, 60000
 ]
 
+# Mappings of internal to external meeting IDs
+config.mappings = {}
+config.mappings.cleanupInterval = 1000 # in ms
+config.mappings.timeout = 1000*60*60*24 # 24 hours, in ms
+
 # Redis
 config.redis = {}
 config.redis.keys = {}
 config.redis.keys.hook = (id) -> "bigbluebutton:webhooks:hook:#{id}"
 config.redis.keys.hooks = "bigbluebutton:webhooks:hooks"
 config.redis.keys.mappings = "bigbluebutton:webhooks:mappings"
+config.redis.keys.mapping = (id) -> "bigbluebutton:webhooks:mapping:#{id}"
 
 config.api = {}
 config.api.responses = {}
