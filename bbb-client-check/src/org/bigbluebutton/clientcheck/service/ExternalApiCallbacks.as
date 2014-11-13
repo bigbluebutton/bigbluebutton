@@ -24,12 +24,12 @@ package org.bigbluebutton.clientcheck.service
 	import org.bigbluebutton.clientcheck.model.ISystemConfiguration;
 	import org.bigbluebutton.clientcheck.model.test.ITestable;
 
+	import mx.resources.ResourceManager;
+
 	public class ExternalApiCallbacks implements IExternalApiCallbacks
 	{
 		[Inject]
 		public var systemConfiguration:ISystemConfiguration;
-
-		private static var UNDEFINED:String="Undefined";
 
 		public function ExternalApiCallbacks()
 		{
@@ -52,13 +52,13 @@ package org.bigbluebutton.clientcheck.service
 		{
 			if ((result == null) || (result == ""))
 			{
-				item.testResult=UNDEFINED;
+				item.testResult = ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.result.undefined');
 				item.testSuccessfull=false;
 			}
 			else
 			{
 				item.testResult=result;
-				item.testSuccessfull=true
+				item.testSuccessfull=true;
 			}
 		}
 
@@ -84,9 +84,19 @@ package org.bigbluebutton.clientcheck.service
 			checkResult(value, systemConfiguration.language);
 		}
 
-		public function javaEnabledCallbackHandler(value:String):void
+		public function javaEnabledCallbackHandler(value:Object):void
 		{
-			checkResult(value, systemConfiguration.javaEnabled);
+			var testResult:String;
+			if (!value.enabled) {
+				testResult = ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.result.javaEnabled.disabled');
+			} else if (value.version.length == 0) {
+				testResult = ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.result.javaEnabled.notDetected');
+			} else {
+				testResult = value.version.join(', ');
+			}
+
+			systemConfiguration.javaEnabled.testResult = testResult;
+			systemConfiguration.javaEnabled.testSuccessfull = value.appropriate;
 		}
 
 		public function isWebRTCSupportedCallbackHandler(value:String):void

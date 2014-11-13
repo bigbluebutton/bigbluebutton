@@ -82,9 +82,6 @@ package org.bigbluebutton.clientcheck.view.mainview
 
 		private var dataProvider:ArrayCollection=new ArrayCollection;
 
-		private static var FAILED:String="Fail";
-		private static var SUCCEED:String="Succeed";
-
 		override public function initialize():void
 		{
 			super.initialize();
@@ -183,7 +180,7 @@ package org.bigbluebutton.clientcheck.view.mainview
 
 			if (appObj)
 			{
-				var obj:Object={Item: appObj.applicationName, Result: appObj.testResult, Status: ((appObj.testSuccessfull == true) ? SUCCEED : FAILED)};
+				var obj:Object={Item: appObj.applicationName, Result: appObj.testResult, Status: ((appObj.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
 				updateItemInDataProvider(obj);
 			}
 			else
@@ -208,7 +205,7 @@ package org.bigbluebutton.clientcheck.view.mainview
 
 			if (portObj)
 			{
-				var obj:Object={Item: portObj.portName, Result: portObj.testResult, Status: ((portObj.testSuccessfull == true) ? SUCCEED : FAILED)};
+				var obj:Object={Item: portObj.portName, Result: portObj.testResult, Status: ((portObj.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
 				updateItemInDataProvider(obj);
 			}
 			else
@@ -219,86 +216,85 @@ package org.bigbluebutton.clientcheck.view.mainview
 
 		private function pingSpeedTestChangedHandler():void
 		{
-			var obj:Object={Item: PingTest.PING, Result: systemConfiguration.pingTest.testResult, Status: ((systemConfiguration.pingTest.testSuccessfull == true) ? SUCCEED : FAILED)};
+			var obj:Object={Item: PingTest.PING, Result: systemConfiguration.pingTest.testResult, Status: ((systemConfiguration.pingTest.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
 			updateItemInDataProvider(obj);
 		}
 
 		private function downloadSpeedTestChangedHandler():void
 		{
-			var obj:Object={Item: DownloadBandwidthTest.DOWNLOAD_SPEED, Result: systemConfiguration.downloadBandwidthTest.testResult, Status: ((systemConfiguration.downloadBandwidthTest.testSuccessfull == true) ? SUCCEED : FAILED)};
+			var obj:Object={Item: DownloadBandwidthTest.DOWNLOAD_SPEED, Result: systemConfiguration.downloadBandwidthTest.testResult, Status: ((systemConfiguration.downloadBandwidthTest.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
 			updateItemInDataProvider(obj);
 		}
 
 		private function uploadSpeedTestChangedHandler():void
 		{
-			var obj:Object={Item: UploadBandwidthTest.UPLOAD_SPEED, Result: systemConfiguration.uploadBandwidthTest.testResult, Status: ((systemConfiguration.uploadBandwidthTest.testSuccessfull == true) ? SUCCEED : FAILED)};
+			var obj:Object={Item: UploadBandwidthTest.UPLOAD_SPEED, Result: systemConfiguration.uploadBandwidthTest.testResult, Status: ((systemConfiguration.uploadBandwidthTest.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
 			updateItemInDataProvider(obj);
 		}
 
 		private function webRTCSocketTestChangedHandler():void
 		{
-			var obj:Object={Item: WebRTCSocketTest.WEBRTC_SOCKET_TEST, Result: systemConfiguration.webRTCSocketTest.testResult, Status: ((systemConfiguration.webRTCSocketTest.testSuccessfull == true) ? SUCCEED : FAILED)};
+			var obj:Object={Item: WebRTCSocketTest.WEBRTC_SOCKET_TEST, Result: systemConfiguration.webRTCSocketTest.testResult, Status: ((systemConfiguration.webRTCSocketTest.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.WARNING)};
 			updateItemInDataProvider(obj);
 		}
 
 		private function webRTCEchoTestChangedHandler():void
 		{
-			var obj:Object={Item: WebRTCEchoTest.WEBRTC_ECHO_TEST, Result: systemConfiguration.webRTCEchoTest.testResult, Status: ((systemConfiguration.webRTCEchoTest.testSuccessfull == true) ? SUCCEED : FAILED)};
+			var obj:Object={Item: WebRTCEchoTest.WEBRTC_ECHO_TEST, Result: systemConfiguration.webRTCEchoTest.testResult, Status: ((systemConfiguration.webRTCEchoTest.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.WARNING)};
 			updateItemInDataProvider(obj);
 		}
 
 		private function isPepperFlashChangedHandler():void
 		{
-			var obj:Object={Item: IsPepperFlashTest.PEPPER_FLASH, Result: systemConfiguration.isPepperFlash.testResult, Status: ((systemConfiguration.isPepperFlash.testSuccessfull == true) ? SUCCEED : FAILED)};
+			var obj:Object={Item: IsPepperFlashTest.PEPPER_FLASH, Result: systemConfiguration.isPepperFlash.testResult, Status: ((systemConfiguration.isPepperFlash.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
 			updateItemInDataProvider(obj);
 		}
 
 		private function languageChangedHandler():void
 		{
-			var obj:Object={Item: LanguageTest.LANGUAGE, Result: systemConfiguration.language.testResult, Status: ((systemConfiguration.language.testSuccessfull == true) ? SUCCEED : FAILED)};
+			var obj:Object={Item: LanguageTest.LANGUAGE, Result: systemConfiguration.language.testResult, Status: ((systemConfiguration.language.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
 			updateItemInDataProvider(obj);
 		}
 
 		private function javaEnabledChangedHandler():void
 		{
-			var obj:Object={Item: JavaEnabledTest.JAVA_ENABLED, Result: systemConfiguration.javaEnabled.testResult, Status: ((systemConfiguration.javaEnabled.testSuccessfull == true) ? SUCCEED : FAILED)};
+			var obj:Object={Item: JavaEnabledTest.JAVA_ENABLED, Result: systemConfiguration.javaEnabled.testResult, Status: ((systemConfiguration.javaEnabled.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.WARNING)};
 			updateItemInDataProvider(obj);
 		}
 
 		private function isWebRTCSupportedChangedHandler():void
 		{
-			var obj:Object={Item: WebRTCSupportedTest.WEBRTC_SUPPORTED, Result: systemConfiguration.isWebRTCSupported.testResult, Status: ((systemConfiguration.isWebRTCSupported.testSuccessfull == true) ? SUCCEED : FAILED)};
+			var obj:Object={Item: WebRTCSupportedTest.WEBRTC_SUPPORTED, Result: systemConfiguration.isWebRTCSupported.testResult, Status: ((systemConfiguration.isWebRTCSupported.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.WARNING)};
 			updateItemInDataProvider(obj);
 		}
 
 		private function cookieEnabledChangedHandler():void
 		{
-			var obj:Object={Item: CookieEnabledTest.COOKIE_ENABLED, Result: systemConfiguration.cookieEnabled.testResult, Status: ((systemConfiguration.cookieEnabled.testSuccessfull == true) ? SUCCEED : FAILED)};
+			var obj:Object={Item: CookieEnabledTest.COOKIE_ENABLED, Result: systemConfiguration.cookieEnabled.testResult, Status: ((systemConfiguration.cookieEnabled.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
 			updateItemInDataProvider(obj);
 		}
 
 		private function screenSizeChangedHandler():void
 		{
-			var obj:Object={Item: ScreenSizeTest.SCREEN_SIZE, Result: systemConfiguration.screenSize.testResult, Status: ((systemConfiguration.screenSize.testSuccessfull == true) ? SUCCEED : FAILED)};
+			var obj:Object={Item: ScreenSizeTest.SCREEN_SIZE, Result: systemConfiguration.screenSize.testResult, Status: ((systemConfiguration.screenSize.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
 			updateItemInDataProvider(obj);
 		}
 
-
 		private function browserChangedHandler():void
 		{
-			var obj:Object={Item: BrowserTest.BROWSER, Result: systemConfiguration.browser.testResult, Status: ((systemConfiguration.browser.testSuccessfull == true) ? SUCCEED : FAILED)};
+			var obj:Object={Item: BrowserTest.BROWSER, Result: systemConfiguration.browser.testResult, Status: ((systemConfiguration.browser.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
 			updateItemInDataProvider(obj);
 		}
 
 		private function userAgentChangedHandler():void
 		{
-			var obj:Object={Item: UserAgentTest.USER_AGENT, Result: systemConfiguration.userAgent.testResult, Status: ((systemConfiguration.userAgent.testSuccessfull == true) ? SUCCEED : FAILED)};
+			var obj:Object={Item: UserAgentTest.USER_AGENT, Result: systemConfiguration.userAgent.testResult, Status: ((systemConfiguration.userAgent.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
 			updateItemInDataProvider(obj);
 		}
 
 		private function flashVersionChangedHandler():void
 		{
-			var obj:Object={Item: FlashVersionTest.FLASH_VERSION, Result: systemConfiguration.flashVersion.testResult, Status: ((systemConfiguration.flashVersion.testSuccessfull == true) ? SUCCEED : FAILED)};
+			var obj:Object={Item: FlashVersionTest.FLASH_VERSION, Result: systemConfiguration.flashVersion.testResult, Status: ((systemConfiguration.flashVersion.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
 			updateItemInDataProvider(obj);
 		}
 

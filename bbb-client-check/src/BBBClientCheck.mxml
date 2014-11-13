@@ -46,14 +46,13 @@
 	</fx:Script>
 
 	<s:controlBarContent>
-		<mx:Spacer width="50%"/>
 		<mx:Label id="controlBarLabel"
-				  text="{resourceManager.getString('resources', 'bbbsystemcheck.title')}"
-				  styleName="controlBarLabelStyle"/>
-		<mx:Spacer width="50%"/>
+				width="100%"
+				text="{resourceManager.getString('resources', 'bbbsystemcheck.title')}"
+				styleName="controlBarLabelStyle"/>
 	</s:controlBarContent>
 
-	<mainview:MainView width="60%"
+	<mainview:MainView width="80%"
 						height="97%"
 						styleName="borderContainerStyle"/>
 </s:Application>
