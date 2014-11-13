@@ -49,7 +49,6 @@ package org.bigbluebutton.modules.videoconf.maps
   import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
   import org.bigbluebutton.modules.videoconf.business.VideoProxy;
-  import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
   import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
   import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
   import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
@@ -58,18 +57,14 @@ package org.bigbluebutton.modules.videoconf.maps
   import org.bigbluebutton.modules.videoconf.events.StopShareCameraRequestEvent;
   import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
   import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
-  import org.bigbluebutton.modules.videoconf.events.WebRTCWebcamRequestEvent;
   import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
-  import org.bigbluebutton.modules.videoconf.views.AvatarWindow;
   import org.bigbluebutton.modules.videoconf.views.GraphicsWrapper;
-  import org.bigbluebutton.modules.videoconf.views.PublishWindow;
   import org.bigbluebutton.modules.videoconf.views.ToolbarPopupButton;
   import org.bigbluebutton.modules.videoconf.views.UserAvatar;
   import org.bigbluebutton.modules.videoconf.views.UserGraphic;
   import org.bigbluebutton.modules.videoconf.views.UserGraphicHolder;
   import org.bigbluebutton.modules.videoconf.views.UserVideo;
   import org.bigbluebutton.modules.videoconf.views.VideoDock;
-  import org.bigbluebutton.modules.videoconf.views.VideoWindow;
 
   public class VideoEventMapDelegate
   {

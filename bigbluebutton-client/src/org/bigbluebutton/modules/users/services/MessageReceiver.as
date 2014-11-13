@@ -556,7 +556,7 @@ package org.bigbluebutton.modules.users.services
       trace(LOG + "Received status change [" + map.userID + "," + map.status + "," + map.value + "]")			
       UserManager.getInstance().getConference().newUserStatus(map.userID, map.status, map.value);
       
-      if (msg.status == "presenter"){
+      if (map.status == "presenter"){
         var e:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.PRESENTER_NAME_CHANGE);
         e.userID = map.userID;
         

@@ -60,7 +60,7 @@ package org.bigbluebutton.main.model.users
 			throw new Error("hasStream cannot be set. It is derived directly from streamName");
 		}
 
-        [Bindable] private var _viewingStream:Array = new Array();
+        private var _viewingStream:Array = new Array();
 
         [Bindable]
         public function get viewingStream():Array {
@@ -76,6 +76,8 @@ package org.bigbluebutton.main.model.users
             }
 
             _viewingStream.push(streamName);
+			
+			isViewingAllStreams = _viewingStream.length == streamNames.length;
             trace("After adding the stream " + streamName + ": " + _viewingStream);
             return true;
         }
@@ -86,15 +88,17 @@ package org.bigbluebutton.main.model.users
             }
 
             _viewingStream = _viewingStream.filter(function(item:*, index:int, array:Array):Boolean { return item != streamName; });
+			
+			isViewingAllStreams = _viewingStream.length == streamNames.length;
             trace("After removing the stream " + streamName + ": " + _viewingStream);
             return true;
         }
         private function isViewingStream(streamName:String):Boolean {
             return _viewingStream.some(function(item:*, index:int, array:Array):Boolean { return item == streamName; });
         }
-        public function isViewingAllStreams():Boolean {
-            return _viewingStream.length == streamNames.length;
-        }
+		
+		[Bindable]
+        public var isViewingAllStreams:Boolean = true;
 
 		[Bindable] public var streamNames:Array = new Array();
 

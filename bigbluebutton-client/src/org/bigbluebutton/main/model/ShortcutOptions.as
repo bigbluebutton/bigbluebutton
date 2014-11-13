@@ -22,11 +22,6 @@ package org.bigbluebutton.main.model
 				users = false;
 			}
 			
-			vxml = BBB.getConfigForModule("VideodockModule");
-			if (vxml == null) {
-				videoDock = false;
-			}
-			
 			vxml = BBB.getConfigForModule("PresentModule");
 			if (vxml == null) {
 				presentation = false;
@@ -45,6 +40,7 @@ package org.bigbluebutton.main.model
 			vxml = BBB.getConfigForModule("VideoconfModule");
 			if (vxml == null) {
 				webcam = false;
+				videoDock = false;
 			}
 			
 			vxml = BBB.getConfigForModule("DeskShareModule");

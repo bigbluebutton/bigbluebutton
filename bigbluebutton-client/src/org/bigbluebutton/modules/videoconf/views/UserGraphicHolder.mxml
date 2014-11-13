@@ -50,6 +50,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
             import org.bigbluebutton.util.i18n.ResourceUtil;
 
+			private static const LOG:String = "UserGraphicHolder";
+			
             [Bindable]
             private var _rolledOverMuteBtn:Boolean = false;
             [Bindable]
@@ -186,6 +188,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             private function updateButtons():void {
+				trace(LOG + " updateButtons has been called");
+				
                 if (user != null) {
                     if (_rolledOverMuteBtn == user.voiceMuted) {
                         muteBtn.styleName = "muteOverlayBtn";
@@ -229,6 +233,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             private function handlePresenterChangedEvent(event:PresenterStatusEvent):void {
+				trace(LOG + " recieved presenter change");
                 if (user && event.userID == user.userID) {
                     updateButtons();
                 }
