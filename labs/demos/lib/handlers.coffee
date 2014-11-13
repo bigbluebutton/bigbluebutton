@@ -50,7 +50,7 @@ login = (req, resp) ->
             "\nuser_id = " + user_id +
             "\nauth_token = " + auth_token
 
-            url = "#{configJson.settings.IP}:3000/meeting_id=" + meeting_id +
+            url = "#{configJson.settings.IP}:3000/login?meeting_id=" + meeting_id +
                   "&user_id=" + user_id + "&auth_token=" + auth_token
 
             json =

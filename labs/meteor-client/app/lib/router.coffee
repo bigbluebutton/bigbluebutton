@@ -5,8 +5,8 @@
 
 @Router.map ->
   @route "login",
-    path: "/meeting_id=*"
-    action: () ->
+    path: "/login"
+    action: ->
       self = @
 
       url = location.href
@@ -59,6 +59,8 @@
           console.log "on /, this is my info #{JSON.stringify result}"
           setInSession("DBID", result.DBID)
           setInSession("userName", result.name)
+
+      @next() #TODO maybe we need to wait for the other 2 things above to be complete
 
   @route "logout",
     path: "logout"
