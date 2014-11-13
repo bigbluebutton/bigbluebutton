@@ -80,7 +80,7 @@ Template.header.events
 
   "click .lowerHand": (event) ->
     $(".tooltip").hide()
-    Meteor.call('userLowerHand', getInSession("meetingId"), getInSession("DBID"), getInSession("userId"), getInSession("DBID") )
+    Meteor.call('userLowerHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("userSecret"))
   
   "click .muteIcon": (event) ->
     $(".tooltip").hide()
@@ -90,7 +90,7 @@ Template.header.events
     #Meteor.log.info "navbar raise own hand from client"
     console.log "navbar raise own hand from client"
     $(".tooltip").hide()
-    Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("DBID"), getInSession("userId"), getInSession("DBID") )
+    Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("userSecret"))
     # "click .settingsIcon": (event) ->
     #   alert "settings"
 

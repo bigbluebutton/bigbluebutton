@@ -52,21 +52,17 @@ Meteor.methods
 			Meteor.log.info "did not have enough information to send a mute_user_request"
 
 	# meetingId: the meetingId which both users are in 
-	# user_id: the _id of the user to have their hand lowered
+	# toLowerUserId: the userid of the user to have their hand lowered
 	# loweredByUserId: userId of person lowering
-	# loweredBy_id: _id of person lowering
-	userLowerHand: (meetingId, toLowerUser_Id, loweredByUserId, loweredBy_id) ->
-		requester = Meteor.Users.findOne({'meetingId': meetingId, 'userId': loweredByUserId, '_id': loweredBy_id})
-		if requester?
-			# Allow if person lowering the hand is the presenter, or they're lowering their own hand
-			unless requester.user.presenter or loweredBy_id is toLowerUser_Id or requester.role is "MODERATOR"
-				return
-
-			toLower = Meteor.Users.findOne({'meetingId': meetingId, '_id': toLowerUser_Id})
-			if toLower?
+	# loweredBySecret: the secret of the requestor
+	userLowerHand: (meetingId, toLowerUserId, loweredByUserId, loweredBySecret) ->
+		requester = Meteor.Users.findOne({meetingId:meetingId, userId: loweredByUserId})
+		if loweredBySecret is requester.userSecret
+			# check for permission:
+			if loweredByUserId is toLowerUserId #or  requester.user.role is "MODERATOR" # TODO make this const?
 				message =
 					"payload":
-						"userid": toLower.userId
+						"userid": toLowerUserId
 						"meeting_id": meetingId
 						"raise_hand": false
 						"lowered_by": loweredByUserId
@@ -77,26 +73,28 @@ Meteor.methods
 
 				# publish to pubsub
 				publish Meteor.config.redis.channels.toBBBApps.users, message
+				return
+			else
+				Meteor.log.info "in meetingId=#{meetingId} userId=#{loweredByUserId} tried to lower the hand of userId=#{toLowerUserId} without permission"
+		else
+			Meteor.log.info "in meetingId=#{meetingId} userId=#{loweredByUserId} tried to lower the hand of userId=#{toLowerUserId} without permission"
+			return
 
 	# meetingId: the meetingId which both users are in 
-	# user_id: the _id of the user to have their hand raised
-	# loweredByUserId: userId of person raising
-	# loweredBy_id: _id of person raising
-	userRaiseHand: (meetingId, user_id, raisedByUserId, raisedBy_id) ->
-		requester = Meteor.Users.findOne({'meetingId': meetingId, 'userId': raisedByUserId, '_id': raisedBy_id})
-		if requester?
-			# Allow if person raising the hand is the presenter, or they're raising their own hand
-			unless requester.user.presenter or raisedBy_id is user_id or requester.role is "MODERATOR"
-				return
-
-			toRaise = Meteor.Users.findOne({'meetingId': meetingId, '_id': user_id})
-			if toRaise?
+	# toRaiseUserId: the userid of the user to have their hand lowered
+	# raisedByUserId: userId of person lowering
+	# raisedBySecret: the secret of the requestor
+	userRaiseHand: (meetingId, toRaiseUserId, raisedByUserId, raisedBySecret) ->
+		requester = Meteor.Users.findOne({meetingId:meetingId, userId: raisedByUserId})
+		if raisedBySecret is requester.userSecret
+			# check for permission:
+			if raisedByUserId is toRaiseUserId # TODO make this const?
 				message =
 					"payload":
-						"userid": toRaise.userId
+						"userid": toRaiseUserId
 						"meeting_id": meetingId
-						"raise_hand": true
-						"raised_by": raisedByUserId
+						"raise_hand": false
+						"lowered_by": raisedByUserId
 					"header":
 						"timestamp": new Date().getTime()
 						"name": "user_raised_hand_message"
@@ -104,6 +102,14 @@ Meteor.methods
 
 				# publish to pubsub
 				publish Meteor.config.redis.channels.toBBBApps.users, message
+				return
+			else
+				Meteor.log.info "in meetingId=#{meetingId} userId=#{raisedByUserId} tried to raise the hand of userId=#{toRaiseUserId} without permission"
+		else
+			Meteor.log.info "in meetingId=#{meetingId} userId=#{loweredByUserId} tried to raise the hand of userId=#{toLowerUserId} without permission"
+			return
+
+
 
 	userLogout: (meetingId, userId) ->
 		Meteor.log.info "a user is logging out from #{meetingId}:" + userId
@@ -173,6 +179,7 @@ Meteor.methods
 		entry = 
 			meetingId: meetingId
 			userId: userId
+			userSecret: Math.random().toString(36).substring(2,13)
 			user:
 				userid: user.userid
 				presenter: user.presenter
@@ -199,4 +206,4 @@ Meteor.methods
 				webcam_stream: user.webcam_stream
 
 		id = Meteor.Users.insert(entry)
-		Meteor.log.info "added user id=[#{id}]:#{user.name}. Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
+		Meteor.log.info "added user userSecret=#{entry.userSecret} id=[#{id}]:#{user.name}. Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"

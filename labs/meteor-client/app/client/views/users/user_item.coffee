@@ -8,4 +8,4 @@ Template.displayUserIcons.events
     # the _id of the person whose land is to be lowered
     # the userId of the person who is lowering the hand
     console.log "lower hand- client click handler"
-    Meteor.call('userLowerHand', getInSession("meetingId"), @_id, getInSession("userId"), getInSession("DBID") )
+    Meteor.call('userLowerHand', getInSession("meetingId"), @userId, getInSession("userId"), getInSession("userSecret"))
