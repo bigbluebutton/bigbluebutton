@@ -12,6 +12,7 @@ package org.bigbluebutton.clientcheck.view.mainview
 	import org.bigbluebutton.clientcheck.command.RequestRTMPAppsSignal;
 	import org.bigbluebutton.clientcheck.model.ISystemConfiguration;
 	import org.bigbluebutton.clientcheck.model.IXMLConfig;
+	import org.bigbluebutton.clientcheck.model.IDataProvider;
 	import org.bigbluebutton.clientcheck.model.test.BrowserTest;
 	import org.bigbluebutton.clientcheck.model.test.CookieEnabledTest;
 	import org.bigbluebutton.clientcheck.model.test.DownloadBandwidthTest;
@@ -61,10 +62,12 @@ package org.bigbluebutton.clientcheck.view.mainview
 		[Inject]
 		public var config:IXMLConfig;
 
-		private var dataProvider:ArrayCollection=new ArrayCollection;
+		[Inject]
+		public var dp:IDataProvider;
 
 		private static var FAILED:String="Fail";
 		private static var SUCCEED:String="Succeed";
+		private static var LOADING:String="Loading..."
 
 		override public function initialize():void
 		{
@@ -81,8 +84,9 @@ package org.bigbluebutton.clientcheck.view.mainview
 		private function configParsedHandler():void
 		{
 			initPropertyListeners();
+			initDataProvider();
 
-			view.dataGrid.dataProvider=dataProvider;
+			view.dataGrid.dataProvider=dp.getData();
 
 			requestBrowserInfoSignal.dispatch();
 			requestRTMPAppsInfoSignal.dispatch();
@@ -119,6 +123,42 @@ package org.bigbluebutton.clientcheck.view.mainview
 		}
 
 		/**
+		 * Gather all Item names even before it's tested
+		 */
+		private function initDataProvider():void
+		{
+			dp.addData({Item: BrowserTest.BROWSER, Result: null, Status: LOADING});
+			dp.addData({Item: CookieEnabledTest.COOKIE_ENABLED, Result: null, Status: LOADING});
+			dp.addData({Item: DownloadBandwidthTest.DOWNLOAD_SPEED, Result: null, Status: LOADING});
+			dp.addData({Item: FlashVersionTest.FLASH_VERSION, Result: null, Status: LOADING});
+			dp.addData({Item: IsPepperFlashTest.PEPPER_FLASH, Result: null, Status: LOADING});
+			dp.addData({Item: JavaEnabledTest.JAVA_ENABLED, Result: null, Status: LOADING});
+			dp.addData({Item: LanguageTest.LANGUAGE, Result: null, Status: LOADING});
+			dp.addData({Item: PingTest.PING, Result: null, Status: LOADING});
+			dp.addData({Item: ScreenSizeTest.SCREEN_SIZE, Result: null, Status: LOADING});
+			// The upload is not working right now
+//			dp.addData({Item: UploadBandwidthTest.UPLOAD_SPEED, Result: "This is supposed to be failing right now", Status: FAILED});
+			dp.addData({Item: UserAgentTest.USER_AGENT, Result: null, Status: LOADING});
+			dp.addData({Item: WebRTCEchoTest.WEBRTC_ECHO_TEST, Result: null, Status: LOADING});
+			dp.addData({Item: WebRTCSocketTest.WEBRTC_SOCKET_TEST, Result: null, Status: LOADING});
+			dp.addData({Item: WebRTCSupportedTest.WEBRTC_SUPPORTED, Result: null, Status: LOADING});
+			if (systemConfiguration.rtmpApps)
+			{
+				for (var i:int=0; i < systemConfiguration.rtmpApps.length; i++)
+				{
+					dp.addData({Item: systemConfiguration.rtmpApps[i].applicationName, Result: null, Status: LOADING});
+				}
+			}
+			if (systemConfiguration.ports)
+			{
+				for (var j:int=0; j < systemConfiguration.ports.length; j++)
+				{
+					dp.addData({Item: systemConfiguration.ports[j].portName, Result: null, Status: LOADING});
+				}
+			}
+		}
+
+		/**
 		 * When RTMPApp item is getting updated we receive notification with 'applicationUri' of updated item
 		 * We need to retrieve this item from the list of the available items and put it inside datagrid
 		 **/
@@ -132,32 +172,6 @@ package org.bigbluebutton.clientcheck.view.mainview
 			return null;
 		}
 
-		/**
-		 * Check if item is already in datagrid, if yes update, otherwise add new item
-		 **/
-		public function updateItemInDataProvider(obj:Object):void
-		{
-			var index:int=-1;
-
-			for (var i:int=0; i < dataProvider.length; i++)
-			{
-				if (dataProvider.getItemAt(i).Item == obj.Item)
-				{
-					index=i;
-				}
-			}
-
-			if (index != -1)
-			{
-				dataProvider.removeItemAt(index);
-				dataProvider.addItemAt(obj, index);
-			}
-			else
-			{
-				dataProvider.addItem(obj);
-			}
-		}
-
 		private function rtmpAppConnectionResultSuccessfullChangedHandler(applicationUri:String):void
 		{
 			var appObj:RTMPAppTest=getRTMPAppItemByURI(applicationUri);
@@ -165,7 +179,7 @@ package org.bigbluebutton.clientcheck.view.mainview
 			if (appObj)
 			{
 				var obj:Object={Item: appObj.applicationName, Result: appObj.testResult, Status: ((appObj.testSuccessfull == true) ? SUCCEED : FAILED)};
-				updateItemInDataProvider(obj);
+				dp.updateData(obj);
 			}
 			else
 			{
@@ -190,7 +204,7 @@ package org.bigbluebutton.clientcheck.view.mainview
 			if (portObj)
 			{
 				var obj:Object={Item: portObj.portName, Result: portObj.testResult, Status: ((portObj.testSuccessfull == true) ? SUCCEED : FAILED)};
-				updateItemInDataProvider(obj);
+				dp.updateData(obj);
 			}
 			else
 			{
@@ -201,86 +215,86 @@ package org.bigbluebutton.clientcheck.view.mainview
 		private function pingSpeedTestChangedHandler():void
 		{
 			var obj:Object={Item: PingTest.PING, Result: systemConfiguration.pingTest.testResult, Status: ((systemConfiguration.pingTest.testSuccessfull == true) ? SUCCEED : FAILED)};
-			updateItemInDataProvider(obj);
+			dp.updateData(obj);
 		}
 
 		private function downloadSpeedTestChangedHandler():void
 		{
 			var obj:Object={Item: DownloadBandwidthTest.DOWNLOAD_SPEED, Result: systemConfiguration.downloadBandwidthTest.testResult, Status: ((systemConfiguration.downloadBandwidthTest.testSuccessfull == true) ? SUCCEED : FAILED)};
-			updateItemInDataProvider(obj);
+			dp.updateData(obj);
 		}
 
 		private function uploadSpeedTestChangedHandler():void
 		{
 			var obj:Object={Item: UploadBandwidthTest.UPLOAD_SPEED, Result: systemConfiguration.uploadBandwidthTest.testResult, Status: ((systemConfiguration.uploadBandwidthTest.testSuccessfull == true) ? SUCCEED : FAILED)};
-			updateItemInDataProvider(obj);
+			dp.updateData(obj);
 		}
 
 		private function webRTCSocketTestChangedHandler():void
 		{
 			var obj:Object={Item: WebRTCSocketTest.WEBRTC_SOCKET_TEST, Result: systemConfiguration.webRTCSocketTest.testResult, Status: ((systemConfiguration.webRTCSocketTest.testSuccessfull == true) ? SUCCEED : FAILED)};
-			updateItemInDataProvider(obj);
+			dp.updateData(obj);
 		}
 
 		private function webRTCEchoTestChangedHandler():void
 		{
 			var obj:Object={Item: WebRTCEchoTest.WEBRTC_ECHO_TEST, Result: systemConfiguration.webRTCEchoTest.testResult, Status: ((systemConfiguration.webRTCEchoTest.testSuccessfull == true) ? SUCCEED : FAILED)};
-			updateItemInDataProvider(obj);
+			dp.updateData(obj);
 		}
 
 		private function isPepperFlashChangedHandler():void
 		{
 			var obj:Object={Item: IsPepperFlashTest.PEPPER_FLASH, Result: systemConfiguration.isPepperFlash.testResult, Status: ((systemConfiguration.isPepperFlash.testSuccessfull == true) ? SUCCEED : FAILED)};
-			updateItemInDataProvider(obj);
+			dp.updateData(obj);
 		}
 
 		private function languageChangedHandler():void
 		{
 			var obj:Object={Item: LanguageTest.LANGUAGE, Result: systemConfiguration.language.testResult, Status: ((systemConfiguration.language.testSuccessfull == true) ? SUCCEED : FAILED)};
-			updateItemInDataProvider(obj);
+			dp.updateData(obj);
 		}
 
 		private function javaEnabledChangedHandler():void
 		{
 			var obj:Object={Item: JavaEnabledTest.JAVA_ENABLED, Result: systemConfiguration.javaEnabled.testResult, Status: ((systemConfiguration.javaEnabled.testSuccessfull == true) ? SUCCEED : FAILED)};
-			updateItemInDataProvider(obj);
+			dp.updateData(obj);
 		}
 
 		private function isWebRTCSupportedChangedHandler():void
 		{
 			var obj:Object={Item: WebRTCSupportedTest.WEBRTC_SUPPORTED, Result: systemConfiguration.isWebRTCSupported.testResult, Status: ((systemConfiguration.isWebRTCSupported.testSuccessfull == true) ? SUCCEED : FAILED)};
-			updateItemInDataProvider(obj);
+			dp.updateData(obj);
 		}
 
 		private function cookieEnabledChangedHandler():void
 		{
 			var obj:Object={Item: CookieEnabledTest.COOKIE_ENABLED, Result: systemConfiguration.cookieEnabled.testResult, Status: ((systemConfiguration.cookieEnabled.testSuccessfull == true) ? SUCCEED : FAILED)};
-			updateItemInDataProvider(obj);
+			dp.updateData(obj);
 		}
 
 		private function screenSizeChangedHandler():void
 		{
 			var obj:Object={Item: ScreenSizeTest.SCREEN_SIZE, Result: systemConfiguration.screenSize.testResult, Status: ((systemConfiguration.screenSize.testSuccessfull == true) ? SUCCEED : FAILED)};
-			updateItemInDataProvider(obj);
+			dp.updateData(obj);
 		}
 
 
 		private function browserChangedHandler():void
 		{
 			var obj:Object={Item: BrowserTest.BROWSER, Result: systemConfiguration.browser.testResult, Status: ((systemConfiguration.browser.testSuccessfull == true) ? SUCCEED : FAILED)};
-			updateItemInDataProvider(obj);
+			dp.updateData(obj);
 		}
 
 		private function userAgentChangedHandler():void
 		{
 			var obj:Object={Item: UserAgentTest.USER_AGENT, Result: systemConfiguration.userAgent.testResult, Status: ((systemConfiguration.userAgent.testSuccessfull == true) ? SUCCEED : FAILED)};
-			updateItemInDataProvider(obj);
+			dp.updateData(obj);
 		}
 
 		private function flashVersionChangedHandler():void
 		{
 			var obj:Object={Item: FlashVersionTest.FLASH_VERSION, Result: systemConfiguration.flashVersion.testResult, Status: ((systemConfiguration.flashVersion.testSuccessfull == true) ? SUCCEED : FAILED)};
-			updateItemInDataProvider(obj);
+			dp.updateData(obj);
 		}
 
 		override public function destroy():void

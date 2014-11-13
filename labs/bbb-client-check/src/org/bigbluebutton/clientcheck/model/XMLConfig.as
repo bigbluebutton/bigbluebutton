@@ -41,5 +41,11 @@ package org.bigbluebutton.clientcheck.model
 		{
 			return new XMLList(_config.rtmpapps).children();
 		}
+
+		public function getAdmMail():String
+		{
+			var admMail:String = _config.admMail;
+			return admMail;
+		}
 	}
 }

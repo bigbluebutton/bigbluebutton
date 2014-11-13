@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
+	<admMail>helpdesk@bigbluebutton.org</admMail>
 	<downloadFilePath url="test_image.jpg"/>
 	<ports>
 		<port>
