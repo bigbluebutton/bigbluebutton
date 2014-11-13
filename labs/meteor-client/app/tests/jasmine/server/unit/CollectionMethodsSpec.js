@@ -107,18 +107,6 @@ describe("Collections", function () {
     });
   });
 
-  it("should be handled correctly by remove() on calling deletePrivateChatMessages()", function () {
-    spyOn(Meteor.Chat, "remove");
-
-    deletePrivateChatMessages("user001", "user002");
-
-    expect(Meteor.Chat.remove).toHaveBeenCalledWith({
-      "message.chat_type": "PRIVATE_CHAT",
-      $or: [{ "message.from_userid": "user001", "message.to_userid": "user002" },
-        { "message.from_userid": "user002", "message.to_userid": "user001" }]
-    });
-  });
-
   //----------------------------------------------------------------------
   // meetings.coffee
   //----------------------------------------------------------------------
