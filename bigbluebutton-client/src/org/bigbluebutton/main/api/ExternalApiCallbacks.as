@@ -48,7 +48,6 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
   import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
-  import org.bigbluebutton.modules.videoconf.events.WebRTCWebcamRequestEvent;
   import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 
   public class ExternalApiCallbacks {
@@ -108,9 +107,6 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("webRTCMediaRequest", handleWebRTCMediaRequest);
         ExternalInterface.addCallback("webRTCMediaSuccess", handleWebRTCMediaSuccess);
         ExternalInterface.addCallback("webRTCMediaFail", handleWebRTCMediaFail);
-        ExternalInterface.addCallback("webRTCWebcamRequest", handleWebRTCWebcamRequest);
-        ExternalInterface.addCallback("webRTCWebcamRequestSuccess", handleWebRTCWebcamRequestSuccess);
-        ExternalInterface.addCallback("webRTCWebcamRequestFail", handleWebRTCWebcamRequestFail);
       }
       
       // Tell out JS counterpart that we are ready.
@@ -161,8 +157,8 @@ package org.bigbluebutton.main.api
       var obj:Object = new Object();
       var isUserPublishing:Boolean = false;
       
-      var streamName:String = UsersUtil.getWebcamStream(UsersUtil.externalUserIDToInternalUserID(userID));
-      if (streamName != null) {
+      var streamNames:Array = UsersUtil.getWebcamStream(UsersUtil.externalUserIDToInternalUserID(userID));
+      if (streamNames && streamNames.length > 0) {
         isUserPublishing = true; 
       }
       
@@ -170,7 +166,7 @@ package org.bigbluebutton.main.api
       obj.uri = vidConf.uri + "/" + UsersUtil.getInternalMeetingID();
       obj.userID = userID;
       obj.isUserPublishing = isUserPublishing;
-      obj.streamName = streamName;
+      obj.streamNames = streamNames;
       obj.avatarURL = UsersUtil.getAvatarURL();
       
       return obj;
@@ -200,15 +196,12 @@ package org.bigbluebutton.main.api
       var camSettings:CameraSettingsVO = UsersUtil.amIPublishing();
       obj.isPublishing = camSettings.isPublishing;
       obj.camIndex = camSettings.camIndex;
-      obj.camWidth = camSettings.camWidth;
-      obj.camHeight = camSettings.camHeight;
-      
-      var vidConf:VideoConfOptions = new VideoConfOptions();
-      
-      obj.camKeyFrameInterval = vidConf.camKeyFrameInterval;
-      obj.camModeFps = vidConf.camModeFps;
-      obj.camQualityBandwidth = vidConf.camQualityBandwidth;
-      obj.camQualityPicture = vidConf.camQualityPicture;  
+      obj.camWidth = camSettings.videoProfile.width;
+      obj.camHeight = camSettings.videoProfile.height;
+      obj.camKeyFrameInterval = camSettings.videoProfile.keyFrameInterval;
+      obj.camModeFps = camSettings.videoProfile.modeFps;
+      obj.camQualityBandwidth = camSettings.videoProfile.qualityBandwidth;
+      obj.camQualityPicture = camSettings.videoProfile.qualityPicture;
       obj.avatarURL = UsersUtil.getAvatarURL();
       
       return obj;
@@ -465,23 +458,5 @@ package org.bigbluebutton.main.api
       trace(LOG + "handleWebRTCMediaFail: received");
       _dispatcher.dispatchEvent(new WebRTCMediaEvent(WebRTCMediaEvent.WEBRTC_MEDIA_FAIL));
     }
-
-	private function handleWebRTCWebcamRequestFail(cause:String):void
-	{
-		trace(LOG + "handleWebRTCWebcamFail: received");
-		_dispatcher.dispatchEvent(new WebRTCWebcamRequestEvent(WebRTCWebcamRequestEvent.WEBRTC_WEBCAM_FAIL, cause));
-	}
-
-	private function handleWebRTCWebcamRequestSuccess():void
-	{
-		trace(LOG + "handleWebRTCWebcamSuccess: received");
-		_dispatcher.dispatchEvent(new WebRTCWebcamRequestEvent(WebRTCWebcamRequestEvent.WEBRTC_WEBCAM_SUCCESS));
-	}
-
-	private function handleWebRTCWebcamRequest():void
-	{
-		trace(LOG + "handleWebRTCWebcamRequest: received");
-		_dispatcher.dispatchEvent(new WebRTCWebcamRequestEvent(WebRTCWebcamRequestEvent.WEBRTC_WEBCAM_REQUEST));
-	}
   }
 }

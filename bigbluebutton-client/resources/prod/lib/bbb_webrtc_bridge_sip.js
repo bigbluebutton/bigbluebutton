@@ -1,5 +1,5 @@
 
-var callerIdName, conferenceVoiceBridge, userAgent, userMicMedia, userWebcamMedia, currentSession, callTimeout, callActive, callICEConnected, callFailCounter, callPurposefullyEnded, uaConnected;
+var callerIdName, conferenceVoiceBridge, userAgent, userMicMedia, currentSession, callTimeout, callActive, callICEConnected, callFailCounter, callPurposefullyEnded, uaConnected;
 
 function callIntoConference(voiceBridge, callback) {
 	if (!callerIdName) {
@@ -111,41 +111,6 @@ function stopWebRTCAudioTestJoinConference(){
 	webrtc_hangup(callback);
 }
 
-function requestWebRTCWebcam(){
-	var callback = function(message) {
-		switch(message.status) {
-			case 'mediarequest':
-				BBB.webRTCWebcamRequest();
-				break;
-			case 'mediasuccess':
-				BBB.webRTCWebcamRequestSuccess();
-				break;
-			case 'mediafail':
-				BBB.webRTCWebcamRequestFail(message.cause);
-				break;
-		}
-	}
-	
-	makeWebRTCWebcamRequest(callback);
-}
-
-function makeWebRTCWebcamRequest(callback)
-{
-	console.log("Requesting webcam permissions on Chrome ");
-	
-	callback({'status':'mediarequest'});
-	
-	getUserWebcamMedia(function(stream) {
-			console.log("getUserWebcamMedia: success");
-			userWebcamMedia = stream;
-			callback({'status':'mediasuccess'});
-		}, function(error) {
-		    console.error("getUserWebcamMedia: failure - " + error.name);
-			callback({'status':'mediafail', 'cause': error.name});
-		}
-	);	
-}
-
 function createUA(username, server, callback) {
 	if (userAgent) {
 		console.log("User agent already created");
@@ -189,20 +154,6 @@ function createUA(username, server, callback) {
 	});
 	
 	userAgent.start();
-};
-
-function getUserWebcamMedia(getUserWebcamMediaSuccess, getUserWebcamMediaFailure) {
-	if (userWebcamMedia == undefined) {
-		if (SIP.WebRTC.isSupported()) {
-			SIP.WebRTC.getUserMedia({audio:false, video:true}, getUserWebcamMediaSuccess, getUserWebcamMediaFailure);
-		} else {
-			console.log("getUserWebcamMedia: webrtc not supported");
-			getUserWebcamMediaFailure("WebRTC is not supported");
-		}
-	} else {
-		console.log("getUserWebcamMedia: webcam already set");
-		getUserWebcamMediaSuccess(userWebcamMedia);
-	}
 };
 
 function getUserMicMedia(getUserMicMediaSuccess, getUserMicMediaFailure) {

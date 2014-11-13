@@ -123,7 +123,8 @@ package org.bigbluebutton.modules.users.services
         },	                   
         function(status:String):void { // status - On error occurred
           LogUtil.error(status); 
-        }
+        },
+        streamName
       );
     }
     

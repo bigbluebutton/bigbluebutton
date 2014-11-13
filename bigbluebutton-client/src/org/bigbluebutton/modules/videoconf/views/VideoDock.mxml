@@ -20,30 +20,35 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
+<MDIWindow xmlns="flexlib.mdi.containers.*" 
+		xmlns:mx="http://www.adobe.com/2006/mxml" 
+		initialize="init()" 
+		horizontalScrollPolicy="off"
+		verticalScrollPolicy="off"
+		creationComplete="onCreationComplete()" 
+		implements="org.bigbluebutton.common.IBbbModuleWindow"
+		title="{ResourceUtil.getInstance().getString('bbb.videodock.title')}"
+		xmlns:mate="http://mate.asfusion.com/" styleNameFocus="videoDockStyleFocus"
+		layout="absolute" visible="true" styleNameNoFocus="videoDockStyleNoFocus"
+		horizontalAlign="center" 
+		verticalAlign="middle" >
+
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			
-			import org.bigbluebutton.modules.videodock.views.VideoDock;
-			
-			private var videoDock:VideoDock;
-			
-			public function startModule():void{
-				videoDock = new VideoDock();			
+			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 
-				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-				windowEvent.window = videoDock;
-				globalDispatcher.dispatchEvent(windowEvent);
+			private function init():void {
+
 			}
-			
-			public function stopModule():void {
-				videoDock.removeAllChildren();
+
+			private function onCreationComplete():void {
+				this.showCloseButton = false;
 			}
-			
+
+			public function getPrefferedPosition():String {
+				return MainCanvas.BOTTOM_LEFT;
+			}
 		]]>
 	</mx:Script>
-	
-</EventMap>
+</MDIWindow>
