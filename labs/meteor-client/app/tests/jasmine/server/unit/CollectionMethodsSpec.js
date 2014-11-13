@@ -541,4 +541,92 @@ describe("Collections", function () {
 
     expect(Meteor.Presentations.remove).not.toHaveBeenCalled();
   });
+
+  //----------------------------------------------------------------------
+  // slides.coffee
+  //----------------------------------------------------------------------
+
+  // removeSlideFromCollection()
+  it('should not be touched on calling removeSlideFromCollection() with undefined meetingId', function () {
+    spyOn(Meteor.Slides, 'remove');
+    removeSlideFromCollection(undefined, 'presentation001/2');
+    expect(Meteor.Slides.remove).not.toHaveBeenCalled();
+  });
+  it('should not be touched on calling removeSlideFromCollection() with undefined slideId', function () {
+    spyOn(Meteor.Slides, 'remove');
+    removeSlideFromCollection('meeting001', undefined);
+    expect(Meteor.Slides.remove).not.toHaveBeenCalled();
+  });
+  it('should not be touched on calling removeSlideFromCollection() with a slide that does not exist', function () {
+    spyOn(Meteor.Slides, 'findOne').and.callFake(function(doc) {
+      if(doc.meetingId === 'meeting001' && doc['slide.id'] === 'slide001')
+        return undefined;
+      else return {meetingId: 'meeting001'};
+    });
+    spyOn(Meteor.Slides, 'remove');
+    removeSlideFromCollection('meeting001', 'slide001');
+    expect(Meteor.Slides.remove).not.toHaveBeenCalled();
+  });
+  it('should be handled correctly by remove() on calling removeSlideFromCollection() with an existing slide', function () {
+    spyOn(Meteor.Slides, 'findOne').and.callFake(function(doc) {
+      if(doc.meetingId === 'meeting001' && doc['slide.id'] === 'slide001')
+        return {_id: 'doc001'};
+      else return undefined;
+    });
+    spyOn(Meteor.Slides, 'remove');
+    removeSlideFromCollection('meeting001', 'slide001');
+    expect(Meteor.Slides.remove).toHaveBeenCalledWith('doc001');
+  });
+
+  // addSlideToCollection()
+  it('should not be touched on calling addSlideToCollection() if the slide is already in the collection', function () {
+    spyOn(Meteor.Slides, 'findOne').and.callFake(function(doc) {
+      if(doc.meetingId === 'meeting001' && doc['slide.id'] === 'presentation001/2')
+        return {_id: 'doc001'};
+      else return undefined;
+    });
+    spyOn(Meteor.Slides, 'insert');
+    addSlideToCollection('meeting001', 'presentation001', {
+      id: 'presentation001/2'
+    });
+    expect(Meteor.Slides.insert).not.toHaveBeenCalled();
+  });
+  it('should be handled correctly by insert() on calling addSlideToCollection() with a brand new slide', function () {
+    spyOn(Meteor.Slides, 'findOne').and.callFake(function(doc) {
+      if(doc.meetingId === 'meeting001' && doc['slide.id'] === 'presentation001/2')
+        return undefined;
+      else return {_id: 'doc001'};
+    });
+    spyOn(Meteor.Slides, 'insert');
+    addSlideToCollection('meeting001', 'presentation001', {
+      height_ratio: 100,
+      y_offset: 0,
+      num: 2,
+      x_offset: 0,
+      current: true,
+      png_uri: 'http://localhost/bigbluebutton/presentation/presentation001/png/2',
+      txt_uri: 'http://localhost/bigbluebutton/presentation/presentation001/textfiles/slide-2.txt',
+      id: 'presentation001/2',
+      width_ratio: 100,
+      swf_uri: 'http://localhost/bigbluebutton/presentation/presentation001/slide/2',
+      thumb_uri: 'http://localhost/bigbluebutton/presentation/presentation001/thumbnail/1',
+    });
+    expect(Meteor.Slides.insert).toHaveBeenCalledWith({
+      meetingId: 'meeting001',
+      presentationId: 'presentation001',
+        slide: {
+          height_ratio: 100,
+          y_offset: 0,
+          num: 2,
+          x_offset: 0,
+          current: true,
+          png_uri: 'http://localhost/bigbluebutton/presentation/presentation001/png/2',
+          txt_uri: 'http://localhost/bigbluebutton/presentation/presentation001/textfiles/slide-2.txt',
+          id: 'presentation001/2',
+          width_ratio: 100,
+          swf_uri: 'http://localhost/bigbluebutton/presentation/presentation001/slide/2',
+          thumb_uri: 'http://localhost/bigbluebutton/presentation/presentation001/thumbnail/1'
+        }
+    });
+  });
 });
