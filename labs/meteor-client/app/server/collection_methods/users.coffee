@@ -59,7 +59,7 @@ Meteor.methods
 		requester = Meteor.Users.findOne({meetingId:meetingId, userId: loweredByUserId})
 		if loweredBySecret is requester.userSecret
 			# check for permission:
-			if requester.user.role is "MODERATOR" or loweredByUserId is toLowerUserId # TODO make this const?
+			if loweredByUserId is toLowerUserId #or  requester.user.role is "MODERATOR" # TODO make this const?
 				message =
 					"payload":
 						"userid": toLowerUserId
