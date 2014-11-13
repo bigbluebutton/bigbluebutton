@@ -71,6 +71,7 @@ package org.bigbluebutton.modules.videoconf.business
     private var windowType:String = "VideoWindowItf";
     
     public var userID:String = null;
+    public var roomID:String = null;
 
     protected var _controlButtons:ControlButtons = new ControlButtons();
 		
@@ -87,7 +88,7 @@ package org.bigbluebutton.modules.videoconf.business
     }
     
 		protected function getVideoResolution(stream:String):Array {
-			var pattern:RegExp = new RegExp("(\\d+x\\d+)-([A-Za-z0-9]+)-\\d+", "");
+			var pattern:RegExp = new RegExp("(\\d+x\\d+)-([A-Za-z0-9]+)-([a-z0-9]+-\\d+)-\\d+", "");
 			if (pattern.test(stream)) {
 				LogUtil.debug("The stream name is well formatted [" + stream + "]");
         var uid:String = UserManager.getInstance().getConference().getMyUserId();
@@ -97,7 +98,7 @@ package org.bigbluebutton.modules.videoconf.business
         addControlButtons();
         return pattern.exec(stream)[1].split("x");
 			} else {
-				LogUtil.error("The stream name doesn't follow the pattern <width>x<height>-<userId>-<timestamp>. However, the video resolution will be set to the lowest defined resolution in the config.xml: " + resolutions[0]);
+				LogUtil.error("The stream name doesn't follow the pattern <width>x<height>-<userId>-<roomId>-<timestamp>. However, the video resolution will be set to the lowest defined resolution in the config.xml: " + resolutions[0]);
 				return resolutions[0].split("x");
 			}
 		}

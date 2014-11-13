@@ -24,9 +24,8 @@ package org.bigbluebutton.modules.videoconf.maps
   import flash.events.IEventDispatcher;
   import flash.external.ExternalInterface;
   import flash.media.Camera;
-  
+
   import mx.collections.ArrayCollection;
-  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.common.events.CloseWindowEvent;
   import org.bigbluebutton.common.events.OpenWindowEvent;
@@ -54,6 +53,7 @@ package org.bigbluebutton.modules.videoconf.maps
   import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
   import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
   import org.bigbluebutton.modules.videoconf.events.WebRTCWebcamRequestEvent;
+  import org.bigbluebutton.modules.videoconf.events.VideoModuleStartEvent;
   import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
   import org.bigbluebutton.modules.videoconf.views.AvatarWindow;
   import org.bigbluebutton.modules.videoconf.views.PublishWindow;
@@ -67,6 +67,7 @@ package org.bigbluebutton.modules.videoconf.maps
 
     private var options:VideoConfOptions = new VideoConfOptions();
     private var uri:String;
+    private var roomID:String;
     
     private var webcamWindows:WindowManager = new WindowManager();
     
@@ -90,9 +91,10 @@ package org.bigbluebutton.modules.videoconf.maps
       return UsersUtil.getMyUsername();
     }
     
-    public function start(uri:String):void {
+    public function start(e:VideoModuleStartEvent):void {
       trace("VideoEventMapDelegate:: [" + me + "] Video Module Started.");
-      this.uri = uri;
+      this.uri = e.uri;
+      this.roomID = e.roomID;
     }
         
     public function viewCamera(userID:String, stream:String, name:String, mock:Boolean = false):void {
@@ -258,6 +260,7 @@ package org.bigbluebutton.modules.videoconf.maps
     private function openPublishWindowFor(userID:String, camIndex:int, camWidth:int, camHeight:int):void {
       var publishWindow:PublishWindow = new PublishWindow();
       publishWindow.userID = userID;
+      publishWindow.roomID = roomID;
       publishWindow.title = UsersUtil.getUserName(userID);
       publishWindow.camIndex = camIndex;
       publishWindow.setResolution(camWidth, camHeight);

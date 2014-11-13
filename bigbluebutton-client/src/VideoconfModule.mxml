@@ -45,7 +45,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 		
 			public function get uri():String {
-				return _attributes.uri + "/" + _attributes.room;
+				return _attributes.uri;
 			}
 			
 			public function get username():String {
@@ -90,6 +90,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var globalDispatcher:Dispatcher = new Dispatcher();
         var event:VideoModuleStartEvent = new VideoModuleStartEvent(VideoModuleStartEvent.START);
         event.uri = uri;
+        event.roomID = attributes.room;
         globalDispatcher.dispatchEvent(event);
 			}
 		
