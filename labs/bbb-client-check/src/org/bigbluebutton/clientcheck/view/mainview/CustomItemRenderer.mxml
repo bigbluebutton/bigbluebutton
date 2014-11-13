@@ -18,6 +18,10 @@
 				{
 					this.setStyle('color', "0xFF0000");
 				}
+				else
+				{
+					this.setStyle('color', "0x000000");
+				}
 			}
 		]]>
 	</fx:Script>

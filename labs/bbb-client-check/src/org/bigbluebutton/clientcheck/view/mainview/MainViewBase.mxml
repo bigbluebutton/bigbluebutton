@@ -20,9 +20,9 @@
 				id="_dataGrid"
 				itemRenderer="org.bigbluebutton.clientcheck.view.mainview.CustomItemRenderer">
 		<s:typicalItem>
-			<s:DataItem Item="*****************"
-						Result="*************************************************************"
-						Status="*********************"/>
+			<s:DataItem Item="**********************"
+						Result="********************************************************************************"
+						Status="**********"/>
 		</s:typicalItem>
 		<s:ArrayCollection>
 			<fx:Object>
