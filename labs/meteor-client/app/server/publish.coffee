@@ -5,12 +5,7 @@ Meteor.publish 'users', (meetingId, userid) ->
 
   Meteor.Users.find(
     {meetingId: meetingId},
-    {fields:{
-      'userId': 0,
-      'user.userid': 0,
-      'user.extern_userid': 0,
-      'user.voiceUser.userid': 0,
-      'user.voiceUser.web_userid': 0}
+    {fields:{'userSecret': 0}
     })
 
 

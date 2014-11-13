@@ -173,6 +173,7 @@ Meteor.methods
 		entry = 
 			meetingId: meetingId
 			userId: userId
+			userSecret: Math.random().toString(36).substring(2,13)
 			user:
 				userid: user.userid
 				presenter: user.presenter
