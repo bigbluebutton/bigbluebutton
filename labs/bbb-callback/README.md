@@ -245,9 +245,11 @@ make
 sudo make install
     ```
 
-2. Copy and edit the configuration file: `cp config_local.coffee.example config_local.coffee`
+2. Install the dependencies: `npm install`
 
-3. Run the application with:
+3. Copy and edit the configuration file: `cp config_local.coffee.example config_local.coffee`
+
+4. Run the application with:
 
     ```bash
 node app.js
@@ -267,35 +269,34 @@ make
 sudo make install
     ```
 
-2. Copy the entire webhooks directory to `/usr/local/bigbluebutton/bbb-webhooks`
+2. Copy the entire webhooks directory to `/usr/local/bigbluebutton/bbb-webhooks` and cd into it.
 
-3. Copy and edit the configuration file to adapt to your server: `cp config_local.coffee.example config_local.coffee`
+3. Install the dependencies: `npm install`
 
-4. Drop the nginx configuration file in its place: `cp config/webhooks.nginx /etc/bigbluebutton/nginx/`.
+4. Copy and edit the configuration file to adapt to your server: `cp config_local.coffee.example config_local.coffee`.
+
+5. Drop the nginx configuration file in its place: `cp config/webhooks.nginx /etc/bigbluebutton/nginx/`.
    If you changed the port of the web server on your configuration file, you will have to edit it in `webhooks.nginx` as well.
 
-5. Copy upstart's configuration file and make sure its permissions are ok:
+6. Copy upstart's configuration file and make sure its permissions are ok:
 
     ```bash
 sudo cp config/upstart-bbb-webhooks.conf /etc/init/bbb-webhooks.conf
 sudo chown root:root /etc/init/bbb-webhooks.conf
     ```
 
-6. Copy monit's configuration file and make sure its permissions are ok:
+    Open the file and edit it. You might need to change things like the user used to run the application.
+
+7. Copy monit's configuration file and make sure its permissions are ok:
 
     ```bash
 sudo cp config/monit-bbb-webhooks /etc/monit/conf.d/bbb-webhooks
 sudo chown root:root /etc/monit/conf.d/bbb-webhooks
     ```
 
-7. Start the application using monit:
+    Open the file and edit it. You might need to change things like the port used by the application.
 
-    ```bash
-sudo monit monitor bbb-webhooks
-sudo monit start bbb-webhooks
-    ```
-
-    You can also use upstart to start/stop the application:
+8. Start the application:
 
     ```bash
 sudo service bbb-webhooks start

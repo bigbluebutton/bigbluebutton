@@ -9,4 +9,4 @@ check process bbb-webhooks with pidfile "/var/run/bbb-webhooks.pid"
         request /bigbluebutton/api/hooks/ping
         with timeout 30 seconds
         then restart
-    if 5 restarts within 5 cycles then timeout
+    # if 5 restarts within 5 cycles then timeout

@@ -24,12 +24,16 @@ module.exports = class WebServer
   _registerRoutes: ->
     # Request logger
     @app.all "*", (req, res, next) ->
-      console.log "<==", req.method, "request to", req.url, "from:", clientDataSimple(req)
+      unless fromMonit(req)
+        console.log "<==", req.method, "request to", req.url, "from:", clientDataSimple(req)
       next()
 
     @app.get "/bigbluebutton/api/hooks/create", @_validateChecksum, @_create
     @app.get "/bigbluebutton/api/hooks/destroy", @_validateChecksum, @_destroy
     @app.get "/bigbluebutton/api/hooks/list", @_validateChecksum, @_list
+    @app.get "/bigbluebutton/api/hooks/ping", (req, res) ->
+      res.write "bbb-webhooks up!"
+      res.end()
 
   _create: (req, res, next) ->
     urlObj = url.parse(req.url, true)
@@ -84,8 +88,8 @@ module.exports = class WebServer
     hooks.forEach (hook) ->
       msg += "<hook>"
       msg +=   "<hookID>#{hook.id}</hookID>"
-      msg +=   "<callbackURL>#{hook.callbackURL}</callbackURL>"
-      msg +=   "<meetingID>#{hook.externalMeetingID}</meetingID>" unless hook.isGlobal()
+      msg +=   "<callbackURL><![CDATA[#{hook.callbackURL}]]></callbackURL>"
+      msg +=   "<meetingID><![CDATA[#{hook.externalMeetingID}]]></meetingID>" unless hook.isGlobal()
       msg += "</hook>"
     msg += "</hooks></response>"
 
@@ -119,3 +123,7 @@ clientDataSimple = (req) ->
 # Cleans up a string with an XML in it removing spaces and new lines from between the tags.
 cleanupXML = (string) ->
   string.trim().replace(/>\s*/g, '>')
+
+# Was this request made by monit?
+fromMonit = (req) ->
+  req.headers["user-agent"]? and req.headers["user-agent"].match(/^monit/)
