@@ -22,9 +22,11 @@ package org.bigbluebutton.clientcheck.model.test
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 
+	import mx.resources.ResourceManager;
+
 	public class ScreenSizeTest implements ITestable
 	{
-		public static var SCREEN_SIZE:String="Screen size";
+		public static var SCREEN_SIZE:String=ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.test.name.screenSize');
 
 		private var _testSuccessfull:Boolean;
 		private var _testResult:String;

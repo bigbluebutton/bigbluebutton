@@ -22,9 +22,11 @@ package org.bigbluebutton.clientcheck.model.test
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 
+	import mx.resources.ResourceManager;
+
 	public class WebRTCSupportedTest implements ITestable
 	{
-		public static var WEBRTC_SUPPORTED:String="WebRTC Supported";
+		public static var WEBRTC_SUPPORTED:String=ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.test.name.webRTCSupported');
 
 		private var _testSuccessfull:Boolean;
 		private var _testResult:String;

@@ -19,17 +19,12 @@
 
 package org.bigbluebutton.clientcheck.model
 {
-	import org.osflash.signals.ISignal;
+	import mx.collections.ArrayCollection;
 
-	public interface IXMLConfig
+	public interface IDataProvider
 	{
-		function init(config:XML):void;
-		function get configParsedSignal():ISignal;
-		function get downloadFilePath():Object;
-		function get serverUrl():Object;
-		function getPorts():XMLList;
-		function getRTMPApps():XMLList;
-		function getVersion():String;
-		function getMail():String;
+		function addData(obj:Object, status:Object):void;
+		function getData():ArrayCollection;
+		function updateData(obj:Object, status:Object):void;
 	}
 }

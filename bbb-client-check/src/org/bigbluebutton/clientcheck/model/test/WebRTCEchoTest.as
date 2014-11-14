@@ -22,9 +22,11 @@ package org.bigbluebutton.clientcheck.model.test
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 
+	import mx.resources.ResourceManager;
+
 	public class WebRTCEchoTest implements ITestable
 	{
-		public static var WEBRTC_ECHO_TEST:String="WebRTC Echo Test";
+		public static var WEBRTC_ECHO_TEST:String=ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.test.name.webRTCEcho');
 
 		private var _testSuccessfull:Boolean;
 		private var _testResult:String;

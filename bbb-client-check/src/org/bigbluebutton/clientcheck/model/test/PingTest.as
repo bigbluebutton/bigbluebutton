@@ -23,9 +23,11 @@ package org.bigbluebutton.clientcheck.model.test
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 
+	import mx.resources.ResourceManager;
+
 	public class PingTest extends Bandwidth
 	{
-		public static var PING:String="Ping";
+		public static var PING:String=ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.test.name.ping');
 
 		private var _testResult:String;
 		private var _testSuccessfull:Boolean;
