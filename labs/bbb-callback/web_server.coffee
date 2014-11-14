@@ -41,9 +41,6 @@ module.exports = class WebServer
     callbackURL = urlObj.query["callbackURL"]
     meetingID = urlObj.query["meetingID"]
 
-    # TODO: if meetingID is set in the url, check if the meeting exists, otherwise
-    #   invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
-
     unless callbackURL?
       respondWithXML(res, config.api.responses.missingParamCallbackURL)
     else

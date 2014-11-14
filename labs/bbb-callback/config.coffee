@@ -22,7 +22,21 @@ config.hooks.events or= [
   { channel: "bigbluebutton:from-bbb-apps:meeting", name: "meeting_created_message" },
   { channel: "bigbluebutton:from-bbb-apps:meeting", name: "meeting_destroyed_event" },
   { channel: "bigbluebutton:from-bbb-apps:users", name: "user_joined_message" },
-  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_left_message" }
+  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_left_message" },
+  { channel: "bigbluebutton:from-rap", name: "sanity_started" },
+  { channel: "bigbluebutton:from-rap", name: "sanity_ended" },
+  { channel: "bigbluebutton:from-rap", name: "archive_started" },
+  { channel: "bigbluebutton:from-rap", name: "archive_ended" },
+  { channel: "bigbluebutton:from-rap", name: "post_archive_started" },
+  { channel: "bigbluebutton:from-rap", name: "post_archive_ended" },
+  { channel: "bigbluebutton:from-rap", name: "process_started" },
+  { channel: "bigbluebutton:from-rap", name: "process_ended" },
+  { channel: "bigbluebutton:from-rap", name: "post_process_started" },
+  { channel: "bigbluebutton:from-rap", name: "post_process_ended" },
+  { channel: "bigbluebutton:from-rap", name: "publish_started" },
+  { channel: "bigbluebutton:from-rap", name: "publish_ended" },
+  { channel: "bigbluebutton:from-rap", name: "post_publish_started" },
+  { channel: "bigbluebutton:from-rap", name: "post_publish_ended" }
 ]
 
 # Retry intervals for failed attempts for perform callback calls.
@@ -33,7 +47,7 @@ config.hooks.retryIntervals = [
 
 # Mappings of internal to external meeting IDs
 config.mappings = {}
-config.mappings.cleanupInterval = 1000 # in ms
+config.mappings.cleanupInterval = 10000 # 10 secs, in ms
 config.mappings.timeout = 1000*60*60*24 # 24 hours, in ms
 
 # Redis

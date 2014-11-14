@@ -227,9 +227,9 @@ More details
 * Callbacks are always triggered for one event at a time and in order. They are ordered the same way they appear on pubsub (which might not exactly be the order indicated by their timestamps). The timestamps will almost always be ordered as well, but it's not guaranteed.
 * The application assumes that events are never duplicated on pubsub. If they happen to be duplicated, the callback calls will also be duplicated. 
 * Hooks are only removed if a call to `/destroy` is made or if the callbacks for the hook fail too many times (~12) for a long period of time (~5min). They are never removed otherwise. Valid for both global hooks and hooks for specific meetings.
-* If a meeting is created while the webhooks app is down, callbacks will never be triggered for this meeting. The app needs to detect the create event (`meeting_created_message`) to have a mapping of internal to external meeting IDs.
 * Mappings are removed after 24 hours of inactivity. If there are no events at all for a given meeting, it will be assumed dead. This is done to prevent data from being stored forever on redis.
 * External URLs are expected to respond with the HTTP status 200, 201 or 202. Anything different from these values will be considered an error and the callback will be called again. This includes URLs that redirect to some other place.
+* If a meeting is created while the webhooks app is down, callbacks will never be triggered for this meeting. The app needs to detect the create event (`meeting_created_message`) to have a mapping of internal to external meeting IDs.
 
 Development
 -----------

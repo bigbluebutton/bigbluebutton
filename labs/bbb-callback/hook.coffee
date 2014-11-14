@@ -23,7 +23,11 @@ nextID = 1
 # Hooks can be global, receiving callback calls for events from all meetings on the
 # server, or for a specific meeting. If an `externalMeetingID` is set in the hook,
 # it will only receive calls related to this meeting, otherwise it will be global.
-# TODO: at some point the queue needs to be cleared, or we need a size limit on it
+# Events are kept in a queue to be sent in the order they are received.
+# TODO: The queue should be cleared at some point. The hook is destroyed if too many
+#   callback attempts fail, after ~5min. So the queue is already protected in this case.
+#   But if the requests are going by but taking too long, the queue might be increasing
+#   faster than the callbacks are made.
 module.exports = class Hook
 
   constructor: ->

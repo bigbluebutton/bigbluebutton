@@ -57,6 +57,8 @@ module.exports = class WebHooks
   _processEvent: (message) ->
     hooks = Hook.allGlobalSync()
 
+    # TODO: events that happen after the meeting ended will never trigger the hooks
+    # below, since the mapping is removed when the meeting ends
     # filter the hooks that need to receive this event
     # only global hooks or hooks for this specific meeting
     idFromMessage = message.payload?.meeting_id
@@ -75,13 +77,17 @@ module.exports = class WebHooks
       Logger.info "WebHooks: subscribed to meetings channel ", channel
 
     @subscriberMeetings.on "message", (channel, message) =>
-      Logger.info "WebHooks: got message on meetings channel [#{channel}]", message
       try
         message = JSON.parse(message)
         if message.header?.name is "meeting_created_message"
+          Logger.info "WebHooks: got create message on meetings channel [#{channel}]", message
           IDMapping.addOrUpdateMapping(message.payload?.meeting_id, message.payload?.external_meeting_id)
-        else if message.header?.name is "meeting_destroyed_event"
-          IDMapping.removeMapping(message.payload?.meeting_id)
+
+        # TODO: Temporarily commented because we still need the mapping for recording events,
+        #   after the meeting ended.
+        # else if message.header?.name is "meeting_destroyed_event"
+        #   Logger.info "WebHooks: got destroy message on meetings channel [#{channel}]", message
+        #   IDMapping.removeMapping(message.payload?.meeting_id)
 
       catch e
         Logger.error.log "WebHooks: error processing the message", JSON.stringify(message), ":", e
