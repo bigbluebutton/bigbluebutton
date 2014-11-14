@@ -62,12 +62,13 @@ module.exports = class CallbackEmitter extends EventEmitter
     callbackURL += "checksum=#{checksum}"
 
     requestOptions =
+      followRedirect: true
+      maxRedirects: 10
       uri: callbackURL
       method: "POST"
       form: data
 
     request requestOptions, (error, response, body) ->
-      # TODO: treat redirects
       if error? or response.statusCode not in [200, 201, 202]
         Logger.warn "xx> Error in the callback call to: [#{requestOptions.uri}] for #{simplifiedEvent(data.event)}"
         Logger.warn "xx> Error:", error
