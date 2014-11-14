@@ -20,6 +20,8 @@ config.app = {}
 # coffee> crypto = require 'crypto'
 # coffee> crypto.randomBytes(32).toString('base64')
 config.app.sessionSecret = "J7XSu96KC/B/UPyeGub3J6w6QFXWoUNABVgi9Q1LskE="
+#configure your loggin server ip here
+config.app.redirectToLoginOnLogout = "http://10.0.3.1:4000"
 
 # Configs for redis
 config.redis = {}
@@ -55,6 +57,7 @@ if Meteor.isServer
     transports: transports
 # else
 #   Meteor.log = Winston
+
 
 # Global instance of Modules, created by `app.coffee`
 config.modules = null
