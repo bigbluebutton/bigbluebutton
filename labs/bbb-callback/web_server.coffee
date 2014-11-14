@@ -44,11 +44,11 @@ module.exports = class WebServer
     else
       Hook.addSubscription callbackURL, meetingID, (error, hook) ->
         if error? # the only error for now is for duplicated callbackURL
-          msg = config.api.responses.hookDuplicated(hook.id)
+          msg = config.api.responses.createDuplicated(hook.id)
         else if hook?
-          msg = config.api.responses.hookSuccess(hook.id)
+          msg = config.api.responses.createSuccess(hook.id)
         else
-          msg = config.api.responses.hookFailure
+          msg = config.api.responses.createFailure
         respondWithXML(res, msg)
 
   _destroy: (req, res, next) ->

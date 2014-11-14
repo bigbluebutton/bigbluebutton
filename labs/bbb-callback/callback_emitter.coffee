@@ -1,5 +1,7 @@
-EventEmitter = require('events').EventEmitter
+_ = require('lodash')
 request = require("request")
+url = require('url')
+EventEmitter = require('events').EventEmitter
 
 config = require("./config")
 Utils = require("./utils")
@@ -16,7 +18,7 @@ module.exports = class CallbackEmitter extends EventEmitter
     @timestap = 0
 
   start: ->
-    @timestap = new Date().getTime()
+    @timestamp = new Date().getTime()
     @nextInterval = 0
     @_scheduleNext 0
 
@@ -43,25 +45,32 @@ module.exports = class CallbackEmitter extends EventEmitter
     , timeout)
 
   _emitMessage: (callback) ->
-    # basic data structure
+    # data to be sent
+    # note: keep keys in alphabetical order
     data =
+      event: JSON.stringify(@message)
       timestamp: @timestamp
-      event: @message
 
-    # add a checksum to the post data
+    # calculate the checksum
     checksum = Utils.checksum("#{@callbackURL}#{JSON.stringify(data)}#{config.bbb.sharedSecret}")
-    data.checksum = checksum
+
+    # get the final callback URL, including the checksum
+    urlObj = url.parse(@callbackURL, true)
+    callbackURL = @callbackURL
+    callbackURL += if _.isEmpty(urlObj.search) then "?" else "&"
+    callbackURL += "checksum=#{checksum}"
 
     requestOptions =
-      uri: @callbackURL
+      uri: callbackURL
       method: "POST"
-      json: data
+      form: data
 
     request requestOptions, (error, response, body) ->
-      if error?
+      # TODO: treat redirects
+      if error? or response.statusCode != 200
         console.log "xx> Error in the callback call to: [#{requestOptions.uri}] for #{simplifiedEvent(data.event)}"
         console.log "xx> Error:", error
-        # console.log "xx> Response:", response
+        console.log "xx> Status:", response.statusCode
         callback error, false
       else
         console.log "==> Successful callback call to: [#{requestOptions.uri}] for #{simplifiedEvent(data.event)}"
@@ -69,4 +78,8 @@ module.exports = class CallbackEmitter extends EventEmitter
 
 # A simple string that identifies the event
 simplifiedEvent = (event) ->
-  "event: { name: #{event.header?.name}, timestamp: #{event.header?.timestamp} }"
+  try
+    eventJs = JSON.parse(event)
+    "event: { name: #{eventJs.header?.name}, timestamp: #{eventJs.header?.timestamp} }"
+  catch e
+    "event: #{event}"

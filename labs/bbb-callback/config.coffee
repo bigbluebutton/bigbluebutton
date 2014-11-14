@@ -1,32 +1,28 @@
-# Global configurations file
+# Global configuration file
 
 # load the local configs
-# config = require("./config_local")
-config = {}
+config = require("./config_local")
 
 # BigBlueButton configs
-config.bbb = {}
-# TODO: move secret to a config_local file
-config.bbb.sharedSecret = "33e06642a13942004fd83b3ba6e4104a"
-config.bbb.apiPath = "/bigbluebutton/api"
+config.bbb or= {}
+config.bbb.sharedSecret or= "33e06642a13942004fd83b3ba6e4104a"
+config.bbb.apiPath or= "/bigbluebutton/api"
 
 # Web server configs
-config.server = {}
-config.server.port = 3005
+config.server or= {}
+config.server.port or= 3005
 
 # Web hooks configs
-config.hooks = {}
-config.hooks.pchannel = "bigbluebutton:*"
-config.hooks.meetingsChannel = "bigbluebutton:from-bbb-apps:meeting"
+config.hooks or= {}
+config.hooks.pchannel or= "bigbluebutton:*"
+config.hooks.meetingsChannel or= "bigbluebutton:from-bbb-apps:meeting"
 
 # Filters to the events we want to generate callback calls for
-config.hooks.events = [
+config.hooks.events or= [
   { channel: "bigbluebutton:from-bbb-apps:meeting", name: "meeting_created_message" },
   { channel: "bigbluebutton:from-bbb-apps:meeting", name: "meeting_destroyed_event" },
   { channel: "bigbluebutton:from-bbb-apps:users", name: "user_joined_message" },
-  { channel: "bigbluebutton:from-bbb-apps:users", name: "presenter_assigned_message" },
   { channel: "bigbluebutton:from-bbb-apps:users", name: "user_left_message" }
-  # { channel: "bigbluebutton:from-bbb-apps:meeting", name: "user_registered_message" },
 ]
 
 # Retry intervals for failed attempts for perform callback calls.
@@ -59,14 +55,14 @@ config.api.responses.failure = (key, msg) ->
 config.api.responses.checksumError =
   config.api.responses.failure("checksumError", "You did not pass the checksum security check.")
 
-config.api.responses.hookSuccess = (id) ->
+config.api.responses.createSuccess = (id) ->
   "<response> \
      <returncode>SUCCESS</returncode> \
      <hookID>#{id}</hookID> \
    </response>"
-config.api.responses.hookFailure =
+config.api.responses.createFailure =
   config.api.responses.failure("createHookError", "An error happened while creating your hook. Check the logs.")
-config.api.responses.hookDuplicated = (id) ->
+config.api.responses.createDuplicated = (id) ->
   "<response> \
      <returncode>SUCCESS</returncode> \
      <hookID>#{id}</hookID> \
