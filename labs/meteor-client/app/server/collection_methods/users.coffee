@@ -56,60 +56,54 @@ Meteor.methods
 	# loweredByUserId: userId of person lowering
 	# loweredBySecret: the secret of the requestor
 	userLowerHand: (meetingId, toLowerUserId, loweredByUserId, loweredBySecret) ->
-		requester = Meteor.Users.findOne({meetingId:meetingId, userId: loweredByUserId})
-		if loweredBySecret is requester.userSecret
-			# check for permission:
-			if loweredByUserId is toLowerUserId #or  requester.user.role is "MODERATOR" # TODO make this const?
-				message =
-					"payload":
-						"userid": toLowerUserId
-						"meeting_id": meetingId
-						"raise_hand": false
-						"lowered_by": loweredByUserId
-					"header":
-						"timestamp": new Date().getTime()
-						"name": "user_lowered_hand_message"
-						"version": "0.0.1"
-
-				# publish to pubsub
-				publish Meteor.config.redis.channels.toBBBApps.users, message
-				return
+		action = ->
+			if toLowerUserId is loweredByUserId
+				return 'lowerOwnHand'
 			else
-				Meteor.log.info "in meetingId=#{meetingId} userId=#{loweredByUserId} tried to lower the hand of userId=#{toLowerUserId} without permission"
-		else
-			Meteor.log.info "in meetingId=#{meetingId} userId=#{loweredByUserId} tried to lower the hand of userId=#{toLowerUserId} without permission"
-			return
+				return 'lowerOthersHand'
+
+		if isAllowedTo(action(), meetingId, loweredByUserId, loweredBySecret)
+			message =
+				payload:
+					userid: toLowerUserId
+					meeting_id: meetingId
+					raise_hand: false
+					lowered_by: loweredByUserId
+				header:
+					timestamp: new Date().getTime()
+					name: "user_lowered_hand_message"
+					version: "0.0.1"
+
+			# publish to pubsub
+			publish Meteor.config.redis.channels.toBBBApps.users, message
+		return
 
 	# meetingId: the meetingId which both users are in 
 	# toRaiseUserId: the userid of the user to have their hand lowered
 	# raisedByUserId: userId of person lowering
 	# raisedBySecret: the secret of the requestor
 	userRaiseHand: (meetingId, toRaiseUserId, raisedByUserId, raisedBySecret) ->
-		requester = Meteor.Users.findOne({meetingId:meetingId, userId: raisedByUserId})
-		if raisedBySecret is requester.userSecret
-			# check for permission:
-			if raisedByUserId is toRaiseUserId # TODO make this const?
-				message =
-					"payload":
-						"userid": toRaiseUserId
-						"meeting_id": meetingId
-						"raise_hand": false
-						"lowered_by": raisedByUserId
-					"header":
-						"timestamp": new Date().getTime()
-						"name": "user_raised_hand_message"
-						"version": "0.0.1"
-
-				# publish to pubsub
-				publish Meteor.config.redis.channels.toBBBApps.users, message
-				return
+		action = ->
+			if toRaiseUserId is raisedByUserId
+				return 'raiseOwnHand'
 			else
-				Meteor.log.info "in meetingId=#{meetingId} userId=#{raisedByUserId} tried to raise the hand of userId=#{toRaiseUserId} without permission"
-		else
-			Meteor.log.info "in meetingId=#{meetingId} userId=#{loweredByUserId} tried to raise the hand of userId=#{toLowerUserId} without permission"
-			return
+				return 'raiseOthersHand'
 
+		if isAllowedTo(action(), meetingId, raisedByUserId, raisedBySecret)
+			message =
+				payload:
+					userid: toRaiseUserId
+					meeting_id: meetingId
+					raise_hand: false
+					lowered_by: raisedByUserId
+				header:
+					timestamp: new Date().getTime()
+					name: "user_raised_hand_message"
+					version: "0.0.1"
 
+			# publish to pubsub
+			publish Meteor.config.redis.channels.toBBBApps.users, message
+		return
 
 	userLogout: (meetingId, userId) ->
 		Meteor.log.info "a user is logging out from #{meetingId}:" + userId
