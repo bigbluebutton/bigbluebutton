@@ -223,6 +223,8 @@ package org.bigbluebutton.util.i18n
 		}
 		
 		public function update():void{
+			var dispatcher:Dispatcher = new Dispatcher;
+			dispatcher.dispatchEvent(new LocaleChangeEvent(LocaleChangeEvent.LOCALE_CHANGED));
 			dispatchEvent(new Event(Event.CHANGE));
 		}
 		
