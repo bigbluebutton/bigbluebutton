@@ -65,16 +65,5 @@ package org.bigbluebutton.clientcheck.model
 
 			sortData();
 		}
-
-		public function getAllDataAsString():String {
-			var data:String="";
-
-			for (var i:int=0; i < _dataProvider.length; i++)
-			{
-				data += _dataProvider.getItemAt(i).Item + "  :  " + _dataProvider.getItemAt(i).Result + "  :  " + _dataProvider.getItemAt(i).Status + "\n";
-			}
-
-			return data;
-		}
 	}
 }

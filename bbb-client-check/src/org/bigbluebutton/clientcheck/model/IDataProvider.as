@@ -26,6 +26,5 @@ package org.bigbluebutton.clientcheck.model
 		function addData(obj:Object):void;
 		function getData():ArrayCollection;
 		function updateData(obj:Object):void;
-		function getAllDataAsString():String;
 	}
 }

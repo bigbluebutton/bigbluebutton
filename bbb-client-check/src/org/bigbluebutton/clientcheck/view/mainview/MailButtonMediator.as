@@ -25,6 +25,9 @@ package org.bigbluebutton.clientcheck.view.mainview
 	import flash.net.URLRequestMethod;
 	import flash.net.navigateToURL;
 
+	import mx.resources.ResourceManager;
+	import mx.collections.ArrayCollection;
+
 	import org.bigbluebutton.clientcheck.model.IXMLConfig;
 	import org.bigbluebutton.clientcheck.model.IDataProvider;
 	
@@ -56,11 +59,33 @@ package org.bigbluebutton.clientcheck.view.mainview
 		{
 			var mailMsg:URLRequest = new URLRequest('mailto:' + config.getMail());
 			var variables:URLVariables = new URLVariables();
-			variables.subject = "BigBlueButton Client Check";
-			variables.body = dp.getAllDataAsString();
+			variables.subject = signWithVersion(ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.title'));
+			variables.body = buildMailBody(dp.getData());
 			mailMsg.data = variables;
 			mailMsg.method = URLRequestMethod.GET;
 			navigateToURL(mailMsg, "_self");
+		}
+
+		/**
+		 * Concatenate with the client-check version
+		 */
+		private function signWithVersion(value:String):String
+		{
+			return value + " " + config.getVersion();
+		}
+
+		public function buildMailBody(data:ArrayCollection):String {
+			var body:String = "";
+			var status:String = "";
+
+			for (var i:int = 0; i < data.length; i++)
+			{
+				if (data.getItemAt(i).Status != status)
+					body += "\n" + data.getItemAt(i).Status + "\n";
+				body += data.getItemAt(i).Item + ":\t\t" + data.getItemAt(i).Result + "\n";
+			}
+
+			return body;
 		}
 	}
 }
