@@ -60,7 +60,7 @@ package org.bigbluebutton.clientcheck.service
 						// sip has a different way of connecting to the red5 server, need to fake connection data.
 						if (systemConfiguration.rtmpApps[i].applicationUri.indexOf("sip") > 0)
 						{
-							_netConnection.connect(systemConfiguration.rtmpApps[i].applicationUri, EXTERNAL_USER_ID_MOCK, USER_NAME_MOCK);
+							_netConnection.connect(systemConfiguration.rtmpApps[i].applicationUri, ROOM_MOCK, EXTERNAL_USER_ID_MOCK, USER_NAME_MOCK);
 							continue;
 						}
 						else
@@ -146,6 +146,7 @@ package org.bigbluebutton.clientcheck.service
 						break;
 
 					default:
+						rtmpAppItem.testResult += ": " + info.description;
 						rtmpAppItem.testSuccessfull=false;
 						break;
 				}
