@@ -237,12 +237,12 @@ Development
 1. Install node. You can use [NVM](https://github.com/creationix/nvm) if you need multiple versions of node or install it from source. To install from source, first check the exact version you need on `package.json` and replace the all `vX.X.X` by the correct version when running the commands below.
 
     ```bash
-$ wget http://nodejs.org/dist/vX.X.X/node-vX.X.X.tar.gz
-$ tar -xvf node-vX.X.X.tar.gz
-$ cd node-vX.X.X/
-$ ./configure
-$ make
-$ sudo make install
+wget http://nodejs.org/dist/vX.X.X/node-vX.X.X.tar.gz
+tar -xvf node-vX.X.X.tar.gz
+cd node-vX.X.X/
+./configure
+make
+sudo make install
     ```
 
 2. Copy and edit the configuration file: `cp config_local.coffee.example config_local.coffee`
@@ -259,12 +259,12 @@ Production
 1. Install node. First check the exact version you need on `package.json` and replace the all `vX.X.X` by the correct version in the commands below.
 
     ```bash
-$ wget http://nodejs.org/dist/vX.X.X/node-vX.X.X.tar.gz
-$ tar -xvf node-vX.X.X.tar.gz
-$ cd node-vX.X.X/
-$ ./configure
-$ make
-$ sudo make install
+wget http://nodejs.org/dist/vX.X.X/node-vX.X.X.tar.gz
+tar -xvf node-vX.X.X.tar.gz
+cd node-vX.X.X/
+./configure
+make
+sudo make install
     ```
 
 2. Copy the entire webhooks directory to `/usr/local/bigbluebutton/bbb-webhooks`
@@ -273,3 +273,31 @@ $ sudo make install
 
 4. Drop the nginx configuration file in its place: `cp config/webhooks.nginx /etc/bigbluebutton/nginx/`.
    If you changed the port of the web server on your configuration file, you will have to edit it in `webhooks.nginx` as well.
+
+5. Copy upstart's configuration file and make sure its permissions are ok:
+
+    ```bash
+sudo cp config/upstart-bbb-webhooks.conf /etc/init/bbb-webhooks.conf
+sudo chown root:root /etc/init/bbb-webhooks.conf
+    ```
+
+6. Copy monit's configuration file and make sure its permissions are ok:
+
+    ```bash
+sudo cp config/monit-bbb-webhooks /etc/monit/conf.d/bbb-webhooks
+sudo chown root:root /etc/monit/conf.d/bbb-webhooks
+    ```
+
+7. Start the application using monit:
+
+    ```bash
+sudo monit monitor bbb-webhooks
+sudo monit start bbb-webhooks
+    ```
+
+    You can also use upstart to start/stop the application:
+
+    ```bash
+sudo service bbb-webhooks start
+sudo service bbb-webhooks stop
+    ```
