@@ -58,6 +58,9 @@ Handlebars.registerHelper 'equals', (a, b) -> # equals operator was dropped in M
 Handlebars.registerHelper "getCurrentMeeting", ->
   Meteor.Meetings.findOne()
 
+Handlebars.registerHelper "getIPFromConfig", ->
+  Meteor.config.app.redirectToLoginOnLogout
+
 Handlebars.registerHelper "getCurrentSlide", ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
   presentationId = currentPresentation?.presentation?.id
