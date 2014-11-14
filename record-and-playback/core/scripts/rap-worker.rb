@@ -43,19 +43,19 @@ def archive_recorded_meeting(recording_dir)
 
     BigBlueButton.redis_publisher.put_archive_started meeting_id
 
-    process_start = BigBlueButton.monotonic_clock
+    step_start_time = BigBlueButton.monotonic_clock
     ret = BigBlueButton.exec_ret("ruby", "archive/archive.rb", "-m", meeting_id)
-    process_stop = BigBlueButton.monotonic_clock
-    process_time = process_stop - process_start
+    step_stop_time = BigBlueButton.monotonic_clock
+    step_time = step_stop_time - step_start_time
 
-    archive_succeeded = (ret == 0 && File.exists?(archived_done))
+    step_succeeded = (ret == 0 && File.exists?(archived_done))
 
     BigBlueButton.redis_publisher.put_archive_ended meeting_id, {
-      "success" => archive_succeeded,
-      "process_time" => process_time
+      "success" => step_succeeded,
+      "step_time" => step_time
     }
 
-    if archive_succeeded
+    if step_succeeded
       BigBlueButton.logger.info("Successfully archived #{meeting_id}")
       FileUtils.rm(recorded_done)
     else
@@ -81,19 +81,19 @@ def sanity_archived_meeting(recording_dir)
 
     BigBlueButton.redis_publisher.put_sanity_started meeting_id
 
-    process_start = BigBlueButton.monotonic_clock
+    step_start_time = BigBlueButton.monotonic_clock
     ret = BigBlueButton.exec_ret("ruby", "sanity/sanity.rb", "-m", meeting_id)
-    process_stop = BigBlueButton.monotonic_clock
-    process_time = process_stop - process_start
+    step_stop_time = BigBlueButton.monotonic_clock
+    step_time = step_stop_time - step_start_time
 
-    sanity_succeeded = (ret == 0 && File.exists?(sanity_done))
+    step_succeeded = (ret == 0 && File.exists?(sanity_done))
 
     BigBlueButton.redis_publisher.put_sanity_ended meeting_id, {
-      "success" => sanity_succeeded,
-      "process_time" => process_time
+      "success" => step_succeeded,
+      "step_time" => step_time
     }
 
-    if sanity_succeeded
+    if step_succeeded
       BigBlueButton.logger.info("Successfully sanity checked #{meeting_id}")
       post_archive(meeting_id)
       FileUtils.rm(archived_done)
@@ -113,7 +113,7 @@ def process_archived_meeting(recording_dir)
     match = /([^\/]*).done$/.match(sanity_done)
     meeting_id = match[1]
 
-    process_succeeded = true
+    step_succeeded = true
 
     # Iterate over the list of recording processing scripts to find available types
     # For now, we look for the ".rb" extension - TODO other scripting languages?
@@ -126,7 +126,7 @@ def process_archived_meeting(recording_dir)
 
       processed_fail = "#{recording_dir}/status/processed/#{meeting_id}-#{process_type}.fail"
       if File.exists?(processed_fail)
-        process_succeeded = false
+        step_succeeded = false
         next
       end
 
@@ -135,32 +135,32 @@ def process_archived_meeting(recording_dir)
       # If the process directory doesn't exist, the script does nothing
       FileUtils.rm_rf("#{recording_dir}/process/#{process_type}/#{meeting_id}")
 
-      process_start = BigBlueButton.monotonic_clock
+      step_start_time = BigBlueButton.monotonic_clock
       ret = BigBlueButton.exec_ret("ruby", process_script, "-m", meeting_id)
-      process_stop = BigBlueButton.monotonic_clock
-      process_time = process_stop - process_start
+      step_stop_time = BigBlueButton.monotonic_clock
+      step_time = step_stop_time - step_start_time
 
-      IO.write("#{recording_dir}/process/#{process_type}/#{meeting_id}/processing_time", process_time)
+      IO.write("#{recording_dir}/process/#{process_type}/#{meeting_id}/processing_time", step_time)
 
-      this_process_succeeded = (ret == 0 and File.exists?(processed_done))
+      step_succeeded = (ret == 0 and File.exists?(processed_done))
 
       BigBlueButton.redis_publisher.put_process_ended process_type, meeting_id, {
-        "success" => this_process_succeeded,
-        "process_time" => process_time
+        "success" => step_succeeded,
+        "step_time" => step_time
       }
 
-      if this_process_succeeded
+      if step_succeeded
         BigBlueButton.logger.info("Process format #{process_type} succeeded for #{meeting_id}")
-        BigBlueButton.logger.info("Process took #{process_time}ms")
+        BigBlueButton.logger.info("Process took #{step_time}ms")
       else
         BigBlueButton.logger.info("Process format #{process_type} failed for #{meeting_id}")
-        BigBlueButton.logger.info("Process took #{process_time}ms")
+        BigBlueButton.logger.info("Process took #{step_time}ms")
         FileUtils.touch(processed_fail)
-        process_succeeded = false
+        step_succeeded = false
       end
     end
 
-    if process_succeeded
+    if step_succeeded
       post_process(meeting_id)
       FileUtils.rm(sanity_done)
     end
@@ -203,21 +203,21 @@ def publish_processed_meeting(recording_dir)
       # If the publish directory doesn't exist, the script does nothing
       FileUtils.rm_rf("#{recording_dir}/publish/#{publish_type}/#{meeting_id}")
 
-      process_start = BigBlueButton.monotonic_clock
+      step_start_time = BigBlueButton.monotonic_clock
       # For legacy reasons, the meeting ID passed to the publish script contains
       # the playback format name.
       ret = BigBlueButton.exec_ret("ruby", publish_script, "-m", "#{meeting_id}-#{publish_type}")
-      process_stop = BigBlueButton.monotonic_clock
-      process_time = process_stop - process_start
+      step_stop_time = BigBlueButton.monotonic_clock
+      step_time = step_stop_time - step_start_time
 
-      this_process_succeeded = (ret == 0 and File.exists?(published_done))
+      step_succeeded = (ret == 0 and File.exists?(published_done))
 
       BigBlueButton.redis_publisher.put_publish_ended publish_type, meeting_id, {
-        "success" => this_process_succeeded,
-        "process_time" => process_time
+        "success" => step_succeeded,
+        "step_time" => step_time
       }
 
-      if this_process_succeeded
+      if step_succeeded
         BigBlueButton.logger.info("Publish format #{publish_type} succeeded for #{meeting_id}")
       else
         BigBlueButton.logger.info("Publish format #{publish_type} failed for #{meeting_id}")
@@ -255,18 +255,18 @@ def post_archive(meeting_id)
 
     BigBlueButton.redis_publisher.put_post_archive_started post_type, meeting_id
 
-    process_start = BigBlueButton.monotonic_clock
+    step_start_time = BigBlueButton.monotonic_clock
     ret = BigBlueButton.exec_ret("ruby", post_archive_script, "-m", meeting_id)
-    process_stop = BigBlueButton.monotonic_clock
-    process_time = process_stop - process_start
-    process_succeeded = (ret == 0)
+    step_stop_time = BigBlueButton.monotonic_clock
+    step_time = step_stop_time - step_start_time
+    step_succeeded = (ret == 0)
 
     BigBlueButton.redis_publisher.put_post_archive_ended post_type, meeting_id, {
-      "success" => process_succeeded,
-      "process_time" => process_time
+      "success" => step_succeeded,
+      "step_time" => step_time
     }
 
-    if not process_succeeded
+    if not step_succeeded
       BigBlueButton.logger.warn("Post archive script #{post_archive_script} failed")
     end
   end
@@ -280,18 +280,18 @@ def post_process(meeting_id)
 
     BigBlueButton.redis_publisher.put_post_process_started post_type, meeting_id
 
-    process_start = BigBlueButton.monotonic_clock
+    step_start_time = BigBlueButton.monotonic_clock
     ret = BigBlueButton.exec_ret("ruby", post_process_script, "-m", meeting_id)
-    process_stop = BigBlueButton.monotonic_clock
-    process_time = process_stop - process_start
-    process_succeeded = (ret == 0)
+    step_stop_time = BigBlueButton.monotonic_clock
+    step_time = step_stop_time - step_start_time
+    step_succeeded = (ret == 0)
 
     BigBlueButton.redis_publisher.put_post_process_ended post_type, meeting_id, {
-      "success" => process_succeeded,
-      "process_time" => process_time
+      "success" => step_succeeded,
+      "step_time" => step_time
     }
 
-    if not process_succeeded
+    if not step_succeeded
       BigBlueButton.logger.warn("Post process script #{post_process_script} failed")
     end
   end
@@ -305,18 +305,18 @@ def post_publish(meeting_id)
 
     BigBlueButton.redis_publisher.put_post_publish_started post_type, meeting_id
 
-    process_start = BigBlueButton.monotonic_clock
+    step_start_time = BigBlueButton.monotonic_clock
     ret = BigBlueButton.exec_ret("ruby", post_publish_script, "-m", meeting_id)
-    process_stop = BigBlueButton.monotonic_clock
-    process_time = process_stop - process_start
-    process_succeeded = (ret == 0)
+    step_stop_time = BigBlueButton.monotonic_clock
+    step_time = step_stop_time - step_start_time
+    step_succeeded = (ret == 0)
 
     BigBlueButton.redis_publisher.put_post_publish_ended post_type, meeting_id, {
-      "success" => process_succeeded,
-      "process_time" => process_time
+      "success" => step_succeeded,
+      "step_time" => step_time
     }
 
-    if not process_succeeded
+    if not step_succeeded
       BigBlueButton.logger.warn("Post publish script #{post_publish_script} failed")
     end
   end
