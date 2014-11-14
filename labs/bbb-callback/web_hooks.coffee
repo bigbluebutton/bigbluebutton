@@ -6,6 +6,7 @@ request = require("request")
 config = require("./config")
 Hook = require("./hook")
 IDMapping = require("./id_mapping")
+Logger = require("./logger")
 
 # Web hooks will listen for events on redis coming from BigBlueButton and
 # perform HTTP calls with them to all registered hooks.
@@ -24,7 +25,7 @@ module.exports = class WebHooks
   # Subscribe to the events on pubsub that might need to be sent in callback calls.
   _subscribeToEvents: ->
     @subscriberEvents.on "psubscribe", (channel, count) ->
-      console.log "WebHooks: subscribed to " + channel
+      Logger.info "WebHooks: subscribed to " + channel
 
     @subscriberEvents.on "pmessage", (pattern, channel, message) =>
       try
@@ -34,11 +35,11 @@ module.exports = class WebHooks
           IDMapping.reportActivity(id)
 
           if @_filterMessage(channel, message)
-            console.log "WebHooks: processing message on [#{channel}]:", JSON.stringify(message)
+            Logger.info "WebHooks: processing message on [#{channel}]:", JSON.stringify(message)
             @_processEvent(message)
 
       catch e
-        console.log "WebHooks: error processing the message", message, ":", e
+        Logger.error "WebHooks: error processing the message", message, ":", e
 
     @subscriberEvents.psubscribe config.hooks.pchannel
 
@@ -64,17 +65,17 @@ module.exports = class WebHooks
       hooks = hooks.concat(Hook.findByExternalMeetingIDSync(eMeetingID))
 
     hooks.forEach (hook) ->
-      console.log "WebHooks: enqueueing a message in the hook:", hook.callbackURL
+      Logger.info "WebHooks: enqueueing a message in the hook:", hook.callbackURL
       hook.enqueue message
 
   # Subscribe to the meeting events on pubsub to keep track of the mapping
   # of meeting IDs.
   _subscribeToMeetings: ->
     @subscriberMeetings.on "subscribe", (channel, count) ->
-      console.log "WebHooks: subscribed to meetings channel ", channel
+      Logger.info "WebHooks: subscribed to meetings channel ", channel
 
     @subscriberMeetings.on "message", (channel, message) =>
-      console.log "WebHooks: got message on meetings channel [#{channel}]", message
+      Logger.info "WebHooks: got message on meetings channel [#{channel}]", message
       try
         message = JSON.parse(message)
         if message.header?.name is "meeting_created_message"
@@ -83,6 +84,6 @@ module.exports = class WebHooks
           IDMapping.removeMapping(message.payload?.meeting_id)
 
       catch e
-        console.log "WebHooks: error processing the message", JSON.stringify(message), ":", e
+        Logger.error.log "WebHooks: error processing the message", JSON.stringify(message), ":", e
 
     @subscriberMeetings.subscribe config.hooks.meetingsChannel

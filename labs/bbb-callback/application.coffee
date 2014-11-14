@@ -6,6 +6,7 @@ WebServer = require("./web_server")
 
 # Class that defines the application. Listens for events on redis and starts the
 # process to perform the callback calls.
+# TODO: add port (-p) and log level (-l) to the command line args
 module.exports = class Application
 
   constructor: ->

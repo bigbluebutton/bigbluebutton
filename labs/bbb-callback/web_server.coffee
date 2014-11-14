@@ -4,6 +4,7 @@ url = require("url")
 
 config = require("./config")
 Hook = require("./hook")
+Logger = require("./logger")
 Utils = require("./utils")
 
 # Web server that listens for API calls and process them.
@@ -16,16 +17,16 @@ module.exports = class WebServer
   start: (port) ->
     @server = @app.listen(port)
     unless @server.address()?
-      console.log "Could not bind to port", port
-      console.log "Aborting."
+      Logger.error "Could not bind to port", port
+      Logger.error "Aborting."
       process.exit(1)
-    console.log "== Server listening on port", port, "in", @app.settings.env.toUpperCase(), "mode"
+    Logger.info "Server listening on port", port, "in", @app.settings.env.toUpperCase(), "mode"
 
   _registerRoutes: ->
     # Request logger
     @app.all "*", (req, res, next) ->
       unless fromMonit(req)
-        console.log "<==", req.method, "request to", req.url, "from:", clientDataSimple(req)
+        Logger.info "<==", req.method, "request to", req.url, "from:", clientDataSimple(req)
       next()
 
     @app.get "/bigbluebutton/api/hooks/create", @_validateChecksum, @_create
@@ -105,13 +106,13 @@ module.exports = class WebServer
     if checksum is Utils.checksumAPI(req.url, config.bbb.sharedSecret)
       next()
     else
-      console.log "checksum check failed, sending a checksumError response"
+      Logger.info "checksum check failed, sending a checksumError response"
       res.setHeader("Content-Type", "text/xml")
       res.send cleanupXML(config.api.responses.checksumError)
 
 respondWithXML = (res, msg) ->
   msg = cleanupXML(msg)
-  console.log "==> respond with:", msg
+  Logger.info "==> respond with:", msg
   res.setHeader("Content-Type", "text/xml")
   res.send msg
 

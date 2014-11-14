@@ -4,6 +4,7 @@ url = require('url')
 EventEmitter = require('events').EventEmitter
 
 config = require("./config")
+Logger = require("./logger")
 Utils = require("./utils")
 
 # Use to perform a callback. Will try several times until the callback is
@@ -33,7 +34,7 @@ module.exports = class CallbackEmitter extends EventEmitter
           # get the next interval we have to wait and schedule a new try
           interval = config.hooks.retryIntervals[@nextInterval]
           if interval?
-            console.log "xx> Trying the callback again in #{interval/1000.0} secs"
+            Logger.warn "xx> Trying the callback again in #{interval/1000.0} secs"
             @nextInterval++
             @_scheduleNext(interval)
 
@@ -67,13 +68,13 @@ module.exports = class CallbackEmitter extends EventEmitter
 
     request requestOptions, (error, response, body) ->
       # TODO: treat redirects
-      if error? or response.statusCode != 200
-        console.log "xx> Error in the callback call to: [#{requestOptions.uri}] for #{simplifiedEvent(data.event)}"
-        console.log "xx> Error:", error
-        console.log "xx> Status:", response.statusCode
+      if error? or response.statusCode not in [200, 201, 202]
+        Logger.warn "xx> Error in the callback call to: [#{requestOptions.uri}] for #{simplifiedEvent(data.event)}"
+        Logger.warn "xx> Error:", error
+        Logger.warn "xx> Status:", response.statusCode
         callback error, false
       else
-        console.log "==> Successful callback call to: [#{requestOptions.uri}] for #{simplifiedEvent(data.event)}"
+        Logger.info "==> Successful callback call to: [#{requestOptions.uri}] for #{simplifiedEvent(data.event)}"
         callback null, true
 
 # A simple string that identifies the event

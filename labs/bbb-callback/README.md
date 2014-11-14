@@ -229,7 +229,7 @@ More details
 * Hooks are only removed if a call to `/destroy` is made or if the callbacks for the hook fail too many times (~12) for a long period of time (~5min). They are never removed otherwise. Valid for both global hooks and hooks for specific meetings.
 * If a meeting is created while the webhooks app is down, callbacks will never be triggered for this meeting. The app needs to detect the create event (`meeting_created_message`) to have a mapping of internal to external meeting IDs.
 * Mappings are removed after 24 hours of inactivity. If there are no events at all for a given meeting, it will be assumed dead. This is done to prevent data from being stored forever on redis.
-* External URLs are expected to respond with an HTTP status 200. Anything different from it will be considered an error and the callback will be called again. This includes URLs that redirect to some other place.
+* External URLs are expected to respond with the HTTP status 200, 201 or 202. Anything different from these values will be considered an error and the callback will be called again. This includes URLs that redirect to some other place.
 
 Development
 -----------
@@ -296,7 +296,16 @@ sudo chown root:root /etc/monit/conf.d/bbb-webhooks
 
     Open the file and edit it. You might need to change things like the port used by the application.
 
-8. Start the application:
+8. Copy logrotate's configuration file and install it:
+
+    ```bash
+sudo cp config/bbb-webhooks.logrotate /etc/logrotate.d/bbb-webhooks
+sudo chown root:root /etc/logrotate.d/bbb-webhooks
+sudo chmod 644 /etc/logrotate.d/bbb-webhooks
+sudo logrotate -s /var/lib/logrotate/status /etc/logrotate.d/bbb-webhooks
+    ```
+
+9. Start the application:
 
     ```bash
 sudo service bbb-webhooks start

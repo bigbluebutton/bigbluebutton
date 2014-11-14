@@ -5,6 +5,7 @@ redis = require("redis")
 config = require("./config")
 CallbackEmitter = require("./callback_emitter")
 IDMapping = require("./id_mapping")
+Logger = require("./logger")
 
 # The database of hooks.
 # Used always from memory, but saved to redis for persistence.
@@ -35,18 +36,18 @@ module.exports = class Hook
 
   save: (callback) ->
     @redisClient.hmset config.redis.keys.hook(@id), @toRedis(), (error, reply) =>
-      console.log "Hook: error saving hook to redis!", error, reply if error?
+      Logger.error "Hook: error saving hook to redis!", error, reply if error?
       @redisClient.sadd config.redis.keys.hooks, @id, (error, reply) =>
-        console.log "Hook: error saving hookID to the list of hooks!", error, reply if error?
+        Logger.error "Hook: error saving hookID to the list of hooks!", error, reply if error?
 
         db[@id] = this
         callback?(error, db[@id])
 
   destroy: (callback) ->
     @redisClient.srem config.redis.keys.hooks, @id, (error, reply) =>
-      console.log "Hook: error removing hookID from the list of hooks!", error, reply if error?
+      Logger.error "Hook: error removing hookID from the list of hooks!", error, reply if error?
       @redisClient.del config.redis.keys.hook(@id), (error) =>
-        console.log "Hook: error removing hook from redis!", error if error?
+        Logger.error "Hook: error removing hook from redis!", error if error?
 
         if db[@id]
           delete db[@id]
@@ -65,7 +66,7 @@ module.exports = class Hook
   # Puts a new message in the queue. Will also trigger a processing in the queue so this
   # message might be processed instantly.
   enqueue: (message) ->
-    console.log "Hook: enqueueing message", JSON.stringify(message)
+    Logger.info "Hook: enqueueing message", JSON.stringify(message)
     @queue.push message
     @_processQueue()
 
@@ -100,7 +101,7 @@ module.exports = class Hook
 
     # gave up trying to perform the callback, remove the hook forever
     @emitter.on "stopped", (error) =>
-      console.log "Hook: too many failed attempts to perform a callback call, removing the hook", JSON.stringify(hook)
+      Logger.warn "Hook: too many failed attempts to perform a callback call, removing the hook", JSON.stringify(hook)
       @destroy()
 
   @addSubscription = (callbackURL, meetingID=null, callback) ->
@@ -110,7 +111,7 @@ module.exports = class Hook
     else
       msg = "Hook: adding a hook with callback URL [#{callbackURL}]"
       msg += " for the meeting [#{meetingID}]" if meetingID?
-      console.log msg
+      Logger.info msg
 
       hook = new Hook()
       hook.id = nextID++
@@ -123,7 +124,7 @@ module.exports = class Hook
     if hook?
       msg = "Hook: removing the hook with callback URL [#{hook.callbackURL}]"
       msg += " for the meeting [#{hook.externalMeetingID}]" if hook.externalMeetingID?
-      console.log msg
+      Logger.info msg
 
       hook.destroy (error, removed) -> callback?(error, removed)
     else
@@ -179,12 +180,12 @@ module.exports = class Hook
     tasks = []
 
     client.smembers config.redis.keys.hooks, (error, hooks) =>
-      console.log "Hook: error getting list of hooks from redis", error if error?
+      Logger.error "Hook: error getting list of hooks from redis", error if error?
 
       hooks.forEach (id) =>
         tasks.push (done) =>
           client.hgetall config.redis.keys.hook(id), (error, hookData) ->
-            console.log "Hook: error getting information for a hook from redis", error if error?
+            Logger.error "Hook: error getting information for a hook from redis", error if error?
 
             if hookData?
               hook = new Hook()
@@ -197,5 +198,5 @@ module.exports = class Hook
 
       async.series tasks, (errors, result) ->
         hooks = _.map(Hook.allSync(), (hook) -> "[#{hook.id}] #{hook.callbackURL}")
-        console.log "Hook: finished resync, hooks registered:", hooks
+        Logger.info "Hook: finished resync, hooks registered:", hooks
         callback?()

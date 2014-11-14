@@ -3,6 +3,7 @@ async = require("async")
 redis = require("redis")
 
 config = require("./config")
+Logger = require("./logger")
 
 # The database of mappings. Uses the externalID as key because it changes less than
 # the internal ID (e.g. the internalID can change for different meetings in the same
@@ -35,18 +36,18 @@ module.exports = class IDMapping
 
   save: (callback) ->
     @redisClient.hmset config.redis.keys.mapping(@id), @toRedis(), (error, reply) =>
-      console.log "Hook: error saving mapping to redis!", error, reply if error?
+      Logger.error "Hook: error saving mapping to redis!", error, reply if error?
       @redisClient.sadd config.redis.keys.mappings, @id, (error, reply) =>
-        console.log "Hook: error saving mapping ID to the list of mappings!", error, reply if error?
+        Logger.error "Hook: error saving mapping ID to the list of mappings!", error, reply if error?
 
         db[@externalMeetingID] = this
         callback?(error, db[@externalMeetingID])
 
   destroy: (callback) ->
     @redisClient.srem config.redis.keys.mappings, @id, (error, reply) =>
-      console.log "Hook: error removing mapping ID from the list of mappings!", error, reply if error?
+      Logger.error "Hook: error removing mapping ID from the list of mappings!", error, reply if error?
       @redisClient.del config.redis.keys.mapping(@id), (error) =>
-        console.log "Hook: error removing mapping from redis!", error if error?
+        Logger.error "Hook: error removing mapping from redis!", error if error?
 
         if db[@externalMeetingID]
           delete db[@externalMeetingID]
@@ -78,14 +79,14 @@ module.exports = class IDMapping
     mapping.externalMeetingID = externalMeetingID
     mapping.lastActivity = new Date().getTime()
     mapping.save (error, result) ->
-      console.log "IDMapping: added or changed meeting mapping to the list #{externalMeetingID}:", mapping.print()
+      Logger.info "IDMapping: added or changed meeting mapping to the list #{externalMeetingID}:", mapping.print()
       callback?(error, result)
 
   @removeMapping = (internalMeetingID, callback) ->
     for external, mapping of db
       if mapping.internalMeetingID is internalMeetingID
         mapping.destroy (error, result) ->
-          console.log "IDMapping: removing meeting mapping from the list #{external}:", mapping.print()
+          Logger.info "IDMapping: removing meeting mapping from the list #{external}:", mapping.print()
           callback?(error, result)
 
   @getInternalMeetingID = (externalMeetingID) ->
@@ -125,7 +126,7 @@ module.exports = class IDMapping
       mapping.lastActivity < now - config.mappings.timeout
     )
     unless _.isEmpty(toRemove)
-      console.log "IDMapping: expiring the mappings:", _.map(toRemove, (map) -> map.print())
+      Logger.info "IDMapping: expiring the mappings:", _.map(toRemove, (map) -> map.print())
       toRemove.forEach (mapping) -> mapping.destroy()
 
   # Initializes global methods for this model.
@@ -140,12 +141,12 @@ module.exports = class IDMapping
     tasks = []
 
     client.smembers config.redis.keys.mappings, (error, mappings) =>
-      console.log "Hook: error getting list of mappings from redis", error if error?
+      Logger.error "Hook: error getting list of mappings from redis", error if error?
 
       mappings.forEach (id) =>
         tasks.push (done) =>
           client.hgetall config.redis.keys.mapping(id), (error, mappingData) ->
-            console.log "Hook: error getting information for a mapping from redis", error if error?
+            Logger.error "Hook: error getting information for a mapping from redis", error if error?
 
             if mappingData?
               mapping = new IDMapping()
@@ -158,5 +159,5 @@ module.exports = class IDMapping
 
       async.series tasks, (errors, result) ->
         mappings = _.map(IDMapping.allSync(), (m) -> m.print())
-        console.log "IDMapping: finished resync, mappings registered:", mappings
+        Logger.info "IDMapping: finished resync, mappings registered:", mappings
         callback?()
