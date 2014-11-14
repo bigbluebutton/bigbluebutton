@@ -69,10 +69,10 @@ module.exports = class CallbackEmitter extends EventEmitter
       form: data
 
     request requestOptions, (error, response, body) ->
-      if error? or response.statusCode not in [200, 201, 202]
+      if error? or response?.statusCode not in [200, 201, 202]
         Logger.warn "xx> Error in the callback call to: [#{requestOptions.uri}] for #{simplifiedEvent(data.event)}"
         Logger.warn "xx> Error:", error
-        Logger.warn "xx> Status:", response.statusCode
+        Logger.warn "xx> Status:", response?.statusCode
         callback error, false
       else
         Logger.info "==> Successful callback call to: [#{requestOptions.uri}] for #{simplifiedEvent(data.event)}"

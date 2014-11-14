@@ -255,6 +255,15 @@ sudo make install
 node app.js
     ```
 
+5. To test it you can use the test application `post_catcher.js`. It starts a node app that
+  registers a hook on the webhooks app and prints all the events it receives. Open the file
+  at `extra/post_catcher.js` and edit the salt and domain/IP of your server and then run it
+  with `node extra/post_catcher.js`. Create meetings and do things on your BigBlueButton server
+  and the events should be shown in the post_catcher.
+
+  Another option is to create hooks with the [API Mate](http://mconf.github.io/api-mate/) and
+  catch the callbacks with [PostCatcher](http://postcatcher.in/).
+
 Production
 ----------
 
