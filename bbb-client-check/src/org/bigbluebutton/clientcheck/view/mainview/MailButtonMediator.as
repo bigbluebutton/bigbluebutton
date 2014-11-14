@@ -44,6 +44,11 @@ package org.bigbluebutton.clientcheck.view.mainview
 		[Inject]
 		public var dp: IDataProvider;
 		
+		private static var FAILED:int = 1;
+		private static var WARNING:int = 2;
+		private static var LOADING:int = 3;
+		private static var SUCCEEDED:int = 4;
+
 		/**
 		 * Initialize listener
 		 */
@@ -63,7 +68,7 @@ package org.bigbluebutton.clientcheck.view.mainview
 			variables.body = buildMailBody(dp.getData());
 			mailMsg.data = variables;
 			mailMsg.method = URLRequestMethod.GET;
-			navigateToURL(mailMsg, "_self");
+			navigateToURL(mailMsg, "_blank");
 		}
 
 		/**
@@ -76,12 +81,34 @@ package org.bigbluebutton.clientcheck.view.mainview
 
 		public function buildMailBody(data:ArrayCollection):String {
 			var body:String = "";
-			var status:String = "";
+			var statusPriority:int = 0;
 
 			for (var i:int = 0; i < data.length; i++)
 			{
-				if (data.getItemAt(i).Status != status)
-					body += "\n" + data.getItemAt(i).Status + "\n";
+				if (data.getItemAt(i).StatusPriority != statusPriority)
+				{
+					statusPriority = data.getItemAt(i).StatusPriority;
+					var statusName:String = "";
+					switch (statusPriority)
+					{
+						case FAILED:
+							statusName = ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.status.failed');
+							break;
+						case WARNING:
+							statusName = ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.status.warning');
+							break;
+						case LOADING:
+							statusName = ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.status.loading');
+							break;
+						case SUCCEEDED:
+							statusName = ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.status.succeeded');
+							break;
+						default:
+							trace("Bad status name at MailButtonMediator!")
+							break;
+					}
+					body += "\n" + statusName + "\n";
+				}
 				body += data.getItemAt(i).Item + ":\t\t" + data.getItemAt(i).Result + "\n";
 			}
 

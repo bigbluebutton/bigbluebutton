@@ -22,9 +22,11 @@ package org.bigbluebutton.clientcheck.model.test
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 
+	import mx.resources.ResourceManager;
+
 	public class JavaEnabledTest implements ITestable
 	{
-		public static var JAVA_ENABLED:String="Java Enabled";
+		public static var JAVA_ENABLED:String=ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.test.name.javaEnabled');
 
 		private var _testSuccessfull:Boolean;
 		private var _testResult:String;

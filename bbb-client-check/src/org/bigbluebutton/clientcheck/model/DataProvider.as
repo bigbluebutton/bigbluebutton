@@ -28,9 +28,9 @@ package org.bigbluebutton.clientcheck.model
 	{
 		private var _dataProvider:ArrayCollection = new ArrayCollection;
 
-		public function addData(obj:Object):void
+		public function addData(obj:Object, status:Object):void
 		{
-			_dataProvider.addItem(obj);
+			_dataProvider.addItem(mergeWithStatusObject(obj, status));
 		}
 
 		public function getData():ArrayCollection
@@ -43,27 +43,44 @@ package org.bigbluebutton.clientcheck.model
 			var itemSortField:SortField = new SortField();
 			var statusSortField:SortField = new SortField();
 			itemSortField.name = "Item";
-			statusSortField.name = "Status";
+			statusSortField.name = "StatusPriority";
+			statusSortField.numeric = true;
 			var dataSort:Sort = new Sort();
 			dataSort.fields = [statusSortField, itemSortField];
 			_dataProvider.sort = dataSort;
 			_dataProvider.refresh();
 		}
 
-		public function updateData(obj:Object):void
+		public function updateData(obj:Object, status:Object):void
 		{
+			var merged:Object = mergeWithStatusObject(obj, status);
 			var i:int = 0;
 
-			while (i < _dataProvider.length && _dataProvider.getItemAt(i).Item != obj.Item) i++;
+			while (i < _dataProvider.length && _dataProvider.getItemAt(i).Item != merged.Item) i++;
 
-			if (_dataProvider.getItemAt(i).Item == obj.Item)
+			if (_dataProvider.getItemAt(i).Item == merged.Item)
 			{
 				_dataProvider.removeItemAt(i);
-				_dataProvider.addItemAt(obj, i);
+				_dataProvider.addItemAt(merged, i);
 			}
 			else trace("Something is missing at MainViewMediator's initDataProvider");
 
 			sortData();
+		}
+
+		public function mergeWithStatusObject(obj:Object, status:Object):Object
+		{
+			var merged:Object = new Object();
+			var p:String;
+
+			for (p in obj) {
+				merged[p] = obj[p];
+			}
+			for (p in status) {
+				merged[p] = status[p];
+			}
+
+			return merged;
 		}
 	}
 }

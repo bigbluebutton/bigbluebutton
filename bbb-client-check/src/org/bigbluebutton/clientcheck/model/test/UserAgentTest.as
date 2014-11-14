@@ -22,9 +22,11 @@ package org.bigbluebutton.clientcheck.model.test
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 
+	import mx.resources.ResourceManager;
+
 	public class UserAgentTest implements ITestable
 	{
-		public static var USER_AGENT:String="User Agent";
+		public static var USER_AGENT:String=ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.test.name.userAgent');
 
 		private var _testSuccessfull:Boolean;
 		private var _testResult:String;

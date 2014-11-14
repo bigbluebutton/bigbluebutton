@@ -27,9 +27,9 @@
 				itemRenderer="org.bigbluebutton.clientcheck.view.mainview.CustomItemRenderer">
 		<s:columns>
 			<s:ArrayList>
-				<s:GridColumn dataField="Item" headerText="{resourceManager.getString('resources', 'bbbsystemcheck.dataGridColumn.item')}"/>
-				<s:GridColumn dataField="Result" headerText="{resourceManager.getString('resources', 'bbbsystemcheck.dataGridColumn.result')}"/>
-				<s:GridColumn dataField="Status" headerText="{resourceManager.getString('resources', 'bbbsystemcheck.dataGridColumn.status')}"/>
+				<s:GridColumn dataField="Item" headerText="{resourceManager.getString('resources', 'bbbsystemcheck.dataGridColumn.item')}" width="200"/>
+				<s:GridColumn dataField="Result" headerText="{resourceManager.getString('resources', 'bbbsystemcheck.dataGridColumn.result')}" width="500"/>
+				<s:GridColumn dataField="StatusMessage" headerText="{resourceManager.getString('resources', 'bbbsystemcheck.dataGridColumn.status')}"/>
 			</s:ArrayList>
 		</s:columns>
 		<s:ArrayCollection>
