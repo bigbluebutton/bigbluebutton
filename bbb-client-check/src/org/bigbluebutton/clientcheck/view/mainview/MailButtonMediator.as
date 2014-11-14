@@ -60,7 +60,7 @@ package org.bigbluebutton.clientcheck.view.mainview
 			variables.body = dp.getAllDataAsString();
 			mailMsg.data = variables;
 			mailMsg.method = URLRequestMethod.GET;
-			navigateToURL(mailMsg, "_self");
+			navigateToURL(mailMsg, "_blank");
 		}
 	}
 }

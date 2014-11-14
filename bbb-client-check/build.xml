@@ -9,7 +9,11 @@
 			  value="${basedir}"/>
 	<property name="SRC_DIR"
 			  value="${BASE_DIR}/src"/>
-	<property name="TEST_IMAGE_URL" value="http://upload.wikimedia.org/wikipedia/commons/a/a2/Polycyclic_Aromatic_Hydrocarbons_In_Space.jpg" />
+	<property name="TEST_IMAGE_URL" value="http://upload.wikimedia.org/wikipedia/commons/0/0a/Keswick,_Cumbria_Panorama_1_-_June_2009.jpg" />
+	<property name="OUTPUT_DIR"
+			  value="check"/>
+	<property name="TEST_IMAGE_PATH"
+			  value="${OUTPUT_DIR}/test_image.jpg"/>
 	<taskdef resource="flexTasks.tasks"
 			 classpath="${FLEX_HOME}/ant/lib/flexTasks.jar"/>
 	<macrodef name="create-rsl">
@@ -91,7 +95,7 @@
 		</mxmlc>
 		<antcall target="Resolve-Dependency">
 			<param name="html.output"
-				   value="check"/>
+				   value="${OUTPUT_DIR}"/>
 		</antcall>
 	</target>
 	<target name="Build-Release">
@@ -117,26 +121,28 @@
 		</copy>
 	</target>
 	<target name="build"
-			depends="Create-Config, Extract-rsls, Build-Release"
+			depends="gen-config-xml, Extract-rsls, Build-Release"
 			description="Launcher for building whole release process"/>
 
-	<target name="Get-IP">
+	<target name="get-local-ip">
 		<exec executable="bash" outputproperty="IP">
 			<arg value="-c"/>
 			<arg value="ifconfig | grep -v '127.0.0.1' | grep -E '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*' | tail -1 | cut -d: -f2 | awk '{ print $1}'"/>
 		</exec>
 	</target>
 
-	<target name="Init" depends="Get-IP">
+	<target name="init">
 		<available file="conf/config.xml" property="config.xml.exists" />
+		<available file="${TEST_IMAGE_PATH}" property="test_image.exists" />
 	</target>
 
-	<target name="Create-Config" depends="Init" unless="${config.xml.exists}">
+	<target name="gen-config-xml" depends="init, get-local-ip" unless="${config.xml.exists}">
 		<copy file="resources/config.xml.template" tofile="conf/config.xml" />
 		<exec executable="sed">
 			<arg value="-i"/>
 			<arg value="s:HOST:${IP}:g"/>
 			<arg value="conf/config.xml"/>
 		</exec>
+		<echo message="config.xml generated" />
 	</target>
 </project>

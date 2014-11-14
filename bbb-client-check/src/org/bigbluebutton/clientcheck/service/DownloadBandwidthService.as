@@ -23,10 +23,12 @@ package org.bigbluebutton.clientcheck.service
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
 	import flash.events.ProgressEvent;
+	import flash.events.TimerEvent;
 	import flash.net.URLRequest;
 	import flash.system.ApplicationDomain;
 	import flash.system.LoaderContext;
 	import flash.utils.getTimer;
+	import flash.utils.Timer;
 
 	import mx.formatters.NumberBaseRoundType;
 	import mx.formatters.NumberFormatter;
@@ -38,82 +40,96 @@ package org.bigbluebutton.clientcheck.service
 		[Inject]
 		public var systemConfiguration:ISystemConfiguration;
 
-		private static var NUM_OF_TESTS:Number=5;
-		private static var BYTES_IN_MBIT:Number=131072;
+		private static const NUM_OF_SECONDS:Number = 10;
+		private static const BYTES_IN_MBIT:Number=Math.pow(2, 17);
+		private static const BYTES_IN_MBYTE:Number=Math.pow(2, 20);
 
 		private var _imageLoader:Loader;
 
-		private static var _initiated:Boolean;
+		private var _initiated:Boolean = false;
+		private var _loading:Boolean = false;
+		private var _ignoreBytes:int = 0;
+		private var _startTime:int;
+		private var _endTime:int;
+		private var _timer:Timer;
+		private var _secondsCounter:int = 0;
 
 		public function init():void
 		{
 			_initiated=false;
 
+			_timer = new Timer(1000, NUM_OF_SECONDS);
+			_timer.addEventListener(TimerEvent.TIMER, onTimerListener)
+			_timer.addEventListener(TimerEvent.TIMER_COMPLETE, onTimerCompleted);
+			_timer.reset();
+			_timer.start();
+
 			_imageLoader=new Loader;
 			_imageLoader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, contentLoaderProgressHandler);
 			_imageLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, contentLoaderCompleteHandler, false, 0, true);
 			_imageLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, contentLoaderIoErrorHandler, false, 0, true);
-			_imageLoader.load(new URLRequest(systemConfiguration.downloadFilePath + "?t=" + Math.random().toString()));
+			_loading = true;
+			_imageLoader.load(new URLRequest(systemConfiguration.downloadFilePath + "?t=" + getTimer().toString()));
+		}
+
+		protected function onTimerListener(event:TimerEvent):void {
+			step();
+		}
+
+		protected function step():void {
+			if (_initiated) {
+				_secondsCounter = Math.min(_secondsCounter + 1, NUM_OF_SECONDS);
+				updateData(_secondsCounter == NUM_OF_SECONDS);
+			}
+		}
+
+		protected function updateData(lastUpdate:Boolean = false):void {
+			var now:int = getTimer();
+			var duration:Number = ((now - _startTime) / 1000)
+			var loadedSoFar:int = _imageLoader.contentLoaderInfo.bytesLoaded - _ignoreBytes;
+			var loadedInMB:Number = loadedSoFar / BYTES_IN_MBYTE;
+			var loadedInMb:Number = loadedSoFar / BYTES_IN_MBIT;
+			var speed:Number = loadedInMb / duration;
+
+			var dataFormatter:NumberFormatter=new NumberFormatter();
+			dataFormatter.precision=3;
+			dataFormatter.rounding=NumberBaseRoundType.NEAREST;
+
+			var msg:String;
+			if (lastUpdate) {
+				msg = dataFormatter.format(speed) + " Mbps (" + dataFormatter.format(loadedInMB) + " MB in " + _secondsCounter + " seconds)";
+			} else {
+				msg = dataFormatter.format(speed) + " Mbps (" + dataFormatter.format(loadedInMB) + " MB, " + (NUM_OF_SECONDS - _secondsCounter) + " seconds remaining)";
+			}
+			systemConfiguration.downloadBandwidthTest.testResult=msg;
+			systemConfiguration.downloadBandwidthTest.testSuccessfull=true;
+		}
+
+		protected function onTimerCompleted(event:TimerEvent):void {
+			_imageLoader.close();
+			step();
 		}
 
 		protected function contentLoaderProgressHandler(event:ProgressEvent):void
 		{
 			if (!_initiated)
 			{
-				systemConfiguration.downloadBandwidthTest.startTime=getTimer();
+				_startTime = getTimer();
+				_ignoreBytes = event.bytesLoaded;
 				_initiated=true;
 			}
 		}
 
 		protected function contentLoaderIoErrorHandler(event:IOErrorEvent):void
 		{
-			systemConfiguration.downloadBandwidthTest.testResult="undefined";
+			systemConfiguration.downloadBandwidthTest.testResult=event.text;
 			systemConfiguration.downloadBandwidthTest.testSuccessfull=false;
 		}
 
 		protected function contentLoaderCompleteHandler(event:Event):void
 		{
-			systemConfiguration.downloadBandwidthTest.endTime=getTimer();
-
-			// convert to seconds
-			var totalDownloadTime:Number=((systemConfiguration.downloadBandwidthTest.endTime - systemConfiguration.downloadBandwidthTest.startTime) / 1000);
-
-			// convert to megabits
-			var totalMB:Number=(event.currentTarget.bytesLoaded / BYTES_IN_MBIT);
-
-			// calculate download speed
-			var downloadSpeed:Number=totalMB / totalDownloadTime;
-
-			// add to array of test results, as we want to continiously make certain amount of tests and then get the range value
-			systemConfiguration.downloadBandwidthTest.testResultArray.push(downloadSpeed);
-
-			if (systemConfiguration.downloadBandwidthTest.testResultArray.length >= NUM_OF_TESTS)
-			{
-				calculateTestResult();
-			}
-			else
-			{
-				init();
-			}
-		}
-
-		private function calculateTestResult():void
-		{
-			var totalResult:Number=0;
-
-			for (var i:int=0; i < systemConfiguration.downloadBandwidthTest.testResultArray.length; i++)
-			{
-				totalResult+=systemConfiguration.downloadBandwidthTest.testResultArray[i];
-			}
-
-			var formatter:NumberFormatter=new NumberFormatter();
-			formatter.precision=3;
-			formatter.rounding=NumberBaseRoundType.NEAREST;
-
-			var result:String=formatter.format(totalResult / systemConfiguration.downloadBandwidthTest.testResultArray.length);
-
-			systemConfiguration.downloadBandwidthTest.testResult=result + " Mbps";
-			systemConfiguration.downloadBandwidthTest.testSuccessfull=true;
+			_timer.stop();
+			updateData(true);
 		}
 	}
 }
