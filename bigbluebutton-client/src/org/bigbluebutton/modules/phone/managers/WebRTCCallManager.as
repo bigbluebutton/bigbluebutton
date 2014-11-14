@@ -52,6 +52,8 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     private function isWebRTCSupported():Boolean {
+      trace(LOG + "- isWebRTCSupported - ExternalInterface.available=[" + ExternalInterface.available 
+        + "], isWebRTCAvailable=[" + ExternalInterface.call("isWebRTCAvailable") + "]");
       return (ExternalInterface.available && ExternalInterface.call("isWebRTCAvailable"));
     }
     
@@ -60,10 +62,20 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     public function initialize():void {         
+
+    }
+    
+    
+    private function checkIfToUseWebRTC():Boolean {
       options = new PhoneOptions();
-      if (options.useWebRTCIfAvailable && isWebRTCSupported()) {
-        usingWebRTC = true;
-      }
+      var webRTCSupported:Boolean = isWebRTCSupported();
+      
+      trace(LOG + "- checkIfToUseWebRTC - useWebRTCIfAvailable=[" + options.useWebRTCIfAvailable 
+        + "], isWebRTCSupported=[" + webRTCSupported + "]");
+      if (options.useWebRTCIfAvailable && webRTCSupported) {
+        return true;
+      }      
+      return false;
     }
     
     private function startWebRTCEchoTest():void {
@@ -125,6 +137,8 @@ package org.bigbluebutton.modules.phone.managers
     public function handleJoinVoiceConferenceCommand(event:JoinVoiceConferenceCommand):void {
       trace(LOG + "handleJoinVoiceConferenceCommand - usingWebRTC: " + usingWebRTC + ", event.mic: " + event.mic);
       
+      usingWebRTC = checkIfToUseWebRTC();
+      
       if (!usingWebRTC || !event.mic) return;
       
       if (options.skipCheck || echoTestDone) {
@@ -156,18 +170,31 @@ package org.bigbluebutton.modules.phone.managers
 	
     public function handleUseFlashModeCommand():void {
       usingWebRTC = false;
-      hangup();
     }
 
-    public function handleWebRTCEchoTestFailedEvent(reason:String):void {
+    public function handleWebRTCEchoTestFailedEvent(errorCode:Number):void {
       model.state = Constants.INITED;
       endEchoTest();
-	  var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [reason]), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
+	  var errorString:String = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError." + errorCode);
+	  if (!errorString) {
+		  errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.unknown", [errorCode]);
+	  }
+	  
+	  var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
     }
     
-    public function handleWebRTCCallFailedEvent(reason:String):void {
+    public function handleWebRTCEchoTestEndedUnexpectedly():void {
       model.state = Constants.INITED;
-      var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [reason]), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
+      var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.endedunexpectedly"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
+    }
+    
+    public function handleWebRTCCallFailedEvent(errorCode:Number):void {
+      model.state = Constants.INITED;
+	  var errorString:String = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError." + errorCode);
+	  if (!errorString) {
+		  errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.unknown", [errorCode]);
+	  }
+      var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
     }
     
     public function handleWebRTCMediaFailedEvent():void {

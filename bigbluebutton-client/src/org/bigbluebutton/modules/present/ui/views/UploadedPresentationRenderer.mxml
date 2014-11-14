@@ -37,7 +37,7 @@
   <mx:Button id="showBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn')}" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn.toolTip')}" 
              styleName="presentationUploadShowButtonStyle" height="26"
-             click="showPresentation()" enabled="true"/>
+             click="showPresentation()" enabled="{!data.current}"/>
   <mx:Button id="deleteBtn" label="" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.deleteBtn.toolTip')}" 
              styleName="presentationUploadDeleteButtonStyle"
              click="deletePresentation()" visible="{String(data.name) != 'default.pdf'}"/>

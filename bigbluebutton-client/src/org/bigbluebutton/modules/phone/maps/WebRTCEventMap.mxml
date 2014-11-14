@@ -64,12 +64,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{WebRTCCallManager}" method="userRequestedHangup"/>
   </EventHandlers>
   
+  <EventHandlers type="{ConnectionFailedEvent.CONNECTION_CLOSED}">
+    <MethodInvoker generator="{WebRTCCallManager}" method="userRequestedHangup"/>
+  </EventHandlers>
+  
   <EventHandlers type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_STARTED}">        
     <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCEchoTestStartedEvent"/>
   </EventHandlers>
 	
   <EventHandlers type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_FAILED}">
-    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCEchoTestFailedEvent" arguments="{event.cause}"/>
+    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCEchoTestFailedEvent" arguments="{event.errorCode}"/>
   </EventHandlers>
 
   <EventHandlers type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_HAS_AUDIO}">        
@@ -101,7 +105,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </EventHandlers>
 
   <EventHandlers type="{WebRTCCallEvent.WEBRTC_CALL_FAILED}">
-    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCCallFailedEvent" arguments="{event.cause}"/>
+    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCCallFailedEvent" arguments="{event.errorCode}"/>
   </EventHandlers>
   
   <EventHandlers type="{JoinVoiceConferenceCommand.JOIN_VOICE_CONF}">        

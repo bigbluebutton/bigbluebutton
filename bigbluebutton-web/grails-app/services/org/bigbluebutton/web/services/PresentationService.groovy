@@ -77,13 +77,18 @@ class PresentationService {
     return presentationDir
   }
 
-	def processUploadedPresentation = {uploadedPres ->
-		// Run conversion on another thread.
-		new Timer().runAfter(1000)
-		{
-			documentConversionService.processDocument(uploadedPres)
-		}
-	}
+    def processUploadedPresentation = {uploadedPres ->
+        // Run conversion on another thread.
+        Timer t = new Timer(uploadedPres.getName(), false)
+
+        t.runAfter(1000) {
+            try {
+                documentConversionService.processDocument(uploadedPres)
+            } finally {
+            t.cancel()
+            }
+        }
+    }
 
 	def showSlide(String conf, String room, String presentationName, String id) {
 		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "slide-${id}.swf")

@@ -49,6 +49,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_ENDED}" method="handleWebRTCCallEndedEvent" />
 	<mate:Listener type="{WebRTCAskUserToChangeMicEvent.WEBRTC_ASK_USER_TO_CHANGE_MIC}" method="handleWebRTCAskUserToChangeMicEvent"  />
 	<mate:Listener type="{AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION}" method="handleShowAudioSelectionWindowEvent" />
+	<mate:Listener type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}" method="handleShareCameraRequestEvent" />
   
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
@@ -108,6 +109,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
+			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.util.logging.Logger;
 	
@@ -155,6 +157,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var isTunneling:Boolean = false;
 			
 			private var confirmingLogout:Boolean = false;
+			private var chromeBrowser:ChromeWebcamPermissionImage = null;
       
 			public function initOptions(e:Event):void {
 				UserManager.getInstance().getConference().configLockSettings();
@@ -343,6 +346,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var camSettings:CameraDisplaySettings = CameraDisplaySettings(PopUpManager.createPopUp(mdiCanvas, CameraDisplaySettings, true));		
         camSettings.resolutions = (event.payload.resolutions as String).split(",");
         camSettings.publishInClient = event.payload.publishInClient;
+        camSettings.chromePermissionDenied = event.payload.chromePermissionDenied;
         
         var point1:Point = new Point();
         // Calculate position of TitleWindow in Application's coordinates. 
@@ -400,27 +404,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (browser == "Firefox") {
           var ffBrowser:FirefoxMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, FirefoxMicPermissionImage, true) as FirefoxMicPermissionImage;
           ffBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-            var point1:Point = new Point();
-            // Calculate position of TitleWindow in Application's coordinates. 
-            point1.x = width/2;
-            point1.y = height/2;
             ffBrowser.x = 100;
             ffBrowser.y = 150;
           }); 
         } else if (browser == "Chrome") {
           var chromeBrowser:ChromeMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, ChromeMicPermissionImage, true) as ChromeMicPermissionImage;
           chromeBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-            var point1:Point = new Point();
-            // Calculate position of TitleWindow in Application's coordinates. 
-            point1.x = width/2;
-            point1.y = height/2;
-            if (Capabilities.os.indexOf("Mac") >= 0) {
-            chromeBrowser.x = (mdiCanvas.width - chromeBrowser.width);
-            }
-            else {
             chromeBrowser.x = 20;
-            }
-            chromeBrowser.y = 20;
+            chromeBrowser.y = 80;
           });          
         }
       }
@@ -436,6 +427,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           webRTCEchoTest.y = point1.y - (webRTCEchoTest.height/2);
         });        
       }
+
+      private function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
+          if (ExternalInterface.call("determineBrowser")[0] == "Chrome" && chromeBrowser == null ) {
+          chromeBrowser = PopUpManager.createPopUp(mdiCanvas, ChromeWebcamPermissionImage , true) as ChromeWebcamPermissionImage;
+          chromeBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+          var point1:Point = new Point();
+          // Calculate position of TitleWindow in Application's coordinates.
+          point1.x = width/2;
+          point1.y = height/2;
+          if (Capabilities.os.indexOf("Mac") >= 0) {
+            chromeBrowser.x = (mdiCanvas.width - chromeBrowser.width);
+		  }
+          else {
+		    chromeBrowser.x = 20;
+		  }
+	      chromeBrowser.y = 20;
+         });
+       }
+     }
       
       private function handleMeetingNotFoundEvent(e:MeetingNotFoundEvent):void {
         showlogoutWindow(ResourceUtil.getInstance().getString('bbb.mainshell.meetingNotFound'));
@@ -444,7 +454,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function showlogoutWindow(reason:String):void {
         if (layoutOptions!= null && layoutOptions.showLogoutWindow) {
           if (logoutWindow != null) return;
-          logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, false));
+          logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, true));
           
           var point1:Point = new Point();
           // Calculate position of TitleWindow in Application's coordinates. 
@@ -516,7 +526,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function handleAddToolbarComponent(event:ToolbarButtonEvent):void {
 				if (event.location == ToolbarButtonEvent.BOTTOM_TOOLBAR) {
-					(event.button as UIComponent).tabIndex = baseIndex;
+					(event.button as UIComponent).tabIndex = baseIndex + addedBtns.numChildren + 10;
 					addedBtns.addChild(event.button as UIComponent);
 					//realignButtons();
 				}
@@ -622,7 +632,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				height="20"
 				width="180"
 				accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"
-				styleName="languageSelectorStyle" />
+				styleName="languageSelectorStyle"
+				tabIndex="{baseIndex}"/>
 		<mx:Button
 				width="20"
 				height="20"
@@ -632,7 +643,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				id="logBtn"
 				icon="{logs_icon}"
 				click="openLogWindow()"
-				tabIndex="{baseIndex}"/>
+				tabIndex="{baseIndex+1}"/>
 		<mx:HBox id="addedBtns" />
 	</mx:ControlBar>
 </mx:VBox>

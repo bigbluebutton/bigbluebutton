@@ -441,10 +441,17 @@
       }
     }
 
-    BBB.webRTCConferenceCallFailed = function(message) {
+    BBB.webRTCConferenceCallFailed = function(errorcode) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRTCConferenceCallFailed(message);
+        swfObj.webRTCConferenceCallFailed(errorcode);
+      }
+    }
+
+    BBB.webRTCConferenceCallWaitingForICE = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCConferenceCallWaitingForICE();
       }
     }
 
@@ -475,6 +482,14 @@
         swfObj.webRTCEchoTestFailed(reason);
       }
     }
+    
+    BBB.webRTCEchoTestWaitingForICE = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCEchoTestWaitingForICE();
+      }
+    }
+    
 
     BBB.webRTCEchoTestEnded = function() {
       var swfObj = getSwfObj();
@@ -501,6 +516,27 @@
       var swfObj = getSwfObj();
       if (swfObj) {
         swfObj.webRTCMediaFail();
+      }
+    }
+    
+    BBB.webRTCWebcamRequest = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCWebcamRequest();
+      }
+    }
+
+    BBB.webRTCWebcamRequestSuccess = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCWebcamRequestSuccess();
+      }
+    }
+    
+    BBB.webRTCWebcamRequestFail = function(reason) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCWebcamRequestFail(reason);
       }
     }
             

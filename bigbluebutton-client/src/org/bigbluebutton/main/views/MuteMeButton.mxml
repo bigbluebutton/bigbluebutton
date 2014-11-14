@@ -87,6 +87,11 @@ $Id: $
 			}
 			
 			private function lockSettingsChanged(e:Event):void {
+        if (UsersUtil.amIModerator()  || UsersUtil.amIPresenter()){
+          // Ignore lock setting changes as 
+          // or presenter we are moderator.
+          return; 
+        }
 				updateMuteMeBtn();
 			}
 			

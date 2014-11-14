@@ -33,6 +33,7 @@ import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.MeetingService;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.web.services.PresentationService
+import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.presentation.UploadedPresentation
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -43,7 +44,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.text.DateFormat;
-import org.bigbluebutton.api.Util;
 
 class ApiController {
   private static final Integer SESSION_TIMEOUT = 14400  // 4 hours    
@@ -59,7 +59,8 @@ class ApiController {
   PresentationService presentationService
   ParamsProcessorUtil paramsProcessorUtil
 	ClientConfigService configService
-  
+	PresentationUrlDownloadService presDownloadService
+	
   /* general methods */
   def index = {
     log.debug CONTROLLER_NAME + "#index"
@@ -1360,6 +1361,7 @@ class ApiController {
               webvoiceconf = us.webvoiceconf
               mode = us.mode
               record = us.record
+							allowStartStopRecording = meeting.getAllowStartStopRecording()
               welcome = us.welcome
 							if (! StringUtils.isEmpty(meeting.moderatorOnlyMessage))
 							  modOnlyMessage = meeting.moderatorOnlyMessage
@@ -1743,27 +1745,23 @@ class ApiController {
   }
   
  def downloadAndProcessDocument(address, meetingId) {
-    log.debug("ApiController#downloadAndProcessDocument({$address}, ${meetingId})");
+    log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId})");
     String presFilename = address.tokenize("/")[-1];
-    def filenameExt = Util.getFilenameExt(presFilename);
+    def filenameExt = presDownloadService.getFilenameExt(presFilename);
     String presentationDir = presentationService.getPresentationDir()
-    
-    
-    def presId = Util.generatePresentationId(presFilename)
-    File uploadDir = Util.createPresentationDirectory(meetingId, presentationDir, presId) 
+     
+    def presId = presDownloadService.generatePresentationId(presFilename)
+    File uploadDir = presDownloadService.createPresentationDirectory(meetingId, presentationDir, presId) 
     if (uploadDir != null) {
-        def newFilename = Util.createNewFilename(presId, filenameExt)
-        def pres = new File(uploadDir.absolutePath + File.separatorChar + newFilename);
-        def out
-        try {
-          out = new BufferedOutputStream(new FileOutputStream(pres))
-          out << new URL(address).openStream()             
-        } finally {
-          if (out != null) {
-            out.close()
-          }
-        }
-       processUploadedFile(meetingId, presId, presFilename, pres);
+      def newFilename = presDownloadService.createNewFilename(presId, filenameExt)
+			def newFilePath = uploadDir.absolutePath + File.separatorChar + newFilename
+				
+			if (presDownloadService.savePresentation(meetingId, newFilePath, address)) {
+				def pres = new File(newFilePath)
+				processUploadedFile(meetingId, presId, presFilename, pres);
+			} else {
+				log.error("Failed to download presentation=[${address}], meeting=[${meetingId}]")
+			}
     } 
   }
 

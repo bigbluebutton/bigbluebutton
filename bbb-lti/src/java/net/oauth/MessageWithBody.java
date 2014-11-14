@@ -8,7 +8,6 @@ import java.util.Map;
 import net.oauth.http.HttpMessage;
 import net.oauth.http.HttpMessageDecoder;
 
-
 public class MessageWithBody extends OAuthMessage {
     private final byte[] body;
 

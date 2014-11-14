@@ -68,7 +68,10 @@
 		<echo message="Determining supported locales."/>
 		<foreach target="build-locale" param="supportedlocale">
 			<path id="locales.path.ref">
-		    	<dirset dir="${BASE_DIR}/locale"/>
+		    	<dirset dir="${BASE_DIR}/locale">
+                            <!-- ignore transifex folder -->
+                            <exclude name=".tx"/>
+                        </dirset>
 		  	</path>
 		</foreach>
 	</target>
