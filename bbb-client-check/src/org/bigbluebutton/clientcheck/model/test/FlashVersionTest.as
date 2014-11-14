@@ -22,9 +22,11 @@ package org.bigbluebutton.clientcheck.model.test
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 
+	import mx.resources.ResourceManager;
+
 	public class FlashVersionTest implements ITestable
 	{
-		public static var FLASH_VERSION:String="Flash Version";
+		public static var FLASH_VERSION:String=ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.test.name.flashVersion');
 
 		private var _testSuccessfull:Boolean;
 		private var _testResult:String;

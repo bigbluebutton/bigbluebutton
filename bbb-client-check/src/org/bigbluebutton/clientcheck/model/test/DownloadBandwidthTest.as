@@ -23,9 +23,11 @@ package org.bigbluebutton.clientcheck.model.test
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 
+	import mx.resources.ResourceManager;
+
 	public class DownloadBandwidthTest extends Bandwidth implements ITestable
 	{
-		public static var DOWNLOAD_SPEED:String="Download speed";
+		public static var DOWNLOAD_SPEED:String=ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.test.name.downloadSpeed');
 
 		private var _testResult:String;
 		private var _testSuccessfull:Boolean;

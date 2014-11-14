@@ -95,7 +95,7 @@ package org.bigbluebutton.clientcheck.service
 			}
 
 			var formatter:NumberFormatter=new NumberFormatter();
-			formatter.precision=3;
+			formatter.precision=1;
 			formatter.rounding=NumberBaseRoundType.NEAREST;
 
 			var result:String=formatter.format(totalResult / systemConfiguration.pingTest.testResultArray.length);

@@ -17,19 +17,28 @@
  *
  */
 
-package org.bigbluebutton.clientcheck.model
+package org.bigbluebutton.clientcheck.view.mainview
 {
-	import org.osflash.signals.ISignal;
+	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
+	import robotlegs.bender.framework.api.IConfig;
+	import robotlegs.bender.framework.api.IInjector;
 
-	public interface IXMLConfig
+	public class MailButtonConfig implements IConfig
 	{
-		function init(config:XML):void;
-		function get configParsedSignal():ISignal;
-		function get downloadFilePath():Object;
-		function get serverUrl():Object;
-		function getPorts():XMLList;
-		function getRTMPApps():XMLList;
-		function getVersion():String;
-		function getMail():String;
+		[Inject]
+		public var injector:IInjector;
+
+		[Inject]
+		public var mediatorMap:IMediatorMap;
+
+		public function configure():void
+		{
+			configureMediators();
+		}
+
+		private function configureMediators():void
+		{
+			mediatorMap.map(IMailButton).toMediator(MailButtonMediator);
+		}
 	}
 }

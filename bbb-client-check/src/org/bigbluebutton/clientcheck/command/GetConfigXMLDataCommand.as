@@ -20,6 +20,7 @@
 package org.bigbluebutton.clientcheck.command
 {
 	import flash.net.URLRequest;
+	import flash.utils.getTimer;
 
 	import mx.core.FlexGlobals;
 	import mx.utils.URLUtil;
@@ -60,7 +61,7 @@ package org.bigbluebutton.clientcheck.command
 			var protocol:String=URLUtil.getProtocol(swfPath);
 			systemConfiguration.serverName=URLUtil.getServerNameWithPort(swfPath);
 
-			return protocol + "://" + systemConfiguration.serverName + "/" + CONFIG_XML;
+			return protocol + "://" + systemConfiguration.serverName + "/" + CONFIG_XML + "?t=" + getTimer().toString();
 		}
 
 		private function fail(reason:String):void

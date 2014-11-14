@@ -22,9 +22,11 @@ package org.bigbluebutton.clientcheck.model.test
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 
+	import mx.resources.ResourceManager;
+
 	public class CookieEnabledTest implements ITestable
 	{
-		public static var COOKIE_ENABLED:String="Cookie enabled";
+		public static var COOKIE_ENABLED:String=ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.test.name.cookieEnabled');
 
 		private var _testSuccessfull:Boolean;
 		private var _testResult:String;
