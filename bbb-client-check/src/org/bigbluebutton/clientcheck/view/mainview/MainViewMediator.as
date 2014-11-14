@@ -23,6 +23,7 @@ package org.bigbluebutton.clientcheck.view.mainview
 	import flash.events.MouseEvent;
 
 	import mx.collections.ArrayCollection;
+	import mx.resources.ResourceManager;
 
 	import org.bigbluebutton.clientcheck.command.GetConfigXMLDataSignal;
 	import org.bigbluebutton.clientcheck.command.RequestBandwidthInfoSignal;
@@ -84,7 +85,7 @@ package org.bigbluebutton.clientcheck.view.mainview
 		[Inject]
 		public var dp:IDataProvider;
 		
-		private static var VERSION:String="Version";
+		private static var VERSION:String=ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.version');
 
 		override public function initialize():void
 		{
@@ -144,36 +145,36 @@ package org.bigbluebutton.clientcheck.view.mainview
 		 */
 		private function initDataProvider():void
 		{
-			dp.addData({Item: BrowserTest.BROWSER, Result: null, Status: StatusENUM.LOADING});
-			dp.addData({Item: CookieEnabledTest.COOKIE_ENABLED, Result: null, Status: StatusENUM.LOADING});
-			dp.addData({Item: DownloadBandwidthTest.DOWNLOAD_SPEED, Result: null, Status: StatusENUM.LOADING});
-			dp.addData({Item: FlashVersionTest.FLASH_VERSION, Result: null, Status: StatusENUM.LOADING});
-			dp.addData({Item: IsPepperFlashTest.PEPPER_FLASH, Result: null, Status: StatusENUM.LOADING});
-			dp.addData({Item: JavaEnabledTest.JAVA_ENABLED, Result: null, Status: StatusENUM.LOADING});
-			dp.addData({Item: LanguageTest.LANGUAGE, Result: null, Status: StatusENUM.LOADING});
-			dp.addData({Item: PingTest.PING, Result: null, Status: StatusENUM.LOADING});
-			dp.addData({Item: ScreenSizeTest.SCREEN_SIZE, Result: null, Status: StatusENUM.LOADING});
+			dp.addData({Item: BrowserTest.BROWSER, Result: null}, StatusENUM.LOADING);
+			dp.addData({Item: CookieEnabledTest.COOKIE_ENABLED, Result: null}, StatusENUM.LOADING);
+			dp.addData({Item: DownloadBandwidthTest.DOWNLOAD_SPEED, Result: null}, StatusENUM.LOADING);
+			dp.addData({Item: FlashVersionTest.FLASH_VERSION, Result: null}, StatusENUM.LOADING);
+			dp.addData({Item: IsPepperFlashTest.PEPPER_FLASH, Result: null}, StatusENUM.LOADING);
+			dp.addData({Item: JavaEnabledTest.JAVA_ENABLED, Result: null}, StatusENUM.LOADING);
+			dp.addData({Item: LanguageTest.LANGUAGE, Result: null}, StatusENUM.LOADING);
+			dp.addData({Item: PingTest.PING, Result: null}, StatusENUM.LOADING);
+			dp.addData({Item: ScreenSizeTest.SCREEN_SIZE, Result: null}, StatusENUM.LOADING);
 			// The upload is not working right now
-//			dp.addData({Item: UploadBandwidthTest.UPLOAD_SPEED, Result: "This is supposed to be failing right now", Status: StatusENUM.FAILED});
-			dp.addData({Item: UserAgentTest.USER_AGENT, Result: null, Status: StatusENUM.LOADING});
-			dp.addData({Item: WebRTCEchoTest.WEBRTC_ECHO_TEST, Result: null, Status: StatusENUM.LOADING});
-			dp.addData({Item: WebRTCSocketTest.WEBRTC_SOCKET_TEST, Result: null, Status: StatusENUM.LOADING});
-			dp.addData({Item: WebRTCSupportedTest.WEBRTC_SUPPORTED, Result: null, Status: StatusENUM.LOADING});
+//			dp.addData({Item: UploadBandwidthTest.UPLOAD_SPEED, Result: "This is supposed to be failing right now"}, StatusENUM.FAILED);
+			dp.addData({Item: UserAgentTest.USER_AGENT, Result: null}, StatusENUM.LOADING);
+			dp.addData({Item: WebRTCEchoTest.WEBRTC_ECHO_TEST, Result: null}, StatusENUM.LOADING);
+			dp.addData({Item: WebRTCSocketTest.WEBRTC_SOCKET_TEST, Result: null}, StatusENUM.LOADING);
+			dp.addData({Item: WebRTCSupportedTest.WEBRTC_SUPPORTED, Result: null}, StatusENUM.LOADING);
 			if (systemConfiguration.rtmpApps)
 			{
 				for (var i:int=0; i < systemConfiguration.rtmpApps.length; i++)
 				{
-					dp.addData({Item: systemConfiguration.rtmpApps[i].applicationName, Result: null, Status: StatusENUM.LOADING});
+					dp.addData({Item: systemConfiguration.rtmpApps[i].applicationName, Result: null}, StatusENUM.LOADING);
 				}
 			}
 			if (systemConfiguration.ports)
 			{
 				for (var j:int=0; j < systemConfiguration.ports.length; j++)
 				{
-					dp.addData({Item: systemConfiguration.ports[j].portName, Result: null, Status: StatusENUM.LOADING});
+					dp.addData({Item: systemConfiguration.ports[j].portName, Result: null}, StatusENUM.LOADING);
 				}
 			}
-			dp.addData({Item: VERSION, Result: config.getVersion(), Status: StatusENUM.SUCCEED});
+			dp.addData({Item: VERSION, Result: config.getVersion()}, StatusENUM.SUCCEED);
 
 		}
 
@@ -197,8 +198,8 @@ package org.bigbluebutton.clientcheck.view.mainview
 
 			if (appObj)
 			{
-				var obj:Object={Item: appObj.applicationName, Result: appObj.testResult, Status: ((appObj.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
-				dp.updateData(obj);
+				var status:Object = (appObj.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED;
+				dp.updateData({Item: appObj.applicationName, Result: appObj.testResult}, status);
 			}
 			else
 			{
@@ -222,8 +223,8 @@ package org.bigbluebutton.clientcheck.view.mainview
 
 			if (portObj)
 			{
-				var obj:Object={Item: portObj.portName, Result: portObj.testResult, Status: ((portObj.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
-				dp.updateData(obj);
+				var status:Object = (portObj.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED;
+				dp.updateData({Item: portObj.portName, Result: portObj.testResult}, status);
 			}
 			else
 			{
@@ -233,86 +234,86 @@ package org.bigbluebutton.clientcheck.view.mainview
 
 		private function pingSpeedTestChangedHandler():void
 		{
-			var obj:Object={Item: PingTest.PING, Result: systemConfiguration.pingTest.testResult, Status: ((systemConfiguration.pingTest.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
-			dp.updateData(obj);
+			var status:Object = (systemConfiguration.pingTest.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED;
+			dp.updateData({Item: PingTest.PING, Result: systemConfiguration.pingTest.testResult}, status);
 		}
 
 		private function downloadSpeedTestChangedHandler():void
 		{
-			var obj:Object={Item: DownloadBandwidthTest.DOWNLOAD_SPEED, Result: systemConfiguration.downloadBandwidthTest.testResult, Status: ((systemConfiguration.downloadBandwidthTest.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
-			dp.updateData(obj);
+			var status:Object = (systemConfiguration.downloadBandwidthTest.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED;
+			dp.updateData({Item: DownloadBandwidthTest.DOWNLOAD_SPEED, Result: systemConfiguration.downloadBandwidthTest.testResult}, status);
 		}
 
 		private function uploadSpeedTestChangedHandler():void
 		{
-			var obj:Object={Item: UploadBandwidthTest.UPLOAD_SPEED, Result: systemConfiguration.uploadBandwidthTest.testResult, Status: ((systemConfiguration.uploadBandwidthTest.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
-			dp.updateData(obj);
+			var status:Object = (systemConfiguration.uploadBandwidthTest.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED;
+			dp.updateData({Item: UploadBandwidthTest.UPLOAD_SPEED, Result: systemConfiguration.uploadBandwidthTest.testResult}, status);
 		}
 
 		private function webRTCSocketTestChangedHandler():void
 		{
-			var obj:Object={Item: WebRTCSocketTest.WEBRTC_SOCKET_TEST, Result: systemConfiguration.webRTCSocketTest.testResult, Status: ((systemConfiguration.webRTCSocketTest.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.WARNING)};
-			dp.updateData(obj);
+			var status:Object = (systemConfiguration.webRTCSocketTest.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED;
+			dp.updateData({Item: WebRTCSocketTest.WEBRTC_SOCKET_TEST, Result: systemConfiguration.webRTCSocketTest.testResult}, status);
 		}
 
 		private function webRTCEchoTestChangedHandler():void
 		{
-			var obj:Object={Item: WebRTCEchoTest.WEBRTC_ECHO_TEST, Result: systemConfiguration.webRTCEchoTest.testResult, Status: ((systemConfiguration.webRTCEchoTest.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.WARNING)};
-			dp.updateData(obj);
+			var status:Object = (systemConfiguration.webRTCEchoTest.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED;
+			dp.updateData({Item: WebRTCEchoTest.WEBRTC_ECHO_TEST, Result: systemConfiguration.webRTCEchoTest.testResult}, status);
 		}
 
 		private function isPepperFlashChangedHandler():void
 		{
-			var obj:Object={Item: IsPepperFlashTest.PEPPER_FLASH, Result: systemConfiguration.isPepperFlash.testResult, Status: ((systemConfiguration.isPepperFlash.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
-			dp.updateData(obj);
+			var status:Object = (systemConfiguration.isPepperFlash.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED;
+			dp.updateData({Item: IsPepperFlashTest.PEPPER_FLASH, Result: systemConfiguration.isPepperFlash.testResult}, status);
 		}
 
 		private function languageChangedHandler():void
 		{
-			var obj:Object={Item: LanguageTest.LANGUAGE, Result: systemConfiguration.language.testResult, Status: ((systemConfiguration.language.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
-			dp.updateData(obj);
+			var status:Object = (systemConfiguration.language.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED;
+			dp.updateData({Item: LanguageTest.LANGUAGE, Result: systemConfiguration.language.testResult}, status);
 		}
 
 		private function javaEnabledChangedHandler():void
 		{
-			var obj:Object={Item: JavaEnabledTest.JAVA_ENABLED, Result: systemConfiguration.javaEnabled.testResult, Status: ((systemConfiguration.javaEnabled.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.WARNING)};
-			dp.updateData(obj);
+			var status:Object = (systemConfiguration.javaEnabled.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.WARNING;
+			dp.updateData({Item: JavaEnabledTest.JAVA_ENABLED, Result: systemConfiguration.javaEnabled.testResult}, status);
 		}
 
 		private function isWebRTCSupportedChangedHandler():void
 		{
-			var obj:Object={Item: WebRTCSupportedTest.WEBRTC_SUPPORTED, Result: systemConfiguration.isWebRTCSupported.testResult, Status: ((systemConfiguration.isWebRTCSupported.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.WARNING)};
-			dp.updateData(obj);
+			var status:Object = (systemConfiguration.isWebRTCSupported.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED;
+			dp.updateData({Item: WebRTCSupportedTest.WEBRTC_SUPPORTED, Result: systemConfiguration.isWebRTCSupported.testResult}, status);
 		}
 
 		private function cookieEnabledChangedHandler():void
 		{
-			var obj:Object={Item: CookieEnabledTest.COOKIE_ENABLED, Result: systemConfiguration.cookieEnabled.testResult, Status: ((systemConfiguration.cookieEnabled.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
-			dp.updateData(obj);
+			var status:Object = (systemConfiguration.cookieEnabled.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED;
+			dp.updateData({Item: CookieEnabledTest.COOKIE_ENABLED, Result: systemConfiguration.cookieEnabled.testResult}, status);
 		}
 
 		private function screenSizeChangedHandler():void
 		{
-			var obj:Object={Item: ScreenSizeTest.SCREEN_SIZE, Result: systemConfiguration.screenSize.testResult, Status: ((systemConfiguration.screenSize.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
-			dp.updateData(obj);
+			var status:Object = (systemConfiguration.screenSize.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED;
+			dp.updateData({Item: ScreenSizeTest.SCREEN_SIZE, Result: systemConfiguration.screenSize.testResult}, status);
 		}
 
 		private function browserChangedHandler():void
 		{
-			var obj:Object={Item: BrowserTest.BROWSER, Result: systemConfiguration.browser.testResult, Status: ((systemConfiguration.browser.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
-			dp.updateData(obj);
+			var status:Object = (systemConfiguration.browser.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED;
+			dp.updateData({Item: BrowserTest.BROWSER, Result: systemConfiguration.browser.testResult}, status);
 		}
 
 		private function userAgentChangedHandler():void
 		{
-			var obj:Object={Item: UserAgentTest.USER_AGENT, Result: systemConfiguration.userAgent.testResult, Status: ((systemConfiguration.userAgent.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
-			dp.updateData(obj);
+			var status:Object = (systemConfiguration.userAgent.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED;
+			dp.updateData({Item: UserAgentTest.USER_AGENT, Result: systemConfiguration.userAgent.testResult}, status);
 		}
 
 		private function flashVersionChangedHandler():void
 		{
-			var obj:Object={Item: FlashVersionTest.FLASH_VERSION, Result: systemConfiguration.flashVersion.testResult, Status: ((systemConfiguration.flashVersion.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED)};
-			dp.updateData(obj);
+			var status:Object = (systemConfiguration.flashVersion.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED;
+			dp.updateData({Item: FlashVersionTest.FLASH_VERSION, Result: systemConfiguration.flashVersion.testResult}, status);
 		}
 
 		override public function destroy():void

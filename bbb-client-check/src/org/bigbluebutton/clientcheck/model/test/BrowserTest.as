@@ -22,9 +22,11 @@ package org.bigbluebutton.clientcheck.model.test
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 
+	import mx.resources.ResourceManager;
+
 	public class BrowserTest implements ITestable
 	{
-		public static var BROWSER:String="Browser";
+		public static var BROWSER:String=ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.test.name.browser');
 
 		private var _testSuccessfull:Boolean;
 		private var _testResult:String;

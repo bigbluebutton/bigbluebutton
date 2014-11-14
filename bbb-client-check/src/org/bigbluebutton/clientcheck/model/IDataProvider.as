@@ -23,8 +23,8 @@ package org.bigbluebutton.clientcheck.model
 
 	public interface IDataProvider
 	{
-		function addData(obj:Object):void;
+		function addData(obj:Object, status:Object):void;
 		function getData():ArrayCollection;
-		function updateData(obj:Object):void;
+		function updateData(obj:Object, status:Object):void;
 	}
 }

@@ -22,9 +22,9 @@ package org.bigbluebutton.clientcheck.view.mainview
 	import mx.resources.ResourceManager;
 
 	public class StatusENUM {
-		public static const FAILED:String = ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.status.failed');
-		public static const WARNING:String = ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.status.warning');
-		public static const SUCCEED:String = ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.status.succeeded');
-		public static const LOADING:String = ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.status.loading');
+		public static const FAILED:Object = {StatusMessage: ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.status.failed'), StatusPriority: 1};
+		public static const WARNING:Object = {StatusMessage: ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.status.warning'), StatusPriority: 2};
+		public static const LOADING:Object = {StatusMessage: ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.status.loading'), StatusPriority: 3};
+		public static const SUCCEED:Object = {StatusMessage: ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.status.succeeded'), StatusPriority: 4};
 	}
 }

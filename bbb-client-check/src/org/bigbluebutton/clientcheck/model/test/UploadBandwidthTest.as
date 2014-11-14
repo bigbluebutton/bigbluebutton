@@ -23,9 +23,11 @@ package org.bigbluebutton.clientcheck.model.test
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 
+	import mx.resources.ResourceManager;
+
 	public class UploadBandwidthTest extends Bandwidth implements ITestable
 	{
-		public static var UPLOAD_SPEED:String="Upload speed";
+		public static var UPLOAD_SPEED:String=ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.test.name.uploadSpeed');
 
 		private var _testResult:String;
 		private var _testSuccessfull:Boolean;
