@@ -1,3 +1,5 @@
+
+
 <template name="displayUserIcons">
     <td>{{#if isUserSharingVideo _id}}
         <span class="userListSettingIcon glyphicon glyphicon-facetime-video" rel="tooltip" data-placement="bottom" title="{{user.name}} is sharing their webcam"></span>
@@ -55,7 +57,47 @@
 </template>
 
 <template name="usernameEntry">
-	<td class="userNameContainer">
+	
+
+  <!-- Tyler Added Start -->
+  <!--
+  <ul class="usersList">
+    <li>
+      <span class="userItem">Tyler</span>
+      <div class="userIcons">
+        <span class="userListSettingIcon glyphicon glyphicon-picture" rel="tooltip" data-placement="bottom" title="{{user.name}} is the presenter"></span>
+        <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-up" rel="tooltip" data-placement="bottom" title="is talking"></span>
+        <span class="userListSettingIcon glyphicon glyphicon-volume-up" rel="tooltip" data-placement="bottom" title="{{user.name}} is talking"></span>
+       </div>
+    </li>
+    <li>
+      <span class="userItem">Tyler</span>
+      <div class="userIcons">
+        <span class="userListSettingIcon glyphicon glyphicon-picture" rel="tooltip" data-placement="bottom" title="{{user.name}} is the presenter"></span>
+        <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-up" rel="tooltip" data-placement="bottom" title="is talking"></span>
+        <span class="userListSettingIcon glyphicon glyphicon-volume-up" rel="tooltip" data-placement="bottom" title="{{user.name}} is talking"></span>
+       </div>
+    </li>
+    <li>
+      <span class="userItem">Tyler</span>
+      <div class="userIcons">
+        <span class="userListSettingIcon glyphicon glyphicon-picture" rel="tooltip" data-placement="bottom" title="{{user.name}} is the presenter"></span>
+        <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-up" rel="tooltip" data-placement="bottom" title="is talking"></span>
+        <span class="userListSettingIcon glyphicon glyphicon-volume-up" rel="tooltip" data-placement="bottom" title="{{user.name}} is talking"></span>
+       </div>
+    </li>
+    <li>
+      <span class="userItem">Tyler</span>
+      <div class="userIcons">
+        <span class="userListSettingIcon glyphicon glyphicon-picture" rel="tooltip" data-placement="bottom" title="{{user.name}} is the presenter"></span>
+        <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-up" rel="tooltip" data-placement="bottom" title="is talking"></span>
+        <span class="userListSettingIcon glyphicon glyphicon-volume-up" rel="tooltip" data-placement="bottom" title="{{user.name}} is talking"></span>
+       </div>
+    </li> 
+  </ul> -->
+  <!-- Tyler Added End -->
+
+  <td class="userNameContainer">
 		{{#if isCurrentUser _id}}
 			<p class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}} (you)">
 				<strong>{{user.name}} (you)</strong>
@@ -66,6 +108,8 @@
 			</p>
 		{{/if}}
 	</td>
+
+
 </template>
 
 <template name="userItem">
