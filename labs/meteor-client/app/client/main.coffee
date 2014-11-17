@@ -19,7 +19,7 @@ loadLib = (libname) ->
 Meteor.startup ->
 
   # Load SIP libraries before the application starts
-  loadLib('sip-0.6.1.js')
+  loadLib('sip.js')
   loadLib('bbb_webrtc_bridge_sip.js')
 
   @SessionAmplify = _.extend({}, Session,
