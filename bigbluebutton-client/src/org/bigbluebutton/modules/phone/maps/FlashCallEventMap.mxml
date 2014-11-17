@@ -67,6 +67,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{FlashCallManager}" method="userRequestedHangup"/>
   </EventHandlers>
   
+  <EventHandlers type="{ConnectionFailedEvent.CONNECTION_CLOSED}">
+    <MethodInvoker generator="{FlashCallManager}" method="userRequestedHangup"/>
+  </EventHandlers>
+  
   <EventHandlers type="{FlashStartEchoTestCommand.START_FLASH_ECHO_TEST}">        
     <MethodInvoker generator="{FlashCallManager}" method="handleFlashStartEchoTestCommand" arguments="{event}"/>
   </EventHandlers>

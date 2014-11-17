@@ -5,28 +5,58 @@
 
 @Router.map ->
   @route "login",
-    path: "/meeting_id=*"
-    action: () ->
-      self = @
-      url = location.href
-      console.log "\n\nurl=#{url}\n\n"
-      #extract the meeting_id, user_id, auth_token, etc from the uri
-      if url.indexOf("meeting_id") > -1 # if the URL is /meeting_id=...&...
-        urlParts = url.split("&")
-        meetingId = urlParts[0]?.split("=")[1]
-        userId = urlParts[1]?.split("=")[1]
-        authToken = urlParts[2]?.split("=")[1]
+    path: "/login"
+    action: ->
+      meetingId = @params.query.meeting_id
+      userId = @params.query.user_id
+      authToken = @params.query.auth_token
 
-        if meetingId? and userId? and authToken?
-          Meteor.call("validateAuthToken", meetingId, userId, authToken)
-          if Meteor.isClient then sendMeetingInfoToClient(meetingId, userId)
-          self.redirect('/')
-        else
-          console.log "unable to extract from the URL some of {meetingId, userId, authToken}"
-      else
-        console.log "unable to extract the required information for the meeting from the URL"
+      if meetingId? and userId? and authToken?
+        Meteor.call("validateAuthToken", meetingId, userId, authToken)
+
+        if Meteor.isClient
+          sendMeetingInfoToClient(meetingId, userId)
+
+        Meteor.subscribe 'users', meetingId, userId, ->
+          console.log "now I have access to the users from the client. my userid is #{userId}"
+
+          Meteor.call "getMyInfo", userId, (error, result) ->
+            if result.error?
+              alert result.error
+              # redirect towards a different page
+            else
+              console.log "onBeforeAction2"
+              setInSession("DBID", result.DBID)
+              setInSession("userName", result.name)
+              setInSession("userSecret", result.userSecret)
+              me = Meteor.Users.findOne({_id:result.DBID})
+              console.log "me=" + JSON.stringify me
+              if me?
+                Router.go('/') #we are sure the user has dbid, userid and exists in the collection
+              else
+                alert "did not find the user in the collection"
+
   @route "main",
     path: "/"
+    onBeforeAction: ->
+      meetingId = getInSession('meetingId')
+      userId = getInSession("userId")
+      console.log "on /: meetingId=#{meetingId} userId=#{userId} DBID=#{getInSession('DBID')}"
+      Meteor.subscribe 'chat', meetingId, userId, ->
+        Meteor.subscribe 'shapes', meetingId, ->
+          Meteor.subscribe 'slides', meetingId, ->
+            Meteor.subscribe 'meetings', meetingId, ->
+              Meteor.subscribe 'presentations', meetingId, ->
+                Meteor.subscribe 'users', meetingId, userId
+
+      Meteor.call "getMyInfo", userId, (error, result) ->
+        unless result.error?
+          console.log "on /, this is my info #{JSON.stringify result}"
+          setInSession("DBID", result.DBID)
+          setInSession("userName", result.name)
+          setInSession("userSecret", result.userSecret)
+
+      @next() #TODO maybe we need to wait for the other 2 things above to be complete
 
   @route "logout",
     path: "logout"

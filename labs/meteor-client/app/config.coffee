@@ -1,3 +1,4 @@
+# TODO: should be split on server and client side
 # # Global configurations file
 
 config = {}
@@ -19,6 +20,8 @@ config.app = {}
 # coffee> crypto = require 'crypto'
 # coffee> crypto.randomBytes(32).toString('base64')
 config.app.sessionSecret = "J7XSu96KC/B/UPyeGub3J6w6QFXWoUNABVgi9Q1LskE="
+#configure your loggin server ip here
+config.app.redirectToLoginOnLogout = "http://10.0.3.1:4000"
 
 # Configs for redis
 config.redis = {}
@@ -38,10 +41,23 @@ config.redis.channels.toBBBApps.whiteboard = "bigbluebutton:to-bbb-apps:whiteboa
 # Logging
 config.log = {}
 
-config.log.path = if process?.env?.NODE_ENV is "production"
-  "/var/log/bigbluebutton/bbbnode.log"
-else
-  "./log/development.log"
+if Meteor.isServer
+  config.log.path = if process?.env?.NODE_ENV is "production"
+    "/var/log/bigbluebutton/bbbnode.log"
+  else
+    # logs in the directory immediatly before the meteor app
+     process.env.PWD + '/../log/development.log'
+
+  # Setting up a logger in Meteor.log
+  winston = Winston #Meteor.require 'winston'
+  file = config.log.path
+  transports = [ new winston.transports.Console(), new winston.transports.File { filename: file } ]
+
+  Meteor.log = new winston.Logger
+    transports: transports
+# else
+#   Meteor.log = Winston
+
 
 # Global instance of Modules, created by `app.coffee`
 config.modules = null

@@ -6,7 +6,10 @@ Meteor.methods
 
   # Construct and send a message to bbb-web to validate the user
   validateAuthToken: (meetingId, userId, authToken) ->
-    console.log "\n\n sending a validate_auth_token with userid=#{userId} meetingid=#{meetingId}"
+    Meteor.log.info "sending a validate_auth_token with",
+      userid: userId
+      authToken: authToken
+      meetingid: meetingId
 
     message =
       "payload":
@@ -21,18 +24,17 @@ Meteor.methods
     if authToken? and userId? and meetingId?
       publish Meteor.config.redis.channels.toBBBApps.meeting, message
     else
-      console.log "did not have enough information to send a validate_auth_token message"
+      Meteor.log.info "did not have enough information to send a validate_auth_token message"
 
 class Meteor.RedisPubSub
   constructor: (callback) ->
-    console.log "constructor RedisPubSub"
+    Meteor.log.info "constructor RedisPubSub"
 
     @pubClient = redis.createClient()
     @subClient = redis.createClient()
 
-    console.log("Subscribing message on channel: #{Meteor.config.redis.channels.fromBBBApps}")
+    Meteor.log.info("Subscribing message on channel: #{Meteor.config.redis.channels.fromBBBApps}")
 
-    #log.info
     @subClient.on "psubscribe", Meteor.bindEnvironment(@_onSubscribe)
     @subClient.on "pmessage", Meteor.bindEnvironment(@_onMessage)
 
@@ -40,7 +42,7 @@ class Meteor.RedisPubSub
     callback @
 
   _onSubscribe: (channel, count) =>
-    console.log "Subscribed to #{channel}"
+    Meteor.log.info "Subscribed to #{channel}"
 
     #grab data about all active meetings on the server
     message =
@@ -66,8 +68,8 @@ class Meteor.RedisPubSub
 
     if message?.header? and message?.payload?
       unless message.header.name in ignoredEventTypes
-        console.log "eventType=" + message.header.name #+ "\n"
-        #console.log jsonMsg
+        Meteor.log.info "eventType=" + message.header.name,
+          message: jsonMsg
 
       # handle voice events
       if message.header.name in ['user_left_voice_message', 'user_joined_voice_message', 'user_voice_talking_message', 'user_voice_muted_message']
@@ -82,7 +84,7 @@ class Meteor.RedisPubSub
         return
 
       if message.header.name is "get_all_meetings_reply"
-        console.log "Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!"
+        Meteor.log.info "Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!"
         listOfMeetings = message.payload.meetings
         for meeting in listOfMeetings
           # we currently do not have voice_conf or duration in this message.
@@ -95,6 +97,10 @@ class Meteor.RedisPubSub
           for user in users
             user.timeOfJoining = message.header.current_time # TODO this might need to be removed
             addUserToCollection meetingId, user
+        return
+
+      if message.header.name is "validate_auth_token_reply"
+        console.log "validate_auth_token_reply--#{JSON.stringify message}"
         return
 
       if message.header.name is "user_joined_message"
@@ -155,6 +161,7 @@ class Meteor.RedisPubSub
 
             #request for shapes
             whiteboardId = "#{presentation.id}/#{page.num}" # d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1404411622872/1
+            Meteor.log.info "the whiteboard_id here is:" + whiteboardId
 
             message =
               "payload":
@@ -169,7 +176,7 @@ class Meteor.RedisPubSub
             if whiteboardId? and meetingId?
               publish Meteor.config.redis.channels.toBBBApps.whiteboard, message
             else
-              console.log "did not have enough information to send a user_leaving_request"
+              Meteor.log.info "did not have enough information to send a user_leaving_request"
         return
 
       if message.header.name is "presentation_page_changed_message"
@@ -248,7 +255,7 @@ class Meteor.RedisPubSub
       if message.header.name in ["meeting_ended_message", "meeting_destroyed_event",
         "end_and_kick_all_message", "disconnect_all_users_message"]
         if Meteor.Meetings.findOne({meetingId: meetingId})?
-          console.log "there are #{Meteor.Users.find({meetingId: meetingId}).count()} users in the meeting"
+          Meteor.log.info "there are #{Meteor.Users.find({meetingId: meetingId}).count()} users in the meeting"
           for user in Meteor.Users.find({meetingId: meetingId}).fetch()
             removeUserFromMeeting meetingId, user.userId
             #TODO should we clear the chat messages for that meeting?!
@@ -262,11 +269,15 @@ class Meteor.RedisPubSub
 
 # message should be an object
 @publish = (channel, message) ->
-	#console.log "Publishing channel=#{channel}, message=#{JSON.stringify(message)}"
-	if Meteor.redisPubSub?
-		Meteor.redisPubSub.pubClient.publish(channel, JSON.stringify(message), (err, res) ->
-			if err
-				console.log "err=" + err
-		)
-	else
-		console.log "\n ERROR!! Meteor.redisPubSub was undefined\n"
+  Meteor.log.info "Publishing",
+    channel: channel
+    message: message
+
+  if Meteor.redisPubSub?
+    Meteor.redisPubSub.pubClient.publish channel, JSON.stringify(message), (err, res) ->
+      if err
+        Meteor.log.info "error",
+          error: err
+
+  else
+    Meteor.log.info "ERROR!! Meteor.redisPubSub was undefined"

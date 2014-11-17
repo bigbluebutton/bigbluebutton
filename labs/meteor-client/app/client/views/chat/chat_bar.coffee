@@ -2,7 +2,7 @@
 # If a function's last line is the statement false that represents the function returning false
 # A function such as a click handler will continue along with the propogation and default behaivour if not stopped
 # Returning false stops propogation/prevents default. You cannot always use the event object to call these methods
-# Because most Meteor event handlers set the event object to the exact context of the event which does not 
+# Because most Meteor event handlers set the event object to the exact context of the event which does not
 # allow you to simply call these methods.
 # --------------------------------------------------------------------------------------------------------------------
 
@@ -81,7 +81,7 @@ Handlebars.registerHelper "grabChatTabs", ->
     "message": message
     "chat_type": if chattingWith is "PUBLIC_CHAT" then "PUBLIC_CHAT" else "PRIVATE_CHAT"
     "from_userid": getInSession("DBID")
-    "from_username": getUsersName()
+    "from_username": BBB.getMyUserName()
     "from_tz_offset": "240"
     "to_username": if chattingWith is "PUBLIC_CHAT" then "public_chat_username" else dest.user.name
     "to_userid": if chattingWith is "PUBLIC_CHAT" then "public_chat_userid" else chattingWith
@@ -140,7 +140,7 @@ Template.chatInput.events
     if event.shiftKey and event.which is 13
       $("#newMessageInput").append("\r") # Change newline character
       return
-    
+
     if event.which is 13 # Check for pressing enter to submit message
       sendMessage()
       $('#newMessageInput').val("")
@@ -262,27 +262,21 @@ Template.tabButtons.events
     setInSession "inChatWith", "PUBLIC_CHAT"
     setInSession 'display_chatPane', true
 
-  'click .tab': (event) -> 
+  'click .tab': (event) ->
     console.log "tab"
 
 Template.tabButtons.helpers
-	makeTabButton: -> # create tab button for private chat or other such as options
-		safeClass = safeString(@class)
-		safeName = safeString(@name)
+  hasGotUnreadMailClass: (gotMail) ->
+    if gotMail and getInSession("displayChatNotifications")
+      return "gotUnreadMail"
+    else
+      return ""
 
-		button = ''
-		button += '<li class=\"'
-		button += 'active ' if getInSession("inChatWith") is @userId
-		button += "tab #{safeClass}"
-		button += '\">'
-		button += "<a href='#' data-toggle='tab' id=\"#{safeName}\""
-		button += 'class=\'gotUnreadMail\' ' if @gotMail and getInSession("displayChatNotifications")
-		button += ">"
-		button += "<button class=\"close closeTab\" type=\"button\"><sup><b>X</b></sup></button> " if @class is 'privateChatTab'
-		button += "#{safeName}"
-		button += '</a>'
-		button += '</li>'
-		button
+  isTabActive: (userId) ->
+    getInSession("inChatWith") is userId ? "active" : ""
+
+  makeSafe: (string) ->
+    safeString(string)
 
 # make links received from Flash client clickable in HTML
 @toClickable = (str) ->
@@ -312,10 +306,10 @@ Template.message.helpers
       res = activateBreakLines res
 
 Template.notificationSettings.events
-	"click #chatNotificationOn": (event) ->
-		console.log "on"
-		setInSession "displayChatNotifications", true
+  "click #chatNotificationOff": (event) ->
+    console.log "off"
+    setInSession "displayChatNotifications", false
 
-	"click #chatNotificationOff": (event) ->
-		console.log "off"
-		setInSession "displayChatNotifications", false
+  "click #chatNotificationOn": (event) ->
+    console.log "on"
+    setInSession "displayChatNotifications", true

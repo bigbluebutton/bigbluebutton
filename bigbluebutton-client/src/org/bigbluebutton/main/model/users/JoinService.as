@@ -103,6 +103,7 @@ package org.bigbluebutton.main.model.users
         response.room = result.response.room;
         response.authToken = result.response.room;
         response.record = result.response.record;
+        response.allowStartStopRecording = result.response.allowStartStopRecording;
         response.webvoiceconf = result.response.webvoiceconf;
         response.dialnumber = result.response.dialnumber;
         response.voicebridge = result.response.voicebridge;
@@ -143,6 +144,7 @@ package org.bigbluebutton.main.model.users
                                              .withExternalId(response.externMeetingID).withRecorded(response.record.toUpperCase() == "TRUE")
                                              .withDefaultAvatarUrl(response.avatarURL).withDialNumber(response.dialNumber)
                                              .withWelcomeMessage(response.welcome).withModOnlyMessage(response.modOnlyMessage)
+                                             .withAllowStartStopRecording(response.allowStartStopRecording)
                                              .build();
         
 				if (_resultListener != null) _resultListener(true, response);

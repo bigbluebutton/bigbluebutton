@@ -3,55 +3,11 @@
 Meteor.publish 'users', (meetingId, userid) ->
   console.log "publishing users for #{meetingId}, #{userid}"
 
-  u = Meteor.Users.findOne({'userId': userid, 'meetingId': meetingId})
-  if u?
-    console.log "found it from the first time #{userid}"
-    username = u?.user?.name or "UNKNOWN"
-    Meteor.Users.update({'meetingId':meetingId, 'userId': userid}, {$set:{'user.connection_status': "online"}})
-    console.log "username of the subscriber: " + username + ", connection_status becomes online"
-
-    @_session.socket.on("close", Meteor.bindEnvironment(=>
-      console.log "\na user lost connection: session.id=#{@_session.id}
-       userId = #{userid}, username=#{username}, meeting=#{meetingId}"
-      Meteor.Users.update({'meetingId':meetingId, 'userId': userid}, {$set:{'user.connection_status': "offline"}})
-      console.log "username of the user losing connection: " + username + ", connection_status: becomes offline"
-
-      setTimeout(Meteor.bindEnvironment(=>
-        result = Meteor.Users.findOne({'userId': userid, 'meetingId': meetingId})?.user?.connection_status
-        console.log "the result here is #{result}"
-        if result is "online"
-          console.log "user #{userid} (#{username}) managed to reconnect in meeting #{meetingId}"
-        else
-          console.log "user #{userid} (#{username}) failed to reconnect in meeting #{meetingId} and will be kicked out of the meeting"
-          Meteor.call "userLogout", meetingId, userid
-        )
-      , 10000) #TODO pick this from config.coffee
-      )
-    )
-
-    Meteor.Users.find(
-      {meetingId: meetingId},
-      {fields:{
-        'userId': 0,
-        'user.userid': 0,
-        'user.extern_userid': 0,
-        'user.voiceUser.userid': 0,
-        'user.voiceUser.web_userid': 0}
-      })
-
-  else #subscribing before the user was added to the collection
-    Meteor.call "validateAuthToken", meetingId, userid, userid
-    console.log "there was no such user #{userid}  in #{meetingId}"
-
-    self = @
-    handle = Meteor.Users.find({meetingId: meetingId}).observeChanges({
-      added: (id, user) ->
-        if user?.user?.userid is userid
-          console.log "finally user with id:#{userid} joined:" + Meteor.Users.findOne({'meetingId':meetingId, 'userId': userid})._id
-          self.added('users', id, user)
+  Meteor.Users.find(
+    {meetingId: meetingId},
+    {fields:{'userSecret': 0}
     })
-    self.ready()
-    self.onStop(->handle.stop())
+
 
 Meteor.publish 'chat', (meetingId, userid) ->
   console.log "publishing chat for #{meetingId} #{userid}"
@@ -68,25 +24,28 @@ Meteor.publish 'shapes', (meetingId) ->
   Meteor.Shapes.find({meetingId: meetingId})
 
 Meteor.publish 'slides', (meetingId) ->
+  console.log "publishing slides for #{meetingId}"
   Meteor.Slides.find({meetingId: meetingId})
 
 Meteor.publish 'meetings', (meetingId) ->
+  console.log "publishing meetings for #{meetingId}"
   Meteor.Meetings.find({meetingId: meetingId})
 
 Meteor.publish 'presentations', (meetingId) ->
+  console.log "publishing presentations for #{meetingId}"
   Meteor.Presentations.find({meetingId: meetingId})
 
 # Clear all data in subcriptions
 @clearCollections = ->
     Meteor.Users.remove({})
-    console.log "cleared Users Collection!"
+    Meteor.log.info "cleared Users Collection!"
     Meteor.Chat.remove({})
-    console.log "cleared Chat Collection!"
+    Meteor.log.info "cleared Chat Collection!"
     Meteor.Meetings.remove({})
-    console.log "cleared Meetings Collection!"
+    Meteor.log.info "cleared Meetings Collection!"
     Meteor.Shapes.remove({})
-    console.log "cleared Shapes Collection!"
+    Meteor.log.info "cleared Shapes Collection!"
     Meteor.Slides.remove({})
-    console.log "cleared Slides Collection!"
+    Meteor.log.info "cleared Slides Collection!"
     Meteor.Presentations.remove({})
-    console.log "cleared Presentations Collection!"
+    Meteor.log.info "cleared Presentations Collection!"

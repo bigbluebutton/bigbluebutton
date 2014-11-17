@@ -387,7 +387,7 @@ class ToolController {
                 '    <blti:icon>' + icon + '</blti:icon>' +
                 (isSSLEnabled? '    <blti:secure_icon>' + secure_icon + '</blti:secure_icon>': '') +
                 '    <blti:vendor>' +
-                '        <lticp:code>BBB</lticp:code>' +
+                '        <lticp:code>bigbluebutton</lticp:code>' +
                 '        <lticp:name>BigBlueButton</lticp:name>' +
                 '        <lticp:description>Open source web conferencing system for distance learning.</lticp:description>' +
                 '        <lticp:url>http://www.bigbluebutton.org/</lticp:url>' +

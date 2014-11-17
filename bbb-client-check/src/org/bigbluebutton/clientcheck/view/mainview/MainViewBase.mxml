@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   width="100%"
+				   height="100%"
+				   cornerRadius="10"
+				   borderStyle="inset"
+				   borderWeight="4">
+
+	<fx:Script>
+		<![CDATA[
+			import spark.components.gridClasses.GridSelectionMode;
+		]]>
+	</fx:Script>
+	<s:layout>
+		<s:VerticalLayout paddingLeft="10"
+						  paddingRight="10"
+						  paddingTop="10"
+						  paddingBottom="10"/>
+	</s:layout>
+
+	<s:DataGrid width="100%"
+				height="100%"
+				id="_dataGrid"
+				selectionMode="{GridSelectionMode.NONE}"
+				itemRenderer="org.bigbluebutton.clientcheck.view.mainview.CustomItemRenderer">
+		<s:columns>
+			<s:ArrayList>
+				<s:GridColumn dataField="Item" headerText="{resourceManager.getString('resources', 'bbbsystemcheck.dataGridColumn.item')}" width="200"/>
+				<s:GridColumn dataField="Result" headerText="{resourceManager.getString('resources', 'bbbsystemcheck.dataGridColumn.result')}" width="500"/>
+				<s:GridColumn dataField="StatusMessage" headerText="{resourceManager.getString('resources', 'bbbsystemcheck.dataGridColumn.status')}"/>
+			</s:ArrayList>
+		</s:columns>
+		<s:ArrayCollection>
+			<fx:Object>
+				<fx:Item/>
+				<fx:Status/>
+				<fx:Result/>
+			</fx:Object>
+		</s:ArrayCollection>
+	</s:DataGrid>
+</s:BorderContainer>
