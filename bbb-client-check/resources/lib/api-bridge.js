@@ -200,7 +200,7 @@
 		startWebRTCAudioTest();
 	}
 
-	function sendWebRTCEchoTestAnswer(success, errorcode=undefined) {
+	function sendWebRTCEchoTestAnswer(success, errorcode) {
 		var swfObj = getSwfObj();
 		swfObj.webRTCEchoTest(success, errorcode);
 
