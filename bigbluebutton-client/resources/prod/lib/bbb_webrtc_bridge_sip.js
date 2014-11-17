@@ -50,6 +50,12 @@ function joinWebRTCVoiceConference() {
 			case 'mediafail':
 				BBB.webRTCMediaFail();
 				break;
+			case 'websocketSucceded':
+				BBB.webRTCConferenceCallWebsocketSucceeded();
+				break;
+			case 'websocketFailed':
+				BBB.webRTCConferenceCallWebsocketFailed(message.errorcode);
+				break;
 		}
 	}
 	
@@ -89,6 +95,12 @@ function startWebRTCAudioTest(){
 				break;
 			case 'mediafail':
 				BBB.webRTCMediaFail();
+				break;
+			case 'websocketSucceded':
+				BBB.webRTCEchoTestWebsocketSucceeded();
+				break;
+			case 'websocketFailed':
+				BBB.webRTCEchoTestWebsocketFailed(message.errorcode);
 				break;
 		}
 	}
@@ -174,6 +186,7 @@ function createUA(username, server, callback) {
 	userAgent = new SIP.UA(configuration);
 	userAgent.on('connected', function() {
 		uaConnected = true;
+		callback({'status':'websocketSucceded'});
 	});
 	userAgent.on('disconnected', function() {
 		if (userAgent) {
@@ -181,9 +194,9 @@ function createUA(username, server, callback) {
 			userAgent = null;
 			
 			if (uaConnected) {
-				callback({'status':'failed', 'errorcode': 1001}); // WebSocket disconnected
+				callback({'status':'websocketFailed', 'errorcode': 1001}); // WebSocket disconnected
 			} else {
-				callback({'status':'failed', 'errorcode': 1002}); // Could not make a WebSocket connection
+				callback({'status':'websocketFailed', 'errorcode': 1002}); // Could not make a WebSocket connection
 			}
 		}
 	});

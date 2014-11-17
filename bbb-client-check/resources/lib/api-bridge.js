@@ -1,5 +1,6 @@
 {
     var BBBClientCheck = {};
+	var BBB = {};
 	var userAgent;
 	var userMicMedia;
 	var currentSession;
@@ -184,152 +185,121 @@
 	}
 	
 	BBBClientCheck.isWebRTCSupported = function() {
-		var isWebRTCSupportedInfo = SIP.WebRTC.isSupported();
+		var isWebRTCSupportedInfo = isWebRTCAvailable();
 		var swfObj = getSwfObj();
 		
 		swfObj.isWebRTCSupported(isWebRTCSupportedInfo);
 	}
 	
 	BBBClientCheck.webRTCEchoAndSocketTest = function() { 
+		var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+		var silentStream = audioContext.createMediaStreamDestination().stream;
+
+		userMicMedia = silentStream;
+
 		startWebRTCAudioTest();
 	}
 
-	function startWebRTCAudioTest() {
-		console.log("Starting WebRTC audio test...");
+	function sendWebRTCEchoTestAnswer(success, errorcode) {
 		var swfObj = getSwfObj();
-		
-		var callback = function(message) { 
-			switch(message.status) {
-				case 'websocketFailed':
-					console.log("websocketFailed");
-					swfObj.webRTCSocketTest(false, message.cause);
-					break;
-				case 'websocketSuccess':
-					console.log("websocketSuccess");
-					swfObj.webRTCSocketTest(true, 'Connected');
-					break;
-				case 'failed':
-					swfObj.webRTCEchoTest(false, message.cause);
-					console.log("call failed");
-					break;
-				case 'ended':
-					console.log("call ended");
-					break;
-				case 'started':
-					console.log("call started");
-					swfObj.webRTCEchoTest(true, 'Connected');
-					break;
-				case 'mediasuccess':
-					console.log("call mediasuccess");
-					break;
-				case 'mediafail':
-					console.log("call mediafail");
-					break;
-			}
-		}
-		
-		var callerIdName = "12345" + "-bbbID-" + "bbbTestUser";
-		webrtc_call(callerIdName, "9196", callback);
-	}
-	
-	function createUA(username, server, callback) {
-		
-		/* VERY IMPORTANT 
-		*	- You must escape the username because spaces will cause the connection to fail
-		*	- We are connecting to the websocket through an nginx redirect instead of directly to 5066
-		*/
-		var configuration = {
-			uri: 'sip:' + encodeURIComponent(username) + '@' + server,
-			wsServers: 'ws://' + server + '/ws',
-			displayName: username,
-			register: false,
-			traceSip: false,
-			userAgentString: "BigBlueButton",
-			stunServers: "stun:stun.freeswitch.org"
-		};
-		
-		console.log("Creating SIP.UA");
-		
-		userAgent = new SIP.UA(configuration);
-		
-		userAgent.on('disconnected', function() {
-			if (userAgent !== undefined) { 
-				userAgent.stop();
-				userAgent = null;
-				callback({status: 'websocketFailed', cause: 'Could not make a WebSocket Connection'});
-			}
-		});
-		
-		userAgent.on('connected', function() { 
-			callback({status: 'websocketSuccess'});
-		});
-		
-		userAgent.start();
-	}
-	
-	function make_call(username, voiceBridge, server, callback) {
-		
-		var audioContext = new (window.AudioContext || window.webkitAudioContext)();
-		var silentStream = audioContext.createMediaStreamDestination().stream;
-		
-		console.log("Setting options.. ");
-		var options = { 
-			media: {
-				stream: silentStream,
-				render: { 
-					remote: {
-						audio: document.getElementById('remote-media')
-					}
-				}
-			}
-		};
-	
-		console.log("Calling to " + voiceBridge + "....");
-		currentSession = userAgent.invite('sip:' + voiceBridge + '@' + server, options);
-		
-		console.log("Call connecting...");
-		
-		currentSession.on('failed', function(response, cause) {
-			console.log('call failed with the case ' + casuse);
-			callback({status: 'failed', cause: cause});
-		});
-		
-		currentSession.on('bye', function(request) {
-			console.log('call ended ' + currentSession.endTime);
-			callback({status: 'ended'}) 
-		});
-	
-		currentSession.on('accepted', function(data) {
-			console.log('BigBlueClient Test Call started');
-			callback({status: 'started'});
+		swfObj.webRTCEchoTest(success, errorcode);
+
+		webrtc_hangup(function() {
+			console.log("[BBBClientCheck] Handling webRTC hangup callback");
+			var userAgentTemp = userAgent;
+			userAgent = null;
+			userAgentTemp.stop();
 		});
 	}
-	
-	function webrtc_call(username, voiceBridge, callback) {
-		console.log("webrtc_call started...");
-		
-		if (!SIP.WebRTC.isSupported()) {
-			callback({status: "failed", cause: "Browser version not supported" });
+
+	BBB.getMyUserInfo = function(callback) {
+		var obj = {
+			myUserID: "12345",
+			myUsername: "bbbTestUser",
+			myAvatarURL: "undefined",
+			myRole: "undefined",
+			amIPresenter: "undefined",
+			dialNumber: "undefined",
+			voiceBridge: "undefined",
+			customdata: "undefined"
 		}
-		
-		var server = window.document.location.host;
-		console.log("webrtc_call server: " + server);
-		
-		if(userAgent == undefined) {
-			createUA(username, server, callback);
-		}
-		else {
-			callback({status: 'websocketSuccess'});
-		}
-		
-		make_call(username, voiceBridge, server, callback);
+
+		callback(obj);
 	}
-	
-	function getUserMicMedia(getUserMediaSuccess, getUserMicMediaFail) {
-		if (userMicMedia == undefined) {
-			SIP.WebRTC.getUserMedia({audio:true, video:false}, getUserMediaSuccess, getUserMicMediaFail);
-		} else {
-			getUserMicMediaSuccess(userMicMedia);
-		}
+
+	// webrtc test callbacks
+	BBB.webRTCEchoTestFailed = function(errorcode) {
+		console.log("[BBBClientCheck] Handling webRTCEchoTestFailed");
+		sendWebRTCEchoTestAnswer(false, errorcode);
+	}
+
+	BBB.webRTCEchoTestEnded = function() {
+		console.log("[BBBClientCheck] Handling webRTCEchoTestEnded");
+	}
+
+	BBB.webRTCEchoTestStarted = function() {
+		console.log("[BBBClientCheck] Handling webRTCEchoTestStarted");
+		sendWebRTCEchoTestAnswer(true, 'Connected');
+	}
+
+	BBB.webRTCEchoTestConnecting = function() {
+		console.log("[BBBClientCheck] Handling webRTCEchoTestConnecting");
+	}
+
+	BBB.webRTCEchoTestWaitingForICE = function() {
+		console.log("[BBBClientCheck] Handling webRTCEchoTestWaitingForICE");
+	}
+
+	BBB.webRTCEchoTestWebsocketSucceeded = function() {
+		console.log("[BBBClientCheck] Handling webRTCEchoTestWebsocketSucceeded");
+		var swfObj = getSwfObj();
+		swfObj.webRTCSocketTest(true, 'Connected');
+	}
+
+	BBB.webRTCEchoTestWebsocketFailed = function(errorcode) {
+		console.log("[BBBClientCheck] Handling webRTCEchoTestWebsocketFailed");
+		var swfObj = getSwfObj();
+		swfObj.webRTCSocketTest(false, errorcode);
+	}
+
+	// webrtc callbacks
+	BBB.webRTCConferenceCallFailed = function(errorcode) {
+		console.log("[BBBClientCheck] Handling webRTCConferenceCallFailed");
+	}
+
+	BBB.webRTCConferenceCallEnded = function() {
+		console.log("[BBBClientCheck] Handling webRTCConferenceCallEnded");
+	}
+
+	BBB.webRTCConferenceCallStarted = function() {
+		console.log("[BBBClientCheck] Handling webRTCConferenceCallStarted");
+	}
+
+	BBB.webRTCConferenceCallConnecting = function() {
+		console.log("[BBBClientCheck] Handling webRTCConferenceCallConnecting");
+	}
+
+	BBB.webRTCConferenceCallWaitingForICE = function() {
+		console.log("[BBBClientCheck] Handling webRTCConferenceCallWaitingForICE");
+	}
+
+	BBB.webRTCConferenceCallWebsocketSucceeded = function() {
+		console.log("[BBBClientCheck] Handling webRTCConferenceCallWebsocketSucceeded");
+	}
+
+	BBB.webRTCConferenceCallWebsocketFailed = function(errorcode) {
+		console.log("[BBBClientCheck] Handling webRTCConferenceCallWebsocketFailed");
+	}
+
+	BBB.webRTCMediaRequest = function() {
+		console.log("[BBBClientCheck] Handling webRTCMediaRequest");
+	}
+
+	BBB.webRTCMediaSuccess = function() {
+		console.log("[BBBClientCheck] Handling webRTCMediaSuccess");
+	}
+
+	BBB.webRTCMediaFail = function() {
+		console.log("[BBBClientCheck] Handling webRTCMediaFail");
 	}
 }
