@@ -8,6 +8,10 @@ viewer =
   raiseOwnHand : true
   lowerOwnHand : true
 
+  # muting
+  muteSelf : true
+  unmuteSelf : true
+
 @isAllowedTo = (action, meetingId, userId, secret) ->
 
   user = Meteor.Users.findOne({meetingId:meetingId, userId: userId})

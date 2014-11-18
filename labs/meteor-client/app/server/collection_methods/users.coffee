@@ -29,27 +29,41 @@ Meteor.methods
       Meteor.log.info "did not have enough information to send a mute_user_request"
 
   # Verifies muter exists, provided proper credentials, and has permission to mute the user
-  publishMuteRequest: (meetingId, mutee_id, requesterUserId, requester_id, mutedBoolean) ->
-    Meteor.log.info "publishing a user mute #{mutedBoolean} request for #{mutee_id}"
-    mutee = Meteor.Users.findOne({'meetingId': meetingId, _id: mutee_id})
-    muter = Meteor.Users.findOne({'meetingId': meetingId, 'userId': requesterUserId, _id: requester_id})
-    if mutee? and muter?
+  # meetingId: the meetingId of the meeting the user[s] is in
+  # toMuteUserId: the userId of the user to be [un]muted
+  # requesterUserId: the userId of the requester
+  # requesterSecret: the userSecret of the requester
+  # mutedBoolean: true for muting, false for unmuting
+  muteUser: (meetingId, toMuteUserId, requesterUserId, requesterSecret, mutedBoolean) ->
+    action = ->
+      if mutedBoolean
+        if toMuteUserId is requesterUserId
+          return 'muteSelf'
+        else
+          return 'muteOther'
+      else
+        if toMuteUserId is requesterUserId
+          return 'unmuteSelf'
+        else
+          return 'unmuteOther'
+
+    if isAllowedTo(action(), meetingId, requesterUserId, requesterSecret)
       message =
-        "payload":
-          "userid": mutee.userId
-          "meeting_id": meetingId
-          "mute": mutedBoolean
-          "requester_id": muter.userId
-        "header":
-          "timestamp": new Date().getTime()
-          "name": "mute_user_request"
-          "version": "0.0.1"
+        payload:
+          userid: toMuteUserId
+          meeting_id: meetingId
+          mute: mutedBoolean
+          requester_id: requesterUserId
+        header:
+          timestamp: new Date().getTime()
+          name: "mute_user_request"
+          version: "0.0.1"
+
+      Meteor.log.info "publishing a user mute #{mutedBoolean} request for #{toMuteUserId}"
 
       publish Meteor.config.redis.channels.toBBBApps.voice, message
-      updateVoiceUser meetingId, {'user_id': mutee._id, talking:false, muted:mutedBoolean}
-      # 
-    else
-      Meteor.log.info "did not have enough information to send a mute_user_request"
+      updateVoiceUser meetingId, {'web_userid': toMuteUserId, talking:false, muted:mutedBoolean}
+    return
 
   # meetingId: the meetingId which both users are in 
   # toLowerUserId: the userid of the user to have their hand lowered

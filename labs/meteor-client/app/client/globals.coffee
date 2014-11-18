@@ -198,7 +198,7 @@ Handlebars.registerHelper "visibility", (section) ->
     setInSession("meetingName", null)
     setInSession("userName", null)
 
-@setInSession = (k, v) -> SessionAmplify.set k, v 
+@setInSession = (k, v) -> SessionAmplify.set k, v
 
 @safeString = (str) ->
   if typeof str is 'string'
@@ -214,7 +214,7 @@ Handlebars.registerHelper "visibility", (section) ->
 @toggleMic = (event) ->
   u = Meteor.Users.findOne({_id:getInSession("DBID")})
   if u?
-    Meteor.call('publishMuteRequest', getInSession("meetingId"),u._id, getInSession("userId"), u._id, not u.user.voiceUser.muted)
+    Meteor.call('muteUser', getInSession("meetingId"), u.userId, getInSession("userId"), getInSession("userSecret"), not u.user.voiceUser.muted)
 
 @toggleNavbar = ->
   setInSession "display_navbar", !getInSession "display_navbar"
