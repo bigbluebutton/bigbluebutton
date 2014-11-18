@@ -6,18 +6,6 @@
 # immediately, since they do not require permission for things such as muting themsevles. 
 # --------------------------------------------------------------------------------------------
 Meteor.methods
-  userShareAudio: (meetingId, userId, user_id) ->
-    updateVoiceUser {'user_id': user_id, 'talking':false, 'joined': true, 'muted':false}
-    #NOTE: We do not need to send a message to bbb-apps about joining the audio
-
-  userStopAudio: (meetingId, userId, user_id, requesterUserId, requester_id) ->
-    user = Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId, '_id': user_id})
-    requester = Meteor.Users.findOne({'meetingId': meetingId, 'userId': requesterUserId, '_id': requester_id})
-    if user? and requester? and ((user._id is requester._id) or requester.presenter)
-      updateVoiceUser meetingId, {'user_id': user_id, talking:false, joined: false, muted:false}
-      #NOTE: We do not need to send a message to bbb-apps about leaving the audio
-
-  # Verifies muter exists, provided proper credentials, and has permission to mute the user
   # meetingId: the meetingId of the meeting the user[s] is in
   # toMuteUserId: the userId of the user to be [un]muted
   # requesterUserId: the userId of the requester

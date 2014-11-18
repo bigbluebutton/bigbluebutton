@@ -225,18 +225,14 @@ Handlebars.registerHelper "visibility", (section) ->
 
 @toggleVoiceCall = (event) ->
   if isSharingAudio()
-    # hangup and inform bbb-apps
-    Meteor.call("userStopAudio", getInSession("meetingId"), getInSession("userId"), getInSession("DBID"), getInSession("userId"), getInSession("DBID"))
     hangupCallback = ->
       console.log "left voice conference"
-
-    BBB.leaveVoiceConference hangupCallback
+    BBB.leaveVoiceConference hangupCallback #TODO should we apply role permissions to this action?
   else
     # create voice call params
     joinCallback = (message) ->
       console.log "started webrtc_call"
-
-    BBB.joinVoiceConference joinCallback # make the call
+    BBB.joinVoiceConference joinCallback # make the call #TODO should we apply role permissions to this action?
   return false
 
 @toggleWhiteBoard = ->
