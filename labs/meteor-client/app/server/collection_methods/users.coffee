@@ -108,12 +108,13 @@ Meteor.methods
       publish Meteor.config.redis.channels.toBBBApps.users, message
     return
 
-  userLogout: (meetingId, userId) ->
-    Meteor.log.info "a user is logging out from #{meetingId}:" + userId
-    u = Meteor.Users.findOne({meetingId: meetingId, userId: userId})
-    if u?
-      #remove from the collection and dispatch a message to redis
-      requestUserLeaving meetingId, u.userId, u._id
+  # meetingId: the meeting where the user is
+  # userId: the userid of the user logging out
+  # userSecret: the authentication string of the user
+  userLogout: (meetingId, userId, userSecret) ->
+    if isAllowedTo('logoutSelf', meetingId, userId, userSecret)
+      Meteor.log.info "a user is logging out from #{meetingId}:" + userId
+      requestUserLeaving meetingId, userId
 
 # --------------------------------------------------------------------------------------------
 # Private methods on server
@@ -133,21 +134,20 @@ Meteor.methods
 
 # Corresponds to a valid action on the HTML clientside
 # After authorization, publish a user_leaving_request in redis
-# params: meetingid, userid as defined in BBB-Apps, the _id user identifier in mongo
-@requestUserLeaving = (meetingId, userId, user_id) ->
-  u = Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId, _id: user_id})
-  if u?
+# params: meetingid, userid as defined in BBB-App
+@requestUserLeaving = (meetingId, userId) ->
+  if Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId})?
     message =
-      "payload":
-        "meeting_id": meetingId
-        "userid": u.userId
-      "header":
-        "timestamp": new Date().getTime()
-        "name": "user_leaving_request"
-        "version": "0.0.1"
-    Meteor.log.info "sending a user_leaving_request for #{meetingId}:#{u._id}"
+      payload:
+        meeting_id: meetingId
+        userid: userId
+      header:
+        timestamp: new Date().getTime()
+        name: "user_leaving_request"
+        version: "0.0.1"
 
-    if u.userId? and meetingId?
+    if userId? and meetingId?
+      Meteor.log.info "sending a user_leaving_request for #{meetingId}:#{userId}"
       publish Meteor.config.redis.channels.toBBBApps.users, message
     else
       Meteor.log.info "did not have enough information to send a user_leaving_request"

@@ -12,6 +12,8 @@ viewer =
   muteSelf : true
   unmuteSelf : true
 
+  logoutSelf : true
+
 @isAllowedTo = (action, meetingId, userId, secret) ->
 
   user = Meteor.Users.findOne({meetingId:meetingId, userId: userId})
