@@ -8,25 +8,14 @@
 Meteor.methods
   userShareAudio: (meetingId, userId, user_id) ->
     updateVoiceUser {'user_id': user_id, 'talking':false, 'joined': true, 'muted':false}
-    #TODO we need to send a message to bbb-apps about it
+    #NOTE: We do not need to send a message to bbb-apps about joining the audio
 
   userStopAudio: (meetingId, userId, user_id, requesterUserId, requester_id) ->
     user = Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId, '_id': user_id})
     requester = Meteor.Users.findOne({'meetingId': meetingId, 'userId': requesterUserId, '_id': requester_id})
     if user? and requester? and ((user._id is requester._id) or requester.presenter)
-      message =
-        "payload":
-          "userid": user.userId
-          "meeting_id": user.meetingId
-        "header":
-          "timestamp": new Date().getTime()
-          "name": "user_left_voice_request"
-          "version": "0.0.1"
-
-      publish Meteor.config.redis.channels.toBBBApps.voice, message
       updateVoiceUser meetingId, {'user_id': user_id, talking:false, joined: false, muted:false}
-    else
-      Meteor.log.info "did not have enough information to send a mute_user_request"
+      #NOTE: We do not need to send a message to bbb-apps about leaving the audio
 
   # Verifies muter exists, provided proper credentials, and has permission to mute the user
   # meetingId: the meetingId of the meeting the user[s] is in
