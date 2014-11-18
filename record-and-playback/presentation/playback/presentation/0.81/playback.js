@@ -302,7 +302,7 @@ function checkUrl(url)
     var http = new XMLHttpRequest();
     http.open('HEAD', url, false);
     http.send();
-    return http.status!=404;
+    return http.status.toString().charAt(0) == '2';
 }
 
 load_video = function(){
