@@ -72,7 +72,6 @@ ui@1.0.4
 underscore@1.0.1
 url@1.0.2
 velocity:core@1.0.0-rc.2
-velocity:html-reporter@0.3.0-rc.3
 velocity:meteor-stubs@1.0.0
 velocity:shim@0.0.2
 webapp-hashing@1.0.1
