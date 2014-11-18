@@ -12,7 +12,7 @@
 			currentlyBeingRecorded: currentlyBeingRecorded,
 			voiceConf: voiceConf,
 			duration: duration)
-		Meteor.log.info "added meeting _id=[#{id}]:meetingId=[#{meetingId}]:name=[#{name}]:duration=[#{duration}]:voiceConf=[#{voiceConf}].Meetings.size is now #{Meteor.Meetings.find().count()}"
+		Meteor.log.info "added meeting _id=[#{id}]:meetingId=[#{meetingId}]:name=[#{name}]:duration=[#{duration}]:voiceConf=[#{voiceConf}]."
 
 @removeMeetingFromCollection = (meetingId) ->
 	if Meteor.Meetings.findOne({meetingId: meetingId})?
