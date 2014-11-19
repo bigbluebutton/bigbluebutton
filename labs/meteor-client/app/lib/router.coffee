@@ -20,7 +20,7 @@
         Meteor.subscribe 'users', meetingId, userId, ->
           console.log "now I have access to the users from the client. my userid is #{userId}"
 
-          Meteor.call "getMyInfo", userId, (error, result) ->
+          Meteor.call "getMyInfo", meetingId, userId, (error, result) ->
             if result.error?
               alert result.error
               # redirect towards a different page
@@ -49,7 +49,7 @@
               Meteor.subscribe 'presentations', meetingId, ->
                 Meteor.subscribe 'users', meetingId, userId
 
-      Meteor.call "getMyInfo", userId, (error, result) ->
+      Meteor.call "getMyInfo", meetingId, userId, (error, result) ->
         unless result.error?
           console.log "on /, this is my info #{JSON.stringify result}"
           setInSession("DBID", result.DBID)
