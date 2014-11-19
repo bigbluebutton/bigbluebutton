@@ -266,3 +266,13 @@ Handlebars.registerHelper "visibility", (section) ->
 # insert the basic tabs
 @chatTabs.insert({ userId: "PUBLIC_CHAT", name: "Public", gotMail: false, class: "publicChatTab"})
 @chatTabs.insert({ userId: "OPTIONS", name: "Options", gotMail: false, class: "optionsChatTab"})
+
+
+@whoami = ->
+  return {
+    username: getInSession "userName"
+    userid: getInSession "userId"
+    userSecret: getInSession "userSecret"
+    DBIDinSession: getInSession "DBID"
+    DBIDfromCol: Meteor.Users.findOne({userId:getInSession 'userId'})._id
+}
