@@ -267,7 +267,8 @@ Handlebars.registerHelper "visibility", (section) ->
 @chatTabs.insert({ userId: "PUBLIC_CHAT", name: "Public", gotMail: false, class: "publicChatTab"})
 @chatTabs.insert({ userId: "OPTIONS", name: "Options", gotMail: false, class: "optionsChatTab"})
 
-
+# TODO TEMPORARY!!
+# must not have this in production
 @whoami = ->
   return {
     username: getInSession "userName"
