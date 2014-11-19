@@ -89,8 +89,8 @@ Handlebars.registerHelper "getUsersInMeeting", ->
 Handlebars.registerHelper "getWhiteboardTitle", ->
   "Whiteboard: " + getPresentationFilename()
 
-Handlebars.registerHelper "isCurrentUser", (_id) ->
-  _id is BBB.getCurrentUser()?._id
+Handlebars.registerHelper "isCurrentUser", (userId) ->
+  userId is BBB.getCurrentUser()?.userId
 
 Handlebars.registerHelper "isCurrentUserMuted", ->
   BBB.amIMuted()

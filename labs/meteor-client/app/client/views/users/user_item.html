@@ -5,7 +5,7 @@
 
     <!-- Should use much more noticeable icons than just bootstrap's volume-up & volume-down to differentiate talking but it is good for now -->
     <td>{{#if isUserSharingAudio _id}}
-          {{#if isCurrentUser _id}}
+          {{#if isCurrentUser userId}}
             {{#if isUserMuted _id}}
               <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-off" rel="tooltip" data-placement="bottom" title="Unmute yourself"></span>
             {{else}}
@@ -45,7 +45,7 @@
 
     <td>
         {{#if user.raise_hand}}
-            {{#if isCurrentUser _id}}
+            {{#if isCurrentUser userId}}
                 <span class="raisedHandIcon userListSettingIcon glyphicon glyphicon-hand-up" rel="tooltip" data-placement="bottom" title="Lower your hand"></span>
             {{else}}
                 <span class="userListSettingIcon glyphicon glyphicon-hand-up" rel="tooltip" data-placement="bottom" title="{{user.name}} has raised their hand"></span>
@@ -56,7 +56,7 @@
 
 <template name="usernameEntry">
 	<td class="userNameContainer">
-		{{#if isCurrentUser _id}}
+		{{#if isCurrentUser userId}}
 			<p class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}} (you)">
 				<strong>{{user.name}} (you)</strong>
 			</p>
