@@ -13,11 +13,12 @@
 
       if meetingId? and userId? and authToken?
         Meteor.call("validateAuthToken", meetingId, userId, authToken)
+        setInSession("authToken", authToken)
 
-        if Meteor.isClient
-          sendMeetingInfoToClient(meetingId, userId)
+        if Meteor.isClient #TODO try to get rid of this
+          sendMeetingInfoToClient(meetingId, userId) #TODO try to get rid of this
 
-        Meteor.subscribe 'users', meetingId, userId, ->
+        Meteor.subscribe 'users', meetingId, userId, authToken, ->
           console.log "now I have access to the users from the client. my userid is #{userId}"
 
           Meteor.call "getMyInfo", meetingId, userId, (error, result) ->
@@ -42,7 +43,7 @@
       meetingId = getInSession('meetingId')
       userId = getInSession("userId")
       console.log "on /: meetingId=#{meetingId} userId=#{userId} DBID=#{getInSession('DBID')}"
-      Meteor.subscribe 'chat', meetingId, userId, ->
+      Meteor.subscribe 'chat', meetingId, userId, getInSession 'authToken', ->
         Meteor.subscribe 'shapes', meetingId, ->
           Meteor.subscribe 'slides', meetingId, ->
             Meteor.subscribe 'meetings', meetingId, ->
