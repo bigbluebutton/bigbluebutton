@@ -62,18 +62,18 @@ dependencies {
   providedCompile 'javax.servlet:servlet-api:2.5@jar'
 
   // Mina
-  providedCompile 'org.apache.mina:mina-core:2.0.7@jar'
-  providedCompile 'org.apache.mina:mina-integration-beans:2.0.7@jar'
-  providedCompile 'org.apache.mina:mina-integration-jmx:2.0.7@jar'
+  providedCompile 'org.apache.mina:mina-core:2.0.8@jar'
+  providedCompile 'org.apache.mina:mina-integration-beans:2.0.8@jar'
+  providedCompile 'org.apache.mina:mina-integration-jmx:2.0.8@jar'
 
   // Spring 
-  providedCompile 'org.springframework:spring-web:4.0.6.RELEASE@jar' 
-  providedCompile  'org.springframework:spring-beans:4.0.6.RELEASE@jar'
-  providedCompile 'org.springframework:spring-context:4.0.6.RELEASE@jar'
-  providedCompile 'org.springframework:spring-core:4.0.6.RELEASE@jar'
+  providedCompile 'org.springframework:spring-web:4.0.7.RELEASE@jar' 
+  providedCompile  'org.springframework:spring-beans:4.0.7.RELEASE@jar'
+  providedCompile 'org.springframework:spring-context:4.0.7.RELEASE@jar'
+  providedCompile 'org.springframework:spring-core:4.0.7.RELEASE@jar'
 
   // Red5
-  providedCompile 'org/red5:red5-server:1.0.3-RELEASE@jar'
+  providedCompile 'org/red5:red5-server:1.0.4-SNAPSHOT@jar'
   
   // Logging
   providedCompile 'ch.qos.logback:logback-core:1.1.2@jar'
@@ -93,7 +93,7 @@ dependencies {
    
   // Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
   // Otherwise we get exception on aop utils class not found.
-  providedCompile 'org.springframework:spring-aop:4.0.6.RELEASE@jar'
+  providedCompile 'org.springframework:spring-aop:4.0.7.RELEASE@jar'
   compile 'aopalliance:aopalliance:1.0@jar'
 	     
   // Testing
@@ -119,8 +119,8 @@ dependencies {
    compile 'org/freeswitch:fs-esl-client:0.8.2@jar'
    compile 'org.jboss.netty:netty:3.2.1.Final@jar'
    compile 'com.google.code.gson:gson:1.7.1'
-   providedCompile 'org.apache.commons:commons-lang3:3.1'
-   //compile 'commons-lang:commons-lang:2.5'
+   providedCompile 'org.apache.commons:commons-lang3:3.2'
+
 }
 
 test {

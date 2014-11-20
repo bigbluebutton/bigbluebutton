@@ -1,0 +1,4 @@
+location /check {
+	root /var/www/bigbluebutton;
+	index index.html index.htm;
+}

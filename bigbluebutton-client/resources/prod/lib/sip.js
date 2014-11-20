@@ -1,5 +1,5 @@
 /*
- * SIP version 0.6.2
+ * SIP version 0.6.3
  * Copyright (c) 2014-2014 Junction Networks, Inc <http://www.onsip.com>
  * Homepage: http://sipjs.com
  * License: http://sipjs.com/license/
@@ -33,125 +33,15 @@
 
 
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.SIP=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
-var nextTick = _dereq_('process/browser.js').nextTick;
-var slice = Array.prototype.slice;
-var immediateIds = {};
-var nextImmediateId = 0;
-
-// DOM APIs, for completeness
-
-if (typeof setTimeout !== 'undefined') exports.setTimeout = function() { return setTimeout.apply(window, arguments); };
-if (typeof clearTimeout !== 'undefined') exports.clearTimeout = function() { clearTimeout.apply(window, arguments); };
-if (typeof setInterval !== 'undefined') exports.setInterval = function() { return setInterval.apply(window, arguments); };
-if (typeof clearInterval !== 'undefined') exports.clearInterval = function() { clearInterval.apply(window, arguments); };
-
-// TODO: Change to more efficient list approach used in Node.js
-// For now, we just implement the APIs using the primitives above.
-
-exports.enroll = function(item, delay) {
-  item._timeoutID = setTimeout(item._onTimeout, delay);
-};
-
-exports.unenroll = function(item) {
-  clearTimeout(item._timeoutID);
-};
-
-exports.active = function(item) {
-  // our naive impl doesn't care (correctness is still preserved)
-};
-
-// That's not how node.js implements it but the exposed api is the same.
-exports.setImmediate = function(fn) {
-  var id = nextImmediateId++;
-  var args = arguments.length < 2 ? false : slice.call(arguments, 1);
-
-  immediateIds[id] = true;
-
-  nextTick(function onNextTick() {
-    if (immediateIds[id]) {
-      // fn.call() is faster so we optimize for the common use-case
-      // @see http://jsperf.com/call-apply-segu
-      if (args) {
-        fn.apply(null, args);
-      } else {
-        fn.call(null);
-      }
-      // Prevent ids from leaking
-      exports.clearImmediate(id);
-    }
-  });
-
-  return id;
-};
-
-exports.clearImmediate = function(id) {
-  delete immediateIds[id];
-};
-},{"process/browser.js":2}],2:[function(_dereq_,module,exports){
-// shim for using process in browser
-
-var process = module.exports = {};
-
-process.nextTick = (function () {
-    var canSetImmediate = typeof window !== 'undefined'
-    && window.setImmediate;
-    var canPost = typeof window !== 'undefined'
-    && window.postMessage && window.addEventListener
-    ;
-
-    if (canSetImmediate) {
-        return function (f) { return window.setImmediate(f) };
-    }
-
-    if (canPost) {
-        var queue = [];
-        window.addEventListener('message', function (ev) {
-            var source = ev.source;
-            if ((source === window || source === null) && ev.data === 'process-tick') {
-                ev.stopPropagation();
-                if (queue.length > 0) {
-                    var fn = queue.shift();
-                    fn();
-                }
-            }
-        }, true);
-
-        return function nextTick(fn) {
-            queue.push(fn);
-            window.postMessage('process-tick', '*');
-        };
-    }
-
-    return function nextTick(fn) {
-        setTimeout(fn, 0);
-    };
-})();
-
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-}
-
-// TODO(shtylman)
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-
-},{}],3:[function(_dereq_,module,exports){
 module.exports={
   "name": "sip.js",
   "title": "SIP.js",
   "description": "A simple, intuitive, and powerful JavaScript signaling library",
-  "version": "0.6.2",
-  "main": "src/SIP.js",
+  "version": "0.6.3",
+  "main": "src/index.js",
   "browser": {
-    "promiscuous": "./src/polyfills/promiscuous.js",
-    "console": "./src/polyfills/console.js"
+    "./src/Grammar/index.js": "./src/Grammar/dist/Grammar.js",
+    "./src/environment.js": "./src/environment_browser.js"
   },
   "homepage": "http://sipjs.com",
   "author": "Will Mitchell <will@onsip.com>",
@@ -180,7 +70,6 @@ module.exports={
     "grunt-peg": "~1.3.1",
     "grunt-trimtrailingspaces": "^0.4.0",
     "node-minify": "~0.7.2",
-    "pegjs": "0.8.0",
     "sdp-transform": "~0.4.0",
     "grunt-contrib-copy": "^0.5.0",
     "browserify": "^4.1.8",
@@ -193,12 +82,16 @@ module.exports={
   "scripts": {
     "test": "grunt travis --verbose"
   },
+  "dependencies": {
+    "pegjs": "0.8.0",
+    "ws": "^0.4.32"
+  },
   "optionalDependencies": {
     "promiscuous": "^0.6.0"
   }
 }
 
-},{}],4:[function(_dereq_,module,exports){
+},{}],2:[function(_dereq_,module,exports){
 module.exports = function (SIP) {
 var ClientContext;
 
@@ -304,7 +197,7 @@ ClientContext.prototype.onTransportError = function () {
 SIP.ClientContext = ClientContext;
 };
 
-},{}],5:[function(_dereq_,module,exports){
+},{}],3:[function(_dereq_,module,exports){
 /**
  * @fileoverview SIP Constants
  */
@@ -466,7 +359,7 @@ return {
 };
 };
 
-},{}],6:[function(_dereq_,module,exports){
+},{}],4:[function(_dereq_,module,exports){
 
 /**
  * @fileoverview In-Dialog Request Sender
@@ -561,7 +454,7 @@ RequestSender.prototype = {
 return RequestSender;
 };
 
-},{}],7:[function(_dereq_,module,exports){
+},{}],5:[function(_dereq_,module,exports){
 /**
  * @fileoverview SIP Dialog
  */
@@ -819,7 +712,7 @@ Dialog.C = C;
 SIP.Dialog = Dialog;
 };
 
-},{"./Dialog/RequestSender":6}],8:[function(_dereq_,module,exports){
+},{"./Dialog/RequestSender":4}],6:[function(_dereq_,module,exports){
 
 /**
  * @fileoverview SIP Digest Authentication
@@ -989,7 +882,7 @@ DigestAuthentication.prototype.updateNcHex = function() {
 return DigestAuthentication;
 };
 
-},{}],9:[function(_dereq_,module,exports){
+},{}],7:[function(_dereq_,module,exports){
 /**
  * @fileoverview EventEmitter
  */
@@ -1191,7 +1084,7 @@ EventEmitter.C = C;
 SIP.EventEmitter = EventEmitter;
 };
 
-},{}],10:[function(_dereq_,module,exports){
+},{}],8:[function(_dereq_,module,exports){
 /**
  * @fileoverview Exceptions
  */
@@ -1245,9 +1138,27 @@ module.exports = {
   }())
 };
 
-},{}],11:[function(_dereq_,module,exports){
-/* jshint ignore:start */
-module.exports = function(SIP) {
+},{}],9:[function(_dereq_,module,exports){
+var Grammar = _dereq_('./Grammar/index.js');
+
+module.exports = function (SIP) {
+
+return {
+  parse: function parseCustom (input, startRule) {
+    var options = {startRule: startRule, SIP: SIP};
+    try {
+      Grammar.parse(input, options);
+    } catch (e) {
+      options.data = -1;
+    }
+    return options.data;
+  }
+};
+
+};
+
+},{"./Grammar/index.js":10}],10:[function(_dereq_,module,exports){
+module.exports = (function() {
   /*
    * Generated by PEG.js 0.8.0.
    *
@@ -1402,54 +1313,54 @@ module.exports = function(SIP) {
           /^[\x0E-]/,
           { type: "class", value: "[\\x0E-]", description: "[\\x0E-]" },
           function() {
-                                  data.uri = new SIP.URI(data.scheme, data.user, data.host, data.port);
-                                  delete data.scheme;
-                                  delete data.user;
-                                  delete data.host;
-                                  delete data.host_type;
-                                  delete data.port;
+                                  options.data.uri = new options.SIP.URI(options.data.scheme, options.data.user, options.data.host, options.data.port);
+                                  delete options.data.scheme;
+                                  delete options.data.user;
+                                  delete options.data.host;
+                                  delete options.data.host_type;
+                                  delete options.data.port;
                                 },
           function() {
-                                  data.uri = new SIP.URI(data.scheme, data.user, data.host, data.port, data.uri_params, data.uri_headers);
-                                  delete data.scheme;
-                                  delete data.user;
-                                  delete data.host;
-                                  delete data.host_type;
-                                  delete data.port;
-                                  delete data.uri_params;
+                                  options.data.uri = new options.SIP.URI(options.data.scheme, options.data.user, options.data.host, options.data.port, options.data.uri_params, options.data.uri_headers);
+                                  delete options.data.scheme;
+                                  delete options.data.user;
+                                  delete options.data.host;
+                                  delete options.data.host_type;
+                                  delete options.data.port;
+                                  delete options.data.uri_params;
 
-                                  if (options.startRule === 'SIP_URI') { data = data.uri;}
+                                  if (options.startRule === 'SIP_URI') { options.data = options.data.uri;}
                                 },
           "sips",
           { type: "literal", value: "sips", description: "\"sips\"" },
           "sip",
           { type: "literal", value: "sip", description: "\"sip\"" },
           function(uri_scheme) {
-                              data.scheme = uri_scheme.toLowerCase(); },
+                              options.data.scheme = uri_scheme.toLowerCase(); },
           function() {
-                              data.user = decodeURIComponent(text().slice(0, -1));},
+                              options.data.user = decodeURIComponent(text().slice(0, -1));},
           function() {
-                              data.password = text(); },
+                              options.data.password = text(); },
           function() {
-                              data.host = text().toLowerCase();
-                              return data.host; },
+                              options.data.host = text().toLowerCase();
+                              return options.data.host; },
           function() {
-                            data.host_type = 'domain';
+                            options.data.host_type = 'domain';
                             return text(); },
           /^[a-zA-Z0-9_\-]/,
           { type: "class", value: "[a-zA-Z0-9_\\-]", description: "[a-zA-Z0-9_\\-]" },
           /^[a-zA-Z0-9\-]/,
           { type: "class", value: "[a-zA-Z0-9\\-]", description: "[a-zA-Z0-9\\-]" },
           function() {
-                              data.host_type = 'IPv6';
+                              options.data.host_type = 'IPv6';
                               return text(); },
           "::",
           { type: "literal", value: "::", description: "\"::\"" },
           function() {
-                            data.host_type = 'IPv6';
+                            options.data.host_type = 'IPv6';
                             return text(); },
           function() {
-                              data.host_type = 'IPv4';
+                              options.data.host_type = 'IPv4';
                               return text(); },
           "25",
           { type: "literal", value: "25", description: "\"25\"" },
@@ -1465,7 +1376,7 @@ module.exports = function(SIP) {
           { type: "class", value: "[1-9]", description: "[1-9]" },
           function(port) {
                               port = parseInt(port.join(''));
-                              data.port = port;
+                              options.data.port = port;
                               return port; },
           "transport=",
           { type: "literal", value: "transport=", description: "\"transport=\"" },
@@ -1478,8 +1389,8 @@ module.exports = function(SIP) {
           "tls",
           { type: "literal", value: "tls", description: "\"tls\"" },
           function(transport) {
-                                if(!data.uri_params) data.uri_params={};
-                                data.uri_params['transport'] = transport.toLowerCase(); },
+                                if(!options.data.uri_params) options.data.uri_params={};
+                                options.data.uri_params['transport'] = transport.toLowerCase(); },
           "user=",
           { type: "literal", value: "user=", description: "\"user=\"" },
           "phone",
@@ -1487,67 +1398,67 @@ module.exports = function(SIP) {
           "ip",
           { type: "literal", value: "ip", description: "\"ip\"" },
           function(user) {
-                                if(!data.uri_params) data.uri_params={};
-                                data.uri_params['user'] = user.toLowerCase(); },
+                                if(!options.data.uri_params) options.data.uri_params={};
+                                options.data.uri_params['user'] = user.toLowerCase(); },
           "method=",
           { type: "literal", value: "method=", description: "\"method=\"" },
           function(method) {
-                                if(!data.uri_params) data.uri_params={};
-                                data.uri_params['method'] = method; },
+                                if(!options.data.uri_params) options.data.uri_params={};
+                                options.data.uri_params['method'] = method; },
           "ttl=",
           { type: "literal", value: "ttl=", description: "\"ttl=\"" },
           function(ttl) {
-                                if(!data.params) data.params={};
-                                data.params['ttl'] = ttl; },
+                                if(!options.data.params) options.data.params={};
+                                options.data.params['ttl'] = ttl; },
           "maddr=",
           { type: "literal", value: "maddr=", description: "\"maddr=\"" },
           function(maddr) {
-                                if(!data.uri_params) data.uri_params={};
-                                data.uri_params['maddr'] = maddr; },
+                                if(!options.data.uri_params) options.data.uri_params={};
+                                options.data.uri_params['maddr'] = maddr; },
           "lr",
           { type: "literal", value: "lr", description: "\"lr\"" },
           function() {
-                                if(!data.uri_params) data.uri_params={};
-                                data.uri_params['lr'] = undefined; },
+                                if(!options.data.uri_params) options.data.uri_params={};
+                                options.data.uri_params['lr'] = undefined; },
           function(param, value) {
-                                if(!data.uri_params) data.uri_params = {};
+                                if(!options.data.uri_params) options.data.uri_params = {};
                                 if (value === null){
                                   value = undefined;
                                 }
                                 else {
                                   value = value[1];
                                 }
-                                data.uri_params[param.toLowerCase()] = value && value.toLowerCase();},
+                                options.data.uri_params[param.toLowerCase()] = value && value.toLowerCase();},
           function(pname) {return pname.join(''); },
           function(pvalue) {return pvalue.join(''); },
           function(hname, hvalue) {
                                 hname = hname.join('').toLowerCase();
                                 hvalue = hvalue.join('');
-                                if(!data.uri_headers) data.uri_headers = {};
-                                if (!data.uri_headers[hname]) {
-                                  data.uri_headers[hname] = [hvalue];
+                                if(!options.data.uri_headers) options.data.uri_headers = {};
+                                if (!options.data.uri_headers[hname]) {
+                                  options.data.uri_headers[hname] = [hvalue];
                                 } else {
-                                  data.uri_headers[hname].push(hvalue);
+                                  options.data.uri_headers[hname].push(hvalue);
                                 }},
           function() {
                                 // lots of tests fail if this isn't guarded...
                                 if (options.startRule === 'Refer_To') {
-                                  data.uri = new SIP.URI(data.scheme, data.user, data.host, data.port, data.uri_params, data.uri_headers);
-                                  delete data.scheme;
-                                  delete data.user;
-                                  delete data.host;
-                                  delete data.host_type;
-                                  delete data.port;
-                                  delete data.uri_params;
+                                  options.data.uri = new options.SIP.URI(options.data.scheme, options.data.user, options.data.host, options.data.port, options.data.uri_params, options.data.uri_headers);
+                                  delete options.data.scheme;
+                                  delete options.data.user;
+                                  delete options.data.host;
+                                  delete options.data.host_type;
+                                  delete options.data.port;
+                                  delete options.data.uri_params;
                                 }
                               },
           "//",
           { type: "literal", value: "//", description: "\"//\"" },
           function() {
-                              data.scheme= text(); },
+                              options.data.scheme= text(); },
           { type: "literal", value: "SIP", description: "\"SIP\"" },
           function() {
-                              data.sip_version = text(); },
+                              options.data.sip_version = text(); },
           "INVITE",
           { type: "literal", value: "INVITE", description: "\"INVITE\"" },
           "ACK",
@@ -1570,40 +1481,40 @@ module.exports = function(SIP) {
           { type: "literal", value: "REFER", description: "\"REFER\"" },
           function() {
 
-                              data.method = text();
-                              return data.method; },
+                              options.data.method = text();
+                              return options.data.method; },
           function(status_code) {
-                            data.status_code = parseInt(status_code.join('')); },
+                            options.data.status_code = parseInt(status_code.join('')); },
           function() {
-                            data.reason_phrase = text(); },
+                            options.data.reason_phrase = text(); },
           function() {
-                        data = text(); },
+                        options.data = text(); },
           function() {
                                   var idx, length;
-                                  length = data.multi_header.length;
+                                  length = options.data.multi_header.length;
                                   for (idx = 0; idx < length; idx++) {
-                                    if (data.multi_header[idx].parsed === null) {
-                                      data = null;
+                                    if (options.data.multi_header[idx].parsed === null) {
+                                      options.data = null;
                                       break;
                                     }
                                   }
-                                  if (data !== null) {
-                                    data = data.multi_header;
+                                  if (options.data !== null) {
+                                    options.data = options.data.multi_header;
                                   } else {
-                                    data = -1;
+                                    options.data = -1;
                                   }},
           function() {
                                   var header;
-                                  if(!data.multi_header) data.multi_header = [];
+                                  if(!options.data.multi_header) options.data.multi_header = [];
                                   try {
-                                    header = new SIP.NameAddrHeader(data.uri, data.displayName, data.params);
-                                    delete data.uri;
-                                    delete data.displayName;
-                                    delete data.params;
+                                    header = new options.SIP.NameAddrHeader(options.data.uri, options.data.displayName, options.data.params);
+                                    delete options.data.uri;
+                                    delete options.data.displayName;
+                                    delete options.data.params;
                                   } catch(e) {
                                     header = null;
                                   }
-                                  data.multi_header.push( { 'position': peg$currPos,
+                                  options.data.multi_header.push( { 'position': peg$currPos,
                                                             'offset': offset(),
                                                             'parsed': header
                                                           });},
@@ -1612,17 +1523,17 @@ module.exports = function(SIP) {
                                   if (displayName[0] === '\"') {
                                     displayName = displayName.substring(1, displayName.length-1);
                                   }
-                                  data.displayName = displayName; },
+                                  options.data.displayName = displayName; },
           "q",
           { type: "literal", value: "q", description: "\"q\"" },
           function(q) {
-                                  if(!data.params) data.params = {};
-                                  data.params['q'] = q; },
+                                  if(!options.data.params) options.data.params = {};
+                                  options.data.params['q'] = q; },
           "expires",
           { type: "literal", value: "expires", description: "\"expires\"" },
           function(expires) {
-                                  if(!data.params) data.params = {};
-                                  data.params['expires'] = expires; },
+                                  if(!options.data.params) options.data.params = {};
+                                  options.data.params['expires'] = expires; },
           function(delta_seconds) {
                                   return parseInt(delta_seconds.join('')); },
           "0",
@@ -1630,14 +1541,14 @@ module.exports = function(SIP) {
           function() {
                                   return parseFloat(text()); },
           function(param, value) {
-                                  if(!data.params) data.params = {};
+                                  if(!options.data.params) options.data.params = {};
                                   if (value === null){
                                     value = undefined;
                                   }
                                   else {
                                     value = value[1];
                                   }
-                                  data.params[param.toLowerCase()] = value;},
+                                  options.data.params[param.toLowerCase()] = value;},
           "render",
           { type: "literal", value: "render", description: "\"render\"" },
           "session",
@@ -1648,7 +1559,7 @@ module.exports = function(SIP) {
           { type: "literal", value: "alert", description: "\"alert\"" },
           function() {
                                       if (options.startRule === 'Content_Disposition') {
-                                        data.type = text().toLowerCase();
+                                        options.data.type = text().toLowerCase();
                                       }
                                     },
           "handling",
@@ -1658,9 +1569,9 @@ module.exports = function(SIP) {
           "required",
           { type: "literal", value: "required", description: "\"required\"" },
           function(length) {
-                                  data = parseInt(length.join('')); },
+                                  options.data = parseInt(length.join('')); },
           function() {
-                                  data = text(); },
+                                  options.data = text(); },
           "text",
           { type: "literal", value: "text", description: "\"text\"" },
           "image",
@@ -1678,45 +1589,45 @@ module.exports = function(SIP) {
           "x-",
           { type: "literal", value: "x-", description: "\"x-\"" },
           function(cseq_value) {
-                            data.value=parseInt(cseq_value.join('')); },
-          function(expires) {data = expires; },
+                            options.data.value=parseInt(cseq_value.join('')); },
+          function(expires) {options.data = expires; },
           function(event_type) {
-                                 data.event = event_type.toLowerCase(); },
+                                 options.data.event = event_type.toLowerCase(); },
           function() {
-                          var tag = data.tag;
-                            data = new SIP.NameAddrHeader(data.uri, data.displayName, data.params);
-                            if (tag) {data.setParam('tag',tag)}
+                          var tag = options.data.tag;
+                            options.data = new options.SIP.NameAddrHeader(options.data.uri, options.data.displayName, options.data.params);
+                            if (tag) {options.data.setParam('tag',tag)}
                           },
           "tag",
           { type: "literal", value: "tag", description: "\"tag\"" },
-          function(tag) {data.tag = tag; },
+          function(tag) {options.data.tag = tag; },
           function(forwards) {
-                            data = parseInt(forwards.join('')); },
-          function(min_expires) {data = min_expires; },
+                            options.data = parseInt(forwards.join('')); },
+          function(min_expires) {options.data = min_expires; },
           function() {
-                                  data = new SIP.NameAddrHeader(data.uri, data.displayName, data.params);
+                                  options.data = new options.SIP.NameAddrHeader(options.data.uri, options.data.displayName, options.data.params);
                                 },
           "digest",
           { type: "literal", value: "Digest", description: "\"Digest\"" },
           "realm",
           { type: "literal", value: "realm", description: "\"realm\"" },
-          function(realm) { data.realm = realm; },
+          function(realm) { options.data.realm = realm; },
           "domain",
           { type: "literal", value: "domain", description: "\"domain\"" },
           "nonce",
           { type: "literal", value: "nonce", description: "\"nonce\"" },
-          function(nonce) { data.nonce=nonce; },
+          function(nonce) { options.data.nonce=nonce; },
           "opaque",
           { type: "literal", value: "opaque", description: "\"opaque\"" },
-          function(opaque) { data.opaque=opaque; },
+          function(opaque) { options.data.opaque=opaque; },
           "stale",
           { type: "literal", value: "stale", description: "\"stale\"" },
           "true",
           { type: "literal", value: "true", description: "\"true\"" },
-          function() { data.stale=true; },
+          function() { options.data.stale=true; },
           "false",
           { type: "literal", value: "false", description: "\"false\"" },
-          function() { data.stale=false; },
+          function() { options.data.stale=false; },
           "algorithm",
           { type: "literal", value: "algorithm", description: "\"algorithm\"" },
           "md5",
@@ -1724,7 +1635,7 @@ module.exports = function(SIP) {
           "md5-sess",
           { type: "literal", value: "MD5-sess", description: "\"MD5-sess\"" },
           function(algorithm) {
-                                data.algorithm=algorithm.toUpperCase(); },
+                                options.data.algorithm=algorithm.toUpperCase(); },
           "qop",
           { type: "literal", value: "qop", description: "\"qop\"" },
           "auth-int",
@@ -1732,44 +1643,44 @@ module.exports = function(SIP) {
           "auth",
           { type: "literal", value: "auth", description: "\"auth\"" },
           function(qop_value) {
-                                  data.qop || (data.qop=[]);
-                                  data.qop.push(qop_value.toLowerCase()); },
+                                  options.data.qop || (options.data.qop=[]);
+                                  options.data.qop.push(qop_value.toLowerCase()); },
           function(rack_value) {
-                            data.value=parseInt(rack_value.join('')); },
+                            options.data.value=parseInt(rack_value.join('')); },
           function() {
                             var idx, length;
-                            length = data.multi_header.length;
+                            length = options.data.multi_header.length;
                             for (idx = 0; idx < length; idx++) {
-                              if (data.multi_header[idx].parsed === null) {
-                                data = null;
+                              if (options.data.multi_header[idx].parsed === null) {
+                                options.data = null;
                                 break;
                               }
                             }
-                            if (data !== null) {
-                              data = data.multi_header;
+                            if (options.data !== null) {
+                              options.data = options.data.multi_header;
                             } else {
-                              data = -1;
+                              options.data = -1;
                             }},
           function() {
                             var header;
-                            if(!data.multi_header) data.multi_header = [];
+                            if(!options.data.multi_header) options.data.multi_header = [];
                             try {
-                              header = new SIP.NameAddrHeader(data.uri, data.displayName, data.params);
-                              delete data.uri;
-                              delete data.displayName;
-                              delete data.params;
+                              header = new options.SIP.NameAddrHeader(options.data.uri, options.data.displayName, options.data.params);
+                              delete options.data.uri;
+                              delete options.data.displayName;
+                              delete options.data.params;
                             } catch(e) {
                               header = null;
                             }
-                            data.multi_header.push( { 'position': peg$currPos,
+                            options.data.multi_header.push( { 'position': peg$currPos,
                                                       'offset': offset(),
                                                       'parsed': header
                                                     });},
           function() {
-                        data = new SIP.NameAddrHeader(data.uri, data.displayName, data.params);
+                        options.data = new options.SIP.NameAddrHeader(options.data.uri, options.data.displayName, options.data.params);
                       },
           function(rseq_value) {
-                            data.value=parseInt(rseq_value.join('')); },
+                            options.data.value=parseInt(rseq_value.join('')); },
           "active",
           { type: "literal", value: "active", description: "\"active\"" },
           "pending",
@@ -1777,17 +1688,17 @@ module.exports = function(SIP) {
           "terminated",
           { type: "literal", value: "terminated", description: "\"terminated\"" },
           function() {
-                                  data.state = text(); },
+                                  options.data.state = text(); },
           "reason",
           { type: "literal", value: "reason", description: "\"reason\"" },
           function(reason) {
-                                  if (typeof reason !== 'undefined') data.reason = reason; },
+                                  if (typeof reason !== 'undefined') options.data.reason = reason; },
           function(expires) {
-                                  if (typeof expires !== 'undefined') data.expires = expires; },
+                                  if (typeof expires !== 'undefined') options.data.expires = expires; },
           "retry_after",
           { type: "literal", value: "retry_after", description: "\"retry_after\"" },
           function(retry_after) {
-                                  if (typeof retry_after !== 'undefined') data.retry_after = retry_after; },
+                                  if (typeof retry_after !== 'undefined') options.data.retry_after = retry_after; },
           "deactivated",
           { type: "literal", value: "deactivated", description: "\"deactivated\"" },
           "probation",
@@ -1803,43 +1714,43 @@ module.exports = function(SIP) {
           "invariant",
           { type: "literal", value: "invariant", description: "\"invariant\"" },
           function() {
-                        var tag = data.tag;
-                          data = new SIP.NameAddrHeader(data.uri, data.displayName, data.params);
-                          if (tag) {data.setParam('tag',tag)}
+                        var tag = options.data.tag;
+                          options.data = new options.SIP.NameAddrHeader(options.data.uri, options.data.displayName, options.data.params);
+                          if (tag) {options.data.setParam('tag',tag)}
                         },
           "ttl",
           { type: "literal", value: "ttl", description: "\"ttl\"" },
           function(via_ttl_value) {
-                                data.ttl = via_ttl_value; },
+                                options.data.ttl = via_ttl_value; },
           "maddr",
           { type: "literal", value: "maddr", description: "\"maddr\"" },
           function(via_maddr) {
-                                data.maddr = via_maddr; },
+                                options.data.maddr = via_maddr; },
           "received",
           { type: "literal", value: "received", description: "\"received\"" },
           function(via_received) {
-                                data.received = via_received; },
+                                options.data.received = via_received; },
           "branch",
           { type: "literal", value: "branch", description: "\"branch\"" },
           function(via_branch) {
-                                data.branch = via_branch; },
+                                options.data.branch = via_branch; },
           "rport",
           { type: "literal", value: "rport", description: "\"rport\"" },
           function() {
                                 if(typeof response_port !== 'undefined')
-                                  data.rport = response_port.join(''); },
+                                  options.data.rport = response_port.join(''); },
           function(via_protocol) {
-                                data.protocol = via_protocol; },
+                                options.data.protocol = via_protocol; },
           { type: "literal", value: "UDP", description: "\"UDP\"" },
           { type: "literal", value: "TCP", description: "\"TCP\"" },
           { type: "literal", value: "TLS", description: "\"TLS\"" },
           { type: "literal", value: "SCTP", description: "\"SCTP\"" },
           function(via_transport) {
-                                data.transport = via_transport; },
+                                options.data.transport = via_transport; },
           function() {
-                                data.host = text(); },
+                                options.data.host = text(); },
           function(via_sent_by_port) {
-                                data.port = parseInt(via_sent_by_port.join('')); },
+                                options.data.port = parseInt(via_sent_by_port.join('')); },
           function(ttl) {
                                 return parseInt(ttl.join('')); },
           "stuns",
@@ -1847,9 +1758,9 @@ module.exports = function(SIP) {
           "stun",
           { type: "literal", value: "stun", description: "\"stun\"" },
           function(scheme) {
-                                data.scheme = scheme; },
+                                options.data.scheme = scheme; },
           function(host) {
-                                data.host = host; },
+                                options.data.host = host; },
           function() {
                                 return text(); },
           "?transport=",
@@ -1859,9 +1770,9 @@ module.exports = function(SIP) {
           "turn",
           { type: "literal", value: "turn", description: "\"turn\"" },
           function() {
-                                data.transport = transport; },
+                                options.data.transport = transport; },
           function() {
-                            data = text(); }
+                            options.data = text(); }
         ],
 
         peg$bytecode = [
@@ -2515,29 +2426,27 @@ module.exports = function(SIP) {
       return stack[0];
     }
 
-    var data = {};
+    options.data = {};
 
     peg$result = peg$parseRule(peg$startRuleIndex);
 
     if (peg$result !== peg$FAILED && peg$currPos === input.length) {
-      return data;
+      return peg$result;
     } else {
       if (peg$result !== peg$FAILED && peg$currPos < input.length) {
         peg$fail({ type: "end", description: "end of input" });
       }
 
-      return -1;
+      throw peg$buildException(null, peg$maxFailExpected, peg$maxFailPos);
     }
   }
 
   return {
     SyntaxError: SyntaxError,
-    parse:       function (input, startRule) {return parse(input, {startRule: startRule});}
+    parse:       parse
   };
-};
-/* jshint ignore:end */
-
-},{}],12:[function(_dereq_,module,exports){
+})();
+},{}],11:[function(_dereq_,module,exports){
 /**
  * @fileoverview Hacks - This file contains all of the things we
  * wish we didn't have to do, just for interop.  It is similar to
@@ -2572,12 +2481,6 @@ var Hacks = module.exports = {
     /* Condition to detect if hacks are applicable */
     isFirefox: function () {
       return typeof mozRTCPeerConnection !== 'undefined';
-    },
-
-    cannotHandleRelayCandidates: function (message) {
-      if (this.isFirefox() && message.body) {
-        message.body = message.body.replace(/relay/g, 'host generation 0');
-      }
     },
 
     cannotHandleExtraWhitespace: function (message) {
@@ -2623,6 +2526,15 @@ var Hacks = module.exports = {
         }
       }
       return sdp;
+    },
+
+    hackCLinInIP: function (sdp) {
+      /* Starting in Firefox 34 they have set the c line to 0.0.0.0 which
+       * means "hold" according to legacy SIP standards and Freeswitch
+       * interprets it according to the SIP standards. We replace the
+       * 0.0.0.0 with any other IP so that the call continues.
+       */
+      return sdp.replace("c=IN IP4 0.0.0.0", "c=IN IP4 127.0.0.1");
     }
   },
 
@@ -2650,9 +2562,7 @@ var Hacks = module.exports = {
   }
 };
 
-},{}],13:[function(_dereq_,module,exports){
-var console = _dereq_('console');
-
+},{}],12:[function(_dereq_,module,exports){
 var levels = {
   'error': 0,
   'warn': 1,
@@ -2660,7 +2570,9 @@ var levels = {
   'debug': 3
 };
 
-var LoggerFactory = module.exports = function () {
+module.exports = function (console) {
+
+var LoggerFactory = function () {
   var logger,
     level = 2,
     builtinEnabled = true,
@@ -2762,7 +2674,10 @@ LoggerFactory.prototype.getLogger = function(category, label) {
   }
 };
 
-},{"console":35}],14:[function(_dereq_,module,exports){
+return LoggerFactory;
+};
+
+},{}],13:[function(_dereq_,module,exports){
 /**
  * @fileoverview MediaHandler
  */
@@ -2806,7 +2721,7 @@ MediaHandler.prototype = Object.create(EventEmitter.prototype, {
 return MediaHandler;
 };
 
-},{}],15:[function(_dereq_,module,exports){
+},{}],14:[function(_dereq_,module,exports){
 /**
  * @fileoverview SIP NameAddrHeader
  */
@@ -2904,7 +2819,7 @@ NameAddrHeader.parse = function(name_addr_header) {
 SIP.NameAddrHeader = NameAddrHeader;
 };
 
-},{}],16:[function(_dereq_,module,exports){
+},{}],15:[function(_dereq_,module,exports){
 /**
  * @fileoverview SIP Message Parser
  */
@@ -3166,7 +3081,7 @@ Parser.parseMessage = function(data, ua) {
 SIP.Parser = Parser;
 };
 
-},{}],17:[function(_dereq_,module,exports){
+},{}],16:[function(_dereq_,module,exports){
 module.exports = function (SIP) {
 
 var RegisterContext;
@@ -3445,7 +3360,7 @@ RegisterContext.prototype = {
 SIP.RegisterContext = RegisterContext;
 };
 
-},{}],18:[function(_dereq_,module,exports){
+},{}],17:[function(_dereq_,module,exports){
 
 /**
  * @fileoverview Request Sender
@@ -3585,8 +3500,7 @@ RequestSender.prototype = {
 SIP.RequestSender = RequestSender;
 };
 
-},{}],19:[function(_dereq_,module,exports){
-(function (global){
+},{}],18:[function(_dereq_,module,exports){
 /**
  * @name SIP
  * @namespace
@@ -3594,7 +3508,7 @@ SIP.RequestSender = RequestSender;
 "use strict";
 
 var SIP = {};
-module.exports = SIP;
+module.exports = function (environment) {
 
 var pkg = _dereq_('../package.json');
 
@@ -3607,13 +3521,13 @@ Object.defineProperties(SIP, {
   }
 });
 
-_dereq_('./Utils')(SIP);
-SIP.LoggerFactory = _dereq_('./LoggerFactory');
+_dereq_('./Utils')(SIP, environment);
+SIP.LoggerFactory = _dereq_('./LoggerFactory')(environment.console);
 _dereq_('./EventEmitter')(SIP);
 SIP.C = _dereq_('./Constants')(SIP.name, SIP.version);
 SIP.Exceptions = _dereq_('./Exceptions');
-SIP.Timers = _dereq_('./Timers');
-_dereq_('./Transport')(SIP, global.WebSocket);
+SIP.Timers = _dereq_('./Timers')(environment.timers);
+SIP.Transport = environment.Transport(SIP, environment.WebSocket);
 _dereq_('./Parser')(SIP);
 _dereq_('./SIPMessage')(SIP);
 _dereq_('./URI')(SIP);
@@ -3625,17 +3539,19 @@ _dereq_('./RegisterContext')(SIP);
 SIP.MediaHandler = _dereq_('./MediaHandler')(SIP.EventEmitter);
 _dereq_('./ClientContext')(SIP);
 _dereq_('./ServerContext')(SIP);
-_dereq_('./Session')(SIP);
+_dereq_('./Session')(SIP, environment);
 _dereq_('./Subscription')(SIP);
-SIP.WebRTC = _dereq_('./WebRTC')(SIP);
+SIP.WebRTC = _dereq_('./WebRTC')(SIP, environment);
 _dereq_('./UA')(SIP);
 SIP.Hacks = _dereq_('./Hacks');
 _dereq_('./SanityCheck')(SIP);
 SIP.DigestAuthentication = _dereq_('./DigestAuthentication')(SIP.Utils);
-SIP.Grammar = _dereq_('./Grammar/dist/Grammar')(SIP);
+SIP.Grammar = _dereq_('./Grammar')(SIP);
 
-}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../package.json":3,"./ClientContext":4,"./Constants":5,"./Dialogs":7,"./DigestAuthentication":8,"./EventEmitter":9,"./Exceptions":10,"./Grammar/dist/Grammar":11,"./Hacks":12,"./LoggerFactory":13,"./MediaHandler":14,"./NameAddrHeader":15,"./Parser":16,"./RegisterContext":17,"./RequestSender":18,"./SIPMessage":20,"./SanityCheck":21,"./ServerContext":22,"./Session":23,"./Subscription":25,"./Timers":26,"./Transactions":27,"./Transport":28,"./UA":29,"./URI":30,"./Utils":31,"./WebRTC":32}],20:[function(_dereq_,module,exports){
+return SIP;
+};
+
+},{"../package.json":1,"./ClientContext":2,"./Constants":3,"./Dialogs":5,"./DigestAuthentication":6,"./EventEmitter":7,"./Exceptions":8,"./Grammar":9,"./Hacks":11,"./LoggerFactory":12,"./MediaHandler":13,"./NameAddrHeader":14,"./Parser":15,"./RegisterContext":16,"./RequestSender":17,"./SIPMessage":19,"./SanityCheck":20,"./ServerContext":21,"./Session":22,"./Subscription":24,"./Timers":25,"./Transactions":26,"./UA":28,"./URI":29,"./Utils":30,"./WebRTC":31}],19:[function(_dereq_,module,exports){
 /**
  * @fileoverview SIP Message
  */
@@ -4165,7 +4081,7 @@ SIP.IncomingRequest = IncomingRequest;
 SIP.IncomingResponse = IncomingResponse;
 };
 
-},{}],21:[function(_dereq_,module,exports){
+},{}],20:[function(_dereq_,module,exports){
 /**
  * @fileoverview Incoming SIP Message Sanity Check
  */
@@ -4394,7 +4310,7 @@ sanityCheck = function(m, u, t) {
 SIP.sanityCheck = sanityCheck;
 };
 
-},{}],22:[function(_dereq_,module,exports){
+},{}],21:[function(_dereq_,module,exports){
 module.exports = function (SIP) {
 var ServerContext;
 
@@ -4479,9 +4395,8 @@ ServerContext.prototype.onTransportError = function () {
 SIP.ServerContext = ServerContext;
 };
 
-},{}],23:[function(_dereq_,module,exports){
-(function (global){
-module.exports = function (SIP) {
+},{}],22:[function(_dereq_,module,exports){
+module.exports = function (SIP, environment) {
 
 var DTMF = _dereq_('./Session/DTMF')(SIP);
 
@@ -4742,10 +4657,10 @@ Session.prototype = {
       var target = request.parseHeader('refer-to').uri;
       if (!target.scheme.match("^sips?$")) {
         var targetString = target.toString();
-        if (typeof global.open === "function") {
-          global.open(targetString);
+        if (typeof environment.open === "function") {
+          environment.open(targetString);
         } else {
-          this.logger.warn("referred to non-SIP URI but `open` isn't a global function: " + targetString);
+          this.logger.warn("referred to non-SIP URI but `open` isn't in the environment: " + targetString);
         }
         return;
       }
@@ -5434,8 +5349,8 @@ InviteServerContext = function(ua, request) {
   }
 
   //TODO: move this into media handler
-  SIP.Hacks.Firefox.cannotHandleRelayCandidates(request);
   SIP.Hacks.Firefox.cannotHandleExtraWhitespace(request);
+  SIP.Hacks.AllBrowsers.maskDtls(request);
 
   SIP.Utils.augment(this, SIP.ServerContext, [ua, request]);
   SIP.Utils.augment(this, SIP.Session, [ua.configuration.mediaHandlerFactory]);
@@ -5898,8 +5813,8 @@ InviteServerContext.prototype = {
         if (!this.hasAnswer) {
           if(request.body && request.getHeader('content-type') === 'application/sdp') {
             // ACK contains answer to an INVITE w/o SDP negotiation
-            SIP.Hacks.Firefox.cannotHandleRelayCandidates(request);
             SIP.Hacks.Firefox.cannotHandleExtraWhitespace(request);
+            SIP.Hacks.AllBrowsers.maskDtls(request);
 
             this.hasAnswer = true;
             this.mediaHandler.setDescription(request.body)
@@ -6130,6 +6045,9 @@ InviteClientContext.prototype = {
           if (self.isCanceled || self.status === C.STATUS_TERMINATED) {
             return;
           }
+
+          offer = SIP.Hacks.Firefox.hackCLinInIP(offer);
+
           self.hasOffer = true;
           self.request.body = offer;
           self.status = C.STATUS_INVITE_SENT;
@@ -6256,7 +6174,6 @@ InviteClientContext.prototype = {
             return;
           }
 
-          SIP.Hacks.Firefox.cannotHandleRelayCandidates(response);
           SIP.Hacks.Firefox.cannotHandleExtraWhitespace(response);
           SIP.Hacks.AllBrowsers.maskDtls(response);
 
@@ -6374,7 +6291,6 @@ InviteClientContext.prototype = {
           break;
         }
 
-        SIP.Hacks.Firefox.cannotHandleRelayCandidates(response);
         SIP.Hacks.Firefox.cannotHandleExtraWhitespace(response);
         SIP.Hacks.AllBrowsers.maskDtls(response);
 
@@ -6569,8 +6485,7 @@ SIP.InviteClientContext = InviteClientContext;
 
 };
 
-}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./Session/DTMF":24}],24:[function(_dereq_,module,exports){
+},{"./Session/DTMF":23}],23:[function(_dereq_,module,exports){
 /**
  * @fileoverview DTMF
  */
@@ -6755,7 +6670,7 @@ DTMF.C = C;
 return DTMF;
 };
 
-},{}],25:[function(_dereq_,module,exports){
+},{}],24:[function(_dereq_,module,exports){
 
 /**
  * @fileoverview SIP Subscriber (SIP-Specific Event Notifications RFC6665)
@@ -7045,7 +6960,7 @@ SIP.Subscription.prototype = {
 };
 };
 
-},{}],26:[function(_dereq_,module,exports){
+},{}],25:[function(_dereq_,module,exports){
 /**
  * @fileoverview SIP TIMERS
  */
@@ -7054,11 +6969,11 @@ SIP.Subscription.prototype = {
  * @augments SIP
  */
 var
-  timers = _dereq_('timers'),
   T1 = 500,
   T2 = 4000,
   T4 = 5000;
-module.exports = {
+module.exports = function (timers) {
+  var Timers = {
     T1: T1,
     T2: T2,
     T4: T4,
@@ -7079,12 +6994,15 @@ module.exports = {
   .forEach(function (name) {
     // can't just use timers[name].bind(timers) since it bypasses jasmine's
     // clock-mocking
-    module.exports[name] = function () {
+    Timers[name] = function () {
       return timers[name].apply(timers, arguments);
     };
   });
 
-},{"timers":1}],27:[function(_dereq_,module,exports){
+  return Timers;
+};
+
+},{}],26:[function(_dereq_,module,exports){
 /**
  * @fileoverview SIP Transactions
  */
@@ -7800,7 +7718,7 @@ SIP.Transactions = {
 
 };
 
-},{}],28:[function(_dereq_,module,exports){
+},{}],27:[function(_dereq_,module,exports){
 /**
  * @fileoverview Transport
  */
@@ -8095,10 +8013,11 @@ Transport.prototype = {
 };
 
 Transport.C = C;
-SIP.Transport = Transport;
+return Transport;
 };
 
-},{}],29:[function(_dereq_,module,exports){
+},{}],28:[function(_dereq_,module,exports){
+(function (global){
 /**
  * @augments SIP
  * @class Class creating a SIP User Agent.
@@ -8294,6 +8213,10 @@ UA = function(configuration) {
 
   if(this.configuration.autostart) {
     this.start();
+  }
+
+  if (typeof global.addEventListener === 'function') {
+    global.addEventListener('unload', this.stop.bind(this));
   }
 };
 UA.prototype = new SIP.EventEmitter();
@@ -8971,6 +8894,7 @@ UA.prototype.loadConfig = function(configuration) {
       // Hacks
       hackViaTcp: false,
       hackIpInContact: false,
+      hackWssInTransport: false,
 
       //autostarting
       autostart: true,
@@ -9024,14 +8948,19 @@ UA.prototype.loadConfig = function(configuration) {
 
   SIP.Utils.optionsOverride(configuration, 'rel100', 'reliable', true, this.logger, SIP.C.supported.UNSUPPORTED);
 
+  var emptyArraysAllowed = ['stunServers', 'turnServers'];
+
   // Check Optional parameters
   for(parameter in UA.configuration_check.optional) {
     aliasUnderscored(parameter, this.logger);
     if(configuration.hasOwnProperty(parameter)) {
       value = configuration[parameter];
 
-      // If the parameter value is null, empty string,undefined, or empty array then apply its default value.
-      if(value === null || value === "" || value === undefined || (value instanceof Array && value.length === 0)) { continue; }
+      // If the parameter value is an empty array, but shouldn't be, apply its default value.
+      if (value instanceof Array && value.length === 0 && emptyArraysAllowed.indexOf(parameter) < 0) { continue; }
+
+      // If the parameter value is null, empty string, or undefined then apply its default value.
+      if(value === null || value === "" || value === undefined) { continue; }
       // If it's a number with NaN value then also apply its default value.
       // NOTE: JS does not allow "value === NaN", the following does the work:
       else if(typeof(value) === 'number' && isNaN(value)) { continue; }
@@ -9097,7 +9026,7 @@ UA.prototype.loadConfig = function(configuration) {
   this.contact = {
     pub_gruu: null,
     temp_gruu: null,
-    uri: new SIP.URI('sip', SIP.Utils.createRandomToken(8), settings.viaHost, null, {transport: 'ws'}),
+    uri: new SIP.URI('sip', SIP.Utils.createRandomToken(8), settings.viaHost, null, {transport: ((settings.hackWssInTransport)?'wss':'ws')}),
     toString: function(options){
       options = options || {};
 
@@ -9107,7 +9036,7 @@ UA.prototype.loadConfig = function(configuration) {
         contact = '<';
 
       if (anonymous) {
-        contact += (this.temp_gruu || 'sip:anonymous@anonymous.invalid;transport=ws').toString();
+        contact += (this.temp_gruu || ('sip:anonymous@anonymous.invalid;transport='+(settings.hackWssInTransport)?'wss':'ws')).toString();
       } else {
         contact += (this.pub_gruu || this.uri).toString();
       }
@@ -9177,6 +9106,7 @@ UA.configuration_skeleton = (function() {
       "displayName",
       "hackViaTcp", // false.
       "hackIpInContact", //false
+      "hackWssInTransport", //false
       "instanceId",
       "noAnswerTimeout", // 30 seconds.
       "password",
@@ -9349,6 +9279,12 @@ UA.configuration_check = {
     hackIpInContact: function(hackIpInContact) {
       if (typeof hackIpInContact === 'boolean') {
         return hackIpInContact;
+      }
+    },
+
+    hackWssInTransport: function(hackWssInTransport) {
+      if (typeof hackWssInTransport === 'boolean') {
+        return hackWssInTransport;
       }
     },
 
@@ -9557,7 +9493,8 @@ UA.C = C;
 SIP.UA = UA;
 };
 
-},{}],30:[function(_dereq_,module,exports){
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],29:[function(_dereq_,module,exports){
 /**
  * @fileoverview SIP URI
  */
@@ -9760,20 +9697,17 @@ URI.parse = function(uri) {
 SIP.URI = URI;
 };
 
-},{}],31:[function(_dereq_,module,exports){
-(function (global){
+},{}],30:[function(_dereq_,module,exports){
 /**
  * @fileoverview Utils
  */
 
-var promise = global.Promise || _dereq_('promiscuous');
-
-module.exports = function (SIP) {
+module.exports = function (SIP, environment) {
 var Utils;
 
 Utils= {
 
-  Promise: promise,
+  Promise: environment.Promise,
 
   defer: function defer () {
     var deferred = {};
@@ -9782,26 +9716,6 @@ Utils= {
       deferred.reject = reject;
     });
     return deferred;
-  },
-
-  callbacksLast: function callbacksLast (f, thisArg) {
-    return function (arg, onSuccess, onFailure) {
-      return f.call(thisArg, onSuccess, onFailure, arg);
-    };
-  },
-
-  addPromise: function addPromise (f, thisArg, length) {
-    var callbacksIndex = (length || f.length) - 2;
-    return function withPromise () {
-      var nonCallbacks = [].slice.call(arguments, 0, callbacksIndex);
-      var bound = f.bind.apply(f, [thisArg].concat(nonCallbacks));
-      var promise = new Utils.Promise(bound);
-      var callbacks = [].slice.call(arguments, callbacksIndex);
-      if (callbacks.length) {
-        promise.then.apply(promise, callbacks);
-      }
-      return promise;
-    };
   },
 
   augment: function (object, constructor, args, override) {
@@ -9833,20 +9747,6 @@ Utils= {
 
   str_utf8_length: function(string) {
     return encodeURIComponent(string).replace(/%[A-F\d]{2}/g, 'U').length;
-  },
-
-  getPrefixedProperty: function (object, name) {
-    if (object == null) {
-      return;
-    }
-    var capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
-    var prefixedNames = [name, 'webkit' + capitalizedName, 'moz' + capitalizedName];
-    for (var i in prefixedNames) {
-      var property = object[prefixedNames[i]];
-      if (property) {
-        return property;
-      }
-    }
   },
 
   generateFakeSDP: function(body) {
@@ -10292,20 +10192,18 @@ Utils= {
 SIP.Utils = Utils;
 };
 
-}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"promiscuous":36}],32:[function(_dereq_,module,exports){
-(function (global){
+},{}],31:[function(_dereq_,module,exports){
 /**
  * @fileoverview WebRTC
  */
 
-module.exports = function (SIP) {
+module.exports = function (SIP, environment) {
 var WebRTC;
 
 WebRTC = {};
 
 WebRTC.MediaHandler = _dereq_('./WebRTC/MediaHandler')(SIP);
-WebRTC.MediaStreamManager = _dereq_('./WebRTC/MediaStreamManager')(SIP);
+WebRTC.MediaStreamManager = _dereq_('./WebRTC/MediaStreamManager')(SIP, environment);
 
 var _isSupported;
 
@@ -10314,13 +10212,18 @@ WebRTC.isSupported = function () {
     return _isSupported;
   }
 
-  WebRTC.MediaStream = SIP.Utils.getPrefixedProperty(global, 'MediaStream');
-  WebRTC.getUserMedia = SIP.Utils.getPrefixedProperty(global.navigator, 'getUserMedia');
-  WebRTC.RTCPeerConnection = SIP.Utils.getPrefixedProperty(global, 'RTCPeerConnection');
-  WebRTC.RTCSessionDescription = SIP.Utils.getPrefixedProperty(global, 'RTCSessionDescription');
+  WebRTC.MediaStream = environment.MediaStream;
+  WebRTC.getUserMedia = environment.getUserMedia;
+  WebRTC.RTCPeerConnection = environment.RTCPeerConnection;
+  WebRTC.RTCSessionDescription = environment.RTCSessionDescription;
 
-  if (WebRTC.getUserMedia && WebRTC.RTCPeerConnection && WebRTC.RTCSessionDescription) {
-    WebRTC.getUserMedia = SIP.Utils.addPromise(WebRTC.getUserMedia, global.navigator);
+  if (WebRTC.RTCPeerConnection && WebRTC.RTCSessionDescription) {
+    if (WebRTC.getUserMedia) {
+      WebRTC.getUserMedia = function (constraints, onSuccess, onFailure) {
+        return new SIP.Utils.Promise(this.bind(null, constraints))
+          .then(onSuccess, onFailure);
+      }.bind(WebRTC.getUserMedia);
+    }
     _isSupported = true;
   }
   else {
@@ -10332,8 +10235,7 @@ WebRTC.isSupported = function () {
 return WebRTC;
 };
 
-}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./WebRTC/MediaHandler":33,"./WebRTC/MediaStreamManager":34}],33:[function(_dereq_,module,exports){
+},{"./WebRTC/MediaHandler":32,"./WebRTC/MediaStreamManager":33}],32:[function(_dereq_,module,exports){
 /**
  * @fileoverview MediaHandler
  */
@@ -10355,6 +10257,8 @@ var MediaHandler = function(session, options) {
     'userMediaFailed',
     'iceGathering',
     'iceComplete',
+	'iceConnected',
+	'iceCompleted',
     'iceFailed',
     'iceDisconnected',
     'iceClosed',
@@ -10393,7 +10297,9 @@ var MediaHandler = function(session, options) {
   /* Change 'url' to 'urls' whenever this issue is solved:
    * https://code.google.com/p/webrtc/issues/detail?id=2096
    */
-  servers.push({'url': stunServers});
+  [].concat(stunServers).forEach(function (server) {
+    servers.push({'url': server});
+  });
 
   length = turnServers.length;
   for (idx = 0; idx < length; idx++) {
@@ -10454,6 +10360,14 @@ var MediaHandler = function(session, options) {
 
     if (this.iceConnectionState === 'closed') {
         self.emit('iceClosed', this);
+    }
+
+	if (this.iceConnectionState === 'connected') {
+        self.emit('iceConnected', this);
+    }
+
+    if (this.iceConnectionState === 'completed') {
+        self.emit('iceCompleted', this);
     }
 
     //Bria state changes are always connected -> disconnected -> connected on accept, so session gets terminated
@@ -10529,10 +10443,9 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
     this.mediaHint = mediaHint;
 
     /*
-     * 1. acquire stream (skip if MediaStream passed in)
-     * 2. addStream
+     * 1. acquire streams (skip if MediaStreams passed in)
+     * 2. addStreams
      * 3. createOffer/createAnswer
-     * 4. call onSuccess()
      */
 
     var streamPromise;
@@ -10543,18 +10456,18 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
     else {
       self.logger.log('acquiring local media');
       streamPromise = self.mediaStreamManager.acquire(mediaHint)
-        .then(function acquireSucceeded(stream) {
-          self.logger.log('acquired local media stream');
-          self.localMedia = stream;
+        .then(function acquireSucceeded(streams) {
+          self.logger.log('acquired local media streams');
+          self.localMedia = streams;
           self.session.connecting();
-          return stream;
+          return streams;
         }, function acquireFailed(err) {
-          self.logger.error('unable to acquire stream');
+          self.logger.error('unable to acquire streams');
           self.logger.error(err);
           self.session.connecting();
           throw err;
         })
-        .then(this.addStream.bind(this))
+        .then(this.addStreams.bind(this))
       ;
     }
 
@@ -10729,9 +10642,7 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
     Object.keys(streamGetters).forEach(function (loc) {
       var streamGetter = streamGetters[loc];
       var streams = this[streamGetter]();
-      if (streams.length) {
-        SIP.WebRTC.MediaStreamManager.render(streams[0], renderHint[loc]);
-      }
+      SIP.WebRTC.MediaStreamManager.render(streams, renderHint[loc]);
     }.bind(this));
   }},
 
@@ -10746,12 +10657,17 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
     var self = this;
     var methodName, promisifiedMethod;
     var pc = self.peerConnection;
-    var setLocalDescription = SIP.Utils.addPromise(pc.setLocalDescription, pc, 3);
+    var setLocalDescription = function (description) {
+      return new SIP.Utils.Promise(pc.setLocalDescription.bind(pc, description));
+    };
 
     self.ready = false;
-
     methodName = self.hasOffer('remote') ? 'createAnswer' : 'createOffer';
-    promisifiedMethod = SIP.Utils.addPromise(SIP.Utils.callbacksLast(pc[methodName], pc));
+    promisifiedMethod = function (constraints) {
+      return new SIP.Utils.Promise(function (resolve, reject) {
+        pc[methodName](resolve, reject, constraints);
+      });
+    };
 
     return promisifiedMethod(constraints)
       .then(setLocalDescription)
@@ -10788,9 +10704,11 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
     ;
   }},
 
-  addStream: {writable: true, value: function addStream (stream) {
+  addStreams: {writable: true, value: function addStreams (streams) {
     try {
-      this.peerConnection.addStream(stream);
+      streams.forEach(function (stream) {
+        this.peerConnection.addStream(stream);
+      }, this);
     } catch(e) {
       this.logger.error('error adding stream');
       this.logger.error(e);
@@ -10821,8 +10739,7 @@ MediaHandler.prototype = Object.create(SIP.MediaHandler.prototype, {
 return MediaHandler;
 };
 
-},{}],34:[function(_dereq_,module,exports){
-(function (global){
+},{}],33:[function(_dereq_,module,exports){
 /**
  * @fileoverview MediaStreamManager
  */
@@ -10831,7 +10748,7 @@ return MediaHandler;
  * @class Manages the acquisition and release of MediaStreams.
  * @param {mediaHint} [defaultMediaHint] The mediaHint to use if none is provided to acquire()
  */
-module.exports = function (SIP) {
+module.exports = function (SIP, environment) {
 
 // Default MediaStreamManager provides single-use streams created with getUserMedia
 var MediaStreamManager = function MediaStreamManager (logger, defaultMediaHint) {
@@ -10864,20 +10781,25 @@ MediaStreamManager.streamId = function (stream) {
     .join('');
 };
 
-MediaStreamManager.render = function render (stream, elements) {
-  if (!elements) {
+MediaStreamManager.render = function render (streams, elements) {
+  // only render first stream, see pull request #76
+  var stream = streams[0];
+  if (!elements || !stream) {
     return false;
   }
 
   function attachAndPlay (element, stream) {
-    (global.attachMediaStream || attachMediaStream)(element, stream);
+    if (typeof element === 'function') {
+      element = element();
+    }
+    (environment.attachMediaStream || attachMediaStream)(element, stream);
     ensureMediaPlaying(element);
   }
 
   function attachMediaStream(element, stream) {
     if (typeof element.src !== 'undefined') {
-      global.URL.revokeObjectURL(element.src);
-      element.src = global.URL.createObjectURL(stream);
+      environment.revokeObjectURL(element.src);
+      element.src = environment.createObjectURL(stream);
     } else if (typeof (element.srcObject || element.mozSrcObject) !== 'undefined') {
       element.srcObject = element.mozSrcObject = stream;
     } else {
@@ -10911,13 +10833,16 @@ MediaStreamManager.render = function render (stream, elements) {
 };
 
 MediaStreamManager.prototype = Object.create(SIP.EventEmitter.prototype, {
-  'acquire': {value: function acquire (mediaHint) {
+  'acquire': {writable: true, value: function acquire (mediaHint) {
     mediaHint = Object.keys(mediaHint || {}).length ? mediaHint : this.mediaHint;
 
-    var saveSuccess = function (isHintStream, stream) {
-      var streamId = MediaStreamManager.streamId(stream);
-      this.acquisitions[streamId] = !!isHintStream;
-      return SIP.Utils.Promise.resolve(stream);
+    var saveSuccess = function (isHintStream, streams) {
+      streams = [].concat(streams);
+      streams.forEach(function (stream) {
+        var streamId = MediaStreamManager.streamId(stream);
+        this.acquisitions[streamId] = !!isHintStream;
+      }, this);
+      return SIP.Utils.Promise.resolve(streams);
     }.bind(this);
 
     if (mediaHint.stream) {
@@ -10960,12 +10885,15 @@ MediaStreamManager.prototype = Object.create(SIP.EventEmitter.prototype, {
     }
   }},
 
-  'release': {value: function release (stream) {
-    var streamId = MediaStreamManager.streamId(stream);
-    if (this.acquisitions[streamId] === false) {
-      stream.stop();
-    }
-    delete this.acquisitions[streamId];
+  'release': {writable: true, value: function release (streams) {
+    streams = [].concat(streams);
+    streams.forEach(function (stream) {
+      var streamId = MediaStreamManager.streamId(stream);
+      if (this.acquisitions[streamId] === false) {
+        stream.stop();
+      }
+      delete this.acquisitions[streamId];
+    }, this);
   }},
 });
 
@@ -10973,22 +10901,51 @@ MediaStreamManager.prototype = Object.create(SIP.EventEmitter.prototype, {
 return MediaStreamManager;
 };
 
-}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],35:[function(_dereq_,module,exports){
+},{}],34:[function(_dereq_,module,exports){
 (function (global){
-// Console is not defined in ECMAScript, so just in case...
-module.exports = global.console || {
-  debug: function () {},
-  log: function () {},
-  warn: function () {},
-  error: function () {}
+function getPrefixedProperty (object, name) {
+  if (object == null) {
+    return;
+  }
+  var capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
+  var prefixedNames = [name, 'webkit' + capitalizedName, 'moz' + capitalizedName];
+  for (var i in prefixedNames) {
+    var property = object[prefixedNames[i]];
+    if (property) {
+      return property.bind(object);
+    }
+  }
+}
+
+module.exports = {
+  WebSocket: global.WebSocket,
+  Transport: _dereq_('./Transport'),
+  open: global.open,
+  Promise: global.Promise,
+  timers: global,
+
+  // Console is not defined in ECMAScript, so just in case...
+  console: global.console || {
+    debug: function () {},
+    log: function () {},
+    warn: function () {},
+    error: function () {}
+  },
+
+  MediaStream: getPrefixedProperty(global, 'MediaStream'),
+  getUserMedia: getPrefixedProperty(global.navigator, 'getUserMedia'),
+  RTCPeerConnection: getPrefixedProperty(global, 'RTCPeerConnection'),
+  RTCSessionDescription: getPrefixedProperty(global, 'RTCSessionDescription'),
+
+  attachMediaStream: global.attachMediaStream,
+  createObjectURL: global.URL && global.URL.createObjectURL,
+  revokeObjectURL: global.URL && global.URL.revokeObjectURL
 };
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],36:[function(_dereq_,module,exports){
-/**@license MIT-promiscuous-©Ruben Verborgh*/
-(function(n,t){function c(n,t){return(typeof t)[0]==n}function u(o,e){return e=function f(i,h,l,a,p,s){function y(n){return function(t){p&&(p=0,f(c,n,t))}}if(a=f.q,i!=c)return u(function(n,t){a.push({p:this,r:n,j:t,1:i,0:h})});if(l&&c(n,l)|c(t,l))try{p=l.then}catch(j){h=0,l=j}if(c(n,p))try{p.call(l,y(1),h=y(0))}catch(j){h(j)}else for(e=function(t,e){return c(n,t=h?t:e)?u(function(n,c){r(this,n,c,l,t)}):o},s=0;a.length>s;)p=a[s++],c(n,i=p[h])?r(p.p,p.r,p.j,l,i):(h?p.r:p.j)(l)},e.q=[],o.call(o={then:function(n,t){return e(n,t)},"catch":function(n){return e(0,n)}},function(n){e(c,1,n)},function(n){e(c,0,n)}),o}function r(u,r,o,e,f){setTimeout(function(){try{e=f(e),f=e&&c(t,e)|c(n,e)&&e.then,c(n,f)?e==u?o(TypeError()):f.call(e,r,o):r(e)}catch(i){o(i)}})}function o(n){return u(function(t){t(n)})}module.exports=u,u.resolve=o,u.reject=function(n){return u(function(t,c){c(n)})},u.all=function(n){return u(function(t,c,u,r){r=[],u=n.length||t(r),n.map(function(n,e){o(n).then(function(n){r[e]=n,--u||t(r)},c)})})}})("f","o");
+},{"./Transport":27}],35:[function(_dereq_,module,exports){
+module.exports = _dereq_('./SIP')(_dereq_('./environment'));
 
-},{}]},{},[19])
-(19)
+},{"./SIP":18,"./environment":34}]},{},[35])
+(35)
 });

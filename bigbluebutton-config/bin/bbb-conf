@@ -1123,6 +1123,16 @@ check_state() {
 		echo 
 	fi
 
+	if [ -f /var/www/bigbluebutton/check/conf/config.xml ]; then
+		CHECK_HOST=$(cat /var/www/bigbluebutton/check/conf/config.xml  | grep "<uri>rtmp" | head -1 | sed  's/.*rtmp:\/\///g' | sed 's/\/.*//g' | tr -d '\015')
+		echo "# Warning: The client self check is installed and accessible from:"
+		echo "#"
+		echo "#    http://$CHECK_HOST/check"
+		echo "#"
+		echo 
+
+	fi
+
 	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
 		LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
 		echo "# Warning: The IMS Learning Tools Integration (LTI) is accessible from:"
@@ -1232,6 +1242,13 @@ if [ $CHECK ]; then
 		echo
 		echo "${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties (LTI integration)"
 		echo "                           api url: $LTI_URL"
+	fi
+
+	if [ -f /var/www/bigbluebutton/check/conf/config.xml ]; then
+		CHECK_URL=$(cat /var/www/bigbluebutton/check/conf/config.xml  | grep "<uri>rtmp" | head -1 | sed  's/.*rtmp:\/\///g' | sed 's/\/.*//g' | tr -d '\015')
+		echo
+		echo "/var/www/bigbluebutton/check/conf/config.xml (client check)"
+		echo "                      client check: $CHECK_URL"
 	fi
 
 	CONFERENCING_MODULE="FreeSWITCH"
@@ -1472,6 +1489,12 @@ if [ -n "$HOST" ]; then
                 done
         done
 	echo 
+
+	if [ -f /var/www/bigbluebutton/check/conf/config.xml ]; then
+		echo "Assigning $HOST for client self check to /var/www/bigbluebutton/check/conf/config.xml"
+		sed -i "s/rtmp:\/\/\([^\"\/]*\)\//rtmp:\/\/$HOST\//g" /var/www/bigbluebutton/check/conf/config.xml
+		sed -i "s/rtmpt:\/\/\([^\"\/]*\)\//rtmpt:\/\/$HOST\//g" /var/www/bigbluebutton/check/conf/config.xml
+	fi
 
 	echo "Restarting the bigbluebutton server ..."
 	stop_bigbluebutton

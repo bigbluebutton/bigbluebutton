@@ -22,6 +22,7 @@ import java.awt.Point;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
@@ -38,7 +39,8 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
 	final private Logger log = Red5LoggerFactory.getLogger(BlockStreamProtocolDecoder.class, "deskshare");
 	
 	private static final String ROOM = "ROOM";
-	private static final byte[] END_FRAME = new byte[] {'D', 'S', '-', 'E', 'N', 'D'};
+    private static final byte[] POLICY_REQUEST = new byte[] {'<','p','o','l','i','c','y','-','f','i','l','e','-','r','e','q','u','e','s','t','/','>',0};
+    private static final byte[] END_FRAME = new byte[] {'D', 'S', '-', 'E', 'N', 'D'};
     private static final byte[] HEADER = new byte[] {'B', 'B', 'B', '-', 'D', 'S'};
     private static final byte CAPTURE_START_EVENT = 0;
     private static final byte CAPTURE_UPDATE_EVENT = 1;
@@ -79,10 +81,41 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
 
             in.position(curpos+1);
         }
+        
+        // Try to find a policy request, used by the BigBlueButton Client Checker
+        in.position(start);
+        if (tryToParsePolicyRequest(session, in, out)) {
+            return true;
+        }
 
         // Could not find END FRAME in the buffer. Reset the initial
         // position to the one we recorded above.
         in.position(start);
+
+        return false;
+    }
+    
+    private boolean tryToParsePolicyRequest(IoSession session, IoBuffer in, ProtocolDecoderOutput out) {
+        byte[] message = new byte[POLICY_REQUEST.length];
+        if (in.remaining() >= POLICY_REQUEST.length) {
+            in.get(message, 0, message.length);
+            if (Arrays.equals(message, POLICY_REQUEST)) {
+                log.debug("Sending cross domain policy to the user");
+                IoBuffer buffer = IoBuffer.allocate(8);
+                buffer.setAutoExpand(true);
+                try {
+                    buffer.putString("<cross-domain-policy><allow-access-from domain=\"*\" to-ports=\"*\" /></cross-domain-policy>", Charset.forName("UTF-8").newEncoder());
+                    buffer.put((byte) 0);
+                } catch (CharacterCodingException e) {
+                    e.printStackTrace();
+                    return false;
+                }
+                buffer.flip();
+                session.write(buffer);
+                return true;
+            }
+        }
+
         return false;
     }
 
