@@ -19,7 +19,6 @@
 package org.bigbluebutton.conference.service.whiteboard;
 
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.adapter.ApplicationAdapter;
 import org.red5.server.adapter.IApplication;
 import org.red5.server.api.IClient;
 import org.red5.server.api.IConnection;
@@ -27,7 +26,7 @@ import org.red5.server.api.scope.IScope;
 import org.slf4j.Logger;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 
-public class WhiteboardApplication extends ApplicationAdapter implements IApplication {	
+public class WhiteboardApplication implements IApplication {	
 	private static Logger log = Red5LoggerFactory.getLogger(WhiteboardApplication.class, "bigbluebutton");
 
 	private IBigBlueButtonInGW bbbInGW;
@@ -65,7 +64,6 @@ public class WhiteboardApplication extends ApplicationAdapter implements IApplic
 	
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
-
     	return true;
 	}
 
