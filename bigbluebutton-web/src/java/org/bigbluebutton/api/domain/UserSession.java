@@ -20,6 +20,7 @@
 package org.bigbluebutton.api.domain;
 
 public class UserSession {
+  public String authToken = null;
 	public String internalUserId = null;
 	public String conferencename = null;
   public String meetingID = null;
