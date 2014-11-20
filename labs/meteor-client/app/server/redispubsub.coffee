@@ -96,17 +96,20 @@ class Meteor.RedisPubSub
           users = message.payload.users
           for user in users
             user.timeOfJoining = message.header.current_time # TODO this might need to be removed
-            addUserToCollection meetingId, user
+            userJoined meetingId, user
         return
 
       if message.header.name is "validate_auth_token_reply"
-        console.log "validate_auth_token_reply--#{JSON.stringify message}"
+        return
+
+      if message.header.name is "user_registered_message"
+        createDummyUser message.payload.meeting_id, message.payload.user
         return
 
       if message.header.name is "user_joined_message"
         user = message.payload.user
         user.timeOfJoining = message.header.current_time
-        addUserToCollection meetingId, user
+        userJoined meetingId, user
         return
 
       if message.header.name is "user_left_message"
@@ -161,7 +164,7 @@ class Meteor.RedisPubSub
 
             #request for shapes
             whiteboardId = "#{presentation.id}/#{page.num}" # d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1404411622872/1
-            Meteor.log.info "the whiteboard_id here is:" + whiteboardId
+            #Meteor.log.info "the whiteboard_id here is:" + whiteboardId
 
             message =
               "payload":

@@ -157,10 +157,49 @@ Meteor.methods
   else
     Meteor.log.info "ERROR! did not find such voiceUser!"
 
-@addUserToCollection = (meetingId, user) ->
+@userJoined = (meetingId, user) ->
   userId = user.userid
-  #check if the user is already in the meeting
-  unless Meteor.Users.findOne({userId:userId, meetingId: meetingId})?
+
+  u = Meteor.Users.findOne({userId:user.userid, meetingId: meetingId})
+  # the collection already contains an entry for this user because
+  # we added a dummy user on register_user_message (to save authToken)
+  if u?
+    Meteor.log.info "UPDATING USER #{user.userid}"
+    Meteor.Users.update({userId:user.userid, meetingId: meetingId}, {$set:{
+      user:
+        userid: user.userid
+        presenter: user.presenter
+        name: user.name
+        phone_user: user.phone_user
+        raise_hand: user.raise_hand
+        has_stream: user.has_stream
+        role: user.role
+        listenOnly: user.listenOnly
+        extern_userid: user.extern_userid
+        permissions: user.permissions
+        locked: user.locked
+        time_of_joining: user.timeOfJoining
+        connection_status: "" # TODO consider other default value
+        voiceUser:
+          web_userid: user.voiceUser.web_userid
+          callernum: user.voiceUser.callernum
+          userid: user.voiceUser.userid
+          talking: user.voiceUser.talking
+          joined: user.voiceUser.joined
+          callername: user.voiceUser.callername
+          locked: user.voiceUser.locked
+          muted: user.voiceUser.muted
+        webcam_stream: user.webcam_stream
+      }})
+
+  else
+    # scenario: there are meetings running at the time when the meteor
+    # process starts. As a result we the get_users_reply message contains
+    # users for which we have not observed user_registered_message and
+    # hence we do not have the auth_token. There will be permission issues
+    # as the server collection does not have the auth_token of such users
+    # and cannot authorize their client side actions
+    Meteor.log.info "NOTE: got user_joined_message "
     entry =
       meetingId: meetingId
       userId: userId
@@ -191,4 +230,17 @@ Meteor.methods
         webcam_stream: user.webcam_stream
 
     id = Meteor.Users.insert(entry)
-    Meteor.log.info "added user userSecret=#{entry.userSecret} id=[#{id}]:#{user.name}. Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
+    Meteor.log.info "joining user id=[#{id}]:#{user.name}. Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
+
+@createDummyUser = (meetingId, user) ->
+  if Meteor.Users.findOne({userId:user.userid, meetingId: meetingId})?
+    Meteor.log.info "ERROR!! CAN'T REGISTER AN EXISTSING USER"
+  else
+    entry =
+      meetingId: meetingId
+      userId: user.userid
+      authToken: user.authToken
+
+    id = Meteor.Users.insert(entry)
+    Meteor.log.info "added user dummy user id=[#{id}]:#{user.name}.
+      Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"

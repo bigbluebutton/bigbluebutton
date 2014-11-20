@@ -2,7 +2,7 @@
 # On the client side we pass the meetingId parameter
 Meteor.publish 'users', (meetingId, userid) ->
   console.log "publishing users for #{meetingId}, #{userid}"
-
+  ###
   u = Meteor.Users.findOne({'userId': userid, 'meetingId': meetingId})
   if u?
     console.log "found it from the first time #{userid}"
@@ -36,10 +36,13 @@ Meteor.publish 'users', (meetingId, userid) ->
   else #subscribing before the user was added to the collection
     Meteor.call "validateAuthToken", meetingId, userid, userid
     console.log "there was no such user #{userid}  in #{meetingId}"
+  ###
+  # TODO switch the logging here with .info log
 
-# TODO switch the logging here with .info log
-
-
+  Meteor.Users.find(
+    {meetingId: meetingId},
+    {fields:{'userSecret': 0}
+    })
 
 
 
