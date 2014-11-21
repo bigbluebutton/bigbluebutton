@@ -242,7 +242,7 @@ Handlebars.registerHelper "visibility", (section) ->
 # meeting: the meeting the user is in
 # the user's userId
 @userLogout = (meeting, user) ->
-  Meteor.call("userLogout", meeting, user, getInSession("userSecret"))
+  Meteor.call("userLogout", meeting, user, getInSession("authToken"))
 
   # Clear the local user session and redirect them away
   setInSession("userId", null)
@@ -275,5 +275,5 @@ Handlebars.registerHelper "visibility", (section) ->
     userid: getInSession "userId"
     userSecret: getInSession "userSecret"
     DBIDinSession: getInSession "DBID"
-    DBIDfromCol: Meteor.Users.findOne({userId:getInSession 'userId'})._id
+    DBIDfromCol: Meteor.Users.findOne({userId:getInSession 'userId'})?._id
 }

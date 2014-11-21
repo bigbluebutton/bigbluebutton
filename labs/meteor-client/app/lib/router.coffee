@@ -48,14 +48,14 @@
           Meteor.subscribe 'slides', meetingId, ->
             Meteor.subscribe 'meetings', meetingId, ->
               Meteor.subscribe 'presentations', meetingId, ->
-                Meteor.subscribe 'users', meetingId, userId
+                Meteor.subscribe 'users', meetingId, userId, getInSession 'authToken'
 
       Meteor.call "getMyInfo", meetingId, userId, (error, result) ->
         unless result.error?
           console.log "on /, this is my info #{JSON.stringify result}"
           setInSession("DBID", result.DBID)
           setInSession("userName", result.name)
-          setInSession("userSecret", result.userSecret)
+          #setInSession("userSecret", result.userSecret)
 
       @next() #TODO maybe we need to wait for the other 2 things above to be complete
 
