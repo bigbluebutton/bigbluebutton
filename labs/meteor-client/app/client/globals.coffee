@@ -210,7 +210,7 @@ Handlebars.registerHelper "visibility", (section) ->
 @toggleMic = (event) ->
   u = Meteor.Users.findOne({userId:getInSession("userId")})
   if u?
-    Meteor.call('muteUser', getInSession("meetingId"), u.userId, getInSession("userId"), getInSession("userSecret"), not u.user.voiceUser.muted)
+    Meteor.call('muteUser', getInSession("meetingId"), u.userId, getInSession("userId"), getInSession("authToken"), not u.user.voiceUser.muted)
 
 @toggleNavbar = ->
   setInSession "display_navbar", !getInSession "display_navbar"
