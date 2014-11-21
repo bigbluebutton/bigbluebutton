@@ -9,9 +9,9 @@ Meteor.methods
   # meetingId: the meetingId of the meeting the user[s] is in
   # toMuteUserId: the userId of the user to be [un]muted
   # requesterUserId: the userId of the requester
-  # requesterSecret: the userSecret of the requester
+  # requesterToken: the authToken of the requester
   # mutedBoolean: true for muting, false for unmuting
-  muteUser: (meetingId, toMuteUserId, requesterUserId, requesterSecret, mutedBoolean) ->
+  muteUser: (meetingId, toMuteUserId, requesterUserId, requesterToken, mutedBoolean) ->
     action = ->
       if mutedBoolean
         if toMuteUserId is requesterUserId
@@ -24,7 +24,7 @@ Meteor.methods
         else
           return 'unmuteOther'
 
-    if isAllowedTo(action(), meetingId, requesterUserId, requesterSecret)
+    if isAllowedTo(action(), meetingId, requesterUserId, requesterToken)
       message =
         payload:
           userid: toMuteUserId
@@ -45,15 +45,15 @@ Meteor.methods
   # meetingId: the meetingId which both users are in 
   # toLowerUserId: the userid of the user to have their hand lowered
   # loweredByUserId: userId of person lowering
-  # loweredBySecret: the secret of the requestor
-  userLowerHand: (meetingId, toLowerUserId, loweredByUserId, loweredBySecret) ->
+  # loweredByToken: the authToken of the requestor
+  userLowerHand: (meetingId, toLowerUserId, loweredByUserId, loweredByToken) ->
     action = ->
       if toLowerUserId is loweredByUserId
         return 'lowerOwnHand'
       else
         return 'lowerOthersHand'
 
-    if isAllowedTo(action(), meetingId, loweredByUserId, loweredBySecret)
+    if isAllowedTo(action(), meetingId, loweredByUserId, loweredByToken)
       message =
         payload:
           userid: toLowerUserId
@@ -72,15 +72,15 @@ Meteor.methods
   # meetingId: the meetingId which both users are in 
   # toRaiseUserId: the userid of the user to have their hand lowered
   # raisedByUserId: userId of person lowering
-  # raisedBySecret: the secret of the requestor
-  userRaiseHand: (meetingId, toRaiseUserId, raisedByUserId, raisedBySecret) ->
+  # raisedByToken: the authToken of the requestor
+  userRaiseHand: (meetingId, toRaiseUserId, raisedByUserId, raisedByToken) ->
     action = ->
       if toRaiseUserId is raisedByUserId
         return 'raiseOwnHand'
       else
         return 'raiseOthersHand'
 
-    if isAllowedTo(action(), meetingId, raisedByUserId, raisedBySecret)
+    if isAllowedTo(action(), meetingId, raisedByUserId, raisedByToken)
       message =
         payload:
           userid: toRaiseUserId
@@ -98,9 +98,9 @@ Meteor.methods
 
   # meetingId: the meeting where the user is
   # userId: the userid of the user logging out
-  # userSecret: the authentication string of the user
-  userLogout: (meetingId, userId, userSecret) ->
-    if isAllowedTo('logoutSelf', meetingId, userId, userSecret)
+  # authToken: the authToken of the user
+  userLogout: (meetingId, userId, authToken) ->
+    if isAllowedTo('logoutSelf', meetingId, userId, authToken)
       Meteor.log.info "a user is logging out from #{meetingId}:" + userId
       requestUserLeaving meetingId, userId
 
@@ -203,7 +203,6 @@ Meteor.methods
     entry =
       meetingId: meetingId
       userId: userId
-      userSecret: Math.random().toString(36).substring(2,13)
       user:
         userid: user.userid
         presenter: user.presenter

@@ -33,7 +33,7 @@ Meteor.publish 'users', (meetingId, userid, authToken) ->
 
       Meteor.Users.find(
         {meetingId: meetingId},
-        {fields:{'userSecret': 0}
+        {fields:{'authToken': 0}
         })
 
     else #subscribing before the user was added to the collection
@@ -54,7 +54,6 @@ Meteor.publish 'chat', (meetingId, userid, authToken) ->
     me = Meteor.Users.findOne({meetingId: meetingId, userId: userid})
     if me?
       me = me._id
-      console.log "me = #{me}"
       #TODO change _id with userid
       return Meteor.Chat.find({$or: [
         {'message.chat_type': 'PUBLIC_CHAT', 'meetingId': meetingId},
