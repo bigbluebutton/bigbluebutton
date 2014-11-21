@@ -1,12 +1,12 @@
 <template name="displayUserIcons">
-    <td>{{#if isUserSharingVideo _id}}
+    <td>{{#if isUserSharingVideo userId}}
         <span class="userListSettingIcon glyphicon glyphicon-facetime-video" rel="tooltip" data-placement="bottom" title="{{user.name}} is sharing their webcam"></span>
     {{/if}}</td>
 
     <!-- Should use much more noticeable icons than just bootstrap's volume-up & volume-down to differentiate talking but it is good for now -->
-    <td>{{#if isUserSharingAudio _id}}
+    <td>{{#if isUserSharingAudio userId}}
           {{#if isCurrentUser userId}}
-            {{#if isUserMuted _id}}
+            {{#if isUserMuted userId}}
               <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-off" rel="tooltip" data-placement="bottom" title="Unmute yourself"></span>
             {{else}}
               {{#if isCurrentUserTalking}}
@@ -16,10 +16,10 @@
               {{/if}}
             {{/if}}
           {{else}}
-            {{#if isUserMuted _id}}
+            {{#if isUserMuted userId}}
               <span class="userListSettingIcon glyphicon glyphicon-volume-off" rel="tooltip" data-placement="bottom" title="{{user.name}} is muted"></span>
             {{else}}
-              {{#if isUserTalking _id}}
+              {{#if isUserTalking userId}}
                   <span class="userListSettingIcon glyphicon glyphicon-volume-up" rel="tooltip" data-placement="bottom" title="{{user.name}} is talking"></span>
               {{else}}
                   <span class="userListSettingIcon glyphicon glyphicon-volume-down" rel="tooltip" data-placement="bottom" title="{{user.name}} is not talking"></span>
@@ -28,7 +28,7 @@
           {{/if}}
         {{/if}}
         <!-- listen only: -->
-        {{#if isUserListenOnly _id}}
+        {{#if isUserListenOnly userId}}
           <span class="userListSettingIcon glyphicon glyphicon-headphones" title="Listening only"></span>
         {{/if}}
     </td>

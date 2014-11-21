@@ -25,7 +25,7 @@
 
 # retrieve account for selected user
 @getCurrentUserFromSession = ->
-  Meteor.Users.findOne("_id": getInSession("userId"))
+  Meteor.Users.findOne(userId: getInSession("userId"))
 
 @getInSession = (k) -> SessionAmplify.get k
 
@@ -43,7 +43,7 @@
   (new Date).valueOf()
 
 @getTimeOfJoining = ->
-  Meteor.Users.findOne(_id: getInSession "DBID")?.user?.time_of_joining
+  Meteor.Users.findOne(userId: getInSession "userId")?.user?.time_of_joining
 
 @getPresentationFilename = ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
@@ -111,21 +111,21 @@ Handlebars.registerHelper "isCurrentUserTalking", ->
 Handlebars.registerHelper "isDisconnected", ->
   return !Meteor.status().connected
 
-Handlebars.registerHelper "isUserListenOnly", (_id) ->
-  user = Meteor.Users.findOne({_id:_id})
+Handlebars.registerHelper "isUserListenOnly", (userId) ->
+  user = Meteor.Users.findOne({userId:userId})
   return user?.user?.listenOnly
 
-Handlebars.registerHelper "isUserMuted", (_id) ->
-  BBB.isUserMuted(_id)
+Handlebars.registerHelper "isUserMuted", (userId) ->
+  BBB.isUserMuted(userId)
 
-Handlebars.registerHelper "isUserSharingAudio", (_id) ->
-  BBB.isUserSharingAudio(_id)
+Handlebars.registerHelper "isUserSharingAudio", (userId) ->
+  BBB.isUserSharingAudio(userId)
 
-Handlebars.registerHelper "isUserSharingVideo", (_id) ->
-  BBB.isUserSharingWebcam(_id)
+Handlebars.registerHelper "isUserSharingVideo", (userId) ->
+  BBB.isUserSharingWebcam(userId)
 
-Handlebars.registerHelper "isUserTalking", (_id) ->
-  BBB.isUserTalking(_id)
+Handlebars.registerHelper "isUserTalking", (userId) ->
+  BBB.isUserTalking(userId)
 
 Handlebars.registerHelper "meetingIsRecording", ->
   Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
@@ -154,7 +154,7 @@ Handlebars.registerHelper "visibility", (section) ->
     style: 'display:none'
 
 @isSharingAudio = ->
-  return Meteor.Users.findOne({_id: getInSession "DBID"})?.user?.voiceUser?.joined
+  return Meteor.Users.findOne({userId: getInSession "userId"})?.user?.voiceUser?.joined
 
 # transform plain text links into HTML tags compatible with Flash client
 @linkify = (str) ->
@@ -208,7 +208,7 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession "display_chatbar", !getInSession "display_chatbar"
 
 @toggleMic = (event) ->
-  u = Meteor.Users.findOne({_id:getInSession("DBID")})
+  u = Meteor.Users.findOne({userId:getInSession("userId")})
   if u?
     Meteor.call('muteUser', getInSession("meetingId"), u.userId, getInSession("userId"), getInSession("userSecret"), not u.user.voiceUser.muted)
 
@@ -266,7 +266,7 @@ Handlebars.registerHelper "visibility", (section) ->
 # TODO TEMPORARY!!
 # must not have this in production
 @whoami = ->
-  return {
+  console.log JSON.stringify {
     username: getInSession "userName"
     userid: getInSession "userId"
     userSecret: getInSession "userSecret"
