@@ -187,10 +187,6 @@ Handlebars.registerHelper "visibility", (section) ->
     unless chatTabs.findOne({userId: u.userId})?
       chatTabs.insert({ userId: u.userId, name: u.username, gotMail: false, class: "privateChatTab"})
 
-@setInSession = (k, v) ->
-  if k is "DBID" then  console.log "setInSession #{k}, #{v}"
-  SessionAmplify.set k, v
-
 @sendMeetingInfoToClient = (meetingId, userId) ->
     setInSession("userId", userId)
     setInSession("meetingId", meetingId)
