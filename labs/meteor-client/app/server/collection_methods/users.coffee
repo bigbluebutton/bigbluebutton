@@ -113,12 +113,15 @@ Meteor.methods
 # Need to update the collection
 # params: meetingid, userid as defined in BBB-Apps
 @removeUserFromMeeting = (meetingId, userId) ->
-  u = Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId})
-  if u?
-    Meteor.Users.remove(u._id)
-    Meteor.log.info "----removed user[" + userId + "] from " + meetingId
-  else
-    Meteor.log.info "did not find a user [userId] to delete in meetingid:#{meetingId}"
+  # mark the user as offline. remove from the collection on meeting_end #TODO
+  Meteor.Users.update({'meetingId': meetingId, 'userId': userId}, {$set:{'user.connection_status':'offline'}})
+
+  # u = Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId})
+  # if u?
+  #   Meteor.Users.remove(u._id)
+  #   Meteor.log.info "----removed user[" + userId + "] from " + meetingId
+  # else
+  #   Meteor.log.info "did not find a user [userId] to delete in meetingid:#{meetingId}"
 
 # Corresponds to a valid action on the HTML clientside
 # After authorization, publish a user_leaving_request in redis
@@ -179,7 +182,7 @@ Meteor.methods
         permissions: user.permissions
         locked: user.locked
         time_of_joining: user.timeOfJoining
-        connection_status: "" # TODO consider other default value
+        connection_status: "online" # TODO consider other default value
         voiceUser:
           web_userid: user.voiceUser.web_userid
           callernum: user.voiceUser.callernum
@@ -243,3 +246,7 @@ Meteor.methods
     id = Meteor.Users.insert(entry)
     Meteor.log.info "added user dummy user id=[#{id}]:#{user.name}.
       Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
+
+
+#TODO
+# indeed remove a user from the collection, not just marking the user as offline

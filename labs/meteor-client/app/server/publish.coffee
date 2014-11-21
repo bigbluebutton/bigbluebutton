@@ -2,14 +2,17 @@
 # On the client side we pass the meetingId parameter
 Meteor.publish 'users', (meetingId, userid, authToken) ->
   console.log "attempt publishing users for #{meetingId}, #{userid}, #{authToken}"
-  if isAllowedTo('subscribeUsers', meetingId, userid, authToken)
-
-    console.log "publishing users for #{meetingId}, #{userid}, #{authToken}"
-    ###
-    u = Meteor.Users.findOne({'userId': userid, 'meetingId': meetingId})
-    if u?
-      console.log "found it from the first time #{userid}"
+  u = Meteor.Users.findOne({'userId': userid, 'meetingId': meetingId})
+  if u?
+    console.log "found it from the first time #{userid}"
+    if isAllowedTo('subscribeUsers', meetingId, userid, authToken)
+      console.log "allowed to subscribe to 'users'"
       username = u?.user?.name or "UNKNOWN"
+
+      # offline -> online
+      if u.user?.connection_status isnt 'online'
+        Meteor.call "validateAuthToken", meetingId, userid, authToken
+
       Meteor.Users.update({'meetingId':meetingId, 'userId': userid}, {$set:{'user.connection_status': "online"}})
       console.log "username of the subscriber: " + username + ", connection_status becomes online"
 
@@ -17,35 +20,42 @@ Meteor.publish 'users', (meetingId, userid, authToken) ->
         console.log "\na user lost connection: session.id=#{@_session.id} userId = #{userid}, username=#{username}, meeting=#{meetingId}"
         Meteor.Users.update({'meetingId':meetingId, 'userId': userid}, {$set:{'user.connection_status': "offline"}})
         console.log "username of the user losing connection: " + username + ", connection_status: becomes offline"
-
+        requestUserLeaving meetingId, userid
         # check the status of the user later to see if the user managed to reconnect
-        setTimeout(Meteor.bindEnvironment(=>
-          result = Meteor.Users.findOne({'userId': userid, 'meetingId': meetingId})?.user?.connection_status
-          if result is "online"
-            console.log "user #{userid} (#{username}) managed to reconnect in meeting #{meetingId}"
-          else
-            console.log "user #{userid} (#{username}) failed to reconnect in meeting #{meetingId} and will be kicked out of the meeting"
-            requestUserLeaving meetingId, userid
-          )
-        , 10000) #TODO pick this from config.coffee
+        # setTimeout(Meteor.bindEnvironment(=>
+        #   result = Meteor.Users.findOne({'userId': userid, 'meetingId': meetingId})?.user?.connection_status
+        #   if result is "online"
+        #     console.log "user #{userid} (#{username}) managed to reconnect in meeting #{meetingId}"
+        #   else
+        #     console.log "user #{userid} (#{username}) failed to reconnect in meeting #{meetingId} and will be kicked out of the meeting"
+        #     requestUserLeaving meetingId, userid
+        #   )
+        # , 10000) #TODO pick this from config.coffee
         )
       )
 
+      #publish the users which are not offline
       Meteor.Users.find(
-        {meetingId: meetingId},
-        {fields:{'authToken': 0}
+        {meetingId: meetingId, 'user.connection_status':{$ne: "offline"}},
+        {fields:{'authToken': false}
         })
+    else
+      console.log "was not authorized to subscribe to 'users'"
 
-    else #subscribing before the user was added to the collection
-      Meteor.call "validateAuthToken", meetingId, userid, userid
-      console.log "there was no such user #{userid}  in #{meetingId}"
-    ###
-    # TODO switch the logging here with .info log
-
+  else #subscribing before the user was added to the collection
+    Meteor.call "validateAuthToken", meetingId, userid, authToken
+    console.log "there was no such user #{userid}  in #{meetingId}"
     Meteor.Users.find(
-      {meetingId: meetingId},
+      {meetingId: meetingId, 'user.connection_status':{$ne: "offline"}},
       {fields:{'authToken': false}
       })
+
+    # TODO switch the logging here with .info log
+
+    # Meteor.Users.find(
+    #   {meetingId: meetingId},
+    #   {fields:{'authToken': false}
+    #   })
 
 
 Meteor.publish 'chat', (meetingId, userid, authToken) ->
