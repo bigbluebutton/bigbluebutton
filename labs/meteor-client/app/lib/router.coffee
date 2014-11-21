@@ -15,9 +15,6 @@
         setInSession("meetingId", meetingId)
         setInSession("userId", userId)
 
-        if Meteor.isClient #TODO try to get rid of this
-          sendMeetingInfoToClient(meetingId, userId) #TODO try to get rid of this
-
         Meteor.subscribe 'users', meetingId, userId, authToken, ->
           console.log "now I have access to the users from the client. my userid is #{userId} _#{Meteor.Users.find().count()}__"
           Meteor.subscribe 'chat', meetingId, userId, authToken, ->
@@ -31,6 +28,7 @@
       authToken = getInSession 'authToken'
       meetingId = getInSession 'meetingId'
       userId = getInSession 'userId'
+      console.log "currently #{authToken} #{meetingId} #{userId}"
       Meteor.subscribe 'chat', meetingId, userId, authToken, ->
         Meteor.subscribe 'shapes', meetingId, ->
           Meteor.subscribe 'slides', meetingId, ->
