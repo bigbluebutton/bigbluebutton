@@ -1,4 +1,3 @@
-
 @Router.configure layoutTemplate: 'layout'
 
 @Router.map ->
@@ -15,11 +14,7 @@
         setInSession("meetingId", meetingId)
         setInSession("userId", userId)
 
-        Meteor.subscribe 'users', meetingId, userId, authToken, ->
-          console.log "now I have access to the users from the client. my userid is #{userId} _#{Meteor.Users.find().count()}__"
-          Meteor.subscribe 'chat', meetingId, userId, authToken, ->
-            console.log "ready"
-            Router.go('/')
+        Router.go('/')
 
   @route "main",
     path: "/"
@@ -37,9 +32,6 @@
                 Meteor.subscribe 'users', meetingId, userId, authToken, ->
                   console.log "done subscribing"
       @render('main')
-
-    action: ->
-      console.log "main. action"
 
   @route "logout",
     path: "logout"
