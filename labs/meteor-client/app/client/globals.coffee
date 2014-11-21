@@ -190,7 +190,6 @@ Handlebars.registerHelper "visibility", (section) ->
 @sendMeetingInfoToClient = (meetingId, userId) ->
     setInSession("userId", userId)
     setInSession("meetingId", meetingId)
-    setInSession("currentChatId", meetingId) #TODO check if this is needed
     setInSession("meetingName", null)
     setInSession("userName", null)
 
@@ -243,7 +242,6 @@ Handlebars.registerHelper "visibility", (section) ->
   # Clear the local user session and redirect them away
   setInSession("userId", null)
   setInSession("meetingId", null)
-  setInSession("currentChatId", null)
   setInSession("meetingName", null)
   setInSession("bbbServerVersion", null)
   setInSession("userName", null)
