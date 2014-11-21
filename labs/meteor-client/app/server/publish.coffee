@@ -1,9 +1,10 @@
 # Publish only the users that are in the particular meetingId
 # On the client side we pass the meetingId parameter
 Meteor.publish 'users', (meetingId, userid, authToken) ->
+  console.log "attempt publishing users for #{meetingId}, #{userid}, #{authToken}"
   if isAllowedTo('subscribeUsers', meetingId, userid, authToken)
 
-    console.log "publishing users for #{meetingId}, #{userid}"
+    console.log "publishing users for #{meetingId}, #{userid}, #{authToken}"
     ###
     u = Meteor.Users.findOne({'userId': userid, 'meetingId': meetingId})
     if u?
@@ -49,15 +50,19 @@ Meteor.publish 'users', (meetingId, userid, authToken) ->
 
 Meteor.publish 'chat', (meetingId, userid, authToken) ->
   if isAllowedTo('subscribeChat', meetingId, userid, authToken)
-    console.log "publishing chat for #{meetingId} #{userid}"
+    console.log "publishing chat for #{meetingId} #{userid} #{authToken}"
     me = Meteor.Users.findOne({meetingId: meetingId, userId: userid})
     if me?
       me = me._id
-      Meteor.Chat.find({$or: [
+      console.log "me = #{me}"
+      #TODO change _id with userid
+      return Meteor.Chat.find({$or: [
         {'message.chat_type': 'PUBLIC_CHAT', 'meetingId': meetingId},
         {'message.from_userid': me, 'meetingId': meetingId},
         {'message.to_userid': me, 'meetingId': meetingId}
         ]})
+    else
+      console.log "could not find myself in publishing chat"
 
 Meteor.publish 'shapes', (meetingId) ->
   Meteor.Shapes.find({meetingId: meetingId})
