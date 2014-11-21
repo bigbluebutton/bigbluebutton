@@ -35,15 +35,6 @@ Meteor.startup ->
       return
   )
 
-  # Meteor.autorun ->
-  #   if Meteor.status().connected
-  #     console.log("connected")
-  #     uid = getInSession("userId")
-  #     # Obtain user info here. for testing. should be moved somewhere else later
-  #     Meteor.call "getMyInfo", uid, (error, result) -> #TODO should try to get rid of this?
-  #       if error? then console.log "error:" + error
-  #       else
-
   setInSession "display_usersList", true
   setInSession "display_navbar", true
   setInSession "display_chatbar", true
