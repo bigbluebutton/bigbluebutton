@@ -185,3 +185,31 @@ body {
 
 .videoFeedIcon {}
 
+/* Custom alert box */
+
+.no-close .ui-dialog-titlebar-close {
+  display: none; /* no close button */
+}
+
+.logout-dialog.ui-dialog .ui-widget-header {
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  background: #40434c;
+}
+
+.logout-dialog.ui-dialog .ui-dialog-content {
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.logout-dialog.ui-widget-content {
+    font-size: 10px;
+    background: #eee;
+    border: 5px solid #40434c;
+}
+
+.custom-button {
+  background-color: #E3E1B8;
+}

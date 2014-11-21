@@ -24,10 +24,7 @@ Template.header.events
     $(".tooltip").hide()
     toggleMic @
   "click .signOutIcon": (event) ->
-    response = confirm('Are you sure you want to exit?')
-    if response
-      userLogout getInSession("meetingId"), getInSession("userId"), true
-
+    $("#dialog").dialog("open")
   "click .hideNavbarIcon": (event) ->
     $(".tooltip").hide()
     toggleNavbar()
@@ -56,6 +53,37 @@ Template.recordingStatus.rendered = ->
 Template.main.helpers
 	setTitle: ->
 		document.title = "BigBlueButton #{window.getMeetingName() ? 'HTML5'}"
+
+Template.main.rendered = ->
+  $("#dialog").dialog(
+    modal: true
+    draggable: false
+    resizable: false
+    autoOpen: false
+    height: 115
+    width: 270
+    dialogClass: 'no-close logout-dialog'
+    buttons: [
+      {
+        text: 'Yes'
+        click: () ->
+          userLogout getInSession("meetingId"), getInSession("userId"), true
+          $(this).dialog("close")
+        class: 'btn btn-xs btn-primary active'
+      }
+      {
+        text: 'No'
+        click: () ->
+          $(this).dialog("close")
+          $(".tooltip").hide()
+        class: 'btn btn-xs btn-default'
+      }
+    ]
+    position:
+      my: 'right top'
+      at: 'right bottom'
+      of: '.signOutIcon'
+  )
 
 Template.makeButton.rendered = ->
   $('button[rel=tooltip]').tooltip()

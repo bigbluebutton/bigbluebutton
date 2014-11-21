@@ -78,6 +78,9 @@
 <template name="main">
 	{{setTitle}}
 	<body>
+        <div id="dialog" title="Confirm Logout">
+            <p>Are you sure you want to log out?</p>
+        </div>
 		<div id="main" class="mainContainer row-fluid">
  		{{#if isDisconnected}}
 			{{>status}}
