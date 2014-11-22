@@ -192,7 +192,7 @@ Handlebars.registerHelper "visibility", (section) ->
     setInSession("userName", null)
 
 # check the chat history of the user and add tabs for the private chats
-@populateChatTabs = ->
+@populateChatTabs = (msg) ->
   mydbid = getInSession "DBID"
   users = Meteor.Users.find().fetch()
 
@@ -212,8 +212,10 @@ Handlebars.registerHelper "visibility", (section) ->
     )
   #insert the unique entries in the collection
   for u in uniqueArray
-    unless chatTabs.findOne({userId: u.userId})?
-      chatTabs.insert({ userId: u.userId, name: u.username, gotMail: false, class: "privateChatTab"})
+    tabs = getInSession('chatTabs')
+    unless tabs.filter((tab) -> tab.userId == u.userId).length isnt 0
+      tabs.push {userId: u.userId, name: u.username, gotMail: false, class: 'privateChatTab'}
+      setInSession 'chatTabs', tabs
 
 @setInSession = (k, v) -> SessionAmplify.set k, v 
 
@@ -282,9 +284,3 @@ Handlebars.registerHelper "visibility", (section) ->
   currentSlide = @getCurrentSlideDoc()
   ratio = (currentSlide?.slide.width_ratio + currentSlide?.slide.height_ratio) / 2
   thickness * 100 / ratio
-
-# start a clientside-only collection keeping track of the chat tabs
-@chatTabs = new Meteor.Collection(null)
-# insert the basic tabs
-@chatTabs.insert({ userId: "PUBLIC_CHAT", name: "Public", gotMail: false, class: "publicChatTab"})
-@chatTabs.insert({ userId: "OPTIONS", name: "Options", gotMail: false, class: "optionsChatTab"})

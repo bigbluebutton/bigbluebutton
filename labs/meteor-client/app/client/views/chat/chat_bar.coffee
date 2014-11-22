@@ -21,10 +21,13 @@
         else
           chatMessage.message?.from_userid
 
-      populateChatTabs() # check if we need to open a new tab
+      populateChatTabs(chatMessage) # check if we need to open a new tab
       destinationTab = findDestinationTab()
       if destinationTab isnt getInSession "inChatWith"
-        chatTabs.update({userId: destinationTab}, {$set: {gotMail: true}})
+        setInSession 'chatTabs', getInSession('chatTabs').map((tab) ->
+          tab.gotMail = true if tab.userId is destinationTab
+          tab
+        )
     })
 
 # This method returns all messages for the user. It looks at the session to determine whether the user is in
@@ -65,7 +68,20 @@ Handlebars.registerHelper "autoscroll", ->
   false
 
 Handlebars.registerHelper "grabChatTabs", ->
-  chatTabs.find({}, {limit:4, sort: {natural:1}}).fetch()
+  if getInSession('chatTabs') is undefined
+    initTabs = [
+      userId: "PUBLIC_CHAT"
+      name: "Public"
+      gotMail: false
+      class: "publicChatTab"
+    ,
+      userId: "OPTIONS"
+      name: "Options"
+      gotMail: false
+      class: "optionsChatTab"
+    ]
+    setInSession 'chatTabs', initTabs
+  getInSession('chatTabs')[0..3]
 
 @sendMessage = ->
   message = linkify $('#newMessageInput').val() # get the message from the input box
@@ -158,7 +174,7 @@ Template.extraConversations.events
 		console.log "#{user.name} #{user.userId}"
 		# put this conversation in the 3rd position in the chat tabs collection (after public and options)
 		# Take all the tabs and turn into an array
-		tabArray = chatTabs.find().fetch()
+		tabArray = getInSession('chatTabs')
 
 		# find the index of the selected tab
 		index = do ->
@@ -177,19 +193,16 @@ Template.extraConversations.events
 				tabArray.splice(index, 1)
 				# insert it at the 3rd index
 				tabArray.splice(2, 0, selected)
-				# clear collection
-				chatTabs.remove({})
-
-				# store entire array back into the collection
-				for value in tabArray
-					chatTabs.insert value
+				# update collection
+				setInSession 'chatTabs', tabArray
 
 Template.extraConversations.helpers
   getExtraConversations: ->
-    chatTabs.find({}, {skip:4, sort: {natural:1}}).fetch()
+    getInSession('chatTabs')[4..]
 
   tooManyConversations: ->
-    chatTabs.find().count() > 4
+    return false if getInSession('chatTabs') is undefined
+    getInSession('chatTabs').length > 4
 
 Template.message.helpers
   sanitizeAndFormat: (str) ->
@@ -237,14 +250,21 @@ Template.tabButtons.events
     setInSession 'inChatWith', 'PUBLIC_CHAT'
     setInSession 'display_chatPane', true
     console.log "userId: #{@userId}"
-    id = chatTabs.findOne({userId: @userId})
-    if id?
-      chatTabs.remove(id)
+    _this = @
+    tabs = getInSession('chatTabs')
+    if tabs.filter((tab) -> tab.userId is _this.userId).length > 0
+      tabs = $.grep(tabs, (t) -> t.userId isnt _this.userId)
+      setInSession 'chatTabs', tabs
 
     return false # stops propogation/prevents default
 
   'click .gotUnreadMail': (event) ->
-    chatTabs.update({userId: @userId}, {$set: {gotMail: false}})
+    #chatTabs.update({userId: @userId}, {$set: {gotMail: false}})
+    _this = @
+    setInSession 'chatTabs', getInSession('chatTabs').map((tab) ->
+      tab.gotMail = false if tab.userId is _this.userId
+      tab
+    )
 
   'click .optionsChatTab': (event) ->
     console.log "options"
