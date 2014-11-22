@@ -1049,17 +1049,22 @@ check_state() {
 				echo 
 			fi
 
-			SIP_IP=$(netstat -ant | grep 5060 | head -n1 | awk -F" " '{print $4}' | cut -d: -f1)
-			if [ "$BBB_SIP_APP_IP" != $SIP_IP ]; then
-				echo "# Error: FreeSWITCH is listening on IP address $SIP_IP for SIP calls, but "
-				echo "# The IP address ($BBB_SIP_APP_IP) set bbb.sip.app.ip."
-				echo "#"
-				echo "# If your audio is not working (users click the  headset icon "
-				echo "# and don't appear in the Listeners window, ensure FreeSWITCH uses"
-				echo "# the local loopback 127.0.0.1 address.  See"
-				echo "#   http://code.google.com/p/bigbluebutton/wiki/FAQ#Users_do_not_appear_in_the_listeners_window"
-				echo 
-			fi
+                        SIP_IP=$(netstat -ant | grep 5060 | head -n1 | awk -F" " '{print $4}' | cut -d: -f1)
+                        if [ -z $SIP_IP ]; then
+                                echo "# Error: Could not detect FreeSWITCH listening on port 5060"
+                                echo 
+                        else
+                            if [ "$BBB_SIP_APP_IP" != $SIP_IP ]; then
+                                echo "# Error: FreeSWITCH is listening on IP address $SIP_IP for SIP calls, but "
+                                echo "# The IP address ($BBB_SIP_APP_IP) set bbb.sip.app.ip."
+                                echo "#"
+                                echo "# If your audio is not working (users click the  headset icon "
+                                echo "# and don't appear in the Listeners window, ensure FreeSWITCH uses"
+                                echo "# the local loopback 127.0.0.1 address.  See"
+                                echo "#   http://code.google.com/p/bigbluebutton/wiki/FAQ#Users_do_not_appear_in_the_listeners_window"
+                                echo 
+                            fi
+                        fi
 		fi
 
 	if [ -d ${SERVLET_DIR}/lti ]; then
@@ -1116,6 +1121,16 @@ check_state() {
 		echo "#"
 		echo "#    sudo apt-get purge bbb-demo"
 		echo 
+	fi
+
+	if [ -f /var/www/bigbluebutton/check/conf/config.xml ]; then
+		CHECK_HOST=$(cat /var/www/bigbluebutton/check/conf/config.xml  | grep "<uri>rtmp" | head -1 | sed  's/.*rtmp:\/\///g' | sed 's/\/.*//g' | tr -d '\015')
+		echo "# Warning: The client self check is installed and accessible from:"
+		echo "#"
+		echo "#    http://$CHECK_HOST/check"
+		echo "#"
+		echo 
+
 	fi
 
 	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
@@ -1227,6 +1242,13 @@ if [ $CHECK ]; then
 		echo
 		echo "${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties (LTI integration)"
 		echo "                           api url: $LTI_URL"
+	fi
+
+	if [ -f /var/www/bigbluebutton/check/conf/config.xml ]; then
+		CHECK_URL=$(cat /var/www/bigbluebutton/check/conf/config.xml  | grep "<uri>rtmp" | head -1 | sed  's/.*rtmp:\/\///g' | sed 's/\/.*//g' | tr -d '\015')
+		echo
+		echo "/var/www/bigbluebutton/check/conf/config.xml (client check)"
+		echo "                      client check: $CHECK_URL"
 	fi
 
 	CONFERENCING_MODULE="FreeSWITCH"
@@ -1467,6 +1489,12 @@ if [ -n "$HOST" ]; then
                 done
         done
 	echo 
+
+	if [ -f /var/www/bigbluebutton/check/conf/config.xml ]; then
+		echo "Assigning $HOST for client self check to /var/www/bigbluebutton/check/conf/config.xml"
+		sed -i "s/rtmp:\/\/\([^\"\/]*\)\//rtmp:\/\/$HOST\//g" /var/www/bigbluebutton/check/conf/config.xml
+		sed -i "s/rtmpt:\/\/\([^\"\/]*\)\//rtmpt:\/\/$HOST\//g" /var/www/bigbluebutton/check/conf/config.xml
+	fi
 
 	echo "Restarting the bigbluebutton server ..."
 	stop_bigbluebutton

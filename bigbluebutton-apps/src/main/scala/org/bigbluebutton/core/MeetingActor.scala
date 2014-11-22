@@ -225,8 +225,10 @@ class MeetingActor(val meetingID: String, val meetingName: String, val recorded:
   }
   
   private def handleSetRecordingStatus(msg: SetRecordingStatus) {
+    logger.debug("Change recording status for meeting [" + meetingID + "], recording=[" + msg.recording + "]")
     if (allowStartStopRecording && recording != msg.recording) {
      recording = msg.recording
+     logger.debug("Sending recording status for meeting [" + meetingID + "], recording=[" + msg.recording + "]")
      outGW.send(new RecordingStatusChanged(meetingID, recorded, msg.userId, msg.recording))      
     }
   }   

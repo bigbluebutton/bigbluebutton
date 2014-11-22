@@ -55,7 +55,10 @@ class UrlMappings {
 			}
 		}
 
-		"/"(view:"/index")
+		"/"(controller:"api") {
+			action = [GET:'index']
+		}
+		
 		"500"(view:'/error')
 	}
 }

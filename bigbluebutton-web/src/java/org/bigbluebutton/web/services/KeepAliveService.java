@@ -49,7 +49,7 @@ public class KeepAliveService implements MessageListener {
 	private KeepAliveTask task = new KeepAliveTask();
 	private volatile boolean processMessages = false;
 	private ArrayList<String> pingMessages = new ArrayList<String>();
-	volatile boolean available = true;
+	volatile boolean available = false;
 	
 	private static final Executor msgSenderExec = Executors.newFixedThreadPool(1);
 	private static final Executor runExec = Executors.newFixedThreadPool(1);

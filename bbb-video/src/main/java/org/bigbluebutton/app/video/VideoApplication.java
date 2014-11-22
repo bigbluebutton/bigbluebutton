@@ -40,6 +40,7 @@ import org.red5.server.api.stream.ISubscriberStream;
 import org.red5.server.stream.ClientBroadcastStream;
 import org.slf4j.Logger;
 import org.apache.commons.lang3.StringUtils;
+import com.google.gson.Gson;
 
 public class VideoApplication extends MultiThreadedApplicationAdapter {
 	private static Logger log = Red5LoggerFactory.getLogger(VideoApplication.class, "video");
@@ -62,7 +63,8 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     @Override
 	public boolean appStart(IScope app) {
 	    super.appStart(app);
-		log.info("oflaDemo appStart");
+		log.info("BBB Video appStart");
+		System.out.println("BBB Video appStart");    	
 		appScope = app;
 		timer = new Timer();
 		return true;
@@ -70,19 +72,109 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
     @Override
 	public boolean appConnect(IConnection conn, Object[] params) {
-		log.info("oflaDemo appConnect"); 
+		log.info("BBB Video appConnect"); 		
 		return super.appConnect(conn, params);
 	}
 
-    @Override
+  @Override
+	public boolean roomConnect(IConnection conn, Object[] params) {
+		log.info("BBB Video roomConnect"); 
+  	String meetingId = ((String) params[0]).toString();
+  	String userId = ((String) params[1]).toString();
+  	
+  	Red5.getConnectionLocal().setAttribute("MEETING_ID", meetingId);
+  	Red5.getConnectionLocal().setAttribute("USERID", userId);
+  	
+		String connType = getConnectionType(Red5.getConnectionLocal().getType());
+		String connId = Red5.getConnectionLocal().getSessionId();
+		
+		Map<String, Object> logData = new HashMap<String, Object>();
+		logData.put("meetingId", meetingId);
+		logData.put("userId", userId);
+		logData.put("connType", connType);
+		logData.put("connId", connId);
+		logData.put("event", "user_joining_bbb_video");
+		logData.put("description", "User joining BBB Video.");
+		
+		Gson gson = new Gson();
+    String logStr =  gson.toJson(logData);
+		
+		log.info("User joining bbb-video: data={}", logStr);
+		
+		return super.roomConnect(conn, params);
+	}
+    
+  private String getConnectionType(String connType) {
+  	if ("persistent".equals(connType.toLowerCase())) {
+  		return "RTMP";
+  	} else if("polling".equals(connType.toLowerCase())) {
+  		return "RTMPT";
+  	} else {
+  		return connType.toUpperCase();
+  	}
+  }
+
+	private String getUserId() {
+		String userid = (String) Red5.getConnectionLocal().getAttribute("USERID");
+		if ((userid == null) || ("".equals(userid))) userid = "unknown-userid";
+		return userid;
+	}
+	
+	private String getMeetingId() {
+		String meetingId = (String) Red5.getConnectionLocal().getAttribute("MEETING_ID");
+		if ((meetingId == null) || ("".equals(meetingId))) meetingId = "unknown-meetingid";
+		return meetingId;
+	}
+	
+  @Override
 	public void appDisconnect(IConnection conn) {
-		log.info("oflaDemo appDisconnect");
+		log.info("BBB Video appDisconnect");
 		if (appScope == conn.getScope() && serverStream != null) {
 			serverStream.close();
 		}
+		
+		String connType = getConnectionType(Red5.getConnectionLocal().getType());
+		String connId = Red5.getConnectionLocal().getSessionId();
+		
+		Map<String, Object> logData = new HashMap<String, Object>();
+		logData.put("meetingId", getMeetingId());
+		logData.put("userId", getUserId());
+		logData.put("connType", connType);
+		logData.put("connId", connId);
+		logData.put("event", "user_leaving_bbb_video");
+		logData.put("description", "User leaving BBB Video.");
+		
+		Gson gson = new Gson();
+    String logStr =  gson.toJson(logData);
+		
+		log.info("User leaving bbb-video: data={}", logStr);
+		
 		super.appDisconnect(conn);
 	}
-    
+
+  @Override
+	public void roomDisconnect(IConnection conn) {
+		log.info("BBB Video roomDisconnect");
+		
+		String connType = getConnectionType(Red5.getConnectionLocal().getType());
+		String connId = Red5.getConnectionLocal().getSessionId();
+		
+		Map<String, Object> logData = new HashMap<String, Object>();
+		logData.put("meetingId", getMeetingId());
+		logData.put("userId", getUserId());
+		logData.put("connType", connType);
+		logData.put("connId", connId);
+		logData.put("event", "user_leaving_bbb_video");
+		logData.put("description", "User leaving BBB Video.");
+		
+		Gson gson = new Gson();
+    String logStr =  gson.toJson(logData);
+		
+		log.info("User leaving bbb-video: data={}", logStr);
+		
+		super.roomDisconnect(conn);
+	}
+  
     @Override
     public void streamPublishStart(IBroadcastStream stream) {
     	super.streamPublishStart(stream);

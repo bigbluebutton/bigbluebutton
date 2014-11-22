@@ -11,7 +11,7 @@
     <skinning enabled="true" url="http://HOST/client/branding/css/BBBDefault.css.swf" />
     <branding logo="logo.png" copyright="Mconf rocks!" background="background.jpg" />
     <shortcutKeys showButton="true" />
-    <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="Default"
+    <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="bbb.layout.name.defaultlayout"
             showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true" 
             showLogoutWindow="true" showLayoutTools="true" showNetworkMonitor="true" confirmLogout="true"/>
     <lock allowModeratorLocking="false" disableCamForLockedUsers="false" disableMicForLockedUsers="false" disablePrivateChatForLockedUsers="false" 

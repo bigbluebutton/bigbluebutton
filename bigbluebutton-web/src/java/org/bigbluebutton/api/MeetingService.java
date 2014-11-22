@@ -53,6 +53,7 @@ import org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask;
 import org.bigbluebutton.web.services.KeepAliveService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.gson.Gson;
 
 public class MeetingService implements MessageListener {
 	private static Logger log = LoggerFactory.getLogger(MeetingService.class);
@@ -114,7 +115,20 @@ public class MeetingService implements MessageListener {
 	
 	private void kickOffProcessingOfRecording(Meeting m) {
   	if (m.isRecord() && m.getNumUsers() == 0) {
-  		log.info("Kick-off processing of recording for meeting [id={} , name={}]", m.getInternalId(), m.getName());		  			
+  		log.info("Kick-off processing of recording for meeting [id={} , name={}]", m.getInternalId(), m.getName());		
+  		
+  		Map<String, Object> logData = new HashMap<String, Object>();
+  		logData.put("meetingId", m.getInternalId());
+  		logData.put("externalMeetingId", m.getExternalId());
+  		logData.put("name", m.getName());
+  		logData.put("event", "kick_off_ingest_and_processing");
+  		logData.put("description", "Start processing of recording.");
+  		
+  		Gson gson = new Gson();
+      String logStr =  gson.toJson(logData);
+  		
+  		log.info("Initiate recording processing: data={}", logStr);
+  		
   		processRecording(m.getInternalId());
   	}		 		
 	}
@@ -147,6 +161,19 @@ public class MeetingService implements MessageListener {
 		for (Meeting m : meetings.values()) {
 			if (m.hasExpired(defaultMeetingExpireDuration) ) {
 				log.info("Meeting [id={} , name={}] has expired.", m.getInternalId(), m.getName());
+				
+	  		Map<String, Object> logData = new HashMap<String, Object>();
+	  		logData.put("meetingId", m.getInternalId());
+	  		logData.put("externalMeetingId", m.getExternalId());
+	  		logData.put("name", m.getName());
+	  		logData.put("event", "removing_meeting");
+	  		logData.put("description", "Meeting has expired.");
+	  		
+	  		Gson gson = new Gson();
+	      String logStr =  gson.toJson(logData);
+	  		
+	  		log.info("Removing meeting: data={}", logStr);
+	  		
 				processMeetingForRemoval(m);
 				continue;
 			} else {
@@ -155,12 +182,37 @@ public class MeetingService implements MessageListener {
 			
 			if (m.isForciblyEnded()) {
 				log.info("Meeting [id={} , name={}] has been forcefully ended.", m.getInternalId(), m.getName());
+				
+	  		Map<String, Object> logData = new HashMap<String, Object>();
+	  		logData.put("meetingId", m.getInternalId());
+	  		logData.put("externalMeetingId", m.getExternalId());
+	  		logData.put("name", m.getName());
+	  		logData.put("event", "removing_meeting");
+	  		logData.put("description", "Meeting forcefully ended.");
+	  		
+	  		Gson gson = new Gson();
+	      String logStr =  gson.toJson(logData);
+	  		
+	  		log.info("Removing meeting: data={}", logStr);
 				processMeetingForRemoval(m);			
 				continue;
 			}
 			
 			if (m.wasNeverJoined(defaultMeetingCreateJoinDuration)) {
 				log.info("No user has joined the meeting [id={} , name={}]. Removing it.", m.getInternalId(), m.getName());
+				
+	  		Map<String, Object> logData = new HashMap<String, Object>();
+	  		logData.put("meetingId", m.getInternalId());
+	  		logData.put("externalMeetingId", m.getExternalId());
+	  		logData.put("name", m.getName());
+	  		logData.put("event", "removing_meeting");
+	  		logData.put("description", "Meeting has not been joined.");
+	  		
+	  		Gson gson = new Gson();
+	      String logStr =  gson.toJson(logData);
+	  		
+	  		log.info("Removing meeting: data={}", logStr);
+	  		
 				destroyMeeting(m.getInternalId());			
 				meetings.remove(m.getInternalId());
 				continue;
@@ -168,6 +220,19 @@ public class MeetingService implements MessageListener {
 			
 			if (m.hasExceededDuration()) {
 				log.info("Meeting [id={} , name={}] has ran past duration. Ending it.", m.getInternalId(), m.getName());
+				
+	  		Map<String, Object> logData = new HashMap<String, Object>();
+	  		logData.put("meetingId", m.getInternalId());
+	  		logData.put("externalMeetingId", m.getExternalId());
+	  		logData.put("name", m.getName());
+	  		logData.put("event", "removing_meeting");
+	  		logData.put("description", "Meeting exceeded duration.");
+	  		
+	  		Gson gson = new Gson();
+	      String logStr =  gson.toJson(logData);
+	  		
+	  		log.info("Removing meeting: data={}", logStr);
+	  		
 				endMeeting(m.getInternalId());
 			}			
 		}		
@@ -188,7 +253,10 @@ public class MeetingService implements MessageListener {
 	}
 
 	private void handleCreateMeeting(Meeting m) {
-		log.info("Storing Meeting with internalId=[" + m.getInternalId() + "], externalId=[" + m.getExternalId() + "], name=[" + m.getName() + "], duration=[" + m.getDuration() + "], record=[" + m.isRecord() + "]");
+		log.info("Storing Meeting with internalId=[" + m.getInternalId() + "], externalId=[" 
+	            + m.getExternalId() + "], name=[" + m.getName() + "], duration=[" 
+				      + m.getDuration() + "], record=[" + m.isRecord() + "]");
+
 		meetings.put(m.getInternalId(), m);
 		if (m.isRecord()) {
 			Map<String,String> metadata = new LinkedHashMap<String,String>();
@@ -199,6 +267,20 @@ public class MeetingService implements MessageListener {
 			
 			messagingService.recordMeetingInfo(m.getInternalId(), metadata);
 		}
+
+		Map<String, Object> logData = new HashMap<String, Object>();
+		logData.put("meetingId", m.getInternalId());
+		logData.put("externalMeetingId", m.getExternalId());
+		logData.put("name", m.getName());
+		logData.put("duration", m.getDuration());
+		logData.put("record", m.isRecord());
+		logData.put("event", "create_meeting");
+		logData.put("description", "Create meeting.");
+		
+		Gson gson = new Gson();
+    String logStr =  gson.toJson(logData);
+		
+		log.info("Create meeting: data={}", logStr);
 		
 		messagingService.createMeeting(m.getInternalId(), m.getName(), m.isRecord(), 
 				 m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording());			
@@ -393,8 +475,37 @@ public class MeetingService implements MessageListener {
 				long now = System.currentTimeMillis();
 				log.info("Meeting [{}] has started on [{}]", message.meetingId, now);
 				m.setStartTime(now);
+				
+				Map<String, Object> logData = new HashMap<String, Object>();
+				logData.put("meetingId", m.getInternalId());
+				logData.put("externalMeetingId", m.getExternalId());
+				logData.put("name", m.getName());
+				logData.put("duration", m.getDuration());
+				logData.put("record", m.isRecord());
+				logData.put("event", "meeting_started");
+				logData.put("description", "Meeting has started.");
+				
+				Gson gson = new Gson();
+		    String logStr =  gson.toJson(logData);
+				
+				log.info("Meeting started: data={}", logStr);
+				
 			} else {
 				log.debug("The meeting [{}] has been started again...", message.meetingId);
+				
+				Map<String, Object> logData = new HashMap<String, Object>();
+				logData.put("meetingId", m.getInternalId());
+				logData.put("externalMeetingId", m.getExternalId());
+				logData.put("name", m.getName());
+				logData.put("duration", m.getDuration());
+				logData.put("record", m.isRecord());
+				logData.put("event", "meeting_restarted");
+				logData.put("description", "Meeting has restarted.");
+				
+				Gson gson = new Gson();
+		    String logStr =  gson.toJson(logData);
+				
+				log.info("Meeting restarted: data={}", logStr);
 			}
 			return;
 		}
@@ -408,6 +519,21 @@ public class MeetingService implements MessageListener {
 			long now = System.currentTimeMillis();
 			log.debug("Meeting [{}] end time [{}].", message.meetingId, now);
 			m.setEndTime(now);
+			
+			Map<String, Object> logData = new HashMap<String, Object>();
+			logData.put("meetingId", m.getInternalId());
+			logData.put("externalMeetingId", m.getExternalId());
+			logData.put("name", m.getName());
+			logData.put("duration", m.getDuration());
+			logData.put("record", m.isRecord());
+			logData.put("event", "meeting_ended");
+			logData.put("description", "Meeting has ended.");
+			
+			Gson gson = new Gson();
+	    String logStr =  gson.toJson(logData);
+			
+			log.info("Meeting ended: data={}", logStr);
+			
 			return;
 		}
 		log.warn("The meeting " + message.meetingId + " doesn't exist");
@@ -420,6 +546,23 @@ public class MeetingService implements MessageListener {
 			User user = new User(message.userId, message.externalUserId, message.name, message.role, message.guest);
 			m.userJoined(user);
 			log.info("New user in meeting [" + message.meetingId + "] user [" + user.getFullname() + "]");
+			
+			Map<String, Object> logData = new HashMap<String, Object>();
+			logData.put("meetingId", m.getInternalId());
+			logData.put("externalMeetingId", m.getExternalId());
+			logData.put("name", m.getName());
+			logData.put("userId", message.userId);
+			logData.put("externalUserId", user.getExternalUserId());
+			logData.put("username", user.getFullname());
+			logData.put("role", user.getRole());			
+			logData.put("event", "user_joined_meeting");
+			logData.put("description", "User had joined the meeting.");
+			
+			Gson gson = new Gson();
+	    String logStr =  gson.toJson(logData);
+			
+			log.info("User joined meeting: data={}", logStr);
+			
 			return;
 		}
 		log.warn("The meeting " + message.meetingId + " doesn't exist");
@@ -432,6 +575,23 @@ public class MeetingService implements MessageListener {
 			User user = m.userLeft(message.userId);
 			if(user != null){
 				log.info("User removed from meeting [" + message.meetingId + "] user [" + user.getFullname() + "]");
+				
+				Map<String, Object> logData = new HashMap<String, Object>();
+				logData.put("meetingId", m.getInternalId());
+				logData.put("externalMeetingId", m.getExternalId());
+				logData.put("name", m.getName());
+				logData.put("userId", message.userId);
+				logData.put("externalUserId", user.getExternalUserId());
+				logData.put("username", user.getFullname());
+				logData.put("role", user.getRole());			
+				logData.put("event", "user_joined_meeting");
+				logData.put("description", "User had joined the meeting.");
+				
+				Gson gson = new Gson();
+		    String logStr =  gson.toJson(logData);
+				
+				log.info("User left meeting: data={}", logStr);
+				
 				return;
 			}
 			log.warn("The participant " + message.userId + " doesn't exist in the meeting " + message.meetingId);

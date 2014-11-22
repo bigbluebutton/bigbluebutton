@@ -175,8 +175,8 @@ package org.bigbluebutton.modules.phone.managers
     public function handleWebRTCEchoTestFailedEvent(errorCode:Number):void {
       model.state = Constants.INITED;
       endEchoTest();
-	  var errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError." + errorCode);
-	  if (errorString == null) {
+	  var errorString:String = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError." + errorCode);
+	  if (!errorString) {
 		  errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.unknown", [errorCode]);
 	  }
 	  
@@ -190,8 +190,8 @@ package org.bigbluebutton.modules.phone.managers
     
     public function handleWebRTCCallFailedEvent(errorCode:Number):void {
       model.state = Constants.INITED;
-	  var errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError." + errorCode);
-	  if (errorString == null) {
+	  var errorString:String = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError." + errorCode);
+	  if (!errorString) {
 		  errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.unknown", [errorCode]);
 	  }
       var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);

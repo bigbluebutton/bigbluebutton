@@ -24,9 +24,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     xsi:schemaLocation="http://www.springframework.org/schema/beans
             http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 	
-	<beans:bean id="voiceHandler" class="org.bigbluebutton.conference.service.voice.VoiceHandler">
-	</beans:bean>
-				
 	<beans:bean id="voiceEventRecorder" class="org.bigbluebutton.webconference.voice.VoiceEventRecorder">
 		<beans:property name="recorderApplication" ref="recorderApplication"/>
 	</beans:bean>
