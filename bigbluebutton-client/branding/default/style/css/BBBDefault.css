@@ -95,7 +95,7 @@ ToolTip {
   fontFamily: Arial;
 }
 
-Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowProfileComboStyle, .cameraDisplaySettingsWindowCameraSelector, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle, .settingsButtonStyle {
+Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowProfileComboStyle, .cameraDisplaySettingsWindowCameraSelector, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle, .bandwidthButtonStyle, .settingsButtonStyle {
   textIndent: 0;
   paddingLeft: 10;
   paddingRight: 10;
@@ -866,3 +866,11 @@ Alert {
 .recordButtonStyleStop {
   icon:   Embed('assets/images/control-record-stop.png');
 }
+
+.bandwidthButtonStyle {
+  paddingTop: 0;
+  paddingBottom: 0;
+  height: 22;
+  icon:   Embed('assets/images/bandwidth.png');
+}
+
