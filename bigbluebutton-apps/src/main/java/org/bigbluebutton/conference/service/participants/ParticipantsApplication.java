@@ -114,4 +114,8 @@ public class ParticipantsApplication {
 	public void kickGuest(String meetingId, String guestId) {
 		bbbInGW.kickGuest(meetingId, guestId);
 	}
+
+	public void setParticipantRole(String meetingId, String userId, String role) {
+		bbbInGW.setUserRole(meetingId, userId, role);
+	}
 }

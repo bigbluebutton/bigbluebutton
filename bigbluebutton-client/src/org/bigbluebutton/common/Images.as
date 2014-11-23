@@ -318,5 +318,11 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/presenter_white.png")]
 		public var presenter_white:Class;
+		
+		[Embed(source="assets/images/user_add.png")]
+		public var user_add:Class;
+		
+		[Embed(source="assets/images/user_delete.png")]
+		public var user_delete:Class;
 	}
 }

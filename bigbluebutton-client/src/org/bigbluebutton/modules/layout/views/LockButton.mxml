@@ -49,9 +49,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var icon_unlocked:Class = _images.unlocked;
 			
 			private function init():void {
-				if (!UserManager.getInstance().getConference().amIModerator()) {
-					this.visible = false;
-				}
+				refreshRole(UserManager.getInstance().getConference().amIModerator());
 			}
 			
 			private function onClick(e:Event):void {
@@ -72,6 +70,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 				this.selected = false;
 				this.setStyle("icon", icon_unlocked);
+			}
+
+			public function refreshRole(amIModerator:Boolean):void {
+				this.enabled = amIModerator;
+				if (amIModerator) {
+					this.visible = true;
+				} else {
+					this.visible = this.selected;
+				}
 			}
 		]]>
 	</mx:Script>

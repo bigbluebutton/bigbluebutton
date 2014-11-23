@@ -62,6 +62,7 @@ class MeetingActor(val meetingID: String, val meetingName: String, val recorded:
 	    case msg: AssignPresenter                        => handleAssignPresenter(msg)
 	    case msg: GetUsers                               => handleGetUsers(msg)
 	    case msg: ChangeUserStatus                       => handleChangeUserStatus(msg)
+	    case msg: ChangeUserRole                         => handleChangeUserRole(msg)
 	    case msg: EjectUserFromMeeting                   => handleEjectUserFromMeeting(msg)
 	    case msg: UserRaiseHand                          => handleUserRaiseHand(msg)
 	    case msg: UserLowerHand                          => handleUserLowerHand(msg)

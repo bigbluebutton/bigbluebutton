@@ -139,6 +139,12 @@ case class ChangeUserStatus(
     value: Object
 ) extends InMessage
                             
+case class ChangeUserRole(
+    meetingID: String,
+    userID: String,
+    role: Role
+) extends InMessage
+
 case class AssignPresenter(
     meetingID: String, 
     newPresenterID: String, 

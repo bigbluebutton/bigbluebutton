@@ -35,6 +35,7 @@
 	<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
 	<mate:Listener type="{MeetingMutedEvent.MEETING_MUTED}" method="handleMeetingMuted" />
 	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="handleChangedLockSettingsEvent" />
+	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -59,6 +60,8 @@
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+			import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 			import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
@@ -104,14 +107,16 @@
 			private var muteMeRolled:Boolean = false;
 			
 			private var myMenuData:Array = [];
-			
+
+			private function onChangeMyRole(e:ChangeMyRole):void {
+				refreshRole(e.role == Role.MODERATOR);
+			}
+
 			private function onCreationComplete():void {
 				dispatcher = new Dispatcher();
 			
 				users = UserManager.getInstance().getConference().users;
-				amIModerator = UserManager.getInstance().getConference().amIModerator();
-				
-				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
+				refreshRole(UserManager.getInstance().getConference().amIModerator());
 				
 				BindingUtils.bindSetter(updateNumberofUsers, users, "length");
 				
@@ -135,6 +140,16 @@
 				
 				stage.addEventListener(MouseEvent.MOUSE_OVER, handleStageMouseOver);
 				usersGrid.addEventListener(MouseEvent.MOUSE_OVER, handleUsersGridMouseOver);
+			}
+			
+			private function refreshRole(moderator:Boolean = true):void {
+				amIModerator = moderator;
+
+				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
+
+				changeButtons(UserManager.getInstance().getConference().amIPresenter);
+
+				if (myMenu) myMenu.hide();
 			}
 			
 			public function getPrefferedPosition():String{

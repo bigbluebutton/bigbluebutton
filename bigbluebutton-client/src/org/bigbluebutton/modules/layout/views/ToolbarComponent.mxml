@@ -48,6 +48,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function set enableEdit(arg:Boolean):void {
 				_enableEdit = arg && UserManager.getInstance().getConference().amIModerator();
 			}
+
+			public function refreshRole(amIModerator:Boolean):void {
+				comboBox.refreshRole(amIModerator);
+				//lockButton.refreshRole(amIModerator);
+				addButton.refreshRole(amIModerator);
+				saveButton.refreshRole(amIModerator);
+				loadButton.refreshRole(amIModerator);
+				broadcastButton.refreshRole(amIModerator);
+			}
+
 			
 			public function set visibleTools(arg:Boolean):void {
 				_visibleTools = arg;
@@ -91,10 +101,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					  visible="{_enableEdit}" 
 					  tabIndex="{baseIndex+3}"/>
 	<views:BroadcastButton id="broadcastButton"
-					  tabIndex="{baseIndex+4}"
-					  enabled="{!lockButton.selected}"/>
-	<views:LockButton id="lockButton"
+					  tabIndex="{baseIndex+4}"/>
+<!--	<views:LockButton id="lockButton"
 					  tabIndex="{baseIndex+5}"
 					  visible="false"
 					  includeInLayout="false"/>
+					  -->
 </mx:HBox>

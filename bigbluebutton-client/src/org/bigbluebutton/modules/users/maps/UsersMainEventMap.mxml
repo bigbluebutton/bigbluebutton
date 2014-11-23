@@ -39,6 +39,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.model.users.UserService;
       import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
       import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
+      import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
       import org.bigbluebutton.main.model.users.events.KickUserEvent;
       import org.bigbluebutton.main.model.users.events.LowerHandEvent;
       import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
@@ -93,6 +94,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <EventHandlers type="{BBBEvent.CHANGE_RECORDING_STATUS}">
     <MethodInvoker generator="{UserService}" method="changeRecordingStatus" arguments="{event}" />
+  </EventHandlers>
+  
+  <EventHandlers type="{KickUserEvent.KICK_USER}" >
+    <MethodInvoker generator="{UserService}" method="kickUser" arguments="{event}" />
+  </EventHandlers>
+  
+  <EventHandlers type="{ChangeRoleEvent.CHANGE_ROLE_EVENT}" >
+    <MethodInvoker generator="{UserService}" method="changeRole" arguments="{event}" />
   </EventHandlers>
   
   <EventHandlers type="{VoiceConfEvent.EJECT_USER}" >

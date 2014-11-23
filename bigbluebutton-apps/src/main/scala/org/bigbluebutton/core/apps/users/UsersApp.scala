@@ -226,6 +226,15 @@ trait UsersApp {
 	}  
   }
   
+  def handleChangeUserRole(msg: ChangeUserRole) {
+    users.getUser(msg.userID) foreach {user =>
+      val uvo = user.copy(role=msg.role)
+      users.addUser(uvo)
+      val userRole = if(msg.role == Role.MODERATOR) "MODERATOR" else "VIEWER"
+      outGW.send(new UserRoleChange(meetingID, recorded, msg.userID, userRole))
+    }
+  }
+
   def handleGetUsers(msg: GetUsers):Unit = {
 	  // Filter out guests waiting
 	  val approvedUsers = users.getUsers.filter(x => !guestsWaiting.contains(x.userID))

@@ -359,6 +359,24 @@ package org.bigbluebutton.modules.users.services
       );      
     }
 
+    public function changeRole(userID:String, role:String):void {
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      var message:Object = new Object();
+      message["userId"] = userID;
+      message["role"] = role;
+
+      _nc.sendMessage(
+        "participants.setParticipantRole",// Remote function name
+        function(result:String):void { // On successful result
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void { // status - On error occurred
+          LogUtil.error(status); 
+        },
+        message
+      );
+    }
+
     public function queryForGuestPolicy():void {
       trace(LOG + "queryForGuestPolicy");
       var _nc:ConnectionManager = BBB.initConnectionManager();

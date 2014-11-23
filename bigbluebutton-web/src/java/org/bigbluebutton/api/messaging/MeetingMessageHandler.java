@@ -10,6 +10,7 @@ import org.bigbluebutton.api.messaging.messages.MeetingEnded;
 import org.bigbluebutton.api.messaging.messages.MeetingStarted;
 import org.bigbluebutton.api.messaging.messages.UserJoined;
 import org.bigbluebutton.api.messaging.messages.UserLeft;
+import org.bigbluebutton.api.messaging.messages.UserRoleChanged;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,6 +123,14 @@ public class MeetingMessageHandler implements MessageHandler {
 						  for (MessageListener listener : listeners) {
 						  	listener.handle(new UserLeft(meetingId, userid));
 						  }
+						} else if(MessagingConstants.USER_ROLE_CHANGE_EVENT.equalsIgnoreCase(messageName)) {
+							System.out.println("Handling [" + messageName + "] message.");
+							String meetingId = payload.get("meeting_id").getAsString();
+							String userid = payload.get("userid").getAsString();
+							String role = payload.get("role").getAsString();
+							for (MessageListener listener : listeners) {
+								listener.handle(new UserRoleChanged(meetingId, userid, role));
+							}
 						}
 					}				
 				}

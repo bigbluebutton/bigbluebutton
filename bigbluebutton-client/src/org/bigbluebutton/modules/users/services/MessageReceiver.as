@@ -45,6 +45,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.BBBUser;
   import org.bigbluebutton.main.model.users.Conference;
   import org.bigbluebutton.main.model.users.IMessageListener;
+  import org.bigbluebutton.main.model.users.events.ChangeMyRole;
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
   import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
   import org.bigbluebutton.modules.present.events.CursorEvent;
@@ -97,6 +98,9 @@ package org.bigbluebutton.modules.users.services
           break;
         case "participantStatusChange":
           handleParticipantStatusChange(message);
+          break;
+        case "participantRoleChange":
+          handleParticipantRoleChange(message);
           break;
         case "userJoinedVoice":
           handleUserJoinedVoice(message);
@@ -594,6 +598,17 @@ package org.bigbluebutton.modules.users.services
         
         dispatcher.dispatchEvent(e);
       }		
+    }
+
+    public function handleParticipantRoleChange(msg:Object):void {
+      var map:Object = JSON.parse(msg.msg);
+      trace(LOG + "*** received participant role change [" + map.userID + "," + map.role + "]");      
+      UserManager.getInstance().getConference().newUserRole(map.userID, map.role);
+      if(UserManager.getInstance().getConference().amIThisUser(map.userID)) {
+        UserManager.getInstance().getConference().setMyRole(map.role);
+        var e:ChangeMyRole = new ChangeMyRole(map.role);
+        dispatcher.dispatchEvent(e);
+      }
     }
 
     public function handleGuestRequestedToEnter(msg:Object):void {
