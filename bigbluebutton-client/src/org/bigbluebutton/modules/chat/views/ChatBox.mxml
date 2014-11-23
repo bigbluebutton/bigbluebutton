@@ -636,9 +636,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			var me:BBBUser = conference.getMyUser();
 
 			if (publicChat) {
-				txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPublicChat || me.moderator;
+				txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPublicChat || me.moderator || me.presenter;
 			} else {
-				txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPrivateChat || me.moderator;
+				txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPrivateChat || me.moderator || me.presenter;
 			}
 		}
 

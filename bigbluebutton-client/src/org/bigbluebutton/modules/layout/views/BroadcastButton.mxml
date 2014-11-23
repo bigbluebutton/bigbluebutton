@@ -24,8 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   xmlns:views="org.bigbluebutton.modules.layout.views.*"
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.layout.broadcastButton.toolTip')}"
 		   icon="{_icon}"
-		   click="onClick(event)"
-		   enabled="{UserManager.getInstance().getConference().amIModerator()}">
+		   click="onClick(event)">
 
 	<mx:Script>
 		<![CDATA[
@@ -45,13 +44,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var _icon:Class = _images.page_link;
 			
 			private function init():void {
-				if (!UserManager.getInstance().getConference().amIModerator()) {
-					this.visible = false;
-				}
-				else {
-					this.visible = true;
-					this.enabled = true;
-				}
+				refreshRole(UserManager.getInstance().getConference().amIModerator());
 			}
 			
 			private function onClick(e:Event):void {
@@ -59,8 +52,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			public function refreshRole(amIModerator:Boolean):void {
-				this.visible = amIModerator;
-				this.enabled = amIModerator;
+				this.visible = this.includeInLayout = this.enabled = amIModerator;
 			}
 		]]>
 	</mx:Script>

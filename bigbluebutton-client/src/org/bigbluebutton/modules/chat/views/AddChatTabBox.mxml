@@ -108,7 +108,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
               var conference:Conference = userManager.getConference();
               var me:BBBUser = conference.getMyUser();
 
-              usersList.enabled = !me.disableMyPrivateChat || me.moderator;
+              usersList.enabled = !me.disableMyPrivateChat || me.moderator || me.presenter;
           }
         ]]>
     </mx:Script>
