@@ -802,6 +802,27 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
   disabledSkin:  Embed('assets/images/3_minimizeButton.png');
 }
 
+/*
+https://www.iconfinder.com/icons/172512/mute_icon#size=128
+*/
+.muteOverlayBtn
+{
+  upSkin:        Embed('assets/images/audio_20_white.png');
+  overSkin:      Embed('assets/images/audio_20_white.png');
+  downSkin:      Embed('assets/images/audio_20_white.png');
+  disabledSkin:  Embed('assets/images/audio_20_white.png');
+}
+
+/*
+https://www.iconfinder.com/icons/172499/low_volume_icon#size=128
+*/
+.unmuteOverlayBtn
+{
+  upSkin:        Embed('assets/images/audio_muted_20_white.png');
+  overSkin:      Embed('assets/images/audio_muted_20_white.png');
+  downSkin:      Embed('assets/images/audio_muted_20_white.png');
+  disabledSkin:  Embed('assets/images/audio_muted_20_white.png');
+}
 
 .resizeHndlr 
 {
