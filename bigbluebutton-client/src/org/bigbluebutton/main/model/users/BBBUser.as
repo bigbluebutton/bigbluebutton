@@ -97,6 +97,9 @@ package org.bigbluebutton.main.model.users
 			_role = r;
 			moderator = _role == MODERATOR;
 			verifyUserStatus();
+			if (me) {
+				applyLockSettings();
+			}
 		}
 
 		[Bindable] public var moderator:Boolean = false;
