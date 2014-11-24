@@ -114,6 +114,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.start');
 					}
 				} else {
+					this.enabled = false;
 					if (recording) {
 						this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.recording');
 					} else {
