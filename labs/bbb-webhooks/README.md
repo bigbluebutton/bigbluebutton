@@ -228,7 +228,7 @@ More details
 * The application assumes that events are never duplicated on pubsub. If they happen to be duplicated, the callback calls will also be duplicated. 
 * Hooks are only removed if a call to `/destroy` is made or if the callbacks for the hook fail too many times (~12) for a long period of time (~5min). They are never removed otherwise. Valid for both global hooks and hooks for specific meetings.
 * Mappings are removed after 24 hours of inactivity. If there are no events at all for a given meeting, it will be assumed dead. This is done to prevent data from being stored forever on redis.
-* External URLs are expected to respond with the HTTP status 200, 201 or 202. Anything different from these values will be considered an error and the callback will be called again. This includes URLs that redirect to some other place.
+* External URLs are expected to respond with the HTTP status 2xx (200 would be the default expected). Anything different from these values will be considered an error and the callback will be called again. This includes URLs that redirect to some other place.
 * If a meeting is created while the webhooks app is down, callbacks will never be triggered for this meeting. The app needs to detect the create event (`meeting_created_message`) to have a mapping of internal to external meeting IDs.
 
 Development
