@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.present.business
 	import flash.events.TimerEvent;
 	import flash.net.NetConnection;
 	import flash.utils.Timer;
+	import flash.net.navigateToURL;
 	
 	import mx.collections.ArrayCollection;
 	
@@ -43,6 +44,7 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.events.PresenterCommands;
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
+	import org.bigbluebutton.modules.present.events.DownloadEvent;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
 	import org.bigbluebutton.modules.present.model.Page;
 	import org.bigbluebutton.modules.present.model.Presentation;
@@ -51,6 +53,11 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.services.messaging.MessageReceiver;
 	import org.bigbluebutton.modules.present.services.messaging.MessageSender;
 	
+	import flash.events.*;
+	import flash.net.FileReference;
+	import flash.net.URLRequest;
+	import flash.errors.*;
+
 	public class PresentProxy {
     private static const LOG:String = "Present::PresentProxy - ";
     
@@ -150,9 +157,22 @@ package org.bigbluebutton.modules.present.business
 			if (uploadService == null) {
         uploadService = new FileUploadService(host + "/bigbluebutton/presentation/upload", conference, room);
       }
-			uploadService.upload(e.filename, e.file);
+			uploadService.upload(e.filename, e.file, e.isDownloadable);
 		}
 		
+		/**
+		 * Start downloading the selected file 
+		 * @param e
+		 * 
+		 */		
+		public function startDownload(e:DownloadEvent):void {
+			var presentationName:String = e.fileNameToDownload;
+			var downloadUri:String = host + "/bigbluebutton/presentation/" + conference + "/" + room + "/" + presentationName + "/download";
+			LogUtil.debug("PresentationApplication::downloadPresentation()... " + downloadUri);
+			var req:URLRequest = new URLRequest(downloadUri);
+			navigateToURL(req,"_blank");
+		}
+
 		/**
 		 * To to the specified slide 
 		 * @param e - The event which holds the slide number

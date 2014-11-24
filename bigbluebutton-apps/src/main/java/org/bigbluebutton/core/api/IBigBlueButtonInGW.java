@@ -92,7 +92,7 @@ public interface IBigBlueButtonInGW {
             int pagesCompleted, String presName);
 	
 	void sendConversionCompleted(String messageKey, String meetingId, 
-            String code, String presId, int numPages, String presName, String presBaseUrl);
+            String code, String presId, int numPages, String presName, String presBaseUrl, boolean presDownloadable);
 	
 	// Polling
 	void getPolls(String meetingID, String requesterID);

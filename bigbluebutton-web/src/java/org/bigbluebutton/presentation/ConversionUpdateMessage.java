@@ -44,6 +44,7 @@ public class ConversionUpdateMessage {
 			message.put("presentationName", pres.getId());
 			message.put("presentationId", pres.getId());
 			message.put("filename", pres.getName());
+			message.put("presDownloadable", pres.isDownloadable());
     	}
 		
 		public MessageBuilder entry(String key, Object value) {

@@ -19,25 +19,15 @@
 package org.bigbluebutton.modules.present.events
 {
 	import flash.events.Event;
-	import flash.net.FileReference;
 	
-	public class UploadEvent extends Event {
-    public static const OPEN_EXTERNAL_UPLOAD_WINDOW:String = "OPEN_EXTERNAL_UPLOAD_WINDOW";
-		public static const OPEN_UPLOAD_WINDOW:String = "OPEN_UPLOAD_WINDOW";
-		public static const CLOSE_UPLOAD_WINDOW:String = "CLOSE_UPLOAD_WINDOW";
-		public static const CLEAR_PRESENTATION:String = "CLEAR_PRESENTATION";
-		public static const PRESENTATION_READY:String = "PRESENTATION_READY";
-    
-    public var presentationId: String;
-		public var presentationName:String;
-		public var data:Object;
-		public var completedSlides:Number;
-		public var totalSlides:Number;
-		public var percentageComplete:Number;
-		public var maximumSupportedNumberOfSlides:int;
-		public var maxFileSize:Number;
+	public class DownloadEvent extends Event {
+		public static const OPEN_DOWNLOAD_WINDOW:String = "OPEN_DOWNLOAD_WINDOW";
+		public static const CLOSE_DOWNLOAD_WINDOW:String = "CLOSE_DOWNLOAD_WINDOW";
+		public static const DOWNLOAD_PRESENTATION:String = "DOWNLOAD_PRESENTATION";
+
+		public var fileNameToDownload:String;	
 		
-		public function UploadEvent(type:String) {
+		public function DownloadEvent(type:String) {
 			super(type, true, false);
 		}
 

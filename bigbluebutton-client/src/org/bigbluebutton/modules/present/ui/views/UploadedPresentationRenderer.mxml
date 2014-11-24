@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" 
 		 width="90%" 
+		 creationComplete="onCreationComplete()" 
 		 verticalScrollPolicy="off" 
 		 horizontalScrollPolicy="off" 
 		 toolTip="{data as String}" 
@@ -13,9 +14,16 @@
       import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
       import org.bigbluebutton.modules.present.events.UploadEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.Images;
       
       private var globalDispatch:Dispatcher = new Dispatcher();
       
+      private function onCreationComplete():void {
+          var images:Images = new Images();
+          isDownloadable.source = images.disk_grayscale;
+      }
+
       private function showPresentation():void {
         trace("FileUploadWindow::showPresentation() " + data.id);   
         var changePresCommand:ChangePresentationCommand = new ChangePresentationCommand(data.id);
@@ -33,7 +41,10 @@
       }
     ]]>
   </mx:Script>
-  <mx:Label id="presentationNameLabel" width="{this.width-showBtn.width-deleteBtn.width-30}" text="{data.name as String}" styleName="presentationNameLabelStyle"/>
+  <mx:Label id="presentationNameLabel" width="{this.width-isDownloadable.width-showBtn.width-deleteBtn.width-30}" text="{data.name as String}" styleName="presentationNameLabelStyle"/>
+  <mx:Image id="isDownloadable" visible="{data.downloadable as Boolean}"
+             toolTip="{ResourceUtil.getInstance().getString('bbb.filedownload.thisFileIsDownloadable')}"
+             verticalAlign="middle" />
   <mx:Button id="showBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn')}" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.showBtn.toolTip')}" 
              styleName="presentationUploadShowButtonStyle" height="26"

@@ -120,7 +120,7 @@ package org.bigbluebutton.modules.present.services
         presoPages.addItem(pg);
       }          
       
-      var presentation: Presentation = new Presentation(presVO.id, presVO.name, presVO.isCurrent(), presoPages);
+      var presentation: Presentation = new Presentation(presVO.id, presVO.name, presVO.isCurrent(), presoPages, presVO.downloadable);
       return presentation;
     }
     

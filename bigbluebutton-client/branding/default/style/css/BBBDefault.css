@@ -285,7 +285,7 @@ DataGrid {
 
 
 .presentationUploadButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
-.presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle 
+.presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle, .presentationDownloadButtonStyle
 {
   textIndent: 0;
   paddingLeft: 10;
@@ -330,6 +330,10 @@ DataGrid {
 
 .presentationFitToPageButtonStyle {
   icon:   Embed('assets/images/fit-to-screen.png'); 
+}
+
+.presentationDownloadButtonStyle {
+  icon:   Embed('assets/images/disk.png'); 
 }
 
 .presentationZoomSliderStyle{

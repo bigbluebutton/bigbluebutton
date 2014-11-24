@@ -79,10 +79,29 @@ class PresentationController {
          def newFilename = Util.createNewFilename(presId, filenameExt)
          def pres = new File(uploadDir.absolutePath + File.separatorChar + newFilename )
          file.transferTo(pres)
+
+			def isDownloadable = params.boolean('is_downloadable') //instead of params.is_downloadable		
+
+			if(isDownloadable) {
+				log.debug "@Creating download directory..."
+				File downloadDir = Util.downloadPresentationDirectory(uploadDir.absolutePath)
+				if (downloadDir != null) {
+					def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
+					def downloadableFileName = presFilename.replaceAll(notValidCharsRegExp, '-')
+					def downloadableFile = new File( downloadDir.absolutePath + File.separatorChar + downloadableFileName )
+					downloadableFile << pres.newInputStream()
+				}
+			}
          
          def presentationBaseUrl = presentationService.presentationBaseUrl
 			   UploadedPresentation uploadedPres = new UploadedPresentation(meetingId, presId, presFilename, presentationBaseUrl);
-			   uploadedPres.setUploadedFile(pres);
+			   
+			if(isDownloadable) {
+				log.debug "@Setting file to be downloadable..."
+				uploadedPres.setDownloadable();
+			}
+
+               uploadedPres.setUploadedFile(pres);
 			   presentationService.processUploadedPresentation(uploadedPres)
 			 }							             			     	
 		} else {
@@ -207,6 +226,33 @@ class PresentationController {
 		}
 	  } catch (IOException e) {
 			log.error("Error reading file.\n" + e.getMessage());
+	  }
+	  
+	  return null;
+  }
+
+  def downloadFile = {
+	  def presentationName = params.presentation_name
+	  def conf = params.conference
+	  def rm = params.room
+	  println "Controller: Download request for $presentationName"
+	  
+	  InputStream is = null;
+	  try {
+		def pres = presentationService.getFile(conf, rm, presentationName)
+		if (pres.exists()) {
+		  println "Controller: Sending pdf reply for $presentationName"
+		  
+		  def bytes = pres.readBytes()
+		  def responseName = pres.getName();
+		  response.addHeader("content-disposition", "filename=$responseName")
+		  response.addHeader("Cache-Control", "no-cache")
+		  response.outputStream << bytes;
+		} else {
+		  println "$pres does not exist."
+		}
+	  } catch (IOException e) {
+		println("Error reading file.\n" + e.getMessage());
 	  }
 	  
 	  return null;

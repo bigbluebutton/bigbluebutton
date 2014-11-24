@@ -36,6 +36,7 @@ object Constants {
   val FORCE                           = "force"
   val RESPONSE                        = "response"
   val PRESENTATION_ID                 = "presentation_id"
+  val DOWNLOADABLE                    = "downloadable"
   val X_OFFSET                        = "x_offset"
   val Y_OFFSET                        = "y_offset"
   val WIDTH_RATIO                     = "width_ratio"
