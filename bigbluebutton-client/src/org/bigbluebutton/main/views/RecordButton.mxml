@@ -38,6 +38,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
 	<mate:Listener type="{FlashJoinedVoiceConferenceEvent.JOINED_VOICE_CONFERENCE}" method="handleFlashJoinedVoiceConference" />
 	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_STARTED}" method="handleWebRTCCallStarted" />
+	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
 	<mx:Script>
 		<![CDATA[
       import com.asfusion.mate.events.Dispatcher;
@@ -48,6 +49,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.core.model.MeetingModel;
       import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
       import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
       import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -103,25 +105,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				trace("RecordButton:doChangeRecordingStatus changing record status to " + event.payload.recording);
 			}
 
+			private function updateButton(recording:Boolean):void {
+				this.selected = recording;
+				this.styleName = this.selected? "recordButtonStyleStart": "recordButtonStyleNormal";
+
+				if (UserManager.getInstance().getConference().amIModerator()) {
+					this.enabled = true;
+					if (recording) {
+						this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.stop');
+					} else {
+						this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.start');
+					}
+				} else {
+					if (recording) {
+						this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.recording');
+					} else {
+						this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.notRecording');
+					}
+				}
+			}
+
 			private function onRecordingStatusChanged(event:BBBEvent):void {
 				if (event.payload.remote) {
-					this.selected = event.payload.recording;
-					this.styleName = this.selected? "recordButtonStyleStart": "recordButtonStyleNormal";
-
-					if (UserManager.getInstance().getConference().amIModerator() && MeetingModel.getInstance().meeting.allowStartStopRecording) {
-						this.enabled = true;
-						if (event.payload.recording) {
-							this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.stop');
-						} else {
-							this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.start');
-						}
-					} else {
-						if (event.payload.recording) {
-							this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.recording');
-						} else {
-							this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.notRecording');
-						}
-					}
+					updateButton(event.payload.recording);
 
 					trace("RecordButton:onRecordingStatusChanged changing record status to " + event.payload.recording);
 				}
@@ -162,6 +168,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (UserManager.getInstance().getConference().amIModerator()) {
 					this.styleName = this.selected? "recordButtonStyleStart": "recordButtonStyleNormal";
 				}
+			}
+
+			private function refreshRole(e:ChangeMyRole):void {
+				updateButton(this.selected);
 			}
 		]]>
 	</mx:Script>
