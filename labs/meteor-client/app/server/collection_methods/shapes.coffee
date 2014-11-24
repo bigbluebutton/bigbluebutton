@@ -2,9 +2,9 @@
 # Private methods on server
 # --------------------------------------------------------------------------------------------
 @addShapeToCollection = (meetingId, whiteboardId, shapeObject) ->
-  #console.log "shapeObject=" + JSON.stringify shapeObject
+  #Meteor.log.info "shapeObject=" + JSON.stringify shapeObject
   if shapeObject?.shape_type is "text" and shapeObject.status is "textPublished"
-    console.log "we are dealing with a text shape"
+    Meteor.log.info "we are dealing with a text shape"
 
     entry =
       meetingId: meetingId
@@ -28,7 +28,7 @@
 
     id = Meteor.Shapes.insert(entry)
     numShapesOnSlide = Meteor.Shapes.find({meetingId: meetingId, whiteboardId: whiteboardId}).count()
-    #console.log "added textShape id =[#{id}]:#{shapeObject.id} in #{meetingId} || now there are #{numShapesOnSlide} shapes on the slide"
+    #Meteor.log.info "added textShape id =[#{id}]:#{shapeObject.id} in #{meetingId} || now there are #{numShapesOnSlide} shapes on the slide"
 
   else
     # the mouse button was released - the drawing is complete
@@ -55,27 +55,27 @@
 
       id = Meteor.Shapes.insert(entry)
       numShapesOnSlide = Meteor.Shapes.find({meetingId: meetingId, whiteboardId: whiteboardId}).count()
-      #console.log "added shape id =[#{id}]:#{shapeObject.id} in #{meetingId} || now there are #{numShapesOnSlide} shapes on the slide"
+      #Meteor.log.info "added shape id =[#{id}]:#{shapeObject.id} in #{meetingId} || now there are #{numShapesOnSlide} shapes on the slide"
 
 @removeAllShapesFromSlide = (meetingId, whiteboardId) ->
-  console.log "removeAllShapesFromSlide__" + whiteboardId
+  Meteor.log.info "removeAllShapesFromSlide__" + whiteboardId
   if meetingId? and whiteboardId? and Meteor.Shapes.find({meetingId: meetingId, whiteboardId: whiteboardId})?
     shapesOnSlide = Meteor.Shapes.find({meetingId: meetingId, whiteboardId: whiteboardId}).fetch()
-    console.log "number of shapes:" + shapesOnSlide.length
+    Meteor.log.info "number of shapes:" + shapesOnSlide.length
     for s in shapesOnSlide
-      console.log "shape=" + s.shape.id
+      Meteor.log.info "shape=" + s.shape.id
       id = Meteor.Shapes.findOne({meetingId: meetingId, whiteboardId: whiteboardId, "shape.id": s.shape.id})
       if id?
         Meteor.Shapes.remove(id._id)
-        console.log "----removed shape[" + s.shape.id + "] from " + whiteboardId
-        console.log "remaining shapes on the slide:" + Meteor.Shapes.find({meetingId: meetingId, whiteboardId: whiteboardId}).fetch().length
+        Meteor.log.info "----removed shape[" + s.shape.id + "] from " + whiteboardId
+        Meteor.log.info "remaining shapes on the slide:" + Meteor.Shapes.find({meetingId: meetingId, whiteboardId: whiteboardId}).fetch().length
 
 @removeShapeFromSlide = (meetingId, whiteboardId, shapeId) ->
   shapeToRemove = Meteor.Shapes.findOne({meetingId: meetingId, whiteboardId: whiteboardId, "shape.id": shapeId})
   if meetingId? and whiteboardId? and shapeId? and shapeToRemove?
     Meteor.Shapes.remove(shapeToRemove._id)
-    console.log "----removed shape[" + shapeId + "] from " + whiteboardId
-    console.log "remaining shapes on the slide:" + Meteor.Shapes.find({meetingId: meetingId, whiteboardId: whiteboardId}).count()
+    Meteor.log.info "----removed shape[" + shapeId + "] from " + whiteboardId
+    Meteor.log.info "remaining shapes on the slide:" + Meteor.Shapes.find({meetingId: meetingId, whiteboardId: whiteboardId}).count()
 # --------------------------------------------------------------------------------------------
 # end Private methods on server
 # --------------------------------------------------------------------------------------------

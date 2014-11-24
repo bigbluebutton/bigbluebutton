@@ -4,9 +4,6 @@
 	hex = "0" + hex while hex.length < 6
 	"##{hex}"
 
-@currentUserIsMuted = ->
-  return Meteor.Users.findOne({_id: getInSession "DBID"})?.user?.voiceUser?.muted
-
 # color can be a number (a hex converted to int) or a string (e.g. "#ffff00")
 @formatColor = (color) ->
   color ?= "0" # default value
@@ -48,16 +45,6 @@
 @getTimeOfJoining = ->
   Meteor.Users.findOne(_id: getInSession "DBID")?.user?.time_of_joining
 
-@getUsersName = ->
-  name = getInSession("userName") # check if we actually have one in the session
-  if name? then name # great return it, no database query
-  else # we need it from the database
-    user = Meteor.Users.findOne({'_id': getInSession("DBID")})
-    if user?.user?.name
-      setInSession "userName", user.user.name # store in session for fast access next time
-      user.user.name
-    else null
-
 @getPresentationFilename = ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
   currentPresentation?.presentation?.name
@@ -70,6 +57,9 @@ Handlebars.registerHelper 'equals', (a, b) -> # equals operator was dropped in M
 
 Handlebars.registerHelper "getCurrentMeeting", ->
   Meteor.Meetings.findOne()
+
+Handlebars.registerHelper "getIPFromConfig", ->
+  Meteor.config.app.redirectToLoginOnLogout
 
 Handlebars.registerHelper "getCurrentSlide", ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
@@ -100,26 +90,23 @@ Handlebars.registerHelper "getWhiteboardTitle", ->
   "Whiteboard: " + getPresentationFilename()
 
 Handlebars.registerHelper "isCurrentUser", (_id) ->
-  _id is getInSession("DBID")
+  _id is BBB.getCurrentUser()?._id
 
 Handlebars.registerHelper "isCurrentUserMuted", ->
-  return currentUserIsMuted()
+  BBB.amIMuted()
 
 Handlebars.registerHelper "isCurrentUserRaisingHand", ->
-  user = Meteor.Users.findOne({_id:getInSession("DBID")})
+  user = BBB.getCurrentUser()
   user?.user?.raise_hand
 
 Handlebars.registerHelper "isCurrentUserSharingAudio", ->
-  user = Meteor.Users.findOne({_id: getInSession("DBID")})
-  return user?.user?.voiceUser?.joined
+  BBB.amISharingAudio()
 
 Handlebars.registerHelper "isCurrentUserSharingVideo", ->
-  user = Meteor.Users.findOne({_id:getInSession("DBID")})
-  user?.webcam_stream?.length isnt 0
+  BBB.amISharingVideo()
 
 Handlebars.registerHelper "isCurrentUserTalking", ->
-  user = Meteor.Users.findOne({_id:getInSession("DBID")})
-  return user?.user?.voiceUser?.talking
+  BBB.amITalking()
 
 Handlebars.registerHelper "isDisconnected", ->
   return !Meteor.status().connected
@@ -129,20 +116,16 @@ Handlebars.registerHelper "isUserListenOnly", (_id) ->
   return user?.user?.listenOnly
 
 Handlebars.registerHelper "isUserMuted", (_id) ->
-  user = Meteor.Users.findOne({_id:_id})
-  return user?.user?.voiceUser?.muted
+  BBB.isUserMuted(_id)
 
 Handlebars.registerHelper "isUserSharingAudio", (_id) ->
-  user = Meteor.Users.findOne({_id:_id})
-  return user.user?.voiceUser?.joined
+  BBB.isUserSharingAudio(_id)
 
 Handlebars.registerHelper "isUserSharingVideo", (_id) ->
-  user = Meteor.Users.findOne({_id:_id})
-  return user.user?.webcam_stream?.length isnt 0
+  BBB.isUserSharingWebcam(_id)
 
 Handlebars.registerHelper "isUserTalking", (_id) ->
-  user = Meteor.Users.findOne({_id:_id})
-  return user?.user?.voiceUser?.talking
+  BBB.isUserTalking(_id)
 
 Handlebars.registerHelper "meetingIsRecording", ->
   Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
@@ -180,17 +163,6 @@ Handlebars.registerHelper "visibility", (section) ->
   str = str.replace http, "<a href='event:$1'><u>$1</u></a>"
   str = str.replace www, "$1<a href='event:http://$2'><u>$2</u></a>"
 
-@setInSession = (k, v) ->
-  if k is "DBID" then  console.log "setInSession #{k}, #{v}"
-  SessionAmplify.set k, v
-
-@sendMeetingInfoToClient = (meetingId, userId) ->
-    setInSession("userId", userId)
-    setInSession("meetingId", meetingId)
-    setInSession("currentChatId", meetingId) #TODO check if this is needed
-    setInSession("meetingName", null)
-    setInSession("userName", null)
-
 # check the chat history of the user and add tabs for the private chats
 @populateChatTabs = (msg) ->
   mydbid = getInSession "DBID"
@@ -217,10 +189,21 @@ Handlebars.registerHelper "visibility", (section) ->
       tabs.push {userId: u.userId, name: u.username, gotMail: false, class: 'privateChatTab'}
       setInSession 'chatTabs', tabs
 
+@setInSession = (k, v) ->
+  if k is "DBID" then  console.log "setInSession #{k}, #{v}"
+  SessionAmplify.set k, v
+
+@sendMeetingInfoToClient = (meetingId, userId) ->
+    setInSession("userId", userId)
+    setInSession("meetingId", meetingId)
+    setInSession("currentChatId", meetingId) #TODO check if this is needed
+    setInSession("meetingName", null)
+    setInSession("userName", null)
+
 @setInSession = (k, v) -> SessionAmplify.set k, v 
 
 @safeString = (str) ->
-  if typeof str is 'string' and 1 is 1
+  if typeof str is 'string'
     str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 @toggleCam = (event) ->
@@ -243,21 +226,20 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession "display_usersList", !getInSession "display_usersList"
 
 @toggleVoiceCall = (event) ->
-	if isSharingAudio()
-		# hangup and inform bbb-apps
-		Meteor.call("userStopAudio", getInSession("meetingId"), getInSession("userId"), getInSession("DBID"), getInSession("userId"), getInSession("DBID"))
-		hangupCallback = ->
-			console.log "left voice conference"
-		webrtc_hangup hangupCallback # sign out of call
-	else
-		# create voice call params
-		username = "#{getInSession("userId")}-bbbID-#{getUsersName()}"
-		voiceBridge = Meteor.Meetings.findOne({}).voiceConf
-		server = null
-		joinCallback = (message) ->
-			console.log "started webrtc_call"
-		webrtc_call(username, voiceBridge, server, joinCallback) # make the call
-	return false
+  if isSharingAudio()
+    # hangup and inform bbb-apps
+    Meteor.call("userStopAudio", getInSession("meetingId"), getInSession("userId"), getInSession("DBID"), getInSession("userId"), getInSession("DBID"))
+    hangupCallback = ->
+      console.log "left voice conference"
+
+    BBB.leaveVoiceConference hangupCallback
+  else
+    # create voice call params
+    joinCallback = (message) ->
+      console.log "started webrtc_call"
+
+    BBB.joinVoiceConference joinCallback # make the call
+  return false
 
 @toggleWhiteBoard = ->
   setInSession "display_whiteboard", !getInSession "display_whiteboard"

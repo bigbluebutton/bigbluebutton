@@ -1,0 +1,11 @@
+check/
+.actionScriptProperties
+.flexProperties
+.project
+org.eclipse.core.resources.prefs
+org.eclipse.ltk.core.refactoring.prefs
+FlexPrettyPrintCommand.prefs
+index.template.html
+conf/config.xml
+resources/lib/bbb_webrtc_bridge_sip.js
+resources/lib/sip.js

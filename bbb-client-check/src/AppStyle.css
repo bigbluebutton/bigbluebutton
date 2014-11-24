@@ -1,0 +1,31 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+
+s|Application {
+	skinClass: ClassReference("org.bigbluebutton.clientcheck.view.skins.CustomApplicationSkin");
+}
+
+.controlBarLabelStyle {
+	fontWeight: bold;
+	fontSize: 15;
+	fontFamily: Arial;
+	color: #e1e2e5;
+	textAlign: center;
+}
+
+.borderContainerStyle {
+	verticalCenter: 0; 
+	horizontalCenter: 0;
+}
+
+.windowTitleStyle {
+	fontFamily: Arial;
+	fontSize: 20;  
+	fontWeight: bold;
+}
+
+.errorLabelStyle {
+	fontFamily: Arial;
+	fontSize: 12;    
+}

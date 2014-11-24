@@ -97,7 +97,7 @@ Handlebars.registerHelper "grabChatTabs", ->
     "message": message
     "chat_type": if chattingWith is "PUBLIC_CHAT" then "PUBLIC_CHAT" else "PRIVATE_CHAT"
     "from_userid": getInSession("DBID")
-    "from_username": getUsersName()
+    "from_username": BBB.getMyUserName()
     "from_tz_offset": "240"
     "to_username": if chattingWith is "PUBLIC_CHAT" then "public_chat_username" else dest.user.name
     "to_userid": if chattingWith is "PUBLIC_CHAT" then "public_chat_userid" else chattingWith
@@ -286,17 +286,17 @@ Template.tabButtons.events
     console.log "tab"
 
 Template.tabButtons.helpers
-  isTabActive: (userId) ->
-    getInSession("inChatWith") is userId ? "active" : ""
-
-  makeSafe: (string) ->
-    safeString(string)
-
   hasGotUnreadMailClass: (gotMail) ->
     if gotMail and getInSession("displayChatNotifications")
       return "gotUnreadMail"
     else
       return ""
+
+  isTabActive: (userId) ->
+    getInSession("inChatWith") is userId ? "active" : ""
+
+  makeSafe: (string) ->
+    safeString(string)
 
 # make links received from Flash client clickable in HTML
 @toClickable = (str) ->
@@ -326,10 +326,10 @@ Template.message.helpers
       res = activateBreakLines res
 
 Template.notificationSettings.events
-	"click #chatNotificationOn": (event) ->
-		console.log "on"
-		setInSession "displayChatNotifications", true
+  "click #chatNotificationOff": (event) ->
+    console.log "off"
+    setInSession "displayChatNotifications", false
 
-	"click #chatNotificationOff": (event) ->
-		console.log "off"
-		setInSession "displayChatNotifications", false
+  "click #chatNotificationOn": (event) ->
+    console.log "on"
+    setInSession "displayChatNotifications", true

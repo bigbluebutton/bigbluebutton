@@ -353,7 +353,7 @@ DataGrid {
   titleStyleName: "micSettingsWindowTitleStyle";
 }
 
-.micSettingsWindowTitleStyle {
+.micSettingsWindowTitleStyle, webcamSettingsWindowTitleStyle {
   fontFamily: Arial;
   fontSize: 20;  
   fontWeight: bold;
@@ -365,7 +365,7 @@ DataGrid {
   fontWeight: bold;    
 }
 
-.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .micSettingsWindowMicNameLabelStyle {
+.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .micSettingsWindowMicNameLabelStyle, .webcamPermissionSettingsTextStyle {
   fontFamily: Arial;
   fontSize: 12;    
 }

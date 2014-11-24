@@ -64,6 +64,10 @@ public class ParamsProcessorUtil {
 	private String defaultConfigURL;
 	private int defaultMeetingDuration;
 	private boolean disableRecordingDefault;
+	private boolean autoStartRecording;
+	private boolean allowStartStopRecording;
+	
+	private String defaultConfigXML = null;
 	
 	private String substituteKeywords(String message, String dialNumber, String telVoice, String meetingName) {
 	    String welcomeMessage = message;
@@ -317,12 +321,30 @@ public class ParamsProcessorUtil {
 	    int meetingDuration = processMeetingDuration(params.get("duration"));
 	    String welcomeMessage = processWelcomeMessage(params.get("welcome"));
 	    welcomeMessage = substituteKeywords(welcomeMessage, dialNumber, telVoice, meetingName);
-	    	    
+	   
 	    String internalMeetingId = convertToInternalMeetingId(externalMeetingId);
 	    
 	    // Check if this is a test meeting. NOTE: This should not belong here. Extract this out.				
 	    if (isTestMeeting(telVoice)) {
 	      internalMeetingId = getIntMeetingIdForTestMeeting(telVoice);
+	    }
+	   
+	    boolean autoStartRec = autoStartRecording;
+	    if (!StringUtils.isEmpty(params.get("autoStartRecording"))) {
+				try {
+					autoStartRec = Boolean.parseBoolean(params.get("autoStartRecording"));
+				} catch(Exception ex){ 
+					log.warn("Invalid param [autoStartRecording] for meeting=[" + internalMeetingId + "]");
+				}
+	    }
+
+	    boolean allowStartStoptRec = allowStartStopRecording;
+	    if (!StringUtils.isEmpty(params.get("allowStartStopRecording"))) {
+				try {
+					allowStartStoptRec = Boolean.parseBoolean(params.get("allowStartStopRecording"));
+				} catch(Exception ex){ 
+					log.warn("Invalid param [allowStartStopRecording] for meeting=[" + internalMeetingId + "]");
+				}
 	    }
 	    
 	    // Collect metadata for this meeting that the third-party app wants to store if meeting is recorded.
@@ -339,7 +361,7 @@ public class ParamsProcessorUtil {
 	        .withName(meetingName).withMaxUsers(maxUsers).withModeratorPass(modPass)
 	        .withViewerPass(viewerPass).withRecording(record).withDuration(meetingDuration)
 	        .withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
-	        .withDefaultAvatarURL(defaultAvatarURL)
+	        .withDefaultAvatarURL(defaultAvatarURL).withAutoStartRecording(autoStartRec).withAllowStartStopRecording(allowStartStoptRec)
 	        .withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build();
 	    
 	    String configXML = getDefaultConfigXML();
@@ -362,7 +384,11 @@ public class ParamsProcessorUtil {
 	}
 	
 	public String getDefaultConfigXML() {
-		return getConfig(defaultConfigURL);
+		if (defaultConfigXML == null) {
+			defaultConfigXML = getConfig(defaultConfigURL);
+		}
+		
+		return defaultConfigXML;
 	}
 	
 	private String getConfig(String url) {
@@ -370,14 +396,19 @@ public class ParamsProcessorUtil {
 		GetMethod get = new GetMethod(url);
 		String configXML = "";
 		try {
-			client.executeMethod(get);
-			configXML = get.getResponseBodyAsString();
+			int status = client.executeMethod(get);
+			if (status == 200) {
+				configXML = get.getResponseBodyAsString();
+			} else {
+				return null;
+			}
+			
 		} catch (HttpException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return null;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return null;
+		} finally {
+			get.releaseConnection();
 		}
 		  		  
 		return configXML;
@@ -673,6 +704,14 @@ public class ParamsProcessorUtil {
 
 	public void setDisableRecordingDefault(boolean disabled) {
 		this.disableRecordingDefault = disabled;
+	}
+	
+	public void setAutoStartRecording(boolean start) {
+		this.autoStartRecording = start;
+	}
+
+	public void setAllowStartStopRecording(boolean allowStartStopRecording) {
+		this.allowStartStopRecording = allowStartStopRecording;
 	}
 	
 	public void setdefaultAvatarURL(String url) {

@@ -96,7 +96,7 @@
 						roleImg.visible = false;
 						roleBtn.visible = true;
 						roleBtn.enabled = true;
-					} else if (rolledOver && !data.presenter) {
+					} else if (rolledOver && !data.presenter && !data.phoneUser) {
 						roleBtn.setStyle("icon", images.presenter_new);
 						roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.changePresenter');
 						roleImg.visible = false;

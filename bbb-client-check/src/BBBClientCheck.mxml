@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   xmlns:view="org.bigbluebutton.clientcheck.view.mainview.*"
+			   width="100%"
+			   height="100%"
+			   preinitialize="preinitializeHandler(event)"
+			   xmlns:mainview="org.bigbluebutton.clientcheck.view.mainview.*">
+
+	<fx:Style source="AppStyle.css" />
+
+	<fx:Metadata>
+		[ResourceBundle("resources")]
+	</fx:Metadata>
+
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+
+			import org.bigbluebutton.clientcheck.AppConfig;
+			import org.bigbluebutton.clientcheck.view.mainview.MainViewConfig;
+			import org.bigbluebutton.clientcheck.view.mainview.RefreshButtonConfig;
+			import org.bigbluebutton.clientcheck.view.mainview.MailButtonConfig;
+
+			import robotlegs.bender.bundles.mvcs.MVCSBundle;
+			import robotlegs.bender.extensions.contextView.ContextView;
+			import robotlegs.bender.extensions.signalCommandMap.SignalCommandMapExtension;
+			import robotlegs.bender.framework.api.IContext;
+			import robotlegs.bender.framework.impl.Context;
+
+			private static var robotlegsContext:IContext;
+
+			protected function preinitializeHandler(event:FlexEvent):void
+			{
+				setupRobotlegsContext();
+				Security.allowDomain("*");
+			}
+
+			/**
+			 *  Setup robotlegs initial configuration
+			 */
+			private function setupRobotlegsContext():void
+			{
+				robotlegsContext=new Context().install(MVCSBundle, SignalCommandMapExtension)
+						.configure(AppConfig)
+						.configure(MainViewConfig)
+						.configure(RefreshButtonConfig)
+						.configure(MailButtonConfig)
+						.configure(new ContextView(this));
+			}
+		]]>
+	</fx:Script>
+
+	<s:controlBarContent>
+		<mx:Label id="controlBarLabel"
+				width="100%"
+				text="{resourceManager.getString('resources', 'bbbsystemcheck.title')}"
+				styleName="controlBarLabelStyle"/>
+		<view:RefreshButton id="refreshBtn"
+				label="{resourceManager.getString('resources', 'bbbsystemcheck.refresh')}"/>
+		<view:MailButton id="mailBtn"
+				label="{resourceManager.getString('resources', 'bbbsystemcheck.mail')}"/>
+	</s:controlBarContent>
+
+	<mainview:MainView width="80%"
+						height="97%"
+						styleName="borderContainerStyle"/>
+</s:Application>

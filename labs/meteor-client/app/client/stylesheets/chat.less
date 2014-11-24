@@ -51,7 +51,9 @@ bottomEntry {
 	margin-top: 5px;
 }
 
-.chat-input-wrapper {margin-left: 20px;}
+.chat-input-wrapper {
+	padding:10px;	
+}
 
 #chat-options-bar {
 	border-bottom: 1px solid #ccc;
@@ -74,6 +76,17 @@ bottomEntry {
 }
 .gotUnreadMail{
     background: #F9DF6B !important;
+}
+
+#MoreChatsDrop {
+	float: right;
+}
+
+#MoreChatsbutton {
+	margin-right: 10px;
+	margin-top: 5px;
+	padding-bottom: 0px;
+	padding-top: 0px;
 }
 
 #newMessageInput {
@@ -122,13 +135,13 @@ bottomEntry {
 .publicChatTab {}
 
 #sendMessageButton {
-	background-color: #D7D7D7;
+	background-color: #54A7DB;
 	height: 40px;
-	margin-left: 10px;
+	margin-left: 8px;
+	color:#fff;
 }
 
 #tabsList {
-	border-spacing: 3px; /* space between each tab */
 	display: table;
 	margin: 0;
 	padding: 0;
@@ -138,9 +151,6 @@ bottomEntry {
 }
 
 #tabsList a {
-	background-color: #C9E6FF;
-	border-radius: 10px 10px 0 0;
-	color: darkblue;
 	display: block;
 	min-height: 100%;
 	overflow: hidden;
@@ -148,21 +158,19 @@ bottomEntry {
 	text-decoration: none;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	font-size:12px;
+	color: #999;
+	margin: 0;
+	border-top: 0;
+	border-radius: 0;
+}
+
+#tabsList li:first-child a { 
+	border-left:0;
 }
 
 #tabsList:before, #tabsList:after {content: none;}
 
-#tabsList li {
-	display: table-cell;
-	height: auto;
-	list-style-type: none;
-	vertical-align: bottom;
-	width: auto;
-}
-
-#tabsList > li {float: none;}
-
-#tabsList > li.active > a, #tabsList > li.active > a:hover, #tabsList > li.active > a:focus {
-	border-bottom-color: transparent;
-	border: 2px solid #79C1FF;
+.tab { 
+	height:auto !important;
 }

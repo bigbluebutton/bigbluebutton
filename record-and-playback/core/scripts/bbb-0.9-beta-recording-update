@@ -1,0 +1,116 @@
+#!/usr/bin/ruby1.9.1
+
+require File.expand_path('../../lib/recordandplayback', __FILE__)
+require 'nokogiri'
+require 'trollop'
+
+props = YAML::load(File.open(File.expand_path('../bigbluebutton.yml', __FILE__)))
+log_dir = props['log_dir']
+raw_recording_dir = "#{props['recording_dir']}/raw"
+published_dir = props['published_dir']
+unpublished_dir = "#{published_dir}/../unpublished"
+
+opts = Trollop::options do
+  opt(:force, "Run script even if it has previously been run",
+              :default => false)
+  opt(:quiet, "Minimal output mode, for automated use",
+              :default => false)
+end
+
+log_file = "#{log_dir}/bbb-0.9-beta-recording-update.log"
+done_file = "#{props['recording_dir']}/status/bbb-0.9-beta-recording-update.done"
+
+logger = Logger.new(log_file)
+logger.level = Logger::INFO
+BigBlueButton.logger = logger
+
+if File.exist?(done_file) and !opts.force
+  if !opts.quiet
+    puts "Script has previously been run, doing nothing"
+    puts "Use the --force option to override"
+  end
+  exit 0
+end
+
+def do_recording_update(recording_dir, raw_recording_dir)
+  match = /([^\/]*)$/.match(recording_dir)
+  meeting_id = match[1]
+
+  BigBlueButton.logger.info("Processing recording #{meeting_id}")
+
+  # Read the metadata.xml file to check if the URL needs update
+  metadata_xml = nil
+  File.open("#{recording_dir}/metadata.xml") do |io|
+    metadata_xml = Nokogiri::XML(io)
+  end
+
+  link_xml = metadata_xml.at_xpath('/recording/playback/link')
+  link = link_xml.content
+  # Check whether the recording already has a versioned playback link
+  m = /presentation\/([0-9.]+)\/playback\.html/.match(link)
+  if (m)
+    BigBlueButton.logger.info("Recording using playback scripts version #{m[1]}, ok")
+    return
+  end
+
+  # Determine which version playback is appropriate for the recording
+  events_xml = nil
+  File.open("#{raw_recording_dir}/#{meeting_id}/events.xml") do |io|
+    events_xml = Nokogiri::XML(io)
+  end
+
+  recording_xml = events_xml.at_xpath('/recording')
+  bbb_version = recording_xml['bbb_version']
+  if (!bbb_version)
+    bbb_version = '0.81'
+  elsif bbb_version == '0.90' # Old beta versions
+    bbb_version = '0.9.0'
+  elsif bbb_version == '0.9.0' # Current version
+  else
+    BigBlueButton.logger.error("Unsupported BigBlueButton version #{bbb_version}")
+    return
+  end
+
+  BigBlueButton.logger.info("Rewriting link with version #{bbb_version}")
+  link.sub!(/presentation\/playback\.html/, "presentation/#{bbb_version}/playback.html")
+  link_xml.content = link
+
+  # Rewrite the metadata.xml file
+  IO.write("#{recording_dir}/metadata.xml", metadata_xml.to_xml)
+
+rescue StandardError => e
+  BigBlueButton.logger.error("Failed to update recording #{meeting_id}: #{e}")
+  e.backtrace.each do |traceline|
+    BigBlueButton.logger.error(traceline)
+  end
+end
+
+BigBlueButton.logger.info("Updating playback path of 0.9 beta recordings")
+
+puts "Updating recording links for 0.9.0..."
+
+num_recordings = 0
+
+BigBlueButton.logger.info("Checking recordings in #{published_dir}")
+Dir.glob("#{published_dir}/presentation/*-*").each do |recording_dir|
+  print '.' if num_recordings % 10 == 0
+  num_recordings += 1
+  do_recording_update(recording_dir, raw_recording_dir)
+  break if num_recordings > 10
+end
+
+BigBlueButton.logger.info("Checking recordings in #{unpublished_dir}")
+Dir.glob("#{unpublished_dir}/presentation/*-*").each do |recording_dir|
+  print '.' if num_recordings % 10 == 0
+  num_recordings += 1
+  do_recording_update(recording_dir, raw_recording_dir)
+  break if num_recordings > 20
+end
+
+puts "done"
+
+puts "See the output in #{log_file} for details"
+
+BigBlueButton.logger.info("Processed #{num_recordings} recordings")
+
+IO.write(done_file, Time.now)

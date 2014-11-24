@@ -143,6 +143,11 @@ body {
 	float: left;
 }
 
+.navbarUserButtons .btn:hover, 
+.navbarSettingsButtons .btn:hover { 
+	background: #40434c;
+}
+
 .panel-footer {padding: 0;}
 
 .raiseHand {}
