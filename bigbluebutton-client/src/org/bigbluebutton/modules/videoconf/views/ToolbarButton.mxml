@@ -78,8 +78,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var conference:Conference = userManager.getConference();
 				var me:BBBUser = conference.getMyUser();
 
-				this.visible = me.moderator || !me.disableMyCam;
-				this.includeInLayout = me.moderator || !me.disableMyCam;
+				this.visible = me.moderator || me.presenter || !me.disableMyCam;
+				this.includeInLayout = me.moderator || me.presenter || !me.disableMyCam;
 			}
 
 			private function init():void{
