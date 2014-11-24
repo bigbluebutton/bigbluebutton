@@ -43,6 +43,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
 	<mate:Listener type="{WaitModeratorEvent.USER_LOGGED_IN}" method="refreshSettingsBtn" />
 	<mate:Listener type="{ModeratorRespEvent.GUEST_ALLOWED}" method="refreshSettingsBtn" />
+	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
 
 	<mx:Script>
 		<![CDATA[
@@ -75,6 +76,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.WaitModeratorEvent;
       import org.bigbluebutton.main.model.LayoutOptions;
       import org.bigbluebutton.main.model.NetworkStatsData;
+      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
       import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
       import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -427,6 +429,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				settingsPopup.pushComponents(settingsComponents);
 			}
 
+			private function refreshRole(e:ChangeMyRole):void {
+				refreshSettingsBtn(null);
+			}
 		]]>
 	</mx:Script>
     <mx:HBox id="logoHolder" paddingRight="12" >
