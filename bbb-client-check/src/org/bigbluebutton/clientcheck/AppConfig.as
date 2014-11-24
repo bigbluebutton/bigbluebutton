@@ -30,8 +30,10 @@ package org.bigbluebutton.clientcheck
 	import org.bigbluebutton.clientcheck.command.RequestRTMPAppsSignal;
 	import org.bigbluebutton.clientcheck.model.ISystemConfiguration;
 	import org.bigbluebutton.clientcheck.model.IXMLConfig;
+	import org.bigbluebutton.clientcheck.model.IDataProvider;
 	import org.bigbluebutton.clientcheck.model.SystemConfiguration;
 	import org.bigbluebutton.clientcheck.model.XMLConfig;
+	import org.bigbluebutton.clientcheck.model.DataProvider;
 	import org.bigbluebutton.clientcheck.service.DownloadBandwidthService;
 	import org.bigbluebutton.clientcheck.service.ExternalApiCallbacks;
 	import org.bigbluebutton.clientcheck.service.ExternalApiCalls;
@@ -84,6 +86,7 @@ package org.bigbluebutton.clientcheck
 		{
 			injector.map(ISystemConfiguration).toSingleton(SystemConfiguration);
 			injector.map(IXMLConfig).toSingleton(XMLConfig);
+			injector.map(IDataProvider).toSingleton(DataProvider);
 		}
 
 		private function configureSignalsToCommands():void

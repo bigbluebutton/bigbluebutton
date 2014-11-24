@@ -22,9 +22,11 @@ package org.bigbluebutton.clientcheck.model.test
 	import org.osflash.signals.Signal;
 	import org.osflash.signals.ISignal;
 
+	import mx.resources.ResourceManager;
+
 	public class IsPepperFlashTest implements ITestable
 	{
-		public static var PEPPER_FLASH:String="Is Pepper Flash";
+		public static var PEPPER_FLASH:String=ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.test.name.pepperFlash');
 
 		private var _testSuccessfull:Boolean;
 		private var _testResult:String;

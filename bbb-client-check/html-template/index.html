@@ -35,7 +35,9 @@
         <!-- END Browser History required section -->  
          
         <script type="text/javascript" src="resources/lib/api-bridge.js"></script>
-        <script type="text/javascript" src="resources/lib/sip-0.6.2.js"></script>
+        <script type="text/javascript" src="resources/lib/sip.js"></script>
+        <script type="text/javascript" src="resources/lib/bbb_webrtc_bridge_sip.js"></script>
+        <script type="text/javascript" src="resources/lib/deployJava.js"></script>
         <script type="text/javascript" src="swfobject.js"></script>
         <script type="text/javascript">
             // For version detection, set to min. required Flash Player version, or 0 (or 0.0.0), for no version detection. 
@@ -62,6 +64,7 @@
         </script>
     </head>
     <body>
+        <div id="deployJavaPluginContainer" style="visibility:hidden; height:0px; "></div>
         <!-- SWFObject's dynamic embed method replaces this alternative HTML content with Flash content when enough 
              JavaScript and Flash plug-in support is available. The div is initially hidden so that it doesn't show
              when JavaScript is disabled.

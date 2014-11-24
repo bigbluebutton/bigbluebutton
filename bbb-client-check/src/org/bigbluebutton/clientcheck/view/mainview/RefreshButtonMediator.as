@@ -17,19 +17,35 @@
  *
  */
 
-package org.bigbluebutton.clientcheck.model
+package org.bigbluebutton.clientcheck.view.mainview
 {
-	import org.osflash.signals.ISignal;
-
-	public interface IXMLConfig
+	import flash.events.MouseEvent;
+	import flash.external.ExternalInterface;
+	import flash.net.URLRequest;
+	import flash.net.navigateToURL;
+	
+	import robotlegs.bender.bundles.mvcs.Mediator;
+	
+	public class RefreshButtonMediator extends Mediator
 	{
-		function init(config:XML):void;
-		function get configParsedSignal():ISignal;
-		function get downloadFilePath():Object;
-		function get serverUrl():Object;
-		function getPorts():XMLList;
-		function getRTMPApps():XMLList;
-		function getVersion():String;
-		function getMail():String;
+		[Inject]
+		public var view: IRefreshButton;
+		
+		/**
+		 * Initialize listener
+		 */
+		override public function initialize():void
+		{
+			(view as RefreshButton).addEventListener(MouseEvent.CLICK, mouseClickHandler);
+		}
+		
+		/**
+		 * Handle events to refresh web page
+		 */
+		private function mouseClickHandler(e:MouseEvent):void
+		{
+			var pageURL:String = ExternalInterface.call('window.location.href.toString');
+			navigateToURL(new URLRequest(pageURL), "_self");
+		}
 	}
 }

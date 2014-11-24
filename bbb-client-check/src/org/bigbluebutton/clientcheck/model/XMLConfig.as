@@ -60,5 +60,17 @@ package org.bigbluebutton.clientcheck.model
 		{
 			return new XMLList(_config.rtmpapps).children();
 		}
+
+		public function getVersion():String
+		{
+			var version:String = _config.version;
+			return version;
+		}
+
+		public function getMail():String
+		{
+			var mail:String = _config.mail;
+			return mail;
+		}
 	}
 }

@@ -11,6 +11,7 @@ s|Application {
 	fontSize: 15;
 	fontFamily: Arial;
 	color: #e1e2e5;
+	textAlign: center;
 }
 
 .borderContainerStyle {

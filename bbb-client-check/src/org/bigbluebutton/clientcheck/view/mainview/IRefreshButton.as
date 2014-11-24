@@ -17,19 +17,10 @@
  *
  */
 
-package org.bigbluebutton.clientcheck.model
+package org.bigbluebutton.clientcheck.view.mainview
 {
-	import org.osflash.signals.ISignal;
-
-	public interface IXMLConfig
+	public interface IRefreshButton
 	{
-		function init(config:XML):void;
-		function get configParsedSignal():ISignal;
-		function get downloadFilePath():Object;
-		function get serverUrl():Object;
-		function getPorts():XMLList;
-		function getRTMPApps():XMLList;
-		function getVersion():String;
-		function getMail():String;
+		function dispose(): void;
 	}
 }
