@@ -25,7 +25,7 @@
 
 # retrieve account for selected user
 @getCurrentUserFromSession = ->
-  Meteor.Users.findOne("_id": getInSession("userId"))
+  Meteor.Users.findOne(userId: getInSession("userId"))
 
 @getInSession = (k) -> SessionAmplify.get k
 
@@ -43,7 +43,7 @@
   (new Date).valueOf()
 
 @getTimeOfJoining = ->
-  Meteor.Users.findOne(_id: getInSession "DBID")?.user?.time_of_joining
+  Meteor.Users.findOne(userId: getInSession "userId")?.user?.time_of_joining
 
 @getPresentationFilename = ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
@@ -89,8 +89,8 @@ Handlebars.registerHelper "getUsersInMeeting", ->
 Handlebars.registerHelper "getWhiteboardTitle", ->
   "Whiteboard: " + getPresentationFilename()
 
-Handlebars.registerHelper "isCurrentUser", (_id) ->
-  _id is BBB.getCurrentUser()?._id
+Handlebars.registerHelper "isCurrentUser", (userId) ->
+  userId is BBB.getCurrentUser()?.userId
 
 Handlebars.registerHelper "isCurrentUserMuted", ->
   BBB.amIMuted()
@@ -111,21 +111,21 @@ Handlebars.registerHelper "isCurrentUserTalking", ->
 Handlebars.registerHelper "isDisconnected", ->
   return !Meteor.status().connected
 
-Handlebars.registerHelper "isUserListenOnly", (_id) ->
-  user = Meteor.Users.findOne({_id:_id})
+Handlebars.registerHelper "isUserListenOnly", (userId) ->
+  user = Meteor.Users.findOne({userId:userId})
   return user?.user?.listenOnly
 
-Handlebars.registerHelper "isUserMuted", (_id) ->
-  BBB.isUserMuted(_id)
+Handlebars.registerHelper "isUserMuted", (userId) ->
+  BBB.isUserMuted(userId)
 
-Handlebars.registerHelper "isUserSharingAudio", (_id) ->
-  BBB.isUserSharingAudio(_id)
+Handlebars.registerHelper "isUserSharingAudio", (userId) ->
+  BBB.isUserSharingAudio(userId)
 
-Handlebars.registerHelper "isUserSharingVideo", (_id) ->
-  BBB.isUserSharingWebcam(_id)
+Handlebars.registerHelper "isUserSharingVideo", (userId) ->
+  BBB.isUserSharingWebcam(userId)
 
-Handlebars.registerHelper "isUserTalking", (_id) ->
-  BBB.isUserTalking(_id)
+Handlebars.registerHelper "isUserTalking", (userId) ->
+  BBB.isUserTalking(userId)
 
 Handlebars.registerHelper "meetingIsRecording", ->
   Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
@@ -154,7 +154,7 @@ Handlebars.registerHelper "visibility", (section) ->
     style: 'display:none'
 
 @isSharingAudio = ->
-  return Meteor.Users.findOne({_id: getInSession "DBID"})?.user?.voiceUser?.joined
+  return Meteor.Users.findOne({userId: getInSession "userId"})?.user?.voiceUser?.joined
 
 # transform plain text links into HTML tags compatible with Flash client
 @linkify = (str) ->
@@ -187,18 +187,7 @@ Handlebars.registerHelper "visibility", (section) ->
     unless chatTabs.findOne({userId: u.userId})?
       chatTabs.insert({ userId: u.userId, name: u.username, gotMail: false, class: "privateChatTab"})
 
-@setInSession = (k, v) ->
-  if k is "DBID" then  console.log "setInSession #{k}, #{v}"
-  SessionAmplify.set k, v
-
-@sendMeetingInfoToClient = (meetingId, userId) ->
-    setInSession("userId", userId)
-    setInSession("meetingId", meetingId)
-    setInSession("currentChatId", meetingId) #TODO check if this is needed
-    setInSession("meetingName", null)
-    setInSession("userName", null)
-
-@setInSession = (k, v) -> SessionAmplify.set k, v 
+@setInSession = (k, v) -> SessionAmplify.set k, v
 
 @safeString = (str) ->
   if typeof str is 'string'
@@ -212,9 +201,9 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession "display_chatbar", !getInSession "display_chatbar"
 
 @toggleMic = (event) ->
-  u = Meteor.Users.findOne({_id:getInSession("DBID")})
+  u = Meteor.Users.findOne({userId:getInSession("userId")})
   if u?
-    Meteor.call('publishMuteRequest', getInSession("meetingId"),u._id, getInSession("userId"), u._id, not u.user.voiceUser.muted)
+    Meteor.call('muteUser', getInSession("meetingId"), u.userId, getInSession("userId"), getInSession("authToken"), not u.user.voiceUser.muted)
 
 @toggleNavbar = ->
   setInSession "display_navbar", !getInSession "display_navbar"
@@ -225,18 +214,14 @@ Handlebars.registerHelper "visibility", (section) ->
 
 @toggleVoiceCall = (event) ->
   if isSharingAudio()
-    # hangup and inform bbb-apps
-    Meteor.call("userStopAudio", getInSession("meetingId"), getInSession("userId"), getInSession("DBID"), getInSession("userId"), getInSession("DBID"))
     hangupCallback = ->
       console.log "left voice conference"
-
-    BBB.leaveVoiceConference hangupCallback
+    BBB.leaveVoiceConference hangupCallback #TODO should we apply role permissions to this action?
   else
     # create voice call params
     joinCallback = (message) ->
       console.log "started webrtc_call"
-
-    BBB.joinVoiceConference joinCallback # make the call
+    BBB.joinVoiceConference joinCallback # make the call #TODO should we apply role permissions to this action?
   return false
 
 @toggleWhiteBoard = ->
@@ -246,12 +231,11 @@ Handlebars.registerHelper "visibility", (section) ->
 # meeting: the meeting the user is in
 # the user's userId
 @userLogout = (meeting, user) ->
-  Meteor.call("userLogout", meeting, user)
+  Meteor.call("userLogout", meeting, user, getInSession("authToken"))
 
   # Clear the local user session and redirect them away
   setInSession("userId", null)
   setInSession("meetingId", null)
-  setInSession("currentChatId", null)
   setInSession("meetingName", null)
   setInSession("bbbServerVersion", null)
   setInSession("userName", null)
@@ -270,3 +254,14 @@ Handlebars.registerHelper "visibility", (section) ->
 # insert the basic tabs
 @chatTabs.insert({ userId: "PUBLIC_CHAT", name: "Public", gotMail: false, class: "publicChatTab"})
 @chatTabs.insert({ userId: "OPTIONS", name: "Options", gotMail: false, class: "optionsChatTab"})
+
+# TODO TEMPORARY!!
+# must not have this in production
+@whoami = ->
+  console.log JSON.stringify {
+    username: getInSession "userName"
+    userid: getInSession "userId"
+    authToken: getInSession "authToken"
+    DBIDinSession: getInSession "DBID"
+    DBIDfromCol: Meteor.Users.findOne({userId:getInSession 'userId'})?._id
+}
