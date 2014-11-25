@@ -27,9 +27,6 @@ package org.bigbluebutton.modules.chat.events
 		public var start:Boolean = true;
 		public var attributes:Object;
 		
-		public var translationEnabled:Boolean;
-		public var translationOn:Boolean;
-		
 		public function StartChatModuleEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);

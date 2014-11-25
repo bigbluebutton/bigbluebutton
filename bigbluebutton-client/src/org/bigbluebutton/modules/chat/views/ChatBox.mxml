@@ -246,7 +246,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         msg.fromUserID = SPACE;
         msg.fromUsername = SPACE;
         msg.fromColor = "0";
-        msg.fromLang = "en";
         msg.fromTime = new Date().getTime();
         msg.fromTimezoneOffset = new Date().getTimezoneOffset();
         msg.toUserID = SPACE;
@@ -553,7 +552,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         cm.fromUsername = UsersUtil.getMyUsername();
 		// get the color value from ColorPicker
         cm.fromColor =  cmpColorPicker.selectedColor.toString();
-        cm.fromLang = ChatUtil.getUserLang();
         // Get the current UTC time and the timezone for this sender.
         // The receiver will have to convert this to local time.
         var now:Date = new Date();
@@ -574,7 +572,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         cm.fromUsername = UsersUtil.getMyUsername();
 		// get the color value from ColorPicker
         cm.fromColor = cmpColorPicker.selectedColor.toString();
-        cm.fromLang = ChatUtil.getUserLang();
         
         // Get the current UTC time and the timezone for this sender.
         // The receiver will have to convert this to local time.
