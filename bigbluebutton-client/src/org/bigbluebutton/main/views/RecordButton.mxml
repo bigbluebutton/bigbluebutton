@@ -48,12 +48,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.core.model.MeetingModel;
       import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.model.LayoutOptions;
       import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
       import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var recordingFlag:Boolean;
 			private var firstAudioJoin:Boolean = true;
+			private var layoutOptions:LayoutOptions = null;
 			
 			[Embed(source="/org/bigbluebutton/common/assets/images/record.png")]
 			private var recordReminderIcon:Class;
@@ -136,9 +138,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function showRecordingNotification():void {
+				if (layoutOptions == null) {
+					layoutOptions = new LayoutOptions();
+					layoutOptions.parseOptions();
+				}
+
 				if (firstAudioJoin && this.visible && !this.selected 
-            && UserManager.getInstance().getConference().amIModerator()
-            && MeetingModel.getInstance().meeting.allowStartStopRecording) {
+						&& layoutOptions.showRecordingNotification
+						&& UserManager.getInstance().getConference().amIModerator()
+						&& MeetingModel.getInstance().meeting.allowStartStopRecording) {
 					var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.message1") + "\n\n" + ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.message2"), ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.title"), Alert.OK, this);
 					alert.titleIcon = recordReminderIcon;
 					
