@@ -96,7 +96,7 @@ Handlebars.registerHelper "grabChatTabs", ->
   messageForServer = { # construct message for server
     "message": message
     "chat_type": if chattingWith is "PUBLIC_CHAT" then "PUBLIC_CHAT" else "PRIVATE_CHAT"
-    "from_userid": getInSession("DBID")
+    "from_userid": getInSession("userId")
     "from_username": BBB.getMyUserName()
     "from_tz_offset": "240"
     "to_username": if chattingWith is "PUBLIC_CHAT" then "public_chat_username" else dest.user.name
@@ -107,7 +107,8 @@ Handlebars.registerHelper "grabChatTabs", ->
     # "from_color": "0x#{getInSession("messageColor")}"
   }
 
-  Meteor.call "sendChatMessagetoServer", getInSession("meetingId"), messageForServer, getInSession("userId")
+  Meteor.call "sendChatMessagetoServer", getInSession("meetingId"), messageForServer, getInSession("userId"), getInSession("authToken")
+
   $('#newMessageInput').val '' # Clear message box
 
 Template.chatbar.helpers

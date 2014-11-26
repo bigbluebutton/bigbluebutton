@@ -16,6 +16,10 @@ viewer =
   subscribeUsers: true
   subscribeChat: true
 
+  #chat
+  chatPublic: true #should make this dynamically modifiable later on
+  chatPrivate: true #should make this dynamically modifiable later on
+
 @isAllowedTo = (action, meetingId, userId, authToken) ->
   Meteor.log.info "in isAllowedTo: action-#{action}, userId=#{userId}, authToken=#{authToken}"
 
