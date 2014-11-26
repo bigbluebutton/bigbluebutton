@@ -52,7 +52,6 @@ public class ChatMessageListener implements MessageHandler{
 					String fromColor = messageObject.get("from_color").toString().replace("\"", "");
 					String fromTime = messageObject.get("from_time").toString().replace("\"", "");
 					String fromTimezoneOffset = messageObject.get("from_tz_offset").toString().replace("\"", "");
-					String fromLang = messageObject.get("from_lang").toString().replace("\"", ""); 
 					String toUserID = messageObject.get("to_userid").toString().replace("\"", "");
 					String toUsername = messageObject.get("to_username").toString().replace("\"", "");
 					String chatText = messageObject.get("message").toString().replace("\"", "");
@@ -64,7 +63,6 @@ public class ChatMessageListener implements MessageHandler{
 					map.put(ChatKeyUtil.FROM_COLOR, fromColor);
 					map.put(ChatKeyUtil.FROM_TIME, fromTime);
 					map.put(ChatKeyUtil.FROM_TZ_OFFSET, fromTimezoneOffset);
-					map.put(ChatKeyUtil.FROM_LANG, fromLang);
 					map.put(ChatKeyUtil.TO_USERID, toUserID);
 					map.put(ChatKeyUtil.TO_USERNAME, toUsername);
 					map.put(ChatKeyUtil.MESSAGE, chatText);

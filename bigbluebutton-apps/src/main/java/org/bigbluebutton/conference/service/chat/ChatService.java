@@ -49,7 +49,6 @@ public class ChatService {
 		String fromColor = msg.get(ChatKeyUtil.FROM_COLOR).toString();
 		String fromTime = msg.get(ChatKeyUtil.FROM_TIME).toString();   
 		String fromTimezoneOffset = msg.get(ChatKeyUtil.FROM_TZ_OFFSET).toString();
-		String fromLang = msg.get(ChatKeyUtil.FROM_LANG).toString(); 	 
 		String toUserID = msg.get(ChatKeyUtil.TO_USERID).toString();
 		String toUsername = msg.get(ChatKeyUtil.TO_USERNAME).toString();
 		String chatText = msg.get(ChatKeyUtil.MESSAGE).toString();
@@ -61,7 +60,6 @@ public class ChatService {
 		message.put(ChatKeyUtil.FROM_COLOR, fromColor);
 		message.put(ChatKeyUtil.FROM_TIME, fromTime);   
 		message.put(ChatKeyUtil.FROM_TZ_OFFSET, fromTimezoneOffset);
-		message.put(ChatKeyUtil.FROM_LANG, fromLang);
 		message.put(ChatKeyUtil.TO_USERID, toUserID);
 		message.put(ChatKeyUtil.TO_USERNAME, toUsername);
 		message.put(ChatKeyUtil.MESSAGE, chatText);
@@ -83,7 +81,6 @@ public class ChatService {
 		String fromColor = msg.get(ChatKeyUtil.FROM_COLOR).toString();
 		String fromTime = msg.get(ChatKeyUtil.FROM_TIME).toString();   
 		String fromTimezoneOffset = msg.get(ChatKeyUtil.FROM_TZ_OFFSET).toString();
-		String fromLang = msg.get(ChatKeyUtil.FROM_LANG).toString(); 	 
 		String toUserID = msg.get(ChatKeyUtil.TO_USERID).toString();
 		String toUsername = msg.get(ChatKeyUtil.TO_USERNAME).toString();
 		String chatText = msg.get(ChatKeyUtil.MESSAGE).toString();
@@ -95,7 +92,6 @@ public class ChatService {
 		message.put(ChatKeyUtil.FROM_COLOR, fromColor);
 		message.put(ChatKeyUtil.FROM_TIME, fromTime);   
 		message.put(ChatKeyUtil.FROM_TZ_OFFSET, fromTimezoneOffset);
-		message.put(ChatKeyUtil.FROM_LANG, fromLang);
 		message.put(ChatKeyUtil.TO_USERID, toUserID);
 		message.put(ChatKeyUtil.TO_USERNAME, toUsername);
 		message.put(ChatKeyUtil.MESSAGE, chatText);

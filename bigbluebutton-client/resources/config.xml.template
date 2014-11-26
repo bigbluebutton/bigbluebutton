@@ -22,8 +22,6 @@
 		<module name="ChatModule" url="http://HOST/client/ChatModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="UsersModule"	
-			translationOn="false"
-			translationEnabled="false"	
 			privateEnabled="true"  
 			position="top-right"
 			baseTabIndex="701"
