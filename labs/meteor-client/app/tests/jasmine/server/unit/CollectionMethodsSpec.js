@@ -1,4 +1,4 @@
-describe("Collections", function () {
+xdescribe("Collections", function () {
   beforeEach(function () {
     MeteorStubs.install();
   });
