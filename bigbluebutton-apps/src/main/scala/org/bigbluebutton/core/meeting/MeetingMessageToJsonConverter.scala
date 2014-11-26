@@ -25,6 +25,7 @@ object MeetingMessageToJsonConverter {
   def meetingCreatedToJson(msg:MeetingCreated):String = {
 	val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.EXTERNAL_MEETING_ID, msg.externalMeetingID)
     payload.put(Constants.NAME, msg.name)
     payload.put(Constants.RECORDED, msg.recorded)
     payload.put(Constants.VOICE_CONF, msg.voiceBridge)
