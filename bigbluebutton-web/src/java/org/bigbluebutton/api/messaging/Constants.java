@@ -5,6 +5,7 @@ public class Constants {
   public static final String HEADER                          = "header";
   public static final String PAYLOAD                         = "payload";
   public static final String MEETING_ID                      = "meeting_id";
+  public static final String EXTERNAL_MEETING_ID             = "external_meeting_id";
   public static final String TIMESTAMP                       = "timestamp";
   public static final String USER_ID                         = "userid";
   public static final String RECORDED                        = "recorded";
