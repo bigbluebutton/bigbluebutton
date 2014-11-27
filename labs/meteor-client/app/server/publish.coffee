@@ -44,17 +44,11 @@ Meteor.publish 'users', (meetingId, userid, authToken) ->
 Meteor.publish 'chat', (meetingId, userid, authToken) ->
   if isAllowedTo('subscribeChat', meetingId, userid, authToken)
     Meteor.log.info "publishing chat for #{meetingId} #{userid} #{authToken}"
-    me = Meteor.Users.findOne({meetingId: meetingId, userId: userid})
-    if me?
-      me = me._id
-      #TODO change _id with userid
-      return Meteor.Chat.find({$or: [
-        {'message.chat_type': 'PUBLIC_CHAT', 'meetingId': meetingId},
-        {'message.from_userid': me, 'meetingId': meetingId},
-        {'message.to_userid': me, 'meetingId': meetingId}
-        ]})
-    else
-      Meteor.log.info "could not find myself in publishing chat"
+    return Meteor.Chat.find({$or: [
+      {'message.chat_type': 'PUBLIC_CHAT', 'meetingId': meetingId},
+      {'message.from_userid': userid, 'meetingId': meetingId},
+      {'message.to_userid': userid, 'meetingId': meetingId}
+      ]})
 
 Meteor.publish 'shapes', (meetingId) ->
   Meteor.Shapes.find({meetingId: meetingId})
