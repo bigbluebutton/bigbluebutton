@@ -240,7 +240,7 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession "authToken", null
   setInSession "bbbServerVersion", null
   setInSession "userName", null
-  setInSession "display_navbar", false # needed to hide navbar when the layout template renders
+  #setInSession "display_navbar", false # needed to hide navbar when the layout template renders
 
 # applies zooming to the stroke thickness
 @zoomStroke = (thickness) ->
