@@ -368,7 +368,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var browser:Array = ExternalInterface.call("determineBrowser");
         
 				return ((browser[0] == "Chrome")
-          && (parseInt(browser[1]) < 38)
+          && (parseInt(browser[1]) <= 38)
           && (Capabilities.os.indexOf("Mac") >= 0));
 			}
 		]]>
