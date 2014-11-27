@@ -22,7 +22,6 @@ class ChatEventRedisRecorder(recorder: RecorderApplication) extends OutMessageLi
         ev.setMeetingId(msg.meetingID);
         ev.setSender(message.get("fromUsername"));
         ev.setMessage(message.get("message"));
-        ev.setLocale(message.get("fromLang"));
         ev.setColor(message.get("fromColor"));
 		recorder.record(msg.meetingID, ev);	
       }

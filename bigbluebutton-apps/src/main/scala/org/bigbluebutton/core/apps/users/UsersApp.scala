@@ -262,16 +262,10 @@ trait UsersApp {
 	 }
   }
   
-  def handleVoiceUserJoined(msg: VoiceUserJoined) = {
-      val user = users.getUser(msg.voiceUser.webUserId) match {
+  def handleUserJoinedVoiceFromPhone(msg: VoiceUserJoined) = {
+      val user = users.getUserWithVoiceUserId(msg.voiceUser.userId) match {
         case Some(user) => {
-          val nu = user.copy(voiceUser=msg.voiceUser)
-          users.addUser(nu)
-          logger.info("Received user joined voice for user [" + nu.name + "] userid=[" + msg.voiceUser.webUserId + "]" )
-          outGW.send(new UserJoinedVoice(meetingID, recorded, voiceBridge, nu))
-          
-          if (meetingMuted)
-            outGW.send(new MuteVoiceUser(meetingID, recorded, nu.userID, nu.userID, meetingMuted))
+          logger.info("Voice user=[" + msg.voiceUser.userId + "] is already in conf=[" + voiceBridge + "]. Must be duplicate message.")
         }
         case None => {
           // No current web user. This means that the user called in through
@@ -292,7 +286,25 @@ trait UsersApp {
 		      
 		      outGW.send(new UserJoinedVoice(meetingID, recorded, voiceBridge, uvo))
 		      if (meetingMuted)
-            outGW.send(new MuteVoiceUser(meetingID, recorded, uvo.userID, uvo.userID, meetingMuted))
+            outGW.send(new MuteVoiceUser(meetingID, recorded, uvo.userID, uvo.userID, meetingMuted))      
+        
+        }
+      }
+  }
+  
+  def handleVoiceUserJoined(msg: VoiceUserJoined) = {
+      val user = users.getUser(msg.voiceUser.webUserId) match {
+        case Some(user) => {
+          val nu = user.copy(voiceUser=msg.voiceUser)
+          users.addUser(nu)
+          logger.info("Received user joined voice for user [" + nu.name + "] userid=[" + msg.voiceUser.webUserId + "]" )
+          outGW.send(new UserJoinedVoice(meetingID, recorded, voiceBridge, nu))
+          
+          if (meetingMuted)
+            outGW.send(new MuteVoiceUser(meetingID, recorded, nu.userID, nu.userID, meetingMuted))
+        }
+        case None => {
+        	handleUserJoinedVoiceFromPhone(msg)
         }
       }
   }

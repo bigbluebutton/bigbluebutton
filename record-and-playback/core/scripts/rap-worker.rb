@@ -55,6 +55,11 @@ def archive_recorded_meeting(recording_dir)
     step_stop_time = BigBlueButton.monotonic_clock
     step_time = step_stop_time - step_start_time
 
+    if not File.exists?(recorded_done)
+      BigBlueButton.logger.info("There's no recording marks in #{meeting_id}, skipping it")
+      return
+    end
+
     step_succeeded = (ret == 0 && File.exists?(archived_done))
 
     BigBlueButton.redis_publisher.put_archive_ended meeting_id, {

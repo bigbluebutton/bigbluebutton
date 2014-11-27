@@ -43,6 +43,10 @@ class UsersModel {
     uservos.values find (u => u.externUserID == userID) 
   }
     
+  def getUserWithVoiceUserId(voiceUserId: String):Option[UserVO] = {
+    uservos.values find (u => u.voiceUser.userId == voiceUserId)  
+  }
+    
   def getUser(userID:String):Option[UserVO] = {
     uservos.values find (u => u.userID == userID) 
   }
