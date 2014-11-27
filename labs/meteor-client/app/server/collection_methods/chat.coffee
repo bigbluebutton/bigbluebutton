@@ -19,7 +19,6 @@ Meteor.methods
 					return 'chatPrivate'
 
 		if isAllowedTo(action(), meetingId, requesterUserId, requesterToken) and chatObject.from_userid is requesterUserId
-
 			message =
 				header :
 					timestamp: new Date().getTime()
@@ -42,29 +41,27 @@ Meteor.methods
 # Private methods on server
 # --------------------------------------------------------------------------------------------
 @addChatToCollection = (meetingId, messageObject) ->
-	console.log "\n\n\n stage 2 - adding \n\n"
-	transformedChatObject = messageObject
+	# manually convert time from 1.408645053653E12 to 1408645053653 if necessary
+	# (this is the time_from that the Flash client outputs)
+	messageObject.from_time = (messageObject.from_time).toString().split('.').join("").split("E")[0]
 
-	# manually convert time from 1.408645053653E12 to 1408645053653 if necessary (this is the time_from that the Flash client outputs)
-	transformedChatObject.from_time = (transformedChatObject.from_time).toString().split('.').join("").split("E")[0]
-
-	if transformedChatObject.from_userid? and transformedChatObject.to_userid?
+	if messageObject.from_userid? and messageObject.to_userid?
 		entry =
 			meetingId: meetingId
 			message:
-				chat_type: transformedChatObject.chat_type
-				message: transformedChatObject.message
-				to_username: transformedChatObject.to_username
-				from_tz_offset: transformedChatObject.from_tz_offset
-				from_color: transformedChatObject.from_color
-				to_userid: transformedChatObject.to_userid
-				from_userid: transformedChatObject.from_userid
-				from_time: transformedChatObject.from_time
-				from_username: transformedChatObject.from_username
-				from_lang: transformedChatObject.from_lang
+				chat_type: messageObject.chat_type
+				message: messageObject.message
+				to_username: messageObject.to_username
+				from_tz_offset: messageObject.from_tz_offset
+				from_color: messageObject.from_color
+				to_userid: messageObject.to_userid
+				from_userid: messageObject.from_userid
+				from_time: messageObject.from_time
+				from_username: messageObject.from_username
+				from_lang: messageObject.from_lang
 
 		id = Meteor.Chat.insert(entry)
-		Meteor.log.info "added chat id=[#{id}]:#{transformedChatObject.message}. Chat.size is now #{Meteor.Chat.find({meetingId: meetingId}).count()}"
+		Meteor.log.info "added chat id=[#{id}]:#{messageObject.message}. Chat.size is now #{Meteor.Chat.find({meetingId: meetingId}).count()}"
 # --------------------------------------------------------------------------------------------
 # end Private methods on server
 # --------------------------------------------------------------------------------------------
