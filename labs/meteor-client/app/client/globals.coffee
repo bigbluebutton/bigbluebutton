@@ -142,8 +142,6 @@ Handlebars.registerHelper "pointerLocation", ->
 Handlebars.registerHelper "safeName", (str) ->
   safeString(str)
 
-Handlebars.registerHelper "setInSession", (k, v) -> SessionAmplify.set k, v
-
 Handlebars.registerHelper "visibility", (section) ->
   if getInSession "display_#{section}"
     style: 'display:block'
