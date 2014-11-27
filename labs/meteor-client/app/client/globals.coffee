@@ -165,7 +165,7 @@ Handlebars.registerHelper "visibility", (section) ->
 
 # check the chat history of the user and add tabs for the private chats
 @populateChatTabs = (msg) ->
-  mydbid = getInSession "DBID"
+  myUserId = getInSession "userId"
   users = Meteor.Users.find().fetch()
 
   # assuming that I only have access only to private messages where I am the sender or the recipient
@@ -173,9 +173,9 @@ Handlebars.registerHelper "visibility", (section) ->
 
   uniqueArray = []
   for chat in myPrivateChats
-    if chat.message.to_userid is mydbid
+    if chat.message.to_userid is myUserId
       uniqueArray.push({userId: chat.message.from_userid, username: chat.message.from_username})
-    if chat.message.from_userid is mydbid
+    if chat.message.from_userid is myUserId
       uniqueArray.push({userId: chat.message.to_userid, username: chat.message.to_username})
 
   #keep unique entries only
