@@ -23,6 +23,7 @@ package org.bigbluebutton.conference.service.sharedNotes;
 import java.util.UUID;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,6 +54,7 @@ public class SharedNotesRoom {
 	private static final Object syncObject = new Object();
 	private diff_match_patch diffPatch = new diff_match_patch();
     private Integer noteCounter;
+    private List<Integer> removedNotes = new ArrayList<Integer>();
 
 	public SharedNotesRoom(String name) {
 		this.name = name;
@@ -135,8 +137,13 @@ public class SharedNotesRoom {
 	}
 
 	public void createAdditionalNotes() {
-        synchronized (syncObject) {	
-		    String noteId = (noteCounter++).toString();
+        synchronized (syncObject) {
+        	String noteId;
+        	if (removedNotes.isEmpty()) {
+        		noteId = (noteCounter++).toString();
+        	} else {
+        		noteId = removedNotes.remove(0).toString();
+        	}
             documents.put(noteId, "");
 
 		for (Map.Entry<String, ISharedNotesRoomListener> entry : listeners.entrySet()) {
@@ -148,6 +155,8 @@ public class SharedNotesRoom {
 	public void destroyAdditionalNotes(String notesId) {
         synchronized (syncObject) {	
             documents.remove(notesId);
+            removedNotes.add(Integer.parseInt(notesId));
+            Collections.sort(removedNotes);
 		for (Map.Entry<String, ISharedNotesRoomListener> entry : listeners.entrySet()) {
 			ISharedNotesRoomListener listener = entry.getValue();
 			listener.destroyAdditionalNotes(notesId);
