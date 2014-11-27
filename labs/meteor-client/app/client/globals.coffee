@@ -58,9 +58,6 @@ Handlebars.registerHelper 'equals', (a, b) -> # equals operator was dropped in M
 Handlebars.registerHelper "getCurrentMeeting", ->
   Meteor.Meetings.findOne()
 
-Handlebars.registerHelper "getIPFromConfig", ->
-  Meteor.config.app.redirectToLoginOnLogout
-
 Handlebars.registerHelper "getCurrentSlide", ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
   presentationId = currentPresentation?.presentation?.id
@@ -234,16 +231,18 @@ Handlebars.registerHelper "visibility", (section) ->
 # the user's userId
 @userLogout = (meeting, user) ->
   Meteor.call("userLogout", meeting, user, getInSession("authToken"))
-
-  # Clear the local user session and redirect them away
-  setInSession("userId", null)
-  setInSession("meetingId", null)
-  setInSession("meetingName", null)
-  setInSession("bbbServerVersion", null)
-  setInSession("userName", null)
-  setInSession "display_navbar", false # needed to hide navbar when the layout template renders
-
   Router.go('logout') # navigate to logout
+
+# Clear the local user session and redirect them away
+@clearSessionVar = ->
+  console.log "clearSessionVar"
+  setInSession "userId", null
+  setInSession "meetingId", null
+  setInSession "meetingName", null
+  setInSession "authToken", null
+  setInSession "bbbServerVersion", null
+  setInSession "userName", null
+  setInSession "display_navbar", false # needed to hide navbar when the layout template renders
 
 # applies zooming to the stroke thickness
 @zoomStroke = (thickness) ->

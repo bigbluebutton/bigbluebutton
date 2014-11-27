@@ -20,8 +20,12 @@ config.app = {}
 # coffee> crypto = require 'crypto'
 # coffee> crypto.randomBytes(32).toString('base64')
 config.app.sessionSecret = "J7XSu96KC/B/UPyeGub3J6w6QFXWoUNABVgi9Q1LskE="
-#configure your loggin server ip here
-config.app.redirectToLoginOnLogout = "http://10.0.3.1:4000"
+
+# server ip
+config.app.serverIP = "http://192.168.0.119"
+
+# port for the HTML5 client
+config.app.htmlClientPort = "3000"
 
 # Configs for redis
 config.redis = {}
