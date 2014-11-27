@@ -78,3 +78,9 @@ remove_raw_of_published_recordings(){
 
 #remove_raw_of_published_recordings
 
+#
+# Remove old *.afm and *.pfb files from /tmp directory (these were created by Ghostscript)
+#
+find /tmp -name "*.afm" -mtime +10 -exec rm '{}' \;
+find /tmp -name "*.pfb" -mtime +10 -exec rm '{}' \;
+
