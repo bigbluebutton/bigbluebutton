@@ -258,6 +258,4 @@ Handlebars.registerHelper "visibility", (section) ->
     username: getInSession "userName"
     userid: getInSession "userId"
     authToken: getInSession "authToken"
-    DBIDinSession: getInSession "DBID"
-    DBIDfromCol: Meteor.Users.findOne({userId:getInSession 'userId'})?._id
 }

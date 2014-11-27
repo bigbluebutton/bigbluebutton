@@ -48,7 +48,7 @@
         'from_color': '0x3399FF' # A nice blue in hex
     ]
   else
-    me = getInSession("DBID")
+    me = getInSession("userId")
     after = Meteor.Chat.find({ # find all messages between current user and recipient
       'message.chat_type': 'PRIVATE_CHAT',
       $or: [{'message.from_userid': me, 'message.to_userid': friend},{'message.from_userid': friend, 'message.to_userid': me}]

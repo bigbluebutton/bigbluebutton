@@ -1,9 +1,3 @@
-@grabAllDBID = ->
-  array = []
-  for u in Meteor.Users.find().fetch()
-    array.push(u._id)
-  return array
-
 # Helper to load javascript libraries from the BBB server
 loadLib = (libname) ->
   successCallback = ->
