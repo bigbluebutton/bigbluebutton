@@ -276,8 +276,7 @@ package org.bigbluebutton.modules.layout.managers
 
 		private function checkSharedNotes(layout:LayoutDefinition):void {
 			var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.CREATE_ADDITIONAL_NOTES_SET_EVENT);
-			//e.additionalNotesSetSize = layout.getNumberOfSharedNotes();
-			e.additionalNotesSetSize = 1;
+			e.additionalNotesSetSize = layout.getNumberOfSharedNotes();
 			_globalDispatcher.dispatchEvent(e);
 		}
 		

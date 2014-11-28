@@ -357,8 +357,8 @@ package org.bigbluebutton.modules.layout.model {
 
 		public function getNumberOfSharedNotes():Number {
 			var sharedNotesCounter:int = 0;
-			for each (var window:MDIWindow in _layoutsPerRole[Role.VIEWER]) {
-				if (window.name.indexOf("AdditionalSharedNotes")) {
+			for each (var window:WindowLayout in _layoutsPerRole[Role.VIEWER]) {
+				if (window.name.indexOf("AdditionalSharedNotesWindow") != -1) {
 					sharedNotesCounter++;
 				}
 			}
