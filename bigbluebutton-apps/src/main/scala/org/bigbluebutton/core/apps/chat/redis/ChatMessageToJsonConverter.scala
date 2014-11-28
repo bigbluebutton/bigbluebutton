@@ -23,7 +23,6 @@ object ChatMessageToJsonConverter {
 		res += "from_color"      -> msg.get(ChatKeyUtil.FROM_COLOR).getOrElse(UNKNOWN)
 		res += "from_time"       -> msg.get(ChatKeyUtil.FROM_TIME).getOrElse(UNKNOWN)   
 		res += "from_tz_offset"  -> msg.get(ChatKeyUtil.FROM_TZ_OFFSET).getOrElse(UNKNOWN)
-		res += "from_lang"       -> msg.get(ChatKeyUtil.FROM_LANG).getOrElse(UNKNOWN)
 		res += "to_userid"       -> msg.get(ChatKeyUtil.TO_USERID).getOrElse(UNKNOWN)
 		res += "to_username"     -> msg.get(ChatKeyUtil.TO_USERNAME).getOrElse(UNKNOWN)
 		res += "message"         -> msg.get(ChatKeyUtil.MESSAGE).getOrElse(UNKNOWN)

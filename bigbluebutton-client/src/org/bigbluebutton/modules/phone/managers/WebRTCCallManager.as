@@ -49,6 +49,7 @@ package org.bigbluebutton.modules.phone.managers
         browserType = browserInfo[0];
         browserVersion = browserInfo[1];
       }
+	  options = new PhoneOptions();
     }
     
     private function isWebRTCSupported():Boolean {
@@ -67,7 +68,6 @@ package org.bigbluebutton.modules.phone.managers
     
     
     private function checkIfToUseWebRTC():Boolean {
-      options = new PhoneOptions();
       var webRTCSupported:Boolean = isWebRTCSupported();
       
       trace(LOG + "- checkIfToUseWebRTC - useWebRTCIfAvailable=[" + options.useWebRTCIfAvailable 

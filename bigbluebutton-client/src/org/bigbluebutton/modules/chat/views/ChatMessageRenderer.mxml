@@ -33,10 +33,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.modules.chat.model.ChatMessage;
-
-			[Bindable] private var rolledOver:Boolean = false;					
-			[Bindable] private var chatMsg:ChatMessage;
-			[Bindable] private var chatTime:String;
 			
 			private function onLinkClick(e:TextEvent):void{
         trace("Clicked on link[" + e.text + "] from chat");
@@ -74,8 +70,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				if (data == null) return;
 				
-				data.translateMessage();
-				
 				// The visibility check has to go here becasue ORs don't work with databinding
 				lblTime.visible = (!(data.lastTime == data.time) || !(data.senderId == data.lastSenderId));
 				// check the visibility of the name as well because events might fire in different order
@@ -90,14 +84,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				validateNow();
 			}
 			
-			private function onRollOver():void{
-				rolledOver = true;
-			}
-			
-			private function onRollOut():void{
-				rolledOver = false;
-			}
-			
 			private function onKeyDown(event:KeyboardEvent):void{
 				if(event.ctrlKey == true && event.keyCode == Keyboard.C){
 					System.setClipboard(UITextField(txtMessage.mx_internal::getTextField()).selectedText);
@@ -108,11 +94,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
 	
   <mx:Canvas width="100%" id="hbHeader">
-    <mx:Label id="lblName" text="{data.name} " visible="true" color="gray" textAlign="left" left="0"/>
-    <mx:Text id="lblTime" htmlText="{data.translateLocale} {data.time}" textAlign="right"
+    <mx:Label id="lblName" text="{data.name}" visible="true" color="gray" textAlign="left" left="0"/>
+    <mx:Text id="lblTime" htmlText="{data.time}" textAlign="right"
              visible="true" 
              color="gray" right="0" />       
   </mx:Canvas>
-  <mx:Text id="txtMessage" htmlText="{rolledOver ? data.senderText : data.translatedText}" link="onLinkClick(event)" color="{data.senderColor}"
-           rollOver="onRollOver()" rollOut="onRollOut()" keyDown="onKeyDown(event)" paddingLeft="5" width="100%" selectable="true"/>
+  <mx:Text id="txtMessage" htmlText="{data.text}" link="onLinkClick(event)" color="{data.senderColor}"
+           keyDown="onKeyDown(event)" paddingLeft="5" width="100%" selectable="true"/>
 </mx:VBox>

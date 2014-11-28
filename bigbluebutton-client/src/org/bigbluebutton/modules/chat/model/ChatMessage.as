@@ -17,30 +17,19 @@
 *
 */
 package org.bigbluebutton.modules.chat.model {
-	import be.boulevart.google.ajaxapi.translation.GoogleTranslation;
-	import be.boulevart.google.ajaxapi.translation.data.GoogleTranslationResult;
-	import be.boulevart.google.events.GoogleApiEvent;
 	
 	import org.bigbluebutton.common.LogUtil;
 	
 	public class ChatMessage {
 		[Bindable] public var lastSenderId:String;
 		[Bindable] public var senderId:String;
-		[Bindable] public var senderLanguage:String;
-		[Bindable] public var receiverLanguage:String;
-		[Bindable] public var translate:Boolean;
 		[Bindable] public var senderColor:uint;
-		[Bindable] public var translateLocale:String = "";	 
-		[Bindable] public var translatedLocaleTooltip:String = "";
 			 
 		[Bindable] public var name:String;
 
 		[Bindable] public var time:String;
 		[Bindable] public var lastTime:String;
-		[Bindable] public var senderText:String;
-		[Bindable] public var translatedText:String;
-		[Bindable] public var translated:Boolean = false;
-		[Bindable] public var translatedColor:uint;
+		[Bindable] public var text:String;
 
 	
     // Stores the time (millis) when the sender sent the message.
@@ -52,43 +41,11 @@ package org.bigbluebutton.modules.chat.model {
     // Stores what we display to the user. The converted fromTime and fromTimezoneOffset to local time.
     [Bindable] public var senderTime:String;
     */
-		private var g:GoogleTranslation;	 
-			 
-		public function ChatMessage() {
-			g = new GoogleTranslation();
-			g.addEventListener(GoogleApiEvent.TRANSLATION_RESULT, onTranslationDone);
-		}
-
-		public function translateMessage():void {		
-			if (!translate) return;
-				
-			if ((senderLanguage != receiverLanguage) && !translated) {
-//				LogUtil.debug("Translating " + senderText + " from " + senderLanguage + " to " + receiverLanguage + ".");
-				g.translate(senderText, senderLanguage, receiverLanguage);
-			} else {
-//				LogUtil.debug("NOT Translating " + senderText + " from " + senderLanguage + " to " + receiverLanguage + ".");
-			}			
-		}
-			
-		private function onTranslationDone(e:GoogleApiEvent):void {
-			var result:GoogleTranslationResult = e.data as GoogleTranslationResult;
-
-			if (result.result != senderText) {
-				translated = true;
-//				LogUtil.debug("Translated " + senderText + "to " + result.result + ".");
-
-				translatedText = result.result;
-
-				if (lastSenderId != senderId)
-					translateLocale = "<i>" + senderLanguage + "->" + receiverLanguage + "</i>";
-				translatedColor = 0xCF4C5C;
-			} 
-		}
 		
 		public function toString() : String {
 			var result:String;
 			// Remember to localize this later
-			result = "Chat message " + name + " said " + stripTags(translatedText) + " at " + time;  
+			result = "Chat message " + name + " said " + stripTags(text) + " at " + time;  
 			return result;
 		}
 		

@@ -52,16 +52,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="applicationListeners">
     		<set>
 				<ref bean="participantsHandler" />
-				<ref bean="chatHandler" />
-				<ref bean="layoutHandler" />
-				<ref bean="presentationHandler" />
-				<ref bean="voiceHandler" />
 				<ref bean="whiteboardApplication" />
     		</set>
   		</property>	  
-  		<property name="recorderApplication"> <ref bean="recorderApplication"/></property>	
-  		<property name="connInvokerService"> <ref bean="connInvokerService"/></property>		
-  		<property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
+  		<property name="recorderApplication"> 
+  		  <ref bean="recorderApplication"/>
+  		</property>	
+  		<property name="connInvokerService"> 
+  		  <ref bean="connInvokerService"/>
+  		</property>		
+  		<property name="bigBlueButtonInGW"> 
+  		  <ref bean="bbbInGW"/>
+  		</property>
 	</bean>
 	
 	<bean id="connInvokerService" class="org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService" 

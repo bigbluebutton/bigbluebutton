@@ -34,6 +34,7 @@ package org.bigbluebutton.main.model
 		[Bindable] public var showLayoutTools:Boolean = true;
 		[Bindable] public var showNetworkMonitor:Boolean = true;
 		[Bindable] public var confirmLogout:Boolean = true;
+		[Bindable] public var showRecordingNotification:Boolean = true;
 		
 		
     public var defaultLayout:String = "Default";
@@ -93,6 +94,9 @@ package org.bigbluebutton.main.model
 			showNetworkMonitor = (vxml.@showNetworkMonitor.toString().toUpperCase() == "TRUE") ? true : false;
 		}
 		
+		if(vxml.@showRecordingNotification != undefined){
+			showRecordingNotification = (vxml.@showRecordingNotification.toString().toUpperCase() == "TRUE") ? true : false;
+		}
 			}
 		}
 		
