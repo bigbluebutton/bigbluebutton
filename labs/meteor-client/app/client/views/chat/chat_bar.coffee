@@ -91,7 +91,7 @@ Handlebars.registerHelper "grabChatTabs", ->
   chattingWith = getInSession('inChatWith')
 
   if chattingWith isnt "PUBLIC_CHAT"
-    dest = Meteor.Users.findOne(userId: chattingWith)
+    toUsername = Meteor.Users.findOne(userId: chattingWith)?.user.name
 
   messageForServer = { # construct message for server
     "message": message
@@ -99,7 +99,7 @@ Handlebars.registerHelper "grabChatTabs", ->
     "from_userid": getInSession("userId")
     "from_username": BBB.getMyUserName()
     "from_tz_offset": "240"
-    "to_username": if chattingWith is "PUBLIC_CHAT" then "public_chat_username" else dest.user.name
+    "to_username": if chattingWith is "PUBLIC_CHAT" then "public_chat_username" else toUsername
     "to_userid": if chattingWith is "PUBLIC_CHAT" then "public_chat_userid" else chattingWith
     "from_lang": "en"
     "from_time": getTime()
