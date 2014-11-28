@@ -28,9 +28,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <MaxHistory>5</MaxHistory>
     </rollingPolicy>
 
-    <layout class="ch.qos.logback.classic.PatternLayout">
-      <Pattern>%date [%thread] %-5level %logger{35} - %msg%n</Pattern>
-    </layout>
+    <encoder>
+      <charset>UTF-8</charset>
+      <pattern>%d{ISO8601} [%thread] %-5level %logger{35} - %msg%n</pattern>
+    </encoder>   
   </appender> 
   
 	<root>
