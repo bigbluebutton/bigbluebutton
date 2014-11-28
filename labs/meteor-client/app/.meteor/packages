@@ -14,7 +14,6 @@ iron:router
 blaze
 less
 sanjo:jasmine
-velocity:core
 francocatena:status
 mizzao:jquery-ui
 mrt:external-file-loader@0.1.4
