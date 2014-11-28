@@ -10,12 +10,3 @@
       <i class="glyphicon glyphicon-{{i_class}}"></i>
    </button>
 </template>
-
-<template name="moduleTable">
-    {{> yield}}
-    <table class="{{tableClass}}">
-        <tbody class="{{tbodyClass}}">
-            {{> yield region="Contents"}}
-        </tbody>
-    </table>
-</template>

@@ -1,10 +1,10 @@
 <template name="displayUserIcons">
-    <td>{{#if isUserSharingVideo userId}}
+    {{#if isUserSharingVideo userId}}
         <span class="userListSettingIcon glyphicon glyphicon-facetime-video" rel="tooltip" data-placement="bottom" title="{{user.name}} is sharing their webcam"></span>
-    {{/if}}</td>
+    {{/if}}
 
     <!-- Should use much more noticeable icons than just bootstrap's volume-up & volume-down to differentiate talking but it is good for now -->
-    <td>{{#if isUserSharingAudio userId}}
+    {{#if isUserSharingAudio userId}}
           {{#if isCurrentUser userId}}
             {{#if isUserMuted userId}}
               <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-off" rel="tooltip" data-placement="bottom" title="Unmute yourself"></span>
@@ -31,9 +31,7 @@
         {{#if isUserListenOnly userId}}
           <span class="userListSettingIcon glyphicon glyphicon-headphones" title="Listening only"></span>
         {{/if}}
-    </td>
 
-    <td>
         {{#if user.presenter}}
             <span class="userListSettingIcon glyphicon glyphicon-picture" rel="tooltip" data-placement="bottom" title="{{user.name}} is the presenter"></span>
         {{else}}
@@ -41,9 +39,7 @@
                 <span class="userListSettingIcon glyphicon glyphicon-user" rel="tooltip" data-placement="bottom" title="{{user.name}} is a moderator"></span>
             {{/if}}
         {{/if}}
-    </td>
 
-    <td>
         {{#if user.raise_hand}}
             {{#if isCurrentUser userId}}
                 <span class="raisedHandIcon userListSettingIcon glyphicon glyphicon-hand-up" rel="tooltip" data-placement="bottom" title="Lower your hand"></span>
@@ -51,24 +47,27 @@
                 <span class="userListSettingIcon glyphicon glyphicon-hand-up" rel="tooltip" data-placement="bottom" title="{{user.name}} has raised their hand"></span>
             {{/if}}
         {{/if}}
-    </td>
 </template>
 
 <template name="usernameEntry">
-	<td class="userNameContainer">
+	<span class="userNameContainer">
 		{{#if isCurrentUser userId}}
-			<p class="userCurrent userNameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}} (you)">
+			<span class="userCurrent userNameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}} (you)">
 				{{user.name}} (you)
-			</p>
+			</span>
 		{{else}}
-			<p class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}}">
+			<span class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}}">
 				{{user.name}}
-			</p>
+			</span>
 		{{/if}}
-	</td>
+	</span>
 </template>
 
 <template name="userItem">
+  <div id="username">
     {{> usernameEntry}}
+  </div>
+  <div id="usericons">
     {{> displayUserIcons}}
+  </div>
 </template>
