@@ -1,9 +1,11 @@
+@import "colors";
+
 .audioFeedIcon {}
 
 body {
-	background: #eee;
+	background: extract(@white, 3);
 	bottom: 0;
-	color: #666666;
+	color: extract(@darkGrey, 1);
 	height: 100%;
 	left: 0;
 	min-width: 768px;
@@ -12,14 +14,14 @@ body {
 	top: 0;
 }
 
-.btn {background-color: #F5F5F5;}
+.btn {background-color: extract(@white, 2);}
 
 .component {
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
-	background: #fff;
+	background: extract(@white, 1);
 	border-radius: 4px;
-	border: 1px solid #ccc;
+	border: 1px solid extract(@lightGrey, 3);
 	float: left;
 	height: 80%;
 	margin-top: 10px;
@@ -58,19 +60,19 @@ body {
 }
 
 .myNavbar .btn.navbarIconToggleActive {
-	background: #40434c;
-	border-bottom: 4px solid #54a7db;
+	background: extract(@darkGrey, 3);
+	border-bottom: 4px solid extract(@azure, 1);
 }
 
 .myNavbar .btn {
-	border-left: 1px solid #60636a;
-	border-right: 1px solid #32353e;
+	border-left: 1px solid extract(@darkGrey, 2);
+	border-right: 1px solid extract(@darkGrey, 4);
 }
 
-.myNavbar .btn i {color: #fff;}
+.myNavbar .btn i {color: extract(@white, 1);}
 
 .myNavbarMinimized {
-	background: #eee;
+	background: extract(@white, 3);
 	height: 20px;
 	margin-bottom: 0.2%;
 	margin-top: 0px;
@@ -91,7 +93,7 @@ body {
 	width: 100%;
 }
 
-.navbarIconToggleActive i {color: #cccdd1;}
+.navbarIconToggleActive i {color: extract(@lightGrey, 2);}
 
 #navbarMinimizedButton {
 	margin-bottom: 0px;
@@ -126,7 +128,7 @@ body {
 }
 
 .navbarTitle {
-	color: #fff;
+	color: extract(@white, 1);
 	display: block;
 	float: left;
 	font-size: 16px;
@@ -145,7 +147,7 @@ body {
 
 .navbarUserButtons .btn:hover, 
 .navbarSettingsButtons .btn:hover { 
-	background: #40434c;
+	background: extract(@darkGrey, 3);
 }
 
 .panel-footer {padding: 0;}
@@ -177,8 +179,8 @@ body {
 .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {border-top: 0px;}
 
 .title {
-	border-bottom: 1px solid #d7d7d7;
-	color: #666;
+	border-bottom: 1px solid extract(@lightGrey, 1);
+	color: extract(@darkGrey, 1);
 	font-size: 14px;
 	font-weight: bold;
 	line-height: 2em;
@@ -197,10 +199,10 @@ body {
 }
 
 .logout-dialog.ui-dialog .ui-widget-header {
-  color: #fff;
+  color: extract(@white, 1);
   font-size: 12px;
   font-weight: bold;
-  background: #40434c;
+  background: extract(@darkGrey, 3);
 }
 
 .logout-dialog.ui-dialog .ui-dialog-content {
@@ -211,10 +213,10 @@ body {
 
 .logout-dialog.ui-widget-content {
     font-size: 10px;
-    background: #eee;
-    border: 5px solid #40434c;
+    background: extract(@white, 3);
+    border: 5px solid extract(@darkGrey, 3);
 }
 
 .custom-button {
-  background-color: #E3E1B8;
+  background-color: extract(@yellow, 1);
 }

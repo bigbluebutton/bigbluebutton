@@ -1,3 +1,5 @@
+@import "colors";
+
 bottomEntry {
 	border: none;
 	padding-bottom: 0px;
@@ -11,10 +13,10 @@ bottomEntry {
 }
 
 #chat {
-	background-color: #f5f5f5;
-	border: 1px solid #ccc;
+	background-color: extract(@white, 2);
+	border: 1px solid extract(@lightGrey, 3);
 	float: left;
-	background:#fff;
+	background: extract(@white, 1);
 	margin-right: 0.5%;
 	min-height: 500px;
 	overflow: hidden;
@@ -32,7 +34,7 @@ bottomEntry {
 .chatBarIcon {}
 
 #chatbar-contents {
-	background-color: #fff;
+	background-color: extract(@white, 1);
 	height: 90%;
 	padding-left: 0px;
 	padding-right: 0px;
@@ -56,7 +58,7 @@ bottomEntry {
 }
 
 #chat-options-bar {
-	border-bottom: 1px solid #ccc;
+	border-bottom: 1px solid extract(@lightGrey, 3);
 	position: relative;
 	width: 100%;
 }
@@ -66,16 +68,16 @@ bottomEntry {
 .closeTab {
 	background: transparent;
 	border: 0;
-	color: #000;
+	color: @black;
 	cursor: pointer;
 	float: left;
 	font-weight: bold;
 	padding: 0;
-	text-shadow: 0 1px 0 #fff;
+	text-shadow: 0 1px 0 extract(@white, 1);
 	-webkit-appearance: none;
 }
 .gotUnreadMail{
-    background: #F9DF6B !important;
+    background: extract(@yellow, 2) !important;
 }
 
 #MoreChatsDrop {
@@ -97,7 +99,7 @@ bottomEntry {
 	resize: none;
 	padding:5px;
 	border-radius:4px;
-	border:1px solid #ccc;
+	border:1px solid extract(@lightGrey, 3);
 }
 
 .optionsBar {
@@ -110,7 +112,7 @@ bottomEntry {
 	bottom: 0px;
 	padding: 10px;
 	position: relative;
-	background:#fff;
+	background: extract(@white, 1);
 }
 
 .privateChatTab {}
@@ -127,7 +129,7 @@ bottomEntry {
 .private-chat-user-list {font-size: 12px;}
 
 .private-chat-user-list :hover {
-	background: #0099FF;
+	background: extract(@azure, 2);
 	font-size: 14px;
 	font-style: italic;
 }
@@ -135,10 +137,10 @@ bottomEntry {
 .publicChatTab {}
 
 #sendMessageButton {
-	background-color: #54A7DB;
+	background-color: extract(@azure, 1);
 	height: 40px;
 	margin-left: 8px;
-	color:#fff;
+	color: extract(@white, 1);
 }
 
 #tabsList {
@@ -159,7 +161,7 @@ bottomEntry {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	font-size:12px;
-	color: #999;
+	color: extract(@lightGrey, 4);
 	margin: 0;
 	border-top: 0;
 	border-radius: 0;
