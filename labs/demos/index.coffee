@@ -21,8 +21,9 @@ app.get("/*", (req, res, next) ->
   file = req.params[0]
   console.log "\t :: Express :: file requested : " + file
 
-  if file is "public/js/app.js" or file is "config.json"
+  if file is "public/js/app.js" or file is "public/stylesheets/login.css" or file is "config.json"
     #Send the requesting client the file.
     res.sendfile __dirname + "/" + file
     next
 )
+
