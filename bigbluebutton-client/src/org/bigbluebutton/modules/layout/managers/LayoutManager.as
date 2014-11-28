@@ -48,11 +48,11 @@ package org.bigbluebutton.modules.layout.managers
   import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
   import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
   import org.bigbluebutton.modules.layout.events.UpdateLayoutEvent;
-  import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
   import org.bigbluebutton.modules.layout.model.LayoutDefinition;
   import org.bigbluebutton.modules.layout.model.LayoutDefinitionFile;
   import org.bigbluebutton.modules.layout.model.LayoutLoader;
   import org.bigbluebutton.modules.layout.model.WindowLayout;
+  import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public class LayoutManager extends EventDispatcher {

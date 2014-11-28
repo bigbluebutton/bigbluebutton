@@ -52,7 +52,7 @@ package org.bigbluebutton.modules.sharednotes.maps
 			window = new SharedNotesWindow();
 		}
         
-        public function addRemoteDocuments(e:CurrentDocumentEvent):void {
+        public function addRemoteDocuments(e:CurrentDocumentEvent):void{
             window.addRemoteDocument(e.document);
             for(var id:String in e.document){
                 LogUtil.debug("NoteId:" + id +":"+e.document[id] + ":" + e.type);

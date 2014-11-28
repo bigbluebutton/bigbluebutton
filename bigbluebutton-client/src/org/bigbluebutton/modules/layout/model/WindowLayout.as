@@ -35,7 +35,6 @@ package org.bigbluebutton.modules.layout.model {
 		import flash.events.TimerEvent;
 		import org.bigbluebutton.common.LogUtil;
 		import org.bigbluebutton.modules.layout.managers.OrderManager;	
-		import org.bigbluebutton.modules.sharednotes.views.AdditionalSharedNotesWindow;
 
 		[Bindable] public var name:String;
 		[Bindable] public var width:Number;
@@ -249,18 +248,16 @@ package org.bigbluebutton.modules.layout.model {
 		}
 		
 		static public function getType(obj:Object):String {
-			var qualifiedClass:String = String(getQualifiedClassName(obj));
-			var pattern:RegExp = /(\w+)::(\w+)/g;
-			var type:String;
-			if (qualifiedClass.match(pattern)) {
-				type = qualifiedClass.split("::")[1];
-			} else { 
-				type = String(Object).substr(String(Object).lastIndexOf(".") + 1).match(/[a-zA-Z]+/).join();
-			}
-			if (type == "AdditionalSharedNotesWindow") {
-				return (obj as AdditionalSharedNotesWindow).windowName;
+			if (obj.hasOwnProperty("windowName")) {
+				return obj.windowName;
 			} else {
-				return type;
+				var qualifiedClass:String = String(getQualifiedClassName(obj));
+				var pattern:RegExp = /(\w+)::(\w+)/g;
+				if (qualifiedClass.match(pattern)) {
+					return qualifiedClass.split("::")[1];
+				} else { 
+					return String(Object).substr(String(Object).lastIndexOf(".") + 1).match(/[a-zA-Z]+/).join();
+				}
 			}
 		}
 		
