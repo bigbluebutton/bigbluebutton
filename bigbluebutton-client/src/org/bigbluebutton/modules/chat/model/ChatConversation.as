@@ -29,8 +29,6 @@ package org.bigbluebutton.modules.chat.model
     [Bindable]
     public var messages:ArrayCollection = new ArrayCollection();
     
-    public var autoTranslate:Boolean = false;
-    
     public function numMessages():int {
       return messages.length;
     }
@@ -47,16 +45,10 @@ package org.bigbluebutton.modules.chat.model
       }
       cm.senderId = msg.fromUserID;
       
-      cm.senderLanguage = msg.fromLang;
-      cm.receiverLanguage = ChatUtil.getUserLang();
-      cm.translate = autoTranslate;
-      
-      cm.translatedText = msg.message;
-      cm.senderText = msg.message;
+      cm.text = msg.message;
       
       cm.name = msg.fromUsername;
       cm.senderColor = uint(msg.fromColor);
-      cm.translatedColor = uint(msg.fromColor);
       
       cm.fromTime = msg.fromTime;		
       cm.fromTimezoneOffset = msg.fromTimezoneOffset;
@@ -72,7 +64,7 @@ package org.bigbluebutton.modules.chat.model
       var allText:String = "";
       for (var i:int = 0; i < messages.length; i++){
         var item:ChatMessage = messages.getItemAt(i) as ChatMessage;
-        allText += "\n" + item.name + " - " + item.time + " : " + item.translatedText;
+        allText += "\n" + item.name + " - " + item.time + " : " + item.text;
       }
       return allText;
     }

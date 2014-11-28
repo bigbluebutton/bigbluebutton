@@ -44,6 +44,7 @@ case class GetRecordingStatusReply(
                           
 case class MeetingCreated(
     meetingID: String, 
+    externalMeetingID: String, 
     recorded: Boolean, 
     name: String,
     voiceBridge: String,

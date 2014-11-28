@@ -30,6 +30,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
               ? ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.start')
               : ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.notRecording')}"
 	enabled="false"
+	creationComplete="onCreationComplete()"
 	visible="{UserManager.getInstance().getConference().record}"
 	includeInLayout="{UserManager.getInstance().getConference().record}" 
 	mouseOver="onRecordButtonMouseOver(event)"
@@ -48,15 +49,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.core.model.MeetingModel;
       import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.model.LayoutOptions;
       import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
       import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var recordingFlag:Boolean;
 			private var firstAudioJoin:Boolean = true;
+			private var layoutOptions:LayoutOptions = null;
 			
 			[Embed(source="/org/bigbluebutton/common/assets/images/record.png")]
 			private var recordReminderIcon:Class;
+
+			private function onCreationComplete():void {
+				ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
+			}
 
 			private function confirmChangeRecordingStatus():void {
         trace("Confirming recording status change!!!!");
@@ -106,21 +113,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onRecordingStatusChanged(event:BBBEvent):void {
 				if (event.payload.remote) {
 					this.selected = event.payload.recording;
-					this.styleName = this.selected? "recordButtonStyleStart": "recordButtonStyleNormal";
+
+					resourcesChanged();
 
 					if (UserManager.getInstance().getConference().amIModerator() && MeetingModel.getInstance().meeting.allowStartStopRecording) {
 						this.enabled = true;
-						if (event.payload.recording) {
-							this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.stop');
-						} else {
-							this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.start');
-						}
-					} else {
-						if (event.payload.recording) {
-							this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.recording');
-						} else {
-							this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.notRecording');
-						}
 					}
 
 					trace("RecordButton:onRecordingStatusChanged changing record status to " + event.payload.recording);
@@ -136,9 +133,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function showRecordingNotification():void {
+				if (layoutOptions == null) {
+					layoutOptions = new LayoutOptions();
+					layoutOptions.parseOptions();
+				}
+
 				if (firstAudioJoin && this.visible && !this.selected 
-            && UserManager.getInstance().getConference().amIModerator()
-            && MeetingModel.getInstance().meeting.allowStartStopRecording) {
+						&& layoutOptions.showRecordingNotification
+						&& UserManager.getInstance().getConference().amIModerator()
+						&& MeetingModel.getInstance().meeting.allowStartStopRecording) {
 					var alert:Alert = Alert.show(ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.message1") + "\n\n" + ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.message2"), ResourceUtil.getInstance().getString("bbb.mainToolbar.recordBtn..notification.title"), Alert.OK, this);
 					alert.titleIcon = recordReminderIcon;
 					
@@ -162,6 +165,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (UserManager.getInstance().getConference().amIModerator()) {
 					this.styleName = this.selected? "recordButtonStyleStart": "recordButtonStyleNormal";
 				}
+			}
+
+			override protected function resourcesChanged():void{
+				super.resourcesChanged();
+
+				this.styleName = this.selected? "recordButtonStyleStart": "recordButtonStyleNormal";
+
+				if (UserManager.getInstance().getConference().amIModerator() && MeetingModel.getInstance().meeting.allowStartStopRecording) {
+					if (this.selected) {
+						this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.stop');
+					} else {
+						this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.start');
+					}
+				} else {
+					if (this.selected) {
+						this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.recording');
+					} else {
+						this.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.notRecording');
+					}
+				}
+			}
+
+			private function localeChanged(e:Event):void{
+				resourcesChanged();
 			}
 		]]>
 	</mx:Script>

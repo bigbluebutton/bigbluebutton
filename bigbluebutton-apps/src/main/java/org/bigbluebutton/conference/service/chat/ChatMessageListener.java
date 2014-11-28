@@ -37,33 +37,39 @@ public class ChatMessageListener implements MessageHandler{
 				String meetingID = payloadObject.get("meeting_id").toString().replace("\"", "");
 				String requesterID = payloadObject.get("requester_id").toString().replace("\"", "");
 
-				String chatType = messageObject.get("chat_type").toString().replace("\"", "");
-				String fromUserID = messageObject.get("from_userid").toString().replace("\"", "");
-				String fromUsername = messageObject.get("from_username").toString().replace("\"", "");
-				String fromColor = messageObject.get("from_color").toString().replace("\"", "");
-				String fromTime = messageObject.get("from_time").toString().replace("\"", "");
-				String fromTimezoneOffset = messageObject.get("from_tz_offset").toString().replace("\"", "");
-				String fromLang = messageObject.get("from_lang").toString().replace("\"", ""); 
-				String toUserID = messageObject.get("to_userid").toString().replace("\"", "");
-				String toUsername = messageObject.get("to_username").toString().replace("\"", "");
-				String chatText = messageObject.get("message").toString().replace("\"", "");
+				//case getChatHistory
+				if(eventName.equalsIgnoreCase("get_chat_history")) {
+					String replyTo = meetingID + "/" + requesterID;
+					bbbGW.getChatHistory(meetingID, requesterID, replyTo);
+				}
+				else {
+					String chatType = messageObject.get("chat_type").toString().replace("\"", "");
+					String fromUserID = messageObject.get("from_userid").toString().replace("\"", "");
+					String fromUsername = messageObject.get("from_username").toString().replace("\"", "");
+					String fromColor = messageObject.get("from_color").toString().replace("\"", "");
+					String fromTime = messageObject.get("from_time").toString().replace("\"", "");
+					String fromTimezoneOffset = messageObject.get("from_tz_offset").toString().replace("\"", "");
+					String toUserID = messageObject.get("to_userid").toString().replace("\"", "");
+					String toUsername = messageObject.get("to_username").toString().replace("\"", "");
+					String chatText = messageObject.get("message").toString().replace("\"", "");
 
-				Map<String, String> map = new HashMap<String, String>();
-				map.put(ChatKeyUtil.CHAT_TYPE, chatType); 
-				map.put(ChatKeyUtil.FROM_USERID, fromUserID);
-				map.put(ChatKeyUtil.FROM_USERNAME, fromUsername);
-				map.put(ChatKeyUtil.FROM_COLOR, fromColor);
-				map.put(ChatKeyUtil.FROM_TIME, fromTime);
-				map.put(ChatKeyUtil.FROM_TZ_OFFSET, fromTimezoneOffset);
-				map.put(ChatKeyUtil.FROM_LANG, fromLang);
-				map.put(ChatKeyUtil.TO_USERID, toUserID);
-				map.put(ChatKeyUtil.TO_USERNAME, toUsername);
-				map.put(ChatKeyUtil.MESSAGE, chatText);
+					Map<String, String> map = new HashMap<String, String>();
+					map.put(ChatKeyUtil.CHAT_TYPE, chatType); 
+					map.put(ChatKeyUtil.FROM_USERID, fromUserID);
+					map.put(ChatKeyUtil.FROM_USERNAME, fromUsername);
+					map.put(ChatKeyUtil.FROM_COLOR, fromColor);
+					map.put(ChatKeyUtil.FROM_TIME, fromTime);
+					map.put(ChatKeyUtil.FROM_TZ_OFFSET, fromTimezoneOffset);
+					map.put(ChatKeyUtil.TO_USERID, toUserID);
+					map.put(ChatKeyUtil.TO_USERNAME, toUsername);
+					map.put(ChatKeyUtil.MESSAGE, chatText);
 
-				if(eventName.equalsIgnoreCase(MessagingConstants.SEND_PUBLIC_CHAT_MESSAGE_REQUEST)) {
-					bbbGW.sendPublicMessage(meetingID, requesterID, map);
-				}	else if(eventName.equalsIgnoreCase(MessagingConstants.SEND_PRIVATE_CHAT_MESSAGE_REQUEST)) {
-					bbbGW.sendPrivateMessage(meetingID, requesterID, map);
+					if(eventName.equalsIgnoreCase(MessagingConstants.SEND_PUBLIC_CHAT_MESSAGE_REQUEST)) {
+						bbbGW.sendPublicMessage(meetingID, requesterID, map);
+					}
+					else if(eventName.equalsIgnoreCase(MessagingConstants.SEND_PRIVATE_CHAT_MESSAGE_REQUEST)) {
+						bbbGW.sendPrivateMessage(meetingID, requesterID, map);
+					}
 				}
 			}
 		}

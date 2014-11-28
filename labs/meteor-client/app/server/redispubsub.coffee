@@ -96,23 +96,26 @@ class Meteor.RedisPubSub
           users = message.payload.users
           for user in users
             user.timeOfJoining = message.header.current_time # TODO this might need to be removed
-            addUserToCollection meetingId, user
+            userJoined meetingId, user
         return
 
       if message.header.name is "validate_auth_token_reply"
-        console.log "validate_auth_token_reply--#{JSON.stringify message}"
+        return
+
+      if message.header.name is "user_registered_message"
+        createDummyUser message.payload.meeting_id, message.payload.user
         return
 
       if message.header.name is "user_joined_message"
         user = message.payload.user
         user.timeOfJoining = message.header.current_time
-        addUserToCollection meetingId, user
+        userJoined meetingId, user
         return
 
       if message.header.name is "user_left_message"
         userId = message.payload.user?.userid
         if userId? and meetingId?
-          removeUserFromMeeting meetingId, userId
+          markUserOffline meetingId, userId
         return
 
       if message.header.name is "get_chat_history_reply" and message.payload.requester_id is "nodeJSapp"
@@ -161,7 +164,7 @@ class Meteor.RedisPubSub
 
             #request for shapes
             whiteboardId = "#{presentation.id}/#{page.num}" # d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1404411622872/1
-            Meteor.log.info "the whiteboard_id here is:" + whiteboardId
+            #Meteor.log.info "the whiteboard_id here is:" + whiteboardId
 
             message =
               "payload":
@@ -257,7 +260,7 @@ class Meteor.RedisPubSub
         if Meteor.Meetings.findOne({meetingId: meetingId})?
           Meteor.log.info "there are #{Meteor.Users.find({meetingId: meetingId}).count()} users in the meeting"
           for user in Meteor.Users.find({meetingId: meetingId}).fetch()
-            removeUserFromMeeting meetingId, user.userId
+            markUserOffline meetingId, user.userId
             #TODO should we clear the chat messages for that meeting?!
           unless message.header.name is "disconnect_all_users_message"
             removeMeetingFromCollection meetingId

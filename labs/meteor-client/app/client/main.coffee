@@ -1,9 +1,3 @@
-@grabAllDBID = ->
-  array = []
-  for u in Meteor.Users.find().fetch()
-    array.push(u._id)
-  return array
-
 # Helper to load javascript libraries from the BBB server
 loadLib = (libname) ->
   successCallback = ->
@@ -34,15 +28,6 @@ Meteor.startup ->
       amplify.store key, value
       return
   )
-
-  # Meteor.autorun ->
-  #   if Meteor.status().connected
-  #     console.log("connected")
-  #     uid = getInSession("userId")
-  #     # Obtain user info here. for testing. should be moved somewhere else later
-  #     Meteor.call "getMyInfo", uid, (error, result) -> #TODO should try to get rid of this?
-  #       if error? then console.log "error:" + error
-  #       else
 
   setInSession "display_usersList", true
   setInSession "display_navbar", true
@@ -80,8 +65,8 @@ Template.header.events
 
   "click .lowerHand": (event) ->
     $(".tooltip").hide()
-    Meteor.call('userLowerHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("userSecret"))
-  
+    Meteor.call('userLowerHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
+
   "click .muteIcon": (event) ->
     $(".tooltip").hide()
     toggleMic @
@@ -90,14 +75,17 @@ Template.header.events
     #Meteor.log.info "navbar raise own hand from client"
     console.log "navbar raise own hand from client"
     $(".tooltip").hide()
-    Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("userSecret"))
+    Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
     # "click .settingsIcon": (event) ->
     #   alert "settings"
 
   "click .signOutIcon": (event) ->
-    response = confirm('Are you sure you want to exit?')
-    if response
-      userLogout getInSession("meetingId"), getInSession("userId"), true
+    $("#dialog").dialog("open")
+  "click .hideNavbarIcon": (event) ->
+    $(".tooltip").hide()
+    toggleNavbar()
+  # "click .settingsIcon": (event) ->
+  #   alert "settings"
 
   "click .usersListIcon": (event) ->
     $(".tooltip").hide()
@@ -122,6 +110,37 @@ Template.header.events
 Template.main.helpers
 	setTitle: ->
 		document.title = "BigBlueButton #{window.getMeetingName() ? 'HTML5'}"
+
+Template.main.rendered = ->
+  $("#dialog").dialog(
+    modal: true
+    draggable: false
+    resizable: false
+    autoOpen: false
+    height: 115
+    width: 270
+    dialogClass: 'no-close logout-dialog'
+    buttons: [
+      {
+        text: 'Yes'
+        click: () ->
+          userLogout getInSession("meetingId"), getInSession("userId"), true
+          $(this).dialog("close")
+        class: 'btn btn-xs btn-primary active'
+      }
+      {
+        text: 'No'
+        click: () ->
+          $(this).dialog("close")
+          $(".tooltip").hide()
+        class: 'btn btn-xs btn-default'
+      }
+    ]
+    position:
+      my: 'right top'
+      at: 'right bottom'
+      of: '.signOutIcon'
+  )
 
 Template.makeButton.rendered = ->
   $('button[rel=tooltip]').tooltip()

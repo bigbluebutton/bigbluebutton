@@ -27,6 +27,7 @@ public class MessageToJson {
 	public static String createMeetingMessageToJson(CreateMeetingMessage msg) {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(Constants.MEETING_ID, msg.id);
+		payload.put(Constants.EXTERNAL_MEETING_ID, msg.externalId);
 		payload.put(Constants.NAME, msg.name);
 		payload.put(Constants.RECORDED, msg.record);
 		payload.put(Constants.VOICE_CONF, msg.voiceBridge);

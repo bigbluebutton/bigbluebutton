@@ -21,10 +21,13 @@
         else
           chatMessage.message?.from_userid
 
-      populateChatTabs() # check if we need to open a new tab
+      populateChatTabs(chatMessage) # check if we need to open a new tab
       destinationTab = findDestinationTab()
       if destinationTab isnt getInSession "inChatWith"
-        chatTabs.update({userId: destinationTab}, {$set: {gotMail: true}})
+        setInSession 'chatTabs', getInSession('chatTabs').map((tab) ->
+          tab.gotMail = true if tab.userId is destinationTab
+          tab
+        )
     })
 
 # This method returns all messages for the user. It looks at the session to determine whether the user is in
@@ -45,7 +48,7 @@
         'from_color': '0x3399FF' # A nice blue in hex
     ]
   else
-    me = getInSession("DBID")
+    me = getInSession("userId")
     after = Meteor.Chat.find({ # find all messages between current user and recipient
       'message.chat_type': 'PRIVATE_CHAT',
       $or: [{'message.from_userid': me, 'message.to_userid': friend},{'message.from_userid': friend, 'message.to_userid': me}]
@@ -65,7 +68,20 @@ Handlebars.registerHelper "autoscroll", ->
   false
 
 Handlebars.registerHelper "grabChatTabs", ->
-  chatTabs.find({}, {limit:4, sort: {natural:1}}).fetch()
+  if getInSession('chatTabs') is undefined
+    initTabs = [
+      userId: "PUBLIC_CHAT"
+      name: "Public"
+      gotMail: false
+      class: "publicChatTab"
+    ,
+      userId: "OPTIONS"
+      name: "Options"
+      gotMail: false
+      class: "optionsChatTab"
+    ]
+    setInSession 'chatTabs', initTabs
+  getInSession('chatTabs')[0..3]
 
 @sendMessage = ->
   message = linkify $('#newMessageInput').val() # get the message from the input box
@@ -75,15 +91,15 @@ Handlebars.registerHelper "grabChatTabs", ->
   chattingWith = getInSession('inChatWith')
 
   if chattingWith isnt "PUBLIC_CHAT"
-    dest = Meteor.Users.findOne(_id: chattingWith)
+    toUsername = Meteor.Users.findOne(userId: chattingWith)?.user.name
 
   messageForServer = { # construct message for server
     "message": message
     "chat_type": if chattingWith is "PUBLIC_CHAT" then "PUBLIC_CHAT" else "PRIVATE_CHAT"
-    "from_userid": getInSession("DBID")
+    "from_userid": getInSession("userId")
     "from_username": BBB.getMyUserName()
     "from_tz_offset": "240"
-    "to_username": if chattingWith is "PUBLIC_CHAT" then "public_chat_username" else dest.user.name
+    "to_username": if chattingWith is "PUBLIC_CHAT" then "public_chat_username" else toUsername
     "to_userid": if chattingWith is "PUBLIC_CHAT" then "public_chat_userid" else chattingWith
     "from_lang": "en"
     "from_time": getTime()
@@ -91,7 +107,8 @@ Handlebars.registerHelper "grabChatTabs", ->
     # "from_color": "0x#{getInSession("messageColor")}"
   }
 
-  Meteor.call "sendChatMessagetoServer", getInSession("meetingId"), messageForServer, getInSession("userId")
+  Meteor.call "sendChatMessagetoServer", getInSession("meetingId"), messageForServer, getInSession("userId"), getInSession("authToken")
+
   $('#newMessageInput').val '' # Clear message box
 
 Template.chatbar.helpers
@@ -158,7 +175,7 @@ Template.extraConversations.events
 		console.log "#{user.name} #{user.userId}"
 		# put this conversation in the 3rd position in the chat tabs collection (after public and options)
 		# Take all the tabs and turn into an array
-		tabArray = chatTabs.find().fetch()
+		tabArray = getInSession('chatTabs')
 
 		# find the index of the selected tab
 		index = do ->
@@ -177,19 +194,16 @@ Template.extraConversations.events
 				tabArray.splice(index, 1)
 				# insert it at the 3rd index
 				tabArray.splice(2, 0, selected)
-				# clear collection
-				chatTabs.remove({})
-
-				# store entire array back into the collection
-				for value in tabArray
-					chatTabs.insert value
+				# update collection
+				setInSession 'chatTabs', tabArray
 
 Template.extraConversations.helpers
   getExtraConversations: ->
-    chatTabs.find({}, {skip:4, sort: {natural:1}}).fetch()
+    getInSession('chatTabs')[4..]
 
   tooManyConversations: ->
-    chatTabs.find().count() > 4
+    return false if getInSession('chatTabs') is undefined
+    getInSession('chatTabs').length > 4
 
 Template.message.helpers
   sanitizeAndFormat: (str) ->
@@ -215,7 +229,7 @@ Template.message.helpers
 Template.optionsBar.events
   'click .private-chat-user-entry': (event) -> # clicked a user's name to begin private chat
     setInSession 'display_chatPane', true
-    setInSession "inChatWith", @_id
+    setInSession "inChatWith", @userId
 
 Template.optionsBar.helpers
   thereArePeopletoChatWith: -> # Subtract 1 for the current user. Returns whether there are other people in the chat
@@ -237,14 +251,21 @@ Template.tabButtons.events
     setInSession 'inChatWith', 'PUBLIC_CHAT'
     setInSession 'display_chatPane', true
     console.log "userId: #{@userId}"
-    id = chatTabs.findOne({userId: @userId})
-    if id?
-      chatTabs.remove(id)
+    _this = @
+    tabs = getInSession('chatTabs')
+    if tabs.filter((tab) -> tab.userId is _this.userId).length > 0
+      tabs = $.grep(tabs, (t) -> t.userId isnt _this.userId)
+      setInSession 'chatTabs', tabs
 
     return false # stops propogation/prevents default
 
   'click .gotUnreadMail': (event) ->
-    chatTabs.update({userId: @userId}, {$set: {gotMail: false}})
+    #chatTabs.update({userId: @userId}, {$set: {gotMail: false}})
+    _this = @
+    setInSession 'chatTabs', getInSession('chatTabs').map((tab) ->
+      tab.gotMail = false if tab.userId is _this.userId
+      tab
+    )
 
   'click .optionsChatTab': (event) ->
     console.log "options"

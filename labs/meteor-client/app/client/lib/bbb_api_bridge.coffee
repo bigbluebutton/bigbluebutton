@@ -26,11 +26,11 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   ###
     Queryies the user object via it's id
   ###
-  BBB.getUser = (_id) ->
-    Meteor.Users.findOne({_id: _id})
+  BBB.getUser = (userId) ->
+    Meteor.Users.findOne({userId: userId})
 
   BBB.getCurrentUser = () ->
-    BBB.getUser(getInSession("DBID"))
+    BBB.getUser(getInSession("userId"))
 
   ###
   Query if the current user is sharing webcam.
@@ -42,7 +42,7 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   for AM_I_SHARING_CAM_RESP (see below).
   ###
   BBB.amISharingWebcam = (callback) ->
-    BBB.isUserSharingWebcam BBB.getCurrentUser()?._id
+    BBB.isUserSharingWebcam BBB.getCurrentUser()?.userId
 
   ###
 
@@ -54,20 +54,20 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   if you want to be informed through an event. You have to register for
   IS_USER_PUBLISHING_CAM_RESP (see below).
   ###
-  BBB.isUserSharingWebcam = (_id, callback) ->
-    BBB.getUser(_id)?.user?.webcam_stream?.length isnt 0
+  BBB.isUserSharingWebcam = (userId, callback) ->
+    BBB.getUser(userId)?.user?.webcam_stream?.length isnt 0
 
   BBB.amITalking = (callback) ->
-    BBB.isUserTalking BBB.getCurrentUser()?._id
+    BBB.isUserTalking BBB.getCurrentUser()?.userId
 
-  BBB.isUserTalking = (_id, callback) ->
-    BBB.getUser(_id)?.user?.voiceUser?.talking
+  BBB.isUserTalking = (userId, callback) ->
+    BBB.getUser(userId)?.user?.voiceUser?.talking
 
   BBB.amISharingAudio = (callback) ->
-    BBB.isUserSharingAudio BBB.getCurrentUser()?._id
+    BBB.isUserSharingAudio BBB.getCurrentUser()?.userId
 
-  BBB.isUserSharingAudio = (_id) ->
-    BBB.getUser(_id)?.user?.voiceUser?.joined
+  BBB.isUserSharingAudio = (userId) ->
+    BBB.getUser(userId)?.user?.voiceUser?.joined
 
   ###
   Raise user's hand.
@@ -141,7 +141,7 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
       user = BBB.getCurrentUser()
 
       if user?
-        name = BBB.getUserName(user._id)
+        name = BBB.getUserName(user.userId)
         setInSession "userName", name # store in session for fast access next time
         name
 
@@ -149,8 +149,8 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
     res = Meteor.Meetings.findOne({}).voiceConf
     returnOrCallback res, callback
 
-  BBB.getUserName = (_id, callback) ->
-    returnOrCallback BBB.getUser(_id)?.user?.name, callback
+  BBB.getUserName = (userId, callback) ->
+    returnOrCallback BBB.getUser(userId)?.user?.name, callback
 
   ###
   Query the current user's role.
@@ -215,7 +215,7 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
     Indicates if the current user is muted
   ###
   BBB.amIMuted = ->
-    BBB.isUserMuted(BBB.getCurrentUser()._id)
+    BBB.isUserMuted(BBB.getCurrentUser().userId)
 
   ###
   Mute the current user.

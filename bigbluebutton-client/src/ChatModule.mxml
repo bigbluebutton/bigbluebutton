@@ -87,16 +87,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return _attributes.userrole as String;
 			}
 			
-			public function get traslationEnabled():Boolean{
-				if (_attributes.translationEnabled == "false") return false;
-				else return true;
-			}
-			
-			public function get translationOn():Boolean{
-				if (_attributes.translationOn == "false") return false;
-				else return true;
-			}
-			
 			public function start(attributes:Object):void {	
 				LogUtil.debug("chat attr: " + attributes.username);
 				_attributes = attributes;	
@@ -105,8 +95,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var event:StartChatModuleEvent = new StartChatModuleEvent(StartChatModuleEvent.START_CHAT_MODULE_EVENT)
 				event.start = true;
 				event.attributes = _attributes;
-				event.translationOn = translationOn;
-				event.translationEnabled = traslationEnabled;
 				dispatcher.dispatchEvent(event);
 			}
 		
