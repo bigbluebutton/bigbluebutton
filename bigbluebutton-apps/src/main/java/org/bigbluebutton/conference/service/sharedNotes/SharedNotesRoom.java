@@ -61,7 +61,7 @@ public class SharedNotesRoom {
 		this.listeners = new ConcurrentHashMap<String, ISharedNotesRoomListener>();
 		this.clients = new ConcurrentSkipListSet<String>();
         this.documents.put("MAIN_WINDOW","");
-        this.noteCounter=1;
+        this.noteCounter=0;
 	}
 
 	public String getName() {
@@ -137,30 +137,51 @@ public class SharedNotesRoom {
 	}
 
 	public void createAdditionalNotes() {
-        synchronized (syncObject) {
-        	String noteId;
-        	if (removedNotes.isEmpty()) {
-        		noteId = (noteCounter++).toString();
-        	} else {
-        		noteId = removedNotes.remove(0).toString();
-        	}
-            documents.put(noteId, "");
+		synchronized (syncObject) {
+			String noteId;
+			if (removedNotes.isEmpty()) {
+				noteId = (++noteCounter).toString();
+			} else {
+				noteId = removedNotes.remove(0).toString();
+			}
+			documents.put(noteId, "");
 
-		for (Map.Entry<String, ISharedNotesRoomListener> entry : listeners.entrySet()) {
-			ISharedNotesRoomListener listener = entry.getValue();
-			listener.createAdditionalNotes(noteId);
-		}}
+			for (Map.Entry<String, ISharedNotesRoomListener> entry : listeners.entrySet()) {
+				ISharedNotesRoomListener listener = entry.getValue();
+				listener.createAdditionalNotes(noteId);
+			}
+		}
 	}
 
 	public void destroyAdditionalNotes(String notesId) {
-        synchronized (syncObject) {	
-            documents.remove(notesId);
-            removedNotes.add(Integer.parseInt(notesId));
-            Collections.sort(removedNotes);
-		for (Map.Entry<String, ISharedNotesRoomListener> entry : listeners.entrySet()) {
-			ISharedNotesRoomListener listener = entry.getValue();
-			listener.destroyAdditionalNotes(notesId);
-		}}
+		synchronized (syncObject) {	
+			documents.remove(notesId);
+			removedNotes.add(Integer.parseInt(notesId));
+			Collections.sort(removedNotes);
+			for (Map.Entry<String, ISharedNotesRoomListener> entry : listeners.entrySet()) {
+				ISharedNotesRoomListener listener = entry.getValue();
+				listener.destroyAdditionalNotes(notesId);
+			}
+		}
+	}
+
+	public void createAdditionalNotesSet(Integer additionalNotesSetSize) {
+		synchronized (syncObject) {
+			String noteId;
+			while ((noteCounter - removedNotes.size()) < additionalNotesSetSize) {
+				if (removedNotes.isEmpty()) {
+					noteId = (++noteCounter).toString();
+				} else {
+					noteId = removedNotes.remove(0).toString();
+				}
+				documents.put(noteId, "");
+
+				for (Map.Entry<String, ISharedNotesRoomListener> entry : listeners.entrySet()) {
+					ISharedNotesRoomListener listener = entry.getValue();
+					listener.createAdditionalNotes(noteId);
+				}
+			}
+		}
 	}
 }
 

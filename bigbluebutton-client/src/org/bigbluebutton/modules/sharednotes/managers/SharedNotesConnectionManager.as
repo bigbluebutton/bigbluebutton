@@ -180,5 +180,10 @@ package org.bigbluebutton.modules.sharednotes.managers
 				_dispatcher.dispatchEvent(receivePatchEvent);
 			}
 		}
+
+		public function createAdditionalNotesSet(additionalNotesSetSize:Number):void {
+			trace(NAME + ": sending request to create set of additional notes " + additionalNotesSetSize.toString());
+			_connection.call("sharedNotes.createAdditionalNotesSet", debugResponder, additionalNotesSetSize);
+		}
 	}
 }

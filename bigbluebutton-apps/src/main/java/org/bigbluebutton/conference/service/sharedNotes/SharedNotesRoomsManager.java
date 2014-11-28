@@ -138,4 +138,13 @@ public class SharedNotesRoomsManager {
 			log.warn("destroyAdditionalNotes: sending message to a non-existing room " + room);
 		}
 	}
+
+	public void createAdditionalNotesSet(String room, Integer additionalNotesSetSize) {
+		SharedNotesRoom r = getRoom(room);
+		if (r != null) {
+			r.createAdditionalNotesSet(additionalNotesSetSize);
+		} else {
+			log.warn("createAdditionalNotesSet: sending message to a non-existing room " + room);
+		}
+	}
 }

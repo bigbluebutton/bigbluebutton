@@ -28,11 +28,15 @@ package org.bigbluebutton.modules.sharednotes.events
 		public static const DESTROY_ADDITIONAL_NOTES_REQUEST_EVENT:String = 'SHARED_NOTES_DESTROY_ADDITIONAL_NOTES_REQUEST';
 		public static const DESTROY_ADDITIONAL_NOTES_REPLY_EVENT:String = 'SHARED_NOTES_DESTROY_ADDITIONAL_NOTES_REPLY';
 
+		public static const CREATE_ADDITIONAL_NOTES_SET_EVENT:String = 'SHARED_NOTES_CREATE_ADDITIONAL_NOTES_SET';
+
 		public static const CURRENT_DOCUMENT_REQUEST_EVENT:String = 'SHARED_NOTES_CURRENT_DOCUMENT_REQUEST';
 		public static const CURRENT_DOCUMENT_REPLY_EVENT:String = 'SHARED_NOTES_CURRENT_DOCUMENT_REPLY';
 		public static const CONNECT_EVENT:String = 'SHARED_NOTES_CONNECT';
 		public static const SEND_PATCH_EVENT:String = 'SHARED_NOTES_SEND_PATCH';
 		public static const RECEIVE_PATCH_EVENT:String = 'SHARED_NOTES_RECEIVE_PATCH';
+
+		public var additionalNotesSetSize:Number;
 
 		public function SharedNotesEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{

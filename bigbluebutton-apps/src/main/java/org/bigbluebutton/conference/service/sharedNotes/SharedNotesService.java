@@ -56,5 +56,10 @@ public class SharedNotesService {
 		log.debug("Setting sharedNotes application");
 		application = a;
 	}
+
+	public void createAdditionalNotesSet(Integer additionalNotesSetSize) {
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		application.createAdditionalNotesSet(roomName, additionalNotesSetSize);
+	}
 }
 

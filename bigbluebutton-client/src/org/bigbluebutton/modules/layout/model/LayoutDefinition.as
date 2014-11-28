@@ -35,8 +35,7 @@ package org.bigbluebutton.modules.layout.model {
 		private var _layoutsPerRole:Dictionary = new Dictionary();
 		
 		static private var _ignoredWindows:Array = new Array("AvatarWindow", "PublishWindow", 
-				"VideoWindow", "DesktopPublishWindow", "DesktopViewWindow",
-				"LogWindow");
+				"VideoWindow", "DesktopPublishWindow", "DesktopViewWindow", "LogWindow");
 		static private var _roles:Array = new Array(Role.VIEWER, Role.MODERATOR, Role.PRESENTER);
 				
 		private function loadLayout(vxml:XML):void {
@@ -354,6 +353,16 @@ package org.bigbluebutton.modules.layout.model {
 					layoutDefinition._layoutsPerRole[Role.VIEWER][layout.name] = layout;
 			}
 			return layoutDefinition;
+		}
+
+		public function getNumberOfSharedNotes():Number {
+			var sharedNotesCounter:int = 0;
+			for each (var window:MDIWindow in _layoutsPerRole[Role.VIEWER]) {
+				if (window.name.indexOf("AdditionalSharedNotes")) {
+					sharedNotesCounter++;
+				}
+			}
+			return sharedNotesCounter;
 		}
 	}
 }

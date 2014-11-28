@@ -48,6 +48,7 @@ package org.bigbluebutton.modules.layout.managers
   import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
   import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
   import org.bigbluebutton.modules.layout.events.UpdateLayoutEvent;
+  import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
   import org.bigbluebutton.modules.layout.model.LayoutDefinition;
   import org.bigbluebutton.modules.layout.model.LayoutDefinitionFile;
   import org.bigbluebutton.modules.layout.model.LayoutLoader;
@@ -272,14 +273,22 @@ package org.bigbluebutton.modules.layout.managers
 				_globalDispatcher.dispatchEvent(e);
 			}
 		}
+
+		private function checkSharedNotes(layout:LayoutDefinition):void {
+			var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.CREATE_ADDITIONAL_NOTES_SET_EVENT);
+			//e.additionalNotesSetSize = layout.getNumberOfSharedNotes();
+			e.additionalNotesSetSize = 1;
+			_globalDispatcher.dispatchEvent(e);
+		}
 		
 		private function applyLayout(layout:LayoutDefinition):void {
 			_detectContainerChange = false;
 			if (layout != null) {
-        layout.applyToCanvas(_canvas);
-        dispatchSwitchedLayoutEvent(layout.name);
-      }
-				
+				checkSharedNotes(layout);
+				layout.applyToCanvas(_canvas);
+				dispatchSwitchedLayoutEvent(layout.name);
+			}
+			
 			updateCurrentLayout(layout);
 			_detectContainerChange = true;
 		}
