@@ -91,7 +91,7 @@ Handlebars.registerHelper "grabChatTabs", ->
   chattingWith = getInSession('inChatWith')
 
   if chattingWith isnt "PUBLIC_CHAT"
-    dest = Meteor.Users.findOne(_id: chattingWith)
+    dest = Meteor.Users.findOne(userId: chattingWith)
 
   messageForServer = { # construct message for server
     "message": message
@@ -229,7 +229,7 @@ Template.message.helpers
 Template.optionsBar.events
   'click .private-chat-user-entry': (event) -> # clicked a user's name to begin private chat
     setInSession 'display_chatPane', true
-    setInSession "inChatWith", @_id
+    setInSession "inChatWith", @userId
 
 Template.optionsBar.helpers
   thereArePeopletoChatWith: -> # Subtract 1 for the current user. Returns whether there are other people in the chat
