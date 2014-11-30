@@ -73,7 +73,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.collections.ArrayCollection;
 			import mx.controls.Button;
 			import mx.core.ScrollPolicy;			
-			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
@@ -140,10 +139,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var indicatorNeeded:Boolean = false
 			private var repeat:Boolean = false;
 
-			private var images:Images = new Images();
-			[Bindable]
-			private var saveIcon:Class = images.disk;
-			
 			[Bindable]
 			public var baseIndex:int;
 			
