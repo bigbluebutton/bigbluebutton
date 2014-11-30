@@ -72,7 +72,7 @@ package org.bigbluebutton.modules.chat.model
       var allText:String = "";
       for (var i:int = 0; i < messages.length; i++){
         var item:ChatMessage = messages.getItemAt(i) as ChatMessage;
-				allText += "[" + item.time + "] " + item.name + ": " + item.translatedText + "\n";
+        allText += "[" + item.time + "] " + item.name + ": " + item.translatedText + "\n";
       }
       return allText;
     }

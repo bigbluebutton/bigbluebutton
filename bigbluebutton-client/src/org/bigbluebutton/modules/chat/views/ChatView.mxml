@@ -56,7 +56,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import mx.core.Container;
       import mx.core.UIComponent;
       import mx.events.IndexChangedEvent;
-      import mx.core.INavigatorContent;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.BBB;
       import org.bigbluebutton.core.EventConstants;
@@ -67,9 +66,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.model.users.BBBUser;
       import org.bigbluebutton.modules.chat.ChatUtil;
+      import org.bigbluebutton.modules.chat.events.ChatCopyEvent;
       import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
-	  import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
-	  import org.bigbluebutton.modules.chat.events.ChatCopyEvent;
+      import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
       import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
@@ -77,8 +76,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.chat.model.ChatOptions;
       import org.bigbluebutton.modules.chat.model.business.UserVO;
       import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
-      import org.bigbluebutton.util.i18n.ResourceUtil;	
-      import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;		
+      import org.bigbluebutton.util.i18n.ResourceUtil;			
+      import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
 					
 	    private static const PUBLIC_CHAT_USERID:String = 'public_chat_userid';
 	    private var PUBLIC_CHAT_USERNAME:String = ResourceUtil.getInstance().getString("bbb.chat.publicChatUsername");
@@ -92,6 +91,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       [Bindable] public var chatOptions:ChatOptions;
 	  
 	    [Bindable] private var baseIndex:int;
+      
 		  private static const PUBLIC_TAB_NEW:String = ResourceUtil.getInstance().getString("bbb.accessibility.chat.chatView.publicTabNew");
 		  private var publicWaiting:Boolean = false;
 		  private var publicFocus:Boolean = false;
@@ -128,20 +128,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				systemManager.stage.addEventListener(Event.MOUSE_LEAVE, mouseLeave);
 				systemManager.stage.addEventListener(Event.ACTIVATE, activate);
 				systemManager.stage.addEventListener(Event.DEACTIVATE, deactivate);
-			}   
+			}       
 
 			private function getVisibleChatBox():ChatBox {
 				var chatBox:ChatBox = chatTabs.getChildAt(chatTabs.selectedIndex) as ChatBox;
 				return chatBox;
-		    }
+			}
 
 			private function dispatchSaveChatEvent(e:Event):void {
 				var chatBox:ChatBox = getVisibleChatBox();
 				var saveEvent:ChatSaveEvent = new ChatSaveEvent(ChatSaveEvent.SAVE_CHAT_EVENT);
 				
-				if(chatBox.chatWithUsername == null || chatBox.chatWithUsername == ""){
+				if (chatBox.chatWithUsername == null || chatBox.chatWithUsername == "") {
 					saveEvent.filename = ResourceUtil.getInstance().getString('bbb.chat.publicChatUsername');
-				}else{
+				} else {
 					saveEvent.filename = chatBox.chatWithUsername;
 				}
 				
@@ -400,7 +400,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onUserClosedTab(e:SuperTabEvent):void{
 				var name:String = chatTabs.getChildAt(e.tabIndex).name;
 			}
-
+			
 		]]>
 	</mx:Script>
 	<containers:SuperTabNavigator includeInLayout="false" id="chatTabs" 

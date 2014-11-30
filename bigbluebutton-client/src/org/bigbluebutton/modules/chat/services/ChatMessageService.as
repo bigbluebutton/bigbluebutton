@@ -90,9 +90,8 @@ package org.bigbluebutton.modules.chat.services
     public function sendWelcomeMessage():void {
       trace(LOG + "sendWelcomeMessage");
       var welcome:String = BBB.initUserConfigManager().getWelcomeMessage();
-      var msg:ChatMessageVO = new ChatMessageVO();
-	var pcEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);	
-if (welcome != "") {              
+      if (welcome != "") {              
+        var msg:ChatMessageVO = new ChatMessageVO();
         msg.chatType = ChatConstants.PUBLIC_CHAT;
         msg.fromUserID = SPACE;
         msg.fromUsername = SPACE;
@@ -104,12 +103,14 @@ if (welcome != "") {
         msg.toUsername = SPACE;
         msg.message = welcome;
         
+        var pcEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
         pcEvent.message = msg;
         dispatcher.dispatchEvent(pcEvent);
       }	
       
       if (UsersUtil.amIModerator()) {
         if (MeetingModel.getInstance().modOnlyMessage != null) {
+          var msg:ChatMessageVO = new ChatMessageVO();
           msg.chatType = ChatConstants.PUBLIC_CHAT;
           msg.fromUserID = SPACE;
           msg.fromUsername = SPACE;
@@ -121,6 +122,7 @@ if (welcome != "") {
           msg.toUsername = SPACE;
           msg.message = MeetingModel.getInstance().modOnlyMessage;
           
+          var pcEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
           pcEvent.message = msg;
           dispatcher.dispatchEvent(pcEvent);          
         }

@@ -27,7 +27,7 @@ package org.bigbluebutton.modules.chat.events
 		public static const NEW_CHAT_MESSAGE_EVENT:String = 'NEW_CHAT_MESSAGE_EVENT';
 		public static const PRIVATE_CHAT_MESSAGE_EVENT:String = 'PRIVATE_CHAT_MESSAGE_EVENT';
 		public static const RESIZE_CHAT_TOOLBAR:String = 'RESIZE_CHAT_TOOLBAR';
-
+		
 		public function ChatEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);

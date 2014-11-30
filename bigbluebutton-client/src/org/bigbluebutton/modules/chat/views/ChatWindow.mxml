@@ -39,9 +39,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.chat.model.ChatOptions;
-			import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
 			import com.asfusion.mate.events.Dispatcher;			
 			import flexlib.mdi.events.MDIWindowEvent;			
+			import mx.controls.Alert;
 			import mx.core.Application;
 			import mx.core.FlexGlobals;
 			import mx.resources.ResourceBundle;
