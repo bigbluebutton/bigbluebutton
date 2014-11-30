@@ -18,6 +18,8 @@
  */
 package org.bigbluebutton.modules.chat.model
 {
+  import com.adobe.utils.StringUtil;
+
   import mx.collections.ArrayCollection;
   
   import org.bigbluebutton.common.LogUtil;
@@ -72,7 +74,11 @@ package org.bigbluebutton.modules.chat.model
       var allText:String = "";
       for (var i:int = 0; i < messages.length; i++){
         var item:ChatMessage = messages.getItemAt(i) as ChatMessage;
-        allText += "\n" + item.name + " - " + item.time + " : " + item.translatedText;
+        allText += "[" + item.time + "] ";
+        if (StringUtil.trim(item.name) != "") {
+          allText += item.name + ": ";
+        }
+        allText += item.translatedText + "\n";
       }
       return allText;
     }

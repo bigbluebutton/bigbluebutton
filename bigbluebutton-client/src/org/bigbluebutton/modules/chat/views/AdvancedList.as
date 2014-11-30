@@ -19,6 +19,7 @@
 package org.bigbluebutton.modules.chat.views
 {
   import mx.controls.List;
+  import org.bigbluebutton.modules.chat.events.ChatEvent;
   
   public class AdvancedList extends List
   {
@@ -32,6 +33,8 @@ package org.bigbluebutton.modules.chat.views
       super.measure();
       //sovled on forum by Flex HarUI
       measuredHeight = measureHeightOfItems() + viewMetrics.top + viewMetrics.bottom;
+
+      dispatchEvent(new ChatEvent(ChatEvent.RESIZE_CHAT_TOOLBAR));
     }
   }
 }
