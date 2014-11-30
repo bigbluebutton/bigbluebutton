@@ -98,14 +98,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{ChatCopy}" method="copyAllText" arguments="{event}"/>
   </EventHandlers>
 
-  <EventHandlers type="{ChatToolbarButtonEvent.SAVE_CHAT_TOOLBAR_EVENT}">
-    <MethodInvoker generator="{ChatView}"/>
-  </EventHandlers>
-
-  <EventHandlers type="{ChatToolbarButtonEvent.COPY_CHAT_TOOLBAR_EVENT}">
-    <MethodInvoker generator="{ChatView}"/>
-  </EventHandlers>
-
   <Injectors target="{ChatMessageService}">
     <PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
     <PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
