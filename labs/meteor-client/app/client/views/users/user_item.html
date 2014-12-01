@@ -49,17 +49,15 @@
 </template>
 
 <template name="usernameEntry">
-	<span class="userNameContainer">
-		{{#if isCurrentUser userId}}
-			<span class="userCurrent userNameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}} (you)">
-				{{user.name}} (you)
-			</span>
-		{{else}}
-			<span class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}}">
-				{{user.name}}
-			</span>
-		{{/if}}
-	</span>
+  {{#if isCurrentUser userId}}
+    <span class="userCurrent userNameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}} (you)">
+      {{user.name}} (you)
+    </span>
+  {{else}}
+    <span class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}}">
+      {{user.name}}
+    </span>
+  {{/if}}
 </template>
 
 <template name="userItem">
