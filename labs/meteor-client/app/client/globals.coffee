@@ -177,10 +177,16 @@ Handlebars.registerHelper "visibility", (section) ->
   uniqueArray = uniqueArray.filter((itm, i, a) ->
       i is a.indexOf(itm)
     )
+
+  if msg.message.to_userid is myUserId
+    new_msg_userid = msg.message.from_userid
+  if msg.message.from_userid is myUserId
+    new_msg_userid = msg.message.to_userid
+
   #insert the unique entries in the collection
   for u in uniqueArray
     tabs = getInSession('chatTabs')
-    unless tabs.filter((tab) -> tab.userId == u.userId).length isnt 0
+    if tabs.filter((tab) -> tab.userId == u.userId).length is 0 and u.userId is new_msg_userid
       tabs.push {userId: u.userId, name: u.username, gotMail: false, class: 'privateChatTab'}
       setInSession 'chatTabs', tabs
 

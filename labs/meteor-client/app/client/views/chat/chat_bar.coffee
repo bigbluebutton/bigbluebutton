@@ -20,14 +20,17 @@
           "PUBLIC_CHAT"
         else
           chatMessage.message?.from_userid
-
-      populateChatTabs(chatMessage) # check if we need to open a new tab
-      destinationTab = findDestinationTab()
-      if destinationTab isnt getInSession "inChatWith"
-        setInSession 'chatTabs', getInSession('chatTabs').map((tab) ->
-          tab.gotMail = true if tab.userId is destinationTab
-          tab
-        )
+      Tracker.autorun (comp) ->
+        if getInSession('tabsRenderedTime') isnt undefined
+          if chatMessage.message.from_time - getInSession('tabsRenderedTime') > 0
+            populateChatTabs(chatMessage) # check if we need to open a new tab
+            destinationTab = findDestinationTab()
+            if destinationTab isnt getInSession "inChatWith"
+              setInSession 'chatTabs', getInSession('chatTabs').map((tab) ->
+                tab.gotMail = true if tab.userId is destinationTab
+                tab
+              )
+          comp.stop()
     })
 
 # This method returns all messages for the user. It looks at the session to determine whether the user is in
@@ -298,6 +301,12 @@ Template.tabButtons.helpers
 
   makeSafe: (string) ->
     safeString(string)
+
+Template.tabButtons.rendered = ->
+  Tracker.autorun (comp) ->
+    setInSession 'tabsRenderedTime', TimeSync.serverTime()
+    if getInSession('tabsRenderedTime') isnt undefined
+      comp.stop()
 
 # make links received from Flash client clickable in HTML
 @toClickable = (str) ->
