@@ -165,7 +165,7 @@ public class SharedNotesRoom {
 		}
 	}
 
-	public void createAdditionalNotesSet(Integer additionalNotesSetSize) {
+	public void requestAdditionalNotesSet(Integer additionalNotesSetSize) {
 		synchronized (syncObject) {
 			String noteId;
 			while ((noteCounter - removedNotes.size()) < additionalNotesSetSize) {

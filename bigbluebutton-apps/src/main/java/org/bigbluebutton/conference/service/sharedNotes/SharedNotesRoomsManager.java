@@ -139,12 +139,12 @@ public class SharedNotesRoomsManager {
 		}
 	}
 
-	public void createAdditionalNotesSet(String room, Integer additionalNotesSetSize) {
+	public void requestAdditionalNotesSet(String room, Integer additionalNotesSetSize) {
 		SharedNotesRoom r = getRoom(room);
 		if (r != null) {
-			r.createAdditionalNotesSet(additionalNotesSetSize);
+			r.requestAdditionalNotesSet(additionalNotesSetSize);
 		} else {
-			log.warn("createAdditionalNotesSet: sending message to a non-existing room " + room);
+			log.warn("requestAdditionalNotesSet: sending message to a non-existing room " + room);
 		}
 	}
 }

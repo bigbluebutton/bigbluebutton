@@ -95,7 +95,7 @@ public class SharedNotesApplication {
 		roomsManager.destroyAdditionalNotes(room, notesId);
 	}
 
-	public void createAdditionalNotesSet(String room, Integer additionalNotesSetSize) {
-		roomsManager.createAdditionalNotesSet(room, additionalNotesSetSize);
+	public void requestAdditionalNotesSet(String room, Integer additionalNotesSetSize) {
+		roomsManager.requestAdditionalNotesSet(room, additionalNotesSetSize);
 	}
 }

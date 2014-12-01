@@ -54,8 +54,8 @@ package org.bigbluebutton.modules.sharednotes.managers {
 			connectionManager.destroyAdditionalNotes(notesId);
 		}
 
-		public function createAdditionalNotesSet(e:SharedNotesEvent):void {
-			connectionManager.createAdditionalNotesSet(e.additionalNotesSetSize);
+		public function requestAdditionalNotesSet(e:SharedNotesEvent):void {
+			connectionManager.requestAdditionalNotesSet(e.additionalNotesSetSize);
 		}
 	}
 }

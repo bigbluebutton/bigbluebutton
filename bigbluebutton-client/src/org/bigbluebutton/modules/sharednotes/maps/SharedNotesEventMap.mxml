@@ -88,7 +88,7 @@
 		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="destroyAdditionalNotes" arguments="{event.payload.notesId}"/>
 	</EventHandlers>
 
-	<EventHandlers type="{SharedNotesEvent.CREATE_ADDITIONAL_NOTES_SET_EVENT}">
-		<MethodInvoker generator="{SharedNotesManager}" method="createAdditionalNotesSet" arguments="{event}"/>
+	<EventHandlers type="{SharedNotesEvent.REQUEST_ADDITIONAL_NOTES_SET_EVENT}">
+		<MethodInvoker generator="{SharedNotesManager}" method="requestAdditionalNotesSet" arguments="{event}"/>
 	</EventHandlers>
 </EventMap>
