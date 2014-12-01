@@ -34,7 +34,7 @@ package org.bigbluebutton.modules.layout.model {
 		import flash.utils.Timer;
 		import flash.events.TimerEvent;
 		import org.bigbluebutton.common.LogUtil;
-		import org.bigbluebutton.modules.layout.managers.OrderManager;	
+		import org.bigbluebutton.modules.layout.managers.OrderManager;
 
 		[Bindable] public var name:String;
 		[Bindable] public var width:Number;
@@ -255,7 +255,7 @@ package org.bigbluebutton.modules.layout.model {
 				var pattern:RegExp = /(\w+)::(\w+)/g;
 				if (qualifiedClass.match(pattern)) {
 					return qualifiedClass.split("::")[1];
-				} else { 
+				} else {
 					return String(Object).substr(String(Object).lastIndexOf(".") + 1).match(/[a-zA-Z]+/).join();
 				}
 			}

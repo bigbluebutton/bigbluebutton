@@ -282,12 +282,12 @@ package org.bigbluebutton.modules.layout.managers
 		
 		private function applyLayout(layout:LayoutDefinition):void {
 			_detectContainerChange = false;
+
 			if (layout != null) {
 				checkSharedNotes(layout);
 				layout.applyToCanvas(_canvas);
 				dispatchSwitchedLayoutEvent(layout.name);
 			}
-			
 			updateCurrentLayout(layout);
 			_detectContainerChange = true;
 		}

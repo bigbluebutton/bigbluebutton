@@ -154,7 +154,7 @@ public class SharedNotesRoom {
 	}
 
 	public void destroyAdditionalNotes(String notesId) {
-		synchronized (syncObject) {	
+		synchronized (syncObject) {
 			documents.remove(notesId);
 			removedNotes.add(Integer.parseInt(notesId));
 			Collections.sort(removedNotes);
