@@ -28,6 +28,8 @@ package org.bigbluebutton.modules.present.model
     private var _txtLoaded:Boolean = false;
     private var _txtLoadedListener:Function;
     
+	private var _preloadCount:uint = 0;
+	
     public function Page(id: String, num: int, current: Boolean,
                 swfUri: String, thumbUri: String, txtUri: String,
                 pngUri: String, x: Number, y: Number,
@@ -78,11 +80,12 @@ package org.bigbluebutton.modules.present.model
       return null;
     }
     
-    public function loadSwf(swfLoadedListener:Function):void {
+    public function loadSwf(swfLoadedListener:Function, preloadCount:uint):void {
       if (_swfLoaded) {
-        swfLoadedListener(_id);
+        swfLoadedListener(_id, preloadCount);
       } else {
         _swfLoadedListener = swfLoadedListener;
+		_preloadCount = preloadCount;
         _swfLoader.load(new URLRequest(_swfUri));
       }
     }
@@ -90,8 +93,9 @@ package org.bigbluebutton.modules.present.model
     private function handleSwfLoadingComplete(e:Event):void{
       _swfLoaded = true;
       if (_swfLoadedListener != null) {
-        _swfLoadedListener(_id);
-      }		
+        _swfLoadedListener(_id, _preloadCount);
+      }
+	  _preloadCount = 0;
     }
 
     public function get txtData():String {

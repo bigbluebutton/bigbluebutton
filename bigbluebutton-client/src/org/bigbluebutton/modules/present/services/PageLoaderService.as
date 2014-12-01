@@ -11,17 +11,17 @@ package org.bigbluebutton.modules.present.services
   {
     private static const LOG:String = "Present::PageLoaderService - ";
     private var dispatcher:Dispatcher = new Dispatcher();
-    
+	
     public function loadPage(cmd: ChangePageCommand):void {
       var page:Page = PresentationModel.getInstance().getPage(cmd.pageId);
       if (page != null) {
         trace(LOG + "Loading page [" + cmd.pageId + "]");
-        page.loadSwf(pageLoadedListener);
+        page.loadSwf(pageLoadedListener, cmd.preloadCount);
       }
       
     }
     
-    public function pageLoadedListener(pageId: String):void {
+    public function pageLoadedListener(pageId:String, preloadCount:uint):void {
       var page: Page = PresentationModel.getInstance().getPage(pageId);
       if (page != null) {
         if (page.current) {
@@ -30,6 +30,14 @@ package org.bigbluebutton.modules.present.services
           var event: PageLoadedEvent = new PageLoadedEvent(page.id);
           dispatcher.dispatchEvent(event);
         }
+		
+		if (preloadCount > 0) {
+			var pageIdParts:Array = pageId.split("/");
+			trace(LOG + "after split: " + pageIdParts);
+			trace(LOG + "trying to preload next page with id: " + (parseInt(pageIdParts[1],10) + 1).toString());
+			var changePageCommand: ChangePageCommand = new ChangePageCommand(pageIdParts[0]+"/"+(parseInt(pageIdParts[1], 10) + 1), preloadCount-1);
+			dispatcher.dispatchEvent(changePageCommand);  
+		}
       }
     }
   }
