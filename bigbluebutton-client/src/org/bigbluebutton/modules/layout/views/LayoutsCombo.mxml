@@ -104,7 +104,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         layoutNames = new ArrayCollection();         
         var layouts:Array = LayoutModel.getInstance().getLayoutNames();
         
-        var idx:int = 0, currentLayoutIndex = -1;
+        var idx:int = 0, currentLayoutIndex:int = -1;
         for each (var lay:Object in layouts) {
           var translatedName:String = ResourceUtil.getInstance().getString(lay.name)
           if (translatedName == "undefined") translatedName = lay.name;
