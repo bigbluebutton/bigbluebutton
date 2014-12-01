@@ -41,6 +41,7 @@
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.common.LogUtil;
             import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
@@ -218,6 +219,7 @@
 			private function statusBtnClicked():void {
 				dispatchEvent( new ChangeStatusEvent(data.userID, ChangeStatusEvent.CLEAR_STATUS) );
 			}
+
 			
 			// Need to refresh the roleBtn toolTip text on locale change
 			private function localeChanged(e:Event):void {

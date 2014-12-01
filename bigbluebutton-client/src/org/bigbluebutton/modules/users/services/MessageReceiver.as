@@ -48,6 +48,8 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
+  import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
+  import org.bigbluebutton.main.model.users.events.ChangeStatusBtnEvent;
   
   public class MessageReceiver implements IMessageListener
   {
@@ -539,7 +541,13 @@ package org.bigbluebutton.modules.users.services
       
       trace(LOG + "Received status change [" + map.userID + "," + map.status + "," + map.value + "]")			
       UserManager.getInstance().getConference().newUserStatus(map.userID, map.status, map.value);
-      
+
+      var status:String = map.value;
+      var statusArray:Array = status.split(",");
+
+      if(map.status == "mood")
+     		 dispatcher.dispatchEvent(new ChangeStatusBtnEvent(map.userID, statusArray[0]));
+
       if (msg.status == "presenter"){
         var e:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.PRESENTER_NAME_CHANGE);
         e.userID = map.userID;

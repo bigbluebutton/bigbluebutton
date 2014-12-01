@@ -40,7 +40,7 @@ package org.bigbluebutton.main.model.users.events
 		public var userId:String;
 		
 		public function ChangeStatusEvent(id:String,status:String)
-		{
+		{	
 			userId = id;
 			this.status = status;
 			super(CHANGE_STATUS, true, false);
