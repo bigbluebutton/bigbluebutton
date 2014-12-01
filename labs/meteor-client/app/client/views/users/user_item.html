@@ -1,52 +1,51 @@
 <template name="displayUserIcons">
-    {{#if isUserSharingVideo userId}}
-        <span class="userListSettingIcon glyphicon glyphicon-facetime-video" rel="tooltip" data-placement="bottom" title="{{user.name}} is sharing their webcam"></span>
-    {{/if}}
+  {{#if isUserSharingVideo userId}}
+    <span class="userListSettingIcon glyphicon glyphicon-facetime-video" rel="tooltip" data-placement="bottom" title="{{user.name}} is sharing their webcam"></span>
+  {{/if}}
 
-    <!-- Should use much more noticeable icons than just bootstrap's volume-up & volume-down to differentiate talking but it is good for now -->
-    {{#if isUserSharingAudio userId}}
-          {{#if isCurrentUser userId}}
-            {{#if isUserMuted userId}}
-              <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-off" rel="tooltip" data-placement="bottom" title="Unmute yourself"></span>
-            {{else}}
-              {{#if isCurrentUserTalking}}
-                  <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-up" rel="tooltip" data-placement="bottom" title="is talking"></span>
-              {{else}}
-                  <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-down" rel="tooltip" data-placement="bottom" title="is not talking"></span>
-              {{/if}}
-            {{/if}}
-          {{else}}
-            {{#if isUserMuted userId}}
-              <span class="userListSettingIcon glyphicon glyphicon-volume-off" rel="tooltip" data-placement="bottom" title="{{user.name}} is muted"></span>
-            {{else}}
-              {{#if isUserTalking userId}}
-                  <span class="userListSettingIcon glyphicon glyphicon-volume-up" rel="tooltip" data-placement="bottom" title="{{user.name}} is talking"></span>
-              {{else}}
-                  <span class="userListSettingIcon glyphicon glyphicon-volume-down" rel="tooltip" data-placement="bottom" title="{{user.name}} is not talking"></span>
-              {{/if}}
-            {{/if}}
-          {{/if}}
-        {{/if}}
-        <!-- listen only: -->
-        {{#if isUserListenOnly userId}}
-          <span class="userListSettingIcon glyphicon glyphicon-headphones" title="Listening only"></span>
-        {{/if}}
-
-        {{#if user.presenter}}
-            <span class="userListSettingIcon glyphicon glyphicon-picture" rel="tooltip" data-placement="bottom" title="{{user.name}} is the presenter"></span>
+  {{#if isUserSharingAudio userId}}
+    {{#if isCurrentUser userId}}
+      {{#if isUserMuted userId}}
+        <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-off" rel="tooltip" data-placement="bottom" title="Unmute yourself"></span>
+      {{else}}
+        {{#if isCurrentUserTalking}}
+          <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-up" rel="tooltip" data-placement="bottom" title="is talking"></span>
         {{else}}
-            {{#if equals user.role "MODERATOR"}}
-                <span class="userListSettingIcon glyphicon glyphicon-user" rel="tooltip" data-placement="bottom" title="{{user.name}} is a moderator"></span>
-            {{/if}}
+          <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-down" rel="tooltip" data-placement="bottom" title="is not talking"></span>
         {{/if}}
+      {{/if}}
+    {{else}}
+      {{#if isUserMuted userId}}
+        <span class="userListSettingIcon glyphicon glyphicon-volume-off" rel="tooltip" data-placement="bottom" title="{{user.name}} is muted"></span>
+      {{else}}
+        {{#if isUserTalking userId}}
+          <span class="userListSettingIcon glyphicon glyphicon-volume-up" rel="tooltip" data-placement="bottom" title="{{user.name}} is talking"></span>
+        {{else}}
+          <span class="userListSettingIcon glyphicon glyphicon-volume-down" rel="tooltip" data-placement="bottom" title="{{user.name}} is not talking"></span>
+        {{/if}}
+      {{/if}}
+    {{/if}}
+  {{/if}}
 
-        {{#if user.raise_hand}}
-            {{#if isCurrentUser userId}}
-                <span class="raisedHandIcon userListSettingIcon glyphicon glyphicon-hand-up" rel="tooltip" data-placement="bottom" title="Lower your hand"></span>
-            {{else}}
-                <span class="userListSettingIcon glyphicon glyphicon-hand-up" rel="tooltip" data-placement="bottom" title="{{user.name}} has raised their hand"></span>
-            {{/if}}
-        {{/if}}
+  {{#if isUserListenOnly userId}}
+    <span class="userListSettingIcon glyphicon glyphicon-headphones" title="Listening only"></span>
+  {{/if}}
+
+  {{#if user.presenter}}
+    <span class="userListSettingIcon glyphicon glyphicon-picture" rel="tooltip" data-placement="bottom" title="{{user.name}} is the presenter"></span>
+  {{else}}
+    {{#if equals user.role "MODERATOR"}}
+      <span class="userListSettingIcon glyphicon glyphicon-user" rel="tooltip" data-placement="bottom" title="{{user.name}} is a moderator"></span>
+    {{/if}}
+  {{/if}}
+
+  {{#if user.raise_hand}}
+    {{#if isCurrentUser userId}}
+      <span class="raisedHandIcon userListSettingIcon glyphicon glyphicon-hand-up" rel="tooltip" data-placement="bottom" title="Lower your hand"></span>
+    {{else}}
+      <span class="userListSettingIcon glyphicon glyphicon-hand-up" rel="tooltip" data-placement="bottom" title="{{user.name}} has raised their hand"></span>
+    {{/if}}
+  {{/if}}
 </template>
 
 <template name="usernameEntry">
