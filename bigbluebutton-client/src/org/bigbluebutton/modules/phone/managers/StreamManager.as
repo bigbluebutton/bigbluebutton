@@ -77,11 +77,12 @@ package org.bigbluebutton.modules.phone.managers {
       }
     }
     
-		private function useDefaultMic():void {
+		public function useDefaultMic():void {
 		  mic = Microphone.getMicrophone();
       
 			if(mic != null){
 				this.micIndex = mic.index;
+				this.micName = mic.name;
 			  trace(LOG + "Setting up default microphone [" + micName + "]");
         JSLog.debug(LOG + "Setting up default microphone [" + micName + "]");
 				setupMicrophone();
