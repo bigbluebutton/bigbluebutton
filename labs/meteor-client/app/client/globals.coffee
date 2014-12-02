@@ -144,7 +144,7 @@ Handlebars.registerHelper "safeName", (str) ->
 
 Handlebars.registerHelper "visibility", (section) ->
   if getInSession "display_#{section}"
-    style: 'display:block'
+    style: 'display:block;'
   else
     style: 'display:none;'
 
