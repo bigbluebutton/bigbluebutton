@@ -41,6 +41,7 @@
 			import flexlib.mdi.events.MDIWindowEvent;
 
 			import mx.accessibility.AlertAccImpl;
+			import mx.binding.utils.BindingUtils;
 			import mx.controls.Alert;
 			import mx.events.ResizeEvent;
 			import mx.events.SliderEvent;
@@ -50,6 +51,7 @@
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.IBbbModuleWindow;
+			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.sharednotes.views.components.PatchableTextArea;
 			import org.bigbluebutton.modules.sharednotes.SharedNotesOptions;
@@ -93,11 +95,17 @@
 				sendUpdateTimer.addEventListener(TimerEvent.TIMER, function(e:Event):void {
 					sendPatch();
 				});
-				if(noteId == "MAIN_WINDOW"){
-					btnNew.visible = btnNew.includeInLayout = options.enableMultipleNotes && UsersUtil.amIModerator();
-				}
+
+				BindingUtils.bindSetter(updateRoleDependentProperties, UsersUtil.getMyself(), "role");
 
 				updateTitle();
+			}
+
+			private function updateRoleDependentProperties(role:String):void {
+				if(noteId == "MAIN_WINDOW"){
+					btnNew.visible = btnNew.includeInLayout = options.enableMultipleNotes && role == Role.MODERATOR;
+				}
+				showCloseButton = role == Role.MODERATOR;
 			}
 
 			public function get noteId():String{
