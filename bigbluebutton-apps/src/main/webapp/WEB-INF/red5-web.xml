@@ -53,6 +53,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     		<set>
 				<ref bean="participantsHandler" />
 				<ref bean="whiteboardApplication" />
+				<ref bean="sharedNotesHandler" />
 				<ref bean="videoHandler" />
     		</set>
   		</property>	  
@@ -122,6 +123,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 <ref bean="chatRedisPublisher"/>
                 <ref bean="fsConfService"/>                    
                 <ref bean="whiteboardEventRedisPublisher"/>
+                <ref bean="sharedNotesRed5ClientSender"/>
                 <ref bean="videoRed5ClientSender"/>
                 <ref bean="collectorGW"/>                   
             </set>        
@@ -203,12 +205,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="meetingMessageHandler" class="org.bigbluebutton.conference.meeting.messaging.redis.MeetingMessageHandler">
       <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
     </bean>
+    
+    <bean id="sharedNotesRed5ClientSender" class="org.bigbluebutton.core.apps.sharednotes.red5.SharedNotesClientMessageSender">
+      <constructor-arg index="0" ref="connInvokerService"/>
+    </bean>
 
     <bean id="videoRed5ClientSender" class="org.bigbluebutton.core.apps.video.red5.VideoClientMessageSender">
       <constructor-arg index="0" ref="connInvokerService"/>
     </bean>
-    
-
         
 	<import resource="bbb-redis-pool.xml"/>
 	<import resource="bbb-redis-recorder.xml"/>
@@ -218,6 +222,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<import resource="bbb-app-presentation.xml" />
 	<import resource="bbb-app-whiteboard.xml" />
 	<import resource="bbb-app-users.xml" />
+	<import resource="bbb-app-sharednotes.xml" />
 	<import resource="bbb-app-video.xml" />
 	
 	<import resource="bbb-voice-app.xml" />

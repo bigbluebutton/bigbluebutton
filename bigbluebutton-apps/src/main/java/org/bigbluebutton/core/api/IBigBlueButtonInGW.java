@@ -51,7 +51,7 @@ public interface IBigBlueButtonInGW {
 	void responseToGuest(String meetingID, String userID, Boolean response);
 	void responseToAllGuests(String meetingID, Boolean response);
 	void kickGuest(String meetingID, String guestID);
-
+	
 	// Voice
 	void muteAllExceptPresenter(String meetingID, String requesterID, Boolean mute);
 	void muteAllUsers(String meetingID, String requesterID, Boolean mute);
@@ -123,7 +123,15 @@ public interface IBigBlueButtonInGW {
 	void undoWhiteboard(String meetingID, String requesterID, String whiteboardId);
 	void enableWhiteboard(String meetingID, String requesterID, Boolean enable);
 	void isWhiteboardEnabled(String meetingID, String requesterID, String replyTo);
-
+	
+	// Shared notes
+	void patchDocument(String meetingID, String requesterID, String noteID,
+			String patch, int beginIndex, int endIndex);
+	void getCurrentDocument(String meetingID, String requesterID);
+	void createAdditionalNotes(String meetingID, String requesterID);
+	void destroyAdditionalNotes(String meetingID, String requesterID,
+			String noteID);
+	
 	// Video
 	void getStreamPath(String meetingID, String requesterID, String streamName, String defaultPath);
 

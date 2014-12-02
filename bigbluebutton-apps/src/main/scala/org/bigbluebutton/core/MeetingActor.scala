@@ -5,6 +5,7 @@ import scala.actors.Actor._
 import org.bigbluebutton.core.apps.poll.PollApp
 import org.bigbluebutton.core.apps.poll.Poll
 import org.bigbluebutton.core.apps.poll.PollApp
+import org.bigbluebutton.core.apps.sharednotes.SharedNotesApp
 import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps.presentation.PresentationApp
@@ -24,7 +25,7 @@ class MeetingActor(val meetingID: String, val meetingName: String, val recorded:
                    val outGW: MessageOutGateway) 
                    extends Actor with UsersApp with PresentationApp
                    with PollApp with LayoutApp with ChatApp
-                   with WhiteboardApp with LogHelper with VideoApp {
+                   with WhiteboardApp with LogHelper with SharedNotesApp with VideoApp {
 
   var permissionsInited = false
   var permissions = new Permissions()
@@ -127,6 +128,11 @@ class MeetingActor(val meetingID: String, val meetingName: String, val recorded:
 	    case msg: RespondToAllGuests                     => handleRespondToAllGuests(msg)
 	    case msg: KickGuest                              => handleKickGuest(msg)
 
+	    case msg: PatchDocumentRequest                   => handlePatchDocumentRequest(msg)
+	    case msg: GetCurrentDocumentRequest              => handleGetCurrentDocumentRequest(msg)
+	    case msg: CreateAdditionalNotesRequest           => handleCreateAdditionalNotesRequest(msg)
+	    case msg: DestroyAdditionalNotesRequest          => handleDestroyAdditionalNotesRequest(msg)
+	    
 	    case msg: EndMeeting                             => handleEndMeeting(msg)
 	    case StopMeetingActor                            => exit
 	    case _ => // do nothing
