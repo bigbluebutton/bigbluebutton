@@ -124,7 +124,7 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.meetingID = result.meetingID;
 				_conferenceParameters.externUserID = result.externUserID;
 				_conferenceParameters.internalUserID = result.internalUserId;
-				_conferenceParameters.logoutUrl = result.logoutUrl;
+				_conferenceParameters.logoutUrl = processLogoutUrl(result);
 				_conferenceParameters.record = (result.record != "false");
 				
 				var muteOnStart:Boolean;
@@ -160,6 +160,22 @@ package org.bigbluebutton.main.model.users
 				
         connect();
 			}
+		}
+
+		private function processLogoutUrl(confInfo:Object):String {
+			var logoutUrl:String = confInfo.logoutUrl;
+			var rules:Object = {
+				"%%FULLNAME%%": confInfo.username,
+				"%%CONFNAME%%": confInfo.conferenceName,
+				"%%DIALNUM%%": confInfo.dialnumber,
+				"%%CONFNUM%%": confInfo.voicebridge
+			}
+
+			for (var attr:String in rules) {
+				logoutUrl = logoutUrl.replace(new RegExp(attr, "g"), rules[attr]);
+			}
+
+			return logoutUrl;
 		}
 		
     private function connect():void{
