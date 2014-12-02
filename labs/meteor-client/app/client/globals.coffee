@@ -146,7 +146,7 @@ Handlebars.registerHelper "visibility", (section) ->
   if getInSession "display_#{section}"
     style: 'display:block'
   else
-    style: 'display:none'
+    style: 'display:none;'
 
 @isSharingAudio = ->
   return Meteor.Users.findOne({userId: getInSession "userId"})?.user?.voiceUser?.joined
