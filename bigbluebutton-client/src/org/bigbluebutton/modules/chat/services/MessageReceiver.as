@@ -80,7 +80,6 @@ package org.bigbluebutton.modules.chat.services
       msg.fromUserID = message.fromUserID;
       msg.fromUsername = message.fromUsername;
       msg.fromColor = message.fromColor;
-      msg.fromLang = message.fromLang;
       msg.fromTime = message.fromTime;
       msg.fromTimezoneOffset = message.fromTimezoneOffset;
       msg.toUserID = message.toUserID;
@@ -104,7 +103,6 @@ package org.bigbluebutton.modules.chat.services
       msg.fromUserID = message.fromUserID;
       msg.fromUsername = message.fromUsername;
       msg.fromColor = message.fromColor;
-      msg.fromLang = message.fromLang;
       msg.fromTime = message.fromTime;
       msg.fromTimezoneOffset = message.fromTimezoneOffset;
       msg.toUserID = message.toUserID;

@@ -50,12 +50,16 @@ public class MessageFromJsonConverter {
 	
 	private static IMessage processCreateMeeting(JsonObject payload) {
 		String id = payload.get(Constants.MEETING_ID).getAsString();
+		String externalId = payload.get(Constants.EXTERNAL_MEETING_ID).getAsString();
 		String name = payload.get(Constants.NAME).getAsString();
 		Boolean record = payload.get(Constants.RECORDED).getAsBoolean();
 		String voiceBridge = payload.get(Constants.VOICE_CONF).getAsString();
 		Long duration = payload.get(Constants.DURATION).getAsLong();
+		Boolean autoStartRecording = payload.get(Constants.AUTO_START_RECORDING).getAsBoolean();
+		Boolean allowStartStopRecording = payload.get(Constants.ALLOW_START_STOP_RECORDING).getAsBoolean();
 		
-		return new CreateMeetingMessage(id, name, record, voiceBridge, duration);
+		return new CreateMeetingMessage(id, externalId, name, record, voiceBridge, 
+				          duration, autoStartRecording, allowStartStopRecording);
 	}
 	
 	private static IMessage processDestroyMeeting(JsonObject payload) {

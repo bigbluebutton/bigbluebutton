@@ -49,10 +49,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import com.asfusion.mate.events.Dispatcher;
       
       import flexlib.mdi.events.MDIWindowEvent;
-      import flexlib.scheduling.scheduleClasses.BackgroundItem;
-      
-      import mx.core.UIComponent;
-      
+      import flexlib.scheduling.scheduleClasses.BackgroundItem;   
+      import mx.core.UIComponent;     
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.events.LocaleChangeEvent;
@@ -111,7 +109,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
 				cursor.graphics.drawCircle(0,0,3);		
 					
-				if (isUsingChromeOnMac()) {
+				if (isUsingLessThanChrome38OnMac()) {
 				   setCurrentState("chromeOnMacWarningState");
 				}
 				else {
@@ -366,8 +364,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var CHECK_JAVA_URL:String = BBB.initConfigManager().config.javaTest.url;        
         navigateToURL(new URLRequest(CHECK_JAVA_URL));
       }
-			private function isUsingChromeOnMac():Boolean {
-				return ((ExternalInterface.call("determineBrowser")[0] == "Chrome") && (Capabilities.os.indexOf("Mac") >= 0));
+			private function isUsingLessThanChrome38OnMac():Boolean {
+        var browser:Array = ExternalInterface.call("determineBrowser");
+        
+				return ((browser[0] == "Chrome")
+          && (parseInt(browser[1]) <= 38)
+          && (Capabilities.os.indexOf("Mac") >= 0));
 			}
 		]]>
 	</mx:Script>

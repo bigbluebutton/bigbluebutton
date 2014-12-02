@@ -190,23 +190,23 @@ class PresentationController {
 	  def conf = params.conference
 	  def rm = params.room
 	  def textfile = params.id
-	  println "Controller: Show thumbnails request for $presentationName $textfile"
+	  log.debug "Controller: Show textfile request for $presentationName $textfile"
 	  
 	  InputStream is = null;
 	  try {
 		def pres = presentationService.showTextfile(conf, rm, presentationName, textfile)
 		if (pres.exists()) {
-		  println "Controller: Sending textfiles reply for $presentationName $textfile"
+		  log.debug "Controller: Sending textfiles reply for $presentationName $textfile"
 		  
 		  def bytes = pres.readBytes()
 		  response.addHeader("Cache-Control", "no-cache")
 		  response.contentType = 'plain/text'
 		  response.outputStream << bytes;
 		} else {
-		  println "$pres does not exist."
+		  log.debug "$pres does not exist."
 		}
 	  } catch (IOException e) {
-		println("Error reading file.\n" + e.getMessage());
+			log.error("Error reading file.\n" + e.getMessage());
 	  }
 	  
 	  return null;

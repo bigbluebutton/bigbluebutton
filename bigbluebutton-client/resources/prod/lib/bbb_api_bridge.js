@@ -441,10 +441,17 @@
       }
     }
 
-    BBB.webRTCConferenceCallFailed = function(message) {
+    BBB.webRTCConferenceCallFailed = function(errorcode) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRTCConferenceCallFailed(message);
+        swfObj.webRTCConferenceCallFailed(errorcode);
+      }
+    }
+
+    BBB.webRTCConferenceCallWaitingForICE = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCConferenceCallWaitingForICE();
       }
     }
 
@@ -452,6 +459,16 @@
       var swfObj = getSwfObj();
       if (swfObj) {
         swfObj.webRTCCallProgressCallback(progress);
+      }
+    }
+
+    BBB.webRTCConferenceCallWebsocketSucceeded = function() {
+    }
+
+    BBB.webRTCConferenceCallWebsocketFailed = function(errorcode) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCConferenceCallFailed(errorcode);
       }
     }
 
@@ -475,6 +492,14 @@
         swfObj.webRTCEchoTestFailed(reason);
       }
     }
+    
+    BBB.webRTCEchoTestWaitingForICE = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCEchoTestWaitingForICE();
+      }
+    }
+    
 
     BBB.webRTCEchoTestEnded = function() {
       var swfObj = getSwfObj();
@@ -483,6 +508,16 @@
       }
     }
     
+    BBB.webRTCEchoTestWebsocketSucceeded = function() {
+    }
+
+    BBB.webRTCEchoTestWebsocketFailed = function(reason) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCEchoTestFailed(reason);
+      }
+    }
+
     BBB.webRTCMediaRequest = function() {
       var swfObj = getSwfObj();
       if (swfObj) {

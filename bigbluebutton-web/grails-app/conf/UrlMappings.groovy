@@ -29,7 +29,7 @@ class UrlMappings {
 			action = [GET:'numberOfTextfiles']
 		}
   
-		"/presentation/$conference/$room/$presentation_name/textfile/$id"(controller:"presentation") {
+		"/presentation/$conference/$room/$presentation_name/textfiles/$id"(controller:"presentation") {
 			action = [GET:'showTextfile']
 		}
       
@@ -55,7 +55,10 @@ class UrlMappings {
 			}
 		}
 
-		"/"(view:"/index")
+		"/"(controller:"api") {
+			action = [GET:'index']
+		}
+		
 		"500"(view:'/error')
 	}
 }

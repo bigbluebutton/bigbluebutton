@@ -27,10 +27,13 @@ public class MessageToJson {
 	public static String createMeetingMessageToJson(CreateMeetingMessage msg) {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(Constants.MEETING_ID, msg.id);
+		payload.put(Constants.EXTERNAL_MEETING_ID, msg.externalId);
 		payload.put(Constants.NAME, msg.name);
 		payload.put(Constants.RECORDED, msg.record);
 		payload.put(Constants.VOICE_CONF, msg.voiceBridge);
 		payload.put(Constants.DURATION, msg.duration);
+		payload.put(Constants.AUTO_START_RECORDING, msg.autoStartRecording);
+		payload.put(Constants.ALLOW_START_STOP_RECORDING, msg.allowStartStopRecording);
 		
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(CreateMeetingMessage.CREATE_MEETING_REQUEST_EVENT, CreateMeetingMessage.VERSION, null);
 		return MessageBuilder.buildJson(header, payload);				

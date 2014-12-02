@@ -17,8 +17,10 @@ import org.bigbluebutton.core.util._
 
 case object StopMeetingActor
                       
-class MeetingActor(val meetingID: String, val meetingName: String, val recorded: Boolean, 
-                   val voiceBridge: String, duration: Long, val outGW: MessageOutGateway) 
+class MeetingActor(val meetingID: String, val externalMeetingID: String, val meetingName: String, val recorded: Boolean, 
+                   val voiceBridge: String, duration: Long, 
+                   val autoStartRecording: Boolean, val allowStartStopRecording: Boolean,
+                   val outGW: MessageOutGateway) 
                    extends Actor with UsersApp with PresentationApp
                    with PollApp with LayoutApp with ChatApp
                    with WhiteboardApp with LogHelper {  
@@ -65,7 +67,7 @@ class MeetingActor(val meetingID: String, val meetingName: String, val recorded:
 	    case msg: MuteAllExceptPresenterRequest          => handleMuteAllExceptPresenterRequest(msg)
 	    case msg: IsMeetingMutedRequest                  => handleIsMeetingMutedRequest(msg)
 	    case msg: MuteUserRequest                        => handleMuteUserRequest(msg)
-	    case msg: EjectUserFromVoiceRequest                       => handleEjectUserRequest(msg)
+	    case msg: EjectUserFromVoiceRequest              => handleEjectUserRequest(msg)
 	    case msg: SetLockSettings                        => handleSetLockSettings(msg)
 	    case msg: InitLockSettings                       => handleInitLockSettings(msg)
 	    case msg: GetChatHistoryRequest                  => handleGetChatHistoryRequest(msg) 
@@ -89,19 +91,19 @@ class MeetingActor(val meetingID: String, val meetingName: String, val recorded:
     	case msg: SharePresentation                      => handleSharePresentation(msg)
     	case msg: GetSlideInfo                           => handleGetSlideInfo(msg)
     	case msg: PreuploadedPresentations               => handlePreuploadedPresentations(msg)
-        case msg: PreCreatedPoll                         => handlePreCreatedPoll(msg)
-        case msg: CreatePoll                             => handleCreatePoll(msg)
-        case msg: UpdatePoll                             => handleUpdatePoll(msg)
-        case msg: DestroyPoll                            => handleDestroyPoll(msg)
-        case msg: RemovePoll                             => handleRemovePoll(msg)
-        case msg: SharePoll                              => handleSharePoll(msg)
-        case msg: StopPoll                               => handleStopPoll(msg)
-        case msg: StartPoll                              => handleStartPoll(msg)
-        case msg: ClearPoll                              => handleClearPoll(msg)
-        case msg: GetPolls                               => handleGetPolls(msg)
-        case msg: RespondToPoll                          => handleRespondToPoll(msg)
-        case msg: HidePollResult                         => handleHidePollResult(msg)
-        case msg: ShowPollResult                         => handleShowPollResult(msg)
+      case msg: PreCreatedPoll                         => handlePreCreatedPoll(msg)
+      case msg: CreatePoll                             => handleCreatePoll(msg)
+      case msg: UpdatePoll                             => handleUpdatePoll(msg)
+      case msg: DestroyPoll                            => handleDestroyPoll(msg)
+      case msg: RemovePoll                             => handleRemovePoll(msg)
+      case msg: SharePoll                              => handleSharePoll(msg)
+      case msg: StopPoll                               => handleStopPoll(msg)
+      case msg: StartPoll                              => handleStartPoll(msg)
+      case msg: ClearPoll                              => handleClearPoll(msg)
+      case msg: GetPolls                               => handleGetPolls(msg)
+      case msg: RespondToPoll                          => handleRespondToPoll(msg)
+      case msg: HidePollResult                         => handleHidePollResult(msg)
+      case msg: ShowPollResult                         => handleShowPollResult(msg)
 	    case msg: SendWhiteboardAnnotationRequest        => handleSendWhiteboardAnnotationRequest(msg)
 	    case msg: GetWhiteboardShapesRequest             => handleGetWhiteboardShapesRequest(msg)
 	    case msg: ClearWhiteboardRequest                 => handleClearWhiteboardRequest(msg)
@@ -140,6 +142,23 @@ class MeetingActor(val meetingID: String, val meetingName: String, val recorded:
     if (users.numWebUsers > 0) {
       lastWebUserLeftOn = 0
 	  }      
+  }
+  
+  def startRecordingIfAutoStart() {
+    if (!recording && autoStartRecording && users.numWebUsers == 1) {
+      logger.info("Auto start recording for meeting=[" + meetingID + "]")
+     recording = true
+     outGW.send(new RecordingStatusChanged(meetingID, recorded, "system", recording))          
+    }
+  }
+  
+  def stopAutoStartedRecording() {
+    if (recording && autoStartRecording 
+        && users.numWebUsers == 0) {
+      logger.info("Last web user left. Auto stopping recording for meeting=[{}", meetingID)
+      recording = false
+      outGW.send(new RecordingStatusChanged(meetingID, recorded, "system", recording))          
+    }    
   }
   
   def startCheckingIfWeNeedToEndVoiceConf() {
@@ -194,8 +213,12 @@ class MeetingActor(val meetingID: String, val meetingName: String, val recorded:
   }
   
   private def handleSetRecordingStatus(msg: SetRecordingStatus) {
+    logger.debug("Change recording status for meeting [" + meetingID + "], recording=[" + msg.recording + "]")
+    if (allowStartStopRecording && recording != msg.recording) {
      recording = msg.recording
-     outGW.send(new RecordingStatusChanged(meetingID, recorded, msg.userId, msg.recording))
+     logger.debug("Sending recording status for meeting [" + meetingID + "], recording=[" + msg.recording + "]")
+     outGW.send(new RecordingStatusChanged(meetingID, recorded, msg.userId, msg.recording))      
+    }
   }   
 
   private def handleGetRecordingStatus(msg: GetRecordingStatus) {

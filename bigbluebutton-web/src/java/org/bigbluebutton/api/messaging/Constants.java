@@ -5,6 +5,7 @@ public class Constants {
   public static final String HEADER                          = "header";
   public static final String PAYLOAD                         = "payload";
   public static final String MEETING_ID                      = "meeting_id";
+  public static final String EXTERNAL_MEETING_ID             = "external_meeting_id";
   public static final String TIMESTAMP                       = "timestamp";
   public static final String USER_ID                         = "userid";
   public static final String RECORDED                        = "recorded";
@@ -28,6 +29,8 @@ public class Constants {
   public static final String NEW_PRESENTER_NAME              = "new_presenter_name";
   public static final String ASSIGNED_BY                     = "assigned_by";
   public static final String RECORDING                       = "recording";
+  public static final String AUTO_START_RECORDING            = "auto_start_recording";
+  public static final String ALLOW_START_STOP_RECORDING      = "allow_start_stop_recording";
   public static final String LAYOUT_ID                       = "layout_id";
   public static final String POLL                            = "poll";
   public static final String POLL_ID                         = "poll_id";

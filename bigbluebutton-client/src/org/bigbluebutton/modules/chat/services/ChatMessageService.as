@@ -43,7 +43,6 @@ package org.bigbluebutton.modules.chat.services
       msgVO.fromUserID = message.fromUserID;
       msgVO.fromUsername = message.fromUsername;
       msgVO.fromColor = message.fromColor;
-      msgVO.fromLang = message.fromLang;
       msgVO.fromTime = message.fromTime;
       msgVO.fromTimezoneOffset = message.fromTimezoneOffset;
 
@@ -60,7 +59,6 @@ package org.bigbluebutton.modules.chat.services
       msgVO.fromUserID = message.fromUserID;
       msgVO.fromUsername = message.fromUsername;
       msgVO.fromColor = message.fromColor;
-      msgVO.fromLang = message.fromLang;
       msgVO.fromTime = message.fromTime;
       msgVO.fromTimezoneOffset = message.fromTimezoneOffset;
       
@@ -96,7 +94,6 @@ package org.bigbluebutton.modules.chat.services
         msg.fromUserID = SPACE;
         msg.fromUsername = SPACE;
         msg.fromColor = "86187";
-        msg.fromLang = "en";
         msg.fromTime = new Date().getTime();
         msg.fromTimezoneOffset = new Date().getTimezoneOffset();
         msg.toUserID = SPACE;
@@ -115,7 +112,6 @@ package org.bigbluebutton.modules.chat.services
           msg.fromUserID = SPACE;
           msg.fromUsername = SPACE;
           msg.fromColor = "86187";
-          msg.fromLang = "en";
           msg.fromTime = new Date().getTime();
           msg.fromTimezoneOffset = new Date().getTimezoneOffset();
           msg.toUserID = SPACE;

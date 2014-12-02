@@ -15,10 +15,13 @@ case class KeepAliveMessage
 case class CreateMeeting
 (
   meetingID: String, 
+  externalMeetingID: String, 
   meetingName: String,
   recorded: Boolean, 
   voiceBridge: String,
-  duration: Long
+  duration: Long,
+  autoStartRecording: Boolean,
+  allowStartStopRecording: Boolean
 ) extends InMessage
                          
 case class InitializeMeeting(

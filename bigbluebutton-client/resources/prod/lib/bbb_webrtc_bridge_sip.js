@@ -1,5 +1,5 @@
 
-var callerIdName, conferenceVoiceBridge, userAgent, userMicMedia, userWebcamMedia, currentSession, callTimeout, callActive, callFailCounter, callPurposefullyEnded, uaConnected;
+var callerIdName, conferenceVoiceBridge, userAgent, userMicMedia, userWebcamMedia, currentSession, callTimeout, callActive, callICEConnected, callFailCounter, callPurposefullyEnded, uaConnected;
 
 function callIntoConference(voiceBridge, callback) {
 	if (!callerIdName) {
@@ -27,7 +27,7 @@ function joinWebRTCVoiceConference() {
 	var callback = function(message) {
 		switch (message.status) {
 			case 'failed':
-				BBB.webRTCConferenceCallFailed(message.cause);
+				BBB.webRTCConferenceCallFailed(message.errorcode);
 				break;
 			case 'ended':
 				BBB.webRTCConferenceCallEnded();
@@ -38,6 +38,9 @@ function joinWebRTCVoiceConference() {
 			case 'connecting':
 				BBB.webRTCConferenceCallConnecting();
 				break;
+			case 'waitingforice':
+				BBB.webRTCConferenceCallWaitingForICE();
+				break;
 			case 'mediarequest':
 				BBB.webRTCMediaRequest();
 				break;
@@ -46,6 +49,12 @@ function joinWebRTCVoiceConference() {
 				break;
 			case 'mediafail':
 				BBB.webRTCMediaFail();
+				break;
+			case 'websocketSucceded':
+				BBB.webRTCConferenceCallWebsocketSucceeded();
+				break;
+			case 'websocketFailed':
+				BBB.webRTCConferenceCallWebsocketFailed(message.errorcode);
 				break;
 		}
 	}
@@ -64,7 +73,7 @@ function startWebRTCAudioTest(){
 	var callback = function(message) {
 		switch(message.status) {
 			case 'failed':
-				BBB.webRTCEchoTestFailed(message.cause);
+				BBB.webRTCEchoTestFailed(message.errorcode);
 				break;
 			case 'ended':
 				BBB.webRTCEchoTestEnded();
@@ -75,6 +84,9 @@ function startWebRTCAudioTest(){
 			case 'connecting':
 				BBB.webRTCEchoTestConnecting();
 				break;
+			case 'waitingforice':
+				BBB.webRTCEchoTestWaitingForICE();
+				break;
 			case 'mediarequest':
 				BBB.webRTCMediaRequest();
 				break;
@@ -83,6 +95,12 @@ function startWebRTCAudioTest(){
 				break;
 			case 'mediafail':
 				BBB.webRTCMediaFail();
+				break;
+			case 'websocketSucceded':
+				BBB.webRTCEchoTestWebsocketSucceeded();
+				break;
+			case 'websocketFailed':
+				BBB.webRTCEchoTestWebsocketFailed(message.errorcode);
 				break;
 		}
 	}
@@ -156,7 +174,6 @@ function createUA(username, server, callback) {
 		uri: 'sip:' + encodeURIComponent(username) + '@' + server,
 		wsServers: 'ws://' + server + '/ws',
 		displayName: username,
-		level: 3,
 		register: false,
 		traceSip: true,
 		autostart: false,
@@ -169,6 +186,7 @@ function createUA(username, server, callback) {
 	userAgent = new SIP.UA(configuration);
 	userAgent.on('connected', function() {
 		uaConnected = true;
+		callback({'status':'websocketSucceded'});
 	});
 	userAgent.on('disconnected', function() {
 		if (userAgent) {
@@ -176,9 +194,9 @@ function createUA(username, server, callback) {
 			userAgent = null;
 			
 			if (uaConnected) {
-				callback({'status':'failed', 'cause': 'WebSocket disconnected'});
+				callback({'status':'websocketFailed', 'errorcode': 1001}); // WebSocket disconnected
 			} else {
-				callback({'status':'failed', 'cause': 'Could not make a WebSocket connection'});
+				callback({'status':'websocketFailed', 'errorcode': 1002}); // Could not make a WebSocket connection
 			}
 		}
 	});
@@ -216,7 +234,7 @@ function getUserMicMedia(getUserMicMediaSuccess, getUserMicMediaFailure) {
 
 function webrtc_call(username, voiceBridge, callback) {
 	if (!isWebRTCAvailable()) {
-		callback({'status': 'failed', message: "Browser version not supported"});
+		callback({'status': 'failed', 'errorcode': 1003}); // Browser version not supported
 		return;
 	}
 	
@@ -273,11 +291,16 @@ function make_call(username, voiceBridge, server, callback, recall) {
 	};
 	
 	callTimeout = setTimeout(function() {
-		console.log('Ten seconds without updates, retrying the call');
-		make_call(username, voiceBridge, server, callback, true);
+		console.log('Ten seconds without updates sending timeout code');
+		callback({'status':'failed', 'errorcode': 1006}); // Failure on call
+		currentSession = null;
+		var userAgentTemp = userAgent;
+		userAgent = null;
+		userAgentTemp.stop();
 	}, 10000);
 	
 	callActive = false;
+	callICEConnected = false;
 	callPurposefullyEnded = false;
 	callFailCounter = 0;
 	console.log("Calling to " + voiceBridge + "....");
@@ -293,8 +316,7 @@ function make_call(username, voiceBridge, server, callback, recall) {
 	
 	// The connecting event fires before the listener can be added
 	currentSession.on('connecting', function(){
-		//console.log('call connecting');
-		//callback({'status':'connecting'});
+		clearTimeout(callTimeout);
 	});
 	currentSession.on('progress', function(response){
 		console.log('call progress: ' + response);
@@ -303,12 +325,19 @@ function make_call(username, voiceBridge, server, callback, recall) {
 	currentSession.on('failed', function(response, cause){
 		console.log('call failed with cause: '+ cause);
 		
-		if (callActive === false) {
-			callback({'status':'failed', 'cause': cause});
-		} else if (currentSession) {
-			//currentSession.bye();
-			currentSession = null;
-			userAgent.stop();
+		if (currentSession) {
+			if (callActive === false) {
+				callback({'status':'failed', 'errorcode': 1004}); // Failure on call
+				currentSession = null;
+				var userAgentTemp = userAgent;
+				userAgent = null;
+				userAgentTemp.stop();
+			} else {
+				callActive = false;
+				//currentSession.bye();
+				currentSession = null;
+				userAgent.stop();
+			}
 		}
 		clearTimeout(callTimeout);
 	});
@@ -321,7 +350,7 @@ function make_call(username, voiceBridge, server, callback, recall) {
 			if (callPurposefullyEnded === true) {
 				callback({'status':'ended'});
 			} else {
-				callback({'status':'failed', 'cause':'Call ended unexpectedly'});
+				callback({'status':'failed', 'errorcode': 1005}); // Call ended unexpectedly
 			}
 			clearTimeout(callTimeout);
 			currentSession = null;
@@ -331,10 +360,48 @@ function make_call(username, voiceBridge, server, callback, recall) {
 	});
 	currentSession.on('accepted', function(data){
 		callActive = true;
+		console.log('BigBlueButton call accepted');
 		
-		console.log('BigBlueButton call started');
-		callback({'status':'started'});
+		if (callICEConnected === true) {
+			callback({'status':'started'});
+		} else {
+			callback({'status':'waitingforice'});
+		}
 		clearTimeout(callTimeout);
+	});
+	currentSession.mediaHandler.on('iceFailed', function() {
+		console.log('received ice negotiation failed');
+		callback({'status':'failed', 'errorcode': 1007}); // Failure on call
+		currentSession = null;
+		var userAgentTemp = userAgent;
+		userAgent = null;
+		userAgentTemp.stop();
+		
+		clearTimeout(callTimeout);
+	});
+	
+	// Some browsers use status of 'connected', others use 'completed', and a couple use both
+	
+	currentSession.mediaHandler.on('iceConnected', function() {
+		console.log('Received ICE status changed to connected');
+		if (callICEConnected === false) {
+			callICEConnected = true;
+			if (callActive === true) {
+				callback({'status':'started'});
+			}
+			clearTimeout(callTimeout);
+		}
+	});
+	
+	currentSession.mediaHandler.on('iceCompleted', function() {
+		console.log('Received ICE status changed to completed');
+		if (callICEConnected === false) {
+			callICEConnected = true;
+			if (callActive === true) {
+				callback({'status':'started'});
+			}
+			clearTimeout(callTimeout);
+		}
 	});
 }
 

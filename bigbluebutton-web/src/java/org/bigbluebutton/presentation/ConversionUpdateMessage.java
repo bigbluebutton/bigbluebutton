@@ -94,7 +94,7 @@ public class ConversionUpdateMessage {
 				page.put("num", new Integer(i).toString());
 				page.put("thumb", basePresUrl + "/thumbnail/" + i);
 				page.put("swf", basePresUrl + "/slide/" + i);
-				page.put("text", basePresUrl + "/textfiles/slide-" + i + ".txt");
+				page.put("text", basePresUrl + "/textfiles/" + i);
 				
 				pages.add(page);
 			}
