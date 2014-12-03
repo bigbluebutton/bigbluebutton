@@ -97,7 +97,7 @@ Template.header.events
   "click .chatBarIcon": (event) ->
     $(".tooltip").hide()
     toggleChatbar()
-    recalculateLayout()
+    #recalculateLayout()
 
   "click .hideNavbarIcon": (event) ->
     $(".tooltip").hide()
@@ -130,7 +130,7 @@ Template.header.events
   "click .usersListIcon": (event) ->
     $(".tooltip").hide()
     toggleUsersList()
-    recalculateLayout()
+    #recalculateLayout()
 
   "click .videoFeedIcon": (event) ->
     $(".tooltip").hide()
@@ -139,7 +139,7 @@ Template.header.events
   "click .whiteboardIcon": (event) ->
     $(".tooltip").hide()
     toggleWhiteBoard()
-    recalculateLayout()
+    #recalculateLayout()
 
   "mouseout #navbarMinimizedButton": (event) ->
     $("#navbarMinimizedButton").removeClass("navbarMinimizedButtonLarge")
