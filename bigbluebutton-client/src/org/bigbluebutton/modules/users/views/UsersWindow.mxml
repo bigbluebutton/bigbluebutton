@@ -112,7 +112,7 @@
 			private var muteMeRolled:Boolean = false;
 			
 			private var myMenuStaticHeight:Number = 209;
-			private var myMenuData:Array = [];
+			private var moodMenuHeight:Number = -1;
 			
 			private function onCreationComplete():void {
 				dispatcher = new Dispatcher();
@@ -232,13 +232,10 @@
 				// raiseHandBtn.setStyle("icon",images.hand_new);
 			}
 			
-			private function openSettings():void {
+			private function openMoodMenu():void {
 				// everyone can see the audio settings
 				var myMenuData:Array = [];
 				if(partOptions.enableRaiseHand) {
-					if (myMenuData.length > 0) {
-						myMenuData.push( {type: "separator"} );
-					}
 					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.clearStatus'), icon: images.delete_icon, callback: function():void { changeStatus(ChangeStatusEvent.CLEAR_STATUS); }} );
 					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.raiseHand'), icon: images.hand_new, callback: function():void { changeStatus(ChangeStatusEvent.RAISE_HAND); }} );
 					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.agree'), icon: images.agree, callback: function():void { changeStatus(ChangeStatusEvent.AGREE); }} );
@@ -252,29 +249,46 @@
 					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.sad'), icon: images.sad, callback: function():void { changeStatus(ChangeStatusEvent.SAD); }} );
 				}
 				
-				
 				// make sure the previous menu is closed before opening a new one
 				// This could be improved to include a flag that tells if the menu is open,
 				// but it would require an extra listener for the MenuCloseEvent.
 				if (myMenu) myMenu.hide();
-				
-			
+
 				myMenu = Menu.createMenu(null, myMenuData, true);
 
+				if (moodMenuHeight == -1) {
+					myMenuData.length * myMenu.rowHeight;
+				}
+
+				var raiseHandBtnPos:Point = raiseHandBtn.localToGlobal(new Point(0,0));
+
 				var myMenuPos:Point = new Point();
-				myMenuPos.x = this.x + raiseHandBtn.x + 1;
-				myMenuPos.y = this.y + this.height + raiseHandBtn.height;
-				
-				if (myMenuPos.y + myMenuStaticHeight > stage.stageHeight) {
-					myMenuPos.y = this.y + this.height - (12*myMenu.rowHeight);
+				myMenuPos.x = raiseHandBtnPos.x + 1;
+				myMenuPos.y = raiseHandBtnPos.y + raiseHandBtn.height + 1;
+				if (myMenuPos.y + moodMenuHeight > stage.stageHeight) {
+					myMenuPos.x += raiseHandBtn.width;
+					myMenuPos.y = stage.stageHeight - moodMenuHeight;
 				}
 				
+				myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
+				myMenu.addEventListener(MenuEvent.MENU_SHOW, moodMenuShowHandler);
 				myMenu.show(myMenuPos.x, myMenuPos.y);
-                                myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
-                                myMenu.setFocus();
-											
+				myMenu.setFocus();
 			}
+			
+			private function moodMenuShowHandler(e:MenuEvent):void {
+				var menu:Menu = e.menu as Menu;
 
+				// TODO it doesn't work because menu.y is always 0
+				if (menu.y + menu.height > stage.stageHeight) {
+					var myMenuPos:Point = new Point();
+					myMenuPos.x = menu.x + raiseHandBtn.width;
+					myMenuPos.y = stage.stageHeight - menu.height;
+					menu.show(myMenuPos.x, myMenuPos.y);
+				}
+
+				moodMenuHeight = menu.height;
+			}
 
 			private function openPresenterSettings():void {
 				// everyone can see the audio settings
@@ -605,7 +619,7 @@
 	
 	<mx:ControlBar width="100%">
 		<mx:Button id="raiseHandBtn" icon="{images.hand_new}" selected="{UserManager.getInstance().getConference().isMyHandRaised}"
-				   width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip')}" click="openSettings()"
+				   width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip')}" click="openMoodMenu()"
 				   visible="true" tabIndex="{partOptions.baseTabIndex+15}" />
 		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
 					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" click="openPresenterSettings()" visible="true" tabIndex="{partOptions.baseTabIndex+10}" />
