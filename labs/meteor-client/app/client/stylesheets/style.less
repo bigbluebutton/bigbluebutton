@@ -1,5 +1,18 @@
 @import "colors";
 
+.radius(@size: 4px) {
+  -moz-border-radius: @size;
+  -webkit-border-radius: @size;
+  border-radius: @size;
+}
+
+.linear-gradient(@color1, @color2) {
+  background: -moz-linear-gradient(@color1, @color2); /* For Firefox 3.6 to 15 */
+  background: -o-linear-gradient(@color1, @color2); /* For Opera 11.1 to 12.0 */
+  background: -webkit-linear-gradient(@color1, @color2); /* For Safari 5.1 to 6.0 */
+  background: linear-gradient(@color1, @color2); /* Standard syntax (must be last) */
+}
+
 .audioFeedIcon {}
 
 body {
@@ -17,10 +30,8 @@ body {
 .btn {background-color: extract(@white, 2);}
 
 .component {
-	-moz-border-radius: 4px;
-	-webkit-border-radius: 4px;
+	.radius;
 	background: extract(@white, 1);
-	border-radius: 4px;
 	border: 1px solid extract(@lightGrey, 3);
 	float: left;
 	height: 80%;
@@ -48,28 +59,24 @@ body {
 }
 
 .myNavbar {
-	margin-bottom: 0.5%;
-	min-width: 900px;
-}
-
-.myNavbar.gradientBar, .myNavbar .btn {
-	background: -moz-linear-gradient( rgb(72,76,85), rgb(65,68,77)); /* For Firefox 3.6 to 15 */
-	background: -o-linear-gradient( rgb(72,76,85), rgb(65,68,77)); /* For Opera 11.1 to 12.0 */
-	background: -webkit-linear-gradient(rgb(72,76,85), rgb(65,68,77)); /* For Safari 5.1 to 6.0 */
-	background: linear-gradient( rgb(72,76,85), rgb(65,68,77)); /* Standard syntax (must be last) */
-}
-
-.myNavbar .btn.navbarIconToggleActive {
-	background: extract(@darkGrey, 3);
-	border-bottom: 4px solid extract(@azure, 1);
-}
-
-.myNavbar .btn {
-	border-left: 1px solid extract(@darkGrey, 2);
+  margin-bottom: 0.5%;
+  min-width: 900px;
+  &.gradientBar {
+    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+  }
+  .btn {
+    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+    border-left: 1px solid extract(@darkGrey, 2);
 	border-right: 1px solid extract(@darkGrey, 4);
+    &.navbarIconToggleActive {
+      background: extract(@darkGrey, 3);
+      border-bottom: 4px solid extract(@azure, 1);
+    }
+    i {
+      color: extract(@white, 1);
+    }
+  }
 }
-
-.myNavbar .btn i {color: extract(@white, 1);}
 
 .myNavbarMinimized {
 	background: extract(@white, 3);
@@ -120,11 +127,13 @@ body {
 	width: 33%;
 }
 
-.navbarSettingsButtons {float: right;}
+.navbarSettingsButtons {
+  float: right;
 
-.navbarSettingsButtons .btn {
-	display: block;
+  .btn {
+    display: block;
 	float: right;
+  }
 }
 
 .navbarTitle {
@@ -140,12 +149,14 @@ body {
 .navbarUserButtons {}
 
 .navbarUserButtons .btn {
-	border-radius: 0;
-	display: block;
-	float: left;
+  border-radius: 0;
+  display: block;
+  float: left;
+  &:hover {
+    background: extract(@darkGrey, 3);
+  }
 }
 
-.navbarUserButtons .btn:hover, 
 .navbarSettingsButtons .btn:hover { 
 	background: extract(@darkGrey, 3);
 }
@@ -176,7 +187,14 @@ body {
 
 .tab {height: 40px;}
 
-.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {border-top: 0px;}
+.table > thead > tr > th,
+.table > tbody > tr > th,
+.table > tfoot > tr > th,
+.table > thead > tr > td,
+.table > tbody > tr > td,
+.table > tfoot > tr > td {
+  border-top: 0px;
+}
 
 .title {
 	border-bottom: 1px solid extract(@lightGrey, 1);
@@ -192,23 +210,34 @@ body {
 
 .videoFeedIcon {}
 
+#main {
+  padding-top: 50px;
+  padding-left: 0.25%;
+  padding-right: 0.25%;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-flow: row;
+  flex-flow: row;
+}
+
 /* Custom alert box */
 
 .no-close .ui-dialog-titlebar-close {
   display: none; /* no close button */
 }
 
-.logout-dialog.ui-dialog .ui-widget-header {
-  color: extract(@white, 1);
-  font-size: 12px;
-  font-weight: bold;
-  background: extract(@darkGrey, 3);
-}
-
-.logout-dialog.ui-dialog .ui-dialog-content {
+.logout-dialog.ui-dialog {
+  .ui-widget-header {
+    color: extract(@white, 1);
+    font-size: 12px;
+    font-weight: bold;
+    background: extract(@darkGrey, 3);
+  }
+  .ui-dialog-content {
     font-size: 11px;
     font-weight: bold;
     text-align: center;
+  }
 }
 
 .logout-dialog.ui-widget-content {
@@ -219,4 +248,20 @@ body {
 
 .custom-button {
   background-color: extract(@yellow, 1);
+}
+
+
+.fullScreenPresentation {
+  width: 90% !important;
+  height: 90% !important;
+}
+
+.halfScreen {
+  width: 44% !important;
+  height: 80% !important;
+}
+
+.quarterScreen {
+  width: 22% !important;
+  height: 80% !important;
 }

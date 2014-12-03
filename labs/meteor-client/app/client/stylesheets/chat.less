@@ -6,30 +6,34 @@ bottomEntry {
 	padding-top: 0px;
 }
 
-.chat {
-	list-style: none;
-	margin: 0px;
-	padding: 0px;
-}
-
 #chat {
 	background-color: extract(@white, 2);
 	border: 1px solid extract(@lightGrey, 3);
 	float: left;
 	background: extract(@white, 1);
-	margin-right: 0.5%;
+	margin-left: 0.25%;
+	margin-right: 0.25%;
 	min-height: 500px;
 	overflow: hidden;
-	width: 25%;
+	-webkit-flex: 1 6 25%;
+	flex: 1 6 25%;
+	-webkit-order: 3;
+	order: 3;
 }
 
-.chat li {
-	margin: 0px;
-	padding: 15px;
-	word-wrap: break-word;
+.chat {
+  list-style: none;
+  margin: 0px;
+  padding: 0px;
+  li {
+    margin: 0px;
+    padding: 15px;
+    word-wrap: break-word;
+    &:nth-child(even) {
+      background-color: rgb(245,245,245);
+    }
+  }
 }
-
-.chat li:nth-child(even) {background-color: rgb(245,245,245);}
 
 .chatBarIcon {}
 
@@ -126,12 +130,13 @@ bottomEntry {
 
 .private-chat-user-entry {}
 
-.private-chat-user-list {font-size: 12px;}
-
-.private-chat-user-list :hover {
-	background: extract(@azure, 2);
+.private-chat-user-list {
+  font-size: 12px;
+  :hover {
+    background: extract(@azure, 2);
 	font-size: 14px;
 	font-style: italic;
+  }
 }
 
 .publicChatTab {}
@@ -144,34 +149,33 @@ bottomEntry {
 }
 
 #tabsList {
-	display: table;
-	margin: 0;
-	padding: 0;
-	table-layout: fixed;
-	text-align: center;
-	width: 100%;
+  display: table;
+  margin: 0;
+  padding: 0;
+  table-layout: fixed;
+  text-align: center;
+  width: 100%;
+  a {
+    display: block;
+    min-height: 100%;
+    overflow: hidden;
+    padding: 4px 10px;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size:12px;
+    color: extract(@lightGrey, 4);
+    margin: 0;
+    border-top: 0;
+    border-radius: 0;
+  }
+  li:first-child a {
+    border-left: 0;
+  }
+  &:before, &:after {
+    content: none;
+  }
 }
-
-#tabsList a {
-	display: block;
-	min-height: 100%;
-	overflow: hidden;
-	padding: 4px 10px;
-	text-decoration: none;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	font-size:12px;
-	color: extract(@lightGrey, 4);
-	margin: 0;
-	border-top: 0;
-	border-radius: 0;
-}
-
-#tabsList li:first-child a { 
-	border-left:0;
-}
-
-#tabsList:before, #tabsList:after {content: none;}
 
 .tab { 
 	height:auto !important;

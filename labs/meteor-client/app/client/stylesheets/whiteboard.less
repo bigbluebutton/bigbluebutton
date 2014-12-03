@@ -1,17 +1,21 @@
-#whiteboard {padding: 0 !important;
-	margin-left: 0.5%;
-	margin-right: 0.5%;
-	width: 53%;}
-
-#whiteboard-paper {
-	background-color: white !important;
-	/*height: auto !important;*/
-	margin-left: auto;
-	margin-right: auto;
+#whiteboard {
+  padding: 0 !important;
+  margin-left: 0.25%;
+  margin-right: 0.25%;
+  -webkit-flex: 3 1 53%;
+  flex: 3 1 53%;
+  -webkit-order: 2;
+  order: 2;
 }
 
-#whiteboard-paper #svggroup {
-	display: block;
-	height: 100% !important;
-	width: 100% !important;
+#whiteboard-paper {
+  background-color: white !important;
+  /*height: auto !important;*/
+  margin-left: auto;
+  margin-right: auto;
+  #svggroup {
+    display: block;
+    height: 100% !important;
+    width: 100% !important;
+  }
 }

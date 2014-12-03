@@ -8,6 +8,45 @@ loadLib = (libname) ->
 
   Meteor.Loader.loadJs("http://#{window.location.hostname}/client/lib/#{libname}", successCallback, 10000).fail(retryMessageCallback)
 
+recalculateLayout = ->
+  usersDisplayed = getInSession "display_usersList"
+  whiteboardDisplayed = getInSession "display_whiteboard"
+  chatDisplayed = getInSession "display_chatbar"
+  # If only one module is selected (presentation), it should take up
+  # the entire width of the screen. If it's two modules, each module
+  # should take up 50% of the screen. If it's 3 modules (25%, 50%, 25%)
+
+  console.log "recalculateLayout #{usersDisplayed} #{whiteboardDisplayed} #{chatDisplayed}"
+
+  # clear the default width
+  # $("#users").removeAttr('style')#.css("width","")
+  # $("#whiteboard").removeAttr('style')#.css("width","")
+  # $("#chat").removeAttr('style')#.css("width","")
+
+  if whiteboardDisplayed
+    if chatDisplayed and usersDisplayed
+      $("#users").removeClass("halfScreen").addClass("quarterScreen")
+      $("#whiteboard").removeClass("fullScreenPresentation").addClass("halfScreen")
+      $("#chat").removeClass("halfScreen").addClass("quarterScreen")
+      displaySlide @whiteboardPaperModel
+    else
+      if chatDisplayed or usersDisplayed
+        if chatDisplayed
+          $("#whiteboard").removeClass("fullScreenPresentation").addClass("halfScreen")
+          $("#chat").removeClass("quarterScreen").addClass("halfScreen")
+        if usersDisplayed
+          $("#whiteboard").removeClass("fullScreenPresentation").addClass("halfScreen")
+          $("#users").removeClass("quarterScreen").addClass("halfScreen")
+      else
+        console.log "fullscreen"
+        $("#whiteboard").removeClass("halfScreen").addClass("fullScreenPresentation")
+  else
+    if chatDisplayed
+      $("#chat").removeClass("quarterScreen").addClass("halfScreen")
+      return
+    if usersDisplayed
+      $("#users").removeClass("quarterScreen").addClass("halfScreen")
+      return
 
 # These settings can just be stored locally in session, created at start up
 Meteor.startup ->
@@ -58,6 +97,7 @@ Template.header.events
   "click .chatBarIcon": (event) ->
     $(".tooltip").hide()
     toggleChatbar()
+    #recalculateLayout()
 
   "click .hideNavbarIcon": (event) ->
     $(".tooltip").hide()
@@ -90,6 +130,7 @@ Template.header.events
   "click .usersListIcon": (event) ->
     $(".tooltip").hide()
     toggleUsersList()
+    #recalculateLayout()
 
   "click .videoFeedIcon": (event) ->
     $(".tooltip").hide()
@@ -98,6 +139,7 @@ Template.header.events
   "click .whiteboardIcon": (event) ->
     $(".tooltip").hide()
     toggleWhiteBoard()
+    #recalculateLayout()
 
   "mouseout #navbarMinimizedButton": (event) ->
     $("#navbarMinimizedButton").removeClass("navbarMinimizedButtonLarge")

@@ -15,9 +15,13 @@
 }
 
 #users {
-	margin-left: 0.5%;
+	margin-left: 0.25%;
+	margin-right: 0.25%;
 	padding-bottom: 10px; /*min-width:230px;*/
-	width: 20%;
+	-webkit-flex: 1 6 20%;
+	flex: 1 6 20%;
+	-webkit-order: 1;
+	order: 1;
 }
 
 #user-contents {
@@ -33,10 +37,10 @@
 
 .userListSettingIcon {}
 
-.userNameContainer {
+/* .userNameContainer {
 	border-right: 1px solid extract(@lightGrey, 3);
 	padding-right: 0px;
-}
+} */
 
 .userNameEntry {
 	height: 20px;
