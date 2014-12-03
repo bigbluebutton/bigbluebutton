@@ -35,18 +35,15 @@
 	<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
 	<mate:Listener type="{MeetingMutedEvent.MEETING_MUTED}" method="handleMeetingMuted" />
 	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="handleChangedLockSettingsEvent" />
-	<mate:Listener type="{ChangeStatusBtnEvent.CHANGE_BTN_STATUS}" method="ChangeStatusBtn"/>
+	<mate:Listener type="{ChangeStatusBtnEvent.CHANGE_BTN_STATUS}" method="onStatusChanged"/>
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import flash.system.Security;
-			import flash.system.SecurityPanel;
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
 			import mx.controls.listClasses.IListItemRenderer;
-			import mx.events.DataGridEvent;
 			import mx.core.IFlexDisplayObject;
 			import mx.events.ListEvent;
 			import mx.events.MenuEvent;
@@ -63,7 +60,6 @@
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
-			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
 			import org.bigbluebutton.main.model.users.events.ChangeStatusBtnEvent; 
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
@@ -73,12 +69,9 @@
 			import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
 			import org.bigbluebutton.modules.users.events.UsersEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
-			import org.bigbluebutton.core.events.VoiceConfEvent;
-			import org.bigbluebutton.modules.users.events.UsersEvent;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			import org.bigbluebutton.common.LogUtil;
 			private var dispatcher:Dispatcher;
 			
 			private var keyCombos:Object;
@@ -111,7 +104,6 @@
 			
 			private var muteMeRolled:Boolean = false;
 			
-			private var myMenuStaticHeight:Number = 209;
 			private var moodMenuHeight:Number = -1;
 			
 			private function onCreationComplete():void {
@@ -146,7 +138,6 @@
 				
 				stage.addEventListener(MouseEvent.MOUSE_OVER, handleStageMouseOver);
 				usersGrid.addEventListener(MouseEvent.MOUSE_OVER, handleUsersGridMouseOver);
-				
 			}
 			
 			public function getPrefferedPosition():String{
@@ -227,13 +218,13 @@
 			private function clearAllStatus():void {
 				for (var i:int = 0; i < users.length; i++) {
 					var p:BBBUser = users.getItemAt(i) as BBBUser;
-					if (p.hasMood) dispatchEvent( new ChangeStatusEvent(p.userID, ChangeStatusEvent.CLEAR_STATUS) );
+					if (p.hasMood) {
+						dispatchEvent( new ChangeStatusEvent(p.userID, ChangeStatusEvent.CLEAR_STATUS) );
+					}
 				}
-				// raiseHandBtn.setStyle("icon",images.hand_new);
 			}
 			
 			private function openMoodMenu():void {
-				// everyone can see the audio settings
 				var myMenuData:Array = [];
 				if(partOptions.enableRaiseHand) {
 					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.clearStatus'), icon: images.delete_icon, callback: function():void { changeStatus(ChangeStatusEvent.CLEAR_STATUS); }} );
@@ -308,30 +299,19 @@
 				myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: images.lock_open, handler: lockSettings});
 				
 				
-				// make sure the previous meantnu is closed before opening a new one
+				// make sure the previous menu is closed before opening a new one
 				// This could be improved to include a flag that tells if the menu is open,
 				// but it would require an extra listener for the MenuCloseEvent.
 				if (myMenu) myMenu.hide();
 				
 				myMenu = Menu.createMenu(null, myMenuData, true);
 				
-				var myMenuPos:Point = new Point();
-                                myMenuPos.x = this.x + settingsBtn.x + 1;
-                                myMenuPos.y = this.y + this.height + settingsBtn.height;
-                                
-                                if (myMenuPos.y + myMenuStaticHeight + 2 > stage.stageHeight) {
-                                        myMenuPos.y = this.y + this.height - (5*myMenu.rowHeight) + 7;
-                                }
-                                
-                                myMenu.show(myMenuPos.x, myMenuPos.y);
-                                myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
-                                myMenu.setFocus();
-
-				
-
-
+				myMenu.variableRowHeight = true;
+				myMenu.show(this.x + settingsBtn.x + settingsBtn.width + 2, this.y + this.height);
+				myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
+				myMenu.setFocus();
 			}
-
+			
 			private function menuClickHandler(e:MenuEvent):void {
 				e.item.callback();
 			}
@@ -346,6 +326,7 @@
 				var e:ChangeStatusEvent = new ChangeStatusEvent(UserManager.getInstance().getConference().getMyUserId(), status);
 				dispatchEvent(e);
 			}
+
 			private function lockSettings():void {
 				LogUtil.traceObject("Action: lockSettings");
 				
@@ -448,6 +429,7 @@
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.users.kick') as String)] = KICK_USER;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.users.mute') as String)] = MUTE_USER;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.users.muteall') as String)] = MUTE_ALL_USER;
+				//TODO Include shortcuts to lock control
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.maximize') as String)] = ShortcutEvent.MAXIMIZE_USERS;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.minimize') as String)] = ShortcutEvent.MINIMIZE_USERS;
 			}
@@ -545,59 +527,56 @@
 				focusManager.setFocus(usersGrid);
 				usersGrid.drawFocus(true);
 			}
-				
+			
 			private function remoteMuteAllButPres():void{
 				muteAlmostAll();
 			}
 		
-			public function ChangeStatusBtn(e:ChangeStatusBtnEvent):void{
+			public function onStatusChanged(e:ChangeStatusBtnEvent):void{
 				var icon:String = e.getStatusName();
 				
-				if(e.userId == UserManager.getInstance().getConference().getMyUserId()){
-					switch(icon){
-                                        
-					case "CLEAR_STATUS":
-                                       		raiseHandBtn.setStyle("icon",images.hand_new);
-                                        break;
-                                        case "RAISE_HAND":
-                                                raiseHandBtn.setStyle("icon",images.hand_new);
-                                        break;
-                                        case "AGREE":
-                                                raiseHandBtn.setStyle("icon",images.agree);
-                                        break;
-                                        case "DISAGREE":
-                                                raiseHandBtn.setStyle("icon",images.disagree);
-                                        break;
-                                        case "SPEAK_LOUDER":
-                                                raiseHandBtn.setStyle("icon",images.speak_louder);
-                                        break;
-                                        case "SPEAK_LOWER":
-                                                raiseHandBtn.setStyle("icon",images.speak_lower);
-                                        break;
-                                        case "SPEAK_FASTER":
-                                                raiseHandBtn.setStyle("icon",images.speak_faster);
-                                        break;
-                                        case "SPEAK_SLOWER":
-                                                raiseHandBtn.setStyle("icon",images.speak_slower);
-                                        break;
-                                        case "BE_RIGHT_BACK":
-                                                raiseHandBtn.setStyle("icon",images.be_right_back);
-                                        break;
-                                        case "LAUGHTER":
-                                                raiseHandBtn.setStyle("icon",images.laughter);
-                                        break;
-                                        case "SAD":
-                                                raiseHandBtn.setStyle("icon",images.sad);
-                                        break;
-                                        default:
-                                                raiseHandBtn.setStyle("icon",images.hand_new);
-
-                        		}
+				if (e.userId == UserManager.getInstance().getConference().getMyUserId()) {
+					switch(icon) {
+						case "CLEAR_STATUS":
+							raiseHandBtn.setStyle("icon",images.hand_new);
+							break;
+						case "RAISE_HAND":
+							raiseHandBtn.setStyle("icon",images.hand_new);
+							break;
+						case "AGREE":
+							raiseHandBtn.setStyle("icon",images.agree);
+							break;
+						case "DISAGREE":
+							raiseHandBtn.setStyle("icon",images.disagree);
+							break;
+						case "SPEAK_LOUDER":
+							raiseHandBtn.setStyle("icon",images.speak_louder);
+							break;
+						case "SPEAK_LOWER":
+							raiseHandBtn.setStyle("icon",images.speak_lower);
+							break;
+						case "SPEAK_FASTER":
+							raiseHandBtn.setStyle("icon",images.speak_faster);
+							break;
+						case "SPEAK_SLOWER":
+							raiseHandBtn.setStyle("icon",images.speak_slower);
+							break;
+						case "BE_RIGHT_BACK":
+							raiseHandBtn.setStyle("icon",images.be_right_back);
+							break;
+						case "LAUGHTER":
+							raiseHandBtn.setStyle("icon",images.laughter);
+							break;
+						case "SAD":
+							raiseHandBtn.setStyle("icon",images.sad);
+							break;
+						default:
+							raiseHandBtn.setStyle("icon",images.hand_new);
+							break;
+					}
 				}
-
-                	}	
+			}	
 			
-
 		]]>
 	</mx:Script>
 	
