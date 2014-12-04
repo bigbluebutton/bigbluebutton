@@ -1,0 +1,184 @@
+@import "../colors";
+
+@media all and (min-width: 769px) {
+  bottomEntry {
+    border: none;
+    padding-bottom: 0px;
+    padding-top: 0px;
+  }
+
+  #chat {
+    background-color: extract(@white, 2);
+    border: 1px solid extract(@lightGrey, 3);
+    float: left;
+    background: extract(@white, 1);
+    margin-left: 0.25%;
+    margin-right: 0.25%;
+    min-height: 500px;
+    overflow: hidden;
+    -webkit-flex: 1 6 25%;
+    flex: 1 6 25%;
+    -webkit-order: 3;
+    order: 3;
+  }
+
+  .chat {
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
+    li {
+      margin: 0px;
+      padding: 15px;
+      word-wrap: break-word;
+      &:nth-child(even) {
+        background-color: rgb(245,245,245);
+      }
+    }
+  }
+
+  .chatBarIcon {}
+
+  #chatbar-contents {
+    background-color: extract(@white, 1);
+    height: 90%;
+    padding-left: 0px;
+    padding-right: 0px;
+    width: 100%;
+  }
+
+  #chatbody {
+    height: 80%;
+    overflow-y: scroll;
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+
+  .chatGreeting {
+    color: blue;
+    margin-top: 5px;
+  }
+
+  .chat-input-wrapper {
+    padding:10px;	
+  }
+
+  #chat-options-bar {
+    border-bottom: 1px solid extract(@lightGrey, 3);
+    position: relative;
+    width: 100%;
+  }
+
+  #chat-user-list {padding: 5px;}
+
+  .closeTab {
+    background: transparent;
+    border: 0;
+    color: @black;
+    cursor: pointer;
+    float: left;
+    font-weight: bold;
+    padding: 0;
+    text-shadow: 0 1px 0 extract(@white, 1);
+    -webkit-appearance: none;
+  }
+  .gotUnreadMail{
+    background: extract(@yellow, 2) !important;
+  }
+
+  #MoreChatsDrop {
+    float: right;
+  }
+
+  #MoreChatsbutton {
+    margin-right: 10px;
+    margin-top: 5px;
+    padding-bottom: 0px;
+    padding-top: 0px;
+  }
+
+  #newMessageInput {
+    display:block;
+    float:left;
+    height: 40px;
+    width: 77%;
+    resize: none;
+    padding:5px;
+    border-radius:4px;
+    border:1px solid extract(@lightGrey, 3);
+  }
+
+  .optionsBar {
+    height: 100%;
+    padding-left: 15px;
+    padding-top: 15px;
+  }
+
+  .panel-footer {
+    bottom: 0px;
+    padding: 10px;
+    position: relative;
+    background: extract(@white, 1);
+  }
+
+  .privateChatTab {}
+
+  .private-chat-user-box {
+    border: left 1px grey;
+    height: 60%;
+    padding: 5px;
+    width: 90%;
+  }
+
+  .private-chat-user-entry {}
+
+  .private-chat-user-list {
+    font-size: 12px;
+    :hover {
+      background: extract(@azure, 2);
+      font-size: 14px;
+      font-style: italic;
+    }
+  }
+
+  .publicChatTab {}
+
+  #sendMessageButton {
+    background-color: extract(@azure, 1);
+    height: 40px;
+    margin-left: 8px;
+    color: extract(@white, 1);
+  }
+
+  #tabsList {
+    display: table;
+    margin: 0;
+    padding: 0;
+    table-layout: fixed;
+    text-align: center;
+    width: 100%;
+    a {
+      display: block;
+      min-height: 100%;
+      overflow: hidden;
+      padding: 4px 10px;
+      text-decoration: none;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size:12px;
+      color: extract(@lightGrey, 4);
+      margin: 0;
+      border-top: 0;
+      border-radius: 0;
+    }
+    li:first-child a {
+      border-left: 0;
+    }
+    &:before, &:after {
+      content: none;
+    }
+  }
+
+  .tab { 
+    height:auto !important;
+  }
+}
