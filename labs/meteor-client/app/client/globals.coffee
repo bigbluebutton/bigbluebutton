@@ -30,14 +30,7 @@
 @getInSession = (k) -> SessionAmplify.get k
 
 @getMeetingName = ->
-  meetName = getInSession("meetingName") # check if we actually have one in the session
-  if meetName? then meetName # great return it, no database query
-  else # we need it from the database
-    meet = Meteor.Meetings.findOne({})
-    if meet?.meetingName
-      setInSession "meetingName", meet?.meetingName # store in session for fast access next time
-      meet?.meetingName
-    else "your meeting"
+  return Meteor.Meetings.findOne().meetingName or "your meeting"
 
 @getTime = -> # returns epoch in ms
   (new Date).valueOf()
@@ -242,7 +235,6 @@ Handlebars.registerHelper "visibility", (section) ->
   console.log "clearSessionVar"
   setInSession "userId", null
   setInSession "meetingId", null
-  setInSession "meetingName", null
   setInSession "authToken", null
   setInSession "bbbServerVersion", null
   setInSession "userName", null
