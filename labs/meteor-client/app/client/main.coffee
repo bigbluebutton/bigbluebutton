@@ -68,18 +68,6 @@ Meteor.startup ->
       return
   )
 
-  setInSession "display_usersList", true
-  setInSession "display_navbar", true
-  setInSession "display_chatbar", true
-  setInSession "display_whiteboard", true
-  setInSession "display_chatPane", true
-  setInSession "joinedAt", getTime()
-  setInSession "inChatWith", 'PUBLIC_CHAT'
-  setInSession "messageFontSize", 12
-  setInSession "dateOfBuild", Meteor.config?.dateOfBuild or "UNKNOWN DATE"
-  setInSession "bbbServerVersion", Meteor.config?.bbbServerVersion or "UNKNOWN VERSION"
-  setInSession "displayChatNotifications", true
-
 Template.footer.helpers
   getFooterString: ->
     # info = Meteor.call('getServerInfo')
