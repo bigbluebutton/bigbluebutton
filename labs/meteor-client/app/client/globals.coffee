@@ -30,7 +30,7 @@
 @getInSession = (k) -> SessionAmplify.get k
 
 @getMeetingName = ->
-  return Meteor.Meetings.findOne().meetingName or "your meeting"
+  return Meteor.Meetings.findOne()?.meetingName or "your meeting"
 
 @getTime = -> # returns epoch in ms
   (new Date).valueOf()
@@ -230,16 +230,26 @@ Handlebars.registerHelper "visibility", (section) ->
   Meteor.call("userLogout", meeting, user, getInSession("authToken"))
   Router.go('logout') # navigate to logout
 
-# Clear the local user session and redirect them away
+# Clear the local user session
 @clearSessionVar = ->
+  delete SessionAmplify.keys['authToken']
+  delete SessionAmplify.keys['bbbServerVersion']
+  delete SessionAmplify.keys['chatTabs']
+  delete SessionAmplify.keys['dateOfBuild']
+  # delete SessionAmplify.keys['displayChatNotifications']
+  # delete SessionAmplify.keys['display_chatPane']
+  # delete SessionAmplify.keys['display_chatbar']
+  # delete SessionAmplify.keys['display_navbar']
+  # delete SessionAmplify.keys['display_usersList']
+  # delete SessionAmplify.keys['display_whiteboard']
+  delete SessionAmplify.keys['inChatWith']
+  delete SessionAmplify.keys['joinedAt']
+  delete SessionAmplify.keys['meetingId']
+  delete SessionAmplify.keys['messageFontSize']
+  delete SessionAmplify.keys['tabsRenderedTime']
+  delete SessionAmplify.keys['userId']
+  delete SessionAmplify.keys['userName']
   console.log "clearSessionVar"
-  setInSession "userId", null
-  setInSession "meetingId", null
-  setInSession "authToken", null
-  setInSession "bbbServerVersion", null
-  setInSession "userName", null
-  setInSession "chatTabs", null
-  #setInSession "display_navbar", false # needed to hide navbar when the layout template renders
 
 # applies zooming to the stroke thickness
 @zoomStroke = (thickness) ->
