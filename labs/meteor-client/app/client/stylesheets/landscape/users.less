@@ -1,0 +1,53 @@
+@import "../colors";
+
+@media all and (min-width: 769px) {
+  #content {
+    margin-top:10px;
+    padding-bottom:10px;
+  }
+
+  #usericons {
+    margin-left:10px;
+    float:right;
+  }
+
+  #username {
+    float:left;
+  }
+
+  #users {
+    margin-left: 0.25%;
+    margin-right: 0.25%;
+    padding-bottom: 10px; /*min-width:230px;*/
+    -webkit-flex: 1 6 20%;
+    flex: 1 6 20%;
+    -webkit-order: 1;
+    order: 1;
+  }
+
+  #user-contents {
+    height: 95%;
+    padding-bottom: 10px;
+  }
+
+  .userCurrent {
+    font-weight: bold;
+  }
+
+  .usersListIcon {}
+
+  .userListSettingIcon {}
+
+  /* .userNameContainer {
+    border-right: 1px solid extract(@lightGrey, 3);
+    padding-right: 0px;
+  } */
+
+  .userNameEntry {
+    height: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100px;
+  }
+}
