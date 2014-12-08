@@ -398,6 +398,7 @@ module BigBlueButton
       s = text.to_s
       s.gsub!( generic_URL_regexp, '\1<a href="\2">\2</a>' )
       s.gsub!( starts_with_www_regexp, '\1<a href="http://\2">\2</a>' )
+      s.gsub!('href="event:', 'href="')
       s
     end
 
